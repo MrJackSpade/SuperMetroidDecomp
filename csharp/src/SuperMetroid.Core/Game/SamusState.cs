@@ -845,11 +845,33 @@ public sealed class SamusState
     public ushort KnockbackXDirection { get; set; }
 
     /// <summary>
+    /// WRAM `$18A8`, the general Samus invincibility timer tested by enemy, projectile,
+    /// ordinary spike, spike-air, and grapple-swing damage producers. Bank `$A0:9169`
+    /// decrements it once near the end of every gameplay frame, after all those producers
+    /// have had an opportunity to reject or publish damage.
+    /// </summary>
+    public ushort InvincibilityTimer { get; set; }
+
+    /// <summary>
     /// WRAM `$18AA`, initialized to five by bank `$A0` damage collision and decremented once
     /// per enemy-processing pass. The translated special handler owns movement only while
     /// this counter remains nonzero.
     /// </summary>
     public ushort KnockbackTimer { get; set; }
+
+    /// <summary>
+    /// Ports the two Samus-owned words from <c>DecrementSamusHurtTimers</c> at
+    /// <c>$A0:9169-$9178</c>. This deliberately lives outside every individual movement
+    /// handler: grapple spikes can start the timers without installing knockback movement,
+    /// and the native gameplay tail ages them even while time is frozen.
+    /// </summary>
+    public void DecrementHurtTimers()
+    {
+        if (InvincibilityTimer != 0)
+            InvincibilityTimer--;
+        if (KnockbackTimer != 0)
+            KnockbackTimer--;
+    }
 
     /// <summary>
     /// Bank-$9B's grapple-beam state. Keeping this as a named child object makes the original

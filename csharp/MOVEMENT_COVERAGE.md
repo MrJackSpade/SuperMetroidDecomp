@@ -33,7 +33,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$13` | Spring ball falling | `$7D/$7E`, air/water/lava X/gravity, persistent external X/Y displacement and bounce override, held-jump relaunch, automatic bounce, solid/frozen-enemy clipping, normal-bomb deployment | Bombable-block PLMs, live enemy actor producer |
 | `$14` | Wall jumping | `$83/$84`, air/water/lava normal/Hi-Jump launch tables, variable height, submerged `$FB` selection, spin handoff, terrain/solid-enemy launch and landing | Live enemy actor/shake consumer, sound/contact-damage side effects |
 | `$15` | Ran into a wall | `$89/$8A/$CF-$D2`, terrain/solid-enemy prospective-run selector, one-pixel probe, persistent external X/Y displacement, aim/fallback/turn/jump/walk-off routes, grounded cleanup and liquid animation state | Live enemy actor producer |
-| `$16` | Grappling | ROM-backed firing, four-step block collision, persistent type-`$E` acquisition/validation, all 30 standing/crouching/vertical connection records, `$B2/$B3` air/water pendulum, `$A8-$AB/$B4-$B7` locked poses, per-pixel rope collision, six-point terrain sweep/reflection, collision kick, all eight exact locked/wallgrab angles, `$B8/$B9` terrain/solid-enemy grace-window wall jump, dropped-pose tables, release `$51/$52` plus persistent air/water/lava `$90:946E` motion, ROM art/beam DMA and OAM | Enemy acquisition, grapple spike-damage side effects, breakable PLMs, live enemy actor/shake consumer |
+| `$16` | Grappling | ROM-backed firing, four-step block collision, persistent type-`$E` acquisition/validation, type-`$A` cancellation/Draygon-turret damage, all 30 standing/crouching/vertical connection records, `$B2/$B3` air/water pendulum, `$A8-$AB/$B4-$B7` locked poses, per-pixel rope collision, six-point terrain sweep/reflection with exact spike-air/spike-block damage tables, collision kick, all eight exact locked/wallgrab angles, `$B8/$B9` terrain/solid-enemy grace-window wall jump, dropped-pose tables, release `$51/$52` plus persistent air/water/lava `$90:946E` motion, ROM art/beam DMA and OAM | Enemy acquisition, breakable PLMs, live enemy actor/shake consumer |
 | `$17` | Turning while jumping | Grounded-Y crouch turns `$97-$9A/$A2/$A3`; airborne `$2F/$30/$8F-$92/$9E/$9F`, persistent external X/Y displacement, momentum, collision, `$F8` | No unadmitted reachable pose branch found; shared presentation/producer gaps remain tracked below |
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, persistent external X/Y displacement, momentum, gravity/collision, `$F8` | No unadmitted reachable pose branch found; shared presentation/producer gaps remain tracked below |
 | `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, persistent external X/Y displacement, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | Live enemy producer |
@@ -829,7 +829,9 @@ translated status is documented with the Morph Ball family below.
   collision, negates arithmetic half base/extra velocity, and opens the 16-frame kick window.
 - `$94:A957` applies the direction-sensitive anchor low nibble (7 or 8) before both collision
   and drawing. Air, solid, slope, extension, and spike collision carry semantics follow the
-  grapple-specific dispatcher; spike damage accumulation remains a separate gap.
+  grapple-specific dispatcher. `$94:AA9E/$AB17` now apply the exact spike-air and solid-spike
+  BTS damage tables, including the per-sweep invincibility guard and `$A0:9169` timer aging;
+  firing into type-`$A` also preserves Draygon-turret BTS-three's one-damage connection.
 - Persistent block anchors are revalidated at `$9B:B8F1` on every connected frame. Air
   replacement queues moving release or the motionless dropped handler. `$9B:C8C5` selects
   `$01/$02` directly for `$B2/$B3`, otherwise reads the standing `$C9BA` or compact `$C9C4`
@@ -1040,5 +1042,5 @@ Ridley-afterburn-first chain, and the typewriter glyph family.
    afterburn chain, and typewriter glyph producers.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.
-4. Grapple breakable PLMs and spike-damage side effects.
+4. Grapple breakable PLMs.
 5. Return with bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.

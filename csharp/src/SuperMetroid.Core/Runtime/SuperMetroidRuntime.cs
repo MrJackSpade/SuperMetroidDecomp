@@ -2506,6 +2506,14 @@ public sealed class SuperMetroidRuntime
                 VramWrites);
         }
 
+        // Gameplay state eight calls `$A0:9169` after Samus, enemies, drawing, HUD/BG
+        // bookkeeping, room main ASM, the energy-zero check, and room shaking. Keep this
+        // shared tail out of individual movement handlers: in particular, grapple spike
+        // reactions set `$18A8/$18AA` without installing the bank-$90 knockback handler.
+        // Death game states do not execute the gameplay-state tail at all.
+        if (Samus is not null && !Samus.DeathSequence.IsActive)
+            Samus.DecrementHurtTimers();
+
         // `$0A11` is a one-byte previous-movement snapshot used by X-ray admission on the
         // following gameplay frame. Update it only after every pose/animation transition
         // and special teardown above has settled on the frame's final pose.

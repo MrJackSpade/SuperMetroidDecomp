@@ -562,6 +562,23 @@ public sealed class SamusLiquidPhysicsState
         PeriodicDamage = 0;
     }
 
+    /// <summary>
+    /// Adds one native 16.16 periodic-damage contribution to WRAM `$0A4E.$0A50`.
+    /// </summary>
+    /// <remarks>
+    /// Liquid damage reads its operands from ROM, while block and enemy reactions supply
+    /// literal values. They all use the same 65816 <c>CLC/ADC/STA; LDA/ADC/STA</c> carry
+    /// chain, so keeping that operation here prevents each producer from quietly dropping
+    /// a fractional overflow into the whole-energy word.
+    /// </remarks>
+    public void AccumulatePeriodicDamage(ushort subDamage, ushort wholeDamage)
+    {
+        uint fractional = (uint)PeriodicSubDamage + subDamage;
+        PeriodicSubDamage = unchecked((ushort)fractional);
+        PeriodicDamage = unchecked((ushort)(
+            PeriodicDamage + wholeDamage + (fractional >> 16)));
+    }
+
     private void SpawnWaterSplash(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -709,10 +726,9 @@ public sealed class SamusLiquidPhysicsState
         int subDamageAddress,
         int damageAddress)
     {
-        uint fractional = (uint)PeriodicSubDamage + ReadWord(bus, subDamageAddress);
-        PeriodicSubDamage = unchecked((ushort)fractional);
-        PeriodicDamage = unchecked((ushort)(
-            PeriodicDamage + ReadWord(bus, damageAddress) + (fractional >> 16)));
+        AccumulatePeriodicDamage(
+            ReadWord(bus, subDamageAddress),
+            ReadWord(bus, damageAddress));
     }
 
     private void QueueSound(byte library, byte soundId, byte maximumQueued) =>

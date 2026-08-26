@@ -168,11 +168,6 @@ public static class SamusKnockbackMovement
             samus.Kinematics.YDirection = 0;
         }
 
-        // Gameplay state eight calls `$A0:9169` near the end of its frame, after Samus,
-        // enemies, camera, drawing, room ASM, and game-time work. Publish that same next-
-        // frame timer value only after the special handler has consumed this frame.
-        samus.KnockbackTimer--;
-
         return new KnockbackMovementResult(
             horizontal,
             vertical,

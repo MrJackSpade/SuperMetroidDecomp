@@ -15,10 +15,11 @@ namespace SuperMetroid.Core.Game;
 /// those responsibilities separate from ordinary aerial movement. Firing, persistent grapple
 /// blocks, per-pixel rope adjustment, and the six-point angular terrain sweep are translated
 /// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and retains
-/// the enemy slot to shake. Breakable PLMs, spike damage, enemy acquisition, and the live
-/// enemy/shake loop remain explicit later routes rather than being approximated. Grapple's
-/// narrower water flag and persistent environment-selected release handler are translated
-/// rather than collapsed into ordinary aerial movement.
+/// the enemy slot to shake. The firing-only Draygon-turret damage and both BTS-indexed swing
+/// spike-damage tables are translated through the shared periodic-damage words. Breakable
+/// PLMs, enemy acquisition, and the live enemy/shake loop remain explicit later routes rather
+/// than being approximated. Grapple's narrower water flag and persistent environment-selected
+/// release handler are translated rather than collapsed into ordinary aerial movement.
 /// </remarks>
 public static class SamusGrappleMovement
 {
@@ -204,7 +205,11 @@ public static class SamusGrappleMovement
             grapple.EndpointYOffsetFixed = unchecked(grapple.EndpointYOffsetFixed + ySubstep);
             PublishFiringGeometry(samus, grapple);
 
-            GrappleBlockReaction reaction = ReactAtEndpoint(level, grapple.AnchorX, grapple.AnchorY);
+            GrappleBlockReaction reaction = ReactAtEndpoint(
+                level,
+                samus,
+                grapple.AnchorX,
+                grapple.AnchorY);
             if (!reaction.Carry)
                 continue;
             if (!reaction.Overflow)
@@ -391,11 +396,15 @@ public static class SamusGrappleMovement
         }
 
         ApplyRopeAndDirectionInput(grapple, controllerInput, newlyPressedInput);
-        bool ropeLengthBlocked = ApplyRopeLengthDelta(bus, level, grapple);
+        bool ropeLengthBlocked = ApplyRopeLengthDelta(bus, level, samus, grapple);
         CalculateGravity(grapple);
         IntegrateAngularVelocity(grapple);
         ApplyJumpImpulse(grapple, newlyPressedInput);
-        GrappleSwingCollisionResult terrain = AdvanceAngleWithTerrainCollision(bus, level, grapple);
+        GrappleSwingCollisionResult terrain = AdvanceAngleWithTerrainCollision(
+            bus,
+            level,
+            samus,
+            grapple);
 
         // `$9B:BAD5` scans all eight ROM records only when bank $94 raised the close-body
         // flag. A match replaces pendulum positioning for this frame with the table's exact
@@ -417,7 +426,7 @@ public static class SamusGrappleMovement
             };
         }
 
-        if (grapple.ValidateAnchorBlock && !IsStillConnectedToSupportedBlock(level, grapple))
+        if (grapple.ValidateAnchorBlock && !IsStillConnectedToSupportedBlock(level, samus, grapple))
         {
             // The persistent block path normally remains connected forever. Retain the
             // native validation seam so a future dynamic/breakable PLM cannot leave a rope
@@ -472,7 +481,8 @@ public static class SamusGrappleMovement
         // `$9B:C77E` does no pendulum work. It merely retains the frozen pose while Shoot
         // remains held and either an enemy or the stored block still supports the endpoint.
         bool shootHeld = (controllerInput & (ushort)SnesButton.X) != 0;
-        bool anchorHeld = !grapple.ValidateAnchorBlock || IsStillConnectedToSupportedBlock(level, grapple);
+        bool anchorHeld = !grapple.ValidateAnchorBlock ||
+            IsStillConnectedToSupportedBlock(level, samus, grapple);
         if (shootHeld && anchorHeld)
         {
             return new GrappleMovementResult(
@@ -504,7 +514,8 @@ public static class SamusGrappleMovement
     {
         SamusGrappleState grapple = samus.Grapple;
         bool shootHeld = (controllerInput & (ushort)SnesButton.X) != 0;
-        bool anchorHeld = !grapple.ValidateAnchorBlock || IsStillConnectedToSupportedBlock(level, grapple);
+        bool anchorHeld = !grapple.ValidateAnchorBlock ||
+            IsStillConnectedToSupportedBlock(level, samus, grapple);
         if (shootHeld && anchorHeld)
         {
             return new GrappleMovementResult(
@@ -905,6 +916,7 @@ public static class SamusGrappleMovement
 
     private static GrappleBlockReaction ReactAtEndpoint(
         RoomLevelData level,
+        SamusState samus,
         ushort endpointX,
         ushort endpointY)
     {
@@ -952,6 +964,24 @@ public static class SamusGrappleMovement
                 case 8:
                 case 9:
                 case 0x0b:
+                    return new GrappleBlockReaction(Carry: true, Overflow: false);
+
+                case 0x0a:
+                    // `$94:A7FD` selects a bank-$84 grapple-reaction PLM by the low seven
+                    // BTS bits. A negative BTS rejects the beam. Every ordinary entry uses
+                    // `$84:CFD1` (carry set, overflow clear) and immediately deletes; BTS
+                    // three alone uses Draygon's broken-turret setup `$84:CFD5`, which adds
+                    // one whole periodic-damage unit and returns carry+overflow to connect.
+                    if ((block.Behavior & 0x80) != 0)
+                        return new GrappleBlockReaction(Carry: false, Overflow: false);
+                    if (block.Behavior == 3)
+                    {
+                        samus.LiquidPhysics.AccumulatePeriodicDamage(
+                            subDamage: 0,
+                            wholeDamage: 1);
+                        return new GrappleBlockReaction(Carry: true, Overflow: true);
+                    }
+
                     return new GrappleBlockReaction(Carry: true, Overflow: false);
 
                 case 5:
@@ -1247,6 +1277,7 @@ public static class SamusGrappleMovement
     private static bool ApplyRopeLengthDelta(
         ISnesAddressSpace bus,
         RoomLevelData level,
+        SamusState samus,
         SamusGrappleState grapple)
     {
         if (grapple.RopeLengthDelta == 0)
@@ -1290,7 +1321,7 @@ public static class SamusGrappleMovement
                 grapple,
                 unchecked((byte)(grapple.Angle >> 8)),
                 probeDistance);
-            if (IsSwingCollision(level, point.BlockX, point.BlockY))
+            if (IsSwingCollision(level, samus, point.BlockX, point.BlockY))
             {
                 // Native stores GrappleCollision_NewBeamLength, which is the last accepted
                 // length rather than the colliding candidate. It deliberately leaves the
@@ -1388,6 +1419,7 @@ public static class SamusGrappleMovement
     private static GrappleSwingCollisionResult AdvanceAngleWithTerrainCollision(
         ISnesAddressSpace bus,
         RoomLevelData level,
+        SamusState samus,
         SamusGrappleState grapple)
     {
         // $94:ACFE first converts angular velocity into an angle delta, then walks from the
@@ -1416,6 +1448,7 @@ public static class SamusGrappleMovement
             GrappleSwingCollisionResult collision = ProbeSwingingBody(
                 bus,
                 level,
+                samus,
                 grapple,
                 candidateAngleByte);
             if (collision.Collided)
@@ -1475,6 +1508,7 @@ public static class SamusGrappleMovement
     private static GrappleSwingCollisionResult ProbeSwingingBody(
         ISnesAddressSpace bus,
         RoomLevelData level,
+        SamusState samus,
         SamusGrappleState grapple,
         byte candidateAngleByte)
     {
@@ -1489,7 +1523,7 @@ public static class SamusGrappleMovement
                 grapple,
                 candidateAngleByte,
                 distance);
-            if (IsSwingCollision(level, point.BlockX, point.BlockY))
+            if (IsSwingCollision(level, samus, point.BlockX, point.BlockY))
             {
                 return new GrappleSwingCollisionResult(
                     Collided: true,
@@ -1532,7 +1566,11 @@ public static class SamusGrappleMovement
             BlockY: (y >> 4) & 0xff);
     }
 
-    private static bool IsSwingCollision(RoomLevelData level, int blockX, int blockY)
+    private static bool IsSwingCollision(
+        RoomLevelData level,
+        SamusState samus,
+        int blockX,
+        int blockY)
     {
         if ((uint)blockX >= (uint)level.WidthInBlocks ||
             (uint)blockY >= (uint)level.HeightInBlocks)
@@ -1558,24 +1596,36 @@ public static class SamusGrappleMovement
                 // The swing dispatcher intentionally treats shootable/bombable air as air;
                 // unlike a firing endpoint, body contact does not spawn their PLMs.
                 case 0:
-                case 2: // spike-air damage is a separate side effect; collision stays clear
                 case 3:
                 case 4:
                 case 6:
                 case 7:
                     return false;
 
+                case 2:
+                    // `$94:AA9E` has a mostly-zero BTS table: only spike-air BTS two queues
+                    // `$0010` damage. It never collides, but it still starts the common
+                    // 60-frame invulnerability and 10-frame knockback timers. The timer
+                    // check must precede the BTS lookup so a second radial probe in this
+                    // same six-point sweep cannot queue damage again.
+                    ApplySwingSpikeDamage(samus, block.Behavior, solidSpike: false);
+                    return false;
+
                 // Slopes are unconditional collision in this grapple-specific dispatcher.
-                // Spike blocks also damage Samus before returning set carry; their movement
-                // result remains solid while the broader damage producer is still absent.
                 case 1:
                 case 8:
                 case 9:
-                case 0x0a:
                 case 0x0b:
                 case 0x0c:
                 case 0x0e:
                 case 0x0f:
+                    return true;
+
+                case 0x0a:
+                    // `$94:AB17` always reports collision. Before setting carry it applies
+                    // `$003C` for BTS zero or `$0010` for BTS one; every other entry is
+                    // literally zero. A negative BTS skips the table entirely.
+                    ApplySwingSpikeDamage(samus, block.Behavior, solidSpike: true);
                     return true;
 
                 case 5:
@@ -1601,13 +1651,49 @@ public static class SamusGrappleMovement
 
     private static bool IsStillConnectedToSupportedBlock(
         RoomLevelData level,
+        SamusState samus,
         SamusGrappleState grapple)
     {
         // $9B:B8F1 calls the firing block dispatcher again at the stored endpoint and tests
         // carry only. Persistent type-$E/BTS-$00 or $03 therefore stays connected; replacing
         // it with air disconnects. PLM-producing dynamic blocks retain their explicit stop.
-        GrappleBlockReaction reaction = ReactAtEndpoint(level, grapple.AnchorX, grapple.AnchorY);
+        GrappleBlockReaction reaction = ReactAtEndpoint(
+            level,
+            samus,
+            grapple.AnchorX,
+            grapple.AnchorY);
         return reaction.Carry;
+    }
+
+    private static void ApplySwingSpikeDamage(
+        SamusState samus,
+        byte behavior,
+        bool solidSpike)
+    {
+        // Both native handlers return immediately while `$18A8` is nonzero or when BTS is
+        // negative. This shared guard is observable because one sweep can sample the same
+        // damaging block up to six times, yet only its first sample may publish damage.
+        if (samus.InvincibilityTimer != 0 || (behavior & 0x80) != 0)
+            return;
+
+        ushort damage = solidSpike
+            ? behavior switch
+            {
+                0 => (ushort)0x003c,
+                1 => (ushort)0x0010,
+                _ => (ushort)0,
+            }
+            : behavior == 2
+                ? (ushort)0x0010
+                : (ushort)0;
+        if (damage == 0)
+            return;
+
+        samus.LiquidPhysics.AccumulatePeriodicDamage(
+            subDamage: 0,
+            wholeDamage: damage);
+        samus.InvincibilityTimer = 0x003c;
+        samus.KnockbackTimer = 0x000a;
     }
 
     private static short NegatedArithmeticHalf(short value) =>

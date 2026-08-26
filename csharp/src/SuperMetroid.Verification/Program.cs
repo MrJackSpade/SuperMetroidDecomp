@@ -7129,6 +7129,9 @@ static void VerifySamusKnockbackAndDamageBoost()
     AssertEqual((ushort)0, samus.Kinematics.YSubspeed, "knockback dry-air subspeed");
 
     KnockbackMovementResult hurtFrame = SamusKnockbackMovement.Step(bus, empty, samus, 0);
+    // Movement consumes the current timer; gameplay state eight then calls `$A0:9169`
+    // after drawing/room work. Keep that distinct owner visible in this direct subsystem test.
+    samus.DecrementHurtTimers();
     AssertEqual((ushort)4, samus.KnockbackTimer, "first hurt frame decrements timer");
     AssertEqual(0x00004000, hurtFrame.Horizontal!.Value.AcceptedDisplacement,
         "knockback moves in bank-$A0 X direction");
@@ -7238,8 +7241,11 @@ static void VerifySamusKnockbackAndDamageBoost()
     };
     SamusKnockbackMovement.Start(bus, expires, 0, knockbackXDirection: 1);
     for (int frame = 0; frame < 5; frame++)
+    {
         AssertTrue(!SamusKnockbackMovement.Step(bus, empty, expires, (ushort)frame).Ended,
             $"hurt movement frame {frame + 1} remains active");
+        expires.DecrementHurtTimers();
+    }
     ushort humanoidYBeforeCompletion = expires.YPosition;
     KnockbackMovementResult expired = SamusKnockbackMovement.Step(bus, empty, expires, 5);
     AssertTrue(expired.Ended, "zero hurt timer ends special handler");
@@ -7313,7 +7319,10 @@ static void VerifySamusKnockbackAndDamageBoost()
     ushort retainedBallFrame = ballExpires.AnimationFrame;
     ushort retainedBallTimer = ballExpires.AnimationFrameTimer;
     for (int frame = 0; frame < 5; frame++)
+    {
         SamusKnockbackMovement.Step(bus, empty, ballExpires, unchecked((ushort)frame));
+        ballExpires.DecrementHurtTimers();
+    }
     KnockbackMovementResult ballExpired = SamusKnockbackMovement.Step(
         bus,
         empty,
@@ -7651,6 +7660,49 @@ static void VerifySamusGrappleSwingAndRelease()
         bus, solidLevel, solidCollisionSamus, (ushort)SnesButton.X);
     AssertTrue(solidCancellation.CancelQueued && !solidCancellation.Connected,
         "solid block queues grapple firing cancellation");
+
+    // Type `$A` does not use the generic solid result during grapple firing. `$94:A7FD`
+    // spawns one of sixteen bank-$84 entries: ordinary nonnegative BTS values run the
+    // carry-set/overflow-clear setup and cancel, while BTS three is Draygon's broken turret
+    // and queues one whole periodic-damage unit before returning carry+overflow to connect.
+    foreach ((byte behavior, bool expectedConnection, bool expectedCancellation, ushort expectedDamage) in new[]
+    {
+        ((byte)0x00, false, true, (ushort)0),
+        ((byte)0x03, true, false, (ushort)1),
+        ((byte)0x83, false, false, (ushort)0),
+    })
+    {
+        var spikeBlocks = new ushort[8 * 8];
+        var spikeBts = new byte[spikeBlocks.Length];
+        spikeBlocks[3 * 8 + 3] = 0xa000;
+        spikeBts[3 * 8 + 3] = behavior;
+        var spikeLevel = new RoomLevelData(
+            8,
+            8,
+            spikeBlocks,
+            spikeBts,
+            new ushort[spikeBlocks.Length],
+            new byte[8]);
+        var spikeSamus = new SamusState
+        {
+            Pose = SamusState.FallingRightPose,
+            XPosition = 32,
+            YPosition = 48,
+        };
+        spikeSamus.Kinematics.YSpeed = 1;
+        SamusGrappleMovement.BeginFiring(bus, spikeSamus);
+        SamusGrappleMovement.StepFiring(
+            bus, spikeLevel, spikeSamus, (ushort)SnesButton.X);
+        GrappleMovementResult spikeReaction = SamusGrappleMovement.StepFiring(
+            bus, spikeLevel, spikeSamus, (ushort)SnesButton.X);
+
+        AssertEqual(expectedConnection, spikeReaction.Connected,
+            $"firing spike BTS ${behavior:X2} connection flag");
+        AssertEqual(expectedCancellation, spikeReaction.CancelQueued,
+            $"firing spike BTS ${behavior:X2} cancellation flag");
+        AssertEqual(expectedDamage, spikeSamus.LiquidPhysics.PeriodicDamage,
+            $"firing spike BTS ${behavior:X2} periodic damage");
+    }
 
     // Length grows before collision checks. Values 12..120 receive their four probes, but
     // the next addition produces 132 and queues cancellation without moving the endpoint.
@@ -8027,6 +8079,116 @@ static void VerifySamusGrappleSwingAndRelease()
         "grapple collision negates arithmetic half velocity");
     AssertEqual((ushort)16, angularCollisionSamus.Grapple.CollisionBounceTimer,
         "grapple collision opens sixteen-frame kick window");
+
+    // The same six-point radial sweep has two damage-producing dispatcher entries. Solid
+    // spike BTS zero/one queue `$003C/$0010` and still collide. Every other table entry is
+    // literal zero, while a negative BTS skips the table. Use a fresh Samus for each row so
+    // `$18A8` does not mask the next fixture's first contact.
+    foreach ((byte behavior, ushort expectedDamage) in new[]
+    {
+        ((byte)0x00, (ushort)0x003c),
+        ((byte)0x01, (ushort)0x0010),
+        ((byte)0x02, (ushort)0x0000),
+        ((byte)0x80, (ushort)0x0000),
+    })
+    {
+        var spikeBlockWords = new ushort[16 * 16];
+        var spikeBlockBts = new byte[spikeBlockWords.Length];
+        spikeBlockWords[8 * 16 + 11] = 0xa000;
+        spikeBlockBts[8 * 16 + 11] = behavior;
+        var spikeBlockLevel = new RoomLevelData(
+            16,
+            16,
+            spikeBlockWords,
+            spikeBlockBts,
+            new ushort[spikeBlockWords.Length],
+            new byte[16]);
+        var spikeBlockSamus = new SamusState();
+        SamusGrappleMovement.ConnectUnobstructedSwing(
+            bus,
+            spikeBlockSamus,
+            anchorX: 128,
+            anchorY: 128,
+            ropeLength: 32,
+            angle: 0x4000,
+            angularVelocity: 0x0100,
+            faceRight: true);
+        GrappleMovementResult spikeBlockContact = SamusGrappleMovement.Step(
+            bus,
+            spikeBlockLevel,
+            spikeBlockSamus,
+            (ushort)SnesButton.X,
+            newlyPressedInput: 0);
+
+        AssertTrue(spikeBlockContact.TerrainCollided,
+            $"solid grapple spike BTS ${behavior:X2} remains collision");
+        AssertEqual(expectedDamage, spikeBlockSamus.LiquidPhysics.PeriodicDamage,
+            $"solid grapple spike BTS ${behavior:X2} damage table");
+        AssertEqual(expectedDamage == 0 ? (ushort)0 : (ushort)0x003c,
+            spikeBlockSamus.InvincibilityTimer,
+            $"solid grapple spike BTS ${behavior:X2} invincibility publication");
+        AssertEqual(expectedDamage == 0 ? (ushort)0 : (ushort)0x000a,
+            spikeBlockSamus.KnockbackTimer,
+            $"solid grapple spike BTS ${behavior:X2} knockback-timer publication");
+    }
+
+    // Spike-air never stops the pendulum. Only BTS two has nonzero damage; because the
+    // axis-aligned fixture samples block (11,8) more than once, an exact `$0010` result also
+    // proves the first sample's invincibility timer suppresses later samples in this frame.
+    foreach ((byte behavior, ushort expectedDamage) in new[]
+    {
+        ((byte)0x00, (ushort)0x0000),
+        ((byte)0x02, (ushort)0x0010),
+        ((byte)0x82, (ushort)0x0000),
+    })
+    {
+        var spikeAirWords = new ushort[16 * 16];
+        var spikeAirBts = new byte[spikeAirWords.Length];
+        spikeAirWords[8 * 16 + 11] = 0x2000;
+        spikeAirBts[8 * 16 + 11] = behavior;
+        var spikeAirLevel = new RoomLevelData(
+            16,
+            16,
+            spikeAirWords,
+            spikeAirBts,
+            new ushort[spikeAirWords.Length],
+            new byte[16]);
+        var spikeAirSamus = new SamusState();
+        SamusGrappleMovement.ConnectUnobstructedSwing(
+            bus,
+            spikeAirSamus,
+            anchorX: 128,
+            anchorY: 128,
+            ropeLength: 32,
+            angle: 0x4000,
+            angularVelocity: 0x0100,
+            faceRight: true);
+        GrappleMovementResult spikeAirContact = SamusGrappleMovement.Step(
+            bus,
+            spikeAirLevel,
+            spikeAirSamus,
+            (ushort)SnesButton.X,
+            newlyPressedInput: 0);
+
+        AssertTrue(!spikeAirContact.TerrainCollided,
+            $"grapple spike-air BTS ${behavior:X2} remains noncollision");
+        AssertEqual(expectedDamage, spikeAirSamus.LiquidPhysics.PeriodicDamage,
+            $"grapple spike-air BTS ${behavior:X2} damage table");
+        AssertEqual(expectedDamage == 0 ? (ushort)0 : (ushort)0x003c,
+            spikeAirSamus.InvincibilityTimer,
+            $"grapple spike-air BTS ${behavior:X2} invincibility publication");
+        AssertEqual(expectedDamage == 0 ? (ushort)0 : (ushort)0x000a,
+            spikeAirSamus.KnockbackTimer,
+            $"grapple spike-air BTS ${behavior:X2} knockback-timer publication");
+        if (expectedDamage != 0)
+        {
+            spikeAirSamus.DecrementHurtTimers();
+            AssertEqual((ushort)0x003b, spikeAirSamus.InvincibilityTimer,
+                "gameplay tail ages grapple-created invincibility timer");
+            AssertEqual((ushort)0x0009, spikeAirSamus.KnockbackTimer,
+                "gameplay tail ages grapple-created knockback timer");
+        }
+    }
 
     // Move the reflected pendulum into empty terrain and press Jump during the kick window.
     // Gravity/correction update -$8C to -$6F, then $9B:BD44 adds -$300 extra velocity.

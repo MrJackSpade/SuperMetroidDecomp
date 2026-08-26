@@ -315,6 +315,6 @@ Mother Brain/Baby routes described above. Unsupported paths throw instead of bec
 physics. Remaining cross-system work includes Crystal Flash/drain presentation, earlier Mother
 Brain attack selection, live Hyper Beam damage routing, missing actor spritemaps and projectile
 producers, bomb-block PLM mutation, live enemy damage producers, solid-enemy wall-jump branches,
-grapple spike/breakable-PLM effects, native spawn selection, and the unported enemies/effects/
+grapple breakable-PLM effects, native spawn selection, and the unported enemies/effects/
 actors. Raw files and PNGs contain private ROM-derived material and must not be distributed;
 this private preservation repository intentionally retains them until a future shareable cleanup.

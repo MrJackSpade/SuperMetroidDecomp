@@ -21,7 +21,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
 | `$08` | Morph ball falling | `$31/$32`, dry-air gravity, ceiling/floor collision, two-stage hard bounce, gentle landing, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
 | `$09` | Unused | — | Preserve only if required |
-| `$0A` | Knockback / crystal-flash ending | — | Entire family |
+| `$0A` | Knockback / crystal-flash ending | `$53/$54`, dry-air ordinary-body timer, horizontal/vertical block collision, damage-boost input escape, falling handoff | Morph/ball knockback, liquids, enemy producer, crystal-flash ending |
 | `$0B` | Unused | — | Preserve only if required |
 | `$0C` | Unused | — | Preserve only if required |
 | `$0D` | Unused | — | Preserve only if required |
@@ -36,7 +36,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$16` | Grappling | — | Swing, stuck, release, wall-jump seams |
 | `$17` | Turning while jumping | Grounded-Y crouch turns `$97-$9A/$A2/$A3`; airborne `$2F/$30/$8F-$92/$9E/$9F`, momentum, collision, `$F8` | Later firing/external-displacement routes |
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, momentum, gravity/collision, `$F8` | Later firing/external-displacement routes |
-| `$19` | Damage boost | — | Entire family |
+| `$19` | Damage boost | `$4F/$50`, fresh dry-air jump, type-indexed X physics, variable height, ceiling/floor collision, `$FF` sentinel landing | Liquids, external displacement, enemy producer |
 | `$1A` | Grabbed by Draygon | — | Entire family |
 | `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | — | All subhandlers and scripted state |
 
@@ -208,6 +208,32 @@ translated status is documented with the Morph Ball family below.
   mode-one displacement, `$F8`, early wall rewind, the seven-pixel launch, trigger-frame Y
   suppression, `$FB`, and the 4.A000 dry wall arc. Solid-enemy wall jumps remain explicit.
 
+## Verified knockback and damage-boost slice
+
+- The untranslated enemy system is represented by one explicit producer seam: a caller
+  supplies bank `$A0`'s left/right hit result. `$91:EDB0` then chooses knockback direction,
+  installs `$53/$54`, reads dry-air 5.0000 from `$90:9EE9/$90:9EEF`, and starts the native
+  five-count hurt timer. No enemy damage, velocity, pose, or duration is fabricated.
+- The special `$90:DF38` handler takes precedence over the normal type dispatcher. It uses
+  type `$0A`'s normal-air speed record and bank-$A0's X direction, applies either gravity or
+  no-speed downward movement according to directions one/two/four/five, and performs exact
+  bank-$94 block clipping. Vertical collision clears the same X/Y state as `$90:DF6E`.
+- Input remains live during ordinary knockback. Right-facing `$53` plus canonical `$0280`
+  (Left+Jump) follows literal `$91:A8E4 -> $50`; left-facing `$54` mirrors through `$0180`
+  (Right+Jump) to `$4F`. Crossing movement families calls Make_Samus_Jump, clears the hurt
+  timer/direction, and restores the normal handler through `$91:F8AE`.
+- Movement type `$19` at `$90:A7CA` directly reuses ordinary jumping movement: type-indexed
+  16.16 X acceleration, variable-height Jump release, old-speed-before-gravity Y movement,
+  ceiling/floor collision, and camera tracking. Its bottom half is hidden only on animation
+  frames two through eight, matching `$90:877C`.
+- `$4F/$50` store shot direction `$FF`. Landing therefore takes `$91:E95D`'s sentinel branch
+  to ordinary `$A4/$A5` by live X direction before the aimed-landing lookup; radius expansion,
+  velocity cleanup, and `$F8` completion use the existing verified landing path.
+- DebugRunner `--knockback-script` injects only the missing enemy-side bit, observes `$53`,
+  matches the cartridge's `$91:A8E4` record, executes `$50` type-`$19` movement, and renders
+  the private-ROM pose against live terrain. Synthetic verification independently locks the
+  timer, exact 16.16 values, damage-boost handoff, `$FF` landing, and timeout to `$29/$2A`.
+
 ## Verified ordinary Morph Ball slice
 
 - Stable crouch requires a second newly-pressed Down edge, not merely the held input that
@@ -309,11 +335,15 @@ translated status is documented with the Morph Ball family below.
   on 95, ends the special handler on 105, and recovers `$31 -> $1D` on floor collision at
   133. Captures show real OBJ tile `$14C` for the bomb and `$18B` for the explosion against
   cartridge-derived terrain; no projectile direction or velocity is host-injected.
+- The real-ROM `--knockback-script` injects bank `$A0` X direction one at the documented
+  enemy-collision seam, executes `$53`, matches cartridge record `$91:A8E4` with held
+  `$0280`, enters `$50`, runs type `$19` through ceiling/floor collision, and lands through
+  `$FF -> $A5`. A 32-frame capture freezes authentic damage-boost art and split-body OAM.
 
 ## Next implementation order
 
-1. Knockback and damage boost.
-2. Grapple movement and release routes, including its separate wall-jump seam.
-3. Run button, speed booster/shinespark, crystal flash/drained, and remaining scripted movement.
-4. Space-jump/Screw-Attack spin families, liquids, and solid-enemy collision routes.
+1. Grapple movement and release routes, including its separate wall-jump seam.
+2. Run button, speed booster/shinespark, crystal flash/drained, and remaining scripted movement.
+3. Space-jump/Screw-Attack spin families, liquids, and solid-enemy collision routes.
+4. Enemy collision/damage producers so knockback begins from live actors instead of a host seam.
 5. Return with bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.

@@ -215,6 +215,37 @@ public static class SamusAerialMovement
     }
 
     /// <summary>
+    /// Executes movement type `$19` at `$90:A7CA`. The native entry is a direct call to
+    /// <c>Samus_Jumping_Movement</c>; damage boost therefore receives ordinary variable-
+    /// height jump cutoff, type-indexed X physics, block collision, gravity, and landing.
+    /// </summary>
+    public static AerialMovementResult StepDamageBoost(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort controllerInput,
+        ushort nmiFrameCounter)
+    {
+        ValidateCommon(bus, level, samus);
+        if (samus.ReadMovementType(bus) != 0x19 ||
+            samus.Pose is not (SamusState.DamageBoostLeftPose or SamusState.DamageBoostRightPose))
+        {
+            throw new InvalidOperationException(
+                $"Damage-boost movement requires type $19 pose, not ${samus.Pose:X2}.");
+        }
+
+        EnsureNoExtraRunSpeed(samus.HorizontalSpeed);
+        ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
+        BlockMoveResult horizontal = MoveNormalAerialX(
+            bus,
+            level,
+            samus,
+            controllerInput,
+            movementType: 0x19);
+        return FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter);
+    }
+
+    /// <summary>
     /// Executes `$90:A790/$90:A7AD` for movement types `$17/$18`. Unlike ordinary aerial
     /// motion this calls the deceleration-ALLOWED X routine and does not apply variable-jump
     /// release; the three-frame turn animation therefore preserves native reversal momentum.

@@ -97,6 +97,9 @@ public sealed class SuperMetroidRuntime
     /// <summary>Most recent special bomb-jump handler result, exposed for debugger watches.</summary>
     public BombJumpMovementResult? LastBombJumpMovement { get; private set; }
 
+    /// <summary>Most recent special knockback-handler result, exposed for debugger watches.</summary>
+    public KnockbackMovementResult? LastKnockbackMovement { get; private set; }
+
     /// <summary>
     /// Five-slot normal-bomb lifecycle spanning the translated bank-$90/$93/$94/$A0 seams.
     /// </summary>
@@ -280,6 +283,7 @@ public sealed class SuperMetroidRuntime
         LastAerialSamusMovement = null;
         LastMorphBallMovement = null;
         LastBombJumpMovement = null;
+        LastKnockbackMovement = null;
         BombProjectiles.Reset();
         InitializeDebugSamus(
             xPosition: unchecked((ushort)(Camera.XPosition + 64)),
@@ -363,6 +367,7 @@ public sealed class SuperMetroidRuntime
             LastAerialSamusMovement = null;
             LastMorphBallMovement = null;
             LastBombJumpMovement = null;
+            LastKnockbackMovement = null;
             BombProjectiles.Reset();
             return new DebugGroundedSamusPlacement(
                 xPosition,
@@ -575,11 +580,24 @@ public sealed class SuperMetroidRuntime
                 LastAerialSamusMovement = null;
                 LastMorphBallMovement = null;
                 LastBombJumpMovement = null;
+                LastKnockbackMovement = null;
 
+                // Knockback's `$90:DF38` handler takes precedence over the normal movement-
+                // type dispatcher. Unlike bomb jump, normal pose input remains active so
+                // `$53/$54` can still select the retail damage-boost escape chord.
+                if (Samus.KnockbackActive)
+                {
+                    SamusAerialMovement.ConfigureDryAirGravity(_addressSpace, Samus);
+                    LastKnockbackMovement = SamusKnockbackMovement.Step(
+                        _addressSpace,
+                        LevelData,
+                        Samus,
+                        NmiFrameCounter);
+                }
                 // Special command three replaces both movement and pose-input handlers.
                 // Preserve the current ball pose/animation and ignore any transition that
                 // the normal matcher calculated earlier in this host frame.
-                if (Samus.BombJumpStarting || Samus.BombJumpActive)
+                else if (Samus.BombJumpStarting || Samus.BombJumpActive)
                 {
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
@@ -752,6 +770,15 @@ public sealed class SuperMetroidRuntime
                     case SamusState.WallJumpRightPose:
                     case SamusState.WallJumpLeftPose:
                         LastAerialSamusMovement = SamusAerialMovement.StepWallJump(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            Controller1.Current,
+                            NmiFrameCounter);
+                        break;
+                    case SamusState.DamageBoostRightPose:
+                    case SamusState.DamageBoostLeftPose:
+                        LastAerialSamusMovement = SamusAerialMovement.StepDamageBoost(
                             _addressSpace,
                             LevelData,
                             Samus,
@@ -968,6 +995,25 @@ public sealed class SuperMetroidRuntime
                     {
                         switch ((poseAtFrameStart, targetPose))
                         {
+                            case (SamusState.KnockbackRightPose, SamusState.DamageBoostRightPose):
+                            case (SamusState.KnockbackLeftPose, SamusState.DamageBoostLeftPose):
+                                // `$91:8113` makes a fresh jump when the `$53/$54` input
+                                // table crosses out of movement type `$0A`; `$91:F8AE`
+                                // then restores the normal movement handler for type `$19`.
+                                SamusKnockbackMovement.ApplyDamageBoostTransition(
+                                    _addressSpace,
+                                    Samus,
+                                    targetPose);
+                                break;
+                            case (SamusState.DamageBoostRightPose,
+                                  SamusState.NeutralJumpRightPose or SamusState.NormalJumpForwardRightPose):
+                            case (SamusState.DamageBoostLeftPose,
+                                  SamusState.NeutralJumpLeftPose or SamusState.NormalJumpForwardLeftPose):
+                                SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
+                                    _addressSpace,
+                                    Samus,
+                                    targetPose);
+                                break;
                             case var (source, target)
                                 when ((SamusState.IsRightFacingNormalJumpPose(source) &&
                                        target == SamusState.TurningRightToLeftJumpPose) ||
@@ -1320,7 +1366,7 @@ public sealed class SuperMetroidRuntime
                     previousCameraPoint,
                     currentCameraPoint,
                     new HorizontalCameraContext(
-                        KnockbackDirection: 0,
+                        KnockbackDirection: Samus.KnockbackDirection,
                         MovementType: Samus.ReadMovementType(_addressSpace),
                         XAccelerationMode: Samus.HorizontalSpeed.AccelerationMode,
                         PoseXDirection: Samus.ReadPoseXDirection(_addressSpace),

@@ -30,6 +30,7 @@ VerifySamusPoseTransitionMatching();
 VerifySamusHorizontalSpeed();
 VerifySamusAerialMovement();
 VerifySamusAerialTurnsAndWallJump();
+VerifySamusKnockbackAndDamageBoost();
 VerifySamusPostureMovement();
 VerifySamusMorphBallMovement();
 VerifySamusStandingAimMovement();
@@ -1241,6 +1242,182 @@ static void VerifySamusAerialTurnsAndWallJump()
 /// Verifies command-seven bottom alignment, movement types five/$0F, $FD completion, and
 /// the rejected stand-up case where ceiling and floor leave room for crouch but not stand.
 /// </summary>
+/// <summary>
+/// Verifies the dry-air, ordinary-body branch of the retail hurt handler and its hidden
+/// damage-boost exit. The fixture bytes below are literal records from banks $90/$91;
+/// the production path still reads them through <see cref="ISnesAddressSpace"/> instead of
+/// embedding friendly host-side velocities or pose metadata.
+/// </summary>
+static void VerifySamusKnockbackAndDamageBoost()
+{
+    var bus = new TestAddressSpace();
+
+    // Pose definitions live at `$91:B629 + pose * 8`. Only the fields consumed by this
+    // slice are nonzero: X direction, movement type, vertical graphics offset, and radius.
+    // `$53/$54` are type-$0A hurt poses; `$4F/$50` are type-$19 damage-boost poses.
+    bus.WriteBytes(0x91b631, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
+    bus.WriteBytes(0x91b771, [0x08, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]); // $29
+    bus.WriteBytes(0x91b891, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $4D
+    bus.WriteBytes(0x91b8a1, [0x08, 0x19, 0x4e, 0xff, 0x08, 0x00, 0x13, 0x00]); // $4F
+    bus.WriteBytes(0x91b8a9, [0x04, 0x19, 0x4d, 0xff, 0x08, 0x00, 0x13, 0x00]); // $50
+    bus.WriteBytes(0x91b8c1, [0x08, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]); // $53
+    bus.WriteBytes(0x91b8c9, [0x04, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]); // $54
+    bus.WriteBytes(0x91bb51, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]); // $A5
+
+    // Animation-pointer table entries are `$91:B010 + pose * 2`. One long ordinary
+    // delay is enough to keep animation unrelated to this movement-focused assertion.
+    WriteTestWord(bus, 0x91b062, 0xc100); // $29
+    WriteTestWord(bus, 0x91b0ae, 0xc110); // $4F
+    WriteTestWord(bus, 0x91b0b0, 0xc120); // $50
+    WriteTestWord(bus, 0x91b0b6, 0xc130); // $53
+    WriteTestWord(bus, 0x91b0b8, 0xc140); // $54
+    WriteTestWord(bus, 0x91b15a, 0xc150); // $A5
+    bus.WriteBytes(0x91c100, [0x10]);
+    bus.WriteBytes(0x91c110, [0x08]);
+    bus.WriteBytes(0x91c120, [0x08]);
+    bus.WriteBytes(0x91c130, [0x02]);
+    bus.WriteBytes(0x91c140, [0x02]);
+    bus.WriteBytes(0x91c150, [0x04]);
+
+    // `$90:99D6` selects dry-air knockback magnitude 5.0000. Damage boost subsequently
+    // calls Make_Samus_Jump, whose independent dry-air value is 4.E000. Both share the
+    // same 0.2800 gravity record in this no-water/no-lava fixture.
+    WriteTestWord(bus, 0x909ee9, 0x0005);
+    WriteTestWord(bus, 0x909eef, 0x0000);
+    WriteTestWord(bus, 0x909eb9, 0x0004);
+    WriteTestWord(bus, 0x909ebf, 0xe000);
+    WriteTestWord(bus, 0x909ea1, 0x2800);
+    WriteTestWord(bus, 0x909ea7, 0x0000);
+
+    // Knockback's type-$0A normal-air record begins at `$90:9FCD`. A small 0.4000
+    // acceleration makes the first frame's direction and fixed-point displacement exact.
+    WriteTestWord(bus, 0x909fcd, 0x0000);
+    WriteTestWord(bus, 0x909fcf, 0x4000);
+    WriteTestWord(bus, 0x909fd1, 0x0005);
+    WriteTestWord(bus, 0x909fd3, 0x0000);
+    WriteTestWord(bus, 0x909fd5, 0x0000);
+    WriteTestWord(bus, 0x909fd7, 0x1000);
+
+    // Type `$19` really indexes the same generic table rather than using a damage-boost
+    // special case. Its entry may remain zero because no direction is held in the first
+    // translated damage-boost frame below.
+    for (int address = 0x90a081; address < 0x90a08d; address += 2)
+        WriteTestWord(bus, address, 0);
+
+    const int width = 16;
+    const int height = 16;
+    var foreground = new ushort[width * height];
+    var empty = new RoomLevelData(
+        width,
+        height,
+        foreground,
+        new byte[foreground.Length],
+        new ushort[foreground.Length],
+        new byte[8]);
+
+    var samus = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 96,
+        YPosition = 96,
+    };
+
+    // A source to Samus's left publishes X direction one (move right). With no forward
+    // input, `$91:EDB0` chooses up-right direction two and `$90:99D6` installs 5.0000.
+    SamusKnockbackMovement.Start(bus, samus, controllerInput: 0, knockbackXDirection: 1);
+    AssertEqual(SamusState.KnockbackRightPose, samus.Pose, "right-facing knockback pose");
+    AssertEqual((ushort)2, samus.KnockbackDirection, "up-right knockback direction");
+    AssertEqual((ushort)1, samus.KnockbackXDirection, "knockback X direction publication");
+    AssertEqual((ushort)5, samus.KnockbackTimer, "enemy hurt timer publication");
+    AssertTrue(samus.KnockbackActive, "special knockback handler installed");
+    AssertEqual((ushort)5, samus.Kinematics.YSpeed, "knockback dry-air whole speed");
+    AssertEqual((ushort)0, samus.Kinematics.YSubspeed, "knockback dry-air subspeed");
+
+    KnockbackMovementResult hurtFrame = SamusKnockbackMovement.Step(bus, empty, samus, 0);
+    AssertEqual((ushort)4, samus.KnockbackTimer, "first hurt frame decrements timer");
+    AssertEqual(0x00004000, hurtFrame.Horizontal!.Value.AcceptedDisplacement,
+        "knockback moves in bank-$A0 X direction");
+    AssertEqual(unchecked((int)0xfffb0000), hurtFrame.Vertical!.Value.AcceptedDisplacement,
+        "knockback moves by old 5.0000 vertical speed");
+    AssertEqual((ushort)91, samus.YPosition, "knockback upward whole position");
+    AssertEqual((ushort)4, samus.Kinematics.YSpeed, "knockback gravity next whole speed");
+    AssertEqual((ushort)0xd800, samus.Kinematics.YSubspeed, "knockback gravity next subspeed");
+
+    // `$53` plus Left+Jump (`$0280`) selects `$50`. The pose-family crossing runs the native normal
+    // input initializer, clears the special handler, and starts a fresh 4.E000 jump.
+    SamusKnockbackMovement.ApplyDamageBoostTransition(
+        bus,
+        samus,
+        SamusState.DamageBoostRightPose);
+    AssertEqual(SamusState.DamageBoostRightPose, samus.Pose, "damage-boost entry pose");
+    AssertEqual((byte)0x19, samus.ReadMovementType(bus), "damage-boost movement type");
+    AssertTrue(!samus.KnockbackActive, "damage boost restores normal handler");
+    AssertEqual((ushort)0, samus.KnockbackDirection, "damage boost clears knockback direction");
+    AssertEqual((ushort)0, samus.KnockbackTimer, "damage boost clears hurt timer");
+    AssertEqual((ushort)4, samus.Kinematics.YSpeed, "damage boost fresh jump whole speed");
+    AssertEqual((ushort)0xe000, samus.Kinematics.YSubspeed, "damage boost fresh jump subspeed");
+
+    AerialMovementResult boostFrame = SamusAerialMovement.StepDamageBoost(
+        bus,
+        empty,
+        samus,
+        (ushort)SnesButton.A,
+        nmiFrameCounter: 1);
+    AssertEqual(unchecked((int)0xfffb2000), boostFrame.Vertical!.Value.AcceptedDisplacement,
+        "damage boost reuses ordinary old-speed jumping movement");
+    AssertEqual((ushort)4, samus.Kinematics.YSpeed, "damage boost gravity next whole speed");
+    AssertEqual((ushort)0xb800, samus.Kinematics.YSubspeed, "damage boost gravity next subspeed");
+
+    // Jump alone (`$0080`) exits right-facing `$50` to neutral-jump `$4D`. This is an ordinary pose
+    // change inside movement type two, so the already-live 16.16 trajectory must survive.
+    ushort preservedYSpeed = samus.Kinematics.YSpeed;
+    ushort preservedYSubspeed = samus.Kinematics.YSubspeed;
+    SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
+        bus,
+        samus,
+        SamusState.NeutralJumpRightPose);
+    AssertEqual(SamusState.NeutralJumpRightPose, samus.Pose, "damage-boost neutral exit pose");
+    AssertEqual(preservedYSpeed, samus.Kinematics.YSpeed, "damage-boost exit preserves whole Y speed");
+    AssertEqual(preservedYSubspeed, samus.Kinematics.YSubspeed, "damage-boost exit preserves Y subspeed");
+
+    // Damage-boost pose definitions store shot direction `$FF`. `$91:E95D` handles that
+    // sentinel before the aimed-landing table and selects ordinary `$A4/$A5` from X
+    // direction. `$50` intentionally stores reversed X direction four, producing `$A5`;
+    // this guards the exact real-ROM landing branch found by the scripted run.
+    var boostLanding = new SamusState
+    {
+        Pose = SamusState.DamageBoostRightPose,
+        XPosition = 96,
+        YPosition = 96,
+    };
+    boostLanding.RefreshCollisionRadii(bus);
+    boostLanding.ApplyAerialLanding(bus, wasSpinning: false);
+    AssertEqual(SamusState.NormalLandingLeftPose, boostLanding.Pose,
+        "damage-boost FF shot direction selects ordinary metadata-direction landing");
+    AssertEqual((ushort)94, boostLanding.YPosition,
+        "damage-boost landing radius expansion preserves feet");
+
+    // A separate uninterrupted fixture proves the timer owns the special handler's exact
+    // five movement frames. The sixth call chooses falling `$29` without another move.
+    var expires = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 96,
+        YPosition = 96,
+    };
+    SamusKnockbackMovement.Start(bus, expires, 0, knockbackXDirection: 1);
+    for (int frame = 0; frame < 5; frame++)
+        AssertTrue(!SamusKnockbackMovement.Step(bus, empty, expires, (ushort)frame).Ended,
+            $"hurt movement frame {frame + 1} remains active");
+    KnockbackMovementResult expired = SamusKnockbackMovement.Step(bus, empty, expires, 5);
+    AssertTrue(expired.Ended, "zero hurt timer ends special handler");
+    AssertEqual(SamusState.FallingRightPose, expires.Pose, "expired right knockback selects falling right");
+    AssertTrue(!expires.KnockbackActive, "expired knockback restores normal handler");
+    AssertEqual((ushort)0, expires.KnockbackDirection, "expired knockback clears direction");
+
+    Console.WriteLine("  Samus knockback: timer, 16.16 hurt arc, damage boost, and normal-jump handoff agree.");
+}
+
 static void VerifySamusPostureMovement()
 {
     var bus = new TestAddressSpace();

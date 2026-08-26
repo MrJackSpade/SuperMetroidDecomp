@@ -91,6 +91,11 @@ else if (options.BombJumpScript)
     Console.WriteLine(
         "Input script: crouch/morph, place a real normal bomb, then follow its ROM countdown, overlap, explosion, and straight bomb-jump arc.");
 }
+else if (options.KnockbackScript)
+{
+    Console.WriteLine(
+        "Input script: host-inject one enemy-side hit result, run native knockback, press Left+Jump for the retail damage boost, then hold that chord through its arc.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7800 stays clear
@@ -326,6 +331,8 @@ bool observedBombPlacement = false;
 bool observedBombExplosion = false;
 bool observedBombDeletion = false;
 bool observedStraightBombOverlap = false;
+bool observedKnockbackMovement = false;
+bool observedDamageBoostMovement = false;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
@@ -336,7 +343,23 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     // explicit reversal script is a deterministic real-ROM regression route: enough time
     // to accelerate right, complete $25 toward the left, then complete $26 back right.
     // These are only controller samples; all pose choices still come from bank-$91 tables.
-    ushort controllerInput = options.ReversalScript
+    ushort controllerInput = options.KnockbackScript
+        ? frameIndex switch
+        {
+            0 => (ushort)SnesButton.Start,
+
+            // Frame 20 below injects the only missing producer: the one-bit enemy-side
+            // collision result. Leave this sample empty so `$53` gets one visible native
+            // hurt frame. On frame 21, Left+Jump is canonical `$0280` and matches the
+            // literal `$91:A8E4 -> $50` record in the cartridge.
+            >= 21 and < 46 => (ushort)(SnesButton.Left | SnesButton.A),
+
+            // `$50` is movement type `$19`, whose dispatcher entry calls the ordinary
+            // jumping routine. Keeping `$0280` held selects `$50`'s self-record and proves
+            // variable-height movement; release later lets it descend and land normally.
+            _ => (ushort)0,
+        }
+        : options.ReversalScript
         ? frameIndex switch
         {
             0 => (ushort)SnesButton.Start,
@@ -593,8 +616,30 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             _ => (ushort)0,
         };
 
+    if (options.KnockbackScript && frameIndex == 20)
+    {
+        // No enemy subsystem exists in the playable slice yet. This is therefore an
+        // explicit debugger stimulus at exactly bank-$A0's producer/consumer seam: one
+        // means the damage source was left of Samus, so physical knockback moves right.
+        // Start() reads pose direction, movement type, speeds, radii, and animation from
+        // the cartridge and installs the same `$90:DF38` handler as command one.
+        SamusKnockbackMovement.Start(
+            bus,
+            runtime.Samus,
+            controllerInput: 0,
+            knockbackXDirection: 1);
+        observedSamusPoses.Add(runtime.Samus.Pose);
+        Console.WriteLine(
+            $"frame {frameIndex + 1,4}: injected bank-$A0 knockback X direction 1; " +
+            $"pose=${runtime.Samus.Pose:X2}, direction={runtime.Samus.KnockbackDirection}, " +
+            $"timer={runtime.Samus.KnockbackTimer}.");
+    }
+
     RuntimeFrameResult result = runtime.StepFrame(controllerInput);
     observedSamusPoses.Add(runtime.Samus.Pose);
+    observedKnockbackMovement |= runtime.LastKnockbackMovement is not null;
+    observedDamageBoostMovement |= runtime.LastAerialSamusMovement is not null &&
+        runtime.Samus.ReadMovementType(bus) == 0x19;
     observedBombJumpStart |= runtime.LastBombJumpMovement is { Started: true };
     observedBombJumpEnd |= runtime.LastBombJumpMovement is { Ended: true };
     observedBombJumpRise |= runtime.LastBombJumpMovement is { Started: false, Ended: false };
@@ -646,6 +691,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             runtime.LastAerialSamusMovement?.Horizontal ??
             runtime.LastMorphBallMovement?.Horizontal ??
             runtime.LastBombJumpMovement?.Horizontal ??
+            runtime.LastKnockbackMovement?.Horizontal ??
             throw new InvalidOperationException("Samus X changed without a translated movement result.");
         string vertical = runtime.LastGroundedSamusMovement is GroundedMovementResult groundedMovement
             ? $"ground=${groundedMovement.Vertical.AcceptedDisplacement:X8}/collision={groundedMovement.Vertical.Collided}"
@@ -655,6 +701,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                     ? $"morphY=${morphMovement.Vertical.AcceptedDisplacement:X8}/collision={morphMovement.Vertical.Collided}"
                     : runtime.LastBombJumpMovement?.Vertical is BlockMoveResult bombVertical
                         ? $"bombY=${bombVertical.AcceptedDisplacement:X8}/collision={bombVertical.Collided}"
+                    : runtime.LastKnockbackMovement?.Vertical is BlockMoveResult knockbackVertical
+                        ? $"hurtY=${knockbackVertical.AcceptedDisplacement:X8}/collision={knockbackVertical.Collided}"
                     : "airY=transition";
         Console.WriteLine(
             $"frame {result.FrameNumber,4}: Samus X={runtime.Samus.XPosition:X4}." +
@@ -766,6 +814,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.NormalJumpAimDiagonalDownLeftPose or
                      SamusState.NormalJumpAimDownRightPose or
                      SamusState.NormalJumpAimDownLeftPose or
+                     SamusState.DamageBoostRightPose or
+                     SamusState.DamageBoostLeftPose or
                      SamusState.FallingAimUpRightPose or
                      SamusState.FallingAimUpLeftPose or
                      SamusState.FallingAimDiagonalUpRightPose or
@@ -953,6 +1003,32 @@ if (options.BombJumpScript)
         $"Bomb-jump ROM route validated every milestone reachable within {options.FrameCount} frame(s).");
 }
 
+if (options.KnockbackScript)
+{
+    // The only host-authored fact is which side the not-yet-translated enemy occupied.
+    // Requiring both poses and both movement handlers makes the rest a real-ROM route:
+    // `$53` art/type, `$91:A8E4` Jump+opposite-direction chord, `$50` art/type, and
+    // ordinary jump dispatch.
+    byte[] requiredKnockbackRoute = [
+        SamusState.KnockbackRightPose,
+        SamusState.DamageBoostRightPose,
+    ];
+    foreach (byte requiredPose in requiredKnockbackRoute)
+    {
+        if (!observedSamusPoses.Contains(requiredPose))
+            throw new InvalidOperationException(
+                $"Knockback ROM script did not observe required pose ${requiredPose:X2}.");
+    }
+    if (!observedKnockbackMovement || !observedDamageBoostMovement)
+    {
+        throw new InvalidOperationException(
+            $"Knockback route missed a handler: hurt={observedKnockbackMovement}, " +
+            $"damageBoost={observedDamageBoostMovement}.");
+    }
+    Console.WriteLine(
+        "Knockback ROM route validated hurt movement, the Left+Jump damage-boost chord, and type-$19 jump movement.");
+}
+
 Console.WriteLine(
     $"Finished at accepted NMI {runtime.NmiFrameCounter}; " +
     $"timer {runtime.EscapeTimer.MinutesBcd:X2}:{runtime.EscapeTimer.SecondsBcd:X2}.{runtime.EscapeTimer.CentisecondsBcd:X2}; " +
@@ -1137,7 +1213,8 @@ readonly record struct DebugRunnerOptions(
     bool CrouchJumpScript,
     bool MorphBallScript,
     bool SpringBallScript,
-    bool BombJumpScript)
+    bool BombJumpScript,
+    bool KnockbackScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -1162,6 +1239,7 @@ readonly record struct DebugRunnerOptions(
         bool morphBallScript = false;
         bool springBallScript = false;
         bool bombJumpScript = false;
+        bool knockbackScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -1271,6 +1349,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--knockback-script":
+                    knockbackScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -1319,7 +1402,8 @@ readonly record struct DebugRunnerOptions(
             crouchJumpScript,
             morphBallScript,
             springBallScript,
-            bombJumpScript);
+            bombJumpScript,
+            knockbackScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

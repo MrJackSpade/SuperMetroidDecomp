@@ -57,6 +57,24 @@ public sealed class SamusState
     /// <summary>Pose $84 is the left-facing wall-jump launch animation.</summary>
     public const byte WallJumpLeftPose = 0x84;
 
+    /// <summary>
+    /// Pose $4F is the visually left-facing damage boost; its X-direction byte is the
+    /// deliberately reversed value eight that drives the boost to the right.
+    /// </summary>
+    public const byte DamageBoostLeftPose = 0x4f;
+
+    /// <summary>
+    /// Pose $50 is the visually right-facing damage boost; its X-direction byte is the
+    /// deliberately reversed value four that drives the boost to the left.
+    /// </summary>
+    public const byte DamageBoostRightPose = 0x50;
+
+    /// <summary>Pose $53 is the right-facing normal knockback body.</summary>
+    public const byte KnockbackRightPose = 0x53;
+
+    /// <summary>Pose $54 is the left-facing normal knockback body.</summary>
+    public const byte KnockbackLeftPose = 0x54;
+
     /// <summary>Pose $87 turns a right-facing fall toward the left.</summary>
     public const byte TurningRightToLeftFallingPose = 0x87;
 
@@ -463,6 +481,29 @@ public sealed class SamusState
 
     /// <summary>True while `$90:E032` owns the rising bomb-jump arc.</summary>
     public bool BombJumpActive { get; set; }
+
+    /// <summary>
+    /// WRAM `$0A52`: zero means no knockback, one/two mean up-left/up-right, and four/five
+    /// mean down-left/down-right. Value three is the retail routine's unused straight-up
+    /// table entry and is intentionally rejected by the translated live path.
+    /// </summary>
+    public ushort KnockbackDirection { get; set; }
+
+    /// <summary>WRAM `$0A54`: zero moves knockback left; one moves it right.</summary>
+    public ushort KnockbackXDirection { get; set; }
+
+    /// <summary>
+    /// WRAM `$18AA`, initialized to five by bank `$A0` damage collision and decremented once
+    /// per enemy-processing pass. The translated special handler owns movement only while
+    /// this counter remains nonzero.
+    /// </summary>
+    public ushort KnockbackTimer { get; set; }
+
+    /// <summary>
+    /// Host-visible equivalent of movement-handler pointer `$90:DF38`. It is separate from
+    /// movement type `$0A` because the cartridge also uses that type for crystal-flash art.
+    /// </summary>
+    public bool KnockbackActive { get; set; }
 
     /// <summary>Bank-$91 address of the active pose's byte-oriented delay program.</summary>
     public int AnimationDelayListAddress { get; private set; }
@@ -1940,9 +1981,10 @@ public sealed class SamusState
         }
         else
         {
-            // `$91:E9F3` is indexed by pose-definition byte three. Horizontal directions
-            // 2/7 select the ordinary `$A4/$A5`; the six admitted aim directions select
-            // `$E0-$E5`. Compact straight-down directions 4/5 intentionally remain out.
+            // `$91:E95D` checks `$FF` before indexing `$91:E9F3`; hurt/damage-boost art
+            // deliberately stores that sentinel and lands through the ordinary facing pair.
+            // Horizontal directions 2/7 also select `$A4/$A5`; the six admitted aim
+            // directions select `$E0-$E5`. Compact directions 4/5 intentionally remain out.
             targetPose = ReadShotDirection(bus) switch
             {
                 0 => LandingAimUpRightPose,
@@ -1953,6 +1995,7 @@ public sealed class SamusState
                 7 => NormalLandingLeftPose,
                 8 => LandingAimDiagonalUpLeftPose,
                 9 => LandingAimUpLeftPose,
+                0xff => facingLeft ? NormalLandingLeftPose : NormalLandingRightPose,
                 byte shotDirection => throw new NotSupportedException(
                     $"Landing from shot direction ${shotDirection:X2} requires an untranslated compact/firing route."),
             };
@@ -2383,8 +2426,8 @@ public sealed class SamusState
 
         int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
         byte movementType = bus.ReadByte(AddWithinBank(poseDefinition, 1));
-        if (movementType is not (0 or 1 or 2 or 3 or 4 or 5 or 6 or 8 or
-            0x0e or 0x0f or 0x11 or 0x12 or 0x13 or 0x14 or 0x17 or 0x18))
+        if (movementType is not (0 or 1 or 2 or 3 or 4 or 5 or 6 or 8 or 0x0a or
+            0x0e or 0x0f or 0x11 or 0x12 or 0x13 or 0x14 or 0x17 or 0x18 or 0x19))
         {
             throw new NotSupportedException(
                 $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");
@@ -2442,8 +2485,10 @@ public sealed class SamusState
             AnimationFrame == 0 || AnimationFrame >= 0x0b;
         bool wallJumpBottom = movementType != 0x14 ||
             AnimationFrame < 3 || AnimationFrame >= 0x0d;
+        bool damageBoostBottom = movementType != 0x19 ||
+            AnimationFrame < 2 || AnimationFrame >= 9;
         bool drawBottom = movementType is not (4 or 8 or 0x11 or 0x12 or 0x13) &&
-            ordinarySpinBottom && wallJumpBottom;
+            ordinarySpinBottom && wallJumpBottom && damageBoostBottom;
         if (drawBottom)
         {
             ushort bottomBase = ReadWord(bus, AddWithinBank(BottomSpritemapBaseIndexTable, Pose * 2));

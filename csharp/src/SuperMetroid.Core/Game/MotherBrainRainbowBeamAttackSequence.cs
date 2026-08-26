@@ -3,8 +3,8 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Mother Brain's repeatable phase-two rainbow-beam and finish-off function chains at
-/// <c>$A9:B8EB-$A9:BE1A</c>.
+/// Mother Brain's repeatable phase-two rainbow-beam, finish-off, and initial Baby-drain
+/// interruption function chains at <c>$A9:B8EB-$A9:BE95</c>.
 /// </summary>
 /// <remarks>
 /// The earlier general attack-selection logic and the spawned Baby Metroid's independent AI
@@ -26,6 +26,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public const ushort HeadStretchingPhase2InstructionList = 0x9b7f;
     public const ushort BodyWalkingForwardReallySlowInstructionList = 0x9818;
     public const ushort BodyWalkingBackwardReallySlowInstructionList = 0x993a;
+    public const ushort BodyWalkingBackwardReallyFastInstructionList = 0x988c;
     public const ushort BodyStandingUpAfterCrouchingFastInstructionList = 0x99c6;
     public const ushort BodyStandingUpAfterLeaningDownInstructionList = 0x99e2;
     public const ushort BodyLeaningDownInstructionList = 0x99f2;
@@ -183,6 +184,30 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             samus.Drained.SetupForRainbowBeamUnableToStand(bus, samus);
 
         Phase = MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall;
+    }
+
+    /// <summary>
+    /// Ports the cross-enemy function-pointer write at <c>$A9:C8CD</c>. The Baby actor
+    /// installs <c>$BE38</c> after it has reached the brain; Mother Brain executes that new
+    /// function on her next enemy-AI turn rather than inside the Baby's current turn.
+    /// </summary>
+    public void InterruptFinalBeamForBabyDrain()
+    {
+        Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTakenAback;
+        RainbowBeamSoundPlaying = true; // `$A9:C8DA-$C8DD` writes the shared SFX flag.
+    }
+
+    /// <summary>
+    /// Ports the Baby's <c>$A9:C879</c> call to the standard backwards-walk helper using
+    /// animation-delay index two and target <c>Body.X-1</c>.
+    /// </summary>
+    public bool RequestBabyStumbleBackward()
+    {
+        ushort targetX = unchecked((ushort)(Body.XPosition - 1));
+        if (HasReachedBackwardTarget(targetX) || Body.Pose != 0)
+            return false;
+        Body.SetInstructionList(BodyWalkingBackwardReallyFastInstructionList);
+        return true;
     }
 
     /// <summary>Executes one call through the current Mother Brain body function.</summary>
@@ -519,6 +544,38 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // with `$BE38` after latching onto her head.
                 break;
 
+            case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTakenAback:
+                // `$A9:BE38` is not executed by the Baby. It runs on Mother Brain's next
+                // actor turn, changes form/neck geometry, seeds `$30`, and falls through so
+                // that this first regain-balance call immediately decrements it to `$2F`.
+                Body.Form = 3;
+                LowerNeckMovementIndex = 8;
+                UpperNeckMovementIndex = 8;
+                NeckAngleDelta = 0x0700;
+                Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRegainBalance;
+                FunctionTimer = 0x0030;
+                goto case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRegainBalance;
+
+            case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRegainBalance:
+                paletteRequested = true;
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    // `$BE80-$BE83` contains an apparent missing STA: it loads one and then
+                    // immediately reloads the neck-enable flag. Preserve that no-op rather
+                    // than silently "fixing" the cartridge.
+                    LowerNeckMovementIndex = 2;
+                    UpperNeckMovementIndex = 4;
+                    Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam:
+                // Painful-walking `$A9:BE96+` is the next translation seam. Palette handling
+                // remains active, while the Baby independently waits for corpse-state change.
+                paletteRequested = true;
+                break;
+
             default:
                 throw new InvalidOperationException($"Unsupported rainbow-beam phase {Phase}.");
         }
@@ -835,6 +892,9 @@ public enum MotherBrainRainbowBeamAttackPhase
     LoadBabyMetroidTiles,
     FireFinalRainbowBeam,
     FinalRainbowBeamHolding,
+    DrainedByBabyMetroidTakenAback,
+    DrainedByBabyMetroidRegainBalance,
+    DrainedByBabyMetroidFiringRainbowBeam,
 }
 
 /// <summary>Head-projectile animation selected by `$A9:BD71-$BD83`.</summary>

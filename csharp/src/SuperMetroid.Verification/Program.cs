@@ -33,6 +33,7 @@ VerifySamusCrystalFlash();
 VerifySamusDrainedController();
 VerifyMotherBrainRainbowBeamSamusMovement();
 VerifyMotherBrainRainbowBeamAttackSequence();
+VerifyBabyMetroidCutsceneEntrance();
 VerifySamusSolidEnemyCollision();
 VerifySamusAerialMovement();
 VerifySamusSpaceJumpAndScrewAttack();
@@ -2852,6 +2853,165 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         "final shot NTSC neck delta");
 
     Console.WriteLine("  Mother Brain actor: ROM posture/walk bytecode, repeat/active/final rainbow chain, thresholds, VRAM, and Baby spawn agree.");
+}
+
+/// <summary>
+/// Runs the complete `$A9:C710-$C8E1` entrance from initialization through head pinning.
+/// The hard-coded milestone coordinates came from the private retail-ROM runner, while the
+/// synthetic sine fixture is generated independently from the table's documented definition.
+/// This combination catches timer, angle, multiplication, subposition, collision, and
+/// cross-enemy ordering regressions without making the ordinary verifier depend on a ROM.
+/// </summary>
+static void VerifyBabyMetroidCutsceneEntrance()
+{
+    var bus = new TestAddressSpace();
+
+    // `$A0:B443` is trunc(sin(i*pi/128)*256), stored as a sign-extended word. Seed every
+    // possible eight-bit index because the curve visits non-cardinal angles. The first
+    // flight assertion below is a literal retail-ROM coordinate/velocity witness, so a
+    // future accidental rounding change cannot make production and fixture drift together.
+    for (int angle = 0; angle < 256; angle++)
+    {
+        short sine = unchecked((short)(Math.Sin(angle * Math.PI / 128.0) * 256.0));
+        WriteTestWord(bus, 0xa0b443 + angle * 2, unchecked((ushort)sine));
+    }
+
+    // Controller one reads the current `$E9` direction byte, then rebinds the new `$EB`
+    // animation pointer without refreshing radii. These are the only Samus ROM fields the
+    // entrance consumes; the dedicated drained-controller suite proves their animation.
+    bus.WriteBytes(0x91b629 + SamusState.DrainedCrouchingLeftPose * 8,
+        [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
+    WriteTestWord(bus, 0x91b010 + SamusState.DrainedStandingLeftPose * 2, 0xc100);
+    bus.WriteByte(0x91c100, 0x10);
+
+    var samus = new SamusState { Pose = SamusState.DrainedCrouchingLeftPose };
+    var motherBrain = new MotherBrainRainbowBeamAttackSequence
+    {
+        BrainXPosition = 0x0040,
+        BrainYPosition = 0x0060,
+    };
+    motherBrain.Body.XPosition = 0x0040;
+    motherBrain.Body.YPosition = 0x0064;
+
+    var baby = new BabyMetroidCutsceneState();
+    baby.Initialize();
+    AssertEqual((ushort)0x3800, baby.Properties, "Baby population/init property OR");
+    AssertEqual((ushort)0x0e00, baby.Palette, "Baby cutscene palette");
+    AssertEqual((ushort)0x00a0, baby.GraphicsOffset, "Baby transferred-tile offset");
+    AssertEqual(BabyMetroidCutsceneState.InitialInstructionList, baby.InstructionList,
+        "Baby initial instruction list");
+    AssertEqual(new BabyMetroidCutscenePoint(0x0140, 0, 0x0060, 0),
+        new BabyMetroidCutscenePoint(
+            baby.XPosition, baby.XSubposition, baby.YPosition, baby.YSubposition),
+        "Baby initialization overwrites population coordinates");
+
+    // `$F8` reaches zero without expiring. This is 248 visibly stationary calls, not an
+    // approximate four-second host delay.
+    for (int call = 1; call <= 248; call++)
+        baby.Step(bus, samus, motherBrain);
+    AssertEqual(BabyMetroidCutscenePhase.DashOntoScreen, baby.Phase,
+        "Baby dash delay retains function at timer zero");
+    AssertEqual((ushort)0, baby.FunctionTimer, "Baby dash delay exact zero boundary");
+    AssertEqual((ushort)0x0140, baby.XPosition, "Baby remains still through call 248");
+    AssertEqual((ushort)0x0060, baby.YPosition, "Baby Y remains still through call 248");
+
+    BabyMetroidCutsceneStepResult firstCurve = baby.Step(bus, samus, motherBrain);
+    AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
+        "Baby call 249 falls through into curve function");
+    AssertEqual((ushort)0xd680, baby.Angle, "Baby first curve angle");
+    AssertEqual((ushort)0x0a00, baby.Speed, "Baby first curve speed");
+    AssertEqual((ushort)0xf772, firstCurve.XVelocity, "Baby first ROM sine X velocity");
+    AssertEqual((ushort)0x051e, firstCurve.YVelocity, "Baby first ROM cosine Y velocity");
+    AssertEqual(new BabyMetroidCutscenePoint(0x0137, 0x7200, 0x0065, 0x1e00),
+        firstCurve.After,
+        "Baby first curve fixed-point displacement");
+
+    BabyMetroidCutsceneStepResult latch = default;
+    bool sawBodyStumbleRequest = false;
+    bool sawMotherBrainInterrupt = false;
+    bool sawLatchSound = false;
+    int calls = 249;
+    while (baby.Phase != BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse &&
+           calls < 700)
+    {
+        latch = baby.Step(bus, samus, motherBrain);
+        calls++;
+        sawBodyStumbleRequest |= latch.BodyStumbleRequested;
+        sawMotherBrainInterrupt |= latch.MotherBrainInterrupted;
+        sawLatchSound |= latch.LatchSoundQueued;
+
+        if (calls == 259)
+        {
+            AssertEqual(BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace, baby.Phase,
+                "Baby curve timer expires on call 259");
+            AssertEqual(new BabyMetroidCutscenePoint(0x00da, 0x0c00, 0x0086, 0x7a00),
+                latch.After,
+                "Baby curve endpoint from retail ROM");
+        }
+        else if (calls == 269)
+        {
+            AssertEqual(BabyMetroidCutscenePhase.LatchOntoMotherBrain, baby.Phase,
+                "Baby face timer expires on call 269");
+            AssertTrue(latch.SamusStandingRequested,
+                "Baby face completion calls drained controller one");
+            AssertEqual(SamusState.DrainedStandingLeftPose, samus.Pose,
+                "Baby face completion installs left drained standing pose");
+            AssertEqual(new BabyMetroidCutscenePoint(0x008c, 0xc400, 0x004b, 0x6300),
+                latch.After,
+                "Baby face endpoint from retail ROM");
+        }
+    }
+
+    AssertEqual(592, calls, "Baby entrance reaches exact head pin on call 592");
+    AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase,
+        "Baby enters corpse-state wait after pin");
+    AssertTrue(sawBodyStumbleRequest, "Baby requests Mother Brain fast backward stumble");
+    AssertTrue(sawMotherBrainInterrupt, "Baby overwrites Mother Brain final-beam function");
+    AssertTrue(sawLatchSound, "Baby latch queues sound library one effect $40");
+    AssertEqual(BabyMetroidCutsceneState.DrainingMotherBrainInstructionList,
+        baby.InstructionList,
+        "Baby pin installs draining animation");
+    AssertEqual(new BabyMetroidCutscenePoint(0x0040, 0xce00, 0x0048, 0x1300),
+        latch.After,
+        "Baby pin changes whole coordinates but retains native subpositions");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingBackwardReallyFastInstructionList,
+        motherBrain.Body.InstructionPointer,
+        "Baby stumble uses animation-delay index two");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTakenAback,
+        motherBrain.Phase,
+        "Baby installs Mother Brain $BE38 for the following actor turn");
+
+    MotherBrainRainbowBeamAttackStepResult takenAback = motherBrain.Step(
+        bus, samus, enemyFrameCounter: 0, mainEnemyExecutionCounter: 0);
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRegainBalance,
+        takenAback.PhaseAfter,
+        "Mother Brain taken-aback setup falls through into regain balance");
+    AssertEqual((ushort)0x002f, motherBrain.FunctionTimer,
+        "Mother Brain first regain call decrements $30 to $2F");
+    AssertEqual((ushort)3, motherBrain.Body.Form, "Baby drain changes Mother Brain form to three");
+    AssertEqual((ushort)8, motherBrain.LowerNeckMovementIndex,
+        "Mother Brain taken-aback lower neck index");
+    AssertEqual((ushort)8, motherBrain.UpperNeckMovementIndex,
+        "Mother Brain taken-aback upper neck index");
+    AssertEqual((ushort)0x0700, motherBrain.NeckAngleDelta,
+        "Mother Brain taken-aback neck delta");
+
+    int regainCalls = 1;
+    while (motherBrain.Phase == MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRegainBalance)
+    {
+        motherBrain.Step(bus, samus, enemyFrameCounter: 0, mainEnemyExecutionCounter: 0);
+        regainCalls++;
+    }
+    AssertEqual(49, regainCalls, "Mother Brain regain balance includes setup fallthrough call");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam,
+        motherBrain.Phase,
+        "Mother Brain advances to painful firing function");
+    AssertEqual((ushort)2, motherBrain.LowerNeckMovementIndex,
+        "Mother Brain drained firing lower neck index");
+    AssertEqual((ushort)4, motherBrain.UpperNeckMovementIndex,
+        "Mother Brain drained firing upper neck index");
+
+    Console.WriteLine("  Baby Metroid: ROM-backed entrance timing, sine flight, latch, stumble, pin, and Mother Brain interruption agree.");
 }
 
 static void VerifySamusAerialMovement()

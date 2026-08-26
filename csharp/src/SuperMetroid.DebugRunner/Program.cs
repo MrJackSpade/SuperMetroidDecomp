@@ -155,7 +155,7 @@ else if (options.CrystalFlashScript)
 else if (options.MotherBrainRainbowScript)
 {
     Console.WriteLine(
-        "Actor script: execute `$A9:B8EB-$BE1A` with retail Mother Brain body/posture bytecode, forced drained-Samus handlers, final charge, live Baby tile DMA, and spawn handoff.");
+        "Actor script: execute `$A9:B8EB-$BE95` with retail Mother Brain body/posture bytecode, forced drained-Samus handlers, final charge, live Baby tile DMA, sine flight, head latch, and drain interruption.");
 }
 else if (options.DrainedSamusScript)
 {
@@ -252,6 +252,7 @@ if (!options.GroundedRun)
     runtime.InitializeDebugStandingSamus();
 
 MotherBrainRainbowBeamAttackSequence? rainbowAttack = null;
+BabyMetroidCutsceneState? cutsceneBaby = null;
 
 if (options.MorphBallScript || options.BombJumpScript)
 {
@@ -618,11 +619,14 @@ bool issuedDrainedHyperBeamCommand = false;
 int issuedSpaceJumpPulses = 0;
 bool spaceJumpPulseMayBeIssued = true;
 var observedRainbowPhases = new HashSet<MotherBrainRainbowBeamAttackPhase>();
+var observedBabyPhases = new HashSet<BabyMetroidCutscenePhase>();
 var observedBabyTileTransfers = new List<MotherBrainSpriteTileTransferRequest>();
 bool observedBabySpawnRequest = false;
 bool observedFinalBeamSound = false;
+bool observedBabyMotherBrainInterrupt = false;
 MotherBrainRainbowBeamAttackPhase previousRainbowPhase =
     rainbowAttack?.Phase ?? MotherBrainRainbowBeamAttackPhase.Inactive;
+BabyMetroidCutscenePhase previousBabyPhase = BabyMetroidCutscenePhase.Inactive;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
@@ -1163,6 +1167,23 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         observedBabySpawnRequest |= actorResult.BabySpawnRequested;
         observedFinalBeamSound |= actorResult.FinalBeamSoundQueued;
 
+        if (actorResult.BabySpawnRequested)
+        {
+            // Native `$A9:BE1B` spawns population record `$BE28`, whose initialization AI
+            // overwrites the record's coordinates and installs `$C7CC`. The runner creates
+            // exactly that translated enemy once; its later movement reads the supplied
+            // cartridge's real `$A0:B443` sine table on every curved-flight call.
+            if (cutsceneBaby is not null)
+                throw new InvalidOperationException("Mother Brain requested the cutscene Baby more than once.");
+            cutsceneBaby = new BabyMetroidCutsceneState();
+            cutsceneBaby.Initialize();
+            previousBabyPhase = cutsceneBaby.Phase;
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: initialized cutscene Baby at " +
+                $"({cutsceneBaby.XPosition},{cutsceneBaby.YPosition}); " +
+                $"phase={cutsceneBaby.Phase}, timer=${cutsceneBaby.FunctionTimer:X4}.");
+        }
+
         MotherBrainBodyAnimationStepResult bodyResult = rainbowAttack.Body.Step(bus);
         if (rainbowAttack.Phase != previousRainbowPhase)
         {
@@ -1180,6 +1201,34 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 $"frame {frameIndex + 1,4}: Mother Brain body opcode footstep at " +
                 $"({bodyResult.XAfter},{bodyResult.YAfter}); earthquake " +
                 $"{bodyResult.EarthquakeType}/{bodyResult.EarthquakeTimer}.");
+        }
+
+        if (cutsceneBaby is not null)
+        {
+            // Body slot zero executes before the later spawned enemy slot. This placement
+            // also means the spawn frame can run the newly initialized Baby once, matching
+            // the native increasing-slot enemy loop rather than adding an invented delay.
+            BabyMetroidCutsceneStepResult babyResult = cutsceneBaby.Step(
+                bus,
+                runtime.Samus,
+                rainbowAttack,
+                layer1X: 0,
+                layer1Y: 0);
+            observedBabyPhases.Add(babyResult.PhaseBefore);
+            observedBabyPhases.Add(babyResult.PhaseAfter);
+            observedBabyMotherBrainInterrupt |= babyResult.MotherBrainInterrupted;
+
+            if (cutsceneBaby.Phase != previousBabyPhase)
+            {
+                Console.WriteLine(
+                    $"frame {frameIndex + 1,4}: Baby actor {previousBabyPhase} -> " +
+                    $"{cutsceneBaby.Phase}; position=({cutsceneBaby.XPosition:X4}." +
+                    $"{cutsceneBaby.XSubposition:X4},{cutsceneBaby.YPosition:X4}." +
+                    $"{cutsceneBaby.YSubposition:X4}), velocity=" +
+                    $"({cutsceneBaby.XVelocity:X4},{cutsceneBaby.YVelocity:X4}), " +
+                    $"angle/speed=${cutsceneBaby.Angle:X4}/${cutsceneBaby.Speed:X4}.");
+                previousBabyPhase = cutsceneBaby.Phase;
+            }
         }
     }
 
@@ -2021,12 +2070,22 @@ if (options.MotherBrainRainbowScript)
             $"phase={rainbowAttack.Phase}.");
     }
     if (options.FrameCount >= 1700 &&
-        (rainbowAttack.Phase != MotherBrainRainbowBeamAttackPhase.FinalRainbowBeamHolding ||
+        (!observedRainbowPhases.Contains(MotherBrainRainbowBeamAttackPhase.FinalRainbowBeamHolding) ||
          !observedFinalBeamSound))
     {
         throw new InvalidOperationException(
             $"Mother Brain rainbow ROM route did not reach final-beam hold; " +
             $"sound={observedFinalBeamSound}, phase={rainbowAttack.Phase}.");
+    }
+    if (options.FrameCount >= 2050 &&
+        (cutsceneBaby is null ||
+         !observedBabyPhases.Contains(BabyMetroidCutscenePhase.LatchOntoMotherBrain) ||
+         !observedBabyMotherBrainInterrupt))
+    {
+        throw new InvalidOperationException(
+            $"Cutscene Baby did not complete its ROM-backed entrance/latch by the " +
+            $"regression boundary; phase={cutsceneBaby?.Phase.ToString() ?? "not spawned"}, " +
+            $"interrupted={observedBabyMotherBrainInterrupt}.");
     }
     if (options.FrameCount >= 1450)
     {
@@ -2055,7 +2114,9 @@ if (options.MotherBrainRainbowScript)
         $"{runtime.Samus.YPosition}) energy={runtime.Samus.Health}, " +
         $"ammo={runtime.Samus.Missiles}/{runtime.Samus.SuperMissiles}/" +
         $"{runtime.Samus.PowerBombs}, Baby DMA/spawn=" +
-        $"{observedBabyTileTransfers.Count}/{observedBabySpawnRequest}.");
+        $"{observedBabyTileTransfers.Count}/{observedBabySpawnRequest}, Baby AI=" +
+        $"{cutsceneBaby?.Phase.ToString() ?? "not spawned"}/" +
+        $"({cutsceneBaby?.XPosition:X4},{cutsceneBaby?.YPosition:X4}).");
 }
 
 if (options.DrainedSamusScript)

@@ -97,6 +97,11 @@ public sealed class SuperMetroidRuntime
     /// <summary>Most recent special bomb-jump handler result, exposed for debugger watches.</summary>
     public BombJumpMovementResult? LastBombJumpMovement { get; private set; }
 
+    /// <summary>
+    /// Five-slot normal-bomb lifecycle spanning the translated bank-$90/$93/$94/$A0 seams.
+    /// </summary>
+    public SamusBombProjectileSystem BombProjectiles { get; } = new();
+
     /// <summary>Mutable gameplay HUD tilemap at WRAM <c>$7E:C608</c>.</summary>
     public HudState Hud { get; } = new();
 
@@ -214,6 +219,11 @@ public sealed class SuperMetroidRuntime
         // VRAM $4000-$4FFF with zeroes.
         VramWrites.Enqueue(sizeInBytes: 0x2000, sourceAddress: 0x9ab200, encodedVramDestination: 0x4000);
 
+        // $82:8318 follows the BG3 transfer with $2E00 bytes of standard sprite tiles at
+        // VRAM $6000. The dynamic Samus DMA refreshes its four reserved regions each NMI;
+        // fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
+        VramWrites.Enqueue(sizeInBytes: 0x2e00, sourceAddress: 0x9ad200, encodedVramDestination: 0x6000);
+
         // The immutable first row bypasses WRAM and is DMAed straight from $80:988B.
         VramWrites.Enqueue(sizeInBytes: 0x0040, sourceAddress: 0x80988b, encodedVramDestination: 0x5800);
 
@@ -270,6 +280,7 @@ public sealed class SuperMetroidRuntime
         LastAerialSamusMovement = null;
         LastMorphBallMovement = null;
         LastBombJumpMovement = null;
+        BombProjectiles.Reset();
         InitializeDebugSamus(
             xPosition: unchecked((ushort)(Camera.XPosition + 64)),
             yPosition: unchecked((ushort)(Camera.YPosition + 166)));
@@ -352,6 +363,7 @@ public sealed class SuperMetroidRuntime
             LastAerialSamusMovement = null;
             LastMorphBallMovement = null;
             LastBombJumpMovement = null;
+            BombProjectiles.Reset();
             return new DebugGroundedSamusPlacement(
                 xPosition,
                 restingY,
@@ -450,6 +462,11 @@ public sealed class SuperMetroidRuntime
                 Controller1.NewlyPressed);
             ProspectiveSamusFallbackPose = null;
 
+            // Bomb overlap is published by GameState_8 after the preceding frame's alpha.
+            // $90:DE78 consumes it during this frame's alpha before beta dispatches motion.
+            // This one-frame seam is observable: timer eight does not move Samus yet.
+            Samus.TrySetupPublishedMorphedBombJump();
+
             // With no controller bits, $91:82D9 consults pose-definition byte two. Running
             // poses $09/$0A store fallbacks $01/$02, but Samus_Pose_Func2 first preserves
             // the running pose while base speed is nonzero and selects momentum routine
@@ -528,6 +545,17 @@ public sealed class SuperMetroidRuntime
             {
                 if (LevelData is null)
                     throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
+
+                // Alpha order is cooldown -> movement-type HUD projectile producer ->
+                // HandleProjectile. The outer gameplay loop then runs bank-$A0 overlap
+                // before beta movement. A newly placed bomb therefore counts 60 -> 59 and
+                // selects its first bank-$93 art record in the placement frame itself.
+                BombProjectiles.StepFrame(
+                    _addressSpace,
+                    LevelData,
+                    Samus,
+                    Controller1.Current,
+                    Controller1.NewlyPressed);
 
                 // $90:E725 dispatches movement type before animation. Every admitted pose
                 // below has its own verified direction/mode path; a newly reachable pose
@@ -1240,6 +1268,9 @@ public sealed class SuperMetroidRuntime
                     hasAreaMap: false);
             }
 
+            // $A0:884D draws bomb/projectile explosions before reaching the enemy-layer
+            // phase that calls DrawSamusAndProjectiles. Preserve that OAM ordering.
+            BombProjectiles.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
             Samus.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
         }
         if (EscapeTimer.IsActive)

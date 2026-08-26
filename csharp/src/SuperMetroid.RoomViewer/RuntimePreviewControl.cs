@@ -27,6 +27,7 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton holdLeftButton = new("Hold Left");
     private readonly ToolStripButton holdRightButton = new("Hold Right");
     private readonly ToolStripButton holdJumpButton = new("Hold Jump");
+    private readonly ToolStripButton holdShootButton = new("Hold Shoot");
     private readonly ToolStripButton holdUpButton = new("Hold Up");
     private readonly ToolStripButton holdDownButton = new("Hold Down");
     private readonly ToolStripButton holdAimUpButton = new("Hold Aim Up");
@@ -80,6 +81,9 @@ internal sealed class RuntimePreviewControl : UserControl
         holdJumpButton.CheckOnClick = true;
         holdJumpButton.ToolTipText =
             "Feeds canonical jump bit $0080. Tap it for a short jump or leave it held for the native variable-height arc.";
+        holdShootButton.CheckOnClick = true;
+        holdShootButton.ToolTipText =
+            "Feeds canonical Shoot/X bit $0040. Click on for a fresh bomb-placement edge, then off before placing another.";
         holdUpButton.CheckOnClick = true;
         holdUpButton.ToolTipText = "Feeds Up; a new Up press starts the ROM crouch-to-standing transition.";
         holdDownButton.CheckOnClick = true;
@@ -158,6 +162,7 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(holdLeftButton);
         toolStrip.Items.Add(holdRightButton);
         toolStrip.Items.Add(holdJumpButton);
+        toolStrip.Items.Add(holdShootButton);
         toolStrip.Items.Add(holdUpButton);
         toolStrip.Items.Add(holdDownButton);
         toolStrip.Items.Add(holdAimUpButton);
@@ -199,6 +204,7 @@ internal sealed class RuntimePreviewControl : UserControl
         holdLeftButton.Checked = false;
         holdRightButton.Checked = false;
         holdJumpButton.Checked = false;
+        holdShootButton.Checked = false;
         holdUpButton.Checked = false;
         holdDownButton.Checked = false;
         holdAimUpButton.Checked = false;
@@ -224,12 +230,12 @@ internal sealed class RuntimePreviewControl : UserControl
             runtime.InitializeDebugGroundedSamus();
 
             // The sandbox has no save-file loader yet, so its inventory would otherwise be
-            // empty forever. Grant exactly the Morph Ball equipped-item bit as an explicit
-            // debugger stimulus. The interactive route still uses the cartridge's real
+            // empty forever. Grant Morph Ball and Bomb item bits as explicit debugger
+            // stimuli. The interactive route still uses the cartridge's real
             // input records: tap Down to crouch, release it, then tap Down again to morph.
             // Cinematic diagnostics receive no inventory, and later save-state work should
             // replace this one deliberately visible host grant rather than hiding it.
-            runtime.Samus!.EquippedItems |= 0x0004;
+            runtime.Samus!.EquippedItems |= 0x1004;
             if (springBallButton.Checked)
                 runtime.Samus.EquippedItems |= 0x0002;
         }
@@ -280,6 +286,8 @@ internal sealed class RuntimePreviewControl : UserControl
                 input |= (ushort)SnesButton.Right;
             if (holdJumpButton.Checked)
                 input |= (ushort)SnesButton.A;
+            if (holdShootButton.Checked)
+                input |= (ushort)SnesButton.X;
             if (holdUpButton.Checked)
                 input |= (ushort)SnesButton.Up;
             else if (holdDownButton.Checked)
@@ -465,6 +473,9 @@ internal sealed class RuntimePreviewControl : UserControl
             $"Y {runtime.Samus.YPosition:X4}.{runtime.Samus.Kinematics.YSubposition:X4} " +
             $"speed {runtime.Samus.Kinematics.YSpeed:X4}." +
             $"{runtime.Samus.Kinematics.YSubspeed:X4}/dir {runtime.Samus.Kinematics.YDirection}  |  " +
+            $"bombs {runtime.BombProjectiles.BombCounter}/5 " +
+            $"cooldown {runtime.BombProjectiles.CooldownTimer} " +
+            $"jump ${runtime.Samus.BombJumpDirection:X4}  |  " +
             $"terrain={(livePpuLayersButton.Checked ? "live PPU" : "ROM composite")}  |  " +
             $"{prospectivePose}  |  " +
             $"{runtime.LastBackgroundUpdateCount} BG update(s)  |  " +

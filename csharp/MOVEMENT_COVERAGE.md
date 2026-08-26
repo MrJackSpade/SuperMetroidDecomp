@@ -15,11 +15,11 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$01` | Running | `$09/$0A/$0D-$12`, dry air, no run button | Run button, speed booster, liquid/environment effects, gun-extended/fire variants |
 | `$02` | Normal jumping | `$4B-$4E/$15-$18/$51-$52/$55-$5A/$69-$6C`, including compact straight-down collision changes, dry air, variable height, ceiling/floor collision | Equipment/liquids, external displacement |
 | `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation | Wall-jump trigger, space jump, screw attack, equipment/liquids |
-| `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, dry ground, slopes, reversal, deceleration, walk-off | Bomb deployment, liquids, enemy collision, external displacement |
+| `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, dry ground, slopes, reversal, deceleration, walk-off, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
 | `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry | Fire variants and morph entry |
 | `$06` | Falling | `$29-$2E/$6D-$70`, including compact straight-down collision changes, walk-off, dry-air gravity and landing | Equipment/liquids, aerial turn transitions |
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
-| `$08` | Morph ball falling | `$31/$32`, dry-air gravity, ceiling/floor collision, two-stage hard bounce, gentle landing | Bomb deployment, liquids, enemy collision, external displacement |
+| `$08` | Morph ball falling | `$31/$32`, dry-air gravity, ceiling/floor collision, two-stage hard bounce, gentle landing, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
 | `$09` | Unused | — | Preserve only if required |
 | `$0A` | Knockback / crystal-flash ending | — | Entire family |
 | `$0B` | Unused | — | Preserve only if required |
@@ -28,9 +28,9 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$0E` | Turning on ground | `$25/$26/$43/$44/$8B-$8E/$9C/$9D`, old-direction mode-one momentum, native standing/crouch selector, `$F8` completion | Fire variants and transitions originating in later families |
 | `$0F` | Crouch/stand/morph transition | `$35/$36/$3B/$3C/$37/$38/$3D/$3E/$F1-$FC`, bottom alignment, radius collision, `$F9/$FD` completion | Fire variants and later equipment-dependent transitions |
 | `$10` | Moonwalking | — | Entire family |
-| `$11` | Spring ball on ground | `$79-$7C`, dry ground, slopes, reversal, jump entry, walk-off | Bomb interaction, liquids, enemy collision, external displacement |
-| `$12` | Spring ball in air | `$7F/$80`, dry-air powered jump, variable height, ceiling/floor collision | Bomb interaction, liquids, enemy collision, external displacement |
-| `$13` | Spring ball falling | `$7D/$7E`, dry-air gravity, held-jump relaunch, automatic bounce | Bomb interaction, liquids, enemy collision, external displacement |
+| `$11` | Spring ball on ground | `$79-$7C`, dry ground, slopes, reversal, jump entry, walk-off, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
+| `$12` | Spring ball in air | `$7F/$80`, dry-air powered jump, variable height, ceiling/floor collision, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
+| `$13` | Spring ball falling | `$7D/$7E`, dry-air gravity, held-jump relaunch, automatic bounce, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
 | `$14` | Wall jumping | — | Trigger check, launch physics, animation, landing |
 | `$15` | Ran into a wall | — | Entire family |
 | `$16` | Grappling | — | Swing, stuck, release, wall-jump seams |
@@ -209,14 +209,26 @@ translated status is documented with the Morph Ball family below.
   initializes the ROM 4.E000 dry-air launch. Type `$12` retains the normal jump cutoff,
   while type `$13` retains morphed falling. Landing with Jump held relaunches immediately;
   automatic rebounds use the native `$0601/$0602` state before returning to `$79/$7A`.
-- A bank-$A0 overlap result of one/two/three becomes `$0801/$0802/$0803` through the
+- `$90:BF9D/$90:C0E7` require equipped bit `$1000`, a fresh Shoot/X edge, fewer than five
+  bombs, and a clear low cooldown byte. Placement uses physical slots `$0A-$12`, stores
+  timer 60 in the `projectile_variables` / `bomb_timers` alias, resolves damage/list data
+  through `$93:83F1`, and immediately runs the new slot to timer 59 and its first art frame.
+- `$90:C128` switches the live instruction pointer from slow to phase-equivalent fast art
+  at timer 15 and selects the `$93:A06B` explosion list at zero. `$93:81E9` executes timed
+  frames plus `$8239` goto and `$822F` delete; deletion clears the slot and decrements the
+  native aggregate. `$93:834D/$81:8A4B` draw the cartridge spritemaps from the standard
+  `$9A:D200 -> VRAM $6000` sprite upload, before Samus in OAM order.
+- At timer eight, strict X/Y radius overlap in `$A0:97E2-$A0:984E` publishes direction
+  one/two/three. The direction remains a low word until the following frame, then becomes
+  `$0801/$0802/$0803` through the
   morphed bomb-jump setup and bank-$91 special command three. `$90:E025` consumes the
   literal dry-air `$90:9EF5/$90:9EFB` launch pair without moving on its start frame.
   `$90:E032` uses the standalone `$90:9F25` speed record for left/right displacement,
   performs the old-speed-before-gravity vertical pass, and ends on upward collision or
   signed-speed apex. Diagonal apex selects acceleration mode two; the preserved current
-  ball pose then owns falling and ordinary two-stage bounce recovery. Bomb creation,
-  countdown, explosion rendering, and the actual overlap producer remain untranslated.
+  ball pose then owns falling and ordinary two-stage bounce recovery. `$94:9CF4`'s
+  center/up/right/left/down cross is complete for no-op air/slope/solid block families;
+  shootable/special/bombable/extension reactions throw until their bank-$84 PLMs exist.
 
 ## Evidence
 
@@ -263,16 +275,17 @@ translated status is documented with the Morph Ball family below.
 - The real-ROM `--spring-ball-script` observes `$37 -> $79 -> $7B -> $7F`, a ROM-authored
   powered arc, ceiling collision, automatic bounce, and `$79` recovery. Its 80-frame pose
   capture freezes the airborne ball against cartridge-derived terrain and live camera state.
-- The real-ROM `--bomb-jump-script` observes `$37 -> $1D`, injects only bank A0's verified
-  direction-three overlap result, and runs `$90:E025/$E032` against cartridge launch,
-  gravity, and diagonal-speed data. Signed velocity underflow terminates the special
-  handler at the apex; ordinary `$31` descent then performs real floor collision and `$1D`
-  recovery. The route asserts start, rising movement, and termination as distinct phases.
+- The real-ROM `--bomb-jump-script` observes `$37 -> $1D`, presses Shoot/X once, allocates
+  slot zero, reaches bank-$A0's straight timer-eight overlap at accepted NMI 77, installs
+  `$90:E025` on 78, begins displacement on 79, starts explosion art on 85, deletes the bomb
+  on 95, ends the special handler on 105, and recovers `$31 -> $1D` on floor collision at
+  133. Captures show real OBJ tile `$14C` for the bomb and `$18B` for the explosion against
+  cartridge-derived terrain; no projectile direction or velocity is host-injected.
 
 ## Next implementation order
 
-1. Morph Ball bomb placement, countdown/explosion animation, and real overlap trigger.
-2. Aerial turns and the real wall-jump trigger/launch.
-3. Knockback and damage boost.
-4. Grapple movement and release routes.
-5. Speed booster/shinespark, crystal flash/drained, and remaining scripted movement.
+1. Aerial turns and the real wall-jump trigger/launch.
+2. Knockback and damage boost.
+3. Grapple movement and release routes.
+4. Speed booster/shinespark, crystal flash/drained, and remaining scripted movement.
+5. Return with bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.

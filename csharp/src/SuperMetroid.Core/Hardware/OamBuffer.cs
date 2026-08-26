@@ -187,6 +187,55 @@ public sealed class OamBuffer
     }
 
     /// <summary>
+    /// Ports <c>AddProjectileSpritemapToOAM</c> at <c>$81:8A4B</c> for a direct bank-$93
+    /// spritemap pointer. Projectile records keep their own palette, priority, and flips.
+    /// </summary>
+    /// <remarks>
+    /// The bank-$93 draw caller has already performed room-relative off-screen checks, so
+    /// this routine intentionally has no vertical-wrap parking rule. It is closer to the
+    /// common tail used by the original than <see cref="AddOnScreenSpritemap"/>, whose
+    /// caller supplies replacement palette bits.
+    /// </remarks>
+    public void AddProjectileSpritemap(
+        ISnesAddressSpace bus,
+        ushort bank93SpritemapPointer,
+        ushort originX,
+        ushort originY)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+
+        int spritemapAddress = 0x930000 | bank93SpritemapPointer;
+        ushort entryCount = ReadWordInFixedBank(bus, spritemapAddress);
+        if (entryCount == 0)
+            return;
+
+        int entryAddress = AddWithinBank(spritemapAddress, 2);
+        for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
+        {
+            ushort encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
+            byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
+            ushort attributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
+
+            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset));
+            byte calculatedY = unchecked((byte)(originY + encodedYOffset));
+            bool xHigh = (calculatedX & 0x0100) != 0;
+            bool isLarge = (encodedXOffset & 0x8000) != 0;
+
+            int spriteIndex = NextByteOffset >> 2;
+            int lowOffset = NextByteOffset;
+            _lowTable[lowOffset] = (byte)calculatedX;
+            _lowTable[lowOffset + 1] = calculatedY;
+            _lowTable[lowOffset + 2] = (byte)attributes;
+            _lowTable[lowOffset + 3] = (byte)(attributes >> 8);
+            SetHighTablePair(spriteIndex, xHigh, isLarge);
+
+            // $81:8A2B masks the byte-address stack to nine bits after each entry.
+            NextByteOffset = (NextByteOffset + 4) & 0x01ff;
+            entryAddress = AddWithinBank(entryAddress, 5);
+        }
+    }
+
+    /// <summary>
     /// Ports <c>$80:896E</c>: move every unused sprite to Y=<c>$F0</c> and reset the OAM
     /// stack pointer for the following construction pass.
     /// </summary>

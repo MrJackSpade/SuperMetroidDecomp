@@ -409,7 +409,8 @@ public sealed class SamusState
 
     /// <summary>
     /// Equipped-item bitfield corresponding to WRAM <c>$09A2</c>. Bit two ($0004) is Morph
-    /// Ball and bit one ($0002) is Spring Ball; animation command $F9 reads both directly.
+    /// Ball, bit one ($0002) is Spring Ball, and bit twelve ($1000) is Bombs. Animation
+    /// command $F9 and the Morph-Ball projectile handler read this word directly.
     /// </summary>
     public ushort EquippedItems { get; set; }
 
@@ -664,25 +665,61 @@ public sealed class SamusState
         UnmorphingTransitionRightPose or UnmorphingTransitionLeftPose;
 
     /// <summary>
-    /// Publishes the result of bank `$A0:97E2-$A0:984E` bomb/Samus overlap after the bomb
-    /// timer reaches eight, then applies `$90:DF99` and special command three `$91:EE80`.
-    /// Projectile collision owns direction selection; this method owns only the verified
-    /// handoff into the special movement handler.
+    /// Convenience debugger/test entry that performs both native phases: publishing the
+    /// bank-$A0 timer-eight overlap direction, then consuming it through $90:DF99 and
+    /// special command three $91:EE80. Live runtime code calls those phases on separate
+    /// frames through <see cref="PublishBombJumpDirection"/> and
+    /// <see cref="TrySetupPublishedMorphedBombJump"/>.
     /// </summary>
     public void RequestMorphedBombJump(byte direction)
     {
-        if (!IsStableBallPose(Pose))
-            throw new InvalidOperationException($"Morphed bomb jump requires a ball pose, not ${Pose:X2}.");
+        PublishBombJumpDirection(direction);
+        TrySetupPublishedMorphedBombJump();
+    }
+
+    /// <summary>
+    /// Stores only bank-$A0's low-byte bomb direction. The gameplay loop does this after
+    /// frame-handler alpha; setup consequently cannot consume it until the next frame.
+    /// </summary>
+    public void PublishBombJumpDirection(byte direction)
+    {
         if (direction is < 1 or > 3)
-            throw new ArgumentOutOfRangeException(nameof(direction), direction, "Bomb-jump direction must be left, straight, or right.");
-        if ((BombJumpDirection & 0xff00) != 0)
-            return;
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(direction),
+                direction,
+                "Bomb-jump direction must be left, straight, or right.");
+        }
+
+        // $A0:984B writes the complete word, not just its low byte. A timer-eight overlap
+        // therefore publishes exactly $0001/$0002/$0003.
+        BombJumpDirection = direction;
+    }
+
+    /// <summary>
+    /// Consumes a direction published by the previous frame's projectile collision using
+    /// the morphed branch at $90:E010 and command-three branch at $91:EE80.
+    /// </summary>
+    /// <returns>True when a pending low-byte direction installed the start handler.</returns>
+    public bool TrySetupPublishedMorphedBombJump()
+    {
+        if (BombJumpDirection == 0 || (BombJumpDirection & 0xff00) != 0)
+            return false;
+
+        if (!IsStableBallPose(Pose))
+        {
+            // Standing/running/falling bomb jumps deliberately select different poses at
+            // $90:DFAD-$90:E00D. Silently preserving a non-ball pose would invent behavior.
+            throw new NotSupportedException(
+                $"Bomb-jump setup for non-ball pose ${Pose:X2} is not translated yet.");
+        }
 
         // Morphed movement types `$04/$08/$11/$12/$13` preserve the current pose in
         // SpecialProspectivePose. Command three ORs `$0800` and installs start handler.
-        BombJumpDirection = unchecked((ushort)(0x0800 | direction));
+        BombJumpDirection |= 0x0800;
         BombJumpStarting = true;
         BombJumpActive = false;
+        return true;
     }
 
     /// <summary>True for the admitted right-facing movement-type-two normal-jump poses.</summary>

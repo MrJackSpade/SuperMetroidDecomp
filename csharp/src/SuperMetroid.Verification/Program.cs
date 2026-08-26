@@ -3598,6 +3598,170 @@ static void VerifySamusMorphBallMovement()
     AssertEqual((ushort)0, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
     AssertEqual(SamusState.SpringBallJumpRightPose, spring.Pose, "held-Jump relaunch pose");
 
+    // Bank-$93 projectile fixtures copied byte-for-byte from the normal-bomb pointer/data
+    // records and its slow, fast, and explosion instruction lists. The production code
+    // must follow these pointers; no test-facing constructor is allowed to inject damage,
+    // radii, frame durations, or animation endpoints directly into a slot.
+    WriteTestWord(bus, 0x9383fb, 0x8675); // Non-beam type five -> normal bomb data.
+    bus.WriteBytes(0x938675, [0x1e, 0x00, 0xbf, 0x9f]);
+    WriteTestWord(bus, 0x938683, 0xa06b); // Bomb-explosion instruction pointer.
+    bus.WriteBytes(0x939fbf, [
+        0x05, 0x00, 0x45, 0xad, 0x04, 0x04, 0x00, 0x00,
+        0x05, 0x00, 0x4c, 0xad, 0x04, 0x04, 0x00, 0x00,
+        0x05, 0x00, 0x53, 0xad, 0x04, 0x04, 0x00, 0x00,
+        0x05, 0x00, 0x5a, 0xad, 0x04, 0x04, 0x00, 0x00,
+        0x39, 0x82, 0xbf, 0x9f,
+    ]);
+    bus.WriteBytes(0x939fe3, [
+        0x01, 0x00, 0x45, 0xad, 0x04, 0x04, 0x00, 0x00,
+        0x01, 0x00, 0x4c, 0xad, 0x04, 0x04, 0x00, 0x00,
+        0x01, 0x00, 0x53, 0xad, 0x04, 0x04, 0x00, 0x00,
+        0x01, 0x00, 0x5a, 0xad, 0x04, 0x04, 0x00, 0x00,
+        0x39, 0x82, 0xe3, 0x9f,
+    ]);
+    bus.WriteBytes(0x93a06b, [
+        0x02, 0x00, 0x3e, 0xa8, 0x08, 0x08, 0x00, 0x00,
+        0x02, 0x00, 0x54, 0xa8, 0x0c, 0x0c, 0x00, 0x00,
+        0x02, 0x00, 0x6a, 0xa8, 0x10, 0x10, 0x00, 0x00,
+        0x02, 0x00, 0x80, 0xa8, 0x10, 0x10, 0x00, 0x00,
+        0x02, 0x00, 0x96, 0xa8, 0x10, 0x10, 0x00, 0x00,
+        0x2f, 0x82,
+    ]);
+
+    var noBombItemSamus = new SamusState
+    {
+        Pose = SamusState.MorphBallGroundRightPose,
+        EquippedItems = 0x0004,
+        XPosition = 48,
+        YPosition = 57,
+    };
+    noBombItemSamus.RefreshCollisionRadii(bus);
+    var noBombItemSystem = new SamusBombProjectileSystem();
+    BombProjectileFrameResult rejectedBomb = noBombItemSystem.StepFrame(
+        bus,
+        floor,
+        noBombItemSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X);
+    AssertEqual<int?>(null, rejectedBomb.PlacedSlot, "bomb item bit gates placement");
+
+    var bombProjectileSamus = new SamusState
+    {
+        Pose = SamusState.MorphBallGroundRightPose,
+        EquippedItems = 0x1004,
+        XPosition = 48,
+        YPosition = 57,
+    };
+    bombProjectileSamus.RefreshCollisionRadii(bus);
+    var bombs = new SamusBombProjectileSystem();
+    BombProjectileFrameResult placement = bombs.StepFrame(
+        bus,
+        floor,
+        bombProjectileSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X);
+    AssertEqual<int?>(0, placement.PlacedSlot, "first normal bomb uses physical slot zero");
+    AssertEqual((ushort)1, bombs.BombCounter, "placement increments native bomb counter");
+    AssertEqual((ushort)0x0010, bombs.CooldownTimer, "normal bomb loads cooldown table entry five");
+    AssertEqual((ushort)59, bombs.Slots[0].BombTimer, "placement frame immediately decrements timer 60 to 59");
+    AssertEqual((ushort)0x001e, bombs.Slots[0].Damage, "bomb damage follows bank-$93 data pointer");
+    AssertEqual((ushort)0xad45, bombs.Slots[0].SpritemapPointer, "first instruction selects ROM bomb spritemap");
+    AssertEqual((ushort)4, bombs.Slots[0].XRadius, "first instruction publishes ROM X radius");
+    AssertEqual((ushort)4, bombs.Slots[0].YRadius, "first instruction publishes ROM Y radius");
+
+    // A new edge during the active low-byte cooldown is rejected without incrementing the
+    // aggregate. Release is a separate frame so ControllerInputState-like edge semantics
+    // are represented explicitly in this direct subsystem test.
+    bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
+    BombProjectileFrameResult cooldownRejected = bombs.StepFrame(
+        bus,
+        floor,
+        bombProjectileSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X);
+    AssertEqual<int?>(null, cooldownRejected.PlacedSlot, "active bomb cooldown rejects another edge");
+    AssertEqual((ushort)1, bombs.BombCounter, "rejected edge does not alter bomb counter");
+
+    // Run to timer nine, then prove bank-$A0's three X comparisons at timer eight using
+    // three independent slots/lifecycles. Distances remain inside the strict radius sum.
+    static (SamusBombProjectileSystem System, SamusState Samus) MakeDirectionFixture(
+        TestAddressSpace fixtureBus,
+        RoomLevelData fixtureFloor)
+    {
+        var fixtureSamus = new SamusState
+        {
+            Pose = SamusState.MorphBallGroundRightPose,
+            EquippedItems = 0x1004,
+            XPosition = 48,
+            YPosition = 57,
+        };
+        fixtureSamus.RefreshCollisionRadii(fixtureBus);
+        var fixtureSystem = new SamusBombProjectileSystem();
+        fixtureSystem.StepFrame(
+            fixtureBus,
+            fixtureFloor,
+            fixtureSamus,
+            (ushort)SnesButton.X,
+            (ushort)SnesButton.X);
+        while (fixtureSystem.Slots[0].BombTimer > 9)
+            fixtureSystem.StepFrame(fixtureBus, fixtureFloor, fixtureSamus, 0, 0);
+        return (fixtureSystem, fixtureSamus);
+    }
+
+    foreach ((ushort samusX, byte expectedDirection) in new (ushort, byte)[]
+    {
+        (47, 1),
+        (48, 2),
+        (49, 3),
+    })
+    {
+        (SamusBombProjectileSystem directionSystem, SamusState directionSamus) =
+            MakeDirectionFixture(bus, floor);
+        directionSamus.XPosition = samusX;
+        BombProjectileFrameResult timerEight = directionSystem.StepFrame(
+            bus,
+            floor,
+            directionSamus,
+            0,
+            0);
+        AssertEqual(expectedDirection, timerEight.PublishedBombJumpDirection,
+            $"timer-eight bomb direction at Samus X {samusX}");
+        AssertEqual((ushort)expectedDirection, directionSamus.BombJumpDirection,
+            "bank-$A0 publishes low byte without command bit");
+        AssertTrue(!directionSamus.BombJumpStarting,
+            "timer-eight overlap does not start movement in same frame");
+    }
+
+    // Continue the original straight fixture through timer zero. It must enter fast art at
+    // fifteen, publish direction at eight, emit a five-block no-op reaction cross at zero,
+    // animate all five explosion records, execute delete, and decrement BombCounter.
+    while (bombs.Slots[0].BombTimer > 15)
+        bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
+    AssertTrue(bombs.Slots[0].InstructionPointer >= 0x9fe3,
+        "timer fifteen advances the live instruction pointer into fast animation");
+    while (bombs.Slots[0].BombTimer > 8)
+        bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
+    AssertEqual((ushort)2, bombProjectileSamus.BombJumpDirection,
+        "same-X timer-eight overlap publishes straight direction");
+    AssertTrue(bombProjectileSamus.TrySetupPublishedMorphedBombJump(),
+        "following alpha consumes published morphed bomb jump");
+    AssertEqual((ushort)0x0802, bombProjectileSamus.BombJumpDirection,
+        "morphed setup adds command-three bit on following frame");
+
+    BombProjectileFrameResult explosion = default;
+    while (!explosion.ExplosionStarted)
+        explosion = bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
+    AssertTrue(bombs.Slots[0].IsExploding, "timer zero selects bomb explosion list");
+    AssertEqual((ushort)0x0501, bombs.Slots[0].Type, "first explosion pass marks block cross handled");
+    AssertEqual(5, explosion.BlockReactions!.Count, "bomb explosion visits center/up/right/left/down");
+    AssertEqual((byte)8, explosion.BlockReactions[4].CollisionType,
+        "bottom reaction reaches fixture solid floor without inventing a PLM");
+
+    for (int tick = 0; tick < 20 && bombs.BombCounter != 0; tick++)
+        bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
+    AssertEqual((ushort)0, bombs.BombCounter, "explosion delete decrements bomb counter");
+    AssertTrue(!bombs.Slots[0].IsActive, "delete opcode clears complete bomb slot");
+
     // Bank `$A0:97E2-$A0:984E` decides direction from bomb-versus-Samus X. Its bank-$91
     // command-three handoff must retain the stable ball pose and arm `$0801-$0803`; it
     // must also reject non-ball callers instead of silently inventing a normal jump.

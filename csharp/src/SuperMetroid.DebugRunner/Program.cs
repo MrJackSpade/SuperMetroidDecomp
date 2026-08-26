@@ -84,16 +84,16 @@ else if (options.SpringBallScript)
 else if (options.BombJumpScript)
 {
     Console.WriteLine(
-        "Input script: crouch/morph, then inject the verified bank-$A0 right-bomb overlap result and run the ROM-backed bomb-jump arc.");
+        "Input script: crouch/morph, place a real normal bomb, then follow its ROM countdown, overlap, explosion, and straight bomb-jump arc.");
 }
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
-// through the same queue/NMI path used by room and sprite uploads. Word $7000 stays clear
-// of BG data, Samus's $6000/$6080/$6100/$6180 character slots, and the timer at $7E00.
+// through the same queue/NMI path used by room and sprite uploads. Word $7800 stays clear
+// of BG data, the standard $6000-$76FF sprite upload, and the timer at $7E00.
 runtime.VramWrites.Enqueue(
     sizeInBytes: 16,
     sourceAddress: 0x808000,
-    encodedVramDestination: 0x7000);
+    encodedVramDestination: 0x7800);
 
 // Populate the exact BG3 HUD graphics/tilemap VRAM regions as another real NMI workload.
 // The current snapshot represents Ceres-era 99 energy and no collected ammunition.
@@ -129,10 +129,10 @@ if (!options.GroundedRun)
 
 if (options.MorphBallScript || options.BombJumpScript)
 {
-    // The Landing Site debugger spawn has no save-file inventory. Grant only Morph Ball
-    // bit `$0004` as an explicit host stimulus; `$91:F7CE`, `$90:839A`, pose definitions,
-    // animation bytes, movement tables, collision, art, and every transition remain ROM-backed.
-    runtime.Samus!.EquippedItems |= 0x0004;
+    // The Landing Site debugger spawn has no save-file inventory. The ordinary route needs
+    // Morph Ball `$0004`; the bomb route additionally needs Bombs `$1000`. These are the
+    // only host grants: placement/countdown/instructions/overlap/movement remain ROM-backed.
+    runtime.Samus!.EquippedItems |= options.BombJumpScript ? (ushort)0x1004 : (ushort)0x0004;
 }
 else if (options.SpringBallScript)
 {
@@ -317,6 +317,10 @@ ushort? priorFallbackPose = null;
 bool observedBombJumpStart = false;
 bool observedBombJumpEnd = false;
 bool observedBombJumpRise = false;
+bool observedBombPlacement = false;
+bool observedBombExplosion = false;
+bool observedBombDeletion = false;
+bool observedStraightBombOverlap = false;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
@@ -539,9 +543,10 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 >= 2 and < 8 => (ushort)SnesButton.Down,
                 >= 10 and < 20 => (ushort)SnesButton.Down,
 
-                // The bomb-jump route stops here. Its trigger below is an explicit host
-                // stand-in for the not-yet-translated projectile overlap; movement still
-                // reads the user's `$90:9EF5/$9EFB/$9F25` records and real room collision.
+                // The bomb-jump route stops moving here and presses the default Shoot/X
+                // binding once. Everything after this edge is produced by the translated
+                // five-slot projectile lifecycle and cartridge instruction data.
+                25 when options.BombJumpScript => (ushort)SnesButton.X,
                 >= 25 and < 80 when !options.BombJumpScript => (ushort)SnesButton.Right,
                 >= 80 and < 140 when !options.BombJumpScript => (ushort)SnesButton.Left,
 
@@ -570,18 +575,16 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             _ => (ushort)0,
         };
 
-    // Until bomb projectiles themselves are translated, this single line supplies exactly
-    // the value that `$A0:97E2-$A0:984E` would publish after a timer-eight explosion overlaps
-    // Samus. Direction three means the bomb was left of Samus and therefore launches right.
-    // No velocity, pose, collision result, or animation frame is authored by the host.
-    if (options.BombJumpScript && frameIndex == 25)
-        runtime.Samus.RequestMorphedBombJump(direction: 3);
-
     RuntimeFrameResult result = runtime.StepFrame(controllerInput);
     observedSamusPoses.Add(runtime.Samus.Pose);
     observedBombJumpStart |= runtime.LastBombJumpMovement is { Started: true };
     observedBombJumpEnd |= runtime.LastBombJumpMovement is { Ended: true };
     observedBombJumpRise |= runtime.LastBombJumpMovement is { Started: false, Ended: false };
+    observedBombPlacement |= runtime.BombProjectiles.LastFrameResult.PlacedSlot is not null;
+    observedBombExplosion |= runtime.BombProjectiles.LastFrameResult.ExplosionStarted;
+    observedBombDeletion |= runtime.BombProjectiles.LastFrameResult.ProjectileDeleted;
+    observedStraightBombOverlap |=
+        runtime.BombProjectiles.LastFrameResult.PublishedBombJumpDirection == 2;
 
     // Put a breakpoint here to inspect the complete runtime after any chosen frame. The
     // NoInlining attribute below keeps this method as a reliable stack frame in Debug and
@@ -880,18 +883,33 @@ if (options.SpringBallScript)
 
 if (options.BombJumpScript)
 {
-    // These assertions separate three native phases: `$E025` initialization, at least one
-    // `$E032` movement frame, and `$E032` termination at apex or collision. The retained
-    // `$1D` pose is also ROM evidence that morphed setup did not invent an airborne pose.
-    if (!observedSamusPoses.Contains(SamusState.MorphBallGroundRightPose))
+    // The route now proves the complete producer-to-consumer chain, not merely the special
+    // movement handler: controller edge, slot allocation, timer-eight bank-$A0 overlap,
+    // next-frame `$E025`, explosion instruction list/delete, rise, and termination.
+    if (options.FrameCount >= 17 &&
+        !observedSamusPoses.Contains(SamusState.MorphBallGroundRightPose))
         throw new InvalidOperationException("Bomb-jump ROM script never reached stable Morph Ball pose $1D.");
-    if (!observedBombJumpStart || !observedBombJumpRise || !observedBombJumpEnd)
+
+    // Short runs are intentionally supported as art/timing captures. Each threshold is
+    // the first accepted NMI where the full real-ROM route can have observed that phase.
+    bool missedReachedPhase =
+        (options.FrameCount >= 26 && !observedBombPlacement) ||
+        (options.FrameCount >= 77 && !observedStraightBombOverlap) ||
+        (options.FrameCount >= 78 && !observedBombJumpStart) ||
+        (options.FrameCount >= 79 && !observedBombJumpRise) ||
+        (options.FrameCount >= 85 && !observedBombExplosion) ||
+        (options.FrameCount >= 95 && !observedBombDeletion) ||
+        (options.FrameCount >= 105 && !observedBombJumpEnd);
+    if (missedReachedPhase)
     {
         throw new InvalidOperationException(
-            $"Bomb-jump ROM script missed a handler phase: start={observedBombJumpStart}, " +
+            $"Bomb route missed a phase: placed={observedBombPlacement}, " +
+            $"overlap={observedStraightBombOverlap}, explosion={observedBombExplosion}, " +
+            $"deleted={observedBombDeletion}, start={observedBombJumpStart}, " +
             $"rise={observedBombJumpRise}, end={observedBombJumpEnd}.");
     }
-    Console.WriteLine("Bomb-jump ROM route validated start, rising displacement, and special-handler termination.");
+    Console.WriteLine(
+        $"Bomb-jump ROM route validated every milestone reachable within {options.FrameCount} frame(s).");
 }
 
 Console.WriteLine(
@@ -900,11 +918,11 @@ Console.WriteLine(
     $"camera=({camera.XPosition:X4}.{camera.XSubposition:X4},{camera.YPosition:X4}.{camera.YSubposition:X4}); " +
     $"minimap=({runtime.Hud.MinimapCenterX},{runtime.Hud.MinimapCenterY}); " +
     $"OAM staged/displayed sprites={runtime.Oam.LastFinalizedSpriteCount}/{runtime.DisplayedOam.LastFinalizedSpriteCount}; " +
-    $"VRAM[$E000..$E00F] = {Convert.ToHexString(runtime.Vram.Bytes[0xe000..0xe010])}.");
+    $"VRAM[$F000..$F00F] = {Convert.ToHexString(runtime.Vram.Bytes[0xf000..0xf010])}.");
 
 OamEntry firstSamusSprite = runtime.DisplayedOam.GetEntry(0);
 Console.WriteLine(
-    $"First Samus OBJ: X={firstSamusSprite.X}, Y={firstSamusSprite.Y}, " +
+    $"First staged gameplay OBJ (bombs precede Samus while active): X={firstSamusSprite.X}, Y={firstSamusSprite.Y}, " +
     $"tile=${firstSamusSprite.TileNumber:X3}, palette={firstSamusSprite.Palette}, " +
     $"priority={firstSamusSprite.Priority}, large={firstSamusSprite.IsLarge}. " +
     $"definitions=${runtime.Samus!.TileTransfers.TopDefinitionAddress:X6}/" +

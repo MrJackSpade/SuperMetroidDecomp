@@ -261,10 +261,27 @@ public static class SamusAerialMovement
         if (!fullySubmergedWithoutGravity)
             TryRestartSpaceJump(bus, samus, controllerNewInput);
 
+        // `$90:A4D7-$A4F1` plays the underwater Space Jump sound only at the last tick of
+        // animation frames zero and eight. It is movement-owned, so publish it before the
+        // later animation call can advance the timer/frame pair.
+        if (fullySubmergedWithoutGravity &&
+            samus.AnimationFrameTimer == 1 &&
+            samus.AnimationFrame is 0 or 8)
+        {
+            samus.LiquidPhysics.QueueMovementSound(
+                library: 1,
+                soundId: 0x2f,
+                maximumQueued: 6);
+        }
+
         // Screw Attack's damaging body is republished every eligible dry-air spin frame.
-        // The common runtime clears this word before movement, mirroring `$90:E725`.
+        // A fully charged ordinary/Space-Jump spin instead publishes index four, but only
+        // outside full liquid physics. The common runtime clears the word before movement,
+        // mirroring `$90:E725`, so neither stale damage mode can leak into another pose.
         if (!fullySubmergedWithoutGravity && SamusState.IsScrewAttackPose(samus.Pose))
             samus.HorizontalSpeed.ContactDamageIndex = 3;
+        else if (!fullySubmergedWithoutGravity && samus.ProjectileFlareCounter >= 0x003c)
+            samus.HorizontalSpeed.ContactDamageIndex = 4;
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 3,
@@ -345,8 +362,8 @@ public static class SamusAerialMovement
     }
 
     /// <summary>
-    /// Executes movement type `$14` at `$90:A734`. Contact-damage selection is unrelated to
-    /// locomotion; the routine's movement branch is the ordinary jumping routine verbatim.
+    /// Executes movement type `$14` at `$90:A734`, including its animation-frame/charge-
+    /// selected contact damage before the ordinary jumping routine.
     /// </summary>
     public static AerialMovementResult StepWallJump(
         ISnesAddressSpace bus,
@@ -358,6 +375,14 @@ public static class SamusAerialMovement
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementType(bus) != 0x14 || !SamusState.IsWallJumpPose(samus.Pose))
             throw new InvalidOperationException($"Wall-jump movement requires type $14 pose, not ${samus.Pose:X2}.");
+
+        // Frames 23+ are the somersault portion and always use Screw-style index three.
+        // Frames 3..22 use charge-beam index four only after the projectile flare counter
+        // reaches 60. Frames 0..2 deliberately remain harmless even when fully charged.
+        if (samus.AnimationFrame >= 0x17)
+            samus.HorizontalSpeed.ContactDamageIndex = 3;
+        else if (samus.AnimationFrame >= 3 && samus.ProjectileFlareCounter >= 0x003c)
+            samus.HorizontalSpeed.ContactDamageIndex = 4;
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 0x14,

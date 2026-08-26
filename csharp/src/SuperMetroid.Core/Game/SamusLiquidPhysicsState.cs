@@ -81,6 +81,18 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     public void BeginFrameSoundRequests() => _soundRequests.Clear();
 
+    /// <summary>
+    /// Publishes a sound selected by a movement routine into the same per-frame Samus queue
+    /// used by liquid entry, footsteps, and landing impact.
+    /// </summary>
+    /// <remarks>
+    /// This is intentionally not a general audio backend. Bank-$90 movement owns a handful
+    /// of exact queue calls—most notably underwater Space Jump's library-one sound $2F—and
+    /// the runtime already begins one shared publication window before movement.
+    /// </remarks>
+    public void QueueMovementSound(byte library, byte soundId, byte maximumQueued) =>
+        QueueSound(library, soundId, maximumQueued);
+
     /// <summary>WRAM <c>$0A4E</c>, the fractional half of pending periodic damage.</summary>
     public ushort PeriodicSubDamage { get; private set; }
 

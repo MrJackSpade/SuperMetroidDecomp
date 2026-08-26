@@ -6151,6 +6151,32 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     AssertEqual((ushort)3, screwRepeat.HorizontalSpeed.ContactDamageIndex,
         "Screw Attack republishes contact damage index three");
 
+    // A fully charged beam makes ordinary/Space-Jump spin damaging only in dry physics.
+    // Full submersion suppresses that contact mode and, on animation frames zero/eight's
+    // final tick, emits the literal library-one sound $2F instead.
+    SamusState chargedSpin = CreateFallingSpin(
+        SamusState.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
+    chargedSpin.ProjectileFlareCounter = 0x003c;
+    SamusAerialMovement.StepSpinJump(bus, empty, chargedSpin, 0, 0, 0);
+    AssertEqual((ushort)4, chargedSpin.HorizontalSpeed.ContactDamageIndex,
+        "fully charged dry spin publishes contact damage index four");
+
+    SamusState submergedSpin = CreateFallingSpin(
+        SamusState.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
+    submergedSpin.ProjectileFlareCounter = 0x003c;
+    submergedSpin.InitializeAnimation(bus, initialFrame: 0);
+    for (int tick = 0; tick < 3; tick++)
+        submergedSpin.AnimateNoFx(bus);
+    submergedSpin.LiquidPhysics.ConfigureWater(surfaceY: 100);
+    submergedSpin.LiquidPhysics.BeginFrameSoundRequests();
+    SamusAerialMovement.StepSpinJump(bus, empty, submergedSpin, 0, 0, 0);
+    AssertEqual((ushort)0, submergedSpin.HorizontalSpeed.ContactDamageIndex,
+        "full liquid physics suppresses charged-spin contact damage");
+    AssertEqual(1, submergedSpin.LiquidPhysics.SoundRequests.Count,
+        "underwater Space Jump sound frame publishes once");
+    AssertEqual(new SamusSoundRequest(1, 0x2f, 6), submergedSpin.LiquidPhysics.SoundRequests[0],
+        "underwater Space Jump uses library-one sound $2F max six");
+
     screwRepeat.AnimationFrame = 4;
     screwRepeat.ApplyWallContactAnimationRewind();
     AssertEqual((ushort)0x1a, screwRepeat.AnimationFrame,
@@ -6195,7 +6221,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         "Screw Attack landing requests normal palette restore");
 
     Console.WriteLine(
-        "  Space Jump/Screw Attack: pose priority, repeat window, damage, wall frames, palette cycle, and landing agree.");
+        "  Space Jump/Screw Attack: pose priority, repeat window, charged/Screw damage, underwater sound, palette cycle, and landing agree.");
 }
 
 /// <summary>
@@ -6952,6 +6978,7 @@ static void VerifySamusAerialTurnsAndWallJump()
     eligible.HorizontalSpeed.ExtraRunSpeed = 1;
     eligible.HorizontalSpeed.ExtraRunSubspeed = 0x7000;
     eligible.HorizontalSpeed.HasRunningMomentum = true;
+    eligible.LiquidPhysics.BeginFrameSoundRequests();
     eligible.ApplyWallJumpTrigger(bus);
     AssertEqual((byte)0x83, eligible.Pose, "right-facing spin selects right wall-jump pose");
     AssertEqual((ushort)4, eligible.Kinematics.YSpeed, "wall jump reads whole launch speed");
@@ -6959,11 +6986,14 @@ static void VerifySamusAerialTurnsAndWallJump()
     AssertEqual((ushort)1, eligible.HorizontalSpeed.ExtraRunSpeed, "wall jump preserves Dash whole speed");
     AssertEqual((ushort)0x7000, eligible.HorizontalSpeed.ExtraRunSubspeed, "wall jump preserves Dash fraction");
     AssertTrue(eligible.HorizontalSpeed.HasRunningMomentum, "wall jump preserves Dash momentum flag");
+    AssertEqual(new SamusSoundRequest(3, 0x05, 6), eligible.LiquidPhysics.SoundRequests.Single(),
+        "ordinary wall trigger queues library-three sound five max six");
     for (int tick = 0; tick < 8; tick++)
         eligible.AnimateNoFx(bus);
     AssertEqual((byte)0xfb, eligible.LastAnimationDelayCommand!.Value, "wall animation reaches FB");
     AssertEqual((ushort)3, eligible.AnimationFrame, "ordinary dry wall animation selects frame three");
 
+    eligible.ProjectileFlareCounter = 0x003c;
     ushort wallStartY = eligible.YPosition;
     AerialMovementResult wallFrame = SamusAerialMovement.StepWallJump(
         bus,
@@ -6973,6 +7003,19 @@ static void VerifySamusAerialTurnsAndWallJump()
         1);
     AssertTrue(wallFrame.Vertical is { Collided: false }, "wall launch remains airborne");
     AssertEqual((ushort)(wallStartY - 5), eligible.YPosition, "wall launch moves by old 4.A000 speed");
+    AssertEqual((ushort)4, eligible.HorizontalSpeed.ContactDamageIndex,
+        "charged wall-jump frames three through 22 publish damage index four");
+
+    eligible.HorizontalSpeed.ContactDamageIndex = 0;
+    eligible.AnimationFrame = 0x17;
+    SamusAerialMovement.StepWallJump(
+        bus,
+        level,
+        eligible,
+        (ushort)(SnesButton.Right | SnesButton.A),
+        2);
+    AssertEqual((ushort)3, eligible.HorizontalSpeed.ContactDamageIndex,
+        "wall-jump frame 23 publishes Screw-style damage index three");
 
     SamusState CreateSpinSamus(ushort animationFrame)
     {
@@ -7002,7 +7045,7 @@ static void VerifySamusAerialTurnsAndWallJump()
         WriteTestWord(addressSpace, address + 10, decelerationSub);
     }
 
-    Console.WriteLine("  Samus aerial turns/wall jump: selectors, momentum, F8, wall gate, FB, and launch agree.");
+    Console.WriteLine("  Samus aerial turns/wall jump: selectors, momentum, sounds, contact damage, wall gate, FB, and launch agree.");
 }
 
 /// <summary>
@@ -8419,6 +8462,8 @@ static void VerifySamusGrappleSwingAndRelease()
     wallGrabSamus.HorizontalSpeed.ExtraRunSpeed = 1;
     wallGrabSamus.HorizontalSpeed.ExtraRunSubspeed = 0x7000;
     wallGrabSamus.HorizontalSpeed.HasRunningMomentum = true;
+    wallGrabSamus.ProjectileFlareCounter = 0x003c;
+    wallGrabSamus.LiquidPhysics.BeginFrameSoundRequests();
     GrappleMovementResult wallJumpStarted = SamusGrappleMovement.Step(
         bus, specialLevel, wallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
     AssertTrue(wallJumpStarted.WallJumpStarted,
@@ -8439,6 +8484,10 @@ static void VerifySamusGrappleSwingAndRelease()
         "grapple wall jump preserves Dash fraction");
     AssertTrue(wallGrabSamus.HorizontalSpeed.HasRunningMomentum,
         "grapple wall jump preserves Dash momentum flag");
+    AssertEqual((ushort)0, wallGrabSamus.ProjectileFlareCounter,
+        "grapple wall jump clears the active projectile flare counter");
+    AssertEqual(new SamusSoundRequest(1, 0x07, 15), wallGrabSamus.LiquidPhysics.SoundRequests.Single(),
+        "grapple wall jump queues generic library-one sound seven");
     AssertEqual((ushort)0, wallGrabSamus.Grapple.RopeLength,
         "grapple wall jump removes rope state");
 

@@ -805,6 +805,13 @@ public sealed class SamusState
     /// </summary>
     public ushort EquippedBeams { get; set; }
 
+    /// <summary>
+    /// WRAM <c>SamusProjectile_FlareCounter</c>. Values at least $003C mean the charge
+    /// beam is fully charged; spin and wall-jump movement use that producer-owned word to
+    /// publish contact-damage index four without owning the projectile charge lifecycle.
+    /// </summary>
+    public ushort ProjectileFlareCounter { get; set; }
+
     /// <summary>WRAM `$0A76`; `$8000` marks Mother Brain's hyper beam as enabled.</summary>
     public ushort HyperBeam { get; set; }
 
@@ -2234,6 +2241,10 @@ public sealed class SamusState
         HorizontalSpeed.BaseSpeed = 0;
         HorizontalSpeed.BaseSubspeed = 0;
 
+        // SolidVerticalCollision_WallJumpTriggered queues library-three sound five with a
+        // six-entry threshold after clearing the base-speed words and before pose setup.
+        LiquidPhysics.QueueMovementSound(library: 3, soundId: 0x05, maximumQueued: 6);
+
         SamusAerialMovement.InitializeWallJump(bus, this);
         InitializeAnimation(bus, initialFrame: 0);
     }
@@ -2269,6 +2280,12 @@ public sealed class SamusState
         HorizontalSpeed.AccelerationMode = 0;
         HorizontalSpeed.BaseSpeed = 0;
         HorizontalSpeed.BaseSubspeed = 0;
+
+        // `$9B:C9CE` uses generic QueueSound: library one, sound seven, maximum fifteen.
+        // It also tears down the active beam flare so the wall-jump's charged-contact path
+        // cannot inherit charge accumulated before grapple became active.
+        LiquidPhysics.QueueMovementSound(library: 1, soundId: 0x07, maximumQueued: 15);
+        ProjectileFlareCounter = 0;
 
         SamusAerialMovement.InitializeWallJump(bus, this);
         InitializeAnimation(bus, initialFrame: 0);

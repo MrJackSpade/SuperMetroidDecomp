@@ -236,6 +236,27 @@ public sealed class OamBuffer
     }
 
     /// <summary>
+    /// Appends one already-packed small OBJ record. Bank $94's grapple renderer writes
+    /// these four bytes directly instead of routing through a spritemap loader.
+    /// </summary>
+    /// <remarks>
+    /// This deliberately accepts the complete attribute word: tile, palette, priority,
+    /// and flips are calculated by the native caller. X remains a nine-bit hardware value;
+    /// Y wraps to its low byte exactly like a direct store to OAMLow.
+    /// </remarks>
+    public void AddRawSmallSprite(ushort x, ushort y, ushort attributes)
+    {
+        int spriteIndex = NextByteOffset >> 2;
+        int lowOffset = NextByteOffset;
+        _lowTable[lowOffset] = unchecked((byte)x);
+        _lowTable[lowOffset + 1] = unchecked((byte)y);
+        _lowTable[lowOffset + 2] = unchecked((byte)attributes);
+        _lowTable[lowOffset + 3] = unchecked((byte)(attributes >> 8));
+        SetHighTablePair(spriteIndex, (x & 0x0100) != 0, isLarge: false);
+        NextByteOffset = (NextByteOffset + 4) & 0x01ff;
+    }
+
+    /// <summary>
     /// Ports <c>$80:896E</c>: move every unused sprite to Y=<c>$F0</c> and reset the OAM
     /// stack pointer for the following construction pass.
     /// </summary>

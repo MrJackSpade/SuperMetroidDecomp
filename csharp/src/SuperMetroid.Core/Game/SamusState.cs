@@ -57,6 +57,12 @@ public sealed class SamusState
     /// <summary>Pose $84 is the left-facing wall-jump launch animation.</summary>
     public const byte WallJumpLeftPose = 0x84;
 
+    /// <summary>Pose $B2 is the right-facing airborne grapple-swing body.</summary>
+    public const byte GrappleSwingRightPose = 0xb2;
+
+    /// <summary>Pose $B3 is the left-facing airborne grapple-swing body.</summary>
+    public const byte GrappleSwingLeftPose = 0xb3;
+
     /// <summary>
     /// Pose $4F is the visually left-facing damage boost; its X-direction byte is the
     /// deliberately reversed value eight that drives the boost to the right.
@@ -498,6 +504,12 @@ public sealed class SamusState
     /// this counter remains nonzero.
     /// </summary>
     public ushort KnockbackTimer { get; set; }
+
+    /// <summary>
+    /// Bank-$9B's grapple-beam state. Keeping this as a named child object makes the original
+    /// WRAM words individually watchable without polluting ordinary Samus kinematics.
+    /// </summary>
+    public SamusGrappleState Grapple { get; } = new();
 
     /// <summary>
     /// Host-visible equivalent of movement-handler pointer `$90:DF38`. It is separate from
@@ -2253,6 +2265,20 @@ public sealed class SamusState
     }
 
     /// <summary>
+    /// Publishes the angle-selected grapple art exactly as $9B:BD95 does before the normal
+    /// bank-$91 animation pass. The latter will decrement this fifteen to fourteen later in
+    /// the same gameplay frame; exposing this narrow writer prevents grapple code from
+    /// acquiring a general-purpose escape hatch around animation invariants.
+    /// </summary>
+    public void SetGrappleSwingAnimationFrame(ushort frame)
+    {
+        if (Pose is not (GrappleSwingRightPose or GrappleSwingLeftPose))
+            throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose ${Pose:X2}.");
+        AnimationFrame = frame;
+        AnimationFrameTimer = 15;
+    }
+
+    /// <summary>
     /// Ports the dry-room path through <c>AnimateSamus</c> at <c>$90:8000</c>.
     /// </summary>
     /// <remarks>
@@ -2427,7 +2453,7 @@ public sealed class SamusState
         int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
         byte movementType = bus.ReadByte(AddWithinBank(poseDefinition, 1));
         if (movementType is not (0 or 1 or 2 or 3 or 4 or 5 or 6 or 8 or 0x0a or
-            0x0e or 0x0f or 0x11 or 0x12 or 0x13 or 0x14 or 0x17 or 0x18 or 0x19))
+            0x0e or 0x0f or 0x11 or 0x12 or 0x13 or 0x14 or 0x16 or 0x17 or 0x18 or 0x19))
         {
             throw new NotSupportedException(
                 $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");

@@ -96,6 +96,11 @@ else if (options.KnockbackScript)
     Console.WriteLine(
         "Input script: host-inject one enemy-side hit result, run native knockback, press Left+Jump for the retail damage boost, then hold that chord through its arc.");
 }
+else if (options.GrappleScript)
+{
+    Console.WriteLine(
+        "Input script: host-publish one connected grapple anchor, pump the ROM pendulum with Left/Right while holding Shoot, then release into native $51/$52 velocity.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7800 stays clear
@@ -126,7 +131,9 @@ ScrollBoundaryCamera camera = runtime.Camera!;
 // fill. Its world X and desired screen Y are explicitly host-authored; the returned floor,
 // slope height, resting Y, pose data, and every subsequent movement value are ROM-backed.
 DebugGroundedSamusPlacement? groundedPlacement = options.GroundedRun
-    ? runtime.InitializeDebugGroundedSamus()
+    ? options.GrappleScript
+        ? runtime.InitializeDebugGrappleSwing()
+        : runtime.InitializeDebugGroundedSamus()
     : null;
 InitialViewportResult initialViewport = runtime.InitializeLandingSiteViewport();
 
@@ -174,6 +181,14 @@ Console.WriteLine(
         ? $"floor=({placement.BlockX},{placement.BlockY}) type=${placement.FloorBlock.CollisionType:X1}/" +
           $"BTS ${placement.FloorBlock.Behavior:X2}, height={placement.FloorHeight}; only X/screen framing are host-selected."
         : "only that placement is host-selected."));
+if (options.GrappleScript)
+{
+    Console.WriteLine(
+        $"Grapple state: anchor=({runtime.Samus.Grapple.AnchorX},{runtime.Samus.Grapple.AnchorY}), " +
+        $"beamStart=({runtime.Samus.Grapple.BeamStartX},{runtime.Samus.Grapple.BeamStartY}), " +
+        $"length={runtime.Samus.Grapple.RopeLength}, angle=${runtime.Samus.Grapple.Angle:X4}, " +
+        $"angularVelocity=${unchecked((ushort)runtime.Samus.Grapple.AngularVelocity):X4}.");
+}
 
 // Resolve this through the same two-stage pointer calculation used by live movement. This
 // line is deliberately ROM-backed evidence, not a hard-coded description: ordinary air's
@@ -333,6 +348,9 @@ bool observedBombDeletion = false;
 bool observedStraightBombOverlap = false;
 bool observedKnockbackMovement = false;
 bool observedDamageBoostMovement = false;
+bool observedGrappleSwing = false;
+bool observedGrappleReleaseQueue = false;
+bool observedGrappleRelease = false;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
@@ -343,7 +361,17 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     // explicit reversal script is a deterministic real-ROM regression route: enough time
     // to accelerate right, complete $25 toward the left, then complete $26 back right.
     // These are only controller samples; all pose choices still come from bank-$91 tables.
-    ushort controllerInput = options.KnockbackScript
+    ushort controllerInput = options.GrappleScript
+        ? frameIndex switch
+        {
+            // X is the runtime's default Shoot binding. Pump left through the first half,
+            // right through the second, then release so the two-frame $C79D/$CB8B seam is
+            // visible in both logs and debugger watches.
+            < 45 => (ushort)(SnesButton.X | SnesButton.Left),
+            < 90 => (ushort)(SnesButton.X | SnesButton.Right),
+            _ => (ushort)0,
+        }
+        : options.KnockbackScript
         ? frameIndex switch
         {
             0 => (ushort)SnesButton.Start,
@@ -640,6 +668,10 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     observedKnockbackMovement |= runtime.LastKnockbackMovement is not null;
     observedDamageBoostMovement |= runtime.LastAerialSamusMovement is not null &&
         runtime.Samus.ReadMovementType(bus) == 0x19;
+    observedGrappleSwing |= runtime.LastGrappleMovement is
+        { Phase: GrapplePhase.ConnectedSwinging };
+    observedGrappleReleaseQueue |= runtime.LastGrappleMovement is { ReleaseQueued: true };
+    observedGrappleRelease |= runtime.LastGrappleMovement is { Released: true };
     observedBombJumpStart |= runtime.LastBombJumpMovement is { Started: true };
     observedBombJumpEnd |= runtime.LastBombJumpMovement is { Ended: true };
     observedBombJumpRise |= runtime.LastBombJumpMovement is { Started: false, Ended: false };
@@ -687,11 +719,12 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
 
     if (runtime.Samus.Kinematics.XFixed != priorSamusX)
     {
-        BlockMoveResult horizontal = runtime.LastGroundedSamusMovement?.Horizontal ??
+        BlockMoveResult? horizontal = runtime.LastGroundedSamusMovement?.Horizontal ??
             runtime.LastAerialSamusMovement?.Horizontal ??
             runtime.LastMorphBallMovement?.Horizontal ??
             runtime.LastBombJumpMovement?.Horizontal ??
-            runtime.LastKnockbackMovement?.Horizontal ??
+            runtime.LastKnockbackMovement?.Horizontal;
+        if (horizontal is null && runtime.LastGrappleMovement is null)
             throw new InvalidOperationException("Samus X changed without a translated movement result.");
         string vertical = runtime.LastGroundedSamusMovement is GroundedMovementResult groundedMovement
             ? $"ground=${groundedMovement.Vertical.AcceptedDisplacement:X8}/collision={groundedMovement.Vertical.Collided}"
@@ -709,7 +742,11 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             $"{runtime.Samus.Kinematics.XSubposition:X4}; " +
             $"base={runtime.Samus.HorizontalSpeed.BaseSpeed:X4}." +
             $"{runtime.Samus.HorizontalSpeed.BaseSubspeed:X4}, " +
-            $"horizontal=${horizontal.AcceptedDisplacement:X8}, {vertical}");
+            (horizontal is BlockMoveResult moved
+                ? $"horizontal=${moved.AcceptedDisplacement:X8}, {vertical}"
+                : $"grapple angle=${runtime.Samus.Grapple.Angle:X4}, " +
+                  $"velocity=${unchecked((ushort)runtime.Samus.Grapple.AngularVelocity):X4}, " +
+                  $"beamStart=({runtime.Samus.Grapple.BeamStartX:X4},{runtime.Samus.Grapple.BeamStartY:X4})"));
         priorSamusX = runtime.Samus.Kinematics.XFixed;
     }
 
@@ -1029,6 +1066,19 @@ if (options.KnockbackScript)
         "Knockback ROM route validated hurt movement, the Left+Jump damage-boost chord, and type-$19 jump movement.");
 }
 
+if (options.GrappleScript)
+{
+    if (!observedGrappleSwing)
+        throw new InvalidOperationException("Grapple ROM script never executed connected swinging.");
+    if (options.FrameCount >= 91 && !observedGrappleReleaseQueue)
+        throw new InvalidOperationException("Grapple ROM script never queued release at $9B:C79D.");
+    if (options.FrameCount >= 92 && !observedGrappleRelease)
+        throw new InvalidOperationException("Grapple ROM script never completed release at $9B:CB8B.");
+    Console.WriteLine(
+        $"Grapple ROM route validated connected pendulum stepping" +
+        (options.FrameCount >= 92 ? ", queued release, and jump-pose handoff." : "."));
+}
+
 Console.WriteLine(
     $"Finished at accepted NMI {runtime.NmiFrameCounter}; " +
     $"timer {runtime.EscapeTimer.MinutesBcd:X2}:{runtime.EscapeTimer.SecondsBcd:X2}.{runtime.EscapeTimer.CentisecondsBcd:X2}; " +
@@ -1214,7 +1264,8 @@ readonly record struct DebugRunnerOptions(
     bool MorphBallScript,
     bool SpringBallScript,
     bool BombJumpScript,
-    bool KnockbackScript)
+    bool KnockbackScript,
+    bool GrappleScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -1240,6 +1291,7 @@ readonly record struct DebugRunnerOptions(
         bool springBallScript = false;
         bool bombJumpScript = false;
         bool knockbackScript = false;
+        bool grappleScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -1354,6 +1406,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--grapple-script":
+                    grappleScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -1403,7 +1460,8 @@ readonly record struct DebugRunnerOptions(
             morphBallScript,
             springBallScript,
             bombJumpScript,
-            knockbackScript);
+            knockbackScript,
+            grappleScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

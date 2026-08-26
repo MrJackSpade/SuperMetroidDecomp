@@ -100,6 +100,9 @@ public sealed class SuperMetroidRuntime
     /// <summary>Most recent special knockback-handler result, exposed for debugger watches.</summary>
     public KnockbackMovementResult? LastKnockbackMovement { get; private set; }
 
+    /// <summary>Most recent bank-$9B connected-grapple function result.</summary>
+    public GrappleMovementResult? LastGrappleMovement { get; private set; }
+
     /// <summary>
     /// Five-slot normal-bomb lifecycle spanning the translated bank-$90/$93/$94/$A0 seams.
     /// </summary>
@@ -384,6 +387,54 @@ public sealed class SuperMetroidRuntime
             $"Landing Site X=${xPosition:X4} from block row ${minimumFloorBlockY:X2}.");
     }
 
+    /// <summary>
+    /// Creates an explicit already-connected grapple stimulus above the Landing Site floor.
+    /// </summary>
+    /// <remarks>
+    /// The room currently has no translated grapple projectile/block-acquisition pass. This
+    /// method supplies only that missing producer's anchor result; pose records, sine table,
+    /// pendulum integration, release velocity, animation art, camera, and rendering continue
+    /// through cartridge-backed runtime code. It is intentionally named Debug so gameplay
+    /// code cannot mistake the host-selected anchor for a room-authored grapple block.
+    /// </remarks>
+    public DebugGroundedSamusPlacement InitializeDebugGrappleSwing()
+    {
+        DebugGroundedSamusPlacement placement = InitializeDebugGroundedSamus();
+        SamusState samus = Samus!;
+
+        // Angle $4000 points down from this anchor in $94:A957's coordinate convention.
+        // A 52-pixel rope keeps the initial body above the selected floor and within the
+        // viewport. The nonzero positive angular velocity makes the first frame visibly
+        // advance even before the script begins pumping with Left.
+        SamusGrappleMovement.ConnectUnobstructedSwing(
+            _addressSpace,
+            samus,
+            anchorX: placement.XPosition,
+            anchorY: unchecked((ushort)(placement.YPosition - 72)),
+            ropeLength: 52,
+            angle: 0x4000,
+            angularVelocity: 0x0180,
+            faceRight: true);
+
+        // LoadProjectilePalette(2) follows firing initialization at $9B:C51E. Pointer table
+        // $90:C3C9 names sixteen bank-$90 colors for OBJ palette seven (CGRAM 224..239).
+        // The 65816 stores this pointer little-endian. Keep both byte reads visible here:
+        // this debug initializer intentionally has no general ROM-parser dependency, and the
+        // explicit expression makes the exact cartridge address easy to inspect in a debugger.
+        const int grapplePalettePointerAddress = 0x90c3c9 + 2 * 2;
+        ushort grapplePalettePointer = (ushort)(
+            _addressSpace.ReadByte(grapplePalettePointerAddress) |
+            (_addressSpace.ReadByte(grapplePalettePointerAddress + 1) << 8));
+        Cgram.LoadFromBus(
+            _addressSpace,
+            0x900000 | grapplePalettePointer,
+            colorCount: 16,
+            destinationIndex: 224);
+        Cgram.SetColor(223, 32657);
+        LastGrappleMovement = null;
+        return placement;
+    }
+
     /// <summary>Initializes the ROM-authored standing pose at an explicitly supplied point.</summary>
     private void InitializeDebugSamus(ushort xPosition, ushort yPosition)
     {
@@ -581,11 +632,25 @@ public sealed class SuperMetroidRuntime
                 LastMorphBallMovement = null;
                 LastBombJumpMovement = null;
                 LastKnockbackMovement = null;
+                LastGrappleMovement = null;
 
+                // GrappleBeamHandler runs before movement type $16's deliberately empty
+                // beta handler. An active grapple function therefore owns positioning and
+                // suppresses ordinary prospective input until release installs $51/$52.
+                if (Samus.Grapple.Phase != GrapplePhase.Inactive)
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    LastGrappleMovement = SamusGrappleMovement.Step(
+                        _addressSpace,
+                        Samus,
+                        Controller1.Current,
+                        Controller1.NewlyPressed);
+                }
                 // Knockback's `$90:DF38` handler takes precedence over the normal movement-
                 // type dispatcher. Unlike bomb jump, normal pose input remains active so
                 // `$53/$54` can still select the retail damage-boost escape chord.
-                if (Samus.KnockbackActive)
+                else if (Samus.KnockbackActive)
                 {
                     SamusAerialMovement.ConfigureDryAirGravity(_addressSpace, Samus);
                     LastKnockbackMovement = SamusKnockbackMovement.Step(
@@ -1411,6 +1476,13 @@ public sealed class SuperMetroidRuntime
             // phase that calls DrawSamusAndProjectiles. Preserve that OAM ordering.
             BombProjectiles.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
             Samus.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
+            SamusGrappleMovement.DrawConnectedBeam(
+                _addressSpace,
+                Samus.Grapple,
+                Oam,
+                VramWrites,
+                Camera.XPosition,
+                Camera.YPosition);
         }
         if (EscapeTimer.IsActive)
             EscapeTimerRenderer.Draw(EscapeTimer, Oam, _addressSpace);

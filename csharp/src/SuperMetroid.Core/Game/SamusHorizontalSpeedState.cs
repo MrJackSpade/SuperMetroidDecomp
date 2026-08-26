@@ -159,6 +159,68 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
+    /// Ports <c>CalculateSamusXBaseSpeed_DecelerationDisallowed</c> at
+    /// <c>$90:9B1F</c>. Despite its name, acceleration-mode bit zero still selects the
+    /// turning/deceleration branch; modes zero and two both accelerate toward the table
+    /// maximum. The returned flag is the routine's carry result and is important to spin
+    /// jump's decision to retain horizontal motion.
+    /// </summary>
+    public AerialBaseSpeedResult CalculateBaseSpeedDecelerationDisallowed(
+        ISnesAddressSpace bus,
+        byte movementType)
+    {
+        SpeedTableEntry entry = ReadEntry(bus, movementType);
+
+        if ((AccelerationMode & 1) != 0)
+        {
+            // This is byte-for-byte the same asymmetric multiplier calculation used by
+            // the deceleration-allowed routine. The distinction between the two native
+            // entry points is the bit test above and their carry result, not the subtract.
+            ushort deltaSpeed;
+            ushort deltaSubspeed;
+            if (DecelerationMultiplier != 0)
+            {
+                int highProduct = DecelerationMultiplier * entry.Deceleration;
+                int lowProduct = DecelerationMultiplier * (entry.DecelerationSubspeed >> 8);
+                deltaSpeed = unchecked((ushort)(highProduct >> 8));
+                deltaSubspeed = unchecked((ushort)lowProduct);
+            }
+            else
+            {
+                deltaSpeed = entry.Deceleration;
+                deltaSubspeed = entry.DecelerationSubspeed;
+            }
+
+            SetBaseFixed(unchecked(BaseFixed - Compose(deltaSpeed, deltaSubspeed)));
+            if (unchecked((short)BaseSpeed) < 0)
+            {
+                BaseSpeed = 0;
+                BaseSubspeed = 0;
+                AccelerationMode = 0;
+            }
+
+            // Every path through $90:9B5E-$90:9BC3 exits with carry clear.
+            return new AerialBaseSpeedResult(BaseFixed, ReachedMaximum: false);
+        }
+
+        SetBaseFixed(unchecked(BaseFixed + Compose(entry.Acceleration, entry.AccelerationSubspeed)));
+
+        // CMP/BMI performs signed 16-bit comparisons. Exact equality in both halves is
+        // deliberately *not* considered a cap: $90:9B5A returns carry clear in that case.
+        bool exceedsMaximum = unchecked((short)(BaseSpeed - entry.MaximumSpeed)) > 0 ||
+            (BaseSpeed == entry.MaximumSpeed &&
+             unchecked((short)(BaseSubspeed - entry.MaximumSubspeed)) > 0);
+        if (exceedsMaximum)
+        {
+            BaseSpeed = entry.MaximumSpeed;
+            BaseSubspeed = entry.MaximumSubspeed;
+            return new AerialBaseSpeedResult(BaseFixed, ReachedMaximum: true);
+        }
+
+        return new AerialBaseSpeedResult(BaseFixed, ReachedMaximum: false);
+    }
+
+    /// <summary>
     /// Ports <c>Samus_CalcSpeed_X</c> at <c>$90:E4E6</c>: add extra run speed, shift by
     /// min(divisor, 4), and publish the total-speed WRAM pair used by animation/collision.
     /// </summary>
@@ -245,3 +307,6 @@ public readonly record struct SpeedTableEntry(
     /// <summary>All six table fields are little-endian 16-bit words.</summary>
     public const int ByteCount = 12;
 }
+
+/// <summary>Value and 65816 carry returned by <c>$90:9B1F</c>.</summary>
+public readonly record struct AerialBaseSpeedResult(uint Speed, bool ReachedMaximum);

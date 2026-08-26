@@ -35,6 +35,20 @@ public sealed class SamusKinematicsState
     /// <summary>Fractional vertical speed used to suppress grounded horizontal slope scaling.</summary>
     public ushort YSubspeed { get; set; }
 
+    /// <summary>
+    /// Vertical direction at WRAM <c>$0B36</c>: zero is none, one is upward, and two is
+    /// downward. The native game stores speed as a magnitude and uses this separate word;
+    /// treating upward velocity as a negative host number would lose the underflow quirks
+    /// in <c>$90:90E2</c> and the jump-release test in <c>$90:8FB3</c>.
+    /// </summary>
+    public ushort YDirection { get; set; }
+
+    /// <summary>Whole gravity word at WRAM <c>$0B34</c>.</summary>
+    public ushort YAcceleration { get; set; }
+
+    /// <summary>Fractional gravity word at WRAM <c>$0B32</c>.</summary>
+    public ushort YSubacceleration { get; set; }
+
     /// <summary>Native <c>enable_horiz_slope_coll</c>; bit 1 enables post-X Y alignment.</summary>
     public ushort HorizontalSlopeCollisionEnable { get; set; } = 3;
 

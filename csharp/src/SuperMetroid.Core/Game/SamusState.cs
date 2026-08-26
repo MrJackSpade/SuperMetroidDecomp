@@ -37,6 +37,42 @@ public sealed class SamusState
     /// <summary>Pose $26 turns a left-facing grounded Samus toward the right.</summary>
     public const byte TurningLeftToRightPose = 0x26;
 
+    /// <summary>Pose $19 is the ordinary right-facing spin jump.</summary>
+    public const byte SpinJumpRightPose = 0x19;
+
+    /// <summary>Pose $1A is the ordinary left-facing spin jump.</summary>
+    public const byte SpinJumpLeftPose = 0x1a;
+
+    /// <summary>Pose $29 is the unaimed right-facing falling pose.</summary>
+    public const byte FallingRightPose = 0x29;
+
+    /// <summary>Pose $2A is the unaimed left-facing falling pose.</summary>
+    public const byte FallingLeftPose = 0x2a;
+
+    /// <summary>Pose $4B is the one-frame right neutral-jump transition.</summary>
+    public const byte NeutralJumpTransitionRightPose = 0x4b;
+
+    /// <summary>Pose $4C is the one-frame left neutral-jump transition.</summary>
+    public const byte NeutralJumpTransitionLeftPose = 0x4c;
+
+    /// <summary>Pose $4D is the ordinary right-facing neutral jump.</summary>
+    public const byte NeutralJumpRightPose = 0x4d;
+
+    /// <summary>Pose $4E is the ordinary left-facing neutral jump.</summary>
+    public const byte NeutralJumpLeftPose = 0x4e;
+
+    /// <summary>Pose $A4 lands facing right after a non-spinning jump or fall.</summary>
+    public const byte NormalLandingRightPose = 0xa4;
+
+    /// <summary>Pose $A5 lands facing left after a non-spinning jump or fall.</summary>
+    public const byte NormalLandingLeftPose = 0xa5;
+
+    /// <summary>Pose $A6 lands facing right after a spin or wall jump.</summary>
+    public const byte SpinLandingRightPose = 0xa6;
+
+    /// <summary>Pose $A7 lands facing left after a spin or wall jump.</summary>
+    public const byte SpinLandingLeftPose = 0xa7;
+
     /// <summary>Current one-byte pose index, corresponding to WRAM <c>$0A1C</c>.</summary>
     public byte Pose { get; set; } = FacingRightNormalPose;
 
@@ -204,6 +240,27 @@ public sealed class SamusState
             "Running-left to standing-left");
 
     /// <summary>
+    /// Applies the shared standing/landing transition-table route from $A4/$A6 to running
+    /// right $09, or from $A5/$A7 to running left $0A. Landing movement has already cleared
+    /// momentum in this frame; the new running pose begins accelerating on the next frame.
+    /// </summary>
+    public void ApplyLandingToRunning(ISnesAddressSpace bus, byte targetPose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        bool right = (Pose is NormalLandingRightPose or SpinLandingRightPose) &&
+            targetPose == MovingRightNormalPose;
+        bool left = (Pose is NormalLandingLeftPose or SpinLandingLeftPose) &&
+            targetPose == MovingLeftNormalPose;
+        if (!right && !left)
+        {
+            throw new InvalidOperationException(
+                $"Landing-to-run transition ${Pose:X2} -> ${targetPose:X2} is not verified.");
+        }
+
+        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Landing-to-run");
+    }
+
+    /// <summary>
     /// Applies bank-$91's grounded turn initialization at $91:F8D3 for pose $25 or $26.
     /// </summary>
     public void ApplyGroundedTurn(ISnesAddressSpace bus, byte targetPose)
@@ -241,26 +298,116 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Consumes the grounded subset of animation command $F8's pending transition.
+    /// Applies the verified ordinary-input jump transitions selected from the cartridge's
+    /// bank-$91 table, including <c>HandleJumpTransition</c>'s call to
+    /// <c>Make_Samus_Jump</c>. Only the four no-equipment/no-aim routes admitted by the
+    /// current runtime are accepted.
     /// </summary>
-    /// <returns>True when a pending turn transition was installed; otherwise false.</returns>
-    public bool ApplyPendingGroundedAnimationTransition(ISnesAddressSpace bus)
+    public void ApplyOrdinaryJumpTransition(ISnesAddressSpace bus, byte targetPose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        bool verified = (Pose, targetPose) is
+            (FacingRightNormalPose, NeutralJumpTransitionRightPose) or
+            (FacingLeftNormalPose, NeutralJumpTransitionLeftPose) or
+            (MovingRightNormalPose, SpinJumpRightPose) or
+            (MovingLeftNormalPose, SpinJumpLeftPose);
+        if (!verified)
+        {
+            throw new NotSupportedException(
+                $"Ordinary jump transition ${Pose:X2} -> ${targetPose:X2} is not translated.");
+        }
+
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+        InitializeAnimation(bus, initialFrame: 0);
+        SamusAerialMovement.InitializeDryAirJump(bus, this);
+    }
+
+    /// <summary>
+    /// Installs the unaimed falling pose selected by <c>$91:E8F2</c> when a grounded
+    /// movement probe finds no floor. The collision command clears vertical speed and
+    /// starts downward gravity before the pose is drawn.
+    /// </summary>
+    public void ApplyWalkedOffFloorTransition(ISnesAddressSpace bus, byte targetPose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        bool verified = (targetPose is FallingRightPose or FallingLeftPose) &&
+            (Pose is FacingRightNormalPose or FacingLeftNormalPose or
+                MovingRightNormalPose or MovingLeftNormalPose or
+                TurningRightToLeftPose or TurningLeftToRightPose);
+        if (!verified)
+        {
+            throw new NotSupportedException(
+                $"Walk-off transition ${Pose:X2} -> ${targetPose:X2} is not translated.");
+        }
+
+        Kinematics.YSpeed = 0;
+        Kinematics.YSubspeed = 0;
+        Kinematics.YDirection = 2;
+        SamusAerialMovement.ConfigureDryAirGravity(bus, this);
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+        InitializeAnimation(bus, initialFrame: 0);
+    }
+
+    /// <summary>
+    /// Applies <c>$91:E95D</c>'s unaimed landing choice and the grounded collision cleanup
+    /// at <c>$91:F010</c>. Expanding radius 19 to 21 moves Samus upward by two pixels so
+    /// her feet stay on the same collision boundary, matching <c>$91:FF49</c>.
+    /// </summary>
+    public void ApplyAerialLanding(ISnesAddressSpace bus, bool wasSpinning)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        byte direction = ReadPoseXDirection(bus);
+        bool facingLeft = direction == 4;
+        byte targetPose = wasSpinning
+            ? facingLeft ? SpinLandingLeftPose : SpinLandingRightPose
+            : facingLeft ? NormalLandingLeftPose : NormalLandingRightPose;
+
+        ushort oldRadius = Kinematics.YRadius;
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+        if (Kinematics.YRadius > oldRadius)
+        {
+            ushort difference = unchecked((ushort)(Kinematics.YRadius - oldRadius));
+            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - difference));
+        }
+
+        HorizontalSpeed.AccelerationMode = 0;
+        HorizontalSpeed.BaseSpeed = 0;
+        HorizontalSpeed.BaseSubspeed = 0;
+        Kinematics.YSpeed = 0;
+        Kinematics.YSubspeed = 0;
+        Kinematics.YDirection = 0;
+        InitializeAnimation(bus, initialFrame: 0);
+    }
+
+    /// <summary>
+    /// Consumes command $FD/$F8's command-three pose operand for every animation route in
+    /// the current grounded/ordinary-air slice.
+    /// </summary>
+    public bool ApplyPendingVerifiedAnimationTransition(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if (PendingTransitionalPose is not byte targetPose)
             return false;
 
-        bool completesLeftTurn = Pose == TurningRightToLeftPose &&
-            targetPose == FacingLeftNormalPose;
-        bool completesRightTurn = Pose == TurningLeftToRightPose &&
-            targetPose == FacingRightNormalPose;
-        if (!completesLeftTurn && !completesRightTurn)
+        bool verified = (Pose, targetPose) is
+            (TurningRightToLeftPose, FacingLeftNormalPose) or
+            (TurningLeftToRightPose, FacingRightNormalPose) or
+            (NeutralJumpTransitionRightPose, NeutralJumpRightPose) or
+            (NeutralJumpTransitionLeftPose, NeutralJumpLeftPose) or
+            (NormalLandingRightPose, FacingRightNormalPose) or
+            (NormalLandingLeftPose, FacingLeftNormalPose) or
+            (SpinLandingRightPose, FacingRightNormalPose) or
+            (SpinLandingLeftPose, FacingLeftNormalPose);
+        if (!verified)
         {
             throw new NotSupportedException(
-                $"Animation $F8 transition ${Pose:X2} -> ${targetPose:X2} is outside the translated grounded-turn route.");
+                $"Animation transition ${Pose:X2} -> ${targetPose:X2} is outside the translated routes.");
         }
 
-        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Grounded turn animation");
+        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Animation command");
         return true;
     }
 
@@ -362,6 +509,17 @@ public sealed class SamusState
         // timer. It is zero for our stationary debugger stimulus.
         AnimationFrameBuffer = XSpeedDivisor;
 
+        // $90:8032 keeps neutral-jump frame one alive in four-tick chunks while Samus is
+        // still rising. This is intentionally tested before DEC and applies only when the
+        // timer is exactly one; release/apex changes YDirection to two and lets it expire.
+        if (Pose is NeutralJumpRightPose or NeutralJumpLeftPose &&
+            Kinematics.YDirection != 2 &&
+            AnimationFrame == 1 &&
+            AnimationFrameTimer == 1)
+        {
+            AnimationFrameTimer = 4;
+        }
+
         // DEC is 16-bit. A timer accidentally initialized to zero becomes $FFFF; BMI then
         // advances just like BEQ does for an ordinary 1 -> 0 expiration.
         AnimationFrameTimer = unchecked((ushort)(AnimationFrameTimer - 1));
@@ -399,11 +557,15 @@ public sealed class SamusState
                 // it does NOT select a new delay or advance the visible animation frame.
                 // The runtime consumes this after AnimateNoFx, where Samus_HandleTransitions
                 // runs in the native frame. Jumping/autojump exclusions remain unsupported.
-                if (Pose is not (TurningRightToLeftPose or TurningLeftToRightPose))
-                {
-                    throw new NotSupportedException(
-                        $"Samus animation command $F8 is only translated for grounded turn poses, not ${Pose:X2}.");
-                }
+                PendingTransitionalPose = ReadAnimationByte(
+                    bus,
+                    unchecked((ushort)(AnimationFrame + 1)));
+                return;
+
+            case 13:
+                // $90:83A0, command $FD pp: publish pose pp through the same command-three
+                // seam as $F8. Unlike F8, FD has no auto-jump special case before it falls
+                // through here. The one-frame $4B/$4C neutral-jump transitions use it.
                 PendingTransitionalPose = ReadAnimationByte(
                     bus,
                     unchecked((ushort)(AnimationFrame + 1)));
@@ -473,10 +635,10 @@ public sealed class SamusState
 
         int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
         byte movementType = bus.ReadByte(AddWithinBank(poseDefinition, 1));
-        if (movementType is not (0 or 1 or 0x0e))
+        if (movementType is not (0 or 1 or 2 or 3 or 6 or 0x0e))
         {
             throw new NotSupportedException(
-                $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; only standing, ordinary running, and grounded-turn rendering are translated.");
+                $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");
         }
 
         // $90:8C94 sign-extends the byte at pose-definition offset four. Pose $01 stores
@@ -495,9 +657,17 @@ public sealed class SamusState
         if (movementType == 0 && Pose == 0)
             throw new NotSupportedException("Forward-facing Samus requires the standing visor OAM special case.");
 
-        ushort bottomBase = ReadWord(bus, AddWithinBank(BottomSpritemapBaseIndexTable, Pose * 2));
-        BottomSpritemapIndex = unchecked((ushort)(bottomBase + AnimationFrame));
-        oam.AddSamusSpritemap(bus, BottomSpritemapIndex, SpritemapXPosition, SpritemapYPosition);
+        // $90:8686 suppresses the ordinary spin-jump bottom half for art frames 1..A;
+        // those frames' top spritemaps contain the complete curled body. Frame zero and
+        // frames B+ draw the split bottom. Screw/space-jump poses are future routes and
+        // always draw their bottoms, but they are not admitted by this method yet.
+        bool drawBottom = movementType != 3 || AnimationFrame == 0 || AnimationFrame >= 0x0b;
+        if (drawBottom)
+        {
+            ushort bottomBase = ReadWord(bus, AddWithinBank(BottomSpritemapBaseIndexTable, Pose * 2));
+            BottomSpritemapIndex = unchecked((ushort)(bottomBase + AnimationFrame));
+            oam.AddSamusSpritemap(bus, BottomSpritemapIndex, SpritemapXPosition, SpritemapYPosition);
+        }
 
         // Native Samus_Draw always performs this selection after its conditional OAM work.
         // Those flags drive the following accepted NMI, so stepping exposes the authentic

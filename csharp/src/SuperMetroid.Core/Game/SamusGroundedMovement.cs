@@ -303,6 +303,54 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
+    /// Runs movement type zero for the four unaimed landing poses $A4-$A7. Native landing
+    /// animation is cosmetic with respect to movement: it uses standing's zero-base-speed
+    /// horizontal pass, grounding probe, and momentum cleanup until command $F8 returns to
+    /// pose $01/$02.
+    /// </summary>
+    public static GroundedMovementResult StepLanding(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(samus);
+        if (samus.Pose is not (
+            SamusState.NormalLandingRightPose or SamusState.NormalLandingLeftPose or
+            SamusState.SpinLandingRightPose or SamusState.SpinLandingLeftPose))
+        {
+            throw new InvalidOperationException(
+                $"Landing movement requires pose $A4-$A7, not ${samus.Pose:X2}.");
+        }
+
+        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
+        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        int requestedHorizontal = facingLeft
+            ? speed.CalculateLeftDisplacement(baseSpeed: 0)
+            : speed.CalculateRightDisplacement(baseSpeed: 0);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
+            bus,
+            level,
+            samus.Kinematics,
+            requestedHorizontal);
+        if (horizontal.Collided)
+            ClearHorizontalMomentum(speed);
+
+        BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
+            bus,
+            level,
+            samus,
+            nmiFrameCounter);
+        ClearHorizontalMomentum(speed);
+        samus.Kinematics.YSpeed = 0;
+        samus.Kinematics.YSubspeed = 0;
+        samus.Kinematics.YDirection = 0;
+        return new GroundedMovementResult(horizontal, vertical);
+    }
+
+    /// <summary>
     /// Ports the zero-extra-Y branch of <c>Samus_Move_NoSpeedCalc_Y</c> at <c>$90:923F</c>.
     /// </summary>
     private static BlockMoveResult RunNoSpeedCalculationGroundingProbe(

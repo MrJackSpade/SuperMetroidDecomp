@@ -21,6 +21,11 @@ if (options.ReversalScript)
     Console.WriteLine(
         "Input script: Start, release, Right for 60 frames, Left for 60, Right for 60, then release.");
 }
+else if (options.JumpScript)
+{
+    Console.WriteLine(
+        "Input script: Start, short neutral jump, run right, full spin jump, then release.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7000 stays clear
@@ -232,6 +237,7 @@ EscapeTimerState priorState = runtime.EscapeTimer.State;
 ushort priorSamusFrame = runtime.Samus!.AnimationFrame;
 byte priorSamusPose = runtime.Samus.Pose;
 uint priorSamusX = runtime.Samus.Kinematics.XFixed;
+uint priorSamusY = runtime.Samus.Kinematics.YFixed;
 ushort? priorProspectivePose = null;
 ushort? priorFallbackPose = null;
 for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
@@ -249,6 +255,16 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             >= 122 and < 182 => (ushort)SnesButton.Right,
             _ => (ushort)0,
         }
+        : options.JumpScript
+            ? frameIndex switch
+            {
+                0 => (ushort)SnesButton.Start,
+                >= 2 and < 12 => (ushort)SnesButton.A,
+                >= 50 and < 90 => (ushort)SnesButton.Right,
+                >= 90 and < 125 => (ushort)(SnesButton.Right | SnesButton.A),
+                >= 125 and < 155 => (ushort)SnesButton.Right,
+                _ => (ushort)0,
+            }
         : frameIndex switch
         {
             0 => (ushort)SnesButton.Start,
@@ -296,15 +312,34 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
 
     if (runtime.Samus.Kinematics.XFixed != priorSamusX)
     {
-        GroundedMovementResult movement = runtime.LastGroundedSamusMovement!.Value;
+        BlockMoveResult horizontal = runtime.LastGroundedSamusMovement?.Horizontal ??
+            runtime.LastAerialSamusMovement?.Horizontal ??
+            throw new InvalidOperationException("Samus X changed without a translated movement result.");
+        string vertical = runtime.LastGroundedSamusMovement is GroundedMovementResult groundedMovement
+            ? $"ground=${groundedMovement.Vertical.AcceptedDisplacement:X8}/collision={groundedMovement.Vertical.Collided}"
+            : runtime.LastAerialSamusMovement?.Vertical is BlockMoveResult aerialVertical
+                ? $"airY=${aerialVertical.AcceptedDisplacement:X8}/collision={aerialVertical.Collided}"
+                : "airY=transition";
         Console.WriteLine(
             $"frame {result.FrameNumber,4}: Samus X={runtime.Samus.XPosition:X4}." +
             $"{runtime.Samus.Kinematics.XSubposition:X4}; " +
             $"base={runtime.Samus.HorizontalSpeed.BaseSpeed:X4}." +
             $"{runtime.Samus.HorizontalSpeed.BaseSubspeed:X4}, " +
-            $"horizontal=${movement.Horizontal.AcceptedDisplacement:X8}, " +
-            $"ground=${movement.Vertical.AcceptedDisplacement:X8}/collision={movement.Vertical.Collided}");
+            $"horizontal=${horizontal.AcceptedDisplacement:X8}, {vertical}");
         priorSamusX = runtime.Samus.Kinematics.XFixed;
+    }
+
+    if (runtime.Samus.Kinematics.YFixed != priorSamusY)
+    {
+        Console.WriteLine(
+            $"frame {result.FrameNumber,4}: Samus Y={runtime.Samus.YPosition:X4}." +
+            $"{runtime.Samus.Kinematics.YSubposition:X4}; " +
+            $"velocity={runtime.Samus.Kinematics.YSpeed:X4}." +
+            $"{runtime.Samus.Kinematics.YSubspeed:X4}, " +
+            $"direction={runtime.Samus.Kinematics.YDirection}, " +
+            $"landed={runtime.LastAerialSamusMovement?.Landed ?? false}, " +
+            $"ceiling={runtime.LastAerialSamusMovement?.HitCeiling ?? false}");
+        priorSamusY = runtime.Samus.Kinematics.YFixed;
     }
 
     ushort? prospectivePose = runtime.ProspectiveSamusPose?.ProspectivePose;
@@ -321,7 +356,11 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.MovingRightNormalPose or
                      SamusState.MovingLeftNormalPose or
                      SamusState.TurningRightToLeftPose or
-                     SamusState.TurningLeftToRightPose
+                     SamusState.TurningLeftToRightPose or
+                     SamusState.NeutralJumpTransitionRightPose or
+                     SamusState.NeutralJumpTransitionLeftPose or
+                     SamusState.SpinJumpRightPose or
+                     SamusState.SpinJumpLeftPose
                     ? "applied at the verified post-animation transition seam"
                     : "not applied because its movement/transition side effects are not translated"));
         }
@@ -512,7 +551,8 @@ readonly record struct DebugRunnerOptions(
     string OutputPath,
     bool GroundedRun,
     int RightFrameCount,
-    bool ReversalScript)
+    bool ReversalScript,
+    bool JumpScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -523,6 +563,7 @@ readonly record struct DebugRunnerOptions(
         bool groundedRun = false;
         int rightFrameCount = int.MaxValue;
         bool reversalScript = false;
+        bool jumpScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -562,6 +603,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--jump-script":
+                    jumpScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -596,7 +642,8 @@ readonly record struct DebugRunnerOptions(
             outputPath,
             groundedRun,
             rightFrameCount,
-            reversalScript);
+            reversalScript,
+            jumpScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

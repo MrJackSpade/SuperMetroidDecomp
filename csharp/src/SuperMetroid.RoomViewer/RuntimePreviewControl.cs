@@ -26,6 +26,7 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton playButton = new("Play");
     private readonly ToolStripButton holdLeftButton = new("Hold Left");
     private readonly ToolStripButton holdRightButton = new("Hold Right");
+    private readonly ToolStripButton holdJumpButton = new("Hold Jump");
     private readonly ToolStripButton livePpuLayersButton = new("Live PPU layers");
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 16 };
     private SuperMetroidRuntime runtime = null!;
@@ -71,6 +72,9 @@ internal sealed class RuntimePreviewControl : UserControl
         holdLeftButton.CheckOnClick = true;
         holdLeftButton.ToolTipText =
             "Feeds the SNES Left bit to each stepped frame. Reversals use the ROM's turn poses and preserve old momentum.";
+        holdJumpButton.CheckOnClick = true;
+        holdJumpButton.ToolTipText =
+            "Feeds canonical jump bit $0080. Tap it for a short jump or leave it held for the native variable-height arc.";
 
         // The SNES can electrically report both direction bits, but an ordinary D-pad
         // cannot be held left and right at once. Keep this convenience UI physically sane;
@@ -105,6 +109,7 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(new ToolStripSeparator());
         toolStrip.Items.Add(holdLeftButton);
         toolStrip.Items.Add(holdRightButton);
+        toolStrip.Items.Add(holdJumpButton);
         toolStrip.Items.Add(livePpuLayersButton);
         toolStrip.Items.Add(new ToolStripSeparator());
         toolStrip.Items.Add(cameraLeftButton);
@@ -140,6 +145,7 @@ internal sealed class RuntimePreviewControl : UserControl
         playButton.Text = "Play";
         holdLeftButton.Checked = false;
         holdRightButton.Checked = false;
+        holdJumpButton.Checked = false;
         motherBrainScenario = motherBrain;
         groundedRunScenario = groundedRun;
         haltedAtUntranslatedBoundary = null;
@@ -198,11 +204,13 @@ internal sealed class RuntimePreviewControl : UserControl
             // These buttons feed the cartridge's canonical $0200/$0100 direction bits.
             // StepFrame produces newly-pressed/held words, and the literal ROM transition
             // table decides whether to run, remain in a turn, or begin a reversal.
-            ushort input = holdLeftButton.Checked
-                ? (ushort)SnesButton.Left
-                : holdRightButton.Checked
-                    ? (ushort)SnesButton.Right
-                    : (ushort)0;
+            ushort input = 0;
+            if (holdLeftButton.Checked)
+                input |= (ushort)SnesButton.Left;
+            else if (holdRightButton.Checked)
+                input |= (ushort)SnesButton.Right;
+            if (holdJumpButton.Checked)
+                input |= (ushort)SnesButton.A;
             try
             {
                 runtime.StepFrame(input);
@@ -264,7 +272,11 @@ internal sealed class RuntimePreviewControl : UserControl
                   SamusState.MovingRightNormalPose or
                   SamusState.MovingLeftNormalPose or
                   SamusState.TurningRightToLeftPose or
-                  SamusState.TurningLeftToRightPose
+                  SamusState.TurningLeftToRightPose or
+                  SamusState.NeutralJumpTransitionRightPose or
+                  SamusState.NeutralJumpTransitionLeftPose or
+                  SamusState.SpinJumpRightPose or
+                  SamusState.SpinJumpLeftPose
                 ? $"next ${transition.ProspectivePose:X2} translated"
                 : $"next ${transition.ProspectivePose:X2} blocked"
             : runtime.ProspectiveSamusFallbackPose is ushort fallback
@@ -283,6 +295,9 @@ internal sealed class RuntimePreviewControl : UserControl
             $"X {runtime.Samus.XPosition:X4}.{runtime.Samus.Kinematics.XSubposition:X4} " +
             $"speed {runtime.Samus.HorizontalSpeed.BaseSpeed:X4}." +
             $"{runtime.Samus.HorizontalSpeed.BaseSubspeed:X4}  |  " +
+            $"Y {runtime.Samus.YPosition:X4}.{runtime.Samus.Kinematics.YSubposition:X4} " +
+            $"speed {runtime.Samus.Kinematics.YSpeed:X4}." +
+            $"{runtime.Samus.Kinematics.YSubspeed:X4}/dir {runtime.Samus.Kinematics.YDirection}  |  " +
             $"terrain={(livePpuLayersButton.Checked ? "live PPU" : "ROM composite")}  |  " +
             $"{prospectivePose}  |  " +
             $"{runtime.LastBackgroundUpdateCount} BG update(s)  |  " +

@@ -28,6 +28,7 @@ VerifyOamSpritemapPacking();
 VerifySamusRenderingSlice();
 VerifySamusPoseTransitionMatching();
 VerifySamusHorizontalSpeed();
+VerifySamusAerialMovement();
 VerifySamusSlopePhysics();
 VerifySamusBlockCollision();
 VerifySamusGroundedMovement();
@@ -846,6 +847,204 @@ static void VerifySamusHorizontalSpeed()
 }
 
 /// <summary>
+/// Exercises the complete no-equipment neutral-jump route: ROM pose transition bytecode,
+/// jump initialization constants, old-speed displacement ordering, variable-height cut,
+/// falling acceleration, solid-floor landing, radius alignment, and landing animation.
+/// </summary>
+static void VerifySamusAerialMovement()
+{
+    var bus = new TestAddressSpace();
+
+    // Minimal literal pose records for the verified right-facing route. Byte one is the
+    // movement dispatcher index, byte four is the signed graphics offset, and byte six is
+    // the collision radius. All values mirror the retail definitions.
+    bus.WriteBytes(0x91b881, [0x08, 0x02, 0xff, 0x02, 0x03, 0x00, 0x13, 0x00]); // $4B
+    bus.WriteBytes(0x91b891, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $4D
+    bus.WriteBytes(0x91bb49, [0x08, 0x00, 0xff, 0x02, 0x03, 0x00, 0x15, 0x00]); // $A4
+    bus.WriteBytes(0x91b631, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
+
+    // Animation streams are byte-indexed. $4B spends one frame as a transition then FD
+    // publishes $4D. $4D's first two frames support the rising-frame hold assertion below.
+    // $A4 reaches F8 and publishes standing-right pose $01.
+    WriteTestWord(bus, 0x91b0a6, 0xc100); // pose $4B pointer
+    WriteTestWord(bus, 0x91b0aa, 0xc110); // pose $4D pointer
+    WriteTestWord(bus, 0x91b158, 0xc120); // pose $A4 pointer
+    WriteTestWord(bus, 0x91b012, 0xc130); // pose $01 pointer
+    bus.WriteBytes(0x91c100, [0x01, 0xfd, 0x4d]);
+    bus.WriteBytes(0x91c110, [0x02, 0x03, 0x03, 0x03, 0x03, 0x50, 0xfe, 0x01]);
+    bus.WriteBytes(0x91c120, [0x04, 0x02, 0xf8, 0x01]);
+    bus.WriteBytes(0x91c130, [0x0a]);
+
+    // Dry-air physics constants come from the same bank-$90 words used by production.
+    WriteTestWord(bus, 0x909eb9, 0x0004);
+    WriteTestWord(bus, 0x909ebf, 0xe000);
+    WriteTestWord(bus, 0x909ea1, 0x2800);
+    WriteTestWord(bus, 0x909ea7, 0x0000);
+
+    // Type two reads normal-air base $9F55 + 2*12 = $9F6D. With no direction input the
+    // native handler clears the tentative acceleration again, but seed all six words so
+    // the pointer and arithmetic remain real rather than relying on sparse-bus zeroes.
+    WriteTestWord(bus, 0x909f6d, 0x0000);
+    WriteTestWord(bus, 0x909f6f, 0x1000);
+    WriteTestWord(bus, 0x909f71, 0x0001);
+    WriteTestWord(bus, 0x909f73, 0x0000);
+    WriteTestWord(bus, 0x909f75, 0x0000);
+    WriteTestWord(bus, 0x909f77, 0x1000);
+
+    const int width = 8;
+    const int height = 8;
+    var foreground = new ushort[width * height];
+    for (int x = 0; x < width; x++)
+        foreground[6 * width + x] = 0x8000; // ordinary solid floor begins at Y=96
+    var level = new RoomLevelData(
+        width,
+        height,
+        foreground,
+        new byte[foreground.Length],
+        new ushort[foreground.Length],
+        new byte[8]);
+
+    var samus = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 48,
+        YPosition = 77, // radius 19 will place jump-pose feet at floor Y=96
+    };
+    samus.ApplyOrdinaryJumpTransition(bus, SamusState.NeutralJumpTransitionRightPose);
+    AssertEqual((ushort)0x0004, samus.Kinematics.YSpeed, "jump reads initial whole Y speed");
+    AssertEqual((ushort)0xe000, samus.Kinematics.YSubspeed, "jump reads initial fractional Y speed");
+    AssertEqual((ushort)1, samus.Kinematics.YDirection, "jump begins upward");
+
+    // The $4B transition movement deliberately does not consume the initialized 4.E000.
+    AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(
+        bus, level, samus, (ushort)SnesButton.A, nmiFrameCounter: 0);
+    AssertTrue(transitionFrame.Vertical is null, "neutral-jump transition skips vertical movement");
+    AssertEqual((ushort)77, samus.YPosition, "neutral-jump transition preserves Y");
+    samus.AnimateNoFx(bus);
+    AssertEqual((byte)0xfd, samus.LastAnimationDelayCommand!.Value, "neutral-jump transition reaches FD");
+    AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "FD installs neutral jump pose");
+    AssertEqual((byte)0x4d, samus.Pose, "FD target pose");
+
+    // The first real airborne frame moves by OLD 4.E000, then stores 4.B800 after gravity.
+    AerialMovementResult firstRise = SamusAerialMovement.StepNormalJump(
+        bus, level, samus, (ushort)SnesButton.A, nmiFrameCounter: 1);
+    AssertTrue(firstRise.Vertical is { Collided: false }, "first rise remains in air");
+    AssertEqual((ushort)72, samus.YPosition, "first rise old-speed whole displacement");
+    AssertEqual((ushort)0x2000, samus.Kinematics.YSubposition, "first rise old-speed fraction");
+    AssertEqual((ushort)0x0004, samus.Kinematics.YSpeed, "first rise stored whole speed");
+    AssertEqual((ushort)0xb800, samus.Kinematics.YSubspeed, "first rise subtracts gravity afterward");
+
+    // Releasing jump cuts velocity before the common routine copies it. The frame has no
+    // displacement, changes direction to down, and only primes 0.2800 for the next frame.
+    ushort releaseY = samus.YPosition;
+    ushort releaseSubY = samus.Kinematics.YSubposition;
+    SamusAerialMovement.StepNormalJump(bus, level, samus, controllerInput: 0, nmiFrameCounter: 2);
+    AssertEqual((ushort)2, samus.Kinematics.YDirection, "jump release starts falling");
+    AssertEqual(releaseY, samus.YPosition, "jump release stationary whole Y frame");
+    AssertEqual(releaseSubY, samus.Kinematics.YSubposition, "jump release stationary fractional Y frame");
+    AssertEqual((ushort)0x2800, samus.Kinematics.YSubspeed, "jump release primes falling gravity");
+
+    // Continue the native recurrence until the solid floor clips a downward displacement.
+    // This is bounded well above the roughly 50 frames needed by the synthetic room.
+    AerialMovementResult result = default;
+    for (int frame = 3; frame < 200 && !result.Landed; frame++)
+        result = SamusAerialMovement.StepNormalJump(bus, level, samus, 0, (ushort)frame);
+    AssertTrue(result.Landed, "neutral jump eventually reports solid-floor landing");
+    AssertEqual((ushort)77, samus.YPosition, "aerial radius rests at floor before pose expansion");
+
+    samus.ApplyAerialLanding(bus, wasSpinning: false);
+    AssertEqual((byte)0xa4, samus.Pose, "normal right-facing landing pose");
+    AssertEqual((ushort)75, samus.YPosition, "landing radius expansion keeps feet fixed");
+    AssertEqual((ushort)0, samus.Kinematics.YDirection, "landing clears vertical direction");
+
+    // Four ticks plus two ticks reach $F8 at byte index two; its operand returns to $01.
+    for (int tick = 0; tick < 6; tick++)
+        samus.AnimateNoFx(bus);
+    AssertEqual((byte)0xf8, samus.LastAnimationDelayCommand!.Value, "landing reaches F8");
+    AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "landing F8 transition applies");
+    AssertEqual((byte)0x01, samus.Pose, "landing animation returns to standing");
+
+    // Aerial mode two accelerates because $90:9B22 tests only bit zero. This guards the
+    // counterintuitive distinction from the grounded deceleration-allowed routine.
+    var aerialSpeed = new SamusHorizontalSpeedState { AccelerationMode = 2 };
+    aerialSpeed.SelectNormalAirSpeedTable();
+    AerialBaseSpeedResult accelerated =
+        aerialSpeed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType: 2);
+    AssertEqual(0x00001000u, accelerated.Speed, "aerial mode two accelerates");
+    AssertTrue(!accelerated.ReachedMaximum, "aerial sub-cap call clears carry");
+
+    // Mirror the launch through the left-facing spin-jump route. This checks that mode two
+    // uses the pose direction normally, and that the type-three speed entry (not running's
+    // type-one entry) supplies the in-air cap/acceleration.
+    bus.WriteBytes(0x91b6f9, [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]); // $1A
+    WriteTestWord(bus, 0x91b044, 0xc140);
+    bus.WriteBytes(0x91c140, [0x03, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0xfe, 0x08]);
+    WriteTestWord(bus, 0x909f79, 0x0000);
+    WriteTestWord(bus, 0x909f7b, 0x2000);
+    WriteTestWord(bus, 0x909f7d, 0x0001);
+    WriteTestWord(bus, 0x909f7f, 0x6000);
+    WriteTestWord(bus, 0x909f81, 0x0000);
+    WriteTestWord(bus, 0x909f83, 0x1000);
+    var spinLeft = new SamusState
+    {
+        Pose = SamusState.MovingLeftNormalPose,
+        XPosition = 48,
+        YPosition = 77,
+    };
+    spinLeft.HorizontalSpeed.BaseSpeed = 1;
+    spinLeft.ApplyOrdinaryJumpTransition(bus, SamusState.SpinJumpLeftPose);
+    AerialMovementResult spinFrame = SamusAerialMovement.StepSpinJump(
+        bus,
+        level,
+        spinLeft,
+        (ushort)(SnesButton.Left | SnesButton.A),
+        nmiFrameCounter: 0);
+    AssertEqual(-0x00012000, spinFrame.Horizontal.AcceptedDisplacement, "left spin jump displacement");
+    AssertEqual((ushort)2, spinLeft.HorizontalSpeed.AccelerationMode, "spin jump selects aerial mode two");
+    AssertEqual((ushort)46, spinLeft.XPosition, "left spin jump whole X");
+    AssertEqual((ushort)0xe000, spinLeft.Kinematics.XSubposition, "left spin jump fractional X");
+
+    // Walking off a ledge is the movement-type-six entry point. $91:E8F2 selects pose $2A
+    // from the old left-facing direction and command five begins with a stationary falling
+    // frame before gravity produces displacement. Landing from type six uses normal $A5.
+    bus.WriteBytes(0x91b779, [0x04, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]); // $2A
+    bus.WriteBytes(0x91bb51, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]); // $A5
+    bus.WriteBytes(0x91b639, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]); // $02
+    WriteTestWord(bus, 0x91b064, 0xc150);
+    WriteTestWord(bus, 0x91b15a, 0xc160);
+    WriteTestWord(bus, 0x91b014, 0xc170);
+    bus.WriteBytes(0x91c150, [0x05, 0x04, 0x04, 0xfe, 0x01, 0x06, 0x10, 0xfe, 0x01]);
+    bus.WriteBytes(0x91c160, [0x04, 0x02, 0xf8, 0x02]);
+    bus.WriteBytes(0x91c170, [0x0a]);
+    WriteTestWord(bus, 0x909f9d, 0x0000); // type-six entry at $9F55 + 6*12
+    WriteTestWord(bus, 0x909f9f, 0x1000);
+    WriteTestWord(bus, 0x909fa1, 0x0001);
+    WriteTestWord(bus, 0x909fa3, 0x0000);
+    WriteTestWord(bus, 0x909fa5, 0x0000);
+    WriteTestWord(bus, 0x909fa7, 0x1000);
+    var fallLeft = new SamusState
+    {
+        Pose = SamusState.FacingLeftNormalPose,
+        XPosition = 48,
+        YPosition = 77,
+    };
+    fallLeft.ApplyWalkedOffFloorTransition(bus, SamusState.FallingLeftPose);
+    AssertEqual((byte)0x2a, fallLeft.Pose, "walk-off chooses left falling pose");
+    AerialMovementResult firstFall = SamusAerialMovement.StepFalling(
+        bus, level, fallLeft, controllerInput: 0, nmiFrameCounter: 0);
+    AssertEqual(0, firstFall.Vertical!.Value.AcceptedDisplacement, "walk-off starts with stationary fall frame");
+    AssertEqual((ushort)0x2800, fallLeft.Kinematics.YSubspeed, "first fall frame primes gravity");
+    AerialMovementResult fallResult = default;
+    for (int frame = 1; frame < 200 && !fallResult.Landed; frame++)
+        fallResult = SamusAerialMovement.StepFalling(bus, level, fallLeft, 0, (ushort)frame);
+    AssertTrue(fallResult.Landed, "left falling pose reaches floor");
+    fallLeft.ApplyAerialLanding(bus, wasSpinning: false);
+    AssertEqual((byte)0xa5, fallLeft.Pose, "left fall selects normal landing pose");
+
+    Console.WriteLine("  Samus aerial: FD launch, exact 16.16 arc, jump cut, floor landing, radius, and F8 agree.");
+}
+
+/// <summary>
 /// Fixes the two ROM tables and signed formulas used by Landing Site's actual BTS-$12
 /// non-square floor path at <c>$94:84D6</c> and <c>$94:87F4</c>.
 /// </summary>
@@ -1320,7 +1519,7 @@ static void VerifySamusGroundedReversal()
         animatedTurn.AnimateNoFx(bus);
     AssertEqual((byte)0xf8, animatedTurn.LastAnimationDelayCommand!.Value, "turn reaches command $F8");
     AssertEqual((byte)0x02, animatedTurn.PendingTransitionalPose!.Value, "turn $F8 publishes left-standing pose");
-    AssertTrue(animatedTurn.ApplyPendingGroundedAnimationTransition(bus), "turn animation transition applies");
+    AssertTrue(animatedTurn.ApplyPendingVerifiedAnimationTransition(bus), "turn animation transition applies");
     AssertEqual((byte)0x02, animatedTurn.Pose, "turn animation ends facing left");
     AssertEqual((ushort)0, animatedTurn.AnimationFrame, "turn completion resets animation frame");
     AssertEqual((ushort)10, animatedTurn.AnimationFrameTimer, "left-standing delay initializes from ROM stream");

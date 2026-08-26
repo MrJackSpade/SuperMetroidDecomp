@@ -21,7 +21,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
 | `$08` | Morph ball falling | `$31/$32`, air/water/lava X and gravity, persistent external X/Y displacement and bounce override, ceiling/floor/solid-enemy collision, two-stage hard bounce, gentle landing, normal-bomb deployment | Bombable-block PLMs, live enemy actor producer |
 | `$09` | Unused | — | Preserve only if required |
-| `$0A` | Knockback / crystal-flash ending | `$53/$54`, air/water/lava launch/X/gravity, ordinary-body timer, horizontal/vertical block collision, damage-boost input escape, falling handoff | Morph/ball knockback, enemy producer, crystal-flash ending |
+| `$0A` | Knockback / crystal-flash ending | `$53/$54` plus pose-preserving Morph/Spring Ball knockback from types `$04/$08/$11-$13`, air/water/lava launch/X/gravity, ordinary-body timer, horizontal/vertical block collision, damage-boost input escape, same-pose ball cleanup, radius-aligned humanoid falling handoff; Crystal Flash ending is handled by the translated type-`$1B` special state | Live enemy producer |
 | `$0B` | Unused | — | Preserve only if required |
 | `$0C` | Unused | — | Preserve only if required |
 | `$0D` | Unused | — | Preserve only if required |
@@ -633,10 +633,19 @@ translated status is documented with the Morph Ball family below.
   supplies bank `$A0`'s left/right hit result. `$91:EDB0` then chooses knockback direction,
   installs `$53/$54`, reads the air/water/lava entry from `$90:9EE9/$90:9EEF`, and starts the native
   five-count hurt timer. No enemy damage, velocity, pose, or duration is fabricated.
+- `$90:DF15/$91:EE27` now admit Morph Ball and Spring Ball types `$04/$08/$11-$13`.
+  Unlike the humanoid branch, they republish the current pose, preserve its rolling animation
+  frame/timer, ignore controller input and damage-source side when selecting vertical direction,
+  and choose direction one/two solely from left/right pose metadata. Horizontal travel still
+  independently follows bank `$A0`'s X-side word, matching `$90:8EDF`.
 - The special `$90:DF38` handler takes precedence over the normal type dispatcher. It uses
   type `$0A`'s normal-air speed record and bank-$A0's X direction, applies either gravity or
   no-speed downward movement according to directions one/two/four/five, and performs exact
   bank-$94 block clipping. Vertical collision clears the same X/Y state as `$90:DF6E`.
+- Timer-zero `$91:F31D` clears Morph Ball bounce state, both Y-speed words, and publishes
+  direction two for every family. `$53/$54` additionally become `$29/$2A` and move their
+  radius-19 center down two pixels to keep the old radius-21 feet fixed. A ball keeps its
+  exact pose and animation, then ordinary grounding naturally selects `$31/$32` while elevated.
 - Input remains live during ordinary knockback. Right-facing `$53` plus canonical `$0280`
   (Left+Jump) follows literal `$91:A8E4 -> $50`; left-facing `$54` mirrors through `$0180`
   (Right+Jump) to `$4F`. Crossing movement families calls Make_Samus_Jump, clears the hurt
@@ -652,6 +661,11 @@ translated status is documented with the Morph Ball family below.
   matches the cartridge's `$91:A8E4` record, executes `$50` type-`$19` movement, and renders
   the private-ROM pose against live terrain. Synthetic verification independently locks the
   timer, exact 16.16 values, damage-boost handoff, `$FF` landing, and timeout to `$29/$2A`.
+- DebugRunner `--morph-knockback-script` reaches `$1D` through real `$37/$F9`, publishes the
+  same one-bit enemy seam with deliberately conflicting facing/input, and requires preserved
+  pose/animation, five `$DF38` moves, same-pose completion, `$1D -> $31`, and real floor
+  collision back to `$1D`. Its active and landed PNG sets retain ROM ball tiles, palette,
+  terrain, sky, HUD, camera, minimap, and OAM.
 
 ## Verified grapple firing and connected slice
 

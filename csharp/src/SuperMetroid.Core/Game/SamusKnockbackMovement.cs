@@ -5,7 +5,8 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Literal air/water/lava translation of normal knockback and its damage-boost escape route.
+/// Literal air/water/lava translation of humanoid and morphed knockback plus the
+/// humanoid-only damage-boost escape route.
 /// </summary>
 /// <remarks>
 /// This code follows `$90:DDE9-$90:DF98`, `$90:99D6`, and `$91:ED4E-$91:EE26`.
@@ -20,7 +21,8 @@ public static class SamusKnockbackMovement
     private const int InitialYSubspeedTable = 0x909eef;
 
     /// <summary>
-    /// Consumes the ordinary non-morph branch of special prospective command one.
+    /// Consumes special prospective command one after bank `$90` has admitted either the
+    /// normal `$53/$54` hurt-pose branch or the pose-preserving Morph/Spring Ball branch.
     /// </summary>
     /// <param name="knockbackXDirection">
     /// Bank-$A0's `$0A54`: zero means move left, one means move right.
@@ -39,33 +41,57 @@ public static class SamusKnockbackMovement
             throw new InvalidOperationException("Normal knockback is already active or pending.");
 
         byte sourceMovementType = samus.ReadMovementType(bus);
-        if (sourceMovementType is not (0 or 1 or 2 or 3 or 5 or 6 or 0x0d or 0x10 or 0x14 or 0x15))
+        bool morphed = sourceMovementType is 4 or 8 or 9 or 0x11 or 0x12 or 0x13;
+        bool humanoid = sourceMovementType is 0 or 1 or 2 or 3 or 5 or 6 or 0x0d or
+            0x10 or 0x14 or 0x15;
+        if (!morphed && !humanoid)
         {
             throw new NotSupportedException(
-                $"Normal knockback start from movement type ${sourceMovementType:X2} is not translated.");
+                $"Knockback start from movement type ${sourceMovementType:X2} is not translated.");
         }
 
-        // `$90:DEFA` chooses hurt art from the OLD pose's direction. The art faces the same
-        // direction as the source; `$91:EDB0` independently decides physical knockback.
+        // `$90:DEFA` replaces an ordinary body with `$53/$54`. `$90:DF15`, by contrast,
+        // republishes the exact Morph/Spring Ball pose. Because UpdateSamusPose sees no
+        // pose change in that branch, the rolling animation frame and timer survive.
         bool facingLeft = SamusState.ReadPoseXDirection(bus, samus.Pose) == 4;
-        samus.Pose = facingLeft ? SamusState.KnockbackLeftPose : SamusState.KnockbackRightPose;
-        samus.RefreshCollisionRadii(bus);
+        if (humanoid)
+        {
+            samus.Pose = facingLeft
+                ? SamusState.KnockbackLeftPose
+                : SamusState.KnockbackRightPose;
+            samus.RefreshCollisionRadii(bus);
+        }
 
-        // The “down” variants are selected only by holding the source pose's forward bit
-        // on the command-one frame. Horizontal direction always comes from `$0A54`.
-        bool forwardHeld = facingLeft
-            ? (controllerInput & (ushort)SnesButton.Left) != 0
-            : (controllerInput & (ushort)SnesButton.Right) != 0;
+        // `$91:EE27` deliberately ignores both the damage-source side and controller input
+        // when choosing a ball's vertical branch: right-facing ball art always gets up-right
+        // direction two, and left-facing art gets up-left direction one. Humanoid `$91:EDB0`
+        // retains the unusual forward-held selection of down-left/down-right directions.
         samus.KnockbackXDirection = knockbackXDirection;
-        samus.KnockbackDirection = knockbackXDirection == 0
-            ? forwardHeld ? (ushort)4 : (ushort)1
-            : forwardHeld ? (ushort)5 : (ushort)2;
+        if (morphed)
+        {
+            samus.KnockbackDirection = facingLeft ? (ushort)1 : (ushort)2;
+        }
+        else
+        {
+            bool forwardHeld = facingLeft
+                ? (controllerInput & (ushort)SnesButton.Left) != 0
+                : (controllerInput & (ushort)SnesButton.Right) != 0;
+            samus.KnockbackDirection = knockbackXDirection == 0
+                ? forwardHeld ? (ushort)4 : (ushort)1
+                : forwardHeld ? (ushort)5 : (ushort)2;
+        }
 
         // Enemy and enemy-projectile collision both write five. The first bank-$A0 hurt-
         // timer pass following the hit decrements it; keeping the native five in state lets
         // callers and debugger watches see the actual published value.
         samus.KnockbackTimer = 5;
         samus.KnockbackActive = true;
+
+        // The remainder of `$91:ED4E` runs for both pointer-table families. A pending bomb
+        // jump cannot coexist with hurt movement, and shinespark/Screw contact damage is
+        // cancelled before the special movement handler begins.
+        samus.BombJumpDirection = 0;
+        samus.HorizontalSpeed.ContactDamageIndex = 0;
 
         // `$90:99D6` indexes air/water/lava by zero/two/four after the exact bottom-edge
         // and Gravity-Suit checks. Values remain live ROM reads for regional/modded builds.
@@ -74,7 +100,8 @@ public static class SamusKnockbackMovement
         samus.Kinematics.YSubspeed = ReadWord(bus, InitialYSubspeedTable + liquidOffset);
         samus.Kinematics.YDirection = 1;
         SamusAerialMovement.ConfigureEnvironmentGravity(bus, samus);
-        samus.InitializeAnimation(bus, initialFrame: 0);
+        if (humanoid)
+            samus.InitializeAnimation(bus, initialFrame: 0);
     }
 
     /// <summary>Executes one `$90:DF38` special movement-handler frame.</summary>
@@ -96,7 +123,14 @@ public static class SamusKnockbackMovement
         // timer pass. Zero ends type-$0A knockback before beta can move it again; a value
         // of one therefore still owns this movement frame and becomes zero afterward.
         if (samus.KnockbackTimer == 0)
-            return EndToFalling(bus, samus);
+        {
+            // Only `$53/$54` are movement type `$0A`; `$90:DE20` gives that family a new
+            // `$29/$2A` pose. A ball retains whatever Morph/Spring pose is current and goes
+            // directly to the shared command-one cleanup at `$91:F31D`.
+            return samus.ReadMovementType(bus) == 0x0a
+                ? EndHumanoidToFalling(bus, samus)
+                : EndWithoutPoseChange(samus);
+        }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
@@ -196,17 +230,43 @@ public static class SamusKnockbackMovement
         samus.InitializeAnimation(bus, initialFrame: 0);
     }
 
-    private static KnockbackMovementResult EndToFalling(ISnesAddressSpace bus, SamusState samus)
+    private static KnockbackMovementResult EndHumanoidToFalling(
+        ISnesAddressSpace bus,
+        SamusState samus)
     {
-        // `$90:DE57` chooses `$29/$2A`, command one restores the normal movement handler,
-        // and the current vertical velocity survives for ordinary falling next frame.
+        // `$90:DE57` chooses `$29/$2A`. After the ordinary pose-change initializer has
+        // installed radius 19, command one `$91:F31D` aligns the new body bottom to the old
+        // radius-21 hurt body. Thus the center moves down two pixels before velocity clears.
+        ushort previousRadius = samus.Kinematics.YRadius;
         samus.Pose = SamusState.ReadPoseXDirection(bus, samus.Pose) == 4
             ? SamusState.FallingLeftPose
             : SamusState.FallingRightPose;
         samus.RefreshCollisionRadii(bus);
+        samus.Kinematics.YPosition = unchecked((ushort)(
+            samus.Kinematics.YPosition + previousRadius - samus.Kinematics.YRadius));
+        samus.InitializeAnimation(bus, initialFrame: 0);
+        return FinishKnockback(samus);
+    }
+
+    private static KnockbackMovementResult EndWithoutPoseChange(SamusState samus)
+    {
+        // `$90:DE40` republishes the current pose, so UpdateSamusPose neither reloads its
+        // radii nor resets its animation. This is the detail that keeps an interrupted
+        // rolling Morph/Spring Ball visually continuous across the five hurt frames.
+        return FinishKnockback(samus);
+    }
+
+    private static KnockbackMovementResult FinishKnockback(SamusState samus)
+    {
+        // Exact `$91:F31D` cleanup shared by humanoid and morphed completion. The falling
+        // flag has no independent host field yet; Y-direction two is its movement-visible
+        // publication and is consumed by every translated normal/ball dispatcher.
         samus.KnockbackDirection = 0;
         samus.KnockbackActive = false;
-        samus.InitializeAnimation(bus, initialFrame: 0);
+        samus.MorphBallBounceState = 0;
+        samus.Kinematics.YSubspeed = 0;
+        samus.Kinematics.YSpeed = 0;
+        samus.Kinematics.YDirection = 2;
         return new KnockbackMovementResult(null, null, Ended: true);
     }
 

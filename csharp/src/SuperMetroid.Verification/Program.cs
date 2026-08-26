@@ -6250,6 +6250,20 @@ static void VerifySamusKnockbackAndDamageBoost()
     bus.WriteBytes(0x91b8c9, [0x04, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]); // $54
     bus.WriteBytes(0x91bb51, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]); // $A5
 
+    // One representative pose for each retail Morph/Spring movement type admitted by
+    // `$90:DF15/$91:EE27`. Alternating facings make the pose-direction-only knockback
+    // selection independently observable from the enemy's X-side word.
+    bus.WriteBytes(0x91b629 + SamusState.MorphBallGroundRightPose * 8,
+        [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.MorphBallFallingLeftPose * 8,
+        [0x04, 0x08, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.SpringBallGroundRightPose * 8,
+        [0x08, 0x11, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.SpringBallJumpLeftPose * 8,
+        [0x04, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.SpringBallFallingRightPose * 8,
+        [0x08, 0x13, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+
     // Animation-pointer table entries are `$91:B010 + pose * 2`. One long ordinary
     // delay is enough to keep animation unrelated to this movement-focused assertion.
     WriteTestWord(bus, 0x91b062, 0xc100); // $29
@@ -6264,6 +6278,21 @@ static void VerifySamusKnockbackAndDamageBoost()
     bus.WriteBytes(0x91c130, [0x02]);
     bus.WriteBytes(0x91c140, [0x02]);
     bus.WriteBytes(0x91c150, [0x04]);
+
+    // Every ball pose shares this synthetic rolling stream. Starting at frame three proves
+    // the same-pose knockback transition does not accidentally call InitializeAnimation.
+    foreach (byte pose in new byte[]
+    {
+        SamusState.MorphBallGroundRightPose,
+        SamusState.MorphBallFallingLeftPose,
+        SamusState.SpringBallGroundRightPose,
+        SamusState.SpringBallJumpLeftPose,
+        SamusState.SpringBallFallingRightPose,
+    })
+    {
+        WriteTestWord(bus, 0x91b010 + pose * 2, 0xc160);
+    }
+    bus.WriteBytes(0x91c160, [0x09, 0x09, 0x09, 0x09, 0x09, 0x09, 0xff]);
 
     // `$90:99D6` selects dry-air knockback magnitude 5.0000. Damage boost subsequently
     // calls Make_Samus_Jump, whose independent dry-air value is 4.E000. Both share the
@@ -6395,13 +6424,113 @@ static void VerifySamusKnockbackAndDamageBoost()
     for (int frame = 0; frame < 5; frame++)
         AssertTrue(!SamusKnockbackMovement.Step(bus, empty, expires, (ushort)frame).Ended,
             $"hurt movement frame {frame + 1} remains active");
+    ushort humanoidYBeforeCompletion = expires.YPosition;
     KnockbackMovementResult expired = SamusKnockbackMovement.Step(bus, empty, expires, 5);
     AssertTrue(expired.Ended, "zero hurt timer ends special handler");
     AssertEqual(SamusState.FallingRightPose, expires.Pose, "expired right knockback selects falling right");
     AssertTrue(!expires.KnockbackActive, "expired knockback restores normal handler");
     AssertEqual((ushort)0, expires.KnockbackDirection, "expired knockback clears direction");
 
-    Console.WriteLine("  Samus knockback: timer, 16.16 hurt arc, damage boost, and normal-jump handoff agree.");
+    // `$90:DF15` republishes a ball's current pose rather than substituting `$53/$54`.
+    // `$91:EE27` then ignores the hit side and held-forward rule when selecting vertical
+    // direction, while `$90:8EDF` still uses the enemy-produced X side for horizontal travel.
+    foreach ((byte pose, ushort hitSide, ushort expectedDirection) in new[]
+    {
+        (SamusState.MorphBallGroundRightPose, (ushort)0, (ushort)2),
+        (SamusState.MorphBallFallingLeftPose, (ushort)1, (ushort)1),
+        (SamusState.SpringBallGroundRightPose, (ushort)0, (ushort)2),
+        (SamusState.SpringBallJumpLeftPose, (ushort)1, (ushort)1),
+        (SamusState.SpringBallFallingRightPose, (ushort)0, (ushort)2),
+    })
+    {
+        var ball = new SamusState
+        {
+            Pose = pose,
+            XPosition = 96,
+            YPosition = 96,
+            BombJumpDirection = 0x0802,
+            MorphBallBounceState = 0x0602,
+        };
+        ball.RefreshCollisionRadii(bus);
+        ball.InitializeAnimation(bus, initialFrame: 3);
+        ball.HorizontalSpeed.ContactDamageIndex = 3;
+        ushort preservedFrame = ball.AnimationFrame;
+        ushort preservedTimer = ball.AnimationFrameTimer;
+
+        SamusKnockbackMovement.Start(
+            bus,
+            ball,
+            controllerInput: (ushort)(SnesButton.Left | SnesButton.Right),
+            knockbackXDirection: hitSide);
+        AssertEqual(pose, ball.Pose, $"morphed type ${ball.ReadMovementType(bus):X2} retains pose");
+        AssertEqual(expectedDirection, ball.KnockbackDirection,
+            $"morphed pose ${pose:X2} chooses direction from facing only");
+        AssertEqual(preservedFrame, ball.AnimationFrame,
+            $"morphed pose ${pose:X2} retains rolling animation frame");
+        AssertEqual(preservedTimer, ball.AnimationFrameTimer,
+            $"morphed pose ${pose:X2} retains rolling animation timer");
+        AssertEqual((ushort)0, ball.BombJumpDirection,
+            $"morphed pose ${pose:X2} start clears pending bomb jump");
+        AssertEqual((ushort)0, ball.HorizontalSpeed.ContactDamageIndex,
+            $"morphed pose ${pose:X2} start clears contact damage");
+        AssertEqual((ushort)0x0602, ball.MorphBallBounceState,
+            $"morphed pose ${pose:X2} start leaves bounce state until completion");
+    }
+
+    // Let a sixth ball fixture reach the shared `$91:F31D` completion handler. Unlike the
+    // humanoid path it must keep both pose and animation, clear bounce/velocity, and publish
+    // downward direction two so normal ball physics resumes on the following frame.
+    var ballExpires = new SamusState
+    {
+        Pose = SamusState.MorphBallGroundRightPose,
+        XPosition = 96,
+        YPosition = 96,
+        MorphBallBounceState = 2,
+    };
+    ballExpires.RefreshCollisionRadii(bus);
+    ballExpires.InitializeAnimation(bus, initialFrame: 3);
+    SamusKnockbackMovement.Start(
+        bus,
+        ballExpires,
+        controllerInput: (ushort)SnesButton.Right,
+        knockbackXDirection: 0);
+    ushort retainedBallFrame = ballExpires.AnimationFrame;
+    ushort retainedBallTimer = ballExpires.AnimationFrameTimer;
+    for (int frame = 0; frame < 5; frame++)
+        SamusKnockbackMovement.Step(bus, empty, ballExpires, unchecked((ushort)frame));
+    KnockbackMovementResult ballExpired = SamusKnockbackMovement.Step(
+        bus,
+        empty,
+        ballExpires,
+        nmiFrameCounter: 5);
+    AssertTrue(ballExpired.Ended, "zero hurt timer ends morphed special handler");
+    AssertEqual(SamusState.MorphBallGroundRightPose, ballExpires.Pose,
+        "expired morphed knockback retains current ball pose");
+    AssertEqual(retainedBallFrame, ballExpires.AnimationFrame,
+        "expired morphed knockback retains rolling frame");
+    AssertEqual(retainedBallTimer, ballExpires.AnimationFrameTimer,
+        "expired morphed knockback retains rolling timer");
+    AssertEqual((ushort)0, ballExpires.MorphBallBounceState,
+        "expired morphed knockback clears bounce state");
+    AssertEqual((ushort)0, ballExpires.Kinematics.YSpeed,
+        "expired morphed knockback clears whole Y speed");
+    AssertEqual((ushort)0, ballExpires.Kinematics.YSubspeed,
+        "expired morphed knockback clears fractional Y speed");
+    AssertEqual((ushort)2, ballExpires.Kinematics.YDirection,
+        "expired morphed knockback resumes with direction two");
+
+    // The same command-one cleanup also corrects the existing humanoid route: `$53` radius
+    // 21 becomes `$29` radius 19, so center Y moves down two pixels to preserve the feet.
+    AssertEqual((ushort)0, expires.Kinematics.YSpeed,
+        "expired humanoid knockback clears whole Y speed");
+    AssertEqual((ushort)0, expires.Kinematics.YSubspeed,
+        "expired humanoid knockback clears fractional Y speed");
+    AssertEqual((ushort)2, expires.Kinematics.YDirection,
+        "expired humanoid knockback publishes falling direction two");
+    AssertEqual(unchecked((ushort)(humanoidYBeforeCompletion + 2)), expires.YPosition,
+        "expired humanoid knockback aligns radius-19 falling body to radius-21 feet");
+
+    Console.WriteLine("  Samus knockback: humanoid/ball starts, timer, 16.16 hurt arc, same-pose animation, cleanup, and damage-boost handoff agree.");
 }
 
 /// <summary>

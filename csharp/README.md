@@ -146,6 +146,8 @@ dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Sup
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 87 --bomb-jump-script --output ../standalone-assets/runtime/BombExplosionFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 160 --bomb-jump-script --output ../standalone-assets/runtime/BombLifecycleTraceFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 32 --knockback-script --output ../standalone-assets/runtime/KnockbackDamageBoostFrame.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 28 --morph-knockback-script --output ../standalone-assets/runtime/MorphKnockbackActiveFrame.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 54 --morph-knockback-script --output ../standalone-assets/runtime/MorphKnockbackFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 8 --grapple-fire-script --output ../standalone-assets/runtime/grapple-firing.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 14 --grapple-fire-script --output ../standalone-assets/runtime/GrappleFireTrace.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 2 --grapple-script --output ../standalone-assets/runtime/GrappleTerrainBounce.png
@@ -209,6 +211,14 @@ orbit and 30-frame center circle, `$C9 -> $01`, and both radius-64 departing pro
 `--bomb-jump-script` morphs normally and presses only the default Shoot/X controller bit. The translated `$90:BF9D/$C0E7` producer allocates one of five real bomb slots, `$90:C128` counts 60 down through the fast-animation seam at 15, and `$93:81E9` interprets the private ROM's slow, fast, explosion, goto, and delete records. At timer eight, `$A0:97E2-$A0:984E` publishes straight direction two; the following frame's `$90:DF99` setup installs `$90:E025/$E032`. The same fixed-sprite upload and bank-$93 spritemaps render the bomb/explosion before ordinary Morph Ball descent and floor recovery. The 50-frame capture shows an active bomb, the 87-frame capture freezes the explosion during ascent, and the 160-frame trace proves allocation through deletion and landing.
 
 `--knockback-script` supplies only the left/right result normally produced by an enemy collision, because actors are not translated yet. From that explicit seam, the cartridge supplies `$53`, the five-count hurt timer, 5.0000 velocity, transition record `$91:A8E4`, `$50` damage-boost art, type-`$19` jump physics, collision, and `$FF` sentinel landing. The 32-frame capture freezes the actual damage-boost pose; a longer run proves ordinary `$A5` landing.
+
+`--morph-knockback-script` reaches `$1D` through the ordinary two-Down `$37/$F9` route,
+then supplies that same one-bit enemy-side seam. It deliberately publishes leftward X while
+holding forward on right-facing ball art: native `$91:EE27` must ignore both when selecting
+up-right direction two, while `$90:8EDF` still moves left. Assertions require the current
+pose and rolling animation to survive start, all five hurt frames, same-pose `$91:F31D`
+cleanup, elevated `$1D -> $31`, and real floor recovery to `$1D` on frame 54. The 28-frame
+capture freezes authentic ball art during knockback; 54 frames capture the landed result.
 
 `--grapple-fire-script` selects grapple at the explicit untranslated HUD seam, then presses only Shoot/X. Bank `$9B` supplies the current pose's direction, signed 16.16 velocities, hand/flare origins, twelve-pixel length growth, and 128-pixel cutoff. Bank `$94` performs four fractional endpoint probes per frame and dispatches real BG1/BTS collision; persistent type-`$E` BTS zero/three connects, while ordinary solid collision cancels and unsupported PLM-producing reactions throw. Landing Site contains no type-`$E` blocks, so its real-ROM trace honestly proves firing, rendering, and queued cancellation. The eight-frame capture freezes the visible extending beam; fourteen frames prove cancellation completion.
 

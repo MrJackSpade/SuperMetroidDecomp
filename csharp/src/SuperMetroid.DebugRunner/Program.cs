@@ -146,6 +146,11 @@ else if (options.KnockbackScript)
     Console.WriteLine(
         "Input script: host-inject one enemy-side hit result, run native knockback, press Left+Jump for the retail damage boost, then hold that chord through its arc.");
 }
+else if (options.MorphKnockbackScript)
+{
+    Console.WriteLine(
+        "Input script: crouch/morph, host-inject one enemy-side hit result, preserve real Morph Ball pose/animation through native knockback, then fall and land normally.");
+}
 else if (options.GrappleFireScript)
 {
     Console.WriteLine(
@@ -274,7 +279,7 @@ MotherBrainRainbowBeamAttackSequence? rainbowAttack = null;
 BabyMetroidCutsceneState? cutsceneBaby = null;
 MotherBrainEnemyProjectileSystem? motherBrainProjectiles = null;
 
-if (options.MorphBallScript || options.BombJumpScript)
+if (options.MorphBallScript || options.BombJumpScript || options.MorphKnockbackScript)
 {
     // The Landing Site debugger spawn has no save-file inventory. The ordinary route needs
     // Morph Ball `$0004`; the bomb route additionally needs Bombs `$1000`. These are the
@@ -619,6 +624,13 @@ bool observedBombDeletion = false;
 bool observedStraightBombOverlap = false;
 bool observedKnockbackMovement = false;
 bool observedDamageBoostMovement = false;
+bool observedMorphedKnockbackPosePreserved = false;
+bool observedMorphedKnockbackAnimationPreserved = false;
+bool observedMorphedKnockbackDirectionRule = false;
+bool observedMorphedKnockbackCompletion = false;
+bool observedMorphedKnockbackFalling = false;
+bool observedMorphedKnockbackLanding = false;
+ushort morphKnockbackGroundY = 0;
 bool observedGrappleSwing = false;
 bool observedGrappleReleaseQueue = false;
 bool observedGrappleRelease = false;
@@ -1190,7 +1202,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 238 => (ushort)SnesButton.Right,
                 _ => (ushort)0,
             }
-        : options.MorphBallScript || options.BombJumpScript
+        : options.MorphBallScript || options.BombJumpScript || options.MorphKnockbackScript
             ? frameIndex switch
             {
                 0 => (ushort)SnesButton.Start,
@@ -1206,12 +1218,12 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 // binding once. Everything after this edge is produced by the translated
                 // five-slot projectile lifecycle and cartridge instruction data.
                 25 when options.BombJumpScript => (ushort)SnesButton.X,
-                >= 25 and < 80 when !options.BombJumpScript => (ushort)SnesButton.Right,
-                >= 80 and < 140 when !options.BombJumpScript => (ushort)SnesButton.Left,
+                >= 25 and < 80 when options.MorphBallScript => (ushort)SnesButton.Right,
+                >= 80 and < 140 when options.MorphBallScript => (ushort)SnesButton.Left,
 
                 // Let command one decelerate to definition fallback `$41`, then Up starts
                 // `$3E`; its `$FD $28` endpoint proves the expanded body fits the terrain.
-                >= 175 and < 185 when !options.BombJumpScript => (ushort)SnesButton.Up,
+                >= 175 and < 185 when options.MorphBallScript => (ushort)SnesButton.Up,
                 _ => (ushort)0,
             }
         : options.SpringBallScript
@@ -1251,6 +1263,42 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             $"frame {frameIndex + 1,4}: injected bank-$A0 knockback X direction 1; " +
             $"pose=${runtime.Samus.Pose:X2}, direction={runtime.Samus.KnockbackDirection}, " +
             $"timer={runtime.Samus.KnockbackTimer}.");
+    }
+
+    if (options.MorphKnockbackScript && frameIndex == 25)
+    {
+        // As in the humanoid diagnostic, this publishes only bank-$A0's untranslated
+        // damage-source side. Use leftward X side zero against right-facing `$1D`, and pass
+        // held-forward Right directly to command one: `$91:EE27` must still choose vertical
+        // direction two from pose facing while `$90:8EDF` independently moves left.
+        if (runtime.Samus.Pose != SamusState.MorphBallGroundRightPose)
+        {
+            throw new InvalidOperationException(
+                $"Morphed knockback stimulus expected stable pose $1D, not ${runtime.Samus.Pose:X2}.");
+        }
+
+        byte poseBeforeHit = runtime.Samus.Pose;
+        ushort animationFrameBeforeHit = runtime.Samus.AnimationFrame;
+        ushort animationTimerBeforeHit = runtime.Samus.AnimationFrameTimer;
+        morphKnockbackGroundY = runtime.Samus.YPosition;
+        SamusKnockbackMovement.Start(
+            bus,
+            runtime.Samus,
+            controllerInput: (ushort)SnesButton.Right,
+            knockbackXDirection: 0);
+        observedMorphedKnockbackPosePreserved = runtime.Samus.Pose == poseBeforeHit;
+        observedMorphedKnockbackAnimationPreserved =
+            runtime.Samus.AnimationFrame == animationFrameBeforeHit &&
+            runtime.Samus.AnimationFrameTimer == animationTimerBeforeHit;
+        observedMorphedKnockbackDirectionRule =
+            runtime.Samus.KnockbackDirection == 2 &&
+            runtime.Samus.KnockbackXDirection == 0;
+        observedSamusPoses.Add(runtime.Samus.Pose);
+        Console.WriteLine(
+            $"frame {frameIndex + 1,4}: injected bank-$A0 X side 0 into Morph Ball; " +
+            $"pose=${runtime.Samus.Pose:X2}, animation=" +
+            $"{runtime.Samus.AnimationFrame}/{runtime.Samus.AnimationFrameTimer}, " +
+            $"direction={runtime.Samus.KnockbackDirection}, timer={runtime.Samus.KnockbackTimer}.");
     }
 
     if (options.DrainedSamusScript)
@@ -1824,6 +1872,19 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     observedKnockbackMovement |= runtime.LastKnockbackMovement is not null;
     observedDamageBoostMovement |= runtime.LastAerialSamusMovement is not null &&
         runtime.Samus.ReadMovementType(bus) == 0x19;
+    observedMorphedKnockbackCompletion |= options.MorphKnockbackScript &&
+        runtime.LastKnockbackMovement is { Ended: true } &&
+        runtime.Samus.Pose == SamusState.MorphBallGroundRightPose &&
+        !runtime.Samus.KnockbackActive &&
+        runtime.Samus.Kinematics.YSpeed == 0 &&
+        runtime.Samus.Kinematics.YSubspeed == 0 &&
+        runtime.Samus.Kinematics.YDirection == 2;
+    observedMorphedKnockbackFalling |= options.MorphKnockbackScript &&
+        runtime.Samus.Pose == SamusState.MorphBallFallingRightPose &&
+        runtime.Samus.YPosition < morphKnockbackGroundY;
+    observedMorphedKnockbackLanding |= options.MorphKnockbackScript &&
+        runtime.LastMorphBallMovement is { Landed: true } &&
+        runtime.Samus.Pose == SamusState.MorphBallGroundRightPose;
     observedGrappleSwing |= runtime.LastGrappleMovement is
         { Phase: GrapplePhase.ConnectedSwinging };
     observedGrappleReleaseQueue |= runtime.LastGrappleMovement is { ReleaseQueued: true };
@@ -2370,6 +2431,50 @@ if (options.KnockbackScript)
     }
     Console.WriteLine(
         "Knockback ROM route validated hurt movement, the Left+Jump damage-boost chord, and type-$19 jump movement.");
+}
+
+if (options.MorphKnockbackScript)
+{
+    // Short runs remain useful as authentic airborne-art captures, but every milestone that
+    // the requested frame count could have reached is mandatory. No host-selected target
+    // pose can satisfy these checks: `$37/$F9`, `$DF15`, `$EE27`, `$F31D`, `$31`, and the
+    // eventual `$1D` landing all execute through the live cartridge-backed runtime.
+    if (options.FrameCount >= 17 &&
+        !observedSamusPoses.Contains(SamusState.MorphBallGroundRightPose))
+    {
+        throw new InvalidOperationException(
+            "Morphed-knockback ROM script never reached stable Morph Ball pose $1D.");
+    }
+    if (options.FrameCount >= 26 &&
+        (!observedMorphedKnockbackPosePreserved ||
+         !observedMorphedKnockbackAnimationPreserved ||
+         !observedMorphedKnockbackDirectionRule ||
+         !observedKnockbackMovement))
+    {
+        throw new InvalidOperationException(
+            $"Morphed-knockback start mismatch: pose={observedMorphedKnockbackPosePreserved}, " +
+            $"animation={observedMorphedKnockbackAnimationPreserved}, " +
+            $"direction={observedMorphedKnockbackDirectionRule}, " +
+            $"movement={observedKnockbackMovement}.");
+    }
+    if (options.FrameCount >= 31 && !observedMorphedKnockbackCompletion)
+    {
+        throw new InvalidOperationException(
+            "Morphed-knockback route did not execute same-pose command-one cleanup.");
+    }
+    if (options.FrameCount >= 32 && !observedMorphedKnockbackFalling)
+    {
+        throw new InvalidOperationException(
+            "Morphed-knockback route did not hand elevated $1D into falling pose $31.");
+    }
+    if (options.FrameCount >= 54 && !observedMorphedKnockbackLanding)
+    {
+        throw new InvalidOperationException(
+            "Morphed-knockback route did not return through real floor collision to $1D.");
+    }
+
+    Console.WriteLine(
+        $"Morphed-knockback ROM route validated every milestone reachable within {options.FrameCount} frame(s).");
 }
 
 if (options.MoonwalkScript)
@@ -3120,6 +3225,7 @@ readonly record struct DebugRunnerOptions(
     bool SpringBallScript,
     bool BombJumpScript,
     bool KnockbackScript,
+    bool MorphKnockbackScript,
     bool GrappleScript,
     bool GrappleFireScript,
     bool CrystalFlashScript,
@@ -3160,6 +3266,7 @@ readonly record struct DebugRunnerOptions(
         bool springBallScript = false;
         bool bombJumpScript = false;
         bool knockbackScript = false;
+        bool morphKnockbackScript = false;
         bool grappleScript = false;
         bool grappleFireScript = false;
         bool crystalFlashScript = false;
@@ -3321,6 +3428,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--morph-knockback-script":
+                    morphKnockbackScript = true;
+                    groundedRun = true;
+                    break;
+
                 case "--grapple-script":
                     grappleScript = true;
                     groundedRun = true;
@@ -3413,6 +3525,7 @@ readonly record struct DebugRunnerOptions(
             springBallScript,
             bombJumpScript,
             knockbackScript,
+            morphKnockbackScript,
             grappleScript,
             grappleFireScript,
             crystalFlashScript,

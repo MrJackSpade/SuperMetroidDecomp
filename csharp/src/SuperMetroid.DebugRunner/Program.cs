@@ -155,7 +155,7 @@ else if (options.CrystalFlashScript)
 else if (options.MotherBrainRainbowScript)
 {
     Console.WriteLine(
-        "Actor script: execute `$A9:B8EB-$BFCF/$C710-$C98B` with retail Mother Brain body/neck bytecode, forced drained-Samus handlers, live Baby tile DMA, sine flight, drain/corpse handshake, release, and ceiling retreat.");
+        "Actor script: execute `$A9:B8EB-$BFCF/$C710-$CABC` with retail Mother Brain body/neck bytecode, forced drained-Samus handlers, live Baby tile DMA, sine/table flight, drain/corpse handshake, release, Samus latch, and healing.");
 }
 else if (options.DrainedSamusScript)
 {
@@ -624,9 +624,19 @@ var observedBabyTileTransfers = new List<MotherBrainSpriteTileTransferRequest>()
 bool observedBabySpawnRequest = false;
 bool observedFinalBeamSound = false;
 bool observedBabyMotherBrainInterrupt = false;
+bool observedBabyCeilingTableInstall = false;
+bool observedBabyHealingCompletion = false;
+int observedBabyLatchOntoSamusFrame = 0;
+int observedBabyHealSamusFrame = 0;
+int observedBabyHealingCompletionFrame = 0;
+// Preserve each ROM-record boundary as a fixed-point witness. Merely reaching `$CA66`
+// would not detect a carry bug that happened to converge on the same broad target rectangle.
+var observedBabyRouteFrames = new Dictionary<ushort, int>();
+var observedBabyRoutePoints = new Dictionary<ushort, BabyMetroidCutscenePoint>();
 MotherBrainRainbowBeamAttackPhase previousRainbowPhase =
     rainbowAttack?.Phase ?? MotherBrainRainbowBeamAttackPhase.Inactive;
 BabyMetroidCutscenePhase previousBabyPhase = BabyMetroidCutscenePhase.Inactive;
+ushort previousBabyMovementTablePointer = 0;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
@@ -1219,13 +1229,26 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 rainbowAttack,
                 layer1X: 0,
                 layer1Y: 0,
-                enemyFrameCounter: unchecked((ushort)frameIndex));
+                enemyFrameCounter: unchecked((ushort)frameIndex),
+                randomNumber: runtime.System.RandomNumber);
             observedBabyPhases.Add(babyResult.PhaseBefore);
             observedBabyPhases.Add(babyResult.PhaseAfter);
             observedBabyMotherBrainInterrupt |= babyResult.MotherBrainInterrupted;
+            observedBabyCeilingTableInstall |=
+                babyResult.PhaseAfter == BabyMetroidCutscenePhase.MoveToSamus &&
+                babyResult.MovementTablePointer == BabyMetroidCutsceneState.CeilingToSamusMovementTable;
+            if (babyResult.HealingCompleted)
+            {
+                observedBabyHealingCompletion = true;
+                observedBabyHealingCompletionFrame = frameIndex + 1;
+            }
 
             if (cutsceneBaby.Phase != previousBabyPhase)
             {
+                if (cutsceneBaby.Phase == BabyMetroidCutscenePhase.LatchOntoSamus)
+                    observedBabyLatchOntoSamusFrame = frameIndex + 1;
+                if (cutsceneBaby.Phase == BabyMetroidCutscenePhase.HealSamusToFullHealth)
+                    observedBabyHealSamusFrame = frameIndex + 1;
                 Console.WriteLine(
                     $"frame {frameIndex + 1,4}: Baby actor {previousBabyPhase} -> " +
                     $"{cutsceneBaby.Phase}; position=({cutsceneBaby.XPosition:X4}." +
@@ -1234,6 +1257,21 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                     $"({cutsceneBaby.XVelocity:X4},{cutsceneBaby.YVelocity:X4}), " +
                     $"angle/speed=${cutsceneBaby.Angle:X4}/${cutsceneBaby.Speed:X4}.");
                 previousBabyPhase = cutsceneBaby.Phase;
+            }
+            if (cutsceneBaby.MovementTablePointer != previousBabyMovementTablePointer)
+            {
+                // The route advances through overlapping eight-byte ROM records. Logging
+                // the literal pointer makes each leg independently breakpointable and also
+                // exposes the final `$CA5C + 8 == $CA64` function-pointer overlay.
+                Console.WriteLine(
+                    $"frame {frameIndex + 1,4}: Baby movement table " +
+                    $"${previousBabyMovementTablePointer:X4} -> " +
+                    $"${cutsceneBaby.MovementTablePointer:X4}; position=" +
+                    $"({cutsceneBaby.XPosition:X4}.{cutsceneBaby.XSubposition:X4}," +
+                    $"{cutsceneBaby.YPosition:X4}.{cutsceneBaby.YSubposition:X4}).");
+                observedBabyRouteFrames[cutsceneBaby.MovementTablePointer] = frameIndex + 1;
+                observedBabyRoutePoints[cutsceneBaby.MovementTablePointer] = babyResult.After;
+                previousBabyMovementTablePointer = cutsceneBaby.MovementTablePointer;
             }
         }
 
@@ -2109,12 +2147,73 @@ if (options.MotherBrainRainbowScript)
     if (options.FrameCount >= 3477 &&
         (cutsceneBaby is null ||
          !observedBabyPhases.Contains(BabyMetroidCutscenePhase.MoveToTheCeiling) ||
-         cutsceneBaby.MovementTablePointer != BabyMetroidCutsceneState.CeilingToSamusMovementTable))
+         !observedBabyCeilingTableInstall))
     {
         throw new InvalidOperationException(
             $"Cutscene Baby did not complete drain release and ceiling retreat; " +
             $"phase={cutsceneBaby?.Phase.ToString() ?? "not spawned"}, " +
             $"movementTable=${cutsceneBaby?.MovementTablePointer:X4}.");
+    }
+    if (options.FrameCount >= 4076)
+    {
+        // These values come from the private retail-ROM run itself, starting at power-on
+        // state and retaining every earlier subpixel. They intentionally differ slightly
+        // from the compact verifier fixture, whose stationary test neck changes the Baby's
+        // inherited fractions before `$CA24` begins.
+        (ushort Pointer, int Frame, BabyMetroidCutscenePoint Point)[] expectedRoute =
+        [
+            (0xca2c, 3576, new(0x0095, 0xe700, 0x0063, 0xca00)),
+            (0xca34, 3735, new(0x0146, 0x9f00, 0x0080, 0x3500)),
+            (0xca3c, 3818, new(0x00d4, 0x3b00, 0x003c, 0x9500)),
+            (0xca44, 3950, new(0x00ab, 0x0c00, 0x0075, 0xf400)),
+            (0xca4c, 3990, new(0x00cb, 0x9e00, 0x0087, 0x4200)),
+            (0xca54, 3991, new(0x00cc, 0x8e00, 0x0087, 0x4600)),
+            (0xca5c, 4026, new(0x00d7, 0xb500, 0x008a, 0x4800)),
+        ];
+        foreach ((ushort pointer, int frame, BabyMetroidCutscenePoint point) in expectedRoute)
+        {
+            bool sawFrame = observedBabyRouteFrames.TryGetValue(pointer, out int actualFrame);
+            bool sawPoint = observedBabyRoutePoints.TryGetValue(
+                pointer,
+                out BabyMetroidCutscenePoint actualPoint);
+            if (!sawFrame ||
+                actualFrame != frame ||
+                !sawPoint ||
+                actualPoint != point)
+            {
+                throw new InvalidOperationException(
+                    $"Baby ROM route witness ${pointer:X4} differed: expected frame {frame} " +
+                    $"at {point}, got frame {actualFrame} at {actualPoint}.");
+            }
+        }
+        if (observedBabyLatchOntoSamusFrame != 4076)
+        {
+            throw new InvalidOperationException(
+                $"Baby did not install gradual Samus pursuit `$CA66` on frame 4076; " +
+                $"observed {observedBabyLatchOntoSamusFrame}.");
+        }
+    }
+    if (options.FrameCount >= 4092 && observedBabyHealSamusFrame != 4092)
+    {
+        throw new InvalidOperationException(
+            $"Baby generic touch AI did not latch on frame 4092; " +
+            $"observed {observedBabyHealSamusFrame}.");
+    }
+    if (options.FrameCount >= 4791 &&
+        (cutsceneBaby is null ||
+         !observedBabyHealingCompletion ||
+         observedBabyHealingCompletionFrame != 4791 ||
+         cutsceneBaby.Phase != BabyMetroidCutscenePhase.IdleUntilNoHealth ||
+         runtime.Samus.Health != runtime.Samus.MaxHealth ||
+         runtime.Samus.ReserveEnergy != runtime.Samus.MaxReserveEnergy))
+    {
+        throw new InvalidOperationException(
+            $"Baby did not complete the ROM-backed 699-call heal on frame 4791; " +
+            $"completion={observedBabyHealingCompletion}/" +
+            $"{observedBabyHealingCompletionFrame}, phase=" +
+            $"{cutsceneBaby?.Phase.ToString() ?? "not spawned"}, energy=" +
+            $"{runtime.Samus.Health}/{runtime.Samus.MaxHealth}, reserves=" +
+            $"{runtime.Samus.ReserveEnergy}/{runtime.Samus.MaxReserveEnergy}.");
     }
     if (options.FrameCount >= 1450)
     {

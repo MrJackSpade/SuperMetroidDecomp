@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>
 /// Literal stateful translation of the Baby Metroid cutscene entrance, Mother Brain drain,
-/// release, and ceiling retreat at <c>$A9:C710-$A9:C98B</c> and its shared movement helpers.
+/// release, ceiling retreat, route to Samus, latch, and healing at
+/// <c>$A9:C710-$A9:CABC</c> and its shared movement helpers.
 /// </summary>
 /// <remarks>
 /// The retail routine does not use floating point, a spline, or a host physics engine. It
@@ -21,6 +22,13 @@ public sealed class BabyMetroidCutsceneState
     public const ushort InitialInstructionList = 0xcfa2;
     public const ushort DrainingMotherBrainInstructionList = 0xcfb8;
     public const ushort CeilingToSamusMovementTable = 0xca24;
+
+    // The movement records store native bank-$A9 code pointers, not a host enum. Keeping
+    // their literal values lets the route reader reject corrupt or wrong-region ROM data
+    // instead of silently assigning visually plausible acceleration.
+    private const ushort GradualAccelerationExtraEightFunction = 0xf45f;
+    private const ushort GradualAccelerationExtraTenFunction = 0xf466;
+    private const ushort LatchOntoSamusFunction = 0xca66;
 
     // `$A9:93BB-$93CA` is shared by Mother Brain's brain shake and the latched Baby.
     // `Enemy.frameCounter & 6` is a byte offset into these four 16-bit entries.
@@ -104,6 +112,12 @@ public sealed class BabyMetroidCutsceneState
     public ushort MovementTablePointer { get; private set; }
 
     /// <summary>
+    /// Native enemy health. Header <c>$A0:ECBF</c> supplies 3,200; Mother Brain later drains
+    /// this word after the healing hold, so it belongs to actor state rather than rendering.
+    /// </summary>
+    public ushort Health { get; private set; }
+
+    /// <summary>
     /// Ports <c>$A9:C710</c>. The population record supplies <c>$2800</c>; initialization
     /// ORs <c>$3000</c>, overwrites the population coordinates, and waits at X/Y
     /// <c>$140/$60</c> before beginning the dash.
@@ -118,6 +132,7 @@ public sealed class BabyMetroidCutsceneState
         PaletteHandlerDelay = 0x000a;
         HealthBasedPaletteEnabled = false;
         MovementTablePointer = 0;
+        Health = 3200;
         XPosition = 0x0140;
         YPosition = 0x0060;
         XSubposition = 0;
@@ -141,7 +156,8 @@ public sealed class BabyMetroidCutsceneState
         MotherBrainRainbowBeamAttackSequence motherBrain,
         ushort layer1X = 0,
         ushort layer1Y = 0,
-        ushort enemyFrameCounter = 0)
+        ushort enemyFrameCounter = 0,
+        ushort randomNumber = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -158,6 +174,9 @@ public sealed class BabyMetroidCutsceneState
         bool latchSoundQueued = false;
         bool dustCloudsRequested = false;
         bool samusCrouchingRequested = false;
+        bool ambientCrySoundQueued = false;
+        bool samusTouchCollision = false;
+        bool healingCompleted = false;
 
         switch (Phase)
         {
@@ -332,8 +351,119 @@ public sealed class BabyMetroidCutsceneState
             }
 
             case BabyMetroidCutscenePhase.MoveToSamus:
-                // `$C9C3+` consumes the route table beginning at `$CA24`; that multi-leg
-                // flight and subsequent Samus latch/heal are the next explicit actor seam.
+            {
+                // `$C9C3-$CA23` clears the ordinary cry request and enables health-based
+                // palette selection on *every* route call. The random cry comparison uses
+                // only the low twelve bits and succeeds for `$FA0-$FFF` (96 of 4096 seeds).
+                CrySoundEnabled = false;
+                HealthBasedPaletteEnabled = true;
+                ambientCrySoundQueued = (randomNumber & 0x0fff) >= 0x0fa0;
+
+                // `$CA24-$CA64` is eight overlapping records. Bytes +0/+2 are the target,
+                // +4 is the acceleration-divisor-table index, +6 is a wrapper function,
+                // and +8 is either the following record's X coordinate or, on the final
+                // record, the signed `$CA66` function pointer. Reading this from the bus is
+                // intentional: the private cartridge remains the authority for route data.
+                int recordAddress = 0xa90000 | MovementTablePointer;
+                ushort targetX = ReadWord(bus, recordAddress);
+                ushort targetY = ReadWord(bus, recordAddress + 2);
+                ushort divisorIndex = ReadWord(bus, recordAddress + 4);
+                ushort movementFunction = ReadWord(bus, recordAddress + 6);
+
+                // `$F56A` is `[10,0F,...,01]`; every retail `$CA24` record uses index zero,
+                // but implementing all legal indices costs nothing and catches malformed
+                // data before a divide-by-zero or an invented fallback can hide it.
+                if (divisorIndex > 0x000f)
+                {
+                    throw new InvalidDataException(
+                        $"Baby route ${MovementTablePointer:X4} has invalid divisor index ${divisorIndex:X4}.");
+                }
+                ushort accelerationDivisor = unchecked((ushort)(0x0010 - divisorIndex));
+                ushort wrongWayExtra = movementFunction switch
+                {
+                    GradualAccelerationExtraEightFunction => 0x0008,
+                    GradualAccelerationExtraTenFunction => 0x0010,
+                    _ => throw new InvalidDataException(
+                        $"Baby route ${MovementTablePointer:X4} names unknown movement function ${movementFunction:X4}."),
+                };
+
+                GraduallyAccelerateTowardsPoint(
+                    targetX,
+                    targetY,
+                    accelerationDivisor,
+                    wrongWayExtra,
+                    layer1X,
+                    layer1Y);
+
+                // The route's 4x4 rectangle test occurs before the common velocity mover.
+                // On ordinary records, +8 is merely the next record's target X and the
+                // pointer advances eight bytes. The final record deliberately overlaps its
+                // +8 word with `$CA66`, so BMI installs the next AI function instead.
+                if (CollidesWithRectangle(targetX, targetY, 4, 4))
+                {
+                    ushort nextWord = ReadWord(bus, recordAddress + 8);
+                    if ((nextWord & 0x8000) != 0)
+                    {
+                        if (nextWord != LatchOntoSamusFunction)
+                        {
+                            throw new InvalidDataException(
+                                $"Baby route terminates at unexpected function ${nextWord:X4}.");
+                        }
+                        Phase = BabyMetroidCutscenePhase.LatchOntoSamus;
+                    }
+                    else
+                    {
+                        MovementTablePointer = unchecked((ushort)(MovementTablePointer + 8));
+                    }
+                }
+                break;
+            }
+
+            case BabyMetroidCutscenePhase.LatchOntoSamus:
+                // `$CA66` itself only steers toward Samus's centre minus twenty pixels. It
+                // never performs the state change. That transition belongs to enemy-touch
+                // handler `$CF03`, executed after main AI and the common mover below.
+                GraduallyAccelerateTowardsPoint(
+                    samus.XPosition,
+                    unchecked((ushort)(samus.YPosition - 0x0014)),
+                    accelerationDivisor: 0x10,
+                    wrongWayOffScreenXSpeed: 0x0400,
+                    layer1X,
+                    layer1Y);
+                break;
+
+            case BabyMetroidCutscenePhase.HealSamusToFullHealth:
+            {
+                // `$CA7A` pins the actor to the four-entry shake table before healing. The
+                // subsequent common mover is harmless because touch `$CF24/$CF27` zeroed
+                // both velocities when it installed this function.
+                CrySoundEnabled = false;
+                int shakingIndex = (enemyFrameCounter & 6) >> 1;
+                XPosition = unchecked((ushort)(samus.XPosition + ShakingXOffsets[shakingIndex]));
+                YPosition = unchecked((ushort)(
+                    samus.YPosition + ShakingYOffsets[shakingIndex] - 0x0014));
+
+                // `$C59F` adds exactly one energy per enemy-processing call. CMP/BMI is a
+                // signed 16-bit comparison; normal game maxima stay in its positive range.
+                ushort candidateHealth = unchecked((ushort)(samus.Health + 1));
+                if (unchecked((short)(candidateHealth - samus.MaxHealth)) < 0)
+                {
+                    samus.Health = candidateHealth;
+                }
+                else
+                {
+                    samus.Health = samus.MaxHealth;
+                    samus.ReserveEnergy = samus.MaxReserveEnergy;
+                    Phase = BabyMetroidCutscenePhase.IdleUntilNoHealth;
+                    healingCompleted = true;
+                }
+                break;
+            }
+
+            case BabyMetroidCutscenePhase.IdleUntilNoHealth:
+                // `$CABD` is a deliberate handshake seam. Mother Brain's revived attack
+                // owns health reduction and the flash timer; until that producer exists,
+                // the Baby remains attached without inventing damage or a release time.
                 break;
 
             default:
@@ -343,6 +473,30 @@ public sealed class BabyMetroidCutsceneState
         // Main AI calls this even on phase transitions and target snaps. In the snap case
         // both velocities were explicitly zeroed, so the pin remains exact.
         MoveAccordingToVelocity();
+
+        // Generic enemy processing invokes touch AI after main AI. `$CF03` is active only
+        // during `$CA66`; broad Samus/enemy hitboxes gate it, then its own acceleration-$10
+        // helper decides when both axes have actually reached the latch point. Its velocity
+        // changes therefore apply on the following main-AI mover, exactly like the SNES.
+        if (Phase == BabyMetroidCutscenePhase.LatchOntoSamus &&
+            CollidesWithRectangle(
+                samus.XPosition,
+                samus.YPosition,
+                samus.Kinematics.XRadius,
+                samus.Kinematics.YRadius))
+        {
+            samusTouchCollision = true;
+            bool reachedLatchPoint = AccelerateTowardsPoint(
+                samus.XPosition,
+                unchecked((ushort)(samus.YPosition - 0x0014)),
+                acceleration: 0x0010);
+            if (reachedLatchPoint)
+            {
+                XVelocity = 0;
+                YVelocity = 0;
+                Phase = BabyMetroidCutscenePhase.HealSamusToFullHealth;
+            }
+        }
 
         return new BabyMetroidCutsceneStepResult(
             phaseBefore,
@@ -362,8 +516,15 @@ public sealed class BabyMetroidCutsceneState
             InstructionList,
             dustCloudsRequested,
             samusCrouchingRequested,
-            MovementTablePointer);
+            MovementTablePointer,
+            ambientCrySoundQueued,
+            samusTouchCollision,
+            healingCompleted,
+            Health);
     }
+
+    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
+        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 
     private void SetInstructionList(ushort pointer)
     {
@@ -638,6 +799,9 @@ public enum BabyMetroidCutscenePhase
     LetGoAndSpawnDustClouds,
     MoveToTheCeiling,
     MoveToSamus,
+    LatchOntoSamus,
+    HealSamusToFullHealth,
+    IdleUntilNoHealth,
 }
 
 /// <summary>Whole/subpixel coordinates before or after one cutscene-enemy main-AI call.</summary>
@@ -666,4 +830,8 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     ushort InstructionList,
     bool DustCloudsRequested,
     bool SamusCrouchingRequested,
-    ushort MovementTablePointer);
+    ushort MovementTablePointer,
+    bool AmbientCrySoundQueued,
+    bool SamusTouchCollision,
+    bool HealingCompleted,
+    ushort Health);

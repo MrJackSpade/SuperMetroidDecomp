@@ -2888,6 +2888,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     SeedMotherBrainWalkProgram(bus, 0x9852, duration: 8, forward: false);
     SeedMotherBrainWalkProgram(bus, 0x993a, duration: 10, forward: false);
     SeedMotherBrainCrouchFastProgram(bus);
+    SeedBabyCeilingToSamusRoute(bus);
 
     // Controller one reads the current `$E9` direction byte, then rebinds the new `$EB`
     // animation pointer without refreshing radii. These are the only Samus ROM fields the
@@ -2904,7 +2905,17 @@ static void VerifyBabyMetroidCutsceneEntrance()
         Pose = SamusState.DrainedCrouchingLeftPose,
         XPosition = 0x00ca,
         YPosition = 0x00c0,
+        // These are the private-ROM runner's post-rainbow values. The Baby must add one
+        // point on each `$CA7A` call and stop exactly at 899 rather than using a host fill.
+        Health = 200,
+        MaxHealth = 899,
+        ReserveEnergy = 7,
+        MaxReserveEnergy = 99,
     };
+    // The real route reached `$E9` through controller zero, which had already loaded the
+    // pose radius. Controller one/four intentionally do not refresh it, so initialize that
+    // pre-existing WRAM state once rather than widening touch collision in production code.
+    samus.RefreshCollisionRadii(bus);
     var motherBrain = new MotherBrainRainbowBeamAttackSequence
     {
         BrainXPosition = 0x0040,
@@ -3109,6 +3120,9 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual((ushort)78, motherBrain.BrainYPosition, "neck geometry publishes corpse brain Y");
     AssertEqual((ushort)81, baby.XPosition, "ceiling handoff Baby X");
     AssertEqual((ushort)22, baby.YPosition, "ceiling handoff Baby Y after common mover");
+    AssertEqual((ushort)0x0000, baby.XVelocity, "ceiling handoff X velocity");
+    AssertEqual((ushort)0xff51, baby.YVelocity,
+        "synthetic ceiling handoff preserves its independently accumulated Y velocity");
     AssertTrue(sawDustClouds, "Baby release requests three Mother Brain head dust clouds");
     AssertTrue(sawSamusCrouch, "Baby ceiling collision calls drained controller four");
     AssertEqual(BabyMetroidCutsceneState.CeilingToSamusMovementTable,
@@ -3121,7 +3135,101 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(SamusState.DrainedCrouchingLeftPose, samus.Pose,
         "ceiling collision installs left drained crouching pose");
 
-    Console.WriteLine("  Baby Metroid: ROM-backed entrance, Mother Brain drain/corpse, release, and ceiling retreat agree.");
+    // Continue in native enemy-slot order through the eight ROM route records, generic
+    // touch AI, and 699 one-point healing calls. This deliberately remains an integrated
+    // synthetic fixture: its earlier entrance used a stationary neck target, so its inherited
+    // subpixels are not falsely presented as coordinates captured from the full retail run.
+    var routePointerFrames = new Dictionary<ushort, int>();
+    var routePointerPoints = new Dictionary<ushort, BabyMetroidCutscenePoint>();
+    int latchOntoSamusFrame = 0;
+    int healSamusFrame = 0;
+    int healingCompleteFrame = 0;
+    bool sawSamusTouch = false;
+    bool sawAmbientCryThreshold = false;
+    while (baby.Phase != BabyMetroidCutscenePhase.IdleUntilNoHealth)
+    {
+        ushort pointerBefore = baby.MovementTablePointer;
+        BabyMetroidCutscenePhase phaseBefore = baby.Phase;
+        motherBrain.Step(
+            bus,
+            samus,
+            enemyFrameCounter: unchecked((ushort)drainFrame),
+            mainEnemyExecutionCounter: unchecked((ushort)drainFrame));
+        motherBrain.Body.Step(bus);
+        motherBrain.StepNeckMovement(bus, samus);
+        BabyMetroidCutsceneStepResult routeStep = baby.Step(
+            bus,
+            samus,
+            motherBrain,
+            enemyFrameCounter: unchecked((ushort)drainFrame),
+            // `$FA0` proves the inclusive random-cry threshold without influencing motion.
+            randomNumber: 0x0fa0);
+        motherBrain.StepBrainShakeForDraw();
+        drainFrame++;
+
+        sawSamusTouch |= routeStep.SamusTouchCollision;
+        sawAmbientCryThreshold |= routeStep.AmbientCrySoundQueued;
+        if (pointerBefore != baby.MovementTablePointer)
+        {
+            routePointerFrames[baby.MovementTablePointer] = drainFrame;
+            routePointerPoints[baby.MovementTablePointer] = routeStep.After;
+        }
+        if (phaseBefore != baby.Phase)
+        {
+            if (baby.Phase == BabyMetroidCutscenePhase.LatchOntoSamus)
+                latchOntoSamusFrame = drainFrame;
+            if (baby.Phase == BabyMetroidCutscenePhase.HealSamusToFullHealth)
+                healSamusFrame = drainFrame;
+            if (baby.Phase == BabyMetroidCutscenePhase.IdleUntilNoHealth)
+            {
+                healingCompleteFrame = drainFrame;
+                AssertTrue(routeStep.HealingCompleted,
+                    "final one-point heal publishes completion on the transition call");
+            }
+        }
+        AssertTrue(drainFrame < 3200,
+            $"Baby route/heal reaches idle state; phase={baby.Phase}, pointer=${baby.MovementTablePointer:X4}");
+    }
+
+    // These are the deterministic witnesses produced by this fixture's own inherited
+    // fixed-point state. The DebugRunner separately locks the retail-ROM witnesses; keeping
+    // both sets makes any accidental dependence on a fabricated initial subposition visible.
+    AssertEqual(1830, routePointerFrames[0xca2c], "route reaches `$CA2C` record");
+    AssertEqual(1989, routePointerFrames[0xca34], "route reaches `$CA34` record");
+    AssertEqual(2072, routePointerFrames[0xca3c], "route reaches `$CA3C` record");
+    AssertEqual(2204, routePointerFrames[0xca44], "route reaches `$CA44` record");
+    AssertEqual(2244, routePointerFrames[0xca4c], "route reaches `$CA4C` record");
+    AssertEqual(2245, routePointerFrames[0xca54], "overlapping route advances again on next call");
+    AssertEqual(2277, routePointerFrames[0xca5c], "route reaches final `$CA5C` record");
+    AssertEqual(new BabyMetroidCutscenePoint(0x0095, 0xee00, 0x0064, 0x7500),
+        routePointerPoints[0xca2c], "first route-leg endpoint");
+    AssertEqual(new BabyMetroidCutscenePoint(0x0146, 0xa600, 0x0080, 0xef00),
+        routePointerPoints[0xca34], "second route-leg endpoint");
+    AssertEqual(new BabyMetroidCutscenePoint(0x00d4, 0x4200, 0x003c, 0xac00),
+        routePointerPoints[0xca3c], "third route-leg endpoint");
+    AssertEqual(new BabyMetroidCutscenePoint(0x00ab, 0x1300, 0x0075, 0x7900),
+        routePointerPoints[0xca44], "fourth route-leg endpoint");
+    AssertEqual(new BabyMetroidCutscenePoint(0x00cb, 0xa500, 0x0087, 0x7500),
+        routePointerPoints[0xca4c], "fifth route-leg endpoint");
+    AssertEqual(new BabyMetroidCutscenePoint(0x00cc, 0x9500, 0x0087, 0x7200),
+        routePointerPoints[0xca54], "sixth route-leg one-call endpoint");
+    AssertEqual(new BabyMetroidCutscenePoint(0x00d7, 0xf200, 0x008a, 0x4200),
+        routePointerPoints[0xca5c], "seventh route-leg endpoint");
+    AssertEqual(2327, latchOntoSamusFrame,
+        "final route record overlays +8 with signed `$CA66` function pointer");
+    AssertEqual(2344, healSamusFrame,
+        "post-main enemy touch reaches `$CF03` latch target");
+    AssertEqual(3043, healingCompleteFrame,
+        "699 one-point heals reach 899 energy");
+    AssertTrue(sawSamusTouch, "generic collision dispatches Baby `$CF03` touch AI");
+    AssertTrue(sawAmbientCryThreshold, "route accepts random cry threshold `$FA0`");
+    AssertTrue(!baby.CrySoundEnabled, "route/heal keeps ordinary cry request clear");
+    AssertTrue(baby.HealthBasedPaletteEnabled, "route enables health-based Baby palette");
+    AssertEqual((ushort)899, samus.Health, "Baby healing clamps at maximum energy");
+    AssertEqual((ushort)99, samus.ReserveEnergy, "healing completion fills reserve energy");
+    AssertEqual((ushort)3200, baby.Health, "healing does not invent Mother Brain damage");
+
+    Console.WriteLine("  Baby Metroid: ROM-backed entrance, drain/corpse, release, eight-leg route, touch latch, and healing agree.");
 }
 
 static void VerifySamusAerialMovement()
@@ -7266,6 +7374,27 @@ static void SeedMotherBrainCrouchFastProgram(TestAddressSpace bus)
     ];
     for (int index = 0; index < words.Length; index++)
         WriteTestWord(bus, 0xa99a26 + index * 2, words[index]);
+}
+
+static void SeedBabyCeilingToSamusRoute(TestAddressSpace bus)
+{
+    // Exact `$A9:CA24-$CA65` words. Records are eight bytes even though the AI reads a
+    // fifth word at +8: for records zero through six that read aliases the following X
+    // target, while final record `$CA5C` aliases `$CA64`'s negative `$CA66` function.
+    ushort[] words =
+    [
+        0x00a0, 0x0078, 0x0000, 0xf466,
+        0x0130, 0x007a, 0x0000, 0xf466,
+        0x00c0, 0x0040, 0x0000, 0xf466,
+        0x00c0, 0x0070, 0x0000, 0xf466,
+        0x00e0, 0x0080, 0x0000, 0xf466,
+        0x00cd, 0x0090, 0x0000, 0xf45f,
+        0x00cc, 0x00a0, 0x0000, 0xf45f,
+        0x00cb, 0x00b0, 0x0000, 0xf45f,
+        0xca66,
+    ];
+    for (int index = 0; index < words.Length; index++)
+        WriteTestWord(bus, 0xa9ca24 + index * 2, words[index]);
 }
 
 /// <summary>Checks both edges and relative tile-step movement of the temporary host camera.</summary>

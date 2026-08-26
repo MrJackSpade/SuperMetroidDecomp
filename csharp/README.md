@@ -149,6 +149,7 @@ dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Sup
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 28 --morph-knockback-script --output ../standalone-assets/runtime/MorphKnockbackActiveFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 54 --morph-knockback-script --output ../standalone-assets/runtime/MorphKnockbackFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 2 --forward-facing-script --output ../standalone-assets/runtime/ForwardFacingFrame.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 12 --elevator-script --output ../standalone-assets/runtime/ElevatorFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 160 --gun-extended-script --output standalone-assets/runtime/GunExtendedFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 8 --grapple-fire-script --output ../standalone-assets/runtime/grapple-firing.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 14 --grapple-fire-script --output ../standalone-assets/runtime/GrappleFireTrace.png
@@ -229,6 +230,14 @@ words owned by that native setup, and renders `$90:868D`'s raw `$3821` left-ches
 between the top and bottom spritemaps. Pose `$9B` is independently verified to omit that
 object. The two-frame capture preserves the SNES main-loop/NMI OAM delay and includes the
 composed Landing Site layers plus separate BG1, BG2, and OBJ diagnostics.
+
+`--elevator-script` exercises the active branch of the same forward-facing state. It starts
+the enlarged radius-24 body eight pixels above the normal placement, publishes the actor-owned
+`$0E18` status seam, and moves down exactly one pixel per frame through `$94:9763`'s terrain-
+only collision route. The 12-frame validation proves five accepted steps, real floor clipping
+at Y `$04B8.FFFF`, post-move collision-result clearing, and input lock in pose `$00`. The
+generated composite and transparent layer diagnostics use the private ROM's live Samus,
+terrain, background, HUD, and minimap assets.
 
 `--gun-extended-script` holds Right+Shot through the ROM's `$09 -> $0B` records, preserving
 the native running leg phase across the arm change, then enters `$4B/$4D -> $13` and lands

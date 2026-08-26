@@ -11,34 +11,51 @@ are listed below so later work cannot accidentally confuse “the current viewer
 
 | Type | Native family | Current C# admission | Remaining native branches |
 |---:|---|---|---|
-| `$00` | Standing | Forward `$00/$9B` equipment selector, locked no-elevator movement, power-suit chest-cover OAM; ordinary `$01-$08`, landing `$A4-$A7/$E0-$E7`, including held-Shot horizontal firing landings | Live elevator actor's one-pixel down displacement, other firing variants, transitions from later systems |
-| `$01` | Running | `$09/$0A/$0B/$0C/$0D-$12`, including horizontal gun extension with preserved native run phase; air/water/lava X tables and submerged Dash gate, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes | Liquid damage/splash effects, other firing variants |
-| `$02` | Normal jumping | `$4B-$4E/$13-$18/$51-$52/$55-$5A/$69-$6C`, including horizontal gun extension, compact straight-down collision changes, air/water/lava normal/Hi-Jump launch, X tables, gravity, persistent external X/Y displacement, variable height, ceiling/floor collision | Other firing variants |
+| `$00` | Standing | Forward `$00/$9B` equipment selector, zero-status lock, active `$0E18` one-pixel elevator descent through no-solid-enemy `$94:9763`, power-suit chest-cover OAM; ordinary `$01-$08`, landing `$A4-$A7/$E0-$E7`, including held-Shot horizontal firing landings | Live elevator actor/status producer; X-ray `$D5/$D6` and its time-frozen scanner owner |
+| `$01` | Running | `$09/$0A/$0B/$0C/$0D-$12`, including horizontal gun extension with preserved native run phase; air/water/lava X tables and submerged Dash gate, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes | Liquid damage/splash and footstep presentation effects |
+| `$02` | Normal jumping | `$4B-$4E/$13-$18/$51-$52/$55-$5A/$69-$6C`, including horizontal gun extension, compact straight-down collision changes, air/water/lava normal/Hi-Jump launch, X tables, gravity, persistent external X/Y displacement, variable height, ceiling/floor collision | Liquid sound/particle/damage and collision-producer side effects |
 | `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, air/water/lava X/gravity/launch/repeat gates, variable height, split-body animation, damage/palette, block/solid-enemy wall contact and launch | Live enemy actor producer, liquid sound/particle/damage effects |
 | `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, air/water/lava X tables, persistent external X/Y displacement, slopes, reversal, deceleration, walk-off, normal-bomb deployment, solid/frozen-enemy clipping | Bombable-block PLMs, live enemy actor producer |
-| `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry | Fire variants and morph entry |
-| `$06` | Falling | `$29-$2E/$67-$70`, including horizontal gun extension, compact straight-down collision changes, walk-off, air/water/lava X and gravity, persistent external X/Y displacement, held-Shot landing, and aerial-turn entry | Other firing variants |
+| `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry, and ordinary/Spring morph entry | X-ray crouching `$D9/$DA` and its time-frozen scanner owner |
+| `$06` | Falling | `$29-$2E/$67-$70`, including horizontal gun extension, compact straight-down collision changes, walk-off, air/water/lava X and gravity, persistent external X/Y displacement, held-Shot landing, aerial-turn entry, and live `$F0` animation cadence | Liquid sound/particle/damage and collision-producer side effects |
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
 | `$08` | Morph ball falling | `$31/$32`, air/water/lava X and gravity, persistent external X/Y displacement and bounce override, ceiling/floor/solid-enemy collision, two-stage hard bounce, gentle landing, normal-bomb deployment | Bombable-block PLMs, live enemy actor producer |
 | `$09` | Unused | — | Preserve only if required |
-| `$0A` | Knockback / crystal-flash ending | `$53/$54` plus pose-preserving Morph/Spring Ball knockback from types `$04/$08/$11-$13`, air/water/lava launch/X/gravity, ordinary-body timer, horizontal/vertical block collision, damage-boost input escape, same-pose ball cleanup, radius-aligned humanoid falling handoff; Crystal Flash ending is handled by the translated type-`$1B` special state | Live enemy producer |
+| `$0A` | Knockback / crystal-flash ending | `$53/$54` plus pose-preserving Morph/Spring Ball knockback from types `$04/$08/$11-$13`, air/water/lava launch/X/gravity, ordinary-body timer, horizontal/vertical block collision, damage-boost input escape, same-pose ball cleanup, radius-aligned humanoid falling handoff; Crystal Flash ending is handled by the translated type-`$1B` special state | Death-sequence ownership of reused `$D7/$D8` ending poses; live enemy producer |
 | `$0B` | Unused | — | Preserve only if required |
 | `$0C` | Unused | — | Preserve only if required |
 | `$0D` | Unused | — | Preserve only if required |
-| `$0E` | Turning on ground | `$25/$26/$43/$44/$8B-$8E/$9C/$9D/$BF-$C4`, old-direction mode-one momentum, native standing/crouch/moonwalk selectors, `$F8` completion | Fire variants and transitions originating in later families |
-| `$0F` | Crouch/stand/morph transition | `$35/$36/$3B/$3C/$37/$38/$3D/$3E/$F1-$FC`, bottom alignment, radius collision, `$F9/$FD` completion | Fire variants and later equipment-dependent transitions |
-| `$10` | Moonwalking | `$49/$4A/$75-$78`, option gate, air/water/lava X tables, persistent external X/Y displacement, reversed X input, aim changes, fallback, walk-off, and `$BF-$C4` jump bridge | Later firing variants |
+| `$0E` | Turning on ground | `$25/$26/$43/$44/$8B-$8E/$9C/$9D/$BF-$C4`, old-direction mode-one momentum, native standing/crouch/moonwalk selectors, `$F8` completion | No unadmitted reachable pose branch found; shared presentation/producer gaps remain tracked below |
+| `$0F` | Crouch/stand/morph transition | `$35/$36/$3B/$3C/$37/$38/$3D/$3E/$F1-$FC`, bottom alignment, radius collision, `$F9/$FD` completion | No unadmitted reachable pose branch found; shared presentation/producer gaps remain tracked below |
+| `$10` | Moonwalking | `$49/$4A/$75-$78`, option gate, air/water/lava X tables, persistent external X/Y displacement, reversed X input, aim changes, fallback, walk-off, and `$BF-$C4` jump bridge | No unadmitted reachable pose branch found; shared presentation/producer gaps remain tracked below |
 | `$11` | Spring ball on ground | `$79-$7C`, air/water/lava X tables, persistent external X/Y displacement, slopes, reversal, jump entry, walk-off, normal-bomb deployment, solid/frozen-enemy clipping | Bombable-block PLMs, live enemy actor producer |
 | `$12` | Spring ball in air | `$7F/$80`, air/water/lava launch/X/gravity, persistent external X/Y displacement, variable height, ceiling/floor/solid-enemy collision, normal-bomb deployment | Bombable-block PLMs, live enemy actor producer |
 | `$13` | Spring ball falling | `$7D/$7E`, air/water/lava X/gravity, persistent external X/Y displacement and bounce override, held-jump relaunch, automatic bounce, solid/frozen-enemy clipping, normal-bomb deployment | Bombable-block PLMs, live enemy actor producer |
 | `$14` | Wall jumping | `$83/$84`, air/water/lava normal/Hi-Jump launch tables, variable height, submerged `$FB` selection, spin handoff, terrain/solid-enemy launch and landing | Live enemy actor/shake consumer, sound/contact-damage side effects |
 | `$15` | Ran into a wall | `$89/$8A/$CF-$D2`, terrain/solid-enemy prospective-run selector, one-pixel probe, persistent external X/Y displacement, aim/fallback/turn/jump/walk-off routes, grounded cleanup and liquid animation state | Live enemy actor producer |
 | `$16` | Grappling | ROM-backed firing, four-step block collision, persistent type-`$E` acquisition/validation, all 30 standing/crouching/vertical connection records, `$B2/$B3` air/water pendulum, `$A8-$AB/$B4-$B7` locked poses, per-pixel rope collision, six-point terrain sweep/reflection, collision kick, all eight exact locked/wallgrab angles, `$B8/$B9` terrain/solid-enemy grace-window wall jump, dropped-pose tables, release `$51/$52` plus persistent air/water/lava `$90:946E` motion, ROM art/beam DMA and OAM | Enemy acquisition, grapple spike-damage side effects, breakable PLMs, live enemy actor/shake consumer |
-| `$17` | Turning while jumping | Grounded-Y crouch turns `$97-$9A/$A2/$A3`; airborne `$2F/$30/$8F-$92/$9E/$9F`, persistent external X/Y displacement, momentum, collision, `$F8` | Later firing routes |
-| `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, persistent external X/Y displacement, momentum, gravity/collision, `$F8` | Later firing routes |
+| `$17` | Turning while jumping | Grounded-Y crouch turns `$97-$9A/$A2/$A3`; airborne `$2F/$30/$8F-$92/$9E/$9F`, persistent external X/Y displacement, momentum, collision, `$F8` | No unadmitted reachable pose branch found; shared presentation/producer gaps remain tracked below |
+| `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, persistent external X/Y displacement, momentum, gravity/collision, `$F8` | No unadmitted reachable pose branch found; shared presentation/producer gaps remain tracked below |
 | `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, persistent external X/Y displacement, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | Live enemy producer |
 | `$1A` | Grabbed by Draygon | `$BA-$BE/$EC-$F0`: exact owner pin, ten ROM pose/animation routes, input/fallback transitions, type-$1A vertical-result clear, 60-pattern escape hack, `$01/$02` release cleanup and owner signal | Live Draygon actor/flight producer |
 | `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, hyper beam; bank `$A9`: repeat/active/final rainbow, painful-walk/corpse, revival, Baby murder/death, phase-three combat/death, and escape `$B8EB-$B3C5`, including body/head bytecode, live neck geometry, Baby graphics DMA/spawn, sine-driven entrance, moving-head latch, drain/corpse handshake, release, ceiling retreat, eight-record flight, generic-touch Samus latch, one-point healing, bank-$86 ring/bomb movement and damage, purple-breath/misc-explosion animation, high/low enemy-projectile OAM, release/stare/retreat/final charge/final blow, rainbow commands, six black palettes, 30 rendered death explosions, attack-tile DMA, room-light restoration, deletion, Hyper Beam, controller four, corpse rotting, escape timer, and exploded door | Crystal Flash/drain palette and HDMA presentation, earlier attack-selection, live Hyper Beam projectile producer, typewriter character engine/glyphs, Baby actor spritemap and remaining dust producers, live enemy actor producer |
+
+## Active-pose and animation audit
+
+- An exhaustive pass over bank `$91`'s pose definitions leaves only `$D5/$D6` (standing
+  X-ray), `$D9/$DA` (crouching X-ray), and `$D7/$D8` (Crystal-Flash-ending art reused by
+  the bank-`$9B` death setup) outside the admitted movement families. The earlier blanket
+  “later firing variants” labels were stale: ordinary active firing bodies are exactly
+  `$0B/$0C`, `$13/$14`, `$67/$68`, `$E6/$E7`, plus translated Draygon `$BC/$EE`.
+- The bank-`$90` animation command table has active handlers `$F6-$F9/$FB/$FD-$FF` and six
+  shared CLC/RTS slots for `$F0-$F5`; `$FA/$FC` point only at explicitly unused native
+  handlers. The C# interpreter now preserves the live `$F0` cadence in aimed-falling
+  `$6D-$70`: the command leaves frame/timer untouched, then zero underflows on the following
+  tick and advances to the next literal delay.
+- This audit is deliberately not a claim that all movement-related systems are complete.
+  X-ray and death ownership, the elevator actor/status producer, liquid damage/sound/OAM,
+  footsteps and landing effects, PLM reactions, and live enemy collision/displacement
+  producers remain concrete cross-system gaps.
 
 The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
 performs its one-frame initialization and `$90:E032` owns the rising special arc; its
@@ -50,10 +67,12 @@ translated status is documented with the Morph Ball family below.
   Varia/Gravity pose `$9B` when either `$0001` or `$0020` is present. Both records read their
   radius 24 and `$91:B56F` delay program from ROM, then clear the native base/extra X words,
   Y speed/subspeed/direction, Morph Ball bounce, and X acceleration mode.
-- `$90:A383` does not alias these records to ordinary standing. With elevator status zero it
-  performs no X scan, no grounding probe, and no momentum cleanup; its only write clears the
-  solid-vertical-collision result. The live elevator branch remains explicit until its actor
-  can publish the one-pixel downward platform movement.
+- `$90:A383` does not alias these records to ordinary standing. Elevator status zero performs
+  no X scan, no grounding probe, and no momentum cleanup; its only write clears the solid-
+  vertical-collision result. A nonzero status moves down exactly `1.0000` through `$94:9763`,
+  intentionally skipping solid-enemy collision, and then clears the collision result even
+  when terrain clips the move. `ElevatorStatus` is the explicit `$0E18` consumer seam; the
+  eventual elevator actor remains responsible for publishing and changing that word.
 - `$90:868D` draws the normal top spritemap, appends one small raw OBJ at world-relative
   `(-7,-17)` with exact attributes `$3821`, then draws the bottom spritemap. That patch covers
   the left side of the power-suit chest; `$9B` deliberately omits it because suited art is
@@ -61,6 +80,10 @@ translated status is documented with the Morph Ball family below.
 - Real-ROM `--forward-facing-script` invokes the equipment-selected setup at the documented
   Landing Site debug-placement seam. Its composed and transparent diagnostics contain live
   ROM palette, tile DMA, `$00` top/chest/bottom OAM, sky, terrain, HUD, and minimap.
+- Real-ROM `--elevator-script` starts the same power-suit pose eight pixels above the normal
+  host placement, publishes status one, and validates five accepted one-pixel steps followed
+  by true floor clipping at Y `$04B8.FFFF`. The input dispatcher remains locked in `$00`
+  while status is active, matching `$91:804D-$8065`, rather than interpreting held controls.
 
 ## Verified liquid-physics slice
 

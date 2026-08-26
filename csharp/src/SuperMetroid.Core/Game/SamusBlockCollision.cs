@@ -251,7 +251,8 @@ public static class SamusBlockCollision
         SamusKinematicsState state,
         int displacement,
         bool scanLeftToRight,
-        bool canBreakBombBlocks = false)
+        bool canBreakBombBlocks = false,
+        bool includeSolidEnemies = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -264,7 +265,13 @@ public static class SamusBlockCollision
         RoomCollisionBlock? brokenBombBlock = null;
         state.PositionAdjustedBySlope = false;
 
-        if (acceptedDisplacement != 0 && state.InteractiveEnemies.Count != 0)
+        // Most bank-$90 callers enter through MoveSamus_Up/Down and therefore probe the
+        // native solid-enemy list before dispatching bank-$94 terrain. A few callers use
+        // the explicitly named `$94:9763` *NoSolidEnemyCollision* entry instead. Keep that
+        // distinction as an argument at the shared collision seam; clearing the caller's
+        // enemy snapshot would mutate unrelated gameplay state and would make the omission
+        // impossible to verify.
+        if (includeSolidEnemies && acceptedDisplacement != 0 && state.InteractiveEnemies.Count != 0)
         {
             // `$90:93EC/$9440` uses the same unsigned `$12.$14` magnitude contract as X.
             uint magnitude = acceptedDisplacement < 0

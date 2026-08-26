@@ -191,6 +191,11 @@ else if (options.ExtraDisplacementScript)
     Console.WriteLine(
         "Producer script: publish persistent $0B56-$0B5C X/Y displacement, move standing Samus right/up/down through live terrain, then clear all four words.");
 }
+else if (options.ElevatorScript)
+{
+    Console.WriteLine(
+        "Movement script: host-publish nonzero elevator status, then execute forward-facing `$00`'s native one-pixel `$94:9763` terrain scan until real Landing Site floor collision.");
+}
 else if (options.ForwardFacingScript)
 {
     Console.WriteLine(
@@ -285,7 +290,9 @@ InitialViewportResult initialViewport = runtime.InitializeLandingSiteViewport();
 if (!options.GroundedRun)
     runtime.InitializeDebugStandingSamus();
 
-if (options.ForwardFacingScript)
+ushort? elevatorStartY = null;
+ushort? elevatorStopY = null;
+if (options.ForwardFacingScript || options.ElevatorScript)
 {
     // Landing Site's gameplay-debug placement is host-authored because the cinematic door
     // does not spawn normal Samus. From that documented seam onward this invokes the exact
@@ -293,6 +300,24 @@ if (options.ForwardFacingScript)
     // spritemaps, and raw chest-cover OAM record used by retail pose `$00`.
     runtime.Samus!.ApplyForwardFacingPoseSetup(bus);
     runtime.Samus.PrimeGraphics(bus);
+
+    if (options.ElevatorScript)
+    {
+        // Landing Site has no active elevator actor in this debug room. Publish only the
+        // actor-owned status word and place the already grounded body eight pixels above
+        // the same cartridge-authored floor. `$90:A392-$A3A8`, `$94:9763`, collision,
+        // camera, art, and OAM remain live; this does not fabricate a moving platform.
+        runtime.Samus.YPosition = unchecked((ushort)(runtime.Samus.YPosition - 8));
+        runtime.Samus.Kinematics.YSubposition = 0;
+        elevatorStartY = runtime.Samus.YPosition;
+        DebugGroundedSamusPlacement elevatorPlacement = groundedPlacement ??
+            throw new InvalidOperationException(
+                "Elevator script requires the inspected Landing Site floor placement.");
+        elevatorStopY = unchecked((ushort)(
+            elevatorPlacement.BlockY * 16 + elevatorPlacement.FloorHeight -
+            runtime.Samus.Kinematics.YRadius));
+        runtime.ElevatorStatus = 1;
+    }
 }
 
 MotherBrainRainbowBeamAttackSequence? rainbowAttack = null;
@@ -2348,6 +2373,32 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     }
 }
 
+if (options.ElevatorScript)
+{
+    ushort startY = elevatorStartY ?? throw new InvalidOperationException(
+        "Elevator script did not record its host-authored starting position.");
+    ushort stopY = elevatorStopY ?? throw new InvalidOperationException(
+        "Elevator script did not derive its ROM-backed floor stop.");
+    int clearPixels = stopY - startY;
+    if (clearPixels < 0)
+        throw new InvalidOperationException("Elevator stimulus began below its derived floor stop.");
+    ushort expectedY = unchecked((ushort)(startY + Math.Min(options.FrameCount, clearPixels)));
+    if (runtime.Samus!.Pose != SamusState.ForwardFacingPowerSuitPose)
+    {
+        throw new InvalidOperationException(
+            $"Elevator ROM script left required forward-facing pose $00 for ${runtime.Samus.Pose:X2}.");
+    }
+    if (runtime.Samus.YPosition != expectedY)
+    {
+        throw new InvalidOperationException(
+            $"Elevator ROM script expected Y=${expectedY:X4} after {options.FrameCount} frame(s), " +
+            $"but reached ${runtime.Samus.YPosition:X4}.");
+    }
+    Console.WriteLine(
+        $"Forward-facing elevator route validated {Math.Min(options.FrameCount, clearPixels)} accepted one-pixel move(s) " +
+        $"and real floor clipping at Y=${runtime.Samus.YPosition:X4}.");
+}
+
 if (options.AerialTurnScript)
 {
     byte[] requiredAerialTurnRoute = [
@@ -3331,6 +3382,7 @@ readonly record struct DebugRunnerOptions(
     bool DrainedSamusScript,
     bool DraygonGrabScript,
     bool ExtraDisplacementScript,
+    bool ElevatorScript,
     bool ForwardFacingScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
@@ -3374,6 +3426,7 @@ readonly record struct DebugRunnerOptions(
         bool drainedSamusScript = false;
         bool draygonGrabScript = false;
         bool extraDisplacementScript = false;
+        bool elevatorScript = false;
         bool forwardFacingScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
@@ -3573,6 +3626,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--elevator-script":
+                    elevatorScript = true;
+                    groundedRun = true;
+                    break;
+
                 case "--forward-facing-script":
                     forwardFacingScript = true;
                     break;
@@ -3644,6 +3702,7 @@ readonly record struct DebugRunnerOptions(
             drainedSamusScript,
             draygonGrabScript,
             extraDisplacementScript,
+            elevatorScript,
             forwardFacingScript);
     }
 

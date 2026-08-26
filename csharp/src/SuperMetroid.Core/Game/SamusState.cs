@@ -3521,6 +3521,23 @@ public sealed class SamusState
         LastAnimationDelayCommand = delayOrCommand;
         switch (delayOrCommand & 0x0f)
         {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+                // `$90:8324-$8345` points all six instruction slots at the same CLC/RTS
+                // handler. Carry clear tells the caller to return immediately: native does
+                // not change the animation frame and, crucially, does not reload its timer.
+                // The outer routine has already advanced onto this command after a 1 -> 0
+                // expiration, so the timer remains zero for the rest of this gameplay frame.
+                // On the next frame DEC wraps it to `$FFFF`; BMI then advances once more,
+                // stepping over the no-op command and interpreting the following delay.
+                // `$F0` is used by the aimed-falling sequences `$6D-$70`; accepting it as a
+                // one-frame command is therefore live game behavior, not defensive parsing.
+                return;
+
             case 6:
                 // $90:8346, command $F6: healthy Samus loops to zero; below 30 energy she
                 // advances past the command into the alternate breathing sequence.

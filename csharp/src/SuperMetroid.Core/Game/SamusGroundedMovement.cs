@@ -18,17 +18,26 @@ namespace SuperMetroid.Core.Game;
 public static class SamusGroundedMovement
 {
     /// <summary>
-    /// Ports the no-elevator branch of front-view movement at `$90:A383-$90:A3AB`.
+    /// Ports front-view movement at `$90:A383-$90:A3AB`, including the active-elevator
+    /// one-pixel downward block scan.
     /// </summary>
     /// <remarks>
     /// Poses `$00/$9B` share movement type zero with ordinary standing, but the cartridge
     /// returns before horizontal movement, speed cleanup, and the one-pixel grounding probe.
-    /// It only clears <c>SamusSolidVerticalCollisionResult</c>. An active elevator instead
-    /// asks the platform/collision systems to move Samus down one pixel; that actor producer
-    /// is deliberately not fabricated by this room-independent method.
+    /// It only clears <c>SamusSolidVerticalCollisionResult</c> while elevator status is zero.
+    /// A nonzero status calls `$94:9763` with exactly `1.0000` downward displacement before
+    /// clearing that result. The elevator actor remains a separate producer of the status
+    /// word and platform art; this method translates the complete Samus-side consumer.
     /// </remarks>
-    public static void StepFacingForward(SamusState samus, bool elevatorIsMoving = false)
+    public static BlockMoveResult? StepFacingForward(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort nmiFrameCounter,
+        bool elevatorIsMoving = false)
     {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
         if (!SamusState.IsForwardFacingPose(samus.Pose))
         {
@@ -36,16 +45,27 @@ public static class SamusGroundedMovement
                 $"Forward-facing movement requires pose $00/$9B, not ${samus.Pose:X2}.");
         }
 
+        BlockMoveResult? vertical = null;
         if (elevatorIsMoving)
         {
-            throw new NotSupportedException(
-                "Forward-facing elevator displacement requires the live elevator actor/collision producer.");
+            // `$90:A397-$A3A4` publishes collision direction two and calls the bank-$94
+            // downward mover with `$12.$14 = 0001.0000`. That entry deliberately skips
+            // solid-enemy collision but retains ordinary room-block/BTS scanning and the
+            // alternating left/right order selected from accepted-NMI parity.
+            vertical = SamusBlockCollision.MoveVertical(
+                bus,
+                level,
+                samus.Kinematics,
+                displacement: 1 << 16,
+                scanLeftToRight: (nmiFrameCounter & 1) == 0,
+                includeSolidEnemies: false);
         }
 
         // `$90:A3A8` is the only write in the ordinary no-elevator path. In particular,
         // stale base/extra X speed is retained; MakeSamusFaceForward clears those words at
         // setup time, not every frame in this movement dispatcher.
         samus.SolidVerticalCollisionResult = 0;
+        return vertical;
     }
 
     /// <summary>

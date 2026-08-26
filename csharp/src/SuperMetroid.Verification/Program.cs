@@ -8128,7 +8128,9 @@ static void VerifySamusAimedAerialMovement()
     bus.WriteBytes(0x91bd39, [0x08, 0x00, 0xff, 0x01, 0x03, 0x00, 0x15, 0x00]); // $E2
     bus.WriteBytes(0x91bd49, [0x08, 0x00, 0xff, 0x03, 0x03, 0x00, 0x15, 0x00]); // $E4
 
-    // Synthetic delay streams expose both command-three seams independently.
+    // Synthetic delay streams expose both command-three seams independently. `$6D` uses
+    // the retail `$02,$F0,$10,$FE,$01` sequence verbatim so the active animation-command
+    // no-op is checked in the movement family that actually consumes it.
     (byte Pose, ushort Stream, byte[] Bytes)[] animations = [
         (0x01, 0xc100, [0x0a, 0xf6]),
         (0x03, 0xc110, [0x0a, 0xf6]),
@@ -8147,7 +8149,7 @@ static void VerifySamusAimedAerialMovement()
         (0x69, 0xc190, [0x02, 0xff]),
         (0x6b, 0xc1a0, [0x02, 0xff]),
         (0x6c, 0xc1a8, [0x02, 0xff]),
-        (0x6d, 0xc1b0, [0x02, 0xff]),
+        (0x6d, 0xc1b0, [0x02, 0xf0, 0x10, 0xfe, 0x01]),
         (0x6f, 0xc1c0, [0x02, 0xff]),
         (0xe2, 0xc1d0, [0x01, 0xf8, 0x05]),
         (0xe4, 0xc1e0, [0x01, 0xf8, 0x07]),
@@ -8383,12 +8385,27 @@ static void VerifySamusAimedAerialMovement()
     AssertEqual((byte)0x6d, samus.SelectFallingPoseForCurrentAim(bus), "up-right walk-off target");
     samus.ApplyWalkedOffFloorTransition(bus, SamusState.FallingAimDiagonalUpRightPose);
     AssertEqual((ushort)2, samus.Kinematics.YDirection, "aimed walk-off starts downward");
+
+    // `$90:8324-$8345` leaves both the command index and zero timer untouched when `$F0`
+    // is reached. One frame later DEC wraps zero to `$FFFF`; the negative result advances
+    // over `$F0` and loads the literal `$10` delay. This seemingly odd two-frame sequence
+    // is why treating an unknown command as a normal delay—or simply skipping it—drifts.
+    samus.AnimateNoFx(bus);
+    AssertEqual((ushort)1, samus.AnimationFrameTimer, "aimed-fall initial delay counts down");
+    samus.AnimateNoFx(bus);
+    AssertEqual((ushort)1, samus.AnimationFrame, "aimed-fall reaches F0 command index");
+    AssertEqual((ushort)0, samus.AnimationFrameTimer, "F0 leaves expired timer at zero");
+    AssertEqual((byte)0xf0, samus.LastAnimationDelayCommand!.Value, "aimed-fall records F0 command");
+    samus.AnimateNoFx(bus);
+    AssertEqual((ushort)2, samus.AnimationFrame, "timer underflow advances beyond F0");
+    AssertEqual((ushort)16, samus.AnimationFrameTimer, "post-F0 frame loads literal delay");
+
     samus.ApplyAerialAimTransition(bus, SamusState.FallingAimDiagonalDownRightPose);
     AssertEqual((byte)0x29, samus.ReadNoInputFallbackPose(bus), "aimed fall fallback target");
     samus.ApplyAerialAimTransition(bus, SamusState.FallingRightPose);
     AssertEqual((byte)0x29, samus.Pose, "aimed fall applies unaimed fallback");
 
-    Console.WriteLine("  Samus aimed air: FD jump, live aim, compact hitboxes/landing, walk-off, and fall fallback agree.");
+    Console.WriteLine("  Samus aimed air: FD jump, live aim, F0 cadence, compact hitboxes/landing, walk-off, and fall fallback agree.");
 }
 
 /// <summary>
@@ -8896,18 +8913,68 @@ static void VerifySamusGroundedMovement()
     forward.HorizontalSpeed.BaseSpeed = 2;
     forward.HorizontalSpeed.BaseSubspeed = 0x3456;
     forward.HorizontalSpeed.ExtraRunSpeed = 1;
-    SamusGroundedMovement.StepFacingForward(forward);
+    BlockMoveResult? stationaryForward = SamusGroundedMovement.StepFacingForward(
+        bus,
+        level,
+        forward,
+        nmiFrameCounter: 0);
+    AssertTrue(stationaryForward is null, "zero elevator status skips the vertical scan");
     AssertEqual((ushort)0, forward.SolidVerticalCollisionResult, "forward movement clears vertical collision result");
     AssertEqual((ushort)0x1234, forward.XPosition, "forward movement does not scan or move X");
     AssertEqual((ushort)0x5678, forward.YPosition, "stationary forward movement does not move Y");
     AssertEqual((ushort)2, forward.HorizontalSpeed.BaseSpeed, "forward dispatcher retains stale base speed");
     AssertEqual((ushort)0x3456, forward.HorizontalSpeed.BaseSubspeed, "forward dispatcher retains stale base subspeed");
     AssertEqual((ushort)1, forward.HorizontalSpeed.ExtraRunSpeed, "forward dispatcher retains stale extra speed");
-    AssertThrows<NotSupportedException>(
-        () => SamusGroundedMovement.StepFacingForward(forward, elevatorIsMoving: true),
-        "forward elevator branch requires its live actor producer");
 
-    Console.WriteLine("  Samus movement: forward/standing and running speed/X/slope/grounding order agree.");
+    // `$90:A392` consumes actor-owned elevator status but performs Samus's movement itself.
+    // Put a valid solid-enemy candidate exactly one pixel below an all-air room body: the
+    // ordinary MoveVertical wrapper would stop on it, whereas `$94:9763` must deliberately
+    // ignore it and accept the complete 1.0000 downward displacement.
+    var elevatorLevel = new RoomLevelData(
+        widthInBlocks: 8,
+        heightInBlocks: 8,
+        foregroundEntries: new ushort[64],
+        behaviorBytes: new byte[64],
+        backgroundEntries: new ushort[64],
+        blockDefinitions: new byte[8]);
+    forward.XPosition = 100;
+    forward.YPosition = 100;
+    forward.Kinematics.XSubposition = 0x1234;
+    forward.Kinematics.YSubposition = 0x5678;
+    forward.Kinematics.XRadius = 5;
+    forward.Kinematics.YRadius = 10;
+    forward.Kinematics.InteractiveEnemies =
+    [
+        new SolidEnemyCollisionBody(
+            Index: 0x01c0,
+            XPosition: 100,
+            YPosition: 116,
+            XRadius: 5,
+            YRadius: 5,
+            FreezeTimer: 0,
+            Properties: 0x8000),
+    ];
+    forward.SolidVerticalCollisionResult = 9;
+    BlockMoveResult? elevatorMove = SamusGroundedMovement.StepFacingForward(
+        bus,
+        elevatorLevel,
+        forward,
+        nmiFrameCounter: 1,
+        elevatorIsMoving: true);
+    AssertTrue(elevatorMove is { Collided: false }, "elevator block scan accepts clear air");
+    BlockMoveResult acceptedElevatorMove = elevatorMove ?? throw new InvalidOperationException(
+        "A nonzero elevator status must execute the one-pixel vertical scan.");
+    AssertTrue(acceptedElevatorMove.EnemyCollision is null,
+        "elevator `$94:9763` path skips a colliding solid enemy");
+    AssertEqual(0x00010000, acceptedElevatorMove.AcceptedDisplacement,
+        "elevator requests exact one-pixel downward displacement");
+    AssertEqual((ushort)101, forward.YPosition, "elevator moves forward-facing Samus down one pixel");
+    AssertEqual((ushort)0x5678, forward.Kinematics.YSubposition,
+        "whole-pixel elevator motion preserves Y fraction");
+    AssertEqual((ushort)0, forward.SolidVerticalCollisionResult,
+        "elevator path clears vertical collision result after movement");
+
+    Console.WriteLine("  Samus movement: forward/elevator, standing, and running speed/X/slope/grounding order agree.");
 }
 
 /// <summary>

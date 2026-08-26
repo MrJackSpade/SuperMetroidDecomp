@@ -100,6 +100,14 @@ public sealed class SuperMetroidRuntime
     public bool MoonwalkEnabled { get; set; }
 
     /// <summary>
+    /// Native elevator status word at WRAM <c>$0E18</c>. The room's elevator actor owns this
+    /// producer; a nonzero value makes forward-facing `$00/$9B` execute `$90:A392`'s exact
+    /// one-pixel downward terrain scan. Exposing the word separately prevents the movement
+    /// consumer from inventing an elevator platform or conflating actor state with pose.
+    /// </summary>
+    public ushort ElevatorStatus { get; set; }
+
+    /// <summary>
     /// Horizontal and vertical collision results from the most recent translated grounded
     /// movement pass. Null before movement, and always null for the cinematic stimulus.
     /// </summary>
@@ -725,11 +733,20 @@ public sealed class SuperMetroidRuntime
             // Direction bits already use the transition table's canonical layout. Input
             // matching belongs to frame-handler alpha, before beta moves the CURRENT pose;
             // the winning pose is not installed until after animation below.
-            ProspectiveSamusPose = SamusPoseTransitionTable.Find(
-                _addressSpace,
-                Samus.Pose,
-                Controller1.Current,
-                Controller1.NewlyPressed);
+            // `$91:804D-$8065` gives front-view `$00/$9B` one special input rule: a
+            // nonzero elevator status returns immediately, before the transition-table
+            // pointer is even read. Pose zero's pointer bytes otherwise overlap legitimate
+            // data and can appear to select nonsense transitions after several frames, so
+            // suppressing only their application would be too late and observably wrong.
+            bool elevatorLocksForwardPoseInput =
+                SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0;
+            ProspectiveSamusPose = elevatorLocksForwardPoseInput
+                ? null
+                : SamusPoseTransitionTable.Find(
+                    _addressSpace,
+                    Samus.Pose,
+                    Controller1.Current,
+                    Controller1.NewlyPressed);
             ProspectiveSamusFallbackPose = null;
             ProspectiveSamusWallCollisionPose = null;
             LastRanIntoWallProbe = null;
@@ -1110,9 +1127,15 @@ public sealed class SuperMetroidRuntime
                     case SamusState.ForwardFacingPowerSuitPose:
                     case SamusState.ForwardFacingSuitedPose:
                         // `$00/$9B` enter through controller-locked demo/elevator commands.
-                        // With no live elevator actor in Landing Site, `$90:A392` sees status
-                        // zero and merely clears the vertical collision-result word.
-                        SamusGroundedMovement.StepFacingForward(Samus);
+                        // The actor-owned `$0E18` word remains an explicit producer, while
+                        // this consumer now includes both the zero-status no-op and nonzero
+                        // `$94:9763` one-pixel downward block scan.
+                        SamusGroundedMovement.StepFacingForward(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            NmiFrameCounter,
+                            elevatorIsMoving: ElevatorStatus != 0);
                         break;
                     case SamusState.FacingRightNormalPose:
                     case SamusState.StandingAimUpRightPose:

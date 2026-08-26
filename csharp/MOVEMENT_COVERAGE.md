@@ -37,7 +37,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$17` | Turning while jumping | Grounded-Y crouch turns `$97-$9A/$A2/$A3`; airborne `$2F/$30/$8F-$92/$9E/$9F`, momentum, collision, `$F8` | Later firing/external-displacement routes |
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, momentum, gravity/collision, `$F8` | Later firing/external-displacement routes |
 | `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | External displacement, enemy producer |
-| `$1A` | Grabbed by Draygon | — | Entire family |
+| `$1A` | Grabbed by Draygon | `$BA-$BE/$EC-$F0`: exact owner pin, ten ROM pose/animation routes, input/fallback transitions, type-$1A vertical-result clear, 60-pattern escape hack, `$01/$02` release cleanup and owner signal | Live Draygon actor/flight producer |
 | `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, hyper beam; bank `$A9`: repeat/active/final rainbow, painful-walk/corpse, revival, Baby murder/death, phase-three combat/death, and escape `$B8EB-$B3C5`, including body/head bytecode, live neck geometry, Baby graphics DMA/spawn, sine-driven entrance, moving-head latch, drain/corpse handshake, release, ceiling retreat, eight-record flight, generic-touch Samus latch, one-point healing, bank-$86 ring/bomb movement and damage, purple-breath/misc-explosion animation, high/low enemy-projectile OAM, release/stare/retreat/final charge/final blow, rainbow commands, six black palettes, 30 rendered death explosions, attack-tile DMA, room-light restoration, deletion, Hyper Beam, controller four, corpse rotting, escape timer, and exploded door | Crystal Flash/drain palette and HDMA presentation, earlier attack-selection, live Hyper Beam projectile producer, typewriter character engine/glyphs, Baby actor spritemap and remaining dust producers, live enemy actor producer |
 
 The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
@@ -572,6 +572,33 @@ translated status is documented with the Morph Ball family below.
   by frame 6500. The regression compares the final four `$200` attack transfers against the
   supplied cartridge and reads every flight/neck/projectile component from its real sine table.
 
+## Verified grabbed-by-Draygon movement/animation slice
+
+- `SamusDraygonGrabbedState` keeps the boss-owned and Samus-owned halves separate. Entry
+  reproduces `$90:E23B`'s installed RTS movement handler, chooses `$BA/$EC` from Draygon's
+  direction, and `$A5:94A9` pins Samus at owner X minus/plus eight and owner Y plus `$28`
+  without discarding either subposition.
+- All ten `$BA-$BE/$EC-$F0` definitions remain cartridge data. The left and right transition
+  lists at `$91:AE18/$AE56` preserve native priority and never cross facings; neutral, aim-up,
+  firing, aim-down, and six-frame moving bodies use their real delay lists, split tile DMA,
+  spritemaps, draw offsets, and 21-pixel radius. No-input fallback maps moving `$BE/$F0` back
+  to `$BA/$EC` through pose-definition byte two.
+- The ordinary movement-type `$1A` dispatcher performs only `$90:A7D2`'s vertical-solid-result
+  clear. While the boss grab is active, the installed RTS handler prevents ordinary physics
+  and the owner-coordinate seam remains authoritative instead of inventing a C# flight path.
+- `$90:E2A1` masks newly pressed input to `$0F00`, ignores zero and a repeated previous D-pad
+  pattern, preserves the previous pattern across blank frames, suppresses pose transitions
+  while grapple is locked, and releases at exactly 60 accepted changes. `$90:E2DE` selects
+  `$01/$02`, clears the native base-X/Y/prospective/bounce/acceleration words, deliberately
+  preserves extra run speed, and publishes owner flag bit one.
+- Independent synthetic fixtures cover both facings, literal records/delays, priority,
+  fallback, owner offsets/subpositions, the sole type-`$1A` write, repetition rules, the exact
+  release threshold, cleanup/preservation, and one-shot owner signal. The private-ROM
+  `--draygon-grab-script` reaches `$EC->$ED->$EE->$EF->$F0->$EC->$F0->$01`; a 90-frame capture
+  freezes the authentic moving body against live Landing Site terrain, and 180 frames prove
+  release. The fixed owner coordinate is explicitly a substitute for the absent Draygon actor,
+  not a claim that its enemy flight AI has been translated.
+
 ## Verified aerial-turn and wall-jump slice
 
 - Opposite-direction input from every admitted normal-jump/falling aim family publishes
@@ -812,6 +839,10 @@ translated status is documented with the Morph Ball family below.
   `$01`'s direction and every velocity/origin/tile pointer from the cartridge, renders the
   growing horizontal beam, and completes its queued no-target cancellation. A room-wide
   collision scan confirms Landing Site contains no type-`$E` grapple blocks.
+- The real-ROM `--draygon-grab-script` publishes a fixed owner coordinate at `$A5:94A9`, then
+  observes every right-facing grabbed pose, the moving-body animation loop, `$F0->$EC`
+  fallback, 60-pattern escape, owner signal, and `$01` release. Its assertions sample actual
+  post-frame state, while its PNG uses private-ROM tiles, palettes, spritemaps, BG1, and BG2.
 
 ## Next implementation order
 

@@ -215,6 +215,36 @@ public sealed class SamusState
     /// <summary>Pose $B9 is the right-wall grapple-jump contact body.</summary>
     public const byte GrappleWallContactRightPose = 0xb9;
 
+    /// <summary>Pose `$BA`: left-facing neutral body held in Draygon's claws.</summary>
+    public const byte DraygonGrabbedNeutralLeftPose = 0xba;
+
+    /// <summary>Pose `$BB`: left-facing Draygon-held body aiming diagonally upward.</summary>
+    public const byte DraygonGrabbedAimUpLeftPose = 0xbb;
+
+    /// <summary>Pose `$BC`: left-facing Draygon-held firing body.</summary>
+    public const byte DraygonGrabbedFiringLeftPose = 0xbc;
+
+    /// <summary>Pose `$BD`: left-facing Draygon-held body aiming diagonally downward.</summary>
+    public const byte DraygonGrabbedAimDownLeftPose = 0xbd;
+
+    /// <summary>Pose `$BE`: left-facing six-frame struggling animation while held by Draygon.</summary>
+    public const byte DraygonGrabbedMovingLeftPose = 0xbe;
+
+    /// <summary>Pose `$EC`: right-facing neutral body held in Draygon's claws.</summary>
+    public const byte DraygonGrabbedNeutralRightPose = 0xec;
+
+    /// <summary>Pose `$ED`: right-facing Draygon-held body aiming diagonally upward.</summary>
+    public const byte DraygonGrabbedAimUpRightPose = 0xed;
+
+    /// <summary>Pose `$EE`: right-facing Draygon-held firing body.</summary>
+    public const byte DraygonGrabbedFiringRightPose = 0xee;
+
+    /// <summary>Pose `$EF`: right-facing Draygon-held body aiming diagonally downward.</summary>
+    public const byte DraygonGrabbedAimDownRightPose = 0xef;
+
+    /// <summary>Pose `$F0`: right-facing six-frame struggling animation while held by Draygon.</summary>
+    public const byte DraygonGrabbedMovingRightPose = 0xf0;
+
     /// <summary>
     /// Pose $4F is the visually left-facing damage boost; its X-direction byte is the
     /// deliberately reversed value eight that drives the boost to the right.
@@ -628,6 +658,12 @@ public sealed class SamusState
     public SamusDrainedState Drained { get; } = new();
 
     /// <summary>
+    /// Bank-$90's grabbed-pose hack handler and the narrow bank-$A5 owner-position seam.
+    /// Draygon's enemy AI owns its own flight path; this child owns every Samus-side word.
+    /// </summary>
+    public SamusDraygonGrabbedState DraygonGrabbed { get; } = new();
+
+    /// <summary>
     /// Compatibility/debugger view of <c>samus_x_speed_divisor</c> at WRAM <c>$0A66</c>.
     /// The backing word belongs to <see cref="HorizontalSpeed"/>, just as the native word
     /// is both a movement-speed divisor and the no-FX animation delay buffer.
@@ -772,6 +808,13 @@ public sealed class SamusState
     /// <summary>Exact fixed-point position/radius words consumed by bank-$94 collision.</summary>
     public SamusKinematicsState Kinematics { get; } = new();
 
+    /// <summary>
+    /// WRAM <c>SamusSolidVerticalCollisionResult</c>. Most translated movement methods
+    /// return collision results directly; movement type `$1A` has no displacement and its
+    /// sole bank-$90 side effect is explicitly clearing this otherwise-stale word.
+    /// </summary>
+    public ushort SolidVerticalCollisionResult { get; set; }
+
     /// <summary>Debugger/rendering view of the whole-pixel world X position.</summary>
     public ushort XPosition
     {
@@ -910,6 +953,53 @@ public sealed class SamusState
 
     public static bool IsMoonwalkingPose(byte pose) =>
         IsMoonwalkingFacingLeftPose(pose) || IsMoonwalkingFacingRightPose(pose);
+
+    /// <summary>True for all five left-facing movement-type-`$1A` Draygon poses.</summary>
+    public static bool IsLeftFacingDraygonGrabbedPose(byte pose) => pose is
+        DraygonGrabbedNeutralLeftPose or DraygonGrabbedAimUpLeftPose or
+        DraygonGrabbedFiringLeftPose or DraygonGrabbedAimDownLeftPose or
+        DraygonGrabbedMovingLeftPose;
+
+    /// <summary>True for all five right-facing movement-type-`$1A` Draygon poses.</summary>
+    public static bool IsRightFacingDraygonGrabbedPose(byte pose) => pose is
+        DraygonGrabbedNeutralRightPose or DraygonGrabbedAimUpRightPose or
+        DraygonGrabbedFiringRightPose or DraygonGrabbedAimDownRightPose or
+        DraygonGrabbedMovingRightPose;
+
+    /// <summary>True for the complete ten-pose grabbed-by-Draygon family.</summary>
+    public static bool IsDraygonGrabbedPose(byte pose) =>
+        IsLeftFacingDraygonGrabbedPose(pose) || IsRightFacingDraygonGrabbedPose(pose);
+
+    /// <summary>
+    /// Applies one ordinary `$91:AE18/$AE56` transition without inventing pose physics.
+    /// Every admitted record stays within one facing, retains radius 21, and restarts the
+    /// target's cartridge delay list at byte zero through the normal pose initializer.
+    /// </summary>
+    public void ApplyDraygonGrabbedPoseChange(ISnesAddressSpace bus, byte targetPose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+
+        bool leftFamily = IsLeftFacingDraygonGrabbedPose(Pose) &&
+            IsLeftFacingDraygonGrabbedPose(targetPose);
+        bool rightFamily = IsRightFacingDraygonGrabbedPose(Pose) &&
+            IsRightFacingDraygonGrabbedPose(targetPose);
+        if (!leftFamily && !rightFamily)
+        {
+            throw new NotSupportedException(
+                $"Draygon-grabbed transition ${Pose:X2} -> ${targetPose:X2} crosses a native owner seam.");
+        }
+
+        ushort oldRadius = Kinematics.YRadius;
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+        if (Kinematics.YRadius != oldRadius)
+        {
+            throw new InvalidDataException(
+                $"Draygon pose ${targetPose:X2} unexpectedly changed radius {oldRadius} -> {Kinematics.YRadius}.");
+        }
+
+        InitializeAnimation(bus, initialFrame: 0);
+    }
 
     /// <summary>
     /// True for `$BF-$C4`, the six grounded turn frames selected only when Jump begins a
@@ -3397,9 +3487,10 @@ public sealed class SamusState
     /// </summary>
     /// <remarks>
     /// Movement type zero uses the standing position selector. The admitted movement types
-    /// `$01/$02/$04-$06/$08/$0E/$10/$15/$17` use the usual or explicitly table-backed transition
-    /// position selector. Morph types `$04/$08` draw only their complete top spritemap;
-    /// spin-jump `$03` retains its own conditional bottom rule.
+    /// `$01/$02/$04-$06/$08/$0E/$10/$15/$17/$1A` use the usual or explicitly table-backed
+    /// transition position selector. Morph types `$04/$08` draw only their complete top
+    /// spritemap; spin-jump `$03` retains its own conditional bottom rule. Draygon's ten
+    /// type-`$1A` bodies have ordinary split top/bottom spritemaps and no draw-time offset.
     /// </remarks>
     public void Draw(ISnesAddressSpace bus, OamBuffer oam, ushort layer1X, ushort layer1Y)
     {
@@ -3410,7 +3501,7 @@ public sealed class SamusState
         byte movementType = bus.ReadByte(AddWithinBank(poseDefinition, 1));
         if (movementType is not (0 or 1 or 2 or 3 or 4 or 5 or 6 or 8 or 0x0a or
             0x0e or 0x0f or 0x10 or 0x11 or 0x12 or 0x13 or 0x14 or 0x15 or 0x16 or
-            0x17 or 0x18 or 0x19 or 0x1b))
+            0x17 or 0x18 or 0x19 or 0x1a or 0x1b))
         {
             throw new NotSupportedException(
                 $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");

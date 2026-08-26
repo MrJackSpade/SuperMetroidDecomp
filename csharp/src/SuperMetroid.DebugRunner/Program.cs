@@ -171,6 +171,11 @@ else if (options.DrainedSamusScript)
     Console.WriteLine(
         "Actor script: publish the real Mother Brain/Baby Metroid drained-controller calls, execute ROM poses $E8/$EA/$E8/$01, and use $F7's installed vertical handler against live terrain.");
 }
+else if (options.DraygonGrabScript)
+{
+    Console.WriteLine(
+        "Actor script: enter the real right-facing Draygon grab, exercise ROM poses $EC-$F0, reach 60 counted D-pad patterns, then execute $90:E2DE release to $01.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7800 stays clear
@@ -349,6 +354,20 @@ else if (options.DrainedSamusScript)
     // calls all remain live ROM data; only the missing actor's call timing is host-authored.
     runtime.Samus!.YPosition = unchecked((ushort)(runtime.Samus.YPosition - 32));
     runtime.Samus.Drained.LetFall(bus, runtime.Samus);
+}
+else if (options.DraygonGrabScript)
+{
+    // A live Draygon enemy actor is not part of Landing Site. Host-publish only its body
+    // coordinate at the exact `$A5:94A9` seam, choosing it so the first application keeps
+    // the grounded debug placement unchanged. Every pose, delay, tile definition, sprite-
+    // map, input transition, escape count, release side effect, and later camera read comes
+    // from translated logic plus this private ROM.
+    runtime.Samus!.DraygonGrabbed.Begin(bus, runtime.Samus, draygonFacingRight: true);
+    runtime.Samus.DraygonGrabbed.ApplyOwnerPosition(
+        runtime.Samus,
+        unchecked((ushort)(runtime.Samus.XPosition - 8)),
+        unchecked((ushort)(runtime.Samus.YPosition - 0x28)),
+        draygonFacingRight: true);
 }
 
 if (options.WaterSpaceJumpScript)
@@ -635,6 +654,12 @@ bool observedDrainedStanding = false;
 bool observedDrainedCrouching = false;
 bool observedDrainedRelease = false;
 bool observedDrainedHyperBeam = false;
+bool observedDraygonAimUp = false;
+bool observedDraygonFiring = false;
+bool observedDraygonAimDown = false;
+bool observedDraygonMoving = false;
+bool observedDraygonNeutralFallback = false;
+bool observedDraygonRelease = false;
 bool issuedDrainedStandingCommand = false;
 bool issuedDrainedCrouchingCommand = false;
 bool issuedDrainedReleaseCommand = false;
@@ -677,6 +702,19 @@ ushort previousBabyMovementTablePointer = 0;
 var observedSamusPoses = new HashSet<byte> { runtime.Samus.Pose };
 for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
 {
+    if (options.DraygonGrabScript && runtime.Samus!.DraygonGrabbed.IsActive)
+    {
+        // EnemyMain runs before Samus's draw and calls `$A5:94A9` after updating Draygon.
+        // This asset/handler route deliberately holds that absent enemy actor still; the
+        // repeated call proves no ordinary Samus physics drifts away from the supplied claw
+        // coordinate. It is an explicit fixed actor stimulus, not a fabricated boss flight.
+        runtime.Samus.DraygonGrabbed.ApplyOwnerPosition(
+            runtime.Samus,
+            runtime.Samus.DraygonGrabbed.OwnerXPosition,
+            runtime.Samus.DraygonGrabbed.OwnerYPosition,
+            draygonFacingRight: true);
+    }
+
     // The default script presses Start for one frame, releases it, then holds Right. The
     // explicit reversal script is a deterministic real-ROM regression route: enough time
     // to accelerate right, complete $25 toward the left, then complete $26 back right.
@@ -740,6 +778,27 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     ushort yDirectionBeforeFrame = runtime.Samus.Kinematics.YDirection;
     ushort controllerInput = specialSpinRoute
         ? specialSpinInput
+        : options.DraygonGrabScript
+        ? frameIndex switch
+        {
+            // `$91:AE56` maps the default shoulder bindings to up/down aim and Shoot to
+            // firing. A direction selects the six-frame moving/struggling body `$F0`.
+            >= 16 and < 32 => (ushort)SnesButton.R,
+            >= 32 and < 48 => (ushort)SnesButton.X,
+            >= 48 and < 64 => (ushort)SnesButton.L,
+            >= 64 and < 96 => (ushort)SnesButton.Right,
+
+            // Zero input must use pose-definition byte two to return `$F0 -> $EC`.
+            // The earlier Right edge that entered `$F0` already contributed one count to
+            // `$90:E2A1`. Alternate Up/Down for the remaining 59 distinct samples so the
+            // sixtieth call releases Samus, then leave subsequent frames genuinely blank.
+            // That last detail keeps the route from immediately applying ordinary pose-$01
+            // controller transitions after it has proved the native release state.
+            >= 112 and < 171 => (frameIndex & 1) == 0
+                ? (ushort)SnesButton.Up
+                : (ushort)SnesButton.Down,
+            _ => (ushort)0,
+        }
         : options.CrystalFlashScript || options.DrainedSamusScript ||
           options.MotherBrainRainbowScript
         ? (ushort)0
@@ -1691,6 +1750,14 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     observedDrainedRelease |= issuedDrainedReleaseCommand &&
         runtime.Samus.Drained.Phase == DrainedSamusPhase.Inactive;
     observedDrainedHyperBeam |= runtime.Samus.HyperBeam == 0x8000;
+    observedDraygonAimUp |= runtime.Samus.Pose == SamusState.DraygonGrabbedAimUpRightPose;
+    observedDraygonFiring |= runtime.Samus.Pose == SamusState.DraygonGrabbedFiringRightPose;
+    observedDraygonAimDown |= runtime.Samus.Pose == SamusState.DraygonGrabbedAimDownRightPose;
+    observedDraygonMoving |= runtime.Samus.Pose == SamusState.DraygonGrabbedMovingRightPose;
+    observedDraygonNeutralFallback |= frameIndex >= 96 && frameIndex < 112 &&
+        runtime.Samus.Pose == SamusState.DraygonGrabbedNeutralRightPose;
+    observedDraygonRelease |= !runtime.Samus.DraygonGrabbed.IsActive &&
+        runtime.Samus.Pose == SamusState.FacingRightNormalPose;
     observedKnockbackMovement |= runtime.LastKnockbackMovement is not null;
     observedDamageBoostMovement |= runtime.LastAerialSamusMovement is not null &&
         runtime.Samus.ReadMovementType(bus) == 0x19;
@@ -1902,7 +1969,9 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 $"frame {result.FrameNumber,4}: input matched ${transition.EntryAddress:X6}; " +
                 $"prospective pose=${transition.ProspectivePose:X2} " +
                 $"(required new=${transition.RequiredNewInput:X4}, held=${transition.RequiredHeldInput:X4}); " +
-                (runtime.GroundedSamusMovementEnabled &&
+                (SamusState.IsDraygonGrabbedPose(
+                     checked((byte)transition.ProspectivePose)) ||
+                 (runtime.GroundedSamusMovementEnabled &&
                  transition.ProspectivePose is
                      SamusState.FacingRightNormalPose or
                      SamusState.FacingLeftNormalPose or
@@ -2047,8 +2116,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.TurningRightToLeftJumpPose or
                      SamusState.TurningLeftToRightJumpPose or
                      SamusState.TurningRightToLeftFallingPose or
-                     SamusState.TurningLeftToRightFallingPose
-                    ? "applied at the verified post-animation transition seam"
+                     SamusState.TurningLeftToRightFallingPose)
+                    ? "applied at a verified translated pose-transition seam"
                     : "not applied because its movement/transition side effects are not translated"));
         }
         priorProspectivePose = prospectivePose;
@@ -2734,6 +2803,27 @@ if (options.DrainedSamusScript)
         $"hyper={observedDrainedHyperBeam}.");
 }
 
+if (options.DraygonGrabScript)
+{
+    if (options.FrameCount >= 17 && !observedDraygonAimUp)
+        throw new InvalidOperationException("Draygon ROM route never reached aim-up pose $ED.");
+    if (options.FrameCount >= 33 && !observedDraygonFiring)
+        throw new InvalidOperationException("Draygon ROM route never reached firing pose $EE.");
+    if (options.FrameCount >= 49 && !observedDraygonAimDown)
+        throw new InvalidOperationException("Draygon ROM route never reached aim-down pose $EF.");
+    if (options.FrameCount >= 65 && !observedDraygonMoving)
+        throw new InvalidOperationException("Draygon ROM route never reached moving pose $F0.");
+    if (options.FrameCount >= 97 && !observedDraygonNeutralFallback)
+        throw new InvalidOperationException("Draygon ROM route never applied $F0 -> $EC no-input fallback.");
+    if (options.FrameCount >= 171 && !observedDraygonRelease)
+        throw new InvalidOperationException("Draygon ROM route did not release on its sixtieth counted D-pad pattern.");
+    Console.WriteLine(
+        $"Draygon ROM route validated every pose/escape milestone reachable within " +
+        $"{options.FrameCount} frame(s); escape count=" +
+        $"{runtime.Samus!.DraygonGrabbed.EscapeButtonCounter}, " +
+        $"owner release={runtime.Samus.DraygonGrabbed.ReleasePublishedToOwner}.");
+}
+
 if (options.GrappleFireScript)
 {
     if (!observedGrappleFire)
@@ -2954,7 +3044,8 @@ readonly record struct DebugRunnerOptions(
     bool GrappleFireScript,
     bool CrystalFlashScript,
     bool MotherBrainRainbowScript,
-    bool DrainedSamusScript)
+    bool DrainedSamusScript,
+    bool DraygonGrabScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -2993,6 +3084,7 @@ readonly record struct DebugRunnerOptions(
         bool crystalFlashScript = false;
         bool motherBrainRainbowScript = false;
         bool drainedSamusScript = false;
+        bool draygonGrabScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -3171,6 +3263,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--draygon-grab-script":
+                    draygonGrabScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -3233,7 +3330,8 @@ readonly record struct DebugRunnerOptions(
             grappleFireScript,
             crystalFlashScript,
             motherBrainRainbowScript,
-            drainedSamusScript);
+            drainedSamusScript,
+            draygonGrabScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

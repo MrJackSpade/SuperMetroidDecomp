@@ -129,6 +129,12 @@ public sealed class SuperMetroidRuntime
     /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; private set; }
 
+    /// <summary>Most recent normal movement-type-`$1A` dispatcher result.</summary>
+    public DraygonGrabbedMovementResult? LastDraygonGrabbedMovement { get; private set; }
+
+    /// <summary>Most recent `$90:E2A1` alternating-D-pad escape-handler result.</summary>
+    public DraygonEscapeResult? LastDraygonEscape { get; private set; }
+
     /// <summary>
     /// Explicit debugger substitute for the untranslated HUD item selector. When enabled,
     /// a new Shoot edge starts grapple firing from the current pose. Normal scenarios leave
@@ -842,6 +848,20 @@ public sealed class SuperMetroidRuntime
                 ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
             }
 
+            // `$BB-$BE/$ED-$F0` store their neutral same-facing pose in definition byte
+            // two. `$BA/$EC` store `$FF`, so a completely released controller keeps them.
+            // This is sampled in alpha even though Draygon's installed movement handler is
+            // RTS and the enemy actor owns world position later in the gameplay frame.
+            if (GroundedSamusMovementEnabled &&
+                SamusState.IsDraygonGrabbedPose(Samus.Pose) &&
+                Controller1.Current == 0 &&
+                ProspectiveSamusPose is null)
+            {
+                byte fallback = Samus.ReadNoInputFallbackPose(_addressSpace);
+                if (fallback != 0xff)
+                    ProspectiveSamusFallbackPose = fallback;
+            }
+
             if (GroundedSamusMovementEnabled)
             {
                 if (LevelData is null)
@@ -887,12 +907,20 @@ public sealed class SuperMetroidRuntime
                 LastShinesparkMovement = null;
                 LastCrystalFlashMovement = null;
                 LastDrainedSamusMovement = null;
+                LastDraygonGrabbedMovement = null;
+                LastDraygonEscape = null;
 
                 // GrappleBeamHandler precedes beta movement, but only connected/release
                 // functions own Samus's position. An extending or cancelling beam coexists
                 // with the current pose's ordinary movement in the same frame.
                 bool grappleOwnsMovement = false;
-                if (Samus.Grapple.Phase == GrapplePhase.Firing)
+                if (Samus.DraygonGrabbed.IsActive)
+                {
+                    // `$90:E23B` installs an RTS movement-handler pointer. Bank `$A5`
+                    // may already have called ApplyOwnerPosition this actor frame; no bank-
+                    // `$90` motion or collision is allowed to alter that placement here.
+                }
+                else if (Samus.Grapple.Phase == GrapplePhase.Firing)
                 {
                     LastGrappleMovement = SamusGrappleMovement.StepFiring(
                         _addressSpace,
@@ -981,6 +1009,13 @@ public sealed class SuperMetroidRuntime
                     // sampled from the pre-grapple pose once connection installs $B2/$B3.
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
+                }
+                // The real grabbed route uses the explicit RTS handler installed at
+                // `$90:E262`, not the otherwise reachable type-$1A normal dispatcher. Keep
+                // the latter in the pose switch below for direct/diagnostic dispatcher use.
+                else if (Samus.DraygonGrabbed.IsActive)
+                {
+                    // Deliberately empty: Draygon's bank-$A5 actor owns coordinates.
                 }
                 // Knockback's `$90:DF38` handler takes precedence over the normal movement-
                 // type dispatcher. Unlike bomb jump, normal pose input remains active so
@@ -1360,6 +1395,22 @@ public sealed class SuperMetroidRuntime
                             Samus,
                             NmiFrameCounter);
                         break;
+                    case SamusState.DraygonGrabbedNeutralLeftPose:
+                    case SamusState.DraygonGrabbedAimUpLeftPose:
+                    case SamusState.DraygonGrabbedFiringLeftPose:
+                    case SamusState.DraygonGrabbedAimDownLeftPose:
+                    case SamusState.DraygonGrabbedMovingLeftPose:
+                    case SamusState.DraygonGrabbedNeutralRightPose:
+                    case SamusState.DraygonGrabbedAimUpRightPose:
+                    case SamusState.DraygonGrabbedFiringRightPose:
+                    case SamusState.DraygonGrabbedAimDownRightPose:
+                    case SamusState.DraygonGrabbedMovingRightPose:
+                        // This is the normal dispatcher at `$90:A7D2`, which only clears
+                        // the vertical solid-collision result. The actual boss grab above
+                        // runs its separately installed RTS handler instead.
+                        LastDraygonGrabbedMovement =
+                            Samus.DraygonGrabbed.StepMovement(Samus);
+                        break;
                     default:
                         throw new NotSupportedException(
                             $"Runtime movement is not translated for pose ${Samus.Pose:X2}.");
@@ -1383,6 +1434,25 @@ public sealed class SuperMetroidRuntime
             // Commands five/$18 install the Mother Brain-specific Up-edge branches; the
             // method is a cheap no-op for every ordinary gameplay state.
             Samus.Drained.StepGetUpHandler(Samus, Controller1.NewlyPressed);
+
+            if (Samus.DraygonGrabbed.IsActive)
+            {
+                // `$90:E738` calls this installed hack handler after movement and before
+                // animation. A locked grapple cancels the prospective pose chosen in alpha;
+                // an escape release additionally clears every pending route while installing
+                // ordinary `$01/$02` and zeroing the documented velocity words.
+                LastDraygonEscape = Samus.DraygonGrabbed.StepEscapeHandler(
+                    _addressSpace,
+                    Samus,
+                    Controller1.NewlyPressed,
+                    Samus.Grapple.Phase == GrapplePhase.ConnectedLocked);
+                if (LastDraygonEscape.Value.SuppressProspectivePose ||
+                    LastDraygonEscape.Value.Released)
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                }
+            }
 
             // Normal gameplay advances animation during frame-handler beta, before the
             // pose-transition handler, draw handler, and next-NMI tile selection.
@@ -1544,6 +1614,16 @@ public sealed class SuperMetroidRuntime
                     {
                         switch ((poseAtFrameStart, targetPose))
                         {
+                            case var (source, target)
+                                when SamusState.IsDraygonGrabbedPose(source) &&
+                                     SamusState.IsDraygonGrabbedPose(target):
+                                // Both ROM tables stay within one facing. The helper makes
+                                // that invariant explicit and initializes the target's real
+                                // `$91:B2B4/$B53C` animation list.
+                                Samus.ApplyDraygonGrabbedPoseChange(
+                                    _addressSpace,
+                                    targetPose);
+                                break;
                             case var (source, target)
                                 when (((SamusState.IsRightFacingStandingPose(source) ||
                                         SamusState.IsRightFacingRanIntoWallPose(source)) &&
@@ -1865,6 +1945,16 @@ public sealed class SuperMetroidRuntime
                                     $"Grounded input transition ${poseAtFrameStart:X2} -> ${targetPose:X2} matched ROM data but its side effects are not translated.");
                         }
                     }
+                }
+                else if (!animationTransitionApplied &&
+                         SamusState.IsDraygonGrabbedPose(poseAtFrameStart) &&
+                         ProspectiveSamusFallbackPose is { } draygonFallback)
+                {
+                    // Zero input uses pose-definition byte two, returning aimed/firing/
+                    // struggling art to neutral `$BA/$EC` without touching owner placement.
+                    Samus.ApplyDraygonGrabbedPoseChange(
+                        _addressSpace,
+                        unchecked((byte)draygonFallback));
                 }
                 else if (!animationTransitionApplied &&
                          SamusState.IsWallJumpPose(poseAtFrameStart) &&

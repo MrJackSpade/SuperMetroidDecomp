@@ -40,6 +40,7 @@ VerifySamusHorizontalSpeed();
 VerifySamusStoredShineAndShinespark();
 VerifySamusCrystalFlash();
 VerifySamusDrainedController();
+VerifySamusGrabbedByDraygon();
 VerifyMotherBrainRainbowBeamSamusMovement();
 VerifyMotherBrainRainbowBeamAttackSequence();
 VerifyMotherBrainBombProjectiles();
@@ -2129,6 +2130,201 @@ static void VerifySamusSolidEnemyCollision()
 /// target byte carry, signed 8.8 easing, hardcoded arena clamps, trig-table scaling, and
 /// previous-position publication—the details most likely to be lost in a float rewrite.
 /// </summary>
+/// <summary>
+/// Exercises the complete ten-pose movement-type-`$1A` family, both owner offsets, ROM
+/// transition-table priority, no-input fallback, the alternating-D-pad escape counter, and
+/// every velocity word cleared by `$90:E2DE` release.
+/// </summary>
+static void VerifySamusGrabbedByDraygon()
+{
+    var bus = new TestAddressSpace();
+
+    byte[] leftPoses = [
+        SamusState.DraygonGrabbedNeutralLeftPose,
+        SamusState.DraygonGrabbedAimUpLeftPose,
+        SamusState.DraygonGrabbedFiringLeftPose,
+        SamusState.DraygonGrabbedAimDownLeftPose,
+        SamusState.DraygonGrabbedMovingLeftPose,
+    ];
+    byte[] rightPoses = [
+        SamusState.DraygonGrabbedNeutralRightPose,
+        SamusState.DraygonGrabbedAimUpRightPose,
+        SamusState.DraygonGrabbedFiringRightPose,
+        SamusState.DraygonGrabbedAimDownRightPose,
+        SamusState.DraygonGrabbedMovingRightPose,
+    ];
+
+    // These are the literal retail pose-definition records at `$91:BBF9-$BC20` and
+    // `$91:BD89-$BDB0`. In particular, the four non-neutral records on each side fall back
+    // to `$BA/$EC`, all ten use radius 21, and moving art disables projectile direction.
+    byte[][] leftDefinitions = [
+        [0x04, 0x1a, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00],
+        [0x04, 0x1a, 0xba, 0x08, 0x06, 0x00, 0x15, 0x00],
+        [0x04, 0x1a, 0xba, 0x07, 0x06, 0x00, 0x15, 0x00],
+        [0x04, 0x1a, 0xba, 0x06, 0x06, 0x00, 0x15, 0x00],
+        [0x04, 0x1a, 0xba, 0xff, 0x06, 0x00, 0x15, 0x00],
+    ];
+    byte[][] rightDefinitions = [
+        [0x08, 0x1a, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00],
+        [0x08, 0x1a, 0xec, 0x01, 0x06, 0x00, 0x15, 0x00],
+        [0x08, 0x1a, 0xec, 0x02, 0x06, 0x00, 0x15, 0x00],
+        [0x08, 0x1a, 0xec, 0x03, 0x06, 0x00, 0x15, 0x00],
+        [0x08, 0x1a, 0xec, 0xff, 0x06, 0x00, 0x15, 0x00],
+    ];
+    for (int index = 0; index < leftPoses.Length; index++)
+    {
+        bus.WriteBytes(0x91b629 + leftPoses[index] * 8, leftDefinitions[index]);
+        bus.WriteBytes(0x91b629 + rightPoses[index] * 8, rightDefinitions[index]);
+
+        // `$BA-$BD/$EC-$EF` use stationary `$B2B4`; `$BE/$F0` use six-frame `$B53C`.
+        ushort leftDelay = index == 4 ? (ushort)0xb53c : (ushort)0xb2b4;
+        ushort rightDelay = index == 4 ? (ushort)0xb53c : (ushort)0xb2b4;
+        WriteTestWord(bus, 0x91b010 + leftPoses[index] * 2, leftDelay);
+        WriteTestWord(bus, 0x91b010 + rightPoses[index] * 2, rightDelay);
+
+        // All five poses on a side point to the same held-input transition program.
+        WriteTestWord(bus, 0x919ee2 + leftPoses[index] * 2, 0xae18);
+        WriteTestWord(bus, 0x919ee2 + rightPoses[index] * 2, 0xae56);
+    }
+
+    // Ordinary release destinations need real metadata and a harmless initial delay.
+    bus.WriteBytes(0x91b629 + SamusState.FacingRightNormalPose * 8,
+        [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.FacingLeftNormalPose * 8,
+        [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
+    WriteTestWord(bus, 0x91b010 + SamusState.FacingRightNormalPose * 2, 0xc000);
+    WriteTestWord(bus, 0x91b010 + SamusState.FacingLeftNormalPose * 2, 0xc001);
+    bus.WriteBytes(0x91b2b4, [0x10, 0xff]);
+    bus.WriteBytes(0x91b53c, [0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0xff]);
+    bus.WriteBytes(0x91c000, [0x0a]);
+    bus.WriteBytes(0x91c001, [0x0a]);
+
+    static void WriteTransitionProgram(
+        TestAddressSpace target,
+        int address,
+        (ushort Held, ushort Pose)[] records)
+    {
+        foreach ((ushort held, ushort pose) in records)
+        {
+            WriteTestWord(target, address, 0x0000);
+            WriteTestWord(target, address + 2, held);
+            WriteTestWord(target, address + 4, pose);
+            address += 6;
+        }
+        WriteTestWord(target, address, 0xffff);
+    }
+
+    WriteTransitionProgram(bus, 0x91ae18, [
+        (0x0a40, 0x00bb), (0x0640, 0x00bd), (0x0240, 0x00bc),
+        (0x0010, 0x00bb), (0x0020, 0x00bd), (0x0040, 0x00bc),
+        (0x0200, 0x00be), (0x0100, 0x00be), (0x0800, 0x00be),
+        (0x0400, 0x00be),
+    ]);
+    WriteTransitionProgram(bus, 0x91ae56, [
+        (0x0940, 0x00ed), (0x0540, 0x00ef), (0x0140, 0x00ee),
+        (0x0010, 0x00ed), (0x0020, 0x00ef), (0x0040, 0x00ee),
+        (0x0200, 0x00f0), (0x0100, 0x00f0), (0x0800, 0x00f0),
+        (0x0400, 0x00f0),
+    ]);
+
+    var samus = new SamusState { XPosition = 0x0080, YPosition = 0x0100 };
+    samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: true);
+    AssertEqual(SamusState.DraygonGrabbedNeutralRightPose, samus.Pose,
+        "right-facing Draygon entry selects $EC");
+    AssertEqual((ushort)21, samus.Kinematics.YRadius, "Draygon entry loads radius 21");
+
+    DraygonOwnerPlacement rightPlacement = samus.DraygonGrabbed.ApplyOwnerPosition(
+        samus, ownerXPosition: 0x0100, ownerYPosition: 0x0180, draygonFacingRight: true);
+    AssertEqual((short)8, rightPlacement.XOffset, "right-facing claw offset is +8");
+    AssertEqual((ushort)0x0108, samus.XPosition, "right-facing owner placement X");
+    AssertEqual((ushort)0x01a8, samus.YPosition, "owner placement Y is body plus $28");
+
+    samus.SolidVerticalCollisionResult = 5;
+    DraygonGrabbedMovementResult movement = samus.DraygonGrabbed.StepMovement(samus);
+    AssertEqual((ushort)5, movement.PreviousSolidVerticalCollisionResult,
+        "type-$1A observes stale vertical collision word");
+    AssertEqual((ushort)0, movement.SolidVerticalCollisionResult,
+        "type-$1A performs its sole STZ side effect");
+    AssertEqual((ushort)0x0108, movement.XPosition, "type-$1A does not move X");
+    AssertEqual((ushort)0x01a8, movement.YPosition, "type-$1A does not move Y");
+
+    // The larger right+up+shoot chord must select the first `$AE56` record (`$ED`), not
+    // the later generic shoot record (`$EE`), proving ROM priority rather than host rules.
+    SamusPoseTransition rightUpShoot = SamusPoseTransitionTable.Find(
+        bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNewInput: 0)!.Value;
+    AssertEqual((ushort)SamusState.DraygonGrabbedAimUpRightPose,
+        rightUpShoot.ProspectivePose, "right grabbed transition priority");
+    samus.ApplyDraygonGrabbedPoseChange(bus, (byte)rightUpShoot.ProspectivePose);
+    AssertEqual(SamusState.DraygonGrabbedAimUpRightPose, samus.Pose,
+        "right grabbed aim transition applies");
+    AssertEqual((ushort)SamusState.DraygonGrabbedNeutralRightPose,
+        samus.ReadNoInputFallbackPose(bus), "right grabbed aim fallback is $EC");
+    samus.ApplyDraygonGrabbedPoseChange(bus, samus.ReadNoInputFallbackPose(bus));
+
+    DraygonEscapeResult locked = samus.DraygonGrabbed.StepEscapeHandler(
+        bus, samus, newlyPressedInput: 0, grappleLockedInPlace: true);
+    AssertTrue(locked.SuppressProspectivePose, "locked grapple suppresses grabbed pose transition");
+    AssertEqual((ushort)0, locked.EscapeButtonCounter, "no D-pad edge does not count");
+
+    DraygonEscapeResult firstUp = samus.DraygonGrabbed.StepEscapeHandler(
+        bus, samus, newlyPressedInput: 0x0800, grappleLockedInPlace: false);
+    DraygonEscapeResult repeatedUp = samus.DraygonGrabbed.StepEscapeHandler(
+        bus, samus, newlyPressedInput: 0x0800, grappleLockedInPlace: false);
+    AssertTrue(firstUp.CountedInput, "first Up edge increments escape counter");
+    AssertTrue(!repeatedUp.CountedInput, "repeated D-pad pattern is rejected");
+    AssertEqual((ushort)1, repeatedUp.EscapeButtonCounter,
+        "repeated direction leaves escape counter unchanged");
+
+    samus.HorizontalSpeed.BaseSpeed = 3;
+    samus.HorizontalSpeed.BaseSubspeed = 0x4000;
+    samus.HorizontalSpeed.ExtraRunSpeed = 2;
+    samus.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
+    samus.HorizontalSpeed.AccelerationMode = 2;
+    samus.Kinematics.YSpeed = 4;
+    samus.Kinematics.YSubspeed = 0xc000;
+    samus.Kinematics.YDirection = 2;
+    samus.MorphBallBounceState = 2;
+
+    DraygonEscapeResult release = repeatedUp;
+    for (int inputNumber = 1; inputNumber < SamusDraygonGrabbedState.EscapeButtonCounterTarget; inputNumber++)
+    {
+        ushort direction = (inputNumber & 1) != 0 ? (ushort)0x0400 : (ushort)0x0800;
+        release = samus.DraygonGrabbed.StepEscapeHandler(
+            bus, samus, direction, grappleLockedInPlace: false);
+    }
+    AssertTrue(release.Released, "sixtieth alternating D-pad input releases Samus");
+    AssertEqual(SamusState.FacingRightNormalPose, samus.Pose,
+        "right grabbed family releases to pose $01");
+    AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed, "release clears base X speed");
+    AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSubspeed, "release clears base X subspeed");
+    AssertEqual((ushort)2, samus.HorizontalSpeed.ExtraRunSpeed,
+        "release intentionally preserves extra run speed");
+    AssertEqual((ushort)0x8000, samus.HorizontalSpeed.ExtraRunSubspeed,
+        "release intentionally preserves extra run subspeed");
+    AssertEqual((ushort)0, samus.Kinematics.YSpeed, "release clears Y speed");
+    AssertEqual((ushort)0, samus.Kinematics.YSubspeed, "release clears Y subspeed");
+    AssertEqual((ushort)0, samus.Kinematics.YDirection, "release clears Y direction");
+    AssertEqual((ushort)0, samus.MorphBallBounceState, "release clears bounce state");
+    AssertEqual((ushort)0, samus.HorizontalSpeed.AccelerationMode,
+        "release clears X acceleration mode");
+    AssertTrue(samus.DraygonGrabbed.ConsumeOwnerReleaseSignal(),
+        "release publishes one owner-consumed bit");
+    AssertTrue(!samus.DraygonGrabbed.ConsumeOwnerReleaseSignal(),
+        "owner release bit is one-shot");
+
+    // Mirror the entry/owner/release direction without repeating the 60-input route.
+    samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: false);
+    DraygonOwnerPlacement leftPlacement = samus.DraygonGrabbed.ApplyOwnerPosition(
+        samus, ownerXPosition: 0x0100, ownerYPosition: 0x0180, draygonFacingRight: false);
+    AssertEqual((short)-8, leftPlacement.XOffset, "left-facing claw offset is -8");
+    AssertEqual((ushort)0x00f8, samus.XPosition, "left-facing owner placement X");
+    samus.DraygonGrabbed.Release(bus, samus);
+    AssertEqual(SamusState.FacingLeftNormalPose, samus.Pose,
+        "left grabbed family releases to pose $02");
+
+    Console.WriteLine("  Samus/Draygon: ten poses, owner offsets, transitions, escape, and release agree.");
+}
+
 static void VerifyMotherBrainRainbowBeamSamusMovement()
 {
     var bus = new TestAddressSpace();

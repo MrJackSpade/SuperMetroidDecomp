@@ -1359,19 +1359,39 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         rainbowAttack.StepNeckMovement(bus, runtime.Samus);
 
         // Mother Brain's head animation is part of the brain enemy slot and therefore runs
-        // after its main/neck AI but before the later Baby slot. The `$9E29` opcode merely
-        // allocates a bank-$86 projectile here; the gameplay projectile pass below advances
-        // the new ring after every enemy slot has finished.
-        MotherBrainHeadAnimationStepResult? headResult = cutsceneBaby is null
-            ? null
-            : rainbowAttack.StepBabyMurderHeadAnimation(bus, runtime.Samus, cutsceneBaby);
-        if (headResult is { OnionRingSpawn: { } ringRequest })
+        // after its main/neck AI but before the later Baby slot. It must continue after that
+        // cutscene enemy deletes itself: phase-three's `$9F00` list owns the bomb attack.
+        // Head opcodes only allocate here; the gameplay projectile pass below advances every
+        // newly occupied bank-$86 slot after all enemy slots have finished.
+        MotherBrainHeadAnimationStepResult headResult = rainbowAttack.StepHeadAnimation(
+            bus,
+            runtime.Samus,
+            cutsceneBaby,
+            runtime.System.RandomNumber);
+        if (headResult.OnionRingSpawn is { } ringRequest)
         {
             int? slot = motherBrainProjectiles!.Spawn(bus, rainbowAttack, ringRequest);
             Console.WriteLine(
                 $"frame {frameIndex + 1,4}: Mother Brain head spawned onion ring " +
                 $"angle=${ringRequest.Angle:X2}, slot={slot?.ToString() ?? "full"}, " +
-                $"head=${headResult.Value.InstructionPointerAfter:X4}.");
+                $"head=${headResult.InstructionPointerAfter:X4}.");
+        }
+        if (headResult.BombSpawn is { } bombRequest)
+        {
+            int? slot = motherBrainProjectiles!.SpawnBomb(rainbowAttack, bombRequest);
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: Mother Brain head spawned bomb " +
+                $"afterburn={bombRequest.AfterburnCount}, slot={slot?.ToString() ?? "full"}, " +
+                $"activeBombs={rainbowAttack.BombCounter}, " +
+                $"head=${headResult.InstructionPointerAfter:X4}.");
+        }
+        if (headResult.PurpleBreathBigSpawnRequested)
+        {
+            // `$86:CB2F` is a separate stationary animation projectile. Its allocation is
+            // intentionally retained as an explicit seam until that definition joins this
+            // shared pool; logging it prevents the head opcode from disappearing silently.
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: Mother Brain head requested large purple breath.");
         }
         if (rainbowAttack.Phase != previousRainbowPhase)
         {
@@ -1537,7 +1557,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             rainbowAttack,
             cutsceneBaby,
             runtime.Samus,
-            layer1X: 0);
+            layer1X: 0,
+            samusBombs: runtime.BombProjectiles);
         foreach (MotherBrainOnionRingEvent ringEvent in ringResult.Events)
         {
             string target = ringEvent.Collision switch
@@ -1560,6 +1581,16 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 $"frame {frameIndex + 1,4}: escape-door fragment slot " +
                 $"{dust.SourceSlotIndex} expired at ({dust.XPosition},{dust.YPosition}); " +
                 $"spawn misc dust parameter ${dust.ProjectileParameter:X4}.");
+        }
+        foreach (MotherBrainBombEvent bombEvent in ringResult.BombEvents)
+        {
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: Mother Brain bomb slot {bombEvent.SlotIndex} " +
+                $"{bombEvent.Kind} at ({bombEvent.XPosition},{bombEvent.YPosition}); " +
+                $"bounceOffset=${bombEvent.BounceTableOffset:X2}, " +
+                $"afterburn={(bombEvent.AfterburnCount?.ToString() ?? "none")}, " +
+                $"dust=${bombEvent.DustParameter:X2}, drops={bombEvent.EnemyDropRequested}, " +
+                $"SFX={(bombEvent.QueuedSoundLibraryThree is { } sound ? $"${sound:X2}" : "none")}.");
         }
 
         // The enemy graphics hook runs after actor processing. Its shake countdown is not a

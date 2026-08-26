@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>
 /// The eighteen shared bank-$86 enemy-projectile slots used by Mother Brain's translated
-/// blue rings, exploded escape-door fragments, and the alternate-language subtitle.
+/// blue rings, phase-three bombs, exploded escape-door fragments, and the alternate-language
+/// subtitle.
 /// </summary>
 /// <remarks>
 /// This is intentionally a projectile system instead of a timer hidden in the boss actor.
@@ -21,6 +22,9 @@ public sealed class MotherBrainEnemyProjectileSystem
     /// <summary>Projectile definition pointer used by head opcode <c>$A9:9E29</c>.</summary>
     public const ushort ProjectileDefinition = 0xcb4b;
 
+    /// <summary>Mother Brain bomb definition spawned by head opcode <c>$A9:9EBD</c>.</summary>
+    public const ushort BombDefinition = 0xcb59;
+
     /// <summary>Exploded escape-door fragment definition at <c>$86:CB21</c>.</summary>
     public const ushort EscapeDoorParticleDefinition = 0xcb21;
 
@@ -33,6 +37,9 @@ public sealed class MotherBrainEnemyProjectileSystem
     private const int SignedSineTable = 0xa0b443;
     private const ushort SetXAndYRadiusInstruction = 0x8298;
     private const ushort SleepInstruction = 0x8159;
+    private const ushort GotoInstruction = 0x81ab;
+    private static ReadOnlySpan<ushort> BombYAccelerations =>
+        [0x0007, 0x0010, 0x0020, 0x0040, 0x0070, 0x00b0, 0x00f0, 0x0130, 0x0170, 0x0000];
     private static readonly short[] EscapeDoorParticleYOffsets =
         [-0x20, -0x18, -0x10, -0x08, 0x00, 0x08, 0x10, 0x18];
     private static readonly short[] EscapeDoorParticleYVelocities =
@@ -101,6 +108,48 @@ public sealed class MotherBrainEnemyProjectileSystem
             0x0450,
             unchecked((byte)(request.Angle + 0x40)));
         PinToBrain(slot, motherBrain);
+        return slotIndex;
+    }
+
+    /// <summary>
+    /// Allocates and initializes one native Mother Brain bomb from <c>$86:C482-C4C7</c>.
+    /// </summary>
+    public int? SpawnBomb(
+        MotherBrainRainbowBeamAttackSequence motherBrain,
+        MotherBrainBombSpawnRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(motherBrain);
+
+        // `$86:8027` is shared by every enemy-projectile definition in this class. A full
+        // pool drops the spawn request and, critically, does not increment the body counter.
+        int slotIndex = SlotCount - 1;
+        while (slotIndex >= 0 && _slots[slotIndex].IsActive)
+            slotIndex--;
+        if (slotIndex < 0)
+            return null;
+
+        MotherBrainEnemyProjectileSlot slot = _slots[slotIndex];
+        slot.Clear();
+        slot.ProjectileId = BombDefinition;
+        slot.SpawnParameter = request.AfterburnCount;
+        slot.GraphicsIndex = 0x0400;
+        slot.XPosition = unchecked((ushort)(motherBrain.BrainXPosition + 0x000c));
+        slot.YPosition = unchecked((ushort)(motherBrain.BrainYPosition + 0x0010));
+
+        // The initializer performs an eight-bit store into the LOW byte of X subposition.
+        // The common 8.8 mover owns only the high byte, so this low byte survives as the
+        // natural-expiry afterburn parameter even while fractional X motion accumulates.
+        slot.XSubposition = unchecked((byte)request.AfterburnCount);
+        slot.XVelocity = 0x00e0;
+        slot.YVelocity = 0x0100;
+        slot.XRadius = 6;
+        slot.YRadius = 6;
+        slot.BounceHorizontalSpeed = 0x0070;
+        slot.BounceTableOffset = 0;
+        slot.InstructionPointer = 0xc76e;
+        slot.InstructionTimer = 1;
+        slot.SpritemapPointer = 0x8000;
+        motherBrain.RegisterBombSpawn();
         return slotIndex;
     }
 
@@ -180,7 +229,8 @@ public sealed class MotherBrainEnemyProjectileSystem
         MotherBrainRainbowBeamAttackSequence motherBrain,
         BabyMetroidCutsceneState? baby,
         SamusState samus,
-        ushort layer1X = 0)
+        ushort layer1X = 0,
+        SamusBombProjectileSystem? samusBombs = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(motherBrain);
@@ -193,6 +243,7 @@ public sealed class MotherBrainEnemyProjectileSystem
 
         var events = new List<MotherBrainOnionRingEvent>();
         var escapeDoorDustRequests = new List<MotherBrainEscapeDoorParticleDustRequest>();
+        var bombEvents = new List<MotherBrainBombEvent>();
 
         // EprojRunAll scans physical byte indices `$22,$20,...,$00`. Keeping this order
         // matters when several rings overlap the Baby on the same frame: each live slot
@@ -230,6 +281,25 @@ public sealed class MotherBrainEnemyProjectileSystem
                 slot.XPosition = 0x0080;
                 slot.YPosition = 0x00c0;
                 RunInstructionHandler(bus, slot);
+                continue;
+            }
+
+            if (slot.ProjectileId == BombDefinition)
+            {
+                bool deleted = RunBombPreInstruction(
+                    slot,
+                    motherBrain,
+                    samusBombs,
+                    out MotherBrainBombEvent? bombEvent);
+                if (bombEvent is { } translatedBombEvent)
+                    bombEvents.Add(translatedBombEvent);
+
+                // `$86:C585` deliberately removes the caller's return address so a Samus-
+                // bomb collision exits the entire pre-instruction immediately. The generic
+                // dispatcher would still enter animation processing afterward, but a zero-ID
+                // slot cannot draw; skipping dead bytecode retains every observable effect.
+                if (!deleted)
+                    RunLoopingInstructionHandler(bus, slot, "Mother Brain bomb");
                 continue;
             }
 
@@ -271,7 +341,187 @@ public sealed class MotherBrainEnemyProjectileSystem
         return new MotherBrainEnemyProjectileFrameResult(
             activeCount,
             events.ToArray(),
-            escapeDoorDustRequests.ToArray());
+            escapeDoorDustRequests.ToArray(),
+            bombEvents.ToArray());
+    }
+
+    private static bool RunBombPreInstruction(
+        MotherBrainEnemyProjectileSlot slot,
+        MotherBrainRainbowBeamAttackSequence motherBrain,
+        SamusBombProjectileSystem? samusBombs,
+        out MotherBrainBombEvent? bombEvent)
+    {
+        bombEvent = null;
+
+        // `$86:C1BF-$C203` scans Samus's five bomb slots from low to high. Only the normal-
+        // bomb family with variable/timer zero is an explosion capable of destroying this
+        // enemy projectile; generic projectile damage and non-exploding bombs do not count.
+        if (samusBombs is not null && samusBombs.BombCounter != 0)
+        {
+            foreach (SamusBombProjectileSlot samusBomb in samusBombs.Slots)
+            {
+                if ((samusBomb.Type & 0x0f00) != SamusBombProjectileSystem.NormalBombType ||
+                    samusBomb.BombTimer != 0 ||
+                    !StrictAxisOverlap(
+                        slot.XPosition,
+                        slot.YPosition,
+                        slot.XRadius,
+                        slot.YRadius,
+                        samusBomb.XPosition,
+                        samusBomb.YPosition,
+                        samusBomb.XRadius,
+                        samusBomb.YRadius))
+                {
+                    continue;
+                }
+
+                motherBrain.RegisterBombDeletion();
+                slot.XVelocity = 0;
+                slot.YVelocity = 0;
+                slot.ProjectileId = 0;
+                bombEvent = new MotherBrainBombEvent(
+                    slot.Index,
+                    MotherBrainBombEventKind.DestroyedBySamusBomb,
+                    slot.XPosition,
+                    slot.YPosition,
+                    slot.BounceTableOffset,
+                    AfterburnCount: null,
+                    DustParameter: 0x0009,
+                    EnemyDropRequested: true,
+                    QueuedSoundLibraryThree: null);
+                return true;
+            }
+        }
+
+        ushort acceleration;
+        if (slot.BounceTableOffset == 0)
+        {
+            // Before the first floor impact only, horizontal velocity loses `$0002` of
+            // absolute magnitude per call. The signed BPL clamp is reproduced explicitly.
+            bool movingLeft = (slot.XVelocity & 0x8000) != 0;
+            ushort magnitude = movingLeft
+                ? unchecked((ushort)-slot.XVelocity)
+                : slot.XVelocity;
+            ushort slowedMagnitude = unchecked((ushort)(magnitude - 0x0002));
+            if ((slowedMagnitude & 0x8000) != 0)
+                slowedMagnitude = 0;
+            slot.XVelocity = movingLeft
+                ? unchecked((ushort)-slowedMagnitude)
+                : slowedMagnitude;
+            acceleration = 0x0007;
+        }
+        else
+        {
+            int accelerationIndex = slot.BounceTableOffset >> 1;
+            if ((uint)accelerationIndex >= (uint)BombYAccelerations.Length)
+            {
+                throw new InvalidDataException(
+                    $"Mother Brain bomb bounce-table offset ${slot.BounceTableOffset:X4} is outside $C550-$C563.");
+            }
+
+            acceleration = BombYAccelerations[accelerationIndex];
+            if (acceleration == 0)
+            {
+                // Natural expiry publishes three independent effects. The first uses the
+                // preserved LOW X-subposition byte, not the wider host SpawnParameter word.
+                motherBrain.RegisterBombDeletion();
+                slot.XVelocity = 0;
+                slot.YVelocity = 0;
+                slot.ProjectileId = 0;
+                bombEvent = new MotherBrainBombEvent(
+                    slot.Index,
+                    MotherBrainBombEventKind.Expired,
+                    slot.XPosition,
+                    slot.YPosition,
+                    slot.BounceTableOffset,
+                    AfterburnCount: unchecked((byte)slot.XSubposition),
+                    DustParameter: 0x0003,
+                    EnemyDropRequested: false,
+                    QueuedSoundLibraryThree: 0x0013);
+                return true;
+            }
+        }
+
+        if (!MoveBomb(slot, acceleration))
+            return false;
+
+        // Var1 is a byte offset into the word table, hence two increments per bounce.
+        slot.BounceTableOffset = unchecked((ushort)(slot.BounceTableOffset + 2));
+        bombEvent = new MotherBrainBombEvent(
+            slot.Index,
+            MotherBrainBombEventKind.Bounced,
+            slot.XPosition,
+            slot.YPosition,
+            slot.BounceTableOffset,
+            AfterburnCount: null,
+            DustParameter: 0,
+            EnemyDropRequested: false,
+            QueuedSoundLibraryThree: null);
+        return false;
+    }
+
+    private static bool MoveBomb(MotherBrainEnemyProjectileSlot slot, ushort acceleration)
+    {
+        slot.YVelocity = unchecked((ushort)(slot.YVelocity + acceleration));
+        MoveAccordingToVelocity(slot);
+
+        // These are CMP/BMI pairs, so test the sign of the wrapped subtraction rather than
+        // applying an unsigned host comparison. Crossing screen X `$F0` reflects velocity
+        // without clamping X, exactly as `$86:C5CC-C5DB` does.
+        if (unchecked((short)(slot.XPosition - 0x00f0)) >= 0)
+            slot.XVelocity = unchecked((ushort)-slot.XVelocity);
+
+        if (unchecked((short)(slot.YPosition - 0x00d0)) < 0)
+            return false;
+
+        slot.YPosition = 0x00d0;
+        slot.XVelocity = (slot.XVelocity & 0x8000) != 0
+            ? unchecked((ushort)-slot.BounceHorizontalSpeed)
+            : slot.BounceHorizontalSpeed;
+        slot.YVelocity = 0xfe00;
+        return true;
+    }
+
+    private static void RunLoopingInstructionHandler(
+        ISnesAddressSpace bus,
+        MotherBrainEnemyProjectileSlot slot,
+        string projectileName)
+    {
+        ushort oldTimer = slot.InstructionTimer;
+        slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
+        if (oldTimer != 1)
+            return;
+
+        ushort pointer = slot.InstructionPointer;
+        for (int operationCount = 0; operationCount < 16; operationCount++)
+        {
+            ushort durationOrOpcode = ReadWord(bus, 0x860000 | pointer);
+            if ((durationOrOpcode & 0x8000) == 0)
+            {
+                if (durationOrOpcode == 0)
+                    throw new InvalidDataException(
+                        $"{projectileName} frame at $86:{pointer:X4} has zero duration.");
+
+                slot.InstructionTimer = durationOrOpcode;
+                slot.SpritemapPointer = ReadWord(
+                    bus,
+                    0x860000 | unchecked((ushort)(pointer + 2)));
+                slot.InstructionPointer = unchecked((ushort)(pointer + 4));
+                return;
+            }
+
+            if (durationOrOpcode != GotoInstruction)
+            {
+                throw new NotSupportedException(
+                    $"{projectileName} instruction $86:{durationOrOpcode:X4} at " +
+                    $"$86:{pointer:X4} is not translated.");
+            }
+
+            pointer = ReadWord(bus, 0x860000 | unchecked((ushort)(pointer + 2)));
+        }
+
+        throw new InvalidDataException(
+            $"{projectileName} instruction list did not reach a timed frame within 16 operations.");
     }
 
     private static bool RunEscapeDoorParticlePreInstruction(
@@ -343,7 +593,7 @@ public sealed class MotherBrainEnemyProjectileSystem
                 return;
             }
 
-            if (durationOrOpcode != 0x81ab)
+            if (durationOrOpcode != GotoInstruction)
             {
                 throw new NotSupportedException(
                     $"Escape-door particle instruction $86:{durationOrOpcode:X4} at " +
@@ -632,8 +882,19 @@ public sealed class MotherBrainEnemyProjectileSlot
     /// <summary>Blue-ring head-follow delay; zero for the other translated definitions.</summary>
     public ushort DelayTimer { get; internal set; }
 
-    /// <summary>Door-fragment Var0 countdown; unused by blue rings and the subtitle.</summary>
+    /// <summary>Door-fragment Var0 countdown; unused by blue rings, bombs, and the subtitle.</summary>
     public ushort Lifetime { get; internal set; }
+
+    /// <summary>
+    /// Mother Brain bomb Var0: the absolute horizontal speed restored at each floor bounce.
+    /// </summary>
+    public ushort BounceHorizontalSpeed { get; internal set; }
+
+    /// <summary>
+    /// Mother Brain bomb Var1: an even byte offset into `$86:C550`'s acceleration table.
+    /// Zero has the special pre-first-bounce friction path; `$12` selects the terminating zero.
+    /// </summary>
+    public ushort BounceTableOffset { get; internal set; }
     public byte Angle { get; internal set; }
     public ushort XPosition { get; internal set; }
     public ushort XSubposition { get; internal set; }
@@ -656,6 +917,8 @@ public sealed class MotherBrainEnemyProjectileSlot
         SpawnParameter = 0;
         DelayTimer = 0;
         Lifetime = 0;
+        BounceHorizontalSpeed = 0;
+        BounceTableOffset = 0;
         Angle = 0;
         XPosition = 0;
         XSubposition = 0;
@@ -694,7 +957,32 @@ public readonly record struct MotherBrainOnionRingEvent(
 public readonly record struct MotherBrainEnemyProjectileFrameResult(
     int ActiveCount,
     IReadOnlyList<MotherBrainOnionRingEvent> Events,
-    IReadOnlyList<MotherBrainEscapeDoorParticleDustRequest> EscapeDoorDustRequests);
+    IReadOnlyList<MotherBrainEscapeDoorParticleDustRequest> EscapeDoorDustRequests,
+    IReadOnlyList<MotherBrainBombEvent> BombEvents);
+
+/// <summary>Observable transition emitted by `$86:C4C8-C604`'s bomb pre-instruction.</summary>
+public enum MotherBrainBombEventKind
+{
+    Bounced,
+    DestroyedBySamusBomb,
+    Expired,
+}
+
+/// <summary>
+/// One debugger-visible Mother Brain bomb bounce or deletion and its external spawn/sound
+/// requests. A normal movement call intentionally emits no event; its exact state remains on
+/// the projectile slot for stepping and watch windows.
+/// </summary>
+public readonly record struct MotherBrainBombEvent(
+    int SlotIndex,
+    MotherBrainBombEventKind Kind,
+    ushort XPosition,
+    ushort YPosition,
+    ushort BounceTableOffset,
+    ushort? AfterburnCount,
+    ushort DustParameter,
+    bool EnemyDropRequested,
+    ushort? QueuedSoundLibraryThree);
 
 /// <summary>
 /// Final parameter-nine misc-dust spawn produced when one `$86:CB21` fragment expires.

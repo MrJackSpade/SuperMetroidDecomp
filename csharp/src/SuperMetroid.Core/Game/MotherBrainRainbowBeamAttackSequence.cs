@@ -33,6 +33,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public const ushort HeadAttackingBabyMetroidInstructionList = 0x9db1;
     public const ushort HeadAttackingFourOnionRingsPhase3InstructionList = 0x9dbb;
     public const ushort HeadAttackingBombPhase3InstructionList = 0x9f00;
+    public const ushort HeadNeutralPhase3InstructionList = 0x9cb9;
     public const ushort BodyWalkingForwardReallySlowInstructionList = 0x9818;
     public const ushort BodyWalkingForwardReallyFastInstructionList = 0x9730;
     public const ushort BodyWalkingForwardFastInstructionList = 0x976a;
@@ -254,6 +255,23 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// of each four-ring attack against the Baby. It also selects the intended cry pitch.
     /// </summary>
     public ushort BabyMetroidAttackCounter { get; private set; }
+
+    /// <summary>
+    /// Number of live Mother Brain bomb enemy projectiles at body WRAM <c>$7E:802A</c>.
+    /// </summary>
+    /// <remarks>
+    /// The counter belongs to Mother Brain even though bank <c>$86</c> owns each bomb's
+    /// motion. Bomb initialization increments it and both native deletion paths decrement
+    /// it. Keeping the mutation behind these two methods makes that cross-bank ownership
+    /// visible instead of silently deriving a count from the host projectile collection.
+    /// </remarks>
+    public ushort BombCounter { get; private set; }
+
+    /// <summary>Applies the wrapping 16-bit increment performed by <c>$86:C4BE-C4C3</c>.</summary>
+    public void RegisterBombSpawn() => BombCounter = unchecked((ushort)(BombCounter + 1));
+
+    /// <summary>Applies the wrapping 16-bit decrement shared by both bomb deletion paths.</summary>
+    public void RegisterBombDeletion() => BombCounter = unchecked((ushort)(BombCounter - 1));
 
     /// <summary>Brain-slot health rewritten to 36,000 when corpse state one is published.</summary>
     public ushort BrainHealth { get; private set; } = 0x0bb8;
@@ -716,19 +734,20 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Executes the retail head instruction stage for the `$9DB1-$9DF5` Baby-murder lists.
+    /// Executes the translated retail head instruction stage for the Baby-murder, phase-three
+    /// bomb, and phase-three neutral lists.
     /// Call after the brain-slot neck AI and before the later Baby enemy slot. Commands run
     /// without consuming a frame until a duration/spritemap pair is loaded, matching the
     /// common enemy-instruction processor's old-timer-equals-one rule.
     /// </summary>
-    public MotherBrainHeadAnimationStepResult StepBabyMurderHeadAnimation(
+    public MotherBrainHeadAnimationStepResult StepHeadAnimation(
         ISnesAddressSpace bus,
         SamusState samus,
-        BabyMetroidCutsceneState baby)
+        BabyMetroidCutsceneState? baby,
+        ushort randomNumberSeed = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        ArgumentNullException.ThrowIfNull(baby);
 
         ushort pointerBefore = HeadInstructionPointer;
         ushort timerBefore = HeadInstructionTimer;
@@ -738,11 +757,17 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         ushort? queuedSoundLibraryTwo = null;
         ushort? queuedSoundLibraryThree = null;
         MotherBrainOnionRingSpawnRequest? onionRing = null;
+        MotherBrainBombSpawnRequest? bomb = null;
+        bool purpleBreathBigSpawnRequested = false;
 
-        // Other translated rainbow/corpse lists are still represented by their installed
-        // pointer only. Do not let this specialised processor reinterpret their opcodes as
-        // Baby-murder commands merely because their ordinary timer happens to reach one.
-        if (HeadInstructionPointer < 0x9db1 || HeadInstructionPointer > 0x9df5)
+        // Other rainbow/corpse lists are still represented only by their installed pointer.
+        // Accept precisely the three contiguous native ranges translated here. In particular,
+        // `$9F00` must run even after the cutscene Baby has deleted itself: phase-three bombs
+        // are ordinary combat attacks and have no Baby dependency.
+        bool isPhaseThreeNeutral = HeadInstructionPointer is >= 0x9cb9 and <= 0x9ce1;
+        bool isBabyMurderOrFourRings = HeadInstructionPointer is >= 0x9db1 and <= 0x9df5;
+        bool isPhaseThreeBomb = HeadInstructionPointer is >= 0x9f00 and <= 0x9f32;
+        if (!isPhaseThreeNeutral && !isBabyMurderOrFourRings && !isPhaseThreeBomb)
             return CreateResult();
 
         ushort oldTimer = HeadInstructionTimer;
@@ -785,6 +810,11 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     break;
 
                 case 0x9e37: // Aim rings at the Baby's live enemy position.
+                    if (baby is null)
+                    {
+                        throw new InvalidOperationException(
+                            "Mother Brain's Baby-targeting head opcode ran without the Baby enemy slot.");
+                    }
                     AimOnionRings(
                         unchecked((short)(baby.XPosition - BrainXPosition - 0x000a)),
                         unchecked((short)(baby.YPosition - BrainYPosition - 0x0010)));
@@ -819,15 +849,37 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
                     break;
 
+                case 0x9b28: // Queue sound [[X]], library two; consume its operand.
+                    queuedSoundLibraryTwo = ReadBankA9Word(bus, HeadInstructionPointer);
+                    HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
+                    break;
+
+                case 0x9ebd: // Spawn `$86:CB59`; operand is the later afterburn count.
+                    bomb = new MotherBrainBombSpawnRequest(
+                        ReadBankA9Word(bus, HeadInstructionPointer));
+                    HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
+                    break;
+
+                case 0x9b6d: // Spawn the large purple-breath accompaniment.
+                    purpleBreathBigSpawnRequested = true;
+                    break;
+
+                case 0x9d0d: // Retail's unconditional BRA skips its tempting cry branch.
+                    // The processor has already advanced X past the opcode to `$9CDB`.
+                    // Only low-twelve-bit values below `$EC0` replace X with `$9CD1`.
+                    if ((randomNumberSeed & 0x0fff) < 0x0ec0)
+                        HeadInstructionPointer = 0x9cd1;
+                    break;
+
                 default:
                     throw new InvalidOperationException(
-                        $"Unsupported Mother Brain Baby-murder head instruction ${word:X4} " +
+                        $"Unsupported translated Mother Brain head instruction ${word:X4} " +
                         $"at $A9:{commandAddress:X4}.");
             }
         }
 
         throw new InvalidOperationException(
-            "Mother Brain Baby-murder head list did not reach a timed frame within 24 commands.");
+            "Mother Brain head list did not reach a timed frame within 24 commands.");
 
         MotherBrainHeadAnimationStepResult CreateResult() => new(
             pointerBefore,
@@ -840,6 +892,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             attackCounterReset,
             OnionRingTargetAngle,
             onionRing,
+            bomb,
+            purpleBreathBigSpawnRequested,
             queuedSoundLibraryTwo,
             queuedSoundLibraryThree);
     }
@@ -2796,7 +2850,10 @@ public readonly record struct MotherBrainEscapeDoorPlmRequest(
 /// <summary>One `$86:CB4B` blue-ring spawn emitted by head opcode `$A9:9E29`.</summary>
 public readonly record struct MotherBrainOnionRingSpawnRequest(byte Angle);
 
-/// <summary>Debugger witness for one Baby-murder head instruction-processing call.</summary>
+/// <summary>One `$86:CB59` bomb spawn emitted by head opcode `$A9:9EBD`.</summary>
+public readonly record struct MotherBrainBombSpawnRequest(ushort AfterburnCount);
+
+/// <summary>Debugger witness for one translated Mother Brain head-instruction call.</summary>
 public readonly record struct MotherBrainHeadAnimationStepResult(
     ushort InstructionPointerBefore,
     ushort InstructionPointerAfter,
@@ -2808,6 +2865,8 @@ public readonly record struct MotherBrainHeadAnimationStepResult(
     bool BabyAttackCounterReset,
     byte OnionRingTargetAngle,
     MotherBrainOnionRingSpawnRequest? OnionRingSpawn,
+    MotherBrainBombSpawnRequest? BombSpawn,
+    bool PurpleBreathBigSpawnRequested,
     ushort? QueuedSoundLibraryTwo,
     ushort? QueuedSoundLibraryThree);
 

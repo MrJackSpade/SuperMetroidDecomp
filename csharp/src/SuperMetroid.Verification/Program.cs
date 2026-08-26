@@ -42,6 +42,7 @@ VerifySamusCrystalFlash();
 VerifySamusDrainedController();
 VerifyMotherBrainRainbowBeamSamusMovement();
 VerifyMotherBrainRainbowBeamAttackSequence();
+VerifyMotherBrainBombProjectiles();
 VerifyMotherBrainEscapeDoorParticles();
 VerifyBabyMetroidCutsceneEntrance();
 VerifySamusSolidEnemyCollision();
@@ -4181,6 +4182,255 @@ static void VerifyBabyMetroidCutsceneEntrance()
 
     Console.WriteLine(
         "  Baby Metroid: death movement, corpse rotting, escape DMA, timer handoff, and door blow-up agree.");
+}
+
+/// <summary>
+/// Verifies `$A9:9F00`'s phase-three head bytecode and `$86:CB59`'s complete bomb lifecycle:
+/// initialization, 8.8 motion, nine bounce-table stages, animation, both deletion paths,
+/// afterburn/dust/sound requests, and the Mother Brain body-owned active-bomb counter.
+/// </summary>
+static void VerifyMotherBrainBombProjectiles()
+{
+    var bus = new TestAddressSpace();
+
+    // Literal `$A9:9F00-$9F33` phase-three bomb list. The spritemap words are fixture
+    // sentinels because the head interpreter only publishes them; every duration, opcode,
+    // operand, and branch target is the retail byte stream being verified here.
+    bus.WriteBytes(0xa99f00, [
+        0x04, 0x00, 0x00, 0xa0,
+        0x04, 0x00, 0x02, 0xa0,
+        0x08, 0x00, 0x04, 0xa0,
+        0x20, 0x9b,
+        0x04, 0x00, 0x04, 0xa0,
+        0x04, 0x00, 0x06, 0xa0,
+        0x28, 0x9b, 0x6f, 0x00,
+        0x08, 0x00, 0x08, 0xa0,
+        0xbd, 0x9e, 0x01, 0x00,
+        0x6d, 0x9b,
+        0x20, 0x00, 0x08, 0xa0,
+        0x04, 0x00, 0x06, 0xa0,
+        0x10, 0x00, 0x04, 0xa0,
+        0x14, 0x9b, 0xb9, 0x9c,
+    ]);
+    bus.WriteBytes(0xa99cb9, [
+        0x04, 0x00, 0x00, 0xa0,
+        0x04, 0x00, 0x02, 0xa0,
+        0x08, 0x00, 0x04, 0xa0,
+        0x04, 0x00, 0x02, 0xa0,
+        0x04, 0x00, 0x00, 0xa0,
+        0x04, 0x00, 0x02, 0xa0,
+        0x08, 0x00, 0x04, 0xa0,
+        0x08, 0x00, 0x02, 0xa0,
+        0x0d, 0x9d,
+        0x04, 0x00, 0x00, 0xa0,
+        0x0f, 0x9b, 0xb9, 0x9c,
+    ]);
+
+    // Literal `$86:C76E-$C795` bomb animation. Its nine durations sum to 34 calls and
+    // `$81AB` loops directly to the first record without introducing a blank frame.
+    bus.WriteBytes(0x86c76e, [
+        0x06, 0x00, 0xdc, 0x82,
+        0x05, 0x00, 0xe8, 0x82,
+        0x04, 0x00, 0xf4, 0x82,
+        0x03, 0x00, 0x00, 0x83,
+        0x02, 0x00, 0x0c, 0x83,
+        0x02, 0x00, 0x18, 0x83,
+        0x03, 0x00, 0x24, 0x83,
+        0x04, 0x00, 0x30, 0x83,
+        0x05, 0x00, 0x3c, 0x83,
+        0xab, 0x81, 0x6e, 0xc7,
+    ]);
+
+    var samus = new SamusState { XPosition = 0x00e0, YPosition = 0x0078 };
+    var motherBrain = new MotherBrainRainbowBeamAttackSequence
+    {
+        BrainXPosition = 0x0040,
+        BrainYPosition = 0x0060,
+    };
+    motherBrain.Body.XPosition = 0x0070;
+    motherBrain.BeginPhase3RecoveryFromBabyCutscene();
+    motherBrain.Step(bus, samus, 0, 0);
+    for (int call = 0; call < 32; call++)
+        motherBrain.Step(bus, samus, 0, 0);
+    MotherBrainRainbowBeamAttackStepResult selected = motherBrain.Step(
+        bus, samus, 0, 0, randomNumberSeed: 0x8000);
+    AssertEqual(MotherBrainPhase3AttackKind.Bomb, selected.Phase3Attack,
+        "phase-three combat selects bomb fixture");
+    AssertEqual((ushort)0x9f00, motherBrain.HeadInstructionPointer,
+        "bomb selection exposes first head bytecode word");
+
+    MotherBrainHeadAnimationStepResult spawnHead = default;
+    ushort? headSoundLibraryTwo = null;
+    int headCalls = 0;
+    while (spawnHead.BombSpawn is null)
+    {
+        spawnHead = motherBrain.StepHeadAnimation(bus, samus, baby: null, randomNumberSeed: 0x0100);
+        if (spawnHead.QueuedSoundLibraryTwo is { } sound)
+            headSoundLibraryTwo = sound;
+        headCalls++;
+        AssertTrue(headCalls <= 33, "phase-three bomb head list reaches spawn opcode");
+    }
+    AssertEqual(33, headCalls, "head durations reach `$9EBD` on call 33");
+    AssertEqual(new MotherBrainBombSpawnRequest(1), spawnHead.BombSpawn!.Value,
+        "phase-three head supplies one-afterburn operand");
+    AssertTrue(spawnHead.PurpleBreathBigSpawnRequested,
+        "same head call executes adjacent large-purple-breath opcode");
+    AssertEqual<ushort?>(0x006f, headSoundLibraryTwo,
+        "phase-three bomb head consumes library-two cry operand");
+    AssertEqual((ushort)0x9f28, spawnHead.InstructionPointerAfter,
+        "spawn call loads the 32-frame open-mouth record after both opcodes");
+
+    // Finish the close-mouth tail. `$9B14` must re-enable the neck, jump to `$9CB9`, and
+    // load the first neutral frame during the same interpreter call.
+    for (int call = 0; call < 52; call++)
+        motherBrain.StepHeadAnimation(bus, samus, baby: null, randomNumberSeed: 0x0100);
+    AssertEqual((ushort)0x9cbd, motherBrain.HeadInstructionPointer,
+        "bomb tail returns to first phase-three neutral frame without a blank call");
+    AssertEqual((ushort)1, motherBrain.NeckMovementEnabled,
+        "bomb tail re-enables neck movement before entering neutral list");
+
+    // The retail `$9D0D` contains an unconditional BRA over a tempting cry branch. Low
+    // twelve-bit RNG below `$EC0` loops to `$9CD1`; exactly `$EC0` falls through to `$9CDB`.
+    for (int call = 0; call < 44; call++)
+        motherBrain.StepHeadAnimation(bus, samus, baby: null, randomNumberSeed: 0x0ebf);
+    AssertEqual((ushort)0x9cd5, motherBrain.HeadInstructionPointer,
+        "neutral low-RNG branch reloads `$9CD1` frame");
+    for (int call = 0; call < 16; call++)
+        motherBrain.StepHeadAnimation(bus, samus, baby: null, randomNumberSeed: 0x0ec0);
+    AssertEqual((ushort)0x9cdf, motherBrain.HeadInstructionPointer,
+        "neutral RNG `$EC0` boundary falls through to `$9CDB` frame");
+
+    var projectiles = new MotherBrainEnemyProjectileSystem();
+    AssertEqual<int?>(17, projectiles.SpawnBomb(motherBrain, spawnHead.BombSpawn.Value),
+        "Mother Brain bomb uses highest free shared slot");
+    AssertEqual((ushort)1, motherBrain.BombCounter, "bomb initializer increments body counter");
+    MotherBrainEnemyProjectileSlot bomb = projectiles.Slots[17];
+    AssertEqual((ushort)0x004c, bomb.XPosition, "bomb initializes at brain X plus twelve");
+    AssertEqual((ushort)0x0070, bomb.YPosition, "bomb initializes at brain Y plus sixteen");
+    AssertEqual((ushort)0x0001, bomb.XSubposition,
+        "eight-bit initializer preserves afterburn count in low X-subposition byte");
+
+    MotherBrainEnemyProjectileFrameResult first = projectiles.StepFrame(
+        bus, motherBrain, baby: null, samus, layer1X: 0);
+    AssertEqual((ushort)0x004c, bomb.XPosition, "first `$00.DE` X move remains subpixel");
+    AssertEqual((ushort)0xde01, bomb.XSubposition,
+        "first X move updates high fraction without destroying low afterburn byte");
+    AssertEqual((ushort)0x0071, bomb.YPosition, "first `$01.07` Y move advances one pixel");
+    AssertEqual((ushort)0x0700, bomb.YSubposition, "first Y move retains `$07` fraction");
+    AssertEqual((ushort)0x00de, bomb.XVelocity, "pre-bounce friction subtracts exactly two");
+    AssertEqual((ushort)0x0107, bomb.YVelocity, "first gravity stage adds seven");
+    AssertEqual((ushort)0x82dc, bomb.SpritemapPointer, "spawn frame loads bomb spritemap zero");
+    AssertEqual(0, first.BombEvents.Count, "ordinary movement emits no synthetic event");
+
+    // Check every frame in the first complete 34-call ROM animation cycle. This catches
+    // duration off-by-one errors independently from the much longer physical bounce route.
+    ushort[] animationPointers = [0x82dc, 0x82e8, 0x82f4, 0x8300, 0x830c, 0x8318, 0x8324, 0x8330, 0x833c];
+    int[] animationDurations = [6, 5, 4, 3, 2, 2, 3, 4, 5];
+    int animationCall = 1;
+    for (int frame = 0; frame < animationPointers.Length; frame++)
+    {
+        int alreadyChecked = frame == 0 ? 1 : 0;
+        for (int repeat = alreadyChecked; repeat < animationDurations[frame]; repeat++)
+        {
+            projectiles.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
+            animationCall++;
+            AssertEqual(animationPointers[frame], bomb.SpritemapPointer,
+                $"bomb animation call {animationCall} retains frame {frame}");
+        }
+    }
+    AssertEqual(34, animationCall, "bomb animation cycle consumes exact summed duration");
+
+    var bounceEvents = new List<MotherBrainBombEvent>();
+    MotherBrainBombEvent? expired = null;
+    for (int call = 35; call < 1000 && expired is null; call++)
+    {
+        MotherBrainEnemyProjectileFrameResult frame = projectiles.StepFrame(
+            bus, motherBrain, baby: null, samus, layer1X: 0);
+        foreach (MotherBrainBombEvent bombEvent in frame.BombEvents)
+        {
+            if (bombEvent.Kind == MotherBrainBombEventKind.Bounced)
+                bounceEvents.Add(bombEvent);
+            else if (bombEvent.Kind == MotherBrainBombEventKind.Expired)
+                expired = bombEvent;
+        }
+    }
+    AssertEqual(9, bounceEvents.Count, "bomb traverses all nine nonzero bounce stages");
+    for (int bounceIndex = 0; bounceIndex < bounceEvents.Count; bounceIndex++)
+    {
+        AssertEqual(unchecked((ushort)((bounceIndex + 1) * 2)),
+            bounceEvents[bounceIndex].BounceTableOffset,
+            $"bounce {bounceIndex + 1} advances acceleration-table byte offset");
+        AssertEqual((ushort)0x00d0, bounceEvents[bounceIndex].YPosition,
+            $"bounce {bounceIndex + 1} clamps to floor Y `$D0`");
+    }
+    AssertTrue(expired.HasValue, "zero acceleration-table entry naturally expires bomb");
+    AssertEqual<ushort?>(1, expired!.Value.AfterburnCount,
+        "natural expiry publishes preserved low-byte afterburn count");
+    AssertEqual((ushort)3, expired.Value.DustParameter, "natural expiry requests misc dust three");
+    AssertEqual<ushort?>(0x0013, expired.Value.QueuedSoundLibraryThree,
+        "natural expiry queues library-three sound `$13`");
+    AssertTrue(!expired.Value.EnemyDropRequested, "natural expiry does not spawn enemy drops");
+    AssertEqual((ushort)0, motherBrain.BombCounter, "natural expiry decrements body counter");
+
+    // Build a genuine bank-$93 normal bomb and run it to timer zero. The bank-$86 collision
+    // then consumes the public translated slot state exactly as gameplay ordering does.
+    WriteTestWord(bus, 0x9383fb, 0x8675);
+    bus.WriteBytes(0x938675, [0x1e, 0x00, 0xbf, 0x9f]);
+    WriteTestWord(bus, 0x938683, 0xa06b);
+    bus.WriteBytes(0x939fbf, [
+        0x05, 0x00, 0x45, 0xad, 0x04, 0x04, 0x00, 0x00,
+        0x39, 0x82, 0xbf, 0x9f,
+    ]);
+    bus.WriteBytes(0x939fe3, [
+        0x01, 0x00, 0x45, 0xad, 0x04, 0x04, 0x00, 0x00,
+        0x39, 0x82, 0xe3, 0x9f,
+    ]);
+    bus.WriteBytes(0x93a06b, [
+        0x02, 0x00, 0x3e, 0xa8, 0x08, 0x08, 0x00, 0x00,
+        0x2f, 0x82,
+    ]);
+    const int roomWidth = 16;
+    const int roomHeight = 16;
+    var emptyBlocks = new ushort[roomWidth * roomHeight];
+    var room = new RoomLevelData(
+        roomWidth,
+        roomHeight,
+        emptyBlocks,
+        new byte[emptyBlocks.Length],
+        new ushort[emptyBlocks.Length],
+        new byte[roomWidth]);
+    var bombSamus = new SamusState
+    {
+        Pose = SamusState.MorphBallGroundRightPose,
+        EquippedItems = 0x1004,
+        XPosition = 0x004c,
+        YPosition = 0x0070,
+    };
+    var samusBombs = new SamusBombProjectileSystem();
+    samusBombs.StepFrame(bus, room, bombSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
+    while (samusBombs.Slots[0].BombTimer != 0)
+        samusBombs.StepFrame(bus, room, bombSamus, 0, 0);
+    AssertTrue(samusBombs.Slots[0].IsExploding, "real Samus bomb reaches timer-zero explosion");
+
+    var collisionProjectiles = new MotherBrainEnemyProjectileSystem();
+    AssertTrue(collisionProjectiles.SpawnBomb(motherBrain, new(7)).HasValue,
+        "collision fixture allocates Mother Brain bomb");
+    MotherBrainEnemyProjectileFrameResult collision = collisionProjectiles.StepFrame(
+        bus, motherBrain, baby: null, bombSamus, layer1X: 0, samusBombs: samusBombs);
+    AssertEqual(1, collision.BombEvents.Count, "Samus explosion emits one bomb deletion event");
+    MotherBrainBombEvent destroyed = collision.BombEvents[0];
+    AssertEqual(MotherBrainBombEventKind.DestroyedBySamusBomb, destroyed.Kind,
+        "timer-zero normal bomb selects collision deletion path");
+    AssertEqual((ushort)9, destroyed.DustParameter, "collision path requests misc dust nine");
+    AssertTrue(destroyed.EnemyDropRequested, "collision path requests Mother Brain head drops");
+    AssertEqual<ushort?>(null, destroyed.AfterburnCount,
+        "collision path suppresses natural afterburn spawn");
+    AssertEqual<ushort?>(null, destroyed.QueuedSoundLibraryThree,
+        "collision path suppresses natural expiry sound");
+    AssertEqual((ushort)0, motherBrain.BombCounter, "collision deletion decrements body counter");
+
+    Console.WriteLine(
+        "  Mother Brain bombs: head bytecode, 8.8 motion, animation, bounce table, and both deletion paths agree.");
 }
 
 /// <summary>

@@ -38,7 +38,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, momentum, gravity/collision, `$F8` | Later firing/external-displacement routes |
 | `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | External displacement, enemy producer |
 | `$1A` | Grabbed by Draygon | — | Entire family |
-| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, hyper beam; bank `$A9`: repeat/active/final rainbow, painful-walk/corpse, revival, Baby murder/death, and phase-three recovery `$B8EB-$C209`, including body/head bytecode, live neck geometry, Baby graphics DMA/spawn, sine-driven entrance, moving-head latch, drain/corpse handshake, release, ceiling retreat, eight-record flight, generic-touch Samus latch, one-point healing, bank-$86 ring damage, release/stare/retreat/final charge/final blow, rainbow commands, six black palettes, 30 death explosions, attack-tile DMA, room-light restoration, deletion, Hyper Beam, and controller four | Crystal Flash/drain palette and HDMA presentation, earlier attack-selection, phase-three combat after `$C209`, Baby death spritemap/dust-projectile rendering, live enemy actor producer |
+| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, hyper beam; bank `$A9`: repeat/active/final rainbow, painful-walk/corpse, revival, Baby murder/death, phase-three combat/death, and escape `$B8EB-$B3C5`, including body/head bytecode, live neck geometry, Baby graphics DMA/spawn, sine-driven entrance, moving-head latch, drain/corpse handshake, release, ceiling retreat, eight-record flight, generic-touch Samus latch, one-point healing, bank-$86 ring/bomb movement and damage, release/stare/retreat/final charge/final blow, rainbow commands, six black palettes, 30 death explosions, attack-tile DMA, room-light restoration, deletion, Hyper Beam, controller four, corpse rotting, escape timer, and exploded door | Crystal Flash/drain palette and HDMA presentation, earlier attack-selection, live Hyper Beam projectile producer, enemy-projectile OAM, typewriter character engine, Baby death spritemap/dust rendering, live enemy actor producer |
 
 The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
 performs its one-frame initialization and `$90:E032` owns the rising special arc; its
@@ -511,12 +511,20 @@ translated status is documented with the Morph Ball family below.
   cycles the four absolute dust positions at five-call intervals with one global RNG advance,
   publishes Samus command `$0F`, TimerStatus `$0002`, boss bit `$02`, and event `$0E`, then
   emits parameters 0..7 plus hardcoded PLM `$B677` and maintains the final global quake.
-  Bank `$86:C961-$CB11` shares all 18 physical slots between blue rings, the eight door
-  fragments, and the alternate subtitle. Fragment initial Y/velocity tables, `$10` X
+  Bank `$86:C482-$CB11` shares all 18 physical slots between blue rings, phase-three bombs,
+  the eight door fragments, and the alternate subtitle. `$9F00-$9F32` head bytecode now
+  executes after the Baby slot is gone, queues its cry, publishes the one-afterburn bomb and
+  large-purple-breath request, then returns through phase-three neutral `$9CB9`. Bombs retain
+  their parameter in the low X-subposition byte, apply pre-bounce `$02` friction, common 8.8
+  movement, screen-edge reflection, all nine `$C550` acceleration/bounce stages, and the
+  34-call nine-spritemap loop. Natural expiry requests the preserved afterburn, dust three,
+  and sound `$13`; collision with a real timer-zero normal Samus bomb instead requests dust
+  nine and Mother Brain-head drops. Both paths maintain body bomb counter `$802A` exactly.
+  Fragment initial Y/velocity tables, `$10` X
   friction, `$20` gravity, common 8.8 movement, 18-call ROM spritemap loop, 33-call lifetime,
   four-pixel terminal Y adjustment, and parameter-nine dust requests are verified exactly.
-  The earlier attack-selection trigger, live Hyper Beam shot/damage producer, phase-three
-  bomb projectile, typewriter character engine, door-fragment OAM emission, Baby instruction-
+  The earlier attack-selection trigger, live Hyper Beam shot/damage producer, typewriter
+  character engine, shared enemy-projectile OAM emission, large purple-breath definition, Baby instruction-
   list/dust-projectile rendering, and palette/HDMA effects beyond direct CGRAM writes remain seams.
 - `MotherBrainBodyAnimationState` translates the ordinary enemy-instruction stage used by
   Mother Brain's painful fast/medium/slow/really-slow walks in both directions plus
@@ -548,8 +556,10 @@ translated status is documented with the Morph Ball family below.
   occurs on 6168. Mother Brain executes recovery on 6169; `$C1F0` falls through `$C209` on
   6202 and deterministic RNG `$8EC6` immediately selects four rings. Those rings strike
   Samus on 6259/6262/6265/6268 after the deleted Baby slot is correctly ignored. Cooldown
-  expires on 6267, RNG `$B475` selects a bomb on 6272, a later `$A5D1` four-ring call requests
-  the forward body list on 6404, and the real animation advances X from `$28` through `$59`
+  expires on 6267, RNG `$B475` selects a bomb on 6272, and `$9EBD/$9B6D` publish its real
+  bank-$86 bomb and purple-breath request on 6304. A second bomb spawns on 6370; their
+  accelerating floor bounces begin on 6371/6437 while a later `$A5D1` four-ring call requests
+  the forward body list on 6404. The real body animation advances X from `$28` through `$59`
   by frame 6500. The regression compares the final four `$200` attack transfers against the
   supplied cartridge and reads every flight/neck/projectile component from its real sine table.
 
@@ -796,9 +806,9 @@ translated status is documented with the Morph Ball family below.
 
 ## Next implementation order
 
-1. Wire live Hyper Beam projectiles into `$B562` recoil/health, implement the phase-three
-   bomb projectile and earlier attack-selection trigger that enters `$B8EB`, then connect
-   the translated escape-door projectile spritemaps to enemy-projectile OAM rendering.
+1. Wire live Hyper Beam projectiles into `$B562` recoil/health and the earlier attack-selection
+   trigger that enters `$B8EB`, then connect translated rings, bombs, purple breath, and
+   escape-door fragments to enemy-projectile OAM rendering.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.
 4. Grapple breakable PLMs and spike-damage side effects.

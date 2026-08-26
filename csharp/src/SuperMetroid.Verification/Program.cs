@@ -29,6 +29,7 @@ VerifySamusRenderingSlice();
 VerifySamusPoseTransitionMatching();
 VerifySamusHorizontalSpeed();
 VerifySamusAerialMovement();
+VerifySamusAerialTurnsAndWallJump();
 VerifySamusPostureMovement();
 VerifySamusMorphBallMovement();
 VerifySamusStandingAimMovement();
@@ -1046,6 +1047,194 @@ static void VerifySamusAerialMovement()
     AssertEqual((byte)0xa5, fallLeft.Pose, "left fall selects normal landing pose");
 
     Console.WriteLine("  Samus aerial: FD launch, exact 16.16 arc, jump cut, floor landing, radius, and F8 agree.");
+}
+
+/// <summary>
+/// Verifies the cartridge's complete ten-way jump/fall turn selectors and the block-only
+/// wall-jump route. Every expectation below is a literal bank-$90/$91 table value; the test
+/// intentionally does not calculate a mirrored target from facing.
+/// </summary>
+static void VerifySamusAerialTurnsAndWallJump()
+{
+    var bus = new TestAddressSpace();
+
+    const int width = 8;
+    const int height = 8;
+    var foreground = new ushort[width * height];
+    for (int x = 0; x < width; x++)
+        foreground[6 * width + x] = 0x8000;
+    for (int y = 1; y < 6; y++)
+        foreground[y * width + 4] = 0x8000; // vertical wall begins at world X=64
+    var level = new RoomLevelData(
+        width,
+        height,
+        foreground,
+        new byte[foreground.Length],
+        new ushort[foreground.Length],
+        new byte[8]);
+
+    // Source poses are real retail pose numbers covering shot directions zero through nine.
+    // Compact down-aim records `$17/$18/$2D/$2E` use radius ten; every other source uses 19.
+    byte[] jumpSources = [0x15, 0x69, 0x51, 0x6b, 0x17, 0x18, 0x6c, 0x52, 0x6a, 0x16];
+    byte[] fallSources = [0x2b, 0x6d, 0x29, 0x6f, 0x2d, 0x2e, 0x70, 0x2a, 0x6e, 0x2c];
+    byte[] jumpTargets = [0x8f, 0x9e, 0x2f, 0x91, 0x91, 0x92, 0x92, 0x30, 0x9f, 0x90];
+    byte[] fallTargets = [0x93, 0xa0, 0x87, 0x95, 0x95, 0x96, 0x96, 0x88, 0xa1, 0x94];
+
+    for (int direction = 0; direction < 10; direction++)
+    {
+        VerifySelector(jumping: true, jumpSources[direction], jumpTargets[direction], direction);
+        VerifySelector(jumping: false, fallSources[direction], fallTargets[direction], direction);
+    }
+
+    void VerifySelector(bool jumping, byte sourcePose, byte expectedPose, int shotDirection)
+    {
+        bool sourceFacesLeft = shotDirection >= 5;
+        byte sourceXDirection = sourceFacesLeft ? (byte)4 : (byte)8;
+        byte sourceRadius = shotDirection is 4 or 5 ? (byte)10 : (byte)19;
+        byte sourceMovementType = jumping ? (byte)2 : (byte)6;
+        bus.WriteBytes(0x91b629 + sourcePose * 8, [
+            sourceXDirection, sourceMovementType, 0xff, (byte)shotDirection,
+            0, 0, sourceRadius, 0,
+        ]);
+
+        bool targetFacesLeft = shotDirection < 5;
+        byte targetXDirection = targetFacesLeft ? (byte)4 : (byte)8;
+        byte targetMovementType = jumping ? (byte)0x17 : (byte)0x18;
+        bus.WriteBytes(0x91b629 + expectedPose * 8, [
+            targetXDirection, targetMovementType, 0xff, 0xfb,
+            8, 0, 19, 0,
+        ]);
+        WriteTestWord(bus, 0x91b010 + expectedPose * 2, 0xc000);
+        bus.WriteBytes(0x91c000, [2]);
+
+        var samus = new SamusState
+        {
+            Pose = sourcePose,
+            XPosition = 32,
+            YPosition = 48,
+        };
+        samus.RefreshCollisionRadii(bus);
+        samus.HorizontalSpeed.BaseSpeed = 1;
+        samus.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
+        byte genericTarget = jumping
+            ? targetFacesLeft ? SamusState.TurningRightToLeftJumpPose : SamusState.TurningLeftToRightJumpPose
+            : targetFacesLeft ? SamusState.TurningRightToLeftFallingPose : SamusState.TurningLeftToRightFallingPose;
+        AssertTrue(
+            samus.TryApplyAerialTurn(bus, level, genericTarget, nmiFrameCounter: 0),
+            $"{(jumping ? "jump" : "fall")} turn direction {shotDirection} fits");
+        AssertEqual(expectedPose, samus.Pose, $"{(jumping ? "jump" : "fall")} selector direction {shotDirection}");
+        AssertEqual(0x00018000u, samus.HorizontalSpeed.BaseFixed, "aerial selector folds extra speed");
+        AssertEqual((ushort)1, samus.HorizontalSpeed.AccelerationMode, "aerial selector starts turn mode");
+    }
+
+    // Isolate one diagonal-up jumping turn with its real three-frame `$F8,$6A` stream.
+    bus.WriteBytes(0x91b629 + 0x69 * 8, [8, 2, 0xff, 1, 8, 0, 19, 0]);
+    bus.WriteBytes(0x91b629 + 0x9e * 8, [4, 0x17, 0xff, 0xfb, 8, 0, 19, 0]);
+    bus.WriteBytes(0x91b629 + 0x6a * 8, [4, 2, 0xff, 8, 8, 0, 19, 0]);
+    WriteTestWord(bus, 0x91b010 + 0x9e * 2, 0xc100);
+    WriteTestWord(bus, 0x91b010 + 0x6a * 2, 0xc110);
+    bus.WriteBytes(0x91c100, [2, 2, 2, 0xf8, 0x6a]);
+    bus.WriteBytes(0x91c110, [3]);
+    WriteSpeedRecord(bus, movementType: 0x17, accelerationSub: 0, maximumSpeed: 2, decelerationSub: 0x1000);
+    WriteTestWord(bus, 0x909ea1, 0x2800);
+    WriteTestWord(bus, 0x909ea7, 0);
+    var turn = new SamusState { Pose = 0x69, XPosition = 32, YPosition = 48 };
+    turn.RefreshCollisionRadii(bus);
+    turn.HorizontalSpeed.BaseSpeed = 1;
+    turn.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
+    turn.Kinematics.YDirection = 1;
+    turn.Kinematics.YSpeed = 2;
+    turn.Kinematics.YSubacceleration = 0x2800;
+    AssertTrue(turn.TryApplyAerialTurn(bus, level, 0x2f, 0), "diagonal-up aerial turn installs");
+    AerialMovementResult turnFrame = SamusAerialMovement.StepTurningInAir(bus, level, turn, 0);
+    AssertEqual(0x00017000, turnFrame.Horizontal.AcceptedDisplacement, "turn retains old rightward momentum");
+    AssertEqual((ushort)33, turn.XPosition, "turn moves in old direction despite new facing");
+    for (int tick = 0; tick < 6; tick++)
+        turn.AnimateNoFx(bus);
+    AssertEqual((byte)0xf8, turn.LastAnimationDelayCommand!.Value, "aerial turn reaches F8");
+    AssertTrue(turn.ApplyPendingVerifiedAnimationTransition(bus), "aerial turn F8 applies");
+    AssertEqual((byte)0x6a, turn.Pose, "aerial turn preserves diagonal-up aim endpoint");
+
+    // Ordinary spin art, wall-jump art, and both dry launch table pairs.
+    bus.WriteBytes(0x91b629 + 0x19 * 8, [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
+    bus.WriteBytes(0x91b629 + 0x83 * 8, [8, 0x14, 0x19, 0xff, 8, 0, 19, 0]);
+    WriteTestWord(bus, 0x91b010 + 0x19 * 2, 0xc200);
+    WriteTestWord(bus, 0x91b010 + 0x83 * 2, 0xc220);
+    bus.WriteBytes(0x91c200, [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0xff]);
+    bus.WriteBytes(0x91c220, [4, 4, 0xfb, 2, 2, 2, 2, 2, 2, 2, 2, 0xfe, 8]);
+    WriteSpeedRecord(bus, movementType: 3, accelerationSub: 0x2000, maximumSpeed: 1, decelerationSub: 0x1000);
+    WriteSpeedRecord(bus, movementType: 0x14, accelerationSub: 0x1000, maximumSpeed: 1, decelerationSub: 0x1000);
+    WriteTestWord(bus, 0x909ed1, 4);
+    WriteTestWord(bus, 0x909ed7, 0xa000);
+
+    var earlyContact = CreateSpinSamus(animationFrame: 0);
+    AerialMovementResult contactFrame = SamusAerialMovement.StepSpinJump(
+        bus, level, earlyContact, (ushort)(SnesButton.Left | SnesButton.A), 0, 0);
+    AssertTrue(contactFrame.WallContact && !contactFrame.WallJumpTriggered, "early wall chord contacts without launch");
+    AssertEqual((ushort)0x0a, earlyContact.AnimationFrame, "early wall contact rewinds to frame A");
+
+    var eligible = CreateSpinSamus(animationFrame: 0x0b);
+    ushort beforeTriggerY = eligible.YPosition;
+    AerialMovementResult triggerFrame = SamusAerialMovement.StepSpinJump(
+        bus,
+        level,
+        eligible,
+        (ushort)(SnesButton.Left | SnesButton.A),
+        0,
+        (ushort)SnesButton.A);
+    AssertTrue(triggerFrame.WallJumpTriggered, "eligible fresh jump press triggers wall jump");
+    AssertTrue(triggerFrame.Vertical is null, "wall trigger carry skips vertical movement");
+    AssertEqual(beforeTriggerY, eligible.YPosition, "wall trigger frame preserves Y");
+    AssertEqual((ushort)7, triggerFrame.WallDistance, "wall trigger reports clipped seven-pixel distance");
+
+    eligible.ApplyWallJumpTrigger(bus);
+    AssertEqual((byte)0x83, eligible.Pose, "right-facing spin selects right wall-jump pose");
+    AssertEqual((ushort)4, eligible.Kinematics.YSpeed, "wall jump reads whole launch speed");
+    AssertEqual((ushort)0xa000, eligible.Kinematics.YSubspeed, "wall jump reads fractional launch speed");
+    for (int tick = 0; tick < 8; tick++)
+        eligible.AnimateNoFx(bus);
+    AssertEqual((byte)0xfb, eligible.LastAnimationDelayCommand!.Value, "wall animation reaches FB");
+    AssertEqual((ushort)3, eligible.AnimationFrame, "ordinary dry wall animation selects frame three");
+
+    ushort wallStartY = eligible.YPosition;
+    AerialMovementResult wallFrame = SamusAerialMovement.StepWallJump(
+        bus,
+        level,
+        eligible,
+        (ushort)(SnesButton.Right | SnesButton.A),
+        1);
+    AssertTrue(wallFrame.Vertical is { Collided: false }, "wall launch remains airborne");
+    AssertEqual((ushort)(wallStartY - 5), eligible.YPosition, "wall launch moves by old 4.A000 speed");
+
+    SamusState CreateSpinSamus(ushort animationFrame)
+    {
+        var samus = new SamusState { Pose = 0x19, XPosition = 52, YPosition = 48 };
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus, 0);
+        samus.AnimationFrame = animationFrame;
+        samus.Kinematics.YDirection = 1;
+        samus.Kinematics.YSpeed = 2;
+        samus.Kinematics.YSubacceleration = 0x2800;
+        return samus;
+    }
+
+    void WriteSpeedRecord(
+        TestAddressSpace addressSpace,
+        byte movementType,
+        ushort accelerationSub,
+        ushort maximumSpeed,
+        ushort decelerationSub)
+    {
+        int address = 0x909f55 + movementType * 12;
+        WriteTestWord(addressSpace, address + 0, 0);
+        WriteTestWord(addressSpace, address + 2, accelerationSub);
+        WriteTestWord(addressSpace, address + 4, maximumSpeed);
+        WriteTestWord(addressSpace, address + 6, 0);
+        WriteTestWord(addressSpace, address + 8, 0);
+        WriteTestWord(addressSpace, address + 10, decelerationSub);
+    }
+
+    Console.WriteLine("  Samus aerial turns/wall jump: selectors, momentum, F8, wall gate, FB, and launch agree.");
 }
 
 /// <summary>

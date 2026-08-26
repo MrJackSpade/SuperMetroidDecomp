@@ -45,6 +45,37 @@ public sealed class SamusState
     /// <summary>Pose $1A is the ordinary left-facing spin jump.</summary>
     public const byte SpinJumpLeftPose = 0x1a;
 
+    /// <summary>Pose $2F turns a right-facing normal jump toward the left.</summary>
+    public const byte TurningRightToLeftJumpPose = 0x2f;
+
+    /// <summary>Pose $30 turns a left-facing normal jump toward the right.</summary>
+    public const byte TurningLeftToRightJumpPose = 0x30;
+
+    /// <summary>Pose $83 is the right-facing wall-jump launch animation.</summary>
+    public const byte WallJumpRightPose = 0x83;
+
+    /// <summary>Pose $84 is the left-facing wall-jump launch animation.</summary>
+    public const byte WallJumpLeftPose = 0x84;
+
+    /// <summary>Pose $87 turns a right-facing fall toward the left.</summary>
+    public const byte TurningRightToLeftFallingPose = 0x87;
+
+    /// <summary>Pose $88 turns a left-facing fall toward the right.</summary>
+    public const byte TurningLeftToRightFallingPose = 0x88;
+
+    public const byte TurningRightToLeftJumpAimUpPose = 0x8f;
+    public const byte TurningLeftToRightJumpAimUpPose = 0x90;
+    public const byte TurningRightToLeftJumpAimDownPose = 0x91;
+    public const byte TurningLeftToRightJumpAimDownPose = 0x92;
+    public const byte TurningRightToLeftFallingAimUpPose = 0x93;
+    public const byte TurningLeftToRightFallingAimUpPose = 0x94;
+    public const byte TurningRightToLeftFallingAimDownPose = 0x95;
+    public const byte TurningLeftToRightFallingAimDownPose = 0x96;
+    public const byte TurningRightToLeftJumpAimDiagonalUpPose = 0x9e;
+    public const byte TurningLeftToRightJumpAimDiagonalUpPose = 0x9f;
+    public const byte TurningRightToLeftFallingAimDiagonalUpPose = 0xa0;
+    public const byte TurningLeftToRightFallingAimDiagonalUpPose = 0xa1;
+
     /// <summary>Pose $1D is the stationary right-facing ordinary morph ball on the ground.</summary>
     public const byte MorphBallGroundRightPose = 0x1d;
 
@@ -486,7 +517,18 @@ public sealed class SamusState
     public byte ReadPoseXDirection(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return bus.ReadByte(AddWithinBank(PoseDefinitions, Pose * 8));
+        return ReadPoseXDirection(bus, Pose);
+    }
+
+    /// <summary>
+    /// Reads pose-definition byte zero for an arbitrary pose. Native transition
+    /// initializers compare the old and prospective records before publishing the new
+    /// pose, so making that distinction explicit avoids temporarily corrupting live state.
+    /// </summary>
+    public static byte ReadPoseXDirection(ISnesAddressSpace bus, byte pose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        return bus.ReadByte(AddWithinBank(PoseDefinitions, pose * 8));
     }
 
     /// <summary>Reads pose-definition byte one, the movement-type dispatcher index.</summary>
@@ -620,6 +662,38 @@ public sealed class SamusState
         TurningRightToLeftCrouchingAimUpPose or TurningLeftToRightCrouchingAimUpPose or
         TurningRightToLeftCrouchingAimDiagonalUpPose or TurningLeftToRightCrouchingAimDiagonalUpPose or
         TurningRightToLeftCrouchingAimDiagonalDownPose or TurningLeftToRightCrouchingAimDiagonalDownPose;
+
+    /// <summary>True for every movement-type-$17 normal-jump turn record.</summary>
+    public static bool IsJumpingTurnPose(byte pose) => pose is
+        TurningRightToLeftJumpPose or TurningLeftToRightJumpPose or
+        TurningRightToLeftJumpAimUpPose or TurningLeftToRightJumpAimUpPose or
+        TurningRightToLeftJumpAimDownPose or TurningLeftToRightJumpAimDownPose or
+        TurningRightToLeftJumpAimDiagonalUpPose or TurningLeftToRightJumpAimDiagonalUpPose;
+
+    /// <summary>True for every movement-type-$18 falling-turn record.</summary>
+    public static bool IsFallingTurnPose(byte pose) => pose is
+        TurningRightToLeftFallingPose or TurningLeftToRightFallingPose or
+        TurningRightToLeftFallingAimUpPose or TurningLeftToRightFallingAimUpPose or
+        TurningRightToLeftFallingAimDownPose or TurningLeftToRightFallingAimDownPose or
+        TurningRightToLeftFallingAimDiagonalUpPose or TurningLeftToRightFallingAimDiagonalUpPose;
+
+    public static bool IsAerialTurnPose(byte pose) =>
+        IsJumpingTurnPose(pose) || IsFallingTurnPose(pose);
+
+    public static bool IsRightToLeftAerialTurnPose(byte pose) => pose is
+        TurningRightToLeftJumpPose or TurningRightToLeftJumpAimUpPose or
+        TurningRightToLeftJumpAimDownPose or TurningRightToLeftJumpAimDiagonalUpPose or
+        TurningRightToLeftFallingPose or TurningRightToLeftFallingAimUpPose or
+        TurningRightToLeftFallingAimDownPose or TurningRightToLeftFallingAimDiagonalUpPose;
+
+    public static bool IsLeftToRightAerialTurnPose(byte pose) => pose is
+        TurningLeftToRightJumpPose or TurningLeftToRightJumpAimUpPose or
+        TurningLeftToRightJumpAimDownPose or TurningLeftToRightJumpAimDiagonalUpPose or
+        TurningLeftToRightFallingPose or TurningLeftToRightFallingAimUpPose or
+        TurningLeftToRightFallingAimDownPose or TurningLeftToRightFallingAimDiagonalUpPose;
+
+    /// <summary>True for the two movement-type-$14 wall-jump launch records.</summary>
+    public static bool IsWallJumpPose(byte pose) => pose is WallJumpRightPose or WallJumpLeftPose;
 
     /// <summary>
     /// True only for the admitted movement-type-$0F crouch/stand animation records.
@@ -1088,6 +1162,188 @@ public sealed class SamusState
         speed.AccelerationMode = 1;
 
         ApplySimpleGroundedPoseChange(bus, Pose, selectedTurnPose, "Grounded turn");
+    }
+
+    /// <summary>
+    /// Ports the jumping/falling turn initializers at <c>$91:F952/$91:F98A</c>.
+    /// The input tables publish only generic `$2F/$30/$87/$88`; the initializer reads the
+    /// PREVIOUS pose's shot-direction byte and substitutes one of sixteen exact turn poses.
+    /// </summary>
+    /// <returns>
+    /// True when the selected pose fits and is installed. False means the native larger-
+    /// pose collision path retained the compact source or forced stable crouch.
+    /// </returns>
+    public bool TryApplyAerialTurn(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        byte genericTargetPose,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+
+        byte sourcePose = Pose;
+        byte sourceMovementType = ReadMovementType(bus);
+        bool jumping = sourceMovementType == 2;
+        bool falling = sourceMovementType == 6;
+        bool turnsLeft = genericTargetPose == (jumping
+            ? TurningRightToLeftJumpPose
+            : TurningRightToLeftFallingPose);
+        bool turnsRight = genericTargetPose == (jumping
+            ? TurningLeftToRightJumpPose
+            : TurningLeftToRightFallingPose);
+        if ((!jumping && !falling) || (!turnsLeft && !turnsRight))
+        {
+            throw new InvalidOperationException(
+                $"Aerial turn ${sourcePose:X2} -> ${genericTargetPose:X2} is not a verified type-2/type-6 transition.");
+        }
+
+        // These are literal copies of `$91:F9D6` and `$91:F9E0`. Directions four and five
+        // are not typos: compact down-aim sources reuse `$91/$92` or `$95/$96` according to
+        // facing. Retaining all ten entries is essential for a debugger to preserve aim.
+        byte shotDirection = ReadShotDirection(bus);
+        byte selectedTurnPose = jumping
+            ? shotDirection switch
+            {
+                0 => TurningRightToLeftJumpAimUpPose,
+                1 => TurningRightToLeftJumpAimDiagonalUpPose,
+                2 => TurningRightToLeftJumpPose,
+                3 or 4 => TurningRightToLeftJumpAimDownPose,
+                5 or 6 => TurningLeftToRightJumpAimDownPose,
+                7 => TurningLeftToRightJumpPose,
+                8 => TurningLeftToRightJumpAimDiagonalUpPose,
+                9 => TurningLeftToRightJumpAimUpPose,
+                _ => throw new InvalidDataException($"Jump pose ${sourcePose:X2} has invalid shot direction ${shotDirection:X2}."),
+            }
+            : shotDirection switch
+            {
+                0 => TurningRightToLeftFallingAimUpPose,
+                1 => TurningRightToLeftFallingAimDiagonalUpPose,
+                2 => TurningRightToLeftFallingPose,
+                3 or 4 => TurningRightToLeftFallingAimDownPose,
+                5 or 6 => TurningLeftToRightFallingAimDownPose,
+                7 => TurningLeftToRightFallingPose,
+                8 => TurningLeftToRightFallingAimDiagonalUpPose,
+                9 => TurningLeftToRightFallingAimUpPose,
+                _ => throw new InvalidDataException($"Fall pose ${sourcePose:X2} has invalid shot direction ${shotDirection:X2}."),
+            };
+
+        if ((turnsLeft && !IsRightToLeftAerialTurnPose(selectedTurnPose)) ||
+            (turnsRight && !IsLeftToRightAerialTurnPose(selectedTurnPose)))
+        {
+            throw new InvalidOperationException(
+                $"Aerial turn source ${sourcePose:X2} has direction metadata inconsistent with ${genericTargetPose:X2}.");
+        }
+
+        // `$91:F952/$91:F98A` run this momentum conversion before the shared pose-change
+        // collision resolver. Consequently even a cramped compact-pose rejection consumes
+        // extra run speed; moving it after the probe would produce observably different WRAM.
+        FoldExtraRunSpeedIntoBaseAndStartTurn();
+
+        LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
+            bus,
+            level,
+            selectedTurnPose,
+            nmiFrameCounter,
+            out int centerAdjustment);
+        if (collision == LargerPoseCollisionOutcome.RetainSource)
+            return false;
+        if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+        {
+            ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            return false;
+        }
+
+        Pose = selectedTurnPose;
+        RefreshCollisionRadii(bus);
+        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        InitializeAnimation(bus, initialFrame: 0);
+        return true;
+    }
+
+    /// <summary>
+    /// Applies `$91:F624` when spin/wall-jump input selects the opposite spin pose. A true
+    /// direction reversal folds extra speed into base speed and selects mode one, preserving
+    /// old-world direction while the newly facing pose decelerates.
+    /// </summary>
+    public void ApplySpinJumpDirectionTransition(ISnesAddressSpace bus, byte targetPose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if (targetPose is not (SpinJumpRightPose or SpinJumpLeftPose) ||
+            (!IsWallJumpPose(Pose) && Pose is not (SpinJumpRightPose or SpinJumpLeftPose)))
+        {
+            throw new InvalidOperationException(
+                $"Spin direction transition ${Pose:X2} -> ${targetPose:X2} is not verified.");
+        }
+
+        byte oldDirection = ReadPoseXDirection(bus);
+        byte newDirection = ReadPoseXDirection(bus, targetPose);
+        if (oldDirection != newDirection)
+            FoldExtraRunSpeedIntoBaseAndStartTurn();
+
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+
+        // InitializeSpinJump writes frame one, skipping the static first spin frame. This
+        // is easy to miss because an ordinary ground jump initializes the pose elsewhere.
+        InitializeAnimation(bus, initialFrame: 1);
+    }
+
+    /// <summary>
+    /// Applies `$91:EABE`, solid-collision command five, and `$90:9949` after the block
+    /// wall test succeeds. The launch values are read from the cartridge's dry-air tables.
+    /// </summary>
+    public void ApplyWallJumpTrigger(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if (Pose is not (SpinJumpRightPose or SpinJumpLeftPose))
+            throw new InvalidOperationException($"Wall-jump trigger requires ordinary spin pose, not ${Pose:X2}.");
+
+        Pose = ReadPoseXDirection(bus) == 4 ? WallJumpLeftPose : WallJumpRightPose;
+        RefreshCollisionRadii(bus);
+
+        // `$91:F2D3` kills prior collision/momentum state before `$90:9949` installs the
+        // launch. Extra run speed is also cleared by the normal wall-jump initializer path.
+        HorizontalSpeed.AccelerationMode = 0;
+        HorizontalSpeed.BaseSpeed = 0;
+        HorizontalSpeed.BaseSubspeed = 0;
+        HorizontalSpeed.ExtraRunSpeed = 0;
+        HorizontalSpeed.ExtraRunSubspeed = 0;
+
+        bool hiJumpEquipped = (EquippedItems & 0x0100) != 0;
+        Kinematics.YSpeed = ReadWord(bus, hiJumpEquipped ? 0x909edd : 0x909ed1);
+        Kinematics.YSubspeed = ReadWord(bus, hiJumpEquipped ? 0x909ee3 : 0x909ed7);
+        Kinematics.YDirection = 1;
+        InitializeAnimation(bus, initialFrame: 0);
+    }
+
+    /// <summary>
+    /// Applies `$90:9DBF-$90:9DC8` when an early spin frame finds the wall-jump chord.
+    /// This does not launch Samus: it rewinds the ordinary spin sequence to frame `$0A`
+    /// with a one-tick timer so the visible wall-contact pose reaches eligibility naturally.
+    /// </summary>
+    public void ApplyWallContactAnimationRewind()
+    {
+        if (Pose is not (SpinJumpRightPose or SpinJumpLeftPose))
+            throw new InvalidOperationException($"Wall-contact rewind requires spin pose, not ${Pose:X2}.");
+        AnimationFrameTimer = 1;
+        AnimationFrame = 0x0a;
+    }
+
+    /// <summary>
+    /// Exact 16.16 ADC equivalent shared by bank-$91's grounded, aerial, and spin-turn
+    /// initializers. It deliberately permits word overflow, matching the 65816 registers.
+    /// </summary>
+    private void FoldExtraRunSpeedIntoBaseAndStartTurn()
+    {
+        SamusHorizontalSpeedState speed = HorizontalSpeed;
+        uint combinedSpeed = unchecked(speed.BaseFixed +
+            ((uint)speed.ExtraRunSpeed << 16) + speed.ExtraRunSubspeed);
+        speed.BaseSpeed = unchecked((ushort)(combinedSpeed >> 16));
+        speed.BaseSubspeed = unchecked((ushort)combinedSpeed);
+        speed.ExtraRunSpeed = 0;
+        speed.ExtraRunSubspeed = 0;
+        speed.AccelerationMode = 1;
     }
 
     /// <summary>
@@ -1842,7 +2098,25 @@ public sealed class SamusState
             (LandingAimDiagonalUpRightPose, StandingAimDiagonalUpRightPose) or
             (LandingAimDiagonalUpLeftPose, StandingAimDiagonalUpLeftPose) or
             (LandingAimDiagonalDownRightPose, StandingAimDiagonalDownRightPose) or
-            (LandingAimDiagonalDownLeftPose, StandingAimDiagonalDownLeftPose);
+            (LandingAimDiagonalDownLeftPose, StandingAimDiagonalDownLeftPose) or
+            // Every aerial-turn delay list ends in command `$F8 pp`. These pairs are the
+            // literal operands from `$91:B3ED-$91:B490`, not inferred mirror poses.
+            (TurningRightToLeftJumpPose, NormalJumpForwardLeftPose) or
+            (TurningLeftToRightJumpPose, NormalJumpForwardRightPose) or
+            (TurningRightToLeftFallingPose, FallingLeftPose) or
+            (TurningLeftToRightFallingPose, FallingRightPose) or
+            (TurningRightToLeftJumpAimUpPose, NormalJumpAimUpLeftPose) or
+            (TurningLeftToRightJumpAimUpPose, NormalJumpAimUpRightPose) or
+            (TurningRightToLeftJumpAimDownPose, NormalJumpAimDownLeftPose) or
+            (TurningLeftToRightJumpAimDownPose, NormalJumpAimDownRightPose) or
+            (TurningRightToLeftFallingAimUpPose, FallingAimUpLeftPose) or
+            (TurningLeftToRightFallingAimUpPose, FallingAimUpRightPose) or
+            (TurningRightToLeftFallingAimDownPose, FallingAimDownLeftPose) or
+            (TurningLeftToRightFallingAimDownPose, FallingAimDownRightPose) or
+            (TurningRightToLeftJumpAimDiagonalUpPose, NormalJumpAimDiagonalUpLeftPose) or
+            (TurningLeftToRightJumpAimDiagonalUpPose, NormalJumpAimDiagonalUpRightPose) or
+            (TurningRightToLeftFallingAimDiagonalUpPose, FallingAimDiagonalUpLeftPose) or
+            (TurningLeftToRightFallingAimDiagonalUpPose, FallingAimDiagonalUpRightPose);
         if (!verified)
         {
             throw new NotSupportedException(
@@ -2024,6 +2298,17 @@ public sealed class SamusState
                     unchecked((ushort)(AnimationFrame + targetOffset)));
                 return;
 
+            case 11:
+                // `$90:841D`, command `$FB`, selects the wall-jump animation family. The
+                // current runtime is dry-room only, so the liquid boundary branch is not
+                // entered. Screw Attack has priority over Space Jump exactly as the two
+                // BIT/BNE tests do; without either item the ordinary sequence starts at
+                // the next byte. Sound queue writes are intentionally outside rendering.
+                AnimationFrame = unchecked((ushort)(AnimationFrame + (
+                    (EquippedItems & 0x0008) != 0 ? 0x15 :
+                    (EquippedItems & 0x0200) != 0 ? 0x0b : 1)));
+                break;
+
             case 13:
                 // $90:83A0, command $FD pp: publish pose pp through the same command-three
                 // seam as $F8. Unlike F8, FD has no auto-jump special case before it falls
@@ -2099,7 +2384,7 @@ public sealed class SamusState
         int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
         byte movementType = bus.ReadByte(AddWithinBank(poseDefinition, 1));
         if (movementType is not (0 or 1 or 2 or 3 or 4 or 5 or 6 or 8 or
-            0x0e or 0x0f or 0x11 or 0x12 or 0x13 or 0x17))
+            0x0e or 0x0f or 0x11 or 0x12 or 0x13 or 0x14 or 0x17 or 0x18))
         {
             throw new NotSupportedException(
                 $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");
@@ -2153,8 +2438,12 @@ public sealed class SamusState
         // those frames' top spritemaps contain the complete curled body. Frame zero and
         // frames B+ draw the split bottom. Screw/space-jump poses are future routes and
         // always draw their bottoms, but they are not admitted by this method yet.
+        bool ordinarySpinBottom = movementType != 3 ||
+            AnimationFrame == 0 || AnimationFrame >= 0x0b;
+        bool wallJumpBottom = movementType != 0x14 ||
+            AnimationFrame < 3 || AnimationFrame >= 0x0d;
         bool drawBottom = movementType is not (4 or 8 or 0x11 or 0x12 or 0x13) &&
-            (movementType != 3 || AnimationFrame == 0 || AnimationFrame >= 0x0b);
+            ordinarySpinBottom && wallJumpBottom;
         if (drawBottom)
         {
             ushort bottomBase = ReadWord(bus, AddWithinBank(BottomSpritemapBaseIndexTable, Pose * 2));

@@ -541,6 +541,17 @@ public sealed class SuperMetroidRuntime
                     ProspectiveSamusFallbackPose = fallback;
             }
 
+            // Wall-jump records `$83/$84` use definition fallback `$19/$1A` when the
+            // controller is fully released. Like every definition fallback this is sampled
+            // in alpha and committed only after beta movement and animation below.
+            if (GroundedSamusMovementEnabled &&
+                SamusState.IsWallJumpPose(Samus.Pose) &&
+                Controller1.Current == 0 &&
+                ProspectiveSamusPose is null)
+            {
+                ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
+            }
+
             if (GroundedSamusMovementEnabled)
             {
                 if (LevelData is null)
@@ -735,6 +746,38 @@ public sealed class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             Controller1.Current,
+                            NmiFrameCounter,
+                            Controller1.NewlyPressed);
+                        break;
+                    case SamusState.WallJumpRightPose:
+                    case SamusState.WallJumpLeftPose:
+                        LastAerialSamusMovement = SamusAerialMovement.StepWallJump(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            Controller1.Current,
+                            NmiFrameCounter);
+                        break;
+                    case SamusState.TurningRightToLeftJumpPose:
+                    case SamusState.TurningLeftToRightJumpPose:
+                    case SamusState.TurningRightToLeftJumpAimUpPose:
+                    case SamusState.TurningLeftToRightJumpAimUpPose:
+                    case SamusState.TurningRightToLeftJumpAimDownPose:
+                    case SamusState.TurningLeftToRightJumpAimDownPose:
+                    case SamusState.TurningRightToLeftJumpAimDiagonalUpPose:
+                    case SamusState.TurningLeftToRightJumpAimDiagonalUpPose:
+                    case SamusState.TurningRightToLeftFallingPose:
+                    case SamusState.TurningLeftToRightFallingPose:
+                    case SamusState.TurningRightToLeftFallingAimUpPose:
+                    case SamusState.TurningLeftToRightFallingAimUpPose:
+                    case SamusState.TurningRightToLeftFallingAimDownPose:
+                    case SamusState.TurningLeftToRightFallingAimDownPose:
+                    case SamusState.TurningRightToLeftFallingAimDiagonalUpPose:
+                    case SamusState.TurningLeftToRightFallingAimDiagonalUpPose:
+                        LastAerialSamusMovement = SamusAerialMovement.StepTurningInAir(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
                             NmiFrameCounter);
                         break;
                     case SamusState.FallingRightPose:
@@ -834,6 +877,16 @@ public sealed class SuperMetroidRuntime
                     animationTransitionApplied = true;
                 }
 
+                // `$90:9D35` publishes solid-vertical collision result five and returns
+                // carry set, preventing vertical motion. The matching bank-$91 command
+                // installs `$83/$84`, clears old momentum, and launches from ROM constants.
+                if (!animationTransitionApplied &&
+                    LastAerialSamusMovement is { WallJumpTriggered: true })
+                {
+                    Samus.ApplyWallJumpTrigger(_addressSpace);
+                    animationTransitionApplied = true;
+                }
+
                 // Spring Ball's three movement families share collision result three, but
                 // `$91:F25E` makes held Jump an immediate relaunch and stores `$0601/$0602`
                 // during automatic rebounds. Keep it distinct from ordinary-ball state.
@@ -853,7 +906,8 @@ public sealed class SuperMetroidRuntime
                 // command five clears both velocity axes. This ordinary prospective pose
                 // is lower priority than an animation command-three transition above.
                 if (!animationTransitionApplied &&
-                    LastAerialSamusMovement is { Landed: true })
+                    LastAerialSamusMovement is { Landed: true } &&
+                    !SamusState.IsAerialTurnPose(poseAtFrameStart))
                 {
                     if (SamusState.IsCompactAerialPose(poseAtFrameStart))
                     {
@@ -866,7 +920,8 @@ public sealed class SuperMetroidRuntime
                     else
                     {
                         bool wasSpinning = poseAtFrameStart is
-                            SamusState.SpinJumpRightPose or SamusState.SpinJumpLeftPose;
+                            SamusState.SpinJumpRightPose or SamusState.SpinJumpLeftPose ||
+                            SamusState.IsWallJumpPose(poseAtFrameStart);
                         Samus.ApplyAerialLanding(_addressSpace, wasSpinning);
                     }
                     animationTransitionApplied = true;
@@ -913,6 +968,32 @@ public sealed class SuperMetroidRuntime
                     {
                         switch ((poseAtFrameStart, targetPose))
                         {
+                            case var (source, target)
+                                when ((SamusState.IsRightFacingNormalJumpPose(source) &&
+                                       target == SamusState.TurningRightToLeftJumpPose) ||
+                                      (SamusState.IsLeftFacingNormalJumpPose(source) &&
+                                       target == SamusState.TurningLeftToRightJumpPose) ||
+                                      (SamusState.IsRightFacingFallingPose(source) &&
+                                       target == SamusState.TurningRightToLeftFallingPose) ||
+                                      (SamusState.IsLeftFacingFallingPose(source) &&
+                                       target == SamusState.TurningLeftToRightFallingPose)):
+                                // `$2F/$30/$87/$88` are generic table outputs. The helper
+                                // reads the source shot-direction record, chooses the exact
+                                // `$8F-$A1` art when needed, folds momentum, and runs compact
+                                // pose-expansion collision before committing the turn.
+                                Samus.TryApplyAerialTurn(
+                                    _addressSpace,
+                                    LevelData ?? throw new InvalidOperationException(
+                                        "Aerial turn requires active room level data."),
+                                    target,
+                                    NmiFrameCounter);
+                                break;
+                            case (SamusState.SpinJumpRightPose, SamusState.SpinJumpLeftPose):
+                            case (SamusState.SpinJumpLeftPose, SamusState.SpinJumpRightPose):
+                            case (SamusState.WallJumpRightPose, SamusState.SpinJumpLeftPose):
+                            case (SamusState.WallJumpLeftPose, SamusState.SpinJumpRightPose):
+                                Samus.ApplySpinJumpDirectionTransition(_addressSpace, targetPose);
+                                break;
                             case var (source, target)
                                 when SamusState.IsStableBallPose(source) &&
                                      SamusState.IsStableBallPose(target) &&
@@ -1119,6 +1200,18 @@ public sealed class SuperMetroidRuntime
                                     $"Grounded input transition ${poseAtFrameStart:X2} -> ${targetPose:X2} matched ROM data but its side effects are not translated.");
                         }
                     }
+                }
+                else if (!animationTransitionApplied &&
+                         SamusState.IsWallJumpPose(poseAtFrameStart) &&
+                         ProspectiveSamusFallbackPose is
+                             SamusState.SpinJumpRightPose or SamusState.SpinJumpLeftPose)
+                {
+                    // Definition byte two leaves the launch animation for ordinary spin
+                    // art. `$91:F624` starts that target on frame one and preserves reversal
+                    // momentum only if the fallback changes facing.
+                    Samus.ApplySpinJumpDirectionTransition(
+                        _addressSpace,
+                        unchecked((byte)ProspectiveSamusFallbackPose.Value));
                 }
                 else if (!animationTransitionApplied &&
                          (poseAtFrameStart is SamusState.MorphBallMovingRightPose or

@@ -14,10 +14,10 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$00` | Standing | `$01-$08`, landing `$A4-$A7/$E0-$E5` | Firing variants, forward pose, transitions from later systems |
 | `$01` | Running | `$09/$0A/$0D-$12`, dry air, no run button | Run button, speed booster, liquid/environment effects, gun-extended/fire variants |
 | `$02` | Normal jumping | `$4B-$4E/$15-$18/$51-$52/$55-$5A/$69-$6C`, including compact straight-down collision changes, dry air, variable height, ceiling/floor collision | Equipment/liquids, external displacement |
-| `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation | Wall-jump trigger, space jump, screw attack, equipment/liquids |
+| `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation, block-wall contact/launch | Solid-enemy wall contact, space/screw spin poses, liquids |
 | `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, dry ground, slopes, reversal, deceleration, walk-off, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
 | `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry | Fire variants and morph entry |
-| `$06` | Falling | `$29-$2E/$6D-$70`, including compact straight-down collision changes, walk-off, dry-air gravity and landing | Equipment/liquids, aerial turn transitions |
+| `$06` | Falling | `$29-$2E/$6D-$70`, including compact straight-down collision changes, walk-off, dry-air gravity, landing, and aerial-turn entry | Equipment/liquids |
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
 | `$08` | Morph ball falling | `$31/$32`, dry-air gravity, ceiling/floor collision, two-stage hard bounce, gentle landing, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
 | `$09` | Unused | — | Preserve only if required |
@@ -31,11 +31,11 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$11` | Spring ball on ground | `$79-$7C`, dry ground, slopes, reversal, jump entry, walk-off, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
 | `$12` | Spring ball in air | `$7F/$80`, dry-air powered jump, variable height, ceiling/floor collision, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
 | `$13` | Spring ball falling | `$7D/$7E`, dry-air gravity, held-jump relaunch, automatic bounce, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
-| `$14` | Wall jumping | — | Trigger check, launch physics, animation, landing |
+| `$14` | Wall jumping | `$83/$84`, dry/Hi-Jump launch tables, variable height, `$FB` animation family, spin handoff, landing | Liquids, solid-enemy trigger, sound/contact-damage side effects |
 | `$15` | Ran into a wall | — | Entire family |
 | `$16` | Grappling | — | Swing, stuck, release, wall-jump seams |
-| `$17` | Turning while jumping | Grounded-Y branch for crouched aim turns `$97-$9A/$A2/$A3` | Actual jumping turns `$2F/$30/$8F-$92/$9E/$9F`, airborne gravity/collision seams |
-| `$18` | Turning while falling | — | Entire family |
+| `$17` | Turning while jumping | Grounded-Y crouch turns `$97-$9A/$A2/$A3`; airborne `$2F/$30/$8F-$92/$9E/$9F`, momentum, collision, `$F8` | Later firing/external-displacement routes |
+| `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, momentum, gravity/collision, `$F8` | Later firing/external-displacement routes |
 | `$19` | Damage boost | — | Entire family |
 | `$1A` | Grabbed by Draygon | — | Entire family |
 | `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | — | All subhandlers and scripted state |
@@ -180,6 +180,34 @@ translated status is documented with the Morph Ball family below.
   collision command five clears both velocity axes. Both jump and falling compact records
   continue through their existing movement-type-two/six gravity, camera, and draw paths.
 
+## Verified aerial-turn and wall-jump slice
+
+- Opposite-direction input from every admitted normal-jump/falling aim family publishes
+  generic `$2F/$30/$87/$88`. `$91:F952/$91:F98A` then index the previous pose's literal
+  ten-way shot direction through `$91:F9D6/$91:F9E0`, including compact directions four/five,
+  to select all sixteen `$2F/$30/$87-$96/$9E-$A1` turn records.
+- The initializer performs the native wrapping 16.16 fold of extra-run speed into base speed,
+  clears the consumed component, and selects mode one. Movement types `$17/$18` call the
+  deceleration-allowed X routine, so the newly facing pose initially travels in the OLD world
+  direction. Their simple-Y path retains old-speed-before-gravity ordering and collision
+  command five clears vertical motion without prematurely replacing the turn pose.
+- Each airborne turn spends three two-tick NTSC frames and consumes its ROM `$F8` operand.
+  Exact endpoints preserve unaimed, straight-up, diagonal-up, and compact/down aim metadata.
+  The real-ROM `--aerial-turn-script` proves `$4B->$4D->$2F->$52->$A5` and asserts each
+  post-frame milestone rather than merely checking that the runner did not throw.
+- `$90:9D35` probes eight pixels through `$94:967F` without mutating live position. During
+  spin frames below `$0B`, a block contact writes timer one/frame `$0A`; at eligible frames a
+  fresh Jump edge launches only when the clipped whole-pixel distance is strictly below eight.
+  Carry set skips gravity/displacement on that trigger frame.
+- The bank-$91 collision command installs `$83/$84`, clears old momentum, and reads dry-air
+  ordinary or Hi-Jump launch values directly from `$90:9ED1-$90:9EE3`. Movement type `$14`
+  reuses ordinary jumping physics. Animation command `$FB` selects ordinary, Space Jump, or
+  Screw Attack frame ranges in cartridge priority order; the wall-specific bottom selector
+  draws frames below three and at/above thirteen. Landing uses `$A6/$A7`.
+- Synthetic verification exhausts all twenty selector-table entries, compact expansion,
+  mode-one displacement, `$F8`, early wall rewind, the seven-pixel launch, trigger-frame Y
+  suppression, `$FB`, and the 4.A000 dry wall arc. Solid-enemy wall jumps remain explicit.
+
 ## Verified ordinary Morph Ball slice
 
 - Stable crouch requires a second newly-pressed Down edge, not merely the held input that
@@ -284,8 +312,8 @@ translated status is documented with the Morph Ball family below.
 
 ## Next implementation order
 
-1. Aerial turns and the real wall-jump trigger/launch.
-2. Knockback and damage boost.
-3. Grapple movement and release routes.
-4. Speed booster/shinespark, crystal flash/drained, and remaining scripted movement.
+1. Knockback and damage boost.
+2. Grapple movement and release routes, including its separate wall-jump seam.
+3. Run button, speed booster/shinespark, crystal flash/drained, and remaining scripted movement.
+4. Space-jump/Screw-Attack spin families, liquids, and solid-enemy collision routes.
 5. Return with bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.

@@ -5,14 +5,15 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Literal dry-air/no-equipment ports of Samus's ordinary jump, spin-jump, and falling
-/// movement routines in bank $90.
+/// Literal dry-air ports of Samus's ordinary jump, spin-jump, wall-jump, aerial-turn, and
+/// falling movement routines in bank $90.
 /// </summary>
 /// <remarks>
 /// This deliberately retains the cartridge's split 16.16 magnitudes and separate vertical
 /// direction word. It does not use floating point, host elapsed time, or a guessed gravity
-/// curve. Enemy collision, liquid physics, extra run speed, wall-jump detection, equipment,
-/// and external displacement remain explicit boundaries for later movement slices.
+/// curve. Enemy collision, liquid physics, run-button acceleration, and external displacement
+/// remain explicit boundaries. Wall-jump BLOCK collision and dry equipment launch tables are
+/// translated; solid-enemy wall jumps are not silently treated as blocks.
 /// </remarks>
 public static class SamusAerialMovement
 {
@@ -104,14 +105,15 @@ public static class SamusAerialMovement
 
     /// <summary>
     /// Executes one movement-type-3 frame from <c>Samus_SpinJumping_Movement</c> at
-    /// <c>$90:9040</c>, stopping immediately before the still-untranslated wall-jump check.
+    /// <c>$90:9040</c>, including `$90:9D35`'s block-wall contact and launch test.
     /// </summary>
     public static AerialMovementResult StepSpinJump(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        ushort controllerNewInput = 0)
     {
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementType(bus) != 3)
@@ -152,10 +154,128 @@ public static class SamusAerialMovement
         if (horizontal.Collided)
             ClearHorizontalMomentum(speed);
 
-        // The wall-jump test at $90:90BA is intentionally not approximated. This slice is
-        // valid while no opposite-direction wall-jump chord is requested; ordinary wall
-        // collision above still clips movement and clears speed through bank-$94 behavior.
+        WallJumpCheckResult wall = CheckBlockWallJump(
+            bus,
+            level,
+            samus,
+            controllerInput,
+            controllerNewInput);
+        if (wall.Triggered)
+        {
+            // Carry set at `$90:90BD` skips `$90:90BF`, so gravity and vertical displacement
+            // do not execute on the trigger frame. Runtime pose handling consumes command
+            // five after movement and installs `$83/$84` with the ROM launch speed.
+            return new AerialMovementResult(
+                horizontal,
+                Vertical: null,
+                Landed: false,
+                HitCeiling: false,
+                WallJumpTriggered: true,
+                WallContact: true,
+                WallDistance: wall.Distance);
+        }
+
+        AerialMovementResult verticalResult = FinishVerticalMovement(
+            bus,
+            level,
+            samus,
+            horizontal,
+            nmiFrameCounter);
+        return verticalResult with
+        {
+            WallContact = wall.Contact,
+            WallDistance = wall.Distance,
+        };
+    }
+
+    /// <summary>
+    /// Executes movement type `$14` at `$90:A734`. Contact-damage selection is unrelated to
+    /// locomotion; the routine's movement branch is the ordinary jumping routine verbatim.
+    /// </summary>
+    public static AerialMovementResult StepWallJump(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort controllerInput,
+        ushort nmiFrameCounter)
+    {
+        ValidateCommon(bus, level, samus);
+        if (samus.ReadMovementType(bus) != 0x14 || !SamusState.IsWallJumpPose(samus.Pose))
+            throw new InvalidOperationException($"Wall-jump movement requires type $14 pose, not ${samus.Pose:X2}.");
+
+        EnsureNoExtraRunSpeed(samus.HorizontalSpeed);
+        ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
+        BlockMoveResult horizontal = MoveNormalAerialX(
+            bus,
+            level,
+            samus,
+            controllerInput,
+            movementType: 0x14);
         return FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter);
+    }
+
+    /// <summary>
+    /// Executes `$90:A790/$90:A7AD` for movement types `$17/$18`. Unlike ordinary aerial
+    /// motion this calls the deceleration-ALLOWED X routine and does not apply variable-jump
+    /// release; the three-frame turn animation therefore preserves native reversal momentum.
+    /// </summary>
+    public static AerialMovementResult StepTurningInAir(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort nmiFrameCounter)
+    {
+        ValidateCommon(bus, level, samus);
+        byte movementType = samus.ReadMovementType(bus);
+        if (movementType is not (0x17 or 0x18) || !SamusState.IsAerialTurnPose(samus.Pose))
+            throw new InvalidOperationException($"Aerial-turn movement requires type $17/$18 pose, not ${samus.Pose:X2}.");
+        if (samus.Kinematics.YDirection == 0)
+        {
+            throw new InvalidOperationException(
+                $"Airborne turn pose ${samus.Pose:X2} has no Y direction; grounded aimed turns use the separate no-speed path.");
+        }
+
+        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
+        speed.SelectNormalAirSpeedTable();
+        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
+        int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
+            bus,
+            level,
+            samus.Kinematics,
+            requested);
+        if (horizontal.Collided)
+            ClearHorizontalMomentum(speed);
+
+        // Simple_Samus_Y_Movement calls this before the shared gravity routine. A signed
+        // underflow at the apex becomes a stationary downward state on this same frame.
+        if (samus.Kinematics.YDirection == 1 && unchecked((short)samus.Kinematics.YSpeed) < 0)
+        {
+            samus.Kinematics.YSpeed = 0;
+            samus.Kinematics.YSubspeed = 0;
+            samus.Kinematics.YDirection = 2;
+        }
+
+        AerialMovementResult result = FinishVerticalMovement(
+            bus,
+            level,
+            samus,
+            horizontal,
+            nmiFrameCounter);
+        if (result.Vertical is { Collided: true })
+        {
+            // Both upward and downward collision tables for types `$17/$18` select command
+            // five's no-pose-change handler. It clears Y motion but leaves the turn animation
+            // alive until its `$F8` operand supplies the final aimed jump/fall pose.
+            samus.Kinematics.YSpeed = 0;
+            samus.Kinematics.YSubspeed = 0;
+            samus.Kinematics.YDirection = 2;
+        }
+
+        // `$90:A79E/$90:A7BB` cancel speed boost and explicitly clear both extra words.
+        speed.ExtraRunSpeed = 0;
+        speed.ExtraRunSubspeed = 0;
+        return result;
     }
 
     /// <summary>Executes one movement-type-6 frame from <c>$90:9168</c>.</summary>
@@ -302,6 +422,43 @@ public static class SamusAerialMovement
             ? (controllerInput & (ushort)SnesButton.Left) != 0
             : (controllerInput & (ushort)SnesButton.Right) != 0;
 
+    /// <summary>Block-only port of `$90:9D35`; enemy wall collision remains explicit.</summary>
+    private static WallJumpCheckResult CheckBlockWallJump(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort controllerInput,
+        ushort controllerNewInput)
+    {
+        bool heldLeft = (controllerInput & (ushort)SnesButton.Left) != 0;
+        bool heldRight = (controllerInput & (ushort)SnesButton.Right) != 0;
+        if (!heldLeft && !heldRight)
+            return default;
+
+        // `$90:9D6B/$90:9DE3` test Left first and probe RIGHT; the mirror Right chord probes
+        // LEFT. That counter-intuitive direction is deliberate: the button points away from
+        // the wall behind the newly facing spin pose.
+        int requested = heldLeft ? 8 << 16 : -(8 << 16);
+        BlockMoveResult probe = SamusBlockCollision.ProbeWallHorizontal(
+            bus,
+            level,
+            samus.Kinematics,
+            requested);
+        if (!probe.Collided)
+            return default;
+
+        ushort distance = unchecked((ushort)Math.Abs(probe.AcceptedDisplacement >> 16));
+        if (samus.AnimationFrame < 0x0b)
+        {
+            samus.ApplyWallContactAnimationRewind();
+            return new WallJumpCheckResult(Triggered: false, Contact: true, Distance: distance);
+        }
+
+        bool jumpNew = (controllerNewInput & (ushort)SnesButton.A) != 0;
+        bool triggered = jumpNew && distance < 8;
+        return new WallJumpCheckResult(triggered, Contact: true, distance);
+    }
+
     private static int CalculateDirectedDisplacement(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -365,4 +522,12 @@ public readonly record struct AerialMovementResult(
     BlockMoveResult Horizontal,
     BlockMoveResult? Vertical,
     bool Landed,
-    bool HitCeiling);
+    bool HitCeiling,
+    bool WallJumpTriggered = false,
+    bool WallContact = false,
+    ushort WallDistance = 0);
+
+internal readonly record struct WallJumpCheckResult(
+    bool Triggered,
+    bool Contact,
+    ushort Distance);

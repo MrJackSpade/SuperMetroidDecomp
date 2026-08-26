@@ -46,6 +46,11 @@ else if (options.AimAirScript)
     Console.WriteLine(
         "Input script: aimed up/down normal jumps right, turn left, repeat, then release.");
 }
+else if (options.AerialTurnScript)
+{
+    Console.WriteLine(
+        "Input script: neutral jump right, reverse left in mid-air, retain momentum through the ROM turn animation, then land.");
+}
 else if (options.CompactAirScript)
 {
     Console.WriteLine(
@@ -400,6 +405,19 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 >= 251 and < 286 => (ushort)SnesButton.R,
                 >= 295 and < 336 => (ushort)(SnesButton.A | SnesButton.L),
                 >= 336 and < 371 => (ushort)SnesButton.L,
+                _ => (ushort)0,
+            }
+        : options.AerialTurnScript
+            ? frameIndex switch
+            {
+                0 => (ushort)SnesButton.Start,
+
+                // A starts `$4B->$4D`. On the next interval Left is the opposite-facing
+                // held bit, so `$91:A2F6` publishes generic `$2F`; `$91:F952` then chooses
+                // the exact unaimed record and preserves old momentum during reversal.
+                >= 2 and < 10 => (ushort)SnesButton.A,
+                >= 10 and < 48 => (ushort)(SnesButton.Left | SnesButton.A),
+                >= 48 and < 80 => (ushort)SnesButton.Left,
                 _ => (ushort)0,
             }
         : options.CompactAirScript
@@ -779,7 +797,11 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.StandingTransitionAimDiagonalUpRightPose or
                      SamusState.StandingTransitionAimDiagonalUpLeftPose or
                      SamusState.StandingTransitionAimDiagonalDownRightPose or
-                     SamusState.StandingTransitionAimDiagonalDownLeftPose
+                     SamusState.StandingTransitionAimDiagonalDownLeftPose or
+                     SamusState.TurningRightToLeftJumpPose or
+                     SamusState.TurningLeftToRightJumpPose or
+                     SamusState.TurningRightToLeftFallingPose or
+                     SamusState.TurningLeftToRightFallingPose
                     ? "applied at the verified post-animation transition seam"
                     : "not applied because its movement/transition side effects are not translated"));
         }
@@ -798,6 +820,25 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         }
         priorFallbackPose = runtime.ProspectiveSamusFallbackPose;
     }
+}
+
+if (options.AerialTurnScript)
+{
+    byte[] requiredAerialTurnRoute = [
+        SamusState.NeutralJumpTransitionRightPose,
+        SamusState.NeutralJumpRightPose,
+        SamusState.TurningRightToLeftJumpPose,
+        SamusState.NormalJumpForwardLeftPose,
+        SamusState.NormalLandingLeftPose,
+    ];
+    foreach (byte requiredPose in requiredAerialTurnRoute)
+    {
+        if (!observedSamusPoses.Contains(requiredPose))
+            throw new InvalidOperationException(
+                $"Aerial-turn ROM script did not observe required pose ${requiredPose:X2}.");
+    }
+    Console.WriteLine(
+        $"Aerial-turn ROM route validated {requiredAerialTurnRoute.Length} deterministic pose milestones.");
 }
 
 if (options.CompactAirScript)
@@ -1088,6 +1129,7 @@ readonly record struct DebugRunnerOptions(
     bool AimScript,
     bool AimRunScript,
     bool AimAirScript,
+    bool AerialTurnScript,
     bool CompactAirScript,
     bool AimCrouchScript,
     bool AimTurnScript,
@@ -1111,6 +1153,7 @@ readonly record struct DebugRunnerOptions(
         bool aimScript = false;
         bool aimRunScript = false;
         bool aimAirScript = false;
+        bool aerialTurnScript = false;
         bool compactAirScript = false;
         bool aimCrouchScript = false;
         bool aimTurnScript = false;
@@ -1180,6 +1223,11 @@ readonly record struct DebugRunnerOptions(
 
                 case "--aim-air-script":
                     aimAirScript = true;
+                    groundedRun = true;
+                    break;
+
+                case "--aerial-turn-script":
+                    aerialTurnScript = true;
                     groundedRun = true;
                     break;
 
@@ -1263,6 +1311,7 @@ readonly record struct DebugRunnerOptions(
             aimScript,
             aimRunScript,
             aimAirScript,
+            aerialTurnScript,
             compactAirScript,
             aimCrouchScript,
             aimTurnScript,

@@ -27,6 +27,40 @@ public static class SamusBlockCollision
     ];
 
     /// <summary>
+    /// Ports the block-only observation made by <c>WallJumpBlockCollisionDetection</c> at
+    /// <c>$94:967F</c>. The native routine publishes available distance in `$12` but does
+    /// not commit Samus's probe position; a copied kinematics object preserves that rule.
+    /// </summary>
+    public static BlockMoveResult ProbeWallHorizontal(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusKinematicsState state,
+        int signedDistance)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        SamusKinematicsState probe = new()
+        {
+            XPosition = state.XPosition,
+            XSubposition = state.XSubposition,
+            YPosition = state.YPosition,
+            YSubposition = state.YSubposition,
+            XRadius = state.XRadius,
+            YRadius = state.YRadius,
+            YSpeed = state.YSpeed,
+            YSubspeed = state.YSubspeed,
+            YDirection = state.YDirection,
+            YAcceleration = state.YAcceleration,
+            YSubacceleration = state.YSubacceleration,
+            HorizontalSlopeCollisionEnable = state.HorizontalSlopeCollisionEnable,
+            PositionAdjustedBySlope = state.PositionAdjustedBySlope,
+        };
+
+        // Reusing the translated horizontal dispatcher also preserves square-slope and
+        // unsupported-block behavior. Any post-scan slope alignment touches only `probe`.
+        return MoveHorizontal(bus, level, probe, signedDistance);
+    }
+
+    /// <summary>
     /// Ports <c>BlockColl_Handle_Horiz</c> at <c>$94:9543</c>, the position addition in
     /// <c>Samus_MoveRight_NoSolidColl</c>, and the subsequent non-square slope alignment.
     /// </summary>

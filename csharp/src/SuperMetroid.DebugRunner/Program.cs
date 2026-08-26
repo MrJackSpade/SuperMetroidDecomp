@@ -152,6 +152,11 @@ else if (options.CrystalFlashScript)
     Console.WriteLine(
         "Input script: host-publish the untranslated power-bomb-cleanup seam with exact Down+L+R+Shoot input, then execute ROM poses $D3/$01 through all three native Crystal Flash handlers.");
 }
+else if (options.MotherBrainRainbowScript)
+{
+    Console.WriteLine(
+        "Actor script: execute `$A9:B8EB-$BB2D` with retail Mother Brain body-walk bytecode, then run the forced drained-Samus sequence through its real bank-$91 animation handlers.");
+}
 else if (options.DrainedSamusScript)
 {
     Console.WriteLine(
@@ -246,6 +251,8 @@ InitialViewportResult initialViewport = runtime.InitializeLandingSiteViewport();
 if (!options.GroundedRun)
     runtime.InitializeDebugStandingSamus();
 
+MotherBrainRainbowBeamAttackSequence? rainbowAttack = null;
+
 if (options.MorphBallScript || options.BombJumpScript)
 {
     // The Landing Site debugger spawn has no save-file inventory. The ordinary route needs
@@ -292,6 +299,30 @@ else if (options.CrystalFlashScript)
         (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
     if (!runtime.TryBeginCrystalFlashFromPowerBombCleanup(crystalFlashChord))
         throw new InvalidOperationException("Real-ROM Crystal Flash initiation rejected its canonical fixture.");
+}
+else if (options.MotherBrainRainbowScript)
+{
+    // The Landing Site supplies a real ROM/PPU/runtime host, not Mother Brain's room spawn.
+    // Put only the encounter-local actor coordinates and inventory at their documented seam;
+    // every wait, list opcode, pose, resource tick, and forced displacement remains translated.
+    runtime.Samus!.Health = 800;
+    runtime.Samus.MaxHealth = 899;
+    runtime.Samus.Missiles = 80;
+    runtime.Samus.SuperMissiles = 80;
+    runtime.Samus.PowerBombs = 400;
+    runtime.Samus.XPosition = 220;
+    runtime.Samus.YPosition = 124;
+    runtime.Samus.Kinematics.XSubposition = 0;
+    runtime.Samus.Kinematics.YSubposition = 0;
+
+    rainbowAttack = new MotherBrainRainbowBeamAttackSequence
+    {
+        BrainXPosition = 64,
+        BrainYPosition = 96,
+    };
+    rainbowAttack.Body.XPosition = 64;
+    rainbowAttack.Body.YPosition = 100;
+    rainbowAttack.StartAttackCycle();
 }
 else if (options.DrainedSamusScript)
 {
@@ -586,6 +617,9 @@ bool issuedDrainedReleaseCommand = false;
 bool issuedDrainedHyperBeamCommand = false;
 int issuedSpaceJumpPulses = 0;
 bool spaceJumpPulseMayBeIssued = true;
+var observedRainbowPhases = new HashSet<MotherBrainRainbowBeamAttackPhase>();
+MotherBrainRainbowBeamAttackPhase previousRainbowPhase =
+    rainbowAttack?.Phase ?? MotherBrainRainbowBeamAttackPhase.Inactive;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
@@ -655,7 +689,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     ushort yDirectionBeforeFrame = runtime.Samus.Kinematics.YDirection;
     ushort controllerInput = specialSpinRoute
         ? specialSpinInput
-        : options.CrystalFlashScript || options.DrainedSamusScript
+        : options.CrystalFlashScript || options.DrainedSamusScript ||
+          options.MotherBrainRainbowScript
         ? (ushort)0
         : options.GrappleFireScript
         ? frameIndex < 16 ? (ushort)SnesButton.X : (ushort)0
@@ -1092,6 +1127,44 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         }
     }
 
+    MotherBrainForcedSamusMovementResult? rainbowSamusMovement = null;
+    if (rainbowAttack is not null)
+    {
+        // Enemy AI executes before the ordinary enemy-instruction stage. Keep those calls
+        // separate so `$B92B` can observe the pose/X values published by the previous frame's
+        // retail `$A9:993A` opcode, just as the SNES scheduler does.
+        if (rainbowAttack.Phase != MotherBrainRainbowBeamAttackPhase.FinishSamusOff)
+        {
+            MotherBrainRainbowBeamAttackStepResult actorResult = rainbowAttack.Step(
+                bus,
+                runtime.Samus,
+                enemyFrameCounter: unchecked((ushort)frameIndex),
+                mainEnemyExecutionCounter: unchecked((ushort)frameIndex));
+            rainbowSamusMovement = actorResult.Movement;
+            observedRainbowPhases.Add(actorResult.PhaseBefore);
+            observedRainbowPhases.Add(actorResult.PhaseAfter);
+        }
+
+        MotherBrainBodyAnimationStepResult bodyResult = rainbowAttack.Body.Step(bus);
+        if (rainbowAttack.Phase != previousRainbowPhase)
+        {
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: rainbow actor {previousRainbowPhase} -> " +
+                $"{rainbowAttack.Phase}; timer=${rainbowAttack.FunctionTimer:X4}, " +
+                $"body=({rainbowAttack.Body.XPosition},{rainbowAttack.Body.YPosition})/" +
+                $"pose {rainbowAttack.Body.Pose}, head=${rainbowAttack.HeadInstructionList:X4}, " +
+                $"width=${rainbowAttack.AngularWidth:X4}.");
+            previousRainbowPhase = rainbowAttack.Phase;
+        }
+        if (bodyResult.FootstepRequested)
+        {
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: Mother Brain body opcode footstep at " +
+                $"({bodyResult.XAfter},{bodyResult.YAfter}); earthquake " +
+                $"{bodyResult.EarthquakeType}/{bodyResult.EarthquakeTimer}.");
+        }
+    }
+
     RuntimeFrameResult result = runtime.StepFrame(controllerInput);
     observedSamusPoses.Add(runtime.Samus.Pose);
     if (specialSpinRoute &&
@@ -1272,7 +1345,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             runtime.LastBombJumpMovement?.Horizontal ??
             runtime.LastKnockbackMovement?.Horizontal ??
             runtime.LastShinesparkMovement?.Horizontal;
-        if (horizontal is null && runtime.LastGrappleMovement is null &&
+        if (horizontal is null && rainbowSamusMovement is null &&
+            runtime.LastGrappleMovement is null &&
             runtime.LastShinesparkMovement is null)
             throw new InvalidOperationException("Samus X changed without a translated movement result.");
         string vertical = runtime.LastGroundedSamusMovement is GroundedMovementResult groundedMovement
@@ -1295,6 +1369,9 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             $"{runtime.Samus.HorizontalSpeed.ExtraRunSubspeed:X4}, " +
             (horizontal is BlockMoveResult moved
                 ? $"horizontal=${moved.AcceptedDisplacement:X8}, {vertical}"
+                : rainbowSamusMovement is MotherBrainForcedSamusMovementResult forced
+                    ? $"Mother Brain forced velocity=${forced.XVelocity:X4}/" +
+                      $"${forced.YVelocity:X4}, carry={forced.NativeCarry}"
                 : $"grapple angle=${runtime.Samus.Grapple.Angle:X4}, " +
                   $"velocity=${unchecked((ushort)runtime.Samus.Grapple.AngularVelocity):X4}, " +
                   $"beamStart=({runtime.Samus.Grapple.BeamStartX:X4},{runtime.Samus.Grapple.BeamStartY:X4})"));
@@ -1883,6 +1960,43 @@ if (options.CrystalFlashScript)
         $"{runtime.Samus.SuperMissiles}/{runtime.Samus.PowerBombs}.");
 }
 
+if (options.MotherBrainRainbowScript)
+{
+    if (rainbowAttack is null)
+        throw new InvalidOperationException("Mother Brain rainbow route was not initialized.");
+    if (options.FrameCount >= 258 &&
+        !observedRainbowPhases.Contains(MotherBrainRainbowBeamAttackPhase.RetractNeck))
+    {
+        throw new InvalidOperationException(
+            "Mother Brain rainbow ROM route never reached the retracting body walk.");
+    }
+    if (options.FrameCount >= 571 &&
+        !observedRainbowPhases.Contains(MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall))
+    {
+        throw new InvalidOperationException(
+            "Mother Brain rainbow ROM route never completed charge into the active beam.");
+    }
+    if (options.FrameCount >= 880 &&
+        !observedRainbowPhases.Contains(MotherBrainRainbowBeamAttackPhase.LetSamusFall))
+    {
+        throw new InvalidOperationException(
+            "Mother Brain rainbow ROM route never drained and released Samus.");
+    }
+    if (options.FrameCount >= 1100 &&
+        rainbowAttack.Phase != MotherBrainRainbowBeamAttackPhase.FinishSamusOff)
+    {
+        throw new InvalidOperationException(
+            $"Mother Brain rainbow ROM route did not reach finish-off handoff; phase={rainbowAttack.Phase}.");
+    }
+    Console.WriteLine(
+        $"Mother Brain rainbow ROM route ended at {rainbowAttack.Phase}; " +
+        $"body=({rainbowAttack.Body.XPosition},{rainbowAttack.Body.YPosition})/" +
+        $"pose {rainbowAttack.Body.Pose}, Samus=({runtime.Samus.XPosition}," +
+        $"{runtime.Samus.YPosition}) energy={runtime.Samus.Health}, " +
+        $"ammo={runtime.Samus.Missiles}/{runtime.Samus.SuperMissiles}/" +
+        $"{runtime.Samus.PowerBombs}.");
+}
+
 if (options.DrainedSamusScript)
 {
     if (options.FrameCount >= 20 && !observedDrainedFallingHandler)
@@ -2111,6 +2225,7 @@ readonly record struct DebugRunnerOptions(
     bool GrappleScript,
     bool GrappleFireScript,
     bool CrystalFlashScript,
+    bool MotherBrainRainbowScript,
     bool DrainedSamusScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
@@ -2148,6 +2263,7 @@ readonly record struct DebugRunnerOptions(
         bool grappleScript = false;
         bool grappleFireScript = false;
         bool crystalFlashScript = false;
+        bool motherBrainRainbowScript = false;
         bool drainedSamusScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
@@ -2318,6 +2434,10 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--mother-brain-rainbow-script":
+                    motherBrainRainbowScript = true;
+                    break;
+
                 case "--drained-samus-script":
                     drainedSamusScript = true;
                     groundedRun = true;
@@ -2384,6 +2504,7 @@ readonly record struct DebugRunnerOptions(
             grappleScript,
             grappleFireScript,
             crystalFlashScript,
+            motherBrainRainbowScript,
             drainedSamusScript);
     }
 

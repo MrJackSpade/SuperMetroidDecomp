@@ -3,19 +3,28 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Mother Brain's active phase-two rainbow-beam function chain at
-/// <c>$A9:B983-$A9:BB2D</c>.
+/// Mother Brain's repeatable phase-two rainbow-beam function chain at
+/// <c>$A9:B8EB-$A9:BB2D</c>.
 /// </summary>
 /// <remarks>
-/// The earlier neck extension/charge and the later Baby Metroid cutscene remain separate
-/// actor phases. This class starts exactly when the charge timer expires and owns every
-/// subsequent function-pointer handoff until Mother Brain decides to repeat the attack or
-/// begin finishing Samus off. Palette, HDMA, projectile, earthquake, and sound writes are
+/// The earlier attack-selection logic and later finish-off/Baby Metroid cutscene remain
+/// separate actor phases. This class owns the neck extension, both charge waits, body
+/// retraction walk, active beam, and every subsequent function-pointer handoff until Mother
+/// Brain decides to repeat the attack or begin finishing Samus off. Palette, HDMA, projectile,
+/// earthquake, and sound writes are
 /// retained as inspectable requests; the coordinate, resource, timer, and Samus-command
 /// mutations execute directly.
 /// </remarks>
 public sealed class MotherBrainRainbowBeamAttackSequence
 {
+    // These are literal bank-$A9 instruction-list addresses installed by the AI. Keeping
+    // the pointers visible lets the debugger prove which native animation is active.
+    public const ushort HeadNeutralPhase2InstructionList = 0x9c87;
+    public const ushort HeadChargingRainbowInstructionList = 0x9f6c;
+    public const ushort HeadFiringRainbowInstructionList = 0x9c77;
+    public const ushort BodyWalkingForwardReallySlowInstructionList = 0x9818;
+    public const ushort BodyWalkingBackwardReallySlowInstructionList = 0x993a;
+
     // `$A9:BCA6/$BCB6` are indexed after incrementing the explosion index. Keeping all eight
     // signed records here preserves the initial index-zero -> record-one behavior.
     private static ReadOnlySpan<short> ExplosionXOffsets =>
@@ -26,6 +35,12 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
 
+    /// <summary>
+    /// Body enemy-slot animation state. The caller advances its enemy-instruction stage
+    /// after <see cref="Step"/>, matching the native AI-then-instruction order.
+    /// </summary>
+    public MotherBrainBodyAnimationState Body { get; } = new();
+
     /// <summary>Current body-function equivalent.</summary>
     public MotherBrainRainbowBeamAttackPhase Phase { get; private set; } =
         MotherBrainRainbowBeamAttackPhase.Inactive;
@@ -35,6 +50,24 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>Mother Brain brain-slot Y used by `$A9:BB8F`'s aim vector.</summary>
     public ushort BrainYPosition { get; set; }
+
+    /// <summary>Current brain instruction list installed through `$A9:C447`.</summary>
+    public ushort HeadInstructionList { get; private set; }
+
+    /// <summary>Brain instruction timer, reset to one whenever the AI changes its list.</summary>
+    public ushort HeadInstructionTimer { get; private set; }
+
+    /// <summary>Native neck angular delta at Mother Brain body extra word `$0FBC`.</summary>
+    public ushort NeckAngleDelta { get; private set; }
+
+    /// <summary>Native enable-neck-movement flag.</summary>
+    public ushort NeckMovementEnabled { get; private set; }
+
+    /// <summary>Lower neck movement index selected by the current actor phase.</summary>
+    public ushort LowerNeckMovementIndex { get; private set; }
+
+    /// <summary>Upper neck movement index selected by the current actor phase.</summary>
+    public ushort UpperNeckMovementIndex { get; private set; }
 
     /// <summary>Native body function timer at enemy word <c>$0FB0</c>.</summary>
     public ushort FunctionTimer { get; private set; }
@@ -70,6 +103,14 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public ushort SamusProjectileCooldownTimer { get; private set; }
 
     /// <summary>
+    /// Starts the repeatable rainbow-beam cycle at `$A9:B8EB`, before its two charge waits.
+    /// </summary>
+    public void StartAttackCycle()
+    {
+        BeginExtendingNeckForAttack();
+    }
+
+    /// <summary>
     /// Starts at `$A9:B983`, immediately after the power-bomb gate and charge countdown.
     /// </summary>
     public void StartActiveBeam(ISnesAddressSpace bus, SamusState samus)
@@ -77,6 +118,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
 
+        SetHeadInstructionList(HeadFiringRainbowInstructionList);
         AngularWidth = 0x0200;
         ExplosionIndex = 0;
         ExplosionTimer = 0;
@@ -86,6 +128,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         EarthquakeType = 0;
         EarthquakeTimer = 0;
         SamusProjectileCooldownTimer = 0;
+        NeckAngleDelta = 0x0040;
+        NeckMovementEnabled = 1;
+        LowerNeckMovementIndex = 2;
+        UpperNeckMovementIndex = 4;
 
         // `$A9:B9C5-$B9D3` selects command five at 700 energy or above and command `$18`
         // below it. CPY/BPL is a signed 16-bit branch, retained by NativeAtLeast.
@@ -102,7 +148,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         ISnesAddressSpace bus,
         SamusState samus,
         ushort enemyFrameCounter,
-        ushort mainEnemyExecutionCounter)
+        ushort mainEnemyExecutionCounter,
+        bool powerBombActive = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -119,9 +166,73 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         ushort supersBefore = samus.SuperMissiles;
         ushort bombsBefore = samus.PowerBombs;
         bool unlockedSamus = false;
+        bool chargeSoundQueued = false;
+        bool bodyWalkRequested = false;
 
         switch (Phase)
         {
+            case MotherBrainRainbowBeamAttackPhase.RepeatAttack:
+                // `$A9:BB13` only installs `$B8EB`; the setup executes on the next enemy
+                // AI call and deliberately does not fall through into its 256 timer.
+                BeginExtendingNeckForAttack();
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.StartCharging:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    SetHeadInstructionList(HeadChargingRainbowInstructionList);
+                    Phase = MotherBrainRainbowBeamAttackPhase.RetractNeck;
+                    goto case MotherBrainRainbowBeamAttackPhase.RetractNeck;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.RetractNeck:
+                bodyWalkRequested = RequestWalkBackwardReallySlow(targetX: 0x0028);
+                if (HasReachedBackwardTarget(targetX: 0x0028))
+                {
+                    RetractHead();
+                    Phase = MotherBrainRainbowBeamAttackPhase.WaitForCharge;
+                    FunctionTimer = 0x0100;
+                    goto case MotherBrainRainbowBeamAttackPhase.WaitForCharge;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.WaitForCharge:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    chargeSoundQueued = true; // Sound library two, effect `$71`.
+                    Phase = MotherBrainRainbowBeamAttackPhase.ExtendNeckDown;
+                    goto case MotherBrainRainbowBeamAttackPhase.ExtendNeckDown;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.ExtendNeckDown:
+                SamusProjectileCooldownTimer = 8;
+                LowerNeckMovementIndex = 6;
+                UpperNeckMovementIndex = 6;
+                NeckAngleDelta = 0x0500; // NTSC value of regional `$0500/$0700`.
+                Phase = MotherBrainRainbowBeamAttackPhase.StartFiring;
+                FunctionTimer = 0x0010; // NTSC value of regional `$0010/$000C`.
+                goto case MotherBrainRainbowBeamAttackPhase.StartFiring;
+
+            case MotherBrainRainbowBeamAttackPhase.StartFiring:
+                // `$A9:B975` widens/aims even while an active power bomb freezes the timer.
+                IncreaseWidthAndAim(samus);
+                if (!powerBombActive)
+                {
+                    FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                    if ((FunctionTimer & 0x8000) != 0)
+                    {
+                        // The cartridge redundantly rereads the power-bomb flag here. The
+                        // parameter is one stable WRAM sample for this translated AI call.
+                        SamusProjectileCooldownTimer = 0;
+                        StartActiveBeam(bus, samus);
+                    }
+                }
+                break;
+
             case MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall:
                 RunContinuingBeamEffects(
                     samus,
@@ -234,16 +345,25 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                 {
-                    Phase = NativeAtLeast(samus.Health, 0x0190)
-                        ? MotherBrainRainbowBeamAttackPhase.RepeatAttack
-                        : MotherBrainRainbowBeamAttackPhase.FinishSamusOff;
+                    if (NativeAtLeast(samus.Health, 0x0190))
+                    {
+                        Phase = MotherBrainRainbowBeamAttackPhase.RepeatAttack;
+                    }
+                    else
+                    {
+                        // `$A9:BB1A-$BB24` performs this call before installing the later
+                        // finish-off function. It starts one complete really-slow forward
+                        // body animation when Mother Brain is standing and left of `$80`.
+                        bodyWalkRequested = RequestWalkForwardReallySlow(
+                            unchecked((ushort)(Body.XPosition + 0x0010)));
+                        Phase = MotherBrainRainbowBeamAttackPhase.FinishSamusOff;
+                    }
                 }
                 break;
 
-            case MotherBrainRainbowBeamAttackPhase.RepeatAttack:
             case MotherBrainRainbowBeamAttackPhase.FinishSamusOff:
                 // These are exact outgoing function-pointer seams. A caller must install the
-                // earlier charge chain or later finishing/Baby chain before stepping again.
+                // later finishing/Baby chain before stepping again.
                 throw new InvalidOperationException(
                     $"Rainbow-beam active sequence already handed off through {Phase}.");
 
@@ -270,7 +390,82 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             AngularWidth,
             FunctionTimer,
             EarthquakeType,
-            EarthquakeTimer);
+            EarthquakeTimer,
+            chargeSoundQueued,
+            bodyWalkRequested,
+            HeadInstructionList,
+            NeckAngleDelta,
+            LowerNeckMovementIndex,
+            UpperNeckMovementIndex);
+    }
+
+    private void BeginExtendingNeckForAttack()
+    {
+        // `$A9:B8EB-$B916` resets the neutral phase-two head program and selects the
+        // ordinary 2/4 neck geometry before beginning its first 256-count wait.
+        SetHeadInstructionList(HeadNeutralPhase2InstructionList);
+        NeckAngleDelta = 0x0040;
+        NeckMovementEnabled = 1;
+        LowerNeckMovementIndex = 2;
+        UpperNeckMovementIndex = 4;
+        Phase = MotherBrainRainbowBeamAttackPhase.StartCharging;
+        FunctionTimer = 0x0100;
+    }
+
+    private void SetHeadInstructionList(ushort pointer)
+    {
+        // `$A9:C447` writes the separate brain-list pointer and timer. Unlike ordinary
+        // enemy programs it has no loop-counter write here.
+        HeadInstructionList = pointer;
+        HeadInstructionTimer = 1;
+    }
+
+    private void RetractHead()
+    {
+        // NTSC takes `$0050` from the regional `$0050/$0063` constant at `$A9:BB51`.
+        NeckAngleDelta = 0x0050;
+        NeckMovementEnabled = 1;
+        LowerNeckMovementIndex = 8;
+        UpperNeckMovementIndex = 6;
+    }
+
+    private bool RequestWalkForwardReallySlow(ushort targetX)
+    {
+        // `$A9:C601` first performs signed CMP/BMI against the target. At equality it still
+        // examines pose and the hard `$80` arena limit; only a strictly overshot target sets
+        // carry at the first branch.
+        if (unchecked((short)(targetX - Body.XPosition)) < 0)
+            return false;
+        if (Body.Pose != 0)
+            return false;
+        if (NativeAtLeast(Body.XPosition, 0x0080))
+            return false;
+
+        Body.SetInstructionList(BodyWalkingForwardReallySlowInstructionList);
+        return true;
+    }
+
+    private bool RequestWalkBackwardReallySlow(ushort targetX)
+    {
+        if (HasReachedBackwardTarget(targetX) || Body.Pose != 0)
+            return false;
+
+        Body.SetInstructionList(BodyWalkingBackwardReallySlowInstructionList);
+        return true;
+    }
+
+    private bool HasReachedBackwardTarget(ushort targetX) =>
+        // `$A9:C647` reports carry at target/left of target or below the independent `$30`
+        // room limit. This check runs before pose, so an in-progress walk can complete the AI
+        // phase on the exact frame one of its movement opcodes reaches X `$28`.
+        unchecked((short)(targetX - Body.XPosition)) >= 0 ||
+        unchecked((short)(Body.XPosition - 0x0030)) < 0;
+
+    private void IncreaseWidthAndAim(SamusState samus)
+    {
+        ushort widened = unchecked((ushort)(AngularWidth + 0x0180));
+        AngularWidth = NativeAtLeast(widened, 0x0c00) ? (ushort)0x0c00 : widened;
+        AimBeamAtSamus(samus);
     }
 
     private void RunContinuingBeamEffects(
@@ -295,12 +490,9 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         paletteRequested = (enemyFrameCounter & 2) != 0;
 
         if (increaseWidth)
-        {
-            ushort widened = unchecked((ushort)(AngularWidth + 0x0180));
-            AngularWidth = NativeAtLeast(widened, 0x0c00) ? (ushort)0x0c00 : widened;
-        }
-
-        AimBeamAtSamus(samus);
+            IncreaseWidthAndAim(samus);
+        else
+            AimBeamAtSamus(samus);
         explosion = StepExplosionTimer();
     }
 
@@ -368,19 +560,16 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         if (NativeAtLeast(decremented, 1))
             return decremented;
 
-        // This deliberately looks odd because the 65816 reloads A with SelectedHUDItem
-        // before branching to the shared write. If a different nonzero item is selected as
-        // this ammo reaches zero, that item number is written into the depleted ammo count.
-        // Preserve the retail bug instead of silently clamping a conventional resource.
-        ushort accumulator = samus.SelectedHudItem;
+        // The 65816 briefly reloads A with SelectedHUDItem for the comparison, but both the
+        // matching and nonmatching branches converge at a label whose first instruction is
+        // `LDA #$0000`. Therefore the depleted count is always zero; only the selected-item
+        // store itself is conditional. Spell that convergence out to avoid the tempting but
+        // incorrect interpretation that the HUD item number leaks into the ammo count.
         if (samus.SelectedHudItem == selectedItem)
-        {
             samus.SelectedHudItem = 0;
-            accumulator = 0;
-        }
 
         samus.AutoCancelHudItemIndex = 0;
-        return accumulator;
+        return 0;
     }
 
     private static bool NativeAtLeast(ushort value, ushort threshold) =>
@@ -391,6 +580,11 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 public enum MotherBrainRainbowBeamAttackPhase
 {
     Inactive,
+    StartCharging,
+    RetractNeck,
+    WaitForCharge,
+    ExtendNeckDown,
+    StartFiring,
     MoveSamusTowardWall,
     OneFrameDelay,
     StartDrainingSamus,
@@ -431,4 +625,10 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     ushort AngularWidth,
     ushort FunctionTimer,
     ushort EarthquakeType,
-    ushort EarthquakeTimer);
+    ushort EarthquakeTimer,
+    bool ChargeSoundQueued,
+    bool BodyWalkRequested,
+    ushort HeadInstructionList,
+    ushort NeckAngleDelta,
+    ushort LowerNeckMovementIndex,
+    ushort UpperNeckMovementIndex);

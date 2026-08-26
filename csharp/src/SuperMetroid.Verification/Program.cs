@@ -2178,6 +2178,39 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     bus.WriteBytes(0x91c020, [0x01, 0xfe, 0x01]);
     bus.WriteBytes(0x91b268, [0x02, 0x02, 0x10, 0xf7, 0x01]);
 
+    // Exact `$A9:9818` and `$A9:993A` command/duration shapes. Spritemap operands are
+    // deliberately small sentinels because this check targets the enemy interpreter; the
+    // private-ROM regression separately reads the retail extended-spritemap pointers.
+    ushort[] forwardReallySlow =
+    [
+        0x9708, 0x000a, 0x1000,
+        0x95fc, 0x000a, 0x1001,
+        0x960c, 0x000a, 0x1002,
+        0x961c, 0x000a, 0x1003,
+        0x9622, 0x000a, 0x1004,
+        0x9638, 0x000a, 0x1005,
+        0x9648, 0x000a, 0x1006,
+        0x9658, 0x000a, 0x1007,
+        0x9668, 0x9700, 0x000a, 0x1008, 0x812f,
+    ];
+    ushort[] backwardReallySlow =
+    [
+        0x9708, 0x000a, 0x1100,
+        0x96f0, 0x000a, 0x1101,
+        0x96e0, 0x000a, 0x1102,
+        0x96d0, 0x000a, 0x1103,
+        0x96ba, 0x000a, 0x1104,
+        0x96aa, 0x000a, 0x1105,
+        0x96a4, 0x000a, 0x1106,
+        0x9694, 0x000a, 0x1107,
+        0x967e, 0x9700, 0x000a, 0x1108, 0x812f,
+    ];
+    for (int index = 0; index < forwardReallySlow.Length; index++)
+    {
+        WriteTestWord(bus, 0xa99818 + index * 2, forwardReallySlow[index]);
+        WriteTestWord(bus, 0xa9993a + index * 2, backwardReallySlow[index]);
+    }
+
     var samus = new SamusState
     {
         Health = 999,
@@ -2192,6 +2225,8 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         BrainXPosition = 64,
         BrainYPosition = 96,
     };
+    attack.Body.XPosition = 64;
+    attack.Body.YPosition = 100;
 
     attack.StartActiveBeam(bus, samus);
     AssertEqual(MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall, attack.Phase,
@@ -2297,12 +2332,17 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(129, decisionCalls, "$80 decision timer expires on 129th DEC/BPL call");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.FinishSamusOff, attack.Phase,
         "post-drain health below $190 chooses finish-Samus chain");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingForwardReallySlowInstructionList,
+        attack.Body.InstructionPointer,
+        "low-health decision immediately installs native forward body walk");
+    AssertEqual((ushort)1, attack.Body.InstructionTimer,
+        "low-health decision makes forward walk eligible in same enemy frame");
     AssertThrows<InvalidOperationException>(
         () => attack.Step(bus, samus, enemyFrameCounter: 0, mainEnemyExecutionCounter: 0),
         "active sequence refuses to invent later finish-Samus actor AI");
 
-    // Boundary 700 uses command five; 699 uses `$18`. The second fixture also targets the
-    // cartridge's surprising depleted-ammo accumulator reuse when another HUD item is active.
+    // Boundary 700 uses command five; 699 uses `$18`. The second fixture also proves that
+    // `$A9:C4E8` loads literal zero even when a different HUD item made the prior CMP fail.
     var low = new SamusState
     {
         Health = 699,
@@ -2324,22 +2364,228 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         bus, low, enemyFrameCounter: 0, mainEnemyExecutionCounter: 0);
     AssertEqual(MotherBrainRainbowBeamAttackPhase.DrainingSamus, firstDrain.PhaseAfter,
         "drain initializer falls through into first resource tick");
-    AssertEqual((ushort)2, low.Missiles,
-        "depleted missiles inherit different selected HUD item through native A reuse");
+    AssertEqual((ushort)0, low.Missiles,
+        "depleted missiles clear even when a different HUD item is selected");
     AssertEqual((ushort)0, low.SuperMissiles,
         "selected supers clear HUD item and reach zero");
     AssertEqual((ushort)0, low.PowerBombs,
-        "power bombs see cleared HUD accumulator and reach zero");
+        "power bombs reach the shared literal-zero reset regardless of HUD selection");
     AssertEqual((ushort)0, low.SelectedHudItem, "selected depleted item clears HUD selection");
     AssertEqual((ushort)0, low.AutoCancelHudItemIndex, "ammo depletion resets auto-cancel index");
 
-    var exactThreshold = new SamusState { Health = 700 };
+    // Walk programs execute in the ordinary enemy-instruction stage after AI. A complete
+    // really-slow list contains nine ten-frame spritemaps and reaches sleep on call 91.
+    var backwardBody = new MotherBrainBodyAnimationState
+    {
+        XPosition = 64,
+        YPosition = 100,
+        Form = 3,
+    };
+    backwardBody.SetInstructionList(
+        MotherBrainRainbowBeamAttackSequence.BodyWalkingBackwardReallySlowInstructionList);
+    int backwardAnimationCalls = 0;
+    int backwardFootsteps = 0;
+    while (!backwardBody.Sleeping)
+    {
+        MotherBrainBodyAnimationStepResult bodyStep = backwardBody.Step(bus);
+        backwardAnimationCalls++;
+        if (bodyStep.FootstepRequested)
+        {
+            backwardFootsteps++;
+            AssertTrue(bodyStep.FootstepSoundRequested,
+                "form-three backward footstep retains otherwise-silent sound request");
+            AssertEqual((ushort)1, bodyStep.EarthquakeType, "backward footstep earthquake type");
+            AssertEqual((ushort)4, bodyStep.EarthquakeTimer, "backward footstep earthquake timer");
+        }
+        AssertTrue(backwardAnimationCalls < 100, "backward walk reaches common sleep");
+    }
+    AssertEqual(91, backwardAnimationCalls, "nine ten-frame backward records then sleep");
+    AssertEqual(2, backwardFootsteps, "backward walk executes two footstep opcodes");
+    AssertEqual((ushort)40, backwardBody.XPosition, "backward walk literal net X delta -24");
+    AssertEqual((ushort)100, backwardBody.YPosition, "backward walk literal Y deltas cancel");
+    AssertEqual((ushort)0, backwardBody.Pose, "backward walk restores standing pose");
+    AssertEqual((ushort)0xfffa, backwardBody.Bg2XScroll,
+        "backward walk keeps BG2 X at $22 minus body X");
+    AssertEqual((ushort)0, backwardBody.Bg2YScroll,
+        "backward walk inverse BG2 Y deltas cancel");
+    AssertEqual((ushort)0x9972, backwardBody.InstructionPointer,
+        "backward common sleep pins its own opcode address");
+
+    var forwardBody = new MotherBrainBodyAnimationState
+    {
+        XPosition = 64,
+        YPosition = 100,
+        Form = 2,
+    };
+    forwardBody.SetInstructionList(
+        MotherBrainRainbowBeamAttackSequence.BodyWalkingForwardReallySlowInstructionList);
+    int forwardAnimationCalls = 0;
+    int forwardFootsteps = 0;
+    while (!forwardBody.Sleeping)
+    {
+        MotherBrainBodyAnimationStepResult bodyStep = forwardBody.Step(bus);
+        forwardAnimationCalls++;
+        if (bodyStep.FootstepRequested)
+        {
+            forwardFootsteps++;
+            AssertTrue(!bodyStep.FootstepSoundRequested,
+                "non-form-three forward footstep suppresses sound request");
+        }
+        AssertTrue(forwardAnimationCalls < 100, "forward walk reaches common sleep");
+    }
+    AssertEqual(91, forwardAnimationCalls, "nine ten-frame forward records then sleep");
+    AssertEqual(2, forwardFootsteps, "forward walk executes two footstep opcodes");
+    AssertEqual((ushort)88, forwardBody.XPosition, "forward walk literal net X delta +24");
+    AssertEqual((ushort)100, forwardBody.YPosition, "forward walk literal Y deltas cancel");
+    AssertEqual((ushort)0, forwardBody.Pose, "forward walk restores standing pose");
+    AssertEqual((ushort)0x9850, forwardBody.InstructionPointer,
+        "forward common sleep pins its own opcode address");
+
+    WriteTestWord(bus, 0xa99000, 0xffff);
+    var unknownBody = new MotherBrainBodyAnimationState();
+    unknownBody.SetInstructionList(0x9000);
+    AssertThrows<InvalidOperationException>(() => unknownBody.Step(bus),
+        "unknown Mother Brain animation command is an explicit translation seam");
+
+    // Now drive the entire `$B8EB-$B983` repeat cycle with the body interpreter after each
+    // AI call. This validates both independent timers and their three native fallthroughs.
+    var repeatSamus = new SamusState
+    {
+        Health = 800,
+        XPosition = 220,
+        YPosition = 124,
+    };
+    var repeatAttack = new MotherBrainRainbowBeamAttackSequence
+    {
+        BrainXPosition = 64,
+        BrainYPosition = 96,
+    };
+    repeatAttack.Body.XPosition = 64;
+    repeatAttack.Body.YPosition = 100;
+    repeatAttack.StartAttackCycle();
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.StartCharging, repeatAttack.Phase,
+        "repeat setup installs first charge wait");
+    AssertEqual((ushort)0x0100, repeatAttack.FunctionTimer, "repeat first wait starts at $100");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadNeutralPhase2InstructionList,
+        repeatAttack.HeadInstructionList, "repeat setup selects neutral phase-two head art");
+
+    int firstChargeCalls = 0;
+    while (repeatAttack.Phase == MotherBrainRainbowBeamAttackPhase.StartCharging)
+    {
+        repeatAttack.Step(bus, repeatSamus, 0, 0);
+        repeatAttack.Body.Step(bus);
+        firstChargeCalls++;
+    }
+    AssertEqual(257, firstChargeCalls, "$100 first charge wait expires on DEC call 257");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.RetractNeck, repeatAttack.Phase,
+        "first wait falls through into retracting walk");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadChargingRainbowInstructionList,
+        repeatAttack.HeadInstructionList, "first wait selects charging head program");
+    AssertEqual((ushort)1, repeatAttack.Body.Pose,
+        "same-frame enemy stage begins the requested backward body animation");
+
+    int retractCalls = 0;
+    while (repeatAttack.Phase == MotherBrainRainbowBeamAttackPhase.RetractNeck)
+    {
+        repeatAttack.Step(bus, repeatSamus, 0, 0);
+        repeatAttack.Body.Step(bus);
+        retractCalls++;
+        AssertTrue(retractCalls < 100, "retracting walk reaches X $28");
+    }
+    AssertEqual(41, retractCalls,
+        "AI advances after the -15 opcode crosses hard X $30 boundary");
+    AssertEqual((ushort)46, repeatAttack.Body.XPosition,
+        "retract AI handoff occurs at overshot X $2E before walk animation settles");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.WaitForCharge, repeatAttack.Phase,
+        "retract target falls through into second charge wait");
+    AssertEqual((ushort)0x0050, repeatAttack.NeckAngleDelta, "retract neck NTSC delta");
+    AssertEqual((ushort)8, repeatAttack.LowerNeckMovementIndex, "retract lower neck index");
+    AssertEqual((ushort)6, repeatAttack.UpperNeckMovementIndex, "retract upper neck index");
+    AssertEqual((ushort)0x00ff, repeatAttack.FunctionTimer,
+        "second wait is decremented once by retract fallthrough");
+
+    int secondChargeCalls = 0;
+    MotherBrainRainbowBeamAttackStepResult chargeCompletion = default;
+    while (repeatAttack.Phase == MotherBrainRainbowBeamAttackPhase.WaitForCharge)
+    {
+        chargeCompletion = repeatAttack.Step(bus, repeatSamus, 0, 0);
+        repeatAttack.Body.Step(bus);
+        secondChargeCalls++;
+    }
+    AssertEqual(256, secondChargeCalls, "remaining second charge wait calls");
+    AssertTrue(chargeCompletion.ChargeSoundQueued,
+        "second charge underflow queues sound-library-two effect $71");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.StartFiring, repeatAttack.Phase,
+        "second wait falls through neck-down setup and first firing call");
+    AssertEqual((ushort)8, repeatAttack.SamusProjectileCooldownTimer,
+        "neck-down setup writes projectile cooldown eight");
+    AssertEqual((ushort)6, repeatAttack.LowerNeckMovementIndex, "firing lower neck index");
+    AssertEqual((ushort)6, repeatAttack.UpperNeckMovementIndex, "firing upper neck index");
+    AssertEqual((ushort)0x0500, repeatAttack.NeckAngleDelta, "firing NTSC neck delta");
+    AssertEqual((ushort)0x0180, repeatAttack.AngularWidth,
+        "fallthrough firing call widens prior zero width");
+    AssertEqual((ushort)0x000f, repeatAttack.FunctionTimer,
+        "fallthrough firing call decrements regional timer 16");
+
+    MotherBrainRainbowBeamAttackStepResult frozenCharge = repeatAttack.Step(
+        bus, repeatSamus, 0, 0, powerBombActive: true);
+    AssertEqual((ushort)0x000f, frozenCharge.FunctionTimer,
+        "active power bomb freezes firing countdown");
+    AssertEqual((ushort)0x0300, frozenCharge.AngularWidth,
+        "active power bomb does not freeze beam aiming/width growth");
+
+    int firingCalls = 0;
+    while (repeatAttack.Phase == MotherBrainRainbowBeamAttackPhase.StartFiring)
+    {
+        repeatAttack.Step(bus, repeatSamus, 0, 0);
+        repeatAttack.Body.Step(bus);
+        firingCalls++;
+    }
+    AssertEqual(16, firingCalls, "timer $000F reaches active beam on 16th unfrozen call");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall, repeatAttack.Phase,
+        "start-firing underflow executes `$B983` active setup in same call");
+    AssertEqual((ushort)0x0200, repeatAttack.AngularWidth,
+        "active setup resets prefire width to $0200");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadFiringRainbowInstructionList,
+        repeatAttack.HeadInstructionList, "active setup selects firing head program");
+    AssertTrue(repeatSamus.InputLocked, "repeat cycle ends by locking Samus through command five");
+
+    var exactThreshold = new SamusState
+    {
+        Health = 700,
+        EquippedItems = 1, // Varia carry makes each of the 300 hits subtract one.
+        XPosition = 220,
+        YPosition = 124,
+    };
     var thresholdAttack = new MotherBrainRainbowBeamAttackSequence();
     thresholdAttack.StartActiveBeam(bus, exactThreshold);
     AssertEqual(DrainedGetUpHandler.AbleToStand, exactThreshold.Drained.GetUpHandler,
         "energy exactly $02BC takes native BPL able branch");
 
-    Console.WriteLine("  Mother Brain actor: active rainbow lock, drain, resources, shutdown, fall, and decision agree.");
+    int thresholdRouteCalls = 0;
+    while (thresholdAttack.Phase != MotherBrainRainbowBeamAttackPhase.DecideNextAction)
+    {
+        thresholdAttack.Step(
+            bus,
+            exactThreshold,
+            enemyFrameCounter: unchecked((ushort)thresholdRouteCalls),
+            mainEnemyExecutionCounter: unchecked((ushort)thresholdRouteCalls));
+        thresholdRouteCalls++;
+        AssertTrue(thresholdRouteCalls < 500, "exact-threshold route reaches decision timer");
+    }
+    while (thresholdAttack.Phase == MotherBrainRainbowBeamAttackPhase.DecideNextAction)
+        thresholdAttack.Step(bus, exactThreshold, 0, 0);
+    AssertEqual((ushort)400, exactThreshold.Health,
+        "700 with Varia reaches exact repeat/finish boundary after 300 hits");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.RepeatAttack, thresholdAttack.Phase,
+        "health exactly $0190 selects repeat attack");
+    thresholdAttack.Step(bus, exactThreshold, 0, 0);
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.StartCharging, thresholdAttack.Phase,
+        "repeat pointer executes neck-extension setup on following AI call");
+    AssertEqual((ushort)0x0100, thresholdAttack.FunctionTimer,
+        "repeated neck-extension setup reloads first charge timer");
+
+    Console.WriteLine("  Mother Brain actor: ROM walk bytecode, repeat charge, active drain, shutdown, fall, and decision agree.");
 }
 
 static void VerifySamusAerialMovement()

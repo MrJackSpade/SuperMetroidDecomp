@@ -27,6 +27,11 @@ else if (options.MoonwalkScript)
     Console.WriteLine(
         "Input script: enable Moonwalk, walk backward right-facing through neutral/up/down aim, release, re-enter, then execute the $BF -> $1A jump route.");
 }
+else if (options.RanIntoWallScript)
+{
+    Console.WriteLine(
+        "Input script: press into a ROM-authored solid wall, change wall-stop aim up/down, release to neutral, then jump away through $4B.");
+}
 else if (options.JumpScript)
 {
     Console.WriteLine(
@@ -141,11 +146,27 @@ ScrollBoundaryCamera camera = runtime.Camera!;
 // The optional grounded scenario must choose its camera before the native initial viewport
 // fill. Its world X and desired screen Y are explicitly host-authored; the returned floor,
 // slope height, resting Y, pose data, and every subsequent movement value are ROM-backed.
-DebugGroundedSamusPlacement? groundedPlacement = options.GroundedRun
-    ? options.GrappleScript
-        ? runtime.InitializeDebugGrappleSwing()
-        : runtime.InitializeDebugGroundedSamus()
-    : null;
+DebugGroundedSamusPlacement? groundedPlacement = null;
+DebugRanIntoWallSamusPlacement? wallPlacement = null;
+if (options.GroundedRun)
+{
+    if (options.GrappleScript)
+    {
+        groundedPlacement = runtime.InitializeDebugGrappleSwing();
+    }
+    else if (options.RanIntoWallScript)
+    {
+        // The core scans the decompressed room for an ordinary type-$8 corner. Keeping
+        // the returned coordinates here makes the host-authored placement as inspectable
+        // as the cartridge-authored blocks that the live one-pixel probe will consume.
+        wallPlacement = runtime.InitializeDebugRanIntoWallSamus();
+        groundedPlacement = wallPlacement.Value.Grounded;
+    }
+    else
+    {
+        groundedPlacement = runtime.InitializeDebugGroundedSamus();
+    }
+}
 InitialViewportResult initialViewport = runtime.InitializeLandingSiteViewport();
 
 // The cutscene door does not define a normal-gameplay Samus spawn. In the default scenario,
@@ -195,6 +216,14 @@ Console.WriteLine(
         ? $"floor=({placement.BlockX},{placement.BlockY}) type=${placement.FloorBlock.CollisionType:X1}/" +
           $"BTS ${placement.FloorBlock.Behavior:X2}, height={placement.FloorHeight}; only X/screen framing are host-selected."
         : "only that placement is host-selected."));
+if (wallPlacement is DebugRanIntoWallSamusPlacement wallDiagnostic)
+{
+    Console.WriteLine(
+        $"Wall regression uses ROM column ${wallDiagnostic.WallBlockX:X2}, rows " +
+        $"${wallDiagnostic.WallTopBlockY:X2}-${wallDiagnostic.WallBottomBlockY:X2}; " +
+        $"standing center X=${wallDiagnostic.Grounded.XPosition:X4} is exactly one " +
+        "prospective running pixel from collision.");
+}
 if (options.GrappleScript || options.GrappleFireScript)
 {
     // Inventory/PLM placement is not inferred from graphics. Inventory-like BTS type $E
@@ -370,6 +399,7 @@ uint priorSamusX = runtime.Samus.Kinematics.XFixed;
 uint priorSamusY = runtime.Samus.Kinematics.YFixed;
 ushort? priorProspectivePose = null;
 ushort? priorFallbackPose = null;
+byte? priorWallCollisionPose = null;
 bool observedBombJumpStart = false;
 bool observedBombJumpEnd = false;
 bool observedBombJumpRise = false;
@@ -386,6 +416,7 @@ bool observedGrappleTerrainCollision = false;
 bool observedGrappleFire = false;
 bool observedGrappleFireCancelQueue = false;
 bool observedGrappleFireCancel = false;
+bool observedBlockedRanIntoWallProbe = false;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
@@ -442,6 +473,28 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             // neutral family, then replace Shoot with Jump while still moving backward.
             >= 80 and < 100 => (ushort)(SnesButton.Left | SnesButton.X),
             >= 100 and < 122 => (ushort)(SnesButton.Left | SnesButton.A),
+            _ => (ushort)0,
+        }
+        : options.RanIntoWallScript
+        ? frameIndex switch
+        {
+            0 => (ushort)SnesButton.Start,
+
+            // Standing `$01` proposes running `$09`. The host placed the current body on
+            // the last safe pixel, so `$91:EADE`'s real +1.0000 block move must reject it
+            // and use `$09`'s shot direction two to select neutral wall pose `$89`.
+            >= 2 and < 12 => (ushort)SnesButton.Right,
+
+            // Preserve forward Right while changing the actual controller shoulder. The
+            // unchanged `$91:AA38` records propose running aim `$0F/$11`; the same block
+            // probe then maps their shot directions one/three to wall aim `$CF/$D1`.
+            >= 12 and < 22 => (ushort)(SnesButton.Right | SnesButton.R),
+            >= 22 and < 32 => (ushort)(SnesButton.Right | SnesButton.L),
+
+            // Releasing every button exercises pose-definition fallback `$D1 -> $89`.
+            // A fresh Jump edge then takes the literal wall table's `$89 -> $4B` route;
+            // command `$FF` completes the normal `$4B -> $4D` jump handoff.
+            >= 42 and < 52 => (ushort)SnesButton.A,
             _ => (ushort)0,
         }
         : options.ReversalScript
@@ -743,6 +796,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     observedGrappleFire |= runtime.LastGrappleMovement is { Fired: true };
     observedGrappleFireCancelQueue |= runtime.LastGrappleMovement is { CancelQueued: true };
     observedGrappleFireCancel |= runtime.LastGrappleMovement is { Cancelled: true };
+    observedBlockedRanIntoWallProbe |= runtime.LastRanIntoWallProbe is { Collided: true };
     observedBombJumpStart |= runtime.LastBombJumpMovement is { Started: true };
     observedBombJumpEnd |= runtime.LastBombJumpMovement is { Ended: true };
     observedBombJumpRise |= runtime.LastBombJumpMovement is { Started: false, Ended: false };
@@ -968,6 +1022,12 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.MoonwalkTurnJumpAimUpRightPose or
                      SamusState.MoonwalkTurnJumpAimDownLeftPose or
                      SamusState.MoonwalkTurnJumpAimDownRightPose or
+                     SamusState.RanIntoWallRightPose or
+                     SamusState.RanIntoWallLeftPose or
+                     SamusState.RanIntoWallAimUpRightPose or
+                     SamusState.RanIntoWallAimUpLeftPose or
+                     SamusState.RanIntoWallAimDownRightPose or
+                     SamusState.RanIntoWallAimDownLeftPose or
                      SamusState.TurningRightToLeftJumpPose or
                      SamusState.TurningLeftToRightJumpPose or
                      SamusState.TurningRightToLeftFallingPose or
@@ -989,6 +1049,21 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 $"accelMode={runtime.Samus.HorizontalSpeed.AccelerationMode}");
         }
         priorFallbackPose = runtime.ProspectiveSamusFallbackPose;
+    }
+
+    if (runtime.ProspectiveSamusWallCollisionPose != priorWallCollisionPose)
+    {
+        if (runtime.ProspectiveSamusWallCollisionPose is byte wallPose)
+        {
+            BlockMoveResult? probe = runtime.LastRanIntoWallProbe;
+            Console.WriteLine(
+                $"frame {result.FrameNumber,4}: `$91:EADE` selected wall pose ${wallPose:X2}; " +
+                (probe is { } onePixel
+                    ? $"one-pixel block probe collision={onePixel.Collided}, " +
+                      $"accepted=${onePixel.AcceptedDisplacement:X8}."
+                    : "current running X speed had already been killed by collision."));
+        }
+        priorWallCollisionPose = runtime.ProspectiveSamusWallCollisionPose;
     }
 }
 
@@ -1172,6 +1247,36 @@ if (options.MoonwalkScript)
     }
     Console.WriteLine(
         "Moonwalk ROM route validated stable neutral/up/down movement, zero-input fallback, grounded $BF turn art, and $1A jump handoff.");
+}
+
+if (options.RanIntoWallScript)
+{
+    // Placement alone cannot satisfy these checks: the observed set is populated only
+    // after complete runtime frames. Thus each wall pose proves controller matching,
+    // prospective-pose filtering, bank-$94 collision, and the ten-way selector together.
+    byte[] requiredWallRoute =
+    [
+        SamusState.RanIntoWallRightPose,
+        SamusState.RanIntoWallAimUpRightPose,
+        SamusState.RanIntoWallAimDownRightPose,
+        SamusState.NeutralJumpTransitionRightPose,
+        SamusState.NeutralJumpRightPose,
+    ];
+    foreach (byte requiredPose in requiredWallRoute)
+    {
+        if (!observedSamusPoses.Contains(requiredPose))
+        {
+            throw new InvalidOperationException(
+                $"Ran-into-wall ROM script did not observe required pose ${requiredPose:X2}.");
+        }
+    }
+    if (!observedBlockedRanIntoWallProbe)
+    {
+        throw new InvalidOperationException(
+            "Ran-into-wall ROM script never observed a blocked one-pixel probe.");
+    }
+    Console.WriteLine(
+        "Ran-into-wall ROM route validated neutral/up/down wall art, zero-input fallback, and the $89 -> $4B -> $4D jump exit.");
 }
 
 if (options.GrappleScript)
@@ -1373,6 +1478,7 @@ readonly record struct DebugRunnerOptions(
     int RightFrameCount,
     bool ReversalScript,
     bool MoonwalkScript,
+    bool RanIntoWallScript,
     bool JumpScript,
     bool PostureScript,
     bool AimScript,
@@ -1401,6 +1507,7 @@ readonly record struct DebugRunnerOptions(
         int rightFrameCount = int.MaxValue;
         bool reversalScript = false;
         bool moonwalkScript = false;
+        bool ranIntoWallScript = false;
         bool jumpScript = false;
         bool postureScript = false;
         bool aimScript = false;
@@ -1459,6 +1566,11 @@ readonly record struct DebugRunnerOptions(
 
                 case "--moonwalk-script":
                     moonwalkScript = true;
+                    groundedRun = true;
+                    break;
+
+                case "--ran-into-wall-script":
+                    ranIntoWallScript = true;
                     groundedRun = true;
                     break;
 
@@ -1583,6 +1695,7 @@ readonly record struct DebugRunnerOptions(
             rightFrameCount,
             reversalScript,
             moonwalkScript,
+            ranIntoWallScript,
             jumpScript,
             postureScript,
             aimScript,

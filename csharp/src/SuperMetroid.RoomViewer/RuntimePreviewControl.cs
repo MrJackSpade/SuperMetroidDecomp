@@ -470,6 +470,12 @@ internal sealed class RuntimePreviewControl : UserControl
                   or SamusState.MoonwalkTurnJumpAimUpRightPose
                   or SamusState.MoonwalkTurnJumpAimDownLeftPose
                   or SamusState.MoonwalkTurnJumpAimDownRightPose
+                  or SamusState.RanIntoWallRightPose
+                  or SamusState.RanIntoWallLeftPose
+                  or SamusState.RanIntoWallAimUpRightPose
+                  or SamusState.RanIntoWallAimUpLeftPose
+                  or SamusState.RanIntoWallAimDownRightPose
+                  or SamusState.RanIntoWallAimDownLeftPose
                   or SamusState.SpringBallGroundRightPose
                   or SamusState.SpringBallGroundLeftPose
                   or SamusState.SpringBallMovingRightPose
@@ -503,6 +509,7 @@ internal sealed class RuntimePreviewControl : UserControl
             $"cooldown {runtime.BombProjectiles.CooldownTimer} " +
             $"jump ${runtime.Samus.BombJumpDirection:X4}  |  " +
             $"moonwalk={(runtime.MoonwalkEnabled ? "on" : "off")}  |  " +
+            $"wall={(runtime.ProspectiveSamusWallCollisionPose is byte wall ? $"${wall:X2}" : "--")}  |  " +
             $"terrain={(livePpuLayersButton.Checked ? "live PPU" : "ROM composite")}  |  " +
             $"{prospectivePose}  |  " +
             $"{runtime.LastBackgroundUpdateCount} BG update(s)  |  " +

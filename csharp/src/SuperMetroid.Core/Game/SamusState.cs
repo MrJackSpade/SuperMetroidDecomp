@@ -76,6 +76,24 @@ public sealed class SamusState
     /// <summary>Pose `$C4`: aimed-down moonwalk turn whose terminal jump faces right.</summary>
     public const byte MoonwalkTurnJumpAimDownRightPose = 0xc4;
 
+    /// <summary>Pose `$89`: facing right after forward running collides with a wall.</summary>
+    public const byte RanIntoWallRightPose = 0x89;
+
+    /// <summary>Pose `$8A`: facing-left mirror of pose `$89`.</summary>
+    public const byte RanIntoWallLeftPose = 0x8a;
+
+    /// <summary>Pose `$CF`: right-facing wall-stop art aimed diagonally up-right.</summary>
+    public const byte RanIntoWallAimUpRightPose = 0xcf;
+
+    /// <summary>Pose `$D0`: left-facing wall-stop art aimed diagonally up-left.</summary>
+    public const byte RanIntoWallAimUpLeftPose = 0xd0;
+
+    /// <summary>Pose `$D1`: right-facing wall-stop art aimed diagonally down-right.</summary>
+    public const byte RanIntoWallAimDownRightPose = 0xd1;
+
+    /// <summary>Pose `$D2`: left-facing wall-stop art aimed diagonally down-left.</summary>
+    public const byte RanIntoWallAimDownLeftPose = 0xd2;
+
     /// <summary>Pose $25 turns a right-facing grounded Samus toward the left.</summary>
     public const byte TurningRightToLeftPose = 0x25;
 
@@ -661,7 +679,14 @@ public sealed class SamusState
     public byte ReadMovementType(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return bus.ReadByte(AddWithinBank(PoseDefinitions, Pose * 8 + 1));
+        return ReadMovementType(bus, Pose);
+    }
+
+    /// <summary>Reads pose-definition byte one for a prospective pose without mutating Samus.</summary>
+    public static byte ReadMovementType(ISnesAddressSpace bus, byte pose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        return bus.ReadByte(AddWithinBank(PoseDefinitions, pose * 8 + 1));
     }
 
     /// <summary>
@@ -681,7 +706,14 @@ public sealed class SamusState
     public byte ReadShotDirection(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return bus.ReadByte(AddWithinBank(PoseDefinitions, Pose * 8 + 3));
+        return ReadShotDirection(bus, Pose);
+    }
+
+    /// <summary>Reads pose-definition byte three for a current or prospective pose.</summary>
+    public static byte ReadShotDirection(ISnesAddressSpace bus, byte pose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        return bus.ReadByte(AddWithinBank(PoseDefinitions, pose * 8 + 3));
     }
 
     /// <summary>
@@ -758,6 +790,21 @@ public sealed class SamusState
         MoonwalkTurnJumpRightPose or MoonwalkTurnJumpAimUpRightPose or
         MoonwalkTurnJumpAimDownRightPose;
 
+    /// <summary>True for `$89/$CF/$D1`, the complete right-facing type-`$15` family.</summary>
+    public static bool IsRightFacingRanIntoWallPose(byte pose) => pose is
+        RanIntoWallRightPose or RanIntoWallAimUpRightPose or RanIntoWallAimDownRightPose;
+
+    /// <summary>True for `$8A/$D0/$D2`, the complete left-facing type-`$15` family.</summary>
+    public static bool IsLeftFacingRanIntoWallPose(byte pose) => pose is
+        RanIntoWallLeftPose or RanIntoWallAimUpLeftPose or RanIntoWallAimDownLeftPose;
+
+    public static bool IsRanIntoWallPose(byte pose) =>
+        IsRightFacingRanIntoWallPose(pose) || IsLeftFacingRanIntoWallPose(pose);
+
+    public static bool IsAimedRanIntoWallPose(byte pose) => pose is
+        RanIntoWallAimUpRightPose or RanIntoWallAimUpLeftPose or
+        RanIntoWallAimDownRightPose or RanIntoWallAimDownLeftPose;
+
     /// <summary>True when a supported standing, running, crouching, or landing pose carries aim metadata.</summary>
     public static bool IsGroundedAimPose(byte pose) => pose is
         StandingAimUpRightPose or StandingAimUpLeftPose or
@@ -771,7 +818,9 @@ public sealed class SamusState
         CrouchingAimDiagonalDownRightPose or CrouchingAimDiagonalDownLeftPose or
         LandingAimUpRightPose or LandingAimUpLeftPose or
         LandingAimDiagonalUpRightPose or LandingAimDiagonalUpLeftPose or
-        LandingAimDiagonalDownRightPose or LandingAimDiagonalDownLeftPose;
+        LandingAimDiagonalDownRightPose or LandingAimDiagonalDownLeftPose or
+        RanIntoWallAimUpRightPose or RanIntoWallAimUpLeftPose or
+        RanIntoWallAimDownRightPose or RanIntoWallAimDownLeftPose;
 
     /// <summary>True for right-facing aimed normal-jump landing poses `$E0/$E2/$E4`.</summary>
     public static bool IsRightFacingAimedLandingPose(byte pose) => pose is
@@ -1132,11 +1181,15 @@ public sealed class SamusState
     {
         ArgumentNullException.ThrowIfNull(bus);
         bool sourceRight = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
+            IsRightFacingRanIntoWallPose(Pose) ||
             IsRightFacingAimedLandingPose(Pose);
-        bool targetRight = IsRightFacingStandingPose(targetPose) || IsRightFacingRunningPose(targetPose);
+        bool targetRight = IsRightFacingStandingPose(targetPose) || IsRightFacingRunningPose(targetPose) ||
+            IsRightFacingRanIntoWallPose(targetPose);
         bool sourceLeft = IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
+            IsLeftFacingRanIntoWallPose(Pose) ||
             IsLeftFacingAimedLandingPose(Pose);
-        bool targetLeft = IsLeftFacingStandingPose(targetPose) || IsLeftFacingRunningPose(targetPose);
+        bool targetLeft = IsLeftFacingStandingPose(targetPose) || IsLeftFacingRunningPose(targetPose) ||
+            IsLeftFacingRanIntoWallPose(targetPose);
         bool sameRightFamily = sourceRight && targetRight;
         bool sameLeftFamily = sourceLeft && targetLeft;
         bool sameRightCrouch = IsRightFacingCrouchingPose(Pose) &&
@@ -1158,6 +1211,115 @@ public sealed class SamusState
     }
 
     /// <summary>
+    /// Implements `$91:EB56-$91:EB87`'s ten-entry shot-direction selector. The input pose
+    /// may be the current running pose after a killed-X-speed collision or the prospective
+    /// running pose tested by the one-pixel arm-pump probe.
+    /// </summary>
+    public static byte SelectRanIntoWallPose(ISnesAddressSpace bus, byte sourcePose)
+    {
+        byte shotDirection = ReadShotDirection(bus, sourcePose);
+        return shotDirection switch
+        {
+            0 => StandingAimUpRightPose,
+            1 => RanIntoWallAimUpRightPose,
+            2 or 4 => RanIntoWallRightPose,
+            3 => RanIntoWallAimDownRightPose,
+            5 or 7 => RanIntoWallLeftPose,
+            6 => RanIntoWallAimDownLeftPose,
+            8 => RanIntoWallAimUpLeftPose,
+            9 => StandingAimUpLeftPose,
+            _ => throw new InvalidDataException(
+                $"Pose ${sourcePose:X2} has invalid shot-direction byte ${shotDirection:X2}."),
+        };
+    }
+
+    /// <summary>
+    /// Ports the block-backed portion of <c>CheckIfProspectivePoseRunsIntoAWall</c> at
+    /// <c>$91:EADE</c>. Solid-enemy collision is a separate earlier probe and remains an
+    /// explicit boundary until the actor system exists.
+    /// </summary>
+    /// <remarks>
+    /// A current type-one collision maps the current pose immediately. Otherwise, only a
+    /// prospective type-one pose is interesting: native moves Samus one whole pixel in the
+    /// CURRENT pose direction, retains that move when clear, and maps the prospective pose's
+    /// shot direction when blocked. The retained move is the retail arm-pump bug.
+    /// </remarks>
+    public byte? CheckProspectiveRunningPoseForWall(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        byte? prospectivePose,
+        bool currentXSpeedKilledByBlock,
+        out BlockMoveResult? onePixelProbe)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+        onePixelProbe = null;
+
+        if (currentXSpeedKilledByBlock && ReadMovementType(bus) == 1)
+            return SelectRanIntoWallPose(bus, Pose);
+
+        if (prospectivePose is not { } target || ReadMovementType(bus, target) != 1)
+            return null;
+
+        int onePixelForward = ReadPoseXDirection(bus) == 4
+            ? -0x00010000
+            : 0x00010000;
+        onePixelProbe = SamusBlockCollision.MoveHorizontal(
+            bus,
+            level,
+            Kinematics,
+            onePixelForward);
+        return onePixelProbe.Value.Collided
+            ? SelectRanIntoWallPose(bus, target)
+            : null;
+    }
+
+    /// <summary>
+    /// Installs the pose selected when `$91:EADE` finds a block wall. This deliberately
+    /// accepts standing/running/landing sources as well as an existing wall-stop source:
+    /// `$91:EADE` can test a prospective run before that run is installed, and changing aim
+    /// while still pressing into the wall proposes another running pose for the same probe.
+    /// </summary>
+    public void ApplyRanIntoWallPoseChange(ISnesAddressSpace bus, byte targetPose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        bool rightSource = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
+            IsRightFacingRanIntoWallPose(Pose) || IsRightFacingAimedLandingPose(Pose) ||
+            Pose is NormalLandingRightPose or SpinLandingRightPose;
+        bool leftSource = IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
+            IsLeftFacingRanIntoWallPose(Pose) || IsLeftFacingAimedLandingPose(Pose) ||
+            Pose is NormalLandingLeftPose or SpinLandingLeftPose;
+        bool rightRoute = rightSource &&
+            (IsRightFacingRanIntoWallPose(targetPose) || targetPose == StandingAimUpRightPose);
+        bool leftRoute = leftSource &&
+            (IsLeftFacingRanIntoWallPose(targetPose) || targetPose == StandingAimUpLeftPose);
+        if (!rightRoute && !leftRoute)
+        {
+            throw new NotSupportedException(
+                $"Ran-into-wall pose change ${Pose:X2} -> ${targetPose:X2} is not a block-backed retail route.");
+        }
+
+        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Ran into wall");
+    }
+
+    /// <summary>Applies `$89/$8A/$CF-$D2`'s same-facing exit to a type-one running pose.</summary>
+    public void ApplyRanIntoWallToRunning(ISnesAddressSpace bus, byte targetPose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        bool rightRoute = IsRightFacingRanIntoWallPose(Pose) &&
+            IsRightFacingRunningPose(targetPose);
+        bool leftRoute = IsLeftFacingRanIntoWallPose(Pose) &&
+            IsLeftFacingRunningPose(targetPose);
+        if (!rightRoute && !leftRoute)
+        {
+            throw new NotSupportedException(
+                $"Ran-into-wall running exit ${Pose:X2} -> ${targetPose:X2} is not a retail route.");
+        }
+
+        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Ran into wall to running");
+    }
+
+    /// <summary>
     /// Applies the movement-type-$10 option gate and stable-pose changes surrounding
     /// <c>InitializeSamusPose_Moonwalking</c> at <c>$91:F88C</c>.
     /// </summary>
@@ -1175,8 +1337,10 @@ public sealed class SamusState
     {
         ArgumentNullException.ThrowIfNull(bus);
 
-        bool sourceStandingRight = IsRightFacingStandingPose(Pose);
-        bool sourceStandingLeft = IsLeftFacingStandingPose(Pose);
+        bool sourceStandingRight = IsRightFacingStandingPose(Pose) ||
+            IsRightFacingRanIntoWallPose(Pose);
+        bool sourceStandingLeft = IsLeftFacingStandingPose(Pose) ||
+            IsLeftFacingRanIntoWallPose(Pose);
         bool targetVisualRight = IsMoonwalkingFacingRightPose(targetPose);
         bool targetVisualLeft = IsMoonwalkingFacingLeftPose(targetPose);
         bool entering =
@@ -1347,11 +1511,13 @@ public sealed class SamusState
 
         bool rightSource = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
             IsMoonwalkingFacingRightPose(Pose) ||
+            IsRightFacingRanIntoWallPose(Pose) ||
             IsRightFacingCrouchingPose(Pose) ||
             IsRightFacingAimedLandingPose(Pose) ||
             Pose is NormalLandingRightPose or SpinLandingRightPose;
         bool leftSource = IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
             IsMoonwalkingFacingLeftPose(Pose) ||
+            IsLeftFacingRanIntoWallPose(Pose) ||
             IsLeftFacingCrouchingPose(Pose) ||
             IsLeftFacingAimedLandingPose(Pose) ||
             Pose is NormalLandingLeftPose or SpinLandingLeftPose;
@@ -1757,7 +1923,11 @@ public sealed class SamusState
              SpinJumpLeftPose or NeutralJumpTransitionLeftPose) or
             (MoonwalkTurnJumpRightPose or MoonwalkTurnJumpAimUpRightPose or
                 MoonwalkTurnJumpAimDownRightPose,
-             SpinJumpRightPose or NeutralJumpTransitionRightPose);
+             SpinJumpRightPose or NeutralJumpTransitionRightPose) or
+            (RanIntoWallRightPose or RanIntoWallAimUpRightPose or RanIntoWallAimDownRightPose,
+             NeutralJumpTransitionRightPose) or
+            (RanIntoWallLeftPose or RanIntoWallAimUpLeftPose or RanIntoWallAimDownLeftPose,
+             NeutralJumpTransitionLeftPose);
         if (!verified)
         {
             throw new NotSupportedException(
@@ -1906,6 +2076,7 @@ public sealed class SamusState
         bool startsCrouchingRight =
             (IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
              IsMoonwalkingFacingRightPose(Pose) ||
+             IsRightFacingRanIntoWallPose(Pose) ||
              (Pose is NormalLandingRightPose or SpinLandingRightPose) ||
              IsRightFacingAimedLandingPose(Pose)) &&
             targetPose is
@@ -1915,6 +2086,7 @@ public sealed class SamusState
         bool startsCrouchingLeft =
             (IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
              IsMoonwalkingFacingLeftPose(Pose) ||
+             IsLeftFacingRanIntoWallPose(Pose) ||
              (Pose is NormalLandingLeftPose or SpinLandingLeftPose) ||
              IsLeftFacingAimedLandingPose(Pose)) &&
             targetPose is
@@ -2262,6 +2434,7 @@ public sealed class SamusState
             IsRightFacingRunningPose(Pose) || IsLeftFacingRunningPose(Pose) ||
             IsMoonwalkingPose(Pose) ||
             IsMoonwalkTurnJumpPose(Pose) ||
+            IsRanIntoWallPose(Pose) ||
             IsRightFacingCrouchingPose(Pose) || IsLeftFacingCrouchingPose(Pose);
         byte expectedTarget = SelectFallingPoseForCurrentAim(bus);
         if (!supportedSource || targetPose != expectedTarget)
@@ -2784,7 +2957,7 @@ public sealed class SamusState
     /// </summary>
     /// <remarks>
     /// Movement type zero uses the standing position selector. The admitted movement types
-    /// `$01/$02/$04-$06/$08/$0E/$10/$17` use the usual or explicitly table-backed transition
+    /// `$01/$02/$04-$06/$08/$0E/$10/$15/$17` use the usual or explicitly table-backed transition
     /// position selector. Morph types `$04/$08` draw only their complete top spritemap;
     /// spin-jump `$03` retains its own conditional bottom rule.
     /// </remarks>
@@ -2796,7 +2969,7 @@ public sealed class SamusState
         int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
         byte movementType = bus.ReadByte(AddWithinBank(poseDefinition, 1));
         if (movementType is not (0 or 1 or 2 or 3 or 4 or 5 or 6 or 8 or 0x0a or
-            0x0e or 0x0f or 0x10 or 0x11 or 0x12 or 0x13 or 0x14 or 0x16 or 0x17 or 0x18 or 0x19))
+            0x0e or 0x0f or 0x10 or 0x11 or 0x12 or 0x13 or 0x14 or 0x15 or 0x16 or 0x17 or 0x18 or 0x19))
         {
             throw new NotSupportedException(
                 $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");
@@ -2840,7 +3013,7 @@ public sealed class SamusState
         TopSpritemapIndex = unchecked((ushort)(topBase + AnimationFrame));
         oam.AddSamusSpritemap(bus, TopSpritemapIndex, SpritemapXPosition, SpritemapYPosition);
 
-        // Movement types one, `$0E`, `$10`, and `$17` use the native unconditional bottom selector.
+        // Movement types one, `$0E`, `$10`, `$15`, and `$17` use the native unconditional bottom selector.
         // Movement type zero also draws the bottom, except forward-facing pose $00 has an
         // additional visor OBJ that this intentionally narrow slice still rejects.
         if (movementType == 0 && Pose == 0)

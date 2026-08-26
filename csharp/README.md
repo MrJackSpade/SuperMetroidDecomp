@@ -75,6 +75,14 @@ fallback rather than a host-authored shortcut. Useful breakpoints are
 `SamusGroundedMovement.StepMoonwalking`, `SamusState.ApplyMoonwalkPoseChange`, and
 `SamusState.ApplyMoonwalkTurnJump`.
 
+Running into ordinary solid terrain now executes the block-backed part of `$91:EADE` and
+movement type `$15`, including neutral `$89/$8A`, diagonal wall aim `$CF-$D2`, and the
+retail one-pixel prospective-run probe. The dedicated DebugRunner route locates a suitable
+floor/wall corner from Landing Site's decompressed level data; it does not inject a collision
+or pose. Useful breakpoints are `SamusState.CheckProspectiveRunningPoseForWall`,
+`SamusState.SelectRanIntoWallPose`, and `SamusGroundedMovement.StepRanIntoWall`. Solid-enemy
+collision remains outside this slice until actors exist.
+
 The grounded viewer sandbox now explicitly grants only the Morph Ball item bit because save-file inventory loading has not been translated. To use the real input route, tap **Hold Down** to crouch, release it, then tap **Hold Down** again to morph. Left/Right rolls and reverses through `$1E/$1F`; Up performs collision-checked unmorph through `$3D/$3E -> $27/$28`. Check **Spring Ball equipped** before morphing to select `$79/$7A`; Jump then launches `$7F/$80` and can be released early for the native short arc. Useful breakpoints are `SamusMorphBallMovement.StepGrounded`, `SamusMorphBallMovement.StepFalling`, `SamusMorphBallMovement.StepSpringBallInAir`, `SamusMorphBallMovement.StepTransition`, and `SamusState.TryApplyMorphTransition`.
 
 To step through the first translated game-support routines, select `SuperMetroid.Verification` as the startup project and place breakpoints in `Bank80SystemState`. From the command line:
@@ -102,6 +110,7 @@ dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Sup
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 240 --crouch-turn-script --output ../standalone-assets/runtime/CrouchTurnTraceFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 260 --crouch-jump-script --output ../standalone-assets/runtime/CrouchJumpTraceFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 140 --moonwalk-script --output ../standalone-assets/runtime/MoonwalkTraceFrame.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 120 --ran-into-wall-script --output ../standalone-assets/runtime/RanIntoWallTraceFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 70 --morph-ball-script --output ../standalone-assets/runtime/MorphBallPoseFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 220 --morph-ball-script --output ../standalone-assets/runtime/MorphBallTraceFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 80 --spring-ball-script --output ../standalone-assets/runtime/SpringBallPoseFrame.png

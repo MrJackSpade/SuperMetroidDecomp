@@ -71,6 +71,16 @@ public sealed class SuperMetroidRuntime
     public SamusPoseTransition? ProspectiveSamusPose { get; private set; }
 
     /// <summary>
+    /// Block-only result of `$91:EADE` after movement. This is separate from the input
+    /// table record because a killed running speed can create `$89/$8A/$CF-$D2` even when
+    /// no controller record matched, and a one-pixel probe can replace a running target.
+    /// </summary>
+    public byte? ProspectiveSamusWallCollisionPose { get; private set; }
+
+    /// <summary>The optional one-pixel block probe responsible for the native arm-pump bug.</summary>
+    public BlockMoveResult? LastRanIntoWallProbe { get; private set; }
+
+    /// <summary>
     /// No-button fallback selected by <c>Samus_Pose_CancelGrapple</c> at $91:82D9. This is
     /// separate from <see cref="ProspectiveSamusPose"/> because no six-byte table entry wins.
     /// </summary>
@@ -402,6 +412,105 @@ public sealed class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// Finds a plain, cartridge-authored Landing Site floor/wall corner and places a
+    /// right-facing standing Samus exactly one prospective running pixel from that wall.
+    /// </summary>
+    /// <remarks>
+    /// This is debugger setup, not gameplay logic: retail Landing Site's cinematic door
+    /// does not supply a normal Samus spawn. The scan chooses only a host test location.
+    /// Every inspected collision nibble, the resting height, the eventual one-pixel probe,
+    /// pose selection, movement, animation, camera tracking, tile art, and rendering still
+    /// come from the user's ROM and the translated bank-$90/$91/$94 routines.
+    ///
+    /// Requiring type-<c>$8</c> floor and wall blocks with type-<c>$0</c> body clearance is deliberate.
+    /// It makes this regression exercise the ordinary solid-block dispatcher and prevents
+    /// an unrelated slope, PLM, door, or untranslated special-block family from becoming
+    /// an accidental prerequisite for testing movement type `$15`.
+    /// </remarks>
+    public DebugRanIntoWallSamusPlacement InitializeDebugRanIntoWallSamus(
+        ushort desiredScreenY = 166,
+        int minimumFloorBlockY = 3)
+    {
+        if (Camera is null || LevelData is null)
+        {
+            throw new InvalidOperationException(
+                "Landing Site camera and level data must be initialized before finding a debug wall.");
+        }
+
+        // Pose `$01` owns the body radii used by the prospective-run probe. Load the real
+        // record before scanning so the host does not smuggle guessed dimensions into the
+        // collision scenario. This temporary origin is never stepped or rendered.
+        InitializeDebugSamus(xPosition: 0, yPosition: 0);
+        int xRadius = Samus!.Kinematics.XRadius;
+        int yRadius = Samus.Kinematics.YRadius;
+
+        int firstFloorRow = Math.Max(minimumFloorBlockY, 3);
+        if ((uint)firstFloorRow >= (uint)LevelData.HeightInBlocks)
+            throw new ArgumentOutOfRangeException(nameof(minimumFloorBlockY));
+
+        for (int floorBlockY = firstFloorRow;
+             floorBlockY < LevelData.HeightInBlocks;
+             floorBlockY++)
+        {
+            for (int wallBlockX = 1;
+                 wallBlockX < LevelData.WidthInBlocks;
+                 wallBlockX++)
+            {
+                // At this center X, the standing body's current right edge is the final
+                // pixel before the wall. `$91:EADE`'s +1.0000 move therefore samples the
+                // wall column and must stop at the unchanged last-safe center.
+                int centerX = wallBlockX * 16 - xRadius;
+                int centerY = floorBlockY * 16 - yRadius;
+                int bodyBlockX = (centerX + xRadius - 1) >> 4;
+                int bodyTopBlockY = (centerY - yRadius) >> 4;
+                int bodyBottomBlockY = (centerY + yRadius - 1) >> 4;
+
+                // This assertion documents the geometry relied on by the scan. Should a
+                // future suit/body-radius translation span another column, fail this test
+                // fixture instead of quietly selecting partially occupied terrain.
+                if (bodyBlockX != wallBlockX - 1)
+                    continue;
+
+                RoomCollisionBlock floor =
+                    LevelData.GetCollisionBlock(bodyBlockX, floorBlockY);
+                if (floor.CollisionType != 8)
+                    continue;
+
+                bool hasPlainClearanceAndWall = true;
+                for (int blockY = bodyTopBlockY; blockY <= bodyBottomBlockY; blockY++)
+                {
+                    RoomCollisionBlock clearance =
+                        LevelData.GetCollisionBlock(bodyBlockX, blockY);
+                    RoomCollisionBlock wall =
+                        LevelData.GetCollisionBlock(wallBlockX, blockY);
+                    if (clearance.CollisionType != 0 || wall.CollisionType != 8)
+                    {
+                        hasPlainClearanceAndWall = false;
+                        break;
+                    }
+                }
+
+                if (!hasPlainClearanceAndWall)
+                    continue;
+
+                DebugGroundedSamusPlacement grounded = InitializeDebugGroundedSamus(
+                    unchecked((ushort)centerX),
+                    desiredScreenY,
+                    floorBlockY);
+                return new DebugRanIntoWallSamusPlacement(
+                    grounded,
+                    wallBlockX,
+                    bodyTopBlockY,
+                    bodyBottomBlockY);
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"No plain type-$8 Landing Site floor/wall corner with type-$0 clearance exists " +
+            $"from floor row ${firstFloorRow:X2}.");
+    }
+
+    /// <summary>
     /// Creates an explicit already-connected grapple stimulus above the Landing Site floor.
     /// </summary>
     /// <remarks>
@@ -561,6 +670,8 @@ public sealed class SuperMetroidRuntime
                 Controller1.Current,
                 Controller1.NewlyPressed);
             ProspectiveSamusFallbackPose = null;
+            ProspectiveSamusWallCollisionPose = null;
+            LastRanIntoWallProbe = null;
 
             // Bomb overlap is published by GameState_8 after the preceding frame's alpha.
             // $90:DE78 consumes it during this frame's alpha before beta dispatches motion.
@@ -624,6 +735,17 @@ public sealed class SuperMetroidRuntime
             // the following standing movement frame clears them exactly as native does.
             if (GroundedSamusMovementEnabled &&
                 SamusState.IsMoonwalkingPose(Samus.Pose) &&
+                Controller1.Current == 0 &&
+                ProspectiveSamusPose is null)
+            {
+                ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
+            }
+
+            // `$CF-$D2` use definition byte two to return to `$89/$8A` when the entire
+            // controller is released. The unaimed pair store `$FF`, meaning “keep pose,”
+            // and therefore never publish a fallback here.
+            if (GroundedSamusMovementEnabled &&
+                SamusState.IsAimedRanIntoWallPose(Samus.Pose) &&
                 Controller1.Current == 0 &&
                 ProspectiveSamusPose is null)
             {
@@ -847,6 +969,18 @@ public sealed class SuperMetroidRuntime
                     case SamusState.MoonwalkAimDownLeftPose:
                     case SamusState.MoonwalkAimDownRightPose:
                         LastGroundedSamusMovement = SamusGroundedMovement.StepMoonwalking(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            NmiFrameCounter);
+                        break;
+                    case SamusState.RanIntoWallRightPose:
+                    case SamusState.RanIntoWallLeftPose:
+                    case SamusState.RanIntoWallAimUpRightPose:
+                    case SamusState.RanIntoWallAimUpLeftPose:
+                    case SamusState.RanIntoWallAimDownRightPose:
+                    case SamusState.RanIntoWallAimDownLeftPose:
+                        LastGroundedSamusMovement = SamusGroundedMovement.StepRanIntoWall(
                             _addressSpace,
                             LevelData,
                             Samus,
@@ -1088,6 +1222,42 @@ public sealed class SuperMetroidRuntime
                 bool animationTransitionApplied =
                     Samus.ApplyPendingVerifiedAnimationTransition(_addressSpace);
 
+                // `$91:EADE` runs inside UpdateSamusPose after beta movement/animation and
+                // only when no super-special animation command has already won. Its first
+                // branch consumes the X-speed-killed flag produced by CURRENT type-one
+                // running movement. This creates a wall-stop pose even with no input match.
+                if (!animationTransitionApplied &&
+                    LastGroundedSamusMovement is
+                        { Vertical.Collided: true } groundedForWallCheck)
+                {
+                    bool currentRunHitWall =
+                        (SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||
+                         SamusState.IsLeftFacingRunningPose(poseAtFrameStart)) &&
+                        groundedForWallCheck.Horizontal.Collided;
+                    byte? prospectiveRunningPose =
+                        ProspectiveSamusPose is { ProspectivePose: <= byte.MaxValue } prospective
+                            ? unchecked((byte)prospective.ProspectivePose)
+                            : null;
+                    ProspectiveSamusWallCollisionPose =
+                        Samus.CheckProspectiveRunningPoseForWall(
+                            _addressSpace,
+                            LevelData ?? throw new InvalidOperationException(
+                                "Ran-into-wall probe requires active room level data."),
+                            prospectiveRunningPose,
+                            currentRunHitWall,
+                            out BlockMoveResult? onePixelProbe);
+                    LastRanIntoWallProbe = onePixelProbe;
+                }
+
+                if (!animationTransitionApplied &&
+                    ProspectiveSamusWallCollisionPose is { } wallCollisionPose)
+                {
+                    // The selector result replaces the ordinary input target. Applying it
+                    // here also covers the no-input “running speed was killed” branch.
+                    Samus.ApplyRanIntoWallPoseChange(_addressSpace, wallCollisionPose);
+                    animationTransitionApplied = true;
+                }
+
                 // Morph landing has its own prospective-pose and collision tables. A hard
                 // impact retains `$31/$32` and launches bounce one; the next collision
                 // launches bounce two; only a gentle/second-bounce collision installs
@@ -1167,6 +1337,7 @@ public sealed class SuperMetroidRuntime
                      SamusState.IsLeftFacingRunningPose(poseAtFrameStart) ||
                      SamusState.IsMoonwalkingPose(poseAtFrameStart) ||
                      SamusState.IsMoonwalkTurnJumpPose(poseAtFrameStart) ||
+                     SamusState.IsRanIntoWallPose(poseAtFrameStart) ||
                      SamusState.IsRightFacingCrouchingPose(poseAtFrameStart) ||
                      SamusState.IsLeftFacingCrouchingPose(poseAtFrameStart)))
                 {
@@ -1198,9 +1369,11 @@ public sealed class SuperMetroidRuntime
                         switch ((poseAtFrameStart, targetPose))
                         {
                             case var (source, target)
-                                when ((SamusState.IsRightFacingStandingPose(source) &&
+                                when (((SamusState.IsRightFacingStandingPose(source) ||
+                                        SamusState.IsRightFacingRanIntoWallPose(source)) &&
                                        SamusState.IsMoonwalkingFacingRightPose(target)) ||
-                                      (SamusState.IsLeftFacingStandingPose(source) &&
+                                      ((SamusState.IsLeftFacingStandingPose(source) ||
+                                        SamusState.IsLeftFacingRanIntoWallPose(source)) &&
                                        SamusState.IsMoonwalkingFacingLeftPose(target)) ||
                                       (SamusState.IsMoonwalkingPose(source) &&
                                        (SamusState.IsMoonwalkingPose(target) ||
@@ -1329,14 +1502,18 @@ public sealed class SuperMetroidRuntime
                                       SamusState.IsGroundedAimPose(target)) &&
                                      (((SamusState.IsRightFacingStandingPose(source) ||
                                         SamusState.IsRightFacingRunningPose(source) ||
+                                        SamusState.IsRightFacingRanIntoWallPose(source) ||
                                         SamusState.IsRightFacingAimedLandingPose(source)) &&
                                        (SamusState.IsRightFacingStandingPose(target) ||
-                                        SamusState.IsRightFacingRunningPose(target))) ||
+                                        SamusState.IsRightFacingRunningPose(target) ||
+                                        SamusState.IsRightFacingRanIntoWallPose(target))) ||
                                       ((SamusState.IsLeftFacingStandingPose(source) ||
                                         SamusState.IsLeftFacingRunningPose(source) ||
+                                        SamusState.IsLeftFacingRanIntoWallPose(source) ||
                                         SamusState.IsLeftFacingAimedLandingPose(source)) &&
                                        (SamusState.IsLeftFacingStandingPose(target) ||
-                                        SamusState.IsLeftFacingRunningPose(target))) ||
+                                        SamusState.IsLeftFacingRunningPose(target) ||
+                                        SamusState.IsLeftFacingRanIntoWallPose(target))) ||
                                       (SamusState.IsRightFacingCrouchingPose(source) &&
                                        SamusState.IsRightFacingCrouchingPose(target)) ||
                                       (SamusState.IsLeftFacingCrouchingPose(source) &&
@@ -1364,6 +1541,12 @@ public sealed class SuperMetroidRuntime
                             case (SamusState.FacingLeftNormalPose, SamusState.MovingLeftNormalPose):
                                 Samus.ApplyStandingLeftToRunningLeft(_addressSpace);
                                 break;
+                            case var (source, target)
+                                when SamusState.IsRanIntoWallPose(source) &&
+                                     (SamusState.IsRightFacingRunningPose(target) ||
+                                      SamusState.IsLeftFacingRunningPose(target)):
+                                Samus.ApplyRanIntoWallToRunning(_addressSpace, target);
+                                break;
                             case var (rightSource, rightTarget)
                                 when rightTarget is
                                          SamusState.TurningRightToLeftPose or
@@ -1371,6 +1554,7 @@ public sealed class SuperMetroidRuntime
                                      (SamusState.IsRightFacingStandingPose(rightSource) ||
                                       SamusState.IsRightFacingRunningPose(rightSource) ||
                                       SamusState.IsMoonwalkingFacingRightPose(rightSource) ||
+                                      SamusState.IsRightFacingRanIntoWallPose(rightSource) ||
                                       SamusState.IsRightFacingCrouchingPose(rightSource) ||
                                       SamusState.IsRightFacingAimedLandingPose(rightSource) ||
                                       rightSource is
@@ -1383,6 +1567,7 @@ public sealed class SuperMetroidRuntime
                                      (SamusState.IsLeftFacingStandingPose(leftSource) ||
                                       SamusState.IsLeftFacingRunningPose(leftSource) ||
                                       SamusState.IsMoonwalkingFacingLeftPose(leftSource) ||
+                                      SamusState.IsLeftFacingRanIntoWallPose(leftSource) ||
                                       SamusState.IsLeftFacingCrouchingPose(leftSource) ||
                                       SamusState.IsLeftFacingAimedLandingPose(leftSource) ||
                                       leftSource is
@@ -1391,14 +1576,16 @@ public sealed class SuperMetroidRuntime
                                 Samus.ApplyGroundedTurn(_addressSpace, targetPose);
                                 break;
                             case var (source, target)
-                                when (SamusState.IsRightFacingStandingPose(source) &&
+                                when ((SamusState.IsRightFacingStandingPose(source) ||
+                                       SamusState.IsRightFacingRanIntoWallPose(source)) &&
                                       SamusState.IsRightFacingNormalJumpPose(target) &&
                                       target is
                                           SamusState.NeutralJumpTransitionRightPose or
                                           SamusState.NormalJumpTransitionAimUpRightPose or
                                           SamusState.NormalJumpTransitionAimDiagonalUpRightPose or
                                           SamusState.NormalJumpTransitionAimDiagonalDownRightPose) ||
-                                     (SamusState.IsLeftFacingStandingPose(source) &&
+                                     ((SamusState.IsLeftFacingStandingPose(source) ||
+                                       SamusState.IsLeftFacingRanIntoWallPose(source)) &&
                                       SamusState.IsLeftFacingNormalJumpPose(target) &&
                                       target is
                                           SamusState.NeutralJumpTransitionLeftPose or
@@ -1462,6 +1649,7 @@ public sealed class SuperMetroidRuntime
                                       SamusState.IsRightFacingRunningPose(source) ||
                                       SamusState.IsLeftFacingRunningPose(source) ||
                                       SamusState.IsMoonwalkingPose(source) ||
+                                      SamusState.IsRanIntoWallPose(source) ||
                                       SamusState.IsRightFacingAimedLandingPose(source) ||
                                       SamusState.IsLeftFacingAimedLandingPose(source) ||
                                       source is
@@ -1563,6 +1751,16 @@ public sealed class SuperMetroidRuntime
                         _addressSpace,
                         unchecked((byte)moonwalkFallback),
                         MoonwalkEnabled);
+                }
+                else if (!animationTransitionApplied &&
+                         SamusState.IsAimedRanIntoWallPose(poseAtFrameStart) &&
+                         ProspectiveSamusFallbackPose is { } wallFallback)
+                {
+                    // `$CF-$D2` store `$89/$8A` in pose-definition byte two. The stable
+                    // target shares radius, animation list, and type-$15 cleanup physics.
+                    Samus.ApplyGroundedAimTransition(
+                        _addressSpace,
+                        unchecked((byte)wallFallback));
                 }
                 else if (!animationTransitionApplied &&
                          (poseAtFrameStart is
@@ -1758,6 +1956,16 @@ public readonly record struct DebugGroundedSamusPlacement(
     int BlockY,
     RoomCollisionBlock FloorBlock,
     byte FloorHeight);
+
+/// <summary>
+/// Host-selected wall regression placement whose referenced blocks all belong to the
+/// decompressed cartridge room. The nested grounded record describes the supporting floor.
+/// </summary>
+public readonly record struct DebugRanIntoWallSamusPlacement(
+    DebugGroundedSamusPlacement Grounded,
+    int WallBlockX,
+    int WallTopBlockY,
+    int WallBottomBlockY);
 
 /// <summary>Debugger-visible work performed by the room's force-blank tilemap fill.</summary>
 public readonly record struct InitialViewportResult(int UpdateRequestCount, int DmaSegmentCount);

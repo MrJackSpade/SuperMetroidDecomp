@@ -32,7 +32,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$12` | Spring ball in air | `$7F/$80`, dry-air powered jump, variable height, ceiling/floor collision, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
 | `$13` | Spring ball falling | `$7D/$7E`, dry-air gravity, held-jump relaunch, automatic bounce, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
 | `$14` | Wall jumping | `$83/$84`, dry/Hi-Jump launch tables, variable height, `$FB` animation family, spin handoff, landing | Liquids, solid-enemy trigger, sound/contact-damage side effects |
-| `$15` | Ran into a wall | — | Entire family |
+| `$15` | Ran into a wall | `$89/$8A/$CF-$D2`, block-backed prospective-run selector, one-pixel probe, aim/fallback/turn/jump/walk-off routes, grounded cleanup | Solid-enemy probe, liquids and external displacement |
 | `$16` | Grappling | ROM-backed firing, four-step block collision, persistent type-`$E` acquisition/validation, all 30 standing/crouching/vertical connection records, `$B2/$B3` pendulum, `$A8-$AB/$B4-$B7` locked poses, per-pixel rope collision, six-point terrain sweep/reflection, collision kick, all eight exact locked/wallgrab angles, `$B8/$B9` grace-window wall jump, dropped-pose tables, release `$51/$52`, ROM art/beam DMA and OAM | Enemy acquisition, grapple spike-damage side effects, breakable PLMs, liquid/solid-enemy wall-jump branches |
 | `$17` | Turning while jumping | Grounded-Y crouch turns `$97-$9A/$A2/$A3`; airborne `$2F/$30/$8F-$92/$9E/$9F`, momentum, collision, `$F8` | Later firing/external-displacement routes |
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, momentum, gravity/collision, `$F8` | Later firing/external-displacement routes |
@@ -117,6 +117,27 @@ translated status is documented with the Morph Ball family below.
 - The viewer exposes **Moonwalk enabled** and uses the real Shoot-plus-backward controller
   chord. Synthetic verification exhausts all six stable and all six jump-turn routes; the
   private-ROM `--moonwalk-script` proves `$01->$4A->$76->$78->$07->$01->$4A->$BF->$1A`.
+
+## Verified ran-into-wall slice
+
+- `$91:EADE` first consumes the killed-X-speed result from current movement type one. If
+  that branch is absent, only a prospective type-one pose triggers the forward block probe.
+  The untranslated solid-enemy probe remains explicit instead of being approximated.
+- The block probe moves exactly one pixel in the CURRENT pose direction. Collision retains
+  the last-safe X and selects wall art from the PROSPECTIVE pose's shot direction; clear
+  terrain retains the pixel movement, preserving the retail arm-pump bug.
+- The literal `$91:EB74` selector maps all ten shot directions to `$03/$CF/$89/$D1/$89/`
+  `$8A/$D2/$8A/$D0/$04`. The six type-`$15` records share the cartridge's `$10,$FF`
+  animation list, no-base X movement, grounding probe, and unconditional horizontal-speed
+  cleanup from `$90:A75F`.
+- Input remains table-driven: aim changes pass through prospective running `$0F/$11`,
+  no-input definition fallback returns `$CF/$D1` to `$89`, and a fresh Jump edge follows
+  `$89 -> $4B -> $4D`. Ground turns, same-facing running exits, moonwalk entry, posture,
+  and walk-off all reuse their already translated retail routes.
+- DebugRunner `--ran-into-wall-script` scans Landing Site's decompressed BG1/BTS planes for
+  an ordinary type-`$8` floor/wall corner with type-`$0` body clearance. Its real-ROM route
+  observes `$01 -> $89 -> $CF -> $D1 -> $89 -> $4B -> $4D` and requires at least one
+  blocked one-pixel bank-`$94` probe, so a host-selected pose cannot satisfy the regression.
 
 ## Verified grounded-aim slice
 
@@ -421,6 +442,10 @@ translated status is documented with the Morph Ball family below.
   enemy-collision seam, executes `$53`, matches cartridge record `$91:A8E4` with held
   `$0280`, enters `$50`, runs type `$19` through ceiling/floor collision, and lands through
   `$FF -> $A5`. A 32-frame capture freezes authentic damage-boost art and split-body OAM.
+- The real-ROM `--ran-into-wall-script` chooses only a Landing Site test coordinate, then
+  observes `$89/$CF/$D1`, definition fallback, and `$4B/$4D` from retail input tables and a
+  blocked type-`$8` collision probe. The selected ROM corner is column `$10`, floor row
+  `$20`; Samus remains at last-safe center X `$00FB` during every rejected +1.0000 move.
 - The real-ROM `--grapple-script` publishes only an accepted anchor, then collides on frame
   one against Landing Site terrain at radial point 6/6. It records safe angle `$4080`,
   reflected velocity `$FF2E`, and kick timer 16 before releasing through `$B2 -> $52`.

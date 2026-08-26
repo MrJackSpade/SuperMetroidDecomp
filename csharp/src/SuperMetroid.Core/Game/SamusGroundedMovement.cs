@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 /// <remarks>
 /// This is deliberately not a generic platformer controller. The entry points below
-/// correspond only to movement types zero, one, $0E, and $10, with no liquid, enemy collision,
+/// correspond only to movement types zero, one, $0E, $10, and $15, with no liquid, enemy collision,
 /// run-button acceleration, conveyor displacement, knockback, or speed booster. Each
 /// omitted system has observable native state and must be ported before its branch is
 /// enabled; none is silently replaced with desktop physics.
@@ -376,6 +376,58 @@ public static class SamusGroundedMovement
             level,
             samus,
             nmiFrameCounter);
+        return new GroundedMovementResult(horizontal, vertical);
+    }
+
+    /// <summary>
+    /// Ports <c>Samus_Movement_15_RanIntoWall</c> at <c>$90:A75F</c> for
+    /// `$89/$8A/$CF-$D2` in the block-only dry-room slice.
+    /// </summary>
+    public static GroundedMovementResult StepRanIntoWall(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(samus);
+        if (!SamusState.IsRanIntoWallPose(samus.Pose) || samus.ReadMovementType(bus) != 0x15)
+        {
+            throw new InvalidOperationException(
+                $"Ran-into-wall movement requires pose $89/$8A/$CF-$D2, not ${samus.Pose:X2}.");
+        }
+
+        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
+
+        // `$90:A75F` calls the same no-base-speed X routine as standing. Direction still
+        // comes from the literal pose definition: `$89/$CF/$D1` store eight (right), while
+        // `$8A/$D0/$D2` store four (left). Extra speed is included in the requested move
+        // before the handler's unconditional cleanup, matching the native call order.
+        int requestedHorizontal = samus.ReadPoseXDirection(bus) == 4
+            ? speed.CalculateLeftDisplacement(baseSpeed: 0)
+            : speed.CalculateRightDisplacement(baseSpeed: 0);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
+            bus,
+            level,
+            samus.Kinematics,
+            requestedHorizontal);
+        if (horizontal.Collided)
+            ClearHorizontalMomentum(speed);
+
+        // The one-or-more-pixel downward grounding probe runs before all X words are
+        // cleared. This preserves the same ledge behavior as `$90:A762` even though the
+        // ordinary wall-stop state normally begins with zero speed.
+        BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
+            bus,
+            level,
+            samus,
+            nmiFrameCounter);
+
+        // `$90:A766-$A77F` cancels speed boost and clears both run/base components plus
+        // acceleration mode on every frame. The speed-booster counters themselves remain
+        // outside this slice; the five movement words are exact and debugger-visible.
+        ClearHorizontalMomentum(speed);
         return new GroundedMovementResult(horizontal, vertical);
     }
 

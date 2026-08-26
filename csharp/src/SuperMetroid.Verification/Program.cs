@@ -41,6 +41,7 @@ VerifySamusBlockCollision();
 VerifySamusGroundedMovement();
 VerifySamusGroundedReversal();
 VerifySamusMoonwalking();
+VerifySamusRanIntoWall();
 VerifyObjRendering();
 VerifyHudStateAndBg3Rendering();
 VerifyDebugRoomCamera();
@@ -4102,6 +4103,164 @@ static void VerifySamusMoonwalking()
         "moonwalk terminal command begins upward motion");
 
     Console.WriteLine("  Moonwalk: option gate, six stable routes, reversed X, fallback, and $BF-$C4 jump art agree.");
+}
+
+/// <summary>
+/// Verifies movement type `$15` and `$91:EADE`'s block-only producer, including the
+/// otherwise easy-to-erase one-pixel arm-pump movement performed for prospective runs.
+/// </summary>
+static void VerifySamusRanIntoWall()
+{
+    var bus = new TestAddressSpace();
+
+    (byte Pose, byte[] Definition)[] wallPoses =
+    [
+        (SamusState.RanIntoWallRightPose,
+            [0x08, 0x15, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.RanIntoWallLeftPose,
+            [0x04, 0x15, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.RanIntoWallAimUpRightPose,
+            [0x08, 0x15, 0x89, 0x01, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.RanIntoWallAimUpLeftPose,
+            [0x04, 0x15, 0x8a, 0x08, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.RanIntoWallAimDownRightPose,
+            [0x08, 0x15, 0x89, 0x03, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.RanIntoWallAimDownLeftPose,
+            [0x04, 0x15, 0x8a, 0x06, 0x06, 0x00, 0x15, 0x00]),
+    ];
+    foreach ((byte pose, byte[] definition) in wallPoses)
+    {
+        bus.WriteBytes(0x91b629 + pose * 8, definition);
+        WriteTestWord(bus, 0x91b010 + pose * 2, 0xc500);
+    }
+    bus.WriteBytes(0x91c500, [0x10, 0xff]);
+
+    // Minimal current/prospective definitions make direction and movement-type selection
+    // auditable without copying unrelated animation data into this focused fixture.
+    bus.WriteBytes(0x91b631, [0x08, 0x00, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b639, [0x04, 0x00, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b671, [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b679, [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
+
+    byte[] selectedByShotDirection =
+    [
+        SamusState.StandingAimUpRightPose,
+        SamusState.RanIntoWallAimUpRightPose,
+        SamusState.RanIntoWallRightPose,
+        SamusState.RanIntoWallAimDownRightPose,
+        SamusState.RanIntoWallRightPose,
+        SamusState.RanIntoWallLeftPose,
+        SamusState.RanIntoWallAimDownLeftPose,
+        SamusState.RanIntoWallLeftPose,
+        SamusState.RanIntoWallAimUpLeftPose,
+        SamusState.StandingAimUpLeftPose,
+    ];
+    for (byte direction = 0; direction < selectedByShotDirection.Length; direction++)
+    {
+        bus.WriteByte(0x91b629 + SamusState.MovingRightNormalPose * 8 + 3, direction);
+        AssertEqual(
+            selectedByShotDirection[direction],
+            SamusState.SelectRanIntoWallPose(bus, SamusState.MovingRightNormalPose),
+            $"ran-into-wall shot selector {direction}");
+    }
+    bus.WriteByte(0x91b629 + SamusState.MovingRightNormalPose * 8 + 3, 2);
+
+    const int width = 12;
+    var openForeground = new ushort[width * 4];
+    for (int x = 0; x < width; x++)
+        openForeground[width * 2 + x] = 0x8000;
+    var openFloor = new RoomLevelData(
+        width,
+        4,
+        openForeground,
+        new byte[openForeground.Length],
+        new ushort[openForeground.Length],
+        new byte[8]);
+
+    // A clear prospective run really moves one pixel; it is not merely a collision query.
+    var armPump = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 80,
+        YPosition = 27,
+    };
+    armPump.Kinematics.XRadius = 5;
+    armPump.Kinematics.YRadius = 5;
+    byte? clearResult = armPump.CheckProspectiveRunningPoseForWall(
+        bus,
+        openFloor,
+        SamusState.MovingRightNormalPose,
+        currentXSpeedKilledByBlock: false,
+        out BlockMoveResult? clearProbe);
+    AssertTrue(clearResult is null, "clear arm-pump probe keeps prospective run");
+    AssertTrue(clearProbe is { Collided: false }, "clear arm-pump probe reports no wall");
+    AssertEqual((ushort)81, armPump.XPosition, "clear arm-pump probe retains one-pixel move");
+
+    // Put a two-block-high wall immediately at X=96. Center 91/radius five has a current
+    // right boundary at 95; the same +1.0000 request advances the sampled boundary to 96.
+    var blockedForeground = (ushort[])openForeground.Clone();
+    blockedForeground[6] = 0x8000;
+    blockedForeground[width + 6] = 0x8000;
+    var blockedFloor = new RoomLevelData(
+        width,
+        4,
+        blockedForeground,
+        new byte[blockedForeground.Length],
+        new ushort[blockedForeground.Length],
+        new byte[8]);
+    var blocked = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 91,
+        YPosition = 27,
+    };
+    blocked.Kinematics.XRadius = 5;
+    blocked.Kinematics.YRadius = 5;
+    byte? blockedResult = blocked.CheckProspectiveRunningPoseForWall(
+        bus,
+        blockedFloor,
+        SamusState.MovingRightNormalPose,
+        currentXSpeedKilledByBlock: false,
+        out BlockMoveResult? blockedProbe);
+    AssertEqual((byte?)SamusState.RanIntoWallRightPose, blockedResult,
+        "blocked prospective run selects $89");
+    AssertTrue(blockedProbe is { Collided: true }, "blocked arm-pump probe reports wall");
+    AssertEqual((ushort)91, blocked.XPosition, "blocked arm-pump probe retains last-safe X");
+
+    // A killed type-one move uses the CURRENT shot direction and performs no second probe.
+    var killed = new SamusState { Pose = SamusState.MovingRightNormalPose };
+    byte? killedResult = killed.CheckProspectiveRunningPoseForWall(
+        bus,
+        openFloor,
+        prospectivePose: null,
+        currentXSpeedKilledByBlock: true,
+        out BlockMoveResult? killedProbe);
+    AssertEqual((byte?)SamusState.RanIntoWallRightPose, killedResult,
+        "killed running speed selects current wall pose");
+    AssertTrue(killedProbe is null, "killed running speed skips one-pixel probe");
+
+    // Every type-$15 pose executes no-base X, the shared grounding probe, and then clears
+    // all five horizontal momentum words unconditionally.
+    foreach ((byte pose, _) in wallPoses)
+    {
+        var stopped = new SamusState { Pose = pose, XPosition = 80, YPosition = 27 };
+        stopped.Kinematics.XRadius = 5;
+        stopped.Kinematics.YRadius = 5;
+        stopped.HorizontalSpeed.BaseSpeed = 1;
+        stopped.HorizontalSpeed.BaseSubspeed = 0x4000;
+        GroundedMovementResult movement = SamusGroundedMovement.StepRanIntoWall(
+            bus,
+            openFloor,
+            stopped,
+            nmiFrameCounter: 0);
+        AssertTrue(movement.Vertical.Collided, $"wall pose ${pose:X2} remains grounded");
+        AssertEqual(0u, stopped.HorizontalSpeed.BaseFixed,
+            $"wall pose ${pose:X2} clears base speed");
+        AssertEqual((ushort)0, stopped.HorizontalSpeed.AccelerationMode,
+            $"wall pose ${pose:X2} clears acceleration mode");
+    }
+
+    Console.WriteLine("  Ran into wall: ten-way selector, arm-pump pixel, six stable poses, grounding, and cleanup agree.");
 }
 
 /// <summary>

@@ -1066,6 +1066,8 @@ static void VerifySamusPostureMovement()
     bus.WriteBytes(0x91b769, [0x04, 0x05, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]); // $28
     bus.WriteBytes(0x91b7d1, [0x08, 0x0f, 0xff, 0x02, 0x00, 0x00, 0x10, 0x00]); // $35
     bus.WriteBytes(0x91b801, [0x08, 0x0f, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $3B
+    bus.WriteBytes(0x91b881, [0x08, 0x02, 0xff, 0x02, 0x03, 0x00, 0x13, 0x00]); // $4B
+    bus.WriteBytes(0x91b889, [0x04, 0x02, 0xff, 0x07, 0x03, 0x00, 0x13, 0x00]); // $4C
     bus.WriteBytes(0x91b9b1, [0x08, 0x05, 0x27, 0x01, 0x00, 0x00, 0x10, 0x00]); // $71
     bus.WriteBytes(0x91b9b9, [0x04, 0x05, 0x28, 0x08, 0x00, 0x00, 0x10, 0x00]); // $72
     bus.WriteBytes(0x91b9c1, [0x08, 0x05, 0x27, 0x03, 0x00, 0x00, 0x10, 0x00]); // $73
@@ -1100,6 +1102,17 @@ static void VerifySamusPostureMovement()
     bus.WriteBytes(0x91c110, [0x0a, 0x0a, 0x0a, 0x0a, 0xf6]);
     bus.WriteBytes(0x91c120, [0x02, 0xfd, 0x27]);
     bus.WriteBytes(0x91c130, [0x02, 0xfd, 0x01]);
+    WriteTestWord(bus, 0x91b010 + SamusState.NeutralJumpTransitionRightPose * 2, 0xc140);
+    WriteTestWord(bus, 0x91b010 + SamusState.NeutralJumpTransitionLeftPose * 2, 0xc150);
+    bus.WriteBytes(0x91c140, [0x01, 0xfd, SamusState.NeutralJumpRightPose]);
+    bus.WriteBytes(0x91c150, [0x01, 0xfd, SamusState.NeutralJumpLeftPose]);
+
+    // Dry-air table-zero values used by Make_Samus_Jump and normal-air gravity. Keeping
+    // these as literal ROM words makes a crouch jump observable beyond merely changing pose.
+    bus.WriteBytes(0x909eb9, [0x04, 0x00]);
+    bus.WriteBytes(0x909ebf, [0x00, 0xe0]);
+    bus.WriteBytes(0x909ea1, [0x00, 0x1c]);
+    bus.WriteBytes(0x909ea7, [0x00, 0x00]);
 
     // Give every aimed transition its own command-$FD stream. Distinct stream pointers
     // catch accidental pose reuse; the literal target arrays mirror `$91:B518-$91:B53B`.
@@ -1243,6 +1256,94 @@ static void VerifySamusPostureMovement()
         () => crouchAim.ApplyGroundedAimTransition(bus, SamusState.CrouchingAimUpLeftPose),
         "crouch aim cannot cross facing families");
 
+    // Releasing Down while retaining the facing direction matches `$91:A6A0`'s direct
+    // `$27 -> $01` record. This is not the `$3B` standing animation: radius expansion and
+    // floor alignment happen immediately at the post-input pose-change seam.
+    var directStand = new SamusState
+    {
+        Pose = SamusState.CrouchingRightPose,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    directStand.RefreshCollisionRadii(bus);
+    directStand.InitializeAnimation(bus);
+    AssertTrue(
+        directStand.TryApplyDirectCrouchToStandingTransition(
+            bus, level, SamusState.FacingRightNormalPose, nmiFrameCounter: 0),
+        "direct crouch-to-standing record applies");
+    AssertEqual((byte)0x01, directStand.Pose, "direct crouch exit target");
+    AssertEqual((ushort)21, directStand.Kinematics.YRadius, "direct crouch exit radius");
+    AssertEqual((ushort)43, directStand.YPosition, "direct crouch exit keeps feet aligned");
+
+    var directStandLeft = new SamusState
+    {
+        Pose = SamusState.CrouchingLeftPose,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    directStandLeft.RefreshCollisionRadii(bus);
+    directStandLeft.InitializeAnimation(bus);
+    AssertTrue(
+        directStandLeft.TryApplyDirectCrouchToStandingTransition(
+            bus, level, SamusState.FacingLeftNormalPose, nmiFrameCounter: 1),
+        "mirrored direct crouch-to-standing record applies");
+    AssertEqual((byte)0x02, directStandLeft.Pose, "mirrored direct crouch exit target");
+    AssertEqual((ushort)43, directStandLeft.YPosition, "mirrored direct crouch exit alignment");
+
+    // `$91:FC66` first accepts the 16 -> 19 radius expansion, moving the center up three
+    // against the floor, then subtracts ten more pixels only when PreviousPose is exactly
+    // ordinary crouch `$27/$28`. Make_Samus_Jump follows with the ROM's 4.E000 velocity.
+    var crouchJump = new SamusState
+    {
+        Pose = SamusState.CrouchingRightPose,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    crouchJump.RefreshCollisionRadii(bus);
+    crouchJump.InitializeAnimation(bus);
+    AssertTrue(
+        crouchJump.TryApplyCrouchJumpTransition(
+            bus, level, SamusState.NeutralJumpTransitionRightPose, nmiFrameCounter: 0),
+        "ordinary crouch jump applies");
+    AssertEqual((byte)0x4b, crouchJump.Pose, "ordinary crouch jump transition pose");
+    AssertEqual((ushort)19, crouchJump.Kinematics.YRadius, "ordinary crouch jump radius");
+    AssertEqual((ushort)35, crouchJump.YPosition, "ordinary crouch jump collision plus FC8A offset");
+    AssertEqual((ushort)4, crouchJump.Kinematics.YSpeed, "ordinary crouch jump Y speed");
+    AssertEqual((ushort)0xe000, crouchJump.Kinematics.YSubspeed, "ordinary crouch jump Y subspeed");
+    AssertEqual((ushort)1, crouchJump.Kinematics.YDirection, "ordinary crouch jump rises");
+
+    var crouchJumpLeft = new SamusState
+    {
+        Pose = SamusState.CrouchingLeftPose,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    crouchJumpLeft.RefreshCollisionRadii(bus);
+    crouchJumpLeft.InitializeAnimation(bus);
+    AssertTrue(
+        crouchJumpLeft.TryApplyCrouchJumpTransition(
+            bus, level, SamusState.NeutralJumpTransitionLeftPose, nmiFrameCounter: 1),
+        "mirrored ordinary crouch jump applies");
+    AssertEqual((byte)0x4c, crouchJumpLeft.Pose, "mirrored crouch jump transition pose");
+    AssertEqual((ushort)35, crouchJumpLeft.YPosition, "mirrored crouch jump Y adjustment");
+
+    // The native literal-pose comparison intentionally excludes aimed crouches. They use
+    // the same `$4B` art and jump velocity but receive only the three-pixel floor-alignment
+    // adjustment from pose-change collision.
+    var aimedCrouchJump = new SamusState
+    {
+        Pose = SamusState.CrouchingAimDiagonalUpRightPose,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    aimedCrouchJump.RefreshCollisionRadii(bus);
+    aimedCrouchJump.InitializeAnimation(bus);
+    AssertTrue(
+        aimedCrouchJump.TryApplyCrouchJumpTransition(
+            bus, level, SamusState.NeutralJumpTransitionRightPose, nmiFrameCounter: 1),
+        "aimed crouch jump applies");
+    AssertEqual((ushort)45, aimedCrouchJump.YPosition, "aimed crouch jump omits FC8A offset");
+
     // Ceiling row one ends at pixel 31. A crouched body occupies 32..63 exactly, while a
     // standing body would need 27..63. Both five-pixel probes collide, so native pose
     // collision rejects the larger pose and retains crouch.
@@ -1271,7 +1372,23 @@ static void VerifySamusPostureMovement()
     AssertEqual((byte)0x27, tunnelSamus.Pose, "rejected stand retains crouch pose");
     AssertEqual((ushort)48, tunnelSamus.YPosition, "rejected stand preserves center Y");
 
-    Console.WriteLine("  Samus posture: ordinary/aimed crouch/stand radii, movement, FD targets, and low-ceiling rejection agree.");
+    var tunnelJump = new SamusState
+    {
+        Pose = SamusState.CrouchingAimUpRightPose,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    tunnelJump.RefreshCollisionRadii(bus);
+    tunnelJump.InitializeAnimation(bus);
+    AssertTrue(
+        !tunnelJump.TryApplyCrouchJumpTransition(
+            bus, tunnel, SamusState.NeutralJumpTransitionRightPose, nmiFrameCounter: 1),
+        "low tunnel rejects crouch-jump radius expansion");
+    AssertEqual((byte)0x27, tunnelJump.Pose, "boxed aimed jump falls back to ordinary crouch");
+    AssertEqual((ushort)16, tunnelJump.Kinematics.YRadius, "boxed aimed jump retains crouch radius");
+    AssertEqual((ushort)0, tunnelJump.Kinematics.YSpeed, "boxed aimed jump does not call Make_Samus_Jump");
+
+    Console.WriteLine("  Samus posture: animated/direct exits, crouch jumps, radii, movement, FD targets, and low-ceiling fallback agree.");
 }
 
 /// <summary>

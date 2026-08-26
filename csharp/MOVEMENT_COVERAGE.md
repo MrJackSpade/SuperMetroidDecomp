@@ -16,7 +16,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$02` | Normal jumping | `$4B-$4E/$15-$16/$51-$52/$55-$5A/$69-$6C`, dry air, variable height, ceiling/floor collision | Compact straight-down `$17/$18`, equipment/liquids, external displacement |
 | `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation | Wall-jump trigger, space jump, screw attack, equipment/liquids |
 | `$04` | Morph ball on ground | — | Entire family |
-| `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear | Fire variants, direct stand/run seams, crouch-jump and morph entry |
+| `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry | Fire variants and morph entry |
 | `$06` | Falling | `$29/$2A/$2B/$2C/$6D-$70`, walk-off, dry-air gravity and landing | Compact straight-down `$2D/$2E`, equipment/liquids, aerial turn transitions |
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
 | `$08` | Morph ball falling | — | Entire family and bounce state |
@@ -84,6 +84,15 @@ are listed below so later work cannot accidentally confuse “the current viewer
   existing five-pixel ceiling/floor collision probes and `$FD` targets `$03-$08`. The
   synthetic matrix covers all twelve transition records and the real-ROM
   `--aim-crouch-script` crosses both facings, live aim changes, and both fallback paths.
+- Releasing Down while retaining the facing direction matches the literal direct records
+  `$91:A6B4/$91:A704`, installing `$01/$02` without passing through `$3B/$3C`. The same
+  larger-radius collision resolver aligns the 21-pixel body to the floor; a following held
+  direction uses the already translated standing table to enter `$09/$0A` on the next frame.
+- A new Jump edge from any stable crouch selects `$4B/$4C`. Pose-change collision expands
+  radius 16 -> 19 before `Make_Samus_Jump`; `$91:FC7D` then subtracts ten additional Y pixels
+  only when the literal source was ordinary `$27/$28`. Aimed crouches use the same jump art
+  and ROM 4.E000 velocity without that extra subtraction. If both ceiling and floor block
+  expansion, `$91:FFA7` selects ordinary `$27/$28` and the jump is never started.
 
 ## Verified grounded-aim slice
 
@@ -186,10 +195,14 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - The real-ROM `--crouch-turn-script` route observes `$43/$44` prospective poses become all
   eight ordinary/aimed crouched turns. It completes every `$F8` target while retaining the
   16-pixel collision radius, grounded probe, old-direction momentum, and live rendering.
+- The real-ROM `--crouch-jump-script` observes both direct `$27 -> $01` exits, ordinary
+  `$27 -> $4B -> $4D -> $A4`, and aimed `$71 -> $4B -> $4D/$69 -> $51 -> $A4`. Its trace
+  records the distinct `$04B3` ordinary and `$04BD` aimed launch centers, authentic 4.E000
+  velocity, ceiling/floor collision, landings, camera, minimap, and ROM-authored graphics.
 
 ## Next implementation order
 
-1. Crouch-jump entry, direct crouch-to-stand/run seams, and compact straight-down aerial bodies.
+1. Compact straight-down `$17/$18/$2D/$2E` aerial bodies and their radius changes.
 2. Morph ball ground/fall/bounce, bombs, and spring ball.
 3. Aerial turns and the real wall-jump trigger/launch.
 4. Knockback and damage boost.

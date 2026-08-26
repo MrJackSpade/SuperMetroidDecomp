@@ -884,6 +884,116 @@ public sealed class SamusState
     }
 
     /// <summary>
+    /// Applies the crouching table's direct `$27/$71/$73/$85 -> $01` and mirrored
+    /// `$28/$72/$74/$86 -> $02` exits. These are real six-byte transition-table records;
+    /// unlike the animated `$F7-$FC` stand-up family, they install the final standing pose
+    /// immediately after pose-change collision has made room for its larger radius.
+    /// </summary>
+    /// <returns>
+    /// False when the two-sided pose-change collision resolver falls back to stable
+    /// crouch because both the floor and ceiling constrain the larger body.
+    /// </returns>
+    public bool TryApplyDirectCrouchToStandingTransition(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        byte targetPose,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+
+        bool rightRoute = IsRightFacingCrouchingPose(Pose) &&
+            targetPose == FacingRightNormalPose;
+        bool leftRoute = IsLeftFacingCrouchingPose(Pose) &&
+            targetPose == FacingLeftNormalPose;
+        if (!rightRoute && !leftRoute)
+        {
+            throw new NotSupportedException(
+                $"Direct crouch exit ${Pose:X2} -> ${targetPose:X2} is not a ROM-table route.");
+        }
+
+        byte sourcePose = Pose;
+        if (!TryResolveLargerPoseCollision(
+                bus,
+                level,
+                targetPose,
+                nmiFrameCounter,
+                out int centerAdjustment))
+        {
+            // $91:FFA7 does not restore an aimed crouch when the attempted standing body
+            // is boxed in. It selects the ordinary stable crouch from facing metadata.
+            ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            return false;
+        }
+
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        InitializeAnimation(bus, initialFrame: 0);
+        return true;
+    }
+
+    /// <summary>
+    /// Applies the crouching table's `$4B/$4C` jump entry through the native ordering:
+    /// enlarge radius 16 -> 19 with `$91:FDAE`, initialise movement type two, run the
+    /// `$91:FC66` crouch-only Y adjustment, then call `Make_Samus_Jump`.
+    /// </summary>
+    /// <remarks>
+    /// `$91:FC7D` tests the literal previous pose, not merely movement type five. Therefore
+    /// only ordinary `$27/$28` subtract ten extra pixels; aimed `$71-$74/$85/$86` still
+    /// jump, but retain only the collision resolver's bottom-alignment adjustment.
+    /// </remarks>
+    /// <returns>
+    /// False when expansion is impossible and native collision handling selects ordinary
+    /// stable crouch instead of starting the jump.
+    /// </returns>
+    public bool TryApplyCrouchJumpTransition(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        byte targetPose,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+
+        bool rightRoute = IsRightFacingCrouchingPose(Pose) &&
+            targetPose == NeutralJumpTransitionRightPose;
+        bool leftRoute = IsLeftFacingCrouchingPose(Pose) &&
+            targetPose == NeutralJumpTransitionLeftPose;
+        if (!rightRoute && !leftRoute)
+        {
+            throw new NotSupportedException(
+                $"Crouch jump ${Pose:X2} -> ${targetPose:X2} is not a ROM-table route.");
+        }
+
+        byte sourcePose = Pose;
+        if (!TryResolveLargerPoseCollision(
+                bus,
+                level,
+                targetPose,
+                nmiFrameCounter,
+                out int centerAdjustment))
+        {
+            ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            return false;
+        }
+
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+
+        // HandleJumpTransition_NormalJumping at $91:FC7D performs this after pose
+        // initialization/collision but before Make_Samus_Jump. It writes only current Y;
+        // the desktop state has no separately exposed PreviousYPosition word to mirror.
+        if (sourcePose is CrouchingRightPose or CrouchingLeftPose)
+            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - 10));
+
+        InitializeAnimation(bus, initialFrame: 0);
+        SamusAerialMovement.InitializeDryAirJump(bus, this);
+        return true;
+    }
+
+    /// <summary>
     /// Applies the ordinary or aimed crouch-start/stand-start transition records,
     /// including command seven's bottom alignment and the larger-radius collision branch
     /// from <c>HandlePoseChangeCollision</c>. The admitted target set is exactly
@@ -950,40 +1060,18 @@ public sealed class SamusState
         }
 
         // Expanding from crouch radius 16 to standing-transition radius 21 invokes the
-        // pose-change collision routine before initialization. Probe the exact five-pixel
-        // radius difference using copies so rejected probes cannot corrupt live subpixels.
-        SamusKinematicsState upwardProbe = CopyKinematics(Kinematics);
-        BlockMoveResult upward = SamusBlockCollision.MoveVertical(
-            bus,
-            level,
-            upwardProbe,
-            displacement: unchecked((int)0xfffb0000),
-            scanLeftToRight: (nmiFrameCounter & 1) == 0);
-        SamusKinematicsState downwardProbe = CopyKinematics(Kinematics);
-        BlockMoveResult downward = SamusBlockCollision.MoveVertical(
-            bus,
-            level,
-            downwardProbe,
-            displacement: 0x00050000,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0);
-
-        if (upward.Collided && downward.Collided)
+        // common pose-change collision routine before initialization. The shared helper
+        // reads the target radius from this ROM rather than assuming the ordinary value 21.
+        byte sourcePose = Pose;
+        if (!TryResolveLargerPoseCollision(
+                bus,
+                level,
+                targetPose,
+                nmiFrameCounter,
+                out int centerAdjustment))
+        {
+            ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
             return false;
-
-        int centerAdjustment = 0;
-        if (downward.Collided)
-        {
-            // $91:FF49 moves away from the floor by radiusDifference-spaceToMoveDown.
-            int freeWholePixels = Math.Max(0, downward.AcceptedDisplacement >> 16);
-            centerAdjustment = -(5 - freeWholePixels);
-        }
-        else if (upward.Collided)
-        {
-            // The mirror branch at $91:FF20 moves down when only the ceiling constrains
-            // the enlarged body.
-            int acceptedWhole = unchecked((short)(upward.AcceptedDisplacement >> 16));
-            int freeWholePixels = Math.Max(0, -acceptedWhole);
-            centerAdjustment = 5 - freeWholePixels;
         }
 
         Pose = targetPose;
@@ -1459,6 +1547,94 @@ public sealed class SamusState
 
     private static int AddWithinBank(int address, int byteCount) =>
         (address & 0xff0000) | ((address + byteCount) & 0xffff);
+
+    /// <summary>
+    /// Resolves the block-only portion of `HandlePoseChangeCollision` at `$91:FDAE` for
+    /// a target whose Y radius is larger than the live body's radius.
+    /// </summary>
+    /// <remarks>
+    /// The cartridge first probes the radius difference downward and upward while retaining
+    /// the old radius. A floor-only hit shifts the center up, a ceiling-only hit shifts it
+    /// down, no hit leaves it alone, and hits on both sides select stable crouch. Solid-enemy
+    /// collision is deliberately outside the current room slice; no synthetic substitute is
+    /// made for it here.
+    /// </remarks>
+    private bool TryResolveLargerPoseCollision(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        byte targetPose,
+        ushort nmiFrameCounter,
+        out int centerAdjustment)
+    {
+        int targetDefinition = AddWithinBank(PoseDefinitions, targetPose * 8);
+        ushort targetRadius = bus.ReadByte(AddWithinBank(targetDefinition, 6));
+        if (targetRadius <= Kinematics.YRadius)
+        {
+            centerAdjustment = 0;
+            return true;
+        }
+
+        int radiusDifference = targetRadius - Kinematics.YRadius;
+
+        // The probes run against independent copies. Native stores both available-distance
+        // results before choosing a branch, so neither probe may move the live body early.
+        SamusKinematicsState upwardProbe = CopyKinematics(Kinematics);
+        BlockMoveResult upward = SamusBlockCollision.MoveVertical(
+            bus,
+            level,
+            upwardProbe,
+            displacement: unchecked(-radiusDifference << 16),
+            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+        SamusKinematicsState downwardProbe = CopyKinematics(Kinematics);
+        BlockMoveResult downward = SamusBlockCollision.MoveVertical(
+            bus,
+            level,
+            downwardProbe,
+            displacement: radiusDifference << 16,
+            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+
+        if (upward.Collided && downward.Collided)
+        {
+            centerAdjustment = 0;
+            return false;
+        }
+
+        centerAdjustment = 0;
+        if (downward.Collided)
+        {
+            // `$91:FF49`: move away from the floor by
+            // radiusDifference-spaceToMoveDown, preserving the old bottom boundary.
+            int freeWholePixels = Math.Max(0, downward.AcceptedDisplacement >> 16);
+            centerAdjustment = -(radiusDifference - freeWholePixels);
+        }
+        else if (upward.Collided)
+        {
+            // `$91:FF20` is the mirror: move down only as far as necessary to clear the
+            // ceiling while admitting the enlarged body.
+            int acceptedWhole = unchecked((short)(upward.AcceptedDisplacement >> 16));
+            int freeWholePixels = Math.Max(0, -acceptedWhole);
+            centerAdjustment = radiusDifference - freeWholePixels;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Applies `$91:FFA7`'s non-morph fallback after simultaneous above/below collision.
+    /// Direction metadata selects `$27/$28`; an aimed crouch consequently loses its aim.
+    /// </summary>
+    private void ApplyPoseChangeCollisionCrouchFallback(ISnesAddressSpace bus, byte sourcePose)
+    {
+        byte fallbackPose = ReadPoseXDirection(bus) == 4
+            ? CrouchingLeftPose
+            : CrouchingRightPose;
+        if (sourcePose == fallbackPose)
+            return;
+
+        Pose = fallbackPose;
+        RefreshCollisionRadii(bus);
+        InitializeAnimation(bus, initialFrame: 0);
+    }
 
     private static SamusKinematicsState CopyKinematics(SamusKinematicsState source) => new()
     {

@@ -821,6 +821,36 @@ public sealed class SuperMetroidRuntime
                                   SamusState.SpinJumpLeftPose):
                                 Samus.ApplyOrdinaryJumpTransition(_addressSpace, targetPose);
                                 break;
+                            case var (source, target)
+                                when ((SamusState.IsRightFacingCrouchingPose(source) &&
+                                       target == SamusState.NeutralJumpTransitionRightPose) ||
+                                      (SamusState.IsLeftFacingCrouchingPose(source) &&
+                                       target == SamusState.NeutralJumpTransitionLeftPose)):
+                                // `$91:A66C/$91:A6BC` use the ordinary `$4B/$4C` transition
+                                // art for every crouched aim direction. The helper preserves
+                                // `$91:FC7D`'s literal `$27/$28`-only ten-pixel adjustment.
+                                Samus.TryApplyCrouchJumpTransition(
+                                    _addressSpace,
+                                    LevelData ?? throw new InvalidOperationException(
+                                        "Crouch jump requires active room level data."),
+                                    targetPose,
+                                    NmiFrameCounter);
+                                break;
+                            case var (source, target)
+                                when ((SamusState.IsRightFacingCrouchingPose(source) &&
+                                       target == SamusState.FacingRightNormalPose) ||
+                                      (SamusState.IsLeftFacingCrouchingPose(source) &&
+                                       target == SamusState.FacingLeftNormalPose)):
+                                // These direct `$01/$02` records bypass the animated
+                                // `$F7-$FC` stand-up family, but still run pose-expansion
+                                // collision before installing the final standing body.
+                                Samus.TryApplyDirectCrouchToStandingTransition(
+                                    _addressSpace,
+                                    LevelData ?? throw new InvalidOperationException(
+                                        "Direct crouch exit requires active room level data."),
+                                    targetPose,
+                                    NmiFrameCounter);
+                                break;
                             case (SamusState.NormalLandingRightPose or SamusState.SpinLandingRightPose,
                                   SamusState.MovingRightNormalPose):
                             case (SamusState.NormalLandingLeftPose or SamusState.SpinLandingLeftPose,

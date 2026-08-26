@@ -61,6 +61,11 @@ else if (options.CrouchTurnScript)
     Console.WriteLine(
         "Input script: ordinary, straight-up, diagonal-up, and diagonal-down crouched turns in both directions.");
 }
+else if (options.CrouchJumpScript)
+{
+    Console.WriteLine(
+        "Input script: direct crouch exit, ordinary crouch jump, aimed crouch jump, then direct exit again.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7000 stays clear
@@ -431,6 +436,34 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 >= 215 and < 226 => (ushort)SnesButton.L,
                 _ => (ushort)0,
             }
+        : options.CrouchJumpScript
+            ? frameIndex switch
+            {
+                0 => (ushort)SnesButton.Start,
+
+                // Enter stable `$27`, then release Down while retaining the facing
+                // direction. `$91:A6A0` must install `$01` directly (there is no `$3B`).
+                >= 2 and < 10 => (ushort)SnesButton.Down,
+                20 => (ushort)SnesButton.Right,
+
+                // Enter ordinary crouch again and press a fresh jump edge. The real table
+                // selects `$4B`; `$91:FC8A` supplies its ordinary-crouch ten-pixel lift.
+                >= 30 and < 38 => (ushort)SnesButton.Down,
+                >= 48 and < 60 => (ushort)SnesButton.A,
+
+                // After the first landing, enter diagonal-up aimed crouch `$71` and jump
+                // while R remains held. This intentionally exercises the same `$4B` table
+                // result without the literal `$27/$28`-only `$91:FC8A` adjustment.
+                >= 120 and < 130 => (ushort)(SnesButton.Down | SnesButton.R),
+                >= 130 and < 140 => (ushort)SnesButton.R,
+                >= 140 and < 152 => (ushort)(SnesButton.A | SnesButton.R),
+
+                // A final stable crouch/direct exit makes the immediate `$01` seam visible
+                // at the end of the trace and in the output PNG.
+                >= 220 and < 228 => (ushort)SnesButton.Down,
+                238 => (ushort)SnesButton.Right,
+                _ => (ushort)0,
+            }
         : frameIndex switch
         {
             0 => (ushort)SnesButton.Start,
@@ -519,6 +552,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 $"(required new=${transition.RequiredNewInput:X4}, held=${transition.RequiredHeldInput:X4}); " +
                 (runtime.GroundedSamusMovementEnabled &&
                  transition.ProspectivePose is
+                     SamusState.FacingRightNormalPose or
+                     SamusState.FacingLeftNormalPose or
                      SamusState.MovingRightNormalPose or
                      SamusState.MovingLeftNormalPose or
                      SamusState.TurningRightToLeftPose or
@@ -801,7 +836,8 @@ readonly record struct DebugRunnerOptions(
     bool AimAirScript,
     bool AimCrouchScript,
     bool AimTurnScript,
-    bool CrouchTurnScript)
+    bool CrouchTurnScript,
+    bool CrouchJumpScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -820,6 +856,7 @@ readonly record struct DebugRunnerOptions(
         bool aimCrouchScript = false;
         bool aimTurnScript = false;
         bool crouchTurnScript = false;
+        bool crouchJumpScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -899,6 +936,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--crouch-jump-script":
+                    crouchJumpScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -941,7 +983,8 @@ readonly record struct DebugRunnerOptions(
             aimAirScript,
             aimCrouchScript,
             aimTurnScript,
-            crouchTurnScript);
+            crouchTurnScript,
+            crouchJumpScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

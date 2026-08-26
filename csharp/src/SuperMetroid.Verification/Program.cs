@@ -55,6 +55,7 @@ VerifySamusSolidEnemyCollision();
 VerifySamusAerialMovement();
 VerifySamusSpaceJumpAndScrewAttack();
 VerifySamusLiquidPhysics();
+VerifySamusAtmosphericEffects();
 VerifySamusAerialTurnsAndWallJump();
 VerifySamusKnockbackAndDamageBoost();
 VerifySamusGrappleSwingAndRelease();
@@ -6510,6 +6511,153 @@ static void VerifySamusLiquidPhysics()
 
     Console.WriteLine(
         "  Samus liquids: boundaries, ROM tables, gravity, Dash/lava cancellation, grapple, animation, Space Jump, and Gravity Suit agree.");
+}
+
+/// <summary>
+/// Checks the producer, packed-slot interpreter, OAM path, sound publications, and periodic
+/// fixed-point damage translated from `$90:8000-$82DB/$8A4C-$8C1E/$A3E5/$E9CE`.
+/// </summary>
+static void VerifySamusAtmosphericEffects()
+{
+    var bus = new TestAddressSpace();
+
+    // Pose `$01` is sufficient to expose the literal movement type and X direction used by
+    // all producer branches. Its delay metadata also lets the footstep fixture land exactly
+    // on running frame two with timer one, matching `$90:A3EE-$A401`.
+    bus.WriteBytes(0x91b629 + SamusState.FacingRightNormalPose * 8,
+        [8, 1, 0xff, 0, 0, 0, 12, 0]);
+    WriteTestWord(bus, 0x91b010 + SamusState.FacingRightNormalPose * 2, 0xc000);
+    bus.WriteBytes(0x91c000, [1, 1, 1, 1]);
+
+    // Seed only the bank-$90 table records exercised below. Distinct attributes and timers
+    // prove the interpreter follows ROM pointers rather than a duplicated C# animation list.
+    WriteTestWord(bus, 0x908b93 + 4 * 2, 0x9000);
+    WriteTestWord(bus, 0x909000, 2);
+    WriteTestWord(bus, 0x909002, 3);
+    WriteTestWord(bus, 0x908bef + 4 * 2, 4);
+    WriteTestWord(bus, 0x908bff + 4 * 2, 0x9100);
+    WriteTestWord(bus, 0x909100, 0x2a48);
+    WriteTestWord(bus, 0x909102, 0x2a49);
+
+    var samus = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 100,
+        YPosition = 100,
+    };
+    samus.RefreshCollisionRadii(bus);
+    samus.InitializeAnimation(bus);
+
+    // Movement type one is a diving splash according to the real `$81A4` table. Keep NMI
+    // away from the 128-frame bubble cadence so entry has exactly one sound request.
+    bus.WriteByte(0x9081a4 + 1, 0);
+    samus.LiquidPhysics.ConfigureWater(surfaceY: 111);
+    samus.LiquidPhysics.PrepareAnimationFrame(bus, samus, nmiFrameCounter: 1);
+    SamusAtmosphericEffectSlot entrySplash = samus.LiquidPhysics.AtmosphericEffects.Slots[0];
+    AssertEqual((byte)3, entrySplash.Type, "water entry selects diving-splash type");
+    AssertEqual((ushort)2, entrySplash.AnimationTimer, "diving splash initial timer");
+    AssertEqual((ushort)100, entrySplash.XPosition, "diving splash Samus X");
+    AssertEqual((ushort)111, entrySplash.YPosition, "diving splash surface Y");
+    AssertEqual(new SamusSoundRequest(2, 0x0d, 6),
+        samus.LiquidPhysics.SoundRequests.Single(), "water-entry library-two sound");
+
+    // Leaving water produces sound `$0E` and replaces the slot through the same movement-
+    // type table. A spin/wall-jump-only `$30` request is correctly absent for type one.
+    samus.LiquidPhysics.ConfigureWater(surfaceY: 112);
+    samus.LiquidPhysics.PrepareAnimationFrame(bus, samus, nmiFrameCounter: 2);
+    AssertEqual(new SamusSoundRequest(2, 0x0e, 6),
+        samus.LiquidPhysics.SoundRequests.Single(), "water-exit library-two sound");
+
+    // Bubble admission samples top-24, every 128th accepted NMI, and slot two availability.
+    // Re-enter on frame one first so the cadence call below is an already-submerged pass.
+    samus.LiquidPhysics.ConfigureWater(surfaceY: 50);
+    samus.LiquidPhysics.PrepareAnimationFrame(bus, samus, nmiFrameCounter: 1);
+    var bubbleSystem = new Bank80SystemState(0x0061);
+    samus.LiquidPhysics.PrepareAnimationFrame(bus, samus, nmiFrameCounter: 128, bubbleSystem);
+    SamusAtmosphericEffectSlot bubble = samus.LiquidPhysics.AtmosphericEffects.Slots[2];
+    AssertEqual((byte)5, bubble.Type, "128-frame submerged cadence creates bubbles");
+    AssertEqual((ushort)94, bubble.YPosition, "bubble origin is Samus top plus six");
+    AssertTrue(samus.LiquidPhysics.SoundRequests.Any(request =>
+        request.Library == 2 && request.SoundId is 0x0f or 0x11),
+        "bubble RNG publishes one of the two native sounds");
+
+    // Surface spray uses four type-four slots and exact asymmetric X positions. A half-unit
+    // lava rate then borrows from fractional health on the same `$E9CE` consumer call.
+    WriteTestWord(bus, 0x909e8b, 0x8000);
+    WriteTestWord(bus, 0x909e8d, 0);
+    samus.LiquidPhysics.ConfigureLavaAcid(surfaceY: 111);
+    samus.Health = 99;
+    samus.SubunitHealth = 0;
+    samus.EquippedItems = 0;
+    samus.LiquidPhysics.PrepareAnimationFrame(bus, samus, nmiFrameCounter: 1);
+    AssertTrue(samus.LiquidPhysics.AtmosphericEffects.Slots.All(slot => slot.Type == 4),
+        "partial lava submersion fills four surface-spray slots");
+    AssertEqual((ushort)0x8000, samus.LiquidPhysics.PeriodicSubDamage,
+        "lava fractional damage accumulates from ROM");
+    samus.LiquidPhysics.ApplyPeriodicDamage(samus, timeIsFrozen: false);
+    AssertEqual((ushort)98, samus.Health, "fractional lava subtraction borrows one energy");
+    AssertEqual((ushort)0x8000, samus.SubunitHealth, "fractional energy retains wrapped half");
+    AssertEqual((ushort)0, samus.LiquidPhysics.PeriodicSubDamage,
+        "periodic consumer clears fractional accumulator");
+
+    // Type-four slot zero begins with timer two. First update decrements/draws frame zero and
+    // applies +1/-1 motion before clipping. The next call reloads ROM timer zero, advances to
+    // frame one, and consumes its distinct `$2A49` attribute word.
+    var effects = new SamusAtmosphericEffectsState();
+    effects.SetSlot(0, type: 4, animationFrame: 0, animationTimer: 2, worldX: 104, worldY: 104);
+    var oam = new OamBuffer();
+    oam.BeginFrame();
+    effects.UpdateAndDraw(bus, oam, cameraX: 0, cameraY: 0, fxYPosition: 0);
+    AssertEqual((ushort)1, effects.Slots[0].AnimationTimer, "atmospheric positive timer decrements");
+    AssertEqual((ushort)105, effects.Slots[0].XPosition, "lava slot zero drifts right");
+    AssertEqual((ushort)103, effects.Slots[0].YPosition, "lava spray rises one pixel");
+    AssertEqual(0x048, oam.GetEntry(0).TileNumber, "lava frame zero direct OAM tile");
+    AssertEqual(5, oam.GetEntry(0).Palette, "lava direct OAM retains ROM palette");
+
+    oam.BeginFrame();
+    effects.UpdateAndDraw(bus, oam, cameraX: 0, cameraY: 0, fxYPosition: 0);
+    AssertEqual((byte)1, effects.Slots[0].AnimationFrame,
+        "timer zero reloads old frame then advances packed word");
+    AssertEqual((ushort)2, effects.Slots[0].AnimationTimer,
+        "frame advance reloads literal ROM duration");
+    AssertEqual(0x049, oam.GetEntry(0).TileNumber, "lava frame one direct OAM tile");
+
+    // `$8002` is not a large positive delay: one call reaches `$8001` and does nothing;
+    // the next reaches `$8000`, reloads the current ROM duration, moves, and draws.
+    effects.Clear();
+    effects.SetSlot(1, type: 4, animationFrame: 0, animationTimer: 0x8002, worldX: 100, worldY: 100);
+    oam.BeginFrame();
+    effects.UpdateAndDraw(bus, oam, 0, 0, 0);
+    AssertEqual((ushort)100, effects.Slots[1].XPosition, "$8001 suppresses atmospheric motion");
+    AssertEqual(0, oam.NextByteOffset, "$8001 suppresses atmospheric drawing");
+    effects.UpdateAndDraw(bus, oam, 0, 0, 0);
+    AssertEqual((ushort)101, effects.Slots[1].XPosition, "$8000 reload call begins motion");
+    AssertEqual(4, oam.NextByteOffset, "$8000 reload call emits one OAM record");
+
+    // Running frame two with stage four produces dry-room type-seven dust. The first slot
+    // is delayed and the second immediate, exactly like `$90:EE64-$EEE3`.
+    var runner = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 100,
+        YPosition = 100,
+    };
+    runner.RefreshCollisionRadii(bus);
+    runner.InitializeAnimation(bus, initialFrame: 2);
+    runner.HorizontalSpeed.SpeedBoostCounter = 0x0400;
+    bus.WriteByte(0x90a424 + 2, 1);
+    runner.LiquidPhysics.PrepareAnimationFrame(bus, runner, nmiFrameCounter: 1);
+    AssertEqual((byte)7, runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
+        "boost-stage-four foot contact creates dust");
+    AssertEqual((ushort)0x8002,
+        runner.LiquidPhysics.AtmosphericEffects.Slots[0].AnimationTimer,
+        "first foot effect uses delayed-start sentinel");
+    AssertEqual((ushort)3,
+        runner.LiquidPhysics.AtmosphericEffects.Slots[1].AnimationTimer,
+        "second foot effect starts immediately");
+
+    Console.WriteLine(
+        "  Samus atmosphere: splash, bubbles, lava damage, footsteps, packed timers, sound, and OAM agree.");
 }
 
 /// <summary>

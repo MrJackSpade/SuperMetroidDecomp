@@ -740,6 +740,14 @@ public sealed class SuperMetroidRuntime
         Samus.LoadPowerSuitPalette(_addressSpace, Cgram);
         Samus.RefreshCollisionRadii(_addressSpace);
         Samus.InitializeAnimation(_addressSpace);
+        if (LandingSiteEntry is not null)
+        {
+            // FootstepGraphics dispatches on the literal area and room-index bytes. Keep
+            // those room-owned inputs beside the FX surface state instead of hard-coding
+            // “Landing Site” behavior into the generic atmospheric renderer.
+            Samus.LiquidPhysics.AreaIndex = LandingSiteEntry.AreaIndex;
+            Samus.LiquidPhysics.RoomIndex = _addressSpace.ReadByte(0x8f91f8);
+        }
         PreviousMovementTypeForXray = Samus.ReadMovementType(_addressSpace);
 
         // StepFrame begins with NMI, so prime the definitions now. Otherwise frame one's
@@ -1651,7 +1659,11 @@ public sealed class SuperMetroidRuntime
             }
             else
             {
-                Samus.AnimateNoFx(_addressSpace, Controller1.Current);
+                Samus.AnimateNoFx(
+                    _addressSpace,
+                    Controller1.Current,
+                    NmiFrameCounter,
+                    System);
             }
 
             if (GroundedSamusMovementEnabled && !deathOwnsSamus)
@@ -2331,6 +2343,16 @@ public sealed class SuperMetroidRuntime
                     hasAreaMap: false);
             }
 
+            if (!deathOwnsSamus)
+            {
+                // `$90:E74D` consumes the lava/acid words produced during AnimateSamus.
+                // X-ray freezes time and therefore clears rather than applies accumulated
+                // damage; fatal zero-energy game-state acquisition remains the outer seam.
+                Samus.LiquidPhysics.ApplyPeriodicDamage(
+                    Samus,
+                    timeIsFrozen: Samus.Xray.TimeIsFrozen);
+            }
+
             // $A0:884D draws bomb/projectile explosions before reaching the enemy-layer
             // phase that calls DrawSamusAndProjectiles. Preserve that OAM ordering.
             if (!deathOwnsSamus)
@@ -2386,6 +2408,15 @@ public sealed class SuperMetroidRuntime
             }
             else
             {
+                // Every ordinary Samus drawing handler calls `$90:8A4C` before Samus OAM.
+                // Updating here preserves both reverse atmospheric-slot order and overlap:
+                // splashes/dust receive earlier OAM indices than Samus's body pieces.
+                Samus.LiquidPhysics.AtmosphericEffects.UpdateAndDraw(
+                    _addressSpace,
+                    Oam,
+                    Camera.XPosition,
+                    Camera.YPosition,
+                    Samus.LiquidPhysics.FxYPosition);
                 Samus.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
                 Samus.DrawSpeedBoosterEchoes(
                     _addressSpace,

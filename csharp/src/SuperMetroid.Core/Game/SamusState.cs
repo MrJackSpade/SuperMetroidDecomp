@@ -758,6 +758,13 @@ public sealed class SamusState
     /// <summary>Current energy at WRAM `$09C2`, also used by animation command `$F6`.</summary>
     public ushort Health { get; set; } = 99;
 
+    /// <summary>
+    /// Fractional energy word consumed by `$90:E9CE` before the whole-energy subtraction.
+    /// Ordinary HUD/debug output shows only <see cref="Health"/>, but lava/acid damage uses
+    /// this word's borrow so sub-energy cannot be rounded independently on every frame.
+    /// </summary>
+    public ushort SubunitHealth { get; set; }
+
     /// <summary>Maximum normal energy at WRAM `$09C4`; defaults to the initial 99.</summary>
     public ushort MaxHealth { get; set; } = 99;
 
@@ -3438,12 +3445,15 @@ public sealed class SamusState
     /// Ports <c>AnimateSamus</c> at <c>$90:8000</c>, including movement-visible FX delay state.
     /// </summary>
     /// <remarks>
-    /// The FX dispatcher publishes water/lava delay buffering and remembered medium before
-    /// the timer decrement. Periodic damage, sounds, bubbles, and splash OAM are still
-    /// separate combat/presentation work; this method does not invent placeholders for them.
-    /// The historical name remains as a source-compatible API for existing debugger code.
+    /// The FX dispatcher publishes water/lava delay buffering, remembered medium, native
+    /// atmospheric slots, sound requests, and periodic-damage words before the timer
+    /// decrement. The historical name remains as a source-compatible debugger API.
     /// </remarks>
-    public void AnimateNoFx(ISnesAddressSpace bus, ushort controllerInput = 0)
+    public void AnimateNoFx(
+        ISnesAddressSpace bus,
+        ushort controllerInput = 0,
+        ushort nmiFrameCounter = 0,
+        Bank80SystemState? system = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         EnsureAnimationInitialized(bus);
@@ -3451,7 +3461,7 @@ public sealed class SamusState
         // `$90:8000` dispatches the active room-FX animation handler before touching the
         // frame timer. This also updates remembered `$0AD2`, which the next Space Jump gate
         // consumes independently of its current top-boundary submersion check.
-        LiquidPhysics.PrepareAnimationFrame(bus, this);
+        LiquidPhysics.PrepareAnimationFrame(bus, this, nmiFrameCounter, system);
 
         // $90:8032 keeps neutral-jump frame one alive in four-tick chunks while Samus is
         // still rising. This is intentionally tested before DEC and applies only when the

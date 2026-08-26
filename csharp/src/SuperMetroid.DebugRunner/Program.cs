@@ -724,6 +724,7 @@ uint maximumObservedExtraRunSpeed = 0;
 byte maximumObservedSpeedBoostStage = 0;
 bool observedSpeedBoostEcho = false;
 bool observedSpeedBoostContactDamage = false;
+bool observedSpeedBoostFootDust = false;
 bool observedSpeedBoostDeparture = false;
 bool observedSpeedBoostDepartureFinished = false;
 bool previousSpeedBoostDeparture = false;
@@ -2120,6 +2121,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         unchecked((byte)(runtime.Samus.HorizontalSpeed.SpeedBoostCounter >> 8)));
     observedSpeedBoostEcho |= runtime.Samus.HorizontalSpeed.EchoSoundRequested;
     observedSpeedBoostContactDamage |= runtime.Samus.HorizontalSpeed.ContactDamageIndex == 1;
+    observedSpeedBoostFootDust |= runtime.Samus.LiquidPhysics.AtmosphericEffects.Slots.Any(
+        slot => slot.Type == 7);
     bool currentSpeedBoostDeparture =
         (runtime.Samus.HorizontalSpeed.SpeedEchoIndex & 0x8000) != 0;
     observedSpeedBoostDeparture |= currentSpeedBoostDeparture;
@@ -2868,6 +2871,11 @@ if (options.SpeedBoosterScript)
         throw new InvalidOperationException(
             $"Speed Booster ROM script expected the 7.0000 cap, observed ${maximumObservedExtraRunSpeed:X8}.");
     }
+    if (options.FrameCount >= 110 && !observedSpeedBoostFootDust)
+    {
+        throw new InvalidOperationException(
+            "Speed Booster ROM script reached stage four without producing native type-seven foot dust.");
+    }
     if (options.FrameCount >= 190 &&
         (!observedSpeedBoostDeparture || !observedSpeedBoostDepartureFinished))
     {
@@ -2878,6 +2886,7 @@ if (options.SpeedBoosterScript)
         $"Speed Booster ROM route observed maximum extra speed ${maximumObservedExtraRunSpeed >> 16:X4}." +
         $"{maximumObservedExtraRunSpeed & 0xffff:X4}, stage {maximumObservedSpeedBoostStage}, " +
         $"echo={observedSpeedBoostEcho}, contact={observedSpeedBoostContactDamage}, " +
+        $"footDust={observedSpeedBoostFootDust}, " +
         $"departure={observedSpeedBoostDeparture}/{observedSpeedBoostDepartureFinished}.");
 }
 

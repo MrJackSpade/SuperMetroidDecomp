@@ -12,12 +12,12 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | Type | Native family | Current C# admission | Remaining native branches |
 |---:|---|---|---|
 | `$00` | Standing | Forward `$00/$9B` equipment selector, zero-status lock, active `$0E18` one-pixel elevator descent through no-solid-enemy `$94:9763`, power-suit chest-cover OAM; ordinary `$01-$08`, landing `$A4-$A7/$E0-$E7`, including held-Shot horizontal firing landings; X-ray `$D5/$D6` admission, angle art, time freeze, beam state, visor palette, and teardown | Live elevator actor/status producer; X-ray BG2 reveal/window-HDMA presentation |
-| `$01` | Running | `$09/$0A/$0B/$0C/$0D-$12`, including horizontal gun extension with preserved native run phase; air/water/lava X tables and submerged Dash gate, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes | Liquid damage/splash and footstep presentation effects |
-| `$02` | Normal jumping | `$4B-$4E/$13-$18/$51-$52/$55-$5A/$69-$6C`, including horizontal gun extension, compact straight-down collision changes, air/water/lava normal/Hi-Jump launch, X tables, gravity, persistent external X/Y displacement, variable height, ceiling/floor collision | Liquid sound/particle/damage and collision-producer side effects |
-| `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, air/water/lava X/gravity/launch/repeat gates, variable height, split-body animation, damage/palette, block/solid-enemy wall contact and launch | Live enemy actor producer, liquid sound/particle/damage effects |
+| `$01` | Running | `$09/$0A/$0B/$0C/$0D-$12`, including horizontal gun extension with preserved native run phase; air/water/lava X tables and submerged Dash gate, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes; ROM-timed wet/dust footsteps | Landing-impact effects and live collision producers |
+| `$02` | Normal jumping | `$4B-$4E/$13-$18/$51-$52/$55-$5A/$69-$6C`, including horizontal gun extension, compact straight-down collision changes, air/water/lava normal/Hi-Jump launch, X tables, gravity, persistent external X/Y displacement, variable height, ceiling/floor collision; liquid entry/exit splash, bubbles, sound, and damage | Collision-producer side effects |
+| `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, air/water/lava X/gravity/launch/repeat gates, variable height, split-body animation, damage/palette, block/solid-enemy wall contact and launch; liquid entry/exit splash, bubbles, sound, and damage | Live enemy actor producer |
 | `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, air/water/lava X tables, persistent external X/Y displacement, slopes, reversal, deceleration, walk-off, normal-bomb deployment, solid/frozen-enemy clipping | Bombable-block PLMs, live enemy actor producer |
 | `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry, ordinary/Spring morph entry; X-ray `$D9/$DA` admission, angle art, time freeze, beam state, visor palette, and teardown | X-ray BG2 reveal/window-HDMA presentation |
-| `$06` | Falling | `$29-$2E/$67-$70`, including horizontal gun extension, compact straight-down collision changes, walk-off, air/water/lava X and gravity, persistent external X/Y displacement, held-Shot landing, aerial-turn entry, and live `$F0` animation cadence | Liquid sound/particle/damage and collision-producer side effects |
+| `$06` | Falling | `$29-$2E/$67-$70`, including horizontal gun extension, compact straight-down collision changes, walk-off, air/water/lava X and gravity, persistent external X/Y displacement, held-Shot landing, aerial-turn entry, live `$F0` animation cadence, and liquid entry/exit effects | Collision-producer side effects |
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
 | `$08` | Morph ball falling | `$31/$32`, air/water/lava X and gravity, persistent external X/Y displacement and bounce override, ceiling/floor/solid-enemy collision, two-stage hard bounce, gentle landing, normal-bomb deployment | Bombable-block PLMs, live enemy actor producer |
 | `$09` | Unused | — | Preserve only if required |
@@ -55,9 +55,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
   tick and advances to the next literal delay.
 - This audit is deliberately not a claim that all movement-related systems are complete.
   Fatal-damage acquisition/post-fade ownership, the elevator actor/status producer,
-  X-ray reveal/window rendering,
-  liquid damage/sound/OAM,
-  footsteps and landing effects, PLM reactions, and live enemy collision/displacement
+  X-ray reveal/window rendering, landing-impact effects, PLM reactions, and live enemy collision/displacement
   producers remain concrete cross-system gaps.
 
 The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
@@ -158,10 +156,19 @@ translated status is documented with the Morph Ball family below.
   remembered `$0AD2` to choose inclusive minimum `$0080` in liquid or `$0280` in air, with
   shared exclusive maximum `$0500`. A fully submerged Screw body likewise skips contact-
   damage publication. Partial submersion therefore remains a distinct, verified state.
-- `$90:8000` now publishes animation buffer three in water and two in lava/acid, maintains
-  `$0AD2`, and clears the delay under Gravity Suit. Lava alone executes the native Speed-
-  Booster cancellation and explicit extra-speed clear before that suit check; acid preserves
-  momentum. Sounds, bubbles/splashes, and periodic damage remain presentation/combat work.
+- `$90:8000-$82DB` publishes animation buffer three in water and two in lava/acid, maintains
+  `$0AD2`, creates movement-type-selected entry/exit splashes and 128-frame RNG bubbles,
+  emits the exact library-one/two/three sound requests, and accumulates ROM-authored lava/acid
+  damage with carry from the fractional word. Lava alone executes the native Speed-Booster
+  cancellation and Gravity-Suit early return; acid preserves momentum and remains harmful.
+- `$90:8A4C-$8C1E` advances the four packed atmospheric slots in reverse order, including
+  signed `$8002` delayed starts, ROM timer/count/pointer tables, lava/dust motion, clipping,
+  direct small-OBJ attributes, and Samus-table diving/bubble spritemaps. The draw handler runs
+  before Samus, retaining native OAM overlap. `$90:A3E5/$ED88-$EEE6` additionally ties wet or
+  type-seven dust footsteps to running frames two/seven and the exact audio-suppression gates.
+- `$90:E9CE-$EA44` applies pending damage through the overlapping 8.8 Varia/Gravity shifts,
+  subunit-energy borrow, fatal clamp, time-freeze clear, and accumulator reset. The outer
+  fatal-damage game-state producer remains separate from this completed consumer.
 - `$9B:C4BE-$C4EA` updates grapple's following-frame liquid bit with its narrower native
   general-FX-Y rule. Pump acceleration, angular gravity, kick, and angle advance consume it;
   release then persists through `$90:946E` using standalone air/water/lava records
@@ -1021,5 +1028,5 @@ Ridley-afterburn-first chain, and the typewriter glyph family.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.
 4. Grapple breakable PLMs and spike-damage side effects.
-5. Liquid particles, periodic damage, and audio effects.
+5. Landing-impact graphics/audio and remaining grapple-specific damage effects.
 6. Return with bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.

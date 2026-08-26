@@ -14,6 +14,17 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusLiquidPhysicsState
 {
+    private const int RunningFootstepFrameTable = 0x90a424;
+    private const int WaterSplashTypeTable = 0x9081a4;
+    private const int CrateriaFootstepTypeTable = 0x90edc9;
+    private const int LavaSubDamagePerFrame = 0x909e8b;
+    private const int LavaDamagePerFrame = 0x909e8d;
+    private const int AcidSubDamagePerFrame = 0x909e8f;
+    private const int AcidDamagePerFrame = 0x909e91;
+
+    private readonly List<SamusSoundRequest> _soundRequests = [];
+    private readonly Bank80SystemState _standaloneRandom = new();
+
     /// <summary>No liquid physics are active at the sampled Samus boundary.</summary>
     public const ushort Air = 0;
 
@@ -53,6 +64,33 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     public ushort LiquidPhysicsType { get; private set; }
 
+    /// <summary>The four native water/lava/footstep particle slots and their OAM renderer.</summary>
+    public SamusAtmosphericEffectsState AtmosphericEffects { get; } = new();
+
+    /// <summary>
+    /// Sound-library requests emitted by the current Samus animation call. A host audio
+    /// backend may consume these without moving sound policy out of the translated routines.
+    /// </summary>
+    public IReadOnlyList<SamusSoundRequest> SoundRequests => _soundRequests;
+
+    /// <summary>WRAM <c>$0A4E</c>, the fractional half of pending periodic damage.</summary>
+    public ushort PeriodicSubDamage { get; private set; }
+
+    /// <summary>WRAM <c>$0A50</c>, the whole-energy half of pending periodic damage.</summary>
+    public ushort PeriodicDamage { get; private set; }
+
+    /// <summary>Area index consumed by <c>FootstepGraphics</c>; zero is Crateria.</summary>
+    public byte AreaIndex { get; set; }
+
+    /// <summary>Room index byte consumed by Crateria's special-footstep table.</summary>
+    public byte RoomIndex { get; set; }
+
+    /// <summary>Nonzero cinematic-function state suppresses ordinary footstep audio.</summary>
+    public bool CinematicFunctionActive { get; set; }
+
+    /// <summary>Nonzero boss ID suppresses ordinary footstep audio.</summary>
+    public ushort BossId { get; set; }
+
     /// <summary>Configures the exact room-FX words for an ordinary water surface.</summary>
     public void ConfigureWater(ushort surfaceY, ushort liquidOptions = 0)
     {
@@ -79,6 +117,10 @@ public sealed class SamusLiquidPhysicsState
         LavaAcidYPosition = ushort.MaxValue;
         LiquidOptions = 0;
         LiquidPhysicsType = Air;
+        PeriodicSubDamage = 0;
+        PeriodicDamage = 0;
+        _soundRequests.Clear();
+        AtmosphericEffects.Clear();
     }
 
     /// <summary>
@@ -160,24 +202,55 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// Runs the movement-visible half of <c>Samus_Animate</c>'s FX dispatch. It publishes
-    /// the exact water/lava animation buffer and maintains `$0AD2`; particles, sounds, and
-    /// periodic damage remain separate presentation/combat work and are not fabricated.
+    /// Runs <c>Samus_Animate</c>'s complete bank-$90 FX dispatch before the generic animation
+    /// timer: liquid delay, medium changes, four particle producers, sound requests, and
+    /// lava/acid fixed-point damage accumulation.
     /// </summary>
-    public void PrepareAnimationFrame(ISnesAddressSpace bus, SamusState samus)
+    public void PrepareAnimationFrame(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        ushort nmiFrameCounter = 0,
+        Bank80SystemState? system = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
+
+        // Sound queues are per-call publications. The visual slots and damage accumulators,
+        // by contrast, are native persistent WRAM and are changed only by their own paths.
+        _soundRequests.Clear();
+
+        byte movementType = samus.ReadMovementType(bus);
+        TrySpawnRunningFootsteps(bus, samus, movementType);
+
         ushort bottom = samus.Kinematics.BottomBoundary;
+        ushort top = samus.Kinematics.TopBoundary;
         int handler = (FxType & 0x000f) >> 1;
         bool gravitySuit = (samus.EquippedItems & GravitySuitItem) != 0;
 
         if (handler == 3 && WaterAffectsBoundary(bottom))
         {
-            // `$90:80B8` first writes three and establishes medium one. Its bubble helper
-            // then clears the delay buffer for Gravity Suit without clearing `$0AD2`.
+            // `$90:80B8` publishes delay three before testing the remembered medium. A
+            // transition into water queues sound $0D and creates either a diving splash or
+            // two grounded splashes; every submerged call then gets the bubble opportunity.
+            bool enteredWater = LiquidPhysicsType != Water;
             LiquidPhysicsType = Water;
-            samus.AnimationFrameBuffer = gravitySuit ? (ushort)0 : (ushort)3;
+            samus.AnimationFrameBuffer = 3;
+            if (enteredWater)
+            {
+                QueueSound(library: 2, soundId: 0x0d, maximumQueued: 6);
+                SpawnWaterSplash(bus, samus, movementType, bottom);
+            }
+
+            TrySpawnAirBubbles(
+                samus,
+                top,
+                nmiFrameCounter,
+                system ?? _standaloneRandom);
+
+            // Standing forward `$00`, backward `$9B`, and every Gravity-Suit pose clear the
+            // buffer in Spawn_AirBubbles after all particle/audio side effects have run.
+            if (samus.Pose is 0x00 or 0x9b || gravitySuit)
+                samus.AnimationFrameBuffer = 0;
             return;
         }
 
@@ -194,17 +267,267 @@ public sealed class SamusLiquidPhysicsState
                 samus.HorizontalSpeed.ExtraRunSubspeed = 0;
             }
 
-            // Both lava and acid share `$90:824C`'s delay-two submerged animation path.
+            if (handler == 1 && gravitySuit)
+            {
+                // Lava's Gravity-Suit branch returns before damage and before surface spray.
+                // Acid intentionally has no equivalent early exit and still hurts at quarter
+                // strength when HandlePeriodicDamage runs later in the same Samus handler.
+                LiquidPhysicsType = LavaAcid;
+                samus.AnimationFrameBuffer = 0;
+                return;
+            }
+
+            AccumulateLiquidDamage(
+                bus,
+                handler == 1 ? LavaSubDamagePerFrame : AcidSubDamagePerFrame,
+                handler == 1 ? LavaDamagePerFrame : AcidDamagePerFrame);
+            if ((nmiFrameCounter & 7) == 0 && samus.Health >= 0x0047)
+                QueueSound(library: 3, soundId: 0x2d, maximumQueued: 3);
+
+            // Both lava and acid now share `$90:824C`'s delay-two submerged path.
             LiquidPhysicsType = LavaAcid;
-            samus.AnimationFrameBuffer = gravitySuit ? (ushort)0 : (ushort)2;
+            samus.AnimationFrameBuffer = 2;
+            TrySpawnLavaSurfaceSpray(samus, top, nmiFrameCounter);
+            if (samus.Pose is 0x00 or 0x9b || gravitySuit)
+                samus.AnimationFrameBuffer = 0;
             return;
         }
 
-        // `$90:8078` publishes the X-speed divisor and clears a remembered medium after
-        // leaving its surface. Splash/audio side effects are deliberately not hidden here.
+        // `$90:8078` publishes the X-speed divisor and clears the remembered medium. Only
+        // water (bit zero set) owns an exit splash; lava/acid simply clears `$0AD2`.
         samus.AnimationFrameBuffer = samus.XSpeedDivisor;
+        bool exitedWater = (LiquidPhysicsType & 1) != 0;
         LiquidPhysicsType = Air;
+        if (exitedWater)
+        {
+            QueueSound(library: 2, soundId: 0x0e, maximumQueued: 6);
+            if (!gravitySuit && movementType is 3 or 0x14)
+                QueueSound(library: 1, soundId: 0x30, maximumQueued: 6);
+            SpawnWaterSplash(bus, samus, movementType, bottom);
+            TrySpawnAirBubbles(
+                samus,
+                top,
+                nmiFrameCounter,
+                system ?? _standaloneRandom);
+        }
     }
+
+    /// <summary>
+    /// Ports <c>HandlePeriodicDamageToSamus</c> at <c>$90:E9CE</c>. The producer above adds
+    /// raw fixed-point damage; this consumer applies Varia's half or Gravity's quarter,
+    /// subtracts with the original borrow chain, clamps fatal underflow, and clears the pair.
+    /// </summary>
+    public void ApplyPeriodicDamage(SamusState samus, bool timeIsFrozen)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        if (timeIsFrozen)
+        {
+            PeriodicSubDamage = 0;
+            PeriodicDamage = 0;
+            return;
+        }
+
+        ushort appliedSubDamage = PeriodicSubDamage;
+        ushort appliedDamage = PeriodicDamage;
+        int divisorShift = (samus.EquippedItems & GravitySuitItem) != 0
+            ? 2
+            : (samus.EquippedItems & 0x0001) != 0
+                ? 1
+                : 0;
+        if (divisorShift != 0)
+        {
+            // Native reads the overlapping word `$0A4D`: fractional high byte followed by
+            // whole-damage low byte. Shifting that 8.8 quantity and splitting it back is not
+            // equivalent to independently shifting both 16-bit words when a carry crosses.
+            ushort overlappingDamage = unchecked((ushort)(
+                (PeriodicSubDamage >> 8) | ((PeriodicDamage & 0x00ff) << 8)));
+            overlappingDamage = unchecked((ushort)(overlappingDamage >> divisorShift));
+            appliedSubDamage = unchecked((ushort)((overlappingDamage & 0x00ff) << 8));
+            appliedDamage = unchecked((ushort)(overlappingDamage >> 8));
+        }
+
+        // `$90:EA11` deliberately jumps to the native crash handler if the signed whole
+        // word is negative. Reachable environmental rates never do this; throwing retains
+        // the corruption/overflow guard instead of converting it into plausible damage.
+        if (unchecked((short)appliedDamage) < 0)
+            throw new InvalidDataException("Periodic whole damage overflowed into the signed-negative range.");
+
+        int subunitResult = samus.SubunitHealth - appliedSubDamage;
+        samus.SubunitHealth = unchecked((ushort)subunitResult);
+        int healthResult = samus.Health - appliedDamage - (subunitResult < 0 ? 1 : 0);
+        ushort wrappedHealth = unchecked((ushort)healthResult);
+        if (unchecked((short)wrappedHealth) < 0)
+        {
+            samus.SubunitHealth = 0;
+            samus.Health = 0;
+        }
+        else
+        {
+            samus.Health = wrappedHealth;
+        }
+
+        PeriodicSubDamage = 0;
+        PeriodicDamage = 0;
+    }
+
+    private void SpawnWaterSplash(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        byte movementType,
+        ushort bottom)
+    {
+        bool groundedSplash = movementType <= 0x1b &&
+            bus.ReadByte(WaterSplashTypeTable + movementType) != 0;
+        if (!groundedSplash)
+        {
+            AtmosphericEffects.SetSlot(
+                0, type: 3, animationFrame: 0, animationTimer: 2,
+                samus.XPosition, FxYPosition);
+            return;
+        }
+
+        AtmosphericEffects.SetSlot(
+            0, type: 1, animationFrame: 0, animationTimer: 3,
+            unchecked((ushort)(samus.XPosition + 4)),
+            unchecked((ushort)(bottom - 4)));
+        AtmosphericEffects.SetSlot(
+            1, type: 1, animationFrame: 0, animationTimer: 3,
+            unchecked((ushort)(samus.XPosition - 3)),
+            unchecked((ushort)(bottom - 4)));
+    }
+
+    private void TrySpawnAirBubbles(
+        SamusState samus,
+        ushort top,
+        ushort nmiFrameCounter,
+        Bank80SystemState system)
+    {
+        ushort mouthY = unchecked((ushort)(top - 0x18));
+        if (unchecked((short)(mouthY - FxYPosition)) < 0 ||
+            (nmiFrameCounter & 0x007f) != 0 ||
+            AtmosphericEffects.Slots[2].FrameAndType != 0)
+        {
+            return;
+        }
+
+        AtmosphericEffects.SetSlot(
+            2, type: 5, animationFrame: 0, animationTimer: 3,
+            samus.XPosition,
+            unchecked((ushort)(top + 6)));
+        ushort random = system.NextRandom();
+        QueueSound(library: 2, soundId: (byte)((random & 1) != 0 ? 0x0f : 0x11), maximumQueued: 6);
+    }
+
+    private void TrySpawnLavaSurfaceSpray(
+        SamusState samus,
+        ushort top,
+        ushort nmiFrameCounter)
+    {
+        if (unchecked((short)(top - LavaAcidYPosition)) >= 0 ||
+            (AtmosphericEffects.Slots[0].FrameAndType & 0x0400) != 0)
+        {
+            return;
+        }
+
+        ushort[] xPositions =
+        [
+            unchecked((ushort)(samus.XPosition + 6)),
+            samus.XPosition,
+            samus.XPosition,
+            unchecked((ushort)(samus.XPosition - 6)),
+        ];
+        ushort[] timers = [3, 0x8002, 0x8002, 3];
+        for (int slot = 0; slot < SamusAtmosphericEffectsState.SlotCount; slot++)
+        {
+            AtmosphericEffects.SetSlot(
+                slot, type: 4, animationFrame: 0, timers[slot],
+                xPositions[slot], LavaAcidYPosition);
+        }
+
+        if ((nmiFrameCounter & 1) == 0)
+            QueueSound(library: 2, soundId: 0x10, maximumQueued: 6);
+    }
+
+    private void TrySpawnRunningFootsteps(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        byte movementType)
+    {
+        if (movementType != 1 ||
+            samus.AnimationFrameTimer != 1 ||
+            bus.ReadByte(RunningFootstepFrameTable + samus.AnimationFrame) == 0)
+        {
+            return;
+        }
+
+        bool useWetFootsteps = AreaIndex == 4;
+        if (AreaIndex == 0)
+        {
+            if (CinematicFunctionActive)
+            {
+                useWetFootsteps = false;
+            }
+            else if (RoomIndex < 0x10)
+            {
+                byte specialType = bus.ReadByte(CrateriaFootstepTypeTable + RoomIndex);
+                // The three BIT branches have strict priority. Retail records contain one
+                // flag apiece, but retaining priority also reproduces corrupted/debug data.
+                if ((specialType & 1) != 0)
+                    useWetFootsteps = FxType == 0x000a;
+                else if ((specialType & 2) != 0)
+                    useWetFootsteps = samus.YPosition >= 0x03b0;
+                else if ((specialType & 4) != 0)
+                    useWetFootsteps = true;
+            }
+        }
+
+        if (useWetFootsteps)
+            SpawnFootstepPair(bus, samus, type: 1);
+        else if ((samus.HorizontalSpeed.SpeedBoostCounter & 0xff00) == 0x0400 &&
+                 DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == Air)
+            SpawnFootstepPair(bus, samus, type: 7);
+
+        // Graphics are independent of the ordinary step sound. Cinematics, bosses, an
+        // active special palette, and boost stage four each suppress library-three sound $06.
+        if (!CinematicFunctionActive &&
+            BossId == 0 &&
+            samus.HorizontalSpeed.SpecialPaletteTimer == 0 &&
+            (samus.HorizontalSpeed.SpeedBoostCounter & 0x0400) == 0)
+        {
+            QueueSound(library: 3, soundId: 0x06, maximumQueued: 6);
+        }
+    }
+
+    private void SpawnFootstepPair(ISnesAddressSpace bus, SamusState samus, byte type)
+    {
+        bool directionIsFour = samus.ReadPoseXDirection(bus) == 4;
+        ushort firstX = directionIsFour
+            ? unchecked((ushort)(samus.XPosition - 12))
+            : unchecked((ushort)(samus.XPosition + 12));
+        ushort secondX = directionIsFour
+            ? unchecked((ushort)(samus.XPosition + 8))
+            : unchecked((ushort)(samus.XPosition - 8));
+        ushort y = unchecked((ushort)(samus.YPosition + 16));
+        AtmosphericEffects.SetSlot(0, type, 0, 0x8002, firstX, y);
+        AtmosphericEffects.SetSlot(1, type, 0, 3, secondX, y);
+    }
+
+    private void AccumulateLiquidDamage(
+        ISnesAddressSpace bus,
+        int subDamageAddress,
+        int damageAddress)
+    {
+        uint fractional = (uint)PeriodicSubDamage + ReadWord(bus, subDamageAddress);
+        PeriodicSubDamage = unchecked((ushort)fractional);
+        PeriodicDamage = unchecked((ushort)(
+            PeriodicDamage + ReadWord(bus, damageAddress) + (fractional >> 16)));
+    }
+
+    private void QueueSound(byte library, byte soundId, byte maximumQueued) =>
+        _soundRequests.Add(new SamusSoundRequest(library, soundId, maximumQueued));
+
+    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
+        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 
     /// <summary>
     /// Native movement routines distinguish water from lava by the sign of `$195E`, then

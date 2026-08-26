@@ -236,6 +236,73 @@ public sealed class OamBuffer
     }
 
     /// <summary>
+    /// Ports the bank-$86 enemy-projectile loaders at <c>$81:8C0A/$81:8C7F</c> for a direct
+    /// bank-$8D spritemap pointer and the projectile slot's packed graphics index.
+    /// </summary>
+    /// <remarks>
+    /// Enemy projectiles do not use bank-$93's “attributes are final” contract. The low byte
+    /// of <paramref name="graphicsIndex"/> is added to every ROM tile/attribute word as a
+    /// base tile number, and its high byte is ORed afterward as palette bits. The caller also
+    /// chooses between two opposite vertical-wrap rules depending on whether the projectile
+    /// origin itself is in screen Y <c>$00-$FF</c>. Those details are what let a multi-object
+    /// breath or explosion straddle the top/bottom edge without wrapping onto the wrong side.
+    /// </remarks>
+    public void AddEnemyProjectileSpritemap(
+        ISnesAddressSpace bus,
+        ushort bank8dSpritemapPointer,
+        ushort originX,
+        ushort originY,
+        ushort graphicsIndex,
+        bool originYIsOnScreen)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+
+        int spritemapAddress = 0x8d0000 | bank8dSpritemapPointer;
+        ushort entryCount = ReadWordInFixedBank(bus, spritemapAddress);
+        if (entryCount == 0)
+            return;
+
+        ushort baseTileNumber = unchecked((byte)graphicsIndex);
+        ushort paletteBits = unchecked((ushort)(graphicsIndex & 0xff00));
+        int entryAddress = AddWithinBank(spritemapAddress, 2);
+        for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
+        {
+            ushort encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
+            byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
+            ushort sourceAttributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
+
+            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset));
+            int unsignedYSum = unchecked((byte)originY) + encodedYOffset;
+            bool yOffsetIsNegative = (encodedYOffset & 0x80) != 0;
+            bool hideForVerticalWrap = originYIsOnScreen
+                ? yOffsetIsNegative ? unsignedYSum < 0x100 : unsignedYSum >= 0x100
+                : yOffsetIsNegative ? unsignedYSum >= 0x100 : unsignedYSum < 0x100;
+            byte calculatedY = hideForVerticalWrap ? (byte)0xf0 : unchecked((byte)unsignedYSum);
+
+            int spriteIndex = NextByteOffset >> 2;
+            int lowOffset = NextByteOffset;
+            _lowTable[lowOffset] = unchecked((byte)calculatedX);
+            _lowTable[lowOffset + 1] = calculatedY;
+
+            // `$81:8C60` uses ADC, not OR, for the base tile. Carry is explicitly clear at
+            // this point, but an overflowing tile number may carry into attribute bits.
+            ushort finalAttributes = unchecked((ushort)(sourceAttributes + baseTileNumber));
+            finalAttributes |= paletteBits;
+            _lowTable[lowOffset + 2] = unchecked((byte)finalAttributes);
+            _lowTable[lowOffset + 3] = unchecked((byte)(finalAttributes >> 8));
+            SetHighTablePair(
+                spriteIndex,
+                (calculatedX & 0x0100) != 0,
+                (encodedXOffset & 0x8000) != 0);
+
+            // The native OAM stack is a wrapping nine-bit byte index, including within a
+            // single large spritemap. Preserve that diagnostic edge rather than truncating.
+            NextByteOffset = (NextByteOffset + 4) & 0x01ff;
+            entryAddress = AddWithinBank(entryAddress, 5);
+        }
+    }
+
+    /// <summary>
     /// Appends one already-packed small OBJ record. Bank $94's grapple renderer writes
     /// these four bytes directly instead of routing through a spritemap loader.
     /// </summary>

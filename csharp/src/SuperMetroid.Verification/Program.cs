@@ -43,6 +43,7 @@ VerifySamusDrainedController();
 VerifyMotherBrainRainbowBeamSamusMovement();
 VerifyMotherBrainRainbowBeamAttackSequence();
 VerifyMotherBrainBombProjectiles();
+VerifyMotherBrainProjectileRendering();
 VerifyMotherBrainEscapeDoorParticles();
 VerifyBabyMetroidCutsceneEntrance();
 VerifySamusSolidEnemyCollision();
@@ -557,7 +558,53 @@ static void VerifyOamSpritemapPacking()
     AssertEqual(0x180, clipped.X, "vertically clipped OAM X park position");
     AssertEqual((byte)0xe0, clipped.Y, "vertically clipped OAM Y park position");
 
-    Console.WriteLine("  OAM: spritemap packing, clipping, high bits, and finalization agree.");
+    // Enemy projectiles use the distinct bank-$8D loader at `$81:8C0A/$81:8C7F`.
+    // The first entry is large/+5 X/-2 Y; the second is small/-16 X/+2 Y. Source
+    // attribute `$21FE + $04` deliberately carries from tile number into the high byte,
+    // proving that the native routine uses ADC before ORing graphics-index palette bits.
+    bus.WriteBytes(0x8d9800, [
+        0x02, 0x00,
+        0x05, 0x80, 0xfe, 0x0f, 0x20,
+        0xf0, 0x01, 0x02, 0xfe, 0x21,
+    ]);
+    oam.BeginFrame();
+    oam.AddEnemyProjectileSpritemap(
+        bus,
+        bank8dSpritemapPointer: 0x9800,
+        originX: 0x00fe,
+        originY: 0x0001,
+        graphicsIndex: 0x0a04,
+        originYIsOnScreen: true);
+    OamEntry enemyFirst = oam.GetEntry(0);
+    AssertEqual(0x103, enemyFirst.X, "enemy-projectile complete encoded X addition");
+    AssertEqual((byte)0xf0, enemyFirst.Y, "on-screen origin hides uncrossed negative Y");
+    AssertTrue(enemyFirst.IsLarge, "enemy-projectile size comes from encoded X bit fifteen");
+    AssertEqual(0x013, enemyFirst.TileNumber, "enemy-projectile base tile uses addition");
+    AssertEqual(5, enemyFirst.Palette, "enemy-projectile graphics palette OR");
+    AssertEqual(2, enemyFirst.Priority, "enemy-projectile source priority survives palette OR");
+    OamEntry enemySecond = oam.GetEntry(1);
+    AssertEqual(0x0ee, enemySecond.X, "enemy-projectile signed nine-bit negative X");
+    AssertEqual((byte)0x03, enemySecond.Y, "on-screen origin retains uncrossed positive Y");
+    AssertTrue(!enemySecond.IsLarge, "enemy-projectile small size bit");
+    AssertEqual(0x002, enemySecond.TileNumber, "enemy-projectile ADC tile carry");
+
+    // An origin at Y=$FFFF selects `$81:8C7F`'s opposite carry rule. The negative piece
+    // remains above screen and is parked, while +2 crosses into visible Y=$01.
+    oam.BeginFrame();
+    oam.AddEnemyProjectileSpritemap(
+        bus,
+        bank8dSpritemapPointer: 0x9800,
+        originX: 0,
+        originY: 0xffff,
+        graphicsIndex: 0,
+        originYIsOnScreen: false);
+    AssertEqual((byte)0xf0, oam.GetEntry(0).Y,
+        "off-screen origin hides negative piece that remains above screen");
+    AssertEqual((byte)0x01, oam.GetEntry(1).Y,
+        "off-screen origin admits positive piece crossing into screen");
+
+    Console.WriteLine(
+        "  OAM: spritemap packing, enemy-projectile arithmetic/wrap, and finalization agree.");
 }
 
 /// <summary>
@@ -4431,6 +4478,113 @@ static void VerifyMotherBrainBombProjectiles()
 
     Console.WriteLine(
         "  Mother Brain bombs: head bytecode, 8.8 motion, animation, bounce table, and both deletion paths agree.");
+}
+
+/// <summary>
+/// Verifies the finite `$86:CB2F` purple-breath definition and the shared bank-$86 draw
+/// passes. The timing fixture is the literal ROM instruction list; synthetic bank-$8D
+/// spritemaps isolate priority and coordinate behavior without duplicating retail art.
+/// </summary>
+static void VerifyMotherBrainProjectileRendering()
+{
+    var bus = new TestAddressSpace();
+
+    // `$86:CAA4-CAC7`: clear the pre-instruction, display eight timed frames for a total
+    // of 76 calls, then delete. No host-side animation table is allowed to replace it.
+    bus.WriteBytes(0x86caa4, [
+        0x6a, 0x81,
+        0x08, 0x00, 0x4f, 0x95,
+        0x08, 0x00, 0x5b, 0x95,
+        0x09, 0x00, 0x71, 0x95,
+        0x09, 0x00, 0x96, 0x95,
+        0x0a, 0x00, 0xbc, 0x95,
+        0x0a, 0x00, 0xe7, 0x95,
+        0x0b, 0x00, 0x13, 0x96,
+        0x0b, 0x00, 0x44, 0x96,
+        0x54, 0x81,
+    ]);
+
+    // Only the first bomb animation record is needed for this draw-order fixture. Its long
+    // duration keeps the low-priority slot live while the breath timing is inspected.
+    bus.WriteBytes(0x86c76e, [0xff, 0x00, 0xdc, 0x82]);
+
+    // One unmistakable OBJ per definition. Purple breath uses tile $11 and the bomb uses
+    // tile $22; graphics index `$0400` then selects palette two for the bomb.
+    bus.WriteBytes(0x8d954f, [0x01, 0x00, 0x01, 0x80, 0x02, 0x11, 0x20]);
+    bus.WriteBytes(0x8d82dc, [0x01, 0x00, 0xfe, 0x01, 0xff, 0x22, 0x20]);
+
+    var motherBrain = new MotherBrainRainbowBeamAttackSequence
+    {
+        BrainXPosition = 0x0040,
+        BrainYPosition = 0x0060,
+    };
+    var samus = new SamusState { XPosition = 0x0100, YPosition = 0x0080 };
+    var mixedPool = new MotherBrainEnemyProjectileSystem();
+    AssertEqual<int?>(17, mixedPool.SpawnBomb(motherBrain, new(1)),
+        "low-priority bomb takes highest shared slot");
+    AssertEqual<int?>(16, mixedPool.SpawnPurpleBreathBig(motherBrain),
+        "high-priority breath takes next shared slot");
+    MotherBrainEnemyProjectileSlot bomb = mixedPool.Slots[17];
+    MotherBrainEnemyProjectileSlot breath = mixedPool.Slots[16];
+    AssertEqual((ushort)0x40a0, bomb.Properties, "bomb definition properties");
+    AssertEqual((ushort)0x3000, breath.Properties, "purple-breath definition properties");
+    AssertEqual((ushort)0x0046, breath.XPosition, "purple breath initializes at brain X plus six");
+    AssertEqual((ushort)0x0070, breath.YPosition, "purple breath initializes at brain Y plus sixteen");
+
+    mixedPool.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
+    AssertEqual((ushort)0x954f, breath.SpritemapPointer,
+        "purple breath spawn call loads first bank-$8D spritemap");
+    AssertEqual((ushort)0x82dc, bomb.SpritemapPointer,
+        "bomb spawn call loads first bank-$8D spritemap");
+
+    var oam = new OamBuffer();
+    oam.BeginFrame();
+    mixedPool.DrawHighPriority(bus, oam, layer1X: 0, layer1Y: 0);
+    AssertEqual(4, oam.NextByteOffset, "high pass emits only purple breath");
+    OamEntry high = oam.GetEntry(0);
+    AssertEqual(0x047, high.X, "high-pass breath screen X plus spritemap offset");
+    AssertEqual((byte)0x72, high.Y, "high-pass breath screen Y plus spritemap offset");
+    AssertTrue(high.IsLarge, "high-pass breath preserves large OBJ bit");
+    AssertEqual(0x011, high.TileNumber, "high-pass breath tile");
+
+    mixedPool.DrawLowPriority(bus, oam, layer1X: 0, layer1Y: 0);
+    AssertEqual(8, oam.NextByteOffset, "low pass appends only bomb after high pass");
+    OamEntry low = oam.GetEntry(1);
+    AssertEqual(0x04a, low.X, "low-pass bomb signed X offset");
+    AssertEqual((byte)0x70, low.Y, "low-pass bomb negative Y offset");
+    AssertEqual(2, low.Palette, "low-pass bomb graphics-index palette");
+    AssertEqual(0x022, low.TileNumber, "low-pass bomb tile");
+
+    // Use a fresh pool so the exact finite lifetime starts at call one. Each instruction
+    // duration is expanded independently, then call 77 must execute `$8154` and clear ID.
+    var timingPool = new MotherBrainEnemyProjectileSystem();
+    AssertEqual<int?>(17, timingPool.SpawnPurpleBreathBig(motherBrain),
+        "purple-breath timing fixture allocation");
+    MotherBrainEnemyProjectileSlot timedBreath = timingPool.Slots[17];
+    ushort[] spritemaps = [0x954f, 0x955b, 0x9571, 0x9596, 0x95bc, 0x95e7, 0x9613, 0x9644];
+    int[] durations = [8, 8, 9, 9, 10, 10, 11, 11];
+    int call = 0;
+    for (int frame = 0; frame < spritemaps.Length; frame++)
+    {
+        for (int repeat = 0; repeat < durations[frame]; repeat++)
+        {
+            timingPool.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
+            call++;
+            AssertTrue(timedBreath.IsActive, $"purple breath remains active on call {call}");
+            AssertEqual(spritemaps[frame], timedBreath.SpritemapPointer,
+                $"purple-breath animation call {call}");
+            AssertEqual((ushort)0x0046, timedBreath.XPosition,
+                $"purple breath remains stationary in X on call {call}");
+            AssertEqual((ushort)0x0070, timedBreath.YPosition,
+                $"purple breath remains stationary in Y on call {call}");
+        }
+    }
+    AssertEqual(76, call, "purple-breath timed frames sum to 76 calls");
+    timingPool.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
+    AssertTrue(!timedBreath.IsActive, "purple breath deletes on call 77");
+
+    Console.WriteLine(
+        "  Mother Brain projectiles: purple-breath timing and high/low OAM passes agree.");
 }
 
 /// <summary>

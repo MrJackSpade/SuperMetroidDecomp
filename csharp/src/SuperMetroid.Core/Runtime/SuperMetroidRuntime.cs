@@ -673,7 +673,19 @@ public sealed class SuperMetroidRuntime
     public ushort NmiCounterIncludingLag { get; private set; }
 
     /// <summary>Runs one accepted NMI followed by the translated per-frame timer logic.</summary>
-    public RuntimeFrameResult StepFrame(ushort controller1Input)
+    /// <param name="drawHighPriorityEnemyProjectiles">
+    /// Optional bank-$86 high-priority enemy-projectile draw pass. The generic runtime does
+    /// not own a room-specific enemy pool yet, so the Mother Brain debugger injects its
+    /// translated pool here while preserving `$A0:885D`'s exact position in global OAM order.
+    /// </param>
+    /// <param name="drawLowPriorityEnemyProjectiles">
+    /// Optional bank-$86 low-priority enemy-projectile draw pass at enemy layer six,
+    /// immediately after Samus/projectiles as selected by `$A0:887C`.
+    /// </param>
+    public RuntimeFrameResult StepFrame(
+        ushort controller1Input,
+        Action<OamBuffer>? drawHighPriorityEnemyProjectiles = null,
+        Action<OamBuffer>? drawLowPriorityEnemyProjectiles = null)
     {
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
 
@@ -2039,6 +2051,11 @@ public sealed class SuperMetroidRuntime
             // phase that calls DrawSamusAndProjectiles. Preserve that OAM ordering.
             BombProjectiles.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
 
+            // `$A0:885D` calls `$86:8390` after bomb/projectile explosions and before the
+            // layer loop reaches Samus at layer three. Room-specific actors may supply this
+            // pass without teaching the reusable Landing Site runtime how to own enemies.
+            drawHighPriorityEnemyProjectiles?.Invoke(Oam);
+
             // `$91:D6F7` updates Samus's palette buffer during gameplay. The software PPU
             // reads CGRAM directly, so perform the literal ROM pointer/table copy immediately
             // before the matching draw phase. This covers dry-room Speed Booster stage four
@@ -2082,6 +2099,10 @@ public sealed class SuperMetroidRuntime
                 VramWrites,
                 Camera.XPosition,
                 Camera.YPosition);
+
+            // Enemy layer six calls `$86:83B2`, after DrawSamusAndProjectiles. Keeping this
+            // separate from the high pass is observable when their OBJ pieces overlap.
+            drawLowPriorityEnemyProjectiles?.Invoke(Oam);
         }
         if (EscapeTimer.IsActive)
             EscapeTimerRenderer.Draw(EscapeTimer, Oam, _addressSpace);

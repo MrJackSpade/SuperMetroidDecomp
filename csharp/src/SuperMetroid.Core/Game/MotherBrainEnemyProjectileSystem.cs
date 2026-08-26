@@ -25,6 +25,9 @@ public sealed class MotherBrainEnemyProjectileSystem
     /// <summary>Mother Brain bomb definition spawned by head opcode <c>$A9:9EBD</c>.</summary>
     public const ushort BombDefinition = 0xcb59;
 
+    /// <summary>Large purple-breath definition spawned beside Mother Brain bombs.</summary>
+    public const ushort PurpleBreathBigDefinition = 0xcb2f;
+
     /// <summary>Exploded escape-door fragment definition at <c>$86:CB21</c>.</summary>
     public const ushort EscapeDoorParticleDefinition = 0xcb21;
 
@@ -36,7 +39,9 @@ public sealed class MotherBrainEnemyProjectileSystem
 
     private const int SignedSineTable = 0xa0b443;
     private const ushort SetXAndYRadiusInstruction = 0x8298;
+    private const ushort DeleteInstruction = 0x8154;
     private const ushort SleepInstruction = 0x8159;
+    private const ushort ClearPreInstruction = 0x816a;
     private const ushort GotoInstruction = 0x81ab;
     private static ReadOnlySpan<ushort> BombYAccelerations =>
         [0x0007, 0x0010, 0x0020, 0x0040, 0x0070, 0x00b0, 0x00f0, 0x0130, 0x0170, 0x0000];
@@ -91,6 +96,7 @@ public sealed class MotherBrainEnemyProjectileSystem
         MotherBrainEnemyProjectileSlot slot = _slots[slotIndex];
         slot.Clear();
         slot.ProjectileId = ProjectileDefinition;
+        slot.Properties = 0x3050;
         slot.GraphicsIndex = 0x0400;
         slot.DelayTimer = 0x0008;
         slot.Angle = request.Angle;
@@ -131,6 +137,7 @@ public sealed class MotherBrainEnemyProjectileSystem
         MotherBrainEnemyProjectileSlot slot = _slots[slotIndex];
         slot.Clear();
         slot.ProjectileId = BombDefinition;
+        slot.Properties = 0x40a0;
         slot.SpawnParameter = request.AfterburnCount;
         slot.GraphicsIndex = 0x0400;
         slot.XPosition = unchecked((ushort)(motherBrain.BrainXPosition + 0x000c));
@@ -150,6 +157,32 @@ public sealed class MotherBrainEnemyProjectileSystem
         slot.InstructionTimer = 1;
         slot.SpritemapPointer = 0x8000;
         motherBrain.RegisterBombSpawn();
+        return slotIndex;
+    }
+
+    /// <summary>
+    /// Allocates the stationary large purple breath from <c>$86:CA6A-CA82</c>.
+    /// </summary>
+    public int? SpawnPurpleBreathBig(MotherBrainRainbowBeamAttackSequence motherBrain)
+    {
+        ArgumentNullException.ThrowIfNull(motherBrain);
+
+        int slotIndex = SlotCount - 1;
+        while (slotIndex >= 0 && _slots[slotIndex].IsActive)
+            slotIndex--;
+        if (slotIndex < 0)
+            return null;
+
+        MotherBrainEnemyProjectileSlot slot = _slots[slotIndex];
+        slot.Clear();
+        slot.ProjectileId = PurpleBreathBigDefinition;
+        slot.Properties = 0x3000;
+        slot.GraphicsIndex = 0;
+        slot.XPosition = unchecked((ushort)(motherBrain.BrainXPosition + 6));
+        slot.YPosition = unchecked((ushort)(motherBrain.BrainYPosition + 0x0010));
+        slot.InstructionPointer = 0xcaa4;
+        slot.InstructionTimer = 1;
+        slot.SpritemapPointer = 0x8000;
         return slotIndex;
     }
 
@@ -178,6 +211,7 @@ public sealed class MotherBrainEnemyProjectileSystem
         MotherBrainEnemyProjectileSlot slot = _slots[slotIndex];
         slot.Clear();
         slot.ProjectileId = EscapeDoorParticleDefinition;
+        slot.Properties = 0x3000;
         slot.SpawnParameter = request.Parameter;
         slot.GraphicsIndex = 0;
         slot.XPosition = 0x0010;
@@ -210,6 +244,7 @@ public sealed class MotherBrainEnemyProjectileSystem
         MotherBrainEnemyProjectileSlot slot = _slots[slotIndex];
         slot.Clear();
         slot.ProjectileId = TimeBombSetSubtitleDefinition;
+        slot.Properties = 0x1000;
         slot.GraphicsIndex = 0;
         slot.XVelocity = 0;
         slot.YVelocity = 0;
@@ -303,6 +338,14 @@ public sealed class MotherBrainEnemyProjectileSystem
                 continue;
             }
 
+            if (slot.ProjectileId == PurpleBreathBigDefinition)
+            {
+                // `$86:CAA3` is an RTS pre-instruction: the breath remains fixed at the
+                // coordinates captured at spawn while its finite ROM animation runs.
+                RunPurpleBreathInstructionHandler(bus, slot);
+                continue;
+            }
+
             if (slot.ProjectileId != ProjectileDefinition)
             {
                 throw new NotSupportedException(
@@ -343,6 +386,131 @@ public sealed class MotherBrainEnemyProjectileSystem
             events.ToArray(),
             escapeDoorDustRequests.ToArray(),
             bombEvents.ToArray());
+    }
+
+    /// <summary>Draws definitions with property bit <c>$1000</c>, matching <c>$86:8390</c>.</summary>
+    public void DrawHighPriority(
+        ISnesAddressSpace bus,
+        OamBuffer oam,
+        ushort layer1X,
+        ushort layer1Y,
+        short shakeX = 0,
+        short shakeY = 0) =>
+        DrawPriority(bus, oam, layer1X, layer1Y, true, shakeX, shakeY);
+
+    /// <summary>Draws definitions without property bit <c>$1000</c>, matching <c>$86:83B2</c>.</summary>
+    public void DrawLowPriority(
+        ISnesAddressSpace bus,
+        OamBuffer oam,
+        ushort layer1X,
+        ushort layer1Y,
+        short shakeX = 0,
+        short shakeY = 0) =>
+        DrawPriority(bus, oam, layer1X, layer1Y, false, shakeX, shakeY);
+
+    /// <summary>Clears all eighteen physical slots and shared observable timers/requests.</summary>
+    public void Reset()
+    {
+        foreach (MotherBrainEnemyProjectileSlot slot in _slots)
+            slot.Clear();
+        PendingBabyCryCount = 0;
+        EarthquakeType = 0;
+        EarthquakeTimer = 0;
+        SamusInvincibilityTimer = 0;
+    }
+
+    private void DrawPriority(
+        ISnesAddressSpace bus,
+        OamBuffer oam,
+        ushort layer1X,
+        ushort layer1Y,
+        bool highPriority,
+        short shakeX,
+        short shakeY)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(oam);
+
+        // Both `$8390` and `$83B2` scan physical byte indices `$22,$20,...,$00`. A slot's
+        // definition-supplied property bit decides which pass owns it; it can never draw twice.
+        for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
+        {
+            MotherBrainEnemyProjectileSlot slot = _slots[slotIndex];
+            if (!slot.IsActive || ((slot.Properties & 0x1000) != 0) != highPriority)
+                continue;
+
+            ushort screenX = unchecked((ushort)(slot.XPosition - layer1X + shakeX));
+            ushort xAdmission = unchecked((ushort)(screenX + 0x0080));
+            if ((xAdmission & 0xfe00) != 0)
+                continue;
+
+            ushort screenY = unchecked((ushort)(slot.YPosition - layer1Y + shakeY));
+            bool originYIsOnScreen = (screenY & 0xff00) == 0;
+            if (!originYIsOnScreen)
+            {
+                ushort yAdmission = unchecked((ushort)(screenY + 0x0080));
+                if ((yAdmission & 0xfe00) != 0)
+                    continue;
+            }
+
+            oam.AddEnemyProjectileSpritemap(
+                bus,
+                slot.SpritemapPointer,
+                screenX,
+                screenY,
+                slot.GraphicsIndex,
+                originYIsOnScreen);
+        }
+    }
+
+    private static bool RunPurpleBreathInstructionHandler(
+        ISnesAddressSpace bus,
+        MotherBrainEnemyProjectileSlot slot)
+    {
+        ushort oldTimer = slot.InstructionTimer;
+        slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
+        if (oldTimer != 1)
+            return false;
+
+        ushort pointer = slot.InstructionPointer;
+        for (int operationCount = 0; operationCount < 16; operationCount++)
+        {
+            ushort durationOrOpcode = ReadWord(bus, 0x860000 | pointer);
+            if ((durationOrOpcode & 0x8000) == 0)
+            {
+                if (durationOrOpcode == 0)
+                    throw new InvalidDataException(
+                        $"Mother Brain purple-breath frame at $86:{pointer:X4} has zero duration.");
+
+                slot.InstructionTimer = durationOrOpcode;
+                slot.SpritemapPointer = ReadWord(
+                    bus,
+                    0x860000 | unchecked((ushort)(pointer + 2)));
+                slot.InstructionPointer = unchecked((ushort)(pointer + 4));
+                return false;
+            }
+
+            switch (durationOrOpcode)
+            {
+                case ClearPreInstruction:
+                    // The translated breath already has an inert pre-instruction. Retain
+                    // this opcode in the parser so the ROM list, not host setup, owns timing.
+                    pointer = unchecked((ushort)(pointer + 2));
+                    break;
+
+                case DeleteInstruction:
+                    slot.ProjectileId = 0;
+                    return true;
+
+                default:
+                    throw new NotSupportedException(
+                        $"Mother Brain purple-breath instruction $86:{durationOrOpcode:X4} at " +
+                        $"$86:{pointer:X4} is not translated.");
+            }
+        }
+
+        throw new InvalidDataException(
+            "Mother Brain purple-breath list did not reach a timed frame within 16 operations.");
     }
 
     private static bool RunBombPreInstruction(
@@ -874,6 +1042,14 @@ public sealed class MotherBrainEnemyProjectileSlot
 
     public int Index { get; }
     public ushort ProjectileId { get; internal set; }
+
+    /// <summary>
+    /// Definition property word copied from bank $86. Bit $1000 selects the native
+    /// high-priority draw pass; the remaining bits are retained so later translations do
+    /// not have to reconstruct definition state from the host projectile type.
+    /// </summary>
+    public ushort Properties { get; internal set; }
+
     public ushort GraphicsIndex { get; internal set; }
 
     /// <summary>Initialization parameter retained for inspecting table-selected fragments.</summary>
@@ -913,6 +1089,7 @@ public sealed class MotherBrainEnemyProjectileSlot
     internal void Clear()
     {
         ProjectileId = 0;
+        Properties = 0;
         GraphicsIndex = 0;
         SpawnParameter = 0;
         DelayTimer = 0;

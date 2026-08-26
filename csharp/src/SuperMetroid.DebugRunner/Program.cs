@@ -1387,11 +1387,10 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         }
         if (headResult.PurpleBreathBigSpawnRequested)
         {
-            // `$86:CB2F` is a separate stationary animation projectile. Its allocation is
-            // intentionally retained as an explicit seam until that definition joins this
-            // shared pool; logging it prevents the head opcode from disappearing silently.
+            int? slot = motherBrainProjectiles!.SpawnPurpleBreathBig(rainbowAttack);
             Console.WriteLine(
-                $"frame {frameIndex + 1,4}: Mother Brain head requested large purple breath.");
+                $"frame {frameIndex + 1,4}: Mother Brain head spawned large purple breath " +
+                $"slot={slot?.ToString() ?? "full"}.");
         }
         if (rainbowAttack.Phase != previousRainbowPhase)
         {
@@ -1599,7 +1598,20 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         rainbowAttack.StepBrainShakeForDraw();
     }
 
-    RuntimeFrameResult result = runtime.StepFrame(controllerInput);
+    // This isolated phase-three script keeps Mother Brain's native room-space coordinates,
+    // whose layer-1 origin is (0,0), while the reusable Landing Site runtime has its own
+    // camera at X=$0400. Inject both enemy-projectile passes with the actor's coordinate
+    // system instead of incorrectly subtracting the unrelated playable-room camera.
+    Action<OamBuffer>? drawHighPriorityEnemyProjectiles = motherBrainProjectiles is null
+        ? null
+        : oam => motherBrainProjectiles.DrawHighPriority(bus, oam, layer1X: 0, layer1Y: 0);
+    Action<OamBuffer>? drawLowPriorityEnemyProjectiles = motherBrainProjectiles is null
+        ? null
+        : oam => motherBrainProjectiles.DrawLowPriority(bus, oam, layer1X: 0, layer1Y: 0);
+    RuntimeFrameResult result = runtime.StepFrame(
+        controllerInput,
+        drawHighPriorityEnemyProjectiles,
+        drawLowPriorityEnemyProjectiles);
     observedSamusPoses.Add(runtime.Samus.Pose);
     if (specialSpinRoute &&
         yDirectionBeforeFrame == 2 &&

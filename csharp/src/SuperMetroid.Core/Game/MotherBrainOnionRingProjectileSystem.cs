@@ -185,10 +185,12 @@ public sealed class MotherBrainOnionRingProjectileSystem
 
         MoveAccordingToVelocity(slot);
 
-        // `$C3A9` runs before Samus and room collision. Once the registered Baby has zero
-        // health, the native routine deletes every later ring immediately and double-
-        // returns; it does not let those rings continue into Samus.
-        if (baby is not null)
+        // `$C3A9` runs before Samus and room collision only while the shared Baby-enemy
+        // index names a live slot. During the death animation the slot is still registered,
+        // so zero health deletes every later ring immediately. `$CD02` eventually clears
+        // that index while deleting the actor; a retained host object must not keep acting
+        // like the now-free slot or phase-three rings would disappear before testing Samus.
+        if (baby is { IsDeleted: false })
         {
             if (baby.Health == 0)
             {
@@ -227,10 +229,19 @@ public sealed class MotherBrainOnionRingProjectileSystem
             samus.Kinematics.XRadius,
             samus.Kinematics.YRadius))
         {
+            ushort healthBefore = samus.Health;
             ushort damage = DivideDamageBySuit(0x0050, samus.EquippedItems);
             samus.Health = samus.Health < damage
                 ? (ushort)0
                 : unchecked((ushort)(samus.Health - damage));
+            // Reuse the small health-transition carrier that the pre-instruction already
+            // returns to its caller. The public event names the fields generically because
+            // this branch's target is Samus, not the now-absent Baby slot.
+            babyHit = new BabyMetroidOnionRingHitResult(
+                Applied: true,
+                HealthBefore: healthBefore,
+                HealthAfter: samus.Health,
+                FlashTimer: 0);
             SamusInvincibilityTimer = 0x0060;
             samus.KnockbackTimer = 5;
             samus.KnockbackXDirection = unchecked((short)(samus.XPosition - slot.XPosition)) >= 0
@@ -457,8 +468,8 @@ public readonly record struct MotherBrainOnionRingEvent(
     MotherBrainOnionRingCollisionKind Collision,
     ushort XPosition,
     ushort YPosition,
-    ushort BabyHealthBefore,
-    ushort BabyHealthAfter);
+    ushort TargetHealthBefore,
+    ushort TargetHealthAfter);
 
 /// <summary>Aggregate result of one native enemy-projectile pass.</summary>
 public readonly record struct MotherBrainOnionRingFrameResult(

@@ -2887,10 +2887,12 @@ static void VerifyBabyMetroidCutsceneEntrance()
     // the fast crouch. Seed mechanically equivalent bytecode at the literal list addresses;
     // private-ROM integration below separately proves those addresses against cartridge data.
     SeedMotherBrainWalkProgram(bus, 0x9730, duration: 2, forward: true);
+    SeedMotherBrainWalkProgram(bus, 0x976a, duration: 4, forward: true);
     SeedMotherBrainWalkProgram(bus, 0x97a4, duration: 6, forward: true);
     SeedMotherBrainWalkProgram(bus, 0x97de, duration: 8, forward: true);
     SeedMotherBrainWalkProgram(bus, 0x9818, duration: 10, forward: true);
     SeedMotherBrainWalkProgram(bus, 0x988c, duration: 2, forward: false);
+    SeedMotherBrainWalkProgram(bus, 0x98c6, duration: 4, forward: false);
     SeedMotherBrainWalkProgram(bus, 0x9900, duration: 6, forward: false);
     SeedMotherBrainWalkProgram(bus, 0x9852, duration: 8, forward: false);
     SeedMotherBrainWalkProgram(bus, 0x993a, duration: 10, forward: false);
@@ -3414,7 +3416,192 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3FightingMain, motherBrain.Phase,
         "recovery reaches genuine `$C209` phase-three combat seam");
 
-    Console.WriteLine("  Baby Metroid: entrance, drain, route, healing, murder, black fade, attack DMA, rainbow, and phase-three handoff agree.");
+    // Exercise the new combat scheduler with its real body bytecode rather than changing
+    // X directly. `$C1F0` falls into main on setup call 33, so that same call must initialize
+    // the neck and request the first fourteen-pixel retreat.
+    var phase3Samus = new SamusState { XPosition = 224, YPosition = 120 };
+    var phase3 = new MotherBrainRainbowBeamAttackSequence();
+    phase3.Body.XPosition = 0x0070;
+    phase3.Body.YPosition = 0x0064;
+    phase3.BeginPhase3RecoveryFromBabyCutscene();
+    phase3.Step(bus, phase3Samus, 0, 0);
+    for (int call = 0; call < 33; call++)
+        phase3.Step(bus, phase3Samus, 0, 0);
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3FightingMain, phase3.Phase,
+        "phase-three fixture reaches main after exact setup wait");
+    AssertEqual(MotherBrainPhase3NeckPhase.Inactive, phase3.Phase3NeckPhase,
+        "same-call normal neck initializer reduces to its RTS state");
+    AssertEqual((ushort)0x0080, phase3.NeckAngleDelta,
+        "normal neck initializer selects delta $80");
+    AssertEqual(MotherBrainPhase3WalkingPhase.RetreatQuickly, phase3.Phase3WalkingPhase,
+        "zero walk credit falls through to quick retreat");
+    AssertEqual((ushort)0x0062, phase3.Phase3TargetXPosition,
+        "quick retreat target is body X minus fourteen");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingBackwardReallyFastInstructionList,
+        phase3.Body.InstructionPointer,
+        "quick retreat selects delay-index-two body bytecode");
+
+    int quickWalkCalls = 0;
+    while (!phase3.Body.Sleeping)
+    {
+        phase3.Body.Step(bus);
+        quickWalkCalls++;
+        AssertTrue(quickWalkCalls < 40, "phase-three quick retreat bytecode sleeps");
+    }
+    AssertEqual((ushort)0x0058, phase3.Body.XPosition,
+        "quick retreat completes its native net-minus-24 animation");
+    MotherBrainRainbowBeamAttackStepResult quickReached =
+        phase3.Step(bus, phase3Samus, 0, 0);
+    AssertTrue(!quickReached.BodyWalkRequested,
+        "quick-retreat target call changes scheduler without same-call slow request");
+    AssertEqual(MotherBrainPhase3WalkingPhase.RetreatSlowly, phase3.Phase3WalkingPhase,
+        "quick retreat hands off to slow retreat");
+    AssertEqual((ushort)0x004a, phase3.Phase3TargetXPosition,
+        "slow retreat chooses a fresh fourteen-pixel target");
+
+    MotherBrainRainbowBeamAttackStepResult slowRequest =
+        phase3.Step(bus, phase3Samus, 0, 0);
+    AssertTrue(slowRequest.BodyWalkRequested, "following call requests slow retreat");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingBackwardFastInstructionList,
+        phase3.Body.InstructionPointer,
+        "slow retreat selects delay-index-four body bytecode");
+    int slowWalkCalls = 0;
+    while (!phase3.Body.Sleeping)
+    {
+        phase3.Body.Step(bus);
+        slowWalkCalls++;
+        AssertTrue(slowWalkCalls < 80, "phase-three slow retreat bytecode sleeps");
+    }
+    AssertEqual((ushort)0x0040, phase3.Body.XPosition,
+        "slow retreat completes another native net-minus-24 animation");
+    phase3.Step(bus, phase3Samus, 0, 0);
+    AssertEqual(MotherBrainPhase3WalkingPhase.TryToInchForward, phase3.Phase3WalkingPhase,
+        "slow-retreat target restores inch-forward scheduler");
+    AssertEqual((ushort)0x0040, phase3.Phase3WalkCounter,
+        "slow-retreat completion loads literal $40 walk credit");
+    AssertEqual((ushort)0x0041, phase3.Phase3TargetXPosition,
+        "inch-forward handoff records current X plus one");
+
+    // Five calls reach `$E0`; the sixth reaches `$100` and emits a one-pixel forward walk.
+    for (int call = 0; call < 5; call++)
+    {
+        MotherBrainRainbowBeamAttackStepResult accumulating =
+            phase3.Step(bus, phase3Samus, 0, 0);
+        AssertTrue(!accumulating.BodyWalkRequested,
+            $"walk-credit accumulation call {call} does not move before $100");
+    }
+    AssertEqual((ushort)0x00e0, phase3.Phase3WalkCounter,
+        "five standing calls accumulate walk credit to $E0");
+    MotherBrainRainbowBeamAttackStepResult inch = phase3.Step(bus, phase3Samus, 0, 0);
+    AssertTrue(inch.BodyWalkRequested, "$100 walk credit requests one-pixel forward target");
+    AssertEqual((ushort)0x0100, phase3.Phase3WalkCounter,
+        "inch-forward request preserves accumulated credit");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingForwardFastInstructionList,
+        phase3.Body.InstructionPointer,
+        "RNG bit one clear chooses phase-three delay index four");
+
+    // Begin the visible body instruction before applying a Hyper Beam reaction. This keeps
+    // the next AI call in native order: neck recoil still runs, walking is pose-gated, and
+    // the negative `$0100-$010A` subtraction clamps the walk counter to zero.
+    phase3.Body.Step(bus);
+    AssertEqual((ushort)1, phase3.Body.Pose, "forward bytecode publishes walking pose");
+    phase3.ApplyPhase2Or3ShotReaction(MotherBrainProjectileType.Beam);
+    AssertEqual((ushort)0, phase3.Phase3WalkCounter,
+        "Hyper Beam underflow clamps walk counter to zero");
+    AssertEqual(MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil, phase3.Phase3NeckPhase,
+        "Hyper Beam underflow installs recoil setup");
+    MotherBrainRainbowBeamAttackStepResult recoilSetup =
+        phase3.Step(bus, phase3Samus, 0, 0, randomNumberSeed: 0xffff);
+    AssertEqual(MotherBrainPhase3NeckPhase.HyperBeamRecoil, phase3.Phase3NeckPhase,
+        "recoil setup falls into recoil timer");
+    AssertEqual((ushort)0x000a, phase3.Phase3NeckFunctionTimer,
+        "recoil setup decrements freshly loaded $0B to $0A");
+    AssertEqual((ushort)1, phase3.Phase3DisableAttacks,
+        "Hyper Beam recoil disables attack selection");
+    AssertEqual<MotherBrainPhase3AttackKind?>(null, recoilSetup.Phase3Attack,
+        "negative RNG cannot attack while recoil disable is set");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadHyperBeamRecoilInstructionList,
+        phase3.HeadInstructionList,
+        "recoil installs exact `$9BE7` head animation");
+    AssertEqual((ushort)0x0900, phase3.NeckAngleDelta, "Hyper Beam recoil neck delta");
+    AssertEqual((ushort)8, phase3.LowerNeckMovementIndex, "Hyper Beam lower recoil index");
+    AssertEqual((ushort)8, phase3.UpperNeckMovementIndex, "Hyper Beam upper recoil index");
+    AssertEqual((ushort)0x0032, phase3.BrainMainShakeTimer,
+        "Hyper Beam recoil seeds brain shake timer fifty");
+
+    int recoilTimerCalls = 0;
+    while (phase3.Phase3NeckPhase == MotherBrainPhase3NeckPhase.HyperBeamRecoil)
+    {
+        phase3.Step(bus, phase3Samus, 0, 0);
+        recoilTimerCalls++;
+    }
+    AssertEqual(11, recoilTimerCalls,
+        "remaining `$0A` recoil timer expires only after zero underflows");
+    AssertEqual(MotherBrainPhase3NeckPhase.SetupRecoilRecovery, phase3.Phase3NeckPhase,
+        "recoil expiration defers recovery setup to following call");
+    AssertEqual((ushort)0, phase3.Phase3DisableAttacks,
+        "recoil expiration reenables attacks before recovery setup");
+
+    phase3.Step(bus, phase3Samus, 0, 0);
+    AssertEqual(MotherBrainPhase3NeckPhase.RecoilRecovery, phase3.Phase3NeckPhase,
+        "recovery setup falls through into its timer");
+    AssertEqual((ushort)0x000f, phase3.Phase3NeckFunctionTimer,
+        "recovery setup decrements freshly loaded $10 to $0F");
+    int recoveryTimerCalls = 0;
+    while (phase3.Phase3NeckPhase == MotherBrainPhase3NeckPhase.RecoilRecovery)
+    {
+        phase3.Step(bus, phase3Samus, 0, 0);
+        recoveryTimerCalls++;
+    }
+    AssertEqual(16, recoveryTimerCalls,
+        "remaining `$0F` recovery timer expires only after zero underflows");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadAttackingFourOnionRingsPhase3InstructionList,
+        phase3.HeadInstructionList,
+        "recovery expiration installs phase-three four-ring head list");
+    AssertEqual(MotherBrainPhase3NeckPhase.Normal, phase3.Phase3NeckPhase,
+        "recovery expiration defers normal-neck initializer");
+    phase3.Step(bus, phase3Samus, 0, 0);
+    AssertEqual(MotherBrainPhase3NeckPhase.Inactive, phase3.Phase3NeckPhase,
+        "following call consumes one-shot normal-neck initializer");
+
+    // Attack selection is independent of the movement request produced earlier in the same
+    // AI call. A fresh fixture stays standing because this direct test intentionally does
+    // not advance its newly requested body list until after observing both producers.
+    var phase3Attack = new MotherBrainRainbowBeamAttackSequence();
+    phase3Attack.Body.XPosition = 0x0070;
+    phase3Attack.BeginPhase3RecoveryFromBabyCutscene();
+    phase3Attack.Step(bus, phase3Samus, 0, 0);
+    for (int call = 0; call < 32; call++)
+        phase3Attack.Step(bus, phase3Samus, 0, 0);
+    MotherBrainRainbowBeamAttackStepResult bombSelection =
+        phase3Attack.Step(bus, phase3Samus, 0, 0, randomNumberSeed: 0x8000);
+    AssertTrue(bombSelection.BodyWalkRequested,
+        "phase-three setup fallthrough can request movement and attack together");
+    AssertEqual(MotherBrainPhase3AttackKind.Bomb, bombSelection.Phase3Attack,
+        "negative RNG with low byte below $80 selects bomb");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadAttackingBombPhase3InstructionList,
+        phase3Attack.HeadInstructionList, "phase-three bomb installs exact `$9F00` list");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3FightingAttackCooldown,
+        phase3Attack.Phase, "phase-three attack installs cooldown function");
+    AssertEqual((ushort)0x0040, phase3Attack.FunctionTimer,
+        "phase-three attack cooldown starts at literal $40");
+
+    int cooldownCalls = 0;
+    while (phase3Attack.Phase ==
+           MotherBrainRainbowBeamAttackPhase.Phase3FightingAttackCooldown)
+    {
+        phase3Attack.Step(bus, phase3Samus, 0, 0);
+        cooldownCalls++;
+    }
+    AssertEqual(65, cooldownCalls, "$40 attack cooldown expires on underflow call 65");
+    MotherBrainRainbowBeamAttackStepResult ringsSelection =
+        phase3Attack.Step(bus, phase3Samus, 0, 0, randomNumberSeed: 0x8080);
+    AssertEqual(MotherBrainPhase3AttackKind.FourOnionRings, ringsSelection.Phase3Attack,
+        "negative RNG with low byte exactly $80 selects four rings");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadAttackingFourOnionRingsPhase3InstructionList,
+        phase3Attack.HeadInstructionList, "phase-three rings install exact `$9DBB` list");
+
+    Console.WriteLine("  Baby Metroid: entrance through phase-three walk, recoil, and attacks agree.");
 }
 
 static void VerifySamusAerialMovement()

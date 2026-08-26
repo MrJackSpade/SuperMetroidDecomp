@@ -27,7 +27,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public const ushort HeadAttackingTwoOnionRingsPhase2InstructionList = 0x9d7f;
     public const ushort HeadStretchingPhase2InstructionList = 0x9b7f;
     public const ushort HeadStretchingPhase3InstructionList = 0x9bb3;
+    public const ushort HeadHyperBeamRecoilInstructionList = 0x9be7;
     public const ushort HeadAttackingBabyMetroidInstructionList = 0x9db1;
+    public const ushort HeadAttackingFourOnionRingsPhase3InstructionList = 0x9dbb;
+    public const ushort HeadAttackingBombPhase3InstructionList = 0x9f00;
     public const ushort BodyWalkingForwardReallySlowInstructionList = 0x9818;
     public const ushort BodyWalkingForwardReallyFastInstructionList = 0x9730;
     public const ushort BodyWalkingForwardFastInstructionList = 0x976a;
@@ -218,6 +221,37 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public ushort BabyMetroidTileTransferIndex { get; private set; }
 
+    /// <summary>
+    /// Phase-three walking function selected through native long word <c>$7E:801E</c>.
+    /// This is deliberately separate from the visible body instruction list: the function
+    /// decides what Mother Brain wants to do only while the bytecode-owned pose is standing.
+    /// </summary>
+    public MotherBrainPhase3WalkingPhase Phase3WalkingPhase { get; private set; } =
+        MotherBrainPhase3WalkingPhase.Inactive;
+
+    /// <summary>
+    /// Native phase-three walk counter at <c>$7E:8026</c>. Ordinary projectiles subtract
+    /// <c>$0100</c>; Hyper Beam subtracts <c>$010A</c>; the walking function adds
+    /// <c>$0020</c> whenever it gets a standing AI call.
+    /// </summary>
+    public ushort Phase3WalkCounter { get; private set; }
+
+    /// <summary>Current phase-three walking target at <c>$7E:803A</c>.</summary>
+    public ushort Phase3TargetXPosition { get; private set; }
+
+    /// <summary>Phase-three neck function selected through native long word <c>$7E:801A</c>.</summary>
+    public MotherBrainPhase3NeckPhase Phase3NeckPhase { get; private set; } =
+        MotherBrainPhase3NeckPhase.Inactive;
+
+    /// <summary>Signed-underflow timer shared by the two phase-three recoil functions.</summary>
+    public ushort Phase3NeckFunctionTimer { get; private set; }
+
+    /// <summary>
+    /// Native attack-disable word at <c>$7E:803E</c>. Hyper Beam recoil sets one and the
+    /// recoil timer clears it before the recovery pose begins.
+    /// </summary>
+    public ushort Phase3DisableAttacks { get; private set; }
+
     /// <summary>Rainbow-beam palette animation index reset immediately before the final shot.</summary>
     public ushort RainbowBeamPaletteAnimationIndex { get; private set; }
 
@@ -319,6 +353,65 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         // Native clears only the shared enemy-slot index. This host flag is the equivalent
         // liveness witness used by head attack selection after the actor has deleted itself.
         BabyMetroidSpawned = false;
+    }
+
+    /// <summary>
+    /// Applies the movement/recoil half of Mother Brain's shared phase-two/three shot
+    /// reaction at <c>$A9:B562-$B5C4</c>. The ordinary enemy-shot routine owns damage,
+    /// projectile deletion, and flash time; this method intentionally does not invent any
+    /// of those still-untranslated systems.
+    /// </summary>
+    public void ApplyPhase2Or3ShotReaction(MotherBrainProjectileType projectileType)
+    {
+        // `$B58E` masks the projectile type to three bits before indexing an eight-byte
+        // table. Validate the host enum so a caller cannot accidentally smuggle a larger
+        // value past that native domain.
+        if ((uint)projectileType > 7)
+            throw new ArgumentOutOfRangeException(nameof(projectileType));
+
+        // The table returns two for beams, one for missiles/supers, and zero for every
+        // remaining projectile class. Form four gives only reaction type two the special
+        // Hyper Beam path; ordinary phase-two beams continue through the generic branch.
+        ushort reactionType = projectileType switch
+        {
+            MotherBrainProjectileType.Beam => 2,
+            MotherBrainProjectileType.Missile or MotherBrainProjectileType.SuperMissile => 1,
+            _ => 0,
+        };
+        if (Body.Form == 4 && reactionType == 2)
+        {
+            ushort candidate = unchecked((ushort)(Phase3WalkCounter - 0x010a));
+            if ((candidate & 0x8000) == 0)
+            {
+                // BPL at `$B5B1` keeps the nonnegative remainder and does not recoil. This
+                // is why sustained Hyper Beam fire first consumes accumulated walk credit.
+                Phase3WalkCounter = candidate;
+                return;
+            }
+
+            // On underflow the native accumulator is replaced by zero before the common
+            // store: do not retain the wrapped subtraction. The neck function itself runs
+            // on Mother Brain's next ordinary phase-three main call.
+            Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil;
+            FunctionTimer = 0;
+            Phase3WalkCounter = 0;
+            return;
+        }
+
+        // DEC turns reaction one into zero, sending either missile kind directly to the
+        // zero label. Reaction zero wraps to `$FFFF`; reaction two outside form four leaves
+        // one. Both nonzero cases subtract `$0100` and clamp signed underflow to zero.
+        reactionType = unchecked((ushort)(reactionType - 1));
+        if (reactionType == 0)
+        {
+            Phase3WalkCounter = 0;
+            return;
+        }
+
+        ushort genericCandidate = unchecked((ushort)(Phase3WalkCounter - 0x0100));
+        Phase3WalkCounter = (genericCandidate & 0x8000) == 0
+            ? genericCandidate
+            : (ushort)0;
     }
 
     /// <summary>
@@ -654,6 +747,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         MotherBrainSpriteTileTransferRequest? spriteTileTransfer = null;
         bool babySpawnRequested = false;
         bool finalBeamSoundQueued = false;
+        MotherBrainPhase3AttackKind? phase3Attack = null;
 
         switch (Phase)
         {
@@ -1252,13 +1346,64 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // yielding 33 setup calls after the one-frame `$C1CF` producer above.
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
+                {
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3FightingMain;
+                    Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
+                    Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.TryToInchForward;
+
+                    // `$C1F0-$C205` has no RTS after installing the three function pointers;
+                    // execution falls directly into `$C209` on this same enemy AI call.
+                    goto case MotherBrainRainbowBeamAttackPhase.Phase3FightingMain;
+                }
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3FightingMain:
-                // The phase-three combat neck/walking/projectile producers begin here.
-                // Keeping their genuine `$C209` seam explicit prevents the completed Baby
-                // cutscene from falling back into any fabricated phase-two behavior.
+                // `$C209` tests death before either sub-handler. The death producer itself
+                // is kept as an explicit seam until its explosion/fade sequence is ported;
+                // no phase-two behavior is allowed to leak through here.
+                if (BrainHealth == 0)
+                {
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceMoveToBackOfRoom;
+                    break;
+                }
+
+                StepPhase3NeckHandler();
+                bodyWalkRequested = StepPhase3WalkingHandler(randomNumberSeed);
+
+                // Walking bytecode changes pose later in the enemy instruction stage. The
+                // AI therefore still sees pose zero on the call that requests a walk and may
+                // also select an attack, exactly as the source's post-handler `$C21B` load.
+                if (Body.Pose != 0 || Phase3DisableAttacks != 0 ||
+                    (randomNumberSeed & 0x8000) == 0)
+                    break;
+
+                if ((randomNumberSeed & 0x00ff) < 0x0080)
+                {
+                    SetHeadInstructionList(HeadAttackingBombPhase3InstructionList);
+                    phase3Attack = MotherBrainPhase3AttackKind.Bomb;
+                }
+                else
+                {
+                    SetHeadInstructionList(HeadAttackingFourOnionRingsPhase3InstructionList);
+                    phase3Attack = MotherBrainPhase3AttackKind.FourOnionRings;
+                }
+
+                Phase = MotherBrainRainbowBeamAttackPhase.Phase3FightingAttackCooldown;
+                FunctionTimer = 0x0040;
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3FightingAttackCooldown:
+                // `$C24E` accepts timer zero and returns to main only after underflow. It
+                // does not fall through, so neck and walking handlers pause for all 65 calls.
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3FightingMain;
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceMoveToBackOfRoom:
+                // `$A9:AE79` is the next authoritative producer. Keeping this phase named
+                // makes zero-health routing observable without pretending its movement and
+                // explosion scheduling have already been translated.
                 break;
 
             default:
@@ -1295,7 +1440,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             finishOffAttack,
             spriteTileTransfer,
             babySpawnRequested,
-            finalBeamSoundQueued);
+            finalBeamSoundQueued,
+            phase3Attack);
     }
 
     private void BeginExtendingNeckForAttack()
@@ -1402,6 +1548,160 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             PainfulWalkingFunctionTimer = PainfulWalkingFunctionTimers[timerIndex];
         }
         return requested;
+    }
+
+    private bool StepPhase3WalkingHandler(ushort randomNumberSeed)
+    {
+        // `$C25A` refuses to call the walking function while body bytecode advertises any
+        // nonzero pose. This makes each request edge-triggered: the requested walk runs to
+        // its standing opcode before the scheduler is allowed to inspect its target again.
+        if (Body.Pose != 0)
+            return false;
+
+        switch (Phase3WalkingPhase)
+        {
+            case MotherBrainPhase3WalkingPhase.Inactive:
+                return false;
+
+            case MotherBrainPhase3WalkingPhase.TryToInchForward:
+                if (Phase3WalkCounter == 0)
+                {
+                    // Zero credit does not merely pause. `$C2A1` chooses a point fourteen
+                    // pixels left, installs the quick-retreat function, and falls into it.
+                    Phase3TargetXPosition = unchecked((ushort)(Body.XPosition - 0x000e));
+                    Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.RetreatQuickly;
+                    goto case MotherBrainPhase3WalkingPhase.RetreatQuickly;
+                }
+
+                // Native ADC/CMP is unsigned here. A wrapped counter can therefore spend
+                // more calls below `$0100`; no host integer widening or saturation belongs.
+                Phase3WalkCounter = unchecked((ushort)(Phase3WalkCounter + 0x0020));
+                if (Phase3WalkCounter < 0x0100)
+                    return false;
+
+                Phase3TargetXPosition = unchecked((ushort)(Body.XPosition + 1));
+                ushort forwardDelay = unchecked((ushort)((randomNumberSeed & 2) + 4));
+
+                // MakeMotherBrainWalkForwards reports carry only for a strictly overshot
+                // target or the independent X `$80` limit. Equality still requests a walk.
+                bool reachedForwardTarget =
+                    unchecked((short)(Phase3TargetXPosition - Body.XPosition)) < 0 ||
+                    NativeAtLeast(Body.XPosition, 0x0080);
+                if (reachedForwardTarget)
+                {
+                    Phase3WalkCounter = 0x0080;
+                    return false;
+                }
+
+                return RequestWalkForward(Phase3TargetXPosition, forwardDelay);
+
+            case MotherBrainPhase3WalkingPhase.RetreatQuickly:
+                if (!HasReachedBackwardTarget(Phase3TargetXPosition))
+                    return RequestWalkBackward(Phase3TargetXPosition, animationDelay: 0x0002);
+
+                // Reaching the first target chooses another point fourteen pixels left but
+                // does not fall through to the slow request. That request starts only on the
+                // next standing AI call.
+                Phase3TargetXPosition = unchecked((ushort)(Body.XPosition - 0x000e));
+                Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.RetreatSlowly;
+                return false;
+
+            case MotherBrainPhase3WalkingPhase.RetreatSlowly:
+                if (!HasReachedBackwardTarget(Phase3TargetXPosition))
+                    return RequestWalkBackward(Phase3TargetXPosition, animationDelay: 0x0004);
+
+                // `$C313` writes all three words: forty walk-credit, the inch-forward
+                // function, and a one-pixel-ahead target used by later calls.
+                SetPhase3WalkingToTryToInchForward(0x0040);
+                return false;
+
+            default:
+                throw new InvalidOperationException(
+                    $"Unsupported phase-three walking function {Phase3WalkingPhase}.");
+        }
+    }
+
+    private void SetPhase3WalkingToTryToInchForward(ushort counter)
+    {
+        Phase3WalkCounter = counter;
+        Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.TryToInchForward;
+        Phase3TargetXPosition = unchecked((ushort)(Body.XPosition + 1));
+    }
+
+    private void StepPhase3NeckHandler()
+    {
+        switch (Phase3NeckPhase)
+        {
+            case MotherBrainPhase3NeckPhase.Inactive:
+                return;
+
+            case MotherBrainPhase3NeckPhase.Normal:
+                // `$C330` briefly writes lower index one and immediately overwrites it with
+                // two before any other code can observe the word. Preserve the observable
+                // result while documenting the retail no-op (`>_<` in the disassembly).
+                NeckAngleDelta = 0x0080;
+                LowerNeckMovementIndex = 2;
+                UpperNeckMovementIndex = 4;
+                Phase3NeckPhase = MotherBrainPhase3NeckPhase.Inactive;
+                return;
+
+            case MotherBrainPhase3NeckPhase.SetupRecoilRecovery:
+                NeckMovementEnabled = 1;
+                NeckAngleDelta = 0x0500;
+                LowerNeckMovementIndex = 6;
+                UpperNeckMovementIndex = 6;
+                Phase3NeckPhase = MotherBrainPhase3NeckPhase.RecoilRecovery;
+                Phase3NeckFunctionTimer = 0x0010;
+
+                // `$C354` falls directly into `$C37B`; the newly loaded sixteen is already
+                // fifteen when this single handler call returns.
+                goto case MotherBrainPhase3NeckPhase.RecoilRecovery;
+
+            case MotherBrainPhase3NeckPhase.RecoilRecovery:
+                if (Phase3NeckFunctionTimer != 0)
+                {
+                    Phase3NeckFunctionTimer =
+                        unchecked((ushort)(Phase3NeckFunctionTimer - 1));
+                    return;
+                }
+
+                // DEC of zero branches negative without storing `$FFFF`, so the readable
+                // timer remains zero while the four-ring recovery list is installed.
+                SetHeadInstructionList(HeadAttackingFourOnionRingsPhase3InstructionList);
+                Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
+                return;
+
+            case MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil:
+                NeckMovementEnabled = 1;
+                Phase3DisableAttacks = 1;
+                SetHeadInstructionList(HeadHyperBeamRecoilInstructionList);
+                BrainMainShakeTimer = 0x0032;
+                NeckAngleDelta = 0x0900;
+                LowerNeckMovementIndex = 8;
+                UpperNeckMovementIndex = 8;
+                Phase3NeckPhase = MotherBrainPhase3NeckPhase.HyperBeamRecoil;
+                Phase3NeckFunctionTimer = 0x000b;
+
+                // Setup also falls through, making the externally visible first timer `$0A`.
+                goto case MotherBrainPhase3NeckPhase.HyperBeamRecoil;
+
+            case MotherBrainPhase3NeckPhase.HyperBeamRecoil:
+                if (Phase3NeckFunctionTimer != 0)
+                {
+                    Phase3NeckFunctionTimer =
+                        unchecked((ushort)(Phase3NeckFunctionTimer - 1));
+                    return;
+                }
+
+                NeckAngleDelta = 0x0080;
+                Phase3DisableAttacks = 0;
+                Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupRecoilRecovery;
+                return;
+
+            default:
+                throw new InvalidOperationException(
+                    $"Unsupported phase-three neck function {Phase3NeckPhase}.");
+        }
     }
 
     private bool RequestWalkForward(ushort targetX, ushort animationDelay)
@@ -1716,6 +2016,48 @@ public enum MotherBrainRainbowBeamAttackPhase
     Phase3RecoverFromCutsceneMakeSomeDistance,
     Phase3RecoverFromCutsceneSetupForFighting,
     Phase3FightingMain,
+    Phase3FightingAttackCooldown,
+    Phase3DeathSequenceMoveToBackOfRoom,
+}
+
+/// <summary>Reachable third-phase walking function pointers at `$A9:C26A-$C326`.</summary>
+public enum MotherBrainPhase3WalkingPhase
+{
+    Inactive,
+    TryToInchForward,
+    RetreatQuickly,
+    RetreatSlowly,
+}
+
+/// <summary>Reachable third-phase neck function pointers at `$A9:C330-$C3EE`.</summary>
+public enum MotherBrainPhase3NeckPhase
+{
+    Inactive,
+    Normal,
+    SetupRecoilRecovery,
+    RecoilRecovery,
+    SetupHyperBeamRecoil,
+    HyperBeamRecoil,
+}
+
+/// <summary>Low-three-bit projectile classes consumed by `$A9:B58E`.</summary>
+public enum MotherBrainProjectileType
+{
+    Beam = 0,
+    Missile = 1,
+    SuperMissile = 2,
+    PowerBomb = 3,
+    UnusedFour = 4,
+    Bomb = 5,
+    UnusedSix = 6,
+    BeamExplosion = 7,
+}
+
+/// <summary>Phase-three head attack selected by `$A9:C22C-$C23E`.</summary>
+public enum MotherBrainPhase3AttackKind
+{
+    Bomb,
+    FourOnionRings,
 }
 
 /// <summary>Head-projectile animation selected by `$A9:BD71-$BD83`.</summary>
@@ -1790,4 +2132,5 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     MotherBrainFinishOffAttackKind? FinishOffAttack,
     MotherBrainSpriteTileTransferRequest? SpriteTileTransfer,
     bool BabySpawnRequested,
-    bool FinalBeamSoundQueued);
+    bool FinalBeamSoundQueued,
+    MotherBrainPhase3AttackKind? Phase3Attack);

@@ -485,10 +485,15 @@ translated status is documented with the Morph Ball family below.
   head-bytecode volleys, body-pose responses, and final retreat/hold. Bank `$86:C2F3-$C432`
   supplies its 18-slot onion rings, highest-free allocation, delayed head pin, sine flight,
   animation radii, Baby-first/Samus/room collision order, `$50` Baby damage, flashing/cry
-  request, and suit-divided Samus damage. `$C1CF-$C209` publishes form four, the backward
-  recovery request, exact `$20` wait, and the phase-three fighting seam. The earlier
-  attack-selection trigger, later phase-three combat, Baby instruction-list/dust-projectile
-  rendering, and palette/HDMA effects beyond direct CGRAM writes remain explicit seams.
+  request, and suit-divided Samus damage. `$C1CF-$C3EE` now publishes form four, the backward
+  recovery request, exact `$20` wait/fallthrough, all three reachable walking functions,
+  normal/recoil neck functions, RNG-gated bomb/four-ring selection, and the `$40` attack
+  cooldown. `$B562-$B5C4` applies the exact missile/generic/Hyper Beam walk-counter reactions;
+  Hyper Beam underflow installs `$9BE7`, disables attacks, runs the `$0B` recoil and `$10`
+  recovery timers, and restores `$9DBB`. The earlier attack-selection trigger, live Hyper
+  Beam shot/damage producer, phase-three bomb projectile, death sequence after `$AE79`, Baby
+  instruction-list/dust-projectile rendering, and palette/HDMA effects beyond direct CGRAM
+  writes remain explicit seams.
 - `MotherBrainBodyAnimationState` translates the ordinary enemy-instruction stage used by
   Mother Brain's painful fast/medium/slow/really-slow walks in both directions plus
   `$99C6/$99E2/$99F2/$9A26` stand/lean/crouch lists.
@@ -516,9 +521,13 @@ translated status is documented with the Morph Ball family below.
   spawn on 5600/5603/5606/5609, strike on 5618, and enter death on 5703. Six black palettes
   land on 5799..5844, invisibility begins on 5853, bank-$B7 attack rows replace the Baby rows
   on 5982..5985, seven room-light palettes land on 6161..6167, and deletion/Hyper Beam/handoff
-  occurs on 6168. Mother Brain executes recovery on 6169 and reaches `$C209` on 6202. The
-  regression compares the final four `$200` attack transfers against the supplied cartridge
-  and reads every flight/neck/projectile component from its real sine table.
+  occurs on 6168. Mother Brain executes recovery on 6169; `$C1F0` falls through `$C209` on
+  6202 and deterministic RNG `$8EC6` immediately selects four rings. Those rings strike
+  Samus on 6259/6262/6265/6268 after the deleted Baby slot is correctly ignored. Cooldown
+  expires on 6267, RNG `$B475` selects a bomb on 6272, a later `$A5D1` four-ring call requests
+  the forward body list on 6404, and the real animation advances X from `$28` through `$59`
+  by frame 6500. The regression compares the final four `$200` attack transfers against the
+  supplied cartridge and reads every flight/neck/projectile component from its real sine table.
 
 ## Verified aerial-turn and wall-jump slice
 
@@ -763,9 +772,9 @@ translated status is documented with the Morph Ball family below.
 
 ## Next implementation order
 
-1. Continue Mother Brain's phase-three `$C209` combat movement/attacks, then translate the
-   earlier attack-selection trigger that enters `$B8EB` and the Baby death spritemap/dust
-   projectile presentation producers.
+1. Wire live Hyper Beam projectiles into `$B562` recoil/health, translate Mother Brain's
+   phase-three death movement beginning at `$AE79`, then implement the phase-three bomb
+   projectile and earlier attack-selection trigger that enters `$B8EB`.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.
 4. Grapple breakable PLMs and spike-damage side effects.

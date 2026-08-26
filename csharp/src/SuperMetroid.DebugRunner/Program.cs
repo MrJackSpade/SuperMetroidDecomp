@@ -629,6 +629,8 @@ bool issuedDrainedHyperBeamCommand = false;
 int issuedSpaceJumpPulses = 0;
 bool spaceJumpPulseMayBeIssued = true;
 var observedRainbowPhases = new HashSet<MotherBrainRainbowBeamAttackPhase>();
+var observedPhaseThreeAttacks = new HashSet<MotherBrainPhase3AttackKind>();
+bool observedPhaseThreeForwardMovement = false;
 var observedBabyPhases = new HashSet<BabyMetroidCutscenePhase>();
 var observedBabyTileTransfers = new List<MotherBrainSpriteTileTransferRequest>();
 var observedAttackTileTransfers = new List<MotherBrainSpriteTileTransferRequest>();
@@ -644,6 +646,8 @@ bool observedBabyHealingCompletion = false;
 int observedBabyLatchOntoSamusFrame = 0;
 int observedBabyHealSamusFrame = 0;
 int observedBabyHealingCompletionFrame = 0;
+ushort observedBabyHealingCompletionHealth = 0;
+ushort observedBabyHealingCompletionReserveEnergy = 0;
 // Preserve each ROM-record boundary as a fixed-point witness. Merely reaching `$CA66`
 // would not detect a carry bug that happened to converge on the same broad target rectangle.
 var observedBabyRouteFrames = new Dictionary<ushort, int>();
@@ -1199,6 +1203,15 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         }
         observedBabySpawnRequest |= actorResult.BabySpawnRequested;
         observedFinalBeamSound |= actorResult.FinalBeamSoundQueued;
+        if (actorResult.Phase3Attack is { } phaseThreeAttack)
+        {
+            observedPhaseThreeAttacks.Add(phaseThreeAttack);
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: phase-three attack {phaseThreeAttack}; " +
+                $"RNG=${motherBrainRandom:X4}, head=${rainbowAttack.HeadInstructionList:X4}, " +
+                $"walk={rainbowAttack.Phase3WalkingPhase}/" +
+                $"${rainbowAttack.Phase3WalkCounter:X4}.");
+        }
 
         if (actorResult.BabySpawnRequested)
         {
@@ -1218,6 +1231,10 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         }
 
         MotherBrainBodyAnimationStepResult bodyResult = rainbowAttack.Body.Step(bus);
+        observedPhaseThreeForwardMovement |=
+            (actorResult.PhaseBefore is MotherBrainRainbowBeamAttackPhase.Phase3FightingMain or
+                MotherBrainRainbowBeamAttackPhase.Phase3FightingAttackCooldown) &&
+            unchecked((short)(bodyResult.XAfter - bodyResult.XBefore)) > 0;
 
         // Mother Brain's brain is the next occupied enemy slot after her body. Its `$91B8`
         // handler advances the two neck angles before the later cutscene-Baby slot polls the
@@ -1290,6 +1307,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             {
                 observedBabyHealingCompletion = true;
                 observedBabyHealingCompletionFrame = frameIndex + 1;
+                observedBabyHealingCompletionHealth = runtime.Samus.Health;
+                observedBabyHealingCompletionReserveEnergy = runtime.Samus.ReserveEnergy;
             }
             observedBabyPhaseThreeHandoff |= babyResult.PhaseThreeHandoff;
             if (babyResult.PhaseThreeHandoff)
@@ -1404,10 +1423,18 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             layer1X: 0);
         foreach (MotherBrainOnionRingEvent ringEvent in ringResult.Events)
         {
+            string target = ringEvent.Collision switch
+            {
+                MotherBrainOnionRingCollisionKind.BabyMetroid or
+                    MotherBrainOnionRingCollisionKind.DeletedAfterBabyDeath => "Baby",
+                MotherBrainOnionRingCollisionKind.Samus => "Samus",
+                _ => "target",
+            };
             Console.WriteLine(
                 $"frame {frameIndex + 1,4}: onion ring slot {ringEvent.SlotIndex} " +
                 $"{ringEvent.Collision} at ({ringEvent.XPosition},{ringEvent.YPosition}); " +
-                $"Baby HP ${ringEvent.BabyHealthBefore:X4}->${ringEvent.BabyHealthAfter:X4}.");
+                $"{target} HP ${ringEvent.TargetHealthBefore:X4}->" +
+                $"${ringEvent.TargetHealthAfter:X4}.");
         }
 
         // The enemy graphics hook runs after actor processing. Its shake countdown is not a
@@ -2350,16 +2377,16 @@ if (options.MotherBrainRainbowScript)
          !observedBabyHealingCompletion ||
          observedBabyHealingCompletionFrame != 4536 ||
          !observedBabyPhases.Contains(BabyMetroidCutscenePhase.IdleUntilNoHealth) ||
-         runtime.Samus.Health != runtime.Samus.MaxHealth ||
-         runtime.Samus.ReserveEnergy != runtime.Samus.MaxReserveEnergy))
+         observedBabyHealingCompletionHealth != runtime.Samus.MaxHealth ||
+         observedBabyHealingCompletionReserveEnergy != runtime.Samus.MaxReserveEnergy))
     {
         throw new InvalidOperationException(
             $"Baby did not complete the ROM-backed 699-call heal on frame 4536; " +
             $"completion={observedBabyHealingCompletion}/" +
             $"{observedBabyHealingCompletionFrame}, phase=" +
-            $"{cutsceneBaby?.Phase.ToString() ?? "not spawned"}, energy=" +
-            $"{runtime.Samus.Health}/{runtime.Samus.MaxHealth}, reserves=" +
-            $"{runtime.Samus.ReserveEnergy}/{runtime.Samus.MaxReserveEnergy}.");
+            $"{cutsceneBaby?.Phase.ToString() ?? "not spawned"}, completion energy=" +
+            $"{observedBabyHealingCompletionHealth}/{runtime.Samus.MaxHealth}, reserves=" +
+            $"{observedBabyHealingCompletionReserveEnergy}/{runtime.Samus.MaxReserveEnergy}.");
     }
     if (options.FrameCount >= 5703 &&
         (cutsceneBaby is null ||
@@ -2393,11 +2420,29 @@ if (options.MotherBrainRainbowScript)
             $"rainbow={runtime.Samus.Drained.RainbowPaletteEnabled}.");
     }
     if (options.FrameCount >= 6202 &&
-        rainbowAttack.Phase != MotherBrainRainbowBeamAttackPhase.Phase3FightingMain)
+        (!observedRainbowPhases.Contains(
+             MotherBrainRainbowBeamAttackPhase.Phase3FightingAttackCooldown) ||
+         !observedPhaseThreeAttacks.Contains(MotherBrainPhase3AttackKind.FourOnionRings)))
     {
         throw new InvalidOperationException(
-            $"Mother Brain did not finish the ROM-backed phase-three recovery wait on " +
-            $"frame 6202; phase={rainbowAttack.Phase}, timer=${rainbowAttack.FunctionTimer:X4}.");
+            $"Mother Brain did not finish recovery and select the deterministic first " +
+            $"phase-three attack on frame 6202; phase={rainbowAttack.Phase}, attacks=" +
+            $"{string.Join(",", observedPhaseThreeAttacks)}.");
+    }
+    if (options.FrameCount >= 6272 &&
+        !observedPhaseThreeAttacks.Contains(MotherBrainPhase3AttackKind.Bomb))
+    {
+        throw new InvalidOperationException(
+            $"Mother Brain did not select the deterministic phase-three bomb at the " +
+            $"post-cooldown RNG boundary; phase={rainbowAttack.Phase}, attacks=" +
+            $"{string.Join(",", observedPhaseThreeAttacks)}.");
+    }
+    if (options.FrameCount >= 6500 && !observedPhaseThreeForwardMovement)
+    {
+        throw new InvalidOperationException(
+            $"Mother Brain's phase-three walking scheduler never produced positive body " +
+            $"movement; body X={rainbowAttack.Body.XPosition}, walk=" +
+            $"{rainbowAttack.Phase3WalkingPhase}/${rainbowAttack.Phase3WalkCounter:X4}.");
     }
     if (options.FrameCount >= 1450)
     {
@@ -2451,7 +2496,9 @@ if (options.MotherBrainRainbowScript)
         $"{runtime.Samus.PowerBombs}, Baby DMA/spawn=" +
         $"{observedBabyTileTransfers.Count}/{observedBabySpawnRequest}, Baby AI=" +
         $"{cutsceneBaby?.Phase.ToString() ?? "not spawned"}/" +
-        $"({cutsceneBaby?.XPosition:X4},{cutsceneBaby?.YPosition:X4}).");
+        $"({cutsceneBaby?.XPosition:X4},{cutsceneBaby?.YPosition:X4}), phase-three attacks=" +
+        $"{string.Join("/", observedPhaseThreeAttacks)}, forward=" +
+        $"{observedPhaseThreeForwardMovement}.");
 }
 
 if (options.DrainedSamusScript)

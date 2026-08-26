@@ -12,7 +12,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | Type | Native family | Current C# admission | Remaining native branches |
 |---:|---|---|---|
 | `$00` | Standing | `$01-$08`, landing `$A4-$A7/$E0-$E5` | Firing variants, forward pose, transitions from later systems |
-| `$01` | Running | `$09/$0A/$0D-$12`, dry air, ordinary Dash/B acceleration and 2.0000 extra-speed cap | Equipped Speed Booster staging/echoes, liquid/environment effects, gun-extended/fire variants |
+| `$01` | Running | `$09/$0A/$0D-$12`, dry air, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages and 7.0000 cap | Speed-echo drawing/palette copy, liquid/environment effects, gun-extended/fire variants |
 | `$02` | Normal jumping | `$4B-$4E/$15-$18/$51-$52/$55-$5A/$69-$6C`, including compact straight-down collision changes, dry air, variable height, ceiling/floor collision | Equipment/liquids, external displacement |
 | `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation, block-wall contact/launch | Solid-enemy wall contact, space/screw spin poses, liquids |
 | `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, dry ground, slopes, reversal, deceleration, walk-off, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
@@ -81,11 +81,28 @@ translated status is documented with the Morph Ball family below.
 - `$90:852C-$8568` selects the shared running-delay list through live ROM pointer `$91:B5D1`.
   Its command interception resets frame zero with that ROM-authored delay while B is held;
   the viewer's **Hold Run** control therefore affects both motion and animation.
-- Equipped bit `$2000` remains an explicit boundary at its staged counter, palette, echo,
-  and alternate-animation branches; ordinary Dash does not masquerade as Speed Booster.
 - Synthetic verification locks 32 exact additions, cap/retention/cancel behavior, shared
   animation selection, and command reset. Real-ROM `--run-script` observes
   `$01 -> $09 -> $19 -> $A6 -> $09 -> $01`, reaches 2.0000, and carries it through type three.
+
+## Verified equipped-Speed-Booster slice
+
+- `$90:973E` initializes `$0B3E` through live ROM table `$91:B61F`, retains the palette
+  frame/timer words, adds hexadecimal 0.1000 per running+Dash frame, and uses the native
+  signed-word comparisons to clamp at exactly 7.0000.
+- `$90:852C` decrements only at running animation command boundaries. Its low-byte-zero
+  test advances stages zero through four, reloads the countdown through `$91:B61F`, and
+  selects each alternate delay list through `$91:B5DE`; stage four publishes the echo-sound
+  flag and contact-damage index instead of approximating either from host elapsed time.
+- Equipped jumps and wall jumps add the extra-run fractional word directly to Y subspeed
+  and half the whole word to Y speed. The two 16-bit additions remain independent, including
+  the cartridge's deliberately observable lack of fractional carry.
+- Synthetic verification uses distinct countdowns/delay lists for all five stages and locks
+  cap, palette state, stage-four events, and jump arithmetic. Real-ROM
+  `--speed-booster-script` reaches stage four, echo/contact state, 7.0000, and a boosted
+  `$09 -> $19` launch with initial vertical speed 7.C400.
+- Suit-palette copying, rendered trailing echoes, stored shine/crouch release, shinespark,
+  and the Landing Site type-`$F` door dispatcher remain explicit follow-up boundaries.
 
 ## Verified crouch/stand slice
 
@@ -482,7 +499,7 @@ translated status is documented with the Morph Ball family below.
 ## Next implementation order
 
 1. Grapple breakable PLMs, spike damage, and liquid/solid-enemy wall-jump branches.
-2. Equipped Speed Booster/shinespark, crystal flash/drained, and remaining scripted movement.
+2. Speed Booster palette/echo rendering, stored shine/shinespark, crystal flash/drained, and remaining scripted movement.
 3. Space-jump/Screw-Attack spin families, liquids, and solid-enemy collision routes.
 4. Enemy collision/damage producers so knockback and grapple begin from live actors instead of host seams.
 5. Return with bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.

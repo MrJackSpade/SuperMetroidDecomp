@@ -886,12 +886,68 @@ static void VerifySamusHorizontalSpeed()
     AssertEqual((ushort)0, dashAnimation.AnimationFrame, "Dash command interception restarts frame zero");
     AssertEqual((ushort)2, dashAnimation.AnimationFrameTimer, "Dash restart uses shared frame-zero delay");
 
-    AssertThrows<NotSupportedException>(
-        () => new SamusHorizontalSpeedState().HandleExtraRunSpeed(
+    // `$91:B61F` supplies each stage's command-loop countdown, while `$91:B5DE` supplies
+    // the corresponding animation stream. Distinct synthetic values prove both lookups
+    // remain ROM-backed and that stage four publishes the echo/contact-damage events.
+    for (int stage = 0; stage <= 4; stage++)
+    {
+        WriteTestWord(bus, 0x91b61f + stage * 2, (ushort)(stage == 0 ? 3 : 2));
+        WriteTestWord(bus, 0x91b5de + stage * 2, (ushort)(0xc200 + stage * 0x10));
+        bus.WriteBytes(0x91c200 + stage * 0x10, [(byte)(3 + stage), 0xff]);
+    }
+
+    var booster = new SamusHorizontalSpeedState();
+    booster.HandleExtraRunSpeed(
+        movementType: 1,
+        controllerInput: (ushort)SnesButton.B,
+        speedBoosterEquipped: true,
+        bus);
+    AssertTrue(booster.HasRunningMomentum, "Speed Booster establishes momentum");
+    AssertEqual((ushort)3, booster.SpeedBoostCounter, "Speed Booster seeds stage-zero countdown from ROM");
+    AssertEqual((ushort)1, booster.SpecialPaletteTimer, "Speed Booster seeds special-palette timer");
+
+    // Hexadecimal `.1000` is one sixteenth, so 112 movement calls reach 7.0000 exactly.
+    for (int frame = 1; frame < 112; frame++)
+    {
+        booster.HandleExtraRunSpeed(
             movementType: 1,
             controllerInput: (ushort)SnesButton.B,
-            speedBoosterEquipped: true),
-        "equipped Speed Booster cannot enter unported staged branch");
+            speedBoosterEquipped: true,
+            bus);
+    }
+    AssertEqual((ushort)7, booster.ExtraRunSpeed, "Speed Booster reaches exact 7.0000 cap");
+    AssertEqual((ushort)0, booster.ExtraRunSubspeed, "Speed Booster cap has zero fraction");
+
+    ushort boostFrame = 1;
+    for (int command = 0; command < 9; command++)
+    {
+        bool intercepted = booster.TryAdvanceSpeedBoosterAnimationStage(
+            bus,
+            movementType: 1,
+            controllerInput: (ushort)SnesButton.B,
+            animationFrameBuffer: 0,
+            ref boostFrame,
+            out ushort boostTimer);
+        if (command == 2)
+        {
+            AssertTrue(intercepted, "third stage-zero command advances Speed Booster");
+            AssertEqual((ushort)0, boostFrame, "Speed Booster stage change restarts animation");
+            AssertEqual((ushort)4, boostTimer, "stage-one delay comes from ROM-selected stream");
+        }
+    }
+    AssertEqual((ushort)0x0402, booster.SpeedBoostCounter, "Speed Booster reaches stage four countdown");
+    AssertTrue(booster.EchoSoundRequested, "stage four publishes speed-echo sound event");
+    AssertEqual((ushort)1, booster.ContactDamageIndex, "stage four enables contact damage");
+
+    var boostedJump = new SamusState { EquippedItems = 0x2000 };
+    boostedJump.Kinematics.YSpeed = 4;
+    boostedJump.Kinematics.YSubspeed = 0xe000;
+    boostedJump.HorizontalSpeed.ExtraRunSpeed = 3;
+    boostedJump.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
+    SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(boostedJump);
+    AssertEqual((ushort)5, boostedJump.Kinematics.YSpeed, "boosted jump adds half whole extra speed");
+    AssertEqual((ushort)0x2000, boostedJump.Kinematics.YSubspeed,
+        "boosted jump wraps fractional addition without carrying");
 
     // $90:E4E6 caps a nonsensically large divisor at four. Extra run speed is added before
     // that shift; 2.0 + 2.0 therefore becomes 0.4000 when divisor $1234 is stored.

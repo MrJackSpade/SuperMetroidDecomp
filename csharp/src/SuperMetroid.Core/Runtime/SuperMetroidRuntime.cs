@@ -646,6 +646,11 @@ public sealed class SuperMetroidRuntime
         bool escapeTimerExpired = EscapeTimer.Process(NmiFrameCounter);
         if (Samus is not null && Camera is not null)
         {
+            // `$90:E725` clears contact-damage index before dispatching beta movement.
+            // Speed Booster stage four (or later spin/shinespark families) must republish
+            // its value on every applicable frame; stale contact damage cannot leak onward.
+            Samus.HorizontalSpeed.ContactDamageIndex = 0;
+
             // MainScrollingRoutine compares the post-movement position with the previous
             // frame's stored 16.16 words. Capture them before frame-handler movement mutates
             // Samus, then feed both samples to the translated bank-$90 routines below.

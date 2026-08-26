@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Game;
 /// <remarks>
 /// This is deliberately not a generic platformer controller. The entry points below
 /// correspond only to movement types zero, one, $0E, $10, and $15, with no liquid, enemy collision,
-/// conveyor displacement, knockback, or equipped-Speed-Booster staging. Ordinary dry-air
-/// Dash acceleration without the Speed Booster is translated. Each
+/// conveyor displacement, or knockback. Ordinary Dash and equipped-Speed-Booster dry-air
+/// accumulation/staging are translated; palette/echo rendering lives outside movement. Each
 /// omitted system has observable native state and must be ported before its branch is
 /// enabled; none is silently replaced with desktop physics.
 /// </remarks>
@@ -141,7 +141,8 @@ public static class SamusGroundedMovement
         speed.HandleExtraRunSpeed(
             movementType: 1,
             controllerInput,
-            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0);
+            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
+            bus);
 
         // $90:8E64 -> $90:9A7E advances the split 16.16 base speed, then $90:8EA9 and
         // $90:E4AD publish total speed and construct a rightward displacement. Pose $09's
@@ -199,7 +200,8 @@ public static class SamusGroundedMovement
         speed.HandleExtraRunSpeed(
             movementType: 1,
             controllerInput,
-            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0);
+            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
+            bus);
 
         // Modes zero and two use the pose's normal direction in $90:8EA9. Pose $0A stores
         // $04, selecting $90:E464's subtraction-based left displacement. Mode one belongs

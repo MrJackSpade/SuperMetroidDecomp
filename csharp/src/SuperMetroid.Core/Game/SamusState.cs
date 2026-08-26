@@ -1756,6 +1756,7 @@ public sealed class SamusState
         bool hiJumpEquipped = (EquippedItems & 0x0100) != 0;
         Kinematics.YSpeed = ReadWord(bus, hiJumpEquipped ? 0x909edd : 0x909ed1);
         Kinematics.YSubspeed = ReadWord(bus, hiJumpEquipped ? 0x909ee3 : 0x909ed7);
+        SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(this);
         Kinematics.YDirection = 1;
         InitializeAnimation(bus, initialFrame: 0);
     }
@@ -1795,6 +1796,7 @@ public sealed class SamusState
         bool hiJumpEquipped = (EquippedItems & 0x0100) != 0;
         Kinematics.YSpeed = ReadWord(bus, hiJumpEquipped ? 0x909edd : 0x909ed1);
         Kinematics.YSubspeed = ReadWord(bus, hiJumpEquipped ? 0x909ee3 : 0x909ed7);
+        SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(this);
         Kinematics.YDirection = 1;
         InitializeAnimation(bus, initialFrame: 0);
     }
@@ -2860,7 +2862,9 @@ public sealed class SamusState
             // Notice that this branch does NOT test the Dash button: releasing B retains
             // the default running cadence until a transition/collision cancels momentum.
             byte runningOrPoseDelay = HorizontalSpeed.HasRunningMomentum && ReadMovementType(bus) == 1
-                ? ReadDefaultRunningAnimationByte(bus, AnimationFrame)
+                ? (EquippedItems & 0x2000) != 0
+                    ? HorizontalSpeed.ReadSpeedBoosterAnimationByte(bus, AnimationFrame)
+                    : ReadDefaultRunningAnimationByte(bus, AnimationFrame)
                 : delayOrCommand;
             AnimationFrameTimer = unchecked((ushort)(AnimationFrameBuffer + runningOrPoseDelay));
             return;
@@ -2877,15 +2881,32 @@ public sealed class SamusState
             // command number zero, whose handler does no further timer selection.
             if ((EquippedItems & 0x2000) != 0)
             {
-                throw new NotSupportedException(
-                    "Equipped Speed Booster animation requires the staged $90:852C delay-sequence and counter branch.");
-            }
+                ushort stagedFrame = AnimationFrame;
+                if (HorizontalSpeed.TryAdvanceSpeedBoosterAnimationStage(
+                    bus,
+                    movementType: 1,
+                    controllerInput,
+                    AnimationFrameBuffer,
+                    ref stagedFrame,
+                    out ushort stagedTimer))
+                {
+                    AnimationFrame = stagedFrame;
+                    AnimationFrameTimer = stagedTimer;
+                    LastAnimationDelayCommand = delayOrCommand;
+                    return;
+                }
 
-            AnimationFrame = 0;
-            LastAnimationDelayCommand = delayOrCommand;
-            AnimationFrameTimer = unchecked((ushort)(
-                AnimationFrameBuffer + ReadDefaultRunningAnimationByte(bus, byteIndex: 0)));
-            return;
+                // A nonzero low counter byte makes `$90:852C` return the original command,
+                // so normal `$FE/$FF/...` dispatch below proceeds against the pose stream.
+            }
+            else
+            {
+                AnimationFrame = 0;
+                LastAnimationDelayCommand = delayOrCommand;
+                AnimationFrameTimer = unchecked((ushort)(
+                    AnimationFrameBuffer + ReadDefaultRunningAnimationByte(bus, byteIndex: 0)));
+                return;
+            }
         }
 
         LastAnimationDelayCommand = delayOrCommand;

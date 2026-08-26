@@ -11,9 +11,9 @@ namespace SuperMetroid.Core.Game;
 /// <remarks>
 /// This deliberately retains the cartridge's split 16.16 magnitudes and separate vertical
 /// direction word. It does not use floating point, host elapsed time, or a guessed gravity
-/// curve. Enemy collision, liquid physics, equipped-Speed-Booster staging, and external
-/// displacement remain explicit boundaries. Ordinary Dash momentum is retained through
-/// dry-air jumps. Wall-jump BLOCK collision and dry equipment launch tables are
+/// curve. Enemy collision, liquid physics, and external displacement remain explicit
+/// boundaries. Ordinary Dash and equipped Speed Booster momentum are retained through
+/// dry-air jumps, including the equipped vertical bonus. Wall-jump BLOCK collision and dry equipment launch tables are
 /// translated; solid-enemy wall jumps are not silently treated as blocks.
 /// </remarks>
 public static class SamusAerialMovement
@@ -24,7 +24,7 @@ public static class SamusAerialMovement
     private const int YAccelerationInAirAddress = 0x909ea7;
 
     /// <summary>
-    /// Ports the dry-air, no-hi-jump, no-speed-booster path through
+    /// Ports the dry-air, no-hi-jump path through
     /// <c>Make_Samus_Jump</c> at <c>$90:98BC</c> and the normal-air branch of
     /// <c>Determine_Samus_YAcceleration</c> at <c>$90:9C5B</c>.
     /// </summary>
@@ -37,8 +37,27 @@ public static class SamusAerialMovement
         // embedding 4.E000 and 0.2800, keeps regional timing and ROM provenance visible.
         samus.Kinematics.YSpeed = ReadWord(bus, InitialYSpeedJumpingAddress);
         samus.Kinematics.YSubspeed = ReadWord(bus, InitialYSubspeedJumpingAddress);
+        ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureDryAirGravity(bus, samus);
         samus.Kinematics.YDirection = 1;
+    }
+
+    /// <summary>
+    /// Applies `$90:9905-$991F` / `$90:9992-$99AC`: when Speed Booster is equipped, the
+    /// fractional extra-X word is added directly to Y subspeed and half the whole extra-X
+    /// word is added to Y speed. These are independent 16-bit additions; the fractional
+    /// overflow deliberately does not carry into the whole word.
+    /// </summary>
+    public static void ApplyEquippedSpeedBoosterJumpBonus(SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        if ((samus.EquippedItems & 0x2000) == 0)
+            return;
+
+        samus.Kinematics.YSubspeed = unchecked((ushort)(
+            samus.Kinematics.YSubspeed + samus.HorizontalSpeed.ExtraRunSubspeed));
+        samus.Kinematics.YSpeed = unchecked((ushort)(
+            samus.Kinematics.YSpeed + (samus.HorizontalSpeed.ExtraRunSpeed >> 1)));
     }
 
     /// <summary>
@@ -71,7 +90,8 @@ public static class SamusAerialMovement
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 2,
             controllerInput,
-            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0);
+            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
+            bus);
 
         // Poses `$4B/$4C/$55-$5A` are genuine movement-type-2 poses, but native treats them as
         // a transition: base X speed is forced to zero, only external X/Y displacement is
@@ -125,7 +145,8 @@ public static class SamusAerialMovement
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 3,
             controllerInput,
-            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0);
+            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
+            bus);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -215,7 +236,8 @@ public static class SamusAerialMovement
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 0x14,
             controllerInput,
-            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0);
+            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
+            bus);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
         BlockMoveResult horizontal = MoveNormalAerialX(
             bus,
@@ -249,7 +271,8 @@ public static class SamusAerialMovement
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 0x19,
             controllerInput,
-            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0);
+            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
+            bus);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
         BlockMoveResult horizontal = MoveNormalAerialX(
             bus,
@@ -339,7 +362,8 @@ public static class SamusAerialMovement
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 6,
             controllerInput,
-            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0);
+            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
+            bus);
 
         BlockMoveResult horizontal = MoveNormalAerialX(
             bus,

@@ -35,6 +35,7 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton holdAimDownButton = new("Hold Aim Down");
     private readonly ToolStripButton moonwalkButton = new("Moonwalk enabled");
     private readonly ToolStripButton springBallButton = new("Spring Ball equipped");
+    private readonly ToolStripButton speedBoosterButton = new("Speed Booster equipped");
     private readonly ToolStripButton livePpuLayersButton = new("Live PPU layers");
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 16 };
     private SuperMetroidRuntime runtime = null!;
@@ -85,7 +86,7 @@ internal sealed class RuntimePreviewControl : UserControl
             "Feeds canonical jump bit $0080. Tap it for a short jump or leave it held for the native variable-height arc.";
         holdRunButton.CheckOnClick = true;
         holdRunButton.ToolTipText =
-            "Feeds canonical Dash/B bit $8000. Hold it with a direction to accumulate the ROM's ordinary 0.1000-per-frame run component.";
+            "Feeds canonical Dash/B bit $8000. Hold with a direction for ROM-authored Dash; Speed Booster changes its cap and animation stages.";
         holdShootButton.CheckOnClick = true;
         holdShootButton.ToolTipText =
             "Feeds canonical Shoot/X bit $0040. Click on for a fresh bomb-placement edge, then off before placing another.";
@@ -122,6 +123,26 @@ internal sealed class RuntimePreviewControl : UserControl
                 runtime.Samus.EquippedItems |= 0x0002;
             else
                 runtime.Samus.EquippedItems &= unchecked((ushort)~0x0002);
+        };
+        speedBoosterButton.CheckOnClick = true;
+        speedBoosterButton.ToolTipText =
+            "Toggles item bit $2000. Hold Run plus a direction to step the five ROM-authored boost stages and 7.0000 cap.";
+        speedBoosterButton.CheckedChanged += (_, _) =>
+        {
+            // Equipment-menu processing is not present yet, so expose the one retail item
+            // bit directly. Turning it off cancels staged state immediately; native pause
+            // equipment code performs equivalent normalization before gameplay resumes.
+            if (runtime?.Samus is null || !groundedRunScenario)
+                return;
+            if (speedBoosterButton.Checked)
+            {
+                runtime.Samus.EquippedItems |= 0x2000;
+            }
+            else
+            {
+                runtime.Samus.EquippedItems &= unchecked((ushort)~0x2000);
+                runtime.Samus.HorizontalSpeed.CancelRunningMomentum();
+            }
         };
 
         // The SNES can electrically report both direction bits, but an ordinary D-pad
@@ -186,6 +207,7 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(holdAimDownButton);
         toolStrip.Items.Add(moonwalkButton);
         toolStrip.Items.Add(springBallButton);
+        toolStrip.Items.Add(speedBoosterButton);
         toolStrip.Items.Add(livePpuLayersButton);
         toolStrip.Items.Add(new ToolStripSeparator());
         toolStrip.Items.Add(cameraLeftButton);
@@ -258,6 +280,8 @@ internal sealed class RuntimePreviewControl : UserControl
             runtime.Samus!.EquippedItems |= 0x1004;
             if (springBallButton.Checked)
                 runtime.Samus.EquippedItems |= 0x0002;
+            if (speedBoosterButton.Checked)
+                runtime.Samus.EquippedItems |= 0x2000;
         }
         runtime.InitializeLandingSiteViewport();
         runtime.LoadUpperCrateriaBackgroundPalette();

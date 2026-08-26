@@ -40,11 +40,25 @@ public sealed class SamusHorizontalSpeedState
     public bool HasRunningMomentum { get; set; }
 
     /// <summary>
-    /// Native speed-booster timing word. The no-Speed-Booster dash path keeps it zero; it
-    /// is modeled now because `$90:973E` explicitly writes WRAM <c>$0B3E</c> when momentum
-    /// begins.
+    /// Native speed-booster timing word. The high byte is stage zero through four and the
+    /// low byte is a ROM-authored animation-loop countdown. No-Speed-Booster Dash keeps it zero.
     /// </summary>
     public ushort SpeedBoostCounter { get; set; }
+
+    /// <summary>WRAM <c>$0ACE</c>, reset when Speed Booster momentum begins/cancels.</summary>
+    public ushort SpecialPaletteFrame { get; set; }
+
+    /// <summary>WRAM <c>$0AD0</c>, seeded to one on the first boosted running frame.</summary>
+    public ushort SpecialPaletteTimer { get; set; }
+
+    /// <summary>
+    /// One-shot event set when `$90:852C` enters stage four. Audio can consume this flag
+    /// later without making the movement translation depend on a host sound backend.
+    /// </summary>
+    public bool EchoSoundRequested { get; set; }
+
+    /// <summary>Contact-damage selector published when the counter reaches stage four.</summary>
+    public ushort ContactDamageIndex { get; set; }
 
     /// <summary>Whole part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0B48</c>.</summary>
     public ushort TotalSpeed { get; private set; }
@@ -85,13 +99,15 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Ports the dry-air portion of <c>Handle_Samus_XExtraRunSpeed</c> at <c>$90:973E</c>.
-    /// The ordinary no-Speed-Booster route accelerates by <c>0.1000</c> and caps at
-    /// <c>2.0000</c>; its momentum flag deliberately survives Dash release and jumps.
+    /// Both routes accelerate by hexadecimal <c>0.1000</c>. Ordinary Dash caps at
+    /// <c>2.0000</c>; equipped Speed Booster caps at <c>7.0000</c> and initializes its
+    /// counter through `$91:B61F`. Their shared momentum flag survives release and jumps.
     /// </summary>
     public void HandleExtraRunSpeed(
         byte movementType,
         ushort controllerInput,
-        bool speedBoosterEquipped)
+        bool speedBoosterEquipped,
+        ISnesAddressSpace? bus = null)
     {
         const ushort dashButton = 0x8000; // Retail default B/Dash binding.
         bool activelyDashing = movementType == 1 && (controllerInput & dashButton) != 0;
@@ -109,8 +125,30 @@ public sealed class SamusHorizontalSpeedState
 
         if (speedBoosterEquipped)
         {
-            throw new NotSupportedException(
-                "Equipped Speed Booster requires the staged counter, palette, animation-delay, and echo branches at $90:852C/$90:973E.");
+            ArgumentNullException.ThrowIfNull(bus);
+            if (!HasRunningMomentum)
+            {
+                // `$90:976C-$9780` initializes the counter's low byte from the live ROM
+                // table. Palette writes themselves remain renderer work, but their native
+                // frame/timer state is movement-visible and therefore retained here.
+                HasRunningMomentum = true;
+                SpecialPaletteTimer = 1;
+                SpecialPaletteFrame = 0;
+                SpeedBoostCounter = ReadWord(bus, 0x91b61f);
+            }
+
+            if (unchecked((short)(ExtraRunSpeed - 7)) >= 0 &&
+                unchecked((short)ExtraRunSubspeed) >= 0)
+            {
+                ExtraRunSpeed = 7;
+                ExtraRunSubspeed = 0;
+                PublishBoostContactDamage();
+                return;
+            }
+
+            AddExtraRunAcceleration();
+            PublishBoostContactDamage();
+            return;
         }
 
         if (!HasRunningMomentum)
@@ -131,9 +169,76 @@ public sealed class SamusHorizontalSpeedState
             return;
         }
 
+        AddExtraRunAcceleration();
+    }
+
+    /// <summary>
+    /// Executes the equipped-Speed-Booster interception at `$90:852C-$856B` when running
+    /// reaches an animation command. True means the command was consumed and frame zero
+    /// was restarted from the ROM-authored delay list for the new boost stage.
+    /// </summary>
+    public bool TryAdvanceSpeedBoosterAnimationStage(
+        ISnesAddressSpace bus,
+        byte movementType,
+        ushort controllerInput,
+        ushort animationFrameBuffer,
+        ref ushort animationFrame,
+        out ushort animationFrameTimer)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        animationFrameTimer = 0;
+        const ushort dashButton = 0x8000;
+        if (!HasRunningMomentum || movementType != 1 || (controllerInput & dashButton) == 0)
+            return false;
+
+        // DEC is 16-bit, but native then changes A to eight-bit before BNE. A stage advances
+        // only when the decremented low byte is zero; the high byte remains the stage index.
+        SpeedBoostCounter = unchecked((ushort)(SpeedBoostCounter - 1));
+        if ((byte)SpeedBoostCounter != 0)
+            return false;
+
+        ushort stagedCounter = SpeedBoostCounter;
+        if ((stagedCounter & 0x0400) == 0)
+        {
+            stagedCounter = unchecked((ushort)(stagedCounter + 0x0100));
+            SpeedBoostCounter = stagedCounter;
+            if ((stagedCounter & 0x0400) != 0)
+                EchoSoundRequested = true;
+        }
+
+        byte stage = unchecked((byte)(stagedCounter >> 8));
+        ushort nextLowByte = ReadWord(bus, 0x91b61f + stage * 2);
+        SpeedBoostCounter = unchecked((ushort)((SpeedBoostCounter & 0xff00) | nextLowByte));
+
+        ushort delayList = ReadWord(bus, 0x91b5de + stage * 2);
+        animationFrame = 0;
+        animationFrameTimer = unchecked((ushort)(
+            animationFrameBuffer + bus.ReadByte(0x910000 | delayList)));
+        PublishBoostContactDamage();
+        return true;
+    }
+
+    /// <summary>Reads one byte from the delay list selected by the counter's stage byte.</summary>
+    public byte ReadSpeedBoosterAnimationByte(ISnesAddressSpace bus, ushort byteIndex)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        byte stage = unchecked((byte)(SpeedBoostCounter >> 8));
+        ushort delayList = ReadWord(bus, 0x91b5de + stage * 2);
+        int address = 0x910000 | unchecked((ushort)(delayList + byteIndex));
+        return bus.ReadByte(address);
+    }
+
+    private void AddExtraRunAcceleration()
+    {
         uint accelerated = unchecked(Compose(ExtraRunSpeed, ExtraRunSubspeed) + 0x00001000u);
         ExtraRunSpeed = unchecked((ushort)(accelerated >> 16));
         ExtraRunSubspeed = unchecked((ushort)accelerated);
+    }
+
+    private void PublishBoostContactDamage()
+    {
+        if ((SpeedBoostCounter & 0xff00) == 0x0400)
+            ContactDamageIndex = 1;
     }
 
     /// <summary>
@@ -142,8 +247,13 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public void CancelRunningMomentum()
     {
-        HasRunningMomentum = false;
-        SpeedBoostCounter = 0;
+        if (HasRunningMomentum)
+        {
+            HasRunningMomentum = false;
+            SpeedBoostCounter = 0;
+            SpecialPaletteFrame = 0;
+            SpecialPaletteTimer = 0;
+        }
     }
 
     /// <summary>

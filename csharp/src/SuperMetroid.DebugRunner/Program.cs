@@ -32,6 +32,11 @@ else if (options.RanIntoWallScript)
     Console.WriteLine(
         "Input script: press into a ROM-authored solid wall, change wall-stop aim up/down, release to neutral, then jump away through $4B.");
 }
+else if (options.SpeedBoosterScript)
+{
+    Console.WriteLine(
+        "Input script: equip Speed Booster, hold Right+Dash through ROM-authored acceleration stages, then jump with the accumulated boost bonus.");
+}
 else if (options.RunScript)
 {
     Console.WriteLine(
@@ -172,6 +177,15 @@ if (options.GroundedRun)
         groundedPlacement = runtime.InitializeDebugGroundedSamus();
     }
 }
+
+if (options.SpeedBoosterScript)
+{
+    // The ordinary debug placement reaches Landing Site's right-side type-$F door before
+    // 112 hexadecimal `.1000` additions can reach 7.0000. Move only this diagnostic route
+    // 256 pixels left along the same ROM-authored floor; collision and all subsequent
+    // motion remain native-data driven, while the separate type-$F dispatcher stays honest.
+    runtime.Samus!.XPosition = unchecked((ushort)(runtime.Samus.XPosition - 256));
+}
 InitialViewportResult initialViewport = runtime.InitializeLandingSiteViewport();
 
 // The cutscene door does not define a normal-gameplay Samus spawn. In the default scenario,
@@ -193,6 +207,12 @@ else if (options.SpringBallScript)
     // As with ordinary Morph Ball, inventory is explicit debugger stimulus. Grant both
     // Morph Ball `$0004` and Spring Ball `$0002`; F9 must choose its equipped operands.
     runtime.Samus!.EquippedItems |= 0x0006;
+}
+else if (options.SpeedBoosterScript)
+{
+    // The debug spawn has no save inventory. Grant only retail Speed Booster bit `$2000`;
+    // every counter, delay list, velocity, transition, and collision remains ROM-driven.
+    runtime.Samus!.EquippedItems |= 0x2000;
 }
 
 if (options.GrappleFireScript)
@@ -425,6 +445,9 @@ bool observedBlockedRanIntoWallProbe = false;
 bool observedDashMomentum = false;
 bool observedDashAerialCarry = false;
 uint maximumObservedExtraRunSpeed = 0;
+byte maximumObservedSpeedBoostStage = 0;
+bool observedSpeedBoostEcho = false;
+bool observedSpeedBoostContactDamage = false;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
@@ -503,6 +526,15 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             // A fresh Jump edge then takes the literal wall table's `$89 -> $4B` route;
             // command `$FF` completes the normal `$4B -> $4D` jump handoff.
             >= 42 and < 52 => (ushort)SnesButton.A,
+            _ => (ushort)0,
+        }
+        : options.SpeedBoosterScript
+        ? frameIndex switch
+        {
+            0 => (ushort)SnesButton.Start,
+            >= 2 and < 118 => (ushort)(SnesButton.Right | SnesButton.B),
+            >= 118 and < 138 => (ushort)(SnesButton.Right | SnesButton.B | SnesButton.A),
+            >= 138 and < 166 => (ushort)SnesButton.Right,
             _ => (ushort)0,
         }
         : options.RunScript
@@ -837,6 +869,11 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         ((uint)runtime.Samus.HorizontalSpeed.ExtraRunSpeed << 16) |
         runtime.Samus.HorizontalSpeed.ExtraRunSubspeed;
     maximumObservedExtraRunSpeed = Math.Max(maximumObservedExtraRunSpeed, currentExtraRunSpeed);
+    maximumObservedSpeedBoostStage = Math.Max(
+        maximumObservedSpeedBoostStage,
+        unchecked((byte)(runtime.Samus.HorizontalSpeed.SpeedBoostCounter >> 8)));
+    observedSpeedBoostEcho |= runtime.Samus.HorizontalSpeed.EchoSoundRequested;
+    observedSpeedBoostContactDamage |= runtime.Samus.HorizontalSpeed.ContactDamageIndex == 1;
     observedDashMomentum |= runtime.Samus.HorizontalSpeed.HasRunningMomentum;
     observedDashAerialCarry |= runtime.Samus.HorizontalSpeed.HasRunningMomentum &&
         currentExtraRunSpeed != 0 &&
@@ -1343,6 +1380,30 @@ if (options.RunScript)
         $"{maximumObservedExtraRunSpeed & 0xffff:X4}, shared running animation timing, and spin-jump carry.");
 }
 
+if (options.SpeedBoosterScript)
+{
+    if (!observedSamusPoses.Contains(SamusState.MovingRightNormalPose) || !observedDashMomentum)
+        throw new InvalidOperationException("Speed Booster ROM script never established running momentum.");
+    if (maximumObservedSpeedBoostStage == 0 && options.FrameCount >= 30)
+        throw new InvalidOperationException("Speed Booster ROM script never loaded a staged counter.");
+    if (options.FrameCount >= 103 &&
+        (!observedSpeedBoostEcho || !observedSpeedBoostContactDamage || maximumObservedSpeedBoostStage != 4))
+    {
+        throw new InvalidOperationException(
+            $"Speed Booster ROM script expected stage four with echo/contact; observed stage {maximumObservedSpeedBoostStage}, " +
+            $"echo={observedSpeedBoostEcho}, contact={observedSpeedBoostContactDamage}.");
+    }
+    if (options.FrameCount >= 116 && maximumObservedExtraRunSpeed != 0x00070000u)
+    {
+        throw new InvalidOperationException(
+            $"Speed Booster ROM script expected the 7.0000 cap, observed ${maximumObservedExtraRunSpeed:X8}.");
+    }
+    Console.WriteLine(
+        $"Speed Booster ROM route observed maximum extra speed ${maximumObservedExtraRunSpeed >> 16:X4}." +
+        $"{maximumObservedExtraRunSpeed & 0xffff:X4}, stage {maximumObservedSpeedBoostStage}, " +
+        $"echo={observedSpeedBoostEcho}, contact={observedSpeedBoostContactDamage}.");
+}
+
 if (options.GrappleScript)
 {
     if (!observedGrappleSwing)
@@ -1544,6 +1605,7 @@ readonly record struct DebugRunnerOptions(
     bool MoonwalkScript,
     bool RanIntoWallScript,
     bool RunScript,
+    bool SpeedBoosterScript,
     bool JumpScript,
     bool PostureScript,
     bool AimScript,
@@ -1574,6 +1636,7 @@ readonly record struct DebugRunnerOptions(
         bool moonwalkScript = false;
         bool ranIntoWallScript = false;
         bool runScript = false;
+        bool speedBoosterScript = false;
         bool jumpScript = false;
         bool postureScript = false;
         bool aimScript = false;
@@ -1642,6 +1705,11 @@ readonly record struct DebugRunnerOptions(
 
                 case "--run-script":
                     runScript = true;
+                    groundedRun = true;
+                    break;
+
+                case "--speed-booster-script":
+                    speedBoosterScript = true;
                     groundedRun = true;
                     break;
 
@@ -1768,6 +1836,7 @@ readonly record struct DebugRunnerOptions(
             moonwalkScript,
             ranIntoWallScript,
             runScript,
+            speedBoosterScript,
             jumpScript,
             postureScript,
             aimScript,

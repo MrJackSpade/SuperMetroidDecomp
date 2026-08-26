@@ -25,6 +25,21 @@ public sealed class SamusDrainedState
     public bool HyperBeamPaletteFxRequested { get; private set; }
 
     /// <summary>
+    /// Host-readable form of super-special-palette flag `$8000`, written by Samus command
+    /// `$16` and cleared by command `$17` during the Baby Metroid death sequence.
+    /// </summary>
+    public bool RainbowPaletteEnabled { get; private set; }
+
+    /// <summary>Global special-Samus-palette frame used by the cutscene rainbow cycle.</summary>
+    public ushort SpecialPaletteFrame { get; private set; }
+
+    /// <summary>Common palette timer initialized to one by command `$16`.</summary>
+    public ushort CommonPaletteTimer { get; private set; }
+
+    /// <summary>Charge-palette index cleared by both rainbow commands.</summary>
+    public ushort ChargePaletteIndex { get; private set; }
+
+    /// <summary>
     /// Host-readable identity of the timer/hack function installed by Samus command five
     /// or <c>$18</c>. It deliberately survives the later `$91:E4AD` pose changes, just as
     /// native WRAM's function pointer does.
@@ -94,13 +109,37 @@ public sealed class SamusDrainedState
         samus.SetAnimationFrameFromSpecialHandler(frame: 28, timer: 1);
     }
 
+    /// <summary>Ports Samus command <c>$16</c> at <c>$90:F3C9</c>.</summary>
+    public void EnableRainbow(SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        RainbowPaletteEnabled = true;
+        SpecialPaletteFrame = 1;
+        CommonPaletteTimer = 1;
+        ChargePaletteIndex = 0;
+    }
+
     /// <summary>
-    /// Ports the animation half of Samus command <c>$17</c> at <c>$90:F3DD</c>. Rainbow
-    /// palette words are not yet modeled; the literal frame/timer mutation is complete.
+    /// Applies `$A9:CD59-$CD65`'s frame increment after the Baby's fractional `$0300`
+    /// accumulator carries. The native comparison clamps at ten rather than wrapping.
+    /// </summary>
+    public void IncrementRainbowPaletteFrame(ushort maximumFrame)
+    {
+        ushort incremented = unchecked((ushort)(SpecialPaletteFrame + 1));
+        SpecialPaletteFrame = incremented < maximumFrame ? incremented : maximumFrame;
+    }
+
+    /// <summary>
+    /// Ports Samus command <c>$17</c> at <c>$90:F3DD</c>: clear every rainbow/charge palette
+    /// word and begin the standing portion of the drained animation at frame thirteen.
     /// </summary>
     public void DisableRainbowAndStartStandingAnimation(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
+        RainbowPaletteEnabled = false;
+        SpecialPaletteFrame = 0;
+        CommonPaletteTimer = 0;
+        ChargePaletteIndex = 0;
         samus.SetAnimationFrameFromSpecialHandler(frame: 13, timer: 1);
     }
 

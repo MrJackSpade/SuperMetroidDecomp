@@ -3236,7 +3236,185 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual((ushort)99, samus.ReserveEnergy, "healing completion fills reserve energy");
     AssertEqual((ushort)3200, baby.Health, "healing does not invent Mother Brain damage");
 
-    Console.WriteLine("  Baby Metroid: ROM-backed entrance, drain/corpse, release, eight-leg route, touch latch, and healing agree.");
+    // Drive the same actor into `$CABD`'s zero-health transition without fabricating a
+    // function pointer. One saturating hit represents the already-verified ring collision
+    // producer; all following coordinates, timers, and cross-actor writes remain Baby AI.
+    BabyMetroidOnionRingHitResult ordinaryFatal = baby.ApplyMotherBrainOnionRingHit(3200);
+    AssertTrue(ordinaryFatal.Applied && ordinaryFatal.HealthAfter == 0,
+        "ordinary murder volley can saturate Baby health to zero");
+    baby.Step(bus, samus, motherBrain);
+    AssertEqual(BabyMetroidCutscenePhase.ReleaseSamus, baby.Phase,
+        "zero-health idle call installs release function");
+    AssertEqual((ushort)0x0140, baby.Health,
+        "ordinary zero-health transition restores $140 for flight");
+
+    // The fixed target chain takes a deterministic but fixture-dependent number of calls.
+    // Bound it, then use the real `$86:C381` damage path for the intended 79->0 final hit.
+    int finalRouteCalls = 0;
+    while (baby.Phase != BabyMetroidCutscenePhase.FinalCharge)
+    {
+        baby.Step(bus, samus, motherBrain, enemyFrameCounter: unchecked((ushort)finalRouteCalls));
+        finalRouteCalls++;
+        AssertTrue(finalRouteCalls < 1000,
+            $"Baby reaches final charge; current phase={baby.Phase}");
+    }
+    AssertEqual((ushort)0x004f, baby.Health,
+        "final-charge staging point assigns literal 79 health");
+    BabyMetroidOnionRingHitResult finalFatal = baby.ApplyMotherBrainOnionRingHit();
+    AssertTrue(finalFatal.Applied && finalFatal.HealthAfter == 0,
+        "one final 80-damage ring saturates 79 health");
+
+    while (baby.Phase != BabyMetroidCutscenePhase.DeathSequence)
+    {
+        baby.Step(bus, samus, motherBrain, enemyFrameCounter: unchecked((ushort)finalRouteCalls));
+        finalRouteCalls++;
+        AssertTrue(finalRouteCalls < 1200,
+            $"fatal shake/theme delays reach death sequence; current phase={baby.Phase}");
+    }
+    AssertEqual((ushort)28, samus.AnimationFrame,
+        "prepare-Hyper expiry executes Samus command $19");
+    AssertEqual((ushort)1, samus.AnimationFrameTimer,
+        "Samus command $19 freezes animation with timer one");
+    AssertEqual(BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow,
+        baby.SamusRainbowPhase,
+        "prepare-Hyper expiry installs low-enemy rainbow handler");
+
+    var blackPalettes = new List<BabyMetroidPaletteTransferRequest>();
+    var deathExplosions = new List<BabyMetroidDeathExplosionRequest>();
+    int deathCalls = 0;
+    while (baby.Phase == BabyMetroidCutscenePhase.DeathSequence)
+    {
+        BabyMetroidCutsceneStepResult death = baby.Step(
+            bus,
+            samus,
+            motherBrain,
+            enemyFrameCounter: unchecked((ushort)deathCalls));
+        deathCalls++;
+        if (death.DeathExplosion is { } deathExplosion)
+            deathExplosions.Add(deathExplosion);
+        if (death.BabyPaletteTransfer is { } blackPalette)
+            blackPalettes.Add(blackPalette);
+        AssertTrue(deathCalls < 500, "Baby black fade reaches unload phase");
+    }
+    AssertEqual(BabyMetroidCutscenePhase.UnloadTiles, baby.Phase,
+        "seventh black-table probe installs unload function");
+    AssertEqual(6, blackPalettes.Count, "black fade publishes six palette records");
+    uint[] expectedBlackSources = [
+        0xade90c, 0xade928, 0xade944, 0xade960, 0xade97c, 0xade998,
+    ];
+    for (int index = 0; index < expectedBlackSources.Length; index++)
+    {
+        AssertEqual((ushort)(index + 1), blackPalettes[index].PaletteIndex,
+            $"black palette {index + 1} index");
+        AssertEqual(expectedBlackSources[index], blackPalettes[index].SourceAddress,
+            $"black palette {index + 1} source");
+        AssertEqual((ushort)0x01e2, blackPalettes[index].DestinationColorIndex,
+            $"black palette {index + 1} destination");
+    }
+    AssertTrue(deathExplosions.Count > 1, "death sequence emits repeating dust explosions");
+    AssertEqual((ushort)1, deathExplosions[0].PatternIndex,
+        "cleared death pattern increments before first lookup");
+    AssertEqual((ushort)2, deathExplosions[1].PatternIndex,
+        "death explosions advance to the following table pair");
+    AssertEqual(36, (int)deathExplosions[1].XPosition - deathExplosions[0].XPosition,
+        "death explosion entries one/two retain their -20/+16 X offsets");
+    AssertTrue(baby.IsInvisible, "black-fade completion sets enemy invisibility property");
+
+    var attackTransfers = new List<MotherBrainSpriteTileTransferRequest>();
+    int unloadCalls = 0;
+    BabyMetroidCutsceneStepResult fourthTransfer = default;
+    while (baby.Phase == BabyMetroidCutscenePhase.UnloadTiles)
+    {
+        fourthTransfer = baby.Step(bus, samus, motherBrain);
+        unloadCalls++;
+        if (fourthTransfer.AttackTileTransfer is { } transfer)
+            attackTransfers.Add(transfer);
+        AssertTrue(unloadCalls < 200, "Baby unload wait reaches all four attack DMAs");
+    }
+    AssertEqual(132, unloadCalls,
+        "unload waits 129 calls then publishes four consecutive transfers");
+    AssertEqual(4, attackTransfers.Count, "attack graphics have four DMA records");
+    uint[] expectedAttackSources = [0xb7a000, 0xb7a200, 0xb7a400, 0xb7a600];
+    ushort[] expectedAttackDestinations = [0x7c00, 0x7d00, 0x7e00, 0x7f00];
+    for (int index = 0; index < attackTransfers.Count; index++)
+    {
+        AssertEqual(expectedAttackSources[index], attackTransfers[index].SourceAddress,
+            $"attack DMA {index} source");
+        AssertEqual(expectedAttackDestinations[index], attackTransfers[index].VramDestination,
+            $"attack DMA {index} destination");
+        AssertEqual((ushort)0x0200, attackTransfers[index].Size,
+            $"attack DMA {index} size");
+    }
+    AssertEqual(BabyMetroidCutscenePhase.LetSamusRainbowSomeMore, baby.Phase,
+        "fourth attack DMA observes zero terminator");
+    AssertEqual((ushort)0x00af, baby.FunctionTimer,
+        "fourth attack DMA falls through and decrements new $B0 timer");
+
+    var roomPalettes = new List<MotherBrainBackgroundPaletteTransferRequest>();
+    int rainbowDelayCalls = 0;
+    BabyMetroidCutsceneStepResult firstRoomPalette = default;
+    while (baby.Phase == BabyMetroidCutscenePhase.LetSamusRainbowSomeMore)
+    {
+        firstRoomPalette = baby.Step(bus, samus, motherBrain);
+        rainbowDelayCalls++;
+        if (firstRoomPalette.BackgroundPaletteTransfer is { } palette)
+            roomPalettes.Add(palette);
+    }
+    AssertEqual(176, rainbowDelayCalls,
+        "post-DMA `$AF..0` wait expires after 176 additional calls");
+    AssertEqual(BabyMetroidCutscenePhase.FinalCutscene, baby.Phase,
+        "rainbow delay falls through into final room-light function");
+    AssertEqual(1, roomPalettes.Count,
+        "final-cutscene fallthrough publishes room palette zero immediately");
+
+    int finalPaletteCalls = 1;
+    while (!baby.IsDeleted)
+    {
+        BabyMetroidCutsceneStepResult finalPalette = baby.Step(bus, samus, motherBrain);
+        finalPaletteCalls++;
+        if (finalPalette.BackgroundPaletteTransfer is { } palette)
+            roomPalettes.Add(palette);
+        AssertTrue(finalPaletteCalls < 20, "phase-three light table reaches zero terminator");
+    }
+    AssertEqual(8, finalPaletteCalls,
+        "room-light table publishes seven palettes then completes on entry seven");
+    AssertEqual(7, roomPalettes.Count, "phase-three light restore has seven records");
+    for (int index = 0; index < roomPalettes.Count; index++)
+    {
+        AssertEqual((ushort)index, roomPalettes[index].PaletteIndex,
+            $"room-light palette {index} index");
+        AssertEqual(unchecked((uint)(0xadf3d3 - index * 0x38)), roomPalettes[index].SourceAddress,
+            $"room-light palette {index} reverse source");
+    }
+    AssertTrue(!samus.Drained.RainbowPaletteEnabled,
+        "final cutscene executes command $17 rainbow disable");
+    AssertEqual((ushort)13, samus.AnimationFrame,
+        "command $17 starts drained Samus standing animation at frame 13");
+    AssertEqual((ushort)0x8000, samus.HyperBeam,
+        "drained controller three grants Hyper Beam");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneMakeSomeDistance,
+        motherBrain.Phase,
+        "Baby deletion installs Mother Brain `$C1CF` for following actor call");
+
+    MotherBrainRainbowBeamAttackStepResult recovery = motherBrain.Step(bus, samus, 0, 0);
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneSetupForFighting,
+        recovery.PhaseAfter,
+        "phase-three recovery publishes form and setup timer");
+    AssertEqual((ushort)4, motherBrain.Body.Form, "phase-three recovery sets body form four");
+    AssertEqual((ushort)0x0020, motherBrain.FunctionTimer,
+        "phase-three recovery loads literal $20 setup wait");
+    int setupCalls = 0;
+    while (motherBrain.Phase ==
+           MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneSetupForFighting)
+    {
+        motherBrain.Step(bus, samus, 0, 0);
+        setupCalls++;
+    }
+    AssertEqual(33, setupCalls, "phase-three `$20` wait expires on wrapped call 33");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3FightingMain, motherBrain.Phase,
+        "recovery reaches genuine `$C209` phase-three combat seam");
+
+    Console.WriteLine("  Baby Metroid: entrance, drain, route, healing, murder, black fade, attack DMA, rainbow, and phase-three handoff agree.");
 }
 
 static void VerifySamusAerialMovement()

@@ -631,6 +631,11 @@ bool spaceJumpPulseMayBeIssued = true;
 var observedRainbowPhases = new HashSet<MotherBrainRainbowBeamAttackPhase>();
 var observedBabyPhases = new HashSet<BabyMetroidCutscenePhase>();
 var observedBabyTileTransfers = new List<MotherBrainSpriteTileTransferRequest>();
+var observedAttackTileTransfers = new List<MotherBrainSpriteTileTransferRequest>();
+var observedBabyDeathPalettes = new List<BabyMetroidPaletteTransferRequest>();
+var observedPhaseThreeBackgroundPalettes = new List<MotherBrainBackgroundPaletteTransferRequest>();
+int observedBabyDeathExplosions = 0;
+bool observedBabyPhaseThreeHandoff = false;
 bool observedBabySpawnRequest = false;
 bool observedFinalBeamSound = false;
 bool observedBabyMotherBrainInterrupt = false;
@@ -1252,7 +1257,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 $"{bodyResult.EarthquakeType}/{bodyResult.EarthquakeTimer}.");
         }
 
-        if (cutsceneBaby is not null)
+        if (cutsceneBaby is { IsDeleted: false })
         {
             // Body slot zero executes before the later spawned enemy slot. This placement
             // also means the spawn frame can run the newly initialized Baby once, matching
@@ -1285,6 +1290,75 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             {
                 observedBabyHealingCompletion = true;
                 observedBabyHealingCompletionFrame = frameIndex + 1;
+            }
+            observedBabyPhaseThreeHandoff |= babyResult.PhaseThreeHandoff;
+            if (babyResult.PhaseThreeHandoff)
+            {
+                Console.WriteLine(
+                    $"frame {frameIndex + 1,4}: Baby deleted itself, restored Hyper Beam, " +
+                    "and handed Mother Brain to phase-three recovery.");
+            }
+
+            if (babyResult.DeathExplosion is { } deathExplosion)
+            {
+                observedBabyDeathExplosions++;
+                Console.WriteLine(
+                    $"frame {frameIndex + 1,4}: Baby death explosion pattern " +
+                    $"{deathExplosion.PatternIndex} at ({deathExplosion.XPosition}," +
+                    $"{deathExplosion.YPosition}); projectile parameter " +
+                    $"${deathExplosion.ProjectileParameter:X4}, SFX ${deathExplosion.SoundEffect:X2}.");
+            }
+
+            if (babyResult.BabyPaletteTransfer is { } babyPalette)
+            {
+                // The native destination `$01E2` is a byte offset into the 512-byte
+                // palette buffer; SnesCgram accepts an actual colour number, hence `/2`.
+                runtime.Cgram.LoadFromBus(
+                    bus,
+                    checked((int)babyPalette.SourceAddress),
+                    babyPalette.ColorCount,
+                    babyPalette.DestinationColorIndex / 2);
+                observedBabyDeathPalettes.Add(babyPalette);
+                Console.WriteLine(
+                    $"frame {frameIndex + 1,4}: Baby black-fade palette " +
+                    $"{babyPalette.PaletteIndex} from ${babyPalette.SourceAddress:X6}.");
+            }
+
+            if (babyResult.AttackTileTransfer is { } attackTiles)
+            {
+                // The same ordinary pre-NMI queue used for the earlier Baby graphics now
+                // restores Mother Brain's four attack rows from bank `$B7`.
+                runtime.VramWrites.Enqueue(
+                    attackTiles.Size,
+                    checked((int)attackTiles.SourceAddress),
+                    attackTiles.VramDestination);
+                observedAttackTileTransfers.Add(attackTiles);
+                Console.WriteLine(
+                    $"frame {frameIndex + 1,4}: Mother Brain attack tile transfer " +
+                    $"{attackTiles.EntryIndex}: ${attackTiles.SourceAddress:X6} -> " +
+                    $"VRAM ${attackTiles.VramDestination:X4}.");
+            }
+
+            if (babyResult.BackgroundPaletteTransfer is { } backgroundPalette)
+            {
+                // `$AD:F24B` writes fourteen background-palette-three colours followed by
+                // fourteen background-palette-five colours from consecutive source words.
+                int source = checked((int)backgroundPalette.SourceAddress);
+                int colors = backgroundPalette.ColorsPerDestination;
+                runtime.Cgram.LoadFromBus(
+                    bus,
+                    source,
+                    colors,
+                    backgroundPalette.FirstDestinationColorIndex / 2);
+                runtime.Cgram.LoadFromBus(
+                    bus,
+                    source + colors * 2,
+                    colors,
+                    backgroundPalette.SecondDestinationColorIndex / 2);
+                observedPhaseThreeBackgroundPalettes.Add(backgroundPalette);
+                Console.WriteLine(
+                    $"frame {frameIndex + 1,4}: phase-three room-light palette " +
+                    $"{backgroundPalette.PaletteIndex} from ${backgroundPalette.SourceAddress:X6}.");
             }
 
             if (cutsceneBaby.Phase != previousBabyPhase)
@@ -2290,7 +2364,7 @@ if (options.MotherBrainRainbowScript)
     if (options.FrameCount >= 5703 &&
         (cutsceneBaby is null ||
          !observedBabyPhases.Contains(BabyMetroidCutscenePhase.FinalCharge) ||
-         cutsceneBaby.Phase != BabyMetroidCutscenePhase.DeathSequence ||
+         !observedBabyPhases.Contains(BabyMetroidCutscenePhase.DeathSequence) ||
          cutsceneBaby.Health != 0))
     {
         throw new InvalidOperationException(
@@ -2298,11 +2372,43 @@ if (options.MotherBrainRainbowScript)
             $"Baby death-sequence seam; phase={cutsceneBaby?.Phase.ToString() ?? "not spawned"}, " +
             $"health=${cutsceneBaby?.Health:X4}.");
     }
+    if (options.FrameCount >= 6168 &&
+        (cutsceneBaby is null ||
+         !cutsceneBaby.IsDeleted ||
+         !observedBabyPhaseThreeHandoff ||
+         observedBabyDeathExplosions != 30 ||
+         observedBabyDeathPalettes.Count != 6 ||
+         observedAttackTileTransfers.Count != 4 ||
+         observedPhaseThreeBackgroundPalettes.Count != 7 ||
+         runtime.Samus.HyperBeam != 0x8000 ||
+         runtime.Samus.Drained.RainbowPaletteEnabled))
+    {
+        throw new InvalidOperationException(
+            $"Baby death/recovery producer differed at frame 6168: " +
+            $"deleted={cutsceneBaby?.IsDeleted}, handoff={observedBabyPhaseThreeHandoff}, " +
+            $"explosions={observedBabyDeathExplosions}, black palettes=" +
+            $"{observedBabyDeathPalettes.Count}, attack DMA={observedAttackTileTransfers.Count}, " +
+            $"room palettes={observedPhaseThreeBackgroundPalettes.Count}, " +
+            $"hyper=${runtime.Samus.HyperBeam:X4}, " +
+            $"rainbow={runtime.Samus.Drained.RainbowPaletteEnabled}.");
+    }
+    if (options.FrameCount >= 6202 &&
+        rainbowAttack.Phase != MotherBrainRainbowBeamAttackPhase.Phase3FightingMain)
+    {
+        throw new InvalidOperationException(
+            $"Mother Brain did not finish the ROM-backed phase-three recovery wait on " +
+            $"frame 6202; phase={rainbowAttack.Phase}, timer=${rainbowAttack.FunctionTimer:X4}.");
+    }
     if (options.FrameCount >= 1450)
     {
         // The actor request alone is not enough evidence: prove the ordinary NMI queue
         // copied every byte from each real LoROM source into the encoded VRAM word address.
-        foreach (MotherBrainSpriteTileTransferRequest transfer in observedBabyTileTransfers)
+        // Before death these rows must contain the Baby source. Once `$CCC0` deliberately
+        // overwrites them, only the later bank-$B7 assertion below describes final VRAM.
+        foreach (MotherBrainSpriteTileTransferRequest transfer in
+                 observedAttackTileTransfers.Count == 0
+                     ? observedBabyTileTransfers
+                     : [])
         {
             int vramByteAddress = transfer.VramDestination * 2;
             for (int byteOffset = 0; byteOffset < transfer.Size; byteOffset++)
@@ -2313,6 +2419,24 @@ if (options.MotherBrainRainbowScript)
                 {
                     throw new InvalidOperationException(
                         $"Baby tile DMA entry {transfer.EntryIndex} differs at byte " +
+                        $"${byteOffset:X4}: expected ${expected:X2}, got ${actual:X2}.");
+                }
+            }
+        }
+
+        foreach (MotherBrainSpriteTileTransferRequest transfer in observedAttackTileTransfers)
+        {
+            // The death sequence overwrites exactly the same VRAM rows. Prove the final
+            // bytes came from bank `$B7`, not merely that four requests were observed.
+            int vramByteAddress = transfer.VramDestination * 2;
+            for (int byteOffset = 0; byteOffset < transfer.Size; byteOffset++)
+            {
+                byte expected = bus.ReadByte(checked((int)transfer.SourceAddress) + byteOffset);
+                byte actual = runtime.Vram.ReadByte(vramByteAddress + byteOffset);
+                if (actual != expected)
+                {
+                    throw new InvalidOperationException(
+                        $"Attack tile DMA entry {transfer.EntryIndex} differs at byte " +
                         $"${byteOffset:X4}: expected ${expected:X2}, got ${actual:X2}.");
                 }
             }

@@ -308,6 +308,20 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         Phase = MotherBrainRainbowBeamAttackPhase.ExecuteFinalBabyMetroidAttack;
 
     /// <summary>
+    /// Ports the Baby's final cross-enemy write at <c>$A9:CD02-$CD05</c>. The body does
+    /// not execute <c>$C1CF</c> inside the Baby's slot; increasing-slot enemy order makes
+    /// this installed phase visible on Mother Brain's following frame.
+    /// </summary>
+    public void BeginPhase3RecoveryFromBabyCutscene()
+    {
+        Phase = MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneMakeSomeDistance;
+
+        // Native clears only the shared enemy-slot index. This host flag is the equivalent
+        // liveness witness used by head attack selection after the actor has deleted itself.
+        BabyMetroidSpawned = false;
+    }
+
+    /// <summary>
     /// Ports the Baby's <c>$A9:C879</c> call to the standard backwards-walk helper using
     /// animation-delay index two and target <c>Body.X-1</c>.
     /// </summary>
@@ -1221,6 +1235,32 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // health reduction and the Baby actor owns its death/recovery sequence.
                 break;
 
+            case MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneMakeSomeDistance:
+                // `$C1CF` changes form before installing the setup wait. Its backward-walk
+                // request uses target X-14 and delay index two; the ordinary helper may
+                // legitimately reject it at the arena's hard left limit.
+                Body.Form = 4;
+                Phase = MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneSetupForFighting;
+                FunctionTimer = 0x0020;
+                bodyWalkRequested = RequestWalkBackward(
+                    unchecked((ushort)(Body.XPosition - 0x000e)),
+                    animationDelay: 0x0002);
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneSetupForFighting:
+                // `$20` remains valid through zero and expires only when DEC wraps negative,
+                // yielding 33 setup calls after the one-frame `$C1CF` producer above.
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3FightingMain;
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3FightingMain:
+                // The phase-three combat neck/walking/projectile producers begin here.
+                // Keeping their genuine `$C209` seam explicit prevents the completed Baby
+                // cutscene from falling back into any fabricated phase-two behavior.
+                break;
+
             default:
                 throw new InvalidOperationException($"Unsupported rainbow-beam phase {Phase}.");
         }
@@ -1673,6 +1713,9 @@ public enum MotherBrainRainbowBeamAttackPhase
     PrepareForFinalBabyMetroidAttack,
     ExecuteFinalBabyMetroidAttack,
     FinalBabyMetroidAttackHolding,
+    Phase3RecoverFromCutsceneMakeSomeDistance,
+    Phase3RecoverFromCutsceneSetupForFighting,
+    Phase3FightingMain,
 }
 
 /// <summary>Head-projectile animation selected by `$A9:BD71-$BD83`.</summary>

@@ -38,7 +38,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, momentum, gravity/collision, `$F8` | Later firing/external-displacement routes |
 | `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | External displacement, enemy producer |
 | `$1A` | Grabbed by Draygon | — | Entire family |
-| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, hyper beam; bank `$A9`: repeat/active/final rainbow, painful-walk/corpse, revival, and Baby-murder cycle `$B8EB-$C1A6`, including body/head bytecode, live neck geometry, Baby graphics DMA/spawn, sine-driven entrance, moving-head latch, drain/corpse handshake, release, ceiling retreat, eight-record flight, generic-touch Samus latch, one-point healing, bank-$86 ring damage, release/stare/retreat/final charge/final blow, and controller four | Crystal Flash/drain palette and HDMA presentation, earlier attack-selection, Baby death animation/explosions after `$CC05`, phase-three handoff, live enemy actor producer |
+| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, hyper beam; bank `$A9`: repeat/active/final rainbow, painful-walk/corpse, revival, Baby murder/death, and phase-three recovery `$B8EB-$C209`, including body/head bytecode, live neck geometry, Baby graphics DMA/spawn, sine-driven entrance, moving-head latch, drain/corpse handshake, release, ceiling retreat, eight-record flight, generic-touch Samus latch, one-point healing, bank-$86 ring damage, release/stare/retreat/final charge/final blow, rainbow commands, six black palettes, 30 death explosions, attack-tile DMA, room-light restoration, deletion, Hyper Beam, and controller four | Crystal Flash/drain palette and HDMA presentation, earlier attack-selection, phase-three combat after `$C209`, Baby death spritemap/dust-projectile rendering, live enemy actor producer |
 
 The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
 performs its one-frame initialization and `$90:E032` owns the rising special arc; its
@@ -460,7 +460,7 @@ translated status is documented with the Morph Ball family below.
   `$200`-byte Baby tile-transfer records per AI call. The fourth call observes the zero
   terminator, retracts Mother Brain's head, requests population `$A0:ECBF` at `$180,$40`,
   loads another `$100` wait, and reaches the final firing/self-return hold after 257 calls.
-- `BabyMetroidCutsceneState` translates `$A9:C710-$CABC`: exact population-property OR,
+- `BabyMetroidCutsceneState` translates `$A9:C710-$CD26`: exact population-property OR,
   `$F8`/249-call stationary delay, `$FE80/$FA00` angle curves, speed clamp, cartridge sine
   components, byte-`+1` subposition movement, `$24x$24` collision radii, controller-one
   request, gradual `$1/16` latch acceleration, really-fast body stumble, predictive `$0200`
@@ -471,8 +471,12 @@ translated status is documented with the Morph Ball family below.
   `$F45F/$F466` wrong-way acceleration extras, pre-move route collision, gradual `$CA66`
   pursuit, generic `$CF03` touch acceleration, exact Samus pin, 699 one-point heals from
   200 to 899, reserve fill, the `$CABD` wait for zero Baby health, `$CB13-$CC05` release,
-  stare-down, off-screen retreat, final-charge setup, final blow, theme delay, and hyper-beam
-  preparation. Mother Brain
+  stare-down, off-screen retreat, final-charge setup, final blow, theme delay, hyper-beam
+  preparation, command-`$19` freeze, signed downward acceleration, six-entry black fade,
+  five-call explosion cadence and ten-pair offsets, even/odd blinking, four bank-$B7 attack
+  tile DMAs after the 129-call unload wait, fractional rainbow slowdown, 177-call post-DMA
+  delay, seven reverse room-light palettes, command-`$17`, Hyper Beam, enemy deletion, and
+  phase-three cross-actor handoff. Mother Brain
   translates `$BE38-$BFCF`: the `$30`/49-call regain, eight alternating painful walks with
   literal 16/32/48/64 pauses, beam shutdown, rear-room walk, one-way neck raise, fast crouch,
   65-call pre-grey wait, eight palette copies plus terminating ninth probe, 36,000-health
@@ -481,9 +485,10 @@ translated status is documented with the Morph Ball family below.
   head-bytecode volleys, body-pose responses, and final retreat/hold. Bank `$86:C2F3-$C432`
   supplies its 18-slot onion rings, highest-free allocation, delayed head pin, sine flight,
   animation radii, Baby-first/Samus/room collision order, `$50` Baby damage, flashing/cry
-  request, and suit-divided Samus damage. The earlier attack-selection trigger, Baby death
-  animation/explosions after `$CC05`, phase-three handoff, and palette/HDMA rendering remain
-  explicit seams.
+  request, and suit-divided Samus damage. `$C1CF-$C209` publishes form four, the backward
+  recovery request, exact `$20` wait, and the phase-three fighting seam. The earlier
+  attack-selection trigger, later phase-three combat, Baby instruction-list/dust-projectile
+  rendering, and palette/HDMA effects beyond direct CGRAM writes remain explicit seams.
 - `MotherBrainBodyAnimationState` translates the ordinary enemy-instruction stage used by
   Mother Brain's painful fast/medium/slow/really-slow walks in both directions plus
   `$99C6/$99E2/$99F2/$9A26` stand/lean/crouch lists.
@@ -508,8 +513,11 @@ translated status is documented with the Morph Ball family below.
   `$CABD` on 4536 with 899 energy and 99 reserves. Mother Brain wakes on 4466, starts murder
   cooldown on 4709, and the ring system takes Baby health to zero on 5355. Release, stare,
   retreat, and final-charge phases reach 5356/5357/5423/5488/5583/5584; the four final rings
-  spawn on 5600/5603/5606/5609, strike on 5618, and hand the Baby to the `$CC05` death seam on
-  5703. The regression compares all `$800` transferred bytes against the supplied cartridge
+  spawn on 5600/5603/5606/5609, strike on 5618, and enter death on 5703. Six black palettes
+  land on 5799..5844, invisibility begins on 5853, bank-$B7 attack rows replace the Baby rows
+  on 5982..5985, seven room-light palettes land on 6161..6167, and deletion/Hyper Beam/handoff
+  occurs on 6168. Mother Brain executes recovery on 6169 and reaches `$C209` on 6202. The
+  regression compares the final four `$200` attack transfers against the supplied cartridge
   and reads every flight/neck/projectile component from its real sine table.
 
 ## Verified aerial-turn and wall-jump slice
@@ -755,9 +763,9 @@ translated status is documented with the Morph Ball family below.
 
 ## Next implementation order
 
-1. Continue bank `$A9` after `$CC05` with the Baby's palette fade, downward death movement,
-   explosions/unload, and Mother Brain phase-three handoff; then translate the earlier
-   attack-selection trigger that enters `$B8EB`.
+1. Continue Mother Brain's phase-three `$C209` combat movement/attacks, then translate the
+   earlier attack-selection trigger that enters `$B8EB` and the Baby death spritemap/dust
+   projectile presentation producers.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.
 4. Grapple breakable PLMs and spike-damage side effects.

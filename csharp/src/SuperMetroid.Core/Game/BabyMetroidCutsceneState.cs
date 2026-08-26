@@ -35,6 +35,24 @@ public sealed class BabyMetroidCutsceneState
     private static ReadOnlySpan<short> ShakingXOffsets => [0, -1, 0, 1];
     private static ReadOnlySpan<short> ShakingYOffsets => [0, 1, -1, 1];
 
+    // `$A9:CDFC-$CE22` is stored as ten interleaved X/Y word pairs. The death handler
+    // increments its shared index before looking up a pair, so a freshly cleared counter
+    // deliberately begins at entry one rather than entry zero.
+    private static ReadOnlySpan<short> DeathExplosionXOffsets =>
+        [-24, -20, 16, 30, 14, -2, -2, -31, -4, 19];
+
+    private static ReadOnlySpan<short> DeathExplosionYOffsets =>
+        [-24, 20, -30, -3, -13, 18, -32, 8, -10, 19];
+
+    // Killing the Baby restores Mother Brain's attack graphics over the four OBJ rows that
+    // `$A9:8FE5` temporarily replaced. These are the literal `$A9:8FC7` source/destination
+    // records consumed one per `$CCC0` call.
+    private static ReadOnlySpan<uint> MotherBrainAttackTileSources =>
+        [0xb7a000, 0xb7a200, 0xb7a400, 0xb7a600];
+
+    private static ReadOnlySpan<ushort> MotherBrainAttackTileDestinations =>
+        [0x7c00, 0x7d00, 0x7e00, 0x7f00];
+
     // Enemy header `$A0:ECBF` declares width/height `$24`. Despite the header macro's
     // friendly names, `$A0:8AFF/$8B05` copy those words directly into the enemy slot's
     // X/Y *radius* fields; there is no diameter-to-radius division anywhere in between.
@@ -137,6 +155,39 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Saved origin used by the fatal-blow shake at <c>$A9:CC3E</c>.</summary>
     public ushort FatalBlowOriginY { get; private set; }
 
+    /// <summary>Reload-eight timer producing the native nine-call black-palette cadence.</summary>
+    public ushort FadeToBlackPaletteTimer { get; private set; }
+
+    /// <summary>Current `$AD:E8E2` black-fade palette index; valid stored values are 0..6.</summary>
+    public ushort FadeToBlackPaletteIndex { get; private set; }
+
+    /// <summary>Five-call cadence word for the dust explosions surrounding the dying Baby.</summary>
+    public ushort DeathExplosionTimer { get; private set; }
+
+    /// <summary>
+    /// Host name for the native layout alias called Mother Brain body's walk counter.
+    /// Long-indexed access uses the Baby's slot, so this actor owns its increment/wrap.
+    /// </summary>
+    public ushort DeathExplosionPatternIndex { get; private set; }
+
+    /// <summary>Zero-based index of the next `$A9:8FC7` attack-tile DMA record.</summary>
+    public ushort AttackTileTransferIndex { get; private set; }
+
+    /// <summary>Palette-table argument used while restoring the phase-three room lights.</summary>
+    public ushort RoomLightsTransitionCounter { get; private set; }
+
+    /// <summary>Fractional `$0300` accumulator used to slow the rainbow Samus palette.</summary>
+    public ushort SamusRainbowPaletteAnimationCounter { get; private set; }
+
+    /// <summary>Which of the two native rainbow-palette handlers is currently installed.</summary>
+    public BabyMetroidSamusRainbowPhase SamusRainbowPhase { get; private set; }
+
+    /// <summary>True when enemy property `$0100` suppresses the Baby's spritemap.</summary>
+    public bool IsInvisible => (Properties & 0x0100) != 0;
+
+    /// <summary>True after enemy property `$0200` marks the cutscene actor deleted.</summary>
+    public bool IsDeleted => (Properties & 0x0200) != 0;
+
     /// <summary>
     /// Ports <c>$A9:C710</c>. The population record supplies <c>$2800</c>; initialization
     /// ORs <c>$3000</c>, overwrites the population coordinates, and waits at X/Y
@@ -157,6 +208,14 @@ public sealed class BabyMetroidCutsceneState
         LowHealthPaletteTimer = 0;
         FatalBlowOriginX = 0;
         FatalBlowOriginY = 0;
+        FadeToBlackPaletteTimer = 0;
+        FadeToBlackPaletteIndex = 0;
+        DeathExplosionTimer = 0;
+        DeathExplosionPatternIndex = 0;
+        AttackTileTransferIndex = 0;
+        RoomLightsTransitionCounter = 0;
+        SamusRainbowPaletteAnimationCounter = 0;
+        SamusRainbowPhase = BabyMetroidSamusRainbowPhase.Inactive;
         XPosition = 0x0140;
         YPosition = 0x0060;
         XSubposition = 0;
@@ -201,6 +260,15 @@ public sealed class BabyMetroidCutsceneState
         bool ambientCrySoundQueued = false;
         bool samusTouchCollision = false;
         bool healingCompleted = false;
+        bool samusRainbowActivated = false;
+        bool samusAnimationFrozen = false;
+        bool samusRainbowDisabled = false;
+        bool hyperBeamEnabled = false;
+        bool phaseThreeHandoff = false;
+        BabyMetroidDeathExplosionRequest? deathExplosion = null;
+        BabyMetroidPaletteTransferRequest? babyPaletteTransfer = null;
+        MotherBrainSpriteTileTransferRequest? attackTileTransfer = null;
+        MotherBrainBackgroundPaletteTransferRequest? backgroundPaletteTransfer = null;
 
         switch (Phase)
         {
@@ -649,15 +717,102 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam:
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
+                {
+                    // Samus command `$19` freezes the drained animation at byte-index 28.
+                    // `$CC8B` also installs the first rainbow handler; neither handler is
+                    // executed until the Baby's following enemy-AI call.
+                    samus.Drained.FreezeForHyperBeamAcquisition(samus);
+                    samusAnimationFrozen = true;
+                    SamusRainbowPhase = BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow;
                     Phase = BabyMetroidCutscenePhase.DeathSequence;
+                }
                 break;
 
             case BabyMetroidCutscenePhase.DeathSequence:
-                // Palette fading, death explosions, tile unloading, and the phase-three
-                // handoff are translated as the next producer. The fatal actor no longer
-                // has velocity here; retaining the explicit phase makes the current seam
-                // breakpointable without fabricating those visual-system completion flags.
+                StepSamusRainbowPaletteAnimation(samus, ref samusRainbowActivated);
+                AccelerateDownwardsForDeath();
+                if (StepFadeToBlack(ref babyPaletteTransfer))
+                {
+                    // Completion does not write palette index seven. It hides the actor,
+                    // installs `$CCC0`, and waits through `$80..0` before the first DMA.
+                    Properties |= 0x0100;
+                    Phase = BabyMetroidCutscenePhase.UnloadTiles;
+                    FunctionTimer = 0x0080;
+                }
+                else
+                {
+                    deathExplosion = StepDeathExplosion();
+                    // `$CE24` clears invisibility on odd enemy frames and sets it on even.
+                    Properties = (enemyFrameCounter & 1) != 0
+                        ? unchecked((ushort)(Properties & 0xfeff))
+                        : unchecked((ushort)(Properties | 0x0100));
+                }
                 break;
+
+            case BabyMetroidCutscenePhase.UnloadTiles:
+                StepSamusRainbowPaletteAnimation(samus, ref samusRainbowActivated);
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    int transferIndex = AttackTileTransferIndex;
+                    if ((uint)transferIndex >= (uint)MotherBrainAttackTileSources.Length)
+                        throw new InvalidOperationException("Mother Brain attack-tile transfer list is already complete.");
+
+                    attackTileTransfer = new MotherBrainSpriteTileTransferRequest(
+                        EntryIndex: AttackTileTransferIndex,
+                        Size: 0x0200,
+                        SourceAddress: MotherBrainAttackTileSources[transferIndex],
+                        VramDestination: MotherBrainAttackTileDestinations[transferIndex]);
+                    AttackTileTransferIndex++;
+
+                    if (AttackTileTransferIndex == MotherBrainAttackTileSources.Length)
+                    {
+                        // ProcessSpriteTilesTransfers observes the zero terminator after
+                        // publishing entry four. Native falls straight into `$CCDE`, so the
+                        // newly written `$B0` becomes `$AF` on this same call.
+                        Phase = BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
+                        FunctionTimer = 0x00b0;
+                        goto case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
+                    }
+                }
+                break;
+
+            case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    Phase = BabyMetroidCutscenePhase.FinalCutscene;
+                    RoomLightsTransitionCounter = 0;
+                    goto case BabyMetroidCutscenePhase.FinalCutscene;
+                }
+                break;
+
+            case BabyMetroidCutscenePhase.FinalCutscene:
+            {
+                // `$CCF0` increments the shared counter, passes its previous value to
+                // `$AD:F24B`, and treats pointer-table entry seven as the carry-set end.
+                ushort paletteIndex = RoomLightsTransitionCounter;
+                RoomLightsTransitionCounter = unchecked((ushort)(RoomLightsTransitionCounter + 1));
+                if (paletteIndex < 7)
+                {
+                    backgroundPaletteTransfer = new MotherBrainBackgroundPaletteTransferRequest(
+                        PaletteIndex: paletteIndex,
+                        SourceAddress: unchecked((uint)(0xadf3d3 - paletteIndex * 0x38)),
+                        FirstDestinationColorIndex: 0x0062,
+                        SecondDestinationColorIndex: 0x00a2,
+                        ColorsPerDestination: 0x000e);
+                    break;
+                }
+
+                motherBrain.BeginPhase3RecoveryFromBabyCutscene();
+                samus.Drained.DisableRainbowAndStartStandingAnimation(samus);
+                samusRainbowDisabled = true;
+                samus.Drained.EnableHyperBeam(samus);
+                hyperBeamEnabled = true;
+                Properties |= 0x0200;
+                phaseThreeHandoff = true;
+                break;
+            }
 
             default:
                 throw new InvalidOperationException($"Unsupported Baby Metroid phase {Phase}.");
@@ -727,7 +882,16 @@ public sealed class BabyMetroidCutsceneState
             ambientCrySoundQueued,
             samusTouchCollision,
             healingCompleted,
-            Health);
+            Health,
+            samusRainbowActivated,
+            samusAnimationFrozen,
+            samusRainbowDisabled,
+            hyperBeamEnabled,
+            phaseThreeHandoff,
+            deathExplosion,
+            babyPaletteTransfer,
+            attackTileTransfer,
+            backgroundPaletteTransfer);
     }
 
     /// <summary>
@@ -750,6 +914,92 @@ public sealed class BabyMetroidCutsceneState
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+
+    private void StepSamusRainbowPaletteAnimation(
+        SamusState samus,
+        ref bool samusRainbowActivated)
+    {
+        switch (SamusRainbowPhase)
+        {
+            case BabyMetroidSamusRainbowPhase.Inactive:
+                return;
+
+            case BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow:
+                // `$CD30` uses a signed CMP/BMI after adding sixteen to the Baby's Y.
+                if (unchecked((short)(YPosition + 0x0010 - samus.YPosition)) < 0)
+                    return;
+                samus.Drained.EnableRainbow(samus);
+                samusRainbowActivated = true;
+                SamusRainbowPhase = BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown;
+                return;
+
+            case BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown:
+            {
+                uint sum = (uint)SamusRainbowPaletteAnimationCounter + 0x0300;
+                SamusRainbowPaletteAnimationCounter = unchecked((ushort)sum);
+                if (sum > ushort.MaxValue)
+                    samus.Drained.IncrementRainbowPaletteFrame(maximumFrame: 10);
+                return;
+            }
+
+            default:
+                throw new InvalidOperationException($"Unsupported Samus rainbow phase {SamusRainbowPhase}.");
+        }
+    }
+
+    private void AccelerateDownwardsForDeath()
+    {
+        // `$CE40` subtracts `$20` from the magnitude, clamps at zero, reapplies the old
+        // sign, and independently adds two to vertical 8.8 velocity with 16-bit wrap.
+        bool negative = (XVelocity & 0x8000) != 0;
+        ushort magnitude = negative ? unchecked((ushort)-XVelocity) : XVelocity;
+        magnitude = magnitude >= 0x0020 ? unchecked((ushort)(magnitude - 0x0020)) : (ushort)0;
+        XVelocity = negative ? unchecked((ushort)-magnitude) : magnitude;
+        YVelocity = unchecked((ushort)(YVelocity + 2));
+    }
+
+    private bool StepFadeToBlack(ref BabyMetroidPaletteTransferRequest? paletteTransfer)
+    {
+        // No timer changes occur until the actor's centre reaches Y `$80`.
+        if (unchecked((short)(YPosition - 0x0080)) < 0)
+            return false;
+
+        FadeToBlackPaletteTimer = unchecked((ushort)(FadeToBlackPaletteTimer - 1));
+        if ((FadeToBlackPaletteTimer & 0x8000) == 0)
+            return false;
+
+        FadeToBlackPaletteTimer = 8;
+        ushort nextIndex = unchecked((ushort)(FadeToBlackPaletteIndex + 1));
+        if (nextIndex >= 7)
+            return true;
+
+        FadeToBlackPaletteIndex = nextIndex;
+        paletteTransfer = new BabyMetroidPaletteTransferRequest(
+            PaletteIndex: nextIndex,
+            SourceAddress: unchecked((uint)(0xade8f0 + nextIndex * 0x1c)),
+            DestinationColorIndex: 0x01e2,
+            ColorCount: 0x000e);
+        return false;
+    }
+
+    private BabyMetroidDeathExplosionRequest? StepDeathExplosion()
+    {
+        DeathExplosionTimer = unchecked((ushort)(DeathExplosionTimer - 1));
+        if ((DeathExplosionTimer & 0x8000) == 0)
+            return null;
+
+        DeathExplosionTimer = 4;
+        DeathExplosionPatternIndex++;
+        if (DeathExplosionPatternIndex >= 10)
+            DeathExplosionPatternIndex = 0;
+        int index = DeathExplosionPatternIndex;
+        return new BabyMetroidDeathExplosionRequest(
+            PatternIndex: DeathExplosionPatternIndex,
+            XPosition: unchecked((ushort)(XPosition + DeathExplosionXOffsets[index])),
+            YPosition: unchecked((ushort)(YPosition + DeathExplosionYOffsets[index])),
+            ProjectileParameter: 3,
+            SoundEffect: 0x0013);
+    }
 
     private void SetInstructionList(ushort pointer)
     {
@@ -1037,6 +1287,17 @@ public enum BabyMetroidCutscenePhase
     PlaySamusTheme,
     PrepareSamusForHyperBeam,
     DeathSequence,
+    UnloadTiles,
+    LetSamusRainbowSomeMore,
+    FinalCutscene,
+}
+
+/// <summary>Named equivalents of `$A9:CD30/$CD4B`'s indirect palette functions.</summary>
+public enum BabyMetroidSamusRainbowPhase
+{
+    Inactive,
+    ActivateWhenEnemyIsLow,
+    GraduallySlowAnimationDown,
 }
 
 /// <summary>Health/flash mutation produced by one colliding Mother Brain blue ring.</summary>
@@ -1052,6 +1313,29 @@ public readonly record struct BabyMetroidCutscenePoint(
     ushort XSubposition,
     ushort YPosition,
     ushort YSubposition);
+
+/// <summary>One `$86:E509` dust explosion requested during the Baby's death.</summary>
+public readonly record struct BabyMetroidDeathExplosionRequest(
+    ushort PatternIndex,
+    ushort XPosition,
+    ushort YPosition,
+    ushort ProjectileParameter,
+    ushort SoundEffect);
+
+/// <summary>One fourteen-colour write from `$AD:E90C-$E998` to sprite palette seven.</summary>
+public readonly record struct BabyMetroidPaletteTransferRequest(
+    ushort PaletteIndex,
+    uint SourceAddress,
+    ushort DestinationColorIndex,
+    ushort ColorCount);
+
+/// <summary>One phase-three room-light palette pair selected by `$AD:F24B`.</summary>
+public readonly record struct MotherBrainBackgroundPaletteTransferRequest(
+    ushort PaletteIndex,
+    uint SourceAddress,
+    ushort FirstDestinationColorIndex,
+    ushort SecondDestinationColorIndex,
+    ushort ColorsPerDestination);
 
 /// <summary>One-call debugger witness for the Baby entrance and latch chain.</summary>
 public readonly record struct BabyMetroidCutsceneStepResult(
@@ -1076,4 +1360,13 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     bool AmbientCrySoundQueued,
     bool SamusTouchCollision,
     bool HealingCompleted,
-    ushort Health);
+    ushort Health,
+    bool SamusRainbowActivated,
+    bool SamusAnimationFrozen,
+    bool SamusRainbowDisabled,
+    bool HyperBeamEnabled,
+    bool PhaseThreeHandoff,
+    BabyMetroidDeathExplosionRequest? DeathExplosion,
+    BabyMetroidPaletteTransferRequest? BabyPaletteTransfer,
+    MotherBrainSpriteTileTransferRequest? AttackTileTransfer,
+    MotherBrainBackgroundPaletteTransferRequest? BackgroundPaletteTransfer);

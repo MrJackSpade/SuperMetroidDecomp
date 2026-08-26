@@ -44,6 +44,7 @@ VerifyMotherBrainRainbowBeamSamusMovement();
 VerifyMotherBrainRainbowBeamAttackSequence();
 VerifyMotherBrainBombProjectiles();
 VerifyMotherBrainProjectileRendering();
+VerifyMiscDustProjectiles();
 VerifyMotherBrainEscapeDoorParticles();
 VerifyBabyMetroidCutsceneEntrance();
 VerifySamusSolidEnemyCollision();
@@ -4585,6 +4586,106 @@ static void VerifyMotherBrainProjectileRendering()
 
     Console.WriteLine(
         "  Mother Brain projectiles: purple-breath timing and high/low OAM passes agree.");
+}
+
+/// <summary>
+/// Verifies the `$86:E509` producer used by the Baby death sequence: pointer-table lookup,
+/// exact parameter-three animation duration, shared high-priority OAM, and `$E6E0`'s strict
+/// layer-1-origin deletion boundaries.
+/// </summary>
+static void VerifyMiscDustProjectiles()
+{
+    var bus = new TestAddressSpace();
+
+    // Parameter three indexes word `$86:E432`, whose retail value points at `$E138`.
+    WriteTestWord(bus, 0x86e432, 0xe138);
+    bus.WriteBytes(0x86e138, [
+        0x04, 0x00, 0x00, 0x98,
+        0x06, 0x00, 0x07, 0x98,
+        0x05, 0x00, 0x0e, 0x98,
+        0x05, 0x00, 0x15, 0x98,
+        0x05, 0x00, 0x1c, 0x98,
+        0x06, 0x00, 0x23, 0x98,
+        0x54, 0x81,
+    ]);
+    for (int frame = 0; frame < 6; frame++)
+    {
+        ushort pointer = unchecked((ushort)(0x9800 + frame * 7));
+        bus.WriteBytes(0x8d0000 | pointer, [
+            0x01, 0x00,
+            0x00, 0x00, 0x00, unchecked((byte)(0x30 + frame)), 0x20,
+        ]);
+    }
+
+    var motherBrain = new MotherBrainRainbowBeamAttackSequence();
+    var samus = new SamusState();
+    var projectiles = new MotherBrainEnemyProjectileSystem();
+    AssertEqual<int?>(17,
+        projectiles.SpawnMiscDust(bus, 0x0064, 0x0050, animationIndex: 3),
+        "misc dust uses highest free shared slot");
+    MotherBrainEnemyProjectileSlot dust = projectiles.Slots[17];
+    AssertEqual(MotherBrainEnemyProjectileSystem.MiscDustDefinition, dust.ProjectileId,
+        "misc-dust definition ID");
+    AssertEqual((ushort)0x1000, dust.Properties, "misc dust uses high-priority pass");
+    AssertEqual((ushort)3, dust.SpawnParameter, "misc-dust animation parameter retained");
+    AssertEqual((ushort)0xe138, dust.InstructionPointer,
+        "misc-dust initializer follows parameter-three pointer table");
+
+    ushort[] spritemaps = [0x9800, 0x9807, 0x980e, 0x9815, 0x981c, 0x9823];
+    int[] durations = [4, 6, 5, 5, 5, 6];
+    int call = 0;
+    for (int frame = 0; frame < spritemaps.Length; frame++)
+    {
+        for (int repeat = 0; repeat < durations[frame]; repeat++)
+        {
+            projectiles.StepFrame(
+                bus, motherBrain, baby: null, samus, layer1X: 0, layer1Y: 0);
+            call++;
+            AssertTrue(dust.IsActive, $"misc dust remains active on call {call}");
+            AssertEqual(spritemaps[frame], dust.SpritemapPointer,
+                $"misc-dust animation call {call}");
+            AssertEqual((ushort)0x0064, dust.XPosition,
+                $"misc dust remains stationary in X on call {call}");
+            AssertEqual((ushort)0x0050, dust.YPosition,
+                $"misc dust remains stationary in Y on call {call}");
+        }
+    }
+    AssertEqual(31, call, "parameter-three small explosion has 31 visible calls");
+
+    // The final live frame still belongs to `$86:8390` because property bit `$1000` is set.
+    var oam = new OamBuffer();
+    oam.BeginFrame();
+    projectiles.DrawHighPriority(bus, oam, layer1X: 0, layer1Y: 0);
+    AssertEqual(4, oam.NextByteOffset, "live misc dust emits one high-priority OBJ");
+    AssertEqual(0x035, oam.GetEntry(0).TileNumber,
+        "last misc-dust frame reaches synthetic bank-$8D tile");
+    projectiles.DrawLowPriority(bus, oam, layer1X: 0, layer1Y: 0);
+    AssertEqual(4, oam.NextByteOffset, "misc dust is absent from low-priority pass");
+
+    projectiles.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0, layer1Y: 0);
+    AssertTrue(!dust.IsActive, "parameter-three small explosion deletes on call 32");
+
+    var offscreen = new MotherBrainEnemyProjectileSystem();
+    AssertTrue(offscreen.SpawnMiscDust(bus, 0x0064, 0x0050, 3).HasValue,
+        "off-screen misc-dust fixture allocation");
+    offscreen.StepFrame(
+        bus, motherBrain, baby: null, samus, layer1X: 0x0065, layer1Y: 0);
+    AssertTrue(!offscreen.Slots[17].IsActive,
+        "misc-dust origin one pixel left of layer one deletes before animation");
+
+    var rightBoundary = new MotherBrainEnemyProjectileSystem();
+    AssertTrue(rightBoundary.SpawnMiscDust(bus, 0x0100, 0x0050, 3).HasValue,
+        "right-boundary misc-dust fixture allocation");
+    rightBoundary.StepFrame(
+        bus, motherBrain, baby: null, samus, layer1X: 0, layer1Y: 0);
+    AssertTrue(!rightBoundary.Slots[17].IsActive,
+        "misc-dust origin at layer-one X plus 256 deletes");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => projectiles.SpawnMiscDust(bus, 0, 0, 0x001e),
+        "misc-dust animation parameter $1E rejected");
+
+    Console.WriteLine(
+        "  Misc dust: pointer lookup, small-explosion timing, OAM, and off-screen deletion agree.");
 }
 
 /// <summary>

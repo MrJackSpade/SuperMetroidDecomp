@@ -651,6 +651,7 @@ var observedAttackTileTransfers = new List<MotherBrainSpriteTileTransferRequest>
 var observedBabyDeathPalettes = new List<BabyMetroidPaletteTransferRequest>();
 var observedPhaseThreeBackgroundPalettes = new List<MotherBrainBackgroundPaletteTransferRequest>();
 int observedBabyDeathExplosions = 0;
+int allocatedBabyDeathExplosions = 0;
 bool observedBabyPhaseThreeHandoff = false;
 bool observedBabySpawnRequest = false;
 bool observedFinalBeamSound = false;
@@ -1457,11 +1458,19 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             if (babyResult.DeathExplosion is { } deathExplosion)
             {
                 observedBabyDeathExplosions++;
+                int? slot = motherBrainProjectiles!.SpawnMiscDust(
+                    bus,
+                    deathExplosion.XPosition,
+                    deathExplosion.YPosition,
+                    deathExplosion.ProjectileParameter);
+                if (slot is not null)
+                    allocatedBabyDeathExplosions++;
                 Console.WriteLine(
                     $"frame {frameIndex + 1,4}: Baby death explosion pattern " +
                     $"{deathExplosion.PatternIndex} at ({deathExplosion.XPosition}," +
                     $"{deathExplosion.YPosition}); projectile parameter " +
-                    $"${deathExplosion.ProjectileParameter:X4}, SFX ${deathExplosion.SoundEffect:X2}.");
+                    $"${deathExplosion.ProjectileParameter:X4}, " +
+                    $"slot={slot?.ToString() ?? "full"}, SFX ${deathExplosion.SoundEffect:X2}.");
             }
 
             if (babyResult.BabyPaletteTransfer is { } babyPalette)
@@ -2572,6 +2581,7 @@ if (options.MotherBrainRainbowScript)
          !cutsceneBaby.IsDeleted ||
          !observedBabyPhaseThreeHandoff ||
          observedBabyDeathExplosions != 30 ||
+         allocatedBabyDeathExplosions != 30 ||
          observedBabyDeathPalettes.Count != 6 ||
          observedAttackTileTransfers.Count != 4 ||
          observedPhaseThreeBackgroundPalettes.Count != 7 ||
@@ -2581,7 +2591,8 @@ if (options.MotherBrainRainbowScript)
         throw new InvalidOperationException(
             $"Baby death/recovery producer differed at frame 6168: " +
             $"deleted={cutsceneBaby?.IsDeleted}, handoff={observedBabyPhaseThreeHandoff}, " +
-            $"explosions={observedBabyDeathExplosions}, black palettes=" +
+            $"explosions={observedBabyDeathExplosions}/{allocatedBabyDeathExplosions} allocated, " +
+            $"black palettes=" +
             $"{observedBabyDeathPalettes.Count}, attack DMA={observedAttackTileTransfers.Count}, " +
             $"room palettes={observedPhaseThreeBackgroundPalettes.Count}, " +
             $"hyper=${runtime.Samus.HyperBeam:X4}, " +

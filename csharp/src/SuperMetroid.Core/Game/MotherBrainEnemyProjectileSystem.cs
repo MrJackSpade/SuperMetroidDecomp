@@ -28,6 +28,9 @@ public sealed class MotherBrainEnemyProjectileSystem
     /// <summary>Large purple-breath definition spawned beside Mother Brain bombs.</summary>
     public const ushort PurpleBreathBigDefinition = 0xcb2f;
 
+    /// <summary>Generic room-coordinate dust/explosion definition at <c>$86:E509</c>.</summary>
+    public const ushort MiscDustDefinition = 0xe509;
+
     /// <summary>Exploded escape-door fragment definition at <c>$86:CB21</c>.</summary>
     public const ushort EscapeDoorParticleDefinition = 0xcb21;
 
@@ -43,6 +46,7 @@ public sealed class MotherBrainEnemyProjectileSystem
     private const ushort SleepInstruction = 0x8159;
     private const ushort ClearPreInstruction = 0x816a;
     private const ushort GotoInstruction = 0x81ab;
+    private const int MiscDustInstructionPointerTable = 0x86e42c;
     private static ReadOnlySpan<ushort> BombYAccelerations =>
         [0x0007, 0x0010, 0x0020, 0x0040, 0x0070, 0x00b0, 0x00f0, 0x0130, 0x0170, 0x0000];
     private static readonly short[] EscapeDoorParticleYOffsets =
@@ -187,6 +191,52 @@ public sealed class MotherBrainEnemyProjectileSystem
     }
 
     /// <summary>
+    /// Allocates `$86:E509` at an explicit room coordinate and selects one of its thirty
+    /// ROM animation lists through `$86:E42C`. This is the ordinary producer used by the
+    /// dying Baby, Mother Brain corpse rows, bombs, and the exploding escape door.
+    /// </summary>
+    public int? SpawnMiscDust(
+        ISnesAddressSpace bus,
+        ushort xPosition,
+        ushort yPosition,
+        ushort animationIndex)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if (animationIndex > 0x001d)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(animationIndex),
+                animationIndex,
+                "Bank-$86 misc-dust animation index must be in the native $00..$1D range.");
+        }
+
+        int slotIndex = SlotCount - 1;
+        while (slotIndex >= 0 && _slots[slotIndex].IsActive)
+            slotIndex--;
+        if (slotIndex < 0)
+            return null;
+
+        MotherBrainEnemyProjectileSlot slot = _slots[slotIndex];
+        slot.Clear();
+        slot.ProjectileId = MiscDustDefinition;
+        slot.Properties = 0x1000;
+        slot.GraphicsIndex = 0;
+        slot.SpawnParameter = animationIndex;
+        slot.XPosition = xPosition;
+        slot.YPosition = yPosition;
+
+        // `$E468` doubles the parameter and follows the literal bank-$86 word table. Native
+        // SpawnEnemyProjectile cleared the slot and installed instruction timer one before
+        // calling that initializer; reproduce those shared effects around its three stores.
+        slot.InstructionPointer = ReadWord(
+            bus,
+            MiscDustInstructionPointerTable + animationIndex * 2);
+        slot.InstructionTimer = 1;
+        slot.SpritemapPointer = 0x8000;
+        return slotIndex;
+    }
+
+    /// <summary>
     /// Allocates and initializes one exploded escape-door fragment from <c>$86:C961-$C991</c>.
     /// </summary>
     public int? SpawnEscapeDoorParticle(MotherBrainEscapeDoorParticleSpawnRequest request)
@@ -265,6 +315,7 @@ public sealed class MotherBrainEnemyProjectileSystem
         BabyMetroidCutsceneState? baby,
         SamusState samus,
         ushort layer1X = 0,
+        ushort layer1Y = 0,
         SamusBombProjectileSystem? samusBombs = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -342,7 +393,22 @@ public sealed class MotherBrainEnemyProjectileSystem
             {
                 // `$86:CAA3` is an RTS pre-instruction: the breath remains fixed at the
                 // coordinates captured at spawn while its finite ROM animation runs.
-                RunPurpleBreathInstructionHandler(bus, slot);
+                RunFiniteTimedInstructionHandler(bus, slot, "Mother Brain purple breath");
+                continue;
+            }
+
+            if (slot.ProjectileId == MiscDustDefinition)
+            {
+                // `$86:E4FE` removes room-coordinate dust as soon as its ORIGIN leaves the
+                // strict 256x256 layer-1 window. Its individual pieces still use the shared
+                // bank-$8D edge-wrap rules when an admitted origin straddles a boundary.
+                if (IsOutsideLayerOneWindow(slot, layer1X, layer1Y))
+                {
+                    slot.ProjectileId = 0;
+                    continue;
+                }
+
+                RunFiniteTimedInstructionHandler(bus, slot, "misc dust/explosion");
                 continue;
             }
 
@@ -463,9 +529,10 @@ public sealed class MotherBrainEnemyProjectileSystem
         }
     }
 
-    private static bool RunPurpleBreathInstructionHandler(
+    private static bool RunFiniteTimedInstructionHandler(
         ISnesAddressSpace bus,
-        MotherBrainEnemyProjectileSlot slot)
+        MotherBrainEnemyProjectileSlot slot,
+        string definitionName)
     {
         ushort oldTimer = slot.InstructionTimer;
         slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
@@ -480,7 +547,7 @@ public sealed class MotherBrainEnemyProjectileSystem
             {
                 if (durationOrOpcode == 0)
                     throw new InvalidDataException(
-                        $"Mother Brain purple-breath frame at $86:{pointer:X4} has zero duration.");
+                        $"{definitionName} frame at $86:{pointer:X4} has zero duration.");
 
                 slot.InstructionTimer = durationOrOpcode;
                 slot.SpritemapPointer = ReadWord(
@@ -504,13 +571,29 @@ public sealed class MotherBrainEnemyProjectileSystem
 
                 default:
                     throw new NotSupportedException(
-                        $"Mother Brain purple-breath instruction $86:{durationOrOpcode:X4} at " +
+                        $"{definitionName} instruction $86:{durationOrOpcode:X4} at " +
                         $"$86:{pointer:X4} is not translated.");
             }
         }
 
         throw new InvalidDataException(
-            "Mother Brain purple-breath list did not reach a timed frame within 16 operations.");
+            $"{definitionName} list did not reach a timed frame within 16 operations.");
+    }
+
+    private static bool IsOutsideLayerOneWindow(
+        MotherBrainEnemyProjectileSlot slot,
+        ushort layer1X,
+        ushort layer1Y)
+    {
+        // `$86:E6E0` uses CMP followed by BMI/BPL rather than an unsigned BCC/BCS pair.
+        // Express each subtraction as a signed 16-bit result so wraparound at room-space
+        // boundaries remains visible instead of becoming a host integer comparison.
+        ushort right = unchecked((ushort)(layer1X + 0x0100));
+        ushort bottom = unchecked((ushort)(layer1Y + 0x0100));
+        return unchecked((short)(slot.XPosition - layer1X)) < 0 ||
+               unchecked((short)(slot.XPosition - right)) >= 0 ||
+               unchecked((short)(slot.YPosition - layer1Y)) < 0 ||
+               unchecked((short)(slot.YPosition - bottom)) >= 0;
     }
 
     private static bool RunBombPreInstruction(

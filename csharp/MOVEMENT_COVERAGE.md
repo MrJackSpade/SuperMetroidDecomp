@@ -12,7 +12,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | Type | Native family | Current C# admission | Remaining native branches |
 |---:|---|---|---|
 | `$00` | Standing | `$01-$08`, landing `$A4-$A7` | Firing/landing-aim variants, forward pose, transitions from later systems |
-| `$01` | Running | `$09/$0A`, dry air, no run button | Run button, speed booster, liquid/environment effects, aim/fire variants |
+| `$01` | Running | `$09/$0A/$0D-$12`, dry air, no run button | Run button, speed booster, liquid/environment effects, gun-extended/fire variants |
 | `$02` | Normal jumping | `$4B-$4E`, dry air, variable height, ceiling/floor collision | Aimed jump poses, equipment/liquids, external displacement |
 | `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation | Wall-jump trigger, space jump, screw attack, equipment/liquids |
 | `$04` | Morph ball on ground | — | Entire family |
@@ -77,7 +77,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
   collision center directly. RoomViewer exposes mutually exclusive **Hold Up**/**Hold Down**
   controls, and DebugRunner `--posture-script` verifies both facing directions against the ROM.
 
-## Verified stationary-aim slice
+## Verified grounded-aim slice
 
 - The shared right table `$91:A0EC` admits `$01/$03/$05/$07`; its left mirror `$91:A172`
   admits `$02/$04/$06/$08`. Straight Up and the canonical `$0010/$0020` shoulder bits select
@@ -89,8 +89,15 @@ are listed below so later work cannot accidentally confuse “the current viewer
   `$91:82D9` instead reads pose-definition byte two, yielding `$01` for right aim and `$02`
   for left aim. The runtime models that distinct fallback seam explicitly.
 - Aimed walk-off is deliberately blocked at `$2B/$2C/$6D-$70` rather than incorrectly using
-  unaimed `$29/$2A`. Aimed running, jumping, falling, landing, crouching, and turning are the
-  next connected families.
+  unaimed `$29/$2A`.
+- Holding a direction with canonical aim-up/down selects `$0F/$10` or `$11/$12` directly
+  from `$91:A1F8/$91:A242`. Those poses execute the same exact movement-type-one acceleration,
+  collision, slope, animation, camera, and momentum paths as `$09/$0A`; `$0D/$0E`'s unused
+  straight-up records are also dispatcher-correct but have no ordinary retail input route.
+- Releasing only the direction changes aimed running to the matching stationary aim pose
+  after that frame's movement; releasing every button preserves the aimed run pose while
+  native mode-two momentum decelerates, then pose-definition byte two returns to `$01/$02`.
+  Aimed jumping, falling, landing, crouching, and turning remain the next connected families.
 
 ## Evidence
 
@@ -106,10 +113,13 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - The real-ROM `--aim-script` route completes all six stationary poses and fallbacks:
   `$01 -> $03/$05/$07 -> $01`, turns and decelerates to `$02`, then runs
   `$02 -> $04/$06/$08 -> $02`; its visible `$08` diagnostic retains terrain/HUD alignment.
+- The real-ROM `--aim-run-script` route completes `$01 -> $0F -> $05`, `$01 -> $11 -> $01`,
+  turns and decelerates left, then completes `$02 -> $10 -> $06` and `$02 -> $12 -> $02`.
+  It reaches the native speed cap in both directions and keeps camera, slopes, HUD, and tiles aligned.
 
 ## Next implementation order
 
-1. Aimed running/jumping/falling/landing/turn/crouch poses and crouch-jump entry.
+1. Aimed jumping/falling/landing/turn/crouch poses and crouch-jump entry.
 2. Morph ball ground/fall/bounce, bombs, and spring ball.
 3. Aerial turns and the real wall-jump trigger/launch.
 4. Knockback and damage boost.

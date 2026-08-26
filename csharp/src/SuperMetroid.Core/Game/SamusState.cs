@@ -68,6 +68,24 @@ public sealed class SamusState
     /// <summary>Pose $08 is stationary, facing left, and aiming diagonally down-left.</summary>
     public const byte StandingAimDiagonalDownLeftPose = 0x08;
 
+    /// <summary>Pose $0D is the unused right-moving straight-up aim record.</summary>
+    public const byte RunningAimUpRightPose = 0x0d;
+
+    /// <summary>Pose $0E is the unused left-moving straight-up aim record.</summary>
+    public const byte RunningAimUpLeftPose = 0x0e;
+
+    /// <summary>Pose $0F moves right while aiming diagonally up-right.</summary>
+    public const byte RunningAimDiagonalUpRightPose = 0x0f;
+
+    /// <summary>Pose $10 moves left while aiming diagonally up-left.</summary>
+    public const byte RunningAimDiagonalUpLeftPose = 0x10;
+
+    /// <summary>Pose $11 moves right while aiming diagonally down-right.</summary>
+    public const byte RunningAimDiagonalDownRightPose = 0x11;
+
+    /// <summary>Pose $12 moves left while aiming diagonally down-left.</summary>
+    public const byte RunningAimDiagonalDownLeftPose = 0x12;
+
     /// <summary>Pose $27 is ordinary right-facing crouching.</summary>
     public const byte CrouchingRightPose = 0x27;
 
@@ -235,31 +253,60 @@ public sealed class SamusState
         StandingAimDiagonalUpLeftPose or
         StandingAimDiagonalDownLeftPose;
 
+    /// <summary>True for the four movement-type-one, right-moving pose-table entries.</summary>
+    public static bool IsRightFacingRunningPose(byte pose) => pose is
+        MovingRightNormalPose or
+        RunningAimUpRightPose or
+        RunningAimDiagonalUpRightPose or
+        RunningAimDiagonalDownRightPose;
+
+    /// <summary>True for the four movement-type-one, left-moving pose-table entries.</summary>
+    public static bool IsLeftFacingRunningPose(byte pose) => pose is
+        MovingLeftNormalPose or
+        RunningAimUpLeftPose or
+        RunningAimDiagonalUpLeftPose or
+        RunningAimDiagonalDownLeftPose;
+
+    /// <summary>True when a supported standing/running pose visibly carries an aim direction.</summary>
+    public static bool IsGroundedAimPose(byte pose) => pose is
+        StandingAimUpRightPose or StandingAimUpLeftPose or
+        StandingAimDiagonalUpRightPose or StandingAimDiagonalUpLeftPose or
+        StandingAimDiagonalDownRightPose or StandingAimDiagonalDownLeftPose or
+        RunningAimUpRightPose or RunningAimUpLeftPose or
+        RunningAimDiagonalUpRightPose or RunningAimDiagonalUpLeftPose or
+        RunningAimDiagonalDownRightPose or RunningAimDiagonalDownLeftPose;
+
     /// <summary>
-    /// Applies a pose-table transition within `$01/$03/$05/$07` or `$02/$04/$06/$08`.
+    /// Applies a same-facing transition within the movement-type-zero standing family and
+    /// movement-type-one running family when either endpoint is an aimed pose.
     /// </summary>
     /// <remarks>
-    /// All eight records have movement type zero, radius 21, and ordinary animation-list
-    /// initialization. The ROM changes only aim/draw metadata here; jump, turn, crouch,
-    /// running, and firing targets deliberately go through their separate side-effect paths.
+    /// All admitted records have radius 21 and ordinary animation-list initialization.
+    /// Movement type changes take effect on the following frame, exactly because pose
+    /// transitions occur after movement; jump, turn, crouch, and firing targets still go
+    /// through their separate side-effect paths.
     /// </remarks>
-    public void ApplyGroundedStandingAimTransition(ISnesAddressSpace bus, byte targetPose)
+    public void ApplyGroundedAimTransition(ISnesAddressSpace bus, byte targetPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        bool sameRightFamily = IsRightFacingStandingPose(Pose) &&
-            IsRightFacingStandingPose(targetPose);
-        bool sameLeftFamily = IsLeftFacingStandingPose(Pose) &&
-            IsLeftFacingStandingPose(targetPose);
+        bool sourceRight = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose);
+        bool targetRight = IsRightFacingStandingPose(targetPose) || IsRightFacingRunningPose(targetPose);
+        bool sourceLeft = IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose);
+        bool targetLeft = IsLeftFacingStandingPose(targetPose) || IsLeftFacingRunningPose(targetPose);
+        bool sameRightFamily = sourceRight && targetRight;
+        bool sameLeftFamily = sourceLeft && targetLeft;
         if (!sameRightFamily && !sameLeftFamily)
         {
             throw new NotSupportedException(
-                $"Standing aim transition ${Pose:X2} -> ${targetPose:X2} crosses an untranslated pose family.");
+                $"Grounded aim transition ${Pose:X2} -> ${targetPose:X2} crosses an untranslated pose family.");
         }
+        if (!IsGroundedAimPose(Pose) && !IsGroundedAimPose(targetPose))
+            throw new InvalidOperationException("Grounded aim transition requires an aimed source or target pose.");
 
         // This is $91:F404/$91:FB08's ordinary target installation. Preserve it as an
         // explicit method: replacing Pose directly would omit radius refresh, animation
         // frame zero, delay-list selection, and pending-command cleanup.
-        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Standing aim");
+        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Grounded aim");
     }
 
     /// <summary>
@@ -397,8 +444,12 @@ public sealed class SamusState
         bool verified = (Pose, targetPose) is
             (FacingRightNormalPose, NeutralJumpTransitionRightPose) or
             (FacingLeftNormalPose, NeutralJumpTransitionLeftPose) or
-            (MovingRightNormalPose, SpinJumpRightPose) or
-            (MovingLeftNormalPose, SpinJumpLeftPose);
+            (MovingRightNormalPose or RunningAimUpRightPose or
+                RunningAimDiagonalUpRightPose or RunningAimDiagonalDownRightPose,
+             SpinJumpRightPose) or
+            (MovingLeftNormalPose or RunningAimUpLeftPose or
+                RunningAimDiagonalUpLeftPose or RunningAimDiagonalDownLeftPose,
+             SpinJumpLeftPose);
         if (!verified)
         {
             throw new NotSupportedException(
@@ -430,10 +481,16 @@ public sealed class SamusState
         ArgumentNullException.ThrowIfNull(level);
 
         bool startsCrouching = (Pose, targetPose) is
-            (FacingRightNormalPose or MovingRightNormalPose or
+            (FacingRightNormalPose or StandingAimUpRightPose or
+                StandingAimDiagonalUpRightPose or StandingAimDiagonalDownRightPose or
+                MovingRightNormalPose or RunningAimUpRightPose or
+                RunningAimDiagonalUpRightPose or RunningAimDiagonalDownRightPose or
                 NormalLandingRightPose or SpinLandingRightPose,
              CrouchingTransitionRightPose) or
-            (FacingLeftNormalPose or MovingLeftNormalPose or
+            (FacingLeftNormalPose or StandingAimUpLeftPose or
+                StandingAimDiagonalUpLeftPose or StandingAimDiagonalDownLeftPose or
+                MovingLeftNormalPose or RunningAimUpLeftPose or
+                RunningAimDiagonalUpLeftPose or RunningAimDiagonalDownLeftPose or
                 NormalLandingLeftPose or SpinLandingLeftPose,
              CrouchingTransitionLeftPose);
         bool startsStanding = (Pose, targetPose) is

@@ -445,15 +445,14 @@ public sealed class SuperMetroidRuntime
             // the running pose while base speed is nonzero and selects momentum routine
             // one (deceleration). Capture this before movement, where native alpha does.
             if (GroundedSamusMovementEnabled &&
-                Samus.Pose is SamusState.MovingRightNormalPose or SamusState.MovingLeftNormalPose &&
+                (SamusState.IsRightFacingRunningPose(Samus.Pose) ||
+                 SamusState.IsLeftFacingRunningPose(Samus.Pose)) &&
                 Controller1.Current == 0 &&
                 ProspectiveSamusPose is null)
             {
                 ProspectiveSamusFallbackPose = Samus.HorizontalSpeed.BaseFixed != 0
                     ? Samus.Pose
-                    : Samus.Pose == SamusState.MovingRightNormalPose
-                        ? SamusState.FacingRightNormalPose
-                        : SamusState.FacingLeftNormalPose;
+                    : Samus.ReadNoInputFallbackPose(_addressSpace);
             }
 
             // Pose-definition byte two for `$03/$05/$07` is `$01`, and for
@@ -497,6 +496,9 @@ public sealed class SuperMetroidRuntime
                         NmiFrameCounter);
                         break;
                     case SamusState.MovingRightNormalPose:
+                    case SamusState.RunningAimUpRightPose:
+                    case SamusState.RunningAimDiagonalUpRightPose:
+                    case SamusState.RunningAimDiagonalDownRightPose:
                         LastGroundedSamusMovement = SamusGroundedMovement.StepRunningRight(
                         _addressSpace,
                         LevelData,
@@ -514,6 +516,9 @@ public sealed class SuperMetroidRuntime
                         NmiFrameCounter);
                         break;
                     case SamusState.MovingLeftNormalPose:
+                    case SamusState.RunningAimUpLeftPose:
+                    case SamusState.RunningAimDiagonalUpLeftPose:
+                    case SamusState.RunningAimDiagonalDownLeftPose:
                         LastGroundedSamusMovement = SamusGroundedMovement.StepRunningLeft(
                         _addressSpace,
                         LevelData,
@@ -645,7 +650,13 @@ public sealed class SuperMetroidRuntime
                         SamusState.StandingAimDiagonalUpRightPose or
                         SamusState.StandingAimDiagonalUpLeftPose or
                         SamusState.StandingAimDiagonalDownRightPose or
-                        SamusState.StandingAimDiagonalDownLeftPose)
+                        SamusState.StandingAimDiagonalDownLeftPose or
+                        SamusState.RunningAimUpRightPose or
+                        SamusState.RunningAimUpLeftPose or
+                        SamusState.RunningAimDiagonalUpRightPose or
+                        SamusState.RunningAimDiagonalUpLeftPose or
+                        SamusState.RunningAimDiagonalDownRightPose or
+                        SamusState.RunningAimDiagonalDownLeftPose)
                 {
                     throw new NotSupportedException(
                         $"Aimed standing pose ${poseAtFrameStart:X2} walked off the floor; aimed falling poses are the next untranslated boundary.");
@@ -662,11 +673,17 @@ public sealed class SuperMetroidRuntime
                         switch ((poseAtFrameStart, targetPose))
                         {
                             case var (source, target)
-                                when (SamusState.IsRightFacingStandingPose(source) &&
-                                      SamusState.IsRightFacingStandingPose(target)) ||
-                                     (SamusState.IsLeftFacingStandingPose(source) &&
-                                      SamusState.IsLeftFacingStandingPose(target)):
-                                Samus.ApplyGroundedStandingAimTransition(_addressSpace, targetPose);
+                                when (SamusState.IsGroundedAimPose(source) ||
+                                      SamusState.IsGroundedAimPose(target)) &&
+                                     (((SamusState.IsRightFacingStandingPose(source) ||
+                                        SamusState.IsRightFacingRunningPose(source)) &&
+                                       (SamusState.IsRightFacingStandingPose(target) ||
+                                        SamusState.IsRightFacingRunningPose(target))) ||
+                                      ((SamusState.IsLeftFacingStandingPose(source) ||
+                                        SamusState.IsLeftFacingRunningPose(source)) &&
+                                       (SamusState.IsLeftFacingStandingPose(target) ||
+                                        SamusState.IsLeftFacingRunningPose(target)))):
+                                Samus.ApplyGroundedAimTransition(_addressSpace, targetPose);
                                 break;
                             case (SamusState.FacingRightNormalPose, SamusState.MovingRightNormalPose):
                                 Samus.ApplyStandingRightToRunningRight(_addressSpace);
@@ -686,7 +703,15 @@ public sealed class SuperMetroidRuntime
                                   SamusState.NeutralJumpTransitionLeftPose):
                             case (SamusState.MovingRightNormalPose,
                                   SamusState.SpinJumpRightPose):
+                            case (SamusState.RunningAimUpRightPose or
+                                  SamusState.RunningAimDiagonalUpRightPose or
+                                  SamusState.RunningAimDiagonalDownRightPose,
+                                  SamusState.SpinJumpRightPose):
                             case (SamusState.MovingLeftNormalPose,
+                                  SamusState.SpinJumpLeftPose):
+                            case (SamusState.RunningAimUpLeftPose or
+                                  SamusState.RunningAimDiagonalUpLeftPose or
+                                  SamusState.RunningAimDiagonalDownLeftPose,
                                   SamusState.SpinJumpLeftPose):
                                 Samus.ApplyOrdinaryJumpTransition(_addressSpace, targetPose);
                                 break;
@@ -706,6 +731,14 @@ public sealed class SuperMetroidRuntime
                                   SamusState.StandingTransitionRightPose):
                             case (SamusState.CrouchingLeftPose,
                                   SamusState.StandingTransitionLeftPose):
+                            case var (source, crouchTarget)
+                                when SamusState.IsGroundedAimPose(source) &&
+                                     ((crouchTarget == SamusState.CrouchingTransitionRightPose &&
+                                       (SamusState.IsRightFacingStandingPose(source) ||
+                                        SamusState.IsRightFacingRunningPose(source))) ||
+                                      (crouchTarget == SamusState.CrouchingTransitionLeftPose &&
+                                       (SamusState.IsLeftFacingStandingPose(source) ||
+                                        SamusState.IsLeftFacingRunningPose(source)))):
                                 Samus.TryApplyPostureTransition(
                                     _addressSpace,
                                     LevelData ?? throw new InvalidOperationException(
@@ -720,7 +753,8 @@ public sealed class SuperMetroidRuntime
                     }
                 }
                 else if (!animationTransitionApplied &&
-                         poseAtFrameStart is SamusState.MovingRightNormalPose or SamusState.MovingLeftNormalPose &&
+                         (SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||
+                          SamusState.IsLeftFacingRunningPose(poseAtFrameStart)) &&
                          ProspectiveSamusFallbackPose == poseAtFrameStart)
                 {
                     // Momentum routine one at $91:EC50 rechecks speed AFTER movement. Any
@@ -729,18 +763,24 @@ public sealed class SuperMetroidRuntime
                         Samus.HorizontalSpeed.BaseFixed != 0 ? (ushort)2 : (ushort)0;
                 }
                 else if (!animationTransitionApplied &&
-                         poseAtFrameStart == SamusState.MovingRightNormalPose &&
+                         SamusState.IsRightFacingRunningPose(poseAtFrameStart) &&
                          ProspectiveSamusFallbackPose == SamusState.FacingRightNormalPose)
                 {
                     Samus.HorizontalSpeed.AccelerationMode = 0;
-                    Samus.ApplyRunningRightToStandingRight(_addressSpace);
+                    if (poseAtFrameStart == SamusState.MovingRightNormalPose)
+                        Samus.ApplyRunningRightToStandingRight(_addressSpace);
+                    else
+                        Samus.ApplyGroundedAimTransition(_addressSpace, SamusState.FacingRightNormalPose);
                 }
                 else if (!animationTransitionApplied &&
-                         poseAtFrameStart == SamusState.MovingLeftNormalPose &&
+                         SamusState.IsLeftFacingRunningPose(poseAtFrameStart) &&
                          ProspectiveSamusFallbackPose == SamusState.FacingLeftNormalPose)
                 {
                     Samus.HorizontalSpeed.AccelerationMode = 0;
-                    Samus.ApplyRunningLeftToStandingLeft(_addressSpace);
+                    if (poseAtFrameStart == SamusState.MovingLeftNormalPose)
+                        Samus.ApplyRunningLeftToStandingLeft(_addressSpace);
+                    else
+                        Samus.ApplyGroundedAimTransition(_addressSpace, SamusState.FacingLeftNormalPose);
                 }
                 else if (!animationTransitionApplied &&
                          poseAtFrameStart is
@@ -755,7 +795,7 @@ public sealed class SuperMetroidRuntime
                     // Only the zero-controller path above populates this value. Validate
                     // and apply it through the same radius/animation seam as held-input
                     // aim changes; never assign the ROM byte directly to Pose.
-                    Samus.ApplyGroundedStandingAimTransition(
+                    Samus.ApplyGroundedAimTransition(
                         _addressSpace,
                         unchecked((byte)aimFallback));
                 }

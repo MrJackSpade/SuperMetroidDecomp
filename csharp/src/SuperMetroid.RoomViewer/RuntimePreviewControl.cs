@@ -334,7 +334,13 @@ internal sealed class RuntimePreviewControl : UserControl
                   SamusState.StandingAimDiagonalUpRightPose or
                   SamusState.StandingAimDiagonalUpLeftPose or
                   SamusState.StandingAimDiagonalDownRightPose or
-                  SamusState.StandingAimDiagonalDownLeftPose
+                  SamusState.StandingAimDiagonalDownLeftPose or
+                  SamusState.RunningAimUpRightPose or
+                  SamusState.RunningAimUpLeftPose or
+                  SamusState.RunningAimDiagonalUpRightPose or
+                  SamusState.RunningAimDiagonalUpLeftPose or
+                  SamusState.RunningAimDiagonalDownRightPose or
+                  SamusState.RunningAimDiagonalDownLeftPose
                 ? $"next ${transition.ProspectivePose:X2} translated"
                 : $"next ${transition.ProspectivePose:X2} blocked"
             : runtime.ProspectiveSamusFallbackPose is ushort fallback

@@ -1164,11 +1164,26 @@ static void VerifySamusStandingAimMovement()
     bus.WriteBytes(0x91b659, [0x04, 0x00, 0x02, 0x08, 0x06, 0x00, 0x15, 0x00]);
     bus.WriteBytes(0x91b661, [0x08, 0x00, 0x01, 0x03, 0x06, 0x00, 0x15, 0x00]);
     bus.WriteBytes(0x91b669, [0x04, 0x00, 0x02, 0x06, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b671, [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b679, [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b691, [0x08, 0x01, 0x01, 0x00, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b699, [0x04, 0x01, 0x02, 0x09, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b6a1, [0x08, 0x01, 0x01, 0x01, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b6a9, [0x04, 0x01, 0x02, 0x08, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b6b1, [0x08, 0x01, 0x01, 0x03, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b6b9, [0x04, 0x01, 0x02, 0x06, 0x06, 0x00, 0x15, 0x00]);
+
+    // Running movement type one reads the normal-air record at `$90:9F61`.
+    bus.WriteBytes(0x909f61, [
+        0x00, 0x00, 0x00, 0x30,
+        0x02, 0x00, 0x00, 0xc0,
+        0x00, 0x00, 0x00, 0x80,
+    ]);
 
     // Every transition must resolve and restart its own bank-$91 delay list. Distinct
     // pointers make an accidental reuse of the source pose observable even though the
     // synthetic frame-zero delay is deliberately identical.
-    for (int pose = 1; pose <= 8; pose++)
+    for (int pose = 1; pose <= 0x12; pose++)
     {
         ushort stream = unchecked((ushort)(0xc100 + pose * 0x10));
         WriteTestWord(bus, 0x91b010 + pose * 2, stream);
@@ -1206,14 +1221,32 @@ static void VerifySamusStandingAimMovement()
     foreach (byte target in rightAimRoute)
     {
         samus.HorizontalSpeed.BaseSpeed = 3;
-        samus.ApplyGroundedStandingAimTransition(bus, target);
+        samus.ApplyGroundedAimTransition(bus, target);
         GroundedMovementResult result = SamusGroundedMovement.StepStandingRight(
             bus, level, samus, nmiFrameCounter: 0);
         AssertTrue(result.Vertical.Collided, $"right aim pose ${target:X2} remains grounded");
         AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed, $"right aim pose ${target:X2} clears base speed");
     }
-    samus.ApplyGroundedStandingAimTransition(bus, SamusState.StandingAimUpRightPose);
+    samus.ApplyGroundedAimTransition(bus, SamusState.StandingAimUpRightPose);
     AssertEqual((byte)0x01, samus.ReadNoInputFallbackPose(bus), "right aimed no-input fallback");
+
+    // The aimed running records execute the same movement-type-one dispatcher while their
+    // own animation and shot-direction metadata remain selected. Cross the post-movement
+    // transition seam in both directions to prove speed survives running-to-running aim
+    // changes and standing clears it only on the following movement frame.
+    samus.ApplyGroundedAimTransition(bus, SamusState.RunningAimDiagonalUpRightPose);
+    ushort rightXBefore = samus.XPosition;
+    for (ushort frame = 0; frame < 4; frame++)
+        SamusGroundedMovement.StepRunningRight(bus, level, samus, frame);
+    AssertTrue(samus.XPosition > rightXBefore, "right aimed run moves right");
+    uint rightRunSpeed = samus.HorizontalSpeed.BaseFixed;
+    samus.ApplyGroundedAimTransition(bus, SamusState.RunningAimDiagonalDownRightPose);
+    AssertEqual(rightRunSpeed, samus.HorizontalSpeed.BaseFixed, "right running aim change preserves speed");
+    samus.ApplyGroundedAimTransition(bus, SamusState.RunningAimUpRightPose);
+    SamusGroundedMovement.StepRunningRight(bus, level, samus, nmiFrameCounter: 1);
+    samus.ApplyGroundedAimTransition(bus, SamusState.StandingAimUpRightPose);
+    SamusGroundedMovement.StepStandingRight(bus, level, samus, nmiFrameCounter: 0);
+    AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "right aimed running-to-standing cleanup");
 
     // Install left-facing normal through a fresh state so the transition helper never
     // crosses families; native left records are an independent mirrored family.
@@ -1233,20 +1266,34 @@ static void VerifySamusStandingAimMovement()
     ];
     foreach (byte target in leftAimRoute)
     {
-        leftSamus.ApplyGroundedStandingAimTransition(bus, target);
+        leftSamus.ApplyGroundedAimTransition(bus, target);
         GroundedMovementResult result = SamusGroundedMovement.StepStandingLeft(
             bus, level, leftSamus, nmiFrameCounter: 1);
         AssertTrue(result.Vertical.Collided, $"left aim pose ${target:X2} remains grounded");
     }
-    leftSamus.ApplyGroundedStandingAimTransition(bus, SamusState.StandingAimUpLeftPose);
+    leftSamus.ApplyGroundedAimTransition(bus, SamusState.StandingAimUpLeftPose);
     AssertEqual((byte)0x02, leftSamus.ReadNoInputFallbackPose(bus), "left aimed no-input fallback");
 
+    leftSamus.ApplyGroundedAimTransition(bus, SamusState.RunningAimDiagonalUpLeftPose);
+    ushort leftXBefore = leftSamus.XPosition;
+    for (ushort frame = 0; frame < 4; frame++)
+        SamusGroundedMovement.StepRunningLeft(bus, level, leftSamus, frame);
+    AssertTrue(leftSamus.XPosition < leftXBefore, "left aimed run moves left");
+    uint leftRunSpeed = leftSamus.HorizontalSpeed.BaseFixed;
+    leftSamus.ApplyGroundedAimTransition(bus, SamusState.RunningAimDiagonalDownLeftPose);
+    AssertEqual(leftRunSpeed, leftSamus.HorizontalSpeed.BaseFixed, "left running aim change preserves speed");
+    leftSamus.ApplyGroundedAimTransition(bus, SamusState.RunningAimUpLeftPose);
+    SamusGroundedMovement.StepRunningLeft(bus, level, leftSamus, nmiFrameCounter: 0);
+    leftSamus.ApplyGroundedAimTransition(bus, SamusState.StandingAimUpLeftPose);
+    SamusGroundedMovement.StepStandingLeft(bus, level, leftSamus, nmiFrameCounter: 1);
+    AssertEqual(0u, leftSamus.HorizontalSpeed.BaseFixed, "left aimed running-to-standing cleanup");
+
     AssertThrows<NotSupportedException>(
-        () => leftSamus.ApplyGroundedStandingAimTransition(
+        () => leftSamus.ApplyGroundedAimTransition(
             bus, SamusState.StandingAimUpRightPose),
         "standing aim transition cannot cross facing families");
 
-    Console.WriteLine("  Samus standing aim: six ROM poses, grounding, transitions, and no-input fallbacks agree.");
+    Console.WriteLine("  Samus grounded aim: stationary/running ROM poses, movement, transitions, and fallbacks agree.");
 }
 
 /// <summary>

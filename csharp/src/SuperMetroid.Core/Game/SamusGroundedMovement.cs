@@ -108,8 +108,8 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports <c>Samus_Movement_01_Running</c> at <c>$90:A3E5</c> for pose $09 moving right
-    /// in dry air without the run button.
+    /// Ports <c>Samus_Movement_01_Running</c> at <c>$90:A3E5</c> for the
+    /// $09/$0D/$0F/$11 right-moving family in dry air without the run button.
     /// </summary>
     public static GroundedMovementResult StepRunningRight(
         ISnesAddressSpace bus,
@@ -120,10 +120,10 @@ public static class SamusGroundedMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
-        if (samus.Pose != SamusState.MovingRightNormalPose)
+        if (!SamusState.IsRightFacingRunningPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Running-right movement requires pose $09, not ${samus.Pose:X2}.");
+                $"Running-right movement requires pose $09/$0D/$0F/$11, not ${samus.Pose:X2}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -175,7 +175,7 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports <c>Samus_Movement_01_Running</c> for ordinary moving-left pose $0A.
+    /// Ports <c>Samus_Movement_01_Running</c> for the $0A/$0E/$10/$12 left-moving family.
     /// </summary>
     public static GroundedMovementResult StepRunningLeft(
         ISnesAddressSpace bus,
@@ -186,10 +186,10 @@ public static class SamusGroundedMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
-        if (samus.Pose != SamusState.MovingLeftNormalPose)
+        if (!SamusState.IsLeftFacingRunningPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Running-left movement requires pose $0A, not ${samus.Pose:X2}.");
+                $"Running-left movement requires pose $0A/$0E/$10/$12, not ${samus.Pose:X2}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;

@@ -1,0 +1,20 @@
+# This repository is intentionally private and self-contained for its owner's personal
+# reverse-engineering workspace. The verified ROM and generated standalone-assets are
+# versioned here by explicit request. Do not make the repository public or redistribute it.
+__pycache__/
+*.pyc
+build/
+out/
+
+# Disposable IDE/compiler state.
+.vs/
+csharp/.vs/
+csharp/**/bin/
+csharp/**/obj/
+
+# Separate reference checkouts/builds. Their reproducible origins and pinned revisions are
+# documented in README.md; embedding their nested .git directories would create accidental
+# gitlinks instead of a useful self-contained snapshot.
+upstream-sm/
+upstream-disassembly/
+standalone-native/

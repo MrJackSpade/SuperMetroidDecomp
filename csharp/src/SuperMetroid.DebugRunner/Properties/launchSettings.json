@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Translated frame debugger": {
+      "commandName": "Project",
+      "commandLineArgs": "\"Super Metroid.smc\" --frames 240 --timer ceres",
+      "workingDirectory": "../../../"
+    }
+  }
+}

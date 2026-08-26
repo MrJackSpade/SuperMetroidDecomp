@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="src/SuperMetroid.Core/SuperMetroid.Core.csproj" />
+  <Project Path="src/SuperMetroid.AssetExtractor/SuperMetroid.AssetExtractor.csproj" />
+  <Project Path="src/SuperMetroid.RoomViewer/SuperMetroid.RoomViewer.csproj" />
+  <Project Path="src/SuperMetroid.Verification/SuperMetroid.Verification.csproj" />
+  <Project Path="src/SuperMetroid.DebugRunner/SuperMetroid.DebugRunner.csproj" />
+</Solution>

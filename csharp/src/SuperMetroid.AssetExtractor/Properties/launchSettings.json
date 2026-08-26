@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Render Landing Site": {
+      "commandName": "Project",
+      "commandLineArgs": "room standalone-assets/raw standalone-assets/rooms/LandingSite.png"
+    },
+    "Extract private assets": {
+      "commandName": "Project",
+      "commandLineArgs": "standalone-assets/raw standalone-assets/png"
+    }
+  }
+}

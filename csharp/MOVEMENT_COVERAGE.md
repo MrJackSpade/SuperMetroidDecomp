@@ -38,7 +38,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, momentum, gravity/collision, `$F8` | Later firing/external-displacement routes |
 | `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | External displacement, enemy producer |
 | `$1A` | Grabbed by Draygon | — | Entire family |
-| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active block motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return | Crystal Flash HDMA/palette presentation, drained, Mother Brain damage, solid-enemy collision |
+| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active block motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return; `$E8-$EB`: all five drained-controller calls, `$F7` falling handler, block landing, asymmetric release, special draw offsets/bottom halves, hyper-beam flag | Crystal Flash HDMA/palette presentation, full bank-$A9 actor sequencing, Mother Brain attack movement, solid-enemy collision |
 
 The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
 performs its one-frame initialization and `$90:E032` owns the rising special arc; its
@@ -371,6 +371,31 @@ translated status is documented with the Morph Ball family below.
   presentation seam. The movement state records their exact requested type/timers instead of
   pretending the ordinary suit palette is a complete visual translation.
 
+## Verified drained-Samus movement/animation slice
+
+- `SamusDrainedState` translates every function behind `$91:E4AD`: let fall, standing
+  drained, release, enable hyper beam, and crouching/falling drained. Direction is read from
+  the source pose before `$E8-$EB` selection; function zero preserves the old bottom boundary
+  while changing to radius 21 and clears the exact base-X/Y words.
+- `$E8/$E9` begin at literal animation byte index two. Command `$F7` installs `$90:94CB`
+  and performs its second frame increment before loading the following ROM delay. That
+  handler reuses the same `$90:90E2` old-speed-before-gravity implementation as ordinary
+  jumping, but performs no horizontal movement. Any translated block collision restores
+  normal movement, writes frame seven/timer eight, and clears both Y-speed halves.
+- Controller functions one/four intentionally write pose, frame, and timer without ordinary
+  pose initialization. The C# cache-rebind seam preserves that cartridge behavior instead of
+  recomputing animation-buffer/radius state. Release preserves the surprising literal byte
+  indices 13 or four, then follows each asymmetric `$91:B257-$B298` program to `$FD,$01/$02`.
+- `$90:8D98`'s 32-byte signed crouched-offset table and standing index-five `-3` override are
+  used directly from ROM. `$90:8790` suppresses the drained lower body only at indices zero
+  and one. Thus the authentic private-ROM art is rendered without generic type-`$1B` guesses.
+- `--drained-samus-script` supplies only the missing bank-$A9 actor call timing. Against live
+  Landing Site terrain it reaches `$E8`, installs `$F7` at frame 18, lands at frame 44,
+  invokes standing `$EA`, returns to `$E8`, releases through `$FD,$01`, and installs hyper
+  beam `$8000`. The 110-frame capture freezes the real crouched drained art.
+- Solid-enemy contribution to `$0DC6`, Mother Brain's separate custom X/Y movement, rainbow
+  beam damage/palette/HDMA, and the full Baby Metroid actor remain explicit producer seams.
+
 ## Verified aerial-turn and wall-jump slice
 
 - Opposite-direction input from every admitted normal-jump/falling aim family publishes
@@ -615,7 +640,7 @@ translated status is documented with the Morph Ball family below.
 ## Next implementation order
 
 1. Grapple breakable PLMs, spike damage, and solid-enemy wall-jump branches.
-2. Metroid-drained and Mother Brain scripted movement; then Crystal Flash HDMA/palette presentation.
+2. Mother Brain custom attack movement and full bank-$A9 Baby Metroid actor sequencing; then Crystal Flash/drain presentation effects.
 3. Solid-enemy wall collision routes for the completed spin families.
 4. Liquid particles, periodic damage, and audio effects.
 5. Enemy collision/damage producers so knockback and grapple begin from live actors instead of host seams.

@@ -30,6 +30,7 @@ VerifySamusPoseTransitionMatching();
 VerifySamusHorizontalSpeed();
 VerifySamusStoredShineAndShinespark();
 VerifySamusCrystalFlash();
+VerifySamusDrainedController();
 VerifySamusAerialMovement();
 VerifySamusSpaceJumpAndScrewAttack();
 VerifySamusLiquidPhysics();
@@ -1611,6 +1612,182 @@ static void VerifySamusCrystalFlash()
         "source direction selects left Crystal Flash pose");
 
     Console.WriteLine("  Crystal Flash: prerequisites, handlers, resources, and ROM animation agree.");
+}
+
+/// <summary>
+/// Exercises all five `$91:E4AD` drained-controller entries, command `$F7`, the shared
+/// old-speed vertical recurrence, collision handoff, and both asymmetric `$FD` releases.
+/// </summary>
+static void VerifySamusDrainedController()
+{
+    var bus = new TestAddressSpace();
+
+    // These are the literal direction/type/graphics-offset/radius fields for the source,
+    // four drained records, and their eventual ordinary-standing destinations.
+    bus.WriteBytes(0x91b629 + SamusState.CrouchingRightPose * 8,
+        [0x08, 0x05, 0xff, 0x02, 0x03, 0x00, 0x10, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.CrouchingLeftPose * 8,
+        [0x04, 0x05, 0xff, 0x07, 0x03, 0x00, 0x10, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.DrainedCrouchingRightPose * 8,
+        [0x08, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.DrainedCrouchingLeftPose * 8,
+        [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.DrainedStandingRightPose * 8,
+        [0x08, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.DrainedStandingLeftPose * 8,
+        [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.FacingRightNormalPose * 8,
+        [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.FacingLeftNormalPose * 8,
+        [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
+
+    WriteTestWord(bus, 0x91b010 + SamusState.CrouchingRightPose * 2, 0xc000);
+    WriteTestWord(bus, 0x91b010 + SamusState.CrouchingLeftPose * 2, 0xc001);
+    WriteTestWord(bus, 0x91b010 + SamusState.DrainedCrouchingRightPose * 2, 0xb257);
+    WriteTestWord(bus, 0x91b010 + SamusState.DrainedCrouchingLeftPose * 2, 0xb268);
+    WriteTestWord(bus, 0x91b010 + SamusState.DrainedStandingRightPose * 2, 0xb288);
+    WriteTestWord(bus, 0x91b010 + SamusState.DrainedStandingLeftPose * 2, 0xb290);
+    WriteTestWord(bus, 0x91b010 + SamusState.FacingRightNormalPose * 2, 0xc010);
+    WriteTestWord(bus, 0x91b010 + SamusState.FacingLeftNormalPose * 2, 0xc011);
+    bus.WriteBytes(0x91c000, [0x05, 0x05]);
+    bus.WriteBytes(0x91c010, [0x05, 0x05]);
+
+    // Copy the byte-oriented streams verbatim. Controller-written frame values are byte
+    // indices, so command operands remain part of the index space by design.
+    bus.WriteBytes(0x91b257, [
+        0x02, 0x02, 0x02, 0x10, 0xf7,
+        0x01, 0xfe, 0x01,
+        0x10, 0x10, 0x10, 0x10, 0xfe, 0x04,
+        0x03, 0xfd, 0x01,
+    ]);
+    bus.WriteBytes(0x91b268, [
+        0x02, 0x02, 0x10, 0xf7,
+        0x01, 0xfe, 0x01,
+        0x08, 0x10, 0x10, 0x10, 0x10, 0xfe, 0x04,
+        0x03, 0x03, 0x03, 0xfd, 0x02,
+        0x10, 0x10, 0x10, 0x10, 0xfe, 0x0e,
+        0x10, 0xfe, 0x11,
+        0x10, 0xfe, 0x01,
+    ]);
+    bus.WriteBytes(0x91b288, [0x10, 0x10, 0x10, 0x10, 0xff, 0x03, 0xfd, 0x01]);
+    bus.WriteBytes(0x91b290, [0x10, 0x10, 0x10, 0x10, 0xff, 0x03, 0xfd, 0x02]);
+
+    const int width = 8;
+    const int height = 8;
+    var foreground = new ushort[width * height];
+    for (int x = 0; x < width; x++)
+        foreground[6 * width + x] = 0x8000; // Solid floor begins at whole Y 96.
+    var level = new RoomLevelData(
+        width,
+        height,
+        foreground,
+        new byte[foreground.Length],
+        new ushort[foreground.Length],
+        new byte[8]);
+
+    var right = new SamusState
+    {
+        Pose = SamusState.CrouchingRightPose,
+        XPosition = 48,
+        YPosition = 75,
+    };
+    right.RefreshCollisionRadii(bus);
+    right.InitializeAnimation(bus);
+    right.HorizontalSpeed.BaseSpeed = 3;
+    right.HorizontalSpeed.BaseSubspeed = 0x4444;
+    right.Kinematics.YSpeed = 2;
+    right.Kinematics.YSubspeed = 0x2222;
+
+    right.Drained.LetFall(bus, right);
+    AssertEqual(SamusState.DrainedCrouchingRightPose, right.Pose,
+        "drained controller zero selects right pose");
+    AssertEqual((ushort)70, right.YPosition,
+        "drained controller preserves source bottom while radius grows 16 to 21");
+    AssertEqual((ushort)2, right.AnimationFrame, "drained fall begins at byte index two");
+    AssertEqual((ushort)0, right.Kinematics.YSpeed, "drained fall clears whole Y speed");
+    AssertEqual((ushort)2, right.Kinematics.YDirection, "drained fall selects down direction");
+
+    // Index two lasts two ticks; index three lasts sixteen. Expiration reaches `$F7` at
+    // index four, which installs the handler and advances again to index five's delay one.
+    for (int tick = 0; tick < 18; tick++)
+        right.AnimateNoFx(bus);
+    AssertEqual((byte)0xf7, right.LastAnimationDelayCommand!.Value,
+        "drained animation reaches F7");
+    AssertEqual(DrainedSamusPhase.Falling, right.Drained.Phase,
+        "F7 installs drained movement handler");
+    AssertEqual((ushort)5, right.AnimationFrame, "F7 performs its second frame increment");
+    AssertEqual((ushort)1, right.AnimationFrameTimer, "F7 selects following literal delay");
+
+    right.Kinematics.YAcceleration = 0;
+    right.Kinematics.YSubacceleration = 0x4000;
+    ushort firstHandlerY = right.YPosition;
+    DrainedSamusMovementResult first = right.Drained.StepFalling(bus, level, right, 0);
+    AssertEqual(0, first.Vertical.AcceptedDisplacement,
+        "first drained handler call uses old zero speed");
+    AssertEqual(firstHandlerY, right.YPosition, "first drained handler frame is stationary");
+    AssertEqual((ushort)0x4000, right.Kinematics.YSubspeed,
+        "first drained handler frame stores gravity for next call");
+
+    DrainedSamusMovementResult landing = default;
+    for (ushort frame = 1; frame < 100 && !landing.Landed; frame++)
+        landing = right.Drained.StepFalling(bus, level, right, frame);
+    AssertTrue(landing.Landed, "drained handler reaches block floor");
+    AssertEqual((ushort)75, right.YPosition, "drained body rests at floor minus radius");
+    AssertEqual(DrainedSamusPhase.OnFloor, right.Drained.Phase,
+        "collision restores normal movement pointer");
+    AssertEqual((ushort)7, right.AnimationFrame, "collision jumps to crouched floor art");
+    AssertEqual((ushort)8, right.AnimationFrameTimer, "collision loads literal floor-art timer");
+
+    right.Drained.PutStanding(bus, right);
+    AssertEqual(SamusState.DrainedStandingRightPose, right.Pose,
+        "controller one selects standing right");
+    AssertEqual((ushort)0, right.AnimationFrame, "standing drained starts index zero");
+    AssertEqual((ushort)16, right.AnimationFrameTimer, "standing drained timer is literal sixteen");
+
+    right.Drained.Release(bus, right);
+    AssertEqual((ushort)4, right.AnimationFrame, "standing release writes byte index four");
+    AssertEqual((ushort)1, right.AnimationFrameTimer, "standing release writes timer one");
+    for (int tick = 0; tick < 8 && right.PendingTransitionalPose is null; tick++)
+        right.AnimateNoFx(bus);
+    AssertEqual<byte?>(SamusState.FacingRightNormalPose, right.PendingTransitionalPose,
+        "standing drained release reaches ROM FD operand");
+    AssertTrue(right.ApplyPendingVerifiedAnimationTransition(bus),
+        "right drained release applies standing transition");
+    AssertEqual(DrainedSamusPhase.Inactive, right.Drained.Phase,
+        "right drained release clears host handler marker");
+
+    var left = new SamusState
+    {
+        Pose = SamusState.CrouchingLeftPose,
+        XPosition = 48,
+        YPosition = 75,
+    };
+    left.RefreshCollisionRadii(bus);
+    left.InitializeAnimation(bus);
+    left.Drained.PutCrouchingOrFalling(bus, left);
+    AssertEqual(SamusState.DrainedCrouchingLeftPose, left.Pose,
+        "controller four selects left crouching/falling pose");
+    AssertEqual((ushort)8, left.AnimationFrame, "controller four writes byte index eight");
+    AssertEqual((ushort)16, left.AnimationFrameTimer, "controller four writes timer sixteen");
+    left.Drained.Release(bus, left);
+    AssertEqual((ushort)13, left.AnimationFrame,
+        "crouched release preserves literal operand-adjacent byte index thirteen");
+    for (int tick = 0; tick < 64 && left.PendingTransitionalPose is null; tick++)
+        left.AnimateNoFx(bus);
+    AssertEqual<byte?>(SamusState.FacingLeftNormalPose, left.PendingTransitionalPose,
+        "left crouched release reaches asymmetric FD operand");
+    AssertTrue(left.ApplyPendingVerifiedAnimationTransition(bus),
+        "left drained release applies standing transition");
+
+    left.Drained.EnableHyperBeam(left);
+    AssertEqual((ushort)0x1009, left.EquippedBeams,
+        "controller three installs exact hyper beam equipment word");
+    AssertEqual((ushort)0x8000, left.HyperBeam,
+        "controller three sets hyper beam flag");
+    AssertTrue(left.Drained.HyperBeamPaletteFxRequested,
+        "controller three publishes palette-FX producer seam");
+
+    Console.WriteLine("  Drained Samus: controllers, F7 handler, fall collision, releases, and hyper beam agree.");
 }
 
 static void VerifySamusAerialMovement()

@@ -126,6 +126,9 @@ public sealed class SuperMetroidRuntime
     /// <summary>Most recent Crystal Flash start, ammo-drain, or finish handler result.</summary>
     public CrystalFlashMovementResult? LastCrystalFlashMovement { get; private set; }
 
+    /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
+    public DrainedSamusMovementResult? LastDrainedSamusMovement { get; private set; }
+
     /// <summary>
     /// Explicit debugger substitute for the untranslated HUD item selector. When enabled,
     /// a new Shoot edge starts grapple firing from the current pose. Normal scenarios leave
@@ -871,6 +874,7 @@ public sealed class SuperMetroidRuntime
                 LastGrappleMovement = null;
                 LastShinesparkMovement = null;
                 LastCrystalFlashMovement = null;
+                LastDrainedSamusMovement = null;
 
                 // GrappleBeamHandler precedes beta movement, but only connected/release
                 // functions own Samus's position. An extending or cancelling beam coexists
@@ -997,6 +1001,23 @@ public sealed class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             NmiFrameCounter);
+                }
+                // Drained controller functions install movement-type-$1B poses whose normal
+                // beta dispatcher is RTS. Only animation command `$F7` replaces the handler
+                // with `$90:94CB`; the other phases stay motionless while enemy AI controls
+                // pose/timing. All active drain phases retain the locked-input contract.
+                else if (Samus.Drained.Phase != DrainedSamusPhase.Inactive)
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    if (Samus.Drained.Phase == DrainedSamusPhase.Falling)
+                    {
+                        LastDrainedSamusMovement = Samus.Drained.StepFalling(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            NmiFrameCounter);
+                    }
                 }
                 // `$90:D5A2` installs one of three Crystal Flash movement pointers and an
                 // RTS pose-input handler. Clear the transition sampled at the top of this

@@ -152,6 +152,11 @@ else if (options.CrystalFlashScript)
     Console.WriteLine(
         "Input script: host-publish the untranslated power-bomb-cleanup seam with exact Down+L+R+Shoot input, then execute ROM poses $D3/$01 through all three native Crystal Flash handlers.");
 }
+else if (options.DrainedSamusScript)
+{
+    Console.WriteLine(
+        "Actor script: publish the real Mother Brain/Baby Metroid drained-controller calls, execute ROM poses $E8/$EA/$E8/$01, and use $F7's installed vertical handler against live terrain.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7800 stays clear
@@ -287,6 +292,15 @@ else if (options.CrystalFlashScript)
         (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
     if (!runtime.TryBeginCrystalFlashFromPowerBombCleanup(crystalFlashChord))
         throw new InvalidOperationException("Real-ROM Crystal Flash initiation rejected its canonical fixture.");
+}
+else if (options.DrainedSamusScript)
+{
+    // The complete bank-$A9 boss actor does not exist yet. Lift the normal grounded debug
+    // placement by two blocks, then publish exactly controller function zero. Pose metadata,
+    // animation bytecode, gravity, collision, spritemaps, tile DMA, and later controller
+    // calls all remain live ROM data; only the missing actor's call timing is host-authored.
+    runtime.Samus!.YPosition = unchecked((ushort)(runtime.Samus.YPosition - 32));
+    runtime.Samus.Drained.LetFall(bus, runtime.Samus);
 }
 
 if (options.WaterSpaceJumpScript)
@@ -560,6 +574,16 @@ bool observedScrewAttackPaletteCycle = false;
 bool observedCrystalFlashDrain = false;
 bool observedCrystalFlashFinish = false;
 bool observedCrystalFlashCompletion = false;
+bool observedDrainedFallingHandler = false;
+bool observedDrainedLanding = false;
+bool observedDrainedStanding = false;
+bool observedDrainedCrouching = false;
+bool observedDrainedRelease = false;
+bool observedDrainedHyperBeam = false;
+bool issuedDrainedStandingCommand = false;
+bool issuedDrainedCrouchingCommand = false;
+bool issuedDrainedReleaseCommand = false;
+bool issuedDrainedHyperBeamCommand = false;
 int issuedSpaceJumpPulses = 0;
 bool spaceJumpPulseMayBeIssued = true;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
@@ -631,7 +655,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     ushort yDirectionBeforeFrame = runtime.Samus.Kinematics.YDirection;
     ushort controllerInput = specialSpinRoute
         ? specialSpinInput
-        : options.CrystalFlashScript
+        : options.CrystalFlashScript || options.DrainedSamusScript
         ? (ushort)0
         : options.GrappleFireScript
         ? frameIndex < 16 ? (ushort)SnesButton.X : (ushort)0
@@ -1034,6 +1058,40 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             $"timer={runtime.Samus.KnockbackTimer}.");
     }
 
+    if (options.DrainedSamusScript)
+    {
+        // These four calls are the exact A9 actor-to-bank-91 interface. Conditions keep the
+        // runner deterministic even if room collision changes the fall duration; the lower
+        // bounds retain visible time in every stable ROM animation before the next command.
+        if (!issuedDrainedStandingCommand && frameIndex >= 50 &&
+            runtime.Samus.Drained.Phase == DrainedSamusPhase.OnFloor)
+        {
+            runtime.Samus.Drained.PutStanding(bus, runtime.Samus);
+            issuedDrainedStandingCommand = true;
+            Console.WriteLine($"frame {frameIndex + 1,4}: actor called drained controller 1 (standing).");
+        }
+        else if (!issuedDrainedCrouchingCommand && frameIndex >= 90 &&
+                 runtime.Samus.Drained.Phase == DrainedSamusPhase.Standing)
+        {
+            runtime.Samus.Drained.PutCrouchingOrFalling(bus, runtime.Samus);
+            issuedDrainedCrouchingCommand = true;
+            Console.WriteLine($"frame {frameIndex + 1,4}: actor called drained controller 4 (crouching/falling).");
+        }
+        else if (!issuedDrainedReleaseCommand && frameIndex >= 120 &&
+                 runtime.Samus.Drained.Phase == DrainedSamusPhase.Crouching)
+        {
+            runtime.Samus.Drained.Release(bus, runtime.Samus);
+            issuedDrainedReleaseCommand = true;
+            Console.WriteLine($"frame {frameIndex + 1,4}: actor called drained controller 2 (release).");
+        }
+        else if (!issuedDrainedHyperBeamCommand && frameIndex >= 150)
+        {
+            runtime.Samus.Drained.EnableHyperBeam(runtime.Samus);
+            issuedDrainedHyperBeamCommand = true;
+            Console.WriteLine($"frame {frameIndex + 1,4}: actor called drained controller 3 (hyper beam).");
+        }
+    }
+
     RuntimeFrameResult result = runtime.StepFrame(controllerInput);
     observedSamusPoses.Add(runtime.Samus.Pose);
     if (specialSpinRoute &&
@@ -1060,6 +1118,16 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         { PhaseAfterStep: CrystalFlashPhase.Finishing };
     observedCrystalFlashCompletion |= runtime.LastCrystalFlashMovement is
         { Completed: true };
+    observedDrainedFallingHandler |= runtime.LastDrainedSamusMovement is not null;
+    observedDrainedLanding |= runtime.LastDrainedSamusMovement is { Landed: true };
+    observedDrainedStanding |= runtime.Samus.Pose is
+        SamusState.DrainedStandingRightPose or SamusState.DrainedStandingLeftPose;
+    observedDrainedCrouching |= issuedDrainedCrouchingCommand &&
+        (runtime.Samus.Pose is
+            SamusState.DrainedCrouchingRightPose or SamusState.DrainedCrouchingLeftPose);
+    observedDrainedRelease |= issuedDrainedReleaseCommand &&
+        runtime.Samus.Drained.Phase == DrainedSamusPhase.Inactive;
+    observedDrainedHyperBeam |= runtime.Samus.HyperBeam == 0x8000;
     observedKnockbackMovement |= runtime.LastKnockbackMovement is not null;
     observedDamageBoostMovement |= runtime.LastAerialSamusMovement is not null &&
         runtime.Samus.ReadMovementType(bus) == 0x19;
@@ -1815,6 +1883,25 @@ if (options.CrystalFlashScript)
         $"{runtime.Samus.SuperMissiles}/{runtime.Samus.PowerBombs}.");
 }
 
+if (options.DrainedSamusScript)
+{
+    if (options.FrameCount >= 20 && !observedDrainedFallingHandler)
+        throw new InvalidOperationException("Drained ROM script never executed `$F7` handler $90:94CB.");
+    if (options.FrameCount >= 50 && !observedDrainedLanding)
+        throw new InvalidOperationException("Drained ROM script never collided with the live room floor.");
+    if (options.FrameCount >= 91 && (!observedDrainedStanding || !observedDrainedCrouching))
+        throw new InvalidOperationException("Drained ROM script missed controller-one/four poses $EA/$E8.");
+    if (options.FrameCount >= 150 && !observedDrainedRelease)
+        throw new InvalidOperationException("Drained ROM script never completed its `$FD,$01` release.");
+    if (options.FrameCount >= 151 && !observedDrainedHyperBeam)
+        throw new InvalidOperationException("Drained ROM script never installed hyper beam word $8000.");
+    Console.WriteLine(
+        $"Drained Samus ROM route observed falling={observedDrainedFallingHandler}, " +
+        $"landing={observedDrainedLanding}, standing={observedDrainedStanding}, " +
+        $"crouching={observedDrainedCrouching}, release={observedDrainedRelease}, " +
+        $"hyper={observedDrainedHyperBeam}.");
+}
+
 if (options.GrappleFireScript)
 {
     if (!observedGrappleFire)
@@ -2023,7 +2110,8 @@ readonly record struct DebugRunnerOptions(
     bool KnockbackScript,
     bool GrappleScript,
     bool GrappleFireScript,
-    bool CrystalFlashScript)
+    bool CrystalFlashScript,
+    bool DrainedSamusScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -2060,6 +2148,7 @@ readonly record struct DebugRunnerOptions(
         bool grappleScript = false;
         bool grappleFireScript = false;
         bool crystalFlashScript = false;
+        bool drainedSamusScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -2229,6 +2318,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--drained-samus-script":
+                    drainedSamusScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -2289,7 +2383,8 @@ readonly record struct DebugRunnerOptions(
             knockbackScript,
             grappleScript,
             grappleFireScript,
-            crystalFlashScript);
+            crystalFlashScript,
+            drainedSamusScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

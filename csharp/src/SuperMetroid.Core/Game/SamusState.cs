@@ -106,6 +106,18 @@ public sealed class SamusState
     /// <summary>Pose `$D4`: left-facing Crystal Flash mirror.</summary>
     public const byte CrystalFlashLeftPose = 0xd4;
 
+    /// <summary>Pose `$E8`: right-facing drained crouch/fall animation.</summary>
+    public const byte DrainedCrouchingRightPose = 0xe8;
+
+    /// <summary>Pose `$E9`: left-facing drained crouch/fall animation.</summary>
+    public const byte DrainedCrouchingLeftPose = 0xe9;
+
+    /// <summary>Pose `$EA`: right-facing drained standing animation.</summary>
+    public const byte DrainedStandingRightPose = 0xea;
+
+    /// <summary>Pose `$EB`: left-facing drained standing animation.</summary>
+    public const byte DrainedStandingLeftPose = 0xeb;
+
     /// <summary>Pose `$89`: facing right after forward running collides with a wall.</summary>
     public const byte RanIntoWallRightPose = 0x89;
 
@@ -610,6 +622,12 @@ public sealed class SamusState
     public SamusCrystalFlashState CrystalFlash { get; } = new();
 
     /// <summary>
+    /// Mother Brain/Baby Metroid drain poses, controller calls, and installed falling
+    /// movement handler. Enemy AI remains a separate producer of these literal commands.
+    /// </summary>
+    public SamusDrainedState Drained { get; } = new();
+
+    /// <summary>
     /// Compatibility/debugger view of <c>samus_x_speed_divisor</c> at WRAM <c>$0A66</c>.
     /// The backing word belongs to <see cref="HorizontalSpeed"/>, just as the native word
     /// is both a movement-speed divisor and the no-FX animation delay buffer.
@@ -643,6 +661,15 @@ public sealed class SamusState
 
     /// <summary>Current power bombs at WRAM `$09CE`.</summary>
     public ushort PowerBombs { get; set; }
+
+    /// <summary>
+    /// Equipped beam bitfield at WRAM `$09A6`. Drained-controller function three replaces
+    /// this with `$1009`, the exact charge/wave/plasma plus hyper-beam configuration.
+    /// </summary>
+    public ushort EquippedBeams { get; set; }
+
+    /// <summary>WRAM `$0A76`; `$8000` marks Mother Brain's hyper beam as enabled.</summary>
+    public ushort HyperBeam { get; set; }
 
     /// <summary>
     /// Equipped-item bitfield corresponding to WRAM <c>$09A2</c>. Bit two ($0004) is Morph
@@ -2922,7 +2949,11 @@ public sealed class SamusState
             // `$91:B545/$B556` terminate Crystal Flash finish art in `$FD,$01/$02`.
             // Its installed movement handler observes type zero on the following frame.
             (CrystalFlashRightPose, FacingRightNormalPose) or
-            (CrystalFlashLeftPose, FacingLeftNormalPose);
+            (CrystalFlashLeftPose, FacingLeftNormalPose) or
+            // All four drained release streams eventually publish ordinary standing art.
+            // These are literal `$FD` operands from `$91:B257-$B298`.
+            (DrainedCrouchingRightPose or DrainedStandingRightPose, FacingRightNormalPose) or
+            (DrainedCrouchingLeftPose or DrainedStandingLeftPose, FacingLeftNormalPose);
         if (!verified)
         {
             throw new NotSupportedException(
@@ -2951,6 +2982,14 @@ public sealed class SamusState
                 ? SelectEquippedSpinPose(targetPose)
                 : targetPose;
             ApplySimpleGroundedPoseChange(bus, sourcePose, installedPose, "Animation command");
+        }
+        if (sourcePose is DrainedCrouchingRightPose or DrainedCrouchingLeftPose or
+            DrainedStandingRightPose or DrainedStandingLeftPose)
+        {
+            // The actor-owned release command has now reached its ROM-authored normal pose.
+            // Clear only the host handler marker; pose initialization above already owns the
+            // same radius and animation writes as native `$91:F404/$91:FB08`.
+            Drained.CompleteRelease();
         }
         if (startsMoonwalkJump)
             SamusAerialMovement.InitializeJump(bus, this);
@@ -3038,6 +3077,35 @@ public sealed class SamusState
         }
 
         AnimationFrameTimer = unchecked((ushort)(AnimationFrameBuffer + initialDelay));
+        LastAnimationDelayCommand = null;
+        PendingTransitionalPose = null;
+    }
+
+    /// <summary>
+    /// Rebinds the delay-list pointer after a bank-$91 scripted controller writes Pose and
+    /// literal animation words without calling ordinary pose initialization.
+    /// </summary>
+    /// <remarks>
+    /// Drained-controller functions one and four do exactly that at `$91:E571/$91:E60C`.
+    /// The cartridge's animation pass resolves the pointer from Pose every call, whereas
+    /// this C# port caches it as a consistency check. This narrow method updates only that
+    /// cache plus the controller's explicit writes; it intentionally does not recompute the
+    /// liquid animation buffer or silently refresh collision radius.
+    /// </remarks>
+    internal void SetPoseAndAnimationFromScriptedController(
+        ISnesAddressSpace bus,
+        byte pose,
+        ushort frame,
+        ushort timer,
+        bool refreshRadius)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        Pose = pose;
+        if (refreshRadius)
+            RefreshCollisionRadii(bus);
+        AnimationDelayListAddress = ResolveAnimationDelayList(bus);
+        AnimationFrame = frame;
+        AnimationFrameTimer = timer;
         LastAnimationDelayCommand = null;
         PendingTransitionalPose = null;
     }
@@ -3179,6 +3247,14 @@ public sealed class SamusState
                 AnimationFrame = Health < 30
                     ? unchecked((ushort)(AnimationFrame + 1))
                     : (ushort)0;
+                break;
+
+            case 7:
+                // `$90:8360`, command `$F7`: install `$90:94CB`, then increment once more
+                // past the command byte. The outer animation routine already performed its
+                // ordinary pre-dispatch increment, so this second increment is essential.
+                Drained.InstallFallingMovementHandler(this);
+                AnimationFrame = unchecked((ushort)(AnimationFrame + 1));
                 break;
 
             case 8:
@@ -3346,6 +3422,23 @@ public sealed class SamusState
             };
             SpritemapYPosition = unchecked((ushort)(YPosition + transitionOffset - layer1Y));
         }
+        else if (Pose is DrainedCrouchingRightPose or DrainedCrouchingLeftPose)
+        {
+            // `$90:8DC1` indexes the shared 32-byte table at `$90:8DEF` directly with the
+            // animation byte index. Several indices intentionally name command operands,
+            // because the external controller can publish those literal indices for a
+            // visible frame. Reading ROM keeps that odd layout authoritative.
+            sbyte drainedOffset = unchecked((sbyte)bus.ReadByte(
+                AddWithinBank(0x908def, AnimationFrame)));
+            SpritemapYPosition = unchecked((ushort)(YPosition + drainedOffset - layer1Y));
+        }
+        else if ((Pose is DrainedStandingRightPose or DrainedStandingLeftPose) &&
+                 AnimationFrame >= 5)
+        {
+            // `$90:8DB1-$8DBC` replaces the usual pose graphics offset with -3 after
+            // standing drained art reaches byte index five.
+            SpritemapYPosition = unchecked((ushort)(YPosition - 3 - layer1Y));
+        }
         else
         {
             SpritemapYPosition = unchecked((ushort)(YPosition - graphicsYOffset - layer1Y));
@@ -3373,12 +3466,14 @@ public sealed class SamusState
             AnimationFrame < 3 || AnimationFrame >= 0x0d;
         bool damageBoostBottom = movementType != 0x19 ||
             AnimationFrame < 2 || AnimationFrame >= 9;
-        // `$90:8790` draws the split bottom for `$C7-$CA/$CD/$CE` but suppresses it for
-        // vertical `$CB/$CC`, whose top spritemap contains the complete streamlined body.
-        bool shinesparkBottom = movementType != 0x1b ||
-            Pose is not (ShinesparkVerticalRightPose or ShinesparkVerticalLeftPose);
+        // `$90:8790` suppresses the lower half for vertical shinesparks and for drained
+        // crouch/fall byte indices zero and one. Every other type-$1B record draws it.
+        bool specialType1BBottom = movementType != 0x1b ||
+            (Pose is not (ShinesparkVerticalRightPose or ShinesparkVerticalLeftPose) &&
+             (Pose is not (DrainedCrouchingRightPose or DrainedCrouchingLeftPose) ||
+              AnimationFrame >= 2));
         bool drawBottom = movementType is not (4 or 8 or 0x11 or 0x12 or 0x13) &&
-            ordinarySpinBottom && wallJumpBottom && damageBoostBottom && shinesparkBottom;
+            ordinarySpinBottom && wallJumpBottom && damageBoostBottom && specialType1BBottom;
         // The native bottom selector clears this word when a complete top-half frame does
         // not need a bottom. Clearing it here also prevents the following echo renderer
         // from reusing a bottom spritemap left by an earlier animation frame.

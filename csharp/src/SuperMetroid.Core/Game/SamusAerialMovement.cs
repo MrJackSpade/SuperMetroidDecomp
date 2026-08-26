@@ -622,18 +622,53 @@ public static class SamusAerialMovement
         BlockMoveResult horizontal,
         ushort nmiFrameCounter)
     {
+        BlockMoveResult vertical = StepVerticalWithSpeedCalculations(
+            bus,
+            level,
+            samus,
+            nmiFrameCounter,
+            out bool hitCeiling,
+            out bool downwardDisplacement);
+        bool landed = downwardDisplacement && vertical.Collided;
+
+        return new AerialMovementResult(horizontal, vertical, landed, hitCeiling);
+    }
+
+    /// <summary>
+    /// Ports the shared <c>Samus_Y_Movement_WithSpeedCalculations</c> routine at
+    /// <c>$90:90E2</c> without adding any horizontal movement.
+    /// </summary>
+    /// <remarks>
+    /// Ordinary jump/fall handlers call this after their X pass, but the drained-Samus
+    /// handler at <c>$90:94CB</c> calls this routine directly. Keeping one implementation
+    /// is important: the old-speed displacement, equality-only terminal-speed check, and
+    /// ceiling response are observable native behavior, not general-purpose host physics.
+    /// </remarks>
+    internal static BlockMoveResult StepVerticalWithSpeedCalculations(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort nmiFrameCounter,
+        out bool hitCeiling,
+        out bool downwardDisplacement)
+    {
+        ValidateCommon(bus, level, samus);
         SamusKinematicsState state = samus.Kinematics;
 
-        // $90:90E5 copies the OLD speed into $12.$14 before gravity changes the stored
-        // words. This one-frame lag is observable at jump launch, apex, and terminal speed.
+        // `$90:90E5` snapshots the OLD speed into displacement before changing the stored
+        // velocity. A newly initialized zero-speed fall therefore moves zero pixels on its
+        // first handler call even though gravity has already accumulated for next frame.
         uint oldSpeed = state.VerticalSpeedFixed;
         if (state.YDirection == 2)
         {
-            // The native cap is a whole-word equality test, not >= and not a 16.16 clamp.
+            // `$90:9112` tests equality with whole speed five. Values above five are not
+            // clamped; preserving that oddity matters for externally scripted velocities.
             if (state.YSpeed != 5)
+            {
                 SetVerticalSpeed(state, unchecked(state.VerticalSpeedFixed + Compose(
                     state.YAcceleration,
                     state.YSubacceleration)));
+            }
         }
         else
         {
@@ -645,6 +680,7 @@ public static class SamusAerialMovement
         int displacement = state.YDirection == 2
             ? unchecked((int)oldSpeed)
             : unchecked(-(int)oldSpeed);
+        downwardDisplacement = displacement >= 0;
         BlockMoveResult vertical = SamusBlockCollision.MoveVertical(
             bus,
             level,
@@ -652,18 +688,17 @@ public static class SamusAerialMovement
             displacement,
             scanLeftToRight: (nmiFrameCounter & 1) == 0);
 
-        bool hitCeiling = displacement < 0 && vertical.Collided;
-        bool landed = displacement >= 0 && vertical.Collided;
+        hitCeiling = displacement < 0 && vertical.Collided;
         if (hitCeiling)
         {
-            // Prospective pose remains the current pose; command five supplies these four
-            // writes without inventing a new animation or pose.
+            // The shared routine's ceiling branch zeroes both velocity halves and changes
+            // the magnitude direction to down; it does not select a landing pose itself.
             state.YSpeed = 0;
             state.YSubspeed = 0;
             state.YDirection = 2;
         }
 
-        return new AerialMovementResult(horizontal, vertical, landed, hitCeiling);
+        return vertical;
     }
 
     private static void ApplyVariableJumpCutoff(

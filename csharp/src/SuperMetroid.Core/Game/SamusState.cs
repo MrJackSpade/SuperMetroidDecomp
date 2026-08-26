@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
 
@@ -48,6 +49,24 @@ public sealed class SamusState
 
     /// <summary>Pose $2A is the unaimed left-facing falling pose.</summary>
     public const byte FallingLeftPose = 0x2a;
+
+    /// <summary>Pose $27 is ordinary right-facing crouching.</summary>
+    public const byte CrouchingRightPose = 0x27;
+
+    /// <summary>Pose $28 is ordinary left-facing crouching.</summary>
+    public const byte CrouchingLeftPose = 0x28;
+
+    /// <summary>Pose $35 is the right-facing standing-to-crouch transition.</summary>
+    public const byte CrouchingTransitionRightPose = 0x35;
+
+    /// <summary>Pose $36 is the left-facing standing-to-crouch transition.</summary>
+    public const byte CrouchingTransitionLeftPose = 0x36;
+
+    /// <summary>Pose $3B is the right-facing crouch-to-standing transition.</summary>
+    public const byte StandingTransitionRightPose = 0x3b;
+
+    /// <summary>Pose $3C is the left-facing crouch-to-standing transition.</summary>
+    public const byte StandingTransitionLeftPose = 0x3c;
 
     /// <summary>Pose $4B is the one-frame right neutral-jump transition.</summary>
     public const byte NeutralJumpTransitionRightPose = 0x4b;
@@ -324,6 +343,97 @@ public sealed class SamusState
     }
 
     /// <summary>
+    /// Applies the ordinary $35/$36 crouch-start or $3B/$3C stand-start transition,
+    /// including command seven's bottom alignment and the larger-radius collision branch
+    /// from <c>HandlePoseChangeCollision</c>.
+    /// </summary>
+    /// <returns>
+    /// False only when simultaneous floor and ceiling collision leave no verified room to
+    /// expand from radius 16 to radius 21; native behavior then retains the crouching pose.
+    /// </returns>
+    public bool TryApplyPostureTransition(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        byte targetPose,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+
+        bool startsCrouching = (Pose, targetPose) is
+            (FacingRightNormalPose or MovingRightNormalPose or
+                NormalLandingRightPose or SpinLandingRightPose,
+             CrouchingTransitionRightPose) or
+            (FacingLeftNormalPose or MovingLeftNormalPose or
+                NormalLandingLeftPose or SpinLandingLeftPose,
+             CrouchingTransitionLeftPose);
+        bool startsStanding = (Pose, targetPose) is
+            (CrouchingRightPose, StandingTransitionRightPose) or
+            (CrouchingLeftPose, StandingTransitionLeftPose);
+        if (!startsCrouching && !startsStanding)
+        {
+            throw new NotSupportedException(
+                $"Posture transition ${Pose:X2} -> ${targetPose:X2} is not translated.");
+        }
+
+        if (startsCrouching)
+        {
+            Pose = targetPose;
+            RefreshCollisionRadii(bus);
+
+            // Prospective command seven reads five from $91:ED36, installs the target's
+            // radius 16, then moves center Y down five. Old radius 21 and new radius 16
+            // therefore share exactly the same bottom collision boundary.
+            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + 5));
+            InitializeAnimation(bus, initialFrame: 0);
+            return true;
+        }
+
+        // Expanding from crouch radius 16 to standing-transition radius 21 invokes the
+        // pose-change collision routine before initialization. Probe the exact five-pixel
+        // radius difference using copies so rejected probes cannot corrupt live subpixels.
+        SamusKinematicsState upwardProbe = CopyKinematics(Kinematics);
+        BlockMoveResult upward = SamusBlockCollision.MoveVertical(
+            bus,
+            level,
+            upwardProbe,
+            displacement: unchecked((int)0xfffb0000),
+            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+        SamusKinematicsState downwardProbe = CopyKinematics(Kinematics);
+        BlockMoveResult downward = SamusBlockCollision.MoveVertical(
+            bus,
+            level,
+            downwardProbe,
+            displacement: 0x00050000,
+            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+
+        if (upward.Collided && downward.Collided)
+            return false;
+
+        int centerAdjustment = 0;
+        if (downward.Collided)
+        {
+            // $91:FF49 moves away from the floor by radiusDifference-spaceToMoveDown.
+            int freeWholePixels = Math.Max(0, downward.AcceptedDisplacement >> 16);
+            centerAdjustment = -(5 - freeWholePixels);
+        }
+        else if (upward.Collided)
+        {
+            // The mirror branch at $91:FF20 moves down when only the ceiling constrains
+            // the enlarged body.
+            int acceptedWhole = unchecked((short)(upward.AcceptedDisplacement >> 16));
+            int freeWholePixels = Math.Max(0, -acceptedWhole);
+            centerAdjustment = 5 - freeWholePixels;
+        }
+
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        InitializeAnimation(bus, initialFrame: 0);
+        return true;
+    }
+
+    /// <summary>
     /// Installs the unaimed falling pose selected by <c>$91:E8F2</c> when a grounded
     /// movement probe finds no floor. The collision command clears vertical speed and
     /// starts downward gravity before the pose is drawn.
@@ -334,7 +444,8 @@ public sealed class SamusState
         bool verified = (targetPose is FallingRightPose or FallingLeftPose) &&
             (Pose is FacingRightNormalPose or FacingLeftNormalPose or
                 MovingRightNormalPose or MovingLeftNormalPose or
-                TurningRightToLeftPose or TurningLeftToRightPose);
+                TurningRightToLeftPose or TurningLeftToRightPose or
+                CrouchingRightPose or CrouchingLeftPose);
         if (!verified)
         {
             throw new NotSupportedException(
@@ -397,6 +508,10 @@ public sealed class SamusState
             (TurningLeftToRightPose, FacingRightNormalPose) or
             (NeutralJumpTransitionRightPose, NeutralJumpRightPose) or
             (NeutralJumpTransitionLeftPose, NeutralJumpLeftPose) or
+            (CrouchingTransitionRightPose, CrouchingRightPose) or
+            (CrouchingTransitionLeftPose, CrouchingLeftPose) or
+            (StandingTransitionRightPose, FacingRightNormalPose) or
+            (StandingTransitionLeftPose, FacingLeftNormalPose) or
             (NormalLandingRightPose, FacingRightNormalPose) or
             (NormalLandingLeftPose, FacingLeftNormalPose) or
             (SpinLandingRightPose, FacingRightNormalPose) or
@@ -635,7 +750,7 @@ public sealed class SamusState
 
         int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
         byte movementType = bus.ReadByte(AddWithinBank(poseDefinition, 1));
-        if (movementType is not (0 or 1 or 2 or 3 or 6 or 0x0e))
+        if (movementType is not (0 or 1 or 2 or 3 or 5 or 6 or 0x0e or 0x0f))
         {
             throw new NotSupportedException(
                 $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");
@@ -645,7 +760,23 @@ public sealed class SamusState
         // +6, moving the art origin six pixels above Samus's world-space center.
         sbyte graphicsYOffset = unchecked((sbyte)bus.ReadByte(AddWithinBank(poseDefinition, 4)));
         SpritemapXPosition = unchecked((ushort)(XPosition - layer1X));
-        SpritemapYPosition = unchecked((ushort)(YPosition - graphicsYOffset - layer1Y));
+        if (movementType == 0x0f && Pose is
+            CrouchingTransitionRightPose or CrouchingTransitionLeftPose or
+            StandingTransitionRightPose or StandingTransitionLeftPose)
+        {
+            // $90:8D3C indexes a signed byte by 2*(pose-$35)+animation frame instead of
+            // using pose-definition graphics offset. For the four admitted poses frame
+            // zero is -8 (crouch start) or -4 (stand start), and byte one is zero.
+            int transitionOffset = Pose is
+                CrouchingTransitionRightPose or CrouchingTransitionLeftPose
+                    ? AnimationFrame == 0 ? -8 : 0
+                    : AnimationFrame == 0 ? -4 : 0;
+            SpritemapYPosition = unchecked((ushort)(YPosition + transitionOffset - layer1Y));
+        }
+        else
+        {
+            SpritemapYPosition = unchecked((ushort)(YPosition - graphicsYOffset - layer1Y));
+        }
 
         ushort topBase = ReadWord(bus, AddWithinBank(TopSpritemapBaseIndexTable, Pose * 2));
         TopSpritemapIndex = unchecked((ushort)(topBase + AnimationFrame));
@@ -680,4 +811,21 @@ public sealed class SamusState
 
     private static int AddWithinBank(int address, int byteCount) =>
         (address & 0xff0000) | ((address + byteCount) & 0xffff);
+
+    private static SamusKinematicsState CopyKinematics(SamusKinematicsState source) => new()
+    {
+        XPosition = source.XPosition,
+        XSubposition = source.XSubposition,
+        YPosition = source.YPosition,
+        YSubposition = source.YSubposition,
+        XRadius = source.XRadius,
+        YRadius = source.YRadius,
+        YSpeed = source.YSpeed,
+        YSubspeed = source.YSubspeed,
+        YDirection = source.YDirection,
+        YAcceleration = source.YAcceleration,
+        YSubacceleration = source.YSubacceleration,
+        HorizontalSlopeCollisionEnable = source.HorizontalSlopeCollisionEnable,
+        PositionAdjustedBySlope = source.PositionAdjustedBySlope,
+    };
 }

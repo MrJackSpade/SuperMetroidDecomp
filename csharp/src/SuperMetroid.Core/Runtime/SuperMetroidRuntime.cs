@@ -543,6 +543,24 @@ public sealed class SuperMetroidRuntime
                             Controller1.Current,
                             NmiFrameCounter);
                         break;
+                    case SamusState.CrouchingRightPose:
+                    case SamusState.CrouchingLeftPose:
+                        LastGroundedSamusMovement = SamusPostureMovement.StepCrouching(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            NmiFrameCounter);
+                        break;
+                    case SamusState.CrouchingTransitionRightPose:
+                    case SamusState.CrouchingTransitionLeftPose:
+                    case SamusState.StandingTransitionRightPose:
+                    case SamusState.StandingTransitionLeftPose:
+                        LastGroundedSamusMovement = SamusPostureMovement.StepCrouchStandTransition(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            NmiFrameCounter);
+                        break;
                     default:
                         throw new NotSupportedException(
                             $"Runtime movement is not translated for pose ${Samus.Pose:X2}.");
@@ -582,7 +600,8 @@ public sealed class SuperMetroidRuntime
                     poseAtFrameStart is
                         SamusState.FacingRightNormalPose or SamusState.FacingLeftNormalPose or
                         SamusState.MovingRightNormalPose or SamusState.MovingLeftNormalPose or
-                        SamusState.TurningRightToLeftPose or SamusState.TurningLeftToRightPose)
+                        SamusState.TurningRightToLeftPose or SamusState.TurningLeftToRightPose or
+                        SamusState.CrouchingRightPose or SamusState.CrouchingLeftPose)
                 {
                     byte fallingPose = Samus.ReadPoseXDirection(_addressSpace) == 4
                         ? SamusState.FallingLeftPose
@@ -628,6 +647,23 @@ public sealed class SuperMetroidRuntime
                             case (SamusState.NormalLandingLeftPose or SamusState.SpinLandingLeftPose,
                                   SamusState.MovingLeftNormalPose):
                                 Samus.ApplyLandingToRunning(_addressSpace, targetPose);
+                                break;
+                            case (SamusState.FacingRightNormalPose or SamusState.MovingRightNormalPose or
+                                  SamusState.NormalLandingRightPose or SamusState.SpinLandingRightPose,
+                                  SamusState.CrouchingTransitionRightPose):
+                            case (SamusState.FacingLeftNormalPose or SamusState.MovingLeftNormalPose or
+                                  SamusState.NormalLandingLeftPose or SamusState.SpinLandingLeftPose,
+                                  SamusState.CrouchingTransitionLeftPose):
+                            case (SamusState.CrouchingRightPose,
+                                  SamusState.StandingTransitionRightPose):
+                            case (SamusState.CrouchingLeftPose,
+                                  SamusState.StandingTransitionLeftPose):
+                                Samus.TryApplyPostureTransition(
+                                    _addressSpace,
+                                    LevelData ?? throw new InvalidOperationException(
+                                        "Posture transition requires active room level data."),
+                                    targetPose,
+                                    NmiFrameCounter);
                                 break;
                             default:
                                 throw new NotSupportedException(

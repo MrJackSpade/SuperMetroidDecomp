@@ -26,6 +26,11 @@ else if (options.JumpScript)
     Console.WriteLine(
         "Input script: Start, short neutral jump, run right, full spin jump, then release.");
 }
+else if (options.PostureScript)
+{
+    Console.WriteLine(
+        "Input script: crouch/stand right, turn left, crouch/stand left, then release.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7000 stays clear
@@ -265,6 +270,17 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 >= 125 and < 155 => (ushort)SnesButton.Right,
                 _ => (ushort)0,
             }
+        : options.PostureScript
+            ? frameIndex switch
+            {
+                0 => (ushort)SnesButton.Start,
+                >= 2 and < 10 => (ushort)SnesButton.Down,
+                20 => (ushort)SnesButton.Up,
+                >= 40 and < 65 => (ushort)SnesButton.Left,
+                >= 75 and < 83 => (ushort)SnesButton.Down,
+                95 => (ushort)SnesButton.Up,
+                _ => (ushort)0,
+            }
         : frameIndex switch
         {
             0 => (ushort)SnesButton.Start,
@@ -360,7 +376,13 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.NeutralJumpTransitionRightPose or
                      SamusState.NeutralJumpTransitionLeftPose or
                      SamusState.SpinJumpRightPose or
-                     SamusState.SpinJumpLeftPose
+                     SamusState.SpinJumpLeftPose or
+                     SamusState.CrouchingTransitionRightPose or
+                     SamusState.CrouchingTransitionLeftPose or
+                     SamusState.StandingTransitionRightPose or
+                     SamusState.StandingTransitionLeftPose or
+                     SamusState.CrouchingRightPose or
+                     SamusState.CrouchingLeftPose
                     ? "applied at the verified post-animation transition seam"
                     : "not applied because its movement/transition side effects are not translated"));
         }
@@ -552,7 +574,8 @@ readonly record struct DebugRunnerOptions(
     bool GroundedRun,
     int RightFrameCount,
     bool ReversalScript,
-    bool JumpScript)
+    bool JumpScript,
+    bool PostureScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -564,6 +587,7 @@ readonly record struct DebugRunnerOptions(
         int rightFrameCount = int.MaxValue;
         bool reversalScript = false;
         bool jumpScript = false;
+        bool postureScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -608,6 +632,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--posture-script":
+                    postureScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -643,7 +672,8 @@ readonly record struct DebugRunnerOptions(
             groundedRun,
             rightFrameCount,
             reversalScript,
-            jumpScript);
+            jumpScript,
+            postureScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

@@ -29,6 +29,7 @@ VerifySamusRenderingSlice();
 VerifySamusPoseTransitionMatching();
 VerifySamusHorizontalSpeed();
 VerifySamusAerialMovement();
+VerifySamusPostureMovement();
 VerifySamusSlopePhysics();
 VerifySamusBlockCollision();
 VerifySamusGroundedMovement();
@@ -1042,6 +1043,105 @@ static void VerifySamusAerialMovement()
     AssertEqual((byte)0xa5, fallLeft.Pose, "left fall selects normal landing pose");
 
     Console.WriteLine("  Samus aerial: FD launch, exact 16.16 arc, jump cut, floor landing, radius, and F8 agree.");
+}
+
+/// <summary>
+/// Verifies command-seven bottom alignment, movement types five/$0F, $FD completion, and
+/// the rejected stand-up case where ceiling and floor leave room for crouch but not stand.
+/// </summary>
+static void VerifySamusPostureMovement()
+{
+    var bus = new TestAddressSpace();
+    bus.WriteBytes(0x91b631, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
+    bus.WriteBytes(0x91b761, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]); // $27
+    bus.WriteBytes(0x91b7d1, [0x08, 0x0f, 0xff, 0x02, 0x00, 0x00, 0x10, 0x00]); // $35
+    bus.WriteBytes(0x91b801, [0x08, 0x0f, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $3B
+    WriteTestWord(bus, 0x91b012, 0xc100);
+    WriteTestWord(bus, 0x91b05e, 0xc110);
+    WriteTestWord(bus, 0x91b07a, 0xc120);
+    WriteTestWord(bus, 0x91b086, 0xc130);
+    bus.WriteBytes(0x91c100, [0x0a, 0x0a, 0x0a, 0x0a, 0xf6]);
+    bus.WriteBytes(0x91c110, [0x0a, 0x0a, 0x0a, 0x0a, 0xf6]);
+    bus.WriteBytes(0x91c120, [0x02, 0xfd, 0x27]);
+    bus.WriteBytes(0x91c130, [0x02, 0xfd, 0x01]);
+
+    const int width = 8;
+    const int height = 8;
+    var floor = new ushort[width * height];
+    for (int x = 0; x < width; x++)
+        floor[4 * width + x] = 0x8000;
+    var level = new RoomLevelData(
+        width,
+        height,
+        floor,
+        new byte[floor.Length],
+        new ushort[floor.Length],
+        new byte[8]);
+
+    var samus = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 48,
+        YPosition = 43, // standing bottom is pixel 63, immediately above row-four floor
+    };
+    samus.RefreshCollisionRadii(bus);
+    samus.InitializeAnimation(bus);
+    AssertTrue(
+        samus.TryApplyPostureTransition(
+            bus, level, SamusState.CrouchingTransitionRightPose, nmiFrameCounter: 0),
+        "standing begins crouch transition");
+    AssertEqual((ushort)16, samus.Kinematics.YRadius, "crouch transition radius");
+    AssertEqual((ushort)48, samus.YPosition, "command seven moves crouch center down five");
+
+    for (int tick = 0; tick < 2; tick++)
+        samus.AnimateNoFx(bus);
+    AssertEqual((byte)0xfd, samus.LastAnimationDelayCommand!.Value, "crouch transition reaches FD");
+    AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "crouch FD applies");
+    AssertEqual((byte)0x27, samus.Pose, "crouch transition target");
+    GroundedMovementResult crouchFrame = SamusPostureMovement.StepCrouching(
+        bus, level, samus, nmiFrameCounter: 0);
+    AssertTrue(crouchFrame.Vertical.Collided, "crouch performs grounded probe");
+
+    AssertTrue(
+        samus.TryApplyPostureTransition(
+            bus, level, SamusState.StandingTransitionRightPose, nmiFrameCounter: 1),
+        "crouch begins standing transition");
+    AssertEqual((ushort)21, samus.Kinematics.YRadius, "standing transition radius");
+    AssertEqual((ushort)43, samus.YPosition, "floor-constrained expansion moves center up five");
+    for (int tick = 0; tick < 2; tick++)
+        samus.AnimateNoFx(bus);
+    AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "standing FD applies");
+    AssertEqual((byte)0x01, samus.Pose, "standing transition target");
+
+    // Ceiling row one ends at pixel 31. A crouched body occupies 32..63 exactly, while a
+    // standing body would need 27..63. Both five-pixel probes collide, so native pose
+    // collision rejects the larger pose and retains crouch.
+    var tunnelBlocks = (ushort[])floor.Clone();
+    for (int x = 0; x < width; x++)
+        tunnelBlocks[1 * width + x] = 0x8000;
+    var tunnel = new RoomLevelData(
+        width,
+        height,
+        tunnelBlocks,
+        new byte[tunnelBlocks.Length],
+        new ushort[tunnelBlocks.Length],
+        new byte[8]);
+    var tunnelSamus = new SamusState
+    {
+        Pose = SamusState.CrouchingRightPose,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    tunnelSamus.RefreshCollisionRadii(bus);
+    tunnelSamus.InitializeAnimation(bus);
+    AssertTrue(
+        !tunnelSamus.TryApplyPostureTransition(
+            bus, tunnel, SamusState.StandingTransitionRightPose, nmiFrameCounter: 0),
+        "low tunnel rejects standing radius expansion");
+    AssertEqual((byte)0x27, tunnelSamus.Pose, "rejected stand retains crouch pose");
+    AssertEqual((ushort)48, tunnelSamus.YPosition, "rejected stand preserves center Y");
+
+    Console.WriteLine("  Samus posture: crouch/stand radii, movement, FD animations, and low-ceiling rejection agree.");
 }
 
 /// <summary>

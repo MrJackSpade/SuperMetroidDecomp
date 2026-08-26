@@ -27,6 +27,8 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton holdLeftButton = new("Hold Left");
     private readonly ToolStripButton holdRightButton = new("Hold Right");
     private readonly ToolStripButton holdJumpButton = new("Hold Jump");
+    private readonly ToolStripButton holdUpButton = new("Hold Up");
+    private readonly ToolStripButton holdDownButton = new("Hold Down");
     private readonly ToolStripButton livePpuLayersButton = new("Live PPU layers");
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 16 };
     private SuperMetroidRuntime runtime = null!;
@@ -75,6 +77,10 @@ internal sealed class RuntimePreviewControl : UserControl
         holdJumpButton.CheckOnClick = true;
         holdJumpButton.ToolTipText =
             "Feeds canonical jump bit $0080. Tap it for a short jump or leave it held for the native variable-height arc.";
+        holdUpButton.CheckOnClick = true;
+        holdUpButton.ToolTipText = "Feeds Up; a new Up press starts the ROM crouch-to-standing transition.";
+        holdDownButton.CheckOnClick = true;
+        holdDownButton.ToolTipText = "Feeds Down; a new Down press starts the ROM standing-to-crouch transition.";
 
         // The SNES can electrically report both direction bits, but an ordinary D-pad
         // cannot be held left and right at once. Keep this convenience UI physically sane;
@@ -88,6 +94,16 @@ internal sealed class RuntimePreviewControl : UserControl
         {
             if (holdRightButton.Checked)
                 holdLeftButton.Checked = false;
+        };
+        holdUpButton.CheckedChanged += (_, _) =>
+        {
+            if (holdUpButton.Checked)
+                holdDownButton.Checked = false;
+        };
+        holdDownButton.CheckedChanged += (_, _) =>
+        {
+            if (holdDownButton.Checked)
+                holdUpButton.Checked = false;
         };
         livePpuLayersButton.CheckOnClick = true;
         livePpuLayersButton.ToolTipText =
@@ -110,6 +126,8 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(holdLeftButton);
         toolStrip.Items.Add(holdRightButton);
         toolStrip.Items.Add(holdJumpButton);
+        toolStrip.Items.Add(holdUpButton);
+        toolStrip.Items.Add(holdDownButton);
         toolStrip.Items.Add(livePpuLayersButton);
         toolStrip.Items.Add(new ToolStripSeparator());
         toolStrip.Items.Add(cameraLeftButton);
@@ -146,6 +164,8 @@ internal sealed class RuntimePreviewControl : UserControl
         holdLeftButton.Checked = false;
         holdRightButton.Checked = false;
         holdJumpButton.Checked = false;
+        holdUpButton.Checked = false;
+        holdDownButton.Checked = false;
         motherBrainScenario = motherBrain;
         groundedRunScenario = groundedRun;
         haltedAtUntranslatedBoundary = null;
@@ -211,6 +231,10 @@ internal sealed class RuntimePreviewControl : UserControl
                 input |= (ushort)SnesButton.Right;
             if (holdJumpButton.Checked)
                 input |= (ushort)SnesButton.A;
+            if (holdUpButton.Checked)
+                input |= (ushort)SnesButton.Up;
+            else if (holdDownButton.Checked)
+                input |= (ushort)SnesButton.Down;
             try
             {
                 runtime.StepFrame(input);
@@ -276,7 +300,11 @@ internal sealed class RuntimePreviewControl : UserControl
                   SamusState.NeutralJumpTransitionRightPose or
                   SamusState.NeutralJumpTransitionLeftPose or
                   SamusState.SpinJumpRightPose or
-                  SamusState.SpinJumpLeftPose
+                  SamusState.SpinJumpLeftPose or
+                  SamusState.CrouchingTransitionRightPose or
+                  SamusState.CrouchingTransitionLeftPose or
+                  SamusState.StandingTransitionRightPose or
+                  SamusState.StandingTransitionLeftPose
                 ? $"next ${transition.ProspectivePose:X2} translated"
                 : $"next ${transition.ProspectivePose:X2} blocked"
             : runtime.ProspectiveSamusFallbackPose is ushort fallback

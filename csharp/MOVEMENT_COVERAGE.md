@@ -16,7 +16,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$02` | Normal jumping | `$4B-$4E`, dry air, variable height, ceiling/floor collision | Aimed jump poses, equipment/liquids, external displacement |
 | `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation | Wall-jump trigger, space jump, screw attack, equipment/liquids |
 | `$04` | Morph ball on ground | — | Entire family |
-| `$05` | Crouching | — | Entire family and stand/crouch alignment |
+| `$05` | Crouching | `$27/$28`, grounded probe and momentum clear | Aim/fire variants, crouch-jump and morph entry |
 | `$06` | Falling | `$29/$2A`, walk-off, dry-air gravity and landing | Aimed falling poses, equipment/liquids, aerial turn transitions |
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
 | `$08` | Morph ball falling | — | Entire family and bounce state |
@@ -26,7 +26,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$0C` | Unused | — | Preserve only if required |
 | `$0D` | Unused | — | Preserve only if required |
 | `$0E` | Turning on ground | `$25/$26`, old-direction mode-one momentum, `$F8` completion | Aim/fire variants and transitions originating in later families |
-| `$0F` | Crouch/stand/morph transition | — | Entire family, radius collision, animation commands |
+| `$0F` | Crouch/stand/morph transition | `$35/$36/$3B/$3C`, bottom alignment, radius collision, `$FD` completion | Morph transitions and later aim/fire variants |
 | `$10` | Moonwalking | — | Entire family |
 | `$11` | Spring ball on ground | — | Entire family |
 | `$12` | Spring ball in air | — | Entire family |
@@ -62,6 +62,21 @@ are listed below so later work cannot accidentally confuse “the current viewer
   full spin jump, ceiling/floor collision, both landing styles, camera tracking, and rendering
   against the private retail ROM.
 
+## Verified crouch/stand slice
+
+- A new Down edge from ordinary standing, running, or landing enters `$35/$36`. The native
+  command-seven pose change shrinks the vertical radius from 21 to 16 pixels and moves Samus's
+  center down five pixels, preserving the bottom of the collision body exactly.
+- `$35/$36` run the movement-type-`$0F` zero-base horizontal and grounded vertical probes;
+  animation command `$FD` enters `$27/$28`. Crouching then runs movement type `$05`, including
+  its native clearing of accumulated horizontal momentum.
+- A new Up edge enters `$3B/$3C`. Radius expansion probes the five newly occupied pixels above
+  and below, moves the center away from a single obstruction, and refuses the transition when
+  a low tunnel fits crouching Samus but not standing Samus. `$FD` then returns to `$01/$02`.
+- The renderer applies `$90:8D3C`'s transition-frame Y offsets instead of drawing the changing
+  collision center directly. RoomViewer exposes mutually exclusive **Hold Up**/**Hold Down**
+  controls, and DebugRunner `--posture-script` verifies both facing directions against the ROM.
+
 ## Evidence
 
 - `SuperMetroid.Verification` checks synthetic ROM tables independently for `$FD/$F8`, jump
@@ -70,10 +85,13 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - The real-ROM `--jump-script` route currently completes through `$01 -> $4B -> $4D -> $A4
   -> $01 -> $09 -> $19 -> $A6 -> $09 -> $01`, with ROM-authored graphics/tile transfers and
   moving camera/background/minimap state.
+- The real-ROM `--posture-script` route completes through `$01 -> $35 -> $27 -> $3B -> $01
+  -> $25 -> $02 -> $0A -> $02 -> $36 -> $28 -> $3C -> $02`, with the expected five-pixel
+  center shifts and unchanged feet, terrain, camera, HUD, and ROM-authored graphics.
 
 ## Next implementation order
 
-1. Crouch/stand transitions and aimed ordinary poses.
+1. Aimed ordinary poses and crouch-jump entry.
 2. Morph ball ground/fall/bounce, bombs, and spring ball.
 3. Aerial turns and the real wall-jump trigger/launch.
 4. Knockback and damage boost.

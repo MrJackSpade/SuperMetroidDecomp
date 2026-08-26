@@ -490,7 +490,12 @@ public sealed class SuperMetroidRuntime
                 Controller1.Current == 0 &&
                 ProspectiveSamusPose is null)
             {
-                ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
+                byte fallback = Samus.ReadNoInputFallbackPose(_addressSpace);
+                // Compact straight-down `$17/$18/$2D/$2E` store `$FF`, so `$91:82D9`
+                // leaves them unchanged when all input is released. The other admitted
+                // aimed bodies publish real `$29/$2A/$51/$52` fallback poses.
+                if (fallback != 0xff)
+                    ProspectiveSamusFallbackPose = fallback;
             }
 
             if (GroundedSamusMovementEnabled)
@@ -601,6 +606,8 @@ public sealed class SuperMetroidRuntime
                     case SamusState.NormalJumpAimDiagonalUpLeftPose:
                     case SamusState.NormalJumpAimDiagonalDownRightPose:
                     case SamusState.NormalJumpAimDiagonalDownLeftPose:
+                    case SamusState.NormalJumpAimDownRightPose:
+                    case SamusState.NormalJumpAimDownLeftPose:
                         LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(
                             _addressSpace,
                             LevelData,
@@ -625,6 +632,8 @@ public sealed class SuperMetroidRuntime
                     case SamusState.FallingAimDiagonalUpLeftPose:
                     case SamusState.FallingAimDiagonalDownRightPose:
                     case SamusState.FallingAimDiagonalDownLeftPose:
+                    case SamusState.FallingAimDownRightPose:
+                    case SamusState.FallingAimDownLeftPose:
                         LastAerialSamusMovement = SamusAerialMovement.StepFalling(
                             _addressSpace,
                             LevelData,
@@ -693,9 +702,20 @@ public sealed class SuperMetroidRuntime
                 if (!animationTransitionApplied &&
                     LastAerialSamusMovement is { Landed: true })
                 {
-                    bool wasSpinning = poseAtFrameStart is
-                        SamusState.SpinJumpRightPose or SamusState.SpinJumpLeftPose;
-                    Samus.ApplyAerialLanding(_addressSpace, wasSpinning);
+                    if (SamusState.IsCompactAerialPose(poseAtFrameStart))
+                    {
+                        Samus.TryApplyCompactAerialLanding(
+                            _addressSpace,
+                            LevelData ?? throw new InvalidOperationException(
+                                "Compact landing requires active room level data."),
+                            NmiFrameCounter);
+                    }
+                    else
+                    {
+                        bool wasSpinning = poseAtFrameStart is
+                            SamusState.SpinJumpRightPose or SamusState.SpinJumpLeftPose;
+                        Samus.ApplyAerialLanding(_addressSpace, wasSpinning);
+                    }
                     animationTransitionApplied = true;
                 }
 
@@ -728,6 +748,24 @@ public sealed class SuperMetroidRuntime
                     {
                         switch ((poseAtFrameStart, targetPose))
                         {
+                            case var (source, target)
+                                when (SamusState.IsCompactAerialPose(source) ||
+                                      SamusState.IsCompactAerialPose(target)) &&
+                                     ((SamusState.IsRightFacingNormalJumpPose(source) &&
+                                       SamusState.IsRightFacingNormalJumpPose(target)) ||
+                                      (SamusState.IsLeftFacingNormalJumpPose(source) &&
+                                       SamusState.IsLeftFacingNormalJumpPose(target)) ||
+                                      (SamusState.IsRightFacingFallingPose(source) &&
+                                       SamusState.IsRightFacingFallingPose(target)) ||
+                                      (SamusState.IsLeftFacingFallingPose(source) &&
+                                       SamusState.IsLeftFacingFallingPose(target))):
+                                Samus.TryApplyCompactAerialTransition(
+                                    _addressSpace,
+                                    LevelData ?? throw new InvalidOperationException(
+                                        "Compact aerial transition requires active room level data."),
+                                    targetPose,
+                                    NmiFrameCounter);
+                                break;
                             case var (source, target)
                                 when (SamusState.IsGroundedAimPose(source) ||
                                       SamusState.IsGroundedAimPose(target)) &&

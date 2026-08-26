@@ -46,6 +46,11 @@ else if (options.AimAirScript)
     Console.WriteLine(
         "Input script: aimed up/down normal jumps right, turn left, repeat, then release.");
 }
+else if (options.CompactAirScript)
+{
+    Console.WriteLine(
+        "Input script: enter/exit compact straight-down jump right, land compact, turn left, then mirror it.");
+}
 else if (options.AimCrouchScript)
 {
     Console.WriteLine(
@@ -280,6 +285,10 @@ uint priorSamusX = runtime.Samus.Kinematics.XFixed;
 uint priorSamusY = runtime.Samus.Kinematics.YFixed;
 ushort? priorProspectivePose = null;
 ushort? priorFallbackPose = null;
+// Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
+// The dedicated ROM regression below fails unless both compact bodies and both native
+// ordinary-landing records were genuinely installed by the translated frame pipeline.
+var observedSamusPoses = new HashSet<byte> { runtime.Samus.Pose };
 for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
 {
     // The default script presses Start for one frame, releases it, then holds Right. The
@@ -355,6 +364,28 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 >= 251 and < 286 => (ushort)SnesButton.R,
                 >= 295 and < 336 => (ushort)(SnesButton.A | SnesButton.L),
                 >= 336 and < 371 => (ushort)SnesButton.L,
+                _ => (ushort)0,
+            }
+        : options.CompactAirScript
+            ? frameIndex switch
+            {
+                0 => (ushort)SnesButton.Start,
+
+                // Begin a right-facing diagonal-up normal jump. Down then selects compact
+                // `$17`; R expands back to `$69`; the second Down is retained through the
+                // descent so shot direction four must land through ordinary `$A4`.
+                >= 2 and < 10 => (ushort)(SnesButton.A | SnesButton.R),
+                >= 10 and < 20 => (ushort)(SnesButton.A | SnesButton.Down),
+                >= 20 and < 22 => (ushort)(SnesButton.A | SnesButton.R),
+                >= 22 and < 82 => (ushort)(SnesButton.A | SnesButton.Down),
+
+                // Complete the grounded turn before starting the mirrored jump. Its Down
+                // route is `$18`, shot direction five, and therefore landing pose `$A5`.
+                >= 100 and < 126 => (ushort)SnesButton.Left,
+                >= 140 and < 148 => (ushort)(SnesButton.A | SnesButton.R),
+                >= 148 and < 158 => (ushort)(SnesButton.A | SnesButton.Down),
+                >= 158 and < 166 => (ushort)(SnesButton.A | SnesButton.R),
+                >= 166 and < 220 => (ushort)(SnesButton.A | SnesButton.Down),
                 _ => (ushort)0,
             }
         : options.AimCrouchScript
@@ -472,6 +503,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         };
 
     RuntimeFrameResult result = runtime.StepFrame(controllerInput);
+    observedSamusPoses.Add(runtime.Samus.Pose);
 
     // Put a breakpoint here to inspect the complete runtime after any chosen frame. The
     // NoInlining attribute below keeps this method as a reliable stack frame in Debug and
@@ -608,12 +640,16 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.NormalJumpAimDiagonalUpLeftPose or
                      SamusState.NormalJumpAimDiagonalDownRightPose or
                      SamusState.NormalJumpAimDiagonalDownLeftPose or
+                     SamusState.NormalJumpAimDownRightPose or
+                     SamusState.NormalJumpAimDownLeftPose or
                      SamusState.FallingAimUpRightPose or
                      SamusState.FallingAimUpLeftPose or
                      SamusState.FallingAimDiagonalUpRightPose or
                      SamusState.FallingAimDiagonalUpLeftPose or
                      SamusState.FallingAimDiagonalDownRightPose or
                      SamusState.FallingAimDiagonalDownLeftPose or
+                     SamusState.FallingAimDownRightPose or
+                     SamusState.FallingAimDownLeftPose or
                      SamusState.CrouchingAimUpRightPose or
                      SamusState.CrouchingAimUpLeftPose or
                      SamusState.CrouchingAimDiagonalUpRightPose or
@@ -656,6 +692,35 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         }
         priorFallbackPose = runtime.ProspectiveSamusFallbackPose;
     }
+}
+
+if (options.CompactAirScript)
+{
+    // This is deliberately a real-ROM assertion: input records, pose definitions, delay
+    // lists, collision geometry, and landing-table results all came from the user's image.
+    // Shorter captures are useful for freezing the airborne artwork, so each documented
+    // milestone validates everything the deterministic timeline has reached by that frame.
+    var requiredCompactRoute = new List<byte>
+    {
+        SamusState.NormalJumpAimDownRightPose,
+    };
+    if (options.FrameCount >= 32)
+        requiredCompactRoute.Add(SamusState.NormalLandingRightPose);
+    if (options.FrameCount >= 149)
+        requiredCompactRoute.Add(SamusState.NormalJumpAimDownLeftPose);
+    if (options.FrameCount >= 235)
+        requiredCompactRoute.Add(SamusState.NormalLandingLeftPose);
+    foreach (byte requiredPose in requiredCompactRoute)
+    {
+        if (!observedSamusPoses.Contains(requiredPose))
+        {
+            throw new InvalidOperationException(
+                $"Compact-air ROM script did not observe required pose ${requiredPose:X2}.");
+        }
+    }
+
+    Console.WriteLine(
+        $"Compact-air ROM route validated {requiredCompactRoute.Count} deterministic pose milestone(s).");
 }
 
 Console.WriteLine(
@@ -834,6 +899,7 @@ readonly record struct DebugRunnerOptions(
     bool AimScript,
     bool AimRunScript,
     bool AimAirScript,
+    bool CompactAirScript,
     bool AimCrouchScript,
     bool AimTurnScript,
     bool CrouchTurnScript,
@@ -853,6 +919,7 @@ readonly record struct DebugRunnerOptions(
         bool aimScript = false;
         bool aimRunScript = false;
         bool aimAirScript = false;
+        bool compactAirScript = false;
         bool aimCrouchScript = false;
         bool aimTurnScript = false;
         bool crouchTurnScript = false;
@@ -921,6 +988,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--compact-air-script":
+                    compactAirScript = true;
+                    groundedRun = true;
+                    break;
+
                 case "--aim-crouch-script":
                     aimCrouchScript = true;
                     groundedRun = true;
@@ -981,6 +1053,7 @@ readonly record struct DebugRunnerOptions(
             aimScript,
             aimRunScript,
             aimAirScript,
+            compactAirScript,
             aimCrouchScript,
             aimTurnScript,
             crouchTurnScript,

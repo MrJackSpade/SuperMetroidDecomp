@@ -13,11 +13,11 @@ are listed below so later work cannot accidentally confuse “the current viewer
 |---:|---|---|---|
 | `$00` | Standing | `$01-$08`, landing `$A4-$A7/$E0-$E5` | Firing variants, forward pose, transitions from later systems |
 | `$01` | Running | `$09/$0A/$0D-$12`, dry air, no run button | Run button, speed booster, liquid/environment effects, gun-extended/fire variants |
-| `$02` | Normal jumping | `$4B-$4E/$15-$16/$51-$52/$55-$5A/$69-$6C`, dry air, variable height, ceiling/floor collision | Compact straight-down `$17/$18`, equipment/liquids, external displacement |
+| `$02` | Normal jumping | `$4B-$4E/$15-$18/$51-$52/$55-$5A/$69-$6C`, including compact straight-down collision changes, dry air, variable height, ceiling/floor collision | Equipment/liquids, external displacement |
 | `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation | Wall-jump trigger, space jump, screw attack, equipment/liquids |
 | `$04` | Morph ball on ground | — | Entire family |
 | `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry | Fire variants and morph entry |
-| `$06` | Falling | `$29/$2A/$2B/$2C/$6D-$70`, walk-off, dry-air gravity and landing | Compact straight-down `$2D/$2E`, equipment/liquids, aerial turn transitions |
+| `$06` | Falling | `$29-$2E/$6D-$70`, including compact straight-down collision changes, walk-off, dry-air gravity and landing | Equipment/liquids, aerial turn transitions |
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
 | `$08` | Morph ball falling | — | Entire family and bounce state |
 | `$09` | Unused | — | Preserve only if required |
@@ -162,9 +162,19 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - Landing reproduces `$91:E95D/$91:E9F3`: shot direction chooses `$E0-$E5`, radius expansion
   keeps the feet aligned, and animation command `$F8` returns to `$03-$08`. Spin landings
   remain `$A6/$A7`; straight unaimed landings remain `$A4/$A5`.
-- Compact straight-down `$17/$18/$2D/$2E` deliberately remain unsupported. Their radius-ten
-  body changes collision geometry and will not be admitted until that transformation path is
-  translated rather than approximated.
+- Holding Down in the normal-jump or falling families selects compact straight-down
+  `$17/$18/$2D/$2E`. Their pose records shrink the collision radius from 19 to 10 without
+  moving the center or disturbing live 16.16 velocity; definition byte two is `$FF`, so a
+  no-input frame retains the compact pose instead of inventing an ordinary fallback.
+- Leaving a compact pose runs `$91:FDAE`'s larger-pose collision path over the nine newly
+  occupied pixels above and below. One obstruction calculates a center displacement and
+  triggers the native opposite-side safety probe; failure there retains the compact source.
+  Two simultaneous initial hits invoke `$91:FFA7`, select ordinary crouch `$27/$28`, and
+  apply its otherwise easy-to-miss radius-10-to-16 six-pixel center correction.
+- Compact landing uses shot directions four/five from `$91:E9F3`, selecting `$A4/$A5`.
+  The 10 -> 21 expansion probes real room blocks, keeps the floor boundary aligned, and then
+  collision command five clears both velocity axes. Both jump and falling compact records
+  continue through their existing movement-type-two/six gravity, camera, and draw paths.
 
 ## Evidence
 
@@ -186,6 +196,9 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - The real-ROM `--aim-air-script` route completes right and left aimed launches, live diagonal
   aim changes, definition fallbacks, `$E2/$E4/$E5` landings, and their `$F8` returns while
   retaining the ordinary collision, camera, minimap, terrain, and ROM-authored animation paths.
+- The real-ROM `--compact-air-script` route observes `$69 -> $17 -> $69 -> $17 -> $A4`,
+  turns, then mirrors `$6A -> $18 -> $6A -> $18 -> $A5`. Its milestone assertions use the
+  actual post-frame poses, and its PNGs retain ROM terrain, sky, HUD, tiles, and OAM.
 - The real-ROM `--aim-crouch-script` route completes `$01 -> $F3 -> $71 -> $73 -> $85 -> $27
   -> $F9 -> $05`, turns left, then mirrors through `$F4/$72/$74/$86/$28/$FC/$08`. Radius
   changes keep the feet fixed and the active-pose diagnostic retains terrain/HUD alignment.
@@ -202,9 +215,8 @@ are listed below so later work cannot accidentally confuse “the current viewer
 
 ## Next implementation order
 
-1. Compact straight-down `$17/$18/$2D/$2E` aerial bodies and their radius changes.
-2. Morph ball ground/fall/bounce, bombs, and spring ball.
-3. Aerial turns and the real wall-jump trigger/launch.
-4. Knockback and damage boost.
-5. Grapple movement and release routes.
-6. Speed booster/shinespark, crystal flash/drained, and remaining scripted movement.
+1. Morph ball ground/fall/bounce, bombs, and spring ball.
+2. Aerial turns and the real wall-jump trigger/launch.
+3. Knockback and damage boost.
+4. Grapple movement and release routes.
+5. Speed booster/shinespark, crystal flash/drained, and remaining scripted movement.

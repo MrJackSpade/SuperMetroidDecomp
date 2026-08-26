@@ -92,6 +92,12 @@ public sealed class SamusState
     /// <summary>Pose $16 is a left-facing normal jump aimed straight up.</summary>
     public const byte NormalJumpAimUpLeftPose = 0x16;
 
+    /// <summary>Pose $17 is the compact right-facing normal jump aimed straight down.</summary>
+    public const byte NormalJumpAimDownRightPose = 0x17;
+
+    /// <summary>Pose $18 is the compact left-facing normal jump aimed straight down.</summary>
+    public const byte NormalJumpAimDownLeftPose = 0x18;
+
     /// <summary>Pose $51 is a right-facing normal jump using the moving-forward art.</summary>
     public const byte NormalJumpForwardRightPose = 0x51;
 
@@ -133,6 +139,12 @@ public sealed class SamusState
 
     /// <summary>Pose $2C is left-facing falling aimed straight up.</summary>
     public const byte FallingAimUpLeftPose = 0x2c;
+
+    /// <summary>Pose $2D is the compact right-facing fall aimed straight down.</summary>
+    public const byte FallingAimDownRightPose = 0x2d;
+
+    /// <summary>Pose $2E is the compact left-facing fall aimed straight down.</summary>
+    public const byte FallingAimDownLeftPose = 0x2e;
 
     /// <summary>Pose $6D is right-facing falling aimed diagonally up.</summary>
     public const byte FallingAimDiagonalUpRightPose = 0x6d;
@@ -549,7 +561,8 @@ public sealed class SamusState
         NormalJumpTransitionAimUpRightPose or
         NormalJumpTransitionAimDiagonalUpRightPose or
         NormalJumpTransitionAimDiagonalDownRightPose or
-        NormalJumpAimDiagonalUpRightPose or NormalJumpAimDiagonalDownRightPose;
+        NormalJumpAimDiagonalUpRightPose or NormalJumpAimDiagonalDownRightPose or
+        NormalJumpAimDownRightPose;
 
     /// <summary>True for the admitted left-facing movement-type-two normal-jump poses.</summary>
     public static bool IsLeftFacingNormalJumpPose(byte pose) => pose is
@@ -558,19 +571,22 @@ public sealed class SamusState
         NormalJumpTransitionAimUpLeftPose or
         NormalJumpTransitionAimDiagonalUpLeftPose or
         NormalJumpTransitionAimDiagonalDownLeftPose or
-        NormalJumpAimDiagonalUpLeftPose or NormalJumpAimDiagonalDownLeftPose;
+        NormalJumpAimDiagonalUpLeftPose or NormalJumpAimDiagonalDownLeftPose or
+        NormalJumpAimDownLeftPose;
 
     /// <summary>True for admitted right-facing movement-type-six falling poses.</summary>
     public static bool IsRightFacingFallingPose(byte pose) => pose is
         FallingRightPose or FallingAimUpRightPose or
-        FallingAimDiagonalUpRightPose or FallingAimDiagonalDownRightPose;
+        FallingAimDiagonalUpRightPose or FallingAimDiagonalDownRightPose or
+        FallingAimDownRightPose;
 
     /// <summary>True for admitted left-facing movement-type-six falling poses.</summary>
     public static bool IsLeftFacingFallingPose(byte pose) => pose is
         FallingLeftPose or FallingAimUpLeftPose or
-        FallingAimDiagonalUpLeftPose or FallingAimDiagonalDownLeftPose;
+        FallingAimDiagonalUpLeftPose or FallingAimDiagonalDownLeftPose or
+        FallingAimDownLeftPose;
 
-    /// <summary>True for the aimed normal-jump/falling poses whose radius remains 19.</summary>
+    /// <summary>True for the aimed normal-jump/falling poses, including compact Down aim.</summary>
     public static bool IsAimedAerialPose(byte pose) => pose is
         NormalJumpAimUpRightPose or NormalJumpAimUpLeftPose or
         NormalJumpTransitionAimUpRightPose or NormalJumpTransitionAimUpLeftPose or
@@ -580,7 +596,14 @@ public sealed class SamusState
         NormalJumpAimDiagonalDownRightPose or NormalJumpAimDiagonalDownLeftPose or
         FallingAimUpRightPose or FallingAimUpLeftPose or
         FallingAimDiagonalUpRightPose or FallingAimDiagonalUpLeftPose or
-        FallingAimDiagonalDownRightPose or FallingAimDiagonalDownLeftPose;
+        FallingAimDiagonalDownRightPose or FallingAimDiagonalDownLeftPose or
+        NormalJumpAimDownRightPose or NormalJumpAimDownLeftPose or
+        FallingAimDownRightPose or FallingAimDownLeftPose;
+
+    /// <summary>True only for the four radius-ten straight-down aerial bodies.</summary>
+    public static bool IsCompactAerialPose(byte pose) => pose is
+        NormalJumpAimDownRightPose or NormalJumpAimDownLeftPose or
+        FallingAimDownRightPose or FallingAimDownLeftPose;
 
     /// <summary>
     /// Applies a same-facing input/fallback transition within normal-jump type two or
@@ -589,6 +612,11 @@ public sealed class SamusState
     public void ApplyAerialAimTransition(ISnesAddressSpace bus, byte targetPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        if (IsCompactAerialPose(Pose) || IsCompactAerialPose(targetPose))
+        {
+            throw new NotSupportedException(
+                "Radius-ten aerial transitions require TryApplyCompactAerialTransition and active room collision data.");
+        }
         bool rightJump = IsRightFacingNormalJumpPose(Pose) &&
             IsRightFacingNormalJumpPose(targetPose);
         bool leftJump = IsLeftFacingNormalJumpPose(Pose) &&
@@ -619,6 +647,61 @@ public sealed class SamusState
                 $"Aerial pose ${targetPose:X2} changes radius {oldRadius} -> {Kinematics.YRadius}; pose-change collision is not translated for it.");
         }
         InitializeAnimation(bus, initialFrame: 0);
+    }
+
+    /// <summary>
+    /// Applies same-facing transitions where either endpoint is compact straight-down
+    /// `$17/$18/$2D/$2E`, preserving live velocity while reproducing pose-change collision.
+    /// </summary>
+    /// <remarks>
+    /// Entering radius ten from radius nineteen requires no collision work at `$91:FDAE`.
+    /// Leaving it probes all nine newly occupied pixels above and below. If both initial
+    /// directions are blocked, `$91:FFA7` selects ordinary crouch; if a compensating shift's
+    /// second probe is blocked, `$91:FE82` retains the source. Neither case installs the target.
+    /// </remarks>
+    public bool TryApplyCompactAerialTransition(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        byte targetPose,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+
+        bool rightJump = IsRightFacingNormalJumpPose(Pose) &&
+            IsRightFacingNormalJumpPose(targetPose);
+        bool leftJump = IsLeftFacingNormalJumpPose(Pose) &&
+            IsLeftFacingNormalJumpPose(targetPose);
+        bool rightFall = IsRightFacingFallingPose(Pose) &&
+            IsRightFacingFallingPose(targetPose);
+        bool leftFall = IsLeftFacingFallingPose(Pose) &&
+            IsLeftFacingFallingPose(targetPose);
+        if ((!rightJump && !leftJump && !rightFall && !leftFall) ||
+            (!IsCompactAerialPose(Pose) && !IsCompactAerialPose(targetPose)))
+        {
+            throw new NotSupportedException(
+                $"Compact aerial transition ${Pose:X2} -> ${targetPose:X2} is not a same-family ROM route.");
+        }
+
+        byte sourcePose = Pose;
+        LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
+                bus,
+                level,
+                targetPose,
+                nmiFrameCounter,
+                out int centerAdjustment);
+        if (collision != LargerPoseCollisionOutcome.Allowed)
+        {
+            if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+                ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            return false;
+        }
+
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        InitializeAnimation(bus, initialFrame: 0);
+        return true;
     }
 
     /// <summary>
@@ -913,16 +996,18 @@ public sealed class SamusState
         }
 
         byte sourcePose = Pose;
-        if (!TryResolveLargerPoseCollision(
+        LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
                 bus,
                 level,
                 targetPose,
                 nmiFrameCounter,
-                out int centerAdjustment))
+                out int centerAdjustment);
+        if (collision != LargerPoseCollisionOutcome.Allowed)
         {
             // $91:FFA7 does not restore an aimed crouch when the attempted standing body
             // is boxed in. It selects the ordinary stable crouch from facing metadata.
-            ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+                ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
             return false;
         }
 
@@ -944,8 +1029,8 @@ public sealed class SamusState
     /// jump, but retain only the collision resolver's bottom-alignment adjustment.
     /// </remarks>
     /// <returns>
-    /// False when expansion is impossible and native collision handling selects ordinary
-    /// stable crouch instead of starting the jump.
+    /// False when expansion is impossible. Simultaneous initial hits select ordinary stable
+    /// crouch; rejection by a compensating opposite-side probe retains the source pose.
     /// </returns>
     public bool TryApplyCrouchJumpTransition(
         ISnesAddressSpace bus,
@@ -967,14 +1052,16 @@ public sealed class SamusState
         }
 
         byte sourcePose = Pose;
-        if (!TryResolveLargerPoseCollision(
+        LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
                 bus,
                 level,
                 targetPose,
                 nmiFrameCounter,
-                out int centerAdjustment))
+                out int centerAdjustment);
+        if (collision != LargerPoseCollisionOutcome.Allowed)
         {
-            ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+                ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
             return false;
         }
 
@@ -1063,14 +1150,16 @@ public sealed class SamusState
         // common pose-change collision routine before initialization. The shared helper
         // reads the target radius from this ROM rather than assuming the ordinary value 21.
         byte sourcePose = Pose;
-        if (!TryResolveLargerPoseCollision(
+        LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
                 bus,
                 level,
                 targetPose,
                 nmiFrameCounter,
-                out int centerAdjustment))
+                out int centerAdjustment);
+        if (collision != LargerPoseCollisionOutcome.Allowed)
         {
-            ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+                ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
             return false;
         }
 
@@ -1188,6 +1277,58 @@ public sealed class SamusState
         Kinematics.YSubspeed = 0;
         Kinematics.YDirection = 0;
         InitializeAnimation(bus, initialFrame: 0);
+    }
+
+    /// <summary>
+    /// Applies `$91:E9F3` directions four/five when radius-ten straight-down Samus lands.
+    /// Both entries select ordinary `$A4/$A5`; the 10 -> 21 expansion still runs the full
+    /// block pose-change collision resolver before collision command five clears motion.
+    /// </summary>
+    public bool TryApplyCompactAerialLanding(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+        if (!IsCompactAerialPose(Pose))
+            throw new InvalidOperationException($"Compact landing requires pose $17/$18/$2D/$2E, not ${Pose:X2}.");
+
+        byte sourcePose = Pose;
+        byte targetPose = ReadShotDirection(bus) switch
+        {
+            4 => NormalLandingRightPose,
+            5 => NormalLandingLeftPose,
+            byte shotDirection => throw new InvalidOperationException(
+                $"Compact pose ${Pose:X2} has unexpected shot direction ${shotDirection:X2}."),
+        };
+        LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
+            bus,
+            level,
+            targetPose,
+            nmiFrameCounter,
+            out int centerAdjustment);
+        if (collision == LargerPoseCollisionOutcome.Allowed)
+        {
+            Pose = targetPose;
+            RefreshCollisionRadii(bus);
+            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+            InitializeAnimation(bus, initialFrame: 0);
+        }
+        else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+        {
+            ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+        }
+
+        // `$91:F010` collision command five runs after pose selection even when the larger
+        // body falls back to crouch, so no launch/fall residue survives the landing seam.
+        HorizontalSpeed.AccelerationMode = 0;
+        HorizontalSpeed.BaseSpeed = 0;
+        HorizontalSpeed.BaseSubspeed = 0;
+        Kinematics.YSpeed = 0;
+        Kinematics.YSubspeed = 0;
+        Kinematics.YDirection = 0;
+        return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
     /// <summary>
@@ -1548,18 +1689,25 @@ public sealed class SamusState
     private static int AddWithinBank(int address, int byteCount) =>
         (address & 0xff0000) | ((address + byteCount) & 0xffff);
 
+    private enum LargerPoseCollisionOutcome
+    {
+        Allowed,
+        RetainSource,
+        CrouchFallback,
+    }
+
     /// <summary>
     /// Resolves the block-only portion of `HandlePoseChangeCollision` at `$91:FDAE` for
     /// a target whose Y radius is larger than the live body's radius.
     /// </summary>
     /// <remarks>
-    /// The cartridge first probes the radius difference downward and upward while retaining
-    /// the old radius. A floor-only hit shifts the center up, a ceiling-only hit shifts it
-    /// down, no hit leaves it alone, and hits on both sides select stable crouch. Solid-enemy
-    /// collision is deliberately outside the current room slice; no synthetic substitute is
-    /// made for it here.
+    /// The cartridge first probes the radius difference upward and downward while retaining
+    /// the old radius. A one-sided hit calculates a compensating center shift, then probes
+    /// that shift toward the opposite surface before committing it. Failure of that second
+    /// probe restores the source pose; simultaneous initial hits select stable crouch. Solid-
+    /// enemy collision is deliberately outside the current room slice, with no substitute.
     /// </remarks>
-    private bool TryResolveLargerPoseCollision(
+    private LargerPoseCollisionOutcome ResolveLargerPoseCollision(
         ISnesAddressSpace bus,
         RoomLevelData level,
         byte targetPose,
@@ -1571,7 +1719,7 @@ public sealed class SamusState
         if (targetRadius <= Kinematics.YRadius)
         {
             centerAdjustment = 0;
-            return true;
+            return LargerPoseCollisionOutcome.Allowed;
         }
 
         int radiusDifference = targetRadius - Kinematics.YRadius;
@@ -1596,7 +1744,7 @@ public sealed class SamusState
         if (upward.Collided && downward.Collided)
         {
             centerAdjustment = 0;
-            return false;
+            return LargerPoseCollisionOutcome.CrouchFallback;
         }
 
         centerAdjustment = 0;
@@ -1606,6 +1754,19 @@ public sealed class SamusState
             // radiusDifference-spaceToMoveDown, preserving the old bottom boundary.
             int freeWholePixels = Math.Max(0, downward.AcceptedDisplacement >> 16);
             centerAdjustment = -(radiusDifference - freeWholePixels);
+
+            // `$91:FF58` checks the proposed upward correction against the opposite side.
+            // A collision here takes `$91:FE82` and restores PreviousPose; it does not use
+            // `$91:FFA7`'s crouch selector because the initial flags were not both set.
+            SamusKinematicsState oppositeProbe = CopyKinematics(Kinematics);
+            BlockMoveResult opposite = SamusBlockCollision.MoveVertical(
+                bus,
+                level,
+                oppositeProbe,
+                displacement: centerAdjustment << 16,
+                scanLeftToRight: (nmiFrameCounter & 1) == 0);
+            if (opposite.Collided)
+                return LargerPoseCollisionOutcome.RetainSource;
         }
         else if (upward.Collided)
         {
@@ -1614,9 +1775,20 @@ public sealed class SamusState
             int acceptedWhole = unchecked((short)(upward.AcceptedDisplacement >> 16));
             int freeWholePixels = Math.Max(0, -acceptedWhole);
             centerAdjustment = radiusDifference - freeWholePixels;
+
+            // `$91:FF2B` is the downward mirror of the opposite-side check above.
+            SamusKinematicsState oppositeProbe = CopyKinematics(Kinematics);
+            BlockMoveResult opposite = SamusBlockCollision.MoveVertical(
+                bus,
+                level,
+                oppositeProbe,
+                displacement: centerAdjustment << 16,
+                scanLeftToRight: (nmiFrameCounter & 1) == 0);
+            if (opposite.Collided)
+                return LargerPoseCollisionOutcome.RetainSource;
         }
 
-        return true;
+        return LargerPoseCollisionOutcome.Allowed;
     }
 
     /// <summary>
@@ -1625,6 +1797,7 @@ public sealed class SamusState
     /// </summary>
     private void ApplyPoseChangeCollisionCrouchFallback(ISnesAddressSpace bus, byte sourcePose)
     {
+        ushort oldRadius = Kinematics.YRadius;
         byte fallbackPose = ReadPoseXDirection(bus) == 4
             ? CrouchingLeftPose
             : CrouchingRightPose;
@@ -1633,6 +1806,14 @@ public sealed class SamusState
 
         Pose = fallbackPose;
         RefreshCollisionRadii(bus);
+        if (oldRadius < Kinematics.YRadius)
+        {
+            // `$91:FFD4-$91:FFE9` subtracts the extra crouch radius from center Y. This is
+            // normally invisible for radius-16 aimed crouches, but compact radius ten must
+            // move up six pixels when simultaneous initial probes force `$27/$28`.
+            Kinematics.YPosition = unchecked((ushort)(
+                Kinematics.YPosition - (Kinematics.YRadius - oldRadius)));
+        }
         InitializeAnimation(bus, initialFrame: 0);
     }
 

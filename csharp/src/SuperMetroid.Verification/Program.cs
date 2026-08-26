@@ -1550,21 +1550,29 @@ static void VerifySamusAimedAerialMovement()
 {
     var bus = new TestAddressSpace();
 
-    // Literal pose records used by this route. All admitted airborne bodies have radius
-    // 19; aimed landing expands to 21 and shifts the center up two pixels.
+    // Literal pose records used by this route. Ordinary aimed airborne bodies have radius
+    // 19; straight-down `$17/$2D` use radius 10, and landing expands to radius 21.
     bus.WriteBytes(0x91b631, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
     bus.WriteBytes(0x91b641, [0x08, 0x00, 0x01, 0x00, 0x06, 0x00, 0x15, 0x00]); // $03
     bus.WriteBytes(0x91b651, [0x08, 0x00, 0x01, 0x01, 0x06, 0x00, 0x15, 0x00]); // $05
     bus.WriteBytes(0x91b661, [0x08, 0x00, 0x01, 0x03, 0x06, 0x00, 0x15, 0x00]); // $07
     bus.WriteBytes(0x91b6d1, [0x08, 0x02, 0x51, 0x00, 0x08, 0x00, 0x13, 0x00]); // $15
+    bus.WriteBytes(0x91b6e1, [0x08, 0x02, 0xff, 0x04, 0x06, 0x00, 0x0a, 0x00]); // $17
+    bus.WriteBytes(0x91b6e9, [0x04, 0x02, 0xff, 0x05, 0x06, 0x00, 0x0a, 0x00]); // $18
+    bus.WriteBytes(0x91b761, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]); // $27
     bus.WriteBytes(0x91b771, [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $29
     bus.WriteBytes(0x91b781, [0x08, 0x06, 0x29, 0x00, 0x08, 0x00, 0x13, 0x00]); // $2B
+    bus.WriteBytes(0x91b791, [0x08, 0x06, 0xff, 0x04, 0x06, 0x00, 0x0a, 0x00]); // $2D
+    bus.WriteBytes(0x91b799, [0x04, 0x06, 0xff, 0x05, 0x06, 0x00, 0x0a, 0x00]); // $2E
     bus.WriteBytes(0x91b8b1, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $51
     bus.WriteBytes(0x91b8e1, [0x08, 0x02, 0xff, 0x01, 0x03, 0x00, 0x13, 0x00]); // $57
     bus.WriteBytes(0x91b971, [0x08, 0x02, 0x51, 0x01, 0x08, 0x00, 0x13, 0x00]); // $69
     bus.WriteBytes(0x91b981, [0x08, 0x02, 0x51, 0x03, 0x08, 0x00, 0x13, 0x00]); // $6B
+    bus.WriteBytes(0x91b989, [0x04, 0x02, 0x52, 0x06, 0x08, 0x00, 0x13, 0x00]); // $6C
     bus.WriteBytes(0x91b991, [0x08, 0x06, 0x29, 0x01, 0x08, 0x00, 0x13, 0x00]); // $6D
     bus.WriteBytes(0x91b9a1, [0x08, 0x06, 0x29, 0x03, 0x08, 0x00, 0x13, 0x00]); // $6F
+    bus.WriteBytes(0x91bb49, [0x08, 0x00, 0xff, 0x02, 0x03, 0x00, 0x15, 0x00]); // $A4
+    bus.WriteBytes(0x91bb51, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]); // $A5
     bus.WriteBytes(0x91bd39, [0x08, 0x00, 0xff, 0x01, 0x03, 0x00, 0x15, 0x00]); // $E2
     bus.WriteBytes(0x91bd49, [0x08, 0x00, 0xff, 0x03, 0x03, 0x00, 0x15, 0x00]); // $E4
 
@@ -1575,16 +1583,24 @@ static void VerifySamusAimedAerialMovement()
         (0x05, 0xc120, [0x0a, 0xf6]),
         (0x07, 0xc130, [0x0a, 0xf6]),
         (0x15, 0xc140, [0x02, 0xff]),
+        (0x17, 0xc148, [0x02, 0xff]),
+        (0x18, 0xc14c, [0x02, 0xff]),
+        (0x27, 0xc14e, [0x10, 0xff]),
         (0x29, 0xc150, [0x02, 0xff]),
         (0x2b, 0xc160, [0x02, 0xff]),
+        (0x2d, 0xc168, [0x02, 0xff]),
+        (0x2e, 0xc16c, [0x02, 0xff]),
         (0x51, 0xc170, [0x02, 0xff]),
         (0x57, 0xc180, [0x01, 0xfd, 0x69]),
         (0x69, 0xc190, [0x02, 0xff]),
         (0x6b, 0xc1a0, [0x02, 0xff]),
+        (0x6c, 0xc1a8, [0x02, 0xff]),
         (0x6d, 0xc1b0, [0x02, 0xff]),
         (0x6f, 0xc1c0, [0x02, 0xff]),
         (0xe2, 0xc1d0, [0x01, 0xf8, 0x05]),
         (0xe4, 0xc1e0, [0x01, 0xf8, 0x07]),
+        (0xa4, 0xc1f0, [0x02, 0xf8, 0x01]),
+        (0xa5, 0xc1f8, [0x02, 0xf8, 0x02]),
     ];
     foreach ((byte pose, ushort stream, byte[] bytes) in animations)
     {
@@ -1649,6 +1665,35 @@ static void VerifySamusAimedAerialMovement()
     samus.ApplyAerialAimTransition(bus, SamusState.NormalJumpAimDiagonalDownRightPose);
     AssertEqual(speedBeforeAimChange, samus.Kinematics.YSpeed, "air aim change preserves Y speed");
 
+    // `$17` is not merely alternate art: Down shrinks the live body from radius 19 to
+    // radius 10. Shrinking never probes blocks and does not move the center. Releasing to
+    // another aimed-jump pose expands through `$91:FDAE`; these few upward frames put the
+    // body in open air so neither the upper nor lower probe needs to displace the center.
+    for (ushort index = 0; index < 4; index++)
+        SamusAerialMovement.StepNormalJump(bus, level, samus, (ushort)SnesButton.A, index);
+    ushort compactCenterY = samus.YPosition;
+    uint compactVelocity = samus.Kinematics.VerticalSpeedFixed;
+    ushort compactDirection = samus.Kinematics.YDirection;
+    AssertThrows<NotSupportedException>(
+        () => samus.ApplyAerialAimTransition(bus, SamusState.NormalJumpAimDownRightPose),
+        "compact aim requires room-aware collision route");
+    AssertTrue(
+        samus.TryApplyCompactAerialTransition(
+            bus, level, SamusState.NormalJumpAimDownRightPose, nmiFrameCounter: 4),
+        "jump enters compact down-right pose");
+    AssertEqual((byte)0x17, samus.Pose, "compact jump pose");
+    AssertEqual((ushort)10, samus.Kinematics.YRadius, "compact jump radius");
+    AssertEqual(compactCenterY, samus.YPosition, "shrinking compact jump preserves center");
+    AssertEqual(compactVelocity, samus.Kinematics.VerticalSpeedFixed, "compact entry preserves 16.16 velocity");
+    AssertEqual(compactDirection, samus.Kinematics.YDirection, "compact entry preserves vertical direction");
+    AssertTrue(
+        samus.TryApplyCompactAerialTransition(
+            bus, level, SamusState.NormalJumpAimDiagonalDownRightPose, nmiFrameCounter: 5),
+        "jump exits compact down-right pose");
+    AssertEqual((ushort)19, samus.Kinematics.YRadius, "compact jump exit radius");
+    AssertEqual(compactCenterY, samus.YPosition, "open-air compact expansion preserves center");
+    AssertEqual(compactVelocity, samus.Kinematics.VerticalSpeedFixed, "compact exit preserves 16.16 velocity");
+
     AerialMovementResult frame = default;
     for (int index = 0; index < 160; index++)
     {
@@ -1666,6 +1711,118 @@ static void VerifySamusAimedAerialMovement()
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "aimed landing F8 applies");
     AssertEqual((byte)0x07, samus.Pose, "E4 landing returns to down-right aim");
 
+    // Falling `$2D` uses the movement-type-six dispatcher with the same radius-ten body.
+    // Let collision align its bottom to the floor first, then apply shot-direction four's
+    // `$A4` landing entry. The 11-pixel upward center correction keeps that exact boundary
+    // fixed while collision command five clears all vertical and horizontal motion.
+    var compactFall = new SamusState
+    {
+        Pose = SamusState.FallingAimDownRightPose,
+        XPosition = 48,
+        YPosition = 170,
+    };
+    compactFall.RefreshCollisionRadii(bus);
+    compactFall.InitializeAnimation(bus);
+    compactFall.Kinematics.YSpeed = 1;
+    compactFall.Kinematics.YSubspeed = 0x4000;
+    compactFall.Kinematics.YDirection = 2;
+    SamusAerialMovement.ConfigureDryAirGravity(bus, compactFall);
+    compactFall.HorizontalSpeed.BaseSpeed = 1;
+    compactFall.HorizontalSpeed.BaseSubspeed = 0x8000;
+    AerialMovementResult compactFallFrame = default;
+    for (ushort index = 0; index < 40 && !compactFallFrame.Landed; index++)
+        compactFallFrame = SamusAerialMovement.StepFalling(bus, level, compactFall, 0, index);
+    AssertTrue(compactFallFrame.Landed, "compact falling pose reaches floor");
+    ushort compactBottom = unchecked((ushort)(compactFall.YPosition + compactFall.Kinematics.YRadius));
+    AssertTrue(
+        compactFall.TryApplyCompactAerialLanding(bus, level, nmiFrameCounter: 0),
+        "compact down-right landing expands successfully");
+    AssertEqual((byte)0xa4, compactFall.Pose, "shot direction four selects A4 landing");
+    AssertEqual((ushort)21, compactFall.Kinematics.YRadius, "compact landing radius");
+    AssertEqual(
+        compactBottom,
+        unchecked((ushort)(compactFall.YPosition + compactFall.Kinematics.YRadius)),
+        "compact landing preserves floor boundary");
+    AssertEqual(0u, compactFall.Kinematics.VerticalSpeedFixed, "compact landing clears vertical speed");
+    AssertEqual((ushort)0, compactFall.Kinematics.YDirection, "compact landing clears vertical direction");
+    AssertEqual(0u, compactFall.HorizontalSpeed.BaseFixed, "compact landing clears horizontal speed");
+
+    // The mirrored definitions carry direction four and shot direction five. Exercise the
+    // same family guard in open air so a future right-only shortcut cannot silently pass.
+    var compactLeft = new SamusState
+    {
+        Pose = SamusState.NormalJumpAimDownLeftPose,
+        XPosition = 48,
+        YPosition = 100,
+    };
+    compactLeft.RefreshCollisionRadii(bus);
+    compactLeft.InitializeAnimation(bus);
+    AssertTrue(
+        compactLeft.TryApplyCompactAerialTransition(
+            bus, level, SamusState.NormalJumpAimDiagonalDownLeftPose, nmiFrameCounter: 1),
+        "mirrored compact jump expands");
+    AssertEqual((byte)0x6c, compactLeft.Pose, "mirrored compact jump target");
+    AssertEqual((ushort)19, compactLeft.Kinematics.YRadius, "mirrored compact jump radius");
+
+    var compactLeftLanding = new SamusState
+    {
+        Pose = SamusState.FallingAimDownLeftPose,
+        XPosition = 48,
+        YPosition = 170,
+    };
+    compactLeftLanding.RefreshCollisionRadii(bus);
+    compactLeftLanding.InitializeAnimation(bus);
+    compactLeftLanding.Kinematics.YSpeed = 1;
+    compactLeftLanding.Kinematics.YSubspeed = 0x4000;
+    compactLeftLanding.Kinematics.YDirection = 2;
+    SamusAerialMovement.ConfigureDryAirGravity(bus, compactLeftLanding);
+    AerialMovementResult compactLeftFallFrame = default;
+    for (ushort index = 0; index < 40 && !compactLeftFallFrame.Landed; index++)
+    {
+        compactLeftFallFrame = SamusAerialMovement.StepFalling(
+            bus, level, compactLeftLanding, 0, index);
+    }
+    AssertTrue(compactLeftFallFrame.Landed, "mirrored compact falling pose reaches floor");
+    ushort compactLeftBottom = unchecked((ushort)(
+        compactLeftLanding.YPosition + compactLeftLanding.Kinematics.YRadius));
+    AssertTrue(
+        compactLeftLanding.TryApplyCompactAerialLanding(bus, level, nmiFrameCounter: 1),
+        "compact down-left landing expands successfully");
+    AssertEqual((byte)0xa5, compactLeftLanding.Pose, "shot direction five selects A5 landing");
+    AssertEqual(
+        compactLeftBottom,
+        unchecked((ushort)(compactLeftLanding.YPosition + compactLeftLanding.Kinematics.YRadius)),
+        "mirrored compact landing preserves floor boundary");
+
+    // Put radius-ten `$17` between a row-nine ceiling and row-twelve floor. The body itself
+    // fits, but both independent nine-pixel probes collide. `$91:FFA7` therefore selects
+    // ordinary `$27` and `$91:FFD4-$91:FFE9` moves the center up by 10-16 = -6 pixels.
+    var boxedBlocks = (ushort[])blocks.Clone();
+    for (int x = 0; x < width; x++)
+        boxedBlocks[9 * width + x] = 0x8000;
+    var boxedLevel = new RoomLevelData(
+        width,
+        height,
+        boxedBlocks,
+        new byte[boxedBlocks.Length],
+        new ushort[boxedBlocks.Length],
+        new byte[24]);
+    var boxedCompact = new SamusState
+    {
+        Pose = SamusState.NormalJumpAimDownRightPose,
+        XPosition = 48,
+        YPosition = 176,
+    };
+    boxedCompact.RefreshCollisionRadii(bus);
+    boxedCompact.InitializeAnimation(bus);
+    AssertTrue(
+        !boxedCompact.TryApplyCompactAerialTransition(
+            bus, boxedLevel, SamusState.NormalJumpAimDiagonalDownRightPose, nmiFrameCounter: 0),
+        "boxed compact expansion is rejected");
+    AssertEqual((byte)0x27, boxedCompact.Pose, "boxed compact expansion selects crouch");
+    AssertEqual((ushort)16, boxedCompact.Kinematics.YRadius, "boxed compact fallback radius");
+    AssertEqual((ushort)170, boxedCompact.YPosition, "boxed compact fallback applies FFD4 offset");
+
     // Grounded shot direction one walks off into `$6D`; falling aim changes preserve
     // gravity state and zero-input fallback selects ordinary `$29`.
     samus.Pose = SamusState.StandingAimDiagonalUpRightPose;
@@ -1679,7 +1836,7 @@ static void VerifySamusAimedAerialMovement()
     samus.ApplyAerialAimTransition(bus, SamusState.FallingRightPose);
     AssertEqual((byte)0x29, samus.Pose, "aimed fall applies unaimed fallback");
 
-    Console.WriteLine("  Samus aimed air: FD jump, live aim, landing table/F8, walk-off, and fall fallback agree.");
+    Console.WriteLine("  Samus aimed air: FD jump, live aim, compact hitboxes/landing, walk-off, and fall fallback agree.");
 }
 
 /// <summary>

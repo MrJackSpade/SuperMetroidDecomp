@@ -1217,6 +1217,16 @@ public sealed class SuperMetroidRuntime
                 }
             }
 
+            // Samus_MovementHandler_Normal calls `$90:EEE7` after the selected movement
+            // function and before animation/pose transitions. Every fourth gameplay frame
+            // at boost stage four, it alternates between two exact world-position snapshots.
+            // Keeping this producer here means the draw handler below consumes post-motion
+            // coordinates with the same frame ordering as the cartridge.
+            Samus.HorizontalSpeed.CaptureSpeedEchoPosition(
+                NmiFrameCounter,
+                Samus.XPosition,
+                Samus.YPosition);
+
             // Normal gameplay advances animation during frame-handler beta, before the
             // pose-transition handler, draw handler, and next-NMI tile selection.
             // Animation sees the same held-input word as movement. Ordinary Dash uses B
@@ -1866,7 +1876,22 @@ public sealed class SuperMetroidRuntime
             // $A0:884D draws bomb/projectile explosions before reaching the enemy-layer
             // phase that calls DrawSamusAndProjectiles. Preserve that OAM ordering.
             BombProjectiles.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
+
+            // `$91:D6F7` updates Samus's palette buffer during gameplay. The software PPU
+            // reads CGRAM directly, so perform the literal ROM pointer/table copy immediately
+            // before the matching draw phase. This covers dry-room Speed Booster stage four
+            // and the normal-suit restoration requested by `$91:DE53` cancellation.
+            Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(
+                _addressSpace,
+                Cgram,
+                Samus.ReadMovementType(_addressSpace),
+                Samus.EquippedItems);
             Samus.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
+            Samus.DrawActiveSpeedBoosterEchoes(
+                _addressSpace,
+                Oam,
+                Camera.XPosition,
+                Camera.YPosition);
             SamusGrappleMovement.DrawConnectedBeam(
                 _addressSpace,
                 Samus.Grapple,

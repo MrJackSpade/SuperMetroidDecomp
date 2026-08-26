@@ -12,7 +12,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | Type | Native family | Current C# admission | Remaining native branches |
 |---:|---|---|---|
 | `$00` | Standing | `$01-$08`, landing `$A4-$A7/$E0-$E5` | Firing variants, forward pose, transitions from later systems |
-| `$01` | Running | `$09/$0A/$0D-$12`, dry air, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages and 7.0000 cap | Speed-echo drawing/palette copy, liquid/environment effects, gun-extended/fire variants |
+| `$01` | Running | `$09/$0A/$0D-$12`, dry air, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active echoes | Post-cancel echo departure, liquid/environment effects, gun-extended/fire variants |
 | `$02` | Normal jumping | `$4B-$4E/$15-$18/$51-$52/$55-$5A/$69-$6C`, including compact straight-down collision changes, dry air, variable height, ceiling/floor collision | Equipment/liquids, external displacement |
 | `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation, block-wall contact/launch | Solid-enemy wall contact, space/screw spin poses, liquids |
 | `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, dry ground, slopes, reversal, deceleration, walk-off, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
@@ -97,12 +97,18 @@ translated status is documented with the Morph Ball family below.
 - Equipped jumps and wall jumps add the extra-run fractional word directly to Y subspeed
   and half the whole word to Y speed. The two 16-bit additions remain independent, including
   the cartridge's deliberately observable lack of fractional carry.
+- `$91:D9B2` now follows the live suit table at `$91:DAA9`, then its bank-`$91` frame list,
+  then each bank-`$9B` 32-byte palette. Stage four loads immediately from timer one and every
+  four frames afterward; `$91:DE53` cancellation restores the normal suit through `$91:D727`.
+- `$90:EEE7` captures alternating post-movement world positions on game-time multiples of
+  four. `$90:87BD` draws slot one then slot zero with the current ROM spritemap indices, so
+  the Room Viewer and composed DebugRunner PNG show the actual cyan trailing bodies.
 - Synthetic verification uses distinct countdowns/delay lists for all five stages and locks
-  cap, palette state, stage-four events, and jump arithmetic. Real-ROM
-  `--speed-booster-script` reaches stage four, echo/contact state, 7.0000, and a boosted
-  `$09 -> $19` launch with initial vertical speed 7.C400.
-- Suit-palette copying, rendered trailing echoes, stored shine/crouch release, shinespark,
-  and the Landing Site type-`$F` door dispatcher remain explicit follow-up boundaries.
+  cap, double-indirect palette selection/timing/restoration, echo cadence, stage-four events,
+  and jump arithmetic. Real-ROM `--speed-booster-script` reaches stage four, visibly renders
+  both echoes in the cycled palette, reaches 7.0000, and launches `$09 -> $19` at 7.C400.
+- Post-cancel echo departure, stored shine/crouch release, shinespark, and the Landing Site
+  type-`$F` door dispatcher remain explicit follow-up boundaries.
 
 ## Verified crouch/stand slice
 
@@ -499,7 +505,7 @@ translated status is documented with the Morph Ball family below.
 ## Next implementation order
 
 1. Grapple breakable PLMs, spike damage, and liquid/solid-enemy wall-jump branches.
-2. Speed Booster palette/echo rendering, stored shine/shinespark, crystal flash/drained, and remaining scripted movement.
+2. Speed Booster post-cancel echo departure, stored shine/shinespark, crystal flash/drained, and remaining scripted movement.
 3. Space-jump/Screw-Attack spin families, liquids, and solid-enemy collision routes.
 4. Enemy collision/damage producers so knockback and grapple begin from live actors instead of host seams.
 5. Return with bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.

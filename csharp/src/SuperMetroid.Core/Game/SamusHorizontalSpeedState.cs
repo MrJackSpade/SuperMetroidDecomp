@@ -60,6 +60,33 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Contact-damage selector published when the counter reaches stage four.</summary>
     public ushort ContactDamageIndex { get; set; }
 
+    /// <summary>
+    /// Host-side publication of the immediate suit-palette copy performed by
+    /// <c>Cancel_SpeedBoosting</c> at <c>$91:DE53</c>. Movement owns the cancellation,
+    /// while the runtime owns CGRAM, so this flag preserves the native same-frame handoff
+    /// without passing a renderer through every collision and pose routine.
+    /// </summary>
+    public bool NormalSuitPaletteRestoreRequested { get; private set; }
+
+    /// <summary>
+    /// Alternating word index at WRAM <c>$0AAE</c>. Ordinary active Speed Booster echoes
+    /// use only values zero and two; the high-bit departure mode belongs to the later
+    /// cancellation/shinespark echo family.
+    /// </summary>
+    public ushort SpeedEchoIndex { get; private set; }
+
+    /// <summary>First captured Speed Booster echo X word at WRAM <c>$0AB0</c>.</summary>
+    public ushort FirstSpeedEchoXPosition { get; private set; }
+
+    /// <summary>Second captured Speed Booster echo X word at WRAM <c>$0AB2</c>.</summary>
+    public ushort SecondSpeedEchoXPosition { get; private set; }
+
+    /// <summary>First captured Speed Booster echo Y word at WRAM <c>$0AB4</c>.</summary>
+    public ushort FirstSpeedEchoYPosition { get; private set; }
+
+    /// <summary>Second captured Speed Booster echo Y word at WRAM <c>$0AB6</c>.</summary>
+    public ushort SecondSpeedEchoYPosition { get; private set; }
+
     /// <summary>Whole part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0B48</c>.</summary>
     public ushort TotalSpeed { get; private set; }
 
@@ -228,6 +255,100 @@ public sealed class SamusHorizontalSpeedState
         return bus.ReadByte(address);
     }
 
+    /// <summary>
+    /// Ports the dry-room Speed Booster branch of
+    /// <c>Handle_ScrewAttack_SpeedBoosting_Palette</c> at <c>$91:D9B2</c>.
+    /// </summary>
+    /// <returns>True when this call copied a ROM-authored palette into CGRAM.</returns>
+    public bool UpdateSpeedBoosterPalette(
+        ISnesAddressSpace bus,
+        SnesCgram cgram,
+        byte movementType,
+        ushort equippedItems)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(cgram);
+
+        bool paletteCopied = false;
+        ushort suitTableOffset = ResolveSuitTableOffset(equippedItems);
+        if (NormalSuitPaletteRestoreRequested)
+        {
+            // `$91:DE6A-$DE8A` picks Gravity, then Varia, then Power Suit and invokes the
+            // same 32-byte bank-$9B copy used by normal palette handling. Table `$91:D727`
+            // expresses that choice directly and keeps every color cartridge-authored.
+            ushort normalPalette = ReadWord(bus, 0x91d727 + suitTableOffset);
+            cgram.LoadFromBus(bus, 0x9b0000 | normalPalette, colorCount: 16, destinationIndex: 192);
+            NormalSuitPaletteRestoreRequested = false;
+            paletteCopied = true;
+        }
+
+        // Wall-jump palette handling returns before the common Speed Booster branch.
+        // Spin jumping reaches that branch only without Screw Attack; translating Screw
+        // Attack's six-frame palette family here would silently conflate two native effects.
+        if (movementType == 0x14 || (movementType == 3 && (equippedItems & 0x0008) != 0))
+            return paletteCopied;
+
+        if ((SpeedBoostCounter & 0xff00) != 0x0400)
+            return paletteCopied;
+
+        // DEC is a full 16-bit operation. BEQ/BPL mean zero and signed underflow both reload
+        // four, though ordinary execution arrives with timer one and never underflows.
+        SpecialPaletteTimer = unchecked((ushort)(SpecialPaletteTimer - 1));
+        if (SpecialPaletteTimer != 0 && unchecked((short)SpecialPaletteTimer) >= 0)
+            return paletteCopied;
+
+        SpecialPaletteTimer = 4;
+
+        // `$91:DAA9` selects a bank-$91 list for the active suit. The list entry selected by
+        // `$0ACE` is in turn a bank-$9B palette pointer. This double indirection is retained
+        // instead of copying the four retail addresses into C# constants.
+        ushort paletteList = ReadWord(bus, 0x91daa9 + suitTableOffset);
+        ushort palettePointer = ReadWord(
+            bus,
+            0x910000 | unchecked((ushort)(paletteList + SpecialPaletteFrame)));
+        cgram.LoadFromBus(bus, 0x9b0000 | palettePointer, colorCount: 16, destinationIndex: 192);
+
+        // Native advances offsets 0,2,4,6 and then pins six. No out-of-range lookup occurs
+        // in reachable play because initialization and cancellation both reset the word.
+        SpecialPaletteFrame = SpecialPaletteFrame >= 6
+            ? (ushort)6
+            : unchecked((ushort)(SpecialPaletteFrame + 2));
+        return true;
+    }
+
+    /// <summary>
+    /// Ports <c>Samus_UpdateSpeedEchoPos</c> at <c>$90:EEE7</c> for ordinary active boost.
+    /// The native game-time counter is one-to-one with accepted frames in this runtime.
+    /// </summary>
+    public bool CaptureSpeedEchoPosition(
+        ushort gameTimeFrames,
+        ushort xPosition,
+        ushort yPosition)
+    {
+        if ((SpeedBoostCounter & 0xff00) != 0x0400 ||
+            (SpeedEchoIndex & 0x8000) != 0 ||
+            (gameTimeFrames & 3) != 0)
+        {
+            return false;
+        }
+
+        if (SpeedEchoIndex == 0)
+        {
+            FirstSpeedEchoXPosition = xPosition;
+            FirstSpeedEchoYPosition = yPosition;
+        }
+        else
+        {
+            SecondSpeedEchoXPosition = xPosition;
+            SecondSpeedEchoYPosition = yPosition;
+        }
+
+        SpeedEchoIndex = unchecked((ushort)(SpeedEchoIndex + 2));
+        if (unchecked((short)(SpeedEchoIndex - 4)) >= 0)
+            SpeedEchoIndex = 0;
+        return true;
+    }
+
     private void AddExtraRunAcceleration()
     {
         uint accelerated = unchecked(Compose(ExtraRunSpeed, ExtraRunSubspeed) + 0x00001000u);
@@ -253,7 +374,17 @@ public sealed class SamusHorizontalSpeedState
             SpeedBoostCounter = 0;
             SpecialPaletteFrame = 0;
             SpecialPaletteTimer = 0;
+            NormalSuitPaletteRestoreRequested = true;
         }
+    }
+
+    private static ushort ResolveSuitTableOffset(ushort equippedItems)
+    {
+        // Native SuitPaletteIndex is already a byte offset: Power=0, Varia=2, Gravity=4.
+        // Gravity has priority when both equipment bits are present.
+        if ((equippedItems & 0x0020) != 0)
+            return 4;
+        return (equippedItems & 0x0001) != 0 ? (ushort)2 : (ushort)0;
     }
 
     /// <summary>

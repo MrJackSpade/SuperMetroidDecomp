@@ -939,6 +939,54 @@ static void VerifySamusHorizontalSpeed()
     AssertTrue(booster.EchoSoundRequested, "stage four publishes speed-echo sound event");
     AssertEqual((ushort)1, booster.ContactDamageIndex, "stage four enables contact damage");
 
+    // `$91:DAA9` is a pointer to the active suit's four-entry palette-pointer list, not a
+    // direct bank-$9B palette address. Distinct first/second colors prove both levels of
+    // indirection, the one-then-four frame timer, and the pinned frame-six progression.
+    WriteTestWord(bus, 0x91daa9, 0xd100); // Power Suit speed-palette list in bank $91.
+    WriteTestWord(bus, 0x91d100, 0xe000);
+    WriteTestWord(bus, 0x91d102, 0xe020);
+    WriteTestWord(bus, 0x91d104, 0xe040);
+    WriteTestWord(bus, 0x91d106, 0xe060);
+    WriteTestWord(bus, 0x9be000, 0x1234);
+    WriteTestWord(bus, 0x9be020, 0x4567);
+    WriteTestWord(bus, 0x91d727, 0x9400); // Normal Power Suit palette for cancellation.
+    WriteTestWord(bus, 0x9b9400, 0x0321);
+
+    var boostCgram = new SnesCgram();
+    AssertTrue(booster.UpdateSpeedBoosterPalette(bus, boostCgram, movementType: 1, equippedItems: 0x2000),
+        "stage-four palette timer one copies immediately");
+    AssertEqual((ushort)0x1234, boostCgram.Colors[192], "first Speed Booster palette comes from bank $9B");
+    AssertEqual((ushort)2, booster.SpecialPaletteFrame, "Speed Booster palette advances to pointer offset two");
+    AssertEqual((ushort)4, booster.SpecialPaletteTimer, "Speed Booster palette reloads four-frame timer");
+    for (int paletteTick = 0; paletteTick < 3; paletteTick++)
+    {
+        AssertTrue(!booster.UpdateSpeedBoosterPalette(
+            bus, boostCgram, movementType: 1, equippedItems: 0x2000),
+            "Speed Booster palette waits during positive timer");
+    }
+    AssertTrue(booster.UpdateSpeedBoosterPalette(bus, boostCgram, movementType: 1, equippedItems: 0x2000),
+        "fourth Speed Booster palette tick copies next frame");
+    AssertEqual((ushort)0x4567, boostCgram.Colors[192], "second Speed Booster palette pointer");
+
+    // `$90:EEE7` samples post-movement positions only on game-time multiples of four and
+    // alternates native word offsets zero/two. These become the two trailing bodies drawn
+    // by `$90:87BD`; capture itself deliberately contains no interpolation.
+    AssertTrue(!booster.CaptureSpeedEchoPosition(3, 100, 80), "speed echo skips non-fourth frame");
+    AssertTrue(booster.CaptureSpeedEchoPosition(4, 101, 81), "speed echo captures slot zero");
+    AssertEqual((ushort)2, booster.SpeedEchoIndex, "speed echo advances to slot one");
+    AssertTrue(booster.CaptureSpeedEchoPosition(8, 105, 82), "speed echo captures slot one");
+    AssertEqual((ushort)0, booster.SpeedEchoIndex, "speed echo alternation wraps after slot one");
+    AssertEqual((ushort)101, booster.FirstSpeedEchoXPosition, "first speed echo X snapshot");
+    AssertEqual((ushort)105, booster.SecondSpeedEchoXPosition, "second speed echo X snapshot");
+
+    booster.CancelRunningMomentum();
+    AssertTrue(booster.NormalSuitPaletteRestoreRequested,
+        "CancelSpeedBoost publishes normal-suit palette restoration");
+    AssertTrue(booster.UpdateSpeedBoosterPalette(bus, boostCgram, movementType: 0, equippedItems: 0x2000),
+        "cancel copies normal suit palette through runtime seam");
+    AssertEqual((ushort)0x0321, boostCgram.Colors[192], "cancel restores ROM-authored Power Suit palette");
+    AssertTrue(!booster.NormalSuitPaletteRestoreRequested, "normal-suit palette request is one-shot");
+
     var boostedJump = new SamusState { EquippedItems = 0x2000 };
     boostedJump.Kinematics.YSpeed = 4;
     boostedJump.Kinematics.YSubspeed = 0xe000;

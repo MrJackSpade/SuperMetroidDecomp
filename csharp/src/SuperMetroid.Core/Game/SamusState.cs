@@ -3110,6 +3110,10 @@ public sealed class SamusState
             AnimationFrame < 2 || AnimationFrame >= 9;
         bool drawBottom = movementType is not (4 or 8 or 0x11 or 0x12 or 0x13) &&
             ordinarySpinBottom && wallJumpBottom && damageBoostBottom;
+        // The native bottom selector clears this word when a complete top-half frame does
+        // not need a bottom. Clearing it here also prevents the following echo renderer
+        // from reusing a bottom spritemap left by an earlier animation frame.
+        BottomSpritemapIndex = 0;
         if (drawBottom)
         {
             ushort bottomBase = ReadWord(bus, AddWithinBank(BottomSpritemapBaseIndexTable, Pose * 2));
@@ -3121,6 +3125,77 @@ public sealed class SamusState
         // Those flags drive the following accepted NMI, so stepping exposes the authentic
         // one-main-loop/one-NMI producer-consumer relationship.
         TileTransfers.SelectForPoseFrame(bus, Pose, AnimationFrame);
+    }
+
+    /// <summary>
+    /// Draws the two ordinary active-Speed-Booster echoes from the positions captured by
+    /// <c>Samus_UpdateSpeedEchoPos</c> at <c>$90:EEE7</c>.
+    /// </summary>
+    /// <remarks>
+    /// This is the nonnegative-index branch of <c>Samus_DrawEchoes</c> at <c>$90:87BD</c>.
+    /// Cancellation changes the native index to <c>$FFFF</c> and gives both echoes an X
+    /// velocity so they peel away from Samus. That separate departure branch is deliberately
+    /// not approximated here; once the boost counter leaves stage four these active echoes
+    /// stop drawing until the real departure state is translated.
+    /// </remarks>
+    public void DrawActiveSpeedBoosterEchoes(
+        ISnesAddressSpace bus,
+        OamBuffer oam,
+        ushort layer1X,
+        ushort layer1Y)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(oam);
+
+        if ((HorizontalSpeed.SpeedEchoIndex & 0x8000) != 0 ||
+            (HorizontalSpeed.SpeedBoostCounter & 0xff00) != 0x0400)
+        {
+            return;
+        }
+
+        // `$90:87C7` draws slot one before slot zero. OAM order is observable when their
+        // opaque pixels overlap, so retain that otherwise-surprising reverse order.
+        DrawActiveSpeedBoosterEcho(
+            bus,
+            oam,
+            HorizontalSpeed.SecondSpeedEchoXPosition,
+            HorizontalSpeed.SecondSpeedEchoYPosition,
+            layer1X,
+            layer1Y);
+        DrawActiveSpeedBoosterEcho(
+            bus,
+            oam,
+            HorizontalSpeed.FirstSpeedEchoXPosition,
+            HorizontalSpeed.FirstSpeedEchoYPosition,
+            layer1X,
+            layer1Y);
+    }
+
+    private void DrawActiveSpeedBoosterEcho(
+        ISnesAddressSpace bus,
+        OamBuffer oam,
+        ushort echoX,
+        ushort echoY,
+        ushort layer1X,
+        ushort layer1Y)
+    {
+        // Zero X is the cartridge's empty-slot sentinel, not merely an off-screen point.
+        if (echoX == 0)
+            return;
+
+        int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
+        sbyte graphicsYOffset = unchecked((sbyte)bus.ReadByte(AddWithinBank(poseDefinition, 4)));
+        short screenY = unchecked((short)(echoY - graphicsYOffset - layer1Y));
+
+        // The original accepts screen Y 0..247. Horizontal clipping remains OAM/PPU work,
+        // exactly as it is for the current Samus body.
+        if (screenY < 0 || screenY >= 248)
+            return;
+
+        ushort screenX = unchecked((ushort)(echoX - layer1X));
+        oam.AddSamusSpritemap(bus, TopSpritemapIndex, screenX, unchecked((ushort)screenY));
+        if (BottomSpritemapIndex != 0)
+            oam.AddSamusSpritemap(bus, BottomSpritemapIndex, screenX, unchecked((ushort)screenY));
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>

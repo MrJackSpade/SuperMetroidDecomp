@@ -28,9 +28,9 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$0E` | Turning on ground | `$25/$26/$43/$44/$8B-$8E/$9C/$9D`, old-direction mode-one momentum, native standing/crouch selector, `$F8` completion | Fire variants and transitions originating in later families |
 | `$0F` | Crouch/stand/morph transition | `$35/$36/$3B/$3C/$37/$38/$3D/$3E/$F1-$FC`, bottom alignment, radius collision, `$F9/$FD` completion | Fire variants and later equipment-dependent transitions |
 | `$10` | Moonwalking | — | Entire family |
-| `$11` | Spring ball on ground | — | Entire family |
-| `$12` | Spring ball in air | — | Entire family |
-| `$13` | Spring ball falling | — | Entire family |
+| `$11` | Spring ball on ground | `$79-$7C`, dry ground, slopes, reversal, jump entry, walk-off | Bomb interaction, liquids, enemy collision, external displacement |
+| `$12` | Spring ball in air | `$7F/$80`, dry-air powered jump, variable height, ceiling/floor collision | Bomb interaction, liquids, enemy collision, external displacement |
+| `$13` | Spring ball falling | `$7D/$7E`, dry-air gravity, held-jump relaunch, automatic bounce | Bomb interaction, liquids, enemy collision, external displacement |
 | `$14` | Wall jumping | — | Trigger check, launch physics, animation, landing |
 | `$15` | Ran into a wall | — | Entire family |
 | `$16` | Grappling | — | Swing, stuck, release, wall-jump seams |
@@ -200,6 +200,11 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - Morph transition art uses the exact `$90:8D80` render offsets: entry frames `-4,-2` and
   exit frames `+5,+4`. Stable ground/air ball poses use the ordinary bank-$91 spritemap path
   while deliberately omitting the humanoid bottom-half draw.
+- Equipped Spring Ball makes the same `$F9` command select `$79/$7A` or `$7D/$7E`.
+  `$79-$7C` use movement type `$11`'s literal speed record; Jump selects `$7F/$80` and
+  initializes the ROM 4.E000 dry-air launch. Type `$12` retains the normal jump cutoff,
+  while type `$13` retains morphed falling. Landing with Jump held relaunches immediately;
+  automatic rebounds use the native `$0601/$0602` state before returning to `$79/$7A`.
 
 ## Evidence
 
@@ -243,10 +248,13 @@ are listed below so later work cannot accidentally confuse “the current viewer
   and generated PNGs all come from the private retail image. Synthetic table fixtures also
   cover `$F9`'s airborne target, walk-off, both hard-bounce stages, gentle landing, successful
   unmorph expansion, and the boxed-tunnel retention branch.
+- The real-ROM `--spring-ball-script` observes `$37 -> $79 -> $7B -> $7F`, a ROM-authored
+  powered arc, ceiling collision, automatic bounce, and `$79` recovery. Its 80-frame pose
+  capture freezes the airborne ball against cartridge-derived terrain and live camera state.
 
 ## Next implementation order
 
-1. Morph Ball bombs and Spring Ball ground/air/fall.
+1. Morph Ball bombs and bomb-jump displacement.
 2. Aerial turns and the real wall-jump trigger/launch.
 3. Knockback and damage boost.
 4. Grapple movement and release routes.

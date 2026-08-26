@@ -465,7 +465,9 @@ public sealed class SuperMetroidRuntime
             // then definition byte two selects stable `$1D/$41` at exact zero.
             if (GroundedSamusMovementEnabled &&
                 (Samus.Pose is SamusState.MorphBallMovingRightPose or
-                    SamusState.MorphBallMovingLeftPose) &&
+                    SamusState.MorphBallMovingLeftPose or
+                    SamusState.SpringBallMovingRightPose or
+                    SamusState.SpringBallMovingLeftPose) &&
                 Controller1.Current == 0 &&
                 ProspectiveSamusPose is null)
             {
@@ -612,6 +614,10 @@ public sealed class SuperMetroidRuntime
                     case SamusState.MorphBallGroundLeftPose:
                     case SamusState.MorphBallMovingRightPose:
                     case SamusState.MorphBallMovingLeftPose:
+                    case SamusState.SpringBallGroundRightPose:
+                    case SamusState.SpringBallGroundLeftPose:
+                    case SamusState.SpringBallMovingRightPose:
+                    case SamusState.SpringBallMovingLeftPose:
                         LastMorphBallMovement = SamusMorphBallMovement.StepGrounded(
                             _addressSpace,
                             LevelData,
@@ -620,7 +626,18 @@ public sealed class SuperMetroidRuntime
                         break;
                     case SamusState.MorphBallFallingRightPose:
                     case SamusState.MorphBallFallingLeftPose:
+                    case SamusState.SpringBallFallingRightPose:
+                    case SamusState.SpringBallFallingLeftPose:
                         LastMorphBallMovement = SamusMorphBallMovement.StepFalling(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            Controller1.Current,
+                            NmiFrameCounter);
+                        break;
+                    case SamusState.SpringBallJumpRightPose:
+                    case SamusState.SpringBallJumpLeftPose:
+                        LastMorphBallMovement = SamusMorphBallMovement.StepSpringBallInAir(
                             _addressSpace,
                             LevelData,
                             Samus,
@@ -757,6 +774,17 @@ public sealed class SuperMetroidRuntime
                     animationTransitionApplied = true;
                 }
 
+                // Spring Ball's three movement families share collision result three, but
+                // `$91:F25E` makes held Jump an immediate relaunch and stores `$0601/$0602`
+                // during automatic rebounds. Keep it distinct from ordinary-ball state.
+                if (!animationTransitionApplied &&
+                    LastMorphBallMovement is { Landed: true } &&
+                    SamusState.IsAirborneSpringBallPose(poseAtFrameStart))
+                {
+                    Samus.ApplySpringBallLanding(_addressSpace, Controller1.Current);
+                    animationTransitionApplied = true;
+                }
+
                 // A downward collision publishes result one. $91:E95D chooses normal or
                 // spin landing from the movement type that executed this frame, then pose
                 // command five clears both velocity axes. This ordinary prospective pose
@@ -805,7 +833,8 @@ public sealed class SuperMetroidRuntime
                 // preserved, while Y speed starts at zero/down exactly like `$91:E8F2`.
                 if (!animationTransitionApplied &&
                     LastMorphBallMovement is { Vertical.Collided: false } &&
-                    SamusState.IsGroundedMorphBallPose(poseAtFrameStart))
+                    (SamusState.IsGroundedMorphBallPose(poseAtFrameStart) ||
+                     SamusState.IsGroundedSpringBallPose(poseAtFrameStart)))
                 {
                     Samus.ApplyMorphBallWalkOff(_addressSpace);
                     animationTransitionApplied = true;
@@ -822,22 +851,28 @@ public sealed class SuperMetroidRuntime
                         switch ((poseAtFrameStart, targetPose))
                         {
                             case var (source, target)
-                                when (SamusState.IsGroundedMorphBallPose(source) ||
-                                      SamusState.IsAirborneMorphBallPose(source)) &&
-                                     (SamusState.IsGroundedMorphBallPose(target) ||
-                                      SamusState.IsAirborneMorphBallPose(target)):
+                                when SamusState.IsStableBallPose(source) &&
+                                     SamusState.IsStableBallPose(target) &&
+                                     !(SamusState.IsGroundedSpringBallPose(source) &&
+                                       target is SamusState.SpringBallJumpRightPose or
+                                           SamusState.SpringBallJumpLeftPose):
                                 // `$1D/$1E/$1F/$31/$32/$41` all share delay list `$B378`.
                                 // The initializer preserves frame/timer and applies mode-one
                                 // reversal momentum only when direction actually changes.
                                 Samus.ApplyMorphBallPoseChange(_addressSpace, target);
                                 break;
                             case var (source, target)
+                                when SamusState.IsGroundedSpringBallPose(source) &&
+                                     target is SamusState.SpringBallJumpRightPose or
+                                         SamusState.SpringBallJumpLeftPose:
+                                Samus.ApplySpringBallJump(_addressSpace, target);
+                                break;
+                            case var (source, target)
                                 when ((SamusState.IsRightFacingCrouchingPose(source) &&
                                        target == SamusState.MorphingTransitionRightPose) ||
                                       (SamusState.IsLeftFacingCrouchingPose(source) &&
                                        target == SamusState.MorphingTransitionLeftPose) ||
-                                      ((SamusState.IsGroundedMorphBallPose(source) ||
-                                        SamusState.IsAirborneMorphBallPose(source)) &&
+                                      (SamusState.IsStableBallPose(source) &&
                                        target is SamusState.UnmorphingTransitionRightPose or
                                            SamusState.UnmorphingTransitionLeftPose)):
                                 Samus.TryApplyMorphTransition(
@@ -1024,7 +1059,9 @@ public sealed class SuperMetroidRuntime
                 }
                 else if (!animationTransitionApplied &&
                          (poseAtFrameStart is SamusState.MorphBallMovingRightPose or
-                             SamusState.MorphBallMovingLeftPose) &&
+                             SamusState.MorphBallMovingLeftPose or
+                             SamusState.SpringBallMovingRightPose or
+                             SamusState.SpringBallMovingLeftPose) &&
                          ProspectiveSamusFallbackPose == poseAtFrameStart)
                 {
                     // Prospective command one rechecks the post-movement base words. A
@@ -1035,9 +1072,12 @@ public sealed class SuperMetroidRuntime
                 }
                 else if (!animationTransitionApplied &&
                          (poseAtFrameStart is SamusState.MorphBallMovingRightPose or
-                             SamusState.MorphBallMovingLeftPose) &&
+                             SamusState.MorphBallMovingLeftPose or
+                             SamusState.SpringBallMovingRightPose or
+                             SamusState.SpringBallMovingLeftPose) &&
                          ProspectiveSamusFallbackPose is
-                             SamusState.MorphBallGroundRightPose or SamusState.MorphBallGroundLeftPose)
+                             SamusState.MorphBallGroundRightPose or SamusState.MorphBallGroundLeftPose or
+                             SamusState.SpringBallGroundRightPose or SamusState.SpringBallGroundLeftPose)
                 {
                     Samus.HorizontalSpeed.AccelerationMode = 0;
                     Samus.ApplyMorphBallPoseChange(

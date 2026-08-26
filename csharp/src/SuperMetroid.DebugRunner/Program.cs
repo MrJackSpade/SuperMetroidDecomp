@@ -76,6 +76,11 @@ else if (options.MorphBallScript)
     Console.WriteLine(
         "Input script: crouch/morph, roll right, reverse left, stop, then unmorph; Morph Ball item bit is host-enabled.");
 }
+else if (options.SpringBallScript)
+{
+    Console.WriteLine(
+        "Input script: crouch into equipped Spring Ball, roll, powered jump, release, and land.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7000 stays clear
@@ -123,6 +128,12 @@ if (options.MorphBallScript)
     // bit `$0004` as an explicit host stimulus; `$91:F7CE`, `$90:839A`, pose definitions,
     // animation bytes, movement tables, collision, art, and every transition remain ROM-backed.
     runtime.Samus!.EquippedItems |= 0x0004;
+}
+else if (options.SpringBallScript)
+{
+    // As with ordinary Morph Ball, inventory is explicit debugger stimulus. Grant both
+    // Morph Ball `$0004` and Spring Ball `$0002`; F9 must choose its equipped operands.
+    runtime.Samus!.EquippedItems |= 0x0006;
 }
 
 Console.WriteLine(
@@ -530,6 +541,19 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 >= 175 and < 185 => (ushort)SnesButton.Up,
                 _ => (ushort)0,
             }
+        : options.SpringBallScript
+            ? frameIndex switch
+            {
+                0 => (ushort)SnesButton.Start,
+                >= 2 and < 8 => (ushort)SnesButton.Down,
+                >= 10 and < 20 => (ushort)SnesButton.Down,
+                >= 25 and < 55 => (ushort)SnesButton.Right,
+
+                // A fresh Jump edge from `$79/$7B` selects `$7F`. Hold briefly for a
+                // visible ascent, then release to exercise the native variable-height cut.
+                >= 60 and < 72 => (ushort)SnesButton.A,
+                _ => (ushort)0,
+            }
         : frameIndex switch
         {
             0 => (ushort)SnesButton.Start,
@@ -660,6 +684,14 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.MorphingTransitionLeftPose or
                      SamusState.UnmorphingTransitionRightPose or
                      SamusState.UnmorphingTransitionLeftPose or
+                     SamusState.SpringBallGroundRightPose or
+                     SamusState.SpringBallGroundLeftPose or
+                     SamusState.SpringBallMovingRightPose or
+                     SamusState.SpringBallMovingLeftPose or
+                     SamusState.SpringBallFallingRightPose or
+                     SamusState.SpringBallFallingLeftPose or
+                     SamusState.SpringBallJumpRightPose or
+                     SamusState.SpringBallJumpLeftPose or
                      SamusState.CrouchingRightPose or
                      SamusState.CrouchingLeftPose or
                      SamusState.StandingAimUpRightPose or
@@ -803,6 +835,24 @@ if (options.MorphBallScript)
 
     Console.WriteLine(
         $"Morph-Ball ROM route validated {requiredMorphRoute.Count} deterministic pose milestones.");
+}
+
+if (options.SpringBallScript)
+{
+    byte[] requiredSpringRoute = [
+        SamusState.MorphingTransitionRightPose,
+        SamusState.SpringBallGroundRightPose,
+        SamusState.SpringBallMovingRightPose,
+        SamusState.SpringBallJumpRightPose,
+    ];
+    foreach (byte requiredPose in requiredSpringRoute)
+    {
+        if (!observedSamusPoses.Contains(requiredPose))
+            throw new InvalidOperationException(
+                $"Spring-Ball ROM script did not observe required pose ${requiredPose:X2}.");
+    }
+    Console.WriteLine(
+        $"Spring-Ball ROM route validated {requiredSpringRoute.Length} deterministic pose milestones.");
 }
 
 Console.WriteLine(
@@ -986,7 +1036,8 @@ readonly record struct DebugRunnerOptions(
     bool AimTurnScript,
     bool CrouchTurnScript,
     bool CrouchJumpScript,
-    bool MorphBallScript)
+    bool MorphBallScript,
+    bool SpringBallScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -1008,6 +1059,7 @@ readonly record struct DebugRunnerOptions(
         bool crouchTurnScript = false;
         bool crouchJumpScript = false;
         bool morphBallScript = false;
+        bool springBallScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -1102,6 +1154,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--spring-ball-script":
+                    springBallScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -1147,7 +1204,8 @@ readonly record struct DebugRunnerOptions(
             aimTurnScript,
             crouchTurnScript,
             crouchJumpScript,
-            morphBallScript);
+            morphBallScript,
+            springBallScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

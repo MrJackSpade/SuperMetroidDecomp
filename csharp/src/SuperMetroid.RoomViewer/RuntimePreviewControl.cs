@@ -31,6 +31,7 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton holdDownButton = new("Hold Down");
     private readonly ToolStripButton holdAimUpButton = new("Hold Aim Up");
     private readonly ToolStripButton holdAimDownButton = new("Hold Aim Down");
+    private readonly ToolStripButton springBallButton = new("Spring Ball equipped");
     private readonly ToolStripButton livePpuLayersButton = new("Live PPU layers");
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 16 };
     private SuperMetroidRuntime runtime = null!;
@@ -87,6 +88,21 @@ internal sealed class RuntimePreviewControl : UserControl
         holdAimUpButton.ToolTipText = "Feeds canonical aim-up bit $0010 (default R shoulder), selecting diagonal-up poses.";
         holdAimDownButton.CheckOnClick = true;
         holdAimDownButton.ToolTipText = "Feeds canonical aim-down bit $0020 (default L shoulder), selecting diagonal-down poses.";
+        springBallButton.CheckOnClick = true;
+        springBallButton.ToolTipText =
+            "Adds equipped-item bit $0002 to the grounded debugger inventory. Toggle before morphing; restart if already in ball form.";
+        springBallButton.CheckedChanged += (_, _) =>
+        {
+            // Save-file/equipment-pause processing is not translated yet. Make the debug
+            // inventory write visible and narrow: toggling changes only Spring Ball bit
+            // `$0002`, while Morph Ball bit `$0004` remains the grounded sandbox baseline.
+            if (runtime?.Samus is null || !groundedRunScenario)
+                return;
+            if (springBallButton.Checked)
+                runtime.Samus.EquippedItems |= 0x0002;
+            else
+                runtime.Samus.EquippedItems &= unchecked((ushort)~0x0002);
+        };
 
         // The SNES can electrically report both direction bits, but an ordinary D-pad
         // cannot be held left and right at once. Keep this convenience UI physically sane;
@@ -146,6 +162,7 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(holdDownButton);
         toolStrip.Items.Add(holdAimUpButton);
         toolStrip.Items.Add(holdAimDownButton);
+        toolStrip.Items.Add(springBallButton);
         toolStrip.Items.Add(livePpuLayersButton);
         toolStrip.Items.Add(new ToolStripSeparator());
         toolStrip.Items.Add(cameraLeftButton);
@@ -213,6 +230,8 @@ internal sealed class RuntimePreviewControl : UserControl
             // Cinematic diagnostics receive no inventory, and later save-state work should
             // replace this one deliberately visible host grant rather than hiding it.
             runtime.Samus!.EquippedItems |= 0x0004;
+            if (springBallButton.Checked)
+                runtime.Samus.EquippedItems |= 0x0002;
         }
         runtime.InitializeLandingSiteViewport();
         runtime.LoadUpperCrateriaBackgroundPalette();
@@ -417,6 +436,14 @@ internal sealed class RuntimePreviewControl : UserControl
                   SamusState.MorphBallGroundLeftPose or
                   SamusState.MorphBallMovingRightPose or
                   SamusState.MorphBallMovingLeftPose
+                  or SamusState.SpringBallGroundRightPose
+                  or SamusState.SpringBallGroundLeftPose
+                  or SamusState.SpringBallMovingRightPose
+                  or SamusState.SpringBallMovingLeftPose
+                  or SamusState.SpringBallFallingRightPose
+                  or SamusState.SpringBallFallingLeftPose
+                  or SamusState.SpringBallJumpRightPose
+                  or SamusState.SpringBallJumpLeftPose
                 ? $"next ${transition.ProspectivePose:X2} translated"
                 : $"next ${transition.ProspectivePose:X2} blocked"
             : runtime.ProspectiveSamusFallbackPose is ushort fallback

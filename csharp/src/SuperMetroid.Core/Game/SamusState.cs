@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -73,6 +74,30 @@ public sealed class SamusState
 
     /// <summary>Pose $41 is the stationary left-facing ordinary morph ball on the ground.</summary>
     public const byte MorphBallGroundLeftPose = 0x41;
+
+    /// <summary>Pose $79 is the stationary right-facing Spring Ball on the ground.</summary>
+    public const byte SpringBallGroundRightPose = 0x79;
+
+    /// <summary>Pose $7A is the stationary left-facing Spring Ball on the ground.</summary>
+    public const byte SpringBallGroundLeftPose = 0x7a;
+
+    /// <summary>Pose $7B is the Spring Ball moving right on the ground.</summary>
+    public const byte SpringBallMovingRightPose = 0x7b;
+
+    /// <summary>Pose $7C is the Spring Ball moving left on the ground.</summary>
+    public const byte SpringBallMovingLeftPose = 0x7c;
+
+    /// <summary>Pose $7D is the right-facing Spring Ball falling or bouncing.</summary>
+    public const byte SpringBallFallingRightPose = 0x7d;
+
+    /// <summary>Pose $7E is the left-facing Spring Ball falling or bouncing.</summary>
+    public const byte SpringBallFallingLeftPose = 0x7e;
+
+    /// <summary>Pose $7F is the right-facing Spring Ball in its powered jump.</summary>
+    public const byte SpringBallJumpRightPose = 0x7f;
+
+    /// <summary>Pose $80 is the left-facing Spring Ball in its powered jump.</summary>
+    public const byte SpringBallJumpLeftPose = 0x80;
 
     /// <summary>Pose $29 is the unaimed right-facing falling pose.</summary>
     public const byte FallingRightPose = 0x29;
@@ -605,6 +630,21 @@ public sealed class SamusState
     /// <summary>True for the two ordinary, non-Spring-Ball airborne morph poses.</summary>
     public static bool IsAirborneMorphBallPose(byte pose) => pose is
         MorphBallFallingRightPose or MorphBallFallingLeftPose;
+
+    /// <summary>True for movement type $11's four grounded Spring Ball poses.</summary>
+    public static bool IsGroundedSpringBallPose(byte pose) => pose is
+        SpringBallGroundRightPose or SpringBallGroundLeftPose or
+        SpringBallMovingRightPose or SpringBallMovingLeftPose;
+
+    /// <summary>True for Spring Ball jump/fall poses across movement types $12/$13.</summary>
+    public static bool IsAirborneSpringBallPose(byte pose) => pose is
+        SpringBallFallingRightPose or SpringBallFallingLeftPose or
+        SpringBallJumpRightPose or SpringBallJumpLeftPose;
+
+    /// <summary>True for every stable ordinary or Spring Ball pose using radius seven.</summary>
+    public static bool IsStableBallPose(byte pose) =>
+        IsGroundedMorphBallPose(pose) || IsAirborneMorphBallPose(pose) ||
+        IsGroundedSpringBallPose(pose) || IsAirborneSpringBallPose(pose);
 
     /// <summary>True for the four entry/exit poses handled by movement type $0F.</summary>
     public static bool IsMorphTransitionPose(byte pose) => pose is
@@ -1254,11 +1294,15 @@ public sealed class SamusState
         bool startsMorphing = startsMorphingRight || startsMorphingLeft;
         bool startsUnmorphingRight =
             Pose is MorphBallGroundRightPose or MorphBallMovingRightPose or
-                MorphBallFallingRightPose &&
+                MorphBallFallingRightPose or SpringBallGroundRightPose or
+                SpringBallMovingRightPose or SpringBallFallingRightPose or
+                SpringBallJumpRightPose &&
             targetPose == UnmorphingTransitionRightPose;
         bool startsUnmorphingLeft =
             Pose is MorphBallGroundLeftPose or MorphBallMovingLeftPose or
-                MorphBallFallingLeftPose &&
+                MorphBallFallingLeftPose or SpringBallGroundLeftPose or
+                SpringBallMovingLeftPose or SpringBallFallingLeftPose or
+                SpringBallJumpLeftPose &&
             targetPose == UnmorphingTransitionLeftPose;
         bool startsUnmorphing = startsUnmorphingRight || startsUnmorphingLeft;
         if (!startsMorphing && !startsUnmorphing)
@@ -1323,8 +1367,8 @@ public sealed class SamusState
     public void ApplyMorphBallPoseChange(ISnesAddressSpace bus, byte targetPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        bool sourceSupported = IsGroundedMorphBallPose(Pose) || IsAirborneMorphBallPose(Pose);
-        bool targetSupported = IsGroundedMorphBallPose(targetPose) || IsAirborneMorphBallPose(targetPose);
+        bool sourceSupported = IsStableBallPose(Pose);
+        bool targetSupported = IsStableBallPose(targetPose);
         if (!sourceSupported || !targetSupported)
         {
             throw new NotSupportedException(
@@ -1406,18 +1450,89 @@ public sealed class SamusState
     }
 
     /// <summary>
+    /// Resolves `$91:F25E` for Spring Ball. Holding Jump immediately calls the same
+    /// cartridge-backed jump initializer as a grounded Spring Ball press; otherwise the
+    /// low bounce byte advances through two rebounds while high byte `$0600` records the
+    /// native Spring Ball bounce family.
+    /// </summary>
+    public bool ApplySpringBallLanding(ISnesAddressSpace bus, ushort controllerInput)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if (!IsAirborneSpringBallPose(Pose))
+            throw new InvalidOperationException($"Spring-Ball landing requires pose $7D-$80, not ${Pose:X2}.");
+
+        if ((controllerInput & (ushort)SnesButton.A) != 0)
+        {
+            MorphBallBounceState = 0;
+            SamusAerialMovement.InitializeDryAirJump(bus, this);
+            byte jumpPose = ReadPoseXDirection(bus) == 4
+                ? SpringBallJumpLeftPose
+                : SpringBallJumpRightPose;
+            ApplyMorphBallPoseChange(bus, jumpPose);
+            return false;
+        }
+
+        byte bounce = unchecked((byte)MorphBallBounceState);
+        if (bounce == 0 && Kinematics.YSpeed >= 3)
+        {
+            MorphBallBounceState = 0x0601;
+            Kinematics.YDirection = 1;
+            Kinematics.YSpeed = ReadWord(bus, 0x909eb5);
+            Kinematics.YSubspeed = ReadWord(bus, 0x909eb7);
+            return false;
+        }
+
+        if (bounce == 1)
+        {
+            MorphBallBounceState = 0x0602;
+            Kinematics.YDirection = 1;
+            Kinematics.YSpeed = unchecked((ushort)(ReadWord(bus, 0x909eb5) - 1));
+            Kinematics.YSubspeed = ReadWord(bus, 0x909eb7);
+            return false;
+        }
+
+        MorphBallBounceState = 0;
+        Kinematics.YDirection = 0;
+        Kinematics.YSpeed = 0;
+        Kinematics.YSubspeed = 0;
+        byte groundPose = ReadPoseXDirection(bus) == 4
+            ? SpringBallGroundLeftPose
+            : SpringBallGroundRightPose;
+        ApplyMorphBallPoseChange(bus, groundPose);
+        return true;
+    }
+
+    /// <summary>
+    /// Applies `$91:FC18` when grounded Spring Ball `$79/$7A` changes to `$7F/$80`.
+    /// Moving-ground poses first pass through the same table-selected target, but the
+    /// initializer only launches when the previous movement type was exactly `$11`.
+    /// </summary>
+    public void ApplySpringBallJump(ISnesAddressSpace bus, byte targetPose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        bool validTarget = targetPose is SpringBallJumpRightPose or SpringBallJumpLeftPose;
+        if (!IsGroundedSpringBallPose(Pose) || !validTarget)
+            throw new NotSupportedException($"Spring-Ball jump ${Pose:X2} -> ${targetPose:X2} is not translated.");
+
+        ApplyMorphBallPoseChange(bus, targetPose);
+        MorphBallBounceState = 0;
+        SamusAerialMovement.InitializeDryAirJump(bus, this);
+    }
+
+    /// <summary>
     /// Applies `$91:E8F2`'s type-four walk-off endpoint, retaining the rolling animation
     /// while changing to ordinary airborne pose `$31/$32` and starting dry-air gravity.
     /// </summary>
     public void ApplyMorphBallWalkOff(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if (!IsGroundedMorphBallPose(Pose))
+        bool springBall = IsGroundedSpringBallPose(Pose);
+        if (!IsGroundedMorphBallPose(Pose) && !springBall)
             throw new InvalidOperationException($"Morph-Ball walk-off requires grounded pose, not ${Pose:X2}.");
 
         byte fallingPose = ReadPoseXDirection(bus) == 4
-            ? MorphBallFallingLeftPose
-            : MorphBallFallingRightPose;
+            ? springBall ? SpringBallFallingLeftPose : MorphBallFallingLeftPose
+            : springBall ? SpringBallFallingRightPose : MorphBallFallingRightPose;
         Kinematics.YSpeed = 0;
         Kinematics.YSubspeed = 0;
         Kinematics.YDirection = 2;
@@ -1639,8 +1754,12 @@ public sealed class SamusState
             (StandingTransitionAimDiagonalDownLeftPose, StandingAimDiagonalDownLeftPose) or
             (MorphingTransitionRightPose, MorphBallGroundRightPose) or
             (MorphingTransitionRightPose, MorphBallFallingRightPose) or
+            (MorphingTransitionRightPose, SpringBallGroundRightPose) or
+            (MorphingTransitionRightPose, SpringBallFallingRightPose) or
             (MorphingTransitionLeftPose, MorphBallGroundLeftPose) or
             (MorphingTransitionLeftPose, MorphBallFallingLeftPose) or
+            (MorphingTransitionLeftPose, SpringBallGroundLeftPose) or
+            (MorphingTransitionLeftPose, SpringBallFallingLeftPose) or
             (UnmorphingTransitionRightPose, CrouchingRightPose) or
             (UnmorphingTransitionLeftPose, CrouchingLeftPose) or
             (NormalLandingRightPose, FacingRightNormalPose) or
@@ -1908,7 +2027,8 @@ public sealed class SamusState
 
         int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
         byte movementType = bus.ReadByte(AddWithinBank(poseDefinition, 1));
-        if (movementType is not (0 or 1 or 2 or 3 or 4 or 5 or 6 or 8 or 0x0e or 0x0f or 0x17))
+        if (movementType is not (0 or 1 or 2 or 3 or 4 or 5 or 6 or 8 or
+            0x0e or 0x0f or 0x11 or 0x12 or 0x13 or 0x17))
         {
             throw new NotSupportedException(
                 $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");
@@ -1962,7 +2082,7 @@ public sealed class SamusState
         // those frames' top spritemaps contain the complete curled body. Frame zero and
         // frames B+ draw the split bottom. Screw/space-jump poses are future routes and
         // always draw their bottoms, but they are not admitted by this method yet.
-        bool drawBottom = movementType is not (4 or 8) &&
+        bool drawBottom = movementType is not (4 or 8 or 0x11 or 0x12 or 0x13) &&
             (movementType != 3 || AnimationFrame == 0 || AnimationFrame >= 0x0b);
         if (drawBottom)
         {

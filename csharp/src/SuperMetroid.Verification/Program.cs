@@ -3298,6 +3298,14 @@ static void VerifySamusMorphBallMovement()
     WritePose(SamusState.UnmorphingTransitionRightPose, [0x08, 0x0f, 0xff, 0xff, 0x00, 0x00, 0x10, 0x00]);
     WritePose(SamusState.UnmorphingTransitionLeftPose, [0x04, 0x0f, 0xff, 0xff, 0x00, 0x00, 0x10, 0x00]);
     WritePose(SamusState.MorphBallGroundLeftPose, [0x04, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusState.SpringBallGroundRightPose, [0x08, 0x11, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusState.SpringBallGroundLeftPose, [0x04, 0x11, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusState.SpringBallMovingRightPose, [0x08, 0x11, 0x79, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusState.SpringBallMovingLeftPose, [0x04, 0x11, 0x7a, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusState.SpringBallFallingRightPose, [0x08, 0x13, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusState.SpringBallFallingLeftPose, [0x04, 0x13, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusState.SpringBallJumpRightPose, [0x08, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusState.SpringBallJumpLeftPose, [0x04, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
 
     // Stable ordinary-ball poses all point to `$91:B378`. Separate synthetic storage keeps
     // the production pointer lookup real while making the expected command stream concise.
@@ -3309,6 +3317,14 @@ static void VerifySamusMorphBallMovement()
         SamusState.MorphBallFallingRightPose,
         SamusState.MorphBallFallingLeftPose,
         SamusState.MorphBallGroundLeftPose,
+        SamusState.SpringBallGroundRightPose,
+        SamusState.SpringBallGroundLeftPose,
+        SamusState.SpringBallMovingRightPose,
+        SamusState.SpringBallMovingLeftPose,
+        SamusState.SpringBallFallingRightPose,
+        SamusState.SpringBallFallingLeftPose,
+        SamusState.SpringBallJumpRightPose,
+        SamusState.SpringBallJumpLeftPose,
     })
     {
         WriteTestWord(bus, 0x91b010 + pose * 2, sharedBallDelay);
@@ -3338,6 +3354,15 @@ static void VerifySamusMorphBallMovement()
         0x01, 0x00, 0x00, 0x00, // maximum 1.0000
         0x00, 0x00, 0x00, 0x40, // deceleration 0.4000
     ]);
+    bus.WriteBytes(0x909f55 + 0x11 * 12, [
+        0x00, 0x00, 0x00, 0x80, // Spring-ground acceleration 0.8000
+        0x01, 0x00, 0x00, 0x00, // maximum 1.0000
+        0x00, 0x00, 0x00, 0x40, // deceleration 0.4000
+    ]);
+    bus.WriteBytes(0x909eb9, [0x04, 0x00]); // Dry-air jump whole speed 4.
+    bus.WriteBytes(0x909ebf, [0x00, 0xe0]); // Dry-air jump subspeed E000.
+    bus.WriteBytes(0x909ea1, [0x00, 0x28]); // Dry-air gravity subspeed 2800.
+    bus.WriteBytes(0x909ea7, [0x00, 0x00]); // Dry-air gravity whole word.
     bus.WriteBytes(0x909eb5, [0x01, 0x00]); // Whole bounce speed.
     bus.WriteBytes(0x909eb7, [0x00, 0x10]); // Fractional bounce speed.
 
@@ -3511,7 +3536,58 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(SamusState.MorphBallFallingRightPose, airborneEntry.PendingTransitionalPose!.Value,
         "F9 nonzero Y subspeed selects airborne endpoint");
 
-    Console.WriteLine("  Morph Ball: entry/exit, F9, roll, walk-off, bounce, and tunnel collision agree.");
+    // Repeat entry with Spring Ball bit `$0002`. F9 must use its equipped grounded operand,
+    // then movement type `$11` reads its own speed record rather than ordinary type four.
+    var spring = new SamusState
+    {
+        Pose = SamusState.CrouchingRightPose,
+        EquippedItems = 0x0006,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    spring.RefreshCollisionRadii(bus);
+    spring.InitializeAnimation(bus);
+    AssertTrue(
+        spring.TryApplyMorphTransition(
+            bus, floor, SamusState.MorphingTransitionRightPose, nmiFrameCounter: 0),
+        "Spring Ball fixture begins morph entry");
+    for (int tick = 0; tick < 4; tick++)
+        spring.AnimateNoFx(bus);
+    AssertEqual(SamusState.SpringBallGroundRightPose, spring.PendingTransitionalPose!.Value,
+        "F9 equipped endpoint selects Spring Ball ground");
+    AssertTrue(spring.ApplyPendingVerifiedAnimationTransition(bus), "Spring Ball F9 applies");
+    spring.ApplyMorphBallPoseChange(bus, SamusState.SpringBallMovingRightPose);
+    MorphBallMovementResult springRoll = SamusMorphBallMovement.StepGrounded(
+        bus, floor, spring, nmiFrameCounter: 0);
+    AssertTrue(springRoll.Vertical.Collided, "Spring Ball roll retains floor contact");
+    AssertEqual((ushort)0x8000, spring.HorizontalSpeed.BaseSubspeed,
+        "type-$11 acceleration uses its ROM record");
+
+    // `$79 -> $7F` initializes the literal dry-air 4.E000 jump. Releasing Jump on its
+    // first movement frame invokes the shared variable-height cutoff before displacement.
+    spring.ApplyMorphBallPoseChange(bus, SamusState.SpringBallGroundRightPose);
+    spring.ApplySpringBallJump(bus, SamusState.SpringBallJumpRightPose);
+    AssertEqual((ushort)4, spring.Kinematics.YSpeed, "Spring Ball launch whole speed");
+    AssertEqual((ushort)0xe000, spring.Kinematics.YSubspeed, "Spring Ball launch subspeed");
+    SamusMorphBallMovement.StepSpringBallInAir(
+        bus, empty, spring, controllerInput: 0, nmiFrameCounter: 0);
+    AssertEqual((ushort)2, spring.Kinematics.YDirection, "released Spring Ball jump cuts upward arc");
+
+    // The no-Jump hard impact stores the distinctive `$0601` state. A held-Jump impact
+    // instead clears that state and immediately relaunches through Make_Samus_Jump.
+    spring.ApplyMorphBallPoseChange(bus, SamusState.SpringBallFallingRightPose);
+    spring.Kinematics.YSpeed = 3;
+    spring.Kinematics.YSubspeed = 0;
+    spring.Kinematics.YDirection = 2;
+    AssertTrue(!spring.ApplySpringBallLanding(bus, controllerInput: 0),
+        "Spring Ball hard impact rebounds");
+    AssertEqual((ushort)0x0601, spring.MorphBallBounceState, "Spring Ball first bounce state");
+    AssertTrue(!spring.ApplySpringBallLanding(bus, (ushort)SnesButton.A),
+        "held Jump immediately relaunches Spring Ball");
+    AssertEqual((ushort)0, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
+    AssertEqual(SamusState.SpringBallJumpRightPose, spring.Pose, "held-Jump relaunch pose");
+
+    Console.WriteLine("  Morph Ball: ordinary/Spring entry, roll, jump, walk-off, bounce, and tunnel collision agree.");
 }
 
 static ushort ReferenceNextRandom(ushort seed)

@@ -3135,7 +3135,9 @@ static void VerifyBabyMetroidCutsceneEntrance()
     int letGoFrame = 0;
     int dustFrame = 0;
     int ceilingFrame = 0;
-    bool sawDustClouds = false;
+    // Capture the actual three allocation records, not merely the transition edge. This
+    // independently locks the signed offset arithmetic and native helper-call order.
+    var releaseDustClouds = new List<BabyMetroidReleaseDustRequest>(capacity: 3);
     bool sawSamusCrouch = false;
     while (baby.Phase != BabyMetroidCutscenePhase.MoveToSamus)
     {
@@ -3178,7 +3180,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
             if (baby.Phase == BabyMetroidCutscenePhase.MoveToSamus)
                 ceilingFrame = drainFrame;
         }
-        sawDustClouds |= babyDrain.DustCloudsRequested;
+        releaseDustClouds.AddRange(babyDrain.ReleaseDustClouds);
         sawSamusCrouch |= babyDrain.SamusCrouchingRequested;
         AssertTrue(drainFrame < 2500,
             $"Baby drain/release reaches ceiling; MB={motherBrain.Phase}/stage{motherBrain.PainfulWalkingStage}/" +
@@ -3206,7 +3208,14 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual((ushort)0x0000, baby.XVelocity, "ceiling handoff X velocity");
     AssertEqual((ushort)0xff78, baby.YVelocity,
         "synthetic ceiling handoff preserves its independently accumulated Y velocity");
-    AssertTrue(sawDustClouds, "Baby release requests three Mother Brain head dust clouds");
+    AssertEqual(3, releaseDustClouds.Count,
+        "Baby release requests exactly three Mother Brain head dust clouds");
+    AssertEqual(new BabyMetroidReleaseDustRequest(65, 70, 9), releaseDustClouds[0],
+        "Baby release first dust uses brain offset (-16,-8)");
+    AssertEqual(new BabyMetroidReleaseDustRequest(81, 62, 9), releaseDustClouds[1],
+        "Baby release second dust uses brain offset (0,-16)");
+    AssertEqual(new BabyMetroidReleaseDustRequest(97, 70, 9), releaseDustClouds[2],
+        "Baby release third dust uses brain offset (+16,-8)");
     AssertTrue(sawSamusCrouch, "Baby ceiling collision calls drained controller four");
     AssertEqual(BabyMetroidCutsceneState.CeilingToSamusMovementTable,
         baby.MovementTablePointer,
@@ -4288,6 +4297,11 @@ static void VerifyMotherBrainBombProjectiles()
         0x05, 0x00, 0x3c, 0x83,
         0xab, 0x81, 0x6e, 0xc7,
     ]);
+    // Bomb/Samus-bomb collision selects misc-dust parameter nine. Its source bomb is the
+    // highest occupied slot in this fixture, so the allocator must reuse that slot and the
+    // outer `$86:8128` reload must execute this first record immediately.
+    WriteTestWord(bus, 0x86e43e, 0xe1b0);
+    bus.WriteBytes(0x86e1b0, [0x05, 0x00, 0x5a, 0x9a]);
 
     var samus = new SamusState { XPosition = 0x00e0, YPosition = 0x0078 };
     var motherBrain = new MotherBrainRainbowBeamAttackSequence
@@ -4476,6 +4490,14 @@ static void VerifyMotherBrainBombProjectiles()
     AssertEqual<ushort?>(null, destroyed.QueuedSoundLibraryThree,
         "collision path suppresses natural expiry sound");
     AssertEqual((ushort)0, motherBrain.BombCounter, "collision deletion decrements body counter");
+    MotherBrainEnemyProjectileSlot collisionDust = collisionProjectiles.Slots[17];
+    AssertEqual(MotherBrainEnemyProjectileSystem.MiscDustDefinition,
+        collisionDust.ProjectileId,
+        "collision deletion replaces the source bomb with parameter-nine dust");
+    AssertEqual((ushort)0x0005, collisionDust.InstructionTimer,
+        "same-slot collision dust loads its first duration immediately");
+    AssertEqual((ushort)0x9a5a, collisionDust.SpritemapPointer,
+        "same-slot collision dust loads its first spritemap immediately");
 
     Console.WriteLine(
         "  Mother Brain bombs: head bytecode, 8.8 motion, animation, bounce table, and both deletion paths agree.");
@@ -4713,6 +4735,11 @@ static void VerifyMotherBrainEscapeDoorParticles()
         0x01, 0x00, 0x0b, 0x97,
         0x59, 0x81,
     ]);
+    // Parameter nine selects `$E1B0`. One literal timed record is sufficient to prove that
+    // terminal fragments which reuse their own slots enter the NEW definition's animation
+    // handler during call 33, rather than retaining stale fragment art for one extra frame.
+    WriteTestWord(bus, 0x86e43e, 0xe1b0);
+    bus.WriteBytes(0x86e1b0, [0x05, 0x00, 0xbc, 0x9a]);
 
     var projectiles = new MotherBrainEnemyProjectileSystem();
     for (ushort parameter = 0; parameter < 8; parameter++)
@@ -4788,7 +4815,9 @@ static void VerifyMotherBrainEscapeDoorParticles()
 
     // Nineteen calls have run. Calls 20..32 remain active; call 33 changes Var0 zero to
     // `$FFFF`, deletes every fragment after its last movement, subtracts four from Y, and
-    // publishes one parameter-nine misc-dust allocation request per physical slot.
+    // allocates one parameter-nine misc-dust projectile per physical slot. With no unrelated
+    // holes above the source, every allocation reuses that source slot and `$86:8128` makes
+    // the newborn dust consume its first timed frame immediately.
     MotherBrainEnemyProjectileFrameResult lifetimeResult = default;
     for (int call = 20; call <= 33; call++)
     {
@@ -4796,11 +4825,30 @@ static void VerifyMotherBrainEscapeDoorParticles()
         if (call < 33)
             AssertEqual(8, lifetimeResult.ActiveCount, $"door fragments active through call {call}");
     }
-    AssertEqual(0, lifetimeResult.ActiveCount, "all door fragments delete on call 33");
+    // Parameter seven's strongly downward fragment finishes below layer1Y+$100. Native
+    // still allocates its dust, then the same-slot `$E4FE` pre-instruction immediately
+    // deletes that off-window origin. The other seven remain visible.
+    AssertEqual(7, lifetimeResult.ActiveCount,
+        "seven on-window terminal dust projectiles survive call 33");
     AssertEqual(8, lifetimeResult.EscapeDoorDustRequests.Count,
         "all eight expiring fragments request terminal dust");
     foreach (MotherBrainEscapeDoorParticleDustRequest dust in lifetimeResult.EscapeDoorDustRequests)
         AssertEqual((ushort)0x0009, dust.ProjectileParameter, "terminal fragment dust parameter");
+    AssertTrue(!projectiles.Slots[10].IsActive,
+        "lowest slot's downward fragment dust deletes off-screen during the same pass");
+    for (int slotIndex = 11; slotIndex < MotherBrainEnemyProjectileSystem.SlotCount; slotIndex++)
+    {
+        MotherBrainEnemyProjectileSlot terminalDust = projectiles.Slots[slotIndex];
+        AssertEqual(MotherBrainEnemyProjectileSystem.MiscDustDefinition,
+            terminalDust.ProjectileId,
+            $"terminal fragment slot {slotIndex} now contains misc dust");
+        AssertEqual((ushort)0x0005, terminalDust.InstructionTimer,
+            $"same-pass terminal dust slot {slotIndex} loads first duration");
+        AssertEqual((ushort)0x9abc, terminalDust.SpritemapPointer,
+            $"same-pass terminal dust slot {slotIndex} loads first spritemap");
+        AssertEqual((ushort)0xe1b4, terminalDust.InstructionPointer,
+            $"same-pass terminal dust slot {slotIndex} advances its list pointer");
+    }
 
     // A separate pool demonstrates that rings and fragments genuinely compete for the same
     // eighteen entries. Eight fragments plus ten rings fill it; a nineteenth allocation

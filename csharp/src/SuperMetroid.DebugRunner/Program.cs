@@ -1268,10 +1268,20 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         }
         foreach (MotherBrainCorpseDustRequest dust in actorResult.CorpseDustRequests)
         {
+            // `$A9:E23A` performs this allocation from the body enemy's instruction
+            // interpreter. Enemy projectiles have not run yet, so placing the new slot in
+            // the shared pool here lets the later high-to-low projectile pass consume its
+            // first animation frame on the native spawn frame.
+            int? slot = motherBrainProjectiles!.SpawnMiscDust(
+                bus,
+                dust.XPosition,
+                dust.YPosition,
+                dust.ProjectileParameter);
             Console.WriteLine(
                 $"frame {frameIndex + 1,4}: Mother Brain corpse row {dust.EntryIndex} " +
                 $"finished at dust ({dust.XPosition},{dust.YPosition}), " +
-                $"parameter ${dust.ProjectileParameter:X4}" +
+                $"parameter ${dust.ProjectileParameter:X4}, " +
+                $"slot={slot?.ToString() ?? "full"}" +
                 (dust.SoundEffectQueued ? $", SFX ${dust.SoundEffect:X2}." : "."));
         }
         if (actorResult.MusicStopQueued || actorResult.EscapeMusicQueued)
@@ -1291,11 +1301,19 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         }
         if (actorResult.EscapeDoorExplosion is { } doorExplosion)
         {
+            // The door's periodic producer is body AI as well. These room coordinates are
+            // deliberately near X zero; the generic dust pre-instruction, rather than the
+            // runner, decides whether the origin lies inside the current layer-1 window.
+            int? slot = motherBrainProjectiles!.SpawnMiscDust(
+                bus,
+                doorExplosion.XPosition,
+                doorExplosion.YPosition,
+                doorExplosion.ProjectileParameter);
             Console.WriteLine(
                 $"frame {frameIndex + 1,4}: escape-door dust pattern " +
                 $"{doorExplosion.PatternIndex} at ({doorExplosion.XPosition}," +
                 $"{doorExplosion.YPosition}), parameter ${doorExplosion.ProjectileParameter:X4}, " +
-                $"SFX ${doorExplosion.SoundEffect:X2}.");
+                $"slot={slot?.ToString() ?? "full"}, SFX ${doorExplosion.SoundEffect:X2}.");
         }
         if (actorResult.TimeBombSetSubtitleSpawnRequested)
         {
@@ -1453,6 +1471,23 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 Console.WriteLine(
                     $"frame {frameIndex + 1,4}: Baby deleted itself, restored Hyper Beam, " +
                     "and handed Mother Brain to phase-three recovery.");
+            }
+
+            foreach (BabyMetroidReleaseDustRequest dust in babyResult.ReleaseDustClouds)
+            {
+                // The Baby occupies a later enemy slot than Mother Brain. Its three helper
+                // calls execute in list order and each allocator resumes at slot seventeen,
+                // exactly like `$A9:C98C-C9C2`; all successful allocations are therefore
+                // present before this frame's shared enemy-projectile pass begins.
+                int? slot = motherBrainProjectiles!.SpawnMiscDust(
+                    bus,
+                    dust.XPosition,
+                    dust.YPosition,
+                    dust.ProjectileParameter);
+                Console.WriteLine(
+                    $"frame {frameIndex + 1,4}: Baby release dust at " +
+                    $"({dust.XPosition},{dust.YPosition}), parameter " +
+                    $"${dust.ProjectileParameter:X4}, slot={slot?.ToString() ?? "full"}.");
             }
 
             if (babyResult.DeathExplosion is { } deathExplosion)

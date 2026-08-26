@@ -815,8 +815,14 @@ translated status is documented with the Morph Ball family below.
 
 ## Next implementation order
 
+The Baby release, corpse-row, escape-door burst, terminal-fragment, and bomb-collision dust
+producers now allocate concrete `$86:E509` slots in native scheduler order. The unresolved
+projectile effects are Mother Brain's distinct death-explosion definition, the natural-bomb
+Ridley-afterburn-first chain, and the typewriter glyph family.
+
 1. Wire live Hyper Beam projectiles into `$B562` recoil/health and the earlier attack-selection
-   trigger that enters `$B8EB`, then connect the remaining corpse/escape dust and typewriter glyph producers.
+   trigger that enters `$B8EB`, then translate the Mother Brain death explosion, natural-bomb
+   afterburn chain, and typewriter glyph producers.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.
 4. Grapple breakable PLMs and spike-damage side effects.

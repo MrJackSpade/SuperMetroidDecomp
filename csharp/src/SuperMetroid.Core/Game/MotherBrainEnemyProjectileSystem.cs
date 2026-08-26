@@ -346,12 +346,27 @@ public sealed class MotherBrainEnemyProjectileSystem
                     slot,
                     out MotherBrainEscapeDoorParticleDustRequest? dustRequest);
                 if (dustRequest is { } dust)
+                {
                     escapeDoorDustRequests.Add(dust);
 
-                // The native dispatcher still enters its instruction handler after a
-                // pre-instruction clears the ID. Nothing that handler changes can be drawn
-                // from a zero-ID slot, so skipping it only on deletion is observationally
-                // equivalent and avoids parsing dead state.
+                    // `$86:CA03-CA1D` clears the fragment ID before calling the shared
+                    // allocator. The allocator starts at physical slot seventeen every
+                    // time, so it either chooses a free slot already visited by this
+                    // descending loop or reuses the current slot. `$86:8128` then reloads
+                    // the ORIGINAL loop index. Only the reuse case therefore advances the
+                    // newborn dust's instruction list during this same outer pass.
+                    int? allocatedSlot = SpawnMiscDust(
+                        bus,
+                        dust.XPosition,
+                        dust.YPosition,
+                        dust.ProjectileParameter);
+                    if (allocatedSlot == slotIndex)
+                        RunMiscDustForCurrentPass(bus, slot, layer1X, layer1Y);
+                }
+
+                // An ordinary live fragment retains its looping CA22 animation. A deleted
+                // fragment was either replaced above (and handled as dust) or remains a
+                // dead current slot because the newborn occupied a higher free slot.
                 if (!deleted)
                     RunEscapeDoorParticleInstructionHandler(bus, slot);
                 continue;
@@ -378,7 +393,27 @@ public sealed class MotherBrainEnemyProjectileSystem
                     samusBombs,
                     out MotherBrainBombEvent? bombEvent);
                 if (bombEvent is { } translatedBombEvent)
+                {
                     bombEvents.Add(translatedBombEvent);
+
+                    if (translatedBombEvent.Kind == MotherBrainBombEventKind.DestroyedBySamusBomb)
+                    {
+                        // `$86:C595-C5A8` clears the bomb before allocating parameter-nine
+                        // dust. As with terminal door fragments, a same-slot allocation is
+                        // immediately seen by `$8128-$8150`; a higher slot has already had
+                        // its turn. Natural expiry first allocates Ridley afterburn, whose
+                        // definition is not yet in this translated subset, so its later
+                        // parameter-three dust remains an explicit event until that owner is
+                        // implemented rather than lying about shared-pool competition.
+                        int? allocatedSlot = SpawnMiscDust(
+                            bus,
+                            translatedBombEvent.XPosition,
+                            translatedBombEvent.YPosition,
+                            translatedBombEvent.DustParameter);
+                        if (allocatedSlot == slotIndex)
+                            RunMiscDustForCurrentPass(bus, slot, layer1X, layer1Y);
+                    }
+                }
 
                 // `$86:C585` deliberately removes the caller's return address so a Samus-
                 // bomb collision exits the entire pre-instruction immediately. The generic
@@ -399,16 +434,7 @@ public sealed class MotherBrainEnemyProjectileSystem
 
             if (slot.ProjectileId == MiscDustDefinition)
             {
-                // `$86:E4FE` removes room-coordinate dust as soon as its ORIGIN leaves the
-                // strict 256x256 layer-1 window. Its individual pieces still use the shared
-                // bank-$8D edge-wrap rules when an admitted origin straddles a boundary.
-                if (IsOutsideLayerOneWindow(slot, layer1X, layer1Y))
-                {
-                    slot.ProjectileId = 0;
-                    continue;
-                }
-
-                RunFiniteTimedInstructionHandler(bus, slot, "misc dust/explosion");
+                RunMiscDustForCurrentPass(bus, slot, layer1X, layer1Y);
                 continue;
             }
 
@@ -594,6 +620,29 @@ public sealed class MotherBrainEnemyProjectileSystem
                unchecked((short)(slot.XPosition - right)) >= 0 ||
                unchecked((short)(slot.YPosition - layer1Y)) < 0 ||
                unchecked((short)(slot.YPosition - bottom)) >= 0;
+    }
+
+    /// <summary>
+    /// Executes `$86:E4FE` and the shared instruction interpreter for one misc-dust slot.
+    /// Kept as one helper because projectiles born from another projectile's pre-instruction
+    /// can legitimately reach this sequence in the middle of the descending slot pass.
+    /// </summary>
+    private static void RunMiscDustForCurrentPass(
+        ISnesAddressSpace bus,
+        MotherBrainEnemyProjectileSlot slot,
+        ushort layer1X,
+        ushort layer1Y)
+    {
+        // `$86:E4FE` removes room-coordinate dust as soon as its ORIGIN leaves the strict
+        // 256x256 layer-1 window. Individual spritemap pieces still use the separate
+        // bank-$8D edge-wrap rules when an admitted origin straddles a boundary.
+        if (IsOutsideLayerOneWindow(slot, layer1X, layer1Y))
+        {
+            slot.ProjectileId = 0;
+            return;
+        }
+
+        RunFiniteTimedInstructionHandler(bus, slot, "misc dust/explosion");
     }
 
     private static bool RunBombPreInstruction(

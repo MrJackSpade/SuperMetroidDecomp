@@ -255,7 +255,11 @@ public sealed class BabyMetroidCutsceneState
         bool bodyStumbleRequested = false;
         bool motherBrainInterrupted = false;
         bool latchSoundQueued = false;
-        bool dustCloudsRequested = false;
+        // `$A9:C98C-C9C2` emits three independent `$86:E509` allocations when the Baby
+        // finally lets go. Keep the individual room coordinates and parameter instead of
+        // collapsing that native side effect into a boolean: allocation order matters when
+        // the shared eighteen-slot enemy-projectile pool is nearly full.
+        var releaseDustClouds = new List<BabyMetroidReleaseDustRequest>(capacity: 3);
         bool samusCrouchingRequested = false;
         bool ambientCrySoundQueued = false;
         bool samusTouchCollision = false;
@@ -410,7 +414,22 @@ public sealed class BabyMetroidCutsceneState
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                 {
-                    dustCloudsRequested = true;
+                    // `SpawnThreeDustCloudsOnMotherBrainHead` performs these calls in this
+                    // exact order. Each helper adds its signed word offsets to the brain
+                    // enemy's current room coordinate and passes animation parameter nine
+                    // to the ordinary highest-free-slot allocator.
+                    releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
+                        unchecked((ushort)(motherBrain.BrainXPosition - 0x0010)),
+                        unchecked((ushort)(motherBrain.BrainYPosition - 0x0008)),
+                        ProjectileParameter: 0x0009));
+                    releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
+                        motherBrain.BrainXPosition,
+                        unchecked((ushort)(motherBrain.BrainYPosition - 0x0010)),
+                        ProjectileParameter: 0x0009));
+                    releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
+                        unchecked((ushort)(motherBrain.BrainXPosition + 0x0010)),
+                        unchecked((ushort)(motherBrain.BrainYPosition - 0x0008)),
+                        ProjectileParameter: 0x0009));
                     Phase = BabyMetroidCutscenePhase.MoveToTheCeiling;
                 }
                 goto case BabyMetroidCutscenePhase.MoveToTheCeiling;
@@ -876,7 +895,7 @@ public sealed class BabyMetroidCutsceneState
             motherBrainInterrupted,
             latchSoundQueued,
             InstructionList,
-            dustCloudsRequested,
+            releaseDustClouds.ToArray(),
             samusCrouchingRequested,
             MovementTablePointer,
             ambientCrySoundQueued,
@@ -1322,6 +1341,15 @@ public readonly record struct BabyMetroidDeathExplosionRequest(
     ushort ProjectileParameter,
     ushort SoundEffect);
 
+/// <summary>
+/// One of the three parameter-nine `$86:E509` dust clouds emitted by
+/// <c>$A9:C98C-C9C2</c> when the Baby releases Mother Brain's head.
+/// </summary>
+public readonly record struct BabyMetroidReleaseDustRequest(
+    ushort XPosition,
+    ushort YPosition,
+    ushort ProjectileParameter);
+
 /// <summary>One fourteen-colour write from `$AD:E90C-$E998` to sprite palette seven.</summary>
 public readonly record struct BabyMetroidPaletteTransferRequest(
     ushort PaletteIndex,
@@ -1354,7 +1382,7 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     bool MotherBrainInterrupted,
     bool LatchSoundQueued,
     ushort InstructionList,
-    bool DustCloudsRequested,
+    IReadOnlyList<BabyMetroidReleaseDustRequest> ReleaseDustClouds,
     bool SamusCrouchingRequested,
     ushort MovementTablePointer,
     bool AmbientCrySoundQueued,

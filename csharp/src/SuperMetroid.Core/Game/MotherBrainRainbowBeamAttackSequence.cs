@@ -102,12 +102,20 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         [-7, 2, 5, -4, 6, -2, -6, 7];
 
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
+    private readonly MotherBrainCorpseRottingState _corpseRotting = new();
 
     /// <summary>
     /// Body enemy-slot animation state. The caller advances its enemy-instruction stage
     /// after <see cref="Step"/>, matching the native AI-then-instruction order.
     /// </summary>
     public MotherBrainBodyAnimationState Body { get; } = new();
+
+    /// <summary>
+    /// Shared row-by-row corpse graphics processor initialized by the brain enemy slot.
+    /// Its WRAM table and graphics buffer remain public debugger evidence rather than being
+    /// hidden behind a host-only opacity value.
+    /// </summary>
+    public MotherBrainCorpseRottingState CorpseRotting => _corpseRotting;
 
     /// <summary>Current body-function equivalent.</summary>
     public MotherBrainRainbowBeamAttackPhase Phase { get; private set; } =
@@ -288,6 +296,9 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// <summary>Exact brain enemy property word; death/rotting sets raw bits `$0400/$0100`.</summary>
     public ushort BrainProperties { get; private set; }
 
+    /// <summary>Second brain property word cleared when the rot animation completes.</summary>
+    public ushort BrainProperties2 { get; private set; }
+
     /// <summary>Second body property word cleared when the faded body becomes non-interactive.</summary>
     public ushort BodyProperties2 { get; private set; }
 
@@ -326,6 +337,12 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>True once `$A9:BE1B` has requested the cutscene Baby enemy population entry.</summary>
     public bool BabyMetroidSpawned { get; private set; }
+
+    /// <summary>
+    /// Executes the corpse-table and graphics-buffer half of head initialization
+    /// <c>$A9:8705-$870B</c>. A real encounter calls this once when the brain enemy spawns.
+    /// </summary>
+    public void InitializeCorpseRotting(ISnesAddressSpace bus) => _corpseRotting.Initialize(bus);
 
     /// <summary>
     /// Starts the repeatable rainbow-beam cycle at `$A9:B8EB`, before its two charge waits.
@@ -835,6 +852,11 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         bool finalBeamSoundQueued = false;
         MotherBrainPhase3AttackKind? phase3Attack = null;
         var deathExplosions = new List<MotherBrainDeathExplosionRequest>(capacity: 4);
+        var corpseRottingVramTransfers =
+            new List<MotherBrainSpriteTileTransferRequest>(capacity: 6);
+        var corpseDustRequests = new List<MotherBrainCorpseDustRequest>(capacity: 1);
+        bool musicStopQueued = false;
+        bool escapeMusicQueued = false;
 
         switch (Phase)
         {
@@ -1682,9 +1704,53 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseRotsAway:
-                // `$A9:B1D5` delegates to the shared corpse-rotting table/VRAM engine. That
-                // producer is the next explicit seam; do not substitute a timer or instant
-                // disappearance for its data-driven tile destruction.
+                // Retail initialization happens when the brain enemy slot is created, many
+                // phases before death. Keep an explicit public initializer for that normal
+                // route, but lazily perform the same work for focused debugger fixtures that
+                // start at a late phase. Nothing touches this private table/buffer in between,
+                // so the delayed call is state-equivalent while preventing a fake host setup.
+                if (!_corpseRotting.IsInitialized)
+                    _corpseRotting.Initialize(bus);
+
+                MotherBrainCorpseRottingStepResult corpseRotting = _corpseRotting.Step(
+                    bus,
+                    BrainXPosition,
+                    BrainYPosition,
+                    randomNumberSeed,
+                    mainEnemyExecutionCounter);
+                corpseRottingVramTransfers.AddRange(corpseRotting.VramTransfers);
+                corpseDustRequests.AddRange(corpseRotting.DustRequests);
+                if (corpseRotting.StillRotting)
+                    break;
+
+                // Carry clear at `$B1DB` makes the brain invisible/non-solid, clears its
+                // second property word, and queues stop + escape music through the ordinary
+                // eight-frame-delay music queue. `$14` is loaded and immediately decremented
+                // by the fallthrough into `$B211`, leaving observable timer `$13` now.
+                BrainProperties = unchecked((ushort)((BrainProperties | 0x0100) & 0xdfff));
+                BrainProperties2 = 0;
+                musicStopQueued = true;   // Queue music value `$0000`.
+                escapeMusicQueued = true; // Queue music value `$FF24`.
+                Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequence20FrameDelay;
+                FunctionTimer = 0x0014;
+                goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequence20FrameDelay;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequence20FrameDelay:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    // The decapitated brain remains at the corpse coordinates for the full
+                    // delay. `$B216/$B219` finally park it at (0,0) before escape-timer tile
+                    // loading begins; this is a real actor-coordinate mutation, not rendering.
+                    BrainXPosition = 0;
+                    BrainYPosition = 0;
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadEscapeTimerTiles;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadEscapeTimerTiles:
+                // `$A9:B258` begins the next explicit subsystem seam: the frame-spread
+                // escape-timer sprite tile list and the escape-start sequence that follows.
                 break;
 
             default:
@@ -1723,7 +1789,11 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             babySpawnRequested,
             finalBeamSoundQueued,
             phase3Attack,
-            deathExplosions);
+            deathExplosions,
+            corpseRottingVramTransfers,
+            corpseDustRequests,
+            musicStopQueued,
+            escapeMusicQueued);
     }
 
     private void BeginExtendingNeckForAttack()
@@ -2374,6 +2444,8 @@ public enum MotherBrainRainbowBeamAttackPhase
     Phase3DeathSequenceFadeToGrey,
     Phase3DeathSequenceCorpseTipsOver,
     Phase3DeathSequenceCorpseRotsAway,
+    Phase3DeathSequence20FrameDelay,
+    Phase3DeathSequenceLoadEscapeTimerTiles,
 }
 
 /// <summary>Reachable third-phase walking function pointers at `$A9:C26A-$C326`.</summary>
@@ -2500,4 +2572,8 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     bool BabySpawnRequested,
     bool FinalBeamSoundQueued,
     MotherBrainPhase3AttackKind? Phase3Attack,
-    IReadOnlyList<MotherBrainDeathExplosionRequest> DeathExplosions);
+    IReadOnlyList<MotherBrainDeathExplosionRequest> DeathExplosions,
+    IReadOnlyList<MotherBrainSpriteTileTransferRequest> CorpseRottingVramTransfers,
+    IReadOnlyList<MotherBrainCorpseDustRequest> CorpseDustRequests,
+    bool MusicStopQueued,
+    bool EscapeMusicQueued);

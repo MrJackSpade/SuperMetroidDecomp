@@ -333,6 +333,11 @@ else if (options.MotherBrainRainbowScript)
     };
     rainbowAttack.Body.XPosition = 64;
     rainbowAttack.Body.YPosition = 100;
+    // Native brain-slot initialization `$A9:8705` creates the 48-entry rot table and
+    // extracts the right-hand corpse graphics frame immediately, long before the death AI
+    // consumes it. Do the same here against the live ROM/WRAM bus so late debugger stepping
+    // observes real data and the normal VRAM queue can read its `$7E:9000` working buffer.
+    rainbowAttack.InitializeCorpseRotting(bus);
     rainbowAttack.StartAttackCycle();
     motherBrainOnionRings = new MotherBrainOnionRingProjectileSystem();
 }
@@ -1230,6 +1235,32 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 $"{deathExplosion.YPosition}), offset ({deathExplosion.XOffset}," +
                 $"{deathExplosion.YOffset}), parameter {deathExplosion.ProjectileParameter}, " +
                 $"SFX ${deathExplosion.SoundEffect:X2}.");
+        }
+        foreach (MotherBrainSpriteTileTransferRequest transfer in
+                 actorResult.CorpseRottingVramTransfers)
+        {
+            // Unlike the earlier six frame-spread corpse loads, `$A9:E1F4` appends all six
+            // changing WRAM slices every active rotting frame. The standard NMI consumer
+            // therefore sees precisely the same sources and encoded VRAM destinations.
+            runtime.VramWrites.Enqueue(
+                transfer.Size,
+                checked((int)transfer.SourceAddress),
+                transfer.VramDestination);
+        }
+        foreach (MotherBrainCorpseDustRequest dust in actorResult.CorpseDustRequests)
+        {
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: Mother Brain corpse row {dust.EntryIndex} " +
+                $"finished at dust ({dust.XPosition},{dust.YPosition}), " +
+                $"parameter ${dust.ProjectileParameter:X4}" +
+                (dust.SoundEffectQueued ? $", SFX ${dust.SoundEffect:X2}." : "."));
+        }
+        if (actorResult.MusicStopQueued || actorResult.EscapeMusicQueued)
+        {
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: Mother Brain corpse finished; queued music " +
+                $"${(actorResult.MusicStopQueued ? 0x0000 : 0xffff):X4} then " +
+                $"${(actorResult.EscapeMusicQueued ? 0xff24 : 0xffff):X4}.");
         }
 
         if (actorResult.BabySpawnRequested)

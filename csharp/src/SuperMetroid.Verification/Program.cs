@@ -2187,6 +2187,17 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
 {
     var bus = new TestAddressSpace();
 
+    // `$B7:CE00` contains two side-by-side corpse frames in the retail ROM. Give every byte
+    // in the complete source window a deterministic, nonzero-heavy identity pattern so the
+    // shared graphics initializer must select the six exact right-frame slices; sparse zero
+    // memory would let a wrong source, length, or destination pass accidentally.
+    for (int byteOffset = 0; byteOffset < 0x0c00; byteOffset++)
+    {
+        bus.WriteByte(
+            0xb7ce00 + byteOffset,
+            unchecked((byte)(byteOffset * 37 + 0x5a)));
+    }
+
     // The active chain needs only command-five/$18's forced `$54` pose and controller-zero's
     // later `$E9` pose. These bytes are the retail direction/type/radius metadata and minimal
     // byte-indexed animation streams already proven by the dedicated drained-controller test.
@@ -3624,6 +3635,47 @@ static void VerifyBabyMetroidCutsceneEntrance()
     };
     death.Body.XPosition = 0x0040;
     death.Body.YPosition = 0x0064;
+    death.InitializeCorpseRotting(bus);
+
+    // Head initialization creates entries `(47,0)` through `(0,94)` in native WRAM.
+    // Check every entry, not merely the endpoints, because one reversed loop direction
+    // changes both the visible dissolve order and its 118-call completion time.
+    for (int entryIndex = 0; entryIndex < MotherBrainCorpseRottingState.EntryCount; entryIndex++)
+    {
+        AssertEqual(
+            new MotherBrainCorpseRotEntry(
+                YOffset: unchecked((short)(47 - entryIndex)),
+                Timer: unchecked((ushort)(entryIndex * 2))),
+            death.CorpseRotting.ReadEntry(bus, entryIndex),
+            $"corpse rot-table entry {entryIndex}");
+    }
+
+    // Verify all copied bytes plus the deliberately untouched `$20`-byte gaps in the first
+    // four `$E0`-byte rows. This catches the tempting but wrong six-uniform-row extraction.
+    for (int row = 0; row < 6; row++)
+    {
+        int copiedLength = row < 4 ? 0x00c0 : 0x00e0;
+        int sourceOffset = 0x00c0 + row * 0x0200;
+        int destinationOffset = row * 0x00e0;
+        for (int byteIndex = 0; byteIndex < copiedLength; byteIndex++)
+        {
+            AssertEqual(
+                bus.ReadByte(0xb7ce00 + sourceOffset + byteIndex),
+                bus.ReadByte(
+                    MotherBrainCorpseRottingState.GraphicsBufferAddress +
+                    destinationOffset + byteIndex),
+                $"corpse graphics extraction row {row} byte ${byteIndex:X2}");
+        }
+        for (int byteIndex = copiedLength; byteIndex < 0x00e0; byteIndex++)
+        {
+            AssertEqual(
+                (byte)0,
+                bus.ReadByte(
+                    MotherBrainCorpseRottingState.GraphicsBufferAddress +
+                    destinationOffset + byteIndex),
+                $"corpse graphics untouched gap row {row} byte ${byteIndex:X2}");
+        }
+    }
     death.BeginPhase3RecoveryFromBabyCutscene();
     death.Step(bus, phase3Samus, 0, 0);
     for (int call = 0; call < 33; call++)
@@ -3845,10 +3897,115 @@ static void VerifyBabyMetroidCutsceneEntrance()
     }
     AssertEqual(257, corpseTipCalls, "corpse `$100` display delay expires on call 257");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseRotsAway,
-        death.Phase, "tip-over reaches explicit shared corpse-rotting seam");
+        death.Phase, "tip-over reaches shared corpse-rotting engine");
+
+    // `$DB12` processes all 48 entries on every call. The staggered timers finish exactly
+    // one entry on each of 48 irregularly spaced calls; carry stays set for the first 117
+    // calls and the final entry returns carry clear on call 118 without queuing VRAM work.
+    int corpseRottingCalls = 0;
+    int corpseDustCount = 0;
+    MotherBrainCorpseDustRequest? firstCorpseDust = null;
+    MotherBrainCorpseDustRequest? lastCorpseDust = null;
+    MotherBrainRainbowBeamAttackStepResult corpseFinished = default;
+    while (death.Phase == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseRotsAway)
+    {
+        corpseRottingCalls++;
+        MotherBrainRainbowBeamAttackStepResult rot = death.Step(
+            bus,
+            phase3Samus,
+            enemyFrameCounter: 0,
+            mainEnemyExecutionCounter: unchecked((ushort)(corpseRottingCalls - 1)),
+            randomNumberSeed: 0x1234,
+            nextRandomNumber: deathRandom.NextRandom);
+
+        foreach (MotherBrainCorpseDustRequest dust in rot.CorpseDustRequests)
+        {
+            firstCorpseDust ??= dust;
+            lastCorpseDust = dust;
+            corpseDustCount++;
+        }
+
+        if (corpseRottingCalls < 118)
+        {
+            AssertEqual(6, rot.CorpseRottingVramTransfers.Count,
+                $"active corpse rot call {corpseRottingCalls} queues all six DMA records");
+            ushort[] sizes = [0x0060, 0x00a0, 0x00c0, 0x00c0, 0x00e0, 0x00e0];
+            uint[] sources = [0x7e9040, 0x7e9100, 0x7e91c0, 0x7e92a0, 0x7e9380, 0x7e9460];
+            ushort[] destinations = [0x7a80, 0x7b70, 0x7c60, 0x7d60, 0x7e60, 0x7f60];
+            for (int transferIndex = 0; transferIndex < 6; transferIndex++)
+            {
+                AssertEqual(
+                    new MotherBrainSpriteTileTransferRequest(
+                        unchecked((ushort)transferIndex),
+                        sizes[transferIndex],
+                        sources[transferIndex],
+                        destinations[transferIndex]),
+                    rot.CorpseRottingVramTransfers[transferIndex],
+                    $"corpse rot DMA {transferIndex} on call {corpseRottingCalls}");
+            }
+            AssertTrue(!rot.MusicStopQueued && !rot.EscapeMusicQueued,
+                "active corpse rot does not queue escape music early");
+        }
+        else
+        {
+            corpseFinished = rot;
+            AssertEqual(0, rot.CorpseRottingVramTransfers.Count,
+                "carry-clear corpse completion skips `$E1F4` VRAM records");
+        }
+
+        AssertTrue(corpseRottingCalls <= 118, "corpse rotting reaches final table entry");
+    }
+    AssertEqual(118, corpseRottingCalls, "48 staggered corpse rows finish on exact call 118");
+    AssertEqual((uint)118, death.CorpseRotting.ProcessCallCount,
+        "corpse processor publishes native call count");
+    AssertEqual(48, corpseDustCount, "every rot entry runs Mother Brain's dust hook once");
+    AssertEqual((uint)48, death.CorpseRotting.FinishedEntryCount,
+        "corpse processor publishes all finished entries");
+    AssertEqual(
+        new MotherBrainCorpseDustRequest(0, 0x0054, 0x00d4, 0x000a, true, 0x0010),
+        firstCorpseDust!.Value,
+        "entry zero finishes on call one using sampled RNG and execution-counter SFX gate");
+    AssertEqual(
+        new MotherBrainCorpseDustRequest(47, 0x0054, 0x00d4, 0x000a, false, 0x0010),
+        lastCorpseDust!.Value,
+        "entry 47 finishes last without advancing sampled RNG");
+    AssertTrue(corpseFinished.MusicStopQueued && corpseFinished.EscapeMusicQueued,
+        "rotting completion queues `$0000` then `$FF24`");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequence20FrameDelay,
+        death.Phase, "rotting completion installs `$B211` delay function");
+    AssertEqual((ushort)0x0013, death.FunctionTimer,
+        "completion falls through and decrements freshly loaded `$14`");
+    AssertEqual((ushort)0x0500, death.BrainProperties,
+        "completion preserves `$0400`, sets `$0100`, and clears `$2000`");
+    AssertEqual((ushort)0, death.BrainProperties2,
+        "completion clears brain property word two");
+
+    // All eligible bitplane rows must eventually be moved out and cleared. Check the entire
+    // `$540`-byte staging buffer so a missing column gate or one-plane clear cannot hide.
+    for (int byteOffset = 0; byteOffset < MotherBrainCorpseRottingState.GraphicsBufferSize; byteOffset++)
+    {
+        AssertEqual(
+            (byte)0,
+            bus.ReadByte(MotherBrainCorpseRottingState.GraphicsBufferAddress + byteOffset),
+            $"fully rotted corpse graphics byte ${byteOffset:X3}");
+    }
+
+    int postRotDelayCalls = 0;
+    while (death.Phase == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequence20FrameDelay)
+    {
+        death.Step(bus, phase3Samus, 0, 0);
+        postRotDelayCalls++;
+        AssertTrue(postRotDelayCalls <= 20, "post-rot `$14` delay reaches escape tile load");
+    }
+    AssertEqual(20, postRotDelayCalls,
+        "same-call first decrement leaves exactly twenty later delay calls");
+    AssertEqual((ushort)0, death.BrainXPosition, "post-rot delay parks brain X at zero");
+    AssertEqual((ushort)0, death.BrainYPosition, "post-rot delay parks brain Y at zero");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadEscapeTimerTiles,
+        death.Phase, "post-rot delay reaches explicit escape-timer tile seam");
 
     Console.WriteLine(
-        "  Baby Metroid: entrance through phase-three combat, death movement, fades, and corpse DMA agree.");
+        "  Baby Metroid: entrance through death movement, corpse rotting, and escape-timer handoff agree.");
 }
 
 static void VerifySamusAerialMovement()

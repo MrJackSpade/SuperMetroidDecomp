@@ -81,6 +81,11 @@ else if (options.SpringBallScript)
     Console.WriteLine(
         "Input script: crouch into equipped Spring Ball, roll, powered jump, release, and land.");
 }
+else if (options.BombJumpScript)
+{
+    Console.WriteLine(
+        "Input script: crouch/morph, then inject the verified bank-$A0 right-bomb overlap result and run the ROM-backed bomb-jump arc.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7000 stays clear
@@ -122,7 +127,7 @@ InitialViewportResult initialViewport = runtime.InitializeLandingSiteViewport();
 if (!options.GroundedRun)
     runtime.InitializeDebugStandingSamus();
 
-if (options.MorphBallScript)
+if (options.MorphBallScript || options.BombJumpScript)
 {
     // The Landing Site debugger spawn has no save-file inventory. Grant only Morph Ball
     // bit `$0004` as an explicit host stimulus; `$91:F7CE`, `$90:839A`, pose definitions,
@@ -309,6 +314,9 @@ uint priorSamusX = runtime.Samus.Kinematics.XFixed;
 uint priorSamusY = runtime.Samus.Kinematics.YFixed;
 ushort? priorProspectivePose = null;
 ushort? priorFallbackPose = null;
+bool observedBombJumpStart = false;
+bool observedBombJumpEnd = false;
+bool observedBombJumpRise = false;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
@@ -519,7 +527,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 238 => (ushort)SnesButton.Right,
                 _ => (ushort)0,
             }
-        : options.MorphBallScript
+        : options.MorphBallScript || options.BombJumpScript
             ? frameIndex switch
             {
                 0 => (ushort)SnesButton.Start,
@@ -531,14 +539,15 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 >= 2 and < 8 => (ushort)SnesButton.Down,
                 >= 10 and < 20 => (ushort)SnesButton.Down,
 
-                // `$1D -> $1E` accelerates from the type-four ROM speed record. Reversing
-                // to Left installs `$1F` and mode one while preserving rolling frame/timer.
-                >= 25 and < 80 => (ushort)SnesButton.Right,
-                >= 80 and < 140 => (ushort)SnesButton.Left,
+                // The bomb-jump route stops here. Its trigger below is an explicit host
+                // stand-in for the not-yet-translated projectile overlap; movement still
+                // reads the user's `$90:9EF5/$9EFB/$9F25` records and real room collision.
+                >= 25 and < 80 when !options.BombJumpScript => (ushort)SnesButton.Right,
+                >= 80 and < 140 when !options.BombJumpScript => (ushort)SnesButton.Left,
 
                 // Let command one decelerate to definition fallback `$41`, then Up starts
                 // `$3E`; its `$FD $28` endpoint proves the expanded body fits the terrain.
-                >= 175 and < 185 => (ushort)SnesButton.Up,
+                >= 175 and < 185 when !options.BombJumpScript => (ushort)SnesButton.Up,
                 _ => (ushort)0,
             }
         : options.SpringBallScript
@@ -561,8 +570,18 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             _ => (ushort)0,
         };
 
+    // Until bomb projectiles themselves are translated, this single line supplies exactly
+    // the value that `$A0:97E2-$A0:984E` would publish after a timer-eight explosion overlaps
+    // Samus. Direction three means the bomb was left of Samus and therefore launches right.
+    // No velocity, pose, collision result, or animation frame is authored by the host.
+    if (options.BombJumpScript && frameIndex == 25)
+        runtime.Samus.RequestMorphedBombJump(direction: 3);
+
     RuntimeFrameResult result = runtime.StepFrame(controllerInput);
     observedSamusPoses.Add(runtime.Samus.Pose);
+    observedBombJumpStart |= runtime.LastBombJumpMovement is { Started: true };
+    observedBombJumpEnd |= runtime.LastBombJumpMovement is { Ended: true };
+    observedBombJumpRise |= runtime.LastBombJumpMovement is { Started: false, Ended: false };
 
     // Put a breakpoint here to inspect the complete runtime after any chosen frame. The
     // NoInlining attribute below keeps this method as a reliable stack frame in Debug and
@@ -605,6 +624,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         BlockMoveResult horizontal = runtime.LastGroundedSamusMovement?.Horizontal ??
             runtime.LastAerialSamusMovement?.Horizontal ??
             runtime.LastMorphBallMovement?.Horizontal ??
+            runtime.LastBombJumpMovement?.Horizontal ??
             throw new InvalidOperationException("Samus X changed without a translated movement result.");
         string vertical = runtime.LastGroundedSamusMovement is GroundedMovementResult groundedMovement
             ? $"ground=${groundedMovement.Vertical.AcceptedDisplacement:X8}/collision={groundedMovement.Vertical.Collided}"
@@ -612,6 +632,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 ? $"airY=${aerialVertical.AcceptedDisplacement:X8}/collision={aerialVertical.Collided}"
                 : runtime.LastMorphBallMovement is MorphBallMovementResult morphMovement
                     ? $"morphY=${morphMovement.Vertical.AcceptedDisplacement:X8}/collision={morphMovement.Vertical.Collided}"
+                    : runtime.LastBombJumpMovement?.Vertical is BlockMoveResult bombVertical
+                        ? $"bombY=${bombVertical.AcceptedDisplacement:X8}/collision={bombVertical.Collided}"
                     : "airY=transition";
         Console.WriteLine(
             $"frame {result.FrameNumber,4}: Samus X={runtime.Samus.XPosition:X4}." +
@@ -631,7 +653,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             $"{runtime.Samus.Kinematics.YSubspeed:X4}, " +
             $"direction={runtime.Samus.Kinematics.YDirection}, " +
             $"landed={runtime.LastAerialSamusMovement?.Landed ?? runtime.LastMorphBallMovement?.Landed ?? false}, " +
-            $"ceiling={runtime.LastAerialSamusMovement?.HitCeiling ?? runtime.LastMorphBallMovement?.HitCeiling ?? false}");
+            $"ceiling={runtime.LastAerialSamusMovement?.HitCeiling ?? runtime.LastMorphBallMovement?.HitCeiling ?? false}, " +
+            $"bombActive={runtime.Samus.BombJumpActive}");
         priorSamusY = runtime.Samus.Kinematics.YFixed;
     }
 
@@ -855,6 +878,22 @@ if (options.SpringBallScript)
         $"Spring-Ball ROM route validated {requiredSpringRoute.Length} deterministic pose milestones.");
 }
 
+if (options.BombJumpScript)
+{
+    // These assertions separate three native phases: `$E025` initialization, at least one
+    // `$E032` movement frame, and `$E032` termination at apex or collision. The retained
+    // `$1D` pose is also ROM evidence that morphed setup did not invent an airborne pose.
+    if (!observedSamusPoses.Contains(SamusState.MorphBallGroundRightPose))
+        throw new InvalidOperationException("Bomb-jump ROM script never reached stable Morph Ball pose $1D.");
+    if (!observedBombJumpStart || !observedBombJumpRise || !observedBombJumpEnd)
+    {
+        throw new InvalidOperationException(
+            $"Bomb-jump ROM script missed a handler phase: start={observedBombJumpStart}, " +
+            $"rise={observedBombJumpRise}, end={observedBombJumpEnd}.");
+    }
+    Console.WriteLine("Bomb-jump ROM route validated start, rising displacement, and special-handler termination.");
+}
+
 Console.WriteLine(
     $"Finished at accepted NMI {runtime.NmiFrameCounter}; " +
     $"timer {runtime.EscapeTimer.MinutesBcd:X2}:{runtime.EscapeTimer.SecondsBcd:X2}.{runtime.EscapeTimer.CentisecondsBcd:X2}; " +
@@ -1037,7 +1076,8 @@ readonly record struct DebugRunnerOptions(
     bool CrouchTurnScript,
     bool CrouchJumpScript,
     bool MorphBallScript,
-    bool SpringBallScript)
+    bool SpringBallScript,
+    bool BombJumpScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -1060,6 +1100,7 @@ readonly record struct DebugRunnerOptions(
         bool crouchJumpScript = false;
         bool morphBallScript = false;
         bool springBallScript = false;
+        bool bombJumpScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -1159,6 +1200,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--bomb-jump-script":
+                    bombJumpScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -1205,7 +1251,8 @@ readonly record struct DebugRunnerOptions(
             crouchTurnScript,
             crouchJumpScript,
             morphBallScript,
-            springBallScript);
+            springBallScript,
+            bombJumpScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

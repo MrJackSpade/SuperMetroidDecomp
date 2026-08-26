@@ -12,7 +12,8 @@ namespace SuperMetroid.Core.Game;
 /// falling, bouncing, and transition poses enter different wrappers which share only a few
 /// subroutines. This class keeps those entry points separate while reusing their exact
 /// 16.16 collision operations. Bomb displacement, enemies, liquids, conveyors, and Spring
-/// Ball remain explicit future branches rather than being approximated here.
+/// Ball projectiles remain an explicit future branch; bomb-jump displacement itself lives
+/// in <see cref="SamusBombJumpMovement"/> rather than being approximated here.
 /// </remarks>
 public static class SamusMorphBallMovement
 {

@@ -3366,6 +3366,17 @@ static void VerifySamusMorphBallMovement()
     bus.WriteBytes(0x909eb5, [0x01, 0x00]); // Whole bounce speed.
     bus.WriteBytes(0x909eb7, [0x00, 0x10]); // Fractional bounce speed.
 
+    // Bomb jumps do not use the normal movement-type speed table. `$90:8EF4` passes
+    // the standalone `$90:9F25` record directly to `$90:9A7E`, while `$90:9A2C`
+    // reads the dry-air bomb-jump magnitude from `$90:9EF5/$90:9EFB`.
+    bus.WriteBytes(0x909f25, [
+        0x01, 0x00, 0x00, 0x00, // diagonal acceleration 1.0000
+        0x02, 0x00, 0x00, 0x00, // diagonal maximum 2.0000
+        0x00, 0x00, 0x00, 0x80, // post-apex deceleration 0.8000
+    ]);
+    bus.WriteBytes(0x909ef5, [0x02, 0x00]); // Bomb-jump whole speed 2.
+    bus.WriteBytes(0x909efb, [0x00, 0xc0]); // Bomb-jump subspeed C000.
+
     const int width = 8;
     const int height = 8;
     var floorBlocks = new ushort[width * height];
@@ -3587,7 +3598,108 @@ static void VerifySamusMorphBallMovement()
     AssertEqual((ushort)0, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
     AssertEqual(SamusState.SpringBallJumpRightPose, spring.Pose, "held-Jump relaunch pose");
 
-    Console.WriteLine("  Morph Ball: ordinary/Spring entry, roll, jump, walk-off, bounce, and tunnel collision agree.");
+    // Bank `$A0:97E2-$A0:984E` decides direction from bomb-versus-Samus X. Its bank-$91
+    // command-three handoff must retain the stable ball pose and arm `$0801-$0803`; it
+    // must also reject non-ball callers instead of silently inventing a normal jump.
+    var bombJump = new SamusState
+    {
+        Pose = SamusState.MorphBallGroundRightPose,
+        EquippedItems = 0x0004,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    bombJump.RefreshCollisionRadii(bus);
+    bombJump.InitializeAnimation(bus);
+    bombJump.Kinematics.YAcceleration = 0;
+    bombJump.Kinematics.YSubacceleration = 0x4000;
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => bombJump.RequestMorphedBombJump(0),
+        "bomb-jump direction zero rejected");
+
+    bombJump.RequestMorphedBombJump(3);
+    AssertEqual((ushort)0x0803, bombJump.BombJumpDirection, "right bomb jump command word");
+    ushort startX = bombJump.XPosition;
+    ushort startY = bombJump.YPosition;
+    BombJumpMovementResult start = SamusBombJumpMovement.Start(bus, bombJump);
+    AssertTrue(start.Started && !start.Ended, "bomb-jump start handler reports initialization");
+    AssertEqual(startX, bombJump.XPosition, "bomb-jump start frame has no horizontal displacement");
+    AssertEqual(startY, bombJump.YPosition, "bomb-jump start frame has no vertical displacement");
+    AssertEqual((ushort)2, bombJump.Kinematics.YSpeed, "bomb-jump whole speed comes from $90:9EF5");
+    AssertEqual((ushort)0xc000, bombJump.Kinematics.YSubspeed, "bomb-jump subspeed comes from $90:9EFB");
+    AssertEqual((ushort)1, bombJump.Kinematics.YDirection, "bomb jump starts upward");
+
+    // The first diagonal handler frame accelerates by exactly the literal 1.0000 record,
+    // moves right one pixel, moves upward by the pre-gravity 2.C000 magnitude, then stores
+    // the reduced 2.8000 magnitude for the following frame.
+    BombJumpMovementResult diagonal = SamusBombJumpMovement.Step(
+        bus, empty, bombJump, nmiFrameCounter: 0);
+    AssertTrue(!diagonal.Ended, "unobstructed diagonal bomb jump remains active");
+    AssertEqual((ushort)(startX + 1), bombJump.XPosition, "right bomb jump uses $90:9F25 displacement");
+    AssertEqual((ushort)2, bombJump.Kinematics.YSpeed, "bomb-jump gravity stores next whole speed");
+    AssertEqual((ushort)0x8000, bombJump.Kinematics.YSubspeed, "bomb-jump gravity stores next subspeed");
+
+    // `$90:8F1B` interprets a wrapped whole word as signed underflow. It switches to down,
+    // installs diagonal deceleration mode two, and `$90:E032` relinquishes control before
+    // making another vertical move. The normal type-four ball handler owns the descent.
+    bombJump.Kinematics.YSpeed = 0xffff;
+    bombJump.Kinematics.YSubspeed = 0;
+    BombJumpMovementResult apex = SamusBombJumpMovement.Step(
+        bus, empty, bombJump, nmiFrameCounter: 1);
+    AssertTrue(apex.Ended, "signed bomb-jump apex ends special handler");
+    AssertEqual((ushort)0, bombJump.BombJumpDirection, "bomb-jump apex clears command word");
+    AssertEqual((ushort)2, bombJump.Kinematics.YDirection, "bomb-jump apex hands off downward direction");
+    AssertEqual((ushort)2, bombJump.HorizontalSpeed.AccelerationMode, "diagonal apex selects mode two");
+
+    // Direction two deliberately omits horizontal calculation. A ceiling collision ends
+    // the handler on that same frame and zeros vertical magnitude before normal movement
+    // resumes, matching `$90:E077-$90:E094`.
+    var ceilingBlocks = new ushort[width * height];
+    for (int x = 0; x < width; x++)
+        ceilingBlocks[2 * width + x] = 0x8000;
+    RoomLevelData ceiling = new(
+        width,
+        height,
+        ceilingBlocks,
+        new byte[ceilingBlocks.Length],
+        new ushort[ceilingBlocks.Length],
+        new byte[8]);
+    var straightBombJump = new SamusState
+    {
+        Pose = SamusState.MorphBallGroundLeftPose,
+        EquippedItems = 0x0004,
+        XPosition = 48,
+        YPosition = 56,
+    };
+    straightBombJump.RefreshCollisionRadii(bus);
+    straightBombJump.InitializeAnimation(bus);
+    straightBombJump.Kinematics.YAcceleration = 0;
+    straightBombJump.Kinematics.YSubacceleration = 0x4000;
+    straightBombJump.RequestMorphedBombJump(2);
+    SamusBombJumpMovement.Start(bus, straightBombJump);
+    BombJumpMovementResult ceilingHit = SamusBombJumpMovement.Step(
+        bus, ceiling, straightBombJump, nmiFrameCounter: 0);
+    AssertTrue(ceilingHit.Ended && ceilingHit.Vertical is { Collided: true },
+        "straight bomb jump terminates on ceiling");
+    AssertTrue(ceilingHit.Horizontal is null, "straight bomb jump performs no horizontal move");
+    AssertEqual((ushort)48, straightBombJump.XPosition, "straight bomb jump preserves X");
+    AssertEqual((ushort)0, straightBombJump.Kinematics.YSpeed, "ceiling hit clears vertical speed");
+
+    // A grounded pose is intentional after the native special handler: morphed setup
+    // preserved it. Prove that its normal falling collision can enter the ordinary bounce
+    // state instead of throwing solely because the art still names a grounded ball.
+    straightBombJump.YPosition = 55;
+    straightBombJump.Kinematics.YDirection = 2;
+    straightBombJump.Kinematics.YSpeed = 3;
+    straightBombJump.Kinematics.YSubspeed = 0;
+    straightBombJump.Kinematics.YAcceleration = 0;
+    straightBombJump.Kinematics.YSubacceleration = 0;
+    MorphBallMovementResult bombLanding = SamusMorphBallMovement.StepGrounded(
+        bus, floor, straightBombJump, nmiFrameCounter: 0);
+    AssertTrue(bombLanding.Landed, "post-bomb-jump grounded art collides with floor");
+    AssertTrue(!straightBombJump.ApplyMorphBallLanding(bus), "post-bomb-jump landing launches bounce");
+    AssertEqual((ushort)1, straightBombJump.MorphBallBounceState, "post-bomb-jump landing enters bounce one");
+
+    Console.WriteLine("  Morph Ball: ordinary/Spring entry, bomb jump, bounce, and tunnel collision agree.");
 }
 
 static ushort ReferenceNextRandom(ushort seed)

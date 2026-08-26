@@ -94,6 +94,9 @@ public sealed class SuperMetroidRuntime
     /// <summary>Most recent ordinary Morph-Ball collision result, exposed for debugger watches.</summary>
     public MorphBallMovementResult? LastMorphBallMovement { get; private set; }
 
+    /// <summary>Most recent special bomb-jump handler result, exposed for debugger watches.</summary>
+    public BombJumpMovementResult? LastBombJumpMovement { get; private set; }
+
     /// <summary>Mutable gameplay HUD tilemap at WRAM <c>$7E:C608</c>.</summary>
     public HudState Hud { get; } = new();
 
@@ -266,6 +269,7 @@ public sealed class SuperMetroidRuntime
         LastGroundedSamusMovement = null;
         LastAerialSamusMovement = null;
         LastMorphBallMovement = null;
+        LastBombJumpMovement = null;
         InitializeDebugSamus(
             xPosition: unchecked((ushort)(Camera.XPosition + 64)),
             yPosition: unchecked((ushort)(Camera.YPosition + 166)));
@@ -347,6 +351,7 @@ public sealed class SuperMetroidRuntime
             LastGroundedSamusMovement = null;
             LastAerialSamusMovement = null;
             LastMorphBallMovement = null;
+            LastBombJumpMovement = null;
             return new DebugGroundedSamusPlacement(
                 xPosition,
                 restingY,
@@ -530,7 +535,31 @@ public sealed class SuperMetroidRuntime
                 LastGroundedSamusMovement = null;
                 LastAerialSamusMovement = null;
                 LastMorphBallMovement = null;
-                switch (Samus.Pose)
+                LastBombJumpMovement = null;
+
+                // Special command three replaces both movement and pose-input handlers.
+                // Preserve the current ball pose/animation and ignore any transition that
+                // the normal matcher calculated earlier in this host frame.
+                if (Samus.BombJumpStarting || Samus.BombJumpActive)
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+
+                    // The cartridge's environment pass refreshes `$0B32/$0B34` before
+                    // invoking the installed movement handler. This runtime slice only
+                    // admits dry-air bomb jumps, so publish the two real ROM constants on
+                    // every special-handler frame rather than accidentally preserving the
+                    // zero gravity used by a stable grounded ball.
+                    SamusAerialMovement.ConfigureDryAirGravity(_addressSpace, Samus);
+                    LastBombJumpMovement = Samus.BombJumpStarting
+                        ? SamusBombJumpMovement.Start(_addressSpace, Samus)
+                        : SamusBombJumpMovement.Step(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            NmiFrameCounter);
+                }
+                else switch (Samus.Pose)
                 {
                     case SamusState.FacingRightNormalPose:
                     case SamusState.StandingAimUpRightPose:
@@ -768,7 +797,10 @@ public sealed class SuperMetroidRuntime
                 // selected before collision cannot override the cartridge's bounce result.
                 if (!animationTransitionApplied &&
                     LastMorphBallMovement is { Landed: true } &&
-                    SamusState.IsAirborneMorphBallPose(poseAtFrameStart))
+                    (SamusState.IsAirborneMorphBallPose(poseAtFrameStart) ||
+                     (Samus.BombJumpActive == false &&
+                      SamusState.IsGroundedMorphBallPose(poseAtFrameStart) &&
+                      Samus.Kinematics.YDirection != 0)))
                 {
                     Samus.ApplyMorphBallLanding(_addressSpace);
                     animationTransitionApplied = true;
@@ -779,7 +811,10 @@ public sealed class SuperMetroidRuntime
                 // during automatic rebounds. Keep it distinct from ordinary-ball state.
                 if (!animationTransitionApplied &&
                     LastMorphBallMovement is { Landed: true } &&
-                    SamusState.IsAirborneSpringBallPose(poseAtFrameStart))
+                    (SamusState.IsAirborneSpringBallPose(poseAtFrameStart) ||
+                     (Samus.BombJumpActive == false &&
+                      SamusState.IsGroundedSpringBallPose(poseAtFrameStart) &&
+                      Samus.Kinematics.YDirection != 0)))
                 {
                     Samus.ApplySpringBallLanding(_addressSpace, Controller1.Current);
                     animationTransitionApplied = true;

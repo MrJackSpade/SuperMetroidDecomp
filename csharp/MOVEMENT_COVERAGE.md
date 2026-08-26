@@ -40,6 +40,10 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$1A` | Grabbed by Draygon | — | Entire family |
 | `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | — | All subhandlers and scripted state |
 
+The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
+performs its one-frame initialization and `$90:E032` owns the rising special arc; its
+translated status is documented with the Morph Ball family below.
+
 ## Verified ordinary-air slice
 
 - Standing jump uses the ROM transition `$01/$02 -> $4B/$4C`, calls the dry-air branch of
@@ -205,6 +209,14 @@ are listed below so later work cannot accidentally confuse “the current viewer
   initializes the ROM 4.E000 dry-air launch. Type `$12` retains the normal jump cutoff,
   while type `$13` retains morphed falling. Landing with Jump held relaunches immediately;
   automatic rebounds use the native `$0601/$0602` state before returning to `$79/$7A`.
+- A bank-$A0 overlap result of one/two/three becomes `$0801/$0802/$0803` through the
+  morphed bomb-jump setup and bank-$91 special command three. `$90:E025` consumes the
+  literal dry-air `$90:9EF5/$90:9EFB` launch pair without moving on its start frame.
+  `$90:E032` uses the standalone `$90:9F25` speed record for left/right displacement,
+  performs the old-speed-before-gravity vertical pass, and ends on upward collision or
+  signed-speed apex. Diagonal apex selects acceleration mode two; the preserved current
+  ball pose then owns falling and ordinary two-stage bounce recovery. Bomb creation,
+  countdown, explosion rendering, and the actual overlap producer remain untranslated.
 
 ## Evidence
 
@@ -251,10 +263,15 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - The real-ROM `--spring-ball-script` observes `$37 -> $79 -> $7B -> $7F`, a ROM-authored
   powered arc, ceiling collision, automatic bounce, and `$79` recovery. Its 80-frame pose
   capture freezes the airborne ball against cartridge-derived terrain and live camera state.
+- The real-ROM `--bomb-jump-script` observes `$37 -> $1D`, injects only bank A0's verified
+  direction-three overlap result, and runs `$90:E025/$E032` against cartridge launch,
+  gravity, and diagonal-speed data. Signed velocity underflow terminates the special
+  handler at the apex; ordinary `$31` descent then performs real floor collision and `$1D`
+  recovery. The route asserts start, rising movement, and termination as distinct phases.
 
 ## Next implementation order
 
-1. Morph Ball bombs and bomb-jump displacement.
+1. Morph Ball bomb placement, countdown/explosion animation, and real overlap trigger.
 2. Aerial turns and the real wall-jump trigger/launch.
 3. Knockback and damage boost.
 4. Grapple movement and release routes.

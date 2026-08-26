@@ -104,6 +104,28 @@ public sealed class SamusHorizontalSpeedState
     public uint CalculateBaseSpeed(ISnesAddressSpace bus, byte movementType)
     {
         SpeedTableEntry entry = ReadEntry(bus, movementType);
+        return CalculateBaseSpeed(entry);
+    }
+
+    /// <summary>
+    /// Executes `$90:9A7E` against a literal bank-$90 table address. Bomb jumps use the
+    /// standalone record at `$90:9F25` instead of the movement-type-indexed normal table.
+    /// </summary>
+    public uint CalculateBaseSpeedAtAddress(ISnesAddressSpace bus, int address)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        var entry = new SpeedTableEntry(
+            ReadWord(bus, address + 0),
+            ReadWord(bus, address + 2),
+            ReadWord(bus, address + 4),
+            ReadWord(bus, address + 6),
+            ReadWord(bus, address + 8),
+            ReadWord(bus, address + 10));
+        return CalculateBaseSpeed(entry);
+    }
+
+    private uint CalculateBaseSpeed(SpeedTableEntry entry)
+    {
 
         if (AccelerationMode != 0)
         {

@@ -420,6 +420,18 @@ public sealed class SamusState
     /// </summary>
     public ushort MorphBallBounceState { get; set; }
 
+    /// <summary>
+    /// WRAM `$0A56`: low byte 1/2/3 is left/straight/right; bit `$0800` marks the bank-$91
+    /// special prospective command as accepted and prevents the same explosion rearming it.
+    /// </summary>
+    public ushort BombJumpDirection { get; set; }
+
+    /// <summary>True for `$90:E025`'s one-frame velocity-initialization handler.</summary>
+    public bool BombJumpStarting { get; set; }
+
+    /// <summary>True while `$90:E032` owns the rising bomb-jump arc.</summary>
+    public bool BombJumpActive { get; set; }
+
     /// <summary>Bank-$91 address of the active pose's byte-oriented delay program.</summary>
     public int AnimationDelayListAddress { get; private set; }
 
@@ -650,6 +662,28 @@ public sealed class SamusState
     public static bool IsMorphTransitionPose(byte pose) => pose is
         MorphingTransitionRightPose or MorphingTransitionLeftPose or
         UnmorphingTransitionRightPose or UnmorphingTransitionLeftPose;
+
+    /// <summary>
+    /// Publishes the result of bank `$A0:97E2-$A0:984E` bomb/Samus overlap after the bomb
+    /// timer reaches eight, then applies `$90:DF99` and special command three `$91:EE80`.
+    /// Projectile collision owns direction selection; this method owns only the verified
+    /// handoff into the special movement handler.
+    /// </summary>
+    public void RequestMorphedBombJump(byte direction)
+    {
+        if (!IsStableBallPose(Pose))
+            throw new InvalidOperationException($"Morphed bomb jump requires a ball pose, not ${Pose:X2}.");
+        if (direction is < 1 or > 3)
+            throw new ArgumentOutOfRangeException(nameof(direction), direction, "Bomb-jump direction must be left, straight, or right.");
+        if ((BombJumpDirection & 0xff00) != 0)
+            return;
+
+        // Morphed movement types `$04/$08/$11/$12/$13` preserve the current pose in
+        // SpecialProspectivePose. Command three ORs `$0800` and installs start handler.
+        BombJumpDirection = unchecked((ushort)(0x0800 | direction));
+        BombJumpStarting = true;
+        BombJumpActive = false;
+    }
 
     /// <summary>True for the admitted right-facing movement-type-two normal-jump poses.</summary>
     public static bool IsRightFacingNormalJumpPose(byte pose) => pose is
@@ -1417,7 +1451,7 @@ public sealed class SamusState
     public bool ApplyMorphBallLanding(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if (!IsAirborneMorphBallPose(Pose))
+        if (!IsAirborneMorphBallPose(Pose) && !IsGroundedMorphBallPose(Pose))
             throw new InvalidOperationException($"Morph-Ball landing requires airborne pose $31/$32, not ${Pose:X2}.");
 
         if (MorphBallBounceState == 0 && Kinematics.YSpeed >= 3)
@@ -1458,7 +1492,7 @@ public sealed class SamusState
     public bool ApplySpringBallLanding(ISnesAddressSpace bus, ushort controllerInput)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if (!IsAirborneSpringBallPose(Pose))
+        if (!IsAirborneSpringBallPose(Pose) && !IsGroundedSpringBallPose(Pose))
             throw new InvalidOperationException($"Spring-Ball landing requires pose $7D-$80, not ${Pose:X2}.");
 
         if ((controllerInput & (ushort)SnesButton.A) != 0)

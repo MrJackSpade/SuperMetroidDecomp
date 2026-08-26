@@ -1276,7 +1276,8 @@ public sealed class SuperMetroidRuntime
                         LevelData,
                         Samus,
                         NmiFrameCounter,
-                        BombProjectiles.BombCounter);
+                        BombProjectiles.BombCounter,
+                        Plms);
                     if (LastShinesparkMovement.Value.WindupTimedOut)
                     {
                         // The movement handler publishes an interrupted vertical pose. That
@@ -1490,7 +1491,8 @@ public sealed class SuperMetroidRuntime
                             Samus,
                             Controller1.Current,
                             NmiFrameCounter,
-                            Controller1.NewlyPressed);
+                            Controller1.NewlyPressed,
+                            Plms);
                         break;
                     case SamusState.WallJumpRightPose:
                     case SamusState.WallJumpLeftPose:

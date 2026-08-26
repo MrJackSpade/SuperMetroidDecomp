@@ -3,8 +3,8 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Frame-steppable room PLM owner, currently translating the two breakable-grapple entries
-/// at <c>$84:D0DC/$D0E0</c> and their ROM-authored instruction lists.
+/// Frame-steppable room PLM owner translating movement-triggered breakable terrain and its
+/// ROM-authored bank-$84 instruction lists.
 /// </summary>
 /// <remarks>
 /// A PLM is not a Samus animation. It is an independent room object which keeps running
@@ -14,8 +14,9 @@ namespace SuperMetroid.Core.Rooms;
 ///
 /// The retail allocation contains 40 word-indexed slots ($00 through $4E) and searches from
 /// the highest slot downward. The C# array uses logical indices 0..39 but preserves that
-/// search and handler order. Only the instruction opcodes reachable from these two exact
-/// entries are admitted; encountering another pointer fails instead of guessing its effect.
+/// search and handler order. The translated opcode surface is deliberately limited to the
+/// collision-bomb and breakable-grapple lists. Encountering any other pointer fails instead
+/// of silently inventing an effect for a still-untranslated PLM family.
 /// </remarks>
 public sealed class RoomPlmSystem
 {
@@ -25,7 +26,24 @@ public sealed class RoomPlmSystem
     private const ushort DeleteInstruction = 0x86bc;
     private const ushort DrawPlmBlockInstruction = 0x8b17;
     private const ushort QueueSoundLibrary2Maximum6Instruction = 0x8c10;
+    private const ushort QueueSoundLibrary2Maximum3Instruction = 0x8c46;
+    private const ushort GotoInstruction = 0x8724;
     private const ushort SetPlmBtsTo1Instruction = 0xcd93;
+
+    // `$94:936B` selects these eight entry IDs from BTS 0..7. Their setup pointer is common,
+    // so storing the post-setup instruction-list pointer is sufficient after we reproduce
+    // `$84:CE83-$CED9` synchronously in TrySpawnCollisionBombBlock.
+    private static readonly ushort[] CollisionBombInstructionLists =
+    [
+        0xcc35, // BTS 0: 1x1, respawning
+        0xcc5f, // BTS 1: 2x1, respawning
+        0xcc8b, // BTS 2: 1x2, respawning
+        0xccb7, // BTS 3: 2x2, respawning
+        0xcce3, // BTS 4: 1x1, permanent
+        0xccff, // BTS 5: 2x1, permanent
+        0xcd1b, // BTS 6: 1x2, permanent
+        0xcd37, // BTS 7: 2x2, permanent
+    ];
 
     private readonly PlmSlot[] _slots = Enumerable
         .Range(0, SlotCount)
@@ -67,7 +85,7 @@ public sealed class RoomPlmSystem
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
             slot.Active = true;
             slot.BlockIndex = blockIndex;
-            slot.OriginalLevelWord = block.LevelWord;
+            slot.RestoreLevelWord = block.LevelWord;
             slot.InstructionPointer = behavior == 1
                 ? RespawningInstructionList
                 : NonRespawningInstructionList;
@@ -77,6 +95,60 @@ public sealed class RoomPlmSystem
             // byte. It deliberately leaves collision type E intact until the first PLM pass
             // later in this same gameplay frame draws $E0B7.
             level.SetBehavior(blockIndex, 0);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Spawns the bank-$84 collision PLM selected by type-$F BTS zero through seven.
+    /// </summary>
+    /// <remarks>
+    /// The caller has already satisfied setup <c>$84:CE83</c>'s speed/screw pose gate. Setup
+    /// saves <c>(levelWord &amp; $F000) | $0058</c> in <c>PLM_Vars</c>, then clears only the
+    /// collision nibble in level data and returns carry clear so Samus continues moving.
+    /// BTS 0..3 later redraw a linked 1x1/2x1/1x2/2x2 collision shape after the exact
+    /// 384-frame hold; BTS 4..7 delete after their four-frame break animation.
+    /// </remarks>
+    /// <returns>
+    /// True when a native slot was allocated. False preserves <c>Spawn_PLM</c>'s full-pool
+    /// behavior: setup never ran, so the level word remains untouched even though bank $94
+    /// inherited carry clear and lets the current movement scan continue.
+    /// </returns>
+    public bool TrySpawnCollisionBombBlock(
+        RoomLevelData level,
+        int blockIndex,
+        byte behavior)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        if (behavior > 7)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(behavior),
+                "Collision bomb-block BTS must be in the native table range zero through seven.");
+        }
+
+        // `$84:84ED-$84F7` searches the same descending slot order used by every other
+        // gameplay-spawned PLM. Do not coalesce neighboring pieces: a native collision scan
+        // can allocate more than one independently timed object in a single movement call.
+        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
+        {
+            PlmSlot slot = _slots[slotIndex];
+            if (slot.Active)
+                continue;
+
+            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+            slot.Active = true;
+            slot.BlockIndex = blockIndex;
+
+            // This is not the original visual word. Setup_CE83 deliberately replaces all
+            // low twelve bits with visual block `$058`; multi-block restoration lists then
+            // add type-$5/$D extension words around this type-$F parent.
+            slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0058));
+            slot.InstructionPointer = CollisionBombInstructionLists[behavior];
+            slot.InstructionTimer = 1;
+            level.ClearCollisionType(blockIndex);
             return true;
         }
 
@@ -174,6 +246,24 @@ public sealed class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
+                case QueueSoundLibrary2Maximum3Instruction:
+                    // `$84:8C46` has the same odd-byte operand layout as `$8C10`, but the
+                    // collision-bomb list's crumble sound `$06` uses the stricter queue cap.
+                    byte cappedSoundId = bus.ReadByte(
+                        0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
+                    _soundRequests.Add(new PlmSoundRequest(2, cappedSoundId, MaximumQueued: 3));
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
+                    continue;
+
+                case GotoInstruction:
+                    // `$84:8724` replaces Y with the following little-endian pointer. All
+                    // eight collision entry lists use it to share their dimension-specific
+                    // respawning/permanent animation tail.
+                    slot.InstructionPointer = ReadBank84Word(
+                        bus,
+                        unchecked((ushort)(slot.InstructionPointer + 2)));
+                    continue;
+
                 case SetPlmBtsTo1Instruction:
                     level.SetBehavior(slot.BlockIndex, 1);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
@@ -189,7 +279,7 @@ public sealed class RoomPlmSystem
                         level,
                         streamer,
                         slot.BlockIndex,
-                        slot.OriginalLevelWord,
+                        slot.RestoreLevelWord,
                         layer1XPosition,
                         layer1YPosition,
                         bg1XOffset);
@@ -201,11 +291,11 @@ public sealed class RoomPlmSystem
 
                 default:
                     throw new InvalidDataException(
-                        $"Breakable grapple PLM reached unsupported bank-$84 instruction ${instruction:X4}.");
+                        $"Movement-owned PLM reached unsupported bank-$84 instruction ${instruction:X4}.");
             }
         }
 
-        throw new InvalidDataException("Breakable grapple PLM instruction chain did not reach a timer.");
+        throw new InvalidDataException("Movement-owned PLM instruction chain did not reach a timer.");
     }
 
     private void DrawRomInstruction(
@@ -218,26 +308,67 @@ public sealed class RoomPlmSystem
         ushort layer1YPosition,
         ushort bg1XOffset)
     {
-        // Each $A4F9-$A511 list contains exactly one horizontal block and a zero terminator.
-        // Validate both structural words from the cartridge before consuming the level word;
-        // this keeps an incorrect pointer from silently becoming plausible terrain.
-        ushort blockCount = ReadBank84Word(bus, drawPointer);
-        ushort levelWord = ReadBank84Word(bus, unchecked((ushort)(drawPointer + 2)));
-        ushort terminator = ReadBank84Word(bus, unchecked((ushort)(drawPointer + 4)));
-        if (blockCount != 1 || terminator != 0)
+        // `$84:861E-$86B3` treats each record as a direction/count word followed by complete
+        // level words. Bit 15 means a vertical column; a clear bit means a horizontal row.
+        // After its words, a signed-byte X/Y pair locates another record relative to the PLM
+        // origin. A zero pair terminates. The 2x2 bomb art is consequently two horizontal
+        // records: row zero, then `{dx=0,dy=1}` and row one.
+        int originX = blockIndex % level.WidthInBlocks;
+        int originY = blockIndex / level.WidthInBlocks;
+        int entryX = originX;
+        int entryY = originY;
+        ushort cursor = drawPointer;
+
+        // Retail movement-owned draw lists have at most two records and two words apiece.
+        // A generous structural guard makes malformed fixtures/ROM deterministic instead of
+        // allowing a missing terminator to wander through all of bank $84.
+        for (int entryNumber = 0; entryNumber < 32; entryNumber++)
         {
-            throw new InvalidDataException(
-                $"Breakable grapple draw list ${drawPointer:X4} is not one horizontal block.");
+            ushort directionAndCount = ReadBank84Word(bus, cursor);
+            bool vertical = (directionAndCount & 0x8000) != 0;
+            int count = directionAndCount & 0x7fff;
+            if (count is <= 0 or > 0xff)
+            {
+                throw new InvalidDataException(
+                    $"PLM draw list ${drawPointer:X4} has invalid block count {count}.");
+            }
+            cursor = unchecked((ushort)(cursor + 2));
+
+            for (int blockOffset = 0; blockOffset < count; blockOffset++)
+            {
+                int x = entryX + (vertical ? 0 : blockOffset);
+                int y = entryY + (vertical ? blockOffset : 0);
+                if ((uint)x >= (uint)level.WidthInBlocks ||
+                    (uint)y >= (uint)level.HeightInBlocks)
+                {
+                    throw new InvalidDataException(
+                        $"PLM draw list ${drawPointer:X4} targets out-of-room block ({x},{y}).");
+                }
+
+                ushort levelWord = ReadBank84Word(bus, cursor);
+                cursor = unchecked((ushort)(cursor + 2));
+                DrawLevelWord(
+                    level,
+                    streamer,
+                    level.GetBlockIndex(x, y),
+                    levelWord,
+                    layer1XPosition,
+                    layer1YPosition,
+                    bg1XOffset);
+            }
+
+            byte relativeX = bus.ReadByte(0x840000 | cursor);
+            byte relativeY = bus.ReadByte(0x840000 | unchecked((ushort)(cursor + 1)));
+            if (relativeX == 0 && relativeY == 0)
+                return;
+
+            entryX = originX + unchecked((sbyte)relativeX);
+            entryY = originY + unchecked((sbyte)relativeY);
+            cursor = unchecked((ushort)(cursor + 2));
         }
 
-        DrawLevelWord(
-            level,
-            streamer,
-            blockIndex,
-            levelWord,
-            layer1XPosition,
-            layer1YPosition,
-            bg1XOffset);
+        throw new InvalidDataException(
+            $"PLM draw list ${drawPointer:X4} did not reach its signed-offset terminator.");
     }
 
     private void DrawLevelWord(
@@ -286,7 +417,11 @@ public sealed class RoomPlmSystem
     {
         public bool Active { get; set; }
         public int BlockIndex { get; set; }
-        public ushort OriginalLevelWord { get; set; }
+        /// <summary>
+        /// Native <c>PLM_Vars</c>. Grapple setup saves the original word; collision-bomb
+        /// setup synthesizes the dimension-parent restoration word <c>$x058</c> instead.
+        /// </summary>
+        public ushort RestoreLevelWord { get; set; }
         public ushort InstructionPointer { get; set; }
         public ushort InstructionTimer { get; set; }
     }

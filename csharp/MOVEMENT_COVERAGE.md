@@ -14,7 +14,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$00` | Standing | Forward `$00/$9B` equipment selector, zero-status lock, active `$0E18` one-pixel elevator descent through no-solid-enemy `$94:9763`, power-suit chest-cover OAM; ordinary `$01-$08`, landing `$A4-$A7/$E0-$E7`, including held-Shot horizontal firing landings; X-ray `$D5/$D6` admission, angle art, time freeze, beam state, visor palette, and teardown | Live elevator actor/status producer; X-ray BG2 reveal/window-HDMA presentation |
 | `$01` | Running | `$09/$0A/$0B/$0C/$0D-$12`, including horizontal gun extension with preserved native run phase; air/water/lava X tables and submerged Dash gate, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes; ROM-timed wet/dust footsteps and area-selected landing impact | Live collision producers |
 | `$02` | Normal jumping | `$4B-$4E/$13-$18/$51-$52/$55-$5A/$69-$6C`, including horizontal gun extension, compact straight-down collision changes, air/water/lava normal/Hi-Jump launch, X tables, gravity, persistent external X/Y displacement, variable height, ceiling/floor collision; liquid entry/exit splash, bubbles, sound, and damage | Collision-producer side effects |
-| `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, air/water/lava X/gravity/launch/repeat gates, variable height, split-body animation, charged-spin/Screw contact damage, underwater frame-selected Space-Jump sound, damage palette, block/solid-enemy wall contact and launch; liquid entry/exit splash, bubbles, sound, and damage | Live enemy actor producer; charge-beam flare producer |
+| `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, air/water/lava X/gravity/launch/repeat gates, variable height, split-body animation, charged-spin/Screw contact damage, speed-stage/Screw collision-bomb PLMs, underwater frame-selected Space-Jump sound, damage palette, block/solid-enemy wall contact and launch; liquid entry/exit splash, bubbles, sound, and damage | Live enemy actor producer; charge-beam flare producer |
 | `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, air/water/lava X tables, persistent external X/Y displacement, slopes, reversal, deceleration, walk-off, normal-bomb deployment, solid/frozen-enemy clipping | Bombable-block PLMs, live enemy actor producer |
 | `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry, ordinary/Spring morph entry; X-ray `$D9/$DA` admission, angle art, time freeze, beam state, visor palette, and teardown | X-ray BG2 reveal/window-HDMA presentation |
 | `$06` | Falling | `$29-$2E/$67-$70`, including horizontal gun extension, compact straight-down collision changes, walk-off, air/water/lava X and gravity, persistent external X/Y displacement, held-Shot landing, aerial-turn entry, live `$F0` animation cadence, and liquid entry/exit effects | Collision-producer side effects |
@@ -275,8 +275,10 @@ translated status is documented with the Morph Ball family below.
   contact-damage two, hurt flash eight, 15 palette ticks, sampled echoes, and one-energy drain
   while health is at least 30.
 - Collision type `$5/$D` redispatches signed horizontal/vertical extension BTS exactly.
-  Shinespark-capable type `$F` BTS 0..7 clears only the collision nibble of the target block
-  and continues through it; the later bank-`$84` tile-breaking PLM animation remains pending.
+  Shinespark-capable type `$F` BTS 0..7 allocates the matching bank-`$84` PLM and continues
+  through it. The shared ROM interpreter queues sound `$06` with maximum three, follows
+  `GotoY`, draws complete 1x1/2x1/1x2/2x2 level words, and preserves the BTS-0..3 384-frame
+  blank hold plus linked collision restoration; BTS 4..7 remain permanently blank.
 - Collision or health below 30 zeroes motion and starts `$90:D346`: four expansion frames,
   32 angle-separation frames, four contraction frames, then a 30-frame center hold. All orbit
   points use the positive half of the ROM sine table at `$A0:B443` (the complete table
@@ -286,7 +288,7 @@ translated status is documented with the Morph Ball family below.
   the current Samus position and deletes it outside the camera's 256x256 viewport. Drawing
   retains native slot-four-before-slot-three OAM order and odd-NMI cadence.
 - Synthetic checks lock storage, palettes, windup timeout, six-direction dispatch, motion,
-  energy edge cases, extension/bomb blocks, 40+30 crash timing, sine positions, standing
+  energy edge cases, extension/bomb-block spawn, multi-block ROM draws and respawn, 40+30 crash timing, sine positions, standing
   return, released-echo angles/radii, and viewport deletion. Real-ROM `--shinespark-script`
   proves `$09 -> $35 -> $27 -> $4B -> $C7 -> $C9 -> $01` through Landing Site terrain.
 
@@ -1051,4 +1053,4 @@ Ridley-afterburn-first chain, and the typewriter glyph family.
    afterburn chain, and typewriter glyph producers.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.
-4. Return with the remaining bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.
+4. Translate the projectile-triggered bank-$84 shootable/special/bombable PLMs; collision-triggered speed/Screw bomb blocks now mutate and respawn through their real ROM lists.

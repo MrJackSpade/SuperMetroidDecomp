@@ -80,7 +80,8 @@ public static class SamusBlockCollision
         RoomLevelData level,
         SamusKinematicsState state,
         int displacement,
-        bool canBreakBombBlocks = false)
+        bool canBreakBombBlocks = false,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -204,8 +205,16 @@ public static class SamusBlockCollision
                         }
                         if (block.Behavior > 7)
                             throw Unsupported(block, "horizontal bomb-block table");
-                        level.ClearCollisionType(block.Index);
-                        brokenBombBlock ??= block;
+                        // Production movement supplies the active room PLM owner, matching
+                        // `$94:933F`'s immediate long call into Spawn_PLM. Keeping the null
+                        // fallback preserves this low-level collision routine as a usable
+                        // setup-only unit seam: it performs CE83's synchronous clear, while
+                        // explicitly omitting the later independent animation lifecycle.
+                        bool spawned = plms is null
+                            ? ClearCollisionTypeWithoutLifecycle(level, block.Index)
+                            : plms.TrySpawnCollisionBombBlock(level, block.Index, block.Behavior);
+                        if (spawned)
+                            brokenBombBlock ??= block;
                         break;
 
                     default:
@@ -252,7 +261,8 @@ public static class SamusBlockCollision
         int displacement,
         bool scanLeftToRight,
         bool canBreakBombBlocks = false,
-        bool includeSolidEnemies = true)
+        bool includeSolidEnemies = true,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -382,8 +392,11 @@ public static class SamusBlockCollision
                         }
                         if (block.Behavior > 7)
                             throw Unsupported(block, "vertical bomb-block table");
-                        level.ClearCollisionType(block.Index);
-                        brokenBombBlock ??= block;
+                        bool spawned = plms is null
+                            ? ClearCollisionTypeWithoutLifecycle(level, block.Index)
+                            : plms.TrySpawnCollisionBombBlock(level, block.Index, block.Behavior);
+                        if (spawned)
+                            brokenBombBlock ??= block;
                         break;
 
                     default:
@@ -405,6 +418,20 @@ public static class SamusBlockCollision
             CeilingSlopeBlock: null,
             BrokenBombBlock: brokenBombBlock,
             EnemyCollision: enemyCollision);
+    }
+
+    /// <summary>
+    /// Executes collision-bomb setup without installing its independent PLM handler.
+    /// </summary>
+    /// <remarks>
+    /// This narrowly retained fallback is for direct collision tests and embedders that do
+    /// not own a room runtime. The playable runtime always passes <see cref="RoomPlmSystem"/>
+    /// and therefore never takes this incomplete branch.
+    /// </remarks>
+    private static bool ClearCollisionTypeWithoutLifecycle(RoomLevelData level, int blockIndex)
+    {
+        level.ClearCollisionType(blockIndex);
+        return true;
     }
 
     private static (int Displacement, bool Collided) ClipVerticalToNonSquareSlope(

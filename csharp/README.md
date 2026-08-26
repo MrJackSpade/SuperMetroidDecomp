@@ -96,7 +96,7 @@ shared index to `$FFFF`; the renderer then applies the cartridge's signed ±8 X 
 convergence until each stored body crosses Samus. At stage four, release Run and tap **Hold Down**
 to store 180 shine frames. After crouch settles, tap **Hold Jump**; windup `$C7/$C8` accepts a
 fresh direction for horizontal/vertical/diagonal `$C9-$CE`, accelerates in 16.16 through real
-block collision, breaks bomb-block collision types, and completes the native crash orbit,
+block collision, spawns and animates the dimension-correct bank-$84 bomb-block PLMs, and completes the native crash orbit,
 circle, released echoes, palette restoration, and standing return. The status line exposes
 the live shine phase/timer, crash subphase/radius, and departing-echo count. Useful breakpoints are
 `SamusHorizontalSpeedState.HandleExtraRunSpeed`, `SamusGroundedMovement.StepRunningRight`,
@@ -220,7 +220,7 @@ state naturally clears after the last signed crossing on frame 141.
 `--shinespark-script` extends that same natural runway: it charges stage four, enters
 `$09 -> $35 -> $27`, stores shine through `$91:F7B0`, jumps into `$C7`, and supplies a fresh
 Right edge to select `$C9`. Assertions require active block-backed motion, type-`$5/$D`
-extension redispatch, a type-`$F`/BTS-7 bomb-block clear, collision crash, the exact 40-frame
+extension redispatch, a type-`$F`/BTS-7 permanent 2x2 bomb-block PLM, collision crash, the exact 40-frame
 orbit and 30-frame center circle, `$C9 -> $01`, and both radius-64 departing projectile echoes.
 
 `--morph-ball-script` uses the required two distinct Down presses, reaches `$F9`'s grounded target, rolls and reverses while preserving the shared animation state, decelerates to `$41`, and expands through `$3E/$FD` to crouching. Its frame-count-aware assertions permit both a ball-pose PNG and the complete transition trace without accepting milestones that the requested frame count did not reach.
@@ -314,7 +314,7 @@ grapple, Crystal Flash, X-ray, drained/Draygon, liquid/atmospheric/landing-impac
 Mother Brain/Baby routes described above. Unsupported paths throw instead of becoming guessed
 physics. Remaining cross-system work includes Crystal Flash/drain presentation, earlier Mother
 Brain attack selection, live Hyper Beam damage routing, missing actor spritemaps and projectile
-producers, bomb-block PLM mutation, live enemy damage producers, solid-enemy wall-jump branches,
+producers, projectile-triggered breakable-block PLMs, live enemy damage producers, solid-enemy wall-jump branches,
 native enemy spawn selection, and the unported enemies/effects/
 actors. Raw files and PNGs contain private ROM-derived material and must not be distributed;
 this private preservation repository intentionally retains them until a future shareable cleanup.

@@ -1672,15 +1672,18 @@ static void VerifySamusStoredShineAndShinespark()
         bus, horizontal, SamusState.ShinesparkHorizontalRightPose);
     horizontal.Kinematics.YAcceleration = 0;
     horizontal.Kinematics.YSubacceleration = 0x2800;
+    var shineBombPlms = new RoomPlmSystem();
 
     ShinesparkMovementResult first = horizontal.Shinespark.Step(
-        bus, empty, horizontal, nmiFrameCounter: 4);
+        bus, empty, horizontal, nmiFrameCounter: 4, plms: shineBombPlms);
     AssertTrue(first.Horizontal is { Collided: false } && first.Vertical is null,
         "horizontal spark uses only block X movement");
     AssertEqual(sparkBombBlockIndex, first.Horizontal!.Value.BrokenBombBlock!.Value.Index,
         "horizontal spark publishes the broken BTS-7 block");
     AssertEqual((ushort)0x0123, empty.ForegroundEntries.Span[sparkBombBlockIndex],
         "bomb-block setup clears only the collision nibble");
+    AssertEqual(1, shineBombPlms.ActiveCount,
+        "shinespark collision installs the bank-$84 BTS-7 PLM in the active room owner");
     AssertEqual((ushort)0xd456, empty.ForegroundEntries.Span[sparkExtensionBlockIndex],
         "extension redispatch mutates its target rather than the extension word");
     AssertEqual((ushort)168, horizontal.XPosition, "first horizontal spark moves 8 whole pixels");
@@ -6151,6 +6154,43 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     AssertEqual((ushort)3, screwRepeat.HorizontalSpeed.ContactDamageIndex,
         "Screw Attack republishes contact damage index three");
 
+    // `$84:CE91-$CEA3` explicitly admits poses `$81/$82`, independently of the boost-stage
+    // branch above them. Place a BTS-4 permanent 1x1 block under a falling Screw body so the
+    // shared vertical movement must allocate the room PLM and continue through new air.
+    var screwBombForeground = new ushort[16 * 16];
+    var screwBombBts = new byte[screwBombForeground.Length];
+    int screwBombIndex = 8 * 16 + 8;
+    screwBombForeground[screwBombIndex] = 0xf123;
+    screwBombBts[screwBombIndex] = 4;
+    var screwBombLevel = new RoomLevelData(
+        16,
+        16,
+        screwBombForeground,
+        screwBombBts,
+        new ushort[screwBombForeground.Length],
+        new byte[8]);
+    var screwBombPlms = new RoomPlmSystem();
+    SamusState screwBombSamus = CreateFallingSpin(
+        SamusState.ScrewAttackRightPose, 0x0008, speed: 3, subspeed: 0);
+    AerialMovementResult screwBombFrame = SamusAerialMovement.StepSpinJump(
+        bus,
+        screwBombLevel,
+        screwBombSamus,
+        controllerInput: 0,
+        nmiFrameCounter: 0,
+        controllerNewInput: 0,
+        plms: screwBombPlms);
+    AssertTrue(screwBombFrame.Vertical is { Collided: false },
+        "Screw collision-bomb setup returns carry clear and preserves vertical travel");
+    AssertEqual(screwBombIndex,
+        screwBombFrame.Vertical!.Value.BrokenBombBlock!.Value.Index,
+        "Screw vertical collision publishes the exact BTS-4 block");
+    AssertEqual((ushort)0x0123,
+        screwBombLevel.GetCollisionBlockByIndex(screwBombIndex).LevelWord,
+        "Screw setup clears only the collision nibble before the PLM handler");
+    AssertEqual(1, screwBombPlms.ActiveCount,
+        "Screw pose installs the BTS-4 bank-$84 lifecycle in the room owner");
+
     // A fully charged beam makes ordinary/Space-Jump spin damaging only in dry physics.
     // Full submersion suppresses that contact mode and, on animation frames zero/eight's
     // final tick, emits the literal library-one sound $2F instead.
@@ -6221,7 +6261,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         "Screw Attack landing requests normal palette restore");
 
     Console.WriteLine(
-        "  Space Jump/Screw Attack: pose priority, repeat window, charged/Screw damage, underwater sound, palette cycle, and landing agree.");
+        "  Space Jump/Screw Attack: pose priority, repeat window, collision PLMs, charged/Screw damage, underwater sound, palette cycle, and landing agree.");
 }
 
 /// <summary>
@@ -8742,7 +8782,148 @@ static void VerifyBreakableGrapplePlms()
     AssertEqual((byte)0, permanent.GetCollisionBlockByIndex(blockIndex).Behavior,
         "nonrespawning sequence leaves cleared BTS");
 
-    Console.WriteLine("  Grapple PLMs: ROM instruction timing, terrain/BTS mutation, sound, VRAM redraw, and respawn agree.");
+    // The following bytes are the exact BTS-3/BTS-6 collision heads and their shared
+    // bank-$84 tails. Together they exercise every structural feature that the bomb-block
+    // family adds over grapple: queue-cap three, GotoY, a signed-offset second row, a true
+    // vertical record, linked-block restoration, and the respawning/permanent split.
+    bus.WriteBytes(0x84ccb7, [0x46, 0x8c, 0x06, 0x24, 0x87, 0xc1, 0xcc]);
+    bus.WriteBytes(0x84ccc1, [
+        0x04, 0x00, 0x9d, 0xa3,
+        0x04, 0x00, 0xad, 0xa3,
+        0x04, 0x00, 0xbd, 0xa3,
+        0x80, 0x01, 0xcd, 0xa3,
+        0x04, 0x00, 0xbd, 0xa3,
+        0x04, 0x00, 0xad, 0xa3,
+        0x04, 0x00, 0x9d, 0xa3,
+        0x01, 0x00, 0xd7, 0xa4,
+        0xbc, 0x86,
+    ]);
+    bus.WriteBytes(0x84cd1b, [0x46, 0x8c, 0x06, 0x24, 0x87, 0x25, 0xcd]);
+    bus.WriteBytes(0x84cd25, [
+        0x04, 0x00, 0x7d, 0xa3,
+        0x04, 0x00, 0x85, 0xa3,
+        0x04, 0x00, 0x8d, 0xa3,
+        0x01, 0x00, 0x95, 0xa3,
+        0xbc, 0x86,
+    ]);
+
+    // `$A39D-$A3DC`: 2x2 animation draw records. Each begins with a two-word horizontal
+    // row, then signed offset bytes `{0,+1}`, another two-word row, and a zero terminator.
+    static void Write2x2Draw(TestAddressSpace fixtureBus, int address, ushort levelWord)
+    {
+        fixtureBus.WriteBytes(address, [
+            0x02, 0x00,
+            unchecked((byte)levelWord), unchecked((byte)(levelWord >> 8)),
+            unchecked((byte)levelWord), unchecked((byte)(levelWord >> 8)),
+            0x00, 0x01,
+            0x02, 0x00,
+            unchecked((byte)levelWord), unchecked((byte)(levelWord >> 8)),
+            unchecked((byte)levelWord), unchecked((byte)(levelWord >> 8)),
+            0x00, 0x00,
+        ]);
+    }
+    Write2x2Draw(bus, 0x84a39d, 0x0053);
+    Write2x2Draw(bus, 0x84a3ad, 0x0054);
+    Write2x2Draw(bus, 0x84a3bd, 0x0055);
+    Write2x2Draw(bus, 0x84a3cd, 0x00ff);
+    bus.WriteBytes(0x84a4d7, [
+        0x02, 0x00, 0x58, 0xf0, 0x58, 0x50,
+        0x00, 0x01,
+        0x02, 0x00, 0x58, 0xd0, 0x58, 0xd0,
+        0x00, 0x00,
+    ]);
+
+    // `$A37D-$A39C`: vertical two-word records used by 1x2 blocks. The high count bit is
+    // significant—the second level word advances by room width, never by one column.
+    static void Write1x2Draw(TestAddressSpace fixtureBus, int address, ushort levelWord)
+    {
+        fixtureBus.WriteBytes(address, [
+            0x02, 0x80,
+            unchecked((byte)levelWord), unchecked((byte)(levelWord >> 8)),
+            unchecked((byte)levelWord), unchecked((byte)(levelWord >> 8)),
+            0x00, 0x00,
+        ]);
+    }
+    Write1x2Draw(bus, 0x84a37d, 0x0053);
+    Write1x2Draw(bus, 0x84a385, 0x0054);
+    Write1x2Draw(bus, 0x84a38d, 0x0055);
+    Write1x2Draw(bus, 0x84a395, 0x00ff);
+
+    static RoomLevelData CreateBombLevel(byte behavior, byte[] blockDefinitions)
+    {
+        var foreground = new ushort[width * height];
+        var bts = new byte[foreground.Length];
+        foreground[blockIndex] = 0xf321;
+        bts[blockIndex] = behavior;
+        return new RoomLevelData(
+            width,
+            height,
+            foreground,
+            bts,
+            new ushort[foreground.Length],
+            blockDefinitions);
+    }
+
+    RoomLevelData respawning2x2 = CreateBombLevel(3, definitions);
+    BackgroundTilemapStreamer respawning2x2Streamer =
+        respawning2x2.CreateBackgroundStreamer();
+    var respawning2x2Plms = new RoomPlmSystem();
+    AssertTrue(respawning2x2Plms.TrySpawnCollisionBombBlock(
+        respawning2x2, blockIndex, behavior: 3),
+        "BTS-3 collision setup occupies a native PLM slot");
+    AssertEqual((ushort)0x0321, respawning2x2.GetCollisionBlockByIndex(blockIndex).LevelWord,
+        "CE83 synchronously removes only the type-F collision nibble");
+    IReadOnlyList<PlmTilemapUpdate> first2x2Draw = respawning2x2Plms.Step(
+        bus, respawning2x2, respawning2x2Streamer, 0, 0, 0);
+    AssertEqual(new PlmSoundRequest(2, 0x06, 3), respawning2x2Plms.SoundRequests[0],
+        "collision break queues library-two sound six with native maximum three");
+    AssertEqual(4, first2x2Draw.Count,
+        "2x2 draw record emits one debugger-visible redraw for each mutated level word");
+    AssertEqual((ushort)0x0053,
+        respawning2x2.GetCollisionBlock(3, 3).LevelWord,
+        "2x2 first row begins at PLM origin");
+    AssertEqual((ushort)0x0053,
+        respawning2x2.GetCollisionBlock(4, 4).LevelWord,
+        "signed {0,+1} record draws the 2x2 lower-right block");
+
+    StepMany(respawning2x2Plms, bus, respawning2x2, respawning2x2Streamer, 12);
+    AssertEqual((ushort)0x00ff, respawning2x2.GetCollisionBlock(4, 4).LevelWord,
+        "BTS-3 reaches its four-block blank frame after three four-frame transitions");
+    StepMany(respawning2x2Plms, bus, respawning2x2, respawning2x2Streamer, 384 + 12);
+    AssertEqual((ushort)0xf058, respawning2x2.GetCollisionBlock(3, 3).LevelWord,
+        "BTS-3 restores the type-F parent after the exact 384-frame blank hold");
+    AssertEqual((ushort)0x5058, respawning2x2.GetCollisionBlock(4, 3).LevelWord,
+        "BTS-3 restores the type-5 horizontal extension");
+    AssertEqual((ushort)0xd058, respawning2x2.GetCollisionBlock(3, 4).LevelWord,
+        "BTS-3 restores the type-D vertical extension row");
+    AssertEqual(1, respawning2x2Plms.ActiveCount,
+        "timer-one restored frame keeps BTS-3 PLM alive through this handler pass");
+    respawning2x2Plms.Step(bus, respawning2x2, respawning2x2Streamer, 0, 0, 0);
+    AssertEqual(0, respawning2x2Plms.ActiveCount,
+        "BTS-3 deletes on the handler pass after linked-block restoration");
+
+    RoomLevelData permanent1x2 = CreateBombLevel(6, definitions);
+    BackgroundTilemapStreamer permanent1x2Streamer =
+        permanent1x2.CreateBackgroundStreamer();
+    var permanent1x2Plms = new RoomPlmSystem();
+    AssertTrue(permanent1x2Plms.TrySpawnCollisionBombBlock(
+        permanent1x2, blockIndex, behavior: 6),
+        "BTS-6 collision setup occupies a native PLM slot");
+    permanent1x2Plms.Step(bus, permanent1x2, permanent1x2Streamer, 0, 0, 0);
+    AssertEqual((ushort)0x0053, permanent1x2.GetCollisionBlock(3, 3).LevelWord,
+        "vertical draw writes BTS-6 origin");
+    AssertEqual((ushort)0x0053, permanent1x2.GetCollisionBlock(3, 4).LevelWord,
+        "vertical draw advances its second word by one room row");
+    AssertEqual((ushort)0, permanent1x2.GetCollisionBlock(4, 3).LevelWord,
+        "vertical draw does not accidentally advance into the neighboring column");
+    StepMany(permanent1x2Plms, bus, permanent1x2, permanent1x2Streamer, 12);
+    AssertEqual((ushort)0x00ff, permanent1x2.GetCollisionBlock(3, 4).LevelWord,
+        "permanent BTS-6 finishes on two vertical blank-air words");
+    permanent1x2Plms.Step(bus, permanent1x2, permanent1x2Streamer, 0, 0, 0);
+    AssertEqual(0, permanent1x2Plms.ActiveCount,
+        "permanent BTS-6 deletes one frame after its timer-one blank draw");
+
+    Console.WriteLine("  Movement PLMs: grapple and collision-bomb ROM timing, multi-block terrain, sound, VRAM, and respawn agree.");
 }
 
 static void WriteDefinitionWord(byte[] definitions, int block, int tile, ushort value)

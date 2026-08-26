@@ -246,7 +246,8 @@ public static class SamusAerialMovement
         SamusState samus,
         ushort controllerInput,
         ushort nmiFrameCounter,
-        ushort controllerNewInput = 0)
+        ushort controllerNewInput = 0,
+        RoomPlmSystem? plms = null)
     {
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementType(bus) != 3)
@@ -282,6 +283,14 @@ public static class SamusAerialMovement
             samus.HorizontalSpeed.ContactDamageIndex = 3;
         else if (!fullySubmergedWithoutGravity && samus.ProjectileFlareCounter >= 0x003c)
             samus.HorizontalSpeed.ContactDamageIndex = 4;
+
+        // Setup_Collision_RespawningBombBlock at `$84:CE83` admits either boost stage four
+        // (`$0B3E & $0F00 == $0400`) or literal Screw Attack pose `$81/$82`. This gate is
+        // independent of contact-damage publication above: liquid suppresses Samus damage,
+        // but the bank-$84 setup itself still reads pose/boost and can break the terrain.
+        bool canBreakCollisionBombBlocks =
+            (samus.HorizontalSpeed.SpeedBoostCounter & 0x0f00) == 0x0400 ||
+            SamusState.IsScrewAttackPose(samus.Pose);
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 3,
@@ -323,7 +332,9 @@ public static class SamusAerialMovement
             bus,
             level,
             samus.Kinematics,
-            requested);
+            requested,
+            canBreakBombBlocks: canBreakCollisionBombBlocks,
+            plms: plms);
         if (horizontal.Collided)
             ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
@@ -353,7 +364,9 @@ public static class SamusAerialMovement
             level,
             samus,
             horizontal,
-            nmiFrameCounter);
+            nmiFrameCounter,
+            canBreakBombBlocks: canBreakCollisionBombBlocks,
+            plms: plms);
         return verticalResult with
         {
             WallContact = wall.Contact,
@@ -665,7 +678,9 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         BlockMoveResult horizontal,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        bool canBreakBombBlocks = false,
+        RoomPlmSystem? plms = null)
     {
         BlockMoveResult vertical = StepVerticalWithSpeedCalculations(
             bus,
@@ -673,7 +688,9 @@ public static class SamusAerialMovement
             samus,
             nmiFrameCounter,
             out bool hitCeiling,
-            out bool downwardDisplacement);
+            out bool downwardDisplacement,
+            canBreakBombBlocks,
+            plms);
         bool landed = downwardDisplacement && vertical.Collided;
 
         return new AerialMovementResult(horizontal, vertical, landed, hitCeiling);
@@ -695,7 +712,9 @@ public static class SamusAerialMovement
         SamusState samus,
         ushort nmiFrameCounter,
         out bool hitCeiling,
-        out bool downwardDisplacement)
+        out bool downwardDisplacement,
+        bool canBreakBombBlocks = false,
+        RoomPlmSystem? plms = null)
     {
         ValidateCommon(bus, level, samus);
         SamusKinematicsState state = samus.Kinematics;
@@ -734,7 +753,9 @@ public static class SamusAerialMovement
             level,
             state,
             displacement,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+            scanLeftToRight: (nmiFrameCounter & 1) == 0,
+            canBreakBombBlocks: canBreakBombBlocks,
+            plms: plms);
 
         hitCeiling = displacement < 0 && vertical.Collided;
         if (hitCeiling)

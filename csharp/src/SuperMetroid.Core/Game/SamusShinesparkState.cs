@@ -180,7 +180,8 @@ public sealed class SamusShinesparkState
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
-        ushort projectileCounter = 0)
+        ushort projectileCounter = 0,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -233,9 +234,9 @@ public sealed class SamusShinesparkState
         BlockMoveResult? horizontal = null;
         BlockMoveResult? vertical = null;
         if (Phase is ShinesparkPhase.Horizontal or ShinesparkPhase.Diagonal)
-            horizontal = MoveX(bus, level, samus);
+            horizontal = MoveX(bus, level, samus, plms);
         if (Phase is ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal)
-            vertical = MoveY(bus, level, samus, nmiFrameCounter);
+            vertical = MoveY(bus, level, samus, nmiFrameCounter, plms);
 
         bool collided = horizontal is { Collided: true } || vertical is { Collided: true };
         bool lowEnergy = unchecked((short)(samus.Health - 30)) < 0;
@@ -556,7 +557,8 @@ public sealed class SamusShinesparkState
     private BlockMoveResult MoveX(
         ISnesAddressSpace bus,
         RoomLevelData level,
-        SamusState samus)
+        SamusState samus,
+        RoomPlmSystem? plms)
     {
         ShineTimer = 15;
         uint accelerated = unchecked(Compose(
@@ -584,14 +586,16 @@ public sealed class SamusShinesparkState
             level,
             samus.Kinematics,
             displacement,
-            canBreakBombBlocks: true);
+            canBreakBombBlocks: true,
+            plms: plms);
     }
 
     private BlockMoveResult MoveY(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms)
     {
         ShineTimer = 15;
         uint acceleration = unchecked(Compose(
@@ -637,7 +641,8 @@ public sealed class SamusShinesparkState
             samus.Kinematics,
             upwardDisplacement,
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
-            canBreakBombBlocks: true);
+            canBreakBombBlocks: true,
+            plms: plms);
     }
 
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;

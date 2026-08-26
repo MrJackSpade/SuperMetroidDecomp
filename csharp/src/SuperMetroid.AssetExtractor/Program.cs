@@ -1,10 +1,18 @@
 using System.Text.Json;
+using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
 // The tool intentionally exposes two narrow commands instead of performing work implicitly.
 // That makes Visual Studio launch profiles deterministic and gives us clean breakpoint paths:
 // "room" exercises full room composition, while the two-argument form inventories everything.
+// Match the two debugger-facing console hosts: missing assets must be reported on stderr, not
+// handed to Windows Error Reporting as an interactive exception dialog.
+if (OperatingSystem.IsWindows())
+    NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
+
+try
+{
 if (args.Length == 3 && args[0].Equals("room", StringComparison.OrdinalIgnoreCase))
 {
     string rawDirectory = ResolveWorkspacePath(args[1], mustAlreadyExist: true);
@@ -91,6 +99,14 @@ var options = new JsonSerializerOptions { WriteIndented = true };
 File.WriteAllText(Path.Combine(outputDirectory, "manifest.json"), JsonSerializer.Serialize(records, options));
 Console.WriteLine($"Inventoried {records.Count} chunks; wrote {records.Count(r => r.Png is not null)} PNG previews to {outputDirectory}");
 return 0;
+}
+catch (Exception exception)
+{
+    // Preserve the full managed stack trace while guaranteeing a non-interactive failure.
+    // This specifically makes path and malformed-asset errors useful from CLI and VS output.
+    Console.Error.WriteLine(exception);
+    return 1;
+}
 
 static string ResolveWorkspacePath(string argument, bool mustAlreadyExist)
 {
@@ -230,3 +246,15 @@ internal sealed record AssetRecord(
     int StoredBytes,
     int DecodedBytes,
     string? Png);
+
+/// <summary>
+/// Configures Windows to leave process failures in the terminal. The three flags are
+/// SEM_FAILCRITICALERRORS, SEM_NOGPFAULTERRORBOX, and SEM_NOOPENFILEERRORBOX respectively.
+/// The managed entry point also catches exceptions; this is a second line of defense for
+/// native/runtime faults that occur outside ordinary C# exception handling.
+/// </summary>
+static class NativeConsoleProcess
+{
+    [DllImport("kernel32.dll")]
+    internal static extern uint SetErrorMode(uint errorMode);
+}

@@ -17,6 +17,8 @@ using SuperMetroid.Core.Runtime;
 if (OperatingSystem.IsWindows())
     NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
 
+try
+{
 Console.WriteLine("Verifying translated Super Metroid routines...");
 
 VerifyRandomNumberGeneratorExhaustively();
@@ -72,6 +74,17 @@ VerifyHostRoomViewportAlignment();
 VerifyScrollingSkyState();
 
 Console.WriteLine("All bank $80 verification checks passed.");
+return 0;
+}
+catch (Exception exception)
+{
+    // This is deliberately handled here, at the process boundary. Assertions still stop the
+    // verifier immediately, but Windows never receives an unhandled CLR exception that it can
+    // turn into a focus-stealing dialog. ToString() retains the type, message, inner exception,
+    // and complete stack trace in the terminal where the failure is actually actionable.
+    Console.Error.WriteLine(exception);
+    return 1;
+}
 
 /// <summary>
 /// Compares the production port against a mechanically different description of the

@@ -17,6 +17,8 @@ using SuperMetroid.Core.Runtime;
 if (OperatingSystem.IsWindows())
     NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
 
+try
+{
 DebugRunnerOptions options = DebugRunnerOptions.Parse(args);
 SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(options.RomPath);
 var runtime = new SuperMetroidRuntime(bus);
@@ -2684,6 +2686,16 @@ Rgba32[] gameplayFrame = SnesGameplayFrameRenderer.RenderHudLiveBackgroundsAndOb
 PngWriter.WriteRgba(options.OutputPath, width: 256, height: 224, gameplayFrame);
 Console.WriteLine($"Wrote ROM-backed HUD/OBJ frame to {Path.GetFullPath(options.OutputPath)}.");
 Console.WriteLine($"Wrote transparent OBJ layer to {Path.GetFullPath(objectOutputPath)}.");
+return 0;
+}
+catch (Exception exception)
+{
+    // Keep a bad ROM path, failed assertion, or unfinished translation in the debugger's
+    // console. An explicit failing exit code preserves automation semantics without allowing
+    // the CLR/Windows error reporter to display a modal "unknown software exception" box.
+    Console.Error.WriteLine(exception);
+    return 1;
+}
 
 [MethodImpl(MethodImplOptions.NoInlining)]
 static void FrameBreakpoint(SuperMetroidRuntime runtime, RuntimeFrameResult result)

@@ -203,7 +203,17 @@ internal sealed class RuntimePreviewControl : UserControl
         // which made collision correct but gave a useless terrain-verification viewport.
         // The cinematic scenarios preserve the landing-cutscene door's real (4,0) camera.
         if (groundedRun)
+        {
             runtime.InitializeDebugGroundedSamus();
+
+            // The sandbox has no save-file loader yet, so its inventory would otherwise be
+            // empty forever. Grant exactly the Morph Ball equipped-item bit as an explicit
+            // debugger stimulus. The interactive route still uses the cartridge's real
+            // input records: tap Down to crouch, release it, then tap Down again to morph.
+            // Cinematic diagnostics receive no inventory, and later save-state work should
+            // replace this one deliberately visible host grant rather than hiding it.
+            runtime.Samus!.EquippedItems |= 0x0004;
+        }
         runtime.InitializeLandingSiteViewport();
         runtime.LoadUpperCrateriaBackgroundPalette();
         runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -398,7 +408,15 @@ internal sealed class RuntimePreviewControl : UserControl
                   SamusState.StandingTransitionAimDiagonalUpRightPose or
                   SamusState.StandingTransitionAimDiagonalUpLeftPose or
                   SamusState.StandingTransitionAimDiagonalDownRightPose or
-                  SamusState.StandingTransitionAimDiagonalDownLeftPose
+                  SamusState.StandingTransitionAimDiagonalDownLeftPose or
+                  SamusState.MorphingTransitionRightPose or
+                  SamusState.MorphingTransitionLeftPose or
+                  SamusState.UnmorphingTransitionRightPose or
+                  SamusState.UnmorphingTransitionLeftPose or
+                  SamusState.MorphBallGroundRightPose or
+                  SamusState.MorphBallGroundLeftPose or
+                  SamusState.MorphBallMovingRightPose or
+                  SamusState.MorphBallMovingLeftPose
                 ? $"next ${transition.ProspectivePose:X2} translated"
                 : $"next ${transition.ProspectivePose:X2} blocked"
             : runtime.ProspectiveSamusFallbackPose is ushort fallback

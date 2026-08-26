@@ -44,6 +44,36 @@ public sealed class SamusState
     /// <summary>Pose $1A is the ordinary left-facing spin jump.</summary>
     public const byte SpinJumpLeftPose = 0x1a;
 
+    /// <summary>Pose $1D is the stationary right-facing ordinary morph ball on the ground.</summary>
+    public const byte MorphBallGroundRightPose = 0x1d;
+
+    /// <summary>Pose $1E is the ordinary morph ball rolling to the right on the ground.</summary>
+    public const byte MorphBallMovingRightPose = 0x1e;
+
+    /// <summary>Pose $1F is the ordinary morph ball rolling to the left on the ground.</summary>
+    public const byte MorphBallMovingLeftPose = 0x1f;
+
+    /// <summary>Pose $31 is the right-facing ordinary morph ball in the air.</summary>
+    public const byte MorphBallFallingRightPose = 0x31;
+
+    /// <summary>Pose $32 is the left-facing ordinary morph ball in the air.</summary>
+    public const byte MorphBallFallingLeftPose = 0x32;
+
+    /// <summary>Pose $37 is the right-facing crouch-to-morph transition.</summary>
+    public const byte MorphingTransitionRightPose = 0x37;
+
+    /// <summary>Pose $38 is the left-facing crouch-to-morph transition.</summary>
+    public const byte MorphingTransitionLeftPose = 0x38;
+
+    /// <summary>Pose $3D is the right-facing morph-to-crouch transition.</summary>
+    public const byte UnmorphingTransitionRightPose = 0x3d;
+
+    /// <summary>Pose $3E is the left-facing morph-to-crouch transition.</summary>
+    public const byte UnmorphingTransitionLeftPose = 0x3e;
+
+    /// <summary>Pose $41 is the stationary left-facing ordinary morph ball on the ground.</summary>
+    public const byte MorphBallGroundLeftPose = 0x41;
+
     /// <summary>Pose $29 is the unaimed right-facing falling pose.</summary>
     public const byte FallingRightPose = 0x29;
 
@@ -352,6 +382,19 @@ public sealed class SamusState
     /// <summary>Current energy used by animation command $F6's low-health branch.</summary>
     public ushort Health { get; set; } = 99;
 
+    /// <summary>
+    /// Equipped-item bitfield corresponding to WRAM <c>$09A2</c>. Bit two ($0004) is Morph
+    /// Ball and bit one ($0002) is Spring Ball; animation command $F9 reads both directly.
+    /// </summary>
+    public ushort EquippedItems { get; set; }
+
+    /// <summary>
+    /// Morph-ball bounce state at WRAM <c>$0B20</c>: zero is not bouncing, one is the first
+    /// rebound, and two is the second rebound. Spring Ball also uses the high byte, but that
+    /// separate movement family is intentionally not folded into the ordinary-ball state.
+    /// </summary>
+    public ushort MorphBallBounceState { get; set; }
+
     /// <summary>Bank-$91 address of the active pose's byte-oriented delay program.</summary>
     public int AnimationDelayListAddress { get; private set; }
 
@@ -553,6 +596,20 @@ public sealed class SamusState
         StandingTransitionAimUpRightPose or StandingTransitionAimUpLeftPose or
         StandingTransitionAimDiagonalUpRightPose or StandingTransitionAimDiagonalUpLeftPose or
         StandingTransitionAimDiagonalDownRightPose or StandingTransitionAimDiagonalDownLeftPose;
+
+    /// <summary>True for the four ordinary, non-Spring-Ball grounded morph poses.</summary>
+    public static bool IsGroundedMorphBallPose(byte pose) => pose is
+        MorphBallGroundRightPose or MorphBallGroundLeftPose or
+        MorphBallMovingRightPose or MorphBallMovingLeftPose;
+
+    /// <summary>True for the two ordinary, non-Spring-Ball airborne morph poses.</summary>
+    public static bool IsAirborneMorphBallPose(byte pose) => pose is
+        MorphBallFallingRightPose or MorphBallFallingLeftPose;
+
+    /// <summary>True for the four entry/exit poses handled by movement type $0F.</summary>
+    public static bool IsMorphTransitionPose(byte pose) => pose is
+        MorphingTransitionRightPose or MorphingTransitionLeftPose or
+        UnmorphingTransitionRightPose or UnmorphingTransitionLeftPose;
 
     /// <summary>True for the admitted right-facing movement-type-two normal-jump poses.</summary>
     public static bool IsRightFacingNormalJumpPose(byte pose) => pose is
@@ -1171,6 +1228,204 @@ public sealed class SamusState
     }
 
     /// <summary>
+    /// Applies the ordinary Morph-Ball entry and exit records selected by the crouch and
+    /// ball transition tables. This includes item gating, command-seven bottom alignment,
+    /// and the block-only expansion collision used when unmorphing.
+    /// </summary>
+    /// <remarks>
+    /// `$37/$38` shrink radius 16 to 7 and command seven moves center Y down nine pixels;
+    /// this keeps the old crouching bottom boundary exactly fixed. `$3D/$3E` expand 7 to
+    /// 16 through `$91:FDAE`; floor collision normally moves center up nine. If both sides
+    /// constrain a radius-seven body, `$91:FFA7` rejects the target and keeps Samus morphed.
+    /// </remarks>
+    public bool TryApplyMorphTransition(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        byte targetPose,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+
+        bool startsMorphingRight = IsRightFacingCrouchingPose(Pose) &&
+            targetPose == MorphingTransitionRightPose;
+        bool startsMorphingLeft = IsLeftFacingCrouchingPose(Pose) &&
+            targetPose == MorphingTransitionLeftPose;
+        bool startsMorphing = startsMorphingRight || startsMorphingLeft;
+        bool startsUnmorphingRight =
+            Pose is MorphBallGroundRightPose or MorphBallMovingRightPose or
+                MorphBallFallingRightPose &&
+            targetPose == UnmorphingTransitionRightPose;
+        bool startsUnmorphingLeft =
+            Pose is MorphBallGroundLeftPose or MorphBallMovingLeftPose or
+                MorphBallFallingLeftPose &&
+            targetPose == UnmorphingTransitionLeftPose;
+        bool startsUnmorphing = startsUnmorphingRight || startsUnmorphingLeft;
+        if (!startsMorphing && !startsUnmorphing)
+        {
+            throw new NotSupportedException(
+                $"Morph transition ${Pose:X2} -> ${targetPose:X2} is not a ROM-table route.");
+        }
+
+        if (startsMorphing)
+        {
+            // InitializeSamusPose_MorphingTransition at $91:F7CE restores PreviousPose and
+            // returns carry set when bit $0004 is absent. No radius, animation, or position
+            // write from the rejected prospective pose survives that native frame.
+            if ((EquippedItems & 0x0004) == 0)
+                return false;
+
+            Pose = targetPose;
+            RefreshCollisionRadii(bus);
+            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + 9));
+
+            // Prospective command seven also cancels an active bounce before starting the
+            // transition. Ordinary crouch entry normally sees zero, but retaining the
+            // literal writes makes externally stimulated debugger states deterministic.
+            if (MorphBallBounceState != 0)
+            {
+                MorphBallBounceState = 0;
+                Kinematics.YSubspeed = 0;
+                Kinematics.YSpeed = 0;
+                Kinematics.YDirection = 0;
+            }
+            InitializeAnimation(bus, initialFrame: 0);
+            return true;
+        }
+
+        byte sourcePose = Pose;
+        LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
+            bus,
+            level,
+            targetPose,
+            nmiFrameCounter,
+            out int centerAdjustment);
+        if (collision != LargerPoseCollisionOutcome.Allowed)
+        {
+            // A morph source can only produce RetainSource here. Keep the defensive branch
+            // explicit so a future caller cannot accidentally apply non-morph crouch fallback.
+            if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+                ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            return false;
+        }
+
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        InitializeAnimation(bus, initialFrame: 0);
+        return true;
+    }
+
+    /// <summary>
+    /// Installs a stable ordinary Morph-Ball pose while preserving the shared eight-frame
+    /// rolling animation exactly as <c>InitializeSamusPose_MorphBall</c> requests.
+    /// </summary>
+    public void ApplyMorphBallPoseChange(ISnesAddressSpace bus, byte targetPose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        bool sourceSupported = IsGroundedMorphBallPose(Pose) || IsAirborneMorphBallPose(Pose);
+        bool targetSupported = IsGroundedMorphBallPose(targetPose) || IsAirborneMorphBallPose(targetPose);
+        if (!sourceSupported || !targetSupported)
+        {
+            throw new NotSupportedException(
+                $"Stable Morph-Ball transition ${Pose:X2} -> ${targetPose:X2} is not translated.");
+        }
+
+        byte previousDirection = ReadPoseXDirection(bus);
+        int previousDelayList = AnimationDelayListAddress;
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+
+        // All ordinary ball poses point at `$91:B378`. Native writes $8000 to the new-frame
+        // selector, causing `$91:FB5C` to return without changing frame OR timer. Assert the
+        // table identity instead of depending on that retail-data fact silently.
+        int targetDelayList = ResolveAnimationDelayList(bus);
+        if (previousDelayList != targetDelayList)
+        {
+            throw new InvalidDataException(
+                $"Morph-Ball transition selected mismatched animation lists ${previousDelayList:X6}/${targetDelayList:X6}.");
+        }
+
+        byte currentDirection = ReadPoseXDirection(bus);
+        bool reversed = (previousDirection == 8 && currentDirection == 4) ||
+            (previousDirection == 4 && currentDirection == 8);
+        if (reversed)
+        {
+            // `$91:FA32-$91:FA52` folds run momentum into base speed with one 16-bit carry,
+            // clears the extra words, and selects mode one so displacement initially keeps
+            // travelling in the old direction while the ball decelerates through its turn.
+            uint combined = unchecked(HorizontalSpeed.BaseFixed +
+                ((uint)HorizontalSpeed.ExtraRunSpeed << 16) +
+                HorizontalSpeed.ExtraRunSubspeed);
+            HorizontalSpeed.BaseSpeed = unchecked((ushort)(combined >> 16));
+            HorizontalSpeed.BaseSubspeed = unchecked((ushort)combined);
+            HorizontalSpeed.ExtraRunSpeed = 0;
+            HorizontalSpeed.ExtraRunSubspeed = 0;
+            HorizontalSpeed.AccelerationMode = 1;
+        }
+    }
+
+    /// <summary>
+    /// Resolves an ordinary Morph-Ball downward collision through `$91:EA07` and
+    /// `$91:F1FC`, including both automatic rebounds and the final grounded pose.
+    /// </summary>
+    /// <returns>True only when the collision ends grounded; false means another rebound.</returns>
+    public bool ApplyMorphBallLanding(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if (!IsAirborneMorphBallPose(Pose))
+            throw new InvalidOperationException($"Morph-Ball landing requires airborne pose $31/$32, not ${Pose:X2}.");
+
+        if (MorphBallBounceState == 0 && Kinematics.YSpeed >= 3)
+        {
+            MorphBallBounceState = 1;
+            Kinematics.YDirection = 1;
+            Kinematics.YSpeed = ReadWord(bus, 0x909eb5);
+            Kinematics.YSubspeed = ReadWord(bus, 0x909eb7);
+            return false;
+        }
+
+        if (MorphBallBounceState == 1)
+        {
+            MorphBallBounceState = 2;
+            Kinematics.YDirection = 1;
+            Kinematics.YSpeed = unchecked((ushort)(ReadWord(bus, 0x909eb5) - 1));
+            Kinematics.YSubspeed = ReadWord(bus, 0x909eb7);
+            return false;
+        }
+
+        MorphBallBounceState = 0;
+        Kinematics.YDirection = 0;
+        Kinematics.YSpeed = 0;
+        Kinematics.YSubspeed = 0;
+        byte groundedPose = ReadPoseXDirection(bus) == 4
+            ? MorphBallGroundLeftPose
+            : MorphBallGroundRightPose;
+        ApplyMorphBallPoseChange(bus, groundedPose);
+        return true;
+    }
+
+    /// <summary>
+    /// Applies `$91:E8F2`'s type-four walk-off endpoint, retaining the rolling animation
+    /// while changing to ordinary airborne pose `$31/$32` and starting dry-air gravity.
+    /// </summary>
+    public void ApplyMorphBallWalkOff(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if (!IsGroundedMorphBallPose(Pose))
+            throw new InvalidOperationException($"Morph-Ball walk-off requires grounded pose, not ${Pose:X2}.");
+
+        byte fallingPose = ReadPoseXDirection(bus) == 4
+            ? MorphBallFallingLeftPose
+            : MorphBallFallingRightPose;
+        Kinematics.YSpeed = 0;
+        Kinematics.YSubspeed = 0;
+        Kinematics.YDirection = 2;
+        SamusAerialMovement.ConfigureDryAirGravity(bus, this);
+        ApplyMorphBallPoseChange(bus, fallingPose);
+    }
+
+    /// <summary>
     /// Installs the ordinary or aimed falling pose selected by <c>$91:E8F2</c> when a
     /// grounded movement probe finds no floor. The collision command clears vertical
     /// speed and starts downward gravity before the pose is drawn.
@@ -1382,6 +1637,12 @@ public sealed class SamusState
             (StandingTransitionAimDiagonalUpLeftPose, StandingAimDiagonalUpLeftPose) or
             (StandingTransitionAimDiagonalDownRightPose, StandingAimDiagonalDownRightPose) or
             (StandingTransitionAimDiagonalDownLeftPose, StandingAimDiagonalDownLeftPose) or
+            (MorphingTransitionRightPose, MorphBallGroundRightPose) or
+            (MorphingTransitionRightPose, MorphBallFallingRightPose) or
+            (MorphingTransitionLeftPose, MorphBallGroundLeftPose) or
+            (MorphingTransitionLeftPose, MorphBallFallingLeftPose) or
+            (UnmorphingTransitionRightPose, CrouchingRightPose) or
+            (UnmorphingTransitionLeftPose, CrouchingLeftPose) or
             (NormalLandingRightPose, FacingRightNormalPose) or
             (NormalLandingLeftPose, FacingLeftNormalPose) or
             (SpinLandingRightPose, FacingRightNormalPose) or
@@ -1399,6 +1660,7 @@ public sealed class SamusState
         }
 
         ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Animation command");
+        MorphBallBounceState = 0;
         return true;
     }
 
@@ -1553,6 +1815,25 @@ public sealed class SamusState
                     unchecked((ushort)(AnimationFrame + 1)));
                 return;
 
+            case 9:
+                // $90:839A, command $F9 eeee gg aa GG AA. The mask is a little-endian
+                // item word; unequipped/equipped each choose a grounded or airborne target
+                // according to BOTH halves of Y speed. `$37/$38` test Spring Ball bit $0002
+                // and use this command to finish ordinary morph entry without guessing
+                // whether the transition walked off a ledge.
+                ushort itemMask = unchecked((ushort)(
+                    ReadAnimationByte(bus, unchecked((ushort)(AnimationFrame + 1))) |
+                    (ReadAnimationByte(bus, unchecked((ushort)(AnimationFrame + 2))) << 8)));
+                bool itemEquipped = (EquippedItems & itemMask) != 0;
+                bool movingVertically = Kinematics.YSpeed != 0 || Kinematics.YSubspeed != 0;
+                ushort targetOffset = itemEquipped
+                    ? movingVertically ? (ushort)6 : (ushort)5
+                    : movingVertically ? (ushort)4 : (ushort)3;
+                PendingTransitionalPose = ReadAnimationByte(
+                    bus,
+                    unchecked((ushort)(AnimationFrame + targetOffset)));
+                return;
+
             case 13:
                 // $90:83A0, command $FD pp: publish pose pp through the same command-three
                 // seam as $F8. Unlike F8, FD has no auto-jump special case before it falls
@@ -1616,9 +1897,9 @@ public sealed class SamusState
     /// </summary>
     /// <remarks>
     /// Movement type zero uses the standing position selector. The admitted movement types
-    /// `$01/$02/$05/$06/$0E/$17` use the usual position selector and always draw both halves;
-    /// spin-jump `$03` has its already translated conditional bottom rule. Other movement
-    /// types still select specialized behavior and remain explicitly rejected.
+    /// `$01/$02/$04-$06/$08/$0E/$17` use the usual or explicitly table-backed transition
+    /// position selector. Morph types `$04/$08` draw only their complete top spritemap;
+    /// spin-jump `$03` retains its own conditional bottom rule.
     /// </remarks>
     public void Draw(ISnesAddressSpace bus, OamBuffer oam, ushort layer1X, ushort layer1Y)
     {
@@ -1627,7 +1908,7 @@ public sealed class SamusState
 
         int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
         byte movementType = bus.ReadByte(AddWithinBank(poseDefinition, 1));
-        if (movementType is not (0 or 1 or 2 or 3 or 5 or 6 or 0x0e or 0x0f or 0x17))
+        if (movementType is not (0 or 1 or 2 or 3 or 4 or 5 or 6 or 8 or 0x0e or 0x0f or 0x17))
         {
             throw new NotSupportedException(
                 $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");
@@ -1639,15 +1920,27 @@ public sealed class SamusState
         SpritemapXPosition = unchecked((ushort)(XPosition - layer1X));
         if (movementType == 0x0f && Pose is
             CrouchingTransitionRightPose or CrouchingTransitionLeftPose or
-            StandingTransitionRightPose or StandingTransitionLeftPose)
+            MorphingTransitionRightPose or MorphingTransitionLeftPose or
+            StandingTransitionRightPose or StandingTransitionLeftPose or
+            UnmorphingTransitionRightPose or UnmorphingTransitionLeftPose)
         {
             // $90:8D3C indexes a signed byte by 2*(pose-$35)+animation frame instead of
-            // using pose-definition graphics offset. For the four admitted poses frame
-            // zero is -8 (crouch start) or -4 (stand start), and byte one is zero.
-            int transitionOffset = Pose is
-                CrouchingTransitionRightPose or CrouchingTransitionLeftPose
-                    ? AnimationFrame == 0 ? -8 : 0
-                    : AnimationFrame == 0 ? -4 : 0;
+            // using pose-definition graphics offset. The retail table has exactly two
+            // signed bytes per pose `$35-$40`; transition animation commands replace the
+            // pose before a command/operand index can reach this draw path.
+            int transitionOffset = Pose switch
+            {
+                CrouchingTransitionRightPose or CrouchingTransitionLeftPose =>
+                    AnimationFrame == 0 ? -8 : 0,
+                MorphingTransitionRightPose or MorphingTransitionLeftPose =>
+                    AnimationFrame == 0 ? -4 : -2,
+                StandingTransitionRightPose or StandingTransitionLeftPose =>
+                    AnimationFrame == 0 ? -4 : 0,
+                UnmorphingTransitionRightPose or UnmorphingTransitionLeftPose =>
+                    AnimationFrame == 0 ? 5 : 4,
+                _ => throw new NotSupportedException(
+                    $"Transition pose ${Pose:X2} does not use the translated `$90:8D80` offset table."),
+            };
             SpritemapYPosition = unchecked((ushort)(YPosition + transitionOffset - layer1Y));
         }
         else
@@ -1669,7 +1962,8 @@ public sealed class SamusState
         // those frames' top spritemaps contain the complete curled body. Frame zero and
         // frames B+ draw the split bottom. Screw/space-jump poses are future routes and
         // always draw their bottoms, but they are not admitted by this method yet.
-        bool drawBottom = movementType != 3 || AnimationFrame == 0 || AnimationFrame >= 0x0b;
+        bool drawBottom = movementType is not (4 or 8) &&
+            (movementType != 3 || AnimationFrame == 0 || AnimationFrame >= 0x0b);
         if (drawBottom)
         {
             ushort bottomBase = ReadWord(bus, AddWithinBank(BottomSpritemapBaseIndexTable, Pose * 2));
@@ -1744,7 +2038,12 @@ public sealed class SamusState
         if (upward.Collided && downward.Collided)
         {
             centerAdjustment = 0;
-            return LargerPoseCollisionOutcome.CrouchFallback;
+            // `$91:FFA7` compares the OLD live radius with eight. Radius seven means
+            // Morph Ball, and that branch restores PreviousPose instead of trying to fit
+            // stable crouch. Every non-morph compact/standing body still uses crouch.
+            return Kinematics.YRadius < 8
+                ? LargerPoseCollisionOutcome.RetainSource
+                : LargerPoseCollisionOutcome.CrouchFallback;
         }
 
         centerAdjustment = 0;

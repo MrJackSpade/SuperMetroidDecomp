@@ -71,6 +71,11 @@ else if (options.CrouchJumpScript)
     Console.WriteLine(
         "Input script: direct crouch exit, ordinary crouch jump, aimed crouch jump, then direct exit again.");
 }
+else if (options.MorphBallScript)
+{
+    Console.WriteLine(
+        "Input script: crouch/morph, roll right, reverse left, stop, then unmorph; Morph Ball item bit is host-enabled.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7000 stays clear
@@ -111,6 +116,14 @@ InitialViewportResult initialViewport = runtime.InitializeLandingSiteViewport();
 // stepped without pretending that the cinematic spawned gameplay Samus.
 if (!options.GroundedRun)
     runtime.InitializeDebugStandingSamus();
+
+if (options.MorphBallScript)
+{
+    // The Landing Site debugger spawn has no save-file inventory. Grant only Morph Ball
+    // bit `$0004` as an explicit host stimulus; `$91:F7CE`, `$90:839A`, pose definitions,
+    // animation bytes, movement tables, collision, art, and every transition remain ROM-backed.
+    runtime.Samus!.EquippedItems |= 0x0004;
+}
 
 Console.WriteLine(
     $"Loaded Landing Site scrolls $8F:9283 -> $7E:CD20: " +
@@ -495,6 +508,28 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 238 => (ushort)SnesButton.Right,
                 _ => (ushort)0,
             }
+        : options.MorphBallScript
+            ? frameIndex switch
+            {
+                0 => (ushort)SnesButton.Start,
+
+                // The first Down edge selects `$35`, which reaches stable crouch `$27`.
+                // Super Metroid does *not* morph from that continuously-held input: its
+                // crouching table requires a second newly-pressed Down edge. Release for
+                // two frames, press Down again, and let `$37`'s `$F9` choose grounded `$1D`.
+                >= 2 and < 8 => (ushort)SnesButton.Down,
+                >= 10 and < 20 => (ushort)SnesButton.Down,
+
+                // `$1D -> $1E` accelerates from the type-four ROM speed record. Reversing
+                // to Left installs `$1F` and mode one while preserving rolling frame/timer.
+                >= 25 and < 80 => (ushort)SnesButton.Right,
+                >= 80 and < 140 => (ushort)SnesButton.Left,
+
+                // Let command one decelerate to definition fallback `$41`, then Up starts
+                // `$3E`; its `$FD $28` endpoint proves the expanded body fits the terrain.
+                >= 175 and < 185 => (ushort)SnesButton.Up,
+                _ => (ushort)0,
+            }
         : frameIndex switch
         {
             0 => (ushort)SnesButton.Start,
@@ -545,12 +580,15 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     {
         BlockMoveResult horizontal = runtime.LastGroundedSamusMovement?.Horizontal ??
             runtime.LastAerialSamusMovement?.Horizontal ??
+            runtime.LastMorphBallMovement?.Horizontal ??
             throw new InvalidOperationException("Samus X changed without a translated movement result.");
         string vertical = runtime.LastGroundedSamusMovement is GroundedMovementResult groundedMovement
             ? $"ground=${groundedMovement.Vertical.AcceptedDisplacement:X8}/collision={groundedMovement.Vertical.Collided}"
             : runtime.LastAerialSamusMovement?.Vertical is BlockMoveResult aerialVertical
                 ? $"airY=${aerialVertical.AcceptedDisplacement:X8}/collision={aerialVertical.Collided}"
-                : "airY=transition";
+                : runtime.LastMorphBallMovement is MorphBallMovementResult morphMovement
+                    ? $"morphY=${morphMovement.Vertical.AcceptedDisplacement:X8}/collision={morphMovement.Vertical.Collided}"
+                    : "airY=transition";
         Console.WriteLine(
             $"frame {result.FrameNumber,4}: Samus X={runtime.Samus.XPosition:X4}." +
             $"{runtime.Samus.Kinematics.XSubposition:X4}; " +
@@ -568,8 +606,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             $"velocity={runtime.Samus.Kinematics.YSpeed:X4}." +
             $"{runtime.Samus.Kinematics.YSubspeed:X4}, " +
             $"direction={runtime.Samus.Kinematics.YDirection}, " +
-            $"landed={runtime.LastAerialSamusMovement?.Landed ?? false}, " +
-            $"ceiling={runtime.LastAerialSamusMovement?.HitCeiling ?? false}");
+            $"landed={runtime.LastAerialSamusMovement?.Landed ?? runtime.LastMorphBallMovement?.Landed ?? false}, " +
+            $"ceiling={runtime.LastAerialSamusMovement?.HitCeiling ?? runtime.LastMorphBallMovement?.HitCeiling ?? false}");
         priorSamusY = runtime.Samus.Kinematics.YFixed;
     }
 
@@ -612,6 +650,16 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.CrouchingTransitionLeftPose or
                      SamusState.StandingTransitionRightPose or
                      SamusState.StandingTransitionLeftPose or
+                     SamusState.MorphBallGroundRightPose or
+                     SamusState.MorphBallGroundLeftPose or
+                     SamusState.MorphBallMovingRightPose or
+                     SamusState.MorphBallMovingLeftPose or
+                     SamusState.MorphBallFallingRightPose or
+                     SamusState.MorphBallFallingLeftPose or
+                     SamusState.MorphingTransitionRightPose or
+                     SamusState.MorphingTransitionLeftPose or
+                     SamusState.UnmorphingTransitionRightPose or
+                     SamusState.UnmorphingTransitionLeftPose or
                      SamusState.CrouchingRightPose or
                      SamusState.CrouchingLeftPose or
                      SamusState.StandingAimUpRightPose or
@@ -721,6 +769,40 @@ if (options.CompactAirScript)
 
     Console.WriteLine(
         $"Compact-air ROM route validated {requiredCompactRoute.Count} deterministic pose milestone(s).");
+}
+
+if (options.MorphBallScript)
+{
+    // These milestones come from the user's ROM tables and are deliberately stricter than
+    // “the runner did not throw.” Keep the list frame-count-aware so a short run can freeze
+    // a useful ball-art diagnostic without weakening the complete 220-frame route. Each
+    // threshold is the first accepted NMI on which the full private-ROM run observed it.
+    var requiredMorphRoute = new List<byte> {
+        SamusState.MorphingTransitionRightPose,
+    };
+    if (options.FrameCount >= 17)
+        requiredMorphRoute.Add(SamusState.MorphBallGroundRightPose);
+    if (options.FrameCount >= 26)
+        requiredMorphRoute.Add(SamusState.MorphBallMovingRightPose);
+    if (options.FrameCount >= 81)
+        requiredMorphRoute.Add(SamusState.MorphBallMovingLeftPose);
+    if (options.FrameCount >= 149)
+        requiredMorphRoute.Add(SamusState.MorphBallGroundLeftPose);
+    if (options.FrameCount >= 176)
+        requiredMorphRoute.Add(SamusState.UnmorphingTransitionLeftPose);
+    if (options.FrameCount >= 182)
+        requiredMorphRoute.Add(SamusState.CrouchingLeftPose);
+    foreach (byte requiredPose in requiredMorphRoute)
+    {
+        if (!observedSamusPoses.Contains(requiredPose))
+        {
+            throw new InvalidOperationException(
+                $"Morph-Ball ROM script did not observe required pose ${requiredPose:X2}.");
+        }
+    }
+
+    Console.WriteLine(
+        $"Morph-Ball ROM route validated {requiredMorphRoute.Count} deterministic pose milestones.");
 }
 
 Console.WriteLine(
@@ -903,7 +985,8 @@ readonly record struct DebugRunnerOptions(
     bool AimCrouchScript,
     bool AimTurnScript,
     bool CrouchTurnScript,
-    bool CrouchJumpScript)
+    bool CrouchJumpScript,
+    bool MorphBallScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -924,6 +1007,7 @@ readonly record struct DebugRunnerOptions(
         bool aimTurnScript = false;
         bool crouchTurnScript = false;
         bool crouchJumpScript = false;
+        bool morphBallScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -1013,6 +1097,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--morph-ball-script":
+                    morphBallScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -1057,7 +1146,8 @@ readonly record struct DebugRunnerOptions(
             aimCrouchScript,
             aimTurnScript,
             crouchTurnScript,
-            crouchJumpScript);
+            crouchJumpScript,
+            morphBallScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

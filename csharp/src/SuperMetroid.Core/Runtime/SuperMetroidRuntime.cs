@@ -91,6 +91,9 @@ public sealed class SuperMetroidRuntime
     /// <summary>Most recent ordinary-air collision result, exposed for debugger watches.</summary>
     public AerialMovementResult? LastAerialSamusMovement { get; private set; }
 
+    /// <summary>Most recent ordinary Morph-Ball collision result, exposed for debugger watches.</summary>
+    public MorphBallMovementResult? LastMorphBallMovement { get; private set; }
+
     /// <summary>Mutable gameplay HUD tilemap at WRAM <c>$7E:C608</c>.</summary>
     public HudState Hud { get; } = new();
 
@@ -262,6 +265,7 @@ public sealed class SuperMetroidRuntime
         GroundedSamusMovementEnabled = false;
         LastGroundedSamusMovement = null;
         LastAerialSamusMovement = null;
+        LastMorphBallMovement = null;
         InitializeDebugSamus(
             xPosition: unchecked((ushort)(Camera.XPosition + 64)),
             yPosition: unchecked((ushort)(Camera.YPosition + 166)));
@@ -342,6 +346,7 @@ public sealed class SuperMetroidRuntime
             GroundedSamusMovementEnabled = true;
             LastGroundedSamusMovement = null;
             LastAerialSamusMovement = null;
+            LastMorphBallMovement = null;
             return new DebugGroundedSamusPlacement(
                 xPosition,
                 restingY,
@@ -455,6 +460,20 @@ public sealed class SuperMetroidRuntime
                     : Samus.ReadNoInputFallbackPose(_addressSpace);
             }
 
+            // Grounded rolling poses `$1E/$1F` use the same momentum-command-one seam as
+            // ordinary running: release keeps the moving pose while base speed remains,
+            // then definition byte two selects stable `$1D/$41` at exact zero.
+            if (GroundedSamusMovementEnabled &&
+                (Samus.Pose is SamusState.MorphBallMovingRightPose or
+                    SamusState.MorphBallMovingLeftPose) &&
+                Controller1.Current == 0 &&
+                ProspectiveSamusPose is null)
+            {
+                ProspectiveSamusFallbackPose = Samus.HorizontalSpeed.BaseFixed != 0
+                    ? Samus.Pose
+                    : Samus.ReadNoInputFallbackPose(_addressSpace);
+            }
+
             // Pose-definition byte two returns standing aim `$03-$08` to `$01/$02` and
             // crouched aim `$71-$74/$85/$86` to `$27/$28`. This path is separate from the
             // transition table: `$91:81A9` exits before reading a record when the entire
@@ -508,6 +527,7 @@ public sealed class SuperMetroidRuntime
                 // cannot accidentally inherit generic standing or running physics.
                 LastGroundedSamusMovement = null;
                 LastAerialSamusMovement = null;
+                LastMorphBallMovement = null;
                 switch (Samus.Pose)
                 {
                     case SamusState.FacingRightNormalPose:
@@ -586,6 +606,25 @@ public sealed class SuperMetroidRuntime
                             _addressSpace,
                             LevelData,
                             Samus,
+                            NmiFrameCounter);
+                        break;
+                    case SamusState.MorphBallGroundRightPose:
+                    case SamusState.MorphBallGroundLeftPose:
+                    case SamusState.MorphBallMovingRightPose:
+                    case SamusState.MorphBallMovingLeftPose:
+                        LastMorphBallMovement = SamusMorphBallMovement.StepGrounded(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            NmiFrameCounter);
+                        break;
+                    case SamusState.MorphBallFallingRightPose:
+                    case SamusState.MorphBallFallingLeftPose:
+                        LastMorphBallMovement = SamusMorphBallMovement.StepFalling(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            Controller1.Current,
                             NmiFrameCounter);
                         break;
                     case SamusState.NeutralJumpTransitionRightPose:
@@ -677,6 +716,16 @@ public sealed class SuperMetroidRuntime
                             Samus,
                             NmiFrameCounter);
                         break;
+                    case SamusState.MorphingTransitionRightPose:
+                    case SamusState.MorphingTransitionLeftPose:
+                    case SamusState.UnmorphingTransitionRightPose:
+                    case SamusState.UnmorphingTransitionLeftPose:
+                        LastMorphBallMovement = SamusMorphBallMovement.StepTransition(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            NmiFrameCounter);
+                        break;
                     default:
                         throw new NotSupportedException(
                             $"Runtime movement is not translated for pose ${Samus.Pose:X2}.");
@@ -694,6 +743,19 @@ public sealed class SuperMetroidRuntime
                 // ordinary input transition selected earlier in the frame.
                 bool animationTransitionApplied =
                     Samus.ApplyPendingVerifiedAnimationTransition(_addressSpace);
+
+                // Morph landing has its own prospective-pose and collision tables. A hard
+                // impact retains `$31/$32` and launches bounce one; the next collision
+                // launches bounce two; only a gentle/second-bounce collision installs
+                // grounded `$1D/$41`. Treat every branch as a consumed transition so input
+                // selected before collision cannot override the cartridge's bounce result.
+                if (!animationTransitionApplied &&
+                    LastMorphBallMovement is { Landed: true } &&
+                    SamusState.IsAirborneMorphBallPose(poseAtFrameStart))
+                {
+                    Samus.ApplyMorphBallLanding(_addressSpace);
+                    animationTransitionApplied = true;
+                }
 
                 // A downward collision publishes result one. $91:E95D chooses normal or
                 // spin landing from the movement type that executed this frame, then pose
@@ -738,6 +800,17 @@ public sealed class SuperMetroidRuntime
                     animationTransitionApplied = true;
                 }
 
+                // Movement type four publishes ordinary airborne `$31/$32` when its
+                // no-speed grounding probe finds no floor. The shared rolling animation is
+                // preserved, while Y speed starts at zero/down exactly like `$91:E8F2`.
+                if (!animationTransitionApplied &&
+                    LastMorphBallMovement is { Vertical.Collided: false } &&
+                    SamusState.IsGroundedMorphBallPose(poseAtFrameStart))
+                {
+                    Samus.ApplyMorphBallWalkOff(_addressSpace);
+                    animationTransitionApplied = true;
+                }
+
                 if (!animationTransitionApplied && ProspectiveSamusPose is { } inputTransition)
                 {
                     byte targetPose = unchecked((byte)inputTransition.ProspectivePose);
@@ -748,6 +821,32 @@ public sealed class SuperMetroidRuntime
                     {
                         switch ((poseAtFrameStart, targetPose))
                         {
+                            case var (source, target)
+                                when (SamusState.IsGroundedMorphBallPose(source) ||
+                                      SamusState.IsAirborneMorphBallPose(source)) &&
+                                     (SamusState.IsGroundedMorphBallPose(target) ||
+                                      SamusState.IsAirborneMorphBallPose(target)):
+                                // `$1D/$1E/$1F/$31/$32/$41` all share delay list `$B378`.
+                                // The initializer preserves frame/timer and applies mode-one
+                                // reversal momentum only when direction actually changes.
+                                Samus.ApplyMorphBallPoseChange(_addressSpace, target);
+                                break;
+                            case var (source, target)
+                                when ((SamusState.IsRightFacingCrouchingPose(source) &&
+                                       target == SamusState.MorphingTransitionRightPose) ||
+                                      (SamusState.IsLeftFacingCrouchingPose(source) &&
+                                       target == SamusState.MorphingTransitionLeftPose) ||
+                                      ((SamusState.IsGroundedMorphBallPose(source) ||
+                                        SamusState.IsAirborneMorphBallPose(source)) &&
+                                       target is SamusState.UnmorphingTransitionRightPose or
+                                           SamusState.UnmorphingTransitionLeftPose)):
+                                Samus.TryApplyMorphTransition(
+                                    _addressSpace,
+                                    LevelData ?? throw new InvalidOperationException(
+                                        "Morph transition requires active room level data."),
+                                    targetPose,
+                                    NmiFrameCounter);
+                                break;
                             case var (source, target)
                                 when (SamusState.IsCompactAerialPose(source) ||
                                       SamusState.IsCompactAerialPose(target)) &&
@@ -922,6 +1021,28 @@ public sealed class SuperMetroidRuntime
                                     $"Grounded input transition ${poseAtFrameStart:X2} -> ${targetPose:X2} matched ROM data but its side effects are not translated.");
                         }
                     }
+                }
+                else if (!animationTransitionApplied &&
+                         (poseAtFrameStart is SamusState.MorphBallMovingRightPose or
+                             SamusState.MorphBallMovingLeftPose) &&
+                         ProspectiveSamusFallbackPose == poseAtFrameStart)
+                {
+                    // Prospective command one rechecks the post-movement base words. A
+                    // residue selects mode two deceleration; exact zero falls through to
+                    // command two's stopped mode and definition fallback on the next frame.
+                    Samus.HorizontalSpeed.AccelerationMode =
+                        Samus.HorizontalSpeed.BaseFixed != 0 ? (ushort)2 : (ushort)0;
+                }
+                else if (!animationTransitionApplied &&
+                         (poseAtFrameStart is SamusState.MorphBallMovingRightPose or
+                             SamusState.MorphBallMovingLeftPose) &&
+                         ProspectiveSamusFallbackPose is
+                             SamusState.MorphBallGroundRightPose or SamusState.MorphBallGroundLeftPose)
+                {
+                    Samus.HorizontalSpeed.AccelerationMode = 0;
+                    Samus.ApplyMorphBallPoseChange(
+                        _addressSpace,
+                        unchecked((byte)ProspectiveSamusFallbackPose.Value));
                 }
                 else if (!animationTransitionApplied &&
                          (SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||

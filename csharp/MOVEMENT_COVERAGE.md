@@ -15,18 +15,18 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$01` | Running | `$09/$0A/$0D-$12`, dry air, no run button | Run button, speed booster, liquid/environment effects, gun-extended/fire variants |
 | `$02` | Normal jumping | `$4B-$4E/$15-$18/$51-$52/$55-$5A/$69-$6C`, including compact straight-down collision changes, dry air, variable height, ceiling/floor collision | Equipment/liquids, external displacement |
 | `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation | Wall-jump trigger, space jump, screw attack, equipment/liquids |
-| `$04` | Morph ball on ground | — | Entire family |
+| `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, dry ground, slopes, reversal, deceleration, walk-off | Bomb deployment, liquids, enemy collision, external displacement |
 | `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry | Fire variants and morph entry |
 | `$06` | Falling | `$29-$2E/$6D-$70`, including compact straight-down collision changes, walk-off, dry-air gravity and landing | Equipment/liquids, aerial turn transitions |
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
-| `$08` | Morph ball falling | — | Entire family and bounce state |
+| `$08` | Morph ball falling | `$31/$32`, dry-air gravity, ceiling/floor collision, two-stage hard bounce, gentle landing | Bomb deployment, liquids, enemy collision, external displacement |
 | `$09` | Unused | — | Preserve only if required |
 | `$0A` | Knockback / crystal-flash ending | — | Entire family |
 | `$0B` | Unused | — | Preserve only if required |
 | `$0C` | Unused | — | Preserve only if required |
 | `$0D` | Unused | — | Preserve only if required |
 | `$0E` | Turning on ground | `$25/$26/$43/$44/$8B-$8E/$9C/$9D`, old-direction mode-one momentum, native standing/crouch selector, `$F8` completion | Fire variants and transitions originating in later families |
-| `$0F` | Crouch/stand/morph transition | `$35/$36/$3B/$3C/$F1-$FC`, bottom alignment, radius collision, `$FD` completion | Morph transitions and fire variants |
+| `$0F` | Crouch/stand/morph transition | `$35/$36/$3B/$3C/$37/$38/$3D/$3E/$F1-$FC`, bottom alignment, radius collision, `$F9/$FD` completion | Fire variants and later equipment-dependent transitions |
 | `$10` | Moonwalking | — | Entire family |
 | `$11` | Spring ball on ground | — | Entire family |
 | `$12` | Spring ball in air | — | Entire family |
@@ -176,6 +176,31 @@ are listed below so later work cannot accidentally confuse “the current viewer
   collision command five clears both velocity axes. Both jump and falling compact records
   continue through their existing movement-type-two/six gravity, camera, and draw paths.
 
+## Verified ordinary Morph Ball slice
+
+- Stable crouch requires a second newly-pressed Down edge, not merely the held input that
+  entered crouching. `$91:F7CE` rejects the entry unless equipped-items bit `$0004` is set;
+  the grounded viewer sandbox exposes that one inventory bit as a documented host stimulus.
+- `$37/$38` shrink radius 16 -> 7 and command seven moves the center down nine pixels so the
+  collision body's bottom is unchanged. Command `$F9` reads live Y speed/subspeed and chooses
+  grounded `$1D/$41` or airborne `$31/$32`; the stable ball poses share the same animation
+  list, so direction and movement changes preserve the rolling frame and countdown.
+- Movement type `$04` uses the literal Morph Ball speed-table record, including mode-one
+  opposite-direction deceleration, normal acceleration, slope alignment, no-speed grounded
+  probing, and `$1D/$41 <-> $1E/$1F` fallbacks. Walking off selects `$31/$32` without
+  resetting existing horizontal state.
+- Movement type `$08` copies old 16.16 vertical speed before gravity exactly like the native
+  dry-air path. A hard floor impact enters bounce state one; the next impact enters state two
+  with whole Y speed reduced by one; a gentle or state-two impact restores `$1D/$41` and
+  clears vertical speed. Ceiling collision reverses the active upward pass.
+- Up from a stable ball selects `$3D/$3E`; command seven attempts radius 7 -> 16 while moving
+  the center up nine pixels. The shared larger-pose collision resolver aligns away from one
+  obstruction and retains the ball in a tunnel blocked on both sides. Successful `$FD`
+  completion enters `$27/$28` with the same bottom boundary.
+- Morph transition art uses the exact `$90:8D80` render offsets: entry frames `-4,-2` and
+  exit frames `+5,+4`. Stable ground/air ball poses use the ordinary bank-$91 spritemap path
+  while deliberately omitting the humanoid bottom-half draw.
+
 ## Evidence
 
 - `SuperMetroid.Verification` checks synthetic ROM tables independently for `$FD/$F8`, jump
@@ -212,10 +237,16 @@ are listed below so later work cannot accidentally confuse “the current viewer
   `$27 -> $4B -> $4D -> $A4`, and aimed `$71 -> $4B -> $4D/$69 -> $51 -> $A4`. Its trace
   records the distinct `$04B3` ordinary and `$04BD` aimed launch centers, authentic 4.E000
   velocity, ceiling/floor collision, landings, camera, minimap, and ROM-authored graphics.
+- The real-ROM `--morph-ball-script` observes `$01 -> $35 -> $27 -> $37 -> $1D -> $1E`,
+  reverses through `$1F`, decelerates to `$41`, and completes `$3E -> $28`. Its required
+  milestones, animation definitions, terrain collision, slope alignment, camera, HUD, OAM,
+  and generated PNGs all come from the private retail image. Synthetic table fixtures also
+  cover `$F9`'s airborne target, walk-off, both hard-bounce stages, gentle landing, successful
+  unmorph expansion, and the boxed-tunnel retention branch.
 
 ## Next implementation order
 
-1. Morph ball ground/fall/bounce, bombs, and spring ball.
+1. Morph Ball bombs and Spring Ball ground/air/fall.
 2. Aerial turns and the real wall-jump trigger/launch.
 3. Knockback and damage boost.
 4. Grapple movement and release routes.

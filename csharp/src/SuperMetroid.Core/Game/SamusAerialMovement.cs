@@ -68,11 +68,17 @@ public static class SamusAerialMovement
             throw new InvalidOperationException($"Normal-jump movement requires type 2, not ${samus.ReadMovementType(bus):X2}.");
         EnsureNoExtraRunSpeed(samus.HorizontalSpeed);
 
-        // Poses $4B/$4C are genuine movement-type-2 poses, but native code treats them as
+        // Poses `$4B/$4C/$55-$5A` are genuine movement-type-2 poses, but native treats them as
         // a transition: base X speed is forced to zero, only external X/Y displacement is
         // applied, and normal vertical speed does not move Samus on this frame.
         if (samus.Pose is SamusState.NeutralJumpTransitionRightPose or
-            SamusState.NeutralJumpTransitionLeftPose)
+            SamusState.NeutralJumpTransitionLeftPose or
+            SamusState.NormalJumpTransitionAimUpRightPose or
+            SamusState.NormalJumpTransitionAimUpLeftPose or
+            SamusState.NormalJumpTransitionAimDiagonalUpRightPose or
+            SamusState.NormalJumpTransitionAimDiagonalUpLeftPose or
+            SamusState.NormalJumpTransitionAimDiagonalDownRightPose or
+            SamusState.NormalJumpTransitionAimDiagonalDownLeftPose)
         {
             samus.HorizontalSpeed.AccelerationMode = 0;
             int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed: 0);

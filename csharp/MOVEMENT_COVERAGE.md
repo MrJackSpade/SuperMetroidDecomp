@@ -11,13 +11,13 @@ are listed below so later work cannot accidentally confuse “the current viewer
 
 | Type | Native family | Current C# admission | Remaining native branches |
 |---:|---|---|---|
-| `$00` | Standing | `$01-$08`, landing `$A4-$A7` | Firing/landing-aim variants, forward pose, transitions from later systems |
+| `$00` | Standing | `$01-$08`, landing `$A4-$A7/$E0-$E5` | Firing variants, forward pose, transitions from later systems |
 | `$01` | Running | `$09/$0A/$0D-$12`, dry air, no run button | Run button, speed booster, liquid/environment effects, gun-extended/fire variants |
-| `$02` | Normal jumping | `$4B-$4E`, dry air, variable height, ceiling/floor collision | Aimed jump poses, equipment/liquids, external displacement |
+| `$02` | Normal jumping | `$4B-$4E/$15-$16/$51-$52/$55-$5A/$69-$6C`, dry air, variable height, ceiling/floor collision | Compact straight-down `$17/$18`, equipment/liquids, external displacement |
 | `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation | Wall-jump trigger, space jump, screw attack, equipment/liquids |
 | `$04` | Morph ball on ground | — | Entire family |
 | `$05` | Crouching | `$27/$28`, grounded probe and momentum clear | Aim/fire variants, crouch-jump and morph entry |
-| `$06` | Falling | `$29/$2A`, walk-off, dry-air gravity and landing | Aimed falling poses, equipment/liquids, aerial turn transitions |
+| `$06` | Falling | `$29/$2A/$2B/$2C/$6D-$70`, walk-off, dry-air gravity and landing | Compact straight-down `$2D/$2E`, equipment/liquids, aerial turn transitions |
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
 | `$08` | Morph ball falling | — | Entire family and bounce state |
 | `$09` | Unused | — | Preserve only if required |
@@ -88,8 +88,8 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - When all controller bits are released, the transition matcher intentionally does no lookup;
   `$91:82D9` instead reads pose-definition byte two, yielding `$01` for right aim and `$02`
   for left aim. The runtime models that distinct fallback seam explicitly.
-- Aimed walk-off is deliberately blocked at `$2B/$2C/$6D-$70` rather than incorrectly using
-  unaimed `$29/$2A`.
+- Aimed walk-off reads pose-definition shot direction and selects `$2B/$2C/$6D-$70`; a later
+  no-input fallback still comes from definition byte two and selects unaimed `$29/$2A`.
 - Holding a direction with canonical aim-up/down selects `$0F/$10` or `$11/$12` directly
   from `$91:A1F8/$91:A242`. Those poses execute the same exact movement-type-one acceleration,
   collision, slope, animation, camera, and momentum paths as `$09/$0A`; `$0D/$0E`'s unused
@@ -97,7 +97,25 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - Releasing only the direction changes aimed running to the matching stationary aim pose
   after that frame's movement; releasing every button preserves the aimed run pose while
   native mode-two momentum decelerates, then pose-definition byte two returns to `$01/$02`.
-  Aimed jumping, falling, landing, crouching, and turning remain the next connected families.
+  Aimed crouching and turning remain the next connected grounded families.
+
+## Verified aimed-air slice
+
+- Standing and running aim enter the ROM's `$55-$5A` transition records. Animation command
+  `$FD` selects `$15/$16/$69-$6C`; the transition frame performs horizontal movement but no
+  vertical pass, exactly like the ordinary jump transition family.
+- Shoulder changes while airborne select equal-radius active jump or fall poses without
+  resetting live 16.16 vertical velocity. Releasing aim uses definition byte two, preserving
+  the native distinction between jump fallbacks `$51/$52` and falling fallbacks `$29/$2A`.
+- Grounded probe failure maps shot directions `0/1/2/3/6/7/8/9` to the exact falling family,
+  and normal-jump gravity, early release, ceiling collision, camera, and terrain collision
+  continue through the already verified movement-type-two/six paths.
+- Landing reproduces `$91:E95D/$91:E9F3`: shot direction chooses `$E0-$E5`, radius expansion
+  keeps the feet aligned, and animation command `$F8` returns to `$03-$08`. Spin landings
+  remain `$A6/$A7`; straight unaimed landings remain `$A4/$A5`.
+- Compact straight-down `$17/$18/$2D/$2E` deliberately remain unsupported. Their radius-ten
+  body changes collision geometry and will not be admitted until that transformation path is
+  translated rather than approximated.
 
 ## Evidence
 
@@ -116,10 +134,13 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - The real-ROM `--aim-run-script` route completes `$01 -> $0F -> $05`, `$01 -> $11 -> $01`,
   turns and decelerates left, then completes `$02 -> $10 -> $06` and `$02 -> $12 -> $02`.
   It reaches the native speed cap in both directions and keeps camera, slopes, HUD, and tiles aligned.
+- The real-ROM `--aim-air-script` route completes right and left aimed launches, live diagonal
+  aim changes, definition fallbacks, `$E2/$E4/$E5` landings, and their `$F8` returns while
+  retaining the ordinary collision, camera, minimap, terrain, and ROM-authored animation paths.
 
 ## Next implementation order
 
-1. Aimed jumping/falling/landing/turn/crouch poses and crouch-jump entry.
+1. Aimed crouching/turning, crouch-jump entry, and compact straight-down aerial collision bodies.
 2. Morph ball ground/fall/bounce, bombs, and spring ball.
 3. Aerial turns and the real wall-jump trigger/launch.
 4. Knockback and damage boost.

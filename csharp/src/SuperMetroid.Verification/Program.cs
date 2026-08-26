@@ -31,6 +31,7 @@ VerifySamusHorizontalSpeed();
 VerifySamusAerialMovement();
 VerifySamusPostureMovement();
 VerifySamusStandingAimMovement();
+VerifySamusAimedAerialMovement();
 VerifySamusSlopePhysics();
 VerifySamusBlockCollision();
 VerifySamusGroundedMovement();
@@ -1294,6 +1295,146 @@ static void VerifySamusStandingAimMovement()
         "standing aim transition cannot cross facing families");
 
     Console.WriteLine("  Samus grounded aim: stationary/running ROM poses, movement, transitions, and fallbacks agree.");
+}
+
+/// <summary>
+/// Verifies the equal-radius aimed jump/fall family, command-$FD launch, shot-direction
+/// landing table, command-$F8 completion, walk-off selection, and velocity preservation.
+/// </summary>
+static void VerifySamusAimedAerialMovement()
+{
+    var bus = new TestAddressSpace();
+
+    // Literal pose records used by this route. All admitted airborne bodies have radius
+    // 19; aimed landing expands to 21 and shifts the center up two pixels.
+    bus.WriteBytes(0x91b631, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
+    bus.WriteBytes(0x91b641, [0x08, 0x00, 0x01, 0x00, 0x06, 0x00, 0x15, 0x00]); // $03
+    bus.WriteBytes(0x91b651, [0x08, 0x00, 0x01, 0x01, 0x06, 0x00, 0x15, 0x00]); // $05
+    bus.WriteBytes(0x91b661, [0x08, 0x00, 0x01, 0x03, 0x06, 0x00, 0x15, 0x00]); // $07
+    bus.WriteBytes(0x91b6d1, [0x08, 0x02, 0x51, 0x00, 0x08, 0x00, 0x13, 0x00]); // $15
+    bus.WriteBytes(0x91b771, [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $29
+    bus.WriteBytes(0x91b781, [0x08, 0x06, 0x29, 0x00, 0x08, 0x00, 0x13, 0x00]); // $2B
+    bus.WriteBytes(0x91b8b1, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $51
+    bus.WriteBytes(0x91b8e1, [0x08, 0x02, 0xff, 0x01, 0x03, 0x00, 0x13, 0x00]); // $57
+    bus.WriteBytes(0x91b971, [0x08, 0x02, 0x51, 0x01, 0x08, 0x00, 0x13, 0x00]); // $69
+    bus.WriteBytes(0x91b981, [0x08, 0x02, 0x51, 0x03, 0x08, 0x00, 0x13, 0x00]); // $6B
+    bus.WriteBytes(0x91b991, [0x08, 0x06, 0x29, 0x01, 0x08, 0x00, 0x13, 0x00]); // $6D
+    bus.WriteBytes(0x91b9a1, [0x08, 0x06, 0x29, 0x03, 0x08, 0x00, 0x13, 0x00]); // $6F
+    bus.WriteBytes(0x91bd39, [0x08, 0x00, 0xff, 0x01, 0x03, 0x00, 0x15, 0x00]); // $E2
+    bus.WriteBytes(0x91bd49, [0x08, 0x00, 0xff, 0x03, 0x03, 0x00, 0x15, 0x00]); // $E4
+
+    // Synthetic delay streams expose both command-three seams independently.
+    (byte Pose, ushort Stream, byte[] Bytes)[] animations = [
+        (0x01, 0xc100, [0x0a, 0xf6]),
+        (0x03, 0xc110, [0x0a, 0xf6]),
+        (0x05, 0xc120, [0x0a, 0xf6]),
+        (0x07, 0xc130, [0x0a, 0xf6]),
+        (0x15, 0xc140, [0x02, 0xff]),
+        (0x29, 0xc150, [0x02, 0xff]),
+        (0x2b, 0xc160, [0x02, 0xff]),
+        (0x51, 0xc170, [0x02, 0xff]),
+        (0x57, 0xc180, [0x01, 0xfd, 0x69]),
+        (0x69, 0xc190, [0x02, 0xff]),
+        (0x6b, 0xc1a0, [0x02, 0xff]),
+        (0x6d, 0xc1b0, [0x02, 0xff]),
+        (0x6f, 0xc1c0, [0x02, 0xff]),
+        (0xe2, 0xc1d0, [0x01, 0xf8, 0x05]),
+        (0xe4, 0xc1e0, [0x01, 0xf8, 0x07]),
+    ];
+    foreach ((byte pose, ushort stream, byte[] bytes) in animations)
+    {
+        WriteTestWord(bus, 0x91b010 + pose * 2, stream);
+        bus.WriteBytes(0x910000 | stream, bytes);
+    }
+
+    bus.WriteBytes(0x909eb9, [0x04, 0x00]);
+    bus.WriteBytes(0x909ebf, [0x00, 0xe0]);
+    bus.WriteBytes(0x909ea1, [0x00, 0x1c]);
+    bus.WriteBytes(0x909ea7, [0x00, 0x00]);
+    bus.WriteBytes(0x909f6d, [
+        0x00, 0x00, 0x00, 0x30,
+        0x02, 0x00, 0x00, 0xc0,
+        0x00, 0x00, 0x00, 0x80,
+    ]);
+    bus.WriteBytes(0x909f9d, [
+        0x00, 0x00, 0x00, 0x30,
+        0x02, 0x00, 0x00, 0xc0,
+        0x00, 0x00, 0x00, 0x80,
+    ]);
+
+    const int width = 8;
+    const int height = 20;
+    var blocks = new ushort[width * height];
+    for (int x = 0; x < width; x++)
+        blocks[12 * width + x] = 0x8000;
+    var level = new RoomLevelData(
+        width,
+        height,
+        blocks,
+        new byte[blocks.Length],
+        new ushort[blocks.Length],
+        // Visual block definitions are ROM-native eight-byte records. The collision
+        // test does not render them, but the room container deliberately enforces
+        // that physical format even for synthetic fixtures.
+        new byte[24]);
+
+    var samus = new SamusState
+    {
+        Pose = SamusState.StandingAimDiagonalUpRightPose,
+        XPosition = 48,
+        YPosition = 171,
+    };
+    samus.RefreshCollisionRadii(bus);
+    samus.InitializeAnimation(bus);
+    samus.ApplyOrdinaryJumpTransition(
+        bus, SamusState.NormalJumpTransitionAimDiagonalUpRightPose);
+    AssertEqual((ushort)19, samus.Kinematics.YRadius, "aimed jump transition radius");
+    ushort launchY = samus.YPosition;
+    AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(
+        bus, level, samus, (ushort)SnesButton.A, nmiFrameCounter: 0);
+    AssertEqual(launchY, samus.YPosition, "aimed transition frame does not move vertically");
+    AssertTrue(transitionFrame.Vertical is null, "aimed transition omits normal vertical pass");
+
+    samus.AnimateNoFx(bus);
+    AssertEqual((byte)0xfd, samus.LastAnimationDelayCommand!.Value, "aimed transition reaches FD");
+    AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "aimed transition FD applies");
+    AssertEqual((byte)0x69, samus.Pose, "aimed transition FD target");
+
+    ushort speedBeforeAimChange = samus.Kinematics.YSpeed;
+    samus.ApplyAerialAimTransition(bus, SamusState.NormalJumpAimDiagonalDownRightPose);
+    AssertEqual(speedBeforeAimChange, samus.Kinematics.YSpeed, "air aim change preserves Y speed");
+
+    AerialMovementResult frame = default;
+    for (int index = 0; index < 160; index++)
+    {
+        frame = SamusAerialMovement.StepNormalJump(
+            bus, level, samus, (ushort)SnesButton.A, unchecked((ushort)index));
+        if (frame.Landed)
+            break;
+    }
+    AssertTrue(frame.Landed, "aimed normal jump lands");
+    samus.ApplyAerialLanding(bus, wasSpinning: false);
+    AssertEqual((byte)0xe4, samus.Pose, "shot direction three selects E4 landing");
+    AssertEqual((ushort)21, samus.Kinematics.YRadius, "aimed landing expands radius");
+    AssertEqual((ushort)171, samus.YPosition, "aimed landing retains floor-aligned feet");
+    samus.AnimateNoFx(bus);
+    AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "aimed landing F8 applies");
+    AssertEqual((byte)0x07, samus.Pose, "E4 landing returns to down-right aim");
+
+    // Grounded shot direction one walks off into `$6D`; falling aim changes preserve
+    // gravity state and zero-input fallback selects ordinary `$29`.
+    samus.Pose = SamusState.StandingAimDiagonalUpRightPose;
+    samus.RefreshCollisionRadii(bus);
+    samus.InitializeAnimation(bus);
+    AssertEqual((byte)0x6d, samus.SelectFallingPoseForCurrentAim(bus), "up-right walk-off target");
+    samus.ApplyWalkedOffFloorTransition(bus, SamusState.FallingAimDiagonalUpRightPose);
+    AssertEqual((ushort)2, samus.Kinematics.YDirection, "aimed walk-off starts downward");
+    samus.ApplyAerialAimTransition(bus, SamusState.FallingAimDiagonalDownRightPose);
+    AssertEqual((byte)0x29, samus.ReadNoInputFallbackPose(bus), "aimed fall fallback target");
+    samus.ApplyAerialAimTransition(bus, SamusState.FallingRightPose);
+    AssertEqual((byte)0x29, samus.Pose, "aimed fall applies unaimed fallback");
+
+    Console.WriteLine("  Samus aimed air: FD jump, live aim, landing table/F8, walk-off, and fall fallback agree.");
 }
 
 /// <summary>

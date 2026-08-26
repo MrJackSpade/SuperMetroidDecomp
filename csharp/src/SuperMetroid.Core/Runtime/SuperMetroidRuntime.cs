@@ -473,6 +473,25 @@ public sealed class SuperMetroidRuntime
                 ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
             }
 
+            // Active aimed jump/fall poses use the same no-controller pose-definition
+            // fallback seam: `$15/$69/$6B -> $51`, mirrored left to `$52`, and aimed
+            // falling to `$29/$2A`. Transition poses `$55-$5A` store `$FF` and are left
+            // to their `$FD` animation command instead.
+            if (GroundedSamusMovementEnabled &&
+                SamusState.IsAimedAerialPose(Samus.Pose) &&
+                Samus.Pose is not (
+                    SamusState.NormalJumpTransitionAimUpRightPose or
+                    SamusState.NormalJumpTransitionAimUpLeftPose or
+                    SamusState.NormalJumpTransitionAimDiagonalUpRightPose or
+                    SamusState.NormalJumpTransitionAimDiagonalUpLeftPose or
+                    SamusState.NormalJumpTransitionAimDiagonalDownRightPose or
+                    SamusState.NormalJumpTransitionAimDiagonalDownLeftPose) &&
+                Controller1.Current == 0 &&
+                ProspectiveSamusPose is null)
+            {
+                ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
+            }
+
             if (GroundedSamusMovementEnabled)
             {
                 if (LevelData is null)
@@ -537,6 +556,12 @@ public sealed class SuperMetroidRuntime
                     case SamusState.NormalLandingLeftPose:
                     case SamusState.SpinLandingRightPose:
                     case SamusState.SpinLandingLeftPose:
+                    case SamusState.LandingAimUpRightPose:
+                    case SamusState.LandingAimUpLeftPose:
+                    case SamusState.LandingAimDiagonalUpRightPose:
+                    case SamusState.LandingAimDiagonalUpLeftPose:
+                    case SamusState.LandingAimDiagonalDownRightPose:
+                    case SamusState.LandingAimDiagonalDownLeftPose:
                         LastGroundedSamusMovement = SamusGroundedMovement.StepLanding(
                             _addressSpace,
                             LevelData,
@@ -547,6 +572,20 @@ public sealed class SuperMetroidRuntime
                     case SamusState.NeutralJumpTransitionLeftPose:
                     case SamusState.NeutralJumpRightPose:
                     case SamusState.NeutralJumpLeftPose:
+                    case SamusState.NormalJumpForwardRightPose:
+                    case SamusState.NormalJumpForwardLeftPose:
+                    case SamusState.NormalJumpAimUpRightPose:
+                    case SamusState.NormalJumpAimUpLeftPose:
+                    case SamusState.NormalJumpTransitionAimUpRightPose:
+                    case SamusState.NormalJumpTransitionAimUpLeftPose:
+                    case SamusState.NormalJumpTransitionAimDiagonalUpRightPose:
+                    case SamusState.NormalJumpTransitionAimDiagonalUpLeftPose:
+                    case SamusState.NormalJumpTransitionAimDiagonalDownRightPose:
+                    case SamusState.NormalJumpTransitionAimDiagonalDownLeftPose:
+                    case SamusState.NormalJumpAimDiagonalUpRightPose:
+                    case SamusState.NormalJumpAimDiagonalUpLeftPose:
+                    case SamusState.NormalJumpAimDiagonalDownRightPose:
+                    case SamusState.NormalJumpAimDiagonalDownLeftPose:
                         LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(
                             _addressSpace,
                             LevelData,
@@ -565,6 +604,12 @@ public sealed class SuperMetroidRuntime
                         break;
                     case SamusState.FallingRightPose:
                     case SamusState.FallingLeftPose:
+                    case SamusState.FallingAimUpRightPose:
+                    case SamusState.FallingAimUpLeftPose:
+                    case SamusState.FallingAimDiagonalUpRightPose:
+                    case SamusState.FallingAimDiagonalUpLeftPose:
+                    case SamusState.FallingAimDiagonalDownRightPose:
+                    case SamusState.FallingAimDiagonalDownLeftPose:
                         LastAerialSamusMovement = SamusAerialMovement.StepFalling(
                             _addressSpace,
                             LevelData,
@@ -622,44 +667,21 @@ public sealed class SuperMetroidRuntime
                 }
 
                 // A failed grounding probe publishes result two. For movement types
-                // 0/1/$0E, data0 at $90:E65A selects airborne family zero and $91:E8F2
-                // chooses the unaimed falling pose from current facing direction.
+                // 0/1/5/$0E, data zero at `$90:E65A` selects airborne family zero and
+                // `$91:E8F2` chooses falling art from pose shot-direction/facing metadata.
                 if (!animationTransitionApplied &&
                     LastGroundedSamusMovement is { Vertical.Collided: false } &&
-                    poseAtFrameStart is
-                        SamusState.FacingRightNormalPose or SamusState.FacingLeftNormalPose or
-                        SamusState.MovingRightNormalPose or SamusState.MovingLeftNormalPose or
-                        SamusState.TurningRightToLeftPose or SamusState.TurningLeftToRightPose or
-                        SamusState.CrouchingRightPose or SamusState.CrouchingLeftPose)
+                    (SamusState.IsRightFacingStandingPose(poseAtFrameStart) ||
+                     SamusState.IsLeftFacingStandingPose(poseAtFrameStart) ||
+                     SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||
+                     SamusState.IsLeftFacingRunningPose(poseAtFrameStart) ||
+                     poseAtFrameStart is
+                         SamusState.TurningRightToLeftPose or SamusState.TurningLeftToRightPose or
+                         SamusState.CrouchingRightPose or SamusState.CrouchingLeftPose))
                 {
-                    byte fallingPose = Samus.ReadPoseXDirection(_addressSpace) == 4
-                        ? SamusState.FallingLeftPose
-                        : SamusState.FallingRightPose;
+                    byte fallingPose = Samus.SelectFallingPoseForCurrentAim(_addressSpace);
                     Samus.ApplyWalkedOffFloorTransition(_addressSpace, fallingPose);
                     animationTransitionApplied = true;
-                }
-
-                // Aimed walk-off selects `$2B/$2C/$6D-$70`, not the unaimed `$29/$2A`
-                // pair above. Stop at that exact missing family instead of silently leaving
-                // a movement-type-zero pose suspended after its failed grounding probe.
-                if (!animationTransitionApplied &&
-                    LastGroundedSamusMovement is { Vertical.Collided: false } &&
-                    poseAtFrameStart is
-                        SamusState.StandingAimUpRightPose or
-                        SamusState.StandingAimUpLeftPose or
-                        SamusState.StandingAimDiagonalUpRightPose or
-                        SamusState.StandingAimDiagonalUpLeftPose or
-                        SamusState.StandingAimDiagonalDownRightPose or
-                        SamusState.StandingAimDiagonalDownLeftPose or
-                        SamusState.RunningAimUpRightPose or
-                        SamusState.RunningAimUpLeftPose or
-                        SamusState.RunningAimDiagonalUpRightPose or
-                        SamusState.RunningAimDiagonalUpLeftPose or
-                        SamusState.RunningAimDiagonalDownRightPose or
-                        SamusState.RunningAimDiagonalDownLeftPose)
-                {
-                    throw new NotSupportedException(
-                        $"Aimed standing pose ${poseAtFrameStart:X2} walked off the floor; aimed falling poses are the next untranslated boundary.");
                 }
 
                 if (!animationTransitionApplied && ProspectiveSamusPose is { } inputTransition)
@@ -676,14 +698,31 @@ public sealed class SuperMetroidRuntime
                                 when (SamusState.IsGroundedAimPose(source) ||
                                       SamusState.IsGroundedAimPose(target)) &&
                                      (((SamusState.IsRightFacingStandingPose(source) ||
-                                        SamusState.IsRightFacingRunningPose(source)) &&
+                                        SamusState.IsRightFacingRunningPose(source) ||
+                                        SamusState.IsRightFacingAimedLandingPose(source)) &&
                                        (SamusState.IsRightFacingStandingPose(target) ||
                                         SamusState.IsRightFacingRunningPose(target))) ||
                                       ((SamusState.IsLeftFacingStandingPose(source) ||
-                                        SamusState.IsLeftFacingRunningPose(source)) &&
+                                        SamusState.IsLeftFacingRunningPose(source) ||
+                                        SamusState.IsLeftFacingAimedLandingPose(source)) &&
                                        (SamusState.IsLeftFacingStandingPose(target) ||
                                         SamusState.IsLeftFacingRunningPose(target)))):
                                 Samus.ApplyGroundedAimTransition(_addressSpace, targetPose);
+                                break;
+                            case var (source, target)
+                                when (SamusState.IsAimedAerialPose(source) ||
+                                      SamusState.IsAimedAerialPose(target) ||
+                                      target is SamusState.NormalJumpForwardRightPose or
+                                          SamusState.NormalJumpForwardLeftPose) &&
+                                     ((SamusState.IsRightFacingNormalJumpPose(source) &&
+                                       SamusState.IsRightFacingNormalJumpPose(target)) ||
+                                      (SamusState.IsLeftFacingNormalJumpPose(source) &&
+                                       SamusState.IsLeftFacingNormalJumpPose(target)) ||
+                                      (SamusState.IsRightFacingFallingPose(source) &&
+                                       SamusState.IsRightFacingFallingPose(target)) ||
+                                      (SamusState.IsLeftFacingFallingPose(source) &&
+                                       SamusState.IsLeftFacingFallingPose(target))):
+                                Samus.ApplyAerialAimTransition(_addressSpace, targetPose);
                                 break;
                             case (SamusState.FacingRightNormalPose, SamusState.MovingRightNormalPose):
                                 Samus.ApplyStandingRightToRunningRight(_addressSpace);
@@ -697,10 +736,21 @@ public sealed class SuperMetroidRuntime
                                   SamusState.TurningLeftToRightPose):
                                 Samus.ApplyGroundedTurn(_addressSpace, targetPose);
                                 break;
-                            case (SamusState.FacingRightNormalPose,
-                                  SamusState.NeutralJumpTransitionRightPose):
-                            case (SamusState.FacingLeftNormalPose,
-                                  SamusState.NeutralJumpTransitionLeftPose):
+                            case var (source, target)
+                                when (SamusState.IsRightFacingStandingPose(source) &&
+                                      SamusState.IsRightFacingNormalJumpPose(target) &&
+                                      target is
+                                          SamusState.NeutralJumpTransitionRightPose or
+                                          SamusState.NormalJumpTransitionAimUpRightPose or
+                                          SamusState.NormalJumpTransitionAimDiagonalUpRightPose or
+                                          SamusState.NormalJumpTransitionAimDiagonalDownRightPose) ||
+                                     (SamusState.IsLeftFacingStandingPose(source) &&
+                                      SamusState.IsLeftFacingNormalJumpPose(target) &&
+                                      target is
+                                          SamusState.NeutralJumpTransitionLeftPose or
+                                          SamusState.NormalJumpTransitionAimUpLeftPose or
+                                          SamusState.NormalJumpTransitionAimDiagonalUpLeftPose or
+                                          SamusState.NormalJumpTransitionAimDiagonalDownLeftPose):
                             case (SamusState.MovingRightNormalPose,
                                   SamusState.SpinJumpRightPose):
                             case (SamusState.RunningAimUpRightPose or
@@ -735,10 +785,12 @@ public sealed class SuperMetroidRuntime
                                 when SamusState.IsGroundedAimPose(source) &&
                                      ((crouchTarget == SamusState.CrouchingTransitionRightPose &&
                                        (SamusState.IsRightFacingStandingPose(source) ||
-                                        SamusState.IsRightFacingRunningPose(source))) ||
+                                        SamusState.IsRightFacingRunningPose(source) ||
+                                        SamusState.IsRightFacingAimedLandingPose(source))) ||
                                       (crouchTarget == SamusState.CrouchingTransitionLeftPose &&
                                        (SamusState.IsLeftFacingStandingPose(source) ||
-                                        SamusState.IsLeftFacingRunningPose(source)))):
+                                        SamusState.IsLeftFacingRunningPose(source) ||
+                                        SamusState.IsLeftFacingAimedLandingPose(source)))):
                                 Samus.TryApplyPostureTransition(
                                     _addressSpace,
                                     LevelData ?? throw new InvalidOperationException(
@@ -798,6 +850,17 @@ public sealed class SuperMetroidRuntime
                     Samus.ApplyGroundedAimTransition(
                         _addressSpace,
                         unchecked((byte)aimFallback));
+                }
+                else if (!animationTransitionApplied &&
+                         SamusState.IsAimedAerialPose(poseAtFrameStart) &&
+                         ProspectiveSamusFallbackPose is { } aerialFallback)
+                {
+                    // Unlike grounded momentum fallback, the live jump/fall velocity is
+                    // untouched. Only pose metadata, radius (asserted equal), animation,
+                    // and next-NMI tile definitions change at this seam.
+                    Samus.ApplyAerialAimTransition(
+                        _addressSpace,
+                        unchecked((byte)aerialFallback));
                 }
             }
 

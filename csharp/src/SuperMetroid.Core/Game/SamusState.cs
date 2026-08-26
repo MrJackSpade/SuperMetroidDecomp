@@ -86,6 +86,84 @@ public sealed class SamusState
     /// <summary>Pose $12 moves left while aiming diagonally down-left.</summary>
     public const byte RunningAimDiagonalDownLeftPose = 0x12;
 
+    /// <summary>Pose $15 is a right-facing normal jump aimed straight up.</summary>
+    public const byte NormalJumpAimUpRightPose = 0x15;
+
+    /// <summary>Pose $16 is a left-facing normal jump aimed straight up.</summary>
+    public const byte NormalJumpAimUpLeftPose = 0x16;
+
+    /// <summary>Pose $51 is a right-facing normal jump using the moving-forward art.</summary>
+    public const byte NormalJumpForwardRightPose = 0x51;
+
+    /// <summary>Pose $52 is a left-facing normal jump using the moving-forward art.</summary>
+    public const byte NormalJumpForwardLeftPose = 0x52;
+
+    /// <summary>Pose $55 is the right-facing jump transition aimed straight up.</summary>
+    public const byte NormalJumpTransitionAimUpRightPose = 0x55;
+
+    /// <summary>Pose $56 is the left-facing jump transition aimed straight up.</summary>
+    public const byte NormalJumpTransitionAimUpLeftPose = 0x56;
+
+    /// <summary>Pose $57 is the right-facing jump transition aimed diagonally up.</summary>
+    public const byte NormalJumpTransitionAimDiagonalUpRightPose = 0x57;
+
+    /// <summary>Pose $58 is the left-facing jump transition aimed diagonally up.</summary>
+    public const byte NormalJumpTransitionAimDiagonalUpLeftPose = 0x58;
+
+    /// <summary>Pose $59 is the right-facing jump transition aimed diagonally down.</summary>
+    public const byte NormalJumpTransitionAimDiagonalDownRightPose = 0x59;
+
+    /// <summary>Pose $5A is the left-facing jump transition aimed diagonally down.</summary>
+    public const byte NormalJumpTransitionAimDiagonalDownLeftPose = 0x5a;
+
+    /// <summary>Pose $69 is a right-facing normal jump aimed diagonally up.</summary>
+    public const byte NormalJumpAimDiagonalUpRightPose = 0x69;
+
+    /// <summary>Pose $6A is a left-facing normal jump aimed diagonally up.</summary>
+    public const byte NormalJumpAimDiagonalUpLeftPose = 0x6a;
+
+    /// <summary>Pose $6B is a right-facing normal jump aimed diagonally down.</summary>
+    public const byte NormalJumpAimDiagonalDownRightPose = 0x6b;
+
+    /// <summary>Pose $6C is a left-facing normal jump aimed diagonally down.</summary>
+    public const byte NormalJumpAimDiagonalDownLeftPose = 0x6c;
+
+    /// <summary>Pose $2B is right-facing falling aimed straight up.</summary>
+    public const byte FallingAimUpRightPose = 0x2b;
+
+    /// <summary>Pose $2C is left-facing falling aimed straight up.</summary>
+    public const byte FallingAimUpLeftPose = 0x2c;
+
+    /// <summary>Pose $6D is right-facing falling aimed diagonally up.</summary>
+    public const byte FallingAimDiagonalUpRightPose = 0x6d;
+
+    /// <summary>Pose $6E is left-facing falling aimed diagonally up.</summary>
+    public const byte FallingAimDiagonalUpLeftPose = 0x6e;
+
+    /// <summary>Pose $6F is right-facing falling aimed diagonally down.</summary>
+    public const byte FallingAimDiagonalDownRightPose = 0x6f;
+
+    /// <summary>Pose $70 is left-facing falling aimed diagonally down.</summary>
+    public const byte FallingAimDiagonalDownLeftPose = 0x70;
+
+    /// <summary>Pose $E0 is a right-facing normal-jump landing aimed straight up.</summary>
+    public const byte LandingAimUpRightPose = 0xe0;
+
+    /// <summary>Pose $E1 is a left-facing normal-jump landing aimed straight up.</summary>
+    public const byte LandingAimUpLeftPose = 0xe1;
+
+    /// <summary>Pose $E2 is a right-facing normal-jump landing aimed diagonally up.</summary>
+    public const byte LandingAimDiagonalUpRightPose = 0xe2;
+
+    /// <summary>Pose $E3 is a left-facing normal-jump landing aimed diagonally up.</summary>
+    public const byte LandingAimDiagonalUpLeftPose = 0xe3;
+
+    /// <summary>Pose $E4 is a right-facing normal-jump landing aimed diagonally down.</summary>
+    public const byte LandingAimDiagonalDownRightPose = 0xe4;
+
+    /// <summary>Pose $E5 is a left-facing normal-jump landing aimed diagonally down.</summary>
+    public const byte LandingAimDiagonalDownLeftPose = 0xe5;
+
     /// <summary>Pose $27 is ordinary right-facing crouching.</summary>
     public const byte CrouchingRightPose = 0x27;
 
@@ -239,6 +317,16 @@ public sealed class SamusState
         return bus.ReadByte(AddWithinBank(PoseDefinitions, Pose * 8 + 2));
     }
 
+    /// <summary>
+    /// Reads pose-definition byte three, the ten-way arm-cannon direction consumed by
+    /// the native normal-jump landing selector at <c>$91:E974</c>.
+    /// </summary>
+    public byte ReadShotDirection(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        return bus.ReadByte(AddWithinBank(PoseDefinitions, Pose * 8 + 3));
+    }
+
     /// <summary>True for the four movement-type-zero, right-facing standing poses.</summary>
     public static bool IsRightFacingStandingPose(byte pose) => pose is
         FacingRightNormalPose or
@@ -274,7 +362,99 @@ public sealed class SamusState
         StandingAimDiagonalDownRightPose or StandingAimDiagonalDownLeftPose or
         RunningAimUpRightPose or RunningAimUpLeftPose or
         RunningAimDiagonalUpRightPose or RunningAimDiagonalUpLeftPose or
-        RunningAimDiagonalDownRightPose or RunningAimDiagonalDownLeftPose;
+        RunningAimDiagonalDownRightPose or RunningAimDiagonalDownLeftPose or
+        LandingAimUpRightPose or LandingAimUpLeftPose or
+        LandingAimDiagonalUpRightPose or LandingAimDiagonalUpLeftPose or
+        LandingAimDiagonalDownRightPose or LandingAimDiagonalDownLeftPose;
+
+    /// <summary>True for right-facing aimed normal-jump landing poses `$E0/$E2/$E4`.</summary>
+    public static bool IsRightFacingAimedLandingPose(byte pose) => pose is
+        LandingAimUpRightPose or LandingAimDiagonalUpRightPose or
+        LandingAimDiagonalDownRightPose;
+
+    /// <summary>True for left-facing aimed normal-jump landing poses `$E1/$E3/$E5`.</summary>
+    public static bool IsLeftFacingAimedLandingPose(byte pose) => pose is
+        LandingAimUpLeftPose or LandingAimDiagonalUpLeftPose or
+        LandingAimDiagonalDownLeftPose;
+
+    /// <summary>True for the admitted right-facing movement-type-two normal-jump poses.</summary>
+    public static bool IsRightFacingNormalJumpPose(byte pose) => pose is
+        NeutralJumpTransitionRightPose or NeutralJumpRightPose or
+        NormalJumpForwardRightPose or NormalJumpAimUpRightPose or
+        NormalJumpTransitionAimUpRightPose or
+        NormalJumpTransitionAimDiagonalUpRightPose or
+        NormalJumpTransitionAimDiagonalDownRightPose or
+        NormalJumpAimDiagonalUpRightPose or NormalJumpAimDiagonalDownRightPose;
+
+    /// <summary>True for the admitted left-facing movement-type-two normal-jump poses.</summary>
+    public static bool IsLeftFacingNormalJumpPose(byte pose) => pose is
+        NeutralJumpTransitionLeftPose or NeutralJumpLeftPose or
+        NormalJumpForwardLeftPose or NormalJumpAimUpLeftPose or
+        NormalJumpTransitionAimUpLeftPose or
+        NormalJumpTransitionAimDiagonalUpLeftPose or
+        NormalJumpTransitionAimDiagonalDownLeftPose or
+        NormalJumpAimDiagonalUpLeftPose or NormalJumpAimDiagonalDownLeftPose;
+
+    /// <summary>True for admitted right-facing movement-type-six falling poses.</summary>
+    public static bool IsRightFacingFallingPose(byte pose) => pose is
+        FallingRightPose or FallingAimUpRightPose or
+        FallingAimDiagonalUpRightPose or FallingAimDiagonalDownRightPose;
+
+    /// <summary>True for admitted left-facing movement-type-six falling poses.</summary>
+    public static bool IsLeftFacingFallingPose(byte pose) => pose is
+        FallingLeftPose or FallingAimUpLeftPose or
+        FallingAimDiagonalUpLeftPose or FallingAimDiagonalDownLeftPose;
+
+    /// <summary>True for the aimed normal-jump/falling poses whose radius remains 19.</summary>
+    public static bool IsAimedAerialPose(byte pose) => pose is
+        NormalJumpAimUpRightPose or NormalJumpAimUpLeftPose or
+        NormalJumpTransitionAimUpRightPose or NormalJumpTransitionAimUpLeftPose or
+        NormalJumpTransitionAimDiagonalUpRightPose or NormalJumpTransitionAimDiagonalUpLeftPose or
+        NormalJumpTransitionAimDiagonalDownRightPose or NormalJumpTransitionAimDiagonalDownLeftPose or
+        NormalJumpAimDiagonalUpRightPose or NormalJumpAimDiagonalUpLeftPose or
+        NormalJumpAimDiagonalDownRightPose or NormalJumpAimDiagonalDownLeftPose or
+        FallingAimUpRightPose or FallingAimUpLeftPose or
+        FallingAimDiagonalUpRightPose or FallingAimDiagonalUpLeftPose or
+        FallingAimDiagonalDownRightPose or FallingAimDiagonalDownLeftPose;
+
+    /// <summary>
+    /// Applies a same-facing input/fallback transition within normal-jump type two or
+    /// falling type six without replacing the live 16.16 velocity words.
+    /// </summary>
+    public void ApplyAerialAimTransition(ISnesAddressSpace bus, byte targetPose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        bool rightJump = IsRightFacingNormalJumpPose(Pose) &&
+            IsRightFacingNormalJumpPose(targetPose);
+        bool leftJump = IsLeftFacingNormalJumpPose(Pose) &&
+            IsLeftFacingNormalJumpPose(targetPose);
+        bool rightFall = IsRightFacingFallingPose(Pose) &&
+            IsRightFacingFallingPose(targetPose);
+        bool leftFall = IsLeftFacingFallingPose(Pose) &&
+            IsLeftFacingFallingPose(targetPose);
+        if (!rightJump && !leftJump && !rightFall && !leftFall)
+        {
+            throw new NotSupportedException(
+                $"Aerial aim transition ${Pose:X2} -> ${targetPose:X2} crosses an untranslated family.");
+        }
+        if (!IsAimedAerialPose(Pose) && !IsAimedAerialPose(targetPose) &&
+            targetPose is not (NormalJumpForwardRightPose or NormalJumpForwardLeftPose))
+        {
+            throw new InvalidOperationException("Aerial aim transition requires aimed or forward-jump metadata.");
+        }
+
+        ushort oldRadius = Kinematics.YRadius;
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+        if (Kinematics.YRadius != oldRadius)
+        {
+            // The admitted family deliberately excludes compact straight-down `$17/$18`
+            // and `$2D/$2E`; reaching a different radius proves a caller crossed that seam.
+            throw new NotSupportedException(
+                $"Aerial pose ${targetPose:X2} changes radius {oldRadius} -> {Kinematics.YRadius}; pose-change collision is not translated for it.");
+        }
+        InitializeAnimation(bus, initialFrame: 0);
+    }
 
     /// <summary>
     /// Applies a same-facing transition within the movement-type-zero standing family and
@@ -289,9 +469,11 @@ public sealed class SamusState
     public void ApplyGroundedAimTransition(ISnesAddressSpace bus, byte targetPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        bool sourceRight = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose);
+        bool sourceRight = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
+            IsRightFacingAimedLandingPose(Pose);
         bool targetRight = IsRightFacingStandingPose(targetPose) || IsRightFacingRunningPose(targetPose);
-        bool sourceLeft = IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose);
+        bool sourceLeft = IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
+            IsLeftFacingAimedLandingPose(Pose);
         bool targetLeft = IsLeftFacingStandingPose(targetPose) || IsLeftFacingRunningPose(targetPose);
         bool sameRightFamily = sourceRight && targetRight;
         bool sameLeftFamily = sourceLeft && targetLeft;
@@ -442,8 +624,22 @@ public sealed class SamusState
     {
         ArgumentNullException.ThrowIfNull(bus);
         bool verified = (Pose, targetPose) is
-            (FacingRightNormalPose, NeutralJumpTransitionRightPose) or
-            (FacingLeftNormalPose, NeutralJumpTransitionLeftPose) or
+            (FacingRightNormalPose or StandingAimUpRightPose or
+                StandingAimDiagonalUpRightPose or StandingAimDiagonalDownRightPose,
+             NeutralJumpTransitionRightPose) or
+            (FacingLeftNormalPose or StandingAimUpLeftPose or
+                StandingAimDiagonalUpLeftPose or StandingAimDiagonalDownLeftPose,
+             NeutralJumpTransitionLeftPose) or
+            (FacingRightNormalPose or StandingAimUpRightPose or
+                StandingAimDiagonalUpRightPose or StandingAimDiagonalDownRightPose,
+             NormalJumpTransitionAimUpRightPose or
+                NormalJumpTransitionAimDiagonalUpRightPose or
+                NormalJumpTransitionAimDiagonalDownRightPose) or
+            (FacingLeftNormalPose or StandingAimUpLeftPose or
+                StandingAimDiagonalUpLeftPose or StandingAimDiagonalDownLeftPose,
+             NormalJumpTransitionAimUpLeftPose or
+                NormalJumpTransitionAimDiagonalUpLeftPose or
+                NormalJumpTransitionAimDiagonalDownLeftPose) or
             (MovingRightNormalPose or RunningAimUpRightPose or
                 RunningAimDiagonalUpRightPose or RunningAimDiagonalDownRightPose,
              SpinJumpRightPose) or
@@ -485,13 +681,17 @@ public sealed class SamusState
                 StandingAimDiagonalUpRightPose or StandingAimDiagonalDownRightPose or
                 MovingRightNormalPose or RunningAimUpRightPose or
                 RunningAimDiagonalUpRightPose or RunningAimDiagonalDownRightPose or
-                NormalLandingRightPose or SpinLandingRightPose,
+                NormalLandingRightPose or SpinLandingRightPose or
+                LandingAimUpRightPose or LandingAimDiagonalUpRightPose or
+                LandingAimDiagonalDownRightPose,
              CrouchingTransitionRightPose) or
             (FacingLeftNormalPose or StandingAimUpLeftPose or
                 StandingAimDiagonalUpLeftPose or StandingAimDiagonalDownLeftPose or
                 MovingLeftNormalPose or RunningAimUpLeftPose or
                 RunningAimDiagonalUpLeftPose or RunningAimDiagonalDownLeftPose or
-                NormalLandingLeftPose or SpinLandingLeftPose,
+                NormalLandingLeftPose or SpinLandingLeftPose or
+                LandingAimUpLeftPose or LandingAimDiagonalUpLeftPose or
+                LandingAimDiagonalDownLeftPose,
              CrouchingTransitionLeftPose);
         bool startsStanding = (Pose, targetPose) is
             (CrouchingRightPose, StandingTransitionRightPose) or
@@ -567,12 +767,14 @@ public sealed class SamusState
     public void ApplyWalkedOffFloorTransition(ISnesAddressSpace bus, byte targetPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        bool verified = (targetPose is FallingRightPose or FallingLeftPose) &&
-            (Pose is FacingRightNormalPose or FacingLeftNormalPose or
-                MovingRightNormalPose or MovingLeftNormalPose or
+        bool supportedSource =
+            IsRightFacingStandingPose(Pose) || IsLeftFacingStandingPose(Pose) ||
+            IsRightFacingRunningPose(Pose) || IsLeftFacingRunningPose(Pose) ||
+            Pose is
                 TurningRightToLeftPose or TurningLeftToRightPose or
-                CrouchingRightPose or CrouchingLeftPose);
-        if (!verified)
+                CrouchingRightPose or CrouchingLeftPose;
+        byte expectedTarget = SelectFallingPoseForCurrentAim(bus);
+        if (!supportedSource || targetPose != expectedTarget)
         {
             throw new NotSupportedException(
                 $"Walk-off transition ${Pose:X2} -> ${targetPose:X2} is not translated.");
@@ -588,7 +790,35 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Applies <c>$91:E95D</c>'s unaimed landing choice and the grounded collision cleanup
+    /// Ports the non-spinning direction lookup used by `$91:E8F2` for a grounded walk-off.
+    /// </summary>
+    public byte SelectFallingPoseForCurrentAim(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        byte shotDirection = ReadShotDirection(bus);
+        return shotDirection switch
+        {
+            0 => FallingAimUpRightPose,
+            1 => FallingAimDiagonalUpRightPose,
+            2 => FallingRightPose,
+            3 => FallingAimDiagonalDownRightPose,
+            6 => FallingAimDiagonalDownLeftPose,
+            7 => FallingLeftPose,
+            8 => FallingAimDiagonalUpLeftPose,
+            9 => FallingAimUpLeftPose,
+
+            // Turn and crouch records store `$FB`/`$FF` rather than an arm direction.
+            // Their facing byte still selects the ordinary unaimed falling pair.
+            0xfb or 0xff => ReadPoseXDirection(bus) == 4
+                ? FallingLeftPose
+                : FallingRightPose,
+            _ => throw new NotSupportedException(
+                $"Walk-off shot direction ${shotDirection:X2} requires compact/downward falling collision handling."),
+        };
+    }
+
+    /// <summary>
+    /// Applies <c>$91:E95D</c>'s normal/spin/aimed landing choice and grounded collision cleanup
     /// at <c>$91:F010</c>. Expanding radius 19 to 21 moves Samus upward by two pixels so
     /// her feet stay on the same collision boundary, matching <c>$91:FF49</c>.
     /// </summary>
@@ -597,9 +827,30 @@ public sealed class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         byte direction = ReadPoseXDirection(bus);
         bool facingLeft = direction == 4;
-        byte targetPose = wasSpinning
-            ? facingLeft ? SpinLandingLeftPose : SpinLandingRightPose
-            : facingLeft ? NormalLandingLeftPose : NormalLandingRightPose;
+        byte targetPose;
+        if (wasSpinning)
+        {
+            targetPose = facingLeft ? SpinLandingLeftPose : SpinLandingRightPose;
+        }
+        else
+        {
+            // `$91:E9F3` is indexed by pose-definition byte three. Horizontal directions
+            // 2/7 select the ordinary `$A4/$A5`; the six admitted aim directions select
+            // `$E0-$E5`. Compact straight-down directions 4/5 intentionally remain out.
+            targetPose = ReadShotDirection(bus) switch
+            {
+                0 => LandingAimUpRightPose,
+                1 => LandingAimDiagonalUpRightPose,
+                2 => NormalLandingRightPose,
+                3 => LandingAimDiagonalDownRightPose,
+                6 => LandingAimDiagonalDownLeftPose,
+                7 => NormalLandingLeftPose,
+                8 => LandingAimDiagonalUpLeftPose,
+                9 => LandingAimUpLeftPose,
+                byte shotDirection => throw new NotSupportedException(
+                    $"Landing from shot direction ${shotDirection:X2} requires an untranslated compact/firing route."),
+            };
+        }
 
         ushort oldRadius = Kinematics.YRadius;
         Pose = targetPose;
@@ -634,6 +885,12 @@ public sealed class SamusState
             (TurningLeftToRightPose, FacingRightNormalPose) or
             (NeutralJumpTransitionRightPose, NeutralJumpRightPose) or
             (NeutralJumpTransitionLeftPose, NeutralJumpLeftPose) or
+            (NormalJumpTransitionAimUpRightPose, NormalJumpAimUpRightPose) or
+            (NormalJumpTransitionAimUpLeftPose, NormalJumpAimUpLeftPose) or
+            (NormalJumpTransitionAimDiagonalUpRightPose, NormalJumpAimDiagonalUpRightPose) or
+            (NormalJumpTransitionAimDiagonalUpLeftPose, NormalJumpAimDiagonalUpLeftPose) or
+            (NormalJumpTransitionAimDiagonalDownRightPose, NormalJumpAimDiagonalDownRightPose) or
+            (NormalJumpTransitionAimDiagonalDownLeftPose, NormalJumpAimDiagonalDownLeftPose) or
             (CrouchingTransitionRightPose, CrouchingRightPose) or
             (CrouchingTransitionLeftPose, CrouchingLeftPose) or
             (StandingTransitionRightPose, FacingRightNormalPose) or
@@ -641,7 +898,13 @@ public sealed class SamusState
             (NormalLandingRightPose, FacingRightNormalPose) or
             (NormalLandingLeftPose, FacingLeftNormalPose) or
             (SpinLandingRightPose, FacingRightNormalPose) or
-            (SpinLandingLeftPose, FacingLeftNormalPose);
+            (SpinLandingLeftPose, FacingLeftNormalPose) or
+            (LandingAimUpRightPose, StandingAimUpRightPose) or
+            (LandingAimUpLeftPose, StandingAimUpLeftPose) or
+            (LandingAimDiagonalUpRightPose, StandingAimDiagonalUpRightPose) or
+            (LandingAimDiagonalUpLeftPose, StandingAimDiagonalUpLeftPose) or
+            (LandingAimDiagonalDownRightPose, StandingAimDiagonalDownRightPose) or
+            (LandingAimDiagonalDownLeftPose, StandingAimDiagonalDownLeftPose);
         if (!verified)
         {
             throw new NotSupportedException(

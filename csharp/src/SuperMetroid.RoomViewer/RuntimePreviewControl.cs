@@ -340,7 +340,33 @@ internal sealed class RuntimePreviewControl : UserControl
                   SamusState.RunningAimDiagonalUpRightPose or
                   SamusState.RunningAimDiagonalUpLeftPose or
                   SamusState.RunningAimDiagonalDownRightPose or
-                  SamusState.RunningAimDiagonalDownLeftPose
+                  SamusState.RunningAimDiagonalDownLeftPose or
+                  SamusState.NormalJumpForwardRightPose or
+                  SamusState.NormalJumpForwardLeftPose or
+                  SamusState.NormalJumpAimUpRightPose or
+                  SamusState.NormalJumpAimUpLeftPose or
+                  SamusState.NormalJumpTransitionAimUpRightPose or
+                  SamusState.NormalJumpTransitionAimUpLeftPose or
+                  SamusState.NormalJumpTransitionAimDiagonalUpRightPose or
+                  SamusState.NormalJumpTransitionAimDiagonalUpLeftPose or
+                  SamusState.NormalJumpTransitionAimDiagonalDownRightPose or
+                  SamusState.NormalJumpTransitionAimDiagonalDownLeftPose or
+                  SamusState.NormalJumpAimDiagonalUpRightPose or
+                  SamusState.NormalJumpAimDiagonalUpLeftPose or
+                  SamusState.NormalJumpAimDiagonalDownRightPose or
+                  SamusState.NormalJumpAimDiagonalDownLeftPose or
+                  SamusState.FallingAimUpRightPose or
+                  SamusState.FallingAimUpLeftPose or
+                  SamusState.FallingAimDiagonalUpRightPose or
+                  SamusState.FallingAimDiagonalUpLeftPose or
+                  SamusState.FallingAimDiagonalDownRightPose or
+                  SamusState.FallingAimDiagonalDownLeftPose or
+                  SamusState.LandingAimUpRightPose or
+                  SamusState.LandingAimUpLeftPose or
+                  SamusState.LandingAimDiagonalUpRightPose or
+                  SamusState.LandingAimDiagonalUpLeftPose or
+                  SamusState.LandingAimDiagonalDownRightPose or
+                  SamusState.LandingAimDiagonalDownLeftPose
                 ? $"next ${transition.ProspectivePose:X2} translated"
                 : $"next ${transition.ProspectivePose:X2} blocked"
             : runtime.ProspectiveSamusFallbackPose is ushort fallback

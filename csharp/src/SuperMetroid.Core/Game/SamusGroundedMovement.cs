@@ -304,7 +304,7 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Runs movement type zero for the four unaimed landing poses $A4-$A7. Native landing
+    /// Runs movement type zero for `$A4-$A7` and aimed normal-jump landings `$E0-$E5`. Native landing
     /// animation is cosmetic with respect to movement: it uses standing's zero-base-speed
     /// horizontal pass, grounding probe, and momentum cleanup until command $F8 returns to
     /// pose $01/$02.
@@ -320,10 +320,13 @@ public static class SamusGroundedMovement
         ArgumentNullException.ThrowIfNull(samus);
         if (samus.Pose is not (
             SamusState.NormalLandingRightPose or SamusState.NormalLandingLeftPose or
-            SamusState.SpinLandingRightPose or SamusState.SpinLandingLeftPose))
+            SamusState.SpinLandingRightPose or SamusState.SpinLandingLeftPose or
+            SamusState.LandingAimUpRightPose or SamusState.LandingAimUpLeftPose or
+            SamusState.LandingAimDiagonalUpRightPose or SamusState.LandingAimDiagonalUpLeftPose or
+            SamusState.LandingAimDiagonalDownRightPose or SamusState.LandingAimDiagonalDownLeftPose))
         {
             throw new InvalidOperationException(
-                $"Landing movement requires pose $A4-$A7, not ${samus.Pose:X2}.");
+                $"Landing movement requires pose $A4-$A7/$E0-$E5, not ${samus.Pose:X2}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;

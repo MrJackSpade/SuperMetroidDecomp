@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Game;
 /// <remarks>
 /// This deliberately retains the cartridge's split 16.16 magnitudes and separate vertical
 /// direction word. It does not use floating point, host elapsed time, or a guessed gravity
-/// curve. Enemy collision and external displacement remain explicit boundaries. Ordinary
+/// curve. Live enemy production and external displacement remain explicit boundaries. Ordinary
 /// Dash and equipped Speed Booster momentum are retained through environment-selected
-/// jumps, including the equipped vertical bonus. Wall-jump BLOCK collision and all three
-/// liquid launch-table entries are translated; solid-enemy wall jumps are not treated as blocks.
+/// jumps, including the equipped vertical bonus. Terrain and solid/frozen-enemy wall jumps
+/// plus all three liquid launch-table entries are translated as distinct native results.
 /// </remarks>
 public static class SamusAerialMovement
 {
@@ -726,7 +726,9 @@ public static class SamusAerialMovement
             ? (controllerInput & (ushort)SnesButton.Left) != 0
             : (controllerInput & (ushort)SnesButton.Right) != 0;
 
-    /// <summary>Block-only port of `$90:9D35`; enemy wall collision remains explicit.</summary>
+    /// <summary>
+    /// Ports `$90:9D35`'s block and solid-enemy wall probes, including enemy-shake publication.
+    /// </summary>
     private static WallJumpCheckResult CheckBlockWallJump(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -763,6 +765,12 @@ public static class SamusAerialMovement
 
         bool jumpNew = (controllerNewInput & (ushort)SnesButton.A) != 0;
         bool triggered = jumpNew && distance < 8;
+        if (triggered && probe.EnemyCollision is { EnemyIndex: ushort enemyIndex })
+        {
+            // `$90:9E64-$90:9E66` publishes only enemy-backed launches. Terrain wall jumps
+            // intentionally leave the previous `$0E18` value alone.
+            samus.EnemyIndexToShake = enemyIndex;
+        }
         return new WallJumpCheckResult(triggered, Contact: true, distance);
     }
 

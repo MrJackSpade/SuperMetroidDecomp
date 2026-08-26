@@ -53,11 +53,22 @@ public static class SamusBlockCollision
             YSubacceleration = state.YSubacceleration,
             HorizontalSlopeCollisionEnable = state.HorizontalSlopeCollisionEnable,
             PositionAdjustedBySlope = state.PositionAdjustedBySlope,
+            // The enemy entries are immutable value snapshots. Sharing their ordered list is
+            // safe, and lets the observational wall probe see exactly the same native actors.
+            InteractiveEnemies = state.InteractiveEnemies,
         };
 
         // Reusing the translated horizontal dispatcher also preserves square-slope and
         // unsupported-block behavior. Any post-scan slope alignment touches only `probe`.
-        return MoveHorizontal(bus, level, probe, signedDistance);
+        BlockMoveResult result = MoveHorizontal(bus, level, probe, signedDistance);
+
+        // The bank-$94 portion is observational, but the bank-$A0 routine it follows has one
+        // real side effect: its touching path executes STZ SamusYSubPosition. Copy that single
+        // native write back without committing the probe's X movement or slope alignment.
+        if (result.EnemyCollision is { WasTouching: true })
+            state.YSubposition = 0;
+
+        return result;
     }
 
     /// <summary>
@@ -77,10 +88,42 @@ public static class SamusBlockCollision
 
         int acceptedDisplacement = displacement;
         bool collided = false;
+        SolidEnemyCollisionResult? enemyCollision = null;
         RoomCollisionBlock? collisionBlock = null;
         RoomCollisionBlock? brokenBombBlock = null;
 
-        if (acceptedDisplacement != 0)
+        if (acceptedDisplacement != 0 && state.InteractiveEnemies.Count != 0)
+        {
+            // `$90:9350/$93B1` presents bank $A0 with an unsigned magnitude even though the
+            // managed block mover receives signed 16.16 displacement. Preserve both halves:
+            // enemy clipping clears the fractional half only when it actually collides.
+            uint magnitude = acceptedDisplacement < 0
+                ? unchecked((uint)(-acceptedDisplacement))
+                : unchecked((uint)acceptedDisplacement);
+            SamusCollisionDirection direction = acceptedDisplacement < 0
+                ? SamusCollisionDirection.Left
+                : SamusCollisionDirection.Right;
+            SolidEnemyCollisionResult probe = SamusSolidEnemyCollision.Probe(
+                state,
+                state.InteractiveEnemies,
+                direction,
+                unchecked((ushort)(magnitude >> 16)),
+                unchecked((ushort)magnitude));
+
+            if (probe.Collided)
+            {
+                // On enemy collision the bank-$90 wrapper skips bank-$94 block detection and
+                // invokes the corresponding no-collision position adder with `$12.0000`.
+                int clippedMagnitude = probe.Distance << 16;
+                acceptedDisplacement = acceptedDisplacement < 0
+                    ? -clippedMagnitude
+                    : clippedMagnitude;
+                collided = true;
+                enemyCollision = probe;
+            }
+        }
+
+        if (!collided && acceptedDisplacement != 0)
         {
             // The target center and leading boundary are calculated once, before a slope
             // handler is allowed to scale ci_r18_r20. This slightly surprising ordering is
@@ -194,7 +237,8 @@ public static class SamusBlockCollision
             alignment.Adjusted,
             alignment.FloorBlock,
             alignment.CeilingBlock,
-            brokenBombBlock);
+            brokenBombBlock,
+            enemyCollision);
     }
 
     /// <summary>
@@ -215,11 +259,42 @@ public static class SamusBlockCollision
 
         int acceptedDisplacement = displacement;
         bool collided = false;
+        SolidEnemyCollisionResult? enemyCollision = null;
         RoomCollisionBlock? collisionBlock = null;
         RoomCollisionBlock? brokenBombBlock = null;
         state.PositionAdjustedBySlope = false;
 
-        if (acceptedDisplacement != 0)
+        if (acceptedDisplacement != 0 && state.InteractiveEnemies.Count != 0)
+        {
+            // `$90:93EC/$9440` uses the same unsigned `$12.$14` magnitude contract as X.
+            uint magnitude = acceptedDisplacement < 0
+                ? unchecked((uint)(-acceptedDisplacement))
+                : unchecked((uint)acceptedDisplacement);
+            SamusCollisionDirection direction = acceptedDisplacement < 0
+                ? SamusCollisionDirection.Up
+                : SamusCollisionDirection.Down;
+            SolidEnemyCollisionResult probe = SamusSolidEnemyCollision.Probe(
+                state,
+                state.InteractiveEnemies,
+                direction,
+                unchecked((ushort)(magnitude >> 16)),
+                unchecked((ushort)magnitude));
+
+            if (probe.Collided)
+            {
+                // Solid-enemy success bypasses the block dispatcher and moves only to the
+                // current enemy boundary. This is also how native vertical-collision flags
+                // distinguish an enemy stop from an unobstructed terrain move.
+                int clippedMagnitude = probe.Distance << 16;
+                acceptedDisplacement = acceptedDisplacement < 0
+                    ? -clippedMagnitude
+                    : clippedMagnitude;
+                collided = true;
+                enemyCollision = probe;
+            }
+        }
+
+        if (!collided && acceptedDisplacement != 0)
         {
             ushort targetCenter = unchecked((ushort)(
                 unchecked(state.YFixed + (uint)acceptedDisplacement) >> 16));
@@ -321,7 +396,8 @@ public static class SamusBlockCollision
             state.PositionAdjustedBySlope,
             FloorSlopeBlock: null,
             CeilingSlopeBlock: null,
-            BrokenBombBlock: brokenBombBlock);
+            BrokenBombBlock: brokenBombBlock,
+            EnemyCollision: enemyCollision);
     }
 
     private static (int Displacement, bool Collided) ClipVerticalToNonSquareSlope(
@@ -673,4 +749,5 @@ public readonly record struct BlockMoveResult(
     bool PositionAdjustedBySlope,
     RoomCollisionBlock? FloorSlopeBlock,
     RoomCollisionBlock? CeilingSlopeBlock,
-    RoomCollisionBlock? BrokenBombBlock = null);
+    RoomCollisionBlock? BrokenBombBlock = null,
+    SolidEnemyCollisionResult? EnemyCollision = null);

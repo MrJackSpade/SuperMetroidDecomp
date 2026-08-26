@@ -11,6 +11,19 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusKinematicsState
 {
+    /// <summary>
+    /// Current native-order snapshot of WRAM <c>InteractiveEnemyIndices</c> and the collision
+    /// words of the referenced enemy slots.
+    /// </summary>
+    /// <remarks>
+    /// Movement owns this snapshot because every ordinary bank-$90 movement wrapper probes
+    /// solid/frozen enemies before dispatching to bank-$94 room blocks. Empty remains the
+    /// correct default for translated rooms whose enemy actor loader has not run. Keeping the
+    /// list explicit prevents decorative render sprites from accidentally becoming physics.
+    /// </remarks>
+    public IReadOnlyList<SolidEnemyCollisionBody> InteractiveEnemies { get; set; } =
+        Array.Empty<SolidEnemyCollisionBody>();
+
     /// <summary>Whole-pixel world X at WRAM <c>$0AF6</c>.</summary>
     public ushort XPosition { get; set; }
 

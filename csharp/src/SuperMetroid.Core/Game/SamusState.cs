@@ -721,6 +721,16 @@ public sealed class SamusState
     public SamusGrappleState Grapple { get; } = new();
 
     /// <summary>
+    /// Native WRAM <c>EnemyIndexToShake</c>, written when an ordinary or grapple wall jump
+    /// launches from a solid/frozen enemy instead of room terrain.
+    /// </summary>
+    /// <remarks>
+    /// Enemy AI owns consumption of this word. Retaining the slot index now makes the
+    /// movement result complete even before the general live-enemy update loop is translated.
+    /// </remarks>
+    public ushort EnemyIndexToShake { get; set; } = 0xffff;
+
+    /// <summary>
     /// Host-visible equivalent of movement-handler pointer `$90:DF38`. It is separate from
     /// movement type `$0A` because the cartridge also uses that type for crystal-flash art.
     /// </summary>
@@ -3814,5 +3824,8 @@ public sealed class SamusState
         YSubacceleration = source.YSubacceleration,
         HorizontalSlopeCollisionEnable = source.HorizontalSlopeCollisionEnable,
         PositionAdjustedBySlope = source.PositionAdjustedBySlope,
+        // Prospective-pose probes still call the native solid-enemy detector before blocks.
+        // Share the immutable per-frame actor snapshots while copying only Samus's geometry.
+        InteractiveEnemies = source.InteractiveEnemies,
     };
 }

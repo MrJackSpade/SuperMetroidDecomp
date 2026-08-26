@@ -14,8 +14,9 @@ namespace SuperMetroid.Core.Game;
 /// movement, and bank $94 advances its angle while probing room collision. This class keeps
 /// those responsibilities separate from ordinary aerial movement. Firing, persistent grapple
 /// blocks, per-pixel rope adjustment, and the six-point angular terrain sweep are translated
-/// here; breakable PLMs, spike damage, enemy acquisition, and the solid-enemy wall-jump
-/// branch remain explicit later routes rather than being approximated here. Grapple's
+/// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and retains
+/// the enemy slot to shake. Breakable PLMs, spike damage, enemy acquisition, and the live
+/// enemy/shake loop remain explicit later routes rather than being approximated. Grapple's
 /// narrower water flag and persistent environment-selected release handler are translated
 /// rather than collapsed into ordinary aerial movement.
 /// </remarks>
@@ -546,9 +547,9 @@ public static class SamusGrappleMovement
                 DropQueued: true);
         }
 
-        // `$90:9CAC` probes 16 pixels toward the wall named by the contact pose's direction
-        // byte. Solid-enemy collision is still an explicit actor seam; the translated block
-        // scan preserves square slopes, BTS dispatch, and available-distance behavior.
+        // `$90:9CAC` probes solid/frozen enemies first, then 16 pixels of room blocks toward
+        // the wall named by the contact pose's direction byte. The shared probe preserves
+        // square slopes, BTS dispatch, available distance, and enemy identity.
         int signedProbe = samus.ReadPoseXDirection(bus) == 4
             ? -(16 << 16)
             : 16 << 16;
@@ -560,6 +561,12 @@ public static class SamusGrappleMovement
         bool jumpNew = (newlyPressedInput & (ushort)SnesButton.A) != 0;
         if (wall.Collided && jumpNew)
         {
+            if (wall.EnemyCollision is { EnemyIndex: ushort enemyIndex })
+            {
+                // `$90:9D24-$90:9D26` requests the contacted enemy's shake only when the
+                // fresh Jump edge actually accepts the grapple wall jump.
+                samus.EnemyIndexToShake = enemyIndex;
+            }
             grapple.Phase = GrapplePhase.WallJumping;
             return new GrappleMovementResult(
                 grapple.Phase,

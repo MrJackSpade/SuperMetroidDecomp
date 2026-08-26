@@ -63,6 +63,36 @@ public sealed class SamusState
     /// <summary>Pose $B3 is the left-facing airborne grapple-swing body.</summary>
     public const byte GrappleSwingLeftPose = 0xb3;
 
+    /// <summary>Pose $A8 is the standing right-facing horizontal grapple lock.</summary>
+    public const byte GrappleStandingRightPose = 0xa8;
+
+    /// <summary>Pose $A9 is the standing left-facing horizontal grapple lock.</summary>
+    public const byte GrappleStandingLeftPose = 0xa9;
+
+    /// <summary>Pose $AA is the standing right-facing down-right grapple lock.</summary>
+    public const byte GrappleStandingDownRightPose = 0xaa;
+
+    /// <summary>Pose $AB is the standing left-facing down-left grapple lock.</summary>
+    public const byte GrappleStandingDownLeftPose = 0xab;
+
+    /// <summary>Pose $B4 is the crouched right-facing horizontal grapple lock.</summary>
+    public const byte GrappleCrouchingRightPose = 0xb4;
+
+    /// <summary>Pose $B5 is the crouched left-facing horizontal grapple lock.</summary>
+    public const byte GrappleCrouchingLeftPose = 0xb5;
+
+    /// <summary>Pose $B6 is the crouched right-facing down-right grapple lock.</summary>
+    public const byte GrappleCrouchingDownRightPose = 0xb6;
+
+    /// <summary>Pose $B7 is the crouched left-facing down-left grapple lock.</summary>
+    public const byte GrappleCrouchingDownLeftPose = 0xb7;
+
+    /// <summary>Pose $B8 is the left-wall grapple-jump contact body.</summary>
+    public const byte GrappleWallContactLeftPose = 0xb8;
+
+    /// <summary>Pose $B9 is the right-wall grapple-jump contact body.</summary>
+    public const byte GrappleWallContactRightPose = 0xb9;
+
     /// <summary>
     /// Pose $4F is the visually left-facing damage boost; its X-direction byte is the
     /// deliberately reversed value eight that drives the boost to the right.
@@ -1380,6 +1410,115 @@ public sealed class SamusState
         Kinematics.YSubspeed = ReadWord(bus, hiJumpEquipped ? 0x909ee3 : 0x909ed7);
         Kinematics.YDirection = 1;
         InitializeAnimation(bus, initialFrame: 0);
+    }
+
+    /// <summary>
+    /// Applies the pose/launch half of <c>$9B:C9CE</c> after the grapple wall-grace probe
+    /// has accepted a fresh Jump edge. This route intentionally reverses the contact pose:
+    /// `$B8` launches through left-facing `$84`, while `$B9` launches through `$83`.
+    /// </summary>
+    /// <remarks>
+    /// The eventual seven-pixel horizontal push remains the ordinary `$FB` animation-command
+    /// path already implemented by <see cref="AnimateNoFx"/>. This method performs only the
+    /// immediate bank-$9B cleanup, prospective-pose command six, and dry-air `$90:9949`
+    /// vertical launch that occur when the wall-jump function runs.
+    /// </remarks>
+    public void ApplyGrappleWallJump(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if (Pose is not (GrappleWallContactLeftPose or GrappleWallContactRightPose))
+        {
+            throw new InvalidOperationException(
+                $"Grapple wall jump requires contact pose $B8/$B9, not ${Pose:X2}.");
+        }
+
+        // `$9B:C9D5-$C9EB` tests the contact pose's X-direction byte, not its descriptive
+        // wall side. Direction eight selects `$84`; direction four selects `$83`.
+        Pose = ReadPoseXDirection(bus) == 8 ? WallJumpLeftPose : WallJumpRightPose;
+        RefreshCollisionRadii(bus);
+
+        // Prospective command six and the surrounding `$C9CE` cleanup erase both ordinary
+        // and run momentum before `$90:9949` installs the vertical wall-jump arc.
+        HorizontalSpeed.AccelerationMode = 0;
+        HorizontalSpeed.BaseSpeed = 0;
+        HorizontalSpeed.BaseSubspeed = 0;
+        HorizontalSpeed.ExtraRunSpeed = 0;
+        HorizontalSpeed.ExtraRunSubspeed = 0;
+
+        bool hiJumpEquipped = (EquippedItems & 0x0100) != 0;
+        Kinematics.YSpeed = ReadWord(bus, hiJumpEquipped ? 0x909edd : 0x909ed1);
+        Kinematics.YSubspeed = ReadWord(bus, hiJumpEquipped ? 0x909ee3 : 0x909ed7);
+        Kinematics.YDirection = 1;
+        InitializeAnimation(bus, initialFrame: 0);
+    }
+
+    /// <summary>
+    /// Commits the pose selected by <c>GrappleBeamFunction_Dropped</c> at `$9B:C8C5`.
+    /// The caller supplies the exact cartridge-table target and this method runs the shared
+    /// block-only pose-expansion collision before clearing grapple fall momentum.
+    /// </summary>
+    /// <returns>
+    /// True when the requested target fits; false when native pose-change collision retains
+    /// the source or substitutes stable crouch.
+    /// </returns>
+    public bool ApplyGrappleDropTransition(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        byte targetPose,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+
+        bool supportedSource = Pose is
+            GrappleSwingRightPose or GrappleSwingLeftPose or
+            GrappleStandingRightPose or GrappleStandingLeftPose or
+            GrappleStandingDownRightPose or GrappleStandingDownLeftPose or
+            GrappleCrouchingRightPose or GrappleCrouchingLeftPose or
+            GrappleCrouchingDownRightPose or GrappleCrouchingDownLeftPose or
+            GrappleWallContactLeftPose or GrappleWallContactRightPose;
+        bool supportedTarget = targetPose is
+            FacingRightNormalPose or FacingLeftNormalPose or
+            StandingAimUpRightPose or StandingAimUpLeftPose or
+            StandingAimDiagonalUpRightPose or StandingAimDiagonalUpLeftPose or
+            StandingAimDiagonalDownRightPose or StandingAimDiagonalDownLeftPose or
+            CrouchingRightPose or CrouchingLeftPose or
+            CrouchingAimUpRightPose or CrouchingAimUpLeftPose or
+            CrouchingAimDiagonalUpRightPose or CrouchingAimDiagonalUpLeftPose or
+            CrouchingAimDiagonalDownRightPose or CrouchingAimDiagonalDownLeftPose;
+        if (!supportedSource || !supportedTarget)
+        {
+            throw new NotSupportedException(
+                $"Grapple drop transition ${Pose:X2} -> ${targetPose:X2} is not a retail dropped-table route.");
+        }
+
+        byte sourcePose = Pose;
+        LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
+            bus,
+            level,
+            targetPose,
+            nmiFrameCounter,
+            out int centerAdjustment);
+        if (collision == LargerPoseCollisionOutcome.Allowed)
+        {
+            Pose = targetPose;
+            RefreshCollisionRadii(bus);
+            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+            InitializeAnimation(bus, initialFrame: 0);
+        }
+        else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+        {
+            ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+        }
+
+        // `$9B:C95E-$C967` clears the two base-X and two Y-speed words regardless of the
+        // pose-collision result. Extra run speed is not touched by this routine; an ordinary
+        // connected grapple never creates it, so preserving the words is the literal rule.
+        HorizontalSpeed.BaseSpeed = 0;
+        HorizontalSpeed.BaseSubspeed = 0;
+        Kinematics.YSpeed = 0;
+        Kinematics.YSubspeed = 0;
+        return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
     /// <summary>

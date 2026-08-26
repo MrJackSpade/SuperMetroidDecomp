@@ -1439,6 +1439,28 @@ static void VerifySamusGrappleSwingAndRelease()
     bus.WriteBytes(0x91b629 + SamusState.NormalJumpForwardLeftPose * 8,
         [0x04, 0x02, 0xff, 0x07, 0x00, 0x00, 0x05, 0x15]);
 
+    // The close-collision routes use a second family of type-$16 records. These bytes are
+    // the retail pose definitions, not convenient test metadata: `$B6/$B7` are locked
+    // crouching-down poses, `$B8/$B9` are the two wall contacts, and `$83/$84` are the
+    // ordinary wall-jump launch poses selected one function call later. The dropped route
+    // below uses compact diagonal-down `$74`; locked cancellation uses stable crouch `$27`.
+    bus.WriteBytes(0x91b629 + SamusState.GrappleCrouchingDownRightPose * 8,
+        [0x08, 0x16, 0x27, 0x03, 0x00, 0x00, 0x10, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.GrappleCrouchingDownLeftPose * 8,
+        [0x04, 0x16, 0x28, 0x06, 0x00, 0x00, 0x10, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.GrappleWallContactLeftPose * 8,
+        [0x08, 0x16, 0xff, 0x03, 0x00, 0x00, 0x10, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.GrappleWallContactRightPose * 8,
+        [0x04, 0x16, 0xff, 0x06, 0x00, 0x00, 0x10, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.WallJumpRightPose * 8,
+        [0x08, 0x14, 0x19, 0xff, 0x08, 0x00, 0x13, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.WallJumpLeftPose * 8,
+        [0x04, 0x14, 0x1a, 0xff, 0x08, 0x00, 0x13, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.CrouchingRightPose * 8,
+        [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.CrouchingAimDiagonalDownLeftPose * 8,
+        [0x04, 0x05, 0x28, 0x06, 0x00, 0x00, 0x10, 0x00]);
+
     // All four poses point at a harmless ordinary delay list so the public connection and
     // release initializers can execute their real animation initialization seam.
     foreach (byte pose in new byte[]
@@ -1447,11 +1469,24 @@ static void VerifySamusGrappleSwingAndRelease()
         SamusState.GrappleSwingLeftPose,
         SamusState.NormalJumpForwardRightPose,
         SamusState.NormalJumpForwardLeftPose,
+        SamusState.GrappleCrouchingDownRightPose,
+        SamusState.GrappleCrouchingDownLeftPose,
+        SamusState.GrappleWallContactLeftPose,
+        SamusState.GrappleWallContactRightPose,
+        SamusState.WallJumpRightPose,
+        SamusState.WallJumpLeftPose,
+        SamusState.CrouchingRightPose,
+        SamusState.CrouchingAimDiagonalDownLeftPose,
     })
     {
         WriteTestWord(bus, 0x91b010 + pose * 2, 0xbf00);
     }
     bus.WriteBytes(0x91bf00, [0x05, 0xff]);
+
+    // Dry-air wall-jump table zero is 4.A000. A grapple wall jump reaches the same
+    // `$90:9949` initializer as an ordinary spin wall jump after its reversed pose choice.
+    WriteTestWord(bus, 0x909ed1, 0x0004);
+    WriteTestWord(bus, 0x909ed7, 0xa000);
 
     // Firing source pose $29 is a retail right-facing fall with shot direction two. The
     // four bank-$9B table groups below are seeded with their literal direction-two values:
@@ -1662,7 +1697,7 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertTrue(cancelQueued.CancelQueued && !cancelQueued.Cancelled,
         "released firing queues cancellation");
     GrappleMovementResult cancelled =
-        SamusGrappleMovement.CompleteFiringCancellation(cancelledSamus);
+        SamusGrappleMovement.CompleteFiringCancellation(bus, cancelledSamus);
     AssertTrue(cancelled.Cancelled && cancelledSamus.Grapple.Phase == GrapplePhase.Inactive,
         "queued firing cancellation clears on following call");
 
@@ -1945,12 +1980,211 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertTrue(disconnectedAnchor.AnchorDisconnected && disconnectedAnchor.ReleaseQueued,
         "air replacing a validated grapple anchor queues moving release");
 
+    // Rebuild the small-angle neighborhood around retail special angle `$6A80`. Both the
+    // current `$6A` sample and candidate `$6B` point right, so the initial eight-pixel rope
+    // places Samus at (144,136), while the first body probe reaches solid block (9,8).
+    // Bank $94 must stop at `$6A80`; bank $9B must then consume record four's literal
+    // `$B9`, (+24,+16), `$C814` tuple rather than inventing a host-side angle range.
+    WriteTestWord(bus, 0xa0b3c3 + 0x6a * 2, 0x0000);
+    WriteTestWord(bus, 0xa0b3c3 + 0xaa * 2, 0x0100);
+    WriteTestWord(bus, 0xa0b3c3 + 0x6b * 2, 0x0000);
+    WriteTestWord(bus, 0xa0b3c3 + 0xab * 2, 0x0100);
+    bus.WriteByte(0x9bc1c2 + 0x6a, 0);
+    bus.WriteBytes(0x9bc302, [0x00, 0x00]);
+    int wallGrabRecord = 0x9bc43e + 4 * 10;
+    WriteTestWord(bus, wallGrabRecord, 0x6a80);
+    WriteTestWord(bus, wallGrabRecord + 2, SamusState.GrappleWallContactRightPose);
+    WriteTestWord(bus, wallGrabRecord + 4, 24);
+    WriteTestWord(bus, wallGrabRecord + 6, 16);
+    WriteTestWord(bus, wallGrabRecord + 8, 0xc814);
+
+    var specialBlocks = new ushort[16 * 16];
+    specialBlocks[8 * 16 + 9] = 0x8000; // candidate `$6B`, nearest radial probe
+    specialBlocks[8 * 16 + 8] = 0x8000; // `$B9`'s later 16-pixel left wall probe
+    specialBlocks[9 * 16 + 8] = 0x8000;
+    specialBlocks[10 * 16 + 8] = 0x8000;
+    var specialLevel = new RoomLevelData(
+        16,
+        16,
+        specialBlocks,
+        new byte[specialBlocks.Length],
+        new ushort[specialBlocks.Length],
+        new byte[16]);
+    var wallGrabSamus = new SamusState();
+    SamusGrappleMovement.ConnectUnobstructedSwing(
+        bus,
+        wallGrabSamus,
+        anchorX: 128,
+        anchorY: 128,
+        ropeLength: 8,
+        angle: 0x6a00,
+        angularVelocity: 0x0200,
+        faceRight: true);
+    GrappleMovementResult wallGrab = SamusGrappleMovement.Step(
+        bus,
+        specialLevel,
+        wallGrabSamus,
+        (ushort)SnesButton.X,
+        newlyPressedInput: 0);
+    AssertTrue(wallGrab.TerrainCollided && wallGrab.SpecialAngleHandled && wallGrab.WallGrabEntered,
+        "close grapple collision enters ROM-selected wall-grab function");
+    AssertEqual(6, wallGrab.CollisionDistanceFromFeet,
+        "wall-grab special route requires nearest radial probe");
+    AssertEqual(GrapplePhase.WallGrab, wallGrabSamus.Grapple.Phase,
+        "special record installs `$C814` wall-grab phase");
+    AssertEqual(SamusState.GrappleWallContactRightPose, wallGrabSamus.Pose,
+        "special record installs literal wall-contact pose `$B9`");
+    AssertEqual((ushort)160, wallGrabSamus.XPosition,
+        "wall-grab snap applies anchor-relative +24 X");
+    AssertEqual((ushort)152, wallGrabSamus.YPosition,
+        "wall-grab snap applies anchor-relative +16 Y");
+    AssertEqual<ushort?>(148, wallGrab.CameraPreviousX,
+        "special snap clamps previous camera X to twelve pixels");
+    AssertEqual<ushort?>(140, wallGrab.CameraPreviousY,
+        "special snap clamps previous camera Y to twelve pixels");
+
+    GrappleMovementResult heldWall = SamusGrappleMovement.Step(
+        bus, specialLevel, wallGrabSamus, (ushort)SnesButton.X, newlyPressedInput: 0);
+    AssertTrue(heldWall.WallGrabEntered && wallGrabSamus.Grapple.Phase == GrapplePhase.WallGrab,
+        "held Shoot retains frozen wall-grab pose");
+    GrappleMovementResult wallReleased = SamusGrappleMovement.Step(
+        bus, specialLevel, wallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
+    AssertTrue(wallReleased.WallJumpWindowOpened,
+        "wall-grab release opens native thirty-check wall-jump window");
+    AssertEqual((ushort)30, wallGrabSamus.Grapple.WallJumpTimer,
+        "wall-grab release seeds decimal thirty before decrementing");
+
+    // `$B9` faces left (pose direction four), so `$90:9CAC` probes left even though the
+    // later launch selects right-facing wall-jump pose `$83`. Jump must be a fresh A edge;
+    // the grapple function queues `$C9CE` now and performs the launch on the next call.
+    GrappleMovementResult wallJumpQueued = SamusGrappleMovement.Step(
+        bus,
+        specialLevel,
+        wallGrabSamus,
+        controllerInput: (ushort)SnesButton.A,
+        newlyPressedInput: (ushort)SnesButton.A);
+    AssertTrue(wallJumpQueued.WallProbeCollided && wallJumpQueued.WallJumpQueued,
+        "fresh Jump plus wall probe queues grapple wall jump");
+    AssertEqual((ushort)29, wallGrabSamus.Grapple.WallJumpTimer,
+        "first eligible wall-jump check decrements timer to twenty-nine");
+    GrappleMovementResult wallJumpStarted = SamusGrappleMovement.Step(
+        bus, specialLevel, wallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
+    AssertTrue(wallJumpStarted.WallJumpStarted,
+        "queued grapple wall jump starts on following function call");
+    AssertEqual(GrapplePhase.Inactive, wallGrabSamus.Grapple.Phase,
+        "grapple wall jump clears connected function");
+    AssertEqual(SamusState.WallJumpRightPose, wallGrabSamus.Pose,
+        "left-facing `$B9` contact reverses to wall-jump pose `$83`");
+    AssertEqual((ushort)4, wallGrabSamus.Kinematics.YSpeed,
+        "grapple wall jump reads dry whole speed from ROM");
+    AssertEqual((ushort)0xa000, wallGrabSamus.Kinematics.YSubspeed,
+        "grapple wall jump reads dry fractional speed from ROM");
+    AssertEqual((ushort)1, wallGrabSamus.Kinematics.YDirection,
+        "grapple wall jump launches upward");
+    AssertEqual((ushort)0, wallGrabSamus.Grapple.RopeLength,
+        "grapple wall jump removes rope state");
+
+    // Repeat the same authentic entry but do not press Jump. DEC/BPL permits exactly thirty
+    // wall checks (timer 29 through zero); the thirty-first call wraps to `$FFFF` and queues
+    // `$C8C5`. Pose `$B9` has direction six and radius sixteen, so table `$C9C4[6]` must
+    // choose compact diagonal-down-left `$74`, not a generic falling approximation.
+    var expiredWallGrabSamus = new SamusState();
+    SamusGrappleMovement.ConnectUnobstructedSwing(
+        bus,
+        expiredWallGrabSamus,
+        anchorX: 128,
+        anchorY: 128,
+        ropeLength: 8,
+        angle: 0x6a00,
+        angularVelocity: 0x0200,
+        faceRight: true);
+    SamusGrappleMovement.Step(
+        bus, specialLevel, expiredWallGrabSamus, (ushort)SnesButton.X, newlyPressedInput: 0);
+    SamusGrappleMovement.Step(
+        bus, specialLevel, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
+    for (int eligibleCheck = 0; eligibleCheck < 30; eligibleCheck++)
+    {
+        GrappleMovementResult grace = SamusGrappleMovement.Step(
+            bus, specialLevel, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
+        AssertEqual(GrapplePhase.WallGrabRelease, grace.Phase,
+            $"wall-grab grace check {eligibleCheck + 1} remains live");
+    }
+    GrappleMovementResult dropQueued = SamusGrappleMovement.Step(
+        bus, specialLevel, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
+    AssertTrue(dropQueued.DropQueued && dropQueued.Phase == GrapplePhase.Dropped,
+        "wall-grab grace underflow queues dropped function");
+    bus.WriteByte(0x9bc9c4 + 6, 0x74); // literal compact dropped-pose table entry
+    GrappleMovementResult dropped = SamusGrappleMovement.Step(
+        bus, specialLevel, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
+    AssertTrue(dropped.Dropped && expiredWallGrabSamus.Grapple.Phase == GrapplePhase.Inactive,
+        "queued dropped handler clears grapple on following call");
+    AssertEqual(SamusState.CrouchingAimDiagonalDownLeftPose, expiredWallGrabSamus.Pose,
+        "compact dropped table preserves `$B9` diagonal-down aim");
+    AssertEqual((ushort)0, expiredWallGrabSamus.Kinematics.YSpeed,
+        "dropped handler clears whole vertical speed");
+    AssertEqual((ushort)0, expiredWallGrabSamus.Kinematics.YSubspeed,
+        "dropped handler clears fractional vertical speed");
+
+    // Record zero is the locked `$D680 -> $B6` route. Candidate `$D7` again points right
+    // into block (9,8); a two-byte angular step guarantees that sample is visited after
+    // quadrant gravity. Releasing Shoot queues `$C856`, whose movement-type-$16` fallback
+    // byte in the literal `$B6` definition selects stable crouch `$27` one call later.
+    WriteTestWord(bus, 0xa0b3c3 + 0xd6 * 2, 0x0000);
+    WriteTestWord(bus, 0xa0b3c3 + 0x16 * 2, 0x0100);
+    WriteTestWord(bus, 0xa0b3c3 + 0xd7 * 2, 0x0000);
+    WriteTestWord(bus, 0xa0b3c3 + 0x17 * 2, 0x0100);
+    bus.WriteByte(0x9bc1c2 + 0xd6, 0);
+    int lockedRecord = 0x9bc43e;
+    WriteTestWord(bus, lockedRecord, 0xd680);
+    WriteTestWord(bus, lockedRecord + 2, SamusState.GrappleCrouchingDownRightPose);
+    WriteTestWord(bus, lockedRecord + 4, unchecked((ushort)-30));
+    WriteTestWord(bus, lockedRecord + 6, unchecked((ushort)-24));
+    WriteTestWord(bus, lockedRecord + 8, 0xc77e);
+    var lockedSamus = new SamusState();
+    SamusGrappleMovement.ConnectUnobstructedSwing(
+        bus,
+        lockedSamus,
+        anchorX: 128,
+        anchorY: 128,
+        ropeLength: 8,
+        angle: 0xd600,
+        angularVelocity: 0x0200,
+        faceRight: true);
+    GrappleMovementResult locked = SamusGrappleMovement.Step(
+        bus, specialLevel, lockedSamus, (ushort)SnesButton.X, newlyPressedInput: 0);
+    AssertTrue(locked.SpecialAngleHandled && locked.LockedInPlace,
+        "close collision enters ROM-selected locked function");
+    AssertEqual(GrapplePhase.ConnectedLocked, lockedSamus.Grapple.Phase,
+        "special record installs `$C77E` locked phase");
+    AssertEqual(SamusState.GrappleCrouchingDownRightPose, lockedSamus.Pose,
+        "locked special record installs pose `$B6`");
+    AssertEqual((ushort)106, lockedSamus.XPosition,
+        "locked snap applies signed -30 X offset");
+    AssertEqual((ushort)112, lockedSamus.YPosition,
+        "locked snap applies signed -24 Y offset");
+    GrappleMovementResult lockedHeld = SamusGrappleMovement.Step(
+        bus, specialLevel, lockedSamus, (ushort)SnesButton.X, newlyPressedInput: 0);
+    AssertTrue(lockedHeld.LockedInPlace,
+        "held Shoot preserves special locked body without pendulum integration");
+    GrappleMovementResult lockedCancelQueued = SamusGrappleMovement.Step(
+        bus, specialLevel, lockedSamus, controllerInput: 0, newlyPressedInput: 0);
+    AssertTrue(lockedCancelQueued.CancelQueued && lockedCancelQueued.OwnsMovement,
+        "locked release queues connected-pose cancellation");
+    GrappleMovementResult lockedCancelled =
+        SamusGrappleMovement.CompleteFiringCancellation(bus, lockedSamus);
+    AssertTrue(lockedCancelled.Cancelled && lockedCancelled.OwnsMovement,
+        "connected cancellation owns pose-fallback frame");
+    AssertEqual(SamusState.CrouchingRightPose, lockedSamus.Pose,
+        "locked `$B6` cancellation follows definition fallback `$27`");
+    AssertEqual((ushort)0, lockedSamus.Grapple.RopeLength,
+        "locked cancellation clears rope state");
+
     AssertThrows<ArgumentOutOfRangeException>(
         () => SamusGrappleMovement.ConnectUnobstructedSwing(
             bus, new SamusState(), 0, 0, ropeLength: 7, angle: 0, angularVelocity: 0, faceRight: true),
         "grapple rejects a rope shorter than retail connected minimum");
 
-    Console.WriteLine("  Samus grapple: firing, acquisition, rope/body terrain sweeps, collision kick, beam OAM, and release agree.");
+    Console.WriteLine("  Samus grapple: firing, swing collision, locked/wall-grab specials, wall jump, dropped pose, beam OAM, and release agree.");
 }
 
 static void VerifySamusPostureMovement()

@@ -687,17 +687,22 @@ public sealed class SuperMetroidRuntime
                 else if (Samus.Grapple.Phase == GrapplePhase.CancelPending)
                 {
                     LastGrappleMovement =
-                        SamusGrappleMovement.CompleteFiringCancellation(Samus);
+                        SamusGrappleMovement.CompleteFiringCancellation(_addressSpace, Samus);
+                    grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
                 }
                 else if (Samus.Grapple.Phase is
-                    GrapplePhase.ConnectedSwinging or GrapplePhase.ReleaseFromSwing)
+                    GrapplePhase.ConnectedSwinging or GrapplePhase.ReleaseFromSwing or
+                    GrapplePhase.ConnectedLocked or GrapplePhase.WallGrab or
+                    GrapplePhase.WallGrabRelease or GrapplePhase.WallJumping or
+                    GrapplePhase.Dropped)
                 {
                     LastGrappleMovement = SamusGrappleMovement.Step(
                         _addressSpace,
                         LevelData,
                         Samus,
                         Controller1.Current,
-                        Controller1.NewlyPressed);
+                        Controller1.NewlyPressed,
+                        NmiFrameCounter);
                     grappleOwnsMovement = true;
                 }
                 else if (DebugGrappleItemSelected &&
@@ -716,6 +721,20 @@ public sealed class SuperMetroidRuntime
                         CancelQueued: false,
                         Cancelled: false,
                         OwnsMovement: false);
+                }
+
+                if (LastGrappleMovement is
+                    { CameraPreviousX: ushort grapplePreviousX,
+                      CameraPreviousY: ushort grapplePreviousY })
+                {
+                    // `$9B:BAD5-$BB5F` clamps native previous-position words to twelve
+                    // pixels after a close-collision snap. Feed those corrected whole words
+                    // to bank-$90 tracking while preserving the pre-frame subpositions.
+                    previousCameraPoint = new SamusCameraPoint(
+                        grapplePreviousX,
+                        previousCameraPoint.XSubposition,
+                        grapplePreviousY,
+                        previousCameraPoint.YSubposition);
                 }
 
                 if (grappleOwnsMovement)

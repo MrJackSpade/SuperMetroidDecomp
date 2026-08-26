@@ -39,6 +39,16 @@ public static class SamusGrappleMovement
     private const int GrapplePointTilePointers = 0x9bc342;
     private const int GrappleSegmentTilePointers = 0x9bc346;
 
+    // Eight ten-byte records at $9B:C43E drive close-collision snapping. Keeping the
+    // function words named lets us validate the ROM table instead of reducing its final
+    // field to a guessed host boolean.
+    private const int SpecialAngleTable = 0x9bc43e;
+    private const int SpecialAngleRecordSize = 10;
+    private const ushort LockedInPlaceFunction = 0xc77e;
+    private const ushort WallGrabFunction = 0xc814;
+    private const int DroppedStandingPoseTable = 0x9bc9ba;
+    private const int DroppedCrouchingPoseTable = 0x9bc9c4;
+
     // $9B:C0DB-$C1C1 is the complete firing policy table. Values are deliberately read
     // from ROM instead of copied into host arrays: a debugger can correlate every live
     // word with the cartridge, and altered/revision ROMs retain their authored behavior.
@@ -112,6 +122,8 @@ public static class SamusGrappleMovement
         grapple.CollisionBounceTimer = 0;
         grapple.ValidateAnchorBlock = false;
         grapple.SpecialAngleHandling = false;
+        grapple.WallJumpTimer = 0;
+        grapple.CancelFromConnectedPose = false;
         InitializeBeamAnimation(grapple);
 
         // The beam-start/flare point is independent of the projectile endpoint while the
@@ -240,6 +252,8 @@ public static class SamusGrappleMovement
         // block dispatcher opts into bank-$9B's per-frame connection revalidation.
         grapple.ValidateAnchorBlock = false;
         grapple.SpecialAngleHandling = false;
+        grapple.WallJumpTimer = 0;
+        grapple.CancelFromConnectedPose = false;
         InitializeBeamAnimation(grapple);
 
         samus.Pose = faceRight
@@ -262,7 +276,8 @@ public static class SamusGrappleMovement
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        ushort newlyPressedInput)
+        ushort newlyPressedInput,
+        ushort nmiFrameCounter = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -277,13 +292,42 @@ public static class SamusGrappleMovement
             return new GrappleMovementResult(GrapplePhase.Inactive, Released: true, ReleaseQueued: false);
         }
 
+        // These are literal bank-$9B function-pointer phases. Each handler owns the whole
+        // grapple beta pass, so dispatch it before entering ordinary pendulum integration.
+        if (grapple.Phase == GrapplePhase.ConnectedLocked)
+            return StepLocked(level, samus, controllerInput);
+        if (grapple.Phase == GrapplePhase.WallGrab)
+            return StepWallGrab(level, samus, controllerInput);
+        if (grapple.Phase == GrapplePhase.WallGrabRelease)
+            return StepWallGrabRelease(bus, level, samus, newlyPressedInput);
+        if (grapple.Phase == GrapplePhase.WallJumping)
+            return CompleteGrappleWallJump(bus, samus, grapple);
+        if (grapple.Phase == GrapplePhase.Dropped)
+            return CompleteDropped(bus, level, samus, grapple, nmiFrameCounter);
+
         if (grapple.Phase != GrapplePhase.ConnectedSwinging)
             throw new InvalidOperationException("Connected grapple movement is not active.");
+
+        // `$9B:BAD5` clamps the camera's previous-position words against the position from
+        // the start of this frame after a special-angle snap. Retain that exact sample now;
+        // the host runtime consumes the optional corrected values returned below.
+        ushort previousXPosition = samus.XPosition;
+        ushort previousYPosition = samus.YPosition;
 
         // $9B:C79D first checks Shoot. Releasing it does not immediately install jumping
         // art: it computes velocity and queues the release function for the following frame.
         if ((controllerInput & (ushort)SnesButton.X) == 0)
         {
+            if (grapple.AngularVelocity == 0 && grapple.Angle == 0x8000)
+            {
+                grapple.Phase = GrapplePhase.Dropped;
+                return new GrappleMovementResult(
+                    grapple.Phase,
+                    Released: false,
+                    ReleaseQueued: false,
+                    DropQueued: true);
+            }
+
             PropelSamusFromSwing(bus, samus, grapple);
             grapple.Phase = GrapplePhase.ReleaseFromSwing;
             return new GrappleMovementResult(grapple.Phase, Released: false, ReleaseQueued: true);
@@ -296,27 +340,44 @@ public static class SamusGrappleMovement
         ApplyJumpImpulse(grapple, newlyPressedInput);
         GrappleSwingCollisionResult terrain = AdvanceAngleWithTerrainCollision(bus, level, grapple);
 
-        // $9B:C7E1 only dispatches one of the eight locked/wallgrab angles when both the
-        // close-collision flag and an exact table angle agree. Those pose handlers are the
-        // next grapple slice; stopping at that exact seam is safer than continuing $B2/$B3
-        // through a wall and pretending the special route was ordinary pendulum motion.
-        if (grapple.SpecialAngleHandling && IsSpecialGrappleAngle(grapple.Angle))
+        // `$9B:BAD5` scans all eight ROM records only when bank $94 raised the close-body
+        // flag. A match replaces pendulum positioning for this frame with the table's exact
+        // pose, anchor-relative body offset, and locked/wallgrab function pointer.
+        if (grapple.SpecialAngleHandling &&
+            TryHandleSpecialAngle(
+                bus,
+                samus,
+                grapple,
+                previousXPosition,
+                previousYPosition,
+                out GrappleMovementResult special))
         {
-            throw new NotSupportedException(
-                $"Grapple collision reached special angle ${grapple.Angle:X4}; " +
-                "the locked/wallgrab bank-$9B handler is not translated yet.");
+            return special with
+            {
+                TerrainCollided = terrain.Collided,
+                CollisionDistanceFromFeet = terrain.DistanceFromFeet,
+                RopeLengthBlocked = ropeLengthBlocked,
+            };
         }
 
         if (grapple.ValidateAnchorBlock && !IsStillConnectedToSupportedBlock(level, grapple))
         {
             // The persistent block path normally remains connected forever. Retain the
             // native validation seam so a future dynamic/breakable PLM cannot leave a rope
-            // attached to air. The zero-momentum dropped handler remains an explicit later
-            // route; every moving pendulum can use the already translated release handoff.
+            // attached to air. A motionless straight-down body queues `$C8C5`; a moving
+            // pendulum uses the already translated velocity-preserving release handoff.
             if (grapple.AngularVelocity == 0 && grapple.Angle == 0x8000)
             {
-                throw new NotSupportedException(
-                    "A disconnected motionless grapple requires the untranslated dropped handler.");
+                grapple.Phase = GrapplePhase.Dropped;
+                return new GrappleMovementResult(
+                    grapple.Phase,
+                    Released: false,
+                    ReleaseQueued: false,
+                    TerrainCollided: terrain.Collided,
+                    CollisionDistanceFromFeet: terrain.DistanceFromFeet,
+                    RopeLengthBlocked: ropeLengthBlocked,
+                    AnchorDisconnected: true,
+                    DropQueued: true);
             }
 
             PropelSamusFromSwing(bus, samus, grapple);
@@ -341,6 +402,250 @@ public static class SamusGrappleMovement
             CollisionDistanceFromFeet: terrain.DistanceFromFeet,
             RopeLengthBlocked: ropeLengthBlocked,
             AnchorDisconnected: false);
+    }
+
+    private static GrappleMovementResult StepLocked(
+        RoomLevelData level,
+        SamusState samus,
+        ushort controllerInput)
+    {
+        SamusGrappleState grapple = samus.Grapple;
+
+        // `$9B:C77E` does no pendulum work. It merely retains the frozen pose while Shoot
+        // remains held and either an enemy or the stored block still supports the endpoint.
+        bool shootHeld = (controllerInput & (ushort)SnesButton.X) != 0;
+        bool anchorHeld = !grapple.ValidateAnchorBlock || IsStillConnectedToSupportedBlock(level, grapple);
+        if (shootHeld && anchorHeld)
+        {
+            return new GrappleMovementResult(
+                grapple.Phase,
+                Released: false,
+                ReleaseQueued: false,
+                LockedInPlace: true);
+        }
+
+        // Both release and block disconnection install `$C856`. Mark the origin because
+        // firing cancellation coexists with ordinary movement, whereas a locked type-$16
+        // body must own this beta pass until its pose-definition fallback is committed.
+        grapple.CancelFromConnectedPose = true;
+        grapple.Phase = GrapplePhase.CancelPending;
+        return new GrappleMovementResult(
+            grapple.Phase,
+            Released: false,
+            ReleaseQueued: false,
+            CancelQueued: true,
+            OwnsMovement: true,
+            LockedInPlace: true,
+            AnchorDisconnected: !anchorHeld);
+    }
+
+    private static GrappleMovementResult StepWallGrab(
+        RoomLevelData level,
+        SamusState samus,
+        ushort controllerInput)
+    {
+        SamusGrappleState grapple = samus.Grapple;
+        bool shootHeld = (controllerInput & (ushort)SnesButton.X) != 0;
+        bool anchorHeld = !grapple.ValidateAnchorBlock || IsStillConnectedToSupportedBlock(level, grapple);
+        if (shootHeld && anchorHeld)
+        {
+            return new GrappleMovementResult(
+                grapple.Phase,
+                Released: false,
+                ReleaseQueued: false,
+                WallGrabEntered: true);
+        }
+
+        // `$9B:C81B` writes decimal 30 and changes only the grapple function. The contact
+        // pose and beam remain visible throughout the following grace-window probes.
+        grapple.WallJumpTimer = 30;
+        grapple.Phase = GrapplePhase.WallGrabRelease;
+        return new GrappleMovementResult(
+            grapple.Phase,
+            Released: false,
+            ReleaseQueued: false,
+            WallJumpWindowOpened: true,
+            AnchorDisconnected: !anchorHeld);
+    }
+
+    private static GrappleMovementResult StepWallGrabRelease(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort newlyPressedInput)
+    {
+        SamusGrappleState grapple = samus.Grapple;
+
+        // DEC/BPL at `$9B:C832` gives values 29..0 thirty eligible checks. The next call
+        // wraps zero to `$FFFF`, queues dropped, and deliberately performs no wall probe.
+        grapple.WallJumpTimer = unchecked((ushort)(grapple.WallJumpTimer - 1));
+        if ((grapple.WallJumpTimer & 0x8000) != 0)
+        {
+            grapple.Phase = GrapplePhase.Dropped;
+            return new GrappleMovementResult(
+                grapple.Phase,
+                Released: false,
+                ReleaseQueued: false,
+                DropQueued: true);
+        }
+
+        // `$90:9CAC` probes 16 pixels toward the wall named by the contact pose's direction
+        // byte. Solid-enemy collision is still an explicit actor seam; the translated block
+        // scan preserves square slopes, BTS dispatch, and available-distance behavior.
+        int signedProbe = samus.ReadPoseXDirection(bus) == 4
+            ? -(16 << 16)
+            : 16 << 16;
+        BlockMoveResult wall = SamusBlockCollision.ProbeWallHorizontal(
+            bus,
+            level,
+            samus.Kinematics,
+            signedProbe);
+        bool jumpNew = (newlyPressedInput & (ushort)SnesButton.A) != 0;
+        if (wall.Collided && jumpNew)
+        {
+            grapple.Phase = GrapplePhase.WallJumping;
+            return new GrappleMovementResult(
+                grapple.Phase,
+                Released: false,
+                ReleaseQueued: false,
+                WallJumpQueued: true,
+                WallProbeCollided: true);
+        }
+
+        return new GrappleMovementResult(
+            grapple.Phase,
+            Released: false,
+            ReleaseQueued: false,
+            WallProbeCollided: wall.Collided);
+    }
+
+    private static GrappleMovementResult CompleteGrappleWallJump(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        SamusGrappleState grapple)
+    {
+        // `$9B:C9CE` runs one frame after `$C832` selected it, matching every other grapple
+        // function-pointer handoff. The Samus helper keeps the peculiar `$B8->$84` and
+        // `$B9->$83` reversal separate from ordinary spin-contact wall jumps.
+        samus.ApplyGrappleWallJump(bus);
+        ClearConnectedGrapple(grapple);
+        return new GrappleMovementResult(
+            GrapplePhase.Inactive,
+            Released: false,
+            ReleaseQueued: false,
+            WallJumpStarted: true);
+    }
+
+    private static GrappleMovementResult CompleteDropped(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        SamusGrappleState grapple,
+        ushort nmiFrameCounter)
+    {
+        byte targetPose = SelectDroppedPose(bus, samus);
+        samus.ApplyGrappleDropTransition(bus, level, targetPose, nmiFrameCounter);
+        ClearConnectedGrapple(grapple);
+        return new GrappleMovementResult(
+            GrapplePhase.Inactive,
+            Released: false,
+            ReleaseQueued: false,
+            Dropped: true);
+    }
+
+    private static byte SelectDroppedPose(ISnesAddressSpace bus, SamusState samus)
+    {
+        // Swinging `$B2/$B3` bypass the direction tables and always fall to ordinary
+        // standing `$01/$02`, even though their live collision radius is compact.
+        if (samus.Pose == SamusState.GrappleSwingRightPose)
+            return SamusState.FacingRightNormalPose;
+        if (samus.Pose == SamusState.GrappleSwingLeftPose)
+            return SamusState.FacingLeftNormalPose;
+
+        byte shotDirection = samus.ReadShotDirection(bus);
+        bool ordinaryDirection = (shotDirection & 0xf0) == 0 && shotDirection < 10;
+        if (!ordinaryDirection)
+        {
+            // `$9B:C8DB/$C93C` use the pose direction when the direction byte is a command
+            // sentinel. Standing selects `$01/$02`; compact bodies select `$27/$28`.
+            bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+            return samus.Kinematics.YRadius >= 17
+                ? facingLeft ? SamusState.FacingLeftNormalPose : SamusState.FacingRightNormalPose
+                : facingLeft ? SamusState.CrouchingLeftPose : SamusState.CrouchingRightPose;
+        }
+
+        int table = samus.Kinematics.YRadius >= 17
+            ? DroppedStandingPoseTable
+            : DroppedCrouchingPoseTable;
+        return bus.ReadByte(table + shotDirection);
+    }
+
+    private static bool TryHandleSpecialAngle(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        SamusGrappleState grapple,
+        ushort previousXPosition,
+        ushort previousYPosition,
+        out GrappleMovementResult result)
+    {
+        // Native starts at record seven (`X=$46`) and walks backward by ten. Record order is
+        // semantically irrelevant for unique angles, but preserving it makes duplicate data
+        // in a modified ROM resolve exactly like the cartridge loop.
+        for (int record = 7; record >= 0; record--)
+        {
+            int address = SpecialAngleTable + record * SpecialAngleRecordSize;
+            if (ReadWord(bus, address) != grapple.Angle)
+                continue;
+
+            ushort poseWord = ReadWord(bus, address + 2);
+            if ((poseWord & 0xff00) != 0)
+                throw new InvalidDataException($"Grapple special-angle pose word ${poseWord:X4} is not byte-sized.");
+
+            short xOffset = unchecked((short)ReadWord(bus, address + 4));
+            short yOffset = unchecked((short)ReadWord(bus, address + 6));
+            ushort function = ReadWord(bus, address + 8);
+            GrapplePhase phase = function switch
+            {
+                LockedInPlaceFunction => GrapplePhase.ConnectedLocked,
+                WallGrabFunction => GrapplePhase.WallGrab,
+                _ => throw new InvalidDataException(
+                    $"Grapple special-angle record {record} names unknown function ${function:X4}."),
+            };
+
+            samus.Pose = unchecked((byte)poseWord);
+            samus.XPosition = unchecked((ushort)(grapple.AnchorX + xOffset));
+            samus.YPosition = unchecked((ushort)(grapple.AnchorY + yOffset));
+            samus.RefreshCollisionRadii(bus);
+            samus.InitializeAnimation(bus, initialFrame: 0);
+            grapple.Phase = phase;
+            grapple.WallJumpTimer = 0;
+
+            ushort cameraPreviousX = ClampPreviousPosition(samus.XPosition, previousXPosition);
+            ushort cameraPreviousY = ClampPreviousPosition(samus.YPosition, previousYPosition);
+            result = new GrappleMovementResult(
+                phase,
+                Released: false,
+                ReleaseQueued: false,
+                SpecialAngleHandled: true,
+                LockedInPlace: phase == GrapplePhase.ConnectedLocked,
+                WallGrabEntered: phase == GrapplePhase.WallGrab,
+                CameraPreviousX: cameraPreviousX,
+                CameraPreviousY: cameraPreviousY);
+            return true;
+        }
+
+        result = default;
+        return false;
+    }
+
+    private static ushort ClampPreviousPosition(ushort current, ushort previous)
+    {
+        short displacement = unchecked((short)(current - previous));
+        if (displacement >= 13)
+            return unchecked((ushort)(current - 12));
+        if (displacement < -12)
+            return unchecked((ushort)(current + 12));
+        return previous;
     }
 
     /// <summary>
@@ -449,12 +754,38 @@ public static class SamusGrappleMovement
     /// routine also clears palette/sound bookkeeping not yet modeled by this runtime;
     /// every gameplay-visible firing word owned by this class is cleared here.
     /// </summary>
-    public static GrappleMovementResult CompleteFiringCancellation(SamusState samus)
+    public static GrappleMovementResult CompleteFiringCancellation(
+        ISnesAddressSpace bus,
+        SamusState samus)
     {
+        ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
         SamusGrappleState grapple = samus.Grapple;
         if (grapple.Phase != GrapplePhase.CancelPending)
             throw new InvalidOperationException("A grapple firing cancellation is not queued.");
+
+        bool cancelledConnectedPose = grapple.CancelFromConnectedPose;
+        if (cancelledConnectedPose)
+        {
+            // `$9B:C856` calls `$91:82D9` while the current movement type is `$16`.
+            // Its command-six table entry kills all X/run momentum and the pose-definition
+            // byte selects the exact standing/crouching body that existed before locking.
+            byte fallback = samus.ReadNoInputFallbackPose(bus);
+            if (fallback == 0xff)
+            {
+                throw new InvalidDataException(
+                    $"Connected grapple pose ${samus.Pose:X2} has no cancellation fallback.");
+            }
+
+            samus.Pose = fallback;
+            samus.RefreshCollisionRadii(bus);
+            samus.InitializeAnimation(bus, initialFrame: 0);
+            samus.HorizontalSpeed.AccelerationMode = 0;
+            samus.HorizontalSpeed.BaseSpeed = 0;
+            samus.HorizontalSpeed.BaseSubspeed = 0;
+            samus.HorizontalSpeed.ExtraRunSpeed = 0;
+            samus.HorizontalSpeed.ExtraRunSubspeed = 0;
+        }
 
         grapple.Phase = GrapplePhase.Inactive;
         grapple.RopeLength = 0;
@@ -463,6 +794,7 @@ public static class SamusGrappleMovement
         grapple.ExtensionYVelocity = 0;
         grapple.EndpointXOffsetFixed = 0;
         grapple.EndpointYOffsetFixed = 0;
+        grapple.CancelFromConnectedPose = false;
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
             Released: false,
@@ -471,11 +803,13 @@ public static class SamusGrappleMovement
             Connected: false,
             CancelQueued: false,
             Cancelled: true,
-            OwnsMovement: false);
+            OwnsMovement: cancelledConnectedPose,
+            LockedInPlace: cancelledConnectedPose);
     }
 
     private static GrappleMovementResult QueueFiringCancellation(SamusGrappleState grapple)
     {
+        grapple.CancelFromConnectedPose = false;
         grapple.Phase = GrapplePhase.CancelPending;
         return new GrappleMovementResult(
             grapple.Phase,
@@ -1114,10 +1448,6 @@ public static class SamusGrappleMovement
         return reaction.Carry;
     }
 
-    private static bool IsSpecialGrappleAngle(ushort angle) => angle is
-        0xd680 or 0x2a80 or 0xb380 or 0x4d80 or
-        0x6a80 or 0x9680 or 0x7380 or 0x8d80;
-
     private static short NegatedArithmeticHalf(short value) =>
         unchecked((short)-(value >> 1));
 
@@ -1201,6 +1531,26 @@ public static class SamusGrappleMovement
         grapple.CollisionBounceTimer = 0;
     }
 
+    private static void ClearConnectedGrapple(SamusGrappleState grapple)
+    {
+        // `$9B:C8C5/$C9CE` share the same long cleanup tail. Palette, sound, and HUD-item
+        // producers live outside this state object; every owned movement/rendering word is
+        // reset here so a later firing edge cannot inherit wall-grace or collision state.
+        grapple.Phase = GrapplePhase.Inactive;
+        grapple.RopeLength = 0;
+        grapple.RopeLengthDelta = 0;
+        grapple.AngularVelocity = 0;
+        grapple.DirectionInputAcceleration = 0;
+        grapple.GravityAcceleration = 0;
+        grapple.VelocityCorrection = 0;
+        grapple.JumpImpulse = 0;
+        grapple.CollisionBounceTimer = 0;
+        grapple.SpecialAngleHandling = false;
+        grapple.WallJumpTimer = 0;
+        grapple.CancelFromConnectedPose = false;
+        grapple.ValidateAnchorBlock = false;
+    }
+
     private static int ScaleCoordinate(short sine, int length) => sine switch
     {
         -256 => -length,
@@ -1227,6 +1577,11 @@ public enum GrapplePhase
     CancelPending,
     ConnectedSwinging,
     ReleaseFromSwing,
+    ConnectedLocked,
+    WallGrab,
+    WallGrabRelease,
+    WallJumping,
+    Dropped,
 }
 
 /// <summary>
@@ -1275,6 +1630,18 @@ public sealed class SamusGrappleState
     /// requests bank-$9B's exact locked/wallgrab angle lookup; successful swing motion clears it.
     /// </summary>
     public bool SpecialAngleHandling { get; set; }
+
+    /// <summary>
+    /// Native `$0D30` grace counter. Wall-grab release seeds 30, then `$9B:C832` performs
+    /// one DEC/BPL wall-jump check per frame until zero wraps to `$FFFF`.
+    /// </summary>
+    public ushort WallJumpTimer { get; set; }
+
+    /// <summary>
+    /// Distinguishes `$C856` reached from a locked type-$16 pose from ordinary firing
+    /// cancellation, whose pre-existing movement and pose continue in the same frame.
+    /// </summary>
+    public bool CancelFromConnectedPose { get; set; }
     public ushort PointAnimationTimer { get; set; }
     public byte PointAnimationFrame { get; set; }
     /// <summary>
@@ -1310,7 +1677,18 @@ public readonly record struct GrappleMovementResult(
     bool TerrainCollided = false,
     int CollisionDistanceFromFeet = 0,
     bool RopeLengthBlocked = false,
-    bool AnchorDisconnected = false);
+    bool AnchorDisconnected = false,
+    bool SpecialAngleHandled = false,
+    bool LockedInPlace = false,
+    bool WallGrabEntered = false,
+    bool WallJumpWindowOpened = false,
+    bool WallProbeCollided = false,
+    bool WallJumpQueued = false,
+    bool WallJumpStarted = false,
+    bool DropQueued = false,
+    bool Dropped = false,
+    ushort? CameraPreviousX = null,
+    ushort? CameraPreviousY = null);
 
 /// <summary>World pixel and room-block coordinates produced by bank-$94's radial helper.</summary>
 internal readonly record struct GrappleCollisionPoint(

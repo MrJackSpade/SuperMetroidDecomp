@@ -73,6 +73,14 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     public IReadOnlyList<SamusSoundRequest> SoundRequests => _soundRequests;
 
+    /// <summary>
+    /// Starts one native Samus-handler sound-publication window. Runtime calls this before
+    /// movement because landing audio is emitted by collision at <c>$91:F046</c>, before
+    /// <c>AnimateSamus</c>. Standalone animation calls retain their convenient default of
+    /// beginning a window themselves.
+    /// </summary>
+    public void BeginFrameSoundRequests() => _soundRequests.Clear();
+
     /// <summary>WRAM <c>$0A4E</c>, the fractional half of pending periodic damage.</summary>
     public ushort PeriodicSubDamage { get; private set; }
 
@@ -210,14 +218,18 @@ public sealed class SamusLiquidPhysicsState
         ISnesAddressSpace bus,
         SamusState samus,
         ushort nmiFrameCounter = 0,
-        Bank80SystemState? system = null)
+        Bank80SystemState? system = null,
+        bool beginSoundRequestFrame = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
 
-        // Sound queues are per-call publications. The visual slots and damage accumulators,
-        // by contrast, are native persistent WRAM and are changed only by their own paths.
-        _soundRequests.Clear();
+        // Direct verifier/debugger calls begin a publication window here. The full runtime
+        // begins it before movement and passes false, preserving collision sounds queued by
+        // `$91:F046` before this bank-$90 animation phase. Visual slots and damage words are
+        // persistent WRAM and therefore are never cleared merely because a frame began.
+        if (beginSoundRequestFrame)
+            BeginFrameSoundRequests();
 
         byte movementType = samus.ReadMovementType(bus);
         TrySpawnRunningFootsteps(bus, samus, movementType);
@@ -311,6 +323,186 @@ public sealed class SamusLiquidPhysicsState
                 system ?? _standaloneRandom);
         }
     }
+
+    /// <summary>
+    /// Ports <c>HandleLandingSoundEffectsAndGraphics</c> and all area handlers at
+    /// <c>$91:F046-$F1D2</c>. Call this after downward collision has placed Samus against the
+    /// surface but before animation and pose-change cleanup erase the impact velocity/radius.
+    /// </summary>
+    public void HandleLandingSoundEffectsAndGraphics(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        byte previousMovementType,
+        byte previousPose,
+        ushort impactYSpeed,
+        ushort impactYSubspeed)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+
+        // `$91:F046-$F074` ends the spin-loop sound separately from the impact. The test is
+        // on PREVIOUS movement type and pose because landing selection has not run yet.
+        // Cinematics suppress both the ordinary-spin `$32` and Screw Attack `$34` requests.
+        if (!CinematicFunctionActive && previousMovementType is 3 or 0x14)
+        {
+            QueueSound(
+                library: 1,
+                soundId: previousPose is 0x81 or 0x82 ? (byte)0x34 : (byte)0x32,
+                maximumQueued: 6);
+        }
+
+        // A truly stationary grounding probe returns before impact audio AND graphics. Any
+        // nonzero fractional descent is a soft landing; whole speed five or greater is hard.
+        // Native Y speed is an unsigned magnitude, so CMP #$0005/BPL is equivalent here.
+        if (impactYSpeed == 0 && impactYSubspeed == 0)
+            return;
+
+        if (!CinematicFunctionActive)
+        {
+            QueueSound(
+                library: 3,
+                soundId: impactYSpeed >= 5 ? (byte)0x04 : (byte)0x05,
+                maximumQueued: 6);
+        }
+
+        HandleLandingGraphics(bus, samus);
+    }
+
+    private void HandleLandingGraphics(ISnesAddressSpace bus, SamusState samus)
+    {
+        // `$91:F0AA` is an eight-entry area jump table. Invalid area bytes would execute
+        // unrelated bank-$91 data on hardware; fail loudly instead of manufacturing output.
+        switch (AreaIndex)
+        {
+            case 0: // Crateria
+                HandleCrateriaLandingGraphics(bus, samus);
+                return;
+
+            case 1: // Brinstar
+                // Retail code's apparent missing RTS is real: room eight branches directly
+                // to dust, while every other Brinstar room falls through Tourian's room set.
+                if (RoomIndex == 8 || IsTourianStyleDustRoom(RoomIndex))
+                    SpawnLandingPairUnlessSubmerged(samus, type: 6);
+                else
+                    DeleteLandingPair();
+                return;
+
+            case 2: // Norfair
+            case 3: // Wrecked Ship
+                SpawnLandingPairUnlessSubmerged(samus, type: 6);
+                return;
+
+            case 4: // Maridia
+                SpawnLandingPairUnlessSubmerged(samus, type: 1);
+                return;
+
+            case 5: // Tourian
+                if (IsTourianStyleDustRoom(RoomIndex))
+                    SpawnLandingPairUnlessSubmerged(samus, type: 6);
+                else
+                    DeleteLandingPair();
+                return;
+
+            case 6: // Ceres
+            case 7: // Debug
+                DeleteLandingPair();
+                return;
+
+            default:
+                throw new InvalidDataException($"Landing graphics area {AreaIndex} is outside the native 0..7 table.");
+        }
+    }
+
+    private void HandleCrateriaLandingGraphics(ISnesAddressSpace bus, SamusState samus)
+    {
+        // Crateria's cinematic path deletes both landing-owned slots before consulting room
+        // data. This is distinct from the sound suppression already applied by the caller.
+        if (CinematicFunctionActive)
+        {
+            DeleteLandingPair();
+            return;
+        }
+
+        // Room `$1C` (space-pirate shaft) bypasses the 16-byte classification table and
+        // always chooses the dry-dust handler, still subject to live liquid submersion.
+        if (RoomIndex == 0x1c)
+        {
+            SpawnLandingPairUnlessSubmerged(samus, type: 6);
+            return;
+        }
+
+        if (RoomIndex >= 0x10)
+        {
+            DeleteLandingPair();
+            return;
+        }
+
+        // Read the literal inline flags at `$91:F0F3`, rather than maintaining a second C#
+        // room list. BIT priority is 1 (Landing Site), 2 (Wrecked Ship entrance), then 4
+        // (wet-footstep rooms), even if a modified/private image combines those bits.
+        byte roomFlags = bus.ReadByte(0x91f0f3 + RoomIndex);
+        if ((roomFlags & 1) != 0)
+        {
+            // Landing Site creates splashes only for FX type `$000A`; its normal scrolling-
+            // sky type deletes the pair. This exact comparison is not a generic water test.
+            if (FxType == 0x000a)
+                SpawnLandingPairUnlessSubmerged(samus, type: 1);
+            else
+                DeleteLandingPair();
+            return;
+        }
+
+        if ((roomFlags & 2) != 0)
+        {
+            // Above Y=$03B0 the entrance is dry and deletes; at/below it, use wet splashes.
+            if (samus.YPosition >= 0x03b0)
+                SpawnLandingPairUnlessSubmerged(samus, type: 1);
+            else
+                DeleteLandingPair();
+            return;
+        }
+
+        if ((roomFlags & 4) != 0)
+        {
+            SpawnLandingPairUnlessSubmerged(samus, type: 1);
+            return;
+        }
+
+        DeleteLandingPair();
+    }
+
+    private void SpawnLandingPairUnlessSubmerged(SamusState samus, byte type)
+    {
+        ushort bottom = samus.Kinematics.BottomBoundary;
+
+        // Both `$91:F116` and `$91:F166` suppress their particles when Samus's current
+        // bottom is genuinely below active water or lava/acid. `DetermineRawMedium...`
+        // preserves the signed surface sentinels and water option-bit-two exemption used by
+        // those routines. Importantly, suppression RETURNS and leaves old slot data intact.
+        if (DetermineRawMediumAtBoundary(bottom) != Air)
+            return;
+
+        ushort rightOffset = type == 1 ? (ushort)4 : (ushort)8;
+        ushort leftSeparation = type == 1 ? (ushort)7 : (ushort)16;
+        ushort firstX = unchecked((ushort)(samus.XPosition + rightOffset));
+        ushort secondX = unchecked((ushort)(firstX - leftSeparation));
+        ushort y = type == 1 ? unchecked((ushort)(bottom - 4)) : bottom;
+
+        // Landing owns WRAM slots two and three (byte offsets +4/+6), not the running-foot
+        // slots zero/one. Both begin immediately on frame zero with timer three.
+        AtmosphericEffects.SetSlot(2, type, 0, 3, firstX, y);
+        AtmosphericEffects.SetSlot(3, type, 0, 3, secondX, y);
+    }
+
+    private void DeleteLandingPair()
+    {
+        // Native STZ writes only the packed frame/type words; timers and coordinates survive.
+        AtmosphericEffects.ClearFrameAndType(2);
+        AtmosphericEffects.ClearFrameAndType(3);
+    }
+
+    private static bool IsTourianStyleDustRoom(byte roomIndex) =>
+        roomIndex is >= 5 and < 9 or 0x0b;
 
     /// <summary>
     /// Ports <c>HandlePeriodicDamageToSamus</c> at <c>$90:E9CE</c>. The producer above adds

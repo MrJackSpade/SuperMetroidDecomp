@@ -839,6 +839,7 @@ public sealed class SuperMetroidRuntime
             // agree on that order; using the mutable value afterward would apply an input
             // match selected for the old pose to the newly installed one.
             byte poseAtFrameStart = Samus.Pose;
+            byte movementTypeAtFrameStart = Samus.ReadMovementType(_addressSpace);
 
             // Direction bits already use the transition table's canonical layout. Input
             // matching belongs to frame-handler alpha, before beta moves the CURRENT pose;
@@ -849,6 +850,10 @@ public sealed class SuperMetroidRuntime
             // data and can appear to select nonsense transitions after several frames, so
             // suppressing only their application would be too late and observably wrong.
             bool deathOwnsSamus = Samus.DeathSequence.IsActive;
+            // Sound queues are global persistent engines on hardware, but this typed host
+            // publication is scoped to one Samus handler. Begin before movement because
+            // `$91:F046` queues landing sounds during collision, before AnimateSamus.
+            Samus.LiquidPhysics.BeginFrameSoundRequests();
             bool xrayOwnsPoseInput = Samus.Xray.IsActive && !deathOwnsSamus;
             if (xrayOwnsPoseInput)
             {
@@ -1620,6 +1625,37 @@ public sealed class SuperMetroidRuntime
                     Samus.YPosition);
             }
 
+            // Every ordinary downward collision calls `$91:F046` inside movement, before
+            // the timer hack, liquid animation, prospective-pose selection, and velocity
+            // cleanup. Ordinary-air, Morph/Spring, knockback, and drained special movement
+            // all publish `Landed`; the latter two also carry the magnitude they clear
+            // immediately after collision so hard/soft sound selection remains exact.
+            bool ordinaryOrBallLanded =
+                LastAerialSamusMovement is { Landed: true } ||
+                LastMorphBallMovement is { Landed: true };
+            bool knockbackLanded = LastKnockbackMovement is { Landed: true };
+            bool drainedLanded = LastDrainedSamusMovement is { Landed: true };
+            if (!deathOwnsSamus && (ordinaryOrBallLanded || knockbackLanded || drainedLanded))
+            {
+                ushort impactYSpeed = knockbackLanded
+                    ? LastKnockbackMovement!.Value.ImpactYSpeed
+                    : drainedLanded
+                        ? LastDrainedSamusMovement!.Value.ImpactYSpeed
+                        : Samus.Kinematics.YSpeed;
+                ushort impactYSubspeed = knockbackLanded
+                    ? LastKnockbackMovement!.Value.ImpactYSubspeed
+                    : drainedLanded
+                        ? LastDrainedSamusMovement!.Value.ImpactYSubspeed
+                        : Samus.Kinematics.YSubspeed;
+                Samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
+                    _addressSpace,
+                    Samus,
+                    movementTypeAtFrameStart,
+                    poseAtFrameStart,
+                    impactYSpeed,
+                    impactYSubspeed);
+            }
+
             // `$90:E738` runs the timer/hack handler after movement and before animation.
             // Commands five/$18 install the Mother Brain-specific Up-edge branches; the
             // method is a cheap no-op for every ordinary gameplay state.
@@ -1663,7 +1699,8 @@ public sealed class SuperMetroidRuntime
                     _addressSpace,
                     Controller1.Current,
                     NmiFrameCounter,
-                    System);
+                    System,
+                    beginLiquidSoundRequestFrame: false);
             }
 
             if (GroundedSamusMovementEnabled && !deathOwnsSamus)

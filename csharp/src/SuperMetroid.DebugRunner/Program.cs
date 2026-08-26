@@ -76,6 +76,11 @@ else if (options.JumpScript)
     Console.WriteLine(
         "Input script: Start, short neutral jump, run right, full spin jump, then release.");
 }
+else if (options.LandingImpactScript)
+{
+    Console.WriteLine(
+        "Input script: run the ordinary short-jump route while host-selecting Norfair's native landing-FX area handler; terrain, collision, velocity, particles, sound IDs, art, and OAM remain ROM-backed.");
+}
 else if (options.PostureScript)
 {
     Console.WriteLine(
@@ -475,6 +480,17 @@ if (options.WaterSpaceJumpScript)
         $"remembered medium={runtime.Samus.LiquidPhysics.LiquidPhysicsType}.");
 }
 
+if (options.LandingImpactScript)
+{
+    // Landing Site itself deliberately deletes landing particles unless its FX type is the
+    // special `$000A` record. The reusable debugger has not loaded a Norfair room yet, so
+    // publish only area byte two at this documented room-metadata seam. `$91:F0AE` then
+    // selects the retail Norfair handler; the live Landing Site fall/collision still supplies
+    // the exact impact position and velocity, and bank `$90` supplies particle art/OAM.
+    runtime.Samus!.LiquidPhysics.AreaIndex = 2;
+    runtime.Samus.LiquidPhysics.RoomIndex = 0;
+}
+
 if (options.GrappleFireScript)
     runtime.EnableDebugGrappleItemSelection();
 
@@ -811,6 +827,8 @@ ushort previousBabyMovementTablePointer = 0;
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
 var observedSamusPoses = new HashSet<byte> { runtime.Samus.Pose };
+bool observedLandingImpactDust = false;
+bool observedLandingImpactSound = false;
 ushort extraDisplacementStartX = runtime.Samus.XPosition;
 ushort extraDisplacementStartY = runtime.Samus.YPosition;
 for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
@@ -1105,7 +1123,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             >= 122 and < 182 => (ushort)SnesButton.Right,
             _ => (ushort)0,
         }
-        : options.JumpScript
+        : options.JumpScript || options.LandingImpactScript
             ? frameIndex switch
             {
                 0 => (ushort)SnesButton.Start,
@@ -1965,6 +1983,18 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         drawHighPriorityEnemyProjectiles,
         drawLowPriorityEnemyProjectiles);
     observedSamusPoses.Add(runtime.Samus.Pose);
+    if (options.LandingImpactScript &&
+        (runtime.LastAerialSamusMovement is { Landed: true } ||
+         runtime.LastMorphBallMovement is { Landed: true }))
+    {
+        // Sample after the draw pass: a surviving type-six word proves the landing producer
+        // ran before animation and `$90:8A4C` consumed/drew it without deleting the slot.
+        observedLandingImpactDust |=
+            runtime.Samus.LiquidPhysics.AtmosphericEffects.Slots[2].Type == 6 &&
+            runtime.Samus.LiquidPhysics.AtmosphericEffects.Slots[3].Type == 6;
+        observedLandingImpactSound |= runtime.Samus.LiquidPhysics.SoundRequests.Any(
+            request => request == new SamusSoundRequest(3, 0x05, 6));
+    }
     if (specialSpinRoute &&
         yDirectionBeforeFrame == 2 &&
         runtime.Samus.Kinematics.YDirection == 1)
@@ -2637,6 +2667,19 @@ if (options.BombJumpScript)
     }
     Console.WriteLine(
         $"Bomb-jump ROM route validated every milestone reachable within {options.FrameCount} frame(s).");
+}
+
+if (options.LandingImpactScript)
+{
+    if (options.FrameCount >= 28 && !observedLandingImpactDust)
+        throw new InvalidOperationException("Landing-impact route never retained both native type-six dust slots through draw.");
+    if (options.FrameCount >= 28 && !observedLandingImpactSound)
+        throw new InvalidOperationException("Landing-impact route never published the native library-three soft-impact sound `$05`.");
+    Console.WriteLine(
+        $"Landing-impact ROM route: dust={observedLandingImpactDust}, " +
+        $"softSound={observedLandingImpactSound}, " +
+        $"slot2=${runtime.Samus!.LiquidPhysics.AtmosphericEffects.Slots[2].FrameAndType:X4}, " +
+        $"slot3=${runtime.Samus.LiquidPhysics.AtmosphericEffects.Slots[3].FrameAndType:X4}.");
 }
 
 if (options.KnockbackScript)
@@ -3528,6 +3571,7 @@ readonly record struct DebugRunnerOptions(
     bool WaterSpaceJumpScript,
     bool ScrewAttackScript,
     bool JumpScript,
+    bool LandingImpactScript,
     bool PostureScript,
     bool AimScript,
     bool AimRunScript,
@@ -3574,6 +3618,7 @@ readonly record struct DebugRunnerOptions(
         bool waterSpaceJumpScript = false;
         bool screwAttackScript = false;
         bool jumpScript = false;
+        bool landingImpactScript = false;
         bool postureScript = false;
         bool aimScript = false;
         bool aimRunScript = false;
@@ -3682,6 +3727,11 @@ readonly record struct DebugRunnerOptions(
 
                 case "--jump-script":
                     jumpScript = true;
+                    groundedRun = true;
+                    break;
+
+                case "--landing-impact-script":
+                    landingImpactScript = true;
                     groundedRun = true;
                     break;
 
@@ -3863,6 +3913,7 @@ readonly record struct DebugRunnerOptions(
             waterSpaceJumpScript,
             screwAttackScript,
             jumpScript,
+            landingImpactScript,
             postureScript,
             aimScript,
             aimRunScript,

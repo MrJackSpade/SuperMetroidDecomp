@@ -3453,7 +3453,8 @@ public sealed class SamusState
         ISnesAddressSpace bus,
         ushort controllerInput = 0,
         ushort nmiFrameCounter = 0,
-        Bank80SystemState? system = null)
+        Bank80SystemState? system = null,
+        bool beginLiquidSoundRequestFrame = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         EnsureAnimationInitialized(bus);
@@ -3461,7 +3462,12 @@ public sealed class SamusState
         // `$90:8000` dispatches the active room-FX animation handler before touching the
         // frame timer. This also updates remembered `$0AD2`, which the next Space Jump gate
         // consumes independently of its current top-boundary submersion check.
-        LiquidPhysics.PrepareAnimationFrame(bus, this, nmiFrameCounter, system);
+        LiquidPhysics.PrepareAnimationFrame(
+            bus,
+            this,
+            nmiFrameCounter,
+            system,
+            beginLiquidSoundRequestFrame);
 
         // $90:8032 keeps neutral-jump frame one alive in four-tick chunks while Samus is
         // still rising. This is intentionally tested before DEC and applies only when the

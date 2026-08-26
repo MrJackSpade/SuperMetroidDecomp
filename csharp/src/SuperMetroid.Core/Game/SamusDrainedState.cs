@@ -217,6 +217,11 @@ public sealed class SamusDrainedState
             out bool hitCeiling,
             out bool downwardDisplacement);
 
+        // Generic Y movement has already applied gravity when it reports the collision.
+        // Capture the exact magnitude before `$90:94E5-$94E8` erases it for on-floor art.
+        ushort impactYSpeed = samus.Kinematics.YSpeed;
+        ushort impactYSubspeed = samus.Kinematics.YSubspeed;
+
         if (vertical.Collided)
         {
             // `$90:94D3-$94E8` restores the normal movement pointer, jumps directly to art
@@ -232,7 +237,9 @@ public sealed class SamusDrainedState
             vertical,
             hitCeiling,
             downwardDisplacement && vertical.Collided,
-            Phase);
+            Phase,
+            impactYSpeed,
+            impactYSubspeed);
     }
 
     /// <summary>Ports controller function one at <c>$91:E571</c>.</summary>
@@ -349,4 +356,6 @@ public readonly record struct DrainedSamusMovementResult(
     BlockMoveResult Vertical,
     bool HitCeiling,
     bool Landed,
-    DrainedSamusPhase PhaseAfterStep);
+    DrainedSamusPhase PhaseAfterStep,
+    ushort ImpactYSpeed,
+    ushort ImpactYSubspeed);

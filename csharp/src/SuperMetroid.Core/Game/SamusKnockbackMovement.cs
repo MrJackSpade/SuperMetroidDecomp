@@ -148,6 +148,13 @@ public static class SamusKnockbackMovement
             ? MoveUpWithGravity(bus, level, samus, nmiFrameCounter)
             : MoveDownWithoutSpeedCalculation(bus, level, samus, nmiFrameCounter);
 
+        // `$91:F010` observes these words inside downward collision, before `$90:DF6E`
+        // clears them. Preserve the impact snapshot in the typed result so the runtime can
+        // execute the shared landing-presentation routine at the same logical seam.
+        bool landed = samus.KnockbackDirection is 4 or 5 && vertical.Collided;
+        ushort impactYSpeed = samus.Kinematics.YSpeed;
+        ushort impactYSubspeed = samus.Kinematics.YSubspeed;
+
         if (vertical.Collided)
         {
             // `$90:DF6E` is reached only after the vertical helper, so horizontal wall
@@ -166,7 +173,13 @@ public static class SamusKnockbackMovement
         // frame timer value only after the special handler has consumed this frame.
         samus.KnockbackTimer--;
 
-        return new KnockbackMovementResult(horizontal, vertical, Ended: false);
+        return new KnockbackMovementResult(
+            horizontal,
+            vertical,
+            Ended: false,
+            Landed: landed,
+            impactYSpeed,
+            impactYSubspeed);
     }
 
     /// <summary>
@@ -326,4 +339,7 @@ public static class SamusKnockbackMovement
 public readonly record struct KnockbackMovementResult(
     BlockMoveResult? Horizontal,
     BlockMoveResult? Vertical,
-    bool Ended);
+    bool Ended,
+    bool Landed = false,
+    ushort ImpactYSpeed = 0,
+    ushort ImpactYSubspeed = 0);

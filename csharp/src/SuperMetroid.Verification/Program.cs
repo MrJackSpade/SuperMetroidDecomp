@@ -2531,6 +2531,8 @@ static void VerifySamusDrainedController()
         "collision restores normal movement pointer");
     AssertEqual((ushort)7, right.AnimationFrame, "collision jumps to crouched floor art");
     AssertEqual((ushort)8, right.AnimationFrameTimer, "collision loads literal floor-art timer");
+    AssertTrue(landing.ImpactYSpeed != 0 || landing.ImpactYSubspeed != 0,
+        "drained landing preserves pre-clear impact magnitude");
 
     right.Drained.PutStanding(bus, right);
     AssertEqual(SamusState.DrainedStandingRightPose, right.Pose,
@@ -6656,8 +6658,126 @@ static void VerifySamusAtmosphericEffects()
         runner.LiquidPhysics.AtmosphericEffects.Slots[1].AnimationTimer,
         "second foot effect starts immediately");
 
+    // `$91:F046` runs before animation and before landing clears Y velocity. Norfair selects
+    // type-six dust in slots two/three; spin termination precedes the soft-impact request in
+    // the native sound queues. The source pose is deliberately ordinary spin rather than a
+    // landing pose because `$0A20` has not been replaced yet at this collision seam.
+    var landing = new SamusState
+    {
+        Pose = 0x19,
+        XPosition = 100,
+        YPosition = 100,
+    };
+    bus.WriteBytes(0x91b629 + 0x19 * 8, [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
+    landing.RefreshCollisionRadii(bus);
+    landing.Kinematics.YSpeed = 4;
+    landing.Kinematics.YSubspeed = 0;
+    landing.LiquidPhysics.AreaIndex = 2;
+    landing.LiquidPhysics.BeginFrameSoundRequests();
+    landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
+        bus, landing, previousMovementType: 3, previousPose: 0x19,
+        landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
+    AssertEqual(2, landing.LiquidPhysics.SoundRequests.Count,
+        "spin landing publishes termination and impact sounds");
+    AssertEqual(new SamusSoundRequest(1, 0x32, 6),
+        landing.LiquidPhysics.SoundRequests[0], "ordinary spin termination sound");
+    AssertEqual(new SamusSoundRequest(3, 0x05, 6),
+        landing.LiquidPhysics.SoundRequests[1], "sub-five soft landing sound");
+    AssertEqual((byte)6, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
+        "Norfair landing creates right dust slot");
+    AssertEqual((byte)6, landing.LiquidPhysics.AtmosphericEffects.Slots[3].Type,
+        "Norfair landing creates left dust slot");
+    AssertEqual((ushort)108, landing.LiquidPhysics.AtmosphericEffects.Slots[2].XPosition,
+        "landing dust right X offset");
+    AssertEqual((ushort)92, landing.LiquidPhysics.AtmosphericEffects.Slots[3].XPosition,
+        "landing dust left X offset");
+    AssertEqual((ushort)112, landing.LiquidPhysics.AtmosphericEffects.Slots[2].YPosition,
+        "landing dust uses current bottom boundary");
+
+    // Whole speed five changes only the impact sound to hard `$04`; Screw Attack changes
+    // only the preceding library-one termination to `$34`. A cinematic suppresses both
+    // sounds but Norfair's graphics handler still creates dust, exactly as the separate
+    // native checks dictate.
+    landing.Kinematics.YSpeed = 5;
+    landing.LiquidPhysics.BeginFrameSoundRequests();
+    landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
+        bus, landing, previousMovementType: 0x14, previousPose: 0x81,
+        landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
+    AssertEqual(new SamusSoundRequest(1, 0x34, 6),
+        landing.LiquidPhysics.SoundRequests[0], "Screw Attack termination sound");
+    AssertEqual(new SamusSoundRequest(3, 0x04, 6),
+        landing.LiquidPhysics.SoundRequests[1], "speed-five hard landing sound");
+    landing.LiquidPhysics.CinematicFunctionActive = true;
+    landing.LiquidPhysics.BeginFrameSoundRequests();
+    landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
+        bus, landing, previousMovementType: 3, previousPose: 0x19,
+        landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
+    AssertEqual(0, landing.LiquidPhysics.SoundRequests.Count,
+        "cinematic landing suppresses both sound libraries");
+    AssertEqual((byte)6, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
+        "Norfair cinematic still dispatches landing dust");
+    landing.LiquidPhysics.CinematicFunctionActive = false;
+
+    // Active liquid returns without touching the landing slots. This is intentionally not
+    // deletion: seed an unrelated type-seven record and prove its packed word survives.
+    landing.LiquidPhysics.AtmosphericEffects.SetSlot(
+        2, type: 7, animationFrame: 2, animationTimer: 9, worldX: 77, worldY: 88);
+    landing.LiquidPhysics.ConfigureWater(surfaceY: 111);
+    landing.LiquidPhysics.BeginFrameSoundRequests();
+    landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
+        bus, landing, previousMovementType: 6, previousPose: 0x29,
+        landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
+    AssertEqual((byte)7, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
+        "submerged landing leaves prior atmospheric slot untouched");
+    AssertEqual((ushort)9, landing.LiquidPhysics.AtmosphericEffects.Slots[2].AnimationTimer,
+        "submerged return does not clear stale timer");
+
+    // Ceres/debug deletion writes only frame/type. Position and timer are observable stale
+    // WRAM. Zero vertical speed returns even earlier and therefore does not delete anything.
+    landing.LiquidPhysics.AreaIndex = 6;
+    landing.LiquidPhysics.FxYPosition = ushort.MaxValue;
+    landing.Kinematics.YSpeed = 1;
+    landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
+        bus, landing, previousMovementType: 6, previousPose: 0x29,
+        landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
+    AssertEqual((ushort)0, landing.LiquidPhysics.AtmosphericEffects.Slots[2].FrameAndType,
+        "Ceres deletes landing packed word");
+    AssertEqual((ushort)9, landing.LiquidPhysics.AtmosphericEffects.Slots[2].AnimationTimer,
+        "Ceres delete preserves atmospheric timer");
+    AssertEqual((ushort)77, landing.LiquidPhysics.AtmosphericEffects.Slots[2].XPosition,
+        "Ceres delete preserves atmospheric X");
+    landing.LiquidPhysics.AtmosphericEffects.SetSlot(
+        2, type: 7, animationFrame: 0, animationTimer: 3, worldX: 1, worldY: 2);
+    landing.Kinematics.YSpeed = 0;
+    landing.Kinematics.YSubspeed = 0;
+    landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
+        bus, landing, previousMovementType: 6, previousPose: 0x29,
+        landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
+    AssertEqual((byte)7, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
+        "zero-speed grounding returns before graphics dispatch");
+
+    // Crateria reads its literal inline room byte. Landing Site flag one requires exact FX
+    // type `$000A`; with a dry surface it creates type-one splashes at +4/-3 and bottom-4.
+    bus.WriteByte(0x91f0f3, 1);
+    landing.LiquidPhysics.AreaIndex = 0;
+    landing.LiquidPhysics.RoomIndex = 0;
+    landing.LiquidPhysics.FxType = 0x000a;
+    landing.LiquidPhysics.FxYPosition = ushort.MaxValue;
+    landing.Kinematics.YSubspeed = 1;
+    landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
+        bus, landing, previousMovementType: 6, previousPose: 0x29,
+        landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
+    AssertEqual((byte)1, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
+        "Landing Site type-A FX selects splash");
+    AssertEqual((ushort)104, landing.LiquidPhysics.AtmosphericEffects.Slots[2].XPosition,
+        "landing splash right X offset");
+    AssertEqual((ushort)97, landing.LiquidPhysics.AtmosphericEffects.Slots[3].XPosition,
+        "landing splash left X offset");
+    AssertEqual((ushort)108, landing.LiquidPhysics.AtmosphericEffects.Slots[2].YPosition,
+        "landing splash rises four pixels above feet");
+
     Console.WriteLine(
-        "  Samus atmosphere: splash, bubbles, lava damage, footsteps, packed timers, sound, and OAM agree.");
+        "  Samus atmosphere: liquid FX, footsteps, landing impact, packed timers, sound, and OAM agree.");
 }
 
 /// <summary>
@@ -7017,6 +7137,42 @@ static void VerifySamusKnockbackAndDamageBoost()
     AssertEqual((ushort)91, samus.YPosition, "knockback upward whole position");
     AssertEqual((ushort)4, samus.Kinematics.YSpeed, "knockback gravity next whole speed");
     AssertEqual((ushort)0xd800, samus.Kinematics.YSubspeed, "knockback gravity next subspeed");
+
+    // Held forward selects down-right direction four. Place the radius-21 body flush with a
+    // square floor so `$90:923F`'s no-speed down probe collides immediately. The special
+    // handler clears live velocity after collision, while its result must retain the 5.0000
+    // magnitude seen by `$91:F078` for hard-landing sound selection.
+    var downForeground = new ushort[width * height];
+    for (int x = 0; x < width; x++)
+        downForeground[6 * width + x] = 0x8000;
+    var floorLevel = new RoomLevelData(
+        width,
+        height,
+        downForeground,
+        new byte[downForeground.Length],
+        new ushort[downForeground.Length],
+        new byte[8]);
+    var downKnockback = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 96,
+        YPosition = 75,
+    };
+    downKnockback.RefreshCollisionRadii(bus);
+    SamusKnockbackMovement.Start(
+        bus,
+        downKnockback,
+        controllerInput: (ushort)SnesButton.Right,
+        knockbackXDirection: 0);
+    KnockbackMovementResult downImpact = SamusKnockbackMovement.Step(
+        bus, floorLevel, downKnockback, nmiFrameCounter: 0);
+    AssertTrue(downImpact.Landed, "downward knockback collision publishes landing");
+    AssertEqual((ushort)5, downImpact.ImpactYSpeed,
+        "downward knockback retains pre-clear whole impact speed");
+    AssertEqual((ushort)0, downImpact.ImpactYSubspeed,
+        "downward knockback retains pre-clear fractional impact speed");
+    AssertEqual((ushort)0, downKnockback.Kinematics.YSpeed,
+        "downward knockback clears live whole speed after snapshot");
 
     // `$53` plus Left+Jump (`$0280`) selects `$50`. The pose-family crossing runs the native normal
     // input initializer, clears the special handler, and starts a fresh 4.E000 jump.

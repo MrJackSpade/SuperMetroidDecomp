@@ -63,6 +63,18 @@ public sealed class SamusAtmosphericEffectsState
     }
 
     /// <summary>
+    /// Clears only a slot's packed frame/type word, exactly like the landing-graphics delete
+    /// paths at <c>$91:F0BE/$91:F1CC</c>. The cartridge deliberately leaves the timer and
+    /// coordinates behind; retaining that stale debugger-visible state matters when proving
+    /// that a later producer really initialized every field it owns.
+    /// </summary>
+    public void ClearFrameAndType(int slotIndex)
+    {
+        ValidateSlotIndex(slotIndex);
+        _slots[slotIndex].FrameAndType = 0;
+    }
+
+    /// <summary>
     /// Ports <c>Handle_AtmosphericEffects</c> at <c>$90:8A4C-$8C1E</c>, including timer
     /// underflow, reverse slot order, per-type motion, clipping, and the two OAM paths.
     /// </summary>

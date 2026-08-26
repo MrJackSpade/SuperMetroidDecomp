@@ -12,7 +12,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | Type | Native family | Current C# admission | Remaining native branches |
 |---:|---|---|---|
 | `$00` | Standing | Forward `$00/$9B` equipment selector, zero-status lock, active `$0E18` one-pixel elevator descent through no-solid-enemy `$94:9763`, power-suit chest-cover OAM; ordinary `$01-$08`, landing `$A4-$A7/$E0-$E7`, including held-Shot horizontal firing landings; X-ray `$D5/$D6` admission, angle art, time freeze, beam state, visor palette, and teardown | Live elevator actor/status producer; X-ray BG2 reveal/window-HDMA presentation |
-| `$01` | Running | `$09/$0A/$0B/$0C/$0D-$12`, including horizontal gun extension with preserved native run phase; air/water/lava X tables and submerged Dash gate, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes; ROM-timed wet/dust footsteps | Landing-impact effects and live collision producers |
+| `$01` | Running | `$09/$0A/$0B/$0C/$0D-$12`, including horizontal gun extension with preserved native run phase; air/water/lava X tables and submerged Dash gate, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes; ROM-timed wet/dust footsteps and area-selected landing impact | Live collision producers |
 | `$02` | Normal jumping | `$4B-$4E/$13-$18/$51-$52/$55-$5A/$69-$6C`, including horizontal gun extension, compact straight-down collision changes, air/water/lava normal/Hi-Jump launch, X tables, gravity, persistent external X/Y displacement, variable height, ceiling/floor collision; liquid entry/exit splash, bubbles, sound, and damage | Collision-producer side effects |
 | `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, air/water/lava X/gravity/launch/repeat gates, variable height, split-body animation, damage/palette, block/solid-enemy wall contact and launch; liquid entry/exit splash, bubbles, sound, and damage | Live enemy actor producer |
 | `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, air/water/lava X tables, persistent external X/Y displacement, slopes, reversal, deceleration, walk-off, normal-bomb deployment, solid/frozen-enemy clipping | Bombable-block PLMs, live enemy actor producer |
@@ -55,7 +55,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
   tick and advances to the next literal delay.
 - This audit is deliberately not a claim that all movement-related systems are complete.
   Fatal-damage acquisition/post-fade ownership, the elevator actor/status producer,
-  X-ray reveal/window rendering, landing-impact effects, PLM reactions, and live enemy collision/displacement
+  X-ray reveal/window rendering, PLM reactions, and live enemy collision/displacement
   producers remain concrete cross-system gaps.
 
 The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
@@ -166,6 +166,19 @@ translated status is documented with the Morph Ball family below.
   direct small-OBJ attributes, and Samus-table diving/bubble spritemaps. The draw handler runs
   before Samus, retaining native OAM overlap. `$90:A3E5/$ED88-$EEE6` additionally ties wet or
   type-seven dust footsteps to running frames two/seven and the exact audio-suppression gates.
+- `$91:F046-$F1D2` now runs at its actual collision-before-animation seam for ordinary,
+  Morph Ball, Spring Ball, downward-knockback, and drained-Samus landings. The two special
+  handlers publish their impact magnitude before clearing live velocity. The shared path
+  distinguishes stationary, soft, and speed-five
+  hard impacts; queues ordinary-spin/Screw termination and library-three impact IDs; reads
+  Crateria's literal 16-byte room flag table; preserves its Brinstar-to-Tourian fallthrough;
+  selects Maridia splashes or Norfair/Wrecked Ship/Tourian dust; suppresses particles below
+  active liquid; and deletes only the packed words of slots two/three where retail does.
+- Real-ROM `--landing-impact-script` changes only the debugger's room-owned area byte to
+  Norfair because authentic Landing Site scrolling-sky metadata intentionally deletes these
+  particles. A 29-frame route uses live Landing Site terrain/velocity, observes soft sound
+  `$05`, retains both type-six slots through draw, and captures the ROM `$2A48` dust pair in
+  `LandingImpactFrame.png` plus its three diagnostic layers.
 - `$90:E9CE-$EA44` applies pending damage through the overlapping 8.8 Varia/Gravity shifts,
   subunit-energy borrow, fatal clamp, time-freeze clear, and accumulator reset. The outer
   fatal-damage game-state producer remains separate from this completed consumer.
@@ -1028,5 +1041,4 @@ Ridley-afterburn-first chain, and the typewriter glyph family.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.
 4. Grapple breakable PLMs and spike-damage side effects.
-5. Landing-impact graphics/audio and remaining grapple-specific damage effects.
-6. Return with bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.
+5. Return with bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.

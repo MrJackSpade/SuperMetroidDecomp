@@ -79,6 +79,28 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     private static ReadOnlySpan<ushort> CorpseTileDestinations =>
         [0x7a00, 0x7b00, 0x7c00, 0x7d00, 0x7e00, 0x7f00];
 
+    // NTSC `$A6:C4CB-$C4FC`: two number pages followed by five typewriter-text pages.
+    // The final text page is only `$100` bytes. ProcessSpriteTilesTransfers emits one
+    // record per call and reports completion on the same call that emits entry six.
+    private static readonly MotherBrainSpriteTileTransferRequest[] EscapeTimerTileTransfers =
+    [
+        new(0, 0x0200, 0xb0c000, 0x7e00),
+        new(1, 0x0120, 0xb0c200, 0x7f00),
+        new(2, 0x0200, 0xb7da00, 0x7820),
+        new(3, 0x0200, 0xb7dc00, 0x7920),
+        new(4, 0x0200, 0xb7de00, 0x7a20),
+        new(5, 0x0200, 0xb7e000, 0x7b20),
+        new(6, 0x0100, 0xb7e200, 0x7c20),
+    ];
+
+    // `$A9:902F-$903E` replaces the destroyed escape door's two sprite pages. Because the
+    // escape-timer list falls through, entry zero is emitted on the timer list's final call.
+    private static readonly MotherBrainSpriteTileTransferRequest[] ExplodedDoorTileTransfers =
+    [
+        new(0, 0x0200, 0xabf400, 0x7000),
+        new(1, 0x0200, 0xabf600, 0x7100),
+    ];
+
     // Seven records of four interleaved (X,Y) pairs at `$A9:B099-$B108`. The native
     // explosion index counts backward and wraps to six, so a zero-initialized sequence emits
     // record six first. Signed offsets are added to the body enemy's current world position.
@@ -325,6 +347,15 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>Index of the next of six `$A9:9003` corpse sprite-tile DMA records.</summary>
     public ushort CorpseTileTransferIndex { get; private set; }
+
+    /// <summary>Index of the next NTSC escape-timer tile record at <c>$A6:C4CB</c>.</summary>
+    public ushort EscapeTimerTileTransferIndex { get; private set; }
+
+    /// <summary>Index of the next exploded-door tile record at <c>$A9:902F</c>.</summary>
+    public ushort ExplodedDoorTileTransferIndex { get; private set; }
+
+    /// <summary>Unpause-hook enable word cleared when the escape typewriter is installed.</summary>
+    public bool MotherBrainUnpauseHookEnabled { get; private set; } = true;
 
     /// <summary>
     /// Set when `$A9:B11B` installs the brain-slot draw setup before the decapitated head
@@ -826,7 +857,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         ushort mainEnemyExecutionCounter,
         bool powerBombActive = false,
         ushort randomNumberSeed = 0,
-        Func<ushort>? nextRandomNumber = null)
+        Func<ushort>? nextRandomNumber = null,
+        bool alternateEscapeText = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -857,6 +889,12 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         var corpseDustRequests = new List<MotherBrainCorpseDustRequest>(capacity: 1);
         bool musicStopQueued = false;
         bool escapeMusicQueued = false;
+        var escapeSequenceTileTransfers =
+            new List<MotherBrainSpriteTileTransferRequest>(capacity: 2);
+        bool explodedDoorPaletteRequested = false;
+        bool escapeMusicTrackQueued = false;
+        var escapePaletteFxRequests = new List<ushort>(capacity: 4);
+        bool escapeTypewriterSetupRequested = false;
 
         switch (Phase)
         {
@@ -1749,8 +1787,43 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadEscapeTimerTiles:
-                // `$A9:B258` begins the next explicit subsystem seam: the frame-spread
-                // escape-timer sprite tile list and the escape-start sequence that follows.
+                escapeSequenceTileTransfers.Add(CreateNextEscapeTimerTileTransfer());
+                if (EscapeTimerTileTransferIndex == EscapeTimerTileTransfers.Length)
+                {
+                    // Carry set after entry six clears the shared list cursor, installs
+                    // `$B26D`, and falls through far enough to emit exploded-door entry zero
+                    // during this same enemy AI call.
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape;
+                    goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape:
+                escapeSequenceTileTransfers.Add(CreateNextExplodedDoorTileTransfer());
+                if (ExplodedDoorTileTransferIndex != ExplodedDoorTileTransfers.Length)
+                    break;
+
+                // The second door record observes the zero terminator and performs the full
+                // `$B275-$B2CD` handoff on that call: copy fourteen colors (palette zero is
+                // skipped), start escape music, hold the quake indefinitely, create four
+                // palette-FX objects, disable the old unpause hook, and initialize text.
+                explodedDoorPaletteRequested = true; // `$A9:9534`, 14 colors -> target `$0122`.
+                escapeMusicTrackQueued = true;        // Eight-frame-delay music value `$0007`.
+                EarthquakeType = 5;
+                EarthquakeTimer = 0xffff;
+                escapePaletteFxRequests.AddRange([0xffc9, 0xffcd, 0xffd1, 0xffd5]);
+                MotherBrainUnpauseHookEnabled = false;
+                escapeTypewriterSetupRequested = true;
+                FunctionTimer = 0x0020;
+                Phase = alternateEscapeText
+                    ? MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSpawnTimeBombSetSubtitle
+                    : MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText;
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSpawnTimeBombSetSubtitle:
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText:
+                // `$B2D1/$B2E3` consume the typewriter subsystem and subtitle projectile.
+                // They are the next explicit producer seam; do not guess text completion.
                 break;
 
             default:
@@ -1793,7 +1866,12 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             corpseRottingVramTransfers,
             corpseDustRequests,
             musicStopQueued,
-            escapeMusicQueued);
+            escapeMusicQueued,
+            escapeSequenceTileTransfers,
+            explodedDoorPaletteRequested,
+            escapeMusicTrackQueued,
+            escapePaletteFxRequests,
+            escapeTypewriterSetupRequested);
     }
 
     private void BeginExtendingNeckForAttack()
@@ -2218,6 +2296,28 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return request;
     }
 
+    private MotherBrainSpriteTileTransferRequest CreateNextEscapeTimerTileTransfer()
+    {
+        int index = EscapeTimerTileTransferIndex;
+        if ((uint)index >= (uint)EscapeTimerTileTransfers.Length)
+            throw new InvalidOperationException("Escape-timer sprite-tile transfer list is already complete.");
+
+        MotherBrainSpriteTileTransferRequest request = EscapeTimerTileTransfers[index];
+        EscapeTimerTileTransferIndex++;
+        return request;
+    }
+
+    private MotherBrainSpriteTileTransferRequest CreateNextExplodedDoorTileTransfer()
+    {
+        int index = ExplodedDoorTileTransferIndex;
+        if ((uint)index >= (uint)ExplodedDoorTileTransfers.Length)
+            throw new InvalidOperationException("Exploded-door sprite-tile transfer list is already complete.");
+
+        MotherBrainSpriteTileTransferRequest request = ExplodedDoorTileTransfers[index];
+        ExplodedDoorTileTransferIndex++;
+        return request;
+    }
+
     private void GenerateDeathExplosions(
         bool mixed,
         Func<ushort>? nextRandomNumber,
@@ -2446,6 +2546,9 @@ public enum MotherBrainRainbowBeamAttackPhase
     Phase3DeathSequenceCorpseRotsAway,
     Phase3DeathSequence20FrameDelay,
     Phase3DeathSequenceLoadEscapeTimerTiles,
+    Phase3DeathSequenceStartEscape,
+    Phase3DeathSequenceSpawnTimeBombSetSubtitle,
+    Phase3DeathSequenceTypeOutZebesEscapeText,
 }
 
 /// <summary>Reachable third-phase walking function pointers at `$A9:C26A-$C326`.</summary>
@@ -2576,4 +2679,9 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     IReadOnlyList<MotherBrainSpriteTileTransferRequest> CorpseRottingVramTransfers,
     IReadOnlyList<MotherBrainCorpseDustRequest> CorpseDustRequests,
     bool MusicStopQueued,
-    bool EscapeMusicQueued);
+    bool EscapeMusicQueued,
+    IReadOnlyList<MotherBrainSpriteTileTransferRequest> EscapeSequenceTileTransfers,
+    bool ExplodedDoorPaletteRequested,
+    bool EscapeMusicTrackQueued,
+    IReadOnlyList<ushort> EscapePaletteFxRequests,
+    bool EscapeTypewriterSetupRequested);

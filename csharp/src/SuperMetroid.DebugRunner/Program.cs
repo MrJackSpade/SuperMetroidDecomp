@@ -1247,6 +1247,18 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 checked((int)transfer.SourceAddress),
                 transfer.VramDestination);
         }
+        foreach (MotherBrainSpriteTileTransferRequest transfer in
+                 actorResult.EscapeSequenceTileTransfers)
+        {
+            runtime.VramWrites.Enqueue(
+                transfer.Size,
+                checked((int)transfer.SourceAddress),
+                transfer.VramDestination);
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: escape-sequence tile transfer " +
+                $"${transfer.SourceAddress:X6} -> VRAM ${transfer.VramDestination:X4}, " +
+                $"${transfer.Size:X4} bytes.");
+        }
         foreach (MotherBrainCorpseDustRequest dust in actorResult.CorpseDustRequests)
         {
             Console.WriteLine(
@@ -1261,6 +1273,14 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 $"frame {frameIndex + 1,4}: Mother Brain corpse finished; queued music " +
                 $"${(actorResult.MusicStopQueued ? 0x0000 : 0xffff):X4} then " +
                 $"${(actorResult.EscapeMusicQueued ? 0xff24 : 0xffff):X4}.");
+        }
+        if (actorResult.EscapeTypewriterSetupRequested)
+        {
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: escape start initialized; palette copy=" +
+                $"{actorResult.ExplodedDoorPaletteRequested}, music7=" +
+                $"{actorResult.EscapeMusicTrackQueued}, palette FX=" +
+                $"{string.Join(',', actorResult.EscapePaletteFxRequests.Select(x => $"${x:X4}"))}.");
         }
 
         if (actorResult.BabySpawnRequested)

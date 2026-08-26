@@ -4004,8 +4004,77 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadEscapeTimerTiles,
         death.Phase, "post-rot delay reaches explicit escape-timer tile seam");
 
+    MotherBrainSpriteTileTransferRequest[] expectedEscapeTimerTransfers =
+    [
+        new(0, 0x0200, 0xb0c000, 0x7e00),
+        new(1, 0x0120, 0xb0c200, 0x7f00),
+        new(2, 0x0200, 0xb7da00, 0x7820),
+        new(3, 0x0200, 0xb7dc00, 0x7920),
+        new(4, 0x0200, 0xb7de00, 0x7a20),
+        new(5, 0x0200, 0xb7e000, 0x7b20),
+        new(6, 0x0100, 0xb7e200, 0x7c20),
+    ];
+    for (int transferIndex = 0; transferIndex < expectedEscapeTimerTransfers.Length; transferIndex++)
+    {
+        MotherBrainRainbowBeamAttackStepResult escapeTiles =
+            death.Step(bus, phase3Samus, 0, 0);
+        AssertEqual(expectedEscapeTimerTransfers[transferIndex],
+            escapeTiles.EscapeSequenceTileTransfers[0],
+            $"escape timer tile DMA {transferIndex}");
+        if (transferIndex < expectedEscapeTimerTransfers.Length - 1)
+        {
+            AssertEqual(1, escapeTiles.EscapeSequenceTileTransfers.Count,
+                "nonfinal escape-timer call emits exactly one record");
+        }
+        else
+        {
+            // `$B26A` falls through: final timer text and first exploded-door page share
+            // one AI call even though both use the same global transfer-list cursor.
+            AssertEqual(2, escapeTiles.EscapeSequenceTileTransfers.Count,
+                "final escape-timer call also emits first exploded-door record");
+            AssertEqual(new MotherBrainSpriteTileTransferRequest(0, 0x0200, 0xabf400, 0x7000),
+                escapeTiles.EscapeSequenceTileTransfers[1],
+                "same-call first exploded-door DMA");
+        }
+    }
+    AssertEqual((ushort)7, death.EscapeTimerTileTransferIndex,
+        "escape-timer list consumes seven NTSC records");
+    AssertEqual((ushort)1, death.ExplodedDoorTileTransferIndex,
+        "escape-timer fallthrough consumes exploded-door record zero");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape,
+        death.Phase, "first door record leaves `$B26D` active");
+
+    MotherBrainRainbowBeamAttackStepResult escapeStarted =
+        death.Step(bus, phase3Samus, 0, 0);
+    AssertEqual(1, escapeStarted.EscapeSequenceTileTransfers.Count,
+        "second start-escape call emits one door record");
+    AssertEqual(new MotherBrainSpriteTileTransferRequest(1, 0x0200, 0xabf600, 0x7100),
+        escapeStarted.EscapeSequenceTileTransfers[0],
+        "second exploded-door DMA");
+    AssertTrue(escapeStarted.ExplodedDoorPaletteRequested,
+        "door-list terminator requests fourteen-color exploded-door palette copy");
+    AssertTrue(escapeStarted.EscapeMusicTrackQueued,
+        "door-list terminator queues escape music track seven");
+    AssertEqual((ushort)5, death.EarthquakeType, "escape start selects earthquake type five");
+    AssertEqual((ushort)0xffff, death.EarthquakeTimer,
+        "escape start holds earthquake with `$FFFF`");
+    AssertEqual(4, escapeStarted.EscapePaletteFxRequests.Count,
+        "escape start spawns all four Tourian red-flash palette objects");
+    AssertEqual((ushort)0xffc9, escapeStarted.EscapePaletteFxRequests[0],
+        "escape palette FX begins with shutter-red object");
+    AssertEqual((ushort)0xffd5, escapeStarted.EscapePaletteFxRequests[3],
+        "escape palette FX ends with Arkanoid/red-orb object");
+    AssertTrue(!death.MotherBrainUnpauseHookEnabled,
+        "escape typewriter disables Mother Brain unpause hook");
+    AssertTrue(escapeStarted.EscapeTypewriterSetupRequested,
+        "escape start requests native Zebes typewriter setup");
+    AssertEqual((ushort)0x0020, death.FunctionTimer,
+        "escape text handoff loads `$20` subtitle/typewriter timer");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText,
+        death.Phase, "default NTSC text selection reaches explicit `$B2E3` seam");
+
     Console.WriteLine(
-        "  Baby Metroid: entrance through death movement, corpse rotting, and escape-timer handoff agree.");
+        "  Baby Metroid: death movement, corpse rotting, escape DMA, and typewriter handoff agree.");
 }
 
 static void VerifySamusAerialMovement()

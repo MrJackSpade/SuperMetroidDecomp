@@ -501,8 +501,13 @@ translated status is documented with the Morph Ball family below.
   each of 117 active calls, and all 48 `$B223` dust hooks finish on call 118. Carry-clear
   completion applies both brain property words, queues `$0000/$FF24`, consumes the same-call
   first decrement of the `$14` delay, then clears brain X/Y after twenty further calls.
+  `$B258-$B2D0` then emits seven NTSC escape-timer tile records; the seventh falls through
+  and emits exploded-door page zero on the same call. Page one completes the second list,
+  requests the exact fourteen-color door palette copy and four `$8D:FFC9-$FFD5` red-flash
+  objects, queues track seven, holds quake 5 at `$FFFF`, disables the Mother Brain unpause
+  hook, and initializes the Zebes escape typewriter with its `$20` text timer.
   The earlier attack-selection trigger, live Hyper Beam shot/damage producer, phase-three
-  bomb projectile, escape-timer tile/escape-start sequence at `$B258`, Baby instruction-list/
+  bomb projectile, subtitle/typewriter sequence at `$B2D1/$B2E3`, Baby instruction-list/
   dust-projectile rendering, and palette/HDMA effects beyond direct CGRAM writes remain seams.
 - `MotherBrainBodyAnimationState` translates the ordinary enemy-instruction stage used by
   Mother Brain's painful fast/medium/slow/really-slow walks in both directions plus
@@ -783,7 +788,7 @@ translated status is documented with the Morph Ball family below.
 ## Next implementation order
 
 1. Wire live Hyper Beam projectiles into `$B562` recoil/health, continue Mother Brain's
-   escape-timer tile/start sequence from `$A9:B258`, then implement the phase-three bomb
+   subtitle/typewriter and escape-door sequence from `$A9:B2D1`, then implement the phase-three bomb
    projectile and earlier attack-selection trigger that enters `$B8EB`.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.

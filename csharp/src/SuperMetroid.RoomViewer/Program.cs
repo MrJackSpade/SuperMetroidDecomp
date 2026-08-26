@@ -1,8 +1,42 @@
 using SuperMetroid.RoomViewer;
+using System.Runtime.InteropServices;
 
 // WinForms supplies a convenient zero-dependency debug shell on this Windows workstation.
 // The game-facing code remains in SuperMetroid.Core and has no dependency on WinForms;
 // replacing this shell with SDL, MonoGame, or another host will not affect ROM decoding.
+//
+// SEM_FAILCRITICALERRORS prevents Windows from opening a modal critical-error box. The other
+// two flags suppress the general-fault and file-open boxes which can otherwise be displayed by
+// native code below the CLR. Managed exceptions still retain their full diagnostic text below;
+// this changes only where the operating system reports a fatal process error.
+NativeViewerProcess.SetErrorMode(
+    NativeViewerProcess.SemFailCriticalErrors |
+    NativeViewerProcess.SemNoGpFaultErrorBox |
+    NativeViewerProcess.SemNoOpenFileErrorBox);
+
+// WinForms normally converts exceptions thrown by control event handlers into its own modal
+// dialog. Route them into the same stderr/exit-code contract as console-hosted tools instead.
+// Application.ExitThread unwinds the message loop after the exception has been printed, so a
+// failed frame cannot leave a half-responsive viewer process behind.
+Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+Application.ThreadException += (_, eventArguments) =>
+{
+    Console.Error.WriteLine(eventArguments.Exception);
+    Environment.ExitCode = 1;
+    Application.ExitThread();
+};
+
+// A non-UI worker-thread failure cannot be recovered safely, but writing it here makes the
+// complete managed exception visible before the runtime terminates the process. SetErrorMode
+// above ensures that termination does not hand control to a focus-stealing Windows dialog.
+AppDomain.CurrentDomain.UnhandledException += (_, eventArguments) =>
+{
+    if (eventArguments.ExceptionObject is Exception exception)
+        Console.Error.WriteLine(exception);
+    else
+        Console.Error.WriteLine($"Unhandled non-Exception object: {eventArguments.ExceptionObject}");
+};
+
 ApplicationConfiguration.Initialize();
 
 try
@@ -10,18 +44,16 @@ try
     ViewerStartupPaths paths = ViewerStartupPaths.Resolve(args);
     Application.Run(new RoomViewerForm(paths.RawAssetDirectory, paths.RomPath));
 }
-catch (Exception exception) when (
-    exception is ArgumentException or DirectoryNotFoundException or FileNotFoundException)
+catch (Exception exception)
 {
-    // Startup failures should be actionable when the executable is launched directly. Do
-    // not let WinForms turn a missing private input into a silent process exit or a long
-    // DirectoryNotFoundException from several layers below this boundary.
-    MessageBox.Show(
-        exception.Message,
-        "Super Metroid room viewer",
-        MessageBoxButtons.OK,
-        MessageBoxIcon.Error);
+    // Catch every managed startup/message-loop failure at the process boundary. ToString()
+    // preserves the exception type, message, inner exception, and full stack trace, while the
+    // explicit exit code keeps Visual Studio, scripts, and CI aware that the run failed.
+    Console.Error.WriteLine(exception);
+    return 1;
 }
+
+return Environment.ExitCode;
 
 /// <summary>Resolved private inputs for one viewer process.</summary>
 readonly record struct ViewerStartupPaths(string RawAssetDirectory, string RomPath)
@@ -169,4 +201,18 @@ readonly record struct ViewerStartupPaths(string RawAssetDirectory, string RomPa
             directory = directory.Parent;
         }
     }
+}
+
+/// <summary>
+/// Windows process-error policy used only by this executable host. Keeping the constants named
+/// avoids opaque literals at startup and documents exactly which native dialogs are disabled.
+/// </summary>
+static partial class NativeViewerProcess
+{
+    internal const uint SemFailCriticalErrors = 0x0001;
+    internal const uint SemNoGpFaultErrorBox = 0x0002;
+    internal const uint SemNoOpenFileErrorBox = 0x8000;
+
+    [LibraryImport("kernel32.dll")]
+    internal static partial uint SetErrorMode(uint errorMode);
 }

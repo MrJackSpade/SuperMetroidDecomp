@@ -1,6 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <!--
+      Keep the Windows Forms UI but use the console subsystem. A debug/development host must
+      leave stdout and stderr attached to its launching terminal so startup and frame-handler
+      exceptions are actionable there instead of being reduced to GUI error boxes.
+    -->
+    <OutputType>Exe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -9,4 +14,3 @@
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
   </ItemGroup>
 </Project>
-

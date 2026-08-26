@@ -176,6 +176,11 @@ else if (options.XrayScript)
     Console.WriteLine(
         "Input script: select equipped X-ray, execute all eight bank-$88 setup stages, hold Dash through native widening, aim upward, then turn through ROM poses $D5/$25/$D6 while the visor palette cycles.");
 }
+else if (options.DeathScript)
+{
+    Console.WriteLine(
+        "Game-state script: enter bank-$9B after the fatal-damage music wait, animate pose $D7, transfer five death-tile segments, flash for 60 calls, then render the native suit explosion and room whiteout.");
+}
 else if (options.MotherBrainRainbowScript)
 {
     Console.WriteLine(
@@ -386,6 +391,18 @@ else if (options.XrayScript)
     runtime.Samus!.EquippedItems |= 0x8000;
     if (!runtime.TryBeginXrayFromSelectedHudItem())
         throw new InvalidOperationException("Real-ROM X-ray initiation rejected its canonical grounded fixture.");
+}
+else if (options.DeathScript)
+{
+    // Fatal-damage detection, state-$14 blackout, and the state-$15 music-queue wait are
+    // outer game-state producers. Enter at their exact cleared-queue seam; `$9B:B3A7` still
+    // reads the live pose movement type/direction and owns every subsequent art/timer word.
+    SamusDeathSequenceStartResult deathStart = runtime.BeginDeathSequenceAfterMusicWait();
+    Console.WriteLine(
+        $"Death setup: source type=${deathStart.SourceMovementType:X2}, " +
+        $"pose=${deathStart.DeathPose:X2}, frame={deathStart.InitialFrame}, " +
+        $"screen=({deathStart.ScreenX},{deathStart.ScreenY}), " +
+        $"spinSfx={deathStart.SpinJumpSoundRequested}.");
 }
 else if (options.MotherBrainRainbowScript)
 {
@@ -732,6 +749,11 @@ bool observedXrayAim = false;
 bool observedXrayTurnStart = false;
 bool observedXrayTurnCompletion = false;
 bool observedXrayLeftStablePose = false;
+var observedDeathPhases = new HashSet<SamusDeathSequencePhase>();
+var observedDeathSegments = new HashSet<byte>();
+var observedDeathExplosionSpritemaps = new HashSet<ushort>();
+bool observedDeathWhiteout = false;
+bool observedDeathCompletion = false;
 bool observedDrainedFallingHandler = false;
 bool observedDrainedLanding = false;
 bool observedDrainedStanding = false;
@@ -945,7 +967,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             // list to reach frame two/timer one, and finally selects stable X-ray pose `$D6`.
             _ => (ushort)(SnesButton.B | SnesButton.Left),
         }
-        : options.CrystalFlashScript || options.DrainedSamusScript ||
+        : options.DeathScript || options.CrystalFlashScript || options.DrainedSamusScript ||
           options.MotherBrainRainbowScript
         ? (ushort)0
         : options.GrappleFireScript
@@ -1990,6 +2012,27 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     observedXrayTurnCompletion |= runtime.LastXrayPoseInput is { CompletedTurn: true };
     observedXrayLeftStablePose |=
         runtime.Samus.Pose == SamusState.XrayingStandingLeftPose;
+    if (runtime.LastDeathSequenceStep is { } deathStep)
+    {
+        observedDeathPhases.Add(deathStep.PhaseAfterStep);
+        if (deathStep.QueuedSegment is byte segment)
+            observedDeathSegments.Add(segment);
+        if (deathStep.ExplosionSpritemapIndex is ushort spritemap)
+            observedDeathExplosionSpritemaps.Add(spritemap);
+        observedDeathWhiteout |= deathStep.WhiteoutChanged;
+        observedDeathCompletion |= deathStep.Completed;
+
+        if (deathStep.PhaseAtStart != deathStep.PhaseAfterStep ||
+            deathStep.QueuedSegment is not null)
+        {
+            Console.WriteLine(
+                $"frame {result.FrameNumber,4}: death {deathStep.PhaseAtStart} -> " +
+                $"{deathStep.PhaseAfterStep}; index={deathStep.IndexAfterStep}, " +
+                $"timer={deathStep.TimerAfterStep}, shade={deathStep.CounterAfterStep}, " +
+                $"segment={deathStep.QueuedSegment?.ToString() ?? "none"}, " +
+                $"spritemap={deathStep.ExplosionSpritemapIndex?.ToString("X3") ?? "none"}.");
+        }
+    }
     observedDrainedFallingHandler |= runtime.LastDrainedSamusMovement is not null;
     observedDrainedLanding |= runtime.LastDrainedSamusMovement is { Landed: true };
     observedDrainedStanding |= runtime.Samus.Pose is
@@ -2937,6 +2980,32 @@ if (options.XrayScript)
         $"art=[{string.Join(',', observedXrayAnimationFrames.Order())}].");
 }
 
+if (options.DeathScript)
+{
+    if (runtime.Samus!.Pose != SamusState.DeathSequenceRightPose)
+        throw new InvalidOperationException($"Death route left required pose $D7 for ${runtime.Samus.Pose:X2}.");
+    if (options.FrameCount >= 16 && !observedDeathPhases.Contains(SamusDeathSequencePhase.Flashing))
+        throw new InvalidOperationException("Death route did not finish its sixteen-call preflash.");
+    if (options.FrameCount >= 76 &&
+        (!observedDeathPhases.Contains(SamusDeathSequencePhase.SuitExplosion) ||
+         observedDeathSegments.Count != 5))
+    {
+        throw new InvalidOperationException(
+            $"Death route did not reach suit explosion with five tile segments; " +
+            $"phase={runtime.Samus.DeathSequence.Phase}, segments={observedDeathSegments.Count}.");
+    }
+    if (options.FrameCount >= 97 && !observedDeathWhiteout)
+        throw new InvalidOperationException("Death route never began the room-palette whiteout.");
+    if (options.FrameCount >= 211 && !observedDeathCompletion)
+        throw new InvalidOperationException("Death route did not reach terminal explosion index nine.");
+
+    Console.WriteLine(
+        $"Death ROM route validated phases=[{string.Join(',', observedDeathPhases.Order())}], " +
+        $"segments=[{string.Join(',', observedDeathSegments.Order())}], " +
+        $"explosionMaps={observedDeathExplosionSpritemaps.Count}, " +
+        $"whiteout={observedDeathWhiteout}, complete={observedDeathCompletion}.");
+}
+
 if (options.MotherBrainRainbowScript)
 {
     if (rainbowAttack is null)
@@ -3470,6 +3539,7 @@ readonly record struct DebugRunnerOptions(
     bool GrappleFireScript,
     bool CrystalFlashScript,
     bool XrayScript,
+    bool DeathScript,
     bool MotherBrainRainbowScript,
     bool DrainedSamusScript,
     bool DraygonGrabScript,
@@ -3515,6 +3585,7 @@ readonly record struct DebugRunnerOptions(
         bool grappleFireScript = false;
         bool crystalFlashScript = false;
         bool xrayScript = false;
+        bool deathScript = false;
         bool motherBrainRainbowScript = false;
         bool drainedSamusScript = false;
         bool draygonGrabScript = false;
@@ -3705,6 +3776,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--death-script":
+                    deathScript = true;
+                    groundedRun = true;
+                    break;
+
                 case "--mother-brain-rainbow-script":
                     motherBrainRainbowScript = true;
                     break;
@@ -3754,6 +3830,7 @@ readonly record struct DebugRunnerOptions(
             Path.GetDirectoryName(Path.GetFullPath(romPath))!,
             "standalone-assets",
             "runtime",
+            deathScript ? "DeathFrame.png" :
             xrayScript ? "XrayFrame.png" : "EscapeTimerFrame.png");
 
         // The frame runtime reads compressed room data, graphics, palette, door metadata,
@@ -3797,6 +3874,7 @@ readonly record struct DebugRunnerOptions(
             grappleFireScript,
             crystalFlashScript,
             xrayScript,
+            deathScript,
             motherBrainRainbowScript,
             drainedSamusScript,
             draygonGrabScript,

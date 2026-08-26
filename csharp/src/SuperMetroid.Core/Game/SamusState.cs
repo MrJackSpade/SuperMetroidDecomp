@@ -134,6 +134,12 @@ public sealed class SamusState
     /// <summary>Pose `$D6`: left-facing standing X-ray body.</summary>
     public const byte XrayingStandingLeftPose = 0xd6;
 
+    /// <summary>Pose `$D7`: right-facing fatal-damage / crystal-flash-ending body.</summary>
+    public const byte DeathSequenceRightPose = 0xd7;
+
+    /// <summary>Pose `$D8`: left-facing fatal-damage / crystal-flash-ending mirror.</summary>
+    public const byte DeathSequenceLeftPose = 0xd8;
+
     /// <summary>Pose `$D9`: right-facing crouching X-ray body.</summary>
     public const byte XrayingCrouchingRightPose = 0xd9;
 
@@ -719,6 +725,12 @@ public sealed class SamusState
     /// teardown. Revealed-block tilemaps and window HDMA remain presentation-owned outputs.
     /// </summary>
     public SamusXrayState Xray { get; } = new();
+
+    /// <summary>
+    /// Fatal-damage `$D7/$D8` ownership, death tiles/palettes, whiteout, and suit explosion.
+    /// The outer music wait and post-explosion room fade remain explicit game-state seams.
+    /// </summary>
+    public SamusDeathSequenceState DeathSequence { get; } = new();
 
     /// <summary>
     /// Mother Brain/Baby Metroid drain poses, controller calls, and installed falling
@@ -3460,6 +3472,22 @@ public sealed class SamusState
 
         AnimationFrame = unchecked((ushort)(AnimationFrame + 1));
         HandleAnimationDelay(bus, controllerInput);
+    }
+
+    /// <summary>
+    /// Ports the animation-only core of <c>Draw_Samus_Starting_Death_Animation</c> at
+    /// `$90:8976`. Unlike ordinary gameplay animation, this call deliberately skips liquid-
+    /// FX delay buffering, neutral-jump hacks, and controller-dependent Dash interception.
+    /// </summary>
+    internal void AnimateDeathFrame(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        EnsureAnimationInitialized(bus);
+        AnimationFrameTimer = unchecked((ushort)(AnimationFrameTimer - 1));
+        if (AnimationFrameTimer != 0 && (AnimationFrameTimer & 0x8000) == 0)
+            return;
+        AnimationFrame = unchecked((ushort)(AnimationFrame + 1));
+        HandleAnimationDelay(bus, controllerInput: 0);
     }
 
     /// <summary>

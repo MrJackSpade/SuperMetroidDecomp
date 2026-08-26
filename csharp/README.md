@@ -160,6 +160,8 @@ dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Sup
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 100 --crystal-flash-script --output ../standalone-assets/runtime/CrystalFlashActiveFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 270 --crystal-flash-script --output ../standalone-assets/runtime/CrystalFlashFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 80 --xray-script --output standalone-assets/runtime/XrayFrame.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 76 --death-script --output standalone-assets/runtime/DeathExplosionFrame.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 110 --death-script --output standalone-assets/runtime/DeathFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 110 --drained-samus-script --output ../standalone-assets/runtime/DrainedSamusActiveFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 180 --drained-samus-script --output ../standalone-assets/runtime/DrainedSamusFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 90 --draygon-grab-script --output ../standalone-assets/runtime/DraygonGrabMovingFrame.png
@@ -261,6 +263,15 @@ the ROM animation thresholds, and Left mirrors the center angle and completes `$
 on frame 56. The 80-frame PNG uses live Landing Site BG1/BG2, palette, Samus DMA, and OAM.
 The revealed-block BG2 copies and window-HDMA polygon are not rendered yet, so the image is an
 honest movement/art diagnostic rather than a fabricated approximation of the scanner mask.
+
+`--death-script` enters only after the outer fatal-damage music wait has cleared, then lets
+bank `$9B` select `$D7/$D8` and the movement-type-specific start frame. Sixteen preflash calls
+advance the ROM's ball-to-human art, 60 flash calls transfer all five `$400` death-tile
+segments and alternate the exact suit/suitless palettes, and the following 135 calls render
+all nine explosion spritemaps while whitening every non-Samus room palette through the ROM's
+22 shades. Frame 76 freezes the first special spritemap over intact terrain; frame 110 shows
+suitless Samus and flying suit pieces during the authentic whiteout. Fatal-damage acquisition,
+music polling, and the post-explosion fade remain explicit outer game-state seams.
 
 `--drained-samus-script` supplies only the call timing normally owned by the later Baby Metroid actor. It lifts the debugger body two blocks, calls the exact `$91:E4AD` controller entries, and leaves `$E8-$EB` animation bytecode, `$F7`, shared 16.16 gravity, room collision, signed draw offsets, tile DMA, and spritemaps ROM-authored. The 110-frame capture freezes authentic crouched drained art; 180 frames prove floor handoff, standing/crouching commands, `$FD,$01` release, and hyper-beam state.
 

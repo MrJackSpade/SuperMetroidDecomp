@@ -21,7 +21,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
 | `$08` | Morph ball falling | `$31/$32`, air/water/lava X and gravity, persistent external X/Y displacement and bounce override, ceiling/floor/solid-enemy collision, two-stage hard bounce, gentle landing, normal-bomb deployment | Bombable-block PLMs, live enemy actor producer |
 | `$09` | Unused | — | Preserve only if required |
-| `$0A` | Knockback / crystal-flash ending | `$53/$54` plus pose-preserving Morph/Spring Ball knockback from types `$04/$08/$11-$13`, air/water/lava launch/X/gravity, ordinary-body timer, horizontal/vertical block collision, damage-boost input escape, same-pose ball cleanup, radius-aligned humanoid falling handoff; Crystal Flash ending is handled by the translated type-`$1B` special state | Death-sequence ownership of reused `$D7/$D8` ending poses; live enemy producer |
+| `$0A` | Knockback / crystal-flash ending | `$53/$54` plus pose-preserving Morph/Spring Ball knockback from types `$04/$08/$11-$13`, air/water/lava launch/X/gravity, ordinary-body timer, horizontal/vertical block collision, damage-boost input escape, same-pose ball cleanup, radius-aligned humanoid falling handoff; Crystal Flash ending is handled by the translated type-`$1B` special state; fatal-damage `$D7/$D8` movement-type start-frame selection, locked animation, VRAM/palette flash, whiteout, and suit explosion | Fatal-damage acquisition/music-wait producer and post-explosion game-state fade; live enemy producer |
 | `$0B` | Unused | — | Preserve only if required |
 | `$0C` | Unused | — | Preserve only if required |
 | `$0D` | Unused | — | Preserve only if required |
@@ -42,10 +42,10 @@ are listed below so later work cannot accidentally confuse “the current viewer
 
 ## Active-pose and animation audit
 
-- An exhaustive pass over bank `$91`'s pose definitions now leaves only `$D7/$D8`
-  (Crystal-Flash-ending art reused by the bank-`$9B` death setup) outside the admitted
-  movement families. X-ray `$D5/$D6/$D9/$DA` and its special use of `$25/$26/$43/$44`
-  are translated and verified. The earlier blanket
+- An exhaustive pass over bank `$91`'s pose definitions now leaves no active pose outside
+  an explicitly admitted movement or special game-state family. Fatal-damage `$D7/$D8`,
+  X-ray `$D5/$D6/$D9/$DA`, and X-ray's special use of `$25/$26/$43/$44` are translated
+  and verified. The earlier blanket
   “later firing variants” labels were stale: ordinary active firing bodies are exactly
   `$0B/$0C`, `$13/$14`, `$67/$68`, `$E6/$E7`, plus translated Draygon `$BC/$EE`.
 - The bank-`$90` animation command table has active handlers `$F6-$F9/$FB/$FD-$FF` and six
@@ -54,7 +54,8 @@ are listed below so later work cannot accidentally confuse “the current viewer
   `$6D-$70`: the command leaves frame/timer untouched, then zero underflows on the following
   tick and advances to the next literal delay.
 - This audit is deliberately not a claim that all movement-related systems are complete.
-  Death ownership, the elevator actor/status producer, X-ray reveal/window rendering,
+  Fatal-damage acquisition/post-fade ownership, the elevator actor/status producer,
+  X-ray reveal/window rendering,
   liquid damage/sound/OAM,
   footsteps and landing effects, PLM reactions, and live enemy collision/displacement
   producers remain concrete cross-system gaps.
@@ -110,6 +111,31 @@ translated status is documented with the Morph Ball family below.
 - BG2 revealed-block copying and the HDMA window polygon are still renderer work. They are
   intentionally not approximated by the movement state; the checked-in frame therefore shows
   authentic X-ray Samus/visor/terrain/sky while making that missing visual layer obvious.
+
+## Verified fatal-damage animation slice
+
+- `SamusDeathSequenceState.Begin` ports `$9B:B3A7`: it reads the pre-death movement type,
+  requests spin SFX `$32` only for type three, selects `$D7/$D8` from the live facing byte,
+  and uses `$9B:B420`'s frame five for ordinary bodies or frame one for Morph/Spring Ball.
+  The host retains world coordinates for shared diagnostics while separately capturing the
+  exact layer-1-relative pair consumed by the death renderer.
+- State `$16` alone advances `$91:B567`'s six two-tick frames, so ball families visibly
+  unmorph before frame five loops. State `$17` freezes that body, queues four `$400` segments
+  from `$9B:8400-$9000` to OBJ VRAM `$6200-$6800`, alternates the selected suit and suitless
+  palettes on the native 3/1 cadence, and finishes on call 60.
+- `$9B:B4B6` loads palette pair zero, queues the fifth `$9B:8000 -> $6000` segment, and draws
+  explosion index zero in the same call. State `$18` then consumes literal timers
+  21/6/3/4/5/5/6/6/80, palette indices 0/2/3/4/5/6/7/8/9, and right/left spritemaps
+  `$81C-$824/$825-$82D`. `$9B:B710` writes all non-Samus/non-suitless palettes through the
+  22 ROM shades and the terminal call deliberately draws no tenth frame.
+- The deterministic verifier locks the complete 211-call post-music-wait route, both facing
+  poses, ball and spin start cases, all transfer addresses, paired palettes, full-white end,
+  and terminal no-draw. Private-ROM `--death-script` independently shows the first explosion
+  over intact Landing Site terrain at frame 76 and a later suitless/explosion stage during
+  native room whiteout at frame 110; frame 211 proves all nine spritemaps and completion.
+- Fatal-damage detection, state-`$14` blackout, the state-`$15` music-queue wait, and the
+  post-explosion room fade remain outer game-state seams. They do not change `$D7/$D8`
+  movement or animation, and the debug entry names the exact cleared-music boundary.
 
 ## Verified liquid-physics slice
 

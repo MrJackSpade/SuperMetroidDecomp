@@ -41,6 +41,7 @@ VerifySamusExtraDisplacement();
 VerifySamusStoredShineAndShinespark();
 VerifySamusCrystalFlash();
 VerifySamusXray();
+VerifySamusDeathSequence();
 VerifySamusDrainedController();
 VerifySamusGrabbedByDraygon();
 VerifyMotherBrainRainbowBeamSamusMovement();
@@ -2220,6 +2221,186 @@ static void VerifySamusXray()
 
     Console.WriteLine(
         "  X-ray: admission, four poses, turns, angle art, setup/widen/aim, visor palette, teardown, and stand-up glitch agree.");
+}
+
+/// <summary>
+/// Walks `$9B:B3A7-$B85F` and `$90:8976-$89FF`: movement-type-selected `$D7/$D8`
+/// setup, animation-only preflash, five death-tile transfers, alternating suit/suitless
+/// palettes, 60-call flash, nine explosion frames, non-Samus palette whiteout, and terminal
+/// no-draw state.
+/// </summary>
+static void VerifySamusDeathSequence()
+{
+    var bus = new TestAddressSpace();
+
+    // Source standing/morph/spin records prove three distinct `$9B:B420` decisions. The
+    // death records are literal `$91:BCE1/BCE9`: type `$0A`, ordinary humanoid radii, and
+    // right/left direction bytes. Their delay stream is exactly 2,2,2,2,2,2,FE,01.
+    bus.WriteBytes(0x91b629 + SamusState.FacingRightNormalPose * 8,
+        [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.MorphBallGroundLeftPose * 8,
+        [0x04, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.SpinJumpRightPose * 8,
+        [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0b, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.DeathSequenceRightPose * 8,
+        [0x08, 0x0a, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.DeathSequenceLeftPose * 8,
+        [0x04, 0x0a, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
+    WriteTestWord(bus, 0x91b010 + SamusState.FacingRightNormalPose * 2, 0xc000);
+    WriteTestWord(bus, 0x91b010 + SamusState.MorphBallGroundLeftPose * 2, 0xc010);
+    WriteTestWord(bus, 0x91b010 + SamusState.SpinJumpRightPose * 2, 0xc020);
+    WriteTestWord(bus, 0x91b010 + SamusState.DeathSequenceRightPose * 2, 0xb567);
+    WriteTestWord(bus, 0x91b010 + SamusState.DeathSequenceLeftPose * 2, 0xb567);
+    bus.WriteBytes(0x91c000, [0x01, 0xff]);
+    bus.WriteBytes(0x91c010, [0x01, 0xff]);
+    bus.WriteBytes(0x91c020, [0x01, 0xff]);
+    bus.WriteBytes(0x91b567, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xfe, 0x01]);
+
+    // Ten suit and ten suitless pointers reproduce `$9B:B7D3/B80F`. Every palette gets a
+    // unique first color, making each table index independently visible in assertions.
+    for (ushort palette = 0; palette < 10; palette++)
+    {
+        ushort suitPointer = unchecked((ushort)(0xc000 + palette * 0x20));
+        ushort suitlessPointer = unchecked((ushort)(0xd400 + palette * 0x20));
+        WriteTestWord(bus, 0x9bb7d3 + palette * 2, suitPointer);
+        WriteTestWord(bus, 0x9bb80f + palette * 2, suitlessPointer);
+        for (ushort color = 0; color < 16; color++)
+        {
+            WriteTestWord(bus, 0x9b0000 | (suitPointer + color * 2),
+                unchecked((ushort)(0x0100 + palette * 0x20 + color)));
+            WriteTestWord(bus, 0x9b0000 | (suitlessPointer + color * 2),
+                unchecked((ushort)(0x0400 + palette * 0x20 + color)));
+        }
+    }
+
+    // Interleaved timer/palette bytes at `$9B:B823`: index zero uses 21/palette zero,
+    // indices one through eight use 6/2,3/3,4/4,5/5,5/6,6/7,6/8,80/9.
+    bus.WriteBytes(0x9bb823,
+        [0x15, 0x00, 0x06, 0x02, 0x03, 0x03, 0x04, 0x04, 0x05, 0x05,
+         0x05, 0x06, 0x06, 0x07, 0x06, 0x08, 0x50, 0x09]);
+    ushort[] shades =
+    [
+        0x0421, 0x0c63, 0x14a5, 0x1ce7, 0x2529, 0x2d6b, 0x35ad, 0x4210,
+        0x4a52, 0x4e73, 0x5294, 0x56b5, 0x5ad6, 0x5ef7, 0x6318, 0x6739,
+        0x6b5a, 0x6f7b, 0x739c, 0x77bd, 0x7bde, 0x7fff,
+    ];
+    for (int index = 0; index < shades.Length; index++)
+        WriteTestWord(bus, 0x9bb835 + index * 2, shades[index]);
+
+    var samus = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 0x0480,
+        YPosition = 0x04c0,
+    };
+    samus.RefreshCollisionRadii(bus);
+    samus.InitializeAnimation(bus);
+    SamusDeathSequenceStartResult start = samus.DeathSequence.Begin(
+        bus,
+        samus,
+        layer1X: 0x03e0,
+        layer1Y: 0x0400);
+    AssertEqual((byte)0, start.SourceMovementType, "death source standing type");
+    AssertEqual((byte)0xd7, start.DeathPose, "death selects right pose");
+    AssertEqual((ushort)5, start.InitialFrame, "ordinary death starts unmorphed frame five");
+    AssertEqual((ushort)0x00a0, start.ScreenX, "death captures screen X");
+    AssertEqual((ushort)0x00c0, start.ScreenY, "death captures screen Y");
+    AssertTrue(!start.SpinJumpSoundRequested, "ordinary death does not request spin SFX");
+    AssertEqual((ushort)2, samus.AnimationFrameTimer, "death pose retains two-tick delay");
+
+    var cgram = new SnesCgram();
+    var writes = new VramWriteQueue();
+    SamusDeathSequenceStepResult step = default;
+    for (int call = 1; call <= 16; call++)
+        step = samus.DeathSequence.Step(bus, samus, cgram, writes);
+    AssertEqual(SamusDeathSequencePhase.Flashing, samus.DeathSequence.Phase,
+        "sixteen preflash calls enter flashing");
+    AssertEqual((ushort)5, samus.AnimationFrame, "unmorphed death frame loops at five");
+    AssertTrue(step.DrawPose, "last preflash call still draws death pose");
+
+    // Calls one through four queue the four high OBJ segments. Call 60 finishes flashing,
+    // queues segment four at `$6000`, resets the explosion state, immediately decrements
+    // 21 to 20, and draws right-facing spritemap `$81C`.
+    for (int call = 1; call <= 60; call++)
+        step = samus.DeathSequence.Step(bus, samus, cgram, writes);
+    AssertEqual(SamusDeathSequencePhase.SuitExplosion, samus.DeathSequence.Phase,
+        "60 flashing calls enter suit explosion");
+    AssertEqual(5, writes.Entries.Count, "death queues exactly five tile segments");
+    (int Source, ushort Destination)[] expectedSegments =
+    [
+        (0x9b8400, 0x6200),
+        (0x9b8800, 0x6400),
+        (0x9b8c00, 0x6600),
+        (0x9b9000, 0x6800),
+        (0x9b8000, 0x6000),
+    ];
+    for (int index = 0; index < expectedSegments.Length; index++)
+    {
+        AssertEqual((ushort)0x0400, writes.Entries[index].SizeInBytes,
+            $"death segment {index} size");
+        AssertEqual(expectedSegments[index].Source, writes.Entries[index].SourceAddress,
+            $"death segment {index} source");
+        AssertEqual(expectedSegments[index].Destination,
+            writes.Entries[index].EncodedVramDestination,
+            $"death segment {index} destination");
+    }
+    AssertEqual((ushort)0, samus.DeathSequence.AnimationIndex,
+        "explosion begins at index zero");
+    AssertEqual((ushort)20, samus.DeathSequence.AnimationTimer,
+        "same-call first explosion decrement");
+    AssertEqual((ushort)0x081c, step.ExplosionSpritemapIndex!.Value,
+        "right explosion base spritemap");
+    AssertEqual((ushort)0x0100, cgram.Colors[192], "finish restores suit palette zero");
+    AssertEqual((ushort)0x0400, cgram.Colors[240], "finish restores suitless palette zero");
+
+    // The remaining literal timers total 135 calls. The terminal call increments index
+    // eight to nine, forces white shade 21, and deliberately emits no tenth spritemap.
+    int explosionCalls = 0;
+    while (samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete)
+    {
+        step = samus.DeathSequence.Step(bus, samus, cgram, writes);
+        explosionCalls++;
+        AssertTrue(explosionCalls <= 135, "death explosion terminates on native timer sum");
+    }
+    AssertEqual(135, explosionCalls, "death explosion remaining call count");
+    AssertTrue(step.Completed && !step.DrawExplosion,
+        "terminal death call completes without drawing");
+    AssertEqual((ushort)9, samus.DeathSequence.AnimationIndex,
+        "death terminal index nine");
+    AssertEqual((ushort)0x0015, samus.DeathSequence.AnimationCounter,
+        "death terminal whiteout shade index");
+    AssertEqual((ushort)0x7fff, cgram.Colors[0], "death whiteout reaches full white");
+    AssertEqual((ushort)0x7fff, cgram.Colors[239], "death whiteout includes palette six end");
+    AssertEqual((ushort)0x0220, cgram.Colors[192],
+        "whiteout preserves final Samus suit palette nine");
+    AssertEqual((ushort)0x0520, cgram.Colors[240],
+        "whiteout preserves final suitless palette nine");
+
+    // Morph Ball begins frame one and uses left pose `$D8`; spin jumping still starts frame
+    // five but uniquely requests library-one sound `$32` before pose replacement.
+    var morphedLeft = new SamusState
+    {
+        Pose = SamusState.MorphBallGroundLeftPose,
+        XPosition = 64,
+        YPosition = 80,
+    };
+    morphedLeft.RefreshCollisionRadii(bus);
+    morphedLeft.InitializeAnimation(bus);
+    SamusDeathSequenceStartResult morphStart = morphedLeft.DeathSequence.Begin(
+        bus, morphedLeft, layer1X: 0, layer1Y: 0);
+    AssertEqual((byte)0xd8, morphStart.DeathPose, "left Morph death selects D8");
+    AssertEqual((ushort)1, morphStart.InitialFrame, "Morph death begins unmorph frame one");
+
+    var spinning = new SamusState { Pose = SamusState.SpinJumpRightPose };
+    spinning.RefreshCollisionRadii(bus);
+    spinning.InitializeAnimation(bus);
+    SamusDeathSequenceStartResult spinStart = spinning.DeathSequence.Begin(
+        bus, spinning, layer1X: 0, layer1Y: 0);
+    AssertTrue(spinStart.SpinJumpSoundRequested, "spin death requests sound $32");
+    AssertEqual((ushort)5, spinStart.InitialFrame, "spin death begins unmorphed frame five");
+
+    Console.WriteLine(
+        "  Samus death: D7/D8 selection, unmorph art, five VRAM segments, flash palettes, whiteout, and nine explosion frames agree.");
 }
 
 /// <summary>

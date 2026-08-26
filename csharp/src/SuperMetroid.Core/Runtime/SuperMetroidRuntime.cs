@@ -157,6 +157,9 @@ public sealed class SuperMetroidRuntime
     /// </summary>
     public ushort? LastXrayAnimationFrame { get; private set; }
 
+    /// <summary>Most recent game-state-owned fatal-damage animation/palette/VRAM call.</summary>
+    public SamusDeathSequenceStepResult? LastDeathSequenceStep { get; private set; }
+
     /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; private set; }
 
@@ -669,6 +672,32 @@ public sealed class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// Enters `$9B:B3A7` after the outer death game state has completed its music wait.
+    /// Fatal-damage detection, blackout, and queued-music polling are deliberately not
+    /// fabricated by this narrow runtime seam.
+    /// </summary>
+    public SamusDeathSequenceStartResult BeginDeathSequenceAfterMusicWait()
+    {
+        if (Samus is null || Camera is null || !GroundedSamusMovementEnabled)
+        {
+            throw new InvalidOperationException(
+                "Death sequence requires initialized gameplay Samus and a layer-1 camera.");
+        }
+
+        SamusDeathSequenceStartResult result = Samus.DeathSequence.Begin(
+            _addressSpace,
+            Samus,
+            Camera.XPosition,
+            Camera.YPosition);
+
+        // The next accepted NMI must see pose `$D7/$D8` definitions. Native game state 15
+        // draws once before setup and state 16 draws the new pose on its following call;
+        // priming here preserves that same first-visible-frame contract in this thin host.
+        Samus.PrimeGraphics(_addressSpace);
+        return result;
+    }
+
+    /// <summary>
     /// Publishes the exact bank-$88 power-bomb-cleanup attempt to Crystal Flash's native
     /// initiation routine.
     /// </summary>
@@ -779,7 +808,8 @@ public sealed class SuperMetroidRuntime
             // revealed-block BG2 copies/window table remain a separate renderer boundary.
             LastXrayBeamStep = null;
             LastXrayPoseInput = null;
-            if (Samus.Xray.IsActive)
+            LastDeathSequenceStep = null;
+            if (Samus.Xray.IsActive && !Samus.DeathSequence.IsActive)
             {
                 LastXrayBeamStep = Samus.Xray.StepBeam(
                     _addressSpace,
@@ -810,7 +840,8 @@ public sealed class SuperMetroidRuntime
             // pointer is even read. Pose zero's pointer bytes otherwise overlap legitimate
             // data and can appear to select nonsense transitions after several frames, so
             // suppressing only their application would be too late and observably wrong.
-            bool xrayOwnsPoseInput = Samus.Xray.IsActive;
+            bool deathOwnsSamus = Samus.DeathSequence.IsActive;
+            bool xrayOwnsPoseInput = Samus.Xray.IsActive && !deathOwnsSamus;
             if (xrayOwnsPoseInput)
             {
                 LastXrayPoseInput = Samus.Xray.HandlePoseInput(
@@ -821,7 +852,7 @@ public sealed class SuperMetroidRuntime
 
             bool elevatorLocksForwardPoseInput =
                 SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0;
-            ProspectiveSamusPose = xrayOwnsPoseInput || elevatorLocksForwardPoseInput
+            ProspectiveSamusPose = deathOwnsSamus || xrayOwnsPoseInput || elevatorLocksForwardPoseInput
                 ? null
                 : SamusPoseTransitionTable.Find(
                     _addressSpace,
@@ -975,7 +1006,7 @@ public sealed class SuperMetroidRuntime
                 // HandleProjectile. The outer gameplay loop then runs bank-$A0 overlap
                 // before beta movement. A newly placed bomb therefore counts 60 -> 59 and
                 // selects its first bank-$93 art record in the placement frame itself.
-                if (!Samus.Xray.TimeIsFrozen)
+                if (!Samus.Xray.TimeIsFrozen && !deathOwnsSamus)
                 {
                     // `$91:E231-$E23D` disables enemy projectiles, PLMs, animated tiles,
                     // and palette FX while time is frozen. Normal bombs cannot be placed or
@@ -993,11 +1024,14 @@ public sealed class SuperMetroidRuntime
                 // position at the start of this frame and are not advanced on their spawn
                 // frame. Their viewport test uses the live layer-1 camera exactly as the
                 // fixed projectile slots do.
-                Samus.Shinespark.StepReleasedCrashEchoProjectiles(
-                    _addressSpace,
-                    Samus,
-                    Camera.XPosition,
-                    Camera.YPosition);
+                if (!deathOwnsSamus)
+                {
+                    Samus.Shinespark.StepReleasedCrashEchoProjectiles(
+                        _addressSpace,
+                        Samus,
+                        Camera.XPosition,
+                        Camera.YPosition);
+                }
 
                 // $90:E725 dispatches movement type before animation. Every admitted pose
                 // below has its own verified direction/mode path; a newly reachable pose
@@ -1022,7 +1056,12 @@ public sealed class SuperMetroidRuntime
                 // functions own Samus's position. An extending or cancelling beam coexists
                 // with the current pose's ordinary movement in the same frame.
                 bool grappleOwnsMovement = false;
-                if (Samus.DraygonGrabbed.IsActive)
+                if (deathOwnsSamus)
+                {
+                    // Game states `$15-$18` do not call the ordinary Samus alpha/beta
+                    // handlers. The death state advances later at the animation seam.
+                }
+                else if (Samus.DraygonGrabbed.IsActive)
                 {
                     // `$90:E23B` installs an RTS movement-handler pointer. Bank `$A5`
                     // may already have called ApplyOwnerPosition this actor frame; no bank-
@@ -1111,7 +1150,12 @@ public sealed class SuperMetroidRuntime
                         previousCameraPoint.YSubposition);
                 }
 
-                if (grappleOwnsMovement)
+                if (deathOwnsSamus)
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                }
+                else if (grappleOwnsMovement)
                 {
                     // Movement type $16's beta handler is empty. Discard input transitions
                     // sampled from the pre-grapple pose once connection installs $B2/$B3.
@@ -1597,9 +1641,20 @@ public sealed class SuperMetroidRuntime
             // Animation sees the same held-input word as movement. Ordinary Dash uses B
             // both to accumulate `$0B42.$0B44` and to intercept the running delay-list
             // command at `$90:852C`; passing a reconstructed input later would skew art.
-            Samus.AnimateNoFx(_addressSpace, Controller1.Current);
+            if (deathOwnsSamus)
+            {
+                LastDeathSequenceStep = Samus.DeathSequence.Step(
+                    _addressSpace,
+                    Samus,
+                    Cgram,
+                    VramWrites);
+            }
+            else
+            {
+                Samus.AnimateNoFx(_addressSpace, Controller1.Current);
+            }
 
-            if (GroundedSamusMovementEnabled)
+            if (GroundedSamusMovementEnabled && !deathOwnsSamus)
             {
                 // Command $F8's command-three “super-special” transition wins at this seam.
                 // $25/$26 publish $02/$01 from their ROM byte streams without rerunning the
@@ -2216,7 +2271,7 @@ public sealed class SuperMetroidRuntime
                 }
             }
 
-            if (GroundedSamusMovementEnabled)
+            if (GroundedSamusMovementEnabled && !deathOwnsSamus)
             {
                 if (LandingSiteEntry is null || LevelData is null || BackgroundStreamer is null)
                     throw new InvalidOperationException("Grounded camera tracking requires active Landing Site room state.");
@@ -2278,67 +2333,90 @@ public sealed class SuperMetroidRuntime
 
             // $A0:884D draws bomb/projectile explosions before reaching the enemy-layer
             // phase that calls DrawSamusAndProjectiles. Preserve that OAM ordering.
-            BombProjectiles.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
+            if (!deathOwnsSamus)
+                BombProjectiles.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
 
             // `$A0:885D` calls `$86:8390` after bomb/projectile explosions and before the
             // layer loop reaches Samus at layer three. Room-specific actors may supply this
             // pass without teaching the reusable Landing Site runtime how to own enemies.
-            drawHighPriorityEnemyProjectiles?.Invoke(Oam);
+            if (!deathOwnsSamus)
+                drawHighPriorityEnemyProjectiles?.Invoke(Oam);
 
             // `$91:D6F7` updates Samus's palette buffer during gameplay. The software PPU
             // reads CGRAM directly, so perform the literal ROM pointer/table copy immediately
             // before the matching draw phase. This covers dry-room Speed Booster stage four
             // and the normal-suit restoration requested by `$91:DE53` cancellation.
-            Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(
-                _addressSpace,
-                Cgram,
-                Samus.ReadMovementType(_addressSpace),
-                Samus.AnimationFrame,
-                Samus.EquippedItems,
-                suppressActiveSpeedBoosterPalette:
-                    Samus.Shinespark.PaletteType != 0 || Samus.Xray.SpecialPaletteType == 8);
+            if (!deathOwnsSamus)
+            {
+                Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(
+                    _addressSpace,
+                    Cgram,
+                    Samus.ReadMovementType(_addressSpace),
+                    Samus.AnimationFrame,
+                    Samus.EquippedItems,
+                    suppressActiveSpeedBoosterPalette:
+                        Samus.Shinespark.PaletteType != 0 || Samus.Xray.SpecialPaletteType == 8);
+            }
             // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They
             // intentionally execute after a cancellation-requested normal copy and replace
             // it with the stored/spark palette in this visible frame.
-            Samus.Shinespark.UpdatePalette(
-                _addressSpace,
-                Cgram,
-                Samus.EquippedItems);
+            if (!deathOwnsSamus)
+            {
+                Samus.Shinespark.UpdatePalette(
+                    _addressSpace,
+                    Cgram,
+                    Samus.EquippedItems);
+            }
             // Handler eight changes only visor color four while active; `$FFFF` teardown
             // restores the complete ROM-selected Power/Varia/Gravity suit palette once.
-            Samus.Xray.UpdatePalette(
-                _addressSpace,
-                Cgram,
-                Samus.EquippedItems);
-            Samus.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
-            Samus.DrawSpeedBoosterEchoes(
-                _addressSpace,
-                Oam,
-                Camera.XPosition,
-                Camera.YPosition);
-            Samus.DrawShinesparkCrashEchoes(
-                _addressSpace,
-                Oam,
-                Camera.XPosition,
-                Camera.YPosition,
-                NmiFrameCounter);
-            Samus.DrawReleasedShinesparkCrashEchoes(
-                _addressSpace,
-                Oam,
-                Camera.XPosition,
-                Camera.YPosition,
-                NmiFrameCounter);
-            SamusGrappleMovement.DrawConnectedBeam(
-                _addressSpace,
-                Samus.Grapple,
-                Oam,
-                VramWrites,
-                Camera.XPosition,
-                Camera.YPosition);
+            if (!deathOwnsSamus)
+            {
+                Samus.Xray.UpdatePalette(
+                    _addressSpace,
+                    Cgram,
+                    Samus.EquippedItems);
+            }
+
+            if (deathOwnsSamus)
+            {
+                if (LastDeathSequenceStep is { DrawPose: true })
+                    Samus.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
+                else if (LastDeathSequenceStep is { DrawExplosion: true })
+                    Samus.DeathSequence.DrawExplosion(_addressSpace, Oam);
+            }
+            else
+            {
+                Samus.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
+                Samus.DrawSpeedBoosterEchoes(
+                    _addressSpace,
+                    Oam,
+                    Camera.XPosition,
+                    Camera.YPosition);
+                Samus.DrawShinesparkCrashEchoes(
+                    _addressSpace,
+                    Oam,
+                    Camera.XPosition,
+                    Camera.YPosition,
+                    NmiFrameCounter);
+                Samus.DrawReleasedShinesparkCrashEchoes(
+                    _addressSpace,
+                    Oam,
+                    Camera.XPosition,
+                    Camera.YPosition,
+                    NmiFrameCounter);
+                SamusGrappleMovement.DrawConnectedBeam(
+                    _addressSpace,
+                    Samus.Grapple,
+                    Oam,
+                    VramWrites,
+                    Camera.XPosition,
+                    Camera.YPosition);
+            }
 
             // Enemy layer six calls `$86:83B2`, after DrawSamusAndProjectiles. Keeping this
             // separate from the high pass is observable when their OBJ pieces overlap.
-            drawLowPriorityEnemyProjectiles?.Invoke(Oam);
+            if (!deathOwnsSamus)
+                drawLowPriorityEnemyProjectiles?.Invoke(Oam);
         }
         if (EscapeTimer.IsActive)
             EscapeTimerRenderer.Draw(EscapeTimer, Oam, _addressSpace);

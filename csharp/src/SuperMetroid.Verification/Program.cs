@@ -1514,7 +1514,8 @@ static void VerifySamusGrappleSwingAndRelease()
         "persistent grapple block establishes connected movement");
     AssertEqual(GrapplePhase.ConnectedSwinging, firingSamus.Grapple.Phase,
         "block acquisition installs swinging function");
-    AssertEqual((ushort)56, firingSamus.Grapple.AnchorX, "accepted grapple block centers X");
+    AssertEqual((ushort)55, firingSamus.Grapple.AnchorX,
+        "accepted grapple block centers X then applies negative-rope side bias");
     AssertEqual((ushort)56, firingSamus.Grapple.AnchorY, "accepted grapple block centers Y");
     AssertEqual((ushort)0xca00, firingSamus.Grapple.Angle,
         "connection angle uses bank-$A0 integer octant calculation");
@@ -1525,7 +1526,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // type $5 adds signed BTS directly to the linear block index and dispatches the block
     // found there. Keep the beam physically inside (3,3), but make that cell point right to
     // a persistent type-$E target at (4,3). Connecting proves the indirection is followed;
-    // centering at (56,56), rather than (72,56), proves the visible endpoint stays in the
+    // ending in the physical (3,3) cell, rather than (4,3), proves the visible endpoint stays in the
     // extension cell exactly as GrappleCollision_XBlock/YBlock do in the original routine.
     var horizontalExtensionBlocks = new ushort[8 * 8];
     var horizontalExtensionBts = new byte[horizontalExtensionBlocks.Length];
@@ -1553,7 +1554,7 @@ static void VerifySamusGrappleSwingAndRelease()
         bus, horizontalExtensionLevel, horizontalExtensionSamus, (ushort)SnesButton.X);
     AssertTrue(horizontalExtensionConnection.Connected,
         "horizontal extension BTS dispatches its referenced grapple block");
-    AssertEqual((ushort)56, horizontalExtensionSamus.Grapple.AnchorX,
+    AssertEqual((ushort)55, horizontalExtensionSamus.Grapple.AnchorX,
         "horizontal extension keeps physical endpoint block X");
 
     // Type $D uses the same signed byte but multiplies it by RoomWidthBlocks. A +1 BTS at
@@ -1682,6 +1683,18 @@ static void VerifySamusGrappleSwingAndRelease()
     bus.WriteBytes(0x9bc302 + 3 * 2, [0x02, 0x05]);
     bus.WriteBytes(0x9bc302 + 4 * 2, [0x04, 0xfd]);
 
+    // The already-connected pendulum fixture uses an intentionally empty 32x16 room. Its
+    // six-point sweep must stay in bounds while proving that no invented terrain response
+    // disturbs the pre-existing unobstructed numbers.
+    var swingBlocks = new ushort[32 * 16];
+    var swingLevel = new RoomLevelData(
+        32,
+        16,
+        swingBlocks,
+        new byte[swingBlocks.Length],
+        new ushort[swingBlocks.Length],
+        new byte[32]);
+
     var samus = new SamusState { XPosition = 10, YPosition = 20 };
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
@@ -1695,26 +1708,27 @@ static void VerifySamusGrappleSwingAndRelease()
 
     AssertEqual(SamusState.GrappleSwingRightPose, samus.Pose, "grapple connection pose");
     AssertEqual((byte)0x16, samus.ReadMovementType(bus), "grapple movement type from pose record");
-    AssertEqual((ushort)150, samus.Grapple.BeamStartX, "initial grapple beam-start X");
-    AssertEqual((ushort)100, samus.Grapple.BeamStartY, "initial grapple beam-start Y");
-    AssertEqual((ushort)152, samus.XPosition, "initial grapple art-corrected X");
-    AssertEqual((ushort)105, samus.YPosition, "initial grapple art-corrected Y");
+    AssertEqual((ushort)149, samus.Grapple.BeamStartX, "initial grapple beam-start X");
+    AssertEqual((ushort)104, samus.Grapple.BeamStartY, "initial grapple beam-start Y");
+    AssertEqual((ushort)151, samus.XPosition, "initial grapple art-corrected X");
+    AssertEqual((ushort)109, samus.YPosition, "initial grapple art-corrected Y");
     AssertEqual((ushort)3, samus.AnimationFrame, "initial grapple angle art frame");
 
     // Left held at exact $8000 first applies the native +$0100 kick, then +12 input.
     // Gravity is exactly zero on that axis, so angle advances by $010C to $810C.
     GrappleMovementResult swung = SamusGrappleMovement.Step(
         bus,
+        swingLevel,
         samus,
         (ushort)(SnesButton.X | SnesButton.Left),
         newlyPressedInput: 0);
     AssertEqual(GrapplePhase.ConnectedSwinging, swung.Phase, "held-shot grapple phase");
     AssertEqual((short)0x010c, samus.Grapple.AngularVelocity, "bottom kick plus input acceleration");
     AssertEqual((ushort)0x810c, samus.Grapple.Angle, "unobstructed angle integration");
-    AssertEqual((ushort)151, samus.Grapple.BeamStartX, "advanced grapple beam-start X");
-    AssertEqual((ushort)101, samus.Grapple.BeamStartY, "advanced grapple beam-start Y");
-    AssertEqual((ushort)155, samus.XPosition, "advanced grapple art-corrected X");
-    AssertEqual((ushort)98, samus.YPosition, "advanced grapple art-corrected Y");
+    AssertEqual((ushort)150, samus.Grapple.BeamStartX, "advanced grapple beam-start X");
+    AssertEqual((ushort)105, samus.Grapple.BeamStartY, "advanced grapple beam-start Y");
+    AssertEqual((ushort)154, samus.XPosition, "advanced grapple art-corrected X");
+    AssertEqual((ushort)102, samus.YPosition, "advanced grapple art-corrected Y");
     AssertEqual((ushort)4, samus.AnimationFrame, "advanced grapple angle art frame");
 
     // UpdateGrappleBeamTiles reads one 32-byte endpoint source and one angle-selected
@@ -1757,8 +1771,8 @@ static void VerifySamusGrappleSwingAndRelease()
     for (int segment = 0; segment < expectedTiles.Length; segment++)
     {
         OamEntry entry = grappleOam.GetEntry(segment);
-        AssertEqual(47 + segment * 7, entry.X, $"grapple segment {segment} X step");
-        AssertEqual((byte)47, entry.Y, $"grapple segment {segment} Y step");
+        AssertEqual(46 + segment * 7, entry.X, $"grapple segment {segment} X step");
+        AssertEqual((byte)51, entry.Y, $"grapple segment {segment} Y step");
         AssertEqual(expectedTiles[segment], entry.TileNumber, $"grapple segment {segment} staggered tile");
         AssertEqual(5, entry.Palette, $"grapple segment {segment} palette");
         AssertEqual(3, entry.Priority, $"grapple segment {segment} priority");
@@ -1766,13 +1780,13 @@ static void VerifySamusGrappleSwingAndRelease()
         AssertTrue(!entry.IsLarge, $"grapple segment {segment} is small OBJ");
     }
     OamEntry grappleEndpoint = grappleOam.GetEntry(6);
-    AssertEqual(96, grappleEndpoint.X, "grapple endpoint screen X");
-    AssertEqual((byte)46, grappleEndpoint.Y, "grapple endpoint screen Y");
+    AssertEqual(95, grappleEndpoint.X, "grapple endpoint screen X");
+    AssertEqual((byte)50, grappleEndpoint.Y, "grapple endpoint screen Y");
     AssertEqual(0x20, grappleEndpoint.TileNumber, "grapple endpoint tile");
 
     // Releasing Shoot runs $9B:CA65 now but queues $9B:CB8B for the next call. With signed
     // cosine -255 and doubled angular velocity 536, vertical magnitude is $000215E8.
-    GrappleMovementResult queued = SamusGrappleMovement.Step(bus, samus, 0, 0);
+    GrappleMovementResult queued = SamusGrappleMovement.Step(bus, swingLevel, samus, 0, 0);
     AssertTrue(queued.ReleaseQueued && !queued.Released, "grapple release is one-frame queued");
     AssertEqual(GrapplePhase.ReleaseFromSwing, samus.Grapple.Phase, "release function pointer phase");
     AssertEqual((ushort)2, samus.Kinematics.YSpeed, "grapple release whole Y speed");
@@ -1782,7 +1796,7 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual((ushort)0x3458, samus.HorizontalSpeed.BaseSubspeed, "grapple release fractional X speed");
     AssertEqual((ushort)2, samus.HorizontalSpeed.AccelerationMode, "release selects deceleration mode");
 
-    GrappleMovementResult released = SamusGrappleMovement.Step(bus, samus, 0, 0);
+    GrappleMovementResult released = SamusGrappleMovement.Step(bus, swingLevel, samus, 0, 0);
     AssertTrue(released.Released && !released.ReleaseQueued, "queued grapple release completes");
     AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "completed release clears grapple phase");
     AssertEqual(SamusState.NormalJumpForwardLeftPose, samus.Pose,
@@ -1790,12 +1804,153 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual((ushort)2, samus.Kinematics.YSpeed, "release pose preserves whole Y velocity");
     AssertEqual((ushort)0x15e8, samus.Kinematics.YSubspeed, "release pose preserves fractional Y velocity");
 
+    // Build a deliberately axis-aligned bank-$94 swing table around angle $40. At this
+    // angle the radial vector points right: sine is +256 and negative cosine is zero. The
+    // next whole angle byte ($41) is kept axis-aligned too, making all six probe coordinates
+    // auditable without relying on the production scaler's trigonometric approximation.
+    WriteTestWord(bus, 0xa0b3c3 + 0x40 * 2, 0x0000);
+    WriteTestWord(bus, 0xa0b3c3 + 0x80 * 2, 0x0100);
+    WriteTestWord(bus, 0xa0b3c3 + 0x41 * 2, 0x0000);
+    WriteTestWord(bus, 0xa0b3c3 + 0x81 * 2, 0x0100);
+    bus.WriteByte(0x9bc1c2 + 0x40, 0);
+    bus.WriteBytes(0x9bc302, [0x00, 0x00]);
+
+    // Anchor (128,128) is biased to (136,136). With length 32, candidate angle $41's
+    // nearest probe is 40 pixels from the anchor at (176,136), block (11,8). Gravity adds
+    // $18 to initial velocity $100, so collision must preserve last-safe angle $40.80 and
+    // transform velocity $118 into -($118 >> 1) = -$8C while opening a 16-frame kick gate.
+    var angularCollisionBlocks = new ushort[16 * 16];
+    angularCollisionBlocks[8 * 16 + 11] = 0x8000;
+    var angularCollisionLevel = new RoomLevelData(
+        16,
+        16,
+        angularCollisionBlocks,
+        new byte[angularCollisionBlocks.Length],
+        new ushort[angularCollisionBlocks.Length],
+        new byte[16]);
+    var angularCollisionSamus = new SamusState();
+    SamusGrappleMovement.ConnectUnobstructedSwing(
+        bus,
+        angularCollisionSamus,
+        anchorX: 128,
+        anchorY: 128,
+        ropeLength: 32,
+        angle: 0x4000,
+        angularVelocity: 0x0100,
+        faceRight: true);
+    GrappleMovementResult angularCollision = SamusGrappleMovement.Step(
+        bus,
+        angularCollisionLevel,
+        angularCollisionSamus,
+        (ushort)SnesButton.X,
+        newlyPressedInput: 0);
+    AssertTrue(angularCollision.TerrainCollided, "grapple angular sweep reports terrain collision");
+    AssertEqual(6, angularCollision.CollisionDistanceFromFeet,
+        "nearest of six grapple body probes collides first");
+    AssertEqual((ushort)0x4080, angularCollisionSamus.Grapple.Angle,
+        "grapple collision restores last-safe angle plus half fraction");
+    AssertEqual((short)-0x008c, angularCollisionSamus.Grapple.AngularVelocity,
+        "grapple collision negates arithmetic half velocity");
+    AssertEqual((ushort)16, angularCollisionSamus.Grapple.CollisionBounceTimer,
+        "grapple collision opens sixteen-frame kick window");
+
+    // Move the reflected pendulum into empty terrain and press Jump during the kick window.
+    // Gravity/correction update -$8C to -$6F, then $9B:BD44 adds -$300 extra velocity.
+    // Total -$36F moves $40.80 to $3D.11; success ages the timer and damps only the extra
+    // word from -$300 to -$2FA. This is the real collision-assisted grapple kick, not an
+    // ordinary aerial jump applied to Samus's X/Y velocity.
+    GrappleMovementResult afterAngularCollision = SamusGrappleMovement.Step(
+        bus,
+        swingLevel,
+        angularCollisionSamus,
+        (ushort)(SnesButton.X | SnesButton.B),
+        newlyPressedInput: (ushort)SnesButton.B);
+    AssertTrue(!afterAngularCollision.TerrainCollided,
+        "collision kick crosses three clear angle-byte terrain sweeps");
+    AssertEqual((ushort)0x3d11, angularCollisionSamus.Grapple.Angle,
+        "grapple collision kick advances exact reflected-plus-extra angle");
+    AssertEqual((short)-0x006f, angularCollisionSamus.Grapple.AngularVelocity,
+        "grapple kick keeps gravity-corrected base angular velocity");
+    AssertEqual((short)-0x02fa, angularCollisionSamus.Grapple.JumpImpulse,
+        "successful grapple kick damps extra angular velocity by six");
+    AssertEqual((ushort)15, angularCollisionSamus.Grapple.CollisionBounceTimer,
+        "successful post-bounce movement ages kick window");
+
+    // Rope growth uses a different radial frontier: candidate length 33 plus 56 pixels puts
+    // the probe at X=225, block 14. Make that cell a horizontal extension to solid block 15.
+    // Correct per-pixel length handling must reject 33, retain 32, and leave +2 active to
+    // retry next frame; treating the extension itself as air would incorrectly grow the rope.
+    var ropeCollisionBlocks = new ushort[16 * 16];
+    var ropeCollisionBts = new byte[ropeCollisionBlocks.Length];
+    ropeCollisionBlocks[8 * 16 + 14] = 0x5000;
+    ropeCollisionBts[8 * 16 + 14] = 1;
+    ropeCollisionBlocks[8 * 16 + 15] = 0x8000;
+    var ropeCollisionLevel = new RoomLevelData(
+        16,
+        16,
+        ropeCollisionBlocks,
+        ropeCollisionBts,
+        new ushort[ropeCollisionBlocks.Length],
+        new byte[16]);
+    var ropeCollisionSamus = new SamusState();
+    SamusGrappleMovement.ConnectUnobstructedSwing(
+        bus,
+        ropeCollisionSamus,
+        anchorX: 128,
+        anchorY: 128,
+        ropeLength: 32,
+        angle: 0x4000,
+        angularVelocity: 0,
+        faceRight: true);
+    GrappleMovementResult ropeCollision = SamusGrappleMovement.Step(
+        bus,
+        ropeCollisionLevel,
+        ropeCollisionSamus,
+        (ushort)(SnesButton.X | SnesButton.Down),
+        newlyPressedInput: (ushort)SnesButton.Down);
+    AssertTrue(ropeCollision.RopeLengthBlocked,
+        "grapple rope growth follows extension BTS to solid collision");
+    AssertEqual((ushort)32, ropeCollisionSamus.Grapple.RopeLength,
+        "blocked grapple rope keeps last accepted length");
+    AssertEqual((short)2, ropeCollisionSamus.Grapple.RopeLengthDelta,
+        "blocked grapple rope retains signed retry delta");
+
+    // The already-connected public seam normally skips block validation. Opt this fixture
+    // into the same flag installed by real firing, then present air at the stored anchor.
+    // Gravity creates nonzero momentum, selecting the translated release path rather than
+    // the still-untranslated zero-speed dropped handler.
+    var disconnectedAnchorSamus = new SamusState();
+    SamusGrappleMovement.ConnectUnobstructedSwing(
+        bus,
+        disconnectedAnchorSamus,
+        anchorX: 128,
+        anchorY: 128,
+        ropeLength: 32,
+        angle: 0x4000,
+        angularVelocity: 0,
+        faceRight: true);
+    disconnectedAnchorSamus.Grapple.ValidateAnchorBlock = true;
+    GrappleMovementResult disconnectedAnchor = SamusGrappleMovement.Step(
+        bus,
+        new RoomLevelData(
+            16,
+            16,
+            new ushort[16 * 16],
+            new byte[16 * 16],
+            new ushort[16 * 16],
+            new byte[16]),
+        disconnectedAnchorSamus,
+        (ushort)SnesButton.X,
+        newlyPressedInput: 0);
+    AssertTrue(disconnectedAnchor.AnchorDisconnected && disconnectedAnchor.ReleaseQueued,
+        "air replacing a validated grapple anchor queues moving release");
+
     AssertThrows<ArgumentOutOfRangeException>(
         () => SamusGrappleMovement.ConnectUnobstructedSwing(
             bus, new SamusState(), 0, 0, ropeLength: 7, angle: 0, angularVelocity: 0, faceRight: true),
         "grapple rejects a rope shorter than retail connected minimum");
 
-    Console.WriteLine("  Samus grapple: ROM firing, four-step block acquisition, beam OAM, pendulum input, and queued release agree.");
+    Console.WriteLine("  Samus grapple: firing, acquisition, rope/body terrain sweeps, collision kick, beam OAM, and release agree.");
 }
 
 static void VerifySamusPostureMovement()

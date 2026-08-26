@@ -694,6 +694,7 @@ public sealed class SuperMetroidRuntime
                 {
                     LastGrappleMovement = SamusGrappleMovement.Step(
                         _addressSpace,
+                        LevelData,
                         Samus,
                         Controller1.Current,
                         Controller1.NewlyPressed);

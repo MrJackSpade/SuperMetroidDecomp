@@ -5,17 +5,17 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Debugger-visible translation of grapple firing, persistent-block acquisition, the
-/// connected unobstructed pendulum, and its release seam from banks $9B and $94.
+/// Debugger-visible translation of grapple firing, persistent-block acquisition, connected
+/// pendulum terrain interaction, collision kicks, and release from banks $9B and $94.
 /// </summary>
 /// <remarks>
 /// The retail game does not run grapple physics through movement type $16's tiny handler at
 /// $90:A780. <c>GrappleBeamHandler</c> in bank $9B updates the pendulum before normal beta
 /// movement, and bank $94 advances its angle while probing room collision. This class keeps
-/// those responsibilities separate from ordinary aerial movement. Firing and persistent
-/// grapple blocks are translated here; breakable grapple PLMs, enemy acquisition, connected
-/// body collision/reflection, wall grab, and the wall-jump grace timer remain explicit later
-/// routes rather than being approximated here.
+/// those responsibilities separate from ordinary aerial movement. Firing, persistent grapple
+/// blocks, per-pixel rope adjustment, and the six-point angular terrain sweep are translated
+/// here; breakable PLMs, spike damage, enemy acquisition, locked poses, wall grab, and the
+/// wall-jump grace timer remain explicit later routes rather than being approximated here.
 /// </remarks>
 public static class SamusGrappleMovement
 {
@@ -110,6 +110,8 @@ public static class SamusGrappleMovement
         grapple.VelocityCorrection = 0;
         grapple.JumpImpulse = 0;
         grapple.CollisionBounceTimer = 0;
+        grapple.ValidateAnchorBlock = false;
+        grapple.SpecialAngleHandling = false;
         InitializeBeamAnimation(grapple);
 
         // The beam-start/flare point is independent of the projectile endpoint while the
@@ -232,6 +234,12 @@ public static class SamusGrappleMovement
         grapple.JumpImpulse = 0;
         grapple.CollisionBounceTimer = 0;
         grapple.Submerged = false;
+        // This public helper is the debugger's already-accepted-anchor seam. Its caller may
+        // deliberately place an anchor where the current room has no grapple block (the
+        // Landing Site regression does exactly that), so only a beam acquired through the
+        // block dispatcher opts into bank-$9B's per-frame connection revalidation.
+        grapple.ValidateAnchorBlock = false;
+        grapple.SpecialAngleHandling = false;
         InitializeBeamAnimation(grapple);
 
         samus.Pose = faceRight
@@ -251,11 +259,13 @@ public static class SamusGrappleMovement
     /// </summary>
     public static GrappleMovementResult Step(
         ISnesAddressSpace bus,
+        RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
         ushort newlyPressedInput)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
         SamusGrappleState grapple = samus.Grapple;
 
@@ -280,14 +290,57 @@ public static class SamusGrappleMovement
         }
 
         ApplyRopeAndDirectionInput(grapple, controllerInput, newlyPressedInput);
-        ApplyRopeLengthDelta(grapple);
+        bool ropeLengthBlocked = ApplyRopeLengthDelta(bus, level, grapple);
         CalculateGravity(grapple);
         IntegrateAngularVelocity(grapple);
         ApplyJumpImpulse(grapple, newlyPressedInput);
-        AdvanceUnobstructedAngle(grapple);
+        GrappleSwingCollisionResult terrain = AdvanceAngleWithTerrainCollision(bus, level, grapple);
+
+        // $9B:C7E1 only dispatches one of the eight locked/wallgrab angles when both the
+        // close-collision flag and an exact table angle agree. Those pose handlers are the
+        // next grapple slice; stopping at that exact seam is safer than continuing $B2/$B3
+        // through a wall and pretending the special route was ordinary pendulum motion.
+        if (grapple.SpecialAngleHandling && IsSpecialGrappleAngle(grapple.Angle))
+        {
+            throw new NotSupportedException(
+                $"Grapple collision reached special angle ${grapple.Angle:X4}; " +
+                "the locked/wallgrab bank-$9B handler is not translated yet.");
+        }
+
+        if (grapple.ValidateAnchorBlock && !IsStillConnectedToSupportedBlock(level, grapple))
+        {
+            // The persistent block path normally remains connected forever. Retain the
+            // native validation seam so a future dynamic/breakable PLM cannot leave a rope
+            // attached to air. The zero-momentum dropped handler remains an explicit later
+            // route; every moving pendulum can use the already translated release handoff.
+            if (grapple.AngularVelocity == 0 && grapple.Angle == 0x8000)
+            {
+                throw new NotSupportedException(
+                    "A disconnected motionless grapple requires the untranslated dropped handler.");
+            }
+
+            PropelSamusFromSwing(bus, samus, grapple);
+            grapple.Phase = GrapplePhase.ReleaseFromSwing;
+            return new GrappleMovementResult(
+                grapple.Phase,
+                Released: false,
+                ReleaseQueued: true,
+                TerrainCollided: terrain.Collided,
+                CollisionDistanceFromFeet: terrain.DistanceFromFeet,
+                RopeLengthBlocked: ropeLengthBlocked,
+                AnchorDisconnected: true);
+        }
+
         PositionSamusFromPendulum(bus, samus, grapple);
 
-        return new GrappleMovementResult(grapple.Phase, Released: false, ReleaseQueued: false);
+        return new GrappleMovementResult(
+            grapple.Phase,
+            Released: false,
+            ReleaseQueued: false,
+            TerrainCollided: terrain.Collided,
+            CollisionDistanceFromFeet: terrain.DistanceFromFeet,
+            RopeLengthBlocked: ropeLengthBlocked,
+            AnchorDisconnected: false);
     }
 
     /// <summary>
@@ -578,6 +631,10 @@ public static class SamusGrappleMovement
         grapple.RopeLengthDelta = 0;
         if (grapple.RopeLength >= 64)
             grapple.RopeLength = unchecked((ushort)(grapple.RopeLength - 24));
+        // Unlike ConnectUnobstructedSwing's explicit debugger seam, this anchor came from
+        // BlockGrappleReaction and must be revalidated every connected frame at $9B:C802.
+        grapple.ValidateAnchorBlock = true;
+        grapple.SpecialAngleHandling = false;
         grapple.Phase = GrapplePhase.ConnectedSwinging;
         PositionSamusFromPendulum(bus, samus, grapple);
     }
@@ -691,26 +748,66 @@ public static class SamusGrappleMovement
         grapple.DirectionInputAcceleration = 0;
     }
 
-    private static void ApplyRopeLengthDelta(SamusGrappleState grapple)
+    private static bool ApplyRopeLengthDelta(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusGrappleState grapple)
     {
         if (grapple.RopeLengthDelta == 0)
-            return;
+            return false;
 
-        int candidate = grapple.RopeLength + grapple.RopeLengthDelta;
-        if (candidate < 8)
+        // $94:AC31 does not jump directly by two pixels. It walks each intermediate length
+        // and collision-tests Samus's leading edge, which prevents a fast rope adjustment
+        // from tunnelling through a one-pixel boundary. Shortening probes length+8; growing
+        // probes length+56, matching the front/back ends of the 48-pixel body line.
+        int targetLength = grapple.RopeLength + grapple.RopeLengthDelta;
+        int direction;
+        int frontBoundaryOffset;
+        if (grapple.RopeLengthDelta < 0)
         {
-            grapple.RopeLength = 8;
-            grapple.RopeLengthDelta = 0;
-        }
-        else if (candidate >= 63)
-        {
-            grapple.RopeLength = 63;
-            grapple.RopeLengthDelta = 0;
+            direction = -1;
+            frontBoundaryOffset = 8;
+            if (targetLength < 8)
+            {
+                targetLength = 8;
+                grapple.RopeLengthDelta = 0;
+            }
         }
         else
         {
-            grapple.RopeLength = unchecked((ushort)candidate);
+            direction = 1;
+            frontBoundaryOffset = 56;
+            if (targetLength >= 63)
+            {
+                targetLength = 63;
+                grapple.RopeLengthDelta = 0;
+            }
         }
+
+        int currentLength = grapple.RopeLength;
+        while (currentLength != targetLength)
+        {
+            int candidateLength = currentLength + direction;
+            int probeDistance = candidateLength + frontBoundaryOffset;
+            GrappleCollisionPoint point = CalculateCollisionPoint(
+                bus,
+                grapple,
+                unchecked((byte)(grapple.Angle >> 8)),
+                probeDistance);
+            if (IsSwingCollision(level, point.BlockX, point.BlockY))
+            {
+                // Native stores GrappleCollision_NewBeamLength, which is the last accepted
+                // length rather than the colliding candidate. It deliberately leaves the
+                // signed delta alive so a held adjustment retries on the following frame.
+                grapple.RopeLength = unchecked((ushort)currentLength);
+                return true;
+            }
+
+            currentLength = candidateLength;
+        }
+
+        grapple.RopeLength = unchecked((ushort)targetLength);
+        return false;
     }
 
     private static void CalculateGravity(SamusGrappleState grapple)
@@ -777,9 +874,9 @@ public static class SamusGrappleMovement
 
     private static void ApplyJumpImpulse(SamusGrappleState grapple, ushort newlyPressedInput)
     {
-        // $9B:BD44 only admits this impulse during the 16-frame collision-reflection timer.
-        // The unobstructed route normally leaves the timer at zero, but retaining the exact
-        // gate and decay makes the state ready for the collision slice without changing ABI.
+        // $9B:BD44 only admits this extra angular impulse during the 16-frame terrain-
+        // reflection timer. It is separate from ordinary Samus jump velocity and decays
+        // inside bank $94 only after a successful angular movement pass.
         if (grapple.CollisionBounceTimer != 0 &&
             (newlyPressedInput & (ushort)SnesButton.B) != 0)
         {
@@ -792,17 +889,79 @@ public static class SamusGrappleMovement
         }
     }
 
-    private static void AdvanceUnobstructedAngle(SamusGrappleState grapple)
+    private static GrappleSwingCollisionResult AdvanceAngleWithTerrainCollision(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusGrappleState grapple)
     {
-        int combined = grapple.AngularVelocity + grapple.JumpImpulse;
+        // $94:ACFE first converts angular velocity into an angle delta, then walks from the
+        // current high angle byte to the target one byte at a time. Fractional-only motion
+        // within the same byte has no sweep, exactly as the target-byte equality branch.
+        int combined = unchecked((short)(grapple.AngularVelocity + grapple.JumpImpulse));
         int factor = grapple.Submerged ? 160 : 256;
         int magnitude = (Math.Abs(combined) * factor) >> 8;
         if (magnitude == 0)
-            return;
+            return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
 
-        int delta = combined < 0 ? -magnitude : magnitude;
-        grapple.Angle = unchecked((ushort)(grapple.Angle + delta));
-        grapple.MirroredAngle = grapple.Angle;
+        int signedDelta = combined < 0 ? -magnitude : magnitude;
+        ushort targetAngle = unchecked((ushort)(grapple.Angle + signedDelta));
+        byte targetAngleByte = unchecked((byte)(targetAngle >> 8));
+        byte lastSafeAngleByte = unchecked((byte)(grapple.Angle >> 8));
+        int byteDirection = combined < 0 ? -1 : 1;
+
+        // At the maximum retail velocity this loop executes at most five times. Keep an
+        // explicit 256-byte guard anyway: it documents the cyclic angle domain and turns a
+        // future corrupt state into a diagnostic rather than an infinite host loop.
+        for (int angleSteps = 0;
+             lastSafeAngleByte != targetAngleByte && angleSteps < 256;
+             angleSteps++)
+        {
+            byte candidateAngleByte = unchecked((byte)(lastSafeAngleByte + byteDirection));
+            GrappleSwingCollisionResult collision = ProbeSwingingBody(
+                bus,
+                level,
+                grapple,
+                candidateAngleByte);
+            if (collision.Collided)
+            {
+                // $94:ADB4/$AE84 restore the last safe whole angle byte and force the
+                // fractional half-byte `$80`. The body therefore stops just before the
+                // colliding sample rather than snapping back to the frame's original angle.
+                grapple.Angle = unchecked((ushort)((lastSafeAngleByte << 8) | 0x80));
+                grapple.MirroredAngle = grapple.Angle;
+
+                bool closeCollision = grapple.RopeLength == 8 &&
+                    collision.DistanceFromFeet is 6 or 5;
+                if (closeCollision)
+                {
+                    // This bit asks bank $9B to compare against the eight exact locked and
+                    // wallgrab angles. Velocity is stopped instead of reflected.
+                    grapple.SpecialAngleHandling = true;
+                    grapple.AngularVelocity = 0;
+                    grapple.JumpImpulse = 0;
+                }
+                else
+                {
+                    grapple.CollisionBounceTimer = 16;
+                    grapple.AngularVelocity = NegatedArithmeticHalf(grapple.AngularVelocity);
+                    grapple.JumpImpulse = NegatedArithmeticHalf(grapple.JumpImpulse);
+                }
+
+                return collision;
+            }
+
+            lastSafeAngleByte = candidateAngleByte;
+        }
+
+        if (lastSafeAngleByte != targetAngleByte)
+            throw new InvalidDataException("Grapple angle sweep exceeded one full revolution.");
+
+        // No sampled byte collided, so preserve the full 16-bit target, clear the special
+        // angle request, age the kick window, and damp extra velocity by six. Every one of
+        // these operations is bypassed by the collision return above in the original code.
+        grapple.Angle = targetAngle;
+        grapple.MirroredAngle = targetAngle;
+        grapple.SpecialAngleHandling = false;
 
         if (grapple.CollisionBounceTimer != 0)
             grapple.CollisionBounceTimer--;
@@ -813,24 +972,171 @@ public static class SamusGrappleMovement
             grapple.JumpImpulse = (short)Math.Max(0, grapple.JumpImpulse - 6);
         else if (grapple.JumpImpulse < 0)
             grapple.JumpImpulse = (short)Math.Min(0, grapple.JumpImpulse + 6);
+
+        return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
     }
+
+    private static GrappleSwingCollisionResult ProbeSwingingBody(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusGrappleState grapple,
+        byte candidateAngleByte)
+    {
+        // $94:ABE6 checks six points on an eight-pixel cadence. The first point is eight
+        // pixels beyond the hand; the last is 48 pixels beyond it. Together with rope length
+        // this approximates Samus's body as a radial line while rotating around the anchor.
+        int distance = grapple.RopeLength + 8;
+        for (int distanceFromFeet = 6; distanceFromFeet >= 1; distanceFromFeet--)
+        {
+            GrappleCollisionPoint point = CalculateCollisionPoint(
+                bus,
+                grapple,
+                candidateAngleByte,
+                distance);
+            if (IsSwingCollision(level, point.BlockX, point.BlockY))
+            {
+                return new GrappleSwingCollisionResult(
+                    Collided: true,
+                    DistanceFromFeet: distanceFromFeet);
+            }
+
+            distance += 8;
+        }
+
+        return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
+    }
+
+    private static GrappleCollisionPoint CalculateCollisionPoint(
+        ISnesAddressSpace bus,
+        SamusGrappleState grapple,
+        byte angleByte,
+        int distance)
+    {
+        short xSine = ReadSignedSine(bus, angleByte + 64);
+        short yNegativeCosine = ReadSignedSine(bus, angleByte);
+
+        // For a block anchor, $94:A95F-$A996 biases the low nibble toward the side from
+        // which the rope leaves the block: eight for a nonnegative component, seven for a
+        // negative one. This one-pixel asymmetry is observable in both collision probes and
+        // Samus positioning, and the adjusted endpoint remains stored after the helper.
+        grapple.AnchorX = unchecked((ushort)(
+            (grapple.AnchorX & 0xfff0) | (xSine >= 0 ? 8 : 7)));
+        grapple.AnchorY = unchecked((ushort)(
+            (grapple.AnchorY & 0xfff0) | (yNegativeCosine >= 0 ? 8 : 7)));
+
+        ushort x = unchecked((ushort)(grapple.AnchorX + ScaleCoordinate(xSine, distance)));
+        ushort y = unchecked((ushort)(grapple.AnchorY + ScaleCoordinate(yNegativeCosine, distance)));
+
+        // The native helper masks each shifted coordinate to one byte. Rooms are authored
+        // within that domain; preserving the mask matters at 16-bit world-coordinate wrap.
+        return new GrappleCollisionPoint(
+            X: x,
+            Y: y,
+            BlockX: (x >> 4) & 0xff,
+            BlockY: (y >> 4) & 0xff);
+    }
+
+    private static bool IsSwingCollision(RoomLevelData level, int blockX, int blockY)
+    {
+        if ((uint)blockX >= (uint)level.WidthInBlocks ||
+            (uint)blockY >= (uint)level.HeightInBlocks)
+        {
+            throw new NotSupportedException(
+                $"Grapple body probe left translated room storage at block ({blockX},{blockY}).");
+        }
+
+        int index = blockY * level.WidthInBlocks + blockX;
+        for (int extensionDepth = 0; extensionDepth <= 16; extensionDepth++)
+        {
+            if ((uint)index >= (uint)(level.WidthInBlocks * level.HeightInBlocks))
+            {
+                throw new NotSupportedException(
+                    $"Grapple swing extension BTS resolved outside room storage at index ${index:X4}.");
+            }
+
+            int resolvedX = index % level.WidthInBlocks;
+            int resolvedY = index / level.WidthInBlocks;
+            RoomCollisionBlock block = level.GetCollisionBlock(resolvedX, resolvedY);
+            switch (block.CollisionType)
+            {
+                // The swing dispatcher intentionally treats shootable/bombable air as air;
+                // unlike a firing endpoint, body contact does not spawn their PLMs.
+                case 0:
+                case 2: // spike-air damage is a separate side effect; collision stays clear
+                case 3:
+                case 4:
+                case 6:
+                case 7:
+                    return false;
+
+                // Slopes are unconditional collision in this grapple-specific dispatcher.
+                // Spike blocks also damage Samus before returning set carry; their movement
+                // result remains solid while the broader damage producer is still absent.
+                case 1:
+                case 8:
+                case 9:
+                case 0x0a:
+                case 0x0b:
+                case 0x0c:
+                case 0x0e:
+                case 0x0f:
+                    return true;
+
+                case 5:
+                    if (block.Behavior == 0)
+                        return false;
+                    index += unchecked((sbyte)block.Behavior);
+                    continue;
+
+                case 0x0d:
+                    if (block.Behavior == 0)
+                        return false;
+                    index += unchecked((sbyte)block.Behavior) * level.WidthInBlocks;
+                    continue;
+
+                default:
+                    throw new InvalidDataException(
+                        $"Invalid grapple swing collision type ${block.CollisionType:X1}.");
+            }
+        }
+
+        throw new InvalidDataException("Grapple swing extension chain exceeded sixteen blocks.");
+    }
+
+    private static bool IsStillConnectedToSupportedBlock(
+        RoomLevelData level,
+        SamusGrappleState grapple)
+    {
+        // $9B:B8F1 calls the firing block dispatcher again at the stored endpoint and tests
+        // carry only. Persistent type-$E/BTS-$00 or $03 therefore stays connected; replacing
+        // it with air disconnects. PLM-producing dynamic blocks retain their explicit stop.
+        GrappleBlockReaction reaction = ReactAtEndpoint(level, grapple.AnchorX, grapple.AnchorY);
+        return reaction.Carry;
+    }
+
+    private static bool IsSpecialGrappleAngle(ushort angle) => angle is
+        0xd680 or 0x2a80 or 0xb380 or 0x4d80 or
+        0x6a80 or 0x9680 or 0x7380 or 0x8d80;
+
+    private static short NegatedArithmeticHalf(short value) =>
+        unchecked((short)-(value >> 1));
 
     private static void PositionSamusFromPendulum(
         ISnesAddressSpace bus,
         SamusState samus,
         SamusGrappleState grapple)
     {
-        int angleIndex = grapple.Angle >> 8;
-        short sineY = ReadSignedSine(bus, angleIndex);
-        short sineX = ReadSignedSine(bus, angleIndex + 64);
-
-        // $94:A957 scales the table's +/-256 sine values by rope length, then $94:AC11
-        // publishes the beam-start point. Negative products are truncated by magnitude in
-        // the 65816 routine, so ScaleCoordinate does not use C#'s negative arithmetic shift.
-        int beamStartX = unchecked((ushort)(grapple.AnchorX + ScaleCoordinate(sineX, grapple.RopeLength)));
-        int beamStartY = unchecked((ushort)(grapple.AnchorY + ScaleCoordinate(sineY, grapple.RopeLength)));
-        grapple.BeamStartX = unchecked((ushort)beamStartX);
-        grapple.BeamStartY = unchecked((ushort)beamStartY);
+        // $94:AC11 calls the same position helper used by terrain probes. Besides scaling the
+        // signed table components, it applies the block-side 7/8 endpoint bias documented in
+        // CalculateCollisionPoint; using one helper prevents visible art from disagreeing
+        // with the collision body by one pixel.
+        GrappleCollisionPoint beamStart = CalculateCollisionPoint(
+            bus,
+            grapple,
+            unchecked((byte)(grapple.Angle >> 8)),
+            grapple.RopeLength);
+        grapple.BeamStartX = beamStart.X;
+        grapple.BeamStartY = beamStart.Y;
 
         // $9B:BD95 maps all 256 angle bytes onto the authentic swing-art frame, then adds
         // a frame-specific origin correction so Samus's hand remains attached to the beam.
@@ -843,8 +1149,8 @@ public static class SamusGrappleMovement
         sbyte yOffset = unchecked((sbyte)bus.ReadByte(pairAddress + 1));
 
         samus.SetGrappleSwingAnimationFrame(artFrame);
-        samus.XPosition = unchecked((ushort)(beamStartX + xOffset));
-        samus.YPosition = unchecked((ushort)(beamStartY + yOffset));
+        samus.XPosition = unchecked((ushort)(beamStart.X + xOffset));
+        samus.YPosition = unchecked((ushort)(beamStart.Y + yOffset));
     }
 
     private static void PropelSamusFromSwing(
@@ -895,7 +1201,7 @@ public static class SamusGrappleMovement
         grapple.CollisionBounceTimer = 0;
     }
 
-    private static int ScaleCoordinate(short sine, ushort length) => sine switch
+    private static int ScaleCoordinate(short sine, int length) => sine switch
     {
         -256 => -length,
         256 => length,
@@ -957,6 +1263,18 @@ public sealed class SamusGrappleState
     public short JumpImpulse { get; set; }
     public ushort CollisionBounceTimer { get; set; }
     public bool Submerged { get; set; }
+    /// <summary>
+    /// True only when the anchor came from the room block dispatcher. Debugger-published
+    /// already-connected anchors deliberately leave this false because they may have no
+    /// corresponding type-$E block in the selected diagnostic room.
+    /// </summary>
+    public bool ValidateAnchorBlock { get; set; }
+
+    /// <summary>
+    /// Host-readable form of bit 15 in `$0D26`. A close collision at minimum rope length
+    /// requests bank-$9B's exact locked/wallgrab angle lookup; successful swing motion clears it.
+    /// </summary>
+    public bool SpecialAngleHandling { get; set; }
     public ushort PointAnimationTimer { get; set; }
     public byte PointAnimationFrame { get; set; }
     /// <summary>
@@ -988,7 +1306,24 @@ public readonly record struct GrappleMovementResult(
     bool Connected = false,
     bool CancelQueued = false,
     bool Cancelled = false,
-    bool OwnsMovement = true);
+    bool OwnsMovement = true,
+    bool TerrainCollided = false,
+    int CollisionDistanceFromFeet = 0,
+    bool RopeLengthBlocked = false,
+    bool AnchorDisconnected = false);
+
+/// <summary>World pixel and room-block coordinates produced by bank-$94's radial helper.</summary>
+internal readonly record struct GrappleCollisionPoint(
+    ushort X,
+    ushort Y,
+    int BlockX,
+    int BlockY);
+
+/// <summary>
+/// Result of the six-point angular body sweep. DistanceFromFeet retains the native countdown:
+/// six is the point nearest the hand and one is the point furthest beyond Samus.
+/// </summary>
+internal readonly record struct GrappleSwingCollisionResult(bool Collided, int DistanceFromFeet);
 
 /// <summary>
 /// Processor-status subset returned by the bank-$94 grapple block-reaction dispatcher.

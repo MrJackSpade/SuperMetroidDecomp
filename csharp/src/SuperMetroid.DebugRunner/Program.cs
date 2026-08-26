@@ -376,6 +376,7 @@ bool observedDamageBoostMovement = false;
 bool observedGrappleSwing = false;
 bool observedGrappleReleaseQueue = false;
 bool observedGrappleRelease = false;
+bool observedGrappleTerrainCollision = false;
 bool observedGrappleFire = false;
 bool observedGrappleFireCancelQueue = false;
 bool observedGrappleFireCancel = false;
@@ -702,6 +703,17 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         { Phase: GrapplePhase.ConnectedSwinging };
     observedGrappleReleaseQueue |= runtime.LastGrappleMovement is { ReleaseQueued: true };
     observedGrappleRelease |= runtime.LastGrappleMovement is { Released: true };
+    if (!observedGrappleTerrainCollision &&
+        runtime.LastGrappleMovement is { TerrainCollided: true } grappleTerrain)
+    {
+        Console.WriteLine(
+            $"frame {result.FrameNumber,4}: grapple body collision at radial point " +
+            $"{grappleTerrain.CollisionDistanceFromFeet}/6; safe angle=" +
+            $"${runtime.Samus.Grapple.Angle:X4}, reflected velocity=" +
+            $"${unchecked((ushort)runtime.Samus.Grapple.AngularVelocity):X4}, " +
+            $"kickTimer={runtime.Samus.Grapple.CollisionBounceTimer}.");
+    }
+    observedGrappleTerrainCollision |= runtime.LastGrappleMovement is { TerrainCollided: true };
     observedGrappleFire |= runtime.LastGrappleMovement is { Fired: true };
     observedGrappleFireCancelQueue |= runtime.LastGrappleMovement is { CancelQueued: true };
     observedGrappleFireCancel |= runtime.LastGrappleMovement is { Cancelled: true };
@@ -1103,12 +1115,14 @@ if (options.GrappleScript)
 {
     if (!observedGrappleSwing)
         throw new InvalidOperationException("Grapple ROM script never executed connected swinging.");
+    if (!observedGrappleTerrainCollision)
+        throw new InvalidOperationException("Grapple ROM script never exercised connected terrain collision.");
     if (options.FrameCount >= 91 && !observedGrappleReleaseQueue)
         throw new InvalidOperationException("Grapple ROM script never queued release at $9B:C79D.");
     if (options.FrameCount >= 92 && !observedGrappleRelease)
         throw new InvalidOperationException("Grapple ROM script never completed release at $9B:CB8B.");
     Console.WriteLine(
-        $"Grapple ROM route validated connected pendulum stepping" +
+        $"Grapple ROM route validated connected pendulum stepping and six-point terrain reflection" +
         (options.FrameCount >= 92 ? ", queued release, and jump-pose handoff." : "."));
 }
 

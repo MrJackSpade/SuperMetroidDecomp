@@ -40,7 +40,9 @@ public static class SamusPostureMovement
 
         // $90:A57C-$90:A588 performs this cleanup after both collision passes. It is not
         // inferred from being stationary; these are literal observable WRAM writes.
-        ClearHorizontalMomentum(samus.HorizontalSpeed);
+        ClearHorizontalMomentum(
+            samus.HorizontalSpeed,
+            samus.ReadPoseXDirection(bus));
         return result;
     }
 
@@ -92,7 +94,7 @@ public static class SamusPostureMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
         // With zero external displacement and total X speed zero, Simple Samus Y Movement
         // reaches the same +1.0 collision probe used by the grounded standing slice.
@@ -105,12 +107,14 @@ public static class SamusPostureMovement
         return new GroundedMovementResult(horizontal, vertical);
     }
 
-    private static void ClearHorizontalMomentum(SamusHorizontalSpeedState speed)
+    private static void ClearHorizontalMomentum(
+        SamusHorizontalSpeedState speed,
+        byte poseXDirection)
     {
         // Every posture route that reaches this full clear is modeling a native momentum
         // cancellation seam, so the `$0B3C/$0B3E` control words must not outlive the
         // numeric X-speed words below.
-        speed.CancelRunningMomentum();
+        speed.CancelRunningMomentum(poseXDirection);
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         speed.BaseSpeed = 0;

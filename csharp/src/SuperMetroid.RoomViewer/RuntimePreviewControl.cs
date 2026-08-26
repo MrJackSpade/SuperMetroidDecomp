@@ -141,7 +141,8 @@ internal sealed class RuntimePreviewControl : UserControl
             else
             {
                 runtime.Samus.EquippedItems &= unchecked((ushort)~0x2000);
-                runtime.Samus.HorizontalSpeed.CancelRunningMomentum();
+                runtime.Samus.HorizontalSpeed.CancelRunningMomentum(
+                    runtime.Samus.ReadPoseXDirection(bus));
             }
         };
 
@@ -558,6 +559,12 @@ internal sealed class RuntimePreviewControl : UserControl
             $"shine={runtime.Samus.Shinespark.Phase}/timer {runtime.Samus.Shinespark.ShineTimer} " +
             $"crash {runtime.Samus.Shinespark.CrashSubphase}:{runtime.Samus.Shinespark.CrashRadius} " +
             $"released {runtime.Samus.Shinespark.ReleasedCrashEchoCount}  |  " +
+            // `$0AAE` is deliberately shown as raw hexadecimal because zero/two are the
+            // active capture slots, `$FFFF` is ordinary cancellation departure, and the
+            // shinespark crash overloads both bytes with radius/subphase state.
+            $"speed echoes ${runtime.Samus.HorizontalSpeed.SpeedEchoIndex:X4} " +
+            $"({runtime.Samus.HorizontalSpeed.FirstSpeedEchoXPosition:X4}/" +
+            $"{runtime.Samus.HorizontalSpeed.SecondSpeedEchoXPosition:X4})  |  " +
             $"bombs {runtime.BombProjectiles.BombCounter}/5 " +
             $"cooldown {runtime.BombProjectiles.CooldownTimer} " +
             $"jump ${runtime.Samus.BombJumpDirection:X4}  |  " +

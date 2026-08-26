@@ -70,8 +70,9 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Alternating word index at WRAM <c>$0AAE</c>. Ordinary active Speed Booster echoes
-    /// use only values zero and two; the high-bit departure mode belongs to the later
-    /// cancellation/shinespark echo family.
+    /// use only values zero and two. Cancellation writes <c>$FFFF</c> while the two stored
+    /// bodies travel back toward Samus; the shinespark crash temporarily overloads the same
+    /// word as an eight-bit radius plus an eight-bit phase.
     /// </summary>
     public ushort SpeedEchoIndex { get; private set; }
 
@@ -86,6 +87,15 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>Second captured Speed Booster echo Y word at WRAM <c>$0AB6</c>.</summary>
     public ushort SecondSpeedEchoYPosition { get; private set; }
+
+    /// <summary>
+    /// Signed whole-pixel X velocity for ordinary departing echo zero at WRAM
+    /// <c>$0AC0</c>. Cancellation writes -8 while facing left or +8 otherwise.
+    /// </summary>
+    public ushort FirstSpeedEchoXSpeed { get; private set; }
+
+    /// <summary>Signed whole-pixel X velocity for departing echo one at WRAM <c>$0AC2</c>.</summary>
+    public ushort SecondSpeedEchoXSpeed { get; private set; }
 
     /// <summary>Whole part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0B48</c>.</summary>
     public ushort TotalSpeed { get; private set; }
@@ -369,6 +379,8 @@ public sealed class SamusHorizontalSpeedState
     public void ResetSpeedEchoPositionsForShinespark()
     {
         SpeedEchoIndex = 0;
+        FirstSpeedEchoXSpeed = 0;
+        SecondSpeedEchoXSpeed = 0;
         FirstSpeedEchoXPosition = 0;
         SecondSpeedEchoXPosition = 0;
         FirstSpeedEchoYPosition = 0;
@@ -412,10 +424,14 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Clears the locomotion-owned subset of <c>CancelSpeedBoost</c> at <c>$91:DE53</c>.
-    /// Palette restoration and echo-projectile departure remain separate rendering work.
+    /// Ports <c>Samus_CancelSpeedBoost</c> at <c>$91:DE53</c>, including the transition
+    /// from alternating captured positions into the high-bit echo-departure state.
     /// </summary>
-    public void CancelRunningMomentum()
+    /// <param name="poseXDirection">
+    /// Current pose-definition direction byte. Native treats exactly four as facing left;
+    /// every other value uses the right-facing +8 echo velocity branch.
+    /// </param>
+    public void CancelRunningMomentum(byte poseXDirection)
     {
         if (HasRunningMomentum)
         {
@@ -424,6 +440,93 @@ public sealed class SamusHorizontalSpeedState
             SpecialPaletteFrame = 0;
             SpecialPaletteTimer = 0;
             NormalSuitPaletteRestoreRequested = true;
+        }
+
+        // This block is intentionally outside the momentum test. Every native caller can
+        // enter echo-departure mode even when `$0B3C` was already clear. Repeated calls while
+        // `$0AAE` is negative must *not* reset the velocities or restart the two bodies.
+        if ((SpeedEchoIndex & 0x8000) == 0)
+        {
+            SpeedEchoIndex = 0xffff;
+            ushort velocity = poseXDirection == 4
+                ? unchecked((ushort)-8)
+                : (ushort)8;
+            FirstSpeedEchoXSpeed = velocity;
+            SecondSpeedEchoXSpeed = velocity;
+        }
+    }
+
+    /// <summary>
+    /// Advances one cancellation echo during <c>Samus_DrawEchoes</c> at
+    /// <c>$90:87D3-$90:884B</c>.
+    /// </summary>
+    /// <remarks>
+    /// This side effect really belongs to drawing in the cartridge: Y approaches the live
+    /// Samus center by two pixels, X advances by the signed eight-pixel velocity, and the
+    /// position is cleared on the exact frame it crosses Samus. Returning false means the
+    /// slot is empty or crossed this frame and therefore must not emit OAM.
+    /// </remarks>
+    public bool AdvanceDepartingSpeedEcho(
+        int slot,
+        ushort samusXPosition,
+        ushort samusYPosition)
+    {
+        if ((SpeedEchoIndex & 0x8000) == 0)
+            return false;
+        if (slot is < 0 or > 1)
+            throw new ArgumentOutOfRangeException(nameof(slot));
+
+        ushort xPosition = slot == 0
+            ? FirstSpeedEchoXPosition
+            : SecondSpeedEchoXPosition;
+        if (xPosition == 0)
+            return false;
+
+        ushort yPosition = slot == 0
+            ? FirstSpeedEchoYPosition
+            : SecondSpeedEchoYPosition;
+        if (yPosition != samusYPosition)
+        {
+            yPosition = unchecked((short)(yPosition - samusYPosition)) < 0
+                ? unchecked((ushort)(yPosition + 2))
+                : unchecked((ushort)(yPosition - 2));
+        }
+
+        ushort xSpeed = slot == 0
+            ? FirstSpeedEchoXSpeed
+            : SecondSpeedEchoXSpeed;
+        xPosition = unchecked((ushort)(xPosition + xSpeed));
+        bool crossedSamus = unchecked((short)xSpeed) < 0
+            ? unchecked((short)(xPosition - samusXPosition)) < 0
+            : unchecked((short)(xPosition - samusXPosition)) >= 0;
+        if (crossedSamus)
+            xPosition = 0;
+
+        if (slot == 0)
+        {
+            FirstSpeedEchoXPosition = xPosition;
+            FirstSpeedEchoYPosition = yPosition;
+        }
+        else
+        {
+            SecondSpeedEchoXPosition = xPosition;
+            SecondSpeedEchoYPosition = yPosition;
+        }
+
+        return xPosition != 0;
+    }
+
+    /// <summary>
+    /// Executes `$90:884E-$90:8854` after both departure slots have been considered.
+    /// Once neither stored X position remains, the shared index returns to ordinary zero.
+    /// </summary>
+    public void FinishDepartingSpeedEchoFrame()
+    {
+        if ((SpeedEchoIndex & 0x8000) != 0 &&
+            FirstSpeedEchoXPosition == 0 &&
+            SecondSpeedEchoXPosition == 0)
+        {
+            SpeedEchoIndex = 0;
         }
     }
 

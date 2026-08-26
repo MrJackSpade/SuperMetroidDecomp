@@ -48,7 +48,7 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
             bus,
@@ -59,7 +59,7 @@ public static class SamusGroundedMovement
         // $90:A3A7-$90:A3D7 cancels speed boost and clears extra speed, base speed, and
         // acceleration mode after both movement calls. Speed-booster bookkeeping itself is
         // outside this no-equipment slice, but these five WRAM words are exact and live.
-        ClearHorizontalMomentum(speed);
+        ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -95,7 +95,7 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
             bus,
@@ -104,7 +104,7 @@ public static class SamusGroundedMovement
             nmiFrameCounter);
 
         // Standing's post-movement cleanup is direction-independent.
-        ClearHorizontalMomentum(speed);
+        ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -165,7 +165,7 @@ public static class SamusGroundedMovement
         // speed deliberately remains published: the following grounding routine reads it
         // even if base speed was just cleared by a wall.
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
             bus,
@@ -219,7 +219,7 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
             bus,
@@ -302,7 +302,7 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
             bus,
@@ -314,7 +314,7 @@ public static class SamusGroundedMovement
         // without the Speed Booster item: `$91:F8D3` folded the numeric extra component but
         // deliberately left `$0B3C` set until this movement handler. Then `$90:A689-$A68C`
         // perform the separately observable zero writes to the two extra-speed words.
-        speed.CancelRunningMomentum();
+        speed.CancelRunningMomentum(samus.ReadPoseXDirection(bus));
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         return new GroundedMovementResult(horizontal, vertical);
@@ -369,7 +369,7 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
         // `$90:A69A` is the same no-speed-calculation grounding probe used by running.
         // It deliberately scales the downward probe by the total horizontal magnitude.
@@ -415,7 +415,7 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
         // The one-or-more-pixel downward grounding probe runs before all X words are
         // cleared. This preserves the same ledge behavior as `$90:A762` even though the
@@ -429,7 +429,7 @@ public static class SamusGroundedMovement
         // `$90:A766-$A77F` cancels speed boost and clears both run/base components plus
         // acceleration mode on every frame. The speed-booster counters themselves remain
         // outside this slice; the five movement words are exact and debugger-visible.
-        ClearHorizontalMomentum(speed);
+        ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -470,14 +470,14 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
             bus,
             level,
             samus,
             nmiFrameCounter);
-        ClearHorizontalMomentum(speed);
+        ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
         samus.Kinematics.YDirection = 0;
@@ -516,9 +516,11 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>Exact speed-word subset cleared by <c>Samus_ClearXSpeedIfColl</c>.</summary>
-    private static void ClearHorizontalMomentum(SamusHorizontalSpeedState speed)
+    private static void ClearHorizontalMomentum(
+        SamusHorizontalSpeedState speed,
+        byte poseXDirection)
     {
-        speed.CancelRunningMomentum();
+        speed.CancelRunningMomentum(poseXDirection);
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         speed.BaseSpeed = 0;

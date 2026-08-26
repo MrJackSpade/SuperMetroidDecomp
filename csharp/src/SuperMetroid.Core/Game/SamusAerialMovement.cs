@@ -113,7 +113,9 @@ public static class SamusAerialMovement
                 samus.Kinematics,
                 requested);
             if (horizontal.Collided)
-                ClearHorizontalMomentum(samus.HorizontalSpeed);
+                ClearHorizontalMomentum(
+                    samus.HorizontalSpeed,
+                    samus.ReadPoseXDirection(bus));
             return new AerialMovementResult(horizontal, Vertical: null, Landed: false, HitCeiling: false);
         }
 
@@ -182,7 +184,7 @@ public static class SamusAerialMovement
             samus.Kinematics,
             requested);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
         WallJumpCheckResult wall = CheckBlockWallJump(
             bus,
@@ -314,7 +316,7 @@ public static class SamusAerialMovement
             samus.Kinematics,
             requested);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
         // Simple_Samus_Y_Movement calls this before the shared gravity routine. A signed
         // underflow at the apex becomes a stationary downward state on this same frame.
@@ -342,7 +344,7 @@ public static class SamusAerialMovement
         }
 
         // `$90:A79E/$90:A7BB` cancel speed boost and explicitly clear both extra words.
-        speed.CancelRunningMomentum();
+        speed.CancelRunningMomentum(samus.ReadPoseXDirection(bus));
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         return result;
@@ -416,7 +418,7 @@ public static class SamusAerialMovement
             samus.Kinematics,
             requested);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
         return horizontal;
     }
 
@@ -558,9 +560,11 @@ public static class SamusAerialMovement
         speed.AccelerationMode = 0;
     }
 
-    private static void ClearHorizontalMomentum(SamusHorizontalSpeedState speed)
+    private static void ClearHorizontalMomentum(
+        SamusHorizontalSpeedState speed,
+        byte poseXDirection)
     {
-        speed.CancelRunningMomentum();
+        speed.CancelRunningMomentum(poseXDirection);
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         speed.BaseSpeed = 0;

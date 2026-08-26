@@ -859,7 +859,7 @@ static void VerifySamusHorizontalSpeed()
     speed.HandleExtraRunSpeed(1, controllerInput: 0, speedBoosterEquipped: false);
     speed.HandleExtraRunSpeed(3, controllerInput: 0, speedBoosterEquipped: false);
     AssertEqual((ushort)2, speed.ExtraRunSpeed, "Dash release and spin jump retain extra speed");
-    speed.CancelRunningMomentum();
+    speed.CancelRunningMomentum(poseXDirection: 8);
     AssertTrue(!speed.HasRunningMomentum, "CancelSpeedBoost clears ordinary momentum flag");
     speed.HandleExtraRunSpeed(3, controllerInput: 0, speedBoosterEquipped: false);
     AssertEqual((ushort)0, speed.ExtraRunSpeed, "post-cancel airborne handler clears extra speed");
@@ -980,9 +980,88 @@ static void VerifySamusHorizontalSpeed()
     AssertEqual((ushort)101, booster.FirstSpeedEchoXPosition, "first speed echo X snapshot");
     AssertEqual((ushort)105, booster.SecondSpeedEchoXPosition, "second speed echo X snapshot");
 
-    booster.CancelRunningMomentum();
+    booster.CancelRunningMomentum(poseXDirection: 8);
     AssertTrue(booster.NormalSuitPaletteRestoreRequested,
         "CancelSpeedBoost publishes normal-suit palette restoration");
+    AssertEqual((ushort)0xffff, booster.SpeedEchoIndex,
+        "right-facing cancellation enters high-bit echo departure");
+    AssertEqual((ushort)8, booster.FirstSpeedEchoXSpeed,
+        "right-facing first departure speed is positive eight");
+    AssertEqual((ushort)8, booster.SecondSpeedEchoXSpeed,
+        "right-facing second departure speed is positive eight");
+
+    // `$90:87D3-$90:884B` advances slot one, then slot zero as an actual draw side effect.
+    // Both stored bodies trail a rightward-running Samus, so +8 approaches X=120 while Y
+    // independently approaches 90 by two. Crossing clears a slot before it can emit OAM.
+    AssertTrue(booster.AdvanceDepartingSpeedEcho(1, 120, 90),
+        "right departure slot one remains before crossing");
+    AssertEqual((ushort)113, booster.SecondSpeedEchoXPosition,
+        "right departure slot one advances positive eight");
+    AssertEqual((ushort)84, booster.SecondSpeedEchoYPosition,
+        "right departure slot one approaches Samus Y by two");
+    AssertTrue(booster.AdvanceDepartingSpeedEcho(0, 120, 90),
+        "right departure slot zero remains before crossing");
+    AssertEqual((ushort)109, booster.FirstSpeedEchoXPosition,
+        "right departure slot zero advances positive eight");
+    AssertEqual((ushort)83, booster.FirstSpeedEchoYPosition,
+        "right departure slot zero approaches Samus Y by two");
+    booster.FinishDepartingSpeedEchoFrame();
+    AssertEqual((ushort)0xffff, booster.SpeedEchoIndex,
+        "departure index survives while either echo remains");
+
+    // Samus_CancelSpeedBoost is called every applicable standing/turn frame. Its BMI guard
+    // must preserve an already-running departure even if the new pose faces the other way.
+    booster.CancelRunningMomentum(poseXDirection: 4);
+    AssertEqual((ushort)8, booster.FirstSpeedEchoXSpeed,
+        "repeated cancellation cannot reverse an active departure");
+    AssertTrue(!booster.AdvanceDepartingSpeedEcho(1, 120, 90),
+        "right departure slot one clears on crossing");
+    AssertEqual((ushort)0, booster.SecondSpeedEchoXPosition,
+        "crossed slot one publishes empty sentinel");
+    AssertTrue(booster.AdvanceDepartingSpeedEcho(0, 120, 90),
+        "right departure slot zero remains one more frame");
+    booster.FinishDepartingSpeedEchoFrame();
+    AssertEqual((ushort)0xffff, booster.SpeedEchoIndex,
+        "one surviving departure keeps high-bit index");
+    AssertTrue(!booster.AdvanceDepartingSpeedEcho(0, 120, 90),
+        "right departure slot zero eventually crosses");
+    booster.FinishDepartingSpeedEchoFrame();
+    AssertEqual((ushort)0, booster.SpeedEchoIndex,
+        "last crossed departure restores ordinary echo index");
+
+    // Mirror the same signed-word comparison for a left-facing cancellation. This uses the
+    // shared position-word publisher because those words really are overloaded by active
+    // boost, departure, and shinespark-crash state in WRAM.
+    var leftDeparture = new SamusHorizontalSpeedState();
+    leftDeparture.SetShinesparkCrashEchoState(
+        encodedIndex: 0,
+        firstX: 150,
+        secondX: 154,
+        firstY: 90,
+        secondY: 94);
+    leftDeparture.CancelRunningMomentum(poseXDirection: 4);
+    AssertEqual(unchecked((ushort)-8), leftDeparture.FirstSpeedEchoXSpeed,
+        "left-facing first departure speed is negative eight");
+    AssertEqual(unchecked((ushort)-8), leftDeparture.SecondSpeedEchoXSpeed,
+        "left-facing second departure speed is negative eight");
+    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(1, 140, 100),
+        "left departure slot one remains before crossing");
+    AssertEqual((ushort)146, leftDeparture.SecondSpeedEchoXPosition,
+        "left departure slot one advances negative eight");
+    AssertEqual((ushort)96, leftDeparture.SecondSpeedEchoYPosition,
+        "left departure slot one approaches Samus Y by two");
+    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(0, 140, 100),
+        "left departure slot zero remains before crossing");
+    AssertEqual((ushort)142, leftDeparture.FirstSpeedEchoXPosition,
+        "left departure slot zero advances negative eight");
+    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(1, 140, 100),
+        "left departure slot one clears after passing Samus");
+    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(0, 140, 100),
+        "left departure slot zero clears after passing Samus");
+    leftDeparture.FinishDepartingSpeedEchoFrame();
+    AssertEqual((ushort)0, leftDeparture.SpeedEchoIndex,
+        "left departure clears shared index after both slots cross");
+
     AssertTrue(booster.UpdateSpeedBoosterPalette(bus, boostCgram, movementType: 0, equippedItems: 0x2000),
         "cancel copies normal suit palette through runtime seam");
     AssertEqual((ushort)0x0321, boostCgram.Colors[192], "cancel restores ROM-authored Power Suit palette");
@@ -1015,7 +1094,7 @@ static void VerifySamusHorizontalSpeed()
     // replaces only its high word, producing $FFF1:EDCC rather than mirroring $1234.
     AssertEqual(unchecked((int)0xfff1edcc), speed.CalculateLeftDisplacement(0x00101234), "left displacement -15 clamp");
 
-    Console.WriteLine("  Samus speed: normal-air pointer, 16.16 acceleration, deceleration, divisor, and clamp agree.");
+    Console.WriteLine("  Samus speed: acceleration, deceleration, boost departure echoes, divisor, and clamp agree.");
 }
 
 /// <summary>

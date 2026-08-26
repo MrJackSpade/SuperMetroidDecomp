@@ -54,7 +54,7 @@ public static class SamusMorphBallMovement
                 samus.Kinematics,
                 requested);
             if (horizontal.Collided)
-                ClearHorizontalMomentum(speed);
+                ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
         }
         else
         {
@@ -68,7 +68,7 @@ public static class SamusMorphBallMovement
                 samus.Kinematics,
                 requested);
             if (horizontal.Collided)
-                ClearHorizontalMomentum(speed);
+                ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
         }
 
         BlockMoveResult vertical;
@@ -97,7 +97,7 @@ public static class SamusMorphBallMovement
             // Only the stable-pose branch performs `$90:A551-$90:A561` cleanup, and only
             // after the no-speed Y path. A moving ball retains its newly calculated speed.
             if (speed.AccelerationMode == 0 && stationaryPose)
-                ClearHorizontalMomentum(speed);
+                ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
         }
 
         return new MorphBallMovementResult(horizontal, vertical, landed, hitCeiling);
@@ -133,7 +133,7 @@ public static class SamusMorphBallMovement
             // The outer `$90:A5CD` wrapper clears persistent motion before dispatching to
             // either the falling or bouncing subroutine. The inner routine still calculates
             // once, then erases base speed and moves horizontally by zero.
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
         }
 
         AerialBaseSpeedResult calculation =
@@ -156,7 +156,7 @@ public static class SamusMorphBallMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
         // With zero knockback and zero extra Y displacement, `$90:919F` and `$90:91D1`
         // rejoin at the same falling-check/gravity routine. Bounce state changes only when
@@ -228,7 +228,7 @@ public static class SamusMorphBallMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
         BlockMoveResult vertical = MoveVerticallyWithGravity(
             bus,
@@ -269,7 +269,7 @@ public static class SamusMorphBallMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed);
+            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
         BlockMoveResult vertical;
         bool landed = false;
@@ -410,11 +410,13 @@ public static class SamusMorphBallMovement
         }
     }
 
-    private static void ClearHorizontalMomentum(SamusHorizontalSpeedState speed)
+    private static void ClearHorizontalMomentum(
+        SamusHorizontalSpeedState speed,
+        byte poseXDirection)
     {
         // Block collision and grounded stop paths call the native full momentum cleanup;
         // keep its flag/counter writes adjacent to the five visible X-motion words.
-        speed.CancelRunningMomentum();
+        speed.CancelRunningMomentum(poseXDirection);
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         speed.BaseSpeed = 0;

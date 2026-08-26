@@ -1959,7 +1959,7 @@ public sealed class SuperMetroidRuntime
                 Cgram,
                 Samus.EquippedItems);
             Samus.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
-            Samus.DrawActiveSpeedBoosterEchoes(
+            Samus.DrawSpeedBoosterEchoes(
                 _addressSpace,
                 Oam,
                 Camera.XPosition,

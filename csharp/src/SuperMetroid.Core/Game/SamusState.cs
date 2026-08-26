@@ -1487,7 +1487,7 @@ public sealed class SamusState
         // momentum index two, `$91:ECD0` cancels `$0B3C/$0B3E` but deliberately leaves the
         // numeric extra pair intact. The following standing movement pass consumes that
         // final no-base-speed displacement before clearing every X-motion word.
-        HorizontalSpeed.CancelRunningMomentum();
+        HorizontalSpeed.CancelRunningMomentum(ReadPoseXDirection(bus));
         InitializeAnimation(bus, initialFrame: 0);
     }
 
@@ -1510,7 +1510,7 @@ public sealed class SamusState
 
         // This is the mirrored `$91:ECD0` momentum-index-two route used by `$09 -> $01`.
         // ExtraRunSpeed/Subspeed remain available to standing's ordered movement/clear pass.
-        HorizontalSpeed.CancelRunningMomentum();
+        HorizontalSpeed.CancelRunningMomentum(ReadPoseXDirection(bus));
     }
 
     /// <summary>
@@ -1752,7 +1752,7 @@ public sealed class SamusState
             // Unlike bank-$91's grounded/aerial turn initializers, `$91:F624` calls
             // `Samus_CancelSpeedBoost` immediately after folding the extra pair. Waiting
             // for another movement frame would leave `$0B3C` observably stale.
-            HorizontalSpeed.CancelRunningMomentum();
+            HorizontalSpeed.CancelRunningMomentum(oldDirection);
         }
 
         Pose = targetPose;
@@ -2397,7 +2397,7 @@ public sealed class SamusState
             HorizontalSpeed.BaseSubspeed = unchecked((ushort)combined);
             // `$91:FA4C` invokes `Samus_CancelSpeedBoost` between the 16.16 fold and the
             // explicit extra-word clear. Preserve that ordering even for ordinary Dash.
-            HorizontalSpeed.CancelRunningMomentum();
+            HorizontalSpeed.CancelRunningMomentum(currentDirection);
             HorizontalSpeed.ExtraRunSpeed = 0;
             HorizontalSpeed.ExtraRunSubspeed = 0;
             HorizontalSpeed.AccelerationMode = 1;
@@ -3240,17 +3240,16 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Draws the two ordinary active-Speed-Booster echoes from the positions captured by
+    /// Draws the two ordinary Speed-Booster echoes from the positions captured by
     /// <c>Samus_UpdateSpeedEchoPos</c> at <c>$90:EEE7</c>.
     /// </summary>
     /// <remarks>
-    /// This is the nonnegative-index branch of <c>Samus_DrawEchoes</c> at <c>$90:87BD</c>.
-    /// Cancellation changes the native index to <c>$FFFF</c> and gives both echoes an X
-    /// velocity so they peel away from Samus. That separate departure branch is deliberately
-    /// not approximated here; once the boost counter leaves stage four these active echoes
-    /// stop drawing until the real departure state is translated.
+    /// This preserves both branches of <c>Samus_DrawEchoes</c> at <c>$90:87BD</c>. A
+    /// nonnegative index draws stationary trailing snapshots only at boost stage four.
+    /// Cancellation changes the index to <c>$FFFF</c>; drawing then advances each body's
+    /// native ±8 X / ±2 Y convergence before deciding whether it crossed the live Samus.
     /// </remarks>
-    public void DrawActiveSpeedBoosterEchoes(
+    public void DrawSpeedBoosterEchoes(
         ISnesAddressSpace bus,
         OamBuffer oam,
         ushort layer1X,
@@ -3259,11 +3258,45 @@ public sealed class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
 
-        if ((HorizontalSpeed.SpeedEchoIndex & 0x8000) != 0 ||
-            (HorizontalSpeed.SpeedBoostCounter & 0xff00) != 0x0400)
+        if ((HorizontalSpeed.SpeedEchoIndex & 0x8000) != 0)
         {
+            // `$90:87D3` walks slot one before slot zero. Movement is a draw-handler side
+            // effect in the retail game, so do not advance it earlier in StepFrame: frames
+            // whose Samus draw handler is suppressed must also freeze these copies.
+            if (HorizontalSpeed.AdvanceDepartingSpeedEcho(
+                    slot: 1,
+                    XPosition,
+                    YPosition))
+            {
+                DrawActiveSpeedBoosterEcho(
+                    bus,
+                    oam,
+                    HorizontalSpeed.SecondSpeedEchoXPosition,
+                    HorizontalSpeed.SecondSpeedEchoYPosition,
+                    layer1X,
+                    layer1Y);
+            }
+
+            if (HorizontalSpeed.AdvanceDepartingSpeedEcho(
+                    slot: 0,
+                    XPosition,
+                    YPosition))
+            {
+                DrawActiveSpeedBoosterEcho(
+                    bus,
+                    oam,
+                    HorizontalSpeed.FirstSpeedEchoXPosition,
+                    HorizontalSpeed.FirstSpeedEchoYPosition,
+                    layer1X,
+                    layer1Y);
+            }
+
+            HorizontalSpeed.FinishDepartingSpeedEchoFrame();
             return;
         }
+
+        if ((HorizontalSpeed.SpeedBoostCounter & 0xff00) != 0x0400)
+            return;
 
         // `$90:87C7` draws slot one before slot zero. OAM order is observable when their
         // opaque pixels overlap, so retain that otherwise-surprising reverse order.

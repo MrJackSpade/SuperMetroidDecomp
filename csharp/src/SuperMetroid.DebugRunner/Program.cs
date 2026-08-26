@@ -40,7 +40,7 @@ else if (options.ShinesparkScript)
 else if (options.SpeedBoosterScript)
 {
     Console.WriteLine(
-        "Input script: equip Speed Booster, hold Right+Dash through ROM-authored acceleration stages, then jump with the accumulated boost bonus.");
+        "Input script: equip Speed Booster, hold Right+Dash through ROM-authored acceleration stages, jump with the accumulated boost bonus, then observe both cancellation echoes return to Samus.");
 }
 else if (options.RunScript)
 {
@@ -453,6 +453,9 @@ uint maximumObservedExtraRunSpeed = 0;
 byte maximumObservedSpeedBoostStage = 0;
 bool observedSpeedBoostEcho = false;
 bool observedSpeedBoostContactDamage = false;
+bool observedSpeedBoostDeparture = false;
+bool observedSpeedBoostDepartureFinished = false;
+bool previousSpeedBoostDeparture = false;
 bool observedStoredShine = false;
 bool observedShinesparkWindup = false;
 bool observedDirectionalShinespark = false;
@@ -915,6 +918,24 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         unchecked((byte)(runtime.Samus.HorizontalSpeed.SpeedBoostCounter >> 8)));
     observedSpeedBoostEcho |= runtime.Samus.HorizontalSpeed.EchoSoundRequested;
     observedSpeedBoostContactDamage |= runtime.Samus.HorizontalSpeed.ContactDamageIndex == 1;
+    bool currentSpeedBoostDeparture =
+        (runtime.Samus.HorizontalSpeed.SpeedEchoIndex & 0x8000) != 0;
+    observedSpeedBoostDeparture |= currentSpeedBoostDeparture;
+    observedSpeedBoostDepartureFinished |=
+        previousSpeedBoostDeparture && !currentSpeedBoostDeparture;
+    if (currentSpeedBoostDeparture != previousSpeedBoostDeparture)
+    {
+        Console.WriteLine(
+            $"frame {frameIndex + 1,4}: ordinary Speed Booster departure=" +
+            $"{currentSpeedBoostDeparture}; " +
+            $"slot0=({runtime.Samus.HorizontalSpeed.FirstSpeedEchoXPosition:X4}," +
+            $"{runtime.Samus.HorizontalSpeed.FirstSpeedEchoYPosition:X4})/" +
+            $"v{runtime.Samus.HorizontalSpeed.FirstSpeedEchoXSpeed:X4}, " +
+            $"slot1=({runtime.Samus.HorizontalSpeed.SecondSpeedEchoXPosition:X4}," +
+            $"{runtime.Samus.HorizontalSpeed.SecondSpeedEchoYPosition:X4})/" +
+            $"v{runtime.Samus.HorizontalSpeed.SecondSpeedEchoXSpeed:X4}.");
+    }
+    previousSpeedBoostDeparture = currentSpeedBoostDeparture;
     observedStoredShine |= runtime.Samus.Shinespark.Phase == ShinesparkPhase.Stored;
     observedShinesparkWindup |= runtime.Samus.Shinespark.Phase == ShinesparkPhase.Windup;
     observedDirectionalShinespark |= runtime.Samus.Shinespark.Phase is
@@ -1483,10 +1504,17 @@ if (options.SpeedBoosterScript)
         throw new InvalidOperationException(
             $"Speed Booster ROM script expected the 7.0000 cap, observed ${maximumObservedExtraRunSpeed:X8}.");
     }
+    if (options.FrameCount >= 190 &&
+        (!observedSpeedBoostDeparture || !observedSpeedBoostDepartureFinished))
+    {
+        throw new InvalidOperationException(
+            "Speed Booster ROM script did not observe both the ordinary cancellation-echo departure and its completion.");
+    }
     Console.WriteLine(
         $"Speed Booster ROM route observed maximum extra speed ${maximumObservedExtraRunSpeed >> 16:X4}." +
         $"{maximumObservedExtraRunSpeed & 0xffff:X4}, stage {maximumObservedSpeedBoostStage}, " +
-        $"echo={observedSpeedBoostEcho}, contact={observedSpeedBoostContactDamage}.");
+        $"echo={observedSpeedBoostEcho}, contact={observedSpeedBoostContactDamage}, " +
+        $"departure={observedSpeedBoostDeparture}/{observedSpeedBoostDepartureFinished}.");
 }
 
 if (options.ShinesparkScript)

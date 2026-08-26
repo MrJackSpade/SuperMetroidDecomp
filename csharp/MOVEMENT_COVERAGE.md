@@ -25,7 +25,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$0B` | Unused | — | Preserve only if required |
 | `$0C` | Unused | — | Preserve only if required |
 | `$0D` | Unused | — | Preserve only if required |
-| `$0E` | Turning on ground | `$25/$26/$8B-$8E/$9C/$9D`, old-direction mode-one momentum, native aim selector, `$F8` completion | Fire variants and transitions originating in crouched/later families |
+| `$0E` | Turning on ground | `$25/$26/$43/$44/$8B-$8E/$9C/$9D`, old-direction mode-one momentum, native standing/crouch selector, `$F8` completion | Fire variants and transitions originating in later families |
 | `$0F` | Crouch/stand/morph transition | `$35/$36/$3B/$3C/$F1-$FC`, bottom alignment, radius collision, `$FD` completion | Morph transitions and fire variants |
 | `$10` | Moonwalking | — | Entire family |
 | `$11` | Spring ball on ground | — | Entire family |
@@ -34,7 +34,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$14` | Wall jumping | — | Trigger check, launch physics, animation, landing |
 | `$15` | Ran into a wall | — | Entire family |
 | `$16` | Grappling | — | Swing, stuck, release, wall-jump seams |
-| `$17` | Turning while jumping | — | Entire family |
+| `$17` | Turning while jumping | Grounded-Y branch for crouched aim turns `$97-$9A/$A2/$A3` | Actual jumping turns `$2F/$30/$8F-$92/$9E/$9F`, airborne gravity/collision seams |
 | `$18` | Turning while falling | — | Entire family |
 | `$19` | Damage boost | — | Entire family |
 | `$1A` | Grabbed by Draygon | — | Entire family |
@@ -118,9 +118,26 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - The six aimed animation lists each contain three two-tick NTSC frames followed by command
   `$F8`. Their exact destinations are `$8B->$04`, `$8C->$03`, `$8D->$08`, `$8E->$07`,
   `$9C->$06`, and `$9D->$05`.
-- Crouched turns use movement type `$17`, not this handler, and remain deliberately separate.
-  Aimed-turn walk-off also stops at an explicit untranslated boundary until native transition
-  shot-direction recovery is ported; it is not replaced with guessed unaimed falling art.
+- Crouched aimed turns use movement type `$17`, not this handler, and are tracked separately
+  below. Downward-collision table `$90:E65A` assigns both turn types result `$04` (“no pose
+  change”), so a ledge turn finishes `$F8`; its destination pose detects the fall afterward.
+
+## Verified crouched-turn slice
+
+- Crouching input tables publish `$43/$44` directly on a new opposite-direction edge. The
+  same `$91:F8D3` initializer detects previous movement type five and indexes `$91:F9CC`,
+  selecting unaimed `$43/$44`, straight-up `$97/$98`, diagonal-down `$99/$9A`, or
+  diagonal-up `$A2/$A3` from the previous pose's literal shot direction.
+- `$43/$44` are native movement type `$0E`. The six aimed turns are native type `$17`, but
+  crouched entry leaves Y direction at zero, so `$90:A790` executes `Samus_X_Movement` and
+  the no-speed grounding probe rather than its airborne speed/gravity branch. The port
+  admits exactly that grounded-Y behavior and rejects a type-`$17` crouch turn that somehow
+  becomes airborne.
+- Every crouched turn preserves radius 16, folds and decelerates old-direction momentum,
+  uses three two-tick frames, and completes through exact `$F8` destinations: `$43->$28`,
+  `$44->$27`, `$97->$86`, `$98->$85`, `$99->$74`, `$9A->$73`, `$A2->$72`, `$A3->$71`.
+- Type `$17` uses the native usual spritemap-position selector and unconditional bottom-half
+  draw. The active `$97` diagnostic confirms that renderer against private-ROM terrain/HUD.
 
 ## Verified aimed-air slice
 
@@ -166,10 +183,13 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - The real-ROM `--aim-turn-script` route observes generic `$25/$26` prospective poses become
   `$9C/$9D`, `$8B/$8C`, and `$8D/$8E` from the source pose metadata. Every pair completes
   through its exact `$F8` standing-aim destination while preserving old-direction momentum.
+- The real-ROM `--crouch-turn-script` route observes `$43/$44` prospective poses become all
+  eight ordinary/aimed crouched turns. It completes every `$F8` target while retaining the
+  16-pixel collision radius, grounded probe, old-direction momentum, and live rendering.
 
 ## Next implementation order
 
-1. Crouched turns, crouch-jump entry, and compact straight-down aerial collision bodies.
+1. Crouch-jump entry, direct crouch-to-stand/run seams, and compact straight-down aerial bodies.
 2. Morph ball ground/fall/bounce, bombs, and spring ball.
 3. Aerial turns and the real wall-jump trigger/launch.
 4. Knockback and damage boost.

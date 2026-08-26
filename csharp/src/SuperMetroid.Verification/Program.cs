@@ -1958,6 +1958,11 @@ static void VerifySamusGroundedReversal()
     AssertEqual((ushort)0xd000, movingLeft.Kinematics.XSubposition, "running-left fractional X");
     AssertTrue(leftFrame.Vertical.Collided, "running-left grounding probe collides");
 
+    // The production movement port now also validates the pose's literal dispatcher byte,
+    // so seed the two ordinary turn definitions before isolating their displacement.
+    bus.WriteBytes(0x91b751, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b759, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+
     // Pose $25 is already facing left ($04), but mode one makes $90:8EA9 choose the
     // opposite/right helper while its $0E speed record decelerates old momentum.
     var turnTowardLeft = new SamusState { Pose = SamusState.TurningRightToLeftPose };
@@ -2174,7 +2179,115 @@ static void VerifySamusGroundedReversal()
         AssertEqual((ushort)10, aimedTurn.AnimationFrameTimer, $"aimed turn target timer case {caseIndex}");
     }
 
-    Console.WriteLine("  Samus reversal: ordinary and aimed selectors, mode-one carry, $F8 completion, and fallbacks agree.");
+    // Crouched aim turns are the deliberate type-$17 oddity in this family. Give that
+    // movement type the same conspicuous synthetic speed record as type `$0E`; selecting
+    // the wrong table address would otherwise read zero-filled fixture memory and stop.
+    WriteTestWord(bus, 0x90a069, 0x0000);
+    WriteTestWord(bus, 0x90a06b, 0x3000);
+    WriteTestWord(bus, 0x90a06d, 0x0002);
+    WriteTestWord(bus, 0x90a06f, 0xc000);
+    WriteTestWord(bus, 0x90a071, 0x0000);
+    WriteTestWord(bus, 0x90a073, 0x4000);
+
+    (byte SourcePose, byte[] Definition)[] crouchedSources =
+    [
+        (SamusState.CrouchingRightPose, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.CrouchingLeftPose, [0x04, 0x05, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.CrouchingAimUpRightPose, [0x08, 0x05, 0x27, 0x00, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.CrouchingAimUpLeftPose, [0x04, 0x05, 0x28, 0x09, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.CrouchingAimDiagonalUpRightPose, [0x08, 0x05, 0x27, 0x01, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.CrouchingAimDiagonalUpLeftPose, [0x04, 0x05, 0x28, 0x08, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.CrouchingAimDiagonalDownRightPose, [0x08, 0x05, 0x27, 0x03, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.CrouchingAimDiagonalDownLeftPose, [0x04, 0x05, 0x28, 0x06, 0x00, 0x00, 0x10, 0x00]),
+    ];
+    foreach ((byte sourcePose, byte[] definition) in crouchedSources)
+    {
+        bus.WriteBytes(0x91b629 + sourcePose * 8, definition);
+        ushort streamAddress = (ushort)(0xc600 + sourcePose * 2);
+        WriteTestWord(bus, 0x91b010 + sourcePose * 2, streamAddress);
+        bus.WriteByte(0x910000 + streamAddress, 0x0a);
+    }
+
+    // `$43/$44` really are movement type `$0E`; the six aimed records really are `$17`.
+    // Keeping those literal bytes in the fixture protects the strange native dispatcher
+    // split from a future cleanup that might look attractive but be historically wrong.
+    (byte TurnPose, byte[] Definition)[] crouchedTurns =
+    [
+        (SamusState.TurningRightToLeftCrouchingPose, [0x04, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.TurningLeftToRightCrouchingPose, [0x08, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.TurningRightToLeftCrouchingAimUpPose, [0x04, 0x17, 0x28, 0xfa, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.TurningLeftToRightCrouchingAimUpPose, [0x08, 0x17, 0x28, 0xfa, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.TurningRightToLeftCrouchingAimDiagonalDownPose, [0x04, 0x17, 0x28, 0xfc, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.TurningLeftToRightCrouchingAimDiagonalDownPose, [0x08, 0x17, 0x28, 0xfc, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.TurningRightToLeftCrouchingAimDiagonalUpPose, [0x04, 0x17, 0x28, 0xfa, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.TurningLeftToRightCrouchingAimDiagonalUpPose, [0x08, 0x17, 0x28, 0xfa, 0x00, 0x00, 0x10, 0x00]),
+    ];
+    foreach ((byte turnPose, byte[] definition) in crouchedTurns)
+        bus.WriteBytes(0x91b629 + turnPose * 8, definition);
+
+    (byte SourcePose, byte GenericTurn, byte SelectedTurn, byte Destination)[] crouchedTurnCases =
+    [
+        (SamusState.CrouchingRightPose, SamusState.TurningRightToLeftCrouchingPose,
+            SamusState.TurningRightToLeftCrouchingPose, SamusState.CrouchingLeftPose),
+        (SamusState.CrouchingLeftPose, SamusState.TurningLeftToRightCrouchingPose,
+            SamusState.TurningLeftToRightCrouchingPose, SamusState.CrouchingRightPose),
+        (SamusState.CrouchingAimUpRightPose, SamusState.TurningRightToLeftCrouchingPose,
+            SamusState.TurningRightToLeftCrouchingAimUpPose, SamusState.CrouchingAimUpLeftPose),
+        (SamusState.CrouchingAimUpLeftPose, SamusState.TurningLeftToRightCrouchingPose,
+            SamusState.TurningLeftToRightCrouchingAimUpPose, SamusState.CrouchingAimUpRightPose),
+        (SamusState.CrouchingAimDiagonalUpRightPose, SamusState.TurningRightToLeftCrouchingPose,
+            SamusState.TurningRightToLeftCrouchingAimDiagonalUpPose, SamusState.CrouchingAimDiagonalUpLeftPose),
+        (SamusState.CrouchingAimDiagonalUpLeftPose, SamusState.TurningLeftToRightCrouchingPose,
+            SamusState.TurningLeftToRightCrouchingAimDiagonalUpPose, SamusState.CrouchingAimDiagonalUpRightPose),
+        (SamusState.CrouchingAimDiagonalDownRightPose, SamusState.TurningRightToLeftCrouchingPose,
+            SamusState.TurningRightToLeftCrouchingAimDiagonalDownPose, SamusState.CrouchingAimDiagonalDownLeftPose),
+        (SamusState.CrouchingAimDiagonalDownLeftPose, SamusState.TurningLeftToRightCrouchingPose,
+            SamusState.TurningLeftToRightCrouchingAimDiagonalDownPose, SamusState.CrouchingAimDiagonalDownRightPose),
+    ];
+    for (int caseIndex = 0; caseIndex < crouchedTurnCases.Length; caseIndex++)
+    {
+        var testCase = crouchedTurnCases[caseIndex];
+        ushort turnStreamAddress = (ushort)(0xc800 + caseIndex * 0x10);
+        WriteTestWord(bus, 0x91b010 + testCase.SelectedTurn * 2, turnStreamAddress);
+        bus.WriteBytes(
+            0x910000 + turnStreamAddress,
+            [0x02, 0x02, 0x02, 0xf8, testCase.Destination]);
+
+        var crouchedTurn = new SamusState { Pose = testCase.SourcePose };
+        crouchedTurn.Kinematics.XPosition = 64;
+        crouchedTurn.Kinematics.YPosition = 32;
+        crouchedTurn.Kinematics.XRadius = 5;
+        crouchedTurn.Kinematics.YRadius = 16;
+        crouchedTurn.HorizontalSpeed.BaseSpeed = 1;
+        crouchedTurn.HorizontalSpeed.BaseSubspeed = 0xd000;
+        crouchedTurn.HorizontalSpeed.ExtraRunSubspeed = 0x5000;
+        crouchedTurn.ApplyGroundedTurn(bus, testCase.GenericTurn);
+        AssertEqual(testCase.SelectedTurn, crouchedTurn.Pose, $"crouched turn selector case {caseIndex}");
+        AssertEqual((ushort)16, crouchedTurn.Kinematics.YRadius, $"crouched turn radius case {caseIndex}");
+        AssertEqual((ushort)1, crouchedTurn.HorizontalSpeed.AccelerationMode, $"crouched turn mode one case {caseIndex}");
+
+        GroundedMovementResult crouchedMomentum = SamusGroundedMovement.StepTurningOnGround(
+            bus,
+            aimedLevel,
+            crouchedTurn,
+            nmiFrameCounter: (ushort)caseIndex);
+        bool beganFacingRight = (caseIndex & 1) == 0;
+        AssertTrue(
+            beganFacingRight
+                ? crouchedMomentum.Horizontal.AcceptedDisplacement > 0
+                : crouchedMomentum.Horizontal.AcceptedDisplacement < 0,
+            $"crouched turn preserves old momentum direction case {caseIndex}");
+        AssertTrue(crouchedMomentum.Vertical.Collided, $"crouched turn grounding branch case {caseIndex}");
+
+        for (int tick = 0; tick < 6; tick++)
+            crouchedTurn.AnimateNoFx(bus);
+        AssertEqual((byte)0xf8, crouchedTurn.LastAnimationDelayCommand!.Value, $"crouched turn reaches $F8 case {caseIndex}");
+        AssertEqual(testCase.Destination, crouchedTurn.PendingTransitionalPose!.Value, $"crouched turn publishes destination case {caseIndex}");
+        AssertTrue(crouchedTurn.ApplyPendingVerifiedAnimationTransition(bus), $"crouched turn transition applies case {caseIndex}");
+        AssertEqual(testCase.Destination, crouchedTurn.Pose, $"crouched turn destination case {caseIndex}");
+    }
+
+    Console.WriteLine("  Samus reversal: standing/crouched selectors, mode-one carry, grounded type-$17, and $F8 agree.");
 }
 
 /// <summary>

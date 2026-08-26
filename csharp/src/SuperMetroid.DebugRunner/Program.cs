@@ -56,6 +56,11 @@ else if (options.AimTurnScript)
     Console.WriteLine(
         "Input script: diagonal-up, straight-up, and diagonal-down grounded aim turns in both directions.");
 }
+else if (options.CrouchTurnScript)
+{
+    Console.WriteLine(
+        "Input script: ordinary, straight-up, diagonal-up, and diagonal-down crouched turns in both directions.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7000 stays clear
@@ -393,6 +398,39 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 >= 156 and < 168 => (ushort)(SnesButton.Right | SnesButton.L),
                 _ => (ushort)0,
             }
+        : options.CrouchTurnScript
+            ? frameIndex switch
+            {
+                0 => (ushort)SnesButton.Start,
+
+                // A single Down edge enters the ordinary crouch. Opposite directions then
+                // make `$91:F8D3` select the crouching table's `$43/$44` entries.
+                >= 2 and < 10 => (ushort)SnesButton.Down,
+                20 => (ushort)SnesButton.Left,
+                40 => (ushort)SnesButton.Right,
+
+                // Both shoulders select straight-up crouched aim `$85/$86`.
+                >= 60 and < 78 => (ushort)(SnesButton.R | SnesButton.L),
+                78 => (ushort)(SnesButton.Left | SnesButton.R | SnesButton.L),
+                >= 79 and < 98 => (ushort)(SnesButton.R | SnesButton.L),
+                98 => (ushort)(SnesButton.Right | SnesButton.R | SnesButton.L),
+                >= 99 and < 110 => (ushort)(SnesButton.R | SnesButton.L),
+
+                // R alone selects diagonal-up crouched aim `$71/$72`.
+                >= 110 and < 136 => (ushort)SnesButton.R,
+                136 => (ushort)(SnesButton.Left | SnesButton.R),
+                >= 137 and < 156 => (ushort)SnesButton.R,
+                156 => (ushort)(SnesButton.Right | SnesButton.R),
+                >= 157 and < 168 => (ushort)SnesButton.R,
+
+                // L alone selects diagonal-down crouched aim `$73/$74`.
+                >= 168 and < 194 => (ushort)SnesButton.L,
+                194 => (ushort)(SnesButton.Left | SnesButton.L),
+                >= 195 and < 214 => (ushort)SnesButton.L,
+                214 => (ushort)(SnesButton.Right | SnesButton.L),
+                >= 215 and < 226 => (ushort)SnesButton.L,
+                _ => (ushort)0,
+            }
         : frameIndex switch
         {
             0 => (ushort)SnesButton.Start,
@@ -491,6 +529,14 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.TurningLeftToRightAimDiagonalUpPose or
                      SamusState.TurningRightToLeftAimDiagonalDownPose or
                      SamusState.TurningLeftToRightAimDiagonalDownPose or
+                     SamusState.TurningRightToLeftCrouchingPose or
+                     SamusState.TurningLeftToRightCrouchingPose or
+                     SamusState.TurningRightToLeftCrouchingAimUpPose or
+                     SamusState.TurningLeftToRightCrouchingAimUpPose or
+                     SamusState.TurningRightToLeftCrouchingAimDiagonalUpPose or
+                     SamusState.TurningLeftToRightCrouchingAimDiagonalUpPose or
+                     SamusState.TurningRightToLeftCrouchingAimDiagonalDownPose or
+                     SamusState.TurningLeftToRightCrouchingAimDiagonalDownPose or
                      SamusState.NeutralJumpTransitionRightPose or
                      SamusState.NeutralJumpTransitionLeftPose or
                      SamusState.SpinJumpRightPose or
@@ -754,7 +800,8 @@ readonly record struct DebugRunnerOptions(
     bool AimRunScript,
     bool AimAirScript,
     bool AimCrouchScript,
-    bool AimTurnScript)
+    bool AimTurnScript,
+    bool CrouchTurnScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -772,6 +819,7 @@ readonly record struct DebugRunnerOptions(
         bool aimAirScript = false;
         bool aimCrouchScript = false;
         bool aimTurnScript = false;
+        bool crouchTurnScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -846,6 +894,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--crouch-turn-script":
+                    crouchTurnScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -887,7 +940,8 @@ readonly record struct DebugRunnerOptions(
             aimRunScript,
             aimAirScript,
             aimCrouchScript,
-            aimTurnScript);
+            aimTurnScript,
+            crouchTurnScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

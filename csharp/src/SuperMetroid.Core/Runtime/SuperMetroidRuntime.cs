@@ -553,6 +553,14 @@ public sealed class SuperMetroidRuntime
                     case SamusState.TurningLeftToRightAimDiagonalUpPose:
                     case SamusState.TurningRightToLeftAimDiagonalDownPose:
                     case SamusState.TurningLeftToRightAimDiagonalDownPose:
+                    case SamusState.TurningRightToLeftCrouchingPose:
+                    case SamusState.TurningLeftToRightCrouchingPose:
+                    case SamusState.TurningRightToLeftCrouchingAimUpPose:
+                    case SamusState.TurningLeftToRightCrouchingAimUpPose:
+                    case SamusState.TurningRightToLeftCrouchingAimDiagonalUpPose:
+                    case SamusState.TurningLeftToRightCrouchingAimDiagonalUpPose:
+                    case SamusState.TurningRightToLeftCrouchingAimDiagonalDownPose:
+                    case SamusState.TurningLeftToRightCrouchingAimDiagonalDownPose:
                         LastGroundedSamusMovement = SamusGroundedMovement.StepTurningOnGround(
                             _addressSpace,
                             LevelData,
@@ -691,9 +699,11 @@ public sealed class SuperMetroidRuntime
                     animationTransitionApplied = true;
                 }
 
-                // A failed grounding probe publishes result two. For movement types
-                // 0/1/5/$0E, data zero at `$90:E65A` selects airborne family zero and
-                // `$91:E8F2` chooses falling art from pose shot-direction/facing metadata.
+                // A failed grounding probe publishes result two. For admitted standing,
+                // running, and stable crouching types, data zero at `$90:E65A` selects
+                // airborne family zero and `$91:E8F2` chooses falling art from pose metadata.
+                // Turn types `$0E/$17` contain `$04` (no pose change) in that literal table;
+                // they finish `$F8`, then the destination pose detects the missing floor.
                 if (!animationTransitionApplied &&
                     LastGroundedSamusMovement is { Vertical.Collided: false } &&
                     (SamusState.IsRightFacingStandingPose(poseAtFrameStart) ||
@@ -701,29 +711,11 @@ public sealed class SuperMetroidRuntime
                      SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||
                      SamusState.IsLeftFacingRunningPose(poseAtFrameStart) ||
                      SamusState.IsRightFacingCrouchingPose(poseAtFrameStart) ||
-                     SamusState.IsLeftFacingCrouchingPose(poseAtFrameStart) ||
-                     poseAtFrameStart is
-                         SamusState.TurningRightToLeftPose or SamusState.TurningLeftToRightPose))
+                     SamusState.IsLeftFacingCrouchingPose(poseAtFrameStart)))
                 {
                     byte fallingPose = Samus.SelectFallingPoseForCurrentAim(_addressSpace);
                     Samus.ApplyWalkedOffFloorTransition(_addressSpace, fallingPose);
                     animationTransitionApplied = true;
-                }
-
-                // Aimed turn records store synthetic `$FA/$FC` direction markers rather
-                // than a landing/falling shot direction. Native walk-off recovers that
-                // information through separate transition state; stop here until that
-                // state is ported instead of inventing unaimed falling art.
-                if (!animationTransitionApplied &&
-                    LastGroundedSamusMovement is { Vertical.Collided: false } &&
-                    (SamusState.IsRightToLeftGroundTurnPose(poseAtFrameStart) ||
-                     SamusState.IsLeftToRightGroundTurnPose(poseAtFrameStart)) &&
-                    poseAtFrameStart is not (
-                        SamusState.TurningRightToLeftPose or
-                        SamusState.TurningLeftToRightPose))
-                {
-                    throw new NotSupportedException(
-                        $"Aimed ground-turn pose ${poseAtFrameStart:X2} walked off the floor; transition shot-direction recovery is not translated.");
                 }
 
                 if (!animationTransitionApplied && ProspectiveSamusPose is { } inputTransition)
@@ -777,17 +769,23 @@ public sealed class SuperMetroidRuntime
                                 Samus.ApplyStandingLeftToRunningLeft(_addressSpace);
                                 break;
                             case var (rightSource, rightTarget)
-                                when rightTarget == SamusState.TurningRightToLeftPose &&
+                                when rightTarget is
+                                         SamusState.TurningRightToLeftPose or
+                                         SamusState.TurningRightToLeftCrouchingPose &&
                                      (SamusState.IsRightFacingStandingPose(rightSource) ||
                                       SamusState.IsRightFacingRunningPose(rightSource) ||
+                                      SamusState.IsRightFacingCrouchingPose(rightSource) ||
                                       SamusState.IsRightFacingAimedLandingPose(rightSource) ||
                                       rightSource is
                                          SamusState.NormalLandingRightPose or
                                          SamusState.SpinLandingRightPose):
                             case var (leftSource, leftTarget)
-                                when leftTarget == SamusState.TurningLeftToRightPose &&
+                                when leftTarget is
+                                         SamusState.TurningLeftToRightPose or
+                                         SamusState.TurningLeftToRightCrouchingPose &&
                                      (SamusState.IsLeftFacingStandingPose(leftSource) ||
                                       SamusState.IsLeftFacingRunningPose(leftSource) ||
+                                      SamusState.IsLeftFacingCrouchingPose(leftSource) ||
                                       SamusState.IsLeftFacingAimedLandingPose(leftSource) ||
                                       leftSource is
                                          SamusState.NormalLandingLeftPose or

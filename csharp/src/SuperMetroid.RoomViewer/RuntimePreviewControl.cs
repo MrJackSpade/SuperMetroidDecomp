@@ -327,6 +327,14 @@ internal sealed class RuntimePreviewControl : UserControl
                   SamusState.TurningLeftToRightAimDiagonalUpPose or
                   SamusState.TurningRightToLeftAimDiagonalDownPose or
                   SamusState.TurningLeftToRightAimDiagonalDownPose or
+                  SamusState.TurningRightToLeftCrouchingPose or
+                  SamusState.TurningLeftToRightCrouchingPose or
+                  SamusState.TurningRightToLeftCrouchingAimUpPose or
+                  SamusState.TurningLeftToRightCrouchingAimUpPose or
+                  SamusState.TurningRightToLeftCrouchingAimDiagonalUpPose or
+                  SamusState.TurningLeftToRightCrouchingAimDiagonalUpPose or
+                  SamusState.TurningRightToLeftCrouchingAimDiagonalDownPose or
+                  SamusState.TurningLeftToRightCrouchingAimDiagonalDownPose or
                   SamusState.NeutralJumpTransitionRightPose or
                   SamusState.NeutralJumpTransitionLeftPose or
                   SamusState.SpinJumpRightPose or

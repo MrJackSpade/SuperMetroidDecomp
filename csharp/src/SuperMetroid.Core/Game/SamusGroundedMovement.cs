@@ -231,9 +231,10 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports <c>SamusMovement_TurningAround_OnGround</c> at <c>$90:A67C</c> for ordinary
-    /// `$25/$26` and aimed `$8B-$8E/$9C/$9D`, including direction inversion while
-    /// decelerating old momentum.
+    /// Ports the grounded branches of <c>SamusMovement_TurningAround_OnGround</c> at
+    /// <c>$90:A67C</c> and <c>SamusMovement_TurningAround_Jumping</c> at <c>$90:A790</c>.
+    /// The latter name is misleading for `$97-$9A/$A2/$A3`: crouched entry leaves Y direction
+    /// zero, so native runs its no-speed grounding probe rather than airborne gravity.
     /// </summary>
     public static GroundedMovementResult StepTurningOnGround(
         ISnesAddressSpace bus,
@@ -248,7 +249,18 @@ public static class SamusGroundedMovement
             !SamusState.IsLeftToRightGroundTurnPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Grounded-turn movement requires pose $25/$26/$8B-$8E/$9C/$9D, not ${samus.Pose:X2}.");
+                $"Grounded-turn movement requires a verified standing or crouched turn pose, not ${samus.Pose:X2}.");
+        }
+
+        byte movementType = samus.ReadMovementType(bus);
+        if (movementType is not (0x0e or 0x17))
+            throw new InvalidOperationException($"Grounded turn pose ${samus.Pose:X2} has movement type ${movementType:X2}.");
+        if (movementType == 0x17 && !SamusState.IsAimedCrouchingTurnPose(samus.Pose))
+            throw new InvalidOperationException($"Grounded type-$17 admission requires an aimed crouched turn, not ${samus.Pose:X2}.");
+        if (movementType == 0x17 && samus.Kinematics.YDirection != 0)
+        {
+            throw new NotSupportedException(
+                $"Crouched turn pose ${samus.Pose:X2} became airborne; the type-$17 aerial branch is not translated by this grounded slice.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -268,10 +280,10 @@ public static class SamusGroundedMovement
                 $"Grounded turn reached unsupported acceleration mode {speed.AccelerationMode}.");
         }
 
-        // Movement type $0E selects its own literal twelve-byte speed-table record. Mode
-        // one subtracts that record's deceleration. If subtraction crosses below zero,
+        // The pose's literal `$0E` or `$17` twelve-byte speed-table record supplies the
+        // deceleration. If subtraction crosses below zero,
         // $90:9B0A clears both speed halves AND mode before $90:8EA9 chooses direction.
-        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 0x0e);
+        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
 
         // $90:8EA9 inverts the pose direction only while mode is nonzero and not two:
         //   right-to-left records have direction $04, so mode 1 carries old RIGHTWARD momentum;

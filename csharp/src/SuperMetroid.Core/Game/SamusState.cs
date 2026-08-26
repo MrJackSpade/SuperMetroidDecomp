@@ -164,6 +164,12 @@ public sealed class SamusState
     /// <summary>Pose $86 is left-facing crouching aimed straight up.</summary>
     public const byte CrouchingAimUpLeftPose = 0x86;
 
+    /// <summary>Pose $43 turns right-to-left while crouched without retaining aim.</summary>
+    public const byte TurningRightToLeftCrouchingPose = 0x43;
+
+    /// <summary>Pose $44 turns left-to-right while crouched without retaining aim.</summary>
+    public const byte TurningLeftToRightCrouchingPose = 0x44;
+
     /// <summary>Pose $8B turns right-to-left on ground while preserving straight-up aim.</summary>
     public const byte TurningRightToLeftAimUpPose = 0x8b;
 
@@ -181,6 +187,24 @@ public sealed class SamusState
 
     /// <summary>Pose $9D turns left-to-right on ground while preserving diagonal-up aim.</summary>
     public const byte TurningLeftToRightAimDiagonalUpPose = 0x9d;
+
+    /// <summary>Pose $97 turns right-to-left while crouched and preserving straight-up aim.</summary>
+    public const byte TurningRightToLeftCrouchingAimUpPose = 0x97;
+
+    /// <summary>Pose $98 turns left-to-right while crouched and preserving straight-up aim.</summary>
+    public const byte TurningLeftToRightCrouchingAimUpPose = 0x98;
+
+    /// <summary>Pose $99 turns right-to-left while crouched and preserving diagonal-down aim.</summary>
+    public const byte TurningRightToLeftCrouchingAimDiagonalDownPose = 0x99;
+
+    /// <summary>Pose $9A turns left-to-right while crouched and preserving diagonal-down aim.</summary>
+    public const byte TurningLeftToRightCrouchingAimDiagonalDownPose = 0x9a;
+
+    /// <summary>Pose $A2 turns right-to-left while crouched and preserving diagonal-up aim.</summary>
+    public const byte TurningRightToLeftCrouchingAimDiagonalUpPose = 0xa2;
+
+    /// <summary>Pose $A3 turns left-to-right while crouched and preserving diagonal-up aim.</summary>
+    public const byte TurningLeftToRightCrouchingAimDiagonalUpPose = 0xa3;
 
     /// <summary>Pose $E0 is a right-facing normal-jump landing aimed straight up.</summary>
     public const byte LandingAimUpRightPose = 0xe0;
@@ -475,18 +499,34 @@ public sealed class SamusState
         CrouchingAimDiagonalDownRightPose or CrouchingAimDiagonalDownLeftPose;
 
     /// <summary>
-    /// True for movement-type-$0E poses that began facing right and are turning left.
+    /// True for admitted grounded `$0E/$17` poses that began facing right and turn left.
     /// Their definition direction is already four (the destination facing), so callers
     /// must use this semantic grouping when preserving old rightward momentum.
     /// </summary>
     public static bool IsRightToLeftGroundTurnPose(byte pose) => pose is
         TurningRightToLeftPose or TurningRightToLeftAimUpPose or
-        TurningRightToLeftAimDiagonalUpPose or TurningRightToLeftAimDiagonalDownPose;
+        TurningRightToLeftAimDiagonalUpPose or TurningRightToLeftAimDiagonalDownPose or
+        TurningRightToLeftCrouchingPose or TurningRightToLeftCrouchingAimUpPose or
+        TurningRightToLeftCrouchingAimDiagonalUpPose or
+        TurningRightToLeftCrouchingAimDiagonalDownPose;
 
-    /// <summary>True for movement-type-$0E poses that began facing left and are turning right.</summary>
+    /// <summary>True for admitted grounded `$0E/$17` poses that began facing left and turn right.</summary>
     public static bool IsLeftToRightGroundTurnPose(byte pose) => pose is
         TurningLeftToRightPose or TurningLeftToRightAimUpPose or
-        TurningLeftToRightAimDiagonalUpPose or TurningLeftToRightAimDiagonalDownPose;
+        TurningLeftToRightAimDiagonalUpPose or TurningLeftToRightAimDiagonalDownPose or
+        TurningLeftToRightCrouchingPose or TurningLeftToRightCrouchingAimUpPose or
+        TurningLeftToRightCrouchingAimDiagonalUpPose or
+        TurningLeftToRightCrouchingAimDiagonalDownPose;
+
+    /// <summary>
+    /// True for the six aimed crouched-turn records dispatched through movement type `$17`.
+    /// `$43/$44` are intentionally absent because the retail pose definitions assign those
+    /// otherwise similar-looking unaimed crouch turns to grounded movement type `$0E`.
+    /// </summary>
+    public static bool IsAimedCrouchingTurnPose(byte pose) => pose is
+        TurningRightToLeftCrouchingAimUpPose or TurningLeftToRightCrouchingAimUpPose or
+        TurningRightToLeftCrouchingAimDiagonalUpPose or TurningLeftToRightCrouchingAimDiagonalUpPose or
+        TurningRightToLeftCrouchingAimDiagonalDownPose or TurningLeftToRightCrouchingAimDiagonalDownPose;
 
     /// <summary>
     /// True only for the admitted movement-type-$0F crouch/stand animation records.
@@ -715,14 +755,25 @@ public sealed class SamusState
     {
         ArgumentNullException.ThrowIfNull(bus);
 
+        // Crouching transition tables publish `$43/$44` directly, whereas every admitted
+        // standing/running/landing table publishes `$25/$26`. The initializer still uses
+        // previous movement type five to choose the full crouched aim-preserving table.
+        bool wasCrouching = ReadMovementType(bus) == 5;
+
         bool rightSource = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
+            IsRightFacingCrouchingPose(Pose) ||
             IsRightFacingAimedLandingPose(Pose) ||
             Pose is NormalLandingRightPose or SpinLandingRightPose;
         bool leftSource = IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
+            IsLeftFacingCrouchingPose(Pose) ||
             IsLeftFacingAimedLandingPose(Pose) ||
             Pose is NormalLandingLeftPose or SpinLandingLeftPose;
-        bool turnsLeft = targetPose == TurningRightToLeftPose && rightSource;
-        bool turnsRight = targetPose == TurningLeftToRightPose && leftSource;
+        bool turnsLeft = targetPose == (wasCrouching
+            ? TurningRightToLeftCrouchingPose
+            : TurningRightToLeftPose) && rightSource;
+        bool turnsRight = targetPose == (wasCrouching
+            ? TurningLeftToRightCrouchingPose
+            : TurningLeftToRightPose) && leftSource;
         if (!turnsLeft && !turnsRight)
         {
             throw new InvalidOperationException(
@@ -730,22 +781,37 @@ public sealed class SamusState
         }
 
         // `$91:F8D3` reads the PREVIOUS pose record before it installs the final turn art.
-        // Eight of the ten literal `$91:F9C2` entries are admitted here. Shot directions
-        // four/five belong to the compact straight-down family that remains untranslated.
+        // Previous movement type five selects `$91:F9CC`; every other admitted source uses
+        // `$91:F9C2`. Both tables have ten entries, but shot directions four/five belong to
+        // the compact straight-down family that remains untranslated.
         byte shotDirection = ReadShotDirection(bus);
-        byte selectedTurnPose = shotDirection switch
-        {
-            0 => TurningRightToLeftAimUpPose,
-            1 => TurningRightToLeftAimDiagonalUpPose,
-            2 => TurningRightToLeftPose,
-            3 => TurningRightToLeftAimDiagonalDownPose,
-            6 => TurningLeftToRightAimDiagonalDownPose,
-            7 => TurningLeftToRightPose,
-            8 => TurningLeftToRightAimDiagonalUpPose,
-            9 => TurningLeftToRightAimUpPose,
-            _ => throw new NotSupportedException(
-                $"Grounded turn shot direction ${shotDirection:X2} is not translated."),
-        };
+        byte selectedTurnPose = wasCrouching
+            ? shotDirection switch
+            {
+                0 => TurningRightToLeftCrouchingAimUpPose,
+                1 => TurningRightToLeftCrouchingAimDiagonalUpPose,
+                2 => TurningRightToLeftCrouchingPose,
+                3 => TurningRightToLeftCrouchingAimDiagonalDownPose,
+                6 => TurningLeftToRightCrouchingAimDiagonalDownPose,
+                7 => TurningLeftToRightCrouchingPose,
+                8 => TurningLeftToRightCrouchingAimDiagonalUpPose,
+                9 => TurningLeftToRightCrouchingAimUpPose,
+                _ => throw new NotSupportedException(
+                    $"Crouched turn shot direction ${shotDirection:X2} is not translated."),
+            }
+            : shotDirection switch
+            {
+                0 => TurningRightToLeftAimUpPose,
+                1 => TurningRightToLeftAimDiagonalUpPose,
+                2 => TurningRightToLeftPose,
+                3 => TurningRightToLeftAimDiagonalDownPose,
+                6 => TurningLeftToRightAimDiagonalDownPose,
+                7 => TurningLeftToRightPose,
+                8 => TurningLeftToRightAimDiagonalUpPose,
+                9 => TurningLeftToRightAimUpPose,
+                _ => throw new NotSupportedException(
+                    $"Grounded turn shot direction ${shotDirection:X2} is not translated."),
+            };
         if ((turnsLeft && !IsRightToLeftGroundTurnPose(selectedTurnPose)) ||
             (turnsRight && !IsLeftToRightGroundTurnPose(selectedTurnPose)))
         {
@@ -938,8 +1004,7 @@ public sealed class SamusState
         bool supportedSource =
             IsRightFacingStandingPose(Pose) || IsLeftFacingStandingPose(Pose) ||
             IsRightFacingRunningPose(Pose) || IsLeftFacingRunningPose(Pose) ||
-            IsRightFacingCrouchingPose(Pose) || IsLeftFacingCrouchingPose(Pose) ||
-            Pose is TurningRightToLeftPose or TurningLeftToRightPose;
+            IsRightFacingCrouchingPose(Pose) || IsLeftFacingCrouchingPose(Pose);
         byte expectedTarget = SelectFallingPoseForCurrentAim(bus);
         if (!supportedSource || targetPose != expectedTarget)
         {
@@ -1056,6 +1121,14 @@ public sealed class SamusState
             (TurningLeftToRightAimDiagonalDownPose, StandingAimDiagonalDownRightPose) or
             (TurningRightToLeftAimDiagonalUpPose, StandingAimDiagonalUpLeftPose) or
             (TurningLeftToRightAimDiagonalUpPose, StandingAimDiagonalUpRightPose) or
+            (TurningRightToLeftCrouchingPose, CrouchingLeftPose) or
+            (TurningLeftToRightCrouchingPose, CrouchingRightPose) or
+            (TurningRightToLeftCrouchingAimUpPose, CrouchingAimUpLeftPose) or
+            (TurningLeftToRightCrouchingAimUpPose, CrouchingAimUpRightPose) or
+            (TurningRightToLeftCrouchingAimDiagonalDownPose, CrouchingAimDiagonalDownLeftPose) or
+            (TurningLeftToRightCrouchingAimDiagonalDownPose, CrouchingAimDiagonalDownRightPose) or
+            (TurningRightToLeftCrouchingAimDiagonalUpPose, CrouchingAimDiagonalUpLeftPose) or
+            (TurningLeftToRightCrouchingAimDiagonalUpPose, CrouchingAimDiagonalUpRightPose) or
             (NeutralJumpTransitionRightPose, NeutralJumpRightPose) or
             (NeutralJumpTransitionLeftPose, NeutralJumpLeftPose) or
             (NormalJumpTransitionAimUpRightPose, NormalJumpAimUpRightPose) or
@@ -1313,9 +1386,10 @@ public sealed class SamusState
     /// <c>$90:85E2</c>.
     /// </summary>
     /// <remarks>
-    /// Movement type zero uses the standing position selector; movement type one uses the
-    /// default selector. Both draw top and bottom halves. Other movement types still select
-    /// specialized position or bottom-half rules and remain explicitly rejected.
+    /// Movement type zero uses the standing position selector. The admitted movement types
+    /// `$01/$02/$05/$06/$0E/$17` use the usual position selector and always draw both halves;
+    /// spin-jump `$03` has its already translated conditional bottom rule. Other movement
+    /// types still select specialized behavior and remain explicitly rejected.
     /// </remarks>
     public void Draw(ISnesAddressSpace bus, OamBuffer oam, ushort layer1X, ushort layer1Y)
     {
@@ -1324,7 +1398,7 @@ public sealed class SamusState
 
         int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
         byte movementType = bus.ReadByte(AddWithinBank(poseDefinition, 1));
-        if (movementType is not (0 or 1 or 2 or 3 or 5 or 6 or 0x0e or 0x0f))
+        if (movementType is not (0 or 1 or 2 or 3 or 5 or 6 or 0x0e or 0x0f or 0x17))
         {
             throw new NotSupportedException(
                 $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");
@@ -1356,7 +1430,7 @@ public sealed class SamusState
         TopSpritemapIndex = unchecked((ushort)(topBase + AnimationFrame));
         oam.AddSamusSpritemap(bus, TopSpritemapIndex, SpritemapXPosition, SpritemapYPosition);
 
-        // Movement types one and $0E use the native unconditional bottom-half selector.
+        // Movement types one, `$0E`, and `$17` use the native unconditional bottom selector.
         // Movement type zero also draws the bottom, except forward-facing pose $00 has an
         // additional visor OBJ that this intentionally narrow slice still rejects.
         if (movementType == 0 && Pose == 0)

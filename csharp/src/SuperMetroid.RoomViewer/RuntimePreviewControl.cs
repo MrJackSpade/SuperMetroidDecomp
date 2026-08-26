@@ -126,7 +126,7 @@ internal sealed class RuntimePreviewControl : UserControl
         };
         speedBoosterButton.CheckOnClick = true;
         speedBoosterButton.ToolTipText =
-            "Toggles item bit $2000. Hold Run plus a direction to step the five ROM-authored boost stages and 7.0000 cap.";
+            "Toggles item bit $2000. Hold Run plus a direction to charge; crouch at stage four to store shine, then Jump and tap a direction during windup.";
         speedBoosterButton.CheckedChanged += (_, _) =>
         {
             // Equipment-menu processing is not present yet, so expose the one retail item
@@ -216,6 +216,12 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(cameraDownButton);
         toolStrip.Items.Add(new ToolStripSeparator());
         toolStrip.Items.Add(statusLabel);
+
+        // This is a movement-development sandbox, and there is no save-file/equipment menu
+        // to grant the item naturally yet. Default the visible toggle on so a fresh launch
+        // can exercise the newly translated route immediately; unchecking it still removes
+        // only retail inventory bit `$2000` and cancels the corresponding momentum state.
+        speedBoosterButton.Checked = true;
 
         var layout = new TableLayoutPanel
         {
@@ -512,6 +518,14 @@ internal sealed class RuntimePreviewControl : UserControl
                   or SamusState.RanIntoWallAimUpLeftPose
                   or SamusState.RanIntoWallAimDownRightPose
                   or SamusState.RanIntoWallAimDownLeftPose
+                  or SamusState.ShinesparkWindupRightPose
+                  or SamusState.ShinesparkWindupLeftPose
+                  or SamusState.ShinesparkHorizontalRightPose
+                  or SamusState.ShinesparkHorizontalLeftPose
+                  or SamusState.ShinesparkVerticalRightPose
+                  or SamusState.ShinesparkVerticalLeftPose
+                  or SamusState.ShinesparkDiagonalRightPose
+                  or SamusState.ShinesparkDiagonalLeftPose
                   or SamusState.SpringBallGroundRightPose
                   or SamusState.SpringBallGroundLeftPose
                   or SamusState.SpringBallMovingRightPose
@@ -541,6 +555,9 @@ internal sealed class RuntimePreviewControl : UserControl
             $"Y {runtime.Samus.YPosition:X4}.{runtime.Samus.Kinematics.YSubposition:X4} " +
             $"speed {runtime.Samus.Kinematics.YSpeed:X4}." +
             $"{runtime.Samus.Kinematics.YSubspeed:X4}/dir {runtime.Samus.Kinematics.YDirection}  |  " +
+            $"shine={runtime.Samus.Shinespark.Phase}/timer {runtime.Samus.Shinespark.ShineTimer} " +
+            $"crash {runtime.Samus.Shinespark.CrashSubphase}:{runtime.Samus.Shinespark.CrashRadius} " +
+            $"released {runtime.Samus.Shinespark.ReleasedCrashEchoCount}  |  " +
             $"bombs {runtime.BombProjectiles.BombCounter}/5 " +
             $"cooldown {runtime.BombProjectiles.CooldownTimer} " +
             $"jump ${runtime.Samus.BombJumpDirection:X4}  |  " +

@@ -32,6 +32,11 @@ else if (options.RanIntoWallScript)
     Console.WriteLine(
         "Input script: press into a ROM-authored solid wall, change wall-stop aim up/down, release to neutral, then jump away through $4B.");
 }
+else if (options.ShinesparkScript)
+{
+    Console.WriteLine(
+        "Input script: equip Speed Booster, charge stage four on ROM-authored terrain, crouch to store shine, jump into $C7 windup, then launch right through $C9.");
+}
 else if (options.SpeedBoosterScript)
 {
     Console.WriteLine(
@@ -178,7 +183,7 @@ if (options.GroundedRun)
     }
 }
 
-if (options.SpeedBoosterScript)
+if (options.SpeedBoosterScript || options.ShinesparkScript)
 {
     // The ordinary debug placement reaches Landing Site's right-side type-$F door before
     // 112 hexadecimal `.1000` additions can reach 7.0000. Move only this diagnostic route
@@ -208,7 +213,7 @@ else if (options.SpringBallScript)
     // Morph Ball `$0004` and Spring Ball `$0002`; F9 must choose its equipped operands.
     runtime.Samus!.EquippedItems |= 0x0006;
 }
-else if (options.SpeedBoosterScript)
+else if (options.SpeedBoosterScript || options.ShinesparkScript)
 {
     // The debug spawn has no save inventory. Grant only retail Speed Booster bit `$2000`;
     // every counter, delay list, velocity, transition, and collision remains ROM-driven.
@@ -448,6 +453,16 @@ uint maximumObservedExtraRunSpeed = 0;
 byte maximumObservedSpeedBoostStage = 0;
 bool observedSpeedBoostEcho = false;
 bool observedSpeedBoostContactDamage = false;
+bool observedStoredShine = false;
+bool observedShinesparkWindup = false;
+bool observedDirectionalShinespark = false;
+bool observedShinesparkMovement = false;
+bool observedShinesparkPalette = false;
+bool observedShinesparkCrashOrbit = false;
+bool observedShinesparkCrashEchoCircle = false;
+bool observedShinesparkCrashFinish = false;
+bool observedReleasedShinesparkEcho = false;
+int priorReleasedShinesparkEchoCount = 0;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
@@ -526,6 +541,32 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             // A fresh Jump edge then takes the literal wall table's `$89 -> $4B` route;
             // command `$FF` completes the normal `$4B -> $4D` jump handoff.
             >= 42 and < 52 => (ushort)SnesButton.A,
+            _ => (ushort)0,
+        }
+        : options.ShinesparkScript
+        ? frameIndex switch
+        {
+            0 => (ushort)SnesButton.Start,
+
+            // This is the same natural stage-four route used by --speed-booster-script.
+            // The host grants only inventory; `$90:973E`, the ROM delay lists, and the
+            // translated block dispatcher own every acceleration and accepted pixel.
+            >= 2 and < 118 => (ushort)(SnesButton.Right | SnesButton.B),
+
+            // A fresh Down edge while stage four is still published selects the retail
+            // running-to-crouch record. `$91:F7B0` must observe that stage before the
+            // posture transition clears normal running momentum and store 180 frames.
+            >= 118 and < 128 => (ushort)SnesButton.Down,
+
+            // Jump from the settled crouch. The ordinary `$4B` transition must finish
+            // through command `$FF` into `$4D`; only there may stored shine replace the
+            // final pose with windup `$C7`, precisely matching `$90:CFFA`'s native seam.
+            >= 138 and < 154 => (ushort)SnesButton.A,
+
+            // Windup direction is chosen from a newly pressed direction. Delay Right
+            // until after several held-still windup frames so this cannot accidentally
+            // pass by merely preserving the direction from the charging run.
+            >= 154 and < 190 => (ushort)(SnesButton.A | SnesButton.Right),
             _ => (ushort)0,
         }
         : options.SpeedBoosterScript
@@ -874,6 +915,40 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         unchecked((byte)(runtime.Samus.HorizontalSpeed.SpeedBoostCounter >> 8)));
     observedSpeedBoostEcho |= runtime.Samus.HorizontalSpeed.EchoSoundRequested;
     observedSpeedBoostContactDamage |= runtime.Samus.HorizontalSpeed.ContactDamageIndex == 1;
+    observedStoredShine |= runtime.Samus.Shinespark.Phase == ShinesparkPhase.Stored;
+    observedShinesparkWindup |= runtime.Samus.Shinespark.Phase == ShinesparkPhase.Windup;
+    observedDirectionalShinespark |= runtime.Samus.Shinespark.Phase is
+        ShinesparkPhase.Horizontal or ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal;
+    observedShinesparkMovement |= runtime.LastShinesparkMovement is
+        { PhaseAtStart: ShinesparkPhase.Horizontal or ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal };
+    observedShinesparkPalette |= runtime.Samus.Shinespark.PaletteType is 1 or 6;
+    observedShinesparkCrashOrbit |= runtime.Samus.Shinespark.Phase == ShinesparkPhase.Crash;
+    observedShinesparkCrashEchoCircle |=
+        runtime.Samus.Shinespark.Phase == ShinesparkPhase.CrashEchoCircle;
+    // CrashFinish is an installed one-frame handler: its Step call restores standing and
+    // publishes Inactive before this observer runs. Use the movement result as the native
+    // handler-execution witness instead of hoping to sample a transient host enum value.
+    observedShinesparkCrashFinish |=
+        runtime.LastShinesparkMovement is { CrashSequenceFinished: true };
+    observedReleasedShinesparkEcho |= runtime.Samus.Shinespark.ReleasedCrashEchoCount != 0;
+    if (runtime.Samus.Shinespark.ReleasedCrashEchoCount != priorReleasedShinesparkEchoCount)
+    {
+        ShinesparkReleasedEcho firstReleased = runtime.Samus.Shinespark.FirstReleasedCrashEcho;
+        ShinesparkReleasedEcho secondReleased = runtime.Samus.Shinespark.SecondReleasedCrashEcho;
+        ShinesparkReleasedEchoClear? releasedClear =
+            runtime.Samus.Shinespark.LastReleasedCrashEchoClear;
+        Console.WriteLine(
+            $"frame {result.FrameNumber,4}: released shinespark echoes=" +
+            $"{runtime.Samus.Shinespark.ReleasedCrashEchoCount}; " +
+            $"slot3={(firstReleased.Active ? $"${firstReleased.Angle:X2}/r{firstReleased.Radius}/({firstReleased.XPosition:X4},{firstReleased.YPosition:X4})" : "clear")}, " +
+            $"slot4={(secondReleased.Active ? $"${secondReleased.Angle:X2}/r{secondReleased.Radius}/({secondReleased.XPosition:X4},{secondReleased.YPosition:X4})" : "clear")}" +
+            (releasedClear is { } clear
+                ? $"; last clear=slot{clear.NativeSlot}/{clear.Axis}/r{clear.Radius}/" +
+                  $"world({clear.XPosition:X4},{clear.YPosition:X4})/" +
+                  $"screen({clear.ScreenX},{clear.ScreenY?.ToString() ?? "not sampled"})"
+                : string.Empty));
+        priorReleasedShinesparkEchoCount = runtime.Samus.Shinespark.ReleasedCrashEchoCount;
+    }
     observedDashMomentum |= runtime.Samus.HorizontalSpeed.HasRunningMomentum;
     observedDashAerialCarry |= runtime.Samus.HorizontalSpeed.HasRunningMomentum &&
         currentExtraRunSpeed != 0 &&
@@ -921,8 +996,10 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             runtime.LastAerialSamusMovement?.Horizontal ??
             runtime.LastMorphBallMovement?.Horizontal ??
             runtime.LastBombJumpMovement?.Horizontal ??
-            runtime.LastKnockbackMovement?.Horizontal;
-        if (horizontal is null && runtime.LastGrappleMovement is null)
+            runtime.LastKnockbackMovement?.Horizontal ??
+            runtime.LastShinesparkMovement?.Horizontal;
+        if (horizontal is null && runtime.LastGrappleMovement is null &&
+            runtime.LastShinesparkMovement is null)
             throw new InvalidOperationException("Samus X changed without a translated movement result.");
         string vertical = runtime.LastGroundedSamusMovement is GroundedMovementResult groundedMovement
             ? $"ground=${groundedMovement.Vertical.AcceptedDisplacement:X8}/collision={groundedMovement.Vertical.Collided}"
@@ -1103,6 +1180,14 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.RanIntoWallAimUpLeftPose or
                      SamusState.RanIntoWallAimDownRightPose or
                      SamusState.RanIntoWallAimDownLeftPose or
+                     SamusState.ShinesparkWindupRightPose or
+                     SamusState.ShinesparkWindupLeftPose or
+                     SamusState.ShinesparkHorizontalRightPose or
+                     SamusState.ShinesparkHorizontalLeftPose or
+                     SamusState.ShinesparkVerticalRightPose or
+                     SamusState.ShinesparkVerticalLeftPose or
+                     SamusState.ShinesparkDiagonalRightPose or
+                     SamusState.ShinesparkDiagonalLeftPose or
                      SamusState.TurningRightToLeftJumpPose or
                      SamusState.TurningLeftToRightJumpPose or
                      SamusState.TurningRightToLeftFallingPose or
@@ -1404,6 +1489,41 @@ if (options.SpeedBoosterScript)
         $"echo={observedSpeedBoostEcho}, contact={observedSpeedBoostContactDamage}.");
 }
 
+if (options.ShinesparkScript)
+{
+    // These assertions deliberately observe states after full StepFrame calls. A direct
+    // test helper that invoked SamusShinesparkState would miss the point of this route:
+    // real bank-$91 input records, delayed animation commands, palette priority, room
+    // collision, and runtime handler dispatch must all cooperate in their normal order.
+    if (!observedStoredShine)
+        throw new InvalidOperationException("Shinespark ROM script never stored a stage-four shine while crouching.");
+    if (!observedShinesparkPalette)
+        throw new InvalidOperationException("Shinespark ROM script never installed a stored/active shine palette handler.");
+    if (options.FrameCount >= 155 && !observedShinesparkWindup)
+        throw new InvalidOperationException("Shinespark ROM script never reached windup pose $C7/$C8.");
+    if (options.FrameCount >= 160 && (!observedDirectionalShinespark || !observedShinesparkMovement))
+    {
+        throw new InvalidOperationException(
+            "Shinespark ROM script never launched a directional spark through the live movement handler.");
+    }
+    if (options.FrameCount >= 220 && !observedShinesparkCrashOrbit)
+        throw new InvalidOperationException("Shinespark ROM script never entered the collision crash orbit.");
+    if (options.FrameCount >= 260 && !observedShinesparkCrashEchoCircle)
+        throw new InvalidOperationException("Shinespark ROM script never entered the 30-frame crash echo circle.");
+    if (options.FrameCount >= 291 &&
+        (!observedShinesparkCrashFinish || !observedReleasedShinesparkEcho))
+    {
+        throw new InvalidOperationException(
+            "Shinespark ROM script never completed crash into the departing projectile echoes.");
+    }
+    Console.WriteLine(
+        $"Shinespark ROM route observed stored={observedStoredShine}, windup={observedShinesparkWindup}, " +
+        $"directional={observedDirectionalShinespark}, movement={observedShinesparkMovement}, " +
+        $"palette={observedShinesparkPalette}, crash={observedShinesparkCrashOrbit}, " +
+        $"circle={observedShinesparkCrashEchoCircle}, finish={observedShinesparkCrashFinish}, " +
+        $"releasedEcho={observedReleasedShinesparkEcho}.");
+}
+
 if (options.GrappleScript)
 {
     if (!observedGrappleSwing)
@@ -1606,6 +1726,7 @@ readonly record struct DebugRunnerOptions(
     bool RanIntoWallScript,
     bool RunScript,
     bool SpeedBoosterScript,
+    bool ShinesparkScript,
     bool JumpScript,
     bool PostureScript,
     bool AimScript,
@@ -1637,6 +1758,7 @@ readonly record struct DebugRunnerOptions(
         bool ranIntoWallScript = false;
         bool runScript = false;
         bool speedBoosterScript = false;
+        bool shinesparkScript = false;
         bool jumpScript = false;
         bool postureScript = false;
         bool aimScript = false;
@@ -1710,6 +1832,11 @@ readonly record struct DebugRunnerOptions(
 
                 case "--speed-booster-script":
                     speedBoosterScript = true;
+                    groundedRun = true;
+                    break;
+
+                case "--shinespark-script":
+                    shinesparkScript = true;
                     groundedRun = true;
                     break;
 
@@ -1837,6 +1964,7 @@ readonly record struct DebugRunnerOptions(
             ranIntoWallScript,
             runScript,
             speedBoosterScript,
+            shinesparkScript,
             jumpScript,
             postureScript,
             aimScript,

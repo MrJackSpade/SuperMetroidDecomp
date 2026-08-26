@@ -99,7 +99,20 @@ public sealed class RoomLevelData
     public RoomCollisionBlock GetCollisionBlock(int blockX, int blockY)
     {
         int index = GetBlockIndex(blockX, blockY);
-        return new RoomCollisionBlock(index, _foregroundEntries[index], _behaviorBytes[index]);
+        return GetCollisionBlockByIndex(index);
+    }
+
+    /// <summary>
+    /// Reads a native row-major index after bank-$94 type-$5/$D extension arithmetic.
+    /// </summary>
+    public RoomCollisionBlock GetCollisionBlockByIndex(int blockIndex)
+    {
+        if ((uint)blockIndex >= (uint)_foregroundEntries.Length)
+            throw new ArgumentOutOfRangeException(nameof(blockIndex));
+        return new RoomCollisionBlock(
+            blockIndex,
+            _foregroundEntries[blockIndex],
+            _behaviorBytes[blockIndex]);
     }
 
     /// <summary>
@@ -108,6 +121,27 @@ public sealed class RoomLevelData
     /// </summary>
     public RoomCollisionBlock GetCollisionBlockAtPixel(ushort xPosition, ushort yPosition) =>
         GetCollisionBlock(xPosition >> 4, yPosition >> 4);
+
+    /// <summary>
+    /// Applies bank-$84 bomb-block setup's immediate <c>level_data &amp;= $0FFF</c> write.
+    /// </summary>
+    /// <remarks>
+    /// Collision-triggered bomb blocks retain their low twelve visual/flip bits while the
+    /// high dispatcher nibble becomes air. The later PLM animation is a separate producer;
+    /// this method models only the synchronous mutation that bank $94 observes during the
+    /// same movement scan. The native streaming allocation aliases logical BG1, so keep our
+    /// retained streaming copy coherent as well.
+    /// </remarks>
+    public void ClearCollisionType(int blockIndex)
+    {
+        if ((uint)blockIndex >= (uint)_foregroundEntries.Length)
+            throw new ArgumentOutOfRangeException(nameof(blockIndex));
+
+        ushort airWord = unchecked((ushort)(_foregroundEntries[blockIndex] & 0x0fff));
+        _foregroundEntries[blockIndex] = airWord;
+        if (blockIndex < _streamingForegroundAllocation.Length)
+            _streamingForegroundAllocation[blockIndex] = airWord;
+    }
 
     /// <summary>
     /// Constructs bank $80's visual row/column producer over the exact same decompressed

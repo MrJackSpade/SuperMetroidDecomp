@@ -264,7 +264,8 @@ public sealed class SamusHorizontalSpeedState
         ISnesAddressSpace bus,
         SnesCgram cgram,
         byte movementType,
-        ushort equippedItems)
+        ushort equippedItems,
+        bool suppressActiveSpeedBoosterPalette = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -281,6 +282,12 @@ public sealed class SamusHorizontalSpeedState
             NormalSuitPaletteRestoreRequested = false;
             paletteCopied = true;
         }
+
+        // Stored-shine and shinespark handlers have priority in `$91:D6F7`. Cancellation's
+        // immediate normal-palette copy above still occurs, but handler zero must not advance
+        // its hidden four-frame Speed Booster cycle beneath handler one or six.
+        if (suppressActiveSpeedBoosterPalette)
+            return paletteCopied;
 
         // Wall-jump palette handling returns before the common Speed Booster branch.
         // Spin jumping reaches that branch only without Screw Attack; translating Screw
@@ -347,6 +354,48 @@ public sealed class SamusHorizontalSpeedState
         if (unchecked((short)(SpeedEchoIndex - 4)) >= 0)
             SpeedEchoIndex = 0;
         return true;
+    }
+
+    /// <summary>
+    /// Applies the observable echo-slot clears shared by shinespark windup at
+    /// <c>$90:D068</c> and directional launch setup at <c>$91:F83E</c>.
+    /// </summary>
+    /// <remarks>
+    /// Native also clears two later crash-circle velocity bytes. Those bytes are not part
+    /// of the ordinary active-echo model yet; the four position words and alternating index
+    /// below are the exact subset consumed by <see cref="CaptureSpeedEchoPosition"/> and
+    /// the current renderer.
+    /// </remarks>
+    public void ResetSpeedEchoPositionsForShinespark()
+    {
+        SpeedEchoIndex = 0;
+        FirstSpeedEchoXPosition = 0;
+        SecondSpeedEchoXPosition = 0;
+        FirstSpeedEchoYPosition = 0;
+        SecondSpeedEchoYPosition = 0;
+    }
+
+    /// <summary>
+    /// Publishes the overloaded `$0AAE-$0AB6` words owned by the shinespark-crash handler.
+    /// </summary>
+    /// <remarks>
+    /// The cartridge reuses the ordinary boost-echo index as an 8-bit radius plus an
+    /// 8-bit crash subphase, and reuses the two captured positions as orbiting sprites.
+    /// Keeping the write centralized prevents desktop-only crash fields from drifting away
+    /// from the exact words consumed by the translated draw handler.
+    /// </remarks>
+    public void SetShinesparkCrashEchoState(
+        ushort encodedIndex,
+        ushort firstX,
+        ushort secondX,
+        ushort firstY,
+        ushort secondY)
+    {
+        SpeedEchoIndex = encodedIndex;
+        FirstSpeedEchoXPosition = firstX;
+        SecondSpeedEchoXPosition = secondX;
+        FirstSpeedEchoYPosition = firstY;
+        SecondSpeedEchoYPosition = secondY;
     }
 
     private void AddExtraRunAcceleration()

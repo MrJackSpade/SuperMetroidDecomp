@@ -38,7 +38,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, momentum, gravity/collision, `$F8` | Later firing/external-displacement routes |
 | `$19` | Damage boost | `$4F/$50`, fresh dry-air jump, type-indexed X physics, variable height, ceiling/floor collision, `$FF` sentinel landing | Liquids, external displacement, enemy producer |
 | `$1A` | Grabbed by Draygon | — | Entire family |
-| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | — | All subhandlers and scripted state |
+| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active block motion, crash orbit/circle, released echoes, standing return | Crystal flash, drained, Mother Brain damage, solid-enemy collision |
 
 The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
 performs its one-frame initialization and `$90:E032` owns the rising special arc; its
@@ -107,8 +107,36 @@ translated status is documented with the Morph Ball family below.
   cap, double-indirect palette selection/timing/restoration, echo cadence, stage-four events,
   and jump arithmetic. Real-ROM `--speed-booster-script` reaches stage four, visibly renders
   both echoes in the cycled palette, reaches 7.0000, and launches `$09 -> $19` at 7.C400.
-- Post-cancel echo departure, stored shine/crouch release, shinespark, and the Landing Site
-  type-`$F` door dispatcher remain explicit follow-up boundaries.
+- Ordinary Speed Booster cancellation still has its separate post-cancel echo-projectile
+  departure boundary. Stored shine and shinespark are covered in the next section.
+
+## Verified stored-shine and shinespark slice
+
+- `$91:F7B0` stores shine only when the signed high-byte comparison sees Speed Booster stage
+  four or later. It publishes timer 180 and palette handler one; timer 170 requests the native
+  warning sound, while expiration restores the live suit palette through `$91:D727`.
+- A crouched Jump follows the ordinary `$4B/$4C -> $4D/$4E` path before stored shine installs
+  windup `$C7/$C8`. Its 30-frame handler accepts ROM input-table direction records or times
+  out upward, selecting horizontal, vertical, or diagonal `$C9-$CE` without a host direction.
+- `$90:D106/$D0AB/$D0D7` use retained 16.16 acceleration and the bank-`$94` block mover.
+  Horizontal speed clamps at 15.0000; vertical speed clamps at 14.x. Active frames publish
+  contact-damage two, hurt flash eight, 15 palette ticks, sampled echoes, and one-energy drain
+  while health is at least 30.
+- Collision type `$5/$D` redispatches signed horizontal/vertical extension BTS exactly.
+  Shinespark-capable type `$F` BTS 0..7 clears only the collision nibble of the target block
+  and continues through it; the later bank-`$84` tile-breaking PLM animation remains pending.
+- Collision or health below 30 zeroes motion and starts `$90:D346`: four expansion frames,
+  32 angle-separation frames, four contraction frames, then a 30-frame center hold. All orbit
+  points use the positive half of the ROM sine table at `$A0:B443` (the complete table
+  starts at `$A0:B3C3`); odd NMIs draw slot one before slot zero.
+- `$90:D40D` samples the literal pose-indexed angle pair before restoring `$01/$02`. Capacity
+  admits fixed projectile slots three/four at radius 64; `$90:D4D2` grows each by eight around
+  the current Samus position and deletes it outside the camera's 256x256 viewport. Drawing
+  retains native slot-four-before-slot-three OAM order and odd-NMI cadence.
+- Synthetic checks lock storage, palettes, windup timeout, six-direction dispatch, motion,
+  energy edge cases, extension/bomb blocks, 40+30 crash timing, sine positions, standing
+  return, released-echo angles/radii, and viewport deletion. Real-ROM `--shinespark-script`
+  proves `$09 -> $35 -> $27 -> $4B -> $C7 -> $C9 -> $01` through Landing Site terrain.
 
 ## Verified crouch/stand slice
 
@@ -505,7 +533,7 @@ translated status is documented with the Morph Ball family below.
 ## Next implementation order
 
 1. Grapple breakable PLMs, spike damage, and liquid/solid-enemy wall-jump branches.
-2. Speed Booster post-cancel echo departure, stored shine/shinespark, crystal flash/drained, and remaining scripted movement.
+2. Speed Booster ordinary-cancel echo departure, crystal flash/drained, and remaining scripted movement.
 3. Space-jump/Screw-Attack spin families, liquids, and solid-enemy collision routes.
 4. Enemy collision/damage producers so knockback and grapple begin from live actors instead of host seams.
 5. Return with bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.

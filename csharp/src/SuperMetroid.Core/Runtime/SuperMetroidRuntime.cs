@@ -120,6 +120,9 @@ public sealed class SuperMetroidRuntime
     /// <summary>Most recent bank-$9B connected-grapple function result.</summary>
     public GrappleMovementResult? LastGrappleMovement { get; private set; }
 
+    /// <summary>Most recent stored-shine windup or active shinespark handler result.</summary>
+    public ShinesparkMovementResult? LastShinesparkMovement { get; private set; }
+
     /// <summary>
     /// Explicit debugger substitute for the untranslated HUD item selector. When enabled,
     /// a new Shoot edge starts grapple firing from the current pose. Normal scenarios leave
@@ -808,6 +811,17 @@ public sealed class SuperMetroidRuntime
                     Controller1.Current,
                     Controller1.NewlyPressed);
 
+                // Native HandleProjectile runs `$90:D4D2` during alpha, before Samus's beta
+                // movement handler. Departing crash echoes therefore remain centered on the
+                // position at the start of this frame and are not advanced on their spawn
+                // frame. Their viewport test uses the live layer-1 camera exactly as the
+                // fixed projectile slots do.
+                Samus.Shinespark.StepReleasedCrashEchoProjectiles(
+                    _addressSpace,
+                    Samus,
+                    Camera.XPosition,
+                    Camera.YPosition);
+
                 // $90:E725 dispatches movement type before animation. Every admitted pose
                 // below has its own verified direction/mode path; a newly reachable pose
                 // cannot accidentally inherit generic standing or running physics.
@@ -817,6 +831,7 @@ public sealed class SuperMetroidRuntime
                 LastBombJumpMovement = null;
                 LastKnockbackMovement = null;
                 LastGrappleMovement = null;
+                LastShinesparkMovement = null;
 
                 // GrappleBeamHandler precedes beta movement, but only connected/release
                 // functions own Samus's position. An extending or cancelling beam coexists
@@ -924,6 +939,34 @@ public sealed class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             NmiFrameCounter);
+                }
+                // `$90:CFFA` replaces the normal movement-handler pointer. Windup, active
+                // launch, and crash therefore own beta movement regardless of the pose's
+                // table index; ordinary type-$1B physics does not exist to fall back to.
+                else if (Samus.Shinespark.Phase is
+                    ShinesparkPhase.Windup or ShinesparkPhase.Horizontal or
+                    ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal or
+                    ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle or
+                    ShinesparkPhase.CrashFinish)
+                {
+                    // Determine_Samus_YAcceleration still publishes the dry-air gravity pair
+                    // used as spark acceleration. Projectile_Func7 deliberately does not
+                    // replace these environment words itself.
+                    SamusAerialMovement.ConfigureDryAirGravity(_addressSpace, Samus);
+                    LastShinesparkMovement = Samus.Shinespark.Step(
+                        _addressSpace,
+                        LevelData,
+                        Samus,
+                        NmiFrameCounter,
+                        BombProjectiles.BombCounter);
+                    if (LastShinesparkMovement.Value.WindupTimedOut)
+                    {
+                        // The movement handler publishes an interrupted vertical pose. That
+                        // priority beats an ordinary input record sampled from `$C7/$C8`
+                        // earlier in alpha during the timeout frame.
+                        ProspectiveSamusPose = null;
+                        ProspectiveSamusFallbackPose = null;
+                    }
                 }
                 else switch (Samus.Pose)
                 {
@@ -1222,10 +1265,13 @@ public sealed class SuperMetroidRuntime
             // at boost stage four, it alternates between two exact world-position snapshots.
             // Keeping this producer here means the draw handler below consumes post-motion
             // coordinates with the same frame ordering as the cartridge.
-            Samus.HorizontalSpeed.CaptureSpeedEchoPosition(
-                NmiFrameCounter,
-                Samus.XPosition,
-                Samus.YPosition);
+            if (LastShinesparkMovement is null)
+            {
+                Samus.HorizontalSpeed.CaptureSpeedEchoPosition(
+                    NmiFrameCounter,
+                    Samus.XPosition,
+                    Samus.YPosition);
+            }
 
             // Normal gameplay advances animation during frame-handler beta, before the
             // pose-transition handler, draw handler, and next-NMI tile selection.
@@ -1686,6 +1732,24 @@ public sealed class SuperMetroidRuntime
                                     targetPose,
                                     NmiFrameCounter);
                                 break;
+                            case var (source, sparkTarget)
+                                when source is
+                                         SamusState.ShinesparkWindupRightPose or
+                                         SamusState.ShinesparkWindupLeftPose &&
+                                     sparkTarget is
+                                         SamusState.ShinesparkHorizontalRightPose or
+                                         SamusState.ShinesparkHorizontalLeftPose or
+                                         SamusState.ShinesparkVerticalRightPose or
+                                         SamusState.ShinesparkVerticalLeftPose or
+                                         SamusState.ShinesparkDiagonalRightPose or
+                                         SamusState.ShinesparkDiagonalLeftPose:
+                                // `$91:AD6C/$AD80` are ordinary held/new input records, but
+                                // `$91:F80F` installs a special movement pointer instead of
+                                // invoking a normal movement-type initializer.
+                                Samus.ApplyShinesparkDirectionTransition(
+                                    _addressSpace,
+                                    targetPose);
+                                break;
                             default:
                                 throw new NotSupportedException(
                                     $"Grounded input transition ${poseAtFrameStart:X2} -> ${targetPose:X2} matched ROM data but its side effects are not translated.");
@@ -1885,6 +1949,14 @@ public sealed class SuperMetroidRuntime
                 _addressSpace,
                 Cgram,
                 Samus.ReadMovementType(_addressSpace),
+                Samus.EquippedItems,
+                suppressActiveSpeedBoosterPalette: Samus.Shinespark.PaletteType != 0);
+            // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They
+            // intentionally execute after a cancellation-requested normal copy and replace
+            // it with the stored/spark palette in this visible frame.
+            Samus.Shinespark.UpdatePalette(
+                _addressSpace,
+                Cgram,
                 Samus.EquippedItems);
             Samus.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
             Samus.DrawActiveSpeedBoosterEchoes(
@@ -1892,6 +1964,18 @@ public sealed class SuperMetroidRuntime
                 Oam,
                 Camera.XPosition,
                 Camera.YPosition);
+            Samus.DrawShinesparkCrashEchoes(
+                _addressSpace,
+                Oam,
+                Camera.XPosition,
+                Camera.YPosition,
+                NmiFrameCounter);
+            Samus.DrawReleasedShinesparkCrashEchoes(
+                _addressSpace,
+                Oam,
+                Camera.XPosition,
+                Camera.YPosition,
+                NmiFrameCounter);
             SamusGrappleMovement.DrawConnectedBeam(
                 _addressSpace,
                 Samus.Grapple,

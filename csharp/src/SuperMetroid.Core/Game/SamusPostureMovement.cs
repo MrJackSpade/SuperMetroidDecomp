@@ -74,12 +74,14 @@ public static class SamusPostureMovement
         ushort nmiFrameCounter)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        if (speed.ExtraRunSpeed != 0 || speed.ExtraRunSubspeed != 0)
-        {
-            throw new NotSupportedException(
-                "Posture transitions with extra run speed require the unported run-button/momentum branch.");
-        }
 
+        // `$90:9348` does exactly two stores before tail-calling the ordinary horizontal
+        // mover: it zeros the *base* displacement pair `$12.$14`. It emphatically does
+        // not require extra run speed to be zero. `MoveSamus_Horizontally` subsequently
+        // calls `$90:E4E6`, which adds `$0B42.$0B44` to that zero base. This is the retail
+        // behavior that lets a stage-four run continue sliding during crouch transition
+        // `$35/$36`; bank $91 samples and stores the shine before normal crouching clears
+        // that momentum. The old exception at this seam prevented that native route.
         bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
         int requestedHorizontal = facingLeft
             ? speed.CalculateLeftDisplacement(baseSpeed: 0)

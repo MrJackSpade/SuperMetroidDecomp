@@ -68,7 +68,8 @@ public static class SamusBlockCollision
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusKinematicsState state,
-        int displacement)
+        int displacement,
+        bool canBreakBombBlocks = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -77,6 +78,7 @@ public static class SamusBlockCollision
         int acceptedDisplacement = displacement;
         bool collided = false;
         RoomCollisionBlock? collisionBlock = null;
+        RoomCollisionBlock? brokenBombBlock = null;
 
         if (acceptedDisplacement != 0)
         {
@@ -96,6 +98,8 @@ public static class SamusBlockCollision
             for (int rowOffset = 0; rowOffset <= verticalSpan; rowOffset++)
             {
                 RoomCollisionBlock block = GetRequiredBlock(level, blockX, topBlockY + rowOffset);
+                if (!TryResolveExtension(level, ref block))
+                    continue;
                 switch (block.CollisionType)
                 {
                     case 0:
@@ -139,6 +143,28 @@ public static class SamusBlockCollision
                         collisionBlock = block;
                         break;
 
+                    case 15:
+                        // `$94:932D` indexes the collision-bomb-block PLM table with BTS
+                        // 0..7. Its setup at `$84:CE83` returns carry (solid) unless Samus
+                        // is speed boosting, screw attacking, or in pose `$C9-$CE`. On an
+                        // accepted break it clears only level_data's high nibble and returns
+                        // carry clear, so this very scan continues through the new air.
+                        if ((block.Behavior & 0x80) != 0 || !canBreakBombBlocks)
+                        {
+                            acceptedDisplacement = ClipHorizontalToSolid(
+                                state,
+                                acceptedDisplacement,
+                                leadingBoundary);
+                            collided = true;
+                            collisionBlock = block;
+                            break;
+                        }
+                        if (block.Behavior > 7)
+                            throw Unsupported(block, "horizontal bomb-block table");
+                        level.ClearCollisionType(block.Index);
+                        brokenBombBlock ??= block;
+                        break;
+
                     default:
                         throw Unsupported(block, "horizontal dispatcher");
                 }
@@ -167,7 +193,8 @@ public static class SamusBlockCollision
             collisionBlock,
             alignment.Adjusted,
             alignment.FloorBlock,
-            alignment.CeilingBlock);
+            alignment.CeilingBlock,
+            brokenBombBlock);
     }
 
     /// <summary>
@@ -179,7 +206,8 @@ public static class SamusBlockCollision
         RoomLevelData level,
         SamusKinematicsState state,
         int displacement,
-        bool scanLeftToRight)
+        bool scanLeftToRight,
+        bool canBreakBombBlocks = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -188,6 +216,7 @@ public static class SamusBlockCollision
         int acceptedDisplacement = displacement;
         bool collided = false;
         RoomCollisionBlock? collisionBlock = null;
+        RoomCollisionBlock? brokenBombBlock = null;
         state.PositionAdjustedBySlope = false;
 
         if (acceptedDisplacement != 0)
@@ -207,6 +236,8 @@ public static class SamusBlockCollision
             {
                 int blockX = scanLeftToRight ? firstBlockX + offset : firstBlockX - offset;
                 RoomCollisionBlock block = GetRequiredBlock(level, blockX, blockY);
+                if (!TryResolveExtension(level, ref block))
+                    continue;
                 switch (block.CollisionType)
                 {
                     case 0:
@@ -254,6 +285,25 @@ public static class SamusBlockCollision
                         collisionBlock = block;
                         break;
 
+                    case 15:
+                        // Vertical dispatch is `$94:934C` and shares the exact bank-$84
+                        // setup/carry contract documented in the horizontal branch above.
+                        if ((block.Behavior & 0x80) != 0 || !canBreakBombBlocks)
+                        {
+                            acceptedDisplacement = ClipVerticalToSolid(
+                                state,
+                                acceptedDisplacement,
+                                leadingBoundary);
+                            collided = true;
+                            collisionBlock = block;
+                            break;
+                        }
+                        if (block.Behavior > 7)
+                            throw Unsupported(block, "vertical bomb-block table");
+                        level.ClearCollisionType(block.Index);
+                        brokenBombBlock ??= block;
+                        break;
+
                     default:
                         throw Unsupported(block, "vertical dispatcher");
                 }
@@ -270,7 +320,8 @@ public static class SamusBlockCollision
             collisionBlock,
             state.PositionAdjustedBySlope,
             FloorSlopeBlock: null,
-            CeilingSlopeBlock: null);
+            CeilingSlopeBlock: null,
+            BrokenBombBlock: brokenBombBlock);
     }
 
     private static (int Displacement, bool Collided) ClipVerticalToNonSquareSlope(
@@ -570,6 +621,46 @@ public static class SamusBlockCollision
         return level.GetCollisionBlock(blockX, blockY);
     }
 
+    /// <summary>
+    /// Follows collision-extension blocks exactly like the `$94:9515/$9535` redispatch
+    /// loop. Type `$5` adds signed BTS horizontally; type `$D` adds signed BTS rows.
+    /// A zero BTS returns carry clear immediately and therefore behaves as air.
+    /// </summary>
+    private static bool TryResolveExtension(
+        RoomLevelData level,
+        ref RoomCollisionBlock block)
+    {
+        int blockCount = checked(level.WidthInBlocks * level.HeightInBlocks);
+        for (int hops = 0; hops < blockCount; hops++)
+        {
+            int delta = block.CollisionType switch
+            {
+                5 when block.Behavior != 0 => unchecked((sbyte)block.Behavior),
+                13 when block.Behavior != 0 =>
+                    unchecked((sbyte)block.Behavior) * level.WidthInBlocks,
+                5 or 13 => 0,
+                _ => int.MinValue,
+            };
+
+            if (delta == int.MinValue)
+                return true;
+            if (delta == 0)
+                return false;
+
+            int targetIndex = block.Index + delta;
+            if ((uint)targetIndex >= (uint)blockCount)
+            {
+                throw new NotSupportedException(
+                    $"Collision extension block {block.Index} type ${block.CollisionType:X1}/" +
+                    $"BTS ${block.Behavior:X2} resolves outside room level data.");
+            }
+            block = level.GetCollisionBlockByIndex(targetIndex);
+        }
+
+        throw new NotSupportedException(
+            $"Collision extension chain beginning at block {block.Index} contains a cycle.");
+    }
+
     private static NotSupportedException Unsupported(RoomCollisionBlock block, string path) =>
         new($"Block {block.Index} type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} requires untranslated {path} behavior.");
 }
@@ -581,4 +672,5 @@ public readonly record struct BlockMoveResult(
     RoomCollisionBlock? CollisionBlock,
     bool PositionAdjustedBySlope,
     RoomCollisionBlock? FloorSlopeBlock,
-    RoomCollisionBlock? CeilingSlopeBlock);
+    RoomCollisionBlock? CeilingSlopeBlock,
+    RoomCollisionBlock? BrokenBombBlock = null);

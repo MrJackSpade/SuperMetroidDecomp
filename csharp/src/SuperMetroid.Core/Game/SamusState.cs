@@ -76,6 +76,30 @@ public sealed class SamusState
     /// <summary>Pose `$C4`: aimed-down moonwalk turn whose terminal jump faces right.</summary>
     public const byte MoonwalkTurnJumpAimDownRightPose = 0xc4;
 
+    /// <summary>Pose `$C7`: right-facing stored-shine windup body.</summary>
+    public const byte ShinesparkWindupRightPose = 0xc7;
+
+    /// <summary>Pose `$C8`: left-facing stored-shine windup body.</summary>
+    public const byte ShinesparkWindupLeftPose = 0xc8;
+
+    /// <summary>Pose `$C9`: horizontal shinespark travelling right.</summary>
+    public const byte ShinesparkHorizontalRightPose = 0xc9;
+
+    /// <summary>Pose `$CA`: horizontal shinespark travelling left.</summary>
+    public const byte ShinesparkHorizontalLeftPose = 0xca;
+
+    /// <summary>Pose `$CB`: vertical shinespark using right-facing metadata.</summary>
+    public const byte ShinesparkVerticalRightPose = 0xcb;
+
+    /// <summary>Pose `$CC`: vertical shinespark using left-facing metadata.</summary>
+    public const byte ShinesparkVerticalLeftPose = 0xcc;
+
+    /// <summary>Pose `$CD`: diagonal up-right shinespark.</summary>
+    public const byte ShinesparkDiagonalRightPose = 0xcd;
+
+    /// <summary>Pose `$CE`: diagonal up-left shinespark.</summary>
+    public const byte ShinesparkDiagonalLeftPose = 0xce;
+
     /// <summary>Pose `$89`: facing right after forward running collides with a wall.</summary>
     public const byte RanIntoWallRightPose = 0x89;
 
@@ -538,6 +562,13 @@ public sealed class SamusState
     /// right-running movement and exposed independently for debugger inspection.
     /// </summary>
     public SamusHorizontalSpeedState HorizontalSpeed { get; } = new();
+
+    /// <summary>
+    /// Stored-shine palette countdown and the special shinespark movement-handler state.
+    /// Its fields map to the reused WRAM words documented on
+    /// <see cref="SamusShinesparkState"/> and remain individually debugger-visible.
+    /// </summary>
+    public SamusShinesparkState Shinespark { get; } = new();
 
     /// <summary>
     /// Compatibility/debugger view of <c>samus_x_speed_divisor</c> at WRAM <c>$0A66</c>.
@@ -1900,6 +1931,64 @@ public sealed class SamusState
     }
 
     /// <summary>
+    /// Applies <c>SamusFunc_F468_NormalJump</c> at <c>$91:F543</c> after a normal-jump
+    /// transition has selected one of the six cartridge-approved launch bodies.
+    /// </summary>
+    /// <remarks>
+    /// This deliberately receives the already-selected target instead of testing the
+    /// transition art `$4B/$4C/$55-$5A`. Native does not consume stored shine when Jump is
+    /// first pressed; it waits until command `$F8/$FD` installs `$4D/$4E/$15/$16/$69/$6A`.
+    /// That delay is visible both to animation and to the 180-frame palette countdown.
+    /// </remarks>
+    private bool TryBeginShinesparkWindup(
+        ISnesAddressSpace bus,
+        byte targetPose,
+        byte previousMovementType)
+    {
+        bool right = targetPose is
+            NeutralJumpRightPose or NormalJumpAimUpRightPose or
+            NormalJumpAimDiagonalUpRightPose;
+        bool left = targetPose is
+            NeutralJumpLeftPose or NormalJumpAimUpLeftPose or
+            NormalJumpAimDiagonalUpLeftPose;
+        if ((!right && !left) || Shinespark.ShineTimer == 0 ||
+            Shinespark.Phase != ShinesparkPhase.Stored)
+        {
+            return false;
+        }
+
+        Pose = right ? ShinesparkWindupRightPose : ShinesparkWindupLeftPose;
+        RefreshCollisionRadii(bus);
+        Shinespark.BeginWindup(this);
+
+        // `$91:F56B-$F575` checks the PREVIOUS movement type and adjusts both current and
+        // previous Y words by one. The host camera captures its previous point outside this
+        // object, so only the live word is written here; the same-frame camera delta remains
+        // one pixel and the following frame starts from the corrected coordinate.
+        if (previousMovementType == 2)
+            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - 1));
+
+        InitializeAnimation(bus, initialFrame: 0);
+        return true;
+    }
+
+    /// <summary>
+    /// Applies a `$C7/$C8 -> $C9-$CE` input-table match and installs its exact special
+    /// movement handler. No ordinary jump velocity or grounded momentum routine runs.
+    /// </summary>
+    public void ApplyShinesparkDirectionTransition(ISnesAddressSpace bus, byte targetPose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if (Pose is not (ShinesparkWindupRightPose or ShinesparkWindupLeftPose))
+        {
+            throw new InvalidOperationException(
+                $"Directional shinespark transition requires windup pose, not ${Pose:X2}.");
+        }
+
+        Shinespark.BeginDirectionalLaunch(bus, this, targetPose);
+    }
+
+    /// <summary>
     /// Applies the verified ordinary-input jump transitions selected from the cartridge's
     /// bank-$91 table, including <c>HandleJumpTransition</c>'s call to
     /// <c>Make_Samus_Jump</c>. Only the four no-equipment/no-aim routes admitted by the
@@ -2129,6 +2218,12 @@ public sealed class SamusState
 
         if (startsCrouching)
         {
+            // `Samus_CrouchTrans` at `$91:F7B0` samples the high stage byte before later
+            // posture movement can cancel running momentum. A stage-four crouch therefore
+            // banks 180 palette-handler ticks even though the following stable crouch has
+            // no horizontal Speed Booster state of its own.
+            Shinespark.TryStoreFromSpeedBooster(HorizontalSpeed.SpeedBoostCounter);
+
             Pose = targetPose;
             RefreshCollisionRadii(bus);
 
@@ -2710,7 +2805,19 @@ public sealed class SamusState
 
         bool startsMoonwalkJump = IsMoonwalkTurnJumpPose(Pose) &&
             targetPose is SpinJumpRightPose or SpinJumpLeftPose;
-        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Animation command");
+        byte sourcePose = Pose;
+        byte previousMovementType = ReadMovementType(bus, sourcePose);
+
+        // `$91:F404` runs movement-type initialization after the animation command has
+        // selected the new normal-jump pose but before it initializes that pose's frame.
+        // A live stored shine replaces the target with `$C7/$C8`, so never briefly seed
+        // `$4D/$4E/$15/$16/$69/$6A` animation state in this branch.
+        bool beganShinespark = TryBeginShinesparkWindup(
+            bus,
+            targetPose,
+            previousMovementType);
+        if (!beganShinespark)
+            ApplySimpleGroundedPoseChange(bus, sourcePose, targetPose, "Animation command");
         if (startsMoonwalkJump)
             SamusAerialMovement.InitializeDryAirJump(bus, this);
         MorphBallBounceState = 0;
@@ -3048,7 +3155,8 @@ public sealed class SamusState
         int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
         byte movementType = bus.ReadByte(AddWithinBank(poseDefinition, 1));
         if (movementType is not (0 or 1 or 2 or 3 or 4 or 5 or 6 or 8 or 0x0a or
-            0x0e or 0x0f or 0x10 or 0x11 or 0x12 or 0x13 or 0x14 or 0x15 or 0x16 or 0x17 or 0x18 or 0x19))
+            0x0e or 0x0f or 0x10 or 0x11 or 0x12 or 0x13 or 0x14 or 0x15 or 0x16 or
+            0x17 or 0x18 or 0x19 or 0x1b))
         {
             throw new NotSupportedException(
                 $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");
@@ -3108,8 +3216,12 @@ public sealed class SamusState
             AnimationFrame < 3 || AnimationFrame >= 0x0d;
         bool damageBoostBottom = movementType != 0x19 ||
             AnimationFrame < 2 || AnimationFrame >= 9;
+        // `$90:8790` draws the split bottom for `$C7-$CA/$CD/$CE` but suppresses it for
+        // vertical `$CB/$CC`, whose top spritemap contains the complete streamlined body.
+        bool shinesparkBottom = movementType != 0x1b ||
+            Pose is not (ShinesparkVerticalRightPose or ShinesparkVerticalLeftPose);
         bool drawBottom = movementType is not (4 or 8 or 0x11 or 0x12 or 0x13) &&
-            ordinarySpinBottom && wallJumpBottom && damageBoostBottom;
+            ordinarySpinBottom && wallJumpBottom && damageBoostBottom && shinesparkBottom;
         // The native bottom selector clears this word when a complete top-half frame does
         // not need a bottom. Clearing it here also prevents the following echo renderer
         // from reusing a bottom spritemap left by an earlier animation frame.
@@ -3169,6 +3281,71 @@ public sealed class SamusState
             HorizontalSpeed.FirstSpeedEchoYPosition,
             layer1X,
             layer1Y);
+    }
+
+    /// <summary>
+    /// Ports `$90:88BA/$90:EBF3`: on odd NMI frames, draw both crash-orbit copies after
+    /// the real Samus body using the current pose/frame spritemaps.
+    /// </summary>
+    public void DrawShinesparkCrashEchoes(
+        ISnesAddressSpace bus,
+        OamBuffer oam,
+        ushort layer1X,
+        ushort layer1Y,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(oam);
+        if ((nmiFrameCounter & 1) == 0 ||
+            Shinespark.Phase is not (ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle))
+        {
+            return;
+        }
+
+        // Slot one precedes slot zero just like native's X=2,0 loop.
+        DrawActiveSpeedBoosterEcho(
+            bus, oam,
+            HorizontalSpeed.SecondSpeedEchoXPosition,
+            HorizontalSpeed.SecondSpeedEchoYPosition,
+            layer1X, layer1Y);
+        DrawActiveSpeedBoosterEcho(
+            bus, oam,
+            HorizontalSpeed.FirstSpeedEchoXPosition,
+            HorizontalSpeed.FirstSpeedEchoYPosition,
+            layer1X, layer1Y);
+    }
+
+    /// <summary>
+    /// Ports <c>Samus_DrawShinesparkCrashEchoProjectiles</c> at <c>$90:8953</c>. These
+    /// copies are ordinary projectile-phase visuals after the centered crash circle ends.
+    /// </summary>
+    public void DrawReleasedShinesparkCrashEchoes(
+        ISnesAddressSpace bus,
+        OamBuffer oam,
+        ushort layer1X,
+        ushort layer1Y,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(oam);
+        if ((nmiFrameCounter & 1) == 0)
+            return;
+
+        // `$90:8953` tests/draws fixed slot four (speed echo index three) before fixed
+        // slot three (index two). That ordering controls OAM priority when copies overlap.
+        ShinesparkReleasedEcho second = Shinespark.SecondReleasedCrashEcho;
+        if (second.Active)
+        {
+            DrawActiveSpeedBoosterEcho(
+                bus, oam, second.XPosition, second.YPosition, layer1X, layer1Y);
+        }
+
+        ShinesparkReleasedEcho first = Shinespark.FirstReleasedCrashEcho;
+        if (first.Active)
+        {
+            DrawActiveSpeedBoosterEcho(
+                bus, oam, first.XPosition, first.YPosition, layer1X, layer1Y);
+        }
     }
 
     private void DrawActiveSpeedBoosterEcho(

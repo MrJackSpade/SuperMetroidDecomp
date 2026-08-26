@@ -14,7 +14,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$00` | Standing | `$01-$08`, landing `$A4-$A7/$E0-$E5` | Firing variants, forward pose, transitions from later systems |
 | `$01` | Running | `$09/$0A/$0D-$12`, dry air, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes | Liquid/environment effects, gun-extended/fire variants |
 | `$02` | Normal jumping | `$4B-$4E/$15-$18/$51-$52/$55-$5A/$69-$6C`, including compact straight-down collision changes, dry air, variable height, ceiling/floor collision | Equipment/liquids, external displacement |
-| `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation, block-wall contact/launch | Solid-enemy wall contact, space/screw spin poses, liquids |
+| `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, dry air, variable height/repeat window, split-body animation, damage/palette, block-wall contact/launch | Solid-enemy wall contact, liquids |
 | `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, dry ground, slopes, reversal, deceleration, walk-off, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
 | `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry | Fire variants and morph entry |
 | `$06` | Falling | `$29-$2E/$6D-$70`, including compact straight-down collision changes, walk-off, dry-air gravity, landing, and aerial-turn entry | Equipment/liquids |
@@ -297,6 +297,22 @@ translated status is documented with the Morph Ball family below.
   collision command five clears both velocity axes. Both jump and falling compact records
   continue through their existing movement-type-two/six gravity, camera, and draw paths.
 
+## Verified Space Jump and Screw Attack slice
+
+- `$91:F624` selects `$81/$82` when Screw bit `$0008` is equipped, otherwise `$1B/$1C`
+  when Space Jump bit `$0200` is equipped. Initial grounded spins start at frame zero;
+  spin/wall direction changes accept both generic and specialized ROM targets and start at one.
+- `$90:A436` accepts a fresh Jump edge only while falling and while the unaligned 8.8 Y
+  magnitude is at least `$0280` and below `$0500`. Both item bits retain Space Jump physics
+  while Screw art wins priority and republishes contact-damage index three every spin frame.
+- Ordinary and Space Jump wall contact rewind to frame ten; Screw Attack rewinds to 26 and
+  reaches eligibility/palette cycling at 27. Screw and Space bottom halves use their native
+  always-drawn rule. Landing and wall-jump exit restore the normal suit palette.
+- Synthetic checks cover both velocity boundaries, held-versus-new input, equipment priority,
+  specialized direction targets, contact damage, wall frames, six palette pointers/wrap, and
+  landing restoration. The private-ROM routes freeze `$1B` and frame-27 `$82` against live
+  Landing Site terrain and require every reachable pose/physics/palette milestone.
+
 ## Verified aerial-turn and wall-jump slice
 
 - Opposite-direction input from every admitted normal-jump/falling aim family publishes
@@ -538,6 +554,6 @@ translated status is documented with the Morph Ball family below.
 
 1. Grapple breakable PLMs, spike damage, and liquid/solid-enemy wall-jump branches.
 2. Crystal flash/drained and remaining scripted movement.
-3. Space-jump/Screw-Attack spin families, liquids, and solid-enemy collision routes.
+3. Liquid physics and solid-enemy collision routes for the completed spin families.
 4. Enemy collision/damage producers so knockback and grapple begin from live actors instead of host seams.
 5. Return with bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.

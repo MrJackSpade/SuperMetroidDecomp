@@ -35,6 +35,8 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton holdAimDownButton = new("Hold Aim Down");
     private readonly ToolStripButton moonwalkButton = new("Moonwalk enabled");
     private readonly ToolStripButton springBallButton = new("Spring Ball equipped");
+    private readonly ToolStripButton spaceJumpButton = new("Space Jump equipped");
+    private readonly ToolStripButton screwAttackButton = new("Screw Attack equipped");
     private readonly ToolStripButton speedBoosterButton = new("Speed Booster equipped");
     private readonly ToolStripButton livePpuLayersButton = new("Live PPU layers");
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 16 };
@@ -124,6 +126,37 @@ internal sealed class RuntimePreviewControl : UserControl
             else
                 runtime.Samus.EquippedItems &= unchecked((ushort)~0x0002);
         };
+        spaceJumpButton.CheckOnClick = true;
+        spaceJumpButton.ToolTipText =
+            "Toggles item bit $0200. While descending, release and freshly press Jump inside the native velocity window to jump again.";
+        spaceJumpButton.CheckedChanged += (_, _) =>
+        {
+            // Pause/equipment normalization is not translated yet. This debug switch owns
+            // exactly Space Jump bit `$0200`; the next spin launch reads it through the
+            // native `$91:F624` selector. Toggling during a spin changes repeat permission
+            // immediately, just as the movement handler's direct equipment test does.
+            if (runtime?.Samus is null || !groundedRunScenario)
+                return;
+            if (spaceJumpButton.Checked)
+                runtime.Samus.EquippedItems |= 0x0200;
+            else
+                runtime.Samus.EquippedItems &= unchecked((ushort)~0x0200);
+        };
+        screwAttackButton.CheckOnClick = true;
+        screwAttackButton.ToolTipText =
+            "Toggles item bit $0008. Screw Attack takes pose priority over Space Jump; toggle before jumping or restart the sandbox.";
+        screwAttackButton.CheckedChanged += (_, _) =>
+        {
+            // The real pause close routine also rewrites a currently spinning pose. Until
+            // that pause seam exists, keep the debug mutation explicit and narrow: it
+            // affects the next equipment-aware spin transition and never fabricates art.
+            if (runtime?.Samus is null || !groundedRunScenario)
+                return;
+            if (screwAttackButton.Checked)
+                runtime.Samus.EquippedItems |= 0x0008;
+            else
+                runtime.Samus.EquippedItems &= unchecked((ushort)~0x0008);
+        };
         speedBoosterButton.CheckOnClick = true;
         speedBoosterButton.ToolTipText =
             "Toggles item bit $2000. Hold Run plus a direction to charge; crouch at stage four to store shine, then Jump and tap a direction during windup.";
@@ -208,6 +241,8 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(holdAimDownButton);
         toolStrip.Items.Add(moonwalkButton);
         toolStrip.Items.Add(springBallButton);
+        toolStrip.Items.Add(spaceJumpButton);
+        toolStrip.Items.Add(screwAttackButton);
         toolStrip.Items.Add(speedBoosterButton);
         toolStrip.Items.Add(livePpuLayersButton);
         toolStrip.Items.Add(new ToolStripSeparator());
@@ -223,6 +258,12 @@ internal sealed class RuntimePreviewControl : UserControl
         // can exercise the newly translated route immediately; unchecking it still removes
         // only retail inventory bit `$2000` and cancels the corresponding momentum state.
         speedBoosterButton.Checked = true;
+
+        // Space Jump is useful only after an ordinary jump has entered its descending
+        // window, so grant it by default in the debugger sandbox. Screw Attack remains off
+        // by default, making both `$1B/$1C` art and repeat timing immediately inspectable;
+        // checking Screw demonstrates its native priority without requiring a new build.
+        spaceJumpButton.Checked = true;
 
         var layout = new TableLayoutPanel
         {
@@ -287,6 +328,10 @@ internal sealed class RuntimePreviewControl : UserControl
             runtime.Samus!.EquippedItems |= 0x1004;
             if (springBallButton.Checked)
                 runtime.Samus.EquippedItems |= 0x0002;
+            if (spaceJumpButton.Checked)
+                runtime.Samus.EquippedItems |= 0x0200;
+            if (screwAttackButton.Checked)
+                runtime.Samus.EquippedItems |= 0x0008;
             if (speedBoosterButton.Checked)
                 runtime.Samus.EquippedItems |= 0x2000;
         }

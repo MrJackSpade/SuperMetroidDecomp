@@ -144,6 +144,17 @@ public static class SamusAerialMovement
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementType(bus) != 3)
             throw new InvalidOperationException($"Spin-jump movement requires type 3, not ${samus.ReadMovementType(bus):X2}.");
+
+        // `$90:A436-$90:A4CB` runs this before ordinary spin movement. Space Jump is not a
+        // host-side double-jump: it only accepts a fresh Jump edge while descending and
+        // while the split Y magnitude lies inside the cartridge's dry-air 8.8 window.
+        TryRestartDryAirSpaceJump(bus, samus, controllerNewInput);
+
+        // Screw Attack's damaging body is republished every eligible dry-air spin frame.
+        // The common runtime clears this word before movement, mirroring `$90:E725`.
+        if (SamusState.IsScrewAttackPose(samus.Pose))
+            samus.HorizontalSpeed.ContactDamageIndex = 3;
+
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 3,
             controllerInput,
@@ -524,7 +535,10 @@ public static class SamusAerialMovement
             return default;
 
         ushort distance = unchecked((ushort)Math.Abs(probe.AcceptedDisplacement >> 16));
-        if (samus.AnimationFrame < 0x0b)
+        ushort firstEligibleFrame = SamusState.IsScrewAttackPose(samus.Pose)
+            ? (ushort)0x1b
+            : (ushort)0x0b;
+        if (samus.AnimationFrame < firstEligibleFrame)
         {
             samus.ApplyWallContactAnimationRewind();
             return new WallJumpCheckResult(Triggered: false, Contact: true, Distance: distance);
@@ -533,6 +547,42 @@ public static class SamusAerialMovement
         bool jumpNew = (controllerNewInput & (ushort)SnesButton.A) != 0;
         bool triggered = jumpNew && distance < 8;
         return new WallJumpCheckResult(triggered, Contact: true, distance);
+    }
+
+    /// <summary>
+    /// Ports the dry-air Space Jump gate inside <c>Samus_Movement_03_SpinJumping</c> at
+    /// <c>$90:A46B-$90:A4A2</c>. Screw Attack can use this physics when both item bits are
+    /// equipped even though its visible pose is `$81/$82`.
+    /// </summary>
+    private static bool TryRestartDryAirSpaceJump(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        ushort controllerNewInput)
+    {
+        if ((samus.EquippedItems & 0x0200) == 0 ||
+            samus.Kinematics.YDirection != 2)
+        {
+            return false;
+        }
+
+        // The 65816 reads a deliberately unaligned word beginning at `$0B2D`: the high
+        // byte of Y subspeed followed by the low byte of whole Y speed. In host terms that
+        // is the magnitude converted from 16.16 to 8.8 without rounding.
+        ushort fallingVelocity8_8 = unchecked((ushort)(
+            (samus.Kinematics.YSpeed << 8) |
+            (samus.Kinematics.YSubspeed >> 8)));
+        bool atOrAboveMinimum = unchecked((short)(fallingVelocity8_8 - 0x0280)) >= 0;
+        bool belowMaximum = unchecked((short)(fallingVelocity8_8 - 0x0500)) < 0;
+        if (!atOrAboveMinimum || !belowMaximum ||
+            (controllerNewInput & (ushort)SnesButton.A) == 0)
+        {
+            return false;
+        }
+
+        // This is the same Samus_InitJump used by a grounded launch: ROM-authored initial
+        // magnitude, Speed Booster's split-word bonus, dry-air gravity, and upward direction.
+        SamusAerialMovement.InitializeDryAirJump(bus, samus);
+        return true;
     }
 
     private static int CalculateDirectedDisplacement(

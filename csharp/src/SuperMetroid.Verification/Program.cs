@@ -30,6 +30,7 @@ VerifySamusPoseTransitionMatching();
 VerifySamusHorizontalSpeed();
 VerifySamusStoredShineAndShinespark();
 VerifySamusAerialMovement();
+VerifySamusSpaceJumpAndScrewAttack();
 VerifySamusAerialTurnsAndWallJump();
 VerifySamusKnockbackAndDamageBoost();
 VerifySamusGrappleSwingAndRelease();
@@ -954,7 +955,8 @@ static void VerifySamusHorizontalSpeed()
     WriteTestWord(bus, 0x9b9400, 0x0321);
 
     var boostCgram = new SnesCgram();
-    AssertTrue(booster.UpdateSpeedBoosterPalette(bus, boostCgram, movementType: 1, equippedItems: 0x2000),
+    AssertTrue(booster.UpdateSpeedBoosterPalette(
+        bus, boostCgram, movementType: 1, animationFrame: 0, equippedItems: 0x2000),
         "stage-four palette timer one copies immediately");
     AssertEqual((ushort)0x1234, boostCgram.Colors[192], "first Speed Booster palette comes from bank $9B");
     AssertEqual((ushort)2, booster.SpecialPaletteFrame, "Speed Booster palette advances to pointer offset two");
@@ -962,10 +964,11 @@ static void VerifySamusHorizontalSpeed()
     for (int paletteTick = 0; paletteTick < 3; paletteTick++)
     {
         AssertTrue(!booster.UpdateSpeedBoosterPalette(
-            bus, boostCgram, movementType: 1, equippedItems: 0x2000),
+            bus, boostCgram, movementType: 1, animationFrame: 0, equippedItems: 0x2000),
             "Speed Booster palette waits during positive timer");
     }
-    AssertTrue(booster.UpdateSpeedBoosterPalette(bus, boostCgram, movementType: 1, equippedItems: 0x2000),
+    AssertTrue(booster.UpdateSpeedBoosterPalette(
+        bus, boostCgram, movementType: 1, animationFrame: 0, equippedItems: 0x2000),
         "fourth Speed Booster palette tick copies next frame");
     AssertEqual((ushort)0x4567, boostCgram.Colors[192], "second Speed Booster palette pointer");
 
@@ -1062,7 +1065,8 @@ static void VerifySamusHorizontalSpeed()
     AssertEqual((ushort)0, leftDeparture.SpeedEchoIndex,
         "left departure clears shared index after both slots cross");
 
-    AssertTrue(booster.UpdateSpeedBoosterPalette(bus, boostCgram, movementType: 0, equippedItems: 0x2000),
+    AssertTrue(booster.UpdateSpeedBoosterPalette(
+        bus, boostCgram, movementType: 0, animationFrame: 0, equippedItems: 0x2000),
         "cancel copies normal suit palette through runtime seam");
     AssertEqual((ushort)0x0321, boostCgram.Colors[192], "cancel restores ROM-authored Power Suit palette");
     AssertTrue(!booster.NormalSuitPaletteRestoreRequested, "normal-suit palette request is one-shot");
@@ -1656,6 +1660,208 @@ static void VerifySamusAerialMovement()
     AssertEqual((byte)0xa5, fallLeft.Pose, "left fall selects normal landing pose");
 
     Console.WriteLine("  Samus aerial: FD launch, exact 16.16 arc, jump cut, floor landing, radius, and F8 agree.");
+}
+
+/// <summary>
+/// Exercises the equipment-aware spin initializer, every edge of the dry-air Space Jump
+/// velocity window, Screw Attack contact/wall frames, and both bank-$91/bank-$9B palette
+/// indirections. These checks deliberately keep Space Jump physics independent from the
+/// visible Screw Attack pose used when both retail item bits are equipped.
+/// </summary>
+static void VerifySamusSpaceJumpAndScrewAttack()
+{
+    var bus = new TestAddressSpace();
+
+    // All six stable spin records share movement type three and radius twelve. The generic
+    // `$19/$1A` records are transition-table outputs; the four equipment records are the
+    // actual bodies selected by `$91:F624` after that table lookup.
+    foreach ((byte pose, byte direction) in new (byte, byte)[]
+    {
+        (SamusState.SpinJumpRightPose, 8),
+        (SamusState.SpinJumpLeftPose, 4),
+        (SamusState.SpaceJumpRightPose, 8),
+        (SamusState.SpaceJumpLeftPose, 4),
+        (SamusState.ScrewAttackRightPose, 8),
+        (SamusState.ScrewAttackLeftPose, 4),
+    })
+    {
+        bus.WriteBytes(0x91b629 + pose * 8, [direction, 3, 0xff, 0xff, 0, 0, 12, 0]);
+        ushort stream = unchecked((ushort)(0xc000 + pose * 0x20));
+        WriteTestWord(bus, 0x91b010 + pose * 2, stream);
+        for (int frame = 0; frame < 31; frame++)
+            bus.WriteByte(0x910000 | unchecked((ushort)(stream + frame)), 4);
+    }
+
+    // Running sources and spin-landing endpoints are sufficient to prove equipment
+    // substitution and Screw palette restoration without mocking pose metadata in code.
+    bus.WriteBytes(0x91b629 + SamusState.MovingRightNormalPose * 8,
+        [8, 1, 0xff, 2, 0, 0, 21, 0]);
+    bus.WriteBytes(0x91b629 + SamusState.MovingLeftNormalPose * 8,
+        [4, 1, 0xff, 7, 0, 0, 21, 0]);
+    bus.WriteBytes(0x91b629 + SamusState.SpinLandingRightPose * 8,
+        [8, 0, 0xff, 2, 0, 0, 21, 0]);
+    bus.WriteBytes(0x91b629 + SamusState.SpinLandingLeftPose * 8,
+        [4, 0, 0xff, 7, 0, 0, 21, 0]);
+    WriteTestWord(bus, 0x91b010 + SamusState.SpinLandingRightPose * 2, 0xc800);
+    WriteTestWord(bus, 0x91b010 + SamusState.SpinLandingLeftPose * 2, 0xc810);
+    bus.WriteByte(0x91c800, 4);
+    bus.WriteByte(0x91c810, 4);
+
+    // Dry-air Samus_InitJump and gravity words. The type-three horizontal record is zeroed
+    // intentionally so the assertions isolate the vertical 8.8 gate from X acceleration.
+    WriteTestWord(bus, 0x909eb9, 4);
+    WriteTestWord(bus, 0x909ebf, 0xe000);
+    WriteTestWord(bus, 0x909ea1, 0x2800);
+    WriteTestWord(bus, 0x909ea7, 0);
+    for (int byteOffset = 0; byteOffset < SpeedTableEntry.ByteCount; byteOffset += 2)
+        WriteTestWord(bus, 0x909f79 + byteOffset, 0);
+
+    var empty = new RoomLevelData(
+        16,
+        16,
+        new ushort[16 * 16],
+        new byte[16 * 16],
+        new ushort[16 * 16],
+        new byte[8]);
+
+    var spaceLaunch = new SamusState
+    {
+        Pose = SamusState.MovingRightNormalPose,
+        EquippedItems = 0x0200,
+        XPosition = 128,
+        YPosition = 128,
+    };
+    spaceLaunch.ApplyOrdinaryJumpTransition(bus, SamusState.SpinJumpRightPose);
+    AssertEqual(SamusState.SpaceJumpRightPose, spaceLaunch.Pose,
+        "Space Jump substitutes right spin pose");
+
+    var screwLaunch = new SamusState
+    {
+        Pose = SamusState.MovingLeftNormalPose,
+        EquippedItems = 0x0208,
+        XPosition = 128,
+        YPosition = 128,
+    };
+    screwLaunch.ApplyOrdinaryJumpTransition(bus, SamusState.SpinJumpLeftPose);
+    AssertEqual(SamusState.ScrewAttackLeftPose, screwLaunch.Pose,
+        "Screw Attack takes priority over Space Jump pose");
+
+    // `$81/$82` have their own retail input tables, so an opposite-direction match may
+    // publish the specialized target directly rather than generic `$19/$1A`. The common
+    // F624 initializer must accept that record, preserve Screw's equipment priority, and
+    // still start a direction change at animation frame one.
+    screwLaunch.ApplySpinJumpDirectionTransition(bus, SamusState.ScrewAttackRightPose);
+    AssertEqual(SamusState.ScrewAttackRightPose, screwLaunch.Pose,
+        "direct Screw table target preserves equipped art");
+    AssertEqual((ushort)1, screwLaunch.AnimationFrame,
+        "direct Screw direction transition starts at frame one");
+
+    static SamusState CreateFallingSpin(byte pose, ushort items, ushort speed, ushort subspeed) => new()
+    {
+        Pose = pose,
+        EquippedItems = items,
+        XPosition = 128,
+        YPosition = 128,
+        Kinematics =
+        {
+            YDirection = 2,
+            YSpeed = speed,
+            YSubspeed = subspeed,
+            YAcceleration = 0,
+            YSubacceleration = 0x2800,
+            XRadius = 5,
+            YRadius = 12,
+        },
+    };
+
+    // `$0280` is inclusive. A fresh edge restarts at 4.E000, moves upward by that OLD
+    // magnitude, then stores 4.B800 after the shared spin routine subtracts gravity.
+    SamusState minimum = CreateFallingSpin(
+        SamusState.SpaceJumpRightPose, 0x0200, speed: 2, subspeed: 0x8000);
+    SamusAerialMovement.StepSpinJump(
+        bus,
+        empty,
+        minimum,
+        (ushort)SnesButton.A,
+        nmiFrameCounter: 0,
+        controllerNewInput: (ushort)SnesButton.A);
+    AssertEqual((ushort)1, minimum.Kinematics.YDirection, "Space Jump minimum velocity restarts upward");
+    AssertEqual((ushort)4, minimum.Kinematics.YSpeed, "Space Jump restart whole speed");
+    AssertEqual((ushort)0xb800, minimum.Kinematics.YSubspeed, "Space Jump restart applies gravity after movement");
+    AssertEqual((ushort)123, minimum.YPosition, "Space Jump restart moves by old 4.E000 magnitude");
+
+    SamusState below = CreateFallingSpin(
+        SamusState.SpaceJumpRightPose, 0x0200, speed: 2, subspeed: 0x7fff);
+    SamusAerialMovement.StepSpinJump(
+        bus, empty, below, (ushort)SnesButton.A, 0, (ushort)SnesButton.A);
+    AssertEqual((ushort)2, below.Kinematics.YDirection, "Space Jump rejects velocity $027F");
+
+    SamusState maximum = CreateFallingSpin(
+        SamusState.SpaceJumpRightPose, 0x0200, speed: 5, subspeed: 0);
+    SamusAerialMovement.StepSpinJump(
+        bus, empty, maximum, (ushort)SnesButton.A, 0, (ushort)SnesButton.A);
+    AssertEqual((ushort)2, maximum.Kinematics.YDirection, "Space Jump maximum $0500 is exclusive");
+
+    SamusState heldOnly = CreateFallingSpin(
+        SamusState.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
+    SamusAerialMovement.StepSpinJump(bus, empty, heldOnly, (ushort)SnesButton.A, 0);
+    AssertEqual((ushort)2, heldOnly.Kinematics.YDirection, "Space Jump requires a fresh Jump edge");
+
+    // Both item bits retain Space Jump physics while Screw Attack owns art and damage.
+    SamusState screwRepeat = CreateFallingSpin(
+        SamusState.ScrewAttackRightPose, 0x0208, speed: 3, subspeed: 0);
+    SamusAerialMovement.StepSpinJump(
+        bus, empty, screwRepeat, (ushort)SnesButton.A, 0, (ushort)SnesButton.A);
+    AssertEqual((ushort)1, screwRepeat.Kinematics.YDirection,
+        "Screw Attack with Space Jump repeats upward");
+    AssertEqual((ushort)3, screwRepeat.HorizontalSpeed.ContactDamageIndex,
+        "Screw Attack republishes contact damage index three");
+
+    screwRepeat.AnimationFrame = 4;
+    screwRepeat.ApplyWallContactAnimationRewind();
+    AssertEqual((ushort)0x1a, screwRepeat.AnimationFrame,
+        "early Screw wall contact rewinds to frame 26");
+    minimum.AnimationFrame = 4;
+    minimum.ApplyWallContactAnimationRewind();
+    AssertEqual((ushort)0x0a, minimum.AnimationFrame,
+        "Space Jump wall contact uses ordinary frame 10 rewind");
+
+    // Three suit-list entries exist in retail; this fixture exercises Power Suit offset
+    // zero and gives all six Screw frames unique first colors to prove wrapping order.
+    WriteTestWord(bus, 0x91d727, 0x9400);
+    WriteTestWord(bus, 0x9b9400, 0x0111);
+    WriteTestWord(bus, 0x91da4a, 0xd000);
+    for (int frame = 0; frame < 6; frame++)
+    {
+        ushort palette = unchecked((ushort)(0xe000 + frame * 0x20));
+        WriteTestWord(bus, 0x91d000 + frame * 2, palette);
+        WriteTestWord(bus, 0x9b0000 | palette, unchecked((ushort)(0x1200 + frame)));
+    }
+
+    var palettes = new SamusHorizontalSpeedState();
+    var cgram = new SnesCgram();
+    AssertTrue(palettes.UpdateSpeedBoosterPalette(
+        bus, cgram, movementType: 3, animationFrame: 1, equippedItems: 0x0008),
+        "early Screw frame copies normal suit palette");
+    AssertEqual((ushort)0x0111, cgram.Colors[192], "early Screw frame normal palette");
+    for (int frame = 0; frame < 6; frame++)
+    {
+        AssertTrue(palettes.UpdateSpeedBoosterPalette(
+            bus, cgram, movementType: 3, animationFrame: 0x1b, equippedItems: 0x0008),
+            $"Screw palette frame {frame} copies");
+        AssertEqual(unchecked((ushort)(0x1200 + frame)), cgram.Colors[192],
+            $"Screw palette frame {frame} ROM color");
+    }
+    AssertEqual((ushort)0, palettes.SpecialPaletteFrame, "six Screw palettes wrap to offset zero");
+
+    // A Screw landing requests the same normal palette reload performed by `$91:F433`.
+    screwRepeat.ApplyAerialLanding(bus, wasSpinning: true);
+    AssertEqual(SamusState.SpinLandingRightPose, screwRepeat.Pose, "Screw Attack lands through spin landing");
+    AssertTrue(screwRepeat.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
+        "Screw Attack landing requests normal palette restore");
+
+    Console.WriteLine(
+        "  Space Jump/Screw Attack: pose priority, repeat window, damage, wall frames, palette cycle, and landing agree.");
 }
 
 /// <summary>

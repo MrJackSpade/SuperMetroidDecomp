@@ -1143,6 +1143,10 @@ public sealed class SuperMetroidRuntime
                         break;
                     case SamusState.SpinJumpRightPose:
                     case SamusState.SpinJumpLeftPose:
+                    case SamusState.SpaceJumpRightPose:
+                    case SamusState.SpaceJumpLeftPose:
+                    case SamusState.ScrewAttackRightPose:
+                    case SamusState.ScrewAttackLeftPose:
                         LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(
                             _addressSpace,
                             LevelData,
@@ -1382,8 +1386,7 @@ public sealed class SuperMetroidRuntime
                     }
                     else
                     {
-                        bool wasSpinning = poseAtFrameStart is
-                            SamusState.SpinJumpRightPose or SamusState.SpinJumpLeftPose ||
+                        bool wasSpinning = SamusState.IsSpinJumpPose(poseAtFrameStart) ||
                             SamusState.IsWallJumpPose(poseAtFrameStart);
                         Samus.ApplyAerialLanding(_addressSpace, wasSpinning);
                     }
@@ -1507,10 +1510,10 @@ public sealed class SuperMetroidRuntime
                                     target,
                                     NmiFrameCounter);
                                 break;
-                            case (SamusState.SpinJumpRightPose, SamusState.SpinJumpLeftPose):
-                            case (SamusState.SpinJumpLeftPose, SamusState.SpinJumpRightPose):
-                            case (SamusState.WallJumpRightPose, SamusState.SpinJumpLeftPose):
-                            case (SamusState.WallJumpLeftPose, SamusState.SpinJumpRightPose):
+                            case var (source, target)
+                                when (SamusState.IsSpinJumpPose(source) ||
+                                      SamusState.IsWallJumpPose(source)) &&
+                                     SamusState.IsSpinJumpPose(target):
                                 Samus.ApplySpinJumpDirectionTransition(_addressSpace, targetPose);
                                 break;
                             case var (source, target)
@@ -1949,6 +1952,7 @@ public sealed class SuperMetroidRuntime
                 _addressSpace,
                 Cgram,
                 Samus.ReadMovementType(_addressSpace),
+                Samus.AnimationFrame,
                 Samus.EquippedItems,
                 suppressActiveSpeedBoosterPalette: Samus.Shinespark.PaletteType != 0);
             // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They

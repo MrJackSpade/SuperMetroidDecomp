@@ -130,6 +130,25 @@ public sealed class SamusState
     /// <summary>Pose $1A is the ordinary left-facing spin jump.</summary>
     public const byte SpinJumpLeftPose = 0x1a;
 
+    /// <summary>
+    /// Pose `$1B` is the right-facing Space Jump body. The equipment-aware movement-type
+    /// initializer at `$91:F624` substitutes this for the transition table's ordinary
+    /// `$19` target when Space Jump is equipped and Screw Attack is not.
+    /// </summary>
+    public const byte SpaceJumpRightPose = 0x1b;
+
+    /// <summary>Pose `$1C` is the left-facing mirror of <see cref="SpaceJumpRightPose"/>.</summary>
+    public const byte SpaceJumpLeftPose = 0x1c;
+
+    /// <summary>
+    /// Pose `$81` is the right-facing Screw Attack body. Screw Attack bit `$0008` has
+    /// priority over Space Jump bit `$0200` in the native spin-pose selector.
+    /// </summary>
+    public const byte ScrewAttackRightPose = 0x81;
+
+    /// <summary>Pose `$82` is the left-facing mirror of <see cref="ScrewAttackRightPose"/>.</summary>
+    public const byte ScrewAttackLeftPose = 0x82;
+
     /// <summary>Pose $2F turns a right-facing normal jump toward the left.</summary>
     public const byte TurningRightToLeftJumpPose = 0x2f;
 
@@ -948,6 +967,24 @@ public sealed class SamusState
     public static bool IsWallJumpPose(byte pose) => pose is WallJumpRightPose or WallJumpLeftPose;
 
     /// <summary>
+    /// True for all six stable movement-type-three spin bodies. The transition tables use
+    /// `$19/$1A` as generic outputs; `$91:F624` can then substitute Space Jump or Screw
+    /// Attack without changing the movement dispatcher.
+    /// </summary>
+    public static bool IsSpinJumpPose(byte pose) => pose is
+        SpinJumpRightPose or SpinJumpLeftPose or
+        SpaceJumpRightPose or SpaceJumpLeftPose or
+        ScrewAttackRightPose or ScrewAttackLeftPose;
+
+    /// <summary>True only for the two Screw Attack animation records `$81/$82`.</summary>
+    public static bool IsScrewAttackPose(byte pose) => pose is
+        ScrewAttackRightPose or ScrewAttackLeftPose;
+
+    /// <summary>True only for the two Space Jump animation records `$1B/$1C`.</summary>
+    public static bool IsSpaceJumpPose(byte pose) => pose is
+        SpaceJumpRightPose or SpaceJumpLeftPose;
+
+    /// <summary>
     /// True only for the admitted movement-type-$0F crouch/stand animation records.
     /// Morph/unmorph records share that dispatcher but are intentionally not hidden here.
     /// </summary>
@@ -1736,8 +1773,8 @@ public sealed class SamusState
     public void ApplySpinJumpDirectionTransition(ISnesAddressSpace bus, byte targetPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if (targetPose is not (SpinJumpRightPose or SpinJumpLeftPose) ||
-            (!IsWallJumpPose(Pose) && Pose is not (SpinJumpRightPose or SpinJumpLeftPose)))
+        if (!IsSpinJumpPose(targetPose) ||
+            (!IsWallJumpPose(Pose) && !IsSpinJumpPose(Pose)))
         {
             throw new InvalidOperationException(
                 $"Spin direction transition ${Pose:X2} -> ${targetPose:X2} is not verified.");
@@ -1755,7 +1792,15 @@ public sealed class SamusState
             HorizontalSpeed.CancelRunningMomentum(oldDirection);
         }
 
-        Pose = targetPose;
+        // Ordinary and wall-jump definition fallbacks publish generic `$19/$1A`, whereas
+        // the dedicated `$81/$82` and `$1B/$1C` input tables can publish their already-
+        // specialized opposite-facing record directly. Reduce either form back to the
+        // generic direction before applying `$91:F624`'s live equipment priority. This is
+        // observable when both bits are equipped: an `$81 -> $82` ROM record must remain
+        // Screw art, while the same directional intent with Screw unequipped becomes Space
+        // Jump art instead of trusting stale pose-table equipment state.
+        byte genericTarget = newDirection == 4 ? SpinJumpLeftPose : SpinJumpRightPose;
+        Pose = SelectEquippedSpinPose(genericTarget);
         RefreshCollisionRadii(bus);
 
         // InitializeSpinJump writes frame one, skipping the static first spin frame. This
@@ -1770,8 +1815,14 @@ public sealed class SamusState
     public void ApplyWallJumpTrigger(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if (Pose is not (SpinJumpRightPose or SpinJumpLeftPose))
-            throw new InvalidOperationException($"Wall-jump trigger requires ordinary spin pose, not ${Pose:X2}.");
+        if (!IsSpinJumpPose(Pose))
+            throw new InvalidOperationException($"Wall-jump trigger requires spin pose, not ${Pose:X2}.");
+
+        // `$91:F433` observes previous movement type three plus equipped Screw Attack and
+        // immediately reloads the normal suit palette before `$83/$84` starts. The desktop
+        // runtime performs palette writes later in the frame, so preserve that phase split.
+        if ((EquippedItems & 0x0008) != 0)
+            HorizontalSpeed.RequestNormalSuitPaletteRestore();
 
         Pose = ReadPoseXDirection(bus) == 4 ? WallJumpLeftPose : WallJumpRightPose;
         RefreshCollisionRadii(bus);
@@ -1908,10 +1959,14 @@ public sealed class SamusState
     /// </summary>
     public void ApplyWallContactAnimationRewind()
     {
-        if (Pose is not (SpinJumpRightPose or SpinJumpLeftPose))
+        if (!IsSpinJumpPose(Pose))
             throw new InvalidOperationException($"Wall-contact rewind requires spin pose, not ${Pose:X2}.");
         AnimationFrameTimer = 1;
-        AnimationFrame = 0x0a;
+
+        // `$90:9D96-$90:9DA6` gives Screw Attack a longer pre-contact animation. Its first
+        // eligible wall frame is 27, so contact rewinds to 26. Ordinary spin and Space Jump
+        // both use the compact 10 -> 11 handoff.
+        AnimationFrame = IsScrewAttackPose(Pose) ? (ushort)0x1a : (ushort)0x0a;
     }
 
     /// <summary>
@@ -1928,6 +1983,31 @@ public sealed class SamusState
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         speed.AccelerationMode = 1;
+    }
+
+    /// <summary>
+    /// Applies the dry-room equipment half of <c>SamusFunc_F468_SpinJump</c> at
+    /// <c>$91:F624</c> to a generic transition-table target `$19/$1A`.
+    /// </summary>
+    private byte SelectEquippedSpinPose(byte genericPose)
+    {
+        bool facingLeft = genericPose switch
+        {
+            SpinJumpRightPose => false,
+            SpinJumpLeftPose => true,
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(genericPose),
+                genericPose,
+                "Equipment spin selection requires generic pose $19 or $1A."),
+        };
+
+        // Native tests Screw Attack first. A save with both bits equipped therefore uses
+        // `$81/$82`, not Space Jump art, while retaining Space Jump's repeat-jump physics.
+        if ((EquippedItems & 0x0008) != 0)
+            return facingLeft ? ScrewAttackLeftPose : ScrewAttackRightPose;
+        if ((EquippedItems & 0x0200) != 0)
+            return facingLeft ? SpaceJumpLeftPose : SpaceJumpRightPose;
+        return genericPose;
     }
 
     /// <summary>
@@ -2039,7 +2119,9 @@ public sealed class SamusState
                 $"Ordinary jump transition ${Pose:X2} -> ${targetPose:X2} is not translated.");
         }
 
-        Pose = targetPose;
+        Pose = targetPose is SpinJumpRightPose or SpinJumpLeftPose
+            ? SelectEquippedSpinPose(targetPose)
+            : targetPose;
         RefreshCollisionRadii(bus);
         InitializeAnimation(bus, initialFrame: 0);
         SamusAerialMovement.InitializeDryAirJump(bus, this);
@@ -2602,6 +2684,7 @@ public sealed class SamusState
     public void ApplyAerialLanding(ISnesAddressSpace bus, bool wasSpinning)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        bool leavingScrewAttack = IsScrewAttackPose(Pose);
         byte direction = ReadPoseXDirection(bus);
         bool facingLeft = direction == 4;
         byte targetPose;
@@ -2645,6 +2728,12 @@ public sealed class SamusState
         HorizontalSpeed.BaseSubspeed = 0;
         Kinematics.YSpeed = 0;
         Kinematics.YSubspeed = 0;
+
+        // `$91:F433` reloads the normal suit palette whenever a pose change leaves spin or
+        // wall-jump movement while Screw Attack is equipped. The host palette copy occurs
+        // at the later `$91:D6F7` phase, so publish that same deferred work here.
+        if (leavingScrewAttack)
+            HorizontalSpeed.RequestNormalSuitPaletteRestore();
         Kinematics.YDirection = 0;
         InitializeAnimation(bus, initialFrame: 0);
     }
@@ -2817,7 +2906,15 @@ public sealed class SamusState
             targetPose,
             previousMovementType);
         if (!beganShinespark)
-            ApplySimpleGroundedPoseChange(bus, sourcePose, targetPose, "Animation command");
+        {
+            // Moonwalk turn lists end in literal `$F8,$19/$1A`. That operand is still fed
+            // through movement-type initialization, so equipment substitution occurs here
+            // just as it does for an input-table jump from ordinary running.
+            byte installedPose = startsMoonwalkJump
+                ? SelectEquippedSpinPose(targetPose)
+                : targetPose;
+            ApplySimpleGroundedPoseChange(bus, sourcePose, installedPose, "Animation command");
+        }
         if (startsMoonwalkJump)
             SamusAerialMovement.InitializeDryAirJump(bus, this);
         MorphBallBounceState = 0;
@@ -3208,9 +3305,11 @@ public sealed class SamusState
 
         // $90:8686 suppresses the ordinary spin-jump bottom half for art frames 1..A;
         // those frames' top spritemaps contain the complete curled body. Frame zero and
-        // frames B+ draw the split bottom. Screw/space-jump poses are future routes and
-        // always draw their bottoms, but they are not admitted by this method yet.
+        // frames B+ draw the split bottom. The admitted Screw/Space Jump records use their
+        // separate native rule and always draw the bottom half at every animation frame.
         bool ordinarySpinBottom = movementType != 3 ||
+            Pose is SpaceJumpRightPose or SpaceJumpLeftPose or
+                ScrewAttackRightPose or ScrewAttackLeftPose ||
             AnimationFrame == 0 || AnimationFrame >= 0x0b;
         bool wallJumpBottom = movementType != 0x14 ||
             AnimationFrame < 3 || AnimationFrame >= 0x0d;

@@ -274,6 +274,7 @@ public sealed class SamusHorizontalSpeedState
         ISnesAddressSpace bus,
         SnesCgram cgram,
         byte movementType,
+        ushort animationFrame,
         ushort equippedItems,
         bool suppressActiveSpeedBoosterPalette = false)
     {
@@ -299,11 +300,46 @@ public sealed class SamusHorizontalSpeedState
         if (suppressActiveSpeedBoosterPalette)
             return paletteCopied;
 
-        // Wall-jump palette handling returns before the common Speed Booster branch.
-        // Spin jumping reaches that branch only without Screw Attack; translating Screw
-        // Attack's six-frame palette family here would silently conflate two native effects.
-        if (movementType == 0x14 || (movementType == 3 && (equippedItems & 0x0008) != 0))
-            return paletteCopied;
+        bool screwAttackEquipped = (equippedItems & 0x0008) != 0;
+        if (movementType == 3 && screwAttackEquipped)
+        {
+            if (animationFrame == 0)
+            {
+                // `$91:D9F8` resets only the palette-list byte offset. Frame zero retains
+                // the already loaded normal suit colors; it does not emit a Screw palette.
+                SpecialPaletteFrame = 0;
+                return paletteCopied;
+            }
+
+            if (animationFrame < 0x1b)
+            {
+                // Returning zero at `$91:D9EC` asks the outer palette dispatcher to copy
+                // the normal suit palette for Screw frames 1..26. Perform that copy here
+                // because CGRAM is the desktop runtime's directly visible palette buffer.
+                LoadNormalSuitPalette(bus, cgram, suitTableOffset);
+                return true;
+            }
+
+            CopyAndAdvanceScrewAttackPalette(bus, cgram, suitTableOffset);
+            return true;
+        }
+
+        if (movementType == 0x14)
+        {
+            if (!screwAttackEquipped)
+                return paletteCopied;
+
+            if (animationFrame < 3)
+            {
+                // Wall-jump command `$FB` reserves frames 0..2 for the normal suit colors;
+                // its Screw family begins on frame three and shares the same six pointers.
+                SpecialPaletteFrame = 0;
+                return paletteCopied;
+            }
+
+            CopyAndAdvanceScrewAttackPalette(bus, cgram, suitTableOffset);
+            return true;
+        }
 
         if ((SpeedBoostCounter & 0xff00) != 0x0400)
             return paletteCopied;
@@ -331,6 +367,43 @@ public sealed class SamusHorizontalSpeedState
             ? (ushort)6
             : unchecked((ushort)(SpecialPaletteFrame + 2));
         return true;
+    }
+
+    /// <summary>
+    /// Defers the normal 16-color suit copy to the runtime's `$91:D6F7` palette phase.
+    /// Native pose initialization performs this when leaving a Screw Attack spin family.
+    /// </summary>
+    public void RequestNormalSuitPaletteRestore() => NormalSuitPaletteRestoreRequested = true;
+
+    /// <summary>Copies one of the six ROM-authored Screw Attack palettes and wraps its offset.</summary>
+    private void CopyAndAdvanceScrewAttackPalette(
+        ISnesAddressSpace bus,
+        SnesCgram cgram,
+        ushort suitTableOffset)
+    {
+        // `$91:DA4A` contains one bank-$91 pointer list per suit. Each selected word is a
+        // bank-$9B address for a complete 16-color Samus palette, exactly like Speed Boost.
+        ushort paletteList = ReadWord(bus, 0x91da4a + suitTableOffset);
+        ushort palettePointer = ReadWord(
+            bus,
+            0x910000 | unchecked((ushort)(paletteList + SpecialPaletteFrame)));
+        cgram.LoadFromBus(bus, 0x9b0000 | palettePointer, colorCount: 16, destinationIndex: 192);
+
+        // Offsets 0,2,4,6,8,10 form the six-frame cycle. The native CMP uses the current
+        // offset, so ten wraps to zero only after its palette has been copied.
+        SpecialPaletteFrame = SpecialPaletteFrame >= 10
+            ? (ushort)0
+            : unchecked((ushort)(SpecialPaletteFrame + 2));
+    }
+
+    /// <summary>Loads the normal Power/Varia/Gravity palette selected by the native suit index.</summary>
+    private static void LoadNormalSuitPalette(
+        ISnesAddressSpace bus,
+        SnesCgram cgram,
+        ushort suitTableOffset)
+    {
+        ushort normalPalette = ReadWord(bus, 0x91d727 + suitTableOffset);
+        cgram.LoadFromBus(bus, 0x9b0000 | normalPalette, colorCount: 16, destinationIndex: 192);
     }
 
     /// <summary>

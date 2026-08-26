@@ -42,6 +42,16 @@ else if (options.SpeedBoosterScript)
     Console.WriteLine(
         "Input script: equip Speed Booster, hold Right+Dash through ROM-authored acceleration stages, jump with the accumulated boost bonus, then observe both cancellation echoes return to Samus.");
 }
+else if (options.ScrewAttackScript)
+{
+    Console.WriteLine(
+        "Input script: equip Space Jump and Screw Attack, enter ROM pose $81, then issue fresh Jump edges only inside the native falling-speed window while observing contact damage and the late-frame palette cycle.");
+}
+else if (options.SpaceJumpScript)
+{
+    Console.WriteLine(
+        "Input script: equip Space Jump, enter ROM pose $1B, then issue fresh Jump edges only while the live falling speed is inside the native $0280..$04FF window.");
+}
 else if (options.RunScript)
 {
     Console.WriteLine(
@@ -169,13 +179,34 @@ if (options.GroundedRun)
     {
         groundedPlacement = runtime.InitializeDebugGrappleSwing();
     }
-    else if (options.RanIntoWallScript)
+    else if (options.RanIntoWallScript || options.ScrewAttackScript)
     {
         // The core scans the decompressed room for an ordinary type-$8 corner. Keeping
         // the returned coordinates here makes the host-authored placement as inspectable
         // as the cartridge-authored blocks that the live one-pixel probe will consume.
         wallPlacement = runtime.InitializeDebugRanIntoWallSamus();
         groundedPlacement = wallPlacement.Value.Grounded;
+
+        if (options.ScrewAttackScript)
+        {
+            // `$90:9D96` exposes Screw Attack frames 26/27 only when the spinning body
+            // actually reaches a wall. Begin three blocks left of the wall selected above:
+            // enough runway to establish `$09`, but close enough for the airborne body to
+            // contact the same cartridge-authored type-$8 column before landing. Rebuild
+            // the diagnostic placement record so later floor/map probes remain truthful.
+            ushort screwStartX = unchecked((ushort)(runtime.Samus!.XPosition - 48));
+            runtime.Samus.XPosition = screwStartX;
+            int screwFloorBlockX = screwStartX >> 4;
+            DebugGroundedSamusPlacement original = groundedPlacement.Value;
+            groundedPlacement = original with
+            {
+                XPosition = screwStartX,
+                BlockX = screwFloorBlockX,
+                FloorBlock = runtime.LevelData!.GetCollisionBlock(
+                    screwFloorBlockX,
+                    original.BlockY),
+            };
+        }
     }
     else
     {
@@ -218,6 +249,16 @@ else if (options.SpeedBoosterScript || options.ShinesparkScript)
     // The debug spawn has no save inventory. Grant only retail Speed Booster bit `$2000`;
     // every counter, delay list, velocity, transition, and collision remains ROM-driven.
     runtime.Samus!.EquippedItems |= 0x2000;
+}
+else if (options.SpaceJumpScript || options.ScrewAttackScript)
+{
+    // Landing Site's debugger spawn deliberately begins without save-file inventory.
+    // Space Jump is bit `$0200`; the Screw route adds `$0008`. Granting both on the latter
+    // route is important: it makes the real `$91:F624` priority rule choose Screw art while
+    // `$90:A436` independently continues to permit Space Jump's repeated-jump physics.
+    runtime.Samus!.EquippedItems |= options.ScrewAttackScript
+        ? (ushort)0x0208
+        : (ushort)0x0200;
 }
 
 if (options.GrappleFireScript)
@@ -466,6 +507,11 @@ bool observedShinesparkCrashEchoCircle = false;
 bool observedShinesparkCrashFinish = false;
 bool observedReleasedShinesparkEcho = false;
 int priorReleasedShinesparkEchoCount = 0;
+int observedSpaceJumpRestarts = 0;
+bool observedScrewAttackContactDamage = false;
+bool observedScrewAttackPaletteCycle = false;
+int issuedSpaceJumpPulses = 0;
+bool spaceJumpPulseMayBeIssued = true;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
@@ -476,7 +522,60 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     // explicit reversal script is a deterministic real-ROM regression route: enough time
     // to accelerate right, complete $25 toward the left, then complete $26 back right.
     // These are only controller samples; all pose choices still come from bank-$91 tables.
-    ushort controllerInput = options.GrappleFireScript
+    bool specialSpinRoute = options.SpaceJumpScript || options.ScrewAttackScript;
+
+    // Unlike the fixed-input posture routes below, Space Jump's legal repeat instant is a
+    // function of the live 16.16 vertical velocity. Derive the unaligned 8.8 magnitude in
+    // the same way as `$90:A436`: high byte of subspeed below the integer speed. A pulse is
+    // emitted for exactly one frame, so each accepted attempt has the required new-A edge.
+    // The first held interval is still an ordinary grounded running jump; only later pulses
+    // are velocity-gated. This keeps the harness deterministic without faking any movement.
+    uint liveVerticalMagnitude8Point8 =
+        ((uint)runtime.Samus.Kinematics.YSpeed << 8) |
+        ((uint)runtime.Samus.Kinematics.YSubspeed >> 8);
+    bool liveSpaceJumpWindow =
+        runtime.Samus.Kinematics.YDirection == 2 &&
+        liveVerticalMagnitude8Point8 >= 0x0280 &&
+        liveVerticalMagnitude8Point8 < 0x0500;
+    bool screwBodyReachedRightWall =
+        options.ScrewAttackScript &&
+        wallPlacement is DebugRanIntoWallSamusPlacement screwWall &&
+        runtime.Samus.XPosition >= screwWall.Grounded.XPosition - 8;
+    ushort specialSpinDirection = screwBodyReachedRightWall
+        ? (ushort)SnesButton.Left
+        : (ushort)SnesButton.Right;
+    ushort specialSpinInput = frameIndex switch
+    {
+        0 => (ushort)SnesButton.Start,
+        >= 2 and < 12 => specialSpinDirection,
+        >= 12 and < 24 => (ushort)(specialSpinDirection | (ushort)SnesButton.A),
+        _ when liveSpaceJumpWindow && spaceJumpPulseMayBeIssued && issuedSpaceJumpPulses < 2
+            => (ushort)(specialSpinDirection | (ushort)SnesButton.A),
+        _ => specialSpinDirection,
+    };
+    if (specialSpinRoute && frameIndex >= 24)
+    {
+        bool jumpPressedThisFrame = (specialSpinInput & (ushort)SnesButton.A) != 0;
+        if (jumpPressedThisFrame)
+        {
+            issuedSpaceJumpPulses++;
+            spaceJumpPulseMayBeIssued = false;
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: issued Space Jump pulse {issuedSpaceJumpPulses} " +
+                $"at falling magnitude ${liveVerticalMagnitude8Point8:X4}.");
+        }
+        else
+        {
+            // One released sample is sufficient to make the following A sample a fresh
+            // edge, exactly as the controller new-input word on the SNES would require.
+            spaceJumpPulseMayBeIssued = true;
+        }
+    }
+
+    ushort yDirectionBeforeFrame = runtime.Samus.Kinematics.YDirection;
+    ushort controllerInput = specialSpinRoute
+        ? specialSpinInput
+        : options.GrappleFireScript
         ? frameIndex < 16 ? (ushort)SnesButton.X : (ushort)0
         : options.GrappleScript
         ? frameIndex switch
@@ -879,6 +978,24 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
 
     RuntimeFrameResult result = runtime.StepFrame(controllerInput);
     observedSamusPoses.Add(runtime.Samus.Pose);
+    if (specialSpinRoute &&
+        yDirectionBeforeFrame == 2 &&
+        runtime.Samus.Kinematics.YDirection == 1)
+    {
+        observedSpaceJumpRestarts++;
+        Console.WriteLine(
+            $"frame {result.FrameNumber,4}: accepted Space Jump restart " +
+            $"{observedSpaceJumpRestarts}; pose=${runtime.Samus.Pose:X2}, " +
+            $"velocity={runtime.Samus.Kinematics.YSpeed:X4}." +
+            $"{runtime.Samus.Kinematics.YSubspeed:X4}.");
+    }
+    observedScrewAttackContactDamage |=
+        runtime.Samus.HorizontalSpeed.ContactDamageIndex == 3;
+    observedScrewAttackPaletteCycle |=
+        options.ScrewAttackScript &&
+        SamusState.IsScrewAttackPose(runtime.Samus.Pose) &&
+        runtime.Samus.AnimationFrame >= 27 &&
+        runtime.Samus.HorizontalSpeed.SpecialPaletteFrame != 0;
     observedKnockbackMovement |= runtime.LastKnockbackMovement is not null;
     observedDamageBoostMovement |= runtime.LastAerialSamusMovement is not null &&
         runtime.Samus.ReadMovementType(bus) == 0x19;
@@ -1097,6 +1214,10 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.NeutralJumpTransitionLeftPose or
                      SamusState.SpinJumpRightPose or
                      SamusState.SpinJumpLeftPose or
+                     SamusState.SpaceJumpRightPose or
+                     SamusState.SpaceJumpLeftPose or
+                     SamusState.ScrewAttackRightPose or
+                     SamusState.ScrewAttackLeftPose or
                      SamusState.CrouchingTransitionRightPose or
                      SamusState.CrouchingTransitionLeftPose or
                      SamusState.StandingTransitionRightPose or
@@ -1486,6 +1607,44 @@ if (options.RunScript)
         $"{maximumObservedExtraRunSpeed & 0xffff:X4}, shared running animation timing, and spin-jump carry.");
 }
 
+if (options.SpaceJumpScript || options.ScrewAttackScript)
+{
+    byte requiredSpinPose = options.ScrewAttackScript
+        ? SamusState.ScrewAttackRightPose
+        : SamusState.SpaceJumpRightPose;
+    if (options.FrameCount >= 15 && !observedSamusPoses.Contains(requiredSpinPose))
+    {
+        throw new InvalidOperationException(
+            $"Special-spin ROM script never installed required pose ${requiredSpinPose:X2}.");
+    }
+    if (options.FrameCount >= (options.ScrewAttackScript ? 48 : 43) &&
+        observedSpaceJumpRestarts == 0)
+    {
+        throw new InvalidOperationException(
+            "Special-spin ROM script reached the repeat interval but never restarted upward.");
+    }
+    if (options.ScrewAttackScript &&
+        options.FrameCount >= 15 &&
+        !observedScrewAttackContactDamage)
+    {
+        throw new InvalidOperationException(
+            "Screw Attack ROM script never published native contact-damage index 3.");
+    }
+    if (options.ScrewAttackScript &&
+        options.FrameCount >= 34 &&
+        !observedScrewAttackPaletteCycle)
+    {
+        throw new InvalidOperationException(
+            "Screw Attack ROM script never reached the frame-27 palette cycle.");
+    }
+    Console.WriteLine(
+        $"Special-spin ROM route validated pose ${requiredSpinPose:X2}, " +
+        $"{observedSpaceJumpRestarts} accepted repeat(s)" +
+        (options.ScrewAttackScript
+            ? $", contact damage 3, and palette cycle={observedScrewAttackPaletteCycle}."
+            : "."));
+}
+
 if (options.SpeedBoosterScript)
 {
     if (!observedSamusPoses.Contains(SamusState.MovingRightNormalPose) || !observedDashMomentum)
@@ -1755,6 +1914,8 @@ readonly record struct DebugRunnerOptions(
     bool RunScript,
     bool SpeedBoosterScript,
     bool ShinesparkScript,
+    bool SpaceJumpScript,
+    bool ScrewAttackScript,
     bool JumpScript,
     bool PostureScript,
     bool AimScript,
@@ -1787,6 +1948,8 @@ readonly record struct DebugRunnerOptions(
         bool runScript = false;
         bool speedBoosterScript = false;
         bool shinesparkScript = false;
+        bool spaceJumpScript = false;
+        bool screwAttackScript = false;
         bool jumpScript = false;
         bool postureScript = false;
         bool aimScript = false;
@@ -1865,6 +2028,16 @@ readonly record struct DebugRunnerOptions(
 
                 case "--shinespark-script":
                     shinesparkScript = true;
+                    groundedRun = true;
+                    break;
+
+                case "--space-jump-script":
+                    spaceJumpScript = true;
+                    groundedRun = true;
+                    break;
+
+                case "--screw-attack-script":
+                    screwAttackScript = true;
                     groundedRun = true;
                     break;
 
@@ -1993,6 +2166,8 @@ readonly record struct DebugRunnerOptions(
             runScript,
             speedBoosterScript,
             shinesparkScript,
+            spaceJumpScript,
+            screwAttackScript,
             jumpScript,
             postureScript,
             aimScript,

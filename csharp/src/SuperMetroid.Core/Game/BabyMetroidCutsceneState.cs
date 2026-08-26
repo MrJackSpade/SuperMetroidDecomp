@@ -35,10 +35,11 @@ public sealed class BabyMetroidCutsceneState
     private static ReadOnlySpan<short> ShakingXOffsets => [0, -1, 0, 1];
     private static ReadOnlySpan<short> ShakingYOffsets => [0, 1, -1, 1];
 
-    // Enemy header `$A0:ECBF` declares width/height `$24`. Generic enemy initialization
-    // stores half of those values in the slot's collision-radius words.
-    public const ushort XHitboxRadius = 0x0012;
-    public const ushort YHitboxRadius = 0x0012;
+    // Enemy header `$A0:ECBF` declares width/height `$24`. Despite the header macro's
+    // friendly names, `$A0:8AFF/$8B05` copy those words directly into the enemy slot's
+    // X/Y *radius* fields; there is no diameter-to-radius division anywhere in between.
+    public const ushort XHitboxRadius = 0x0024;
+    public const ushort YHitboxRadius = 0x0024;
 
     // Shared bank-$86 component math indexes this 16-bit sign-extended table with an
     // eight-bit angle. Angle zero points down; positive rotation is anti-clockwise.
@@ -118,6 +119,25 @@ public sealed class BabyMetroidCutsceneState
     public ushort Health { get; private set; }
 
     /// <summary>
+    /// Extra enemy word <c>$7E:7806,x</c>. Mother Brain's onion-ring collision handler
+    /// writes <c>$10</c> here. Main AI observes the nonzero value as a doubled shake, then
+    /// the later flashing handler decrements it and alternates the enemy palette.
+    /// </summary>
+    public ushort OnionRingHitFlashTimer { get; private set; }
+
+    /// <summary>
+    /// The low-health palette countdown installed by <c>$A9:CADA</c> when the ordinary
+    /// ring volleys have reduced health to zero. This is separate from the hit-flash word.
+    /// </summary>
+    public ushort LowHealthPaletteTimer { get; private set; }
+
+    /// <summary>Saved origin used by the fatal-blow shake at <c>$A9:CC3E</c>.</summary>
+    public ushort FatalBlowOriginX { get; private set; }
+
+    /// <summary>Saved origin used by the fatal-blow shake at <c>$A9:CC3E</c>.</summary>
+    public ushort FatalBlowOriginY { get; private set; }
+
+    /// <summary>
     /// Ports <c>$A9:C710</c>. The population record supplies <c>$2800</c>; initialization
     /// ORs <c>$3000</c>, overwrites the population coordinates, and waits at X/Y
     /// <c>$140/$60</c> before beginning the dash.
@@ -133,6 +153,10 @@ public sealed class BabyMetroidCutsceneState
         HealthBasedPaletteEnabled = false;
         MovementTablePointer = 0;
         Health = 3200;
+        OnionRingHitFlashTimer = 0;
+        LowHealthPaletteTimer = 0;
+        FatalBlowOriginX = 0;
+        FatalBlowOriginY = 0;
         XPosition = 0x0140;
         YPosition = 0x0060;
         XSubposition = 0;
@@ -461,9 +485,178 @@ public sealed class BabyMetroidCutsceneState
             }
 
             case BabyMetroidCutscenePhase.IdleUntilNoHealth:
-                // `$CABD` is a deliberate handshake seam. Mother Brain's revived attack
-                // owns health reduction and the flash timer; until that producer exists,
-                // the Baby remains attached without inventing damage or a release time.
+                // `$A9:CABD` consumes Mother Brain's one-shot cry flag before inspecting
+                // the hit-flash word. Sound queuing is returned by the ring system; this
+                // actor owns only the resulting shake and health-to-function transition.
+                if (OnionRingHitFlashTimer != 0)
+                {
+                    int shakingIndex = (OnionRingHitFlashTimer & 6) >> 1;
+                    XPosition = unchecked((ushort)(
+                        samus.XPosition + 2 * ShakingXOffsets[shakingIndex]));
+                    YPosition = unchecked((ushort)(
+                        samus.YPosition + 2 * ShakingYOffsets[shakingIndex] - 0x0014));
+                }
+
+                if (Health == 0)
+                {
+                    // The zero reached by the ordinary volleys is a state trigger, not the
+                    // health carried into the final charge. Native code deliberately gives
+                    // the Baby `$0140` health, changes to the low-health palette function,
+                    // disables health-band palettes, and lets `$CB13` run next frame.
+                    Health = 0x0140;
+                    Phase = BabyMetroidCutscenePhase.ReleaseSamus;
+                    LowHealthPaletteTimer = 0x000a;
+                    // `$A9:CB05` stores ten in the same enemy variable used by the normal
+                    // palette handler.  This is not an immediate/zero-delay switch: the
+                    // low-health palette routine counts through its own ten-frame cadence.
+                    PaletteHandlerDelay = 0x000a;
+                    HealthBasedPaletteEnabled = false;
+                }
+                break;
+
+            case BabyMetroidCutscenePhase.ReleaseSamus:
+                // `$A9:CB13` is a one-call cross-actor dispatcher. The native write to the
+                // brain-slot speed word is presentation state; the meaningful body write
+                // starts Mother Brain's fast retreat while this same call falls through to
+                // the first flight update.
+                motherBrain.PrepareForFinalBabyMetroidAttack();
+                Phase = BabyMetroidCutscenePhase.StareDownMotherBrain;
+                goto case BabyMetroidCutscenePhase.StareDownMotherBrain;
+
+            case BabyMetroidCutscenePhase.StareDownMotherBrain:
+                // Literal target from `$CB2D`: four pixels left of Samus and Y `$60`.
+                // The helper's Y index zero means divisor `$10`; its wrong-way X extra is
+                // zero here, unlike the earlier off-screen-safe entrance helpers.
+                GraduallyAccelerateTowardsPoint(
+                    unchecked((ushort)(samus.XPosition - 4)),
+                    0x0060,
+                    accelerationDivisor: 0x0010,
+                    wrongWayOffScreenXSpeed: 0,
+                    layer1X,
+                    layer1Y);
+                if (CollidesWithRectangle(
+                    unchecked((ushort)(samus.XPosition - 4)), 0x0060, 4, 4))
+                {
+                    Phase = BabyMetroidCutscenePhase.FlyOffScreen;
+                }
+                break;
+
+            case BabyMetroidCutscenePhase.FlyOffScreen:
+                // Despite the function's historical name, this leg targets the fixed point
+                // `(272,64)` just beyond the right edge of the original 256-pixel camera.
+                GraduallyAccelerateTowardsPoint(
+                    0x0110,
+                    0x0040,
+                    accelerationDivisor: 0x0010,
+                    wrongWayOffScreenXSpeed: 0,
+                    layer1X,
+                    layer1Y);
+                if (CollidesWithRectangle(0x0110, 0x0040, 4, 4))
+                    Phase = BabyMetroidCutscenePhase.MoveToFinalChargeStart;
+                break;
+
+            case BabyMetroidCutscenePhase.MoveToFinalChargeStart:
+                // `$CB7B` stages the Baby at `(305,160)`. Reaching that rectangle assigns
+                // exactly 79 HP so the final four-ring volley kills on its first collision,
+                // clears the brain-slot speed flag, and replaces Mother Brain's retreat AI.
+                GraduallyAccelerateTowardsPoint(
+                    0x0131,
+                    0x00a0,
+                    accelerationDivisor: 0x0010,
+                    wrongWayOffScreenXSpeed: 0,
+                    layer1X,
+                    layer1Y);
+                if (CollidesWithRectangle(0x0131, 0x00a0, 4, 4))
+                {
+                    Health = 0x004f;
+                    motherBrain.ExecuteFinalBabyMetroidAttack();
+                    Phase = BabyMetroidCutscenePhase.InitiateFinalCharge;
+                }
+                break;
+
+            case BabyMetroidCutscenePhase.InitiateFinalCharge:
+                // Divisor-table index `$A` maps to `$10-$A == 6`. This helper family adds
+                // `$400` only when an off-screen actor is moving the wrong horizontal way.
+                GraduallyAccelerateTowardsPoint(
+                    0x0122,
+                    0x0080,
+                    accelerationDivisor: 0x0006,
+                    wrongWayOffScreenXSpeed: 0x0400,
+                    layer1X,
+                    layer1Y);
+                if (CollidesWithRectangle(0x0122, 0x0080, 4, 4))
+                    Phase = BabyMetroidCutscenePhase.FinalCharge;
+                break;
+
+            case BabyMetroidCutscenePhase.FinalCharge:
+                // The final target follows the brain enemy slot, 32 pixels above its
+                // centre. Index `$C` maps to divisor four and therefore accelerates much
+                // more aggressively than the staging leg.
+                GraduallyAccelerateTowardsPoint(
+                    motherBrain.BrainXPosition,
+                    unchecked((ushort)(motherBrain.BrainYPosition - 0x0020)),
+                    accelerationDivisor: 0x0004,
+                    wrongWayOffScreenXSpeed: 0x0400,
+                    layer1X,
+                    layer1Y);
+                if (Health == 0)
+                {
+                    // `$A9:CBF2-$CC3D` changes graphics/list state, freezes the body AI,
+                    // clears velocity, remembers the shake origin, and falls through into
+                    // the first of 17 fatal-blow shake calls.
+                    GraphicsOffset = 0x10a0;
+                    SetInstructionList(0xcfce);
+                    XVelocity = 0;
+                    YVelocity = 0;
+                    Phase = BabyMetroidCutscenePhase.TakeFinalBlow;
+                    FunctionTimer = 0x0010;
+                    FatalBlowOriginX = XPosition;
+                    FatalBlowOriginY = YPosition;
+                    goto case BabyMetroidCutscenePhase.TakeFinalBlow;
+                }
+                break;
+
+            case BabyMetroidCutscenePhase.TakeFinalBlow:
+            {
+                // `$A9:CE4C` uses the same four offsets, doubled, around a saved origin.
+                int shakingIndex = (enemyFrameCounter & 6) >> 1;
+                XPosition = unchecked((ushort)(FatalBlowOriginX + 2 * ShakingXOffsets[shakingIndex]));
+                YPosition = unchecked((ushort)(FatalBlowOriginY + 2 * ShakingYOffsets[shakingIndex]));
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    XPosition = FatalBlowOriginX;
+                    YPosition = FatalBlowOriginY;
+                    Phase = BabyMetroidCutscenePhase.PlaySamusTheme;
+                    FunctionTimer = 0x0038;
+                    goto case BabyMetroidCutscenePhase.PlaySamusTheme;
+                }
+                break;
+            }
+
+            case BabyMetroidCutscenePhase.PlaySamusTheme:
+                // The expiry call queues the two delayed music words and immediately
+                // performs the first `$000C` prepare-Hyper-Beam decrement.
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    Phase = BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
+                    FunctionTimer = 0x000c;
+                    goto case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
+                }
+                break;
+
+            case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                    Phase = BabyMetroidCutscenePhase.DeathSequence;
+                break;
+
+            case BabyMetroidCutscenePhase.DeathSequence:
+                // Palette fading, death explosions, tile unloading, and the phase-three
+                // handoff are translated as the next producer. The fatal actor no longer
+                // has velocity here; retaining the explicit phase makes the current seam
+                // breakpointable without fabricating those visual-system completion flags.
                 break;
 
             default:
@@ -498,6 +691,20 @@ public sealed class BabyMetroidCutsceneState
             }
         }
 
+        // `$A9:C79C` is called after the common velocity mover. It decrements the same
+        // extra word that onion-ring hits write and shows palette zero while bit one of the
+        // decremented value is set. Starting from `$10`, the first post-hit enemy call sees
+        // `$10` for its shake above, then displays the normal palette with timer `$0F`.
+        if (OnionRingHitFlashTimer != 0)
+        {
+            OnionRingHitFlashTimer = unchecked((ushort)(OnionRingHitFlashTimer - 1));
+            Palette = (OnionRingHitFlashTimer & 2) != 0 ? (ushort)0 : (ushort)0x0e00;
+        }
+        else
+        {
+            Palette = 0x0e00;
+        }
+
         return new BabyMetroidCutsceneStepResult(
             phaseBefore,
             Phase,
@@ -521,6 +728,24 @@ public sealed class BabyMetroidCutsceneState
             samusTouchCollision,
             healingCompleted,
             Health);
+    }
+
+    /// <summary>
+    /// Applies <c>$86:C381-$C3A8</c>'s Baby half of an onion-ring collision. The projectile
+    /// system owns explosion/deletion and the Mother Brain cry flag; the enemy slot owns
+    /// this flash timer and saturating health subtraction.
+    /// </summary>
+    public BabyMetroidOnionRingHitResult ApplyMotherBrainOnionRingHit(ushort damage = 0x0050)
+    {
+        ushort healthBefore = Health;
+        if (healthBefore == 0)
+            return new BabyMetroidOnionRingHitResult(false, healthBefore, healthBefore, OnionRingHitFlashTimer);
+
+        OnionRingHitFlashTimer = 0x0010;
+        Health = healthBefore < damage
+            ? (ushort)0
+            : unchecked((ushort)(healthBefore - damage));
+        return new BabyMetroidOnionRingHitResult(true, healthBefore, Health, OnionRingHitFlashTimer);
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
@@ -802,7 +1027,24 @@ public enum BabyMetroidCutscenePhase
     LatchOntoSamus,
     HealSamusToFullHealth,
     IdleUntilNoHealth,
+    ReleaseSamus,
+    StareDownMotherBrain,
+    FlyOffScreen,
+    MoveToFinalChargeStart,
+    InitiateFinalCharge,
+    FinalCharge,
+    TakeFinalBlow,
+    PlaySamusTheme,
+    PrepareSamusForHyperBeam,
+    DeathSequence,
 }
+
+/// <summary>Health/flash mutation produced by one colliding Mother Brain blue ring.</summary>
+public readonly record struct BabyMetroidOnionRingHitResult(
+    bool Applied,
+    ushort HealthBefore,
+    ushort HealthAfter,
+    ushort FlashTimer);
 
 /// <summary>Whole/subpixel coordinates before or after one cutscene-enemy main-AI call.</summary>
 public readonly record struct BabyMetroidCutscenePoint(

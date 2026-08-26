@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -10,6 +11,12 @@ using SuperMetroid.Core.Runtime;
 // This runner is an intentionally thin debugger host, not a claim that the full game has
 // already been ported. Its job is to exercise every translated frame boundary against the
 // user's private ROM while presenting stable, obvious breakpoint locations.
+// Keep faults in the CLI. Without this process policy Windows can display a modal "unknown
+// software exception" dialog for an unhandled debugger assertion, steal desktop focus, and
+// leave the build output locked until somebody dismisses it.
+if (OperatingSystem.IsWindows())
+    NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
+
 DebugRunnerOptions options = DebugRunnerOptions.Parse(args);
 SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(options.RomPath);
 var runtime = new SuperMetroidRuntime(bus);
@@ -253,6 +260,7 @@ if (!options.GroundedRun)
 
 MotherBrainRainbowBeamAttackSequence? rainbowAttack = null;
 BabyMetroidCutsceneState? cutsceneBaby = null;
+MotherBrainOnionRingProjectileSystem? motherBrainOnionRings = null;
 
 if (options.MorphBallScript || options.BombJumpScript)
 {
@@ -324,6 +332,7 @@ else if (options.MotherBrainRainbowScript)
     rainbowAttack.Body.XPosition = 64;
     rainbowAttack.Body.YPosition = 100;
     rainbowAttack.StartAttackCycle();
+    motherBrainOnionRings = new MotherBrainOnionRingProjectileSystem();
 }
 else if (options.DrainedSamusScript)
 {
@@ -556,6 +565,7 @@ else
     runtime.EscapeTimer.RequestMotherBrainStart();
 
 EscapeTimerState priorState = runtime.EscapeTimer.State;
+bool priorEscapeTimerExpired = false;
 ushort priorSamusFrame = runtime.Samus!.AnimationFrame;
 byte priorSamusPose = runtime.Samus.Pose;
 uint priorSamusX = runtime.Samus.Kinematics.XFixed;
@@ -1147,6 +1157,13 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     MotherBrainForcedSamusMovementResult? rainbowSamusMovement = null;
     if (rainbowAttack is not null)
     {
+        // The retail outer frame loop calls `$80:8111` exactly once before dispatching
+        // gameplay state. Earlier versions of this isolated encounter accidentally left
+        // `$05E5` frozen at its reset seed, preventing `$C15C`'s sign-bit attack gate from
+        // ever firing. Advancing the translated LFSR here supplies that missing global
+        // producer without substituting a hand-authored boss random sequence.
+        ushort motherBrainRandom = runtime.System.NextRandom();
+
         // Enemy AI executes before the ordinary enemy-instruction stage. Keep those calls
         // separate so `$B92B` can observe the pose/X values published by the previous frame's
         // retail `$A9:993A` opcode, just as the SNES scheduler does.
@@ -1154,7 +1171,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             bus,
             runtime.Samus,
             enemyFrameCounter: unchecked((ushort)frameIndex),
-            mainEnemyExecutionCounter: unchecked((ushort)frameIndex));
+            mainEnemyExecutionCounter: unchecked((ushort)frameIndex),
+            randomNumberSeed: motherBrainRandom);
         rainbowSamusMovement = actorResult.Movement;
         observedRainbowPhases.Add(actorResult.PhaseBefore);
         observedRainbowPhases.Add(actorResult.PhaseAfter);
@@ -1200,6 +1218,22 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         // handler advances the two neck angles before the later cutscene-Baby slot polls the
         // corpse flag. This ordering is observable when `$BF56` waits for both raises to end.
         rainbowAttack.StepNeckMovement(bus, runtime.Samus);
+
+        // Mother Brain's head animation is part of the brain enemy slot and therefore runs
+        // after its main/neck AI but before the later Baby slot. The `$9E29` opcode merely
+        // allocates a bank-$86 projectile here; the gameplay projectile pass below advances
+        // the new ring after every enemy slot has finished.
+        MotherBrainHeadAnimationStepResult? headResult = cutsceneBaby is null
+            ? null
+            : rainbowAttack.StepBabyMurderHeadAnimation(bus, runtime.Samus, cutsceneBaby);
+        if (headResult is { OnionRingSpawn: { } ringRequest })
+        {
+            int? slot = motherBrainOnionRings!.Spawn(bus, rainbowAttack, ringRequest);
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: Mother Brain head spawned onion ring " +
+                $"angle=${ringRequest.Angle:X2}, slot={slot?.ToString() ?? "full"}, " +
+                $"head=${headResult.Value.InstructionPointerAfter:X4}.");
+        }
         if (rainbowAttack.Phase != previousRainbowPhase)
         {
             Console.WriteLine(
@@ -1223,6 +1257,16 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             // Body slot zero executes before the later spawned enemy slot. This placement
             // also means the spawn frame can run the newly initialized Baby once, matching
             // the native increasing-slot enemy loop rather than adding an invented delay.
+            // Blue-ring projectiles run after enemies, so hits from the preceding frame are
+            // consumed here. Native `$A9:C6C8` clears the shared request word and queues one
+            // cry even when several rings incremented it before this enemy turn.
+            int pendingBabyCries = motherBrainOnionRings!.ConsumePendingBabyCries();
+            if (pendingBabyCries != 0)
+            {
+                Console.WriteLine(
+                    $"frame {frameIndex + 1,4}: Baby consumes Mother Brain ring cry request " +
+                    $"({pendingBabyCries} hit{(pendingBabyCries == 1 ? string.Empty : "s")}).");
+            }
             BabyMetroidCutsceneStepResult babyResult = cutsceneBaby.Step(
                 bus,
                 runtime.Samus,
@@ -1273,6 +1317,23 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 observedBabyRoutePoints[cutsceneBaby.MovementTablePointer] = babyResult.After;
                 previousBabyMovementTablePointer = cutsceneBaby.MovementTablePointer;
             }
+        }
+
+        // GameState_8 runs EprojRunAll after EnemyMain. This ordering lets a ring spawned by
+        // the head above receive delay call one and animation frame one immediately, while
+        // any collision it produces is not visible to the Baby's `$CABD` until next frame.
+        MotherBrainOnionRingFrameResult ringResult = motherBrainOnionRings!.StepFrame(
+            bus,
+            rainbowAttack,
+            cutsceneBaby,
+            runtime.Samus,
+            layer1X: 0);
+        foreach (MotherBrainOnionRingEvent ringEvent in ringResult.Events)
+        {
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: onion ring slot {ringEvent.SlotIndex} " +
+                $"{ringEvent.Collision} at ({ringEvent.XPosition},{ringEvent.YPosition}); " +
+                $"Baby HP ${ringEvent.BabyHealthBefore:X4}->${ringEvent.BabyHealthAfter:X4}.");
         }
 
         // The enemy graphics hook runs after actor processing. Its shake countdown is not a
@@ -1422,7 +1483,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     // Release builds instead of letting the JIT dissolve the hook into this loop.
     FrameBreakpoint(runtime, result);
 
-    if (result.EscapeTimerState != priorState || result.EscapeTimerExpired)
+    if (result.EscapeTimerState != priorState ||
+        result.EscapeTimerExpired != priorEscapeTimerExpired)
     {
         Console.WriteLine(
             $"frame {result.FrameNumber,4}: timer={result.EscapeTimerState,-27} " +
@@ -1430,16 +1492,23 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             $"position=({runtime.EscapeTimer.XPixel},{runtime.EscapeTimer.YPixel}) " +
             $"expired={result.EscapeTimerExpired}");
         priorState = result.EscapeTimerState;
+        priorEscapeTimerExpired = result.EscapeTimerExpired;
     }
 
     if (runtime.Samus.AnimationFrame != priorSamusFrame)
     {
-        Console.WriteLine(
-            $"frame {result.FrameNumber,4}: Samus animation {priorSamusFrame} -> " +
-            $"{runtime.Samus.AnimationFrame}; timer={runtime.Samus.AnimationFrameTimer}; " +
-            $"command={(runtime.Samus.LastAnimationDelayCommand is byte command ? $"${command:X2}" : "none")}; " +
-            $"next definitions=${runtime.Samus.TileTransfers.TopDefinitionAddress:X6}/" +
-            $"${runtime.Samus.TileTransfers.BottomDefinitionAddress:X6}");
+        // The Mother Brain trace already logs every actor, head opcode, projectile hit,
+        // and route boundary. Drained Samus loops a four-frame animation hundreds of times;
+        // suppressing only that redundant presentation log keeps the causal trace readable.
+        if (!options.MotherBrainRainbowScript)
+        {
+            Console.WriteLine(
+                $"frame {result.FrameNumber,4}: Samus animation {priorSamusFrame} -> " +
+                $"{runtime.Samus.AnimationFrame}; timer={runtime.Samus.AnimationFrameTimer}; " +
+                $"command={(runtime.Samus.LastAnimationDelayCommand is byte command ? $"${command:X2}" : "none")}; " +
+                $"next definitions=${runtime.Samus.TileTransfers.TopDefinitionAddress:X6}/" +
+                $"${runtime.Samus.TileTransfers.BottomDefinitionAddress:X6}");
+        }
         priorSamusFrame = runtime.Samus.AnimationFrame;
     }
 
@@ -1496,15 +1565,18 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
 
     if (runtime.Samus.Kinematics.YFixed != priorSamusY)
     {
-        Console.WriteLine(
-            $"frame {result.FrameNumber,4}: Samus Y={runtime.Samus.YPosition:X4}." +
-            $"{runtime.Samus.Kinematics.YSubposition:X4}; " +
-            $"velocity={runtime.Samus.Kinematics.YSpeed:X4}." +
-            $"{runtime.Samus.Kinematics.YSubspeed:X4}, " +
-            $"direction={runtime.Samus.Kinematics.YDirection}, " +
-            $"landed={runtime.LastAerialSamusMovement?.Landed ?? runtime.LastMorphBallMovement?.Landed ?? false}, " +
-            $"ceiling={runtime.LastAerialSamusMovement?.HitCeiling ?? runtime.LastMorphBallMovement?.HitCeiling ?? false}, " +
-            $"bombActive={runtime.Samus.BombJumpActive}");
+        if (!options.MotherBrainRainbowScript)
+        {
+            Console.WriteLine(
+                $"frame {result.FrameNumber,4}: Samus Y={runtime.Samus.YPosition:X4}." +
+                $"{runtime.Samus.Kinematics.YSubposition:X4}; " +
+                $"velocity={runtime.Samus.Kinematics.YSpeed:X4}." +
+                $"{runtime.Samus.Kinematics.YSubspeed:X4}, " +
+                $"direction={runtime.Samus.Kinematics.YDirection}, " +
+                $"landed={runtime.LastAerialSamusMovement?.Landed ?? runtime.LastMorphBallMovement?.Landed ?? false}, " +
+                $"ceiling={runtime.LastAerialSamusMovement?.HitCeiling ?? runtime.LastMorphBallMovement?.HitCeiling ?? false}, " +
+                $"bombActive={runtime.Samus.BombJumpActive}");
+        }
         priorSamusY = runtime.Samus.Kinematics.YFixed;
     }
 
@@ -2137,10 +2209,10 @@ if (options.MotherBrainRainbowScript)
             $"interrupted={observedBabyMotherBrainInterrupt}.");
     }
     if (options.FrameCount >= 3340 &&
-        (rainbowAttack.Phase2CorpseState != 1 || rainbowAttack.BrainHealth != 0x8ca0))
+        (rainbowAttack.Phase2CorpseState == 0 || rainbowAttack.BrainHealth != 0x8ca0))
     {
         throw new InvalidOperationException(
-            $"Mother Brain did not complete the ROM-backed painful walk/corpse producer; " +
+            $"Mother Brain did not reach the ROM-backed corpse/revival producer; " +
             $"phase={rainbowAttack.Phase}, corpse={rainbowAttack.Phase2CorpseState}, " +
             $"brainHealth=${rainbowAttack.BrainHealth:X4}.");
     }
@@ -2154,21 +2226,21 @@ if (options.MotherBrainRainbowScript)
             $"phase={cutsceneBaby?.Phase.ToString() ?? "not spawned"}, " +
             $"movementTable=${cutsceneBaby?.MovementTablePointer:X4}.");
     }
-    if (options.FrameCount >= 4076)
+    if (options.FrameCount >= 3819)
     {
-        // These values come from the private retail-ROM run itself, starting at power-on
-        // state and retaining every earlier subpixel. They intentionally differ slightly
-        // from the compact verifier fixture, whose stationary test neck changes the Baby's
-        // inherited fractions before `$CA24` begins.
+        // These values come from the private retail-ROM run itself after correcting the
+        // header `$24/$24` words to the literal hitbox radii loaded by `$A0:8AFF/$8B05`.
+        // Each point retains every earlier 8.8 carry and catches either a radius regression
+        // or a movement-helper rounding error even when the route eventually converges.
         (ushort Pointer, int Frame, BabyMetroidCutscenePoint Point)[] expectedRoute =
         [
-            (0xca2c, 3576, new(0x0095, 0xe700, 0x0063, 0xca00)),
-            (0xca34, 3735, new(0x0146, 0x9f00, 0x0080, 0x3500)),
-            (0xca3c, 3818, new(0x00d4, 0x3b00, 0x003c, 0x9500)),
-            (0xca44, 3950, new(0x00ab, 0x0c00, 0x0075, 0xf400)),
-            (0xca4c, 3990, new(0x00cb, 0x9e00, 0x0087, 0x4200)),
-            (0xca54, 3991, new(0x00cc, 0x8e00, 0x0087, 0x4600)),
-            (0xca5c, 4026, new(0x00d7, 0xb500, 0x008a, 0x4800)),
+            (0xca2c, 3524, new(0x007e, 0x2800, 0x0051, 0x4100)),
+            (0xca34, 3591, new(0x010d, 0x9600, 0x008e, 0x5f00)),
+            (0xca3c, 3688, new(0x00e6, 0x2600, 0x004d, 0x3500)),
+            (0xca44, 3689, new(0x00e4, 0xaa00, 0x004c, 0x2700)),
+            (0xca4c, 3768, new(0x00c6, 0x6600, 0x0059, 0x3c00)),
+            (0xca54, 3788, new(0x00ca, 0x9400, 0x0069, 0x1d00)),
+            (0xca5c, 3805, new(0x00ce, 0x0200, 0x0079, 0xb500)),
         ];
         foreach ((ushort pointer, int frame, BabyMetroidCutscenePoint point) in expectedRoute)
         {
@@ -2186,34 +2258,45 @@ if (options.MotherBrainRainbowScript)
                     $"at {point}, got frame {actualFrame} at {actualPoint}.");
             }
         }
-        if (observedBabyLatchOntoSamusFrame != 4076)
+        if (observedBabyLatchOntoSamusFrame != 3819)
         {
             throw new InvalidOperationException(
-                $"Baby did not install gradual Samus pursuit `$CA66` on frame 4076; " +
+                $"Baby did not install gradual Samus pursuit `$CA66` on frame 3819; " +
                 $"observed {observedBabyLatchOntoSamusFrame}.");
         }
     }
-    if (options.FrameCount >= 4092 && observedBabyHealSamusFrame != 4092)
+    if (options.FrameCount >= 3837 && observedBabyHealSamusFrame != 3837)
     {
         throw new InvalidOperationException(
-            $"Baby generic touch AI did not latch on frame 4092; " +
+            $"Baby generic touch AI did not latch on frame 3837; " +
             $"observed {observedBabyHealSamusFrame}.");
     }
-    if (options.FrameCount >= 4791 &&
+    if (options.FrameCount >= 4536 &&
         (cutsceneBaby is null ||
          !observedBabyHealingCompletion ||
-         observedBabyHealingCompletionFrame != 4791 ||
-         cutsceneBaby.Phase != BabyMetroidCutscenePhase.IdleUntilNoHealth ||
+         observedBabyHealingCompletionFrame != 4536 ||
+         !observedBabyPhases.Contains(BabyMetroidCutscenePhase.IdleUntilNoHealth) ||
          runtime.Samus.Health != runtime.Samus.MaxHealth ||
          runtime.Samus.ReserveEnergy != runtime.Samus.MaxReserveEnergy))
     {
         throw new InvalidOperationException(
-            $"Baby did not complete the ROM-backed 699-call heal on frame 4791; " +
+            $"Baby did not complete the ROM-backed 699-call heal on frame 4536; " +
             $"completion={observedBabyHealingCompletion}/" +
             $"{observedBabyHealingCompletionFrame}, phase=" +
             $"{cutsceneBaby?.Phase.ToString() ?? "not spawned"}, energy=" +
             $"{runtime.Samus.Health}/{runtime.Samus.MaxHealth}, reserves=" +
             $"{runtime.Samus.ReserveEnergy}/{runtime.Samus.MaxReserveEnergy}.");
+    }
+    if (options.FrameCount >= 5703 &&
+        (cutsceneBaby is null ||
+         !observedBabyPhases.Contains(BabyMetroidCutscenePhase.FinalCharge) ||
+         cutsceneBaby.Phase != BabyMetroidCutscenePhase.DeathSequence ||
+         cutsceneBaby.Health != 0))
+    {
+        throw new InvalidOperationException(
+            $"Mother Brain's ROM-backed ring volleys/final charge did not reach the " +
+            $"Baby death-sequence seam; phase={cutsceneBaby?.Phase.ToString() ?? "not spawned"}, " +
+            $"health=${cutsceneBaby?.Health:X4}.");
     }
     if (options.FrameCount >= 1450)
     {
@@ -2777,4 +2860,14 @@ enum TimerScenario
 {
     Ceres,
     MotherBrain,
+}
+
+/// <summary>
+/// Makes the command-line debugger genuinely non-interactive on Windows. The CLR retains
+/// its ordinary stderr stack trace and exit code; only OS-owned modal error boxes are barred.
+/// </summary>
+static class NativeConsoleProcess
+{
+    [DllImport("kernel32.dll")]
+    internal static extern uint SetErrorMode(uint errorMode);
 }

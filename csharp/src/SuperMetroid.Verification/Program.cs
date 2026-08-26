@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -10,6 +11,12 @@ using SuperMetroid.Core.Runtime;
 // This is deliberately a plain console executable rather than an xUnit/MSTest project.
 // It keeps the reverse-engineering workspace dependency-free and makes every check easy
 // to step through in Visual Studio. A failed check throws immediately with concrete state.
+// Windows otherwise turns an unhandled CLR assertion into a modal "unknown software
+// exception" dialog. That is actively hostile to an automated verifier: the useful stack
+// trace belongs in this console and a dialog must never steal focus or stall the process.
+if (OperatingSystem.IsWindows())
+    NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
+
 Console.WriteLine("Verifying translated Super Metroid routines...");
 
 VerifyRandomNumberGeneratorExhaustively();
@@ -2994,7 +3001,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
         }
     }
 
-    AssertEqual(592, calls, "Baby entrance reaches exact head pin on call 592");
+    AssertEqual(425, calls, "Baby entrance reaches exact head pin on call 425");
     AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase,
         "Baby enters corpse-state wait after pin");
     AssertTrue(sawBodyStumbleRequest, "Baby requests Mother Brain fast backward stumble");
@@ -3003,7 +3010,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(BabyMetroidCutsceneState.DrainingMotherBrainInstructionList,
         baby.InstructionList,
         "Baby pin installs draining animation");
-    AssertEqual(new BabyMetroidCutscenePoint(0x0040, 0xce00, 0x0048, 0x1300),
+    AssertEqual(new BabyMetroidCutscenePoint(0x0040, 0x1400, 0x0048, 0xd200),
         latch.After,
         "Baby pin changes whole coordinates but retains native subpositions");
     AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingBackwardReallyFastInstructionList,
@@ -3113,15 +3120,15 @@ static void VerifyBabyMetroidCutsceneEntrance()
         "later Baby slot observes corpse flag on its publication frame");
     AssertEqual(1656, letGoFrame, "stop-draining `$40` expires after 65 calls");
     AssertEqual(1689, dustFrame, "let-go `$20` requests dust on call 33");
-    AssertEqual(1731, ceilingFrame, "gradual ceiling acceleration reaches collision rectangle");
+    AssertEqual(1703, ceilingFrame, "gradual ceiling acceleration reaches collision rectangle");
     AssertEqual((ushort)40, motherBrain.Body.XPosition, "corpse body rests at rear X");
     AssertEqual((ushort)138, motherBrain.Body.YPosition, "fast crouch lowers body by 38 pixels");
     AssertEqual((ushort)81, motherBrain.BrainXPosition, "neck geometry publishes corpse brain X");
     AssertEqual((ushort)78, motherBrain.BrainYPosition, "neck geometry publishes corpse brain Y");
     AssertEqual((ushort)81, baby.XPosition, "ceiling handoff Baby X");
-    AssertEqual((ushort)22, baby.YPosition, "ceiling handoff Baby Y after common mover");
+    AssertEqual((ushort)40, baby.YPosition, "ceiling handoff Baby Y after common mover");
     AssertEqual((ushort)0x0000, baby.XVelocity, "ceiling handoff X velocity");
-    AssertEqual((ushort)0xff51, baby.YVelocity,
+    AssertEqual((ushort)0xff78, baby.YVelocity,
         "synthetic ceiling handoff preserves its independently accumulated Y velocity");
     AssertTrue(sawDustClouds, "Baby release requests three Mother Brain head dust clouds");
     AssertTrue(sawSamusCrouch, "Baby ceiling collision calls drained controller four");
@@ -3194,32 +3201,32 @@ static void VerifyBabyMetroidCutsceneEntrance()
     // These are the deterministic witnesses produced by this fixture's own inherited
     // fixed-point state. The DebugRunner separately locks the retail-ROM witnesses; keeping
     // both sets makes any accidental dependence on a fabricated initial subposition visible.
-    AssertEqual(1830, routePointerFrames[0xca2c], "route reaches `$CA2C` record");
-    AssertEqual(1989, routePointerFrames[0xca34], "route reaches `$CA34` record");
-    AssertEqual(2072, routePointerFrames[0xca3c], "route reaches `$CA3C` record");
-    AssertEqual(2204, routePointerFrames[0xca44], "route reaches `$CA44` record");
-    AssertEqual(2244, routePointerFrames[0xca4c], "route reaches `$CA4C` record");
-    AssertEqual(2245, routePointerFrames[0xca54], "overlapping route advances again on next call");
-    AssertEqual(2277, routePointerFrames[0xca5c], "route reaches final `$CA5C` record");
-    AssertEqual(new BabyMetroidCutscenePoint(0x0095, 0xee00, 0x0064, 0x7500),
+    AssertEqual(1781, routePointerFrames[0xca2c], "route reaches `$CA2C` record");
+    AssertEqual(1847, routePointerFrames[0xca34], "route reaches `$CA34` record");
+    AssertEqual(1946, routePointerFrames[0xca3c], "route reaches `$CA3C` record");
+    AssertEqual(1947, routePointerFrames[0xca44], "overlapping route advances again on next call");
+    AssertEqual(2027, routePointerFrames[0xca4c], "route reaches `$CA4C` record");
+    AssertEqual(2046, routePointerFrames[0xca54], "route reaches `$CA54` record");
+    AssertEqual(2063, routePointerFrames[0xca5c], "route reaches final `$CA5C` record");
+    AssertEqual(new BabyMetroidCutscenePoint(0x007e, 0xac00, 0x0051, 0x9700),
         routePointerPoints[0xca2c], "first route-leg endpoint");
-    AssertEqual(new BabyMetroidCutscenePoint(0x0146, 0xa600, 0x0080, 0xef00),
+    AssertEqual(new BabyMetroidCutscenePoint(0x010b, 0xaf00, 0x008d, 0xc700),
         routePointerPoints[0xca34], "second route-leg endpoint");
-    AssertEqual(new BabyMetroidCutscenePoint(0x00d4, 0x4200, 0x003c, 0xac00),
+    AssertEqual(new BabyMetroidCutscenePoint(0x00e7, 0x1b00, 0x004b, 0x0200),
         routePointerPoints[0xca3c], "third route-leg endpoint");
-    AssertEqual(new BabyMetroidCutscenePoint(0x00ab, 0x1300, 0x0075, 0x7900),
+    AssertEqual(new BabyMetroidCutscenePoint(0x00e5, 0xa400, 0x0049, 0xf400),
         routePointerPoints[0xca44], "fourth route-leg endpoint");
-    AssertEqual(new BabyMetroidCutscenePoint(0x00cb, 0xa500, 0x0087, 0x7500),
+    AssertEqual(new BabyMetroidCutscenePoint(0x00c7, 0x7900, 0x0059, 0x4b00),
         routePointerPoints[0xca4c], "fifth route-leg endpoint");
-    AssertEqual(new BabyMetroidCutscenePoint(0x00cc, 0x9500, 0x0087, 0x7200),
-        routePointerPoints[0xca54], "sixth route-leg one-call endpoint");
-    AssertEqual(new BabyMetroidCutscenePoint(0x00d7, 0xf200, 0x008a, 0x4200),
+    AssertEqual(new BabyMetroidCutscenePoint(0x00cb, 0x1c00, 0x0069, 0x0000),
+        routePointerPoints[0xca54], "sixth route-leg endpoint");
+    AssertEqual(new BabyMetroidCutscenePoint(0x00cd, 0x8d00, 0x007a, 0x0f00),
         routePointerPoints[0xca5c], "seventh route-leg endpoint");
-    AssertEqual(2327, latchOntoSamusFrame,
+    AssertEqual(2077, latchOntoSamusFrame,
         "final route record overlays +8 with signed `$CA66` function pointer");
-    AssertEqual(2344, healSamusFrame,
+    AssertEqual(2095, healSamusFrame,
         "post-main enemy touch reaches `$CF03` latch target");
-    AssertEqual(3043, healingCompleteFrame,
+    AssertEqual(2794, healingCompleteFrame,
         "699 one-point heals reach 899 energy");
     AssertTrue(sawSamusTouch, "generic collision dispatches Baby `$CF03` touch AI");
     AssertTrue(sawAmbientCryThreshold, "route accepts random cry threshold `$FA0`");
@@ -8639,4 +8646,15 @@ sealed class TestAddressSpace : ISnesAddressSpace
         for (int index = 0; index < values.Length; index++)
             WriteByte(startAddress + index, values[index]);
     }
+}
+
+/// <summary>
+/// Windows process policy used only by this console host. `SEM_FAILCRITICALERRORS`,
+/// `SEM_NOGPFAULTERRORBOX`, and `SEM_NOOPENFILEERRORBOX` keep failures non-interactive;
+/// .NET still writes the exception and stack trace to stderr and returns a failing code.
+/// </summary>
+static class NativeConsoleProcess
+{
+    [DllImport("kernel32.dll")]
+    internal static extern uint SetErrorMode(uint errorMode);
 }

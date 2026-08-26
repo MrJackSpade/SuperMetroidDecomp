@@ -11,6 +11,7 @@ out/
 csharp/.vs/
 csharp/**/bin/
 csharp/**/obj/
+csharp/**/altbin/
 # Ad-hoc BaseOutputPath/BaseIntermediateOutputPath names used to evade IDE-held DLL locks
 # during isolated regression builds. They are compiler products, never source artifacts.
 csharp/**/.*-build/

@@ -26,12 +26,16 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public const ushort HeadAttackingBombPhase2InstructionList = 0x9ecc;
     public const ushort HeadAttackingTwoOnionRingsPhase2InstructionList = 0x9d7f;
     public const ushort HeadStretchingPhase2InstructionList = 0x9b7f;
+    public const ushort HeadStretchingPhase3InstructionList = 0x9bb3;
+    public const ushort HeadAttackingBabyMetroidInstructionList = 0x9db1;
     public const ushort BodyWalkingForwardReallySlowInstructionList = 0x9818;
     public const ushort BodyWalkingForwardReallyFastInstructionList = 0x9730;
+    public const ushort BodyWalkingForwardFastInstructionList = 0x976a;
     public const ushort BodyWalkingForwardMediumInstructionList = 0x97a4;
     public const ushort BodyWalkingForwardSlowInstructionList = 0x97de;
     public const ushort BodyWalkingBackwardReallySlowInstructionList = 0x993a;
     public const ushort BodyWalkingBackwardReallyFastInstructionList = 0x988c;
+    public const ushort BodyWalkingBackwardFastInstructionList = 0x98c6;
     public const ushort BodyWalkingBackwardMediumInstructionList = 0x9900;
     public const ushort BodyWalkingBackwardSlowInstructionList = 0x9852;
     public const ushort BodyStandingUpAfterCrouchingFastInstructionList = 0x99c6;
@@ -92,6 +96,18 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>Brain instruction timer, reset to one whenever the AI changes its list.</summary>
     public ushort HeadInstructionTimer { get; private set; }
+
+    /// <summary>
+    /// Live bank-$A9 instruction cursor. <see cref="HeadInstructionList"/> retains the last
+    /// list installed by body AI; this word advances through timed frames and command words.
+    /// </summary>
+    public ushort HeadInstructionPointer { get; private set; }
+
+    /// <summary>Current Mother Brain head spritemap selected by a timed instruction pair.</summary>
+    public ushort HeadSpritemapPointer { get; private set; }
+
+    /// <summary>Byte-angle used by newly spawned Mother Brain blue-ring projectiles.</summary>
+    public byte OnionRingTargetAngle { get; private set; }
 
     /// <summary>Native neck angular delta at Mother Brain body extra word `$0FBC`.</summary>
     public ushort NeckAngleDelta { get; private set; }
@@ -159,6 +175,13 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// <summary>Small-purple-breath flag cleared when the grey corpse is published.</summary>
     public bool SmallPurpleBreathGenerationEnabled { get; private set; } = true;
 
+    /// <summary>
+    /// Native Mother Brain health-based body-palette flag. Revival writes one only after
+    /// the walk to X `$50` has really completed; it is not synonymous with the separate
+    /// brain-slot palette handler above.
+    /// </summary>
+    public bool HealthBasedPaletteHandlingEnabled { get; private set; }
+
     /// <summary>Palette-transition record index at WRAM <c>$7E:802E</c>.</summary>
     public ushort GreyTransitionCounter { get; private set; }
 
@@ -167,6 +190,12 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// word; value one means Mother Brain has completed the ninth grey-table probe.
     /// </summary>
     public ushort Phase2CorpseState { get; private set; }
+
+    /// <summary>
+    /// Saturating `$00-$0C` counter incremented by head instruction `$A9:9EA3` at the start
+    /// of each four-ring attack against the Baby. It also selects the intended cry pitch.
+    /// </summary>
+    public ushort BabyMetroidAttackCounter { get; private set; }
 
     /// <summary>Brain-slot health rewritten to 36,000 when corpse state one is published.</summary>
     public ushort BrainHealth { get; private set; } = 0x0bb8;
@@ -262,6 +291,21 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTakenAback;
         RainbowBeamSoundPlaying = true; // `$A9:C8DA-$C8DD` writes the shared SFX flag.
     }
+
+    /// <summary>
+    /// Ports the Baby's cross-enemy write at <c>$A9:CB23</c>. The native routine does not
+    /// wait for Mother Brain's stand-up animation before repeatedly requesting the backward
+    /// walk; the later Baby route decides when to replace this function with <c>$C19A</c>.
+    /// </summary>
+    public void PrepareForFinalBabyMetroidAttack() =>
+        Phase = MotherBrainRainbowBeamAttackPhase.PrepareForFinalBabyMetroidAttack;
+
+    /// <summary>
+    /// Ports the Baby's cross-enemy write at <c>$A9:CBA8</c>. Mother Brain installs one last
+    /// `$9DB1` four-ring head program and then leaves her body function at the native RTS.
+    /// </summary>
+    public void ExecuteFinalBabyMetroidAttack() =>
+        Phase = MotherBrainRainbowBeamAttackPhase.ExecuteFinalBabyMetroidAttack;
 
     /// <summary>
     /// Ports the Baby's <c>$A9:C879</c> call to the standard backwards-walk helper using
@@ -422,6 +466,135 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             Body.YPosition - 0x0032 +
             CalculateSignedNeckComponent(bus, unchecked((byte)(lowerAngle + 0x40)), 0x0014) +
             CalculateSignedNeckComponent(bus, unchecked((byte)(upperAngle + 0x40)), 0x0014)));
+    }
+
+    /// <summary>
+    /// Executes the retail head instruction stage for the `$9DB1-$9DF5` Baby-murder lists.
+    /// Call after the brain-slot neck AI and before the later Baby enemy slot. Commands run
+    /// without consuming a frame until a duration/spritemap pair is loaded, matching the
+    /// common enemy-instruction processor's old-timer-equals-one rule.
+    /// </summary>
+    public MotherBrainHeadAnimationStepResult StepBabyMurderHeadAnimation(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        BabyMetroidCutsceneState baby)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+        ArgumentNullException.ThrowIfNull(baby);
+
+        ushort pointerBefore = HeadInstructionPointer;
+        ushort timerBefore = HeadInstructionTimer;
+        bool loadedFrame = false;
+        bool attackCounterIncremented = false;
+        bool attackCounterReset = false;
+        ushort? queuedSoundLibraryTwo = null;
+        ushort? queuedSoundLibraryThree = null;
+        MotherBrainOnionRingSpawnRequest? onionRing = null;
+
+        // Other translated rainbow/corpse lists are still represented by their installed
+        // pointer only. Do not let this specialised processor reinterpret their opcodes as
+        // Baby-murder commands merely because their ordinary timer happens to reach one.
+        if (HeadInstructionPointer < 0x9db1 || HeadInstructionPointer > 0x9df5)
+            return CreateResult();
+
+        ushort oldTimer = HeadInstructionTimer;
+        HeadInstructionTimer = unchecked((ushort)(HeadInstructionTimer - 1));
+        if (oldTimer != 1)
+            return CreateResult();
+
+        for (int commandCount = 0; commandCount < 24; commandCount++)
+        {
+            ushort word = ReadBankA9Word(bus, HeadInstructionPointer);
+            if ((word & 0x8000) == 0)
+            {
+                HeadInstructionTimer = word;
+                HeadSpritemapPointer = ReadBankA9Word(
+                    bus,
+                    unchecked((ushort)(HeadInstructionPointer + 2)));
+                HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 4));
+                loadedFrame = true;
+                return CreateResult();
+            }
+
+            ushort commandAddress = HeadInstructionPointer;
+            HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
+            switch (word)
+            {
+                case 0x9ea3: // Increment and saturate Baby attack counter at twelve.
+                    BabyMetroidAttackCounter = Math.Min(
+                        unchecked((ushort)(BabyMetroidAttackCounter + 1)),
+                        (ushort)0x000c);
+                    attackCounterIncremented = true;
+                    break;
+
+                case 0x9eb5: // Samus-target list explicitly resets the Baby counter.
+                    BabyMetroidAttackCounter = 0;
+                    attackCounterReset = true;
+                    break;
+
+                case 0x9b20: // Disable neck movement.
+                    NeckMovementEnabled = 0;
+                    break;
+
+                case 0x9e37: // Aim rings at the Baby's live enemy position.
+                    AimOnionRings(
+                        unchecked((short)(baby.XPosition - BrainXPosition - 0x000a)),
+                        unchecked((short)(baby.YPosition - BrainYPosition - 0x0010)));
+                    break;
+
+                case 0x9e5b: // Fallback list aims the identical program at Samus.
+                    AimOnionRings(
+                        unchecked((short)(samus.XPosition - BrainXPosition - 0x000a)),
+                        unchecked((short)(samus.YPosition - BrainYPosition - 0x0010)));
+                    break;
+
+                case 0x9b0f: // Unconditional go-to operand.
+                    HeadInstructionPointer = ReadBankA9Word(bus, HeadInstructionPointer);
+                    break;
+
+                case 0x9b14: // Enable neck movement and go to operand.
+                    NeckMovementEnabled = 1;
+                    HeadInstructionPointer = ReadBankA9Word(bus, HeadInstructionPointer);
+                    break;
+
+                case 0x9df7: // Intended counter-indexed cry; retail bug always reads entry 0.
+                    if (BabyMetroidAttackCounter != 0x000b)
+                        queuedSoundLibraryTwo = 0x006f;
+                    break;
+
+                case 0x9e29: // Spawn one `$86:CB4B` blue-ring enemy projectile.
+                    onionRing = new MotherBrainOnionRingSpawnRequest(OnionRingTargetAngle);
+                    break;
+
+                case 0x9b32: // Queue sound [[X]], library three; consume its operand.
+                    queuedSoundLibraryThree = ReadBankA9Word(bus, HeadInstructionPointer);
+                    HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
+                    break;
+
+                default:
+                    throw new InvalidOperationException(
+                        $"Unsupported Mother Brain Baby-murder head instruction ${word:X4} " +
+                        $"at $A9:{commandAddress:X4}.");
+            }
+        }
+
+        throw new InvalidOperationException(
+            "Mother Brain Baby-murder head list did not reach a timed frame within 24 commands.");
+
+        MotherBrainHeadAnimationStepResult CreateResult() => new(
+            pointerBefore,
+            HeadInstructionPointer,
+            timerBefore,
+            HeadInstructionTimer,
+            HeadSpritemapPointer,
+            loadedFrame,
+            attackCounterIncremented,
+            attackCounterReset,
+            OnionRingTargetAngle,
+            onionRing,
+            queuedSoundLibraryTwo,
+            queuedSoundLibraryThree);
     }
 
     /// <summary>
@@ -901,9 +1074,151 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfInanimateGrey:
-                // `$C059` installs the 768-count revival wait on the next body call. Keep
-                // that later revival chain as an explicit seam; corpse state one has already
-                // been published for the Baby actor this frame.
+                // `$C059` only installs the next function and its `$0300` timer. It does not
+                // fall through, so the first pre-decrement belongs to the following call.
+                Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfShowSignsOfLife;
+                FunctionTimer = 0x0300;
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfShowSignsOfLife:
+                // BPL accepts zero: 768 reaches zero without advancing and only the 769th
+                // call underflows to `$FFFF`. Revival then re-enables both breath producers,
+                // seeds `$E0`, and falls through two function installations to `$C08F`.
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    SmallPurpleBreathGenerationEnabled = true;
+                    DroolGenerationEnabled = true;
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfTransitionFromGrey;
+                    FunctionTimer = 0x00e0;
+                    GreyTransitionCounter = 0;
+                    goto case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfTransitionFromGrey;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfTransitionFromGrey:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    FunctionTimer = 0x0010;
+
+                    // `$AD:ED9C` reverses the same eight grey palettes used by the corpse
+                    // transition and follows them with zero. The body counter is incremented
+                    // before the old index is passed, so index eight is a terminating probe
+                    // with no copy. The existing result flag exposes each real copy cadence.
+                    ushort paletteIndex = GreyTransitionCounter;
+                    GreyTransitionCounter++;
+                    paletteRequested = paletteIndex < 8;
+                    if (paletteIndex >= 8)
+                    {
+                        BrainPaletteHandlingEnabled = true;
+                        Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWakeUp;
+                        goto case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWakeUp;
+                    }
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWakeUp:
+                // `$C670` returns carry only when pose zero was already visible at entry.
+                // A corpse pose therefore installs `$99C6` and waits for the ordinary body
+                // instruction stage to publish standing before setting the neck/timer words.
+                if (MakeBodyStandUp(out bodyPostureRequested))
+                {
+                    LowerNeckMovementIndex = 6;
+                    UpperNeckMovementIndex = 6;
+                    NeckAngleDelta = 0x0500;
+                    NeckMovementEnabled = 1;
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWakeUpStretch;
+                    FunctionTimer = 0x0010;
+                    goto case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWakeUpStretch;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWakeUpStretch:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    SetHeadInstructionList(HeadStretchingPhase3InstructionList);
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWalkUpToBabyMetroid;
+                    FunctionTimer = 0x0080;
+                    goto case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWalkUpToBabyMetroid;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWalkUpToBabyMetroid:
+                // Once `$80` underflows, the timer deliberately remains negative and the
+                // helper is retried after every body-program call until X has overshot `$50`.
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    bodyWalkRequested = RequestWalkForward(0x0050, 0x0004);
+                    bool reachedWalkTarget = unchecked((short)(0x0050 - Body.XPosition)) < 0 ||
+                        NativeAtLeast(Body.XPosition, 0x0080);
+                    if (reachedWalkTarget)
+                    {
+                        Phase2CorpseState = 2;
+                        HealthBasedPaletteHandlingEnabled = true;
+                        Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfPrepareNeckForBabyMetroidDeath;
+                    }
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfPrepareNeckForBabyMetroidDeath:
+                // `$C11E` is a one-call setup function which immediately falls into `$C147`.
+                // The separate body instruction stage may still be finishing the last walk.
+                BabyMetroidAttackCounter = 0;
+                NeckMovementEnabled = 1;
+                LowerNeckMovementIndex = 2;
+                UpperNeckMovementIndex = 4;
+                NeckAngleDelta = 0x0040;
+                Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfFinishPreparingForBabyMetroidDeath;
+                goto case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfFinishPreparingForBabyMetroidDeath;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfFinishPreparingForBabyMetroidDeath:
+                if (MakeBodyStandUp(out bodyPostureRequested))
+                {
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttack;
+                    bodyWalkRequested = RequestWalkForward(0x0050, 0x000a);
+                    goto case MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttack;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttack:
+                bodyPostureRequested = MaybeRequestStandUpOrLeanDown(randomNumberSeed);
+                if ((randomNumberSeed & 0x8000) != 0)
+                {
+                    // A nonzero Baby enemy index selects `$9DB1`; zero instead targets Samus.
+                    // This translated cutscene owns a spawned Baby, so retain the live actor
+                    // condition instead of unconditionally substituting the desired list.
+                    SetHeadInstructionList(BabyMetroidSpawned
+                        ? HeadAttackingBabyMetroidInstructionList
+                        : (ushort)0x9dbb);
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttackCooldown;
+                    FunctionTimer = 0x0040;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttackCooldown:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttack;
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.PrepareForFinalBabyMetroidAttack:
+                // This native function has no state transition. It requests stand-up and a
+                // fast backward walk toward `$40` every call until the Baby overwrites it.
+                MakeBodyStandUp(out bodyPostureRequested);
+                bodyWalkRequested |= RequestWalkBackward(0x0040, 0x0004);
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.ExecuteFinalBabyMetroidAttack:
+                SetHeadInstructionList(HeadAttackingBabyMetroidInstructionList);
+                Phase = MotherBrainRainbowBeamAttackPhase.FinalBabyMetroidAttackHolding;
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.FinalBabyMetroidAttackHolding:
+                // `$C1A6` is the installed RTS. The last ring volley owns the remaining
+                // health reduction and the Baby actor owns its death/recovery sequence.
                 break;
 
             default:
@@ -975,7 +1290,31 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         // `$A9:C447` writes the separate brain-list pointer and timer. Unlike ordinary
         // enemy programs it has no loop-counter write here.
         HeadInstructionList = pointer;
+        HeadInstructionPointer = pointer;
         HeadInstructionTimer = 1;
+    }
+
+    private void AimOnionRings(short deltaX, short deltaY)
+    {
+        // `$A0:C0B1` returns the game's byte angle. `$A9:9E77` converts it to the projectile
+        // convention (`$80-angle`) and performs a circular signed clamp: `$10-$47` survive,
+        // `$48-$BF` clamp to `$48`, and `$C0-$FF/$00-$0F` clamp to `$10`.
+        byte sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(deltaX, deltaY);
+        byte candidate = unchecked((byte)(0x80 - sourceAngle));
+        OnionRingTargetAngle = candidate switch
+        {
+            >= 0x10 and < 0x48 => candidate,
+            >= 0x48 and < 0xc0 => 0x48,
+            _ => 0x10,
+        };
+    }
+
+    private static ushort ReadBankA9Word(ISnesAddressSpace bus, ushort address)
+    {
+        int lowAddress = 0xa90000 | address;
+        return unchecked((ushort)(
+            bus.ReadByte(lowAddress) |
+            (bus.ReadByte(0xa90000 | unchecked((ushort)(address + 1))) << 8)));
     }
 
     private void RetractHead()
@@ -1034,6 +1373,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         ushort pointer = animationDelay switch
         {
             0x0002 => BodyWalkingForwardReallyFastInstructionList,
+            0x0004 => BodyWalkingForwardFastInstructionList,
             0x0006 => BodyWalkingForwardMediumInstructionList,
             0x0008 => BodyWalkingForwardSlowInstructionList,
             0x000a => BodyWalkingForwardReallySlowInstructionList,
@@ -1052,6 +1392,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         ushort pointer = animationDelay switch
         {
             0x0002 => BodyWalkingBackwardReallyFastInstructionList,
+            0x0004 => BodyWalkingBackwardFastInstructionList,
             0x0006 => BodyWalkingBackwardMediumInstructionList,
             0x0008 => BodyWalkingBackwardSlowInstructionList,
             0x000a => BodyWalkingBackwardReallySlowInstructionList,
@@ -1320,6 +1661,18 @@ public enum MotherBrainRainbowBeamAttackPhase
     DrainedByBabyMetroidPrepareTransitionToGrey,
     DrainedByBabyMetroidTransitionToGrey,
     Phase2ReviveSelfInanimateGrey,
+    Phase2ReviveSelfShowSignsOfLife,
+    Phase2ReviveSelfTransitionFromGrey,
+    Phase2ReviveSelfWakeUp,
+    Phase2ReviveSelfWakeUpStretch,
+    Phase2ReviveSelfWalkUpToBabyMetroid,
+    Phase2ReviveSelfPrepareNeckForBabyMetroidDeath,
+    Phase2ReviveSelfFinishPreparingForBabyMetroidDeath,
+    Phase2MurderBabyMetroidAttack,
+    Phase2MurderBabyMetroidAttackCooldown,
+    PrepareForFinalBabyMetroidAttack,
+    ExecuteFinalBabyMetroidAttack,
+    FinalBabyMetroidAttackHolding,
 }
 
 /// <summary>Head-projectile animation selected by `$A9:BD71-$BD83`.</summary>
@@ -1344,6 +1697,24 @@ public readonly record struct MotherBrainRainbowExplosionRequest(
     short XOffset,
     short YOffset,
     ushort SoundEffect);
+
+/// <summary>One `$86:CB4B` blue-ring spawn emitted by head opcode `$A9:9E29`.</summary>
+public readonly record struct MotherBrainOnionRingSpawnRequest(byte Angle);
+
+/// <summary>Debugger witness for one Baby-murder head instruction-processing call.</summary>
+public readonly record struct MotherBrainHeadAnimationStepResult(
+    ushort InstructionPointerBefore,
+    ushort InstructionPointerAfter,
+    ushort InstructionTimerBefore,
+    ushort InstructionTimerAfter,
+    ushort SpritemapPointer,
+    bool LoadedFrame,
+    bool BabyAttackCounterIncremented,
+    bool BabyAttackCounterReset,
+    byte OnionRingTargetAngle,
+    MotherBrainOnionRingSpawnRequest? OnionRingSpawn,
+    ushort? QueuedSoundLibraryTwo,
+    ushort? QueuedSoundLibraryThree);
 
 /// <summary>Debugger witness for one Mother Brain active-rainbow body-function call.</summary>
 public readonly record struct MotherBrainRainbowBeamAttackStepResult(

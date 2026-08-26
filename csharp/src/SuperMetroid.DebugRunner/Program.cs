@@ -96,6 +96,11 @@ else if (options.AimAirScript)
     Console.WriteLine(
         "Input script: aimed up/down normal jumps right, turn left, repeat, then release.");
 }
+else if (options.GunExtendedScript)
+{
+    Console.WriteLine(
+        "Input script: fire while running through $0B, fire during a neutral jump through $13/$E6, then host-publish the documented walk-off seam and fire through $67/$E6.");
+}
 else if (options.AerialTurnScript)
 {
     Console.WriteLine(
@@ -1060,6 +1065,28 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 >= 195 and < 226 => (ushort)(SnesButton.Left | SnesButton.L),
                 _ => (ushort)0,
             }
+        : options.GunExtendedScript
+            ? frameIndex switch
+            {
+                0 => (ushort)SnesButton.Start,
+
+                // `$91:A1F8` sees held Shot+Right and selects the real type-one `$0B`
+                // body. Releasing both inputs then lets running's native momentum command
+                // decelerate all the way back to standing `$01`.
+                >= 2 and < 28 => (ushort)(SnesButton.Right | SnesButton.X),
+
+                // A fresh Jump edge begins `$4B`; held Shot selects `$13` from that
+                // transition table, and retaining X through impact makes `$91:E99B`
+                // choose firing landing `$E6` rather than ordinary `$A4`.
+                >= 58 and < 70 => (ushort)(SnesButton.A | SnesButton.X),
+                >= 70 and < 108 => (ushort)SnesButton.X,
+
+                // The diagnostic walk-off stimulus below runs just before frame 111.
+                // Holding X lets `$29`'s literal table select falling fire pose `$67`,
+                // then keeps the same horizontal firing direction through landing.
+                >= 110 and < 160 => (ushort)SnesButton.X,
+                _ => (ushort)0,
+            }
         : options.AimAirScript
             ? frameIndex switch
             {
@@ -1314,6 +1341,28 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             $"pose=${runtime.Samus.Pose:X2}, animation=" +
             $"{runtime.Samus.AnimationFrame}/{runtime.Samus.AnimationFrameTimer}, " +
             $"direction={runtime.Samus.KnockbackDirection}, timer={runtime.Samus.KnockbackTimer}.");
+    }
+
+    if (options.GunExtendedScript && frameIndex == 110)
+    {
+        // Landing Site's convenient debug floor has no nearby safe ledge. Publish only the
+        // already-translated `$91:E8F2` walk-off producer seam: lift the host diagnostic body
+        // two blocks, then invoke the same collision-command-five transition a missing floor
+        // would have selected. Gravity, `$29 -> $67` input matching, terrain collision,
+        // `$91:E99B` held-Shot landing selection, animation, tile DMA, and art stay native.
+        if (!SamusState.IsRightFacingStandingPose(runtime.Samus.Pose))
+        {
+            throw new InvalidOperationException(
+                $"Gun-extension walk-off stimulus expected right-facing standing, not ${runtime.Samus.Pose:X2}.");
+        }
+
+        runtime.Samus.YPosition = unchecked((ushort)(runtime.Samus.YPosition - 32));
+        byte fallingPose = runtime.Samus.SelectFallingPoseForCurrentAim(bus);
+        runtime.Samus.ApplyWalkedOffFloorTransition(bus, fallingPose);
+        observedSamusPoses.Add(runtime.Samus.Pose);
+        Console.WriteLine(
+            $"frame {frameIndex + 1,4}: published `$91:E8F2` walk-off at Y={runtime.Samus.YPosition}; " +
+            $"pose=${runtime.Samus.Pose:X2}, next held Shot must select $67.");
     }
 
     if (options.DrainedSamusScript)
@@ -2116,6 +2165,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.FacingLeftNormalPose or
                      SamusState.MovingRightNormalPose or
                      SamusState.MovingLeftNormalPose or
+                     SamusState.MovingRightGunExtendedPose or
+                     SamusState.MovingLeftGunExtendedPose or
                      SamusState.TurningRightToLeftPose or
                      SamusState.TurningLeftToRightPose or
                      SamusState.TurningRightToLeftAimUpPose or
@@ -2178,6 +2229,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.RunningAimDiagonalDownLeftPose or
                      SamusState.NormalJumpForwardRightPose or
                      SamusState.NormalJumpForwardLeftPose or
+                     SamusState.NormalJumpGunExtendedRightPose or
+                     SamusState.NormalJumpGunExtendedLeftPose or
                      SamusState.NormalJumpAimUpRightPose or
                      SamusState.NormalJumpAimUpLeftPose or
                      SamusState.NormalJumpTransitionAimUpRightPose or
@@ -2202,6 +2255,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.FallingAimDiagonalDownLeftPose or
                      SamusState.FallingAimDownRightPose or
                      SamusState.FallingAimDownLeftPose or
+                     SamusState.FallingGunExtendedRightPose or
+                     SamusState.FallingGunExtendedLeftPose or
                      SamusState.CrouchingAimUpRightPose or
                      SamusState.CrouchingAimUpLeftPose or
                      SamusState.CrouchingAimDiagonalUpRightPose or
@@ -2214,6 +2269,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.LandingAimDiagonalUpLeftPose or
                      SamusState.LandingAimDiagonalDownRightPose or
                      SamusState.LandingAimDiagonalDownLeftPose or
+                     SamusState.FiringLandingRightPose or
+                     SamusState.FiringLandingLeftPose or
                      SamusState.CrouchingTransitionAimUpRightPose or
                      SamusState.CrouchingTransitionAimUpLeftPose or
                      SamusState.CrouchingTransitionAimDiagonalUpRightPose or
@@ -2446,6 +2503,31 @@ if (options.KnockbackScript)
     }
     Console.WriteLine(
         "Knockback ROM route validated hurt movement, the Left+Jump damage-boost chord, and type-$19 jump movement.");
+}
+
+if (options.GunExtendedScript && options.FrameCount >= 150)
+{
+    // Every member is recorded only after a complete StepFrame. `$29` is the single
+    // documented host-published walk-off input; `$0B/$13/$67/$E6` must all be selected by
+    // unchanged ROM transition/delay data and live controller/collision state.
+    byte[] requiredGunExtendedRoute =
+    [
+        SamusState.MovingRightGunExtendedPose,
+        SamusState.NormalJumpGunExtendedRightPose,
+        SamusState.FallingGunExtendedRightPose,
+        SamusState.FiringLandingRightPose,
+    ];
+    foreach (byte requiredPose in requiredGunExtendedRoute)
+    {
+        if (!observedSamusPoses.Contains(requiredPose))
+        {
+            throw new InvalidOperationException(
+                $"Horizontal-fire ROM script did not observe required pose ${requiredPose:X2}.");
+        }
+    }
+
+    Console.WriteLine(
+        "Horizontal-fire ROM route validated running $0B, neutral-jump $13, falling $67, and held-Shot landing $E6.");
 }
 
 if (options.MorphKnockbackScript)
@@ -3230,6 +3312,7 @@ readonly record struct DebugRunnerOptions(
     bool AimScript,
     bool AimRunScript,
     bool AimAirScript,
+    bool GunExtendedScript,
     bool AerialTurnScript,
     bool CompactAirScript,
     bool AimCrouchScript,
@@ -3272,6 +3355,7 @@ readonly record struct DebugRunnerOptions(
         bool aimScript = false;
         bool aimRunScript = false;
         bool aimAirScript = false;
+        bool gunExtendedScript = false;
         bool aerialTurnScript = false;
         bool compactAirScript = false;
         bool aimCrouchScript = false;
@@ -3392,6 +3476,11 @@ readonly record struct DebugRunnerOptions(
 
                 case "--aim-air-script":
                     aimAirScript = true;
+                    groundedRun = true;
+                    break;
+
+                case "--gun-extended-script":
+                    gunExtendedScript = true;
                     groundedRun = true;
                     break;
 
@@ -3536,6 +3625,7 @@ readonly record struct DebugRunnerOptions(
             aimScript,
             aimRunScript,
             aimAirScript,
+            gunExtendedScript,
             aerialTurnScript,
             compactAirScript,
             aimCrouchScript,

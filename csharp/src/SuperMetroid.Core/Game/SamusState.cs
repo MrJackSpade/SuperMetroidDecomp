@@ -46,6 +46,16 @@ public sealed class SamusState
     public const byte MovingLeftNormalPose = 0x0a;
 
     /// <summary>
+    /// Pose `$0B` is the right-moving horizontal-fire body. It is a genuine movement-type-one
+    /// record, shares the ordinary ten-frame running delay stream, and is selected when Shot
+    /// remains held with Right after the projectile direction has been established.
+    /// </summary>
+    public const byte MovingRightGunExtendedPose = 0x0b;
+
+    /// <summary>Pose `$0C` is the left-moving mirror of <see cref="MovingRightGunExtendedPose"/>.</summary>
+    public const byte MovingLeftGunExtendedPose = 0x0c;
+
+    /// <summary>
     /// Pose $49 visually faces left while moonwalking right. Its pose-X byte is deliberately
     /// eight: native horizontal movement follows travel direction, not the artwork's facing.
     /// </summary>
@@ -354,6 +364,15 @@ public sealed class SamusState
     /// <summary>Pose $2A is the unaimed left-facing falling pose.</summary>
     public const byte FallingLeftPose = 0x2a;
 
+    /// <summary>
+    /// Pose `$67` is the right-facing falling body with the cannon held horizontally after
+    /// firing. Its `$91:B353` delay stream has the same terminal-velocity split as `$29`.
+    /// </summary>
+    public const byte FallingGunExtendedRightPose = 0x67;
+
+    /// <summary>Pose `$68` is the left-facing mirror of <see cref="FallingGunExtendedRightPose"/>.</summary>
+    public const byte FallingGunExtendedLeftPose = 0x68;
+
     /// <summary>Pose $03 is stationary, facing right, with the arm cannon aimed straight up.</summary>
     public const byte StandingAimUpRightPose = 0x03;
 
@@ -389,6 +408,16 @@ public sealed class SamusState
 
     /// <summary>Pose $12 moves left while aiming diagonally down-left.</summary>
     public const byte RunningAimDiagonalDownLeftPose = 0x12;
+
+    /// <summary>
+    /// Pose `$13` is a stationary right-facing normal jump with the cannon extended. Unlike
+    /// `$4D`, its pose table deliberately stores no no-input fallback, so the firing body can
+    /// remain active until another input-table record or landing replaces it.
+    /// </summary>
+    public const byte NormalJumpGunExtendedRightPose = 0x13;
+
+    /// <summary>Pose `$14` is the left-facing mirror of <see cref="NormalJumpGunExtendedRightPose"/>.</summary>
+    public const byte NormalJumpGunExtendedLeftPose = 0x14;
 
     /// <summary>Pose $15 is a right-facing normal jump aimed straight up.</summary>
     public const byte NormalJumpAimUpRightPose = 0x15;
@@ -539,6 +568,16 @@ public sealed class SamusState
 
     /// <summary>Pose $E5 is a left-facing normal-jump landing aimed diagonally down.</summary>
     public const byte LandingAimDiagonalDownLeftPose = 0xe5;
+
+    /// <summary>
+    /// Pose `$E6` is the right-facing horizontal-fire landing selected by `$91:E95D` only
+    /// when the current shot direction is two and the Shot binding is still held at impact.
+    /// Its terminal `$F8,$01` command returns to ordinary standing after the landing frames.
+    /// </summary>
+    public const byte FiringLandingRightPose = 0xe6;
+
+    /// <summary>Pose `$E7` is the left-facing mirror of <see cref="FiringLandingRightPose"/>.</summary>
+    public const byte FiringLandingLeftPose = 0xe7;
 
     /// <summary>Pose $F1 transitions right-facing standing to crouching while aiming up.</summary>
     public const byte CrouchingTransitionAimUpRightPose = 0xf1;
@@ -988,19 +1027,33 @@ public sealed class SamusState
         MorphBallBounceState = 0;
     }
 
-    /// <summary>True for the four movement-type-one, right-moving pose-table entries.</summary>
+    /// <summary>
+    /// True for all five live movement-type-one, right-moving pose-table entries. `$0B`
+    /// belongs here even though its name describes firing: bank `$90` dispatches its body
+    /// through exactly the same running physics as `$09/$0D/$0F/$11`.
+    /// </summary>
     public static bool IsRightFacingRunningPose(byte pose) => pose is
-        MovingRightNormalPose or
+        MovingRightNormalPose or MovingRightGunExtendedPose or
         RunningAimUpRightPose or
         RunningAimDiagonalUpRightPose or
         RunningAimDiagonalDownRightPose;
 
-    /// <summary>True for the four movement-type-one, left-moving pose-table entries.</summary>
+    /// <summary>True for all five live movement-type-one, left-moving pose-table entries.</summary>
     public static bool IsLeftFacingRunningPose(byte pose) => pose is
-        MovingLeftNormalPose or
+        MovingLeftNormalPose or MovingLeftGunExtendedPose or
         RunningAimUpLeftPose or
         RunningAimDiagonalUpLeftPose or
         RunningAimDiagonalDownLeftPose;
+
+    /// <summary>
+    /// True for the six ordinary-play bodies whose names explicitly say “gun extended.”
+    /// Firing landings `$E6/$E7` are kept separate because they are short transition art,
+    /// not stable horizontal-fire bodies selected directly by an input table.
+    /// </summary>
+    public static bool IsGunExtendedPose(byte pose) => pose is
+        MovingRightGunExtendedPose or MovingLeftGunExtendedPose or
+        NormalJumpGunExtendedRightPose or NormalJumpGunExtendedLeftPose or
+        FallingGunExtendedRightPose or FallingGunExtendedLeftPose;
 
     /// <summary>
     /// True for the three poses whose artwork faces left while the type-$10 body travels
@@ -1124,6 +1177,21 @@ public sealed class SamusState
     public static bool IsLeftFacingAimedLandingPose(byte pose) => pose is
         LandingAimUpLeftPose or LandingAimDiagonalUpLeftPose or
         LandingAimDiagonalDownLeftPose;
+
+    /// <summary>
+    /// True for the complete right-facing landing set that shares the ordinary standing
+    /// transition table: normal `$A4`, spin `$A6`, aimed `$E0/$E2/$E4`, and firing `$E6`.
+    /// Centralizing this prevents a newly translated landing from silently losing crouch,
+    /// turn, run, or wall-probe exits in one of the several native pose-change seams.
+    /// </summary>
+    public static bool IsRightFacingLandingPose(byte pose) => pose is
+        NormalLandingRightPose or SpinLandingRightPose or FiringLandingRightPose ||
+        IsRightFacingAimedLandingPose(pose);
+
+    /// <summary>True for the complete mirrored left-facing landing set.</summary>
+    public static bool IsLeftFacingLandingPose(byte pose) => pose is
+        NormalLandingLeftPose or SpinLandingLeftPose or FiringLandingLeftPose ||
+        IsLeftFacingAimedLandingPose(pose);
 
     /// <summary>
     /// True for the complete right-facing movement-type-five crouch family. All four
@@ -1331,6 +1399,7 @@ public sealed class SamusState
     /// <summary>True for the admitted right-facing movement-type-two normal-jump poses.</summary>
     public static bool IsRightFacingNormalJumpPose(byte pose) => pose is
         NeutralJumpTransitionRightPose or NeutralJumpRightPose or
+        NormalJumpGunExtendedRightPose or
         NormalJumpForwardRightPose or NormalJumpAimUpRightPose or
         NormalJumpTransitionAimUpRightPose or
         NormalJumpTransitionAimDiagonalUpRightPose or
@@ -1341,6 +1410,7 @@ public sealed class SamusState
     /// <summary>True for the admitted left-facing movement-type-two normal-jump poses.</summary>
     public static bool IsLeftFacingNormalJumpPose(byte pose) => pose is
         NeutralJumpTransitionLeftPose or NeutralJumpLeftPose or
+        NormalJumpGunExtendedLeftPose or
         NormalJumpForwardLeftPose or NormalJumpAimUpLeftPose or
         NormalJumpTransitionAimUpLeftPose or
         NormalJumpTransitionAimDiagonalUpLeftPose or
@@ -1350,13 +1420,13 @@ public sealed class SamusState
 
     /// <summary>True for admitted right-facing movement-type-six falling poses.</summary>
     public static bool IsRightFacingFallingPose(byte pose) => pose is
-        FallingRightPose or FallingAimUpRightPose or
+        FallingRightPose or FallingGunExtendedRightPose or FallingAimUpRightPose or
         FallingAimDiagonalUpRightPose or FallingAimDiagonalDownRightPose or
         FallingAimDownRightPose;
 
     /// <summary>True for admitted left-facing movement-type-six falling poses.</summary>
     public static bool IsLeftFacingFallingPose(byte pose) => pose is
-        FallingLeftPose or FallingAimUpLeftPose or
+        FallingLeftPose or FallingGunExtendedLeftPose or FallingAimUpLeftPose or
         FallingAimDiagonalUpLeftPose or FallingAimDiagonalDownLeftPose or
         FallingAimDownLeftPose;
 
@@ -1381,7 +1451,9 @@ public sealed class SamusState
 
     /// <summary>
     /// Applies a same-facing input/fallback transition within normal-jump type two or
-    /// falling type six without replacing the live 16.16 velocity words.
+    /// falling type six without replacing the live 16.16 velocity words. The horizontal
+    /// gun-extended records `$13/$14/$67/$68` use this same native initialization seam;
+    /// “aim” survives in the historical method name only because that was the first slice.
     /// </summary>
     public void ApplyAerialAimTransition(ISnesAddressSpace bus, byte targetPose)
     {
@@ -1405,9 +1477,11 @@ public sealed class SamusState
                 $"Aerial aim transition ${Pose:X2} -> ${targetPose:X2} crosses an untranslated family.");
         }
         if (!IsAimedAerialPose(Pose) && !IsAimedAerialPose(targetPose) &&
+            !IsGunExtendedPose(Pose) && !IsGunExtendedPose(targetPose) &&
             targetPose is not (NormalJumpForwardRightPose or NormalJumpForwardLeftPose))
         {
-            throw new InvalidOperationException("Aerial aim transition requires aimed or forward-jump metadata.");
+            throw new InvalidOperationException(
+                "Aerial arm transition requires aimed, gun-extended, or forward-jump metadata.");
         }
 
         ushort oldRadius = Kinematics.YRadius;
@@ -1479,26 +1553,28 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Applies a same-facing transition within the movement-type-zero standing family and
-    /// movement-type-one running family when either endpoint is an aimed pose.
+    /// Applies a same-facing arm-body transition within the movement-type-zero standing
+    /// family and movement-type-one running family. Besides aimed bodies, this includes the
+    /// real `$0B/$0C` horizontal-fire records.
     /// </summary>
     /// <remarks>
-    /// All admitted records have radius 21 and ordinary animation-list initialization.
-    /// Movement type changes take effect on the following frame, exactly because pose
-    /// transitions occur after movement; jump, turn, crouch, and firing targets still go
-    /// through their separate side-effect paths.
+    /// All admitted records have radius 21. If both endpoints are running, `$91:F50C` writes
+    /// `$8000` to the new-frame word and `$91:FB5C` preserves the current frame and timer;
+    /// this matters when firing midway through the ten-frame run cycle. A transition between
+    /// movement types initializes frame zero normally. Movement type changes take effect on
+    /// the following frame because pose transitions occur after movement.
     /// </remarks>
     public void ApplyGroundedAimTransition(ISnesAddressSpace bus, byte targetPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
         bool sourceRight = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
             IsRightFacingRanIntoWallPose(Pose) ||
-            IsRightFacingAimedLandingPose(Pose);
+            IsRightFacingLandingPose(Pose);
         bool targetRight = IsRightFacingStandingPose(targetPose) || IsRightFacingRunningPose(targetPose) ||
             IsRightFacingRanIntoWallPose(targetPose);
         bool sourceLeft = IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
             IsLeftFacingRanIntoWallPose(Pose) ||
-            IsLeftFacingAimedLandingPose(Pose);
+            IsLeftFacingLandingPose(Pose);
         bool targetLeft = IsLeftFacingStandingPose(targetPose) || IsLeftFacingRunningPose(targetPose) ||
             IsLeftFacingRanIntoWallPose(targetPose);
         bool sameRightFamily = sourceRight && targetRight;
@@ -1512,13 +1588,37 @@ public sealed class SamusState
             throw new NotSupportedException(
                 $"Grounded aim transition ${Pose:X2} -> ${targetPose:X2} crosses an untranslated pose family.");
         }
-        if (!IsGroundedAimPose(Pose) && !IsGroundedAimPose(targetPose))
-            throw new InvalidOperationException("Grounded aim transition requires an aimed source or target pose.");
+        if (!IsGroundedAimPose(Pose) && !IsGroundedAimPose(targetPose) &&
+            !IsGunExtendedPose(Pose) && !IsGunExtendedPose(targetPose))
+        {
+            throw new InvalidOperationException(
+                "Grounded arm transition requires an aimed or gun-extended source/target pose.");
+        }
 
-        // This is $91:F404/$91:FB08's ordinary target installation. Preserve it as an
-        // explicit method: replacing Pose directly would omit radius refresh, animation
-        // frame zero, delay-list selection, and pending-command cleanup.
-        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Grounded aim");
+        byte sourcePose = Pose;
+        bool preservesRunningAnimation =
+            (IsRightFacingRunningPose(sourcePose) && IsRightFacingRunningPose(targetPose)) ||
+            (IsLeftFacingRunningPose(sourcePose) && IsLeftFacingRunningPose(targetPose));
+        if (!preservesRunningAnimation)
+        {
+            // This is `$91:F404/$91:FB08`'s ordinary target installation. Replacing Pose
+            // directly would omit radius refresh, delay-list selection, and command cleanup.
+            ApplySimpleGroundedPoseChange(bus, sourcePose, targetPose, "Grounded arm");
+            return;
+        }
+
+        // `$91:F50C-$F51A` sees previous movement type one and publishes `$8000`. The BMI
+        // at `$91:FB5C` exits before touching frame, timer, or delay-buffer state. Every live
+        // running arm pose points to the same `$91:B20A` list, so the cached list address is
+        // already exact and must not be rebound or reset here.
+        ushort oldRadius = Kinematics.YRadius;
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+        if (Kinematics.YRadius != oldRadius)
+        {
+            throw new InvalidDataException(
+                $"Running arm pose ${targetPose:X2} unexpectedly changed radius {oldRadius} -> {Kinematics.YRadius}.");
+        }
     }
 
     /// <summary>
@@ -1595,11 +1695,9 @@ public sealed class SamusState
     {
         ArgumentNullException.ThrowIfNull(bus);
         bool rightSource = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
-            IsRightFacingRanIntoWallPose(Pose) || IsRightFacingAimedLandingPose(Pose) ||
-            Pose is NormalLandingRightPose or SpinLandingRightPose;
+            IsRightFacingRanIntoWallPose(Pose) || IsRightFacingLandingPose(Pose);
         bool leftSource = IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
-            IsLeftFacingRanIntoWallPose(Pose) || IsLeftFacingAimedLandingPose(Pose) ||
-            Pose is NormalLandingLeftPose or SpinLandingLeftPose;
+            IsLeftFacingRanIntoWallPose(Pose) || IsLeftFacingLandingPose(Pose);
         bool rightRoute = rightSource &&
             (IsRightFacingRanIntoWallPose(targetPose) || targetPose == StandingAimUpRightPose);
         bool leftRoute = leftSource &&
@@ -1794,16 +1892,17 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Applies the shared standing/landing transition-table route from $A4/$A6 to running
-    /// right $09, or from $A5/$A7 to running left $0A. Landing movement has already cleared
-    /// momentum in this frame; the new running pose begins accelerating on the next frame.
+    /// Applies the shared standing/landing transition-table route from any right-facing
+    /// landing (including firing `$E6`) to running right `$09`, or from the mirrored left
+    /// family (including `$E7`) to `$0A`. Landing movement has already cleared momentum in
+    /// this frame; the new running pose begins accelerating on the next frame.
     /// </summary>
     public void ApplyLandingToRunning(ISnesAddressSpace bus, byte targetPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        bool right = (Pose is NormalLandingRightPose or SpinLandingRightPose) &&
+        bool right = IsRightFacingLandingPose(Pose) &&
             targetPose == MovingRightNormalPose;
-        bool left = (Pose is NormalLandingLeftPose or SpinLandingLeftPose) &&
+        bool left = IsLeftFacingLandingPose(Pose) &&
             targetPose == MovingLeftNormalPose;
         if (!right && !left)
         {
@@ -1832,14 +1931,12 @@ public sealed class SamusState
             IsMoonwalkingFacingRightPose(Pose) ||
             IsRightFacingRanIntoWallPose(Pose) ||
             IsRightFacingCrouchingPose(Pose) ||
-            IsRightFacingAimedLandingPose(Pose) ||
-            Pose is NormalLandingRightPose or SpinLandingRightPose;
+            IsRightFacingLandingPose(Pose);
         bool leftSource = IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
             IsMoonwalkingFacingLeftPose(Pose) ||
             IsLeftFacingRanIntoWallPose(Pose) ||
             IsLeftFacingCrouchingPose(Pose) ||
-            IsLeftFacingAimedLandingPose(Pose) ||
-            Pose is NormalLandingLeftPose or SpinLandingLeftPose;
+            IsLeftFacingLandingPose(Pose);
         bool turnsLeft = targetPose == (wasCrouching
             ? TurningRightToLeftCrouchingPose
             : TurningRightToLeftPose) && rightSource;
@@ -2329,10 +2426,10 @@ public sealed class SamusState
              NormalJumpTransitionAimUpLeftPose or
                 NormalJumpTransitionAimDiagonalUpLeftPose or
                 NormalJumpTransitionAimDiagonalDownLeftPose) or
-            (MovingRightNormalPose or RunningAimUpRightPose or
+            (MovingRightNormalPose or MovingRightGunExtendedPose or RunningAimUpRightPose or
                 RunningAimDiagonalUpRightPose or RunningAimDiagonalDownRightPose,
              SpinJumpRightPose) or
-            (MovingLeftNormalPose or RunningAimUpLeftPose or
+            (MovingLeftNormalPose or MovingLeftGunExtendedPose or RunningAimUpLeftPose or
                 RunningAimDiagonalUpLeftPose or RunningAimDiagonalDownLeftPose,
              SpinJumpLeftPose) or
             // `$91:AF98-$AFFF` can leave the moonwalk turn art early while the backward
@@ -2499,8 +2596,7 @@ public sealed class SamusState
             (IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
              IsMoonwalkingFacingRightPose(Pose) ||
              IsRightFacingRanIntoWallPose(Pose) ||
-             (Pose is NormalLandingRightPose or SpinLandingRightPose) ||
-             IsRightFacingAimedLandingPose(Pose)) &&
+             IsRightFacingLandingPose(Pose)) &&
             targetPose is
                 CrouchingTransitionRightPose or CrouchingTransitionAimUpRightPose or
                 CrouchingTransitionAimDiagonalUpRightPose or
@@ -2509,8 +2605,7 @@ public sealed class SamusState
             (IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
              IsMoonwalkingFacingLeftPose(Pose) ||
              IsLeftFacingRanIntoWallPose(Pose) ||
-             (Pose is NormalLandingLeftPose or SpinLandingLeftPose) ||
-             IsLeftFacingAimedLandingPose(Pose)) &&
+             IsLeftFacingLandingPose(Pose)) &&
             targetPose is
                 CrouchingTransitionLeftPose or CrouchingTransitionAimUpLeftPose or
                 CrouchingTransitionAimDiagonalUpLeftPose or
@@ -2916,7 +3011,10 @@ public sealed class SamusState
     /// at <c>$91:F010</c>. Expanding radius 19 to 21 moves Samus upward by two pixels so
     /// her feet stay on the same collision boundary, matching <c>$91:FF49</c>.
     /// </summary>
-    public void ApplyAerialLanding(ISnesAddressSpace bus, bool wasSpinning)
+    public void ApplyAerialLanding(
+        ISnesAddressSpace bus,
+        bool wasSpinning,
+        ushort controllerInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         bool leavingScrewAttack = IsScrewAttackPose(Pose);
@@ -2931,16 +3029,19 @@ public sealed class SamusState
         {
             // `$91:E95D` checks `$FF` before indexing `$91:E9F3`; hurt/damage-boost art
             // deliberately stores that sentinel and lands through the ordinary facing pair.
-            // Horizontal directions 2/7 also select `$A4/$A5`; the six admitted aim
-            // directions select `$E0-$E5`. Compact directions 4/5 intentionally remain out.
+            // Horizontal directions two/seven take `$91:E96E-$E98F`'s extra Shot-binding
+            // test. Held Shot selects firing landing `$E6/$E7`; released Shot selects the
+            // ordinary `$A4/$A5` pair. The six admitted aim directions select `$E0-$E5`.
+            // Compact directions four/five intentionally remain in the collision-aware path.
+            bool shotHeld = (controllerInput & (ushort)SnesButton.X) != 0;
             targetPose = ReadShotDirection(bus) switch
             {
                 0 => LandingAimUpRightPose,
                 1 => LandingAimDiagonalUpRightPose,
-                2 => NormalLandingRightPose,
+                2 => shotHeld ? FiringLandingRightPose : NormalLandingRightPose,
                 3 => LandingAimDiagonalDownRightPose,
                 6 => LandingAimDiagonalDownLeftPose,
-                7 => NormalLandingLeftPose,
+                7 => shotHeld ? FiringLandingLeftPose : NormalLandingLeftPose,
                 8 => LandingAimDiagonalUpLeftPose,
                 9 => LandingAimUpLeftPose,
                 0xff => facingLeft ? NormalLandingLeftPose : NormalLandingRightPose,
@@ -3096,6 +3197,10 @@ public sealed class SamusState
             (LandingAimDiagonalUpLeftPose, StandingAimDiagonalUpLeftPose) or
             (LandingAimDiagonalDownRightPose, StandingAimDiagonalDownRightPose) or
             (LandingAimDiagonalDownLeftPose, StandingAimDiagonalDownLeftPose) or
+            // `$91:B22D/$B231` is shared by ordinary and firing landings. `$E6/$E7`
+            // therefore executes the literal same `$F8,$01/$02` terminal operands.
+            (FiringLandingRightPose, FacingRightNormalPose) or
+            (FiringLandingLeftPose, FacingLeftNormalPose) or
             // Every aerial-turn delay list ends in command `$F8 pp`. These pairs are the
             // literal operands from `$91:B3ED-$91:B490`, not inferred mirror poses.
             (TurningRightToLeftJumpPose, NormalJumpForwardLeftPose) or

@@ -1125,6 +1125,7 @@ public sealed class SuperMetroidRuntime
                         NmiFrameCounter);
                         break;
                     case SamusState.MovingRightNormalPose:
+                    case SamusState.MovingRightGunExtendedPose:
                     case SamusState.RunningAimUpRightPose:
                     case SamusState.RunningAimDiagonalUpRightPose:
                     case SamusState.RunningAimDiagonalDownRightPose:
@@ -1146,6 +1147,7 @@ public sealed class SuperMetroidRuntime
                         NmiFrameCounter);
                         break;
                     case SamusState.MovingLeftNormalPose:
+                    case SamusState.MovingLeftGunExtendedPose:
                     case SamusState.RunningAimUpLeftPose:
                     case SamusState.RunningAimDiagonalUpLeftPose:
                     case SamusState.RunningAimDiagonalDownLeftPose:
@@ -1218,6 +1220,8 @@ public sealed class SuperMetroidRuntime
                     case SamusState.LandingAimDiagonalUpLeftPose:
                     case SamusState.LandingAimDiagonalDownRightPose:
                     case SamusState.LandingAimDiagonalDownLeftPose:
+                    case SamusState.FiringLandingRightPose:
+                    case SamusState.FiringLandingLeftPose:
                         LastGroundedSamusMovement = SamusGroundedMovement.StepLanding(
                             _addressSpace,
                             LevelData,
@@ -1262,6 +1266,8 @@ public sealed class SuperMetroidRuntime
                     case SamusState.NeutralJumpTransitionLeftPose:
                     case SamusState.NeutralJumpRightPose:
                     case SamusState.NeutralJumpLeftPose:
+                    case SamusState.NormalJumpGunExtendedRightPose:
+                    case SamusState.NormalJumpGunExtendedLeftPose:
                     case SamusState.NormalJumpForwardRightPose:
                     case SamusState.NormalJumpForwardLeftPose:
                     case SamusState.NormalJumpAimUpRightPose:
@@ -1341,6 +1347,8 @@ public sealed class SuperMetroidRuntime
                         break;
                     case SamusState.FallingRightPose:
                     case SamusState.FallingLeftPose:
+                    case SamusState.FallingGunExtendedRightPose:
+                    case SamusState.FallingGunExtendedLeftPose:
                     case SamusState.FallingAimUpRightPose:
                     case SamusState.FallingAimUpLeftPose:
                     case SamusState.FallingAimDiagonalUpRightPose:
@@ -1572,7 +1580,10 @@ public sealed class SuperMetroidRuntime
                     {
                         bool wasSpinning = SamusState.IsSpinJumpPose(poseAtFrameStart) ||
                             SamusState.IsWallJumpPose(poseAtFrameStart);
-                        Samus.ApplyAerialLanding(_addressSpace, wasSpinning);
+                        Samus.ApplyAerialLanding(
+                            _addressSpace,
+                            wasSpinning,
+                            Controller1.Current);
                     }
                     animationTransitionApplied = true;
                 }
@@ -1762,18 +1773,20 @@ public sealed class SuperMetroidRuntime
                                 break;
                             case var (source, target)
                                 when (SamusState.IsGroundedAimPose(source) ||
-                                      SamusState.IsGroundedAimPose(target)) &&
+                                      SamusState.IsGroundedAimPose(target) ||
+                                      SamusState.IsGunExtendedPose(source) ||
+                                      SamusState.IsGunExtendedPose(target)) &&
                                      (((SamusState.IsRightFacingStandingPose(source) ||
                                         SamusState.IsRightFacingRunningPose(source) ||
                                         SamusState.IsRightFacingRanIntoWallPose(source) ||
-                                        SamusState.IsRightFacingAimedLandingPose(source)) &&
+                                        SamusState.IsRightFacingLandingPose(source)) &&
                                        (SamusState.IsRightFacingStandingPose(target) ||
                                         SamusState.IsRightFacingRunningPose(target) ||
                                         SamusState.IsRightFacingRanIntoWallPose(target))) ||
                                       ((SamusState.IsLeftFacingStandingPose(source) ||
                                         SamusState.IsLeftFacingRunningPose(source) ||
                                         SamusState.IsLeftFacingRanIntoWallPose(source) ||
-                                        SamusState.IsLeftFacingAimedLandingPose(source)) &&
+                                        SamusState.IsLeftFacingLandingPose(source)) &&
                                        (SamusState.IsLeftFacingStandingPose(target) ||
                                         SamusState.IsLeftFacingRunningPose(target) ||
                                         SamusState.IsLeftFacingRanIntoWallPose(target))) ||
@@ -1786,6 +1799,8 @@ public sealed class SuperMetroidRuntime
                             case var (source, target)
                                 when (SamusState.IsAimedAerialPose(source) ||
                                       SamusState.IsAimedAerialPose(target) ||
+                                      SamusState.IsGunExtendedPose(source) ||
+                                      SamusState.IsGunExtendedPose(target) ||
                                       target is SamusState.NormalJumpForwardRightPose or
                                           SamusState.NormalJumpForwardLeftPose) &&
                                      ((SamusState.IsRightFacingNormalJumpPose(source) &&
@@ -1819,10 +1834,7 @@ public sealed class SuperMetroidRuntime
                                       SamusState.IsMoonwalkingFacingRightPose(rightSource) ||
                                       SamusState.IsRightFacingRanIntoWallPose(rightSource) ||
                                       SamusState.IsRightFacingCrouchingPose(rightSource) ||
-                                      SamusState.IsRightFacingAimedLandingPose(rightSource) ||
-                                      rightSource is
-                                         SamusState.NormalLandingRightPose or
-                                         SamusState.SpinLandingRightPose):
+                                      SamusState.IsRightFacingLandingPose(rightSource)):
                             case var (leftSource, leftTarget)
                                 when leftTarget is
                                          SamusState.TurningLeftToRightPose or
@@ -1832,10 +1844,7 @@ public sealed class SuperMetroidRuntime
                                       SamusState.IsMoonwalkingFacingLeftPose(leftSource) ||
                                       SamusState.IsLeftFacingRanIntoWallPose(leftSource) ||
                                       SamusState.IsLeftFacingCrouchingPose(leftSource) ||
-                                      SamusState.IsLeftFacingAimedLandingPose(leftSource) ||
-                                      leftSource is
-                                         SamusState.NormalLandingLeftPose or
-                                         SamusState.SpinLandingLeftPose):
+                                      SamusState.IsLeftFacingLandingPose(leftSource)):
                                 Samus.ApplyGroundedTurn(_addressSpace, targetPose);
                                 break;
                             case var (source, target)
@@ -1857,11 +1866,15 @@ public sealed class SuperMetroidRuntime
                                           SamusState.NormalJumpTransitionAimDiagonalDownLeftPose):
                             case (SamusState.MovingRightNormalPose,
                                   SamusState.SpinJumpRightPose):
+                            case (SamusState.MovingRightGunExtendedPose,
+                                  SamusState.SpinJumpRightPose):
                             case (SamusState.RunningAimUpRightPose or
                                   SamusState.RunningAimDiagonalUpRightPose or
                                   SamusState.RunningAimDiagonalDownRightPose,
                                   SamusState.SpinJumpRightPose):
                             case (SamusState.MovingLeftNormalPose,
+                                  SamusState.SpinJumpLeftPose):
+                            case (SamusState.MovingLeftGunExtendedPose,
                                   SamusState.SpinJumpLeftPose):
                             case (SamusState.RunningAimUpLeftPose or
                                   SamusState.RunningAimDiagonalUpLeftPose or
@@ -1899,10 +1912,11 @@ public sealed class SuperMetroidRuntime
                                     targetPose,
                                     NmiFrameCounter);
                                 break;
-                            case (SamusState.NormalLandingRightPose or SamusState.SpinLandingRightPose,
-                                  SamusState.MovingRightNormalPose):
-                            case (SamusState.NormalLandingLeftPose or SamusState.SpinLandingLeftPose,
-                                  SamusState.MovingLeftNormalPose):
+                            case var (landingSource, landingTarget)
+                                when (landingTarget == SamusState.MovingRightNormalPose &&
+                                      SamusState.IsRightFacingLandingPose(landingSource)) ||
+                                     (landingTarget == SamusState.MovingLeftNormalPose &&
+                                      SamusState.IsLeftFacingLandingPose(landingSource)):
                                 Samus.ApplyLandingToRunning(_addressSpace, targetPose);
                                 break;
                             case var (source, postureTarget)
@@ -1913,13 +1927,8 @@ public sealed class SuperMetroidRuntime
                                       SamusState.IsLeftFacingRunningPose(source) ||
                                       SamusState.IsMoonwalkingPose(source) ||
                                       SamusState.IsRanIntoWallPose(source) ||
-                                      SamusState.IsRightFacingAimedLandingPose(source) ||
-                                      SamusState.IsLeftFacingAimedLandingPose(source) ||
-                                      source is
-                                          SamusState.NormalLandingRightPose or
-                                          SamusState.NormalLandingLeftPose or
-                                          SamusState.SpinLandingRightPose or
-                                          SamusState.SpinLandingLeftPose ||
+                                      SamusState.IsRightFacingLandingPose(source) ||
+                                      SamusState.IsLeftFacingLandingPose(source) ||
                                       SamusState.IsRightFacingCrouchingPose(source) ||
                                       SamusState.IsLeftFacingCrouchingPose(source)):
                                 Samus.TryApplyPostureTransition(

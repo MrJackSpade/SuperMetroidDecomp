@@ -60,6 +60,7 @@ VerifySamusPostureMovement();
 VerifySamusMorphBallMovement();
 VerifySamusStandingAimMovement();
 VerifySamusAimedAerialMovement();
+VerifySamusGunExtendedMovement();
 VerifySamusSlopePhysics();
 VerifySamusBlockCollision();
 VerifySamusGroundedMovement();
@@ -8388,6 +8389,162 @@ static void VerifySamusAimedAerialMovement()
     AssertEqual((byte)0x29, samus.Pose, "aimed fall applies unaimed fallback");
 
     Console.WriteLine("  Samus aimed air: FD jump, live aim, compact hitboxes/landing, walk-off, and fall fallback agree.");
+}
+
+/// <summary>
+/// Locks the complete ordinary-play horizontal-fire body family to literal bank-$91 pose
+/// records and transition semantics. These checks intentionally separate body-pose work
+/// from projectile ownership: a fired beam is a bank-$90 system, while `$0B/$13/$67` and
+/// their mirrors are bank-$91 movement/animation states selected by the same controller word.
+/// </summary>
+static void VerifySamusGunExtendedMovement()
+{
+    var bus = new TestAddressSpace();
+
+    // PoseDefinitions begins at `$91:B629` and each entry is exactly eight bytes:
+    // X direction, movement type, no-input fallback, shot direction, collision command,
+    // unused byte, Y radius, unused byte. These are direct retail bytes, not host fixtures
+    // inferred from nearby poses.
+    (byte Pose, byte[] Definition)[] definitions = [
+        (0x01, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
+        (0x02, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
+        (0x09, [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]),
+        (0x0a, [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]),
+        (0x0b, [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]),
+        (0x0c, [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]),
+        (0x13, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
+        (0x14, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
+        (0x4d, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
+        (0x4e, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
+        (0x29, [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
+        (0x2a, [0x04, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
+        (0x67, [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
+        (0x68, [0x04, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
+        (0xa4, [0x08, 0x00, 0xff, 0x02, 0x03, 0x00, 0x15, 0x00]),
+        (0xa5, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]),
+        (0xe6, [0x08, 0x00, 0xff, 0x02, 0x03, 0x00, 0x15, 0x00]),
+        (0xe7, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]),
+    ];
+    foreach ((byte pose, byte[] definition) in definitions)
+        bus.WriteBytes(0x91b629 + pose * 8, definition);
+
+    // Synthetic storage keeps the tests compact, but each stream's bytes reproduce the
+    // relevant retail control flow: running loops ten frames; jump/fall loop; firing
+    // landings reach literal command `$F8,$01/$02`.
+    (byte Pose, ushort Stream, byte[] Bytes)[] animations = [
+        (0x01, 0xd000, [0x0a, 0xff]),
+        (0x02, 0xd010, [0x0a, 0xff]),
+        (0x09, 0xd020, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]),
+        (0x0a, 0xd020, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]),
+        (0x0b, 0xd020, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]),
+        (0x0c, 0xd020, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]),
+        (0x13, 0xd040, [0x02, 0x10, 0xfe, 0x01]),
+        (0x14, 0xd040, [0x02, 0x10, 0xfe, 0x01]),
+        (0x4d, 0xd050, [0x02, 0x03, 0xfe, 0x01]),
+        (0x4e, 0xd050, [0x02, 0x03, 0xfe, 0x01]),
+        (0x29, 0xd060, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
+        (0x2a, 0xd060, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
+        (0x67, 0xd080, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
+        (0x68, 0xd080, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
+        (0xa4, 0xd0a0, [0x05, 0x02, 0xf8, 0x01]),
+        (0xa5, 0xd0b0, [0x05, 0x02, 0xf8, 0x02]),
+        (0xe6, 0xd0c0, [0x01, 0xf8, 0x01]),
+        (0xe7, 0xd0d0, [0x01, 0xf8, 0x02]),
+    ];
+    foreach ((byte pose, ushort stream, byte[] bytes) in animations)
+    {
+        WriteTestWord(bus, 0x91b010 + pose * 2, stream);
+        bus.WriteBytes(0x910000 | stream, bytes);
+    }
+
+    // Minimal transition programs retain the literal held masks from `$91:A1F8`,
+    // `$91:A2F6`, and `$91:A70C`. They prove that Shot+forward, Shot in neutral jump,
+    // and Shot while falling select the three distinct extended-gun movement families.
+    WriteTestWord(bus, 0x919ef4, 0xd100); // pose $09 pointer
+    bus.WriteBytes(0x91d100, [0x00, 0x00, 0x40, 0x01, 0x0b, 0x00, 0xff, 0xff]);
+    WriteTestWord(bus, 0x919f7c, 0xd110); // pose $4D pointer
+    bus.WriteBytes(0x91d110, [0x00, 0x00, 0x40, 0x00, 0x13, 0x00, 0xff, 0xff]);
+    WriteTestWord(bus, 0x919f34, 0xd120); // pose $29 pointer
+    bus.WriteBytes(0x91d120, [0x00, 0x00, 0x40, 0x00, 0x67, 0x00, 0xff, 0xff]);
+
+    AssertEqual((ushort)0x0b,
+        SamusPoseTransitionTable.Find(bus, 0x09, 0x0140, 0)!.Value.ProspectivePose,
+        "Shot+Right selects running gun extension");
+    AssertEqual((ushort)0x13,
+        SamusPoseTransitionTable.Find(bus, 0x4d, 0x0040, 0)!.Value.ProspectivePose,
+        "Shot selects neutral-jump gun extension");
+    AssertEqual((ushort)0x67,
+        SamusPoseTransitionTable.Find(bus, 0x29, 0x0040, 0)!.Value.ProspectivePose,
+        "Shot selects falling gun extension");
+
+    // `$91:F50C` preserves the animation phase across movement-type-one arm changes. Begin
+    // on a nonzero index so resetting to frame zero cannot accidentally satisfy the check.
+    var running = new SamusState { Pose = SamusState.MovingRightNormalPose };
+    running.RefreshCollisionRadii(bus);
+    running.InitializeAnimation(bus, initialFrame: 4);
+    ushort runningFrame = running.AnimationFrame;
+    ushort runningTimer = running.AnimationFrameTimer;
+    int runningDelayList = running.AnimationDelayListAddress;
+    running.ApplyGroundedAimTransition(bus, SamusState.MovingRightGunExtendedPose);
+    AssertEqual((byte)0x0b, running.Pose, "running gun extension installs pose $0B");
+    AssertEqual(runningFrame, running.AnimationFrame, "running gun extension preserves frame");
+    AssertEqual(runningTimer, running.AnimationFrameTimer, "running gun extension preserves timer");
+    AssertEqual(runningDelayList, running.AnimationDelayListAddress, "running gun extension retains shared delay list");
+
+    // Same-radius airborne arm changes must not perturb the live 16.16 velocity or direction.
+    var jumping = new SamusState { Pose = SamusState.NeutralJumpRightPose };
+    jumping.RefreshCollisionRadii(bus);
+    jumping.InitializeAnimation(bus);
+    jumping.Kinematics.YSpeed = 3;
+    jumping.Kinematics.YSubspeed = 0x4567;
+    jumping.Kinematics.YDirection = 1;
+    jumping.ApplyAerialAimTransition(bus, SamusState.NormalJumpGunExtendedRightPose);
+    AssertEqual((byte)0x13, jumping.Pose, "neutral jump installs gun extension $13");
+    AssertEqual(0x00034567u, jumping.Kinematics.VerticalSpeedFixed, "jump gun extension preserves velocity");
+    AssertEqual((ushort)1, jumping.Kinematics.YDirection, "jump gun extension preserves direction");
+
+    var falling = new SamusState { Pose = SamusState.FallingRightPose, YPosition = 100 };
+    falling.RefreshCollisionRadii(bus);
+    falling.InitializeAnimation(bus);
+    falling.Kinematics.YSpeed = 2;
+    falling.Kinematics.YSubspeed = 0xabcd;
+    falling.Kinematics.YDirection = 2;
+    falling.HorizontalSpeed.BaseSpeed = 1;
+    falling.ApplyAerialAimTransition(bus, SamusState.FallingGunExtendedRightPose);
+    AssertEqual((byte)0x67, falling.Pose, "fall installs gun extension $67");
+    AssertEqual(0x0002abcdu, falling.Kinematics.VerticalSpeedFixed, "fall gun extension preserves velocity");
+
+    // `$91:E99B` samples HELD Shot, not newly pressed Shot. Holding X at horizontal impact
+    // selects `$E6`; releasing it selects `$A4` from the same source metadata.
+    falling.ApplyAerialLanding(bus, wasSpinning: false, (ushort)SnesButton.X);
+    AssertEqual((byte)0xe6, falling.Pose, "held Shot selects firing landing $E6");
+    AssertEqual((ushort)21, falling.Kinematics.YRadius, "firing landing expands to standing radius");
+    AssertEqual(0u, falling.Kinematics.VerticalSpeedFixed, "firing landing clears Y speed");
+    AssertEqual(0u, falling.HorizontalSpeed.BaseFixed, "firing landing clears X speed");
+    falling.AnimateNoFx(bus);
+    AssertEqual((byte)0xf8, falling.LastAnimationDelayCommand!.Value, "$E6 reaches F8 command");
+    AssertTrue(falling.ApplyPendingVerifiedAnimationTransition(bus), "$E6 F8 transition applies");
+    AssertEqual((byte)0x01, falling.Pose, "$E6 returns to standing right");
+
+    var releasedLanding = new SamusState { Pose = SamusState.FallingGunExtendedRightPose };
+    releasedLanding.RefreshCollisionRadii(bus);
+    releasedLanding.InitializeAnimation(bus);
+    releasedLanding.ApplyAerialLanding(bus, wasSpinning: false, controllerInput: 0);
+    AssertEqual((byte)0xa4, releasedLanding.Pose, "released Shot selects ordinary landing $A4");
+
+    var mirroredLanding = new SamusState { Pose = SamusState.FallingGunExtendedLeftPose };
+    mirroredLanding.RefreshCollisionRadii(bus);
+    mirroredLanding.InitializeAnimation(bus);
+    mirroredLanding.ApplyAerialLanding(bus, wasSpinning: false, (ushort)SnesButton.X);
+    AssertEqual((byte)0xe7, mirroredLanding.Pose, "held Shot selects mirrored firing landing $E7");
+
+    AssertTrue(SamusState.IsRightFacingRunningPose(0x0b), "$0B is admitted by running dispatcher");
+    AssertTrue(SamusState.IsRightFacingNormalJumpPose(0x13), "$13 is admitted by jump dispatcher");
+    AssertTrue(SamusState.IsRightFacingFallingPose(0x67), "$67 is admitted by falling dispatcher");
+    AssertTrue(SamusState.IsRightFacingLandingPose(0xe6), "$E6 is admitted by landing dispatcher");
+    AssertTrue(SamusState.IsLeftFacingLandingPose(0xe7), "$E7 is admitted by mirrored landing dispatcher");
+
+    Console.WriteLine("  Samus horizontal fire: ROM selection, six extended bodies, run-phase preservation, and firing landings agree.");
 }
 
 /// <summary>

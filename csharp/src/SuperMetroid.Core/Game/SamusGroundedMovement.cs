@@ -477,10 +477,11 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Runs movement type zero for `$A4-$A7` and aimed normal-jump landings `$E0-$E5`. Native landing
-    /// animation is cosmetic with respect to movement: it uses standing's zero-base-speed
-    /// horizontal pass, grounding probe, and momentum cleanup until command $F8 returns to
-    /// pose $01/$02.
+    /// Runs movement type zero for every translated landing pose: `$A4-$A7` for the ordinary
+    /// and spin families, plus `$E0-$E7` for aimed and horizontally firing landings. Native
+    /// landing animation is cosmetic with respect to movement: every member uses standing's
+    /// zero-base-speed horizontal pass, grounding probe, and momentum cleanup until animation
+    /// command `$F8` returns to pose `$01/$02`.
     /// </summary>
     public static GroundedMovementResult StepLanding(
         ISnesAddressSpace bus,
@@ -491,15 +492,15 @@ public static class SamusGroundedMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
-        if (samus.Pose is not (
-            SamusState.NormalLandingRightPose or SamusState.NormalLandingLeftPose or
-            SamusState.SpinLandingRightPose or SamusState.SpinLandingLeftPose or
-            SamusState.LandingAimUpRightPose or SamusState.LandingAimUpLeftPose or
-            SamusState.LandingAimDiagonalUpRightPose or SamusState.LandingAimDiagonalUpLeftPose or
-            SamusState.LandingAimDiagonalDownRightPose or SamusState.LandingAimDiagonalDownLeftPose))
+        // Do not duplicate the pose list here. The predicates are the single audited definition
+        // of movement type zero's landing family and deliberately include firing landings `$E6`
+        // and `$E7`. Keeping dispatch and this defensive guard on the same predicates prevents a
+        // newly translated landing from reaching this real movement handler only to be rejected.
+        if (!SamusState.IsRightFacingLandingPose(samus.Pose) &&
+            !SamusState.IsLeftFacingLandingPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Landing movement requires pose $A4-$A7/$E0-$E5, not ${samus.Pose:X2}.");
+                $"Landing movement requires pose $A4-$A7/$E0-$E7, not ${samus.Pose:X2}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;

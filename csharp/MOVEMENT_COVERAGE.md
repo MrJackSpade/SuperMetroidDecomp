@@ -11,13 +11,13 @@ are listed below so later work cannot accidentally confuse “the current viewer
 
 | Type | Native family | Current C# admission | Remaining native branches |
 |---:|---|---|---|
-| `$00` | Standing | Forward `$00/$9B` equipment selector, locked no-elevator movement, power-suit chest-cover OAM; ordinary `$01-$08`, landing `$A4-$A7/$E0-$E5` | Live elevator actor's one-pixel down displacement, firing variants, transitions from later systems |
-| `$01` | Running | `$09/$0A/$0D-$12`, air/water/lava X tables and submerged Dash gate, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes | Liquid damage/splash effects, gun-extended/fire variants |
-| `$02` | Normal jumping | `$4B-$4E/$15-$18/$51-$52/$55-$5A/$69-$6C`, including compact straight-down collision changes, air/water/lava normal/Hi-Jump launch, X tables, gravity, persistent external X/Y displacement, variable height, ceiling/floor collision | Later firing variants |
+| `$00` | Standing | Forward `$00/$9B` equipment selector, locked no-elevator movement, power-suit chest-cover OAM; ordinary `$01-$08`, landing `$A4-$A7/$E0-$E7`, including held-Shot horizontal firing landings | Live elevator actor's one-pixel down displacement, other firing variants, transitions from later systems |
+| `$01` | Running | `$09/$0A/$0B/$0C/$0D-$12`, including horizontal gun extension with preserved native run phase; air/water/lava X tables and submerged Dash gate, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes | Liquid damage/splash effects, other firing variants |
+| `$02` | Normal jumping | `$4B-$4E/$13-$18/$51-$52/$55-$5A/$69-$6C`, including horizontal gun extension, compact straight-down collision changes, air/water/lava normal/Hi-Jump launch, X tables, gravity, persistent external X/Y displacement, variable height, ceiling/floor collision | Other firing variants |
 | `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, air/water/lava X/gravity/launch/repeat gates, variable height, split-body animation, damage/palette, block/solid-enemy wall contact and launch | Live enemy actor producer, liquid sound/particle/damage effects |
 | `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, air/water/lava X tables, persistent external X/Y displacement, slopes, reversal, deceleration, walk-off, normal-bomb deployment, solid/frozen-enemy clipping | Bombable-block PLMs, live enemy actor producer |
 | `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry | Fire variants and morph entry |
-| `$06` | Falling | `$29-$2E/$6D-$70`, including compact straight-down collision changes, walk-off, air/water/lava X and gravity, persistent external X/Y displacement, landing, and aerial-turn entry | Later firing variants |
+| `$06` | Falling | `$29-$2E/$67-$70`, including horizontal gun extension, compact straight-down collision changes, walk-off, air/water/lava X and gravity, persistent external X/Y displacement, held-Shot landing, and aerial-turn entry | Other firing variants |
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
 | `$08` | Morph ball falling | `$31/$32`, air/water/lava X and gravity, persistent external X/Y displacement and bounce override, ceiling/floor/solid-enemy collision, two-stage hard bounce, gentle landing, normal-bomb deployment | Bombable-block PLMs, live enemy actor producer |
 | `$09` | Unused | — | Preserve only if required |
@@ -377,6 +377,27 @@ translated status is documented with the Morph Ball family below.
   The 10 -> 21 expansion probes real room blocks, keeps the floor boundary aligned, and then
   collision command five clears both velocity axes. Both jump and falling compact records
   continue through their existing movement-type-two/six gravity, camera, and draw paths.
+
+## Verified horizontal-firing movement slice
+
+- The ordinary running, normal-jump, and falling input tables select the cartridge-authored
+  horizontal gun-extended bodies `$0B/$0C`, `$13/$14`, and `$67/$68` while Shot is held.
+  These are not substitute sprites: pose direction, radii, delay lists, top/bottom tile
+  definitions, DMA, and OAM continue to come from the private ROM.
+- `$91:F50C` uses animation delay `$8000` as a sentinel when a running arm change must retain
+  the current leg phase. The translated same-movement transition therefore preserves both
+  animation frame and timer instead of restarting the ten-frame run cycle at frame zero.
+- Aerial shoulder changes preserve the live signed 16.16 velocity and collision body. On
+  floor contact, `$91:E99B` checks horizontal shot directions two/seven and the currently
+  held Shot bit: held Shot selects `$E6/$E7`; released Shot selects ordinary `$A4/$A5`.
+- `$E6/$E7` share movement type zero's zero-base-speed horizontal pass, grounding probe, and
+  momentum cleanup, then use the ROM delay program's `$F8` command to return to `$01/$02`.
+- Synthetic verification covers both facings, ROM input selection, six extended bodies,
+  running-phase preservation, aerial velocity preservation, held/released landing choice,
+  and `$F8`. The 160-frame private-ROM route independently observes `$0B -> $13 -> $E6`,
+  publishes the documented walk-off producer seam, and then observes `$67 -> $E6` through
+  real Landing Site block collision. The checked-in pose captures preserve running, jumping,
+  falling, and landing art against the live terrain/HUD layers.
 
 ## Verified Space Jump and Screw Attack slice
 

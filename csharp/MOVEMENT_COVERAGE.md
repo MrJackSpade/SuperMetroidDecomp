@@ -13,13 +13,13 @@ are listed below so later work cannot accidentally confuse “the current viewer
 |---:|---|---|---|
 | `$00` | Standing | `$01-$08`, landing `$A4-$A7/$E0-$E5` | Firing variants, forward pose, transitions from later systems |
 | `$01` | Running | `$09/$0A/$0D-$12`, air/water/lava X tables and submerged Dash gate, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes | Liquid damage/splash effects, gun-extended/fire variants |
-| `$02` | Normal jumping | `$4B-$4E/$15-$18/$51-$52/$55-$5A/$69-$6C`, including compact straight-down collision changes, air/water/lava normal/Hi-Jump launch, X tables, gravity, variable height, ceiling/floor collision | External displacement |
+| `$02` | Normal jumping | `$4B-$4E/$15-$18/$51-$52/$55-$5A/$69-$6C`, including compact straight-down collision changes, air/water/lava normal/Hi-Jump launch, X tables, gravity, persistent external X/Y displacement, variable height, ceiling/floor collision | Later firing variants |
 | `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, air/water/lava X/gravity/launch/repeat gates, variable height, split-body animation, damage/palette, block/solid-enemy wall contact and launch | Live enemy actor producer, liquid sound/particle/damage effects |
-| `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, air/water/lava X tables, slopes, reversal, deceleration, walk-off, normal-bomb deployment, solid/frozen-enemy clipping | Bombable-block PLMs, live enemy actor producer, external displacement |
+| `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, air/water/lava X tables, persistent external X/Y displacement, slopes, reversal, deceleration, walk-off, normal-bomb deployment, solid/frozen-enemy clipping | Bombable-block PLMs, live enemy actor producer |
 | `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry | Fire variants and morph entry |
-| `$06` | Falling | `$29-$2E/$6D-$70`, including compact straight-down collision changes, walk-off, air/water/lava X and gravity, landing, and aerial-turn entry | External displacement |
+| `$06` | Falling | `$29-$2E/$6D-$70`, including compact straight-down collision changes, walk-off, air/water/lava X and gravity, persistent external X/Y displacement, landing, and aerial-turn entry | Later firing variants |
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
-| `$08` | Morph ball falling | `$31/$32`, air/water/lava X and gravity, ceiling/floor/solid-enemy collision, two-stage hard bounce, gentle landing, normal-bomb deployment | Bombable-block PLMs, live enemy actor producer, external displacement |
+| `$08` | Morph ball falling | `$31/$32`, air/water/lava X and gravity, persistent external X/Y displacement and bounce override, ceiling/floor/solid-enemy collision, two-stage hard bounce, gentle landing, normal-bomb deployment | Bombable-block PLMs, live enemy actor producer |
 | `$09` | Unused | — | Preserve only if required |
 | `$0A` | Knockback / crystal-flash ending | `$53/$54`, air/water/lava launch/X/gravity, ordinary-body timer, horizontal/vertical block collision, damage-boost input escape, falling handoff | Morph/ball knockback, enemy producer, crystal-flash ending |
 | `$0B` | Unused | — | Preserve only if required |
@@ -27,16 +27,16 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$0D` | Unused | — | Preserve only if required |
 | `$0E` | Turning on ground | `$25/$26/$43/$44/$8B-$8E/$9C/$9D/$BF-$C4`, old-direction mode-one momentum, native standing/crouch/moonwalk selectors, `$F8` completion | Fire variants and transitions originating in later families |
 | `$0F` | Crouch/stand/morph transition | `$35/$36/$3B/$3C/$37/$38/$3D/$3E/$F1-$FC`, bottom alignment, radius collision, `$F9/$FD` completion | Fire variants and later equipment-dependent transitions |
-| `$10` | Moonwalking | `$49/$4A/$75-$78`, option gate, air/water/lava X tables, reversed X input, aim changes, fallback, walk-off, and `$BF-$C4` jump bridge | External displacement |
-| `$11` | Spring ball on ground | `$79-$7C`, air/water/lava X tables, slopes, reversal, jump entry, walk-off, normal-bomb deployment, solid/frozen-enemy clipping | Bombable-block PLMs, live enemy actor producer, external displacement |
-| `$12` | Spring ball in air | `$7F/$80`, air/water/lava launch/X/gravity, variable height, ceiling/floor/solid-enemy collision, normal-bomb deployment | Bombable-block PLMs, live enemy actor producer, external displacement |
-| `$13` | Spring ball falling | `$7D/$7E`, air/water/lava X/gravity and held-jump relaunch, automatic bounce, solid/frozen-enemy clipping, normal-bomb deployment | Bombable-block PLMs, live enemy actor producer, external displacement |
+| `$10` | Moonwalking | `$49/$4A/$75-$78`, option gate, air/water/lava X tables, persistent external X/Y displacement, reversed X input, aim changes, fallback, walk-off, and `$BF-$C4` jump bridge | Later firing variants |
+| `$11` | Spring ball on ground | `$79-$7C`, air/water/lava X tables, persistent external X/Y displacement, slopes, reversal, jump entry, walk-off, normal-bomb deployment, solid/frozen-enemy clipping | Bombable-block PLMs, live enemy actor producer |
+| `$12` | Spring ball in air | `$7F/$80`, air/water/lava launch/X/gravity, persistent external X/Y displacement, variable height, ceiling/floor/solid-enemy collision, normal-bomb deployment | Bombable-block PLMs, live enemy actor producer |
+| `$13` | Spring ball falling | `$7D/$7E`, air/water/lava X/gravity, persistent external X/Y displacement and bounce override, held-jump relaunch, automatic bounce, solid/frozen-enemy clipping, normal-bomb deployment | Bombable-block PLMs, live enemy actor producer |
 | `$14` | Wall jumping | `$83/$84`, air/water/lava normal/Hi-Jump launch tables, variable height, submerged `$FB` selection, spin handoff, terrain/solid-enemy launch and landing | Live enemy actor/shake consumer, sound/contact-damage side effects |
-| `$15` | Ran into a wall | `$89/$8A/$CF-$D2`, terrain/solid-enemy prospective-run selector, one-pixel probe, aim/fallback/turn/jump/walk-off routes, grounded cleanup and liquid animation state | Live enemy actor producer and external displacement |
+| `$15` | Ran into a wall | `$89/$8A/$CF-$D2`, terrain/solid-enemy prospective-run selector, one-pixel probe, persistent external X/Y displacement, aim/fallback/turn/jump/walk-off routes, grounded cleanup and liquid animation state | Live enemy actor producer |
 | `$16` | Grappling | ROM-backed firing, four-step block collision, persistent type-`$E` acquisition/validation, all 30 standing/crouching/vertical connection records, `$B2/$B3` air/water pendulum, `$A8-$AB/$B4-$B7` locked poses, per-pixel rope collision, six-point terrain sweep/reflection, collision kick, all eight exact locked/wallgrab angles, `$B8/$B9` terrain/solid-enemy grace-window wall jump, dropped-pose tables, release `$51/$52` plus persistent air/water/lava `$90:946E` motion, ROM art/beam DMA and OAM | Enemy acquisition, grapple spike-damage side effects, breakable PLMs, live enemy actor/shake consumer |
-| `$17` | Turning while jumping | Grounded-Y crouch turns `$97-$9A/$A2/$A3`; airborne `$2F/$30/$8F-$92/$9E/$9F`, momentum, collision, `$F8` | Later firing/external-displacement routes |
-| `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, momentum, gravity/collision, `$F8` | Later firing/external-displacement routes |
-| `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | External displacement, enemy producer |
+| `$17` | Turning while jumping | Grounded-Y crouch turns `$97-$9A/$A2/$A3`; airborne `$2F/$30/$8F-$92/$9E/$9F`, persistent external X/Y displacement, momentum, collision, `$F8` | Later firing routes |
+| `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, persistent external X/Y displacement, momentum, gravity/collision, `$F8` | Later firing routes |
+| `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, persistent external X/Y displacement, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | Live enemy producer |
 | `$1A` | Grabbed by Draygon | `$BA-$BE/$EC-$F0`: exact owner pin, ten ROM pose/animation routes, input/fallback transitions, type-$1A vertical-result clear, 60-pattern escape hack, `$01/$02` release cleanup and owner signal | Live Draygon actor/flight producer |
 | `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, hyper beam; bank `$A9`: repeat/active/final rainbow, painful-walk/corpse, revival, Baby murder/death, phase-three combat/death, and escape `$B8EB-$B3C5`, including body/head bytecode, live neck geometry, Baby graphics DMA/spawn, sine-driven entrance, moving-head latch, drain/corpse handshake, release, ceiling retreat, eight-record flight, generic-touch Samus latch, one-point healing, bank-$86 ring/bomb movement and damage, purple-breath/misc-explosion animation, high/low enemy-projectile OAM, release/stare/retreat/final charge/final blow, rainbow commands, six black palettes, 30 rendered death explosions, attack-tile DMA, room-light restoration, deletion, Hyper Beam, controller four, corpse rotting, escape timer, and exploded door | Crystal Flash/drain palette and HDMA presentation, earlier attack-selection, live Hyper Beam projectile producer, typewriter character engine/glyphs, Baby actor spritemap and remaining dust producers, live enemy actor producer |
 
@@ -769,11 +769,44 @@ translated status is documented with the Morph Ball family below.
   center/up/right/left/down cross is complete for no-op air/slope/solid block families;
   shootable/special/bombable/extension reactions throw until their bank-$84 PLMs exist.
 
+## Verified external-displacement consumer slice
+
+- `SamusKinematicsState` now retains native producer-owned words `$0B56-$0B5C` as two
+  signed 16.16 X/Y values. Movement reads but never clears them: enemies, PLMs, and scripted
+  room effects remain responsible for publishing and retiring their own displacement.
+- `$90:E464/$90:E4AD` combine external X with the signed native horizontal result before
+  applying the ±15-whole-pixel collision clamp. Every translated ordinary grounded, aerial,
+  Morph/Spring Ball, posture, bomb-jump, knockback/damage-boost, and shinespark consumer now
+  reaches that arithmetic instead of silently dropping the producer words.
+- Gravity movement preserves the cartridge's ordering: it snapshots old internal velocity,
+  advances stored velocity, gives that snapshot the direction word's sign, and only then adds
+  external Y. The external result may reverse actual collision travel without changing the
+  stored direction word.
+- No-speed `$90:923F` behavior is intentionally asymmetric. Negative external Y moves upward
+  exactly; positive external Y receives the native +1.0000 downward collision bias. With no
+  producer it retains the slope-adjustment/total-X grounding probe. Transition-only
+  `$90:9288` uses the same signed external rule and returns no Y move when the producer is zero.
+- Active Morph/Spring Ball bounce gives a nonzero external Y producer priority over rebound
+  physics when knockback is zero: it clears both bounce-speed words, forces direction two,
+  and scans using external-only displacement. Vertical shinespark adds external Y after
+  negating its speed and applies the 15-pixel temporary clamp only to results still moving up;
+  a producer-reversed downward spark deliberately bypasses that upward-only clamp.
+- Synthetic verification locks positive/negative fractions, persistence, no-speed bias,
+  transition-only Y, gravity reversal, Morph Ball bounce override, and shinespark reversal.
+  The private-ROM `--extra-displacement-script` supplies only the missing producer seam. Its
+  40-frame capture freezes authentic falling art over cartridge terrain; the 72-frame route
+  requires exact +32-pixel X travel, an external lift, normal gravity/floor recovery, camera
+  and minimap tracking, and explicit producer-word cleanup.
+
 ## Evidence
 
 - `SuperMetroid.Verification` checks synthetic ROM tables independently for `$FD/$F8`, jump
   constants, gravity ordering, jump cutoff, mirrored spin movement, walk-off falling, solid
   collision, radius alignment, and landing.
+- The real-ROM `--extra-displacement-script` holds +1.0000 X for 32 frames, applies signed
+  -0.8000 then +0.8000 Y intervals, and clears all four words at frame 64. The runtime moves
+  exactly 32 pixels right, enters falling pose `$29` during the lift, lands through `$A4`,
+  returns to `$01`, and renders aligned terrain, sky, HUD, minimap, camera, and OAM captures.
 - The real-ROM `--jump-script` route currently completes through `$01 -> $4B -> $4D -> $A4
   -> $01 -> $09 -> $19 -> $A6 -> $09 -> $01`, with ROM-authored graphics/tile transfers and
   moving camera/background/minimap state.

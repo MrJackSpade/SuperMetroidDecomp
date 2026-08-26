@@ -176,6 +176,11 @@ else if (options.DraygonGrabScript)
     Console.WriteLine(
         "Actor script: enter the real right-facing Draygon grab, exercise ROM poses $EC-$F0, reach 60 counted D-pad patterns, then execute $90:E2DE release to $01.");
 }
+else if (options.ExtraDisplacementScript)
+{
+    Console.WriteLine(
+        "Producer script: publish persistent $0B56-$0B5C X/Y displacement, move standing Samus right/up/down through live terrain, then clear all four words.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7800 stays clear
@@ -660,6 +665,10 @@ bool observedDraygonAimDown = false;
 bool observedDraygonMoving = false;
 bool observedDraygonNeutralFallback = false;
 bool observedDraygonRelease = false;
+bool observedExternalXMovement = false;
+bool observedExternalUpMovement = false;
+bool observedExternalDownCollision = false;
+bool observedExternalWordsCleared = false;
 bool issuedDrainedStandingCommand = false;
 bool issuedDrainedCrouchingCommand = false;
 bool issuedDrainedReleaseCommand = false;
@@ -700,8 +709,47 @@ ushort previousBabyMovementTablePointer = 0;
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
 var observedSamusPoses = new HashSet<byte> { runtime.Samus.Pose };
+ushort extraDisplacementStartX = runtime.Samus.XPosition;
+ushort extraDisplacementStartY = runtime.Samus.YPosition;
 for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
 {
+    if (options.ExtraDisplacementScript)
+    {
+        // The room has no translated enemy/PLM that publishes these four WRAM words yet.
+        // Supply only that producer boundary. The consumer lifetime, signed 16.16 math,
+        // block clipping, slope response, camera, animation, DMA, and rendering all continue
+        // through the ordinary private-ROM frame pipeline.
+        SamusKinematicsState kinematics = runtime.Samus!.Kinematics;
+        if (frameIndex < 32)
+        {
+            kinematics.ExtraXDisplacement = 1;
+            kinematics.ExtraXSubdisplacement = 0;
+            kinematics.ExtraYDisplacement = 0;
+            kinematics.ExtraYSubdisplacement = 0;
+        }
+        else if (frameIndex < 48)
+        {
+            kinematics.ExtraXDisplacement = 0;
+            kinematics.ExtraXSubdisplacement = 0;
+            kinematics.ExtraYDisplacement = 0xffff;
+            kinematics.ExtraYSubdisplacement = 0x8000; // -0.8000
+        }
+        else if (frameIndex < 64)
+        {
+            kinematics.ExtraXDisplacement = 0;
+            kinematics.ExtraXSubdisplacement = 0;
+            kinematics.ExtraYDisplacement = 0;
+            kinematics.ExtraYSubdisplacement = 0x8000; // +0.8000; `$923F` requests +1.8000
+        }
+        else
+        {
+            kinematics.ExtraXDisplacement = 0;
+            kinematics.ExtraXSubdisplacement = 0;
+            kinematics.ExtraYDisplacement = 0;
+            kinematics.ExtraYSubdisplacement = 0;
+        }
+    }
+
     if (options.DraygonGrabScript && runtime.Samus!.DraygonGrabbed.IsActive)
     {
         // EnemyMain runs before Samus's draw and calls `$A5:94A9` after updating Draygon.
@@ -778,6 +826,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     ushort yDirectionBeforeFrame = runtime.Samus.Kinematics.YDirection;
     ushort controllerInput = specialSpinRoute
         ? specialSpinInput
+        : options.ExtraDisplacementScript
+        ? (ushort)0
         : options.DraygonGrabScript
         ? frameIndex switch
         {
@@ -1758,6 +1808,19 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         runtime.Samus.Pose == SamusState.DraygonGrabbedNeutralRightPose;
     observedDraygonRelease |= !runtime.Samus.DraygonGrabbed.IsActive &&
         runtime.Samus.Pose == SamusState.FacingRightNormalPose;
+    observedExternalXMovement |= options.ExtraDisplacementScript &&
+        frameIndex == 31 &&
+        runtime.Samus.XPosition == unchecked((ushort)(extraDisplacementStartX + 32));
+    observedExternalUpMovement |= options.ExtraDisplacementScript &&
+        frameIndex >= 32 && frameIndex < 48 &&
+        runtime.Samus.YPosition < extraDisplacementStartY;
+    observedExternalDownCollision |= options.ExtraDisplacementScript &&
+        frameIndex >= 48 && frameIndex < 64 &&
+        runtime.LastGroundedSamusMovement is { Vertical.Collided: true };
+    observedExternalWordsCleared |= options.ExtraDisplacementScript &&
+        frameIndex >= 64 &&
+        runtime.Samus.Kinematics.ExtraXFixed == 0 &&
+        runtime.Samus.Kinematics.ExtraYFixed == 0;
     observedKnockbackMovement |= runtime.LastKnockbackMovement is not null;
     observedDamageBoostMovement |= runtime.LastAerialSamusMovement is not null &&
         runtime.Samus.ReadMovementType(bus) == 0x19;
@@ -2824,6 +2887,23 @@ if (options.DraygonGrabScript)
         $"owner release={runtime.Samus.DraygonGrabbed.ReleasePublishedToOwner}.");
 }
 
+if (options.ExtraDisplacementScript)
+{
+    if (options.FrameCount >= 32 && !observedExternalXMovement)
+        throw new InvalidOperationException("External-displacement ROM route did not apply 32 persistent +1.0000 X samples.");
+    if (options.FrameCount >= 48 && !observedExternalUpMovement)
+        throw new InvalidOperationException("External-displacement ROM route did not move upward from signed -0.8000 Y.");
+    if (options.FrameCount >= 64 && !observedExternalDownCollision)
+        throw new InvalidOperationException("External-displacement ROM route did not clip its biased positive Y movement against the live floor.");
+    if (options.FrameCount >= 65 && !observedExternalWordsCleared)
+        throw new InvalidOperationException("External-displacement producer words did not remain clear after frame 64.");
+    Console.WriteLine(
+        $"External-displacement ROM route validated X={observedExternalXMovement}, " +
+        $"up={observedExternalUpMovement}, floor={observedExternalDownCollision}, " +
+        $"clear={observedExternalWordsCleared}; final=({runtime.Samus!.XPosition}," +
+        $"{runtime.Samus.YPosition}).");
+}
+
 if (options.GrappleFireScript)
 {
     if (!observedGrappleFire)
@@ -3045,7 +3125,8 @@ readonly record struct DebugRunnerOptions(
     bool CrystalFlashScript,
     bool MotherBrainRainbowScript,
     bool DrainedSamusScript,
-    bool DraygonGrabScript)
+    bool DraygonGrabScript,
+    bool ExtraDisplacementScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -3085,6 +3166,7 @@ readonly record struct DebugRunnerOptions(
         bool motherBrainRainbowScript = false;
         bool drainedSamusScript = false;
         bool draygonGrabScript = false;
+        bool extraDisplacementScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -3268,6 +3350,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--extra-displacement-script":
+                    extraDisplacementScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -3331,7 +3418,8 @@ readonly record struct DebugRunnerOptions(
             crystalFlashScript,
             motherBrainRainbowScript,
             drainedSamusScript,
-            draygonGrabScript);
+            draygonGrabScript,
+            extraDisplacementScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

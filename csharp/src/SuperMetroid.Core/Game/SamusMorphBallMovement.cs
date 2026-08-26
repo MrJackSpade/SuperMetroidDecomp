@@ -159,16 +159,43 @@ public static class SamusMorphBallMovement
         if (horizontal.Collided)
             ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
-        // With zero knockback and zero extra Y displacement, `$90:919F` and `$90:91D1`
-        // rejoin at the same falling-check/gravity routine. Bounce state changes only when
-        // the later bank-$91 solid-vertical collision handler sees a downward collision.
-        BlockMoveResult vertical = MoveVerticallyWithGravity(
-            bus,
-            level,
-            samus,
-            nmiFrameCounter,
-            out bool landed,
-            out bool hitCeiling);
+        BlockMoveResult vertical;
+        bool landed;
+        bool hitCeiling;
+        if (samus.MorphBallBounceState != 0 &&
+            samus.KnockbackDirection == 0 &&
+            samus.Kinematics.ExtraYFixed != 0)
+        {
+            // `$90:91E5-$921D` gives an external producer priority over the rebound arc.
+            // It cancels the stored bounce velocity, forces direction down, and executes
+            // `$90:9288`; a signed-negative producer can still make the actual scan upward.
+            samus.Kinematics.YDirection = 2;
+            samus.Kinematics.YSpeed = 0;
+            samus.Kinematics.YSubspeed = 0;
+            int displacement = SamusExtraDisplacement
+                .CalculateExtraOnlyVerticalDisplacement(samus.Kinematics)!.Value;
+            vertical = SamusBlockCollision.MoveVertical(
+                bus,
+                level,
+                samus.Kinematics,
+                displacement,
+                scanLeftToRight: (nmiFrameCounter & 1) == 0);
+            landed = displacement >= 0 && vertical.Collided;
+            hitCeiling = displacement < 0 && vertical.Collided;
+        }
+        else
+        {
+            // With zero knockback and zero extra Y displacement, `$90:919F` and `$90:91D1`
+            // rejoin at the same falling-check/gravity routine. Bounce state changes only
+            // when the later bank-$91 solid-vertical handler sees a downward collision.
+            vertical = MoveVerticallyWithGravity(
+                bus,
+                level,
+                samus,
+                nmiFrameCounter,
+                out landed,
+                out hitCeiling);
+        }
         return new MorphBallMovementResult(horizontal, vertical, landed, hitCeiling);
     }
 
@@ -347,6 +374,9 @@ public static class SamusMorphBallMovement
         int displacement = state.YDirection == 2
             ? unchecked((int)oldSpeed)
             : unchecked(-(int)oldSpeed);
+        displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
+            state,
+            displacement);
         BlockMoveResult vertical = SamusBlockCollision.MoveVertical(
             bus,
             level,
@@ -371,11 +401,9 @@ public static class SamusMorphBallMovement
         SamusState samus,
         ushort nmiFrameCounter)
     {
-        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        uint totalSpeed = Compose(speed.TotalSpeed, speed.TotalSubspeed);
-        int displacement = samus.Kinematics.PositionAdjustedBySlope
-            ? 0x00010000
-            : unchecked((int)(totalSpeed + 0x00010000u));
+        int displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
+            samus.Kinematics,
+            samus.HorizontalSpeed);
         return SamusBlockCollision.MoveVertical(
             bus,
             level,
@@ -398,8 +426,8 @@ public static class SamusMorphBallMovement
             ? direction == 8
             : direction == 4;
         return movesLeft
-            ? speed.CalculateLeftDisplacement(baseSpeed)
-            : speed.CalculateRightDisplacement(baseSpeed);
+            ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
+            : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
     }
 
     private static void EnsureNoExtraRunSpeed(SamusHorizontalSpeedState speed)

@@ -86,8 +86,8 @@ public static class SamusPostureMovement
         // that momentum. The old exception at this seam prevented that native route.
         bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
         int requestedHorizontal = facingLeft
-            ? speed.CalculateLeftDisplacement(baseSpeed: 0)
-            : speed.CalculateRightDisplacement(baseSpeed: 0);
+            ? speed.CalculateLeftDisplacement(baseSpeed: 0, samus.Kinematics.ExtraXFixed)
+            : speed.CalculateRightDisplacement(baseSpeed: 0, samus.Kinematics.ExtraXFixed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -96,13 +96,16 @@ public static class SamusPostureMovement
         if (horizontal.Collided)
             ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
 
-        // With zero external displacement and total X speed zero, Simple Samus Y Movement
-        // reaches the same +1.0 collision probe used by the grounded standing slice.
+        // `$90:923F` uses the external-Y replacement when present. Otherwise it couples
+        // the downward floor probe to the total X speed calculated by the horizontal pass;
+        // this matters for a Speed-Booster slide through `$35/$36`.
+        int verticalDisplacement = SamusExtraDisplacement
+            .CalculateNoSpeedVerticalDisplacement(samus.Kinematics, speed);
         BlockMoveResult vertical = SamusBlockCollision.MoveVertical(
             bus,
             level,
             samus.Kinematics,
-            displacement: 0x00010000,
+            displacement: verticalDisplacement,
             scanLeftToRight: (nmiFrameCounter & 1) == 0);
         return new GroundedMovementResult(horizontal, vertical);
     }

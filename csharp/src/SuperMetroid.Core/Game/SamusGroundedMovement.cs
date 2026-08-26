@@ -42,7 +42,9 @@ public static class SamusGroundedMovement
         // Samus_MoveX and Samus_CalcDisplacementMoveRight. That calculation publishes
         // total-X speed before collision; do not skip it merely because a freshly spawned
         // standing Samus normally has zero base/extra speed.
-        int requestedHorizontal = speed.CalculateRightDisplacement(baseSpeed: 0);
+        int requestedHorizontal = speed.CalculateRightDisplacement(
+            baseSpeed: 0,
+            samus.Kinematics.ExtraXFixed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -89,7 +91,9 @@ public static class SamusGroundedMovement
         // byte is $04, so the native displacement helper is the LEFT form even though its
         // base argument is zero. That distinction matters if a future translated source
         // contributes extra displacement; keep it correct now instead of aliasing right.
-        int requestedHorizontal = speed.CalculateLeftDisplacement(baseSpeed: 0);
+        int requestedHorizontal = speed.CalculateLeftDisplacement(
+            baseSpeed: 0,
+            samus.Kinematics.ExtraXFixed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -156,7 +160,9 @@ public static class SamusGroundedMovement
                 "Running-right acceleration mode one requires the unported reversal path.");
         }
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 1);
-        int requestedHorizontal = speed.CalculateRightDisplacement(baseSpeed);
+        int requestedHorizontal = speed.CalculateRightDisplacement(
+            baseSpeed,
+            samus.Kinematics.ExtraXFixed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -216,7 +222,9 @@ public static class SamusGroundedMovement
                 "Running-left acceleration mode one must execute through the grounded-turn pose.");
         }
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 1);
-        int requestedHorizontal = speed.CalculateLeftDisplacement(baseSpeed);
+        int requestedHorizontal = speed.CalculateLeftDisplacement(
+            baseSpeed,
+            samus.Kinematics.ExtraXFixed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -298,8 +306,8 @@ public static class SamusGroundedMovement
         // facing direction, but the zero displacement makes that final switch invisible.
         bool movesLeft = speed.AccelerationMode == 1 ? turnsRight : turnsLeft;
         int requestedHorizontal = movesLeft
-            ? speed.CalculateLeftDisplacement(baseSpeed)
-            : speed.CalculateRightDisplacement(baseSpeed);
+            ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
+            : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -365,8 +373,8 @@ public static class SamusGroundedMovement
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 0x10);
         bool movesLeft = samus.ReadPoseXDirection(bus) == 4;
         int requestedHorizontal = movesLeft
-            ? speed.CalculateLeftDisplacement(baseSpeed)
-            : speed.CalculateRightDisplacement(baseSpeed);
+            ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
+            : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -411,8 +419,8 @@ public static class SamusGroundedMovement
         // `$8A/$D0/$D2` store four (left). Extra speed is included in the requested move
         // before the handler's unconditional cleanup, matching the native call order.
         int requestedHorizontal = samus.ReadPoseXDirection(bus) == 4
-            ? speed.CalculateLeftDisplacement(baseSpeed: 0)
-            : speed.CalculateRightDisplacement(baseSpeed: 0);
+            ? speed.CalculateLeftDisplacement(baseSpeed: 0, samus.Kinematics.ExtraXFixed)
+            : speed.CalculateRightDisplacement(baseSpeed: 0, samus.Kinematics.ExtraXFixed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -466,8 +474,8 @@ public static class SamusGroundedMovement
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
         int requestedHorizontal = facingLeft
-            ? speed.CalculateLeftDisplacement(baseSpeed: 0)
-            : speed.CalculateRightDisplacement(baseSpeed: 0);
+            ? speed.CalculateLeftDisplacement(baseSpeed: 0, samus.Kinematics.ExtraXFixed)
+            : speed.CalculateRightDisplacement(baseSpeed: 0, samus.Kinematics.ExtraXFixed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -489,7 +497,8 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports the zero-extra-Y branch of <c>Samus_Move_NoSpeedCalc_Y</c> at <c>$90:923F</c>.
+    /// Ports <c>Samus_Move_NoSpeedCalc_Y</c> at <c>$90:923F</c>, including the external-Y
+    /// replacement path and its asymmetric positive one-pixel bias.
     /// </summary>
     private static BlockMoveResult RunNoSpeedCalculationGroundingProbe(
         ISnesAddressSpace bus,
@@ -497,16 +506,9 @@ public static class SamusGroundedMovement
         SamusState samus,
         ushort nmiFrameCounter)
     {
-        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-
-        // With no conveyor/quake displacement, native code uses total horizontal speed as
-        // the downward probe unless post-X slope alignment already changed Y. It then adds
-        // exactly 1.0 pixels. This is why a level-running Samus tests the floor by more than
-        // one pixel while an aligned slope tests by exactly one.
-        uint totalSpeed = ((uint)speed.TotalSpeed << 16) | speed.TotalSubspeed;
-        int downwardDisplacement = samus.Kinematics.PositionAdjustedBySlope
-            ? 0x00010000
-            : unchecked((int)(totalSpeed + 0x00010000u));
+        int displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
+            samus.Kinematics,
+            samus.HorizontalSpeed);
 
         // $94:9763 alternates its left-to-right and right-to-left horizontal scan order on
         // the low bit of the accepted-NMI word. That parity can affect which simultaneous
@@ -515,7 +517,7 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus.Kinematics,
-            downwardDisplacement,
+            displacement,
             scanLeftToRight: (nmiFrameCounter & 1) == 0);
     }
 

@@ -75,8 +75,12 @@ public static class SamusBombJumpMovement
                 bus,
                 DiagonalBombJumpSpeedEntry);
             int displacement = direction == 1
-                ? samus.HorizontalSpeed.CalculateLeftDisplacement(baseSpeed)
-                : samus.HorizontalSpeed.CalculateRightDisplacement(baseSpeed);
+                ? samus.HorizontalSpeed.CalculateLeftDisplacement(
+                    baseSpeed,
+                    samus.Kinematics.ExtraXFixed)
+                : samus.HorizontalSpeed.CalculateRightDisplacement(
+                    baseSpeed,
+                    samus.Kinematics.ExtraXFixed);
             horizontal = SamusBlockCollision.MoveHorizontal(
                 bus,
                 level,
@@ -121,11 +125,14 @@ public static class SamusBombJumpMovement
         uint nextSpeed = unchecked(oldSpeed - acceleration);
         state.YSpeed = unchecked((ushort)(nextSpeed >> 16));
         state.YSubspeed = unchecked((ushort)nextSpeed);
+        int displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
+            state,
+            unchecked(-(int)oldSpeed));
         BlockMoveResult result = SamusBlockCollision.MoveVertical(
             bus,
             level,
             state,
-            unchecked(-(int)oldSpeed),
+            displacement,
             scanLeftToRight: (nmiFrameCounter & 1) == 0);
         if (result.Collided)
         {

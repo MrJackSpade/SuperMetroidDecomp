@@ -37,6 +37,7 @@ VerifyOamSpritemapPacking();
 VerifySamusRenderingSlice();
 VerifySamusPoseTransitionMatching();
 VerifySamusHorizontalSpeed();
+VerifySamusExtraDisplacement();
 VerifySamusStoredShineAndShinespark();
 VerifySamusCrystalFlash();
 VerifySamusDrainedController();
@@ -1180,6 +1181,172 @@ static void VerifySamusHorizontalSpeed()
 }
 
 /// <summary>
+/// Exercises the four persistent external-displacement words through real movement-family
+/// consumers. The fixtures are intentionally all-air so accepted 16.16 movement exposes
+/// arithmetic directly instead of conflating it with the separately verified block clipper.
+/// </summary>
+static void VerifySamusExtraDisplacement()
+{
+    var bus = new TestAddressSpace();
+
+    // Literal right-standing and normal-jump records. Only direction/movement/radius are
+    // needed here, but using the retail bytes ensures production follows its normal metadata
+    // path instead of a test-only pose shortcut.
+    bus.WriteBytes(0x91b631, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
+    bus.WriteBytes(
+        0x91b629 + SamusState.MorphBallFallingRightPose * 8,
+        [0x08, 0x08, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]); // $31
+    bus.WriteBytes(0x91b881, [0x08, 0x02, 0xff, 0x02, 0x03, 0x00, 0x13, 0x00]); // $4B
+    bus.WriteBytes(0x91b891, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $4D
+
+    // Type-two normal-air X physics is deliberately zero. That isolates extra displacement
+    // while still exercising the real pointer selection and no-input base-speed clear.
+    for (int offset = 0; offset < 12; offset += 2)
+        WriteTestWord(bus, 0x909f6d + offset, 0);
+
+    // Falling Morph Ball uses the type-eight record. Keeping it at exactly zero prevents
+    // ordinary rolling physics from obscuring the external-producer bounce override below.
+    for (int offset = 0; offset < 12; offset += 2)
+        WriteTestWord(bus, 0x909f55 + 8 * 12 + offset, 0);
+
+    const int width = 16;
+    const int height = 16;
+    var level = new RoomLevelData(
+        width,
+        height,
+        new ushort[width * height],
+        new byte[width * height],
+        new ushort[width * height],
+        new byte[8]);
+
+    var standing = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 64,
+        YPosition = 64,
+    };
+    standing.Kinematics.XRadius = 5;
+    standing.Kinematics.YRadius = 21;
+    standing.Kinematics.ExtraXDisplacement = 1;
+    standing.Kinematics.ExtraXSubdisplacement = 0x8000;
+    standing.Kinematics.ExtraYDisplacement = 2;
+    standing.Kinematics.ExtraYSubdisplacement = 0x4000;
+    GroundedMovementResult positive = SamusGroundedMovement.StepStandingRight(
+        bus,
+        level,
+        standing,
+        nmiFrameCounter: 0);
+    AssertEqual(0x00018000, positive.Horizontal.AcceptedDisplacement,
+        "standing external +X bypasses zero base speed");
+    AssertEqual(0x00034000, positive.Vertical.AcceptedDisplacement,
+        "positive no-speed external Y gains one whole pixel");
+    AssertEqual((ushort)1, standing.Kinematics.ExtraXDisplacement,
+        "movement does not consume persistent external X producer word");
+    AssertEqual((ushort)2, standing.Kinematics.ExtraYDisplacement,
+        "movement does not consume persistent external Y producer word");
+
+    var negative = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 64,
+        YPosition = 64,
+    };
+    negative.Kinematics.XRadius = 5;
+    negative.Kinematics.YRadius = 21;
+    negative.Kinematics.ExtraYDisplacement = 0xfffe;
+    negative.Kinematics.ExtraYSubdisplacement = 0x8000;
+    GroundedMovementResult upward = SamusGroundedMovement.StepStandingRight(
+        bus,
+        level,
+        negative,
+        nmiFrameCounter: 1);
+    AssertEqual(unchecked((int)0xfffe8000), upward.Vertical.AcceptedDisplacement,
+        "negative no-speed external Y has no downward bias");
+
+    var transition = new SamusState
+    {
+        Pose = SamusState.NeutralJumpTransitionRightPose,
+        XPosition = 64,
+        YPosition = 64,
+    };
+    transition.Kinematics.XRadius = 5;
+    transition.Kinematics.YRadius = 19;
+    transition.Kinematics.ExtraXDisplacement = 0xffff;
+    transition.Kinematics.ExtraXSubdisplacement = 0x8000; // -0.8000
+    transition.Kinematics.ExtraYDisplacement = 0;
+    transition.Kinematics.ExtraYSubdisplacement = 0x4000; // +0.4000
+    AerialMovementResult transitionResult = SamusAerialMovement.StepNormalJump(
+        bus,
+        level,
+        transition,
+        (ushort)SnesButton.A,
+        nmiFrameCounter: 0);
+    AssertEqual(unchecked((int)0xffff8000), transitionResult.Horizontal.AcceptedDisplacement,
+        "jump transition applies signed external X with zero base speed");
+    AssertEqual(0x00014000, transitionResult.Vertical!.Value.AcceptedDisplacement,
+        "jump transition applies extra-only Y with positive bias");
+
+    var rising = new SamusState
+    {
+        Pose = SamusState.NeutralJumpRightPose,
+        XPosition = 64,
+        YPosition = 64,
+    };
+    rising.Kinematics.XRadius = 5;
+    rising.Kinematics.YRadius = 19;
+    rising.Kinematics.YDirection = 1;
+    rising.Kinematics.YSpeed = 1;
+    rising.Kinematics.YSubspeed = 0;
+    rising.Kinematics.ExtraYDisplacement = 1;
+    rising.Kinematics.ExtraYSubdisplacement = 0x8000;
+    AerialMovementResult reversed = SamusAerialMovement.StepNormalJump(
+        bus,
+        level,
+        rising,
+        (ushort)SnesButton.A,
+        nmiFrameCounter: 0);
+    AssertEqual(0x00008000, reversed.Vertical!.Value.AcceptedDisplacement,
+        "gravity path adds external Y directly and may reverse actual direction");
+    AssertEqual((ushort)1, rising.Kinematics.YDirection,
+        "external reversal does not rewrite native velocity-direction word");
+
+    var bouncingBall = new SamusState
+    {
+        Pose = SamusState.MorphBallFallingRightPose,
+        XPosition = 64,
+        YPosition = 64,
+        MorphBallBounceState = 1,
+        KnockbackDirection = 0,
+    };
+    bouncingBall.Kinematics.XRadius = 5;
+    bouncingBall.Kinematics.YRadius = 7;
+    bouncingBall.Kinematics.YDirection = 1;
+    bouncingBall.Kinematics.YSpeed = 3;
+    bouncingBall.Kinematics.YSubspeed = 0x4000;
+    bouncingBall.Kinematics.ExtraYDisplacement = 0xffff;
+    bouncingBall.Kinematics.ExtraYSubdisplacement = 0x8000; // -0.8000
+    MorphBallMovementResult displacedBounce = SamusMorphBallMovement.StepFalling(
+        bus,
+        level,
+        bouncingBall,
+        controllerInput: 0,
+        nmiFrameCounter: 0);
+    AssertEqual(unchecked((int)0xffff8000), displacedBounce.Vertical.AcceptedDisplacement,
+        "external Y replaces an active Morph Ball rebound rather than joining gravity");
+    AssertEqual((ushort)0, bouncingBall.Kinematics.YSpeed,
+        "external Morph Ball bounce override clears whole rebound speed");
+    AssertEqual((ushort)0, bouncingBall.Kinematics.YSubspeed,
+        "external Morph Ball bounce override clears fractional rebound speed");
+    AssertEqual((ushort)2, bouncingBall.Kinematics.YDirection,
+        "external Morph Ball bounce override forces native direction word two");
+    AssertTrue(!displacedBounce.HitCeiling && !displacedBounce.Landed,
+        "unobstructed signed-negative Morph Ball producer moves without a false collision");
+
+    Console.WriteLine(
+        "  Samus displacement: signed X/Y, grounded bias, transition motion, persistence, gravity reversal, and Morph Ball override agree.");
+}
+
+/// <summary>
 /// Exercises `$91:F7B0/$91:DAC7/$90:CFFA-$D2B9` without relying on host elapsed time:
 /// stage-gated storage, ROM palette indirection, windup timeout, directional installation,
 /// 16.16 acceleration, energy drain, and the low-energy crash handoff.
@@ -1357,6 +1524,41 @@ static void VerifySamusStoredShineAndShinespark()
                 $"pose ${targetPose:X2} moves upward through block collision");
         }
     }
+
+    // `$90:D261-$D29F` adds the producer after negating the spark speed. A sufficiently
+    // positive external Y value can therefore reverse an upward shinespark. Native then
+    // skips its 15-pixel upward-only clamp because the temporary magnitude is negative.
+    // Starting at 7.0000 with acceleration 0.2800 and adding +8.0000 yields +0.D800.
+    var externallyReversedSpark = new SamusState
+    {
+        Pose = SamusState.ShinesparkWindupRightPose,
+        XPosition = 160,
+        YPosition = 160,
+        Health = 99,
+    };
+    externallyReversedSpark.RefreshCollisionRadii(bus);
+    externallyReversedSpark.InitializeAnimation(bus);
+    externallyReversedSpark.Shinespark.TryStoreFromSpeedBooster(0x0400);
+    externallyReversedSpark.Shinespark.BeginWindup(externallyReversedSpark);
+    externallyReversedSpark.Shinespark.BeginDirectionalLaunch(
+        bus,
+        externallyReversedSpark,
+        SamusState.ShinesparkVerticalRightPose);
+    externallyReversedSpark.Kinematics.YAcceleration = 0;
+    externallyReversedSpark.Kinematics.YSubacceleration = 0x2800;
+    externallyReversedSpark.Kinematics.ExtraYDisplacement = 8;
+    externallyReversedSpark.Kinematics.ExtraYSubdisplacement = 0;
+    ShinesparkMovementResult reversedSpark = externallyReversedSpark.Shinespark.Step(
+        bus,
+        directionLevel,
+        externallyReversedSpark,
+        nmiFrameCounter: 0);
+    AssertEqual(0x0000d800, reversedSpark.Vertical!.Value.AcceptedDisplacement,
+        "positive external Y reverses vertical shinespark after native speed negation");
+    AssertEqual((ushort)160, externallyReversedSpark.YPosition,
+        "subpixel shinespark reversal retains the whole Y coordinate");
+    AssertEqual((ushort)0xd800, externallyReversedSpark.Kinematics.YSubposition,
+        "subpixel shinespark reversal publishes exact D800 fraction");
 
     for (ushort frame = 0; frame < 29; frame++)
     {

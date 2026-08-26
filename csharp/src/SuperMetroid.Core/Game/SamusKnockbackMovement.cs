@@ -102,8 +102,8 @@ public static class SamusKnockbackMovement
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 0x0a);
         int requestedX = samus.KnockbackXDirection == 0
-            ? speed.CalculateLeftDisplacement(baseSpeed)
-            : speed.CalculateRightDisplacement(baseSpeed);
+            ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
+            : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -220,11 +220,14 @@ public static class SamusKnockbackMovement
         uint oldSpeed = state.VerticalSpeedFixed;
         uint acceleration = Compose(state.YAcceleration, state.YSubacceleration);
         SetVerticalSpeed(state, unchecked(oldSpeed - acceleration));
+        int displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
+            state,
+            unchecked(-(int)oldSpeed));
         return SamusBlockCollision.MoveVertical(
             bus,
             level,
             state,
-            unchecked(-(int)oldSpeed),
+            displacement,
             scanLeftToRight: (nmiFrameCounter & 1) == 0);
     }
 
@@ -234,17 +237,16 @@ public static class SamusKnockbackMovement
         SamusState samus,
         ushort nmiFrameCounter)
     {
-        // With no external displacement and no slope adjustment, `$90:923F` copies the
-        // total horizontal fractional word and adds one to its whole word. That deliberate
-        // coupling attempts to keep grounded motion in contact with descending slopes.
-        uint requested = Compose(
-            unchecked((ushort)(samus.HorizontalSpeed.TotalSpeed + 1)),
-            samus.HorizontalSpeed.TotalSubspeed);
+        // `$90:923F` gives nonzero external Y priority over its normal total-X-plus-one
+        // slope-following probe. This down-knockback path consumes the exact same helper.
+        int requested = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
+            samus.Kinematics,
+            samus.HorizontalSpeed);
         return SamusBlockCollision.MoveVertical(
             bus,
             level,
             samus.Kinematics,
-            unchecked((int)requested),
+            requested,
             scanLeftToRight: (nmiFrameCounter & 1) == 0);
     }
 

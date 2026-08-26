@@ -573,8 +573,12 @@ public sealed class SamusShinesparkState
         }
 
         int displacement = samus.ReadPoseXDirection(bus) == 4
-            ? samus.HorizontalSpeed.CalculateLeftDisplacement(baseSpeed: 0)
-            : samus.HorizontalSpeed.CalculateRightDisplacement(baseSpeed: 0);
+            ? samus.HorizontalSpeed.CalculateLeftDisplacement(
+                baseSpeed: 0,
+                samus.Kinematics.ExtraXFixed)
+            : samus.HorizontalSpeed.CalculateRightDisplacement(
+                baseSpeed: 0,
+                samus.Kinematics.ExtraXFixed);
         return SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -611,6 +615,22 @@ public sealed class SamusShinesparkState
         int upwardDisplacement = unchecked(-(int)Compose(
             samus.Kinematics.YSpeed,
             samus.Kinematics.YSubspeed));
+        upwardDisplacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
+            samus.Kinematics,
+            upwardDisplacement);
+
+        // `$90:D261-$D29F` temporarily negates the signed result, clamps only a positive
+        // upward magnitude at 15 whole pixels while preserving its fraction, then negates
+        // it back before the room move. If external Y is strong enough to reverse motion
+        // downward, the temporary value is negative and deliberately bypasses this clamp.
+        int collisionMagnitude = unchecked(-upwardDisplacement);
+        short collisionMagnitudeWhole = unchecked((short)(collisionMagnitude >> 16));
+        if (unchecked((short)(collisionMagnitudeWhole - 15)) >= 0)
+        {
+            collisionMagnitude = unchecked((int)(
+                (15u << 16) | (ushort)collisionMagnitude));
+            upwardDisplacement = unchecked(-collisionMagnitude);
+        }
         return SamusBlockCollision.MoveVertical(
             bus,
             level,

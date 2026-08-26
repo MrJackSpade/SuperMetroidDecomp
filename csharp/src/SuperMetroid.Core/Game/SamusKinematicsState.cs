@@ -36,6 +36,24 @@ public sealed class SamusKinematicsState
     /// <summary>Fractional world Y at WRAM <c>$0AFC</c>.</summary>
     public ushort YSubposition { get; set; }
 
+    /// <summary>
+    /// Whole signed X displacement at WRAM <c>$0B58</c>. Enemy/PLM producers write this
+    /// independently of Samus's own base and extra-run speeds.
+    /// </summary>
+    public ushort ExtraXDisplacement { get; set; }
+
+    /// <summary>Fractional X displacement at WRAM <c>$0B56</c>.</summary>
+    public ushort ExtraXSubdisplacement { get; set; }
+
+    /// <summary>
+    /// Whole signed Y displacement at WRAM <c>$0B5C</c>. The word persists until its
+    /// producer clears it; bank `$90` does not consume or automatically zero it.
+    /// </summary>
+    public ushort ExtraYDisplacement { get; set; }
+
+    /// <summary>Fractional Y displacement at WRAM <c>$0B5A</c>.</summary>
+    public ushort ExtraYSubdisplacement { get; set; }
+
     /// <summary>Horizontal collision radius; <c>Samus_SetRadius</c> always writes five.</summary>
     public ushort XRadius { get; set; } = 5;
 
@@ -76,6 +94,18 @@ public sealed class SamusKinematicsState
 
     /// <summary>Current vertical speed as an unsigned native high/low pair.</summary>
     public uint VerticalSpeedFixed => ((uint)YSpeed << 16) | YSubspeed;
+
+    /// <summary>
+    /// Current extra X pair interpreted exactly as signed two's-complement 16.16. Keeping
+    /// the component words public preserves producer-level WRAM semantics while this view
+    /// prevents every movement consumer from reimplementing the cast/wrap operation.
+    /// </summary>
+    public int ExtraXFixed => unchecked((int)(((uint)ExtraXDisplacement << 16) |
+        ExtraXSubdisplacement));
+
+    /// <summary>Current extra Y pair interpreted as signed two's-complement 16.16.</summary>
+    public int ExtraYFixed => unchecked((int)(((uint)ExtraYDisplacement << 16) |
+        ExtraYSubdisplacement));
 
     /// <summary>
     /// Whole-pixel top collision boundary returned by <c>Get_Samus_Top_Boundary</c>.

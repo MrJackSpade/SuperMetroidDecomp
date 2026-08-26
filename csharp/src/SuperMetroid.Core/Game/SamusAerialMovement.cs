@@ -203,7 +203,27 @@ public static class SamusAerialMovement
                 ClearHorizontalMomentum(
                     samus.HorizontalSpeed,
                     samus.ReadPoseXDirection(bus));
-            return new AerialMovementResult(horizontal, Vertical: null, Landed: false, HitCeiling: false);
+
+            // `$90:8FD6` is not an empty Y frame: it applies only the externally produced
+            // displacement. Zero returns before collision, positive values gain the native
+            // downward +1.0 bias, and negative values move upward exactly as supplied.
+            int? externalY = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(
+                samus.Kinematics);
+            BlockMoveResult? vertical = null;
+            if (externalY is int displacement)
+            {
+                vertical = SamusBlockCollision.MoveVertical(
+                    bus,
+                    level,
+                    samus.Kinematics,
+                    displacement,
+                    scanLeftToRight: (nmiFrameCounter & 1) == 0);
+            }
+            return new AerialMovementResult(
+                horizontal,
+                vertical,
+                Landed: externalY >= 0 && vertical is { Collided: true },
+                HitCeiling: externalY < 0 && vertical is { Collided: true });
         }
 
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
@@ -680,6 +700,9 @@ public static class SamusAerialMovement
         int displacement = state.YDirection == 2
             ? unchecked((int)oldSpeed)
             : unchecked(-(int)oldSpeed);
+        displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
+            state,
+            displacement);
         downwardDisplacement = displacement >= 0;
         BlockMoveResult vertical = SamusBlockCollision.MoveVertical(
             bus,
@@ -831,8 +854,8 @@ public static class SamusAerialMovement
             ? direction == 8
             : direction == 4;
         return movesLeft
-            ? speed.CalculateLeftDisplacement(baseSpeed)
-            : speed.CalculateRightDisplacement(baseSpeed);
+            ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
+            : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
     }
 
     private static void ClearBaseHorizontalMotion(SamusHorizontalSpeedState speed)

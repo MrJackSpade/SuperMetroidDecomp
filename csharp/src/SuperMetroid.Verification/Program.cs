@@ -29,6 +29,7 @@ VerifySamusRenderingSlice();
 VerifySamusPoseTransitionMatching();
 VerifySamusHorizontalSpeed();
 VerifySamusStoredShineAndShinespark();
+VerifySamusCrystalFlash();
 VerifySamusAerialMovement();
 VerifySamusSpaceJumpAndScrewAttack();
 VerifySamusLiquidPhysics();
@@ -1470,6 +1471,148 @@ static void VerifySamusStoredShineAndShinespark()
 /// jump initialization constants, old-speed displacement ordering, variable-height cut,
 /// falling acceleration, solid-floor landing, radius alignment, and landing animation.
 /// </summary>
+/// <summary>
+/// Walks the exact `$90:D5A2-$D792` Crystal Flash handler chain, including its strict
+/// controller equality test, ten raise calls, NMI-mod-eight ammo cadence, ROM delay-list
+/// finish command, energy overflow, and one-frame-late movement-handler cleanup.
+/// </summary>
+static void VerifySamusCrystalFlash()
+{
+    var bus = new TestAddressSpace();
+
+    // Only bytes zero, one, and six matter to this fixture: facing, movement type, and Y
+    // radius. The production implementation still reads them through the actual ROM table
+    // addresses instead of receiving test-only pose metadata.
+    bus.WriteBytes(0x91b629 + SamusState.FacingRightNormalPose * 8,
+        [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.FacingLeftNormalPose * 8,
+        [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.CrystalFlashRightPose * 8,
+        [0x08, 0x1b, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.CrystalFlashLeftPose * 8,
+        [0x04, 0x1b, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
+
+    WriteTestWord(bus, 0x91b010 + SamusState.FacingRightNormalPose * 2, 0xb600);
+    WriteTestWord(bus, 0x91b010 + SamusState.FacingLeftNormalPose * 2, 0xb601);
+    WriteTestWord(bus, 0x91b010 + SamusState.CrystalFlashRightPose * 2, 0xb545);
+    WriteTestWord(bus, 0x91b010 + SamusState.CrystalFlashLeftPose * 2, 0xb556);
+    bus.WriteBytes(0x91b600, [0x05, 0x05]);
+    bus.WriteBytes(0x91b545, [
+        0x03, 0x03, 0x01, 0x01, 0xfe, 0x02,
+        0x0c, 0x0c, 0x0c, 0x0c, 0xfe, 0x04,
+        0x03, 0x03, 0x03, 0xfd, 0x01,
+    ]);
+    bus.WriteBytes(0x91b556, [
+        0x03, 0x03, 0x01, 0x01, 0xfe, 0x02,
+        0x0c, 0x0c, 0x0c, 0x0c, 0xfe, 0x04,
+        0x03, 0x03, 0x03, 0xfd, 0x02,
+    ]);
+
+    const ushort chord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
+    var samus = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 0x0120,
+        YPosition = 0x0080,
+        Health = 1,
+        MaxHealth = 99,
+        Missiles = 10,
+        SuperMissiles = 10,
+        PowerBombs = 10,
+    };
+    samus.RefreshCollisionRadii(bus);
+
+    AssertTrue(!samus.CrystalFlash.TryBegin(bus, samus, chord | (ushort)SnesButton.A),
+        "Crystal Flash rejects extra held input");
+    samus.Kinematics.YSubspeed = 1;
+    AssertTrue(!samus.CrystalFlash.TryBegin(bus, samus, chord),
+        "Crystal Flash rejects fractional vertical movement");
+    samus.Kinematics.YSubspeed = 0;
+    AssertTrue(samus.CrystalFlash.TryBegin(bus, samus, chord),
+        "Crystal Flash accepts exact chord and resources");
+    AssertEqual(SamusState.CrystalFlashRightPose, samus.Pose,
+        "source direction selects right Crystal Flash pose");
+    AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
+        "Crystal Flash installs raise handler");
+    AssertEqual((ushort)7, samus.CrystalFlash.SpecialPaletteType,
+        "Crystal Flash installs palette handler seven");
+
+    ushort initialY = samus.YPosition;
+    for (int frame = 0; frame < 9; frame++)
+    {
+        CrystalFlashMovementResult raise = samus.CrystalFlash.Step(bus, samus, (ushort)frame);
+        AssertEqual(CrystalFlashPhase.Raising, raise.PhaseAfterStep,
+            $"raise frame {frame} retains start handler");
+        samus.AnimateNoFx(bus, chord);
+    }
+    AssertEqual((ushort)(initialY - 18), samus.YPosition, "first nine raise calls move 18 pixels");
+
+    CrystalFlashMovementResult raiseTransition = samus.CrystalFlash.Step(bus, samus, 9);
+    AssertEqual(CrystalFlashPhase.DrainingAmmo, raiseTransition.PhaseAfterStep,
+        "tenth raise call installs ammo handler");
+    AssertEqual((ushort)(initialY - 20), samus.YPosition, "complete raise is 20 pixels");
+    AssertEqual(samus.YPosition, samus.CrystalFlash.RaisedYPosition,
+        "raised Y capture follows tenth displacement");
+    AssertEqual((ushort)6, samus.AnimationFrame, "raise transition forces animation frame six");
+    AssertTrue(samus.CrystalFlash.BubbleHdmaRequested,
+        "raise transition publishes Crystal Flash HDMA spawn seam");
+    samus.AnimateNoFx(bus, chord);
+    AssertEqual((ushort)2, samus.AnimationFrameTimer,
+        "same beta frame decrements forced timer three to two");
+
+    // Call only accepted NMI counters divisible by eight. These are the only handler calls
+    // that can consume ammo or restore energy; skipped counters are checked separately.
+    CrystalFlashMovementResult skipped = samus.CrystalFlash.Step(bus, samus, 15);
+    AssertTrue(!skipped.ConsumedAmmo && !skipped.RestoredEnergy,
+        "non-mod-eight frame leaves Crystal Flash resources untouched");
+    for (ushort drain = 1; drain <= 30; drain++)
+        samus.CrystalFlash.Step(bus, samus, unchecked((ushort)(drain * 8)));
+
+    AssertEqual((ushort)0, samus.Missiles, "Crystal Flash consumes ten missiles");
+    AssertEqual((ushort)0, samus.SuperMissiles, "Crystal Flash consumes ten supers");
+    AssertEqual((ushort)0, samus.PowerBombs, "Crystal Flash consumes ten power bombs");
+    AssertEqual((ushort)99, samus.Health, "Crystal Flash energy restoration caps at max");
+    AssertEqual(CrystalFlashPhase.Finishing, samus.CrystalFlash.Phase,
+        "thirtieth drain installs finish handler");
+    AssertEqual((ushort)12, samus.AnimationFrame, "ammo completion forces finish frame twelve");
+
+    // Finish animation is ROM bytecode, not a host countdown. Movement runs before animation
+    // each frame; `$FD,$01` publishes standing-right, which is committed after animation.
+    samus.AnimateNoFx(bus, chord);
+    int finishFrames = 0;
+    while (samus.PendingTransitionalPose is null && finishFrames++ < 20)
+    {
+        samus.CrystalFlash.Step(bus, samus, (ushort)(0x0100 + finishFrames));
+        samus.AnimateNoFx(bus, chord);
+    }
+    AssertEqual<byte?>(SamusState.FacingRightNormalPose, samus.PendingTransitionalPose,
+        "Crystal Flash ROM finish command publishes standing right");
+    AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus),
+        "Crystal Flash standing transition is applied");
+    AssertEqual(CrystalFlashPhase.Finishing, samus.CrystalFlash.Phase,
+        "pose transition does not prematurely replace installed handler");
+    CrystalFlashMovementResult cleanup = samus.CrystalFlash.Step(bus, samus, 0x0200);
+    AssertTrue(cleanup.Completed, "following beta pass restores normal movement handler");
+    AssertEqual((ushort)0xffff, samus.CrystalFlash.SpecialPaletteTimer,
+        "cleanup requests normal palette restoration");
+
+    var left = new SamusState
+    {
+        Pose = SamusState.FacingLeftNormalPose,
+        Health = 50,
+        Missiles = 10,
+        SuperMissiles = 10,
+        PowerBombs = 10,
+    };
+    left.RefreshCollisionRadii(bus);
+    AssertTrue(left.CrystalFlash.TryBegin(bus, left, chord),
+        "left-facing Crystal Flash begins");
+    AssertEqual(SamusState.CrystalFlashLeftPose, left.Pose,
+        "source direction selects left Crystal Flash pose");
+
+    Console.WriteLine("  Crystal Flash: prerequisites, handlers, resources, and ROM animation agree.");
+}
+
 static void VerifySamusAerialMovement()
 {
     var bus = new TestAddressSpace();

@@ -38,7 +38,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, momentum, gravity/collision, `$F8` | Later firing/external-displacement routes |
 | `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | External displacement, enemy producer |
 | `$1A` | Grabbed by Draygon | — | Entire family |
-| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active block motion, crash orbit/circle, released echoes, standing return | Crystal flash, drained, Mother Brain damage, solid-enemy collision |
+| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active block motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return | Crystal Flash HDMA/palette presentation, drained, Mother Brain damage, solid-enemy collision |
 
 The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
 performs its one-frame initialization and `$90:E032` owns the rising special arc; its
@@ -348,6 +348,29 @@ translated status is documented with the Morph Ball family below.
   landing restoration. The private-ROM routes freeze `$1B` and frame-27 `$82` against live
   Landing Site terrain and require every reachable pose/physics/palette milestone.
 
+## Verified Crystal Flash movement/animation slice
+
+- `SamusCrystalFlashState` translates the three installed handlers at `$90:D678/$D6CE/$D75B`
+  as named debugger phases. Initiation retains `$90:D5A2`'s exact controller equality test
+  (Down + L + R + Shot with no extra buttons), zero whole/fractional Y speed, energy below
+  51, empty reserve, and current 10/10/10 ammunition requirements.
+- The raise handler changes only whole Y by two for ten calls, then forces ROM animation
+  frame six/timer three and publishes the bank-$88 HDMA spawn seam. Main decrements missiles,
+  supers, and power bombs only on accepted NMI counters divisible by eight and calls the
+  translated `$91:DF12` energy/reserve overflow behavior after every shot.
+- The thirtieth decrement forces frame twelve/timer three. The unchanged `$91:B545/$B556`
+  delay programs advance to `$FD,$01/$02`; the installed finish handler sees movement type
+  zero on the following beta frame and only then restores normal movement and requests normal
+  palette restoration. The resulting 20-pixel unsupported drop is consequently handled by
+  the existing ordinary walk-off/falling route rather than by a fabricated Crystal Flash fall.
+- The real-ROM `--crystal-flash-script` publishes only the still-missing power-bomb cleanup
+  call and save inventory. It rendered actual `$D3` art, consumed the three cartridge-timed
+  ammo groups at NMI 248, returned through `$01` at frame 256, and completed the handler at
+  frame 257. `Restart Crystal Flash` exposes the same route in the interactive viewer.
+- Crystal Flash's bank-$88 expanding window/afterglow and bank-$91 palette program remain a
+  presentation seam. The movement state records their exact requested type/timers instead of
+  pretending the ordinary suit palette is a complete visual translation.
+
 ## Verified aerial-turn and wall-jump slice
 
 - Opposite-direction input from every admitted normal-jump/falling aim family publishes
@@ -592,7 +615,7 @@ translated status is documented with the Morph Ball family below.
 ## Next implementation order
 
 1. Grapple breakable PLMs, spike damage, and solid-enemy wall-jump branches.
-2. Crystal flash/drained and remaining scripted movement.
+2. Metroid-drained and Mother Brain scripted movement; then Crystal Flash HDMA/palette presentation.
 3. Solid-enemy wall collision routes for the completed spin families.
 4. Liquid particles, periodic damage, and audio effects.
 5. Enemy collision/damage producers so knockback and grapple begin from live actors instead of host seams.

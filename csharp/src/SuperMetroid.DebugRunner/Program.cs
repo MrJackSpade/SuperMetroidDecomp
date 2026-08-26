@@ -147,6 +147,11 @@ else if (options.GrappleScript)
     Console.WriteLine(
         "Input script: host-publish one connected grapple anchor, pump the ROM pendulum with Left/Right while holding Shoot, then release into native $51/$52 velocity.");
 }
+else if (options.CrystalFlashScript)
+{
+    Console.WriteLine(
+        "Input script: host-publish the untranslated power-bomb-cleanup seam with exact Down+L+R+Shoot input, then execute ROM poses $D3/$01 through all three native Crystal Flash handlers.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7800 stays clear
@@ -264,6 +269,24 @@ else if (options.SpaceJumpScript || options.WaterSpaceJumpScript || options.Scre
     runtime.Samus!.EquippedItems |= options.ScrewAttackScript
         ? (ushort)0x0208
         : (ushort)0x0200;
+}
+else if (options.CrystalFlashScript)
+{
+    // The runner has no save-file loader or complete power-bomb explosion lifecycle yet.
+    // Publish only the missing inventory and bank-$88 cleanup stimulus. TryBegin below still
+    // performs the native exact-input, velocity, energy, reserve, ammo, direction, and pose
+    // checks before any scripted handler is allowed to become active.
+    runtime.Samus!.Health = 1;
+    runtime.Samus.MaxHealth = 99;
+    runtime.Samus.ReserveEnergy = 0;
+    runtime.Samus.MaxReserveEnergy = 0;
+    runtime.Samus.Missiles = 10;
+    runtime.Samus.SuperMissiles = 10;
+    runtime.Samus.PowerBombs = 10;
+    const ushort crystalFlashChord =
+        (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
+    if (!runtime.TryBeginCrystalFlashFromPowerBombCleanup(crystalFlashChord))
+        throw new InvalidOperationException("Real-ROM Crystal Flash initiation rejected its canonical fixture.");
 }
 
 if (options.WaterSpaceJumpScript)
@@ -534,6 +557,9 @@ int priorReleasedShinesparkEchoCount = 0;
 int observedSpaceJumpRestarts = 0;
 bool observedScrewAttackContactDamage = false;
 bool observedScrewAttackPaletteCycle = false;
+bool observedCrystalFlashDrain = false;
+bool observedCrystalFlashFinish = false;
+bool observedCrystalFlashCompletion = false;
 int issuedSpaceJumpPulses = 0;
 bool spaceJumpPulseMayBeIssued = true;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
@@ -605,6 +631,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     ushort yDirectionBeforeFrame = runtime.Samus.Kinematics.YDirection;
     ushort controllerInput = specialSpinRoute
         ? specialSpinInput
+        : options.CrystalFlashScript
+        ? (ushort)0
         : options.GrappleFireScript
         ? frameIndex < 16 ? (ushort)SnesButton.X : (ushort)0
         : options.GrappleScript
@@ -1026,6 +1054,12 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         SamusState.IsScrewAttackPose(runtime.Samus.Pose) &&
         runtime.Samus.AnimationFrame >= 27 &&
         runtime.Samus.HorizontalSpeed.SpecialPaletteFrame != 0;
+    observedCrystalFlashDrain |= runtime.LastCrystalFlashMovement is
+        { PhaseAfterStep: CrystalFlashPhase.DrainingAmmo };
+    observedCrystalFlashFinish |= runtime.LastCrystalFlashMovement is
+        { PhaseAfterStep: CrystalFlashPhase.Finishing };
+    observedCrystalFlashCompletion |= runtime.LastCrystalFlashMovement is
+        { Completed: true };
     observedKnockbackMovement |= runtime.LastKnockbackMovement is not null;
     observedDamageBoostMovement |= runtime.LastAerialSamusMovement is not null &&
         runtime.Samus.ReadMovementType(bus) == 0x19;
@@ -1764,6 +1798,23 @@ if (options.GrappleScript)
             : "."));
 }
 
+if (options.CrystalFlashScript)
+{
+    if (!observedSamusPoses.Contains(SamusState.CrystalFlashRightPose))
+        throw new InvalidOperationException("Crystal Flash ROM route never rendered pose $D3.");
+    if (options.FrameCount >= 11 && !observedCrystalFlashDrain)
+        throw new InvalidOperationException("Crystal Flash ROM route never installed ammo handler $90:D6CE.");
+    if (options.FrameCount >= 249 && !observedCrystalFlashFinish)
+        throw new InvalidOperationException("Crystal Flash ROM route never consumed all three ammo families.");
+    if (options.FrameCount >= 265 && !observedCrystalFlashCompletion)
+        throw new InvalidOperationException("Crystal Flash ROM route never returned to normal movement.");
+    Console.WriteLine(
+        $"Crystal Flash ROM route observed drain={observedCrystalFlashDrain}, " +
+        $"finish={observedCrystalFlashFinish}, complete={observedCrystalFlashCompletion}, " +
+        $"energy={runtime.Samus.Health}, ammo={runtime.Samus.Missiles}/" +
+        $"{runtime.Samus.SuperMissiles}/{runtime.Samus.PowerBombs}.");
+}
+
 if (options.GrappleFireScript)
 {
     if (!observedGrappleFire)
@@ -1971,7 +2022,8 @@ readonly record struct DebugRunnerOptions(
     bool BombJumpScript,
     bool KnockbackScript,
     bool GrappleScript,
-    bool GrappleFireScript)
+    bool GrappleFireScript,
+    bool CrystalFlashScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -2007,6 +2059,7 @@ readonly record struct DebugRunnerOptions(
         bool knockbackScript = false;
         bool grappleScript = false;
         bool grappleFireScript = false;
+        bool crystalFlashScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -2171,6 +2224,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--crystal-flash-script":
+                    crystalFlashScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -2230,7 +2288,8 @@ readonly record struct DebugRunnerOptions(
             bombJumpScript,
             knockbackScript,
             grappleScript,
-            grappleFireScript);
+            grappleFireScript,
+            crystalFlashScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

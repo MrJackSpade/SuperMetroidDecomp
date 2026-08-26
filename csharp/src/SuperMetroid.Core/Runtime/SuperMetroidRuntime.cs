@@ -123,6 +123,9 @@ public sealed class SuperMetroidRuntime
     /// <summary>Most recent stored-shine windup or active shinespark handler result.</summary>
     public ShinesparkMovementResult? LastShinesparkMovement { get; private set; }
 
+    /// <summary>Most recent Crystal Flash start, ammo-drain, or finish handler result.</summary>
+    public CrystalFlashMovementResult? LastCrystalFlashMovement { get; private set; }
+
     /// <summary>
     /// Explicit debugger substitute for the untranslated HUD item selector. When enabled,
     /// a new Shoot edge starts grapple firing from the current pose. Normal scenarios leave
@@ -591,6 +594,35 @@ public sealed class SuperMetroidRuntime
         Cgram.SetColor(223, 32657);
     }
 
+    /// <summary>
+    /// Publishes the exact bank-$88 power-bomb-cleanup attempt to Crystal Flash's native
+    /// initiation routine.
+    /// </summary>
+    /// <remarks>
+    /// The normal power-bomb explosion/HDMA lifecycle is not translated yet. Exposing this
+    /// seam makes that missing producer explicit: callers provide the controller sample
+    /// that `$88:8B5F` would have observed, while every precondition and all subsequent
+    /// movement/animation work remain the literal bank-$90 implementation.
+    /// </remarks>
+    public bool TryBeginCrystalFlashFromPowerBombCleanup(
+        ushort controllerInput,
+        ushort shotBinding = (ushort)SnesButton.X,
+        bool titleDemo = false)
+    {
+        if (Samus is null || !GroundedSamusMovementEnabled || LevelData is null)
+        {
+            throw new InvalidOperationException(
+                "Crystal Flash requires initialized gameplay Samus and room level data.");
+        }
+
+        return Samus.CrystalFlash.TryBegin(
+            _addressSpace,
+            Samus,
+            controllerInput,
+            shotBinding,
+            skipInputCheck: titleDemo);
+    }
+
     /// <summary>Initializes the ROM-authored standing pose at an explicitly supplied point.</summary>
     private void InitializeDebugSamus(ushort xPosition, ushort yPosition)
     {
@@ -838,6 +870,7 @@ public sealed class SuperMetroidRuntime
                 LastKnockbackMovement = null;
                 LastGrappleMovement = null;
                 LastShinesparkMovement = null;
+                LastCrystalFlashMovement = null;
 
                 // GrappleBeamHandler precedes beta movement, but only connected/release
                 // functions own Samus's position. An extending or cancelling beam coexists
@@ -964,6 +997,18 @@ public sealed class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             NmiFrameCounter);
+                }
+                // `$90:D5A2` installs one of three Crystal Flash movement pointers and an
+                // RTS pose-input handler. Clear the transition sampled at the top of this
+                // host frame: normal input is not allowed to interrupt `$D3/$D4` art.
+                else if (Samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive)
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    LastCrystalFlashMovement = Samus.CrystalFlash.Step(
+                        _addressSpace,
+                        Samus,
+                        NmiFrameCounter);
                 }
                 // `$90:CFFA` replaces the normal movement-handler pointer. Windup, active
                 // launch, and crash therefore own beta movement regardless of the pose's

@@ -59,6 +59,7 @@ internal sealed class RuntimePreviewControl : UserControl
         var ceresButton = new ToolStripButton("Restart Ceres");
         var motherBrainButton = new ToolStripButton("Restart Mother Brain");
         var groundedRunButton = new ToolStripButton("Restart grounded run");
+        var crystalFlashButton = new ToolStripButton("Restart Crystal Flash");
         var cameraLeftButton = new ToolStripButton("Room ←");
         var cameraRightButton = new ToolStripButton("Room →");
         var cameraUpButton = new ToolStripButton("Room ↑");
@@ -69,6 +70,9 @@ internal sealed class RuntimePreviewControl : UserControl
         ceresButton.Click += (_, _) => Restart(motherBrain: false, groundedRun: false);
         motherBrainButton.Click += (_, _) => Restart(motherBrain: true, groundedRun: false);
         groundedRunButton.Click += (_, _) => Restart(motherBrain: false, groundedRun: true);
+        crystalFlashButton.Click += (_, _) => RestartCrystalFlash();
+        crystalFlashButton.ToolTipText =
+            "Restarts grounded Samus, grants the exact 10/10/10 ammo fixture, and publishes the missing power-bomb-cleanup call with Down+L+R+Shoot.";
         cameraLeftButton.Click += (_, _) => MoveCamera(-16, 0);
         cameraRightButton.Click += (_, _) => MoveCamera(16, 0);
         cameraUpButton.Click += (_, _) => MoveCamera(0, -16);
@@ -269,6 +273,7 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(ceresButton);
         toolStrip.Items.Add(motherBrainButton);
         toolStrip.Items.Add(groundedRunButton);
+        toolStrip.Items.Add(crystalFlashButton);
         toolStrip.Items.Add(new ToolStripSeparator());
         toolStrip.Items.Add(holdLeftButton);
         toolStrip.Items.Add(holdRightButton);
@@ -469,6 +474,39 @@ internal sealed class RuntimePreviewControl : UserControl
         RefreshFrame();
     }
 
+    /// <summary>
+    /// Creates the deterministic interactive equivalent of bank `$88:8B5F` reaching
+    /// <c>CrystalFlash</c> after a centred power-bomb explosion finishes.
+    /// </summary>
+    private void RestartCrystalFlash()
+    {
+        // Restart first so the native zero-vertical-speed precondition is meaningful and
+        // stale movement from a prior experiment cannot be silently erased just to make the
+        // move succeed. The one startup step performed by Restart leaves grounded Samus at
+        // rest and also primes the normal VRAM/OAM producer-consumer pipeline.
+        Restart(motherBrain: false, groundedRun: true);
+
+        // Save-file loading and the complete power-bomb HDMA producer are still outside the
+        // current runtime. These values are explicit debugger stimuli at that boundary; the
+        // called routine still checks every current word exactly as `$90:D5A2` does.
+        runtime.Samus!.Health = 1;
+        runtime.Samus.MaxHealth = 99;
+        runtime.Samus.ReserveEnergy = 0;
+        runtime.Samus.MaxReserveEnergy = 0;
+        runtime.Samus.Missiles = 10;
+        runtime.Samus.SuperMissiles = 10;
+        runtime.Samus.PowerBombs = 10;
+        const ushort chord =
+            (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
+        if (!runtime.TryBeginCrystalFlashFromPowerBombCleanup(chord))
+        {
+            haltedAtUntranslatedBoundary =
+                "Crystal Flash initiation rejected the documented grounded 10/10/10 fixture.";
+        }
+
+        RefreshFrame();
+    }
+
     private void RefreshFrame()
     {
         Rgba32[] pixels;
@@ -655,6 +693,9 @@ internal sealed class RuntimePreviewControl : UserControl
             $"shine={runtime.Samus.Shinespark.Phase}/timer {runtime.Samus.Shinespark.ShineTimer} " +
             $"crash {runtime.Samus.Shinespark.CrashSubphase}:{runtime.Samus.Shinespark.CrashRadius} " +
             $"released {runtime.Samus.Shinespark.ReleasedCrashEchoCount}  |  " +
+            $"crystal={runtime.Samus.CrystalFlash.Phase} " +
+            $"ammo {runtime.Samus.Missiles}/{runtime.Samus.SuperMissiles}/{runtime.Samus.PowerBombs} " +
+            $"energy {runtime.Samus.Health}/{runtime.Samus.MaxHealth}  |  " +
             // `$0AAE` is deliberately shown as raw hexadecimal because zero/two are the
             // active capture slots, `$FFFF` is ordinary cancellation departure, and the
             // shinespark crash overloads both bytes with radius/subphase state.

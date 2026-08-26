@@ -100,6 +100,12 @@ public sealed class SamusState
     /// <summary>Pose `$CE`: diagonal up-left shinespark.</summary>
     public const byte ShinesparkDiagonalLeftPose = 0xce;
 
+    /// <summary>Pose `$D3`: right-facing Crystal Flash body and delay program.</summary>
+    public const byte CrystalFlashRightPose = 0xd3;
+
+    /// <summary>Pose `$D4`: left-facing Crystal Flash mirror.</summary>
+    public const byte CrystalFlashLeftPose = 0xd4;
+
     /// <summary>Pose `$89`: facing right after forward running collides with a wall.</summary>
     public const byte RanIntoWallRightPose = 0x89;
 
@@ -597,6 +603,13 @@ public sealed class SamusState
     public SamusShinesparkState Shinespark { get; } = new();
 
     /// <summary>
+    /// Crystal Flash initiation, ammo cadence, energy restoration, and installed handler
+    /// state. It is deliberately separate from <see cref="Shinespark"/> even though the
+    /// original aliases a few WRAM words between the mutually exclusive effects.
+    /// </summary>
+    public SamusCrystalFlashState CrystalFlash { get; } = new();
+
+    /// <summary>
     /// Compatibility/debugger view of <c>samus_x_speed_divisor</c> at WRAM <c>$0A66</c>.
     /// The backing word belongs to <see cref="HorizontalSpeed"/>, just as the native word
     /// is both a movement-speed divisor and the no-FX animation delay buffer.
@@ -607,8 +620,29 @@ public sealed class SamusState
         set => HorizontalSpeed.SpeedDivisor = value;
     }
 
-    /// <summary>Current energy used by animation command $F6's low-health branch.</summary>
+    /// <summary>Current energy at WRAM `$09C2`, also used by animation command `$F6`.</summary>
     public ushort Health { get; set; } = 99;
+
+    /// <summary>Maximum normal energy at WRAM `$09C4`; defaults to the initial 99.</summary>
+    public ushort MaxHealth { get; set; } = 99;
+
+    /// <summary>Current reserve energy at WRAM `$09D6`.</summary>
+    public ushort ReserveEnergy { get; set; }
+
+    /// <summary>Maximum reserve energy at WRAM `$09D4`.</summary>
+    public ushort MaxReserveEnergy { get; set; }
+
+    /// <summary>Reserve-tank mode at WRAM `$09C0`: zero off, one auto, two manual.</summary>
+    public ushort ReserveTankMode { get; set; }
+
+    /// <summary>Current missiles at WRAM `$09C6`.</summary>
+    public ushort Missiles { get; set; }
+
+    /// <summary>Current super missiles at WRAM `$09CA`.</summary>
+    public ushort SuperMissiles { get; set; }
+
+    /// <summary>Current power bombs at WRAM `$09CE`.</summary>
+    public ushort PowerBombs { get; set; }
 
     /// <summary>
     /// Equipped-item bitfield corresponding to WRAM <c>$09A2</c>. Bit two ($0004) is Morph
@@ -2884,7 +2918,11 @@ public sealed class SamusState
             (MoonwalkTurnJumpLeftPose or MoonwalkTurnJumpAimUpLeftPose or
                 MoonwalkTurnJumpAimDownLeftPose, SpinJumpLeftPose) or
             (MoonwalkTurnJumpRightPose or MoonwalkTurnJumpAimUpRightPose or
-                MoonwalkTurnJumpAimDownRightPose, SpinJumpRightPose);
+                MoonwalkTurnJumpAimDownRightPose, SpinJumpRightPose) or
+            // `$91:B545/$B556` terminate Crystal Flash finish art in `$FD,$01/$02`.
+            // Its installed movement handler observes type zero on the following frame.
+            (CrystalFlashRightPose, FacingRightNormalPose) or
+            (CrystalFlashLeftPose, FacingLeftNormalPose);
         if (!verified)
         {
             throw new NotSupportedException(
@@ -3056,6 +3094,21 @@ public sealed class SamusState
 
         AnimationFrame = unchecked((ushort)(AnimationFrame + 1));
         HandleAnimationDelay(bus, controllerInput);
+    }
+
+    /// <summary>
+    /// Publishes an animation frame/timer pair written directly by an installed special
+    /// movement handler instead of by the generic delay-program interpreter.
+    /// </summary>
+    /// <remarks>
+    /// Crystal Flash writes `$0A94/$0A96` at `$90:D689` and `$90:D74E`. This narrow internal
+    /// seam preserves the native ordering: movement writes the pair, then animation later
+    /// in beta immediately decrements the newly written timer.
+    /// </remarks>
+    internal void SetAnimationFrameFromSpecialHandler(ushort frame, ushort timer)
+    {
+        AnimationFrame = frame;
+        AnimationFrameTimer = timer;
     }
 
     private void HandleAnimationDelay(ISnesAddressSpace bus, ushort controllerInput)

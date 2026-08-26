@@ -1,0 +1,292 @@
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
+
+namespace SuperMetroid.Core.Game;
+
+/// <summary>
+/// Literal, debugger-visible translation of Crystal Flash's three installed movement
+/// handlers at <c>$90:D678-$90:D792</c>.
+/// </summary>
+/// <remarks>
+/// Crystal Flash is unusual even among Samus's scripted movement states. Bank <c>$88</c>
+/// attempts it only when the power-bomb explosion centred on Samus finishes; successful
+/// initiation then replaces both the normal pose-input handler and the normal movement
+/// handler. Keeping that handler pointer as <see cref="Phase"/> prevents pose `$D3/$D4`
+/// from accidentally inheriting invented type-$1B physics.
+/// </remarks>
+public sealed class SamusCrystalFlashState
+{
+    /// <summary>The exact normal-game controller chord: Down + L + R + the Shot binding.</summary>
+    public const ushort RequiredInputWithoutShot = 0x0430;
+
+    /// <summary>Debugger-readable equivalent of the active bank-$90 movement-handler pointer.</summary>
+    public CrystalFlashPhase Phase { get; private set; }
+
+    /// <summary>WRAM <c>$0A64</c>, initialized to nine for the ten two-pixel raise frames.</summary>
+    public ushort RaiseTimer { get; private set; }
+
+    /// <summary>WRAM <c>$0DEA</c>: zero missiles, one supers, two power bombs.</summary>
+    public ushort AmmoDecrementIndex { get; private set; }
+
+    /// <summary>WRAM <c>$0DEC</c>, reloaded to ten between the three ammunition families.</summary>
+    public ushort AmmoDecrementTimer { get; private set; }
+
+    /// <summary>WRAM <c>$0DF0</c>, captured after the complete 20-pixel rise.</summary>
+    public ushort RaisedYPosition { get; private set; }
+
+    /// <summary>WRAM <c>$0DF2</c>, seeded to one for bank-$91's palette program.</summary>
+    public ushort CrystalPaletteTimer { get; private set; }
+
+    /// <summary>WRAM <c>$0A68</c>; seven dispatches the cartridge's Crystal Flash palette.</summary>
+    public ushort SpecialPaletteType { get; private set; }
+
+    /// <summary>WRAM <c>$0ACE</c>, initialized to the first Crystal Flash palette record.</summary>
+    public ushort SpecialPaletteFrame { get; private set; }
+
+    /// <summary>WRAM <c>$0ACC</c>; <c>$FFFF</c> requests normal-palette restoration at finish.</summary>
+    public ushort SpecialPaletteTimer { get; private set; }
+
+    /// <summary>Set when `$90:D6C5` would spawn the two bank-$88 window HDMA objects.</summary>
+    public bool BubbleHdmaRequested { get; private set; }
+
+    /// <summary>Set when `$90:D6AA` queues sound-library-three effect one.</summary>
+    public bool ActivationSoundRequested { get; private set; }
+
+    /// <summary>
+    /// Applies every test and initialization write in <c>CrystalFlash</c> at
+    /// <c>$90:D5A2</c>.
+    /// </summary>
+    /// <param name="skipInputCheck">
+    /// True only for the title-demo route where game state is at least <c>$28</c>. Ordinary
+    /// gameplay must supply the exact chord; extra held buttons make native initiation fail.
+    /// </param>
+    public bool TryBegin(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        ushort controllerInput,
+        ushort shotBinding = 0x0040,
+        bool skipInputCheck = false)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+
+        // `$90:D5AD-$D5B9` uses CMP, not a bit test. This deliberately rejects any extra
+        // held button, including Jump, Dash, Select, or the opposite D-pad directions.
+        ushort requiredInput = unchecked((ushort)(RequiredInputWithoutShot | shotBinding));
+        if (!skipInputCheck && controllerInput != requiredInput)
+            return false;
+
+        // The remaining preconditions are literal WRAM comparisons. Reserve energy must
+        // be empty even when the reserve mode is manual; possession of a reserve tank alone
+        // does not matter. Each current ammo count—not its maximum—must supply ten shots.
+        if (samus.Kinematics.YSpeed != 0 || samus.Kinematics.YSubspeed != 0 ||
+            !SignedLessThan(samus.Health, 0x0033) || samus.ReserveEnergy != 0 ||
+            SignedLessThan(samus.Missiles, 10) ||
+            SignedLessThan(samus.SuperMissiles, 10) ||
+            SignedLessThan(samus.PowerBombs, 10))
+        {
+            return false;
+        }
+
+        // `$90:D5ED-$D600` considers direction byte four left and every other value right.
+        // Read that byte from the source pose before replacing it with Crystal Flash art.
+        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        samus.Pose = facingLeft
+            ? SamusState.CrystalFlashLeftPose
+            : SamusState.CrystalFlashRightPose;
+        samus.RefreshCollisionRadii(bus);
+        if (samus.ReadMovementType(bus) != 0x1b)
+            throw new InvalidDataException("ROM pose $D3/$D4 no longer has movement type $1B.");
+        samus.InitializeAnimation(bus, initialFrame: 0);
+
+        // The native routine reuses shinespark words but installs a distinct pointer. The
+        // C# states stay separate so a debugger cannot mistake Crystal Flash for a spark.
+        RaiseTimer = 9;
+        AmmoDecrementIndex = 0;
+        AmmoDecrementTimer = 10;
+        RaisedYPosition = 0;
+        CrystalPaletteTimer = 1;
+        SpecialPaletteType = 7;
+        SpecialPaletteFrame = 0;
+        SpecialPaletteTimer = 1;
+        BubbleHdmaRequested = false;
+        ActivationSoundRequested = false;
+        samus.KnockbackTimer = 0;
+        samus.KnockbackDirection = 0;
+        samus.KnockbackActive = false;
+        Phase = CrystalFlashPhase.Raising;
+        return true;
+    }
+
+    /// <summary>Executes one active handler call in the native beta-movement position.</summary>
+    public CrystalFlashMovementResult Step(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+        if (Phase == CrystalFlashPhase.Inactive)
+            throw new InvalidOperationException("Crystal Flash has no installed movement handler.");
+
+        CrystalFlashPhase phaseAtStart = Phase;
+        ushort healthAtStart = samus.Health;
+        ushort missilesAtStart = samus.Missiles;
+        ushort supersAtStart = samus.SuperMissiles;
+        ushort powerBombsAtStart = samus.PowerBombs;
+
+        switch (Phase)
+        {
+            case CrystalFlashPhase.Raising:
+                StepRaising(samus);
+                break;
+
+            case CrystalFlashPhase.DrainingAmmo:
+                StepAmmoDrain(samus, nmiFrameCounter);
+                break;
+
+            case CrystalFlashPhase.Finishing:
+                StepFinish(bus, samus);
+                break;
+
+            default:
+                throw new InvalidOperationException($"Unknown Crystal Flash phase {Phase}.");
+        }
+
+        return new CrystalFlashMovementResult(
+            phaseAtStart,
+            Phase,
+            samus.Health != healthAtStart,
+            samus.Missiles != missilesAtStart ||
+                samus.SuperMissiles != supersAtStart ||
+                samus.PowerBombs != powerBombsAtStart,
+            BubbleHdmaRequested,
+            Phase == CrystalFlashPhase.Inactive);
+    }
+
+    private void StepRaising(SamusState samus)
+    {
+        // `$90:D678-$D67D` changes only the whole-pixel word. The subposition survives.
+        samus.YPosition = unchecked((ushort)(samus.YPosition - 2));
+
+        // Native initializes nine, then uses DEC/BPL. Values 8..0 return; the tenth call
+        // underflows to $FFFF and installs the main handler after completing its Y move.
+        RaiseTimer = unchecked((ushort)(RaiseTimer - 1));
+        if (unchecked((short)RaiseTimer) >= 0)
+            return;
+
+        // The delay program is already on its raise loop, but the movement handler forces
+        // frame six and timer three so main art begins on this precise transition frame.
+        samus.SetAnimationFrameFromSpecialHandler(frame: 6, timer: 3);
+        RaisedYPosition = samus.YPosition;
+        Phase = CrystalFlashPhase.DrainingAmmo;
+        BubbleHdmaRequested = true;
+        ActivationSoundRequested = true;
+        samus.KnockbackTimer = 0;
+        samus.KnockbackActive = false;
+    }
+
+    private void StepAmmoDrain(SamusState samus, ushort nmiFrameCounter)
+    {
+        // All three pointed routines return immediately on seven of every eight accepted
+        // NMI frames. Main-loop frames do not own an independent Crystal Flash cadence.
+        if ((nmiFrameCounter & 7) != 0)
+            return;
+
+        switch (AmmoDecrementIndex)
+        {
+            case 0:
+                samus.Missiles = unchecked((ushort)(samus.Missiles - 1));
+                break;
+            case 1:
+                samus.SuperMissiles = unchecked((ushort)(samus.SuperMissiles - 1));
+                break;
+            case 2:
+                samus.PowerBombs = unchecked((ushort)(samus.PowerBombs - 1));
+                break;
+            default:
+                throw new InvalidOperationException(
+                    $"Crystal Flash ammo pointer index ${AmmoDecrementIndex:X4} is invalid.");
+        }
+
+        RestoreEnergy(samus, 50);
+        AmmoDecrementTimer = unchecked((ushort)(AmmoDecrementTimer - 1));
+        bool timerExpired = AmmoDecrementTimer == 0 || unchecked((short)AmmoDecrementTimer) < 0;
+        if (!timerExpired)
+            return;
+
+        if (AmmoDecrementIndex < 2)
+        {
+            AmmoDecrementTimer = 10;
+            AmmoDecrementIndex = unchecked((ushort)(AmmoDecrementIndex + 1));
+            return;
+        }
+
+        // `$90:D742-$D757` switches to finish art directly; it does not wait for the main
+        // four-frame animation loop to reach a command byte.
+        Phase = CrystalFlashPhase.Finishing;
+        samus.SetAnimationFrameFromSpecialHandler(frame: 12, timer: 3);
+    }
+
+    private void StepFinish(ISnesAddressSpace bus, SamusState samus)
+    {
+        // Retail usually enters with equality because RaisedYPosition was captured at the
+        // end of the rise. Preserve the real defensive branch: an external producer that
+        // displaced Samus upward/downward makes the whole Y word walk downward one per call.
+        if (samus.YPosition != RaisedYPosition)
+            samus.YPosition = unchecked((ushort)(samus.YPosition + 1));
+
+        // The ROM delay list ends in `$FD,$01/$02`; pose transition occurs after movement.
+        // Therefore cleanup naturally happens on the following beta pass, once type zero is
+        // observable here, and that frame performs no ordinary standing movement.
+        if (samus.ReadMovementType(bus) != 0)
+            return;
+
+        SpecialPaletteTimer = 0xffff;
+        samus.KnockbackTimer = 0;
+        samus.KnockbackActive = false;
+        Phase = CrystalFlashPhase.Inactive;
+    }
+
+    /// <summary>Exact ordinary-value behavior of <c>Restore_A_Energy_ToSamus</c> at `$91:DF12`.</summary>
+    private static void RestoreEnergy(SamusState samus, ushort amount)
+    {
+        ushort restored = unchecked((ushort)(samus.Health + amount));
+        samus.Health = restored;
+        if (SignedLessThan(restored, samus.MaxHealth))
+            return;
+
+        ushort overflow = unchecked((ushort)(restored - samus.MaxHealth));
+        ushort reserve = unchecked((ushort)(samus.ReserveEnergy + overflow));
+        if (!SignedLessThan(reserve, samus.MaxReserveEnergy))
+            reserve = samus.MaxReserveEnergy;
+        samus.ReserveEnergy = reserve;
+
+        // A newly nonempty reserve is automatically enabled only from mode zero. Manual
+        // mode and an already enabled auto mode remain untouched.
+        if (reserve != 0 && samus.ReserveTankMode == 0)
+            samus.ReserveTankMode = 1;
+        samus.Health = samus.MaxHealth;
+    }
+
+    private static bool SignedLessThan(ushort left, ushort right) =>
+        unchecked((short)(left - right)) < 0;
+}
+
+/// <summary>Named substitutes for Crystal Flash's three bank-$90 handler addresses.</summary>
+public enum CrystalFlashPhase
+{
+    Inactive,
+    Raising,
+    DrainingAmmo,
+    Finishing,
+}
+
+/// <summary>One-frame debugger witness from the translated Crystal Flash handler.</summary>
+public readonly record struct CrystalFlashMovementResult(
+    CrystalFlashPhase PhaseAtStart,
+    CrystalFlashPhase PhaseAfterStep,
+    bool RestoredEnergy,
+    bool ConsumedAmmo,
+    bool BubbleHdmaRequested,
+    bool Completed);

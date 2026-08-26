@@ -155,7 +155,7 @@ else if (options.CrystalFlashScript)
 else if (options.MotherBrainRainbowScript)
 {
     Console.WriteLine(
-        "Actor script: execute `$A9:B8EB-$BE95` with retail Mother Brain body/posture bytecode, forced drained-Samus handlers, final charge, live Baby tile DMA, sine flight, head latch, and drain interruption.");
+        "Actor script: execute `$A9:B8EB-$BFCF/$C710-$C98B` with retail Mother Brain body/neck bytecode, forced drained-Samus handlers, live Baby tile DMA, sine flight, drain/corpse handshake, release, and ceiling retreat.");
 }
 else if (options.DrainedSamusScript)
 {
@@ -1185,6 +1185,11 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         }
 
         MotherBrainBodyAnimationStepResult bodyResult = rainbowAttack.Body.Step(bus);
+
+        // Mother Brain's brain is the next occupied enemy slot after her body. Its `$91B8`
+        // handler advances the two neck angles before the later cutscene-Baby slot polls the
+        // corpse flag. This ordering is observable when `$BF56` waits for both raises to end.
+        rainbowAttack.StepNeckMovement(bus, runtime.Samus);
         if (rainbowAttack.Phase != previousRainbowPhase)
         {
             Console.WriteLine(
@@ -1213,7 +1218,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 runtime.Samus,
                 rainbowAttack,
                 layer1X: 0,
-                layer1Y: 0);
+                layer1Y: 0,
+                enemyFrameCounter: unchecked((ushort)frameIndex));
             observedBabyPhases.Add(babyResult.PhaseBefore);
             observedBabyPhases.Add(babyResult.PhaseAfter);
             observedBabyMotherBrainInterrupt |= babyResult.MotherBrainInterrupted;
@@ -1230,6 +1236,11 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 previousBabyPhase = cutsceneBaby.Phase;
             }
         }
+
+        // The enemy graphics hook runs after actor processing. Its shake countdown is not a
+        // body-AI timer: decrementing here lets the following `$BE96` call perform the exact
+        // zero-to-fifty refresh instead of leaving the head frozen on one shake-table entry.
+        rainbowAttack.StepBrainShakeForDraw();
     }
 
     RuntimeFrameResult result = runtime.StepFrame(controllerInput);
@@ -2086,6 +2097,24 @@ if (options.MotherBrainRainbowScript)
             $"Cutscene Baby did not complete its ROM-backed entrance/latch by the " +
             $"regression boundary; phase={cutsceneBaby?.Phase.ToString() ?? "not spawned"}, " +
             $"interrupted={observedBabyMotherBrainInterrupt}.");
+    }
+    if (options.FrameCount >= 3340 &&
+        (rainbowAttack.Phase2CorpseState != 1 || rainbowAttack.BrainHealth != 0x8ca0))
+    {
+        throw new InvalidOperationException(
+            $"Mother Brain did not complete the ROM-backed painful walk/corpse producer; " +
+            $"phase={rainbowAttack.Phase}, corpse={rainbowAttack.Phase2CorpseState}, " +
+            $"brainHealth=${rainbowAttack.BrainHealth:X4}.");
+    }
+    if (options.FrameCount >= 3477 &&
+        (cutsceneBaby is null ||
+         !observedBabyPhases.Contains(BabyMetroidCutscenePhase.MoveToTheCeiling) ||
+         cutsceneBaby.MovementTablePointer != BabyMetroidCutsceneState.CeilingToSamusMovementTable))
+    {
+        throw new InvalidOperationException(
+            $"Cutscene Baby did not complete drain release and ceiling retreat; " +
+            $"phase={cutsceneBaby?.Phase.ToString() ?? "not spawned"}, " +
+            $"movementTable=${cutsceneBaby?.MovementTablePointer:X4}.");
     }
     if (options.FrameCount >= 1450)
     {

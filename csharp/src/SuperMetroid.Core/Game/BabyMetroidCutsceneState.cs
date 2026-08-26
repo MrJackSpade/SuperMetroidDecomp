@@ -3,8 +3,8 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Literal stateful translation of the Baby Metroid cutscene entrance at
-/// <c>$A9:C710-$A9:C8E1</c> and its shared movement helpers.
+/// Literal stateful translation of the Baby Metroid cutscene entrance, Mother Brain drain,
+/// release, and ceiling retreat at <c>$A9:C710-$A9:C98B</c> and its shared movement helpers.
 /// </summary>
 /// <remarks>
 /// The retail routine does not use floating point, a spline, or a host physics engine. It
@@ -20,6 +20,12 @@ public sealed class BabyMetroidCutsceneState
     // witnesses, not arbitrary host animation IDs.
     public const ushort InitialInstructionList = 0xcfa2;
     public const ushort DrainingMotherBrainInstructionList = 0xcfb8;
+    public const ushort CeilingToSamusMovementTable = 0xca24;
+
+    // `$A9:93BB-$93CA` is shared by Mother Brain's brain shake and the latched Baby.
+    // `Enemy.frameCounter & 6` is a byte offset into these four 16-bit entries.
+    private static ReadOnlySpan<short> ShakingXOffsets => [0, -1, 0, 1];
+    private static ReadOnlySpan<short> ShakingYOffsets => [0, 1, -1, 1];
 
     // Enemy header `$A0:ECBF` declares width/height `$24`. Generic enemy initialization
     // stores half of those values in the slot's collision-radius words.
@@ -92,6 +98,12 @@ public sealed class BabyMetroidCutsceneState
     public bool HealthBasedPaletteEnabled { get; private set; }
 
     /// <summary>
+    /// Bank-$A9 movement-table pointer installed after the ceiling collision. Zero means
+    /// the table-driven ceiling-to-Samus route has not started yet.
+    /// </summary>
+    public ushort MovementTablePointer { get; private set; }
+
+    /// <summary>
     /// Ports <c>$A9:C710</c>. The population record supplies <c>$2800</c>; initialization
     /// ORs <c>$3000</c>, overwrites the population coordinates, and waits at X/Y
     /// <c>$140/$60</c> before beginning the dash.
@@ -105,6 +117,7 @@ public sealed class BabyMetroidCutsceneState
         CrySoundEnabled = true;
         PaletteHandlerDelay = 0x000a;
         HealthBasedPaletteEnabled = false;
+        MovementTablePointer = 0;
         XPosition = 0x0140;
         YPosition = 0x0060;
         XSubposition = 0;
@@ -127,7 +140,8 @@ public sealed class BabyMetroidCutsceneState
         SamusState samus,
         MotherBrainRainbowBeamAttackSequence motherBrain,
         ushort layer1X = 0,
-        ushort layer1Y = 0)
+        ushort layer1Y = 0,
+        ushort enemyFrameCounter = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -142,6 +156,8 @@ public sealed class BabyMetroidCutsceneState
         bool bodyStumbleRequested = false;
         bool motherBrainInterrupted = false;
         bool latchSoundQueued = false;
+        bool dustCloudsRequested = false;
+        bool samusCrouchingRequested = false;
 
         switch (Phase)
         {
@@ -245,8 +261,79 @@ public sealed class BabyMetroidCutsceneState
             }
 
             case BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse:
-                // `$C8E2+` is the next independently translated slice. Until its corpse
-                // handshake is modeled, velocities are zero and this actor remains pinned.
+            {
+                int shakingIndex = (enemyFrameCounter & 6) >> 1;
+                XPosition = unchecked((ushort)(
+                    motherBrain.BrainXPosition + ShakingXOffsets[shakingIndex]));
+                YPosition = unchecked((ushort)(
+                    motherBrain.BrainYPosition + ShakingYOffsets[shakingIndex] - 0x0018));
+                if (motherBrain.Phase2CorpseState != 0)
+                {
+                    Phase = BabyMetroidCutscenePhase.StopDraining;
+                    FunctionTimer = 0x0040;
+                }
+                break;
+            }
+
+            case BabyMetroidCutscenePhase.StopDraining:
+                // Shaking ceases immediately: every wait call pins to the unoffset brain
+                // coordinate before decrementing `$40`. BMI expires only after 65 calls.
+                XPosition = motherBrain.BrainXPosition;
+                YPosition = unchecked((ushort)(motherBrain.BrainYPosition - 0x0018));
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    SetInstructionList(InitialInstructionList);
+                    PaletteHandlerDelay = 0x000a;
+                    Phase = BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds;
+                    FunctionTimer = 0x0020;
+                    XVelocity = 0;
+                    YVelocity = 0;
+                }
+                break;
+
+            case BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds:
+                // `$C94B` branches *into* `$C959` while the timer is nonnegative. Thus the
+                // Baby accelerates ceilingward for all 32 visible release calls; the dust
+                // burst happens on call 33 and that call also performs another acceleration.
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    dustCloudsRequested = true;
+                    Phase = BabyMetroidCutscenePhase.MoveToTheCeiling;
+                }
+                goto case BabyMetroidCutscenePhase.MoveToTheCeiling;
+
+            case BabyMetroidCutscenePhase.MoveToTheCeiling:
+            {
+                ushort targetX = motherBrain.BrainXPosition;
+                const ushort targetY = 0;
+                GraduallyAccelerateTowardsPoint(
+                    targetX,
+                    targetY,
+                    accelerationDivisor: 0x10,
+                    wrongWayOffScreenXSpeed: 0x0400,
+                    layer1X,
+                    layer1Y);
+                bool ceilingCollision = CollidesWithRectangle(
+                    targetX,
+                    targetY,
+                    rectangleXRadius: 4,
+                    rectangleYRadius: 4);
+                brainCollision = ceilingCollision;
+                if (ceilingCollision)
+                {
+                    samus.Drained.PutCrouchingOrFalling(bus, samus);
+                    samusCrouchingRequested = true;
+                    Phase = BabyMetroidCutscenePhase.MoveToSamus;
+                    MovementTablePointer = CeilingToSamusMovementTable;
+                }
+                break;
+            }
+
+            case BabyMetroidCutscenePhase.MoveToSamus:
+                // `$C9C3+` consumes the route table beginning at `$CA24`; that multi-leg
+                // flight and subsequent Samus latch/heal are the next explicit actor seam.
                 break;
 
             default:
@@ -272,7 +359,10 @@ public sealed class BabyMetroidCutsceneState
             bodyStumbleRequested,
             motherBrainInterrupted,
             latchSoundQueued,
-            InstructionList);
+            InstructionList,
+            dustCloudsRequested,
+            samusCrouchingRequested,
+            MovementTablePointer);
     }
 
     private void SetInstructionList(ushort pointer)
@@ -544,6 +634,10 @@ public enum BabyMetroidCutscenePhase
     SetMotherBrainToStumbleBack,
     ActivateRainbowBeamAndMotherBrainBody,
     WaitForMotherBrainToTurnToCorpse,
+    StopDraining,
+    LetGoAndSpawnDustClouds,
+    MoveToTheCeiling,
+    MoveToSamus,
 }
 
 /// <summary>Whole/subpixel coordinates before or after one cutscene-enemy main-AI call.</summary>
@@ -569,4 +663,7 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     bool BodyStumbleRequested,
     bool MotherBrainInterrupted,
     bool LatchSoundQueued,
-    ushort InstructionList);
+    ushort InstructionList,
+    bool DustCloudsRequested,
+    bool SamusCrouchingRequested,
+    ushort MovementTablePointer);

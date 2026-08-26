@@ -3,16 +3,18 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Mother Brain's repeatable phase-two rainbow-beam, finish-off, and initial Baby-drain
-/// interruption function chains at <c>$A9:B8EB-$A9:BE95</c>.
+/// Mother Brain's repeatable phase-two rainbow-beam, finish-off, and Baby-drain/corpse
+/// function chains at <c>$A9:B8EB-$A9:BFCF</c>.
 /// </summary>
 /// <remarks>
 /// The earlier general attack-selection logic and the spawned Baby Metroid's independent AI
 /// remain separate actor phases. This class owns the neck extension, both charge waits, body
 /// walks and posture changes, active beam, low-energy attack selection, final charge, the four
-/// frame-spread Baby tile transfers, spawn request, and final-beam hold. Palette, HDMA,
-/// projectile, earthquake, VRAM, spawn, and sound writes are retained as inspectable requests;
-/// coordinate, resource, timer, instruction-list, and Samus-command mutations execute directly.
+/// frame-spread Baby tile transfers, spawn request, final-beam hold, painful stagger, live neck
+/// angles/brain coordinates, rear-room retreat, crouch, grey transition, and corpse handshake.
+/// Palette, HDMA, projectile, earthquake, VRAM, spawn, and sound writes are retained as
+/// inspectable requests; coordinate, resource, timer, instruction-list, and Samus-command
+/// mutations execute directly.
 /// </remarks>
 public sealed class MotherBrainRainbowBeamAttackSequence
 {
@@ -25,11 +27,30 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public const ushort HeadAttackingTwoOnionRingsPhase2InstructionList = 0x9d7f;
     public const ushort HeadStretchingPhase2InstructionList = 0x9b7f;
     public const ushort BodyWalkingForwardReallySlowInstructionList = 0x9818;
+    public const ushort BodyWalkingForwardReallyFastInstructionList = 0x9730;
+    public const ushort BodyWalkingForwardMediumInstructionList = 0x97a4;
+    public const ushort BodyWalkingForwardSlowInstructionList = 0x97de;
     public const ushort BodyWalkingBackwardReallySlowInstructionList = 0x993a;
     public const ushort BodyWalkingBackwardReallyFastInstructionList = 0x988c;
+    public const ushort BodyWalkingBackwardMediumInstructionList = 0x9900;
+    public const ushort BodyWalkingBackwardSlowInstructionList = 0x9852;
     public const ushort BodyStandingUpAfterCrouchingFastInstructionList = 0x99c6;
     public const ushort BodyStandingUpAfterLeaningDownInstructionList = 0x99e2;
     public const ushort BodyLeaningDownInstructionList = 0x99f2;
+    public const ushort BodyCrouchingFastInstructionList = 0x9a26;
+    public const ushort HeadDyingDroolInstructionList = 0x9c39;
+
+    // `$A9:BEEE-$BF0D` stores 16-bit words, but the animation-delay lookup deliberately
+    // masks to the low byte. Stages 0/1 are the fastest stagger; each later pair slows both
+    // the walk animation and the pause before Mother Brain reverses direction.
+    private static ReadOnlySpan<ushort> PainfulWalkingAnimationDelays =>
+        [0x0002, 0x0002, 0x0006, 0x0006, 0x0008, 0x0008, 0x000a, 0x000a];
+
+    private static ReadOnlySpan<ushort> PainfulWalkingNeckAngleDeltas =>
+        [0x0500, 0x0500, 0x0200, 0x0200, 0x00c0, 0x00c0, 0x0040, 0x0040];
+
+    private static ReadOnlySpan<ushort> PainfulWalkingFunctionTimers =>
+        [0x0010, 0x0010, 0x0020, 0x0020, 0x0030, 0x0030, 0x0040, 0x0040];
 
     // `$A9:8FE5-$9002` contains four 0x200-byte chunks. ProcessSpriteTilesTransfers
     // publishes exactly one entry per call, so these records also encode the exact four-call
@@ -104,6 +125,51 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>Native rainbow-beam SFX-playing flag.</summary>
     public bool RainbowBeamSoundPlaying { get; private set; }
+
+    /// <summary>
+    /// Lower neck angle updated by the brain-slot handler at <c>$A9:9072</c>. The final
+    /// beam has already lowered it to <c>$3000</c> before the Baby interrupts the body.
+    /// </summary>
+    public ushort LowerNeckAngle { get; private set; } = 0x3000;
+
+    /// <summary>Upper neck angle, correspondingly lowered to <c>$2000</c>.</summary>
+    public ushort UpperNeckAngle { get; private set; } = 0x2000;
+
+    /// <summary>Main brain-shake timer seeded to fifty by <c>$A9:BE96</c> when clear.</summary>
+    public ushort BrainMainShakeTimer { get; private set; }
+
+    /// <summary>Current zero-based painful-walk stage at WRAM <c>$7E:802A</c>.</summary>
+    public ushort PainfulWalkingStage { get; private set; }
+
+    /// <summary>Low-byte animation-delay selector derived from the current stage.</summary>
+    public ushort PainfulWalkingAnimationDelay { get; private set; }
+
+    /// <summary>Pause timer used after each completed forward/backward body list.</summary>
+    public ushort PainfulWalkingFunctionTimer { get; private set; }
+
+    /// <summary>True while the nested painful-walk function is on its forward half.</summary>
+    public bool PainfulWalkingForward { get; private set; }
+
+    /// <summary>Native brain-palette handling flag cleared when the rainbow beam expires.</summary>
+    public bool BrainPaletteHandlingEnabled { get; private set; } = true;
+
+    /// <summary>Drool generation flag cleared as Mother Brain enters low-power mode.</summary>
+    public bool DroolGenerationEnabled { get; private set; } = true;
+
+    /// <summary>Small-purple-breath flag cleared when the grey corpse is published.</summary>
+    public bool SmallPurpleBreathGenerationEnabled { get; private set; } = true;
+
+    /// <summary>Palette-transition record index at WRAM <c>$7E:802E</c>.</summary>
+    public ushort GreyTransitionCounter { get; private set; }
+
+    /// <summary>
+    /// Cross-actor corpse handshake at WRAM <c>$7E:8030</c>. The Baby polls this exact
+    /// word; value one means Mother Brain has completed the ninth grey-table probe.
+    /// </summary>
+    public ushort Phase2CorpseState { get; private set; }
+
+    /// <summary>Brain-slot health rewritten to 36,000 when corpse state one is published.</summary>
+    public ushort BrainHealth { get; private set; } = 0x0bb8;
 
     /// <summary>Earthquake type word written by the one-frame delay and drain initializer.</summary>
     public ushort EarthquakeType { get; private set; }
@@ -208,6 +274,166 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             return false;
         Body.SetInstructionList(BodyWalkingBackwardReallyFastInstructionList);
         return true;
+    }
+
+    /// <summary>
+    /// Executes the movement half of <c>$A9:9072-$91B7</c> on Mother Brain's later brain
+    /// enemy slot. Call this after the body AI/body instruction stage and before the still
+    /// later Baby slot, matching the retail increasing-slot enemy loop.
+    /// </summary>
+    public void StepNeckMovement(ISnesAddressSpace bus, SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+        if (NeckMovementEnabled != 0)
+        {
+            // The lower handler runs first. Its new angle/index is immediately visible to
+            // the upper handler on this same brain-slot call.
+            switch (LowerNeckMovementIndex)
+            {
+                case 0:
+                    break;
+                case 2: // Bob down toward `$2800`, then reverse upward.
+                {
+                    ushort candidate = unchecked((ushort)(LowerNeckAngle - NeckAngleDelta));
+                    if (candidate < 0x2800)
+                    {
+                        candidate = 0x2800;
+                        LowerNeckMovementIndex = 4;
+                    }
+                    LowerNeckAngle = candidate;
+                    break;
+                }
+                case 4: // Bob up toward `$9000`, unless the brain is already high.
+                    if (unchecked((short)(BrainYPosition - 0x003c)) < 0)
+                    {
+                        LowerNeckMovementIndex = 2;
+                    }
+                    else
+                    {
+                        ushort candidate = unchecked((ushort)(LowerNeckAngle + NeckAngleDelta));
+                        if (candidate >= 0x9000)
+                        {
+                            candidate = 0x9000;
+                            LowerNeckMovementIndex = 2;
+                        }
+                        LowerNeckAngle = candidate;
+                    }
+                    break;
+                case 6: // One-way lower used by rainbow-beam setup.
+                {
+                    ushort candidate = unchecked((ushort)(LowerNeckAngle - NeckAngleDelta));
+                    if (candidate < 0x3000)
+                    {
+                        candidate = 0x3000;
+                        LowerNeckMovementIndex = 0;
+                    }
+                    LowerNeckAngle = candidate;
+                    break;
+                }
+                case 8: // One-way raise used by the Baby interruption.
+                {
+                    ushort candidate = unchecked((ushort)(LowerNeckAngle + NeckAngleDelta));
+                    if (candidate >= 0x9000)
+                    {
+                        candidate = 0x9000;
+                        LowerNeckMovementIndex = 0;
+                    }
+                    LowerNeckAngle = candidate;
+                    break;
+                }
+                default:
+                    throw new InvalidOperationException(
+                        $"Unsupported lower-neck movement index ${LowerNeckMovementIndex:X4}.");
+            }
+
+            switch (UpperNeckMovementIndex)
+            {
+                case 0:
+                    break;
+                case 2: // Bob down; Samus below the brain forces both segments upward instead.
+                    if (unchecked((short)(BrainYPosition + 4 - samus.YPosition)) >= 0)
+                    {
+                        LowerNeckMovementIndex = 4;
+                        UpperNeckMovementIndex = 4;
+                    }
+                    else
+                    {
+                        ushort candidate = unchecked((ushort)(UpperNeckAngle - NeckAngleDelta));
+                        if (candidate < 0x2000)
+                        {
+                            candidate = 0x2000;
+                            UpperNeckMovementIndex = 4;
+                        }
+                        UpperNeckAngle = candidate;
+                    }
+                    break;
+                case 4: // Follow eight angle-units above the lower segment, then bob down.
+                {
+                    ushort target = unchecked((ushort)(LowerNeckAngle + 0x0800));
+                    ushort candidate = unchecked((ushort)(UpperNeckAngle + NeckAngleDelta));
+                    if (candidate >= target)
+                    {
+                        candidate = target;
+                        UpperNeckMovementIndex = 2;
+                    }
+                    UpperNeckAngle = candidate;
+                    break;
+                }
+                case 6: // One-way lower to `$2000`.
+                {
+                    ushort candidate = unchecked((ushort)(UpperNeckAngle - NeckAngleDelta));
+                    if (candidate < 0x2000)
+                    {
+                        candidate = 0x2000;
+                        UpperNeckMovementIndex = 0;
+                    }
+                    UpperNeckAngle = candidate;
+                    break;
+                }
+                case 8: // One-way raise to the newly updated lower angle plus `$0800`.
+                {
+                    ushort target = unchecked((ushort)(LowerNeckAngle + 0x0800));
+                    ushort candidate = unchecked((ushort)(UpperNeckAngle + NeckAngleDelta));
+                    if (candidate >= target)
+                    {
+                        candidate = target;
+                        UpperNeckMovementIndex = 0;
+                    }
+                    UpperNeckAngle = candidate;
+                    break;
+                }
+                default:
+                    throw new InvalidOperationException(
+                        $"Unsupported upper-neck movement index ${UpperNeckMovementIndex:X4}.");
+            }
+        }
+
+        // `$91B8-$92AA` anchors segment two at body+(32,-50), then adds two twenty-pixel
+        // signed sine/cosine vectors. The brain enemy slot is segment four, so every Baby
+        // latch/shake target sees these newly computed whole-pixel coordinates.
+        byte lowerAngle = unchecked((byte)(LowerNeckAngle >> 8));
+        byte upperAngle = unchecked((byte)(UpperNeckAngle >> 8));
+        BrainXPosition = unchecked((ushort)(
+            Body.XPosition + 0x0020 +
+            CalculateSignedNeckComponent(bus, lowerAngle, 0x0014) +
+            CalculateSignedNeckComponent(bus, upperAngle, 0x0014)));
+        BrainYPosition = unchecked((ushort)(
+            Body.YPosition - 0x0032 +
+            CalculateSignedNeckComponent(bus, unchecked((byte)(lowerAngle + 0x40)), 0x0014) +
+            CalculateSignedNeckComponent(bus, unchecked((byte)(upperAngle + 0x40)), 0x0014)));
+    }
+
+    /// <summary>
+    /// Executes the body-owned shake countdown consumed while the later graphics hook draws
+    /// Mother Brain's brain at <c>$A9:9382-$939A</c>. Call after all enemy slots, matching the
+    /// renderer: `$BE96` can then observe zero and reseed fifty on the following frame.
+    /// </summary>
+    public ushort StepBrainShakeForDraw()
+    {
+        if (BrainMainShakeTimer != 0)
+            BrainMainShakeTimer = unchecked((ushort)(BrainMainShakeTimer - 1));
+        return unchecked((ushort)(BrainMainShakeTimer & 6));
     }
 
     /// <summary>Executes one call through the current Mother Brain body function.</summary>
@@ -564,6 +790,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     // `$BE80-$BE83` contains an apparent missing STA: it loads one and then
                     // immediately reloads the neck-enable flag. Preserve that no-op rather
                     // than silently "fixing" the cartridge.
+                    PainfulWalkingForward = true;
+                    PainfulWalkingStage = 0;
+                    PainfulWalkingAnimationDelay = 2;
+                    PainfulWalkingFunctionTimer = 0;
                     LowerNeckMovementIndex = 2;
                     UpperNeckMovementIndex = 4;
                     Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam;
@@ -571,9 +801,109 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam:
-                // Painful-walking `$A9:BE96+` is the next translation seam. Palette handling
-                // remains active, while the Baby independently waits for corpse-state change.
+                // `$BE96` refreshes the shake timer only if another subsystem has cleared it.
+                // The head animation owns any decrement; retaining the write gate avoids
+                // fabricating a body-side countdown that does not exist in this routine.
+                if (BrainMainShakeTimer == 0)
+                    BrainMainShakeTimer = 0x0032;
                 paletteRequested = true;
+                bodyWalkRequested = StepPainfulWalking();
+
+                // The outer function updates delay and neck delta after *every* nested call.
+                // Stage six is therefore observed on the exact call which ends its prior
+                // pause, before the stage-six forward walk has even begun.
+                if (PainfulWalkingStage < PainfulWalkingAnimationDelays.Length)
+                {
+                    PainfulWalkingAnimationDelay =
+                        PainfulWalkingAnimationDelays[PainfulWalkingStage];
+                    NeckAngleDelta = PainfulWalkingNeckAngleDeltas[PainfulWalkingStage];
+                }
+                if (PainfulWalkingStage == 6)
+                {
+                    RainbowBeamSoundPlaying = false;
+                    BrainPaletteHandlingEnabled = false;
+                    Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRainbowBeamRunOut;
+                    soundQueued = true; // Sound library one, effect `$02`.
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRainbowBeamRunOut:
+                bodyWalkRequested = StepPainfulWalking();
+                if (PainfulWalkingStage >= 8)
+                {
+                    NeckAngleDelta = 0x0040;
+                    LowerNeckMovementIndex = 8;
+                    UpperNeckMovementIndex = 8;
+                    SetHeadInstructionList(HeadDyingDroolInstructionList);
+                    Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidMoveToBackOfRoom;
+                    goto case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidMoveToBackOfRoom;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidMoveToBackOfRoom:
+                // `$BF41` does not reload Y before the shared walk helper. The surrounding
+                // sequence's final painful-animation selector is `$000A`, so the observable
+                // retail list is the really-slow backward program at `$993A`.
+                bodyWalkRequested = RequestWalkBackwardReallySlow(targetX: 0x0028);
+                if (HasReachedBackwardTarget(targetX: 0x0028))
+                {
+                    Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidGoIntoLowPowerMode;
+                    UpperNeckMovementIndex = 0;
+                    goto case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidGoIntoLowPowerMode;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidGoIntoLowPowerMode:
+                // The brain slot independently advances the one-way neck raises. The body
+                // must wait for both indices and its walk pose to return to zero.
+                if ((LowerNeckMovementIndex | UpperNeckMovementIndex) == 0 && Body.Pose == 0)
+                {
+                    DroolGenerationEnabled = false;
+                    Body.SetInstructionList(BodyCrouchingFastInstructionList);
+                    bodyPostureRequested = true;
+                    Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidPrepareTransitionToGrey;
+                    FunctionTimer = 0x0040;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidPrepareTransitionToGrey:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    GreyTransitionCounter = 0;
+                    Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTransitionToGrey;
+                    FunctionTimer = 0x0010;
+                    goto case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTransitionToGrey;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTransitionToGrey:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    FunctionTimer = 0x0010;
+
+                    // Bank `$AD:EF4A` has eight nonzero palette pointers followed by zero.
+                    // The caller increments its counter, passes the old index, and treats
+                    // the ninth (index-eight) probe as completion without copying colours.
+                    ushort paletteIndex = GreyTransitionCounter;
+                    GreyTransitionCounter++;
+                    paletteRequested = paletteIndex < 8;
+                    if (paletteIndex >= 8)
+                    {
+                        BrainHealth = 0x8ca0;
+                        Phase2CorpseState = 1;
+                        SmallPurpleBreathGenerationEnabled = false;
+                        Body.Form = 2;
+                        Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfInanimateGrey;
+                    }
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfInanimateGrey:
+                // `$C059` installs the 768-count revival wait on the next body call. Keep
+                // that later revival chain as an explicit seam; corpse state one has already
+                // been published for the Baby actor this frame.
                 break;
 
             default:
@@ -626,6 +956,20 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         FunctionTimer = 0x0100;
     }
 
+    private static short CalculateSignedNeckComponent(
+        ISnesAddressSpace bus,
+        byte angle,
+        byte distance)
+    {
+        // `$A9:C46C` writes the sign-extended sine word to the SNES signed multiplicand,
+        // writes the segment distance to its signed eight-bit multiplier, then reads product
+        // bits 8..23 from `$2135`. All retail distances here fit the positive byte domain.
+        int address = 0xa0b443 + angle * 2;
+        short sine = unchecked((short)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        int product = sine * unchecked((sbyte)distance);
+        return unchecked((short)(product >> 8));
+    }
+
     private void SetHeadInstructionList(ushort pointer)
     {
         // `$A9:C447` writes the separate brain-list pointer and timer. Unlike ordinary
@@ -641,6 +985,81 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         NeckMovementEnabled = 1;
         LowerNeckMovementIndex = 8;
         UpperNeckMovementIndex = 6;
+    }
+
+    private bool StepPainfulWalking()
+    {
+        // The native stores four separate function pointers (request forward, wait forward,
+        // request backward, wait backward). Two booleans express the same state without
+        // hiding when a body instruction list is actually installed.
+        if (PainfulWalkingFunctionTimer != 0)
+        {
+            PainfulWalkingFunctionTimer = unchecked((ushort)(PainfulWalkingFunctionTimer - 1));
+            if (PainfulWalkingFunctionTimer == 0)
+            {
+                PainfulWalkingStage++;
+                PainfulWalkingForward = !PainfulWalkingForward;
+            }
+            return false;
+        }
+
+        bool reachedTarget;
+        bool requested;
+        if (PainfulWalkingForward)
+        {
+            requested = RequestWalkForward(0x0048, PainfulWalkingAnimationDelay);
+            reachedTarget = unchecked((short)(0x0048 - Body.XPosition)) < 0 ||
+                NativeAtLeast(Body.XPosition, 0x0080);
+        }
+        else
+        {
+            requested = RequestWalkBackward(0x0028, PainfulWalkingAnimationDelay);
+            reachedTarget = HasReachedBackwardTarget(0x0028);
+        }
+
+        if (reachedTarget)
+        {
+            int timerIndex = Math.Min(PainfulWalkingStage, (ushort)7);
+            PainfulWalkingFunctionTimer = PainfulWalkingFunctionTimers[timerIndex];
+        }
+        return requested;
+    }
+
+    private bool RequestWalkForward(ushort targetX, ushort animationDelay)
+    {
+        if (unchecked((short)(targetX - Body.XPosition)) < 0 || Body.Pose != 0 ||
+            NativeAtLeast(Body.XPosition, 0x0080))
+            return false;
+
+        ushort pointer = animationDelay switch
+        {
+            0x0002 => BodyWalkingForwardReallyFastInstructionList,
+            0x0006 => BodyWalkingForwardMediumInstructionList,
+            0x0008 => BodyWalkingForwardSlowInstructionList,
+            0x000a => BodyWalkingForwardReallySlowInstructionList,
+            _ => throw new InvalidOperationException(
+                $"Unsupported painful forward animation delay ${animationDelay:X4}."),
+        };
+        Body.SetInstructionList(pointer);
+        return true;
+    }
+
+    private bool RequestWalkBackward(ushort targetX, ushort animationDelay)
+    {
+        if (HasReachedBackwardTarget(targetX) || Body.Pose != 0)
+            return false;
+
+        ushort pointer = animationDelay switch
+        {
+            0x0002 => BodyWalkingBackwardReallyFastInstructionList,
+            0x0006 => BodyWalkingBackwardMediumInstructionList,
+            0x0008 => BodyWalkingBackwardSlowInstructionList,
+            0x000a => BodyWalkingBackwardReallySlowInstructionList,
+            _ => throw new InvalidOperationException(
+                $"Unsupported painful backward animation delay ${animationDelay:X4}."),
+        };
+        Body.SetInstructionList(pointer);
+        return true;
     }
 
     private bool RequestWalkForwardReallySlow(ushort targetX)
@@ -895,6 +1314,12 @@ public enum MotherBrainRainbowBeamAttackPhase
     DrainedByBabyMetroidTakenAback,
     DrainedByBabyMetroidRegainBalance,
     DrainedByBabyMetroidFiringRainbowBeam,
+    DrainedByBabyMetroidRainbowBeamRunOut,
+    DrainedByBabyMetroidMoveToBackOfRoom,
+    DrainedByBabyMetroidGoIntoLowPowerMode,
+    DrainedByBabyMetroidPrepareTransitionToGrey,
+    DrainedByBabyMetroidTransitionToGrey,
+    Phase2ReviveSelfInanimateGrey,
 }
 
 /// <summary>Head-projectile animation selected by `$A9:BD71-$BD83`.</summary>

@@ -2876,15 +2876,35 @@ static void VerifyBabyMetroidCutsceneEntrance()
         WriteTestWord(bus, 0xa0b443 + angle * 2, unchecked((ushort)sine));
     }
 
+    // The drain producer alternates four retail walk speeds in both directions, then runs
+    // the fast crouch. Seed mechanically equivalent bytecode at the literal list addresses;
+    // private-ROM integration below separately proves those addresses against cartridge data.
+    SeedMotherBrainWalkProgram(bus, 0x9730, duration: 2, forward: true);
+    SeedMotherBrainWalkProgram(bus, 0x97a4, duration: 6, forward: true);
+    SeedMotherBrainWalkProgram(bus, 0x97de, duration: 8, forward: true);
+    SeedMotherBrainWalkProgram(bus, 0x9818, duration: 10, forward: true);
+    SeedMotherBrainWalkProgram(bus, 0x988c, duration: 2, forward: false);
+    SeedMotherBrainWalkProgram(bus, 0x9900, duration: 6, forward: false);
+    SeedMotherBrainWalkProgram(bus, 0x9852, duration: 8, forward: false);
+    SeedMotherBrainWalkProgram(bus, 0x993a, duration: 10, forward: false);
+    SeedMotherBrainCrouchFastProgram(bus);
+
     // Controller one reads the current `$E9` direction byte, then rebinds the new `$EB`
     // animation pointer without refreshing radii. These are the only Samus ROM fields the
     // entrance consumes; the dedicated drained-controller suite proves their animation.
     bus.WriteBytes(0x91b629 + SamusState.DrainedCrouchingLeftPose * 8,
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.DrainedStandingLeftPose * 8,
+        [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
     WriteTestWord(bus, 0x91b010 + SamusState.DrainedStandingLeftPose * 2, 0xc100);
     bus.WriteByte(0x91c100, 0x10);
 
-    var samus = new SamusState { Pose = SamusState.DrainedCrouchingLeftPose };
+    var samus = new SamusState
+    {
+        Pose = SamusState.DrainedCrouchingLeftPose,
+        XPosition = 0x00ca,
+        YPosition = 0x00c0,
+    };
     var motherBrain = new MotherBrainRainbowBeamAttackSequence
     {
         BrainXPosition = 0x0040,
@@ -2892,6 +2912,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     };
     motherBrain.Body.XPosition = 0x0040;
     motherBrain.Body.YPosition = 0x0064;
+    motherBrain.StartAttackCycle(); // Establishes the pre-existing enabled neck flag.
 
     var baby = new BabyMetroidCutsceneState();
     baby.Initialize();
@@ -3011,7 +3032,96 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual((ushort)4, motherBrain.UpperNeckMovementIndex,
         "Mother Brain drained firing upper neck index");
 
-    Console.WriteLine("  Baby Metroid: ROM-backed entrance timing, sine flight, latch, stumble, pin, and Mother Brain interruption agree.");
+    int drainFrame = 0;
+    int beamRunOutFrame = 0;
+    int lowPowerFrame = 0;
+    int greyStartFrame = 0;
+    int corpseFrame = 0;
+    int stopDrainingFrame = 0;
+    int letGoFrame = 0;
+    int dustFrame = 0;
+    int ceilingFrame = 0;
+    bool sawDustClouds = false;
+    bool sawSamusCrouch = false;
+    while (baby.Phase != BabyMetroidCutscenePhase.MoveToSamus)
+    {
+        MotherBrainRainbowBeamAttackPhase mbBefore = motherBrain.Phase;
+        BabyMetroidCutscenePhase babyBefore = baby.Phase;
+        motherBrain.Step(
+            bus,
+            samus,
+            enemyFrameCounter: unchecked((ushort)drainFrame),
+            mainEnemyExecutionCounter: unchecked((ushort)drainFrame));
+        motherBrain.Body.Step(bus);
+        motherBrain.StepNeckMovement(bus, samus);
+        BabyMetroidCutsceneStepResult babyDrain = baby.Step(
+            bus,
+            samus,
+            motherBrain,
+            enemyFrameCounter: unchecked((ushort)drainFrame));
+        motherBrain.StepBrainShakeForDraw();
+        drainFrame++;
+
+        if (mbBefore != motherBrain.Phase)
+        {
+            if (motherBrain.Phase == MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRainbowBeamRunOut)
+                beamRunOutFrame = drainFrame;
+            if (motherBrain.Phase == MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidGoIntoLowPowerMode)
+                lowPowerFrame = drainFrame;
+            if (motherBrain.Phase == MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTransitionToGrey)
+                greyStartFrame = drainFrame;
+            if (motherBrain.Phase == MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfInanimateGrey)
+                corpseFrame = drainFrame;
+        }
+        if (babyBefore != baby.Phase)
+        {
+            if (baby.Phase == BabyMetroidCutscenePhase.StopDraining)
+                stopDrainingFrame = drainFrame;
+            if (baby.Phase == BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds)
+                letGoFrame = drainFrame;
+            if (baby.Phase == BabyMetroidCutscenePhase.MoveToTheCeiling)
+                dustFrame = drainFrame;
+            if (baby.Phase == BabyMetroidCutscenePhase.MoveToSamus)
+                ceilingFrame = drainFrame;
+        }
+        sawDustClouds |= babyDrain.DustCloudsRequested;
+        sawSamusCrouch |= babyDrain.SamusCrouchingRequested;
+        AssertTrue(drainFrame < 2500,
+            $"Baby drain/release reaches ceiling; MB={motherBrain.Phase}/stage{motherBrain.PainfulWalkingStage}/" +
+            $"body({motherBrain.Body.XPosition},{motherBrain.Body.YPosition}) pose{motherBrain.Body.Pose}, " +
+            $"neck={motherBrain.LowerNeckMovementIndex}/{motherBrain.UpperNeckMovementIndex}, Baby={baby.Phase}");
+    }
+
+    // Hard boundaries from the independent bytecode fixture. These counts begin with the
+    // first `$BE96` call after the already-proven 49-call regain phase.
+    AssertEqual(593, beamRunOutFrame, "painful stage six ends rainbow beam");
+    AssertEqual(977, lowPowerFrame, "painful stage eight enters low-power mode");
+    AssertEqual(1439, greyStartFrame, "neck raise and crouch delay reach grey transition");
+    AssertEqual(1591, corpseFrame, "nine grey-table probes publish corpse state");
+    AssertEqual(corpseFrame, stopDrainingFrame,
+        "later Baby slot observes corpse flag on its publication frame");
+    AssertEqual(1656, letGoFrame, "stop-draining `$40` expires after 65 calls");
+    AssertEqual(1689, dustFrame, "let-go `$20` requests dust on call 33");
+    AssertEqual(1731, ceilingFrame, "gradual ceiling acceleration reaches collision rectangle");
+    AssertEqual((ushort)40, motherBrain.Body.XPosition, "corpse body rests at rear X");
+    AssertEqual((ushort)138, motherBrain.Body.YPosition, "fast crouch lowers body by 38 pixels");
+    AssertEqual((ushort)81, motherBrain.BrainXPosition, "neck geometry publishes corpse brain X");
+    AssertEqual((ushort)78, motherBrain.BrainYPosition, "neck geometry publishes corpse brain Y");
+    AssertEqual((ushort)81, baby.XPosition, "ceiling handoff Baby X");
+    AssertEqual((ushort)22, baby.YPosition, "ceiling handoff Baby Y after common mover");
+    AssertTrue(sawDustClouds, "Baby release requests three Mother Brain head dust clouds");
+    AssertTrue(sawSamusCrouch, "Baby ceiling collision calls drained controller four");
+    AssertEqual(BabyMetroidCutsceneState.CeilingToSamusMovementTable,
+        baby.MovementTablePointer,
+        "Baby ceiling collision installs `$CA24` movement table");
+    AssertEqual((ushort)0x8ca0, motherBrain.BrainHealth,
+        "Mother Brain grey completion rewrites brain health to 36,000");
+    AssertEqual((ushort)1, motherBrain.Phase2CorpseState,
+        "Mother Brain grey completion publishes corpse state one");
+    AssertEqual(SamusState.DrainedCrouchingLeftPose, samus.Pose,
+        "ceiling collision installs left drained crouching pose");
+
+    Console.WriteLine("  Baby Metroid: ROM-backed entrance, Mother Brain drain/corpse, release, and ceiling retreat agree.");
 }
 
 static void VerifySamusAerialMovement()
@@ -7116,6 +7226,46 @@ static void WriteTestWord(TestAddressSpace bus, int address, ushort value)
 {
     bus.WriteByte(address, (byte)value);
     bus.WriteByte(address + 1, (byte)(value >> 8));
+}
+
+static void SeedMotherBrainWalkProgram(
+    TestAddressSpace bus,
+    ushort listAddress,
+    ushort duration,
+    bool forward)
+{
+    // All four speed variants share command topology; only each visible frame duration
+    // differs. These words are transcribed from `$A9:9730-$9972`, with harmless synthetic
+    // spritemap operands because movement verification never draws the extended map.
+    ushort[] commands = forward
+        ? [0x95fc, 0x960c, 0x961c, 0x9622, 0x9638, 0x9648, 0x9658, 0x9668]
+        : [0x96f0, 0x96e0, 0x96d0, 0x96ba, 0x96aa, 0x96a4, 0x9694, 0x967e];
+    var words = new List<ushort> { 0x9708, duration, 0x1000 };
+    for (int command = 0; command < commands.Length; command++)
+    {
+        words.Add(commands[command]);
+        if (command == commands.Length - 1)
+            words.Add(0x9700);
+        words.Add(duration);
+        words.Add(unchecked((ushort)(0x1001 + command)));
+    }
+    words.Add(0x812f);
+    for (int index = 0; index < words.Count; index++)
+        WriteTestWord(bus, 0xa90000 | unchecked((ushort)(listAddress + index * 2)), words[index]);
+}
+
+static void SeedMotherBrainCrouchFastProgram(TestAddressSpace bus)
+{
+    ushort[] words =
+    [
+        0x9718, 0x0008, 0x1200,
+        0x95de, 0x0002, 0x1201,
+        0x95e8, 0x0002, 0x1202,
+        0x95f2, 0x9710, 0x0008, 0x1203,
+        0x812f,
+    ];
+    for (int index = 0; index < words.Length; index++)
+        WriteTestWord(bus, 0xa99a26 + index * 2, words[index]);
 }
 
 /// <summary>Checks both edges and relative tile-step movement of the temporary host camera.</summary>

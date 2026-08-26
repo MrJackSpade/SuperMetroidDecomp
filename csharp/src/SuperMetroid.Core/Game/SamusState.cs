@@ -611,6 +611,18 @@ public sealed class SamusState
         return bus.ReadByte(AddWithinBank(PoseDefinitions, Pose * 8 + 3));
     }
 
+    /// <summary>
+    /// Reads signed pose-definition byte four. Grapple firing uses this graphics-origin
+    /// correction before applying the direction-specific hand offset at <c>$9B:C51E</c>.
+    /// Keeping the byte behind a named accessor prevents the grapple port from duplicating
+    /// the bank-$91 pose-table address or silently treating a negative offset as unsigned.
+    /// </summary>
+    public sbyte ReadGraphicsYOffset(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        return unchecked((sbyte)bus.ReadByte(AddWithinBank(PoseDefinitions, Pose * 8 + 4)));
+    }
+
     /// <summary>True for the four movement-type-zero, right-facing standing poses.</summary>
     public static bool IsRightFacingStandingPose(byte pose) => pose is
         FacingRightNormalPose or

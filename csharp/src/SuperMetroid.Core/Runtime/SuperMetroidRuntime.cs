@@ -104,6 +104,13 @@ public sealed class SuperMetroidRuntime
     public GrappleMovementResult? LastGrappleMovement { get; private set; }
 
     /// <summary>
+    /// Explicit debugger substitute for the untranslated HUD item selector. When enabled,
+    /// a new Shoot edge starts grapple firing from the current pose. Normal scenarios leave
+    /// this false, so X retains its existing bomb/projectile meaning.
+    /// </summary>
+    public bool DebugGrappleItemSelected { get; private set; }
+
+    /// <summary>
     /// Five-slot normal-bomb lifecycle spanning the translated bank-$90/$93/$94/$A0 seams.
     /// </summary>
     public SamusBombProjectileSystem BombProjectiles { get; } = new();
@@ -435,6 +442,36 @@ public sealed class SuperMetroidRuntime
         return placement;
     }
 
+    /// <summary>
+    /// Selects grapple as the debug HUD item without fabricating a beam or target. The next
+    /// new Shoot edge flows through the pose direction, ROM velocity/origin tables, live
+    /// room collision, 128-pixel cutoff, and cancellation logic.
+    /// </summary>
+    public void EnableDebugGrappleItemSelection()
+    {
+        if (Samus is null || !GroundedSamusMovementEnabled || LevelData is null)
+        {
+            throw new InvalidOperationException(
+                "Debug grapple selection requires initialized gameplay Samus and room level data.");
+        }
+
+        DebugGrappleItemSelected = true;
+
+        // LoadProjectilePalette(2) is part of $9B:C51E firing initialization. The actual
+        // HUD selector is not translated, but palette table $90:C3C9 and all sixteen colors
+        // remain cartridge policy. CGRAM color 223 is the adjacent fixed beam-flare color.
+        const int grapplePalettePointerAddress = 0x90c3c9 + 2 * 2;
+        ushort grapplePalettePointer = (ushort)(
+            _addressSpace.ReadByte(grapplePalettePointerAddress) |
+            (_addressSpace.ReadByte(grapplePalettePointerAddress + 1) << 8));
+        Cgram.LoadFromBus(
+            _addressSpace,
+            0x900000 | grapplePalettePointer,
+            colorCount: 16,
+            destinationIndex: 224);
+        Cgram.SetColor(223, 32657);
+    }
+
     /// <summary>Initializes the ROM-authored standing pose at an explicitly supplied point.</summary>
     private void InitializeDebugSamus(ushort xPosition, ushort yPosition)
     {
@@ -634,18 +671,58 @@ public sealed class SuperMetroidRuntime
                 LastKnockbackMovement = null;
                 LastGrappleMovement = null;
 
-                // GrappleBeamHandler runs before movement type $16's deliberately empty
-                // beta handler. An active grapple function therefore owns positioning and
-                // suppresses ordinary prospective input until release installs $51/$52.
-                if (Samus.Grapple.Phase != GrapplePhase.Inactive)
+                // GrappleBeamHandler precedes beta movement, but only connected/release
+                // functions own Samus's position. An extending or cancelling beam coexists
+                // with the current pose's ordinary movement in the same frame.
+                bool grappleOwnsMovement = false;
+                if (Samus.Grapple.Phase == GrapplePhase.Firing)
                 {
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
+                    LastGrappleMovement = SamusGrappleMovement.StepFiring(
+                        _addressSpace,
+                        LevelData,
+                        Samus,
+                        Controller1.Current);
+                    grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
+                }
+                else if (Samus.Grapple.Phase == GrapplePhase.CancelPending)
+                {
+                    LastGrappleMovement =
+                        SamusGrappleMovement.CompleteFiringCancellation(Samus);
+                }
+                else if (Samus.Grapple.Phase is
+                    GrapplePhase.ConnectedSwinging or GrapplePhase.ReleaseFromSwing)
+                {
                     LastGrappleMovement = SamusGrappleMovement.Step(
                         _addressSpace,
                         Samus,
                         Controller1.Current,
                         Controller1.NewlyPressed);
+                    grappleOwnsMovement = true;
+                }
+                else if (DebugGrappleItemSelected &&
+                         (Controller1.NewlyPressed & (ushort)SnesButton.X) != 0)
+                {
+                    // This is the one untranslated producer seam: the real HUD item index
+                    // would choose GrappleBeamHandler instead of ordinary beam/bomb fire.
+                    // Everything after selection is the bank-$9B/$94 implementation.
+                    SamusGrappleMovement.BeginFiring(_addressSpace, Samus);
+                    LastGrappleMovement = new GrappleMovementResult(
+                        GrapplePhase.Firing,
+                        Released: false,
+                        ReleaseQueued: false,
+                        Fired: true,
+                        Connected: false,
+                        CancelQueued: false,
+                        Cancelled: false,
+                        OwnsMovement: false);
+                }
+
+                if (grappleOwnsMovement)
+                {
+                    // Movement type $16's beta handler is empty. Discard input transitions
+                    // sampled from the pre-grapple pose once connection installs $B2/$B3.
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
                 }
                 // Knockback's `$90:DF38` handler takes precedence over the normal movement-
                 // type dispatcher. Unlike bomb jump, normal pose input remains active so

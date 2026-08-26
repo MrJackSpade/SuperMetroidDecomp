@@ -1,19 +1,20 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Debugger-visible translation of the connected, unobstructed grapple pendulum and its
-/// release seam from banks $9B and $94.
+/// Debugger-visible translation of grapple firing, persistent-block acquisition, the
+/// connected unobstructed pendulum, and its release seam from banks $9B and $94.
 /// </summary>
 /// <remarks>
 /// The retail game does not run grapple physics through movement type $16's tiny handler at
 /// $90:A780. <c>GrappleBeamHandler</c> in bank $9B updates the pendulum before normal beta
 /// movement, and bank $94 advances its angle while probing room collision. This class keeps
-/// those responsibilities separate from ordinary aerial movement. The currently admitted
-/// route is a connection whose swept body does not touch terrain; collision reflection,
-/// grapple-block acquisition, wall grab, and the wall-jump grace timer remain explicit later
+/// those responsibilities separate from ordinary aerial movement. Firing and persistent
+/// grapple blocks are translated here; breakable grapple PLMs, enemy acquisition, connected
+/// body collision/reflection, wall grab, and the wall-jump grace timer remain explicit later
 /// routes rather than being approximated here.
 /// </remarks>
 public static class SamusGrappleMovement
@@ -37,6 +38,157 @@ public static class SamusGrappleMovement
     private const int RightPoseOffsetsByFrame = 0x9bc302;
     private const int GrapplePointTilePointers = 0x9bc342;
     private const int GrappleSegmentTilePointers = 0x9bc346;
+
+    // $9B:C0DB-$C1C1 is the complete firing policy table. Values are deliberately read
+    // from ROM instead of copied into host arrays: a debugger can correlate every live
+    // word with the cartridge, and altered/revision ROMs retain their authored behavior.
+    private const int FireXVelocityTable = 0x9bc0db;
+    private const int FireYVelocityTable = 0x9bc0ef;
+    private const int FireAngleTable = 0x9bc104;
+    private const int NoRunOriginXTable = 0x9bc122;
+    private const int NoRunOriginYTable = 0x9bc136;
+    private const int NoRunBeamStartXTable = 0x9bc14a;
+    private const int NoRunBeamStartYTable = 0x9bc15e;
+    private const int RunOriginXTable = 0x9bc172;
+    private const int RunOriginYTable = 0x9bc186;
+    private const int RunBeamStartXTable = 0x9bc19a;
+    private const int RunBeamStartYTable = 0x9bc1ae;
+
+    /// <summary>
+    /// Ports <c>GrappleBeamFunc_FireGoToCancel</c> at <c>$9B:C51E</c>, stopping immediately
+    /// before its function-pointer return. The current pose supplies all direction/origin
+    /// policy; no host aiming vector is accepted.
+    /// </summary>
+    public static void BeginFiring(ISnesAddressSpace bus, SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+        SamusGrappleState grapple = samus.Grapple;
+        if (grapple.Phase != GrapplePhase.Inactive)
+            throw new InvalidOperationException("A grapple state is already active.");
+
+        byte direction = samus.ReadShotDirection(bus);
+        if ((direction & 0xf0) != 0 || direction >= 10)
+        {
+            throw new NotSupportedException(
+                $"Pose ${samus.Pose:X2} has no fireable grapple direction (${direction:X2}).");
+        }
+
+        int tableOffset = direction * 2;
+        grapple.Phase = GrapplePhase.Firing;
+        grapple.FireDirection = direction;
+        grapple.ExtensionXVelocity = unchecked((short)ReadWord(bus, FireXVelocityTable + tableOffset));
+        grapple.ExtensionYVelocity = unchecked((short)ReadWord(bus, FireYVelocityTable + tableOffset));
+        grapple.Angle = ReadWord(bus, FireAngleTable + tableOffset);
+        grapple.MirroredAngle = grapple.Angle;
+
+        // Moonwalk shares movement type one but takes the no-run table in native code.
+        // Pose $49/$4A are the two moonwalk records in the retail pose set.
+        bool useRunOffsets = samus.ReadMovementType(bus) == 1 && samus.Pose is not (0x49 or 0x4a);
+        int originXTable = useRunOffsets ? RunOriginXTable : NoRunOriginXTable;
+        int originYTable = useRunOffsets ? RunOriginYTable : NoRunOriginYTable;
+        int beamStartXTable = useRunOffsets ? RunBeamStartXTable : NoRunBeamStartXTable;
+        int beamStartYTable = useRunOffsets ? RunBeamStartYTable : NoRunBeamStartYTable;
+        sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
+
+        grapple.OriginXOffset = unchecked((short)ReadWord(bus, originXTable + tableOffset));
+        grapple.OriginYOffset = unchecked((short)(
+            (short)ReadWord(bus, originYTable + tableOffset) - graphicsYOffset));
+        grapple.BeamStartXOffset = unchecked((short)ReadWord(bus, beamStartXTable + tableOffset));
+        grapple.BeamStartYOffset = unchecked((short)(
+            (short)ReadWord(bus, beamStartYTable + tableOffset) - graphicsYOffset));
+
+        // The endpoint-offset pair is a signed 16.16 displacement from Samus plus the
+        // origin table. $9B:C51E clears all four words, not merely their whole halves.
+        grapple.EndpointXOffsetFixed = 0;
+        grapple.EndpointYOffsetFixed = 0;
+        grapple.RopeLength = 0;
+        grapple.RopeLengthDelta = 12;
+        grapple.AngularVelocity = 0;
+        grapple.DirectionInputAcceleration = 0;
+        grapple.GravityAcceleration = 0;
+        grapple.VelocityCorrection = 0;
+        grapple.JumpImpulse = 0;
+        grapple.CollisionBounceTimer = 0;
+        InitializeBeamAnimation(grapple);
+
+        // The beam-start/flare point is independent of the projectile endpoint while the
+        // beam is extending. Publish both immediately so the firing frame can be rendered.
+        grapple.BeamStartX = unchecked((ushort)(samus.XPosition + grapple.BeamStartXOffset));
+        grapple.BeamStartY = unchecked((ushort)(samus.YPosition + grapple.BeamStartYOffset));
+        grapple.AnchorX = unchecked((ushort)(samus.XPosition + grapple.OriginXOffset));
+        grapple.AnchorY = unchecked((ushort)(samus.YPosition + grapple.OriginYOffset));
+    }
+
+    /// <summary>
+    /// Ports the block-only portion of <c>GrappleBeamFunc_Firing</c> at <c>$9B:C703</c>
+    /// and <c>BlockCollGrappleBeam</c> at <c>$94:A85B</c>. Enemy grapple collision remains
+    /// an explicit producer seam because the runtime has not introduced live enemies.
+    /// </summary>
+    public static GrappleMovementResult StepFiring(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort controllerInput)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(samus);
+        SamusGrappleState grapple = samus.Grapple;
+        if (grapple.Phase != GrapplePhase.Firing)
+            throw new InvalidOperationException("Grapple firing is not active.");
+
+        // $9B:C703 treats release of Shoot as cancellation before length or collision work.
+        if ((controllerInput & (ushort)SnesButton.X) == 0)
+            return QueueFiringCancellation(grapple);
+
+        grapple.RopeLength = unchecked((ushort)(grapple.RopeLength + 12));
+        if (grapple.RopeLength >= 128)
+            return QueueFiringCancellation(grapple);
+
+        // $94:A85B shifts each table velocity left six and performs four identical probes.
+        // Since the table is velocity*100h, the four additions together move exactly one
+        // authored per-frame velocity while retaining every intermediate collision point.
+        int xSubstep = grapple.ExtensionXVelocity << 6;
+        int ySubstep = grapple.ExtensionYVelocity << 6;
+        for (int substep = 0; substep < 4; substep++)
+        {
+            grapple.EndpointXOffsetFixed = unchecked(grapple.EndpointXOffsetFixed + xSubstep);
+            grapple.EndpointYOffsetFixed = unchecked(grapple.EndpointYOffsetFixed + ySubstep);
+            PublishFiringGeometry(samus, grapple);
+
+            GrappleBlockReaction reaction = ReactAtEndpoint(level, grapple.AnchorX, grapple.AnchorY);
+            if (!reaction.Carry)
+                continue;
+            if (!reaction.Overflow)
+                return QueueFiringCancellation(grapple);
+
+            // Carry+overflow is the native connected result. $94:A8DA centers the point in
+            // the accepted 16x16 block before bank $9B chooses the swing/locked pose.
+            grapple.AnchorX = unchecked((ushort)((grapple.AnchorX & 0xfff0) | 8));
+            grapple.AnchorY = unchecked((ushort)((grapple.AnchorY & 0xfff0) | 8));
+            ConnectFiringToAirborneSwing(bus, samus, grapple);
+            return new GrappleMovementResult(
+                grapple.Phase,
+                Released: false,
+                ReleaseQueued: false,
+                Fired: false,
+                Connected: true,
+                CancelQueued: false,
+                Cancelled: false,
+                OwnsMovement: true);
+        }
+
+        return new GrappleMovementResult(
+            grapple.Phase,
+            Released: false,
+            ReleaseQueued: false,
+            Fired: true,
+            Connected: false,
+            CancelQueued: false,
+            Cancelled: false,
+            OwnsMovement: false);
+    }
 
     /// <summary>
     /// Installs an already-connected swinging state, equivalent to the airborne branch of
@@ -80,20 +232,7 @@ public static class SamusGrappleMovement
         grapple.JumpImpulse = 0;
         grapple.CollisionBounceTimer = 0;
         grapple.Submerged = false;
-        grapple.PointAnimationTimer = 5;
-        grapple.PointAnimationFrame = 0;
-        // GrappleFunc_AF87 at $94:AF87 seeds sixteen independent segment instruction
-        // slots. Reading its deliberately overlapping WRAM arrays is confusing in C: the
-        // resulting visible pattern is unambiguous, though. Slot 15 starts on tile $24,
-        // slot 14 on $23, slot 13 on $22, slot 12 on $21, and that four-phase pattern
-        // repeats down to slot zero. Every instruction timer begins at one so $94:AFBA
-        // consumes the initial record on the first draw.
-        for (int slot = 0; slot < grapple.SegmentAnimationFrames.Length; slot++)
-        {
-            grapple.SegmentAnimationTimers[slot] = 1;
-            grapple.SegmentAnimationFrames[slot] = unchecked((byte)(slot & 3));
-            grapple.SegmentAnimationStarted[slot] = false;
-        }
+        InitializeBeamAnimation(grapple);
 
         samus.Pose = faceRight
             ? SamusState.GrappleSwingRightPose
@@ -188,13 +327,22 @@ public static class SamusGrappleMovement
         // The 128-byte rope body source is selected by the same folded angle byte used in
         // $9B:BFFD. Horizontal, diagonal, and vertical source blocks therefore remain ROM
         // policy rather than a host renderer choosing a plausible rotated sprite.
-        int foldedAngleOffset = ((grapple.Angle >> 9) & 0x7f) * 2;
+        // $9B:C005 takes the high angle byte, shifts it right once, then clears bit zero.
+        // The result is already an even byte offset into the word table. Multiplying that
+        // value by two again selects unrelated data for half the angles (notably firing
+        // right at $C000), producing a correctly positioned but visually blank rope.
+        int foldedAngleOffset = (grapple.Angle >> 9) & 0xfe;
         ushort segmentPointer = ReadWord(bus, GrappleSegmentTilePointers + foldedAngleOffset);
         vramWrites.Enqueue(0x80, 0x9a0000 | segmentPointer, 0x6210);
 
-        byte angleByteTowardAnchor = unchecked((byte)((grapple.Angle >> 8) + 0x80));
-        int stepX = ScaleCoordinate(ReadSignedSine(bus, angleByteTowardAnchor + 64), 8);
-        int stepY = ScaleCoordinate(ReadSignedSine(bus, angleByteTowardAnchor), 8);
+        // $94:AFCF recalculates the draw vector from endpoint-minus-flare geometry. This
+        // is observably different from merely reversing EndAngle while firing, and it also
+        // keeps the rope visually attached after pose-specific art-origin correction.
+        int beamDeltaX = unchecked((short)(grapple.AnchorX - grapple.BeamStartX));
+        int beamDeltaY = unchecked((short)(grapple.AnchorY - grapple.BeamStartY));
+        byte drawAngle = CalculateAngleFromXY(beamDeltaX, beamDeltaY);
+        int stepX = ScaleCoordinate(ReadSignedSine(bus, drawAngle + 64), 8);
+        int stepY = ScaleCoordinate(ReadSignedSine(bus, drawAngle), 8);
 
         // $94:AFDE derives X/Y flip bits from the grapple angle while retaining the packed
         // palette-five/priority-three instruction word. Tile $20 is the connected endpoint.
@@ -241,6 +389,253 @@ public static class SamusGrappleMovement
             unchecked((ushort)(grapple.AnchorX - layer1X - 4)),
             unchecked((ushort)(grapple.AnchorY - layer1Y - 4)),
             0x3a20);
+    }
+
+    /// <summary>
+    /// Completes the one-frame cancellation function installed by firing. The native
+    /// routine also clears palette/sound bookkeeping not yet modeled by this runtime;
+    /// every gameplay-visible firing word owned by this class is cleared here.
+    /// </summary>
+    public static GrappleMovementResult CompleteFiringCancellation(SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        SamusGrappleState grapple = samus.Grapple;
+        if (grapple.Phase != GrapplePhase.CancelPending)
+            throw new InvalidOperationException("A grapple firing cancellation is not queued.");
+
+        grapple.Phase = GrapplePhase.Inactive;
+        grapple.RopeLength = 0;
+        grapple.RopeLengthDelta = 0;
+        grapple.ExtensionXVelocity = 0;
+        grapple.ExtensionYVelocity = 0;
+        grapple.EndpointXOffsetFixed = 0;
+        grapple.EndpointYOffsetFixed = 0;
+        return new GrappleMovementResult(
+            GrapplePhase.Inactive,
+            Released: false,
+            ReleaseQueued: false,
+            Fired: false,
+            Connected: false,
+            CancelQueued: false,
+            Cancelled: true,
+            OwnsMovement: false);
+    }
+
+    private static GrappleMovementResult QueueFiringCancellation(SamusGrappleState grapple)
+    {
+        grapple.Phase = GrapplePhase.CancelPending;
+        return new GrappleMovementResult(
+            grapple.Phase,
+            Released: false,
+            ReleaseQueued: false,
+            Fired: false,
+            Connected: false,
+            CancelQueued: true,
+            Cancelled: false,
+            OwnsMovement: false);
+    }
+
+    private static void PublishFiringGeometry(SamusState samus, SamusGrappleState grapple)
+    {
+        // Whole endpoint offsets are the signed upper words of the two 16.16 accumulators.
+        // Arithmetic shift is intentional: a left/up beam must retain sign after fractional
+        // accumulation, exactly like reading `$0DCE/$0DD2` as signed displacement words.
+        int endpointOffsetX = grapple.EndpointXOffsetFixed >> 16;
+        int endpointOffsetY = grapple.EndpointYOffsetFixed >> 16;
+        grapple.AnchorX = unchecked((ushort)(
+            samus.XPosition + grapple.OriginXOffset + endpointOffsetX));
+        grapple.AnchorY = unchecked((ushort)(
+            samus.YPosition + grapple.OriginYOffset + endpointOffsetY));
+        grapple.BeamStartX = unchecked((ushort)(samus.XPosition + grapple.BeamStartXOffset));
+        grapple.BeamStartY = unchecked((ushort)(samus.YPosition + grapple.BeamStartYOffset));
+    }
+
+    private static GrappleBlockReaction ReactAtEndpoint(
+        RoomLevelData level,
+        ushort endpointX,
+        ushort endpointY)
+    {
+        int blockX = endpointX >> 4;
+        int blockY = endpointY >> 4;
+        if ((uint)blockX >= (uint)level.WidthInBlocks ||
+            (uint)blockY >= (uint)level.HeightInBlocks)
+        {
+            // Native code would index the room's contiguous decompression allocation. That
+            // adjacent-WRAM representation does not exist in RoomLevelData, so wrapping to
+            // an unrelated logical block would fabricate collision. Fail at the boundary.
+            throw new NotSupportedException(
+                $"Grapple endpoint (${endpointX:X4},${endpointY:X4}) left translated room storage.");
+        }
+
+        int index = blockY * level.WidthInBlocks + blockX;
+        for (int extensionDepth = 0; extensionDepth <= 16; extensionDepth++)
+        {
+            // C# integer division truncates a negative dividend toward zero, so checking
+            // only `index / width` would accidentally make index -1 look like row zero.
+            // Validate the linear address first; the unsigned comparison covers both a
+            // negative extension and one beyond the decompressed level-data allocation.
+            if ((uint)index >= (uint)(level.WidthInBlocks * level.HeightInBlocks))
+            {
+                throw new NotSupportedException(
+                    $"Grapple extension BTS resolved outside translated room storage at index ${index:X4}.");
+            }
+
+            int resolvedX = index % level.WidthInBlocks;
+            int resolvedY = index / level.WidthInBlocks;
+
+            RoomCollisionBlock block = level.GetCollisionBlock(resolvedX, resolvedY);
+            switch (block.CollisionType)
+            {
+                // These four dispatcher entries return clear carry: the beam remains live.
+                case 0:
+                case 2:
+                case 3:
+                case 6:
+                    return new GrappleBlockReaction(Carry: false, Overflow: false);
+
+                // Slopes and these solid-family entries return carry with overflow clear,
+                // which makes $9B:C703 queue cancellation rather than establish a rope.
+                case 1:
+                case 8:
+                case 9:
+                case 0x0b:
+                    return new GrappleBlockReaction(Carry: true, Overflow: false);
+
+                case 5:
+                    // Horizontal extensions interpret BTS as a signed block-index delta.
+                    // BTS zero is the native terminator and behaves as air.
+                    if (block.Behavior == 0)
+                        return new GrappleBlockReaction(Carry: false, Overflow: false);
+                    index += unchecked((sbyte)block.Behavior);
+                    continue;
+
+                case 0x0d:
+                    // Vertical extension uses the same signed BTS but scales by room width.
+                    if (block.Behavior == 0)
+                        return new GrappleBlockReaction(Carry: false, Overflow: false);
+                    index += unchecked((sbyte)block.Behavior) * level.WidthInBlocks;
+                    continue;
+
+                case 0x0e:
+                    // $94:A7D1 rejects bit-seven BTS. Values zero and three spawn persistent
+                    // grapple PLM $D0D8, whose setup returns processor flags $41 (C=1,V=1).
+                    // The persistent PLM has no level mutation, so this result is complete.
+                    if ((block.Behavior & 0x80) != 0)
+                        return new GrappleBlockReaction(Carry: false, Overflow: false);
+                    if (block.Behavior is 0 or 3)
+                        return new GrappleBlockReaction(Carry: true, Overflow: true);
+
+                    // BTS one/two spawn breakable PLMs $D0DC/$D0E0. Returning connected
+                    // without installing their instruction lifecycle would create a rope
+                    // that never breaks, so deliberately stop rather than invent behavior.
+                    throw new NotSupportedException(
+                        $"Breakable grapple block BTS ${block.Behavior:X2} at ({resolvedX},{resolvedY}) " +
+                        "requires the untranslated bank-$84 PLM lifecycle.");
+
+                default:
+                    // Types 4/7/A/C/F route through PLM setup functions whose returned
+                    // processor flags and room mutation are the collision result. They are
+                    // not equivalent to generic air or solid and cannot be guessed here.
+                    throw new NotSupportedException(
+                        $"Grapple block reaction type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
+                        $"at ({resolvedX},{resolvedY}) requires the untranslated bank-$84 PLM pipeline.");
+            }
+        }
+
+        throw new InvalidDataException("Grapple extension chain exceeded sixteen blocks.");
+    }
+
+    private static void ConnectFiringToAirborneSwing(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        SamusGrappleState grapple)
+    {
+        // This slice admits the moving-vertically table at $9B:C3EE. A stationary body can
+        // select locked-in-place poses for directions 2..7; treating it as a pendulum would
+        // be visibly false, so that route remains explicit until its handler is translated.
+        if (samus.Kinematics.YSpeed == 0 && samus.Kinematics.YSubspeed == 0)
+        {
+            throw new NotSupportedException(
+                "Stationary grapple connection requires the locked-in-place bank-$9B handler.");
+        }
+
+        // Directions zero through four select clockwise pose $B2; five through nine select
+        // anticlockwise pose $B3. $9B:BA61 then derives the rope angle from the actual body
+        // and accepted block center—never from the original firing direction.
+        bool faceRight = grapple.FireDirection < 5;
+        samus.Pose = faceRight
+            ? SamusState.GrappleSwingRightPose
+            : SamusState.GrappleSwingLeftPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus, initialFrame: 0);
+
+        int deltaX = unchecked((short)(samus.XPosition - grapple.AnchorX));
+        int deltaY = unchecked((short)(samus.YPosition - grapple.AnchorY));
+        byte angleByte = CalculateAngleFromXY(deltaX, deltaY);
+        grapple.Angle = unchecked((ushort)(angleByte << 8));
+        grapple.MirroredAngle = grapple.Angle;
+        grapple.AngularVelocity = 0;
+        grapple.RopeLengthDelta = 0;
+        if (grapple.RopeLength >= 64)
+            grapple.RopeLength = unchecked((ushort)(grapple.RopeLength - 24));
+        grapple.Phase = GrapplePhase.ConnectedSwinging;
+        PositionSamusFromPendulum(bus, samus, grapple);
+    }
+
+    /// <summary>
+    /// Integer octant translation of <c>CalculateAngleFromXY</c> at <c>$A0:C0B1</c>.
+    /// The return byte is measured clockwise from negative Y: $00 up, $40 right, $80 down,
+    /// and $C0 left. Division truncates exactly as the SNES unsigned divide registers do.
+    /// </summary>
+    internal static byte CalculateAngleFromXY(int x, int y)
+    {
+        bool xNegative = x < 0;
+        bool yNegative = y < 0;
+        int absoluteX = Math.Abs(x);
+        int absoluteY = Math.Abs(y);
+        if (absoluteX == 0 && absoluteY == 0)
+            return 0;
+
+        // The assembly advances its pointer byte offset by four for negative X and two
+        // for negative Y, then indexes a word table. Converted to a zero-based entry index,
+        // those are bit one for X and bit zero for Y—not the more tempting reverse order.
+        int quadrant = (xNegative ? 2 : 0) | (yNegative ? 1 : 0);
+        if (absoluteY < absoluteX)
+        {
+            int eighths = ((absoluteY << 8) / absoluteX) >> 3;
+            return quadrant switch
+            {
+                0 => unchecked((byte)(eighths + 0x40)),
+                1 => unchecked((byte)(0x40 - eighths)),
+                2 => unchecked((byte)(0xc0 - eighths)),
+                _ => unchecked((byte)(0xc0 + eighths)),
+            };
+        }
+
+        int reciprocalEighths = ((absoluteX << 8) / absoluteY) >> 3;
+        return quadrant switch
+        {
+            0 => unchecked((byte)(0x80 - reciprocalEighths)),
+            1 => unchecked((byte)reciprocalEighths),
+            2 => unchecked((byte)(reciprocalEighths + 0x80)),
+            _ => unchecked((byte)(0x100 - reciprocalEighths)),
+        };
+    }
+
+    private static void InitializeBeamAnimation(SamusGrappleState grapple)
+    {
+        grapple.PointAnimationTimer = 5;
+        grapple.PointAnimationFrame = 0;
+        // GrappleFunc_AF87 at $94:AF87 seeds sixteen independent segment instruction
+        // slots. Slot 15 starts on tile $24, slot 14 on $23, slot 13 on $22, slot 12 on
+        // $21, and that four-phase pattern repeats down to zero. Timer one makes $94:AFBA
+        // consume each initial record on its first draw.
+        for (int slot = 0; slot < grapple.SegmentAnimationFrames.Length; slot++)
+        {
+            grapple.SegmentAnimationTimers[slot] = 1;
+            grapple.SegmentAnimationFrames[slot] = unchecked((byte)(slot & 3));
+            grapple.SegmentAnimationStarted[slot] = false;
+        }
     }
 
     private static void ApplyRopeAndDirectionInput(
@@ -314,7 +709,7 @@ public static class SamusGrappleMovement
         }
         else
         {
-            grapple.RopeLength = unchecked((byte)candidate);
+            grapple.RopeLength = unchecked((ushort)candidate);
         }
     }
 
@@ -500,7 +895,7 @@ public static class SamusGrappleMovement
         grapple.CollisionBounceTimer = 0;
     }
 
-    private static int ScaleCoordinate(short sine, byte length) => sine switch
+    private static int ScaleCoordinate(short sine, ushort length) => sine switch
     {
         -256 => -length,
         256 => length,
@@ -522,6 +917,8 @@ public static class SamusGrappleMovement
 public enum GrapplePhase
 {
     Inactive,
+    Firing,
+    CancelPending,
     ConnectedSwinging,
     ReleaseFromSwing,
 }
@@ -536,8 +933,21 @@ public sealed class SamusGrappleState
     public ushort AnchorY { get; set; }
     public ushort BeamStartX { get; set; }
     public ushort BeamStartY { get; set; }
-    public byte RopeLength { get; set; }
+    /// <summary>
+    /// Unsigned native length word at `$0D08`. Connected motion clamps it below 64, while
+    /// firing must represent 120 before the following frame reaches the 128-pixel cutoff.
+    /// </summary>
+    public ushort RopeLength { get; set; }
     public short RopeLengthDelta { get; set; }
+    public byte FireDirection { get; set; }
+    public short ExtensionXVelocity { get; set; }
+    public short ExtensionYVelocity { get; set; }
+    public short OriginXOffset { get; set; }
+    public short OriginYOffset { get; set; }
+    public short BeamStartXOffset { get; set; }
+    public short BeamStartYOffset { get; set; }
+    public int EndpointXOffsetFixed { get; set; }
+    public int EndpointYOffsetFixed { get; set; }
     public ushort Angle { get; set; }
     public ushort MirroredAngle { get; set; }
     public short AngularVelocity { get; set; }
@@ -573,4 +983,16 @@ public sealed class SamusGrappleState
 public readonly record struct GrappleMovementResult(
     GrapplePhase Phase,
     bool Released,
-    bool ReleaseQueued);
+    bool ReleaseQueued,
+    bool Fired = false,
+    bool Connected = false,
+    bool CancelQueued = false,
+    bool Cancelled = false,
+    bool OwnsMovement = true);
+
+/// <summary>
+/// Processor-status subset returned by the bank-$94 grapple block-reaction dispatcher.
+/// Carry means collision; overflow distinguishes a supported grapple connection from the
+/// ordinary solid result that cancels the extending beam.
+/// </summary>
+internal readonly record struct GrappleBlockReaction(bool Carry, bool Overflow);

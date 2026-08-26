@@ -1453,6 +1453,218 @@ static void VerifySamusGrappleSwingAndRelease()
     }
     bus.WriteBytes(0x91bf00, [0x05, 0xff]);
 
+    // Firing source pose $29 is a retail right-facing fall with shot direction two. The
+    // four bank-$9B table groups below are seeded with their literal direction-two values:
+    // +11.F4 X velocity, zero Y velocity, rightward angle $C000, and (+2,+2) origin.
+    bus.WriteBytes(0x91b629 + SamusState.FallingRightPose * 8,
+        [0x08, 0x06, 0xff, 0x02, 0x00, 0x00, 0x05, 0x15]);
+    WriteTestWord(bus, 0x9bc0db + 2 * 2, 0x0bf4);
+    WriteTestWord(bus, 0x9bc0ef + 2 * 2, 0x0000);
+    WriteTestWord(bus, 0x9bc104 + 2 * 2, 0xc000);
+    WriteTestWord(bus, 0x9bc122 + 2 * 2, 0x0002);
+    WriteTestWord(bus, 0x9bc136 + 2 * 2, 0x0002);
+    WriteTestWord(bus, 0x9bc14a + 2 * 2, 0x0002);
+    WriteTestWord(bus, 0x9bc15e + 2 * 2, 0x0002);
+
+    // A type-$E/BTS-$00 block is persistent grapple PLM $D0D8 and returns flags $41.
+    // Put it at (3,3): the first frame's four 16.16 substeps end at X=45, then frame two's
+    // first substep reaches X=48 and must center the accepted endpoint at (56,56).
+    var firingBlocks = new ushort[8 * 8];
+    firingBlocks[3 * 8 + 3] = 0xe000;
+    var firingLevel = new RoomLevelData(
+        8,
+        8,
+        firingBlocks,
+        new byte[firingBlocks.Length],
+        new ushort[firingBlocks.Length],
+        new byte[8]);
+
+    // Samus minus anchor is (-24,-8), which $A0:C0B1 approximates as angle byte $CA.
+    // Give that byte deterministic sine/art data so connection publishes observable state.
+    WriteTestWord(bus, 0xa0b3c3 + 0xca * 2, 0x0000);
+    WriteTestWord(bus, 0xa0b3c3 + (0xca + 64) * 2, 0xff00);
+    bus.WriteByte(0x9bc1c2 + 0xca, 5);
+    bus.WriteBytes(0x9bc302 + 5 * 2, [0x00, 0x00]);
+
+    var firingSamus = new SamusState
+    {
+        Pose = SamusState.FallingRightPose,
+        XPosition = 32,
+        YPosition = 48,
+    };
+    firingSamus.Kinematics.YSpeed = 1; // selects moving-vertically connection table $C3EE
+    SamusGrappleMovement.BeginFiring(bus, firingSamus);
+    AssertEqual(GrapplePhase.Firing, firingSamus.Grapple.Phase, "grapple firing phase");
+    AssertEqual((short)0x0bf4, firingSamus.Grapple.ExtensionXVelocity,
+        "grapple X extension velocity comes from ROM");
+    AssertEqual((ushort)34, firingSamus.Grapple.AnchorX, "grapple initial endpoint X");
+    AssertEqual((ushort)50, firingSamus.Grapple.AnchorY, "grapple initial endpoint Y");
+
+    GrappleMovementResult extending = SamusGrappleMovement.StepFiring(
+        bus, firingLevel, firingSamus, (ushort)SnesButton.X);
+    AssertTrue(extending.Fired && !extending.Connected && !extending.OwnsMovement,
+        "unobstructed firing remains live without stealing ordinary body movement");
+    AssertEqual((ushort)12, firingSamus.Grapple.RopeLength, "firing length grows by twelve");
+    AssertEqual((ushort)45, firingSamus.Grapple.AnchorX,
+        "four fractional collision substeps publish the exact first-frame endpoint");
+
+    GrappleMovementResult connected = SamusGrappleMovement.StepFiring(
+        bus, firingLevel, firingSamus, (ushort)SnesButton.X);
+    AssertTrue(connected.Connected && connected.OwnsMovement,
+        "persistent grapple block establishes connected movement");
+    AssertEqual(GrapplePhase.ConnectedSwinging, firingSamus.Grapple.Phase,
+        "block acquisition installs swinging function");
+    AssertEqual((ushort)56, firingSamus.Grapple.AnchorX, "accepted grapple block centers X");
+    AssertEqual((ushort)56, firingSamus.Grapple.AnchorY, "accepted grapple block centers Y");
+    AssertEqual((ushort)0xca00, firingSamus.Grapple.Angle,
+        "connection angle uses bank-$A0 integer octant calculation");
+    AssertEqual(SamusState.GrappleSwingRightPose, firingSamus.Pose,
+        "right-half airborne shot selects clockwise grapple pose $B2");
+
+    // Bank $94 does not treat extension blocks as collision results of their own. Instead,
+    // type $5 adds signed BTS directly to the linear block index and dispatches the block
+    // found there. Keep the beam physically inside (3,3), but make that cell point right to
+    // a persistent type-$E target at (4,3). Connecting proves the indirection is followed;
+    // centering at (56,56), rather than (72,56), proves the visible endpoint stays in the
+    // extension cell exactly as GrappleCollision_XBlock/YBlock do in the original routine.
+    var horizontalExtensionBlocks = new ushort[8 * 8];
+    var horizontalExtensionBts = new byte[horizontalExtensionBlocks.Length];
+    horizontalExtensionBlocks[3 * 8 + 3] = 0x5000;
+    horizontalExtensionBts[3 * 8 + 3] = 1;
+    horizontalExtensionBlocks[3 * 8 + 4] = 0xe000;
+    var horizontalExtensionLevel = new RoomLevelData(
+        8,
+        8,
+        horizontalExtensionBlocks,
+        horizontalExtensionBts,
+        new ushort[horizontalExtensionBlocks.Length],
+        new byte[8]);
+    var horizontalExtensionSamus = new SamusState
+    {
+        Pose = SamusState.FallingRightPose,
+        XPosition = 32,
+        YPosition = 48,
+    };
+    horizontalExtensionSamus.Kinematics.YSpeed = 1;
+    SamusGrappleMovement.BeginFiring(bus, horizontalExtensionSamus);
+    SamusGrappleMovement.StepFiring(
+        bus, horizontalExtensionLevel, horizontalExtensionSamus, (ushort)SnesButton.X);
+    GrappleMovementResult horizontalExtensionConnection = SamusGrappleMovement.StepFiring(
+        bus, horizontalExtensionLevel, horizontalExtensionSamus, (ushort)SnesButton.X);
+    AssertTrue(horizontalExtensionConnection.Connected,
+        "horizontal extension BTS dispatches its referenced grapple block");
+    AssertEqual((ushort)56, horizontalExtensionSamus.Grapple.AnchorX,
+        "horizontal extension keeps physical endpoint block X");
+
+    // Type $D uses the same signed byte but multiplies it by RoomWidthBlocks. A +1 BTS at
+    // (3,3) therefore dispatches (3,4), while the accepted endpoint still centers in (3,3).
+    // This test is intentionally separate from the horizontal case: confusing the two
+    // formulas is easy and can appear correct in rooms whose nearby cells happen to be air.
+    var verticalExtensionBlocks = new ushort[8 * 8];
+    var verticalExtensionBts = new byte[verticalExtensionBlocks.Length];
+    verticalExtensionBlocks[3 * 8 + 3] = 0xd000;
+    verticalExtensionBts[3 * 8 + 3] = 1;
+    verticalExtensionBlocks[4 * 8 + 3] = 0xe000;
+    var verticalExtensionLevel = new RoomLevelData(
+        8,
+        8,
+        verticalExtensionBlocks,
+        verticalExtensionBts,
+        new ushort[verticalExtensionBlocks.Length],
+        new byte[8]);
+    var verticalExtensionSamus = new SamusState
+    {
+        Pose = SamusState.FallingRightPose,
+        XPosition = 32,
+        YPosition = 48,
+    };
+    verticalExtensionSamus.Kinematics.YSpeed = 1;
+    SamusGrappleMovement.BeginFiring(bus, verticalExtensionSamus);
+    SamusGrappleMovement.StepFiring(
+        bus, verticalExtensionLevel, verticalExtensionSamus, (ushort)SnesButton.X);
+    GrappleMovementResult verticalExtensionConnection = SamusGrappleMovement.StepFiring(
+        bus, verticalExtensionLevel, verticalExtensionSamus, (ushort)SnesButton.X);
+    AssertTrue(verticalExtensionConnection.Connected,
+        "vertical extension BTS dispatches its referenced grapple block");
+    AssertEqual((ushort)56, verticalExtensionSamus.Grapple.AnchorY,
+        "vertical extension keeps physical endpoint block Y");
+
+    // Ordinary solid-family blocks return carry with overflow clear. That is not a rope
+    // connection: firing moves to the one-call cancellation function, matching $94:A8E5.
+    var solidBlocks = new ushort[8 * 8];
+    solidBlocks[3 * 8 + 3] = 0x8000;
+    var solidLevel = new RoomLevelData(
+        8,
+        8,
+        solidBlocks,
+        new byte[solidBlocks.Length],
+        new ushort[solidBlocks.Length],
+        new byte[8]);
+    var solidCollisionSamus = new SamusState
+    {
+        Pose = SamusState.FallingRightPose,
+        XPosition = 32,
+        YPosition = 48,
+    };
+    SamusGrappleMovement.BeginFiring(bus, solidCollisionSamus);
+    SamusGrappleMovement.StepFiring(
+        bus, solidLevel, solidCollisionSamus, (ushort)SnesButton.X);
+    GrappleMovementResult solidCancellation = SamusGrappleMovement.StepFiring(
+        bus, solidLevel, solidCollisionSamus, (ushort)SnesButton.X);
+    AssertTrue(solidCancellation.CancelQueued && !solidCancellation.Connected,
+        "solid block queues grapple firing cancellation");
+
+    // Length grows before collision checks. Values 12..120 receive their four probes, but
+    // the next addition produces 132 and queues cancellation without moving the endpoint.
+    var emptyWideBlocks = new ushort[16 * 8];
+    var emptyWideLevel = new RoomLevelData(
+        16,
+        8,
+        emptyWideBlocks,
+        new byte[emptyWideBlocks.Length],
+        new ushort[emptyWideBlocks.Length],
+        new byte[16]);
+    var rangeLimitedSamus = new SamusState
+    {
+        Pose = SamusState.FallingRightPose,
+        XPosition = 32,
+        YPosition = 48,
+    };
+    SamusGrappleMovement.BeginFiring(bus, rangeLimitedSamus);
+    for (int firingFrame = 0; firingFrame < 10; firingFrame++)
+    {
+        GrappleMovementResult liveRange = SamusGrappleMovement.StepFiring(
+            bus, emptyWideLevel, rangeLimitedSamus, (ushort)SnesButton.X);
+        AssertTrue(liveRange.Fired, $"grapple range frame {firingFrame} remains live");
+    }
+    AssertEqual((ushort)120, rangeLimitedSamus.Grapple.RopeLength,
+        "last collision-tested grapple firing length");
+    ushort endpointBeforeRangeCancellation = rangeLimitedSamus.Grapple.AnchorX;
+    GrappleMovementResult rangeCancellation = SamusGrappleMovement.StepFiring(
+        bus, emptyWideLevel, rangeLimitedSamus, (ushort)SnesButton.X);
+    AssertTrue(rangeCancellation.CancelQueued,
+        "grapple queues cancellation when pre-collision length reaches 128");
+    AssertEqual(endpointBeforeRangeCancellation, rangeLimitedSamus.Grapple.AnchorX,
+        "range cancellation performs no endpoint substep");
+
+    // Release-of-Shoot is checked before extension. Cancellation remains queued for one
+    // function call, mirroring the bank-$9B pointer change rather than disappearing early.
+    var cancelledSamus = new SamusState
+    {
+        Pose = SamusState.FallingRightPose,
+        XPosition = 32,
+        YPosition = 48,
+    };
+    SamusGrappleMovement.BeginFiring(bus, cancelledSamus);
+    GrappleMovementResult cancelQueued = SamusGrappleMovement.StepFiring(
+        bus, firingLevel, cancelledSamus, controllerInput: 0);
+    AssertTrue(cancelQueued.CancelQueued && !cancelQueued.Cancelled,
+        "released firing queues cancellation");
+    GrappleMovementResult cancelled =
+        SamusGrappleMovement.CompleteFiringCancellation(cancelledSamus);
+    AssertTrue(cancelled.Cancelled && cancelledSamus.Grapple.Phase == GrapplePhase.Inactive,
+        "queued firing cancellation clears on following call");
+
     // The production code follows $94's long loads into the signed sine table at $A0:B3C3.
     // Seed only the entries
     // touched by this fixture. At $8000 the rope points 50 pixels left; after one positive
@@ -1510,14 +1722,15 @@ static void VerifySamusGrappleSwingAndRelease()
     // source. Give this angle unique pointers so a hard-coded host tile cannot pass.
     WriteTestWord(bus, 0x9bc342, 0x1234);
     WriteTestWord(bus, 0x9bc344, 0x1434);
-    int foldedAngleOffset = ((samus.Grapple.Angle >> 9) & 0x7f) * 2;
+    int foldedAngleOffset = (samus.Grapple.Angle >> 9) & 0xfe;
     WriteTestWord(bus, 0x9bc346 + foldedAngleOffset, 0x5678);
 
-    // $94:AFBA calculates eight-pixel segment steps from the inverse rope angle. These are
-    // the real small-angle sine/cosine magnitudes for high-byte angle $01, producing a
-    // visible +7 X / +0 Y step after the native fixed-point truncation.
-    WriteTestWord(bus, 0xa0b3c3 + 1 * 2, 0x0006);
-    WriteTestWord(bus, 0xa0b3c3 + 65 * 2, 0x00ff);
+    // $94:AFBA recalculates its angle from endpoint minus flare. Here (49,-1) selects
+    // angle byte $40 after the native coarse division, so sine index $80 produces a
+    // visible +7 X step while negative-cosine index $40 leaves Y unchanged. Overwriting
+    // index $80 now is safe: it was consumed earlier by pendulum positioning.
+    WriteTestWord(bus, 0xa0b3c3 + 0x40 * 2, 0x0000);
+    WriteTestWord(bus, 0xa0b3c3 + 0x80 * 2, 0x00ff);
 
     var grappleOam = new OamBuffer();
     var grappleVramWrites = new VramWriteQueue();
@@ -1582,7 +1795,7 @@ static void VerifySamusGrappleSwingAndRelease()
             bus, new SamusState(), 0, 0, ropeLength: 7, angle: 0, angularVelocity: 0, faceRight: true),
         "grapple rejects a rope shorter than retail connected minimum");
 
-    Console.WriteLine("  Samus grapple: ROM sine/art/tile tables, staggered beam OAM, pendulum input, and queued release agree.");
+    Console.WriteLine("  Samus grapple: ROM firing, four-step block acquisition, beam OAM, pendulum input, and queued release agree.");
 }
 
 static void VerifySamusPostureMovement()

@@ -96,6 +96,11 @@ else if (options.KnockbackScript)
     Console.WriteLine(
         "Input script: host-inject one enemy-side hit result, run native knockback, press Left+Jump for the retail damage boost, then hold that chord through its arc.");
 }
+else if (options.GrappleFireScript)
+{
+    Console.WriteLine(
+        "Input script: select grapple, fire right using ROM pose tables, hold through live room collision/cutoff, then observe queued cancellation.");
+}
 else if (options.GrappleScript)
 {
     Console.WriteLine(
@@ -158,6 +163,9 @@ else if (options.SpringBallScript)
     runtime.Samus!.EquippedItems |= 0x0006;
 }
 
+if (options.GrappleFireScript)
+    runtime.EnableDebugGrappleItemSelection();
+
 Console.WriteLine(
     $"Loaded Landing Site scrolls $8F:9283 -> $7E:CD20: " +
     $"{Convert.ToHexString(camera.Scrolls.Storage[..camera.Scrolls.LogicalCellCount])}.");
@@ -181,8 +189,25 @@ Console.WriteLine(
         ? $"floor=({placement.BlockX},{placement.BlockY}) type=${placement.FloorBlock.CollisionType:X1}/" +
           $"BTS ${placement.FloorBlock.Behavior:X2}, height={placement.FloorHeight}; only X/screen framing are host-selected."
         : "only that placement is host-selected."));
-if (options.GrappleScript)
+if (options.GrappleScript || options.GrappleFireScript)
 {
+    // Inventory/PLM placement is not inferred from graphics. Inventory-like BTS type $E
+    // is the only bank-$94 block family that can return a grapple connection, so list the
+    // real room coordinates before running the script. This diagnostic is also useful when
+    // choosing a future non-host-authored grapple firing route.
+    var grappleBlocks = new List<string>();
+    for (int blockY = 0; blockY < runtime.LevelData!.HeightInBlocks; blockY++)
+    {
+        for (int blockX = 0; blockX < runtime.LevelData.WidthInBlocks; blockX++)
+        {
+            RoomCollisionBlock block = runtime.LevelData.GetCollisionBlock(blockX, blockY);
+            if (block.CollisionType == 0x0e)
+                grappleBlocks.Add($"({blockX:X2},{blockY:X2}):{block.Behavior:X2}");
+        }
+    }
+    Console.WriteLine(
+        $"Landing Site grapple blocks (X,Y:BTS): " +
+        (grappleBlocks.Count == 0 ? "none" : string.Join(' ', grappleBlocks)));
     Console.WriteLine(
         $"Grapple state: anchor=({runtime.Samus.Grapple.AnchorX},{runtime.Samus.Grapple.AnchorY}), " +
         $"beamStart=({runtime.Samus.Grapple.BeamStartX},{runtime.Samus.Grapple.BeamStartY}), " +
@@ -351,6 +376,9 @@ bool observedDamageBoostMovement = false;
 bool observedGrappleSwing = false;
 bool observedGrappleReleaseQueue = false;
 bool observedGrappleRelease = false;
+bool observedGrappleFire = false;
+bool observedGrappleFireCancelQueue = false;
+bool observedGrappleFireCancel = false;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
@@ -361,7 +389,9 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     // explicit reversal script is a deterministic real-ROM regression route: enough time
     // to accelerate right, complete $25 toward the left, then complete $26 back right.
     // These are only controller samples; all pose choices still come from bank-$91 tables.
-    ushort controllerInput = options.GrappleScript
+    ushort controllerInput = options.GrappleFireScript
+        ? frameIndex < 16 ? (ushort)SnesButton.X : (ushort)0
+        : options.GrappleScript
         ? frameIndex switch
         {
             // X is the runtime's default Shoot binding. Pump left through the first half,
@@ -672,6 +702,9 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         { Phase: GrapplePhase.ConnectedSwinging };
     observedGrappleReleaseQueue |= runtime.LastGrappleMovement is { ReleaseQueued: true };
     observedGrappleRelease |= runtime.LastGrappleMovement is { Released: true };
+    observedGrappleFire |= runtime.LastGrappleMovement is { Fired: true };
+    observedGrappleFireCancelQueue |= runtime.LastGrappleMovement is { CancelQueued: true };
+    observedGrappleFireCancel |= runtime.LastGrappleMovement is { Cancelled: true };
     observedBombJumpStart |= runtime.LastBombJumpMovement is { Started: true };
     observedBombJumpEnd |= runtime.LastBombJumpMovement is { Ended: true };
     observedBombJumpRise |= runtime.LastBombJumpMovement is { Started: false, Ended: false };
@@ -1079,6 +1112,18 @@ if (options.GrappleScript)
         (options.FrameCount >= 92 ? ", queued release, and jump-pose handoff." : "."));
 }
 
+if (options.GrappleFireScript)
+{
+    if (!observedGrappleFire)
+        throw new InvalidOperationException("Grapple-fire ROM script never initialized or extended a beam.");
+    if (options.FrameCount >= 13 && !observedGrappleFireCancelQueue)
+        throw new InvalidOperationException("Grapple-fire ROM script never queued collision/range cancellation.");
+    if (options.FrameCount >= 14 && !observedGrappleFireCancel)
+        throw new InvalidOperationException("Grapple-fire ROM script never completed queued cancellation.");
+    Console.WriteLine(
+        $"Grapple-fire ROM route validated pose-table initialization and every firing/cancellation milestone reachable within {options.FrameCount} frame(s).");
+}
+
 Console.WriteLine(
     $"Finished at accepted NMI {runtime.NmiFrameCounter}; " +
     $"timer {runtime.EscapeTimer.MinutesBcd:X2}:{runtime.EscapeTimer.SecondsBcd:X2}.{runtime.EscapeTimer.CentisecondsBcd:X2}; " +
@@ -1265,7 +1310,8 @@ readonly record struct DebugRunnerOptions(
     bool SpringBallScript,
     bool BombJumpScript,
     bool KnockbackScript,
-    bool GrappleScript)
+    bool GrappleScript,
+    bool GrappleFireScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -1292,6 +1338,7 @@ readonly record struct DebugRunnerOptions(
         bool bombJumpScript = false;
         bool knockbackScript = false;
         bool grappleScript = false;
+        bool grappleFireScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -1411,6 +1458,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--grapple-fire-script":
+                    grappleFireScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -1461,7 +1513,8 @@ readonly record struct DebugRunnerOptions(
             springBallScript,
             bombJumpScript,
             knockbackScript,
-            grappleScript);
+            grappleScript,
+            grappleFireScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

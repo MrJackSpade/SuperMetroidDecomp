@@ -33,7 +33,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$13` | Spring ball falling | `$7D/$7E`, dry-air gravity, held-jump relaunch, automatic bounce, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
 | `$14` | Wall jumping | `$83/$84`, dry/Hi-Jump launch tables, variable height, `$FB` animation family, spin handoff, landing | Liquids, solid-enemy trigger, sound/contact-damage side effects |
 | `$15` | Ran into a wall | — | Entire family |
-| `$16` | Grappling | `$B2/$B3`, connected unobstructed pendulum, rope-length input, release `$51/$52`, ROM art/beam DMA and OAM | Firing/acquisition, block/enemy connection validation, terrain sweep/bounce, locked/wallgrab and grapple wall jump |
+| `$16` | Grappling | ROM-backed firing, four-step block collision, persistent type-`$E` acquisition, `$B2/$B3` unobstructed pendulum, rope-length input, release `$51/$52`, ROM art/beam DMA and OAM | Enemy acquisition, connected terrain sweep/bounce, breakable PLMs, locked/wallgrab and grapple wall jump |
 | `$17` | Turning while jumping | Grounded-Y crouch turns `$97-$9A/$A2/$A3`; airborne `$2F/$30/$8F-$92/$9E/$9F`, momentum, collision, `$F8` | Later firing/external-displacement routes |
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, momentum, gravity/collision, `$F8` | Later firing/external-displacement routes |
 | `$19` | Damage boost | `$4F/$50`, fresh dry-air jump, type-indexed X physics, variable height, ceiling/floor collision, `$FF` sentinel landing | Liquids, external displacement, enemy producer |
@@ -234,11 +234,19 @@ translated status is documented with the Morph Ball family below.
   the private-ROM pose against live terrain. Synthetic verification independently locks the
   timer, exact 16.16 values, damage-boost handoff, `$FF` landing, and timeout to `$29/$2A`.
 
-## Verified connected-grapple slice
+## Verified grapple firing and connected slice
 
-- One explicit debug producer publishes an already-accepted anchor because projectile firing,
-  grapple-block acquisition, and enemies are not translated yet. It supplies no pendulum
-  position, velocity, pose, art, or release result; those remain cartridge-backed consumers.
+- `$9B:C51E/$C703` read shot direction, signed extension velocities, fire angle, movement-
+  specific hand/flare origins, and pose graphics Y correction directly from ROM. Length grows
+  by twelve and cancels before collision at 128; release of Shoot queues the same cancel path.
+- `$94:A85B` advances two signed 16.16 endpoint offsets in four collision substeps per frame.
+  The grapple dispatcher handles air, slope/solid cancellation, horizontal/vertical BTS
+  extensions, and persistent type-`$E` BTS zero/three's carry+overflow connection result.
+  Breakable BTS one/two and other PLM-producing types stop explicitly until bank `$84` exists.
+- On airborne connection, `$9B:B97C/$BA61` select `$B2/$B3`, center the endpoint, shorten a
+  64+-pixel rope by 24, and calculate its angle through the integer octants at `$A0:C0B1`.
+  One explicit debug producer remains for the connected real-ROM route because Landing Site
+  has no type-`$E` blocks; it supplies no pendulum position, velocity, art, or release result.
 - `$9B:C79D` owns Shoot retention, new Up/Down rope-length deltas, the lower-half Left/Right
   pump gate, exact `$8000` motionless kick, quadrant gravity, signed angular-velocity clamp,
   jump impulse, and angle integration. The unobstructed route then uses bank `$A0`'s signed
@@ -250,9 +258,10 @@ translated status is documented with the Morph Ball family below.
   mode two, then preserves the one-frame function-pointer seam before `$9B:CB8B` installs
   `$51/$52`. Ordinary type-two movement, camera, collision, landing, and art own later frames.
 - Synthetic verification fixes ROM table addresses, exact pendulum numbers, two VRAM queue
-  records, six staggered rope OAM records, endpoint placement, release velocity, and queued
-  handoff. DebugRunner `--grapple-script` swings for 90 frames, releases on 91, observes `$52`
-  on 92, lands through `$A5`, and returns to `$02`; a 60-frame PNG freezes the connected beam.
+  records, four-step firing accumulation, persistent-block centering, integer connection
+  angle, six staggered rope OAM records, endpoint placement, release velocity, and queued
+  handoff. `--grapple-fire-script` proves real-ROM firing/rendering/cancellation; `--grapple-script`
+  swings for 90 frames, releases on 91, observes `$52` on 92, and lands through `$A5 -> $02`.
 
 ## Verified ordinary Morph Ball slice
 
@@ -363,10 +372,14 @@ translated status is documented with the Morph Ball family below.
   pendulum through a complete orbit, renders cartridge-selected endpoint/segment tiles with
   `$94`'s staggered instruction phases, releases through `$B2 -> $52`, and lands `$A5 -> $02`.
   The 60-frame object capture visibly connects Samus to the logged world-space anchor.
+- The real-ROM `--grapple-fire-script` selects grapple at the documented HUD seam, reads pose
+  `$01`'s direction and every velocity/origin/tile pointer from the cartridge, renders the
+  growing horizontal beam, and completes its queued no-target cancellation. A room-wide
+  collision scan confirms Landing Site contains no type-`$E` grapple blocks.
 
 ## Next implementation order
 
-1. Grapple firing/acquisition, terrain sweep/bounce, locked/wallgrab, and its separate wall-jump seam.
+1. Connected grapple terrain sweep/bounce, locked/wallgrab, breakable PLMs, and its separate wall-jump seam.
 2. Run button, speed booster/shinespark, crystal flash/drained, and remaining scripted movement.
 3. Space-jump/Screw-Attack spin families, liquids, and solid-enemy collision routes.
 4. Enemy collision/damage producers so knockback and grapple begin from live actors instead of host seams.

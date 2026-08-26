@@ -50,6 +50,24 @@ public sealed class SamusState
     /// <summary>Pose $2A is the unaimed left-facing falling pose.</summary>
     public const byte FallingLeftPose = 0x2a;
 
+    /// <summary>Pose $03 is stationary, facing right, with the arm cannon aimed straight up.</summary>
+    public const byte StandingAimUpRightPose = 0x03;
+
+    /// <summary>Pose $04 is stationary, facing left, with the arm cannon aimed straight up.</summary>
+    public const byte StandingAimUpLeftPose = 0x04;
+
+    /// <summary>Pose $05 is stationary, facing right, and aiming diagonally up-right.</summary>
+    public const byte StandingAimDiagonalUpRightPose = 0x05;
+
+    /// <summary>Pose $06 is stationary, facing left, and aiming diagonally up-left.</summary>
+    public const byte StandingAimDiagonalUpLeftPose = 0x06;
+
+    /// <summary>Pose $07 is stationary, facing right, and aiming diagonally down-right.</summary>
+    public const byte StandingAimDiagonalDownRightPose = 0x07;
+
+    /// <summary>Pose $08 is stationary, facing left, and aiming diagonally down-left.</summary>
+    public const byte StandingAimDiagonalDownLeftPose = 0x08;
+
     /// <summary>Pose $27 is ordinary right-facing crouching.</summary>
     public const byte CrouchingRightPose = 0x27;
 
@@ -191,6 +209,57 @@ public sealed class SamusState
     {
         ArgumentNullException.ThrowIfNull(bus);
         return bus.ReadByte(AddWithinBank(PoseDefinitions, Pose * 8 + 1));
+    }
+
+    /// <summary>
+    /// Reads pose-definition byte two, the pose selected by <c>$91:82D9</c> when no
+    /// controller bits are held and the transition table therefore is not consulted.
+    /// </summary>
+    public byte ReadNoInputFallbackPose(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        return bus.ReadByte(AddWithinBank(PoseDefinitions, Pose * 8 + 2));
+    }
+
+    /// <summary>True for the four movement-type-zero, right-facing standing poses.</summary>
+    public static bool IsRightFacingStandingPose(byte pose) => pose is
+        FacingRightNormalPose or
+        StandingAimUpRightPose or
+        StandingAimDiagonalUpRightPose or
+        StandingAimDiagonalDownRightPose;
+
+    /// <summary>True for the four movement-type-zero, left-facing standing poses.</summary>
+    public static bool IsLeftFacingStandingPose(byte pose) => pose is
+        FacingLeftNormalPose or
+        StandingAimUpLeftPose or
+        StandingAimDiagonalUpLeftPose or
+        StandingAimDiagonalDownLeftPose;
+
+    /// <summary>
+    /// Applies a pose-table transition within `$01/$03/$05/$07` or `$02/$04/$06/$08`.
+    /// </summary>
+    /// <remarks>
+    /// All eight records have movement type zero, radius 21, and ordinary animation-list
+    /// initialization. The ROM changes only aim/draw metadata here; jump, turn, crouch,
+    /// running, and firing targets deliberately go through their separate side-effect paths.
+    /// </remarks>
+    public void ApplyGroundedStandingAimTransition(ISnesAddressSpace bus, byte targetPose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        bool sameRightFamily = IsRightFacingStandingPose(Pose) &&
+            IsRightFacingStandingPose(targetPose);
+        bool sameLeftFamily = IsLeftFacingStandingPose(Pose) &&
+            IsLeftFacingStandingPose(targetPose);
+        if (!sameRightFamily && !sameLeftFamily)
+        {
+            throw new NotSupportedException(
+                $"Standing aim transition ${Pose:X2} -> ${targetPose:X2} crosses an untranslated pose family.");
+        }
+
+        // This is $91:F404/$91:FB08's ordinary target installation. Preserve it as an
+        // explicit method: replacing Pose directly would omit radius refresh, animation
+        // frame zero, delay-list selection, and pending-command cleanup.
+        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Standing aim");
     }
 
     /// <summary>

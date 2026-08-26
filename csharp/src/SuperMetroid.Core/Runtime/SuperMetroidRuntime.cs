@@ -456,6 +456,24 @@ public sealed class SuperMetroidRuntime
                         : SamusState.FacingLeftNormalPose;
             }
 
+            // Pose-definition byte two for `$03/$05/$07` is `$01`, and for
+            // `$04/$06/$08` it is `$02`. This path is separate from the transition table:
+            // `$91:81A9` exits before reading a record when the entire controller word is
+            // zero, then `$91:82D9` installs this no-input fallback directly.
+            if (GroundedSamusMovementEnabled &&
+                Samus.Pose is
+                    SamusState.StandingAimUpRightPose or
+                    SamusState.StandingAimUpLeftPose or
+                    SamusState.StandingAimDiagonalUpRightPose or
+                    SamusState.StandingAimDiagonalUpLeftPose or
+                    SamusState.StandingAimDiagonalDownRightPose or
+                    SamusState.StandingAimDiagonalDownLeftPose &&
+                Controller1.Current == 0 &&
+                ProspectiveSamusPose is null)
+            {
+                ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
+            }
+
             if (GroundedSamusMovementEnabled)
             {
                 if (LevelData is null)
@@ -469,6 +487,9 @@ public sealed class SuperMetroidRuntime
                 switch (Samus.Pose)
                 {
                     case SamusState.FacingRightNormalPose:
+                    case SamusState.StandingAimUpRightPose:
+                    case SamusState.StandingAimDiagonalUpRightPose:
+                    case SamusState.StandingAimDiagonalDownRightPose:
                         LastGroundedSamusMovement = SamusGroundedMovement.StepStandingRight(
                         _addressSpace,
                         LevelData,
@@ -483,6 +504,9 @@ public sealed class SuperMetroidRuntime
                         NmiFrameCounter);
                         break;
                     case SamusState.FacingLeftNormalPose:
+                    case SamusState.StandingAimUpLeftPose:
+                    case SamusState.StandingAimDiagonalUpLeftPose:
+                    case SamusState.StandingAimDiagonalDownLeftPose:
                         LastGroundedSamusMovement = SamusGroundedMovement.StepStandingLeft(
                         _addressSpace,
                         LevelData,
@@ -610,6 +634,23 @@ public sealed class SuperMetroidRuntime
                     animationTransitionApplied = true;
                 }
 
+                // Aimed walk-off selects `$2B/$2C/$6D-$70`, not the unaimed `$29/$2A`
+                // pair above. Stop at that exact missing family instead of silently leaving
+                // a movement-type-zero pose suspended after its failed grounding probe.
+                if (!animationTransitionApplied &&
+                    LastGroundedSamusMovement is { Vertical.Collided: false } &&
+                    poseAtFrameStart is
+                        SamusState.StandingAimUpRightPose or
+                        SamusState.StandingAimUpLeftPose or
+                        SamusState.StandingAimDiagonalUpRightPose or
+                        SamusState.StandingAimDiagonalUpLeftPose or
+                        SamusState.StandingAimDiagonalDownRightPose or
+                        SamusState.StandingAimDiagonalDownLeftPose)
+                {
+                    throw new NotSupportedException(
+                        $"Aimed standing pose ${poseAtFrameStart:X2} walked off the floor; aimed falling poses are the next untranslated boundary.");
+                }
+
                 if (!animationTransitionApplied && ProspectiveSamusPose is { } inputTransition)
                 {
                     byte targetPose = unchecked((byte)inputTransition.ProspectivePose);
@@ -620,6 +661,13 @@ public sealed class SuperMetroidRuntime
                     {
                         switch ((poseAtFrameStart, targetPose))
                         {
+                            case var (source, target)
+                                when (SamusState.IsRightFacingStandingPose(source) &&
+                                      SamusState.IsRightFacingStandingPose(target)) ||
+                                     (SamusState.IsLeftFacingStandingPose(source) &&
+                                      SamusState.IsLeftFacingStandingPose(target)):
+                                Samus.ApplyGroundedStandingAimTransition(_addressSpace, targetPose);
+                                break;
                             case (SamusState.FacingRightNormalPose, SamusState.MovingRightNormalPose):
                                 Samus.ApplyStandingRightToRunningRight(_addressSpace);
                                 break;
@@ -693,6 +741,23 @@ public sealed class SuperMetroidRuntime
                 {
                     Samus.HorizontalSpeed.AccelerationMode = 0;
                     Samus.ApplyRunningLeftToStandingLeft(_addressSpace);
+                }
+                else if (!animationTransitionApplied &&
+                         poseAtFrameStart is
+                             SamusState.StandingAimUpRightPose or
+                             SamusState.StandingAimUpLeftPose or
+                             SamusState.StandingAimDiagonalUpRightPose or
+                             SamusState.StandingAimDiagonalUpLeftPose or
+                             SamusState.StandingAimDiagonalDownRightPose or
+                             SamusState.StandingAimDiagonalDownLeftPose &&
+                         ProspectiveSamusFallbackPose is { } aimFallback)
+                {
+                    // Only the zero-controller path above populates this value. Validate
+                    // and apply it through the same radius/animation seam as held-input
+                    // aim changes; never assign the ROM byte directly to Pose.
+                    Samus.ApplyGroundedStandingAimTransition(
+                        _addressSpace,
+                        unchecked((byte)aimFallback));
                 }
             }
 

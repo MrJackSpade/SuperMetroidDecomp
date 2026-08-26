@@ -17,7 +17,7 @@ public static class SamusGroundedMovement
 {
     /// <summary>
     /// Ports the movement-relevant portion of <c>Samus_Movement_00_Standing</c> at
-    /// <c>$90:A383</c> for ordinary facing-right pose $01.
+    /// <c>$90:A383</c> for the right-facing $01/$03/$05/$07 family.
     /// </summary>
     public static GroundedMovementResult StepStandingRight(
         ISnesAddressSpace bus,
@@ -28,10 +28,10 @@ public static class SamusGroundedMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
-        if (samus.Pose != SamusState.FacingRightNormalPose)
+        if (!SamusState.IsRightFacingStandingPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Standing-right movement requires pose $01, not ${samus.Pose:X2}.");
+                $"Standing-right movement requires pose $01/$03/$05/$07, not ${samus.Pose:X2}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -63,7 +63,8 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports the same <c>$90:A383</c> standing handler for ordinary facing-left pose $02.
+    /// Ports the same <c>$90:A383</c> standing handler for the left-facing
+    /// $02/$04/$06/$08 family.
     /// </summary>
     public static GroundedMovementResult StepStandingLeft(
         ISnesAddressSpace bus,
@@ -74,10 +75,10 @@ public static class SamusGroundedMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
-        if (samus.Pose != SamusState.FacingLeftNormalPose)
+        if (!SamusState.IsLeftFacingStandingPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Standing-left movement requires pose $02, not ${samus.Pose:X2}.");
+                $"Standing-left movement requires pose $02/$04/$06/$08, not ${samus.Pose:X2}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;

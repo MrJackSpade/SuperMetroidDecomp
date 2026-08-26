@@ -11,7 +11,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 
 | Type | Native family | Current C# admission | Remaining native branches |
 |---:|---|---|---|
-| `$00` | Standing | `$01/$02`, landing `$A4-$A7` | Aim/fire variants, forward pose, transitions from later systems |
+| `$00` | Standing | `$01-$08`, landing `$A4-$A7` | Firing/landing-aim variants, forward pose, transitions from later systems |
 | `$01` | Running | `$09/$0A`, dry air, no run button | Run button, speed booster, liquid/environment effects, aim/fire variants |
 | `$02` | Normal jumping | `$4B-$4E`, dry air, variable height, ceiling/floor collision | Aimed jump poses, equipment/liquids, external displacement |
 | `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation | Wall-jump trigger, space jump, screw attack, equipment/liquids |
@@ -77,6 +77,21 @@ are listed below so later work cannot accidentally confuse “the current viewer
   collision center directly. RoomViewer exposes mutually exclusive **Hold Up**/**Hold Down**
   controls, and DebugRunner `--posture-script` verifies both facing directions against the ROM.
 
+## Verified stationary-aim slice
+
+- The shared right table `$91:A0EC` admits `$01/$03/$05/$07`; its left mirror `$91:A172`
+  admits `$02/$04/$06/$08`. Straight Up and the canonical `$0010/$0020` shoulder bits select
+  the exact ROM poses, in table priority order, without host-authored aim state.
+- All six aim poses execute movement type zero's real horizontal/collision/grounding/cleanup
+  path. Their pose-definition direction, shot-direction, graphics offset, radius, animation
+  delay list, bank-$92 tile definitions, and spritemaps continue to come from the cartridge.
+- When all controller bits are released, the transition matcher intentionally does no lookup;
+  `$91:82D9` instead reads pose-definition byte two, yielding `$01` for right aim and `$02`
+  for left aim. The runtime models that distinct fallback seam explicitly.
+- Aimed walk-off is deliberately blocked at `$2B/$2C/$6D-$70` rather than incorrectly using
+  unaimed `$29/$2A`. Aimed running, jumping, falling, landing, crouching, and turning are the
+  next connected families.
+
 ## Evidence
 
 - `SuperMetroid.Verification` checks synthetic ROM tables independently for `$FD/$F8`, jump
@@ -88,10 +103,13 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - The real-ROM `--posture-script` route completes through `$01 -> $35 -> $27 -> $3B -> $01
   -> $25 -> $02 -> $0A -> $02 -> $36 -> $28 -> $3C -> $02`, with the expected five-pixel
   center shifts and unchanged feet, terrain, camera, HUD, and ROM-authored graphics.
+- The real-ROM `--aim-script` route completes all six stationary poses and fallbacks:
+  `$01 -> $03/$05/$07 -> $01`, turns and decelerates to `$02`, then runs
+  `$02 -> $04/$06/$08 -> $02`; its visible `$08` diagnostic retains terrain/HUD alignment.
 
 ## Next implementation order
 
-1. Aimed ordinary poses and crouch-jump entry.
+1. Aimed running/jumping/falling/landing/turn/crouch poses and crouch-jump entry.
 2. Morph ball ground/fall/bounce, bombs, and spring ball.
 3. Aerial turns and the real wall-jump trigger/launch.
 4. Knockback and damage boost.

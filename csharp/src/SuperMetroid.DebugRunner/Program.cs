@@ -31,6 +31,11 @@ else if (options.PostureScript)
     Console.WriteLine(
         "Input script: crouch/stand right, turn left, crouch/stand left, then release.");
 }
+else if (options.AimScript)
+{
+    Console.WriteLine(
+        "Input script: straight/up-diagonal/down-diagonal aim right, turn left, then repeat.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7000 stays clear
@@ -281,6 +286,19 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 95 => (ushort)SnesButton.Up,
                 _ => (ushort)0,
             }
+        : options.AimScript
+            ? frameIndex switch
+            {
+                0 => (ushort)SnesButton.Start,
+                >= 2 and < 10 => (ushort)SnesButton.Up,
+                >= 20 and < 28 => (ushort)SnesButton.R,
+                >= 38 and < 46 => (ushort)SnesButton.L,
+                >= 60 and < 85 => (ushort)SnesButton.Left,
+                >= 100 and < 108 => (ushort)SnesButton.Up,
+                >= 118 and < 126 => (ushort)SnesButton.R,
+                >= 136 and < 144 => (ushort)SnesButton.L,
+                _ => (ushort)0,
+            }
         : frameIndex switch
         {
             0 => (ushort)SnesButton.Start,
@@ -382,7 +400,13 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.StandingTransitionRightPose or
                      SamusState.StandingTransitionLeftPose or
                      SamusState.CrouchingRightPose or
-                     SamusState.CrouchingLeftPose
+                     SamusState.CrouchingLeftPose or
+                     SamusState.StandingAimUpRightPose or
+                     SamusState.StandingAimUpLeftPose or
+                     SamusState.StandingAimDiagonalUpRightPose or
+                     SamusState.StandingAimDiagonalUpLeftPose or
+                     SamusState.StandingAimDiagonalDownRightPose or
+                     SamusState.StandingAimDiagonalDownLeftPose
                     ? "applied at the verified post-animation transition seam"
                     : "not applied because its movement/transition side effects are not translated"));
         }
@@ -575,7 +599,8 @@ readonly record struct DebugRunnerOptions(
     int RightFrameCount,
     bool ReversalScript,
     bool JumpScript,
-    bool PostureScript)
+    bool PostureScript,
+    bool AimScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -588,6 +613,7 @@ readonly record struct DebugRunnerOptions(
         bool reversalScript = false;
         bool jumpScript = false;
         bool postureScript = false;
+        bool aimScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -637,6 +663,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--aim-script":
+                    aimScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -673,7 +704,8 @@ readonly record struct DebugRunnerOptions(
             rightFrameCount,
             reversalScript,
             jumpScript,
-            postureScript);
+            postureScript,
+            aimScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

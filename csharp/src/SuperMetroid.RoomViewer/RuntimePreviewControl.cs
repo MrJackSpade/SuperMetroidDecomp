@@ -29,6 +29,8 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton holdJumpButton = new("Hold Jump");
     private readonly ToolStripButton holdUpButton = new("Hold Up");
     private readonly ToolStripButton holdDownButton = new("Hold Down");
+    private readonly ToolStripButton holdAimUpButton = new("Hold Aim Up");
+    private readonly ToolStripButton holdAimDownButton = new("Hold Aim Down");
     private readonly ToolStripButton livePpuLayersButton = new("Live PPU layers");
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 16 };
     private SuperMetroidRuntime runtime = null!;
@@ -81,6 +83,10 @@ internal sealed class RuntimePreviewControl : UserControl
         holdUpButton.ToolTipText = "Feeds Up; a new Up press starts the ROM crouch-to-standing transition.";
         holdDownButton.CheckOnClick = true;
         holdDownButton.ToolTipText = "Feeds Down; a new Down press starts the ROM standing-to-crouch transition.";
+        holdAimUpButton.CheckOnClick = true;
+        holdAimUpButton.ToolTipText = "Feeds canonical aim-up bit $0010 (default R shoulder), selecting diagonal-up poses.";
+        holdAimDownButton.CheckOnClick = true;
+        holdAimDownButton.ToolTipText = "Feeds canonical aim-down bit $0020 (default L shoulder), selecting diagonal-down poses.";
 
         // The SNES can electrically report both direction bits, but an ordinary D-pad
         // cannot be held left and right at once. Keep this convenience UI physically sane;
@@ -105,6 +111,16 @@ internal sealed class RuntimePreviewControl : UserControl
             if (holdDownButton.Checked)
                 holdUpButton.Checked = false;
         };
+        holdAimUpButton.CheckedChanged += (_, _) =>
+        {
+            if (holdAimUpButton.Checked)
+                holdAimDownButton.Checked = false;
+        };
+        holdAimDownButton.CheckedChanged += (_, _) =>
+        {
+            if (holdAimDownButton.Checked)
+                holdAimUpButton.Checked = false;
+        };
         livePpuLayersButton.CheckOnClick = true;
         livePpuLayersButton.ToolTipText =
             "Checked: show translated live BG1/BG2 VRAM. Unchecked: show the complete ROM-derived static terrain behind live HUD/OBJ.";
@@ -128,6 +144,8 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(holdJumpButton);
         toolStrip.Items.Add(holdUpButton);
         toolStrip.Items.Add(holdDownButton);
+        toolStrip.Items.Add(holdAimUpButton);
+        toolStrip.Items.Add(holdAimDownButton);
         toolStrip.Items.Add(livePpuLayersButton);
         toolStrip.Items.Add(new ToolStripSeparator());
         toolStrip.Items.Add(cameraLeftButton);
@@ -166,6 +184,8 @@ internal sealed class RuntimePreviewControl : UserControl
         holdJumpButton.Checked = false;
         holdUpButton.Checked = false;
         holdDownButton.Checked = false;
+        holdAimUpButton.Checked = false;
+        holdAimDownButton.Checked = false;
         motherBrainScenario = motherBrain;
         groundedRunScenario = groundedRun;
         haltedAtUntranslatedBoundary = null;
@@ -235,6 +255,10 @@ internal sealed class RuntimePreviewControl : UserControl
                 input |= (ushort)SnesButton.Up;
             else if (holdDownButton.Checked)
                 input |= (ushort)SnesButton.Down;
+            if (holdAimUpButton.Checked)
+                input |= (ushort)SnesButton.R;
+            else if (holdAimDownButton.Checked)
+                input |= (ushort)SnesButton.L;
             try
             {
                 runtime.StepFrame(input);
@@ -304,7 +328,13 @@ internal sealed class RuntimePreviewControl : UserControl
                   SamusState.CrouchingTransitionRightPose or
                   SamusState.CrouchingTransitionLeftPose or
                   SamusState.StandingTransitionRightPose or
-                  SamusState.StandingTransitionLeftPose
+                  SamusState.StandingTransitionLeftPose or
+                  SamusState.StandingAimUpRightPose or
+                  SamusState.StandingAimUpLeftPose or
+                  SamusState.StandingAimDiagonalUpRightPose or
+                  SamusState.StandingAimDiagonalUpLeftPose or
+                  SamusState.StandingAimDiagonalDownRightPose or
+                  SamusState.StandingAimDiagonalDownLeftPose
                 ? $"next ${transition.ProspectivePose:X2} translated"
                 : $"next ${transition.ProspectivePose:X2} blocked"
             : runtime.ProspectiveSamusFallbackPose is ushort fallback

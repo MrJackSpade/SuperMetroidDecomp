@@ -105,6 +105,10 @@ public static class SamusPostureMovement
 
     private static void ClearHorizontalMomentum(SamusHorizontalSpeedState speed)
     {
+        // Every posture route that reaches this full clear is modeling a native momentum
+        // cancellation seam, so the `$0B3C/$0B3E` control words must not outlive the
+        // numeric X-speed words below.
+        speed.CancelRunningMomentum();
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         speed.BaseSpeed = 0;

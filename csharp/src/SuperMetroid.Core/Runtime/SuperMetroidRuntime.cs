@@ -937,10 +937,11 @@ public sealed class SuperMetroidRuntime
                     case SamusState.RunningAimDiagonalUpRightPose:
                     case SamusState.RunningAimDiagonalDownRightPose:
                         LastGroundedSamusMovement = SamusGroundedMovement.StepRunningRight(
-                        _addressSpace,
-                        LevelData,
-                        Samus,
-                        NmiFrameCounter);
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            NmiFrameCounter,
+                            Controller1.Current);
                         break;
                     case SamusState.FacingLeftNormalPose:
                     case SamusState.StandingAimUpLeftPose:
@@ -957,10 +958,11 @@ public sealed class SuperMetroidRuntime
                     case SamusState.RunningAimDiagonalUpLeftPose:
                     case SamusState.RunningAimDiagonalDownLeftPose:
                         LastGroundedSamusMovement = SamusGroundedMovement.StepRunningLeft(
-                        _addressSpace,
-                        LevelData,
-                        Samus,
-                        NmiFrameCounter);
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            NmiFrameCounter,
+                            Controller1.Current);
                         break;
                     case SamusState.MoonwalkFacingLeftPose:
                     case SamusState.MoonwalkFacingRightPose:
@@ -1212,7 +1214,10 @@ public sealed class SuperMetroidRuntime
 
             // Normal gameplay advances animation during frame-handler beta, before the
             // pose-transition handler, draw handler, and next-NMI tile selection.
-            Samus.AnimateNoFx(_addressSpace);
+            // Animation sees the same held-input word as movement. Ordinary Dash uses B
+            // both to accumulate `$0B42.$0B44` and to intercept the running delay-list
+            // command at `$90:852C`; passing a reconstructed input later would skew art.
+            Samus.AnimateNoFx(_addressSpace, Controller1.Current);
 
             if (GroundedSamusMovementEnabled)
             {

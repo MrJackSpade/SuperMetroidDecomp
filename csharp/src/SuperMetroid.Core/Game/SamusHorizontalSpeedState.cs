@@ -20,17 +20,31 @@ public sealed class SamusHorizontalSpeedState
     public const ushort NormalSpeedTableAddress = 0x9f49;
     public const ushort NormalAirSpeedTableBaseAddress = NormalSpeedTableAddress + SpeedTableEntry.ByteCount;
 
-    /// <summary>Whole part of <c>samus_x_base_speed</c> at WRAM <c>$0B42</c>.</summary>
+    /// <summary>Whole part of <c>samus_x_base_speed</c> at WRAM <c>$0B46</c>.</summary>
     public ushort BaseSpeed { get; set; }
 
-    /// <summary>Fractional part of <c>samus_x_base_subspeed</c> at WRAM <c>$0B40</c>.</summary>
+    /// <summary>Fractional part of <c>samus_x_base_subspeed</c> at WRAM <c>$0B48</c>.</summary>
     public ushort BaseSubspeed { get; set; }
 
-    /// <summary>Whole part of the run-button/speed-booster addition at WRAM <c>$0B3E</c>.</summary>
+    /// <summary>Whole part of the run-button/speed-booster addition at WRAM <c>$0B42</c>.</summary>
     public ushort ExtraRunSpeed { get; set; }
 
-    /// <summary>Fractional part of the run-button/speed-booster addition at WRAM <c>$0B3C</c>.</summary>
+    /// <summary>Fractional part of the run-button/speed-booster addition at WRAM <c>$0B44</c>.</summary>
     public ushort ExtraRunSubspeed { get; set; }
+
+    /// <summary>
+    /// Native <c>samus_has_momentum_flag</c>. Once dash begins, releasing Dash or leaving
+    /// movement type one retains the accumulated extra component until a specific cancel
+    /// routine (standing, turning, collision, etc.) clears WRAM <c>$0B3C</c>.
+    /// </summary>
+    public bool HasRunningMomentum { get; set; }
+
+    /// <summary>
+    /// Native speed-booster timing word. The no-Speed-Booster dash path keeps it zero; it
+    /// is modeled now because `$90:973E` explicitly writes WRAM <c>$0B3E</c> when momentum
+    /// begins.
+    /// </summary>
+    public ushort SpeedBoostCounter { get; set; }
 
     /// <summary>Whole part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0B48</c>.</summary>
     public ushort TotalSpeed { get; private set; }
@@ -68,6 +82,69 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public void SelectNormalAirSpeedTable() =>
         ActiveSpeedTableBaseAddress = NormalAirSpeedTableBaseAddress;
+
+    /// <summary>
+    /// Ports the dry-air portion of <c>Handle_Samus_XExtraRunSpeed</c> at <c>$90:973E</c>.
+    /// The ordinary no-Speed-Booster route accelerates by <c>0.1000</c> and caps at
+    /// <c>2.0000</c>; its momentum flag deliberately survives Dash release and jumps.
+    /// </summary>
+    public void HandleExtraRunSpeed(
+        byte movementType,
+        ushort controllerInput,
+        bool speedBoosterEquipped)
+    {
+        const ushort dashButton = 0x8000; // Retail default B/Dash binding.
+        bool activelyDashing = movementType == 1 && (controllerInput & dashButton) != 0;
+        if (!activelyDashing)
+        {
+            // `$90:9808` clears the extra pair only before momentum has been established.
+            // A true flag carries the pair through airborne movement and a released button.
+            if (!HasRunningMomentum)
+            {
+                ExtraRunSpeed = 0;
+                ExtraRunSubspeed = 0;
+            }
+            return;
+        }
+
+        if (speedBoosterEquipped)
+        {
+            throw new NotSupportedException(
+                "Equipped Speed Booster requires the staged counter, palette, animation-delay, and echo branches at $90:852C/$90:973E.");
+        }
+
+        if (!HasRunningMomentum)
+        {
+            HasRunningMomentum = true;
+            SpeedBoostCounter = 0;
+        }
+
+        // The cartridge compares the two words separately with signed BMI branches. This
+        // intentionally is not a conventional unsigned 32-bit >= comparison. The retail
+        // no-booster fractional cap is zero, so a normal progression reaches 2.0000 and
+        // clamps there on the following call before another 0.1000 can be added.
+        if (unchecked((short)(ExtraRunSpeed - 2)) >= 0 &&
+            unchecked((short)ExtraRunSubspeed) >= 0)
+        {
+            ExtraRunSpeed = 2;
+            ExtraRunSubspeed = 0;
+            return;
+        }
+
+        uint accelerated = unchecked(Compose(ExtraRunSpeed, ExtraRunSubspeed) + 0x00001000u);
+        ExtraRunSpeed = unchecked((ushort)(accelerated >> 16));
+        ExtraRunSubspeed = unchecked((ushort)accelerated);
+    }
+
+    /// <summary>
+    /// Clears the locomotion-owned subset of <c>CancelSpeedBoost</c> at <c>$91:DE53</c>.
+    /// Palette restoration and echo-projectile departure remain separate rendering work.
+    /// </summary>
+    public void CancelRunningMomentum()
+    {
+        HasRunningMomentum = false;
+        SpeedBoostCounter = 0;
+    }
 
     /// <summary>
     /// Resolves the exact 12-byte entry selected by <c>Samus_DetermineSpeedTableEntryPtr_X</c>

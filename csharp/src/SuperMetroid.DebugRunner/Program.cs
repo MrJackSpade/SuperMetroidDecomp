@@ -32,6 +32,11 @@ else if (options.RanIntoWallScript)
     Console.WriteLine(
         "Input script: press into a ROM-authored solid wall, change wall-stop aim up/down, release to neutral, then jump away through $4B.");
 }
+else if (options.RunScript)
+{
+    Console.WriteLine(
+        "Input script: hold Right+Dash through the ordinary 2.0000 cap, carry that exact extra component into a spin jump, release Jump, then coast to landing.");
+}
 else if (options.JumpScript)
 {
     Console.WriteLine(
@@ -417,6 +422,9 @@ bool observedGrappleFire = false;
 bool observedGrappleFireCancelQueue = false;
 bool observedGrappleFireCancel = false;
 bool observedBlockedRanIntoWallProbe = false;
+bool observedDashMomentum = false;
+bool observedDashAerialCarry = false;
+uint maximumObservedExtraRunSpeed = 0;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
 // The dedicated ROM regression below fails unless both compact bodies and both native
 // ordinary-landing records were genuinely installed by the translated frame pipeline.
@@ -495,6 +503,26 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             // A fresh Jump edge then takes the literal wall table's `$89 -> $4B` route;
             // command `$FF` completes the normal `$4B -> $4D` jump handoff.
             >= 42 and < 52 => (ushort)SnesButton.A,
+            _ => (ushort)0,
+        }
+        : options.RunScript
+        ? frameIndex switch
+        {
+            0 => (ushort)SnesButton.Start,
+
+            // The standing frame first lets the unchanged bank-$91 transition table
+            // install `$09`. Every subsequent frame reaches `$90:973E` with movement type
+            // one and canonical Dash/B `$8000`; C# contributes no velocity constant here.
+            >= 2 and < 38 => (ushort)(SnesButton.Right | SnesButton.B),
+
+            // A fresh Jump edge selects retail spin pose `$19`. B remains held briefly,
+            // but type three must take `$90:9808` and retain rather than increment 2.0000.
+            >= 38 and < 52 => (ushort)(SnesButton.Right | SnesButton.B | SnesButton.A),
+
+            // Releasing B proves momentum, not held input, owns the airborne extra pair.
+            // Releasing A later exercises the existing variable-height cutoff and descent.
+            >= 52 and < 68 => (ushort)(SnesButton.Right | SnesButton.A),
+            >= 68 and < 88 => (ushort)SnesButton.Right,
             _ => (ushort)0,
         }
         : options.ReversalScript
@@ -805,6 +833,14 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     observedBombDeletion |= runtime.BombProjectiles.LastFrameResult.ProjectileDeleted;
     observedStraightBombOverlap |=
         runtime.BombProjectiles.LastFrameResult.PublishedBombJumpDirection == 2;
+    uint currentExtraRunSpeed =
+        ((uint)runtime.Samus.HorizontalSpeed.ExtraRunSpeed << 16) |
+        runtime.Samus.HorizontalSpeed.ExtraRunSubspeed;
+    maximumObservedExtraRunSpeed = Math.Max(maximumObservedExtraRunSpeed, currentExtraRunSpeed);
+    observedDashMomentum |= runtime.Samus.HorizontalSpeed.HasRunningMomentum;
+    observedDashAerialCarry |= runtime.Samus.HorizontalSpeed.HasRunningMomentum &&
+        currentExtraRunSpeed != 0 &&
+        runtime.Samus.ReadMovementType(bus) is 2 or 3 or 6;
 
     // Put a breakpoint here to inspect the complete runtime after any chosen frame. The
     // NoInlining attribute below keeps this method as a reliable stack frame in Debug and
@@ -867,6 +903,8 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             $"{runtime.Samus.Kinematics.XSubposition:X4}; " +
             $"base={runtime.Samus.HorizontalSpeed.BaseSpeed:X4}." +
             $"{runtime.Samus.HorizontalSpeed.BaseSubspeed:X4}, " +
+            $"extra={runtime.Samus.HorizontalSpeed.ExtraRunSpeed:X4}." +
+            $"{runtime.Samus.HorizontalSpeed.ExtraRunSubspeed:X4}, " +
             (horizontal is BlockMoveResult moved
                 ? $"horizontal=${moved.AcceptedDisplacement:X8}, {vertical}"
                 : $"grapple angle=${runtime.Samus.Grapple.Angle:X4}, " +
@@ -1279,6 +1317,32 @@ if (options.RanIntoWallScript)
         "Ran-into-wall ROM route validated neutral/up/down wall art, zero-input fallback, and the $89 -> $4B -> $4D jump exit.");
 }
 
+if (options.RunScript)
+{
+    // These are post-frame observations from the complete ROM-backed runtime. The checks
+    // jointly prove transition-table admission, exact `$90:973E` accumulation/cap, and the
+    // type-three `$90:9808` retention route; a host-authored displacement cannot satisfy
+    // the state assertions by merely moving Samus farther.
+    if (!observedSamusPoses.Contains(SamusState.MovingRightNormalPose))
+        throw new InvalidOperationException("Dash ROM script never entered running pose $09.");
+    if (!observedDashMomentum)
+        throw new InvalidOperationException("Dash ROM script never established momentum flag $0B3C.");
+    if (options.FrameCount >= 38 && maximumObservedExtraRunSpeed != 0x00020000u)
+    {
+        throw new InvalidOperationException(
+            $"Dash ROM script expected maximum extra speed 2.0000, observed ${maximumObservedExtraRunSpeed:X8}.");
+    }
+    if (options.FrameCount >= 40 &&
+        (!observedSamusPoses.Contains(SamusState.SpinJumpRightPose) || !observedDashAerialCarry))
+    {
+        throw new InvalidOperationException(
+            "Dash ROM script did not retain the accumulated extra component through spin pose $19.");
+    }
+    Console.WriteLine(
+        $"Dash ROM route validated momentum, ordinary cap ${maximumObservedExtraRunSpeed >> 16:X4}." +
+        $"{maximumObservedExtraRunSpeed & 0xffff:X4}, shared running animation timing, and spin-jump carry.");
+}
+
 if (options.GrappleScript)
 {
     if (!observedGrappleSwing)
@@ -1479,6 +1543,7 @@ readonly record struct DebugRunnerOptions(
     bool ReversalScript,
     bool MoonwalkScript,
     bool RanIntoWallScript,
+    bool RunScript,
     bool JumpScript,
     bool PostureScript,
     bool AimScript,
@@ -1508,6 +1573,7 @@ readonly record struct DebugRunnerOptions(
         bool reversalScript = false;
         bool moonwalkScript = false;
         bool ranIntoWallScript = false;
+        bool runScript = false;
         bool jumpScript = false;
         bool postureScript = false;
         bool aimScript = false;
@@ -1571,6 +1637,11 @@ readonly record struct DebugRunnerOptions(
 
                 case "--ran-into-wall-script":
                     ranIntoWallScript = true;
+                    groundedRun = true;
+                    break;
+
+                case "--run-script":
+                    runScript = true;
                     groundedRun = true;
                     break;
 
@@ -1696,6 +1767,7 @@ readonly record struct DebugRunnerOptions(
             reversalScript,
             moonwalkScript,
             ranIntoWallScript,
+            runScript,
             jumpScript,
             postureScript,
             aimScript,

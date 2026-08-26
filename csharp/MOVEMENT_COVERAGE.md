@@ -12,7 +12,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | Type | Native family | Current C# admission | Remaining native branches |
 |---:|---|---|---|
 | `$00` | Standing | `$01-$08`, landing `$A4-$A7/$E0-$E5` | Firing variants, forward pose, transitions from later systems |
-| `$01` | Running | `$09/$0A/$0D-$12`, dry air, no run button | Run button, speed booster, liquid/environment effects, gun-extended/fire variants |
+| `$01` | Running | `$09/$0A/$0D-$12`, dry air, ordinary Dash/B acceleration and 2.0000 extra-speed cap | Equipped Speed Booster staging/echoes, liquid/environment effects, gun-extended/fire variants |
 | `$02` | Normal jumping | `$4B-$4E/$15-$18/$51-$52/$55-$5A/$69-$6C`, including compact straight-down collision changes, dry air, variable height, ceiling/floor collision | Equipment/liquids, external displacement |
 | `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation, block-wall contact/launch | Solid-enemy wall contact, space/screw spin poses, liquids |
 | `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, dry ground, slopes, reversal, deceleration, walk-off, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
@@ -65,6 +65,27 @@ translated status is documented with the Morph Ball family below.
   speed, and direction. DebugRunner `--jump-script` exercises a short neutral jump, run,
   full spin jump, ceiling/floor collision, both landing styles, camera tracking, and rendering
   against the private retail ROM.
+
+## Verified ordinary-Dash slice
+
+- `$90:973E` receives canonical Dash/B `$8000` from the same latched controller word used
+  by pose matching. Movement type one establishes momentum word `$0B3C`, clears booster
+  counter `$0B3E`, and adds exactly 0.1000 to `$0B42.$0B44` per frame without host time or
+  floating-point conversion.
+- The no-Speed-Booster path preserves the cartridge's signed two-word cap comparisons and
+  clamps at 2.0000. Base speed still comes independently from type one's ROM record at
+  `$90:9F61`; `$90:E4E6` adds the two components before collision.
+- Releasing B or entering normal/spin jump/falling takes `$90:9808`. Set momentum retains
+  the extra component, so `$09 -> $19` carries it into aerial calculation. Standing,
+  landing, turns, walls, and block collision retain their exact cancellation/clear order.
+- `$90:852C-$8568` selects the shared running-delay list through live ROM pointer `$91:B5D1`.
+  Its command interception resets frame zero with that ROM-authored delay while B is held;
+  the viewer's **Hold Run** control therefore affects both motion and animation.
+- Equipped bit `$2000` remains an explicit boundary at its staged counter, palette, echo,
+  and alternate-animation branches; ordinary Dash does not masquerade as Speed Booster.
+- Synthetic verification locks 32 exact additions, cap/retention/cancel behavior, shared
+  animation selection, and command reset. Real-ROM `--run-script` observes
+  `$01 -> $09 -> $19 -> $A6 -> $09 -> $01`, reaches 2.0000, and carries it through type three.
 
 ## Verified crouch/stand slice
 
@@ -395,6 +416,9 @@ translated status is documented with the Morph Ball family below.
 - The real-ROM `--jump-script` route currently completes through `$01 -> $4B -> $4D -> $A4
   -> $01 -> $09 -> $19 -> $A6 -> $09 -> $01`, with ROM-authored graphics/tile transfers and
   moving camera/background/minimap state.
+- The real-ROM `--run-script` reaches `$09`'s ordinary-Dash cap at frame 35, retains 2.0000
+  across `$09 -> $19`, collides with Landing Site's real ceiling/floor, and clears the extra
+  component in landing's ordered pass. Assertions require both `$0B3C` and type-three carry.
 - The real-ROM `--posture-script` route completes through `$01 -> $35 -> $27 -> $3B -> $01
   -> $25 -> $02 -> $0A -> $02 -> $36 -> $28 -> $3C -> $02`, with the expected five-pixel
   center shifts and unchanged feet, terrain, camera, HUD, and ROM-authored graphics.
@@ -458,7 +482,7 @@ translated status is documented with the Morph Ball family below.
 ## Next implementation order
 
 1. Grapple breakable PLMs, spike damage, and liquid/solid-enemy wall-jump branches.
-2. Run button, speed booster/shinespark, crystal flash/drained, and remaining scripted movement.
+2. Equipped Speed Booster/shinespark, crystal flash/drained, and remaining scripted movement.
 3. Space-jump/Screw-Attack spin families, liquids, and solid-enemy collision routes.
 4. Enemy collision/damage producers so knockback and grapple begin from live actors instead of host seams.
 5. Return with bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.

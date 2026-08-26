@@ -27,6 +27,7 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton holdLeftButton = new("Hold Left");
     private readonly ToolStripButton holdRightButton = new("Hold Right");
     private readonly ToolStripButton holdJumpButton = new("Hold Jump");
+    private readonly ToolStripButton holdRunButton = new("Hold Run");
     private readonly ToolStripButton holdShootButton = new("Hold Shoot");
     private readonly ToolStripButton holdUpButton = new("Hold Up");
     private readonly ToolStripButton holdDownButton = new("Hold Down");
@@ -82,6 +83,9 @@ internal sealed class RuntimePreviewControl : UserControl
         holdJumpButton.CheckOnClick = true;
         holdJumpButton.ToolTipText =
             "Feeds canonical jump bit $0080. Tap it for a short jump or leave it held for the native variable-height arc.";
+        holdRunButton.CheckOnClick = true;
+        holdRunButton.ToolTipText =
+            "Feeds canonical Dash/B bit $8000. Hold it with a direction to accumulate the ROM's ordinary 0.1000-per-frame run component.";
         holdShootButton.CheckOnClick = true;
         holdShootButton.ToolTipText =
             "Feeds canonical Shoot/X bit $0040. Click on for a fresh bomb-placement edge, then off before placing another.";
@@ -174,6 +178,7 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(holdLeftButton);
         toolStrip.Items.Add(holdRightButton);
         toolStrip.Items.Add(holdJumpButton);
+        toolStrip.Items.Add(holdRunButton);
         toolStrip.Items.Add(holdShootButton);
         toolStrip.Items.Add(holdUpButton);
         toolStrip.Items.Add(holdDownButton);
@@ -217,6 +222,7 @@ internal sealed class RuntimePreviewControl : UserControl
         holdLeftButton.Checked = false;
         holdRightButton.Checked = false;
         holdJumpButton.Checked = false;
+        holdRunButton.Checked = false;
         holdShootButton.Checked = false;
         holdUpButton.Checked = false;
         holdDownButton.Checked = false;
@@ -300,6 +306,12 @@ internal sealed class RuntimePreviewControl : UserControl
                 input |= (ushort)SnesButton.Right;
             if (holdJumpButton.Checked)
                 input |= (ushort)SnesButton.A;
+            if (holdRunButton.Checked)
+            {
+                // B is not a host-side speed multiplier. It reaches the translated
+                // `$90:973E` state machine and the `$90:852C` animation-delay selector.
+                input |= (ushort)SnesButton.B;
+            }
             if (holdShootButton.Checked)
                 input |= (ushort)SnesButton.X;
             if (holdUpButton.Checked)

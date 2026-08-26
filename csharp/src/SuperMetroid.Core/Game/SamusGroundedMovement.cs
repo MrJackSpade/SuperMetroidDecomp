@@ -9,7 +9,8 @@ namespace SuperMetroid.Core.Game;
 /// <remarks>
 /// This is deliberately not a generic platformer controller. The entry points below
 /// correspond only to movement types zero, one, $0E, $10, and $15, with no liquid, enemy collision,
-/// run-button acceleration, conveyor displacement, knockback, or speed booster. Each
+/// conveyor displacement, knockback, or equipped-Speed-Booster staging. Ordinary dry-air
+/// Dash acceleration without the Speed Booster is translated. Each
 /// omitted system has observable native state and must be ported before its branch is
 /// enabled; none is silently replaced with desktop physics.
 /// </remarks>
@@ -109,13 +110,14 @@ public static class SamusGroundedMovement
 
     /// <summary>
     /// Ports <c>Samus_Movement_01_Running</c> at <c>$90:A3E5</c> for the
-    /// $09/$0D/$0F/$11 right-moving family in dry air without the run button.
+    /// $09/$0D/$0F/$11 right-moving family in dry air, including ordinary Dash.
     /// </summary>
     public static GroundedMovementResult StepRunningRight(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        ushort controllerInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -133,15 +135,13 @@ public static class SamusGroundedMovement
         // special inside-block reaction, so make that real assignment visible here.
         speed.SelectNormalAirSpeedTable();
 
-        // Samus_HandleExtraRunspeedX at $90:973E clears extra run speed when B is not held
-        // and the momentum flag is clear. The grounded debug slice never introduces that
-        // flag, equipment, or B input, so zero is the exact selected branch—not a tuning
-        // choice. Assert the invariant instead of erasing unexpected future state.
-        if (speed.ExtraRunSpeed != 0 || speed.ExtraRunSubspeed != 0)
-        {
-            throw new NotSupportedException(
-                "Running with extra run speed requires the unported run-button/momentum branch at $90:973E.");
-        }
+        // `$90:8E64` handles Dash before calculating base speed. With no equipped Speed
+        // Booster, B establishes momentum, adds exactly 0.1000 per frame, and caps the
+        // extra component at 2.0000. The flag retains that component after B is released.
+        speed.HandleExtraRunSpeed(
+            movementType: 1,
+            controllerInput,
+            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0);
 
         // $90:8E64 -> $90:9A7E advances the split 16.16 base speed, then $90:8EA9 and
         // $90:E4AD publish total speed and construct a rightward displacement. Pose $09's
@@ -181,7 +181,8 @@ public static class SamusGroundedMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        ushort controllerInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -195,14 +196,10 @@ public static class SamusGroundedMovement
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectNormalAirSpeedTable();
 
-        // The no-run-button slice must not silently discard speed-booster state. This is
-        // the same exact boundary enforced by StepRunningRight; direction does not alter
-        // Samus_HandleExtraRunspeedX's unsupported equipment/input branch.
-        if (speed.ExtraRunSpeed != 0 || speed.ExtraRunSubspeed != 0)
-        {
-            throw new NotSupportedException(
-                "Running with extra run speed requires the unported run-button/momentum branch at $90:973E.");
-        }
+        speed.HandleExtraRunSpeed(
+            movementType: 1,
+            controllerInput,
+            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0);
 
         // Modes zero and two use the pose's normal direction in $90:8EA9. Pose $0A stores
         // $04, selecting $90:E464's subtraction-based left displacement. Mode one belongs
@@ -269,9 +266,9 @@ public static class SamusGroundedMovement
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectNormalAirSpeedTable();
 
-        // $91:F8D3 consumed extra run speed when the turn pose was installed. Seeing any
-        // here means some unported system wrote it after that seam, so continuing would no
-        // longer describe the cartridge's no-run-button path.
+        // `$91:F8D3` consumed the complete extra component when the turn pose was installed.
+        // A nonzero pair here could therefore only have been introduced after that exact
+        // transition seam and is not a valid ordinary grounded-turn state.
         if (speed.ExtraRunSpeed != 0 || speed.ExtraRunSubspeed != 0)
         {
             throw new NotSupportedException(
@@ -311,8 +308,11 @@ public static class SamusGroundedMovement
             samus,
             nmiFrameCounter);
 
-        // $90:A685 cancels speed boosting and $90:A689-$90:A68C clear extra run speed on
-        // every turn frame. They should already be zero, but preserve the observable writes.
+        // `$90:A685` calls `Samus_CancelSpeedBoost` on every turn frame. This matters even
+        // without the Speed Booster item: `$91:F8D3` folded the numeric extra component but
+        // deliberately left `$0B3C` set until this movement handler. Then `$90:A689-$A68C`
+        // perform the separately observable zero writes to the two extra-speed words.
+        speed.CancelRunningMomentum();
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         return new GroundedMovementResult(horizontal, vertical);
@@ -516,6 +516,7 @@ public static class SamusGroundedMovement
     /// <summary>Exact speed-word subset cleared by <c>Samus_ClearXSpeedIfColl</c>.</summary>
     private static void ClearHorizontalMomentum(SamusHorizontalSpeedState speed)
     {
+        speed.CancelRunningMomentum();
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         speed.BaseSpeed = 0;

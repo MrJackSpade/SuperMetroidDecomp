@@ -11,8 +11,9 @@ namespace SuperMetroid.Core.Game;
 /// <remarks>
 /// This deliberately retains the cartridge's split 16.16 magnitudes and separate vertical
 /// direction word. It does not use floating point, host elapsed time, or a guessed gravity
-/// curve. Enemy collision, liquid physics, run-button acceleration, and external displacement
-/// remain explicit boundaries. Wall-jump BLOCK collision and dry equipment launch tables are
+/// curve. Enemy collision, liquid physics, equipped-Speed-Booster staging, and external
+/// displacement remain explicit boundaries. Ordinary Dash momentum is retained through
+/// dry-air jumps. Wall-jump BLOCK collision and dry equipment launch tables are
 /// translated; solid-enemy wall jumps are not silently treated as blocks.
 /// </remarks>
 public static class SamusAerialMovement
@@ -67,7 +68,10 @@ public static class SamusAerialMovement
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementType(bus) != 2)
             throw new InvalidOperationException($"Normal-jump movement requires type 2, not ${samus.ReadMovementType(bus):X2}.");
-        EnsureNoExtraRunSpeed(samus.HorizontalSpeed);
+        samus.HorizontalSpeed.HandleExtraRunSpeed(
+            movementType: 2,
+            controllerInput,
+            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0);
 
         // Poses `$4B/$4C/$55-$5A` are genuine movement-type-2 poses, but native treats them as
         // a transition: base X speed is forced to zero, only external X/Y displacement is
@@ -118,7 +122,10 @@ public static class SamusAerialMovement
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementType(bus) != 3)
             throw new InvalidOperationException($"Spin-jump movement requires type 3, not ${samus.ReadMovementType(bus):X2}.");
-        EnsureNoExtraRunSpeed(samus.HorizontalSpeed);
+        samus.HorizontalSpeed.HandleExtraRunSpeed(
+            movementType: 3,
+            controllerInput,
+            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -135,7 +142,9 @@ public static class SamusAerialMovement
             forwardHeld;
         if (!allowHorizontal)
         {
-            ClearHorizontalMomentum(speed);
+            // `$90:9078-$90:9089` stops only base motion when no forward input remains.
+            // Dash momentum is intentionally retained for a later direction press/landing.
+            ClearBaseHorizontalMotion(speed);
             calculation = new AerialBaseSpeedResult(0, ReachedMaximum: false);
         }
         else if (speed.AccelerationMode == 0)
@@ -203,7 +212,10 @@ public static class SamusAerialMovement
         if (samus.ReadMovementType(bus) != 0x14 || !SamusState.IsWallJumpPose(samus.Pose))
             throw new InvalidOperationException($"Wall-jump movement requires type $14 pose, not ${samus.Pose:X2}.");
 
-        EnsureNoExtraRunSpeed(samus.HorizontalSpeed);
+        samus.HorizontalSpeed.HandleExtraRunSpeed(
+            movementType: 0x14,
+            controllerInput,
+            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
         BlockMoveResult horizontal = MoveNormalAerialX(
             bus,
@@ -234,7 +246,10 @@ public static class SamusAerialMovement
                 $"Damage-boost movement requires type $19 pose, not ${samus.Pose:X2}.");
         }
 
-        EnsureNoExtraRunSpeed(samus.HorizontalSpeed);
+        samus.HorizontalSpeed.HandleExtraRunSpeed(
+            movementType: 0x19,
+            controllerInput,
+            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
         BlockMoveResult horizontal = MoveNormalAerialX(
             bus,
@@ -304,6 +319,7 @@ public static class SamusAerialMovement
         }
 
         // `$90:A79E/$90:A7BB` cancel speed boost and explicitly clear both extra words.
+        speed.CancelRunningMomentum();
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         return result;
@@ -320,7 +336,10 @@ public static class SamusAerialMovement
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementType(bus) != 6)
             throw new InvalidOperationException($"Falling movement requires type 6, not ${samus.ReadMovementType(bus):X2}.");
-        EnsureNoExtraRunSpeed(samus.HorizontalSpeed);
+        samus.HorizontalSpeed.HandleExtraRunSpeed(
+            movementType: 6,
+            controllerInput,
+            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0);
 
         BlockMoveResult horizontal = MoveNormalAerialX(
             bus,
@@ -508,17 +527,16 @@ public static class SamusAerialMovement
             : speed.CalculateRightDisplacement(baseSpeed);
     }
 
-    private static void EnsureNoExtraRunSpeed(SamusHorizontalSpeedState speed)
+    private static void ClearBaseHorizontalMotion(SamusHorizontalSpeedState speed)
     {
-        if (speed.ExtraRunSpeed != 0 || speed.ExtraRunSubspeed != 0)
-        {
-            throw new NotSupportedException(
-                "Aerial extra-run-speed handling requires the unported run button, speed booster, and momentum flags.");
-        }
+        speed.BaseSpeed = 0;
+        speed.BaseSubspeed = 0;
+        speed.AccelerationMode = 0;
     }
 
     private static void ClearHorizontalMomentum(SamusHorizontalSpeedState speed)
     {
+        speed.CancelRunningMomentum();
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         speed.BaseSpeed = 0;

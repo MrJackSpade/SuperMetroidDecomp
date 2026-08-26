@@ -835,6 +835,64 @@ static void VerifySamusHorizontalSpeed()
     AssertEqual(0u, speed.BaseFixed, "running deceleration underflow clears speed");
     AssertEqual((ushort)0, speed.AccelerationMode, "running deceleration restores acceleration mode");
 
+    // `$90:973E` adds the literal no-booster 0.1000 pair once per running+B frame. The
+    // native cap test runs before addition, so call 32 reaches exactly 2.0000 and call 33
+    // performs the visible clamp write without changing the pair.
+    for (int frame = 0; frame < 32; frame++)
+    {
+        speed.HandleExtraRunSpeed(
+            movementType: 1,
+            controllerInput: (ushort)SnesButton.B,
+            speedBoosterEquipped: false);
+    }
+    AssertTrue(speed.HasRunningMomentum, "ordinary Dash establishes native momentum flag");
+    AssertEqual((ushort)0, speed.SpeedBoostCounter, "ordinary Dash leaves booster stage zero");
+    AssertEqual((ushort)2, speed.ExtraRunSpeed, "ordinary Dash whole-speed cap");
+    AssertEqual((ushort)0, speed.ExtraRunSubspeed, "ordinary Dash fractional-speed cap");
+    speed.HandleExtraRunSpeed(1, (ushort)SnesButton.B, speedBoosterEquipped: false);
+    AssertEqual((ushort)2, speed.ExtraRunSpeed, "ordinary Dash remains clamped on next call");
+
+    // B release and an airborne movement type both take `$90:9808`; a set momentum flag
+    // bypasses the numeric clear. Only the separately invoked cancel routine clears the
+    // flag/counter, after which another non-running call clears the retained pair.
+    speed.HandleExtraRunSpeed(1, controllerInput: 0, speedBoosterEquipped: false);
+    speed.HandleExtraRunSpeed(3, controllerInput: 0, speedBoosterEquipped: false);
+    AssertEqual((ushort)2, speed.ExtraRunSpeed, "Dash release and spin jump retain extra speed");
+    speed.CancelRunningMomentum();
+    AssertTrue(!speed.HasRunningMomentum, "CancelSpeedBoost clears ordinary momentum flag");
+    speed.HandleExtraRunSpeed(3, controllerInput: 0, speedBoosterEquipped: false);
+    AssertEqual((ushort)0, speed.ExtraRunSpeed, "post-cancel airborne handler clears extra speed");
+
+    // The animation side reads its ordinary-Dash cadence through the live pointer at
+    // `$91:B5D1`. The pose-specific stream deliberately uses different delays so these
+    // checks would fail if the implementation merely sped up a host timer by coincidence.
+    bus.WriteBytes(0x91b671, [0x08, 0x01, 0xff, 0x02, 0x00, 0x00, 0x15, 0x00]); // pose $09
+    WriteTestWord(bus, 0x91b022, 0xc000); // pose $09's normal delay stream
+    WriteTestWord(bus, 0x91b5d1, 0xc100); // shared ordinary-Dash delay stream pointer
+    bus.WriteBytes(0x91c000, [0x09, 0x09, 0xff]);
+    bus.WriteBytes(0x91c100, [0x02, 0x03, 0xff]);
+    var dashAnimation = new SamusState { Pose = SamusState.MovingRightNormalPose };
+    dashAnimation.InitializeAnimation(bus);
+    dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
+        movementType: 1,
+        controllerInput: (ushort)SnesButton.B,
+        speedBoosterEquipped: false);
+    for (int tick = 0; tick < 9; tick++)
+        dashAnimation.AnimateNoFx(bus, (ushort)SnesButton.B);
+    AssertEqual((ushort)1, dashAnimation.AnimationFrame, "Dash advances into running frame one");
+    AssertEqual((ushort)3, dashAnimation.AnimationFrameTimer, "Dash selects shared frame-one delay");
+    for (int tick = 0; tick < 3; tick++)
+        dashAnimation.AnimateNoFx(bus, (ushort)SnesButton.B);
+    AssertEqual((ushort)0, dashAnimation.AnimationFrame, "Dash command interception restarts frame zero");
+    AssertEqual((ushort)2, dashAnimation.AnimationFrameTimer, "Dash restart uses shared frame-zero delay");
+
+    AssertThrows<NotSupportedException>(
+        () => new SamusHorizontalSpeedState().HandleExtraRunSpeed(
+            movementType: 1,
+            controllerInput: (ushort)SnesButton.B,
+            speedBoosterEquipped: true),
+        "equipped Speed Booster cannot enter unported staged branch");
+
     // $90:E4E6 caps a nonsensically large divisor at four. Extra run speed is added before
     // that shift; 2.0 + 2.0 therefore becomes 0.4000 when divisor $1234 is stored.
     speed.ExtraRunSpeed = 2;
@@ -1191,10 +1249,19 @@ static void VerifySamusAerialTurnsAndWallJump()
     AssertEqual(beforeTriggerY, eligible.YPosition, "wall trigger frame preserves Y");
     AssertEqual((ushort)7, triggerFrame.WallDistance, "wall trigger reports clipped seven-pixel distance");
 
+    // Bank $91:F2D3 clears only base speed; bank $90:9949 installs Y launch speed and
+    // likewise leaves the Dash pair/flag alone. Seed a visible fractional value here so
+    // an over-broad wall-jump cleanup cannot masquerade as a harmless zero-state write.
+    eligible.HorizontalSpeed.ExtraRunSpeed = 1;
+    eligible.HorizontalSpeed.ExtraRunSubspeed = 0x7000;
+    eligible.HorizontalSpeed.HasRunningMomentum = true;
     eligible.ApplyWallJumpTrigger(bus);
     AssertEqual((byte)0x83, eligible.Pose, "right-facing spin selects right wall-jump pose");
     AssertEqual((ushort)4, eligible.Kinematics.YSpeed, "wall jump reads whole launch speed");
     AssertEqual((ushort)0xa000, eligible.Kinematics.YSubspeed, "wall jump reads fractional launch speed");
+    AssertEqual((ushort)1, eligible.HorizontalSpeed.ExtraRunSpeed, "wall jump preserves Dash whole speed");
+    AssertEqual((ushort)0x7000, eligible.HorizontalSpeed.ExtraRunSubspeed, "wall jump preserves Dash fraction");
+    AssertTrue(eligible.HorizontalSpeed.HasRunningMomentum, "wall jump preserves Dash momentum flag");
     for (int tick = 0; tick < 8; tick++)
         eligible.AnimateNoFx(bus);
     AssertEqual((byte)0xfb, eligible.LastAnimationDelayCommand!.Value, "wall animation reaches FB");
@@ -2278,6 +2345,13 @@ static void VerifySamusGrappleSwingAndRelease()
         "fresh Jump plus wall probe queues grapple wall jump");
     AssertEqual((ushort)29, wallGrabSamus.Grapple.WallJumpTimer,
         "first eligible wall-jump check decrements timer to twenty-nine");
+
+    // `$9B:C9CE` mirrors the ordinary route's selective cleanup: it zeros base speed but
+    // preserves the Dash pair and `$0B3C`. Seed the state after the queueing call so this
+    // assertion isolates the launch function itself from earlier grapple-swing behavior.
+    wallGrabSamus.HorizontalSpeed.ExtraRunSpeed = 1;
+    wallGrabSamus.HorizontalSpeed.ExtraRunSubspeed = 0x7000;
+    wallGrabSamus.HorizontalSpeed.HasRunningMomentum = true;
     GrappleMovementResult wallJumpStarted = SamusGrappleMovement.Step(
         bus, specialLevel, wallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
     AssertTrue(wallJumpStarted.WallJumpStarted,
@@ -2292,6 +2366,12 @@ static void VerifySamusGrappleSwingAndRelease()
         "grapple wall jump reads dry fractional speed from ROM");
     AssertEqual((ushort)1, wallGrabSamus.Kinematics.YDirection,
         "grapple wall jump launches upward");
+    AssertEqual((ushort)1, wallGrabSamus.HorizontalSpeed.ExtraRunSpeed,
+        "grapple wall jump preserves Dash whole speed");
+    AssertEqual((ushort)0x7000, wallGrabSamus.HorizontalSpeed.ExtraRunSubspeed,
+        "grapple wall jump preserves Dash fraction");
+    AssertTrue(wallGrabSamus.HorizontalSpeed.HasRunningMomentum,
+        "grapple wall jump preserves Dash momentum flag");
     AssertEqual((ushort)0, wallGrabSamus.Grapple.RopeLength,
         "grapple wall jump removes rope state");
 

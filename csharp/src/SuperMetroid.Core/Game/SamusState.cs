@@ -1453,8 +1453,10 @@ public sealed class SamusState
         RefreshCollisionRadii(bus);
 
         // Pose $09's new-pose-unless-buttons byte is $01. Once Samus_Pose_Func2 selects
-        // momentum index two, $91:F404 installs that pose and $91:FB08 starts its frame-zero
-        // delay stream. The following standing movement pass clears any base-speed residue.
+        // momentum index two, `$91:ECD0` cancels `$0B3C/$0B3E` but deliberately leaves the
+        // numeric extra pair intact. The following standing movement pass consumes that
+        // final no-base-speed displacement before clearing every X-motion word.
+        HorizontalSpeed.CancelRunningMomentum();
         InitializeAnimation(bus, initialFrame: 0);
     }
 
@@ -1467,12 +1469,18 @@ public sealed class SamusState
             "Standing-left to running-left");
 
     /// <summary>Applies the no-button grounded $0A -> $02 fallback.</summary>
-    public void ApplyRunningLeftToStandingLeft(ISnesAddressSpace bus) =>
+    public void ApplyRunningLeftToStandingLeft(ISnesAddressSpace bus)
+    {
         ApplySimpleGroundedPoseChange(
             bus,
             MovingLeftNormalPose,
             FacingLeftNormalPose,
             "Running-left to standing-left");
+
+        // This is the mirrored `$91:ECD0` momentum-index-two route used by `$09 -> $01`.
+        // ExtraRunSpeed/Subspeed remain available to standing's ordered movement/clear pass.
+        HorizontalSpeed.CancelRunningMomentum();
+    }
 
     /// <summary>
     /// Applies the shared standing/landing transition-table route from $A4/$A6 to running
@@ -1707,7 +1715,14 @@ public sealed class SamusState
         byte oldDirection = ReadPoseXDirection(bus);
         byte newDirection = ReadPoseXDirection(bus, targetPose);
         if (oldDirection != newDirection)
+        {
             FoldExtraRunSpeedIntoBaseAndStartTurn();
+
+            // Unlike bank-$91's grounded/aerial turn initializers, `$91:F624` calls
+            // `Samus_CancelSpeedBoost` immediately after folding the extra pair. Waiting
+            // for another movement frame would leave `$0B3C` observably stale.
+            HorizontalSpeed.CancelRunningMomentum();
+        }
 
         Pose = targetPose;
         RefreshCollisionRadii(bus);
@@ -1730,13 +1745,13 @@ public sealed class SamusState
         Pose = ReadPoseXDirection(bus) == 4 ? WallJumpLeftPose : WallJumpRightPose;
         RefreshCollisionRadii(bus);
 
-        // `$91:F2D3` kills prior collision/momentum state before `$90:9949` installs the
-        // launch. Extra run speed is also cleared by the normal wall-jump initializer path.
+        // `$91:F2D3` clears acceleration and the ordinary base-speed pair before
+        // `$90:9949` installs the launch. It deliberately does *not* touch the extra-run
+        // pair at `$0B42/$0B44` or the running-momentum flag at `$0B3C`: a wall jump made
+        // out of a Dash therefore carries that speed into movement type $14.
         HorizontalSpeed.AccelerationMode = 0;
         HorizontalSpeed.BaseSpeed = 0;
         HorizontalSpeed.BaseSubspeed = 0;
-        HorizontalSpeed.ExtraRunSpeed = 0;
-        HorizontalSpeed.ExtraRunSubspeed = 0;
 
         bool hiJumpEquipped = (EquippedItems & 0x0100) != 0;
         Kinematics.YSpeed = ReadWord(bus, hiJumpEquipped ? 0x909edd : 0x909ed1);
@@ -1770,13 +1785,12 @@ public sealed class SamusState
         Pose = ReadPoseXDirection(bus) == 8 ? WallJumpLeftPose : WallJumpRightPose;
         RefreshCollisionRadii(bus);
 
-        // Prospective command six and the surrounding `$C9CE` cleanup erase both ordinary
-        // and run momentum before `$90:9949` installs the vertical wall-jump arc.
+        // `$9B:C9CE` clears the ordinary base-speed pair, then the normal pose-transition
+        // machinery reaches `$90:9949`. Like the non-grapple route, it leaves both the
+        // extra-run pair and `$0B3C` intact, so Dash momentum survives this wall launch.
         HorizontalSpeed.AccelerationMode = 0;
         HorizontalSpeed.BaseSpeed = 0;
         HorizontalSpeed.BaseSubspeed = 0;
-        HorizontalSpeed.ExtraRunSpeed = 0;
-        HorizontalSpeed.ExtraRunSubspeed = 0;
 
         bool hiJumpEquipped = (EquippedItems & 0x0100) != 0;
         Kinematics.YSpeed = ReadWord(bus, hiJumpEquipped ? 0x909edd : 0x909ed1);
@@ -2284,6 +2298,9 @@ public sealed class SamusState
                 HorizontalSpeed.ExtraRunSubspeed);
             HorizontalSpeed.BaseSpeed = unchecked((ushort)(combined >> 16));
             HorizontalSpeed.BaseSubspeed = unchecked((ushort)combined);
+            // `$91:FA4C` invokes `Samus_CancelSpeedBoost` between the 16.16 fold and the
+            // explicit extra-word clear. Preserve that ordering even for ordinary Dash.
+            HorizontalSpeed.CancelRunningMomentum();
             HorizontalSpeed.ExtraRunSpeed = 0;
             HorizontalSpeed.ExtraRunSubspeed = 0;
             HorizontalSpeed.AccelerationMode = 1;
@@ -2801,7 +2818,7 @@ public sealed class SamusState
     /// intentionally outside this method. Landing Site uses scrolling-sky FX $20, whose
     /// dispatch slot calls the same no-FX animation-buffer routine used here.
     /// </remarks>
-    public void AnimateNoFx(ISnesAddressSpace bus)
+    public void AnimateNoFx(ISnesAddressSpace bus, ushort controllerInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         EnsureAnimationInitialized(bus);
@@ -2828,16 +2845,46 @@ public sealed class SamusState
             return;
 
         AnimationFrame = unchecked((ushort)(AnimationFrame + 1));
-        HandleAnimationDelay(bus);
+        HandleAnimationDelay(bus, controllerInput);
     }
 
-    private void HandleAnimationDelay(ISnesAddressSpace bus)
+    private void HandleAnimationDelay(ISnesAddressSpace bus, ushort controllerInput)
     {
         byte delayOrCommand = ReadAnimationByte(bus, AnimationFrame);
         if ((delayOrCommand & 0x80) == 0)
         {
             LastAnimationDelayCommand = null;
-            AnimationFrameTimer = unchecked((ushort)(AnimationFrameBuffer + delayOrCommand));
+
+            // `$90:8554-$8568` replaces an ordinary running pose's per-pose delay list
+            // with the pointer stored at `$91:B5D1` whenever momentum flag `$0B3C` is set.
+            // Notice that this branch does NOT test the Dash button: releasing B retains
+            // the default running cadence until a transition/collision cancels momentum.
+            byte runningOrPoseDelay = HorizontalSpeed.HasRunningMomentum && ReadMovementType(bus) == 1
+                ? ReadDefaultRunningAnimationByte(bus, AnimationFrame)
+                : delayOrCommand;
+            AnimationFrameTimer = unchecked((ushort)(AnimationFrameBuffer + runningOrPoseDelay));
+            return;
+        }
+
+        bool activeDashAnimation = HorizontalSpeed.HasRunningMomentum &&
+            ReadMovementType(bus) == 1 &&
+            (controllerInput & (ushort)SnesButton.B) != 0;
+        if (activeDashAnimation)
+        {
+            // `$90:852C-$8543` intercepts a command byte before the generic command table.
+            // The no-Speed-Booster route restarts frame zero and uses byte zero from the
+            // default running-delay stream. Returning here is important: native returns
+            // command number zero, whose handler does no further timer selection.
+            if ((EquippedItems & 0x2000) != 0)
+            {
+                throw new NotSupportedException(
+                    "Equipped Speed Booster animation requires the staged $90:852C delay-sequence and counter branch.");
+            }
+
+            AnimationFrame = 0;
+            LastAnimationDelayCommand = delayOrCommand;
+            AnimationFrameTimer = unchecked((ushort)(
+                AnimationFrameBuffer + ReadDefaultRunningAnimationByte(bus, byteIndex: 0)));
             return;
         }
 
@@ -2950,6 +2997,17 @@ public sealed class SamusState
 
     private byte ReadAnimationByte(ISnesAddressSpace bus, ushort byteIndex) =>
         bus.ReadByte(AddWithinBank(AnimationDelayListAddress, byteIndex));
+
+    /// <summary>
+    /// Reads the shared ordinary-Dash delay list selected indirectly through `$91:B5D1`.
+    /// Keeping the pointer lookup live means the ROM, not a duplicated C# byte array,
+    /// remains authoritative for both cadence and command position.
+    /// </summary>
+    private static byte ReadDefaultRunningAnimationByte(ISnesAddressSpace bus, ushort byteIndex)
+    {
+        ushort listPointer = ReadWord(bus, 0x91b5d1);
+        return bus.ReadByte(AddWithinBank(0x910000 | listPointer, byteIndex));
+    }
 
     /// <summary>
     /// Ports the standing and ordinary-running portions of <c>Samus_Draw</c> at

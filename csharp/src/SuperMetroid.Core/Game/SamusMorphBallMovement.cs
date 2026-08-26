@@ -412,6 +412,9 @@ public static class SamusMorphBallMovement
 
     private static void ClearHorizontalMomentum(SamusHorizontalSpeedState speed)
     {
+        // Block collision and grounded stop paths call the native full momentum cleanup;
+        // keep its flag/counter writes adjacent to the five visible X-motion words.
+        speed.CancelRunningMomentum();
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         speed.BaseSpeed = 0;

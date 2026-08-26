@@ -635,6 +635,7 @@ var observedPhaseThreeAttacks = new HashSet<MotherBrainPhase3AttackKind>();
 bool observedPhaseThreeForwardMovement = false;
 var observedBabyPhases = new HashSet<BabyMetroidCutscenePhase>();
 var observedBabyTileTransfers = new List<MotherBrainSpriteTileTransferRequest>();
+var observedMotherBrainCorpseTileTransfers = new List<MotherBrainSpriteTileTransferRequest>();
 var observedAttackTileTransfers = new List<MotherBrainSpriteTileTransferRequest>();
 var observedBabyDeathPalettes = new List<BabyMetroidPaletteTransferRequest>();
 var observedPhaseThreeBackgroundPalettes = new List<MotherBrainBackgroundPaletteTransferRequest>();
@@ -1183,25 +1184,32 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             runtime.Samus,
             enemyFrameCounter: unchecked((ushort)frameIndex),
             mainEnemyExecutionCounter: unchecked((ushort)frameIndex),
-            randomNumberSeed: motherBrainRandom);
+            randomNumberSeed: motherBrainRandom,
+            // Death explosions call the global generator once per simultaneous projectile.
+            // Supplying the live owner keeps every later actor's random stream synchronized.
+            nextRandomNumber: runtime.System.NextRandom);
         rainbowSamusMovement = actorResult.Movement;
         observedRainbowPhases.Add(actorResult.PhaseBefore);
         observedRainbowPhases.Add(actorResult.PhaseAfter);
 
-        if (actorResult.SpriteTileTransfer is { } babyTiles)
+        if (actorResult.SpriteTileTransfer is { } actorTiles)
         {
-            // Feed the actor's literal `$A9:8FE5` transfer entry into the ordinary WRAM
-            // queue before this frame's NMI. The queue then copies directly from the supplied
-            // cartridge bus into the retail `$7C00-$7FFF` OBJ character destinations.
+            // Feed either actor-owned transfer list into the ordinary WRAM queue before NMI.
+            // `$8FE5` loads the Baby; `$9003` later replaces six pages with corpse graphics.
             runtime.VramWrites.Enqueue(
-                babyTiles.Size,
-                checked((int)babyTiles.SourceAddress),
-                babyTiles.VramDestination);
-            observedBabyTileTransfers.Add(babyTiles);
+                actorTiles.Size,
+                checked((int)actorTiles.SourceAddress),
+                actorTiles.VramDestination);
+            bool corpseTiles = actorResult.PhaseBefore ==
+                MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadCorpseTiles;
+            if (corpseTiles)
+                observedMotherBrainCorpseTileTransfers.Add(actorTiles);
+            else
+                observedBabyTileTransfers.Add(actorTiles);
             Console.WriteLine(
-                $"frame {frameIndex + 1,4}: Baby tile transfer {babyTiles.EntryIndex}: " +
-                $"${babyTiles.SourceAddress:X6} -> VRAM ${babyTiles.VramDestination:X4}, " +
-                $"${babyTiles.Size:X4} bytes.");
+                $"frame {frameIndex + 1,4}: {(corpseTiles ? "Mother Brain corpse" : "Baby")} " +
+                $"tile transfer {actorTiles.EntryIndex}: ${actorTiles.SourceAddress:X6} -> " +
+                $"VRAM ${actorTiles.VramDestination:X4}, ${actorTiles.Size:X4} bytes.");
         }
         observedBabySpawnRequest |= actorResult.BabySpawnRequested;
         observedFinalBeamSound |= actorResult.FinalBeamSoundQueued;
@@ -1213,6 +1221,15 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 $"RNG=${motherBrainRandom:X4}, head=${rainbowAttack.HeadInstructionList:X4}, " +
                 $"walk={rainbowAttack.Phase3WalkingPhase}/" +
                 $"${rainbowAttack.Phase3WalkCounter:X4}.");
+        }
+        foreach (MotherBrainDeathExplosionRequest deathExplosion in actorResult.DeathExplosions)
+        {
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: Mother Brain death explosion pattern " +
+                $"{deathExplosion.PatternIndex} at ({deathExplosion.XPosition}," +
+                $"{deathExplosion.YPosition}), offset ({deathExplosion.XOffset}," +
+                $"{deathExplosion.YOffset}), parameter {deathExplosion.ProjectileParameter}, " +
+                $"SFX ${deathExplosion.SoundEffect:X2}.");
         }
 
         if (actorResult.BabySpawnRequested)

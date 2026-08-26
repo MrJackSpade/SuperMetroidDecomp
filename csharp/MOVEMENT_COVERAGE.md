@@ -490,10 +490,14 @@ translated status is documented with the Morph Ball family below.
   normal/recoil neck functions, RNG-gated bomb/four-ring selection, and the `$40` attack
   cooldown. `$B562-$B5C4` applies the exact missile/generic/Hyper Beam walk-counter reactions;
   Hyper Beam underflow installs `$9BE7`, disables attacks, runs the `$0B` recoil and `$10`
-  recovery timers, and restores `$9DBB`. The earlier attack-selection trigger, live Hyper
-  Beam shot/damage producer, phase-three bomb projectile, death sequence after `$AE79`, Baby
-  instruction-list/dust-projectile rendering, and palette/HDMA effects beyond direct CGRAM
-  writes remain explicit seams.
+  recovery timers, and restores `$9DBB`. `$AEE1-$B1D4` now translates the phase-three death
+  retreat, 129-call smoky idle, mid-program stumble carry, effect shutdown, mixed/smoky
+  explosion batches with one global RNG call per projectile, sixteen-step black fade plus
+  terminator, BG2 clear request, decapitation, 8.8 accelerating brain fall/clamp, six `$1C0`
+  corpse tile DMAs, eight-step grey fade plus terminator, and 257-call corpse display delay.
+  The earlier attack-selection trigger, live Hyper Beam shot/damage producer, phase-three
+  bomb projectile, shared corpse-rotting engine at `$B1D5`, Baby instruction-list/dust-
+  projectile rendering, and palette/HDMA effects beyond direct CGRAM writes remain seams.
 - `MotherBrainBodyAnimationState` translates the ordinary enemy-instruction stage used by
   Mother Brain's painful fast/medium/slow/really-slow walks in both directions plus
   `$99C6/$99E2/$99F2/$9A26` stand/lean/crouch lists.
@@ -772,8 +776,8 @@ translated status is documented with the Morph Ball family below.
 
 ## Next implementation order
 
-1. Wire live Hyper Beam projectiles into `$B562` recoil/health, translate Mother Brain's
-   phase-three death movement beginning at `$AE79`, then implement the phase-three bomb
+1. Wire live Hyper Beam projectiles into `$B562` recoil/health, translate the shared corpse-
+   rotting engine reached at Mother Brain `$A9:B1D5`, then implement the phase-three bomb
    projectile and earlier attack-selection trigger that enters `$B8EB`.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.

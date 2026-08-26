@@ -28,6 +28,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public const ushort HeadStretchingPhase2InstructionList = 0x9b7f;
     public const ushort HeadStretchingPhase3InstructionList = 0x9bb3;
     public const ushort HeadHyperBeamRecoilInstructionList = 0x9be7;
+    public const ushort HeadDecapitatedInstructionList = 0x9c29;
+    public const ushort HeadCorpseInstructionList = 0x9d25;
     public const ushort HeadAttackingBabyMetroidInstructionList = 0x9db1;
     public const ushort HeadAttackingFourOnionRingsPhase3InstructionList = 0x9dbb;
     public const ushort HeadAttackingBombPhase3InstructionList = 0x9f00;
@@ -67,6 +69,29 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     private static ReadOnlySpan<ushort> BabyMetroidTileDestinations =>
         [0x7c00, 0x7d00, 0x7e00, 0x7f00];
+
+    // `$A9:9003-$902E` replaces the four attack pages with six pieces of Mother Brain's
+    // corpse. Although each source advances by `$200`, the transfer size is only `$1C0`:
+    // the final two tile rows in every source page are deliberately skipped.
+    private static ReadOnlySpan<uint> CorpseTileSources =>
+        [0xb7ce00, 0xb7d000, 0xb7d200, 0xb7d400, 0xb7d600, 0xb7d800];
+
+    private static ReadOnlySpan<ushort> CorpseTileDestinations =>
+        [0x7a00, 0x7b00, 0x7c00, 0x7d00, 0x7e00, 0x7f00];
+
+    // Seven records of four interleaved (X,Y) pairs at `$A9:B099-$B108`. The native
+    // explosion index counts backward and wraps to six, so a zero-initialized sequence emits
+    // record six first. Signed offsets are added to the body enemy's current world position.
+    private static readonly (short X, short Y)[] DeathExplosionOffsets =
+    [
+        (0x0024, -0x0025), (-0x0013, -0x000f), (-0x0004, 0x000d), (0x001d, 0x0019),
+        (0x0011, -0x0037), (0x001e, -0x0016), (-0x0003, -0x0005), (0x0000, 0x0028),
+        (0x0034, -0x0022), (-0x0003, -0x000f), (0x000c, 0x0013), (0x0019, 0x002c),
+        (0x0004, -0x002b), (-0x000c, -0x0016), (0x000d, -0x0002), (-0x0008, 0x0034),
+        (-0x0002, -0x0021), (0x000a, -0x000a), (-0x000e, 0x0010), (0x0006, 0x003b),
+        (0x0014, -0x0029), (0x0004, -0x0016), (-0x0014, 0x0003), (-0x001b, 0x0039),
+        (0x000a, -0x001f), (-0x0014, -0x0008), (0x0000, 0x0017), (0x001e, 0x003d),
+    ];
 
     // `$A9:BCA6/$BCB6` are indexed after incrementing the explosion index. Keeping all eight
     // signed records here preserves the initial index-zero -> record-one behavior.
@@ -252,6 +277,50 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public ushort Phase3DisableAttacks { get; private set; }
 
+    /// <summary>
+    /// Exact body enemy property word touched by `$A9:AEE1` and `$A9:AFF7`. Keeping the raw
+    /// flags avoids guessing names for engine-wide enemy-property bits before bank `$A0` is
+    /// fully translated: death sets `$0400`, then fade completion sets `$0100` and clears
+    /// `$2000` with the cartridge's literal OR/AND sequence.
+    /// </summary>
+    public ushort BodyProperties { get; private set; }
+
+    /// <summary>Exact brain enemy property word; death/rotting sets raw bits `$0400/$0100`.</summary>
+    public ushort BrainProperties { get; private set; }
+
+    /// <summary>Second body property word cleared when the faded body becomes non-interactive.</summary>
+    public ushort BodyProperties2 { get; private set; }
+
+    /// <summary>Shared Mother Brain hitbox-enable word cleared at both death boundaries.</summary>
+    public bool HitboxesEnabled { get; private set; } = true;
+
+    /// <summary>Death-explosion interval timer at the body extra word used by `$A9:B03E`.</summary>
+    public ushort DeathExplosionIntervalTimer { get; private set; }
+
+    /// <summary>Backward-cycling seven-record death-explosion index used by `$A9:B046`.</summary>
+    public ushort DeathExplosionIndex { get; private set; }
+
+    /// <summary>Palette selector forced to `$0E00` when the dying brain effects shut down.</summary>
+    public ushort BrainPaletteIndex { get; private set; }
+
+    /// <summary>Number of calls made to the body flicker producer at `$A9:AFB6`.</summary>
+    public uint BodyFlickerCallCount { get; private set; }
+
+    /// <summary>
+    /// Host witness for the `$02C6..0` BG2 tilemap clear and following NMI transfer request.
+    /// Rendering code can consume this without pretending the global WRAM tilemap is local.
+    /// </summary>
+    public bool EnemyBg2TilemapClearRequested { get; private set; }
+
+    /// <summary>Index of the next of six `$A9:9003` corpse sprite-tile DMA records.</summary>
+    public ushort CorpseTileTransferIndex { get; private set; }
+
+    /// <summary>
+    /// Set when `$A9:B11B` installs the brain-slot draw setup before the decapitated head
+    /// starts falling. The separate brain AI is not silently folded into the body function.
+    /// </summary>
+    public bool BrainDrawSetupRequested { get; private set; }
+
     /// <summary>Rainbow-beam palette animation index reset immediately before the final shot.</summary>
     public ushort RainbowBeamPaletteAnimationIndex { get; private set; }
 
@@ -353,6 +422,22 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         // Native clears only the shared enemy-slot index. This host flag is the equivalent
         // liveness witness used by head attack selection after the actor has deleted itself.
         BabyMetroidSpawned = false;
+    }
+
+    /// <summary>
+    /// Applies damage already calculated by the ordinary enemy-shot engine. Bank `$A0` owns
+    /// beam/item damage multipliers, invulnerability, projectile deletion, and hit flashing;
+    /// this actor owns only the resulting health word and the phase-three zero-health branch.
+    /// Keeping that boundary explicit lets a live projectile producer call the real actor
+    /// without embedding a guessed copy of the still-untranslated generic damage routine.
+    /// </summary>
+    public void ApplyCalculatedBrainDamage(ushort damage)
+    {
+        // Generic enemy damage saturates at zero. A host subtraction with ushort wrapping
+        // would resurrect a nearly dead boss, so perform the borrow test before the write.
+        BrainHealth = damage >= BrainHealth
+            ? (ushort)0
+            : unchecked((ushort)(BrainHealth - damage));
     }
 
     /// <summary>
@@ -723,7 +808,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         ushort enemyFrameCounter,
         ushort mainEnemyExecutionCounter,
         bool powerBombActive = false,
-        ushort randomNumberSeed = 0)
+        ushort randomNumberSeed = 0,
+        Func<ushort>? nextRandomNumber = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -748,6 +834,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         bool babySpawnRequested = false;
         bool finalBeamSoundQueued = false;
         MotherBrainPhase3AttackKind? phase3Attack = null;
+        var deathExplosions = new List<MotherBrainDeathExplosionRequest>(capacity: 4);
 
         switch (Phase)
         {
@@ -1401,9 +1488,203 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceMoveToBackOfRoom:
-                // `$A9:AE79` is the next authoritative producer. Keeping this phase named
-                // makes zero-health routing observable without pretending its movement and
-                // explosion scheduling have already been translated.
+                // `$A9:AEE1` makes both enemy slots non-interactive and disables the shared
+                // hitboxes on every call, then reuses the ordinary medium-speed backward
+                // walk producer. Carry means X `$28` has been reached/overshot; the new `$80`
+                // timer falls through so the first smoky explosion and decrement happen now.
+                BodyProperties |= 0x0400;
+                BrainProperties |= 0x0400;
+                HitboxesEnabled = false;
+                bodyWalkRequested = RequestWalkBackward(0x0028, animationDelay: 0x0006);
+                if (HasReachedBackwardTarget(0x0028))
+                {
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceIdleWhilstExploding;
+                    FunctionTimer = 0x0080;
+                    goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceIdleWhilstExploding;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceIdleWhilstExploding:
+                GenerateDeathExplosions(
+                    mixed: false, nextRandomNumber, deathExplosions);
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStumbleToMiddleOfRoom;
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStumbleToMiddleOfRoom:
+                // `$AF21` emits smoke before asking for a really-fast forward walk to `$60`.
+                // Equality still starts a complete body program; only signed overshoot or the
+                // independent `$80` arena clamp reports carry and advances the death script.
+                GenerateDeathExplosions(
+                    mixed: false, nextRandomNumber, deathExplosions);
+                bodyWalkRequested = RequestWalkForward(0x0060, animationDelay: 0x0002);
+                if (unchecked((short)(0x0060 - Body.XPosition)) < 0 ||
+                    NativeAtLeast(Body.XPosition, 0x0080))
+                {
+                    SetHeadInstructionList(HeadDyingDroolInstructionList);
+                    LowerNeckMovementIndex = 6;
+                    UpperNeckMovementIndex = 6;
+                    NeckAngleDelta = 0x0500;
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDisableBrainEffects;
+                    FunctionTimer = 0x0020;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDisableBrainEffects:
+                GenerateDeathExplosions(
+                    mixed: false, nextRandomNumber, deathExplosions);
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    // `$AF5C-$AF94` removes the neck/breath/palette producers, copies sprite
+                    // palette 1 into palette 7, performs one health-palette refresh, and then
+                    // deliberately falls through with the already-negative timer.
+                    LowerNeckMovementIndex = 0;
+                    UpperNeckMovementIndex = 0;
+                    DroolGenerationEnabled = false;
+                    SmallPurpleBreathGenerationEnabled = false;
+                    BrainPaletteHandlingEnabled = false;
+                    HealthBasedPaletteHandlingEnabled = false;
+                    BrainPaletteIndex = 0x0e00;
+                    paletteRequested = true;
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut;
+                    goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut:
+                GenerateDeathExplosions(
+                    mixed: true, nextRandomNumber, deathExplosions);
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    GreyTransitionCounter = 0;
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeOutBody;
+                    FunctionTimer = 0;
+                    goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeOutBody;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeOutBody:
+                // Body flickering runs every AI call, independently of the seventeen-call
+                // palette cadence. Counter values 0..15 copy blackening palettes; value 16
+                // is the null terminator and completes the transition without a copy.
+                BodyFlickerCallCount++;
+                GenerateDeathExplosions(
+                    mixed: true, nextRandomNumber, deathExplosions);
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    FunctionTimer = 0x0010;
+                    ushort paletteIndex = GreyTransitionCounter;
+                    GreyTransitionCounter++;
+                    paletteRequested |= paletteIndex < 16;
+                    if (paletteIndex >= 16)
+                    {
+                        EnemyBg2TilemapClearRequested = true;
+                        BodyProperties = unchecked((ushort)((BodyProperties | 0x0100) & 0xdfff));
+                        BodyProperties2 = 0;
+                        Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFinalFewExplosions;
+                        FunctionTimer = 0x0010;
+                    }
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFinalFewExplosions:
+                GenerateDeathExplosions(
+                    mixed: true, nextRandomNumber, deathExplosions);
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceRealizeDecapitation;
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceRealizeDecapitation:
+                // The body installs the decapitated list and a separate brain-slot draw
+                // setup, clears its 8.8 falling velocity, then falls through immediately.
+                SetHeadInstructionList(HeadDecapitatedInstructionList);
+                BrainDrawSetupRequested = true;
+                FunctionTimer = 0;
+                Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBrainFallsToGround;
+                goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBrainFallsToGround;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBrainFallsToGround:
+                // `$B12D` treats FunctionTimer as unsigned 8.8 velocity: add `$20`, use only
+                // its high byte as this frame's whole-pixel displacement, and accumulate Y.
+                // Crossing `$C4` clamps the head and publishes earthquake type two for 20.
+                FunctionTimer = unchecked((ushort)(FunctionTimer + 0x0020));
+                ushort fallingDisplacement = (ushort)(FunctionTimer >> 8);
+                ushort candidateBrainY = unchecked((ushort)(BrainYPosition + fallingDisplacement));
+                if (candidateBrainY >= 0x00c4)
+                {
+                    EarthquakeType = 2;
+                    EarthquakeTimer = 20;
+                    BrainYPosition = 0x00c4;
+                    CorpseTileTransferIndex = 0;
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadCorpseTiles;
+                    FunctionTimer = 0x0100;
+                }
+                else
+                {
+                    BrainYPosition = candidateBrainY;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadCorpseTiles:
+                // ProcessSpriteTilesTransfers handles one record per call and notices the
+                // following zero terminator on the sixth call, just like the Baby tile list.
+                spriteTileTransfer = CreateNextCorpseTileTransfer();
+                if (CorpseTileTransferIndex == CorpseTileSources.Length)
+                {
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupFadeToGrey;
+                    FunctionTimer = 0x0020;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupFadeToGrey:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    GreyTransitionCounter = 0;
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeToGrey;
+                    FunctionTimer = 0;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeToGrey:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    ushort paletteIndex = GreyTransitionCounter;
+                    GreyTransitionCounter++;
+                    paletteRequested = paletteIndex < 8;
+                    if (paletteIndex < 8)
+                    {
+                        FunctionTimer = 0x0010;
+                    }
+                    else
+                    {
+                        SetHeadInstructionList(HeadCorpseInstructionList);
+                        Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseTipsOver;
+                        FunctionTimer = 0x0100;
+                    }
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseTipsOver:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseRotsAway;
+                    BrainProperties |= 0x0400;
+                    HitboxesEnabled = false;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseRotsAway:
+                // `$A9:B1D5` delegates to the shared corpse-rotting table/VRAM engine. That
+                // producer is the next explicit seam; do not substitute a timer or instant
+                // disappearance for its data-driven tile destruction.
                 break;
 
             default:
@@ -1441,7 +1722,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             spriteTileTransfer,
             babySpawnRequested,
             finalBeamSoundQueued,
-            phase3Attack);
+            phase3Attack,
+            deathExplosions);
     }
 
     private void BeginExtendingNeckForAttack()
@@ -1851,6 +2133,67 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return request;
     }
 
+    private MotherBrainSpriteTileTransferRequest CreateNextCorpseTileTransfer()
+    {
+        int index = CorpseTileTransferIndex;
+        if ((uint)index >= (uint)CorpseTileSources.Length)
+            throw new InvalidOperationException("Mother Brain corpse tile transfer list is already complete.");
+
+        var request = new MotherBrainSpriteTileTransferRequest(
+            EntryIndex: (ushort)index,
+            Size: 0x01c0,
+            SourceAddress: CorpseTileSources[index],
+            VramDestination: CorpseTileDestinations[index]);
+        CorpseTileTransferIndex++;
+        return request;
+    }
+
+    private void GenerateDeathExplosions(
+        bool mixed,
+        Func<ushort>? nextRandomNumber,
+        List<MotherBrainDeathExplosionRequest> requests)
+    {
+        // `$B03E` decrements before testing BPL. A cleared timer therefore wraps and emits
+        // immediately. Crucially, the interval literal remains in A across the memory DEC,
+        // so the smoky/mixed caller writes exactly `$10`/`$08` after an expiry.
+        DeathExplosionIntervalTimer = unchecked((ushort)(DeathExplosionIntervalTimer - 1));
+        if ((DeathExplosionIntervalTimer & 0x8000) == 0)
+            return;
+
+        DeathExplosionIntervalTimer = mixed ? (ushort)0x0008 : (ushort)0x0010;
+        DeathExplosionIndex = unchecked((ushort)(DeathExplosionIndex - 1));
+        if ((DeathExplosionIndex & 0x8000) != 0)
+            DeathExplosionIndex = 6;
+
+        int simultaneousCount = mixed ? 4 : 2;
+        int pairIndex = DeathExplosionIndex * 4;
+        for (int explosionIndex = 0; explosionIndex < simultaneousCount; explosionIndex++)
+        {
+            // The global RNG is called once per projectile, not once per visual batch. A
+            // callback is required here so the owning frame runtime advances its real global
+            // state; silently deriving private random values would desynchronize later AI.
+            if (nextRandomNumber is null)
+            {
+                throw new InvalidOperationException(
+                    "Mother Brain death explosions require the global next-random-number producer.");
+            }
+
+            ushort random = nextRandomNumber();
+            ushort parameter = mixed
+                ? random < 0x4000 ? (ushort)0 : random < 0xe000 ? (ushort)1 : (ushort)2
+                : (ushort)1;
+            (short xOffset, short yOffset) = DeathExplosionOffsets[pairIndex + explosionIndex];
+            requests.Add(new MotherBrainDeathExplosionRequest(
+                PatternIndex: DeathExplosionIndex,
+                XOffset: xOffset,
+                YOffset: yOffset,
+                XPosition: unchecked((ushort)(Body.XPosition + xOffset)),
+                YPosition: unchecked((ushort)(Body.YPosition + yOffset)),
+                ProjectileParameter: parameter,
+                SoundEffect: 0x0013));
+        }
+    }
+
     private void IncreaseWidthAndAim(SamusState samus)
     {
         ushort widened = unchecked((ushort)(AngularWidth + 0x0180));
@@ -2018,6 +2361,19 @@ public enum MotherBrainRainbowBeamAttackPhase
     Phase3FightingMain,
     Phase3FightingAttackCooldown,
     Phase3DeathSequenceMoveToBackOfRoom,
+    Phase3DeathSequenceIdleWhilstExploding,
+    Phase3DeathSequenceStumbleToMiddleOfRoom,
+    Phase3DeathSequenceDisableBrainEffects,
+    Phase3DeathSequenceSetupBodyFadeOut,
+    Phase3DeathSequenceFadeOutBody,
+    Phase3DeathSequenceFinalFewExplosions,
+    Phase3DeathSequenceRealizeDecapitation,
+    Phase3DeathSequenceBrainFallsToGround,
+    Phase3DeathSequenceLoadCorpseTiles,
+    Phase3DeathSequenceSetupFadeToGrey,
+    Phase3DeathSequenceFadeToGrey,
+    Phase3DeathSequenceCorpseTipsOver,
+    Phase3DeathSequenceCorpseRotsAway,
 }
 
 /// <summary>Reachable third-phase walking function pointers at `$A9:C26A-$C326`.</summary>
@@ -2083,6 +2439,16 @@ public readonly record struct MotherBrainRainbowExplosionRequest(
     short YOffset,
     ushort SoundEffect);
 
+/// <summary>One projectile in a simultaneous `$A9:B03E` death-explosion batch.</summary>
+public readonly record struct MotherBrainDeathExplosionRequest(
+    ushort PatternIndex,
+    short XOffset,
+    short YOffset,
+    ushort XPosition,
+    ushort YPosition,
+    ushort ProjectileParameter,
+    ushort SoundEffect);
+
 /// <summary>One `$86:CB4B` blue-ring spawn emitted by head opcode `$A9:9E29`.</summary>
 public readonly record struct MotherBrainOnionRingSpawnRequest(byte Angle);
 
@@ -2133,4 +2499,5 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     MotherBrainSpriteTileTransferRequest? SpriteTileTransfer,
     bool BabySpawnRequested,
     bool FinalBeamSoundQueued,
-    MotherBrainPhase3AttackKind? Phase3Attack);
+    MotherBrainPhase3AttackKind? Phase3Attack,
+    IReadOnlyList<MotherBrainDeathExplosionRequest> DeathExplosions);

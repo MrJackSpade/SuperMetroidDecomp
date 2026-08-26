@@ -3299,15 +3299,15 @@ static void VerifyBabyMetroidCutsceneEntrance()
     int deathCalls = 0;
     while (baby.Phase == BabyMetroidCutscenePhase.DeathSequence)
     {
-        BabyMetroidCutsceneStepResult death = baby.Step(
+        BabyMetroidCutsceneStepResult babyDeath = baby.Step(
             bus,
             samus,
             motherBrain,
             enemyFrameCounter: unchecked((ushort)deathCalls));
         deathCalls++;
-        if (death.DeathExplosion is { } deathExplosion)
+        if (babyDeath.DeathExplosion is { } deathExplosion)
             deathExplosions.Add(deathExplosion);
-        if (death.BabyPaletteTransfer is { } blackPalette)
+        if (babyDeath.BabyPaletteTransfer is { } blackPalette)
             blackPalettes.Add(blackPalette);
         AssertTrue(deathCalls < 500, "Baby black fade reaches unload phase");
     }
@@ -3614,7 +3614,241 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadAttackingFourOnionRingsPhase3InstructionList,
         phase3Attack.HeadInstructionList, "phase-three rings install exact `$9DBB` list");
 
-    Console.WriteLine("  Baby Metroid: entrance through phase-three walk, recoil, and attacks agree.");
+    // Drive a separate healthy phase-three actor into zero health through the public generic-
+    // damage boundary. The combat function only installs `$AEE1`; it must not perform any of
+    // the death function's property writes or movement on that same AI call.
+    var death = new MotherBrainRainbowBeamAttackSequence
+    {
+        BrainXPosition = 0x0050,
+        BrainYPosition = 0x0060,
+    };
+    death.Body.XPosition = 0x0040;
+    death.Body.YPosition = 0x0064;
+    death.BeginPhase3RecoveryFromBabyCutscene();
+    death.Step(bus, phase3Samus, 0, 0);
+    for (int call = 0; call < 33; call++)
+        death.Step(bus, phase3Samus, 0, 0);
+    death.ApplyCalculatedBrainDamage(0x0bb8);
+    MotherBrainRainbowBeamAttackStepResult deathHandoff =
+        death.Step(bus, phase3Samus, 0, 0);
+    AssertEqual((ushort)0, death.BrainHealth, "calculated damage saturates brain health at zero");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceMoveToBackOfRoom,
+        deathHandoff.PhaseAfter, "zero-health combat call installs `$AEE1` without fallthrough");
+    AssertTrue(death.HitboxesEnabled,
+        "death handoff defers `$AEE1` hitbox clear to following actor call");
+
+    var deathRandom = new Bank80SystemState(0x0061);
+    MotherBrainRainbowBeamAttackStepResult firstDeathMove = death.Step(
+        bus, phase3Samus, 0, 0, nextRandomNumber: deathRandom.NextRandom);
+    AssertTrue(firstDeathMove.BodyWalkRequested, "death requests medium backward body list");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingBackwardMediumInstructionList,
+        death.Body.InstructionPointer, "death retreat selects exact `$9900` list");
+    AssertEqual((ushort)0x0400, death.BodyProperties, "death sets raw body property `$0400`");
+    AssertEqual((ushort)0x0400, death.BrainProperties, "death sets raw brain property `$0400`");
+    AssertTrue(!death.HitboxesEnabled, "death entry disables shared hitboxes");
+
+    // The medium backward program has the same net -24 motion as every admitted walk list.
+    // Run its real command stream to sleeping rather than assigning the `$28` destination.
+    int deathRetreatBodyCalls = 0;
+    while (!death.Body.Sleeping)
+    {
+        death.Body.Step(bus);
+        deathRetreatBodyCalls++;
+        AssertTrue(deathRetreatBodyCalls < 100, "death retreat body bytecode sleeps");
+    }
+    AssertEqual((ushort)0x0028, death.Body.XPosition, "death retreat reaches back-room X `$28`");
+
+    MotherBrainRainbowBeamAttackStepResult firstSmokyBatch = death.Step(
+        bus, phase3Samus, 0, 0, nextRandomNumber: deathRandom.NextRandom);
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceIdleWhilstExploding,
+        death.Phase, "back-room carry falls through into smoky idle");
+    AssertEqual((ushort)0x007f, death.FunctionTimer,
+        "same-call smoky idle decrements freshly loaded `$80`");
+    AssertEqual((ushort)0x0010, death.DeathExplosionIntervalTimer,
+        "zero death-explosion timer emits immediately and reloads smoky interval `$10`");
+    AssertEqual((ushort)6, death.DeathExplosionIndex,
+        "zero death-explosion index wraps backward to record six");
+    AssertEqual(2, firstSmokyBatch.DeathExplosions.Count,
+        "smoky generator emits two simultaneous projectiles");
+    AssertEqual(new MotherBrainDeathExplosionRequest(
+            PatternIndex: 6,
+            XOffset: 0x000a,
+            YOffset: -0x001f,
+            XPosition: 0x0032,
+            YPosition: 0x0045,
+            ProjectileParameter: 1,
+            SoundEffect: 0x0013),
+        firstSmokyBatch.DeathExplosions[0],
+        "first smoky projectile uses record-six pair zero and smoke parameter");
+    AssertEqual((short)-0x0014, firstSmokyBatch.DeathExplosions[1].XOffset,
+        "second smoky projectile advances to record-six pair one");
+
+    int smokyIdleCalls = 0;
+    while (death.Phase == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceIdleWhilstExploding)
+    {
+        death.Step(bus, phase3Samus, 0, 0, nextRandomNumber: deathRandom.NextRandom);
+        smokyIdleCalls++;
+        AssertTrue(smokyIdleCalls < 200, "smoky idle timer reaches stumble");
+    }
+    AssertEqual(128, smokyIdleCalls,
+        "remaining `$7F` smoky-idle timer expires only after zero underflows");
+
+    // `$AF21` can require multiple complete forward programs because the carry test uses
+    // strict signed overshoot. Advance the actor and instruction stages in native order.
+    int stumbleCalls = 0;
+    while (death.Phase == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStumbleToMiddleOfRoom)
+    {
+        death.Step(bus, phase3Samus, 0, 0, nextRandomNumber: deathRandom.NextRandom);
+        death.Body.Step(bus);
+        stumbleCalls++;
+        AssertTrue(stumbleCalls < 200, "death stumble reaches middle-room target");
+    }
+    AssertEqual((ushort)0x006d, death.Body.XPosition,
+        "third really-fast program reports carry on its mid-list +15px crossing");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadDyingDroolInstructionList,
+        death.HeadInstructionList, "stumble completion installs dying-drool head list");
+    AssertEqual((ushort)0x0020, death.FunctionTimer,
+        "stumble completion loads brain-effects delay `$20`");
+
+    int disableEffectsCalls = 0;
+    MotherBrainRainbowBeamAttackStepResult disableResult = default;
+    while (death.Phase == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDisableBrainEffects)
+    {
+        disableResult = death.Step(
+            bus, phase3Samus, 0, 0, nextRandomNumber: deathRandom.NextRandom);
+        // Enemy instruction processing remains independent after body AI changes function;
+        // finish the still-visible third walk exactly as the following native slot stage does.
+        death.Body.Step(bus);
+        disableEffectsCalls++;
+        AssertTrue(disableEffectsCalls < 50, "brain-effects timer reaches body fade");
+    }
+    AssertEqual(33, disableEffectsCalls, "brain-effects `$20` timer expires on call 33");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeOutBody,
+        death.Phase, "disable/setup functions fall through into first body-fade call");
+    AssertEqual((ushort)1, death.GreyTransitionCounter,
+        "same-call fade performs black palette record zero");
+    AssertEqual((ushort)0x0010, death.FunctionTimer,
+        "same-call fade reloads palette cadence `$10`");
+    AssertTrue(disableResult.PaletteRequested,
+        "disable/fade fallthrough exposes palette-copy work");
+    AssertTrue(!death.DroolGenerationEnabled && !death.SmallPurpleBreathGenerationEnabled &&
+               !death.BrainPaletteHandlingEnabled && !death.HealthBasedPaletteHandlingEnabled,
+        "death disables all four brain-effect producers");
+    AssertEqual((ushort)0x0e00, death.BrainPaletteIndex,
+        "death forces sprite palette-seven index `$0E00`");
+    AssertEqual((ushort)0x0070, death.Body.XPosition,
+        "in-flight third walk finishes to `$70` during brain-effects delay");
+
+    int fadeBodyCalls = 0;
+    while (death.Phase == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeOutBody)
+    {
+        death.Step(bus, phase3Samus, 0, 0, nextRandomNumber: deathRandom.NextRandom);
+        fadeBodyCalls++;
+        AssertTrue(fadeBodyCalls < 350, "body palette reaches black terminator");
+    }
+    AssertEqual(272, fadeBodyCalls,
+        "remaining sixteen black-table probes use exact seventeen-call cadence");
+    AssertEqual((ushort)17, death.GreyTransitionCounter,
+        "black fade consumes sixteen records plus null entry");
+    AssertTrue(death.EnemyBg2TilemapClearRequested,
+        "black terminator requests native `$02C6..0` BG2 clear");
+    AssertEqual((ushort)0x0500, death.BodyProperties,
+        "black terminator preserves `$0400`, sets `$0100`, and clears `$2000`");
+
+    int finalExplosionCalls = 0;
+    while (death.Phase == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFinalFewExplosions)
+    {
+        death.Step(bus, phase3Samus, 0, 0, nextRandomNumber: deathRandom.NextRandom);
+        finalExplosionCalls++;
+    }
+    AssertEqual(17, finalExplosionCalls,
+        "final-explosion `$10` timer expires only after zero underflows");
+
+    MotherBrainRainbowBeamAttackStepResult firstFall = death.Step(
+        bus, phase3Samus, 0, 0, nextRandomNumber: deathRandom.NextRandom);
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBrainFallsToGround,
+        firstFall.PhaseAfter, "decapitation falls through into brain motion");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadDecapitatedInstructionList,
+        death.HeadInstructionList, "decapitation installs exact `$9C29` head list");
+    AssertTrue(death.BrainDrawSetupRequested,
+        "decapitation publishes separate brain draw-setup request");
+    AssertEqual((ushort)0x0020, death.FunctionTimer,
+        "first 8.8 falling call accelerates from zero to `$0020`");
+    AssertEqual((ushort)0x0060, death.BrainYPosition,
+        "first falling velocity has zero whole-pixel displacement");
+
+    int remainingFallCalls = 0;
+    while (death.Phase == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBrainFallsToGround)
+    {
+        death.Step(bus, phase3Samus, 0, 0, nextRandomNumber: deathRandom.NextRandom);
+        remainingFallCalls++;
+        AssertTrue(remainingFallCalls < 100, "8.8 brain fall reaches floor");
+    }
+    AssertEqual(42, remainingFallCalls,
+        "brain reaches `$C4` after 43 total 8.8 integration calls");
+    AssertEqual((ushort)0x00c4, death.BrainYPosition, "brain fall clamps to floor Y `$C4`");
+    AssertEqual((ushort)2, death.EarthquakeType, "brain floor hit requests earthquake type two");
+    AssertEqual((ushort)20, death.EarthquakeTimer, "brain floor hit requests twenty frames");
+    AssertEqual((ushort)0x0100, death.FunctionTimer,
+        "brain floor hit seeds corpse-load scratch timer `$0100`");
+
+    var corpseTransfers = new List<MotherBrainSpriteTileTransferRequest>();
+    while (death.Phase == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadCorpseTiles)
+    {
+        MotherBrainRainbowBeamAttackStepResult transfer = death.Step(
+            bus, phase3Samus, 0, 0, nextRandomNumber: deathRandom.NextRandom);
+        AssertTrue(transfer.SpriteTileTransfer is not null, "corpse-load call emits one DMA record");
+        corpseTransfers.Add(transfer.SpriteTileTransfer!.Value);
+    }
+    AssertEqual(6, corpseTransfers.Count, "corpse transfer list has six records");
+    for (int index = 0; index < corpseTransfers.Count; index++)
+    {
+        AssertEqual(unchecked((uint)(0xb7ce00 + index * 0x200)),
+            corpseTransfers[index].SourceAddress, $"corpse DMA {index} source");
+        AssertEqual(unchecked((ushort)(0x7a00 + index * 0x100)),
+            corpseTransfers[index].VramDestination, $"corpse DMA {index} destination");
+        AssertEqual((ushort)0x01c0, corpseTransfers[index].Size,
+            $"corpse DMA {index} skips two source rows");
+    }
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupFadeToGrey,
+        death.Phase, "sixth corpse DMA observes terminator on same call");
+
+    int greySetupCalls = 0;
+    while (death.Phase == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupFadeToGrey)
+    {
+        death.Step(bus, phase3Samus, 0, 0, nextRandomNumber: deathRandom.NextRandom);
+        greySetupCalls++;
+    }
+    AssertEqual(33, greySetupCalls, "corpse-grey setup `$20` expires on call 33");
+    int greyFadeCalls = 0;
+    int greyPaletteCopies = 0;
+    while (death.Phase == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeToGrey)
+    {
+        MotherBrainRainbowBeamAttackStepResult grey = death.Step(
+            bus, phase3Samus, 0, 0, nextRandomNumber: deathRandom.NextRandom);
+        if (grey.PaletteRequested)
+            greyPaletteCopies++;
+        greyFadeCalls++;
+        AssertTrue(greyFadeCalls < 180, "corpse-grey table reaches terminator");
+    }
+    AssertEqual(137, greyFadeCalls, "eight grey records and terminator use native cadence");
+    AssertEqual(8, greyPaletteCopies, "real-death grey transition copies eight palettes");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadCorpseInstructionList,
+        death.HeadInstructionList, "grey terminator installs exact `$9D25` corpse list");
+    AssertEqual((ushort)0x0100, death.FunctionTimer, "corpse tip-over delay starts at `$100`");
+
+    int corpseTipCalls = 0;
+    while (death.Phase == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseTipsOver)
+    {
+        death.Step(bus, phase3Samus, 0, 0, nextRandomNumber: deathRandom.NextRandom);
+        corpseTipCalls++;
+    }
+    AssertEqual(257, corpseTipCalls, "corpse `$100` display delay expires on call 257");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseRotsAway,
+        death.Phase, "tip-over reaches explicit shared corpse-rotting seam");
+
+    Console.WriteLine(
+        "  Baby Metroid: entrance through phase-three combat, death movement, fades, and corpse DMA agree.");
 }
 
 static void VerifySamusAerialMovement()

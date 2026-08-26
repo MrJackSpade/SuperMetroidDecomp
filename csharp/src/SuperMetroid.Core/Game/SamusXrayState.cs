@@ -1,0 +1,579 @@
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+
+namespace SuperMetroid.Core.Game;
+
+/// <summary>
+/// Debugger-visible translation of X-ray's Samus-side setup, dedicated pose-input handler,
+/// movement handler, beam-angle state, visor palette, and teardown.
+/// </summary>
+/// <remarks>
+/// The retail feature crosses three banks: `$91:E16D` admits and installs the four X-ray
+/// poses, `$91:FCAF` and `$90:E94F` own turning and angle-selected body art, and
+/// `$88:86EF-$8AA3` widens/aims/deactivates the window beam. Keeping those words in one
+/// explicit state prevents `$D5/$D6/$D9/$DA` from silently inheriting ordinary standing or
+/// crouching input. Building the revealed-block BG2 tilemap and emitting window HDMA remain
+/// presentation work; no fake visibility mask is generated here.
+/// </remarks>
+public sealed class SamusXrayState
+{
+    private const int VisorPaletteWords = 0x9ba3c0;
+    private const int NormalSuitPalettePointerTable = 0x91d727;
+    private const int SamusPaletteCgramIndex = 192;
+    private const int VisorColorCgramIndex = SamusPaletteCgramIndex + 4;
+
+    /// <summary>True while the dedicated bank-$91 X-ray input/movement handlers are installed.</summary>
+    public bool IsActive { get; private set; }
+
+    /// <summary>WRAM `$0A78`; X-ray freezes enemy/projectile/PLM/animated-tile time.</summary>
+    public bool TimeIsFrozen { get; private set; }
+
+    /// <summary>
+    /// The eight setup calls in `$91:D22E-$D26F` which prepare/transfer the two BG2 screens
+    /// before the bank-$88 main pre-instruction begins changing the beam state.
+    /// </summary>
+    public byte SetupStage { get; private set; }
+
+    /// <summary>WRAM `$0A7A`; values zero through five index `$88:8726`.</summary>
+    public XrayBeamPhase BeamPhase { get; private set; }
+
+    /// <summary>WRAM `$0A7E`; right-facing angles occupy `$00-$7F`, left `$80-$FF`.</summary>
+    public ushort Angle { get; private set; }
+
+    /// <summary>WRAM `$0A82`, the whole half-width of the beam in 8-bit angle units.</summary>
+    public ushort AngularWidth { get; private set; }
+
+    /// <summary>WRAM `$0A84`, the fractional half-width accumulator.</summary>
+    public ushort AngularSubwidth { get; private set; }
+
+    /// <summary>WRAM `$0A86`, the whole widening velocity.</summary>
+    public ushort AngularWidthDelta { get; private set; }
+
+    /// <summary>WRAM `$0A88`, the fractional widening velocity.</summary>
+    public ushort AngularSubwidthDelta { get; private set; }
+
+    /// <summary>
+    /// WRAM `$0A8C`: zero while widening, one for the full beam, and `$FFFF` to make the
+    /// palette handler restore normal suit colors after teardown.
+    /// </summary>
+    public ushort BeamSizeFlag { get; private set; }
+
+    /// <summary>WRAM `$0A68`; eight selects the native visor palette handler.</summary>
+    public ushort SpecialPaletteType { get; private set; }
+
+    /// <summary>WRAM `$0ACE`, a byte offset into the six ROM visor-color words.</summary>
+    public ushort SpecialPaletteFrame { get; private set; }
+
+    /// <summary>WRAM `$0AD0`, the shared five-frame palette cadence timer.</summary>
+    public ushort CommonPaletteTimer { get; private set; }
+
+    /// <summary>Set by command five when sound-library-one effect nine would be queued.</summary>
+    public bool ActivationSoundRequested { get; private set; }
+
+    /// <summary>Set by state five when sound-library-one effect ten would be queued.</summary>
+    public bool DeactivationSoundRequested { get; private set; }
+
+    /// <summary>
+    /// Ports the admission tests and pose selection in <c>XraySetup</c> at `$91:E16D`.
+    /// The caller represents the already selected/equipped HUD item; item ownership is
+    /// checked by the HUD selector one layer above this native routine.
+    /// </summary>
+    public bool TryBegin(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        byte previousMovementType,
+        ushort gameState = 8,
+        ushort powerBombExplosionStatus = 0,
+        ushort projectileCooldownTimer = 0,
+        ushort bombCounter = 0)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+
+        if (IsActive)
+            return false;
+
+        // `$91:E173-$E189` contains a very specific five-bomb/cooldown/divisor rejection.
+        // Preserve the three-way conjunction; rejecting every nonzero cooldown would erase
+        // a retail quirk, while ignoring it would permit the exact forbidden state.
+        if (projectileCooldownTimer == 7 && bombCounter == 5 && samus.XSpeedDivisor == 2)
+            return false;
+
+        // Landing art `$A4-$A7/$E0-$E7` is explicitly excluded even though its movement
+        // type is otherwise standing. The range comparisons are unsigned 16-bit compares.
+        if (samus.Pose is >= 0xa4 and < 0xa8 or >= 0xe0 and < 0xe8)
+            return false;
+
+        if (gameState != 8 || powerBombExplosionStatus != 0 ||
+            samus.Kinematics.YSpeed != 0 || samus.Kinematics.YSubspeed != 0)
+        {
+            return false;
+        }
+
+        byte currentMovementType = samus.ReadMovementType(bus);
+        if (ClassifyAllowedMovement(previousMovementType) == XrayPosture.Disallowed)
+            return false;
+
+        XrayPosture posture = ClassifyAllowedMovement(currentMovementType);
+        if (posture == XrayPosture.Disallowed)
+            return false;
+
+        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        samus.Pose = posture == XrayPosture.Crouching
+            ? facingLeft ? SamusState.XrayingCrouchingLeftPose : SamusState.XrayingCrouchingRightPose
+            : facingLeft ? SamusState.XrayingStandingLeftPose : SamusState.XrayingStandingRightPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus, initialFrame: 0);
+
+        // Special prospective-pose command five immediately overrides the freshly selected
+        // delay with frame two/timer `$3F`, installs the dedicated handler pair, starts the
+        // visor palette, clears beam-flare state, and queues activation sound nine.
+        samus.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 0x003f);
+        Angle = facingLeft ? (ushort)0x00c0 : (ushort)0x0040;
+        AngularWidth = 0;
+        AngularSubwidth = 0;
+        AngularWidthDelta = 0;
+        AngularSubwidthDelta = 0;
+        BeamSizeFlag = 0;
+        SpecialPaletteType = 8;
+        SpecialPaletteFrame = 0;
+        CommonPaletteTimer = 1;
+        ActivationSoundRequested = true;
+        DeactivationSoundRequested = false;
+        SetupStage = 1;
+        BeamPhase = XrayBeamPhase.NoBeam;
+        TimeIsFrozen = true;
+        IsActive = true;
+        return true;
+    }
+
+    /// <summary>
+    /// Executes <c>XraySamusPoseInputHandler</c> at `$91:FCAF`, including the exact
+    /// standing/crouching turn bodies and the frame-two/timer-one completion gate.
+    /// </summary>
+    public XrayPoseInputResult HandlePoseInput(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        ushort controllerInput)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+        EnsureActive();
+
+        byte movementType = samus.ReadMovementType(bus);
+        if (movementType != 0x0e)
+        {
+            bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+            ushort turnBinding = facingLeft
+                ? (ushort)SnesButton.Right
+                : (ushort)SnesButton.Left;
+            if ((controllerInput & turnBinding) == 0)
+                return default;
+
+            // Mirroring through `$0100 - angle` turns right-space `$00-$7F` into its exact
+            // left-space counterpart and vice versa. This happens before selecting turn art.
+            Angle = unchecked((ushort)(0x0100 - Angle));
+            bool crouching = movementType == 5;
+            byte targetPose = (facingLeft, crouching) switch
+            {
+                (false, false) => SamusState.TurningRightToLeftPose,
+                (false, true) => SamusState.TurningRightToLeftCrouchingPose,
+                (true, false) => SamusState.TurningLeftToRightPose,
+                (true, true) => SamusState.TurningLeftToRightCrouchingPose,
+            };
+            ApplyXrayPoseChange(bus, samus, targetPose);
+            return new XrayPoseInputResult(true, false, targetPose, Angle);
+        }
+
+        // Native waits until the final visible turning frame has exactly one tick left.
+        // Its beta movement handler is RTS for type `$0E`, so generic animation owns this
+        // countdown without X-ray's usual per-frame timer reset.
+        if (samus.AnimationFrame != 2 || samus.AnimationFrameTimer != 1)
+            return default;
+
+        bool nowFacingLeft = samus.ReadPoseXDirection(bus) == 4;
+        byte completedPose = nowFacingLeft
+            ? samus.Pose == SamusState.TurningRightToLeftPose
+                ? SamusState.XrayingStandingLeftPose
+                : SamusState.XrayingCrouchingLeftPose
+            : samus.Pose == SamusState.TurningLeftToRightPose
+                ? SamusState.XrayingStandingRightPose
+                : SamusState.XrayingCrouchingRightPose;
+        ApplyXrayPoseChange(bus, samus, completedPose);
+        return new XrayPoseInputResult(false, true, completedPose, Angle);
+    }
+
+    /// <summary>
+    /// Executes <c>SamusMovementHandler_Xray</c> at `$90:E94F`: turning is an RTS, while
+    /// stable X-ray poses force timer fifteen and one of five angle-selected art frames.
+    /// </summary>
+    public ushort? StepMovement(ISnesAddressSpace bus, SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+        EnsureActive();
+
+        if (samus.ReadMovementType(bus) == 0x0e)
+            return null;
+
+        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        ushort frame = facingLeft
+            ? Angle < 0x0099 ? (ushort)4 :
+              Angle < 0x00b2 ? (ushort)3 :
+              Angle < 0x00cb ? (ushort)2 :
+              Angle < 0x00e4 ? (ushort)1 : (ushort)0
+            : Angle < 0x0019 ? (ushort)0 :
+              Angle < 0x0032 ? (ushort)1 :
+              Angle < 0x004b ? (ushort)2 :
+              Angle < 0x0064 ? (ushort)3 : (ushort)4;
+        samus.SetAnimationFrameFromSpecialHandler(frame, timer: 15);
+        return frame;
+    }
+
+    /// <summary>
+    /// Advances one bank-$88 HDMA-object call. The setup-stage count represents the eight
+    /// real cartridge functions; actual BG2 copies/window-table rendering are intentionally
+    /// not fabricated by this movement state.
+    /// </summary>
+    public XrayBeamStepResult StepBeam(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        ushort controllerInput,
+        ushort dashBinding = (ushort)SnesButton.B,
+        bool vramQueueHasRoom = true)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+        EnsureActive();
+
+        XrayBeamPhase phaseAtStart = BeamPhase;
+        ushort angleAtStart = Angle;
+        ushort widthAtStart = AngularWidth;
+
+        if (SetupStage != 0)
+        {
+            // Stages one through eight execute in order. After stage eight the instruction
+            // list installs `$88:86EF`; state zero itself first runs on the following call.
+            SetupStage = SetupStage >= 8 ? (byte)0 : unchecked((byte)(SetupStage + 1));
+            return SnapshotBeamStep(phaseAtStart, angleAtStart, widthAtStart, completed: false);
+        }
+
+        bool holdingDash = (controllerInput & dashBinding) != 0;
+        switch (BeamPhase)
+        {
+            case XrayBeamPhase.NoBeam:
+                BeamPhase = holdingDash ? XrayBeamPhase.Widening : XrayBeamPhase.RestoreFirstHalf;
+                break;
+
+            case XrayBeamPhase.Widening:
+                if (!holdingDash)
+                {
+                    BeamPhase = XrayBeamPhase.RestoreFirstHalf;
+                    break;
+                }
+
+                // Four 16-bit words reproduce ADC carry propagation exactly. Fractional
+                // widening velocity gains `$0800` per call; both velocity and width can
+                // carry into their whole components before the ten-unit clamp.
+                uint delta = ((uint)AngularWidthDelta << 16) | AngularSubwidthDelta;
+                delta = unchecked(delta + 0x0000_0800u);
+                AngularWidthDelta = unchecked((ushort)(delta >> 16));
+                AngularSubwidthDelta = unchecked((ushort)delta);
+
+                uint width = ((uint)AngularWidth << 16) | AngularSubwidth;
+                width = unchecked(width + delta);
+                AngularWidth = unchecked((ushort)(width >> 16));
+                AngularSubwidth = unchecked((ushort)width);
+                if (AngularWidth >= 11)
+                {
+                    AngularWidth = 10;
+                    AngularSubwidth = 0;
+                    BeamPhase = XrayBeamPhase.Full;
+                }
+                break;
+
+            case XrayBeamPhase.Full:
+                if (!holdingDash)
+                {
+                    BeamPhase = XrayBeamPhase.RestoreFirstHalf;
+                    break;
+                }
+
+                // `$88:87C8` gives Up priority when opposite directions are both held.
+                if ((controllerInput & (ushort)SnesButton.Up) != 0)
+                    MoveAngleUp();
+                else if ((controllerInput & (ushort)SnesButton.Down) != 0)
+                    MoveAngleDown();
+                break;
+
+            case XrayBeamPhase.RestoreFirstHalf:
+                // States three/four wait rather than dropping a BG2 transfer when the
+                // seven-byte VRAM queue lacks room. The host renderer can expose that gate.
+                if (vramQueueHasRoom)
+                    BeamPhase = XrayBeamPhase.RestoreSecondHalf;
+                break;
+
+            case XrayBeamPhase.RestoreSecondHalf:
+                if (vramQueueHasRoom)
+                    BeamPhase = XrayBeamPhase.Finish;
+                break;
+
+            case XrayBeamPhase.Finish:
+                Finish(bus, samus);
+                break;
+
+            default:
+                throw new InvalidOperationException($"Unknown active X-ray beam phase {BeamPhase}.");
+        }
+
+        return SnapshotBeamStep(
+            phaseAtStart,
+            angleAtStart,
+            widthAtStart,
+            completed: !IsActive);
+    }
+
+    /// <summary>Runs `$91:DCB4-$DD30` and writes only visor color four until restoration.</summary>
+    public bool UpdatePalette(
+        ISnesAddressSpace bus,
+        SnesCgram cgram,
+        ushort equippedItems)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(cgram);
+
+        if ((BeamSizeFlag & 0x8000) != 0)
+        {
+            // Carry clear from the native handler asks the outer dispatcher to load the
+            // complete normal suit palette, then clears every X-ray palette word.
+            ushort suitOffset = (equippedItems & 0x0020) != 0 ? (ushort)4 :
+                (equippedItems & 0x0001) != 0 ? (ushort)2 : (ushort)0;
+            ushort palettePointer = ReadWord(bus, NormalSuitPalettePointerTable + suitOffset);
+            cgram.LoadFromBus(
+                bus,
+                0x9b0000 | palettePointer,
+                colorCount: 16,
+                destinationIndex: SamusPaletteCgramIndex);
+            SpecialPaletteType = 0;
+            SpecialPaletteFrame = 0;
+            CommonPaletteTimer = 0;
+            BeamSizeFlag = 0;
+            return true;
+        }
+
+        if (SpecialPaletteType != 8)
+            return false;
+
+        if (BeamSizeFlag == 0 && (ushort)BeamPhase >= (ushort)XrayBeamPhase.Full)
+        {
+            // `$91:DCEA` enters the full-beam three-color loop at byte offset six.
+            SpecialPaletteFrame = 6;
+            CommonPaletteTimer = 1;
+            BeamSizeFlag = 1;
+        }
+
+        CommonPaletteTimer = unchecked((ushort)(CommonPaletteTimer - 1));
+        if (CommonPaletteTimer != 0 && unchecked((short)CommonPaletteTimer) >= 0)
+            return false;
+
+        CommonPaletteTimer = 5;
+        cgram.SetColor(
+            VisorColorCgramIndex,
+            ReadWord(bus, VisorPaletteWords + SpecialPaletteFrame));
+
+        if (BeamSizeFlag == 0)
+        {
+            // Widening uses offsets 0,2,4 and then pins four until state two is observed.
+            if (SpecialPaletteFrame < 4)
+                SpecialPaletteFrame = unchecked((ushort)(SpecialPaletteFrame + 2));
+        }
+        else
+        {
+            // Full beam cycles offsets 6,8,10,6... with the comparison after increment.
+            ushort next = unchecked((ushort)(SpecialPaletteFrame + 2));
+            SpecialPaletteFrame = next < 12 ? next : (ushort)6;
+        }
+
+        return true;
+    }
+
+    private void MoveAngleUp()
+    {
+        if (Angle < 0x0080)
+        {
+            // Right-facing upper limit is `angle - width >= 0`. Equality returns without
+            // movement; crossing clamps the center to exactly the current half-width.
+            int candidate = Angle - AngularWidth;
+            if (candidate == 0)
+                return;
+            if (candidate < 0)
+            {
+                Angle = AngularWidth;
+                return;
+            }
+
+            Angle = unchecked((ushort)(Angle - 1));
+            if ((int)Angle - AngularWidth < 0)
+                Angle = AngularWidth;
+            return;
+        }
+
+        // Left-facing up rotates toward `$100`; clamp the upper beam edge at exactly 256.
+        int leftEdge = Angle + AngularWidth;
+        if (leftEdge == 0x0100)
+            return;
+        if (leftEdge > 0x0100)
+        {
+            Angle = unchecked((ushort)(0x0100 - AngularWidth));
+            return;
+        }
+
+        Angle = unchecked((ushort)(Angle + 1));
+        if (Angle + AngularWidth > 0x0100)
+            Angle = unchecked((ushort)(0x0100 - AngularWidth));
+    }
+
+    private void MoveAngleDown()
+    {
+        if (Angle < 0x0080)
+        {
+            // Right-facing down rotates toward `$80`; keep the lower edge at or below it.
+            int lowerEdge = Angle + AngularWidth;
+            if (lowerEdge == 0x0080)
+                return;
+            if (lowerEdge > 0x0080)
+            {
+                Angle = unchecked((ushort)(0x0080 - AngularWidth));
+                return;
+            }
+
+            Angle = unchecked((ushort)(Angle + 1));
+            if (Angle + AngularWidth > 0x0080)
+                Angle = unchecked((ushort)(0x0080 - AngularWidth));
+            return;
+        }
+
+        // Left-facing down rotates toward `$80` from above and clamps its upper edge.
+        int upperEdge = Angle - AngularWidth;
+        if (upperEdge == 0x0080)
+            return;
+        if (upperEdge < 0x0080)
+        {
+            Angle = unchecked((ushort)(0x0080 + AngularWidth));
+            return;
+        }
+
+        Angle = unchecked((ushort)(Angle - 1));
+        if ((int)Angle - AngularWidth < 0x0080)
+            Angle = unchecked((ushort)(0x0080 + AngularWidth));
+    }
+
+    private void Finish(ISnesAddressSpace bus, SamusState samus)
+    {
+        // `$91:E2AD` intentionally classifies turning type `$0E` as standing. Releasing
+        // X-ray during a crouched turn therefore stands Samus up—the documented retail
+        // X-ray stand-up glitch—and the radius difference moves her center upward.
+        byte movementType = samus.ReadMovementType(bus);
+        bool crouching = movementType == 5;
+        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        ushort oldRadius = samus.Kinematics.YRadius;
+        byte targetPose = crouching
+            ? facingLeft ? SamusState.CrouchingLeftPose : SamusState.CrouchingRightPose
+            : facingLeft ? SamusState.FacingLeftNormalPose : SamusState.FacingRightNormalPose;
+
+        samus.Pose = targetPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus, initialFrame: 0);
+        int radiusDifference = samus.Kinematics.YRadius - oldRadius;
+        if (radiusDifference >= 0)
+            samus.YPosition = unchecked((ushort)(samus.YPosition - radiusDifference));
+
+        TimeIsFrozen = false;
+        IsActive = false;
+        SetupStage = 0;
+        BeamPhase = XrayBeamPhase.NoBeam;
+        Angle = 0;
+        AngularWidth = 0;
+        AngularSubwidth = 0;
+        AngularWidthDelta = 0;
+        AngularSubwidthDelta = 0;
+        BeamSizeFlag = 0xffff;
+        DeactivationSoundRequested = true;
+    }
+
+    private static void ApplyXrayPoseChange(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        byte targetPose)
+    {
+        samus.Pose = targetPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus, initialFrame: 0);
+    }
+
+    private static XrayPosture ClassifyAllowedMovement(byte movementType) => movementType switch
+    {
+        0 or 1 or 0x15 => XrayPosture.Standing,
+        5 => XrayPosture.Crouching,
+        _ => XrayPosture.Disallowed,
+    };
+
+    private XrayBeamStepResult SnapshotBeamStep(
+        XrayBeamPhase phaseAtStart,
+        ushort angleAtStart,
+        ushort widthAtStart,
+        bool completed) => new(
+            phaseAtStart,
+            BeamPhase,
+            SetupStage,
+            angleAtStart,
+            Angle,
+            widthAtStart,
+            AngularWidth,
+            completed);
+
+    private void EnsureActive()
+    {
+        if (!IsActive)
+            throw new InvalidOperationException("X-ray has no installed Samus handler.");
+    }
+
+    private static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
+        bus.ReadByte(address) | (bus.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8)));
+
+    private enum XrayPosture
+    {
+        Disallowed,
+        Standing,
+        Crouching,
+    }
+}
+
+/// <summary>Exact `$0A7A` values used by the six-entry bank-$88 X-ray dispatcher.</summary>
+public enum XrayBeamPhase : ushort
+{
+    NoBeam = 0,
+    Widening = 1,
+    Full = 2,
+    RestoreFirstHalf = 3,
+    RestoreSecondHalf = 4,
+    Finish = 5,
+}
+
+/// <summary>One dedicated-input-handler call, suitable for debugger watches and assertions.</summary>
+public readonly record struct XrayPoseInputResult(
+    bool StartedTurn,
+    bool CompletedTurn,
+    byte Pose,
+    ushort Angle);
+
+/// <summary>One bank-$88 beam-state call without pretending the HDMA pixels are translated.</summary>
+public readonly record struct XrayBeamStepResult(
+    XrayBeamPhase PhaseAtStart,
+    XrayBeamPhase PhaseAfterStep,
+    byte SetupStage,
+    ushort AngleAtStart,
+    ushort AngleAfterStep,
+    ushort WidthAtStart,
+    ushort WidthAfterStep,
+    bool Completed);

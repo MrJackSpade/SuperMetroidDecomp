@@ -128,6 +128,18 @@ public sealed class SamusState
     /// <summary>Pose `$D4`: left-facing Crystal Flash mirror.</summary>
     public const byte CrystalFlashLeftPose = 0xd4;
 
+    /// <summary>Pose `$D5`: right-facing standing X-ray body.</summary>
+    public const byte XrayingStandingRightPose = 0xd5;
+
+    /// <summary>Pose `$D6`: left-facing standing X-ray body.</summary>
+    public const byte XrayingStandingLeftPose = 0xd6;
+
+    /// <summary>Pose `$D9`: right-facing crouching X-ray body.</summary>
+    public const byte XrayingCrouchingRightPose = 0xd9;
+
+    /// <summary>Pose `$DA`: left-facing crouching X-ray body.</summary>
+    public const byte XrayingCrouchingLeftPose = 0xda;
+
     /// <summary>Pose `$E8`: right-facing drained crouch/fall animation.</summary>
     public const byte DrainedCrouchingRightPose = 0xe8;
 
@@ -701,6 +713,12 @@ public sealed class SamusState
     /// original aliases a few WRAM words between the mutually exclusive effects.
     /// </summary>
     public SamusCrystalFlashState CrystalFlash { get; } = new();
+
+    /// <summary>
+    /// X-ray admission, dedicated pose input/movement, beam-angle state, visor palette, and
+    /// teardown. Revealed-block tilemaps and window HDMA remain presentation-owned outputs.
+    /// </summary>
+    public SamusXrayState Xray { get; } = new();
 
     /// <summary>
     /// Mother Brain/Baby Metroid drain poses, controller calls, and installed falling

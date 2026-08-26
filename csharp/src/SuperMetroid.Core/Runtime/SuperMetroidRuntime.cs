@@ -108,6 +108,18 @@ public sealed class SuperMetroidRuntime
     public ushort ElevatorStatus { get; set; }
 
     /// <summary>
+    /// Native power-bomb explosion status at WRAM <c>$0CE2</c>. X-ray setup rejects every
+    /// nonzero phase; the eventual bank-$88 explosion owner is responsible for publishing it.
+    /// </summary>
+    public ushort PowerBombExplosionStatus { get; set; }
+
+    /// <summary>
+    /// Low-byte snapshot at WRAM <c>$0A11</c> used only by X-ray's one-frame stability gate.
+    /// The runtime updates it after each completed gameplay frame.
+    /// </summary>
+    public byte PreviousMovementTypeForXray { get; private set; }
+
+    /// <summary>
     /// Horizontal and vertical collision results from the most recent translated grounded
     /// movement pass. Null before movement, and always null for the cinematic stimulus.
     /// </summary>
@@ -133,6 +145,17 @@ public sealed class SuperMetroidRuntime
 
     /// <summary>Most recent Crystal Flash start, ammo-drain, or finish handler result.</summary>
     public CrystalFlashMovementResult? LastCrystalFlashMovement { get; private set; }
+
+    /// <summary>Most recent call of X-ray's dedicated bank-$91 pose-input handler.</summary>
+    public XrayPoseInputResult? LastXrayPoseInput { get; private set; }
+
+    /// <summary>Most recent call of X-ray's bank-$88 setup/beam/deactivation state.</summary>
+    public XrayBeamStepResult? LastXrayBeamStep { get; private set; }
+
+    /// <summary>
+    /// Angle-selected `$90:E94F` art frame; null while X-ray's type-`$0E` turn handler is RTS.
+    /// </summary>
+    public ushort? LastXrayAnimationFrame { get; private set; }
 
     /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; private set; }
@@ -612,6 +635,40 @@ public sealed class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// Runs the complete Samus-side X-ray admission path after the HUD has selected the
+    /// equipped scope and observed held Dash, matching `$90:DDD3 -> $91:CAD6 -> $91:E16D`.
+    /// </summary>
+    /// <remarks>
+    /// HUD cursor movement is not yet a general runtime subsystem, so this narrow entry
+    /// point represents only the already-selected item. It still requires equipped bit
+    /// `$8000` and passes the live bomb cooldown/count, power-bomb phase, current/previous
+    /// movement types, vertical velocity, landing-pose gate, and speed divisor to native
+    /// setup logic. The DebugRunner uses it without substituting a host pose or art frame.
+    /// </remarks>
+    public bool TryBeginXrayFromSelectedHudItem(ushort gameState = 8)
+    {
+        if (Samus is null || !GroundedSamusMovementEnabled || LevelData is null)
+        {
+            throw new InvalidOperationException(
+                "X-ray requires initialized gameplay Samus and room level data.");
+        }
+
+        // `$90:C5AE` prevents selecting the HUD item without the scope. The lower-level
+        // `$91:E16D` routine assumes that selector has already succeeded.
+        if ((Samus.EquippedItems & 0x8000) == 0)
+            return false;
+
+        return Samus.Xray.TryBegin(
+            _addressSpace,
+            Samus,
+            PreviousMovementTypeForXray,
+            gameState,
+            PowerBombExplosionStatus,
+            BombProjectiles.CooldownTimer,
+            BombProjectiles.BombCounter);
+    }
+
+    /// <summary>
     /// Publishes the exact bank-$88 power-bomb-cleanup attempt to Crystal Flash's native
     /// initiation routine.
     /// </summary>
@@ -654,6 +711,7 @@ public sealed class SuperMetroidRuntime
         Samus.LoadPowerSuitPalette(_addressSpace, Cgram);
         Samus.RefreshCollisionRadii(_addressSpace);
         Samus.InitializeAnimation(_addressSpace);
+        PreviousMovementTypeForXray = Samus.ReadMovementType(_addressSpace);
 
         // StepFrame begins with NMI, so prime the definitions now. Otherwise frame one's
         // OAM would name Samus tiles before any corresponding graphics reached VRAM.
@@ -715,6 +773,20 @@ public sealed class SuperMetroidRuntime
             // its value on every applicable frame; stale contact damage cannot leak onward.
             Samus.HorizontalSpeed.ContactDamageIndex = 0;
 
+            // X-ray's HDMA object is not part of the Samus handler. Advance its explicit
+            // setup/beam/deactivation state before alpha so state five can restore the
+            // ordinary pose and handler pair before this frame samples pose input. The
+            // revealed-block BG2 copies/window table remain a separate renderer boundary.
+            LastXrayBeamStep = null;
+            LastXrayPoseInput = null;
+            if (Samus.Xray.IsActive)
+            {
+                LastXrayBeamStep = Samus.Xray.StepBeam(
+                    _addressSpace,
+                    Samus,
+                    Controller1.Current);
+            }
+
             // MainScrollingRoutine compares the post-movement position with the previous
             // frame's stored 16.16 words. Capture them before frame-handler movement mutates
             // Samus, then feed both samples to the translated bank-$90 routines below.
@@ -738,9 +810,18 @@ public sealed class SuperMetroidRuntime
             // pointer is even read. Pose zero's pointer bytes otherwise overlap legitimate
             // data and can appear to select nonsense transitions after several frames, so
             // suppressing only their application would be too late and observably wrong.
+            bool xrayOwnsPoseInput = Samus.Xray.IsActive;
+            if (xrayOwnsPoseInput)
+            {
+                LastXrayPoseInput = Samus.Xray.HandlePoseInput(
+                    _addressSpace,
+                    Samus,
+                    Controller1.Current);
+            }
+
             bool elevatorLocksForwardPoseInput =
                 SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0;
-            ProspectiveSamusPose = elevatorLocksForwardPoseInput
+            ProspectiveSamusPose = xrayOwnsPoseInput || elevatorLocksForwardPoseInput
                 ? null
                 : SamusPoseTransitionTable.Find(
                     _addressSpace,
@@ -894,12 +975,18 @@ public sealed class SuperMetroidRuntime
                 // HandleProjectile. The outer gameplay loop then runs bank-$A0 overlap
                 // before beta movement. A newly placed bomb therefore counts 60 -> 59 and
                 // selects its first bank-$93 art record in the placement frame itself.
-                BombProjectiles.StepFrame(
-                    _addressSpace,
-                    LevelData,
-                    Samus,
-                    Controller1.Current,
-                    Controller1.NewlyPressed);
+                if (!Samus.Xray.TimeIsFrozen)
+                {
+                    // `$91:E231-$E23D` disables enemy projectiles, PLMs, animated tiles,
+                    // and palette FX while time is frozen. Normal bombs cannot be placed or
+                    // advanced through this translated producer during the X-ray interval.
+                    BombProjectiles.StepFrame(
+                        _addressSpace,
+                        LevelData,
+                        Samus,
+                        Controller1.Current,
+                        Controller1.NewlyPressed);
+                }
 
                 // Native HandleProjectile runs `$90:D4D2` during alpha, before Samus's beta
                 // movement handler. Departing crash echoes therefore remain centered on the
@@ -923,6 +1010,10 @@ public sealed class SuperMetroidRuntime
                 LastGrappleMovement = null;
                 LastShinesparkMovement = null;
                 LastCrystalFlashMovement = null;
+                LastXrayAnimationFrame = null;
+                // X-ray publishes its pose-input and beam results above because both run
+                // outside the normal movement-type dispatcher. Its movement result is the
+                // directly inspectable frame returned by `StepMovement` below.
                 LastDrainedSamusMovement = null;
                 LastDraygonGrabbedMovement = null;
                 LastDraygonEscape = null;
@@ -1033,6 +1124,15 @@ public sealed class SuperMetroidRuntime
                 else if (Samus.DraygonGrabbed.IsActive)
                 {
                     // Deliberately empty: Draygon's bank-$A5 actor owns coordinates.
+                }
+                // Special prospective-pose command five installs `$90:E94F` instead of the
+                // normal movement-type dispatcher. Stable X-ray bodies select one of five
+                // angle frames; type-`$0E` turning deliberately performs no beta movement.
+                else if (Samus.Xray.IsActive)
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    LastXrayAnimationFrame = Samus.Xray.StepMovement(_addressSpace, Samus);
                 }
                 // Knockback's `$90:DF38` handler takes precedence over the normal movement-
                 // type dispatcher. Unlike bomb jump, normal pose input remains active so
@@ -2195,11 +2295,18 @@ public sealed class SuperMetroidRuntime
                 Samus.ReadMovementType(_addressSpace),
                 Samus.AnimationFrame,
                 Samus.EquippedItems,
-                suppressActiveSpeedBoosterPalette: Samus.Shinespark.PaletteType != 0);
+                suppressActiveSpeedBoosterPalette:
+                    Samus.Shinespark.PaletteType != 0 || Samus.Xray.SpecialPaletteType == 8);
             // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They
             // intentionally execute after a cancellation-requested normal copy and replace
             // it with the stored/spark palette in this visible frame.
             Samus.Shinespark.UpdatePalette(
+                _addressSpace,
+                Cgram,
+                Samus.EquippedItems);
+            // Handler eight changes only visor color four while active; `$FFFF` teardown
+            // restores the complete ROM-selected Power/Varia/Gravity suit palette once.
+            Samus.Xray.UpdatePalette(
                 _addressSpace,
                 Cgram,
                 Samus.EquippedItems);
@@ -2246,7 +2353,18 @@ public sealed class SuperMetroidRuntime
         // Landing Site's room main ASM appends four sky rows after ordinary gameplay logic;
         // they become visible when the following accepted NMI drains the queue.
         if (ScrollingSky is not null && Camera is not null)
-            ScrollingSky.ProcessFrame(Camera.YPosition, timeIsFrozen: false, VramWrites);
+        {
+            ScrollingSky.ProcessFrame(
+                Camera.YPosition,
+                timeIsFrozen: Samus?.Xray.TimeIsFrozen ?? false,
+                VramWrites);
+        }
+
+        // `$0A11` is a one-byte previous-movement snapshot used by X-ray admission on the
+        // following gameplay frame. Update it only after every pose/animation transition
+        // and special teardown above has settled on the frame's final pose.
+        if (Samus is not null)
+            PreviousMovementTypeForXray = Samus.ReadMovementType(_addressSpace);
 
         return Snapshot(escapeTimerExpired);
     }

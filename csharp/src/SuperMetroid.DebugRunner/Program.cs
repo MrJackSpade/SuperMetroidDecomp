@@ -171,6 +171,11 @@ else if (options.CrystalFlashScript)
     Console.WriteLine(
         "Input script: host-publish the untranslated power-bomb-cleanup seam with exact Down+L+R+Shoot input, then execute ROM poses $D3/$01 through all three native Crystal Flash handlers.");
 }
+else if (options.XrayScript)
+{
+    Console.WriteLine(
+        "Input script: select equipped X-ray, execute all eight bank-$88 setup stages, hold Dash through native widening, aim upward, then turn through ROM poses $D5/$25/$D6 while the visor palette cycles.");
+}
 else if (options.MotherBrainRainbowScript)
 {
     Console.WriteLine(
@@ -370,6 +375,17 @@ else if (options.CrystalFlashScript)
         (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
     if (!runtime.TryBeginCrystalFlashFromPowerBombCleanup(crystalFlashChord))
         throw new InvalidOperationException("Real-ROM Crystal Flash initiation rejected its canonical fixture.");
+}
+else if (options.XrayScript)
+{
+    // Landing Site's debug spawn has no save-file inventory or general HUD-item cursor.
+    // Grant exactly X-ray bit `$8000`, then enter through the narrow runtime seam which
+    // represents the HUD having already selected the scope. `$91:E16D` still owns every
+    // velocity, pose-family, power-bomb, bomb-count, cooldown, and prior-movement gate;
+    // no host-authored X-ray pose, angle, animation frame, or beam state is installed here.
+    runtime.Samus!.EquippedItems |= 0x8000;
+    if (!runtime.TryBeginXrayFromSelectedHudItem())
+        throw new InvalidOperationException("Real-ROM X-ray initiation rejected its canonical grounded fixture.");
 }
 else if (options.MotherBrainRainbowScript)
 {
@@ -710,6 +726,12 @@ bool observedScrewAttackPaletteCycle = false;
 bool observedCrystalFlashDrain = false;
 bool observedCrystalFlashFinish = false;
 bool observedCrystalFlashCompletion = false;
+var observedXrayPhases = new HashSet<XrayBeamPhase>();
+var observedXrayAnimationFrames = new HashSet<ushort>();
+bool observedXrayAim = false;
+bool observedXrayTurnStart = false;
+bool observedXrayTurnCompletion = false;
+bool observedXrayLeftStablePose = false;
 bool observedDrainedFallingHandler = false;
 bool observedDrainedLanding = false;
 bool observedDrainedStanding = false;
@@ -905,6 +927,23 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 ? (ushort)SnesButton.Up
                 : (ushort)SnesButton.Down,
             _ => (ushort)0,
+        }
+        : options.XrayScript
+        ? frameIndex switch
+        {
+            // X-ray setup began before frame one. Dash/B remains held through eight bank-
+            // `$88` setup calls, state zero, and all 27 widening calls. The beam therefore
+            // reaches the literal 10.0000 clamp without the host assigning any width word.
+            < 36 => (ushort)SnesButton.B,
+
+            // Once full, fourteen Up samples rotate the center angle from `$40` toward the
+            // native upper clamp. This must drive `$90:E94F` across real art boundaries.
+            >= 36 and < 50 => (ushort)(SnesButton.B | SnesButton.Up),
+
+            // Left is opposite the original right-facing body. `$91:FCAF` mirrors the
+            // angle through `$0100-angle`, installs turn pose `$25`, waits for its ROM delay
+            // list to reach frame two/timer one, and finally selects stable X-ray pose `$D6`.
+            _ => (ushort)(SnesButton.B | SnesButton.Left),
         }
         : options.CrystalFlashScript || options.DrainedSamusScript ||
           options.MotherBrainRainbowScript
@@ -1927,6 +1966,30 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         { PhaseAfterStep: CrystalFlashPhase.Finishing };
     observedCrystalFlashCompletion |= runtime.LastCrystalFlashMovement is
         { Completed: true };
+    if (runtime.LastXrayBeamStep is { } xrayBeamStep)
+    {
+        observedXrayPhases.Add(xrayBeamStep.PhaseAfterStep);
+
+        // Report only meaningful state boundaries. The record remains debugger-visible on
+        // every frame, but a 15-frame timer/angle trace should not bury other diagnostics.
+        if (xrayBeamStep.PhaseAtStart != xrayBeamStep.PhaseAfterStep ||
+            xrayBeamStep.SetupStage == 8)
+        {
+            Console.WriteLine(
+                $"frame {result.FrameNumber,4}: X-ray {xrayBeamStep.PhaseAtStart} -> " +
+                $"{xrayBeamStep.PhaseAfterStep}; setup={xrayBeamStep.SetupStage}, " +
+                $"angle=${xrayBeamStep.AngleAfterStep:X2}, width={xrayBeamStep.WidthAfterStep}.");
+        }
+
+        observedXrayAim |= xrayBeamStep.AngleAfterStep != 0x0040 &&
+            xrayBeamStep.AngleAfterStep != 0x00c0;
+    }
+    if (runtime.LastXrayAnimationFrame is ushort xrayAnimationFrame)
+        observedXrayAnimationFrames.Add(xrayAnimationFrame);
+    observedXrayTurnStart |= runtime.LastXrayPoseInput is { StartedTurn: true };
+    observedXrayTurnCompletion |= runtime.LastXrayPoseInput is { CompletedTurn: true };
+    observedXrayLeftStablePose |=
+        runtime.Samus.Pose == SamusState.XrayingStandingLeftPose;
     observedDrainedFallingHandler |= runtime.LastDrainedSamusMovement is not null;
     observedDrainedLanding |= runtime.LastDrainedSamusMovement is { Landed: true };
     observedDrainedStanding |= runtime.Samus.Pose is
@@ -2846,6 +2909,34 @@ if (options.CrystalFlashScript)
         $"{runtime.Samus.SuperMissiles}/{runtime.Samus.PowerBombs}.");
 }
 
+if (options.XrayScript)
+{
+    // Keep short captures useful while making every reached timeline boundary strict. The
+    // thresholds are counts of accepted NMI/runtime calls, not guesses about wall-clock time.
+    if (options.FrameCount >= 8 && runtime.Samus!.Xray.SetupStage != 0)
+        throw new InvalidOperationException("X-ray ROM route did not finish all eight setup calls.");
+    if (options.FrameCount >= 9 && !observedXrayPhases.Contains(XrayBeamPhase.Widening))
+        throw new InvalidOperationException("X-ray ROM route never entered widening state one.");
+    if (options.FrameCount >= 36 && !observedXrayPhases.Contains(XrayBeamPhase.Full))
+        throw new InvalidOperationException("X-ray ROM route never reached the native ten-unit full beam.");
+    if (options.FrameCount >= 37 && !observedXrayAim)
+        throw new InvalidOperationException("X-ray ROM route never changed its center angle while full.");
+    if (options.FrameCount >= 51 && !observedXrayTurnStart)
+        throw new InvalidOperationException("X-ray ROM route never installed standing turn pose $25.");
+    if (options.FrameCount >= 80 && (!observedXrayTurnCompletion || !observedXrayLeftStablePose))
+    {
+        throw new InvalidOperationException(
+            $"X-ray ROM route did not complete $D5->$25->$D6; pose=${runtime.Samus!.Pose:X2}, " +
+            $"frame={runtime.Samus.AnimationFrame}, timer={runtime.Samus.AnimationFrameTimer}.");
+    }
+
+    Console.WriteLine(
+        $"X-ray ROM route validated setup/full={observedXrayPhases.Contains(XrayBeamPhase.Full)}, " +
+        $"aim={observedXrayAim}, turn={observedXrayTurnStart}/{observedXrayTurnCompletion}, " +
+        $"pose=${runtime.Samus!.Pose:X2}, angle=${runtime.Samus.Xray.Angle:X2}, " +
+        $"art=[{string.Join(',', observedXrayAnimationFrames.Order())}].");
+}
+
 if (options.MotherBrainRainbowScript)
 {
     if (rainbowAttack is null)
@@ -3378,6 +3469,7 @@ readonly record struct DebugRunnerOptions(
     bool GrappleScript,
     bool GrappleFireScript,
     bool CrystalFlashScript,
+    bool XrayScript,
     bool MotherBrainRainbowScript,
     bool DrainedSamusScript,
     bool DraygonGrabScript,
@@ -3422,6 +3514,7 @@ readonly record struct DebugRunnerOptions(
         bool grappleScript = false;
         bool grappleFireScript = false;
         bool crystalFlashScript = false;
+        bool xrayScript = false;
         bool motherBrainRainbowScript = false;
         bool drainedSamusScript = false;
         bool draygonGrabScript = false;
@@ -3607,6 +3700,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--xray-script":
+                    xrayScript = true;
+                    groundedRun = true;
+                    break;
+
                 case "--mother-brain-rainbow-script":
                     motherBrainRainbowScript = true;
                     break;
@@ -3656,7 +3754,7 @@ readonly record struct DebugRunnerOptions(
             Path.GetDirectoryName(Path.GetFullPath(romPath))!,
             "standalone-assets",
             "runtime",
-            "EscapeTimerFrame.png");
+            xrayScript ? "XrayFrame.png" : "EscapeTimerFrame.png");
 
         // The frame runtime reads compressed room data, graphics, palette, door metadata,
         // and library-background tilemaps directly from the ROM. It deliberately has no
@@ -3698,6 +3796,7 @@ readonly record struct DebugRunnerOptions(
             grappleScript,
             grappleFireScript,
             crystalFlashScript,
+            xrayScript,
             motherBrainRainbowScript,
             drainedSamusScript,
             draygonGrabScript,

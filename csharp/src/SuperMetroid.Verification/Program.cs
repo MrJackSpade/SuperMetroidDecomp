@@ -40,6 +40,7 @@ VerifySamusHorizontalSpeed();
 VerifySamusExtraDisplacement();
 VerifySamusStoredShineAndShinespark();
 VerifySamusCrystalFlash();
+VerifySamusXray();
 VerifySamusDrainedController();
 VerifySamusGrabbedByDraygon();
 VerifyMotherBrainRainbowBeamSamusMovement();
@@ -1969,6 +1970,256 @@ static void VerifySamusCrystalFlash()
         "source direction selects left Crystal Flash pose");
 
     Console.WriteLine("  Crystal Flash: prerequisites, handlers, resources, and ROM animation agree.");
+}
+
+/// <summary>
+/// Walks `$91:E16D/$91:EEA6/$91:FCAF`, `$90:E94F`, `$88:86EF-$8AA3`, and
+/// `$91:DCB4-$DD30`: admission, all four bodies, dedicated turning, angle frames, setup,
+/// widening, aiming, visor palette, teardown, and the native crouched-turn stand-up glitch.
+/// </summary>
+static void VerifySamusXray()
+{
+    var bus = new TestAddressSpace();
+
+    // Complete literal pose records from `$91:B631/B751/B851/BCD1-BCF9`. X-ray does not
+    // invent a new movement type: standing bodies are zero, crouched bodies five, and its
+    // intermediate turn bodies use `$0E`, which makes the installed movement handler RTS.
+    (byte Pose, byte[] Definition)[] poses = [
+        (SamusState.FacingRightNormalPose, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.FacingLeftNormalPose, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.TurningRightToLeftPose, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.TurningLeftToRightPose, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.CrouchingRightPose, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.CrouchingLeftPose, [0x04, 0x05, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.TurningRightToLeftCrouchingPose, [0x04, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.TurningLeftToRightCrouchingPose, [0x08, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.XrayingStandingRightPose, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.XrayingStandingLeftPose, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.XrayingCrouchingRightPose, [0x08, 0x05, 0xff, 0x02, 0x00, 0x00, 0x10, 0x00]),
+        (SamusState.XrayingCrouchingLeftPose, [0x04, 0x05, 0xff, 0x07, 0x00, 0x00, 0x10, 0x00]),
+    ];
+    foreach ((byte pose, byte[] definition) in poses)
+        bus.WriteBytes(0x91b629 + pose * 8, definition);
+
+    // The four X-ray poses share retail `$0F,$0F,$0F,$0F,$0F,$FF`. Synthetic one-tick
+    // turn/ordinary lists make the frame-two/timer-one completion seam deterministic while
+    // preserving the byte-indexed command shape expected by the production interpreter.
+    ushort nextStream = 0xc600;
+    foreach ((byte pose, _) in poses)
+    {
+        ushort stream = nextStream;
+        nextStream = unchecked((ushort)(nextStream + 0x10));
+        WriteTestWord(bus, 0x91b010 + pose * 2, stream);
+        bool xrayPose = pose is
+            SamusState.XrayingStandingRightPose or SamusState.XrayingStandingLeftPose or
+            SamusState.XrayingCrouchingRightPose or SamusState.XrayingCrouchingLeftPose;
+        bus.WriteBytes(
+            0x910000 | stream,
+            xrayPose ? [0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0xff] : [0x01, 0x01, 0x01, 0xff]);
+    }
+
+    // `$9B:A3C0` contains widening colors 3BE0/5FF0/7FFF and full-beam colors
+    // 43FF/2F5A/1AB5. The normal-palette pointer is deliberately synthetic so teardown's
+    // complete 16-color restoration cannot pass by leaving the previous visor word behind.
+    ushort[] visorColors = [0x3be0, 0x5ff0, 0x7fff, 0x43ff, 0x2f5a, 0x1ab5];
+    for (int index = 0; index < visorColors.Length; index++)
+        WriteTestWord(bus, 0x9ba3c0 + index * 2, visorColors[index]);
+    WriteTestWord(bus, 0x91d727, 0x9400);
+    for (ushort index = 0; index < 16; index++)
+        WriteTestWord(bus, 0x9b9400 + index * 2, unchecked((ushort)(0x0100 + index)));
+
+    var cgram = new SnesCgram();
+    var standing = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 100,
+        YPosition = 200,
+    };
+    standing.RefreshCollisionRadii(bus);
+    standing.InitializeAnimation(bus);
+
+    AssertTrue(
+        standing.Xray.TryBegin(bus, standing, previousMovementType: 0),
+        "standing X-ray setup accepted");
+    AssertEqual((byte)0xd5, standing.Pose, "right standing X-ray pose");
+    AssertEqual((ushort)21, standing.Kinematics.YRadius, "standing X-ray radius");
+    AssertEqual((ushort)2, standing.AnimationFrame, "command five starts X-ray frame two");
+    AssertEqual((ushort)0x3f, standing.AnimationFrameTimer, "command five X-ray timer");
+    AssertEqual((ushort)0x40, standing.Xray.Angle, "right X-ray initial angle");
+    AssertEqual((byte)1, standing.Xray.SetupStage, "X-ray starts setup stage one");
+    AssertTrue(standing.Xray.TimeIsFrozen, "X-ray freezes time");
+    AssertTrue(standing.Xray.ActivationSoundRequested, "X-ray activation sound requested");
+
+    AssertEqual((ushort)2, standing.Xray.StepMovement(bus, standing)!.Value,
+        "angle 40 selects forward X-ray frame");
+    AssertEqual((ushort)15, standing.AnimationFrameTimer, "X-ray movement forces timer fifteen");
+    standing.AnimateNoFx(bus);
+    AssertEqual((ushort)14, standing.AnimationFrameTimer,
+        "generic animation follows X-ray movement timer write");
+
+    // Palette handler eight runs in the palette-FX phase. Timer one expires immediately,
+    // writes only visor color four, advances byte offset zero to two, and reloads five.
+    AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems),
+        "X-ray widening palette writes first visor color");
+    AssertEqual((ushort)0x3be0, cgram.Colors[196], "first widening visor color");
+    AssertEqual((ushort)2, standing.Xray.SpecialPaletteFrame, "widening palette offset advances");
+    AssertEqual((ushort)5, standing.Xray.CommonPaletteTimer, "widening palette timer reload");
+
+    // Eight instruction-list setup functions execute before the main bank-$88 preinstruction.
+    // The eighth call clears SetupStage; the next call changes X-ray state zero to one.
+    for (int stage = 1; stage <= 8; stage++)
+        standing.Xray.StepBeam(bus, standing, (ushort)SnesButton.B);
+    AssertEqual((byte)0, standing.Xray.SetupStage, "eight X-ray setup stages complete");
+    AssertEqual(XrayBeamPhase.NoBeam, standing.Xray.BeamPhase, "setup retains state zero");
+    standing.Xray.StepBeam(bus, standing, (ushort)SnesButton.B);
+    AssertEqual(XrayBeamPhase.Widening, standing.Xray.BeamPhase, "state zero starts widening");
+
+    // Fixed-point acceleration reaches 10.F800 after 26 widening calls and would cross
+    // eleven on call 27; native clamps the whole width to ten, clears its fraction, and
+    // advances to full-beam state two on that exact call.
+    for (int frame = 1; frame <= 26; frame++)
+        standing.Xray.StepBeam(bus, standing, (ushort)SnesButton.B);
+    AssertEqual(XrayBeamPhase.Widening, standing.Xray.BeamPhase,
+        "X-ray remains widening through call 26");
+    AssertEqual((ushort)10, standing.Xray.AngularWidth, "call 26 whole width");
+    AssertEqual((ushort)0xf800, standing.Xray.AngularSubwidth, "call 26 fractional width");
+    standing.Xray.StepBeam(bus, standing, (ushort)SnesButton.B);
+    AssertEqual(XrayBeamPhase.Full, standing.Xray.BeamPhase, "call 27 reaches full beam");
+    AssertEqual((ushort)10, standing.Xray.AngularWidth, "full beam clamps width ten");
+    AssertEqual((ushort)0, standing.Xray.AngularSubwidth, "full beam clears width fraction");
+
+    AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems),
+        "full beam enters visor cycle");
+    AssertEqual((ushort)1, standing.Xray.BeamSizeFlag, "full beam palette flag");
+    AssertEqual((ushort)0x43ff, cgram.Colors[196], "first full-beam visor color");
+    AssertEqual((ushort)8, standing.Xray.SpecialPaletteFrame, "full-beam palette offset advances");
+
+    // Full-beam aiming moves one angle unit per call and Up wins over Down. Width ten clamps
+    // the right-facing center at angle ten, so 80 calls cannot wrap into left-facing space.
+    standing.Xray.StepBeam(
+        bus,
+        standing,
+        (ushort)(SnesButton.B | SnesButton.Up | SnesButton.Down));
+    AssertEqual((ushort)0x3f, standing.Xray.Angle, "X-ray Up wins over Down");
+    for (int frame = 0; frame < 80; frame++)
+        standing.Xray.StepBeam(bus, standing, (ushort)(SnesButton.B | SnesButton.Up));
+    AssertEqual((ushort)10, standing.Xray.Angle, "right X-ray upper clamp includes width");
+    AssertEqual((ushort)0, standing.Xray.StepMovement(bus, standing)!.Value,
+        "upper-clamped angle selects looking-up art");
+
+    // Start a turn while the dedicated handler owns input. `$0100-angle` mirrors ten to
+    // F6, pose `$25` supplies type `$0E`, and two one-tick animation advances reach the
+    // exact frame-two/timer-one completion gate before `$D6` is installed.
+    XrayPoseInputResult startedTurn = standing.Xray.HandlePoseInput(
+        bus,
+        standing,
+        (ushort)SnesButton.Left);
+    AssertTrue(startedTurn.StartedTurn, "X-ray starts standing turn");
+    AssertEqual((byte)0x25, standing.Pose, "X-ray right-to-left standing turn pose");
+    AssertEqual((ushort)0xf6, standing.Xray.Angle, "X-ray turn mirrors angle");
+    AssertTrue(standing.Xray.StepMovement(bus, standing) is null,
+        "X-ray movement is RTS during type-E turn");
+    standing.AnimateNoFx(bus);
+    standing.AnimateNoFx(bus);
+    AssertEqual((ushort)2, standing.AnimationFrame, "X-ray turn reaches frame two");
+    AssertEqual((ushort)1, standing.AnimationFrameTimer, "X-ray turn reaches timer one");
+    XrayPoseInputResult completedTurn = standing.Xray.HandlePoseInput(bus, standing, 0);
+    AssertTrue(completedTurn.CompletedTurn, "X-ray completes standing turn");
+    AssertEqual((byte)0xd6, standing.Pose, "X-ray turn installs left standing body");
+    AssertEqual((ushort)0, standing.Xray.StepMovement(bus, standing)!.Value,
+        "left near-up angle selects looking-up art");
+
+    // Releasing Dash enters states three/four/five. State five restores ordinary left
+    // standing, requests palette restoration and sound ten, and unfreezes every subsystem.
+    standing.Xray.StepBeam(bus, standing, 0);
+    AssertEqual(XrayBeamPhase.RestoreFirstHalf, standing.Xray.BeamPhase,
+        "Dash release starts first BG2 restore");
+    standing.Xray.StepBeam(bus, standing, 0);
+    standing.Xray.StepBeam(bus, standing, 0);
+    XrayBeamStepResult finished = standing.Xray.StepBeam(bus, standing, 0);
+    AssertTrue(finished.Completed, "X-ray state five completes");
+    AssertTrue(!standing.Xray.IsActive && !standing.Xray.TimeIsFrozen,
+        "X-ray teardown restores time and handlers");
+    AssertEqual((byte)0x02, standing.Pose, "left X-ray exits to ordinary standing");
+    AssertEqual((ushort)0xffff, standing.Xray.BeamSizeFlag,
+        "X-ray teardown requests palette restoration");
+    AssertTrue(standing.Xray.DeactivationSoundRequested, "X-ray deactivation sound requested");
+    AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems),
+        "X-ray teardown restores normal suit palette");
+    AssertEqual((ushort)0x0104, cgram.Colors[196], "normal palette replaces visor color");
+    AssertEqual((ushort)0, standing.Xray.SpecialPaletteType, "X-ray palette handler clears");
+
+    // Crouched setup selects `$D9`. Releasing while its `$43` turn is still active makes
+    // `$91:E2AD` classify movement type `$0E` as standing, choose left `$02`, expand radius
+    // 16 -> 21, and move the center five pixels upward: the retail X-ray stand-up glitch.
+    var crouched = new SamusState
+    {
+        Pose = SamusState.CrouchingRightPose,
+        XPosition = 100,
+        YPosition = 200,
+    };
+    crouched.RefreshCollisionRadii(bus);
+    crouched.InitializeAnimation(bus);
+    AssertTrue(crouched.Xray.TryBegin(bus, crouched, previousMovementType: 5),
+        "crouched X-ray setup accepted");
+    AssertEqual((byte)0xd9, crouched.Pose, "right crouched X-ray pose");
+    AssertEqual((ushort)16, crouched.Kinematics.YRadius, "crouched X-ray radius");
+    crouched.Xray.HandlePoseInput(bus, crouched, (ushort)SnesButton.Left);
+    AssertEqual((byte)0x43, crouched.Pose, "crouched X-ray turn pose");
+    AssertEqual((ushort)16, crouched.Kinematics.YRadius, "crouched turn retains radius");
+    for (int stage = 1; stage <= 8; stage++)
+        crouched.Xray.StepBeam(bus, crouched, 0);
+    crouched.Xray.StepBeam(bus, crouched, 0); // State 0 -> state 3 on released Dash.
+    crouched.Xray.StepBeam(bus, crouched, 0); // State 3 -> state 4.
+    crouched.Xray.StepBeam(bus, crouched, 0); // State 4 -> state 5.
+    crouched.Xray.StepBeam(bus, crouched, 0); // State 5 -> teardown.
+    AssertEqual((byte)0x02, crouched.Pose, "crouched-turn release triggers standing-left glitch");
+    AssertEqual((ushort)21, crouched.Kinematics.YRadius, "stand-up glitch expands radius");
+    AssertEqual((ushort)195, crouched.YPosition, "stand-up glitch moves center up five pixels");
+
+    // Admission failures are kept independent so no broad host-side `grounded` boolean can
+    // accidentally replace the native previous/current type, landing, velocity, and rare
+    // five-bomb conjunction checks.
+    SamusState Rejected(byte pose, ushort ySpeed = 0, ushort ySubspeed = 0)
+    {
+        var sample = new SamusState { Pose = pose };
+        sample.RefreshCollisionRadii(bus);
+        sample.InitializeAnimation(bus);
+        sample.Kinematics.YSpeed = ySpeed;
+        sample.Kinematics.YSubspeed = ySubspeed;
+        return sample;
+    }
+
+    // Seed excluded landing `$A4` and falling `$29` definitions/animations only for gates.
+    bus.WriteBytes(0x91b629 + SamusState.NormalLandingRightPose * 8,
+        [0x08, 0x00, 0xff, 0x02, 0x03, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + SamusState.FallingRightPose * 8,
+        [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]);
+    WriteTestWord(bus, 0x91b010 + SamusState.NormalLandingRightPose * 2, 0xc700);
+    WriteTestWord(bus, 0x91b010 + SamusState.FallingRightPose * 2, 0xc710);
+    bus.WriteBytes(0x91c700, [0x01, 0xff]);
+    bus.WriteBytes(0x91c710, [0x01, 0xff]);
+    var landing = Rejected(SamusState.NormalLandingRightPose);
+    AssertTrue(!landing.Xray.TryBegin(bus, landing, previousMovementType: 0),
+        "X-ray rejects landing pose");
+    var movingVertically = Rejected(SamusState.FacingRightNormalPose, ySubspeed: 1);
+    AssertTrue(!movingVertically.Xray.TryBegin(bus, movingVertically, previousMovementType: 0),
+        "X-ray rejects fractional Y velocity");
+    var badPrevious = Rejected(SamusState.FacingRightNormalPose);
+    AssertTrue(!badPrevious.Xray.TryBegin(bus, badPrevious, previousMovementType: 6),
+        "X-ray rejects unsupported previous movement type");
+    var fiveBombQuirk = Rejected(SamusState.FacingRightNormalPose);
+    fiveBombQuirk.XSpeedDivisor = 2;
+    AssertTrue(!fiveBombQuirk.Xray.TryBegin(
+        bus,
+        fiveBombQuirk,
+        previousMovementType: 0,
+        projectileCooldownTimer: 7,
+        bombCounter: 5),
+        "X-ray preserves five-bomb cooldown/divisor rejection");
+
+    Console.WriteLine(
+        "  X-ray: admission, four poses, turns, angle art, setup/widen/aim, visor palette, teardown, and stand-up glitch agree.");
 }
 
 /// <summary>

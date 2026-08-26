@@ -159,6 +159,7 @@ dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Sup
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 100 --grapple-script --output ../standalone-assets/runtime/GrappleSwing.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 100 --crystal-flash-script --output ../standalone-assets/runtime/CrystalFlashActiveFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 270 --crystal-flash-script --output ../standalone-assets/runtime/CrystalFlashFrame.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 80 --xray-script --output standalone-assets/runtime/XrayFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 110 --drained-samus-script --output ../standalone-assets/runtime/DrainedSamusActiveFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 180 --drained-samus-script --output ../standalone-assets/runtime/DrainedSamusFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 90 --draygon-grab-script --output ../standalone-assets/runtime/DraygonGrabMovingFrame.png
@@ -252,6 +253,14 @@ and landing PNGs freeze their authentic private-ROM tile definitions against liv
 `--grapple-script` still supplies one already-accepted world-space anchor because Landing Site has no grapple block and enemies are not translated. Bank `$9B` supplies the pendulum pump, rope-length rules, quadrant gravity, 16-frame collision-kick gate, release products, art lookup, and one-frame `$51/$52` handoff. Bank `$94` walks rope changes one pixel at a time, sweeps six body points for every crossed whole angle byte, restores the last-safe `$xx80` angle, and negates arithmetic half velocity on terrain collision. It also supplies the sixteen staggered segment instruction phases and packed OAM attributes; bank `$9A` supplies the endpoint/rope tile data selected by the live angle. The two-frame capture freezes Landing Site's immediate reflected beam, while 100 frames proves terrain reflection, release, and jump-pose handoff.
 
 `--crystal-flash-script` supplies the still-untranslated centred power-bomb cleanup call and a visible 10/10/10 inventory fixture, then calls `$90:D5A2` with exact Down+L+R+Shoot. The translated routine itself enforces zero Y speed, energy below 51, empty reserve, and every ammo threshold; it raises `$D3` twenty pixels, drains each ammo family only on NMI counters divisible by eight while applying `$91:DF12` energy overflow, and follows `$91:B545`'s `$FD,$01` finish into ordinary falling. The 100-frame capture freezes the cartridge's active Crystal Flash body; 270 frames prove all handlers and standing return. Bank-$88 window HDMA and bank-$91 palette cycling remain explicit presentation seams. The viewer's **Restart Crystal Flash** button runs the same deterministic route.
+
+`--xray-script` grants only scope item bit `$8000` at the explicit already-selected HUD seam,
+then lets `$91:E16D` admit the grounded body and choose `$D5`. Holding Dash executes the eight
+bank-$88 setup calls and reaches the carry-accurate 10.0000 width clamp on frame 36; Up crosses
+the ROM animation thresholds, and Left mirrors the center angle and completes `$D5->$25->$D6`
+on frame 56. The 80-frame PNG uses live Landing Site BG1/BG2, palette, Samus DMA, and OAM.
+The revealed-block BG2 copies and window-HDMA polygon are not rendered yet, so the image is an
+honest movement/art diagnostic rather than a fabricated approximation of the scanner mask.
 
 `--drained-samus-script` supplies only the call timing normally owned by the later Baby Metroid actor. It lifts the debugger body two blocks, calls the exact `$91:E4AD` controller entries, and leaves `$E8-$EB` animation bytecode, `$F7`, shared 16.16 gravity, room collision, signed draw offsets, tile DMA, and spritemaps ROM-authored. The 110-frame capture freezes authentic crouched drained art; 180 frames prove floor handoff, standing/crouching commands, `$FD,$01` release, and hyper-beam state.
 

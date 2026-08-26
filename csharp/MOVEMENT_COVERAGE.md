@@ -16,7 +16,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$02` | Normal jumping | `$4B-$4E/$15-$16/$51-$52/$55-$5A/$69-$6C`, dry air, variable height, ceiling/floor collision | Compact straight-down `$17/$18`, equipment/liquids, external displacement |
 | `$03` | Spin jumping | `$19/$1A`, dry air, variable height, split-body animation | Wall-jump trigger, space jump, screw attack, equipment/liquids |
 | `$04` | Morph ball on ground | — | Entire family |
-| `$05` | Crouching | `$27/$28`, grounded probe and momentum clear | Aim/fire variants, crouch-jump and morph entry |
+| `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear | Fire variants, direct stand/run seams, crouch-jump and morph entry |
 | `$06` | Falling | `$29/$2A/$2B/$2C/$6D-$70`, walk-off, dry-air gravity and landing | Compact straight-down `$2D/$2E`, equipment/liquids, aerial turn transitions |
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
 | `$08` | Morph ball falling | — | Entire family and bounce state |
@@ -26,7 +26,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$0C` | Unused | — | Preserve only if required |
 | `$0D` | Unused | — | Preserve only if required |
 | `$0E` | Turning on ground | `$25/$26`, old-direction mode-one momentum, `$F8` completion | Aim/fire variants and transitions originating in later families |
-| `$0F` | Crouch/stand/morph transition | `$35/$36/$3B/$3C`, bottom alignment, radius collision, `$FD` completion | Morph transitions and later aim/fire variants |
+| `$0F` | Crouch/stand/morph transition | `$35/$36/$3B/$3C/$F1-$FC`, bottom alignment, radius collision, `$FD` completion | Morph transitions and fire variants |
 | `$10` | Moonwalking | — | Entire family |
 | `$11` | Spring ball on ground | — | Entire family |
 | `$12` | Spring ball in air | — | Entire family |
@@ -76,6 +76,14 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - The renderer applies `$90:8D3C`'s transition-frame Y offsets instead of drawing the changing
   collision center directly. RoomViewer exposes mutually exclusive **Hold Up**/**Hold Down**
   controls, and DebugRunner `--posture-script` verifies both facing directions against the ROM.
+- Down plus the canonical shoulder chords selects `$F1-$F6`; their command `$FD` targets
+  `$85/$86/$71-$74`. All six stable aimed crouches share radius 16, movement type five,
+  grounding and momentum cleanup with `$27/$28`, while definition byte two returns them to
+  ordinary crouch when every controller bit is released.
+- Up plus the same shoulder chords selects `$F7-$FC`. Their radius-21 expansion uses the
+  existing five-pixel ceiling/floor collision probes and `$FD` targets `$03-$08`. The
+  synthetic matrix covers all twelve transition records and the real-ROM
+  `--aim-crouch-script` crosses both facings, live aim changes, and both fallback paths.
 
 ## Verified grounded-aim slice
 
@@ -97,7 +105,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - Releasing only the direction changes aimed running to the matching stationary aim pose
   after that frame's movement; releasing every button preserves the aimed run pose while
   native mode-two momentum decelerates, then pose-definition byte two returns to `$01/$02`.
-  Aimed crouching and turning remain the next connected grounded families.
+  Aimed turning remains the next connected grounded family.
 
 ## Verified aimed-air slice
 
@@ -137,10 +145,13 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - The real-ROM `--aim-air-script` route completes right and left aimed launches, live diagonal
   aim changes, definition fallbacks, `$E2/$E4/$E5` landings, and their `$F8` returns while
   retaining the ordinary collision, camera, minimap, terrain, and ROM-authored animation paths.
+- The real-ROM `--aim-crouch-script` route completes `$01 -> $F3 -> $71 -> $73 -> $85 -> $27
+  -> $F9 -> $05`, turns left, then mirrors through `$F4/$72/$74/$86/$28/$FC/$08`. Radius
+  changes keep the feet fixed and the active-pose diagnostic retains terrain/HUD alignment.
 
 ## Next implementation order
 
-1. Aimed crouching/turning, crouch-jump entry, and compact straight-down aerial collision bodies.
+1. Aimed standing/crouched turns, crouch-jump entry, and compact straight-down aerial collision bodies.
 2. Morph ball ground/fall/bounce, bombs, and spring ball.
 3. Aerial turns and the real wall-jump trigger/launch.
 4. Knockback and damage boost.

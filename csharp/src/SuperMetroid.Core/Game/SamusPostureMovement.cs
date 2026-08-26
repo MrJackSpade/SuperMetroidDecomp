@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Movement for ordinary crouching and the crouch/stand animation poses.
+/// Movement for ordinary/aimed crouching and the crouch/stand animation poses.
 /// </summary>
 /// <remarks>
 /// These routines look stationary but are not host no-ops: the cartridge still publishes
@@ -14,7 +14,10 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusPostureMovement
 {
-    /// <summary>Ports movement type five at <c>$90:A573</c> for poses $27/$28.</summary>
+    /// <summary>
+    /// Ports movement type five at <c>$90:A573</c> for the complete equal-radius
+    /// `$27/$28/$71-$74/$85/$86` crouch family.
+    /// </summary>
     public static GroundedMovementResult StepCrouching(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -22,8 +25,12 @@ public static class SamusPostureMovement
         ushort nmiFrameCounter)
     {
         Validate(bus, level, samus);
-        if (samus.Pose is not (SamusState.CrouchingRightPose or SamusState.CrouchingLeftPose))
-            throw new InvalidOperationException($"Crouching movement requires pose $27/$28, not ${samus.Pose:X2}.");
+        if (!SamusState.IsRightFacingCrouchingPose(samus.Pose) &&
+            !SamusState.IsLeftFacingCrouchingPose(samus.Pose))
+        {
+            throw new InvalidOperationException(
+                $"Crouching movement requires pose $27/$28/$71-$74/$85/$86, not ${samus.Pose:X2}.");
+        }
 
         GroundedMovementResult result = MoveWithZeroBaseSpeed(
             bus,
@@ -38,7 +45,8 @@ public static class SamusPostureMovement
     }
 
     /// <summary>
-    /// Ports the $35/$36/$3B/$3C subset of movement type $0F at <c>$90:A61C</c>.
+    /// Ports the `$35/$36/$3B/$3C/$F1-$FC` crouch/stand subset of movement type
+    /// `$0F` at <c>$90:A61C</c>.
     /// </summary>
     public static GroundedMovementResult StepCrouchStandTransition(
         ISnesAddressSpace bus,
@@ -47,12 +55,10 @@ public static class SamusPostureMovement
         ushort nmiFrameCounter)
     {
         Validate(bus, level, samus);
-        if (samus.Pose is not (
-            SamusState.CrouchingTransitionRightPose or SamusState.CrouchingTransitionLeftPose or
-            SamusState.StandingTransitionRightPose or SamusState.StandingTransitionLeftPose))
+        if (!SamusState.IsCrouchStandTransitionPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Crouch/stand transition movement requires pose $35/$36/$3B/$3C, not ${samus.Pose:X2}.");
+                $"Crouch/stand transition movement requires pose $35/$36/$3B/$3C/$F1-$FC, not ${samus.Pose:X2}.");
         }
 
         // All four corresponding entries in $90:A659 are RTS. Unlike movement type five,

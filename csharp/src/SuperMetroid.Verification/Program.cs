@@ -1055,9 +1055,43 @@ static void VerifySamusPostureMovement()
 {
     var bus = new TestAddressSpace();
     bus.WriteBytes(0x91b631, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
+    bus.WriteBytes(0x91b639, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]); // $02
+    bus.WriteBytes(0x91b641, [0x08, 0x00, 0x01, 0x00, 0x06, 0x00, 0x15, 0x00]); // $03
+    bus.WriteBytes(0x91b649, [0x04, 0x00, 0x02, 0x09, 0x06, 0x00, 0x15, 0x00]); // $04
+    bus.WriteBytes(0x91b651, [0x08, 0x00, 0x01, 0x01, 0x06, 0x00, 0x15, 0x00]); // $05
+    bus.WriteBytes(0x91b659, [0x04, 0x00, 0x02, 0x08, 0x06, 0x00, 0x15, 0x00]); // $06
+    bus.WriteBytes(0x91b661, [0x08, 0x00, 0x01, 0x03, 0x06, 0x00, 0x15, 0x00]); // $07
+    bus.WriteBytes(0x91b669, [0x04, 0x00, 0x02, 0x06, 0x06, 0x00, 0x15, 0x00]); // $08
     bus.WriteBytes(0x91b761, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]); // $27
+    bus.WriteBytes(0x91b769, [0x04, 0x05, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]); // $28
     bus.WriteBytes(0x91b7d1, [0x08, 0x0f, 0xff, 0x02, 0x00, 0x00, 0x10, 0x00]); // $35
     bus.WriteBytes(0x91b801, [0x08, 0x0f, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $3B
+    bus.WriteBytes(0x91b9b1, [0x08, 0x05, 0x27, 0x01, 0x00, 0x00, 0x10, 0x00]); // $71
+    bus.WriteBytes(0x91b9b9, [0x04, 0x05, 0x28, 0x08, 0x00, 0x00, 0x10, 0x00]); // $72
+    bus.WriteBytes(0x91b9c1, [0x08, 0x05, 0x27, 0x03, 0x00, 0x00, 0x10, 0x00]); // $73
+    bus.WriteBytes(0x91b9c9, [0x04, 0x05, 0x28, 0x06, 0x00, 0x00, 0x10, 0x00]); // $74
+    bus.WriteBytes(0x91ba51, [0x08, 0x05, 0x27, 0x00, 0x00, 0x00, 0x10, 0x00]); // $85
+    bus.WriteBytes(0x91ba59, [0x04, 0x05, 0x28, 0x09, 0x00, 0x00, 0x10, 0x00]); // $86
+
+    // These twelve literal records prove the aimed transition art retains command seven's
+    // radius semantics: `$F1-$F6` already carry radius 16, while `$F7-$FC` carry radius 21.
+    byte[] aimedCrouchTransitions = [0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6];
+    byte[] aimedStandTransitions = [0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc];
+    byte[] transitionDirections = [0x08, 0x04, 0x08, 0x04, 0x08, 0x04];
+    byte[] transitionShots = [0x00, 0x09, 0x01, 0x08, 0x03, 0x06];
+    for (int index = 0; index < 6; index++)
+    {
+        int crouchAddress = 0x91b629 + aimedCrouchTransitions[index] * 8;
+        bus.WriteBytes(crouchAddress, [
+            transitionDirections[index], 0x0f, 0xff, transitionShots[index],
+            0x08, 0x00, 0x10, 0x00,
+        ]);
+        int standAddress = 0x91b629 + aimedStandTransitions[index] * 8;
+        bus.WriteBytes(standAddress, [
+            transitionDirections[index], 0x0f, 0xff, transitionShots[index],
+            0x03, 0x00, 0x15, 0x00,
+        ]);
+    }
     WriteTestWord(bus, 0x91b012, 0xc100);
     WriteTestWord(bus, 0x91b05e, 0xc110);
     WriteTestWord(bus, 0x91b07a, 0xc120);
@@ -1066,6 +1100,30 @@ static void VerifySamusPostureMovement()
     bus.WriteBytes(0x91c110, [0x0a, 0x0a, 0x0a, 0x0a, 0xf6]);
     bus.WriteBytes(0x91c120, [0x02, 0xfd, 0x27]);
     bus.WriteBytes(0x91c130, [0x02, 0xfd, 0x01]);
+
+    // Give every aimed transition its own command-$FD stream. Distinct stream pointers
+    // catch accidental pose reuse; the literal target arrays mirror `$91:B518-$91:B53B`.
+    byte[] aimedCrouchTargets = [0x85, 0x86, 0x71, 0x72, 0x73, 0x74];
+    byte[] aimedStandTargets = [0x03, 0x04, 0x05, 0x06, 0x07, 0x08];
+    for (int index = 0; index < 6; index++)
+    {
+        ushort crouchStream = unchecked((ushort)(0xc200 + index * 0x10));
+        WriteTestWord(bus, 0x91b010 + aimedCrouchTransitions[index] * 2, crouchStream);
+        bus.WriteBytes(0x910000 | crouchStream, [0x02, 0xfd, aimedCrouchTargets[index]]);
+        ushort standStream = unchecked((ushort)(0xc260 + index * 0x10));
+        WriteTestWord(bus, 0x91b010 + aimedStandTransitions[index] * 2, standStream);
+        bus.WriteBytes(0x910000 | standStream, [0x02, 0xfd, aimedStandTargets[index]]);
+    }
+    byte[] stablePosturePoses = [
+        0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+        0x28, 0x71, 0x72, 0x73, 0x74, 0x85, 0x86,
+    ];
+    for (int index = 0; index < stablePosturePoses.Length; index++)
+    {
+        ushort stream = unchecked((ushort)(0xc300 + index * 0x10));
+        WriteTestWord(bus, 0x91b010 + stablePosturePoses[index] * 2, stream);
+        bus.WriteBytes(0x910000 | stream, [0x10, 0xff]);
+    }
 
     const int width = 8;
     const int height = 8;
@@ -1115,6 +1173,76 @@ static void VerifySamusPostureMovement()
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "standing FD applies");
     AssertEqual((byte)0x01, samus.Pose, "standing transition target");
 
+    // Exercise all six facing/direction variants through both radius-changing halves. This
+    // is intentionally a table test because the retail transition tables route every one
+    // through the same two native collision commands but different `$FD` targets.
+    for (int index = 0; index < 6; index++)
+    {
+        bool facesLeft = (index & 1) != 0;
+        var aimedSamus = new SamusState
+        {
+            Pose = facesLeft ? SamusState.FacingLeftNormalPose : SamusState.FacingRightNormalPose,
+            XPosition = 48,
+            YPosition = 43,
+        };
+        aimedSamus.RefreshCollisionRadii(bus);
+        aimedSamus.InitializeAnimation(bus);
+        AssertTrue(
+            aimedSamus.TryApplyPostureTransition(
+                bus, level, aimedCrouchTransitions[index], unchecked((ushort)index)),
+            $"aimed crouch transition ${aimedCrouchTransitions[index]:X2} begins");
+        AssertEqual((ushort)16, aimedSamus.Kinematics.YRadius, "aimed crouch transition radius");
+        AssertEqual((ushort)48, aimedSamus.YPosition, "aimed crouch keeps feet aligned");
+        SamusPostureMovement.StepCrouchStandTransition(
+            bus, level, aimedSamus, unchecked((ushort)index));
+        aimedSamus.AnimateNoFx(bus);
+        aimedSamus.AnimateNoFx(bus);
+        AssertTrue(aimedSamus.ApplyPendingVerifiedAnimationTransition(bus), "aimed crouch FD applies");
+        AssertEqual(aimedCrouchTargets[index], aimedSamus.Pose, "aimed crouch FD target");
+        AssertEqual(
+            facesLeft ? (byte)0x28 : (byte)0x27,
+            aimedSamus.ReadNoInputFallbackPose(bus),
+            "aimed crouch definition fallback");
+        GroundedMovementResult aimedCrouchFrame = SamusPostureMovement.StepCrouching(
+            bus, level, aimedSamus, unchecked((ushort)index));
+        AssertTrue(aimedCrouchFrame.Vertical.Collided, "aimed crouch remains grounded");
+
+        AssertTrue(
+            aimedSamus.TryApplyPostureTransition(
+                bus, level, aimedStandTransitions[index], unchecked((ushort)index)),
+            $"aimed stand transition ${aimedStandTransitions[index]:X2} begins");
+        AssertEqual((ushort)21, aimedSamus.Kinematics.YRadius, "aimed standing transition radius");
+        AssertEqual((ushort)43, aimedSamus.YPosition, "aimed stand keeps feet aligned");
+        aimedSamus.AnimateNoFx(bus);
+        aimedSamus.AnimateNoFx(bus);
+        AssertTrue(aimedSamus.ApplyPendingVerifiedAnimationTransition(bus), "aimed stand FD applies");
+        AssertEqual(aimedStandTargets[index], aimedSamus.Pose, "aimed stand FD target");
+    }
+
+    // Equal-radius live shoulder changes never route through pose-change collision. Verify
+    // both facing families and the definition-byte-two return to ordinary crouch.
+    var crouchAim = new SamusState
+    {
+        Pose = SamusState.CrouchingRightPose,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    crouchAim.RefreshCollisionRadii(bus);
+    crouchAim.InitializeAnimation(bus);
+    foreach (byte target in new byte[] {
+        SamusState.CrouchingAimUpRightPose,
+        SamusState.CrouchingAimDiagonalUpRightPose,
+        SamusState.CrouchingAimDiagonalDownRightPose,
+        SamusState.CrouchingRightPose,
+    })
+    {
+        crouchAim.ApplyGroundedAimTransition(bus, target);
+        AssertEqual((ushort)16, crouchAim.Kinematics.YRadius, $"right crouch aim ${target:X2} radius");
+    }
+    AssertThrows<NotSupportedException>(
+        () => crouchAim.ApplyGroundedAimTransition(bus, SamusState.CrouchingAimUpLeftPose),
+        "crouch aim cannot cross facing families");
+
     // Ceiling row one ends at pixel 31. A crouched body occupies 32..63 exactly, while a
     // standing body would need 27..63. Both five-pixel probes collide, so native pose
     // collision rejects the larger pose and retains crouch.
@@ -1143,7 +1271,7 @@ static void VerifySamusPostureMovement()
     AssertEqual((byte)0x27, tunnelSamus.Pose, "rejected stand retains crouch pose");
     AssertEqual((ushort)48, tunnelSamus.YPosition, "rejected stand preserves center Y");
 
-    Console.WriteLine("  Samus posture: crouch/stand radii, movement, FD animations, and low-ceiling rejection agree.");
+    Console.WriteLine("  Samus posture: ordinary/aimed crouch/stand radii, movement, FD targets, and low-ceiling rejection agree.");
 }
 
 /// <summary>

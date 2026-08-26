@@ -455,18 +455,19 @@ public sealed class SuperMetroidRuntime
                     : Samus.ReadNoInputFallbackPose(_addressSpace);
             }
 
-            // Pose-definition byte two for `$03/$05/$07` is `$01`, and for
-            // `$04/$06/$08` it is `$02`. This path is separate from the transition table:
-            // `$91:81A9` exits before reading a record when the entire controller word is
-            // zero, then `$91:82D9` installs this no-input fallback directly.
+            // Pose-definition byte two returns standing aim `$03-$08` to `$01/$02` and
+            // crouched aim `$71-$74/$85/$86` to `$27/$28`. This path is separate from the
+            // transition table: `$91:81A9` exits before reading a record when the entire
+            // controller word is zero, then `$91:82D9` installs the definition fallback.
             if (GroundedSamusMovementEnabled &&
-                Samus.Pose is
-                    SamusState.StandingAimUpRightPose or
-                    SamusState.StandingAimUpLeftPose or
-                    SamusState.StandingAimDiagonalUpRightPose or
-                    SamusState.StandingAimDiagonalUpLeftPose or
-                    SamusState.StandingAimDiagonalDownRightPose or
-                    SamusState.StandingAimDiagonalDownLeftPose &&
+                ((Samus.Pose is
+                      SamusState.StandingAimUpRightPose or
+                      SamusState.StandingAimUpLeftPose or
+                      SamusState.StandingAimDiagonalUpRightPose or
+                      SamusState.StandingAimDiagonalUpLeftPose or
+                      SamusState.StandingAimDiagonalDownRightPose or
+                      SamusState.StandingAimDiagonalDownLeftPose) ||
+                 SamusState.IsAimedCrouchingPose(Samus.Pose)) &&
                 Controller1.Current == 0 &&
                 ProspectiveSamusPose is null)
             {
@@ -619,6 +620,12 @@ public sealed class SuperMetroidRuntime
                         break;
                     case SamusState.CrouchingRightPose:
                     case SamusState.CrouchingLeftPose:
+                    case SamusState.CrouchingAimUpRightPose:
+                    case SamusState.CrouchingAimUpLeftPose:
+                    case SamusState.CrouchingAimDiagonalUpRightPose:
+                    case SamusState.CrouchingAimDiagonalUpLeftPose:
+                    case SamusState.CrouchingAimDiagonalDownRightPose:
+                    case SamusState.CrouchingAimDiagonalDownLeftPose:
                         LastGroundedSamusMovement = SamusPostureMovement.StepCrouching(
                             _addressSpace,
                             LevelData,
@@ -629,6 +636,18 @@ public sealed class SuperMetroidRuntime
                     case SamusState.CrouchingTransitionLeftPose:
                     case SamusState.StandingTransitionRightPose:
                     case SamusState.StandingTransitionLeftPose:
+                    case SamusState.CrouchingTransitionAimUpRightPose:
+                    case SamusState.CrouchingTransitionAimUpLeftPose:
+                    case SamusState.CrouchingTransitionAimDiagonalUpRightPose:
+                    case SamusState.CrouchingTransitionAimDiagonalUpLeftPose:
+                    case SamusState.CrouchingTransitionAimDiagonalDownRightPose:
+                    case SamusState.CrouchingTransitionAimDiagonalDownLeftPose:
+                    case SamusState.StandingTransitionAimUpRightPose:
+                    case SamusState.StandingTransitionAimUpLeftPose:
+                    case SamusState.StandingTransitionAimDiagonalUpRightPose:
+                    case SamusState.StandingTransitionAimDiagonalUpLeftPose:
+                    case SamusState.StandingTransitionAimDiagonalDownRightPose:
+                    case SamusState.StandingTransitionAimDiagonalDownLeftPose:
                         LastGroundedSamusMovement = SamusPostureMovement.StepCrouchStandTransition(
                             _addressSpace,
                             LevelData,
@@ -675,9 +694,10 @@ public sealed class SuperMetroidRuntime
                      SamusState.IsLeftFacingStandingPose(poseAtFrameStart) ||
                      SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||
                      SamusState.IsLeftFacingRunningPose(poseAtFrameStart) ||
+                     SamusState.IsRightFacingCrouchingPose(poseAtFrameStart) ||
+                     SamusState.IsLeftFacingCrouchingPose(poseAtFrameStart) ||
                      poseAtFrameStart is
-                         SamusState.TurningRightToLeftPose or SamusState.TurningLeftToRightPose or
-                         SamusState.CrouchingRightPose or SamusState.CrouchingLeftPose))
+                         SamusState.TurningRightToLeftPose or SamusState.TurningLeftToRightPose))
                 {
                     byte fallingPose = Samus.SelectFallingPoseForCurrentAim(_addressSpace);
                     Samus.ApplyWalkedOffFloorTransition(_addressSpace, fallingPose);
@@ -706,7 +726,11 @@ public sealed class SuperMetroidRuntime
                                         SamusState.IsLeftFacingRunningPose(source) ||
                                         SamusState.IsLeftFacingAimedLandingPose(source)) &&
                                        (SamusState.IsLeftFacingStandingPose(target) ||
-                                        SamusState.IsLeftFacingRunningPose(target)))):
+                                        SamusState.IsLeftFacingRunningPose(target))) ||
+                                      (SamusState.IsRightFacingCrouchingPose(source) &&
+                                       SamusState.IsRightFacingCrouchingPose(target)) ||
+                                      (SamusState.IsLeftFacingCrouchingPose(source) &&
+                                       SamusState.IsLeftFacingCrouchingPose(target))):
                                 Samus.ApplyGroundedAimTransition(_addressSpace, targetPose);
                                 break;
                             case var (source, target)
@@ -771,26 +795,21 @@ public sealed class SuperMetroidRuntime
                                   SamusState.MovingLeftNormalPose):
                                 Samus.ApplyLandingToRunning(_addressSpace, targetPose);
                                 break;
-                            case (SamusState.FacingRightNormalPose or SamusState.MovingRightNormalPose or
-                                  SamusState.NormalLandingRightPose or SamusState.SpinLandingRightPose,
-                                  SamusState.CrouchingTransitionRightPose):
-                            case (SamusState.FacingLeftNormalPose or SamusState.MovingLeftNormalPose or
-                                  SamusState.NormalLandingLeftPose or SamusState.SpinLandingLeftPose,
-                                  SamusState.CrouchingTransitionLeftPose):
-                            case (SamusState.CrouchingRightPose,
-                                  SamusState.StandingTransitionRightPose):
-                            case (SamusState.CrouchingLeftPose,
-                                  SamusState.StandingTransitionLeftPose):
-                            case var (source, crouchTarget)
-                                when SamusState.IsGroundedAimPose(source) &&
-                                     ((crouchTarget == SamusState.CrouchingTransitionRightPose &&
-                                       (SamusState.IsRightFacingStandingPose(source) ||
-                                        SamusState.IsRightFacingRunningPose(source) ||
-                                        SamusState.IsRightFacingAimedLandingPose(source))) ||
-                                      (crouchTarget == SamusState.CrouchingTransitionLeftPose &&
-                                       (SamusState.IsLeftFacingStandingPose(source) ||
-                                        SamusState.IsLeftFacingRunningPose(source) ||
-                                        SamusState.IsLeftFacingAimedLandingPose(source)))):
+                            case var (source, postureTarget)
+                                when SamusState.IsCrouchStandTransitionPose(postureTarget) &&
+                                     (SamusState.IsRightFacingStandingPose(source) ||
+                                      SamusState.IsLeftFacingStandingPose(source) ||
+                                      SamusState.IsRightFacingRunningPose(source) ||
+                                      SamusState.IsLeftFacingRunningPose(source) ||
+                                      SamusState.IsRightFacingAimedLandingPose(source) ||
+                                      SamusState.IsLeftFacingAimedLandingPose(source) ||
+                                      source is
+                                          SamusState.NormalLandingRightPose or
+                                          SamusState.NormalLandingLeftPose or
+                                          SamusState.SpinLandingRightPose or
+                                          SamusState.SpinLandingLeftPose ||
+                                      SamusState.IsRightFacingCrouchingPose(source) ||
+                                      SamusState.IsLeftFacingCrouchingPose(source)):
                                 Samus.TryApplyPostureTransition(
                                     _addressSpace,
                                     LevelData ?? throw new InvalidOperationException(
@@ -835,13 +854,14 @@ public sealed class SuperMetroidRuntime
                         Samus.ApplyGroundedAimTransition(_addressSpace, SamusState.FacingLeftNormalPose);
                 }
                 else if (!animationTransitionApplied &&
-                         poseAtFrameStart is
-                             SamusState.StandingAimUpRightPose or
-                             SamusState.StandingAimUpLeftPose or
-                             SamusState.StandingAimDiagonalUpRightPose or
-                             SamusState.StandingAimDiagonalUpLeftPose or
-                             SamusState.StandingAimDiagonalDownRightPose or
-                             SamusState.StandingAimDiagonalDownLeftPose &&
+                         (poseAtFrameStart is
+                              SamusState.StandingAimUpRightPose or
+                              SamusState.StandingAimUpLeftPose or
+                              SamusState.StandingAimDiagonalUpRightPose or
+                              SamusState.StandingAimDiagonalUpLeftPose or
+                              SamusState.StandingAimDiagonalDownRightPose or
+                              SamusState.StandingAimDiagonalDownLeftPose ||
+                          SamusState.IsAimedCrouchingPose(poseAtFrameStart)) &&
                          ProspectiveSamusFallbackPose is { } aimFallback)
                 {
                     // Only the zero-controller path above populates this value. Validate

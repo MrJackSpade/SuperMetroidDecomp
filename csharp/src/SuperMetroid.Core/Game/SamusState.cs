@@ -146,6 +146,24 @@ public sealed class SamusState
     /// <summary>Pose $70 is left-facing falling aimed diagonally down.</summary>
     public const byte FallingAimDiagonalDownLeftPose = 0x70;
 
+    /// <summary>Pose $71 is right-facing crouching aimed diagonally up.</summary>
+    public const byte CrouchingAimDiagonalUpRightPose = 0x71;
+
+    /// <summary>Pose $72 is left-facing crouching aimed diagonally up.</summary>
+    public const byte CrouchingAimDiagonalUpLeftPose = 0x72;
+
+    /// <summary>Pose $73 is right-facing crouching aimed diagonally down.</summary>
+    public const byte CrouchingAimDiagonalDownRightPose = 0x73;
+
+    /// <summary>Pose $74 is left-facing crouching aimed diagonally down.</summary>
+    public const byte CrouchingAimDiagonalDownLeftPose = 0x74;
+
+    /// <summary>Pose $85 is right-facing crouching aimed straight up.</summary>
+    public const byte CrouchingAimUpRightPose = 0x85;
+
+    /// <summary>Pose $86 is left-facing crouching aimed straight up.</summary>
+    public const byte CrouchingAimUpLeftPose = 0x86;
+
     /// <summary>Pose $E0 is a right-facing normal-jump landing aimed straight up.</summary>
     public const byte LandingAimUpRightPose = 0xe0;
 
@@ -163,6 +181,42 @@ public sealed class SamusState
 
     /// <summary>Pose $E5 is a left-facing normal-jump landing aimed diagonally down.</summary>
     public const byte LandingAimDiagonalDownLeftPose = 0xe5;
+
+    /// <summary>Pose $F1 transitions right-facing standing to crouching while aiming up.</summary>
+    public const byte CrouchingTransitionAimUpRightPose = 0xf1;
+
+    /// <summary>Pose $F2 transitions left-facing standing to crouching while aiming up.</summary>
+    public const byte CrouchingTransitionAimUpLeftPose = 0xf2;
+
+    /// <summary>Pose $F3 transitions right-facing standing to crouching while aiming diagonally up.</summary>
+    public const byte CrouchingTransitionAimDiagonalUpRightPose = 0xf3;
+
+    /// <summary>Pose $F4 transitions left-facing standing to crouching while aiming diagonally up.</summary>
+    public const byte CrouchingTransitionAimDiagonalUpLeftPose = 0xf4;
+
+    /// <summary>Pose $F5 transitions right-facing standing to crouching while aiming diagonally down.</summary>
+    public const byte CrouchingTransitionAimDiagonalDownRightPose = 0xf5;
+
+    /// <summary>Pose $F6 transitions left-facing standing to crouching while aiming diagonally down.</summary>
+    public const byte CrouchingTransitionAimDiagonalDownLeftPose = 0xf6;
+
+    /// <summary>Pose $F7 transitions right-facing crouching to standing while aiming up.</summary>
+    public const byte StandingTransitionAimUpRightPose = 0xf7;
+
+    /// <summary>Pose $F8 transitions left-facing crouching to standing while aiming up.</summary>
+    public const byte StandingTransitionAimUpLeftPose = 0xf8;
+
+    /// <summary>Pose $F9 transitions right-facing crouching to standing while aiming diagonally up.</summary>
+    public const byte StandingTransitionAimDiagonalUpRightPose = 0xf9;
+
+    /// <summary>Pose $FA transitions left-facing crouching to standing while aiming diagonally up.</summary>
+    public const byte StandingTransitionAimDiagonalUpLeftPose = 0xfa;
+
+    /// <summary>Pose $FB transitions right-facing crouching to standing while aiming diagonally down.</summary>
+    public const byte StandingTransitionAimDiagonalDownRightPose = 0xfb;
+
+    /// <summary>Pose $FC transitions left-facing crouching to standing while aiming diagonally down.</summary>
+    public const byte StandingTransitionAimDiagonalDownLeftPose = 0xfc;
 
     /// <summary>Pose $27 is ordinary right-facing crouching.</summary>
     public const byte CrouchingRightPose = 0x27;
@@ -355,7 +409,7 @@ public sealed class SamusState
         RunningAimDiagonalUpLeftPose or
         RunningAimDiagonalDownLeftPose;
 
-    /// <summary>True when a supported standing/running pose visibly carries an aim direction.</summary>
+    /// <summary>True when a supported standing, running, crouching, or landing pose carries aim metadata.</summary>
     public static bool IsGroundedAimPose(byte pose) => pose is
         StandingAimUpRightPose or StandingAimUpLeftPose or
         StandingAimDiagonalUpRightPose or StandingAimDiagonalUpLeftPose or
@@ -363,6 +417,9 @@ public sealed class SamusState
         RunningAimUpRightPose or RunningAimUpLeftPose or
         RunningAimDiagonalUpRightPose or RunningAimDiagonalUpLeftPose or
         RunningAimDiagonalDownRightPose or RunningAimDiagonalDownLeftPose or
+        CrouchingAimUpRightPose or CrouchingAimUpLeftPose or
+        CrouchingAimDiagonalUpRightPose or CrouchingAimDiagonalUpLeftPose or
+        CrouchingAimDiagonalDownRightPose or CrouchingAimDiagonalDownLeftPose or
         LandingAimUpRightPose or LandingAimUpLeftPose or
         LandingAimDiagonalUpRightPose or LandingAimDiagonalUpLeftPose or
         LandingAimDiagonalDownRightPose or LandingAimDiagonalDownLeftPose;
@@ -376,6 +433,42 @@ public sealed class SamusState
     public static bool IsLeftFacingAimedLandingPose(byte pose) => pose is
         LandingAimUpLeftPose or LandingAimDiagonalUpLeftPose or
         LandingAimDiagonalDownLeftPose;
+
+    /// <summary>
+    /// True for the complete right-facing movement-type-five crouch family. All four
+    /// records use radius 16 and the shared transition table at <c>$91:A66C</c>.
+    /// </summary>
+    public static bool IsRightFacingCrouchingPose(byte pose) => pose is
+        CrouchingRightPose or CrouchingAimUpRightPose or
+        CrouchingAimDiagonalUpRightPose or CrouchingAimDiagonalDownRightPose;
+
+    /// <summary>
+    /// True for the complete left-facing movement-type-five crouch family. All four
+    /// records use radius 16 and the mirrored table at <c>$91:A6BC</c>.
+    /// </summary>
+    public static bool IsLeftFacingCrouchingPose(byte pose) => pose is
+        CrouchingLeftPose or CrouchingAimUpLeftPose or
+        CrouchingAimDiagonalUpLeftPose or CrouchingAimDiagonalDownLeftPose;
+
+    /// <summary>True for the six crouching poses carrying a real shot direction.</summary>
+    public static bool IsAimedCrouchingPose(byte pose) => pose is
+        CrouchingAimUpRightPose or CrouchingAimUpLeftPose or
+        CrouchingAimDiagonalUpRightPose or CrouchingAimDiagonalUpLeftPose or
+        CrouchingAimDiagonalDownRightPose or CrouchingAimDiagonalDownLeftPose;
+
+    /// <summary>
+    /// True only for the admitted movement-type-$0F crouch/stand animation records.
+    /// Morph/unmorph records share that dispatcher but are intentionally not hidden here.
+    /// </summary>
+    public static bool IsCrouchStandTransitionPose(byte pose) => pose is
+        CrouchingTransitionRightPose or CrouchingTransitionLeftPose or
+        StandingTransitionRightPose or StandingTransitionLeftPose or
+        CrouchingTransitionAimUpRightPose or CrouchingTransitionAimUpLeftPose or
+        CrouchingTransitionAimDiagonalUpRightPose or CrouchingTransitionAimDiagonalUpLeftPose or
+        CrouchingTransitionAimDiagonalDownRightPose or CrouchingTransitionAimDiagonalDownLeftPose or
+        StandingTransitionAimUpRightPose or StandingTransitionAimUpLeftPose or
+        StandingTransitionAimDiagonalUpRightPose or StandingTransitionAimDiagonalUpLeftPose or
+        StandingTransitionAimDiagonalDownRightPose or StandingTransitionAimDiagonalDownLeftPose;
 
     /// <summary>True for the admitted right-facing movement-type-two normal-jump poses.</summary>
     public static bool IsRightFacingNormalJumpPose(byte pose) => pose is
@@ -477,7 +570,11 @@ public sealed class SamusState
         bool targetLeft = IsLeftFacingStandingPose(targetPose) || IsLeftFacingRunningPose(targetPose);
         bool sameRightFamily = sourceRight && targetRight;
         bool sameLeftFamily = sourceLeft && targetLeft;
-        if (!sameRightFamily && !sameLeftFamily)
+        bool sameRightCrouch = IsRightFacingCrouchingPose(Pose) &&
+            IsRightFacingCrouchingPose(targetPose);
+        bool sameLeftCrouch = IsLeftFacingCrouchingPose(Pose) &&
+            IsLeftFacingCrouchingPose(targetPose);
+        if (!sameRightFamily && !sameLeftFamily && !sameRightCrouch && !sameLeftCrouch)
         {
             throw new NotSupportedException(
                 $"Grounded aim transition ${Pose:X2} -> ${targetPose:X2} crosses an untranslated pose family.");
@@ -659,9 +756,10 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Applies the ordinary $35/$36 crouch-start or $3B/$3C stand-start transition,
+    /// Applies the ordinary or aimed crouch-start/stand-start transition records,
     /// including command seven's bottom alignment and the larger-radius collision branch
-    /// from <c>HandlePoseChangeCollision</c>.
+    /// from <c>HandlePoseChangeCollision</c>. The admitted target set is exactly
+    /// `$35/$36/$3B/$3C/$F1-$FC`.
     /// </summary>
     /// <returns>
     /// False only when simultaneous floor and ceiling collision leave no verified room to
@@ -676,26 +774,34 @@ public sealed class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
 
-        bool startsCrouching = (Pose, targetPose) is
-            (FacingRightNormalPose or StandingAimUpRightPose or
-                StandingAimDiagonalUpRightPose or StandingAimDiagonalDownRightPose or
-                MovingRightNormalPose or RunningAimUpRightPose or
-                RunningAimDiagonalUpRightPose or RunningAimDiagonalDownRightPose or
-                NormalLandingRightPose or SpinLandingRightPose or
-                LandingAimUpRightPose or LandingAimDiagonalUpRightPose or
-                LandingAimDiagonalDownRightPose,
-             CrouchingTransitionRightPose) or
-            (FacingLeftNormalPose or StandingAimUpLeftPose or
-                StandingAimDiagonalUpLeftPose or StandingAimDiagonalDownLeftPose or
-                MovingLeftNormalPose or RunningAimUpLeftPose or
-                RunningAimDiagonalUpLeftPose or RunningAimDiagonalDownLeftPose or
-                NormalLandingLeftPose or SpinLandingLeftPose or
-                LandingAimUpLeftPose or LandingAimDiagonalUpLeftPose or
-                LandingAimDiagonalDownLeftPose,
-             CrouchingTransitionLeftPose);
-        bool startsStanding = (Pose, targetPose) is
-            (CrouchingRightPose, StandingTransitionRightPose) or
-            (CrouchingLeftPose, StandingTransitionLeftPose);
+        bool startsCrouchingRight =
+            (IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
+             (Pose is NormalLandingRightPose or SpinLandingRightPose) ||
+             IsRightFacingAimedLandingPose(Pose)) &&
+            targetPose is
+                CrouchingTransitionRightPose or CrouchingTransitionAimUpRightPose or
+                CrouchingTransitionAimDiagonalUpRightPose or
+                CrouchingTransitionAimDiagonalDownRightPose;
+        bool startsCrouchingLeft =
+            (IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
+             (Pose is NormalLandingLeftPose or SpinLandingLeftPose) ||
+             IsLeftFacingAimedLandingPose(Pose)) &&
+            targetPose is
+                CrouchingTransitionLeftPose or CrouchingTransitionAimUpLeftPose or
+                CrouchingTransitionAimDiagonalUpLeftPose or
+                CrouchingTransitionAimDiagonalDownLeftPose;
+        bool startsCrouching = startsCrouchingRight || startsCrouchingLeft;
+        bool startsStandingRight = IsRightFacingCrouchingPose(Pose) &&
+            targetPose is
+                StandingTransitionRightPose or StandingTransitionAimUpRightPose or
+                StandingTransitionAimDiagonalUpRightPose or
+                StandingTransitionAimDiagonalDownRightPose;
+        bool startsStandingLeft = IsLeftFacingCrouchingPose(Pose) &&
+            targetPose is
+                StandingTransitionLeftPose or StandingTransitionAimUpLeftPose or
+                StandingTransitionAimDiagonalUpLeftPose or
+                StandingTransitionAimDiagonalDownLeftPose;
+        bool startsStanding = startsStandingRight || startsStandingLeft;
         if (!startsCrouching && !startsStanding)
         {
             throw new NotSupportedException(
@@ -760,9 +866,9 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Installs the unaimed falling pose selected by <c>$91:E8F2</c> when a grounded
-    /// movement probe finds no floor. The collision command clears vertical speed and
-    /// starts downward gravity before the pose is drawn.
+    /// Installs the ordinary or aimed falling pose selected by <c>$91:E8F2</c> when a
+    /// grounded movement probe finds no floor. The collision command clears vertical
+    /// speed and starts downward gravity before the pose is drawn.
     /// </summary>
     public void ApplyWalkedOffFloorTransition(ISnesAddressSpace bus, byte targetPose)
     {
@@ -770,9 +876,8 @@ public sealed class SamusState
         bool supportedSource =
             IsRightFacingStandingPose(Pose) || IsLeftFacingStandingPose(Pose) ||
             IsRightFacingRunningPose(Pose) || IsLeftFacingRunningPose(Pose) ||
-            Pose is
-                TurningRightToLeftPose or TurningLeftToRightPose or
-                CrouchingRightPose or CrouchingLeftPose;
+            IsRightFacingCrouchingPose(Pose) || IsLeftFacingCrouchingPose(Pose) ||
+            Pose is TurningRightToLeftPose or TurningLeftToRightPose;
         byte expectedTarget = SelectFallingPoseForCurrentAim(bus);
         if (!supportedSource || targetPose != expectedTarget)
         {
@@ -895,6 +1000,18 @@ public sealed class SamusState
             (CrouchingTransitionLeftPose, CrouchingLeftPose) or
             (StandingTransitionRightPose, FacingRightNormalPose) or
             (StandingTransitionLeftPose, FacingLeftNormalPose) or
+            (CrouchingTransitionAimUpRightPose, CrouchingAimUpRightPose) or
+            (CrouchingTransitionAimUpLeftPose, CrouchingAimUpLeftPose) or
+            (CrouchingTransitionAimDiagonalUpRightPose, CrouchingAimDiagonalUpRightPose) or
+            (CrouchingTransitionAimDiagonalUpLeftPose, CrouchingAimDiagonalUpLeftPose) or
+            (CrouchingTransitionAimDiagonalDownRightPose, CrouchingAimDiagonalDownRightPose) or
+            (CrouchingTransitionAimDiagonalDownLeftPose, CrouchingAimDiagonalDownLeftPose) or
+            (StandingTransitionAimUpRightPose, StandingAimUpRightPose) or
+            (StandingTransitionAimUpLeftPose, StandingAimUpLeftPose) or
+            (StandingTransitionAimDiagonalUpRightPose, StandingAimDiagonalUpRightPose) or
+            (StandingTransitionAimDiagonalUpLeftPose, StandingAimDiagonalUpLeftPose) or
+            (StandingTransitionAimDiagonalDownRightPose, StandingAimDiagonalDownRightPose) or
+            (StandingTransitionAimDiagonalDownLeftPose, StandingAimDiagonalDownLeftPose) or
             (NormalLandingRightPose, FacingRightNormalPose) or
             (NormalLandingLeftPose, FacingLeftNormalPose) or
             (SpinLandingRightPose, FacingRightNormalPose) or

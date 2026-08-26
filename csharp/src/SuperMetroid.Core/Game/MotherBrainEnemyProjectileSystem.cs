@@ -3,7 +3,8 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// The eighteen bank-$86 enemy-projectile slots as used by Mother Brain's blue rings.
+/// The eighteen shared bank-$86 enemy-projectile slots used by Mother Brain's translated
+/// blue rings, exploded escape-door fragments, and the alternate-language subtitle.
 /// </summary>
 /// <remarks>
 /// This is intentionally a projectile system instead of a timer hidden in the boss actor.
@@ -12,7 +13,7 @@ namespace SuperMetroid.Core.Game;
 /// A ring spawned by Mother Brain's head therefore receives its first delayed pre-instruction
 /// and its first animation-list frame on that same gameplay frame.
 /// </remarks>
-public sealed class MotherBrainOnionRingProjectileSystem
+public sealed class MotherBrainEnemyProjectileSystem
 {
     /// <summary>Physical enemy-projectile capacity at WRAM <c>$1997-$19B9</c>.</summary>
     public const int SlotCount = 18;
@@ -20,19 +21,29 @@ public sealed class MotherBrainOnionRingProjectileSystem
     /// <summary>Projectile definition pointer used by head opcode <c>$A9:9E29</c>.</summary>
     public const ushort ProjectileDefinition = 0xcb4b;
 
+    /// <summary>Exploded escape-door fragment definition at <c>$86:CB21</c>.</summary>
+    public const ushort EscapeDoorParticleDefinition = 0xcb21;
+
+    /// <summary>Alternate-language “time bomb set” subtitle definition at <c>$86:CBBB</c>.</summary>
+    public const ushort TimeBombSetSubtitleDefinition = 0xcbbb;
+
     /// <summary>Initial animation-list pointer stored by definition <c>$86:CB4B</c>.</summary>
     public const ushort InitialInstructionList = 0xc432;
 
     private const int SignedSineTable = 0xa0b443;
     private const ushort SetXAndYRadiusInstruction = 0x8298;
     private const ushort SleepInstruction = 0x8159;
-    private readonly MotherBrainOnionRingProjectileSlot[] _slots =
+    private static readonly short[] EscapeDoorParticleYOffsets =
+        [-0x20, -0x18, -0x10, -0x08, 0x00, 0x08, 0x10, 0x18];
+    private static readonly short[] EscapeDoorParticleYVelocities =
+        [-0x0200, -0x0100, -0x0100, -0x0080, -0x0080, 0x0080, -0x0100, 0x0200];
+    private readonly MotherBrainEnemyProjectileSlot[] _slots =
         Enumerable.Range(0, SlotCount)
-            .Select(index => new MotherBrainOnionRingProjectileSlot(index))
+            .Select(index => new MotherBrainEnemyProjectileSlot(index))
             .ToArray();
 
     /// <summary>Slots in ascending WRAM order; native processing visits them in reverse.</summary>
-    public IReadOnlyList<MotherBrainOnionRingProjectileSlot> Slots => _slots;
+    public IReadOnlyList<MotherBrainEnemyProjectileSlot> Slots => _slots;
 
     /// <summary>
     /// Mother Brain body word incremented by <c>$86:C381</c>. The Baby's next enemy-AI call
@@ -70,7 +81,7 @@ public sealed class MotherBrainOnionRingProjectileSystem
         if (slotIndex < 0)
             return null;
 
-        MotherBrainOnionRingProjectileSlot slot = _slots[slotIndex];
+        MotherBrainEnemyProjectileSlot slot = _slots[slotIndex];
         slot.Clear();
         slot.ProjectileId = ProjectileDefinition;
         slot.GraphicsIndex = 0x0400;
@@ -94,9 +105,77 @@ public sealed class MotherBrainOnionRingProjectileSystem
     }
 
     /// <summary>
-    /// Runs <c>$86:8104-$8160</c>'s blue-ring subset for one gameplay frame.
+    /// Allocates and initializes one exploded escape-door fragment from <c>$86:C961-$C991</c>.
     /// </summary>
-    public MotherBrainOnionRingFrameResult StepFrame(
+    public int? SpawnEscapeDoorParticle(MotherBrainEscapeDoorParticleSpawnRequest request)
+    {
+        if (request.Parameter >= 8)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(request),
+                request.Parameter,
+                "Mother Brain escape-door particle parameter must be in the native 0..7 range.");
+        }
+
+        // This is the same `$86:8027` scan used by blue rings: all Mother Brain enemy
+        // projectiles compete for the same highest free physical slot. Keeping one pool is
+        // important when a debugger deliberately leaves old projectiles alive at the door.
+        int slotIndex = SlotCount - 1;
+        while (slotIndex >= 0 && _slots[slotIndex].IsActive)
+            slotIndex--;
+        if (slotIndex < 0)
+            return null;
+
+        MotherBrainEnemyProjectileSlot slot = _slots[slotIndex];
+        slot.Clear();
+        slot.ProjectileId = EscapeDoorParticleDefinition;
+        slot.SpawnParameter = request.Parameter;
+        slot.GraphicsIndex = 0;
+        slot.XPosition = 0x0010;
+
+        // `$C965` multiplies the parameter by four because the native table interleaves
+        // one X word and one Y word per record. Every X offset is zero and every X velocity
+        // is `$0500`; only the Y offset/velocity vary across the eight fragments.
+        slot.YPosition = unchecked((ushort)(
+            0x0080 + EscapeDoorParticleYOffsets[request.Parameter]));
+        slot.XVelocity = 0x0500;
+        slot.YVelocity = unchecked((ushort)EscapeDoorParticleYVelocities[request.Parameter]);
+        slot.Lifetime = 0x0020;
+        slot.InstructionPointer = 0xca22;
+        slot.InstructionTimer = 1;
+        slot.SpritemapPointer = 0x8000;
+        return slotIndex;
+    }
+
+    /// <summary>
+    /// Allocates the persistent alternate-language subtitle from <c>$86:CAF6-$CB11</c>.
+    /// </summary>
+    public int? SpawnTimeBombSetSubtitle()
+    {
+        int slotIndex = SlotCount - 1;
+        while (slotIndex >= 0 && _slots[slotIndex].IsActive)
+            slotIndex--;
+        if (slotIndex < 0)
+            return null;
+
+        MotherBrainEnemyProjectileSlot slot = _slots[slotIndex];
+        slot.Clear();
+        slot.ProjectileId = TimeBombSetSubtitleDefinition;
+        slot.GraphicsIndex = 0;
+        slot.XVelocity = 0;
+        slot.YVelocity = 0;
+        slot.XPosition = 0x0080;
+        slot.YPosition = 0x00c0;
+        slot.InstructionPointer = 0xcb0d;
+        slot.InstructionTimer = 1;
+        slot.SpritemapPointer = 0x8000;
+        return slotIndex;
+    }
+
+    /// <summary>
+    /// Runs <c>$86:8104-$8160</c>'s translated Mother Brain projectile subset for one frame.
+    /// </summary>
+    public MotherBrainEnemyProjectileFrameResult StepFrame(
         ISnesAddressSpace bus,
         MotherBrainRainbowBeamAttackSequence motherBrain,
         BabyMetroidCutsceneState? baby,
@@ -113,15 +192,53 @@ public sealed class MotherBrainOnionRingProjectileSystem
             EarthquakeTimer = unchecked((ushort)(EarthquakeTimer - 1));
 
         var events = new List<MotherBrainOnionRingEvent>();
+        var escapeDoorDustRequests = new List<MotherBrainEscapeDoorParticleDustRequest>();
 
         // EprojRunAll scans physical byte indices `$22,$20,...,$00`. Keeping this order
         // matters when several rings overlap the Baby on the same frame: each live slot
         // applies its own `$50` subtraction before a later slot observes zero health.
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
-            MotherBrainOnionRingProjectileSlot slot = _slots[slotIndex];
+            MotherBrainEnemyProjectileSlot slot = _slots[slotIndex];
             if (!slot.IsActive)
                 continue;
+
+            if (slot.ProjectileId == EscapeDoorParticleDefinition)
+            {
+                bool deleted = RunEscapeDoorParticlePreInstruction(
+                    slot,
+                    out MotherBrainEscapeDoorParticleDustRequest? dustRequest);
+                if (dustRequest is { } dust)
+                    escapeDoorDustRequests.Add(dust);
+
+                // The native dispatcher still enters its instruction handler after a
+                // pre-instruction clears the ID. Nothing that handler changes can be drawn
+                // from a zero-ID slot, so skipping it only on deletion is observationally
+                // equivalent and avoids parsing dead state.
+                if (!deleted)
+                    RunEscapeDoorParticleInstructionHandler(bus, slot);
+                continue;
+            }
+
+            if (slot.ProjectileId == TimeBombSetSubtitleDefinition)
+            {
+                // `$86:CAFA` rewrites all four motion words every frame. This is stronger
+                // than “velocity zero”: external debugger edits cannot move the subtitle,
+                // because the native pre-instruction pins it back to screen (128,192).
+                slot.XVelocity = 0;
+                slot.YVelocity = 0;
+                slot.XPosition = 0x0080;
+                slot.YPosition = 0x00c0;
+                RunInstructionHandler(bus, slot);
+                continue;
+            }
+
+            if (slot.ProjectileId != ProjectileDefinition)
+            {
+                throw new NotSupportedException(
+                    $"Mother Brain projectile slot {slotIndex} contains untranslated definition " +
+                    $"$86:{slot.ProjectileId:X4}.");
+            }
 
             bool deletedByPreInstruction = RunPreInstruction(
                 slot,
@@ -151,7 +268,96 @@ public sealed class MotherBrainOnionRingProjectileSystem
         }
 
         int activeCount = _slots.Count(slot => slot.IsActive);
-        return new MotherBrainOnionRingFrameResult(activeCount, events.ToArray());
+        return new MotherBrainEnemyProjectileFrameResult(
+            activeCount,
+            events.ToArray(),
+            escapeDoorDustRequests.ToArray());
+    }
+
+    private static bool RunEscapeDoorParticlePreInstruction(
+        MotherBrainEnemyProjectileSlot slot,
+        out MotherBrainEscapeDoorParticleDustRequest? dustRequest)
+    {
+        dustRequest = null;
+
+        // `$C9D2` removes `$10` (1/16 pixel per frame) from the absolute X velocity and
+        // restores the original sign. The BPL clamp is a signed 16-bit test, so preserve
+        // wrapping arithmetic instead of using floating point or Math.Max on host ints.
+        bool movingLeft = (slot.XVelocity & 0x8000) != 0;
+        ushort magnitude = movingLeft
+            ? unchecked((ushort)-slot.XVelocity)
+            : slot.XVelocity;
+        ushort slowedMagnitude = unchecked((ushort)(magnitude - 0x0010));
+        if ((slowedMagnitude & 0x8000) != 0)
+            slowedMagnitude = 0;
+        slot.XVelocity = movingLeft
+            ? unchecked((ushort)-slowedMagnitude)
+            : slowedMagnitude;
+
+        // Gravity is +$20 in native 8.8 units. The common mover consumes the HIGH
+        // subposition byte and signed velocity high byte exactly as it does for blue rings.
+        slot.YVelocity = unchecked((ushort)(slot.YVelocity + 0x0020));
+        MoveAccordingToVelocity(slot);
+
+        // Var0 starts at `$20`, is decremented after motion, and deletes only when the
+        // result is negative. Therefore every fragment moves 33 times: `$1F..0,$FFFF`.
+        slot.Lifetime = unchecked((ushort)(slot.Lifetime - 1));
+        if ((slot.Lifetime & 0x8000) == 0)
+            return false;
+
+        slot.ProjectileId = 0;
+        slot.YPosition = unchecked((ushort)(slot.YPosition - 4));
+        dustRequest = new MotherBrainEscapeDoorParticleDustRequest(
+            slot.Index,
+            slot.XPosition,
+            slot.YPosition,
+            ProjectileParameter: 0x0009);
+        return true;
+    }
+
+    private static void RunEscapeDoorParticleInstructionHandler(
+        ISnesAddressSpace bus,
+        MotherBrainEnemyProjectileSlot slot)
+    {
+        slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
+        if (slot.InstructionTimer != 0)
+            return;
+
+        ushort pointer = slot.InstructionPointer;
+        for (int operationCount = 0; operationCount < 16; operationCount++)
+        {
+            ushort durationOrOpcode = ReadWord(bus, 0x860000 | pointer);
+            if ((durationOrOpcode & 0x8000) == 0)
+            {
+                if (durationOrOpcode == 0)
+                {
+                    throw new InvalidDataException(
+                        $"Escape-door particle frame at $86:{pointer:X4} has zero duration.");
+                }
+
+                slot.InstructionTimer = durationOrOpcode;
+                slot.SpritemapPointer = ReadWord(
+                    bus,
+                    0x860000 | unchecked((ushort)(pointer + 2)));
+                slot.InstructionPointer = unchecked((ushort)(pointer + 4));
+                return;
+            }
+
+            if (durationOrOpcode != 0x81ab)
+            {
+                throw new NotSupportedException(
+                    $"Escape-door particle instruction $86:{durationOrOpcode:X4} at " +
+                    $"$86:{pointer:X4} is not translated.");
+            }
+
+            // `$86:81AB` receives Y already advanced past the opcode and replaces it with
+            // the following word. The target `$CA22` immediately yields frame zero during
+            // this same interpreter call; there is no blank animation frame at the loop.
+            pointer = ReadWord(bus, 0x860000 | unchecked((ushort)(pointer + 2)));
+        }
+
+        throw new InvalidDataException(
+            "Escape-door particle instruction list did not reach a timed frame within 16 operations.");
     }
 
     /// <summary>Consumes all pending Baby cry requests like <c>$A9:C7B7</c>.</summary>
@@ -163,7 +369,7 @@ public sealed class MotherBrainOnionRingProjectileSystem
     }
 
     private bool RunPreInstruction(
-        MotherBrainOnionRingProjectileSlot slot,
+        MotherBrainEnemyProjectileSlot slot,
         MotherBrainRainbowBeamAttackSequence motherBrain,
         BabyMetroidCutsceneState? baby,
         SamusState samus,
@@ -271,7 +477,7 @@ public sealed class MotherBrainOnionRingProjectileSystem
 
     private static void RunInstructionHandler(
         ISnesAddressSpace bus,
-        MotherBrainOnionRingProjectileSlot slot)
+        MotherBrainEnemyProjectileSlot slot)
     {
         ushort oldTimer = slot.InstructionTimer;
         slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
@@ -285,7 +491,8 @@ public sealed class MotherBrainOnionRingProjectileSystem
             if ((durationOrOpcode & 0x8000) == 0)
             {
                 if (durationOrOpcode == 0)
-                    throw new InvalidDataException($"Blue-ring frame at $86:{pointer:X4} has zero duration.");
+                    throw new InvalidDataException(
+                        $"Mother Brain projectile frame at $86:{pointer:X4} has zero duration.");
 
                 slot.InstructionTimer = durationOrOpcode;
                 slot.SpritemapPointer = ReadWord(
@@ -314,15 +521,17 @@ public sealed class MotherBrainOnionRingProjectileSystem
 
                 default:
                     throw new NotSupportedException(
-                        $"Blue-ring instruction $86:{durationOrOpcode:X4} at $86:{pointer:X4} is not translated.");
+                        $"Mother Brain projectile instruction $86:{durationOrOpcode:X4} at " +
+                        $"$86:{pointer:X4} is not translated.");
             }
         }
 
-        throw new InvalidDataException("Blue-ring instruction list did not reach a timed frame within 16 operations.");
+        throw new InvalidDataException(
+            "Mother Brain projectile instruction list did not reach a timed frame within 16 operations.");
     }
 
     private static void PinToBrain(
-        MotherBrainOnionRingProjectileSlot slot,
+        MotherBrainEnemyProjectileSlot slot,
         MotherBrainRainbowBeamAttackSequence motherBrain)
     {
         slot.XPosition = unchecked((ushort)(motherBrain.BrainXPosition + 0x000a));
@@ -330,7 +539,7 @@ public sealed class MotherBrainOnionRingProjectileSystem
     }
 
     private static void Deactivate(
-        MotherBrainOnionRingProjectileSlot slot,
+        MotherBrainEnemyProjectileSlot slot,
         bool clearGraphics)
     {
         // Contact explosion `$C410` clears the ID and graphics word but deliberately leaves
@@ -341,7 +550,7 @@ public sealed class MotherBrainOnionRingProjectileSystem
             slot.GraphicsIndex = 0;
     }
 
-    private static void MoveAccordingToVelocity(MotherBrainOnionRingProjectileSlot slot)
+    private static void MoveAccordingToVelocity(MotherBrainEnemyProjectileSlot slot)
     {
         slot.XPosition = AddNativeEightEightVelocity(
             slot.XPosition,
@@ -409,14 +618,22 @@ public sealed class MotherBrainOnionRingProjectileSystem
 }
 
 /// <summary>One semantic view over an enemy-projectile WRAM slot.</summary>
-public sealed class MotherBrainOnionRingProjectileSlot
+public sealed class MotherBrainEnemyProjectileSlot
 {
-    internal MotherBrainOnionRingProjectileSlot(int index) => Index = index;
+    internal MotherBrainEnemyProjectileSlot(int index) => Index = index;
 
     public int Index { get; }
     public ushort ProjectileId { get; internal set; }
     public ushort GraphicsIndex { get; internal set; }
+
+    /// <summary>Initialization parameter retained for inspecting table-selected fragments.</summary>
+    public ushort SpawnParameter { get; internal set; }
+
+    /// <summary>Blue-ring head-follow delay; zero for the other translated definitions.</summary>
     public ushort DelayTimer { get; internal set; }
+
+    /// <summary>Door-fragment Var0 countdown; unused by blue rings and the subtitle.</summary>
+    public ushort Lifetime { get; internal set; }
     public byte Angle { get; internal set; }
     public ushort XPosition { get; internal set; }
     public ushort XSubposition { get; internal set; }
@@ -436,7 +653,9 @@ public sealed class MotherBrainOnionRingProjectileSlot
     {
         ProjectileId = 0;
         GraphicsIndex = 0;
+        SpawnParameter = 0;
         DelayTimer = 0;
+        Lifetime = 0;
         Angle = 0;
         XPosition = 0;
         XSubposition = 0;
@@ -472,6 +691,16 @@ public readonly record struct MotherBrainOnionRingEvent(
     ushort TargetHealthAfter);
 
 /// <summary>Aggregate result of one native enemy-projectile pass.</summary>
-public readonly record struct MotherBrainOnionRingFrameResult(
+public readonly record struct MotherBrainEnemyProjectileFrameResult(
     int ActiveCount,
-    IReadOnlyList<MotherBrainOnionRingEvent> Events);
+    IReadOnlyList<MotherBrainOnionRingEvent> Events,
+    IReadOnlyList<MotherBrainEscapeDoorParticleDustRequest> EscapeDoorDustRequests);
+
+/// <summary>
+/// Final parameter-nine misc-dust spawn produced when one `$86:CB21` fragment expires.
+/// </summary>
+public readonly record struct MotherBrainEscapeDoorParticleDustRequest(
+    int SourceSlotIndex,
+    ushort XPosition,
+    ushort YPosition,
+    ushort ProjectileParameter);

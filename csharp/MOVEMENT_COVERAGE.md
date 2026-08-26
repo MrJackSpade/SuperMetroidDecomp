@@ -506,9 +506,18 @@ translated status is documented with the Morph Ball family below.
   requests the exact fourteen-color door palette copy and four `$8D:FFC9-$FFD5` red-flash
   objects, queues track seven, holds quake 5 at `$FFFF`, disables the Mother Brain unpause
   hook, and initializes the Zebes escape typewriter with its `$20` text timer.
+  `$B2D1-$B345` now preserves the alternate subtitle's simultaneous typewriter calls,
+  accepts the external `$2610` completion carry, runs the 33-call exploding-door countdown,
+  cycles the four absolute dust positions at five-call intervals with one global RNG advance,
+  publishes Samus command `$0F`, TimerStatus `$0002`, boss bit `$02`, and event `$0E`, then
+  emits parameters 0..7 plus hardcoded PLM `$B677` and maintains the final global quake.
+  Bank `$86:C961-$CB11` shares all 18 physical slots between blue rings, the eight door
+  fragments, and the alternate subtitle. Fragment initial Y/velocity tables, `$10` X
+  friction, `$20` gravity, common 8.8 movement, 18-call ROM spritemap loop, 33-call lifetime,
+  four-pixel terminal Y adjustment, and parameter-nine dust requests are verified exactly.
   The earlier attack-selection trigger, live Hyper Beam shot/damage producer, phase-three
-  bomb projectile, subtitle/typewriter sequence at `$B2D1/$B2E3`, Baby instruction-list/
-  dust-projectile rendering, and palette/HDMA effects beyond direct CGRAM writes remain seams.
+  bomb projectile, typewriter character engine, door-fragment OAM emission, Baby instruction-
+  list/dust-projectile rendering, and palette/HDMA effects beyond direct CGRAM writes remain seams.
 - `MotherBrainBodyAnimationState` translates the ordinary enemy-instruction stage used by
   Mother Brain's painful fast/medium/slow/really-slow walks in both directions plus
   `$99C6/$99E2/$99F2/$9A26` stand/lean/crouch lists.
@@ -787,9 +796,9 @@ translated status is documented with the Morph Ball family below.
 
 ## Next implementation order
 
-1. Wire live Hyper Beam projectiles into `$B562` recoil/health, continue Mother Brain's
-   subtitle/typewriter and escape-door sequence from `$A9:B2D1`, then implement the phase-three bomb
-   projectile and earlier attack-selection trigger that enters `$B8EB`.
+1. Wire live Hyper Beam projectiles into `$B562` recoil/health, implement the phase-three
+   bomb projectile and earlier attack-selection trigger that enters `$B8EB`, then connect
+   the translated escape-door projectile spritemaps to enemy-projectile OAM rendering.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.
 4. Grapple breakable PLMs and spike-damage side effects.

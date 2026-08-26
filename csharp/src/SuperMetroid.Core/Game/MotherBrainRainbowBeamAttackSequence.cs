@@ -333,6 +333,13 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// <summary>Backward-cycling seven-record death-explosion index used by `$A9:B046`.</summary>
     public ushort DeathExplosionIndex { get; private set; }
 
+    /// <summary>
+    /// Backward-cycling four-record escape-door dust index at <c>$A9:B355</c>.
+    /// This is a different native word from <see cref="DeathExplosionIndex"/> even though
+    /// both effects reuse <see cref="DeathExplosionIntervalTimer"/>.
+    /// </summary>
+    public ushort EscapeDoorIndex { get; private set; }
+
     /// <summary>Palette selector forced to `$0E00` when the dying brain effects shut down.</summary>
     public ushort BrainPaletteIndex { get; private set; }
 
@@ -858,7 +865,9 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         bool powerBombActive = false,
         ushort randomNumberSeed = 0,
         Func<ushort>? nextRandomNumber = null,
-        bool alternateEscapeText = false)
+        bool alternateEscapeText = false,
+        bool typewriterFinished = false,
+        ushort? globalEarthquakeTimer = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -895,6 +904,18 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         bool escapeMusicTrackQueued = false;
         var escapePaletteFxRequests = new List<ushort>(capacity: 4);
         bool escapeTypewriterSetupRequested = false;
+        bool typewriterStepRequested = false;
+        ushort? typewriterTextPointer = null;
+        bool timeBombSetSubtitleSpawnRequested = false;
+        MotherBrainEscapeDoorExplosionRequest? escapeDoorExplosion = null;
+        bool timerHandlingEnableRequested = false;
+        bool motherBrainEscapeTimerStartRequested = false;
+        bool motherBrainBossBitRequested = false;
+        bool zebesTimebombEventRequested = false;
+        var escapeDoorParticleSpawns =
+            new List<MotherBrainEscapeDoorParticleSpawnRequest>(capacity: 8);
+        MotherBrainEscapeDoorPlmRequest? escapeDoorPlm = null;
+        bool earthquakeTimerRefreshed = false;
 
         switch (Phase)
         {
@@ -1821,9 +1842,80 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSpawnTimeBombSetSubtitle:
+                // `$B2D1` decrements first. BPL does *not* merely wait: it branches directly
+                // into `$B2E3`, so the underlying typewriter advances during all 32..0
+                // subtitle-delay values. On underflow the native code installs `$B2E3`,
+                // spawns the persistent Japanese subtitle projectile, and falls through to
+                // that same typewriter call. Keep the producer request separate because the
+                // bank-$86 allocator owns whether a physical slot is actually available.
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText;
+                    timeBombSetSubtitleSpawnRequested = true;
+                }
+                goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText;
+
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText:
-                // `$B2D1/$B2E3` consume the typewriter subsystem and subtitle projectile.
-                // They are the next explicit producer seam; do not guess text completion.
+                // `$B2E3` calls the independently owned typewriter with list pointer `$2610`.
+                // A request plus explicit completion input preserves that scheduler boundary:
+                // the boss never invents character cadence, yet its carry-dependent handoff
+                // remains directly testable and debuggable.
+                typewriterStepRequested = true;
+                typewriterTextPointer = 0x2610;
+                if (typewriterFinished)
+                {
+                    Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer;
+                    FunctionTimer = 0x0020;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer:
+                // `$B2F9` always runs the periodic dust producer before touching the escape
+                // countdown. The freshly loaded `$20` therefore receives 33 calls (32..0,
+                // then `$FFFF`) and can emit dust even on the transition call.
+                escapeDoorExplosion = GenerateEscapeDoorExplosion(nextRandomNumber);
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) == 0)
+                    break;
+
+                // Samus command `$0F`, TimerStatus `$0002`, boss bit `$02`, and event `$0E`
+                // belong to four different native subsystems. Publish every edge instead of
+                // silently writing the wrong debug room's area flags inside this actor.
+                timerHandlingEnableRequested = true;
+                motherBrainEscapeTimerStartRequested = true;
+                motherBrainBossBitRequested = true;
+                zebesTimebombEventRequested = true;
+                Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBlowUpEscapeDoor;
+                DeathExplosionIntervalTimer = 0;
+                EscapeDoorIndex = 0;
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBlowUpEscapeDoor:
+                // `$B3A3` invokes the ordinary highest-free-slot allocator eight times with
+                // parameters zero through seven. Allocation success is intentionally decided
+                // by the shared enemy-projectile system, not assumed by the boss actor.
+                for (ushort parameter = 0; parameter < 8; parameter++)
+                    escapeDoorParticleSpawns.Add(new(parameter));
+
+                Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceKeepEarthquakeGoing;
+                escapeDoorPlm = new(
+                    BlockX: 0x00,
+                    BlockY: 0x06,
+                    PlmEntry: 0xb677);
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceKeepEarthquakeGoing:
+                // EarthquakeTimer is global WRAM and is normally decremented outside enemy
+                // AI. A supplied sample is therefore authoritative. `$B33C` changes only a
+                // visible zero to `$FFFF`; every nonzero value, including `$FFFF`, survives.
+                if (globalEarthquakeTimer is ushort observedEarthquakeTimer)
+                    EarthquakeTimer = observedEarthquakeTimer;
+                if (EarthquakeTimer == 0)
+                {
+                    EarthquakeTimer = 0xffff;
+                    earthquakeTimerRefreshed = true;
+                }
                 break;
 
             default:
@@ -1871,7 +1963,18 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             explodedDoorPaletteRequested,
             escapeMusicTrackQueued,
             escapePaletteFxRequests,
-            escapeTypewriterSetupRequested);
+            escapeTypewriterSetupRequested,
+            typewriterStepRequested,
+            typewriterTextPointer,
+            timeBombSetSubtitleSpawnRequested,
+            escapeDoorExplosion,
+            timerHandlingEnableRequested,
+            motherBrainEscapeTimerStartRequested,
+            motherBrainBossBitRequested,
+            zebesTimebombEventRequested,
+            escapeDoorParticleSpawns,
+            escapeDoorPlm,
+            earthquakeTimerRefreshed);
     }
 
     private void BeginExtendingNeckForAttack()
@@ -2364,6 +2467,52 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         }
     }
 
+    private MotherBrainEscapeDoorExplosionRequest? GenerateEscapeDoorExplosion(
+        Func<ushort>? nextRandomNumber)
+    {
+        // `$B346` shares the old death-explosion interval word but replaces its cadence with
+        // four. A cleared word underflows on the first call, so a new explosion is immediate.
+        DeathExplosionIntervalTimer = unchecked((ushort)(DeathExplosionIntervalTimer - 1));
+        if ((DeathExplosionIntervalTimer & 0x8000) == 0)
+            return null;
+
+        DeathExplosionIntervalTimer = 0x0004;
+        EscapeDoorIndex = unchecked((ushort)(EscapeDoorIndex - 1));
+        if ((EscapeDoorIndex & 0x8000) != 0)
+            EscapeDoorIndex = 3;
+
+        // The table is stored as interleaved X/Y words and indexed by `index * 4` bytes.
+        // Spell out the semantic pairs so neither host endianness nor array stride can alter
+        // the native 3,2,1,0 repeating order.
+        (ushort x, ushort y) = EscapeDoorIndex switch
+        {
+            0 => ((ushort)0x0008, (ushort)0x006c),
+            1 => ((ushort)0x0018, (ushort)0x0080),
+            2 => ((ushort)0x0009, (ushort)0x0090),
+            3 => ((ushort)0x0018, (ushort)0x0074),
+            _ => throw new InvalidOperationException(
+                $"Escape-door explosion index ${EscapeDoorIndex:X4} escaped its native 0..3 range."),
+        };
+
+        if (nextRandomNumber is null)
+        {
+            throw new InvalidOperationException(
+                "Escape-door explosions require the global next-random-number producer.");
+        }
+
+        // Native `$B377` advances the one shared RNG exactly once per emitted projectile.
+        // Values below `$4000` select the bright explosion parameter `$000C`; all remaining
+        // values retain the preloaded smoky-dust parameter `$0003`.
+        ushort random = nextRandomNumber();
+        ushort projectileParameter = random < 0x4000 ? (ushort)0x000c : (ushort)0x0003;
+        return new MotherBrainEscapeDoorExplosionRequest(
+            PatternIndex: EscapeDoorIndex,
+            XPosition: x,
+            YPosition: y,
+            ProjectileParameter: projectileParameter,
+            SoundEffect: 0x0024);
+    }
+
     private void IncreaseWidthAndAim(SamusState samus)
     {
         ushort widened = unchecked((ushort)(AngularWidth + 0x0180));
@@ -2549,6 +2698,9 @@ public enum MotherBrainRainbowBeamAttackPhase
     Phase3DeathSequenceStartEscape,
     Phase3DeathSequenceSpawnTimeBombSetSubtitle,
     Phase3DeathSequenceTypeOutZebesEscapeText,
+    Phase3DeathSequenceDoorExplodingStartTimer,
+    Phase3DeathSequenceBlowUpEscapeDoor,
+    Phase3DeathSequenceKeepEarthquakeGoing,
 }
 
 /// <summary>Reachable third-phase walking function pointers at `$A9:C26A-$C326`.</summary>
@@ -2624,6 +2776,23 @@ public readonly record struct MotherBrainDeathExplosionRequest(
     ushort ProjectileParameter,
     ushort SoundEffect);
 
+/// <summary>One periodic misc-dust projectile emitted around the escape door by `$A9:B346`.</summary>
+public readonly record struct MotherBrainEscapeDoorExplosionRequest(
+    ushort PatternIndex,
+    ushort XPosition,
+    ushort YPosition,
+    ushort ProjectileParameter,
+    ushort SoundEffect);
+
+/// <summary>One of eight `$86:CB21` door-fragment allocation attempts from `$A9:B3A3`.</summary>
+public readonly record struct MotherBrainEscapeDoorParticleSpawnRequest(ushort Parameter);
+
+/// <summary>The hardcoded room-object request made after the escape door fragments spawn.</summary>
+public readonly record struct MotherBrainEscapeDoorPlmRequest(
+    byte BlockX,
+    byte BlockY,
+    ushort PlmEntry);
+
 /// <summary>One `$86:CB4B` blue-ring spawn emitted by head opcode `$A9:9E29`.</summary>
 public readonly record struct MotherBrainOnionRingSpawnRequest(byte Angle);
 
@@ -2684,4 +2853,15 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     bool ExplodedDoorPaletteRequested,
     bool EscapeMusicTrackQueued,
     IReadOnlyList<ushort> EscapePaletteFxRequests,
-    bool EscapeTypewriterSetupRequested);
+    bool EscapeTypewriterSetupRequested,
+    bool TypewriterStepRequested,
+    ushort? TypewriterTextPointer,
+    bool TimeBombSetSubtitleSpawnRequested,
+    MotherBrainEscapeDoorExplosionRequest? EscapeDoorExplosion,
+    bool TimerHandlingEnableRequested,
+    bool MotherBrainEscapeTimerStartRequested,
+    bool MotherBrainBossBitRequested,
+    bool ZebesTimebombEventRequested,
+    IReadOnlyList<MotherBrainEscapeDoorParticleSpawnRequest> EscapeDoorParticleSpawns,
+    MotherBrainEscapeDoorPlmRequest? EscapeDoorPlm,
+    bool EarthquakeTimerRefreshed);

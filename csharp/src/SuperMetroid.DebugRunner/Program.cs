@@ -262,7 +262,7 @@ if (!options.GroundedRun)
 
 MotherBrainRainbowBeamAttackSequence? rainbowAttack = null;
 BabyMetroidCutsceneState? cutsceneBaby = null;
-MotherBrainOnionRingProjectileSystem? motherBrainOnionRings = null;
+MotherBrainEnemyProjectileSystem? motherBrainProjectiles = null;
 
 if (options.MorphBallScript || options.BombJumpScript)
 {
@@ -339,7 +339,7 @@ else if (options.MotherBrainRainbowScript)
     // observes real data and the normal VRAM queue can read its `$7E:9000` working buffer.
     rainbowAttack.InitializeCorpseRotting(bus);
     rainbowAttack.StartAttackCycle();
-    motherBrainOnionRings = new MotherBrainOnionRingProjectileSystem();
+    motherBrainProjectiles = new MotherBrainEnemyProjectileSystem();
 }
 else if (options.DrainedSamusScript)
 {
@@ -566,10 +566,16 @@ for (int blockY = (runtime.Samus.YPosition + samusYRadius - 1) >> 4;
     break;
 }
 
-if (options.TimerScenario == TimerScenario.Ceres)
-    runtime.EscapeTimer.RequestCeresStart();
-else
-    runtime.EscapeTimer.RequestMotherBrainStart();
+// Ordinary timer diagnostics still choose a host scenario at startup. The Mother Brain
+// route must not do that: `$A9:B309` owns its real status-$0002 request near the very end of
+// the death sequence, and prestarting it here would let the timer expire during the fight.
+if (!options.MotherBrainRainbowScript)
+{
+    if (options.TimerScenario == TimerScenario.Ceres)
+        runtime.EscapeTimer.RequestCeresStart();
+    else
+        runtime.EscapeTimer.RequestMotherBrainStart();
+}
 
 EscapeTimerState priorState = runtime.EscapeTimer.State;
 bool priorEscapeTimerExpired = false;
@@ -1282,6 +1288,47 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 $"{actorResult.EscapeMusicTrackQueued}, palette FX=" +
                 $"{string.Join(',', actorResult.EscapePaletteFxRequests.Select(x => $"${x:X4}"))}.");
         }
+        if (actorResult.EscapeDoorExplosion is { } doorExplosion)
+        {
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: escape-door dust pattern " +
+                $"{doorExplosion.PatternIndex} at ({doorExplosion.XPosition}," +
+                $"{doorExplosion.YPosition}), parameter ${doorExplosion.ProjectileParameter:X4}, " +
+                $"SFX ${doorExplosion.SoundEffect:X2}.");
+        }
+        if (actorResult.TimeBombSetSubtitleSpawnRequested)
+        {
+            int? slot = motherBrainProjectiles!.SpawnTimeBombSetSubtitle();
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: alternate time-bomb subtitle allocated " +
+                $"slot {slot?.ToString() ?? "full"}.");
+        }
+        if (actorResult.MotherBrainEscapeTimerStartRequested)
+        {
+            // This is the concrete TimerStatus `$0002` consumer. Boss-area bits remain a
+            // logged request because this isolated route is hosted in Landing Site and must
+            // not corrupt Crateria's area byte while pretending it is Tourian.
+            runtime.EscapeTimer.RequestMotherBrainStart();
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: enabled Samus timer handling and requested " +
+                $"Mother Brain escape timer; bossBit={actorResult.MotherBrainBossBitRequested}, " +
+                $"event0E={actorResult.ZebesTimebombEventRequested}.");
+        }
+        foreach (MotherBrainEscapeDoorParticleSpawnRequest particleRequest in
+                 actorResult.EscapeDoorParticleSpawns)
+        {
+            int? slot = motherBrainProjectiles!.SpawnEscapeDoorParticle(particleRequest);
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: escape-door fragment " +
+                $"{particleRequest.Parameter} allocated slot {slot?.ToString() ?? "full"}.");
+        }
+        if (actorResult.EscapeDoorPlm is { } escapeDoorPlm)
+        {
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: requested escape-door PLM " +
+                $"${escapeDoorPlm.PlmEntry:X4} at block " +
+                $"({escapeDoorPlm.BlockX},{escapeDoorPlm.BlockY}).");
+        }
 
         if (actorResult.BabySpawnRequested)
         {
@@ -1320,7 +1367,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             : rainbowAttack.StepBabyMurderHeadAnimation(bus, runtime.Samus, cutsceneBaby);
         if (headResult is { OnionRingSpawn: { } ringRequest })
         {
-            int? slot = motherBrainOnionRings!.Spawn(bus, rainbowAttack, ringRequest);
+            int? slot = motherBrainProjectiles!.Spawn(bus, rainbowAttack, ringRequest);
             Console.WriteLine(
                 $"frame {frameIndex + 1,4}: Mother Brain head spawned onion ring " +
                 $"angle=${ringRequest.Angle:X2}, slot={slot?.ToString() ?? "full"}, " +
@@ -1352,7 +1399,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             // Blue-ring projectiles run after enemies, so hits from the preceding frame are
             // consumed here. Native `$A9:C6C8` clears the shared request word and queues one
             // cry even when several rings incremented it before this enemy turn.
-            int pendingBabyCries = motherBrainOnionRings!.ConsumePendingBabyCries();
+            int pendingBabyCries = motherBrainProjectiles!.ConsumePendingBabyCries();
             if (pendingBabyCries != 0)
             {
                 Console.WriteLine(
@@ -1485,7 +1532,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         // GameState_8 runs EprojRunAll after EnemyMain. This ordering lets a ring spawned by
         // the head above receive delay call one and animation frame one immediately, while
         // any collision it produces is not visible to the Baby's `$CABD` until next frame.
-        MotherBrainOnionRingFrameResult ringResult = motherBrainOnionRings!.StepFrame(
+        MotherBrainEnemyProjectileFrameResult ringResult = motherBrainProjectiles!.StepFrame(
             bus,
             rainbowAttack,
             cutsceneBaby,
@@ -1505,6 +1552,14 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 $"{ringEvent.Collision} at ({ringEvent.XPosition},{ringEvent.YPosition}); " +
                 $"{target} HP ${ringEvent.TargetHealthBefore:X4}->" +
                 $"${ringEvent.TargetHealthAfter:X4}.");
+        }
+        foreach (MotherBrainEscapeDoorParticleDustRequest dust in
+                 ringResult.EscapeDoorDustRequests)
+        {
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: escape-door fragment slot " +
+                $"{dust.SourceSlotIndex} expired at ({dust.XPosition},{dust.YPosition}); " +
+                $"spawn misc dust parameter ${dust.ProjectileParameter:X4}.");
         }
 
         // The enemy graphics hook runs after actor processing. Its shake countdown is not a

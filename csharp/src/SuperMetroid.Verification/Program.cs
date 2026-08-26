@@ -42,6 +42,7 @@ VerifySamusCrystalFlash();
 VerifySamusDrainedController();
 VerifyMotherBrainRainbowBeamSamusMovement();
 VerifyMotherBrainRainbowBeamAttackSequence();
+VerifyMotherBrainEscapeDoorParticles();
 VerifyBabyMetroidCutsceneEntrance();
 VerifySamusSolidEnemyCollision();
 VerifySamusAerialMovement();
@@ -4073,8 +4074,266 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText,
         death.Phase, "default NTSC text selection reaches explicit `$B2E3` seam");
 
+    MotherBrainRainbowBeamAttackStepResult typing = death.Step(bus, phase3Samus, 0, 0);
+    AssertTrue(typing.TypewriterStepRequested,
+        "`$B2E3` requests one external typewriter step on every call");
+    AssertEqual<ushort?>(0x2610, typing.TypewriterTextPointer,
+        "`$B2E3` publishes exact Zebes escape text-list pointer");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText,
+        death.Phase, "clear typewriter carry keeps `$B2E3` active");
+
+    MotherBrainRainbowBeamAttackStepResult typewriterComplete = death.Step(
+        bus,
+        phase3Samus,
+        0,
+        0,
+        typewriterFinished: true);
+    AssertTrue(typewriterComplete.TypewriterStepRequested,
+        "completion call still records the `$2610` typewriter invocation");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer,
+        death.Phase, "typewriter carry installs door-explosion countdown");
+    AssertEqual((ushort)0x0020, death.FunctionTimer,
+        "typewriter completion reloads exact `$20` door timer");
+
+    // `$B346` advances global RNG only when its shared interval underflows. Alternate the
+    // two sides of the literal `$4000` comparison, then verify the four-position descending
+    // cycle independently from however much of the earlier death interval remained.
+    int escapeRngCalls = 0;
+    int doorTimerCalls = 0;
+    var emittedDoorExplosions = new List<MotherBrainEscapeDoorExplosionRequest>();
+    MotherBrainRainbowBeamAttackStepResult doorTimerResult = default;
+    while (death.Phase == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer)
+    {
+        doorTimerResult = death.Step(
+            bus,
+            phase3Samus,
+            0,
+            0,
+            nextRandomNumber: () =>
+            {
+                ushort sampled = (escapeRngCalls & 1) == 0 ? (ushort)0x3fff : (ushort)0x4000;
+                escapeRngCalls++;
+                return sampled;
+            });
+        if (doorTimerResult.EscapeDoorExplosion is { } emitted)
+            emittedDoorExplosions.Add(emitted);
+        doorTimerCalls++;
+        AssertTrue(doorTimerCalls <= 33, "door timer reaches underflow within 33 calls");
+    }
+    AssertEqual(33, doorTimerCalls, "`$20` door countdown accepts zero and expires on call 33");
+    AssertEqual(escapeRngCalls, emittedDoorExplosions.Count,
+        "door producer advances RNG exactly once per emitted projectile");
+    AssertTrue(emittedDoorExplosions.Count >= 6,
+        "33-call door countdown exposes repeated five-call explosion cadence");
+    for (int explosionIndex = 0; explosionIndex < emittedDoorExplosions.Count; explosionIndex++)
+    {
+        MotherBrainEscapeDoorExplosionRequest emitted = emittedDoorExplosions[explosionIndex];
+        ushort expectedPattern = unchecked((ushort)(
+            (emittedDoorExplosions[0].PatternIndex - explosionIndex) & 3));
+        AssertEqual(expectedPattern, emitted.PatternIndex,
+            $"door explosion {explosionIndex} cycles 3,2,1,0");
+        AssertEqual(explosionIndex % 2 == 0 ? (ushort)0x000c : (ushort)0x0003,
+            emitted.ProjectileParameter,
+            $"door explosion {explosionIndex} honors `$4000` RNG boundary");
+        AssertEqual((ushort)0x0024, emitted.SoundEffect,
+            $"door explosion {explosionIndex} queues sound `$24`");
+    }
+    AssertTrue(doorTimerResult.TimerHandlingEnableRequested,
+        "timer expiry publishes Samus command `$0F`");
+    AssertTrue(doorTimerResult.MotherBrainEscapeTimerStartRequested,
+        "timer expiry publishes TimerStatus `$0002`");
+    AssertTrue(doorTimerResult.MotherBrainBossBitRequested,
+        "timer expiry publishes current-area mini-boss bit `$02`");
+    AssertTrue(doorTimerResult.ZebesTimebombEventRequested,
+        "timer expiry publishes event `$0E`");
+    AssertEqual((ushort)0, death.DeathExplosionIntervalTimer,
+        "timer expiry clears reused explosion interval");
+    AssertEqual((ushort)0, death.EscapeDoorIndex,
+        "timer expiry clears door explosion index");
+
+    MotherBrainRainbowBeamAttackStepResult blownDoor = death.Step(bus, phase3Samus, 0, 0);
+    AssertEqual(8, blownDoor.EscapeDoorParticleSpawns.Count,
+        "door blow-up attempts all eight particle allocations in one call");
+    for (ushort parameter = 0; parameter < 8; parameter++)
+    {
+        AssertEqual(new MotherBrainEscapeDoorParticleSpawnRequest(parameter),
+            blownDoor.EscapeDoorParticleSpawns[parameter],
+            $"door fragment spawn parameter {parameter}");
+    }
+    AssertEqual(new MotherBrainEscapeDoorPlmRequest(0x00, 0x06, 0xb677),
+        blownDoor.EscapeDoorPlm!.Value,
+        "door blow-up requests native hardcoded PLM location and entry");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceKeepEarthquakeGoing,
+        death.Phase, "door blow-up reaches final Mother Brain body function");
+
+    MotherBrainRainbowBeamAttackStepResult nonzeroQuake = death.Step(
+        bus, phase3Samus, 0, 0, globalEarthquakeTimer: 1);
+    AssertTrue(!nonzeroQuake.EarthquakeTimerRefreshed,
+        "final body function leaves nonzero global earthquake timer alone");
+    AssertEqual((ushort)1, death.EarthquakeTimer,
+        "final body function mirrors nonzero global quake sample");
+    MotherBrainRainbowBeamAttackStepResult zeroQuake = death.Step(
+        bus, phase3Samus, 0, 0, globalEarthquakeTimer: 0);
+    AssertTrue(zeroQuake.EarthquakeTimerRefreshed,
+        "final body function changes visible zero to `$FFFF`");
+    AssertEqual((ushort)0xffff, death.EarthquakeTimer,
+        "final body function holds earthquake indefinitely");
+
     Console.WriteLine(
-        "  Baby Metroid: death movement, corpse rotting, escape DMA, and typewriter handoff agree.");
+        "  Baby Metroid: death movement, corpse rotting, escape DMA, timer handoff, and door blow-up agree.");
+}
+
+/// <summary>
+/// Verifies all eight `$86:CB21` initializers, shared-slot allocation, exact 8.8 movement,
+/// looping spritemap durations, 33-call lifetime, and terminal parameter-nine dust spawns.
+/// </summary>
+static void VerifyMotherBrainEscapeDoorParticles()
+{
+    var bus = new TestAddressSpace();
+
+    // Literal `$86:CA22-$CA45` instruction list. Supplying it through the bus proves the
+    // production interpreter follows ROM words instead of a parallel host animation table.
+    bus.WriteBytes(0x86ca22, [
+        0x01, 0x00, 0x9b, 0x96,
+        0x01, 0x00, 0xa2, 0x96,
+        0x01, 0x00, 0xa9, 0x96,
+        0x01, 0x00, 0xb0, 0x96,
+        0x03, 0x00, 0xb7, 0x96,
+        0x03, 0x00, 0xbe, 0x96,
+        0x04, 0x00, 0xc5, 0x96,
+        0x04, 0x00, 0xcc, 0x96,
+        0xab, 0x81, 0x22, 0xca,
+    ]);
+    bus.WriteBytes(0x86cb0d, [
+        0x01, 0x00, 0x0b, 0x97,
+        0x59, 0x81,
+    ]);
+
+    var projectiles = new MotherBrainEnemyProjectileSystem();
+    for (ushort parameter = 0; parameter < 8; parameter++)
+    {
+        int? allocated = projectiles.SpawnEscapeDoorParticle(new(parameter));
+        AssertEqual<int?>(17 - parameter, allocated,
+            $"door fragment {parameter} uses highest free shared slot");
+    }
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => projectiles.SpawnEscapeDoorParticle(new(8)),
+        "door fragment parameter eight rejected");
+
+    short[] expectedYOffsets = [-0x20, -0x18, -0x10, -0x08, 0, 0x08, 0x10, 0x18];
+    short[] expectedYVelocities = [-0x0200, -0x0100, -0x0100, -0x0080, -0x0080, 0x0080, -0x0100, 0x0200];
+    for (ushort parameter = 0; parameter < 8; parameter++)
+    {
+        MotherBrainEnemyProjectileSlot slot = projectiles.Slots[17 - parameter];
+        AssertEqual(MotherBrainEnemyProjectileSystem.EscapeDoorParticleDefinition,
+            slot.ProjectileId, $"door fragment {parameter} definition");
+        AssertEqual((ushort)0x0010, slot.XPosition, $"door fragment {parameter} initial X");
+        AssertEqual(unchecked((ushort)(0x0080 + expectedYOffsets[parameter])),
+            slot.YPosition, $"door fragment {parameter} initial Y");
+        AssertEqual((ushort)0x0500, slot.XVelocity,
+            $"door fragment {parameter} initial X velocity");
+        AssertEqual(unchecked((ushort)expectedYVelocities[parameter]),
+            slot.YVelocity, $"door fragment {parameter} initial Y velocity");
+        AssertEqual((ushort)0x0020, slot.Lifetime,
+            $"door fragment {parameter} initial lifetime");
+    }
+
+    var motherBrain = new MotherBrainRainbowBeamAttackSequence
+    {
+        BrainXPosition = 0x0100,
+        BrainYPosition = 0x0100,
+    };
+    var samus = new SamusState { XPosition = 0x0400, YPosition = 0x0400 };
+    MotherBrainEnemyProjectileFrameResult first = projectiles.StepFrame(
+        bus, motherBrain, baby: null, samus, layer1X: 0);
+    AssertEqual(8, first.ActiveCount, "all eight door fragments survive first movement call");
+    MotherBrainEnemyProjectileSlot firstFragment = projectiles.Slots[17];
+    AssertEqual((ushort)0x0014, firstFragment.XPosition,
+        "first fragment applies slowed `$04.F0` whole X movement");
+    AssertEqual((ushort)0xf000, firstFragment.XSubposition,
+        "first fragment retains `$F0` X velocity fraction in high subposition byte");
+    AssertEqual((ushort)0x005e, firstFragment.YPosition,
+        "first fragment applies gravity then signed `$FE.20` Y movement");
+    AssertEqual((ushort)0x2000, firstFragment.YSubposition,
+        "first fragment retains `$20` Y fraction");
+    AssertEqual((ushort)0x04f0, firstFragment.XVelocity,
+        "first fragment X friction subtracts `$10`");
+    AssertEqual((ushort)0xfe20, firstFragment.YVelocity,
+        "first fragment gravity adds `$20`");
+    AssertEqual((ushort)0x969b, firstFragment.SpritemapPointer,
+        "spawn frame loads exploded-door spritemap zero");
+    AssertEqual((ushort)0x001f, firstFragment.Lifetime,
+        "spawn frame performs lifetime decrement one");
+
+    ushort[] expectedSpritemapsByCall =
+    [
+        0x96a2, 0x96a9, 0x96b0,
+        0x96b7, 0x96b7, 0x96b7,
+        0x96be, 0x96be, 0x96be,
+        0x96c5, 0x96c5, 0x96c5, 0x96c5,
+        0x96cc, 0x96cc, 0x96cc, 0x96cc,
+        0x969b,
+    ];
+    for (int callIndex = 0; callIndex < expectedSpritemapsByCall.Length; callIndex++)
+    {
+        projectiles.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
+        AssertEqual(expectedSpritemapsByCall[callIndex], firstFragment.SpritemapPointer,
+            $"door fragment animation call {callIndex + 2}");
+    }
+
+    // Nineteen calls have run. Calls 20..32 remain active; call 33 changes Var0 zero to
+    // `$FFFF`, deletes every fragment after its last movement, subtracts four from Y, and
+    // publishes one parameter-nine misc-dust allocation request per physical slot.
+    MotherBrainEnemyProjectileFrameResult lifetimeResult = default;
+    for (int call = 20; call <= 33; call++)
+    {
+        lifetimeResult = projectiles.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
+        if (call < 33)
+            AssertEqual(8, lifetimeResult.ActiveCount, $"door fragments active through call {call}");
+    }
+    AssertEqual(0, lifetimeResult.ActiveCount, "all door fragments delete on call 33");
+    AssertEqual(8, lifetimeResult.EscapeDoorDustRequests.Count,
+        "all eight expiring fragments request terminal dust");
+    foreach (MotherBrainEscapeDoorParticleDustRequest dust in lifetimeResult.EscapeDoorDustRequests)
+        AssertEqual((ushort)0x0009, dust.ProjectileParameter, "terminal fragment dust parameter");
+
+    // A separate pool demonstrates that rings and fragments genuinely compete for the same
+    // eighteen entries. Eight fragments plus ten rings fill it; a nineteenth allocation
+    // fails without displacing any live projectile.
+    var sharedPool = new MotherBrainEnemyProjectileSystem();
+    for (ushort parameter = 0; parameter < 8; parameter++)
+        AssertTrue(sharedPool.SpawnEscapeDoorParticle(new(parameter)).HasValue,
+            $"shared pool door fragment {parameter}");
+    for (byte ring = 0; ring < 10; ring++)
+        AssertTrue(sharedPool.Spawn(bus, motherBrain, new MotherBrainOnionRingSpawnRequest(ring)).HasValue,
+            $"shared pool ring {ring}");
+    AssertEqual<int?>(null,
+        sharedPool.Spawn(bus, motherBrain, new MotherBrainOnionRingSpawnRequest(0x10)),
+        "nineteenth mixed Mother Brain projectile allocation fails");
+
+    // The subtitle uses the same allocator, loads one `$8D:970B` spritemap immediately,
+    // then sleeps forever. Two passes prove its pre-instruction keeps publishing the fixed
+    // coordinates and zero velocities after the instruction pointer reaches sleep.
+    var subtitlePool = new MotherBrainEnemyProjectileSystem();
+    AssertEqual<int?>(17, subtitlePool.SpawnTimeBombSetSubtitle(),
+        "alternate subtitle uses highest free shared slot");
+    MotherBrainEnemyProjectileSlot subtitle = subtitlePool.Slots[17];
+    subtitlePool.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
+    AssertEqual((ushort)0x970b, subtitle.SpritemapPointer,
+        "alternate subtitle loads Japanese text spritemap");
+    subtitlePool.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
+    AssertEqual((ushort)0x0080, subtitle.XPosition,
+        "alternate subtitle pre-instruction repins X");
+    AssertEqual((ushort)0x00c0, subtitle.YPosition,
+        "alternate subtitle pre-instruction repins Y");
+    AssertEqual((ushort)0, subtitle.XVelocity,
+        "alternate subtitle pre-instruction clears X velocity");
+    AssertEqual((ushort)0, subtitle.YVelocity,
+        "alternate subtitle pre-instruction clears Y velocity");
+    AssertTrue(subtitle.IsActive, "alternate subtitle sleep keeps projectile alive");
+
+    Console.WriteLine(
+        "  Mother Brain projectiles: shared allocation, subtitle pinning, door-fragment motion, animation, and dust agree.");
 }
 
 static void VerifySamusAerialMovement()

@@ -25,6 +25,86 @@ public sealed class SamusDrainedState
     public bool HyperBeamPaletteFxRequested { get; private set; }
 
     /// <summary>
+    /// Host-readable identity of the timer/hack function installed by Samus command five
+    /// or <c>$18</c>. It deliberately survives the later `$91:E4AD` pose changes, just as
+    /// native WRAM's function pointer does.
+    /// </summary>
+    public DrainedGetUpHandler GetUpHandler { get; private set; }
+
+    /// <summary>
+    /// Ports Samus command five at <c>$90:F38E</c>: install the able-to-stand timer handler,
+    /// then enter the shared rainbow-beam setup at <c>$90:F394</c>.
+    /// </summary>
+    public void SetupForRainbowBeamAbleToStand(ISnesAddressSpace bus, SamusState samus)
+    {
+        GetUpHandler = DrainedGetUpHandler.AbleToStand;
+        SetupForRainbowBeam(bus, samus);
+    }
+
+    /// <summary>
+    /// Ports Samus command <c>$18</c> at <c>$90:F3C0</c>: install the failed-stand timer
+    /// handler, then enter the same locked left-knockback pose as command five.
+    /// </summary>
+    public void SetupForRainbowBeamUnableToStand(ISnesAddressSpace bus, SamusState samus)
+    {
+        GetUpHandler = DrainedGetUpHandler.UnableToStand;
+        SetupForRainbowBeam(bus, samus);
+    }
+
+    /// <summary>
+    /// Runs one call of the installed <c>$90:E09B/$E0C5</c> timer/hack handler. Native calls
+    /// it after movement and immediately before animation, so a written timer of one is
+    /// decremented and the selected art begins advancing in that same beta pass.
+    /// </summary>
+    public bool StepGetUpHandler(SamusState samus, ushort newlyPressedInput)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        if ((newlyPressedInput & 0x0800) == 0)
+            return false;
+
+        if (GetUpHandler == DrainedGetUpHandler.AbleToStand &&
+            samus.Pose == SamusState.DrainedCrouchingLeftPose &&
+            samus.AnimationFrame >= 8)
+        {
+            samus.SetAnimationFrameFromSpecialHandler(frame: 13, timer: 1);
+
+            // `$90:E0BE` replaces the hack pointer with an RTS after the first accepted Up
+            // edge. Further presses cannot restart the stand-up stream.
+            GetUpHandler = DrainedGetUpHandler.Inactive;
+            return true;
+        }
+
+        if (GetUpHandler == DrainedGetUpHandler.UnableToStand &&
+            samus.AnimationFrame >= 8 &&
+            samus.AnimationFrame < 12)
+        {
+            // Unlike the able branch, `$90:E0C5` retains its own function pointer. A later
+            // visit to frames 8..11 can therefore react to another fresh Up edge.
+            samus.SetAnimationFrameFromSpecialHandler(frame: 18, timer: 1);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>Ports Samus command <c>$19</c> at <c>$90:F3FB</c>.</summary>
+    public void FreezeForHyperBeamAcquisition(SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        samus.SetAnimationFrameFromSpecialHandler(frame: 28, timer: 1);
+    }
+
+    /// <summary>
+    /// Ports the animation half of Samus command <c>$17</c> at <c>$90:F3DD</c>. Rainbow
+    /// palette words are not yet modeled; the literal frame/timer mutation is complete.
+    /// </summary>
+    public void DisableRainbowAndStartStandingAnimation(SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        samus.SetAnimationFrameFromSpecialHandler(frame: 13, timer: 1);
+    }
+
+    /// <summary>
     /// Ports controller function zero, “let drained Samus fall,” at <c>$91:E4F8</c>.
     /// </summary>
     public void LetFall(ISnesAddressSpace bus, SamusState samus)
@@ -180,6 +260,19 @@ public sealed class SamusDrainedState
     /// <summary>Ends the Samus-side drain lock after release art reaches `$FD,$01/$02`.</summary>
     internal void CompleteRelease() => Phase = DrainedSamusPhase.Inactive;
 
+    private void SetupForRainbowBeam(ISnesAddressSpace bus, SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+
+        // Both commands unconditionally choose left-facing knockback pose `$54`, even when
+        // Samus had faced right. This is why controller zero later selects drained pose `$E9`.
+        samus.Pose = SamusState.KnockbackLeftPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus, initialFrame: 0);
+        Phase = DrainedSamusPhase.RainbowBeamLocked;
+    }
+
     private static void ClearBaseAndVerticalSpeed(SamusState samus)
     {
         samus.HorizontalSpeed.BaseSpeed = 0;
@@ -193,12 +286,21 @@ public sealed class SamusDrainedState
 public enum DrainedSamusPhase
 {
     Inactive,
+    RainbowBeamLocked,
     WaitingForFallingCommand,
     Falling,
     OnFloor,
     Standing,
     Crouching,
     Releasing,
+}
+
+/// <summary>Named equivalents of the three timer/hack pointer values relevant to draining.</summary>
+public enum DrainedGetUpHandler
+{
+    Inactive,
+    AbleToStand,
+    UnableToStand,
 }
 
 /// <summary>One-frame debugger witness from the translated `$90:94CB` handler.</summary>

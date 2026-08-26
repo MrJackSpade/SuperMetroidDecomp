@@ -1367,6 +1367,11 @@ public sealed class SuperMetroidRuntime
                     Samus.YPosition);
             }
 
+            // `$90:E738` runs the timer/hack handler after movement and before animation.
+            // Commands five/$18 install the Mother Brain-specific Up-edge branches; the
+            // method is a cheap no-op for every ordinary gameplay state.
+            Samus.Drained.StepGetUpHandler(Samus, Controller1.NewlyPressed);
+
             // Normal gameplay advances animation during frame-handler beta, before the
             // pose-transition handler, draw handler, and next-NMI tile selection.
             // Animation sees the same held-input word as movement. Ordinary Dash uses B

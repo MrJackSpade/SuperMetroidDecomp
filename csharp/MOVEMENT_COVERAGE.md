@@ -38,7 +38,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, momentum, gravity/collision, `$F8` | Later firing/external-displacement routes |
 | `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | External displacement, enemy producer |
 | `$1A` | Grabbed by Draygon | — | Entire family |
-| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, hyper beam; bank `$A9`: rainbow-beam 8.8 wall/middle/fall movement and arena clamps | Crystal Flash/drain palette and HDMA presentation, full bank-$A9 actor sequencing, live enemy actor producer |
+| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, hyper beam; bank `$A9`: active rainbow attack `$B983-$BB2D`, including 8.8 wall/middle/fall movement and arena clamps | Crystal Flash/drain palette and HDMA presentation, earlier beam-charge and later Baby/finish-off actor chains, live enemy actor producer |
 
 The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
 performs its one-frame initialization and `$90:E032` owns the rising special arc; its
@@ -436,8 +436,22 @@ translated status is documented with the Morph Ball family below.
   `$00.02` while adding `$00.18` Y acceleration. Ceiling/floor clamps `$30/$C0`, carry
   precedence, and subposition clears are verified separately. The previous-position writes
   deliberately suppress ordinary camera tracking during this actor-owned motion.
-- Solid-enemy contribution to `$0DC6`, rainbow beam damage/palette/HDMA, and the full Mother
-  Brain/Baby Metroid actor state machines remain explicit producer seams.
+- `MotherBrainRainbowBeamAttackSequence` now translates the active attack chain
+  `$A9:B983-$BB2D`. Start chooses drained command five or `$18` at the literal 700-energy
+  boundary, locks input, and initializes the HDMA-width, explosion, sound, and actor-function
+  words. The wall, one-frame delay, drain initializer, and drain loop retain native
+  fallthrough instead of flattening the sequence into host animation states.
+- Verification requires all 300 `$012B` drain calls, the seven calls produced by sound
+  counter six, exact explosion-table order, width growth through `$0C00`, and the resource
+  cadence: energy every call, missiles/supers every fourth enemy execution, and power bombs
+  every call. It deliberately preserves `$A9:C5A2`'s accumulator-reuse oddity when depleted
+  ammunition is not the selected HUD item and `$A9:C57D`'s carry-dependent one/two damage.
+- Beam shutdown narrows below `$0200`, disables its modeled HDMA channel, unlocks Samus,
+  seeds cooldown eight, and falls through drained controller zero into the custom accelerated
+  fall. Floor `$C0`, lower-head timer `$80`, the 129-call DEC/BPL decision, and the health
+  `$0190` repeat/finish boundary are exact. The earlier beam-charge chain, outgoing repeat and
+  finish-Samus-off chains, Baby Metroid actor sequence, and palette/HDMA rendering remain
+  explicit seams; the translated active sequence throws if a caller tries to step across one.
 
 ## Verified aerial-turn and wall-jump slice
 
@@ -682,7 +696,8 @@ translated status is documented with the Morph Ball family below.
 
 ## Next implementation order
 
-1. Full bank-$A9 Mother Brain/Baby Metroid actor sequencing; then Crystal Flash/drain presentation effects.
+1. Continue bank `$A9` from the active rainbow attack into its repeat/finish-Samus-off and
+   Baby Metroid chains, then translate the earlier beam-charge setup.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.
 4. Grapple breakable PLMs and spike-damage side effects.

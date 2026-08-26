@@ -270,6 +270,8 @@ public sealed class SamusDrainedState
         samus.Pose = SamusState.KnockbackLeftPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
+        // Shared `$90:F394` installs the locked current/new state handlers after changing art.
+        samus.InputLocked = true;
         Phase = DrainedSamusPhase.RainbowBeamLocked;
     }
 

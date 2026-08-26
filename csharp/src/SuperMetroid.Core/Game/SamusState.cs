@@ -662,6 +662,19 @@ public sealed class SamusState
     /// <summary>Current power bombs at WRAM `$09CE`.</summary>
     public ushort PowerBombs { get; set; }
 
+    /// <summary>Selected HUD item at WRAM <c>$09D2</c>: 0 none, 1 missiles, 2 supers, 3 bombs.</summary>
+    public ushort SelectedHudItem { get; set; }
+
+    /// <summary>Native HUD auto-cancel index at WRAM <c>$0A04</c>.</summary>
+    public ushort AutoCancelHudItemIndex { get; set; }
+
+    /// <summary>
+    /// Debugger-readable identity of the normal-versus-locked Samus state-handler pair.
+    /// Mother Brain command five/<c>$18</c> locks input; command one unlocks it after the
+    /// rainbow beam has narrowed. Movement type alone cannot represent this independent word.
+    /// </summary>
+    public bool InputLocked { get; set; }
+
     /// <summary>
     /// Equipped beam bitfield at WRAM `$09A6`. Drained-controller function three replaces
     /// this with `$1009`, the exact charge/wave/plasma plus hyper-beam configuration.

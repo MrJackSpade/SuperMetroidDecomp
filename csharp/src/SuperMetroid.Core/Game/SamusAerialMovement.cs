@@ -5,23 +5,36 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Literal dry-air ports of Samus's ordinary jump, spin-jump, wall-jump, aerial-turn, and
-/// falling movement routines in bank $90.
+/// Literal ports of Samus's ordinary jump, spin-jump, wall-jump, aerial-turn, and falling
+/// movement routines in bank $90, including their shared water/lava table selection.
 /// </summary>
 /// <remarks>
 /// This deliberately retains the cartridge's split 16.16 magnitudes and separate vertical
 /// direction word. It does not use floating point, host elapsed time, or a guessed gravity
-/// curve. Enemy collision, liquid physics, and external displacement remain explicit
-/// boundaries. Ordinary Dash and equipped Speed Booster momentum are retained through
-/// dry-air jumps, including the equipped vertical bonus. Wall-jump BLOCK collision and dry equipment launch tables are
-/// translated; solid-enemy wall jumps are not silently treated as blocks.
+/// curve. Enemy collision and external displacement remain explicit boundaries. Ordinary
+/// Dash and equipped Speed Booster momentum are retained through environment-selected
+/// jumps, including the equipped vertical bonus. Wall-jump BLOCK collision and all three
+/// liquid launch-table entries are translated; solid-enemy wall jumps are not treated as blocks.
 /// </remarks>
 public static class SamusAerialMovement
 {
+    // `$90:9C21` selects one standalone 12-byte record for the movement handler installed
+    // when Samus releases a grapple swing. These are not movement-type-indexed table bases.
+    private const int GrappleReleaseSpeedInAir = 0x909f31;
+    private const int GrappleReleaseSpeedInWater = 0x909f3d;
+    private const int GrappleReleaseSpeedInLavaAcid = 0x909f49;
+
     private const int InitialYSpeedJumpingAddress = 0x909eb9;
     private const int InitialYSubspeedJumpingAddress = 0x909ebf;
     private const int YSubaccelerationInAirAddress = 0x909ea1;
     private const int YAccelerationInAirAddress = 0x909ea7;
+
+    private const int InitialYSpeedHiJumpingAddress = 0x909ec5;
+    private const int InitialYSubspeedHiJumpingAddress = 0x909ecb;
+    private const int InitialYSpeedWallJumpingAddress = 0x909ed1;
+    private const int InitialYSubspeedWallJumpingAddress = 0x909ed7;
+    private const int InitialYSpeedHiWallJumpingAddress = 0x909edd;
+    private const int InitialYSubspeedHiWallJumpingAddress = 0x909ee3;
 
     /// <summary>
     /// Ports the dry-air, no-hi-jump path through
@@ -39,6 +52,61 @@ public static class SamusAerialMovement
         samus.Kinematics.YSubspeed = ReadWord(bus, InitialYSubspeedJumpingAddress);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureDryAirGravity(bus, samus);
+        samus.Kinematics.YDirection = 1;
+    }
+
+    /// <summary>
+    /// Ports all environment/equipment paths through <c>Make_Samus_Jump</c> at
+    /// <c>$90:98BC</c>. Air/water/lava select word offsets zero/two/four in the normal or
+    /// Hi-Jump tables; Gravity Suit forces offset zero before that equipment choice.
+    /// </summary>
+    public static void InitializeJump(ISnesAddressSpace bus, SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+
+        ushort medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
+        int tableOffset = medium * 2;
+        bool hiJumpEquipped = (samus.EquippedItems & 0x0100) != 0;
+        int wholeTable = hiJumpEquipped
+            ? InitialYSpeedHiJumpingAddress
+            : InitialYSpeedJumpingAddress;
+        int fractionalTable = hiJumpEquipped
+            ? InitialYSubspeedHiJumpingAddress
+            : InitialYSubspeedJumpingAddress;
+
+        // The two words are loaded independently from ROM. Speed Booster's fractional
+        // bonus likewise uses an independent 16-bit ADC and intentionally drops its carry.
+        samus.Kinematics.YSpeed = ReadWord(bus, wholeTable + tableOffset);
+        samus.Kinematics.YSubspeed = ReadWord(bus, fractionalTable + tableOffset);
+        ApplyEquippedSpeedBoosterJumpBonus(samus);
+        ConfigureEnvironmentGravity(bus, samus);
+        samus.Kinematics.YDirection = 1;
+    }
+
+    /// <summary>
+    /// Ports <c>Make_Samus_WallJump</c> at <c>$90:9949</c> without duplicating its three
+    /// liquid entries in pose code. Extra-run bonus and 16-bit arithmetic match normal jump.
+    /// </summary>
+    public static void InitializeWallJump(ISnesAddressSpace bus, SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+
+        ushort medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
+        int tableOffset = medium * 2;
+        bool hiJumpEquipped = (samus.EquippedItems & 0x0100) != 0;
+        int wholeTable = hiJumpEquipped
+            ? InitialYSpeedHiWallJumpingAddress
+            : InitialYSpeedWallJumpingAddress;
+        int fractionalTable = hiJumpEquipped
+            ? InitialYSubspeedHiWallJumpingAddress
+            : InitialYSubspeedWallJumpingAddress;
+
+        samus.Kinematics.YSpeed = ReadWord(bus, wholeTable + tableOffset);
+        samus.Kinematics.YSubspeed = ReadWord(bus, fractionalTable + tableOffset);
+        ApplyEquippedSpeedBoosterJumpBonus(samus);
+        ConfigureEnvironmentGravity(bus, samus);
         samus.Kinematics.YDirection = 1;
     }
 
@@ -74,6 +142,23 @@ public static class SamusAerialMovement
     }
 
     /// <summary>
+    /// Ports <c>Determine_Samus_YAcceleration</c> at <c>$90:9C5B</c>. The three adjacent
+    /// ROM words at `$90:9EA1/$9EA7` are indexed by the exact bottom-boundary medium.
+    /// </summary>
+    public static void ConfigureEnvironmentGravity(ISnesAddressSpace bus, SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+        int tableOffset = samus.LiquidPhysics.DetermineMovementMedium(samus) * 2;
+        samus.Kinematics.YSubacceleration = ReadWord(
+            bus,
+            YSubaccelerationInAirAddress + tableOffset);
+        samus.Kinematics.YAcceleration = ReadWord(
+            bus,
+            YAccelerationInAirAddress + tableOffset);
+    }
+
+    /// <summary>
     /// Executes one movement-type-2 frame from <c>Samus_Jumping_Movement</c> at
     /// <c>$90:8FB3</c>.
     /// </summary>
@@ -91,7 +176,9 @@ public static class SamusAerialMovement
             movementType: 2,
             controllerInput,
             speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
-            bus);
+            bus,
+            liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
+                SamusLiquidPhysicsState.Air);
 
         // Poses `$4B/$4C/$55-$5A` are genuine movement-type-2 poses, but native treats them as
         // a transition: base X speed is forced to zero, only external X/Y displacement is
@@ -148,22 +235,28 @@ public static class SamusAerialMovement
         // `$90:A436-$90:A4CB` runs this before ordinary spin movement. Space Jump is not a
         // host-side double-jump: it only accepts a fresh Jump edge while descending and
         // while the split Y magnitude lies inside the cartridge's dry-air 8.8 window.
-        TryRestartDryAirSpaceJump(bus, samus, controllerNewInput);
+        bool fullySubmergedWithoutGravity =
+            (samus.EquippedItems & SamusLiquidPhysicsState.GravitySuitItem) == 0 &&
+            samus.LiquidPhysics.IsTopBoundarySubmerged(samus);
+        if (!fullySubmergedWithoutGravity)
+            TryRestartSpaceJump(bus, samus, controllerNewInput);
 
         // Screw Attack's damaging body is republished every eligible dry-air spin frame.
         // The common runtime clears this word before movement, mirroring `$90:E725`.
-        if (SamusState.IsScrewAttackPose(samus.Pose))
+        if (!fullySubmergedWithoutGravity && SamusState.IsScrewAttackPose(samus.Pose))
             samus.HorizontalSpeed.ContactDamageIndex = 3;
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 3,
             controllerInput,
             speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
-            bus);
+            bus,
+            liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
+                SamusLiquidPhysicsState.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectNormalAirSpeedTable();
+        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         AerialBaseSpeedResult calculation =
             speed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType: 3);
 
@@ -250,7 +343,9 @@ public static class SamusAerialMovement
             movementType: 0x14,
             controllerInput,
             speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
-            bus);
+            bus,
+            liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
+                SamusLiquidPhysicsState.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
         BlockMoveResult horizontal = MoveNormalAerialX(
             bus,
@@ -285,7 +380,9 @@ public static class SamusAerialMovement
             movementType: 0x19,
             controllerInput,
             speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
-            bus);
+            bus,
+            liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
+                SamusLiquidPhysicsState.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
         BlockMoveResult horizontal = MoveNormalAerialX(
             bus,
@@ -318,7 +415,7 @@ public static class SamusAerialMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectNormalAirSpeedTable();
+        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
         int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
@@ -376,7 +473,9 @@ public static class SamusAerialMovement
             movementType: 6,
             controllerInput,
             speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
-            bus);
+            bus,
+            liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
+                SamusLiquidPhysicsState.Air);
 
         BlockMoveResult horizontal = MoveNormalAerialX(
             bus,
@@ -399,6 +498,89 @@ public static class SamusAerialMovement
         return FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter);
     }
 
+    /// <summary>
+    /// Executes <c>SamusMovementHandler_ReleasedFromGrappleSwing</c> at
+    /// <c>$90:946E-$94CA</c> for one frame.
+    /// </summary>
+    /// <remarks>
+    /// This is a movement-handler pointer, not movement type two. It begins on the same
+    /// frame that `$9B:C7B8` derives launch velocity, survives the beam's following-frame
+    /// cleanup, uses the three standalone ROM acceleration records at `$90:9F31-$9F54`,
+    /// and restores the normal handler only after upward-speed underflow or vertical
+    /// collision. Keeping that lifetime explicit prevents a grapple launch from silently
+    /// acquiring ordinary jump input/caps one frame too early.
+    /// </remarks>
+    public static AerialMovementResult StepReleasedFromGrapple(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort controllerInput,
+        ushort nmiFrameCounter)
+    {
+        ValidateCommon(bus, level, samus);
+        if (!samus.Grapple.ReleasedMovementActive)
+            throw new InvalidOperationException("Released-grapple movement handler is not active.");
+
+        SamusKinematicsState state = samus.Kinematics;
+        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
+        bool restoreNormalHandler = false;
+
+        // `$90:946E-$948A` treats a signed-negative upward whole speed as the apex-wrap
+        // sentinel. It clears the complete magnitude, flips downward, and installs normal
+        // movement, but deliberately continues the remainder of this final special frame.
+        if (state.YDirection == 1 && unchecked((short)state.YSpeed) < 0)
+        {
+            state.YSpeed = 0;
+            state.YSubspeed = 0;
+            state.YDirection = 2;
+            restoreNormalHandler = true;
+        }
+
+        // Native writes mode two every frame, so `$90:9A7E` always takes its deceleration
+        // branch until it underflows and resets mode zero. Only then can an input-free frame
+        // clear base speed instead of calling the horizontal mover.
+        speed.AccelerationMode = 2;
+        ushort medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
+        int speedRecordAddress = medium switch
+        {
+            SamusLiquidPhysicsState.Water => GrappleReleaseSpeedInWater,
+            SamusLiquidPhysicsState.LavaAcid => GrappleReleaseSpeedInLavaAcid,
+            _ => GrappleReleaseSpeedInAir,
+        };
+        uint baseSpeed = speed.CalculateBaseSpeedAtAddress(bus, speedRecordAddress);
+
+        bool horizontalInput = (controllerInput &
+            ((ushort)SnesButton.Left | (ushort)SnesButton.Right)) != 0;
+        BlockMoveResult horizontal;
+        if (speed.AccelerationMode == 0 && !horizontalInput)
+        {
+            // `$90:94AA-$94B4` clears both persistent base words and the frame displacement.
+            speed.BaseSpeed = 0;
+            speed.BaseSubspeed = 0;
+            speed.CalculateTotalSpeed(0);
+            horizontal = SamusBlockCollision.MoveHorizontal(bus, level, state, 0);
+        }
+        else
+        {
+            int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed);
+            horizontal = SamusBlockCollision.MoveHorizontal(bus, level, state, requested);
+            if (horizontal.Collided)
+                ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+        }
+
+        AerialMovementResult result = FinishVerticalMovement(
+            bus,
+            level,
+            samus,
+            horizontal,
+            nmiFrameCounter);
+        if (result.Vertical is { Collided: true })
+            restoreNormalHandler = true;
+
+        samus.Grapple.ReleasedMovementActive = !restoreNormalHandler;
+        return result;
+    }
+
     private static BlockMoveResult MoveNormalAerialX(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -407,7 +589,7 @@ public static class SamusAerialMovement
         byte movementType)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectNormalAirSpeedTable();
+        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         AerialBaseSpeedResult calculation =
             speed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType);
 
@@ -550,11 +732,11 @@ public static class SamusAerialMovement
     }
 
     /// <summary>
-    /// Ports the dry-air Space Jump gate inside <c>Samus_Movement_03_SpinJumping</c> at
+    /// Ports the air/partially-submerged Space Jump gate inside <c>Samus_Movement_03_SpinJumping</c> at
     /// <c>$90:A46B-$90:A4A2</c>. Screw Attack can use this physics when both item bits are
     /// equipped even though its visible pose is `$81/$82`.
     /// </summary>
-    private static bool TryRestartDryAirSpaceJump(
+    private static bool TryRestartSpaceJump(
         ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerNewInput)
@@ -571,7 +753,14 @@ public static class SamusAerialMovement
         ushort fallingVelocity8_8 = unchecked((ushort)(
             (samus.Kinematics.YSpeed << 8) |
             (samus.Kinematics.YSubspeed >> 8)));
-        bool atOrAboveMinimum = unchecked((short)(fallingVelocity8_8 - 0x0280)) >= 0;
+        // `$0AD2` is written by the preceding animation pass, not recomputed here. This
+        // matters while crossing a surface: the top-boundary gate above and remembered
+        // velocity window can intentionally describe different samples for one frame.
+        ushort minimumVelocity = samus.LiquidPhysics.LiquidPhysicsType !=
+            SamusLiquidPhysicsState.Air
+                ? (ushort)0x0080
+                : (ushort)0x0280;
+        bool atOrAboveMinimum = unchecked((short)(fallingVelocity8_8 - minimumVelocity)) >= 0;
         bool belowMaximum = unchecked((short)(fallingVelocity8_8 - 0x0500)) < 0;
         if (!atOrAboveMinimum || !belowMaximum ||
             (controllerNewInput & (ushort)SnesButton.A) == 0)
@@ -581,7 +770,7 @@ public static class SamusAerialMovement
 
         // This is the same Samus_InitJump used by a grounded launch: ROM-authored initial
         // magnitude, Speed Booster's split-word bonus, dry-air gravity, and upward direction.
-        SamusAerialMovement.InitializeDryAirJump(bus, samus);
+        SamusAerialMovement.InitializeJump(bus, samus);
         return true;
     }
 

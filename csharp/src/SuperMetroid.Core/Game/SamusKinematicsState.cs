@@ -64,6 +64,18 @@ public sealed class SamusKinematicsState
     /// <summary>Current vertical speed as an unsigned native high/low pair.</summary>
     public uint VerticalSpeedFixed => ((uint)YSpeed << 16) | YSubspeed;
 
+    /// <summary>
+    /// Whole-pixel top collision boundary returned by <c>Get_Samus_Top_Boundary</c>.
+    /// Liquid and wall-jump code deliberately samples this separately from Samus's feet.
+    /// </summary>
+    public ushort TopBoundary => unchecked((ushort)(YPosition - YRadius));
+
+    /// <summary>
+    /// Whole-pixel bottom collision boundary returned by <c>Get_Samus_Bottom_Boundary</c>.
+    /// The native addition is 16-bit and therefore wraps at the room-coordinate boundary.
+    /// </summary>
+    public ushort BottomBoundary => unchecked((ushort)(YPosition + YRadius));
+
     internal void SetXFixed(uint value)
     {
         XPosition = unchecked((ushort)(value >> 16));

@@ -31,6 +31,7 @@ VerifySamusHorizontalSpeed();
 VerifySamusStoredShineAndShinespark();
 VerifySamusAerialMovement();
 VerifySamusSpaceJumpAndScrewAttack();
+VerifySamusLiquidPhysics();
 VerifySamusAerialTurnsAndWallJump();
 VerifySamusKnockbackAndDamageBoost();
 VerifySamusGrappleSwingAndRelease();
@@ -1862,6 +1863,324 @@ static void VerifySamusSpaceJumpAndScrewAttack()
 
     Console.WriteLine(
         "  Space Jump/Screw Attack: pose priority, repeat window, damage, wall frames, palette cycle, and landing agree.");
+}
+
+/// <summary>
+/// Exercises the deliberately different top/bottom/bottom-minus-one liquid boundaries,
+/// all three ROM jump/gravity/X-table selections, Gravity Suit bypass, submerged dash
+/// behavior, and the water-specific Space Jump velocity window.
+/// </summary>
+static void VerifySamusLiquidPhysics()
+{
+    var bus = new TestAddressSpace();
+
+    // Seed exactly the adjacent word tables read by `$90:98BC/$90:9C5B`. Distinct values
+    // make a wrong byte offset or accidental host constant immediately observable.
+    ushort[] launchWhole = [4, 1, 2];
+    ushort[] launchFraction = [0xe000, 0xc000, 0xc000];
+    ushort[] hiWhole = [6, 2, 3];
+    ushort[] hiFraction = [0, 0x8000, 0x8000];
+    ushort[] gravityFraction = [0x1c00, 0x0800, 0x0900];
+    for (int medium = 0; medium < 3; medium++)
+    {
+        WriteTestWord(bus, 0x909eb9 + medium * 2, launchWhole[medium]);
+        WriteTestWord(bus, 0x909ebf + medium * 2, launchFraction[medium]);
+        WriteTestWord(bus, 0x909ec5 + medium * 2, hiWhole[medium]);
+        WriteTestWord(bus, 0x909ecb + medium * 2, hiFraction[medium]);
+        WriteTestWord(bus, 0x909ea1 + medium * 2, gravityFraction[medium]);
+        WriteTestWord(bus, 0x909ea7 + medium * 2, 0);
+    }
+
+    var sample = new SamusState { XPosition = 64, YPosition = 100 };
+    sample.Kinematics.YRadius = 12; // top 88, bottom 112
+    sample.LiquidPhysics.ConfigureWater(surfaceY: 111);
+    AssertEqual(SamusLiquidPhysicsState.Water,
+        sample.LiquidPhysics.DetermineMovementMedium(sample),
+        "water surface one pixel above bottom affects movement");
+    AssertTrue(!sample.LiquidPhysics.IsTopBoundarySubmerged(sample),
+        "partially submerged body leaves top above water");
+
+    sample.LiquidPhysics.ConfigureWater(surfaceY: 112);
+    AssertEqual(SamusLiquidPhysicsState.Air,
+        sample.LiquidPhysics.DetermineMovementMedium(sample),
+        "liquid equality is not submerged");
+    sample.LiquidPhysics.ConfigureWater(surfaceY: 111, liquidOptions: 4);
+    AssertEqual(SamusLiquidPhysicsState.Air,
+        sample.LiquidPhysics.DetermineMovementMedium(sample),
+        "water option bit two disables physics");
+
+    sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 111);
+    AssertEqual(SamusLiquidPhysicsState.LavaAcid,
+        sample.LiquidPhysics.DetermineMovementMedium(sample),
+        "negative general FX Y selects lava/acid surface");
+    sample.EquippedItems = SamusLiquidPhysicsState.GravitySuitItem;
+    AssertEqual(SamusLiquidPhysicsState.Air,
+        sample.LiquidPhysics.DetermineMovementMedium(sample),
+        "Gravity Suit bypasses liquid movement physics");
+
+    // Normal and Hi-Jump launch tables are orthogonal to medium selection. Gravity Suit
+    // forces the air entry even while the raw water surface still contains Samus's feet.
+    sample.EquippedItems = 0;
+    sample.LiquidPhysics.ConfigureWater(surfaceY: 111);
+    SamusAerialMovement.InitializeJump(bus, sample);
+    AssertEqual((ushort)1, sample.Kinematics.YSpeed, "water normal-jump whole speed");
+    AssertEqual((ushort)0xc000, sample.Kinematics.YSubspeed, "water normal-jump fraction");
+    AssertEqual((ushort)0x0800, sample.Kinematics.YSubacceleration, "water gravity fraction");
+
+    sample.EquippedItems = 0x0100;
+    SamusAerialMovement.InitializeJump(bus, sample);
+    AssertEqual((ushort)2, sample.Kinematics.YSpeed, "water Hi-Jump whole speed");
+    AssertEqual((ushort)0x8000, sample.Kinematics.YSubspeed, "water Hi-Jump fraction");
+
+    sample.EquippedItems = SamusLiquidPhysicsState.GravitySuitItem | 0x0100;
+    SamusAerialMovement.InitializeJump(bus, sample);
+    AssertEqual((ushort)6, sample.Kinematics.YSpeed, "Gravity Suit forces air Hi-Jump entry");
+    AssertEqual((ushort)0x1c00, sample.Kinematics.YSubacceleration,
+        "Gravity Suit forces air acceleration");
+
+    sample.EquippedItems = 0;
+    sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 111);
+    SamusAerialMovement.InitializeJump(bus, sample);
+    AssertEqual((ushort)2, sample.Kinematics.YSpeed, "lava normal-jump whole speed");
+    AssertEqual((ushort)0x0900, sample.Kinematics.YSubacceleration, "lava gravity fraction");
+
+    var speed = sample.HorizontalSpeed;
+    speed.SelectEnvironmentSpeedTable(SamusLiquidPhysicsState.Air);
+    AssertEqual(SamusHorizontalSpeedState.NormalAirSpeedTableBaseAddress,
+        speed.ActiveSpeedTableBaseAddress, "air X table base");
+    speed.SelectEnvironmentSpeedTable(SamusLiquidPhysicsState.Water);
+    AssertEqual(SamusHorizontalSpeedState.WaterSpeedTableBaseAddress,
+        speed.ActiveSpeedTableBaseAddress, "water X table base");
+    speed.SelectEnvironmentSpeedTable(SamusLiquidPhysicsState.LavaAcid);
+    AssertEqual(SamusHorizontalSpeedState.LavaAcidSpeedTableBaseAddress,
+        speed.ActiveSpeedTableBaseAddress, "lava X table base");
+
+    // Submersion reaches `$90:9808` before the running/Dash test. It cannot establish new
+    // momentum, but a pre-existing momentum flag preserves the accumulated pair exactly.
+    var submergedDash = new SamusHorizontalSpeedState();
+    submergedDash.HandleExtraRunSpeed(
+        movementType: 1,
+        controllerInput: (ushort)SnesButton.B,
+        speedBoosterEquipped: false,
+        liquidImpeded: true);
+    AssertTrue(!submergedDash.HasRunningMomentum, "submerged Dash cannot establish momentum");
+    AssertEqual((ushort)0, submergedDash.ExtraRunSubspeed, "submerged no-momentum Dash stays zero");
+    submergedDash.HandleExtraRunSpeed(1, (ushort)SnesButton.B, false);
+    ushort carriedFraction = submergedDash.ExtraRunSubspeed;
+    submergedDash.HandleExtraRunSpeed(
+        movementType: 1,
+        controllerInput: (ushort)SnesButton.B,
+        speedBoosterEquipped: false,
+        liquidImpeded: true);
+    AssertTrue(submergedDash.HasRunningMomentum, "existing Dash momentum survives submersion");
+    AssertEqual(carriedFraction, submergedDash.ExtraRunSubspeed,
+        "submersion freezes rather than clears existing extra speed");
+
+    // Pose-change animation samples Y+radius-1. Continuous FX animation samples the full
+    // bottom boundary and updates remembered `$0AD2`; prove both edges independently.
+    sample.EquippedItems = 0;
+    sample.XSpeedDivisor = 7;
+    sample.LiquidPhysics.ConfigureWater(surfaceY: 111);
+    AssertEqual((ushort)7, sample.LiquidPhysics.DeterminePoseChangeAnimationBuffer(sample),
+        "pose-change surface equality uses speed divisor");
+    sample.LiquidPhysics.ConfigureWater(surfaceY: 110);
+    AssertEqual((ushort)3, sample.LiquidPhysics.DeterminePoseChangeAnimationBuffer(sample),
+        "pose-change water delay below bottom-minus-one");
+    sample.LiquidPhysics.PrepareAnimationFrame(bus, sample);
+    AssertEqual((ushort)3, sample.AnimationFrameBuffer, "continuous water animation delay");
+    AssertEqual(SamusLiquidPhysicsState.Water, sample.LiquidPhysics.LiquidPhysicsType,
+        "continuous water animation remembers medium");
+    sample.EquippedItems = SamusLiquidPhysicsState.GravitySuitItem;
+    sample.LiquidPhysics.PrepareAnimationFrame(bus, sample);
+    AssertEqual((ushort)0, sample.AnimationFrameBuffer, "Gravity Suit cancels submerged frame delay");
+
+    // Lava's FX handler performs the retail speed-boost cancellation before checking
+    // Gravity Suit; acid enters the shared delay/damage tail without touching momentum.
+    sample.EquippedItems = SamusLiquidPhysicsState.GravitySuitItem;
+    sample.HorizontalSpeed.HandleExtraRunSpeed(
+        movementType: 1,
+        controllerInput: (ushort)SnesButton.B,
+        speedBoosterEquipped: false);
+    sample.HorizontalSpeed.SpeedBoostCounter = 0x0401;
+    sample.HorizontalSpeed.ExtraRunSpeed = 3;
+    sample.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
+    sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 111);
+    sample.LiquidPhysics.PrepareAnimationFrame(bus, sample);
+    AssertTrue(!sample.HorizontalSpeed.HasRunningMomentum,
+        "lava cancels momentum even with Gravity Suit");
+    AssertEqual((ushort)0, sample.HorizontalSpeed.SpeedBoostCounter,
+        "lava clears speed-boost timer/counter");
+    AssertEqual((ushort)0, sample.HorizontalSpeed.ExtraRunSpeed,
+        "lava explicitly clears extra whole speed");
+    AssertEqual((ushort)0, sample.HorizontalSpeed.ExtraRunSubspeed,
+        "lava explicitly clears extra fractional speed");
+
+    sample.EquippedItems = 0;
+    sample.HorizontalSpeed.HandleExtraRunSpeed(
+        movementType: 1,
+        controllerInput: (ushort)SnesButton.B,
+        speedBoosterEquipped: false);
+    sample.HorizontalSpeed.SpeedBoostCounter = 0x0201;
+    sample.HorizontalSpeed.ExtraRunSpeed = 1;
+    sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 111, acid: true);
+    sample.LiquidPhysics.PrepareAnimationFrame(bus, sample);
+    AssertTrue(sample.HorizontalSpeed.HasRunningMomentum, "acid preserves running momentum");
+    AssertEqual((ushort)0x0201, sample.HorizontalSpeed.SpeedBoostCounter,
+        "acid preserves speed-boost timer/counter");
+    AssertEqual((ushort)1, sample.HorizontalSpeed.ExtraRunSpeed,
+        "acid preserves extra run speed");
+
+    // `$9B:C4BE` has its own intentionally narrow definition of grapple liquid physics.
+    // It ignores option bit two, samples only general FX Y, and clears on release-function
+    // entry so the just-finished swing retains its prior flag for exactly one handler call.
+    sample.EquippedItems = 0;
+    sample.Grapple.Phase = GrapplePhase.ConnectedSwinging;
+    sample.LiquidPhysics.ConfigureWater(surfaceY: 111, liquidOptions: 4);
+    SamusGrappleMovement.RefreshLiquidPhysicsFlag(sample);
+    AssertTrue(sample.Grapple.Submerged, "grapple liquid flag ignores water option bit two");
+    sample.Grapple.Phase = GrapplePhase.ReleaseFromSwing;
+    SamusGrappleMovement.RefreshLiquidPhysicsFlag(sample);
+    AssertTrue(!sample.Grapple.Submerged, "grapple release function clears liquid flag");
+
+    // Seed three distinguishable standalone `$90:9F31/$9F3D/$9F49` records. Mode two makes
+    // the release handler subtract the selected fractional deceleration from 2.0000.
+    int[] grappleReleaseRecords = [0x909f31, 0x909f3d, 0x909f49];
+    ushort[] grappleReleaseDeceleration = [0x1000, 0x2000, 0x3000];
+    for (int medium = 0; medium < grappleReleaseRecords.Length; medium++)
+    {
+        int address = grappleReleaseRecords[medium];
+        for (int byteOffset = 0; byteOffset < SpeedTableEntry.ByteCount; byteOffset += 2)
+            WriteTestWord(bus, address + byteOffset, 0);
+        WriteTestWord(bus, address + 10, grappleReleaseDeceleration[medium]);
+    }
+
+    for (int medium = 0; medium < 3; medium++)
+    {
+        var releaseRoom = new RoomLevelData(
+            16, 16,
+            new ushort[16 * 16],
+            new byte[16 * 16],
+            new ushort[16 * 16],
+            new byte[8]);
+        var released = new SamusState
+        {
+            Pose = SamusState.NormalJumpForwardRightPose,
+            XPosition = 128,
+            YPosition = 128,
+            Kinematics =
+            {
+                XRadius = 5,
+                YRadius = 12,
+                YDirection = 1,
+                YSpeed = 1,
+            },
+        };
+        bus.WriteBytes(0x91b629 + released.Pose * 8, [8, 2, 0xff, 0xff, 0, 0, 12, 0]);
+        released.HorizontalSpeed.BaseSpeed = 2;
+        released.Grapple.ReleasedMovementActive = true;
+        if (medium == SamusLiquidPhysicsState.Water)
+            released.LiquidPhysics.ConfigureWater(surfaceY: 127);
+        else if (medium == SamusLiquidPhysicsState.LavaAcid)
+            released.LiquidPhysics.ConfigureLavaAcid(surfaceY: 127);
+        SamusAerialMovement.ConfigureEnvironmentGravity(bus, released);
+        SamusAerialMovement.StepReleasedFromGrapple(
+            bus,
+            releaseRoom,
+            released,
+            controllerInput: 0,
+            nmiFrameCounter: 0);
+        AssertEqual(unchecked((ushort)(0 - grappleReleaseDeceleration[medium])),
+            released.HorizontalSpeed.BaseSubspeed,
+            $"grapple release medium {medium} standalone X record");
+        AssertEqual((ushort)1, released.HorizontalSpeed.BaseSpeed,
+            $"grapple release medium {medium} borrow into whole X speed");
+        AssertTrue(released.Grapple.ReleasedMovementActive,
+            $"grapple release medium {medium} handler survives before apex/collision");
+    }
+
+    // Give the spin routine authentic metadata plus zero horizontal records in all three
+    // tables. Water's remembered medium lowers only the inclusive minimum from $0280 to $0080.
+    bus.WriteBytes(0x91b629 + SamusState.SpaceJumpRightPose * 8,
+        [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
+    WriteTestWord(bus, 0x91b010 + SamusState.SpaceJumpRightPose * 2, 0xc000);
+    for (int frame = 0; frame < 32; frame++)
+        bus.WriteByte(0x91c000 + frame, 4);
+    foreach (int tableBase in new[] { 0x909f55, 0x90a08d, 0x90a1dd })
+    {
+        int spinEntry = tableBase + 3 * SpeedTableEntry.ByteCount;
+        for (int byteOffset = 0; byteOffset < SpeedTableEntry.ByteCount; byteOffset += 2)
+            WriteTestWord(bus, spinEntry + byteOffset, 0);
+    }
+    var empty = new RoomLevelData(
+        16, 16,
+        new ushort[16 * 16],
+        new byte[16 * 16],
+        new ushort[16 * 16],
+        new byte[8]);
+
+    var partialWaterSpaceJump = new SamusState
+    {
+        Pose = SamusState.SpaceJumpRightPose,
+        EquippedItems = 0x0200,
+        XPosition = 128,
+        YPosition = 128,
+        Kinematics =
+        {
+            XRadius = 5,
+            YRadius = 12,
+            YDirection = 2,
+            YSpeed = 0,
+            YSubspeed = 0x8000,
+        },
+    };
+    partialWaterSpaceJump.LiquidPhysics.ConfigureWater(surfaceY: 128);
+    partialWaterSpaceJump.LiquidPhysics.InitializeRememberedMedium(partialWaterSpaceJump);
+    SamusAerialMovement.ConfigureEnvironmentGravity(bus, partialWaterSpaceJump);
+    SamusAerialMovement.StepSpinJump(
+        bus,
+        empty,
+        partialWaterSpaceJump,
+        (ushort)SnesButton.A,
+        nmiFrameCounter: 0,
+        controllerNewInput: (ushort)SnesButton.A);
+    AssertEqual((ushort)1, partialWaterSpaceJump.Kinematics.YDirection,
+        "partially submerged Space Jump accepts water minimum $0080");
+    AssertEqual((ushort)1, partialWaterSpaceJump.Kinematics.YSpeed,
+        "water Space Jump reloads water launch whole speed");
+
+    var fullySubmergedScrew = new SamusState
+    {
+        Pose = SamusState.ScrewAttackRightPose,
+        EquippedItems = 0x0208,
+        XPosition = 128,
+        YPosition = 128,
+        Kinematics =
+        {
+            XRadius = 5,
+            YRadius = 12,
+            YDirection = 2,
+            YSpeed = 3,
+        },
+    };
+    bus.WriteBytes(0x91b629 + SamusState.ScrewAttackRightPose * 8,
+        [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
+    fullySubmergedScrew.LiquidPhysics.ConfigureWater(surfaceY: 100);
+    fullySubmergedScrew.LiquidPhysics.InitializeRememberedMedium(fullySubmergedScrew);
+    SamusAerialMovement.ConfigureEnvironmentGravity(bus, fullySubmergedScrew);
+    SamusAerialMovement.StepSpinJump(
+        bus,
+        empty,
+        fullySubmergedScrew,
+        (ushort)SnesButton.A,
+        nmiFrameCounter: 0,
+        controllerNewInput: (ushort)SnesButton.A);
+    AssertEqual((ushort)2, fullySubmergedScrew.Kinematics.YDirection,
+        "fully submerged non-Gravity Space Jump cannot restart");
+    AssertEqual((ushort)0, fullySubmergedScrew.HorizontalSpeed.ContactDamageIndex,
+        "fully submerged Screw Attack does not publish contact damage");
+
+    Console.WriteLine(
+        "  Samus liquids: boundaries, ROM tables, gravity, Dash/lava cancellation, grapple, animation, Space Jump, and Gravity Suit agree.");
 }
 
 /// <summary>

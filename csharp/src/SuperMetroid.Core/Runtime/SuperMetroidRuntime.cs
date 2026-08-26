@@ -800,6 +800,12 @@ public sealed class SuperMetroidRuntime
                 if (LevelData is null)
                     throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
 
+                // Frame-handler alpha calls `$90:9C5B` after pose input/radius setup and
+                // before beta movement. Refreshing the split gravity words every frame is
+                // essential at a liquid surface: a jump can cross from water to air without
+                // any pose transition that would otherwise reinitialize acceleration.
+                SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
+
                 // Alpha order is cooldown -> movement-type HUD projectile producer ->
                 // HandleProjectile. The outer gameplay loop then runs bank-$A0 overlap
                 // before beta movement. A newly placed bomb therefore counts 60 -> 59 and
@@ -885,6 +891,27 @@ public sealed class SuperMetroidRuntime
                         OwnsMovement: false);
                 }
 
+                // `$9B:C4B1-$C4EA` runs after every grapple function, including inactive.
+                // Swing calculations above therefore consumed last frame's bit; this write
+                // publishes the current bottom-boundary result for the next frame exactly
+                // where the native bank-$9B handler does.
+                SamusGrappleMovement.RefreshLiquidPhysicsFlag(Samus);
+
+                if (Samus.Grapple.ReleasedMovementActive)
+                {
+                    // `$9B:C7C1` replaces the normal beta movement-handler pointer on the
+                    // release-input frame. It remains independent of the beam function, so
+                    // it must also run after `$9B:CB8B` has made that function inactive.
+                    SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
+                    LastAerialSamusMovement = SamusAerialMovement.StepReleasedFromGrapple(
+                        _addressSpace,
+                        LevelData,
+                        Samus,
+                        Controller1.Current,
+                        NmiFrameCounter);
+                    grappleOwnsMovement = true;
+                }
+
                 if (LastGrappleMovement is
                     { CameraPreviousX: ushort grapplePreviousX,
                       CameraPreviousY: ushort grapplePreviousY })
@@ -911,7 +938,7 @@ public sealed class SuperMetroidRuntime
                 // `$53/$54` can still select the retail damage-boost escape chord.
                 else if (Samus.KnockbackActive)
                 {
-                    SamusAerialMovement.ConfigureDryAirGravity(_addressSpace, Samus);
+                    SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
                     LastKnockbackMovement = SamusKnockbackMovement.Step(
                         _addressSpace,
                         LevelData,
@@ -926,12 +953,10 @@ public sealed class SuperMetroidRuntime
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
 
-                    // The cartridge's environment pass refreshes `$0B32/$0B34` before
-                    // invoking the installed movement handler. This runtime slice only
-                    // admits dry-air bomb jumps, so publish the two real ROM constants on
-                    // every special-handler frame rather than accidentally preserving the
-                    // zero gravity used by a stable grounded ball.
-                    SamusAerialMovement.ConfigureDryAirGravity(_addressSpace, Samus);
+                    // The shared alpha environment pass above already selected these words;
+                    // repeat the explicit special-handler publication here to preserve the
+                    // old diagnostic seam while allowing water/lava instead of forcing air.
+                    SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
                     LastBombJumpMovement = Samus.BombJumpStarting
                         ? SamusBombJumpMovement.Start(_addressSpace, Samus)
                         : SamusBombJumpMovement.Step(
@@ -949,10 +974,9 @@ public sealed class SuperMetroidRuntime
                     ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle or
                     ShinesparkPhase.CrashFinish)
                 {
-                    // Determine_Samus_YAcceleration still publishes the dry-air gravity pair
-                    // used as spark acceleration. Projectile_Func7 deliberately does not
-                    // replace these environment words itself.
-                    SamusAerialMovement.ConfigureDryAirGravity(_addressSpace, Samus);
+                    // Determine_Samus_YAcceleration supplies the environment-selected pair
+                    // used as spark acceleration. Projectile_Func7 does not replace it.
+                    SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
                     LastShinesparkMovement = Samus.Shinespark.Step(
                         _addressSpace,
                         LevelData,

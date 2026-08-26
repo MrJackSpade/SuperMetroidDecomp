@@ -5,14 +5,15 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Literal dry-air movement for the ordinary, non-Spring-Ball morph poses in bank $90.
+/// Literal movement for ordinary and Spring-Ball morph poses in bank $90.
 /// </summary>
 /// <remarks>
 /// The cartridge does not treat the ball as a generic circular rigid body. Grounded,
 /// falling, bouncing, and transition poses enter different wrappers which share only a few
 /// subroutines. This class keeps those entry points separate while reusing their exact
-/// 16.16 collision operations. Bomb displacement, enemies, liquids, conveyors, and Spring
-/// Ball projectiles remain an explicit future branch; bomb-jump displacement itself lives
+/// 16.16 collision operations. Their air/water/lava tables are translated; bomb displacement,
+/// enemies, conveyors, and Spring Ball projectiles remain explicit future branches. Bomb-
+/// jump displacement itself lives
 /// in <see cref="SamusBombJumpMovement"/> rather than being approximated here.
 /// </remarks>
 public static class SamusMorphBallMovement
@@ -35,7 +36,7 @@ public static class SamusMorphBallMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectNormalAirSpeedTable();
+        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         EnsureNoExtraRunSpeed(speed);
 
         bool stationaryPose = samus.Pose is
@@ -123,7 +124,7 @@ public static class SamusMorphBallMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectNormalAirSpeedTable();
+        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         EnsureNoExtraRunSpeed(speed);
 
         bool directionHeld = (controllerInput &
@@ -188,7 +189,7 @@ public static class SamusMorphBallMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectNormalAirSpeedTable();
+        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         EnsureNoExtraRunSpeed(speed);
 
         // `$90:8FDC-$90:8FF9` is the normal variable-height jump cutoff. Releasing Jump

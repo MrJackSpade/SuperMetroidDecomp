@@ -20,6 +20,12 @@ public sealed class SamusHorizontalSpeedState
     public const ushort NormalSpeedTableAddress = 0x9f49;
     public const ushort NormalAirSpeedTableBaseAddress = NormalSpeedTableAddress + SpeedTableEntry.ByteCount;
 
+    /// <summary>Bank-$90 base selected by `$90:9BFE` below an effective water surface.</summary>
+    public const ushort WaterSpeedTableBaseAddress = 0xa08d;
+
+    /// <summary>Bank-$90 base selected by `$90:9C06` below a lava/acid surface.</summary>
+    public const ushort LavaAcidSpeedTableBaseAddress = 0xa1dd;
+
     /// <summary>Whole part of <c>samus_x_base_speed</c> at WRAM <c>$0B46</c>.</summary>
     public ushort BaseSpeed { get; set; }
 
@@ -122,9 +128,8 @@ public sealed class SamusHorizontalSpeedState
     public byte DecelerationMultiplier { get; set; }
 
     /// <summary>
-    /// Bank-$90 offset stored by the current inside-block reaction. Normal dry air selects
-    /// <see cref="NormalAirSpeedTableBaseAddress"/>; water/lava and special blocks can
-    /// replace it once those reactions are translated.
+    /// Bank-$90 offset stored by the current inside-block/environment reaction. Normal air,
+    /// water, and lava/acid select three complete ROM tables before movement type is added.
     /// </summary>
     public ushort ActiveSpeedTableBaseAddress { get; private set; } = NormalAirSpeedTableBaseAddress;
 
@@ -133,6 +138,21 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public void SelectNormalAirSpeedTable() =>
         ActiveSpeedTableBaseAddress = NormalAirSpeedTableBaseAddress;
+
+    /// <summary>
+    /// Ports <c>Determine_Samus_X_Speed_Table_Entry_Pointer</c>'s environmental selection
+    /// at <c>$90:9BD1</c>. The returned table still contains 12-byte records indexed later
+    /// by movement type; no acceleration or cap is copied into host constants.
+    /// </summary>
+    public void SelectEnvironmentSpeedTable(ushort liquidMedium)
+    {
+        ActiveSpeedTableBaseAddress = liquidMedium switch
+        {
+            SamusLiquidPhysicsState.Water => WaterSpeedTableBaseAddress,
+            SamusLiquidPhysicsState.LavaAcid => LavaAcidSpeedTableBaseAddress,
+            _ => NormalAirSpeedTableBaseAddress,
+        };
+    }
 
     /// <summary>
     /// Ports the dry-air portion of <c>Handle_Samus_XExtraRunSpeed</c> at <c>$90:973E</c>.
@@ -144,10 +164,16 @@ public sealed class SamusHorizontalSpeedState
         byte movementType,
         ushort controllerInput,
         bool speedBoosterEquipped,
-        ISnesAddressSpace? bus = null)
+        ISnesAddressSpace? bus = null,
+        bool liquidImpeded = false)
     {
         const ushort dashButton = 0x8000; // Retail default B/Dash binding.
-        bool activelyDashing = movementType == 1 && (controllerInput & dashButton) != 0;
+        // `$90:9746-$9763` diverts a non-Gravity submerged body to the same no-acceleration
+        // branch as releasing Dash. Existing momentum retains its numeric extra component;
+        // without momentum, both words are cleared. This is not a multiplier or hard reset.
+        bool activelyDashing = !liquidImpeded &&
+            movementType == 1 &&
+            (controllerInput & dashButton) != 0;
         if (!activelyDashing)
         {
             // `$90:9808` clears the extra pair only before momentum has been established.

@@ -38,6 +38,8 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton spaceJumpButton = new("Space Jump equipped");
     private readonly ToolStripButton screwAttackButton = new("Screw Attack equipped");
     private readonly ToolStripButton speedBoosterButton = new("Speed Booster equipped");
+    private readonly ToolStripButton waterPhysicsButton = new("Water at current Y");
+    private readonly ToolStripButton gravitySuitButton = new("Gravity Suit equipped");
     private readonly ToolStripButton livePpuLayersButton = new("Live PPU layers");
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 16 };
     private SuperMetroidRuntime runtime = null!;
@@ -178,6 +180,44 @@ internal sealed class RuntimePreviewControl : UserControl
                     runtime.Samus.ReadPoseXDirection(bus));
             }
         };
+        waterPhysicsButton.CheckOnClick = true;
+        waterPhysicsButton.ToolTipText =
+            "Installs a fixed water-physics surface at Samus's current center Y. This is a documented FX stimulus; it does not fake a water overlay.";
+        waterPhysicsButton.CheckedChanged += (_, _) =>
+        {
+            if (runtime?.Samus is null || !groundedRunScenario)
+                return;
+
+            if (waterPhysicsButton.Checked)
+            {
+                // Landing Site's real FX is scrolling sky, so the room supplies no water
+                // surface of its own. Publish exactly the three room-FX words that a water
+                // room would own, at one fixed world Y captured when the switch is clicked.
+                // Every resulting table lookup, boundary comparison, launch, and animation
+                // delay remains cartridge-derived and can be stepped in the debugger.
+                runtime.Samus.LiquidPhysics.ConfigureWater(runtime.Samus.YPosition);
+                runtime.Samus.LiquidPhysics.InitializeRememberedMedium(runtime.Samus);
+            }
+            else
+            {
+                runtime.Samus.LiquidPhysics.Clear();
+            }
+
+            RefreshFrame();
+        };
+        gravitySuitButton.CheckOnClick = true;
+        gravitySuitButton.ToolTipText =
+            "Toggles retail equipped-item bit $0020. Gravity Suit bypasses water/lava movement while retaining the room FX surface.";
+        gravitySuitButton.CheckedChanged += (_, _) =>
+        {
+            if (runtime?.Samus is null || !groundedRunScenario)
+                return;
+            if (gravitySuitButton.Checked)
+                runtime.Samus.EquippedItems |= SamusLiquidPhysicsState.GravitySuitItem;
+            else
+                runtime.Samus.EquippedItems &= unchecked((ushort)~SamusLiquidPhysicsState.GravitySuitItem);
+            RefreshFrame();
+        };
 
         // The SNES can electrically report both direction bits, but an ordinary D-pad
         // cannot be held left and right at once. Keep this convenience UI physically sane;
@@ -244,6 +284,8 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(spaceJumpButton);
         toolStrip.Items.Add(screwAttackButton);
         toolStrip.Items.Add(speedBoosterButton);
+        toolStrip.Items.Add(waterPhysicsButton);
+        toolStrip.Items.Add(gravitySuitButton);
         toolStrip.Items.Add(livePpuLayersButton);
         toolStrip.Items.Add(new ToolStripSeparator());
         toolStrip.Items.Add(cameraLeftButton);
@@ -334,6 +376,15 @@ internal sealed class RuntimePreviewControl : UserControl
                 runtime.Samus.EquippedItems |= 0x0008;
             if (speedBoosterButton.Checked)
                 runtime.Samus.EquippedItems |= 0x2000;
+            if (gravitySuitButton.Checked)
+                runtime.Samus.EquippedItems |= SamusLiquidPhysicsState.GravitySuitItem;
+            if (waterPhysicsButton.Checked)
+            {
+                // Restart gives the debugger a new Samus center, so capture a new fixed
+                // surface here rather than carrying a coordinate from the previous runtime.
+                runtime.Samus.LiquidPhysics.ConfigureWater(runtime.Samus.YPosition);
+                runtime.Samus.LiquidPhysics.InitializeRememberedMedium(runtime.Samus);
+            }
         }
         runtime.InitializeLandingSiteViewport();
         runtime.LoadUpperCrateriaBackgroundPalette();
@@ -614,6 +665,10 @@ internal sealed class RuntimePreviewControl : UserControl
             $"cooldown {runtime.BombProjectiles.CooldownTimer} " +
             $"jump ${runtime.Samus.BombJumpDirection:X4}  |  " +
             $"moonwalk={(runtime.MoonwalkEnabled ? "on" : "off")}  |  " +
+            $"liquid={runtime.Samus.LiquidPhysics.LiquidPhysicsType}/" +
+            $"FX ${runtime.Samus.LiquidPhysics.FxType:X2}@" +
+            $"${runtime.Samus.LiquidPhysics.FxYPosition:X4} " +
+            $"gravity={((runtime.Samus.EquippedItems & SamusLiquidPhysicsState.GravitySuitItem) != 0 ? "on" : "off")}  |  " +
             $"wall={(runtime.ProspectiveSamusWallCollisionPose is byte wall ? $"${wall:X2}" : "--")}  |  " +
             $"terrain={(livePpuLayersButton.Checked ? "live PPU" : "ROM composite")}  |  " +
             $"{prospectivePose}  |  " +

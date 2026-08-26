@@ -47,6 +47,11 @@ else if (options.ScrewAttackScript)
     Console.WriteLine(
         "Input script: equip Space Jump and Screw Attack, enter ROM pose $81, then issue fresh Jump edges only inside the native falling-speed window while observing contact damage and the late-frame palette cycle.");
 }
+else if (options.WaterSpaceJumpScript)
+{
+    Console.WriteLine(
+        "Input script: host-place a water FX surface through Samus's center, equip Space Jump, launch with ROM water physics, then pulse Jump inside the native $0080..$04FF partial-submersion window.");
+}
 else if (options.SpaceJumpScript)
 {
     Console.WriteLine(
@@ -250,7 +255,7 @@ else if (options.SpeedBoosterScript || options.ShinesparkScript)
     // every counter, delay list, velocity, transition, and collision remains ROM-driven.
     runtime.Samus!.EquippedItems |= 0x2000;
 }
-else if (options.SpaceJumpScript || options.ScrewAttackScript)
+else if (options.SpaceJumpScript || options.WaterSpaceJumpScript || options.ScrewAttackScript)
 {
     // Landing Site's debugger spawn deliberately begins without save-file inventory.
     // Space Jump is bit `$0200`; the Screw route adds `$0008`. Granting both on the latter
@@ -259,6 +264,23 @@ else if (options.SpaceJumpScript || options.ScrewAttackScript)
     runtime.Samus!.EquippedItems |= options.ScrewAttackScript
         ? (ushort)0x0208
         : (ushort)0x0200;
+}
+
+if (options.WaterSpaceJumpScript)
+{
+    // Landing Site has scrolling-sky FX rather than water. This route supplies only the
+    // missing room-FX words at their normal producer/consumer seam; surface comparisons,
+    // launch/gravity/X tables, animation delay, transition records, collision, and art all
+    // remain live cartridge data. Placing the surface at center Y keeps Samus partially
+    // submerged so `$90:A436` can exercise its distinct top- and bottom-boundary branches.
+    ushort debugWaterSurface = runtime.Samus!.YPosition;
+    runtime.Samus.LiquidPhysics.ConfigureWater(debugWaterSurface);
+    runtime.Samus.LiquidPhysics.InitializeRememberedMedium(runtime.Samus);
+    Console.WriteLine(
+        $"Debug water FX stimulus: surface Y=${debugWaterSurface:X4}, " +
+        $"top=${runtime.Samus.Kinematics.TopBoundary:X4}, " +
+        $"bottom=${runtime.Samus.Kinematics.BottomBoundary:X4}, " +
+        $"remembered medium={runtime.Samus.LiquidPhysics.LiquidPhysicsType}.");
 }
 
 if (options.GrappleFireScript)
@@ -325,7 +347,8 @@ if (options.GrappleScript || options.GrappleFireScript)
 // line is deliberately ROM-backed evidence, not a hard-coded description: ordinary air's
 // base $9F55 plus running movement type 1 selects the 12-byte entry at $90:9F61.
 SamusHorizontalSpeedState horizontalSpeed = runtime.Samus.HorizontalSpeed;
-horizontalSpeed.SelectNormalAirSpeedTable();
+horizontalSpeed.SelectEnvironmentSpeedTable(
+    runtime.Samus.LiquidPhysics.DetermineMovementMedium(runtime.Samus));
 int runningSpeedAddress = horizontalSpeed.ResolveEntryAddress(movementType: 1);
 SpeedTableEntry runningSpeed = horizontalSpeed.ReadEntry(bus, movementType: 1);
 Console.WriteLine(
@@ -483,6 +506,7 @@ bool observedDamageBoostMovement = false;
 bool observedGrappleSwing = false;
 bool observedGrappleReleaseQueue = false;
 bool observedGrappleRelease = false;
+bool observedGrappleReleaseMovement = false;
 bool observedGrappleTerrainCollision = false;
 bool observedGrappleFire = false;
 bool observedGrappleFireCancelQueue = false;
@@ -522,7 +546,9 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     // explicit reversal script is a deterministic real-ROM regression route: enough time
     // to accelerate right, complete $25 toward the left, then complete $26 back right.
     // These are only controller samples; all pose choices still come from bank-$91 tables.
-    bool specialSpinRoute = options.SpaceJumpScript || options.ScrewAttackScript;
+    bool specialSpinRoute = options.SpaceJumpScript ||
+        options.WaterSpaceJumpScript ||
+        options.ScrewAttackScript;
 
     // Unlike the fixed-input posture routes below, Space Jump's legal repeat instant is a
     // function of the live 16.16 vertical velocity. Derive the unaligned 8.8 magnitude in
@@ -533,9 +559,13 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     uint liveVerticalMagnitude8Point8 =
         ((uint)runtime.Samus.Kinematics.YSpeed << 8) |
         ((uint)runtime.Samus.Kinematics.YSubspeed >> 8);
+    uint liveSpaceJumpMinimum = runtime.Samus.LiquidPhysics.LiquidPhysicsType !=
+        SamusLiquidPhysicsState.Air
+            ? 0x0080u
+            : 0x0280u;
     bool liveSpaceJumpWindow =
         runtime.Samus.Kinematics.YDirection == 2 &&
-        liveVerticalMagnitude8Point8 >= 0x0280 &&
+        liveVerticalMagnitude8Point8 >= liveSpaceJumpMinimum &&
         liveVerticalMagnitude8Point8 < 0x0500;
     bool screwBodyReachedRightWall =
         options.ScrewAttackScript &&
@@ -1003,6 +1033,10 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         { Phase: GrapplePhase.ConnectedSwinging };
     observedGrappleReleaseQueue |= runtime.LastGrappleMovement is { ReleaseQueued: true };
     observedGrappleRelease |= runtime.LastGrappleMovement is { Released: true };
+    // `$90:946E` is independent of the beam function. LastAerialSamusMovement proves beta
+    // movement actually ran rather than merely observing `$9B:CB8B`'s jump-pose cleanup.
+    observedGrappleReleaseMovement |=
+        observedGrappleReleaseQueue && runtime.LastAerialSamusMovement is not null;
     if (!observedGrappleTerrainCollision &&
         runtime.LastGrappleMovement is { TerrainCollided: true } grappleTerrain)
     {
@@ -1607,7 +1641,7 @@ if (options.RunScript)
         $"{maximumObservedExtraRunSpeed & 0xffff:X4}, shared running animation timing, and spin-jump carry.");
 }
 
-if (options.SpaceJumpScript || options.ScrewAttackScript)
+if (options.SpaceJumpScript || options.WaterSpaceJumpScript || options.ScrewAttackScript)
 {
     byte requiredSpinPose = options.ScrewAttackScript
         ? SamusState.ScrewAttackRightPose
@@ -1721,9 +1755,13 @@ if (options.GrappleScript)
         throw new InvalidOperationException("Grapple ROM script never queued release at $9B:C79D.");
     if (options.FrameCount >= 92 && !observedGrappleRelease)
         throw new InvalidOperationException("Grapple ROM script never completed release at $9B:CB8B.");
+    if (options.FrameCount >= 91 && !observedGrappleReleaseMovement)
+        throw new InvalidOperationException("Grapple ROM script never executed release movement handler $90:946E.");
     Console.WriteLine(
         $"Grapple ROM route validated connected pendulum stepping and six-point terrain reflection" +
-        (options.FrameCount >= 92 ? ", queued release, and jump-pose handoff." : "."));
+        (options.FrameCount >= 92
+            ? ", queued release, persistent $90:946E motion, and jump-pose handoff."
+            : "."));
 }
 
 if (options.GrappleFireScript)
@@ -1915,6 +1953,7 @@ readonly record struct DebugRunnerOptions(
     bool SpeedBoosterScript,
     bool ShinesparkScript,
     bool SpaceJumpScript,
+    bool WaterSpaceJumpScript,
     bool ScrewAttackScript,
     bool JumpScript,
     bool PostureScript,
@@ -1949,6 +1988,7 @@ readonly record struct DebugRunnerOptions(
         bool speedBoosterScript = false;
         bool shinesparkScript = false;
         bool spaceJumpScript = false;
+        bool waterSpaceJumpScript = false;
         bool screwAttackScript = false;
         bool jumpScript = false;
         bool postureScript = false;
@@ -2033,6 +2073,11 @@ readonly record struct DebugRunnerOptions(
 
                 case "--space-jump-script":
                     spaceJumpScript = true;
+                    groundedRun = true;
+                    break;
+
+                case "--water-space-jump-script":
+                    waterSpaceJumpScript = true;
                     groundedRun = true;
                     break;
 
@@ -2167,6 +2212,7 @@ readonly record struct DebugRunnerOptions(
             speedBoosterScript,
             shinesparkScript,
             spaceJumpScript,
+            waterSpaceJumpScript,
             screwAttackScript,
             jumpScript,
             postureScript,

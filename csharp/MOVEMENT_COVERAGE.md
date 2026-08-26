@@ -12,37 +12,72 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | Type | Native family | Current C# admission | Remaining native branches |
 |---:|---|---|---|
 | `$00` | Standing | `$01-$08`, landing `$A4-$A7/$E0-$E5` | Firing variants, forward pose, transitions from later systems |
-| `$01` | Running | `$09/$0A/$0D-$12`, dry air, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes | Liquid/environment effects, gun-extended/fire variants |
-| `$02` | Normal jumping | `$4B-$4E/$15-$18/$51-$52/$55-$5A/$69-$6C`, including compact straight-down collision changes, dry air, variable height, ceiling/floor collision | Equipment/liquids, external displacement |
-| `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, dry air, variable height/repeat window, split-body animation, damage/palette, block-wall contact/launch | Solid-enemy wall contact, liquids |
-| `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, dry ground, slopes, reversal, deceleration, walk-off, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
+| `$01` | Running | `$09/$0A/$0D-$12`, air/water/lava X tables and submerged Dash gate, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes | Liquid damage/splash effects, gun-extended/fire variants |
+| `$02` | Normal jumping | `$4B-$4E/$15-$18/$51-$52/$55-$5A/$69-$6C`, including compact straight-down collision changes, air/water/lava normal/Hi-Jump launch, X tables, gravity, variable height, ceiling/floor collision | External displacement |
+| `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, air/water/lava X/gravity/launch/repeat gates, variable height, split-body animation, damage/palette, block-wall contact/launch | Solid-enemy wall contact, liquid sound/particle/damage effects |
+| `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, air/water/lava X tables, slopes, reversal, deceleration, walk-off, normal-bomb deployment | Bombable-block PLMs, enemy collision, external displacement |
 | `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry | Fire variants and morph entry |
-| `$06` | Falling | `$29-$2E/$6D-$70`, including compact straight-down collision changes, walk-off, dry-air gravity, landing, and aerial-turn entry | Equipment/liquids |
+| `$06` | Falling | `$29-$2E/$6D-$70`, including compact straight-down collision changes, walk-off, air/water/lava X and gravity, landing, and aerial-turn entry | External displacement |
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
-| `$08` | Morph ball falling | `$31/$32`, dry-air gravity, ceiling/floor collision, two-stage hard bounce, gentle landing, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
+| `$08` | Morph ball falling | `$31/$32`, air/water/lava X and gravity, ceiling/floor collision, two-stage hard bounce, gentle landing, normal-bomb deployment | Bombable-block PLMs, enemy collision, external displacement |
 | `$09` | Unused | — | Preserve only if required |
-| `$0A` | Knockback / crystal-flash ending | `$53/$54`, dry-air ordinary-body timer, horizontal/vertical block collision, damage-boost input escape, falling handoff | Morph/ball knockback, liquids, enemy producer, crystal-flash ending |
+| `$0A` | Knockback / crystal-flash ending | `$53/$54`, air/water/lava launch/X/gravity, ordinary-body timer, horizontal/vertical block collision, damage-boost input escape, falling handoff | Morph/ball knockback, enemy producer, crystal-flash ending |
 | `$0B` | Unused | — | Preserve only if required |
 | `$0C` | Unused | — | Preserve only if required |
 | `$0D` | Unused | — | Preserve only if required |
 | `$0E` | Turning on ground | `$25/$26/$43/$44/$8B-$8E/$9C/$9D/$BF-$C4`, old-direction mode-one momentum, native standing/crouch/moonwalk selectors, `$F8` completion | Fire variants and transitions originating in later families |
 | `$0F` | Crouch/stand/morph transition | `$35/$36/$3B/$3C/$37/$38/$3D/$3E/$F1-$FC`, bottom alignment, radius collision, `$F9/$FD` completion | Fire variants and later equipment-dependent transitions |
-| `$10` | Moonwalking | `$49/$4A/$75-$78`, option gate, reversed X input, aim changes, fallback, walk-off, and `$BF-$C4` jump bridge | Equipment/liquids and external displacement |
-| `$11` | Spring ball on ground | `$79-$7C`, dry ground, slopes, reversal, jump entry, walk-off, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
-| `$12` | Spring ball in air | `$7F/$80`, dry-air powered jump, variable height, ceiling/floor collision, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
-| `$13` | Spring ball falling | `$7D/$7E`, dry-air gravity, held-jump relaunch, automatic bounce, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
-| `$14` | Wall jumping | `$83/$84`, dry/Hi-Jump launch tables, variable height, `$FB` animation family, spin handoff, landing | Liquids, solid-enemy trigger, sound/contact-damage side effects |
-| `$15` | Ran into a wall | `$89/$8A/$CF-$D2`, block-backed prospective-run selector, one-pixel probe, aim/fallback/turn/jump/walk-off routes, grounded cleanup | Solid-enemy probe, liquids and external displacement |
-| `$16` | Grappling | ROM-backed firing, four-step block collision, persistent type-`$E` acquisition/validation, all 30 standing/crouching/vertical connection records, `$B2/$B3` pendulum, `$A8-$AB/$B4-$B7` locked poses, per-pixel rope collision, six-point terrain sweep/reflection, collision kick, all eight exact locked/wallgrab angles, `$B8/$B9` grace-window wall jump, dropped-pose tables, release `$51/$52`, ROM art/beam DMA and OAM | Enemy acquisition, grapple spike-damage side effects, breakable PLMs, liquid/solid-enemy wall-jump branches |
+| `$10` | Moonwalking | `$49/$4A/$75-$78`, option gate, air/water/lava X tables, reversed X input, aim changes, fallback, walk-off, and `$BF-$C4` jump bridge | External displacement |
+| `$11` | Spring ball on ground | `$79-$7C`, air/water/lava X tables, slopes, reversal, jump entry, walk-off, normal-bomb deployment | Bombable-block PLMs, enemy collision, external displacement |
+| `$12` | Spring ball in air | `$7F/$80`, air/water/lava launch/X/gravity, variable height, ceiling/floor collision, normal-bomb deployment | Bombable-block PLMs, enemy collision, external displacement |
+| `$13` | Spring ball falling | `$7D/$7E`, air/water/lava X/gravity and held-jump relaunch, automatic bounce, normal-bomb deployment | Bombable-block PLMs, enemy collision, external displacement |
+| `$14` | Wall jumping | `$83/$84`, air/water/lava normal/Hi-Jump launch tables, variable height, submerged `$FB` selection, spin handoff, landing | Solid-enemy trigger, sound/contact-damage side effects |
+| `$15` | Ran into a wall | `$89/$8A/$CF-$D2`, block-backed prospective-run selector, one-pixel probe, aim/fallback/turn/jump/walk-off routes, grounded cleanup and liquid animation state | Solid-enemy probe and external displacement |
+| `$16` | Grappling | ROM-backed firing, four-step block collision, persistent type-`$E` acquisition/validation, all 30 standing/crouching/vertical connection records, `$B2/$B3` air/water pendulum, `$A8-$AB/$B4-$B7` locked poses, per-pixel rope collision, six-point terrain sweep/reflection, collision kick, all eight exact locked/wallgrab angles, `$B8/$B9` grace-window wall jump, dropped-pose tables, release `$51/$52` plus persistent air/water/lava `$90:946E` motion, ROM art/beam DMA and OAM | Enemy acquisition, grapple spike-damage side effects, breakable PLMs, solid-enemy wall-jump branch |
 | `$17` | Turning while jumping | Grounded-Y crouch turns `$97-$9A/$A2/$A3`; airborne `$2F/$30/$8F-$92/$9E/$9F`, momentum, collision, `$F8` | Later firing/external-displacement routes |
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, momentum, gravity/collision, `$F8` | Later firing/external-displacement routes |
-| `$19` | Damage boost | `$4F/$50`, fresh dry-air jump, type-indexed X physics, variable height, ceiling/floor collision, `$FF` sentinel landing | Liquids, external displacement, enemy producer |
+| `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | External displacement, enemy producer |
 | `$1A` | Grabbed by Draygon | — | Entire family |
 | `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active block motion, crash orbit/circle, released echoes, standing return | Crystal flash, drained, Mother Brain damage, solid-enemy collision |
 
 The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
 performs its one-frame initialization and `$90:E032` owns the rising special arc; its
 translated status is documented with the Morph Ball family below.
+
+## Verified liquid-physics slice
+
+- `SamusLiquidPhysicsState` retains the actual room-FX words `$195E/$1962/$197E`, FX type,
+  and remembered medium `$0AD2`. It does not reduce them to one host boolean: movement uses
+  Samus's bottom boundary, full-submersion Spin/`$FB` checks use her top, and `$91:FB08`
+  pose initialization samples `Y + radius - 1` exactly as the cartridge does.
+- `$90:9BD1` selects complete ROM X-speed tables `$9F55/$A08D/$A1DD` for air, water, and
+  lava/acid before adding each movement type's 12-byte offset. This now feeds every translated
+  grounded, humanoid-aerial, Morph/Spring Ball, knockback, wall-jump, moonwalk, and damage-
+  boost family rather than applying a guessed scalar slowdown.
+- `$90:98BC/$9949/$99D6/$9A2C/$9C5B` select adjacent air/water/lava words for ordinary and
+  Hi-Jump launches, wall jumps, knockback, bomb jumps, and gravity. Gravity Suit bit `$0020`
+  forces air physics, while Speed Booster's independent two-word vertical bonus still runs
+  after the selected launch pair.
+- Submersion reaches `$90:9808` before the Dash-held branch. It cannot establish or grow
+  running momentum; a pre-existing momentum flag freezes the accumulated extra component
+  instead of erasing it. Water option bit two suppresses all water movement selection.
+- Space Jump first rejects a fully submerged non-Gravity body using the top edge, then uses
+  remembered `$0AD2` to choose inclusive minimum `$0080` in liquid or `$0280` in air, with
+  shared exclusive maximum `$0500`. A fully submerged Screw body likewise skips contact-
+  damage publication. Partial submersion therefore remains a distinct, verified state.
+- `$90:8000` now publishes animation buffer three in water and two in lava/acid, maintains
+  `$0AD2`, and clears the delay under Gravity Suit. Lava alone executes the native Speed-
+  Booster cancellation and explicit extra-speed clear before that suit check; acid preserves
+  momentum. Sounds, bubbles/splashes, and periodic damage remain presentation/combat work.
+- `$9B:C4BE-$C4EA` updates grapple's following-frame liquid bit with its narrower native
+  general-FX-Y rule. Pump acceleration, angular gravity, kick, and angle advance consume it;
+  release then persists through `$90:946E` using standalone air/water/lava records
+  `$90:9F31/$9F3D/$9F49` until apex underflow or vertical collision restores normal movement.
+- Synthetic verification locks surface equality/wrap semantics, option and Gravity Suit
+  bypasses, every table offset, Dash retention, animation boundaries, and partial/full
+  Space/Screw branches. Real-ROM `--water-space-jump-script` supplies only a documented
+  Landing Site FX-surface stimulus, reads the retail water tables, and accepts two repeats at
+  live falling magnitudes `$0134` and `$008C`; the 42-frame PNG captures authentic `$1B` art.
 
 ## Verified ordinary-air slice
 
@@ -189,7 +224,7 @@ translated status is documented with the Morph Ball family below.
 - Jump from a stable moonwalk maps shot directions `1/2/3/6/7/8` to `$C1/$BF/$C3/$C4/$C0/$C2`.
   Those six turn poses fold extra run speed into base 16.16 speed, use the native type-`$0E`
   old-direction deceleration, and finish their three-visible-frame `$F8` lists in `$1A/$19` with a
-  fresh dry-air spin-jump launch.
+  fresh environment-selected spin-jump launch.
 - The viewer exposes **Moonwalk enabled** and uses the real Shoot-plus-backward controller
   chord. Synthetic verification exhausts all six stable and all six jump-turn routes; the
   private-ROM `--moonwalk-script` proves `$01->$4A->$76->$78->$07->$01->$4A->$BF->$1A`.
@@ -332,8 +367,8 @@ translated status is documented with the Morph Ball family below.
   spin frames below `$0B`, a block contact writes timer one/frame `$0A`; at eligible frames a
   fresh Jump edge launches only when the clipped whole-pixel distance is strictly below eight.
   Carry set skips gravity/displacement on that trigger frame.
-- The bank-$91 collision command installs `$83/$84`, clears old momentum, and reads dry-air
-  ordinary or Hi-Jump launch values directly from `$90:9ED1-$90:9EE3`. Movement type `$14`
+- The bank-$91 collision command installs `$83/$84`, clears old momentum, and reads air,
+  water, or lava ordinary/Hi-Jump values directly from `$90:9ED1-$90:9EE3`. Movement type `$14`
   reuses ordinary jumping physics. Animation command `$FB` selects ordinary, Space Jump, or
   Screw Attack frame ranges in cartridge priority order; the wall-specific bottom selector
   draws frames below three and at/above thirteen. Landing uses `$A6/$A7`.
@@ -345,7 +380,7 @@ translated status is documented with the Morph Ball family below.
 
 - The untranslated enemy system is represented by one explicit producer seam: a caller
   supplies bank `$A0`'s left/right hit result. `$91:EDB0` then chooses knockback direction,
-  installs `$53/$54`, reads dry-air 5.0000 from `$90:9EE9/$90:9EEF`, and starts the native
+  installs `$53/$54`, reads the air/water/lava entry from `$90:9EE9/$90:9EEF`, and starts the native
   five-count hurt timer. No enemy damage, velocity, pose, or duration is fabricated.
 - The special `$90:DF38` handler takes precedence over the normal type dispatcher. It uses
   type `$0A`'s normal-air speed record and bank-$A0's X direction, applies either gravity or
@@ -411,14 +446,17 @@ translated status is documented with the Morph Ball family below.
   or `$27/$28` while clearing horizontal/run momentum. Wallgrab release installs decimal 30;
   `$C832` permits checks 29 through zero, probes exactly 16 pixels toward the pose direction,
   and requires a fresh Jump edge. `$C9CE` deliberately maps `$B8 -> $84` and `$B9 -> $83`,
-  clears grapple/momentum, and reuses the ROM dry/Hi-Jump wall-launch table and existing `$FB`
-  animation-command handoff. Liquid and solid-enemy branches remain explicit gaps.
+  clears grapple/momentum, and reuses the ROM environment-selected normal/Hi-Jump wall-launch
+  table and existing `$FB` animation-command handoff. The solid-enemy wall branch remains an
+  explicit gap.
 - `$9B:BFA5` queues the two bank-`$9A` tile transfers selected through `$9B:C342/$C346` to
   VRAM `$6200/$6210`. `$94:AF87/$AFBA` retain all sixteen staggered segment instruction
   slots, emit small OAM tiles `$21-$24`, and draw endpoint tile `$20` with native flip bits.
 - Releasing Shoot runs `$9B:CA65` immediately, including signed sine products and acceleration
   mode two, then preserves the one-frame function-pointer seam before `$9B:CB8B` installs
-  `$51/$52`. Ordinary type-two movement, camera, collision, landing, and art own later frames.
+  `$51/$52`. Independent movement handler `$90:946E` starts on the release frame, selects the
+  standalone environment record through `$90:9C21`, performs block X/Y collision and gravity,
+  and remains active after beam cleanup until apex underflow or vertical collision.
 - Synthetic verification fixes ROM table addresses, all thirty connection table routes,
   distinct rope Start/Flare geometry, shared speed cleanup/camera clamp, exact pendulum
   numbers, two VRAM queue records, four-step firing accumulation, persistent-block centering,
@@ -427,7 +465,8 @@ translated status is documented with the Morph Ball family below.
   locked fallback, compact dropped-table selection, camera-history clamp, six staggered rope
   OAM records, endpoint placement, release velocity, and queued handoff. `--grapple-fire-script`
   proves real-ROM firing and cancellation; `--grapple-script` proves live terrain reflection
-  before its release handoff.
+  before its release handoff, then the 100-frame route proves `$90:946E` keeps moving the
+  `$51/$52` body after the beam function has become inactive.
 
 ## Verified ordinary Morph Ball slice
 
@@ -442,8 +481,8 @@ translated status is documented with the Morph Ball family below.
   opposite-direction deceleration, normal acceleration, slope alignment, no-speed grounded
   probing, and `$1D/$41 <-> $1E/$1F` fallbacks. Walking off selects `$31/$32` without
   resetting existing horizontal state.
-- Movement type `$08` copies old 16.16 vertical speed before gravity exactly like the native
-  dry-air path. A hard floor impact enters bounce state one; the next impact enters state two
+- Movement type `$08` copies old 16.16 vertical speed before environment-selected gravity
+  exactly like the native path. A hard floor impact enters bounce state one; the next impact enters state two
   with whole Y speed reduced by one; a gentle or state-two impact restores `$1D/$41` and
   clears vertical speed. Ceiling collision reverses the active upward pass.
 - Up from a stable ball selects `$3D/$3E`; command seven attempts radius 7 -> 16 while moving
@@ -454,8 +493,8 @@ translated status is documented with the Morph Ball family below.
   exit frames `+5,+4`. Stable ground/air ball poses use the ordinary bank-$91 spritemap path
   while deliberately omitting the humanoid bottom-half draw.
 - Equipped Spring Ball makes the same `$F9` command select `$79/$7A` or `$7D/$7E`.
-  `$79-$7C` use movement type `$11`'s literal speed record; Jump selects `$7F/$80` and
-  initializes the ROM 4.E000 dry-air launch. Type `$12` retains the normal jump cutoff,
+  `$79-$7C` use movement type `$11`'s environment-selected speed record; Jump selects `$7F/$80`
+  and initializes the ROM air/water/lava launch. Type `$12` retains the normal jump cutoff,
   while type `$13` retains morphed falling. Landing with Jump held relaunches immediately;
   automatic rebounds use the native `$0601/$0602` state before returning to `$79/$7A`.
 - `$90:BF9D/$90:C0E7` require equipped bit `$1000`, a fresh Shoot/X edge, fewer than five
@@ -471,7 +510,7 @@ translated status is documented with the Morph Ball family below.
   one/two/three. The direction remains a low word until the following frame, then becomes
   `$0801/$0802/$0803` through the
   morphed bomb-jump setup and bank-$91 special command three. `$90:E025` consumes the
-  literal dry-air `$90:9EF5/$90:9EFB` launch pair without moving on its start frame.
+  environment-indexed `$90:9EF5/$90:9EFB` launch pair without moving on its start frame.
   `$90:E032` uses the standalone `$90:9F25` speed record for left/right displacement,
   performs the old-speed-before-gravity vertical pass, and ends on upward collision or
   signed-speed apex. Diagonal apex selects acceleration mode two; the preserved current
@@ -552,8 +591,9 @@ translated status is documented with the Morph Ball family below.
 
 ## Next implementation order
 
-1. Grapple breakable PLMs, spike damage, and liquid/solid-enemy wall-jump branches.
+1. Grapple breakable PLMs, spike damage, and solid-enemy wall-jump branches.
 2. Crystal flash/drained and remaining scripted movement.
-3. Liquid physics and solid-enemy collision routes for the completed spin families.
-4. Enemy collision/damage producers so knockback and grapple begin from live actors instead of host seams.
-5. Return with bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.
+3. Solid-enemy wall collision routes for the completed spin families.
+4. Liquid particles, periodic damage, and audio effects.
+5. Enemy collision/damage producers so knockback and grapple begin from live actors instead of host seams.
+6. Return with bank-$84 PLMs to make bombable terrain mutate instead of stopping explicitly.

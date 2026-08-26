@@ -574,13 +574,20 @@ public sealed class SamusState
     /// Delay added for speed/liquid physics at WRAM <c>$0A9A</c>. The translated standing
     /// dry-room slice keeps this equal to <see cref="XSpeedDivisor"/>.
     /// </summary>
-    public ushort AnimationFrameBuffer { get; private set; }
+    public ushort AnimationFrameBuffer { get; internal set; }
 
     /// <summary>
     /// Exact bank-$90 fixed-point horizontal-speed registers used by ordinary grounded
     /// right-running movement and exposed independently for debugger inspection.
     /// </summary>
     public SamusHorizontalSpeedState HorizontalSpeed { get; } = new();
+
+    /// <summary>
+    /// Live room-FX surface words and remembered liquid medium. Physics, animation, and
+    /// pose initialization intentionally share this object because the cartridge shares
+    /// WRAM `$195E/$1962/$197E/$0AD2` across all three phases.
+    /// </summary>
+    public SamusLiquidPhysicsState LiquidPhysics { get; } = new();
 
     /// <summary>
     /// Stored-shine palette countdown and the special shinespark movement-handler state.
@@ -1835,11 +1842,7 @@ public sealed class SamusState
         HorizontalSpeed.BaseSpeed = 0;
         HorizontalSpeed.BaseSubspeed = 0;
 
-        bool hiJumpEquipped = (EquippedItems & 0x0100) != 0;
-        Kinematics.YSpeed = ReadWord(bus, hiJumpEquipped ? 0x909edd : 0x909ed1);
-        Kinematics.YSubspeed = ReadWord(bus, hiJumpEquipped ? 0x909ee3 : 0x909ed7);
-        SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(this);
-        Kinematics.YDirection = 1;
+        SamusAerialMovement.InitializeWallJump(bus, this);
         InitializeAnimation(bus, initialFrame: 0);
     }
 
@@ -1851,8 +1854,8 @@ public sealed class SamusState
     /// <remarks>
     /// The eventual seven-pixel horizontal push remains the ordinary `$FB` animation-command
     /// path already implemented by <see cref="AnimateNoFx"/>. This method performs only the
-    /// immediate bank-$9B cleanup, prospective-pose command six, and dry-air `$90:9949`
-    /// vertical launch that occur when the wall-jump function runs.
+    /// immediate bank-$9B cleanup, prospective-pose command six, and environment-selected
+    /// `$90:9949` vertical launch that occur when the wall-jump function runs.
     /// </remarks>
     public void ApplyGrappleWallJump(ISnesAddressSpace bus)
     {
@@ -1875,11 +1878,7 @@ public sealed class SamusState
         HorizontalSpeed.BaseSpeed = 0;
         HorizontalSpeed.BaseSubspeed = 0;
 
-        bool hiJumpEquipped = (EquippedItems & 0x0100) != 0;
-        Kinematics.YSpeed = ReadWord(bus, hiJumpEquipped ? 0x909edd : 0x909ed1);
-        Kinematics.YSubspeed = ReadWord(bus, hiJumpEquipped ? 0x909ee3 : 0x909ed7);
-        SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(this);
-        Kinematics.YDirection = 1;
+        SamusAerialMovement.InitializeWallJump(bus, this);
         InitializeAnimation(bus, initialFrame: 0);
     }
 
@@ -2124,7 +2123,7 @@ public sealed class SamusState
             : targetPose;
         RefreshCollisionRadii(bus);
         InitializeAnimation(bus, initialFrame: 0);
-        SamusAerialMovement.InitializeDryAirJump(bus, this);
+        SamusAerialMovement.InitializeJump(bus, this);
     }
 
     /// <summary>
@@ -2237,7 +2236,7 @@ public sealed class SamusState
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - 10));
 
         InitializeAnimation(bus, initialFrame: 0);
-        SamusAerialMovement.InitializeDryAirJump(bus, this);
+        SamusAerialMovement.InitializeJump(bus, this);
         return true;
     }
 
@@ -2541,7 +2540,7 @@ public sealed class SamusState
         if ((controllerInput & (ushort)SnesButton.A) != 0)
         {
             MorphBallBounceState = 0;
-            SamusAerialMovement.InitializeDryAirJump(bus, this);
+            SamusAerialMovement.InitializeJump(bus, this);
             byte jumpPose = ReadPoseXDirection(bus) == 4
                 ? SpringBallJumpLeftPose
                 : SpringBallJumpRightPose;
@@ -2593,7 +2592,7 @@ public sealed class SamusState
 
         ApplyMorphBallPoseChange(bus, targetPose);
         MorphBallBounceState = 0;
-        SamusAerialMovement.InitializeDryAirJump(bus, this);
+        SamusAerialMovement.InitializeJump(bus, this);
     }
 
     /// <summary>
@@ -2613,7 +2612,7 @@ public sealed class SamusState
         Kinematics.YSpeed = 0;
         Kinematics.YSubspeed = 0;
         Kinematics.YDirection = 2;
-        SamusAerialMovement.ConfigureDryAirGravity(bus, this);
+        SamusAerialMovement.ConfigureEnvironmentGravity(bus, this);
         ApplyMorphBallPoseChange(bus, fallingPose);
     }
 
@@ -2642,7 +2641,7 @@ public sealed class SamusState
         Kinematics.YSpeed = 0;
         Kinematics.YSubspeed = 0;
         Kinematics.YDirection = 2;
-        SamusAerialMovement.ConfigureDryAirGravity(bus, this);
+        SamusAerialMovement.ConfigureEnvironmentGravity(bus, this);
         Pose = targetPose;
         RefreshCollisionRadii(bus);
         InitializeAnimation(bus, initialFrame: 0);
@@ -2916,7 +2915,7 @@ public sealed class SamusState
             ApplySimpleGroundedPoseChange(bus, sourcePose, installedPose, "Animation command");
         }
         if (startsMoonwalkJump)
-            SamusAerialMovement.InitializeDryAirJump(bus, this);
+            SamusAerialMovement.InitializeJump(bus, this);
         MorphBallBounceState = 0;
         return true;
     }
@@ -2981,14 +2980,17 @@ public sealed class SamusState
 
     /// <summary>
     /// Seeds the animation frame timer as <c>Set_Samus_AnimationFrame_if_PoseChanged</c>
-    /// at <c>$91:FB08</c> does for dry-room, no-speed standing state.
+    /// at <c>$91:FB08</c> does, including its bottom-minus-one liquid boundary test.
     /// </summary>
     public void InitializeAnimation(ISnesAddressSpace bus, ushort initialFrame = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
 
         AnimationFrame = initialFrame;
-        AnimationFrameBuffer = XSpeedDivisor;
+        // `$91:FB08` does not simply reuse the previous animation pass's `$0A9A`. It
+        // recomputes water/lava delay from the NEW pose radius at Y + radius - 1, while
+        // Gravity Suit takes the ordinary speed-divisor path.
+        AnimationFrameBuffer = LiquidPhysics.DeterminePoseChangeAnimationBuffer(this);
         AnimationDelayListAddress = ResolveAnimationDelayList(bus);
         byte initialDelay = ReadAnimationByte(bus, AnimationFrame);
         if ((initialDelay & 0x80) != 0)
@@ -3017,21 +3019,23 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Ports the dry-room path through <c>AnimateSamus</c> at <c>$90:8000</c>.
+    /// Ports <c>AnimateSamus</c> at <c>$90:8000</c>, including movement-visible FX delay state.
     /// </summary>
     /// <remarks>
-    /// FX-specific water/lava/acid delay buffering and their damage/splash side effects are
-    /// intentionally outside this method. Landing Site uses scrolling-sky FX $20, whose
-    /// dispatch slot calls the same no-FX animation-buffer routine used here.
+    /// The FX dispatcher publishes water/lava delay buffering and remembered medium before
+    /// the timer decrement. Periodic damage, sounds, bubbles, and splash OAM are still
+    /// separate combat/presentation work; this method does not invent placeholders for them.
+    /// The historical name remains as a source-compatible API for existing debugger code.
     /// </remarks>
     public void AnimateNoFx(ISnesAddressSpace bus, ushort controllerInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         EnsureAnimationInitialized(bus);
 
-        // $90:8078 copies the horizontal speed divisor every frame before touching the
-        // timer. It is zero for our stationary debugger stimulus.
-        AnimationFrameBuffer = XSpeedDivisor;
+        // `$90:8000` dispatches the active room-FX animation handler before touching the
+        // frame timer. This also updates remembered `$0AD2`, which the next Space Jump gate
+        // consumes independently of its current top-boundary submersion check.
+        LiquidPhysics.PrepareAnimationFrame(bus, this);
 
         // $90:8032 keeps neutral-jump frame one alive in four-tick chunks while Samus is
         // still rising. This is intentionally tested before DEC and applies only when the
@@ -3156,12 +3160,13 @@ public sealed class SamusState
                 return;
 
             case 11:
-                // `$90:841D`, command `$FB`, selects the wall-jump animation family. The
-                // current runtime is dry-room only, so the liquid boundary branch is not
-                // entered. Screw Attack has priority over Space Jump exactly as the two
-                // BIT/BNE tests do; without either item the ordinary sequence starts at
-                // the next byte. Sound queue writes are intentionally outside rendering.
+                // `$90:841D`, command `$FB`, first checks TOP-boundary submersion. A fully
+                // submerged non-Gravity body is forced to the ordinary one-byte sequence;
+                // otherwise Screw Attack has priority over Space Jump. This top-edge test
+                // deliberately differs from jump launch/gravity's bottom-edge test.
                 AnimationFrame = unchecked((ushort)(AnimationFrame + (
+                    (EquippedItems & SamusLiquidPhysicsState.GravitySuitItem) == 0 &&
+                    LiquidPhysics.IsTopBoundarySubmerged(this) ? 1 :
                     (EquippedItems & 0x0008) != 0 ? 0x15 :
                     (EquippedItems & 0x0200) != 0 ? 0x0b : 1)));
                 break;

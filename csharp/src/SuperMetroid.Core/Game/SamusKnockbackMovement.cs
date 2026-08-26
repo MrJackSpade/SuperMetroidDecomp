@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Literal dry-air translation of normal knockback and its damage-boost escape route.
+/// Literal air/water/lava translation of normal knockback and its damage-boost escape route.
 /// </summary>
 /// <remarks>
 /// This code follows `$90:DDE9-$90:DF98`, `$90:99D6`, and `$91:ED4E-$91:EE26`.
@@ -16,8 +16,8 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusKnockbackMovement
 {
-    private const int DryAirInitialYSpeed = 0x909ee9;
-    private const int DryAirInitialYSubspeed = 0x909eef;
+    private const int InitialYSpeedTable = 0x909ee9;
+    private const int InitialYSubspeedTable = 0x909eef;
 
     /// <summary>
     /// Consumes the ordinary non-morph branch of special prospective command one.
@@ -67,12 +67,13 @@ public static class SamusKnockbackMovement
         samus.KnockbackTimer = 5;
         samus.KnockbackActive = true;
 
-        // `$90:99D6` dry-air table index zero. As elsewhere in this port, values are read
-        // from the user's ROM so PAL/modified constants cannot be silently replaced.
-        samus.Kinematics.YSpeed = ReadWord(bus, DryAirInitialYSpeed);
-        samus.Kinematics.YSubspeed = ReadWord(bus, DryAirInitialYSubspeed);
+        // `$90:99D6` indexes air/water/lava by zero/two/four after the exact bottom-edge
+        // and Gravity-Suit checks. Values remain live ROM reads for regional/modded builds.
+        int liquidOffset = samus.LiquidPhysics.DetermineMovementMedium(samus) * 2;
+        samus.Kinematics.YSpeed = ReadWord(bus, InitialYSpeedTable + liquidOffset);
+        samus.Kinematics.YSubspeed = ReadWord(bus, InitialYSubspeedTable + liquidOffset);
         samus.Kinematics.YDirection = 1;
-        SamusAerialMovement.ConfigureDryAirGravity(bus, samus);
+        SamusAerialMovement.ConfigureEnvironmentGravity(bus, samus);
         samus.InitializeAnimation(bus, initialFrame: 0);
     }
 
@@ -98,7 +99,7 @@ public static class SamusKnockbackMovement
             return EndToFalling(bus, samus);
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectNormalAirSpeedTable();
+        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 0x0a);
         int requestedX = samus.KnockbackXDirection == 0
             ? speed.CalculateLeftDisplacement(baseSpeed)
@@ -161,7 +162,7 @@ public static class SamusKnockbackMovement
         // inheriting the four-frame hurt arc.
         samus.Pose = targetPose;
         samus.RefreshCollisionRadii(bus);
-        SamusAerialMovement.InitializeDryAirJump(bus, samus);
+        SamusAerialMovement.InitializeJump(bus, samus);
         samus.KnockbackTimer = 0;
         samus.KnockbackDirection = 0;
         samus.KnockbackActive = false;

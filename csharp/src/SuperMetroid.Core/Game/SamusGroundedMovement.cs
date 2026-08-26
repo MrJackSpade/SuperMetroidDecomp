@@ -8,9 +8,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 /// <remarks>
 /// This is deliberately not a generic platformer controller. The entry points below
-/// correspond only to movement types zero, one, $0E, $10, and $15, with no liquid, enemy collision,
-/// conveyor displacement, or knockback. Ordinary Dash and equipped-Speed-Booster dry-air
-/// accumulation/staging are translated; palette/echo rendering lives outside movement. Each
+/// correspond only to movement types zero, one, $0E, $10, and $15. Air/water/lava ROM X
+/// tables and submerged Dash gating are translated; enemy collision, conveyor displacement,
+/// and knockback remain separate. Ordinary Dash and equipped-Speed-Booster accumulation/
+/// staging are translated; palette/echo rendering lives outside movement. Each
 /// omitted system has observable native state and must be ported before its branch is
 /// enabled; none is silently replaced with desktop physics.
 /// </remarks>
@@ -130,10 +131,10 @@ public static class SamusGroundedMovement
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // BlockInsideReact_ShootableAir at $94:97D0 normally selects normal-air base
-        // $9F55 earlier in the frame. The translated debug room has no water/acid or
-        // special inside-block reaction, so make that real assignment visible here.
-        speed.SelectNormalAirSpeedTable();
+        // `$90:9BD1` can replace the block reaction's ordinary `$9F55` pointer with the
+        // complete water/lava table after comparing Samus's bottom boundary.
+        ushort liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
+        speed.SelectEnvironmentSpeedTable(liquidMedium);
 
         // `$90:8E64` handles Dash before calculating base speed. With no equipped Speed
         // Booster, B establishes momentum, adds exactly 0.1000 per frame, and caps the
@@ -142,7 +143,8 @@ public static class SamusGroundedMovement
             movementType: 1,
             controllerInput,
             speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
-            bus);
+            bus,
+            liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
 
         // $90:8E64 -> $90:9A7E advances the split 16.16 base speed, then $90:8EA9 and
         // $90:E4AD publish total speed and construct a rightward displacement. Pose $09's
@@ -195,13 +197,15 @@ public static class SamusGroundedMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectNormalAirSpeedTable();
+        ushort liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
+        speed.SelectEnvironmentSpeedTable(liquidMedium);
 
         speed.HandleExtraRunSpeed(
             movementType: 1,
             controllerInput,
             speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
-            bus);
+            bus,
+            liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
 
         // Modes zero and two use the pose's normal direction in $90:8EA9. Pose $0A stores
         // $04, selecting $90:E464's subtraction-based left displacement. Mode one belongs
@@ -266,7 +270,7 @@ public static class SamusGroundedMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectNormalAirSpeedTable();
+        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
 
         // `$91:F8D3` consumed the complete extra component when the turn pose was installed.
         // A nonzero pair here could therefore only have been introduced after that exact
@@ -340,7 +344,7 @@ public static class SamusGroundedMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectNormalAirSpeedTable();
+        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
 
         // `$90:A697` calls the same complete X path as running. The no-run-button slice
         // cannot erase an extra component written by a future speed-booster implementation.

@@ -15,8 +15,8 @@ namespace SuperMetroid.Core.Game;
 public static class SamusBombJumpMovement
 {
     private const int DiagonalBombJumpSpeedEntry = 0x909f25;
-    private const int DryAirInitialYSpeed = 0x909ef5;
-    private const int DryAirInitialYSubspeed = 0x909efb;
+    private const int InitialYSpeedTable = 0x909ef5;
+    private const int InitialYSubspeedTable = 0x909efb;
 
     /// <summary>Runs `$90:E025`, which initializes velocity but deliberately moves zero pixels.</summary>
     public static BombJumpMovementResult Start(ISnesAddressSpace bus, SamusState samus)
@@ -27,11 +27,12 @@ public static class SamusBombJumpMovement
         if (direction is < 1 or > 3 || (samus.BombJumpDirection & 0x0800) == 0)
             throw new InvalidOperationException($"Bomb-jump start requires armed direction $0801-$0803, got ${samus.BombJumpDirection:X4}.");
 
-        // Normal dry-air is table index zero. Gravity is refreshed by ordinary environment
-        // processing before this handler in the real frame pipeline, so preserve the live
-        // acceleration pair and replace only Make_Samus_BombJump's speed/direction words.
-        samus.Kinematics.YSpeed = ReadWord(bus, DryAirInitialYSpeed);
-        samus.Kinematics.YSubspeed = ReadWord(bus, DryAirInitialYSubspeed);
+        // `$90:9A2C` uses the same bottom-edge air/water/lava classification as ordinary
+        // launch, indexing adjacent table words by zero/two/four. Gravity is refreshed by
+        // frame-handler alpha, so this routine replaces only the launch speed/direction.
+        int liquidOffset = samus.LiquidPhysics.DetermineMovementMedium(samus) * 2;
+        samus.Kinematics.YSpeed = ReadWord(bus, InitialYSpeedTable + liquidOffset);
+        samus.Kinematics.YSubspeed = ReadWord(bus, InitialYSubspeedTable + liquidOffset);
         samus.Kinematics.YDirection = 1;
         samus.BombJumpStarting = false;
         samus.BombJumpActive = true;

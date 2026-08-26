@@ -14,8 +14,10 @@ namespace SuperMetroid.Core.Game;
 /// movement, and bank $94 advances its angle while probing room collision. This class keeps
 /// those responsibilities separate from ordinary aerial movement. Firing, persistent grapple
 /// blocks, per-pixel rope adjustment, and the six-point angular terrain sweep are translated
-/// here; breakable PLMs, spike damage, enemy acquisition, and liquid/solid-enemy wall-jump
-/// branches remain explicit later routes rather than being approximated here.
+/// here; breakable PLMs, spike damage, enemy acquisition, and the solid-enemy wall-jump
+/// branch remain explicit later routes rather than being approximated here. Grapple's
+/// narrower water flag and persistent environment-selected release handler are translated
+/// rather than collapsed into ordinary aerial movement.
 /// </remarks>
 public static class SamusGrappleMovement
 {
@@ -291,6 +293,30 @@ public static class SamusGrappleMovement
         // $94:AC11 and $9B:BD95 run as soon as the connection is accepted. Publishing the
         // first pendulum position now prevents one frame of stale pre-grapple coordinates.
         PositionSamusFromPendulum(bus, samus, grapple);
+
+        // This helper represents a connection that has already passed `$9B:C79D`; publish
+        // the handler-tail flag that retail would leave for the following swing frame.
+        RefreshLiquidPhysicsFlag(samus);
+    }
+
+    /// <summary>
+    /// Executes the post-function liquid-bit update at <c>$9B:C4B1-$C4EA</c>.
+    /// </summary>
+    /// <remarks>
+    /// Grapple physics reads this bit during a function and the handler rewrites it only
+    /// afterward, so callers invoke this exactly once at the end of the bank-$9B pass. The
+    /// explicit phase set mirrors the native pointer-range test: release, cancel, dropped,
+    /// wall-jump, and inactive functions all clear liquid physics immediately.
+    /// </remarks>
+    public static void RefreshLiquidPhysicsFlag(SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        bool functionCanRetainLiquid = samus.Grapple.Phase is
+            GrapplePhase.Firing or GrapplePhase.ConnectedSwinging or
+            GrapplePhase.ConnectedLocked or GrapplePhase.WallGrab or
+            GrapplePhase.WallGrabRelease;
+        samus.Grapple.Submerged = functionCanRetainLiquid &&
+            samus.LiquidPhysics.DetermineGrappleSubmersion(samus);
     }
 
     /// <summary>
@@ -355,6 +381,10 @@ public static class SamusGrappleMovement
             }
 
             PropelSamusFromSwing(bus, samus, grapple);
+            // `$9B:C7C1` installs `$90:946E` immediately. The beam function remains in
+            // its one-frame release-cleanup phase, but beta movement already uses the
+            // independent release handler during this same gameplay frame.
+            grapple.ReleasedMovementActive = true;
             grapple.Phase = GrapplePhase.ReleaseFromSwing;
             return new GrappleMovementResult(grapple.Phase, Released: false, ReleaseQueued: true);
         }
@@ -407,6 +437,7 @@ public static class SamusGrappleMovement
             }
 
             PropelSamusFromSwing(bus, samus, grapple);
+            grapple.ReleasedMovementActive = true;
             grapple.Phase = GrapplePhase.ReleaseFromSwing;
             return new GrappleMovementResult(
                 grapple.Phase,
@@ -1761,6 +1792,15 @@ public sealed class SamusGrappleState
     public short JumpImpulse { get; set; }
     public ushort CollisionBounceTimer { get; set; }
     public bool Submerged { get; set; }
+
+    /// <summary>
+    /// Host-readable equivalent of movement-handler pointer <c>$90:946E</c>. The grapple
+    /// beam function becomes inactive one frame after release, but this independent Samus
+    /// movement handler continues until apex underflow or vertical collision restores the
+    /// normal handler. Keeping it separate from <see cref="Phase"/> prevents premature
+    /// fallback to ordinary movement-type-two physics.
+    /// </summary>
+    public bool ReleasedMovementActive { get; set; }
     /// <summary>
     /// True only when the anchor came from the room block dispatcher. Debugger-published
     /// already-connected anchors deliberately leave this false because they may have no

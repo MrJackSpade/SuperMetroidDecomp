@@ -38,7 +38,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, momentum, gravity/collision, `$F8` | Later firing/external-displacement routes |
 | `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | External displacement, enemy producer |
 | `$1A` | Grabbed by Draygon | — | Entire family |
-| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, hyper beam; bank `$A9`: repeat/active rainbow cycle `$B8EB-$BB2D`, including body walk bytecode and 8.8 wall/middle/fall movement | Crystal Flash/drain palette and HDMA presentation, earlier attack-selection plus later Baby/finish-off actor chains, live enemy actor producer |
+| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, hyper beam; bank `$A9`: repeat/active/final rainbow cycle `$B8EB-$BE1A`, including body locomotion/posture bytecode, 8.8 Samus movement, Baby graphics DMA, and spawn handoff | Crystal Flash/drain palette and HDMA presentation, earlier attack-selection and spawned Baby actor chains, live enemy actor producer |
 
 The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
 performs its one-frame initialization and `$90:E032` owns the rising special arc; its
@@ -436,8 +436,8 @@ translated status is documented with the Morph Ball family below.
   `$00.02` while adding `$00.18` Y acceleration. Ceiling/floor clamps `$30/$C0`, carry
   precedence, and subposition clears are verified separately. The previous-position writes
   deliberately suppress ordinary camera tracking during this actor-owned motion.
-- `MotherBrainRainbowBeamAttackSequence` now translates the repeatable attack chain
-  `$A9:B8EB-$BB2D`. Its two `$0100` waits, native fallthroughs, power-bomb timer freeze,
+- `MotherBrainRainbowBeamAttackSequence` now translates the contiguous attack/final chain
+  `$A9:B8EB-$BE1A`. Its first two `$0100` waits, native fallthroughs, power-bomb timer freeze,
   neutral/charging/firing head-list pointers, neck indices/deltas, and sound `$71` request
   lead into the active beam. Start chooses drained command five or `$18` at the literal 700-energy
   boundary, locks input, and initializes the HDMA-width, explosion, sound, and actor-function
@@ -452,21 +452,30 @@ translated status is documented with the Morph Ball family below.
 - Beam shutdown narrows below `$0200`, disables its modeled HDMA channel, unlocks Samus,
   seeds cooldown eight, and falls through drained controller zero into the custom accelerated
   fall. Floor `$C0`, lower-head timer `$80`, the 129-call DEC/BPL decision, and the health
-  `$0190` repeat/finish boundary are exact. The earlier attack-selection trigger, outgoing
-  finish-Samus-off chain, Baby Metroid actor sequence, and palette/HDMA rendering remain
-  explicit seams; the translated sequence throws if a caller steps into finish-off before it
-  has been implemented.
+  `$0190` repeat/finish boundary are exact.
+- The finish-off loop retains suit division before its `$50*4+20` threshold, the `$FA0`
+  no-attack boundary, `$FF0` bomb boundary, two-onion-ring fallback, and every literal head
+  list. It waits on body pose rather than skipping an in-progress walk, falls through into
+  the `$10` admire timer, performs the 257-call final charge, and consumes one of four
+  `$200`-byte Baby tile-transfer records per AI call. The fourth call observes the zero
+  terminator, retracts Mother Brain's head, requests population `$A0:ECBF` at `$180,$40`,
+  loads another `$100` wait, and reaches the final firing/self-return hold after 257 calls.
+  The earlier general attack-selection trigger, spawned Baby actor AI, and palette/HDMA
+  rendering remain explicit seams.
 - `MotherBrainBodyAnimationState` translates the ordinary enemy-instruction stage used by
-  Mother Brain's `$9818/$993A` really-slow walks. It reads duration/spritemap pairs and the
-  exact movement/pose/sleep opcodes from bank `$A9`, mirrors body movement into BG2 scroll,
-  and retains footstep earthquakes and the form-three sound gate. The backward attack walk
+  Mother Brain's `$9818/$993A` really-slow walks plus `$99C6/$99E2/$99F2` stand/lean lists.
+  It reads duration/spritemap pairs and exact movement/pose/sleep opcodes from bank `$A9`,
+  mirrors body movement into BG2 scroll (including the posture opcodes' independent X
+  compensation), and retains footstep earthquakes and the form-three sound gate. The backward attack walk
   crosses the helper's hard X `$30` boundary at `$2E`, so AI advances before the still-running
   animation settles at `$28`; verification locks that easily missed scheduling detail.
-- `--mother-brain-rainbow-script` executes 1,100 frames against the private ROM in native
+- `--mother-brain-rainbow-script` executes 1,750 frames against the private ROM in native
   AI-then-enemy-instruction order. It reaches retract at 257, crosses X `$30` at 298, begins
   active firing at 570, drains exactly through 872, releases Samus at 879/880, reaches floor
-  `$C0` at 917, and selects the low-health finish-off handoff at 1047 with energy/ammo
-  `200 / 5 / 5 / 100`.
+  `$C0` at 917, selects finish-off at 1047, finishes the body walk at 1128, starts final
+  charge at 1144, copies real Baby graphics into VRAM on frames 1401..1404, and reaches the
+  final-beam hold at 1661 with energy/ammo `200 / 5 / 5 / 100`. The regression compares all
+  `$800` transferred bytes against the supplied cartridge, not only the emitted requests.
 
 ## Verified aerial-turn and wall-jump slice
 
@@ -711,8 +720,8 @@ translated status is documented with the Morph Ball family below.
 
 ## Next implementation order
 
-1. Continue bank `$A9` through finish-Samus-off and the Baby Metroid chains, then translate
-   the earlier attack-selection trigger that enters `$B8EB`.
+1. Continue bank `$A9` with the spawned Baby Metroid flight/drain/heal/death chains beginning
+   at `$C710`, then translate the earlier attack-selection trigger that enters `$B8EB`.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.
 4. Grapple breakable PLMs and spike-damage side effects.

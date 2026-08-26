@@ -3,17 +3,16 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Mother Brain's repeatable phase-two rainbow-beam function chain at
-/// <c>$A9:B8EB-$A9:BB2D</c>.
+/// Mother Brain's repeatable phase-two rainbow-beam and finish-off function chains at
+/// <c>$A9:B8EB-$A9:BE1A</c>.
 /// </summary>
 /// <remarks>
-/// The earlier attack-selection logic and later finish-off/Baby Metroid cutscene remain
-/// separate actor phases. This class owns the neck extension, both charge waits, body
-/// retraction walk, active beam, and every subsequent function-pointer handoff until Mother
-/// Brain decides to repeat the attack or begin finishing Samus off. Palette, HDMA, projectile,
-/// earthquake, and sound writes are
-/// retained as inspectable requests; the coordinate, resource, timer, and Samus-command
-/// mutations execute directly.
+/// The earlier general attack-selection logic and the spawned Baby Metroid's independent AI
+/// remain separate actor phases. This class owns the neck extension, both charge waits, body
+/// walks and posture changes, active beam, low-energy attack selection, final charge, the four
+/// frame-spread Baby tile transfers, spawn request, and final-beam hold. Palette, HDMA,
+/// projectile, earthquake, VRAM, spawn, and sound writes are retained as inspectable requests;
+/// coordinate, resource, timer, instruction-list, and Samus-command mutations execute directly.
 /// </remarks>
 public sealed class MotherBrainRainbowBeamAttackSequence
 {
@@ -22,8 +21,23 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public const ushort HeadNeutralPhase2InstructionList = 0x9c87;
     public const ushort HeadChargingRainbowInstructionList = 0x9f6c;
     public const ushort HeadFiringRainbowInstructionList = 0x9c77;
+    public const ushort HeadAttackingBombPhase2InstructionList = 0x9ecc;
+    public const ushort HeadAttackingTwoOnionRingsPhase2InstructionList = 0x9d7f;
+    public const ushort HeadStretchingPhase2InstructionList = 0x9b7f;
     public const ushort BodyWalkingForwardReallySlowInstructionList = 0x9818;
     public const ushort BodyWalkingBackwardReallySlowInstructionList = 0x993a;
+    public const ushort BodyStandingUpAfterCrouchingFastInstructionList = 0x99c6;
+    public const ushort BodyStandingUpAfterLeaningDownInstructionList = 0x99e2;
+    public const ushort BodyLeaningDownInstructionList = 0x99f2;
+
+    // `$A9:8FE5-$9002` contains four 0x200-byte chunks. ProcessSpriteTilesTransfers
+    // publishes exactly one entry per call, so these records also encode the exact four-call
+    // loading delay before `$A9:BDDA` retracts the head and spawns the cutscene enemy.
+    private static ReadOnlySpan<uint> BabyMetroidTileSources =>
+        [0xb18400, 0xb18600, 0xb18800, 0xb18a00];
+
+    private static ReadOnlySpan<ushort> BabyMetroidTileDestinations =>
+        [0x7c00, 0x7d00, 0x7e00, 0x7f00];
 
     // `$A9:BCA6/$BCB6` are indexed after incrementing the explosion index. Keeping all eight
     // signed records here preserves the initial index-zero -> record-one behavior.
@@ -103,11 +117,39 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public ushort SamusProjectileCooldownTimer { get; private set; }
 
     /// <summary>
+    /// Zero-based index of the next Baby Metroid sprite-tile transfer. Four means the
+    /// terminating zero entry has been observed and the spawn handoff has run.
+    /// </summary>
+    public ushort BabyMetroidTileTransferIndex { get; private set; }
+
+    /// <summary>Rainbow-beam palette animation index reset immediately before the final shot.</summary>
+    public ushort RainbowBeamPaletteAnimationIndex { get; private set; }
+
+    /// <summary>True once `$A9:BE1B` has requested the cutscene Baby enemy population entry.</summary>
+    public bool BabyMetroidSpawned { get; private set; }
+
+    /// <summary>
     /// Starts the repeatable rainbow-beam cycle at `$A9:B8EB`, before its two charge waits.
     /// </summary>
     public void StartAttackCycle()
     {
+        BabyMetroidTileTransferIndex = 0;
+        BabyMetroidSpawned = false;
+        RainbowBeamPaletteAnimationIndex = 0;
         BeginExtendingNeckForAttack();
+    }
+
+    /// <summary>
+    /// Starts at the low-health handoff in `$A9:BB1A`, including its immediate really-slow
+    /// forward-walk request. This is the exact debugger entry point reached after the `$BB06`
+    /// decision timer; it does not skip the later `$BD45` health-selection loop.
+    /// </summary>
+    public void StartFinishOffSequence()
+    {
+        RequestWalkForwardReallySlow(unchecked((ushort)(Body.XPosition + 0x0010)));
+        BabyMetroidTileTransferIndex = 0;
+        BabyMetroidSpawned = false;
+        Phase = MotherBrainRainbowBeamAttackPhase.FinishSamusOff;
     }
 
     /// <summary>
@@ -149,7 +191,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         SamusState samus,
         ushort enemyFrameCounter,
         ushort mainEnemyExecutionCounter,
-        bool powerBombActive = false)
+        bool powerBombActive = false,
+        ushort randomNumberSeed = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -168,6 +211,11 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         bool unlockedSamus = false;
         bool chargeSoundQueued = false;
         bool bodyWalkRequested = false;
+        bool bodyPostureRequested = false;
+        MotherBrainFinishOffAttackKind? finishOffAttack = null;
+        MotherBrainSpriteTileTransferRequest? spriteTileTransfer = null;
+        bool babySpawnRequested = false;
+        bool finalBeamSoundQueued = false;
 
         switch (Phase)
         {
@@ -356,16 +404,120 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                         // body animation when Mother Brain is standing and left of `$80`.
                         bodyWalkRequested = RequestWalkForwardReallySlow(
                             unchecked((ushort)(Body.XPosition + 0x0010)));
+                        BabyMetroidTileTransferIndex = 0;
+                        BabyMetroidSpawned = false;
                         Phase = MotherBrainRainbowBeamAttackPhase.FinishSamusOff;
                     }
                 }
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.FinishSamusOff:
-                // These are exact outgoing function-pointer seams. A caller must install the
-                // later finishing/Baby chain before stepping again.
-                throw new InvalidOperationException(
-                    $"Rainbow-beam active sequence already handed off through {Phase}.");
+                // `$A9:BD45-$BD54` asks whether one more ordinary phase-two hit could put
+                // Samus at the encounter's intended low-energy floor. The first nominal
+                // damage is `$50`, suit-divided, multiplied by four, then padded by twenty.
+                // The native BPL comparison treats equality as done and changes the body
+                // function without falling into the stand-up handler on this call.
+                if (NativeAtLeast(CalculateFinishOffHealthThreshold(samus, 0x0050), samus.Health))
+                {
+                    Phase = MotherBrainRainbowBeamAttackPhase.FinishStandUp;
+                    break;
+                }
+
+                // Above the floor, 4000/4096 low-twelve-bit RNG values do nothing. Every
+                // 32nd enemy frame that idle route may ask the posture helper to alternate
+                // between standing and leaning down. This is visible body bytecode, not a
+                // direct pose assignment, so retain the separate instruction-stage delay.
+                if ((randomNumberSeed & 0x0fff) < 0x0fa0)
+                {
+                    if ((enemyFrameCounter & 0x001f) == 0)
+                        bodyPostureRequested = MaybeRequestStandUpOrLeanDown(randomNumberSeed);
+                    break;
+                }
+
+                // A weaker `$A0` nominal-hit threshold biases wounded Samus toward onion
+                // rings. Only when Samus is above it does the top 16/4096 RNG band choose a
+                // bomb; all remaining admitted values still choose two onion rings.
+                if (NativeAtLeast(CalculateFinishOffHealthThreshold(samus, 0x00a0), samus.Health) ||
+                    (randomNumberSeed & 0x0fff) < 0x0ff0)
+                {
+                    SetHeadInstructionList(HeadAttackingTwoOnionRingsPhase2InstructionList);
+                    finishOffAttack = MotherBrainFinishOffAttackKind.TwoOnionRings;
+                }
+                else
+                {
+                    SetHeadInstructionList(HeadAttackingBombPhase2InstructionList);
+                    finishOffAttack = MotherBrainFinishOffAttackKind.Bomb;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.FinishStandUp:
+                // `$A9:C670` reports carry only if pose was already zero at call entry.
+                // Crouched/leaning poses request their matching stand animation and return
+                // clear; walking/transition poses simply wait for their current bytecode.
+                if (MakeBodyStandUp(out bodyPostureRequested))
+                {
+                    Phase = MotherBrainRainbowBeamAttackPhase.AdmireJobWellDone;
+                    FunctionTimer = 0x0010;
+                    goto case MotherBrainRainbowBeamAttackPhase.AdmireJobWellDone;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.AdmireJobWellDone:
+                // Stand-up falls through here, so the freshly written `$10` becomes `$0F`
+                // on the same AI call. BPL accepts zero and expires only after underflow.
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    SetHeadInstructionList(HeadStretchingPhase2InstructionList);
+                    Phase = MotherBrainRainbowBeamAttackPhase.ChargeFinalRainbowBeam;
+                    FunctionTimer = 0x0100;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.ChargeFinalRainbowBeam:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    SetHeadInstructionList(HeadChargingRainbowInstructionList);
+                    Phase = MotherBrainRainbowBeamAttackPhase.LoadBabyMetroidTiles;
+                    goto case MotherBrainRainbowBeamAttackPhase.LoadBabyMetroidTiles;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.LoadBabyMetroidTiles:
+                // `$A9:C5BE` processes exactly one seven-byte table entry per call. The
+                // fourth entry sees the following zero terminator, clears its saved pointer,
+                // and returns carry set on that same call.
+                spriteTileTransfer = CreateNextBabyMetroidTileTransfer();
+                if (BabyMetroidTileTransferIndex == BabyMetroidTileSources.Length)
+                {
+                    RetractHead();
+                    BabyMetroidSpawned = true;
+                    babySpawnRequested = true;
+                    Phase = MotherBrainRainbowBeamAttackPhase.FireFinalRainbowBeam;
+                    FunctionTimer = 0x0100;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.FireFinalRainbowBeam:
+                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
+                if ((FunctionTimer & 0x8000) != 0)
+                {
+                    RainbowBeamPaletteAnimationIndex = 0;
+                    SetHeadInstructionList(HeadFiringRainbowInstructionList);
+                    LowerNeckMovementIndex = 6;
+                    UpperNeckMovementIndex = 6;
+                    NeckAngleDelta = 0x0500;
+                    finalBeamSoundQueued = true; // Sound library two, effect `$71`.
+                    Phase = MotherBrainRainbowBeamAttackPhase.FinalRainbowBeamHolding;
+                }
+                break;
+
+            case MotherBrainRainbowBeamAttackPhase.FinalRainbowBeamHolding:
+                // `$A9:BE14` stores the address of its own RTS. Mother Brain remains here
+                // until the independently spawned Baby actor overwrites her body function
+                // with `$BE38` after latching onto her head.
+                break;
 
             default:
                 throw new InvalidOperationException($"Unsupported rainbow-beam phase {Phase}.");
@@ -396,7 +548,12 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             HeadInstructionList,
             NeckAngleDelta,
             LowerNeckMovementIndex,
-            UpperNeckMovementIndex);
+            UpperNeckMovementIndex,
+            bodyPostureRequested,
+            finishOffAttack,
+            spriteTileTransfer,
+            babySpawnRequested,
+            finalBeamSoundQueued);
     }
 
     private void BeginExtendingNeckForAttack()
@@ -460,6 +617,82 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         // phase on the exact frame one of its movement opcodes reaches X `$28`.
         unchecked((short)(targetX - Body.XPosition)) >= 0 ||
         unchecked((short)(Body.XPosition - 0x0030)) < 0;
+
+    private static ushort CalculateFinishOffHealthThreshold(SamusState samus, ushort nominalDamage)
+    {
+        // `$A0:A45E` gives Gravity Suit priority and divides damage by four. Otherwise
+        // Varia's bit zero divides by two; Power Suit leaves it untouched. `$A9:BD4C`
+        // then multiplies the divided `$50` result by four, while `$BD68` deliberately
+        // does not multiply the divided `$A0` result. The caller selects that distinction.
+        ushort divided = (samus.EquippedItems & 0x0020) != 0
+            ? (ushort)(nominalDamage >> 2)
+            : (samus.EquippedItems & 0x0001) != 0
+                ? (ushort)(nominalDamage >> 1)
+                : nominalDamage;
+
+        return nominalDamage == 0x0050
+            ? unchecked((ushort)(divided * 4 + 0x0014))
+            : unchecked((ushort)(divided + 0x0014));
+    }
+
+    private bool MaybeRequestStandUpOrLeanDown(ushort randomNumberSeed)
+    {
+        // `$A9:C1A7` ignores every pose except standing (zero) and leaning (six), and its
+        // low-byte threshold is inclusive at `$C0`. A request still executes as body
+        // instruction bytecode later in the enemy-processing stage.
+        if ((randomNumberSeed & 0x00ff) < 0x00c0)
+            return false;
+
+        if (Body.Pose == 0)
+        {
+            Body.SetInstructionList(BodyLeaningDownInstructionList);
+            return true;
+        }
+
+        if (Body.Pose == 6)
+        {
+            MakeBodyStandUp(out bool requested);
+            return requested;
+        }
+
+        return false;
+    }
+
+    private bool MakeBodyStandUp(out bool animationRequested)
+    {
+        animationRequested = false;
+        if (Body.Pose == 0)
+            return true;
+
+        ushort instructionList = Body.Pose switch
+        {
+            3 => BodyStandingUpAfterCrouchingFastInstructionList,
+            6 => BodyStandingUpAfterLeaningDownInstructionList,
+            _ => 0,
+        };
+        if (instructionList != 0)
+        {
+            Body.SetInstructionList(instructionList);
+            animationRequested = true;
+        }
+
+        return false;
+    }
+
+    private MotherBrainSpriteTileTransferRequest CreateNextBabyMetroidTileTransfer()
+    {
+        int index = BabyMetroidTileTransferIndex;
+        if ((uint)index >= (uint)BabyMetroidTileSources.Length)
+            throw new InvalidOperationException("Baby Metroid sprite-tile transfer list is already complete.");
+
+        var request = new MotherBrainSpriteTileTransferRequest(
+            EntryIndex: (ushort)index,
+            Size: 0x0200,
+            SourceAddress: BabyMetroidTileSources[index],
+            VramDestination: BabyMetroidTileDestinations[index]);
+        BabyMetroidTileTransferIndex++;
+        return request;
+    }
 
     private void IncreaseWidthAndAim(SamusState samus)
     {
@@ -596,7 +829,29 @@ public enum MotherBrainRainbowBeamAttackPhase
     DecideNextAction,
     RepeatAttack,
     FinishSamusOff,
+    FinishStandUp,
+    AdmireJobWellDone,
+    ChargeFinalRainbowBeam,
+    LoadBabyMetroidTiles,
+    FireFinalRainbowBeam,
+    FinalRainbowBeamHolding,
 }
+
+/// <summary>Head-projectile animation selected by `$A9:BD71-$BD83`.</summary>
+public enum MotherBrainFinishOffAttackKind
+{
+    TwoOnionRings,
+    Bomb,
+}
+
+/// <summary>
+/// One native seven-byte sprite-tile transfer entry consumed by `$A9:C5BE`.
+/// </summary>
+public readonly record struct MotherBrainSpriteTileTransferRequest(
+    ushort EntryIndex,
+    ushort Size,
+    uint SourceAddress,
+    ushort VramDestination);
 
 /// <summary>One requested beam explosion projectile and its native sound number.</summary>
 public readonly record struct MotherBrainRainbowExplosionRequest(
@@ -631,4 +886,9 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     ushort HeadInstructionList,
     ushort NeckAngleDelta,
     ushort LowerNeckMovementIndex,
-    ushort UpperNeckMovementIndex);
+    ushort UpperNeckMovementIndex,
+    bool BodyPostureRequested,
+    MotherBrainFinishOffAttackKind? FinishOffAttack,
+    MotherBrainSpriteTileTransferRequest? SpriteTileTransfer,
+    bool BabySpawnRequested,
+    bool FinalBeamSoundQueued);

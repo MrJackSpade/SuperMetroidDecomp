@@ -155,7 +155,7 @@ else if (options.CrystalFlashScript)
 else if (options.MotherBrainRainbowScript)
 {
     Console.WriteLine(
-        "Actor script: execute `$A9:B8EB-$BB2D` with retail Mother Brain body-walk bytecode, then run the forced drained-Samus sequence through its real bank-$91 animation handlers.");
+        "Actor script: execute `$A9:B8EB-$BE1A` with retail Mother Brain body/posture bytecode, forced drained-Samus handlers, final charge, live Baby tile DMA, and spawn handoff.");
 }
 else if (options.DrainedSamusScript)
 {
@@ -618,6 +618,9 @@ bool issuedDrainedHyperBeamCommand = false;
 int issuedSpaceJumpPulses = 0;
 bool spaceJumpPulseMayBeIssued = true;
 var observedRainbowPhases = new HashSet<MotherBrainRainbowBeamAttackPhase>();
+var observedBabyTileTransfers = new List<MotherBrainSpriteTileTransferRequest>();
+bool observedBabySpawnRequest = false;
+bool observedFinalBeamSound = false;
 MotherBrainRainbowBeamAttackPhase previousRainbowPhase =
     rainbowAttack?.Phase ?? MotherBrainRainbowBeamAttackPhase.Inactive;
 // Keep the actual post-frame poses, rather than assuming the requested inputs succeeded.
@@ -1133,17 +1136,32 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         // Enemy AI executes before the ordinary enemy-instruction stage. Keep those calls
         // separate so `$B92B` can observe the pose/X values published by the previous frame's
         // retail `$A9:993A` opcode, just as the SNES scheduler does.
-        if (rainbowAttack.Phase != MotherBrainRainbowBeamAttackPhase.FinishSamusOff)
+        MotherBrainRainbowBeamAttackStepResult actorResult = rainbowAttack.Step(
+            bus,
+            runtime.Samus,
+            enemyFrameCounter: unchecked((ushort)frameIndex),
+            mainEnemyExecutionCounter: unchecked((ushort)frameIndex));
+        rainbowSamusMovement = actorResult.Movement;
+        observedRainbowPhases.Add(actorResult.PhaseBefore);
+        observedRainbowPhases.Add(actorResult.PhaseAfter);
+
+        if (actorResult.SpriteTileTransfer is { } babyTiles)
         {
-            MotherBrainRainbowBeamAttackStepResult actorResult = rainbowAttack.Step(
-                bus,
-                runtime.Samus,
-                enemyFrameCounter: unchecked((ushort)frameIndex),
-                mainEnemyExecutionCounter: unchecked((ushort)frameIndex));
-            rainbowSamusMovement = actorResult.Movement;
-            observedRainbowPhases.Add(actorResult.PhaseBefore);
-            observedRainbowPhases.Add(actorResult.PhaseAfter);
+            // Feed the actor's literal `$A9:8FE5` transfer entry into the ordinary WRAM
+            // queue before this frame's NMI. The queue then copies directly from the supplied
+            // cartridge bus into the retail `$7C00-$7FFF` OBJ character destinations.
+            runtime.VramWrites.Enqueue(
+                babyTiles.Size,
+                checked((int)babyTiles.SourceAddress),
+                babyTiles.VramDestination);
+            observedBabyTileTransfers.Add(babyTiles);
+            Console.WriteLine(
+                $"frame {frameIndex + 1,4}: Baby tile transfer {babyTiles.EntryIndex}: " +
+                $"${babyTiles.SourceAddress:X6} -> VRAM ${babyTiles.VramDestination:X4}, " +
+                $"${babyTiles.Size:X4} bytes.");
         }
+        observedBabySpawnRequest |= actorResult.BabySpawnRequested;
+        observedFinalBeamSound |= actorResult.FinalBeamSoundQueued;
 
         MotherBrainBodyAnimationStepResult bodyResult = rainbowAttack.Body.Step(bus);
         if (rainbowAttack.Phase != previousRainbowPhase)
@@ -1983,10 +2001,52 @@ if (options.MotherBrainRainbowScript)
             "Mother Brain rainbow ROM route never drained and released Samus.");
     }
     if (options.FrameCount >= 1100 &&
-        rainbowAttack.Phase != MotherBrainRainbowBeamAttackPhase.FinishSamusOff)
+        !observedRainbowPhases.Contains(MotherBrainRainbowBeamAttackPhase.FinishSamusOff))
     {
         throw new InvalidOperationException(
-            $"Mother Brain rainbow ROM route did not reach finish-off handoff; phase={rainbowAttack.Phase}.");
+            $"Mother Brain rainbow ROM route did not enter finish-off AI; phase={rainbowAttack.Phase}.");
+    }
+    if (options.FrameCount >= 1200 &&
+        !observedRainbowPhases.Contains(MotherBrainRainbowBeamAttackPhase.ChargeFinalRainbowBeam))
+    {
+        throw new InvalidOperationException(
+            $"Mother Brain rainbow ROM route did not finish its body walk/stand delay; phase={rainbowAttack.Phase}.");
+    }
+    if (options.FrameCount >= 1450 &&
+        (observedBabyTileTransfers.Count != 4 || !observedBabySpawnRequest))
+    {
+        throw new InvalidOperationException(
+            $"Mother Brain rainbow ROM route did not DMA/spawn Baby exactly once; " +
+            $"transfers={observedBabyTileTransfers.Count}, spawn={observedBabySpawnRequest}, " +
+            $"phase={rainbowAttack.Phase}.");
+    }
+    if (options.FrameCount >= 1700 &&
+        (rainbowAttack.Phase != MotherBrainRainbowBeamAttackPhase.FinalRainbowBeamHolding ||
+         !observedFinalBeamSound))
+    {
+        throw new InvalidOperationException(
+            $"Mother Brain rainbow ROM route did not reach final-beam hold; " +
+            $"sound={observedFinalBeamSound}, phase={rainbowAttack.Phase}.");
+    }
+    if (options.FrameCount >= 1450)
+    {
+        // The actor request alone is not enough evidence: prove the ordinary NMI queue
+        // copied every byte from each real LoROM source into the encoded VRAM word address.
+        foreach (MotherBrainSpriteTileTransferRequest transfer in observedBabyTileTransfers)
+        {
+            int vramByteAddress = transfer.VramDestination * 2;
+            for (int byteOffset = 0; byteOffset < transfer.Size; byteOffset++)
+            {
+                byte expected = bus.ReadByte(checked((int)transfer.SourceAddress) + byteOffset);
+                byte actual = runtime.Vram.ReadByte(vramByteAddress + byteOffset);
+                if (actual != expected)
+                {
+                    throw new InvalidOperationException(
+                        $"Baby tile DMA entry {transfer.EntryIndex} differs at byte " +
+                        $"${byteOffset:X4}: expected ${expected:X2}, got ${actual:X2}.");
+                }
+            }
+        }
     }
     Console.WriteLine(
         $"Mother Brain rainbow ROM route ended at {rainbowAttack.Phase}; " +
@@ -1994,7 +2054,8 @@ if (options.MotherBrainRainbowScript)
         $"pose {rainbowAttack.Body.Pose}, Samus=({runtime.Samus.XPosition}," +
         $"{runtime.Samus.YPosition}) energy={runtime.Samus.Health}, " +
         $"ammo={runtime.Samus.Missiles}/{runtime.Samus.SuperMissiles}/" +
-        $"{runtime.Samus.PowerBombs}.");
+        $"{runtime.Samus.PowerBombs}, Baby DMA/spawn=" +
+        $"{observedBabyTileTransfers.Count}/{observedBabySpawnRequest}.");
 }
 
 if (options.DrainedSamusScript)

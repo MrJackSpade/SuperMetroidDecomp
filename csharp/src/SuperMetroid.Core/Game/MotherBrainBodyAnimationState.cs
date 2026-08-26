@@ -3,7 +3,8 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// The bank-$A9 enemy-instruction state needed by Mother Brain's forward and backward walks.
+/// The bank-$A9 enemy-instruction state needed by Mother Brain's locomotion and posture
+/// animations.
 /// </summary>
 /// <remarks>
 /// Mother Brain's body movement is not performed by her AI function. The AI installs one of
@@ -13,9 +14,10 @@ namespace SuperMetroid.Core.Game;
 /// essential: replacing a requested walk with a direct X adjustment would skip roughly ninety
 /// visible animation frames and would change when the AI observes pose zero again.
 ///
-/// This class deliberately admits only the command family used by the translated walk lists.
-/// Encountering any other command throws with its ROM address, making future animation work an
-/// inspectable extension rather than silently treating unknown bytecode as a frame record.
+/// This class deliberately admits only the command family used by the translated walk,
+/// crouch, lean, and stand-up lists. Encountering any other command throws with its ROM
+/// address, making future animation work an inspectable extension rather than silently
+/// treating unknown bytecode as a frame record.
 /// </remarks>
 public sealed class MotherBrainBodyAnimationState
 {
@@ -27,7 +29,10 @@ public sealed class MotherBrainBodyAnimationState
     /// <summary>Mother Brain body enemy-slot Y position.</summary>
     public ushort YPosition { get; set; }
 
-    /// <summary>Body pose word: zero standing and one walking for the admitted programs.</summary>
+    /// <summary>
+    /// Native body pose word. The admitted programs publish zero standing, one walking,
+    /// two transitioning between postures, three crouching, and six leaning down.
+    /// </summary>
     public ushort Pose { get; set; }
 
     /// <summary>Phase/form word consulted by the native footstep sound gate.</summary>
@@ -121,6 +126,30 @@ public sealed class MotherBrainBodyAnimationState
                     MoveBody(1, -2);
                     break;
 
+                case 0x95b6: // Y - 10, BG2 X scroll left by four.
+                    MoveBodyVerticallyAndScrollHorizontally(-10, 4);
+                    break;
+
+                case 0x95c0: // Y - 16, BG2 X scroll left by four.
+                    MoveBodyVerticallyAndScrollHorizontally(-16, 4);
+                    break;
+
+                case 0x95ca: // Y - 12, BG2 X scroll right by two.
+                    MoveBodyVerticallyAndScrollHorizontally(-12, -2);
+                    break;
+
+                case 0x95de: // Y + 12, BG2 X scroll left by four.
+                    MoveBodyVerticallyAndScrollHorizontally(12, 4);
+                    break;
+
+                case 0x95e8: // Y + 16, BG2 X scroll right by two.
+                    MoveBodyVerticallyAndScrollHorizontally(16, -2);
+                    break;
+
+                case 0x95f2: // Y + 10, BG2 X scroll right by two.
+                    MoveBodyVerticallyAndScrollHorizontally(10, -2);
+                    break;
+
                 case 0x960c: // X + 2.
                     MoveBody(2, 0);
                     break;
@@ -189,6 +218,18 @@ public sealed class MotherBrainBodyAnimationState
                     Pose = 1; // Walking.
                     break;
 
+                case 0x9710:
+                    Pose = 3; // Fully crouched.
+                    break;
+
+                case 0x9718:
+                    Pose = 2; // Crouching/standing transition.
+                    break;
+
+                case 0x9728:
+                    Pose = 6; // Leaning down.
+                    break;
+
                 default:
                     throw new InvalidOperationException(
                         $"Unsupported Mother Brain body instruction ${word:X4} " +
@@ -218,6 +259,17 @@ public sealed class MotherBrainBodyAnimationState
             // coordinates while BG2 is offset inversely so the composite remains attached.
             Bg2YScroll = unchecked((ushort)(Bg2YScroll - deltaY));
             Bg2XScroll = unchecked((ushort)(0x0022 - XPosition));
+        }
+
+        void MoveBodyVerticallyAndScrollHorizontally(int deltaY, int bg2XOffset)
+        {
+            // `$A9:9552` differs subtly from the walking helper: Mother Brain's world X
+            // does not move. The opcode supplies a temporary horizontal BG2 adjustment in
+            // X, so the final scroll is `$22 + adjustment - body X`. This is what keeps the
+            // large composite aligned while the crouch/stand frames change their silhouette.
+            YPosition = unchecked((ushort)(YPosition + deltaY));
+            Bg2YScroll = unchecked((ushort)(Bg2YScroll - deltaY));
+            Bg2XScroll = unchecked((ushort)(0x0022 + bg2XOffset - XPosition));
         }
 
         MotherBrainBodyAnimationStepResult CreateResult() => new(

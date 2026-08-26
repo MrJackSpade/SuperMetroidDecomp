@@ -2211,6 +2211,35 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         WriteTestWord(bus, 0xa9993a + index * 2, backwardReallySlow[index]);
     }
 
+    // Exact command/duration topology for the three posture programs reached by the
+    // finish-off loop. As above, only spritemap operands are synthetic sentinels.
+    ushort[] standUpFast =
+    [
+        0x9718, 0x0008, 0x1200,
+        0x95b6, 0x0008, 0x1201,
+        0x95c0, 0x0008, 0x1202,
+        0x95ca, 0x0008, 0x1203,
+        0x9700, 0x812f,
+    ];
+    ushort[] standUpAfterLeaning =
+    [
+        0x9718, 0x0008, 0x1210,
+        0x95ca, 0x0008, 0x1211,
+        0x9700, 0x812f,
+    ];
+    ushort[] leanDown =
+    [
+        0x9718, 0x0008, 0x1220,
+        0x95de, 0x9728, 0x0008, 0x1221,
+        0x812f,
+    ];
+    for (int index = 0; index < standUpFast.Length; index++)
+        WriteTestWord(bus, 0xa999c6 + index * 2, standUpFast[index]);
+    for (int index = 0; index < standUpAfterLeaning.Length; index++)
+        WriteTestWord(bus, 0xa999e2 + index * 2, standUpAfterLeaning[index]);
+    for (int index = 0; index < leanDown.Length; index++)
+        WriteTestWord(bus, 0xa999f2 + index * 2, leanDown[index]);
+
     var samus = new SamusState
     {
         Health = 999,
@@ -2337,9 +2366,12 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         "low-health decision immediately installs native forward body walk");
     AssertEqual((ushort)1, attack.Body.InstructionTimer,
         "low-health decision makes forward walk eligible in same enemy frame");
-    AssertThrows<InvalidOperationException>(
-        () => attack.Step(bus, samus, enemyFrameCounter: 0, mainEnemyExecutionCounter: 0),
-        "active sequence refuses to invent later finish-Samus actor AI");
+    MotherBrainRainbowBeamAttackStepResult finishThreshold = attack.Step(
+        bus, samus, enemyFrameCounter: 0, mainEnemyExecutionCounter: 0);
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.FinishSamusOff, finishThreshold.PhaseAfter,
+        "399 energy remains above no-suit finish threshold 340");
+    AssertEqual<MotherBrainFinishOffAttackKind?>(null, finishThreshold.FinishOffAttack,
+        "RNG zero takes finish-off no-attack branch");
 
     // Boundary 700 uses command five; 699 uses `$18`. The second fixture also proves that
     // `$A9:C4E8` loads literal zero even when a different HUD item made the prior CMP fail.
@@ -2440,6 +2472,68 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual((ushort)0, forwardBody.Pose, "forward walk restores standing pose");
     AssertEqual((ushort)0x9850, forwardBody.InstructionPointer,
         "forward common sleep pins its own opcode address");
+
+    // The finish-off loop can idle Mother Brain into a lean and must later wait for the
+    // corresponding stand-up bytecode. Verify both posture directions and the longer fast
+    // crouch recovery independently so their body-world/BG2 compensation cannot regress.
+    var postureBody = new MotherBrainBodyAnimationState
+    {
+        XPosition = 64,
+        YPosition = 100,
+    };
+    postureBody.SetInstructionList(
+        MotherBrainRainbowBeamAttackSequence.BodyLeaningDownInstructionList);
+    int leanCalls = 0;
+    while (!postureBody.Sleeping)
+    {
+        postureBody.Step(bus);
+        leanCalls++;
+        AssertTrue(leanCalls < 30, "lean-down animation reaches sleep");
+    }
+    AssertEqual(17, leanCalls, "two eight-frame lean records then sleep");
+    AssertEqual((ushort)6, postureBody.Pose, "lean-down list publishes pose six");
+    AssertEqual((ushort)112, postureBody.YPosition, "lean-down list moves body down twelve");
+    AssertEqual((ushort)0xfff4, postureBody.Bg2YScroll,
+        "lean-down body Y movement is cancelled in BG2");
+    AssertEqual((ushort)0xffe6, postureBody.Bg2XScroll,
+        "lean-down opcode applies temporary left-four BG2 compensation");
+
+    postureBody.SetInstructionList(
+        MotherBrainRainbowBeamAttackSequence.BodyStandingUpAfterLeaningDownInstructionList);
+    int leanStandCalls = 0;
+    while (!postureBody.Sleeping)
+    {
+        postureBody.Step(bus);
+        leanStandCalls++;
+        AssertTrue(leanStandCalls < 30, "lean stand-up animation reaches sleep");
+    }
+    AssertEqual(17, leanStandCalls, "lean recovery has two eight-frame records");
+    AssertEqual((ushort)0, postureBody.Pose, "lean recovery restores standing pose");
+    AssertEqual((ushort)100, postureBody.YPosition, "lean recovery reverses twelve-pixel drop");
+    AssertEqual((ushort)0, postureBody.Bg2YScroll, "lean recovery reverses BG2 Y offset");
+    AssertEqual((ushort)0xffe0, postureBody.Bg2XScroll,
+        "lean recovery finishes with right-two BG2 compensation");
+
+    var crouchedBody = new MotherBrainBodyAnimationState
+    {
+        XPosition = 64,
+        YPosition = 138,
+        Pose = 3,
+    };
+    crouchedBody.SetInstructionList(
+        MotherBrainRainbowBeamAttackSequence.BodyStandingUpAfterCrouchingFastInstructionList);
+    int crouchStandCalls = 0;
+    while (!crouchedBody.Sleeping)
+    {
+        crouchedBody.Step(bus);
+        crouchStandCalls++;
+        AssertTrue(crouchStandCalls < 50, "fast crouch stand-up reaches sleep");
+    }
+    AssertEqual(33, crouchStandCalls, "four eight-frame fast stand records then sleep");
+    AssertEqual((ushort)0, crouchedBody.Pose, "fast crouch recovery restores standing pose");
+    AssertEqual((ushort)100, crouchedBody.YPosition, "fast crouch recovery moves body up 38");
+    AssertEqual((ushort)38, crouchedBody.Bg2YScroll,
+        "fast crouch recovery applies inverse 38-pixel BG2 Y movement");
 
     WriteTestWord(bus, 0xa99000, 0xffff);
     var unknownBody = new MotherBrainBodyAnimationState();
@@ -2585,7 +2679,179 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual((ushort)0x0100, thresholdAttack.FunctionTimer,
         "repeated neck-extension setup reloads first charge timer");
 
-    Console.WriteLine("  Mother Brain actor: ROM walk bytecode, repeat charge, active drain, shutdown, fall, and decision agree.");
+    // `$BD45`'s first threshold is suit-dependent and inclusive. Check every retail suit
+    // path at the exact boundary and one energy above it before exercising RNG selection.
+    foreach ((ushort items, ushort threshold, string suitName) in new[]
+    {
+        ((ushort)0x0000, (ushort)340, "Power"),
+        ((ushort)0x0001, (ushort)180, "Varia"),
+        ((ushort)0x0020, (ushort)100, "Gravity"),
+    })
+    {
+        var atBoundary = new SamusState { Health = threshold, EquippedItems = items };
+        var boundaryFinish = new MotherBrainRainbowBeamAttackSequence();
+        boundaryFinish.Body.XPosition = 64;
+        boundaryFinish.Body.YPosition = 100;
+        boundaryFinish.StartFinishOffSequence();
+        boundaryFinish.Step(bus, atBoundary, 0, 0);
+        AssertEqual(MotherBrainRainbowBeamAttackPhase.FinishStandUp, boundaryFinish.Phase,
+            $"{suitName} exact finish-off threshold takes BPL done branch");
+
+        var aboveBoundary = new SamusState
+        {
+            Health = unchecked((ushort)(threshold + 1)),
+            EquippedItems = items,
+        };
+        var aboveFinish = new MotherBrainRainbowBeamAttackSequence();
+        aboveFinish.Body.XPosition = 64;
+        aboveFinish.Body.YPosition = 100;
+        aboveFinish.StartFinishOffSequence();
+        aboveFinish.Step(bus, aboveBoundary, 1, 0, randomNumberSeed: 0);
+        AssertEqual(MotherBrainRainbowBeamAttackPhase.FinishSamusOff, aboveFinish.Phase,
+            $"{suitName} threshold plus one remains in attack loop");
+    }
+
+    var onionFinishSamus = new SamusState { Health = 341 };
+    var onionFinish = new MotherBrainRainbowBeamAttackSequence();
+    onionFinish.Body.XPosition = 64;
+    onionFinish.StartFinishOffSequence();
+    MotherBrainRainbowBeamAttackStepResult onionAttack = onionFinish.Step(
+        bus, onionFinishSamus, 1, 0, randomNumberSeed: 0x0fef);
+    AssertEqual(MotherBrainFinishOffAttackKind.TwoOnionRings, onionAttack.FinishOffAttack,
+        "RNG $FEF selects two onion rings at upper boundary minus one");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadAttackingTwoOnionRingsPhase2InstructionList,
+        onionFinish.HeadInstructionList, "onion-ring selection installs retail head list");
+
+    var bombFinish = new MotherBrainRainbowBeamAttackSequence();
+    bombFinish.Body.XPosition = 64;
+    bombFinish.StartFinishOffSequence();
+    MotherBrainRainbowBeamAttackStepResult bombAttack = bombFinish.Step(
+        bus, new SamusState { Health = 341 }, 1, 0, randomNumberSeed: 0x0ff0);
+    AssertEqual(MotherBrainFinishOffAttackKind.Bomb, bombAttack.FinishOffAttack,
+        "RNG $FF0 selects bomb at exact BCS boundary");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadAttackingBombPhase2InstructionList,
+        bombFinish.HeadInstructionList, "bomb selection installs retail head list");
+
+    var idleFinish = new MotherBrainRainbowBeamAttackSequence();
+    idleFinish.Body.XPosition = 64;
+    idleFinish.Body.YPosition = 100;
+    idleFinish.StartFinishOffSequence();
+    MotherBrainRainbowBeamAttackStepResult idlePosture = idleFinish.Step(
+        bus,
+        new SamusState { Health = 341 },
+        enemyFrameCounter: 0,
+        mainEnemyExecutionCounter: 0,
+        randomNumberSeed: 0x09c0);
+    AssertTrue(idlePosture.BodyPostureRequested,
+        "no-attack frame with low byte $C0 requests posture change");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyLeaningDownInstructionList,
+        idleFinish.Body.InstructionPointer, "standing posture helper requests lean bytecode");
+
+    // Drive the complete low-health handoff. The initial forward walk runs in the separate
+    // enemy-instruction stage; only after it restores pose zero can `$C670` report carry.
+    var finalSamus = new SamusState { Health = 340 };
+    var finalAttack = new MotherBrainRainbowBeamAttackSequence();
+    finalAttack.Body.XPosition = 64;
+    finalAttack.Body.YPosition = 100;
+    finalAttack.StartFinishOffSequence();
+    finalAttack.Body.Step(bus); // Same-frame enemy stage following `$BB1A`'s list request.
+    finalAttack.Step(bus, finalSamus, 0, 0);
+    finalAttack.Body.Step(bus);
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.FinishStandUp, finalAttack.Phase,
+        "low-health finish loop installs stand-up body function");
+
+    int standWaitCalls = 0;
+    while (finalAttack.Phase == MotherBrainRainbowBeamAttackPhase.FinishStandUp)
+    {
+        finalAttack.Step(bus, finalSamus, 0, 0);
+        finalAttack.Body.Step(bus);
+        standWaitCalls++;
+        AssertTrue(standWaitCalls < 120, "finish-off stand-up waits for forward walk pose zero");
+    }
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.AdmireJobWellDone, finalAttack.Phase,
+        "standing carry enters admire delay");
+    AssertEqual((ushort)0x000f, finalAttack.FunctionTimer,
+        "stand-up fallthrough immediately decrements admire timer");
+    AssertEqual((ushort)88, finalAttack.Body.XPosition,
+        "initial finish-off walk completes one literal really-slow program");
+
+    int admireCalls = 0;
+    while (finalAttack.Phase == MotherBrainRainbowBeamAttackPhase.AdmireJobWellDone)
+    {
+        finalAttack.Step(bus, finalSamus, 0, 0);
+        finalAttack.Body.Step(bus);
+        admireCalls++;
+    }
+    AssertEqual(16, admireCalls, "remaining admire delay underflows after sixteen calls");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadStretchingPhase2InstructionList,
+        finalAttack.HeadInstructionList, "admire expiry installs stretching head animation");
+    AssertEqual((ushort)0x0100, finalAttack.FunctionTimer,
+        "admire expiry loads 256-count final charge");
+
+    int finalChargeCalls = 0;
+    MotherBrainRainbowBeamAttackStepResult firstTile = default;
+    while (finalAttack.Phase == MotherBrainRainbowBeamAttackPhase.ChargeFinalRainbowBeam)
+    {
+        firstTile = finalAttack.Step(bus, finalSamus, 0, 0);
+        finalAttack.Body.Step(bus);
+        finalChargeCalls++;
+    }
+    AssertEqual(257, finalChargeCalls, "final charge `$100` expires on DEC call 257");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadChargingRainbowInstructionList,
+        finalAttack.HeadInstructionList, "final charge expiry installs charging head list");
+    AssertTrue(firstTile.SpriteTileTransfer is
+        { EntryIndex: 0, Size: 0x0200, SourceAddress: 0xb18400, VramDestination: 0x7c00 },
+        "charge underflow falls through into first Baby tile transfer");
+
+    var transfers = new List<MotherBrainSpriteTileTransferRequest>
+    {
+        firstTile.SpriteTileTransfer!.Value,
+    };
+    MotherBrainRainbowBeamAttackStepResult spawnCall = firstTile;
+    while (finalAttack.Phase == MotherBrainRainbowBeamAttackPhase.LoadBabyMetroidTiles)
+    {
+        spawnCall = finalAttack.Step(bus, finalSamus, 0, 0);
+        finalAttack.Body.Step(bus);
+        if (spawnCall.SpriteTileTransfer is { } transfer)
+            transfers.Add(transfer);
+    }
+    AssertEqual(4, transfers.Count, "Baby graphics list emits four frame-spread transfers");
+    AssertEqual(new MotherBrainSpriteTileTransferRequest(1, 0x0200, 0xb18600, 0x7d00),
+        transfers[1], "Baby transfer entry one");
+    AssertEqual(new MotherBrainSpriteTileTransferRequest(2, 0x0200, 0xb18800, 0x7e00),
+        transfers[2], "Baby transfer entry two");
+    AssertEqual(new MotherBrainSpriteTileTransferRequest(3, 0x0200, 0xb18a00, 0x7f00),
+        transfers[3], "Baby transfer entry three");
+    AssertTrue(spawnCall.BabySpawnRequested && finalAttack.BabyMetroidSpawned,
+        "terminating transfer entry retracts head and requests Baby spawn");
+    AssertEqual((ushort)0x0050, finalAttack.NeckAngleDelta,
+        "Baby spawn call uses NTSC head-retraction delta");
+    AssertEqual((ushort)0x0100, finalAttack.FunctionTimer,
+        "Baby spawn call loads final-beam wait");
+
+    int finalBeamCalls = 0;
+    MotherBrainRainbowBeamAttackStepResult finalShot = default;
+    while (finalAttack.Phase == MotherBrainRainbowBeamAttackPhase.FireFinalRainbowBeam)
+    {
+        finalShot = finalAttack.Step(bus, finalSamus, 0, 0);
+        finalAttack.Body.Step(bus);
+        finalBeamCalls++;
+    }
+    AssertEqual(257, finalBeamCalls, "final-beam wait `$100` expires on DEC call 257");
+    AssertEqual(MotherBrainRainbowBeamAttackPhase.FinalRainbowBeamHolding, finalAttack.Phase,
+        "final shot installs self-return holding function");
+    AssertTrue(finalShot.FinalBeamSoundQueued,
+        "final shot queues sound-library-two effect $71");
+    AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadFiringRainbowInstructionList,
+        finalAttack.HeadInstructionList, "final shot installs firing head animation");
+    AssertEqual((ushort)6, finalAttack.LowerNeckMovementIndex,
+        "final shot lower neck index");
+    AssertEqual((ushort)6, finalAttack.UpperNeckMovementIndex,
+        "final shot upper neck index");
+    AssertEqual((ushort)0x0500, finalAttack.NeckAngleDelta,
+        "final shot NTSC neck delta");
+
+    Console.WriteLine("  Mother Brain actor: ROM posture/walk bytecode, repeat/active/final rainbow chain, thresholds, VRAM, and Baby spawn agree.");
 }
 
 static void VerifySamusAerialMovement()

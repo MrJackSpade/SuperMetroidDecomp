@@ -164,6 +164,24 @@ public sealed class SamusState
     /// <summary>Pose $86 is left-facing crouching aimed straight up.</summary>
     public const byte CrouchingAimUpLeftPose = 0x86;
 
+    /// <summary>Pose $8B turns right-to-left on ground while preserving straight-up aim.</summary>
+    public const byte TurningRightToLeftAimUpPose = 0x8b;
+
+    /// <summary>Pose $8C turns left-to-right on ground while preserving straight-up aim.</summary>
+    public const byte TurningLeftToRightAimUpPose = 0x8c;
+
+    /// <summary>Pose $8D turns right-to-left on ground while preserving diagonal-down aim.</summary>
+    public const byte TurningRightToLeftAimDiagonalDownPose = 0x8d;
+
+    /// <summary>Pose $8E turns left-to-right on ground while preserving diagonal-down aim.</summary>
+    public const byte TurningLeftToRightAimDiagonalDownPose = 0x8e;
+
+    /// <summary>Pose $9C turns right-to-left on ground while preserving diagonal-up aim.</summary>
+    public const byte TurningRightToLeftAimDiagonalUpPose = 0x9c;
+
+    /// <summary>Pose $9D turns left-to-right on ground while preserving diagonal-up aim.</summary>
+    public const byte TurningLeftToRightAimDiagonalUpPose = 0x9d;
+
     /// <summary>Pose $E0 is a right-facing normal-jump landing aimed straight up.</summary>
     public const byte LandingAimUpRightPose = 0xe0;
 
@@ -457,6 +475,20 @@ public sealed class SamusState
         CrouchingAimDiagonalDownRightPose or CrouchingAimDiagonalDownLeftPose;
 
     /// <summary>
+    /// True for movement-type-$0E poses that began facing right and are turning left.
+    /// Their definition direction is already four (the destination facing), so callers
+    /// must use this semantic grouping when preserving old rightward momentum.
+    /// </summary>
+    public static bool IsRightToLeftGroundTurnPose(byte pose) => pose is
+        TurningRightToLeftPose or TurningRightToLeftAimUpPose or
+        TurningRightToLeftAimDiagonalUpPose or TurningRightToLeftAimDiagonalDownPose;
+
+    /// <summary>True for movement-type-$0E poses that began facing left and are turning right.</summary>
+    public static bool IsLeftToRightGroundTurnPose(byte pose) => pose is
+        TurningLeftToRightPose or TurningLeftToRightAimUpPose or
+        TurningLeftToRightAimDiagonalUpPose or TurningLeftToRightAimDiagonalDownPose;
+
+    /// <summary>
     /// True only for the admitted movement-type-$0F crouch/stand animation records.
     /// Morph/unmorph records share that dispatcher but are intentionally not hidden here.
     /// </summary>
@@ -675,20 +707,50 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Applies bank-$91's grounded turn initialization at $91:F8D3 for pose $25 or $26.
+    /// Applies bank-$91's grounded turn initialization at <c>$91:F8D3</c>. Input tables
+    /// first publish generic `$25/$26`; the initializer indexes the previous pose's shot
+    /// direction through `$91:F9C2` and may replace it with `$8B-$8E/$9C/$9D`.
     /// </summary>
     public void ApplyGroundedTurn(ISnesAddressSpace bus, byte targetPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
 
-        bool turnsLeft = targetPose == TurningRightToLeftPose &&
-            Pose is FacingRightNormalPose or MovingRightNormalPose;
-        bool turnsRight = targetPose == TurningLeftToRightPose &&
-            Pose is FacingLeftNormalPose or MovingLeftNormalPose;
+        bool rightSource = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
+            IsRightFacingAimedLandingPose(Pose) ||
+            Pose is NormalLandingRightPose or SpinLandingRightPose;
+        bool leftSource = IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
+            IsLeftFacingAimedLandingPose(Pose) ||
+            Pose is NormalLandingLeftPose or SpinLandingLeftPose;
+        bool turnsLeft = targetPose == TurningRightToLeftPose && rightSource;
+        bool turnsRight = targetPose == TurningLeftToRightPose && leftSource;
         if (!turnsLeft && !turnsRight)
         {
             throw new InvalidOperationException(
                 $"Grounded turn ${Pose:X2} -> ${targetPose:X2} is not a verified transition.");
+        }
+
+        // `$91:F8D3` reads the PREVIOUS pose record before it installs the final turn art.
+        // Eight of the ten literal `$91:F9C2` entries are admitted here. Shot directions
+        // four/five belong to the compact straight-down family that remains untranslated.
+        byte shotDirection = ReadShotDirection(bus);
+        byte selectedTurnPose = shotDirection switch
+        {
+            0 => TurningRightToLeftAimUpPose,
+            1 => TurningRightToLeftAimDiagonalUpPose,
+            2 => TurningRightToLeftPose,
+            3 => TurningRightToLeftAimDiagonalDownPose,
+            6 => TurningLeftToRightAimDiagonalDownPose,
+            7 => TurningLeftToRightPose,
+            8 => TurningLeftToRightAimDiagonalUpPose,
+            9 => TurningLeftToRightAimUpPose,
+            _ => throw new NotSupportedException(
+                $"Grounded turn shot direction ${shotDirection:X2} is not translated."),
+        };
+        if ((turnsLeft && !IsRightToLeftGroundTurnPose(selectedTurnPose)) ||
+            (turnsRight && !IsLeftToRightGroundTurnPose(selectedTurnPose)))
+        {
+            throw new InvalidOperationException(
+                $"Grounded turn source ${Pose:X2} has direction metadata inconsistent with target ${targetPose:X2}.");
         }
 
         SamusHorizontalSpeedState speed = HorizontalSpeed;
@@ -708,7 +770,7 @@ public sealed class SamusState
         speed.ExtraRunSubspeed = 0;
         speed.AccelerationMode = 1;
 
-        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Grounded turn");
+        ApplySimpleGroundedPoseChange(bus, Pose, selectedTurnPose, "Grounded turn");
     }
 
     /// <summary>
@@ -988,6 +1050,12 @@ public sealed class SamusState
         bool verified = (Pose, targetPose) is
             (TurningRightToLeftPose, FacingLeftNormalPose) or
             (TurningLeftToRightPose, FacingRightNormalPose) or
+            (TurningRightToLeftAimUpPose, StandingAimUpLeftPose) or
+            (TurningLeftToRightAimUpPose, StandingAimUpRightPose) or
+            (TurningRightToLeftAimDiagonalDownPose, StandingAimDiagonalDownLeftPose) or
+            (TurningLeftToRightAimDiagonalDownPose, StandingAimDiagonalDownRightPose) or
+            (TurningRightToLeftAimDiagonalUpPose, StandingAimDiagonalUpLeftPose) or
+            (TurningLeftToRightAimDiagonalUpPose, StandingAimDiagonalUpRightPose) or
             (NeutralJumpTransitionRightPose, NeutralJumpRightPose) or
             (NeutralJumpTransitionLeftPose, NeutralJumpLeftPose) or
             (NormalJumpTransitionAimUpRightPose, NormalJumpAimUpRightPose) or

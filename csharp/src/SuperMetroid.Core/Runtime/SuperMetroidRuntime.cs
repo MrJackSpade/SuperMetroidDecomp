@@ -547,6 +547,12 @@ public sealed class SuperMetroidRuntime
                         break;
                     case SamusState.TurningRightToLeftPose:
                     case SamusState.TurningLeftToRightPose:
+                    case SamusState.TurningRightToLeftAimUpPose:
+                    case SamusState.TurningLeftToRightAimUpPose:
+                    case SamusState.TurningRightToLeftAimDiagonalUpPose:
+                    case SamusState.TurningLeftToRightAimDiagonalUpPose:
+                    case SamusState.TurningRightToLeftAimDiagonalDownPose:
+                    case SamusState.TurningLeftToRightAimDiagonalDownPose:
                         LastGroundedSamusMovement = SamusGroundedMovement.StepTurningOnGround(
                             _addressSpace,
                             LevelData,
@@ -704,6 +710,22 @@ public sealed class SuperMetroidRuntime
                     animationTransitionApplied = true;
                 }
 
+                // Aimed turn records store synthetic `$FA/$FC` direction markers rather
+                // than a landing/falling shot direction. Native walk-off recovers that
+                // information through separate transition state; stop here until that
+                // state is ported instead of inventing unaimed falling art.
+                if (!animationTransitionApplied &&
+                    LastGroundedSamusMovement is { Vertical.Collided: false } &&
+                    (SamusState.IsRightToLeftGroundTurnPose(poseAtFrameStart) ||
+                     SamusState.IsLeftToRightGroundTurnPose(poseAtFrameStart)) &&
+                    poseAtFrameStart is not (
+                        SamusState.TurningRightToLeftPose or
+                        SamusState.TurningLeftToRightPose))
+                {
+                    throw new NotSupportedException(
+                        $"Aimed ground-turn pose ${poseAtFrameStart:X2} walked off the floor; transition shot-direction recovery is not translated.");
+                }
+
                 if (!animationTransitionApplied && ProspectiveSamusPose is { } inputTransition)
                 {
                     byte targetPose = unchecked((byte)inputTransition.ProspectivePose);
@@ -754,10 +776,22 @@ public sealed class SuperMetroidRuntime
                             case (SamusState.FacingLeftNormalPose, SamusState.MovingLeftNormalPose):
                                 Samus.ApplyStandingLeftToRunningLeft(_addressSpace);
                                 break;
-                            case (SamusState.FacingRightNormalPose or SamusState.MovingRightNormalPose,
-                                  SamusState.TurningRightToLeftPose):
-                            case (SamusState.FacingLeftNormalPose or SamusState.MovingLeftNormalPose,
-                                  SamusState.TurningLeftToRightPose):
+                            case var (rightSource, rightTarget)
+                                when rightTarget == SamusState.TurningRightToLeftPose &&
+                                     (SamusState.IsRightFacingStandingPose(rightSource) ||
+                                      SamusState.IsRightFacingRunningPose(rightSource) ||
+                                      SamusState.IsRightFacingAimedLandingPose(rightSource) ||
+                                      rightSource is
+                                         SamusState.NormalLandingRightPose or
+                                         SamusState.SpinLandingRightPose):
+                            case var (leftSource, leftTarget)
+                                when leftTarget == SamusState.TurningLeftToRightPose &&
+                                     (SamusState.IsLeftFacingStandingPose(leftSource) ||
+                                      SamusState.IsLeftFacingRunningPose(leftSource) ||
+                                      SamusState.IsLeftFacingAimedLandingPose(leftSource) ||
+                                      leftSource is
+                                         SamusState.NormalLandingLeftPose or
+                                         SamusState.SpinLandingLeftPose):
                                 Samus.ApplyGroundedTurn(_addressSpace, targetPose);
                                 break;
                             case var (source, target)

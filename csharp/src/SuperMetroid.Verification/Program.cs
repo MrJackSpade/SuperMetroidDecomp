@@ -2050,7 +2050,131 @@ static void VerifySamusGroundedReversal()
     animatedTurn.ApplyRunningLeftToStandingLeft(bus);
     AssertEqual((byte)0x02, animatedTurn.Pose, "left run no-button fallback stands left");
 
-    Console.WriteLine("  Samus reversal: left motion, mode-one carry, $F8 turn completion, and left fallbacks agree.");
+    // The retail initializer does not blindly accept the generic `$25/$26` produced by
+    // the input transition table. It reads byte three of the previous pose definition and
+    // indexes `$91:F9C2`, preserving straight-up, diagonal-up, or diagonal-down aim. Seed
+    // the six source definitions literally so this test will fail if either their native
+    // metadata or the selector mapping is accidentally changed.
+    (byte SourcePose, byte[] Definition)[] aimedSources =
+    [
+        (SamusState.StandingAimUpRightPose, [0x08, 0x00, 0x01, 0x00, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.StandingAimUpLeftPose, [0x04, 0x00, 0x02, 0x09, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.StandingAimDiagonalUpRightPose, [0x08, 0x00, 0x01, 0x01, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.StandingAimDiagonalUpLeftPose, [0x04, 0x00, 0x02, 0x08, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.StandingAimDiagonalDownRightPose, [0x08, 0x00, 0x01, 0x03, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.StandingAimDiagonalDownLeftPose, [0x04, 0x00, 0x02, 0x06, 0x06, 0x00, 0x15, 0x00]),
+    ];
+    foreach ((byte sourcePose, byte[] definition) in aimedSources)
+    {
+        bus.WriteBytes(0x91b629 + sourcePose * 8, definition);
+
+        // A ten-tick frame-zero stream is sufficient after `$F8` installs the standing
+        // destination. No later target animation frame is observed by this focused test.
+        ushort streamAddress = (ushort)(0xc200 + sourcePose * 2);
+        WriteTestWord(bus, 0x91b010 + sourcePose * 2, streamAddress);
+        bus.WriteByte(0x910000 + streamAddress, 0x0a);
+    }
+
+    // Each turn definition also comes directly from bank $91. `$FA` and `$FC` are the
+    // aimed-turn shot-direction markers; they are intentionally preserved here rather
+    // than normalized to ordinary direction bytes.
+    (byte TurnPose, byte[] Definition)[] aimedTurns =
+    [
+        (SamusState.TurningRightToLeftAimUpPose, [0x04, 0x0e, 0xff, 0xfa, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.TurningLeftToRightAimUpPose, [0x08, 0x0e, 0xff, 0xfa, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.TurningRightToLeftAimDiagonalDownPose, [0x04, 0x0e, 0xff, 0xfc, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.TurningLeftToRightAimDiagonalDownPose, [0x08, 0x0e, 0xff, 0xfc, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.TurningRightToLeftAimDiagonalUpPose, [0x04, 0x0e, 0xff, 0xfa, 0x06, 0x00, 0x15, 0x00]),
+        (SamusState.TurningLeftToRightAimDiagonalUpPose, [0x08, 0x0e, 0xff, 0xfa, 0x06, 0x00, 0x15, 0x00]),
+    ];
+    foreach ((byte turnPose, byte[] definition) in aimedTurns)
+        bus.WriteBytes(0x91b629 + turnPose * 8, definition);
+
+    // NTSC uses three two-tick art frames for every aimed grounded turn. `$F8` then
+    // installs the corresponding opposite-facing standing-aim pose shown in this table.
+    (byte SourcePose, byte GenericTurn, byte SelectedTurn, byte Destination)[] aimedTurnCases =
+    [
+        (SamusState.StandingAimUpRightPose, SamusState.TurningRightToLeftPose,
+            SamusState.TurningRightToLeftAimUpPose, SamusState.StandingAimUpLeftPose),
+        (SamusState.StandingAimUpLeftPose, SamusState.TurningLeftToRightPose,
+            SamusState.TurningLeftToRightAimUpPose, SamusState.StandingAimUpRightPose),
+        (SamusState.StandingAimDiagonalUpRightPose, SamusState.TurningRightToLeftPose,
+            SamusState.TurningRightToLeftAimDiagonalUpPose, SamusState.StandingAimDiagonalUpLeftPose),
+        (SamusState.StandingAimDiagonalUpLeftPose, SamusState.TurningLeftToRightPose,
+            SamusState.TurningLeftToRightAimDiagonalUpPose, SamusState.StandingAimDiagonalUpRightPose),
+        (SamusState.StandingAimDiagonalDownRightPose, SamusState.TurningRightToLeftPose,
+            SamusState.TurningRightToLeftAimDiagonalDownPose, SamusState.StandingAimDiagonalDownLeftPose),
+        (SamusState.StandingAimDiagonalDownLeftPose, SamusState.TurningLeftToRightPose,
+            SamusState.TurningLeftToRightAimDiagonalDownPose, SamusState.StandingAimDiagonalDownRightPose),
+    ];
+
+    // Real standing/turn poses have radius 21, unlike the compact radius-five fixture used
+    // above to isolate ordinary displacement arithmetic. Place their center at Y=27 over
+    // a row-three floor: top Y=6 remains inside the room and bottom Y=48 touches that floor.
+    var aimedForeground = new ushort[width * 5];
+    for (int x = 0; x < width; x++)
+        aimedForeground[width * 3 + x] = 0x8000;
+    var aimedLevel = new RoomLevelData(
+        width,
+        5,
+        aimedForeground,
+        new byte[aimedForeground.Length],
+        new ushort[aimedForeground.Length],
+        new byte[8]);
+
+    for (int caseIndex = 0; caseIndex < aimedTurnCases.Length; caseIndex++)
+    {
+        var testCase = aimedTurnCases[caseIndex];
+
+        // Give every turn its own bytecode location. This catches swapped destinations
+        // independently rather than allowing two cases to share a forgiving stream.
+        ushort turnStreamAddress = (ushort)(0xc300 + caseIndex * 0x10);
+        WriteTestWord(bus, 0x91b010 + testCase.SelectedTurn * 2, turnStreamAddress);
+        bus.WriteBytes(
+            0x910000 + turnStreamAddress,
+            [0x02, 0x02, 0x02, 0xf8, testCase.Destination]);
+
+        var aimedTurn = new SamusState { Pose = testCase.SourcePose };
+        aimedTurn.Kinematics.XPosition = 64;
+        aimedTurn.Kinematics.YPosition = 27;
+        aimedTurn.Kinematics.XRadius = 5;
+        aimedTurn.Kinematics.YRadius = 21;
+
+        // `$91:F931` performs a 32-bit fixed-point add. These values force a fractional
+        // carry, proving that the extra run component is folded before it is cleared.
+        aimedTurn.HorizontalSpeed.BaseSpeed = 1;
+        aimedTurn.HorizontalSpeed.BaseSubspeed = 0xd000;
+        aimedTurn.HorizontalSpeed.ExtraRunSubspeed = 0x5000;
+        aimedTurn.ApplyGroundedTurn(bus, testCase.GenericTurn);
+        AssertEqual(testCase.SelectedTurn, aimedTurn.Pose, $"aimed turn selector case {caseIndex}");
+        AssertEqual((ushort)2, aimedTurn.HorizontalSpeed.BaseSpeed, $"aimed turn speed carry case {caseIndex}");
+        AssertEqual((ushort)0x2000, aimedTurn.HorizontalSpeed.BaseSubspeed, $"aimed turn folded fraction case {caseIndex}");
+        AssertEqual((ushort)0, aimedTurn.HorizontalSpeed.ExtraRunSubspeed, $"aimed turn consumes extra fraction case {caseIndex}");
+        AssertEqual((ushort)1, aimedTurn.HorizontalSpeed.AccelerationMode, $"aimed turn mode one case {caseIndex}");
+
+        GroundedMovementResult carriedMomentum = SamusGroundedMovement.StepTurningOnGround(
+            bus,
+            aimedLevel,
+            aimedTurn,
+            nmiFrameCounter: (ushort)caseIndex);
+        bool beganFacingRight = (caseIndex & 1) == 0;
+        AssertTrue(
+            beganFacingRight
+                ? carriedMomentum.Horizontal.AcceptedDisplacement > 0
+                : carriedMomentum.Horizontal.AcceptedDisplacement < 0,
+            $"aimed turn preserves old momentum direction case {caseIndex}");
+
+        for (int tick = 0; tick < 6; tick++)
+            aimedTurn.AnimateNoFx(bus);
+        AssertEqual((byte)0xf8, aimedTurn.LastAnimationDelayCommand!.Value, $"aimed turn reaches $F8 case {caseIndex}");
+        AssertEqual(testCase.Destination, aimedTurn.PendingTransitionalPose!.Value, $"aimed turn publishes destination case {caseIndex}");
+        AssertTrue(aimedTurn.ApplyPendingVerifiedAnimationTransition(bus), $"aimed turn transition applies case {caseIndex}");
+        AssertEqual(testCase.Destination, aimedTurn.Pose, $"aimed turn destination case {caseIndex}");
+        AssertEqual((ushort)0, aimedTurn.AnimationFrame, $"aimed turn target frame zero case {caseIndex}");
+        AssertEqual((ushort)10, aimedTurn.AnimationFrameTimer, $"aimed turn target timer case {caseIndex}");
+    }
+
+    Console.WriteLine("  Samus reversal: ordinary and aimed selectors, mode-one carry, $F8 completion, and fallbacks agree.");
 }
 
 /// <summary>

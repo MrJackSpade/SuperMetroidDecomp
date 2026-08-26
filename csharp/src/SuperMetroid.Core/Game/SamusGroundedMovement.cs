@@ -231,8 +231,9 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Ports <c>SamusMovement_TurningAround_OnGround</c> at <c>$90:A67C</c> for poses
-    /// $25 and $26, including its direction inversion while decelerating old momentum.
+    /// Ports <c>SamusMovement_TurningAround_OnGround</c> at <c>$90:A67C</c> for ordinary
+    /// `$25/$26` and aimed `$8B-$8E/$9C/$9D`, including direction inversion while
+    /// decelerating old momentum.
     /// </summary>
     public static GroundedMovementResult StepTurningOnGround(
         ISnesAddressSpace bus,
@@ -243,10 +244,11 @@ public static class SamusGroundedMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
-        if (samus.Pose is not (SamusState.TurningRightToLeftPose or SamusState.TurningLeftToRightPose))
+        if (!SamusState.IsRightToLeftGroundTurnPose(samus.Pose) &&
+            !SamusState.IsLeftToRightGroundTurnPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Grounded-turn movement requires pose $25 or $26, not ${samus.Pose:X2}.");
+                $"Grounded-turn movement requires pose $25/$26/$8B-$8E/$9C/$9D, not ${samus.Pose:X2}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -272,13 +274,13 @@ public static class SamusGroundedMovement
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 0x0e);
 
         // $90:8EA9 inverts the pose direction only while mode is nonzero and not two:
-        //   pose $25 has direction $04, so mode 1 carries old RIGHTWARD momentum;
-        //   pose $26 has direction $08, so mode 1 carries old LEFTWARD momentum.
+        //   right-to-left records have direction $04, so mode 1 carries old RIGHTWARD momentum;
+        //   left-to-right records have direction $08, so mode 1 carries old LEFTWARD momentum.
         // Once CalculateBaseSpeed clears mode at zero, these helpers switch to the new
         // facing direction, but the zero displacement makes that final switch invisible.
         bool movesLeft = speed.AccelerationMode == 1
-            ? samus.Pose == SamusState.TurningLeftToRightPose
-            : samus.Pose == SamusState.TurningRightToLeftPose;
+            ? SamusState.IsLeftToRightGroundTurnPose(samus.Pose)
+            : SamusState.IsRightToLeftGroundTurnPose(samus.Pose);
         int requestedHorizontal = movesLeft
             ? speed.CalculateLeftDisplacement(baseSpeed)
             : speed.CalculateRightDisplacement(baseSpeed);

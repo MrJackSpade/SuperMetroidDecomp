@@ -25,7 +25,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$0B` | Unused | — | Preserve only if required |
 | `$0C` | Unused | — | Preserve only if required |
 | `$0D` | Unused | — | Preserve only if required |
-| `$0E` | Turning on ground | `$25/$26`, old-direction mode-one momentum, `$F8` completion | Aim/fire variants and transitions originating in later families |
+| `$0E` | Turning on ground | `$25/$26/$8B-$8E/$9C/$9D`, old-direction mode-one momentum, native aim selector, `$F8` completion | Fire variants and transitions originating in crouched/later families |
 | `$0F` | Crouch/stand/morph transition | `$35/$36/$3B/$3C/$F1-$FC`, bottom alignment, radius collision, `$FD` completion | Morph transitions and fire variants |
 | `$10` | Moonwalking | — | Entire family |
 | `$11` | Spring ball on ground | — | Entire family |
@@ -105,7 +105,22 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - Releasing only the direction changes aimed running to the matching stationary aim pose
   after that frame's movement; releasing every button preserves the aimed run pose while
   native mode-two momentum decelerates, then pose-definition byte two returns to `$01/$02`.
-  Aimed turning remains the next connected grounded family.
+
+## Verified aimed grounded-turn slice
+
+- The input transition tables continue to publish generic `$25/$26`. The initializer at
+  `$91:F8D3` reads the previous pose's shot-direction byte and indexes the literal ten-entry
+  `$91:F9C2` table, selecting straight-up `$8B/$8C`, diagonal-down `$8D/$8E`, diagonal-up
+  `$9C/$9D`, or ordinary `$25/$26` without host-authored aim state.
+- All eight admitted movement-type-`$0E` poses fold the extra run component into base 16.16
+  speed, clear the consumed words, select acceleration mode one, decelerate through the ROM
+  `$90:9FFD` record, and carry momentum opposite the new facing direction.
+- The six aimed animation lists each contain three two-tick NTSC frames followed by command
+  `$F8`. Their exact destinations are `$8B->$04`, `$8C->$03`, `$8D->$08`, `$8E->$07`,
+  `$9C->$06`, and `$9D->$05`.
+- Crouched turns use movement type `$17`, not this handler, and remain deliberately separate.
+  Aimed-turn walk-off also stops at an explicit untranslated boundary until native transition
+  shot-direction recovery is ported; it is not replaced with guessed unaimed falling art.
 
 ## Verified aimed-air slice
 
@@ -148,10 +163,13 @@ are listed below so later work cannot accidentally confuse “the current viewer
 - The real-ROM `--aim-crouch-script` route completes `$01 -> $F3 -> $71 -> $73 -> $85 -> $27
   -> $F9 -> $05`, turns left, then mirrors through `$F4/$72/$74/$86/$28/$FC/$08`. Radius
   changes keep the feet fixed and the active-pose diagnostic retains terrain/HUD alignment.
+- The real-ROM `--aim-turn-script` route observes generic `$25/$26` prospective poses become
+  `$9C/$9D`, `$8B/$8C`, and `$8D/$8E` from the source pose metadata. Every pair completes
+  through its exact `$F8` standing-aim destination while preserving old-direction momentum.
 
 ## Next implementation order
 
-1. Aimed standing/crouched turns, crouch-jump entry, and compact straight-down aerial collision bodies.
+1. Crouched turns, crouch-jump entry, and compact straight-down aerial collision bodies.
 2. Morph ball ground/fall/bounce, bombs, and spring ball.
 3. Aerial turns and the real wall-jump trigger/launch.
 4. Knockback and damage boost.

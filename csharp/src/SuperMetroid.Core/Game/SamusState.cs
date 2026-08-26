@@ -33,6 +33,49 @@ public sealed class SamusState
     /// <summary>Pose $0A is “moving left - not aiming” in the cartridge table.</summary>
     public const byte MovingLeftNormalPose = 0x0a;
 
+    /// <summary>
+    /// Pose $49 visually faces left while moonwalking right. Its pose-X byte is deliberately
+    /// eight: native horizontal movement follows travel direction, not the artwork's facing.
+    /// </summary>
+    public const byte MoonwalkFacingLeftPose = 0x49;
+
+    /// <summary>Pose $4A visually faces right while moonwalking left.</summary>
+    public const byte MoonwalkFacingRightPose = 0x4a;
+
+    /// <summary>Pose `$75`: left-facing/right-moving moonwalk aimed diagonally up-left.</summary>
+    public const byte MoonwalkAimUpLeftPose = 0x75;
+
+    /// <summary>Pose `$76`: right-facing/left-moving mirror of pose `$75`.</summary>
+    public const byte MoonwalkAimUpRightPose = 0x76;
+
+    /// <summary>Pose `$77`: left-facing/right-moving moonwalk aimed diagonally down-left.</summary>
+    public const byte MoonwalkAimDownLeftPose = 0x77;
+
+    /// <summary>Pose `$78`: right-facing/left-moving mirror of pose `$77`.</summary>
+    public const byte MoonwalkAimDownRightPose = 0x78;
+
+    /// <summary>
+    /// Pose `$BF`: right-facing moonwalk art turning/jumping toward the left. Despite the
+    /// name in the disassembly, this is still grounded movement type `$0E` until its input
+    /// table or terminal `$F8,$1A` animation command installs the actual spin jump.
+    /// </summary>
+    public const byte MoonwalkTurnJumpLeftPose = 0xbf;
+
+    /// <summary>Pose `$C0`: left-facing mirror of <see cref="MoonwalkTurnJumpLeftPose"/>.</summary>
+    public const byte MoonwalkTurnJumpRightPose = 0xc0;
+
+    /// <summary>Pose `$C1`: aimed-up moonwalk turn whose terminal jump faces left.</summary>
+    public const byte MoonwalkTurnJumpAimUpLeftPose = 0xc1;
+
+    /// <summary>Pose `$C2`: aimed-up moonwalk turn whose terminal jump faces right.</summary>
+    public const byte MoonwalkTurnJumpAimUpRightPose = 0xc2;
+
+    /// <summary>Pose `$C3`: aimed-down moonwalk turn whose terminal jump faces left.</summary>
+    public const byte MoonwalkTurnJumpAimDownLeftPose = 0xc3;
+
+    /// <summary>Pose `$C4`: aimed-down moonwalk turn whose terminal jump faces right.</summary>
+    public const byte MoonwalkTurnJumpAimDownRightPose = 0xc4;
+
     /// <summary>Pose $25 turns a right-facing grounded Samus toward the left.</summary>
     public const byte TurningRightToLeftPose = 0x25;
 
@@ -681,6 +724,40 @@ public sealed class SamusState
         RunningAimDiagonalUpLeftPose or
         RunningAimDiagonalDownLeftPose;
 
+    /// <summary>
+    /// True for the three poses whose artwork faces left while the type-$10 body travels
+    /// right. The naming is intentionally visual; <c>ReadPoseXDirection</c> returns eight.
+    /// </summary>
+    public static bool IsMoonwalkingFacingLeftPose(byte pose) => pose is
+        MoonwalkFacingLeftPose or MoonwalkAimUpLeftPose or MoonwalkAimDownLeftPose;
+
+    /// <summary>True for the three right-facing moonwalk poses that travel left.</summary>
+    public static bool IsMoonwalkingFacingRightPose(byte pose) => pose is
+        MoonwalkFacingRightPose or MoonwalkAimUpRightPose or MoonwalkAimDownRightPose;
+
+    public static bool IsMoonwalkingPose(byte pose) =>
+        IsMoonwalkingFacingLeftPose(pose) || IsMoonwalkingFacingRightPose(pose);
+
+    /// <summary>
+    /// True for `$BF-$C4`, the six grounded turn frames selected only when Jump begins a
+    /// direction reversal from movement type `$10`. Odd/even descriptive names follow the
+    /// literal pose records, while the predicates below group them by destination facing.
+    /// </summary>
+    public static bool IsMoonwalkTurnJumpPose(byte pose) => pose is
+        MoonwalkTurnJumpLeftPose or MoonwalkTurnJumpRightPose or
+        MoonwalkTurnJumpAimUpLeftPose or MoonwalkTurnJumpAimUpRightPose or
+        MoonwalkTurnJumpAimDownLeftPose or MoonwalkTurnJumpAimDownRightPose;
+
+    /// <summary>True for the `$BF/$C1/$C3` family whose transition tables lead to left.</summary>
+    public static bool IsMoonwalkTurnJumpLeftPose(byte pose) => pose is
+        MoonwalkTurnJumpLeftPose or MoonwalkTurnJumpAimUpLeftPose or
+        MoonwalkTurnJumpAimDownLeftPose;
+
+    /// <summary>True for the `$C0/$C2/$C4` family whose transition tables lead to right.</summary>
+    public static bool IsMoonwalkTurnJumpRightPose(byte pose) => pose is
+        MoonwalkTurnJumpRightPose or MoonwalkTurnJumpAimUpRightPose or
+        MoonwalkTurnJumpAimDownRightPose;
+
     /// <summary>True when a supported standing, running, crouching, or landing pose carries aim metadata.</summary>
     public static bool IsGroundedAimPose(byte pose) => pose is
         StandingAimUpRightPose or StandingAimUpLeftPose or
@@ -1081,6 +1158,94 @@ public sealed class SamusState
     }
 
     /// <summary>
+    /// Applies the movement-type-$10 option gate and stable-pose changes surrounding
+    /// <c>InitializeSamusPose_Moonwalking</c> at <c>$91:F88C</c>.
+    /// </summary>
+    /// <remarks>
+    /// Standing transition tables always publish a moonwalk candidate when Shoot and the
+    /// backward direction are held. The native settings word decides what that candidate
+    /// means: enabled retains `$49/$4A/$75-$78`; disabled substitutes ordinary `$25/$26`
+    /// turn art. Once active, aim changes and the direct return to forward running are
+    /// ordinary radius-21 pose installations with no invented velocity adjustment.
+    /// </remarks>
+    public void ApplyMoonwalkPoseChange(
+        ISnesAddressSpace bus,
+        byte targetPose,
+        bool moonwalkEnabled)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+
+        bool sourceStandingRight = IsRightFacingStandingPose(Pose);
+        bool sourceStandingLeft = IsLeftFacingStandingPose(Pose);
+        bool targetVisualRight = IsMoonwalkingFacingRightPose(targetPose);
+        bool targetVisualLeft = IsMoonwalkingFacingLeftPose(targetPose);
+        bool entering =
+            (sourceStandingRight && targetVisualRight) ||
+            (sourceStandingLeft && targetVisualLeft);
+
+        if (entering && !moonwalkEnabled)
+        {
+            // `$91:F893-$F8A9` tests the candidate pose-X byte. `$4A/$76/$78` store four
+            // and become right-to-left `$25`; `$49/$75/$77` store eight and become `$26`.
+            ApplyGroundedTurn(
+                bus,
+                targetVisualRight ? TurningRightToLeftPose : TurningLeftToRightPose);
+            return;
+        }
+
+        bool sameVisualFamily =
+            (IsMoonwalkingFacingRightPose(Pose) && targetVisualRight) ||
+            (IsMoonwalkingFacingLeftPose(Pose) && targetVisualLeft);
+        bool exitsToForwardRun =
+            (IsMoonwalkingFacingRightPose(Pose) && targetPose == MovingRightNormalPose) ||
+            (IsMoonwalkingFacingLeftPose(Pose) && targetPose == MovingLeftNormalPose);
+        bool exitsToStandingFallback =
+            (IsMoonwalkingFacingRightPose(Pose) && IsRightFacingStandingPose(targetPose)) ||
+            (IsMoonwalkingFacingLeftPose(Pose) && IsLeftFacingStandingPose(targetPose));
+        if ((!entering || !moonwalkEnabled) && !sameVisualFamily &&
+            !exitsToForwardRun && !exitsToStandingFallback)
+        {
+            throw new NotSupportedException(
+                $"Moonwalk pose change ${Pose:X2} -> ${targetPose:X2} is not a stable retail route.");
+        }
+
+        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Moonwalk");
+    }
+
+    /// <summary>
+    /// Applies `$91:F8D3-$91:F950` when a stable moonwalk pose reverses while Jump is held.
+    /// The six requested `$BF-$C4` records are not airborne yet: they retain the grounded
+    /// turn movement handler while their three visible frames play.
+    /// </summary>
+    public void ApplyMoonwalkTurnJump(ISnesAddressSpace bus, byte targetPose)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+
+        byte expectedTarget = ReadShotDirection(bus) switch
+        {
+            1 => MoonwalkTurnJumpAimUpLeftPose,
+            2 => MoonwalkTurnJumpLeftPose,
+            3 => MoonwalkTurnJumpAimDownLeftPose,
+            6 => MoonwalkTurnJumpAimDownRightPose,
+            7 => MoonwalkTurnJumpRightPose,
+            8 => MoonwalkTurnJumpAimUpRightPose,
+            _ => throw new NotSupportedException(
+                $"Moonwalk shot direction ${ReadShotDirection(bus):X2} has no stable turn/jump route."),
+        };
+        if (!IsMoonwalkingPose(Pose) || targetPose != expectedTarget)
+        {
+            throw new NotSupportedException(
+                $"Moonwalk turn/jump ${Pose:X2} -> ${targetPose:X2} is not a retail route.");
+        }
+
+        // `$91:F8F3-$F903` preserves the source moonwalk shot direction with bit eight set.
+        // That word affects arm-cannon transition drawing, which is not independently
+        // surfaced yet; the destination pose already contains the exact matching art.
+        FoldExtraRunSpeedIntoBaseAndStartTurn();
+        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Moonwalk turn/jump");
+    }
+
+    /// <summary>
     /// Applies the verified ordinary transition from standing-right pose $01 to running-
     /// right pose $09 at the end-of-frame bank-$91 transition seam.
     /// </summary>
@@ -1181,10 +1346,12 @@ public sealed class SamusState
         bool wasCrouching = ReadMovementType(bus) == 5;
 
         bool rightSource = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
+            IsMoonwalkingFacingRightPose(Pose) ||
             IsRightFacingCrouchingPose(Pose) ||
             IsRightFacingAimedLandingPose(Pose) ||
             Pose is NormalLandingRightPose or SpinLandingRightPose;
         bool leftSource = IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
+            IsMoonwalkingFacingLeftPose(Pose) ||
             IsLeftFacingCrouchingPose(Pose) ||
             IsLeftFacingAimedLandingPose(Pose) ||
             Pose is NormalLandingLeftPose or SpinLandingLeftPose;
@@ -1581,7 +1748,16 @@ public sealed class SamusState
              SpinJumpRightPose) or
             (MovingLeftNormalPose or RunningAimUpLeftPose or
                 RunningAimDiagonalUpLeftPose or RunningAimDiagonalDownLeftPose,
-             SpinJumpLeftPose);
+             SpinJumpLeftPose) or
+            // `$91:AF98-$AFFF` can leave the moonwalk turn art early while the backward
+            // direction remains held, or select `$4B/$4C` on a fresh Jump edge. Both
+            // routes call the same dry-air jump initializer after changing pose.
+            (MoonwalkTurnJumpLeftPose or MoonwalkTurnJumpAimUpLeftPose or
+                MoonwalkTurnJumpAimDownLeftPose,
+             SpinJumpLeftPose or NeutralJumpTransitionLeftPose) or
+            (MoonwalkTurnJumpRightPose or MoonwalkTurnJumpAimUpRightPose or
+                MoonwalkTurnJumpAimDownRightPose,
+             SpinJumpRightPose or NeutralJumpTransitionRightPose);
         if (!verified)
         {
             throw new NotSupportedException(
@@ -1729,6 +1905,7 @@ public sealed class SamusState
 
         bool startsCrouchingRight =
             (IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
+             IsMoonwalkingFacingRightPose(Pose) ||
              (Pose is NormalLandingRightPose or SpinLandingRightPose) ||
              IsRightFacingAimedLandingPose(Pose)) &&
             targetPose is
@@ -1737,6 +1914,7 @@ public sealed class SamusState
                 CrouchingTransitionAimDiagonalDownRightPose;
         bool startsCrouchingLeft =
             (IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
+             IsMoonwalkingFacingLeftPose(Pose) ||
              (Pose is NormalLandingLeftPose or SpinLandingLeftPose) ||
              IsLeftFacingAimedLandingPose(Pose)) &&
             targetPose is
@@ -2082,6 +2260,8 @@ public sealed class SamusState
         bool supportedSource =
             IsRightFacingStandingPose(Pose) || IsLeftFacingStandingPose(Pose) ||
             IsRightFacingRunningPose(Pose) || IsLeftFacingRunningPose(Pose) ||
+            IsMoonwalkingPose(Pose) ||
+            IsMoonwalkTurnJumpPose(Pose) ||
             IsRightFacingCrouchingPose(Pose) || IsLeftFacingCrouchingPose(Pose);
         byte expectedTarget = SelectFallingPoseForCurrentAim(bus);
         if (!supportedSource || targetPose != expectedTarget)
@@ -2322,14 +2502,25 @@ public sealed class SamusState
             (TurningRightToLeftJumpAimDiagonalUpPose, NormalJumpAimDiagonalUpLeftPose) or
             (TurningLeftToRightJumpAimDiagonalUpPose, NormalJumpAimDiagonalUpRightPose) or
             (TurningRightToLeftFallingAimDiagonalUpPose, FallingAimDiagonalUpLeftPose) or
-            (TurningLeftToRightFallingAimDiagonalUpPose, FallingAimDiagonalUpRightPose);
+            (TurningLeftToRightFallingAimDiagonalUpPose, FallingAimDiagonalUpRightPose) or
+            // `$91:B45B-$B478` ends every moonwalk turn/jump delay list with command
+            // `$F8,$1A/$19`. Unlike an aerial turn, this is the first actual airborne pose,
+            // so the special branch below also creates the dry-air jump velocity.
+            (MoonwalkTurnJumpLeftPose or MoonwalkTurnJumpAimUpLeftPose or
+                MoonwalkTurnJumpAimDownLeftPose, SpinJumpLeftPose) or
+            (MoonwalkTurnJumpRightPose or MoonwalkTurnJumpAimUpRightPose or
+                MoonwalkTurnJumpAimDownRightPose, SpinJumpRightPose);
         if (!verified)
         {
             throw new NotSupportedException(
                 $"Animation transition ${Pose:X2} -> ${targetPose:X2} is outside the translated routes.");
         }
 
+        bool startsMoonwalkJump = IsMoonwalkTurnJumpPose(Pose) &&
+            targetPose is SpinJumpRightPose or SpinJumpLeftPose;
         ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Animation command");
+        if (startsMoonwalkJump)
+            SamusAerialMovement.InitializeDryAirJump(bus, this);
         MorphBallBounceState = 0;
         return true;
     }
@@ -2493,7 +2684,8 @@ public sealed class SamusState
                 // grounded $25/$26 sequences this publishes $02/$01 through command three;
                 // it does NOT select a new delay or advance the visible animation frame.
                 // The runtime consumes this after AnimateNoFx, where Samus_HandleTransitions
-                // runs in the native frame. Jumping/autojump exclusions remain unsupported.
+                // runs in the native frame. `$BF-$C4` use the same command to start their
+                // literal `$19/$1A` spin-jump operand after the grounded turn art finishes.
                 PendingTransitionalPose = ReadAnimationByte(
                     bus,
                     unchecked((ushort)(AnimationFrame + 1)));
@@ -2592,7 +2784,7 @@ public sealed class SamusState
     /// </summary>
     /// <remarks>
     /// Movement type zero uses the standing position selector. The admitted movement types
-    /// `$01/$02/$04-$06/$08/$0E/$17` use the usual or explicitly table-backed transition
+    /// `$01/$02/$04-$06/$08/$0E/$10/$17` use the usual or explicitly table-backed transition
     /// position selector. Morph types `$04/$08` draw only their complete top spritemap;
     /// spin-jump `$03` retains its own conditional bottom rule.
     /// </remarks>
@@ -2604,7 +2796,7 @@ public sealed class SamusState
         int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
         byte movementType = bus.ReadByte(AddWithinBank(poseDefinition, 1));
         if (movementType is not (0 or 1 or 2 or 3 or 4 or 5 or 6 or 8 or 0x0a or
-            0x0e or 0x0f or 0x11 or 0x12 or 0x13 or 0x14 or 0x16 or 0x17 or 0x18 or 0x19))
+            0x0e or 0x0f or 0x10 or 0x11 or 0x12 or 0x13 or 0x14 or 0x16 or 0x17 or 0x18 or 0x19))
         {
             throw new NotSupportedException(
                 $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");
@@ -2648,7 +2840,7 @@ public sealed class SamusState
         TopSpritemapIndex = unchecked((ushort)(topBase + AnimationFrame));
         oam.AddSamusSpritemap(bus, TopSpritemapIndex, SpritemapXPosition, SpritemapYPosition);
 
-        // Movement types one, `$0E`, and `$17` use the native unconditional bottom selector.
+        // Movement types one, `$0E`, `$10`, and `$17` use the native unconditional bottom selector.
         // Movement type zero also draws the bottom, except forward-facing pose $00 has an
         // additional visor OBJ that this intentionally narrow slice still rejects.
         if (movementType == 0 && Pose == 0)

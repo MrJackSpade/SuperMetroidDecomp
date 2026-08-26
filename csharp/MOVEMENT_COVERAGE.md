@@ -25,9 +25,9 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$0B` | Unused | — | Preserve only if required |
 | `$0C` | Unused | — | Preserve only if required |
 | `$0D` | Unused | — | Preserve only if required |
-| `$0E` | Turning on ground | `$25/$26/$43/$44/$8B-$8E/$9C/$9D`, old-direction mode-one momentum, native standing/crouch selector, `$F8` completion | Fire variants and transitions originating in later families |
+| `$0E` | Turning on ground | `$25/$26/$43/$44/$8B-$8E/$9C/$9D/$BF-$C4`, old-direction mode-one momentum, native standing/crouch/moonwalk selectors, `$F8` completion | Fire variants and transitions originating in later families |
 | `$0F` | Crouch/stand/morph transition | `$35/$36/$3B/$3C/$37/$38/$3D/$3E/$F1-$FC`, bottom alignment, radius collision, `$F9/$FD` completion | Fire variants and later equipment-dependent transitions |
-| `$10` | Moonwalking | — | Entire family |
+| `$10` | Moonwalking | `$49/$4A/$75-$78`, option gate, reversed X input, aim changes, fallback, walk-off, and `$BF-$C4` jump bridge | Equipment/liquids and external displacement |
 | `$11` | Spring ball on ground | `$79-$7C`, dry ground, slopes, reversal, jump entry, walk-off, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
 | `$12` | Spring ball in air | `$7F/$80`, dry-air powered jump, variable height, ceiling/floor collision, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
 | `$13` | Spring ball falling | `$7D/$7E`, dry-air gravity, held-jump relaunch, automatic bounce, normal-bomb deployment | Bombable-block PLMs, liquids, enemy collision, external displacement |
@@ -97,6 +97,26 @@ translated status is documented with the Morph Ball family below.
   only when the literal source was ordinary `$27/$28`. Aimed crouches use the same jump art
   and ROM 4.E000 velocity without that extra subtraction. If both ceiling and floor block
   expansion, `$91:FFA7` selects ordinary `$27/$28` and the jump is never started.
+
+## Verified moonwalk slice
+
+- The host option is an explicit model of the native enable word read at `$91:F88C`. When it
+  is off, a standing backward-plus-Shoot record is replaced by ordinary `$25/$26`; when it is
+  on, the cartridge-selected `$49/$4A/$75-$78` pose is retained.
+- Movement type `$10` executes the real X-speed calculation with Samus facing opposite the
+  held direction, then runs the ordinary horizontal block scan and no-speed grounded probe.
+  The six stable poses therefore share normal acceleration and collision while preserving
+  their literal straight, diagonal-up, and diagonal-down shot-direction metadata.
+- The no-button route does not invent a transition-table record. It publishes command two and
+  consumes pose-definition byte two, so each aimed moonwalk returns through its exact visual
+  family before the existing standing fallback resumes.
+- Jump from a stable moonwalk maps shot directions `1/2/3/6/7/8` to `$C1/$BF/$C3/$C4/$C0/$C2`.
+  Those six turn poses fold extra run speed into base 16.16 speed, use the native type-`$0E`
+  old-direction deceleration, and finish their three-visible-frame `$F8` lists in `$1A/$19` with a
+  fresh dry-air spin-jump launch.
+- The viewer exposes **Moonwalk enabled** and uses the real Shoot-plus-backward controller
+  chord. Synthetic verification exhausts all six stable and all six jump-turn routes; the
+  private-ROM `--moonwalk-script` proves `$01->$4A->$76->$78->$07->$01->$4A->$BF->$1A`.
 
 ## Verified grounded-aim slice
 

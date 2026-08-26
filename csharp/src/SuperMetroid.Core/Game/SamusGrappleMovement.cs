@@ -112,9 +112,10 @@ public static class SamusGrappleMovement
         grapple.Angle = ReadWord(bus, FireAngleTable + tableOffset);
         grapple.MirroredAngle = grapple.Angle;
 
-        // Moonwalk shares movement type one but takes the no-run table in native code.
-        // Pose $49/$4A are the two moonwalk records in the retail pose set.
-        bool useRunOffsets = samus.ReadMovementType(bus) == 1 && samus.Pose is not (0x49 or 0x4a);
+        // `$9B:C4F0` selects run offsets solely for movement type one. Moonwalking is
+        // distinct type `$10`, so every stable/aimed moonwalk pose naturally takes the
+        // no-run origin and flare tables without a pose-number exception.
+        bool useRunOffsets = samus.ReadMovementType(bus) == 1;
         int originXTable = useRunOffsets ? RunOriginXTable : NoRunOriginXTable;
         int originYTable = useRunOffsets ? RunOriginYTable : NoRunOriginYTable;
         int flareXTable = useRunOffsets ? RunFlareXTable : NoRunFlareXTable;

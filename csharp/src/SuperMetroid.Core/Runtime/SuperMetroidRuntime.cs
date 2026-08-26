@@ -83,6 +83,13 @@ public sealed class SuperMetroidRuntime
     public bool GroundedSamusMovementEnabled { get; private set; }
 
     /// <summary>
+    /// Host-readable equivalent of the native Moonwalk options word consumed by
+    /// `$91:F88C`. False preserves the default turn substitution; true admits the six
+    /// stable movement-type-$10 poses selected by the unchanged ROM input tables.
+    /// </summary>
+    public bool MoonwalkEnabled { get; set; }
+
+    /// <summary>
     /// Horizontal and vertical collision results from the most recent translated grounded
     /// movement pass. Null before movement, and always null for the cinematic stimulus.
     /// </summary>
@@ -610,6 +617,19 @@ public sealed class SuperMetroidRuntime
                 ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
             }
 
+            // Movement type `$10` uses prospective command two, not running's deceleration
+            // command one. With the entire controller released, `$91:82D9` therefore reads
+            // definition byte two immediately: `$49/$75/$77 -> $02/$06/$08`, mirrored to
+            // `$01/$05/$07`. The resulting standing body keeps the current X speed words;
+            // the following standing movement frame clears them exactly as native does.
+            if (GroundedSamusMovementEnabled &&
+                SamusState.IsMoonwalkingPose(Samus.Pose) &&
+                Controller1.Current == 0 &&
+                ProspectiveSamusPose is null)
+            {
+                ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
+            }
+
             // Active aimed jump/fall poses use the same no-controller pose-definition
             // fallback seam: `$15/$69/$6B -> $51`, mirrored left to `$52`, and aimed
             // falling to `$29/$2A`. Transition poses `$55-$5A` store `$FF` and are left
@@ -820,6 +840,18 @@ public sealed class SuperMetroidRuntime
                         Samus,
                         NmiFrameCounter);
                         break;
+                    case SamusState.MoonwalkFacingLeftPose:
+                    case SamusState.MoonwalkFacingRightPose:
+                    case SamusState.MoonwalkAimUpLeftPose:
+                    case SamusState.MoonwalkAimUpRightPose:
+                    case SamusState.MoonwalkAimDownLeftPose:
+                    case SamusState.MoonwalkAimDownRightPose:
+                        LastGroundedSamusMovement = SamusGroundedMovement.StepMoonwalking(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            NmiFrameCounter);
+                        break;
                     case SamusState.TurningRightToLeftPose:
                     case SamusState.TurningLeftToRightPose:
                     case SamusState.TurningRightToLeftAimUpPose:
@@ -836,6 +868,12 @@ public sealed class SuperMetroidRuntime
                     case SamusState.TurningLeftToRightCrouchingAimDiagonalUpPose:
                     case SamusState.TurningRightToLeftCrouchingAimDiagonalDownPose:
                     case SamusState.TurningLeftToRightCrouchingAimDiagonalDownPose:
+                    case SamusState.MoonwalkTurnJumpLeftPose:
+                    case SamusState.MoonwalkTurnJumpRightPose:
+                    case SamusState.MoonwalkTurnJumpAimUpLeftPose:
+                    case SamusState.MoonwalkTurnJumpAimUpRightPose:
+                    case SamusState.MoonwalkTurnJumpAimDownLeftPose:
+                    case SamusState.MoonwalkTurnJumpAimDownRightPose:
                         LastGroundedSamusMovement = SamusGroundedMovement.StepTurningOnGround(
                             _addressSpace,
                             LevelData,
@@ -1127,6 +1165,8 @@ public sealed class SuperMetroidRuntime
                      SamusState.IsLeftFacingStandingPose(poseAtFrameStart) ||
                      SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||
                      SamusState.IsLeftFacingRunningPose(poseAtFrameStart) ||
+                     SamusState.IsMoonwalkingPose(poseAtFrameStart) ||
+                     SamusState.IsMoonwalkTurnJumpPose(poseAtFrameStart) ||
                      SamusState.IsRightFacingCrouchingPose(poseAtFrameStart) ||
                      SamusState.IsLeftFacingCrouchingPose(poseAtFrameStart)))
                 {
@@ -1157,6 +1197,38 @@ public sealed class SuperMetroidRuntime
                     {
                         switch ((poseAtFrameStart, targetPose))
                         {
+                            case var (source, target)
+                                when ((SamusState.IsRightFacingStandingPose(source) &&
+                                       SamusState.IsMoonwalkingFacingRightPose(target)) ||
+                                      (SamusState.IsLeftFacingStandingPose(source) &&
+                                       SamusState.IsMoonwalkingFacingLeftPose(target)) ||
+                                      (SamusState.IsMoonwalkingPose(source) &&
+                                       (SamusState.IsMoonwalkingPose(target) ||
+                                        target is SamusState.MovingRightNormalPose or
+                                            SamusState.MovingLeftNormalPose))):
+                                Samus.ApplyMoonwalkPoseChange(
+                                    _addressSpace,
+                                    targetPose,
+                                    MoonwalkEnabled);
+                                break;
+                            case var (source, target)
+                                when SamusState.IsMoonwalkingPose(source) &&
+                                     SamusState.IsMoonwalkTurnJumpPose(target):
+                                // The stable `$49/$4A/$75-$78` table publishes a generic
+                                // reversal target. `$91:F8D3` validates it against the old
+                                // shot direction, folds momentum, and leaves `$BF-$C4`
+                                // grounded until either its input table or `$F8` starts jump.
+                                Samus.ApplyMoonwalkTurnJump(_addressSpace, targetPose);
+                                break;
+                            case var (source, target)
+                                when SamusState.IsMoonwalkTurnJumpLeftPose(source) &&
+                                         target is SamusState.SpinJumpLeftPose or
+                                             SamusState.NeutralJumpTransitionLeftPose ||
+                                     SamusState.IsMoonwalkTurnJumpRightPose(source) &&
+                                         target is SamusState.SpinJumpRightPose or
+                                             SamusState.NeutralJumpTransitionRightPose:
+                                Samus.ApplyOrdinaryJumpTransition(_addressSpace, targetPose);
+                                break;
                             case (SamusState.KnockbackRightPose, SamusState.DamageBoostRightPose):
                             case (SamusState.KnockbackLeftPose, SamusState.DamageBoostLeftPose):
                                 // `$91:8113` makes a fresh jump when the `$53/$54` input
@@ -1298,6 +1370,7 @@ public sealed class SuperMetroidRuntime
                                          SamusState.TurningRightToLeftCrouchingPose &&
                                      (SamusState.IsRightFacingStandingPose(rightSource) ||
                                       SamusState.IsRightFacingRunningPose(rightSource) ||
+                                      SamusState.IsMoonwalkingFacingRightPose(rightSource) ||
                                       SamusState.IsRightFacingCrouchingPose(rightSource) ||
                                       SamusState.IsRightFacingAimedLandingPose(rightSource) ||
                                       rightSource is
@@ -1309,6 +1382,7 @@ public sealed class SuperMetroidRuntime
                                          SamusState.TurningLeftToRightCrouchingPose &&
                                      (SamusState.IsLeftFacingStandingPose(leftSource) ||
                                       SamusState.IsLeftFacingRunningPose(leftSource) ||
+                                      SamusState.IsMoonwalkingFacingLeftPose(leftSource) ||
                                       SamusState.IsLeftFacingCrouchingPose(leftSource) ||
                                       SamusState.IsLeftFacingAimedLandingPose(leftSource) ||
                                       leftSource is
@@ -1387,6 +1461,7 @@ public sealed class SuperMetroidRuntime
                                       SamusState.IsLeftFacingStandingPose(source) ||
                                       SamusState.IsRightFacingRunningPose(source) ||
                                       SamusState.IsLeftFacingRunningPose(source) ||
+                                      SamusState.IsMoonwalkingPose(source) ||
                                       SamusState.IsRightFacingAimedLandingPose(source) ||
                                       SamusState.IsLeftFacingAimedLandingPose(source) ||
                                       source is
@@ -1477,6 +1552,17 @@ public sealed class SuperMetroidRuntime
                         Samus.ApplyRunningLeftToStandingLeft(_addressSpace);
                     else
                         Samus.ApplyGroundedAimTransition(_addressSpace, SamusState.FacingLeftNormalPose);
+                }
+                else if (!animationTransitionApplied &&
+                         SamusState.IsMoonwalkingPose(poseAtFrameStart) &&
+                         ProspectiveSamusFallbackPose is { } moonwalkFallback)
+                {
+                    // Command two selected the literal standing/aim fallback during alpha.
+                    // Applying it after movement preserves the native one-last-step timing.
+                    Samus.ApplyMoonwalkPoseChange(
+                        _addressSpace,
+                        unchecked((byte)moonwalkFallback),
+                        MoonwalkEnabled);
                 }
                 else if (!animationTransitionApplied &&
                          (poseAtFrameStart is

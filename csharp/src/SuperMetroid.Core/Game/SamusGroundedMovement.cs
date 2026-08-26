@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 /// <remarks>
 /// This is deliberately not a generic platformer controller. The entry points below
-/// correspond only to movement types zero, one, and $0E, with no liquid, enemy collision,
+/// correspond only to movement types zero, one, $0E, and $10, with no liquid, enemy collision,
 /// run-button acceleration, conveyor displacement, knockback, or speed booster. Each
 /// omitted system has observable native state and must be ported before its branch is
 /// enabled; none is silently replaced with desktop physics.
@@ -245,11 +245,14 @@ public static class SamusGroundedMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
-        if (!SamusState.IsRightToLeftGroundTurnPose(samus.Pose) &&
-            !SamusState.IsLeftToRightGroundTurnPose(samus.Pose))
+        bool turnsLeft = SamusState.IsRightToLeftGroundTurnPose(samus.Pose) ||
+            SamusState.IsMoonwalkTurnJumpLeftPose(samus.Pose);
+        bool turnsRight = SamusState.IsLeftToRightGroundTurnPose(samus.Pose) ||
+            SamusState.IsMoonwalkTurnJumpRightPose(samus.Pose);
+        if (!turnsLeft && !turnsRight)
         {
             throw new InvalidOperationException(
-                $"Grounded-turn movement requires a verified standing or crouched turn pose, not ${samus.Pose:X2}.");
+                $"Grounded-turn movement requires a verified standing, crouched, or moonwalk turn pose, not ${samus.Pose:X2}.");
         }
 
         byte movementType = samus.ReadMovementType(bus);
@@ -290,9 +293,7 @@ public static class SamusGroundedMovement
         //   left-to-right records have direction $08, so mode 1 carries old LEFTWARD momentum.
         // Once CalculateBaseSpeed clears mode at zero, these helpers switch to the new
         // facing direction, but the zero displacement makes that final switch invisible.
-        bool movesLeft = speed.AccelerationMode == 1
-            ? SamusState.IsLeftToRightGroundTurnPose(samus.Pose)
-            : SamusState.IsRightToLeftGroundTurnPose(samus.Pose);
+        bool movesLeft = speed.AccelerationMode == 1 ? turnsRight : turnsLeft;
         int requestedHorizontal = movesLeft
             ? speed.CalculateLeftDisplacement(baseSpeed)
             : speed.CalculateRightDisplacement(baseSpeed);
@@ -314,6 +315,67 @@ public static class SamusGroundedMovement
         // every turn frame. They should already be zero, but preserve the observable writes.
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
+        return new GroundedMovementResult(horizontal, vertical);
+    }
+
+    /// <summary>
+    /// Ports <c>SamusMovement_Moonwalking</c> at <c>$90:A694</c> for stable poses
+    /// `$49/$4A/$75-$78` in dry air without run-button extra speed.
+    /// </summary>
+    public static GroundedMovementResult StepMoonwalking(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(samus);
+        if (!SamusState.IsMoonwalkingPose(samus.Pose) || samus.ReadMovementType(bus) != 0x10)
+        {
+            throw new InvalidOperationException(
+                $"Moonwalking movement requires pose $49/$4A/$75-$78, not ${samus.Pose:X2}.");
+        }
+
+        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
+        speed.SelectNormalAirSpeedTable();
+
+        // `$90:A697` calls the same complete X path as running. The no-run-button slice
+        // cannot erase an extra component written by a future speed-booster implementation.
+        if (speed.ExtraRunSpeed != 0 || speed.ExtraRunSubspeed != 0)
+        {
+            throw new NotSupportedException(
+                "Moonwalking with extra run speed requires the untranslated $90:973E branch.");
+        }
+        if (speed.AccelerationMode is not (0 or 2))
+        {
+            throw new NotSupportedException(
+                $"Stable moonwalking reached unsupported acceleration mode {speed.AccelerationMode}.");
+        }
+
+        // Type `$10` has its own twelve-byte speed record. The pose-X bytes are intentionally
+        // opposite the visible facing: left-facing `$49/$75/$77` store eight and move right;
+        // right-facing `$4A/$76/$78` store four and move left. Do not derive travel from names.
+        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 0x10);
+        bool movesLeft = samus.ReadPoseXDirection(bus) == 4;
+        int requestedHorizontal = movesLeft
+            ? speed.CalculateLeftDisplacement(baseSpeed)
+            : speed.CalculateRightDisplacement(baseSpeed);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
+            bus,
+            level,
+            samus.Kinematics,
+            requestedHorizontal);
+        if (horizontal.Collided)
+            ClearHorizontalMomentum(speed);
+
+        // `$90:A69A` is the same no-speed-calculation grounding probe used by running.
+        // It deliberately scales the downward probe by the total horizontal magnitude.
+        BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
+            bus,
+            level,
+            samus,
+            nmiFrameCounter);
         return new GroundedMovementResult(horizontal, vertical);
     }
 

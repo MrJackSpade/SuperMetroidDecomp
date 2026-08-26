@@ -13,6 +13,7 @@ using SuperMetroid.Core.Runtime;
 DebugRunnerOptions options = DebugRunnerOptions.Parse(args);
 SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(options.RomPath);
 var runtime = new SuperMetroidRuntime(bus);
+runtime.MoonwalkEnabled = options.MoonwalkScript;
 
 Console.WriteLine($"Loaded {Path.GetFullPath(options.RomPath)} ({bus.Rom.Length:N0} bytes).");
 Console.WriteLine($"Stepping {options.FrameCount:N0} translated frames using {options.TimerScenario} timer startup.");
@@ -20,6 +21,11 @@ if (options.ReversalScript)
 {
     Console.WriteLine(
         "Input script: Start, release, Right for 60 frames, Left for 60, Right for 60, then release.");
+}
+else if (options.MoonwalkScript)
+{
+    Console.WriteLine(
+        "Input script: enable Moonwalk, walk backward right-facing through neutral/up/down aim, release, re-enter, then execute the $BF -> $1A jump route.");
 }
 else if (options.JumpScript)
 {
@@ -416,6 +422,26 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             // `$50` is movement type `$19`, whose dispatcher entry calls the ordinary
             // jumping routine. Keeping `$0280` held selects `$50`'s self-record and proves
             // variable-height movement; release later lets it descend and land normally.
+            _ => (ushort)0,
+        }
+        : options.MoonwalkScript
+        ? frameIndex switch
+        {
+            0 => (ushort)SnesButton.Start,
+
+            // Standing-right `$01` plus backward Left and Shoot proposes `$4A`. The host
+            // option merely admits that cartridge candidate; type `$10` owns every step.
+            >= 2 and < 30 => (ushort)(SnesButton.Left | SnesButton.X),
+
+            // `$91:A8AC` changes only the moonwalk art/shot direction while the same
+            // backward direction stays held. R selects `$76`; L then selects `$78`.
+            >= 30 and < 50 => (ushort)(SnesButton.Left | SnesButton.X | SnesButton.R),
+            >= 50 and < 70 => (ushort)(SnesButton.Left | SnesButton.X | SnesButton.L),
+
+            // Zero input proves definition fallbacks `$78 -> $07 -> $01`. Re-enter the
+            // neutral family, then replace Shoot with Jump while still moving backward.
+            >= 80 and < 100 => (ushort)(SnesButton.Left | SnesButton.X),
+            >= 100 and < 122 => (ushort)(SnesButton.Left | SnesButton.A),
             _ => (ushort)0,
         }
         : options.ReversalScript
@@ -930,6 +956,18 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      SamusState.StandingTransitionAimDiagonalUpLeftPose or
                      SamusState.StandingTransitionAimDiagonalDownRightPose or
                      SamusState.StandingTransitionAimDiagonalDownLeftPose or
+                     SamusState.MoonwalkFacingLeftPose or
+                     SamusState.MoonwalkFacingRightPose or
+                     SamusState.MoonwalkAimUpRightPose or
+                     SamusState.MoonwalkAimUpLeftPose or
+                     SamusState.MoonwalkAimDownRightPose or
+                     SamusState.MoonwalkAimDownLeftPose or
+                     SamusState.MoonwalkTurnJumpLeftPose or
+                     SamusState.MoonwalkTurnJumpRightPose or
+                     SamusState.MoonwalkTurnJumpAimUpLeftPose or
+                     SamusState.MoonwalkTurnJumpAimUpRightPose or
+                     SamusState.MoonwalkTurnJumpAimDownLeftPose or
+                     SamusState.MoonwalkTurnJumpAimDownRightPose or
                      SamusState.TurningRightToLeftJumpPose or
                      SamusState.TurningLeftToRightJumpPose or
                      SamusState.TurningRightToLeftFallingPose or
@@ -1109,6 +1147,31 @@ if (options.KnockbackScript)
     }
     Console.WriteLine(
         "Knockback ROM route validated hurt movement, the Left+Jump damage-boost chord, and type-$19 jump movement.");
+}
+
+if (options.MoonwalkScript)
+{
+    // These are not host-selected poses. Every member must have been observed after the
+    // unchanged retail transition matcher consumed the scripted chords. `$BF` is the
+    // grounded turn art and `$1A` proves its input/animation handoff created a real jump.
+    byte[] requiredMoonwalkRoute =
+    [
+        SamusState.MoonwalkFacingRightPose,
+        SamusState.MoonwalkAimUpRightPose,
+        SamusState.MoonwalkAimDownRightPose,
+        SamusState.MoonwalkTurnJumpLeftPose,
+        SamusState.SpinJumpLeftPose,
+    ];
+    foreach (byte requiredPose in requiredMoonwalkRoute)
+    {
+        if (!observedSamusPoses.Contains(requiredPose))
+        {
+            throw new InvalidOperationException(
+                $"Moonwalk ROM script did not observe required pose ${requiredPose:X2}.");
+        }
+    }
+    Console.WriteLine(
+        "Moonwalk ROM route validated stable neutral/up/down movement, zero-input fallback, grounded $BF turn art, and $1A jump handoff.");
 }
 
 if (options.GrappleScript)
@@ -1309,6 +1372,7 @@ readonly record struct DebugRunnerOptions(
     bool GroundedRun,
     int RightFrameCount,
     bool ReversalScript,
+    bool MoonwalkScript,
     bool JumpScript,
     bool PostureScript,
     bool AimScript,
@@ -1336,6 +1400,7 @@ readonly record struct DebugRunnerOptions(
         bool groundedRun = false;
         int rightFrameCount = int.MaxValue;
         bool reversalScript = false;
+        bool moonwalkScript = false;
         bool jumpScript = false;
         bool postureScript = false;
         bool aimScript = false;
@@ -1389,6 +1454,11 @@ readonly record struct DebugRunnerOptions(
 
                 case "--reversal-script":
                     reversalScript = true;
+                    groundedRun = true;
+                    break;
+
+                case "--moonwalk-script":
+                    moonwalkScript = true;
                     groundedRun = true;
                     break;
 
@@ -1512,6 +1582,7 @@ readonly record struct DebugRunnerOptions(
             groundedRun,
             rightFrameCount,
             reversalScript,
+            moonwalkScript,
             jumpScript,
             postureScript,
             aimScript,

@@ -40,6 +40,7 @@ VerifySamusSlopePhysics();
 VerifySamusBlockCollision();
 VerifySamusGroundedMovement();
 VerifySamusGroundedReversal();
+VerifySamusMoonwalking();
 VerifyObjRendering();
 VerifyHudStateAndBg3Rendering();
 VerifyDebugRoomCamera();
@@ -3907,6 +3908,200 @@ static void VerifySamusGroundedReversal()
     }
 
     Console.WriteLine("  Samus reversal: standing/crouched selectors, mode-one carry, grounded type-$17, and $F8 agree.");
+}
+
+/// <summary>
+/// Locks movement type `$10` to the literal bank-$90/$91 behavior: pose direction is the
+/// travel direction despite opposite-facing art, the options word gates entry, definition
+/// byte two exits on zero input, and `$BF-$C4` remain grounded until their `$F8` command or
+/// transition table starts a real jump.
+/// </summary>
+static void VerifySamusMoonwalking()
+{
+    var bus = new TestAddressSpace();
+
+    // `$90:9F55 + 10h * 0Ch = $90:A015`. Use an unmistakable quarter-pixel acceleration
+    // with a two-pixel cap and eighth-pixel deceleration; all stable moonwalk records must
+    // select this entry instead of borrowing running's type-one record.
+    WriteTestWord(bus, 0x90a015, 0x0000);
+    WriteTestWord(bus, 0x90a017, 0x4000);
+    WriteTestWord(bus, 0x90a019, 0x0002);
+    WriteTestWord(bus, 0x90a01b, 0x0000);
+    WriteTestWord(bus, 0x90a01d, 0x0000);
+    WriteTestWord(bus, 0x90a01f, 0x2000);
+
+    // `$BF-$C4` dispatch through ordinary grounded-turn movement type `$0E`, whose own
+    // deceleration record remains independently visible during their three art frames.
+    WriteTestWord(bus, 0x909ffd, 0x0000);
+    WriteTestWord(bus, 0x909fff, 0x4000);
+    WriteTestWord(bus, 0x90a001, 0x0002);
+    WriteTestWord(bus, 0x90a003, 0x0000);
+    WriteTestWord(bus, 0x90a005, 0x0000);
+    WriteTestWord(bus, 0x90a007, 0x2000);
+
+    (byte Pose, byte[] Definition, byte Fallback, int Direction)[] stable =
+    [
+        (SamusState.MoonwalkFacingLeftPose,
+            [0x08, 0x10, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00], 0x02, 1),
+        (SamusState.MoonwalkFacingRightPose,
+            [0x04, 0x10, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00], 0x01, -1),
+        (SamusState.MoonwalkAimUpLeftPose,
+            [0x08, 0x10, 0x06, 0x08, 0x06, 0x00, 0x15, 0x00], 0x06, 1),
+        (SamusState.MoonwalkAimUpRightPose,
+            [0x04, 0x10, 0x05, 0x01, 0x06, 0x00, 0x15, 0x00], 0x05, -1),
+        (SamusState.MoonwalkAimDownLeftPose,
+            [0x08, 0x10, 0x08, 0x06, 0x06, 0x00, 0x15, 0x00], 0x08, 1),
+        (SamusState.MoonwalkAimDownRightPose,
+            [0x04, 0x10, 0x07, 0x03, 0x06, 0x00, 0x15, 0x00], 0x07, -1),
+    ];
+    foreach ((byte pose, byte[] definition, _, _) in stable)
+        bus.WriteBytes(0x91b629 + pose * 8, definition);
+
+    // The standing definitions are the actual sources and no-button destinations for the
+    // six records above. Their one-byte streams are enough because these focused checks do
+    // not advance standing animation.
+    (byte Pose, byte[] Definition)[] standing =
+    [
+        (0x01, [0x08, 0x00, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]),
+        (0x02, [0x04, 0x00, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]),
+        (0x05, [0x08, 0x00, 0x01, 0x01, 0x06, 0x00, 0x15, 0x00]),
+        (0x06, [0x04, 0x00, 0x02, 0x08, 0x06, 0x00, 0x15, 0x00]),
+        (0x07, [0x08, 0x00, 0x01, 0x03, 0x06, 0x00, 0x15, 0x00]),
+        (0x08, [0x04, 0x00, 0x02, 0x06, 0x06, 0x00, 0x15, 0x00]),
+    ];
+    foreach ((byte pose, byte[] definition) in standing)
+    {
+        bus.WriteBytes(0x91b629 + pose * 8, definition);
+        ushort stream = (ushort)(0xc000 + pose);
+        WriteTestWord(bus, 0x91b010 + pose * 2, stream);
+        bus.WriteByte(0x910000 + stream, 10);
+    }
+
+    // The disabled-option substitution enters ordinary right-to-left `$25`, including the
+    // initializer's momentum fold and mode-one selection. `$25`'s short stream need not
+    // complete here; merely initializing it proves the candidate was not retained.
+    bus.WriteBytes(0x91b751, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+    WriteTestWord(bus, 0x91b05a, 0xc100);
+    bus.WriteBytes(0x91c100, [0x02, 0x02, 0x02, 0xf8, 0x02]);
+    var disabled = new SamusState { Pose = SamusState.FacingRightNormalPose };
+    disabled.HorizontalSpeed.BaseSubspeed = 0x4000;
+    disabled.HorizontalSpeed.ExtraRunSubspeed = 0x2000;
+    disabled.ApplyMoonwalkPoseChange(bus, SamusState.MoonwalkFacingRightPose, moonwalkEnabled: false);
+    AssertEqual(SamusState.TurningRightToLeftPose, disabled.Pose,
+        "disabled Moonwalk option substitutes ordinary turn");
+    AssertEqual((ushort)0x6000, disabled.HorizontalSpeed.BaseSubspeed,
+        "disabled Moonwalk substitution folds extra momentum");
+    AssertEqual((ushort)1, disabled.HorizontalSpeed.AccelerationMode,
+        "disabled Moonwalk substitution starts mode one");
+
+    // Enabled entry must preserve every exact candidate, not merely the unaimed pair.
+    foreach ((byte target, _, byte fallback, _) in stable)
+    {
+        var candidate = new SamusState { Pose = fallback };
+        ushort stream = (ushort)(0xc200 + target);
+        WriteTestWord(bus, 0x91b010 + target * 2, stream);
+        bus.WriteByte(0x910000 + stream, 2);
+        candidate.ApplyMoonwalkPoseChange(bus, target, moonwalkEnabled: true);
+        AssertEqual(target, candidate.Pose, $"enabled Moonwalk retains candidate ${target:X2}");
+
+        // Command two's zero-controller fallback is immediate for movement type `$10` and
+        // uses the target record's byte two. This helper applies that already-read byte at
+        // the normal end-of-frame transition seam.
+        candidate.ApplyMoonwalkPoseChange(bus, fallback, moonwalkEnabled: true);
+        AssertEqual(fallback, candidate.Pose, $"moonwalk ${target:X2} fallback byte");
+    }
+
+    // A flat row of type-$8 solids isolates horizontal sign and the shared downward probe.
+    const int width = 12;
+    var foreground = new ushort[width * 3];
+    for (int x = 0; x < width; x++)
+        foreground[width + x] = 0x8000;
+    var floor = new RoomLevelData(
+        width,
+        3,
+        foreground,
+        new byte[foreground.Length],
+        new ushort[foreground.Length],
+        new byte[8]);
+    foreach ((byte pose, _, _, int direction) in stable)
+    {
+        var walker = new SamusState { Pose = pose, XPosition = 80, YPosition = 11 };
+        walker.Kinematics.XRadius = 5;
+        walker.Kinematics.YRadius = 5;
+        GroundedMovementResult movement = SamusGroundedMovement.StepMoonwalking(
+            bus, floor, walker, nmiFrameCounter: 0);
+        AssertEqual(direction * 0x4000, movement.Horizontal.AcceptedDisplacement,
+            $"moonwalk ${pose:X2} uses literal reversed direction");
+        AssertTrue(movement.Vertical.Collided, $"moonwalk ${pose:X2} probes floor");
+    }
+
+    // Seed the six literal turn/jump records and delay streams. Each stream contains three
+    // two-tick frames followed by `$F8,$1A/$19`, exactly `$91:B45B-$B478` for NTSC.
+    (byte Source, byte Target, byte[] Definition, byte SpinTarget)[] turns =
+    [
+        (0x4a, 0xbf, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00], 0x1a),
+        (0x49, 0xc0, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00], 0x19),
+        (0x76, 0xc1, [0x04, 0x0e, 0xff, 0xfa, 0x08, 0x00, 0x15, 0x00], 0x1a),
+        (0x75, 0xc2, [0x08, 0x0e, 0xff, 0xfa, 0x08, 0x00, 0x15, 0x00], 0x19),
+        (0x78, 0xc3, [0x04, 0x0e, 0xff, 0xfc, 0x08, 0x00, 0x15, 0x00], 0x1a),
+        (0x77, 0xc4, [0x08, 0x0e, 0xff, 0xfc, 0x08, 0x00, 0x15, 0x00], 0x19),
+    ];
+    foreach ((_, byte target, byte[] definition, byte spinTarget) in turns)
+    {
+        bus.WriteBytes(0x91b629 + target * 8, definition);
+        ushort stream = (ushort)(0xc300 + (target - 0xbf) * 8);
+        WriteTestWord(bus, 0x91b010 + target * 2, stream);
+        bus.WriteBytes(0x910000 + stream, [0x02, 0x02, 0x02, 0xf8, spinTarget]);
+    }
+
+    // Spin endpoints and dry-air constants are read through production code after `$F8`.
+    bus.WriteBytes(0x91b6f1, [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
+    bus.WriteBytes(0x91b6f9, [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
+    WriteTestWord(bus, 0x91b042, 0xc400);
+    WriteTestWord(bus, 0x91b044, 0xc401);
+    bus.WriteByte(0x91c400, 2);
+    bus.WriteByte(0x91c401, 2);
+    WriteTestWord(bus, 0x909eb9, 0x0004);
+    WriteTestWord(bus, 0x909ebf, 0xe000);
+    WriteTestWord(bus, 0x909ea1, 0x2800);
+    WriteTestWord(bus, 0x909ea7, 0x0000);
+
+    foreach ((byte source, byte target, _, _) in turns)
+    {
+        var turn = new SamusState { Pose = source, XPosition = 80, YPosition = 27 };
+        turn.RefreshCollisionRadii(bus);
+        turn.HorizontalSpeed.BaseSpeed = 1;
+        turn.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
+        turn.ApplyMoonwalkTurnJump(bus, target);
+        AssertEqual(target, turn.Pose, $"moonwalk ${source:X2} selects exact turn ${target:X2}");
+        AssertEqual((ushort)1, turn.HorizontalSpeed.AccelerationMode,
+            $"moonwalk turn ${target:X2} preserves reversal mode");
+        AssertEqual((ushort)0, turn.Kinematics.YDirection,
+            $"moonwalk turn ${target:X2} remains grounded before completion");
+    }
+
+    // Exercise the terminal command on one mirrored route. Six decrements consume three
+    // two-tick art frames; applying `$F8,$1A` then creates the real 4.E000 upward launch.
+    var animated = new SamusState { Pose = SamusState.MoonwalkFacingRightPose };
+    animated.ApplyMoonwalkTurnJump(bus, SamusState.MoonwalkTurnJumpLeftPose);
+    for (int tick = 0; tick < 6; tick++)
+        animated.AnimateNoFx(bus);
+    AssertEqual((byte)0xf8, animated.LastAnimationDelayCommand!.Value,
+        "moonwalk turn reaches command $F8");
+    AssertEqual(SamusState.SpinJumpLeftPose, animated.PendingTransitionalPose!.Value,
+        "moonwalk turn publishes literal spin-left operand");
+    AssertTrue(animated.ApplyPendingVerifiedAnimationTransition(bus),
+        "moonwalk terminal spin transition applies");
+    AssertEqual(SamusState.SpinJumpLeftPose, animated.Pose,
+        "moonwalk terminal command enters spin jump");
+    AssertEqual((ushort)4, animated.Kinematics.YSpeed,
+        "moonwalk terminal command loads dry-air jump speed");
+    AssertEqual((ushort)0xe000, animated.Kinematics.YSubspeed,
+        "moonwalk terminal command loads dry-air jump subspeed");
+    AssertEqual((ushort)1, animated.Kinematics.YDirection,
+        "moonwalk terminal command begins upward motion");
+
+    Console.WriteLine("  Moonwalk: option gate, six stable routes, reversed X, fallback, and $BF-$C4 jump art agree.");
 }
 
 /// <summary>

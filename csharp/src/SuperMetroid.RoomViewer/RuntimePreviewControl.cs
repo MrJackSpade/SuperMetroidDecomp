@@ -32,6 +32,7 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton holdDownButton = new("Hold Down");
     private readonly ToolStripButton holdAimUpButton = new("Hold Aim Up");
     private readonly ToolStripButton holdAimDownButton = new("Hold Aim Down");
+    private readonly ToolStripButton moonwalkButton = new("Moonwalk enabled");
     private readonly ToolStripButton springBallButton = new("Spring Ball equipped");
     private readonly ToolStripButton livePpuLayersButton = new("Live PPU layers");
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 16 };
@@ -92,6 +93,17 @@ internal sealed class RuntimePreviewControl : UserControl
         holdAimUpButton.ToolTipText = "Feeds canonical aim-up bit $0010 (default R shoulder), selecting diagonal-up poses.";
         holdAimDownButton.CheckOnClick = true;
         holdAimDownButton.ToolTipText = "Feeds canonical aim-down bit $0020 (default L shoulder), selecting diagonal-down poses.";
+        moonwalkButton.CheckOnClick = true;
+        moonwalkButton.ToolTipText =
+            "Mirrors the cartridge Moonwalk option word. Enable it, then hold Shoot plus the direction behind Samus.";
+        moonwalkButton.CheckedChanged += (_, _) =>
+        {
+            // `$91:F88C` reads a persistent options word only when a standing input table
+            // proposes `$49/$4A/$75-$78`. Exposing that word as a debugger toggle changes
+            // no transition records and can safely take effect without restarting.
+            if (runtime is not null)
+                runtime.MoonwalkEnabled = moonwalkButton.Checked;
+        };
         springBallButton.CheckOnClick = true;
         springBallButton.ToolTipText =
             "Adds equipped-item bit $0002 to the grounded debugger inventory. Toggle before morphing; restart if already in ball form.";
@@ -167,6 +179,7 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(holdDownButton);
         toolStrip.Items.Add(holdAimUpButton);
         toolStrip.Items.Add(holdAimDownButton);
+        toolStrip.Items.Add(moonwalkButton);
         toolStrip.Items.Add(springBallButton);
         toolStrip.Items.Add(livePpuLayersButton);
         toolStrip.Items.Add(new ToolStripSeparator());
@@ -217,6 +230,7 @@ internal sealed class RuntimePreviewControl : UserControl
         // bus allocations. Queueing these exact $A6:C4CB transfers before frame one mirrors
         // the game's timer setup and makes the first accepted NMI consume them naturally.
         runtime = new SuperMetroidRuntime(bus);
+        runtime.MoonwalkEnabled = moonwalkButton.Checked;
         runtime.InitializeLandingSiteCamera();
         camera = runtime.Camera!;
 
@@ -444,6 +458,18 @@ internal sealed class RuntimePreviewControl : UserControl
                   SamusState.MorphBallGroundLeftPose or
                   SamusState.MorphBallMovingRightPose or
                   SamusState.MorphBallMovingLeftPose
+                  or SamusState.MoonwalkFacingLeftPose
+                  or SamusState.MoonwalkFacingRightPose
+                  or SamusState.MoonwalkAimUpLeftPose
+                  or SamusState.MoonwalkAimUpRightPose
+                  or SamusState.MoonwalkAimDownLeftPose
+                  or SamusState.MoonwalkAimDownRightPose
+                  or SamusState.MoonwalkTurnJumpLeftPose
+                  or SamusState.MoonwalkTurnJumpRightPose
+                  or SamusState.MoonwalkTurnJumpAimUpLeftPose
+                  or SamusState.MoonwalkTurnJumpAimUpRightPose
+                  or SamusState.MoonwalkTurnJumpAimDownLeftPose
+                  or SamusState.MoonwalkTurnJumpAimDownRightPose
                   or SamusState.SpringBallGroundRightPose
                   or SamusState.SpringBallGroundLeftPose
                   or SamusState.SpringBallMovingRightPose
@@ -476,6 +502,7 @@ internal sealed class RuntimePreviewControl : UserControl
             $"bombs {runtime.BombProjectiles.BombCounter}/5 " +
             $"cooldown {runtime.BombProjectiles.CooldownTimer} " +
             $"jump ${runtime.Samus.BombJumpDirection:X4}  |  " +
+            $"moonwalk={(runtime.MoonwalkEnabled ? "on" : "off")}  |  " +
             $"terrain={(livePpuLayersButton.Checked ? "live PPU" : "ROM composite")}  |  " +
             $"{prospectivePose}  |  " +
             $"{runtime.LastBackgroundUpdateCount} BG update(s)  |  " +

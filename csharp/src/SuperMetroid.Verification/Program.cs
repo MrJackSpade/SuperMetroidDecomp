@@ -725,7 +725,45 @@ static void VerifySamusRenderingSlice()
     AssertEqual((ushort)0, samus.AnimationFrame, "standing fallback resets animation frame");
     AssertEqual((ushort)10, samus.AnimationFrameTimer, "standing fallback reloads frame-zero delay");
 
-    Console.WriteLine("  Samus: standing/running pose tables, palette, split tile DMA, position, and OAM agree.");
+    // `$90:868D` inserts one direct small-OBJ write between pose `$00`'s ordinary top and
+    // bottom spritemaps. This record is easy to lose in a high-level “draw both halves”
+    // abstraction, so verify its exact OAM order, coordinates, size, and attribute word.
+    SeedForwardFacingSamusData(bus);
+    samus.EquippedItems = 0;
+    samus.HorizontalSpeed.BaseSpeed = 3;
+    samus.Kinematics.YSpeed = 2;
+    samus.ApplyForwardFacingPoseSetup(bus);
+    AssertEqual(SamusState.ForwardFacingPowerSuitPose, samus.Pose, "no suit selects power forward pose");
+    AssertEqual((ushort)24, samus.Kinematics.YRadius, "power forward setup reads radius 24");
+    AssertEqual((ushort)8, samus.AnimationFrameTimer, "power forward setup reads delay eight");
+    AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed, "forward setup clears base X speed");
+    AssertEqual((ushort)0, samus.Kinematics.YSpeed, "forward setup clears Y speed");
+    oam.BeginFrame();
+    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
+    oam.FinalizeFrame();
+    AssertEqual((ushort)0x0002, samus.TopSpritemapIndex, "power-suit forward top spritemap index");
+    AssertEqual((ushort)0x0062, samus.BottomSpritemapIndex, "power-suit forward bottom spritemap index");
+    AssertEqual(3, oam.LastFinalizedSpriteCount, "power-suit forward top/chest/bottom OAM order");
+    OamEntry chestCover = oam.GetEntry(1);
+    AssertEqual(121, chestCover.X, "forward chest-cover X is Samus screen X minus seven");
+    AssertEqual((byte)117, chestCover.Y, "forward chest-cover Y is Samus screen Y minus seventeen");
+    AssertEqual(0x21, chestCover.TileNumber, "forward chest-cover tile number");
+    AssertEqual(4, chestCover.Palette, "forward chest-cover palette");
+    AssertEqual(3, chestCover.Priority, "forward chest-cover priority");
+    AssertTrue(!chestCover.IsLarge, "forward chest-cover is one small OBJ");
+
+    // `$9B` uses dedicated suited art and therefore must not inherit `$00`'s chest patch.
+    samus.EquippedItems = 0x0001;
+    samus.ApplyForwardFacingPoseSetup(bus);
+    AssertEqual(SamusState.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
+    oam.BeginFrame();
+    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
+    oam.FinalizeFrame();
+    AssertEqual((ushort)0x00c2, samus.TopSpritemapIndex, "suited forward top spritemap index");
+    AssertEqual((ushort)0x0122, samus.BottomSpritemapIndex, "suited forward bottom spritemap index");
+    AssertEqual(2, oam.LastFinalizedSpriteCount, "suited forward emits no power-suit chest patch");
+
+    Console.WriteLine("  Samus: standing/running/forward pose tables, split tile DMA, position, and OAM agree.");
 }
 
 /// <summary>
@@ -787,6 +825,47 @@ static void SeedPoseOneSamusData(TestAddressSpace bus)
     ];
     for (int color = 0; color < powerSuitColors.Length; color++)
         WriteTestWord(bus, 0x9b9400 + color * 2, powerSuitColors[color]);
+}
+
+/// <summary>
+/// Seeds the two front-view pose records with compact diagnostic spritemaps. The base
+/// indices, pose metadata, and raw chest-cover attributes are retail values; the one-piece
+/// body maps keep this verifier focused on routing because DebugRunner covers real artwork.
+/// </summary>
+static void SeedForwardFacingSamusData(TestAddressSpace bus)
+{
+    // Both records face neither left nor right, use standing movement type zero, have an
+    // eight-pixel graphics-origin offset, and use the front-view radius of 24 pixels.
+    bus.WriteBytes(0x91b629, [0x00, 0x00, 0xff, 0xff, 0x08, 0x00, 0x18, 0x00]);
+    bus.WriteBytes(0x91bb01, [0x00, 0x00, 0xff, 0xff, 0x08, 0x00, 0x18, 0x00]);
+
+    // `$00/$9B` share `$91:B56F`: eight ticks on frame zero followed by command `$FF`.
+    WriteTestWord(bus, 0x91b010, 0xb56f);
+    WriteTestWord(bus, 0x91b146, 0xb56f);
+    bus.WriteBytes(0x91b56f, [0x08, 0xff]);
+
+    // Retail frame-zero bases: `$00` top/bottom `$0002/$0062`, `$9B` `$00C2/$0122`.
+    WriteTestWord(bus, 0x929263, 0x0002);
+    WriteTestWord(bus, 0x92945d, 0x0062);
+    WriteTestWord(bus, 0x929399, 0x00c2);
+    WriteTestWord(bus, 0x929593, 0x0122);
+
+    // Point those four indices at one-piece diagnostic maps. The direct `$3821` chest
+    // record is not included here: production Draw must append it independently.
+    WriteTestWord(bus, 0x928091, 0xa200);
+    WriteTestWord(bus, 0x928151, 0xa210);
+    WriteTestWord(bus, 0x928211, 0xa220);
+    WriteTestWord(bus, 0x9282d1, 0xa230);
+    bus.WriteBytes(0x92a200, [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x28]);
+    bus.WriteBytes(0x92a210, [0x01, 0x00, 0x00, 0x00, 0x10, 0x08, 0x28]);
+    bus.WriteBytes(0x92a220, [0x01, 0x00, 0x00, 0x00, 0x00, 0x01, 0x28]);
+    bus.WriteBytes(0x92a230, [0x01, 0x00, 0x00, 0x00, 0x10, 0x09, 0x28]);
+
+    // Draw's final tile-selection step follows each pose's four-byte frame record. Zeroed
+    // set pointers are safe because this verifier does not execute the resulting DMA.
+    WriteTestWord(bus, 0x92d94e, 0xe000);
+    WriteTestWord(bus, 0x92da84, 0xe004);
+    bus.WriteBytes(0x92e000, [0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00]);
 }
 
 /// <summary>Seeds the retail pose-$09 pointer topology with compact diagnostic spritemaps.</summary>
@@ -8647,7 +8726,31 @@ static void VerifySamusGroundedMovement()
     AssertEqual((ushort)0, standing.HorizontalSpeed.BaseSpeed, "standing clears base speed whole");
     AssertEqual((ushort)0, standing.HorizontalSpeed.BaseSubspeed, "standing clears base speed fraction");
 
-    Console.WriteLine("  Samus movement: standing clear and running speed/X/slope/grounding order agree.");
+    // The front-view branch returns before every ordinary standing movement call. Seed
+    // deliberately stale motion/collision values to prove the sole native write is the
+    // vertical-result clear and that no host convenience cleanup leaked into this path.
+    var forward = new SamusState
+    {
+        Pose = SamusState.ForwardFacingPowerSuitPose,
+        XPosition = 0x1234,
+        YPosition = 0x5678,
+        SolidVerticalCollisionResult = 9,
+    };
+    forward.HorizontalSpeed.BaseSpeed = 2;
+    forward.HorizontalSpeed.BaseSubspeed = 0x3456;
+    forward.HorizontalSpeed.ExtraRunSpeed = 1;
+    SamusGroundedMovement.StepFacingForward(forward);
+    AssertEqual((ushort)0, forward.SolidVerticalCollisionResult, "forward movement clears vertical collision result");
+    AssertEqual((ushort)0x1234, forward.XPosition, "forward movement does not scan or move X");
+    AssertEqual((ushort)0x5678, forward.YPosition, "stationary forward movement does not move Y");
+    AssertEqual((ushort)2, forward.HorizontalSpeed.BaseSpeed, "forward dispatcher retains stale base speed");
+    AssertEqual((ushort)0x3456, forward.HorizontalSpeed.BaseSubspeed, "forward dispatcher retains stale base subspeed");
+    AssertEqual((ushort)1, forward.HorizontalSpeed.ExtraRunSpeed, "forward dispatcher retains stale extra speed");
+    AssertThrows<NotSupportedException>(
+        () => SamusGroundedMovement.StepFacingForward(forward, elevatorIsMoving: true),
+        "forward elevator branch requires its live actor producer");
+
+    Console.WriteLine("  Samus movement: forward/standing and running speed/X/slope/grounding order agree.");
 }
 
 /// <summary>

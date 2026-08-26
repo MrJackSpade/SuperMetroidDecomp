@@ -21,6 +21,18 @@ public sealed class SamusState
     private const int BottomSpritemapBaseIndexTable = 0x92945d;
     private const int PowerSuitPalette = 0x9b9400;
 
+    /// <summary>
+    /// Pose `$00`: the power-suit body viewed from the front during the intro, elevators,
+    /// save-station appearance, and other controller-locked sequences.
+    /// </summary>
+    public const byte ForwardFacingPowerSuitPose = 0x00;
+
+    /// <summary>
+    /// Pose `$9B`: the Varia/Gravity-suit counterpart of pose `$00`. Both use movement type
+    /// zero, but only the power-suit record needs bank `$90`'s extra chest-cover OBJ.
+    /// </summary>
+    public const byte ForwardFacingSuitedPose = 0x9b;
+
     /// <summary>Pose $01 is “facing right - normal” in the cartridge table.</summary>
     public const byte FacingRightNormalPose = 0x01;
 
@@ -925,6 +937,56 @@ public sealed class SamusState
         StandingAimUpLeftPose or
         StandingAimDiagonalUpLeftPose or
         StandingAimDiagonalDownLeftPose;
+
+    /// <summary>
+    /// True for the two front-view records selected by <c>MakeSamusFaceForward</c> at
+    /// `$91:E3F6`. Their pose-X direction is zero and must never be guessed as left/right.
+    /// </summary>
+    public static bool IsForwardFacingPose(byte pose) => pose is
+        ForwardFacingPowerSuitPose or ForwardFacingSuitedPose;
+
+    /// <summary>
+    /// Applies the movement/animation subset of <c>MakeSamusFaceForward</c> at
+    /// `$91:E3F6-$91:E4A5`.
+    /// </summary>
+    /// <remarks>
+    /// The native routine also locks the global current/new-state handlers, kills grapple,
+    /// clears beam-flare presentation words, and reloads the suit palette. Those owners do
+    /// not live in this state object. This method deliberately covers only the state it can
+    /// own exactly: equipment-selected pose, ROM collision radius/delay list, and all motion
+    /// words cleared by the routine. Runtime/debug callers remain responsible for input lock,
+    /// palette, grapple, and priming the first graphics DMA before their first visible NMI.
+    /// </remarks>
+    public void ApplyForwardFacingPoseSetup(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+
+        // `$91:E3FD-$91:E415` gives Gravity bit `$0020` and Varia bit `$0001` equal
+        // precedence: either selects the shared suited front-view pose `$9B`; neither
+        // selects power-suit pose `$00`.
+        Pose = (EquippedItems & 0x0021) != 0
+            ? ForwardFacingSuitedPose
+            : ForwardFacingPowerSuitPose;
+        AnimationFrame = 0;
+        RefreshCollisionRadii(bus);
+        InitializeAnimation(bus, initialFrame: 0);
+
+        // `$91:E438-$91:E44A` adjusts center Y upward three only if the initialized pose
+        // did not produce radius 24. Retail `$00/$9B` both do, but retaining the branch
+        // makes a corrupt/modified pose table observable rather than silently normalizing it.
+        if (Kinematics.YRadius != 0x18)
+            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - 3));
+
+        HorizontalSpeed.ExtraRunSpeed = 0;
+        HorizontalSpeed.ExtraRunSubspeed = 0;
+        HorizontalSpeed.BaseSpeed = 0;
+        HorizontalSpeed.BaseSubspeed = 0;
+        HorizontalSpeed.AccelerationMode = 0;
+        Kinematics.YSubspeed = 0;
+        Kinematics.YSpeed = 0;
+        Kinematics.YDirection = 0;
+        MorphBallBounceState = 0;
+    }
 
     /// <summary>True for the four movement-type-one, right-moving pose-table entries.</summary>
     public static bool IsRightFacingRunningPose(byte pose) => pose is
@@ -3562,11 +3624,18 @@ public sealed class SamusState
         TopSpritemapIndex = unchecked((ushort)(topBase + AnimationFrame));
         oam.AddSamusSpritemap(bus, TopSpritemapIndex, SpritemapXPosition, SpritemapYPosition);
 
-        // Movement types one, `$0E`, `$10`, `$15`, and `$17` use the native unconditional bottom selector.
-        // Movement type zero also draws the bottom, except forward-facing pose $00 has an
-        // additional visor OBJ that this intentionally narrow slice still rejects.
-        if (movementType == 0 && Pose == 0)
-            throw new NotSupportedException("Forward-facing Samus requires the standing visor OAM special case.");
+        // `$90:868D-$90:86C4` writes one small OBJ directly between the top and bottom
+        // spritemap calls when unsuited pose `$00` faces the screen. This is not a visor:
+        // the disassembly identifies tile `$021` as a cover for the left side of the power-
+        // suit chest. The suited `$9B` body has that shape in its ordinary spritemap and
+        // deliberately skips this write. Coordinates use Samus's world center directly,
+        // not SpritemapYPosition (which has already applied pose graphics offset `$08`).
+        if (Pose == ForwardFacingPowerSuitPose)
+        {
+            ushort chestX = unchecked((ushort)(XPosition - 7 - layer1X));
+            ushort chestY = unchecked((ushort)(YPosition - 0x11 - layer1Y));
+            oam.AddRawSmallSprite(chestX, chestY, attributes: 0x3821);
+        }
 
         // $90:8686 suppresses the ordinary spin-jump bottom half for art frames 1..A;
         // those frames' top spritemaps contain the complete curled body. Frame zero and

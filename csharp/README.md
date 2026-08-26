@@ -148,6 +148,7 @@ dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Sup
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 32 --knockback-script --output ../standalone-assets/runtime/KnockbackDamageBoostFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 28 --morph-knockback-script --output ../standalone-assets/runtime/MorphKnockbackActiveFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 54 --morph-knockback-script --output ../standalone-assets/runtime/MorphKnockbackFrame.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 2 --forward-facing-script --output ../standalone-assets/runtime/ForwardFacingFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 8 --grapple-fire-script --output ../standalone-assets/runtime/grapple-firing.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 14 --grapple-fire-script --output ../standalone-assets/runtime/GrappleFireTrace.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 2 --grapple-script --output ../standalone-assets/runtime/GrappleTerrainBounce.png
@@ -219,6 +220,14 @@ up-right direction two, while `$90:8EDF` still moves left. Assertions require th
 pose and rolling animation to survive start, all five hurt frames, same-pose `$91:F31D`
 cleanup, elevated `$1D -> $31`, and real floor recovery to `$1D` on frame 54. The 28-frame
 capture freezes authentic ball art during knockback; 54 frames capture the landed result.
+
+`--forward-facing-script` calls the translated `$91:E3F6` equipment selector from the
+documented host-placement seam. With the debugger's empty inventory it selects power-suit
+pose `$00`, reads radius/delay/tile/spritemap data from the private ROM, clears the movement
+words owned by that native setup, and renders `$90:868D`'s raw `$3821` left-chest correction
+between the top and bottom spritemaps. Pose `$9B` is independently verified to omit that
+object. The two-frame capture preserves the SNES main-loop/NMI OAM delay and includes the
+composed Landing Site layers plus separate BG1, BG2, and OBJ diagnostics.
 
 `--grapple-fire-script` selects grapple at the explicit untranslated HUD seam, then presses only Shoot/X. Bank `$9B` supplies the current pose's direction, signed 16.16 velocities, hand/flare origins, twelve-pixel length growth, and 128-pixel cutoff. Bank `$94` performs four fractional endpoint probes per frame and dispatches real BG1/BTS collision; persistent type-`$E` BTS zero/three connects, while ordinary solid collision cancels and unsupported PLM-producing reactions throw. Landing Site contains no type-`$E` blocks, so its real-ROM trace honestly proves firing, rendering, and queued cancellation. The eight-frame capture freezes the visible extending beam; fourteen frames prove cancellation completion.
 

@@ -1107,6 +1107,13 @@ public sealed class SuperMetroidRuntime
                 }
                 else switch (Samus.Pose)
                 {
+                    case SamusState.ForwardFacingPowerSuitPose:
+                    case SamusState.ForwardFacingSuitedPose:
+                        // `$00/$9B` enter through controller-locked demo/elevator commands.
+                        // With no live elevator actor in Landing Site, `$90:A392` sees status
+                        // zero and merely clears the vertical collision-result word.
+                        SamusGroundedMovement.StepFacingForward(Samus);
+                        break;
                     case SamusState.FacingRightNormalPose:
                     case SamusState.StandingAimUpRightPose:
                     case SamusState.StandingAimDiagonalUpRightPose:

@@ -18,6 +18,37 @@ namespace SuperMetroid.Core.Game;
 public static class SamusGroundedMovement
 {
     /// <summary>
+    /// Ports the no-elevator branch of front-view movement at `$90:A383-$90:A3AB`.
+    /// </summary>
+    /// <remarks>
+    /// Poses `$00/$9B` share movement type zero with ordinary standing, but the cartridge
+    /// returns before horizontal movement, speed cleanup, and the one-pixel grounding probe.
+    /// It only clears <c>SamusSolidVerticalCollisionResult</c>. An active elevator instead
+    /// asks the platform/collision systems to move Samus down one pixel; that actor producer
+    /// is deliberately not fabricated by this room-independent method.
+    /// </remarks>
+    public static void StepFacingForward(SamusState samus, bool elevatorIsMoving = false)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        if (!SamusState.IsForwardFacingPose(samus.Pose))
+        {
+            throw new InvalidOperationException(
+                $"Forward-facing movement requires pose $00/$9B, not ${samus.Pose:X2}.");
+        }
+
+        if (elevatorIsMoving)
+        {
+            throw new NotSupportedException(
+                "Forward-facing elevator displacement requires the live elevator actor/collision producer.");
+        }
+
+        // `$90:A3A8` is the only write in the ordinary no-elevator path. In particular,
+        // stale base/extra X speed is retained; MakeSamusFaceForward clears those words at
+        // setup time, not every frame in this movement dispatcher.
+        samus.SolidVerticalCollisionResult = 0;
+    }
+
+    /// <summary>
     /// Ports the movement-relevant portion of <c>Samus_Movement_00_Standing</c> at
     /// <c>$90:A383</c> for the right-facing $01/$03/$05/$07 family.
     /// </summary>

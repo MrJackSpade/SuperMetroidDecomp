@@ -11,7 +11,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 
 | Type | Native family | Current C# admission | Remaining native branches |
 |---:|---|---|---|
-| `$00` | Standing | `$01-$08`, landing `$A4-$A7/$E0-$E5` | Firing variants, forward pose, transitions from later systems |
+| `$00` | Standing | Forward `$00/$9B` equipment selector, locked no-elevator movement, power-suit chest-cover OAM; ordinary `$01-$08`, landing `$A4-$A7/$E0-$E5` | Live elevator actor's one-pixel down displacement, firing variants, transitions from later systems |
 | `$01` | Running | `$09/$0A/$0D-$12`, air/water/lava X tables and submerged Dash gate, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes | Liquid damage/splash effects, gun-extended/fire variants |
 | `$02` | Normal jumping | `$4B-$4E/$15-$18/$51-$52/$55-$5A/$69-$6C`, including compact straight-down collision changes, air/water/lava normal/Hi-Jump launch, X tables, gravity, persistent external X/Y displacement, variable height, ceiling/floor collision | Later firing variants |
 | `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, air/water/lava X/gravity/launch/repeat gates, variable height, split-body animation, damage/palette, block/solid-enemy wall contact and launch | Live enemy actor producer, liquid sound/particle/damage effects |
@@ -43,6 +43,24 @@ are listed below so later work cannot accidentally confuse “the current viewer
 The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
 performs its one-frame initialization and `$90:E032` owns the rising special arc; its
 translated status is documented with the Morph Ball family below.
+
+## Verified forward-facing standing slice
+
+- `$91:E3F6` selects power-suit pose `$00` when neither suit bit is equipped and shared
+  Varia/Gravity pose `$9B` when either `$0001` or `$0020` is present. Both records read their
+  radius 24 and `$91:B56F` delay program from ROM, then clear the native base/extra X words,
+  Y speed/subspeed/direction, Morph Ball bounce, and X acceleration mode.
+- `$90:A383` does not alias these records to ordinary standing. With elevator status zero it
+  performs no X scan, no grounding probe, and no momentum cleanup; its only write clears the
+  solid-vertical-collision result. The live elevator branch remains explicit until its actor
+  can publish the one-pixel downward platform movement.
+- `$90:868D` draws the normal top spritemap, appends one small raw OBJ at world-relative
+  `(-7,-17)` with exact attributes `$3821`, then draws the bottom spritemap. That patch covers
+  the left side of the power-suit chest; `$9B` deliberately omits it because suited art is
+  complete. Synthetic checks lock OAM order/fields and both ROM base indices.
+- Real-ROM `--forward-facing-script` invokes the equipment-selected setup at the documented
+  Landing Site debug-placement seam. Its composed and transparent diagnostics contain live
+  ROM palette, tile DMA, `$00` top/chest/bottom OAM, sky, terrain, HUD, and minimap.
 
 ## Verified liquid-physics slice
 
@@ -814,6 +832,9 @@ translated status is documented with the Morph Ball family below.
 
 ## Evidence
 
+- The real-ROM `--forward-facing-script` renders pose `$00` with definitions `$92:CD45` and
+  `$92:D1F2`; its object-only capture visibly retains the power-suit chest correction while
+  the synthetic fixture proves suited `$9B` emits no extra raw object.
 - `SuperMetroid.Verification` checks synthetic ROM tables independently for `$FD/$F8`, jump
   constants, gravity ordering, jump cutoff, mirrored spin movement, walk-off falling, solid
   collision, radius alignment, and landing.

@@ -186,6 +186,11 @@ else if (options.ExtraDisplacementScript)
     Console.WriteLine(
         "Producer script: publish persistent $0B56-$0B5C X/Y displacement, move standing Samus right/up/down through live terrain, then clear all four words.");
 }
+else if (options.ForwardFacingScript)
+{
+    Console.WriteLine(
+        "Pose script: invoke the equipment-selected $91:E3F6 forward-facing setup and render the real $00 power-suit body plus its raw $3821 chest-cover OBJ.");
+}
 
 // Copy the first 16 bytes at the reset bank into an otherwise-unused VRAM diagnostic page
 // through the same queue/NMI path used by room and sprite uploads. Word $7800 stays clear
@@ -274,6 +279,16 @@ InitialViewportResult initialViewport = runtime.InitializeLandingSiteViewport();
 // stepped without pretending that the cinematic spawned gameplay Samus.
 if (!options.GroundedRun)
     runtime.InitializeDebugStandingSamus();
+
+if (options.ForwardFacingScript)
+{
+    // Landing Site's gameplay-debug placement is host-authored because the cinematic door
+    // does not spawn normal Samus. From that documented seam onward this invokes the exact
+    // equipment selection, radius, delay program, speed clears, graphics definitions,
+    // spritemaps, and raw chest-cover OAM record used by retail pose `$00`.
+    runtime.Samus!.ApplyForwardFacingPoseSetup(bus);
+    runtime.Samus.PrimeGraphics(bus);
+}
 
 MotherBrainRainbowBeamAttackSequence? rainbowAttack = null;
 BabyMetroidCutsceneState? cutsceneBaby = null;
@@ -3232,7 +3247,8 @@ readonly record struct DebugRunnerOptions(
     bool MotherBrainRainbowScript,
     bool DrainedSamusScript,
     bool DraygonGrabScript,
-    bool ExtraDisplacementScript)
+    bool ExtraDisplacementScript,
+    bool ForwardFacingScript)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -3274,6 +3290,7 @@ readonly record struct DebugRunnerOptions(
         bool drainedSamusScript = false;
         bool draygonGrabScript = false;
         bool extraDisplacementScript = false;
+        bool forwardFacingScript = false;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -3467,6 +3484,10 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--forward-facing-script":
+                    forwardFacingScript = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -3532,7 +3553,8 @@ readonly record struct DebugRunnerOptions(
             motherBrainRainbowScript,
             drainedSamusScript,
             draygonGrabScript,
-            extraDisplacementScript);
+            extraDisplacementScript,
+            forwardFacingScript);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

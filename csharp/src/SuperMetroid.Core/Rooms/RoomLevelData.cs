@@ -144,6 +144,41 @@ public sealed class RoomLevelData
     }
 
     /// <summary>
+    /// Replaces one complete native <c>level_data</c> word and keeps the bank-$80
+    /// streaming allocation coherent with the collision plane.
+    /// </summary>
+    /// <remarks>
+    /// Bank-$84 PLM draw instructions write the full word, including the collision nibble,
+    /// visual block number, and parent flip bits. A narrower "change the graphic" helper
+    /// would be incorrect here: breakable grapple frames intentionally alternate between
+    /// type-$E grapple terrain and type-$0 air.
+    /// </remarks>
+    public void SetForegroundEntry(int blockIndex, ushort levelWord)
+    {
+        if ((uint)blockIndex >= (uint)_foregroundEntries.Length)
+            throw new ArgumentOutOfRangeException(nameof(blockIndex));
+
+        _foregroundEntries[blockIndex] = levelWord;
+        if (blockIndex < _streamingForegroundAllocation.Length)
+            _streamingForegroundAllocation[blockIndex] = levelWord;
+    }
+
+    /// <summary>
+    /// Replaces the low BTS byte paired with one level-data block.
+    /// </summary>
+    /// <remarks>
+    /// The cartridge stores BTS bytes in a word-addressable allocation and preserves the
+    /// neighboring high byte with <c>AND #$FF00</c>. This model already exposes each logical
+    /// low byte separately, so assigning this element is the equivalent operation.
+    /// </remarks>
+    public void SetBehavior(int blockIndex, byte behavior)
+    {
+        if ((uint)blockIndex >= (uint)_behaviorBytes.Length)
+            throw new ArgumentOutOfRangeException(nameof(blockIndex));
+        _behaviorBytes[blockIndex] = behavior;
+    }
+
+    /// <summary>
     /// Constructs bank $80's visual row/column producer over the exact same decompressed
     /// room allocation later consumed by collision.
     /// </summary>

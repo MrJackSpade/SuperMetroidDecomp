@@ -45,6 +45,58 @@ public sealed class BackgroundTilemapStreamer
     /// </summary>
     public ushort SizeOfBg2 { get; }
 
+    /// <summary>
+    /// Mirrors a bank-$84 level-data mutation into this streamer's retained source copy.
+    /// </summary>
+    public void SetLevelEntry(int blockIndex, ushort levelWord)
+    {
+        if ((uint)blockIndex >= (uint)_levelEntries.Length)
+            throw new ArgumentOutOfRangeException(nameof(blockIndex));
+        _levelEntries[blockIndex] = levelWord;
+    }
+
+    /// <summary>
+    /// Expands one mutated BG1 block into the two two-word VRAM rows used by
+    /// <c>DrawPLM</c> at <c>$84:8DBB</c>.
+    /// </summary>
+    /// <remarks>
+    /// This is deliberately separate from the 16-block camera streamer. PLMs redraw only
+    /// their authored blocks and address the same two-screen-wide BG1 ring. Bit eight of
+    /// BG1's X offset swaps the logical left/right screen bases exactly as $84:8E7C does.
+    /// Visibility clipping remains the PLM handler's responsibility.
+    /// </remarks>
+    public PlmTilemapUpdate BuildPlmLevelBlockUpdate(int blockIndex, ushort bg1XOffset)
+    {
+        if ((uint)blockIndex >= (uint)_levelEntries.Length)
+            throw new ArgumentOutOfRangeException(nameof(blockIndex));
+
+        int blockX = blockIndex % RoomWidthInBlocks;
+        int blockY = blockIndex / RoomWidthInBlocks;
+        int ringX = blockX & 0x1f;
+        int ringY = blockY & 0x0f;
+        ushort screenBase = ringX < 0x10 ? (ushort)0x5000 : (ushort)0x53e0;
+        ushort destination = unchecked((ushort)(
+            screenBase + ringY * 0x40 + ringX * 2));
+
+        // The native routine swaps the two 32x32 tilemap screens whenever the BG1 offset
+        // crosses $0100. This preserves the ring identity after horizontal wrap.
+        if ((bg1XOffset & 0x0100) != 0)
+        {
+            destination = ringX < 0x10
+                ? unchecked((ushort)(destination + 0x0400))
+                : unchecked((ushort)(destination - 0x0400));
+        }
+
+        ExpandedBlockTiles tiles = LevelBlockTilemapExpander.Expand(
+            _levelEntries[blockIndex],
+            _blockDefinitions);
+        return new PlmTilemapUpdate(
+            blockIndex,
+            destination,
+            new[] { tiles.TopLeft, tiles.TopRight },
+            new[] { tiles.BottomLeft, tiles.BottomRight });
+    }
+
     /// <summary>Produces one native staging-buffer update, or null for Mode 7 rooms.</summary>
     public TilemapStreamUpdate? Build(BackgroundUpdateRequest request, bool mode7Enabled = false)
     {
@@ -190,6 +242,25 @@ public sealed class BackgroundTilemapStreamer
                 $"indexed entry {index}, outside the {source.Length}-entry room layer.");
         }
         return source[index];
+    }
+}
+
+/// <summary>One visible 16x16 PLM block redraw in BG1's two-screen ring.</summary>
+public sealed record PlmTilemapUpdate(
+    int BlockIndex,
+    ushort TopRowDestination,
+    ushort[] TopRow,
+    ushort[] BottomRow)
+{
+    /// <summary>Applies the two horizontal two-word transfers produced by bank $84.</summary>
+    public void ExecuteTo(SnesVram vram)
+    {
+        ArgumentNullException.ThrowIfNull(vram);
+        vram.ExecuteWordTransfer(TopRow, TopRowDestination, 1);
+        vram.ExecuteWordTransfer(
+            BottomRow,
+            unchecked((ushort)(TopRowDestination + 0x20)),
+            1);
     }
 }
 

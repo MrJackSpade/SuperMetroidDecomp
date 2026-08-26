@@ -181,6 +181,12 @@ public sealed class SuperMetroidRuntime
     /// </summary>
     public SamusBombProjectileSystem BombProjectiles { get; } = new();
 
+    /// <summary>
+    /// Forty-slot bank-$84 room-object owner. Breakable grapple terrain lives here rather
+    /// than in Samus state so its delayed disappearance/respawn survives rope release.
+    /// </summary>
+    public RoomPlmSystem Plms { get; } = new();
+
     /// <summary>Mutable gameplay HUD tilemap at WRAM <c>$7E:C608</c>.</summary>
     public HudState Hud { get; } = new();
 
@@ -1086,7 +1092,8 @@ public sealed class SuperMetroidRuntime
                         _addressSpace,
                         LevelData,
                         Samus,
-                        Controller1.Current);
+                        Controller1.Current,
+                        Plms);
                     grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
                 }
                 else if (Samus.Grapple.Phase == GrapplePhase.CancelPending)
@@ -1701,6 +1708,27 @@ public sealed class SuperMetroidRuntime
                     NmiFrameCounter,
                     System,
                     beginLiquidSoundRequestFrame: false);
+            }
+
+            // Native gameplay state eight reaches PLM_Handler after Samus's new-state and
+            // enemy-projectile passes but before MainScrollingRoutine. A grapple block
+            // acquired above therefore consumes its initial timer and draws $E0B7 in this
+            // same frame; when it later becomes air, anchor validation has already run and
+            // sees that mutation on the following Samus frame.
+            if (!deathOwnsSamus && !Samus.Xray.TimeIsFrozen)
+            {
+                if (LevelData is null || BackgroundStreamer is null || Camera is null)
+                    throw new InvalidOperationException("The PLM handler requires an active room and camera.");
+
+                IReadOnlyList<PlmTilemapUpdate> plmUpdates = Plms.Step(
+                    _addressSpace,
+                    LevelData,
+                    BackgroundStreamer,
+                    Camera.XPosition,
+                    Camera.YPosition,
+                    BackgroundScroll.Bg1XOffset);
+                foreach (PlmTilemapUpdate update in plmUpdates)
+                    update.ExecuteTo(Vram);
             }
 
             if (GroundedSamusMovementEnabled && !deathOwnsSamus)

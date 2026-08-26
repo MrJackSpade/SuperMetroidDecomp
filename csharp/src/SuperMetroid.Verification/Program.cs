@@ -59,6 +59,7 @@ VerifySamusAtmosphericEffects();
 VerifySamusAerialTurnsAndWallJump();
 VerifySamusKnockbackAndDamageBoost();
 VerifySamusGrappleSwingAndRelease();
+VerifyBreakableGrapplePlms();
 VerifySamusPostureMovement();
 VerifySamusMorphBallMovement();
 VerifySamusStandingAimMovement();
@@ -7568,6 +7569,49 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual((ushort)48, connected.CameraPreviousY!.Value,
         "connection common tail retains in-range camera previous Y");
 
+    // BTS one must use the same accepted-connection path, but setup CFB5 also creates an
+    // independent bank-$84 object and clears BTS before returning flags $41. This direct
+    // firing test guards the integration seam; the complete ROM instruction timeline is
+    // verified separately below.
+    var breakableFiringBlocks = new ushort[8 * 8];
+    var breakableFiringBts = new byte[breakableFiringBlocks.Length];
+    breakableFiringBlocks[3 * 8 + 3] = 0xe000;
+    breakableFiringBts[3 * 8 + 3] = 1;
+    var breakableFiringLevel = new RoomLevelData(
+        8,
+        8,
+        breakableFiringBlocks,
+        breakableFiringBts,
+        new ushort[breakableFiringBlocks.Length],
+        new byte[8]);
+    var breakableFiringSamus = new SamusState
+    {
+        Pose = SamusState.FallingRightPose,
+        XPosition = 32,
+        YPosition = 48,
+    };
+    breakableFiringSamus.Kinematics.YSpeed = 1;
+    var breakableFiringPlms = new RoomPlmSystem();
+    SamusGrappleMovement.BeginFiring(bus, breakableFiringSamus);
+    SamusGrappleMovement.StepFiring(
+        bus,
+        breakableFiringLevel,
+        breakableFiringSamus,
+        (ushort)SnesButton.X,
+        breakableFiringPlms);
+    GrappleMovementResult breakableConnection = SamusGrappleMovement.StepFiring(
+        bus,
+        breakableFiringLevel,
+        breakableFiringSamus,
+        (ushort)SnesButton.X,
+        breakableFiringPlms);
+    AssertTrue(breakableConnection.Connected,
+        "BTS-one grapple firing connects through PLM setup");
+    AssertEqual(1, breakableFiringPlms.ActiveCount,
+        "BTS-one acquisition installs one independent room PLM");
+    AssertEqual((byte)0, breakableFiringLevel.GetCollisionBlock(3, 3).Behavior,
+        "BTS-one acquisition synchronously clears low BTS byte");
+
     // Bank $94 does not treat extension blocks as collision results of their own. Instead,
     // type $5 adds signed BTS directly to the linear block index and dispatches the block
     // found there. Keep the beam physically inside (3,3), but make that cell point right to
@@ -8499,6 +8543,164 @@ static void VerifySamusGrappleSwingAndRelease()
         "grapple rejects a rope shorter than retail connected minimum");
 
     Console.WriteLine("  Samus grapple: firing, swing collision, locked/wall-grab specials, wall jump, dropped pose, beam OAM, and release agree.");
+}
+
+static void VerifyBreakableGrapplePlms()
+{
+    var bus = new TestAddressSpace();
+
+    // These bytes are the literal $84:CD6A and $84:CDA9 instruction streams. Production
+    // code interprets these ROM words; the fixture does not inject a friendly C# timeline.
+    bus.WriteBytes(0x84cd6a, [
+        0xf0, 0x00, 0xf9, 0xa4,
+        0x10, 0x8c, 0x0a,
+        0x04, 0x00, 0xff, 0xa4,
+        0x04, 0x00, 0x05, 0xa5,
+        0x04, 0x00, 0x0b, 0xa5,
+        0x06, 0x00, 0x11, 0xa5,
+        0x04, 0x00, 0x0b, 0xa5,
+        0x04, 0x00, 0x05, 0xa5,
+        0x04, 0x00, 0xff, 0xa4,
+        0x93, 0xcd,
+        0x17, 0x8b,
+        0xbc, 0x86,
+    ]);
+    bus.WriteBytes(0x84cda9, [
+        0x78, 0x00, 0xf9, 0xa4,
+        0x10, 0x8c, 0x0a,
+        0x04, 0x00, 0xff, 0xa4,
+        0x04, 0x00, 0x05, 0xa5,
+        0x04, 0x00, 0x0b, 0xa5,
+        0x01, 0x00, 0x11, 0xa5,
+        0xbc, 0x86,
+    ]);
+
+    // Each native draw instruction is `{one block, complete level word, terminator}`.
+    bus.WriteBytes(0x84a4f9, [0x01, 0x00, 0xb7, 0xe0, 0x00, 0x00]);
+    bus.WriteBytes(0x84a4ff, [0x01, 0x00, 0x53, 0x00, 0x00, 0x00]);
+    bus.WriteBytes(0x84a505, [0x01, 0x00, 0x54, 0x00, 0x00, 0x00]);
+    bus.WriteBytes(0x84a50b, [0x01, 0x00, 0x55, 0x00, 0x00, 0x00]);
+    bus.WriteBytes(0x84a511, [0x01, 0x00, 0xff, 0x00, 0x00, 0x00]);
+
+    const int width = 8;
+    const int height = 8;
+    const int blockIndex = 3 * width + 3;
+    var definitions = new byte[0x400 * 8];
+    WriteDefinitionWord(definitions, 0xb7, 0, 0x1111);
+    WriteDefinitionWord(definitions, 0xb7, 1, 0x2222);
+    WriteDefinitionWord(definitions, 0xb7, 2, 0x3333);
+    WriteDefinitionWord(definitions, 0xb7, 3, 0x4444);
+
+    static RoomLevelData CreateLevel(byte behavior, byte[] blockDefinitions)
+    {
+        var foreground = new ushort[width * height];
+        var bts = new byte[foreground.Length];
+        foreground[blockIndex] = 0xe123;
+        bts[blockIndex] = behavior;
+        return new RoomLevelData(
+            width,
+            height,
+            foreground,
+            bts,
+            new ushort[foreground.Length],
+            blockDefinitions);
+    }
+
+    static void StepMany(
+        RoomPlmSystem plms,
+        TestAddressSpace addressSpace,
+        RoomLevelData level,
+        BackgroundTilemapStreamer streamer,
+        int count)
+    {
+        for (int frame = 0; frame < count; frame++)
+            plms.Step(addressSpace, level, streamer, 0, 0, 0);
+    }
+
+    // BTS one waits 240 handler calls, breaks through four exact visual words, reverses
+    // through the same words, restores both the saved level word and BTS one, then deletes
+    // on the following pass because DrawPLMBlock deliberately seeded timer one.
+    RoomLevelData respawning = CreateLevel(1, definitions);
+    BackgroundTilemapStreamer respawningStreamer = respawning.CreateBackgroundStreamer();
+    var respawningPlms = new RoomPlmSystem();
+    AssertTrue(respawningPlms.TrySpawnBreakableGrappleBlock(respawning, blockIndex, 1),
+        "respawning grapple PLM occupies a native slot");
+    AssertEqual((byte)0, respawning.GetCollisionBlockByIndex(blockIndex).Behavior,
+        "CFB5 clears breakable grapple BTS immediately");
+    AssertEqual((ushort)0xe123, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+        "CFB5 retains original level word until handler");
+
+    IReadOnlyList<PlmTilemapUpdate> firstDraw = respawningPlms.Step(
+        bus, respawning, respawningStreamer, 0, 0, 0);
+    AssertEqual((ushort)0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+        "connection-frame PLM pass draws grapple frame zero");
+    AssertEqual(1, firstDraw.Count, "visible grapple mutation emits one VRAM redraw");
+    AssertEqual((ushort)0x50c6, firstDraw[0].TopRowDestination,
+        "PLM redraw targets block (3,3) in left BG1 ring screen");
+    AssertEqual((ushort)0x1111, firstDraw[0].TopRow[0],
+        "PLM redraw expands ROM-selected visual block definition");
+
+    StepMany(respawningPlms, bus, respawning, respawningStreamer, 239);
+    AssertEqual((ushort)0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+        "respawning block remains grapple terrain through timer 240 minus one");
+    respawningPlms.Step(bus, respawning, respawningStreamer, 0, 0, 0);
+    AssertEqual((ushort)0x0053, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+        "timer 240 expiry draws first air frame");
+    AssertEqual(1, respawningPlms.SoundRequests.Count,
+        "break transition queues one sound request");
+    AssertEqual(new PlmSoundRequest(2, 0x0a, 6), respawningPlms.SoundRequests[0],
+        "break transition uses library two sound $0A with maximum six");
+
+    StepMany(respawningPlms, bus, respawning, respawningStreamer, 4);
+    AssertEqual((ushort)0x0054, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+        "respawning break frame one advances after four");
+    StepMany(respawningPlms, bus, respawning, respawningStreamer, 4);
+    AssertEqual((ushort)0x0055, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+        "respawning break frame two advances after four");
+    StepMany(respawningPlms, bus, respawning, respawningStreamer, 6);
+    AssertEqual((ushort)0x00ff, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+        "respawning break reaches blank frame after six");
+    StepMany(respawningPlms, bus, respawning, respawningStreamer, 4 + 4 + 4 + 4);
+    AssertEqual((ushort)0xe123, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+        "DrawPLMBlock restores the complete saved grapple word");
+    AssertEqual((byte)1, respawning.GetCollisionBlockByIndex(blockIndex).Behavior,
+        "respawning instruction restores BTS one before terrain");
+    AssertEqual(1, respawningPlms.ActiveCount,
+        "restoration pass retains PLM for timer-one delete delay");
+    respawningPlms.Step(bus, respawning, respawningStreamer, 0, 0, 0);
+    AssertEqual(0, respawningPlms.ActiveCount,
+        "restored grapple PLM deletes on following handler pass");
+
+    // BTS two uses the shorter 120-frame delay and never restores the saved word/BTS.
+    RoomLevelData permanent = CreateLevel(2, definitions);
+    BackgroundTilemapStreamer permanentStreamer = permanent.CreateBackgroundStreamer();
+    var permanentPlms = new RoomPlmSystem();
+    AssertTrue(permanentPlms.TrySpawnBreakableGrappleBlock(permanent, blockIndex, 2),
+        "nonrespawning grapple PLM occupies a native slot");
+    permanentPlms.Step(bus, permanent, permanentStreamer, 0, 0, 0);
+    StepMany(permanentPlms, bus, permanent, permanentStreamer, 119);
+    AssertEqual((ushort)0xe0b7, permanent.GetCollisionBlockByIndex(blockIndex).LevelWord,
+        "nonrespawning block retains grapple terrain through timer 120 minus one");
+    permanentPlms.Step(bus, permanent, permanentStreamer, 0, 0, 0);
+    AssertEqual((ushort)0x0053, permanent.GetCollisionBlockByIndex(blockIndex).LevelWord,
+        "nonrespawning timer 120 begins break sequence");
+    StepMany(permanentPlms, bus, permanent, permanentStreamer, 4 + 4 + 4);
+    AssertEqual((ushort)0x00ff, permanent.GetCollisionBlockByIndex(blockIndex).LevelWord,
+        "nonrespawning sequence ends on blank-air visual word");
+    permanentPlms.Step(bus, permanent, permanentStreamer, 0, 0, 0);
+    AssertEqual(0, permanentPlms.ActiveCount,
+        "nonrespawning sequence deletes one frame after timer-one blank draw");
+    AssertEqual((byte)0, permanent.GetCollisionBlockByIndex(blockIndex).Behavior,
+        "nonrespawning sequence leaves cleared BTS");
+
+    Console.WriteLine("  Grapple PLMs: ROM instruction timing, terrain/BTS mutation, sound, VRAM redraw, and respawn agree.");
+}
+
+static void WriteDefinitionWord(byte[] definitions, int block, int tile, ushort value)
+{
+    int offset = block * 8 + tile * 2;
+    definitions[offset] = unchecked((byte)value);
+    definitions[offset + 1] = unchecked((byte)(value >> 8));
 }
 
 static void VerifySamusPostureMovement()

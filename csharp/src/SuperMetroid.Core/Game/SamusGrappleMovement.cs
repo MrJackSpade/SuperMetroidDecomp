@@ -17,8 +17,9 @@ namespace SuperMetroid.Core.Game;
 /// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and retains
 /// the enemy slot to shake. The firing-only Draygon-turret damage and both BTS-indexed swing
 /// spike-damage tables are translated through the shared periodic-damage words. Breakable
-/// PLMs, enemy acquisition, and the live enemy/shake loop remain explicit later routes rather
-/// than being approximated. Grapple's narrower water flag and persistent environment-selected
+/// block acquisition now installs the independent bank-$84 PLM lifecycle; enemy acquisition
+/// and the live enemy/shake loop remain explicit later routes rather than being approximated.
+/// Grapple's narrower water flag and persistent environment-selected
 /// release handler are translated rather than collapsed into ordinary aerial movement.
 /// </remarks>
 public static class SamusGrappleMovement
@@ -171,7 +172,8 @@ public static class SamusGrappleMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput)
+        ushort controllerInput,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -209,7 +211,8 @@ public static class SamusGrappleMovement
                 level,
                 samus,
                 grapple.AnchorX,
-                grapple.AnchorY);
+                grapple.AnchorY,
+                plms);
             if (!reaction.Carry)
                 continue;
             if (!reaction.Overflow)
@@ -918,7 +921,8 @@ public static class SamusGrappleMovement
         RoomLevelData level,
         SamusState samus,
         ushort endpointX,
-        ushort endpointY)
+        ushort endpointY,
+        RoomPlmSystem? plms = null)
     {
         int blockX = endpointX >> 4;
         int blockY = endpointY >> 4;
@@ -1008,12 +1012,31 @@ public static class SamusGrappleMovement
                     if (block.Behavior is 0 or 3)
                         return new GrappleBlockReaction(Carry: true, Overflow: true);
 
-                    // BTS one/two spawn breakable PLMs $D0DC/$D0E0. Returning connected
-                    // without installing their instruction lifecycle would create a rope
-                    // that never breaks, so deliberately stop rather than invent behavior.
-                    throw new NotSupportedException(
-                        $"Breakable grapple block BTS ${block.Behavior:X2} at ({resolvedX},{resolvedY}) " +
-                        "requires the untranslated bank-$84 PLM lifecycle.");
+                    // BTS one/two spawn $D0DC/$D0E0. Setup_CFB5 synchronously saves the
+                    // complete level word and clears BTS before returning C+V; the new PLM
+                    // executes its first timer/draw record later in this same gameplay frame.
+                    // A caller which omitted the independent room owner cannot honestly
+                    // preserve that lifecycle, so keep the missing integration seam explicit.
+                    if (block.Behavior is 1 or 2)
+                    {
+                        if (plms is null)
+                        {
+                            throw new InvalidOperationException(
+                                "Breakable grapple acquisition requires a RoomPlmSystem.");
+                        }
+                        if (!plms.TrySpawnBreakableGrappleBlock(level, block.Index, block.Behavior))
+                        {
+                            throw new InvalidOperationException(
+                                "All 40 native PLM slots are occupied during grapple acquisition.");
+                        }
+
+                        return new GrappleBlockReaction(Carry: true, Overflow: true);
+                    }
+
+                    // Nonnegative BTS values beyond the four authored grapple reactions
+                    // would index outside $D0D8-$D0E0 in the native selection table.
+                    throw new InvalidDataException(
+                        $"Invalid grapple block BTS ${block.Behavior:X2} at ({resolvedX},{resolvedY}).");
 
                 default:
                     // Types 4/7/A/C/F route through PLM setup functions whose returned

@@ -1461,6 +1461,23 @@ static void VerifySamusGrappleSwingAndRelease()
     bus.WriteBytes(0x91b629 + SamusState.CrouchingAimDiagonalDownLeftPose * 8,
         [0x04, 0x05, 0x28, 0x06, 0x00, 0x00, 0x10, 0x00]);
 
+    // `$9B:B9D9-$BA29` can install every one of these six additional type-$16 poses when
+    // a stationary firing beam connects. These are literal retail pose-definition bytes:
+    // `$A8-$AB` are full-height standing locks, while `$B4/$B5` are the two crouching
+    // diagonal-up locks. `$B6/$B7` above complete the crouching family.
+    bus.WriteBytes(0x91b629 + 0xa8 * 8,
+        [0x08, 0x16, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + 0xa9 * 8,
+        [0x04, 0x16, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + 0xaa * 8,
+        [0x08, 0x16, 0x07, 0x03, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + 0xab * 8,
+        [0x04, 0x16, 0x08, 0x06, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b629 + 0xb4 * 8,
+        [0x08, 0x16, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]);
+    bus.WriteBytes(0x91b629 + 0xb5 * 8,
+        [0x04, 0x16, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]);
+
     // All four poses point at a harmless ordinary delay list so the public connection and
     // release initializers can execute their real animation initialization seam.
     foreach (byte pose in new byte[]
@@ -1477,6 +1494,12 @@ static void VerifySamusGrappleSwingAndRelease()
         SamusState.WallJumpLeftPose,
         SamusState.CrouchingRightPose,
         SamusState.CrouchingAimDiagonalDownLeftPose,
+        0xa8,
+        0xa9,
+        0xaa,
+        0xab,
+        0xb4,
+        0xb5,
     })
     {
         WriteTestWord(bus, 0x91b010 + pose * 2, 0xbf00);
@@ -1500,6 +1523,41 @@ static void VerifySamusGrappleSwingAndRelease()
     WriteTestWord(bus, 0x9bc136 + 2 * 2, 0x0002);
     WriteTestWord(bus, 0x9bc14a + 2 * 2, 0x0002);
     WriteTestWord(bus, 0x9bc15e + 2 * 2, 0x0002);
+
+    // The connection selector reads two literal words per direction. Seed all thirty ROM
+    // records, not just the one used by the first fixture, so exhaustive routing below can
+    // detect direction-order mistakes and the crouching table's intentional `$AB` entries.
+    (ushort Function, ushort Handler)[] defaultConnections =
+    [
+        (0xc79d, 0xb9d9), (0xc79d, 0xb9d9), (0xc77e, 0xb9ea), (0xc77e, 0xb9f3),
+        (0xc77e, 0xb9fc), (0xc77e, 0xb9fc), (0xc77e, 0xb9fc), (0xc77e, 0xba05),
+        (0xc79d, 0xb9e2), (0xc79d, 0xb9e2),
+    ];
+    (ushort Function, ushort Handler)[] verticalConnections =
+    [
+        (0xc79d, 0xb9d9), (0xc79d, 0xb9d9), (0xc79d, 0xb9d9), (0xc79d, 0xb9d9),
+        (0xc79d, 0xb9d9), (0xc79d, 0xb9e2), (0xc79d, 0xb9e2), (0xc79d, 0xb9e2),
+        (0xc79d, 0xb9e2), (0xc79d, 0xb9e2),
+    ];
+    (ushort Function, ushort Handler)[] crouchingConnections =
+    [
+        (0xc79d, 0xb9d9), (0xc79d, 0xb9d9), (0xc77e, 0xba0e), (0xc77e, 0xba17),
+        (0xc77e, 0xb9fc), (0xc77e, 0xb9fc), (0xc77e, 0xba20), (0xc77e, 0xba29),
+        (0xc79d, 0xb9e2), (0xc79d, 0xb9e2),
+    ];
+    foreach ((int table, (ushort Function, ushort Handler)[] records) in new[]
+    {
+        (0x9bc3c6, defaultConnections),
+        (0x9bc3ee, verticalConnections),
+        (0x9bc416, crouchingConnections),
+    })
+    {
+        for (int direction = 0; direction < records.Length; direction++)
+        {
+            WriteTestWord(bus, table + direction * 4, records[direction].Function);
+            WriteTestWord(bus, table + direction * 4 + 2, records[direction].Handler);
+        }
+    }
 
     // A type-$E/BTS-$00 block is persistent grapple PLM $D0D8 and returns flags $41.
     // Put it at (3,3): the first frame's four 16.16 substeps end at X=45, then frame two's
@@ -1556,6 +1614,20 @@ static void VerifySamusGrappleSwingAndRelease()
         "connection angle uses bank-$A0 integer octant calculation");
     AssertEqual(SamusState.GrappleSwingRightPose, firingSamus.Pose,
         "right-half airborne shot selects clockwise grapple pose $B2");
+    AssertEqual((ushort)31, firingSamus.Grapple.RopeStartX,
+        "accepted connection publishes native rope Start X");
+    AssertEqual((ushort)56, firingSamus.Grapple.RopeStartY,
+        "accepted connection publishes native rope Start Y");
+    AssertEqual(firingSamus.Grapple.RopeStartX, firingSamus.Grapple.BeamStartX,
+        "swing command copies rope Start X into flare/draw X");
+    AssertEqual(firingSamus.Grapple.RopeStartY, firingSamus.Grapple.BeamStartY,
+        "swing command copies rope Start Y into flare/draw Y");
+    AssertEqual((ushort)0, firingSamus.Kinematics.YSpeed,
+        "connection common tail clears whole Y speed");
+    AssertEqual((ushort)32, connected.CameraPreviousX!.Value,
+        "connection common tail retains in-range camera previous X");
+    AssertEqual((ushort)48, connected.CameraPreviousY!.Value,
+        "connection common tail retains in-range camera previous Y");
 
     // Bank $94 does not treat extension blocks as collision results of their own. Instead,
     // type $5 adds signed BTS directly to the linear block index and dispatches the block
@@ -1700,6 +1772,143 @@ static void VerifySamusGrappleSwingAndRelease()
         SamusGrappleMovement.CompleteFiringCancellation(bus, cancelledSamus);
     AssertTrue(cancelled.Cancelled && cancelledSamus.Grapple.Phase == GrapplePhase.Inactive,
         "queued firing cancellation clears on following call");
+
+    // Exercise all three native connection tables through the public BeginFiring/StepFiring
+    // route. Filling this isolated room with persistent type-$E blocks makes every zero-
+    // velocity endpoint connect on its first substep, while each authored direction still
+    // selects its own four-byte {function, handler} record and pose.
+    var connectionBlocks = Enumerable.Repeat((ushort)0xe000, 8 * 8).ToArray();
+    var connectionLevel = new RoomLevelData(
+        8,
+        8,
+        connectionBlocks,
+        new byte[connectionBlocks.Length],
+        new ushort[connectionBlocks.Length],
+        new byte[8]);
+    byte[][] expectedConnectionPoses =
+    [
+        // Default stationary table `$C3C6`.
+        [0xb2, 0xb2, 0xa8, 0xaa, 0xab, 0xab, 0xab, 0xa9, 0xb3, 0xb3],
+        // Crouching stationary table `$C416`; directions four/five literally use `$AB`.
+        [0xb2, 0xb2, 0xb4, 0xb6, 0xab, 0xab, 0xb7, 0xb5, 0xb3, 0xb3],
+        // Any nonzero vertical speed half overrides posture and selects `$C3EE`.
+        [0xb2, 0xb2, 0xb2, 0xb2, 0xb2, 0xb3, 0xb3, 0xb3, 0xb3, 0xb3],
+    ];
+
+    // Zero extension velocity means the endpoint is the pose-authored origin. Give the raw
+    // no-run Origin and Flare tables distinct values so locked command 10 cannot pass by
+    // accidentally treating the flare/draw coordinate as the physical rope Start pair.
+    for (int direction = 0; direction < 10; direction++)
+    {
+        int tableOffset = direction * 2;
+        WriteTestWord(bus, 0x9bc0db + tableOffset, 0);
+        WriteTestWord(bus, 0x9bc0ef + tableOffset, 0);
+        WriteTestWord(bus, 0x9bc104 + tableOffset, unchecked((ushort)(direction << 8)));
+        WriteTestWord(bus, 0x9bc122 + tableOffset, unchecked((ushort)(direction + 1)));
+        WriteTestWord(bus, 0x9bc136 + tableOffset, unchecked((ushort)(direction + 2)));
+        WriteTestWord(bus, 0x9bc14a + tableOffset, unchecked((ushort)(direction + 20)));
+        WriteTestWord(bus, 0x9bc15e + tableOffset, unchecked((ushort)(direction + 30)));
+    }
+
+    for (int family = 0; family < expectedConnectionPoses.Length; family++)
+    {
+        for (byte direction = 0; direction < 10; direction++)
+        {
+            byte sourceMovementType = family == 1 ? (byte)5 : (byte)6;
+            bus.WriteBytes(0x91b629 + SamusState.FallingRightPose * 8,
+                [0x08, sourceMovementType, 0xff, direction, 0x00, 0x00, 0x05, 0x15]);
+
+            var connectionSamus = new SamusState
+            {
+                Pose = SamusState.FallingRightPose,
+                XPosition = 40,
+                YPosition = 40,
+            };
+            if (family == 2)
+            {
+                // A nonzero fractional half alone must select the vertical table and must
+                // be cleared by the shared special-pose-command tail after connection.
+                connectionSamus.Kinematics.YSubspeed = 1;
+            }
+            connectionSamus.HorizontalSpeed.AccelerationMode = 7;
+            connectionSamus.HorizontalSpeed.BaseSpeed = 1;
+            connectionSamus.HorizontalSpeed.BaseSubspeed = 2;
+            connectionSamus.HorizontalSpeed.ExtraRunSpeed = 3;
+            connectionSamus.HorizontalSpeed.ExtraRunSubspeed = 4;
+
+            SamusGrappleMovement.BeginFiring(bus, connectionSamus);
+            GrappleMovementResult tableConnection = SamusGrappleMovement.StepFiring(
+                bus,
+                connectionLevel,
+                connectionSamus,
+                (ushort)SnesButton.X);
+
+            byte expectedPose = expectedConnectionPoses[family][direction];
+            bool expectedLocked = expectedPose is not (0xb2 or 0xb3);
+            AssertTrue(tableConnection.Connected,
+                $"connection family {family} direction {direction} connects through runtime path");
+            AssertEqual(expectedPose, connectionSamus.Pose,
+                $"connection family {family} direction {direction} pose");
+            AssertEqual(
+                expectedLocked ? GrapplePhase.ConnectedLocked : GrapplePhase.ConnectedSwinging,
+                connectionSamus.Grapple.Phase,
+                $"connection family {family} direction {direction} function phase");
+            AssertEqual(expectedLocked, tableConnection.LockedInPlace,
+                $"connection family {family} direction {direction} locked result");
+            AssertTrue(tableConnection.CameraPreviousX.HasValue && tableConnection.CameraPreviousY.HasValue,
+                $"connection family {family} direction {direction} publishes camera clamp");
+
+            AssertEqual((ushort)0, connectionSamus.HorizontalSpeed.BaseSpeed,
+                "connection clears whole X base speed");
+            AssertEqual((ushort)0, connectionSamus.HorizontalSpeed.BaseSubspeed,
+                "connection clears fractional X base speed");
+            AssertEqual((ushort)0, connectionSamus.HorizontalSpeed.ExtraRunSpeed,
+                "connection clears whole extra run speed");
+            AssertEqual((ushort)0, connectionSamus.HorizontalSpeed.ExtraRunSubspeed,
+                "connection clears fractional extra run speed");
+            AssertEqual((ushort)7, connectionSamus.HorizontalSpeed.AccelerationMode,
+                "connection leaves acceleration mode untouched");
+            AssertEqual((ushort)0, connectionSamus.Kinematics.YSpeed,
+                "connection clears whole Y speed");
+            AssertEqual((ushort)0, connectionSamus.Kinematics.YSubspeed,
+                "connection clears fractional Y speed");
+
+            if (expectedLocked)
+            {
+                short rawOriginX = unchecked((short)(direction + 1));
+                short rawOriginY = unchecked((short)(direction + 2));
+                short rawFlareX = unchecked((short)(direction + 20));
+                short rawFlareY = unchecked((short)(direction + 30));
+                AssertEqual(
+                    unchecked((ushort)(connectionSamus.Grapple.RopeStartX - rawOriginX)),
+                    connectionSamus.XPosition,
+                    "locked command positions Samus X from physical rope Start");
+                AssertEqual(
+                    unchecked((ushort)(connectionSamus.Grapple.RopeStartY - rawOriginY)),
+                    connectionSamus.YPosition,
+                    "locked command positions Samus Y from physical rope Start");
+                AssertEqual(
+                    unchecked((ushort)(connectionSamus.XPosition + rawFlareX)),
+                    connectionSamus.Grapple.BeamStartX,
+                    "locked command independently publishes flare/draw X");
+                AssertEqual(
+                    unchecked((ushort)(connectionSamus.YPosition + rawFlareY)),
+                    connectionSamus.Grapple.BeamStartY,
+                    "locked command independently publishes flare/draw Y");
+            }
+            else
+            {
+                AssertEqual(connectionSamus.Grapple.RopeStartX, connectionSamus.Grapple.BeamStartX,
+                    "swing command aliases physical Start and flare X");
+                AssertEqual(connectionSamus.Grapple.RopeStartY, connectionSamus.Grapple.BeamStartY,
+                    "swing command aliases physical Start and flare Y");
+            }
+        }
+    }
+
+    // Preserve the original fixture record for the remaining grapple tests in this method.
+    bus.WriteBytes(0x91b629 + SamusState.FallingRightPose * 8,
+        [0x08, 0x06, 0xff, 0x02, 0x00, 0x00, 0x05, 0x15]);
 
     // The production code follows $94's long loads into the signed sine table at $A0:B3C3.
     // Seed only the entries

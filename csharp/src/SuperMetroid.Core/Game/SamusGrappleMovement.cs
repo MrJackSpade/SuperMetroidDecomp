@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Game;
 /// movement, and bank $94 advances its angle while probing room collision. This class keeps
 /// those responsibilities separate from ordinary aerial movement. Firing, persistent grapple
 /// blocks, per-pixel rope adjustment, and the six-point angular terrain sweep are translated
-/// here; breakable PLMs, spike damage, enemy acquisition, locked poses, wall grab, and the
-/// wall-jump grace timer remain explicit later routes rather than being approximated here.
+/// here; breakable PLMs, spike damage, enemy acquisition, and liquid/solid-enemy wall-jump
+/// branches remain explicit later routes rather than being approximated here.
 /// </remarks>
 public static class SamusGrappleMovement
 {
@@ -45,6 +45,7 @@ public static class SamusGrappleMovement
     private const int SpecialAngleTable = 0x9bc43e;
     private const int SpecialAngleRecordSize = 10;
     private const ushort LockedInPlaceFunction = 0xc77e;
+    private const ushort SwingingFunction = 0xc79d;
     private const ushort WallGrabFunction = 0xc814;
     private const int DroppedStandingPoseTable = 0x9bc9ba;
     private const int DroppedCrouchingPoseTable = 0x9bc9c4;
@@ -57,12 +58,31 @@ public static class SamusGrappleMovement
     private const int FireAngleTable = 0x9bc104;
     private const int NoRunOriginXTable = 0x9bc122;
     private const int NoRunOriginYTable = 0x9bc136;
-    private const int NoRunBeamStartXTable = 0x9bc14a;
-    private const int NoRunBeamStartYTable = 0x9bc15e;
+    private const int NoRunFlareXTable = 0x9bc14a;
+    private const int NoRunFlareYTable = 0x9bc15e;
     private const int RunOriginXTable = 0x9bc172;
     private const int RunOriginYTable = 0x9bc186;
-    private const int RunBeamStartXTable = 0x9bc19a;
-    private const int RunBeamStartYTable = 0x9bc1ae;
+    private const int RunFlareXTable = 0x9bc19a;
+    private const int RunFlareYTable = 0x9bc1ae;
+
+    // HandleConnectingGrapple at $9B:B97C selects one of these three ten-record tables.
+    // Every four-byte record is {next grapple-function word, connection-handler word}.
+    // Reading both words from ROM preserves the deliberately surprising crouching entries
+    // for horizontal fire, and validating the pair prevents a bad mapping from silently
+    // turning a locked body into a pendulum (or vice versa).
+    private const int DefaultConnectionTable = 0x9bc3c6;
+    private const int MovingVerticallyConnectionTable = 0x9bc3ee;
+    private const int CrouchingConnectionTable = 0x9bc416;
+    private const ushort ConnectSwingClockwiseHandler = 0xb9d9;
+    private const ushort ConnectSwingAnticlockwiseHandler = 0xb9e2;
+    private const ushort ConnectStandingUpRightHandler = 0xb9ea;
+    private const ushort ConnectStandingRightHandler = 0xb9f3;
+    private const ushort ConnectStandingDownHandler = 0xb9fc;
+    private const ushort ConnectStandingUpLeftHandler = 0xba05;
+    private const ushort ConnectCrouchingUpRightHandler = 0xba0e;
+    private const ushort ConnectCrouchingRightHandler = 0xba17;
+    private const ushort ConnectCrouchingDownLeftHandler = 0xba20;
+    private const ushort ConnectCrouchingUpLeftHandler = 0xba29;
 
     /// <summary>
     /// Ports <c>GrappleBeamFunc_FireGoToCancel</c> at <c>$9B:C51E</c>, stopping immediately
@@ -97,16 +117,16 @@ public static class SamusGrappleMovement
         bool useRunOffsets = samus.ReadMovementType(bus) == 1 && samus.Pose is not (0x49 or 0x4a);
         int originXTable = useRunOffsets ? RunOriginXTable : NoRunOriginXTable;
         int originYTable = useRunOffsets ? RunOriginYTable : NoRunOriginYTable;
-        int beamStartXTable = useRunOffsets ? RunBeamStartXTable : NoRunBeamStartXTable;
-        int beamStartYTable = useRunOffsets ? RunBeamStartYTable : NoRunBeamStartYTable;
+        int flareXTable = useRunOffsets ? RunFlareXTable : NoRunFlareXTable;
+        int flareYTable = useRunOffsets ? RunFlareYTable : NoRunFlareYTable;
         sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
 
         grapple.OriginXOffset = unchecked((short)ReadWord(bus, originXTable + tableOffset));
         grapple.OriginYOffset = unchecked((short)(
             (short)ReadWord(bus, originYTable + tableOffset) - graphicsYOffset));
-        grapple.BeamStartXOffset = unchecked((short)ReadWord(bus, beamStartXTable + tableOffset));
-        grapple.BeamStartYOffset = unchecked((short)(
-            (short)ReadWord(bus, beamStartYTable + tableOffset) - graphicsYOffset));
+        grapple.FlareXOffset = unchecked((short)ReadWord(bus, flareXTable + tableOffset));
+        grapple.FlareYOffset = unchecked((short)(
+            (short)ReadWord(bus, flareYTable + tableOffset) - graphicsYOffset));
 
         // The endpoint-offset pair is a signed 16.16 displacement from Samus plus the
         // origin table. $9B:C51E clears all four words, not merely their whole halves.
@@ -126,10 +146,13 @@ public static class SamusGrappleMovement
         grapple.CancelFromConnectedPose = false;
         InitializeBeamAnimation(grapple);
 
-        // The beam-start/flare point is independent of the projectile endpoint while the
-        // beam is extending. Publish both immediately so the firing frame can be rendered.
-        grapple.BeamStartX = unchecked((ushort)(samus.XPosition + grapple.BeamStartXOffset));
-        grapple.BeamStartY = unchecked((ushort)(samus.YPosition + grapple.BeamStartYOffset));
+        // Native WRAM has two easily conflated coordinate pairs. Start is the hand/rope
+        // origin used by connection positioning; Flare is the small-OBJ draw origin used
+        // by $94:AFBA. They coincide while swinging but can differ while firing or locked.
+        grapple.RopeStartX = unchecked((ushort)(samus.XPosition + grapple.OriginXOffset));
+        grapple.RopeStartY = unchecked((ushort)(samus.YPosition + grapple.OriginYOffset));
+        grapple.BeamStartX = unchecked((ushort)(samus.XPosition + grapple.FlareXOffset));
+        grapple.BeamStartY = unchecked((ushort)(samus.YPosition + grapple.FlareYOffset));
         grapple.AnchorX = unchecked((ushort)(samus.XPosition + grapple.OriginXOffset));
         grapple.AnchorY = unchecked((ushort)(samus.YPosition + grapple.OriginYOffset));
     }
@@ -151,6 +174,12 @@ public static class SamusGrappleMovement
         SamusGrappleState grapple = samus.Grapple;
         if (grapple.Phase != GrapplePhase.Firing)
             throw new InvalidOperationException("Grapple firing is not active.");
+
+        // The common pose-command tail clamps the camera's previous-position words after
+        // command 9/10 snaps Samus to the accepted rope geometry. Retain the pre-snap body
+        // position even though most firing frames return without consuming this sample.
+        ushort previousXPosition = samus.XPosition;
+        ushort previousYPosition = samus.YPosition;
 
         // $9B:C703 treats release of Shoot as cancellation before length or collision work.
         if ((controllerInput & (ushort)SnesButton.X) == 0)
@@ -181,16 +210,12 @@ public static class SamusGrappleMovement
             // the accepted 16x16 block before bank $9B chooses the swing/locked pose.
             grapple.AnchorX = unchecked((ushort)((grapple.AnchorX & 0xfff0) | 8));
             grapple.AnchorY = unchecked((ushort)((grapple.AnchorY & 0xfff0) | 8));
-            ConnectFiringToAirborneSwing(bus, samus, grapple);
-            return new GrappleMovementResult(
-                grapple.Phase,
-                Released: false,
-                ReleaseQueued: false,
-                Fired: false,
-                Connected: true,
-                CancelQueued: false,
-                Cancelled: false,
-                OwnsMovement: true);
+            return ConnectAcceptedFiring(
+                bus,
+                samus,
+                grapple,
+                previousXPosition,
+                previousYPosition);
         }
 
         return new GrappleMovementResult(
@@ -829,12 +854,14 @@ public static class SamusGrappleMovement
         // accumulation, exactly like reading `$0DCE/$0DD2` as signed displacement words.
         int endpointOffsetX = grapple.EndpointXOffsetFixed >> 16;
         int endpointOffsetY = grapple.EndpointYOffsetFixed >> 16;
+        grapple.RopeStartX = unchecked((ushort)(samus.XPosition + grapple.OriginXOffset));
+        grapple.RopeStartY = unchecked((ushort)(samus.YPosition + grapple.OriginYOffset));
         grapple.AnchorX = unchecked((ushort)(
-            samus.XPosition + grapple.OriginXOffset + endpointOffsetX));
+            grapple.RopeStartX + endpointOffsetX));
         grapple.AnchorY = unchecked((ushort)(
-            samus.YPosition + grapple.OriginYOffset + endpointOffsetY));
-        grapple.BeamStartX = unchecked((ushort)(samus.XPosition + grapple.BeamStartXOffset));
-        grapple.BeamStartY = unchecked((ushort)(samus.YPosition + grapple.BeamStartYOffset));
+            grapple.RopeStartY + endpointOffsetY));
+        grapple.BeamStartX = unchecked((ushort)(samus.XPosition + grapple.FlareXOffset));
+        grapple.BeamStartY = unchecked((ushort)(samus.YPosition + grapple.FlareYOffset));
     }
 
     private static GrappleBlockReaction ReactAtEndpoint(
@@ -932,30 +959,64 @@ public static class SamusGrappleMovement
         throw new InvalidDataException("Grapple extension chain exceeded sixteen blocks.");
     }
 
-    private static void ConnectFiringToAirborneSwing(
+    private static GrappleMovementResult ConnectAcceptedFiring(
         ISnesAddressSpace bus,
         SamusState samus,
-        SamusGrappleState grapple)
+        SamusGrappleState grapple,
+        ushort previousXPosition,
+        ushort previousYPosition)
     {
-        // This slice admits the moving-vertically table at $9B:C3EE. A stationary body can
-        // select locked-in-place poses for directions 2..7; treating it as a pendulum would
-        // be visibly false, so that route remains explicit until its handler is translated.
-        if (samus.Kinematics.YSpeed == 0 && samus.Kinematics.YSubspeed == 0)
+        // Movement type $1A is the Draygon-held actor route at $9B:B98C. It bypasses all
+        // three direction tables and depends on untranslated enemy ownership/positioning.
+        // A room-block connection should never normally arrive here in that pose, but an
+        // explicit boundary is safer than fabricating either of the ordinary routes.
+        byte sourceMovementType = samus.ReadMovementType(bus);
+        if (sourceMovementType == 0x1a)
         {
             throw new NotSupportedException(
-                "Stationary grapple connection requires the locked-in-place bank-$9B handler.");
+                "Draygon-held grapple connection requires the untranslated enemy actor route.");
         }
 
-        // Directions zero through four select clockwise pose $B2; five through nine select
-        // anticlockwise pose $B3. $9B:BA61 then derives the rope angle from the actual body
-        // and accepted block center—never from the original firing direction.
-        bool faceRight = grapple.FireDirection < 5;
-        samus.Pose = faceRight
-            ? SamusState.GrappleSwingRightPose
-            : SamusState.GrappleSwingLeftPose;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus, initialFrame: 0);
+        bool movingVertically =
+            samus.Kinematics.YSpeed != 0 || samus.Kinematics.YSubspeed != 0;
+        int connectionTable = movingVertically
+            ? MovingVerticallyConnectionTable
+            : sourceMovementType == 5
+                ? CrouchingConnectionTable
+                : DefaultConnectionTable;
+        int recordAddress = connectionTable + grapple.FireDirection * 4;
+        ushort nextFunction = ReadWord(bus, recordAddress);
+        ushort handler = ReadWord(bus, recordAddress + 2);
 
+        // Each tiny native handler installs one prospective type-$16 pose and then jumps
+        // to either BA61 (swinging) or BA9B (stuck). Keep the handler addresses visible:
+        // pose alone is insufficient to distinguish malformed table data from retail data.
+        (byte pose, bool swinging) = handler switch
+        {
+            ConnectSwingClockwiseHandler => (SamusState.GrappleSwingRightPose, true),
+            ConnectSwingAnticlockwiseHandler => (SamusState.GrappleSwingLeftPose, true),
+            ConnectStandingUpRightHandler => ((byte)0xa8, false),
+            ConnectStandingRightHandler => ((byte)0xaa, false),
+            ConnectStandingDownHandler => ((byte)0xab, false),
+            ConnectStandingUpLeftHandler => ((byte)0xa9, false),
+            ConnectCrouchingUpRightHandler => ((byte)0xb4, false),
+            ConnectCrouchingRightHandler => ((byte)0xb6, false),
+            ConnectCrouchingDownLeftHandler => ((byte)0xb7, false),
+            ConnectCrouchingUpLeftHandler => ((byte)0xb5, false),
+            _ => throw new InvalidDataException(
+                $"Grapple connection direction {grapple.FireDirection} names unknown handler ${handler:X4}."),
+        };
+        ushort expectedFunction = swinging ? SwingingFunction : LockedInPlaceFunction;
+        if (nextFunction != expectedFunction)
+        {
+            throw new InvalidDataException(
+                $"Grapple connection handler ${handler:X4} requires function ${expectedFunction:X4}, " +
+                $"but the ROM record names ${nextFunction:X4}.");
+        }
+
+        // BA61 and BA9B both derive the angle from the body position that fired the beam,
+        // before command 9/10 changes pose and snaps Samus to the rope. The angle is stored
+        // as an integer byte in the high half of the native word; its fraction becomes zero.
         int deltaX = unchecked((short)(samus.XPosition - grapple.AnchorX));
         int deltaY = unchecked((short)(samus.YPosition - grapple.AnchorY));
         byte angleByte = CalculateAngleFromXY(deltaX, deltaY);
@@ -965,12 +1026,74 @@ public static class SamusGrappleMovement
         grapple.RopeLengthDelta = 0;
         if (grapple.RopeLength >= 64)
             grapple.RopeLength = unchecked((ushort)(grapple.RopeLength - 24));
+
+        // $94:AC11 publishes the native grapple-beam Start pair from the accepted endpoint,
+        // angle, and possibly shortened rope. This is the hand attachment point, not the
+        // independently authored Flare pair from the firing tables.
+        GrappleCollisionPoint ropeStart = CalculateCollisionPoint(
+            bus,
+            grapple,
+            angleByte,
+            grapple.RopeLength);
+        grapple.RopeStartX = ropeStart.X;
+        grapple.RopeStartY = ropeStart.Y;
+
+        samus.Pose = pose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus, initialFrame: 0);
+
+        if (swinging)
+        {
+            // Special pose command 9 runs $9B:BD95. Swinging copies Start into Flare, then
+            // chooses the angle-authored animation frame and body offsets.
+            grapple.Phase = GrapplePhase.ConnectedSwinging;
+            PositionSamusFromPendulum(bus, samus, grapple);
+        }
+        else
+        {
+            // Special pose command 10 runs $9B:BEEB. The locked body is positioned from
+            // Start minus the raw NO-RUN origin table, then Flare is independently rebuilt
+            // from the raw no-run flare table. Graphics-Y correction does not participate.
+            int tableOffset = grapple.FireDirection * 2;
+            short originX = unchecked((short)ReadWord(bus, NoRunOriginXTable + tableOffset));
+            short originY = unchecked((short)ReadWord(bus, NoRunOriginYTable + tableOffset));
+            short flareX = unchecked((short)ReadWord(bus, NoRunFlareXTable + tableOffset));
+            short flareY = unchecked((short)ReadWord(bus, NoRunFlareYTable + tableOffset));
+            samus.XPosition = unchecked((ushort)(grapple.RopeStartX - originX));
+            samus.YPosition = unchecked((ushort)(grapple.RopeStartY - originY));
+            grapple.BeamStartX = unchecked((ushort)(samus.XPosition + flareX));
+            grapple.BeamStartY = unchecked((ushort)(samus.YPosition + flareY));
+            grapple.Phase = GrapplePhase.ConnectedLocked;
+        }
+
+        // $91:EF53 is shared by connection commands 9 and 10. Speed-booster bookkeeping
+        // has no host field yet, but every modeled speed word cleared there is reset here.
+        // AccelerationMode is deliberately retained: the native common tail does not write it.
+        samus.HorizontalSpeed.BaseSpeed = 0;
+        samus.HorizontalSpeed.BaseSubspeed = 0;
+        samus.HorizontalSpeed.ExtraRunSpeed = 0;
+        samus.HorizontalSpeed.ExtraRunSubspeed = 0;
+        samus.Kinematics.YSpeed = 0;
+        samus.Kinematics.YSubspeed = 0;
+
         // Unlike ConnectUnobstructedSwing's explicit debugger seam, this anchor came from
         // BlockGrappleReaction and must be revalidated every connected frame at $9B:C802.
         grapple.ValidateAnchorBlock = true;
         grapple.SpecialAngleHandling = false;
-        grapple.Phase = GrapplePhase.ConnectedSwinging;
-        PositionSamusFromPendulum(bus, samus, grapple);
+        grapple.WallJumpTimer = 0;
+        grapple.CancelFromConnectedPose = false;
+
+        ushort cameraPreviousX = ClampPreviousPosition(samus.XPosition, previousXPosition);
+        ushort cameraPreviousY = ClampPreviousPosition(samus.YPosition, previousYPosition);
+        return new GrappleMovementResult(
+            grapple.Phase,
+            Released: false,
+            ReleaseQueued: false,
+            Connected: true,
+            OwnsMovement: true,
+            LockedInPlace: !swinging,
+            CameraPreviousX: cameraPreviousX,
+            CameraPreviousY: cameraPreviousY);
     }
 
     /// <summary>
@@ -1460,13 +1583,19 @@ public static class SamusGrappleMovement
         // signed table components, it applies the block-side 7/8 endpoint bias documented in
         // CalculateCollisionPoint; using one helper prevents visible art from disagreeing
         // with the collision body by one pixel.
-        GrappleCollisionPoint beamStart = CalculateCollisionPoint(
+        GrappleCollisionPoint ropeStart = CalculateCollisionPoint(
             bus,
             grapple,
             unchecked((byte)(grapple.Angle >> 8)),
             grapple.RopeLength);
-        grapple.BeamStartX = beamStart.X;
-        grapple.BeamStartY = beamStart.Y;
+        grapple.RopeStartX = ropeStart.X;
+        grapple.RopeStartY = ropeStart.Y;
+
+        // $9B:BD95 copies native Start to native Flare during swinging. BeamStart retains
+        // the older public name because the renderer and debugger already consume it, but
+        // it semantically represents the Flare/draw origin throughout this translation.
+        grapple.BeamStartX = ropeStart.X;
+        grapple.BeamStartY = ropeStart.Y;
 
         // $9B:BD95 maps all 256 angle bytes onto the authentic swing-art frame, then adds
         // a frame-specific origin correction so Samus's hand remains attached to the beam.
@@ -1479,8 +1608,8 @@ public static class SamusGrappleMovement
         sbyte yOffset = unchecked((sbyte)bus.ReadByte(pairAddress + 1));
 
         samus.SetGrappleSwingAnimationFrame(artFrame);
-        samus.XPosition = unchecked((ushort)(beamStart.X + xOffset));
-        samus.YPosition = unchecked((ushort)(beamStart.Y + yOffset));
+        samus.XPosition = unchecked((ushort)(ropeStart.X + xOffset));
+        samus.YPosition = unchecked((ushort)(ropeStart.Y + yOffset));
     }
 
     private static void PropelSamusFromSwing(
@@ -1592,6 +1721,19 @@ public sealed class SamusGrappleState
     public GrapplePhase Phase { get; set; }
     public ushort AnchorX { get; set; }
     public ushort AnchorY { get; set; }
+
+    /// <summary>
+    /// Native <c>GrappleBeam_StartX/YPosition</c>: the physical rope origin at Samus's hand.
+    /// It differs from the flare/draw origin while firing and in stuck-in-place poses.
+    /// </summary>
+    public ushort RopeStartX { get; set; }
+    public ushort RopeStartY { get; set; }
+
+    /// <summary>
+    /// Native <c>GrappleBeam_FlareX/YPosition</c>, retained under the original host-facing
+    /// BeamStart name for debugger/API compatibility. <c>DrawConnectedBeam</c> starts OAM
+    /// here; do not use this pair to reconstruct command-10 body positioning.
+    /// </summary>
     public ushort BeamStartX { get; set; }
     public ushort BeamStartY { get; set; }
     /// <summary>
@@ -1605,8 +1747,8 @@ public sealed class SamusGrappleState
     public short ExtensionYVelocity { get; set; }
     public short OriginXOffset { get; set; }
     public short OriginYOffset { get; set; }
-    public short BeamStartXOffset { get; set; }
-    public short BeamStartYOffset { get; set; }
+    public short FlareXOffset { get; set; }
+    public short FlareYOffset { get; set; }
     public int EndpointXOffsetFixed { get; set; }
     public int EndpointYOffsetFixed { get; set; }
     public ushort Angle { get; set; }

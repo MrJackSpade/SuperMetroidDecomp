@@ -900,6 +900,9 @@ bool observedScrewAttackPaletteCycle = false;
 bool observedCrystalFlashDrain = false;
 bool observedCrystalFlashFinish = false;
 bool observedCrystalFlashCompletion = false;
+bool observedCrystalFlashWindowExpansion = false;
+bool observedCrystalFlashWindowAfterglow = false;
+bool observedCrystalFlashPalette = false;
 var observedXrayPhases = new HashSet<XrayBeamPhase>();
 var observedXrayAnimationFrames = new HashSet<ushort>();
 bool observedXrayAim = false;
@@ -2200,6 +2203,15 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         { PhaseAfterStep: CrystalFlashPhase.Finishing };
     observedCrystalFlashCompletion |= runtime.LastCrystalFlashMovement is
         { Completed: true };
+    observedCrystalFlashWindowExpansion |=
+        runtime.BombProjectiles.PowerBombExplosion.Phase ==
+            PowerBombExplosionPhase.CrystalFlashExplosion;
+    observedCrystalFlashWindowAfterglow |=
+        runtime.BombProjectiles.PowerBombExplosion.Phase ==
+            PowerBombExplosionPhase.CrystalFlashAfterglow;
+    observedCrystalFlashPalette |=
+        runtime.Samus.CrystalFlash.SpecialPaletteType == 7 &&
+        runtime.Cgram.Colors[0xe0] != 0;
     if (runtime.LastXrayBeamStep is { } xrayBeamStep)
     {
         observedXrayPhases.Add(xrayBeamStep.PhaseAfterStep);
@@ -3451,13 +3463,21 @@ if (options.CrystalFlashScript)
         throw new InvalidOperationException("Crystal Flash ROM route never rendered pose $D3.");
     if (options.FrameCount >= 11 && !observedCrystalFlashDrain)
         throw new InvalidOperationException("Crystal Flash ROM route never installed ammo handler $90:D6CE.");
+    if (options.FrameCount >= 11 && !observedCrystalFlashWindowExpansion)
+        throw new InvalidOperationException("Crystal Flash ROM route never spawned bank-$88 bubble expansion.");
+    if (options.FrameCount >= 30 && !observedCrystalFlashWindowAfterglow)
+        throw new InvalidOperationException("Crystal Flash ROM route never reached bank-$88 bubble afterglow.");
+    if (!observedCrystalFlashPalette)
+        throw new InvalidOperationException("Crystal Flash ROM route never copied its bank-$9B sprite palette.");
     if (options.FrameCount >= 249 && !observedCrystalFlashFinish)
         throw new InvalidOperationException("Crystal Flash ROM route never consumed all three ammo families.");
     if (options.FrameCount >= 265 && !observedCrystalFlashCompletion)
         throw new InvalidOperationException("Crystal Flash ROM route never returned to normal movement.");
     Console.WriteLine(
         $"Crystal Flash ROM route observed drain={observedCrystalFlashDrain}, " +
-        $"finish={observedCrystalFlashFinish}, complete={observedCrystalFlashCompletion}, " +
+        $"window={observedCrystalFlashWindowExpansion}/{observedCrystalFlashWindowAfterglow}, " +
+        $"palette={observedCrystalFlashPalette}, finish={observedCrystalFlashFinish}, " +
+        $"complete={observedCrystalFlashCompletion}, " +
         $"energy={runtime.Samus.Health}, ammo={runtime.Samus.Missiles}/" +
         $"{runtime.Samus.SuperMissiles}/{runtime.Samus.PowerBombs}.");
 }

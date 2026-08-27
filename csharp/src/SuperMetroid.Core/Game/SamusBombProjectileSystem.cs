@@ -85,8 +85,11 @@ public sealed class SamusBombProjectileSystem
         // RunOneFrameOfGame invokes HdmaObjectHandler before GameState_8 reaches Samus's
         // frame handler. A power bomb spawned later in this method consequently receives
         // its first radius update on the next frame, not on its fuse-expiration frame.
+        bool crystalFlashWindowWasActive = PowerBombExplosion.Phase is
+            PowerBombExplosionPhase.CrystalFlashExplosion or
+            PowerBombExplosionPhase.CrystalFlashAfterglow;
         bool powerBombCleanup = PowerBombExplosion.StepFrame(bus);
-        if (powerBombCleanup)
+        if (powerBombCleanup && !crystalFlashWindowWasActive)
         {
             // $88:8B4E offers Crystal Flash only if Samus has remained on the exact bomb
             // origin. Failure (including moving one pixel) releases $0CEA immediately.

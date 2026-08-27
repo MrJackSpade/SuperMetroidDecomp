@@ -1875,6 +1875,29 @@ static void VerifySamusCrystalFlash()
         0x03, 0x03, 0x03, 0xfd, 0x02,
     ]);
 
+    // Palette handler seven splits sprite palette six into ten body colors and six bubble
+    // colors. Distinct synthetic records expose both destination ranges, their independent
+    // timers, and `$90:ACC2`'s full beam-palette restoration at finish.
+    WriteTestWord(bus, 0x91dc00, 0x9500);
+    WriteTestWord(bus, 0x91dc02, 10);
+    WriteTestWord(bus, 0x91dc28, 0x9600);
+    WriteTestWord(bus, 0x91dc2a, 0x9620);
+    WriteTestWord(bus, 0x90c3c9, 0x9700);
+    for (ushort color = 0; color < 10; color++)
+        WriteTestWord(bus, 0x9b9500 + color * 2, unchecked((ushort)(0x0100 + color)));
+    for (ushort color = 0; color < 6; color++)
+    {
+        WriteTestWord(bus, 0x9b9600 + color * 2, unchecked((ushort)(0x0200 + color)));
+        WriteTestWord(bus, 0x9b9620 + color * 2, unchecked((ushort)(0x0220 + color)));
+    }
+    for (ushort color = 0; color < 16; color++)
+        WriteTestWord(bus, 0x909700 + color * 2, unchecked((ushort)(0x0300 + color)));
+
+    // The final Crystal Flash explosion frame selects color index three from the shared
+    // bank-$88 Power Bomb table. Components 4/3/2 make its exact four-call fade cadence
+    // observable without depending on a second copy of the production state machine.
+    bus.WriteBytes(0x888d85 + 3 * 3, [0x04, 0x03, 0x02]);
+
     const ushort chord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
     var samus = new SamusState
     {
@@ -1904,6 +1927,37 @@ static void VerifySamusCrystalFlash()
     AssertEqual((ushort)7, samus.CrystalFlash.SpecialPaletteType,
         "Crystal Flash installs palette handler seven");
 
+    var crystalCgram = new SnesCgram();
+    AssertTrue(samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus),
+        "Crystal Flash palette handler owns first visible frame");
+    AssertEqual((ushort)0x0100, crystalCgram.Colors[0xe0],
+        "Crystal Flash body palette begins at sprite palette-six color zero");
+    AssertEqual((ushort)0x0109, crystalCgram.Colors[0xe9],
+        "Crystal Flash body palette copies ten colors");
+    AssertEqual((ushort)0x0200, crystalCgram.Colors[0xea],
+        "Crystal Flash bubble palette begins at color ten");
+    AssertEqual((ushort)0x0205, crystalCgram.Colors[0xef],
+        "Crystal Flash bubble palette copies six colors");
+    AssertEqual((ushort)5, samus.CrystalFlash.SpecialPaletteTimer,
+        "Crystal Flash bubble timer reloads five");
+    AssertEqual((ushort)10, samus.CrystalFlash.CrystalPaletteTimer,
+        "Crystal Flash body timer comes from interleaved ROM record");
+    AssertEqual((ushort)4, samus.CrystalFlash.CommonPaletteTimer,
+        "Crystal Flash body record advances four bytes");
+    AssertEqual((ushort)2, samus.HorizontalSpeed.SpecialPaletteFrame,
+        "Crystal Flash publishes aliased $0ACE palette frame");
+    AssertEqual((ushort)4, samus.HorizontalSpeed.SpecialPaletteTimer,
+        "Crystal Flash publishes aliased $0AD0 record offset");
+
+    // Five more calls expire only the bubble timer and select pointer one. The ten-call
+    // body timer remains halfway through its first record.
+    for (int paletteCall = 0; paletteCall < 5; paletteCall++)
+        samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus);
+    AssertEqual((ushort)0x0220, crystalCgram.Colors[0xea],
+        "Crystal Flash bubble palette advances independently");
+    AssertEqual((ushort)5, samus.CrystalFlash.CrystalPaletteTimer,
+        "Crystal Flash body palette retains independent countdown");
+
     ushort initialY = samus.YPosition;
     for (int frame = 0; frame < 9; frame++)
     {
@@ -1923,6 +1977,43 @@ static void VerifySamusCrystalFlash()
     AssertEqual((ushort)6, samus.AnimationFrame, "raise transition forces animation frame six");
     AssertTrue(samus.CrystalFlash.BubbleHdmaRequested,
         "raise transition publishes Crystal Flash HDMA spawn seam");
+
+    var crystalWindow = new SamusPowerBombExplosionState();
+    crystalWindow.Arm();
+    crystalWindow.BeginCrystalFlash(samus.XPosition, samus.YPosition);
+    AssertTrue(!crystalWindow.IsArmed,
+        "Crystal Flash spawn clears one-at-a-time Power Bomb flag");
+    AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Phase,
+        "Crystal Flash installs bank-$88 stage-one pre-instruction");
+    AssertEqual((ushort)0x0400, crystalWindow.ExplosionRadius,
+        "Crystal Flash bubble begins at radius four");
+
+    // Seventeen calls remain below `$20.00`; call eighteen adds the old `$0330` speed,
+    // reaches `$20B0`, and installs the afterglow. Its rendered table still used `$1D80`.
+    for (int hdmaCall = 1; hdmaCall <= 17; hdmaCall++)
+        AssertTrue(!crystalWindow.StepFrame(bus), $"Crystal Flash expansion call {hdmaCall}");
+    AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Phase,
+        "Crystal Flash expansion remains active through call seventeen");
+    AssertTrue(!crystalWindow.StepFrame(bus), "Crystal Flash expansion transition is not cleanup");
+    AssertEqual(PowerBombExplosionPhase.CrystalFlashAfterglow, crystalWindow.Phase,
+        "Crystal Flash call eighteen installs afterglow");
+    AssertEqual((ushort)0x20b0, crystalWindow.ExplosionRadius,
+        "Crystal Flash transition radius preserves 8.8 acceleration sum");
+    AssertEqual((ushort)0x1d80, crystalWindow.RenderedExplosionRadius,
+        "Crystal Flash transition renders pre-update radius");
+    AssertEqual((byte)4, crystalWindow.FixedColorRed,
+        "Crystal Flash transition selects shared fixed-color entry three");
+
+    // Components 4/3/2 decrement on afterglow calls 1/5/9/13. Calls 14..16 count down
+    // timer 3..0; call 17 observes all-zero color and executes `$88:A317` cleanup.
+    for (int hdmaCall = 1; hdmaCall <= 16; hdmaCall++)
+        AssertTrue(!crystalWindow.StepFrame(bus), $"Crystal Flash afterglow call {hdmaCall}");
+    AssertTrue(crystalWindow.StepFrame(bus),
+        "Crystal Flash afterglow call seventeen performs cleanup");
+    AssertEqual(PowerBombExplosionPhase.Inactive, crystalWindow.Phase,
+        "Crystal Flash HDMA cleanup clears phase");
+    AssertEqual((ushort)0, crystalWindow.Status,
+        "Crystal Flash HDMA cleanup clears shared status");
     samus.AnimateNoFx(bus, chord);
     AssertEqual((ushort)2, samus.AnimationFrameTimer,
         "same beta frame decrements forced timer three to two");
@@ -1962,6 +2053,14 @@ static void VerifySamusCrystalFlash()
     AssertTrue(cleanup.Completed, "following beta pass restores normal movement handler");
     AssertEqual((ushort)0xffff, samus.CrystalFlash.SpecialPaletteTimer,
         "cleanup requests normal palette restoration");
+    AssertTrue(samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus),
+        "Crystal Flash finish restores beam palette");
+    AssertEqual((ushort)0x0300, crystalCgram.Colors[0xe0],
+        "Crystal Flash finish restores beam palette color zero");
+    AssertEqual((ushort)0x030f, crystalCgram.Colors[0xef],
+        "Crystal Flash finish restores all sixteen beam palette colors");
+    AssertEqual((ushort)0, samus.CrystalFlash.SpecialPaletteType,
+        "Crystal Flash palette handler clears after restoration");
 
     var left = new SamusState
     {
@@ -1977,7 +2076,7 @@ static void VerifySamusCrystalFlash()
     AssertEqual(SamusState.CrystalFlashLeftPose, left.Pose,
         "source direction selects left Crystal Flash pose");
 
-    Console.WriteLine("  Crystal Flash: prerequisites, handlers, resources, and ROM animation agree.");
+    Console.WriteLine("  Crystal Flash: prerequisites, handlers, resources, HDMA bubble, palette, and ROM animation agree.");
 }
 
 /// <summary>

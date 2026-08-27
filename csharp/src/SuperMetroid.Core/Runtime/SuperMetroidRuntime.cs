@@ -1308,12 +1308,16 @@ public sealed class SuperMetroidRuntime
                         _addressSpace,
                         Samus,
                         NmiFrameCounter);
-                    if (LastCrystalFlashMovement.Value.Completed)
+                    if (LastCrystalFlashMovement.Value.PhaseAtStart == CrystalFlashPhase.Raising &&
+                        LastCrystalFlashMovement.Value.BubbleHdmaRequested)
                     {
-                        // `$88:A317` is the Crystal Flash HDMA cleanup counterpart to the
-                        // ordinary power-bomb cleanup. It releases the same `$0CEA` flag;
-                        // the retained type-$0300 slot then deletes during the next alpha.
-                        BombProjectiles.PowerBombExplosion.ReleaseFlag();
+                        // `$90:D6AE` clears `$0CEA`, copies Samus's raised center into the
+                        // shared explosion words, then spawns `$88:A2BD/$A32A`. This beta
+                        // pass occurs after bomb alpha, so the retained type-`$0300` slot
+                        // observes the released flag and deletes on the following frame.
+                        BombProjectiles.PowerBombExplosion.BeginCrystalFlash(
+                            Samus.XPosition,
+                            Samus.YPosition);
                     }
                 }
                 // `$90:CFFA` replaces the normal movement-handler pointer. Windup, active
@@ -2504,7 +2508,9 @@ public sealed class SuperMetroidRuntime
                     Samus.AnimationFrame,
                     Samus.EquippedItems,
                     suppressActiveSpeedBoosterPalette:
-                        Samus.Shinespark.PaletteType != 0 || Samus.Xray.SpecialPaletteType == 8);
+                        Samus.Shinespark.PaletteType != 0 ||
+                        Samus.CrystalFlash.SpecialPaletteType == 7 ||
+                        Samus.Xray.SpecialPaletteType == 8);
             }
             // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They
             // intentionally execute after a cancellation-requested normal copy and replace
@@ -2515,6 +2521,16 @@ public sealed class SuperMetroidRuntime
                     _addressSpace,
                     Cgram,
                     Samus.EquippedItems);
+            }
+            // Handler seven owns all sixteen colors of sprite palette six during Crystal
+            // Flash. It is mutually exclusive with shinespark/X-ray special handlers but
+            // intentionally runs at the same `$91:D6F7` dispatch point.
+            if (!deathOwnsSamus)
+            {
+                Samus.CrystalFlash.UpdatePalette(
+                    _addressSpace,
+                    Cgram,
+                    Samus);
             }
             // Handler eight changes only visor color four while active; `$FFFF` teardown
             // restores the complete ROM-selected Power/Varia/Gravity suit palette once.

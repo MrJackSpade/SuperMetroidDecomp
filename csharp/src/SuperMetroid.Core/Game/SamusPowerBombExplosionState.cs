@@ -138,6 +138,35 @@ public sealed class SamusPowerBombExplosionState
     }
 
     /// <summary>
+    /// Implements `$90:D6AE-$D6C5` and both setup calls at `$88:A2E4/$A309` after
+    /// Crystal Flash completes its ten-step rise.
+    /// </summary>
+    public void BeginCrystalFlash(ushort xPosition, ushort yPosition)
+    {
+        // `$90:D6AE` releases the one-at-a-time Power Bomb lock before spawning the two
+        // Crystal Flash HDMA objects. Their animation still reuses the same status,
+        // position, radius, speed, fixed-color, and window-table WRAM words.
+        Flag = 0;
+        XPosition = xPosition;
+        YPosition = yPosition;
+        Status = 0x8000;
+        PreExplosionRadius = InitialRadius;
+        ExplosionRadius = InitialRadius;
+        RadiusSpeed = 0;
+        ShapeDefinitionPointer = 0;
+        RenderedShapeDefinitionPointer = 0;
+        Phase = PowerBombExplosionPhase.CrystalFlashExplosion;
+        RenderedPhase = PowerBombExplosionPhase.Inactive;
+        RenderedPreExplosionRadius = 0;
+        RenderedExplosionRadius = 0;
+        FixedColorRed = 0;
+        FixedColorGreen = 0;
+        FixedColorBlue = 0;
+        _afterglowTimer = 0;
+        _afterglowStepsRemaining = 0;
+    }
+
+    /// <summary>
     /// Runs one invocation of the active bank-$88 HDMA pre-instruction.
     /// </summary>
     /// <returns>True only on the frame that $88:8B4E completes cleanup.</returns>
@@ -173,6 +202,13 @@ public sealed class SamusPowerBombExplosionState
 
             case PowerBombExplosionPhase.Afterglow:
                 return StepAfterglow();
+
+            case PowerBombExplosionPhase.CrystalFlashExplosion:
+                StepCrystalFlashExplosion(bus);
+                return false;
+
+            case PowerBombExplosionPhase.CrystalFlashAfterglow:
+                return StepCrystalFlashAfterglow();
 
             default:
                 throw new InvalidOperationException($"Active power-bomb status has invalid phase {Phase}.");
@@ -349,6 +385,64 @@ public sealed class SamusPowerBombExplosionState
         return false;
     }
 
+    private void StepCrystalFlashExplosion(ISnesAddressSpace bus)
+    {
+        // `$88:A552` is a deliberately shorter clone of the yellow Power Bomb expansion.
+        // It uses the same curve and fixed-color table, but stops at radius `$20.00`.
+        RenderedExplosionRadius = ExplosionRadius;
+        ReadFixedColor(bus, ExplosionColorTable, (ExplosionRadius >> 8) >> 3);
+
+        ExplosionRadius = unchecked((ushort)(ExplosionRadius + RadiusSpeed));
+        if (ExplosionRadius < 0x2000)
+        {
+            RadiusSpeed = unchecked((ushort)(RadiusSpeed + ExplosionAcceleration));
+            return;
+        }
+
+        // The sleeping list clears the HDMA timer before installing `$88:A35D`. As with
+        // the ordinary afterglow, zero underflows on its first active pre-instruction.
+        _afterglowTimer = 0;
+        Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
+    }
+
+    private bool StepCrystalFlashAfterglow()
+    {
+        _afterglowTimer = unchecked((ushort)(_afterglowTimer - 1));
+        if ((_afterglowTimer & 0x8000) == 0)
+            return false;
+
+        // Unlike ordinary Power Bomb stage five, `$88:A35D` uses the three current color
+        // components as its completion criterion. This retains the final radius window
+        // while each nonzero component fades once every four handler calls.
+        if ((FixedColorRed | FixedColorGreen | FixedColorBlue) != 0)
+        {
+            if (FixedColorRed != 0)
+                FixedColorRed--;
+            if (FixedColorGreen != 0)
+                FixedColorGreen--;
+            if (FixedColorBlue != 0)
+                FixedColorBlue--;
+            _afterglowTimer = 3;
+            return false;
+        }
+
+        // The awakened list immediately calls `$88:A317`, disables both HDMA channels,
+        // and clears every shared Power Bomb word. Flag is already zero from `$90:D6AE`,
+        // but assigning it again mirrors the cleanup routine and makes reset atomic.
+        Flag = 0;
+        Status = 0;
+        PreExplosionRadius = 0;
+        ExplosionRadius = 0;
+        RadiusSpeed = 0;
+        ShapeDefinitionPointer = 0;
+        RenderedShapeDefinitionPointer = 0;
+        Phase = PowerBombExplosionPhase.Inactive;
+        RenderedPhase = PowerBombExplosionPhase.Inactive;
+        RenderedPreExplosionRadius = 0;
+        RenderedExplosionRadius = 0;
+        return true;
+    }
+
     private void ReadFixedColor(ISnesAddressSpace bus, int tableAddress, int colorIndex)
     {
         int address = tableAddress + colorIndex * 3;
@@ -367,4 +461,6 @@ public enum PowerBombExplosionPhase
     ExplosionYellow,
     ExplosionWhite,
     Afterglow,
+    CrystalFlashExplosion,
+    CrystalFlashAfterglow,
 }

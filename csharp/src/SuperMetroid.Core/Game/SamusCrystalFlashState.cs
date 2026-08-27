@@ -37,14 +37,20 @@ public sealed class SamusCrystalFlashState
     /// <summary>WRAM <c>$0DF2</c>, seeded to one for bank-$91's palette program.</summary>
     public ushort CrystalPaletteTimer { get; private set; }
 
-    /// <summary>WRAM <c>$0A68</c>; seven dispatches the cartridge's Crystal Flash palette.</summary>
+    /// <summary>WRAM <c>$0ACC</c>; seven dispatches the cartridge's Crystal Flash palette.</summary>
     public ushort SpecialPaletteType { get; private set; }
 
     /// <summary>WRAM <c>$0ACE</c>, initialized to the first Crystal Flash palette record.</summary>
     public ushort SpecialPaletteFrame { get; private set; }
 
-    /// <summary>WRAM <c>$0ACC</c>; <c>$FFFF</c> requests normal-palette restoration at finish.</summary>
+    /// <summary>WRAM <c>$0A68</c>; <c>$FFFF</c> requests beam-palette restoration at finish.</summary>
     public ushort SpecialPaletteTimer { get; private set; }
+
+    /// <summary>
+    /// WRAM <c>$0AD0</c>, a byte offset into the ten interleaved pointer/timer records at
+    /// `$91:DC00`.
+    /// </summary>
+    public ushort CommonPaletteTimer { get; private set; }
 
     /// <summary>Set when `$90:D6C5` would spawn the two bank-$88 window HDMA objects.</summary>
     public bool BubbleHdmaRequested { get; private set; }
@@ -109,6 +115,11 @@ public sealed class SamusCrystalFlashState
         SpecialPaletteType = 7;
         SpecialPaletteFrame = 0;
         SpecialPaletteTimer = 1;
+        // `$90:D5A2` clears shared `$0ACE` but does not write shared `$0AD0`. The latter
+        // is also Speed Booster's palette timer, so preserve the live aliased word rather
+        // than silently inventing the usual zero initialization.
+        samus.HorizontalSpeed.SpecialPaletteFrame = 0;
+        CommonPaletteTimer = samus.HorizontalSpeed.SpecialPaletteTimer;
         BubbleHdmaRequested = false;
         ActivationSoundRequested = false;
         samus.KnockbackTimer = 0;
@@ -248,6 +259,84 @@ public sealed class SamusCrystalFlashState
         Phase = CrystalFlashPhase.Inactive;
     }
 
+    /// <summary>
+    /// Translates special Samus palette handler seven at `$91:DB93-$91:DBFF`.
+    /// </summary>
+    /// <remarks>
+    /// Sprite palette six is split deliberately: the ten body colors cycle through a
+    /// ten-record pointer/timer program, while the upper six bubble colors cycle through
+    /// an independent six-pointer table every five handler calls. Both sources are bank-$9B
+    /// ROM data; completion restores the complete bank-$90 beam palette selected by the
+    /// currently equipped beam combination.
+    /// </remarks>
+    public bool UpdatePalette(
+        ISnesAddressSpace bus,
+        SnesCgram cgram,
+        SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(cgram);
+        ArgumentNullException.ThrowIfNull(samus);
+        if (SpecialPaletteType != 7)
+            return false;
+
+        if ((SpecialPaletteTimer & 0x8000) != 0)
+        {
+            // `$91:DBEB` calls `$90:ACC2`, which masks away Charge Beam and uses the
+            // resulting low twelve bits as an index into the retail beam-palette table.
+            int beamType = samus.EquippedBeams & 0x0fff;
+            if ((uint)beamType >= 12)
+                throw new ArgumentOutOfRangeException(nameof(samus), "Equipped beam combination is outside the retail table.");
+            ushort beamPalette = ReadWord(bus, 0x90c3c9 + beamType * 2);
+            cgram.LoadFromBus(bus, 0x900000 | beamPalette, colorCount: 16, destinationIndex: 0xe0);
+
+            SpecialPaletteType = 0;
+            SpecialPaletteFrame = 0;
+            CommonPaletteTimer = 0;
+            SpecialPaletteTimer = 0;
+            CrystalPaletteTimer = 0;
+            PublishSharedPaletteWords(samus);
+            return true;
+        }
+
+        // DEC followed by BEQ/BPL treats both zero and a signed underflow as expiry.
+        SpecialPaletteTimer = unchecked((ushort)(SpecialPaletteTimer - 1));
+        if (SpecialPaletteTimer == 0 || unchecked((short)SpecialPaletteTimer) < 0)
+        {
+            SpecialPaletteTimer = 5;
+            ushort bubblePalette = ReadWord(bus, 0x91dc28 + SpecialPaletteFrame);
+            cgram.LoadFromBus(
+                bus,
+                0x9b0000 | bubblePalette,
+                colorCount: 6,
+                destinationIndex: 0xea);
+
+            ushort nextBubbleFrame = unchecked((ushort)(SpecialPaletteFrame + 2));
+            SpecialPaletteFrame = nextBubbleFrame < 12 ? nextBubbleFrame : (ushort)0;
+        }
+
+        CrystalPaletteTimer = unchecked((ushort)(CrystalPaletteTimer - 1));
+        if (CrystalPaletteTimer == 0 || unchecked((short)CrystalPaletteTimer) < 0)
+        {
+            int recordAddress = 0x91dc00 + CommonPaletteTimer;
+            ushort bodyPalette = ReadWord(bus, recordAddress);
+            CrystalPaletteTimer = ReadWord(bus, recordAddress + 2);
+            cgram.LoadFromBus(
+                bus,
+                0x9b0000 | bodyPalette,
+                colorCount: 10,
+                destinationIndex: 0xe0);
+
+            ushort nextRecord = unchecked((ushort)(CommonPaletteTimer + 4));
+            CommonPaletteTimer = nextRecord < 40 ? nextRecord : (ushort)0;
+        }
+
+        // Carry is set for every active call, including frames on which neither timer
+        // expires. The outer palette dispatcher must therefore suppress its normal copy.
+        PublishSharedPaletteWords(samus);
+        return true;
+    }
+
     /// <summary>Exact ordinary-value behavior of <c>Restore_A_Energy_ToSamus</c> at `$91:DF12`.</summary>
     private static void RestoreEnergy(SamusState samus, ushort amount)
     {
@@ -271,6 +360,19 @@ public sealed class SamusCrystalFlashState
 
     private static bool SignedLessThan(ushort left, ushort right) =>
         unchecked((short)(left - right)) < 0;
+
+    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
+        (ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8));
+
+    private void PublishSharedPaletteWords(SamusState samus)
+    {
+        // `$0ACE/$0AD0` are not Crystal-Flash-private storage. Speed Booster, Screw Attack,
+        // X-ray, and several other special handlers reuse the same two physical words.
+        // Their handlers are mutually exclusive, but exposing the alias keeps breakpoint
+        // inspection and the next owner's initial state faithful to WRAM.
+        samus.HorizontalSpeed.SpecialPaletteFrame = SpecialPaletteFrame;
+        samus.HorizontalSpeed.SpecialPaletteTimer = CommonPaletteTimer;
+    }
 }
 
 /// <summary>Named substitutes for Crystal Flash's three bank-$90 handler addresses.</summary>

@@ -1160,8 +1160,11 @@ translated status is documented with the Morph Ball family below.
   also requires the native charged-trail allocation and the 72-frame PNG captures it.
 - The real-ROM `--missile-script` fires one type-`$8100`, damage-`$0064` missile with sound
   `$03`, decrements ten rounds to nine, decodes its live bank-$93 spritemap, and allocates the
-  bank-$90 exhaust by frame seven. `MissileFrame.png` and its three diagnostic layers capture
-  the live projectile and detached trail over cartridge-derived Landing Site terrain.
+  bank-$90 exhaust by frame seven. The same run now observes arm-cannon cover frames 0/1/2/3,
+  independently checks the pose-selected direction, OAM word, bank-$9A tile pointer, and
+  `$20`-byte VRAM `$61F0` transfer against the cartridge, and requires a visible cover OBJ.
+  `MissileArmCannon.png` and its three diagnostic layers capture the fully open cover, live
+  projectile, and detached trail over cartridge-derived Landing Site terrain.
 - The real-ROM `--draygon-grab-script` publishes a fixed owner coordinate at `$A5:94A9`, then
   observes every right-facing grabbed pose, the moving-body animation loop, `$F0->$EC`
   fallback, 60-pattern escape, owner signal, and `$01` release. Its assertions sample actual

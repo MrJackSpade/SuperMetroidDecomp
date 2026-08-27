@@ -35,6 +35,7 @@ VerifyFrameRuntime();
 VerifySuperMetroidAddressSpace();
 VerifyOamSpritemapPacking();
 VerifySamusRenderingSlice();
+VerifySamusArmCannon();
 VerifySamusHurtFlashPalette();
 VerifySamusPoseTransitionMatching();
 VerifySamusHorizontalSpeed();
@@ -809,6 +810,149 @@ static void VerifySamusRenderingSlice()
     AssertEqual(2, oam.LastFinalizedSpriteCount, "suited forward emits no power-suit chest patch");
 
     Console.WriteLine("  Samus: standing/running/forward pose tables, split tile DMA, position, and OAM agree.");
+}
+
+/// <summary>
+/// Walks the complete `$90:C519-$C790` arm-cannon cover lifetime. The fixture keeps the
+/// native three-level pose/direction/frame pointer topology intact, so a plausible-looking
+/// host animation cannot pass by substituting invented timing or a fixed bitmap.
+/// </summary>
+static void VerifySamusArmCannon()
+{
+    var bus = new TestAddressSpace();
+    SeedPoseOneSamusData(bus);
+
+    // The retail item table says missiles open the cover while no HUD item closes it.
+    // Entries two through five are included to catch a shifted or shortened lookup even
+    // though this focused timeline switches only between entries zero and one.
+    bus.WriteBytes(0x90c7d9, [0, 1, 1, 0, 1, 0]);
+
+    // Pose $01 points to a compact normal record: selector two, draw mode two (after the
+    // body), then signed X/Y pairs. Animation frame zero therefore uses (+7,-3).
+    WriteTestWord(bus, 0x90c7e1, 0xd000);
+    bus.WriteBytes(0x90d000, [0x02, 0x02, 0x07, 0xfd, 0x09, 0xfb]);
+
+    // Selector two's real attribute word names small OBJ tile $1F, palette four, priority
+    // two. Its four-word tile list reserves entry zero and supplies frames one through
+    // three in bank $9A; each draw uploads exactly one 32-byte 4bpp tile.
+    WriteTestWord(bus, 0x90c795, 0x281f);
+    WriteTestWord(bus, 0x90c7a9, 0xd100);
+    WriteTestWord(bus, 0x90d100, 0x0000);
+    WriteTestWord(bus, 0x90d102, 0x8120);
+    WriteTestWord(bus, 0x90d104, 0x8140);
+    WriteTestWord(bus, 0x90d106, 0x8160);
+
+    var samus = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        AnimationFrame = 0,
+        XPosition = 0x0480,
+        YPosition = 0x0086,
+        SelectedHudItem = 0,
+    };
+
+    // The HUD producer requires two identical samples. Merely changing selection sets the
+    // native toggle word to one; only the following stable frame is allowed to transition.
+    SamusArmCannonUpdateResult closedSampleOne = samus.ArmCannon.Update(bus, samus);
+    SamusArmCannonUpdateResult closedSampleTwo = samus.ArmCannon.Update(bus, samus);
+    AssertEqual((ushort)0, closedSampleOne.FrameAfter,
+        "first closed HUD sample leaves cannon invisible");
+    AssertEqual((ushort)0, closedSampleTwo.FrameAfter,
+        "second closed HUD sample agrees with already-closed state");
+    AssertEqual((ushort)2, samus.ArmCannon.ToggleFlag,
+        "stable HUD selection saturates arm-cannon toggle at two");
+    AssertEqual((ushort)2, closedSampleTwo.DrawingMode,
+        "pose record publishes after-body arm-cannon draw mode");
+
+    samus.SelectedHudItem = 1;
+    SamusArmCannonUpdateResult selectionChanged = samus.ArmCannon.Update(bus, samus);
+    AssertTrue(selectionChanged.HudItemChanged && !selectionChanged.TransitionStarted,
+        "new missile selection waits one stable HUD frame");
+    AssertEqual((ushort)0, selectionChanged.FrameAfter,
+        "selection-change frame keeps cannon closed");
+
+    SamusArmCannonUpdateResult openingOne = samus.ArmCannon.Update(bus, samus);
+    AssertTrue(openingOne.TransitionStarted, "second missile sample begins opening");
+    AssertEqual((ushort)1, openingOne.FrameAfter,
+        "opening starts at zero and advances to frame one in the same call");
+    AssertEqual((byte)1, openingOne.OpenFlag, "missile selection stores open flag one");
+    AssertEqual((byte)1, openingOne.CloseFlag, "opening frame one retains transition flag");
+
+    SamusArmCannonUpdateResult openingTwo = samus.ArmCannon.Update(bus, samus);
+    SamusArmCannonUpdateResult openingThree = samus.ArmCannon.Update(bus, samus);
+    AssertEqual((ushort)2, openingTwo.FrameAfter, "opening advances to cover frame two");
+    AssertEqual((byte)1, openingTwo.CloseFlag, "frame two remains transitional");
+    AssertEqual((ushort)3, openingThree.FrameAfter, "opening clamps at cover frame three");
+    AssertEqual((byte)0, openingThree.CloseFlag, "fully open cover clears transition flag");
+
+    // Rewind is intentionally unnecessary: selecting frame one in the public state is not
+    // possible, which protects the model from debugger-only invalid combinations. The
+    // fully-open draw still proves the same selector route and frame-indexed third tile.
+    var oam = new OamBuffer();
+    var vramWrites = new VramWriteQueue();
+    oam.BeginFrame();
+    SamusArmCannonDrawResult draw = samus.ArmCannon.Draw(
+        bus, oam, vramWrites, samus, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 0);
+    AssertTrue(draw.SpriteWritten && draw.TileUploadQueued,
+        "open cover emits one OBJ and queues its tile upload");
+    AssertEqual((byte)2, draw.DirectionSelector, "pose record selects direction two");
+    AssertEqual((ushort)0x281f, draw.Attributes, "direction two uses retail OAM attributes");
+    AssertEqual((ushort)0x8160, draw.TileSource, "frame three indexes third cover tile");
+    AssertEqual((short)135, draw.ScreenX, "cover X includes signed pose offset and camera");
+    AssertEqual((short)125, draw.ScreenY,
+        "cover Y includes signed offset, graphics origin, and camera");
+    AssertEqual(4, oam.NextByteOffset, "cover consumes exactly one four-byte OAM record");
+    OamEntry cover = oam.GetEntry(0);
+    AssertEqual(135, cover.X, "cover OAM X");
+    AssertEqual((byte)125, cover.Y, "cover OAM Y");
+    AssertEqual(0x1f, cover.TileNumber, "cover OAM tile slot");
+    AssertEqual(4, cover.Palette, "cover OAM palette");
+    AssertEqual(2, cover.Priority, "cover OAM priority");
+    AssertTrue(!cover.IsLarge, "arm-cannon cover is a small OBJ");
+    AssertEqual(new VramWriteEntry(0x20, 0x9a8160, 0x61f0), vramWrites.Entries[0],
+        "cover queues native bank-$9A tile DMA to VRAM $61F0");
+
+    // Odd invincibility frames return before both OAM and DMA. An off-screen coordinate,
+    // in contrast, suppresses only the OBJ: native code still refreshes the shared tile.
+    samus.InvincibilityTimer = 1;
+    var flickerOam = new OamBuffer();
+    var flickerWrites = new VramWriteQueue();
+    flickerOam.BeginFrame();
+    SamusArmCannonDrawResult flicker = samus.ArmCannon.Draw(
+        bus, flickerOam, flickerWrites, samus, 0x0400, 0, nmiFrameCounter: 1);
+    AssertTrue(!flicker.SpriteWritten && !flicker.TileUploadQueued,
+        "odd invincibility frame suppresses cover OBJ and DMA");
+    AssertEqual(0, flickerWrites.Entries.Count, "flicker return leaves VRAM queue untouched");
+
+    samus.InvincibilityTimer = 0;
+    var clippedOam = new OamBuffer();
+    var clippedWrites = new VramWriteQueue();
+    clippedOam.BeginFrame();
+    SamusArmCannonDrawResult clipped = samus.ArmCannon.Draw(
+        bus, clippedOam, clippedWrites, samus, layer1X: 0x0500, layer1Y: 0, nmiFrameCounter: 0);
+    AssertTrue(!clipped.SpriteWritten && clipped.TileUploadQueued,
+        "off-screen cover omits OAM but retains tile DMA");
+    AssertEqual(1, clippedWrites.Entries.Count, "clipped cover still has one VRAM transfer");
+
+    // Closing mirrors opening but starts from synthetic frame four. The same stable-sample
+    // call decrements immediately to three, followed by two, one, and invisible zero.
+    samus.SelectedHudItem = 0;
+    SamusArmCannonUpdateResult closeChanged = samus.ArmCannon.Update(bus, samus);
+    AssertTrue(closeChanged.HudItemChanged && !closeChanged.TransitionStarted,
+        "item deselection also waits one stable frame");
+    SamusArmCannonUpdateResult closingThree = samus.ArmCannon.Update(bus, samus);
+    SamusArmCannonUpdateResult closingTwo = samus.ArmCannon.Update(bus, samus);
+    SamusArmCannonUpdateResult closingOne = samus.ArmCannon.Update(bus, samus);
+    SamusArmCannonUpdateResult closingZero = samus.ArmCannon.Update(bus, samus);
+    AssertTrue(closingThree.TransitionStarted, "second empty-item sample begins closing");
+    AssertEqual((ushort)3, closingThree.FrameAfter, "closing begins visibly at frame three");
+    AssertEqual((ushort)2, closingTwo.FrameAfter, "closing decrements to frame two");
+    AssertEqual((ushort)1, closingOne.FrameAfter, "closing decrements to frame one");
+    AssertEqual((ushort)0, closingZero.FrameAfter, "closing reaches invisible frame zero");
+    AssertEqual((byte)0, closingZero.CloseFlag, "fully closed cover clears transition flag");
+
+    Console.WriteLine(
+        "  Samus arm cannon: HUD debounce, open/close cadence, OAM, clipping, flicker, and tile DMA agree.");
 }
 
 /// <summary>

@@ -331,9 +331,15 @@ disabling it is explicitly a debugger-only reverse seam because normal play neve
 `--missile-script` grants ten rounds and selects HUD item one at the untranslated save/pause
 seam, then sends one fresh Shoot edge. The private-ROM regression requires type `$8100`, damage
 `$0064`, sound `$03`, bank-$93 missile art, a one-round decrement, and `$90:B5A1` exhaust by
-frame seven. The viewer exposes the same seam as **Missiles selected**; its finite 99-round
-debugger reserve still runs the translated producer, cooldown, acceleration, trail, point
-collision, missile explosion, and deletion on every stepped frame.
+frame seven. HUD stability now also drives `$90:C5C4-$C790`'s independent arm-cannon cover:
+three opening frames use the pose/animation direction records, preserve the record's
+before/after-body OAM order, and upload the selected 32-byte bank-$9A tile to VRAM `$61F0`.
+The regression independently re-reads those cartridge pointers and requires frames 1/2/3,
+the exact `$281F`-family attribute word, one visible small OBJ, and the matching queued DMA.
+`MissileArmCannon.png` plus its transparent OBJ/BG diagnostics capture the fully open cover.
+The viewer exposes the same seam as **Missiles selected**; its finite 99-round debugger reserve
+still runs the translated producer, cooldown, acceleration, trail, point collision, missile
+explosion, deletion, and cover animation on every stepped frame.
 
 `--super-missile-script` grants ten rounds and selects HUD item two at that same explicit
 inventory seam. The translated `$90:BE62/$AFE5` route produces type `$8200`, retail damage

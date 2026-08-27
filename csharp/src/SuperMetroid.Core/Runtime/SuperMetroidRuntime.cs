@@ -191,6 +191,12 @@ public sealed class SuperMetroidRuntime
     /// </summary>
     public SamusHurtFlashPaletteStepResult LastHurtFlashPaletteStep { get; private set; }
 
+    /// <summary>Most recent `$90:C5C4` arm-cannon cover state update.</summary>
+    public SamusArmCannonUpdateResult LastArmCannonUpdate { get; private set; }
+
+    /// <summary>Most recent optional cannon OBJ and tile-$1F DMA publication.</summary>
+    public SamusArmCannonDrawResult LastArmCannonDraw { get; private set; }
+
     /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; private set; }
 
@@ -2615,6 +2621,13 @@ public sealed class SuperMetroidRuntime
             }
             else
             {
+                // `DrawSamusSprites` begins with `$90:C5C4` before dispatching the default
+                // drawing handler. HUD-selection stability, cover transition, and the
+                // pose-authored before/after-body mode must therefore settle before charge
+                // flare, atmospheric, or body OAM is appended.
+                LastArmCannonUpdate = Samus.ArmCannon.Update(_addressSpace, Samus);
+                LastArmCannonDraw = default;
+
                 // Every ordinary Samus drawing handler calls `$90:8A4C` before Samus OAM.
                 // Updating here preserves both reverse atmospheric-slot order and overlap:
                 // splashes/dust receive earlier OAM indices than Samus's body pieces.
@@ -2633,7 +2646,34 @@ public sealed class SuperMetroidRuntime
                     Samus,
                     Camera.XPosition,
                     Camera.YPosition);
+
+                // Drawing modes one and two differ only in OAM priority: one appends the
+                // cannon before the body, while two appends it after. Mode zero suppresses
+                // the independent object even if a HUD-driven cover frame remains nonzero.
+                if (Samus.ArmCannon.EffectiveDrawingMode != 0 &&
+                    Samus.ArmCannon.EffectiveDrawingMode != 2)
+                {
+                    LastArmCannonDraw = Samus.ArmCannon.Draw(
+                        _addressSpace,
+                        Oam,
+                        VramWrites,
+                        Samus,
+                        Camera.XPosition,
+                        Camera.YPosition,
+                        NmiFrameCounter);
+                }
                 Samus.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
+                if (Samus.ArmCannon.EffectiveDrawingMode == 2)
+                {
+                    LastArmCannonDraw = Samus.ArmCannon.Draw(
+                        _addressSpace,
+                        Oam,
+                        VramWrites,
+                        Samus,
+                        Camera.XPosition,
+                        Camera.YPosition,
+                        NmiFrameCounter);
+                }
                 Samus.DrawSpeedBoosterEchoes(
                     _addressSpace,
                     Oam,

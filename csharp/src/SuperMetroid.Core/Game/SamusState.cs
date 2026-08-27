@@ -921,6 +921,12 @@ public sealed class SamusState
     public SamusGrappleState Grapple { get; } = new();
 
     /// <summary>
+    /// The independent opening cover, one-OBJ draw, and tile-$1F DMA used by aimed weapon
+    /// poses. Its state is driven by HUD selection rather than by the body animation timer.
+    /// </summary>
+    public SamusArmCannonState ArmCannon { get; } = new();
+
+    /// <summary>
     /// Native WRAM <c>EnemyIndexToShake</c>, written when an ordinary or grapple wall jump
     /// launches from a solid/frozen enemy instead of room terrain.
     /// </summary>

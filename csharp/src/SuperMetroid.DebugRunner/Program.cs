@@ -855,6 +855,9 @@ bool observedMissileArt = false;
 bool observedMissileTrail = false;
 ushort observedMissileDamage = 0;
 ushort observedMissileSound = 0;
+var observedArmCannonFrames = new HashSet<ushort>();
+bool observedArmCannonSprite = false;
+bool observedArmCannonTileDma = false;
 bool observedSuperMissileShot = false;
 bool observedSuperMissileArt = false;
 bool observedSuperMissileTrail = false;
@@ -2177,6 +2180,64 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         drawHighPriorityEnemyProjectiles,
         drawLowPriorityEnemyProjectiles);
     observedSamusPoses.Add(runtime.Samus.Pose);
+    if (options.MissileScript)
+    {
+        // `$90:C5C4-$C790` is deliberately validated from the live cartridge rather than
+        // by accepting the typed result at face value. Recompute the pose selector,
+        // attribute word, and frame tile through their original pointer tables, then prove
+        // that the runtime queued the exact 32-byte transfer consumed by the next NMI.
+        observedArmCannonFrames.Add(runtime.Samus.ArmCannon.Frame);
+        SamusArmCannonDrawResult cannon = runtime.LastArmCannonDraw;
+        if (cannon.TileUploadQueued)
+        {
+            int posePointerCell = 0x90c7df + runtime.Samus.Pose * 2;
+            ushort drawingData = unchecked((ushort)(
+                bus.ReadByte(posePointerCell) | (bus.ReadByte(posePointerCell + 1) << 8)));
+            int drawingAddress = 0x900000 | drawingData;
+            byte firstSelector = bus.ReadByte(drawingAddress);
+            byte expectedSelector = (firstSelector & 0x80) != 0 &&
+                runtime.Samus.AnimationFrame != 0
+                    ? unchecked((byte)(bus.ReadByte(
+                        0x900000 | unchecked((ushort)(drawingData + 2))) & 0x7f))
+                    : unchecked((byte)(firstSelector & 0x7f));
+            int attributeCell = 0x90c791 + expectedSelector * 2;
+            ushort expectedAttributes = unchecked((ushort)(
+                bus.ReadByte(attributeCell) | (bus.ReadByte(attributeCell + 1) << 8)));
+            int listPointerCell = 0x90c7a5 + expectedSelector * 2;
+            ushort listPointer = unchecked((ushort)(
+                bus.ReadByte(listPointerCell) | (bus.ReadByte(listPointerCell + 1) << 8)));
+            int tileCell = 0x900000 | unchecked((ushort)(
+                listPointer + runtime.Samus.ArmCannon.Frame * 2));
+            ushort expectedTileSource = unchecked((ushort)(
+                bus.ReadByte(tileCell) | (bus.ReadByte(
+                    0x900000 | unchecked((ushort)(tileCell + 1))) << 8)));
+
+            if (cannon.DirectionSelector != expectedSelector ||
+                cannon.Attributes != expectedAttributes ||
+                cannon.TileSource != expectedTileSource)
+            {
+                throw new InvalidOperationException(
+                    $"Arm-cannon frame {cannon.Frame} disagrees with ROM: " +
+                    $"selector {cannon.DirectionSelector}/{expectedSelector}, " +
+                    $"attributes ${cannon.Attributes:X4}/${expectedAttributes:X4}, " +
+                    $"tile ${cannon.TileSource:X4}/${expectedTileSource:X4}.");
+            }
+
+            var expectedDma = new VramWriteEntry(
+                0x20,
+                0x9a0000 | expectedTileSource,
+                0x61f0);
+            if (!runtime.VramWrites.Entries.Contains(expectedDma))
+            {
+                throw new InvalidOperationException(
+                    $"Arm-cannon frame {cannon.Frame} omitted ROM tile DMA " +
+                    $"$9A:{expectedTileSource:X4} -> VRAM $61F0.");
+            }
+
+            observedArmCannonSprite |= cannon.SpriteWritten;
+            observedArmCannonTileDma = true;
+        }
+    }
     if (runtime.LastHyperBeamPaletteFxStep is { PaletteWritten: true } hyperPalette)
     {
         // Do not merely trust the specialized interpreter's frame index. Compare the live
@@ -3387,11 +3448,25 @@ if (options.MissileScript)
         throw new InvalidOperationException(
             $"Missile route expected one round consumed from ten; remaining={runtime.Samus.Missiles}.");
     }
+    if (options.FrameCount >= 4 &&
+        (!observedArmCannonFrames.Contains(1) ||
+         !observedArmCannonFrames.Contains(2) ||
+         !observedArmCannonFrames.Contains(3) ||
+         !observedArmCannonSprite ||
+         !observedArmCannonTileDma))
+    {
+        throw new InvalidOperationException(
+            $"Missile arm-cannon route missed native cover state: " +
+            $"frames=[{string.Join(',', observedArmCannonFrames.Order())}], " +
+            $"sprite={observedArmCannonSprite}, DMA={observedArmCannonTileDma}.");
+    }
 
     Console.WriteLine(
         $"Missile ROM route fired={observedMissileShot}, damage=${observedMissileDamage:X4}, " +
         $"sound=${observedMissileSound:X2}, art={observedMissileArt}, " +
-        $"trail={observedMissileTrail}, ammo={runtime.Samus!.Missiles}.");
+        $"trail={observedMissileTrail}, armFrames=[{string.Join(',', observedArmCannonFrames.Order())}], " +
+        $"armSprite={observedArmCannonSprite}, armDMA={observedArmCannonTileDma}, " +
+        $"ammo={runtime.Samus!.Missiles}.");
 }
 
 if (options.SuperMissileScript)

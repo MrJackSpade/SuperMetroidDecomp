@@ -185,6 +185,7 @@ dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Sup
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 110 --death-script --output standalone-assets/runtime/DeathFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 110 --drained-samus-script --output ../standalone-assets/runtime/DrainedSamusActiveFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 180 --drained-samus-script --output ../standalone-assets/runtime/DrainedSamusFrame.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 5690 --mother-brain-rainbow-script --output ../standalone-assets/runtime/DrainedRainbowFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 90 --draygon-grab-script --output ../standalone-assets/runtime/DraygonGrabMovingFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 180 --draygon-grab-script --output ../standalone-assets/runtime/DraygonGrabFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 40 --extra-displacement-script --output ../standalone-assets/runtime/ExtraDisplacementAirFrame.png
@@ -365,7 +366,7 @@ all nine explosion spritemaps while whitening every non-Samus room palette throu
 suitless Samus and flying suit pieces during the authentic whiteout. Fatal-damage acquisition,
 music polling, and the post-explosion fade remain explicit outer game-state seams.
 
-`--drained-samus-script` supplies only the call timing normally owned by the later Baby Metroid actor. It lifts the debugger body two blocks, calls the exact `$91:E4AD` controller entries, and leaves `$E8-$EB` animation bytecode, `$F7`, shared 16.16 gravity, room collision, signed draw offsets, tile DMA, and spritemaps ROM-authored. The 110-frame capture freezes authentic crouched drained art; 180 frames prove floor handoff, standing/crouching commands, `$FD,$01` release, and hyper-beam state.
+`--drained-samus-script` supplies only the call timing normally owned by the later Baby Metroid actor. It lifts the debugger body two blocks, calls the exact `$91:E4AD` controller entries, and leaves `$E8-$EB` animation bytecode, `$F7`, shared 16.16 gravity, room collision, signed draw offsets, tile DMA, and spritemaps ROM-authored. The 110-frame capture freezes authentic crouched drained art; 180 frames prove floor handoff, standing/crouching commands, `$FD,$01` release, and hyper-beam state. The full Mother Brain/Baby route additionally drives command `$16` and `$91:D954`'s ten complete Hyper Beam palettes using the Baby's gradually increasing one-through-ten cadence. `DrainedRainbowFrame.png` captures that real-ROM palette animation, and command `$17` now restores the equipment-selected suit palette in the same frame.
 
 `--draygon-grab-script` supplies one fixed Draygon owner coordinate at the exact `$A5:94A9` actor seam because Landing Site has no Draygon actor. It enters `$EC`, drives the private ROM's `$ED/$EE/$EF/$F0` transition records, proves the six-frame struggle loop and `$F0->$EC` fallback, then reaches `$90:E2A1`'s exact 60-pattern escape threshold and `$90:E2DE` release. The 90-frame capture freezes authentic moving grabbed art; 180 frames prove pose `$01`, native motion-word cleanup, and the owner-release signal. This translates Samus's complete grabbed family without pretending the missing boss flight path is Samus physics.
 
@@ -399,7 +400,7 @@ grapple, all twelve ordinary/charged beam combinations plus Hyper Beam productio
 Crystal Flash, X-ray mechanics/window color math, drained/Draygon,
 liquid/atmospheric/landing-impact, and documented
 Mother Brain/Baby routes described above. Unsupported paths throw instead of becoming guessed
-physics. Remaining cross-system work includes drained-Samus presentation, earlier Mother
+physics. Remaining cross-system work includes the Hyper Beam palette-FX object, earlier Mother
 Brain attack selection, Hyper Beam enemy-hit/recoil integration,
 X-ray hidden-block BG2 substitution, remaining weapon-specific trails,
 projectile-triggered door/bombable/special-block PLMs,

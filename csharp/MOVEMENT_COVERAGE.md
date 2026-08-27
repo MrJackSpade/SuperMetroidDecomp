@@ -38,7 +38,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, persistent external X/Y displacement, momentum, gravity/collision, `$F8` | No unadmitted reachable pose branch found; shared presentation/producer gaps remain tracked below |
 | `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, persistent external X/Y displacement, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | Live enemy producer |
 | `$1A` | Grabbed by Draygon | `$BA-$BE/$EC-$F0`: exact owner pin, ten ROM pose/animation routes, input/fallback transitions, type-$1A vertical-result clear, 60-pattern escape hack, `$01/$02` release cleanup and owner signal | Live Draygon actor/flight producer |
-| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, bank-$88 bubble/afterglow, split bank-$91 body/bubble palette cycles, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, Hyper Beam grant and live `$9018` projectile/flare/Wave motion; bank `$A9`: repeat/active/final rainbow, painful-walk/corpse, revival, Baby murder/death, phase-three combat/death, and escape `$B8EB-$B3C5`, including body/head bytecode, live neck geometry, Baby graphics DMA/spawn, sine-driven entrance, moving-head latch, drain/corpse handshake, release, ceiling retreat, eight-record flight, generic-touch Samus latch, one-point healing, bank-$86 ring/bomb movement and damage, purple-breath/misc-explosion animation, high/low enemy-projectile OAM, release/stare/retreat/final charge/final blow, rainbow commands, six black palettes, 30 rendered death explosions, attack-tile DMA, room-light restoration, deletion, Hyper Beam, controller four, corpse rotting, escape timer, and exploded door | Drained palette/HDMA presentation, earlier attack-selection, Hyper Beam enemy-hit/recoil integration, typewriter character engine/glyphs, Baby actor spritemap and remaining dust producers, live enemy actor producer |
+| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, bank-$88 bubble/afterglow, split bank-$91 body/bubble palette cycles, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, ten-palette Baby rainbow cadence/restoration, Hyper Beam grant and live `$9018` projectile/flare/Wave motion; bank `$A9`: repeat/active/final rainbow, painful-walk/corpse, revival, Baby murder/death, phase-three combat/death, and escape `$B8EB-$B3C5`, including body/head bytecode, live neck geometry, Baby graphics DMA/spawn, sine-driven entrance, moving-head latch, drain/corpse handshake, release, ceiling retreat, eight-record flight, generic-touch Samus latch, one-point healing, bank-$86 ring/bomb movement and damage, purple-breath/misc-explosion animation, high/low enemy-projectile OAM, release/stare/retreat/final charge/final blow, rainbow commands, six black palettes, 30 rendered death explosions, attack-tile DMA, room-light restoration, deletion, Hyper Beam, controller four, corpse rotting, escape timer, and exploded door | Hyper Beam palette-FX object, earlier attack-selection, Hyper Beam enemy-hit/recoil integration, typewriter character engine/glyphs, Baby actor spritemap and remaining dust producers, live enemy actor producer |
 
 ## Active-pose and animation audit
 
@@ -572,6 +572,14 @@ translated status is documented with the Morph Ball family below.
   eight or later, and a fresh Up edge before selecting frame 13 and replacing itself with
   RTS. The unable route accepts only frames 8..11, jumps to frame 18, and remains installed.
   Commands `$19/$17` directly freeze at frame 28 or resume at frame 13 with timer one.
+- Command `$16`'s negative super-special flag now takes its real priority at `$91:D6F7`.
+  `$91:D96F-$D997` loads all sixteen colors through the ten ROM pointers at `$91:D99E`,
+  decrements after the copy, wraps the palette index at ten, and uses the Baby-owned
+  one-through-ten special frame as its gradually increasing reload delay. Controller zero
+  and command `$17` perform their same-frame equipment-selected full suit restorations.
+  Synthetic palettes lock load-before-decrement ordering and the two-call hold; the real
+  5,690-frame Mother Brain route captures the resulting private-ROM yellow/purple drained
+  body in `DrainedRainbowFrame.png`.
 - `MotherBrainRainbowBeamSamusMovement` translates `$A9:BBB5-$BC75` without converting its
   unusual arithmetic to floats. It adds signed 8.8 velocity to only the high subposition
   byte, carries that addition into whole pixels, preserves the low fractional byte, and
@@ -677,7 +685,7 @@ translated status is documented with the Morph Ball family below.
   six ROM frames remain visible for 31 calls, delete on call 32, and use `$E6E0`'s strict
   256x256 layer-origin test. The earlier attack-selection trigger, live Hyper Beam shot/damage
   producer, typewriter character engine/glyphs, Baby actor spritemap/other dust producers, and
-  palette/HDMA effects beyond direct CGRAM writes remain seams.
+  Hyper Beam's separate palette-FX object and HDMA effects beyond direct CGRAM writes remain seams.
 - `MotherBrainBodyAnimationState` translates the ordinary enemy-instruction stage used by
   Mother Brain's painful fast/medium/slow/really-slow walks in both directions plus
   `$99C6/$99E2/$99F2/$9A26` stand/lean/crouch lists.

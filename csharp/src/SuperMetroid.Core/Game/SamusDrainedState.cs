@@ -15,6 +15,15 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusDrainedState
 {
+    private const int HyperBeamPalettePointerTable = 0x91d99e;
+    private const int NormalSuitPalettePointerTable = 0x91d727;
+    private const int SamusPaletteCgramIndex = 192;
+
+    // Controller zero and command `$17` both call LoadSamusSuitPalette immediately. The
+    // runtime's software-CGRAM pass occurs later in the same frame, so this one-shot latch
+    // preserves that ordering without passing a rendering device into movement commands.
+    private bool _suitPaletteRestoreRequested;
+
     /// <summary>Host-readable substitute for the active native pose/handler combination.</summary>
     public DrainedSamusPhase Phase { get; private set; }
 
@@ -117,6 +126,7 @@ public sealed class SamusDrainedState
         SpecialPaletteFrame = 1;
         CommonPaletteTimer = 1;
         ChargePaletteIndex = 0;
+        _suitPaletteRestoreRequested = false;
     }
 
     /// <summary>
@@ -140,7 +150,58 @@ public sealed class SamusDrainedState
         SpecialPaletteFrame = 0;
         CommonPaletteTimer = 0;
         ChargePaletteIndex = 0;
+        _suitPaletteRestoreRequested = true;
         samus.SetAnimationFrameFromSpecialHandler(frame: 13, timer: 1);
+    }
+
+    /// <summary>
+    /// Runs the negative-super-special branch of `$91:D6F7/$91:D954-$D997`.
+    /// </summary>
+    /// <remarks>
+    /// While command `$16`'s `$8000` flag is set, this handler has absolute priority over
+    /// charge, Speed Booster, shinespark, Crystal Flash, and X-ray palettes. It loads one
+    /// complete 16-color bank-$9B Hyper Beam palette before touching either timer. The Baby
+    /// independently raises <see cref="SpecialPaletteFrame"/> from one through ten; that
+    /// value becomes the delay between advances of the ten-entry palette index.
+    /// </remarks>
+    /// <returns>True when this state owned the current frame's Samus palette dispatch.</returns>
+    public bool UpdatePalette(ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(cgram);
+
+        if (_suitPaletteRestoreRequested)
+        {
+            // `$90:F3E9` and `$91:E56B` choose Gravity before Varia, then Power. The table
+            // stores byte offsets 0/2/4 rather than a host enum, matching every other Samus
+            // palette restoration path in bank `$91`.
+            ushort suitOffset = (equippedItems & 0x0020) != 0 ? (ushort)4 :
+                (equippedItems & 0x0001) != 0 ? (ushort)2 : (ushort)0;
+            ushort palettePointer = ReadWord(bus, NormalSuitPalettePointerTable + suitOffset);
+            cgram.LoadFromBus(bus, 0x9b0000 | palettePointer, 16, SamusPaletteCgramIndex);
+            _suitPaletteRestoreRequested = false;
+            return true;
+        }
+
+        if (!RainbowPaletteEnabled)
+            return false;
+
+        // `$91:D96F` doubles the palette number, reads one of ten bank-$9B pointers, and
+        // copies all $20 bytes to sprite palette four before decrementing the shared timer.
+        ushort pointer = ReadWord(
+            bus,
+            HyperBeamPalettePointerTable + (ChargePaletteIndex % 10) * 2);
+        cgram.LoadFromBus(bus, 0x9b0000 | pointer, 16, SamusPaletteCgramIndex);
+
+        CommonPaletteTimer = unchecked((ushort)(CommonPaletteTimer - 1));
+        if (CommonPaletteTimer != 0 && unchecked((short)CommonPaletteTimer) >= 0)
+            return true;
+
+        CommonPaletteTimer = SpecialPaletteFrame;
+        ChargePaletteIndex = unchecked((ushort)(ChargePaletteIndex + 1));
+        if (ChargePaletteIndex >= 10)
+            ChargePaletteIndex = 0;
+        return true;
     }
 
     /// <summary>
@@ -173,6 +234,7 @@ public sealed class SamusDrainedState
         samus.InitializeAnimation(bus, initialFrame: 2);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = 2;
+        _suitPaletteRestoreRequested = true;
         Phase = DrainedSamusPhase.WaitingForFallingCommand;
     }
 
@@ -328,6 +390,9 @@ public sealed class SamusDrainedState
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
     }
+
+    private static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
+        bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }
 
 /// <summary>Named host equivalents for the otherwise opaque drain pose/handler state.</summary>

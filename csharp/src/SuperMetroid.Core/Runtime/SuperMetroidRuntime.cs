@@ -2499,7 +2499,12 @@ public sealed class SuperMetroidRuntime
             // reads CGRAM directly, so perform the literal ROM pointer/table copy immediately
             // before the matching draw phase. This covers dry-room Speed Booster stage four
             // and the normal-suit restoration requested by `$91:DE53` cancellation.
-            if (!deathOwnsSamus)
+            // A negative super-special flag is the first branch of `$91:D6F7` and returns
+            // immediately after the drained/rainbow handler. Its one-shot normal restore
+            // also models the direct palette loads in controller zero and command `$17`.
+            bool drainedOwnsSamusPalette = !deathOwnsSamus &&
+                Samus.Drained.UpdatePalette(_addressSpace, Cgram, Samus.EquippedItems);
+            if (!deathOwnsSamus && !drainedOwnsSamusPalette)
             {
                 Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(
                     _addressSpace,
@@ -2515,7 +2520,7 @@ public sealed class SuperMetroidRuntime
             // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They
             // intentionally execute after a cancellation-requested normal copy and replace
             // it with the stored/spark palette in this visible frame.
-            if (!deathOwnsSamus)
+            if (!deathOwnsSamus && !drainedOwnsSamusPalette)
             {
                 Samus.Shinespark.UpdatePalette(
                     _addressSpace,
@@ -2525,7 +2530,7 @@ public sealed class SuperMetroidRuntime
             // Handler seven owns all sixteen colors of sprite palette six during Crystal
             // Flash. It is mutually exclusive with shinespark/X-ray special handlers but
             // intentionally runs at the same `$91:D6F7` dispatch point.
-            if (!deathOwnsSamus)
+            if (!deathOwnsSamus && !drainedOwnsSamusPalette)
             {
                 Samus.CrystalFlash.UpdatePalette(
                     _addressSpace,
@@ -2534,7 +2539,7 @@ public sealed class SuperMetroidRuntime
             }
             // Handler eight changes only visor color four while active; `$FFFF` teardown
             // restores the complete ROM-selected Power/Varia/Gravity suit palette once.
-            if (!deathOwnsSamus)
+            if (!deathOwnsSamus && !drainedOwnsSamusPalette)
             {
                 Samus.Xray.UpdatePalette(
                     _addressSpace,

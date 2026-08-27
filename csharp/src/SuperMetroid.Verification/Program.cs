@@ -2623,6 +2623,29 @@ static void VerifySamusDrainedController()
     WriteTestWord(bus, 0x91d727, 0xb800);
     for (ushort color = 0; color < 16; color++)
         WriteTestWord(bus, 0x9bb800 + color * 2, unchecked((ushort)(0x3000 + color)));
+
+    // `$8D:E1F0` points at the compact Hyper Beam projectile-palette program. Each of its
+    // ten records lasts two handler calls and writes CGRAM `$E1-$E8`; synthetic colors make
+    // the record number, color number, and exact loop boundary independently observable.
+    WriteTestWord(bus, 0x8de1f0, 0xc685);
+    WriteTestWord(bus, 0x8de1f2, 0xd900);
+    WriteTestWord(bus, 0x8dd900, 0xc655);
+    WriteTestWord(bus, 0x8dd902, 0x01c2);
+    for (ushort frame = 0; frame < HyperBeamPaletteFxState.FrameCount; frame++)
+    {
+        int record = 0x8dd904 + frame * 20;
+        WriteTestWord(bus, record, 2);
+        for (ushort color = 0; color < HyperBeamPaletteFxState.ColorsPerFrame; color++)
+        {
+            WriteTestWord(
+                bus,
+                record + 2 + color * 2,
+                unchecked((ushort)(0x0100 + frame * 0x20 + color)));
+        }
+        WriteTestWord(bus, record + 18, 0xc595);
+    }
+    WriteTestWord(bus, 0x8dd9cc, 0xc61e);
+    WriteTestWord(bus, 0x8dd9ce, 0xd904);
     var drainedCgram = new SnesCgram();
 
     const int width = 8;
@@ -2744,7 +2767,40 @@ static void VerifySamusDrainedController()
     AssertEqual((ushort)0x8000, left.HyperBeam,
         "controller three sets hyper beam flag");
     AssertTrue(left.Drained.HyperBeamPaletteFxRequested,
-        "controller three publishes palette-FX producer seam");
+        "controller three spawns Hyper Beam palette-FX object");
+    AssertEqual((ushort)1, left.Drained.HyperBeamPaletteFx.InstructionTimer,
+        "palette-FX spawn installs native timer one");
+    AssertEqual((ushort)0xd900, left.Drained.HyperBeamPaletteFx.InstructionPointer,
+        "palette-FX spawn installs object instruction pointer");
+
+    // Seed both neighboring colors so the test can distinguish the exact eight-color
+    // write from a convenient whole-palette copy. Calls 1/2 show frame zero, calls 3/4
+    // show frame one, and call 21 executes `$C61E,$D904` and reloads frame zero.
+    drainedCgram.SetColor(0xe0, 0x4567);
+    drainedCgram.SetColor(0xe9, 0x2345);
+    for (int call = 0; call < 21; call++)
+    {
+        HyperBeamPaletteFxStepResult paletteFx =
+            left.Drained.HyperBeamPaletteFx.Step(bus, drainedCgram);
+        int expectedFrame = (call / 2) % HyperBeamPaletteFxState.FrameCount;
+        AssertEqual(expectedFrame, paletteFx.FrameIndex,
+            $"Hyper Beam palette-FX call {call + 1} frame index");
+        AssertEqual((call & 1) == 0, paletteFx.PaletteWritten,
+            $"Hyper Beam palette-FX call {call + 1} write cadence");
+        for (int color = 0; color < HyperBeamPaletteFxState.ColorsPerFrame; color++)
+        {
+            AssertEqual(
+                unchecked((ushort)(0x0100 + expectedFrame * 0x20 + color)),
+                drainedCgram.Colors[0xe1 + color],
+                $"Hyper Beam palette-FX call {call + 1} color {color}");
+        }
+    }
+    AssertEqual((ushort)1, left.Drained.HyperBeamPaletteFx.CompletedCycles,
+        "Hyper Beam palette-FX completes one cycle on call twenty-one");
+    AssertEqual((ushort)0x4567, drainedCgram.Colors[0xe0],
+        "Hyper Beam palette-FX preserves color before its range");
+    AssertEqual((ushort)0x2345, drainedCgram.Colors[0xe9],
+        "Hyper Beam palette-FX preserves color after its range");
 
     // Mother Brain's first rainbow-beam hit calls command five or `$18`. Both routes force
     // pose `$54` and lock normal input; only their installed Up-edge handler differs.
@@ -2832,7 +2888,7 @@ static void VerifySamusDrainedController()
     AssertEqual((ushort)0x3000, drainedCgram.Colors[192],
         "command $17 replaces rainbow palette immediately");
 
-    Console.WriteLine("  Drained Samus: rainbow palettes, timer handlers, controllers, fall, releases, and hyper beam agree.");
+    Console.WriteLine("  Drained Samus: rainbow/body and Hyper Beam projectile palettes, controllers, fall, and releases agree.");
 }
 
 /// <summary>

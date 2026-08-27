@@ -38,7 +38,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, persistent external X/Y displacement, momentum, gravity/collision, `$F8` | No unadmitted reachable pose branch found; shared presentation/producer gaps remain tracked below |
 | `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, persistent external X/Y displacement, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | Live enemy producer |
 | `$1A` | Grabbed by Draygon | `$BA-$BE/$EC-$F0`: exact owner pin, ten ROM pose/animation routes, input/fallback transitions, type-$1A vertical-result clear, 60-pattern escape hack, `$01/$02` release cleanup and owner signal | Live Draygon actor/flight producer |
-| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, bank-$88 bubble/afterglow, split bank-$91 body/bubble palette cycles, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, ten-palette Baby rainbow cadence/restoration, Hyper Beam grant and live `$9018` projectile/flare/Wave motion; bank `$A9`: repeat/active/final rainbow, painful-walk/corpse, revival, Baby murder/death, phase-three combat/death, and escape `$B8EB-$B3C5`, including body/head bytecode, live neck geometry, Baby graphics DMA/spawn, sine-driven entrance, moving-head latch, drain/corpse handshake, release, ceiling retreat, eight-record flight, generic-touch Samus latch, one-point healing, bank-$86 ring/bomb movement and damage, purple-breath/misc-explosion animation, high/low enemy-projectile OAM, release/stare/retreat/final charge/final blow, rainbow commands, six black palettes, 30 rendered death explosions, attack-tile DMA, room-light restoration, deletion, Hyper Beam, controller four, corpse rotting, escape timer, and exploded door | Hyper Beam palette-FX object, earlier attack-selection, Hyper Beam enemy-hit/recoil integration, typewriter character engine/glyphs, Baby actor spritemap and remaining dust producers, live enemy actor producer |
+| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, bank-$88 bubble/afterglow, split bank-$91 body/bubble palette cycles, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, ten-palette Baby rainbow cadence/restoration, Hyper Beam grant, `$8D:E1F0` ten-frame projectile palette loop, and live `$9018` projectile/flare/Wave motion; bank `$A9`: repeat/active/final rainbow, painful-walk/corpse, revival, Baby murder/death, phase-three combat/death, and escape `$B8EB-$B3C5`, including body/head bytecode, live neck geometry, Baby graphics DMA/spawn, sine-driven entrance, moving-head latch, drain/corpse handshake, release, ceiling retreat, eight-record flight, generic-touch Samus latch, one-point healing, bank-$86 ring/bomb movement and damage, purple-breath/misc-explosion animation, high/low enemy-projectile OAM, release/stare/retreat/final charge/final blow, rainbow commands, six black palettes, 30 rendered death explosions, attack-tile DMA, room-light restoration, deletion, Hyper Beam, controller four, corpse rotting, escape timer, and exploded door | Earlier attack-selection, Hyper Beam enemy-hit/recoil integration, typewriter character engine/glyphs, Baby actor spritemap and remaining dust producers, live enemy actor producer |
 
 ## Active-pose and animation audit
 
@@ -685,7 +685,7 @@ translated status is documented with the Morph Ball family below.
   six ROM frames remain visible for 31 calls, delete on call 32, and use `$E6E0`'s strict
   256x256 layer-origin test. The earlier attack-selection trigger, live Hyper Beam shot/damage
   producer, typewriter character engine/glyphs, Baby actor spritemap/other dust producers, and
-  Hyper Beam's separate palette-FX object and HDMA effects beyond direct CGRAM writes remain seams.
+  HDMA effects beyond the translated direct-CGRAM palette objects remain seams.
 - `MotherBrainBodyAnimationState` translates the ordinary enemy-instruction stage used by
   Mother Brain's painful fast/medium/slow/really-slow walks in both directions plus
   `$99C6/$99E2/$99F2/$9A26` stand/lean/crouch lists.
@@ -937,9 +937,12 @@ translated status is documented with the Morph Ball family below.
 - Hyper Beam follows the forced `$91:E5F0` equipment `$1009`/flag `$8000` grant and bypasses
   ordinary charge input. `$90:BCD1` publishes type `$9018`, charged data-table index eight,
   damage `$03E8`, sound `$1F`, cooldown 21, glow `$8014`, and flare sentinel `$8000`.
-  `$90:B159` reuses Wave fixed-point motion without its detached trail. Synthetic and private-
-  ROM checks require every literal, native flare lifetime, decoded bank-$93 art, and no trail;
-  the interactive viewer exposes the same path through **Hyper Beam enabled**.
+  `$90:B159` reuses Wave fixed-point motion without its detached trail. The same grant spawns
+  `$8D:E1F0`; timer-one initialization executes `$C655,$01C2`, then ten eight-color records
+  each last two handler calls and write only CGRAM `$E1-$E8` before `$C61E,$D904` loops.
+  Synthetic and private-ROM checks require every projectile literal, native flare lifetime,
+  decoded bank-$93 art, all ten palette records, exact cadence, and no trail; the interactive
+  viewer exposes the same path through **Hyper Beam enabled**.
 - HUD item one now dispatches `$90:BE62`: fresh Shoot allocates from the shared five slots,
   installs invincibility 20/cooldown 10, consumes one round, reads damage/direction art through
   `$93:83F3 -> $8641`, and auto-deselects on the last round. `$90:AF68/$B2F6` preserves the

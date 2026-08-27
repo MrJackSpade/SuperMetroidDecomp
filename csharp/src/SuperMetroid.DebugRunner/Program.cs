@@ -843,6 +843,7 @@ bool observedHyperBeamFlare = false;
 ushort observedHyperBeamType = 0;
 ushort observedHyperBeamDamage = 0;
 ushort observedHyperBeamSound = 0;
+var observedHyperBeamPaletteFrames = new HashSet<int>();
 bool observedMissileShot = false;
 bool observedMissileArt = false;
 bool observedMissileTrail = false;
@@ -2167,6 +2168,28 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         drawHighPriorityEnemyProjectiles,
         drawLowPriorityEnemyProjectiles);
     observedSamusPoses.Add(runtime.Samus.Pose);
+    if (runtime.LastHyperBeamPaletteFxStep is { PaletteWritten: true } hyperPalette)
+    {
+        // Do not merely trust the specialized interpreter's frame index. Compare the live
+        // CGRAM words with this cartridge's `$8D:D904` record after the complete runtime
+        // call; this catches a wrong destination, wrong stride, or later palette overwrite.
+        int recordAddress = 0x8dd904 + hyperPalette.FrameIndex * 20;
+        for (int color = 0; color < HyperBeamPaletteFxState.ColorsPerFrame; color++)
+        {
+            int source = recordAddress + 2 + color * 2;
+            ushort expectedColor = unchecked((ushort)(
+                bus.ReadByte(source) | (bus.ReadByte(source + 1) << 8)));
+            ushort actualColor = runtime.Cgram.Colors[0xe1 + color];
+            if (actualColor != expectedColor)
+            {
+                throw new InvalidOperationException(
+                    $"Hyper Beam palette frame {hyperPalette.FrameIndex}, color {color} " +
+                    $"was ${actualColor:X4}; ROM `$8D:{source & 0xffff:X4}` says ${expectedColor:X4}.");
+            }
+        }
+
+        observedHyperBeamPaletteFrames.Add(hyperPalette.FrameIndex);
+    }
     if (options.LandingImpactScript &&
         (runtime.LastAerialSamusMovement is { Landed: true } ||
          runtime.LastMorphBallMovement is { Landed: true }))
@@ -3131,10 +3154,24 @@ if (options.HyperBeamScript)
     if (runtime.Projectiles.ActiveTrailCount != 0)
         throw new InvalidOperationException("Hyper Beam incorrectly allocated an ordinary Wave trail.");
 
+    // Every ROM record lasts two handler calls. Short captures must visit every record
+    // they had time to reach; captures of nineteen calls or more must cover all ten before
+    // the following odd call executes the terminal goto and starts the next cycle.
+    int expectedPaletteFrameCount = Math.Min(
+        HyperBeamPaletteFxState.FrameCount,
+        (options.FrameCount + 1) / 2);
+    if (observedHyperBeamPaletteFrames.Count != expectedPaletteFrameCount)
+    {
+        throw new InvalidOperationException(
+            $"Hyper Beam palette-FX visited {observedHyperBeamPaletteFrames.Count} distinct " +
+            $"ROM frames; {expectedPaletteFrameCount} were expected in {options.FrameCount} calls.");
+    }
+
     Console.WriteLine(
         $"Hyper Beam ROM route fired type ${observedHyperBeamType:X4}, " +
         $"damage=${observedHyperBeamDamage:X4}, sound=${observedHyperBeamSound:X2}, " +
-        $"art={observedHyperBeamArt}, flare={observedHyperBeamFlare}, trail=false.");
+        $"art={observedHyperBeamArt}, flare={observedHyperBeamFlare}, trail=false; " +
+        $"paletteFX={observedHyperBeamPaletteFrames.Count}/10 ROM frames.");
 }
 
 if (options.MissileScript)

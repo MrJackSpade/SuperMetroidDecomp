@@ -32,7 +32,9 @@ families outside the translated bomb paths.
 The latest projectile checkpoint also translates the endgame Hyper Beam producer: the viewer's
 **Hyper Beam enabled** toggle and `--hyper-beam-script` exercise its literal `$9018` type,
 `$03E8` damage, sound `$1F`, native three-part flare, bank-$93 art, and trail-free Wave motion.
-Enemy-hit/recoil integration remains a separate cross-system seam.
+The grant also spawns the real `$8D:E1F0` projectile-palette object: all ten eight-color
+records run at their cartridge-authored two-call cadence in CGRAM `$E1-$E8`. Enemy-hit/recoil
+integration remains a separate cross-system seam.
 
 ## Pinned upstream references
 

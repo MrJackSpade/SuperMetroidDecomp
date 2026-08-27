@@ -28,10 +28,16 @@ public sealed class SamusDrainedState
     public DrainedSamusPhase Phase { get; private set; }
 
     /// <summary>
-    /// True after controller function three writes equipped beams <c>$1009</c> and hyper
-    /// beam flag <c>$8000</c>. Palette-FX object creation remains presentation work.
+    /// True after controller function three writes equipped beams <c>$1009</c>, writes
+    /// hyper-beam flag <c>$8000</c>, and spawns the persistent bank-$8D palette object.
     /// </summary>
-    public bool HyperBeamPaletteFxRequested { get; private set; }
+    public bool HyperBeamPaletteFxRequested => HyperBeamPaletteFx.IsActive;
+
+    /// <summary>
+    /// Live translation of object <c>$8D:E1F0</c>. It animates OBJ palette-six colors
+    /// one through eight independently of the earlier full-body rainbow palette handler.
+    /// </summary>
+    public HyperBeamPaletteFxState HyperBeamPaletteFx { get; } = new();
 
     /// <summary>
     /// Host-readable form of super-special-palette flag `$8000`, written by Samus command
@@ -362,7 +368,7 @@ public sealed class SamusDrainedState
         ArgumentNullException.ThrowIfNull(samus);
         samus.EquippedBeams = 0x1009;
         samus.HyperBeam = 0x8000;
-        HyperBeamPaletteFxRequested = true;
+        HyperBeamPaletteFx.Spawn();
     }
 
     /// <summary>Ends the Samus-side drain lock after release art reaches `$FD,$01/$02`.</summary>

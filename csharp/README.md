@@ -306,9 +306,13 @@ tiles and palette are uploaded, then supplies one Shoot sample. `$90:BCD1` alloc
 type `$9018`, initializes art/radii through charged-table index eight, overrides damage to
 `$03E8`, queues sound `$1F`, sets cooldown 21, and starts the special `$8014/$8000` glow and
 three-component flare. `$90:B159` then shares Wave's signed 8.8 movement but deliberately
-does not allocate a detached trail. The private-ROM regression requires all of those values
-and decoded bank-$93 art; `HyperBeamFrame.png` captures the shot and muzzle flare against
-live Landing Site terrain. The viewer exposes the same path as **Hyper Beam enabled**;
+does not allocate a detached trail. Controller three also spawns palette-FX object
+`$8D:E1F0`: its native timer-one initialization executes `$C655,$01C2`, then cycles ten
+ROM-authored eight-color records for exactly two handler calls each before `$C61E` loops to
+`$D904`. The private-ROM regression requires every projectile literal, decoded bank-$93 art,
+all ten palette records in live CGRAM `$E1-$E8`, and unchanged neighboring colors;
+`HyperBeamFrame.png` captures the shot against live Landing Site terrain. The viewer exposes
+the same path as **Hyper Beam enabled**;
 disabling it is explicitly a debugger-only reverse seam because normal play never revokes it.
 
 `--missile-script` grants ten rounds and selects HUD item one at the untranslated save/pause
@@ -366,7 +370,7 @@ all nine explosion spritemaps while whitening every non-Samus room palette throu
 suitless Samus and flying suit pieces during the authentic whiteout. Fatal-damage acquisition,
 music polling, and the post-explosion fade remain explicit outer game-state seams.
 
-`--drained-samus-script` supplies only the call timing normally owned by the later Baby Metroid actor. It lifts the debugger body two blocks, calls the exact `$91:E4AD` controller entries, and leaves `$E8-$EB` animation bytecode, `$F7`, shared 16.16 gravity, room collision, signed draw offsets, tile DMA, and spritemaps ROM-authored. The 110-frame capture freezes authentic crouched drained art; 180 frames prove floor handoff, standing/crouching commands, `$FD,$01` release, and hyper-beam state. The full Mother Brain/Baby route additionally drives command `$16` and `$91:D954`'s ten complete Hyper Beam palettes using the Baby's gradually increasing one-through-ten cadence. `DrainedRainbowFrame.png` captures that real-ROM palette animation, and command `$17` now restores the equipment-selected suit palette in the same frame.
+`--drained-samus-script` supplies only the call timing normally owned by the later Baby Metroid actor. It lifts the debugger body two blocks, calls the exact `$91:E4AD` controller entries, and leaves `$E8-$EB` animation bytecode, `$F7`, shared 16.16 gravity, room collision, signed draw offsets, tile DMA, and spritemaps ROM-authored. The 110-frame capture freezes authentic crouched drained art; 180 frames prove floor handoff, standing/crouching commands, `$FD,$01` release, and hyper-beam state. The full Mother Brain/Baby route additionally drives command `$16` and `$91:D954`'s ten complete Hyper Beam body palettes using the Baby's gradually increasing one-through-ten cadence. `DrainedRainbowFrame.png` captures that real-ROM palette animation, command `$17` restores the equipment-selected suit palette in the same frame, and the frame-6168 grant starts the independent `$8D:E1F0` projectile-palette loop described above.
 
 `--draygon-grab-script` supplies one fixed Draygon owner coordinate at the exact `$A5:94A9` actor seam because Landing Site has no Draygon actor. It enters `$EC`, drives the private ROM's `$ED/$EE/$EF/$F0` transition records, proves the six-frame struggle loop and `$F0->$EC` fallback, then reaches `$90:E2A1`'s exact 60-pattern escape threshold and `$90:E2DE` release. The 90-frame capture freezes authentic moving grabbed art; 180 frames prove pose `$01`, native motion-word cleanup, and the owner-release signal. This translates Samus's complete grabbed family without pretending the missing boss flight path is Samus physics.
 
@@ -400,8 +404,8 @@ grapple, all twelve ordinary/charged beam combinations plus Hyper Beam productio
 Crystal Flash, X-ray mechanics/window color math, drained/Draygon,
 liquid/atmospheric/landing-impact, and documented
 Mother Brain/Baby routes described above. Unsupported paths throw instead of becoming guessed
-physics. Remaining cross-system work includes the Hyper Beam palette-FX object, earlier Mother
-Brain attack selection, Hyper Beam enemy-hit/recoil integration,
+physics. Remaining cross-system work includes earlier Mother Brain attack selection,
+Hyper Beam enemy-hit/recoil integration,
 X-ray hidden-block BG2 substitution, remaining weapon-specific trails,
 projectile-triggered door/bombable/special-block PLMs,
 missing actor spritemaps, live enemy damage producers, solid-enemy wall-jump branches,

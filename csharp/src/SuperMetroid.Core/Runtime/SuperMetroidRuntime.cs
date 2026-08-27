@@ -172,6 +172,12 @@ public sealed class SuperMetroidRuntime
     /// <summary>Most recent game-state-owned fatal-damage animation/palette/VRAM call.</summary>
     public SamusDeathSequenceStepResult? LastDeathSequenceStep { get; private set; }
 
+    /// <summary>
+    /// Most recent global bank-$8D Hyper Beam palette-object call. Unlike Samus's body
+    /// palette handler, this owns OBJ palette six and runs before the Samus state handler.
+    /// </summary>
+    public HyperBeamPaletteFxStepResult? LastHyperBeamPaletteFxStep { get; private set; }
+
     /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; private set; }
 
@@ -831,6 +837,15 @@ public sealed class SuperMetroidRuntime
         Action<OamBuffer>? drawLowPriorityEnemyProjectiles = null)
     {
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
+
+        // Gameplay state eight calls `$8D:C527` before `$91:8000` dispatches Samus and
+        // before `$A0:868F` processes enemies. Controller function three is invoked by the
+        // Baby during that later enemy phase, so a newly spawned `$E1F0` object naturally
+        // begins on the following frame. Debug scripts that grant Hyper Beam before their
+        // first StepFrame get the same handler-first behavior immediately.
+        LastHyperBeamPaletteFxStep = Samus?.Drained.HyperBeamPaletteFx.Step(
+            _addressSpace,
+            Cgram);
 
         // The bank-$82 main loop clears high OAM and resets its stack before dispatching
         // game state, then finalizes unused entries afterward. Samus is emitted before the

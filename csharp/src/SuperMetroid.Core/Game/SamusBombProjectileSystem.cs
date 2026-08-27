@@ -95,7 +95,8 @@ public sealed class SamusBombProjectileSystem
                 level,
                 slot,
                 blockReactions,
-                roomPlms);
+                roomPlms,
+                samus.LiquidPhysics.AreaIndex);
             explosionStarted |= slotExplosionStarted;
 
             // The native loop still calls $93:81E9 after a pre-instruction clears a slot.
@@ -268,7 +269,8 @@ public sealed class SamusBombProjectileSystem
         RoomLevelData level,
         SamusBombProjectileSlot slot,
         List<BombBlockReaction> blockReactions,
-        RoomPlmSystem? roomPlms)
+        RoomPlmSystem? roomPlms,
+        byte areaIndex)
     {
         // Direction high nibble is a generic projectile kill request. Normal placed bombs
         // leave direction zero for their lifetime, but debugger state can exercise it.
@@ -300,14 +302,13 @@ public sealed class SamusBombProjectileSystem
 
         // Normal bomb type five maps through $94:9C73 to collision mode two. As soon as
         // timer zero is visible, $94:9CF4 sets type bit zero and reacts to a five-block
-        // cross exactly once. Bombable blocks and their type-$5/$D extension children now
-        // enter the same shared bank-$84 PLM owner used by collision and grapple movement.
-        // Shootable/special families remain explicit until their distinct setup gates and
-        // instruction lists are translated; ordinary air/slopes/solid terrain are no-ops.
+        // cross exactly once. Reactive blocks and their type-$5/$D extension children enter
+        // the same shared bank-$84 PLM owner used by collision and grapple movement. Passing
+        // the room's area byte is required for negative-BTS special-block table dispatch.
         if (slot.BombTimer == 0 && (slot.Type & 0x0001) == 0)
         {
             slot.Type |= 0x0001;
-            CollectBlockExplosionReactions(level, slot, blockReactions, roomPlms);
+            CollectBlockExplosionReactions(level, slot, blockReactions, roomPlms, areaIndex);
         }
 
         return explosionStarted;
@@ -317,7 +318,8 @@ public sealed class SamusBombProjectileSystem
         RoomLevelData level,
         SamusBombProjectileSlot slot,
         List<BombBlockReaction> reactions,
-        RoomPlmSystem? roomPlms)
+        RoomPlmSystem? roomPlms,
+        byte areaIndex)
     {
         int centerX = slot.XPosition >> 4;
         int centerY = slot.YPosition >> 4;
@@ -387,6 +389,58 @@ public sealed class SamusBombProjectileSystem
                     level,
                     block.Index,
                     block.Behavior,
+                    slot.Type);
+                continue;
+            }
+
+            if (block.CollisionType is 4 or 12)
+            {
+                // Type-$4 shootable air treats negative BTS as a duplicate and returns.
+                // Type-$C instead indexes one of eight area tables; every retail entry is
+                // PLMEntries_nothing, but Spawn_PLM still consumes a slot for one pass.
+                if (block.CollisionType == 4 && (block.Behavior & 0x80) != 0)
+                    continue;
+                if ((block.Behavior & 0x80) == 0 && block.Behavior > 15)
+                {
+                    throw new NotSupportedException(
+                        $"Shootable block {block.Index} has BTS ${block.Behavior:X2} outside " +
+                        "the translated normal-bomb table range.");
+                }
+                if ((block.Behavior & 0x80) != 0 && (block.Behavior & 0x7f) > 7)
+                {
+                    throw new NotSupportedException(
+                        $"Area-dependent shootable block {block.Index} has BTS " +
+                        $"${block.Behavior:X2} outside its eight-entry native table.");
+                }
+                if (roomPlms is null)
+                {
+                    throw new NotSupportedException(
+                        $"Bombed shootable type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
+                        $"at ({x},{y}) requires a room PLM owner.");
+                }
+
+                roomPlms.TrySpawnBombedShootableBlock(
+                    level,
+                    block.Index,
+                    block.Behavior,
+                    slot.Type);
+                continue;
+            }
+
+            if (block.CollisionType == 11)
+            {
+                if (roomPlms is null)
+                {
+                    throw new NotSupportedException(
+                        $"Bombed special block BTS ${block.Behavior:X2} at ({x},{y}) " +
+                        "requires a room PLM owner.");
+                }
+
+                roomPlms.TrySpawnBombedSpecialBlock(
+                    level,
+                    block.Index,
+                    block.Behavior,
+                    areaIndex,
                     slot.Type);
                 continue;
             }

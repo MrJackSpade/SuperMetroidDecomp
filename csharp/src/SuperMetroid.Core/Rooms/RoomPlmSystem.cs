@@ -28,6 +28,7 @@ public sealed class RoomPlmSystem
     private const ushort DrawPlmBlockInstruction = 0x8b17;
     private const ushort QueueSoundLibrary2Maximum6Instruction = 0x8c10;
     private const ushort QueueSoundLibrary2Maximum3Instruction = 0x8c46;
+    private const ushort QueueSoundLibrary2Maximum1Instruction = 0x8c79;
     private const ushort GotoInstruction = 0x8724;
     private const ushort SetPlmBtsTo1Instruction = 0xcd93;
     private const ushort DeleteInstructionList = 0xaae3;
@@ -60,6 +61,37 @@ public sealed class RoomPlmSystem
         0xcd06, // BTS 5: 2x1, permanent
         0xcd22, // BTS 6: 1x2, permanent
         0xcd3e, // BTS 7: 2x2, permanent
+    ];
+
+    // `$94:9EA6` maps non-area shootable BTS zero through seven to these entry PLMs.
+    // We store the post-setup instruction pointers because Spawn_PLM runs the entry setup
+    // synchronously. The first four lists restore their parent after the native 384-frame
+    // blank hold; the latter four end after the breaking frames and leave air behind.
+    private static readonly ushort[] RespawningShotInstructionLists =
+    [
+        0xcadf, // BTS 0: 1x1 respawning shot block
+        0xcb02, // BTS 1: 2x1 respawning shot block
+        0xcb27, // BTS 2: 1x2 respawning shot block
+        0xcb4c, // BTS 3: 2x2 respawning shot block
+    ];
+
+    private static readonly ushort[] PermanentShotInstructionLists =
+    [
+        0xcbb7, // BTS 4: 1x1 permanent shot block
+        0xcbcc, // BTS 5: 2x1 permanent shot block
+        0xcbe1, // BTS 6: 1x2 permanent shot block
+        0xcbf6, // BTS 7: 2x2 permanent shot block
+    ];
+
+    // `$94:9DA4` deliberately repeats the four crumble dimensions for BTS 4..7. These
+    // one-frame lists do not destroy the special block. They replace an invisible/variant
+    // type-$B word with the retail visible crumble art so the player learns its property.
+    private static readonly ushort[] CrumbleRevealInstructionLists =
+    [
+        0xc8ec, // 1x1 reveal
+        0xc8f2, // 2x1 reveal
+        0xc8f8, // 1x2 reveal
+        0xc8fe, // 2x2 reveal
     ];
 
     private readonly PlmSlot[] _slots = Enumerable
@@ -256,6 +288,194 @@ public sealed class RoomPlmSystem
     }
 
     /// <summary>
+    /// Runs the normal-bomb branch of the shootable-air/block entries selected at
+    /// <c>$94:9EA6</c> and installs their exact bank-$84 instruction list.
+    /// </summary>
+    /// <remarks>
+    /// BTS 0..3 use setup <c>$84:CE6B</c>: synthesize <c>$x052</c> for restoration and
+    /// apply <c>AND $8FFF</c> to the live word. BTS 4..7 use setup <c>$84:B3C1</c>, which
+    /// applies that AND directly to the original word and never restores it. BTS 8/9 and
+    /// A/B normally require a power bomb or super missile; a normal bomb redirects to the
+    /// tiny reveal lists at <c>$C91C/$C922</c>. BTS C..F still allocate the retail
+    /// <c>PLMEntries_nothing</c> slot and delete it during the next handler pass. Negative
+    /// type-$C BTS uses an eight-entry area table whose retail entries are also all no-ops;
+    /// it retains that allocation even though type-$4 takes an early return in bank $94.
+    /// </remarks>
+    public bool TrySpawnBombedShootableBlock(
+        RoomLevelData level,
+        int blockIndex,
+        byte behavior,
+        ushort projectileType)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        bool areaDependent = (behavior & 0x80) != 0;
+        if (areaDependent && (behavior & 0x7f) > 7)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(behavior),
+                "Area-dependent shootable BTS must address one of its eight native entries.");
+        }
+        if (!areaDependent && behavior > 15)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(behavior),
+                "Translated normal-bomb shootable BTS must be in range zero through fifteen.");
+        }
+        if ((projectileType & 0x0f00) != 0x0500)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(projectileType),
+                "This setup translation currently accepts the normal-bomb family only.");
+        }
+
+        // Spawn_PLM's descending free-slot search happens before any setup routine. A full
+        // pool must therefore leave both level data and BTS completely untouched.
+        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
+        {
+            PlmSlot slot = _slots[slotIndex];
+            if (slot.Active)
+                continue;
+
+            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+            slot.Active = true;
+            slot.BlockIndex = blockIndex;
+            slot.InstructionTimer = 1;
+            slot.RestoreLevelWord = 0;
+
+            if (areaDependent)
+            {
+                // `$94:9E8D-$9E9E` indexes the current area's eight-entry table before
+                // Spawn_PLM. Every retail entry at `$94:9F46-$9FC4` is PLMEntries_nothing.
+                slot.InstructionPointer = DeleteInstructionList;
+                return true;
+            }
+
+            if (behavior < 4)
+            {
+                // CE6B throws away the original visual/BTS low twelve bits. The generated
+                // `$x052` word is both PLM_Vars and the source of the temporary collision
+                // word, exactly like the retail setup's two consecutive stores.
+                slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
+                slot.InstructionPointer = RespawningShotInstructionLists[behavior];
+                level.SetForegroundEntry(
+                    blockIndex,
+                    unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
+                return true;
+            }
+
+            if (behavior < 8)
+            {
+                // Setup_DeactivatePLM does not synthesize a restore word. Clearing bits
+                // `$7000` turns type-$4 air into ordinary air and type-$C solid into type-$8
+                // solid until the same-frame list draws its first breaking frame.
+                slot.InstructionPointer = PermanentShotInstructionLists[behavior - 4];
+                level.SetForegroundEntry(
+                    blockIndex,
+                    unchecked((ushort)(block.LevelWord & 0x8fff)));
+                return true;
+            }
+
+            if (behavior is 8 or 9)
+            {
+                // CF2E sees projectile family `$0500` and replaces the entry's normal
+                // power-bomb animation pointer with the one-frame visible `$C057` reveal.
+                slot.InstructionPointer = 0xc91c;
+                return true;
+            }
+
+            if (behavior is 10 or 11)
+            {
+                // CF67 performs the analogous redirect to visible super-missile word
+                // `$C09F`; it neither clears collision nor queues the shot-block sound.
+                slot.InstructionPointer = 0xc922;
+                return true;
+            }
+
+            slot.InstructionPointer = DeleteInstructionList;
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Spawns the special-block reveal selected by <c>$94:9D71-$9E53</c> for a normal bomb.
+    /// </summary>
+    /// <remarks>
+    /// Nonnegative BTS 0..7 selects a dimensioned crumble reveal, 8..D selects the native
+    /// no-op entry, and E/F reveals a speed-booster block. A negative BTS selects an
+    /// eight-word area table: only Brinstar entries 2..5 reveal speed blocks; every other
+    /// bomb-special area entry is <c>PLMEntries_nothing</c>. Setup <c>$84:CFA0</c> accepts
+    /// normal bombs without mutating terrain, so the visible type-$B word arrives on the
+    /// first PLM handler pass and the object deletes on the following pass.
+    /// </remarks>
+    public bool TrySpawnBombedSpecialBlock(
+        RoomLevelData level,
+        int blockIndex,
+        byte behavior,
+        byte areaIndex,
+        ushort projectileType)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        if (areaIndex > 7)
+            throw new ArgumentOutOfRangeException(nameof(areaIndex), "Native area index must be zero through seven.");
+        if ((projectileType & 0x0f00) != 0x0500)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(projectileType),
+                "The bomb-special setup accepts the normal-bomb family in this translated path.");
+        }
+
+        ushort instructionPointer;
+        if ((behavior & 0x80) == 0)
+        {
+            if (behavior > 15)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(behavior),
+                    "Area-independent special-block BTS must be zero through fifteen.");
+            }
+
+            instructionPointer = behavior switch
+            {
+                <= 7 => CrumbleRevealInstructionLists[behavior & 3],
+                >= 14 => 0xc928,
+                _ => DeleteInstructionList,
+            };
+        }
+        else
+        {
+            int areaBehavior = behavior & 0x7f;
+            if (areaBehavior > 7)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(behavior),
+                    "Area-dependent bomb-special BTS must address one of its eight native entries.");
+            }
+
+            instructionPointer = areaIndex == 1 && areaBehavior is >= 2 and <= 5
+                ? (ushort)0xc928
+                : DeleteInstructionList;
+        }
+
+        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
+        {
+            PlmSlot slot = _slots[slotIndex];
+            if (slot.Active)
+                continue;
+
+            slot.Active = true;
+            slot.BlockIndex = blockIndex;
+            slot.RestoreLevelWord = 0;
+            slot.InstructionPointer = instructionPointer;
+            slot.InstructionTimer = 1;
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Executes <c>PLM_Handler</c>'s timer/instruction portion for all translated slots.
     /// </summary>
     /// <remarks>
@@ -337,6 +557,15 @@ public sealed class RoomPlmSystem
 
             switch (instruction)
             {
+                case QueueSoundLibrary2Maximum1Instruction:
+                    // `$84:8C79` is the shot-block queue form. It has the same odd-byte
+                    // operand layout as `$8C10/$8C46`, but permits only one pending sound.
+                    byte singleSoundId = bus.ReadByte(
+                        0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
+                    _soundRequests.Add(new PlmSoundRequest(2, singleSoundId, MaximumQueued: 1));
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
+                    continue;
+
                 case QueueSoundLibrary2Maximum6Instruction:
                     // $84:8C10 consumes one byte after its pointer. The following timer's
                     // low byte is read as A's harmless high byte by the 16-bit LDA.

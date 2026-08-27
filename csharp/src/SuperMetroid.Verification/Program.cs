@@ -12191,6 +12191,39 @@ static void VerifySamusMorphBallMovement()
     bus.WriteBytes(0x84a351, [0x01, 0x00, 0x55, 0x00, 0x00, 0x00]);
     bus.WriteBytes(0x84a357, [0x01, 0x00, 0xff, 0x00, 0x00, 0x00]);
 
+    // Additional bomb-reaction lists used later in this method. These bytes are literal
+    // transcriptions of `$84:CADF`, `$84:C91C`, `$84:C922`, `$84:C8FE`, and `$84:C928`.
+    // Keeping the instruction words in the sparse bus means the production interpreter—not
+    // a test-only animation shortcut—still owns every duration, draw pointer, and deletion.
+    bus.WriteBytes(0x84cadf, [
+        0x79, 0x8c, 0x0a,       // Queue sound library 2, maximum 1: sound $0A.
+        0x04, 0x00, 0x45, 0xa3, // Forward shot-break frames `$053,$054,$055`.
+        0x04, 0x00, 0x4b, 0xa3,
+        0x04, 0x00, 0x51, 0xa3,
+        0x80, 0x01, 0x57, 0xa3, // Blank `$0FF` hold for exactly 384 frames.
+        0x04, 0x00, 0x51, 0xa3, // Reverse frames before restoring PLM_Vars.
+        0x04, 0x00, 0x4b, 0xa3,
+        0x04, 0x00, 0x45, 0xa3,
+        0x17, 0x8b,
+        0xbc, 0x86,
+    ]);
+    bus.WriteBytes(0x84c91c, [0x01, 0x00, 0xe7, 0xa4, 0xbc, 0x86]);
+    bus.WriteBytes(0x84c922, [0x01, 0x00, 0xed, 0xa4, 0xbc, 0x86]);
+    bus.WriteBytes(0x84c8fe, [0x01, 0x00, 0xb1, 0xa4, 0xbc, 0x86]);
+    bus.WriteBytes(0x84c928, [0x01, 0x00, 0xf3, 0xa4, 0xbc, 0x86]);
+    bus.WriteBytes(0x84aae3, [0xbc, 0x86]); // PLMEntries_nothing: delete immediately.
+
+    // The reveal draw data is likewise retail-authored. `$A4B1` contains two horizontal
+    // two-word records joined by signed relative offset `(0,+1)`; the other three are
+    // ordinary single-record lists terminated by a zero offset pair.
+    bus.WriteBytes(0x84a4b1, [
+        0x02, 0x00, 0xbc, 0xb0, 0xbc, 0x50, 0x00, 0x01,
+        0x02, 0x00, 0xbc, 0xd0, 0xbc, 0xd0, 0x00, 0x00,
+    ]);
+    bus.WriteBytes(0x84a4e7, [0x01, 0x00, 0x57, 0xc0, 0x00, 0x00]);
+    bus.WriteBytes(0x84a4ed, [0x01, 0x00, 0x9f, 0xc0, 0x00, 0x00]);
+    bus.WriteBytes(0x84a4f3, [0x01, 0x00, 0xb6, 0xb0, 0x00, 0x00]);
+
     var noBombItemSamus = new SamusState
     {
         Pose = SamusState.MorphBallGroundRightPose,
@@ -12417,6 +12450,206 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0, reactionPlms.ActiveCount,
         "bomb reaction PLM deletes on the handler pass after restoration");
 
+    // Exercise the public bomb pipeline as well as the setup methods below. A BTS-eight
+    // type-$C parent remains unchanged during CF2E setup, then the same gameplay frame's
+    // PLM pass reveals `$C057`. This catches an omitted/wrong collision-type dispatcher
+    // branch even if the isolated bank-$84 setup tests continue to pass.
+    var integratedRevealWords = new ushort[width * height];
+    var integratedRevealBts = new byte[integratedRevealWords.Length];
+    const int integratedRevealIndex = 3 * width + 3;
+    integratedRevealWords[integratedRevealIndex] = 0xc000;
+    integratedRevealBts[integratedRevealIndex] = 8;
+    RoomLevelData integratedRevealLevel = new(
+        width,
+        height,
+        integratedRevealWords,
+        integratedRevealBts,
+        new ushort[integratedRevealWords.Length],
+        reactionDefinitions);
+    BackgroundTilemapStreamer integratedRevealStreamer =
+        integratedRevealLevel.CreateBackgroundStreamer();
+    var integratedRevealPlms = new RoomPlmSystem();
+    var integratedRevealBombs = new SamusBombProjectileSystem();
+    var integratedRevealSamus = new SamusState
+    {
+        Pose = SamusState.MorphBallGroundRightPose,
+        EquippedItems = 0x1004,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    integratedRevealSamus.RefreshCollisionRadii(bus);
+    integratedRevealBombs.StepFrame(
+        bus,
+        integratedRevealLevel,
+        integratedRevealSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X,
+        integratedRevealPlms);
+    BombProjectileFrameResult integratedRevealExplosion = default;
+    while (!integratedRevealExplosion.ExplosionStarted)
+    {
+        integratedRevealExplosion = integratedRevealBombs.StepFrame(
+            bus,
+            integratedRevealLevel,
+            integratedRevealSamus,
+            0,
+            0,
+            integratedRevealPlms);
+    }
+    AssertEqual((byte)12, integratedRevealExplosion.BlockReactions![0].CollisionType,
+        "bomb dispatcher records center shootable-solid parent");
+    AssertEqual(1, integratedRevealPlms.ActiveCount,
+        "bomb dispatcher installs shootable reveal PLM");
+    AssertEqual((ushort)0xc000,
+        integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).LevelWord,
+        "CF2E leaves required-weapon parent unchanged through movement beta");
+    integratedRevealPlms.Step(
+        bus,
+        integratedRevealLevel,
+        integratedRevealStreamer,
+        0,
+        0,
+        0);
+    AssertEqual((ushort)0xc057,
+        integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).LevelWord,
+        "same-frame PLM pass reveals required power-bomb block");
+
+    // Shootable reaction setup `$84:CE6B` is easy to get subtly wrong because it does not
+    // preserve the original low twelve bits. Prove that a type-C/BTS-zero parent becomes
+    // temporary `$8052`, begins at the ROM's `$0053` air frame, queues sound `$0A` through
+    // the max-one opcode, and ultimately restores synthesized `$C052` rather than `$C321`.
+    var shotWords = new ushort[width * height];
+    const int shotIndex = 3 * width + 3;
+    shotWords[shotIndex] = 0xc321;
+    RoomLevelData shotLevel = new(
+        width,
+        height,
+        shotWords,
+        new byte[shotWords.Length],
+        new ushort[shotWords.Length],
+        reactionDefinitions);
+    BackgroundTilemapStreamer shotStreamer = shotLevel.CreateBackgroundStreamer();
+    var shotPlms = new RoomPlmSystem();
+    AssertTrue(
+        shotPlms.TrySpawnBombedShootableBlock(shotLevel, shotIndex, 0, 0x0500),
+        "normal bomb allocates respawning shot-block PLM");
+    AssertEqual((ushort)0x8052,
+        shotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "CE6B installs synthesized temporary shot-block word");
+    shotPlms.Step(bus, shotLevel, shotStreamer, 0, 0, 0);
+    AssertEqual((ushort)0x0053,
+        shotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "respawning shot block begins with retail air frame");
+    AssertEqual(1, shotPlms.SoundRequests.Count,
+        "shot-block head queues one sound request");
+    AssertEqual((byte)0x0a, shotPlms.SoundRequests[0].SoundId,
+        "shot-block head queues crumble sound $0A");
+    AssertEqual((byte)1, shotPlms.SoundRequests[0].MaximumQueued,
+        "$84:8C79 uses sound-library-two maximum one");
+    for (int frame = 0; frame < 12; frame++)
+        shotPlms.Step(bus, shotLevel, shotStreamer, 0, 0, 0);
+    AssertEqual((ushort)0x00ff,
+        shotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "respawning shot block reaches its blank hold word");
+    for (int frame = 0; frame < 384 + 12; frame++)
+        shotPlms.Step(bus, shotLevel, shotStreamer, 0, 0, 0);
+    AssertEqual((ushort)0xc052,
+        shotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "respawning shot block restores CE6B's synthesized parent");
+    shotPlms.Step(bus, shotLevel, shotStreamer, 0, 0, 0);
+    AssertEqual(0, shotPlms.ActiveCount,
+        "respawning shot block deletes one handler pass after restoration");
+
+    // Normal bombs striking BTS 8 and A do not break their weapon-gated blocks. CF2E/CF67
+    // redirect the PLM pointer to one-frame diagnostic reveals. The complete level word is
+    // drawn by the normal bank-$84 draw parser and remains after the slot deletes.
+    var revealWords = new ushort[width * height];
+    const int powerRevealIndex = 2 * width + 2;
+    const int superRevealIndex = 2 * width + 4;
+    const int areaNoOpIndex = 4 * width + 2;
+    revealWords[powerRevealIndex] = 0x4000;
+    revealWords[superRevealIndex] = 0xc000;
+    revealWords[areaNoOpIndex] = 0xc222;
+    RoomLevelData revealLevel = new(
+        width,
+        height,
+        revealWords,
+        new byte[revealWords.Length],
+        new ushort[revealWords.Length],
+        reactionDefinitions);
+    BackgroundTilemapStreamer revealStreamer = revealLevel.CreateBackgroundStreamer();
+    var revealPlms = new RoomPlmSystem();
+    AssertTrue(
+        revealPlms.TrySpawnBombedShootableBlock(revealLevel, powerRevealIndex, 8, 0x0500),
+        "normal bomb allocates power-bomb reveal PLM");
+    AssertTrue(
+        revealPlms.TrySpawnBombedShootableBlock(revealLevel, superRevealIndex, 10, 0x0500),
+        "normal bomb allocates super-missile reveal PLM");
+    AssertTrue(
+        revealPlms.TrySpawnBombedShootableBlock(revealLevel, areaNoOpIndex, 0x80, 0x0500),
+        "negative type-C BTS allocates area-table no-op PLM");
+    revealPlms.Step(bus, revealLevel, revealStreamer, 0, 0, 0);
+    AssertEqual((ushort)0xc057,
+        revealLevel.GetCollisionBlockByIndex(powerRevealIndex).LevelWord,
+        "normal bomb reveals visible power-bomb block word");
+    AssertEqual((ushort)0xc09f,
+        revealLevel.GetCollisionBlockByIndex(superRevealIndex).LevelWord,
+        "normal bomb reveals visible super-missile block word");
+    AssertEqual(0, revealPlms.SoundRequests.Count,
+        "weapon-required reveal lists do not queue shot-break sound");
+    AssertEqual((ushort)0xc222,
+        revealLevel.GetCollisionBlockByIndex(areaNoOpIndex).LevelWord,
+        "area-dependent shootable no-op leaves terrain unchanged");
+    AssertEqual(2, revealPlms.ActiveCount,
+        "area no-op deletes while both one-frame reveal PLMs remain timed");
+    revealPlms.Step(bus, revealLevel, revealStreamer, 0, 0, 0);
+    AssertEqual(0, revealPlms.ActiveCount,
+        "weapon-required reveal PLMs delete after their one-frame draw");
+
+    // `$94:9DA4` chooses a two-by-two crumble reveal for BTS three. The draw record is two
+    // horizontal rows with a signed `(0,+1)` continuation; asserting all four words guards
+    // both the special dispatch and the generic multi-record parser. Brinstar's negative
+    // BTS `$82` instead selects the area-specific speed-block reveal at `$84:C928`.
+    var specialWords = new ushort[width * height];
+    const int crumbleIndex = 2 * width + 2;
+    const int speedIndex = 5 * width + 5;
+    specialWords[crumbleIndex] = 0xb000;
+    specialWords[speedIndex] = 0xb000;
+    RoomLevelData specialLevel = new(
+        width,
+        height,
+        specialWords,
+        new byte[specialWords.Length],
+        new ushort[specialWords.Length],
+        reactionDefinitions);
+    BackgroundTilemapStreamer specialStreamer = specialLevel.CreateBackgroundStreamer();
+    var specialPlms = new RoomPlmSystem();
+    AssertTrue(
+        specialPlms.TrySpawnBombedSpecialBlock(specialLevel, crumbleIndex, 3, 0, 0x0500),
+        "normal bomb allocates two-by-two crumble reveal");
+    AssertTrue(
+        specialPlms.TrySpawnBombedSpecialBlock(specialLevel, speedIndex, 0x82, 1, 0x0500),
+        "Brinstar negative BTS two allocates speed-block reveal");
+    specialPlms.Step(bus, specialLevel, specialStreamer, 0, 0, 0);
+    AssertEqual((ushort)0xb0bc,
+        specialLevel.GetCollisionBlockByIndex(crumbleIndex).LevelWord,
+        "crumble reveal writes parent word");
+    AssertEqual((ushort)0x50bc,
+        specialLevel.GetCollisionBlockByIndex(crumbleIndex + 1).LevelWord,
+        "crumble reveal writes right extension");
+    AssertEqual((ushort)0xd0bc,
+        specialLevel.GetCollisionBlockByIndex(crumbleIndex + width).LevelWord,
+        "crumble reveal writes lower vertical extension");
+    AssertEqual((ushort)0xd0bc,
+        specialLevel.GetCollisionBlockByIndex(crumbleIndex + width + 1).LevelWord,
+        "crumble reveal writes lower-right vertical extension");
+    AssertEqual((ushort)0xb0b6,
+        specialLevel.GetCollisionBlockByIndex(speedIndex).LevelWord,
+        "Brinstar area table reveals speed-booster block");
+    specialPlms.Step(bus, specialLevel, specialStreamer, 0, 0, 0);
+    AssertEqual(0, specialPlms.ActiveCount,
+        "special reveal PLMs delete after their one-frame draw");
+
     // Bank `$A0:97E2-$A0:984E` decides direction from bomb-versus-Samus X. Its bank-$91
     // command-three handoff must retain the stable ball pose and arm `$0801-$0803`; it
     // must also reject non-ball callers instead of silently inventing a normal jump.
@@ -12518,7 +12751,7 @@ static void VerifySamusMorphBallMovement()
     AssertTrue(!straightBombJump.ApplyMorphBallLanding(bus), "post-bomb-jump landing launches bounce");
     AssertEqual((ushort)1, straightBombJump.MorphBallBounceState, "post-bomb-jump landing enters bounce one");
 
-    Console.WriteLine("  Morph Ball: ordinary/Spring entry, bomb jump, bombable reaction PLMs, bounce, and tunnel collision agree.");
+    Console.WriteLine("  Morph Ball: entry, bomb jump, bombable/shootable/special reaction PLMs, bounce, and tunnel collision agree.");
 }
 
 static ushort ReferenceNextRandom(ushort seed)

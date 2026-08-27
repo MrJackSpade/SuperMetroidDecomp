@@ -426,6 +426,24 @@ Console.WriteLine(
     "Loaded Landing Site enemies from $A1:883D: gunship top $D07F plus two " +
     "bottom/pad $D0BF slots; graphics $B4:8193 now occupy VRAM $E000-$F1FF.");
 
+if (options.GunshipScript)
+{
+    // Place an ordinary movement-type-zero body inside $A2:A9BD's exact 16-by-64 entry
+    // rectangle. This is the only host stimulus; the Down predicate, forward-facing lock,
+    // pad bytecode, 144-call waits, vertical motion, restoration, and exit all remain the
+    // production actor path driven by the private ROM.
+    runtime.Samus!.XPosition = gunshipTop.XPosition;
+    runtime.Samus.YPosition = unchecked((ushort)(gunshipTop.YPosition - 32));
+    runtime.Samus.Health = 91;
+    runtime.Samus.MaxHealth = 99;
+    runtime.Samus.Missiles = 0;
+    runtime.Samus.MaxMissiles = 4;
+    runtime.Samus.SuperMissiles = 0;
+    runtime.Samus.MaxSuperMissiles = 2;
+    runtime.Samus.PowerBombs = 0;
+    runtime.Samus.MaxPowerBombs = 2;
+}
+
 // The cutscene door does not define a normal-gameplay Samus spawn. In the default scenario,
 // introduce stationary pose $01 at a clearly documented host point so the native palette,
 // animation-definition, tile-DMA, screen-position, split-spritemap, and OAM paths can be
@@ -1025,6 +1043,7 @@ bool observedExternalXMovement = false;
 bool observedExternalUpMovement = false;
 bool observedExternalDownCollision = false;
 bool observedExternalWordsCleared = false;
+bool observedGunshipExit = false;
 bool issuedDrainedStandingCommand = false;
 bool issuedDrainedCrouchingCommand = false;
 bool issuedDrainedReleaseCommand = false;
@@ -1677,6 +1696,9 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             _ => (ushort)0,
         };
 
+    if (options.GunshipScript)
+        controllerInput = frameIndex == 0 ? (ushort)SnesButton.Down : (ushort)0;
+
     if (options.KnockbackScript && frameIndex == 20)
     {
         // No enemy subsystem exists in the playable slice yet. This is therefore an
@@ -2267,6 +2289,49 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         drawHighPriorityEnemyProjectiles,
         drawLowPriorityEnemyProjectiles);
 
+    if (options.GunshipScript && runtime.Enemies.LastGunshipEvent != GunshipFrameEvent.None)
+    {
+        GunshipFrameEvent gunshipEvent = runtime.Enemies.LastGunshipEvent;
+        int expectedEventFrame = gunshipEvent switch
+        {
+            GunshipFrameEvent.EntryStarted => 1,
+            GunshipFrameEvent.EntryPadClosing => 170,
+            GunshipFrameEvent.SavePromptRequested => 318,
+            GunshipFrameEvent.ExitPadClosing => 487,
+            GunshipFrameEvent.ExitCompleted => 631,
+            _ => frameIndex + 1,
+        };
+        if (frameIndex + 1 != expectedEventFrame)
+        {
+            throw new InvalidOperationException(
+                $"Gunship {gunshipEvent} occurred on frame {frameIndex + 1}, " +
+                $"not private-ROM frame {expectedEventFrame}.");
+        }
+        Console.WriteLine(
+            $"frame {frameIndex + 1,4}: gunship {gunshipEvent}; " +
+            $"function=$A2:{gunshipTop.VariableF:X4}, pad=${gunshipPad.SpritemapPointer:X4}, " +
+            $"Samus=({runtime.Samus.XPosition:X4},{runtime.Samus.YPosition:X4}).");
+        if (gunshipEvent == GunshipFrameEvent.SavePromptRequested)
+        {
+            // The focused script chooses No at message box $1C. Both retail answers run
+            // the same opening/raising/closing animation; only Yes requests the still-
+            // external SRAM persistence operation.
+            if (runtime.Samus.Health != runtime.Samus.MaxHealth ||
+                runtime.Samus.Missiles != runtime.Samus.MaxMissiles ||
+                runtime.Samus.SuperMissiles != runtime.Samus.MaxSuperMissiles ||
+                runtime.Samus.PowerBombs != runtime.Samus.MaxPowerBombs)
+            {
+                throw new InvalidOperationException(
+                    "Gunship requested its save prompt before restoring every resource.");
+            }
+            runtime.Enemies.AnswerGunshipSavePrompt(save: false);
+        }
+        else if (gunshipEvent == GunshipFrameEvent.ExitCompleted)
+        {
+            observedGunshipExit = true;
+        }
+    }
+
     if (frameIndex == 0 && options.GroundedRun)
     {
         // The first active call proves three independent operations happened in native
@@ -2281,7 +2346,9 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             gunshipPad.SpritemapPointer != 0xafdd ||
             gunshipTop.InstructionTimer != 1 ||
             gunshipBottom.InstructionTimer != 1 ||
-            gunshipPad.InstructionTimer != 8)
+            gunshipPad.InstructionTimer != (options.GunshipScript
+                ? unchecked((ushort)(bus.ReadByte(0xa2a5be) | (bus.ReadByte(0xa2a5bf) << 8)))
+                : (ushort)8))
         {
             throw new InvalidOperationException(
                 "Gunship frame one disagrees with native bob/instruction-list state.");
@@ -4462,6 +4529,16 @@ if (options.GrappleFireScript)
         $"Grapple-fire ROM route validated pose-table initialization and every firing/cancellation milestone reachable within {options.FrameCount} frame(s).");
 }
 
+if (options.GunshipScript)
+{
+    if (options.FrameCount >= 640 && !observedGunshipExit)
+        throw new InvalidOperationException("Gunship script did not finish its native exit wait.");
+    Console.WriteLine(
+        $"Gunship ROM route: function=$A2:{gunshipTop.VariableF:X4}, " +
+        $"prompt={runtime.Enemies.GunshipSavePromptPending}, " +
+        $"inputLocked={runtime.Samus!.InputLocked}, exit={observedGunshipExit}.");
+}
+
 Console.WriteLine(
     $"Finished at accepted NMI {runtime.NmiFrameCounter}; " +
     $"timer {runtime.EscapeTimer.MinutesBcd:X2}:{runtime.EscapeTimer.SecondsBcd:X2}.{runtime.EscapeTimer.CentisecondsBcd:X2}; " +
@@ -4702,6 +4779,7 @@ readonly record struct DebugRunnerOptions(
     bool ExtraDisplacementScript,
     bool ElevatorScript,
     bool ForwardFacingScript,
+    bool GunshipScript,
     ushort BeamType)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
@@ -4756,6 +4834,7 @@ readonly record struct DebugRunnerOptions(
         bool extraDisplacementScript = false;
         bool elevatorScript = false;
         bool forwardFacingScript = false;
+        bool gunshipScript = false;
         ushort beamType = 0;
 
         for (int index = 0; index < arguments.Length; index++)
@@ -5021,6 +5100,11 @@ readonly record struct DebugRunnerOptions(
                     forwardFacingScript = true;
                     break;
 
+                case "--gunship-script":
+                    gunshipScript = true;
+                    groundedRun = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                         throw new ArgumentException($"Unknown option '{argument}'.");
@@ -5105,6 +5189,7 @@ readonly record struct DebugRunnerOptions(
             extraDisplacementScript,
             elevatorScript,
             forwardFacingScript,
+            gunshipScript,
             beamType);
     }
 

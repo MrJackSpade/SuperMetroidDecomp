@@ -955,7 +955,18 @@ public sealed class SuperMetroidRuntime
                 Samus,
                 Controller1.NewlyPressed);
             if (Samus is not null)
+            {
                 Samus.Kinematics.InteractiveEnemies = Enemies.InteractiveCollisionBodies;
+                if (Enemies.LastGunshipEvent == GunshipFrameEvent.EntryStarted)
+                {
+                    // MakeSamusFaceForward performs a direct suit-palette reload and the
+                    // ship explicitly clears elevator status after installing locked demo
+                    // handlers. The enemy system owns pose/motion; these two global words
+                    // remain runtime-owned and are applied on its typed event boundary.
+                    Samus.LoadPowerSuitPalette(_addressSpace, Cgram);
+                    ElevatorStatus = 0;
+                }
+            }
         }
         if (Samus is not null && Camera is not null)
         {
@@ -1017,9 +1028,9 @@ public sealed class SuperMetroidRuntime
                     Controller1.Current);
             }
 
-            bool elevatorLocksForwardPoseInput =
-                SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0;
-            ProspectiveSamusPose = deathOwnsSamus || xrayOwnsPoseInput || elevatorLocksForwardPoseInput
+            bool actorLocksPoseInput = Samus.InputLocked ||
+                (SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0);
+            ProspectiveSamusPose = deathOwnsSamus || xrayOwnsPoseInput || actorLocksPoseInput
                 ? null
                 : SamusPoseTransitionTable.Find(
                     _addressSpace,

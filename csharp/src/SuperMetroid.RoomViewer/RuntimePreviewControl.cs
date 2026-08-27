@@ -47,6 +47,8 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton waterPhysicsButton = new("Water at current Y");
     private readonly ToolStripButton gravitySuitButton = new("Gravity Suit equipped");
     private readonly ToolStripButton livePpuLayersButton = new("Live PPU layers");
+    private readonly ToolStripButton gunshipSaveYesButton = new("Ship save: Yes");
+    private readonly ToolStripButton gunshipSaveNoButton = new("Ship save: No");
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 16 };
     private SuperMetroidRuntime runtime = null!;
     private bool motherBrainScenario;
@@ -113,6 +115,14 @@ internal sealed class RuntimePreviewControl : UserControl
         holdAimUpButton.ToolTipText = "Feeds canonical aim-up bit $0010 (default R shoulder), selecting diagonal-up poses.";
         holdAimDownButton.CheckOnClick = true;
         holdAimDownButton.ToolTipText = "Feeds canonical aim-down bit $0020 (default L shoulder), selecting diagonal-down poses.";
+        gunshipSaveYesButton.Enabled = false;
+        gunshipSaveNoButton.Enabled = false;
+        gunshipSaveYesButton.Click += (_, _) => AnswerGunshipSavePrompt(save: true);
+        gunshipSaveNoButton.Click += (_, _) => AnswerGunshipSavePrompt(save: false);
+        gunshipSaveYesButton.ToolTipText =
+            "Answers the translated gunship message-box seam. SRAM writing is recorded but not performed yet.";
+        gunshipSaveNoButton.ToolTipText =
+            "Answers No and continues the native gunship opening, raising, closing, and unlock animation.";
 
         // Retail has twelve addressable low-nibble beam combinations. Pause equipment logic
         // normally prevents Spazer and Plasma from coexisting, so impossible indices `$C-$F`
@@ -461,6 +471,8 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(waterPhysicsButton);
         toolStrip.Items.Add(gravitySuitButton);
         toolStrip.Items.Add(livePpuLayersButton);
+        toolStrip.Items.Add(gunshipSaveYesButton);
+        toolStrip.Items.Add(gunshipSaveNoButton);
         toolStrip.Items.Add(new ToolStripSeparator());
         toolStrip.Items.Add(cameraLeftButton);
         toolStrip.Items.Add(cameraRightButton);
@@ -987,6 +999,14 @@ internal sealed class RuntimePreviewControl : UserControl
             $"{prospectivePose}  |  " +
             $"{runtime.LastBackgroundUpdateCount} BG update(s)  |  " +
             $"{runtime.DisplayedOam.LastFinalizedSpriteCount} displayed OBJs";
+        gunshipSaveYesButton.Enabled = runtime.Enemies.GunshipSavePromptPending;
+        gunshipSaveNoButton.Enabled = runtime.Enemies.GunshipSavePromptPending;
+    }
+
+    private void AnswerGunshipSavePrompt(bool save)
+    {
+        runtime.Enemies.AnswerGunshipSavePrompt(save);
+        RefreshFrame();
     }
 
     private void MoveCamera(int deltaX, int deltaY)

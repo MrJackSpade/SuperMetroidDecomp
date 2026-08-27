@@ -780,11 +780,20 @@ public sealed class SamusState
     /// <summary>Current missiles at WRAM `$09C6`.</summary>
     public ushort Missiles { get; set; }
 
+    /// <summary>Maximum missiles at WRAM `$09C8`.</summary>
+    public ushort MaxMissiles { get; set; }
+
     /// <summary>Current super missiles at WRAM `$09CA`.</summary>
     public ushort SuperMissiles { get; set; }
 
+    /// <summary>Maximum super missiles at WRAM `$09CC`.</summary>
+    public ushort MaxSuperMissiles { get; set; }
+
     /// <summary>Current power bombs at WRAM `$09CE`.</summary>
     public ushort PowerBombs { get; set; }
+
+    /// <summary>Maximum power bombs at WRAM `$09D0`.</summary>
+    public ushort MaxPowerBombs { get; set; }
 
     /// <summary>Selected HUD item at WRAM <c>$09D2</c>: 0 none, 1 missiles, 2 supers, 3 bombs.</summary>
     public ushort SelectedHudItem { get; set; }

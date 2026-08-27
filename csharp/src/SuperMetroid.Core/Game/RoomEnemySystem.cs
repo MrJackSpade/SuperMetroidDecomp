@@ -62,6 +62,9 @@ public sealed class RoomEnemySystem
     public ushort EnemyCount { get; private set; }
     public byte DeathQuota { get; private set; }
     public bool IsLoaded => _bus is not null;
+    public GunshipFrameEvent LastGunshipEvent { get; private set; }
+    public bool GunshipSavePromptPending { get; private set; }
+    public bool GunshipSaveRequested { get; private set; }
 
     /// <summary>
     /// Ports the data-producing parts of <c>LoadEnemies</c>,
@@ -84,6 +87,9 @@ public sealed class RoomEnemySystem
         FirstFreeEnemyIndex = 0;
         EnemyCount = 0;
         DeathQuota = 0;
+        LastGunshipEvent = GunshipFrameEvent.None;
+        GunshipSavePromptPending = false;
+        GunshipSaveRequested = false;
         _activeEnemyIndexes.Clear();
         _interactiveEnemyIndexes.Clear();
         _interactiveCollisionBodies.Clear();
@@ -134,6 +140,7 @@ public sealed class RoomEnemySystem
         ushort newlyPressedControllerInput = 0)
     {
         EnsureLoaded();
+        LastGunshipEvent = GunshipFrameEvent.None;
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
             queue.Clear();
@@ -175,6 +182,28 @@ public sealed class RoomEnemySystem
                 slot.FrozenTimer,
                 slot.Properties));
         }
+    }
+
+    /// <summary>
+    /// Supplies the choice normally returned by message box $1C after restoration. SRAM
+    /// persistence remains an outer-runtime seam; the actor publishes a Yes choice while
+    /// continuing the cartridge's identical exit animation for either answer.
+    /// </summary>
+    public void AnswerGunshipSavePrompt(bool save)
+    {
+        EnsureLoaded();
+        if (!GunshipSavePromptPending)
+            throw new InvalidOperationException("The gunship save prompt is not awaiting a response.");
+
+        RoomEnemySlot top = _slots[0];
+        RoomEnemySlot pad = _slots[2];
+        GunshipSavePromptPending = false;
+        GunshipSaveRequested = save;
+        top.VariableF = 0xab60;
+        pad.InstructionTimer = 1;
+        pad.CurrentInstruction = 0xa5be;
+        top.VariableA = 144;
+        LastGunshipEvent = GunshipFrameEvent.SavePromptAnswered;
     }
 
     /// <summary>
@@ -488,6 +517,39 @@ public sealed class RoomEnemySystem
             case 0xa9bd:
                 HandleIdleGunshipEntrance(top, samus, newlyPressedControllerInput);
                 return;
+            case 0xaa4f:
+                if (TickGunshipFunctionTimer(top))
+                    top.VariableF = 0xaa5d;
+                return;
+            case 0xaa5d:
+                LowerSamusIntoGunship(top, samus);
+                return;
+            case 0xaa94:
+                if (TickGunshipFunctionTimer(top))
+                    top.VariableF = 0xaaa2;
+                return;
+            case 0xaaa2:
+                RestoreSamusInGunship(top, samus);
+                return;
+            case 0xab1f:
+                GunshipSavePromptPending = true;
+                return;
+            case 0xab60:
+                if (TickGunshipFunctionTimer(top))
+                    top.VariableF = 0xab6e;
+                return;
+            case 0xab6e:
+                RaiseSamusOutOfGunship(top, samus);
+                return;
+            case 0xaba5:
+                if (TickGunshipFunctionTimer(top))
+                {
+                    top.VariableF = 0xa9bd;
+                    if (samus is not null)
+                        samus.InputLocked = false;
+                    LastGunshipEvent = GunshipFrameEvent.ExitCompleted;
+                }
+                return;
             default:
                 throw new NotSupportedException(
                     $"Gunship function $A2:{top.VariableF:X4} is not translated.");
@@ -527,13 +589,85 @@ public sealed class RoomEnemySystem
             (short)unchecked((ushort)(top.YPosition - samus.YPosition)) >= 0;
         if (insideEntrance && samus.ReadMovementType(_bus!) == 0)
         {
-            // The predicate above is a literal port of $A2:A9BD. Entering the ship changes
-            // Samus frame handlers, pose, elevator state, save-station flags, sound, and the
-            // third component's opening instruction list. Until that complete transaction
-            // exists, failing at the exact trigger is safer than applying a half-transition.
-            throw new NotSupportedException(
-                "Gunship entry was triggered; the $A2:AA09 multi-system transition is not translated yet.");
+            RoomEnemySlot pad = _slots[top.SlotIndex + 2];
+            top.VariableF = 0xaa4f;
+            if (samus.XPosition != 0x0480)
+                samus.XPosition = top.XPosition;
+            samus.ApplyForwardFacingPoseSetup(_bus!);
+            samus.InputLocked = true;
+            samus.PrimeGraphics(_bus!);
+            pad.YPosition = unchecked((ushort)(top.YPosition - 1));
+            pad.InstructionTimer = 1;
+            pad.CurrentInstruction = 0xa5be;
+            top.VariableA = 144;
+            LastGunshipEvent = GunshipFrameEvent.EntryStarted;
         }
+    }
+
+    private static bool TickGunshipFunctionTimer(RoomEnemySlot top)
+    {
+        ushort oldTimer = top.VariableA;
+        top.VariableA = unchecked((ushort)(top.VariableA - 1));
+        return oldTimer == 1 || (short)top.VariableA < 0;
+    }
+
+    private void LowerSamusIntoGunship(RoomEnemySlot top, SamusState? samus)
+    {
+        if (samus is null)
+            throw new InvalidOperationException("Gunship entry lost its Samus actor.");
+        samus.YPosition = unchecked((ushort)(samus.YPosition + 2));
+        if (IsNegative16(samus.YPosition - unchecked((ushort)(top.VariableE + 18))))
+            return;
+
+        RoomEnemySlot pad = _slots[top.SlotIndex + 2];
+        top.VariableF = 0xaa94;
+        pad.InstructionTimer = 1;
+        pad.CurrentInstruction = 0xa5ee;
+        top.VariableA = 144;
+        LastGunshipEvent = GunshipFrameEvent.EntryPadClosing;
+    }
+
+    private void RestoreSamusInGunship(RoomEnemySlot top, SamusState? samus)
+    {
+        if (samus is null)
+            throw new InvalidOperationException("Gunship restoration lost its Samus actor.");
+        samus.Health = RestoreTwo(samus.Health, samus.MaxHealth);
+        samus.Missiles = RestoreTwo(samus.Missiles, samus.MaxMissiles);
+        samus.SuperMissiles = RestoreTwo(samus.SuperMissiles, samus.MaxSuperMissiles);
+        samus.PowerBombs = RestoreTwo(samus.PowerBombs, samus.MaxPowerBombs);
+        if ((short)(samus.ReserveEnergy - samus.MaxReserveEnergy) < 0 ||
+            (short)(samus.Health - samus.MaxHealth) < 0 ||
+            (short)(samus.Missiles - samus.MaxMissiles) < 0 ||
+            (short)(samus.SuperMissiles - samus.MaxSuperMissiles) < 0 ||
+            (short)(samus.PowerBombs - samus.MaxPowerBombs) < 0)
+            return;
+
+        top.VariableF = 0xab1f;
+        GunshipSavePromptPending = true;
+        LastGunshipEvent = GunshipFrameEvent.SavePromptRequested;
+    }
+
+    private void RaiseSamusOutOfGunship(RoomEnemySlot top, SamusState? samus)
+    {
+        if (samus is null)
+            throw new InvalidOperationException("Gunship exit lost its Samus actor.");
+        samus.YPosition = unchecked((ushort)(samus.YPosition - 2));
+        if (!IsNegative16(samus.YPosition - unchecked((ushort)(top.VariableE - 30))))
+            return;
+
+        RoomEnemySlot pad = _slots[top.SlotIndex + 2];
+        top.VariableF = 0xaba5;
+        pad.InstructionTimer = 1;
+        pad.CurrentInstruction = 0xa5ee;
+        top.VariableA = 144;
+        LastGunshipEvent = GunshipFrameEvent.ExitPadClosing;
+    }
+
+    private static ushort RestoreTwo(ushort current, ushort maximum)
+    {
+        if ((short)(current - maximum) >= 0)
+            return current;
+        return unchecked((ushort)Math.Min(current + 2, maximum));
     }
 
     private void ProcessInstructions(RoomEnemySlot slot)
@@ -752,6 +886,7 @@ public sealed class RoomEnemySlot
     public ushort FrameCounter { get; internal set; }
     public ushort Parameter1 { get; internal set; }
     public ushort Parameter2 { get; internal set; }
+    public ushort VariableA { get; internal set; }
     public ushort VariableC { get; internal set; }
     public ushort VariableD { get; internal set; }
     public ushort VariableE { get; internal set; }
@@ -770,7 +905,19 @@ public sealed class RoomEnemySlot
         PaletteIndex = VramTilesIndex = FrozenTimer = FrameCounter = 0;
         Layer = 0;
         Parameter1 = Parameter2 = 0;
-        VariableC = VariableD = VariableE = VariableF = 0;
+        VariableA = VariableC = VariableD = VariableE = VariableF = 0;
         SpawnXOffset = SpawnYOffset = 0;
     }
+}
+
+/// <summary>Cross-system gunship transitions produced during the most recent enemy frame.</summary>
+public enum GunshipFrameEvent
+{
+    None,
+    EntryStarted,
+    EntryPadClosing,
+    SavePromptRequested,
+    SavePromptAnswered,
+    ExitPadClosing,
+    ExitCompleted,
 }

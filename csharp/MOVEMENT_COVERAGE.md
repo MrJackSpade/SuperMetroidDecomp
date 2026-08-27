@@ -535,6 +535,12 @@ translated status is documented with the Morph Ball family below.
 - Standing-position dispatch preserves front-view frame-two-plus Y-1 placement and landing
   poses `$A4-$A7`'s packed `$90:8D28` offsets, including the native unaligned 16-bit read;
   visible OAM gets its intended low-byte nudge while debugger state retains the wrapped word.
+- Type-`$0F` positioning reads all twelve signed two-byte records from `$90:8D80` directly,
+  including the unused zero-offset `$39/$3A/$3F/$40` records, rather than duplicating only
+  the eight ordinary transition values in host code.
+- The renderer admits every native movement-type slot `$00-$1B`. Unused `$07/$09` remain
+  top-only, `$0B/$0C` remain split, and `$0D` retains `$65/$66`'s frame-zero-only lower half;
+  diagnostics can therefore step valid ROM pose records without inventing or rejecting art.
 - Synthetic checks cover both velocity boundaries, held-versus-new input, equipment priority,
   specialized direction targets, contact damage, wall frames, six palette pointers/wrap, and
   landing restoration. The private-ROM routes freeze `$1B` and frame-27 `$82` against live

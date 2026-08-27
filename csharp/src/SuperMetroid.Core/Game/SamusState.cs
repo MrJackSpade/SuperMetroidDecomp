@@ -3872,11 +3872,12 @@ public sealed class SamusState
     /// <c>$90:85E2</c>.
     /// </summary>
     /// <remarks>
-    /// Movement type zero uses the standing position selector. The admitted movement types
-    /// `$01/$02/$04-$06/$08/$0E/$10/$15/$17/$1A` use the usual or explicitly table-backed
-    /// transition position selector. Morph types `$04/$08` draw only their complete top
-    /// spritemap; spin-jump `$03` retains its own conditional bottom rule. Draygon's ten
-    /// type-`$1A` bodies have ordinary split top/bottom spritemaps and no draw-time offset.
+    /// Movement type zero uses the standing position selector, `$0F/$1B` use their explicit
+    /// table-backed selectors, and every other native slot through `$1B` uses the usual
+    /// pose offset. The complete `$90:864E` lower-half dispatcher is retained, including
+    /// all unused-but-valid movement types. Morph types `$04/$08` draw only their complete
+    /// top spritemap; spin-jump `$03` retains its own conditional bottom rule. Draygon's
+    /// ten type-`$1A` bodies have ordinary split top/bottom spritemaps and no draw-time offset.
     /// </remarks>
     public void Draw(
         ISnesAddressSpace bus,
@@ -3890,9 +3891,7 @@ public sealed class SamusState
 
         int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
         byte movementType = bus.ReadByte(AddWithinBank(poseDefinition, 1));
-        if (movementType is not (0 or 1 or 2 or 3 or 4 or 5 or 6 or 8 or 0x0a or
-            0x0e or 0x0f or 0x10 or 0x11 or 0x12 or 0x13 or 0x14 or 0x15 or 0x16 or
-            0x17 or 0x18 or 0x19 or 0x1a or 0x1b))
+        if (movementType > 0x1b)
         {
             throw new NotSupportedException(
                 $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");
@@ -3942,29 +3941,17 @@ public sealed class SamusState
             SpritemapYPosition = unchecked((ushort)(
                 YPosition - landingOffset - layer1Y));
         }
-        else if (movementType == 0x0f && Pose is
-            CrouchingTransitionRightPose or CrouchingTransitionLeftPose or
-            MorphingTransitionRightPose or MorphingTransitionLeftPose or
-            StandingTransitionRightPose or StandingTransitionLeftPose or
-            UnmorphingTransitionRightPose or UnmorphingTransitionLeftPose)
+        else if (movementType == 0x0f && Pose >= 0x35 && Pose < 0x41)
         {
-            // $90:8D3C indexes a signed byte by 2*(pose-$35)+animation frame instead of
-            // using pose-definition graphics offset. The retail table has exactly two
-            // signed bytes per pose `$35-$40`; transition animation commands replace the
-            // pose before a command/operand index can reach this draw path.
-            int transitionOffset = Pose switch
-            {
-                CrouchingTransitionRightPose or CrouchingTransitionLeftPose =>
-                    AnimationFrame == 0 ? -8 : 0,
-                MorphingTransitionRightPose or MorphingTransitionLeftPose =>
-                    AnimationFrame == 0 ? -4 : -2,
-                StandingTransitionRightPose or StandingTransitionLeftPose =>
-                    AnimationFrame == 0 ? -4 : 0,
-                UnmorphingTransitionRightPose or UnmorphingTransitionLeftPose =>
-                    AnimationFrame == 0 ? 5 : 4,
-                _ => throw new NotSupportedException(
-                    $"Transition pose ${Pose:X2} does not use the translated `$90:8D80` offset table."),
-            };
+            // `$90:8D3C` indexes a signed byte by `2*(pose-$35)+animation frame` instead
+            // of using the pose-definition graphics offset. Reading the cartridge table
+            // directly retains ordinary crouch/morph/stand/unmorph values and the four
+            // valid-but-unused zero records `$39/$3A/$3F/$40`. Animation commands replace
+            // retail poses before a command/operand index can escape this two-byte record.
+            int transitionOffsetAddress = AddWithinBank(
+                0x908d80,
+                (Pose - 0x35) * 2 + AnimationFrame);
+            sbyte transitionOffset = unchecked((sbyte)bus.ReadByte(transitionOffsetAddress));
             SpritemapYPosition = unchecked((ushort)(YPosition + transitionOffset - layer1Y));
         }
         else if (Pose is DrainedCrouchingRightPose or DrainedCrouchingLeftPose)
@@ -4033,6 +4020,13 @@ public sealed class SamusState
             (Pose is 0xdb or 0xdc && AnimationFrame == 0) ||
             (Pose >= 0xdd && Pose < 0xf1 && AnimationFrame == 2);
 
+        // The otherwise-unused movement type `$0D` still has executable cartridge logic
+        // at `$90:874C`: poses `$65/$66` draw a lower half only on frame zero, while every
+        // other type-`$0D` pose follows the ordinary always-split return.
+        bool unusedTypeDBottom = movementType != 0x0d ||
+            Pose is not (0x65 or 0x66) ||
+            AnimationFrame < 1;
+
         bool wallJumpBottom = movementType != 0x14 ||
             AnimationFrame < 3 || AnimationFrame >= 0x0d;
         bool damageBoostBottom = movementType != 0x19 ||
@@ -4043,8 +4037,8 @@ public sealed class SamusState
             (Pose is not (ShinesparkVerticalRightPose or ShinesparkVerticalLeftPose) &&
              (Pose is not (DrainedCrouchingRightPose or DrainedCrouchingLeftPose) ||
               AnimationFrame >= 2));
-        bool drawBottom = movementType is not (4 or 8 or 0x11 or 0x12 or 0x13) &&
-            ordinarySpinBottom && knockbackBottom && transitionBottom &&
+        bool drawBottom = movementType is not (4 or 7 or 8 or 9 or 0x11 or 0x12 or 0x13) &&
+            ordinarySpinBottom && knockbackBottom && transitionBottom && unusedTypeDBottom &&
             wallJumpBottom && damageBoostBottom && specialType1BBottom;
         // The native bottom selector clears this word when a complete top-half frame does
         // not need a bottom. Clearing it here also prevents the following echo renderer

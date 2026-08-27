@@ -856,6 +856,14 @@ static void VerifySamusRenderingSlice()
     bus.WriteBytes(0x92e000, [1, 0, 0, 0, 0, 0x00, 0x28]);
     for (int index = 0; index <= 3; index++)
         WriteTestWord(bus, 0x92808d + index * 2, 0xe000);
+    bus.WriteBytes(0x908d80, [
+        0xf8, 0x00, 0xf8, 0x00,
+        0xfc, 0xfe, 0xfc, 0xfe,
+        0x00, 0x00, 0x00, 0x00,
+        0xfc, 0x00, 0xfc, 0x00,
+        0x05, 0x04, 0x05, 0x04,
+        0x00, 0x00, 0x00, 0x00,
+    ]);
 
     // Reset the unrelated flicker inputs before exercising the complete `$90:86EE/$870C`
     // bottom-half matrix. The named cases cover every comparison boundary in the native
@@ -875,6 +883,13 @@ static void VerifySamusRenderingSlice()
         ((byte)0xdd, (byte)0x0f, (ushort)1, 1, "$DD pre-frame-two top-only"),
         ((byte)0xf0, (byte)0x0f, (ushort)2, 2, "$F0 frame-two split"),
         ((byte)0xf1, (byte)0x0f, (ushort)0, 2, "$F1 aimed transition always split"),
+        ((byte)0x60, (byte)0x07, (ushort)0, 1, "unused type-seven top-only"),
+        ((byte)0x61, (byte)0x09, (ushort)0, 1, "unused type-nine top-only"),
+        ((byte)0x62, (byte)0x0b, (ushort)0, 2, "unused type-B split"),
+        ((byte)0x63, (byte)0x0c, (ushort)0, 2, "unused type-C split"),
+        ((byte)0x65, (byte)0x0d, (ushort)0, 2, "unused type-D pose $65 frame-zero split"),
+        ((byte)0x66, (byte)0x0d, (ushort)1, 1, "unused type-D pose $66 later top-only"),
+        ((byte)0x67, (byte)0x0d, (ushort)1, 2, "other unused type-D pose remains split"),
     })
     {
         bus.WriteBytes(0x91b629 + pose * 8, [8, movementType, 0xff, 0xff, 0, 0, 16, 0]);
@@ -887,6 +902,35 @@ static void VerifySamusRenderingSlice()
         oam.FinalizeFrame();
         AssertEqual(expectedSprites, oam.LastFinalizedSpriteCount, name);
     }
+
+    // Positioning must consume those same ROM bytes instead of duplicating a convenient
+    // host switch. `$37` proves signed -4/-2 values; unused `$39` proves that the native
+    // zero record remains admitted and does not fall through to its nonzero pose offset.
+    samus.Pose = 0x37;
+    samus.YPosition = 0x0086;
+    samus.AnimationFrame = 0;
+    oam.BeginFrame();
+    samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: 0);
+    oam.FinalizeFrame();
+    AssertEqual((ushort)0x0082, samus.SpritemapYPosition,
+        "morph transition frame zero reads signed minus-four table byte");
+    samus.AnimationFrame = 1;
+    oam.BeginFrame();
+    samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: 0);
+    oam.FinalizeFrame();
+    AssertEqual((ushort)0x0084, samus.SpritemapYPosition,
+        "morph transition frame one reads signed minus-two table byte");
+
+    bus.WriteBytes(0x91b629 + 0x39 * 8, [8, 0x0f, 0xff, 0xff, 9, 0, 16, 0]);
+    WriteTestWord(bus, 0x929263 + 0x39 * 2, 0);
+    WriteTestWord(bus, 0x92945d + 0x39 * 2, 0);
+    samus.Pose = 0x39;
+    samus.AnimationFrame = 0;
+    oam.BeginFrame();
+    samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: 0);
+    oam.FinalizeFrame();
+    AssertEqual((ushort)0x0086, samus.SpritemapYPosition,
+        "unused transition pose reads native zero instead of generic graphics offset");
 
     // Standing's position selector has two special families. Front-view frames zero/one
     // remain generic, but frame two and later use Y-1. Keep frame two here because pose `$00`

@@ -302,7 +302,8 @@ public sealed class SamusHorizontalSpeedState
         byte movementType,
         ushort animationFrame,
         ushort equippedItems,
-        bool suppressActiveSpeedBoosterPalette = false)
+        bool suppressActiveSpeedBoosterPalette = false,
+        bool bottomBoundarySubmerged = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -324,6 +325,18 @@ public sealed class SamusHorizontalSpeedState
         // immediate normal-palette copy above still occurs, but handler zero must not advance
         // its hidden four-frame Speed Booster cycle beneath handler one or six.
         if (suppressActiveSpeedBoosterPalette)
+            return paletteCopied;
+
+        // `$91:D9B2-$D9D8` tests the suit-palette Gravity bit before it asks whether
+        // Samus's *bottom* boundary lies under water or lava/acid. Power and Varia Samus
+        // return carry-set immediately when submerged: the current CGRAM colors, common
+        // timer, and palette-list offset all remain untouched. Gravity Suit bypasses this
+        // gate and continues into the ordinary Screw Attack / Speed Booster logic even
+        // though the raw room-FX comparison still says the body is underwater. The caller
+        // supplies the raw boundary result so this state owner does not invent a second,
+        // subtly different interpretation of the room's FX words.
+        bool gravitySuitEquipped = (equippedItems & SamusLiquidPhysicsState.GravitySuitItem) != 0;
+        if (!gravitySuitEquipped && bottomBoundarySubmerged)
             return paletteCopied;
 
         bool screwAttackEquipped = (equippedItems & 0x0008) != 0;

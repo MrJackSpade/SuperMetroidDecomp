@@ -2580,7 +2580,9 @@ public sealed class SuperMetroidRuntime
                     suppressActiveSpeedBoosterPalette:
                         Samus.Shinespark.PaletteType != 0 ||
                         Samus.CrystalFlash.SpecialPaletteType == 7 ||
-                        Samus.Xray.SpecialPaletteType == 8);
+                        Samus.Xray.SpecialPaletteType == 8,
+                    bottomBoundarySubmerged:
+                        Samus.LiquidPhysics.IsBottomBoundarySubmerged(Samus));
             }
             // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They
             // intentionally execute after a cancellation-requested normal copy and replace

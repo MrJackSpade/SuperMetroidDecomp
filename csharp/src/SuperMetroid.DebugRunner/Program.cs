@@ -51,6 +51,11 @@ else if (options.SpeedBoosterScript)
     Console.WriteLine(
         "Input script: equip Speed Booster, hold Right+Dash through ROM-authored acceleration stages, jump with the accumulated boost bonus, then observe both cancellation echoes return to Samus.");
 }
+else if (options.ScrewAttackScript && options.WaterSpaceJumpScript)
+{
+    Console.WriteLine(
+        "Input script: combine the water and Screw routes, reach ROM frame 27 while the bottom boundary remains submerged, and prove the normal suit palette plus both cycle words stay frozen.");
+}
 else if (options.ScrewAttackScript)
 {
     Console.WriteLine(
@@ -547,9 +552,14 @@ if (options.WaterSpaceJumpScript)
     // Landing Site has scrolling-sky FX rather than water. This route supplies only the
     // missing room-FX words at their normal producer/consumer seam; surface comparisons,
     // launch/gravity/X tables, animation delay, transition records, collision, and art all
-    // remain live cartridge data. Placing the surface at center Y keeps Samus partially
-    // submerged so `$90:A436` can exercise its distinct top- and bottom-boundary branches.
-    ushort debugWaterSurface = runtime.Samus!.YPosition;
+    // remain live cartridge data. The Space-Jump-only route places the surface at center Y
+    // to exercise `$90:A436`'s distinct top- and bottom-boundary branches. When this option
+    // is deliberately combined with the Screw route, raise that same room-owned surface by
+    // sixteen pixels so Samus's bottom remains submerged when the ROM animation reaches
+    // frame 27; no pose, animation, palette, velocity, or physics word is host-authored.
+    ushort debugWaterSurface = options.ScrewAttackScript
+        ? unchecked((ushort)(runtime.Samus!.YPosition - 16))
+        : runtime.Samus!.YPosition;
     runtime.Samus.LiquidPhysics.ConfigureWater(debugWaterSurface);
     runtime.Samus.LiquidPhysics.InitializeRememberedMedium(runtime.Samus);
     Console.WriteLine(
@@ -924,6 +934,7 @@ int priorReleasedShinesparkEchoCount = 0;
 int observedSpaceJumpRestarts = 0;
 bool observedScrewAttackContactDamage = false;
 bool observedScrewAttackPaletteCycle = false;
+bool observedSubmergedScrewPaletteFreeze = false;
 bool observedCrystalFlashDrain = false;
 bool observedCrystalFlashFinish = false;
 bool observedCrystalFlashCompletion = false;
@@ -2469,6 +2480,48 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         SamusState.IsScrewAttackPose(runtime.Samus.Pose) &&
         runtime.Samus.AnimationFrame >= 27 &&
         runtime.Samus.HorizontalSpeed.SpecialPaletteFrame != 0;
+    bool submergedLateScrewFrame =
+        options.ScrewAttackScript &&
+        options.WaterSpaceJumpScript &&
+        SamusState.IsScrewAttackPose(runtime.Samus.Pose) &&
+        runtime.Samus.AnimationFrame >= 27 &&
+        runtime.Samus.LiquidPhysics.IsBottomBoundarySubmerged(runtime.Samus);
+    if (submergedLateScrewFrame)
+    {
+        // `$91:D9B2-$D9D8` must return before touching either shared palette word. Compare
+        // all sixteen live colors against the cartridge's ordinary Power Suit palette as
+        // independent evidence: merely seeing index zero could hide an incorrect CGRAM
+        // write followed by a host reset. This combined script grants no Varia/Gravity bit,
+        // so native suit-table offset zero is the exact expected source.
+        if (runtime.Samus.HorizontalSpeed.SpecialPaletteFrame != 0 ||
+            runtime.Samus.HorizontalSpeed.SpecialPaletteTimer != 0)
+        {
+            throw new InvalidOperationException(
+                $"Submerged Screw palette mutated timer/index at frame {result.FrameNumber}: " +
+                $"timer=${runtime.Samus.HorizontalSpeed.SpecialPaletteTimer:X4}, " +
+                $"index=${runtime.Samus.HorizontalSpeed.SpecialPaletteFrame:X4}.");
+        }
+
+        ushort normalPowerPalette = unchecked((ushort)(
+            bus.ReadByte(0x91d727) |
+            (bus.ReadByte(0x91d728) << 8)));
+        for (int colorIndex = 0; colorIndex < 16; colorIndex++)
+        {
+            int source = 0x9b0000 | unchecked((ushort)(normalPowerPalette + colorIndex * 2));
+            ushort expectedColor = unchecked((ushort)(
+                bus.ReadByte(source) |
+                (bus.ReadByte((source & 0xff0000) | ((source + 1) & 0xffff)) << 8)));
+            ushort actualColor = runtime.Cgram.Colors[192 + colorIndex];
+            if (actualColor != expectedColor)
+            {
+                throw new InvalidOperationException(
+                    $"Submerged Screw palette color {colorIndex} disagrees with " +
+                    $"$9B:{unchecked((ushort)(normalPowerPalette + colorIndex * 2)):X4}; " +
+                    $"expected ${expectedColor:X4}, got ${actualColor:X4}.");
+            }
+        }
+        observedSubmergedScrewPaletteFreeze = true;
+    }
     observedCrystalFlashDrain |= runtime.LastCrystalFlashMovement is
         { PhaseAfterStep: CrystalFlashPhase.DrainingAmmo };
     observedCrystalFlashFinish |= runtime.LastCrystalFlashMovement is
@@ -3708,18 +3761,29 @@ if (options.SpaceJumpScript || options.WaterSpaceJumpScript || options.ScrewAtta
         throw new InvalidOperationException(
             "Screw Attack ROM script never published native contact-damage index 3.");
     }
+    bool submergedScrewRoute = options.ScrewAttackScript && options.WaterSpaceJumpScript;
     if (options.ScrewAttackScript &&
         options.FrameCount >= 34 &&
+        !submergedScrewRoute &&
         !observedScrewAttackPaletteCycle)
     {
         throw new InvalidOperationException(
             "Screw Attack ROM script never reached the frame-27 palette cycle.");
     }
+    if (submergedScrewRoute &&
+        options.FrameCount >= 34 &&
+        !observedSubmergedScrewPaletteFreeze)
+    {
+        throw new InvalidOperationException(
+            "Submerged Screw ROM script never proved the frame-27 palette freeze.");
+    }
     Console.WriteLine(
         $"Special-spin ROM route validated pose ${requiredSpinPose:X2}, " +
         $"{observedSpaceJumpRestarts} accepted repeat(s)" +
         (options.ScrewAttackScript
-            ? $", contact damage 3, and palette cycle={observedScrewAttackPaletteCycle}."
+            ? submergedScrewRoute
+                ? $", contact damage 3, and submerged palette freeze={observedSubmergedScrewPaletteFreeze}."
+                : $", contact damage 3, and palette cycle={observedScrewAttackPaletteCycle}."
             : "."));
 }
 

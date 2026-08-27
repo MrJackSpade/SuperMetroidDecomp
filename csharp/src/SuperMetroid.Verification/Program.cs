@@ -1576,6 +1576,82 @@ static void VerifySamusHorizontalSpeed()
         "fourth Speed Booster palette tick copies next frame");
     AssertEqual((ushort)0x4567, boostCgram.Colors[192], "second Speed Booster palette pointer");
 
+    // `$91:D9B2-$D9D8` performs its bottom-boundary liquid gate before either the Screw
+    // Attack or active Speed Booster branches. A submerged Power/Varia body returns with
+    // carry set: neither CGRAM nor the shared timer/index words may move. Gravity Suit's
+    // palette-index bit two bypasses that exact gate and must still follow the ROM pointer.
+    WriteTestWord(bus, 0x91daad, 0xd120); // Gravity Suit speed-palette pointer list.
+    WriteTestWord(bus, 0x91d120, 0xe080);
+    WriteTestWord(bus, 0x9be080, 0x6a5a);
+    var submergedBoost = new SamusHorizontalSpeedState { SpeedBoostCounter = 0x0401 };
+    var submergedBoostCgram = new SnesCgram();
+    WriteTestWord(bus, 0x9bf000, 0x7777);
+    submergedBoostCgram.LoadFromBus(bus, 0x9bf000, colorCount: 1, destinationIndex: 192);
+    AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(
+        bus,
+        submergedBoostCgram,
+        movementType: 1,
+        animationFrame: 0,
+        equippedItems: 0x2000,
+        bottomBoundarySubmerged: true),
+        "submerged Power Suit suppresses active Speed Booster palette copy");
+    AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(
+        bus,
+        submergedBoostCgram,
+        movementType: 1,
+        animationFrame: 0,
+        equippedItems: 0x2001,
+        bottomBoundarySubmerged: true),
+        "submerged Varia Suit suppresses active Speed Booster palette copy");
+    AssertEqual((ushort)0x7777, submergedBoostCgram.Colors[192],
+        "submerged Speed Booster leaves live Samus palette untouched");
+    AssertEqual((ushort)0, submergedBoost.SpecialPaletteTimer,
+        "submerged Speed Booster freezes common palette timer");
+    AssertEqual((ushort)0, submergedBoost.SpecialPaletteFrame,
+        "submerged Speed Booster freezes palette-list offset");
+    AssertTrue(submergedBoost.UpdateSpeedBoosterPalette(
+        bus,
+        submergedBoostCgram,
+        movementType: 1,
+        animationFrame: 0,
+        equippedItems: SamusLiquidPhysicsState.GravitySuitItem | 0x2000,
+        bottomBoundarySubmerged: true),
+        "submerged Gravity Suit bypasses Speed Booster palette suppression");
+    AssertEqual((ushort)0x6a5a, submergedBoostCgram.Colors[192],
+        "submerged Gravity Suit Speed Booster palette remains ROM-authored");
+
+    // The same early return surrounds Screw Attack. Exercise it independently so a future
+    // refactor cannot fix running boost while accidentally leaving the spin palette active.
+    WriteTestWord(bus, 0x91da4e, 0xd140); // Gravity Suit Screw-palette pointer list.
+    WriteTestWord(bus, 0x91d140, 0xe0a0);
+    WriteTestWord(bus, 0x9be0a0, 0x5b4b);
+    var submergedScrew = new SamusHorizontalSpeedState();
+    var submergedScrewCgram = new SnesCgram();
+    WriteTestWord(bus, 0x9bf020, 0x2222);
+    submergedScrewCgram.LoadFromBus(bus, 0x9bf020, colorCount: 1, destinationIndex: 192);
+    AssertTrue(!submergedScrew.UpdateSpeedBoosterPalette(
+        bus,
+        submergedScrewCgram,
+        movementType: 3,
+        animationFrame: 27,
+        equippedItems: 0x0008,
+        bottomBoundarySubmerged: true),
+        "submerged Power Suit suppresses late Screw Attack palette copy");
+    AssertEqual((ushort)0x2222, submergedScrewCgram.Colors[192],
+        "submerged Screw Attack retains the current suit colors");
+    AssertEqual((ushort)0, submergedScrew.SpecialPaletteFrame,
+        "submerged Screw Attack freezes palette-list offset");
+    AssertTrue(submergedScrew.UpdateSpeedBoosterPalette(
+        bus,
+        submergedScrewCgram,
+        movementType: 3,
+        animationFrame: 27,
+        equippedItems: SamusLiquidPhysicsState.GravitySuitItem | 0x0008,
+        bottomBoundarySubmerged: true),
+        "submerged Gravity Suit bypasses Screw Attack palette suppression");
+    AssertEqual((ushort)0x5b4b, submergedScrewCgram.Colors[192],
+        "submerged Gravity Screw palette remains ROM-authored");
+
     // `$90:EEE7` samples post-movement positions only on game-time multiples of four and
     // alternates native word offsets zero/two. These become the two trailing bodies drawn
     // by `$90:87BD`; capture itself deliberately contains no interpolation.
@@ -1702,7 +1778,7 @@ static void VerifySamusHorizontalSpeed()
     // replaces only its high word, producing $FFF1:EDCC rather than mirroring $1234.
     AssertEqual(unchecked((int)0xfff1edcc), speed.CalculateLeftDisplacement(0x00101234), "left displacement -15 clamp");
 
-    Console.WriteLine("  Samus speed: acceleration, deceleration, boost departure echoes, divisor, and clamp agree.");
+    Console.WriteLine("  Samus speed: acceleration, deceleration, submerged palette gate, boost departure echoes, divisor, and clamp agree.");
 }
 
 /// <summary>
@@ -6980,6 +7056,8 @@ static void VerifySamusLiquidPhysics()
     AssertEqual(SamusLiquidPhysicsState.Water,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "water surface one pixel above bottom affects movement");
+    AssertTrue(sample.LiquidPhysics.IsBottomBoundarySubmerged(sample),
+        "palette liquid gate sees water above the bottom boundary");
     AssertTrue(!sample.LiquidPhysics.IsTopBoundarySubmerged(sample),
         "partially submerged body leaves top above water");
 
@@ -6987,19 +7065,27 @@ static void VerifySamusLiquidPhysics()
     AssertEqual(SamusLiquidPhysicsState.Air,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "liquid equality is not submerged");
+    AssertTrue(!sample.LiquidPhysics.IsBottomBoundarySubmerged(sample),
+        "palette liquid gate treats surface equality as dry");
     sample.LiquidPhysics.ConfigureWater(surfaceY: 111, liquidOptions: 4);
     AssertEqual(SamusLiquidPhysicsState.Air,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "water option bit two disables physics");
+    AssertTrue(!sample.LiquidPhysics.IsBottomBoundarySubmerged(sample),
+        "palette liquid gate also honors disabled-water option bit");
 
     sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 111);
     AssertEqual(SamusLiquidPhysicsState.LavaAcid,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "negative general FX Y selects lava/acid surface");
+    AssertTrue(sample.LiquidPhysics.IsBottomBoundarySubmerged(sample),
+        "palette liquid gate falls through negative FX Y to lava/acid surface");
     sample.EquippedItems = SamusLiquidPhysicsState.GravitySuitItem;
     AssertEqual(SamusLiquidPhysicsState.Air,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "Gravity Suit bypasses liquid movement physics");
+    AssertTrue(sample.LiquidPhysics.IsBottomBoundarySubmerged(sample),
+        "raw palette boundary probe remains submerged before its Gravity exemption");
 
     // Normal and Hi-Jump launch tables are orthogonal to medium selection. Gravity Suit
     // forces the air entry even while the raw water surface still contains Samus's feet.
@@ -7263,7 +7349,7 @@ static void VerifySamusLiquidPhysics()
         "fully submerged Screw Attack does not publish contact damage");
 
     Console.WriteLine(
-        "  Samus liquids: boundaries, ROM tables, gravity, Dash/lava cancellation, grapple, animation, Space Jump, and Gravity Suit agree.");
+        "  Samus liquids: boundaries, palette probe, ROM tables, gravity, Dash/lava cancellation, grapple, animation, Space Jump, and Gravity Suit agree.");
 }
 
 /// <summary>

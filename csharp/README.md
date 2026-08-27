@@ -160,6 +160,7 @@ dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Sup
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 43 --space-jump-script --output ../standalone-assets/runtime/SpaceJumpFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 42 --water-space-jump-script --output ../standalone-assets/runtime/WaterSpaceJumpFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 50 --screw-attack-script --output ../standalone-assets/runtime/ScrewAttackFrame.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 50 --water-space-jump-script --screw-attack-script --output ../standalone-assets/runtime/WaterScrewAttackFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 70 --morph-ball-script --output ../standalone-assets/runtime/MorphBallPoseFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 220 --morph-ball-script --output ../standalone-assets/runtime/MorphBallTraceFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 80 --spring-ball-script --output ../standalone-assets/runtime/SpringBallPoseFrame.png
@@ -235,6 +236,11 @@ that producer seam uses the retail ROM: `$90:A08D` horizontal records, water lau
 animation delay, `$0AD2`, top/bottom boundary checks, transition tables, collision, and `$1B`
 art. Its two accepted pulses occur at live `$0134` and `$008C` falling magnitudes, proving the
 native underwater minimum is `$0080` rather than the dry `$0280` gate.
+Combining it with `--screw-attack-script` reaches the same ROM-authored late Screw frames but
+requires `$91:D9B2-$D9D8` to leave all sixteen ordinary suit colors and both palette-cycle
+words untouched while Samus's bottom boundary is submerged. The normal dry Screw command
+continues to require the six-entry flashing cycle, so the pair catches suppression in either
+direction rather than merely accepting a static palette.
 
 The same route cancels boost at frame 135 against real Landing Site terrain. A 136-frame run
 captures both returning bodies; a 190-frame run additionally asserts that `$FFFF` departure
@@ -435,7 +441,7 @@ liquid/atmospheric/landing-impact, and documented
 Mother Brain/Baby routes described above. Unsupported paths throw instead of becoming guessed
 physics. Remaining cross-system work includes earlier Mother Brain attack selection,
 Hyper Beam enemy-hit/recoil integration,
-X-ray hidden-block BG2 substitution, remaining weapon-specific trails,
+X-ray hidden-block BG2 substitution,
 projectile-triggered door/bombable/special-block PLMs,
 missing actor spritemaps, live enemy damage producers, solid-enemy wall-jump branches,
 native enemy spawn selection, and the unported enemies/effects/

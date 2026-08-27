@@ -183,6 +183,26 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
+    /// True when Samus's full bottom collision boundary is below an active water or
+    /// lava/acid surface, without applying the Gravity Suit exemption.
+    /// </summary>
+    /// <remarks>
+    /// This is the exact environmental question asked by the Samus palette handler at
+    /// <c>$91:D9BA-$D9D8</c>. It deliberately differs from
+    /// <see cref="DetermineMovementMedium"/>: the native palette routine tests the Gravity
+    /// Suit bit first, then performs the raw bottom-boundary liquid test. Keeping those two
+    /// decisions separate lets the caller reproduce both the submerged Power/Varia early
+    /// return and Gravity Suit's unconditional palette-animation bypass. Water option bit
+    /// two still disables water, while a negative general-FX surface falls through to the
+    /// independent lava/acid surface exactly as the cartridge does.
+    /// </remarks>
+    public bool IsBottomBoundarySubmerged(SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        return DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) != Air;
+    }
+
+    /// <summary>
     /// Reproduces the liquid-flag update at <c>$9B:C4BE-$C4EA</c>, which runs after the
     /// current grapple function and therefore affects the following grapple frame.
     /// </summary>

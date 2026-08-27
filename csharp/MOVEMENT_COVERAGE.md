@@ -199,6 +199,13 @@ translated status is documented with the Morph Ball family below.
   Space/Screw branches. Real-ROM `--water-space-jump-script` supplies only a documented
   Landing Site FX-surface stimulus, reads the retail water tables, and accepts two repeats at
   live falling magnitudes `$0134` and `$008C`; the 42-frame PNG captures authentic `$1B` art.
+- `$91:D9B2-$D9D8` independently samples the full bottom boundary for Samus palette effects.
+  Submerged Power/Varia returns carry-set before advancing Screw Attack or Speed Booster
+  palette timer/index words; Gravity Suit bypasses the raw water/lava result. Synthetic tests
+  cover water equality, disabled-water option bit two, lava fallback, both suppressed effects,
+  and both Gravity bypasses. The combined private-ROM `--water-space-jump-script
+  --screw-attack-script` route reaches frame 27, requires frozen zero timer/index words, and
+  compares all sixteen live CGRAM colors with the ordinary bank-$9B Power Suit palette.
 
 ## Verified ordinary-air slice
 
@@ -255,7 +262,9 @@ translated status is documented with the Morph Ball family below.
   the cartridge's deliberately observable lack of fractional carry.
 - `$91:D9B2` now follows the live suit table at `$91:DAA9`, then its bank-`$91` frame list,
   then each bank-`$9B` 32-byte palette. Stage four loads immediately from timer one and every
-  four frames afterward; `$91:DE53` cancellation restores the normal suit through `$91:D727`.
+  four frames afterward. Its preceding raw bottom-boundary water/lava gate freezes the palette,
+  timer, and list offset for submerged Power/Varia while Gravity Suit bypasses suppression;
+  `$91:DE53` cancellation restores the normal suit through `$91:D727`.
 - `$90:EEE7` captures alternating post-movement world positions on game-time multiples of
   four. `$90:87BD` draws slot one then slot zero with the current ROM spritemap indices, so
   the Room Viewer and composed DebugRunner PNG show the actual cyan trailing bodies.

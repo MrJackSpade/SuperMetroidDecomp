@@ -880,12 +880,17 @@ translated status is documented with the Morph Ball family below.
   before its release handoff, then the 100-frame route proves `$90:946E` keeps moving the
   `$51/$52` body after the beam function has become inactive.
 
-## Verified plain power/Charge Beam/missile projectile slice
+## Verified combined/Charge Beam/missile projectile slice
 
 - HUD item zero/three dispatches `$90:B80D` into the five ordinary slots while sharing
-  cooldown `$0CCC` with bombs. Plain power shots use all ten pose-authored directions,
+  cooldown `$0CCC` with bombs. All twelve valid low-nibble beam combinations use all ten pose-authored directions,
   cartridge muzzle origins, signed 8.8 velocity/acceleration, bank-$94 terrain collision,
-  bank-$93 data/instruction/explosion lists, and exact beam tile/palette upload.
+  indexed bank-$93 data/instruction/explosion lists, individual cooldown/sound entries, and
+  exact beam tile/palette upload. Spazer's three streaks are one ROM spritemap in one slot.
+- `$90:B887/$B986` dispatch even combinations to no-wave terrain impact. Odd combinations
+  use `$94:A352/$A3E4`'s pass-through Wave movement; uncharged types one/three reload trails
+  every three frames, while later and charged Wave families reload four. `$93:8268` uses
+  its separate NMI-bit-one/opposite-phase flicker branch for Spazer/plasma art.
 - Equipped Charge bit `$1000` fires one ordinary shot on the first held frame, increments
   `$0CD0` to the 120 clamp, treats 60 as the armed threshold, and chooses ordinary or charged
   release accordingly. The same live counter is mirrored into Samus beta movement so charged
@@ -893,7 +898,7 @@ translated status is documented with the Morph Ball family below.
 - `$90:BAFC-$BC98` initializes flare timers 3/5/4, draws the central component from count 15,
   adds both sparks from count 30, and interprets `$FF` loop/`$FE` rewind commands through
   `$90:C481`. Direction/running origins and all `$93:A1A1` spritemaps remain ROM-authored.
-- Charged plain power uses `$93:83D9`, type bit `$0010`, the charged cooldown/sound tables,
+- Charged beams use `$93:83D9`, type bit `$0010`, the charged cooldown/sound tables,
   and `$93:8268`'s no-flicker branch. The real ROM route observes final type `$9010`, damage
   `$003C`, sound `$17`, and a visible orange cannon flare in the composed/OAM capture.
 - `$90:B657-$B80C` owns eighteen detached trail slots, scans from native index `$22`, and
@@ -902,11 +907,14 @@ translated status is documented with the Morph Ball family below.
   position uses `$93:81D1`'s current animation field and bank-$9B's signed four-byte offset;
   drawing interprets timed tile records plus `$B525/$B587/$B5B3` position commands, preserves
   live records while time is frozen, and writes the native raw small-OBJ form after beams.
-- Synthetic verification covers all ten ordinary directions, charge threshold/release,
-  flare/trail animation, charged data routing and no-flicker OAM, fixed-point travel, type-eight
+- Synthetic verification covers all ten ordinary directions, all twelve combination indices,
+  both Wave trail cadences/pass-through, charge threshold/release, flare/trail animation,
+  charged data routing and family flicker OAM, fixed-point travel, type-eight
   impact, explosion retention, and deletion. `--charge-beam-script` supplies the private-ROM
-  hold/release regression. The `$0CFA` transition-direction bridge, post-shot Samus palette
-  recolor, combined beam families, and weapon-specific block reactions remain seams;
+  hold/release regression; `--beam-type 0..11` selects and asserts any family. Real-ROM type
+  eleven produces uncharged Ice+Wave+Plasma multi-streak art and charged type `$901B`, damage
+  `$0384`, sound `$21`. The `$0CFA` transition-direction bridge, post-shot Samus palette
+  recolor, and weapon-specific block-reaction PLMs remain seams;
   plain power's left/right trail instruction pointers are deliberately empty in retail data.
 - HUD item one now dispatches `$90:BE62`: fresh Shoot allocates from the shared five slots,
   installs invincibility 20/cooldown 10, consumes one round, reads damage/direction art through

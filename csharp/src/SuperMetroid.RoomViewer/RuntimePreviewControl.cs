@@ -33,6 +33,7 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton holdDownButton = new("Hold Down");
     private readonly ToolStripButton holdAimUpButton = new("Hold Aim Up");
     private readonly ToolStripButton holdAimDownButton = new("Hold Aim Down");
+    private readonly ToolStripDropDownButton beamLoadoutDropDown = new("Beam: Power");
     private readonly ToolStripButton chargeBeamButton = new("Charge Beam equipped");
     private readonly ToolStripButton missileButton = new("Missiles selected");
     private readonly ToolStripButton superMissileButton = new("Supers selected");
@@ -48,6 +49,7 @@ internal sealed class RuntimePreviewControl : UserControl
     private SuperMetroidRuntime runtime = null!;
     private bool motherBrainScenario;
     private bool groundedRunScenario;
+    private ushort selectedBeamType;
     private string? haltedAtUntranslatedBoundary;
 
     public RuntimePreviewControl(string romPath, RenderedRoom room)
@@ -109,9 +111,38 @@ internal sealed class RuntimePreviewControl : UserControl
         holdAimUpButton.ToolTipText = "Feeds canonical aim-up bit $0010 (default R shoulder), selecting diagonal-up poses.";
         holdAimDownButton.CheckOnClick = true;
         holdAimDownButton.ToolTipText = "Feeds canonical aim-down bit $0020 (default L shoulder), selecting diagonal-down poses.";
+
+        // Retail has twelve addressable low-nibble beam combinations. Pause equipment logic
+        // normally prevents Spazer and Plasma from coexisting, so impossible indices `$C-$F`
+        // are intentionally absent rather than sent into tables that contain no entries.
+        // Each menu item writes only the four equipment bits; projectile data, spritemaps,
+        // cooldowns, sounds, collision dispatch, trails, tiles, and palette remain ROM-owned.
+        foreach ((string name, ushort type) in new (string, ushort)[]
+        {
+            ("Power", 0),
+            ("Wave", 1),
+            ("Ice", 2),
+            ("Ice + Wave", 3),
+            ("Spazer", 4),
+            ("Spazer + Wave", 5),
+            ("Ice + Spazer", 6),
+            ("Ice + Wave + Spazer", 7),
+            ("Plasma", 8),
+            ("Wave + Plasma", 9),
+            ("Ice + Plasma", 10),
+            ("Ice + Wave + Plasma", 11),
+        })
+        {
+            var item = new ToolStripMenuItem(name) { Tag = type };
+            item.Click += (_, _) => SelectBeamLoadout(name, type);
+            beamLoadoutDropDown.DropDownItems.Add(item);
+        }
+        beamLoadoutDropDown.ToolTipText =
+            "Selects one of the cartridge's twelve beam data/art families. Charge is controlled separately.";
+
         chargeBeamButton.CheckOnClick = true;
         chargeBeamButton.ToolTipText =
-            "Toggles beam bit $1000. Hold Shoot for 60 frames, then release to fire the cartridge's charged power beam.";
+            "Toggles beam bit $1000. Hold Shoot for 60 frames, then release to fire the selected cartridge-backed charged beam.";
         chargeBeamButton.CheckedChanged += (_, _) =>
         {
             // Pause/equipment code is not translated yet. This switch owns only Charge
@@ -351,6 +382,7 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(holdDownButton);
         toolStrip.Items.Add(holdAimUpButton);
         toolStrip.Items.Add(holdAimDownButton);
+        toolStrip.Items.Add(beamLoadoutDropDown);
         toolStrip.Items.Add(chargeBeamButton);
         toolStrip.Items.Add(missileButton);
         toolStrip.Items.Add(superMissileButton);
@@ -443,6 +475,8 @@ internal sealed class RuntimePreviewControl : UserControl
             // Cinematic diagnostics receive no inventory, and later save-state work should
             // replace this one deliberately visible host grant rather than hiding it.
             runtime.Samus!.EquippedItems |= 0x1004;
+            runtime.Samus.EquippedBeams = unchecked((ushort)(
+                (runtime.Samus.EquippedBeams & 0xfff0) | selectedBeamType));
             if (springBallButton.Checked)
                 runtime.Samus.EquippedItems |= 0x0002;
             if (spaceJumpButton.Checked)
@@ -556,6 +590,36 @@ internal sealed class RuntimePreviewControl : UserControl
             }
         }
 
+        RefreshFrame();
+    }
+
+    private void SelectBeamLoadout(string name, ushort type)
+    {
+        // This is the explicit debugger substitute for pause-menu equipment selection.
+        // Preserve Charge and every unrelated high bit while replacing only the native
+        // combination index consumed by the twelve-entry beam tables.
+        selectedBeamType = type;
+        beamLoadoutDropDown.Text = $"Beam: {name}";
+        foreach (ToolStripItem candidate in beamLoadoutDropDown.DropDownItems)
+        {
+            if (candidate is ToolStripMenuItem menuItem && menuItem.Tag is ushort candidateType)
+                menuItem.Checked = candidateType == type;
+        }
+
+        if (runtime?.Samus is null || !groundedRunScenario)
+            return;
+
+        runtime.Samus.EquippedBeams = unchecked((ushort)(
+            (runtime.Samus.EquippedBeams & 0xfff0) | type));
+
+        // `$90:AC8D` normally runs as equipment state settles. The viewer is paused while
+        // this host menu changes that state, so perform the exact ROM-to-VRAM/CGRAM transfer
+        // immediately and redraw; the next gameplay frame then sees matching projectile art.
+        runtime.Projectiles.LoadBeamTilesAndPalette(
+            bus,
+            runtime.Vram,
+            runtime.Cgram,
+            runtime.Samus.EquippedBeams);
         RefreshFrame();
     }
 

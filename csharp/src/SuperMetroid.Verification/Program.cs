@@ -11895,6 +11895,25 @@ static void VerifySamusPowerBeamProjectiles()
     for (int direction = 0; direction < 10; direction++)
         WriteTestWord(bus, 0x938462 + direction * 2, 0x9000);
 
+    // Fill the remaining eleven entries of both bank-$93 beam-data pointer tables with
+    // distinct damage words. All directions deliberately share the already valid `$9000`
+    // animation stream: these fixtures isolate the low-nibble table index without replacing
+    // the production instruction interpreter or inventing host-side projectile art.
+    for (int beamType = 1; beamType < 12; beamType++)
+    {
+        ushort unchargedData = unchecked((ushort)(0x8800 + beamType * 0x20));
+        ushort chargedData = unchecked((ushort)(0x8a00 + beamType * 0x20));
+        WriteTestWord(bus, 0x9383c1 + beamType * 2, unchargedData);
+        WriteTestWord(bus, 0x9383d9 + beamType * 2, chargedData);
+        WriteTestWord(bus, 0x930000 | unchargedData, unchecked((ushort)(0x0020 + beamType)));
+        WriteTestWord(bus, 0x930000 | chargedData, unchecked((ushort)(0x0100 + beamType)));
+        for (int direction = 0; direction < 10; direction++)
+        {
+            WriteTestWord(bus, 0x930000 | unchecked((ushort)(unchargedData + 2 + direction * 2)), 0x9000);
+            WriteTestWord(bus, 0x930000 | unchecked((ushort)(chargedData + 2 + direction * 2)), 0x9000);
+        }
+    }
+
     // `$90:B5BB/$B609` select two independent trail instruction streams from the beam's
     // low six type bits. Ordinary power selects two empty lists; charged power selects the
     // long ice-style left list and an empty right list. These are genuine table relationships,
@@ -11980,6 +11999,17 @@ static void VerifySamusPowerBeamProjectiles()
     bus.WriteByte(0x90c264, 0x1e);
     WriteTestWord(bus, 0x90c28f, 0x000b);
     WriteTestWord(bus, 0x90c2a7, 0x0017);
+    for (int beamType = 1; beamType < 12; beamType++)
+    {
+        // Distinct fixture bytes/words make an accidental entry-zero read immediately
+        // observable. Charged cooldown indices begin at `$10`; auto-fire has its own twelve
+        // byte table even though retail happens to store `$19` in every entry.
+        bus.WriteByte(0x90c254 + beamType, unchecked((byte)(10 + beamType)));
+        bus.WriteByte(0x90c264 + beamType, unchecked((byte)(30 + beamType)));
+        bus.WriteByte(0x90c283 + beamType, unchecked((byte)(40 + beamType)));
+        WriteTestWord(bus, 0x90c28f + beamType * 2, unchecked((ushort)(0x0030 + beamType)));
+        WriteTestWord(bus, 0x90c2a7 + beamType * 2, unchecked((ushort)(0x0050 + beamType)));
+    }
     WriteTestWord(bus, 0x90c2d1, 0x0400);
     WriteTestWord(bus, 0x90c2d3, 0x02ab);
     WriteTestWord(bus, 0x90c3b1, 0x8000);
@@ -12158,6 +12188,119 @@ static void VerifySamusPowerBeamProjectiles()
     bus.WriteBytes(
         0x91b629 + rightPose * 8,
         [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
+
+    // Every valid low-nibble combination must index its own projectile data, cooldown, and
+    // sound cells. The dispatch split is equally data-significant: even entries stop on
+    // terrain, low wave entries 1/3 reload trail timer three, and wave entries 5/7/9/11
+    // reload four. Spazer/plasma remain one slot because their width lives in spritemap art.
+    for (ushort beamType = 1; beamType < 12; beamType++)
+    {
+        var combinedSamus = new SamusState
+        {
+            Pose = rightPose,
+            XPosition = 128,
+            YPosition = 96,
+            EquippedBeams = beamType,
+        };
+        var combinedBombs = new SamusBombProjectileSystem();
+        var combinedProjectiles = new SamusProjectileSystem();
+        combinedBombs.StepFrame(bus, air, combinedSamus, 0, 0);
+        SamusProjectileFrameResult combinedResult = combinedProjectiles.StepFrame(
+            bus,
+            air,
+            combinedSamus,
+            (ushort)SnesButton.X,
+            (ushort)SnesButton.X,
+            0,
+            0,
+            combinedBombs);
+
+        SamusProjectileSlot combinedSlot = combinedProjectiles.Slots[0];
+        AssertEqual((int?)0, combinedResult.FiredSlot,
+            $"beam combination {beamType} allocates one ordinary slot");
+        AssertEqual(unchecked((ushort)(0x0020 + beamType)), combinedSlot.Damage,
+            $"beam combination {beamType} indexes uncharged data pointer");
+        AssertEqual(unchecked((ushort)(10 + beamType)), combinedBombs.CooldownTimer,
+            $"beam combination {beamType} indexes uncharged cooldown");
+        AssertEqual(unchecked((ushort)(0x0030 + beamType)), combinedResult.QueuedSoundEffect,
+            $"beam combination {beamType} indexes uncharged sound");
+        AssertEqual((ushort)10, combinedProjectiles.ProjectileInvincibilityTimer,
+            $"beam combination {beamType} publishes native invincibility timer");
+
+        SamusProjectilePreInstruction expectedPreInstruction = (beamType & 1) == 0
+            ? SamusProjectilePreInstruction.NoWaveBeam
+            : beamType < 4
+                ? SamusProjectilePreInstruction.WaveBeamThreeFrameTrail
+                : SamusProjectilePreInstruction.WaveBeamFourFrameTrail;
+        AssertEqual(expectedPreInstruction, combinedSlot.PreInstruction,
+            $"beam combination {beamType} selects native pre-instruction family");
+    }
+
+    // Spazer/plasma art takes `$93:8275` rather than the ordinary power/ice/wave flicker
+    // branch. Host slot zero is visible while NMI bit one is clear and suppressed while it
+    // is set—the opposite comparison and a different counter bit from entry-zero power.
+    var spazerFlickerSamus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 128,
+        YPosition = 96,
+        EquippedBeams = 4,
+    };
+    var spazerFlickerBombs = new SamusBombProjectileSystem();
+    var spazerFlickerProjectiles = new SamusProjectileSystem();
+    spazerFlickerBombs.StepFrame(bus, air, spazerFlickerSamus, 0, 0);
+    spazerFlickerProjectiles.StepFrame(
+        bus,
+        air,
+        spazerFlickerSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X,
+        0,
+        0,
+        spazerFlickerBombs);
+    var spazerFlickerOam = new OamBuffer();
+    spazerFlickerOam.BeginFrame();
+    spazerFlickerProjectiles.DrawLiveProjectiles(
+        bus, spazerFlickerOam, 0, 0, nmiFrameCounter: 0);
+    AssertTrue(spazerFlickerOam.NextByteOffset != 0,
+        "even-slot Spazer draws while NMI bit one is clear");
+    spazerFlickerOam.BeginFrame();
+    spazerFlickerProjectiles.DrawLiveProjectiles(
+        bus, spazerFlickerOam, 0, 0, nmiFrameCounter: 2);
+    AssertEqual(0, spazerFlickerOam.NextByteOffset,
+        "even-slot Spazer suppresses while NMI bit one is set");
+
+    // The initial firing pass changes timer four to three. Three more wave passes cause the
+    // first trail allocation and expose the only cadence distinction in `$B0C3/$B0E4`.
+    foreach ((ushort beamType, ushort expectedReload) in new (ushort, ushort)[]
+    {
+        (1, 3), // Uncharged power+wave uses `$90:B0E4`.
+        (3, 3), // Uncharged ice+wave uses the same low-family routine.
+        (5, 4), // Spazer+wave uses the common `$90:B0C3` routine.
+        (9, 4), // Plasma+wave also uses the common routine.
+    })
+    {
+        var cadenceSamus = new SamusState
+        {
+            Pose = rightPose,
+            XPosition = 128,
+            YPosition = 96,
+            EquippedBeams = beamType,
+        };
+        var cadenceBombs = new SamusBombProjectileSystem();
+        var cadenceProjectiles = new SamusProjectileSystem();
+        cadenceBombs.StepFrame(bus, air, cadenceSamus, 0, 0);
+        cadenceProjectiles.StepFrame(
+            bus, air, cadenceSamus, (ushort)SnesButton.X, (ushort)SnesButton.X, 0, 0, cadenceBombs);
+        for (int frame = 0; frame < 3; frame++)
+        {
+            cadenceBombs.StepFrame(bus, air, cadenceSamus, 0, 0);
+            cadenceProjectiles.StepFrame(bus, air, cadenceSamus, 0, 0, 0, 0, cadenceBombs);
+        }
+        AssertEqual(expectedReload, cadenceProjectiles.Slots[0].TrailTimer,
+            $"wave combination {beamType} reloads native trail cadence");
+    }
+
     var chargeSamus = new SamusState
     {
         Pose = rightPose,
@@ -12212,6 +12355,55 @@ static void VerifySamusPowerBeamProjectiles()
         "charged release installs glow timer");
     AssertEqual((ushort)0, chargeProjectiles.FlareCounter,
         "charged release clears flare counter");
+
+    // Charged combinations index the parallel pointer/sound range and cooldown bytes
+    // `$10-$1B`. Even a low-family wave now uses the common four-frame wave routine; the
+    // special three-frame reload belongs only to uncharged types one and three.
+    foreach (ushort beamType in new ushort[] { 1, 4, 5, 9, 11 })
+    {
+        var combinedChargeSamus = new SamusState
+        {
+            Pose = rightPose,
+            XPosition = 128,
+            YPosition = 96,
+            EquippedBeams = unchecked((ushort)(0x1000 | beamType)),
+        };
+        var combinedChargeBombs = new SamusBombProjectileSystem();
+        var combinedChargeProjectiles = new SamusProjectileSystem();
+        for (int frame = 0; frame < 60; frame++)
+        {
+            combinedChargeBombs.StepFrame(bus, air, combinedChargeSamus, 0, 0);
+            combinedChargeProjectiles.StepFrame(
+                bus,
+                air,
+                combinedChargeSamus,
+                (ushort)SnesButton.X,
+                frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+                0,
+                0,
+                combinedChargeBombs);
+        }
+
+        combinedChargeBombs.StepFrame(bus, air, combinedChargeSamus, 0, 0);
+        SamusProjectileFrameResult combinedChargedRelease = combinedChargeProjectiles.StepFrame(
+            bus, air, combinedChargeSamus, 0, 0, 0, 0, combinedChargeBombs);
+        AssertTrue(combinedChargedRelease.FiredSlot is not null,
+            $"charged beam combination {beamType} allocates on release");
+        SamusProjectileSlot combinedChargedSlot =
+            combinedChargeProjectiles.Slots[combinedChargedRelease.FiredSlot!.Value];
+        AssertEqual(unchecked((ushort)(0x0100 + beamType)), combinedChargedSlot.Damage,
+            $"charged beam combination {beamType} indexes charged data pointer");
+        AssertEqual(unchecked((ushort)(30 + beamType)), combinedChargeBombs.CooldownTimer,
+            $"charged beam combination {beamType} indexes charged cooldown");
+        AssertEqual(unchecked((ushort)(0x0050 + beamType)), combinedChargedRelease.QueuedSoundEffect,
+            $"charged beam combination {beamType} indexes charged sound");
+        AssertEqual(
+            (beamType & 1) == 0
+                ? SamusProjectilePreInstruction.NoWaveBeam
+                : SamusProjectilePreInstruction.WaveBeamFourFrameTrail,
+            combinedChargedSlot.PreInstruction,
+            $"charged beam combination {beamType} selects native wave dispatch");
+    }
 
     // `$93:8268` exempts charged-family bit `$0010` from ordinary beam flicker. Slot zero
     // would be suppressed on even NMI under the uncharged rule, making this a direct guard
@@ -12294,6 +12486,42 @@ static void VerifySamusPowerBeamProjectiles()
         new byte[wallWords.Length],
         new ushort[wallWords.Length],
         new byte[8]);
+
+    // Wave collision routines still scan the projectile's full radius but return carry
+    // clear after every block reaction. Drive power+wave through the same strict type-eight
+    // wall that kills the no-wave fixture below; its center must emerge beyond the column
+    // without ever entering the explosion family.
+    var waveWallSamus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 64,
+        YPosition = 96,
+        EquippedBeams = 1,
+    };
+    var waveWallBombs = new SamusBombProjectileSystem();
+    var waveWallProjectiles = new SamusProjectileSystem();
+    bool waveReportedExplosion = false;
+    for (int frame = 0; frame < 12; frame++)
+    {
+        waveWallBombs.StepFrame(bus, wall, waveWallSamus, 0, 0);
+        SamusProjectileFrameResult waveFrame = waveWallProjectiles.StepFrame(
+            bus,
+            wall,
+            waveWallSamus,
+            frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+            frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+            0,
+            0,
+            waveWallBombs);
+        waveReportedExplosion |= waveFrame.CollisionStartedExplosion;
+    }
+    AssertTrue(!waveReportedExplosion, "wave beam never converts on a type-eight wall");
+    AssertTrue(waveWallProjectiles.Slots[0].XPosition > 112,
+        "wave beam advances completely through the solid column");
+    AssertEqual(SamusProjectilePreInstruction.WaveBeamThreeFrameTrail,
+        waveWallProjectiles.Slots[0].PreInstruction,
+        "power+wave remains in its native pass-through pre-instruction");
+
     bus.WriteBytes(
         0x91b629 + rightPose * 8,
         [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);

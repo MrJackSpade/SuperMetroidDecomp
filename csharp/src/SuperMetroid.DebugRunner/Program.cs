@@ -324,6 +324,15 @@ if (options.GroundedRun)
     }
 }
 
+if (options.GroundedRun)
+{
+    // Save loading and pause equipment are outside this debugger route. Publish only the
+    // validated low-nibble combination before `$90:AC8D` queues its matching tile/palette
+    // transfer below. Every live projectile table lookup still consumes the private ROM.
+    runtime.Samus!.EquippedBeams = unchecked((ushort)(
+        (runtime.Samus.EquippedBeams & 0xfff0) | options.BeamType));
+}
+
 if (options.SpeedBoosterScript || options.ShinesparkScript)
 {
     // The ordinary debug placement reaches Landing Site's right-side type-$F door before
@@ -793,6 +802,7 @@ bool observedStraightBombOverlap = false;
 int observedPowerBeamShots = 0;
 bool observedPowerBeamArt = false;
 bool observedPowerBeamExplosion = false;
+bool observedSelectedBeamType = false;
 ushort maximumObservedCharge = 0;
 bool observedChargedShot = false;
 bool observedChargedTrail = false;
@@ -2278,6 +2288,11 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     if (runtime.Projectiles.LastFrameResult.FiredSlot is int firedSlot)
     {
         SamusProjectileSlot firedProjectile = runtime.Projectiles.Slots[firedSlot];
+        if ((firedProjectile.Type & 0x0f00) == 0 &&
+            (firedProjectile.Type & 0x000f) == options.BeamType)
+        {
+            observedSelectedBeamType = true;
+        }
         if ((firedProjectile.Type & 0x0f00) == 0x0200)
         {
             observedSuperMissileShot = true;
@@ -2928,15 +2943,16 @@ if (options.GunExtendedScript && options.FrameCount >= 3)
     // Pose milestones alone could pass if projectile production were accidentally removed.
     // Require both allocation and decoded bank-$93 art so this route guards the newly joined
     // producer -> instruction interpreter -> OAM chain on the private retail cartridge.
-    if (observedPowerBeamShots == 0 || !observedPowerBeamArt)
+    if (observedPowerBeamShots == 0 || !observedPowerBeamArt || !observedSelectedBeamType)
     {
         throw new InvalidOperationException(
-            $"Power-beam route missed live projectile state: shots={observedPowerBeamShots}, " +
-            $"art={observedPowerBeamArt}, collision={observedPowerBeamExplosion}.");
+            $"Beam route missed live projectile state: type=${options.BeamType:X1}, " +
+            $"shots={observedPowerBeamShots}, art={observedPowerBeamArt}, " +
+            $"selectedType={observedSelectedBeamType}, collision={observedPowerBeamExplosion}.");
     }
 
     Console.WriteLine(
-        $"Power-beam ROM route fired {observedPowerBeamShots} shot(s), decoded bank-$93 art, " +
+        $"Beam type ${options.BeamType:X1} ROM route fired {observedPowerBeamShots} shot(s), decoded bank-$93 art, " +
         $"and observedCollision={observedPowerBeamExplosion}.");
 }
 
@@ -2951,12 +2967,20 @@ if (options.ChargeBeamScript)
         throw new InvalidOperationException(
             $"Charge Beam route reached only {maximumObservedCharge}/60 held frames.");
     }
+    int chargedSoundAddress = 0x90c2a7 + options.BeamType * 2;
+    ushort expectedChargedSound = unchecked((ushort)(
+        bus.ReadByte(chargedSoundAddress) | (bus.ReadByte(chargedSoundAddress + 1) << 8)));
     if (options.FrameCount >= 68 &&
-        (!observedChargedShot || observedChargedShotDamage == 0 || observedChargedShotSound != 0x17))
+        (!observedChargedShot ||
+         !observedSelectedBeamType ||
+         observedChargedShotDamage == 0 ||
+         observedChargedShotSound != expectedChargedSound))
     {
         throw new InvalidOperationException(
-            $"Charge Beam release mismatch: charged={observedChargedShot}, " +
-            $"damage=${observedChargedShotDamage:X4}, sound=${observedChargedShotSound:X2}.");
+            $"Charge Beam type ${options.BeamType:X1} release mismatch: " +
+            $"charged={observedChargedShot}, selectedType={observedSelectedBeamType}, " +
+            $"damage=${observedChargedShotDamage:X4}, " +
+            $"sound=${observedChargedShotSound:X2}/${expectedChargedSound:X2}.");
     }
     if (options.FrameCount >= 71 && !observedChargedTrail)
     {
@@ -2965,7 +2989,7 @@ if (options.ChargeBeamScript)
     }
 
     Console.WriteLine(
-        $"Charge Beam ROM route reached {maximumObservedCharge}/60, " +
+        $"Charge Beam type ${options.BeamType:X1} ROM route reached {maximumObservedCharge}/60, " +
         $"chargedShot={observedChargedShot}, damage=${observedChargedShotDamage:X4}, " +
         $"sound=${observedChargedShotSound:X2}, trail={observedChargedTrail}.");
 }
@@ -3905,7 +3929,8 @@ readonly record struct DebugRunnerOptions(
     bool DraygonGrabScript,
     bool ExtraDisplacementScript,
     bool ElevatorScript,
-    bool ForwardFacingScript)
+    bool ForwardFacingScript,
+    ushort BeamType)
 {
     public static DebugRunnerOptions Parse(string[] arguments)
     {
@@ -3956,6 +3981,7 @@ readonly record struct DebugRunnerOptions(
         bool extraDisplacementScript = false;
         bool elevatorScript = false;
         bool forwardFacingScript = false;
+        ushort beamType = 0;
 
         for (int index = 0; index < arguments.Length; index++)
         {
@@ -3978,6 +4004,18 @@ readonly record struct DebugRunnerOptions(
 
                 case "--output":
                     outputPath = ReadValue(arguments, ref index, argument);
+                    break;
+
+                case "--beam-type":
+                    // The equipment table has entries zero through eleven. Values twelve
+                    // through fifteen represent the forbidden Spazer+Plasma combinations
+                    // and would index beyond retail data, so fail at the CLI boundary.
+                    string beamTypeText = ReadValue(arguments, ref index, argument);
+                    if (!ushort.TryParse(beamTypeText, out beamType) || beamType >= 12)
+                    {
+                        throw new ArgumentException(
+                            $"--beam-type requires an integer from 0 through 11, not '{beamTypeText}'.");
+                    }
                     break;
 
                 case "--grounded-run":
@@ -4270,7 +4308,8 @@ readonly record struct DebugRunnerOptions(
             draygonGrabScript,
             extraDisplacementScript,
             elevatorScript,
-            forwardFacingScript);
+            forwardFacingScript,
+            beamType);
     }
 
     private static string ReadValue(string[] arguments, ref int index, string option)

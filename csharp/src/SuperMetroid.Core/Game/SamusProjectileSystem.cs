@@ -46,6 +46,7 @@ public sealed class SamusProjectileSystem
     private const int ProjectileXRunning = 0x90c22c;
     private const int ProjectileYRunning = 0x90c240;
     private const int UnchargedCooldowns = 0x90c254;
+    private const int BeamAutoFireCooldowns = 0x90c283;
     private const int UnchargedSounds = 0x90c28f;
     private const int ChargedSounds = 0x90c2a7;
     private const int BeamSpeedsHorizontalVertical = 0x90c2d1;
@@ -272,6 +273,12 @@ public sealed class SamusProjectileSystem
                     layer1X,
                     layer1Y);
             }
+            else if (slot.PreInstruction is
+                SamusProjectilePreInstruction.WaveBeamThreeFrameTrail or
+                SamusProjectilePreInstruction.WaveBeamFourFrameTrail)
+            {
+                RunWaveBeamPreInstruction(bus, slot, layer1X, layer1Y);
+            }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.Missile)
             {
                 collisionStartedExplosion |= RunMissilePreInstruction(
@@ -369,14 +376,20 @@ public sealed class SamusProjectileSystem
                 continue;
 
             // `$93:8268` first exempts every charged/projectile-family word selected by
-            // mask `$0F10`. Only an ordinary uncharged power/ice/wave shot reaches the
-            // alternating frame/slot test at `$826D-$828A`; a charged power shot must remain
-            // visible on both parities. Slot index parity here equals bit one of native X.
+            // mask `$0F10`. Only an ordinary uncharged beam reaches the flicker branches;
+            // a charged beam must remain visible on every NMI parity.
             if ((slot.Type & 0x0f10) == 0)
             {
+                // Native X is the even byte index `$00,$02,...,$08`, so native `X & 2`
+                // is exactly the parity of this host slot index. Spazer/plasma combinations
+                // (low mask `$0C`) use NMI bit one and the opposite phase from power/ice/
+                // wave, which use NMI bit zero. Keeping these branches separate is what
+                // prevents the wider beam art from disappearing on the wrong video field.
                 bool oddNativeSlot = (slotIndex & 1) != 0;
-                bool oddFrame = (nmiFrameCounter & 1) != 0;
-                if (oddNativeSlot == oddFrame)
+                bool skip = (slot.Type & 0x000c) != 0
+                    ? oddNativeSlot != ((nmiFrameCounter & 2) != 0)
+                    : oddNativeSlot == ((nmiFrameCounter & 1) != 0);
+                if (skip)
                     continue;
             }
 
@@ -470,10 +483,11 @@ public sealed class SamusProjectileSystem
         // stable shot direction follow the exact path below; firing during the transitional
         // direction-change frame remains an explicit producer seam rather than a guess.
 
-        // This slice admits power plus the independent Charge bit. Ice/wave/spazer/plasma
-        // select different collision pre-instructions and must not leak through the no-wave
-        // path until those handlers are translated.
-        if ((samus.EquippedBeams & 0x000f) != 0)
+        // Retail owns twelve low-nibble beam combinations: power through ice+wave+plasma.
+        // Spazer and plasma are mutually exclusive in normal inventory state, which is why
+        // indices `$C-$F` have no tile, palette, projectile-data, sound, or dispatch entry.
+        int beamType = samus.EquippedBeams & 0x000f;
+        if ((uint)beamType >= 12)
             return (null, 0);
 
         bool chargeEquipped = (samus.EquippedBeams & 0x1000) != 0;
@@ -483,7 +497,7 @@ public sealed class SamusProjectileSystem
             FlareCounter = 0;
             ClearFlareAnimationState();
             return held
-                ? TryFirePowerBeam(bus, samus, controllerNewInput, sharedProjectiles, charged: false)
+                ? TryFireBeam(bus, samus, controllerNewInput, sharedProjectiles, charged: false)
                 : (null, 0);
         }
 
@@ -498,7 +512,7 @@ public sealed class SamusProjectileSystem
                 if (FlareCounter == 1)
                 {
                     ClearFlareAnimationState();
-                    return TryFirePowerBeam(
+                    return TryFireBeam(
                         bus,
                         samus,
                         controllerNewInput,
@@ -515,7 +529,7 @@ public sealed class SamusProjectileSystem
         bool releaseCharged = FlareCounter >= 60;
         FlareCounter = 0;
         ClearFlareAnimationState();
-        return TryFirePowerBeam(
+        return TryFireBeam(
             bus,
             samus,
             controllerNewInput,
@@ -523,7 +537,7 @@ public sealed class SamusProjectileSystem
             charged: releaseCharged);
     }
 
-    private (int? Slot, ushort Sound) TryFirePowerBeam(
+    private (int? Slot, ushort Sound) TryFireBeam(
         ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerNewInput,
@@ -532,11 +546,10 @@ public sealed class SamusProjectileSystem
     {
         const ushort shoot = (ushort)SnesButton.X;
 
-        // `$90:B823/$90:B986` converge on this allocation gate for ordinary and charged
-        // power shots. Without Charge Beam, callers attempt an ordinary shot every held
+        // `$90:B823/$90:B986` converge on this allocation gate for every ordinary and
+        // charged beam combination. Without Charge Beam, callers attempt a shot every held
         // frame and cooldown `$0CCC` supplies the native rate limit; charged releases reach
-        // the same gate once. Other beam combinations remain excluded until their distinct
-        // wave/spazer/plasma pre-instructions are translated.
+        // the same gate once.
         if (ProjectileCounter >= SlotCount ||
             (sharedProjectiles.CooldownTimer & 0x00ff) != 0)
         {
@@ -583,12 +596,19 @@ public sealed class SamusProjectileSystem
         slot.Type = charged
             ? unchecked((ushort)((samus.EquippedBeams & 0x100f) | 0x8010))
             : unchecked((ushort)(samus.EquippedBeams | LiveUnchargedBeamFlag));
+        ProjectileInvincibilityTimer = 10;
+
+        // The four low bits are a direct ROM table index, not four independent animation
+        // layers composed by the host. In particular, Spazer's familiar three streaks live
+        // in one bank-$93 spritemap selected by one data pointer and occupy one projectile
+        // slot. This is why no synthetic child projectiles are created here.
+        int beamType = slot.Type & 0x000f;
 
         // `$93:8000` indexes a data-table pointer by beam type, stores damage, chooses the
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
         ushort dataPointer = ReadWord(
             bus,
-            charged ? ChargedBeamDataPointers : UnchargedBeamDataPointers);
+            (charged ? ChargedBeamDataPointers : UnchargedBeamDataPointers) + beamType * 2);
         slot.Damage = ReadWord(bus, 0x930000 | dataPointer);
         slot.InstructionPointer = ReadWord(
             bus,
@@ -596,20 +616,30 @@ public sealed class SamusProjectileSystem
         slot.XRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 4)));
         slot.YRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 5)));
         slot.InstructionTimer = 1;
-        slot.PreInstruction = SamusProjectilePreInstruction.NoWaveBeam;
+        // `$90:B887` gives uncharged power-wave and ice-wave a three-frame trail reload.
+        // All other uncharged wave combinations, and every charged wave combination, use
+        // the common four-frame wave pre-instruction. Beam words without bit zero retain
+        // the ordinary terrain-stopping collision path regardless of ice/spazer/plasma.
+        slot.PreInstruction = (beamType & 1) == 0
+            ? SamusProjectilePreInstruction.NoWaveBeam
+            : !charged && beamType < 4
+                ? SamusProjectilePreInstruction.WaveBeamThreeFrameTrail
+                : SamusProjectilePreInstruction.WaveBeamFourFrameTrail;
 
         InitializePowerBeamVelocity(bus, slot);
 
         // A fresh press takes the ordinary table path. Held auto-fire without a new edge
         // uses $19 instead, preserving the native distinction even though both read ROM.
         byte cooldown = charged
-            ? bus.ReadByte(UnchargedCooldowns + 0x10)
+            ? bus.ReadByte(UnchargedCooldowns + 0x10 + beamType)
             : (controllerNewInput & shoot) != 0
-                ? bus.ReadByte(UnchargedCooldowns)
-                : bus.ReadByte(0x90c283);
+                ? bus.ReadByte(UnchargedCooldowns + beamType)
+                : bus.ReadByte(BeamAutoFireCooldowns + beamType);
         sharedProjectiles.SetSharedCooldown(cooldown);
 
-        ushort sound = ReadWord(bus, charged ? ChargedSounds : UnchargedSounds);
+        ushort sound = ReadWord(
+            bus,
+            (charged ? ChargedSounds : UnchargedSounds) + beamType * 2);
         if (charged)
             ChargedShotGlowTimer = 4;
         return (slotIndex, sound);
@@ -803,6 +833,65 @@ public sealed class SamusProjectileSystem
             ClearProjectile(slot);
 
         return false;
+    }
+
+    private void RunWaveBeamPreInstruction(
+        ISnesAddressSpace bus,
+        SamusProjectileSlot slot,
+        ushort layer1X,
+        ushort layer1Y)
+    {
+        if ((slot.Direction & 0x00f0) != 0)
+        {
+            ClearProjectile(slot);
+            return;
+        }
+
+        // `$90:B0C3` and `$90:B0E4` differ only in the value reloaded after a trail timer
+        // expires. The producer always starts at four; an uncharged low-family wave becomes
+        // three only after its first emission. Spawning precedes acceleration and movement,
+        // so the trail samples the old world position just like the no-wave family.
+        slot.TrailTimer = unchecked((ushort)(slot.TrailTimer - 1));
+        if (slot.TrailTimer == 0)
+        {
+            slot.TrailTimer = slot.PreInstruction ==
+                SamusProjectilePreInstruction.WaveBeamThreeFrameTrail
+                    ? (ushort)3
+                    : (ushort)4;
+            SpawnTrail(bus, slot);
+        }
+
+        int direction = slot.Direction & 0x000f;
+        slot.XVelocity = unchecked((short)(slot.XVelocity +
+            unchecked((short)ReadWord(bus, ProjectileAccelerationX + direction * 2))));
+        slot.YVelocity = unchecked((short)(slot.YVelocity +
+            unchecked((short)ReadWord(bus, ProjectileAccelerationY + direction * 2))));
+
+        // `$94:A352/$A3E4` advance the same 16.16 positions and scan every block touched by
+        // the projectile radii, but deliberately return carry clear unconditionally. That is
+        // the defining Wave Beam behavior: block reactions may run, yet terrain never kills
+        // or clips the shot. Shootable-block PLM production is still owned by the incomplete
+        // general shot-reaction dispatcher; until that owner is connected, this method keeps
+        // the native pass-through motion without fabricating terrain mutations.
+        if (direction is 2 or 7 or 1 or 3 or 6 or 8)
+        {
+            (slot.XPosition, slot.XSubposition) = AddVelocity(
+                slot.XPosition,
+                slot.XSubposition,
+                slot.XVelocity);
+        }
+        if (direction is 0 or 4 or 5 or 9 or 1 or 3 or 6 or 8)
+        {
+            (slot.YPosition, slot.YSubposition) = AddVelocity(
+                slot.YPosition,
+                slot.YSubposition,
+                slot.YVelocity);
+        }
+
+        short screenX = unchecked((short)(slot.XPosition - layer1X));
+        short screenY = unchecked((short)(slot.YPosition - layer1Y));
+        if (screenX < -64 || screenX >= 320 || screenY < -64 || screenY >= 320)
+            ClearProjectile(slot);
     }
 
     private bool RunMissilePreInstruction(
@@ -1693,6 +1782,8 @@ public enum SamusProjectilePreInstruction : byte
 {
     None,
     NoWaveBeam,
+    WaveBeamThreeFrameTrail,
+    WaveBeamFourFrameTrail,
     Missile,
     SuperMissile,
     SuperMissileLink,

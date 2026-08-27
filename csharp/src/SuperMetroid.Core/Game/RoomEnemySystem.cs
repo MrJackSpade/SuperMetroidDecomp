@@ -62,7 +62,9 @@ public sealed class RoomEnemySystem
     public ushort TilesetPointer { get; private set; }
     public ushort FirstFreeEnemyIndex { get; private set; }
     public ushort EnemyCount { get; private set; }
+    public ushort EnemiesKilled { get; private set; }
     public byte DeathQuota { get; private set; }
+    public ushort BossId { get; private set; }
     public bool IsLoaded => _bus is not null;
     public GunshipFrameEvent LastGunshipEvent { get; private set; }
     public bool GunshipSavePromptPending { get; private set; }
@@ -89,9 +91,9 @@ public sealed class RoomEnemySystem
         _nextRandom = nextRandom;
         PopulationPointer = populationPointer;
         TilesetPointer = tilesetPointer;
-        FirstFreeEnemyIndex = 0;
         EnemyCount = 0;
-        DeathQuota = 0;
+        EnemiesKilled = 0;
+        BossId = 0;
         LastGunshipEvent = GunshipFrameEvent.None;
         GunshipSavePromptPending = false;
         GunshipSaveRequested = false;
@@ -104,7 +106,11 @@ public sealed class RoomEnemySystem
         foreach (RoomEnemySlot slot in _slots)
             slot.Clear();
 
-        LoadGraphicsSet(bus, tilesetPointer, vram, cgram);
+        // $A0:8A6D does not even inspect the room's enemy set when the first population
+        // word is the terminator. This is observable: an empty room must not overwrite
+        // CGRAM or VRAM merely because its state happens to retain a non-empty set pointer.
+        if (ReadWord(bus, EnemyPopulationBank | populationPointer) != 0xffff)
+            LoadGraphicsSet(bus, tilesetPointer, vram, cgram);
         LoadPopulation(bus, populationPointer);
     }
 
@@ -315,9 +321,10 @@ public sealed class RoomEnemySystem
             RoomEnemyDefinition definition = ReadDefinition(bus, definitionPointer);
 
             // ProcessEnemyTilesets copies one complete sixteen-color OBJ palette from the
-            // enemy's selected code/data bank. The low nibble of vramDestination selects
-            // OBJ palette zero through seven after the native +8 palette-row bias.
-            int destinationColor = ((vramDestination & 0x000f) + 8) * 16;
+            // enemy's selected code/data bank. Its assembly masks the entire low byte before
+            // adding the native eight-row OBJ bias. Retail records use values zero through
+            // seven, but retaining the wider mask makes corrupt data fail visibly.
+            int destinationColor = ((vramDestination & 0x00ff) + 8) * 16;
             cgram.LoadFromBus(
                 bus,
                 (definition.Bank << 16) | definition.PalettePointer,
@@ -367,6 +374,12 @@ public sealed class RoomEnemySystem
             ushort definitionPointer = ReadWord(bus, cursor);
             if (definitionPointer == 0xffff)
             {
+                // InitializeEnemies returns early for an initially empty population. It has
+                // already zeroed both enemy counters, but it does not rewrite the previous
+                // first-free index or death quota. Preserve that retail quirk on reloads.
+                if (slotIndex == 0)
+                    return;
+
                 DeathQuota = bus.ReadByte(AddWithinBank(cursor, 2));
                 EnemyCount = unchecked((ushort)slotIndex);
                 FirstFreeEnemyIndex = unchecked((ushort)(slotIndex * NativeSlotSize));
@@ -390,13 +403,17 @@ public sealed class RoomEnemySystem
             RoomEnemyDefinition definition = ReadDefinition(bus, definitionPointer);
             RoomEnemySlot slot = _slots[slotIndex];
             InitializeSlotFromDefinition(slot, population, definition);
+            if (definition.BossId != 0)
+                BossId = definition.BossId;
             RunInitializationAi(slot);
 
             // InitializeEnemies deliberately clears the init routine's immediate map.
             // Disable-Samus-collision actors receive the canonical empty map until their
             // first instruction-list tick replaces it. Gunship properties contain $2000.
             slot.SpritemapPointer = slot.Properties.HasAny(EnemyProperties.ProcessInstructions)
-                ? (ushort)0x804d
+                ? slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap)
+                    ? (ushort)0x804f
+                    : (ushort)0x804d
                 : (ushort)0;
 
             slotIndex++;
@@ -422,9 +439,14 @@ public sealed class RoomEnemySystem
         slot.CurrentInstruction = population.InitializationParameter;
         slot.Properties = population.Properties;
         slot.ExtraProperties = population.ExtraProperties;
+        slot.AiHandlerBits = 0;
         slot.Parameter1 = population.Parameter1;
         slot.Parameter2 = population.Parameter2;
+        slot.Timer = 0;
         slot.InstructionTimer = 1;
+        slot.FrameCounter = 0;
+        slot.AiBank = definition.Bank;
+        slot.HurtAiTime = definition.HurtAiTime;
         slot.PaletteIndex = paletteIndex;
         slot.VramTilesIndex = tileIndex;
         slot.Spawn = new RoomEnemySpawnSnapshot(
@@ -432,7 +454,10 @@ public sealed class RoomEnemySystem
             definition.XRadius,
             definition.YRadius,
             definition.Health,
-            definition.Layer);
+            definition.Layer,
+            tileIndex,
+            paletteIndex,
+            ReadSpawnNameWords(definition));
     }
 
     private (ushort TileIndex, ushort PaletteIndex) FindGraphicsIndexes(ushort definitionPointer)
@@ -889,8 +914,14 @@ public sealed class RoomEnemySystem
             throw new InvalidOperationException("A room enemy population must be loaded first.");
     }
 
-    private static RoomEnemyDefinition ReadDefinition(ISnesAddressSpace bus, ushort pointer)
+    /// <summary>
+    /// Parses one complete 64-byte enemy header from the fixed bank-$A0 definition table.
+    /// Keeping this reader public lets debugger tooling inspect unsupported actors without
+    /// pretending their initialization or main AI has already been translated.
+    /// </summary>
+    public static RoomEnemyDefinition ReadDefinition(ISnesAddressSpace bus, ushort pointer)
     {
+        ArgumentNullException.ThrowIfNull(bus);
         int address = EnemyDefinitionBank | pointer;
         return new RoomEnemyDefinition(
             TileDataSize: ReadWord(bus, address),
@@ -901,11 +932,46 @@ public sealed class RoomEnemySystem
             YRadius: ReadWord(bus, AddWithinBank(address, 10)),
             Bank: bus.ReadByte(AddWithinBank(address, 12)),
             HurtAiTime: bus.ReadByte(AddWithinBank(address, 13)),
+            HurtSoundEffect: ReadWord(bus, AddWithinBank(address, 14)),
             BossId: ReadWord(bus, AddWithinBank(address, 16)),
             InitializationAiPointer: ReadWord(bus, AddWithinBank(address, 18)),
+            PartCount: ReadWord(bus, AddWithinBank(address, 20)),
+            Unused16: ReadWord(bus, AddWithinBank(address, 22)),
             MainAiPointer: ReadWord(bus, AddWithinBank(address, 24)),
+            GrappleAiPointer: ReadWord(bus, AddWithinBank(address, 26)),
+            HurtAiPointer: ReadWord(bus, AddWithinBank(address, 28)),
+            FrozenAiPointer: ReadWord(bus, AddWithinBank(address, 30)),
+            TimeFrozenAiPointer: ReadWord(bus, AddWithinBank(address, 32)),
+            DeathAnimation: ReadWord(bus, AddWithinBank(address, 34)),
+            Unused24: ReadWord(bus, AddWithinBank(address, 36)),
+            Unused26: ReadWord(bus, AddWithinBank(address, 38)),
+            PowerBombReactionPointer: ReadWord(bus, AddWithinBank(address, 40)),
+            VariantIndex: ReadWord(bus, AddWithinBank(address, 42)),
+            Unused2C: ReadWord(bus, AddWithinBank(address, 44)),
+            Unused2E: ReadWord(bus, AddWithinBank(address, 46)),
+            TouchAiPointer: ReadWord(bus, AddWithinBank(address, 48)),
+            ShotAiPointer: ReadWord(bus, AddWithinBank(address, 50)),
+            InitialSpritemapPointer: ReadWord(bus, AddWithinBank(address, 52)),
             TileDataAddress: ReadLong(bus, AddWithinBank(address, 54)),
-            Layer: bus.ReadByte(AddWithinBank(address, 57)));
+            Layer: bus.ReadByte(AddWithinBank(address, 57)),
+            ItemDropChancesPointer: ReadWord(bus, AddWithinBank(address, 58)),
+            VulnerabilityPointer: ReadWord(bus, AddWithinBank(address, 60)),
+            NamePointer: ReadWord(bus, AddWithinBank(address, 62)));
+    }
+
+    private RoomEnemySpawnNameWords ReadSpawnNameWords(RoomEnemyDefinition definition)
+    {
+        if (definition.NamePointer == 0)
+            return default;
+
+        int address = 0xb40000 | definition.NamePointer;
+        return new RoomEnemySpawnNameWords(
+            ReadWord(_bus!, address),
+            ReadWord(_bus!, AddWithinBank(address, 2)),
+            ReadWord(_bus!, AddWithinBank(address, 4)),
+            ReadWord(_bus!, AddWithinBank(address, 6)),
+            ReadWord(_bus!, AddWithinBank(address, 8)),
+            ReadWord(_bus!, AddWithinBank(address, 12)));
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
@@ -917,121 +983,4 @@ public sealed class RoomEnemySystem
         (bus.ReadByte(AddWithinBank(address, 2)) << 16);
 
     private static bool IsNegative16(int value) => (short)unchecked((ushort)value) < 0;
-}
-
-/// <summary>Parsed 64-byte bank-$A0 enemy definition fields used by the translated core.</summary>
-public readonly record struct RoomEnemyDefinition(
-    ushort TileDataSize,
-    ushort PalettePointer,
-    ushort Health,
-    ushort Damage,
-    ushort XRadius,
-    ushort YRadius,
-    byte Bank,
-    byte HurtAiTime,
-    ushort BossId,
-    ushort InitializationAiPointer,
-    ushort MainAiPointer,
-    int TileDataAddress,
-    byte Layer);
-
-/// <summary>One literal 16-byte bank-$A1 room-population record.</summary>
-public readonly record struct RoomEnemyPopulationRecord(
-    ushort DefinitionPointer,
-    ushort XPosition,
-    ushort YPosition,
-    ushort InitializationParameter,
-    ushort Properties,
-    ushort ExtraProperties,
-    ushort Parameter1,
-    ushort Parameter2);
-
-/// <summary>One literal four-byte bank-$B4 room graphics-set record plus resolved data.</summary>
-public readonly record struct RoomEnemyGraphicsSetEntry(
-    ushort DefinitionPointer,
-    ushort VramDestination,
-    ushort VramTilesIndex,
-    RoomEnemyDefinition Definition,
-    int StagingOffset,
-    int TileByteCount);
-
-/// <summary>Immutable spawn words retained beside the mutable native enemy slot.</summary>
-public readonly record struct RoomEnemySpawnSnapshot(
-    RoomEnemyPopulationRecord Population,
-    ushort XRadius,
-    ushort YRadius,
-    ushort Health,
-    byte Layer);
-
-/// <summary>
-/// Mutable projection of the 64-byte WRAM <c>EnemyData</c> record. Fields not yet consumed
-/// by translated code remain absent instead of receiving invented behavior.
-/// </summary>
-public sealed class RoomEnemySlot
-{
-    internal RoomEnemySlot(int slotIndex)
-    {
-        SlotIndex = slotIndex;
-        NativeIndex = checked((ushort)(slotIndex * RoomEnemySystem.NativeSlotSize));
-    }
-
-    public int SlotIndex { get; }
-    public ushort NativeIndex { get; }
-    public ushort EnemyDefinitionPointer { get; internal set; }
-    public RoomEnemyDefinition Definition { get; internal set; }
-    public RoomEnemySpawnSnapshot Spawn { get; internal set; }
-    public ushort XPosition { get; internal set; }
-    public ushort XSubposition { get; internal set; }
-    public ushort YPosition { get; internal set; }
-    public ushort YSubposition { get; internal set; }
-    public ushort XRadius { get; internal set; }
-    public ushort YRadius { get; internal set; }
-    public ushort Properties { get; internal set; }
-    public ushort ExtraProperties { get; internal set; }
-    public ushort Health { get; internal set; }
-    public ushort SpritemapPointer { get; internal set; }
-    public ushort Timer { get; internal set; }
-    public ushort CurrentInstruction { get; internal set; }
-    public ushort InstructionTimer { get; internal set; }
-    public ushort PaletteIndex { get; internal set; }
-    public ushort VramTilesIndex { get; internal set; }
-    public byte Layer { get; internal set; }
-    public ushort FrozenTimer { get; internal set; }
-    public ushort FrameCounter { get; internal set; }
-    public ushort Parameter1 { get; internal set; }
-    public ushort Parameter2 { get; internal set; }
-    public ushort VariableA { get; internal set; }
-    public ushort VariableC { get; internal set; }
-    public ushort VariableD { get; internal set; }
-    public ushort VariableE { get; internal set; }
-    public ushort VariableF { get; internal set; }
-    public ushort SpawnXOffset { get; internal set; }
-    public ushort SpawnYOffset { get; internal set; }
-
-    internal void Clear()
-    {
-        EnemyDefinitionPointer = 0;
-        Definition = default;
-        Spawn = default;
-        XPosition = XSubposition = YPosition = YSubposition = 0;
-        XRadius = YRadius = Properties = ExtraProperties = Health = 0;
-        SpritemapPointer = Timer = CurrentInstruction = InstructionTimer = 0;
-        PaletteIndex = VramTilesIndex = FrozenTimer = FrameCounter = 0;
-        Layer = 0;
-        Parameter1 = Parameter2 = 0;
-        VariableA = VariableC = VariableD = VariableE = VariableF = 0;
-        SpawnXOffset = SpawnYOffset = 0;
-    }
-}
-
-/// <summary>Cross-system gunship transitions produced during the most recent enemy frame.</summary>
-public enum GunshipFrameEvent
-{
-    None,
-    EntryStarted,
-    EntryPadClosing,
-    SavePromptRequested,
-    SavePromptAnswered,
-    ExitPadClosing,
-    ExitCompleted,
 }

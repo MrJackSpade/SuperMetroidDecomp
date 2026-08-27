@@ -68,9 +68,11 @@ Open `SuperMetroid.slnx` in Visual Studio. The code currently contains the first
   tilemap geometry, and a fully live BG2/BG1/BG3/OBJ compositor
 - ROM-parsed Landing Site door entry and command-E library-background selection, including
   the cartridge's harmless camera-Y-zero wrapped pointer read
-- bank-$A0 room-enemy loading for Landing Site's normal state: terminated bank-$A1
-  population records, bank-$B4 graphics sets, 64-byte definitions, palette/tile DMA,
-  fixed $40-byte slots, active/interactive selection, layer queues, bank-local instruction
+- generic bank-$A0 room-enemy loading: terminated bank-$A1 population records, bank-$B4
+  graphics sets, complete 64-byte definitions, both tile-staging modes, palette/tile DMA,
+  native spawn snapshots, boss/empty-room bookkeeping, fixed $40-byte slots, and a public
+  header reader that does not pretend unsupported actor AI is translated; Landing Site and
+  Parlor additionally exercise active/interactive selection, layer queues, bank-local instruction
   lists, common `$80ED` goto/`$812F` sleep opcodes, and `$81:8AB8` enemy OAM emission;
   the three-part gunship runs its real `$A2:A644/$A6D2` initialization, `$A759` main AI,
   ROM-timed four-phase bob, `$AD81/$ADDD/$AFDD` spritemaps, and the complete idle

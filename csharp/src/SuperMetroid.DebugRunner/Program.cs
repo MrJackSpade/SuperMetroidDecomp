@@ -535,6 +535,47 @@ Console.WriteLine(
     $"23 reached extended map $A6:F142 on frame 24 and emitted " +
     $"{parlorOam.LastFinalizedSpriteCount} OBJ piece(s) to {Path.GetFullPath(parlorSteamOutputPath)}.");
 
+// Two loader-only probes deliberately avoid claiming that unrelated actor AI is playable.
+// Crateria Map's real $A1:85A9 list is empty, while Mother Brain's $A0:EC3F header exercises
+// the boss-ID and high-health fields that neither Landing Site nor Parlor happen to contain.
+var emptyRoomEnemies = new RoomEnemySystem();
+var emptyRoomVram = new SnesVram();
+var emptyRoomCgram = new SnesCgram();
+emptyRoomVram.LoadBytes(0xe000, new byte[] { 0x5a });
+emptyRoomCgram.SetColor(128, 0x4567);
+emptyRoomEnemies.Load(
+    bus,
+    populationPointer: 0x85a9,
+    tilesetPointer: 0x8193,
+    emptyRoomVram,
+    emptyRoomCgram,
+    parlorRandom.NextRandom);
+if (emptyRoomEnemies.EnemyCount != 0 ||
+    emptyRoomEnemies.GraphicsSet.Count != 0 ||
+    emptyRoomVram.ReadByte(0xe000) != 0x5a ||
+    emptyRoomCgram.Colors[128] != 0x4567)
+{
+    throw new InvalidOperationException(
+        "Crateria Map's empty population unexpectedly processed enemy graphics or slots.");
+}
+RoomEnemyDefinition motherBrainHeader = RoomEnemySystem.ReadDefinition(bus, 0xec3f);
+if (motherBrainHeader.TileDataSize != 0x1000 ||
+    motherBrainHeader.Health != 18000 ||
+    motherBrainHeader.Damage != 120 ||
+    motherBrainHeader.Bank != 0xa9 ||
+    motherBrainHeader.BossId != 0x000a ||
+    motherBrainHeader.InitializationAiPointer != 0x8705 ||
+    motherBrainHeader.PartCount != 1 ||
+    motherBrainHeader.Layer != 5 ||
+    motherBrainHeader.NamePointer != 0)
+{
+    throw new InvalidOperationException(
+        "Mother Brain's complete $A0:EC3F header did not parse at its native offsets.");
+}
+Console.WriteLine(
+    "Loader-only enemy proof: empty Crateria Map skipped $B4 data, and Mother Brain " +
+    "$A0:EC3F parsed health 18000 with boss ID $000A without dispatching unsupported AI.");
+
 if (options.GunshipScript)
 {
     // Place an ordinary movement-type-zero body inside $A2:A9BD's exact 16-by-64 entry

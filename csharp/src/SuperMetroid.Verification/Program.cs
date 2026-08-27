@@ -93,6 +93,7 @@ VerifyFourBitBackgroundRendering();
 VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();
 VerifyScrollingSkyState();
+VerifyRoomEnemyLoading();
 
 Console.WriteLine("All bank $80 verification checks passed.");
 return 0;

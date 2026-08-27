@@ -21,6 +21,13 @@ public sealed class IntroCinematicState
     private const int ScreenWidth = 256;
     private const int ScreenHeight = 224;
 
+    // `$8B:A66F` writes cinematic_var10/BG1VOFS=8 when it creates the first illustrated
+    // page. Neither `$8B:AEB8` (Mother Brain) nor `$8B:AF6C` (SR388 discovery) resets that
+    // word, so both gameplay-style flashbacks deliberately inherit the same eight-pixel
+    // source offset. Their actor coordinates are already screen-relative and must not be
+    // moved with it.
+    internal const ushort GameplayFlashbackBg1VerticalScroll = 8;
+
     private readonly ISnesAddressSpace bus;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
@@ -940,7 +947,7 @@ public sealed class IntroCinematicState
             tilemapBaseWord: 0x5400,
             characterBaseWord: 0,
             horizontalScroll: 0,
-            verticalScroll: 0,
+            verticalScroll: GameplayFlashbackBg1VerticalScroll,
             width: ScreenWidth,
             height: ScreenHeight,
             tilemapWidthInTiles: 32,
@@ -957,7 +964,8 @@ public sealed class IntroCinematicState
             tilemapBaseWord: 0x5000,
             characterBaseWord: 0,
             horizontalScroll: 0,
-            verticalScroll: flashbackMotherBrain?.BackgroundVerticalScroll ?? 0,
+            verticalScroll: flashbackMotherBrain?.BackgroundVerticalScroll ??
+                GameplayFlashbackBg1VerticalScroll,
             width: ScreenWidth,
             height: ScreenHeight,
             tilemapWidthInTiles: 32,

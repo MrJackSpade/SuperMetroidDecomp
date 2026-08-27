@@ -35,8 +35,13 @@ public static class SuperMetroidRuntimeFrameRenderer
                 matrixD: 0x0100,
                 centerX: 0x0080,
                 centerY: 0x03f0,
-                horizontalOffset: 0,
-                verticalOffset: 0);
+                // Mode 7 reuses BG1HOFS/BG1VOFS as M7HOFS/M7VOFS. MainScrollingRoutine
+                // continues publishing those live camera words even though its ordinary
+                // tilemap row/column producers return early while `$0783` is nonzero.
+                // Leaving these at zero pins the shaft art to the window while Samus,
+                // enemies, and projectiles correctly move relative to the camera.
+                horizontalOffset: unchecked((short)runtime.BackgroundScroll.Bg1HorizontalScroll),
+                verticalOffset: unchecked((short)runtime.BackgroundScroll.Bg1VerticalScroll));
         }
 
         return SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(

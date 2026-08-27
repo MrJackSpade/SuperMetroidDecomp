@@ -362,6 +362,20 @@ public sealed partial class SuperMetroidRuntime
         BackgroundScroll.Layer1XPosition = Camera.XPosition;
         BackgroundScroll.Layer1YPosition = Camera.YPosition;
         IReadOnlyList<BackgroundUpdateRequest> requests = BackgroundScroll.StepScrolling(timeIsFrozen);
+
+        // Both native block producers begin with the same `$0783` test at
+        // `$80:A9DE/$80:AB78`. Ceres's elevator door sets that Mode-7 IRQ word, so crossing
+        // a 16-pixel camera boundary still updates all layer/register bookkeeping above but
+        // performs no ordinary Mode-1 row or column expansion. Apart from corrupting Mode-7
+        // VRAM, retaining these requests made the bottom-right 17th row sample walk beyond
+        // Ceres's logical BG2 allocation and turned harmless native overfetch into a host
+        // exception.
+        if (ActiveDoor?.UsesCeresElevatorMode7 == true)
+        {
+            LastBackgroundUpdateCount = 0;
+            return Array.Empty<BackgroundUpdateRequest>();
+        }
+
         LastBackgroundUpdateCount = requests.Count;
         return requests;
     }

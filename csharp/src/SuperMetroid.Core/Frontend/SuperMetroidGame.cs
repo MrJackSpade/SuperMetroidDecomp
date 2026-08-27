@@ -67,6 +67,15 @@ public sealed class SuperMetroidGame
     /// <summary>World Y owned by the live gameplay Samus, or zero before state $1F.</summary>
     public ushort GameplaySamusY => runtime?.Samus?.YPosition ?? 0;
 
+    /// <summary>Live layer-1 camera Y, exposed for debugger watches and ROM smoke captures.</summary>
+    public ushort GameplayCameraY => runtime?.Camera?.YPosition ?? 0;
+
+    /// <summary>The BG1/M7 vertical-scroll mirror published from the gameplay camera.</summary>
+    public ushort GameplayBg1VerticalScroll => runtime?.BackgroundScroll.Bg1VerticalScroll ?? 0;
+
+    /// <summary>Ordinary tilemap uploads produced by the most recent gameplay scroll pass.</summary>
+    public int GameplayBackgroundUpdateCount => runtime?.LastBackgroundUpdateCount ?? 0;
+
     /// <summary>The live cartridge pose byte, or zero before the gameplay runtime exists.</summary>
     public byte GameplaySamusPose => runtime?.Samus?.Pose ?? 0;
 

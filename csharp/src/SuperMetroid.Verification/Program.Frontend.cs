@@ -138,6 +138,93 @@ static void VerifyBgPriorityPlaneRendering()
     AssertEqual(255, high[8].A, "high-priority BG cell selected");
 }
 
+static void VerifyFileSelectFreshSaveTilemap()
+{
+    var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
+
+    // FileSelectMenuState also loads the five labels surrounding NO DATA. Empty streams are
+    // sufficient for this focused fixture, but each one still needs the native $FFFF
+    // terminator so the cartridge-backed loader cannot wander into zero-filled ROM.
+    int[] unusedLabelAddresses =
+    [
+        0x81b40a, // SAMUS DATA
+        0x81b436, // SAMUS A
+        0x81b456, // SAMUS B
+        0x81b476, // SAMUS C
+        0x81b4ee, // EXIT
+    ];
+    foreach (int address in unusedLabelAddresses)
+        WriteRomWord(rom, address, 0xffff);
+
+    // This is the literal retail structure at $81:B4AC: one leading blank, "NO DATA",
+    // and three trailing blanks. Keeping the exact words makes the test cover both the
+    // destination coordinates and the fact that the source itself intentionally starts
+    // one character before the visible N.
+    ushort[] noDataWords =
+    [
+        0x000f,
+        0x2077, 0x2078,
+        0x200f,
+        0x206d, 0x206a, 0x207d, 0x206a,
+        0x200f, 0x200f, 0x200f,
+        0xffff,
+    ];
+    for (int index = 0; index < noDataWords.Length; index++)
+        WriteRomWord(rom, 0x81b4ac + index * 2, noDataWords[index]);
+
+    var menu = new FileSelectMenuState(new SuperMetroidAddressSpace(rom));
+    ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap;
+
+    // Native empty-slot origins are energy-field X plus one $40-byte row: rows 6, 11,
+    // and 16 at column 14. Consequently every visible N begins at column 15 and the whole
+    // seven-character label remains on that row. A next-row column-zero check catches the
+    // exact wraparound regression that placed N above "O DATA".
+    int[] labelStarts = [0x019c / 2, 0x02dc / 2, 0x041c / 2];
+    foreach (int start in labelStarts)
+    {
+        AssertEqual(0x000f, tilemap[start], "file-select NO DATA leading blank");
+        AssertEqual(0x2077, tilemap[start + 1], "file-select NO DATA N column");
+        AssertEqual(0x2078, tilemap[start + 2], "file-select NO DATA O column");
+        AssertEqual(0x206d, tilemap[start + 4], "file-select NO DATA D column");
+        AssertEqual(0x206a, tilemap[start + 5], "file-select NO DATA A column");
+        AssertEqual(0x207d, tilemap[start + 6], "file-select NO DATA T column");
+        AssertEqual(0x206a, tilemap[start + 7], "file-select NO DATA final A column");
+        int followingRowStart = ((start / 32) + 1) * 32;
+        AssertEqual(0x000f, tilemap[followingRowStart],
+            "file-select NO DATA does not wrap to next row");
+    }
+
+    Console.WriteLine("  File select: all three fresh-save NO DATA labels stay on their native rows.");
+}
+
+static void VerifyIntroGameplayFlashbackVerticalScroll()
+{
+    // `$8B:A66F` installs BG1VOFS eight for the illustrated page. The two following
+    // gameplay-style setup functions replace BG1SC but leave that scroll word untouched.
+    // Lock the inherited value independently of any host-authored actor coordinates.
+    AssertEqual(8, IntroCinematicState.GameplayFlashbackBg1VerticalScroll,
+        "intro gameplay flashback inherited BG1 vertical scroll");
+
+    var motherBrain = new IntroMotherBrainSpriteState();
+    AssertEqual(8, motherBrain.BackgroundVerticalScroll,
+        "intro Mother Brain starts from inherited BG1 vertical scroll");
+
+    // Four impacts select `$8B:B80F`. Its `$8B:B877` shake adds four on an even frame and
+    // removes four on an odd frame, oscillating around eight rather than around zero.
+    for (int hit = 0; hit < 4; hit++)
+        motherBrain.RegisterMissileHit();
+    var cgram = new SnesCgram();
+    var introPalette = new ushort[SnesCgram.ColorCount];
+    motherBrain.RunPreInstruction(cgram, introPalette, cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
+    AssertEqual(12, motherBrain.BackgroundVerticalScroll,
+        "intro Mother Brain even-frame shake adds four to inherited scroll");
+    motherBrain.RunPreInstruction(cgram, introPalette, cinematicFrameCounter: 3, introCrossfadeTimer: 0x7f);
+    AssertEqual(8, motherBrain.BackgroundVerticalScroll,
+        "intro Mother Brain odd-frame shake returns to inherited scroll");
+
+    Console.WriteLine("  Intro: Mother Brain and SR388 BG1 retain the native eight-pixel vertical scroll.");
+}
+
 static void VerifyCinematicPaletteFader()
 {
     var target = new ushort[SnesCgram.ColorCount];

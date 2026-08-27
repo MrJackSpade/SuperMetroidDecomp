@@ -1,10 +1,10 @@
 using System.Drawing.Imaging;
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.RoomViewer;
+namespace SuperMetroid.Desktop;
 
 /// <summary>Copies platform-neutral core RGBA pixels into a Windows GDI bitmap.</summary>
-internal static class RgbaBitmap
+public static class RgbaBitmap
 {
     /// <summary>
     /// Converts without <see cref="Bitmap.SetPixel(int, int, Color)"/>, whose per-pixel

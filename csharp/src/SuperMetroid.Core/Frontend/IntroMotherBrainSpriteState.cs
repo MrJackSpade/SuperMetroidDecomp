@@ -39,7 +39,8 @@ internal sealed class IntroMotherBrainSpriteState
     public bool ExplosionStarted { get; private set; }
 
     /// <summary>BG1 vertical scroll word toggled by $8B:B877 while Mother Brain explodes.</summary>
-    public ushort BackgroundVerticalScroll { get; private set; }
+    public ushort BackgroundVerticalScroll { get; private set; } =
+        IntroCinematicState.GameplayFlashbackBg1VerticalScroll;
 
     /// <summary>True when $B80F switches the actor to its page-two instruction list.</summary>
     public bool PageTwoRequested { get; private set; }
@@ -176,6 +177,8 @@ internal sealed class IntroMotherBrainSpriteState
     private void ApplyScreenShake(ushort cinematicFrameCounter)
     {
         // $8B:B877 adds four on even cinematic frames and subtracts four on odd frames.
+        // The inherited $0008 value therefore alternates $000C/$0008; starting this host
+        // field at zero would produce $0004/$0000 and shift the whole room down one tile.
         // The arithmetic deliberately wraps as a 16-bit SNES scroll register would.
         BackgroundVerticalScroll = (cinematicFrameCounter & 1) == 0
             ? unchecked((ushort)(BackgroundVerticalScroll + 4))

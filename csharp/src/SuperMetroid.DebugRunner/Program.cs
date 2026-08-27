@@ -632,10 +632,71 @@ if (args.Length >= 3 && args[0] is
                                                                                     $"minimum=${minimumJumpY:X4}, pose=${frontend.GameplaySamusPose:X2}.");
                                                                             }
 
+                                                                            // Let the arc return to the left ledge, then walk toward the
+                                                                            // central shaft only until gravity has committed Samus to the
+                                                                            // drop. Releasing Right at that point prevents air control from
+                                                                            // carrying her across to the matching ledge on the other side.
+                                                                            for (int frame = 0; frame < 180; frame++)
+                                                                                frontendFrame = frontend.Step(0);
+                                                                            ushort ledgeY = frontend.GameplaySamusY;
+                                                                            bool leftLedgeCleared = false;
+                                                                            for (int frame = 0; frame < 120; frame++)
+                                                                            {
+                                                                                frontendFrame = frontend.Step((ushort)SnesButton.Right);
+                                                                                if (frontend.GameplaySamusY > ledgeY + 8)
+                                                                                {
+                                                                                    leftLedgeCleared = true;
+                                                                                    break;
+                                                                                }
+                                                                            }
+                                                                            if (!leftLedgeCleared)
+                                                                            {
+                                                                                throw new InvalidOperationException(
+                                                                                    $"Playable Ceres did not leave the lower ledge at Y=${ledgeY:X4}; " +
+                                                                                    $"current=(${frontend.GameplaySamusX:X4},${frontend.GameplaySamusY:X4}).");
+                                                                            }
+
+                                                                            // `$80:A9DE/$80:AB78` suppress ordinary row/column producers
+                                                                            // while Ceres's Mode-7 IRQ flag is active. Continue across many
+                                                                            // 16-pixel camera boundaries and prove that every one remains
+                                                                            // suppressed; this is the same gate that prevents the eventual
+                                                                            // bottom-edge source-row-$002F request reported by the desktop
+                                                                            // host. Also prove live M7 scroll follows the camera used by OAM.
+                                                                            ushort fallStartY = frontend.GameplaySamusY;
+                                                                            ushort fallStartCameraY = frontend.GameplayCameraY;
+                                                                            ushort maximumFallY = fallStartY;
+                                                                            ushort maximumCameraY = fallStartCameraY;
+                                                                            for (int frame = 0; frame < 360; frame++)
+                                                                            {
+                                                                                frontendFrame = frontend.Step(0);
+                                                                                maximumFallY = Math.Max(maximumFallY, frontend.GameplaySamusY);
+                                                                                maximumCameraY = Math.Max(maximumCameraY, frontend.GameplayCameraY);
+                                                                                if (frontend.GameplayBackgroundUpdateCount != 0)
+                                                                                {
+                                                                                    throw new InvalidOperationException(
+                                                                                        "Ceres Mode 7 emitted an ordinary BG tilemap update while falling.");
+                                                                                }
+                                                                                if (frontend.GameplayBg1VerticalScroll != frontend.GameplayCameraY)
+                                                                                {
+                                                                                    throw new InvalidOperationException(
+                                                                                        $"Ceres M7VOFS ${frontend.GameplayBg1VerticalScroll:X4} " +
+                                                                                        $"diverged from camera Y ${frontend.GameplayCameraY:X4}.");
+                                                                                }
+                                                                            }
+                                                                            if (maximumFallY <= fallStartY || maximumCameraY <= fallStartCameraY)
+                                                                            {
+                                                                                throw new InvalidOperationException(
+                                                                                    $"Playable Ceres fall did not advance world and camera Y: " +
+                                                                                    $"Samus ${fallStartY:X4}->${maximumFallY:X4}, " +
+                                                                                    $"camera ${fallStartCameraY:X4}->${maximumCameraY:X4}.");
+                                                                            }
+
                                                                             Console.WriteLine(
                                                                                 $"Playable input smoke: X ${controllableStartX:X4} -> " +
                                                                                 $"${afterRightX:X4} -> ${frontend.GameplaySamusX:X4}; " +
                                                                                 $"jump Y ${groundedY:X4} -> ${minimumJumpY:X4}; " +
+                                                                                $"fall Y ${fallStartY:X4} -> ${maximumFallY:X4}; " +
+                                                                                $"camera Y ${fallStartCameraY:X4} -> ${maximumCameraY:X4}; " +
                                                                                 $"pose ${frontend.GameplaySamusPose:X2}.");
                                                                         }
                                                                     }

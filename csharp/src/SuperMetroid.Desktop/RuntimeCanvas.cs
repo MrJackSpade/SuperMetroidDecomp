@@ -1,9 +1,9 @@
 using System.Drawing.Drawing2D;
 
-namespace SuperMetroid.RoomViewer;
+namespace SuperMetroid.Desktop;
 
 /// <summary>Nearest-neighbor, integer-scaled display for one 256x224 SNES frame.</summary>
-internal sealed class RuntimeCanvas : Control
+public sealed class RuntimeCanvas : Control
 {
     private Bitmap? frame;
 

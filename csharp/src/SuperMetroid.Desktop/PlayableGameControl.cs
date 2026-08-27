@@ -3,12 +3,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using System.Diagnostics;
 
-namespace SuperMetroid.RoomViewer;
+namespace SuperMetroid.Desktop;
 
 /// <summary>
 /// Thin keyboard/debugger host for the cartridge-backed top-level game dispatcher.
 /// </summary>
-internal sealed class PlayableGameControl : UserControl
+public sealed class PlayableGameControl : UserControl
 {
     private readonly string romPath;
     private readonly RuntimeCanvas canvas = new() { Dock = DockStyle.Fill, TabStop = true };
@@ -47,9 +47,11 @@ internal sealed class PlayableGameControl : UserControl
         {
             Dock = DockStyle.Bottom,
             AutoSize = false,
-            Height = 24,
+            Height = 40,
             TextAlign = ContentAlignment.MiddleCenter,
-            Text = "Keyboard: arrows = D-pad, Z = B, X = A, A = Y, S = X, Enter = Start, Shift = Select",
+            Text = "Arrows: move/aim  |  Space or X: jump (SNES A)  |  Z: dash (B)  |  " +
+                   "S: fire (X)  |  A: item cancel (Y)\r\n" +
+                   "Q: aim up (L)  |  W: aim down (R)  |  Enter: Start  |  Shift: Select",
         };
 
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
@@ -164,9 +166,14 @@ internal sealed class PlayableGameControl : UserControl
         if (heldKeys.Contains(Keys.Up)) input |= SnesButton.Up;
         if (heldKeys.Contains(Keys.Down)) input |= SnesButton.Down;
         if (heldKeys.Contains(Keys.Z)) input |= SnesButton.B;
-        if (heldKeys.Contains(Keys.X)) input |= SnesButton.A;
+        // Space is a discoverable desktop jump alias; X retains the compact four-face-
+        // button layout printed below the viewport. Both become the same retail SNES A bit,
+        // so menus and gameplay still observe one authentic controller word.
+        if (heldKeys.Contains(Keys.X) || heldKeys.Contains(Keys.Space)) input |= SnesButton.A;
         if (heldKeys.Contains(Keys.A)) input |= SnesButton.Y;
         if (heldKeys.Contains(Keys.S)) input |= SnesButton.X;
+        if (heldKeys.Contains(Keys.Q)) input |= SnesButton.L;
+        if (heldKeys.Contains(Keys.W)) input |= SnesButton.R;
         if (heldKeys.Contains(Keys.Enter)) input |= SnesButton.Start;
         if (heldKeys.Contains(Keys.ShiftKey)) input |= SnesButton.Select;
         return (ushort)input;
@@ -174,7 +181,8 @@ internal sealed class PlayableGameControl : UserControl
 
     private static bool IsGameplayKey(Keys key) => key is
         Keys.Left or Keys.Right or Keys.Up or Keys.Down or
-        Keys.Z or Keys.X or Keys.A or Keys.S or Keys.Enter or Keys.ShiftKey;
+        Keys.Z or Keys.X or Keys.Space or Keys.A or Keys.S or Keys.Q or Keys.W or
+        Keys.Enter or Keys.ShiftKey;
 
     protected override void OnHandleCreated(EventArgs e)
     {

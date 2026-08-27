@@ -96,6 +96,8 @@ VerifyLoRomCrossBankCompressedData();
 VerifyMode7Rendering();
 VerifyLayerCompositorBackdrop();
 VerifyBgPriorityPlaneRendering();
+VerifyFileSelectFreshSaveTilemap();
+VerifyIntroGameplayFlashbackVerticalScroll();
 VerifyCinematicPaletteFader();
 VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();

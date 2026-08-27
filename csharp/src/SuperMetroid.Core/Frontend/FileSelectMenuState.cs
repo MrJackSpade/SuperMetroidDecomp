@@ -64,6 +64,12 @@ public sealed class FileSelectMenuState
     /// <summary>Current INIDISP brightness nibble.</summary>
     public byte Brightness => (byte)brightness;
 
+    /// <summary>
+    /// Read-only access for cartridge-layout verification. Gameplay code uploads this same
+    /// buffer to BG1; exposing a span avoids adding a second, test-only tilemap builder.
+    /// </summary>
+    internal ReadOnlySpan<ushort> BackgroundTilemap => bg1Tilemap;
+
     /// <summary>Advances one native menu frame from a raw SNES controller word.</summary>
     public void Step(ushort controllerInput)
     {
@@ -170,11 +176,15 @@ public sealed class FileSelectMenuState
         Array.Fill(bg1Tilemap, (ushort)0x000f);
         LoadMenuTilemap(destinationByteOffset: 0x056, sourcePointer: 0xb40a); // SAMUS DATA
         LoadMenuTilemap(destinationByteOffset: 0x146, sourcePointer: 0xb436); // SAMUS A
-        LoadMenuTilemap(destinationByteOffset: 0x1bc, sourcePointer: 0xb4ac); // NO DATA
+        // `$81:A08E-$81:A096` adds one complete $40-byte tilemap row to the slot's
+        // energy-field origin before loading NO DATA. The leading blank word in the ROM
+        // string then places N at column 15. Using $01BC here would instead begin at column
+        // 30, putting N in column 31 and wrapping O DATA onto the following scanline.
+        LoadMenuTilemap(destinationByteOffset: 0x19c, sourcePointer: 0xb4ac); // NO DATA
         LoadMenuTilemap(destinationByteOffset: 0x286, sourcePointer: 0xb456); // SAMUS B
-        LoadMenuTilemap(destinationByteOffset: 0x2fc, sourcePointer: 0xb4ac); // NO DATA
+        LoadMenuTilemap(destinationByteOffset: 0x2dc, sourcePointer: 0xb4ac); // NO DATA
         LoadMenuTilemap(destinationByteOffset: 0x3c6, sourcePointer: 0xb476); // SAMUS C
-        LoadMenuTilemap(destinationByteOffset: 0x43c, sourcePointer: 0xb4ac); // NO DATA
+        LoadMenuTilemap(destinationByteOffset: 0x41c, sourcePointer: 0xb4ac); // NO DATA
         LoadMenuTilemap(destinationByteOffset: 0x688, sourcePointer: 0xb4ee); // EXIT
     }
 

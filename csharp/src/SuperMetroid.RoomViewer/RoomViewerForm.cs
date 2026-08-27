@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Desktop;
 
 namespace SuperMetroid.RoomViewer;
 
@@ -69,13 +70,9 @@ internal sealed class RoomViewerForm : Form
         var runtimeTab = new TabPage("Frame runtime") { Padding = new Padding(0) };
         runtimeTab.Controls.Add(new RuntimePreviewControl(romPath, room));
 
-        var playableTab = new TabPage("Playable") { Padding = new Padding(0) };
-        playableTab.Controls.Add(new PlayableGameControl(romPath));
-
         var tabs = new TabControl { Dock = DockStyle.Fill };
-        // Put the end-to-end dispatcher first. The older tabs remain useful focused
-        // diagnostics, but F5 should now begin at reset/title rather than Landing Site.
-        tabs.TabPages.Add(playableTab);
+        // This executable is deliberately limited to focused room/runtime diagnostics.
+        // SuperMetroid.Game owns the normal reset-to-gameplay entry point.
         tabs.TabPages.Add(roomTab);
         tabs.TabPages.Add(runtimeTab);
         Controls.Add(tabs);

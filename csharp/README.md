@@ -128,6 +128,7 @@ dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Sup
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 245 --aim-run-script --output ../standalone-assets/runtime/AimRunTraceFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 390 --aim-air-script --output ../standalone-assets/runtime/AimAirTraceFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 68 --charge-beam-script --output ../standalone-assets/runtime/ChargeBeamRelease.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 8 --missile-script --output ../standalone-assets/runtime/MissileFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 120 --aerial-turn-script --output ../standalone-assets/runtime/AerialTurnFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 24 --compact-air-script --output ../standalone-assets/runtime/CompactAirPoseFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 240 --compact-air-script --output ../standalone-assets/runtime/CompactAirTraceFrame.png
@@ -282,6 +283,13 @@ independent left/right bank-$90 instruction streams, inline position commands, a
 draw rule. A 50-frame capture freezes the active flare; a 68-frame capture freezes the release;
 a 72-frame capture freezes the projectile with its orange trail. The one-frame `$0CFA` shot-direction-change
 bridge and the four-call post-shot Samus palette recolor remain explicit presentation seams.
+
+`--missile-script` grants ten rounds and selects HUD item one at the untranslated save/pause
+seam, then sends one fresh Shoot edge. The private-ROM regression requires type `$8100`, damage
+`$0064`, sound `$03`, bank-$93 missile art, a one-round decrement, and `$90:B5A1` exhaust by
+frame seven. The viewer exposes the same seam as **Missiles selected**; its finite 99-round
+debugger reserve still runs the translated producer, cooldown, acceleration, trail, point
+collision, missile explosion, and deletion on every stepped frame.
 
 `--grapple-fire-script` selects grapple at the explicit untranslated HUD seam, then presses only Shoot/X. Bank `$9B` supplies the current pose's direction, signed 16.16 velocities, hand/flare origins, twelve-pixel length growth, and 128-pixel cutoff. Bank `$94` performs four fractional endpoint probes per frame and dispatches real BG1/BTS collision; persistent type-`$E` BTS zero/three connects, while ordinary solid collision cancels and unsupported PLM-producing reactions throw. Landing Site contains no type-`$E` blocks, so its real-ROM trace honestly proves firing, rendering, and queued cancellation. The eight-frame capture freezes the visible extending beam; fourteen frames prove cancellation completion.
 

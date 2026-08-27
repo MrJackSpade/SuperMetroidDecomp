@@ -880,7 +880,7 @@ translated status is documented with the Morph Ball family below.
   before its release handoff, then the 100-frame route proves `$90:946E` keeps moving the
   `$51/$52` body after the beam function has become inactive.
 
-## Verified plain power/Charge Beam projectile slice
+## Verified plain power/Charge Beam/missile projectile slice
 
 - HUD item zero/three dispatches `$90:B80D` into the five ordinary slots while sharing
   cooldown `$0CCC` with bombs. Plain power shots use all ten pose-authored directions,
@@ -908,6 +908,15 @@ translated status is documented with the Morph Ball family below.
   hold/release regression. The `$0CFA` transition-direction bridge, post-shot Samus palette
   recolor, combined beam families, and weapon-specific block reactions remain seams;
   plain power's left/right trail instruction pointers are deliberately empty in retail data.
+- HUD item one now dispatches `$90:BE62`: fresh Shoot allocates from the shared five slots,
+  installs invincibility 20/cooldown 10, consumes one round, reads damage/direction art through
+  `$93:83F3 -> $8641`, and auto-deselects on the last round. `$90:AF68/$B2F6` preserves the
+  one-frame `$0100` ignition and then combines generic `$10` acceleration with the signed
+  cardinal/diagonal `$90:C303` table. Movement uses bank-$94's center-point solid test; impact
+  applies the native radius-leading-edge correction and selects family `$0800`/`$93:867F`.
+  Trail family `$20` selects retail left list `$B5A1` and its `$2A48-$2A4B` four-frame exhaust;
+  the right stream is intentionally empty. Unsupported slope and PLM-producing reactions stop
+  at an explicit boundary instead of being guessed into air or solid.
 
 ## Verified ordinary Morph Ball slice
 
@@ -1078,6 +1087,10 @@ translated status is documented with the Morph Ball family below.
   with sound `$17`. The 50-frame capture visibly retains the cannon flare; the 68-frame
   regression requires charged-family allocation and nonzero bank-$93 art; a 71+ frame run
   also requires the native charged-trail allocation and the 72-frame PNG captures it.
+- The real-ROM `--missile-script` fires one type-`$8100`, damage-`$0064` missile with sound
+  `$03`, decrements ten rounds to nine, decodes its live bank-$93 spritemap, and allocates the
+  bank-$90 exhaust by frame seven. `MissileFrame.png` and its three diagnostic layers capture
+  the live projectile and detached trail over cartridge-derived Landing Site terrain.
 - The real-ROM `--draygon-grab-script` publishes a fixed owner coordinate at `$A5:94A9`, then
   observes every right-facing grabbed pose, the moving-body animation loop, `$F0->$EC`
   fallback, 60-pattern escape, owner signal, and `$01` release. Its assertions sample actual
@@ -1095,6 +1108,6 @@ Ridley-afterburn-first chain, and the typewriter glyph family.
    afterburn chain, and typewriter glyph producers.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.
-4. Translate missile/super/power-bomb projectile producers and their remaining bank-$84
+4. Translate super-missile/power-bomb projectile producers and the remaining bank-$84
    weapon-specific reaction setup branches; the normal-bomb dispatcher and its
    bombable/shootable/special terrain families now execute their real ROM lists.

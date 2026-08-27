@@ -35,6 +35,9 @@ public sealed class SamusProjectileSystem
     /// <summary>Beam-explosion family installed by <c>Kill_Projectile</c>.</summary>
     public const ushort BeamExplosionFamily = 0x0700;
 
+    /// <summary>Missile/super-missile explosion family installed by <c>Kill_Projectile</c>.</summary>
+    public const ushort MissileExplosionFamily = 0x0800;
+
     private const int PoseDefinitions = 0x91b629;
     private const int PoseDirectionOffset = 3;
     private const int PoseYOffsetOffset = 4;
@@ -54,6 +57,9 @@ public sealed class SamusProjectileSystem
     private const int UnchargedBeamDataPointers = 0x9383c1;
     private const int ChargedBeamDataPointers = 0x9383d9;
     private const int BeamExplosionInstructionPointerAddress = 0x9383ff;
+    private const int MissileExplosionInstructionPointerAddress = 0x93867f;
+    private const int NonBeamProjectileDataPointers = 0x9383f1;
+    private const int MissileAccelerations = 0x90c303;
     private const int TrailLeftInstructionPointers = 0x90b5bb;
     private const int TrailRightInstructionPointers = 0x90b609;
     private const int UnchargedTrailOffsetFamilies = 0x9ba4b3;
@@ -97,6 +103,12 @@ public sealed class SamusProjectileSystem
     /// and cadence-correct but does not yet recolor Samus.
     /// </summary>
     public ushort ChargedShotGlowTimer { get; private set; }
+
+    /// <summary>
+    /// WRAM <c>$0BD0</c>; firing a missile writes 20 before the enemy-collision consumer.
+    /// That consumer is not translated yet, so the producer-owned value remains inspectable.
+    /// </summary>
+    public ushort ProjectileInvincibilityTimer { get; private set; }
 
     private readonly ushort[] _flareFrames = new ushort[3];
     private readonly ushort[] _flareTimers = new ushort[3];
@@ -205,19 +217,29 @@ public sealed class SamusProjectileSystem
         int? firedSlot = null;
         ushort queuedSound = 0;
 
-        // HUD indices zero and three share `$90:B80D`. A humanoid Samus may therefore fire
-        // her beam with either Nothing or Power Bombs selected. Ball poses dispatch to the
-        // separate bomb producer, and the debug grapple selector replaces this producer.
-        if (projectileProducerEnabled &&
-            samus.SelectedHudItem is 0 or 3 &&
-            !SamusState.IsStableBallPose(samus.Pose))
+        // Humanoid projectile dispatch is selected by the live HUD item. Indices zero/three
+        // share `$90:B80D`; index one reaches `$90:BE62`'s missile producer. Ball poses still
+        // dispatch to the companion bomb owner, and the debug grapple route disables this
+        // producer explicitly while it owns Shoot.
+        if (projectileProducerEnabled && !SamusState.IsStableBallPose(samus.Pose))
         {
-            (firedSlot, queuedSound) = HandleBeamInput(
-                bus,
-                samus,
-                controllerInput,
-                controllerNewInput,
-                sharedProjectiles);
+            if (samus.SelectedHudItem is 0 or 3)
+            {
+                (firedSlot, queuedSound) = HandleBeamInput(
+                    bus,
+                    samus,
+                    controllerInput,
+                    controllerNewInput,
+                    sharedProjectiles);
+            }
+            else if (samus.SelectedHudItem == 1)
+            {
+                (firedSlot, queuedSound) = TryFireMissile(
+                    bus,
+                    samus,
+                    controllerNewInput,
+                    sharedProjectiles);
+            }
         }
 
         bool collisionStartedExplosion = false;
@@ -240,6 +262,16 @@ public sealed class SamusProjectileSystem
                     slot,
                     layer1X,
                     layer1Y);
+            }
+            else if (slot.PreInstruction == SamusProjectilePreInstruction.Missile)
+            {
+                collisionStartedExplosion |= RunMissilePreInstruction(
+                    bus,
+                    level,
+                    slot,
+                    layer1X,
+                    layer1Y,
+                    sharedProjectiles);
             }
 
             // Kill_Projectile replaces rather than clears a live beam. Consequently the
@@ -371,7 +403,8 @@ public sealed class SamusProjectileSystem
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileSlot slot = _slots[slotIndex];
-            if (!slot.IsActive || (slot.Type & 0x0f00) != BeamExplosionFamily)
+            ushort family = unchecked((ushort)(slot.Type & 0x0f00));
+            if (!slot.IsActive || family is not (BeamExplosionFamily or MissileExplosionFamily))
                 continue;
 
             DrawSlot(bus, oam, slot, layer1X, layer1Y, horizontalMargin: 48);
@@ -389,6 +422,7 @@ public sealed class SamusProjectileSystem
         FlareCounter = 0;
         PreviousBeamChargeCounter = 0;
         ChargedShotGlowTimer = 0;
+        ProjectileInvincibilityTimer = 0;
         Array.Clear(_flareFrames);
         Array.Clear(_flareTimers);
         LastFrameResult = default;
@@ -555,6 +589,73 @@ public sealed class SamusProjectileSystem
         return (slotIndex, sound);
     }
 
+    private (int? Slot, ushort Sound) TryFireMissile(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        ushort controllerNewInput,
+        SamusBombProjectileSystem sharedProjectiles)
+    {
+        const ushort shoot = (ushort)SnesButton.X;
+
+        // `$90:BE65-$BE72` accepts either the current new-press word or the previous filtered
+        // drawing word. The latter controller-filter seam is not published by this runtime;
+        // a real fresh press is therefore the only admitted producer stimulus, and holding X
+        // cannot silently become desktop auto-fire.
+        if ((controllerNewInput & shoot) == 0)
+            return (null, 0);
+
+        // `$90:AC5A` increments the common counter before the ammo/free-slot checks later in
+        // `$BE62`; every failing branch rolls it back. Testing the stable preconditions first
+        // yields the same externally visible state without temporarily corrupting debugger
+        // watches between C# statements.
+        if (ProjectileCounter >= SlotCount ||
+            (sharedProjectiles.CooldownTimer & 0x00ff) != 0 ||
+            samus.Missiles == 0)
+        {
+            return (null, 0);
+        }
+
+        int slotIndex = Array.FindIndex(_slots, candidate => candidate.Damage == 0);
+        if (slotIndex < 0)
+            return (null, 0);
+
+        SamusProjectileSlot slot = _slots[slotIndex];
+        slot.ClearFields();
+        slot.Direction = ReadPoseByte(bus, samus.Pose, PoseDirectionOffset);
+        if ((slot.Direction & 0x00f0) != 0 || (slot.Direction & 0x000f) > 9)
+            return (null, 0);
+
+        InitializePosition(bus, samus, slot);
+        ProjectileCounter = unchecked((ushort)(ProjectileCounter + 1));
+        ProjectileInvincibilityTimer = 20;
+        samus.Missiles = unchecked((ushort)(samus.Missiles - 1));
+        slot.TrailTimer = 4;
+        slot.Type = 0x8100;
+        slot.Variable = 0;
+
+        // The producer first calls the generic velocity initializer with base speed zero.
+        // Missile_Func1 replaces that zero with `$0100` during this same frame's alpha pass;
+        // keeping both calls makes the one-frame ignition transition directly inspectable.
+        InitializeDirectionalVelocity(slot, baseSpeed: 0);
+
+        ushort dataPointer = ReadWord(bus, NonBeamProjectileDataPointers + 2);
+        slot.Damage = ReadWord(bus, 0x930000 | dataPointer);
+        slot.InstructionPointer = ReadWord(
+            bus,
+            0x930000 | unchecked((ushort)(dataPointer + 2 + (slot.Direction & 0x000f) * 2)));
+        slot.XRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 4)));
+        slot.YRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 5)));
+        slot.InstructionTimer = 1;
+        slot.PreInstruction = SamusProjectilePreInstruction.Missile;
+
+        // Retail constants embedded beside the bank-$90 producer: missile sound library-one
+        // effect three and ten-frame shared cooldown. Empty ammo auto-deselects the HUD item.
+        sharedProjectiles.SetSharedCooldown(10);
+        if (samus.Missiles == 0)
+            samus.SelectedHudItem = 0;
+        return (slotIndex, 3);
+    }
+
     private static void InitializePosition(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -587,6 +688,15 @@ public sealed class SamusProjectileSystem
             bus,
             diagonal ? BeamSpeedsDiagonal : BeamSpeedsHorizontalVertical));
 
+        InitializeDirectionalVelocity(slot, speed);
+    }
+
+    private static void InitializeDirectionalVelocity(
+        SamusProjectileSlot slot,
+        short baseSpeed)
+    {
+        byte direction = unchecked((byte)(slot.Direction & 0x0f));
+
         // Projectile inheritance in `$90:B1F3` samples the PREVIOUS frame's four signed
         // displacement words. The translated movement owners reset those words at the end
         // of beta and do not yet expose their byte-overlap garbage. Zero is therefore the
@@ -595,14 +705,14 @@ public sealed class SamusProjectileSystem
         slot.YSubposition = 0;
         slot.XVelocity = direction switch
         {
-            1 or 2 or 3 => speed,
-            6 or 7 or 8 => unchecked((short)-speed),
+            1 or 2 or 3 => baseSpeed,
+            6 or 7 or 8 => unchecked((short)-baseSpeed),
             _ => 0,
         };
         slot.YVelocity = direction switch
         {
-            0 or 1 or 8 or 9 => unchecked((short)-speed),
-            3 or 4 or 5 or 6 => speed,
+            0 or 1 or 8 or 9 => unchecked((short)-baseSpeed),
+            3 or 4 or 5 or 6 => baseSpeed,
             _ => 0,
         };
     }
@@ -658,6 +768,139 @@ public sealed class SamusProjectileSystem
             ClearProjectile(slot);
 
         return false;
+    }
+
+    private bool RunMissilePreInstruction(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusProjectileSlot slot,
+        ushort layer1X,
+        ushort layer1Y,
+        SamusBombProjectileSystem sharedProjectiles)
+    {
+        if ((slot.Direction & 0x00f0) != 0)
+        {
+            ClearProjectile(slot);
+            return false;
+        }
+
+        slot.TrailTimer = unchecked((ushort)(slot.TrailTimer - 1));
+        if (slot.TrailTimer == 0)
+        {
+            slot.TrailTimer = 4;
+            SpawnTrail(bus, slot);
+        }
+
+        int direction = slot.Direction & 0x000f;
+
+        // Missile pre-instruction `$90:AF8F-$AFA0` first applies the same small directional
+        // acceleration as beams. On the ignition frame Missile_Func1 below replaces velocity,
+        // so this addition is intentionally overwritten; subsequent frames retain it.
+        slot.XVelocity = unchecked((short)(slot.XVelocity +
+            unchecked((short)ReadWord(bus, ProjectileAccelerationX + direction * 2))));
+        slot.YVelocity = unchecked((short)(slot.YVelocity +
+            unchecked((short)ReadWord(bus, ProjectileAccelerationY + direction * 2))));
+
+        if ((slot.Variable & 0xff00) == 0)
+        {
+            // `$90:C301` is the literal `$0100` ignition increment. Crossing into a nonzero
+            // high byte re-runs `$90:B1F3` with that word as base 8.8 speed. A normal missile
+            // crosses on its first alpha pass and therefore begins at exactly one pixel/frame.
+            slot.Variable = unchecked((ushort)(slot.Variable + 0x0100));
+            if ((slot.Variable & 0xff00) != 0)
+                InitializeDirectionalVelocity(slot, unchecked((short)slot.Variable));
+        }
+        else
+        {
+            int acceleration = MissileAccelerations + direction * 4;
+            slot.XVelocity = unchecked((short)(slot.XVelocity +
+                unchecked((short)ReadWord(bus, acceleration))));
+            slot.YVelocity = unchecked((short)(slot.YVelocity +
+                unchecked((short)ReadWord(bus, acceleration + 2))));
+        }
+
+        bool collided = direction switch
+        {
+            0 or 4 or 5 or 9 => MoveMissileVertically(level, slot),
+            2 or 7 => MoveMissileHorizontally(level, slot),
+            1 or 3 or 6 or 8 =>
+                MoveMissileHorizontally(level, slot) || MoveMissileVertically(level, slot),
+            _ => false,
+        };
+        if (collided)
+        {
+            KillMissile(bus, slot, sharedProjectiles);
+            return true;
+        }
+
+        short screenX = unchecked((short)(slot.XPosition - layer1X));
+        short screenY = unchecked((short)(slot.YPosition - layer1Y));
+        if (screenX < -64 || screenX >= 320 || screenY < -64 || screenY >= 320)
+            ClearProjectile(slot);
+        return false;
+    }
+
+    private static bool MoveMissileHorizontally(
+        RoomLevelData level,
+        SamusProjectileSlot slot)
+    {
+        (slot.XPosition, slot.XSubposition) = AddVelocity(
+            slot.XPosition,
+            slot.XSubposition,
+            slot.XVelocity);
+
+        // `$94:A46F` tests the projectile center, not its radius-spanning leading edge. Room
+        // width is stored in 256-pixel screens; coordinates in/past the first out-of-room
+        // high byte skip reaction and are left for the later 64-pixel viewport deletion.
+        int roomWidthInScreens = (level.WidthInBlocks + 15) >> 4;
+        if ((slot.XPosition >> 8) >= roomWidthInScreens)
+            return false;
+        return MissilePointReaction(level, slot);
+    }
+
+    private static bool MoveMissileVertically(
+        RoomLevelData level,
+        SamusProjectileSlot slot)
+    {
+        (slot.YPosition, slot.YSubposition) = AddVelocity(
+            slot.YPosition,
+            slot.YSubposition,
+            slot.YVelocity);
+
+        int roomHeightInScreens = (level.HeightInBlocks + 15) >> 4;
+        if ((slot.YPosition >> 8) >= roomHeightInScreens)
+            return false;
+        return MissilePointReaction(level, slot);
+    }
+
+    private static bool MissilePointReaction(
+        RoomLevelData level,
+        SamusProjectileSlot slot)
+    {
+        int blockX = slot.XPosition >> 4;
+        int blockY = slot.YPosition >> 4;
+        if ((uint)blockX >= (uint)level.WidthInBlocks ||
+            (uint)blockY >= (uint)level.HeightInBlocks)
+        {
+            return false;
+        }
+
+        RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+        return block.CollisionType switch
+        {
+            // The point reaction dispatch treats these categories as transparent air.
+            0 or 2 or 3 or 6 => false,
+
+            // These categories return carry immediately and therefore kill the missile.
+            8 or 9 or 10 or 11 or 14 => true,
+
+            // Slopes and block families below have data-dependent geometry, extension walks,
+            // or bank-$84 PLM side effects. Throwing at the exact contacted block prevents a
+            // shootable/bombable tile from being guessed into plain air or plain solid.
+            _ => throw new NotSupportedException(
+                $"Missile point reaction for collision type ${block.CollisionType:X1}, " +
+                $"BTS ${block.Behavior:X2}, block index {block.Index} is not translated."),
+        };
     }
 
     private void SpawnTrail(ISnesAddressSpace bus, SamusProjectileSlot projectile)
@@ -917,6 +1160,40 @@ public sealed class SamusProjectileSystem
         slot.PreInstruction = SamusProjectilePreInstruction.None;
     }
 
+    private static void KillMissile(
+        ISnesAddressSpace bus,
+        SamusProjectileSlot slot,
+        SamusBombProjectileSystem sharedProjectiles)
+    {
+        // The shared `$90:AE3A` leading-edge correction runs for beams and missiles alike.
+        // Missiles use point collision while travelling, but their explosion is deliberately
+        // anchored one current animation radius farther in the fired direction.
+        byte direction = unchecked((byte)(slot.Direction & 0x0f));
+        if (direction is 1 or 2 or 3)
+            slot.XPosition = unchecked((ushort)(slot.XPosition + slot.XRadius));
+        else if (direction is 6 or 7 or 8)
+            slot.XPosition = unchecked((ushort)(slot.XPosition - slot.XRadius));
+
+        if (direction is 0 or 1 or 8 or 9)
+            slot.YPosition = unchecked((ushort)(slot.YPosition - slot.YRadius));
+        else if (direction is 3 or 4 or 5 or 6)
+            slot.YPosition = unchecked((ushort)(slot.YPosition + slot.YRadius));
+
+        // `$93:80CF` queues library-two sound seven, converts non-beams to family `$0800`,
+        // selects `$86:7F`, and leaves the slot counted until its delete opcode. Sound-library
+        // two has no public frame-result channel yet; every stateful effect is retained here.
+        slot.Type = unchecked((ushort)((slot.Type & 0xf0ff) | MissileExplosionFamily));
+        slot.InstructionPointer = ReadWord(bus, MissileExplosionInstructionPointerAddress);
+        slot.InstructionTimer = 1;
+        slot.Damage = 8;
+        slot.PreInstruction = SamusProjectilePreInstruction.None;
+
+        // Only cooldowns 21+ are shortened to 20. A normal missile begins at ten, so ordinary
+        // wall impact does not extend or replace its remaining fire delay.
+        if (sharedProjectiles.CooldownTimer >= 21)
+            sharedProjectiles.SetSharedCooldown(20);
+    }
+
     private bool RunProjectileInstructionHandler(
         ISnesAddressSpace bus,
         SamusProjectileSlot slot)
@@ -1102,6 +1379,8 @@ public sealed class SamusProjectileSlot
     public ushort SpritemapPointer { get; internal set; }
     public ushort AnimationFrame { get; internal set; }
     public ushort TrailTimer { get; internal set; }
+    /// <summary>WRAM <c>$0C7C</c>; missile ignition/acceleration state in the high byte.</summary>
+    public ushort Variable { get; internal set; }
     public SamusProjectilePreInstruction PreInstruction { get; internal set; }
 
     /// <summary>Bank-$93 considers a nonzero instruction pointer allocated and drawable.</summary>
@@ -1125,6 +1404,7 @@ public sealed class SamusProjectileSlot
         SpritemapPointer = 0;
         AnimationFrame = 0;
         TrailTimer = 0;
+        Variable = 0;
         PreInstruction = SamusProjectilePreInstruction.None;
     }
 }
@@ -1134,6 +1414,7 @@ public enum SamusProjectilePreInstruction : byte
 {
     None,
     NoWaveBeam,
+    Missile,
 }
 
 /// <summary>

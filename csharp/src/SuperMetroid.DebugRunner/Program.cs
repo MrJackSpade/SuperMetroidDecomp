@@ -111,6 +111,11 @@ else if (options.ChargeBeamScript)
     Console.WriteLine(
         "Input script: equip Charge Beam, hold Shoot through the native 60-frame arming threshold and three-component muzzle flare, then release one charged power shot.");
 }
+else if (options.MissileScript)
+{
+    Console.WriteLine(
+        "Input script: select HUD item one, grant ten debugger missiles, fire one fresh Shoot edge, and follow the retail projectile art, acceleration, and exhaust trail.");
+}
 else if (options.AerialTurnScript)
 {
     Console.WriteLine(
@@ -508,6 +513,16 @@ if (options.ChargeBeamScript)
     runtime.Samus!.EquippedBeams |= 0x1000;
 }
 
+if (options.MissileScript)
+{
+    // Save-file loading and pause-screen item selection are not translated. Publish only
+    // their gameplay results: a finite ammo word and HUD selection one. `$90:BE62`, the
+    // shared allocation/cooldown words, `$93:8641` data, `$90:AF68` acceleration, bank-$90
+    // trail lists, collision, and OAM all remain live private-cartridge behavior.
+    runtime.Samus!.Missiles = 10;
+    runtime.Samus.SelectedHudItem = 1;
+}
+
 Console.WriteLine(
     $"Loaded Landing Site scrolls $8F:9283 -> $7E:CD20: " +
     $"{Convert.ToHexString(camera.Scrolls.Storage[..camera.Scrolls.LogicalCellCount])}.");
@@ -738,6 +753,11 @@ bool observedChargedShot = false;
 bool observedChargedTrail = false;
 ushort observedChargedShotDamage = 0;
 ushort observedChargedShotSound = 0;
+bool observedMissileShot = false;
+bool observedMissileArt = false;
+bool observedMissileTrail = false;
+ushort observedMissileDamage = 0;
+ushort observedMissileSound = 0;
 bool observedKnockbackMovement = false;
 bool observedDamageBoostMovement = false;
 bool observedMorphedKnockbackPosePreserved = false;
@@ -1223,6 +1243,17 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 // consecutive held samples cross `$90:B856`'s threshold without relying on
                 // a host counter; the first blank sample is the real charged-shot trigger.
                 >= 2 and < 67 => (ushort)SnesButton.X,
+                _ => (ushort)0,
+            }
+        : options.MissileScript
+            ? frameIndex switch
+            {
+                0 => (ushort)SnesButton.Start,
+
+                // `$90:BE62` is edge-triggered through `$8F`; one isolated X sample after
+                // timer dismissal proves a held desktop button is not being turned into a
+                // fabricated auto-fire stream.
+                2 => (ushort)SnesButton.X,
                 _ => (ushort)0,
             }
         : options.AimAirScript
@@ -2187,6 +2218,16 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     if (runtime.Projectiles.LastFrameResult.FiredSlot is int firedSlot)
     {
         SamusProjectileSlot firedProjectile = runtime.Projectiles.Slots[firedSlot];
+        if ((firedProjectile.Type & 0x0f00) == 0x0100)
+        {
+            observedMissileShot = true;
+            observedMissileDamage = firedProjectile.Damage;
+            observedMissileSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect;
+            Console.WriteLine(
+                $"frame {result.FrameNumber,4}: missile slot {firedSlot}, " +
+                $"type=${firedProjectile.Type:X4}, damage=${firedProjectile.Damage:X4}, " +
+                $"sound=${observedMissileSound:X2}, ammo={runtime.Samus.Missiles}.");
+        }
         if ((firedProjectile.Type & 0x0010) != 0)
         {
             observedChargedShot = true;
@@ -2200,6 +2241,9 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     }
     observedPowerBeamArt |= runtime.Projectiles.Slots.Any(
         slot => slot.IsActive && slot.SpritemapPointer != 0);
+    observedMissileArt |= runtime.Projectiles.Slots.Any(
+        slot => slot.IsActive && (slot.Type & 0x0f00) == 0x0100 && slot.SpritemapPointer != 0);
+    observedMissileTrail |= options.MissileScript && runtime.Projectiles.ActiveTrailCount != 0;
     observedPowerBeamExplosion |=
         runtime.Projectiles.LastFrameResult.CollisionStartedExplosion;
     uint currentExtraRunSpeed =
@@ -2838,6 +2882,35 @@ if (options.ChargeBeamScript)
         $"Charge Beam ROM route reached {maximumObservedCharge}/60, " +
         $"chargedShot={observedChargedShot}, damage=${observedChargedShotDamage:X4}, " +
         $"sound=${observedChargedShotSound:X2}, trail={observedChargedTrail}.");
+}
+
+if (options.MissileScript)
+{
+    // A seven-frame run covers Start dismissal, the isolated fire edge, and the fourth
+    // alpha pass that allocates exhaust. Requiring native type `$8100`, nonzero ROM damage,
+    // sound three, decoded bank-$93 art, exactly one consumed round, and a live bank-$90
+    // trail makes this proof span every subsystem visible in the resulting PNG.
+    if (options.FrameCount >= 3 &&
+        (!observedMissileShot || observedMissileDamage == 0 || observedMissileSound != 3))
+    {
+        throw new InvalidOperationException(
+            $"Missile producer mismatch: fired={observedMissileShot}, " +
+            $"damage=${observedMissileDamage:X4}, sound=${observedMissileSound:X2}.");
+    }
+    if (options.FrameCount >= 4 && !observedMissileArt)
+        throw new InvalidOperationException("Missile route never decoded live bank-$93 art.");
+    if (options.FrameCount >= 7 && !observedMissileTrail)
+        throw new InvalidOperationException("Missile route never allocated bank-$90 exhaust.");
+    if (options.FrameCount >= 3 && runtime.Samus!.Missiles != 9)
+    {
+        throw new InvalidOperationException(
+            $"Missile route expected one round consumed from ten; remaining={runtime.Samus.Missiles}.");
+    }
+
+    Console.WriteLine(
+        $"Missile ROM route fired={observedMissileShot}, damage=${observedMissileDamage:X4}, " +
+        $"sound=${observedMissileSound:X2}, art={observedMissileArt}, " +
+        $"trail={observedMissileTrail}, ammo={runtime.Samus!.Missiles}.");
 }
 
 if (options.MorphKnockbackScript)
@@ -3686,6 +3759,7 @@ readonly record struct DebugRunnerOptions(
     bool AimAirScript,
     bool GunExtendedScript,
     bool ChargeBeamScript,
+    bool MissileScript,
     bool AerialTurnScript,
     bool CompactAirScript,
     bool AimCrouchScript,
@@ -3734,6 +3808,7 @@ readonly record struct DebugRunnerOptions(
         bool aimAirScript = false;
         bool gunExtendedScript = false;
         bool chargeBeamScript = false;
+        bool missileScript = false;
         bool aerialTurnScript = false;
         bool compactAirScript = false;
         bool aimCrouchScript = false;
@@ -3875,6 +3950,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--missile-script":
+                    missileScript = true;
+                    groundedRun = true;
+                    break;
+
                 case "--aerial-turn-script":
                     aerialTurnScript = true;
                     groundedRun = true;
@@ -4005,7 +4085,8 @@ readonly record struct DebugRunnerOptions(
             "standalone-assets",
             "runtime",
             deathScript ? "DeathFrame.png" :
-            xrayScript ? "XrayFrame.png" : "EscapeTimerFrame.png");
+            xrayScript ? "XrayFrame.png" :
+            missileScript ? "MissileFrame.png" : "EscapeTimerFrame.png");
 
         // The frame runtime reads compressed room data, graphics, palette, door metadata,
         // and library-background tilemaps directly from the ROM. It deliberately has no
@@ -4035,6 +4116,7 @@ readonly record struct DebugRunnerOptions(
             aimAirScript,
             gunExtendedScript,
             chargeBeamScript,
+            missileScript,
             aerialTurnScript,
             compactAirScript,
             aimCrouchScript,

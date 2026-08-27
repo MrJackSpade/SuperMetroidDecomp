@@ -11833,6 +11833,17 @@ static void VerifySamusPowerBeamProjectiles()
     WriteTestWord(bus, 0x939008, 0x8239);
     WriteTestWord(bus, 0x93900a, 0x9000);
 
+    // Missile family one selects `$93:8641`; the non-beam table is indexed by type high
+    // nibble before its ten direction records are selected.
+    WriteTestWord(bus, 0x9383f3, 0x8641);
+    WriteTestWord(bus, 0x938641, 0x0064);
+    for (int direction = 0; direction < 10; direction++)
+        WriteTestWord(bus, 0x938643 + direction * 2, 0x9200);
+    bus.WriteBytes(0x939200, [
+        0x0f, 0x00, 0x20, 0xa0, 0x04, 0x04, 0x00, 0x00,
+        0x39, 0x82, 0x00, 0x92,
+    ]);
+
     // The animation record's `$A000` pointer is a bank-$93 spritemap, not merely an opaque
     // animation token. One literal entry makes the draw path observable independently of
     // the separate flare spritemap family seeded below.
@@ -11840,6 +11851,17 @@ static void VerifySamusPowerBeamProjectiles()
     WriteTestWord(bus, 0x93a002, 0);
     bus.WriteByte(0x93a004, 0);
     WriteTestWord(bus, 0x93a005, 0x2c20);
+    // Both compact explosion programs below intentionally share `$A010`; give that pointer
+    // its own visible one-OBJ map so the early explosion draw pass is tested, not inferred
+    // from a nonzero animation pointer.
+    WriteTestWord(bus, 0x93a010, 1);
+    WriteTestWord(bus, 0x93a012, 0);
+    bus.WriteByte(0x93a014, 0);
+    WriteTestWord(bus, 0x93a015, 0x2c30);
+    WriteTestWord(bus, 0x93a020, 1);
+    WriteTestWord(bus, 0x93a022, 0);
+    bus.WriteByte(0x93a024, 0);
+    WriteTestWord(bus, 0x93a025, 0x2a44);
 
     // Charge-only power beam uses the parallel `$93:83D9` pointer family. Keep its
     // direction records shared but give it unmistakable damage so release cannot pass by
@@ -11857,7 +11879,16 @@ static void VerifySamusPowerBeamProjectiles()
     WriteTestWord(bus, 0x90b609, 0xb4c9);
     WriteTestWord(bus, 0x90b5db, 0xb4cb);
     WriteTestWord(bus, 0x90b629, 0xb4c9);
+    WriteTestWord(bus, 0x90b5fb, 0xb5a1);
+    WriteTestWord(bus, 0x90b649, 0xb4c9);
     WriteTestWord(bus, 0x90b4c9, 0x0000);
+    bus.WriteBytes(0x90b5a1, [
+        0x04, 0x00, 0x48, 0x2a,
+        0x04, 0x00, 0x49, 0x2a,
+        0x04, 0x00, 0x4a, 0x2a,
+        0x04, 0x00, 0x4b, 0x2a,
+        0x00, 0x00,
+    ]);
 
     // Retain enough of retail `$90:B4CB` to prove repeated one-frame tiles and the embedded
     // `$B525` position command. The production interpreter remains ROM-driven and continues
@@ -11906,6 +11937,13 @@ static void VerifySamusPowerBeamProjectiles()
     bus.WriteByte(0x939105, 8);
     WriteTestWord(bus, 0x939106, 0);
     WriteTestWord(bus, 0x939108, 0x822f);
+
+    // `$93:867F` is the missile-explosion instruction pointer consumed by `$93:80CF`.
+    WriteTestWord(bus, 0x93867f, 0x9300);
+    bus.WriteBytes(0x939300, [
+        0x02, 0x00, 0x10, 0xa0, 0x08, 0x08, 0x00, 0x00,
+        0x2f, 0x82,
+    ]);
 
     bus.WriteByte(0x90c254, 0x0f);
     bus.WriteByte(0x90c264, 0x1e);
@@ -11960,6 +11998,30 @@ static void VerifySamusPowerBeamProjectiles()
         WriteTestWord(bus, 0x90c218 + direction * 2, 0);
         WriteTestWord(bus, 0x90c22c + direction * 2, 0);
         WriteTestWord(bus, 0x90c240 + direction * 2, 0);
+
+        // Missiles do not borrow the beam's tiny per-frame acceleration table. The native
+        // initializer at `$90:B2F6` reads two signed words per direction from `$90:C303`:
+        // cardinal axes use `$0040`, diagonals use `$0036`, and the opposite half-plane is
+        // represented by two's-complement negatives. Keeping the literal ROM arrangement in
+        // this fixture catches both direction-index mistakes and accidental host-vector math.
+        short missileXAcceleration = direction switch
+        {
+            1 or 3 => 0x0036,
+            2 => 0x0040,
+            6 or 8 => -0x0036,
+            7 => -0x0040,
+            _ => 0,
+        };
+        short missileYAcceleration = direction switch
+        {
+            0 or 9 => -0x0040,
+            1 or 8 => -0x0036,
+            3 or 6 => 0x0036,
+            4 or 5 => 0x0040,
+            _ => 0,
+        };
+        WriteTestWord(bus, 0x90c303 + direction * 4, unchecked((ushort)missileXAcceleration));
+        WriteTestWord(bus, 0x90c305 + direction * 4, unchecked((ushort)missileYAcceleration));
     }
 
     const int width = 32;
@@ -12235,8 +12297,117 @@ static void VerifySamusPowerBeamProjectiles()
     AssertTrue(!wallProjectiles.Slots[0].IsActive,
         "explosion delete clears ordinary slot");
 
+    // `$90:BE62` shares the ordinary five-slot array with beams but selects a completely
+    // different bank-$93 data family and bank-$90 pre-instruction. Fire a rightward missile
+    // into the same type-eight column so producer state, first-frame ignition, persistent
+    // trail, point collision, and missile-specific explosion are all observed in one route.
+    var missileSamus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 64,
+        YPosition = 96,
+        SelectedHudItem = 1,
+        Missiles = 3,
+    };
+    var missileBombs = new SamusBombProjectileSystem();
+    var missileProjectiles = new SamusProjectileSystem();
+    missileBombs.StepFrame(bus, wall, missileSamus, 0, 0);
+    SamusProjectileFrameResult missileFired = missileProjectiles.StepFrame(
+        bus,
+        wall,
+        missileSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X,
+        0,
+        0,
+        missileBombs);
+    SamusProjectileSlot missile = missileProjectiles.Slots[0];
+    AssertEqual((int?)0, missileFired.FiredSlot, "missile fresh press allocates slot zero");
+    AssertEqual((ushort)3, missileFired.QueuedSoundEffect,
+        "missile producer queues library-one effect three");
+    AssertEqual((ushort)2, missileSamus.Missiles, "missile producer consumes exactly one ammo");
+    AssertEqual((ushort)1, missileSamus.SelectedHudItem,
+        "nonempty missile reserve remains HUD-selected");
+    AssertEqual((ushort)1, missileProjectiles.ProjectileCounter,
+        "missile increments the shared ordinary-projectile counter");
+    AssertEqual((ushort)10, missileBombs.CooldownTimer,
+        "missile producer installs literal ten-frame shared cooldown");
+    AssertEqual((ushort)20, missileProjectiles.ProjectileInvincibilityTimer,
+        "missile producer installs literal projectile invincibility timer twenty");
+    AssertEqual((ushort)0x8100, missile.Type, "missile uses active type word `$8100`");
+    AssertEqual((ushort)0x0064, missile.Damage, "missile reads damage from `$93:8641`");
+    AssertEqual(SamusProjectilePreInstruction.Missile, missile.PreInstruction,
+        "missile selects `$90:AF68` pre-instruction family");
+    AssertEqual((ushort)0x0100, missile.Variable,
+        "first alpha pass crosses `$0100` ignition threshold");
+    AssertEqual((short)0x0100, missile.XVelocity,
+        "right missile begins at one pixel per frame after ignition");
+    AssertEqual((ushort)65, missile.XPosition,
+        "right missile moves one whole pixel on its ignition frame");
+    AssertEqual((ushort)0xa020, missile.SpritemapPointer,
+        "missile instruction handler selects first bank-$93 art record");
+
+    var missileOam = new OamBuffer();
+    missileOam.BeginFrame();
+    missileProjectiles.DrawLiveProjectiles(bus, missileOam, 0, 0, nmiFrameCounter: 0);
+    AssertEqual(4, missileOam.NextByteOffset,
+        "missile family bypasses ordinary beam alternating-frame flicker");
+    AssertEqual(0x044, missileOam.GetEntry(0).TileNumber,
+        "missile draw consumes its `$2A44` fixture OBJ");
+
+    // The firing alpha pass changed trail timer four to three. Exactly three further alpha
+    // passes allocate native trail entry `$20`; the subsequent draw parses `$90:B5A1` and
+    // publishes its first four-frame `$2A48` record while the empty right stream terminates.
+    for (int frame = 0; frame < 3; frame++)
+    {
+        missileBombs.StepFrame(bus, wall, missileSamus, 0, 0);
+        missileProjectiles.StepFrame(bus, wall, missileSamus, 0, 0, 0, 0, missileBombs);
+    }
+    AssertEqual(1, missileProjectiles.ActiveTrailCount,
+        "missile allocates one persistent trail every fourth alpha pass");
+    SamusProjectileTrailSlot missileTrail =
+        missileProjectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
+    missileOam.BeginFrame();
+    missileProjectiles.HandleTrailsAndDraw(bus, missileOam, 0, 0, timeIsFrozen: false);
+    AssertEqual(4, missileOam.NextByteOffset, "missile left trail emits one small OBJ");
+    AssertEqual(0x048, missileOam.GetEntry(0).TileNumber,
+        "missile trail starts at retail tile `$2A48`");
+    AssertEqual((ushort)4, missileTrail.Left.InstructionTimer,
+        "missile trail retains its four-frame record duration");
+    AssertEqual((ushort)0, missileTrail.Right.InstructionTimer,
+        "missile's empty right trail stream terminates immediately");
+
+    SamusProjectileFrameResult missileImpact = default;
+    for (int frame = 0; frame < 32 && !missileImpact.CollisionStartedExplosion; frame++)
+    {
+        missileBombs.StepFrame(bus, wall, missileSamus, 0, 0);
+        missileImpact = missileProjectiles.StepFrame(
+            bus, wall, missileSamus, 0, 0, 0, 0, missileBombs);
+    }
+    AssertTrue(missileImpact.CollisionStartedExplosion,
+        "accelerating missile reaches the type-eight wall");
+    AssertEqual((ushort)0x0800, unchecked((ushort)(missile.Type & 0x0f00)),
+        "missile collision installs missile-explosion family `$0800`");
+    AssertEqual((ushort)1, missileProjectiles.ProjectileCounter,
+        "missile explosion retains its shared ordinary slot count");
+    AssertEqual((ushort)0xa010, missile.SpritemapPointer,
+        "missile collision frame selects first explosion art");
+    missileOam.BeginFrame();
+    missileProjectiles.DrawExplosions(bus, missileOam, 0, 0);
+    AssertEqual(4, missileOam.NextByteOffset,
+        "missile explosion participates in the early explosion draw pass");
+
+    for (int frame = 0; frame < 2; frame++)
+    {
+        missileBombs.StepFrame(bus, wall, missileSamus, 0, 0);
+        missileProjectiles.StepFrame(bus, wall, missileSamus, 0, 0, 0, 0, missileBombs);
+    }
+    AssertEqual((ushort)0, missileProjectiles.ProjectileCounter,
+        "missile explosion delete decrements ordinary counter");
+    AssertTrue(!missile.IsActive, "missile explosion delete clears its slot");
+
     Console.WriteLine(
-        "  Samus power/charge beam: directions, charge flare, trails, ROM records, motion, collision, and explosion agree.");
+        "  Samus beams/missiles: producers, charge flare, trails, ROM records, motion, collision, and explosions agree.");
 }
 
 /// <summary>

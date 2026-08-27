@@ -34,6 +34,7 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton holdAimUpButton = new("Hold Aim Up");
     private readonly ToolStripButton holdAimDownButton = new("Hold Aim Down");
     private readonly ToolStripButton chargeBeamButton = new("Charge Beam equipped");
+    private readonly ToolStripButton missileButton = new("Missiles selected");
     private readonly ToolStripButton moonwalkButton = new("Moonwalk enabled");
     private readonly ToolStripButton springBallButton = new("Spring Ball equipped");
     private readonly ToolStripButton spaceJumpButton = new("Space Jump equipped");
@@ -98,7 +99,7 @@ internal sealed class RuntimePreviewControl : UserControl
             "Feeds canonical Dash/B bit $8000. Hold with a direction for ROM-authored Dash; Speed Booster changes its cap and animation stages.";
         holdShootButton.CheckOnClick = true;
         holdShootButton.ToolTipText =
-            "Feeds canonical Shoot/X bit $0040. Click on for a fresh bomb-placement edge, then off before placing another.";
+            "Feeds canonical Shoot/X bit $0040. Beams may be held; missiles and bombs require a fresh checked edge, so click off before firing another.";
         holdUpButton.CheckOnClick = true;
         holdUpButton.ToolTipText = "Feeds Up; a new Up press starts the ROM crouch-to-standing transition.";
         holdDownButton.CheckOnClick = true;
@@ -121,6 +122,30 @@ internal sealed class RuntimePreviewControl : UserControl
                 runtime.Samus.EquippedBeams |= 0x1000;
             else
                 runtime.Samus.EquippedBeams &= unchecked((ushort)~0x1000);
+        };
+        missileButton.CheckOnClick = true;
+        missileButton.ToolTipText =
+            "Selects HUD item one and grants 99 debugger missiles. Each fresh Shoot edge then uses the cartridge's `$90:BE62` missile route.";
+        missileButton.CheckedChanged += (_, _) =>
+        {
+            if (runtime?.Samus is null || !groundedRunScenario)
+                return;
+
+            // Pause-screen item selection and save-file ammo loading are not translated.
+            // This control publishes only their two resulting gameplay words: HUD selection
+            // one and a visible finite reserve. Producer checks, decrement, auto-deselect,
+            // motion, animation, collision, trail, and explosion remain ROM-driven.
+            if (missileButton.Checked)
+            {
+                runtime.Samus.Missiles = 99;
+                runtime.Samus.SelectedHudItem = 1;
+            }
+            else if (runtime.Samus.SelectedHudItem == 1)
+            {
+                runtime.Samus.SelectedHudItem = 0;
+            }
+
+            RefreshFrame();
         };
         moonwalkButton.CheckOnClick = true;
         moonwalkButton.ToolTipText =
@@ -301,6 +326,7 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(holdAimUpButton);
         toolStrip.Items.Add(holdAimDownButton);
         toolStrip.Items.Add(chargeBeamButton);
+        toolStrip.Items.Add(missileButton);
         toolStrip.Items.Add(moonwalkButton);
         toolStrip.Items.Add(springBallButton);
         toolStrip.Items.Add(spaceJumpButton);
@@ -402,6 +428,14 @@ internal sealed class RuntimePreviewControl : UserControl
                 runtime.Samus.EquippedItems |= SamusLiquidPhysicsState.GravitySuitItem;
             if (chargeBeamButton.Checked)
                 runtime.Samus.EquippedBeams |= 0x1000;
+            if (missileButton.Checked)
+            {
+                // Reapply the explicit debugger inventory after constructing a fresh runtime;
+                // otherwise Restart would visually leave the toggle checked while silently
+                // restoring zero ammo and beam selection.
+                runtime.Samus.Missiles = 99;
+                runtime.Samus.SelectedHudItem = 1;
+            }
             if (waterPhysicsButton.Checked)
             {
                 // Restart gives the debugger a new Samus center, so capture a new fixed
@@ -713,6 +747,7 @@ internal sealed class RuntimePreviewControl : UserControl
             $"crash {runtime.Samus.Shinespark.CrashSubphase}:{runtime.Samus.Shinespark.CrashRadius} " +
             $"released {runtime.Samus.Shinespark.ReleasedCrashEchoCount}  |  " +
             $"crystal={runtime.Samus.CrystalFlash.Phase} " +
+            $"item {runtime.Samus.SelectedHudItem} " +
             $"ammo {runtime.Samus.Missiles}/{runtime.Samus.SuperMissiles}/{runtime.Samus.PowerBombs} " +
             $"energy {runtime.Samus.Health}/{runtime.Samus.MaxHealth}  |  " +
             // `$0AAE` is deliberately shown as raw hexadecimal because zero/two are the

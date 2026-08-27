@@ -324,6 +324,61 @@ public sealed class OamBuffer
     }
 
     /// <summary>
+    /// Ports <c>DrawSpritemapWithBaseTile</c> at <c>$81:8AB8</c>, the common enemy
+    /// spritemap writer used by <c>WriteEnemyOams</c>.
+    /// </summary>
+    /// <remarks>
+    /// Enemy definitions choose a fixed program/data bank, while each animation frame is
+    /// only a 16-bit pointer inside that bank. Unlike Samus, an enemy's graphics-set loader
+    /// supplies both a base tile number and replacement OBJ palette bits. The native code
+    /// adds the base tile to the complete ROM attribute word (so tile overflow can carry),
+    /// then ORs the palette selection. Coordinates and the nine-bit OAM stack wrap exactly
+    /// as they do on the 65C816.
+    /// </remarks>
+    public void AddEnemySpritemap(
+        ISnesAddressSpace bus,
+        byte bank,
+        ushort spritemapPointer,
+        ushort originX,
+        ushort originY,
+        ushort paletteBits,
+        ushort baseTileIndex)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if ((paletteBits & ~0x0e00) != 0)
+            throw new ArgumentOutOfRangeException(nameof(paletteBits), paletteBits, "OBJ palette bits must fit mask $0E00.");
+
+        int spritemapAddress = (bank << 16) | spritemapPointer;
+        ushort entryCount = ReadWordInFixedBank(bus, spritemapAddress);
+        int entryAddress = AddWithinBank(spritemapAddress, 2);
+        for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
+        {
+            ushort encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
+            byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
+            ushort sourceAttributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
+
+            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset));
+            byte calculatedY = unchecked((byte)(originY + encodedYOffset));
+            ushort finalAttributes = unchecked((ushort)(sourceAttributes + baseTileIndex));
+            finalAttributes |= paletteBits;
+
+            int spriteIndex = NextByteOffset >> 2;
+            int lowOffset = NextByteOffset;
+            _lowTable[lowOffset] = unchecked((byte)calculatedX);
+            _lowTable[lowOffset + 1] = calculatedY;
+            _lowTable[lowOffset + 2] = unchecked((byte)finalAttributes);
+            _lowTable[lowOffset + 3] = unchecked((byte)(finalAttributes >> 8));
+            SetHighTablePair(
+                spriteIndex,
+                (calculatedX & 0x0100) != 0,
+                (encodedXOffset & 0x8000) != 0);
+
+            NextByteOffset = (NextByteOffset + 4) & 0x01ff;
+            entryAddress = AddWithinBank(entryAddress, 5);
+        }
+    }
+
+    /// <summary>
     /// Appends one already-packed small OBJ record. Bank $94's grapple renderer writes
     /// these four bytes directly instead of routing through a spritemap loader.
     /// </summary>

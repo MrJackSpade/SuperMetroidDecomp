@@ -616,8 +616,41 @@ static void VerifyOamSpritemapPacking()
     AssertEqual((byte)0x01, oam.GetEntry(1).Y,
         "off-screen origin admits positive piece crossing into screen");
 
+    // Ordinary enemies use a third, deliberately separate common writer at $81:8AB8.
+    // Its direct pointer lives in the enemy's own data bank; no off-screen Y parking is
+    // performed, and the graphics-set tile base is added to the complete attribute word
+    // before the selected OBJ palette is ORed. The second entry crosses tile $1FF so its
+    // carry into priority is observable rather than masked away by this fixture.
+    bus.WriteBytes(0xa29000, [
+        0x02, 0x00,
+        0x05, 0x80, 0xfe, 0x10, 0x20,
+        0xf0, 0x01, 0x02, 0xfe, 0x21,
+    ]);
+    oam.BeginFrame();
+    oam.AddEnemySpritemap(
+        bus,
+        bank: 0xa2,
+        spritemapPointer: 0x9000,
+        originX: 0x00fe,
+        originY: 0x0001,
+        paletteBits: 0x0e00,
+        baseTileIndex: 4);
+    OamEntry roomEnemyFirst = oam.GetEntry(0);
+    AssertEqual(0x103, roomEnemyFirst.X, "room-enemy complete encoded X addition");
+    AssertEqual((byte)0xff, roomEnemyFirst.Y, "room-enemy negative Y wraps without parking");
+    AssertTrue(roomEnemyFirst.IsLarge, "room-enemy size comes from encoded X bit fifteen");
+    AssertEqual(0x014, roomEnemyFirst.TileNumber, "room-enemy graphics-set tile-base addition");
+    AssertEqual(7, roomEnemyFirst.Palette, "room-enemy selected OBJ palette OR");
+    AssertEqual(2, roomEnemyFirst.Priority, "room-enemy source priority survives palette OR");
+    OamEntry roomEnemySecond = oam.GetEntry(1);
+    AssertEqual(0x0ee, roomEnemySecond.X, "room-enemy signed nine-bit negative X");
+    AssertEqual((byte)0x03, roomEnemySecond.Y, "room-enemy positive Y offset");
+    AssertEqual(0x002, roomEnemySecond.TileNumber, "room-enemy tile overflow wraps at nine bits");
+    AssertEqual(2, roomEnemySecond.Priority,
+        "room-enemy tile-base ADC carry reaches the attribute high byte");
+
     Console.WriteLine(
-        "  OAM: spritemap packing, enemy-projectile arithmetic/wrap, and finalization agree.");
+        "  OAM: spritemap packing, enemy/enemy-projectile arithmetic, wrap, and finalization agree.");
 }
 
 /// <summary>

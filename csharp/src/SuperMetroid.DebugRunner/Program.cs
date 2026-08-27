@@ -374,6 +374,58 @@ if (options.SpeedBoosterScript || options.ShinesparkScript)
 }
 InitialViewportResult initialViewport = runtime.InitializeLandingSiteViewport();
 
+// Validate the complete room-owned chain before a frame has a chance to mutate it. These
+// values are not fixture constants copied into RoomEnemySystem: the runtime reached them by
+// following Landing Site's default $8F room state, its $A1 population, the matching $B4
+// graphics set, both $A0 definitions, and the definitions' bank-$A2 initialization AI.
+if (runtime.LandingSiteEntry!.RoomStatePointer != 0x9213 ||
+    runtime.LandingSiteEntry.EnemyPopulationPointer != 0x883d ||
+    runtime.LandingSiteEntry.EnemyTilesetPointer != 0x8193)
+{
+    throw new InvalidOperationException(
+        "Landing Site default room state did not resolve the retail enemy pointers.");
+}
+if (runtime.Enemies.EnemyCount != 3 ||
+    runtime.Enemies.FirstFreeEnemyIndex != 0x00c0 ||
+    runtime.Enemies.DeathQuota != 0 ||
+    runtime.Enemies.GraphicsSet.Count != 2)
+{
+    throw new InvalidOperationException(
+        "Landing Site enemy population/graphics terminators produced unexpected counts.");
+}
+RoomEnemySlot gunshipTop = runtime.Enemies.Slots[0];
+RoomEnemySlot gunshipBottom = runtime.Enemies.Slots[1];
+RoomEnemySlot gunshipPad = runtime.Enemies.Slots[2];
+if (gunshipTop.EnemyDefinitionPointer != 0xd07f ||
+    gunshipBottom.EnemyDefinitionPointer != 0xd0bf ||
+    gunshipPad.EnemyDefinitionPointer != 0xd0bf ||
+    gunshipTop.XPosition != 0x0480 || gunshipTop.YPosition != 0x045f ||
+    gunshipBottom.YPosition != 0x0487 || gunshipPad.YPosition != 0x045e ||
+    gunshipTop.CurrentInstruction != 0xa616 ||
+    gunshipBottom.CurrentInstruction != 0xa61c ||
+    gunshipPad.CurrentInstruction != 0xa60e ||
+    gunshipTop.VramTilesIndex != 0 ||
+    gunshipBottom.VramTilesIndex != 0 ||
+    gunshipPad.VramTilesIndex != 0 ||
+    gunshipTop.PaletteIndex != 0x0e00 ||
+    gunshipBottom.PaletteIndex != 0x0e00 ||
+    gunshipPad.PaletteIndex != 0x0e00)
+{
+    throw new InvalidOperationException(
+        "Landing Site gunship slots disagree with the retail initialization result.");
+}
+if (runtime.Vram.ReadByte(0xe000) != bus.ReadByte(0xadb600) ||
+    runtime.Vram.ReadByte(0xefff) != bus.ReadByte(0xadc5ff) ||
+    runtime.Vram.ReadByte(0xf000) != bus.ReadByte(0xadb600) ||
+    runtime.Vram.ReadByte(0xf1ff) != bus.ReadByte(0xadb7ff))
+{
+    throw new InvalidOperationException(
+        "Landing Site enemy tile loads disagree with the definitions' ROM source slices.");
+}
+Console.WriteLine(
+    "Loaded Landing Site enemies from $A1:883D: gunship top $D07F plus two " +
+    "bottom/pad $D0BF slots; graphics $B4:8193 now occupy VRAM $E000-$F1FF.");
+
 // The cutscene door does not define a normal-gameplay Samus spawn. In the default scenario,
 // introduce stationary pose $01 at a clearly documented host point so the native palette,
 // animation-definition, tile-DMA, screen-position, split-spritemap, and OAM paths can be
@@ -2214,6 +2266,59 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         controllerInput,
         drawHighPriorityEnemyProjectiles,
         drawLowPriorityEnemyProjectiles);
+
+    if (frameIndex == 0 && options.GroundedRun)
+    {
+        // The first active call proves three independent operations happened in native
+        // order: $A759 bobbed every component down one pixel from ROM table $A2:A7CF,
+        // property $2000 ran each instruction list, and each duration/map pair replaced
+        // the loader's temporary empty $804D spritemap.
+        if (gunshipTop.YPosition != 0x0460 ||
+            gunshipBottom.YPosition != 0x0488 ||
+            gunshipPad.YPosition != 0x045f ||
+            gunshipTop.SpritemapPointer != 0xad81 ||
+            gunshipBottom.SpritemapPointer != 0xaddd ||
+            gunshipPad.SpritemapPointer != 0xafdd ||
+            gunshipTop.InstructionTimer != 1 ||
+            gunshipBottom.InstructionTimer != 1 ||
+            gunshipPad.InstructionTimer != 8)
+        {
+            throw new InvalidOperationException(
+                "Gunship frame one disagrees with native bob/instruction-list state.");
+        }
+
+        if (motherBrainProjectiles is null && !runtime.Samus.DeathSequence.IsActive)
+        {
+            // Gunship layer two is the first normal actor layer. Recompute its first object
+            // directly from the ROM's five-byte $A2:AD81 entry and the post-scroll camera;
+            // this independently checks the base-tile/palette arithmetic and OAM packing.
+            ushort encodedX = unchecked((ushort)(
+                bus.ReadByte(0xa2ad83) | (bus.ReadByte(0xa2ad84) << 8)));
+            byte encodedY = bus.ReadByte(0xa2ad85);
+            ushort sourceAttributes = unchecked((ushort)(
+                bus.ReadByte(0xa2ad86) | (bus.ReadByte(0xa2ad87) << 8)));
+            ushort originX = unchecked((ushort)(gunshipTop.XPosition - runtime.Camera!.XPosition));
+            ushort originY = unchecked((ushort)(gunshipTop.YPosition - runtime.Camera.YPosition));
+            ushort expectedAttributes = unchecked((ushort)(
+                sourceAttributes + gunshipTop.VramTilesIndex));
+            expectedAttributes |= gunshipTop.PaletteIndex;
+            OamEntry firstEnemyObject = runtime.Oam.GetEntry(0);
+            if (firstEnemyObject.X != ((originX + encodedX) & 0x01ff) ||
+                firstEnemyObject.Y != unchecked((byte)(originY + encodedY)) ||
+                firstEnemyObject.TileNumber != (expectedAttributes & 0x01ff) ||
+                firstEnemyObject.Palette != ((expectedAttributes >> 9) & 7) ||
+                firstEnemyObject.Priority != ((expectedAttributes >> 12) & 3) ||
+                firstEnemyObject.IsLarge != ((encodedX & 0x8000) != 0))
+            {
+                throw new InvalidOperationException(
+                    "Gunship's first ROM spritemap object was not packed into OAM exactly.");
+            }
+        }
+
+        Console.WriteLine(
+            "frame    1: gunship bob $A2:A7CF applied; maps=$AD81/$ADDD/$AFDD; " +
+            $"OAM sprites={runtime.Oam.LastFinalizedSpriteCount}.");
+    }
     observedSamusPoses.Add(runtime.Samus.Pose);
     if (options.ElevatorScript)
     {

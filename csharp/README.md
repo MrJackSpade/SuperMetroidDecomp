@@ -68,6 +68,12 @@ Open `SuperMetroid.slnx` in Visual Studio. The code currently contains the first
   tilemap geometry, and a fully live BG2/BG1/BG3/OBJ compositor
 - ROM-parsed Landing Site door entry and command-E library-background selection, including
   the cartridge's harmless camera-Y-zero wrapped pointer read
+- bank-$A0 room-enemy loading for Landing Site's normal state: terminated bank-$A1
+  population records, bank-$B4 graphics sets, 64-byte definitions, palette/tile DMA,
+  fixed $40-byte slots, active/interactive selection, layer queues, bank-local instruction
+  lists, common `$80ED` goto/`$812F` sleep opcodes, and `$81:8AB8` enemy OAM emission;
+  the three-part gunship runs its real `$A2:A644/$A6D2` initialization, `$A759` main AI,
+  ROM-timed four-phase bob, and `$AD81/$ADDD/$AFDD` spritemaps
 - host-stimulated Landing Site camera controls over the live PPU-modeled layers
 - a dependency-free verification executable with exhaustive/boundary-oriented checks
 
@@ -92,8 +98,10 @@ movement type `$15`, including neutral `$89/$8A`, diagonal wall aim `$CF-$D2`, a
 retail one-pixel prospective-run probe. The dedicated DebugRunner route locates a suitable
 floor/wall corner from Landing Site's decompressed level data; it does not inject a collision
 or pose. Useful breakpoints are `SamusState.CheckProspectiveRunningPoseForWall`,
-`SamusState.SelectRanIntoWallPose`, and `SamusGroundedMovement.StepRanIntoWall`. Solid-enemy
-collision remains outside this slice until actors exist.
+`SamusState.SelectRanIntoWallPose`, and `SamusGroundedMovement.StepRanIntoWall`. The room
+enemy scheduler now publishes its native interactive-index snapshot into this collision
+path; Landing Site's gunship intentionally contributes no bodies because its `$0400`
+property excludes all three decorative/tangible components.
 
 Dash is a literal `$90:973E` route, not a viewer speed multiplier. The grounded sandbox starts
 with **Speed Booster equipped** checked; uncheck it to test ordinary Dash. Hold **Hold Run** with
@@ -128,6 +136,7 @@ dotnet run --project src/SuperMetroid.Verification
 ```powershell
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 240 --timer ceres
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 18 --grounded-run --right-frames 5
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 64 --grounded-run --output ../standalone-assets/runtime/EnemyLandingSiteAnimated.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 210 --reversal-script
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 190 --jump-script --output ../standalone-assets/runtime/JumpTraceFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 29 --landing-impact-script --output standalone-assets/runtime/LandingImpactFrame.png

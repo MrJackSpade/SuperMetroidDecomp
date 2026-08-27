@@ -977,6 +977,12 @@ internal sealed class RuntimePreviewControl : UserControl
             $"${runtime.Samus.LiquidPhysics.FxYPosition:X4} " +
             $"gravity={((runtime.Samus.EquippedItems & SamusLiquidPhysicsState.GravitySuitItem) != 0 ? "on" : "off")}  |  " +
             $"wall={(runtime.ProspectiveSamusWallCollisionPose is byte wall ? $"${wall:X2}" : "--")}  |  " +
+            // Counts refer to native $40-byte slots, not rendered OBJ pieces. Landing
+            // Site loads three gunship components; camera-window selection can reduce the
+            // active count to zero without deleting any population record.
+            $"enemies {runtime.Enemies.EnemyCount}/32 " +
+            $"active {runtime.Enemies.ActiveEnemyIndexes.Count} " +
+            $"interactive {runtime.Enemies.InteractiveEnemyIndexes.Count}  |  " +
             $"terrain={(livePpuLayersButton.Checked ? "live PPU" : "ROM composite")}  |  " +
             $"{prospectivePose}  |  " +
             $"{runtime.LastBackgroundUpdateCount} BG update(s)  |  " +

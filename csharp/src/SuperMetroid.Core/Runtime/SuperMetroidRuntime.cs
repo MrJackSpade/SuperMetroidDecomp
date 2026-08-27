@@ -63,6 +63,9 @@ public sealed class SuperMetroidRuntime
     /// </summary>
     public OamBuffer DisplayedOam { get; } = new();
 
+    /// <summary>Active room's fixed 32-slot bank-$A0 enemy system.</summary>
+    public RoomEnemySystem Enemies { get; } = new();
+
     /// <summary>
     /// Normal-gameplay Samus rendering state. Null means the current scenario has not
     /// explicitly introduced Samus; the Landing Site cinematic does not do so by itself.
@@ -363,6 +366,16 @@ public sealed class SuperMetroidRuntime
 
         LandingSiteStreamingData.LoadCharacterGraphics(_addressSpace, Vram, LandingSiteEntry);
 
+        // The selected room-state record owns both of these pointers. This call parses the
+        // terminated $A1 population and $B4 graphics set, loads palettes/tiles, constructs
+        // native $40-byte slots, and dispatches each definition's initialization AI.
+        Enemies.Load(
+            _addressSpace,
+            LandingSiteEntry.EnemyPopulationPointer,
+            LandingSiteEntry.EnemyTilesetPointer,
+            Vram,
+            Cgram);
+
         // `$90:AC8D` is normally reached when equipment/room setup settles. Queue it here,
         // after InitializeHud's $2E00-byte standard OBJ transfer, so the smaller $0100 beam
         // region at VRAM $6300 wins in the same NMI order as the cartridge. The gameplay
@@ -407,6 +420,12 @@ public sealed class SuperMetroidRuntime
         // VRAM $6000. The dynamic Samus DMA refreshes its four reserved regions each NMI;
         // fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
         VramWrites.Enqueue(sizeInBytes: 0x2e00, sourceAddress: 0x9ad200, encodedVramDestination: 0x6000);
+
+        // LoadEnemyTileData's transfers follow the overlapping standard OBJ upload. The
+        // room enemy loader has already populated the modeled VRAM for immediate watches;
+        // queueing the source records here makes enemy art win again at the accepted NMI.
+        if (Enemies.IsLoaded)
+            Enemies.QueueGraphicsUploads(VramWrites);
 
         // The immutable first row bypasses WRAM and is DMAed straight from $80:988B.
         VramWrites.Enqueue(sizeInBytes: 0x0040, sourceAddress: 0x80988b, encodedVramDestination: 0x5800);
@@ -923,6 +942,21 @@ public sealed class SuperMetroidRuntime
         LastGrappleBeamSpecificDrawingPath = false;
         LastGrappleFlareDrawn = false;
         bool escapeTimerExpired = EscapeTimer.Process(NmiFrameCounter);
+
+        // GameState_8 selects active enemies and executes EnemyMain before bank $90 moves
+        // Samus. The collision index list is selected from pre-AI positions but consumers
+        // dereference the post-AI slot words, which RoomEnemySystem publishes as bodies.
+        if (Camera is not null && Enemies.IsLoaded)
+        {
+            Enemies.StepFrame(
+                Camera.XPosition,
+                Camera.YPosition,
+                Samus?.Xray.TimeIsFrozen ?? false,
+                Samus,
+                Controller1.NewlyPressed);
+            if (Samus is not null)
+                Samus.Kinematics.InteractiveEnemies = Enemies.InteractiveCollisionBodies;
+        }
         if (Samus is not null && Camera is not null)
         {
             // `$90:E725` clears contact-damage index before dispatching beta movement.
@@ -2590,6 +2624,12 @@ public sealed class SuperMetroidRuntime
             if (!deathOwnsSamus)
                 drawHighPriorityEnemyProjectiles?.Invoke(Oam);
 
+            // The global layer loop emits layers zero through two before its phase-three
+            // call to DrawSamusAndProjectiles. Landing Site's gunship definition selects
+            // layer two, so its hull correctly precedes (and can sit behind) Samus OAM.
+            if (!deathOwnsSamus && Enemies.IsLoaded)
+                Enemies.DrawLayers(Oam, Camera.XPosition, Camera.YPosition, 0, 2);
+
             // `$91:D6F7` updates Samus's palette buffer during gameplay. The software PPU
             // reads CGRAM directly, so perform the literal ROM pointer/table copy immediately
             // before the matching draw phase. This covers dry-room Speed Booster stage four
@@ -2880,10 +2920,21 @@ public sealed class SuperMetroidRuntime
                     Controller1.Current);
             }
 
-            // Enemy layer six calls `$86:83B2`, after DrawSamusAndProjectiles. Keeping this
-            // separate from the high pass is observable when their OBJ pieces overlap.
+            if (!deathOwnsSamus && Enemies.IsLoaded)
+            {
+                // At phase three Samus/projectiles are emitted before enemy layer three;
+                // ordinary enemy layers four and five follow without another insertion.
+                Enemies.DrawLayers(Oam, Camera.XPosition, Camera.YPosition, 3, 5);
+            }
+
+            // Phase six inserts high-priority enemy projectiles before layer-six actors.
+            // Keep the historical delegate name for API compatibility even though the
+            // native source calls this pass DrawHighPriorityEprojs.
             if (!deathOwnsSamus)
                 drawLowPriorityEnemyProjectiles?.Invoke(Oam);
+
+            if (!deathOwnsSamus && Enemies.IsLoaded)
+                Enemies.DrawLayers(Oam, Camera.XPosition, Camera.YPosition, 6, 7);
         }
         if (EscapeTimer.IsActive)
             EscapeTimerRenderer.Draw(EscapeTimer, Oam, _addressSpace);

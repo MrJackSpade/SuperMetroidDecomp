@@ -24,7 +24,10 @@ public sealed record LandingSiteEntryState(
     byte RoomWidthInScreens,
     byte RoomHeightInScreens,
     byte UpScroller,
-    byte DownScroller)
+    byte DownScroller,
+    ushort RoomStatePointer,
+    ushort EnemyPopulationPointer,
+    ushort EnemyTilesetPointer)
 {
     // Door headers contain 16-bit bank-$83 pointers. $88FE is the synthetic entry used by
     // the intro landing cutscene and is also one of the command-E comparisons at $8F:B76A.
@@ -33,6 +36,7 @@ public sealed record LandingSiteEntryState(
     private const int DoorBank = 0x830000;
     private const int LandingSiteRoomHeaderPointer = 0x91f8;
     private const int LandingSiteRoomHeaderAddress = 0x8f91f8;
+    private const int LandingSiteDefaultStateAddress = 0x8f9213;
     private const int LibraryBackgroundListAddress = 0x8fb76a;
 
     /// <summary>Initial layer-1 X position encoded by the door's screen-X byte.</summary>
@@ -87,7 +91,16 @@ public sealed record LandingSiteEntryState(
             RoomWidthInScreens: bus.ReadByte(LandingSiteRoomHeaderAddress + 4),
             RoomHeightInScreens: bus.ReadByte(LandingSiteRoomHeaderAddress + 5),
             UpScroller: bus.ReadByte(LandingSiteRoomHeaderAddress + 6),
-            DownScroller: bus.ReadByte(LandingSiteRoomHeaderAddress + 7));
+            DownScroller: bus.ReadByte(LandingSiteRoomHeaderAddress + 7),
+            // The room header's unconditional/default selector resolves to $8F:9213.
+            // Its 26-byte state record owns both enemy pointers: six leading bytes of
+            // level/graphics/music data, the FX word, then population and graphics-set
+            // words. Keeping the resolved state beside the door data makes it impossible
+            // for a caller to accidentally pair normal Landing Site terrain with the
+            // separate post-Ceres cutscene population at $A1:8C0D.
+            RoomStatePointer: (ushort)(LandingSiteDefaultStateAddress & 0xffff),
+            EnemyPopulationPointer: ReadWord(bus, LandingSiteDefaultStateAddress + 8),
+            EnemyTilesetPointer: ReadWord(bus, LandingSiteDefaultStateAddress + 10));
     }
 
     private static SkyTransfer FindSkyTransfer(ISnesAddressSpace bus, ushort doorPointer)

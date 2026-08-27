@@ -35,6 +35,7 @@ VerifyFrameRuntime();
 VerifySuperMetroidAddressSpace();
 VerifyOamSpritemapPacking();
 VerifySamusRenderingSlice();
+VerifySamusHurtFlashPalette();
 VerifySamusPoseTransitionMatching();
 VerifySamusHorizontalSpeed();
 VerifySamusExtraDisplacement();
@@ -808,6 +809,179 @@ static void VerifySamusRenderingSlice()
     AssertEqual(2, oam.LastFinalizedSpriteCount, "suited forward emits no power-suit chest patch");
 
     Console.WriteLine("  Samus: standing/running/forward pose tables, split tile DMA, position, and OAM agree.");
+}
+
+/// <summary>
+/// Exercises the complete ordinary `$91:D8AA-$D953` hurt-counter lifetime with diagnostic
+/// palette records. This intentionally verifies every call rather than three hand-picked
+/// frames: an off-by-one at seven, forty, or sixty would otherwise look visually plausible.
+/// </summary>
+static void VerifySamusHurtFlashPalette()
+{
+    var bus = new TestAddressSpace();
+    var cgram = new SnesCgram();
+
+    // Power/Varia/Gravity table entries are bank-$9B pointers. Use Gravity in the primary
+    // run and seed all sixteen words distinctly so a partial ten-color copy cannot pass.
+    WriteTestWord(bus, 0x91d727, 0x9400);
+    WriteTestWord(bus, 0x91d729, 0x9440);
+    WriteTestWord(bus, 0x91d72b, 0x9480);
+    for (int color = 0; color < 16; color++)
+    {
+        WriteTestWord(bus, 0x9b9400 + color * 2, unchecked((ushort)(0x0100 + color)));
+        WriteTestWord(bus, 0x9b9440 + color * 2, unchecked((ushort)(0x0200 + color)));
+        WriteTestWord(bus, 0x9b9480 + color * 2, unchecked((ushort)(0x0300 + color)));
+        WriteTestWord(bus, 0x9ba380 + color * 2, unchecked((ushort)(0x4000 + color)));
+        WriteTestWord(bus, 0x9ba3a0 + color * 2, unchecked((ushort)(0x5000 + color)));
+    }
+
+    var samus = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        EquippedItems = 0x0021, // Both suit bits prove Gravity's native precedence.
+        HurtFlashCounter = 1,
+    };
+
+    int hurtPaletteCalls = 0;
+    int normalPaletteCalls = 0;
+    int untouchedCalls = 0;
+    for (int call = 1; call <= 59; call++)
+    {
+        SamusHurtFlashPaletteStepResult step = SamusHurtFlashPalette.Update(
+            bus, cgram, samus, controllerInput: 0);
+        AssertEqual((ushort)call, step.CounterBefore,
+            $"hurt palette call {call} reads pre-increment counter");
+
+        if (call <= 6 && (call & 1) != 0)
+        {
+            hurtPaletteCalls++;
+            AssertEqual(SamusHurtFlashPaletteAction.HurtFlash, step.Action,
+                $"odd hurt call {call} selects fixed flash palette");
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(unchecked((ushort)(0x4000 + color)), cgram.Colors[192 + color],
+                    $"hurt call {call} copies flash color {color}");
+            }
+        }
+        else if (call <= 6)
+        {
+            normalPaletteCalls++;
+            AssertEqual(SamusHurtFlashPaletteAction.NormalSuitRestore, step.Action,
+                $"even hurt call {call} restores equipment palette");
+            AssertEqual(0x9b9480, step.PaletteAddress!.Value,
+                $"hurt call {call} gives Gravity priority over Varia");
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(unchecked((ushort)(0x0300 + color)), cgram.Colors[192 + color],
+                    $"hurt call {call} copies Gravity color {color}");
+            }
+        }
+        else
+        {
+            untouchedCalls++;
+            AssertEqual(SamusHurtFlashPaletteAction.NoPaletteChange, step.Action,
+                $"hurt call {call} preserves the existing palette");
+        }
+
+        if (call == 2)
+        {
+            AssertTrue(step.HurtSoundQueued, "hurt call two publishes impact SFX");
+            AssertEqual(new SamusSoundRequest(1, 0x35, 6),
+                samus.LiquidPhysics.SoundRequests[^1],
+                "hurt impact uses library one sound $35 maximum six");
+        }
+    }
+
+    AssertEqual(3, hurtPaletteCalls, "hurt lifetime has three flash writes");
+    AssertEqual(3, normalPaletteCalls, "hurt lifetime has three suit restores");
+    AssertEqual(53, untouchedCalls, "hurt lifetime has fifty-three preserving calls");
+    AssertEqual((ushort)0, samus.HurtFlashCounter,
+        "hurt counter clears when call fifty-nine increments it to sixty");
+    AssertEqual(1, samus.LiquidPhysics.SoundRequests.Count,
+        "ordinary hurt lifetime queues impact sound only once");
+
+    // Cinematic call two suppresses impact audio and uses the dedicated intro palette in
+    // place of equipment-selected colors. Odd call one remains the common hurt palette.
+    var cinematic = new SamusState { HurtFlashCounter = 2, EquippedItems = 0x0020 };
+    cinematic.LiquidPhysics.CinematicFunctionActive = true;
+    SamusHurtFlashPaletteStepResult intro = SamusHurtFlashPalette.Update(
+        bus, cgram, cinematic, controllerInput: 0);
+    AssertEqual(SamusHurtFlashPaletteAction.IntroRestore, intro.Action,
+        "cinematic even hurt call selects intro palette");
+    AssertTrue(!intro.HurtSoundQueued, "cinematic hurt call suppresses impact SFX");
+    AssertEqual(0, cinematic.LiquidPhysics.SoundRequests.Count,
+        "cinematic hurt call leaves sound queue empty");
+    for (int color = 0; color < 16; color++)
+    {
+        AssertEqual(unchecked((ushort)(0x5000 + color)), cgram.Colors[192 + color],
+            $"cinematic restore copies intro color {color}");
+    }
+
+    // Counter forty calls command `$1C` for spin/wall-jump movement. A Screw Attack pose
+    // must select `$33`; using the ROM movement-type byte keeps this a real dispatcher test.
+    bus.WriteBytes(0x91b629 + SamusState.ScrewAttackRightPose * 8,
+        [0x08, 0x03, 0, 0, 0, 0, 0x15, 0]);
+    var spinning = new SamusState
+    {
+        Pose = SamusState.ScrewAttackRightPose,
+        HurtFlashCounter = 39,
+    };
+    SamusHurtFlashPaletteStepResult spinRecovery = SamusHurtFlashPalette.Update(
+        bus, cgram, spinning, controllerInput: 0);
+    AssertEqual(SamusHurtFlashRecoveryAction.ScrewAttackSound, spinRecovery.Recovery,
+        "counter forty restores Screw Attack sound");
+    AssertEqual(new SamusSoundRequest(1, 0x33, 9),
+        spinning.LiquidPhysics.SoundRequests[^1],
+        "Screw Attack recovery uses library one maximum nine");
+
+    // A non-spinning charged shot arms the native one-word latch. The post-draw consumer
+    // queues `$41` only while Shoot is still held, then clears the latch in either case.
+    bus.WriteBytes(0x91b629 + SamusState.FacingRightNormalPose * 8,
+        [0x08, 0x00, 0, 0, 0, 0, 0x15, 0]);
+    var charging = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        HurtFlashCounter = 39,
+        ProjectileFlareCounter = 0x10,
+    };
+    SamusHurtFlashPaletteStepResult chargeRecovery = SamusHurtFlashPalette.Update(
+        bus, cgram, charging, (ushort)SnesButton.X);
+    AssertEqual(SamusHurtFlashRecoveryAction.ResumeChargingBeamRequested,
+        chargeRecovery.Recovery,
+        "counter forty arms charging-beam recovery");
+    AssertEqual((ushort)1, charging.ResumeChargingBeamSoundFlag,
+        "charging recovery publishes native flag one");
+    AssertTrue(SamusHurtFlashPalette.ConsumeResumeChargingBeamSound(
+            charging, (ushort)SnesButton.X),
+        "post-draw handler queues held charging sound");
+    AssertEqual((ushort)0, charging.ResumeChargingBeamSoundFlag,
+        "post-draw handler clears charging recovery flag");
+    AssertEqual(new SamusSoundRequest(1, 0x41, 9),
+        charging.LiquidPhysics.SoundRequests[^1],
+        "charging recovery queues library one sound $41 maximum nine");
+
+    // Grapple's pointer comparison accepts wall-grab release because its native handler is
+    // still below `$C856`; cancel-pending is exactly the cutoff and must remain silent.
+    var grapple = new SamusState { HurtFlashCounter = 39 };
+    grapple.Grapple.Phase = GrapplePhase.WallGrabRelease;
+    SamusHurtFlashPaletteStepResult grappleRecovery = SamusHurtFlashPalette.Update(
+        bus, cgram, grapple, controllerInput: 0);
+    AssertEqual(SamusHurtFlashRecoveryAction.GrappleSound, grappleRecovery.Recovery,
+        "counter forty restores pre-cancel grapple sound");
+    AssertEqual(new SamusSoundRequest(1, 0x06, 9),
+        grapple.LiquidPhysics.SoundRequests[^1],
+        "grapple recovery uses library one sound six maximum nine");
+
+    var cancelledGrapple = new SamusState { HurtFlashCounter = 39 };
+    cancelledGrapple.Grapple.Phase = GrapplePhase.CancelPending;
+    SamusHurtFlashPaletteStepResult cancelledRecovery = SamusHurtFlashPalette.Update(
+        bus, cgram, cancelledGrapple, controllerInput: 0);
+    AssertEqual(SamusHurtFlashRecoveryAction.None, cancelledRecovery.Recovery,
+        "grapple cancel cutoff suppresses recovery sound");
+    AssertEqual(0, cancelledGrapple.LiquidPhysics.SoundRequests.Count,
+        "cancelled grapple leaves sound queue empty");
+
+    Console.WriteLine("  Samus hurt flash: full palette lifetime and impact/recovery sounds agree.");
 }
 
 /// <summary>
@@ -7490,6 +7664,8 @@ static void VerifySamusKnockbackAndDamageBoost()
     AssertEqual((ushort)2, samus.KnockbackDirection, "up-right knockback direction");
     AssertEqual((ushort)1, samus.KnockbackXDirection, "knockback X direction publication");
     AssertEqual((ushort)5, samus.KnockbackTimer, "enemy hurt timer publication");
+    AssertEqual((ushort)1, samus.HurtFlashCounter,
+        "knockback command starts shared hurt-flash palette counter");
     AssertTrue(samus.KnockbackActive, "special knockback handler installed");
     AssertEqual((ushort)5, samus.Kinematics.YSpeed, "knockback dry-air whole speed");
     AssertEqual((ushort)0, samus.Kinematics.YSubspeed, "knockback dry-air subspeed");

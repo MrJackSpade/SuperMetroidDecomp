@@ -185,6 +185,12 @@ public sealed class SuperMetroidRuntime
     /// </summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; private set; }
 
+    /// <summary>
+    /// Most recent call of the final-priority ordinary hurt palette handler. The result
+    /// exposes both visible palette cadence and counter-forty audio recovery to a debugger.
+    /// </summary>
+    public SamusHurtFlashPaletteStepResult LastHurtFlashPaletteStep { get; private set; }
+
     /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; private set; }
 
@@ -2535,6 +2541,7 @@ public sealed class SuperMetroidRuntime
             // also models the direct palette loads in controller zero and command `$17`.
             bool drainedOwnsSamusPalette = !deathOwnsSamus &&
                 Samus.Drained.UpdatePalette(_addressSpace, Cgram, Samus.EquippedItems);
+            LastHurtFlashPaletteStep = default;
             if (!deathOwnsSamus && !drainedOwnsSamusPalette)
             {
                 // `$91:D708` always runs charge/post-shot handling before dispatching the
@@ -2585,6 +2592,18 @@ public sealed class SuperMetroidRuntime
                     _addressSpace,
                     Cgram,
                     Samus.EquippedItems);
+            }
+            // `$91:D8A5` runs after every charge and special-palette family, so hurt calls
+            // one through six must be the final writer of Samus OBJ palette four. Drained
+            // rainbow state took the routine's earlier super-special jump and therefore
+            // neither advances this counter nor reaches the ordinary hurt branch.
+            if (!deathOwnsSamus && !drainedOwnsSamusPalette)
+            {
+                LastHurtFlashPaletteStep = SamusHurtFlashPalette.Update(
+                    _addressSpace,
+                    Cgram,
+                    Samus,
+                    Controller1.Current);
             }
 
             if (deathOwnsSamus)
@@ -2657,6 +2676,13 @@ public sealed class SuperMetroidRuntime
                     Camera.XPosition,
                     Camera.YPosition,
                     Samus.Xray.TimeIsFrozen);
+
+                // `$90:F576` follows DrawSamusAndProjectiles. A counter-forty hurt update
+                // may have armed this latch above; consuming it here preserves both the
+                // same-frame charging sound and native ordering after projectile drawing.
+                SamusHurtFlashPalette.ConsumeResumeChargingBeamSound(
+                    Samus,
+                    Controller1.Current);
             }
 
             // Enemy layer six calls `$86:83B2`, after DrawSamusAndProjectiles. Keeping this

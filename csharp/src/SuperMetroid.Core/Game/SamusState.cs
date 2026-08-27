@@ -865,6 +865,27 @@ public sealed class SamusState
     public ushort KnockbackXDirection { get; set; }
 
     /// <summary>
+    /// WRAM <c>$0A48</c>, the shared hurt-flash palette counter. Ordinary knockback starts
+    /// it at one, while an active shinespark repeatedly publishes eight and its crash
+    /// handler clears it. Bank <c>$91:D8A5</c> is the sole ordinary consumer: values one
+    /// through six alternate hurt and suit palettes, value forty restores interrupted
+    /// movement audio, and value sixty ends the lifetime.
+    /// </summary>
+    /// <remarks>
+    /// This word belongs to Samus rather than the shinespark child state. Keeping it here
+    /// preserves the cartridge's intentional sharing between unrelated damage, palette,
+    /// and special-movement producers and makes the complete effect debugger-watchable.
+    /// </remarks>
+    public ushort HurtFlashCounter { get; set; }
+
+    /// <summary>
+    /// WRAM <c>ResumeChargingBeamSFXFlag</c>. Hurt-flash recovery sets one at counter forty
+    /// when a non-spinning Samus is still holding a sufficiently charged beam; the native
+    /// post-draw sound handler consumes and clears it later in the same gameplay pass.
+    /// </summary>
+    public ushort ResumeChargingBeamSoundFlag { get; internal set; }
+
+    /// <summary>
     /// WRAM `$18A8`, the general Samus invincibility timer tested by enemy, projectile,
     /// ordinary spike, spike-air, and grapple-swing damage producers. Bank `$A0:9169`
     /// decrements it once near the end of every gameplay frame, after all those producers

@@ -865,6 +865,9 @@ ushort observedSuperMissileDamage = 0;
 ushort observedSuperMissileSound = 0;
 bool observedKnockbackMovement = false;
 bool observedDamageBoostMovement = false;
+int observedHurtFlashPaletteCalls = 0;
+int observedHurtSuitRestoreCalls = 0;
+bool observedHurtImpactSound = false;
 bool observedMorphedKnockbackPosePreserved = false;
 bool observedMorphedKnockbackAnimationPreserved = false;
 bool observedMorphedKnockbackDirectionRule = false;
@@ -2287,6 +2290,56 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         else if (bodyPalette.TimerBefore == 0x8000)
             observedHyperBeamBodySuitRestore = true;
     }
+    SamusHurtFlashPaletteStepResult hurtPalette = runtime.LastHurtFlashPaletteStep;
+    if (options.KnockbackScript &&
+        hurtPalette.Action is SamusHurtFlashPaletteAction.HurtFlash or
+            SamusHurtFlashPaletteAction.NormalSuitRestore)
+    {
+        // Compare the final live CGRAM image with the private cartridge after every one of
+        // the six visible writes. This checks the final-priority runtime placement as well
+        // as the typed branch result: a later special handler overwriting these colors
+        // would fail even if the hurt routine itself selected the correct pointer.
+        int expectedPaletteAddress;
+        if (hurtPalette.Action == SamusHurtFlashPaletteAction.HurtFlash)
+        {
+            observedHurtFlashPaletteCalls++;
+            expectedPaletteAddress = 0x9ba380;
+        }
+        else
+        {
+            observedHurtSuitRestoreCalls++;
+            ushort suitOffset = (runtime.Samus!.EquippedItems & 0x0020) != 0
+                ? (ushort)4
+                : (runtime.Samus.EquippedItems & 0x0001) != 0
+                    ? (ushort)2
+                    : (ushort)0;
+            int pointerCell = 0x91d727 + suitOffset;
+            ushort pointer = unchecked((ushort)(
+                bus.ReadByte(pointerCell) | (bus.ReadByte(pointerCell + 1) << 8)));
+            expectedPaletteAddress = 0x9b0000 | pointer;
+        }
+
+        if (hurtPalette.PaletteAddress != expectedPaletteAddress)
+        {
+            throw new InvalidOperationException(
+                $"Hurt counter {hurtPalette.CounterBefore} selected " +
+                $"${hurtPalette.PaletteAddress:X6}; ROM route requires ${expectedPaletteAddress:X6}.");
+        }
+        for (int color = 0; color < 16; color++)
+        {
+            int source = expectedPaletteAddress + color * 2;
+            ushort expectedColor = unchecked((ushort)(
+                bus.ReadByte(source) | (bus.ReadByte(source + 1) << 8)));
+            if (runtime.Cgram.Colors[192 + color] != expectedColor)
+            {
+                throw new InvalidOperationException(
+                    $"Hurt counter {hurtPalette.CounterBefore} color {color} differs from ROM.");
+            }
+        }
+    }
+    observedHurtImpactSound |= options.KnockbackScript &&
+        runtime.Samus!.LiquidPhysics.SoundRequests.Any(
+            request => request == new SamusSoundRequest(1, 0x35, 6));
     if (options.LandingImpactScript &&
         (runtime.LastAerialSamusMovement is { Landed: true } ||
          runtime.LastMorphBallMovement is { Landed: true }))
@@ -3123,27 +3176,38 @@ if (options.LandingImpactScript)
 if (options.KnockbackScript)
 {
     // The only host-authored fact is which side the not-yet-translated enemy occupied.
-    // Requiring both poses and both movement handlers makes the rest a real-ROM route:
-    // `$53` art/type, `$91:A8E4` Jump+opposite-direction chord, `$50` art/type, and
-    // ordinary jump dispatch.
-    byte[] requiredKnockbackRoute = [
-        SamusState.KnockbackRightPose,
-        SamusState.DamageBoostRightPose,
-    ];
+    // A short 21-frame capture is intentionally allowed to stop on the first white flash.
+    // Longer captures require the later damage-boost pose/handler and all six palette calls.
+    var requiredKnockbackRoute = new List<byte> { SamusState.KnockbackRightPose };
+    if (options.FrameCount >= 22)
+        requiredKnockbackRoute.Add(SamusState.DamageBoostRightPose);
     foreach (byte requiredPose in requiredKnockbackRoute)
     {
         if (!observedSamusPoses.Contains(requiredPose))
             throw new InvalidOperationException(
                 $"Knockback ROM script did not observe required pose ${requiredPose:X2}.");
     }
-    if (!observedKnockbackMovement || !observedDamageBoostMovement)
+    if (!observedKnockbackMovement ||
+        (options.FrameCount >= 22 && !observedDamageBoostMovement))
     {
         throw new InvalidOperationException(
             $"Knockback route missed a handler: hurt={observedKnockbackMovement}, " +
             $"damageBoost={observedDamageBoostMovement}.");
     }
-    Console.WriteLine(
-        "Knockback ROM route validated hurt movement, the Left+Jump damage-boost chord, and type-$19 jump movement.");
+    if (options.FrameCount >= 26 &&
+        (observedHurtFlashPaletteCalls != 3 ||
+         observedHurtSuitRestoreCalls != 3 ||
+         !observedHurtImpactSound))
+    {
+        throw new InvalidOperationException(
+            "Knockback hurt palette/audio cadence differed from ROM: " +
+            $"flash={observedHurtFlashPaletteCalls}/3, " +
+            $"restore={observedHurtSuitRestoreCalls}/3, " +
+            $"impactSfx={observedHurtImpactSound}.");
+    }
+    Console.WriteLine(options.FrameCount >= 26
+        ? "Knockback ROM route validated hurt movement, 3+3 body-palette flashes, impact SFX, the Left+Jump damage-boost chord, and type-$19 jump movement."
+        : "Knockback ROM capture validated the translated route through its requested frame boundary.");
 }
 
 if (options.GunExtendedScript && options.FrameCount >= 150)

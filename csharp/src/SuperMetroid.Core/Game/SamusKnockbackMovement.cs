@@ -93,6 +93,11 @@ public static class SamusKnockbackMovement
         samus.BombJumpDirection = 0;
         samus.HorizontalSpeed.ContactDamageIndex = 0;
 
+        // `$91:ED63-$91:ED66` writes one to the shared hurt-flash counter after cancelling
+        // bomb-jump/contact damage. This is an independent 60-call palette/audio lifetime,
+        // not the five-frame `$18AA` knockback timer established above.
+        samus.HurtFlashCounter = 1;
+
         // `$90:99D6` indexes air/water/lava by zero/two/four after the exact bottom-edge
         // and Gravity-Suit checks. Values remain live ROM reads for regional/modded builds.
         int liquidOffset = samus.LiquidPhysics.DetermineMovementMedium(samus) * 2;

@@ -789,6 +789,17 @@ translated status is documented with the Morph Ball family below.
   supplies bank `$A0`'s left/right hit result. `$91:EDB0` then chooses knockback direction,
   installs `$53/$54`, reads the air/water/lava entry from `$90:9EE9/$90:9EEF`, and starts the native
   five-count hurt timer. No enemy damage, velocity, pose, or duration is fabricated.
+- The same `$91:ED63` command writes one to shared hurt-flash counter `$0A48`; this state now
+  lives on Samus rather than incorrectly inside the shinespark child. Final-priority palette
+  handler `$91:D8A5-$D910` alternates complete `$9B:A380` hurt colors on counters 1/3/5 with
+  the ROM-selected Power/Varia/Gravity suit on 2/4/6, leaves CGRAM untouched on 7..59, and
+  clears when counter 59 increments to 60. Cinematics use `$9B:A3A0` for even restores and
+  suppress the counter-two library-one `$35` impact sound.
+- Incremented counter forty reproduces `$91:D911-$D953`: active spin/Space/Screw movement
+  queues `$31/$3E/$33`, the five pre-cancel grapple handlers queue `$06`, and a non-spinning
+  held charge arms the same-frame `$41` post-draw sound latch. Active shinespark frames now
+  publish eight to this shared word and crash/windup clear the same word, matching their
+  original cross-system ownership.
 - `$90:DF15/$91:EE27` now admit Morph Ball and Spring Ball types `$04/$08/$11-$13`.
   Unlike the humanoid branch, they republish the current pose, preserve its rolling animation
   frame/timer, ignore controller input and damage-source side when selecting vertical direction,
@@ -1126,7 +1137,10 @@ translated status is documented with the Morph Ball family below.
 - The real-ROM `--knockback-script` injects bank `$A0` X direction one at the documented
   enemy-collision seam, executes `$53`, matches cartridge record `$91:A8E4` with held
   `$0280`, enters `$50`, runs type `$19` through ceiling/floor collision, and lands through
-  `$FF -> $A5`. A 32-frame capture freezes authentic damage-boost art and split-body OAM.
+  `$FF -> $A5`. It also requires three hurt and three suit palette writes, compares all
+  sixteen live CGRAM colors on each call with the private ROM, and observes impact SFX `$35`.
+  A 21-frame capture freezes the white `$9B:A380` silhouette; a 32-frame capture freezes
+  authentic damage-boost art and split-body OAM.
 - The real-ROM `--ran-into-wall-script` chooses only a Landing Site test coordinate, then
   observes `$89/$CF/$D1`, definition fallback, and `$4B/$4D` from retail input tables and a
   blocked type-`$8` collision probe. The selected ROM corner is column `$10`, floor row

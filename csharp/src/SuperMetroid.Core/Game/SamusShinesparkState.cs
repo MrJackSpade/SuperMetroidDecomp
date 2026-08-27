@@ -47,9 +47,6 @@ public sealed class SamusShinesparkState
     /// <summary>Set when energy or collision installs the crash handler.</summary>
     public bool CrashSoundRequested { get; set; }
 
-    /// <summary>WRAM <c>$0A48</c>, republished as eight on active spark frames.</summary>
-    public ushort HurtFlashCounter { get; private set; }
-
     /// <summary>High byte of native `$0AAE` while the two crash echoes orbit Samus.</summary>
     public byte CrashSubphase { get; private set; }
 
@@ -139,7 +136,7 @@ public sealed class SamusShinesparkState
         PaletteType = 6;
         PaletteFrameOffset = 0;
         Phase = ShinesparkPhase.Windup;
-        HurtFlashCounter = 0;
+        samus.HurtFlashCounter = 0;
         LaunchSoundRequested = false;
         CrashSoundRequested = false;
     }
@@ -222,7 +219,7 @@ public sealed class SamusShinesparkState
         }
 
         samus.HorizontalSpeed.ContactDamageIndex = 2;
-        HurtFlashCounter = 8;
+        samus.HurtFlashCounter = 8;
 
         // Each active handler samples echoes before motion. Runtime suppresses its ordinary
         // post-motion producer while this special handler owns the frame.
@@ -305,7 +302,7 @@ public sealed class SamusShinesparkState
         samus.HorizontalSpeed.ExtraRunSubspeed = 0;
         samus.HorizontalSpeed.SpeedBoostCounter = 0;
         samus.HorizontalSpeed.ContactDamageIndex = 0;
-        HurtFlashCounter = 0;
+        samus.HurtFlashCounter = 0;
         bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
         FirstCrashEchoAngle = facingLeft ? (byte)32 : (byte)224;
         SecondCrashEchoAngle = facingLeft ? (byte)160 : (byte)96;

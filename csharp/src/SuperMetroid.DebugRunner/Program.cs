@@ -1010,6 +1010,11 @@ ushort previousBabyMovementTablePointer = 0;
 var observedSamusPoses = new HashSet<byte> { runtime.Samus.Pose };
 bool observedLandingImpactDust = false;
 bool observedLandingImpactSound = false;
+// `$90:EB86` is an NMI-parity display handler rather than an animation-frame toggle.
+// Record both outcomes from the live frame pipeline so an even-only final PNG cannot hide
+// a regression that accidentally draws Samus on every elevator frame.
+bool observedElevatorVisibleEvenFrame = false;
+bool observedElevatorHiddenOddFrame = false;
 ushort extraDisplacementStartX = runtime.Samus.XPosition;
 ushort extraDisplacementStartY = runtime.Samus.YPosition;
 for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
@@ -2205,6 +2210,23 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         drawHighPriorityEnemyProjectiles,
         drawLowPriorityEnemyProjectiles);
     observedSamusPoses.Add(runtime.Samus.Pose);
+    if (options.ElevatorScript)
+    {
+        if ((result.FrameNumber & 1) == 0)
+            observedElevatorVisibleEvenFrame |= runtime.LastSamusBodyDrawn;
+        else
+            observedElevatorHiddenOddFrame |= !runtime.LastSamusBodyDrawn;
+
+        // Elevator display `$90:EB86` never reaches either arm-cannon drawing mode. The
+        // cover state update still ran before dispatch, but no separate OBJ or tile-$1F
+        // transfer may leak into this handler's deliberately minimal body presentation.
+        if (runtime.LastArmCannonDraw.SpriteWritten ||
+            runtime.LastArmCannonDraw.TileUploadQueued)
+        {
+            throw new InvalidOperationException(
+                $"Elevator frame {result.FrameNumber} incorrectly drew or uploaded the independent arm cannon.");
+        }
+    }
     if (options.VisorScript &&
         runtime.LastVisorPaletteStep is { Action: SamusVisorPaletteAction.ColorWritten } visor)
     {
@@ -3141,9 +3163,17 @@ if (options.ElevatorScript)
             $"Elevator ROM script expected Y=${expectedY:X4} after {options.FrameCount} frame(s), " +
             $"but reached ${runtime.Samus.YPosition:X4}.");
     }
+    if (options.FrameCount >= 2 &&
+        (!observedElevatorVisibleEvenFrame || !observedElevatorHiddenOddFrame))
+    {
+        throw new InvalidOperationException(
+            "Elevator display handler did not alternate an odd hidden frame and an even visible frame.");
+    }
     Console.WriteLine(
         $"Forward-facing elevator route validated {Math.Min(options.FrameCount, clearPixels)} accepted one-pixel move(s) " +
-        $"and real floor clipping at Y=${runtime.Samus.YPosition:X4}.");
+        $"and real floor clipping at Y=${runtime.Samus.YPosition:X4}; " +
+        $"display blink odd-hidden/even-visible=" +
+        $"{observedElevatorHiddenOddFrame}/{observedElevatorVisibleEvenFrame}.");
 }
 
 if (options.AerialTurnScript)

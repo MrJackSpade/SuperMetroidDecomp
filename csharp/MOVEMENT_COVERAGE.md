@@ -87,6 +87,11 @@ translated status is documented with the Morph Ball family below.
   host placement, publishes status one, and validates five accepted one-pixel steps followed
   by true floor clipping at Y `$04B8.FFFF`. The input dispatcher remains locked in `$00`
   while status is active, matching `$91:804D-$8065`, rather than interpreting held controls.
+  The installed `$90:EB86` display path is likewise distinct from ordinary drawing: arm-
+  cannon cover state still advances first, odd NMIs omit Samus entirely, and even NMIs use
+  the no-invincibility-test body renderer. Atmosphere, flare, independent cannon, speed and
+  shinespark echoes, and grapple art are skipped on both parities, while the shared projectile
+  tail remains live. The route asserts both blink states and rejects any leaked cannon OAM/DMA.
 
 ## Verified X-ray slice
 

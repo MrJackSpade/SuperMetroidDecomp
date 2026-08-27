@@ -3879,7 +3879,7 @@ public sealed class SamusState
     /// top spritemap; spin-jump `$03` retains its own conditional bottom rule. Draygon's
     /// ten type-`$1A` bodies have ordinary split top/bottom spritemaps and no draw-time offset.
     /// </remarks>
-    public void Draw(
+    public bool Draw(
         ISnesAddressSpace bus,
         OamBuffer oam,
         ushort layer1X,
@@ -3912,7 +3912,7 @@ public sealed class SamusState
             // through to `$92:8000`. Preserve the previous visible spritemap indices for
             // echo drawing while selecting this frame's tile definitions for the next NMI.
             TileTransfers.SelectForPoseFrame(bus, Pose, AnimationFrame);
-            return;
+            return false;
         }
 
         // $90:8C94 sign-extends the byte at pose-definition offset four. Pose $01 stores
@@ -4055,6 +4055,7 @@ public sealed class SamusState
         // Those flags drive the following accepted NMI, so stepping exposes the authentic
         // one-main-loop/one-NMI producer-consumer relationship.
         TileTransfers.SelectForPoseFrame(bus, Pose, AnimationFrame);
+        return true;
     }
 
     /// <summary>

@@ -206,6 +206,13 @@ public sealed class SuperMetroidRuntime
     /// <summary>Most recent optional cannon OBJ and tile-$1F DMA publication.</summary>
     public SamusArmCannonDrawResult LastArmCannonDraw { get; private set; }
 
+    /// <summary>
+    /// Whether the current main-loop frame actually appended Samus's body spritemaps.
+    /// This differs from merely reaching the drawing phase: invincibility and the elevator
+    /// display handler can intentionally suppress the body on odd accepted NMI frames.
+    /// </summary>
+    public bool LastSamusBodyDrawn { get; private set; }
+
     /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; private set; }
 
@@ -879,6 +886,7 @@ public sealed class SuperMetroidRuntime
         // game state, then finalizes unused entries afterward. Samus is emitted before the
         // escape timer so lower OAM indices retain their normal overlap precedence.
         Oam.BeginFrame();
+        LastSamusBodyDrawn = false;
         bool escapeTimerExpired = EscapeTimer.Process(NmiFrameCounter);
         if (Samus is not null && Camera is not null)
         {
@@ -2629,7 +2637,13 @@ public sealed class SuperMetroidRuntime
             if (deathOwnsSamus)
             {
                 if (LastDeathSequenceStep is { DrawPose: true })
-                    Samus.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
+                {
+                    LastSamusBodyDrawn = Samus.Draw(
+                        _addressSpace,
+                        Oam,
+                        Camera.XPosition,
+                        Camera.YPosition);
+                }
                 else if (LastDeathSequenceStep is { DrawExplosion: true })
                     Samus.DeathSequence.DrawExplosion(_addressSpace, Oam);
             }
@@ -2642,81 +2656,110 @@ public sealed class SuperMetroidRuntime
                 LastArmCannonUpdate = Samus.ArmCannon.Update(_addressSpace, Samus);
                 LastArmCannonDraw = default;
 
-                // Every ordinary Samus drawing handler calls `$90:8A4C` before Samus OAM.
-                // Updating here preserves both reverse atmospheric-slot order and overlap:
-                // splashes/dust receive earlier OAM indices than Samus's body pieces.
-                Samus.LiquidPhysics.AtmosphericEffects.UpdateAndDraw(
-                    _addressSpace,
-                    Oam,
-                    Camera.XPosition,
-                    Camera.YPosition,
-                    Samus.LiquidPhysics.FxYPosition);
+                // `$90:EB86` replaces the ordinary `$90:EB52` display handler while an
+                // elevator owns a front-facing body. It still arrives after `$90:C5C4`, so
+                // the arm-cannon cover state above advances every frame. Odd NMIs return
+                // immediately. Even NMIs call the fatal/no-animation body renderer, which
+                // deliberately bypasses ordinary invincibility flicker and every auxiliary
+                // Samus layer: atmosphere, charge flare, cannon OBJ, speed/shinespark
+                // echoes, and grapple graphics. Projectile drawing remains in the shared
+                // tail below, exactly as `DrawSamusAndProjectiles` does after this handler.
+                bool elevatorOwnsSamusDrawing =
+                    ElevatorStatus != 0 && SamusState.IsForwardFacingPose(Samus.Pose);
+                if (elevatorOwnsSamusDrawing)
+                {
+                    if ((NmiFrameCounter & 1) == 0)
+                    {
+                        // Omitting the live counter intentionally selects `Draw`'s default
+                        // even value. Native `$90:EB86` calls `$90:85D2`, below `$85E2`'s
+                        // ordinary invincibility test, so this path cannot flicker twice.
+                        LastSamusBodyDrawn = Samus.Draw(
+                            _addressSpace,
+                            Oam,
+                            Camera.XPosition,
+                            Camera.YPosition);
+                    }
+                }
+                else
+                {
+
+                    // Every ordinary Samus drawing handler calls `$90:8A4C` before Samus OAM.
+                    // Updating here preserves both reverse atmospheric-slot order and overlap:
+                    // splashes/dust receive earlier OAM indices than Samus's body pieces.
+                    Samus.LiquidPhysics.AtmosphericEffects.UpdateAndDraw(
+                        _addressSpace,
+                        Oam,
+                        Camera.XPosition,
+                        Camera.YPosition,
+                        Samus.LiquidPhysics.FxYPosition);
                 // Default drawing handler `$90:EB52` advances/emits charge flare pieces
                 // before falling through to the ordinary Samus body. This ordering lets
                 // the gun and body cover sparks exactly as their OAM indices do on SNES.
-                Projectiles.HandleChargeFlareAndDraw(
-                    _addressSpace,
-                    Oam,
-                    Samus,
-                    Camera.XPosition,
-                    Camera.YPosition);
+                    Projectiles.HandleChargeFlareAndDraw(
+                        _addressSpace,
+                        Oam,
+                        Samus,
+                        Camera.XPosition,
+                        Camera.YPosition);
 
                 // Drawing modes one and two differ only in OAM priority: one appends the
                 // cannon before the body, while two appends it after. Mode zero suppresses
                 // the independent object even if a HUD-driven cover frame remains nonzero.
-                if (Samus.ArmCannon.EffectiveDrawingMode != 0 &&
-                    Samus.ArmCannon.EffectiveDrawingMode != 2)
-                {
-                    LastArmCannonDraw = Samus.ArmCannon.Draw(
+                    if (Samus.ArmCannon.EffectiveDrawingMode != 0 &&
+                        Samus.ArmCannon.EffectiveDrawingMode != 2)
+                    {
+                        LastArmCannonDraw = Samus.ArmCannon.Draw(
+                            _addressSpace,
+                            Oam,
+                            VramWrites,
+                            Samus,
+                            Camera.XPosition,
+                            Camera.YPosition,
+                            NmiFrameCounter);
+                    }
+                    LastSamusBodyDrawn = Samus.Draw(
                         _addressSpace,
                         Oam,
-                        VramWrites,
-                        Samus,
                         Camera.XPosition,
                         Camera.YPosition,
                         NmiFrameCounter);
-                }
-                Samus.Draw(
-                    _addressSpace,
-                    Oam,
-                    Camera.XPosition,
-                    Camera.YPosition,
-                    NmiFrameCounter);
-                if (Samus.ArmCannon.EffectiveDrawingMode == 2)
-                {
-                    LastArmCannonDraw = Samus.ArmCannon.Draw(
+                    if (Samus.ArmCannon.EffectiveDrawingMode == 2)
+                    {
+                        LastArmCannonDraw = Samus.ArmCannon.Draw(
+                            _addressSpace,
+                            Oam,
+                            VramWrites,
+                            Samus,
+                            Camera.XPosition,
+                            Camera.YPosition,
+                            NmiFrameCounter);
+                    }
+                    Samus.DrawSpeedBoosterEchoes(
                         _addressSpace,
                         Oam,
-                        VramWrites,
-                        Samus,
+                        Camera.XPosition,
+                        Camera.YPosition);
+                    Samus.DrawShinesparkCrashEchoes(
+                        _addressSpace,
+                        Oam,
                         Camera.XPosition,
                         Camera.YPosition,
                         NmiFrameCounter);
+                    Samus.DrawReleasedShinesparkCrashEchoes(
+                        _addressSpace,
+                        Oam,
+                        Camera.XPosition,
+                        Camera.YPosition,
+                        NmiFrameCounter);
+                    SamusGrappleMovement.DrawConnectedBeam(
+                        _addressSpace,
+                        Samus.Grapple,
+                        Oam,
+                        VramWrites,
+                        Camera.XPosition,
+                        Camera.YPosition);
                 }
-                Samus.DrawSpeedBoosterEchoes(
-                    _addressSpace,
-                    Oam,
-                    Camera.XPosition,
-                    Camera.YPosition);
-                Samus.DrawShinesparkCrashEchoes(
-                    _addressSpace,
-                    Oam,
-                    Camera.XPosition,
-                    Camera.YPosition,
-                    NmiFrameCounter);
-                Samus.DrawReleasedShinesparkCrashEchoes(
-                    _addressSpace,
-                    Oam,
-                    Camera.XPosition,
-                    Camera.YPosition,
-                    NmiFrameCounter);
-                SamusGrappleMovement.DrawConnectedBeam(
-                    _addressSpace,
-                    Samus.Grapple,
-                    Oam,
-                    VramWrites,
-                    Camera.XPosition,
-                    Camera.YPosition);
+
                 // `$90:EB3B` draws Samus first and immediately calls `$93:8254`. This is
                 // deliberately after the grapple beam too in the translated composite pass;
                 // all live beam art still receives later OAM indices than Samus's body.

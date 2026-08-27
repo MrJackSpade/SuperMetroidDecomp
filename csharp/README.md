@@ -142,6 +142,7 @@ dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Sup
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 12 --hyper-beam-script --output ../standalone-assets/runtime/HyperBeamFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 8 --missile-script --output ../standalone-assets/runtime/MissileFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 8 --super-missile-script --output ../standalone-assets/runtime/SuperMissileFrame.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 11 --visor-script --output ../standalone-assets/runtime/VisorFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 110 --power-bomb-script --output ../standalone-assets/runtime/PowerBombFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 120 --aerial-turn-script --output ../standalone-assets/runtime/AerialTurnFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 24 --compact-air-script --output ../standalone-assets/runtime/CompactAirPoseFrame.png
@@ -379,6 +380,15 @@ half color math after live Landing Site BG1/BG2, Samus DMA, and OAM composition.
 PNG therefore captures the actual final up-left scanner window. Setup stages four through
 eight do not yet build the replacement hidden-block BG2 tilemap, so special reveal tiles are
 the remaining visual half of X-ray rather than being faked inside the otherwise live polygon.
+
+`--visor-script` publishes only room/HDMA-owned layer-blending configuration `$28` because
+Landing Site normally uses configuration two. Inactive charge handling then falls through to
+the literal `$91:D83F` routine: packed WRAM bytes `$0A72/$0A73` count down from `$0601`, write
+only Samus CGRAM color 196 every five calls, and rotate offsets 6/8/10 from `$9B:A3C0`.
+The 11-frame private-ROM route independently checks all three selected words against the
+cartridge while ordinary running animation, Samus tile DMA, OAM, camera, and terrain continue.
+`VisorFrame.png` captures the third authentic room-cycle color; X-ray handler eight freezes
+this packed state and retains ownership of the same color.
 
 `--death-script` enters only after the outer fatal-damage music wait has cleared, then lets
 bank `$9B` select `$D7/$D8` and the movement-type-specific start frame. Sixteen preflash calls

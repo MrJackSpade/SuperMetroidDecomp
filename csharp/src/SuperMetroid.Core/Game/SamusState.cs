@@ -927,6 +927,11 @@ public sealed class SamusState
     public SamusArmCannonState ArmCannon { get; } = new();
 
     /// <summary>
+    /// Packed five-call visor color cycle used only by backdrop-color-math rooms.
+    /// </summary>
+    public SamusVisorPaletteState VisorPalette { get; } = new();
+
+    /// <summary>
     /// Native WRAM <c>EnemyIndexToShake</c>, written when an ordinary or grapple wall jump
     /// launches from a solid/frozen enemy instead of room terrain.
     /// </summary>

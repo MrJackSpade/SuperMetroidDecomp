@@ -118,6 +118,9 @@ public sealed class SamusProjectileSystem
     /// <summary>The most recent `$91:D743` charged-shot palette sub-handler result.</summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; private set; }
 
+    /// <summary>Nested `$91:D83F` result when inactive charging falls through to visor handling.</summary>
+    public SamusVisorPaletteStepResult LastVisorPaletteStep { get; private set; }
+
     /// <summary>
     /// WRAM <c>$0B62</c>, a byte offset into the active six-word charge-palette list.
     /// Native values are exactly 0, 2, 4, 6, 8, and 10; the sixth call wraps to zero.
@@ -228,11 +231,13 @@ public sealed class SamusProjectileSystem
     public SamusBeamChargePaletteStepResult UpdateBeamChargePalette(
         ISnesAddressSpace bus,
         SnesCgram cgram,
-        SamusState samus)
+        SamusState samus,
+        ushort layerBlendingDefaultConfig = 0x0002)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
         ArgumentNullException.ThrowIfNull(samus);
+        LastVisorPaletteStep = default;
 
         ushort timerBefore = ChargedShotGlowTimer;
         if (timerBefore == 0)
@@ -286,6 +291,11 @@ public sealed class SamusProjectileSystem
             // owns its function pointer. This guarantees the next eligible call starts at
             // palette zero rather than resuming a partially completed cycle.
             SamusChargePaletteIndex = 0;
+            LastVisorPaletteStep = samus.VisorPalette.Update(
+                bus,
+                cgram,
+                samus.Xray.SpecialPaletteType,
+                layerBlendingDefaultConfig);
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.Inactive,
                 TimerBefore: 0,
@@ -679,6 +689,7 @@ public sealed class SamusProjectileSystem
         Array.Clear(_flareTimers);
         LastFrameResult = default;
         LastBeamChargePaletteStep = default;
+        LastVisorPaletteStep = default;
         SamusChargePaletteIndex = 0;
     }
 

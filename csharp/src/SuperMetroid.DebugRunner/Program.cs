@@ -206,6 +206,11 @@ else if (options.XrayScript)
     Console.WriteLine(
         "Input script: select equipped X-ray, execute all eight bank-$88 setup stages, hold Dash through native widening, aim upward, then turn through ROM poses $D5/$25/$D6 while the visor palette cycles.");
 }
+else if (options.VisorScript)
+{
+    Console.WriteLine(
+        "Palette script: publish layer-blending configuration $28, then run the native five-call visor cycle while ordinary movement and drawing continue.");
+}
 else if (options.DeathScript)
 {
     Console.WriteLine(
@@ -595,6 +600,14 @@ if (options.SuperMissileScript)
     runtime.Samus.SelectedHudItem = 2;
 }
 
+if (options.VisorScript)
+{
+    // Landing Site normally uses default blending configuration two and therefore resets
+    // `$0A72/$0A73` instead of cycling. Publish only the room/HDMA-owned configuration word
+    // `$28`; the timer, table offsets, colors, movement, DMA, OAM, and rendering stay native.
+    runtime.LayerBlendingDefaultConfig = 0x0028;
+}
+
 Console.WriteLine(
     $"Loaded Landing Site scrolls $8F:9283 -> $7E:CD20: " +
     $"{Convert.ToHexString(camera.Scrolls.Storage[..camera.Scrolls.LogicalCellCount])}.");
@@ -858,6 +871,7 @@ ushort observedMissileSound = 0;
 var observedArmCannonFrames = new HashSet<ushort>();
 bool observedArmCannonSprite = false;
 bool observedArmCannonTileDma = false;
+var observedVisorPaletteOffsets = new HashSet<byte>();
 bool observedSuperMissileShot = false;
 bool observedSuperMissileArt = false;
 bool observedSuperMissileTrail = false;
@@ -2180,6 +2194,30 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         drawHighPriorityEnemyProjectiles,
         drawLowPriorityEnemyProjectiles);
     observedSamusPoses.Add(runtime.Samus.Pose);
+    if (options.VisorScript &&
+        runtime.LastVisorPaletteStep is { Action: SamusVisorPaletteAction.ColorWritten } visor)
+    {
+        // The host supplies only configuration `$28`. Re-read the selected word from this
+        // private cartridge and compare the final live CGRAM slot after the complete palette
+        // pipeline, catching both bad table routing and a later accidental overwrite.
+        byte sourceOffset = visor.SourceByteOffset ??
+            throw new InvalidOperationException("Visor write omitted its source byte offset.");
+        int sourceAddress = 0x9ba3c0 + sourceOffset;
+        ushort expectedColor = unchecked((ushort)(
+            bus.ReadByte(sourceAddress) | (bus.ReadByte(sourceAddress + 1) << 8)));
+        if (visor.WrittenColor != expectedColor || runtime.Cgram.Colors[196] != expectedColor)
+        {
+            throw new InvalidOperationException(
+                $"Visor offset ${sourceOffset:X2} wrote " +
+                $"${visor.WrittenColor.GetValueOrDefault():X4}/" +
+                $"${runtime.Cgram.Colors[196]:X4}; ROM says ${expectedColor:X4}.");
+        }
+        observedVisorPaletteOffsets.Add(sourceOffset);
+        Console.WriteLine(
+            $"frame {result.FrameNumber,4}: visor table +${sourceOffset:X2} -> " +
+            $"CGRAM 196 ${expectedColor:X4}; packed=" +
+            $"${runtime.Samus.VisorPalette.PackedTimerIndex:X4}.");
+    }
     if (options.MissileScript)
     {
         // `$90:C5C4-$C790` is deliberately validated from the live cartridge rather than
@@ -3426,6 +3464,22 @@ if (options.HyperBeamScript)
         $"bodyGlow={observedHyperBeamBodyPalettes.Count}/10+restore.");
 }
 
+if (options.VisorScript)
+{
+    if (options.FrameCount >= 11 &&
+        (!observedVisorPaletteOffsets.Contains(6) ||
+         !observedVisorPaletteOffsets.Contains(8) ||
+         !observedVisorPaletteOffsets.Contains(10)))
+    {
+        throw new InvalidOperationException(
+            $"Visor ROM route missed its three room-cycle colors: " +
+            $"offsets=[{string.Join(',', observedVisorPaletteOffsets.Order())}].");
+    }
+    Console.WriteLine(
+        $"Visor ROM route observed offsets " +
+        $"[{string.Join(',', observedVisorPaletteOffsets.Order())}] from $9B:A3C0.");
+}
+
 if (options.MissileScript)
 {
     // A seven-frame run covers Start dismissal, the isolated fire edge, and the fourth
@@ -4394,6 +4448,7 @@ readonly record struct DebugRunnerOptions(
     bool GrappleFireScript,
     bool CrystalFlashScript,
     bool XrayScript,
+    bool VisorScript,
     bool DeathScript,
     bool MotherBrainRainbowScript,
     bool DrainedSamusScript,
@@ -4447,6 +4502,7 @@ readonly record struct DebugRunnerOptions(
         bool grappleFireScript = false;
         bool crystalFlashScript = false;
         bool xrayScript = false;
+        bool visorScript = false;
         bool deathScript = false;
         bool motherBrainRainbowScript = false;
         bool drainedSamusScript = false;
@@ -4681,6 +4737,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--visor-script":
+                    visorScript = true;
+                    groundedRun = true;
+                    break;
+
                 case "--death-script":
                     deathScript = true;
                     groundedRun = true;
@@ -4737,6 +4798,7 @@ readonly record struct DebugRunnerOptions(
             "runtime",
             deathScript ? "DeathFrame.png" :
             xrayScript ? "XrayFrame.png" :
+            visorScript ? "VisorFrame.png" :
             hyperBeamScript ? "HyperBeamFrame.png" :
             missileScript ? "MissileFrame.png" :
             superMissileScript ? "SuperMissileFrame.png" :
@@ -4789,6 +4851,7 @@ readonly record struct DebugRunnerOptions(
             grappleFireScript,
             crystalFlashScript,
             xrayScript,
+            visorScript,
             deathScript,
             motherBrainRainbowScript,
             drainedSamusScript,

@@ -1165,6 +1165,10 @@ translated status is documented with the Morph Ball family below.
   `$20`-byte VRAM `$61F0` transfer against the cartridge, and requires a visible cover OBJ.
   `MissileArmCannon.png` and its three diagnostic layers capture the fully open cover, live
   projectile, and detached trail over cartridge-derived Landing Site terrain.
+- The real-ROM `--visor-script` supplies only room-owned layer-blending configuration `$28`,
+  then observes packed `$0A72/$0A73` select offsets 6/8/10 at five-call cadence. Every live
+  CGRAM color-196 write is independently compared with `$9B:A3C0`; normal rooms reset to
+  `$0601`, and X-ray special palette type eight freezes the packed state without overwriting it.
 - The real-ROM `--draygon-grab-script` publishes a fixed owner coordinate at `$A5:94A9`, then
   observes every right-facing grabbed pose, the moving-body animation loop, `$F0->$EC`
   fallback, 60-pattern escape, owner signal, and `$01` release. Its assertions sample actual

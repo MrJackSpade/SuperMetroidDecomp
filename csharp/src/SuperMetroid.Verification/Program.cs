@@ -36,6 +36,7 @@ VerifySuperMetroidAddressSpace();
 VerifyOamSpritemapPacking();
 VerifySamusRenderingSlice();
 VerifySamusArmCannon();
+VerifySamusVisorPalette();
 VerifySamusHurtFlashPalette();
 VerifySamusPoseTransitionMatching();
 VerifySamusHorizontalSpeed();
@@ -953,6 +954,89 @@ static void VerifySamusArmCannon()
 
     Console.WriteLine(
         "  Samus arm cannon: HUD debounce, open/close cadence, OAM, clipping, flicker, and tile DMA agree.");
+}
+
+/// <summary>
+/// Proves the byte-aliased `$0A72/$0A73` visor timer, all three room-cycle colors, normal-
+/// room reset, X-ray exclusion, and the inactive-charge call seam.
+/// </summary>
+static void VerifySamusVisorPalette()
+{
+    var bus = new TestAddressSpace();
+    var cgram = new SnesCgram();
+    ushort[] colors = [0x1000, 0x1001, 0x1002, 0x2000, 0x2001, 0x2002];
+    for (int index = 0; index < colors.Length; index++)
+        WriteTestWord(bus, 0x9ba3c0 + index * 2, colors[index]);
+
+    var state = new SamusVisorPaletteState();
+    cgram.SetColor(196, 0x7777);
+    SamusVisorPaletteStepResult normal = state.Update(
+        bus, cgram, specialSamusPaletteType: 0, layerBlendingDefaultConfig: 2);
+    AssertEqual(SamusVisorPaletteAction.ResetForNormalRoom, normal.Action,
+        "ordinary room resets visor animation");
+    AssertEqual((ushort)0x0601, state.PackedTimerIndex,
+        "ordinary room primes timer one and table offset six");
+    AssertEqual((ushort)0x7777, cgram.Colors[196],
+        "ordinary room reset does not overwrite current visor color");
+
+    // The first `$28` call decrements timer one to zero and immediately copies offset six.
+    SamusVisorPaletteStepResult first = state.Update(bus, cgram, 0, 0x0028);
+    AssertEqual(SamusVisorPaletteAction.ColorWritten, first.Action,
+        "backdrop room writes first visor color immediately");
+    AssertEqual((byte?)6, first.SourceByteOffset, "first visor source is table offset six");
+    AssertEqual((ushort)0x2000, cgram.Colors[196], "first backdrop visor color");
+    AssertEqual((ushort)0x0805, state.PackedTimerIndex,
+        "first write reloads five and advances packed offset to eight");
+
+    // Four calls retain timers 4/3/2/1. The fifth reaches zero, writes, and reloads five.
+    for (ushort expectedTimer = 4; expectedTimer >= 1; expectedTimer--)
+    {
+        SamusVisorPaletteStepResult countdown = state.Update(bus, cgram, 0, 0x002a);
+        AssertEqual(SamusVisorPaletteAction.Countdown, countdown.Action,
+            $"visor countdown timer {expectedTimer}");
+        AssertEqual(unchecked((byte)expectedTimer), state.Timer,
+            $"visor packed low byte reaches {expectedTimer}");
+        if (expectedTimer == 1)
+            break;
+    }
+    SamusVisorPaletteStepResult second = state.Update(bus, cgram, 0, 0x002a);
+    AssertEqual((byte?)8, second.SourceByteOffset, "second visor source is table offset eight");
+    AssertEqual((ushort)0x2001, cgram.Colors[196], "second backdrop visor color");
+    AssertEqual((ushort)0x0a05, state.PackedTimerIndex,
+        "second write advances packed offset to ten");
+
+    for (int call = 0; call < 5; call++)
+        state.Update(bus, cgram, 0, 0x0028);
+    AssertEqual((ushort)0x2002, cgram.Colors[196], "third backdrop visor color");
+    AssertEqual((ushort)0x0605, state.PackedTimerIndex,
+        "third write wraps only to room-cycle offset six");
+
+    ushort packedBeforeXray = state.PackedTimerIndex;
+    cgram.SetColor(196, 0x3456);
+    SamusVisorPaletteStepResult xray = state.Update(bus, cgram, 8, 0x0028);
+    AssertEqual(SamusVisorPaletteAction.SuppressedByXray, xray.Action,
+        "X-ray special handler suppresses ordinary visor cycle");
+    AssertEqual(packedBeforeXray, state.PackedTimerIndex,
+        "X-ray suppression freezes both packed bytes");
+    AssertEqual((ushort)0x3456, cgram.Colors[196],
+        "X-ray suppression preserves its independently owned color");
+
+    // `HandleBeamChargePalettes` reaches the visor only through its no-charge branch.
+    // This integration assertion prevents the exact state machine from becoming orphaned.
+    var integratedSamus = new SamusState();
+    var projectiles = new SamusProjectileSystem();
+    SamusBeamChargePaletteStepResult charge = projectiles.UpdateBeamChargePalette(
+        bus, cgram, integratedSamus, layerBlendingDefaultConfig: 0x0028);
+    AssertEqual(SamusBeamChargePaletteAction.Inactive, charge.Action,
+        "inactive charging retains beam-palette result");
+    AssertEqual(SamusVisorPaletteAction.ColorWritten,
+        projectiles.LastVisorPaletteStep.Action,
+        "inactive charging falls through to visor handler");
+    AssertEqual((ushort)0x2000, cgram.Colors[196],
+        "integrated visor call reads bank-$9B room-cycle color");
+
+    Console.WriteLine(
+        "  Samus visor: packed timer/index, backdrop cycle, normal reset, and X-ray exclusion agree.");
 }
 
 /// <summary>

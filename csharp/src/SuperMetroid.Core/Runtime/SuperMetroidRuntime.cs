@@ -185,6 +185,15 @@ public sealed class SuperMetroidRuntime
     /// </summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; private set; }
 
+    /// <summary>Most recent ordinary `$91:D83F` visor color-cycle step.</summary>
+    public SamusVisorPaletteStepResult LastVisorPaletteStep { get; private set; }
+
+    /// <summary>
+    /// Native WRAM <c>$1982</c>. Room/HDMA setup owns this word; the current Landing Site
+    /// shell starts at bank-$88's cleared-FX default two.
+    /// </summary>
+    public ushort LayerBlendingDefaultConfig { get; set; } = 0x0002;
+
     /// <summary>
     /// Most recent call of the final-priority ordinary hurt palette handler. The result
     /// exposes both visible palette cadence and counter-forty audio recovery to a debugger.
@@ -2548,6 +2557,7 @@ public sealed class SuperMetroidRuntime
             bool drainedOwnsSamusPalette = !deathOwnsSamus &&
                 Samus.Drained.UpdatePalette(_addressSpace, Cgram, Samus.EquippedItems);
             LastHurtFlashPaletteStep = default;
+            LastVisorPaletteStep = default;
             if (!deathOwnsSamus && !drainedOwnsSamusPalette)
             {
                 // `$91:D708` always runs charge/post-shot handling before dispatching the
@@ -2557,7 +2567,9 @@ public sealed class SuperMetroidRuntime
                 LastBeamChargePaletteStep = Projectiles.UpdateBeamChargePalette(
                     _addressSpace,
                     Cgram,
-                    Samus);
+                    Samus,
+                    LayerBlendingDefaultConfig);
+                LastVisorPaletteStep = Projectiles.LastVisorPaletteStep;
 
                 Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(
                     _addressSpace,

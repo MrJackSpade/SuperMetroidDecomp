@@ -837,6 +837,7 @@ bool observedChargedShot = false;
 bool observedChargedTrail = false;
 ushort observedChargedShotDamage = 0;
 ushort observedChargedShotSound = 0;
+var observedLiveChargeBodyPalettes = new HashSet<int>();
 int observedOrdinaryChargedWhitePaletteCalls = 0;
 bool observedOrdinaryChargedSuitRestore = false;
 bool observedHyperBeamShot = false;
@@ -2196,7 +2197,44 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         observedHyperBeamPaletteFrames.Add(hyperPalette.FrameIndex);
     }
     SamusBeamChargePaletteStepResult bodyPalette = runtime.LastBeamChargePaletteStep;
-    if (bodyPalette.Action == SamusBeamChargePaletteAction.OrdinaryWhite)
+    if (bodyPalette.Action == SamusBeamChargePaletteAction.ChargeCycle)
+    {
+        // Validate both levels of `$91:D7D5` indirection against the private ROM, then
+        // compare the complete post-frame CGRAM palette. This proves the viewer is showing
+        // cartridge-authored charge colors rather than merely advancing a host counter.
+        int paletteIndex = bodyPalette.ChargePaletteIndex ??
+            throw new InvalidOperationException("Live charge palette write omitted its table index.");
+        ushort suitOffset = (runtime.Samus!.EquippedItems & 0x0020) != 0
+            ? (ushort)4
+            : (runtime.Samus.EquippedItems & 0x0001) != 0
+                ? (ushort)2
+                : (ushort)0;
+        int listCell = 0x91d7d5 + suitOffset;
+        ushort listPointer = unchecked((ushort)(
+            bus.ReadByte(listCell) | (bus.ReadByte(listCell + 1) << 8)));
+        int paletteCell = 0x910000 | unchecked((ushort)(listPointer + paletteIndex * 2));
+        ushort expectedPointer = unchecked((ushort)(
+            bus.ReadByte(paletteCell) | (bus.ReadByte(paletteCell + 1) << 8)));
+        if (bodyPalette.PalettePointer != expectedPointer)
+        {
+            throw new InvalidOperationException(
+                $"Charge body palette {paletteIndex} used pointer ${bodyPalette.PalettePointer:X4}; " +
+                $"ROM table contains ${expectedPointer:X4}.");
+        }
+        for (int color = 0; color < 16; color++)
+        {
+            int source = 0x9b0000 | unchecked((ushort)(expectedPointer + color * 2));
+            ushort expectedColor = unchecked((ushort)(
+                bus.ReadByte(source) | (bus.ReadByte(source + 1) << 8)));
+            if (runtime.Cgram.Colors[192 + color] != expectedColor)
+            {
+                throw new InvalidOperationException(
+                    $"Charge body palette {paletteIndex} color {color} differs from ROM.");
+            }
+        }
+        observedLiveChargeBodyPalettes.Add(paletteIndex);
+    }
+    else if (bodyPalette.Action == SamusBeamChargePaletteAction.OrdinaryWhite)
     {
         // `$91:D7A4` writes `$03FF` backward over visible colors 15..1. Validate the final
         // live CGRAM image after all later special-palette dispatch, not merely the typed
@@ -3191,11 +3229,18 @@ if (options.ChargeBeamScript)
             $"{observedOrdinaryChargedWhitePaletteCalls}/3, " +
             $"suitRestore={observedOrdinaryChargedSuitRestore}.");
     }
+    if (options.FrameCount >= 67 && observedLiveChargeBodyPalettes.Count != 6)
+    {
+        throw new InvalidOperationException(
+            $"Charge Beam live body cycle visited {observedLiveChargeBodyPalettes.Count}/6 " +
+            "ROM palettes before release.");
+    }
 
     Console.WriteLine(
         $"Charge Beam type ${options.BeamType:X1} ROM route reached {maximumObservedCharge}/60, " +
         $"chargedShot={observedChargedShot}, damage=${observedChargedShotDamage:X4}, " +
         $"sound=${observedChargedShotSound:X2}, trail={observedChargedTrail}, " +
+        $"chargeCycle={observedLiveChargeBodyPalettes.Count}/6, " +
         $"bodyGlow={observedOrdinaryChargedWhitePaletteCalls}/3+restore.");
 }
 

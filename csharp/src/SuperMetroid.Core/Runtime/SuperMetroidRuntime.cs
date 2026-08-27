@@ -179,7 +179,7 @@ public sealed class SuperMetroidRuntime
     public HyperBeamPaletteFxStepResult? LastHyperBeamPaletteFxStep { get; private set; }
 
     /// <summary>
-    /// Most recent nonzero charged-shot body-palette branch from `$91:D743`. This remains
+    /// Most recent beam-charge/post-shot body-palette branch from `$91:D743`. This remains
     /// distinct from the global Hyper Beam projectile palette object above: it owns Samus's
     /// OBJ palette four rather than projectile OBJ palette six.
     /// </summary>

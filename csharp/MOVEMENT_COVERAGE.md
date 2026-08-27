@@ -935,6 +935,11 @@ translated status is documented with the Morph Ball family below.
   (`$0100`) forms of the one-frame `$0B5E` transition-direction bridge; `$90:B82D/$BA5F/$EB20`
   force release, consume its low-byte direction, and clear it in native phase order. `$91:D799`
   also runs the charged shot's three white-body calls plus equipment-selected suit restoration.
+  `$91:D743-$D793` cycles the six Power/Varia/Gravity charge palettes through nested
+  `$D7D5` pointers, selects `$D7FF`'s six pseudo-screw entries on contact-damage index four,
+  and resets byte-offset `$0B62` whenever charge or grapple eligibility ends. The private-ROM
+  67-frame route validates and visibly captures every ordinary charge entry; synthetic checks
+  cover all 36 family/suit/frame combinations and the grapple reset.
   The non-shootable projectile block families remain seams;
   plain power's left/right trail instruction pointers are deliberately empty in retail data.
 - Hyper Beam follows the forced `$91:E5F0` equipment `$1009`/flag `$8000` grant and bypasses

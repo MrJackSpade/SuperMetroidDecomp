@@ -136,6 +136,7 @@ dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Sup
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 245 --aim-run-script --output ../standalone-assets/runtime/AimRunTraceFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 390 --aim-air-script --output ../standalone-assets/runtime/AimAirTraceFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 68 --charge-beam-script --output ../standalone-assets/runtime/ChargeBeamRelease.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 67 --charge-beam-script --output ../standalone-assets/runtime/ChargeBeamCharged.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 28 --gun-extended-script --beam-type 11 --output ../standalone-assets/runtime/IceWavePlasmaFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 72 --charge-beam-script --beam-type 11 --output ../standalone-assets/runtime/ChargedIceWavePlasmaFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 12 --hyper-beam-script --output ../standalone-assets/runtime/HyperBeamFrame.png
@@ -298,7 +299,12 @@ Supplying `--beam-type 0..11` makes the same route validate the selected charged
 entries; type eleven is observed as `$901B`, damage `$0384`, and sound `$21`. The trail uses the retail 18-slot backward allocation scan, bank-$9B animation-frame offsets,
 independent left/right bank-$90 instruction streams, inline position commands, and frozen-time
 draw rule. A 50-frame capture freezes the active flare; a 68-frame capture freezes the release;
-a 72-frame capture freezes the projectile with its orange trail. The one-frame `$0B5E`
+a 67-frame capture freezes the fully charged body/flare after all six `$91:D7D5` palette
+entries have run, a 68-frame capture freezes the release, and a 72-frame capture freezes the
+projectile with its orange trail. The live charge branch selects Power/Varia/Gravity through
+nested bank-$91 pointers, advances byte offsets 0/2/4/6/8/10, wraps on the sixth call, and
+switches to `$91:D7FF`'s independent pseudo-screw lists when contact-damage index four is live.
+The one-frame `$0B5E`
 pose-transition shot-direction bridge is live: normal-jump Shoot edges publish the new pose's
 direction with flag `$8000`, Moonwalk turns publish the source direction with flag `$0100`, and
 the following projectile pass forces the cartridge's charge-release decision before consuming

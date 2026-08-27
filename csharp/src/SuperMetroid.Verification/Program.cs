@@ -12405,6 +12405,40 @@ static void VerifySamusPowerBeamProjectiles()
         }
     }
 
+    // `$91:D7D5-$D827` is two levels of pointers: each family first selects a
+    // suit-specific list in bank $91, then `$0B62` selects one of six bank-$9B palettes.
+    // Keep every family/suit/frame distinct so a wrong table, offset unit, or wrap cannot
+    // accidentally agree with the expected pixels.
+    ushort[,] beamChargePalettePointers = new ushort[3, 6];
+    ushort[,] pseudoScrewPalettePointers = new ushort[3, 6];
+    for (int suit = 0; suit < 3; suit++)
+    {
+        ushort chargeListPointer = unchecked((ushort)(0xe600 + suit * 12));
+        ushort pseudoListPointer = unchecked((ushort)(0xe624 + suit * 12));
+        WriteTestWord(bus, 0x91d7d5 + suit * 2, chargeListPointer);
+        WriteTestWord(bus, 0x91d7ff + suit * 2, pseudoListPointer);
+        for (int palette = 0; palette < 6; palette++)
+        {
+            ushort chargePointer = unchecked((ushort)(0xe800 + (suit * 6 + palette) * 0x20));
+            ushort pseudoPointer = unchecked((ushort)(0xeb00 + (suit * 6 + palette) * 0x20));
+            beamChargePalettePointers[suit, palette] = chargePointer;
+            pseudoScrewPalettePointers[suit, palette] = pseudoPointer;
+            WriteTestWord(bus, 0x910000 | unchecked((ushort)(chargeListPointer + palette * 2)), chargePointer);
+            WriteTestWord(bus, 0x910000 | unchecked((ushort)(pseudoListPointer + palette * 2)), pseudoPointer);
+            for (int color = 0; color < 16; color++)
+            {
+                WriteTestWord(
+                    bus,
+                    0x9b0000 | unchecked((ushort)(chargePointer + color * 2)),
+                    unchecked((ushort)(0x3000 + suit * 0x100 + palette * 0x20 + color)));
+                WriteTestWord(
+                    bus,
+                    0x9b0000 | unchecked((ushort)(pseudoPointer + color * 2)),
+                    unchecked((ushort)(0x4000 + suit * 0x100 + palette * 0x20 + color)));
+            }
+        }
+    }
+
     // Minimal but structurally authentic flare tables let the verifier exercise bank
     // `$90:BAFC` -> `$81:8A37` without copying production animation logic. Every possible
     // early table index selects the same one-entry spritemap; timing still comes from the
@@ -12724,6 +12758,68 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual((ushort)60, chargeProjectiles.FlareCounter,
         "charge held frames reach armed threshold");
     AssertTrue(flareBecameVisible, "charge flare becomes visible from ROM spritemap table");
+
+    // While `$0B18` is zero and grapple is inactive, a fully charged beam cycles all six
+    // entries once per palette call. Verify Power/Varia/Gravity independently for both the
+    // normal charge and contact-damage-index-four pseudo-screw families. Six calls must
+    // wrap the native byte offset 0,2,4,6,8,10 back to zero.
+    var liveChargeCgram = new SnesCgram();
+    ushort[] suitEquipment = [0x0000, 0x0001, 0x0020];
+    for (int family = 0; family < 2; family++)
+    {
+        bool pseudoScrew = family == 1;
+        chargeSamus.HorizontalSpeed.ContactDamageIndex = pseudoScrew ? (ushort)4 : (ushort)0;
+        for (int suit = 0; suit < suitEquipment.Length; suit++)
+        {
+            chargeSamus.EquippedItems = suitEquipment[suit];
+            for (int palette = 0; palette < 6; palette++)
+            {
+                SamusBeamChargePaletteStepResult liveChargeStep =
+                    chargeProjectiles.UpdateBeamChargePalette(bus, liveChargeCgram, chargeSamus);
+                ushort expectedPointer = pseudoScrew
+                    ? pseudoScrewPalettePointers[suit, palette]
+                    : beamChargePalettePointers[suit, palette];
+                AssertEqual(
+                    pseudoScrew
+                        ? SamusBeamChargePaletteAction.PseudoScrewCycle
+                        : SamusBeamChargePaletteAction.ChargeCycle,
+                    liveChargeStep.Action,
+                    $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} suit {suit} palette {palette} branch");
+                AssertEqual(palette, liveChargeStep.ChargePaletteIndex,
+                    $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} exposes palette ordinal");
+                AssertEqual(expectedPointer, liveChargeStep.PalettePointer,
+                    $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} uses exact nested ROM pointer");
+                for (int color = 0; color < 16; color++)
+                {
+                    ushort expectedColor = unchecked((ushort)(
+                        (pseudoScrew ? 0x4000 : 0x3000) +
+                        suit * 0x100 + palette * 0x20 + color));
+                    AssertEqual(expectedColor, liveChargeCgram.Colors[192 + color],
+                        $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} suit {suit} " +
+                        $"palette {palette} color {color}");
+                }
+            }
+            AssertEqual((ushort)0, chargeProjectiles.SamusChargePaletteIndex,
+                $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} six-entry list wraps");
+        }
+    }
+
+    // Any grapple function other than inactive takes `$D7B0` immediately. Seed index two
+    // with one eligible call, then prove a firing grapple resets it instead of merely
+    // pausing and resuming on the second palette.
+    chargeSamus.HorizontalSpeed.ContactDamageIndex = 0;
+    chargeSamus.EquippedItems = 0;
+    chargeProjectiles.UpdateBeamChargePalette(bus, liveChargeCgram, chargeSamus);
+    AssertEqual((ushort)2, chargeProjectiles.SamusChargePaletteIndex,
+        "one live charge-palette call advances byte offset to two");
+    chargeSamus.Grapple.Phase = GrapplePhase.Firing;
+    SamusBeamChargePaletteStepResult grappleSuppressesCharge =
+        chargeProjectiles.UpdateBeamChargePalette(bus, liveChargeCgram, chargeSamus);
+    AssertEqual(SamusBeamChargePaletteAction.Inactive, grappleSuppressesCharge.Action,
+        "active grapple suppresses charge-body palette");
+    AssertEqual((ushort)0, chargeProjectiles.SamusChargePaletteIndex,
+        "active grapple resets charge-palette byte offset");
+    chargeSamus.Grapple.Phase = GrapplePhase.Inactive;
 
     chargeBombs.StepFrame(bus, air, chargeSamus, 0, 0);
     SamusProjectileFrameResult chargedRelease = chargeProjectiles.StepFrame(

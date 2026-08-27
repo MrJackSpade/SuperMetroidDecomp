@@ -56,6 +56,8 @@ public sealed class SamusProjectileSystem
     private const int BeamTilePointers = 0x90c3b1;
     private const int BeamPalettePointers = 0x90c3c9;
     private const int NormalSuitPalettePointers = 0x91d727;
+    private const int BeamChargePalettePointers = 0x91d7d5;
+    private const int PseudoScrewPalettePointers = 0x91d7ff;
     private const int HyperBeamShotPalettePointers = 0x91d829;
     private const int SamusPaletteCgramIndex = 192;
     private const int UnchargedBeamDataPointers = 0x9383c1;
@@ -115,6 +117,12 @@ public sealed class SamusProjectileSystem
 
     /// <summary>The most recent `$91:D743` charged-shot palette sub-handler result.</summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; private set; }
+
+    /// <summary>
+    /// WRAM <c>$0B62</c>, a byte offset into the active six-word charge-palette list.
+    /// Native values are exactly 0, 2, 4, 6, 8, and 10; the sixth call wraps to zero.
+    /// </summary>
+    public ushort SamusChargePaletteIndex { get; private set; }
 
     /// <summary>
     /// WRAM <c>$0BD0</c>; firing a missile writes 20 before the enemy-collision consumer.
@@ -207,8 +215,8 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Runs the nonzero-<c>$0B18</c> branches of <c>HandleBeamChargePalettes</c> at
-    /// <c>$91:D743-$D7D4</c> against the modeled Samus CGRAM palette.
+    /// Runs <c>HandleBeamChargePalettes</c> at <c>$91:D743-$D7D4</c> against the
+    /// modeled Samus CGRAM palette.
     /// </summary>
     /// <remarks>
     /// This belongs to the Samus palette handler, not charge-flare drawing. On hardware the
@@ -229,12 +237,62 @@ public sealed class SamusProjectileSystem
         ushort timerBefore = ChargedShotGlowTimer;
         if (timerBefore == 0)
         {
+            // `$91:D748-$D793` admits the continuously cycling charge palette only while
+            // grapple's function pointer is exactly inactive and the flare counter has
+            // reached 60. The 65816 BMI is a signed subtraction test, retained literally
+            // so Hyper's `$8000` sentinel follows cartridge behavior too.
+            bool chargePaletteActive =
+                samus.Grapple.Phase == GrapplePhase.Inactive &&
+                FlareCounter != 0 &&
+                unchecked((short)(FlareCounter - 0x003c)) >= 0;
+            if (chargePaletteActive)
+            {
+                bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == 4;
+                int pointerTable = pseudoScrew
+                    ? PseudoScrewPalettePointers
+                    : BeamChargePalettePointers;
+                ushort suitOffset = GetSuitPaletteOffset(samus.EquippedItems);
+
+                // The first lookup selects one of the three suit-specific six-word lists
+                // in bank $91. The second produces a bank-$9B, sixteen-color palette.
+                // `$0B62` is kept as a byte offset because that is what the native ADC uses.
+                ushort listPointer = ReadWord(bus, pointerTable + suitOffset);
+                int listEntryAddress = 0x910000 |
+                    unchecked((ushort)(listPointer + SamusChargePaletteIndex));
+                ushort palettePointer = ReadWord(bus, listEntryAddress);
+                cgram.LoadFromBus(
+                    bus,
+                    0x9b0000 | palettePointer,
+                    colorCount: 16,
+                    destinationIndex: SamusPaletteCgramIndex);
+
+                int paletteIndex = SamusChargePaletteIndex / 2;
+                SamusChargePaletteIndex = SamusChargePaletteIndex >= 10
+                    ? (ushort)0
+                    : unchecked((ushort)(SamusChargePaletteIndex + 2));
+                LastBeamChargePaletteStep = new(
+                    pseudoScrew
+                        ? SamusBeamChargePaletteAction.PseudoScrewCycle
+                        : SamusBeamChargePaletteAction.ChargeCycle,
+                    timerBefore,
+                    ChargedShotGlowTimer,
+                    palettePointer,
+                    HyperPaletteIndex: null,
+                    ChargePaletteIndex: paletteIndex);
+                return LastBeamChargePaletteStep;
+            }
+
+            // `$91:D7B0` resets the sequence whenever charge is below threshold or grapple
+            // owns its function pointer. This guarantees the next eligible call starts at
+            // palette zero rather than resuming a partially completed cycle.
+            SamusChargePaletteIndex = 0;
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.Inactive,
                 TimerBefore: 0,
                 TimerAfter: 0,
                 PalettePointer: 0,
-                HyperPaletteIndex: null);
+                HyperPaletteIndex: null,
+                ChargePaletteIndex: null);
             return LastBeamChargePaletteStep;
         }
 
@@ -621,6 +679,7 @@ public sealed class SamusProjectileSystem
         Array.Clear(_flareTimers);
         LastFrameResult = default;
         LastBeamChargePaletteStep = default;
+        SamusChargePaletteIndex = 0;
     }
 
     private (int? Slot, ushort Sound) HandleBeamInput(
@@ -2069,11 +2128,7 @@ public sealed class SamusProjectileSystem
     {
         // `SuitPaletteIndex` is a byte offset, not an ordinal: Power=0, Varia=2,
         // Gravity=4. Gravity wins when externally stimulated state contains both bits.
-        ushort suitOffset = (equippedItems & 0x0020) != 0
-            ? (ushort)4
-            : (equippedItems & 0x0001) != 0
-                ? (ushort)2
-                : (ushort)0;
+        ushort suitOffset = GetSuitPaletteOffset(equippedItems);
         ushort pointer = ReadWord(bus, NormalSuitPalettePointers + suitOffset);
         cgram.LoadFromBus(
             bus,
@@ -2082,6 +2137,13 @@ public sealed class SamusProjectileSystem
             destinationIndex: SamusPaletteCgramIndex);
         return pointer;
     }
+
+    private static ushort GetSuitPaletteOffset(ushort equippedItems) =>
+        (equippedItems & 0x0020) != 0
+            ? (ushort)4
+            : (equippedItems & 0x0001) != 0
+                ? (ushort)2
+                : (ushort)0;
 
     private static int AddWithinBank(int address, int byteCount) =>
         (address & 0xff0000) | ((address + byteCount) & 0xffff);
@@ -2221,12 +2283,15 @@ public readonly record struct SamusBeamChargePaletteStepResult(
     ushort TimerBefore,
     ushort TimerAfter,
     ushort PalettePointer,
-    int? HyperPaletteIndex);
+    int? HyperPaletteIndex,
+    int? ChargePaletteIndex = null);
 
 /// <summary>Named outcomes of the nonzero charged-shot glow branches.</summary>
 public enum SamusBeamChargePaletteAction : byte
 {
     Inactive,
+    ChargeCycle,
+    PseudoScrewCycle,
     OrdinaryWhite,
     HyperPalette,
     HyperHold,

@@ -309,7 +309,7 @@ public sealed class SamusHorizontalSpeedState
         ArgumentNullException.ThrowIfNull(cgram);
 
         bool paletteCopied = false;
-        ushort suitTableOffset = ResolveSuitTableOffset(equippedItems);
+        ushort suitTableOffset = equippedItems.GetSuitPaletteTableOffset();
         if (NormalSuitPaletteRestoreRequested)
         {
             // `$91:DE6A-$DE8A` picks Gravity, then Varia, then Power Suit and invokes the
@@ -335,7 +335,7 @@ public sealed class SamusHorizontalSpeedState
         // though the raw room-FX comparison still says the body is underwater. The caller
         // supplies the raw boundary result so this state owner does not invent a second,
         // subtly different interpretation of the room's FX words.
-        bool gravitySuitEquipped = (equippedItems & SamusLiquidPhysicsState.GravitySuitItem) != 0;
+        bool gravitySuitEquipped = equippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
         if (!gravitySuitEquipped && bottomBoundarySubmerged)
             return paletteCopied;
 
@@ -560,12 +560,28 @@ public sealed class SamusHorizontalSpeedState
         if ((SpeedEchoIndex & 0x8000) == 0)
         {
             SpeedEchoIndex = 0xffff;
-            ushort velocity = poseXDirection == 4
+            ushort velocity = (SamusFacingDirection)poseXDirection == SamusFacingDirection.Left
                 ? unchecked((ushort)-8)
                 : (ushort)8;
             FirstSpeedEchoXSpeed = velocity;
             SecondSpeedEchoXSpeed = velocity;
         }
+    }
+
+    /// <summary>
+    /// Performs the complete horizontal-momentum teardown shared by collision, standing,
+    /// posture, aerial, and Morph-Ball handlers. The native seam first cancels Speed Booster
+    /// bookkeeping/echoes, then clears the two extra-run words, two base-speed words, and
+    /// acceleration mode; keeping that ordering here prevents five copies from diverging.
+    /// </summary>
+    public void ClearHorizontalMomentum(SamusFacingDirection facingDirection)
+    {
+        CancelRunningMomentum((byte)facingDirection);
+        ExtraRunSpeed = 0;
+        ExtraRunSubspeed = 0;
+        BaseSpeed = 0;
+        BaseSubspeed = 0;
+        AccelerationMode = 0;
     }
 
     /// <summary>
@@ -640,15 +656,6 @@ public sealed class SamusHorizontalSpeedState
         {
             SpeedEchoIndex = 0;
         }
-    }
-
-    private static ushort ResolveSuitTableOffset(ushort equippedItems)
-    {
-        // Native SuitPaletteIndex is already a byte offset: Power=0, Varia=2, Gravity=4.
-        // Gravity has priority when both equipment bits are present.
-        if ((equippedItems & 0x0020) != 0)
-            return 4;
-        return (equippedItems & 0x0001) != 0 ? (ushort)2 : (ushort)0;
     }
 
     /// <summary>

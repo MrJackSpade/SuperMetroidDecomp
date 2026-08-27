@@ -81,7 +81,7 @@ public static class SamusHurtFlashPalette
             }
             else
             {
-                ushort suitOffset = ResolveSuitTableOffset(samus.EquippedItems);
+                ushort suitOffset = samus.EquippedItems.GetSuitPaletteTableOffset();
                 ushort palettePointer = ReadWord(
                     bus, NormalSuitPalettePointerTable + suitOffset);
                 paletteAddress = 0x9b0000 | palettePointer;
@@ -192,15 +192,6 @@ public static class SamusHurtFlashPalette
 
         samus.LiquidPhysics.QueueMovementSound(library: 1, soundId: 0x06, maximumQueued: 9);
         return SamusHurtFlashRecoveryAction.GrappleSound;
-    }
-
-    private static ushort ResolveSuitTableOffset(ushort equippedItems)
-    {
-        // Every bank-$91 suit-palette caller gives Gravity bit `$0020` precedence over
-        // Varia bit `$0001`; the table itself stores pointers at byte offsets 0/2/4.
-        if ((equippedItems & 0x0020) != 0)
-            return 4;
-        return (equippedItems & 0x0001) != 0 ? (ushort)2 : (ushort)0;
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(

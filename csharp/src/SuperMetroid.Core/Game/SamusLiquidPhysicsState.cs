@@ -34,14 +34,17 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Lava/acid physics, the native value stored at WRAM <c>$0AD2</c>.</summary>
     public const ushort LavaAcid = 2;
 
-    /// <summary>Gravity Suit equipment bit in WRAM <c>$09A2</c>.</summary>
-    public const ushort GravitySuitItem = 0x0020;
-
     /// <summary>
     /// FX type word at WRAM <c>$196E</c>. Only its low nibble is dispatched: values two and
     /// four are lava/acid, while six is water. A default value of zero is the no-FX handler.
     /// </summary>
     public ushort FxType { get; set; }
+
+    /// <summary>
+    /// Typed view of the low dispatcher nibble. The raw <see cref="FxType"/> word remains
+    /// authoritative because upper bits and untranslated handler values must survive.
+    /// </summary>
+    public RoomFxType FxKind => (RoomFxType)(FxType & 0x000f);
 
     /// <summary>
     /// General FX surface Y at WRAM <c>$195E</c>. A negative 16-bit value tells movement
@@ -63,6 +66,9 @@ public sealed class SamusLiquidPhysicsState
     /// Space Jump reads it, and the animation handlers use changes to detect entry/exit.
     /// </summary>
     public ushort LiquidPhysicsType { get; private set; }
+
+    /// <summary>Typed view of the remembered native medium.</summary>
+    public SamusLiquidMedium LiquidMedium => (SamusLiquidMedium)LiquidPhysicsType;
 
     /// <summary>The four native water/lava/footstep particle slots and their OAM renderer.</summary>
     public SamusAtmosphericEffectsState AtmosphericEffects { get; } = new();
@@ -114,7 +120,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Configures the exact room-FX words for an ordinary water surface.</summary>
     public void ConfigureWater(ushort surfaceY, ushort liquidOptions = 0)
     {
-        FxType = 6;
+        FxType = (ushort)RoomFxType.Water;
         FxYPosition = surfaceY;
         LavaAcidYPosition = ushort.MaxValue;
         LiquidOptions = liquidOptions;
@@ -123,7 +129,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Configures the exact room-FX words for a lava (type two) or acid (type four) surface.</summary>
     public void ConfigureLavaAcid(ushort surfaceY, bool acid = false)
     {
-        FxType = acid ? (ushort)4 : (ushort)2;
+        FxType = (ushort)(acid ? RoomFxType.Acid : RoomFxType.Lava);
         FxYPosition = ushort.MaxValue;
         LavaAcidYPosition = surfaceY;
         LiquidOptions = 0;
@@ -132,7 +138,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Restores the no-FX sentinel state used by dry rooms.</summary>
     public void Clear()
     {
-        FxType = 0;
+        FxType = (ushort)RoomFxType.None;
         FxYPosition = ushort.MaxValue;
         LavaAcidYPosition = ushort.MaxValue;
         LiquidOptions = 0;
@@ -152,10 +158,11 @@ public sealed class SamusLiquidPhysicsState
     {
         ArgumentNullException.ThrowIfNull(samus);
         ushort bottom = samus.Kinematics.BottomBoundary;
-        LiquidPhysicsType = ((FxType & 0x000f) >> 1) switch
+        LiquidPhysicsType = FxKind switch
         {
-            1 or 2 when IsBelowSurface(LavaAcidYPosition, bottom) => LavaAcid,
-            3 when WaterAffectsBoundary(bottom) => Water,
+            RoomFxType.Lava or RoomFxType.Acid
+                when IsBelowSurface(LavaAcidYPosition, bottom) => LavaAcid,
+            RoomFxType.Water when WaterAffectsBoundary(bottom) => Water,
             _ => Air,
         };
     }
@@ -167,7 +174,7 @@ public sealed class SamusLiquidPhysicsState
     public ushort DetermineMovementMedium(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
-        if ((samus.EquippedItems & GravitySuitItem) != 0)
+        if (samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
             return Air;
         return DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary);
     }
@@ -216,7 +223,7 @@ public sealed class SamusLiquidPhysicsState
     public bool DetermineGrappleSubmersion(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
-        return (samus.EquippedItems & GravitySuitItem) == 0 &&
+        return !samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
             FxType != 0 &&
             IsBelowSurface(FxYPosition, samus.Kinematics.BottomBoundary);
     }
@@ -228,7 +235,7 @@ public sealed class SamusLiquidPhysicsState
     public ushort DeterminePoseChangeAnimationBuffer(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
-        if ((samus.EquippedItems & GravitySuitItem) != 0)
+        if (samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
             return samus.XSpeedDivisor;
 
         ushort bottomMinusOne = unchecked((ushort)(
@@ -268,15 +275,15 @@ public sealed class SamusLiquidPhysicsState
 
         ushort bottom = samus.Kinematics.BottomBoundary;
         ushort top = samus.Kinematics.TopBoundary;
-        int handler = (FxType & 0x000f) >> 1;
-        bool gravitySuit = (samus.EquippedItems & GravitySuitItem) != 0;
+        RoomFxType fxKind = FxKind;
+        bool gravitySuit = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
 
-        if (handler == 3 && WaterAffectsBoundary(bottom))
+        if (fxKind == RoomFxType.Water && WaterAffectsBoundary(bottom))
         {
             // `$90:80B8` publishes delay three before testing the remembered medium. A
             // transition into water queues sound $0D and creates either a diving splash or
             // two grounded splashes; every submerged call then gets the bubble opportunity.
-            bool enteredWater = LiquidPhysicsType != Water;
+            bool enteredWater = LiquidMedium != SamusLiquidMedium.Water;
             LiquidPhysicsType = Water;
             samus.AnimationFrameBuffer = 3;
             if (enteredWater)
@@ -298,9 +305,10 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        if ((handler == 1 || handler == 2) && IsBelowSurface(LavaAcidYPosition, bottom))
+        if (fxKind is RoomFxType.Lava or RoomFxType.Acid &&
+            IsBelowSurface(LavaAcidYPosition, bottom))
         {
-            if (handler == 1 && samus.HorizontalSpeed.SpeedBoostCounter != 0)
+            if (fxKind == RoomFxType.Lava && samus.HorizontalSpeed.SpeedBoostCounter != 0)
             {
                 // Lava alone executes `$90:81C9-$81D5` before the Gravity-Suit branch.
                 // Cancel_SpeedBoosting owns the momentum/counter/palette/echo transition;
@@ -311,7 +319,7 @@ public sealed class SamusLiquidPhysicsState
                 samus.HorizontalSpeed.ExtraRunSubspeed = 0;
             }
 
-            if (handler == 1 && gravitySuit)
+            if (fxKind == RoomFxType.Lava && gravitySuit)
             {
                 // Lava's Gravity-Suit branch returns before damage and before surface spray.
                 // Acid intentionally has no equivalent early exit and still hurts at quarter
@@ -323,8 +331,8 @@ public sealed class SamusLiquidPhysicsState
 
             AccumulateLiquidDamage(
                 bus,
-                handler == 1 ? LavaSubDamagePerFrame : AcidSubDamagePerFrame,
-                handler == 1 ? LavaDamagePerFrame : AcidDamagePerFrame);
+                fxKind == RoomFxType.Lava ? LavaSubDamagePerFrame : AcidSubDamagePerFrame,
+                fxKind == RoomFxType.Lava ? LavaDamagePerFrame : AcidDamagePerFrame);
             if ((nmiFrameCounter & 7) == 0 && samus.Health >= 0x0047)
                 QueueSound(library: 3, soundId: 0x2d, maximumQueued: 3);
 
@@ -553,9 +561,9 @@ public sealed class SamusLiquidPhysicsState
 
         ushort appliedSubDamage = PeriodicSubDamage;
         ushort appliedDamage = PeriodicDamage;
-        int divisorShift = (samus.EquippedItems & GravitySuitItem) != 0
+        int divisorShift = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? 2
-            : (samus.EquippedItems & 0x0001) != 0
+            : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                 ? 1
                 : 0;
         if (divisorShift != 0)
@@ -741,7 +749,7 @@ public sealed class SamusLiquidPhysicsState
 
     private void SpawnFootstepPair(ISnesAddressSpace bus, SamusState samus, byte type)
     {
-        bool directionIsFour = samus.ReadPoseXDirection(bus) == 4;
+        bool directionIsFour = samus.IsFacingLeft(bus);
         ushort firstX = directionIsFour
             ? unchecked((ushort)(samus.XPosition - 12))
             : unchecked((ushort)(samus.XPosition + 12));

@@ -599,7 +599,10 @@ if (options.MorphBallScript || options.BombJumpScript || options.PowerBombScript
     // The Landing Site debugger spawn has no save-file inventory. The ordinary route needs
     // Morph Ball `$0004`; the bomb route additionally needs Bombs `$1000`. These are the
     // only host grants: placement/countdown/instructions/overlap/movement remain ROM-backed.
-    runtime.Samus!.EquippedItems |= options.BombJumpScript ? (ushort)0x1004 : (ushort)0x0004;
+    runtime.Samus!.EquippedItems = runtime.Samus.EquippedItems.With(
+        options.BombJumpScript
+            ? SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs
+            : SamusEquipmentFlags.MorphBall);
     if (options.PowerBombScript)
     {
         // Save/pause loading is the explicit host seam. The selected item and reserve are
@@ -612,13 +615,15 @@ else if (options.SpringBallScript)
 {
     // As with ordinary Morph Ball, inventory is explicit debugger stimulus. Grant both
     // Morph Ball `$0004` and Spring Ball `$0002`; F9 must choose its equipped operands.
-    runtime.Samus!.EquippedItems |= 0x0006;
+    runtime.Samus!.EquippedItems = runtime.Samus.EquippedItems.With(
+        SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpringBall);
 }
 else if (options.SpeedBoosterScript || options.ShinesparkScript)
 {
     // The debug spawn has no save inventory. Grant only retail Speed Booster bit `$2000`;
     // every counter, delay list, velocity, transition, and collision remains ROM-driven.
-    runtime.Samus!.EquippedItems |= 0x2000;
+    runtime.Samus!.EquippedItems = runtime.Samus.EquippedItems.With(
+        SamusEquipmentFlags.SpeedBooster);
 }
 else if (options.SpaceJumpScript || options.WaterSpaceJumpScript || options.ScrewAttackScript)
 {
@@ -626,9 +631,10 @@ else if (options.SpaceJumpScript || options.WaterSpaceJumpScript || options.Scre
     // Space Jump is bit `$0200`; the Screw route adds `$0008`. Granting both on the latter
     // route is important: it makes the real `$91:F624` priority rule choose Screw art while
     // `$90:A436` independently continues to permit Space Jump's repeated-jump physics.
-    runtime.Samus!.EquippedItems |= options.ScrewAttackScript
-        ? (ushort)0x0208
-        : (ushort)0x0200;
+    runtime.Samus!.EquippedItems = runtime.Samus.EquippedItems.With(
+        options.ScrewAttackScript
+            ? SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.ScrewAttack
+            : SamusEquipmentFlags.SpaceJump);
 }
 else if (options.CrystalFlashScript)
 {
@@ -656,7 +662,8 @@ else if (options.XrayScript)
     // represents the HUD having already selected the scope. `$91:E16D` still owns every
     // velocity, pose-family, power-bomb, bomb-count, cooldown, and prior-movement gate;
     // no host-authored X-ray pose, angle, animation frame, or beam state is installed here.
-    runtime.Samus!.EquippedItems |= 0x8000;
+    runtime.Samus!.EquippedItems = runtime.Samus.EquippedItems.With(
+        SamusEquipmentFlags.XrayScope);
     if (!runtime.TryBeginXrayFromSelectedHudItem())
         throw new InvalidOperationException("Real-ROM X-ray initiation rejected its canonical grounded fixture.");
 }
@@ -2646,9 +2653,9 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         // cartridge-authored charge colors rather than merely advancing a host counter.
         int paletteIndex = bodyPalette.ChargePaletteIndex ??
             throw new InvalidOperationException("Live charge palette write omitted its table index.");
-        ushort suitOffset = (runtime.Samus!.EquippedItems & 0x0020) != 0
+        ushort suitOffset = runtime.Samus!.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? (ushort)4
-            : (runtime.Samus.EquippedItems & 0x0001) != 0
+            : runtime.Samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                 ? (ushort)2
                 : (ushort)0;
         int listCell = 0x91d7d5 + suitOffset;
@@ -2747,9 +2754,9 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         else
         {
             observedHurtSuitRestoreCalls++;
-            ushort suitOffset = (runtime.Samus!.EquippedItems & 0x0020) != 0
+            ushort suitOffset = runtime.Samus!.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
                 ? (ushort)4
-                : (runtime.Samus.EquippedItems & 0x0001) != 0
+                : runtime.Samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                     ? (ushort)2
                     : (ushort)0;
             int pointerCell = 0x91d727 + suitOffset;

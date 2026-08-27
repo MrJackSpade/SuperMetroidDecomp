@@ -40,9 +40,7 @@ public static class SamusPostureMovement
 
         // $90:A57C-$90:A588 performs this cleanup after both collision passes. It is not
         // inferred from being stationary; these are literal observable WRAM writes.
-        ClearHorizontalMomentum(
-            samus.HorizontalSpeed,
-            samus.ReadPoseXDirection(bus));
+        samus.HorizontalSpeed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         return result;
     }
 
@@ -84,7 +82,7 @@ public static class SamusPostureMovement
         // behavior that lets a stage-four run continue sliding during crouch transition
         // `$35/$36`; bank $91 samples and stores the shine before normal crouching clears
         // that momentum. The old exception at this seam prevented that native route.
-        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        bool facingLeft = samus.IsFacingLeft(bus);
         int requestedHorizontal = facingLeft
             ? speed.CalculateLeftDisplacement(baseSpeed: 0, samus.Kinematics.ExtraXFixed)
             : speed.CalculateRightDisplacement(baseSpeed: 0, samus.Kinematics.ExtraXFixed);
@@ -94,7 +92,7 @@ public static class SamusPostureMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
         // `$90:923F` uses the external-Y replacement when present. Otherwise it couples
         // the downward floor probe to the total X speed calculated by the horizontal pass;
@@ -108,21 +106,6 @@ public static class SamusPostureMovement
             displacement: verticalDisplacement,
             scanLeftToRight: (nmiFrameCounter & 1) == 0);
         return new GroundedMovementResult(horizontal, vertical);
-    }
-
-    private static void ClearHorizontalMomentum(
-        SamusHorizontalSpeedState speed,
-        byte poseXDirection)
-    {
-        // Every posture route that reaches this full clear is modeling a native momentum
-        // cancellation seam, so the `$0B3C/$0B3E` control words must not outlive the
-        // numeric X-speed words below.
-        speed.CancelRunningMomentum(poseXDirection);
-        speed.ExtraRunSpeed = 0;
-        speed.ExtraRunSubspeed = 0;
-        speed.BaseSpeed = 0;
-        speed.BaseSubspeed = 0;
-        speed.AccelerationMode = 0;
     }
 
     private static void Validate(

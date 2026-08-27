@@ -227,12 +227,13 @@ public sealed class SamusDrainedState
 
         // Direction byte four is left; every other byte chooses the right-facing record.
         // Read it before replacing the pose, exactly as `$91:E50D` does.
-        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        bool facingLeft = samus.IsFacingLeft(bus);
         samus.Pose = facingLeft
             ? SamusState.DrainedCrouchingLeftPose
             : SamusState.DrainedCrouchingRightPose;
         samus.RefreshCollisionRadii(bus);
-        if (samus.ReadMovementType(bus) != 0x1b || samus.Kinematics.YRadius != 21)
+        if (samus.ReadMovementKind(bus) != SamusMovementType.Special ||
+            samus.Kinematics.YRadius != 21)
             throw new InvalidDataException("ROM drained pose $E8/$E9 metadata changed unexpectedly.");
 
         // NewPoseSamusAnimationFrame is literally two. The animation is initialized here,
@@ -315,7 +316,7 @@ public sealed class SamusDrainedState
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        bool facingLeft = samus.IsFacingLeft(bus);
         samus.SetPoseAndAnimationFromScriptedController(
             bus,
             facingLeft ? SamusState.DrainedStandingLeftPose : SamusState.DrainedStandingRightPose,
@@ -330,7 +331,7 @@ public sealed class SamusDrainedState
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        bool facingLeft = samus.IsFacingLeft(bus);
         samus.SetPoseAndAnimationFromScriptedController(
             bus,
             facingLeft ? SamusState.DrainedCrouchingLeftPose : SamusState.DrainedCrouchingRightPose,
@@ -366,7 +367,10 @@ public sealed class SamusDrainedState
     public void EnableHyperBeam(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
-        samus.EquippedBeams = 0x1009;
+        samus.EquippedBeams = (
+            SamusBeamFlags.Charge |
+            SamusBeamFlags.Wave |
+            SamusBeamFlags.Plasma).ToNativeWord();
         samus.HyperBeam = 0x8000;
         HyperBeamPaletteFx.Spawn();
     }

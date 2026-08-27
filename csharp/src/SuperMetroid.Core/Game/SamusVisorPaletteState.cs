@@ -47,7 +47,7 @@ public sealed class SamusVisorPaletteState
 
         // X-ray handler eight owns this same visor color. `$91:D842` returns immediately,
         // preserving both packed bytes so ordinary room animation resumes where it stopped.
-        if (specialSamusPaletteType == 8)
+        if ((SamusSpecialPaletteType)specialSamusPaletteType == SamusSpecialPaletteType.Xray)
         {
             return new SamusVisorPaletteStepResult(
                 SamusVisorPaletteAction.SuppressedByXray,
@@ -59,7 +59,7 @@ public sealed class SamusVisorPaletteState
         // Every other room writes `$0601` on every call. Besides disabling the animation,
         // this primes an immediate color write on the first call after entering a backdrop-
         // color-math room: 1 decrements to 0 before the table is consulted.
-        if (layerBlendingDefaultConfig is not (0x0028 or 0x002a))
+        if (!layerBlendingDefaultConfig.AnimatesVisor())
         {
             PackedTimerIndex = NormalRoomReset;
             return new SamusVisorPaletteStepResult(

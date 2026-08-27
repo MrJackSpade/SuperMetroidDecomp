@@ -169,7 +169,7 @@ public sealed class SamusDraygonGrabbedState
         ArgumentNullException.ThrowIfNull(samus);
         EnsureActiveGrabbedPose(samus);
 
-        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        bool facingLeft = samus.IsFacingLeft(bus);
         samus.Pose = facingLeft
             ? SamusState.FacingLeftNormalPose
             : SamusState.FacingRightNormalPose;

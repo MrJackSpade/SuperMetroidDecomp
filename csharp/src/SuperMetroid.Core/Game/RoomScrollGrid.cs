@@ -77,6 +77,9 @@ public sealed class RoomScrollGrid
         return _cells[index];
     }
 
+    /// <summary>Typed view of one byte inside the owned 50-byte scroll allocation.</summary>
+    public RoomScrollState ReadState(int index) => (RoomScrollState)ReadStorage(index);
+
     /// <summary>
     /// Reads the native WRAM-relative byte selected by a bank-$80 scroll calculation.
     /// </summary>
@@ -95,6 +98,13 @@ public sealed class RoomScrollGrid
             : _bus.ReadByte(WorkRamAddress + index);
     }
 
+    /// <summary>
+    /// Typed view of a native-relative read, including legal adjacent-WRAM reads. Enum casts
+    /// preserve unexpected byte values; callers can still distinguish every raw state.
+    /// </summary>
+    public RoomScrollState ReadNativeState(int index) =>
+        (RoomScrollState)ReadNativeStorage(index);
+
     /// <summary>Updates a logical cell as a scroll PLM would.</summary>
     public void SetLogicalCell(int x, int y, byte value)
     {
@@ -106,4 +116,8 @@ public sealed class RoomScrollGrid
         _cells[index] = value;
         _bus.WriteByte(WorkRamAddress + index, value);
     }
+
+    /// <summary>Semantic setter for known red, blue, and green scroll states.</summary>
+    public void SetLogicalState(int x, int y, RoomScrollState state) =>
+        SetLogicalCell(x, y, (byte)state);
 }

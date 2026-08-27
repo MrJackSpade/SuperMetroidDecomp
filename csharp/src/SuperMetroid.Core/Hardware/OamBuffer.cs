@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Hardware.SnesAddressMath;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
@@ -468,16 +470,18 @@ public sealed class OamBuffer
         int lowOffset = spriteIndex * 4;
         int highShift = (spriteIndex & 3) * 2;
         int highPair = (_highTable[spriteIndex >> 2] >> highShift) & 3;
-        ushort attributes = (ushort)(_lowTable[lowOffset + 2] | (_lowTable[lowOffset + 3] << 8));
+        SnesObjAttributeWord attributes = (ushort)(
+            _lowTable[lowOffset + 2] |
+            (_lowTable[lowOffset + 3] << 8));
 
         return new OamEntry(
             X: _lowTable[lowOffset] | ((highPair & 1) << 8),
             Y: _lowTable[lowOffset + 1],
-            TileNumber: attributes & 0x01ff,
-            Palette: (attributes >> 9) & 7,
-            Priority: (attributes >> 12) & 3,
-            FlipX: (attributes & 0x4000) != 0,
-            FlipY: (attributes & 0x8000) != 0,
+            TileNumber: attributes.TileNumber,
+            Palette: attributes.PaletteIndex,
+            Priority: attributes.Priority,
+            FlipX: attributes.FlipHorizontally,
+            FlipY: attributes.FlipVertically,
             IsLarge: (highPair & 2) != 0);
     }
 
@@ -541,12 +545,6 @@ public sealed class OamBuffer
         byte low = bus.ReadByte(address);
         byte high = bus.ReadByte(AddWithinBank(address, 1));
         return (ushort)(low | (high << 8));
-    }
-
-    private static int AddWithinBank(int address, int byteCount)
-    {
-        int bank = address & 0xff0000;
-        return bank | ((address + byteCount) & 0xffff);
     }
 
     private static void ValidateAddress(int address)

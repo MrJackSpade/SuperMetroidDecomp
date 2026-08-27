@@ -195,7 +195,8 @@ public sealed class SuperMetroidRuntime
     /// Native WRAM <c>$1982</c>. Room/HDMA setup owns this word; the current Landing Site
     /// shell starts at bank-$88's cleared-FX default two.
     /// </summary>
-    public ushort LayerBlendingDefaultConfig { get; set; } = 0x0002;
+    public ushort LayerBlendingDefaultConfig { get; set; } =
+        (ushort)LayerBlendingConfiguration.NormalGameplay;
 
     /// <summary>
     /// Most recent call of the final-priority ordinary hurt palette handler. The result
@@ -808,7 +809,7 @@ public sealed class SuperMetroidRuntime
 
         // `$90:C5AE` prevents selecting the HUD item without the scope. The lower-level
         // `$91:E16D` routine assumes that selector has already succeeded.
-        if ((Samus.EquippedItems & 0x8000) == 0)
+        if (!Samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
             return false;
 
         return Samus.Xray.TryBegin(
@@ -2697,8 +2698,9 @@ public sealed class SuperMetroidRuntime
                     Samus.EquippedItems,
                     suppressActiveSpeedBoosterPalette:
                         Samus.Shinespark.PaletteType != 0 ||
-                        Samus.CrystalFlash.SpecialPaletteType == 7 ||
-                        Samus.Xray.SpecialPaletteType == 8,
+                        Samus.CrystalFlash.SpecialPaletteKind ==
+                            SamusSpecialPaletteType.CrystalFlash ||
+                        Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray,
                     bottomBoundarySubmerged:
                         Samus.LiquidPhysics.IsBottomBoundarySubmerged(Samus));
             }

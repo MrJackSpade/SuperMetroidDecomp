@@ -301,9 +301,11 @@ internal sealed class RuntimePreviewControl : UserControl
             if (runtime?.Samus is null || !groundedRunScenario)
                 return;
             if (springBallButton.Checked)
-                runtime.Samus.EquippedItems |= 0x0002;
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.With(
+                    SamusEquipmentFlags.SpringBall);
             else
-                runtime.Samus.EquippedItems &= unchecked((ushort)~0x0002);
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.Without(
+                    SamusEquipmentFlags.SpringBall);
         };
         spaceJumpButton.CheckOnClick = true;
         spaceJumpButton.ToolTipText =
@@ -317,9 +319,11 @@ internal sealed class RuntimePreviewControl : UserControl
             if (runtime?.Samus is null || !groundedRunScenario)
                 return;
             if (spaceJumpButton.Checked)
-                runtime.Samus.EquippedItems |= 0x0200;
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.With(
+                    SamusEquipmentFlags.SpaceJump);
             else
-                runtime.Samus.EquippedItems &= unchecked((ushort)~0x0200);
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.Without(
+                    SamusEquipmentFlags.SpaceJump);
         };
         screwAttackButton.CheckOnClick = true;
         screwAttackButton.ToolTipText =
@@ -332,9 +336,11 @@ internal sealed class RuntimePreviewControl : UserControl
             if (runtime?.Samus is null || !groundedRunScenario)
                 return;
             if (screwAttackButton.Checked)
-                runtime.Samus.EquippedItems |= 0x0008;
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.With(
+                    SamusEquipmentFlags.ScrewAttack);
             else
-                runtime.Samus.EquippedItems &= unchecked((ushort)~0x0008);
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.Without(
+                    SamusEquipmentFlags.ScrewAttack);
         };
         speedBoosterButton.CheckOnClick = true;
         speedBoosterButton.ToolTipText =
@@ -348,11 +354,13 @@ internal sealed class RuntimePreviewControl : UserControl
                 return;
             if (speedBoosterButton.Checked)
             {
-                runtime.Samus.EquippedItems |= 0x2000;
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.With(
+                    SamusEquipmentFlags.SpeedBooster);
             }
             else
             {
-                runtime.Samus.EquippedItems &= unchecked((ushort)~0x2000);
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.Without(
+                    SamusEquipmentFlags.SpeedBooster);
                 runtime.Samus.HorizontalSpeed.CancelRunningMomentum(
                     runtime.Samus.ReadPoseXDirection(bus));
             }
@@ -390,9 +398,9 @@ internal sealed class RuntimePreviewControl : UserControl
             if (runtime?.Samus is null || !groundedRunScenario)
                 return;
             if (gravitySuitButton.Checked)
-                runtime.Samus.EquippedItems |= SamusLiquidPhysicsState.GravitySuitItem;
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.With(SamusEquipmentFlags.GravitySuit);
             else
-                runtime.Samus.EquippedItems &= unchecked((ushort)~SamusLiquidPhysicsState.GravitySuitItem);
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.Without(SamusEquipmentFlags.GravitySuit);
             RefreshFrame();
         };
 
@@ -553,7 +561,8 @@ internal sealed class RuntimePreviewControl : UserControl
             // input records: tap Down to crouch, release it, then tap Down again to morph.
             // Cinematic diagnostics receive no inventory, and later save-state work should
             // replace this one deliberately visible host grant rather than hiding it.
-            runtime.Samus!.EquippedItems |= 0x1004;
+            runtime.Samus!.EquippedItems = runtime.Samus.EquippedItems.With(
+                SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
             if (hyperBeamButton.Checked)
             {
                 // Reapply the real endgame grant before viewport initialization so its
@@ -562,21 +571,26 @@ internal sealed class RuntimePreviewControl : UserControl
             }
             else
             {
-                runtime.Samus.EquippedBeams = unchecked((ushort)(
-                    (runtime.Samus.EquippedBeams & 0xfff0) | selectedBeamType));
+                runtime.Samus.EquippedBeams = new SamusBeamLoadoutWord(
+                    runtime.Samus.EquippedBeams).WithCombinationIndex(selectedBeamType);
             }
             if (springBallButton.Checked)
-                runtime.Samus.EquippedItems |= 0x0002;
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.With(
+                    SamusEquipmentFlags.SpringBall);
             if (spaceJumpButton.Checked)
-                runtime.Samus.EquippedItems |= 0x0200;
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.With(
+                    SamusEquipmentFlags.SpaceJump);
             if (screwAttackButton.Checked)
-                runtime.Samus.EquippedItems |= 0x0008;
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.With(
+                    SamusEquipmentFlags.ScrewAttack);
             if (speedBoosterButton.Checked)
-                runtime.Samus.EquippedItems |= 0x2000;
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.With(
+                    SamusEquipmentFlags.SpeedBooster);
             if (gravitySuitButton.Checked)
-                runtime.Samus.EquippedItems |= SamusLiquidPhysicsState.GravitySuitItem;
+                runtime.Samus.EquippedItems = runtime.Samus.EquippedItems.With(SamusEquipmentFlags.GravitySuit);
             if (chargeBeamButton.Checked && !hyperBeamButton.Checked)
-                runtime.Samus.EquippedBeams |= 0x1000;
+                runtime.Samus.EquippedBeams = runtime.Samus.EquippedBeams.With(
+                    SamusBeamFlags.Charge);
             if (powerBombButton.Checked)
             {
                 runtime.Samus.PowerBombs = 99;
@@ -987,7 +1001,7 @@ internal sealed class RuntimePreviewControl : UserControl
             $"liquid={runtime.Samus.LiquidPhysics.LiquidPhysicsType}/" +
             $"FX ${runtime.Samus.LiquidPhysics.FxType:X2}@" +
             $"${runtime.Samus.LiquidPhysics.FxYPosition:X4} " +
-            $"gravity={((runtime.Samus.EquippedItems & SamusLiquidPhysicsState.GravitySuitItem) != 0 ? "on" : "off")}  |  " +
+            $"gravity={(runtime.Samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) ? "on" : "off")}  |  " +
             $"wall={(runtime.ProspectiveSamusWallCollisionPose is byte wall ? $"${wall:X2}" : "--")}  |  " +
             // Counts refer to native $40-byte slots, not rendered OBJ pieces. Landing
             // Site loads three gunship components; camera-window selection can reduce the

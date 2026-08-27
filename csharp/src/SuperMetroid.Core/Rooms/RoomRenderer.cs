@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -178,20 +179,19 @@ public static class RoomRenderer
         //   bit     13 priority
         //   bit     14 horizontal flip
         //   bit     15 vertical flip
-        int tileIndex = tileEntry & 0x03ff;
+        SnesBgTilemapWord packedEntry = tileEntry;
+        int tileIndex = packedEntry.CharacterIndex;
         int tileOffset = tileIndex * BytesPer4BppTile;
         if (tileOffset + BytesPer4BppTile > vram.Length)
             throw new InvalidDataException($"Tile index ${tileIndex:X3} exceeds modeled VRAM.");
-        int paletteBase = ((tileEntry >> 10) & 7) * 16;
-        bool flipX = (tileEntry & 0x4000) != 0;
-        bool flipY = (tileEntry & 0x8000) != 0;
+        int paletteBase = packedEntry.PaletteIndex * 16;
 
         for (int y = 0; y < 8; y++)
         {
-            int sourceY = flipY ? 7 - y : y;
+            int sourceY = packedEntry.FlipVertically ? 7 - y : y;
             for (int x = 0; x < 8; x++)
             {
-                int sourceX = flipX ? 7 - x : x;
+                int sourceX = packedEntry.FlipHorizontally ? 7 - x : x;
                 int colorIndex = Read4BppPixel(vram[tileOffset..], sourceX, sourceY);
                 // Index zero is transparent for BG tiles. It reveals the lower BG or the
                 // backdrop; it is not necessarily the RGB value stored at paletteBase + 0.

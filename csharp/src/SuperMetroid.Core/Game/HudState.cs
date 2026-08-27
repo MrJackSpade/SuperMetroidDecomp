@@ -64,9 +64,9 @@ public sealed class HudState
         for (int tile = 0; tile < MutableTileCount; tile++)
             _tiles[tile] = ReadRomWord(bus, TemplateAddress + tile * 2);
 
-        if ((snapshot.EquippedItems & 0x8000) != 0)
+        if (snapshot.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
             AddTwoByTwoIcon(bus, itemIndex: 4, IconTableAddress + 36);
-        if ((snapshot.EquippedItems & 0x4000) != 0)
+        if (snapshot.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam))
             AddTwoByTwoIcon(bus, itemIndex: 3, IconTableAddress + 28);
         if (snapshot.MaxMissiles != 0)
             AddMissileIcon(bus);

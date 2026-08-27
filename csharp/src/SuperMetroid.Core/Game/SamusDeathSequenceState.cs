@@ -116,7 +116,7 @@ public sealed class SamusDeathSequenceState
                 $"Death-pose frame table has no movement type ${sourceMovementType:X2}.");
         }
 
-        FacingLeft = samus.ReadPoseXDirection(bus) == 4;
+        FacingLeft = samus.IsFacingLeft(bus);
         byte deathPose = FacingLeft
             ? SamusState.DeathSequenceLeftPose
             : SamusState.DeathSequenceRightPose;
@@ -342,8 +342,8 @@ public sealed class SamusDeathSequenceState
     {
         // SuitPaletteIndex is 0/2/4. Multiplying it by ten skips each twenty-byte pointer
         // family (ten little-endian pointers) and exactly reproduces `$9B:B5D1-$B5E6`.
-        ushort suitIndex = (samus.EquippedItems & 0x0020) != 0 ? (ushort)4 :
-            (samus.EquippedItems & 0x0001) != 0 ? (ushort)2 : (ushort)0;
+        ushort suitIndex = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) ? (ushort)4 :
+            samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? (ushort)2 : (ushort)0;
         ushort suitPointer = ReadWord(
             bus,
             SuitPalettePointerTable + suitIndex * 10 + paletteIndex * 2);

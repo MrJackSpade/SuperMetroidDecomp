@@ -62,6 +62,10 @@ public sealed class SamusXrayState
     /// <summary>WRAM `$0A68`; eight selects the native visor palette handler.</summary>
     public ushort SpecialPaletteType { get; private set; }
 
+    /// <summary>Typed view of the native special-palette handler index.</summary>
+    public SamusSpecialPaletteType SpecialPaletteKind =>
+        (SamusSpecialPaletteType)SpecialPaletteType;
+
     /// <summary>WRAM `$0ACE`, a byte offset into the six ROM visor-color words.</summary>
     public ushort SpecialPaletteFrame { get; private set; }
 
@@ -119,7 +123,7 @@ public sealed class SamusXrayState
         if (posture == XrayPosture.Disallowed)
             return false;
 
-        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        bool facingLeft = samus.IsFacingLeft(bus);
         samus.Pose = posture == XrayPosture.Crouching
             ? facingLeft ? SamusState.XrayingCrouchingLeftPose : SamusState.XrayingCrouchingRightPose
             : facingLeft ? SamusState.XrayingStandingLeftPose : SamusState.XrayingStandingRightPose;
@@ -136,7 +140,7 @@ public sealed class SamusXrayState
         AngularWidthDelta = 0;
         AngularSubwidthDelta = 0;
         BeamSizeFlag = 0;
-        SpecialPaletteType = 8;
+        SpecialPaletteType = (ushort)SamusSpecialPaletteType.Xray;
         SpecialPaletteFrame = 0;
         CommonPaletteTimer = 1;
         ActivationSoundRequested = true;
@@ -164,7 +168,7 @@ public sealed class SamusXrayState
         byte movementType = samus.ReadMovementType(bus);
         if (movementType != 0x0e)
         {
-            bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+            bool facingLeft = samus.IsFacingLeft(bus);
             ushort turnBinding = facingLeft
                 ? (ushort)SnesButton.Right
                 : (ushort)SnesButton.Left;
@@ -192,7 +196,7 @@ public sealed class SamusXrayState
         if (samus.AnimationFrame != 2 || samus.AnimationFrameTimer != 1)
             return default;
 
-        bool nowFacingLeft = samus.ReadPoseXDirection(bus) == 4;
+        bool nowFacingLeft = samus.IsFacingLeft(bus);
         byte completedPose = nowFacingLeft
             ? samus.Pose == SamusState.TurningRightToLeftPose
                 ? SamusState.XrayingStandingLeftPose
@@ -217,7 +221,7 @@ public sealed class SamusXrayState
         if (samus.ReadMovementType(bus) == 0x0e)
             return null;
 
-        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        bool facingLeft = samus.IsFacingLeft(bus);
         ushort frame = facingLeft
             ? Angle < 0x0099 ? (ushort)4 :
               Angle < 0x00b2 ? (ushort)3 :
@@ -355,14 +359,14 @@ public sealed class SamusXrayState
                 0x9b0000 | palettePointer,
                 colorCount: 16,
                 destinationIndex: SamusPaletteCgramIndex);
-            SpecialPaletteType = 0;
+            SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
             SpecialPaletteFrame = 0;
             CommonPaletteTimer = 0;
             BeamSizeFlag = 0;
             return true;
         }
 
-        if (SpecialPaletteType != 8)
+        if (SpecialPaletteKind != SamusSpecialPaletteType.Xray)
             return false;
 
         if (BeamSizeFlag == 0 && (ushort)BeamPhase >= (ushort)XrayBeamPhase.Full)
@@ -476,7 +480,7 @@ public sealed class SamusXrayState
         // X-ray stand-up glitch—and the radius difference moves her center upward.
         byte movementType = samus.ReadMovementType(bus);
         bool crouching = movementType == 5;
-        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        bool facingLeft = samus.IsFacingLeft(bus);
         ushort oldRadius = samus.Kinematics.YRadius;
         byte targetPose = crouching
             ? facingLeft ? SamusState.CrouchingLeftPose : SamusState.CrouchingRightPose

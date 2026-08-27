@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
@@ -21,8 +22,6 @@ public sealed class SamusBombProjectileSystem
     public const int SlotCount = 5;
 
     /// <summary>Equipped-item bit checked by <c>HudSelectionHandler_MorphBall_Helper</c>.</summary>
-    public const ushort BombItemBit = 0x1000;
-
     /// <summary>Normal-bomb projectile type written by $90:BF9D.</summary>
     public const ushort NormalBombType = 0x0500;
 
@@ -254,7 +253,7 @@ public sealed class SamusBombProjectileSystem
 
         // Normal bombs require the Bomb item. The selected-power-bomb branch in the ROM
         // deliberately bypasses this equipment check and calls helper two directly.
-        if (!placingPowerBomb && (samus.EquippedItems & BombItemBit) == 0)
+        if (!placingPowerBomb && !samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs))
             return null;
 
         if (!TryReserveBombSlot(controllerNewInput, shoot))
@@ -743,8 +742,6 @@ public sealed class SamusBombProjectileSystem
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | (bus.ReadByte(AddWithinBank(address, 1)) << 8));
 
-    private static int AddWithinBank(int address, int byteCount) =>
-        (address & 0xff0000) | ((address + byteCount) & 0xffff);
 }
 
 /// <summary>One semantic view over a physical WRAM bomb slot.</summary>

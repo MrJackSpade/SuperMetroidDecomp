@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -40,20 +41,24 @@ public static class LevelBlockTilemapExpander
         {
             0x0000 => new ExpandedBlockTiles(topLeft, topRight, bottomLeft, bottomRight),
             0x0400 => new ExpandedBlockTiles(
-                (ushort)(topRight ^ 0x4000),
-                (ushort)(topLeft ^ 0x4000),
-                (ushort)(bottomRight ^ 0x4000),
-                (ushort)(bottomLeft ^ 0x4000)),
+                new SnesBgTilemapWord(topRight).ToggleFlips(SnesTileFlipFlags.Horizontal),
+                new SnesBgTilemapWord(topLeft).ToggleFlips(SnesTileFlipFlags.Horizontal),
+                new SnesBgTilemapWord(bottomRight).ToggleFlips(SnesTileFlipFlags.Horizontal),
+                new SnesBgTilemapWord(bottomLeft).ToggleFlips(SnesTileFlipFlags.Horizontal)),
             0x0800 => new ExpandedBlockTiles(
                 (ushort)(bottomLeft ^ 0x8000),
                 (ushort)(bottomRight ^ 0x8000),
                 (ushort)(topLeft ^ 0x8000),
                 (ushort)(topRight ^ 0x8000)),
             _ => new ExpandedBlockTiles(
-                (ushort)(bottomRight ^ 0xc000),
-                (ushort)(bottomLeft ^ 0xc000),
-                (ushort)(topRight ^ 0xc000),
-                (ushort)(topLeft ^ 0xc000)),
+                new SnesBgTilemapWord(bottomRight).ToggleFlips(
+                    SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical),
+                new SnesBgTilemapWord(bottomLeft).ToggleFlips(
+                    SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical),
+                new SnesBgTilemapWord(topRight).ToggleFlips(
+                    SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical),
+                new SnesBgTilemapWord(topLeft).ToggleFlips(
+                    SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical)),
         };
     }
 }

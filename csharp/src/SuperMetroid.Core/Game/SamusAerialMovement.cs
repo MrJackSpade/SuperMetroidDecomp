@@ -67,7 +67,7 @@ public static class SamusAerialMovement
 
         ushort medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         int tableOffset = medium * 2;
-        bool hiJumpEquipped = (samus.EquippedItems & 0x0100) != 0;
+        bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
         int wholeTable = hiJumpEquipped
             ? InitialYSpeedHiJumpingAddress
             : InitialYSpeedJumpingAddress;
@@ -95,7 +95,7 @@ public static class SamusAerialMovement
 
         ushort medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         int tableOffset = medium * 2;
-        bool hiJumpEquipped = (samus.EquippedItems & 0x0100) != 0;
+        bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
         int wholeTable = hiJumpEquipped
             ? InitialYSpeedHiWallJumpingAddress
             : InitialYSpeedWallJumpingAddress;
@@ -119,7 +119,7 @@ public static class SamusAerialMovement
     public static void ApplyEquippedSpeedBoosterJumpBonus(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
-        if ((samus.EquippedItems & 0x2000) == 0)
+        if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
             return;
 
         samus.Kinematics.YSubspeed = unchecked((ushort)(
@@ -170,12 +170,12 @@ public static class SamusAerialMovement
         ushort nmiFrameCounter)
     {
         ValidateCommon(bus, level, samus);
-        if (samus.ReadMovementType(bus) != 2)
+        if (samus.ReadMovementKind(bus) != SamusMovementType.NormalJumping)
             throw new InvalidOperationException($"Normal-jump movement requires type 2, not ${samus.ReadMovementType(bus):X2}.");
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 2,
             controllerInput,
-            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
+            speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidPhysicsState.Air);
@@ -200,9 +200,7 @@ public static class SamusAerialMovement
                 samus.Kinematics,
                 requested);
             if (horizontal.Collided)
-                ClearHorizontalMomentum(
-                    samus.HorizontalSpeed,
-                    samus.ReadPoseXDirection(bus));
+                samus.HorizontalSpeed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
             // `$90:8FD6` is not an empty Y frame: it applies only the externally produced
             // displacement. Zero returns before collision, positive values gain the native
@@ -250,14 +248,14 @@ public static class SamusAerialMovement
         RoomPlmSystem? plms = null)
     {
         ValidateCommon(bus, level, samus);
-        if (samus.ReadMovementType(bus) != 3)
+        if (samus.ReadMovementKind(bus) != SamusMovementType.SpinJumping)
             throw new InvalidOperationException($"Spin-jump movement requires type 3, not ${samus.ReadMovementType(bus):X2}.");
 
         // `$90:A436-$90:A4CB` runs this before ordinary spin movement. Space Jump is not a
         // host-side double-jump: it only accepts a fresh Jump edge while descending and
         // while the split Y magnitude lies inside the cartridge's dry-air 8.8 window.
         bool fullySubmergedWithoutGravity =
-            (samus.EquippedItems & SamusLiquidPhysicsState.GravitySuitItem) == 0 &&
+            !samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
             samus.LiquidPhysics.IsTopBoundarySubmerged(samus);
         if (!fullySubmergedWithoutGravity)
             TryRestartSpaceJump(bus, samus, controllerNewInput);
@@ -295,7 +293,7 @@ public static class SamusAerialMovement
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 3,
             controllerInput,
-            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
+            speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidPhysicsState.Air);
@@ -336,7 +334,7 @@ public static class SamusAerialMovement
             canBreakBombBlocks: canBreakCollisionBombBlocks,
             plms: plms);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
         WallJumpCheckResult wall = CheckBlockWallJump(
             bus,
@@ -386,7 +384,8 @@ public static class SamusAerialMovement
         ushort nmiFrameCounter)
     {
         ValidateCommon(bus, level, samus);
-        if (samus.ReadMovementType(bus) != 0x14 || !SamusState.IsWallJumpPose(samus.Pose))
+        if (samus.ReadMovementKind(bus) != SamusMovementType.WallJumping ||
+            !SamusState.IsWallJumpPose(samus.Pose))
             throw new InvalidOperationException($"Wall-jump movement requires type $14 pose, not ${samus.Pose:X2}.");
 
         // Frames 23+ are the somersault portion and always use Screw-style index three.
@@ -400,7 +399,7 @@ public static class SamusAerialMovement
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 0x14,
             controllerInput,
-            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
+            speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidPhysicsState.Air);
@@ -427,7 +426,7 @@ public static class SamusAerialMovement
         ushort nmiFrameCounter)
     {
         ValidateCommon(bus, level, samus);
-        if (samus.ReadMovementType(bus) != 0x19 ||
+        if (samus.ReadMovementKind(bus) != SamusMovementType.DamageBoost ||
             samus.Pose is not (SamusState.DamageBoostLeftPose or SamusState.DamageBoostRightPose))
         {
             throw new InvalidOperationException(
@@ -437,7 +436,7 @@ public static class SamusAerialMovement
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 0x19,
             controllerInput,
-            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
+            speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidPhysicsState.Air);
@@ -482,7 +481,7 @@ public static class SamusAerialMovement
             samus.Kinematics,
             requested);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
         // Simple_Samus_Y_Movement calls this before the shared gravity routine. A signed
         // underflow at the apex becomes a stationary downward state on this same frame.
@@ -525,12 +524,12 @@ public static class SamusAerialMovement
         ushort nmiFrameCounter)
     {
         ValidateCommon(bus, level, samus);
-        if (samus.ReadMovementType(bus) != 6)
+        if (samus.ReadMovementKind(bus) != SamusMovementType.Falling)
             throw new InvalidOperationException($"Falling movement requires type 6, not ${samus.ReadMovementType(bus):X2}.");
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: 6,
             controllerInput,
-            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
+            speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidPhysicsState.Air);
@@ -623,7 +622,7 @@ public static class SamusAerialMovement
             int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed);
             horizontal = SamusBlockCollision.MoveHorizontal(bus, level, state, requested);
             if (horizontal.Collided)
-                ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+                speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         }
 
         AerialMovementResult result = FinishVerticalMovement(
@@ -669,7 +668,7 @@ public static class SamusAerialMovement
             samus.Kinematics,
             requested);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         return horizontal;
     }
 
@@ -791,7 +790,7 @@ public static class SamusAerialMovement
         ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerInput) =>
-        samus.ReadPoseXDirection(bus) == 4
+        samus.IsFacingLeft(bus)
             ? (controllerInput & (ushort)SnesButton.Left) != 0
             : (controllerInput & (ushort)SnesButton.Right) != 0;
 
@@ -863,7 +862,7 @@ public static class SamusAerialMovement
         SamusState samus,
         ushort controllerNewInput)
     {
-        if ((samus.EquippedItems & 0x0200) == 0 ||
+        if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ||
             samus.Kinematics.YDirection != 2)
         {
             return false;
@@ -878,8 +877,8 @@ public static class SamusAerialMovement
         // `$0AD2` is written by the preceding animation pass, not recomputed here. This
         // matters while crossing a surface: the top-boundary gate above and remembered
         // velocity window can intentionally describe different samples for one frame.
-        ushort minimumVelocity = samus.LiquidPhysics.LiquidPhysicsType !=
-            SamusLiquidPhysicsState.Air
+        ushort minimumVelocity = samus.LiquidPhysics.LiquidMedium !=
+            SamusLiquidMedium.Air
                 ? (ushort)0x0080
                 : (ushort)0x0280;
         bool atOrAboveMinimum = unchecked((short)(fallingVelocity8_8 - minimumVelocity)) >= 0;
@@ -916,18 +915,6 @@ public static class SamusAerialMovement
 
     private static void ClearBaseHorizontalMotion(SamusHorizontalSpeedState speed)
     {
-        speed.BaseSpeed = 0;
-        speed.BaseSubspeed = 0;
-        speed.AccelerationMode = 0;
-    }
-
-    private static void ClearHorizontalMomentum(
-        SamusHorizontalSpeedState speed,
-        byte poseXDirection)
-    {
-        speed.CancelRunningMomentum(poseXDirection);
-        speed.ExtraRunSpeed = 0;
-        speed.ExtraRunSubspeed = 0;
         speed.BaseSpeed = 0;
         speed.BaseSubspeed = 0;
         speed.AccelerationMode = 0;

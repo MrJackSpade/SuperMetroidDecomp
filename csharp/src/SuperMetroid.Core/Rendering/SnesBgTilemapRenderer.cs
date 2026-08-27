@@ -66,12 +66,12 @@ public static class SnesBgTilemapRenderer
                     screenWordOffset +
                     (tileY & 31) * 32 +
                     (tileX & 31)) & 0x7fff;
-                ushort entry = vram.ReadWord(mapWord);
+                SnesBgTilemapWord entry = vram.ReadWord(mapWord);
 
-                int character = entry & 0x03ff;
-                int palette = (entry >> 10) & 7;
-                int sourceX = (entry & 0x4000) != 0 ? 7 - pixelX : pixelX;
-                int sourceY = (entry & 0x8000) != 0 ? 7 - pixelY : pixelY;
+                int character = entry.CharacterIndex;
+                int palette = entry.PaletteIndex;
+                int sourceX = entry.FlipHorizontally ? 7 - pixelX : pixelX;
+                int sourceY = entry.FlipVertically ? 7 - pixelY : pixelY;
                 int characterByteAddress = ((characterBaseWord + character * 16) & 0x7fff) * 2;
                 int mask = 1 << (7 - sourceX);
                 int rowAddress = characterByteAddress + sourceY * 2;
@@ -113,21 +113,21 @@ public static class SnesBgTilemapRenderer
             for (int tileX = 0; tileX < 32; tileX++)
             {
                 int mapByteAddress = ((tilemapBaseWord + tileY * 32 + tileX) & 0x7fff) * 2;
-                ushort entry = (ushort)(vram.ReadByte(mapByteAddress) | (vram.ReadByte(mapByteAddress + 1) << 8));
-                int character = entry & 0x03ff;
-                int palette = (entry >> 10) & 7;
-                bool flipX = (entry & 0x4000) != 0;
-                bool flipY = (entry & 0x8000) != 0;
+                SnesBgTilemapWord entry = (ushort)(
+                    vram.ReadByte(mapByteAddress) |
+                    (vram.ReadByte(mapByteAddress + 1) << 8));
+                int character = entry.CharacterIndex;
+                int palette = entry.PaletteIndex;
 
                 // BG3 is 2-bpp in mode 1. Each 8x8 character consumes 16 bytes / 8 VRAM
                 // words. Address wrapping mirrors the physical 15-bit VMADD bus.
                 int characterByteAddress = ((characterBaseWord + character * 8) & 0x7fff) * 2;
                 for (int y = 0; y < 8; y++)
                 {
-                    int sourceY = flipY ? 7 - y : y;
+                    int sourceY = entry.FlipVertically ? 7 - y : y;
                     for (int x = 0; x < 8; x++)
                     {
-                        int sourceX = flipX ? 7 - x : x;
+                        int sourceX = entry.FlipHorizontally ? 7 - x : x;
                         int mask = 1 << (7 - sourceX);
                         int planes = characterByteAddress + sourceY * 2;
                         int color = ((vram.ReadByte(planes) & mask) != 0 ? 1 : 0)

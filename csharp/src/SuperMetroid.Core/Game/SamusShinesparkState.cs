@@ -192,7 +192,7 @@ public sealed class SamusShinesparkState
             bool timedOut = StartStopTimer == 0 || unchecked((short)StartStopTimer) < 0;
             if (timedOut)
             {
-                byte verticalPose = samus.ReadPoseXDirection(bus) == 4
+                byte verticalPose = samus.IsFacingLeft(bus)
                     ? SamusState.ShinesparkVerticalLeftPose
                     : SamusState.ShinesparkVerticalRightPose;
                 BeginDirectionalLaunch(bus, samus, verticalPose);
@@ -278,7 +278,7 @@ public sealed class SamusShinesparkState
             return true;
         }
 
-        ushort suitOffset = ResolveSuitTableOffset(equippedItems);
+        ushort suitOffset = equippedItems.GetSuitPaletteTableOffset();
         int tableAddress = PaletteType == 1 ? 0x91db10 : 0x91db75;
         ushort listPointer = ReadWord(bus, tableAddress + suitOffset);
         ushort palettePointer = ReadWord(bus, 0x910000 | unchecked((ushort)(
@@ -303,7 +303,7 @@ public sealed class SamusShinesparkState
         samus.HorizontalSpeed.SpeedBoostCounter = 0;
         samus.HorizontalSpeed.ContactDamageIndex = 0;
         samus.HurtFlashCounter = 0;
-        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        bool facingLeft = samus.IsFacingLeft(bus);
         FirstCrashEchoAngle = facingLeft ? (byte)32 : (byte)224;
         SecondCrashEchoAngle = facingLeft ? (byte)160 : (byte)96;
         _crashAngularDelta = facingLeft ? (sbyte)4 : (sbyte)-4;
@@ -450,7 +450,7 @@ public sealed class SamusShinesparkState
         ShineTimer = 1;
         VerticalAccelerationSpeed = 0;
         VerticalAccelerationSubspeed = 0;
-        byte standingPose = samus.ReadPoseXDirection(bus) == 4
+        byte standingPose = samus.IsFacingLeft(bus)
             ? SamusState.FacingLeftNormalPose
             : SamusState.FacingRightNormalPose;
         samus.Pose = standingPose;
@@ -571,7 +571,7 @@ public sealed class SamusShinesparkState
             samus.HorizontalSpeed.ExtraRunSubspeed = 0;
         }
 
-        int displacement = samus.ReadPoseXDirection(bus) == 4
+        int displacement = samus.IsFacingLeft(bus)
             ? samus.HorizontalSpeed.CalculateLeftDisplacement(
                 baseSpeed: 0,
                 samus.Kinematics.ExtraXFixed)
@@ -644,19 +644,12 @@ public sealed class SamusShinesparkState
 
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
 
-    private static ushort ResolveSuitTableOffset(ushort equippedItems)
-    {
-        if ((equippedItems & 0x0020) != 0)
-            return 4;
-        return (equippedItems & 0x0001) != 0 ? (ushort)2 : (ushort)0;
-    }
-
     private static void LoadNormalSuitPalette(
         ISnesAddressSpace bus,
         SnesCgram cgram,
         ushort equippedItems)
     {
-        ushort palette = ReadWord(bus, 0x91d727 + ResolveSuitTableOffset(equippedItems));
+        ushort palette = ReadWord(bus, 0x91d727 + equippedItems.GetSuitPaletteTableOffset());
         cgram.LoadFromBus(bus, 0x9b0000 | palette, colorCount: 16, destinationIndex: 192);
     }
 

@@ -102,7 +102,7 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
             bus,
@@ -113,7 +113,7 @@ public static class SamusGroundedMovement
         // $90:A3A7-$90:A3D7 cancels speed boost and clears extra speed, base speed, and
         // acceleration mode after both movement calls. Speed-booster bookkeeping itself is
         // outside this no-equipment slice, but these five WRAM words are exact and live.
-        ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+        speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -151,7 +151,7 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
             bus,
@@ -160,7 +160,7 @@ public static class SamusGroundedMovement
             nmiFrameCounter);
 
         // Standing's post-movement cleanup is direction-independent.
-        ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+        speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -197,7 +197,7 @@ public static class SamusGroundedMovement
         speed.HandleExtraRunSpeed(
             movementType: 1,
             controllerInput,
-            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
+            speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
             liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
 
@@ -224,7 +224,7 @@ public static class SamusGroundedMovement
         // speed deliberately remains published: the following grounding routine reads it
         // even if base speed was just cleared by a wall.
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
             bus,
@@ -260,7 +260,7 @@ public static class SamusGroundedMovement
         speed.HandleExtraRunSpeed(
             movementType: 1,
             controllerInput,
-            speedBoosterEquipped: (samus.EquippedItems & 0x2000) != 0,
+            speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
             liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
 
@@ -282,7 +282,7 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
             bus,
@@ -365,7 +365,7 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
             bus,
@@ -422,7 +422,7 @@ public static class SamusGroundedMovement
         // opposite the visible facing: left-facing `$49/$75/$77` store eight and move right;
         // right-facing `$4A/$76/$78` store four and move left. Do not derive travel from names.
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 0x10);
-        bool movesLeft = samus.ReadPoseXDirection(bus) == 4;
+        bool movesLeft = samus.IsFacingLeft(bus);
         int requestedHorizontal = movesLeft
             ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
             : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
@@ -432,7 +432,7 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
         // `$90:A69A` is the same no-speed-calculation grounding probe used by running.
         // It deliberately scales the downward probe by the total horizontal magnitude.
@@ -469,7 +469,7 @@ public static class SamusGroundedMovement
         // comes from the literal pose definition: `$89/$CF/$D1` store eight (right), while
         // `$8A/$D0/$D2` store four (left). Extra speed is included in the requested move
         // before the handler's unconditional cleanup, matching the native call order.
-        int requestedHorizontal = samus.ReadPoseXDirection(bus) == 4
+        int requestedHorizontal = samus.IsFacingLeft(bus)
             ? speed.CalculateLeftDisplacement(baseSpeed: 0, samus.Kinematics.ExtraXFixed)
             : speed.CalculateRightDisplacement(baseSpeed: 0, samus.Kinematics.ExtraXFixed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
@@ -478,7 +478,7 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
         // The one-or-more-pixel downward grounding probe runs before all X words are
         // cleared. This preserves the same ledge behavior as `$90:A762` even though the
@@ -492,7 +492,7 @@ public static class SamusGroundedMovement
         // `$90:A766-$A77F` cancels speed boost and clears both run/base components plus
         // acceleration mode on every frame. The speed-booster counters themselves remain
         // outside this slice; the five movement words are exact and debugger-visible.
-        ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+        speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -524,7 +524,7 @@ public static class SamusGroundedMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        bool facingLeft = samus.IsFacingLeft(bus);
         int requestedHorizontal = facingLeft
             ? speed.CalculateLeftDisplacement(baseSpeed: 0, samus.Kinematics.ExtraXFixed)
             : speed.CalculateRightDisplacement(baseSpeed: 0, samus.Kinematics.ExtraXFixed);
@@ -534,14 +534,14 @@ public static class SamusGroundedMovement
             samus.Kinematics,
             requestedHorizontal);
         if (horizontal.Collided)
-            ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
             bus,
             level,
             samus,
             nmiFrameCounter);
-        ClearHorizontalMomentum(speed, samus.ReadPoseXDirection(bus));
+        speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
         samus.Kinematics.YDirection = 0;
@@ -573,18 +573,6 @@ public static class SamusGroundedMovement
             scanLeftToRight: (nmiFrameCounter & 1) == 0);
     }
 
-    /// <summary>Exact speed-word subset cleared by <c>Samus_ClearXSpeedIfColl</c>.</summary>
-    private static void ClearHorizontalMomentum(
-        SamusHorizontalSpeedState speed,
-        byte poseXDirection)
-    {
-        speed.CancelRunningMomentum(poseXDirection);
-        speed.ExtraRunSpeed = 0;
-        speed.ExtraRunSubspeed = 0;
-        speed.BaseSpeed = 0;
-        speed.BaseSubspeed = 0;
-        speed.AccelerationMode = 0;
-    }
 }
 
 /// <summary>Both bank-$94 scans performed by one grounded bank-$90 movement handler.</summary>

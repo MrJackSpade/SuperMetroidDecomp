@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using static SuperMetroid.Core.Hardware.SnesAddressMath;
 
 namespace SuperMetroid.Core.Game;
 
@@ -90,8 +91,6 @@ public static class SamusPoseTransitionTable
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | (bus.ReadByte(AddWithinBank(address, 1)) << 8));
 
-    private static int AddWithinBank(int address, int byteCount) =>
-        (address & 0xff0000) | ((address + byteCount) & 0xffff);
 }
 
 /// <summary>Debugger-readable winning six-byte transition-table record.</summary>

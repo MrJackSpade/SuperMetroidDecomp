@@ -1,0 +1,44 @@
+namespace SuperMetroid.Core.Game;
+
+/// <summary>
+/// Verified special-Samus-palette handler indices. Values one through six remain unnamed
+/// until their producers are translated; this ordinary enum can still carry them losslessly.
+/// </summary>
+public enum SamusSpecialPaletteType : ushort
+{
+    None = 0,
+    CrystalFlash = 7,
+    Xray = 8,
+}
+
+/// <summary>
+/// Verified room layer-blending configuration indices consulted by translated rendering.
+/// The two backdrop entries are kept distinct by native value without claiming an
+/// unverified visual distinction between them.
+/// </summary>
+public enum LayerBlendingConfiguration : ushort
+{
+    NormalGameplay = 0x0002,
+    VisorBackdrop28 = 0x0028,
+    VisorBackdrop2A = 0x002a,
+}
+
+/// <summary>Conventionally named values in the native room scroll-zone byte grid.</summary>
+public enum RoomScrollState : byte
+{
+    RedBoundary = 0,
+    Blue = 1,
+    Green = 2,
+}
+
+public static class RenderingDiscriminantExtensions
+{
+    /// <summary>
+    /// True only for the two native backdrop-color-math configurations that animate
+    /// Samus's visor. Other raw configuration indices remain unnamed and return false.
+    /// </summary>
+    public static bool AnimatesVisor(this ushort rawConfiguration) =>
+        (LayerBlendingConfiguration)rawConfiguration is
+            LayerBlendingConfiguration.VisorBackdrop28 or
+            LayerBlendingConfiguration.VisorBackdrop2A;
+}

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using static SuperMetroid.Core.Hardware.SnesAddressMath;
 
 namespace SuperMetroid.Core.Game;
 
@@ -156,7 +157,7 @@ public sealed class RoomEnemySystem
             {
                 RunMainAi(slot, samus, newlyPressedControllerInput);
                 slot.FrameCounter = unchecked((ushort)(slot.FrameCounter + 1));
-                if ((slot.Properties & 0x2000) != 0)
+                if (slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
                     ProcessInstructions(slot);
             }
 
@@ -164,9 +165,9 @@ public sealed class RoomEnemySystem
             // Properties $0100/$0200 suppress drawing, while extra-property bit $0004 can
             // force an otherwise off-screen actor into the queue. Gunship uses the normal
             // radius-aware visibility test.
-            bool visible = (slot.ExtraProperties & 0x0004) != 0 ||
+            bool visible = slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) ||
                 !EnemyWithNormalSpritesIsOffScreen(slot, cameraX, cameraY);
-            if (visible && (slot.Properties & 0x0300) == 0)
+            if (visible && !slot.Properties.HasAny(EnemyProperties.Invisible | EnemyProperties.Deleted))
                 _drawQueues[slot.Layer & 7].Add(nativeIndex);
         }
 
@@ -236,7 +237,7 @@ public sealed class RoomEnemySystem
                 // layer-1 position, so preserve modular 16-bit arithmetic here.
                 ushort originX = unchecked((ushort)(slot.SpawnXOffset + slot.XPosition - cameraX));
                 ushort originY = unchecked((ushort)(slot.SpawnYOffset + slot.YPosition - cameraY));
-                if ((slot.ExtraProperties & 0x0004) == 0)
+                if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
                     oam.AddEnemySpritemap(
                         _bus!,
@@ -394,7 +395,9 @@ public sealed class RoomEnemySystem
             // InitializeEnemies deliberately clears the init routine's immediate map.
             // Disable-Samus-collision actors receive the canonical empty map until their
             // first instruction-list tick replaces it. Gunship properties contain $2000.
-            slot.SpritemapPointer = (slot.Properties & 0x2000) != 0 ? (ushort)0x804d : (ushort)0;
+            slot.SpritemapPointer = slot.Properties.HasAny(EnemyProperties.ProcessInstructions)
+                ? (ushort)0x804d
+                : (ushort)0;
 
             slotIndex++;
             cursor = AddWithinBank(cursor, 16);
@@ -481,8 +484,8 @@ public sealed class RoomEnemySystem
         }
 
         slot.VramTilesIndex = 0;
-        slot.Properties |= 0x2000;
-        slot.ExtraProperties |= 0x0004;
+        slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
+        slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.PaletteIndex = 0x0a00;
@@ -496,7 +499,8 @@ public sealed class RoomEnemySystem
     {
         // Normal gameplay takes $A2:A67C: the cutscene game-state/loading-state alternatives
         // are different room-entry scenarios and therefore cannot be inferred here.
-        slot.Properties |= 0x2400;
+        slot.Properties = slot.Properties.With(
+            EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.CurrentInstruction = 0xa616;
@@ -510,7 +514,8 @@ public sealed class RoomEnemySystem
 
     private void InitializeGunshipBottom(RoomEnemySlot slot)
     {
-        slot.Properties |= 0x2400;
+        slot.Properties = slot.Properties.With(
+            EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.CurrentInstruction = slot.Parameter2 != 0 ? (ushort)0xa60e : (ushort)0xa61c;
@@ -672,7 +677,7 @@ public sealed class RoomEnemySystem
             (short)unchecked((ushort)(top.XPosition + 8 - samus.XPosition)) >= 0 &&
             (short)unchecked((ushort)(top.YPosition - 64 - samus.YPosition)) < 0 &&
             (short)unchecked((ushort)(top.YPosition - samus.YPosition)) >= 0;
-        if (insideEntrance && samus.ReadMovementType(_bus!) == 0)
+        if (insideEntrance && samus.ReadMovementKind(_bus!) == SamusMovementType.Standing)
         {
             RoomEnemySlot pad = _slots[top.SlotIndex + 2];
             top.VariableF = 0xaa4f;
@@ -761,7 +766,7 @@ public sealed class RoomEnemySystem
         slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
         if (oldTimer != 1)
         {
-            slot.ExtraProperties &= 0x7fff;
+            slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
             return;
         }
 
@@ -776,7 +781,7 @@ public sealed class RoomEnemySystem
                     _bus!,
                     (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                 slot.CurrentInstruction = unchecked((ushort)(cursor + 4));
-                slot.ExtraProperties |= 0x8000;
+                slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             }
 
@@ -791,7 +796,8 @@ public sealed class RoomEnemySystem
                     slot.CurrentInstruction = cursor;
                     return;
                 case 0xf11d: // Ceres steam: hide and exclude from interaction.
-                    slot.Properties |= 0x0500;
+                    slot.Properties = slot.Properties.With(
+                        EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xf127: // Ceres steam: randomized dormant-loop branch.
@@ -807,11 +813,13 @@ public sealed class RoomEnemySystem
                         cursor = ReadWord(
                             _bus!,
                             (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 4)));
-                        slot.Properties &= 0xfaff;
+                        slot.Properties = slot.Properties.Without(
+                            EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
                     }
                     break;
                 case 0xf135: // Ceres steam: show and admit interaction.
-                    slot.Properties &= 0xfaff;
+                    slot.Properties = slot.Properties.Without(
+                        EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 default:
@@ -833,19 +841,19 @@ public sealed class RoomEnemySystem
         {
             if (slot.EnemyDefinitionPointer is 0 or 0xdaff)
                 continue;
-            if ((slot.Properties & 0x0200) != 0)
+            if (slot.Properties.HasAny(EnemyProperties.Deleted))
             {
                 slot.EnemyDefinitionPointer = 0;
                 continue;
             }
 
-            bool active = (slot.Properties & 0x0800) != 0 ||
+            bool active = slot.Properties.HasAny(EnemyProperties.ProcessOffScreen) ||
                 EnemyIsWithinProcessingWindow(slot, cameraX, cameraY);
             if (!active)
                 continue;
 
             _activeEnemyIndexes.Add(slot.NativeIndex);
-            if ((slot.Properties & 0x0400) == 0)
+            if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision))
                 _interactiveEnemyIndexes.Add(slot.NativeIndex);
         }
     }
@@ -907,9 +915,6 @@ public sealed class RoomEnemySystem
         bus.ReadByte(address) |
         (bus.ReadByte(AddWithinBank(address, 1)) << 8) |
         (bus.ReadByte(AddWithinBank(address, 2)) << 16);
-
-    private static int AddWithinBank(int address, int byteCount) =>
-        (address & 0xff0000) | ((address + byteCount) & 0xffff);
 
     private static bool IsNegative16(int value) => (short)unchecked((ushort)value) < 0;
 }

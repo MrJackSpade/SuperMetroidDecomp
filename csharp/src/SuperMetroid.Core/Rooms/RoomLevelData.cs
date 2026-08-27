@@ -195,14 +195,26 @@ public sealed class RoomLevelData
 public readonly record struct RoomCollisionBlock(int Index, ushort LevelWord, byte Behavior)
 {
     /// <summary>
+    /// Lossless typed interpretation of <see cref="LevelWord"/>. The original property is
+    /// retained because ROM fixtures and diagnostic output intentionally expose raw words.
+    /// </summary>
+    public RoomLevelWord PackedWord => new(LevelWord);
+
+    /// <summary>
     /// High-nibble dispatcher index used by <c>$94:9515</c>. Values are native categories,
     /// not a simplified solid/air Boolean: 1 is slope, 8/C/E are solid-family, etc.
     /// </summary>
-    public byte CollisionType => unchecked((byte)(LevelWord >> 12));
+    public byte CollisionType => PackedWord.CollisionTypeValue;
+
+    /// <summary>
+    /// Typed collision-dispatch view for code paths whose native handler has a verified
+    /// name. Unnamed enum values remain representable and retain their original nibble.
+    /// </summary>
+    public RoomCollisionType CollisionKind => PackedWord.CollisionType;
 
     /// <summary>Low ten bits selecting the visual 16×16 block definition.</summary>
-    public ushort VisualBlockIndex => unchecked((ushort)(LevelWord & 0x03ff));
+    public ushort VisualBlockIndex => PackedWord.VisualBlockIndex;
 
     /// <summary>Parent block horizontal/vertical flip flags in bits 10 and 11.</summary>
-    public ushort VisualFlipFlags => unchecked((ushort)(LevelWord & 0x0c00));
+    public LevelBlockFlipFlags VisualFlipFlags => PackedWord.VisualFlipFlags;
 }

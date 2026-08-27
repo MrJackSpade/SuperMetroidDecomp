@@ -40,6 +40,10 @@ public sealed class SamusCrystalFlashState
     /// <summary>WRAM <c>$0ACC</c>; seven dispatches the cartridge's Crystal Flash palette.</summary>
     public ushort SpecialPaletteType { get; private set; }
 
+    /// <summary>Typed view of the native special-palette handler index.</summary>
+    public SamusSpecialPaletteType SpecialPaletteKind =>
+        (SamusSpecialPaletteType)SpecialPaletteType;
+
     /// <summary>WRAM <c>$0ACE</c>, initialized to the first Crystal Flash palette record.</summary>
     public ushort SpecialPaletteFrame { get; private set; }
 
@@ -96,12 +100,12 @@ public sealed class SamusCrystalFlashState
 
         // `$90:D5ED-$D600` considers direction byte four left and every other value right.
         // Read that byte from the source pose before replacing it with Crystal Flash art.
-        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        bool facingLeft = samus.IsFacingLeft(bus);
         samus.Pose = facingLeft
             ? SamusState.CrystalFlashLeftPose
             : SamusState.CrystalFlashRightPose;
         samus.RefreshCollisionRadii(bus);
-        if (samus.ReadMovementType(bus) != 0x1b)
+        if (samus.ReadMovementKind(bus) != SamusMovementType.Special)
             throw new InvalidDataException("ROM pose $D3/$D4 no longer has movement type $1B.");
         samus.InitializeAnimation(bus, initialFrame: 0);
 
@@ -112,7 +116,7 @@ public sealed class SamusCrystalFlashState
         AmmoDecrementTimer = 10;
         RaisedYPosition = 0;
         CrystalPaletteTimer = 1;
-        SpecialPaletteType = 7;
+        SpecialPaletteType = (ushort)SamusSpecialPaletteType.CrystalFlash;
         SpecialPaletteFrame = 0;
         SpecialPaletteTimer = 1;
         // `$90:D5A2` clears shared `$0ACE` but does not write shared `$0AD0`. The latter
@@ -250,7 +254,7 @@ public sealed class SamusCrystalFlashState
         // The ROM delay list ends in `$FD,$01/$02`; pose transition occurs after movement.
         // Therefore cleanup naturally happens on the following beta pass, once type zero is
         // observable here, and that frame performs no ordinary standing movement.
-        if (samus.ReadMovementType(bus) != 0)
+        if (samus.ReadMovementKind(bus) != SamusMovementType.Standing)
             return;
 
         SpecialPaletteTimer = 0xffff;
@@ -277,20 +281,20 @@ public sealed class SamusCrystalFlashState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
         ArgumentNullException.ThrowIfNull(samus);
-        if (SpecialPaletteType != 7)
+        if (SpecialPaletteKind != SamusSpecialPaletteType.CrystalFlash)
             return false;
 
         if ((SpecialPaletteTimer & 0x8000) != 0)
         {
             // `$91:DBEB` calls `$90:ACC2`, which masks away Charge Beam and uses the
             // resulting low twelve bits as an index into the retail beam-palette table.
-            int beamType = samus.EquippedBeams & 0x0fff;
+            int beamType = new SamusBeamLoadoutWord(samus.EquippedBeams).NativeConfigurationIndex;
             if ((uint)beamType >= 12)
                 throw new ArgumentOutOfRangeException(nameof(samus), "Equipped beam combination is outside the retail table.");
             ushort beamPalette = ReadWord(bus, 0x90c3c9 + beamType * 2);
             cgram.LoadFromBus(bus, 0x900000 | beamPalette, colorCount: 16, destinationIndex: 0xe0);
 
-            SpecialPaletteType = 0;
+            SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
             SpecialPaletteFrame = 0;
             CommonPaletteTimer = 0;
             SpecialPaletteTimer = 0;

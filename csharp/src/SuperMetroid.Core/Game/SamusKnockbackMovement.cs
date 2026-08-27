@@ -53,7 +53,7 @@ public static class SamusKnockbackMovement
         // `$90:DEFA` replaces an ordinary body with `$53/$54`. `$90:DF15`, by contrast,
         // republishes the exact Morph/Spring Ball pose. Because UpdateSamusPose sees no
         // pose change in that branch, the rolling animation frame and timer survive.
-        bool facingLeft = SamusState.ReadPoseXDirection(bus, samus.Pose) == 4;
+        bool facingLeft = SamusState.IsFacingLeft(bus, samus.Pose);
         if (humanoid)
         {
             samus.Pose = facingLeft
@@ -251,7 +251,7 @@ public static class SamusKnockbackMovement
         // installed radius 19, command one `$91:F31D` aligns the new body bottom to the old
         // radius-21 hurt body. Thus the center moves down two pixels before velocity clears.
         ushort previousRadius = samus.Kinematics.YRadius;
-        samus.Pose = SamusState.ReadPoseXDirection(bus, samus.Pose) == 4
+        samus.Pose = SamusState.IsFacingLeft(bus, samus.Pose)
             ? SamusState.FallingLeftPose
             : SamusState.FallingRightPose;
         samus.RefreshCollisionRadii(bus);

@@ -57,7 +57,8 @@ public sealed class SamusBombProjectileSystem
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        ushort controllerNewInput)
+        ushort controllerNewInput,
+        RoomPlmSystem? roomPlms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -89,7 +90,12 @@ public sealed class SamusBombProjectileSystem
             if (slot.InstructionPointer == 0)
                 continue;
 
-            bool slotExplosionStarted = RunBombPreInstruction(bus, level, slot, blockReactions);
+            bool slotExplosionStarted = RunBombPreInstruction(
+                bus,
+                level,
+                slot,
+                blockReactions,
+                roomPlms);
             explosionStarted |= slotExplosionStarted;
 
             // The native loop still calls $93:81E9 after a pre-instruction clears a slot.
@@ -261,7 +267,8 @@ public sealed class SamusBombProjectileSystem
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusBombProjectileSlot slot,
-        List<BombBlockReaction> blockReactions)
+        List<BombBlockReaction> blockReactions,
+        RoomPlmSystem? roomPlms)
     {
         // Direction high nibble is a generic projectile kill request. Normal placed bombs
         // leave direction zero for their lifetime, but debugger state can exercise it.
@@ -293,21 +300,24 @@ public sealed class SamusBombProjectileSystem
 
         // Normal bomb type five maps through $94:9C73 to collision mode two. As soon as
         // timer zero is visible, $94:9CF4 sets type bit zero and reacts to a five-block
-        // cross exactly once. PLM-producing block types remain an explicit runtime edge;
-        // ordinary air/slopes/solid terrain need no mutation and are fully handled here.
+        // cross exactly once. Bombable blocks and their type-$5/$D extension children now
+        // enter the same shared bank-$84 PLM owner used by collision and grapple movement.
+        // Shootable/special families remain explicit until their distinct setup gates and
+        // instruction lists are translated; ordinary air/slopes/solid terrain are no-ops.
         if (slot.BombTimer == 0 && (slot.Type & 0x0001) == 0)
         {
             slot.Type |= 0x0001;
-            CollectNoOpBlockExplosion(level, slot, blockReactions);
+            CollectBlockExplosionReactions(level, slot, blockReactions, roomPlms);
         }
 
         return explosionStarted;
     }
 
-    private static void CollectNoOpBlockExplosion(
+    private static void CollectBlockExplosionReactions(
         RoomLevelData level,
         SamusBombProjectileSlot slot,
-        List<BombBlockReaction> reactions)
+        List<BombBlockReaction> reactions,
+        RoomPlmSystem? roomPlms)
     {
         int centerX = slot.XPosition >> 4;
         int centerY = slot.YPosition >> 4;
@@ -328,15 +338,58 @@ public sealed class SamusBombProjectileSystem
                     $"Bomb explosion cross reaches outside translated room storage at block ({x},{y}).");
             }
 
-            RoomCollisionBlock block = level.GetCollisionBlock(x, y);
-            reactions.Add(new BombBlockReaction(x, y, block.CollisionType, block.Behavior));
+            RoomCollisionBlock visitedBlock = level.GetCollisionBlock(x, y);
+            reactions.Add(new BombBlockReaction(
+                x,
+                y,
+                visitedBlock.CollisionType,
+                visitedBlock.Behavior));
+
+            // `$94:9411/$9447` do not react to an extension block directly. A nonzero signed
+            // BTS redirects CurrentBlockIndex horizontally (type $5) or by whole room rows
+            // (type $D), then rewinds the dispatcher return address so the resolved parent
+            // is dispatched again. A zero-BTS extension is simply air for this reaction.
+            RoomCollisionBlock block = visitedBlock;
+            if (!SamusBlockCollision.TryResolveExtension(level, ref block))
+                continue;
 
             // $94:A052 dispatches these types to immediate clear/set-carry routines. They
             // spawn no PLM and do not alter the level/BTS arrays, so recording the visit is
-            // the complete observable effect for this runtime. Extension, shootable,
-            // special, and bombable types require the room PLM system and fail explicitly.
+            // the complete observable effect for this runtime.
             if (block.CollisionType is 0 or 1 or 2 or 3 or 6 or 8 or 9 or 10 or 14)
                 continue;
+
+            if (block.CollisionType is 7 or 15)
+            {
+                // Both bombable-air and bombable-solid handlers use `$94:A012`. Negative
+                // BTS takes the native duplicate/area-dependent early return and therefore
+                // neither allocates a PLM nor mutates terrain.
+                if ((block.Behavior & 0x80) != 0)
+                    continue;
+                if (block.Behavior > 15)
+                {
+                    throw new NotSupportedException(
+                        $"Bombable block {block.Index} has BTS ${block.Behavior:X2} outside " +
+                        "the native $94:A012 reaction table.");
+                }
+                if (roomPlms is null)
+                {
+                    throw new NotSupportedException(
+                        $"Bombed block reaction type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
+                        $"at ({x},{y}) requires a room PLM owner.");
+                }
+
+                // Spawn is synchronous: accepted BTS 0..7 applies CEDA's temporary type-$8
+                // or type-$0 word before the cross proceeds to its next member. If another
+                // extension in this same cross points back to the parent, it consequently
+                // observes the already-mutated type and does not allocate a duplicate PLM.
+                roomPlms.TrySpawnBombReactionBlock(
+                    level,
+                    block.Index,
+                    block.Behavior,
+                    slot.Type);
+                continue;
+            }
 
             throw new NotSupportedException(
                 $"Bombed block reaction type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} " +

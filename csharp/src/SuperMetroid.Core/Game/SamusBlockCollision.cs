@@ -736,7 +736,7 @@ public static class SamusBlockCollision
     /// loop. Type `$5` adds signed BTS horizontally; type `$D` adds signed BTS rows.
     /// A zero BTS returns carry clear immediately and therefore behaves as air.
     /// </summary>
-    private static bool TryResolveExtension(
+    internal static bool TryResolveExtension(
         RoomLevelData level,
         ref RoomCollisionBlock block)
     {

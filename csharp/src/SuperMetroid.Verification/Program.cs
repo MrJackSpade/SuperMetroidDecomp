@@ -12169,6 +12169,28 @@ static void VerifySamusMorphBallMovement()
         0x2f, 0x82,
     ]);
 
+    // The bombable-terrain integration below intentionally supplies the literal bank-$84
+    // BTS-zero reaction head and complete shared 1x1 respawn tail. `$84:CEDA` advances a
+    // normal bomb's live pointer by three, so the leading `$8C46,$0A` sound instruction is
+    // present in ROM but must be skipped. This makes a mistaken collision-list substitution
+    // or invented host-side timer immediately observable.
+    bus.WriteBytes(0x84cc3c, [
+        0x46, 0x8c, 0x0a,       // Reaction-only sound $0A, skipped by normal bomb setup.
+        0x04, 0x00, 0x45, 0xa3, // Four frames: visual block $053.
+        0x04, 0x00, 0x4b, 0xa3, // Four frames: visual block $054.
+        0x04, 0x00, 0x51, 0xa3, // Four frames: visual block $055.
+        0x80, 0x01, 0x57, 0xa3, // 384 frames: blank-air visual block $0FF.
+        0x04, 0x00, 0x51, 0xa3, // Reverse animation: $055.
+        0x04, 0x00, 0x4b, 0xa3, // Reverse animation: $054.
+        0x04, 0x00, 0x45, 0xa3, // Reverse animation: $053.
+        0x17, 0x8b,             // DrawPLMBlock restores PLM_Vars and seeds timer one.
+        0xbc, 0x86,             // Delete on the following PLM handler pass.
+    ]);
+    bus.WriteBytes(0x84a345, [0x01, 0x00, 0x53, 0x00, 0x00, 0x00]);
+    bus.WriteBytes(0x84a34b, [0x01, 0x00, 0x54, 0x00, 0x00, 0x00]);
+    bus.WriteBytes(0x84a351, [0x01, 0x00, 0x55, 0x00, 0x00, 0x00]);
+    bus.WriteBytes(0x84a357, [0x01, 0x00, 0xff, 0x00, 0x00, 0x00]);
+
     var noBombItemSamus = new SamusState
     {
         Pose = SamusState.MorphBallGroundRightPose,
@@ -12303,6 +12325,98 @@ static void VerifySamusMorphBallMovement()
     AssertEqual((ushort)0, bombs.BombCounter, "explosion delete decrements bomb counter");
     AssertTrue(!bombs.Slots[0].IsActive, "delete opcode clears complete bomb slot");
 
+    // Put the explosion center on a type-$5 horizontal extension whose signed BTS $FF
+    // redirects one column left to a BTS-zero type-$F parent. `$94:9CF4` visits center
+    // before left, so the extension must spawn exactly one PLM and synchronously turn the
+    // parent into temporary type-$8 terrain; the later left-arm visit sees that mutation.
+    var reactionWords = new ushort[width * height];
+    var reactionBts = new byte[reactionWords.Length];
+    const int reactionParentIndex = 3 * width + 2;
+    const int reactionExtensionIndex = 3 * width + 3;
+    reactionWords[reactionParentIndex] = 0xf321;
+    reactionBts[reactionParentIndex] = 0;
+    reactionWords[reactionExtensionIndex] = 0x5058;
+    reactionBts[reactionExtensionIndex] = 0xff;
+    var reactionDefinitions = new byte[0x400 * 8];
+    RoomLevelData reactionLevel = new(
+        width,
+        height,
+        reactionWords,
+        reactionBts,
+        new ushort[reactionWords.Length],
+        reactionDefinitions);
+    BackgroundTilemapStreamer reactionStreamer = reactionLevel.CreateBackgroundStreamer();
+    var reactionPlms = new RoomPlmSystem();
+    var reactionBombs = new SamusBombProjectileSystem();
+    var reactionSamus = new SamusState
+    {
+        Pose = SamusState.MorphBallGroundRightPose,
+        EquippedItems = 0x1004,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    reactionSamus.RefreshCollisionRadii(bus);
+    reactionBombs.StepFrame(
+        bus,
+        reactionLevel,
+        reactionSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X,
+        reactionPlms);
+
+    BombProjectileFrameResult reactionExplosion = default;
+    while (!reactionExplosion.ExplosionStarted)
+    {
+        reactionExplosion = reactionBombs.StepFrame(
+            bus,
+            reactionLevel,
+            reactionSamus,
+            0,
+            0,
+            reactionPlms);
+    }
+
+    AssertEqual((byte)5, reactionExplosion.BlockReactions![0].CollisionType,
+        "bomb cross records the visited horizontal extension");
+    AssertEqual((byte)0xff, reactionExplosion.BlockReactions[0].Behavior,
+        "bomb cross preserves the extension's signed redirect BTS");
+    AssertEqual((byte)8, reactionExplosion.BlockReactions[3].CollisionType,
+        "later left-arm reaction observes the synchronously mutated parent");
+    AssertEqual(1, reactionPlms.ActiveCount,
+        "extension and later parent visit produce one native reaction PLM");
+    AssertEqual((ushort)0x8058,
+        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).LevelWord,
+        "CEDA keeps a type-F bomb block temporarily solid through movement beta");
+
+    // PLM_Handler runs after movement beta in the same gameplay frame. Normal-bomb setup
+    // began at `$CC3F`, so this first handler pass draws air `$0053` without queueing the
+    // reaction head's sound $0A. The bomb explosion itself remains the sound owner.
+    reactionPlms.Step(bus, reactionLevel, reactionStreamer, 0, 0, 0);
+    AssertEqual((ushort)0x0053,
+        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).LevelWord,
+        "same-frame PLM pass draws the first bomb-block air frame");
+    AssertEqual(0, reactionPlms.SoundRequests.Count,
+        "normal bomb setup skips reaction PLM sound $0A");
+
+    // Walk the exact forward, 384-frame blank hold, reverse, restore, and delayed-delete
+    // timeline. The restored word is deliberately `$F058`, not the original `$F321`:
+    // setup CEDA synthesized PLM_Vars by replacing all twelve low bits with `$058`.
+    for (int frame = 0; frame < 12; frame++)
+        reactionPlms.Step(bus, reactionLevel, reactionStreamer, 0, 0, 0);
+    AssertEqual((ushort)0x00ff,
+        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).LevelWord,
+        "bomb reaction reaches blank air after three four-frame transitions");
+    for (int frame = 0; frame < 384 + 12; frame++)
+        reactionPlms.Step(bus, reactionLevel, reactionStreamer, 0, 0, 0);
+    AssertEqual((ushort)0xf058,
+        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).LevelWord,
+        "bomb reaction restores synthesized type-F parent after native hold");
+    AssertEqual(1, reactionPlms.ActiveCount,
+        "DrawPLMBlock retains reaction PLM through its timer-one restore pass");
+    reactionPlms.Step(bus, reactionLevel, reactionStreamer, 0, 0, 0);
+    AssertEqual(0, reactionPlms.ActiveCount,
+        "bomb reaction PLM deletes on the handler pass after restoration");
+
     // Bank `$A0:97E2-$A0:984E` decides direction from bomb-versus-Samus X. Its bank-$91
     // command-three handoff must retain the stable ball pose and arm `$0801-$0803`; it
     // must also reject non-ball callers instead of silently inventing a normal jump.
@@ -12404,7 +12518,7 @@ static void VerifySamusMorphBallMovement()
     AssertTrue(!straightBombJump.ApplyMorphBallLanding(bus), "post-bomb-jump landing launches bounce");
     AssertEqual((ushort)1, straightBombJump.MorphBallBounceState, "post-bomb-jump landing enters bounce one");
 
-    Console.WriteLine("  Morph Ball: ordinary/Spring entry, bomb jump, bounce, and tunnel collision agree.");
+    Console.WriteLine("  Morph Ball: ordinary/Spring entry, bomb jump, bombable reaction PLMs, bounce, and tunnel collision agree.");
 }
 
 static ushort ReferenceNextRandom(ushort seed)

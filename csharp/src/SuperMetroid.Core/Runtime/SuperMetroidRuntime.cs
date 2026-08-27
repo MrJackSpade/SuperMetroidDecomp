@@ -1035,7 +1035,8 @@ public sealed class SuperMetroidRuntime
                         LevelData,
                         Samus,
                         Controller1.Current,
-                        Controller1.NewlyPressed);
+                        Controller1.NewlyPressed,
+                        Plms);
                 }
 
                 // Native HandleProjectile runs `$90:D4D2` during alpha, before Samus's beta

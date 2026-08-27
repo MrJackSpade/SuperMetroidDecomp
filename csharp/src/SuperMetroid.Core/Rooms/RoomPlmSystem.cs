@@ -15,8 +15,9 @@ namespace SuperMetroid.Core.Rooms;
 /// The retail allocation contains 40 word-indexed slots ($00 through $4E) and searches from
 /// the highest slot downward. The C# array uses logical indices 0..39 but preserves that
 /// search and handler order. The translated opcode surface is deliberately limited to the
-/// collision-bomb and breakable-grapple lists. Encountering any other pointer fails instead
-/// of silently inventing an effect for a still-untranslated PLM family.
+/// collision-bomb, projectile-reaction bomb, and breakable-grapple lists. Encountering any
+/// other pointer fails instead of silently inventing an effect for a still-untranslated PLM
+/// family.
 /// </remarks>
 public sealed class RoomPlmSystem
 {
@@ -29,6 +30,7 @@ public sealed class RoomPlmSystem
     private const ushort QueueSoundLibrary2Maximum3Instruction = 0x8c46;
     private const ushort GotoInstruction = 0x8724;
     private const ushort SetPlmBtsTo1Instruction = 0xcd93;
+    private const ushort DeleteInstructionList = 0xaae3;
 
     // `$94:936B` selects these eight entry IDs from BTS 0..7. Their setup pointer is common,
     // so storing the post-setup instruction-list pointer is sufficient after we reproduce
@@ -43,6 +45,21 @@ public sealed class RoomPlmSystem
         0xccff, // BTS 5: 2x1, permanent
         0xcd1b, // BTS 6: 1x2, permanent
         0xcd37, // BTS 7: 2x2, permanent
+    ];
+
+    // `$94:A012` selects these bank-$84 entry IDs for both type-$7 bombable air and type-$F
+    // bombable blocks. All eight entries share setup `$84:CEDA`; these are the instruction
+    // list pointers installed by Spawn_PLM before that setup examines the projectile type.
+    private static readonly ushort[] ReactionBombInstructionLists =
+    [
+        0xcc3c, // BTS 0: 1x1, respawning
+        0xcc66, // BTS 1: 2x1, respawning
+        0xcc92, // BTS 2: 1x2, respawning
+        0xccbe, // BTS 3: 2x2, respawning
+        0xccea, // BTS 4: 1x1, permanent
+        0xcd06, // BTS 5: 2x1, permanent
+        0xcd22, // BTS 6: 1x2, permanent
+        0xcd3e, // BTS 7: 2x2, permanent
     ];
 
     private readonly PlmSlot[] _slots = Enumerable
@@ -149,6 +166,89 @@ public sealed class RoomPlmSystem
             slot.InstructionPointer = CollisionBombInstructionLists[behavior];
             slot.InstructionTimer = 1;
             level.ClearCollisionType(blockIndex);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Spawns the bank-$84 shot/bombed/grappled-reaction PLM selected by bombable BTS.
+    /// </summary>
+    /// <remarks>
+    /// This is setup <c>$84:CEDA</c>, not the collision setup above. A normal bomb family
+    /// (<c>$0500</c>) advances the entry instruction pointer by three bytes, deliberately
+    /// skipping its leading sound-$0A opcode because the bomb explosion already owns its
+    /// sound. A power bomb (<c>$0300</c>) retains that opcode. Both accepted projectile
+    /// families synthesize <c>(levelWord &amp; $F000) | $0058</c> for later restoration and
+    /// then apply <c>AND $8FFF</c> to live terrain. Thus a type-$F solid bomb block remains
+    /// temporarily type-$8 solid until the same frame's PLM pass draws its first air frame,
+    /// while a type-$7 bombable-air parent becomes ordinary air immediately.
+    ///
+    /// BTS 8..15 point at <c>PLMEntries_nothing</c>. Native code still allocates a slot and
+    /// deletes it on the next handler pass, so this implementation retains that otherwise
+    /// invisible resource/timing effect. A negative BTS is filtered by bank $94 before this
+    /// method is called because it denotes an area-dependent/duplicate path.
+    /// </remarks>
+    /// <returns>False only when all 40 native slots are occupied.</returns>
+    public bool TrySpawnBombReactionBlock(
+        RoomLevelData level,
+        int blockIndex,
+        byte behavior,
+        ushort projectileType)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        if (behavior > 15)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(behavior),
+                "Bomb-reaction BTS must be in the native table range zero through fifteen.");
+        }
+
+        ushort projectileFamily = unchecked((ushort)(projectileType & 0x0f00));
+        if (projectileFamily is not (0x0500 or 0x0300))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(projectileType),
+                "Bomb-reaction setup accepts only normal-bomb or power-bomb projectile families.");
+        }
+
+        // `$84:84ED-$84F7` searches from native slot `$4E` toward `$00`. Importantly, the
+        // full-pool path never calls setup and therefore must not mutate live level data.
+        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
+        {
+            PlmSlot slot = _slots[slotIndex];
+            if (slot.Active)
+                continue;
+
+            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+            slot.Active = true;
+            slot.BlockIndex = blockIndex;
+            slot.InstructionTimer = 1;
+
+            if (behavior >= 8)
+            {
+                // Table entries 8..15 are all `$84:B62F`, whose setup is a bare RTS and
+                // whose instruction list is the one-word delete stream at `$84:AAE3`.
+                slot.RestoreLevelWord = 0;
+                slot.InstructionPointer = DeleteInstructionList;
+                return true;
+            }
+
+            // Setup_CEDA discards the original low twelve bits rather than preserving the
+            // visible tile number. Dimension-specific final draw lists reconstruct linked
+            // extension words; the 1x1 respawn tail uses this exact PLM_Vars value.
+            slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0058));
+            ushort instructionPointer = ReactionBombInstructionLists[behavior];
+
+            // `$84:CF0C-$CF13` adds three only for normal bombs. The skipped bytes are
+            // `{Instruction_PLM_QueueSound_Y_Lib2_Max3, $0A}` in the odd-byte operand form.
+            slot.InstructionPointer = projectileFamily == 0x0500
+                ? unchecked((ushort)(instructionPointer + 3))
+                : instructionPointer;
+
+            ushort temporaryLevelWord = unchecked((ushort)(slot.RestoreLevelWord & 0x8fff));
+            level.SetForegroundEntry(blockIndex, temporaryLevelWord);
             return true;
         }
 

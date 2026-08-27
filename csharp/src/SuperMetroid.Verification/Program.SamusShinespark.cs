@@ -70,15 +70,15 @@ static void VerifySamusStoredShineAndShinespark()
         "stage three cannot store shine");
     AssertTrue(shine.Shinespark.TryStoreFromSpeedBooster(0x0400),
         "stage four stores shine");
-    AssertEqual((ushort)180, shine.Shinespark.ShineTimer, "stored shine begins at 180");
-    AssertEqual((ushort)1, shine.Shinespark.PaletteType, "stored shine installs palette handler one");
+    AssertEqual(180, shine.Shinespark.ShineTimer, "stored shine begins at 180");
+    AssertEqual(1, shine.Shinespark.PaletteType, "stored shine installs palette handler one");
 
     var cgram = new SnesCgram();
     AssertTrue(shine.Shinespark.UpdatePalette(bus, cgram, equippedItems: 0),
         "stored shine copies first ROM palette");
-    AssertEqual((ushort)0x1100, cgram.Colors[192], "stored shine follows double pointer");
-    AssertEqual((ushort)179, shine.Shinespark.ShineTimer, "stored palette decrements every frame");
-    AssertEqual((ushort)2, shine.Shinespark.PaletteFrameOffset,
+    AssertEqual(0x1100, cgram.Colors[192], "stored shine follows double pointer");
+    AssertEqual(179, shine.Shinespark.ShineTimer, "stored palette decrements every frame");
+    AssertEqual(2, shine.Shinespark.PaletteFrameOffset,
         "stored palette advances an even pointer offset");
 
     // Ten further calls arrive with timer 170 on the final call and publish the warning.
@@ -86,7 +86,7 @@ static void VerifySamusStoredShineAndShinespark()
         shine.Shinespark.UpdatePalette(bus, cgram, equippedItems: 0);
     AssertTrue(shine.Shinespark.StoredShineWarningSoundRequested,
         "stored timer 170 requests warning sound");
-    AssertEqual((ushort)169, shine.Shinespark.ShineTimer,
+    AssertEqual(169, shine.Shinespark.ShineTimer,
         "warning frame still decrements timer");
 
     shine.RefreshCollisionRadii(bus);
@@ -94,10 +94,10 @@ static void VerifySamusStoredShineAndShinespark()
     shine.Shinespark.BeginWindup(shine);
     AssertEqual(ShinesparkPhase.Windup, shine.Shinespark.Phase,
         "stored shine installs windup handler");
-    AssertEqual((ushort)30, shine.Shinespark.StartStopTimer, "windup timer is 30");
-    AssertEqual((ushort)8, shine.HorizontalSpeed.ExtraRunSpeed,
+    AssertEqual(30, shine.Shinespark.StartStopTimer, "windup timer is 30");
+    AssertEqual(8, shine.HorizontalSpeed.ExtraRunSpeed,
         "windup seeds exact 8.0000 extra speed");
-    AssertEqual((ushort)0x0400, shine.HorizontalSpeed.SpeedBoostCounter,
+    AssertEqual(0x0400, shine.HorizontalSpeed.SpeedBoostCounter,
         "windup republishes stage four");
 
     const int width = 24;
@@ -210,9 +210,9 @@ static void VerifySamusStoredShineAndShinespark()
         nmiFrameCounter: 0);
     AssertEqual(0x0000d800, reversedSpark.Vertical!.Value.AcceptedDisplacement,
         "positive external Y reverses vertical shinespark after native speed negation");
-    AssertEqual((ushort)160, externallyReversedSpark.YPosition,
+    AssertEqual(160, externallyReversedSpark.YPosition,
         "subpixel shinespark reversal retains the whole Y coordinate");
-    AssertEqual((ushort)0xd800, externallyReversedSpark.Kinematics.YSubposition,
+    AssertEqual(0xd800, externallyReversedSpark.Kinematics.YSubposition,
         "subpixel shinespark reversal publishes exact D800 fraction");
 
     for (ushort frame = 0; frame < 29; frame++)
@@ -251,17 +251,17 @@ static void VerifySamusStoredShineAndShinespark()
         "horizontal spark uses only block X movement");
     AssertEqual(sparkBombBlockIndex, first.Horizontal!.Value.BrokenBombBlock!.Value.Index,
         "horizontal spark publishes the broken BTS-7 block");
-    AssertEqual((ushort)0x0123, empty.ForegroundEntries.Span[sparkBombBlockIndex],
+    AssertEqual(0x0123, empty.ForegroundEntries.Span[sparkBombBlockIndex],
         "bomb-block setup clears only the collision nibble");
     AssertEqual(1, shineBombPlms.ActiveCount,
         "shinespark collision installs the bank-$84 BTS-7 PLM in the active room owner");
-    AssertEqual((ushort)0xd456, empty.ForegroundEntries.Span[sparkExtensionBlockIndex],
+    AssertEqual(0xd456, empty.ForegroundEntries.Span[sparkExtensionBlockIndex],
         "extension redispatch mutates its target rather than the extension word");
-    AssertEqual((ushort)168, horizontal.XPosition, "first horizontal spark moves 8 whole pixels");
-    AssertEqual((ushort)0x2800, horizontal.Kinematics.XSubposition,
+    AssertEqual(168, horizontal.XPosition, "first horizontal spark moves 8 whole pixels");
+    AssertEqual(0x2800, horizontal.Kinematics.XSubposition,
         "first horizontal spark preserves 16.16 fraction");
-    AssertEqual((ushort)29, horizontal.Health, "active spark drains one energy at threshold 30");
-    AssertEqual((ushort)2, horizontal.HorizontalSpeed.ContactDamageIndex,
+    AssertEqual(29, horizontal.Health, "active spark drains one energy at threshold 30");
+    AssertEqual(2, horizontal.HorizontalSpeed.ContactDamageIndex,
         "active spark publishes contact damage two");
 
     ShinesparkMovementResult lowEnergy = horizontal.Shinespark.Step(
@@ -270,14 +270,14 @@ static void VerifySamusStoredShineAndShinespark()
         "29-energy frame moves then enters crash without another drain");
     AssertEqual(ShinesparkPhase.Crash, horizontal.Shinespark.Phase,
         "low energy installs crash handler");
-    AssertEqual((ushort)0, horizontal.HorizontalSpeed.ExtraRunSpeed,
+    AssertEqual(0, horizontal.HorizontalSpeed.ExtraRunSpeed,
         "crash clears horizontal spark velocity");
 
     ushort crashCenterX = horizontal.XPosition;
     ushort crashCenterY = horizontal.YPosition;
     ShinesparkMovementResult firstCrash = horizontal.Shinespark.Step(
         bus, empty, horizontal, nmiFrameCounter: 6);
-    AssertEqual((byte)4, horizontal.Shinespark.CrashRadius,
+    AssertEqual(4, horizontal.Shinespark.CrashRadius,
         "crash orbit expands by four");
     AssertEqual(unchecked((ushort)(crashCenterX - 4)),
         horizontal.HorizontalSpeed.FirstSpeedEchoXPosition,
@@ -297,7 +297,7 @@ static void VerifySamusStoredShineAndShinespark()
         horizontal.Shinespark.Step(bus, empty, horizontal, unchecked((ushort)(7 + frame))));
     AssertEqual(ShinesparkPhase.CrashEchoCircle, horizontal.Shinespark.Phase,
         "crash orbit contracts into echo-circle hold");
-    AssertEqual((ushort)30, horizontal.Shinespark.StartStopTimer,
+    AssertEqual(30, horizontal.Shinespark.StartStopTimer,
         "echo circle begins at 30 frames");
 
     StepFrames(30, frame =>
@@ -317,11 +317,11 @@ static void VerifySamusStoredShineAndShinespark()
     // execute `$90:D4D2` until the following alpha projectile pass.
     AssertEqual(2, horizontal.Shinespark.ReleasedCrashEchoCount,
         "empty projectile capacity admits both departing crash echoes");
-    AssertEqual((byte)0x00, horizontal.Shinespark.FirstReleasedCrashEcho.Angle,
+    AssertEqual(0x00, horizontal.Shinespark.FirstReleasedCrashEcho.Angle,
         "horizontal-right first departing echo uses ROM table angle zero");
-    AssertEqual((byte)0x80, horizontal.Shinespark.SecondReleasedCrashEcho.Angle,
+    AssertEqual(0x80, horizontal.Shinespark.SecondReleasedCrashEcho.Angle,
         "horizontal-right second departing echo uses opposite ROM table angle $80");
-    AssertEqual((ushort)64, horizontal.Shinespark.FirstReleasedCrashEcho.Radius,
+    AssertEqual(64, horizontal.Shinespark.FirstReleasedCrashEcho.Radius,
         "departing echo initializes to native radius 64");
     AssertEqual(crashCenterX, horizontal.Shinespark.FirstReleasedCrashEcho.XPosition,
         "departing echo does not move in its spawn frame");
@@ -330,7 +330,7 @@ static void VerifySamusStoredShineAndShinespark()
         bus, horizontal,
         layer1X: unchecked((ushort)(crashCenterX - 128)),
         layer1Y: 0);
-    AssertEqual((ushort)72, horizontal.Shinespark.FirstReleasedCrashEcho.Radius,
+    AssertEqual(72, horizontal.Shinespark.FirstReleasedCrashEcho.Radius,
         "speed-echo pre-instruction expands radius by eight");
     AssertEqual(unchecked((ushort)(crashCenterX + 72)),
         horizontal.Shinespark.FirstReleasedCrashEcho.XPosition,

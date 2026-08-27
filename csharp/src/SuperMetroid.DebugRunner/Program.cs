@@ -2,10 +2,12 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 
 // This runner is an intentionally thin debugger host, not a claim that the full game has
@@ -19,6 +21,648 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+// This milestone capture exercises the actual new-game load-station/room pipeline without
+// requiring the still-in-progress intro object interpreter to reach its final state first.
+// It is diagnostic entry only: the Playable dispatcher will own this same runtime once the
+// cinematic transitions to state $06.
+if (args.Length >= 3 && args[0] == "--ceres-room-capture")
+{
+    string ceresRomPath = string.Join(' ', args[1..^1]).Trim('"');
+    string ceresOutputPath = args[^1].Trim('"');
+    SuperMetroidAddressSpace ceresBus = SuperMetroidAddressSpace.LoadRetailRom(ceresRomPath);
+    var ceresRuntime = new SuperMetroidRuntime(ceresBus);
+
+    // Native loading initializes standard HUD/OBJ art before loading the destination room.
+    // Drain that first NMI now, then let room/enemy uploads overwrite their reserved OBJ
+    // ranges in the same order as StartGameplay_Async.
+    ceresRuntime.InitializeHud(HudSnapshot.CeresDebug);
+    ceresRuntime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+    InitialViewportResult viewport = ceresRuntime.InitializeStartingCeresRoom();
+    ceresRuntime.InitializeCeresStartSamus();
+    CartridgeDoorHeader door = ceresRuntime.ActiveDoor!;
+
+    // Keep a phase-separated image beside the requested capture. Room graphics and the
+    // initial 17x2 viewport are already resident here, but no queued enemy/Samus transfer
+    // has reached VRAM. Comparing this image with the post-NMI result makes an overlapping
+    // DMA visually attributable instead of leaving one opaque "Ceres is striped" symptom.
+    string ceresPreNmiPath = Path.Combine(
+        Path.GetDirectoryName(ceresOutputPath) ?? string.Empty,
+        $"{Path.GetFileNameWithoutExtension(ceresOutputPath)}.pre-nmi{Path.GetExtension(ceresOutputPath)}");
+    Rgba32[] ceresPreNmiFrame = SuperMetroidRuntimeFrameRenderer.Render(ceresRuntime);
+    PngWriter.WriteRgba(ceresPreNmiPath, 256, 224, ceresPreNmiFrame);
+
+    // Sixty wait frames plus seventy-two one-pixel descent frames reproduce the complete
+    // bank-$86 arrival. One additional frame publishes the completed OAM through NMI so
+    // the requested PNG represents the actual first controllable Ceres frame.
+    for (int arrivalFrame = 0; arrivalFrame < 132; arrivalFrame++)
+        ceresRuntime.StepFrame(0);
+    if (ceresRuntime.CeresElevatorArrival is not { IsComplete: true } ||
+        ceresRuntime.Samus?.YPosition != 72 ||
+        !ceresRuntime.GroundedSamusMovementEnabled)
+    {
+        throw new InvalidOperationException(
+            "Ceres elevator did not finish at native Samus Y=$0048 with controls unlocked.");
+    }
+
+    CartridgeRoomHeader room = ceresRuntime.ActiveRoom!;
+    LoadStationEntry station = ceresRuntime.ActiveLoadStation!;
+    CartridgeRoomAssets assets = ceresRuntime.ActiveRoomAssets!;
+    Rgba32[] ceresFrame = SuperMetroidRuntimeFrameRenderer.Render(ceresRuntime);
+    EnsureOpaqueFrame(ceresFrame, "Ceres gameplay");
+    PngWriter.WriteRgba(ceresOutputPath, 256, 224, ceresFrame);
+    Console.WriteLine(
+        $"Ceres station area={station.RequestedAreaIndex} index={station.StationIndex} " +
+        $"room=$8F:{room.Pointer:X4} state=$8F:{room.State.Pointer:X4} " +
+        $"door=$83:{door.Pointer:X4}/setup=$8F:{door.SetupCodePointer:X4} " +
+        $"camera=({station.CameraX:X4},{station.CameraY:X4}) " +
+        $"Samus=({station.SamusX:X4},{station.SamusY:X4}) " +
+        $"tileset=${room.State.GraphicsSet:X2} layer2=({room.State.Layer2ScrollX:X2},{room.State.Layer2ScrollY:X2}) " +
+        $"background=$8F:{room.State.BackgroundDataPointer:X4} setup=$8F:{room.State.SetupCodePointer:X4} " +
+        $"viewport={viewport.UpdateRequestCount}/{viewport.DmaSegmentCount}.");
+    Console.WriteLine(
+        $"Tileset table=$8F:{assets.Tileset.Pointer:X4} " +
+        $"defs=${assets.Tileset.BlockDefinitionsAddress:X6} chars=${assets.Tileset.CharacterAddress:X6} " +
+        $"palette=${assets.Tileset.PaletteAddress:X6} " +
+        $"blocks=${assets.LevelData.BlockDefinitions.Length:X} " +
+        $"room-chars=${assets.RoomCharacters.Length:X} CRE-chars=${assets.CreCharacters.Length:X} " +
+        $"palette=${assets.PaletteBytes.Length:X} level={assets.LevelData.WidthInBlocks}x{assets.LevelData.HeightInBlocks} blocks.");
+    Console.Write("Ceres first level words:");
+    foreach (ushort word in assets.LevelData.ForegroundEntries.Span[..16])
+        Console.Write($" ${word:X4}");
+    Console.WriteLine();
+    Console.Write("Ceres first BG1 VRAM words:");
+    for (int wordIndex = 0; wordIndex < 16; wordIndex++)
+        Console.Write($" ${ceresRuntime.Vram.ReadWord(0x5000 + wordIndex):X4}");
+    Console.WriteLine();
+    foreach (ushort definitionPointer in new ushort[] { 0xa387, 0xa395 })
+    {
+        int definitionAddress = 0x860000 | definitionPointer;
+        ushort initialization = RomDataReader.ReadWordFixedBank(ceresBus, definitionAddress);
+        ushort preInstruction = RomDataReader.ReadWordFixedBank(ceresBus, definitionAddress + 2);
+        ushort instructionList = RomDataReader.ReadWordFixedBank(ceresBus, definitionAddress + 4);
+        Console.WriteLine(
+            $"Ceres eproj $86:{definitionPointer:X4}: init=${initialization:X4} " +
+            $"pre=${preInstruction:X4} list=${instructionList:X4} " +
+            $"radius=${RomDataReader.ReadWordFixedBank(ceresBus, definitionAddress + 6):X4} " +
+            $"properties=${RomDataReader.ReadWordFixedBank(ceresBus, definitionAddress + 8):X4}.");
+        Console.Write("  list words:");
+        for (int wordIndex = 0; wordIndex < 8; wordIndex++)
+        {
+            ushort word = RomDataReader.ReadWordFixedBank(
+                ceresBus,
+                0x860000 | ((instructionList + wordIndex * 2) & 0xffff));
+            Console.Write($" ${word:X4}");
+        }
+        Console.WriteLine();
+    }
+    Console.WriteLine($"Captured pre-NMI Ceres room to {Path.GetFullPath(ceresPreNmiPath)}.");
+    Console.WriteLine($"Captured cartridge-backed starting Ceres room to {Path.GetFullPath(ceresOutputPath)}.");
+    return 0;
+}
+
+static void EnsureOpaqueFrame(ReadOnlySpan<Rgba32> pixels, string frameName)
+{
+    for (int pixel = 0; pixel < pixels.Length; pixel++)
+    {
+        if (pixels[pixel].A != byte.MaxValue)
+        {
+            throw new InvalidDataException(
+                $"{frameName} exported alpha ${pixels[pixel].A:X2} at pixel {pixel}; " +
+                "palette-index-zero keys must be resolved against the SNES backdrop.");
+        }
+    }
+}
+
+// Front-end capture is a deliberately small alternate entry point for visual regression.
+// It runs before the gameplay runner's large option parser so title/menu work does not need
+// fake room initialization merely to produce a PNG. The frame itself still comes only from
+// the cartridge-backed dispatcher used by the WinForms Playable tab.
+if (args.Length >= 3 && args[0] is
+    "--frontend-capture" or "--frontend-title-capture" or
+    "--frontend-options-capture" or "--frontend-intro-capture" or
+    "--frontend-mother-brain-capture" or "--frontend-mother-brain-action-capture" or
+    "--frontend-mother-brain-explosion-capture" or "--frontend-page-two-capture" or
+    "--frontend-baby-discovery-capture" or "--frontend-egg-hatching-capture" or
+    "--frontend-egg-particles-capture" or "--frontend-page-three-capture" or
+    "--frontend-delivery-capture" or "--frontend-page-four-capture" or
+    "--frontend-examination-capture" or "--frontend-page-five-capture" or
+    "--frontend-page-six-capture" or "--frontend-ceres-approach-capture" or
+    "--frontend-ceres-rear-view-capture" or "--frontend-ceres-title-capture" or
+    "--frontend-playable-ceres-capture")
+{
+    bool captureTitle = args[0] == "--frontend-title-capture";
+    bool captureOptions = args[0] == "--frontend-options-capture";
+    bool captureIntro = args[0] is
+        "--frontend-intro-capture" or
+        "--frontend-mother-brain-capture" or
+        "--frontend-mother-brain-action-capture" or
+        "--frontend-mother-brain-explosion-capture" or
+        "--frontend-page-two-capture" or
+        "--frontend-baby-discovery-capture" or
+        "--frontend-egg-hatching-capture" or
+        "--frontend-egg-particles-capture" or
+        "--frontend-page-three-capture" or
+        "--frontend-delivery-capture" or
+        "--frontend-page-four-capture";
+    bool captureMotherBrain = args[0] is
+        "--frontend-mother-brain-capture" or
+        "--frontend-mother-brain-action-capture" or
+        "--frontend-mother-brain-explosion-capture" or
+        "--frontend-page-two-capture" or
+        "--frontend-baby-discovery-capture" or
+        "--frontend-egg-hatching-capture" or
+        "--frontend-egg-particles-capture" or
+        "--frontend-page-three-capture" or
+        "--frontend-delivery-capture" or
+        "--frontend-page-four-capture";
+    bool captureMotherBrainAction = args[0] is
+        "--frontend-mother-brain-action-capture" or
+        "--frontend-mother-brain-explosion-capture" or
+        "--frontend-page-two-capture" or
+        "--frontend-baby-discovery-capture" or
+        "--frontend-egg-hatching-capture" or
+        "--frontend-egg-particles-capture" or
+        "--frontend-page-three-capture" or
+        "--frontend-delivery-capture" or
+        "--frontend-page-four-capture";
+    bool captureMotherBrainExplosion = args[0] == "--frontend-mother-brain-explosion-capture";
+    bool capturePageTwo = args[0] is
+        "--frontend-page-two-capture" or
+        "--frontend-baby-discovery-capture" or
+        "--frontend-egg-hatching-capture" or
+        "--frontend-egg-particles-capture" or
+        "--frontend-page-three-capture" or
+        "--frontend-delivery-capture" or
+        "--frontend-page-four-capture";
+    bool captureBabyDiscovery = args[0] is
+        "--frontend-baby-discovery-capture" or
+        "--frontend-egg-hatching-capture" or
+        "--frontend-egg-particles-capture" or
+        "--frontend-page-three-capture" or
+        "--frontend-delivery-capture" or
+        "--frontend-page-four-capture";
+    bool captureEggHatching = args[0] is
+        "--frontend-egg-hatching-capture" or
+        "--frontend-egg-particles-capture" or
+        "--frontend-page-three-capture" or
+        "--frontend-delivery-capture" or
+        "--frontend-page-four-capture";
+    bool captureEggParticles = args[0] is
+        "--frontend-egg-particles-capture" or
+        "--frontend-page-three-capture" or
+        "--frontend-delivery-capture" or
+        "--frontend-page-four-capture";
+    bool capturePageThree = args[0] is
+        "--frontend-page-three-capture" or
+        "--frontend-delivery-capture" or
+        "--frontend-page-four-capture";
+    bool captureDelivery = args[0] is
+        "--frontend-delivery-capture" or
+        "--frontend-page-four-capture";
+    bool capturePageFour = args[0] == "--frontend-page-four-capture";
+    bool captureExamination = args[0] is
+        "--frontend-examination-capture" or
+        "--frontend-page-five-capture" or
+        "--frontend-page-six-capture" or
+        "--frontend-ceres-approach-capture" or
+        "--frontend-ceres-rear-view-capture" or
+        "--frontend-ceres-title-capture" or
+        "--frontend-playable-ceres-capture";
+    bool capturePageFive = args[0] is
+        "--frontend-page-five-capture" or
+        "--frontend-page-six-capture" or
+        "--frontend-ceres-approach-capture" or
+        "--frontend-ceres-rear-view-capture" or
+        "--frontend-ceres-title-capture" or
+        "--frontend-playable-ceres-capture";
+    bool capturePageSix = args[0] is
+        "--frontend-page-six-capture" or
+        "--frontend-ceres-approach-capture" or
+        "--frontend-ceres-rear-view-capture" or
+        "--frontend-ceres-title-capture" or
+        "--frontend-playable-ceres-capture";
+    bool captureCeresApproach = args[0] is
+        "--frontend-ceres-approach-capture" or
+        "--frontend-ceres-rear-view-capture" or
+        "--frontend-ceres-title-capture" or
+        "--frontend-playable-ceres-capture";
+    bool captureCeresRearView = args[0] is
+        "--frontend-ceres-rear-view-capture" or
+        "--frontend-ceres-title-capture" or
+        "--frontend-playable-ceres-capture";
+    bool captureCeresTitle = args[0] is
+        "--frontend-ceres-title-capture" or
+        "--frontend-playable-ceres-capture";
+    bool capturePlayableCeres = args[0] == "--frontend-playable-ceres-capture";
+    if (captureExamination)
+    {
+        // Deeper captures traverse every earlier state through the same dispatcher path.
+        captureIntro = true;
+        captureMotherBrain = true;
+        captureMotherBrainAction = true;
+        capturePageTwo = true;
+        captureBabyDiscovery = true;
+        captureEggHatching = true;
+        captureEggParticles = true;
+        capturePageThree = true;
+        captureDelivery = true;
+        capturePageFour = true;
+    }
+    // Rejoining the middle tokens also tolerates minimal Windows command hosts that strip
+    // quotes around the conventional "Super Metroid.smc" filename before `dotnet run`.
+    string frontendRomPath = string.Join(' ', args[1..^1]).Trim('"');
+    SuperMetroidAddressSpace frontendBus = SuperMetroidAddressSpace.LoadRetailRom(frontendRomPath);
+    var frontend = new SuperMetroidGame(frontendBus);
+    FrontendFrame frontendFrame = frontend.Step(0);
+
+    // A fresh Start edge skips the opening montage, release allows the fast transition to
+    // finish, then a second edge starts file select. Bounds make a broken transition fail in
+    // the CLI rather than spin forever or quietly capture the wrong screen.
+    frontendFrame = frontend.Step((ushort)SnesButton.Start);
+    for (int frame = 0; frame < 120 && frontendFrame.Phase != nameof(TitleSequencePhase.TitleScreen); frame++)
+        frontendFrame = frontend.Step(0);
+    if (frontendFrame.Phase != nameof(TitleSequencePhase.TitleScreen))
+        throw new InvalidOperationException("Title skip did not reach TitleScreen within 120 frames.");
+
+    if (!captureTitle)
+    {
+        frontendFrame = frontend.Step((ushort)SnesButton.Start);
+        for (int frame = 0; frame < 120 && frontendFrame.GameState != SuperMetroidGameState.FileSelectMenus; frame++)
+            frontendFrame = frontend.Step(0);
+        for (int frame = 0; frame < 16; frame++)
+            frontendFrame = frontend.Step(0);
+
+        if (captureOptions || captureIntro)
+        {
+            frontendFrame = frontend.Step((ushort)SnesButton.A);
+            for (int frame = 0; frame < 180 && frontendFrame.GameState != SuperMetroidGameState.GameOptionsMenu; frame++)
+                frontendFrame = frontend.Step(0);
+            if (frontendFrame.GameState != SuperMetroidGameState.GameOptionsMenu)
+                throw new InvalidOperationException("Fresh slot did not reach GameOptionsMenu within 180 frames.");
+            for (int frame = 0; frame < 16; frame++)
+                frontendFrame = frontend.Step(0);
+
+            if (captureIntro)
+            {
+                frontendFrame = frontend.Step((ushort)SnesButton.A);
+                for (int frame = 0; frame < 120 && frontendFrame.GameState != SuperMetroidGameState.IntroCinematic; frame++)
+                    frontendFrame = frontend.Step(0);
+                if (frontendFrame.GameState != SuperMetroidGameState.IntroCinematic)
+                    throw new InvalidOperationException("Options did not reach IntroCinematic within 120 frames.");
+                for (int frame = 0; frame < 1_200 && frontendFrame.Phase != nameof(IntroCinematicPhase.PageOneText); frame++)
+                    frontendFrame = frontend.Step(0);
+                if (frontendFrame.Phase != nameof(IntroCinematicPhase.PageOneText))
+                    throw new InvalidOperationException("Intro did not reach the first illustrated text page within 1,200 frames.");
+                for (int frame = 0; frame < 1_000 && frontendFrame.Phase == nameof(IntroCinematicPhase.PageOneText); frame++)
+                    frontendFrame = frontend.Step(0);
+                if (frontendFrame.Phase != nameof(IntroCinematicPhase.PageOneAwaitingInput))
+                    throw new InvalidOperationException("Intro page-one text script did not reach its native input wait within 1,000 frames.");
+
+                if (captureMotherBrain)
+                {
+                    // One fresh key edge invokes $8B:AEB8. The transition routine then
+                    // observes counters 127 through zero and completes on the decrement
+                    // from zero to $FFFF, which requires exactly 128 subsequent frames.
+                    frontendFrame = frontend.Step((ushort)SnesButton.A);
+                    if (frontendFrame.Phase != nameof(IntroCinematicPhase.MotherBrainCrossfade))
+                        throw new InvalidOperationException("Page-one input did not start the Mother Brain crossfade.");
+                    for (int frame = 0; frame < 128; frame++)
+                        frontendFrame = frontend.Step(0);
+                    if (frontendFrame.Phase != nameof(IntroCinematicPhase.MotherBrainFlashback))
+                        throw new InvalidOperationException("Mother Brain crossfade did not complete after its native 128-frame counter.");
+
+                    if (captureMotherBrainAction)
+                    {
+                        // Do not estimate where the fourth shot ought to land. Run the live
+                        // ROM-authored demo until the cinematic actor itself records all four
+                        // impacts. The 720-frame ceiling is comfortably beyond both adjacent
+                        // demo lists and turns a broken producer/collision seam into a useful
+                        // CLI failure instead of an infinite visual-capture loop.
+                        for (int frame = 0; frame < 720 && frontend.IntroMotherBrainHitCount < 4; frame++)
+                            frontendFrame = frontend.Step(0);
+                        if (frontend.IntroMotherBrainHitCount != 4)
+                        {
+                            throw new InvalidOperationException(
+                                $"Mother Brain accepted {frontend.IntroMotherBrainHitCount} of four scripted missile hits; " +
+                                $"{frontend.IntroActiveProjectileCount} ordinary projectile slots remain active.");
+                        }
+                        if (frontend.IntroMotherBrainExplosionCount != 8)
+                        {
+                            throw new InvalidOperationException(
+                                $"The fourth hit spawned {frontend.IntroMotherBrainExplosionCount} of eight native explosion actors.");
+                        }
+
+                        if (captureMotherBrainExplosion)
+                        {
+                            // Forty-eight subsequent object-handler calls expose all three
+                            // small actors and four of the five deliberately staggered big
+                            // actors. This catches list decoding, blank-frame looping, and
+                            // OAM insertion while remaining well before page two at frame 128.
+                            for (int frame = 0; frame < 48; frame++)
+                                frontendFrame = frontend.Step(0);
+                            if (frontend.IntroMotherBrainExplosionCount != 8)
+                                throw new InvalidOperationException("A Mother Brain explosion actor vanished before page two began.");
+                        }
+
+                        if (capturePageTwo)
+                        {
+                            // The fourth-hit state lasts 128 frames, then page two's reverse
+                            // palette transition lasts another 128. Use named phases instead
+                            // of baking that sum into the assertion so either handoff reports
+                            // its own failure point in the debugger.
+                            for (int frame = 0; frame < 400 &&
+                                frontendFrame.Phase != nameof(IntroCinematicPhase.PageTwoText); frame++)
+                            {
+                                frontendFrame = frontend.Step(0);
+                            }
+                            if (frontendFrame.Phase != nameof(IntroCinematicPhase.PageTwoText))
+                                throw new InvalidOperationException("Mother Brain did not crossfade into intro page two within 400 frames.");
+
+                            for (int frame = 0; frame < 1_200 &&
+                                frontendFrame.Phase == nameof(IntroCinematicPhase.PageTwoText); frame++)
+                            {
+                                frontendFrame = frontend.Step(0);
+                            }
+                            if (frontendFrame.Phase != nameof(IntroCinematicPhase.PageTwoAwaitingInput))
+                                throw new InvalidOperationException("Intro page-two text did not reach its ROM-authored input wait.");
+
+                            if (captureBabyDiscovery)
+                            {
+                                frontendFrame = frontend.Step((ushort)SnesButton.A);
+                                if (frontendFrame.Phase != nameof(IntroCinematicPhase.BabyDiscoveryCrossfade))
+                                    throw new InvalidOperationException("Page-two input did not set up the SR388 discovery crossfade.");
+                                for (int frame = 0; frame < 128; frame++)
+                                    frontendFrame = frontend.Step(0);
+                                if (frontendFrame.Phase != nameof(IntroCinematicPhase.BabyDiscovery))
+                                    throw new InvalidOperationException("SR388 discovery crossfade did not complete after 128 frames.");
+                                if (frontend.IntroBabyDiscoverySamusX >= 0x0178)
+                                    throw new InvalidOperationException("The SR388 ROM demo did not move Samus left during its crossfade.");
+
+                                if (captureEggHatching)
+                                {
+                                    for (int frame = 0; frame < 240 &&
+                                        !frontend.IntroBabyDiscoveryEggHatchingStarted; frame++)
+                                    {
+                                        frontendFrame = frontend.Step(0);
+                                    }
+                                    if (!frontend.IntroBabyDiscoveryEggHatchingStarted)
+                                    {
+                                        throw new InvalidOperationException(
+                                            $"Samus stopped at world X ${frontend.IntroBabyDiscoverySamusX:X4} without triggering the egg.");
+                                    }
+                                    for (int frame = 0; frame < 16; frame++)
+                                        frontendFrame = frontend.Step(0);
+
+                                    if (captureEggParticles)
+                                    {
+                                        // Continue until opcode $A918—not a host frame
+                                        // estimate—has actually allocated all six slots.
+                                        for (int frame = 0; frame < 320 &&
+                                            frontend.IntroBabyDiscoveryEggParticleCount == 0; frame++)
+                                        {
+                                            frontendFrame = frontend.Step(0);
+                                        }
+                                        if (frontend.IntroBabyDiscoveryEggParticleCount != 6)
+                                        {
+                                            throw new InvalidOperationException(
+                                                $"Egg burst produced {frontend.IntroBabyDiscoveryEggParticleCount} of six shell fragments.");
+                                        }
+
+                                        // Eight gravity updates separate the pieces clearly
+                                        // while all six are still above the $A8 deletion line.
+                                        for (int frame = 0; frame < 8; frame++)
+                                            frontendFrame = frontend.Step(0);
+
+                                        if (capturePageThree)
+                                        {
+                                            // The open-shell record lasts $140 frames before
+                                            // $B33E requests page three; its reverse palette
+                                            // crossfade then runs the shared 128-frame counter.
+                                            for (int frame = 0; frame < 720 &&
+                                                frontendFrame.Phase != nameof(IntroCinematicPhase.PageThreeText); frame++)
+                                            {
+                                                frontendFrame = frontend.Step(0);
+                                            }
+                                            if (frontendFrame.Phase != nameof(IntroCinematicPhase.PageThreeText))
+                                                throw new InvalidOperationException("The hatched egg did not crossfade into intro page three.");
+
+                                            for (int frame = 0; frame < 1_600 &&
+                                                frontendFrame.Phase == nameof(IntroCinematicPhase.PageThreeText); frame++)
+                                            {
+                                                frontendFrame = frontend.Step(0);
+                                            }
+                                            if (frontendFrame.Phase != nameof(IntroCinematicPhase.PageThreeAwaitingInput))
+                                                throw new InvalidOperationException("Intro page-three text did not reach its ROM-authored input wait.");
+
+                                            if (captureDelivery)
+                                            {
+                                                frontendFrame = frontend.Step((ushort)SnesButton.A);
+                                                if (frontendFrame.Phase != nameof(IntroCinematicPhase.BabyMetroidDeliveryCrossfade))
+                                                    throw new InvalidOperationException("Page-three input did not start the Ceres delivery crossfade.");
+                                                for (int frame = 0; frame < 128; frame++)
+                                                    frontendFrame = frontend.Step(0);
+                                                if (frontendFrame.Phase != nameof(IntroCinematicPhase.BabyMetroidDelivery))
+                                                    throw new InvalidOperationException("The Ceres delivery crossfade did not complete after 128 frames.");
+
+                                                if (capturePageFour)
+                                                {
+                                                    for (int frame = 0; frame < 500 &&
+                                                        frontendFrame.Phase != nameof(IntroCinematicPhase.PageFourText); frame++)
+                                                    {
+                                                        frontendFrame = frontend.Step(0);
+                                                    }
+                                                    if (frontendFrame.Phase != nameof(IntroCinematicPhase.PageFourText))
+                                                        throw new InvalidOperationException("The delivery actor did not crossfade into intro page four.");
+
+                                                    for (int frame = 0; frame < 1_600 &&
+                                                        frontendFrame.Phase == nameof(IntroCinematicPhase.PageFourText); frame++)
+                                                    {
+                                                        frontendFrame = frontend.Step(0);
+                                                    }
+                                                    if (frontendFrame.Phase != nameof(IntroCinematicPhase.PageFourAwaitingInput))
+                                                        throw new InvalidOperationException("Intro page-four text did not reach its ROM-authored input wait.");
+
+                                                    if (captureExamination)
+                                                    {
+                                                        frontendFrame = frontend.Step((ushort)SnesButton.A);
+                                                        if (frontendFrame.Phase != nameof(IntroCinematicPhase.BabyMetroidExaminationCrossfade))
+                                                            throw new InvalidOperationException("Page-four input did not start the examination crossfade.");
+                                                        for (int frame = 0; frame < 128; frame++)
+                                                            frontendFrame = frontend.Step(0);
+                                                        if (frontendFrame.Phase != nameof(IntroCinematicPhase.BabyMetroidExamination))
+                                                            throw new InvalidOperationException("The examination crossfade did not complete after 128 frames.");
+
+                                                        if (capturePageFive)
+                                                        {
+                                                            for (int frame = 0; frame < 500 &&
+                                                                frontendFrame.Phase != nameof(IntroCinematicPhase.PageFiveText); frame++)
+                                                            {
+                                                                frontendFrame = frontend.Step(0);
+                                                            }
+                                                            if (frontendFrame.Phase != nameof(IntroCinematicPhase.PageFiveText))
+                                                                throw new InvalidOperationException("The examination actor did not crossfade into intro page five.");
+
+                                                            for (int frame = 0; frame < 1_600 &&
+                                                                frontendFrame.Phase == nameof(IntroCinematicPhase.PageFiveText); frame++)
+                                                            {
+                                                                frontendFrame = frontend.Step(0);
+                                                            }
+                                                            if (frontendFrame.Phase != nameof(IntroCinematicPhase.PageFiveAwaitingInput))
+                                                                throw new InvalidOperationException("Intro page-five text did not reach its ROM-authored input wait.");
+
+                                                            if (capturePageSix)
+                                                            {
+                                                                frontendFrame = frontend.Step((ushort)SnesButton.A);
+                                                                if (frontendFrame.Phase != nameof(IntroCinematicPhase.PageSixText))
+                                                                    throw new InvalidOperationException("Page-five input did not start final intro page six.");
+                                                                for (int frame = 0; frame < 800 &&
+                                                                    frontendFrame.Phase == nameof(IntroCinematicPhase.PageSixText); frame++)
+                                                                {
+                                                                    frontendFrame = frontend.Step(0);
+                                                                }
+                                                                if (frontendFrame.Phase != nameof(IntroCinematicPhase.IntroFadeOut))
+                                                                    throw new InvalidOperationException("Intro page six did not reach its automatic finish opcode.");
+
+                                                                if (captureCeresApproach)
+                                                                {
+                                                                    // Follow the live narration fade into $8B:BCA0. Once the
+                                                                    // outer dispatcher reports CeresFlight, fourteen native
+                                                                    // music-delay frames plus eight zoom frames put the front
+                                                                    // view visibly in motion without crossing into the rear map.
+                                                                    for (int frame = 0; frame < 64 &&
+                                                                        frontendFrame.Phase != nameof(IntroCinematicPhase.CeresFlight); frame++)
+                                                                    {
+                                                                        frontendFrame = frontend.Step(0);
+                                                                    }
+                                                                    if (frontendFrame.Phase != nameof(IntroCinematicPhase.CeresFlight))
+                                                                        throw new InvalidOperationException("The final narration fade did not install the Ceres flight state.");
+                                                                    // The front capture stops eight zoom calls after display
+                                                                    // enable. The rear capture crosses the remaining front-map
+                                                                    // counter and then runs long enough for the 31-step fixed-
+                                                                    // white flash to reach black around the Ceres/asteroid shot.
+                                                                    int ceresCaptureFrames = captureCeresRearView ? 84 : 22;
+                                                                    for (int frame = 0; frame < ceresCaptureFrames; frame++)
+                                                                        frontendFrame = frontend.Step(0);
+                                                                    if (frontendFrame.Phase != nameof(IntroCinematicPhase.CeresFlight))
+                                                                        throw new InvalidOperationException("The Ceres front-view zoom ended before its ROM counter allowed.");
+
+                                                                    if (captureCeresTitle)
+                                                                    {
+                                                                        // The outer game state stays $1E throughout the flight.
+                                                                        // Wait on the translated inner function, then let `$8C:D629`
+                                                                        // publish the remaining ten English letters at $10 frames each.
+                                                                        for (int frame = 0; frame < 500 &&
+                                                                            frontend.IntroCeresFlightPhaseName != "SpaceColonyTitle"; frame++)
+                                                                        {
+                                                                            frontendFrame = frontend.Step(0);
+                                                                        }
+                                                                        if (frontend.IntroCeresFlightPhaseName != "SpaceColonyTitle")
+                                                                            throw new InvalidOperationException("The Ceres rear-view zoom did not reach the SPACE COLONY title.");
+                                                                        for (int frame = 0; frame < 0x10 * 10; frame++)
+                                                                            frontendFrame = frontend.Step(0);
+
+                                                                        if (capturePlayableCeres)
+                                                                        {
+                                                                            // Finish the title hold/fade, execute state $1F,
+                                                                            // and allow both bank-$86 elevator actors to unlock
+                                                                            // the ordinary state-$08 controller before capture.
+                                                                            for (int frame = 0; frame < 500 &&
+                                                                                frontendFrame.GameState != SuperMetroidGameState.MainGameplay; frame++)
+                                                                            {
+                                                                                frontendFrame = frontend.Step(0);
+                                                                            }
+                                                                            if (frontendFrame.GameState != SuperMetroidGameState.MainGameplay)
+                                                                                throw new InvalidOperationException("The complete frontend path did not unlock playable Ceres within 500 frames.");
+
+                                                                            // A state-$08 label alone is not evidence of playability.
+                                                                            // Hold the real SNES Right bit through the shared runtime and
+                                                                            // require cartridge collision/movement to change world X.
+                                                                            ushort controllableStartX = frontend.GameplaySamusX;
+                                                                            // Twelve frames are long enough to clear the front-view turn
+                                                                            // and produce real X displacement, but keep Samus on the narrow
+                                                                            // elevator platform so the following reversal does not become a
+                                                                            // simultaneous walked-off-floor test.
+                                                                            for (int frame = 0; frame < 12; frame++)
+                                                                            {
+                                                                                frontendFrame = frontend.Step((ushort)SnesButton.Right);
+                                                                            }
+                                                                            if (!frontend.GameplayMovementEnabled ||
+                                                                                frontend.GameplaySamusX == controllableStartX)
+                                                                            {
+                                                                                throw new InvalidOperationException(
+                                                                                    $"Playable Ceres did not move Samus from X=${controllableStartX:X4}; " +
+                                                                                    $"current=(${frontend.GameplaySamusX:X4},${frontend.GameplaySamusY:X4}).");
+                                                                            }
+
+                                                                            ushort afterRightX = frontend.GameplaySamusX;
+
+                                                                            // Reversal is a separate native path: running-right first
+                                                                            // carries its old momentum through `$25`, then `$F8` installs
+                                                                            // left-facing standing and held Left begins pose `$0A`. Give the
+                                                                            // real animation/momentum enough frames to cross back past the
+                                                                            // Right-only endpoint, and reject a renderer-only pose change.
+                                                                            for (int frame = 0; frame < 48; frame++)
+                                                                            {
+                                                                                frontendFrame = frontend.Step((ushort)SnesButton.Left);
+                                                                            }
+                                                                            if (frontend.GameplaySamusX >= afterRightX)
+                                                                            {
+                                                                                throw new InvalidOperationException(
+                                                                                    $"Playable Ceres reversal did not move left from X=${afterRightX:X4}; " +
+                                                                                    $"current X=${frontend.GameplaySamusX:X4}, pose=${frontend.GameplaySamusPose:X2}.");
+                                                                            }
+
+                                                                            // Release Left so running momentum reaches its ROM no-input
+                                                                            // fallback, then send a fresh Jump edge. Track the entire early
+                                                                            // arc instead of sampling one guessed frame: at least one frame
+                                                                            // must put Samus's world center above the grounded baseline.
+                                                                            for (int frame = 0; frame < 24; frame++)
+                                                                                frontendFrame = frontend.Step(0);
+                                                                            ushort groundedY = frontend.GameplaySamusY;
+                                                                            ushort minimumJumpY = groundedY;
+                                                                            for (int frame = 0; frame < 24; frame++)
+                                                                            {
+                                                                                frontendFrame = frontend.Step((ushort)SnesButton.A);
+                                                                                minimumJumpY = Math.Min(minimumJumpY, frontend.GameplaySamusY);
+                                                                            }
+                                                                            if (minimumJumpY >= groundedY)
+                                                                            {
+                                                                                throw new InvalidOperationException(
+                                                                                    $"Playable Ceres jump never rose above Y=${groundedY:X4}; " +
+                                                                                    $"minimum=${minimumJumpY:X4}, pose=${frontend.GameplaySamusPose:X2}.");
+                                                                            }
+
+                                                                            Console.WriteLine(
+                                                                                $"Playable input smoke: X ${controllableStartX:X4} -> " +
+                                                                                $"${afterRightX:X4} -> ${frontend.GameplaySamusX:X4}; " +
+                                                                                $"jump Y ${groundedY:X4} -> ${minimumJumpY:X4}; " +
+                                                                                $"pose ${frontend.GameplaySamusPose:X2}.");
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    string frontendOutputPath = args[^1].Trim('"');
+    EnsureOpaqueFrame(frontendFrame.Pixels, $"{frontendFrame.GameState}/{frontendFrame.Phase}");
+    PngWriter.WriteRgba(frontendOutputPath, FrontendFrame.Width, FrontendFrame.Height, frontendFrame.Pixels);
+    Console.WriteLine($"Captured {frontendFrame.GameState}/{frontendFrame.Phase} to {Path.GetFullPath(frontendOutputPath)}.");
+    return 0;
+}
+
 DebugRunnerOptions options = DebugRunnerOptions.Parse(args);
 SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(options.RomPath);
 var runtime = new SuperMetroidRuntime(bus);

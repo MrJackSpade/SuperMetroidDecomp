@@ -93,38 +93,38 @@ static void VerifySamusCrystalFlash()
         "source direction selects right Crystal Flash pose");
     AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
         "Crystal Flash installs raise handler");
-    AssertEqual((ushort)7, samus.CrystalFlash.SpecialPaletteType,
+    AssertEqual(7, samus.CrystalFlash.SpecialPaletteType,
         "Crystal Flash installs palette handler seven");
 
     var crystalCgram = new SnesCgram();
     AssertTrue(samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus),
         "Crystal Flash palette handler owns first visible frame");
-    AssertEqual((ushort)0x0100, crystalCgram.Colors[0xe0],
+    AssertEqual(0x0100, crystalCgram.Colors[0xe0],
         "Crystal Flash body palette begins at sprite palette-six color zero");
-    AssertEqual((ushort)0x0109, crystalCgram.Colors[0xe9],
+    AssertEqual(0x0109, crystalCgram.Colors[0xe9],
         "Crystal Flash body palette copies ten colors");
-    AssertEqual((ushort)0x0200, crystalCgram.Colors[0xea],
+    AssertEqual(0x0200, crystalCgram.Colors[0xea],
         "Crystal Flash bubble palette begins at color ten");
-    AssertEqual((ushort)0x0205, crystalCgram.Colors[0xef],
+    AssertEqual(0x0205, crystalCgram.Colors[0xef],
         "Crystal Flash bubble palette copies six colors");
-    AssertEqual((ushort)5, samus.CrystalFlash.SpecialPaletteTimer,
+    AssertEqual(5, samus.CrystalFlash.SpecialPaletteTimer,
         "Crystal Flash bubble timer reloads five");
-    AssertEqual((ushort)10, samus.CrystalFlash.CrystalPaletteTimer,
+    AssertEqual(10, samus.CrystalFlash.CrystalPaletteTimer,
         "Crystal Flash body timer comes from interleaved ROM record");
-    AssertEqual((ushort)4, samus.CrystalFlash.CommonPaletteTimer,
+    AssertEqual(4, samus.CrystalFlash.CommonPaletteTimer,
         "Crystal Flash body record advances four bytes");
-    AssertEqual((ushort)2, samus.HorizontalSpeed.SpecialPaletteFrame,
+    AssertEqual(2, samus.HorizontalSpeed.SpecialPaletteFrame,
         "Crystal Flash publishes aliased $0ACE palette frame");
-    AssertEqual((ushort)4, samus.HorizontalSpeed.SpecialPaletteTimer,
+    AssertEqual(4, samus.HorizontalSpeed.SpecialPaletteTimer,
         "Crystal Flash publishes aliased $0AD0 record offset");
 
     // Five more calls expire only the bubble timer and select pointer one. The ten-call
     // body timer remains halfway through its first record.
     for (int paletteCall = 0; paletteCall < 5; paletteCall++)
         samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus);
-    AssertEqual((ushort)0x0220, crystalCgram.Colors[0xea],
+    AssertEqual(0x0220, crystalCgram.Colors[0xea],
         "Crystal Flash bubble palette advances independently");
-    AssertEqual((ushort)5, samus.CrystalFlash.CrystalPaletteTimer,
+    AssertEqual(5, samus.CrystalFlash.CrystalPaletteTimer,
         "Crystal Flash body palette retains independent countdown");
 
     ushort initialY = samus.YPosition;
@@ -135,15 +135,15 @@ static void VerifySamusCrystalFlash()
             $"raise frame {frame} retains start handler");
         samus.AnimateNoFx(bus, chord);
     }
-    AssertEqual((ushort)(initialY - 18), samus.YPosition, "first nine raise calls move 18 pixels");
+    AssertEqual((initialY - 18), samus.YPosition, "first nine raise calls move 18 pixels");
 
     CrystalFlashMovementResult raiseTransition = samus.CrystalFlash.Step(bus, samus, 9);
     AssertEqual(CrystalFlashPhase.DrainingAmmo, raiseTransition.PhaseAfterStep,
         "tenth raise call installs ammo handler");
-    AssertEqual((ushort)(initialY - 20), samus.YPosition, "complete raise is 20 pixels");
+    AssertEqual((initialY - 20), samus.YPosition, "complete raise is 20 pixels");
     AssertEqual(samus.YPosition, samus.CrystalFlash.RaisedYPosition,
         "raised Y capture follows tenth displacement");
-    AssertEqual((ushort)6, samus.AnimationFrame, "raise transition forces animation frame six");
+    AssertEqual(6, samus.AnimationFrame, "raise transition forces animation frame six");
     AssertTrue(samus.CrystalFlash.BubbleHdmaRequested,
         "raise transition publishes Crystal Flash HDMA spawn seam");
 
@@ -154,7 +154,7 @@ static void VerifySamusCrystalFlash()
         "Crystal Flash spawn clears one-at-a-time Power Bomb flag");
     AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Phase,
         "Crystal Flash installs bank-$88 stage-one pre-instruction");
-    AssertEqual((ushort)0x0400, crystalWindow.ExplosionRadius,
+    AssertEqual(0x0400, crystalWindow.ExplosionRadius,
         "Crystal Flash bubble begins at radius four");
 
     // Seventeen calls remain below `$20.00`; call eighteen adds the old `$0330` speed,
@@ -166,11 +166,11 @@ static void VerifySamusCrystalFlash()
     AssertTrue(!crystalWindow.StepFrame(bus), "Crystal Flash expansion transition is not cleanup");
     AssertEqual(PowerBombExplosionPhase.CrystalFlashAfterglow, crystalWindow.Phase,
         "Crystal Flash call eighteen installs afterglow");
-    AssertEqual((ushort)0x20b0, crystalWindow.ExplosionRadius,
+    AssertEqual(0x20b0, crystalWindow.ExplosionRadius,
         "Crystal Flash transition radius preserves 8.8 acceleration sum");
-    AssertEqual((ushort)0x1d80, crystalWindow.RenderedExplosionRadius,
+    AssertEqual(0x1d80, crystalWindow.RenderedExplosionRadius,
         "Crystal Flash transition renders pre-update radius");
-    AssertEqual((byte)4, crystalWindow.FixedColorRed,
+    AssertEqual(4, crystalWindow.FixedColorRed,
         "Crystal Flash transition selects shared fixed-color entry three");
 
     // Components 4/3/2 decrement on afterglow calls 1/5/9/13. Calls 14..16 count down
@@ -181,10 +181,10 @@ static void VerifySamusCrystalFlash()
         "Crystal Flash afterglow call seventeen performs cleanup");
     AssertEqual(PowerBombExplosionPhase.Inactive, crystalWindow.Phase,
         "Crystal Flash HDMA cleanup clears phase");
-    AssertEqual((ushort)0, crystalWindow.Status,
+    AssertEqual(0, crystalWindow.Status,
         "Crystal Flash HDMA cleanup clears shared status");
     samus.AnimateNoFx(bus, chord);
-    AssertEqual((ushort)2, samus.AnimationFrameTimer,
+    AssertEqual(2, samus.AnimationFrameTimer,
         "same beta frame decrements forced timer three to two");
 
     // Call only accepted NMI counters divisible by eight. These are the only handler calls
@@ -195,13 +195,13 @@ static void VerifySamusCrystalFlash()
     for (ushort drain = 1; drain <= 30; drain++)
         samus.CrystalFlash.Step(bus, samus, unchecked((ushort)(drain * 8)));
 
-    AssertEqual((ushort)0, samus.Missiles, "Crystal Flash consumes ten missiles");
-    AssertEqual((ushort)0, samus.SuperMissiles, "Crystal Flash consumes ten supers");
-    AssertEqual((ushort)0, samus.PowerBombs, "Crystal Flash consumes ten power bombs");
-    AssertEqual((ushort)99, samus.Health, "Crystal Flash energy restoration caps at max");
+    AssertEqual(0, samus.Missiles, "Crystal Flash consumes ten missiles");
+    AssertEqual(0, samus.SuperMissiles, "Crystal Flash consumes ten supers");
+    AssertEqual(0, samus.PowerBombs, "Crystal Flash consumes ten power bombs");
+    AssertEqual(99, samus.Health, "Crystal Flash energy restoration caps at max");
     AssertEqual(CrystalFlashPhase.Finishing, samus.CrystalFlash.Phase,
         "thirtieth drain installs finish handler");
-    AssertEqual((ushort)12, samus.AnimationFrame, "ammo completion forces finish frame twelve");
+    AssertEqual(12, samus.AnimationFrame, "ammo completion forces finish frame twelve");
 
     // Finish animation is ROM bytecode, not a host countdown. Movement runs before animation
     // each frame; `$FD,$01` publishes standing-right, which is committed after animation.
@@ -220,15 +220,15 @@ static void VerifySamusCrystalFlash()
         "pose transition does not prematurely replace installed handler");
     CrystalFlashMovementResult cleanup = samus.CrystalFlash.Step(bus, samus, 0x0200);
     AssertTrue(cleanup.Completed, "following beta pass restores normal movement handler");
-    AssertEqual((ushort)0xffff, samus.CrystalFlash.SpecialPaletteTimer,
+    AssertEqual(0xffff, samus.CrystalFlash.SpecialPaletteTimer,
         "cleanup requests normal palette restoration");
     AssertTrue(samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus),
         "Crystal Flash finish restores beam palette");
-    AssertEqual((ushort)0x0300, crystalCgram.Colors[0xe0],
+    AssertEqual(0x0300, crystalCgram.Colors[0xe0],
         "Crystal Flash finish restores beam palette color zero");
-    AssertEqual((ushort)0x030f, crystalCgram.Colors[0xef],
+    AssertEqual(0x030f, crystalCgram.Colors[0xef],
         "Crystal Flash finish restores all sixteen beam palette colors");
-    AssertEqual((ushort)0, samus.CrystalFlash.SpecialPaletteType,
+    AssertEqual(0, samus.CrystalFlash.SpecialPaletteType,
         "Crystal Flash palette handler clears after restoration");
 
     var left = new SamusState
@@ -323,35 +323,35 @@ static void VerifySamusXray()
     AssertTrue(
         standing.Xray.TryBegin(bus, standing, previousMovementType: 0),
         "standing X-ray setup accepted");
-    AssertEqual((byte)0xd5, standing.Pose, "right standing X-ray pose");
-    AssertEqual((ushort)21, standing.Kinematics.YRadius, "standing X-ray radius");
-    AssertEqual((ushort)2, standing.AnimationFrame, "command five starts X-ray frame two");
-    AssertEqual((ushort)0x3f, standing.AnimationFrameTimer, "command five X-ray timer");
-    AssertEqual((ushort)0x40, standing.Xray.Angle, "right X-ray initial angle");
-    AssertEqual((byte)1, standing.Xray.SetupStage, "X-ray starts setup stage one");
+    AssertEqual(0xd5, standing.Pose, "right standing X-ray pose");
+    AssertEqual(21, standing.Kinematics.YRadius, "standing X-ray radius");
+    AssertEqual(2, standing.AnimationFrame, "command five starts X-ray frame two");
+    AssertEqual(0x3f, standing.AnimationFrameTimer, "command five X-ray timer");
+    AssertEqual(0x40, standing.Xray.Angle, "right X-ray initial angle");
+    AssertEqual(1, standing.Xray.SetupStage, "X-ray starts setup stage one");
     AssertTrue(standing.Xray.TimeIsFrozen, "X-ray freezes time");
     AssertTrue(standing.Xray.ActivationSoundRequested, "X-ray activation sound requested");
 
-    AssertEqual((ushort)2, standing.Xray.StepMovement(bus, standing)!.Value,
+    AssertEqual(2, standing.Xray.StepMovement(bus, standing)!.Value,
         "angle 40 selects forward X-ray frame");
-    AssertEqual((ushort)15, standing.AnimationFrameTimer, "X-ray movement forces timer fifteen");
+    AssertEqual(15, standing.AnimationFrameTimer, "X-ray movement forces timer fifteen");
     standing.AnimateNoFx(bus);
-    AssertEqual((ushort)14, standing.AnimationFrameTimer,
+    AssertEqual(14, standing.AnimationFrameTimer,
         "generic animation follows X-ray movement timer write");
 
     // Palette handler eight runs in the palette-FX phase. Timer one expires immediately,
     // writes only visor color four, advances byte offset zero to two, and reloads five.
     AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems),
         "X-ray widening palette writes first visor color");
-    AssertEqual((ushort)0x3be0, cgram.Colors[196], "first widening visor color");
-    AssertEqual((ushort)2, standing.Xray.SpecialPaletteFrame, "widening palette offset advances");
-    AssertEqual((ushort)5, standing.Xray.CommonPaletteTimer, "widening palette timer reload");
+    AssertEqual(0x3be0, cgram.Colors[196], "first widening visor color");
+    AssertEqual(2, standing.Xray.SpecialPaletteFrame, "widening palette offset advances");
+    AssertEqual(5, standing.Xray.CommonPaletteTimer, "widening palette timer reload");
 
     // Eight instruction-list setup functions execute before the main bank-$88 preinstruction.
     // The eighth call clears SetupStage; the next call changes X-ray state zero to one.
     for (int stage = 1; stage <= 8; stage++)
         standing.Xray.StepBeam(bus, standing, (ushort)SnesButton.B);
-    AssertEqual((byte)0, standing.Xray.SetupStage, "eight X-ray setup stages complete");
+    AssertEqual(0, standing.Xray.SetupStage, "eight X-ray setup stages complete");
     AssertEqual(XrayBeamPhase.NoBeam, standing.Xray.BeamPhase, "setup retains state zero");
     standing.Xray.StepBeam(bus, standing, (ushort)SnesButton.B);
     AssertEqual(XrayBeamPhase.Widening, standing.Xray.BeamPhase, "state zero starts widening");
@@ -363,12 +363,12 @@ static void VerifySamusXray()
         standing.Xray.StepBeam(bus, standing, (ushort)SnesButton.B);
     AssertEqual(XrayBeamPhase.Widening, standing.Xray.BeamPhase,
         "X-ray remains widening through call 26");
-    AssertEqual((ushort)10, standing.Xray.AngularWidth, "call 26 whole width");
-    AssertEqual((ushort)0xf800, standing.Xray.AngularSubwidth, "call 26 fractional width");
+    AssertEqual(10, standing.Xray.AngularWidth, "call 26 whole width");
+    AssertEqual(0xf800, standing.Xray.AngularSubwidth, "call 26 fractional width");
     standing.Xray.StepBeam(bus, standing, (ushort)SnesButton.B);
     AssertEqual(XrayBeamPhase.Full, standing.Xray.BeamPhase, "call 27 reaches full beam");
-    AssertEqual((ushort)10, standing.Xray.AngularWidth, "full beam clamps width ten");
-    AssertEqual((ushort)0, standing.Xray.AngularSubwidth, "full beam clears width fraction");
+    AssertEqual(10, standing.Xray.AngularWidth, "full beam clamps width ten");
+    AssertEqual(0, standing.Xray.AngularSubwidth, "full beam clears width fraction");
 
     // `$88:88B8/$88DC` puts this standing-right fixture's origin at screen (103,184).
     // `$91:C5FF` advances `$03FE` once per scanline and publishes the high byte, making
@@ -383,24 +383,24 @@ static void VerifySamusXray()
         standing,
         layer1X: 0,
         layer1Y: 0);
-    AssertEqual((byte)248, xrayFrame[184 * 256 + 255].R,
+    AssertEqual(248, xrayFrame[184 * 256 + 255].R,
         "X-ray horizontal center remains inside window");
-    AssertEqual((byte)123, xrayFrame[184 * 256].R,
+    AssertEqual(123, xrayFrame[184 * 256].R,
         "X-ray opposite half-plane receives outside half color math");
-    AssertEqual((byte)248, xrayFrame[174 * 256 + 142].R,
+    AssertEqual(248, xrayFrame[174 * 256 + 142].R,
         "X-ray upper tangent boundary is inclusive after 8.8 truncation");
-    AssertEqual((byte)123, xrayFrame[174 * 256 + 141].R,
+    AssertEqual(123, xrayFrame[174 * 256 + 141].R,
         "X-ray pixel beyond upper tangent boundary is outside");
-    AssertEqual((byte)248, xrayFrame[194 * 256 + 142].R,
+    AssertEqual(248, xrayFrame[194 * 256 + 142].R,
         "X-ray lower tangent boundary mirrors upper boundary");
-    AssertEqual((byte)248, xrayFrame[0].R,
+    AssertEqual(248, xrayFrame[0].R,
         "X-ray gameplay window never modifies the IRQ-owned HUD band");
 
     AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems),
         "full beam enters visor cycle");
-    AssertEqual((ushort)1, standing.Xray.BeamSizeFlag, "full beam palette flag");
-    AssertEqual((ushort)0x43ff, cgram.Colors[196], "first full-beam visor color");
-    AssertEqual((ushort)8, standing.Xray.SpecialPaletteFrame, "full-beam palette offset advances");
+    AssertEqual(1, standing.Xray.BeamSizeFlag, "full beam palette flag");
+    AssertEqual(0x43ff, cgram.Colors[196], "first full-beam visor color");
+    AssertEqual(8, standing.Xray.SpecialPaletteFrame, "full-beam palette offset advances");
 
     // Full-beam aiming moves one angle unit per call and Up wins over Down. Width ten clamps
     // the right-facing center at angle ten, so 80 calls cannot wrap into left-facing space.
@@ -408,11 +408,11 @@ static void VerifySamusXray()
         bus,
         standing,
         (ushort)(SnesButton.B | SnesButton.Up | SnesButton.Down));
-    AssertEqual((ushort)0x3f, standing.Xray.Angle, "X-ray Up wins over Down");
+    AssertEqual(0x3f, standing.Xray.Angle, "X-ray Up wins over Down");
     for (int frame = 0; frame < 80; frame++)
         standing.Xray.StepBeam(bus, standing, (ushort)(SnesButton.B | SnesButton.Up));
-    AssertEqual((ushort)10, standing.Xray.Angle, "right X-ray upper clamp includes width");
-    AssertEqual((ushort)0, standing.Xray.StepMovement(bus, standing)!.Value,
+    AssertEqual(10, standing.Xray.Angle, "right X-ray upper clamp includes width");
+    AssertEqual(0, standing.Xray.StepMovement(bus, standing)!.Value,
         "upper-clamped angle selects looking-up art");
 
     // Start a turn while the dedicated handler owns input. `$0100-angle` mirrors ten to
@@ -423,18 +423,18 @@ static void VerifySamusXray()
         standing,
         (ushort)SnesButton.Left);
     AssertTrue(startedTurn.StartedTurn, "X-ray starts standing turn");
-    AssertEqual((byte)0x25, standing.Pose, "X-ray right-to-left standing turn pose");
-    AssertEqual((ushort)0xf6, standing.Xray.Angle, "X-ray turn mirrors angle");
+    AssertEqual(0x25, standing.Pose, "X-ray right-to-left standing turn pose");
+    AssertEqual(0xf6, standing.Xray.Angle, "X-ray turn mirrors angle");
     AssertTrue(standing.Xray.StepMovement(bus, standing) is null,
         "X-ray movement is RTS during type-E turn");
     standing.AnimateNoFx(bus);
     standing.AnimateNoFx(bus);
-    AssertEqual((ushort)2, standing.AnimationFrame, "X-ray turn reaches frame two");
-    AssertEqual((ushort)1, standing.AnimationFrameTimer, "X-ray turn reaches timer one");
+    AssertEqual(2, standing.AnimationFrame, "X-ray turn reaches frame two");
+    AssertEqual(1, standing.AnimationFrameTimer, "X-ray turn reaches timer one");
     XrayPoseInputResult completedTurn = standing.Xray.HandlePoseInput(bus, standing, 0);
     AssertTrue(completedTurn.CompletedTurn, "X-ray completes standing turn");
-    AssertEqual((byte)0xd6, standing.Pose, "X-ray turn installs left standing body");
-    AssertEqual((ushort)0, standing.Xray.StepMovement(bus, standing)!.Value,
+    AssertEqual(0xd6, standing.Pose, "X-ray turn installs left standing body");
+    AssertEqual(0, standing.Xray.StepMovement(bus, standing)!.Value,
         "left near-up angle selects looking-up art");
 
     // Releasing Dash enters states three/four/five. State five restores ordinary left
@@ -448,14 +448,14 @@ static void VerifySamusXray()
     AssertTrue(finished.Completed, "X-ray state five completes");
     AssertTrue(!standing.Xray.IsActive && !standing.Xray.TimeIsFrozen,
         "X-ray teardown restores time and handlers");
-    AssertEqual((byte)0x02, standing.Pose, "left X-ray exits to ordinary standing");
-    AssertEqual((ushort)0xffff, standing.Xray.BeamSizeFlag,
+    AssertEqual(0x02, standing.Pose, "left X-ray exits to ordinary standing");
+    AssertEqual(0xffff, standing.Xray.BeamSizeFlag,
         "X-ray teardown requests palette restoration");
     AssertTrue(standing.Xray.DeactivationSoundRequested, "X-ray deactivation sound requested");
     AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems),
         "X-ray teardown restores normal suit palette");
-    AssertEqual((ushort)0x0104, cgram.Colors[196], "normal palette replaces visor color");
-    AssertEqual((ushort)0, standing.Xray.SpecialPaletteType, "X-ray palette handler clears");
+    AssertEqual(0x0104, cgram.Colors[196], "normal palette replaces visor color");
+    AssertEqual(0, standing.Xray.SpecialPaletteType, "X-ray palette handler clears");
 
     // Crouched setup selects `$D9`. Releasing while its `$43` turn is still active makes
     // `$91:E2AD` classify movement type `$0E` as standing, choose left `$02`, expand radius
@@ -470,20 +470,20 @@ static void VerifySamusXray()
     crouched.InitializeAnimation(bus);
     AssertTrue(crouched.Xray.TryBegin(bus, crouched, previousMovementType: 5),
         "crouched X-ray setup accepted");
-    AssertEqual((byte)0xd9, crouched.Pose, "right crouched X-ray pose");
-    AssertEqual((ushort)16, crouched.Kinematics.YRadius, "crouched X-ray radius");
+    AssertEqual(0xd9, crouched.Pose, "right crouched X-ray pose");
+    AssertEqual(16, crouched.Kinematics.YRadius, "crouched X-ray radius");
     crouched.Xray.HandlePoseInput(bus, crouched, (ushort)SnesButton.Left);
-    AssertEqual((byte)0x43, crouched.Pose, "crouched X-ray turn pose");
-    AssertEqual((ushort)16, crouched.Kinematics.YRadius, "crouched turn retains radius");
+    AssertEqual(0x43, crouched.Pose, "crouched X-ray turn pose");
+    AssertEqual(16, crouched.Kinematics.YRadius, "crouched turn retains radius");
     for (int stage = 1; stage <= 8; stage++)
         crouched.Xray.StepBeam(bus, crouched, 0);
     crouched.Xray.StepBeam(bus, crouched, 0); // State 0 -> state 3 on released Dash.
     crouched.Xray.StepBeam(bus, crouched, 0); // State 3 -> state 4.
     crouched.Xray.StepBeam(bus, crouched, 0); // State 4 -> state 5.
     crouched.Xray.StepBeam(bus, crouched, 0); // State 5 -> teardown.
-    AssertEqual((byte)0x02, crouched.Pose, "crouched-turn release triggers standing-left glitch");
-    AssertEqual((ushort)21, crouched.Kinematics.YRadius, "stand-up glitch expands radius");
-    AssertEqual((ushort)195, crouched.YPosition, "stand-up glitch moves center up five pixels");
+    AssertEqual(0x02, crouched.Pose, "crouched-turn release triggers standing-left glitch");
+    AssertEqual(21, crouched.Kinematics.YRadius, "stand-up glitch expands radius");
+    AssertEqual(195, crouched.YPosition, "stand-up glitch moves center up five pixels");
 
     // Admission failures are kept independent so no broad host-side `grounded` boolean can
     // accidentally replace the native previous/current type, landing, velocity, and rare
@@ -606,13 +606,13 @@ static void VerifySamusDeathSequence()
         samus,
         layer1X: 0x03e0,
         layer1Y: 0x0400);
-    AssertEqual((byte)0, start.SourceMovementType, "death source standing type");
-    AssertEqual((byte)0xd7, start.DeathPose, "death selects right pose");
-    AssertEqual((ushort)5, start.InitialFrame, "ordinary death starts unmorphed frame five");
-    AssertEqual((ushort)0x00a0, start.ScreenX, "death captures screen X");
-    AssertEqual((ushort)0x00c0, start.ScreenY, "death captures screen Y");
+    AssertEqual(0, start.SourceMovementType, "death source standing type");
+    AssertEqual(0xd7, start.DeathPose, "death selects right pose");
+    AssertEqual(5, start.InitialFrame, "ordinary death starts unmorphed frame five");
+    AssertEqual(0x00a0, start.ScreenX, "death captures screen X");
+    AssertEqual(0x00c0, start.ScreenY, "death captures screen Y");
     AssertTrue(!start.SpinJumpSoundRequested, "ordinary death does not request spin SFX");
-    AssertEqual((ushort)2, samus.AnimationFrameTimer, "death pose retains two-tick delay");
+    AssertEqual(2, samus.AnimationFrameTimer, "death pose retains two-tick delay");
 
     var cgram = new SnesCgram();
     var writes = new VramWriteQueue();
@@ -621,7 +621,7 @@ static void VerifySamusDeathSequence()
         step = samus.DeathSequence.Step(bus, samus, cgram, writes);
     AssertEqual(SamusDeathSequencePhase.Flashing, samus.DeathSequence.Phase,
         "sixteen preflash calls enter flashing");
-    AssertEqual((ushort)5, samus.AnimationFrame, "unmorphed death frame loops at five");
+    AssertEqual(5, samus.AnimationFrame, "unmorphed death frame loops at five");
     AssertTrue(step.DrawPose, "last preflash call still draws death pose");
 
     // Calls one through four queue the four high OBJ segments. Call 60 finishes flashing,
@@ -642,7 +642,7 @@ static void VerifySamusDeathSequence()
     ];
     for (int index = 0; index < expectedSegments.Length; index++)
     {
-        AssertEqual((ushort)0x0400, writes.Entries[index].SizeInBytes,
+        AssertEqual(0x0400, writes.Entries[index].SizeInBytes,
             $"death segment {index} size");
         AssertEqual(expectedSegments[index].Source, writes.Entries[index].SourceAddress,
             $"death segment {index} source");
@@ -650,14 +650,14 @@ static void VerifySamusDeathSequence()
             writes.Entries[index].EncodedVramDestination,
             $"death segment {index} destination");
     }
-    AssertEqual((ushort)0, samus.DeathSequence.AnimationIndex,
+    AssertEqual(0, samus.DeathSequence.AnimationIndex,
         "explosion begins at index zero");
-    AssertEqual((ushort)20, samus.DeathSequence.AnimationTimer,
+    AssertEqual(20, samus.DeathSequence.AnimationTimer,
         "same-call first explosion decrement");
-    AssertEqual((ushort)0x081c, step.ExplosionSpritemapIndex!.Value,
+    AssertEqual(0x081c, step.ExplosionSpritemapIndex!.Value,
         "right explosion base spritemap");
-    AssertEqual((ushort)0x0100, cgram.Colors[192], "finish restores suit palette zero");
-    AssertEqual((ushort)0x0400, cgram.Colors[240], "finish restores suitless palette zero");
+    AssertEqual(0x0100, cgram.Colors[192], "finish restores suit palette zero");
+    AssertEqual(0x0400, cgram.Colors[240], "finish restores suitless palette zero");
 
     // The remaining literal timers total 135 calls. The terminal call increments index
     // eight to nine, forces white shade 21, and deliberately emits no tenth spritemap.
@@ -671,15 +671,15 @@ static void VerifySamusDeathSequence()
     AssertEqual(135, explosionCalls, "death explosion remaining call count");
     AssertTrue(step.Completed && !step.DrawExplosion,
         "terminal death call completes without drawing");
-    AssertEqual((ushort)9, samus.DeathSequence.AnimationIndex,
+    AssertEqual(9, samus.DeathSequence.AnimationIndex,
         "death terminal index nine");
-    AssertEqual((ushort)0x0015, samus.DeathSequence.AnimationCounter,
+    AssertEqual(0x0015, samus.DeathSequence.AnimationCounter,
         "death terminal whiteout shade index");
-    AssertEqual((ushort)0x7fff, cgram.Colors[0], "death whiteout reaches full white");
-    AssertEqual((ushort)0x7fff, cgram.Colors[239], "death whiteout includes palette six end");
-    AssertEqual((ushort)0x0220, cgram.Colors[192],
+    AssertEqual(0x7fff, cgram.Colors[0], "death whiteout reaches full white");
+    AssertEqual(0x7fff, cgram.Colors[239], "death whiteout includes palette six end");
+    AssertEqual(0x0220, cgram.Colors[192],
         "whiteout preserves final Samus suit palette nine");
-    AssertEqual((ushort)0x0520, cgram.Colors[240],
+    AssertEqual(0x0520, cgram.Colors[240],
         "whiteout preserves final suitless palette nine");
 
     // Morph Ball begins frame one and uses left pose `$D8`; spin jumping still starts frame
@@ -694,8 +694,8 @@ static void VerifySamusDeathSequence()
     morphedLeft.InitializeAnimation(bus);
     SamusDeathSequenceStartResult morphStart = morphedLeft.DeathSequence.Begin(
         bus, morphedLeft, layer1X: 0, layer1Y: 0);
-    AssertEqual((byte)0xd8, morphStart.DeathPose, "left Morph death selects D8");
-    AssertEqual((ushort)1, morphStart.InitialFrame, "Morph death begins unmorph frame one");
+    AssertEqual(0xd8, morphStart.DeathPose, "left Morph death selects D8");
+    AssertEqual(1, morphStart.InitialFrame, "Morph death begins unmorph frame one");
 
     var spinning = new SamusState { Pose = SamusState.SpinJumpRightPose };
     spinning.RefreshCollisionRadii(bus);
@@ -703,7 +703,7 @@ static void VerifySamusDeathSequence()
     SamusDeathSequenceStartResult spinStart = spinning.DeathSequence.Begin(
         bus, spinning, layer1X: 0, layer1Y: 0);
     AssertTrue(spinStart.SpinJumpSoundRequested, "spin death requests sound $32");
-    AssertEqual((ushort)5, spinStart.InitialFrame, "spin death begins unmorphed frame five");
+    AssertEqual(5, spinStart.InitialFrame, "spin death begins unmorphed frame five");
 
     Console.WriteLine(
         "  Samus death: D7/D8 selection, unmorph art, five VRAM segments, flash palettes, whiteout, and nine explosion frames agree.");

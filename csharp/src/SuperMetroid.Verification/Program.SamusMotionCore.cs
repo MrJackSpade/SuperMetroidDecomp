@@ -33,7 +33,7 @@ static void VerifySamusPoseTransitionMatching()
         currentPose: 1,
         canonicalHeldInput: 0x0980,
         canonicalNewInput: 0x0080)!.Value;
-    AssertEqual((ushort)0x55, jumpUp.ProspectivePose, "Samus transition required-new plus held chord");
+    AssertEqual(0x55, jumpUp.ProspectivePose, "Samus transition required-new plus held chord");
     AssertEqual(0x91a0ec, jumpUp.EntryAddress, "Samus transition winning ROM record address");
 
     SamusPoseTransition up = SamusPoseTransitionTable.Find(
@@ -41,14 +41,14 @@ static void VerifySamusPoseTransitionMatching()
         currentPose: 1,
         canonicalHeldInput: 0x0900,
         canonicalNewInput: 0)!.Value;
-    AssertEqual((ushort)0x03, up.ProspectivePose, "Samus transition permits extra held direction");
+    AssertEqual(0x03, up.ProspectivePose, "Samus transition permits extra held direction");
 
     SamusPoseTransition right = SamusPoseTransitionTable.Find(
         bus,
         currentPose: 1,
         canonicalHeldInput: 0x0100,
         canonicalNewInput: 0)!.Value;
-    AssertEqual((ushort)0x09, right.ProspectivePose, "Samus standing Right proposes running pose");
+    AssertEqual(0x09, right.ProspectivePose, "Samus standing Right proposes running pose");
 
     AssertEqual<SamusPoseTransition?>(null,
         SamusPoseTransitionTable.Find(bus, 1, canonicalHeldInput: 0, canonicalNewInput: 0),
@@ -86,11 +86,11 @@ static void VerifySamusHorizontalSpeed()
     AssertEqual(0x909f61, speed.ResolveEntryAddress(movementType: 1), "running speed entry pointer chain");
 
     SpeedTableEntry entry = speed.ReadEntry(bus, movementType: 1);
-    AssertEqual((ushort)0x0000, entry.Acceleration, "running acceleration whole word");
-    AssertEqual((ushort)0x3000, entry.AccelerationSubspeed, "running acceleration fraction");
-    AssertEqual((ushort)0x0002, entry.MaximumSpeed, "running maximum whole word");
-    AssertEqual((ushort)0xc000, entry.MaximumSubspeed, "running maximum fraction");
-    AssertEqual((ushort)0x8000, entry.DecelerationSubspeed, "running deceleration fraction");
+    AssertEqual(0x0000, entry.Acceleration, "running acceleration whole word");
+    AssertEqual(0x3000, entry.AccelerationSubspeed, "running acceleration fraction");
+    AssertEqual(0x0002, entry.MaximumSpeed, "running maximum whole word");
+    AssertEqual(0xc000, entry.MaximumSubspeed, "running maximum fraction");
+    AssertEqual(0x8000, entry.DecelerationSubspeed, "running deceleration fraction");
 
     // Four acceleration calls produce 0.C000 exactly. Fifteen calls would reach 2.D000,
     // so the native quirked comparison clamps that result down to the table's 2.C000 cap.
@@ -104,7 +104,7 @@ static void VerifySamusHorizontalSpeed()
     speed.AccelerationMode = 2;
     StepFrames(6, _ => speed.CalculateBaseSpeed(bus, movementType: 1));
     AssertEqual(0u, speed.BaseFixed, "running deceleration underflow clears speed");
-    AssertEqual((ushort)0, speed.AccelerationMode, "running deceleration restores acceleration mode");
+    AssertEqual(0, speed.AccelerationMode, "running deceleration restores acceleration mode");
 
     // `$90:973E` adds the literal no-booster 0.1000 pair once per running+B frame. The
     // native cap test runs before addition, so call 32 reaches exactly 2.0000 and call 33
@@ -115,22 +115,22 @@ static void VerifySamusHorizontalSpeed()
             controllerInput: (ushort)SnesButton.B,
             speedBoosterEquipped: false));
     AssertTrue(speed.HasRunningMomentum, "ordinary Dash establishes native momentum flag");
-    AssertEqual((ushort)0, speed.SpeedBoostCounter, "ordinary Dash leaves booster stage zero");
-    AssertEqual((ushort)2, speed.ExtraRunSpeed, "ordinary Dash whole-speed cap");
-    AssertEqual((ushort)0, speed.ExtraRunSubspeed, "ordinary Dash fractional-speed cap");
+    AssertEqual(0, speed.SpeedBoostCounter, "ordinary Dash leaves booster stage zero");
+    AssertEqual(2, speed.ExtraRunSpeed, "ordinary Dash whole-speed cap");
+    AssertEqual(0, speed.ExtraRunSubspeed, "ordinary Dash fractional-speed cap");
     speed.HandleExtraRunSpeed(1, (ushort)SnesButton.B, speedBoosterEquipped: false);
-    AssertEqual((ushort)2, speed.ExtraRunSpeed, "ordinary Dash remains clamped on next call");
+    AssertEqual(2, speed.ExtraRunSpeed, "ordinary Dash remains clamped on next call");
 
     // B release and an airborne movement type both take `$90:9808`; a set momentum flag
     // bypasses the numeric clear. Only the separately invoked cancel routine clears the
     // flag/counter, after which another non-running call clears the retained pair.
     speed.HandleExtraRunSpeed(1, controllerInput: 0, speedBoosterEquipped: false);
     speed.HandleExtraRunSpeed(3, controllerInput: 0, speedBoosterEquipped: false);
-    AssertEqual((ushort)2, speed.ExtraRunSpeed, "Dash release and spin jump retain extra speed");
+    AssertEqual(2, speed.ExtraRunSpeed, "Dash release and spin jump retain extra speed");
     speed.CancelRunningMomentum(poseXDirection: 8);
     AssertTrue(!speed.HasRunningMomentum, "CancelSpeedBoost clears ordinary momentum flag");
     speed.HandleExtraRunSpeed(3, controllerInput: 0, speedBoosterEquipped: false);
-    AssertEqual((ushort)0, speed.ExtraRunSpeed, "post-cancel airborne handler clears extra speed");
+    AssertEqual(0, speed.ExtraRunSpeed, "post-cancel airborne handler clears extra speed");
 
     // The animation side reads its ordinary-Dash cadence through the live pointer at
     // `$91:B5D1`. The pose-specific stream deliberately uses different delays so these
@@ -148,12 +148,12 @@ static void VerifySamusHorizontalSpeed()
         speedBoosterEquipped: false);
     for (int tick = 0; tick < 9; tick++)
         dashAnimation.AnimateNoFx(bus, (ushort)SnesButton.B);
-    AssertEqual((ushort)1, dashAnimation.AnimationFrame, "Dash advances into running frame one");
-    AssertEqual((ushort)3, dashAnimation.AnimationFrameTimer, "Dash selects shared frame-one delay");
+    AssertEqual(1, dashAnimation.AnimationFrame, "Dash advances into running frame one");
+    AssertEqual(3, dashAnimation.AnimationFrameTimer, "Dash selects shared frame-one delay");
     for (int tick = 0; tick < 3; tick++)
         dashAnimation.AnimateNoFx(bus, (ushort)SnesButton.B);
-    AssertEqual((ushort)0, dashAnimation.AnimationFrame, "Dash command interception restarts frame zero");
-    AssertEqual((ushort)2, dashAnimation.AnimationFrameTimer, "Dash restart uses shared frame-zero delay");
+    AssertEqual(0, dashAnimation.AnimationFrame, "Dash command interception restarts frame zero");
+    AssertEqual(2, dashAnimation.AnimationFrameTimer, "Dash restart uses shared frame-zero delay");
 
     // `$91:B61F` supplies each stage's command-loop countdown, while `$91:B5DE` supplies
     // the corresponding animation stream. Distinct synthetic values prove both lookups
@@ -172,8 +172,8 @@ static void VerifySamusHorizontalSpeed()
         speedBoosterEquipped: true,
         bus);
     AssertTrue(booster.HasRunningMomentum, "Speed Booster establishes momentum");
-    AssertEqual((ushort)3, booster.SpeedBoostCounter, "Speed Booster seeds stage-zero countdown from ROM");
-    AssertEqual((ushort)1, booster.SpecialPaletteTimer, "Speed Booster seeds special-palette timer");
+    AssertEqual(3, booster.SpeedBoostCounter, "Speed Booster seeds stage-zero countdown from ROM");
+    AssertEqual(1, booster.SpecialPaletteTimer, "Speed Booster seeds special-palette timer");
 
     // Hexadecimal `.1000` is one sixteenth, so 112 movement calls reach 7.0000 exactly.
     for (int frame = 1; frame < 112; frame++)
@@ -184,8 +184,8 @@ static void VerifySamusHorizontalSpeed()
             speedBoosterEquipped: true,
             bus);
     }
-    AssertEqual((ushort)7, booster.ExtraRunSpeed, "Speed Booster reaches exact 7.0000 cap");
-    AssertEqual((ushort)0, booster.ExtraRunSubspeed, "Speed Booster cap has zero fraction");
+    AssertEqual(7, booster.ExtraRunSpeed, "Speed Booster reaches exact 7.0000 cap");
+    AssertEqual(0, booster.ExtraRunSubspeed, "Speed Booster cap has zero fraction");
 
     ushort boostFrame = 1;
     for (int command = 0; command < 9; command++)
@@ -200,13 +200,13 @@ static void VerifySamusHorizontalSpeed()
         if (command == 2)
         {
             AssertTrue(intercepted, "third stage-zero command advances Speed Booster");
-            AssertEqual((ushort)0, boostFrame, "Speed Booster stage change restarts animation");
-            AssertEqual((ushort)4, boostTimer, "stage-one delay comes from ROM-selected stream");
+            AssertEqual(0, boostFrame, "Speed Booster stage change restarts animation");
+            AssertEqual(4, boostTimer, "stage-one delay comes from ROM-selected stream");
         }
     }
-    AssertEqual((ushort)0x0402, booster.SpeedBoostCounter, "Speed Booster reaches stage four countdown");
+    AssertEqual(0x0402, booster.SpeedBoostCounter, "Speed Booster reaches stage four countdown");
     AssertTrue(booster.EchoSoundRequested, "stage four publishes speed-echo sound event");
-    AssertEqual((ushort)1, booster.ContactDamageIndex, "stage four enables contact damage");
+    AssertEqual(1, booster.ContactDamageIndex, "stage four enables contact damage");
 
     // `$91:DAA9` is a pointer to the active suit's four-entry palette-pointer list, not a
     // direct bank-$9B palette address. Distinct first/second colors prove both levels of
@@ -225,9 +225,9 @@ static void VerifySamusHorizontalSpeed()
     AssertTrue(booster.UpdateSpeedBoosterPalette(
         bus, boostCgram, movementType: 1, animationFrame: 0, equippedItems: 0x2000),
         "stage-four palette timer one copies immediately");
-    AssertEqual((ushort)0x1234, boostCgram.Colors[192], "first Speed Booster palette comes from bank $9B");
-    AssertEqual((ushort)2, booster.SpecialPaletteFrame, "Speed Booster palette advances to pointer offset two");
-    AssertEqual((ushort)4, booster.SpecialPaletteTimer, "Speed Booster palette reloads four-frame timer");
+    AssertEqual(0x1234, boostCgram.Colors[192], "first Speed Booster palette comes from bank $9B");
+    AssertEqual(2, booster.SpecialPaletteFrame, "Speed Booster palette advances to pointer offset two");
+    AssertEqual(4, booster.SpecialPaletteTimer, "Speed Booster palette reloads four-frame timer");
     for (int paletteTick = 0; paletteTick < 3; paletteTick++)
     {
         AssertTrue(!booster.UpdateSpeedBoosterPalette(
@@ -237,7 +237,7 @@ static void VerifySamusHorizontalSpeed()
     AssertTrue(booster.UpdateSpeedBoosterPalette(
         bus, boostCgram, movementType: 1, animationFrame: 0, equippedItems: 0x2000),
         "fourth Speed Booster palette tick copies next frame");
-    AssertEqual((ushort)0x4567, boostCgram.Colors[192], "second Speed Booster palette pointer");
+    AssertEqual(0x4567, boostCgram.Colors[192], "second Speed Booster palette pointer");
 
     // `$91:D9B2-$D9D8` performs its bottom-boundary liquid gate before either the Screw
     // Attack or active Speed Booster branches. A submerged Power/Varia body returns with
@@ -266,11 +266,11 @@ static void VerifySamusHorizontalSpeed()
         equippedItems: 0x2001,
         bottomBoundarySubmerged: true),
         "submerged Varia Suit suppresses active Speed Booster palette copy");
-    AssertEqual((ushort)0x7777, submergedBoostCgram.Colors[192],
+    AssertEqual(0x7777, submergedBoostCgram.Colors[192],
         "submerged Speed Booster leaves live Samus palette untouched");
-    AssertEqual((ushort)0, submergedBoost.SpecialPaletteTimer,
+    AssertEqual(0, submergedBoost.SpecialPaletteTimer,
         "submerged Speed Booster freezes common palette timer");
-    AssertEqual((ushort)0, submergedBoost.SpecialPaletteFrame,
+    AssertEqual(0, submergedBoost.SpecialPaletteFrame,
         "submerged Speed Booster freezes palette-list offset");
     AssertTrue(submergedBoost.UpdateSpeedBoosterPalette(
         bus,
@@ -280,7 +280,7 @@ static void VerifySamusHorizontalSpeed()
         equippedItems: (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.SpeedBooster).ToNativeWord(),
         bottomBoundarySubmerged: true),
         "submerged Gravity Suit bypasses Speed Booster palette suppression");
-    AssertEqual((ushort)0x6a5a, submergedBoostCgram.Colors[192],
+    AssertEqual(0x6a5a, submergedBoostCgram.Colors[192],
         "submerged Gravity Suit Speed Booster palette remains ROM-authored");
 
     // The same early return surrounds Screw Attack. Exercise it independently so a future
@@ -300,9 +300,9 @@ static void VerifySamusHorizontalSpeed()
         equippedItems: 0x0008,
         bottomBoundarySubmerged: true),
         "submerged Power Suit suppresses late Screw Attack palette copy");
-    AssertEqual((ushort)0x2222, submergedScrewCgram.Colors[192],
+    AssertEqual(0x2222, submergedScrewCgram.Colors[192],
         "submerged Screw Attack retains the current suit colors");
-    AssertEqual((ushort)0, submergedScrew.SpecialPaletteFrame,
+    AssertEqual(0, submergedScrew.SpecialPaletteFrame,
         "submerged Screw Attack freezes palette-list offset");
     AssertTrue(submergedScrew.UpdateSpeedBoosterPalette(
         bus,
@@ -312,7 +312,7 @@ static void VerifySamusHorizontalSpeed()
         equippedItems: (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack).ToNativeWord(),
         bottomBoundarySubmerged: true),
         "submerged Gravity Suit bypasses Screw Attack palette suppression");
-    AssertEqual((ushort)0x5b4b, submergedScrewCgram.Colors[192],
+    AssertEqual(0x5b4b, submergedScrewCgram.Colors[192],
         "submerged Gravity Screw palette remains ROM-authored");
 
     // `$90:EEE7` samples post-movement positions only on game-time multiples of four and
@@ -320,20 +320,20 @@ static void VerifySamusHorizontalSpeed()
     // by `$90:87BD`; capture itself deliberately contains no interpolation.
     AssertTrue(!booster.CaptureSpeedEchoPosition(3, 100, 80), "speed echo skips non-fourth frame");
     AssertTrue(booster.CaptureSpeedEchoPosition(4, 101, 81), "speed echo captures slot zero");
-    AssertEqual((ushort)2, booster.SpeedEchoIndex, "speed echo advances to slot one");
+    AssertEqual(2, booster.SpeedEchoIndex, "speed echo advances to slot one");
     AssertTrue(booster.CaptureSpeedEchoPosition(8, 105, 82), "speed echo captures slot one");
-    AssertEqual((ushort)0, booster.SpeedEchoIndex, "speed echo alternation wraps after slot one");
-    AssertEqual((ushort)101, booster.FirstSpeedEchoXPosition, "first speed echo X snapshot");
-    AssertEqual((ushort)105, booster.SecondSpeedEchoXPosition, "second speed echo X snapshot");
+    AssertEqual(0, booster.SpeedEchoIndex, "speed echo alternation wraps after slot one");
+    AssertEqual(101, booster.FirstSpeedEchoXPosition, "first speed echo X snapshot");
+    AssertEqual(105, booster.SecondSpeedEchoXPosition, "second speed echo X snapshot");
 
     booster.CancelRunningMomentum(poseXDirection: 8);
     AssertTrue(booster.NormalSuitPaletteRestoreRequested,
         "CancelSpeedBoost publishes normal-suit palette restoration");
-    AssertEqual((ushort)0xffff, booster.SpeedEchoIndex,
+    AssertEqual(0xffff, booster.SpeedEchoIndex,
         "right-facing cancellation enters high-bit echo departure");
-    AssertEqual((ushort)8, booster.FirstSpeedEchoXSpeed,
+    AssertEqual(8, booster.FirstSpeedEchoXSpeed,
         "right-facing first departure speed is positive eight");
-    AssertEqual((ushort)8, booster.SecondSpeedEchoXSpeed,
+    AssertEqual(8, booster.SecondSpeedEchoXSpeed,
         "right-facing second departure speed is positive eight");
 
     // `$90:87D3-$90:884B` advances slot one, then slot zero as an actual draw side effect.
@@ -341,38 +341,38 @@ static void VerifySamusHorizontalSpeed()
     // independently approaches 90 by two. Crossing clears a slot before it can emit OAM.
     AssertTrue(booster.AdvanceDepartingSpeedEcho(1, 120, 90),
         "right departure slot one remains before crossing");
-    AssertEqual((ushort)113, booster.SecondSpeedEchoXPosition,
+    AssertEqual(113, booster.SecondSpeedEchoXPosition,
         "right departure slot one advances positive eight");
-    AssertEqual((ushort)84, booster.SecondSpeedEchoYPosition,
+    AssertEqual(84, booster.SecondSpeedEchoYPosition,
         "right departure slot one approaches Samus Y by two");
     AssertTrue(booster.AdvanceDepartingSpeedEcho(0, 120, 90),
         "right departure slot zero remains before crossing");
-    AssertEqual((ushort)109, booster.FirstSpeedEchoXPosition,
+    AssertEqual(109, booster.FirstSpeedEchoXPosition,
         "right departure slot zero advances positive eight");
-    AssertEqual((ushort)83, booster.FirstSpeedEchoYPosition,
+    AssertEqual(83, booster.FirstSpeedEchoYPosition,
         "right departure slot zero approaches Samus Y by two");
     booster.FinishDepartingSpeedEchoFrame();
-    AssertEqual((ushort)0xffff, booster.SpeedEchoIndex,
+    AssertEqual(0xffff, booster.SpeedEchoIndex,
         "departure index survives while either echo remains");
 
     // Samus_CancelSpeedBoost is called every applicable standing/turn frame. Its BMI guard
     // must preserve an already-running departure even if the new pose faces the other way.
     booster.CancelRunningMomentum(poseXDirection: 4);
-    AssertEqual((ushort)8, booster.FirstSpeedEchoXSpeed,
+    AssertEqual(8, booster.FirstSpeedEchoXSpeed,
         "repeated cancellation cannot reverse an active departure");
     AssertTrue(!booster.AdvanceDepartingSpeedEcho(1, 120, 90),
         "right departure slot one clears on crossing");
-    AssertEqual((ushort)0, booster.SecondSpeedEchoXPosition,
+    AssertEqual(0, booster.SecondSpeedEchoXPosition,
         "crossed slot one publishes empty sentinel");
     AssertTrue(booster.AdvanceDepartingSpeedEcho(0, 120, 90),
         "right departure slot zero remains one more frame");
     booster.FinishDepartingSpeedEchoFrame();
-    AssertEqual((ushort)0xffff, booster.SpeedEchoIndex,
+    AssertEqual(0xffff, booster.SpeedEchoIndex,
         "one surviving departure keeps high-bit index");
     AssertTrue(!booster.AdvanceDepartingSpeedEcho(0, 120, 90),
         "right departure slot zero eventually crosses");
     booster.FinishDepartingSpeedEchoFrame();
-    AssertEqual((ushort)0, booster.SpeedEchoIndex,
+    AssertEqual(0, booster.SpeedEchoIndex,
         "last crossed departure restores ordinary echo index");
 
     // Mirror the same signed-word comparison for a left-facing cancellation. This uses the
@@ -392,26 +392,26 @@ static void VerifySamusHorizontalSpeed()
         "left-facing second departure speed is negative eight");
     AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(1, 140, 100),
         "left departure slot one remains before crossing");
-    AssertEqual((ushort)146, leftDeparture.SecondSpeedEchoXPosition,
+    AssertEqual(146, leftDeparture.SecondSpeedEchoXPosition,
         "left departure slot one advances negative eight");
-    AssertEqual((ushort)96, leftDeparture.SecondSpeedEchoYPosition,
+    AssertEqual(96, leftDeparture.SecondSpeedEchoYPosition,
         "left departure slot one approaches Samus Y by two");
     AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(0, 140, 100),
         "left departure slot zero remains before crossing");
-    AssertEqual((ushort)142, leftDeparture.FirstSpeedEchoXPosition,
+    AssertEqual(142, leftDeparture.FirstSpeedEchoXPosition,
         "left departure slot zero advances negative eight");
     AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(1, 140, 100),
         "left departure slot one clears after passing Samus");
     AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(0, 140, 100),
         "left departure slot zero clears after passing Samus");
     leftDeparture.FinishDepartingSpeedEchoFrame();
-    AssertEqual((ushort)0, leftDeparture.SpeedEchoIndex,
+    AssertEqual(0, leftDeparture.SpeedEchoIndex,
         "left departure clears shared index after both slots cross");
 
     AssertTrue(booster.UpdateSpeedBoosterPalette(
         bus, boostCgram, movementType: 0, animationFrame: 0, equippedItems: 0x2000),
         "cancel copies normal suit palette through runtime seam");
-    AssertEqual((ushort)0x0321, boostCgram.Colors[192], "cancel restores ROM-authored Power Suit palette");
+    AssertEqual(0x0321, boostCgram.Colors[192], "cancel restores ROM-authored Power Suit palette");
     AssertTrue(!booster.NormalSuitPaletteRestoreRequested, "normal-suit palette request is one-shot");
 
     var boostedJump = new SamusState { EquippedItems = 0x2000 };
@@ -420,8 +420,8 @@ static void VerifySamusHorizontalSpeed()
     boostedJump.HorizontalSpeed.ExtraRunSpeed = 3;
     boostedJump.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
     SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(boostedJump);
-    AssertEqual((ushort)5, boostedJump.Kinematics.YSpeed, "boosted jump adds half whole extra speed");
-    AssertEqual((ushort)0x2000, boostedJump.Kinematics.YSubspeed,
+    AssertEqual(5, boostedJump.Kinematics.YSpeed, "boosted jump adds half whole extra speed");
+    AssertEqual(0x2000, boostedJump.Kinematics.YSubspeed,
         "boosted jump wraps fractional addition without carrying");
 
     // $90:E4E6 caps a nonsensically large divisor at four. Extra run speed is added before
@@ -430,7 +430,7 @@ static void VerifySamusHorizontalSpeed()
     speed.ExtraRunSubspeed = 0;
     speed.SpeedDivisor = 0x1234;
     AssertEqual(0x00004000u, speed.CalculateTotalSpeed(0x00020000), "total speed divisor caps at four");
-    AssertEqual((ushort)0x4000, speed.TotalSubspeed, "total subspeed publication");
+    AssertEqual(0x4000, speed.TotalSubspeed, "total subspeed publication");
 
     // The displacement clamp replaces only the signed whole word and preserves the low
     // fraction. These deliberately oversized values catch a tempting floating-point clamp.
@@ -499,9 +499,9 @@ static void VerifySamusExtraDisplacement()
         "standing external +X bypasses zero base speed");
     AssertEqual(0x00034000, positive.Vertical.AcceptedDisplacement,
         "positive no-speed external Y gains one whole pixel");
-    AssertEqual((ushort)1, standing.Kinematics.ExtraXDisplacement,
+    AssertEqual(1, standing.Kinematics.ExtraXDisplacement,
         "movement does not consume persistent external X producer word");
-    AssertEqual((ushort)2, standing.Kinematics.ExtraYDisplacement,
+    AssertEqual(2, standing.Kinematics.ExtraYDisplacement,
         "movement does not consume persistent external Y producer word");
 
     var negative = new SamusState
@@ -566,7 +566,7 @@ static void VerifySamusExtraDisplacement()
         nmiFrameCounter: 0);
     AssertEqual(0x00008000, reversed.Vertical!.Value.AcceptedDisplacement,
         "gravity path adds external Y directly and may reverse actual direction");
-    AssertEqual((ushort)1, rising.Kinematics.YDirection,
+    AssertEqual(1, rising.Kinematics.YDirection,
         "external reversal does not rewrite native velocity-direction word");
 
     var bouncingBall = new SamusState
@@ -592,11 +592,11 @@ static void VerifySamusExtraDisplacement()
         nmiFrameCounter: 0);
     AssertEqual(unchecked((int)0xffff8000), displacedBounce.Vertical.AcceptedDisplacement,
         "external Y replaces an active Morph Ball rebound rather than joining gravity");
-    AssertEqual((ushort)0, bouncingBall.Kinematics.YSpeed,
+    AssertEqual(0, bouncingBall.Kinematics.YSpeed,
         "external Morph Ball bounce override clears whole rebound speed");
-    AssertEqual((ushort)0, bouncingBall.Kinematics.YSubspeed,
+    AssertEqual(0, bouncingBall.Kinematics.YSubspeed,
         "external Morph Ball bounce override clears fractional rebound speed");
-    AssertEqual((ushort)2, bouncingBall.Kinematics.YDirection,
+    AssertEqual(2, bouncingBall.Kinematics.YDirection,
         "external Morph Ball bounce override forces native direction word two");
     AssertTrue(!displacedBounce.HitCeiling && !displacedBounce.Landed,
         "unobstructed signed-negative Morph Ball producer moves without a false collision");

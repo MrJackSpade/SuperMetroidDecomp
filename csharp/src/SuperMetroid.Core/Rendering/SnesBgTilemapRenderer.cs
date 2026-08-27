@@ -21,7 +21,8 @@ public static class SnesBgTilemapRenderer
         int height,
         int tilemapWidthInTiles = 64,
         int tilemapHeightInTiles = 32,
-        IReadOnlyList<ushort>? horizontalScrollByLine = null)
+        IReadOnlyList<ushort>? horizontalScrollByLine = null,
+        bool? priority = null)
     {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -68,6 +69,11 @@ public static class SnesBgTilemapRenderer
                     (tileX & 31)) & 0x7fff;
                 SnesBgTilemapWord entry = vram.ReadWord(mapWord);
 
+                // A null filter decodes the complete layer for legacy single-layer users.
+                // Multi-layer PPU composition requests one priority plane at a time.
+                if (priority.HasValue && entry.HasPriority != priority.Value)
+                    continue;
+
                 int character = entry.CharacterIndex;
                 int palette = entry.PaletteIndex;
                 int sourceX = entry.FlipHorizontally ? 7 - pixelX : pixelX;
@@ -97,7 +103,9 @@ public static class SnesBgTilemapRenderer
         SnesCgram cgram,
         ushort tilemapBaseWord,
         ushort characterBaseWord,
-        int rowCount)
+        int rowCount,
+        bool transparentColorZero = false,
+        bool? priority = null)
     {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -116,6 +124,8 @@ public static class SnesBgTilemapRenderer
                 SnesBgTilemapWord entry = (ushort)(
                     vram.ReadByte(mapByteAddress) |
                     (vram.ReadByte(mapByteAddress + 1) << 8));
+                if (priority.HasValue && entry.HasPriority != priority.Value)
+                    continue;
                 int character = entry.CharacterIndex;
                 int palette = entry.PaletteIndex;
 
@@ -133,9 +143,14 @@ public static class SnesBgTilemapRenderer
                         int color = ((vram.ReadByte(planes) & mask) != 0 ? 1 : 0)
                                   | ((vram.ReadByte(planes + 1) & mask) != 0 ? 2 : 0);
 
-                        // 2-bpp BG palettes contain four colors each in CGRAM's lower
-                        // half. Unlike OBJ, color zero is allowed to draw the backdrop here.
-                        output[(tileY * 8 + y) * width + tileX * 8 + x] = cgram.GetRgba(palette * 4 + color);
+                        // Every SNES BG treats pixel value zero as transparent when another
+                        // layer is being composed below it. Existing single-layer callers
+                        // retain the historical opaque behavior by leaving the option false;
+                        // cinematic BG3 enables it so the portrait on BG2 remains visible.
+                        output[(tileY * 8 + y) * width + tileX * 8 + x] =
+                            transparentColorZero && color == 0
+                                ? default
+                                : cgram.GetRgba(palette * 4 + color);
                     }
                 }
             }

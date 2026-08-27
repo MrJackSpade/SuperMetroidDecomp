@@ -405,8 +405,9 @@ public sealed partial class SamusState
     /// <summary>
     /// Applies the verified ordinary-input jump transitions selected from the cartridge's
     /// bank-$91 table, including <c>HandleJumpTransition</c>'s call to
-    /// <c>Make_Samus_Jump</c>. Only the four no-equipment/no-aim routes admitted by the
-    /// current runtime are accepted.
+    /// <c>Make_Samus_Jump</c>. Only explicitly verified no-equipment/no-aim routes admitted
+    /// by the current runtime are accepted, including interrupting ordinary `$A4/$A5`
+    /// landing art with a fresh Jump edge.
     /// </summary>
     public void ApplyOrdinaryJumpTransition(
         ISnesAddressSpace bus,
@@ -449,7 +450,12 @@ public sealed partial class SamusState
             (RanIntoWallRightPose or RanIntoWallAimUpRightPose or RanIntoWallAimDownRightPose,
              NeutralJumpTransitionRightPose) or
             (RanIntoWallLeftPose or RanIntoWallAimUpLeftPose or RanIntoWallAimDownLeftPose,
-             NeutralJumpTransitionLeftPose);
+             NeutralJumpTransitionLeftPose) or
+            // `$A4/$A5` share the ordinary standing transition table in the cartridge.
+            // A fresh Jump edge is therefore allowed to interrupt their five-tick landing
+            // art before `$F8` returns to `$01/$02`.
+            (NormalLandingRightPose, NeutralJumpTransitionRightPose) or
+            (NormalLandingLeftPose, NeutralJumpTransitionLeftPose);
         if (!verified)
         {
             throw new NotSupportedException(

@@ -77,7 +77,7 @@ static void VerifySamusAerialTurnsAndWallJump()
             $"{(jumping ? "jump" : "fall")} turn direction {shotDirection} fits");
         AssertEqual(expectedPose, samus.Pose, $"{(jumping ? "jump" : "fall")} selector direction {shotDirection}");
         AssertEqual(0x00018000u, samus.HorizontalSpeed.BaseFixed, "aerial selector folds extra speed");
-        AssertEqual((ushort)1, samus.HorizontalSpeed.AccelerationMode, "aerial selector starts turn mode");
+        AssertEqual(1, samus.HorizontalSpeed.AccelerationMode, "aerial selector starts turn mode");
     }
 
     // Isolate one diagonal-up jumping turn with its real three-frame `$F8,$6A` stream.
@@ -101,12 +101,12 @@ static void VerifySamusAerialTurnsAndWallJump()
     AssertTrue(turn.TryApplyAerialTurn(bus, level, 0x2f, 0), "diagonal-up aerial turn installs");
     AerialMovementResult turnFrame = SamusAerialMovement.StepTurningInAir(bus, level, turn, 0);
     AssertEqual(0x00017000, turnFrame.Horizontal.AcceptedDisplacement, "turn retains old rightward momentum");
-    AssertEqual((ushort)33, turn.XPosition, "turn moves in old direction despite new facing");
+    AssertEqual(33, turn.XPosition, "turn moves in old direction despite new facing");
     for (int tick = 0; tick < 6; tick++)
         turn.AnimateNoFx(bus);
-    AssertEqual((byte)0xf8, turn.LastAnimationDelayCommand!.Value, "aerial turn reaches F8");
+    AssertEqual(0xf8, turn.LastAnimationDelayCommand!.Value, "aerial turn reaches F8");
     AssertTrue(turn.ApplyPendingVerifiedAnimationTransition(bus), "aerial turn F8 applies");
-    AssertEqual((byte)0x6a, turn.Pose, "aerial turn preserves diagonal-up aim endpoint");
+    AssertEqual(0x6a, turn.Pose, "aerial turn preserves diagonal-up aim endpoint");
 
     // Ordinary spin art, wall-jump art, and both dry launch table pairs.
     WritePoseDefinition(bus, 0x19, [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
@@ -125,8 +125,8 @@ static void VerifySamusAerialTurnsAndWallJump()
     AerialMovementResult contactFrame = SamusAerialMovement.StepSpinJump(
         bus, level, earlyContact, (ushort)(SnesButton.Left | SnesButton.A), 0, 0);
     AssertTrue(contactFrame.WallContact && !contactFrame.WallJumpTriggered, "early wall chord contacts without launch");
-    AssertEqual((ushort)0x0a, earlyContact.AnimationFrame, "early wall contact rewinds to frame A");
-    AssertEqual((ushort)0x7777, earlyContact.SolidVerticalCollisionResult,
+    AssertEqual(0x0a, earlyContact.AnimationFrame, "early wall contact rewinds to frame A");
+    AssertEqual(0x7777, earlyContact.SolidVerticalCollisionResult,
         "early wall contact does not publish launch collision result");
 
     // Merely holding Jump after the eligible frame is still contact, not a launch. In
@@ -136,7 +136,7 @@ static void VerifySamusAerialTurnsAndWallJump()
         bus, level, heldOnly, (ushort)(SnesButton.Left | SnesButton.A), 0, 0);
     AssertTrue(heldOnlyFrame.WallContact && !heldOnlyFrame.WallJumpTriggered,
         "eligible held Jump without a fresh edge remains contact only");
-    AssertEqual((ushort)0, heldOnly.SolidVerticalCollisionResult,
+    AssertEqual(0, heldOnly.SolidVerticalCollisionResult,
         "held-only wall contact leaves collision result clear");
 
     var eligible = CreateSpinSamus(animationFrame: 0x0b);
@@ -151,8 +151,8 @@ static void VerifySamusAerialTurnsAndWallJump()
     AssertTrue(triggerFrame.WallJumpTriggered, "eligible fresh jump press triggers wall jump");
     AssertTrue(triggerFrame.Vertical is null, "wall trigger carry skips vertical movement");
     AssertEqual(beforeTriggerY, eligible.YPosition, "wall trigger frame preserves Y");
-    AssertEqual((ushort)7, triggerFrame.WallDistance, "wall trigger reports clipped seven-pixel distance");
-    AssertEqual((ushort)5, eligible.SolidVerticalCollisionResult,
+    AssertEqual(7, triggerFrame.WallDistance, "wall trigger reports clipped seven-pixel distance");
+    AssertEqual(5, eligible.SolidVerticalCollisionResult,
         "terrain wall jump publishes native solid-vertical result five");
 
     // Repeat the same eligible chord with a native solid-enemy snapshot in front of the
@@ -178,10 +178,10 @@ static void VerifySamusAerialTurnsAndWallJump()
         0,
         (ushort)SnesButton.A);
     AssertTrue(enemyTrigger.WallJumpTriggered, "solid enemy can trigger ordinary wall jump");
-    AssertEqual((ushort)7, enemyTrigger.WallDistance, "enemy wall jump retains directional gap");
-    AssertEqual((ushort)5, enemyEligible.SolidVerticalCollisionResult,
+    AssertEqual(7, enemyTrigger.WallDistance, "enemy wall jump retains directional gap");
+    AssertEqual(5, enemyEligible.SolidVerticalCollisionResult,
         "enemy wall jump publishes native solid-vertical result five");
-    AssertEqual((ushort)0x0240, enemyEligible.EnemyIndexToShake,
+    AssertEqual(0x0240, enemyEligible.EnemyIndexToShake,
         "enemy wall jump publishes contacted slot for shake");
 
     // Bank $91:F2D3 clears only base speed; bank $90:9949 installs Y launch speed and
@@ -192,18 +192,18 @@ static void VerifySamusAerialTurnsAndWallJump()
     eligible.HorizontalSpeed.HasRunningMomentum = true;
     eligible.LiquidPhysics.BeginFrameSoundRequests();
     eligible.ApplyWallJumpTrigger(bus);
-    AssertEqual((byte)0x83, eligible.Pose, "right-facing spin selects right wall-jump pose");
-    AssertEqual((ushort)4, eligible.Kinematics.YSpeed, "wall jump reads whole launch speed");
-    AssertEqual((ushort)0xa000, eligible.Kinematics.YSubspeed, "wall jump reads fractional launch speed");
-    AssertEqual((ushort)1, eligible.HorizontalSpeed.ExtraRunSpeed, "wall jump preserves Dash whole speed");
-    AssertEqual((ushort)0x7000, eligible.HorizontalSpeed.ExtraRunSubspeed, "wall jump preserves Dash fraction");
+    AssertEqual(0x83, eligible.Pose, "right-facing spin selects right wall-jump pose");
+    AssertEqual(4, eligible.Kinematics.YSpeed, "wall jump reads whole launch speed");
+    AssertEqual(0xa000, eligible.Kinematics.YSubspeed, "wall jump reads fractional launch speed");
+    AssertEqual(1, eligible.HorizontalSpeed.ExtraRunSpeed, "wall jump preserves Dash whole speed");
+    AssertEqual(0x7000, eligible.HorizontalSpeed.ExtraRunSubspeed, "wall jump preserves Dash fraction");
     AssertTrue(eligible.HorizontalSpeed.HasRunningMomentum, "wall jump preserves Dash momentum flag");
     AssertEqual(new SamusSoundRequest(3, 0x05, 6), eligible.LiquidPhysics.SoundRequests.Single(),
         "ordinary wall trigger queues library-three sound five max six");
     for (int tick = 0; tick < 8; tick++)
         eligible.AnimateNoFx(bus);
-    AssertEqual((byte)0xfb, eligible.LastAnimationDelayCommand!.Value, "wall animation reaches FB");
-    AssertEqual((ushort)3, eligible.AnimationFrame, "ordinary dry wall animation selects frame three");
+    AssertEqual(0xfb, eligible.LastAnimationDelayCommand!.Value, "wall animation reaches FB");
+    AssertEqual(3, eligible.AnimationFrame, "ordinary dry wall animation selects frame three");
 
     eligible.ProjectileFlareCounter = 0x003c;
     ushort wallStartY = eligible.YPosition;
@@ -214,8 +214,8 @@ static void VerifySamusAerialTurnsAndWallJump()
         (ushort)(SnesButton.Right | SnesButton.A),
         1);
     AssertTrue(wallFrame.Vertical is { Collided: false }, "wall launch remains airborne");
-    AssertEqual((ushort)(wallStartY - 5), eligible.YPosition, "wall launch moves by old 4.A000 speed");
-    AssertEqual((ushort)4, eligible.HorizontalSpeed.ContactDamageIndex,
+    AssertEqual((wallStartY - 5), eligible.YPosition, "wall launch moves by old 4.A000 speed");
+    AssertEqual(4, eligible.HorizontalSpeed.ContactDamageIndex,
         "charged wall-jump frames three through 22 publish damage index four");
 
     eligible.HorizontalSpeed.ContactDamageIndex = 0;
@@ -226,7 +226,7 @@ static void VerifySamusAerialTurnsAndWallJump()
         eligible,
         (ushort)(SnesButton.Right | SnesButton.A),
         2);
-    AssertEqual((ushort)3, eligible.HorizontalSpeed.ContactDamageIndex,
+    AssertEqual(3, eligible.HorizontalSpeed.ContactDamageIndex,
         "wall-jump frame 23 publishes Screw-style damage index three");
 
     SamusState CreateSpinSamus(ushort animationFrame)
@@ -372,27 +372,27 @@ static void VerifySamusKnockbackAndDamageBoost()
     // input, `$91:EDB0` chooses up-right direction two and `$90:99D6` installs 5.0000.
     SamusKnockbackMovement.Start(bus, samus, controllerInput: 0, knockbackXDirection: 1);
     AssertEqual(SamusState.KnockbackRightPose, samus.Pose, "right-facing knockback pose");
-    AssertEqual((ushort)2, samus.KnockbackDirection, "up-right knockback direction");
-    AssertEqual((ushort)1, samus.KnockbackXDirection, "knockback X direction publication");
-    AssertEqual((ushort)5, samus.KnockbackTimer, "enemy hurt timer publication");
-    AssertEqual((ushort)1, samus.HurtFlashCounter,
+    AssertEqual(2, samus.KnockbackDirection, "up-right knockback direction");
+    AssertEqual(1, samus.KnockbackXDirection, "knockback X direction publication");
+    AssertEqual(5, samus.KnockbackTimer, "enemy hurt timer publication");
+    AssertEqual(1, samus.HurtFlashCounter,
         "knockback command starts shared hurt-flash palette counter");
     AssertTrue(samus.KnockbackActive, "special knockback handler installed");
-    AssertEqual((ushort)5, samus.Kinematics.YSpeed, "knockback dry-air whole speed");
-    AssertEqual((ushort)0, samus.Kinematics.YSubspeed, "knockback dry-air subspeed");
+    AssertEqual(5, samus.Kinematics.YSpeed, "knockback dry-air whole speed");
+    AssertEqual(0, samus.Kinematics.YSubspeed, "knockback dry-air subspeed");
 
     KnockbackMovementResult hurtFrame = SamusKnockbackMovement.Step(bus, empty, samus, 0);
     // Movement consumes the current timer; gameplay state eight then calls `$A0:9169`
     // after drawing/room work. Keep that distinct owner visible in this direct subsystem test.
     samus.DecrementHurtTimers();
-    AssertEqual((ushort)4, samus.KnockbackTimer, "first hurt frame decrements timer");
+    AssertEqual(4, samus.KnockbackTimer, "first hurt frame decrements timer");
     AssertEqual(0x00004000, hurtFrame.Horizontal!.Value.AcceptedDisplacement,
         "knockback moves in bank-$A0 X direction");
     AssertEqual(unchecked((int)0xfffb0000), hurtFrame.Vertical!.Value.AcceptedDisplacement,
         "knockback moves by old 5.0000 vertical speed");
-    AssertEqual((ushort)91, samus.YPosition, "knockback upward whole position");
-    AssertEqual((ushort)4, samus.Kinematics.YSpeed, "knockback gravity next whole speed");
-    AssertEqual((ushort)0xd800, samus.Kinematics.YSubspeed, "knockback gravity next subspeed");
+    AssertEqual(91, samus.YPosition, "knockback upward whole position");
+    AssertEqual(4, samus.Kinematics.YSpeed, "knockback gravity next whole speed");
+    AssertEqual(0xd800, samus.Kinematics.YSubspeed, "knockback gravity next subspeed");
 
     // Held forward selects down-right direction four. Place the radius-21 body flush with a
     // square floor so `$90:923F`'s no-speed down probe collides immediately. The special
@@ -418,11 +418,11 @@ static void VerifySamusKnockbackAndDamageBoost()
     KnockbackMovementResult downImpact = SamusKnockbackMovement.Step(
         bus, floorLevel, downKnockback, nmiFrameCounter: 0);
     AssertTrue(downImpact.Landed, "downward knockback collision publishes landing");
-    AssertEqual((ushort)5, downImpact.ImpactYSpeed,
+    AssertEqual(5, downImpact.ImpactYSpeed,
         "downward knockback retains pre-clear whole impact speed");
-    AssertEqual((ushort)0, downImpact.ImpactYSubspeed,
+    AssertEqual(0, downImpact.ImpactYSubspeed,
         "downward knockback retains pre-clear fractional impact speed");
-    AssertEqual((ushort)0, downKnockback.Kinematics.YSpeed,
+    AssertEqual(0, downKnockback.Kinematics.YSpeed,
         "downward knockback clears live whole speed after snapshot");
 
     // `$53` plus Left+Jump (`$0280`) selects `$50`. The pose-family crossing runs the native normal
@@ -432,12 +432,12 @@ static void VerifySamusKnockbackAndDamageBoost()
         samus,
         SamusState.DamageBoostRightPose);
     AssertEqual(SamusState.DamageBoostRightPose, samus.Pose, "damage-boost entry pose");
-    AssertEqual((byte)0x19, samus.ReadMovementType(bus), "damage-boost movement type");
+    AssertEqual(0x19, samus.ReadMovementType(bus), "damage-boost movement type");
     AssertTrue(!samus.KnockbackActive, "damage boost restores normal handler");
-    AssertEqual((ushort)0, samus.KnockbackDirection, "damage boost clears knockback direction");
-    AssertEqual((ushort)0, samus.KnockbackTimer, "damage boost clears hurt timer");
-    AssertEqual((ushort)4, samus.Kinematics.YSpeed, "damage boost fresh jump whole speed");
-    AssertEqual((ushort)0xe000, samus.Kinematics.YSubspeed, "damage boost fresh jump subspeed");
+    AssertEqual(0, samus.KnockbackDirection, "damage boost clears knockback direction");
+    AssertEqual(0, samus.KnockbackTimer, "damage boost clears hurt timer");
+    AssertEqual(4, samus.Kinematics.YSpeed, "damage boost fresh jump whole speed");
+    AssertEqual(0xe000, samus.Kinematics.YSubspeed, "damage boost fresh jump subspeed");
 
     AerialMovementResult boostFrame = SamusAerialMovement.StepDamageBoost(
         bus,
@@ -447,8 +447,8 @@ static void VerifySamusKnockbackAndDamageBoost()
         nmiFrameCounter: 1);
     AssertEqual(unchecked((int)0xfffb2000), boostFrame.Vertical!.Value.AcceptedDisplacement,
         "damage boost reuses ordinary old-speed jumping movement");
-    AssertEqual((ushort)4, samus.Kinematics.YSpeed, "damage boost gravity next whole speed");
-    AssertEqual((ushort)0xb800, samus.Kinematics.YSubspeed, "damage boost gravity next subspeed");
+    AssertEqual(4, samus.Kinematics.YSpeed, "damage boost gravity next whole speed");
+    AssertEqual(0xb800, samus.Kinematics.YSubspeed, "damage boost gravity next subspeed");
 
     // Jump alone (`$0080`) exits right-facing `$50` to neutral-jump `$4D`. This is an ordinary pose
     // change inside movement type two, so the already-live 16.16 trajectory must survive.
@@ -476,7 +476,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     boostLanding.ApplyAerialLanding(bus, wasSpinning: false);
     AssertEqual(SamusState.NormalLandingLeftPose, boostLanding.Pose,
         "damage-boost FF shot direction selects ordinary metadata-direction landing");
-    AssertEqual((ushort)94, boostLanding.YPosition,
+    AssertEqual(94, boostLanding.YPosition,
         "damage-boost landing radius expansion preserves feet");
 
     // A separate uninterrupted fixture proves the timer owns the special handler's exact
@@ -499,7 +499,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     AssertTrue(expired.Ended, "zero hurt timer ends special handler");
     AssertEqual(SamusState.FallingRightPose, expires.Pose, "expired right knockback selects falling right");
     AssertTrue(!expires.KnockbackActive, "expired knockback restores normal handler");
-    AssertEqual((ushort)0, expires.KnockbackDirection, "expired knockback clears direction");
+    AssertEqual(0, expires.KnockbackDirection, "expired knockback clears direction");
 
     // `$90:DF15` republishes a ball's current pose rather than substituting `$53/$54`.
     // `$91:EE27` then ignores the hit side and held-forward rule when selecting vertical
@@ -539,11 +539,11 @@ static void VerifySamusKnockbackAndDamageBoost()
             $"morphed pose ${pose:X2} retains rolling animation frame");
         AssertEqual(preservedTimer, ball.AnimationFrameTimer,
             $"morphed pose ${pose:X2} retains rolling animation timer");
-        AssertEqual((ushort)0, ball.BombJumpDirection,
+        AssertEqual(0, ball.BombJumpDirection,
             $"morphed pose ${pose:X2} start clears pending bomb jump");
-        AssertEqual((ushort)0, ball.HorizontalSpeed.ContactDamageIndex,
+        AssertEqual(0, ball.HorizontalSpeed.ContactDamageIndex,
             $"morphed pose ${pose:X2} start clears contact damage");
-        AssertEqual((ushort)0x0602, ball.MorphBallBounceState,
+        AssertEqual(0x0602, ball.MorphBallBounceState,
             $"morphed pose ${pose:X2} start leaves bounce state until completion");
     }
 
@@ -583,22 +583,22 @@ static void VerifySamusKnockbackAndDamageBoost()
         "expired morphed knockback retains rolling frame");
     AssertEqual(retainedBallTimer, ballExpires.AnimationFrameTimer,
         "expired morphed knockback retains rolling timer");
-    AssertEqual((ushort)0, ballExpires.MorphBallBounceState,
+    AssertEqual(0, ballExpires.MorphBallBounceState,
         "expired morphed knockback clears bounce state");
-    AssertEqual((ushort)0, ballExpires.Kinematics.YSpeed,
+    AssertEqual(0, ballExpires.Kinematics.YSpeed,
         "expired morphed knockback clears whole Y speed");
-    AssertEqual((ushort)0, ballExpires.Kinematics.YSubspeed,
+    AssertEqual(0, ballExpires.Kinematics.YSubspeed,
         "expired morphed knockback clears fractional Y speed");
-    AssertEqual((ushort)2, ballExpires.Kinematics.YDirection,
+    AssertEqual(2, ballExpires.Kinematics.YDirection,
         "expired morphed knockback resumes with direction two");
 
     // The same command-one cleanup also corrects the existing humanoid route: `$53` radius
     // 21 becomes `$29` radius 19, so center Y moves down two pixels to preserve the feet.
-    AssertEqual((ushort)0, expires.Kinematics.YSpeed,
+    AssertEqual(0, expires.Kinematics.YSpeed,
         "expired humanoid knockback clears whole Y speed");
-    AssertEqual((ushort)0, expires.Kinematics.YSubspeed,
+    AssertEqual(0, expires.Kinematics.YSubspeed,
         "expired humanoid knockback clears fractional Y speed");
-    AssertEqual((ushort)2, expires.Kinematics.YDirection,
+    AssertEqual(2, expires.Kinematics.YDirection,
         "expired humanoid knockback publishes falling direction two");
     AssertEqual(unchecked((ushort)(humanoidYBeforeCompletion + 2)), expires.YPosition,
         "expired humanoid knockback aligns radius-19 falling body to radius-21 feet");

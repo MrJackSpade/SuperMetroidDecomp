@@ -270,15 +270,16 @@ public sealed partial class SamusProjectileSystem
         ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerNewInput,
+        ushort controllerPreviousNewInput,
         SamusBombProjectileSystem sharedProjectiles)
     {
         const ushort shoot = (ushort)SnesButton.X;
 
         // `$90:BE65-$BE72` accepts either the current new-press word or the previous filtered
-        // drawing word. The latter controller-filter seam is not published by this runtime;
-        // a real fresh press is therefore the only admitted producer stimulus, and holding X
-        // cannot silently become desktop auto-fire.
-        if ((controllerNewInput & shoot) == 0)
+        // drawing word. Ordinary live input normally makes the second word zero; bank-$91
+        // demo playback intentionally republishes its prior edge there. Cooldown still owns
+        // admission, so the delayed copy cannot manufacture desktop auto-fire.
+        if (((controllerNewInput | controllerPreviousNewInput) & shoot) == 0)
             return (null, 0);
 
         // `$90:AC5A` increments the common counter before the ammo/free-slot checks later in

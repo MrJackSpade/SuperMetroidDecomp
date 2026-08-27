@@ -388,13 +388,13 @@ static void VerifySamusPowerBeamProjectiles()
     beamGraphics.QueueBeamTilesAndLoadPalette(bus, beamWrites, beamCgram, equippedBeams: 0);
     AssertEqual(1, beamWrites.Entries.Count, "power beam queues one tile DMA");
     beamWrites.DrainTo(beamVram, bus);
-    AssertEqual((byte)0x5a, beamVram.ReadByte(0x6300 * 2),
+    AssertEqual(0x5a, beamVram.ReadByte(0x6300 * 2),
         "power beam tiles begin at VRAM word $6300");
-    AssertEqual((byte)0xa5, beamVram.ReadByte(0x6300 * 2 + 0xff),
+    AssertEqual(0xa5, beamVram.ReadByte(0x6300 * 2 + 0xff),
         "power beam tile DMA copies exactly $100 source bytes");
-    AssertEqual((ushort)0x0100, beamCgram.Colors[0xe0],
+    AssertEqual(0x0100, beamCgram.Colors[0xe0],
         "power beam palette begins at OBJ palette six");
-    AssertEqual((ushort)0x010f, beamCgram.Colors[0xef],
+    AssertEqual(0x010f, beamCgram.Colors[0xef],
         "power beam palette copies sixteen colors");
 
     // `$90:BA56` accepts exactly ten low-nibble direction values. Exercise every pointer,
@@ -429,21 +429,21 @@ static void VerifySamusPowerBeamProjectiles()
             bombs);
 
         AssertEqual((int?)0, result.FiredSlot, $"power beam direction {direction} allocates slot zero");
-        AssertEqual((ushort)0x000b, result.QueuedSoundEffect,
+        AssertEqual(0x000b, result.QueuedSoundEffect,
             $"power beam direction {direction} queues ROM sound");
-        AssertEqual((ushort)1, projectiles.ProjectileCounter,
+        AssertEqual(1, projectiles.ProjectileCounter,
             $"power beam direction {direction} increments counter");
-        AssertEqual((ushort)0x000f, bombs.CooldownTimer,
+        AssertEqual(0x000f, bombs.CooldownTimer,
             $"power beam direction {direction} installs cooldown");
-        AssertEqual((ushort)direction, projectiles.Slots[0].Direction,
+        AssertEqual(direction, projectiles.Slots[0].Direction,
             $"power beam direction {direction} survives initialization");
-        AssertEqual((ushort)0x0014, projectiles.Slots[0].Damage,
+        AssertEqual(0x0014, projectiles.Slots[0].Damage,
             $"power beam direction {direction} loads damage");
-        AssertEqual((ushort)0xa000, projectiles.Slots[0].SpritemapPointer,
+        AssertEqual(0xa000, projectiles.Slots[0].SpritemapPointer,
             $"power beam direction {direction} selects first art record");
-        AssertEqual((ushort)8, projectiles.Slots[0].XRadius,
+        AssertEqual(8, projectiles.Slots[0].XRadius,
             $"power beam direction {direction} loads X radius");
-        AssertEqual((ushort)4, projectiles.Slots[0].YRadius,
+        AssertEqual(4, projectiles.Slots[0].YRadius,
             $"power beam direction {direction} loads Y radius");
     }
 
@@ -491,7 +491,7 @@ static void VerifySamusPowerBeamProjectiles()
             $"beam combination {beamType} indexes uncharged cooldown");
         AssertEqual(unchecked((ushort)(0x0030 + beamType)), combinedResult.QueuedSoundEffect,
             $"beam combination {beamType} indexes uncharged sound");
-        AssertEqual((ushort)10, combinedProjectiles.ProjectileInvincibilityTimer,
+        AssertEqual(10, combinedProjectiles.ProjectileInvincibilityTimer,
             $"beam combination {beamType} publishes native invincibility timer");
 
         SamusProjectilePreInstruction expectedPreInstruction = (beamType & 1) == 0
@@ -602,7 +602,7 @@ static void VerifySamusPowerBeamProjectiles()
         chargeProjectiles.HandleTrailsAndDraw(bus, flareOam, 0, 0, timeIsFrozen: false);
         flareBecameVisible |= flareOam.NextByteOffset != 0;
     }
-    AssertEqual((ushort)60, chargeProjectiles.FlareCounter,
+    AssertEqual(60, chargeProjectiles.FlareCounter,
         "charge held frames reach armed threshold");
     AssertTrue(flareBecameVisible, "charge flare becomes visible from ROM spritemap table");
 
@@ -713,7 +713,7 @@ static void VerifySamusPowerBeamProjectiles()
                         $"palette {palette} color {color}");
                 }
             }
-            AssertEqual((ushort)0, chargeProjectiles.SamusChargePaletteIndex,
+            AssertEqual(0, chargeProjectiles.SamusChargePaletteIndex,
                 $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} six-entry list wraps");
         }
     }
@@ -724,14 +724,14 @@ static void VerifySamusPowerBeamProjectiles()
     chargeSamus.HorizontalSpeed.ContactDamageIndex = 0;
     chargeSamus.EquippedItems = 0;
     chargeProjectiles.UpdateBeamChargePalette(bus, liveChargeCgram, chargeSamus);
-    AssertEqual((ushort)2, chargeProjectiles.SamusChargePaletteIndex,
+    AssertEqual(2, chargeProjectiles.SamusChargePaletteIndex,
         "one live charge-palette call advances byte offset to two");
     chargeSamus.Grapple.Phase = GrapplePhase.Firing;
     SamusBeamChargePaletteStepResult grappleSuppressesCharge =
         chargeProjectiles.UpdateBeamChargePalette(bus, liveChargeCgram, chargeSamus);
     AssertEqual(SamusBeamChargePaletteAction.Inactive, grappleSuppressesCharge.Action,
         "active grapple suppresses charge-body palette");
-    AssertEqual((ushort)0, chargeProjectiles.SamusChargePaletteIndex,
+    AssertEqual(0, chargeProjectiles.SamusChargePaletteIndex,
         "active grapple resets charge-palette byte offset");
     chargeSamus.Grapple.Phase = GrapplePhase.Inactive;
 
@@ -740,16 +740,16 @@ static void VerifySamusPowerBeamProjectiles()
         bus, air, chargeSamus, 0, 0, 0, 0, chargeBombs);
     AssertTrue(chargedRelease.FiredSlot is not null, "charged release allocates projectile");
     SamusProjectileSlot chargedSlot = chargeProjectiles.Slots[chargedRelease.FiredSlot!.Value];
-    AssertEqual((ushort)0x0064, chargedSlot.Damage, "charged release uses charged data pointer");
-    AssertEqual((ushort)0x0010, unchecked((ushort)(chargedSlot.Type & 0x0010)),
+    AssertEqual(0x0064, chargedSlot.Damage, "charged release uses charged data pointer");
+    AssertEqual(0x0010, unchecked((ushort)(chargedSlot.Type & 0x0010)),
         "charged release sets charged type bit");
-    AssertEqual((ushort)0x0017, chargedRelease.QueuedSoundEffect,
+    AssertEqual(0x0017, chargedRelease.QueuedSoundEffect,
         "charged power beam queues ROM sound");
-    AssertEqual((ushort)0x001e, chargeBombs.CooldownTimer,
+    AssertEqual(0x001e, chargeBombs.CooldownTimer,
         "charged power beam installs charged cooldown");
-    AssertEqual((ushort)4, chargeProjectiles.ChargedShotGlowTimer,
+    AssertEqual(4, chargeProjectiles.ChargedShotGlowTimer,
         "charged release installs glow timer");
-    AssertEqual((ushort)0, chargeProjectiles.FlareCounter,
+    AssertEqual(0, chargeProjectiles.FlareCounter,
         "charged release clears flare counter");
 
     // `$91:D799-$D7AE` decrements before testing zero. Calls one through three paint only
@@ -769,11 +769,11 @@ static void VerifySamusPowerBeamProjectiles()
                 $"ordinary charged glow call {call + 1} selects white branch");
             AssertEqual(unchecked((ushort)(3 - call)), paletteStep.TimerAfter,
                 $"ordinary charged glow call {call + 1} decrements before branch");
-            AssertEqual((ushort)0x4321, chargedGlowCgram.Colors[192],
+            AssertEqual(0x4321, chargedGlowCgram.Colors[192],
                 $"ordinary charged glow call {call + 1} preserves transparent color zero");
             for (int color = 1; color < 16; color++)
             {
-                AssertEqual((ushort)0x03ff, chargedGlowCgram.Colors[192 + color],
+                AssertEqual(0x03ff, chargedGlowCgram.Colors[192 + color],
                     $"ordinary charged glow call {call + 1} paints visible color {color}");
             }
         }
@@ -790,7 +790,7 @@ static void VerifySamusPowerBeamProjectiles()
             }
         }
     }
-    AssertEqual((ushort)0, chargeProjectiles.ChargedShotGlowTimer,
+    AssertEqual(0, chargeProjectiles.ChargedShotGlowTimer,
         "ordinary charged glow ends exactly on fourth palette call");
 
     // Recreate `$91:F5CF-$F5E6 -> $90:B82D/$BA5F -> $90:EB20`: a new Shoot edge while
@@ -827,7 +827,7 @@ static void VerifySamusPowerBeamProjectiles()
         bus,
         SamusState.NeutralJumpTransitionRightPose,
         controllerNewInput: (ushort)SnesButton.X);
-    AssertEqual((ushort)0x8002, bridgeSamus.PoseTransitionShotDirection,
+    AssertEqual(0x8002, bridgeSamus.PoseTransitionShotDirection,
         "normal-jump initializer publishes tagged shot direction");
     bridgeBombs.StepFrame(bus, air, bridgeSamus, 0, 0);
     SamusProjectileFrameResult bridgeRelease = bridgeProjectiles.StepFrame(
@@ -841,13 +841,13 @@ static void VerifySamusPowerBeamProjectiles()
         sharedProjectiles: bridgeBombs);
     AssertTrue(bridgeRelease.FiredSlot is not null,
         "pose-direction bridge forces charged release while Shoot remains held");
-    AssertEqual((ushort)2,
+    AssertEqual(2,
         bridgeProjectiles.Slots[bridgeRelease.FiredSlot!.Value].Direction,
         "pose-direction bridge supplies stored low-byte direction");
-    AssertEqual((ushort)0, bridgeProjectiles.FlareCounter,
+    AssertEqual(0, bridgeProjectiles.FlareCounter,
         "pose-direction bridge consumes charge counter");
     bridgeSamus.ClearPoseTransitionShotDirection();
-    AssertEqual((ushort)0, bridgeSamus.PoseTransitionShotDirection,
+    AssertEqual(0, bridgeSamus.PoseTransitionShotDirection,
         "current-state epilogue clears pose-direction bridge");
 
     // Charged combinations index the parallel pointer/sound range and cooldown bytes
@@ -924,17 +924,17 @@ static void VerifySamusPowerBeamProjectiles()
         hyperBombs);
     SamusProjectileSlot hyperSlot = hyperProjectiles.Slots[0];
     AssertEqual((int?)0, hyperResult.FiredSlot, "Hyper Beam allocates ordinary slot zero");
-    AssertEqual((ushort)0x9018, hyperSlot.Type, "Hyper Beam forces literal type `$9018`");
-    AssertEqual((ushort)1000, hyperSlot.Damage, "Hyper Beam overwrites ROM-table damage with 1000");
+    AssertEqual(0x9018, hyperSlot.Type, "Hyper Beam forces literal type `$9018`");
+    AssertEqual(1000, hyperSlot.Damage, "Hyper Beam overwrites ROM-table damage with 1000");
     AssertEqual(SamusProjectilePreInstruction.HyperBeam, hyperSlot.PreInstruction,
         "Hyper Beam selects trail-free Wave movement");
-    AssertEqual((ushort)0, hyperSlot.TrailTimer, "Hyper Beam does not arm a projectile trail");
-    AssertEqual((ushort)21, hyperBombs.CooldownTimer, "Hyper Beam installs literal cooldown 21");
-    AssertEqual((ushort)0x0058, hyperResult.QueuedSoundEffect,
+    AssertEqual(0, hyperSlot.TrailTimer, "Hyper Beam does not arm a projectile trail");
+    AssertEqual(21, hyperBombs.CooldownTimer, "Hyper Beam installs literal cooldown 21");
+    AssertEqual(0x0058, hyperResult.QueuedSoundEffect,
         "Hyper Beam indexes charged sound entry eight");
-    AssertEqual((ushort)0x8014, hyperProjectiles.ChargedShotGlowTimer,
+    AssertEqual(0x8014, hyperProjectiles.ChargedShotGlowTimer,
         "Hyper Beam installs signed palette/glow phase `$8014`");
-    AssertEqual((ushort)0x8000, hyperProjectiles.FlareCounter,
+    AssertEqual(0x8000, hyperProjectiles.FlareCounter,
         "Hyper Beam arms descending flare sentinel");
 
     // `$8014` supplies ten descending even table offsets with an odd no-write hold after
@@ -978,7 +978,7 @@ static void VerifySamusPowerBeamProjectiles()
                 "Hyper body glow restore selects Power Suit pointer");
         }
     }
-    AssertEqual((ushort)0, hyperProjectiles.ChargedShotGlowTimer,
+    AssertEqual(0, hyperProjectiles.ChargedShotGlowTimer,
         "Hyper body glow clears signed timer after 21 calls");
 
     // Its three components begin at frames 29/5/5 with timer three. Fast sparks (component
@@ -991,7 +991,7 @@ static void VerifySamusPowerBeamProjectiles()
         AssertTrue(hyperFlareOam.NextByteOffset != 0,
             $"Hyper Beam descending flare call {call + 1} draws ROM spritemaps");
     }
-    AssertEqual((ushort)0, hyperProjectiles.FlareCounter,
+    AssertEqual(0, hyperProjectiles.FlareCounter,
         "Hyper Beam fast-spark frame one clears flare sentinel");
 
     // `$93:8268` exempts charged-family bit `$0010` from ordinary beam flicker. Slot zero
@@ -1029,7 +1029,7 @@ static void VerifySamusPowerBeamProjectiles()
     trailOam.BeginFrame();
     chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: false);
     AssertEqual(4, trailOam.NextByteOffset, "charged power's left stream emits one raw OBJ");
-    AssertEqual((ushort)0, chargedTrail.Right.InstructionTimer,
+    AssertEqual(0, chargedTrail.Right.InstructionTimer,
         "charged power's empty right stream terminates without drawing");
     OamEntry firstTrailObj = trailOam.GetEntry(0);
     AssertEqual(0x038, firstTrailObj.TileNumber, "charged trail reads first `$2C38` tile");
@@ -1133,9 +1133,9 @@ static void VerifySamusPowerBeamProjectiles()
         0,
         0,
         wallBombs);
-    AssertEqual((ushort)68, wallProjectiles.Slots[0].XPosition,
+    AssertEqual(68, wallProjectiles.Slots[0].XPosition,
         "right beam first frame moves four whole pixels");
-    AssertEqual((ushort)0x1000, wallProjectiles.Slots[0].XSubposition,
+    AssertEqual(0x1000, wallProjectiles.Slots[0].XSubposition,
         "right beam first frame retains one-sixteenth pixel");
 
     SamusProjectileFrameResult wallResult = default;
@@ -1146,12 +1146,12 @@ static void VerifySamusPowerBeamProjectiles()
             bus, wall, wallSamus, 0, 0, 0, 0, wallBombs);
     }
     AssertTrue(wallResult.CollisionStartedExplosion, "power beam reaches type-eight wall");
-    AssertEqual((ushort)0x0700,
+    AssertEqual(0x0700,
         unchecked((ushort)(wallProjectiles.Slots[0].Type & 0x0f00)),
         "wall collision installs beam-explosion family");
-    AssertEqual((ushort)1, wallProjectiles.ProjectileCounter,
+    AssertEqual(1, wallProjectiles.ProjectileCounter,
         "beam explosion retains ordinary slot count");
-    AssertEqual((ushort)0xa010, wallProjectiles.Slots[0].SpritemapPointer,
+    AssertEqual(0xa010, wallProjectiles.Slots[0].SpritemapPointer,
         "collision frame selects first explosion art");
 
     for (int frame = 0; frame < 2; frame++)
@@ -1159,7 +1159,7 @@ static void VerifySamusPowerBeamProjectiles()
         wallBombs.StepFrame(bus, wall, wallSamus, 0, 0);
         wallProjectiles.StepFrame(bus, wall, wallSamus, 0, 0, 0, 0, wallBombs);
     }
-    AssertEqual((ushort)0, wallProjectiles.ProjectileCounter,
+    AssertEqual(0, wallProjectiles.ProjectileCounter,
         "explosion delete decrements ordinary counter");
     AssertTrue(!wallProjectiles.Slots[0].IsActive,
         "explosion delete clears ordinary slot");
@@ -1300,28 +1300,28 @@ static void VerifySamusPowerBeamProjectiles()
         missileBombs);
     SamusProjectileSlot missile = missileProjectiles.Slots[0];
     AssertEqual((int?)0, missileFired.FiredSlot, "missile fresh press allocates slot zero");
-    AssertEqual((ushort)3, missileFired.QueuedSoundEffect,
+    AssertEqual(3, missileFired.QueuedSoundEffect,
         "missile producer queues library-one effect three");
-    AssertEqual((ushort)2, missileSamus.Missiles, "missile producer consumes exactly one ammo");
-    AssertEqual((ushort)1, missileSamus.SelectedHudItem,
+    AssertEqual(2, missileSamus.Missiles, "missile producer consumes exactly one ammo");
+    AssertEqual(1, missileSamus.SelectedHudItem,
         "nonempty missile reserve remains HUD-selected");
-    AssertEqual((ushort)1, missileProjectiles.ProjectileCounter,
+    AssertEqual(1, missileProjectiles.ProjectileCounter,
         "missile increments the shared ordinary-projectile counter");
-    AssertEqual((ushort)10, missileBombs.CooldownTimer,
+    AssertEqual(10, missileBombs.CooldownTimer,
         "missile producer installs literal ten-frame shared cooldown");
-    AssertEqual((ushort)20, missileProjectiles.ProjectileInvincibilityTimer,
+    AssertEqual(20, missileProjectiles.ProjectileInvincibilityTimer,
         "missile producer installs literal projectile invincibility timer twenty");
-    AssertEqual((ushort)0x8100, missile.Type, "missile uses active type word `$8100`");
-    AssertEqual((ushort)0x0064, missile.Damage, "missile reads damage from `$93:8641`");
+    AssertEqual(0x8100, missile.Type, "missile uses active type word `$8100`");
+    AssertEqual(0x0064, missile.Damage, "missile reads damage from `$93:8641`");
     AssertEqual(SamusProjectilePreInstruction.Missile, missile.PreInstruction,
         "missile selects `$90:AF68` pre-instruction family");
-    AssertEqual((ushort)0x0100, missile.Variable,
+    AssertEqual(0x0100, missile.Variable,
         "first alpha pass crosses `$0100` ignition threshold");
-    AssertEqual((short)0x0100, missile.XVelocity,
+    AssertEqual(0x0100, missile.XVelocity,
         "right missile begins at one pixel per frame after ignition");
-    AssertEqual((ushort)65, missile.XPosition,
+    AssertEqual(65, missile.XPosition,
         "right missile moves one whole pixel on its ignition frame");
-    AssertEqual((ushort)0xa020, missile.SpritemapPointer,
+    AssertEqual(0xa020, missile.SpritemapPointer,
         "missile instruction handler selects first bank-$93 art record");
 
     var missileOam = new OamBuffer();
@@ -1349,9 +1349,9 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(4, missileOam.NextByteOffset, "missile left trail emits one small OBJ");
     AssertEqual(0x048, missileOam.GetEntry(0).TileNumber,
         "missile trail starts at retail tile `$2A48`");
-    AssertEqual((ushort)4, missileTrail.Left.InstructionTimer,
+    AssertEqual(4, missileTrail.Left.InstructionTimer,
         "missile trail retains its four-frame record duration");
-    AssertEqual((ushort)0, missileTrail.Right.InstructionTimer,
+    AssertEqual(0, missileTrail.Right.InstructionTimer,
         "missile's empty right trail stream terminates immediately");
 
     SamusProjectileFrameResult missileImpact = default;
@@ -1363,11 +1363,11 @@ static void VerifySamusPowerBeamProjectiles()
     }
     AssertTrue(missileImpact.CollisionStartedExplosion,
         "accelerating missile reaches the type-eight wall");
-    AssertEqual((ushort)0x0800, unchecked((ushort)(missile.Type & 0x0f00)),
+    AssertEqual(0x0800, unchecked((ushort)(missile.Type & 0x0f00)),
         "missile collision installs missile-explosion family `$0800`");
-    AssertEqual((ushort)1, missileProjectiles.ProjectileCounter,
+    AssertEqual(1, missileProjectiles.ProjectileCounter,
         "missile explosion retains its shared ordinary slot count");
-    AssertEqual((ushort)0xa010, missile.SpritemapPointer,
+    AssertEqual(0xa010, missile.SpritemapPointer,
         "missile collision frame selects first explosion art");
     missileOam.BeginFrame();
     missileProjectiles.DrawExplosions(bus, missileOam, 0, 0);
@@ -1379,7 +1379,7 @@ static void VerifySamusPowerBeamProjectiles()
         missileBombs.StepFrame(bus, wall, missileSamus, 0, 0);
         missileProjectiles.StepFrame(bus, wall, missileSamus, 0, 0, 0, 0, missileBombs);
     }
-    AssertEqual((ushort)0, missileProjectiles.ProjectileCounter,
+    AssertEqual(0, missileProjectiles.ProjectileCounter,
         "missile explosion delete decrements ordinary counter");
     AssertTrue(!missile.IsActive, "missile explosion delete clears its slot");
 
@@ -1470,24 +1470,24 @@ static void VerifySamusPowerBeamProjectiles()
     SamusProjectileSlot super = superProjectiles.Slots[0];
     SamusProjectileSlot superLink = superProjectiles.Slots[1];
     AssertEqual((int?)0, superFired.FiredSlot, "super fresh press allocates owner slot zero");
-    AssertEqual((ushort)4, superFired.QueuedSoundEffect,
+    AssertEqual(4, superFired.QueuedSoundEffect,
         "super producer queues library-one effect four");
-    AssertEqual((ushort)2, superSamus.SuperMissiles,
+    AssertEqual(2, superSamus.SuperMissiles,
         "super producer consumes exactly one ammo");
-    AssertEqual((ushort)20, superBombs.CooldownTimer,
+    AssertEqual(20, superBombs.CooldownTimer,
         "super producer installs literal twenty-frame cooldown");
-    AssertEqual((ushort)2, superProjectiles.ProjectileCounter,
+    AssertEqual(2, superProjectiles.ProjectileCounter,
         "super ignition counts visible owner plus invisible link");
-    AssertEqual((ushort)0x8200, super.Type, "super owner uses active type `$8200`");
-    AssertEqual((ushort)0x012c, super.Damage, "super owner reads retail 300 damage");
-    AssertEqual((short)0x0100, super.XVelocity,
+    AssertEqual(0x8200, super.Type, "super owner uses active type `$8200`");
+    AssertEqual(0x012c, super.Damage, "super owner reads retail 300 damage");
+    AssertEqual(0x0100, super.XVelocity,
         "super ignition begins at one pixel per frame");
-    AssertEqual((ushort)0x0102, super.Variable,
+    AssertEqual(0x0102, super.Variable,
         "super variable combines initialized high byte and link byte index two");
     AssertEqual(SamusProjectilePreInstruction.SuperMissile, super.PreInstruction,
         "super owner selects `$90:AFE5`");
-    AssertEqual((ushort)0x8200, superLink.Type, "super link retains family `$0200`");
-    AssertEqual((ushort)0x012c, superLink.Damage, "super link carries native damage sentinel");
+    AssertEqual(0x8200, superLink.Type, "super link retains family `$0200`");
+    AssertEqual(0x012c, superLink.Damage, "super link carries native damage sentinel");
     AssertEqual(SamusProjectilePreInstruction.SuperMissileLink, superLink.PreInstruction,
         "super link selects stationary `$90:B075`");
     AssertEqual(super.XPosition, superLink.XPosition,
@@ -1509,7 +1509,7 @@ static void VerifySamusPowerBeamProjectiles()
     }
     AssertEqual(1, superProjectiles.ActiveTrailCount,
         "super's initial four-count allocates first exhaust trail");
-    AssertEqual((ushort)2, super.TrailTimer,
+    AssertEqual(2, super.TrailTimer,
         "super exhaust reloads two instead of missile four");
 
     SamusProjectileFrameResult superImpact = default;
@@ -1521,16 +1521,16 @@ static void VerifySamusPowerBeamProjectiles()
     }
     AssertTrue(superImpact.CollisionStartedExplosion,
         "accelerating super reaches the type-eight wall");
-    AssertEqual((ushort)0x8800, super.Type,
+    AssertEqual(0x8800, super.Type,
         "super impact preserves active bit and selects family `$0800`");
-    AssertEqual((ushort)0x9348, super.InstructionPointer,
+    AssertEqual(0x9348, super.InstructionPointer,
         "super collision consumes first record of `$93:9340` explosion fixture");
-    AssertEqual((ushort)20, superProjectiles.EarthquakeType,
+    AssertEqual(20, superProjectiles.EarthquakeType,
         "super impact publishes quake type `$14`");
-    AssertEqual((ushort)30, superProjectiles.EarthquakeTimer,
+    AssertEqual(30, superProjectiles.EarthquakeTimer,
         "super impact publishes thirty-frame quake timer");
     AssertTrue(!superLink.IsActive, "super owner impact clears invisible linked slot");
-    AssertEqual((ushort)1, superProjectiles.ProjectileCounter,
+    AssertEqual(1, superProjectiles.ProjectileCounter,
         "super explosion retains only its visible owner count");
 
     // Drive a second real Super Missile into type-$C/BTS-A rather than calling the PLM

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Runtime;
 /// currently translated main-thread logic runs. Future bank ports can be added to the logic
 /// phase without changing every tool or viewer that wants to step one frame.
 /// </remarks>
-public sealed class SuperMetroidRuntime
+public sealed partial class SuperMetroidRuntime
 {
     private readonly ISnesAddressSpace _addressSpace;
 
@@ -320,6 +320,14 @@ public sealed class SuperMetroidRuntime
     public void InitializeLandingSiteCamera(
         ushort doorPointer = LandingSiteEntryState.LandingCutsceneDoorPointer)
     {
+        // A runtime may be reused by diagnostics that visit Ceres before Crateria. The
+        // elevator pair belongs exclusively to the fresh-Ceres setup and must not survive
+        // a later room transition merely because both paths share this runtime instance.
+        CeresElevatorArrival = null;
+        ActiveLoadStation = null;
+        ActiveDoor = null;
+        ActiveRoom = null;
+        ActiveRoomAssets = null;
         LandingSiteEntry = LandingSiteEntryState.Load(_addressSpace, doorPointer);
         RoomScrollGrid scrolls = RoomScrollGrid.LoadLandingSite(_addressSpace);
         Camera = new ScrollBoundaryCamera(scrolls);
@@ -2308,6 +2316,17 @@ public sealed class SuperMetroidRuntime
                                       SamusState.IsLeftFacingRunningPose(target)):
                                 Samus.ApplyRanIntoWallToRunning(_addressSpace, target);
                                 break;
+                            case var (forwardSource, forwardTarget)
+                                when SamusState.IsForwardFacingPose(forwardSource) &&
+                                     forwardTarget is
+                                         SamusState.TurningRightToLeftPose or
+                                         SamusState.TurningLeftToRightPose:
+                                // Ceres releases controls while `$00` is still active.
+                                // Its own ROM transition table maps Left/Right to generic
+                                // `$25/$26`; `$91:F8D3` recognizes old pose `$00/$9B` and
+                                // preserves that target without inventing a source facing.
+                                Samus.ApplyGroundedTurn(_addressSpace, targetPose);
+                                break;
                             case var (rightSource, rightTarget)
                                 when rightTarget is
                                          SamusState.TurningRightToLeftPose or
@@ -2346,7 +2365,14 @@ public sealed class SuperMetroidRuntime
                                           SamusState.NeutralJumpTransitionLeftPose or
                                           SamusState.NormalJumpTransitionAimUpLeftPose or
                                           SamusState.NormalJumpTransitionAimDiagonalUpLeftPose or
-                                          SamusState.NormalJumpTransitionAimDiagonalDownLeftPose):
+                                          SamusState.NormalJumpTransitionAimDiagonalDownLeftPose) ||
+                                     (source == SamusState.NormalLandingRightPose &&
+                                      target == SamusState.NeutralJumpTransitionRightPose) ||
+                                     (source == SamusState.NormalLandingLeftPose &&
+                                      target == SamusState.NeutralJumpTransitionLeftPose):
+                                // `$A4/$A5` use the same left/right transition-table
+                                // records as standing. A fresh Jump edge can interrupt the
+                                // landing stream before its eventual `$F8` fallback.
                             case (SamusState.MovingRightNormalPose,
                                   SamusState.SpinJumpRightPose):
                             case (SamusState.MovingRightGunExtendedPose,
@@ -2576,10 +2602,28 @@ public sealed class SuperMetroidRuntime
                 }
             }
 
+            // Native GameState_8 runs bank-$86 enemy projectiles immediately after Samus's
+            // movement handler and before MainScrollingRoutine. The two fresh-Ceres actors
+            // use that slot to lower Samus one pixel at a time; moving this call below the
+            // camera would make the viewport trail one frame behind the cartridge.
+            if (!deathOwnsSamus && CeresElevatorArrival is { IsComplete: false } arrival)
+            {
+                if (arrival.Step(Samus))
+                {
+                    // Command $0E installed a locked Samus handler before the projectiles
+                    // were spawned. Re-enable the translated ordinary movement path only
+                    // after the pad reaches the native Y=$0048 deletion condition.
+                    Samus.InputLocked = false;
+                    GroundedSamusMovementEnabled = true;
+                }
+            }
+
             if (GroundedSamusMovementEnabled && !deathOwnsSamus)
             {
-                if (LandingSiteEntry is null || LevelData is null || BackgroundStreamer is null)
-                    throw new InvalidOperationException("Grounded camera tracking requires active Landing Site room state.");
+                if (LevelData is null || BackgroundStreamer is null)
+                    throw new InvalidOperationException("Grounded camera tracking requires active room stream data.");
+
+                ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
 
                 var currentCameraPoint = new SamusCameraPoint(
                     Samus.XPosition,
@@ -2605,8 +2649,8 @@ public sealed class SuperMetroidRuntime
                     currentCameraPoint,
                     new VerticalCameraContext(
                         YDirection: Samus.Kinematics.YDirection,
-                        UpScroller: LandingSiteEntry.UpScroller,
-                        DownScroller: LandingSiteEntry.DownScroller));
+                        UpScroller: roomGeometry.UpScroller,
+                        DownScroller: roomGeometry.DownScroller));
 
                 // The camera can cross a 16-pixel boundary in the same main-loop pass.
                 // Build and execute the exact row/column staging transfers now so both the
@@ -2616,18 +2660,18 @@ public sealed class SuperMetroidRuntime
                 foreach (BackgroundUpdateRequest request in backgroundRequests)
                 {
                     TilemapStreamUpdate update = BackgroundStreamer.Build(request)
-                        ?? throw new InvalidOperationException("Landing Site unexpectedly entered Mode 7 streaming.");
+                        ?? throw new InvalidOperationException("Active room unexpectedly entered Mode 7 streaming.");
                     update.ExecuteTo(Vram);
                 }
 
                 // UpdateMinimap belongs to Samus's normal frame-handler beta; it uses world
-                // position, not camera position. Landing Site begins without Crateria's map
-                // station, so only tiles actually visited by this debug run are revealed.
+                // position, not camera position. Fresh debug sessions begin without an area
+                // map, so only tiles actually visited by this runtime are revealed.
                 Hud.UpdateMinimap(
                     _addressSpace,
-                    LandingSiteEntry.AreaIndex,
-                    LandingSiteEntry.RoomMapX,
-                    LandingSiteEntry.RoomMapY,
+                    roomGeometry.AreaIndex,
+                    roomGeometry.MapX,
+                    roomGeometry.MapY,
                     LevelData.WidthInBlocks,
                     LevelData.HeightInBlocks,
                     Samus.XPosition,
@@ -2658,7 +2702,13 @@ public sealed class SuperMetroidRuntime
             // layer loop reaches Samus at layer three. Room-specific actors may supply this
             // pass without teaching the reusable Landing Site runtime how to own enemies.
             if (!deathOwnsSamus)
+            {
+                // Both Ceres elevator definitions carry properties $3000, including the
+                // low-priority-projectile bit. They therefore draw in the cartridge's first
+                // `$86:8390` pass, before enemy layers zero through two and Samus.
+                CeresElevatorArrival?.Draw(Oam, Camera.XPosition, Camera.YPosition);
                 drawHighPriorityEnemyProjectiles?.Invoke(Oam);
+            }
 
             // The global layer loop emits layers zero through two before its phase-three
             // call to DrawSamusAndProjectiles. Landing Site's gunship definition selects

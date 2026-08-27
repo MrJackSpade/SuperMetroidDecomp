@@ -9,6 +9,38 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class SamusProjectileSystem
 {
+    /// <summary>
+    /// Applies intro Mother Brain's external projectile test at <c>$8B:B78A..B7BA</c>.
+    /// </summary>
+    /// <remarks>
+    /// The cinematic scans native byte indices $08 down through $00 for the first ordinary
+    /// missile (<c>type &amp; $0FFF == $0100</c>) and only kills it once its signed X coordinate
+    /// is below $54. This is not terrain collision, so the actor owns the predicate while
+    /// the projectile system owns the exact bank-$90 impact conversion.
+    /// </remarks>
+    public bool TryImpactIntroMotherBrainMissile(
+        ISnesAddressSpace bus,
+        SamusBombProjectileSystem sharedProjectiles)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(sharedProjectiles);
+
+        for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
+        {
+            SamusProjectileSlot slot = _slots[slotIndex];
+            if ((slot.Type & 0x0fff) != 0x0100)
+                continue;
+
+            if (unchecked((short)(slot.XPosition - 0x0054)) >= 0)
+                return false;
+
+            KillMissile(bus, slot, sharedProjectiles);
+            return true;
+        }
+
+        return false;
+    }
+
     private void SpawnTrail(ISnesAddressSpace bus, SamusProjectileSlot projectile)
     {
         int pointerIndex;

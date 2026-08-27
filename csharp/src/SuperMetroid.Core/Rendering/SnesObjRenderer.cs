@@ -36,7 +36,8 @@ public static class SnesObjRenderer
         SnesCgram cgram,
         byte obsel,
         int width = 256,
-        int height = 224)
+        int height = 224,
+        int? priority = null)
     {
         ArgumentNullException.ThrowIfNull(oam);
         ArgumentNullException.ThrowIfNull(vram);
@@ -52,7 +53,11 @@ public static class SnesObjRenderer
         // rotation setting. Painting records backwards lets the lower index overwrite
         // the higher one without a second priority buffer.
         for (int spriteIndex = oam.LastFinalizedSpriteCount - 1; spriteIndex >= 0; spriteIndex--)
-            DrawSprite(output, width, height, oam.GetEntry(spriteIndex), vram, cgram, obsel);
+        {
+            OamEntry entry = oam.GetEntry(spriteIndex);
+            if (!priority.HasValue || entry.Priority == priority.Value)
+                DrawSprite(output, width, height, entry, vram, cgram, obsel);
+        }
 
         return output;
     }

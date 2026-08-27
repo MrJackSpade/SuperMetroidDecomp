@@ -73,6 +73,45 @@ public sealed class SnesVram
         bytes.CopyTo(_bytes.AsSpan(destinationByteOffset));
     }
 
+    /// <summary>Loads bytes through Mode 7's high-byte-only $2119 DMA port.</summary>
+    public void LoadMode7CharacterBytes(ReadOnlySpan<byte> bytes, ushort destinationWord = 0)
+    {
+        if (bytes.Length > WordCount)
+            throw new ArgumentOutOfRangeException(nameof(bytes));
+        int destination = destinationWord & 0x7fff;
+        foreach (byte value in bytes)
+        {
+            _bytes[destination * 2 + 1] = value;
+            destination = (destination + 1) & 0x7fff;
+        }
+    }
+
+    /// <summary>Loads bytes through Mode 7's low-byte-only $2118 DMA port.</summary>
+    public void LoadMode7MapBytes(ReadOnlySpan<byte> bytes, ushort destinationWord = 0)
+    {
+        if (bytes.Length > WordCount)
+            throw new ArgumentOutOfRangeException(nameof(bytes));
+        int destination = destinationWord & 0x7fff;
+        foreach (byte value in bytes)
+        {
+            _bytes[destination * 2] = value;
+            destination = (destination + 1) & 0x7fff;
+        }
+    }
+
+    /// <summary>Fills Mode 7 low bytes as repeated writes to $2118 do.</summary>
+    public void FillMode7MapBytes(byte value, int wordCount, ushort destinationWord = 0)
+    {
+        if ((uint)wordCount > WordCount)
+            throw new ArgumentOutOfRangeException(nameof(wordCount));
+        int destination = destinationWord & 0x7fff;
+        for (int index = 0; index < wordCount; index++)
+        {
+            _bytes[destination * 2] = value;
+            destination = (destination + 1) & 0x7fff;
+        }
+    }
+
     /// <summary>
     /// Performs the transfer produced by <c>$80:8C83</c>'s DMA channel 1 setup.
     /// </summary>

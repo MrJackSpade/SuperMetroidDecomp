@@ -35,6 +35,8 @@ public sealed class RoomEnemySystem
     private readonly List<RoomEnemyGraphicsSetEntry> _graphicsSet = new();
     private ISnesAddressSpace? _bus;
     private Func<ushort>? _nextRandom;
+    private SnesVram? _vram;
+    private SnesCgram? _cgram;
 
     public RoomEnemySystem()
     {
@@ -71,6 +73,12 @@ public sealed class RoomEnemySystem
     public bool GunshipSaveRequested { get; private set; }
 
     /// <summary>
+    /// Native <c>ceres_status</c> word consumed by the Ceres door actor. Fresh station load
+    /// begins at zero; Ridley's escape sequence is the later producer of values one/two.
+    /// </summary>
+    public ushort CeresStatus { get; set; }
+
+    /// <summary>
     /// Ports the data-producing parts of <c>LoadEnemies</c>,
     /// <c>ProcessEnemyTilesets</c>, and <c>InitializeEnemies</c> at $A0:8A1E-$8C6C.
     /// </summary>
@@ -89,6 +97,8 @@ public sealed class RoomEnemySystem
 
         _bus = bus;
         _nextRandom = nextRandom;
+        _vram = vram;
+        _cgram = cgram;
         PopulationPointer = populationPointer;
         TilesetPointer = tilesetPointer;
         EnemyCount = 0;
@@ -164,7 +174,7 @@ public sealed class RoomEnemySystem
                 RunMainAi(slot, samus, newlyPressedControllerInput);
                 slot.FrameCounter = unchecked((ushort)(slot.FrameCounter + 1));
                 if (slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
-                    ProcessInstructions(slot);
+                    ProcessInstructions(slot, samus);
             }
 
             // EnemyMain queues ordinary-sprite actors only after AI and instruction work.
@@ -492,6 +502,9 @@ public sealed class RoomEnemySystem
             case 0xa6efb1:
                 InitializeCeresSteam(slot);
                 return;
+            case 0xa6f6c5:
+                InitializeCeresDoor(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -518,6 +531,54 @@ public sealed class RoomEnemySystem
         int tableIndex = slot.Parameter1 * 2;
         slot.CurrentInstruction = ReadWord(_bus!, 0xa6eff5 + tableIndex);
         slot.VariableA = ReadWord(_bus!, 0xa6f001 + tableIndex);
+    }
+
+    /// <summary>Ports <c>CeresDoor_Init</c> at $A6:F6C5 for the live Ceres room path.</summary>
+    private void InitializeCeresDoor(RoomEnemySlot slot)
+    {
+        // Both ROM tables contain one word per population parameter. Retail Ceres doors use
+        // the compact variants zero through three; reject a corrupt index before it walks
+        // into the executable code immediately following the tables.
+        if (slot.Parameter1 >= 4)
+        {
+            throw new InvalidDataException(
+                $"Ceres door parameter one ${slot.Parameter1:X4} exceeds its four variants.");
+        }
+
+        slot.SpritemapPointer = 0xfac7;
+        slot.InstructionTimer = 1;
+        slot.Timer = 0;
+        slot.VramTilesIndex = 0;
+        slot.PaletteIndex = 0x0400;
+        int tableOffset = slot.Parameter1 * 2;
+        slot.VariableA = ReadWord(_bus!, 0xa6f72b + tableOffset);
+        slot.CurrentInstruction = ReadWord(_bus!, 0xa6f52c + tableOffset);
+        slot.VariableB = 0;
+
+        // CeresDoor_Func_1 performs this extra direct transfer only for variant two. The
+        // source/destination are the literal reconstructed DMA record at $A6:F739.
+        if (slot.Parameter1 == 2)
+        {
+            // The source register used bank $B0 with a 16-bit address that increments
+            // independently of the bank byte. Materialize that exact DMA source slice,
+            // then use SnesVram's range-checked consecutive transfer primitive.
+            byte[] tileBytes = new byte[0x0400];
+            for (int byteIndex = 0; byteIndex < tileBytes.Length; byteIndex++)
+                tileBytes[byteIndex] = _bus!.ReadByte(0xb00000 | ((0xc400 + byteIndex) & 0xffff));
+            _vram!.LoadBytes(0xe000, tileBytes);
+        }
+
+        if (CeresStatus == 0 && slot.Parameter1 == 3)
+        {
+            // The native destination $142 is a byte offset into target_palettes: colors
+            // 161..175. This runtime exposes the final fade target directly in CGRAM.
+            _cgram!.LoadFromBus(_bus!, 0xa6f4ee, colorCount: 15, destinationIndex: 0x142 / 2);
+            return;
+        }
+
+        slot.PaletteIndex = 0x0e00;
+        int source = CeresStatus != 0 ? 0xa6f50e : 0xa6f4ee;
+        _cgram!.LoadFromBus(_bus!, source, colorCount: 15, destinationIndex: 0x1e2 / 2);
     }
 
     private static void InitializeGunshipTop(RoomEnemySlot slot)
@@ -583,6 +644,9 @@ public sealed class RoomEnemySystem
             case 0xa6f00d:
                 RunCeresSteamMain(slot);
                 return;
+            case 0xa6f765:
+                RunCeresDoorMain(slot);
+                return;
             default:
                 throw new NotSupportedException(
                     $"Enemy ${slot.EnemyDefinitionPointer:X4} main AI ${address:X6} is not translated.");
@@ -601,6 +665,59 @@ public sealed class RoomEnemySystem
         // actor at its base point.
         throw new NotSupportedException(
             $"Ceres steam Mode-7 function $A6:{slot.VariableA:X4} is not translated.");
+    }
+
+    private void RunCeresDoorMain(RoomEnemySlot slot)
+    {
+        switch (slot.VariableA)
+        {
+            // Functions two/three only produce escape earthquake state when status >= 2.
+            // Earthquake rendering is independent of the door's own initial presentation.
+            case 0xf76b:
+            case 0xf770:
+                return;
+
+            case 0xf7a5:
+                slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+                if ((CeresStatus & 1) != 0)
+                {
+                    slot.PaletteIndex = 0x0e00;
+                    slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
+                }
+                return;
+
+            case 0xf7bd:
+                RunCeresDoorPaletteAnimation();
+                if (CeresStatus >= 2)
+                {
+                    // $A6:F7BD begins a 48-frame destruction sequence. Retaining this as
+                    // an explicit later boundary avoids pretending the escape state exists.
+                    throw new NotSupportedException("Ceres door destruction sequence $A6:F7DC is not translated.");
+                }
+                return;
+
+            case 0xf850:
+                RunCeresDoorPaletteAnimation();
+                return;
+
+            default:
+                throw new NotSupportedException(
+                    $"Ceres door main function $A6:{slot.VariableA:X4} is not translated.");
+        }
+    }
+
+    private void RunCeresDoorPaletteAnimation()
+    {
+        // $A6:F850 selects six colors by NMI counter bits 3..5. Enemy FrameCounter advances
+        // at the same accepted-frame cadence in this runtime, so slot zero is the shared
+        // timebase for the room-owned palette cycle.
+        ushort frame = _slots[0].FrameCounter;
+        ushort sourcePointer = unchecked((ushort)(2 * (frame & 0x0038) - 0x078f));
+        _cgram!.LoadFromBus(_bus!, 0xa60000 | sourcePointer, colorCount: 6, destinationIndex: 0x52 / 2);
+
+        // CeresDoor_Func_8 also queues one of two Mode-7 transfer lists at $A6:F900. That
+        // writer matters only after a shaft room enables Mode 7; this ordinary starting
+        // room still retains the exact selected pointer for a future generic queue port.
     }
 
     private void RunGunshipTopMain(
@@ -785,7 +902,7 @@ public sealed class RoomEnemySystem
         return unchecked((ushort)Math.Min(current + 2, maximum));
     }
 
-    private void ProcessInstructions(RoomEnemySlot slot)
+    private void ProcessInstructions(RoomEnemySlot slot, SamusState? samus)
     {
         ushort oldTimer = slot.InstructionTimer;
         slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
@@ -845,6 +962,68 @@ public sealed class RoomEnemySystem
                 case 0xf135: // Ceres steam: show and admit interaction.
                     slot.Properties = slot.Properties.Without(
                         EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xf63e: // Ceres door: loop until Samus is within a 48x48-pixel box.
+                    if (samus is null)
+                    {
+                        throw new InvalidOperationException(
+                            "Ceres door proximity instruction requires the active Samus actor.");
+                    }
+
+                    // `$A6:F63E` subtracts the two unsigned position words, interprets the
+                    // wrapped result as signed, then takes its absolute value independently
+                    // on each axis. If either distance is at least $30, the operand is a
+                    // same-bank loop target; otherwise execution skips that operand.
+                    int xDistance = Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition)));
+                    int yDistance = Math.Abs(unchecked((short)(slot.YPosition - samus.YPosition)));
+                    cursor = xDistance >= 0x30 || yDistance >= 0x30
+                        ? ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))
+                        : unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xf66a: // Ceres door: branch while area boss bit one is clear.
+                    // Fresh Ceres begins with the boss bit clear. CeresStatus becomes the
+                    // translated owner of that event later; until then, follow the native
+                    // false branch to the same-bank pointer in the next word.
+                    cursor = ReadWord(
+                        _bus!,
+                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    break;
+                case 0xf678: // Ceres door: branch while ceres_status is zero.
+                    cursor = CeresStatus != 0
+                        ? unchecked((ushort)(cursor + 4))
+                        : ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    break;
+                case 0xf68b: // Ceres steam/door: set native property bit $0400.
+                    slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xf695: // Ceres door: clear native property bit $0400.
+                    slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xf69f: // Ceres door: publish animation-state word B=1.
+                    slot.VariableB = 1;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xf6a6: // Ceres door/steam: hide the actor.
+                    slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xf6b0: // Ceres door: state B=0, then show the actor.
+                    slot.VariableB = 0;
+                    slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xf6b3: // Ceres door: show the actor.
+                    slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xf6bd: // Ceres door sound command; audio queue is not yet modeled.
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 default:

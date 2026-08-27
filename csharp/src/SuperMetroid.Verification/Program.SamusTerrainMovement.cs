@@ -46,8 +46,8 @@ static void VerifySamusSlopePhysics()
     int shapeTwelveRow = SamusSlopePhysics.AlignmentHeightTableAddress + 16 * 0x12;
     bus.WriteByte(shapeTwelveRow + 0, 8);
     bus.WriteByte(shapeTwelveRow + 15, 3);
-    AssertEqual((byte)8, SamusSlopePhysics.ReadAlignmentHeight(bus, 0x12, 0), "slope unmirrored height sample");
-    AssertEqual((byte)3, SamusSlopePhysics.ReadAlignmentHeight(bus, 0x52, 0), "slope mirrored height sample");
+    AssertEqual(8, SamusSlopePhysics.ReadAlignmentHeight(bus, 0x12, 0), "slope unmirrored height sample");
+    AssertEqual(3, SamusSlopePhysics.ReadAlignmentHeight(bus, 0x52, 0), "slope mirrored height sample");
 
     // A type-1/BTS-$12 block occupies (0,1). At center Y=21 with radius 5, Samus's bottom
     // is Y=25 (low nibble 9). Height 8 yields correction 8-9-1 = -2, so $94:87F4 moves
@@ -63,9 +63,9 @@ static void VerifySamusSlopePhysics()
         xPosition: 0,
         yPosition: 21,
         yRadius: 5);
-    AssertEqual((ushort)19, aligned.YPosition, "non-square floor slope whole-pixel Y correction");
+    AssertEqual(19, aligned.YPosition, "non-square floor slope whole-pixel Y correction");
     AssertTrue(aligned.Adjusted, "non-square floor slope sets adjusted flag");
-    AssertEqual((byte)0x12, aligned.FloorBlock!.Value.Behavior, "non-square floor reports source BTS");
+    AssertEqual(0x12, aligned.FloorBlock!.Value.Behavior, "non-square floor reports source BTS");
 
     SlopeAlignmentResult disabled = SamusSlopePhysics.AlignYPosition(
         bus,
@@ -74,7 +74,7 @@ static void VerifySamusSlopePhysics()
         yPosition: 21,
         yRadius: 5,
         horizontalSlopeCollisionEnabled: false);
-    AssertEqual((ushort)21, disabled.YPosition, "disabled horizontal slope collision preserves Y");
+    AssertEqual(21, disabled.YPosition, "disabled horizontal slope collision preserves Y");
     AssertTrue(!disabled.Adjusted, "disabled horizontal slope collision preserves adjusted flag");
 
     Console.WriteLine("  Samus slopes: ROM multiplier, mirrored height samples, and non-square Y alignment agree.");
@@ -120,9 +120,9 @@ static void VerifySamusBlockCollision()
         slopeBody,
         displacement: 0x00010000);
     AssertEqual(0x0000c000, slopeMove.AcceptedDisplacement, "horizontal scan applies BTS $12 multiplier");
-    AssertEqual((ushort)16, slopeBody.XPosition, "subpixel slope move preserves whole X");
-    AssertEqual((ushort)0xc000, slopeBody.XSubposition, "subpixel slope move updates X fraction");
-    AssertEqual((ushort)19, slopeBody.YPosition, "post-horizontal scan aligns non-square floor Y");
+    AssertEqual(16, slopeBody.XPosition, "subpixel slope move preserves whole X");
+    AssertEqual(0xc000, slopeBody.XSubposition, "subpixel slope move updates X fraction");
+    AssertEqual(19, slopeBody.YPosition, "post-horizontal scan aligns non-square floor Y");
     AssertTrue(slopeMove.PositionAdjustedBySlope, "horizontal scan reports slope adjustment");
 
     // Resting at center Y=19 puts the bottom at 23. The native +1.0 grounding probe
@@ -142,8 +142,8 @@ static void VerifySamusBlockCollision()
         scanLeftToRight: true);
     AssertTrue(groundProbe.Collided, "vertical non-square grounding probe collides");
     AssertEqual(0, groundProbe.AcceptedDisplacement, "vertical non-square grounding probe clips to zero");
-    AssertEqual((ushort)19, groundedBody.YPosition, "grounding collision preserves resting center Y");
-    AssertEqual((byte)0x12, groundProbe.CollisionBlock!.Value.Behavior, "grounding collision reports slope BTS");
+    AssertEqual(19, groundedBody.YPosition, "grounding collision preserves resting center Y");
+    AssertEqual(0x12, groundProbe.CollisionBlock!.Value.Behavior, "grounding collision reports slope BTS");
 
     // Moving two pixels right from X=26 would enter the type-8 block at X=32. The solid
     // formula permits one pixel, writes subposition $FFFF, and stops center X at 27.FFFF.
@@ -162,8 +162,8 @@ static void VerifySamusBlockCollision()
         displacement: 0x00020000);
     AssertTrue(wallMove.Collided, "horizontal type-8 solid collision flag");
     AssertEqual(0x00010000, wallMove.AcceptedDisplacement, "horizontal type-8 solid clipped amount");
-    AssertEqual((ushort)27, wallBody.XPosition, "horizontal type-8 solid whole X");
-    AssertEqual((ushort)0xffff, wallBody.XSubposition, "horizontal type-8 solid right-wall fraction");
+    AssertEqual(27, wallBody.XPosition, "horizontal type-8 solid whole X");
+    AssertEqual(0xffff, wallBody.XSubposition, "horizontal type-8 solid right-wall fraction");
 
     // An air-only downward move preserves all 16.16 bits and has no collision record.
     var airBody = new SamusKinematicsState
@@ -182,8 +182,8 @@ static void VerifySamusBlockCollision()
         displacement: 0x00008000,
         scanLeftToRight: false);
     AssertTrue(!airMove.Collided, "vertical type-0 air has no collision");
-    AssertEqual((ushort)19, airBody.YPosition, "vertical air fractional move whole Y");
-    AssertEqual((ushort)0xc000, airBody.YSubposition, "vertical air fractional move subposition");
+    AssertEqual(19, airBody.YPosition, "vertical air fractional move whole Y");
+    AssertEqual(0xc000, airBody.YSubposition, "vertical air fractional move subposition");
 
     // Shape four has all four $94:8E54 quadrant bytes set. Unlike an ordinary solid, its
     // clipping boundary is the leading 8-pixel half, although this fixture reaches the
@@ -212,7 +212,7 @@ static void VerifySamusBlockCollision()
         displacement: 0x00020000);
     AssertTrue(squareWall.Collided, "horizontal fully-solid square slope collision");
     AssertEqual(0x00010000, squareWall.AcceptedDisplacement, "horizontal square-slope 8-pixel clipping");
-    AssertEqual((ushort)0xffff, squareWallBody.XSubposition, "horizontal square slope writes right-wall fraction");
+    AssertEqual(0xffff, squareWallBody.XSubposition, "horizontal square slope writes right-wall fraction");
 
     var squareFloorBody = new SamusKinematicsState
     {
@@ -230,7 +230,7 @@ static void VerifySamusBlockCollision()
     AssertTrue(squareFloor.Collided, "vertical fully-solid square slope collision");
     AssertEqual(0x00010000, squareFloor.AcceptedDisplacement, "vertical square-slope 8-pixel clipping");
     AssertTrue(squareFloorBody.PositionAdjustedBySlope, "downward square slope sets adjusted flag");
-    AssertEqual((ushort)0xffff, squareFloorBody.YSubposition, "downward square slope writes floor fraction");
+    AssertEqual(0xffff, squareFloorBody.YSubposition, "downward square slope writes floor fraction");
 
     Console.WriteLine("  Samus blocks: spans, air, square/non-square slopes, and solid clipping agree.");
 }
@@ -277,10 +277,10 @@ static void VerifySamusGroundedMovement()
         running,
         nmiFrameCounter: 0);
 
-    AssertEqual((ushort)0x0000, running.HorizontalSpeed.BaseSpeed, "running first acceleration whole speed");
-    AssertEqual((ushort)0x3000, running.HorizontalSpeed.BaseSubspeed, "running first acceleration fractional speed");
+    AssertEqual(0x0000, running.HorizontalSpeed.BaseSpeed, "running first acceleration whole speed");
+    AssertEqual(0x3000, running.HorizontalSpeed.BaseSubspeed, "running first acceleration fractional speed");
     AssertEqual(0x00002400, first.Horizontal.AcceptedDisplacement, "running slope-scaled horizontal amount");
-    AssertEqual((ushort)0x2400, running.Kinematics.XSubposition, "running horizontal amount reaches X subposition");
+    AssertEqual(0x2400, running.Kinematics.XSubposition, "running horizontal amount reaches X subposition");
     AssertTrue(first.Vertical.Collided, "running total-speed-plus-one grounding probe collides");
     AssertEqual(0, first.Vertical.AcceptedDisplacement, "running grounding probe clips at surface");
 
@@ -291,9 +291,9 @@ static void VerifySamusGroundedMovement()
         level,
         running,
         nmiFrameCounter: 1);
-    AssertEqual((ushort)0x6000, running.HorizontalSpeed.BaseSubspeed, "running second acceleration accumulates");
+    AssertEqual(0x6000, running.HorizontalSpeed.BaseSubspeed, "running second acceleration accumulates");
     AssertEqual(0x00004800, second.Horizontal.AcceptedDisplacement, "second running slope multiplier");
-    AssertEqual((ushort)0x6c00, running.Kinematics.XSubposition, "second running displacement accumulates");
+    AssertEqual(0x6c00, running.Kinematics.XSubposition, "second running displacement accumulates");
     AssertTrue(second.Vertical.Collided, "odd-frame grounding scan collides");
 
     // Momentum routine one selects acceleration mode two after Right is released. The next
@@ -305,9 +305,9 @@ static void VerifySamusGroundedMovement()
         level,
         running,
         nmiFrameCounter: 0);
-    AssertEqual((ushort)0, running.HorizontalSpeed.BaseSpeed, "running deceleration underflow clears whole speed");
-    AssertEqual((ushort)0, running.HorizontalSpeed.BaseSubspeed, "running deceleration underflow clears fraction");
-    AssertEqual((ushort)0, running.HorizontalSpeed.AccelerationMode, "running deceleration underflow restores acceleration mode");
+    AssertEqual(0, running.HorizontalSpeed.BaseSpeed, "running deceleration underflow clears whole speed");
+    AssertEqual(0, running.HorizontalSpeed.BaseSubspeed, "running deceleration underflow clears fraction");
+    AssertEqual(0, running.HorizontalSpeed.AccelerationMode, "running deceleration underflow restores acceleration mode");
     AssertEqual(0, decelerated.Horizontal.AcceptedDisplacement, "cleared deceleration frame has no X displacement");
 
     // Standing executes its zero-base MoveX/grounding calls before clearing momentum. Base
@@ -326,8 +326,8 @@ static void VerifySamusGroundedMovement()
         nmiFrameCounter: 0);
     AssertEqual(0, idle.Horizontal.AcceptedDisplacement, "standing no-base horizontal amount");
     AssertTrue(idle.Vertical.Collided, "standing one-pixel grounding probe collides");
-    AssertEqual((ushort)0, standing.HorizontalSpeed.BaseSpeed, "standing clears base speed whole");
-    AssertEqual((ushort)0, standing.HorizontalSpeed.BaseSubspeed, "standing clears base speed fraction");
+    AssertEqual(0, standing.HorizontalSpeed.BaseSpeed, "standing clears base speed whole");
+    AssertEqual(0, standing.HorizontalSpeed.BaseSubspeed, "standing clears base speed fraction");
 
     // The front-view branch returns before every ordinary standing movement call. Seed
     // deliberately stale motion/collision values to prove the sole native write is the
@@ -348,12 +348,12 @@ static void VerifySamusGroundedMovement()
         forward,
         nmiFrameCounter: 0);
     AssertTrue(stationaryForward is null, "zero elevator status skips the vertical scan");
-    AssertEqual((ushort)0, forward.SolidVerticalCollisionResult, "forward movement clears vertical collision result");
-    AssertEqual((ushort)0x1234, forward.XPosition, "forward movement does not scan or move X");
-    AssertEqual((ushort)0x5678, forward.YPosition, "stationary forward movement does not move Y");
-    AssertEqual((ushort)2, forward.HorizontalSpeed.BaseSpeed, "forward dispatcher retains stale base speed");
-    AssertEqual((ushort)0x3456, forward.HorizontalSpeed.BaseSubspeed, "forward dispatcher retains stale base subspeed");
-    AssertEqual((ushort)1, forward.HorizontalSpeed.ExtraRunSpeed, "forward dispatcher retains stale extra speed");
+    AssertEqual(0, forward.SolidVerticalCollisionResult, "forward movement clears vertical collision result");
+    AssertEqual(0x1234, forward.XPosition, "forward movement does not scan or move X");
+    AssertEqual(0x5678, forward.YPosition, "stationary forward movement does not move Y");
+    AssertEqual(2, forward.HorizontalSpeed.BaseSpeed, "forward dispatcher retains stale base speed");
+    AssertEqual(0x3456, forward.HorizontalSpeed.BaseSubspeed, "forward dispatcher retains stale base subspeed");
+    AssertEqual(1, forward.HorizontalSpeed.ExtraRunSpeed, "forward dispatcher retains stale extra speed");
 
     // `$90:A392` consumes actor-owned elevator status but performs Samus's movement itself.
     // Put a valid solid-enemy candidate exactly one pixel below an all-air room body: the
@@ -391,10 +391,10 @@ static void VerifySamusGroundedMovement()
         "elevator `$94:9763` path skips a colliding solid enemy");
     AssertEqual(0x00010000, acceptedElevatorMove.AcceptedDisplacement,
         "elevator requests exact one-pixel downward displacement");
-    AssertEqual((ushort)101, forward.YPosition, "elevator moves forward-facing Samus down one pixel");
-    AssertEqual((ushort)0x5678, forward.Kinematics.YSubposition,
+    AssertEqual(101, forward.YPosition, "elevator moves forward-facing Samus down one pixel");
+    AssertEqual(0x5678, forward.Kinematics.YSubposition,
         "whole-pixel elevator motion preserves Y fraction");
-    AssertEqual((ushort)0, forward.SolidVerticalCollisionResult,
+    AssertEqual(0, forward.SolidVerticalCollisionResult,
         "elevator path clears vertical collision result after movement");
 
     Console.WriteLine("  Samus movement: forward/elevator, standing, and running speed/X/slope/grounding order agree.");
@@ -445,8 +445,8 @@ static void VerifySamusGroundedReversal()
         movingLeft,
         nmiFrameCounter: 0);
     AssertEqual(-0x00003000, leftFrame.Horizontal.AcceptedDisplacement, "running-left signed displacement");
-    AssertEqual((ushort)63, movingLeft.XPosition, "running-left borrows into whole X");
-    AssertEqual((ushort)0xd000, movingLeft.Kinematics.XSubposition, "running-left fractional X");
+    AssertEqual(63, movingLeft.XPosition, "running-left borrows into whole X");
+    AssertEqual(0xd000, movingLeft.Kinematics.XSubposition, "running-left fractional X");
     AssertTrue(leftFrame.Vertical.Collided, "running-left grounding probe collides");
 
     // The production movement port now also validates the pose's literal dispatcher byte,
@@ -468,7 +468,7 @@ static void VerifySamusGroundedReversal()
         level,
         turnTowardLeft,
         nmiFrameCounter: 0);
-    AssertEqual((ushort)0xc000, turnTowardLeft.HorizontalSpeed.BaseSubspeed, "left-turn deceleration amount");
+    AssertEqual(0xc000, turnTowardLeft.HorizontalSpeed.BaseSubspeed, "left-turn deceleration amount");
     AssertEqual(0x0000c000, carriedRight.Horizontal.AcceptedDisplacement, "left-turn carries rightward momentum");
 
     // Pose $26 is the mirror: it displays a right-facing turn but carries old momentum to
@@ -501,8 +501,8 @@ static void VerifySamusGroundedReversal()
         level,
         exhaustedTurn,
         nmiFrameCounter: 0);
-    AssertEqual((ushort)0, exhaustedTurn.HorizontalSpeed.BaseSubspeed, "turn underflow clears speed");
-    AssertEqual((ushort)0, exhaustedTurn.HorizontalSpeed.AccelerationMode, "turn underflow clears mode one");
+    AssertEqual(0, exhaustedTurn.HorizontalSpeed.BaseSubspeed, "turn underflow clears speed");
+    AssertEqual(0, exhaustedTurn.HorizontalSpeed.AccelerationMode, "turn underflow clears mode one");
     AssertEqual(0, stopped.Horizontal.AcceptedDisplacement, "turn underflow does not reverse early");
 
     // Seed the exact retail pose metadata and delay bytecode needed by $09->$25->$02.
@@ -512,39 +512,65 @@ static void VerifySamusGroundedReversal()
     bus.WriteBytes(0x91b671, [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
     bus.WriteBytes(0x91b679, [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
     bus.WriteBytes(0x91b751, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+    bus.WriteBytes(0x91b759, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
     WriteTestWord(bus, 0x91b014, 0xc100); // pose $02
     WriteTestWord(bus, 0x91b022, 0xc110); // pose $09
     WriteTestWord(bus, 0x91b024, 0xc120); // pose $0A
     WriteTestWord(bus, 0x91b05a, 0xc130); // pose $25
+    WriteTestWord(bus, 0x91b05c, 0xc140); // pose $26
     bus.WriteBytes(0x91c100, [0x0a]);
     bus.WriteBytes(0x91c110, [0x02]);
     bus.WriteBytes(0x91c120, [0x02]);
     bus.WriteBytes(0x91c130, [0x02, 0x02, 0x02, 0xf8, 0x02]);
+    bus.WriteBytes(0x91c140, [0x02, 0x02, 0x02, 0xf8, 0x01]);
+
+    // `$91:F8D3` explicitly compares the OLD pose against `$00/$9B` before it reads any
+    // shot-direction metadata. Both front-view bodies must therefore retain the generic
+    // direction selected by their own transition tables. Cover both targets and both suit
+    // variants; this prevents a future shortcut from silently assigning front-view Samus
+    // an invented left or right facing.
+    var forwardToLeft = new SamusState { Pose = SamusState.ForwardFacingPowerSuitPose };
+    forwardToLeft.HorizontalSpeed.BaseSubspeed = 0x8000;
+    forwardToLeft.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
+    forwardToLeft.ApplyGroundedTurn(bus, SamusState.TurningRightToLeftPose);
+    AssertEqual(SamusState.TurningRightToLeftPose, forwardToLeft.Pose,
+        "power-suit forward view retains generic left-turn target");
+    AssertEqual(0xc000, forwardToLeft.HorizontalSpeed.BaseSubspeed,
+        "forward left turn still folds extra run speed");
+    AssertEqual(1, forwardToLeft.HorizontalSpeed.AccelerationMode,
+        "forward left turn selects mode one");
+
+    var forwardToRight = new SamusState { Pose = SamusState.ForwardFacingSuitedPose };
+    forwardToRight.ApplyGroundedTurn(bus, SamusState.TurningLeftToRightPose);
+    AssertEqual(SamusState.TurningLeftToRightPose, forwardToRight.Pose,
+        "suited forward view retains generic right-turn target");
+    AssertEqual(1, forwardToRight.HorizontalSpeed.AccelerationMode,
+        "forward right turn selects mode one");
 
     var animatedTurn = new SamusState { Pose = SamusState.MovingRightNormalPose };
     animatedTurn.HorizontalSpeed.BaseSubspeed = 0x8000;
     animatedTurn.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
     animatedTurn.ApplyGroundedTurn(bus, SamusState.TurningRightToLeftPose);
-    AssertEqual((byte)0x25, animatedTurn.Pose, "input reversal installs pose $25");
-    AssertEqual((ushort)0xc000, animatedTurn.HorizontalSpeed.BaseSubspeed, "turn setup folds extra into base speed");
-    AssertEqual((ushort)0, animatedTurn.HorizontalSpeed.ExtraRunSubspeed, "turn setup consumes extra speed");
-    AssertEqual((ushort)1, animatedTurn.HorizontalSpeed.AccelerationMode, "turn setup selects mode one");
+    AssertEqual(0x25, animatedTurn.Pose, "input reversal installs pose $25");
+    AssertEqual(0xc000, animatedTurn.HorizontalSpeed.BaseSubspeed, "turn setup folds extra into base speed");
+    AssertEqual(0, animatedTurn.HorizontalSpeed.ExtraRunSubspeed, "turn setup consumes extra speed");
+    AssertEqual(1, animatedTurn.HorizontalSpeed.AccelerationMode, "turn setup selects mode one");
 
     // Three two-tick art frames lead to byte index three, command $F8. Its operand $02 is
     // pending until the transition seam; applying it initializes pose $02 frame zero.
     for (int tick = 0; tick < 6; tick++)
         animatedTurn.AnimateNoFx(bus);
-    AssertEqual((byte)0xf8, animatedTurn.LastAnimationDelayCommand!.Value, "turn reaches command $F8");
-    AssertEqual((byte)0x02, animatedTurn.PendingTransitionalPose!.Value, "turn $F8 publishes left-standing pose");
+    AssertEqual(0xf8, animatedTurn.LastAnimationDelayCommand!.Value, "turn reaches command $F8");
+    AssertEqual(0x02, animatedTurn.PendingTransitionalPose!.Value, "turn $F8 publishes left-standing pose");
     AssertTrue(animatedTurn.ApplyPendingVerifiedAnimationTransition(bus), "turn animation transition applies");
-    AssertEqual((byte)0x02, animatedTurn.Pose, "turn animation ends facing left");
-    AssertEqual((ushort)0, animatedTurn.AnimationFrame, "turn completion resets animation frame");
-    AssertEqual((ushort)10, animatedTurn.AnimationFrameTimer, "left-standing delay initializes from ROM stream");
+    AssertEqual(0x02, animatedTurn.Pose, "turn animation ends facing left");
+    AssertEqual(0, animatedTurn.AnimationFrame, "turn completion resets animation frame");
+    AssertEqual(10, animatedTurn.AnimationFrameTimer, "left-standing delay initializes from ROM stream");
 
     animatedTurn.ApplyStandingLeftToRunningLeft(bus);
-    AssertEqual((byte)0x0a, animatedTurn.Pose, "held left starts ordinary left run");
+    AssertEqual(0x0a, animatedTurn.Pose, "held left starts ordinary left run");
     animatedTurn.ApplyRunningLeftToStandingLeft(bus);
-    AssertEqual((byte)0x02, animatedTurn.Pose, "left run no-button fallback stands left");
+    AssertEqual(0x02, animatedTurn.Pose, "left run no-button fallback stands left");
 
     // The retail initializer does not blindly accept the generic `$25/$26` produced by
     // the input transition table. It reads byte three of the previous pose definition and
@@ -638,10 +664,10 @@ static void VerifySamusGroundedReversal()
         aimedTurn.HorizontalSpeed.ExtraRunSubspeed = 0x5000;
         aimedTurn.ApplyGroundedTurn(bus, testCase.GenericTurn);
         AssertEqual(testCase.SelectedTurn, aimedTurn.Pose, $"aimed turn selector case {caseIndex}");
-        AssertEqual((ushort)2, aimedTurn.HorizontalSpeed.BaseSpeed, $"aimed turn speed carry case {caseIndex}");
-        AssertEqual((ushort)0x2000, aimedTurn.HorizontalSpeed.BaseSubspeed, $"aimed turn folded fraction case {caseIndex}");
-        AssertEqual((ushort)0, aimedTurn.HorizontalSpeed.ExtraRunSubspeed, $"aimed turn consumes extra fraction case {caseIndex}");
-        AssertEqual((ushort)1, aimedTurn.HorizontalSpeed.AccelerationMode, $"aimed turn mode one case {caseIndex}");
+        AssertEqual(2, aimedTurn.HorizontalSpeed.BaseSpeed, $"aimed turn speed carry case {caseIndex}");
+        AssertEqual(0x2000, aimedTurn.HorizontalSpeed.BaseSubspeed, $"aimed turn folded fraction case {caseIndex}");
+        AssertEqual(0, aimedTurn.HorizontalSpeed.ExtraRunSubspeed, $"aimed turn consumes extra fraction case {caseIndex}");
+        AssertEqual(1, aimedTurn.HorizontalSpeed.AccelerationMode, $"aimed turn mode one case {caseIndex}");
 
         GroundedMovementResult carriedMomentum = SamusGroundedMovement.StepTurningOnGround(
             bus,
@@ -657,12 +683,12 @@ static void VerifySamusGroundedReversal()
 
         for (int tick = 0; tick < 6; tick++)
             aimedTurn.AnimateNoFx(bus);
-        AssertEqual((byte)0xf8, aimedTurn.LastAnimationDelayCommand!.Value, $"aimed turn reaches $F8 case {caseIndex}");
+        AssertEqual(0xf8, aimedTurn.LastAnimationDelayCommand!.Value, $"aimed turn reaches $F8 case {caseIndex}");
         AssertEqual(testCase.Destination, aimedTurn.PendingTransitionalPose!.Value, $"aimed turn publishes destination case {caseIndex}");
         AssertTrue(aimedTurn.ApplyPendingVerifiedAnimationTransition(bus), $"aimed turn transition applies case {caseIndex}");
         AssertEqual(testCase.Destination, aimedTurn.Pose, $"aimed turn destination case {caseIndex}");
-        AssertEqual((ushort)0, aimedTurn.AnimationFrame, $"aimed turn target frame zero case {caseIndex}");
-        AssertEqual((ushort)10, aimedTurn.AnimationFrameTimer, $"aimed turn target timer case {caseIndex}");
+        AssertEqual(0, aimedTurn.AnimationFrame, $"aimed turn target frame zero case {caseIndex}");
+        AssertEqual(10, aimedTurn.AnimationFrameTimer, $"aimed turn target timer case {caseIndex}");
     }
 
     // Crouched aim turns are the deliberate type-$17 oddity in this family. Give that
@@ -749,8 +775,8 @@ static void VerifySamusGroundedReversal()
         crouchedTurn.HorizontalSpeed.ExtraRunSubspeed = 0x5000;
         crouchedTurn.ApplyGroundedTurn(bus, testCase.GenericTurn);
         AssertEqual(testCase.SelectedTurn, crouchedTurn.Pose, $"crouched turn selector case {caseIndex}");
-        AssertEqual((ushort)16, crouchedTurn.Kinematics.YRadius, $"crouched turn radius case {caseIndex}");
-        AssertEqual((ushort)1, crouchedTurn.HorizontalSpeed.AccelerationMode, $"crouched turn mode one case {caseIndex}");
+        AssertEqual(16, crouchedTurn.Kinematics.YRadius, $"crouched turn radius case {caseIndex}");
+        AssertEqual(1, crouchedTurn.HorizontalSpeed.AccelerationMode, $"crouched turn mode one case {caseIndex}");
 
         GroundedMovementResult crouchedMomentum = SamusGroundedMovement.StepTurningOnGround(
             bus,
@@ -767,7 +793,7 @@ static void VerifySamusGroundedReversal()
 
         for (int tick = 0; tick < 6; tick++)
             crouchedTurn.AnimateNoFx(bus);
-        AssertEqual((byte)0xf8, crouchedTurn.LastAnimationDelayCommand!.Value, $"crouched turn reaches $F8 case {caseIndex}");
+        AssertEqual(0xf8, crouchedTurn.LastAnimationDelayCommand!.Value, $"crouched turn reaches $F8 case {caseIndex}");
         AssertEqual(testCase.Destination, crouchedTurn.PendingTransitionalPose!.Value, $"crouched turn publishes destination case {caseIndex}");
         AssertTrue(crouchedTurn.ApplyPendingVerifiedAnimationTransition(bus), $"crouched turn transition applies case {caseIndex}");
         AssertEqual(testCase.Destination, crouchedTurn.Pose, $"crouched turn destination case {caseIndex}");
@@ -855,22 +881,22 @@ static void VerifySamusMoonwalking()
     disabled.ApplyMoonwalkPoseChange(bus, SamusState.MoonwalkFacingRightPose, moonwalkEnabled: false);
     AssertEqual(SamusState.TurningRightToLeftPose, disabled.Pose,
         "disabled Moonwalk option substitutes ordinary turn");
-    AssertEqual((ushort)0x6000, disabled.HorizontalSpeed.BaseSubspeed,
+    AssertEqual(0x6000, disabled.HorizontalSpeed.BaseSubspeed,
         "disabled Moonwalk substitution folds extra momentum");
-    AssertEqual((ushort)1, disabled.HorizontalSpeed.AccelerationMode,
+    AssertEqual(1, disabled.HorizontalSpeed.AccelerationMode,
         "disabled Moonwalk substitution starts mode one");
 
     // `$91:F8F3-$F903` is specific to a turn whose PREVIOUS movement type is Moonwalk.
     // It publishes the source pose's shot direction with tag `$0100`; ordinary standing
     // turns, including the disabled-option substitution above, must not create this word.
-    AssertEqual((ushort)0, disabled.PoseTransitionShotDirection,
+    AssertEqual(0, disabled.PoseTransitionShotDirection,
         "ordinary standing turn does not publish moonwalk shot bridge");
     var moonwalkBridge = new SamusState { Pose = SamusState.MoonwalkFacingRightPose };
     moonwalkBridge.ApplyGroundedTurn(bus, SamusState.TurningRightToLeftPose);
-    AssertEqual((ushort)0x0102, moonwalkBridge.PoseTransitionShotDirection,
+    AssertEqual(0x0102, moonwalkBridge.PoseTransitionShotDirection,
         "moonwalk turn publishes tagged source shot direction");
     moonwalkBridge.ClearPoseTransitionShotDirection();
-    AssertEqual((ushort)0, moonwalkBridge.PoseTransitionShotDirection,
+    AssertEqual(0, moonwalkBridge.PoseTransitionShotDirection,
         "moonwalk shot bridge is one-current-handler state");
 
     // Enabled entry must preserve every exact candidate, not merely the unaimed pair.
@@ -948,9 +974,9 @@ static void VerifySamusMoonwalking()
         turn.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
         turn.ApplyMoonwalkTurnJump(bus, target);
         AssertEqual(target, turn.Pose, $"moonwalk ${source:X2} selects exact turn ${target:X2}");
-        AssertEqual((ushort)1, turn.HorizontalSpeed.AccelerationMode,
+        AssertEqual(1, turn.HorizontalSpeed.AccelerationMode,
             $"moonwalk turn ${target:X2} preserves reversal mode");
-        AssertEqual((ushort)0, turn.Kinematics.YDirection,
+        AssertEqual(0, turn.Kinematics.YDirection,
             $"moonwalk turn ${target:X2} remains grounded before completion");
     }
 
@@ -960,7 +986,7 @@ static void VerifySamusMoonwalking()
     animated.ApplyMoonwalkTurnJump(bus, SamusState.MoonwalkTurnJumpLeftPose);
     for (int tick = 0; tick < 6; tick++)
         animated.AnimateNoFx(bus);
-    AssertEqual((byte)0xf8, animated.LastAnimationDelayCommand!.Value,
+    AssertEqual(0xf8, animated.LastAnimationDelayCommand!.Value,
         "moonwalk turn reaches command $F8");
     AssertEqual(SamusState.SpinJumpLeftPose, animated.PendingTransitionalPose!.Value,
         "moonwalk turn publishes literal spin-left operand");
@@ -968,11 +994,11 @@ static void VerifySamusMoonwalking()
         "moonwalk terminal spin transition applies");
     AssertEqual(SamusState.SpinJumpLeftPose, animated.Pose,
         "moonwalk terminal command enters spin jump");
-    AssertEqual((ushort)4, animated.Kinematics.YSpeed,
+    AssertEqual(4, animated.Kinematics.YSpeed,
         "moonwalk terminal command loads dry-air jump speed");
-    AssertEqual((ushort)0xe000, animated.Kinematics.YSubspeed,
+    AssertEqual(0xe000, animated.Kinematics.YSubspeed,
         "moonwalk terminal command loads dry-air jump subspeed");
-    AssertEqual((ushort)1, animated.Kinematics.YDirection,
+    AssertEqual(1, animated.Kinematics.YDirection,
         "moonwalk terminal command begins upward motion");
 
     Console.WriteLine("  Moonwalk: option gate, six stable routes, reversed X, fallback, and $BF-$C4 jump art agree.");
@@ -1062,7 +1088,7 @@ static void VerifySamusRanIntoWall()
         out BlockMoveResult? clearProbe);
     AssertTrue(clearResult is null, "clear arm-pump probe keeps prospective run");
     AssertTrue(clearProbe is { Collided: false }, "clear arm-pump probe reports no wall");
-    AssertEqual((ushort)81, armPump.XPosition, "clear arm-pump probe retains one-pixel move");
+    AssertEqual(81, armPump.XPosition, "clear arm-pump probe retains one-pixel move");
 
     // Put a two-block-high wall immediately at X=96. Center 91/radius five has a current
     // right boundary at 95; the same +1.0000 request advances the sampled boundary to 96.
@@ -1088,7 +1114,7 @@ static void VerifySamusRanIntoWall()
     AssertEqual((byte?)SamusState.RanIntoWallRightPose, blockedResult,
         "blocked prospective run selects $89");
     AssertTrue(blockedProbe is { Collided: true }, "blocked arm-pump probe reports wall");
-    AssertEqual((ushort)91, blocked.XPosition, "blocked arm-pump probe retains last-safe X");
+    AssertEqual(91, blocked.XPosition, "blocked arm-pump probe retains last-safe X");
 
     // A killed type-one move uses the CURRENT shot direction and performs no second probe.
     var killed = new SamusState { Pose = SamusState.MovingRightNormalPose };
@@ -1119,7 +1145,7 @@ static void VerifySamusRanIntoWall()
         AssertTrue(movement.Vertical.Collided, $"wall pose ${pose:X2} remains grounded");
         AssertEqual(0u, stopped.HorizontalSpeed.BaseFixed,
             $"wall pose ${pose:X2} clears base speed");
-        AssertEqual((ushort)0, stopped.HorizontalSpeed.AccelerationMode,
+        AssertEqual(0, stopped.HorizontalSpeed.AccelerationMode,
             $"wall pose ${pose:X2} clears acceleration mode");
     }
 

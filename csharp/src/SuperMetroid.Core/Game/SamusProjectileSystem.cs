@@ -396,7 +396,8 @@ public sealed partial class SamusProjectileSystem
         ushort layer1Y,
         SamusBombProjectileSystem sharedProjectiles,
         bool projectileProducerEnabled = true,
-        RoomPlmSystem? roomPlms = null)
+        RoomPlmSystem? roomPlms = null,
+        ushort controllerPreviousNewInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -427,6 +428,7 @@ public sealed partial class SamusProjectileSystem
                     bus,
                     samus,
                     controllerNewInput,
+                    controllerPreviousNewInput,
                     sharedProjectiles);
             }
         }

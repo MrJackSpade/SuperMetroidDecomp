@@ -27,35 +27,6 @@ static ushort ReferenceNextRandom(ushort seed)
     return unchecked((ushort)(restoredAccumulator + 0x0011 + carry));
 }
 
-static void AssertTrue(bool condition, string context)
-{
-    if (!condition)
-        throw new InvalidOperationException($"Verification failed: {context}.");
-}
-
-static void AssertEqual<T>(T expected, T actual, string context)
-{
-    // EqualityComparer<T>.Default handles primitives, records, nullable values, and enums.
-    // Constraining T to IEquatable<T> looks attractive but incorrectly excludes C# enums.
-    if (!EqualityComparer<T>.Default.Equals(expected, actual))
-        throw new InvalidOperationException($"Verification failed: {context}; expected {expected}, got {actual}.");
-}
-
-static void AssertThrows<TException>(Action action, string context)
-    where TException : Exception
-{
-    try
-    {
-        action();
-    }
-    catch (TException)
-    {
-        return;
-    }
-
-    throw new InvalidOperationException($"Verification failed: {context}; expected {typeof(TException).Name}.");
-}
-
 /// <summary>
 /// Sparse CPU-bus fixture. Unwritten addresses read as zero, mirroring cleared memory and
 /// making every byte relevant to a transfer visible in the setup directly above it.
@@ -97,4 +68,66 @@ static class NativeConsoleProcess
     [DllImport("kernel32.dll")]
     internal static extern uint SetErrorMode(uint errorMode);
 }
+}
+
+/// <summary>
+/// Dependency-free assertions shared by every verifier source file.
+/// </summary>
+/// <remarks>
+/// Native-state properties are intentionally narrow (<see cref="byte"/>,
+/// <see cref="ushort"/>, and <see cref="short"/>), while C# numeric literals and loop
+/// expressions naturally begin as <see cref="int"/>. The numeric overloads centralize
+/// that checked narrowing so tests can say <c>AssertEqual(0x8000, state.Word, ...)</c>
+/// without repeating casts at hundreds of call sites. An out-of-range expectation fails
+/// as bad fixture data instead of silently wrapping before the comparison.
+/// </remarks>
+internal static class VerificationAssert
+{
+    internal static void AssertTrue(bool condition, string context)
+    {
+        if (!condition)
+            throw new InvalidOperationException($"Verification failed: {context}.");
+    }
+
+    internal static void AssertEqual<T>(T expected, T actual, string context)
+    {
+        // EqualityComparer<T>.Default handles primitives, records, nullable values, and
+        // enums. Constraining T to IEquatable<T> looks attractive but excludes C# enums.
+        if (!EqualityComparer<T>.Default.Equals(expected, actual))
+        {
+            throw new InvalidOperationException(
+                $"Verification failed: {context}; expected {expected}, got {actual}.");
+        }
+    }
+
+    internal static void AssertEqual(int expected, byte actual, string context) =>
+        AssertEqual<byte>(checked((byte)expected), actual, context);
+
+    internal static void AssertEqual(int expected, sbyte actual, string context) =>
+        AssertEqual<sbyte>(checked((sbyte)expected), actual, context);
+
+    internal static void AssertEqual(int expected, ushort actual, string context) =>
+        AssertEqual<ushort>(checked((ushort)expected), actual, context);
+
+    internal static void AssertEqual(int expected, short actual, string context) =>
+        AssertEqual<short>(checked((short)expected), actual, context);
+
+    internal static void AssertEqual(int expected, ushort? actual, string context) =>
+        AssertEqual<ushort?>(checked((ushort)expected), actual, context);
+
+    internal static void AssertThrows<TException>(Action action, string context)
+        where TException : Exception
+    {
+        try
+        {
+            action();
+        }
+        catch (TException)
+        {
+            return;
+        }
+
+        throw new InvalidOperationException(
+            $"Verification failed: {context}; expected {typeof(TException).Name}.");
+    }
 }

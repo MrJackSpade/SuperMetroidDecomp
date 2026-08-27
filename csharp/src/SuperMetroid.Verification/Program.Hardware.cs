@@ -63,39 +63,39 @@ static void VerifyTimedHeldInputTimeline()
 
     // Frame 0: the button is new, so TRB removes it from the held-only sample.
     state.UpdateHeldInput(timerReset: 3, controllerInput: button, controllerNewInput: button);
-    AssertEqual((ushort)0, state.TimedHeldInput, "new press is not held input");
+    AssertEqual(0, state.TimedHeldInput, "new press is not held input");
 
     // Frame 1: held-only input changes from zero to the button and reloads the timer.
     state.UpdateHeldInput(3, button, 0);
-    AssertEqual((ushort)3, state.TimedHeldInputTimer, "changed input reloads timer");
-    AssertEqual((ushort)0, state.TimedHeldInput, "changed input stays suppressed");
+    AssertEqual(3, state.TimedHeldInputTimer, "changed input reloads timer");
+    AssertEqual(0, state.TimedHeldInput, "changed input stays suppressed");
 
     // Frames 2-4: DEC yields 2, 1, and 0. BPL keeps taking the suppression path.
     for (ushort expectedTimer = 2; ; expectedTimer--)
     {
         state.UpdateHeldInput(3, button, 0);
         AssertEqual(expectedTimer, state.TimedHeldInputTimer, "stable-input countdown");
-        AssertEqual((ushort)0, state.TimedHeldInput, "countdown suppression");
+        AssertEqual(0, state.TimedHeldInput, "countdown suppression");
         if (expectedTimer == 0)
             break;
     }
 
     // Frame 5: zero wraps to $FFFF, which is negative to BPL, and activates the button.
     state.UpdateHeldInput(3, button, 0);
-    AssertEqual((ushort)0, state.TimedHeldInputTimer, "expired timer is pinned to zero");
+    AssertEqual(0, state.TimedHeldInputTimer, "expired timer is pinned to zero");
     AssertEqual(button, state.TimedHeldInput, "held input activates after underflow");
     AssertEqual(button, state.NewlyTimedHeldInput, "activation creates a rising-edge pulse");
 
     // Frame 6: the active input remains present, while its rising-edge output clears.
     state.UpdateHeldInput(3, button, 0);
     AssertEqual(button, state.TimedHeldInput, "stable expired input remains active");
-    AssertEqual((ushort)0, state.NewlyTimedHeldInput, "rising-edge pulse lasts one update");
+    AssertEqual(0, state.NewlyTimedHeldInput, "rising-edge pulse lasts one update");
 
     // Releasing changes the held sample, reloads the timer, and suppresses the output.
     state.UpdateHeldInput(3, 0, 0);
-    AssertEqual((ushort)3, state.TimedHeldInputTimer, "release reloads timer");
-    AssertEqual((ushort)0, state.TimedHeldInput, "release clears filtered input");
-    AssertEqual((ushort)0, state.NewlyTimedHeldInput, "release is not a new held press");
+    AssertEqual(3, state.TimedHeldInputTimer, "release reloads timer");
+    AssertEqual(0, state.TimedHeldInput, "release clears filtered input");
+    AssertEqual(0, state.NewlyTimedHeldInput, "release is not a new held press");
 
     Console.WriteLine("  Input: delayed-held timeline and edge pulse agree.");
 }
@@ -118,7 +118,7 @@ static void VerifyEventBitfield()
 
         state.ClearEvent(eventNumber);
         AssertTrue(!state.HasEvent(eventNumber), $"event ${eventNumber:X2} clear");
-        AssertEqual((byte)0, state.GetEventByteRaw(expectedByteIndex), $"event ${eventNumber:X2} cleared byte");
+        AssertEqual(0, state.GetEventByteRaw(expectedByteIndex), $"event ${eventNumber:X2} cleared byte");
     }
 
     AssertThrows<ArgumentOutOfRangeException>(() => state.SetEvent(-1), "negative event rejected");
@@ -137,10 +137,10 @@ static void VerifyBossBitfield()
         state.SetBossBits(area, BossBits.AreaBoss | BossBits.AreaTorizo);
         AssertTrue(state.HasAnyBossBits(area, BossBits.AreaBoss), $"area {area} boss bit");
         AssertTrue(!state.HasAnyBossBits(area, BossBits.AreaMiniBoss), $"area {area} mini-boss remains clear");
-        AssertEqual((byte)0x05, state.GetBossBitsRaw(area), $"area {area} combined raw mask");
+        AssertEqual(0x05, state.GetBossBitsRaw(area), $"area {area} combined raw mask");
 
         state.ClearBossBits(area, BossBits.AreaTorizo);
-        AssertEqual((byte)0x01, state.GetBossBitsRaw(area), $"area {area} selective clear");
+        AssertEqual(0x01, state.GetBossBitsRaw(area), $"area {area} selective clear");
     }
 
     AssertThrows<ArgumentOutOfRangeException>(() => state.SetBossBits(-1, BossBits.AreaBoss), "negative area rejected");
@@ -199,14 +199,14 @@ static void VerifyVramWriteQueue()
 
     // The later column transfer intentionally overwrites the first pair at word one. This
     // proves insertion order is preserved, while word two retains the ordinary transfer.
-    AssertEqual((byte)0x20, vram.ReadByte(0x0001 * 2), "column transfer low byte at first word");
-    AssertEqual((byte)0x21, vram.ReadByte(0x0001 * 2 + 1), "column transfer high byte at first word");
-    AssertEqual((byte)0x12, vram.ReadByte(0x0002 * 2), "linear transfer increments one word");
-    AssertEqual((byte)0x13, vram.ReadByte(0x0002 * 2 + 1), "linear transfer high byte");
-    AssertEqual((byte)0x22, vram.ReadByte(0x0021 * 2), "column transfer increments 32 words");
-    AssertEqual((byte)0x23, vram.ReadByte(0x0021 * 2 + 1), "column transfer second high byte");
-    AssertEqual((byte)0xa0, vram.ReadByte(0x0100 * 2), "bank-wrap transfer first byte");
-    AssertEqual((byte)0xa1, vram.ReadByte(0x0100 * 2 + 1), "bank-wrap transfer wrapped byte");
+    AssertEqual(0x20, vram.ReadByte(0x0001 * 2), "column transfer low byte at first word");
+    AssertEqual(0x21, vram.ReadByte(0x0001 * 2 + 1), "column transfer high byte at first word");
+    AssertEqual(0x12, vram.ReadByte(0x0002 * 2), "linear transfer increments one word");
+    AssertEqual(0x13, vram.ReadByte(0x0002 * 2 + 1), "linear transfer high byte");
+    AssertEqual(0x22, vram.ReadByte(0x0021 * 2), "column transfer increments 32 words");
+    AssertEqual(0x23, vram.ReadByte(0x0021 * 2 + 1), "column transfer second high byte");
+    AssertEqual(0xa0, vram.ReadByte(0x0100 * 2), "bank-wrap transfer first byte");
+    AssertEqual(0xa1, vram.ReadByte(0x0100 * 2 + 1), "bank-wrap transfer wrapped byte");
 
     AssertEqual(0, queue.TailInBytes, "drain clears packed tail");
     AssertEqual(0, queue.Entries.Count, "drain clears typed records");
@@ -258,56 +258,56 @@ static void VerifyEscapeTimerStateMachine()
     timer.RequestCeresStart();
     AssertTrue(!timer.Process(0), "Ceres initialization does not report expiration");
     AssertEqual(EscapeTimerState.InitialDelay, timer.State, "Ceres enters initial delay");
-    AssertEqual((byte)0x01, timer.MinutesBcd, "Ceres starts at one minute");
-    AssertEqual((ushort)0x8000, timer.XPositionFixed, "timer starts at X $80.00");
-    AssertEqual((ushort)0x8000, timer.YPositionFixed, "timer starts at Y $80.00");
+    AssertEqual(0x01, timer.MinutesBcd, "Ceres starts at one minute");
+    AssertEqual(0x8000, timer.XPositionFixed, "timer starts at X $80.00");
+    AssertEqual(0x8000, timer.YPositionFixed, "timer starts at Y $80.00");
 
     // State 3 increments the low X byte from $00 through $10 without decrementing time.
     for (ushort frame = 1; frame <= 16; frame++)
         AssertTrue(!timer.Process(frame), $"initial-delay frame {frame}");
     AssertEqual(EscapeTimerState.RunningMovementDelayed, timer.State, "initial delay advances at counter $10");
-    AssertEqual((ushort)0x8010, timer.XPositionFixed, "X subpixel byte contains delay counter $10");
-    AssertEqual((byte)0x00, timer.SecondsBcd, "initial delay did not decrement seconds");
+    AssertEqual(0x8010, timer.XPositionFixed, "X subpixel byte contains delay counter $10");
+    AssertEqual(0x00, timer.SecondsBcd, "initial delay did not decrement seconds");
 
     // State 4 continues the same aliased counter to $60, then zeroes only its low byte.
     for (ushort frame = 17; frame <= 96; frame++)
         timer.Process(frame);
     AssertEqual(EscapeTimerState.RunningMovingIntoPlace, timer.State, "movement delay advances at counter $60");
-    AssertEqual((ushort)0x8000, timer.XPositionFixed, "movement transition clears X fraction only");
+    AssertEqual(0x8000, timer.XPositionFixed, "movement transition clears X fraction only");
 
     // X reaches its clamp in 106 frames; Y requires 107, so the state advances on 107.
     for (ushort frame = 97; frame <= 203; frame++)
         timer.Process(frame);
     AssertEqual(EscapeTimerState.RunningInPlace, timer.State, "timer reaches stationary running state");
-    AssertEqual((ushort)0xdc00, timer.XPositionFixed, "timer X clamps at pixel 220");
-    AssertEqual((ushort)0x3000, timer.YPositionFixed, "timer Y clamps at pixel 48");
+    AssertEqual(0xdc00, timer.XPositionFixed, "timer X clamps at pixel 220");
+    AssertEqual(0x3000, timer.YPositionFixed, "timer Y clamps at pixel 48");
 
     var borrowSecond = CreateRunningTimer(0x00, 0x01, 0x00);
     AssertTrue(!borrowSecond.Process(1), "00:01.00 remains nonzero after decrement");
-    AssertEqual((byte)0x00, borrowSecond.SecondsBcd, "centisecond borrow decrements seconds");
-    AssertEqual((byte)0x98, borrowSecond.CentisecondsBcd, "table value two wraps centiseconds to 98");
+    AssertEqual(0x00, borrowSecond.SecondsBcd, "centisecond borrow decrements seconds");
+    AssertEqual(0x98, borrowSecond.CentisecondsBcd, "table value two wraps centiseconds to 98");
 
     var borrowMinute = CreateRunningTimer(0x01, 0x00, 0x00);
     AssertTrue(!borrowMinute.Process(0), "01:00.00 remains nonzero after decrement");
-    AssertEqual((byte)0x00, borrowMinute.MinutesBcd, "second borrow decrements minutes");
-    AssertEqual((byte)0x59, borrowMinute.SecondsBcd, "minute borrow reloads seconds to 59");
-    AssertEqual((byte)0x99, borrowMinute.CentisecondsBcd, "table value one wraps centiseconds to 99");
+    AssertEqual(0x00, borrowMinute.MinutesBcd, "second borrow decrements minutes");
+    AssertEqual(0x59, borrowMinute.SecondsBcd, "minute borrow reloads seconds to 59");
+    AssertEqual(0x99, borrowMinute.CentisecondsBcd, "table value one wraps centiseconds to 99");
 
     var expiration = CreateRunningTimer(0x00, 0x00, 0x01);
     AssertTrue(expiration.Process(0), "00:00.01 expires on a decrement of one");
-    AssertEqual((byte)0, expiration.CentisecondsBcd, "expiration saturates centiseconds");
+    AssertEqual(0, expiration.CentisecondsBcd, "expiration saturates centiseconds");
 
     var underflow = CreateRunningTimer(0x00, 0x00, 0x00);
     AssertTrue(underflow.Process(1), "zero timer remains expired after attempted decrement");
-    AssertEqual((byte)0, underflow.MinutesBcd, "underflow saturates minutes");
-    AssertEqual((byte)0, underflow.SecondsBcd, "underflow saturates seconds");
-    AssertEqual((byte)0, underflow.CentisecondsBcd, "underflow saturates centiseconds");
+    AssertEqual(0, underflow.MinutesBcd, "underflow saturates minutes");
+    AssertEqual(0, underflow.SecondsBcd, "underflow saturates seconds");
+    AssertEqual(0, underflow.CentisecondsBcd, "underflow saturates centiseconds");
 
     var motherBrain = new EscapeTimer();
     motherBrain.RequestMotherBrainStart();
     motherBrain.Process(0);
-    AssertEqual((byte)0x03, motherBrain.MinutesBcd, "Mother Brain starts at three minutes");
-    AssertEqual((ushort)0x8003, motherBrain.RawStatus, "active timer retains status high flag");
+    AssertEqual(0x03, motherBrain.MinutesBcd, "Mother Brain starts at three minutes");
+    AssertEqual(0x8003, motherBrain.RawStatus, "active timer retains status high flag");
 
     Console.WriteLine("  Timer: initialization, animation, BCD borrow, and expiration agree.");
 }
@@ -340,20 +340,20 @@ static void VerifyControllerInputLatch()
     AssertEqual(button, input.Current, "controller current on first press");
     AssertEqual(button, input.NewlyPressed, "controller rising edge on first press");
     AssertEqual(button, input.NewlyPressedWithRepeat, "repeat output includes real first press");
-    AssertEqual((ushort)2, input.RepeatTimer, "first press loads initial repeat delay");
+    AssertEqual(2, input.RepeatTimer, "first press loads initial repeat delay");
 
     input.Latch(button);
-    AssertEqual((ushort)0, input.NewlyPressed, "stable hold has no new edge");
-    AssertEqual((ushort)0, input.NewlyPressedWithRepeat, "first held frame has no repeat");
-    AssertEqual((ushort)1, input.RepeatTimer, "held input decrements repeat timer");
+    AssertEqual(0, input.NewlyPressed, "stable hold has no new edge");
+    AssertEqual(0, input.NewlyPressedWithRepeat, "first held frame has no repeat");
+    AssertEqual(1, input.RepeatTimer, "held input decrements repeat timer");
 
     input.Latch(button);
     AssertEqual(button, input.NewlyPressedWithRepeat, "repeat timer zero emits held input");
-    AssertEqual((ushort)1, input.RepeatTimer, "repeat pulse loads subsequent delay");
+    AssertEqual(1, input.RepeatTimer, "repeat pulse loads subsequent delay");
 
     input.Latch(0);
-    AssertEqual((ushort)0, input.NewlyPressed, "release is not a rising edge");
-    AssertEqual((ushort)2, input.RepeatTimer, "release reloads initial repeat delay");
+    AssertEqual(0, input.NewlyPressed, "release is not a rising edge");
+    AssertEqual(2, input.RepeatTimer, "release reloads initial repeat delay");
 
     Console.WriteLine("  Input: NMI latch, rising edges, and repeat countdown agree.");
 }
@@ -371,24 +371,24 @@ static void VerifyFrameRuntime()
     runtime.EscapeTimer.RequestCeresStart();
 
     RuntimeFrameResult first = runtime.StepFrame((ushort)SnesButton.Start);
-    AssertEqual((ushort)1, first.FrameNumber, "first accepted runtime frame");
+    AssertEqual(1, first.FrameNumber, "first accepted runtime frame");
     AssertEqual((ushort)SnesButton.Start, first.ControllerNewInput, "runtime latches controller before logic");
     AssertEqual(EscapeTimerState.InitialDelay, first.EscapeTimerState, "runtime dispatches timer after NMI");
-    AssertEqual((byte)0xca, runtime.Vram.ReadByte(0x40), "runtime NMI drains VRAM low byte");
-    AssertEqual((byte)0xfe, runtime.Vram.ReadByte(0x41), "runtime NMI drains VRAM high byte");
+    AssertEqual(0xca, runtime.Vram.ReadByte(0x40), "runtime NMI drains VRAM low byte");
+    AssertEqual(0xfe, runtime.Vram.ReadByte(0x41), "runtime NMI drains VRAM high byte");
     AssertEqual(0, runtime.VramWrites.TailInBytes, "runtime NMI clears VRAM queue");
 
     RuntimeFrameResult second = runtime.StepFrame((ushort)SnesButton.Start);
-    AssertEqual((ushort)0, second.ControllerNewInput, "second runtime frame sees stable hold");
-    AssertEqual((ushort)2, runtime.NmiFrameCounter, "accepted NMI counter advances twice");
+    AssertEqual(0, second.ControllerNewInput, "second runtime frame sees stable hold");
+    AssertEqual(2, runtime.NmiFrameCounter, "accepted NMI counter advances twice");
 
     // A lag NMI must not sample the changed input or advance accepted-frame state.
     runtime.RunNmi((ushort)SnesButton.A, mainLoopRequestedNmi: false);
     AssertEqual((ushort)SnesButton.Start, runtime.Controller1.Current, "lag NMI skips controller read");
-    AssertEqual((ushort)2, runtime.NmiFrameCounter, "lag NMI skips accepted frame counter");
-    AssertEqual((ushort)1, runtime.NmiLagCounter, "lag NMI increments consecutive lag");
-    AssertEqual((ushort)1, runtime.MaximumNmiLag, "lag NMI records maximum lag");
-    AssertEqual((ushort)3, runtime.NmiCounterIncludingLag, "all-NMI counter includes lag");
+    AssertEqual(2, runtime.NmiFrameCounter, "lag NMI skips accepted frame counter");
+    AssertEqual(1, runtime.NmiLagCounter, "lag NMI increments consecutive lag");
+    AssertEqual(1, runtime.MaximumNmiLag, "lag NMI records maximum lag");
+    AssertEqual(3, runtime.NmiCounterIncludingLag, "all-NMI counter includes lag");
 
     Console.WriteLine("  Runtime: frame seam, NMI order, and lag accounting agree.");
 }
@@ -406,22 +406,22 @@ static void VerifySuperMetroidAddressSpace()
     var bus = new SuperMetroidAddressSpace(rom);
 
     // Banks $00 and $80 are timing mirrors of the first physical 32 KiB ROM bank.
-    AssertEqual((byte)0x80, bus.ReadByte(0x008000), "slow-bank first LoROM byte");
-    AssertEqual((byte)0x80, bus.ReadByte(0x808000), "FastROM mirror first LoROM byte");
-    AssertEqual((byte)0x81, bus.ReadByte(0x818000), "next FastROM bank advances $8000 bytes");
-    AssertEqual((byte)0xc0, bus.ReadByte(0xc08000), "bank C0 maps to physical ROM $200000");
+    AssertEqual(0x80, bus.ReadByte(0x008000), "slow-bank first LoROM byte");
+    AssertEqual(0x80, bus.ReadByte(0x808000), "FastROM mirror first LoROM byte");
+    AssertEqual(0x81, bus.ReadByte(0x818000), "next FastROM bank advances $8000 bytes");
+    AssertEqual(0xc0, bus.ReadByte(0xc08000), "bank C0 maps to physical ROM $200000");
     AssertEqual(0x200000, SuperMetroidAddressSpace.ToRomOffset(0xc08000), "native RomPtr mask mapping");
 
     bus.WriteByte(0x7e1234, 0x55);
-    AssertEqual((byte)0x55, bus.ReadByte(0x001234), "bank 00 low WRAM mirror");
-    AssertEqual((byte)0x55, bus.ReadByte(0x801234), "bank 80 low WRAM mirror");
+    AssertEqual(0x55, bus.ReadByte(0x001234), "bank 00 low WRAM mirror");
+    AssertEqual(0x55, bus.ReadByte(0x801234), "bank 80 low WRAM mirror");
     bus.WriteByte(0x7f1234, 0x66);
-    AssertEqual((byte)0x66, bus.ReadByte(0x7f1234), "second physical WRAM bank");
-    AssertEqual((byte)0x55, bus.ReadByte(0x7e1234), "WRAM banks remain independent");
+    AssertEqual(0x66, bus.ReadByte(0x7f1234), "second physical WRAM bank");
+    AssertEqual(0x55, bus.ReadByte(0x7e1234), "WRAM banks remain independent");
 
     bus.WriteByte(0x700123, 0x77);
-    AssertEqual((byte)0x77, bus.ReadByte(0x702123), "8 KiB SRAM offset mirror");
-    AssertEqual((byte)0x77, bus.ReadByte(0xf00123), "8 KiB SRAM bank mirror");
+    AssertEqual(0x77, bus.ReadByte(0x702123), "8 KiB SRAM offset mirror");
+    AssertEqual(0x77, bus.ReadByte(0xf00123), "8 KiB SRAM bank mirror");
 
     AssertThrows<InvalidOperationException>(() => bus.WriteByte(0x808000, 0), "ROM writes rejected");
     AssertThrows<NotSupportedException>(() => bus.ReadByte(0x004000), "unimplemented register/expansion read rejected");
@@ -452,20 +452,20 @@ static void VerifyOamSpritemapPacking()
 
     OamEntry first = oam.GetEntry(0);
     AssertEqual(0x103, first.X, "OAM first 9-bit X");
-    AssertEqual((byte)0xff, first.Y, "OAM negative Y wraps above screen");
+    AssertEqual(0xff, first.Y, "OAM negative Y wraps above screen");
     AssertTrue(first.IsLarge, "OAM size bit extracted from encoded X word");
     AssertEqual(5, first.Palette, "OAM caller palette replaces source palette");
     AssertEqual(0x0aa, first.TileNumber, "OAM tile number retained");
 
     OamEntry second = oam.GetEntry(1);
     AssertEqual(0x0ee, second.X, "OAM signed 9-bit negative X offset");
-    AssertEqual((byte)0x21, second.Y, "OAM positive Y offset");
+    AssertEqual(0x21, second.Y, "OAM positive Y offset");
     AssertTrue(!second.IsLarge, "OAM second size bit clear");
-    AssertEqual((byte)0x03, oam.HighTable[0], "OAM four-sprite shared high byte");
+    AssertEqual(0x03, oam.HighTable[0], "OAM four-sprite shared high byte");
 
     oam.FinalizeFrame();
     AssertEqual(2, oam.LastFinalizedSpriteCount, "OAM finalized used count");
-    AssertEqual((byte)0xf0, oam.GetEntry(2).Y, "OAM first unused sprite parked offscreen");
+    AssertEqual(0xf0, oam.GetEntry(2).Y, "OAM first unused sprite parked offscreen");
     AssertEqual(0, oam.NextByteOffset, "OAM finalization resets stack pointer");
     AssertEqual(OamBuffer.UploadByteCount, oam.CreateUploadPayload().Length, "OAM DMA payload size");
 
@@ -481,7 +481,7 @@ static void VerifyOamSpritemapPacking()
     oam.AddOnScreenSpritemap(bus, 0x808100, originX: 0, originY: 0x00c0, paletteBits: 0);
     OamEntry clipped = oam.GetEntry(0);
     AssertEqual(0x180, clipped.X, "vertically clipped OAM X park position");
-    AssertEqual((byte)0xe0, clipped.Y, "vertically clipped OAM Y park position");
+    AssertEqual(0xe0, clipped.Y, "vertically clipped OAM Y park position");
 
     // Enemy projectiles use the distinct bank-$8D loader at `$81:8C0A/$81:8C7F`.
     // The first entry is large/+5 X/-2 Y; the second is small/-16 X/+2 Y. Source
@@ -502,14 +502,14 @@ static void VerifyOamSpritemapPacking()
         originYIsOnScreen: true);
     OamEntry enemyFirst = oam.GetEntry(0);
     AssertEqual(0x103, enemyFirst.X, "enemy-projectile complete encoded X addition");
-    AssertEqual((byte)0xf0, enemyFirst.Y, "on-screen origin hides uncrossed negative Y");
+    AssertEqual(0xf0, enemyFirst.Y, "on-screen origin hides uncrossed negative Y");
     AssertTrue(enemyFirst.IsLarge, "enemy-projectile size comes from encoded X bit fifteen");
     AssertEqual(0x013, enemyFirst.TileNumber, "enemy-projectile base tile uses addition");
     AssertEqual(5, enemyFirst.Palette, "enemy-projectile graphics palette OR");
     AssertEqual(2, enemyFirst.Priority, "enemy-projectile source priority survives palette OR");
     OamEntry enemySecond = oam.GetEntry(1);
     AssertEqual(0x0ee, enemySecond.X, "enemy-projectile signed nine-bit negative X");
-    AssertEqual((byte)0x03, enemySecond.Y, "on-screen origin retains uncrossed positive Y");
+    AssertEqual(0x03, enemySecond.Y, "on-screen origin retains uncrossed positive Y");
     AssertTrue(!enemySecond.IsLarge, "enemy-projectile small size bit");
     AssertEqual(0x002, enemySecond.TileNumber, "enemy-projectile ADC tile carry");
 
@@ -523,9 +523,9 @@ static void VerifyOamSpritemapPacking()
         originY: 0xffff,
         graphicsIndex: 0,
         originYIsOnScreen: false);
-    AssertEqual((byte)0xf0, oam.GetEntry(0).Y,
+    AssertEqual(0xf0, oam.GetEntry(0).Y,
         "off-screen origin hides negative piece that remains above screen");
-    AssertEqual((byte)0x01, oam.GetEntry(1).Y,
+    AssertEqual(0x01, oam.GetEntry(1).Y,
         "off-screen origin admits positive piece crossing into screen");
 
     // Ordinary enemies use a third, deliberately separate common writer at $81:8AB8.
@@ -549,14 +549,14 @@ static void VerifyOamSpritemapPacking()
         baseTileIndex: 4);
     OamEntry roomEnemyFirst = oam.GetEntry(0);
     AssertEqual(0x103, roomEnemyFirst.X, "room-enemy complete encoded X addition");
-    AssertEqual((byte)0xff, roomEnemyFirst.Y, "room-enemy negative Y wraps without parking");
+    AssertEqual(0xff, roomEnemyFirst.Y, "room-enemy negative Y wraps without parking");
     AssertTrue(roomEnemyFirst.IsLarge, "room-enemy size comes from encoded X bit fifteen");
     AssertEqual(0x014, roomEnemyFirst.TileNumber, "room-enemy graphics-set tile-base addition");
     AssertEqual(7, roomEnemyFirst.Palette, "room-enemy selected OBJ palette OR");
     AssertEqual(2, roomEnemyFirst.Priority, "room-enemy source priority survives palette OR");
     OamEntry roomEnemySecond = oam.GetEntry(1);
     AssertEqual(0x0ee, roomEnemySecond.X, "room-enemy signed nine-bit negative X");
-    AssertEqual((byte)0x03, roomEnemySecond.Y, "room-enemy positive Y offset");
+    AssertEqual(0x03, roomEnemySecond.Y, "room-enemy positive Y offset");
     AssertEqual(0x002, roomEnemySecond.TileNumber, "room-enemy tile overflow wraps at nine bits");
     AssertEqual(2, roomEnemySecond.Priority,
         "room-enemy tile-base ADC carry reaches the attribute high byte");
@@ -576,9 +576,9 @@ static void VerifyOamSpritemapPacking()
         baseTileIndex: 0,
         clipVerticalWrap: true,
         originYIsOnScreen: true);
-    AssertEqual((byte)0xf0, oam.GetEntry(0).Y,
+    AssertEqual(0xf0, oam.GetEntry(0).Y,
         "extended enemy on-screen origin parks uncrossed negative piece");
-    AssertEqual((byte)0x03, oam.GetEntry(1).Y,
+    AssertEqual(0x03, oam.GetEntry(1).Y,
         "extended enemy on-screen origin retains positive piece");
 
     oam.BeginFrame();
@@ -592,9 +592,9 @@ static void VerifyOamSpritemapPacking()
         baseTileIndex: 0,
         clipVerticalWrap: true,
         originYIsOnScreen: false);
-    AssertEqual((byte)0xf0, oam.GetEntry(0).Y,
+    AssertEqual(0xf0, oam.GetEntry(0).Y,
         "extended enemy off-screen origin parks negative piece that remains above screen");
-    AssertEqual((byte)0x01, oam.GetEntry(1).Y,
+    AssertEqual(0x01, oam.GetEntry(1).Y,
         "extended enemy off-screen origin admits positive piece crossing onto screen");
 
     Console.WriteLine(

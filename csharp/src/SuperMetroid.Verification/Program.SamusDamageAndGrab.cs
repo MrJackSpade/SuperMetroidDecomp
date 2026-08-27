@@ -138,26 +138,26 @@ static void VerifySamusDrainedController()
     right.Drained.LetFall(bus, right);
     AssertEqual(SamusState.DrainedCrouchingRightPose, right.Pose,
         "drained controller zero selects right pose");
-    AssertEqual((ushort)70, right.YPosition,
+    AssertEqual(70, right.YPosition,
         "drained controller preserves source bottom while radius grows 16 to 21");
-    AssertEqual((ushort)2, right.AnimationFrame, "drained fall begins at byte index two");
-    AssertEqual((ushort)0, right.Kinematics.YSpeed, "drained fall clears whole Y speed");
-    AssertEqual((ushort)2, right.Kinematics.YDirection, "drained fall selects down direction");
+    AssertEqual(2, right.AnimationFrame, "drained fall begins at byte index two");
+    AssertEqual(0, right.Kinematics.YSpeed, "drained fall clears whole Y speed");
+    AssertEqual(2, right.Kinematics.YDirection, "drained fall selects down direction");
     AssertTrue(right.Drained.UpdatePalette(bus, drainedCgram, right.EquippedItems),
         "drained controller zero restores selected suit palette");
-    AssertEqual((ushort)0x300f, drainedCgram.Colors[207],
+    AssertEqual(0x300f, drainedCgram.Colors[207],
         "drained controller zero copies all sixteen suit colors");
 
     // Index two lasts two ticks; index three lasts sixteen. Expiration reaches `$F7` at
     // index four, which installs the handler and advances again to index five's delay one.
     for (int tick = 0; tick < 18; tick++)
         right.AnimateNoFx(bus);
-    AssertEqual((byte)0xf7, right.LastAnimationDelayCommand!.Value,
+    AssertEqual(0xf7, right.LastAnimationDelayCommand!.Value,
         "drained animation reaches F7");
     AssertEqual(DrainedSamusPhase.Falling, right.Drained.Phase,
         "F7 installs drained movement handler");
-    AssertEqual((ushort)5, right.AnimationFrame, "F7 performs its second frame increment");
-    AssertEqual((ushort)1, right.AnimationFrameTimer, "F7 selects following literal delay");
+    AssertEqual(5, right.AnimationFrame, "F7 performs its second frame increment");
+    AssertEqual(1, right.AnimationFrameTimer, "F7 selects following literal delay");
 
     right.Kinematics.YAcceleration = 0;
     right.Kinematics.YSubacceleration = 0x4000;
@@ -166,7 +166,7 @@ static void VerifySamusDrainedController()
     AssertEqual(0, first.Vertical.AcceptedDisplacement,
         "first drained handler call uses old zero speed");
     AssertEqual(firstHandlerY, right.YPosition, "first drained handler frame is stationary");
-    AssertEqual((ushort)0x4000, right.Kinematics.YSubspeed,
+    AssertEqual(0x4000, right.Kinematics.YSubspeed,
         "first drained handler frame stores gravity for next call");
 
     DrainedSamusMovementResult landing = default;
@@ -176,23 +176,23 @@ static void VerifySamusDrainedController()
             bus, level, right, unchecked((ushort)(frame + 1))),
         maximumFrames: 99,
         context: "drained handler block-floor landing");
-    AssertEqual((ushort)75, right.YPosition, "drained body rests at floor minus radius");
+    AssertEqual(75, right.YPosition, "drained body rests at floor minus radius");
     AssertEqual(DrainedSamusPhase.OnFloor, right.Drained.Phase,
         "collision restores normal movement pointer");
-    AssertEqual((ushort)7, right.AnimationFrame, "collision jumps to crouched floor art");
-    AssertEqual((ushort)8, right.AnimationFrameTimer, "collision loads literal floor-art timer");
+    AssertEqual(7, right.AnimationFrame, "collision jumps to crouched floor art");
+    AssertEqual(8, right.AnimationFrameTimer, "collision loads literal floor-art timer");
     AssertTrue(landing.ImpactYSpeed != 0 || landing.ImpactYSubspeed != 0,
         "drained landing preserves pre-clear impact magnitude");
 
     right.Drained.PutStanding(bus, right);
     AssertEqual(SamusState.DrainedStandingRightPose, right.Pose,
         "controller one selects standing right");
-    AssertEqual((ushort)0, right.AnimationFrame, "standing drained starts index zero");
-    AssertEqual((ushort)16, right.AnimationFrameTimer, "standing drained timer is literal sixteen");
+    AssertEqual(0, right.AnimationFrame, "standing drained starts index zero");
+    AssertEqual(16, right.AnimationFrameTimer, "standing drained timer is literal sixteen");
 
     right.Drained.Release(bus, right);
-    AssertEqual((ushort)4, right.AnimationFrame, "standing release writes byte index four");
-    AssertEqual((ushort)1, right.AnimationFrameTimer, "standing release writes timer one");
+    AssertEqual(4, right.AnimationFrame, "standing release writes byte index four");
+    AssertEqual(1, right.AnimationFrameTimer, "standing release writes timer one");
     for (int tick = 0; tick < 8 && right.PendingTransitionalPose is null; tick++)
         right.AnimateNoFx(bus);
     AssertEqual<byte?>(SamusState.FacingRightNormalPose, right.PendingTransitionalPose,
@@ -213,10 +213,10 @@ static void VerifySamusDrainedController()
     left.Drained.PutCrouchingOrFalling(bus, left);
     AssertEqual(SamusState.DrainedCrouchingLeftPose, left.Pose,
         "controller four selects left crouching/falling pose");
-    AssertEqual((ushort)8, left.AnimationFrame, "controller four writes byte index eight");
-    AssertEqual((ushort)16, left.AnimationFrameTimer, "controller four writes timer sixteen");
+    AssertEqual(8, left.AnimationFrame, "controller four writes byte index eight");
+    AssertEqual(16, left.AnimationFrameTimer, "controller four writes timer sixteen");
     left.Drained.Release(bus, left);
-    AssertEqual((ushort)13, left.AnimationFrame,
+    AssertEqual(13, left.AnimationFrame,
         "crouched release preserves literal operand-adjacent byte index thirteen");
     for (int tick = 0; tick < 64 && left.PendingTransitionalPose is null; tick++)
         left.AnimateNoFx(bus);
@@ -226,15 +226,15 @@ static void VerifySamusDrainedController()
         "left drained release applies standing transition");
 
     left.Drained.EnableHyperBeam(left);
-    AssertEqual((ushort)0x1009, left.EquippedBeams,
+    AssertEqual(0x1009, left.EquippedBeams,
         "controller three installs exact hyper beam equipment word");
-    AssertEqual((ushort)0x8000, left.HyperBeam,
+    AssertEqual(0x8000, left.HyperBeam,
         "controller three sets hyper beam flag");
     AssertTrue(left.Drained.HyperBeamPaletteFxRequested,
         "controller three spawns Hyper Beam palette-FX object");
-    AssertEqual((ushort)1, left.Drained.HyperBeamPaletteFx.InstructionTimer,
+    AssertEqual(1, left.Drained.HyperBeamPaletteFx.InstructionTimer,
         "palette-FX spawn installs native timer one");
-    AssertEqual((ushort)0xd900, left.Drained.HyperBeamPaletteFx.InstructionPointer,
+    AssertEqual(0xd900, left.Drained.HyperBeamPaletteFx.InstructionPointer,
         "palette-FX spawn installs object instruction pointer");
 
     // Seed both neighboring colors so the test can distinguish the exact eight-color
@@ -259,11 +259,11 @@ static void VerifySamusDrainedController()
                 $"Hyper Beam palette-FX call {call + 1} color {color}");
         }
     }
-    AssertEqual((ushort)1, left.Drained.HyperBeamPaletteFx.CompletedCycles,
+    AssertEqual(1, left.Drained.HyperBeamPaletteFx.CompletedCycles,
         "Hyper Beam palette-FX completes one cycle on call twenty-one");
-    AssertEqual((ushort)0x4567, drainedCgram.Colors[0xe0],
+    AssertEqual(0x4567, drainedCgram.Colors[0xe0],
         "Hyper Beam palette-FX preserves color before its range");
-    AssertEqual((ushort)0x2345, drainedCgram.Colors[0xe9],
+    AssertEqual(0x2345, drainedCgram.Colors[0xe9],
         "Hyper Beam palette-FX preserves color after its range");
 
     // Mother Brain's first rainbow-beam hit calls command five or `$18`. Both routes force
@@ -291,8 +291,8 @@ static void VerifySamusDrainedController()
         "able timer handler ignores absent Up edge");
     AssertTrue(able.Drained.StepGetUpHandler(able, newlyPressedInput: 0x0800),
         "able timer handler accepts Up from E9 frame eight");
-    AssertEqual((ushort)13, able.AnimationFrame, "able timer handler selects stand-up frame thirteen");
-    AssertEqual((ushort)1, able.AnimationFrameTimer, "able timer handler selects one-tick timer");
+    AssertEqual(13, able.AnimationFrame, "able timer handler selects stand-up frame thirteen");
+    AssertEqual(1, able.AnimationFrameTimer, "able timer handler selects one-tick timer");
     AssertEqual(DrainedGetUpHandler.Inactive, able.Drained.GetUpHandler,
         "able timer handler replaces itself with RTS");
 
@@ -310,46 +310,46 @@ static void VerifySamusDrainedController()
         "rainbow command $18 installs failed-stand timer handler");
     AssertTrue(unable.Drained.StepGetUpHandler(unable, newlyPressedInput: 0x0800),
         "failed-stand handler accepts Up only inside frames eight through eleven");
-    AssertEqual((ushort)18, unable.AnimationFrame, "failed-stand handler selects frame eighteen");
+    AssertEqual(18, unable.AnimationFrame, "failed-stand handler selects frame eighteen");
     AssertEqual(DrainedGetUpHandler.UnableToStand, unable.Drained.GetUpHandler,
         "failed-stand handler remains installed");
 
     // The two later cutscene commands are direct animation writes. They do not select a
     // new pose or reinitialize a delay stream.
     unable.Drained.FreezeForHyperBeamAcquisition(unable);
-    AssertEqual((ushort)28, unable.AnimationFrame, "command $19 freezes drained art at frame $1C");
-    AssertEqual((ushort)1, unable.AnimationFrameTimer, "command $19 freeze timer");
+    AssertEqual(28, unable.AnimationFrame, "command $19 freezes drained art at frame $1C");
+    AssertEqual(1, unable.AnimationFrameTimer, "command $19 freeze timer");
     // Command `$16` starts negative-super-special palette zero with one-call cadence. After
     // the Baby raises its delay to two, index two must remain visible for two calls before
     // advancing. Each call loads before decrementing, matching `$91:D96F-$D997` ordering.
     unable.Drained.EnableRainbow(unable);
     AssertTrue(unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems),
         "rainbow handler owns palette dispatcher");
-    AssertEqual((ushort)0x1000, drainedCgram.Colors[192],
+    AssertEqual(0x1000, drainedCgram.Colors[192],
         "rainbow first call loads Hyper Beam palette zero");
-    AssertEqual((ushort)1, unable.Drained.ChargePaletteIndex,
+    AssertEqual(1, unable.Drained.ChargePaletteIndex,
         "one-call rainbow cadence advances immediately");
     unable.Drained.IncrementRainbowPaletteFrame(maximumFrame: 10);
     unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems);
-    AssertEqual((ushort)2, unable.Drained.CommonPaletteTimer,
+    AssertEqual(2, unable.Drained.CommonPaletteTimer,
         "Baby-raised rainbow delay reloads two");
-    AssertEqual((ushort)2, unable.Drained.ChargePaletteIndex,
+    AssertEqual(2, unable.Drained.ChargePaletteIndex,
         "rainbow second palette advances into delayed index");
     unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems);
-    AssertEqual((ushort)0x1040, drainedCgram.Colors[192],
+    AssertEqual(0x1040, drainedCgram.Colors[192],
         "rainbow delayed index loads before timer decrement");
-    AssertEqual((ushort)2, unable.Drained.ChargePaletteIndex,
+    AssertEqual(2, unable.Drained.ChargePaletteIndex,
         "rainbow delay holds palette index for first call");
     unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems);
-    AssertEqual((ushort)3, unable.Drained.ChargePaletteIndex,
+    AssertEqual(3, unable.Drained.ChargePaletteIndex,
         "rainbow delay advances on second call");
 
     unable.Drained.DisableRainbowAndStartStandingAnimation(unable);
-    AssertEqual((ushort)13, unable.AnimationFrame, "command $17 resumes standing animation at frame thirteen");
-    AssertEqual((ushort)1, unable.AnimationFrameTimer, "command $17 resume timer");
+    AssertEqual(13, unable.AnimationFrame, "command $17 resumes standing animation at frame thirteen");
+    AssertEqual(1, unable.AnimationFrameTimer, "command $17 resume timer");
     AssertTrue(unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems),
         "command $17 restores selected suit palette");
-    AssertEqual((ushort)0x3000, drainedCgram.Colors[192],
+    AssertEqual(0x3000, drainedCgram.Colors[192],
         "command $17 replaces rainbow palette immediately");
 
     Console.WriteLine("  Drained Samus: rainbow/body and Hyper Beam projectile palettes, controllers, fall, and releases agree.");
@@ -376,31 +376,31 @@ static void VerifySamusSolidEnemyCollision()
     SolidEnemyCollisionResult empty = SamusSolidEnemyCollision.Probe(
         samus, [], SamusCollisionDirection.Right, distance: 3, distanceSubposition: 0x4000);
     AssertTrue(!empty.Collided, "empty interactive-enemy list does not collide");
-    AssertEqual((ushort)104, empty.TargetXPosition, "right fractional target rounds outward");
-    AssertEqual((ushort)0x7777, samus.YSubposition, "no collision preserves Y subposition");
+    AssertEqual(104, empty.TargetXPosition, "right fractional target rounds outward");
+    AssertEqual(0x7777, samus.YSubposition, "no collision preserves Y subposition");
 
     // `$A0:A90A-$A0:A9B7` has asymmetric-looking but literal carry/borrow rounding. Test all
     // four jump-table entries, including fractional underflow and overflow, so a later
     // refactor cannot replace this with ordinary truncation or Math.Round.
     SolidEnemyCollisionResult left = SamusSolidEnemyCollision.Probe(
         samus, [], SamusCollisionDirection.Left, distance: 0, distanceSubposition: 0x8000);
-    AssertEqual((ushort)98, left.TargetXPosition, "left fractional borrow plus outward decrement");
-    AssertEqual((ushort)100, left.TargetYPosition, "left probe preserves target Y");
+    AssertEqual(98, left.TargetXPosition, "left fractional borrow plus outward decrement");
+    AssertEqual(100, left.TargetYPosition, "left probe preserves target Y");
 
     samus.XSubposition = 0xf000;
     SolidEnemyCollisionResult rightCarry = SamusSolidEnemyCollision.Probe(
         samus, [], SamusCollisionDirection.Right, distance: 0, distanceSubposition: 0x2000);
-    AssertEqual((ushort)102, rightCarry.TargetXPosition, "right fractional carry plus outward increment");
+    AssertEqual(102, rightCarry.TargetXPosition, "right fractional carry plus outward increment");
 
     samus.YSubposition = 0;
     SolidEnemyCollisionResult up = SamusSolidEnemyCollision.Probe(
         samus, [], SamusCollisionDirection.Up, distance: 1, distanceSubposition: 0x8000);
-    AssertEqual((ushort)97, up.TargetYPosition, "up target shares negative-direction rounding");
+    AssertEqual(97, up.TargetYPosition, "up target shares negative-direction rounding");
 
     samus.YSubposition = 0xf000;
     SolidEnemyCollisionResult down = SamusSolidEnemyCollision.Probe(
         samus, [], SamusCollisionDirection.Down, distance: 1, distanceSubposition: 0x2000);
-    AssertEqual((ushort)103, down.TargetYPosition, "down target shares positive-direction rounding");
+    AssertEqual(103, down.TargetYPosition, "down target shares positive-direction rounding");
 
     samus.XSubposition = 0;
     samus.YSubposition = 0x7777;
@@ -422,11 +422,11 @@ static void VerifySamusSolidEnemyCollision()
     SolidEnemyCollisionResult frozenHit = SamusSolidEnemyCollision.Probe(
         samus, [frozen], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
     AssertTrue(frozenHit.Collided, "frozen enemy is solid to Samus");
-    AssertEqual((ushort)1, frozenHit.Distance, "right collision publishes current edge gap");
-    AssertEqual((ushort)0, frozenHit.DistanceSubposition, "collision clears fractional distance output");
-    AssertEqual((ushort?)0x0080, frozenHit.EnemyIndex, "collision publishes native enemy index");
+    AssertEqual(1, frozenHit.Distance, "right collision publishes current edge gap");
+    AssertEqual(0, frozenHit.DistanceSubposition, "collision clears fractional distance output");
+    AssertEqual(0x0080, frozenHit.EnemyIndex, "collision publishes native enemy index");
     AssertTrue(!frozenHit.WasTouching, "positive gap is not reported as touching");
-    AssertEqual((ushort)0x7777, samus.YSubposition, "positive-gap collision preserves Samus subposition");
+    AssertEqual(0x7777, samus.YSubposition, "positive-gap collision preserves Samus subposition");
 
     // Property bit 15 takes the other eligibility route. Exact contact reaches `$A0:AAC8`,
     // whose STZ $0AFC bug clears Y subposition even though this is a horizontal probe.
@@ -438,8 +438,8 @@ static void VerifySamusSolidEnemyCollision()
     SolidEnemyCollisionResult touching = SamusSolidEnemyCollision.Probe(
         samus, [solidTouch], SamusCollisionDirection.Right, distance: 1, distanceSubposition: 0);
     AssertTrue(touching.Collided && touching.WasTouching, "zero-gap solid enemy takes touching path");
-    AssertEqual((ushort)0, touching.Distance, "touching collision publishes zero distance");
-    AssertEqual((ushort)0, samus.YSubposition, "horizontal enemy touch preserves native Y-subposition bug");
+    AssertEqual(0, touching.Distance, "touching collision publishes zero distance");
+    AssertEqual(0, samus.YSubposition, "horizontal enemy touch preserves native Y-subposition bug");
 
     // The future broad-phase test is strict. Boxes that merely touch at their radii sum do
     // not advance to the directional gap test.
@@ -468,8 +468,8 @@ static void VerifySamusSolidEnemyCollision()
     SolidEnemyCollisionResult ordered = SamusSolidEnemyCollision.Probe(
         samus, [fartherFirst, nearerSecond], SamusCollisionDirection.Right,
         distance: 20, distanceSubposition: 0);
-    AssertEqual((ushort?)0x0100, ordered.EnemyIndex, "first interactive collision wins over nearest geometry");
-    AssertEqual((ushort)10, ordered.Distance, "first list entry publishes its own gap");
+    AssertEqual(0x0100, ordered.EnemyIndex, "first interactive collision wins over nearest geometry");
+    AssertEqual(10, ordered.Distance, "first list entry publishes its own gap");
 
     // Exercise both vertical directional formulas rather than relying only on target tests.
     SolidEnemyCollisionBody above = solidTouch with
@@ -483,13 +483,13 @@ static void VerifySamusSolidEnemyCollision()
     SolidEnemyCollisionResult ceiling = SamusSolidEnemyCollision.Probe(
         samus, [above], SamusCollisionDirection.Up, distance: 2, distanceSubposition: 0);
     AssertTrue(ceiling.Collided, "upward solid-enemy collision detected");
-    AssertEqual((ushort)1, ceiling.Distance, "upward collision publishes top-to-bottom gap");
+    AssertEqual(1, ceiling.Distance, "upward collision publishes top-to-bottom gap");
 
     SolidEnemyCollisionBody below = above with { Index = 0x01c0, YPosition = 116 };
     SolidEnemyCollisionResult floor = SamusSolidEnemyCollision.Probe(
         samus, [below], SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0);
     AssertTrue(floor.Collided, "downward solid-enemy collision detected");
-    AssertEqual((ushort)1, floor.Distance, "downward collision publishes bottom-to-top gap");
+    AssertEqual(1, floor.Distance, "downward collision publishes bottom-to-top gap");
 
     // Ordinary managed movement now preserves the native wrapper order: enemy probe first,
     // room blocks only on a miss, then position addition. An all-air room isolates that seam.
@@ -507,7 +507,7 @@ static void VerifySamusSolidEnemyCollision()
     BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(
         new TestAddressSpace(), airRoom, integrated, displacement: 2 << 16);
     AssertTrue(integratedHorizontal.Collided, "ordinary horizontal mover reports enemy collision");
-    AssertEqual((ushort)101, integrated.XPosition, "ordinary horizontal mover clips to enemy gap");
+    AssertEqual(101, integrated.XPosition, "ordinary horizontal mover clips to enemy gap");
     AssertTrue(integratedHorizontal.CollisionBlock is null, "enemy collision does not invent terrain block");
     AssertEqual(
         (ushort?)0x0080,
@@ -523,8 +523,8 @@ static void VerifySamusSolidEnemyCollision()
         displacement: 2 << 16,
         scanLeftToRight: true);
     AssertTrue(integratedVertical.Collided, "ordinary vertical mover reports enemy collision");
-    AssertEqual((ushort)101, integrated.YPosition, "ordinary vertical mover clips to enemy gap");
-    AssertEqual((ushort?)0x01c0, integratedVertical.EnemyCollision?.EnemyIndex,
+    AssertEqual(101, integrated.YPosition, "ordinary vertical mover clips to enemy gap");
+    AssertEqual(0x01c0, integratedVertical.EnemyCollision?.EnemyIndex,
         "vertical mover retains colliding enemy identity");
 
     // Wall-jump probing copies Samus so it cannot commit movement. The one exception is the
@@ -537,8 +537,8 @@ static void VerifySamusSolidEnemyCollision()
         new TestAddressSpace(), airRoom, integrated, signedDistance: 1 << 16);
     AssertTrue(wallProbe.EnemyCollision is { WasTouching: true },
         "wall probe detects touching enemy before blocks");
-    AssertEqual((ushort)100, integrated.XPosition, "wall probe does not commit X motion");
-    AssertEqual((ushort)0, integrated.YSubposition, "wall probe commits only native touching side effect");
+    AssertEqual(100, integrated.XPosition, "wall probe does not commit X motion");
+    AssertEqual(0, integrated.YSubposition, "wall probe commits only native touching side effect");
 
     AssertThrows<ArgumentOutOfRangeException>(
         () => SamusSolidEnemyCollision.Probe(
@@ -654,40 +654,40 @@ static void VerifySamusGrabbedByDraygon()
     samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: true);
     AssertEqual(SamusState.DraygonGrabbedNeutralRightPose, samus.Pose,
         "right-facing Draygon entry selects $EC");
-    AssertEqual((ushort)21, samus.Kinematics.YRadius, "Draygon entry loads radius 21");
+    AssertEqual(21, samus.Kinematics.YRadius, "Draygon entry loads radius 21");
 
     DraygonOwnerPlacement rightPlacement = samus.DraygonGrabbed.ApplyOwnerPosition(
         samus, ownerXPosition: 0x0100, ownerYPosition: 0x0180, draygonFacingRight: true);
-    AssertEqual((short)8, rightPlacement.XOffset, "right-facing claw offset is +8");
-    AssertEqual((ushort)0x0108, samus.XPosition, "right-facing owner placement X");
-    AssertEqual((ushort)0x01a8, samus.YPosition, "owner placement Y is body plus $28");
+    AssertEqual(8, rightPlacement.XOffset, "right-facing claw offset is +8");
+    AssertEqual(0x0108, samus.XPosition, "right-facing owner placement X");
+    AssertEqual(0x01a8, samus.YPosition, "owner placement Y is body plus $28");
 
     samus.SolidVerticalCollisionResult = 5;
     DraygonGrabbedMovementResult movement = samus.DraygonGrabbed.StepMovement(samus);
-    AssertEqual((ushort)5, movement.PreviousSolidVerticalCollisionResult,
+    AssertEqual(5, movement.PreviousSolidVerticalCollisionResult,
         "type-$1A observes stale vertical collision word");
-    AssertEqual((ushort)0, movement.SolidVerticalCollisionResult,
+    AssertEqual(0, movement.SolidVerticalCollisionResult,
         "type-$1A performs its sole STZ side effect");
-    AssertEqual((ushort)0x0108, movement.XPosition, "type-$1A does not move X");
-    AssertEqual((ushort)0x01a8, movement.YPosition, "type-$1A does not move Y");
+    AssertEqual(0x0108, movement.XPosition, "type-$1A does not move X");
+    AssertEqual(0x01a8, movement.YPosition, "type-$1A does not move Y");
 
     // The larger right+up+shoot chord must select the first `$AE56` record (`$ED`), not
     // the later generic shoot record (`$EE`), proving ROM priority rather than host rules.
     SamusPoseTransition rightUpShoot = SamusPoseTransitionTable.Find(
         bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNewInput: 0)!.Value;
-    AssertEqual((ushort)SamusState.DraygonGrabbedAimUpRightPose,
+    AssertEqual(SamusState.DraygonGrabbedAimUpRightPose,
         rightUpShoot.ProspectivePose, "right grabbed transition priority");
     samus.ApplyDraygonGrabbedPoseChange(bus, (byte)rightUpShoot.ProspectivePose);
     AssertEqual(SamusState.DraygonGrabbedAimUpRightPose, samus.Pose,
         "right grabbed aim transition applies");
-    AssertEqual((ushort)SamusState.DraygonGrabbedNeutralRightPose,
+    AssertEqual(SamusState.DraygonGrabbedNeutralRightPose,
         samus.ReadNoInputFallbackPose(bus), "right grabbed aim fallback is $EC");
     samus.ApplyDraygonGrabbedPoseChange(bus, samus.ReadNoInputFallbackPose(bus));
 
     DraygonEscapeResult locked = samus.DraygonGrabbed.StepEscapeHandler(
         bus, samus, newlyPressedInput: 0, grappleLockedInPlace: true);
     AssertTrue(locked.SuppressProspectivePose, "locked grapple suppresses grabbed pose transition");
-    AssertEqual((ushort)0, locked.EscapeButtonCounter, "no D-pad edge does not count");
+    AssertEqual(0, locked.EscapeButtonCounter, "no D-pad edge does not count");
 
     DraygonEscapeResult firstUp = samus.DraygonGrabbed.StepEscapeHandler(
         bus, samus, newlyPressedInput: 0x0800, grappleLockedInPlace: false);
@@ -695,7 +695,7 @@ static void VerifySamusGrabbedByDraygon()
         bus, samus, newlyPressedInput: 0x0800, grappleLockedInPlace: false);
     AssertTrue(firstUp.CountedInput, "first Up edge increments escape counter");
     AssertTrue(!repeatedUp.CountedInput, "repeated D-pad pattern is rejected");
-    AssertEqual((ushort)1, repeatedUp.EscapeButtonCounter,
+    AssertEqual(1, repeatedUp.EscapeButtonCounter,
         "repeated direction leaves escape counter unchanged");
 
     samus.HorizontalSpeed.BaseSpeed = 3;
@@ -718,17 +718,17 @@ static void VerifySamusGrabbedByDraygon()
     AssertTrue(release.Released, "sixtieth alternating D-pad input releases Samus");
     AssertEqual(SamusState.FacingRightNormalPose, samus.Pose,
         "right grabbed family releases to pose $01");
-    AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed, "release clears base X speed");
-    AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSubspeed, "release clears base X subspeed");
-    AssertEqual((ushort)2, samus.HorizontalSpeed.ExtraRunSpeed,
+    AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "release clears base X speed");
+    AssertEqual(0, samus.HorizontalSpeed.BaseSubspeed, "release clears base X subspeed");
+    AssertEqual(2, samus.HorizontalSpeed.ExtraRunSpeed,
         "release intentionally preserves extra run speed");
-    AssertEqual((ushort)0x8000, samus.HorizontalSpeed.ExtraRunSubspeed,
+    AssertEqual(0x8000, samus.HorizontalSpeed.ExtraRunSubspeed,
         "release intentionally preserves extra run subspeed");
-    AssertEqual((ushort)0, samus.Kinematics.YSpeed, "release clears Y speed");
-    AssertEqual((ushort)0, samus.Kinematics.YSubspeed, "release clears Y subspeed");
-    AssertEqual((ushort)0, samus.Kinematics.YDirection, "release clears Y direction");
-    AssertEqual((ushort)0, samus.MorphBallBounceState, "release clears bounce state");
-    AssertEqual((ushort)0, samus.HorizontalSpeed.AccelerationMode,
+    AssertEqual(0, samus.Kinematics.YSpeed, "release clears Y speed");
+    AssertEqual(0, samus.Kinematics.YSubspeed, "release clears Y subspeed");
+    AssertEqual(0, samus.Kinematics.YDirection, "release clears Y direction");
+    AssertEqual(0, samus.MorphBallBounceState, "release clears bounce state");
+    AssertEqual(0, samus.HorizontalSpeed.AccelerationMode,
         "release clears X acceleration mode");
     AssertTrue(samus.DraygonGrabbed.ConsumeOwnerReleaseSignal(),
         "release publishes one owner-consumed bit");
@@ -739,8 +739,8 @@ static void VerifySamusGrabbedByDraygon()
     samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: false);
     DraygonOwnerPlacement leftPlacement = samus.DraygonGrabbed.ApplyOwnerPosition(
         samus, ownerXPosition: 0x0100, ownerYPosition: 0x0180, draygonFacingRight: false);
-    AssertEqual((short)-8, leftPlacement.XOffset, "left-facing claw offset is -8");
-    AssertEqual((ushort)0x00f8, samus.XPosition, "left-facing owner placement X");
+    AssertEqual(-8, leftPlacement.XOffset, "left-facing claw offset is -8");
+    AssertEqual(0x00f8, samus.XPosition, "left-facing owner placement X");
     samus.DraygonGrabbed.Release(bus, samus);
     AssertEqual(SamusState.FacingLeftNormalPose, samus.Pose,
         "left grabbed family releases to pose $02");

@@ -15,6 +15,22 @@ internal sealed class RuntimeCanvas : Control
                  ControlStyles.UserPaint, true);
     }
 
+    /// <summary>
+    /// Claims the keys that WinForms otherwise reserves for dialog navigation.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="PlayableGameControl"/> listens to ordinary <c>KeyDown</c>/<c>KeyUp</c>
+    /// events so the translated controller owns held/newly-pressed semantics. Without this
+    /// override, the framework consumes the four arrows while moving focus and may consume
+    /// Enter as a default-button key; those inputs would never reach the SNES controller word.
+    /// </remarks>
+    protected override bool IsInputKey(Keys keyData)
+    {
+        Keys keyCode = keyData & Keys.KeyCode;
+        return keyCode is Keys.Left or Keys.Right or Keys.Up or Keys.Down or Keys.Enter ||
+            base.IsInputKey(keyData);
+    }
+
     /// <summary>Takes ownership of a newly rendered frame and repaints the control.</summary>
     public void ReplaceFrame(Bitmap nextFrame)
     {
@@ -48,6 +64,15 @@ internal sealed class RuntimeCanvas : Control
             new Rectangle(drawX, drawY, drawWidth, drawHeight),
             new Rectangle(0, 0, frame.Width, frame.Height),
             GraphicsUnit.Pixel);
+    }
+
+    /// <summary>
+    /// Clicking the picture is an explicit request to return keyboard control to gameplay.
+    /// </summary>
+    protected override void OnMouseDown(MouseEventArgs e)
+    {
+        Focus();
+        base.OnMouseDown(e);
     }
 
     protected override void Dispose(bool disposing)

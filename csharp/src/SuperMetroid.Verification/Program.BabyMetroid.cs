@@ -79,9 +79,9 @@ static void VerifyBabyMetroidCutsceneEntrance()
 
     var baby = new BabyMetroidCutsceneState();
     baby.Initialize();
-    AssertEqual((ushort)0x3800, baby.Properties, "Baby population/init property OR");
-    AssertEqual((ushort)0x0e00, baby.Palette, "Baby cutscene palette");
-    AssertEqual((ushort)0x00a0, baby.GraphicsOffset, "Baby transferred-tile offset");
+    AssertEqual(0x3800, baby.Properties, "Baby population/init property OR");
+    AssertEqual(0x0e00, baby.Palette, "Baby cutscene palette");
+    AssertEqual(0x00a0, baby.GraphicsOffset, "Baby transferred-tile offset");
     AssertEqual(BabyMetroidCutsceneState.InitialInstructionList, baby.InstructionList,
         "Baby initial instruction list");
     AssertEqual(new BabyMetroidCutscenePoint(0x0140, 0, 0x0060, 0),
@@ -95,17 +95,17 @@ static void VerifyBabyMetroidCutsceneEntrance()
         baby.Step(bus, samus, motherBrain);
     AssertEqual(BabyMetroidCutscenePhase.DashOntoScreen, baby.Phase,
         "Baby dash delay retains function at timer zero");
-    AssertEqual((ushort)0, baby.FunctionTimer, "Baby dash delay exact zero boundary");
-    AssertEqual((ushort)0x0140, baby.XPosition, "Baby remains still through call 248");
-    AssertEqual((ushort)0x0060, baby.YPosition, "Baby Y remains still through call 248");
+    AssertEqual(0, baby.FunctionTimer, "Baby dash delay exact zero boundary");
+    AssertEqual(0x0140, baby.XPosition, "Baby remains still through call 248");
+    AssertEqual(0x0060, baby.YPosition, "Baby Y remains still through call 248");
 
     BabyMetroidCutsceneStepResult firstCurve = baby.Step(bus, samus, motherBrain);
     AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
         "Baby call 249 falls through into curve function");
-    AssertEqual((ushort)0xd680, baby.Angle, "Baby first curve angle");
-    AssertEqual((ushort)0x0a00, baby.Speed, "Baby first curve speed");
-    AssertEqual((ushort)0xf772, firstCurve.XVelocity, "Baby first ROM sine X velocity");
-    AssertEqual((ushort)0x051e, firstCurve.YVelocity, "Baby first ROM cosine Y velocity");
+    AssertEqual(0xd680, baby.Angle, "Baby first curve angle");
+    AssertEqual(0x0a00, baby.Speed, "Baby first curve speed");
+    AssertEqual(0xf772, firstCurve.XVelocity, "Baby first ROM sine X velocity");
+    AssertEqual(0x051e, firstCurve.YVelocity, "Baby first ROM cosine Y velocity");
     AssertEqual(new BabyMetroidCutscenePoint(0x0137, 0x7200, 0x0065, 0x1e00),
         firstCurve.After,
         "Baby first curve fixed-point displacement");
@@ -170,14 +170,14 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRegainBalance,
         takenAback.PhaseAfter,
         "Mother Brain taken-aback setup falls through into regain balance");
-    AssertEqual((ushort)0x002f, motherBrain.FunctionTimer,
+    AssertEqual(0x002f, motherBrain.FunctionTimer,
         "Mother Brain first regain call decrements $30 to $2F");
-    AssertEqual((ushort)3, motherBrain.Body.Form, "Baby drain changes Mother Brain form to three");
-    AssertEqual((ushort)8, motherBrain.LowerNeckMovementIndex,
+    AssertEqual(3, motherBrain.Body.Form, "Baby drain changes Mother Brain form to three");
+    AssertEqual(8, motherBrain.LowerNeckMovementIndex,
         "Mother Brain taken-aback lower neck index");
-    AssertEqual((ushort)8, motherBrain.UpperNeckMovementIndex,
+    AssertEqual(8, motherBrain.UpperNeckMovementIndex,
         "Mother Brain taken-aback upper neck index");
-    AssertEqual((ushort)0x0700, motherBrain.NeckAngleDelta,
+    AssertEqual(0x0700, motherBrain.NeckAngleDelta,
         "Mother Brain taken-aback neck delta");
 
     int regainCalls = 1;
@@ -190,9 +190,9 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam,
         motherBrain.Phase,
         "Mother Brain advances to painful firing function");
-    AssertEqual((ushort)2, motherBrain.LowerNeckMovementIndex,
+    AssertEqual(2, motherBrain.LowerNeckMovementIndex,
         "Mother Brain drained firing lower neck index");
-    AssertEqual((ushort)4, motherBrain.UpperNeckMovementIndex,
+    AssertEqual(4, motherBrain.UpperNeckMovementIndex,
         "Mother Brain drained firing upper neck index");
 
     int drainFrame = 0;
@@ -268,14 +268,14 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(1656, letGoFrame, "stop-draining `$40` expires after 65 calls");
     AssertEqual(1689, dustFrame, "let-go `$20` requests dust on call 33");
     AssertEqual(1703, ceilingFrame, "gradual ceiling acceleration reaches collision rectangle");
-    AssertEqual((ushort)40, motherBrain.Body.XPosition, "corpse body rests at rear X");
-    AssertEqual((ushort)138, motherBrain.Body.YPosition, "fast crouch lowers body by 38 pixels");
-    AssertEqual((ushort)81, motherBrain.BrainXPosition, "neck geometry publishes corpse brain X");
-    AssertEqual((ushort)78, motherBrain.BrainYPosition, "neck geometry publishes corpse brain Y");
-    AssertEqual((ushort)81, baby.XPosition, "ceiling handoff Baby X");
-    AssertEqual((ushort)40, baby.YPosition, "ceiling handoff Baby Y after common mover");
-    AssertEqual((ushort)0x0000, baby.XVelocity, "ceiling handoff X velocity");
-    AssertEqual((ushort)0xff78, baby.YVelocity,
+    AssertEqual(40, motherBrain.Body.XPosition, "corpse body rests at rear X");
+    AssertEqual(138, motherBrain.Body.YPosition, "fast crouch lowers body by 38 pixels");
+    AssertEqual(81, motherBrain.BrainXPosition, "neck geometry publishes corpse brain X");
+    AssertEqual(78, motherBrain.BrainYPosition, "neck geometry publishes corpse brain Y");
+    AssertEqual(81, baby.XPosition, "ceiling handoff Baby X");
+    AssertEqual(40, baby.YPosition, "ceiling handoff Baby Y after common mover");
+    AssertEqual(0x0000, baby.XVelocity, "ceiling handoff X velocity");
+    AssertEqual(0xff78, baby.YVelocity,
         "synthetic ceiling handoff preserves its independently accumulated Y velocity");
     AssertEqual(3, releaseDustClouds.Count,
         "Baby release requests exactly three Mother Brain head dust clouds");
@@ -289,9 +289,9 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(BabyMetroidCutsceneState.CeilingToSamusMovementTable,
         baby.MovementTablePointer,
         "Baby ceiling collision installs `$CA24` movement table");
-    AssertEqual((ushort)0x8ca0, motherBrain.BrainHealth,
+    AssertEqual(0x8ca0, motherBrain.BrainHealth,
         "Mother Brain grey completion rewrites brain health to 36,000");
-    AssertEqual((ushort)1, motherBrain.Phase2CorpseState,
+    AssertEqual(1, motherBrain.Phase2CorpseState,
         "Mother Brain grey completion publishes corpse state one");
     AssertEqual(SamusState.DrainedCrouchingLeftPose, samus.Pose,
         "ceiling collision installs left drained crouching pose");
@@ -386,9 +386,9 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertTrue(sawAmbientCryThreshold, "route accepts random cry threshold `$FA0`");
     AssertTrue(!baby.CrySoundEnabled, "route/heal keeps ordinary cry request clear");
     AssertTrue(baby.HealthBasedPaletteEnabled, "route enables health-based Baby palette");
-    AssertEqual((ushort)899, samus.Health, "Baby healing clamps at maximum energy");
-    AssertEqual((ushort)99, samus.ReserveEnergy, "healing completion fills reserve energy");
-    AssertEqual((ushort)3200, baby.Health, "healing does not invent Mother Brain damage");
+    AssertEqual(899, samus.Health, "Baby healing clamps at maximum energy");
+    AssertEqual(99, samus.ReserveEnergy, "healing completion fills reserve energy");
+    AssertEqual(3200, baby.Health, "healing does not invent Mother Brain damage");
 
     // Drive the same actor into `$CABD`'s zero-health transition without fabricating a
     // function pointer. One saturating hit represents the already-verified ring collision
@@ -399,7 +399,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     baby.Step(bus, samus, motherBrain);
     AssertEqual(BabyMetroidCutscenePhase.ReleaseSamus, baby.Phase,
         "zero-health idle call installs release function");
-    AssertEqual((ushort)0x0140, baby.Health,
+    AssertEqual(0x0140, baby.Health,
         "ordinary zero-health transition restores $140 for flight");
 
     // The fixed target chain takes a deterministic but fixture-dependent number of calls.
@@ -412,7 +412,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
         AssertTrue(finalRouteCalls < 1000,
             $"Baby reaches final charge; current phase={baby.Phase}");
     }
-    AssertEqual((ushort)0x004f, baby.Health,
+    AssertEqual(0x004f, baby.Health,
         "final-charge staging point assigns literal 79 health");
     BabyMetroidOnionRingHitResult finalFatal = baby.ApplyMotherBrainOnionRingHit();
     AssertTrue(finalFatal.Applied && finalFatal.HealthAfter == 0,
@@ -425,9 +425,9 @@ static void VerifyBabyMetroidCutsceneEntrance()
         AssertTrue(finalRouteCalls < 1200,
             $"fatal shake/theme delays reach death sequence; current phase={baby.Phase}");
     }
-    AssertEqual((ushort)28, samus.AnimationFrame,
+    AssertEqual(28, samus.AnimationFrame,
         "prepare-Hyper expiry executes Samus command $19");
-    AssertEqual((ushort)1, samus.AnimationFrameTimer,
+    AssertEqual(1, samus.AnimationFrameTimer,
         "Samus command $19 freezes animation with timer one");
     AssertEqual(BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow,
         baby.SamusRainbowPhase,
@@ -458,17 +458,17 @@ static void VerifyBabyMetroidCutsceneEntrance()
     ];
     for (int index = 0; index < expectedBlackSources.Length; index++)
     {
-        AssertEqual((ushort)(index + 1), blackPalettes[index].PaletteIndex,
+        AssertEqual((index + 1), blackPalettes[index].PaletteIndex,
             $"black palette {index + 1} index");
         AssertEqual(expectedBlackSources[index], blackPalettes[index].SourceAddress,
             $"black palette {index + 1} source");
-        AssertEqual((ushort)0x01e2, blackPalettes[index].DestinationColorIndex,
+        AssertEqual(0x01e2, blackPalettes[index].DestinationColorIndex,
             $"black palette {index + 1} destination");
     }
     AssertTrue(deathExplosions.Count > 1, "death sequence emits repeating dust explosions");
-    AssertEqual((ushort)1, deathExplosions[0].PatternIndex,
+    AssertEqual(1, deathExplosions[0].PatternIndex,
         "cleared death pattern increments before first lookup");
-    AssertEqual((ushort)2, deathExplosions[1].PatternIndex,
+    AssertEqual(2, deathExplosions[1].PatternIndex,
         "death explosions advance to the following table pair");
     AssertEqual(36, (int)deathExplosions[1].XPosition - deathExplosions[0].XPosition,
         "death explosion entries one/two retain their -20/+16 X offsets");
@@ -496,12 +496,12 @@ static void VerifyBabyMetroidCutsceneEntrance()
             $"attack DMA {index} source");
         AssertEqual(expectedAttackDestinations[index], attackTransfers[index].VramDestination,
             $"attack DMA {index} destination");
-        AssertEqual((ushort)0x0200, attackTransfers[index].Size,
+        AssertEqual(0x0200, attackTransfers[index].Size,
             $"attack DMA {index} size");
     }
     AssertEqual(BabyMetroidCutscenePhase.LetSamusRainbowSomeMore, baby.Phase,
         "fourth attack DMA observes zero terminator");
-    AssertEqual((ushort)0x00af, baby.FunctionTimer,
+    AssertEqual(0x00af, baby.FunctionTimer,
         "fourth attack DMA falls through and decrements new $B0 timer");
 
     var roomPalettes = new List<MotherBrainBackgroundPaletteTransferRequest>();
@@ -535,16 +535,16 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(7, roomPalettes.Count, "phase-three light restore has seven records");
     for (int index = 0; index < roomPalettes.Count; index++)
     {
-        AssertEqual((ushort)index, roomPalettes[index].PaletteIndex,
+        AssertEqual(index, roomPalettes[index].PaletteIndex,
             $"room-light palette {index} index");
         AssertEqual(unchecked((uint)(0xadf3d3 - index * 0x38)), roomPalettes[index].SourceAddress,
             $"room-light palette {index} reverse source");
     }
     AssertTrue(!samus.Drained.RainbowPaletteEnabled,
         "final cutscene executes command $17 rainbow disable");
-    AssertEqual((ushort)13, samus.AnimationFrame,
+    AssertEqual(13, samus.AnimationFrame,
         "command $17 starts drained Samus standing animation at frame 13");
-    AssertEqual((ushort)0x8000, samus.HyperBeam,
+    AssertEqual(0x8000, samus.HyperBeam,
         "drained controller three grants Hyper Beam");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneMakeSomeDistance,
         motherBrain.Phase,
@@ -554,8 +554,8 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneSetupForFighting,
         recovery.PhaseAfter,
         "phase-three recovery publishes form and setup timer");
-    AssertEqual((ushort)4, motherBrain.Body.Form, "phase-three recovery sets body form four");
-    AssertEqual((ushort)0x0020, motherBrain.FunctionTimer,
+    AssertEqual(4, motherBrain.Body.Form, "phase-three recovery sets body form four");
+    AssertEqual(0x0020, motherBrain.FunctionTimer,
         "phase-three recovery loads literal $20 setup wait");
     int setupCalls = 0;
     while (motherBrain.Phase ==
@@ -583,11 +583,11 @@ static void VerifyBabyMetroidCutsceneEntrance()
         "phase-three fixture reaches main after exact setup wait");
     AssertEqual(MotherBrainPhase3NeckPhase.Inactive, phase3.Phase3NeckPhase,
         "same-call normal neck initializer reduces to its RTS state");
-    AssertEqual((ushort)0x0080, phase3.NeckAngleDelta,
+    AssertEqual(0x0080, phase3.NeckAngleDelta,
         "normal neck initializer selects delta $80");
     AssertEqual(MotherBrainPhase3WalkingPhase.RetreatQuickly, phase3.Phase3WalkingPhase,
         "zero walk credit falls through to quick retreat");
-    AssertEqual((ushort)0x0062, phase3.Phase3TargetXPosition,
+    AssertEqual(0x0062, phase3.Phase3TargetXPosition,
         "quick retreat target is body X minus fourteen");
     AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingBackwardReallyFastInstructionList,
         phase3.Body.InstructionPointer,
@@ -600,7 +600,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
         quickWalkCalls++;
         AssertTrue(quickWalkCalls < 40, "phase-three quick retreat bytecode sleeps");
     }
-    AssertEqual((ushort)0x0058, phase3.Body.XPosition,
+    AssertEqual(0x0058, phase3.Body.XPosition,
         "quick retreat completes its native net-minus-24 animation");
     MotherBrainRainbowBeamAttackStepResult quickReached =
         phase3.Step(bus, phase3Samus, 0, 0);
@@ -608,7 +608,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
         "quick-retreat target call changes scheduler without same-call slow request");
     AssertEqual(MotherBrainPhase3WalkingPhase.RetreatSlowly, phase3.Phase3WalkingPhase,
         "quick retreat hands off to slow retreat");
-    AssertEqual((ushort)0x004a, phase3.Phase3TargetXPosition,
+    AssertEqual(0x004a, phase3.Phase3TargetXPosition,
         "slow retreat chooses a fresh fourteen-pixel target");
 
     MotherBrainRainbowBeamAttackStepResult slowRequest =
@@ -624,14 +624,14 @@ static void VerifyBabyMetroidCutsceneEntrance()
         slowWalkCalls++;
         AssertTrue(slowWalkCalls < 80, "phase-three slow retreat bytecode sleeps");
     }
-    AssertEqual((ushort)0x0040, phase3.Body.XPosition,
+    AssertEqual(0x0040, phase3.Body.XPosition,
         "slow retreat completes another native net-minus-24 animation");
     phase3.Step(bus, phase3Samus, 0, 0);
     AssertEqual(MotherBrainPhase3WalkingPhase.TryToInchForward, phase3.Phase3WalkingPhase,
         "slow-retreat target restores inch-forward scheduler");
-    AssertEqual((ushort)0x0040, phase3.Phase3WalkCounter,
+    AssertEqual(0x0040, phase3.Phase3WalkCounter,
         "slow-retreat completion loads literal $40 walk credit");
-    AssertEqual((ushort)0x0041, phase3.Phase3TargetXPosition,
+    AssertEqual(0x0041, phase3.Phase3TargetXPosition,
         "inch-forward handoff records current X plus one");
 
     // Five calls reach `$E0`; the sixth reaches `$100` and emits a one-pixel forward walk.
@@ -642,11 +642,11 @@ static void VerifyBabyMetroidCutsceneEntrance()
         AssertTrue(!accumulating.BodyWalkRequested,
             $"walk-credit accumulation call {call} does not move before $100");
     }
-    AssertEqual((ushort)0x00e0, phase3.Phase3WalkCounter,
+    AssertEqual(0x00e0, phase3.Phase3WalkCounter,
         "five standing calls accumulate walk credit to $E0");
     MotherBrainRainbowBeamAttackStepResult inch = phase3.Step(bus, phase3Samus, 0, 0);
     AssertTrue(inch.BodyWalkRequested, "$100 walk credit requests one-pixel forward target");
-    AssertEqual((ushort)0x0100, phase3.Phase3WalkCounter,
+    AssertEqual(0x0100, phase3.Phase3WalkCounter,
         "inch-forward request preserves accumulated credit");
     AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingForwardFastInstructionList,
         phase3.Body.InstructionPointer,
@@ -656,9 +656,9 @@ static void VerifyBabyMetroidCutsceneEntrance()
     // the next AI call in native order: neck recoil still runs, walking is pose-gated, and
     // the negative `$0100-$010A` subtraction clamps the walk counter to zero.
     phase3.Body.Step(bus);
-    AssertEqual((ushort)1, phase3.Body.Pose, "forward bytecode publishes walking pose");
+    AssertEqual(1, phase3.Body.Pose, "forward bytecode publishes walking pose");
     phase3.ApplyPhase2Or3ShotReaction(MotherBrainProjectileType.Beam);
-    AssertEqual((ushort)0, phase3.Phase3WalkCounter,
+    AssertEqual(0, phase3.Phase3WalkCounter,
         "Hyper Beam underflow clamps walk counter to zero");
     AssertEqual(MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil, phase3.Phase3NeckPhase,
         "Hyper Beam underflow installs recoil setup");
@@ -666,19 +666,19 @@ static void VerifyBabyMetroidCutsceneEntrance()
         phase3.Step(bus, phase3Samus, 0, 0, randomNumberSeed: 0xffff);
     AssertEqual(MotherBrainPhase3NeckPhase.HyperBeamRecoil, phase3.Phase3NeckPhase,
         "recoil setup falls into recoil timer");
-    AssertEqual((ushort)0x000a, phase3.Phase3NeckFunctionTimer,
+    AssertEqual(0x000a, phase3.Phase3NeckFunctionTimer,
         "recoil setup decrements freshly loaded $0B to $0A");
-    AssertEqual((ushort)1, phase3.Phase3DisableAttacks,
+    AssertEqual(1, phase3.Phase3DisableAttacks,
         "Hyper Beam recoil disables attack selection");
     AssertEqual<MotherBrainPhase3AttackKind?>(null, recoilSetup.Phase3Attack,
         "negative RNG cannot attack while recoil disable is set");
     AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadHyperBeamRecoilInstructionList,
         phase3.HeadInstructionList,
         "recoil installs exact `$9BE7` head animation");
-    AssertEqual((ushort)0x0900, phase3.NeckAngleDelta, "Hyper Beam recoil neck delta");
-    AssertEqual((ushort)8, phase3.LowerNeckMovementIndex, "Hyper Beam lower recoil index");
-    AssertEqual((ushort)8, phase3.UpperNeckMovementIndex, "Hyper Beam upper recoil index");
-    AssertEqual((ushort)0x0032, phase3.BrainMainShakeTimer,
+    AssertEqual(0x0900, phase3.NeckAngleDelta, "Hyper Beam recoil neck delta");
+    AssertEqual(8, phase3.LowerNeckMovementIndex, "Hyper Beam lower recoil index");
+    AssertEqual(8, phase3.UpperNeckMovementIndex, "Hyper Beam upper recoil index");
+    AssertEqual(0x0032, phase3.BrainMainShakeTimer,
         "Hyper Beam recoil seeds brain shake timer fifty");
 
     int recoilTimerCalls = 0;
@@ -691,13 +691,13 @@ static void VerifyBabyMetroidCutsceneEntrance()
         "remaining `$0A` recoil timer expires only after zero underflows");
     AssertEqual(MotherBrainPhase3NeckPhase.SetupRecoilRecovery, phase3.Phase3NeckPhase,
         "recoil expiration defers recovery setup to following call");
-    AssertEqual((ushort)0, phase3.Phase3DisableAttacks,
+    AssertEqual(0, phase3.Phase3DisableAttacks,
         "recoil expiration reenables attacks before recovery setup");
 
     phase3.Step(bus, phase3Samus, 0, 0);
     AssertEqual(MotherBrainPhase3NeckPhase.RecoilRecovery, phase3.Phase3NeckPhase,
         "recovery setup falls through into its timer");
-    AssertEqual((ushort)0x000f, phase3.Phase3NeckFunctionTimer,
+    AssertEqual(0x000f, phase3.Phase3NeckFunctionTimer,
         "recovery setup decrements freshly loaded $10 to $0F");
     int recoveryTimerCalls = 0;
     while (phase3.Phase3NeckPhase == MotherBrainPhase3NeckPhase.RecoilRecovery)
@@ -735,7 +735,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
         phase3Attack.HeadInstructionList, "phase-three bomb installs exact `$9F00` list");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3FightingAttackCooldown,
         phase3Attack.Phase, "phase-three attack installs cooldown function");
-    AssertEqual((ushort)0x0040, phase3Attack.FunctionTimer,
+    AssertEqual(0x0040, phase3Attack.FunctionTimer,
         "phase-three attack cooldown starts at literal $40");
 
     int cooldownCalls = 0;
@@ -811,7 +811,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     death.ApplyCalculatedBrainDamage(0x0bb8);
     MotherBrainRainbowBeamAttackStepResult deathHandoff =
         death.Step(bus, phase3Samus, 0, 0);
-    AssertEqual((ushort)0, death.BrainHealth, "calculated damage saturates brain health at zero");
+    AssertEqual(0, death.BrainHealth, "calculated damage saturates brain health at zero");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceMoveToBackOfRoom,
         deathHandoff.PhaseAfter, "zero-health combat call installs `$AEE1` without fallthrough");
     AssertTrue(death.HitboxesEnabled,
@@ -823,8 +823,8 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertTrue(firstDeathMove.BodyWalkRequested, "death requests medium backward body list");
     AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingBackwardMediumInstructionList,
         death.Body.InstructionPointer, "death retreat selects exact `$9900` list");
-    AssertEqual((ushort)0x0400, death.BodyProperties, "death sets raw body property `$0400`");
-    AssertEqual((ushort)0x0400, death.BrainProperties, "death sets raw brain property `$0400`");
+    AssertEqual(0x0400, death.BodyProperties, "death sets raw body property `$0400`");
+    AssertEqual(0x0400, death.BrainProperties, "death sets raw brain property `$0400`");
     AssertTrue(!death.HitboxesEnabled, "death entry disables shared hitboxes");
 
     // The medium backward program has the same net -24 motion as every admitted walk list.
@@ -836,17 +836,17 @@ static void VerifyBabyMetroidCutsceneEntrance()
         deathRetreatBodyCalls++;
         AssertTrue(deathRetreatBodyCalls < 100, "death retreat body bytecode sleeps");
     }
-    AssertEqual((ushort)0x0028, death.Body.XPosition, "death retreat reaches back-room X `$28`");
+    AssertEqual(0x0028, death.Body.XPosition, "death retreat reaches back-room X `$28`");
 
     MotherBrainRainbowBeamAttackStepResult firstSmokyBatch = death.Step(
         bus, phase3Samus, 0, 0, nextRandomNumber: deathRandom.NextRandom);
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceIdleWhilstExploding,
         death.Phase, "back-room carry falls through into smoky idle");
-    AssertEqual((ushort)0x007f, death.FunctionTimer,
+    AssertEqual(0x007f, death.FunctionTimer,
         "same-call smoky idle decrements freshly loaded `$80`");
-    AssertEqual((ushort)0x0010, death.DeathExplosionIntervalTimer,
+    AssertEqual(0x0010, death.DeathExplosionIntervalTimer,
         "zero death-explosion timer emits immediately and reloads smoky interval `$10`");
-    AssertEqual((ushort)6, death.DeathExplosionIndex,
+    AssertEqual(6, death.DeathExplosionIndex,
         "zero death-explosion index wraps backward to record six");
     AssertEqual(2, firstSmokyBatch.DeathExplosions.Count,
         "smoky generator emits two simultaneous projectiles");
@@ -860,7 +860,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
             SoundEffect: 0x0013),
         firstSmokyBatch.DeathExplosions[0],
         "first smoky projectile uses record-six pair zero and smoke parameter");
-    AssertEqual((short)-0x0014, firstSmokyBatch.DeathExplosions[1].XOffset,
+    AssertEqual(-0x0014, firstSmokyBatch.DeathExplosions[1].XOffset,
         "second smoky projectile advances to record-six pair one");
 
     int smokyIdleCalls = 0;
@@ -883,11 +883,11 @@ static void VerifyBabyMetroidCutsceneEntrance()
         stumbleCalls++;
         AssertTrue(stumbleCalls < 200, "death stumble reaches middle-room target");
     }
-    AssertEqual((ushort)0x006d, death.Body.XPosition,
+    AssertEqual(0x006d, death.Body.XPosition,
         "third really-fast program reports carry on its mid-list +15px crossing");
     AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadDyingDroolInstructionList,
         death.HeadInstructionList, "stumble completion installs dying-drool head list");
-    AssertEqual((ushort)0x0020, death.FunctionTimer,
+    AssertEqual(0x0020, death.FunctionTimer,
         "stumble completion loads brain-effects delay `$20`");
 
     int disableEffectsCalls = 0;
@@ -905,18 +905,18 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(33, disableEffectsCalls, "brain-effects `$20` timer expires on call 33");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeOutBody,
         death.Phase, "disable/setup functions fall through into first body-fade call");
-    AssertEqual((ushort)1, death.GreyTransitionCounter,
+    AssertEqual(1, death.GreyTransitionCounter,
         "same-call fade performs black palette record zero");
-    AssertEqual((ushort)0x0010, death.FunctionTimer,
+    AssertEqual(0x0010, death.FunctionTimer,
         "same-call fade reloads palette cadence `$10`");
     AssertTrue(disableResult.PaletteRequested,
         "disable/fade fallthrough exposes palette-copy work");
     AssertTrue(!death.DroolGenerationEnabled && !death.SmallPurpleBreathGenerationEnabled &&
                !death.BrainPaletteHandlingEnabled && !death.HealthBasedPaletteHandlingEnabled,
         "death disables all four brain-effect producers");
-    AssertEqual((ushort)0x0e00, death.BrainPaletteIndex,
+    AssertEqual(0x0e00, death.BrainPaletteIndex,
         "death forces sprite palette-seven index `$0E00`");
-    AssertEqual((ushort)0x0070, death.Body.XPosition,
+    AssertEqual(0x0070, death.Body.XPosition,
         "in-flight third walk finishes to `$70` during brain-effects delay");
 
     int fadeBodyCalls = 0;
@@ -928,11 +928,11 @@ static void VerifyBabyMetroidCutsceneEntrance()
     }
     AssertEqual(272, fadeBodyCalls,
         "remaining sixteen black-table probes use exact seventeen-call cadence");
-    AssertEqual((ushort)17, death.GreyTransitionCounter,
+    AssertEqual(17, death.GreyTransitionCounter,
         "black fade consumes sixteen records plus null entry");
     AssertTrue(death.EnemyBg2TilemapClearRequested,
         "black terminator requests native `$02C6..0` BG2 clear");
-    AssertEqual((ushort)0x0500, death.BodyProperties,
+    AssertEqual(0x0500, death.BodyProperties,
         "black terminator preserves `$0400`, sets `$0100`, and clears `$2000`");
 
     int finalExplosionCalls = 0;
@@ -952,9 +952,9 @@ static void VerifyBabyMetroidCutsceneEntrance()
         death.HeadInstructionList, "decapitation installs exact `$9C29` head list");
     AssertTrue(death.BrainDrawSetupRequested,
         "decapitation publishes separate brain draw-setup request");
-    AssertEqual((ushort)0x0020, death.FunctionTimer,
+    AssertEqual(0x0020, death.FunctionTimer,
         "first 8.8 falling call accelerates from zero to `$0020`");
-    AssertEqual((ushort)0x0060, death.BrainYPosition,
+    AssertEqual(0x0060, death.BrainYPosition,
         "first falling velocity has zero whole-pixel displacement");
 
     int remainingFallCalls = 0;
@@ -966,10 +966,10 @@ static void VerifyBabyMetroidCutsceneEntrance()
     }
     AssertEqual(42, remainingFallCalls,
         "brain reaches `$C4` after 43 total 8.8 integration calls");
-    AssertEqual((ushort)0x00c4, death.BrainYPosition, "brain fall clamps to floor Y `$C4`");
-    AssertEqual((ushort)2, death.EarthquakeType, "brain floor hit requests earthquake type two");
-    AssertEqual((ushort)20, death.EarthquakeTimer, "brain floor hit requests twenty frames");
-    AssertEqual((ushort)0x0100, death.FunctionTimer,
+    AssertEqual(0x00c4, death.BrainYPosition, "brain fall clamps to floor Y `$C4`");
+    AssertEqual(2, death.EarthquakeType, "brain floor hit requests earthquake type two");
+    AssertEqual(20, death.EarthquakeTimer, "brain floor hit requests twenty frames");
+    AssertEqual(0x0100, death.FunctionTimer,
         "brain floor hit seeds corpse-load scratch timer `$0100`");
 
     var corpseTransfers = new List<MotherBrainSpriteTileTransferRequest>();
@@ -987,7 +987,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
             corpseTransfers[index].SourceAddress, $"corpse DMA {index} source");
         AssertEqual(unchecked((ushort)(0x7a00 + index * 0x100)),
             corpseTransfers[index].VramDestination, $"corpse DMA {index} destination");
-        AssertEqual((ushort)0x01c0, corpseTransfers[index].Size,
+        AssertEqual(0x01c0, corpseTransfers[index].Size,
             $"corpse DMA {index} skips two source rows");
     }
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupFadeToGrey,
@@ -1015,7 +1015,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(8, greyPaletteCopies, "real-death grey transition copies eight palettes");
     AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadCorpseInstructionList,
         death.HeadInstructionList, "grey terminator installs exact `$9D25` corpse list");
-    AssertEqual((ushort)0x0100, death.FunctionTimer, "corpse tip-over delay starts at `$100`");
+    AssertEqual(0x0100, death.FunctionTimer, "corpse tip-over delay starts at `$100`");
 
     int corpseTipCalls = 0;
     while (death.Phase == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseTipsOver)
@@ -1101,11 +1101,11 @@ static void VerifyBabyMetroidCutsceneEntrance()
         "rotting completion queues `$0000` then `$FF24`");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequence20FrameDelay,
         death.Phase, "rotting completion installs `$B211` delay function");
-    AssertEqual((ushort)0x0013, death.FunctionTimer,
+    AssertEqual(0x0013, death.FunctionTimer,
         "completion falls through and decrements freshly loaded `$14`");
-    AssertEqual((ushort)0x0500, death.BrainProperties,
+    AssertEqual(0x0500, death.BrainProperties,
         "completion preserves `$0400`, sets `$0100`, and clears `$2000`");
-    AssertEqual((ushort)0, death.BrainProperties2,
+    AssertEqual(0, death.BrainProperties2,
         "completion clears brain property word two");
 
     // All eligible bitplane rows must eventually be moved out and cleared. Check the entire
@@ -1127,8 +1127,8 @@ static void VerifyBabyMetroidCutsceneEntrance()
     }
     AssertEqual(20, postRotDelayCalls,
         "same-call first decrement leaves exactly twenty later delay calls");
-    AssertEqual((ushort)0, death.BrainXPosition, "post-rot delay parks brain X at zero");
-    AssertEqual((ushort)0, death.BrainYPosition, "post-rot delay parks brain Y at zero");
+    AssertEqual(0, death.BrainXPosition, "post-rot delay parks brain X at zero");
+    AssertEqual(0, death.BrainYPosition, "post-rot delay parks brain Y at zero");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadEscapeTimerTiles,
         death.Phase, "post-rot delay reaches explicit escape-timer tile seam");
 
@@ -1165,9 +1165,9 @@ static void VerifyBabyMetroidCutsceneEntrance()
                 "same-call first exploded-door DMA");
         }
     }
-    AssertEqual((ushort)7, death.EscapeTimerTileTransferIndex,
+    AssertEqual(7, death.EscapeTimerTileTransferIndex,
         "escape-timer list consumes seven NTSC records");
-    AssertEqual((ushort)1, death.ExplodedDoorTileTransferIndex,
+    AssertEqual(1, death.ExplodedDoorTileTransferIndex,
         "escape-timer fallthrough consumes exploded-door record zero");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape,
         death.Phase, "first door record leaves `$B26D` active");
@@ -1183,20 +1183,20 @@ static void VerifyBabyMetroidCutsceneEntrance()
         "door-list terminator requests fourteen-color exploded-door palette copy");
     AssertTrue(escapeStarted.EscapeMusicTrackQueued,
         "door-list terminator queues escape music track seven");
-    AssertEqual((ushort)5, death.EarthquakeType, "escape start selects earthquake type five");
-    AssertEqual((ushort)0xffff, death.EarthquakeTimer,
+    AssertEqual(5, death.EarthquakeType, "escape start selects earthquake type five");
+    AssertEqual(0xffff, death.EarthquakeTimer,
         "escape start holds earthquake with `$FFFF`");
     AssertEqual(4, escapeStarted.EscapePaletteFxRequests.Count,
         "escape start spawns all four Tourian red-flash palette objects");
-    AssertEqual((ushort)0xffc9, escapeStarted.EscapePaletteFxRequests[0],
+    AssertEqual(0xffc9, escapeStarted.EscapePaletteFxRequests[0],
         "escape palette FX begins with shutter-red object");
-    AssertEqual((ushort)0xffd5, escapeStarted.EscapePaletteFxRequests[3],
+    AssertEqual(0xffd5, escapeStarted.EscapePaletteFxRequests[3],
         "escape palette FX ends with Arkanoid/red-orb object");
     AssertTrue(!death.MotherBrainUnpauseHookEnabled,
         "escape typewriter disables Mother Brain unpause hook");
     AssertTrue(escapeStarted.EscapeTypewriterSetupRequested,
         "escape start requests native Zebes typewriter setup");
-    AssertEqual((ushort)0x0020, death.FunctionTimer,
+    AssertEqual(0x0020, death.FunctionTimer,
         "escape text handoff loads `$20` subtitle/typewriter timer");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText,
         death.Phase, "default NTSC text selection reaches explicit `$B2E3` seam");
@@ -1204,7 +1204,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     MotherBrainRainbowBeamAttackStepResult typing = death.Step(bus, phase3Samus, 0, 0);
     AssertTrue(typing.TypewriterStepRequested,
         "`$B2E3` requests one external typewriter step on every call");
-    AssertEqual<ushort?>(0x2610, typing.TypewriterTextPointer,
+    AssertEqual(0x2610, typing.TypewriterTextPointer,
         "`$B2E3` publishes exact Zebes escape text-list pointer");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText,
         death.Phase, "clear typewriter carry keeps `$B2E3` active");
@@ -1219,7 +1219,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
         "completion call still records the `$2610` typewriter invocation");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer,
         death.Phase, "typewriter carry installs door-explosion countdown");
-    AssertEqual((ushort)0x0020, death.FunctionTimer,
+    AssertEqual(0x0020, death.FunctionTimer,
         "typewriter completion reloads exact `$20` door timer");
 
     // `$B346` advances global RNG only when its shared interval underflows. Alternate the
@@ -1262,7 +1262,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
         AssertEqual(explosionIndex % 2 == 0 ? (ushort)0x000c : (ushort)0x0003,
             emitted.ProjectileParameter,
             $"door explosion {explosionIndex} honors `$4000` RNG boundary");
-        AssertEqual((ushort)0x0024, emitted.SoundEffect,
+        AssertEqual(0x0024, emitted.SoundEffect,
             $"door explosion {explosionIndex} queues sound `$24`");
     }
     AssertTrue(doorTimerResult.TimerHandlingEnableRequested,
@@ -1273,9 +1273,9 @@ static void VerifyBabyMetroidCutsceneEntrance()
         "timer expiry publishes current-area mini-boss bit `$02`");
     AssertTrue(doorTimerResult.ZebesTimebombEventRequested,
         "timer expiry publishes event `$0E`");
-    AssertEqual((ushort)0, death.DeathExplosionIntervalTimer,
+    AssertEqual(0, death.DeathExplosionIntervalTimer,
         "timer expiry clears reused explosion interval");
-    AssertEqual((ushort)0, death.EscapeDoorIndex,
+    AssertEqual(0, death.EscapeDoorIndex,
         "timer expiry clears door explosion index");
 
     MotherBrainRainbowBeamAttackStepResult blownDoor = death.Step(bus, phase3Samus, 0, 0);
@@ -1297,13 +1297,13 @@ static void VerifyBabyMetroidCutsceneEntrance()
         bus, phase3Samus, 0, 0, globalEarthquakeTimer: 1);
     AssertTrue(!nonzeroQuake.EarthquakeTimerRefreshed,
         "final body function leaves nonzero global earthquake timer alone");
-    AssertEqual((ushort)1, death.EarthquakeTimer,
+    AssertEqual(1, death.EarthquakeTimer,
         "final body function mirrors nonzero global quake sample");
     MotherBrainRainbowBeamAttackStepResult zeroQuake = death.Step(
         bus, phase3Samus, 0, 0, globalEarthquakeTimer: 0);
     AssertTrue(zeroQuake.EarthquakeTimerRefreshed,
         "final body function changes visible zero to `$FFFF`");
-    AssertEqual((ushort)0xffff, death.EarthquakeTimer,
+    AssertEqual(0xffff, death.EarthquakeTimer,
         "final body function holds earthquake indefinitely");
 
     Console.WriteLine(

@@ -83,61 +83,61 @@ static void VerifyRoomEnemyLoading()
     var enemies = new RoomEnemySystem();
     enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0x9999);
 
-    AssertEqual((ushort)1, enemies.EnemyCount, "enemy population count");
-    AssertEqual((ushort)RoomEnemySystem.NativeSlotSize, enemies.FirstFreeEnemyIndex,
+    AssertEqual(1, enemies.EnemyCount, "enemy population count");
+    AssertEqual(RoomEnemySystem.NativeSlotSize, enemies.FirstFreeEnemyIndex,
         "first free enemy keeps native byte offset");
-    AssertEqual((byte)1, enemies.DeathQuota, "population terminator death quota");
-    AssertEqual((ushort)0, enemies.EnemiesKilled, "room load clears killed-enemy count");
-    AssertEqual((ushort)0x1234, enemies.BossId, "nonzero definition publishes room boss ID");
+    AssertEqual(1, enemies.DeathQuota, "population terminator death quota");
+    AssertEqual(0, enemies.EnemiesKilled, "room load clears killed-enemy count");
+    AssertEqual(0x1234, enemies.BossId, "nonzero definition publishes room boss ID");
     AssertEqual(2, enemies.GraphicsSet.Count, "terminated enemy graphics-set count");
 
     RoomEnemyGraphicsSetEntry ordinaryGraphics = enemies.GraphicsSet[0];
     RoomEnemyGraphicsSetEntry specialGraphics = enemies.GraphicsSet[1];
     AssertEqual(0x0800, ordinaryGraphics.StagingOffset, "ordinary enemy staging offset");
     AssertEqual(0x0200, specialGraphics.StagingOffset, "high-bit enemy encoded staging offset");
-    AssertEqual((ushort)2, specialGraphics.VramTilesIndex,
+    AssertEqual(2, specialGraphics.VramTilesIndex,
         "second enemy tile index includes first definition size");
-    AssertEqual((byte)0x80, vram.ReadByte(0xe000), "ordinary enemy first tile byte");
-    AssertEqual((byte)0xbf, vram.ReadByte(0xe03f), "ordinary enemy final tile byte");
-    AssertEqual((byte)0xc0, vram.ReadByte(0xda00), "special enemy first tile byte");
-    AssertEqual((ushort)0x2120, cgram.Colors[(3 + 8) * 16],
+    AssertEqual(0x80, vram.ReadByte(0xe000), "ordinary enemy first tile byte");
+    AssertEqual(0xbf, vram.ReadByte(0xe03f), "ordinary enemy final tile byte");
+    AssertEqual(0xc0, vram.ReadByte(0xda00), "special enemy first tile byte");
+    AssertEqual(0x2120, cgram.Colors[(3 + 8) * 16],
         "ordinary enemy palette destination and source");
-    AssertEqual((ushort)0x6160, cgram.Colors[(4 + 8) * 16],
+    AssertEqual(0x6160, cgram.Colors[(4 + 8) * 16],
         "special enemy palette destination and source");
 
     RoomEnemySlot slot = enemies.Slots[0];
-    AssertEqual((ushort)0x0456, slot.XPosition, "population X position");
-    AssertEqual((ushort)0x0789, slot.YPosition, "population Y position");
-    AssertEqual((ushort)0x0600, slot.PaletteIndex, "graphics-set OBJ palette index");
-    AssertEqual((ushort)0, slot.VramTilesIndex, "first graphics-set tile index");
-    AssertEqual((byte)0xa2, slot.AiBank, "definition AI bank copied into native slot");
-    AssertEqual((byte)0x5a, slot.HurtAiTime, "definition hurt-AI time copied into native slot");
-    AssertEqual((ushort)0, slot.AiHandlerBits, "room load clears AI handler bits");
-    AssertEqual((ushort)0, slot.FlashTimer, "room load clears flash timer");
-    AssertEqual((ushort)0, slot.InvincibilityTimer, "room load clears invincibility timer");
-    AssertEqual((ushort)0, slot.ShakeTimer, "room load clears shake timer");
-    AssertEqual((ushort)0x804f, slot.SpritemapPointer,
+    AssertEqual(0x0456, slot.XPosition, "population X position");
+    AssertEqual(0x0789, slot.YPosition, "population Y position");
+    AssertEqual(0x0600, slot.PaletteIndex, "graphics-set OBJ palette index");
+    AssertEqual(0, slot.VramTilesIndex, "first graphics-set tile index");
+    AssertEqual(0xa2, slot.AiBank, "definition AI bank copied into native slot");
+    AssertEqual(0x5a, slot.HurtAiTime, "definition hurt-AI time copied into native slot");
+    AssertEqual(0, slot.AiHandlerBits, "room load clears AI handler bits");
+    AssertEqual(0, slot.FlashTimer, "room load clears flash timer");
+    AssertEqual(0, slot.InvincibilityTimer, "room load clears invincibility timer");
+    AssertEqual(0, slot.ShakeTimer, "room load clears shake timer");
+    AssertEqual(0x804f, slot.SpritemapPointer,
         "extended actor receives native extended-nothing map after initialization");
-    AssertEqual((ushort)0x3100, slot.Spawn.NameWords.Word0, "spawn name first word");
-    AssertEqual((ushort)0x3104, slot.Spawn.NameWords.Word4, "spawn name fifth copied word");
-    AssertEqual((ushort)0x3106, slot.Spawn.NameWords.Word6, "spawn name skips source word five");
-    AssertEqual((ushort)0x0600, slot.Spawn.PaletteIndex,
+    AssertEqual(0x3100, slot.Spawn.NameWords.Word0, "spawn name first word");
+    AssertEqual(0x3104, slot.Spawn.NameWords.Word4, "spawn name fifth copied word");
+    AssertEqual(0x3106, slot.Spawn.NameWords.Word6, "spawn name skips source word five");
+    AssertEqual(0x0600, slot.Spawn.PaletteIndex,
         "spawn snapshot retains pre-initialization palette index");
 
     RoomEnemyDefinition definition = slot.Definition;
-    AssertEqual((ushort)0x110e, definition.HurtSoundEffect, "definition hurt SFX offset $0E");
-    AssertEqual((ushort)0x1114, definition.PartCount, "definition part count offset $14");
-    AssertEqual((ushort)0x111a, definition.GrappleAiPointer, "definition grapple AI offset $1A");
-    AssertEqual((ushort)0x1128, definition.PowerBombReactionPointer,
+    AssertEqual(0x110e, definition.HurtSoundEffect, "definition hurt SFX offset $0E");
+    AssertEqual(0x1114, definition.PartCount, "definition part count offset $14");
+    AssertEqual(0x111a, definition.GrappleAiPointer, "definition grapple AI offset $1A");
+    AssertEqual(0x1128, definition.PowerBombReactionPointer,
         "definition power-bomb reaction offset $28");
-    AssertEqual((ushort)0x1134, definition.InitialSpritemapPointer,
+    AssertEqual(0x1134, definition.InitialSpritemapPointer,
         "definition initial spritemap offset $34");
     AssertEqual(0xa29100, definition.TileDataAddress, "definition 24-bit tile-data pointer");
-    AssertEqual((ushort)0x113a, definition.ItemDropChancesPointer,
+    AssertEqual(0x113a, definition.ItemDropChancesPointer,
         "definition item-drop pointer offset $3A");
-    AssertEqual((ushort)0x113c, definition.VulnerabilityPointer,
+    AssertEqual(0x113c, definition.VulnerabilityPointer,
         "definition vulnerability pointer offset $3C");
-    AssertEqual((ushort)0x9200, definition.NamePointer, "definition name pointer offset $3E");
+    AssertEqual(0x9200, definition.NamePointer, "definition name pointer offset $3E");
 
     // Reload the same object with an empty population and a deliberately invalid tileset.
     // Native $A0:8A6D skips graphics processing, and InitializeEnemies' early return leaves
@@ -150,14 +150,14 @@ static void VerifyRoomEnemyLoading()
     vram.LoadBytes(0xe000, new byte[] { 0x5a });
     enemies.Load(bus, emptyPopulationPointer, 0xffff, vram, cgram, () => 0);
 
-    AssertEqual((ushort)0, enemies.EnemyCount, "empty population clears enemy count");
+    AssertEqual(0, enemies.EnemyCount, "empty population clears enemy count");
     AssertEqual(0, enemies.GraphicsSet.Count, "empty population skips graphics set");
-    AssertEqual((ushort)RoomEnemySystem.NativeSlotSize, enemies.FirstFreeEnemyIndex,
+    AssertEqual(RoomEnemySystem.NativeSlotSize, enemies.FirstFreeEnemyIndex,
         "empty population preserves native first-free quirk");
-    AssertEqual((byte)1, enemies.DeathQuota, "empty population preserves native death-quota quirk");
-    AssertEqual((ushort)0, enemies.BossId, "room load clears boss ID before empty population");
-    AssertEqual((ushort)0x4567, cgram.Colors[128], "empty population leaves CGRAM untouched");
-    AssertEqual((byte)0x5a, vram.ReadByte(0xe000), "empty population leaves enemy VRAM untouched");
+    AssertEqual(1, enemies.DeathQuota, "empty population preserves native death-quota quirk");
+    AssertEqual(0, enemies.BossId, "room load clears boss ID before empty population");
+    AssertEqual(0x4567, cgram.Colors[128], "empty population leaves CGRAM untouched");
+    AssertEqual(0x5a, vram.ReadByte(0xe000), "empty population leaves enemy VRAM untouched");
 
     Console.WriteLine(
         "  Enemies: complete headers, populations, spawn snapshots, palettes, tile staging, " +

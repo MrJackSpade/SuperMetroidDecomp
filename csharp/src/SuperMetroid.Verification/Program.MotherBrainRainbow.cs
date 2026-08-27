@@ -36,12 +36,12 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     movement.BeginFallingAfterRainbowBeam();
     MotherBrainForcedSamusMovementResult first =
         movement.StepFallingAfterRainbowBeam(samus);
-    AssertEqual((ushort)0xff02, movement.CustomXVelocity, "rainbow fall first eased X velocity");
-    AssertEqual((ushort)0x0018, movement.CustomYVelocity, "rainbow fall first accelerated Y velocity");
-    AssertEqual((ushort)100, samus.XPosition, "rainbow fall signed X plus fractional carry");
-    AssertEqual((ushort)0x01aa, samus.Kinematics.XSubposition, "rainbow fall preserves X low sub-byte");
-    AssertEqual((ushort)101, samus.YPosition, "rainbow fall Y fractional carry");
-    AssertEqual((ushort)0x08bb, samus.Kinematics.YSubposition, "rainbow fall preserves Y low sub-byte");
+    AssertEqual(0xff02, movement.CustomXVelocity, "rainbow fall first eased X velocity");
+    AssertEqual(0x0018, movement.CustomYVelocity, "rainbow fall first accelerated Y velocity");
+    AssertEqual(100, samus.XPosition, "rainbow fall signed X plus fractional carry");
+    AssertEqual(0x01aa, samus.Kinematics.XSubposition, "rainbow fall preserves X low sub-byte");
+    AssertEqual(101, samus.YPosition, "rainbow fall Y fractional carry");
+    AssertEqual(0x08bb, samus.Kinematics.YSubposition, "rainbow fall preserves Y low sub-byte");
     AssertEqual(first.After, first.CameraPreviousPosition,
         "forced movement publishes new position as camera previous");
     AssertTrue(!first.NativeCarry && !first.ReachedVerticalBoundary,
@@ -51,26 +51,26 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     // there instead of allowing a positive recoil; subsequent calls must remain zero.
     for (int call = 1; call < 128; call++)
         movement.StepFallingAfterRainbowBeam(samus);
-    AssertEqual((ushort)0, movement.CustomXVelocity, "rainbow fall X easing clamps at zero");
+    AssertEqual(0, movement.CustomXVelocity, "rainbow fall X easing clamps at zero");
     movement.StepFallingAfterRainbowBeam(samus);
-    AssertEqual((ushort)0, movement.CustomXVelocity, "rainbow fall X easing stays zero");
-    AssertEqual((ushort)0x00c0, samus.YPosition, "rainbow fall clamps at arena floor Y $C0");
-    AssertEqual((ushort)0, samus.Kinematics.YSubposition, "arena floor clamp clears Y subposition");
+    AssertEqual(0, movement.CustomXVelocity, "rainbow fall X easing stays zero");
+    AssertEqual(0x00c0, samus.YPosition, "rainbow fall clamps at arena floor Y $C0");
+    AssertEqual(0, samus.Kinematics.YSubposition, "arena floor clamp clears Y subposition");
 
     // At/below $7C, `$A9:BBCF` chooses +$00.40. It is not a snap: this deliberately
     // crosses from $7C.D0 to $7D.10 through the eight-bit fractional carry.
     samus.YPosition = 0x007c;
     samus.Kinematics.YSubposition = 0xd055;
     MotherBrainForcedSamusMovementResult middleDown = movement.MoveTowardMiddleOfWall(samus);
-    AssertEqual((ushort)0x0040, middleDown.YVelocity, "middle-wall below target velocity");
-    AssertEqual((ushort)0x007d, samus.YPosition, "middle-wall downward whole carry");
-    AssertEqual((ushort)0x1055, samus.Kinematics.YSubposition, "middle-wall downward fraction");
+    AssertEqual(0x0040, middleDown.YVelocity, "middle-wall below target velocity");
+    AssertEqual(0x007d, samus.YPosition, "middle-wall downward whole carry");
+    AssertEqual(0x1055, samus.Kinematics.YSubposition, "middle-wall downward fraction");
 
     // Above $7C, two's-complement $FFC0 moves upward. $7D.10 + (-$00.40) becomes $7C.D0.
     MotherBrainForcedSamusMovementResult middleUp = movement.MoveTowardMiddleOfWall(samus);
-    AssertEqual((ushort)0xffc0, middleUp.YVelocity, "middle-wall above target velocity");
-    AssertEqual((ushort)0x007c, samus.YPosition, "middle-wall upward whole borrow");
-    AssertEqual((ushort)0xd055, samus.Kinematics.YSubposition, "middle-wall upward fraction");
+    AssertEqual(0xffc0, middleUp.YVelocity, "middle-wall above target velocity");
+    AssertEqual(0x007c, samus.YPosition, "middle-wall upward whole borrow");
+    AssertEqual(0xd055, samus.Kinematics.YSubposition, "middle-wall upward fraction");
 
     // Angle zero reads +$0100 at index $40. Speed $1000 * sine $0100 >> 8 therefore
     // produces +$1000 on Y, while the independent horizontal helper also adds $10 pixels.
@@ -80,9 +80,9 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Kinematics.YSubposition = 0x0033;
     movement.RainbowBeamAngle = 0;
     MotherBrainForcedSamusMovementResult beam = movement.MoveTowardWall(bus, samus);
-    AssertEqual((ushort)0x1000, beam.YVelocity, "rainbow beam table-derived Y velocity");
-    AssertEqual((ushort)116, samus.XPosition, "rainbow beam horizontal $10.00 step");
-    AssertEqual((ushort)116, samus.YPosition, "rainbow beam vertical $10.00 step");
+    AssertEqual(0x1000, beam.YVelocity, "rainbow beam table-derived Y velocity");
+    AssertEqual(116, samus.XPosition, "rainbow beam horizontal $10.00 step");
+    AssertEqual(116, samus.YPosition, "rainbow beam vertical $10.00 step");
     AssertTrue(!beam.NativeCarry, "rainbow beam caller clears vertical-helper carry");
 
     // Reaching X $EB returns set carry and skips vertical calculation entirely.
@@ -91,9 +91,9 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.YPosition = 100;
     MotherBrainForcedSamusMovementResult wall = movement.MoveTowardWall(bus, samus);
     AssertTrue(wall.ReachedWall && wall.NativeCarry, "rainbow beam wall clamp returns carry");
-    AssertEqual((ushort)0x00eb, samus.XPosition, "rainbow beam hardcoded wall X $EB");
-    AssertEqual((ushort)0, samus.Kinematics.XSubposition, "rainbow wall clamp clears X subposition");
-    AssertEqual((ushort)100, samus.YPosition, "rainbow wall clamp skips vertical movement");
+    AssertEqual(0x00eb, samus.XPosition, "rainbow beam hardcoded wall X $EB");
+    AssertEqual(0, samus.Kinematics.XSubposition, "rainbow wall clamp clears X subposition");
+    AssertEqual(100, samus.YPosition, "rainbow wall clamp skips vertical movement");
 
     // A negative table component below Y $30 proves the separate ceiling clamp and its
     // subposition clear. MoveTowardWall then clears native carry because X did not clamp.
@@ -105,8 +105,8 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     MotherBrainForcedSamusMovementResult ceiling = movement.MoveTowardWall(bus, samus);
     AssertTrue(ceiling.ReachedVerticalBoundary && !ceiling.NativeCarry,
         "rainbow ceiling clamp is hidden from caller carry");
-    AssertEqual((ushort)0x0030, samus.YPosition, "rainbow hardcoded ceiling Y $30");
-    AssertEqual((ushort)0, samus.Kinematics.YSubposition, "rainbow ceiling clears Y subposition");
+    AssertEqual(0x0030, samus.YPosition, "rainbow hardcoded ceiling Y $30");
+    AssertEqual(0, samus.Kinematics.YSubposition, "rainbow ceiling clears Y subposition");
 
     Console.WriteLine("  Mother Brain: rainbow-beam forced 8.8 movement and arena clamps agree.");
 }
@@ -228,16 +228,16 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         "energy 999 selects command five able handler");
     AssertTrue(samus.InputLocked, "rainbow start locks Samus input handlers");
     AssertTrue(attack.HdmaActive, "rainbow start requests active HDMA beam");
-    AssertEqual((ushort)0x0200, attack.AngularWidth, "rainbow start width");
+    AssertEqual(0x0200, attack.AngularWidth, "rainbow start width");
 
     MotherBrainRainbowBeamAttackStepResult wall = attack.Step(
         bus, samus, enemyFrameCounter: 2, mainEnemyExecutionCounter: 1);
-    AssertEqual((ushort)0x00eb, samus.XPosition, "actor sequence moves Samus to hardcoded wall");
+    AssertEqual(0x00eb, samus.XPosition, "actor sequence moves Samus to hardcoded wall");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.OneFrameDelay, attack.Phase,
         "wall carry installs one-frame-delay function");
     AssertTrue(wall.SoundQueued && wall.PaletteRequested,
         "wall function runs sound and bit-one palette cadence");
-    AssertEqual((ushort)0x0380, wall.AngularWidth, "wall function widens before aiming");
+    AssertEqual(0x0380, wall.AngularWidth, "wall function widens before aiming");
     AssertTrue(wall.Explosion is { XOffset: 6, YOffset: 2, SoundEffect: 0x24 },
         "zero explosion timer increments to literal offset record one");
 
@@ -245,8 +245,8 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         bus, samus, enemyFrameCounter: 0, mainEnemyExecutionCounter: 2);
     AssertEqual(MotherBrainRainbowBeamAttackPhase.StartDrainingSamus, attack.Phase,
         "zero delay timer underflows and schedules drain initializer");
-    AssertEqual((ushort)8, delay.EarthquakeType, "delay underflow selects earthquake type eight");
-    AssertEqual((ushort)8, delay.EarthquakeTimer, "delay underflow seeds eight-frame earthquake");
+    AssertEqual(8, delay.EarthquakeType, "delay underflow selects earthquake type eight");
+    AssertEqual(8, delay.EarthquakeTimer, "delay underflow seeds eight-frame earthquake");
 
     int drainCalls = 0;
     int queuedBeamSounds = (wall.SoundQueued ? 1 : 0) + (delay.SoundQueued ? 1 : 0);
@@ -267,13 +267,13 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     }
 
     AssertEqual(300, drainCalls, "$012B drain timer includes fallthrough call and expires after 300");
-    AssertEqual((ushort)399, samus.Health, "300 no-Varia rainbow hits subtract two each");
-    AssertEqual((ushort)5, samus.Missiles, "missiles decrement every fourth enemy pass");
-    AssertEqual((ushort)5, samus.SuperMissiles, "supers share every-fourth cadence");
-    AssertEqual((ushort)100, samus.PowerBombs, "power bombs decrement every drain call");
+    AssertEqual(399, samus.Health, "300 no-Varia rainbow hits subtract two each");
+    AssertEqual(5, samus.Missiles, "missiles decrement every fourth enemy pass");
+    AssertEqual(5, samus.SuperMissiles, "supers share every-fourth cadence");
+    AssertEqual(100, samus.PowerBombs, "power bombs decrement every drain call");
     AssertEqual(7, queuedBeamSounds, "count six queues seven rainbow beam sound attempts");
     AssertTrue(explosions > 1, "explosion timer continues across wall and drain phases");
-    AssertEqual((ushort)0x0c00, attack.AngularWidth, "drain widening clamps at $0C00");
+    AssertEqual(0x0c00, attack.AngularWidth, "drain widening clamps at $0C00");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.FinishFiring, attack.Phase,
         "drain timer underflow installs finish-firing function");
 
@@ -287,10 +287,10 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         observedUnlock |= narrowing.UnlockedSamus;
     }
     AssertEqual(7, narrowingCalls, "$0C00 beam narrows below $0200 in seven calls");
-    AssertEqual((ushort)0x0200, attack.AngularWidth, "beam shutdown pins angular width floor");
+    AssertEqual(0x0200, attack.AngularWidth, "beam shutdown pins angular width floor");
     AssertTrue(observedUnlock && !samus.InputLocked, "beam shutdown runs Samus command one");
     AssertTrue(!attack.HdmaActive, "beam shutdown disables its HDMA channel");
-    AssertEqual((ushort)8, attack.SamusProjectileCooldownTimer,
+    AssertEqual(8, attack.SamusProjectileCooldownTimer,
         "beam shutdown reloads Samus projectile cooldown");
 
     int fallingCalls = 0;
@@ -305,14 +305,14 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     }
     AssertEqual(MotherBrainRainbowBeamAttackPhase.LowerHead, attack.Phase,
         "custom falling carry installs lower-head function");
-    AssertEqual((ushort)0x00c0, samus.YPosition, "custom falling reaches hardcoded floor $C0");
+    AssertEqual(0x00c0, samus.YPosition, "custom falling reaches hardcoded floor $C0");
     AssertEqual(SamusState.DrainedCrouchingLeftPose, samus.Pose,
         "let-fall controller selects left drained pose from forced $54 direction");
 
     attack.Step(bus, samus, enemyFrameCounter: 0, mainEnemyExecutionCounter: 0);
     AssertEqual(MotherBrainRainbowBeamAttackPhase.DecideNextAction, attack.Phase,
         "lower-head function installs decision timer");
-    AssertEqual((ushort)0x0080, attack.FunctionTimer, "lower-head function seeds $80 timer");
+    AssertEqual(0x0080, attack.FunctionTimer, "lower-head function seeds $80 timer");
 
     int decisionCalls = 0;
     while (attack.Phase == MotherBrainRainbowBeamAttackPhase.DecideNextAction)
@@ -326,7 +326,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingForwardReallySlowInstructionList,
         attack.Body.InstructionPointer,
         "low-health decision immediately installs native forward body walk");
-    AssertEqual((ushort)1, attack.Body.InstructionTimer,
+    AssertEqual(1, attack.Body.InstructionTimer,
         "low-health decision makes forward walk eligible in same enemy frame");
     MotherBrainRainbowBeamAttackStepResult finishThreshold = attack.Step(
         bus, samus, enemyFrameCounter: 0, mainEnemyExecutionCounter: 0);
@@ -358,14 +358,14 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         bus, low, enemyFrameCounter: 0, mainEnemyExecutionCounter: 0);
     AssertEqual(MotherBrainRainbowBeamAttackPhase.DrainingSamus, firstDrain.PhaseAfter,
         "drain initializer falls through into first resource tick");
-    AssertEqual((ushort)0, low.Missiles,
+    AssertEqual(0, low.Missiles,
         "depleted missiles clear even when a different HUD item is selected");
-    AssertEqual((ushort)0, low.SuperMissiles,
+    AssertEqual(0, low.SuperMissiles,
         "selected supers clear HUD item and reach zero");
-    AssertEqual((ushort)0, low.PowerBombs,
+    AssertEqual(0, low.PowerBombs,
         "power bombs reach the shared literal-zero reset regardless of HUD selection");
-    AssertEqual((ushort)0, low.SelectedHudItem, "selected depleted item clears HUD selection");
-    AssertEqual((ushort)0, low.AutoCancelHudItemIndex, "ammo depletion resets auto-cancel index");
+    AssertEqual(0, low.SelectedHudItem, "selected depleted item clears HUD selection");
+    AssertEqual(0, low.AutoCancelHudItemIndex, "ammo depletion resets auto-cancel index");
 
     // Walk programs execute in the ordinary enemy-instruction stage after AI. A complete
     // really-slow list contains nine ten-frame spritemaps and reaches sleep on call 91.
@@ -388,21 +388,21 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
             backwardFootsteps++;
             AssertTrue(bodyStep.FootstepSoundRequested,
                 "form-three backward footstep retains otherwise-silent sound request");
-            AssertEqual((ushort)1, bodyStep.EarthquakeType, "backward footstep earthquake type");
-            AssertEqual((ushort)4, bodyStep.EarthquakeTimer, "backward footstep earthquake timer");
+            AssertEqual(1, bodyStep.EarthquakeType, "backward footstep earthquake type");
+            AssertEqual(4, bodyStep.EarthquakeTimer, "backward footstep earthquake timer");
         }
         AssertTrue(backwardAnimationCalls < 100, "backward walk reaches common sleep");
     }
     AssertEqual(91, backwardAnimationCalls, "nine ten-frame backward records then sleep");
     AssertEqual(2, backwardFootsteps, "backward walk executes two footstep opcodes");
-    AssertEqual((ushort)40, backwardBody.XPosition, "backward walk literal net X delta -24");
-    AssertEqual((ushort)100, backwardBody.YPosition, "backward walk literal Y deltas cancel");
-    AssertEqual((ushort)0, backwardBody.Pose, "backward walk restores standing pose");
-    AssertEqual((ushort)0xfffa, backwardBody.Bg2XScroll,
+    AssertEqual(40, backwardBody.XPosition, "backward walk literal net X delta -24");
+    AssertEqual(100, backwardBody.YPosition, "backward walk literal Y deltas cancel");
+    AssertEqual(0, backwardBody.Pose, "backward walk restores standing pose");
+    AssertEqual(0xfffa, backwardBody.Bg2XScroll,
         "backward walk keeps BG2 X at $22 minus body X");
-    AssertEqual((ushort)0, backwardBody.Bg2YScroll,
+    AssertEqual(0, backwardBody.Bg2YScroll,
         "backward walk inverse BG2 Y deltas cancel");
-    AssertEqual((ushort)0x9972, backwardBody.InstructionPointer,
+    AssertEqual(0x9972, backwardBody.InstructionPointer,
         "backward common sleep pins its own opcode address");
 
     var forwardBody = new MotherBrainBodyAnimationState
@@ -429,10 +429,10 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     }
     AssertEqual(91, forwardAnimationCalls, "nine ten-frame forward records then sleep");
     AssertEqual(2, forwardFootsteps, "forward walk executes two footstep opcodes");
-    AssertEqual((ushort)88, forwardBody.XPosition, "forward walk literal net X delta +24");
-    AssertEqual((ushort)100, forwardBody.YPosition, "forward walk literal Y deltas cancel");
-    AssertEqual((ushort)0, forwardBody.Pose, "forward walk restores standing pose");
-    AssertEqual((ushort)0x9850, forwardBody.InstructionPointer,
+    AssertEqual(88, forwardBody.XPosition, "forward walk literal net X delta +24");
+    AssertEqual(100, forwardBody.YPosition, "forward walk literal Y deltas cancel");
+    AssertEqual(0, forwardBody.Pose, "forward walk restores standing pose");
+    AssertEqual(0x9850, forwardBody.InstructionPointer,
         "forward common sleep pins its own opcode address");
 
     // The finish-off loop can idle Mother Brain into a lean and must later wait for the
@@ -453,11 +453,11 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         AssertTrue(leanCalls < 30, "lean-down animation reaches sleep");
     }
     AssertEqual(17, leanCalls, "two eight-frame lean records then sleep");
-    AssertEqual((ushort)6, postureBody.Pose, "lean-down list publishes pose six");
-    AssertEqual((ushort)112, postureBody.YPosition, "lean-down list moves body down twelve");
-    AssertEqual((ushort)0xfff4, postureBody.Bg2YScroll,
+    AssertEqual(6, postureBody.Pose, "lean-down list publishes pose six");
+    AssertEqual(112, postureBody.YPosition, "lean-down list moves body down twelve");
+    AssertEqual(0xfff4, postureBody.Bg2YScroll,
         "lean-down body Y movement is cancelled in BG2");
-    AssertEqual((ushort)0xffe6, postureBody.Bg2XScroll,
+    AssertEqual(0xffe6, postureBody.Bg2XScroll,
         "lean-down opcode applies temporary left-four BG2 compensation");
 
     postureBody.SetInstructionList(
@@ -470,10 +470,10 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         AssertTrue(leanStandCalls < 30, "lean stand-up animation reaches sleep");
     }
     AssertEqual(17, leanStandCalls, "lean recovery has two eight-frame records");
-    AssertEqual((ushort)0, postureBody.Pose, "lean recovery restores standing pose");
-    AssertEqual((ushort)100, postureBody.YPosition, "lean recovery reverses twelve-pixel drop");
-    AssertEqual((ushort)0, postureBody.Bg2YScroll, "lean recovery reverses BG2 Y offset");
-    AssertEqual((ushort)0xffe0, postureBody.Bg2XScroll,
+    AssertEqual(0, postureBody.Pose, "lean recovery restores standing pose");
+    AssertEqual(100, postureBody.YPosition, "lean recovery reverses twelve-pixel drop");
+    AssertEqual(0, postureBody.Bg2YScroll, "lean recovery reverses BG2 Y offset");
+    AssertEqual(0xffe0, postureBody.Bg2XScroll,
         "lean recovery finishes with right-two BG2 compensation");
 
     var crouchedBody = new MotherBrainBodyAnimationState
@@ -492,9 +492,9 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         AssertTrue(crouchStandCalls < 50, "fast crouch stand-up reaches sleep");
     }
     AssertEqual(33, crouchStandCalls, "four eight-frame fast stand records then sleep");
-    AssertEqual((ushort)0, crouchedBody.Pose, "fast crouch recovery restores standing pose");
-    AssertEqual((ushort)100, crouchedBody.YPosition, "fast crouch recovery moves body up 38");
-    AssertEqual((ushort)38, crouchedBody.Bg2YScroll,
+    AssertEqual(0, crouchedBody.Pose, "fast crouch recovery restores standing pose");
+    AssertEqual(100, crouchedBody.YPosition, "fast crouch recovery moves body up 38");
+    AssertEqual(38, crouchedBody.Bg2YScroll,
         "fast crouch recovery applies inverse 38-pixel BG2 Y movement");
 
     WriteTestWord(bus, 0xa99000, 0xffff);
@@ -521,7 +521,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     repeatAttack.StartAttackCycle();
     AssertEqual(MotherBrainRainbowBeamAttackPhase.StartCharging, repeatAttack.Phase,
         "repeat setup installs first charge wait");
-    AssertEqual((ushort)0x0100, repeatAttack.FunctionTimer, "repeat first wait starts at $100");
+    AssertEqual(0x0100, repeatAttack.FunctionTimer, "repeat first wait starts at $100");
     AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadNeutralPhase2InstructionList,
         repeatAttack.HeadInstructionList, "repeat setup selects neutral phase-two head art");
 
@@ -537,7 +537,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         "first wait falls through into retracting walk");
     AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadChargingRainbowInstructionList,
         repeatAttack.HeadInstructionList, "first wait selects charging head program");
-    AssertEqual((ushort)1, repeatAttack.Body.Pose,
+    AssertEqual(1, repeatAttack.Body.Pose,
         "same-frame enemy stage begins the requested backward body animation");
 
     int retractCalls = 0;
@@ -550,14 +550,14 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     }
     AssertEqual(41, retractCalls,
         "AI advances after the -15 opcode crosses hard X $30 boundary");
-    AssertEqual((ushort)46, repeatAttack.Body.XPosition,
+    AssertEqual(46, repeatAttack.Body.XPosition,
         "retract AI handoff occurs at overshot X $2E before walk animation settles");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.WaitForCharge, repeatAttack.Phase,
         "retract target falls through into second charge wait");
-    AssertEqual((ushort)0x0050, repeatAttack.NeckAngleDelta, "retract neck NTSC delta");
-    AssertEqual((ushort)8, repeatAttack.LowerNeckMovementIndex, "retract lower neck index");
-    AssertEqual((ushort)6, repeatAttack.UpperNeckMovementIndex, "retract upper neck index");
-    AssertEqual((ushort)0x00ff, repeatAttack.FunctionTimer,
+    AssertEqual(0x0050, repeatAttack.NeckAngleDelta, "retract neck NTSC delta");
+    AssertEqual(8, repeatAttack.LowerNeckMovementIndex, "retract lower neck index");
+    AssertEqual(6, repeatAttack.UpperNeckMovementIndex, "retract upper neck index");
+    AssertEqual(0x00ff, repeatAttack.FunctionTimer,
         "second wait is decremented once by retract fallthrough");
 
     int secondChargeCalls = 0;
@@ -573,21 +573,21 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         "second charge underflow queues sound-library-two effect $71");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.StartFiring, repeatAttack.Phase,
         "second wait falls through neck-down setup and first firing call");
-    AssertEqual((ushort)8, repeatAttack.SamusProjectileCooldownTimer,
+    AssertEqual(8, repeatAttack.SamusProjectileCooldownTimer,
         "neck-down setup writes projectile cooldown eight");
-    AssertEqual((ushort)6, repeatAttack.LowerNeckMovementIndex, "firing lower neck index");
-    AssertEqual((ushort)6, repeatAttack.UpperNeckMovementIndex, "firing upper neck index");
-    AssertEqual((ushort)0x0500, repeatAttack.NeckAngleDelta, "firing NTSC neck delta");
-    AssertEqual((ushort)0x0180, repeatAttack.AngularWidth,
+    AssertEqual(6, repeatAttack.LowerNeckMovementIndex, "firing lower neck index");
+    AssertEqual(6, repeatAttack.UpperNeckMovementIndex, "firing upper neck index");
+    AssertEqual(0x0500, repeatAttack.NeckAngleDelta, "firing NTSC neck delta");
+    AssertEqual(0x0180, repeatAttack.AngularWidth,
         "fallthrough firing call widens prior zero width");
-    AssertEqual((ushort)0x000f, repeatAttack.FunctionTimer,
+    AssertEqual(0x000f, repeatAttack.FunctionTimer,
         "fallthrough firing call decrements regional timer 16");
 
     MotherBrainRainbowBeamAttackStepResult frozenCharge = repeatAttack.Step(
         bus, repeatSamus, 0, 0, powerBombActive: true);
-    AssertEqual((ushort)0x000f, frozenCharge.FunctionTimer,
+    AssertEqual(0x000f, frozenCharge.FunctionTimer,
         "active power bomb freezes firing countdown");
-    AssertEqual((ushort)0x0300, frozenCharge.AngularWidth,
+    AssertEqual(0x0300, frozenCharge.AngularWidth,
         "active power bomb does not freeze beam aiming/width growth");
 
     int firingCalls = 0;
@@ -600,7 +600,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(16, firingCalls, "timer $000F reaches active beam on 16th unfrozen call");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall, repeatAttack.Phase,
         "start-firing underflow executes `$B983` active setup in same call");
-    AssertEqual((ushort)0x0200, repeatAttack.AngularWidth,
+    AssertEqual(0x0200, repeatAttack.AngularWidth,
         "active setup resets prefire width to $0200");
     AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadFiringRainbowInstructionList,
         repeatAttack.HeadInstructionList, "active setup selects firing head program");
@@ -631,14 +631,14 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     }
     while (thresholdAttack.Phase == MotherBrainRainbowBeamAttackPhase.DecideNextAction)
         thresholdAttack.Step(bus, exactThreshold, 0, 0);
-    AssertEqual((ushort)400, exactThreshold.Health,
+    AssertEqual(400, exactThreshold.Health,
         "700 with Varia reaches exact repeat/finish boundary after 300 hits");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.RepeatAttack, thresholdAttack.Phase,
         "health exactly $0190 selects repeat attack");
     thresholdAttack.Step(bus, exactThreshold, 0, 0);
     AssertEqual(MotherBrainRainbowBeamAttackPhase.StartCharging, thresholdAttack.Phase,
         "repeat pointer executes neck-extension setup on following AI call");
-    AssertEqual((ushort)0x0100, thresholdAttack.FunctionTimer,
+    AssertEqual(0x0100, thresholdAttack.FunctionTimer,
         "repeated neck-extension setup reloads first charge timer");
 
     // `$BD45`'s first threshold is suit-dependent and inclusive. Check every retail suit
@@ -732,9 +732,9 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     }
     AssertEqual(MotherBrainRainbowBeamAttackPhase.AdmireJobWellDone, finalAttack.Phase,
         "standing carry enters admire delay");
-    AssertEqual((ushort)0x000f, finalAttack.FunctionTimer,
+    AssertEqual(0x000f, finalAttack.FunctionTimer,
         "stand-up fallthrough immediately decrements admire timer");
-    AssertEqual((ushort)88, finalAttack.Body.XPosition,
+    AssertEqual(88, finalAttack.Body.XPosition,
         "initial finish-off walk completes one literal really-slow program");
 
     int admireCalls = 0;
@@ -747,7 +747,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(16, admireCalls, "remaining admire delay underflows after sixteen calls");
     AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadStretchingPhase2InstructionList,
         finalAttack.HeadInstructionList, "admire expiry installs stretching head animation");
-    AssertEqual((ushort)0x0100, finalAttack.FunctionTimer,
+    AssertEqual(0x0100, finalAttack.FunctionTimer,
         "admire expiry loads 256-count final charge");
 
     int finalChargeCalls = 0;
@@ -786,9 +786,9 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         transfers[3], "Baby transfer entry three");
     AssertTrue(spawnCall.BabySpawnRequested && finalAttack.BabyMetroidSpawned,
         "terminating transfer entry retracts head and requests Baby spawn");
-    AssertEqual((ushort)0x0050, finalAttack.NeckAngleDelta,
+    AssertEqual(0x0050, finalAttack.NeckAngleDelta,
         "Baby spawn call uses NTSC head-retraction delta");
-    AssertEqual((ushort)0x0100, finalAttack.FunctionTimer,
+    AssertEqual(0x0100, finalAttack.FunctionTimer,
         "Baby spawn call loads final-beam wait");
 
     int finalBeamCalls = 0;
@@ -806,11 +806,11 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         "final shot queues sound-library-two effect $71");
     AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadFiringRainbowInstructionList,
         finalAttack.HeadInstructionList, "final shot installs firing head animation");
-    AssertEqual((ushort)6, finalAttack.LowerNeckMovementIndex,
+    AssertEqual(6, finalAttack.LowerNeckMovementIndex,
         "final shot lower neck index");
-    AssertEqual((ushort)6, finalAttack.UpperNeckMovementIndex,
+    AssertEqual(6, finalAttack.UpperNeckMovementIndex,
         "final shot upper neck index");
-    AssertEqual((ushort)0x0500, finalAttack.NeckAngleDelta,
+    AssertEqual(0x0500, finalAttack.NeckAngleDelta,
         "final shot NTSC neck delta");
 
     Console.WriteLine("  Mother Brain actor: ROM posture/walk bytecode, repeat/active/final rainbow chain, thresholds, VRAM, and Baby spawn agree.");

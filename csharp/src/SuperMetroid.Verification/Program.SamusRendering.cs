@@ -29,8 +29,8 @@ static void VerifySamusRenderingSlice()
     var oam = new OamBuffer();
 
     samus.LoadPowerSuitPalette(bus, cgram);
-    AssertEqual((ushort)0x3800, cgram.Colors[192], "Samus power-suit palette color zero at CGRAM 192");
-    AssertEqual((ushort)0x000d, cgram.Colors[207], "Samus power-suit palette color fifteen at CGRAM 207");
+    AssertEqual(0x3800, cgram.Colors[192], "Samus power-suit palette color zero at CGRAM 192");
+    AssertEqual(0x000d, cgram.Colors[207], "Samus power-suit palette color fifteen at CGRAM 207");
 
     samus.PrimeGraphics(bus);
     AssertEqual(0x92d0b0, samus.TileTransfers.TopDefinitionAddress, "pose 1 frame 0 top tile definition");
@@ -39,27 +39,27 @@ static void VerifySamusRenderingSlice()
     AssertTrue(samus.TileTransfers.BottomTransferEnabled, "Samus bottom tile DMA flag");
 
     samus.TileTransfers.TransferToVram(bus, vram);
-    AssertEqual((byte)0x10, vram.ReadByte(0xc000), "Samus top part 1 reaches VRAM word $6000");
-    AssertEqual((byte)0x20, vram.ReadByte(0xc200), "Samus top part 2 reaches VRAM word $6100");
-    AssertEqual((byte)0x30, vram.ReadByte(0xc100), "Samus bottom part 1 reaches VRAM word $6080");
-    AssertEqual((byte)0x40, vram.ReadByte(0xc300), "Samus bottom part 2 reaches VRAM word $6180");
+    AssertEqual(0x10, vram.ReadByte(0xc000), "Samus top part 1 reaches VRAM word $6000");
+    AssertEqual(0x20, vram.ReadByte(0xc200), "Samus top part 2 reaches VRAM word $6100");
+    AssertEqual(0x30, vram.ReadByte(0xc100), "Samus bottom part 1 reaches VRAM word $6080");
+    AssertEqual(0x40, vram.ReadByte(0xc300), "Samus bottom part 2 reaches VRAM word $6180");
 
     samus.InitializeAnimation(bus);
-    AssertEqual((ushort)10, samus.AnimationFrameTimer, "pose 1 initial animation delay");
+    AssertEqual(10, samus.AnimationFrameTimer, "pose 1 initial animation delay");
 
     // Frames 0-3 each last ten calls. The fifth byte is command $F6, which returns a
     // healthy Samus to frame zero rather than ever exposing command index four as art.
     for (int tick = 0; tick < 9; tick++)
         samus.AnimateNoFx(bus);
-    AssertEqual((ushort)0, samus.AnimationFrame, "standing frame remains zero for first nine ticks");
-    AssertEqual((ushort)1, samus.AnimationFrameTimer, "standing timer reaches one before advance");
+    AssertEqual(0, samus.AnimationFrame, "standing frame remains zero for first nine ticks");
+    AssertEqual(1, samus.AnimationFrameTimer, "standing timer reaches one before advance");
     samus.AnimateNoFx(bus);
-    AssertEqual((ushort)1, samus.AnimationFrame, "standing frame advances on tenth tick");
-    AssertEqual((ushort)10, samus.AnimationFrameTimer, "next standing frame reloads ten ticks");
+    AssertEqual(1, samus.AnimationFrame, "standing frame advances on tenth tick");
+    AssertEqual(10, samus.AnimationFrameTimer, "next standing frame reloads ten ticks");
     for (int tick = 0; tick < 30; tick++)
         samus.AnimateNoFx(bus);
-    AssertEqual((ushort)0, samus.AnimationFrame, "healthy $F6 command loops standing animation");
-    AssertEqual((byte)0xf6, samus.LastAnimationDelayCommand!.Value, "healthy standing loop command");
+    AssertEqual(0, samus.AnimationFrame, "healthy $F6 command loops standing animation");
+    AssertEqual(0xf6, samus.LastAnimationDelayCommand!.Value, "healthy standing loop command");
 
     // Below 30 energy, the same command enters frames 5-8. Command $FE,$04 then subtracts
     // four byte positions and loops that faster eight-tick breathing sequence.
@@ -67,12 +67,12 @@ static void VerifySamusRenderingSlice()
     samus.InitializeAnimation(bus);
     for (int tick = 0; tick < 40; tick++)
         samus.AnimateNoFx(bus);
-    AssertEqual((ushort)5, samus.AnimationFrame, "low-health $F6 enters alternate sequence");
-    AssertEqual((ushort)8, samus.AnimationFrameTimer, "low-health sequence uses eight-tick delay");
+    AssertEqual(5, samus.AnimationFrame, "low-health $F6 enters alternate sequence");
+    AssertEqual(8, samus.AnimationFrameTimer, "low-health sequence uses eight-tick delay");
     for (int tick = 0; tick < 32; tick++)
         samus.AnimateNoFx(bus);
-    AssertEqual((ushort)5, samus.AnimationFrame, "$FE,$04 loops low-health standing sequence");
-    AssertEqual((byte)0xfe, samus.LastAnimationDelayCommand!.Value, "low-health backward-loop command");
+    AssertEqual(5, samus.AnimationFrame, "$FE,$04 loops low-health standing sequence");
+    AssertEqual(0xfe, samus.LastAnimationDelayCommand!.Value, "low-health backward-loop command");
 
     // Complete the otherwise-unused `$FA/$FC` instruction slots with direct bytecode
     // fixtures. These poses are not admitted gameplay routes, but they are valid retail
@@ -85,7 +85,7 @@ static void VerifySamusRenderingSlice()
     bus.WriteBytes(0x91f000, [0x01, 0xfa, 0x31, 0x32]);
     unusedInstructionSamus.InitializeAnimation(bus);
     unusedInstructionSamus.AnimateNoFx(bus);
-    AssertEqual((byte)0xfa, unusedInstructionSamus.LastAnimationDelayCommand!.Value,
+    AssertEqual(0xfa, unusedInstructionSamus.LastAnimationDelayCommand!.Value,
         "unused vertical-speed instruction reaches `$FA`");
     AssertEqual((byte?)0x31, unusedInstructionSamus.PendingTransitionalPose,
         "$FA` zero Y speed selects first pose byte");
@@ -101,7 +101,7 @@ static void VerifySamusRenderingSlice()
     unusedInstructionSamus.EquippedItems = 0;
     unusedInstructionSamus.InitializeAnimation(bus);
     unusedInstructionSamus.AnimateNoFx(bus);
-    AssertEqual((byte)0xfc, unusedInstructionSamus.LastAnimationDelayCommand!.Value,
+    AssertEqual(0xfc, unusedInstructionSamus.LastAnimationDelayCommand!.Value,
         "unused equipment instruction reaches `$FC`");
     AssertEqual((byte?)0x41, unusedInstructionSamus.PendingTransitionalPose,
         "$FC` unequipped branch selects first pose byte");
@@ -120,15 +120,15 @@ static void VerifySamusRenderingSlice()
     oam.FinalizeFrame();
 
     // Pose $01's graphics Y offset is six, so world (1152,134) becomes origin (128,128).
-    AssertEqual((ushort)128, samus.SpritemapXPosition, "Samus default screen X calculation");
-    AssertEqual((ushort)128, samus.SpritemapYPosition, "Samus signed graphics-Y offset calculation");
-    AssertEqual((ushort)0x019a, samus.TopSpritemapIndex, "Samus pose 1 top spritemap index");
-    AssertEqual((ushort)0x04aa, samus.BottomSpritemapIndex, "Samus pose 1 bottom spritemap index");
+    AssertEqual(128, samus.SpritemapXPosition, "Samus default screen X calculation");
+    AssertEqual(128, samus.SpritemapYPosition, "Samus signed graphics-Y offset calculation");
+    AssertEqual(0x019a, samus.TopSpritemapIndex, "Samus pose 1 top spritemap index");
+    AssertEqual(0x04aa, samus.BottomSpritemapIndex, "Samus pose 1 bottom spritemap index");
     AssertEqual(7, oam.LastFinalizedSpriteCount, "Samus pose 1 emits four top and three bottom OBJs");
 
     OamEntry firstTop = oam.GetEntry(0);
     AssertEqual(121, firstTop.X, "Samus top OBJ signed X offset");
-    AssertEqual((byte)120, firstTop.Y, "Samus top OBJ signed Y offset");
+    AssertEqual(120, firstTop.Y, "Samus top OBJ signed Y offset");
     AssertTrue(firstTop.IsLarge, "Samus top OBJ preserves ROM size bit");
     AssertEqual(4, firstTop.Palette, "Samus top OBJ preserves ROM palette");
     AssertEqual(2, firstTop.Priority, "Samus top OBJ preserves ROM priority");
@@ -136,29 +136,29 @@ static void VerifySamusRenderingSlice()
 
     OamEntry firstBottom = oam.GetEntry(4);
     AssertEqual(113, firstBottom.X, "Samus bottom OBJ signed X offset");
-    AssertEqual((byte)144, firstBottom.Y, "Samus bottom OBJ positive Y offset");
+    AssertEqual(144, firstBottom.Y, "Samus bottom OBJ positive Y offset");
     AssertEqual(8, firstBottom.TileNumber, "Samus bottom OBJ tile number");
 
     // The verified ordinary transition applies pose $09 after movement/animation and before
     // drawing. Its movement type one uses default position math and always draws both halves.
     SeedPoseNineSamusData(bus);
     samus.ApplyStandingRightToRunningRight(bus);
-    AssertEqual((byte)0x09, samus.Pose, "standing-right transition applies running-right pose");
-    AssertEqual((ushort)0, samus.AnimationFrame, "running transition resets animation frame");
-    AssertEqual((ushort)2, samus.AnimationFrameTimer, "running pose first delay byte");
-    AssertEqual((ushort)21, samus.Kinematics.YRadius, "running pose refreshes collision radius");
+    AssertEqual(0x09, samus.Pose, "standing-right transition applies running-right pose");
+    AssertEqual(0, samus.AnimationFrame, "running transition resets animation frame");
+    AssertEqual(2, samus.AnimationFrameTimer, "running pose first delay byte");
+    AssertEqual(21, samus.Kinematics.YRadius, "running pose refreshes collision radius");
 
     oam.BeginFrame();
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
     oam.FinalizeFrame();
-    AssertEqual((ushort)0x00f9, samus.TopSpritemapIndex, "running pose top spritemap index");
-    AssertEqual((ushort)0x00e3, samus.BottomSpritemapIndex, "running pose bottom spritemap index");
+    AssertEqual(0x00f9, samus.TopSpritemapIndex, "running pose top spritemap index");
+    AssertEqual(0x00e3, samus.BottomSpritemapIndex, "running pose bottom spritemap index");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "synthetic running pose draws top and bottom pieces");
 
     samus.ApplyRunningRightToStandingRight(bus);
-    AssertEqual((byte)0x01, samus.Pose, "running no-button fallback applies standing-right pose");
-    AssertEqual((ushort)0, samus.AnimationFrame, "standing fallback resets animation frame");
-    AssertEqual((ushort)10, samus.AnimationFrameTimer, "standing fallback reloads frame-zero delay");
+    AssertEqual(0x01, samus.Pose, "running no-button fallback applies standing-right pose");
+    AssertEqual(0, samus.AnimationFrame, "standing fallback resets animation frame");
+    AssertEqual(10, samus.AnimationFrameTimer, "standing fallback reloads frame-zero delay");
 
     // `$90:868D` inserts one direct small-OBJ write between pose `$00`'s ordinary top and
     // bottom spritemaps. This record is easy to lose in a high-level “draw both halves”
@@ -169,19 +169,19 @@ static void VerifySamusRenderingSlice()
     samus.Kinematics.YSpeed = 2;
     samus.ApplyForwardFacingPoseSetup(bus);
     AssertEqual(SamusState.ForwardFacingPowerSuitPose, samus.Pose, "no suit selects power forward pose");
-    AssertEqual((ushort)24, samus.Kinematics.YRadius, "power forward setup reads radius 24");
-    AssertEqual((ushort)8, samus.AnimationFrameTimer, "power forward setup reads delay eight");
-    AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed, "forward setup clears base X speed");
-    AssertEqual((ushort)0, samus.Kinematics.YSpeed, "forward setup clears Y speed");
+    AssertEqual(24, samus.Kinematics.YRadius, "power forward setup reads radius 24");
+    AssertEqual(8, samus.AnimationFrameTimer, "power forward setup reads delay eight");
+    AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "forward setup clears base X speed");
+    AssertEqual(0, samus.Kinematics.YSpeed, "forward setup clears Y speed");
     oam.BeginFrame();
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
     oam.FinalizeFrame();
-    AssertEqual((ushort)0x0002, samus.TopSpritemapIndex, "power-suit forward top spritemap index");
-    AssertEqual((ushort)0x0062, samus.BottomSpritemapIndex, "power-suit forward bottom spritemap index");
+    AssertEqual(0x0002, samus.TopSpritemapIndex, "power-suit forward top spritemap index");
+    AssertEqual(0x0062, samus.BottomSpritemapIndex, "power-suit forward bottom spritemap index");
     AssertEqual(3, oam.LastFinalizedSpriteCount, "power-suit forward top/chest/bottom OAM order");
     OamEntry chestCover = oam.GetEntry(1);
     AssertEqual(121, chestCover.X, "forward chest-cover X is Samus screen X minus seven");
-    AssertEqual((byte)117, chestCover.Y, "forward chest-cover Y is Samus screen Y minus seventeen");
+    AssertEqual(117, chestCover.Y, "forward chest-cover Y is Samus screen Y minus seventeen");
     AssertEqual(0x21, chestCover.TileNumber, "forward chest-cover tile number");
     AssertEqual(4, chestCover.Palette, "forward chest-cover palette");
     AssertEqual(3, chestCover.Priority, "forward chest-cover priority");
@@ -194,8 +194,8 @@ static void VerifySamusRenderingSlice()
     oam.BeginFrame();
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
     oam.FinalizeFrame();
-    AssertEqual((ushort)0x00c2, samus.TopSpritemapIndex, "suited forward top spritemap index");
-    AssertEqual((ushort)0x0122, samus.BottomSpritemapIndex, "suited forward bottom spritemap index");
+    AssertEqual(0x00c2, samus.TopSpritemapIndex, "suited forward top spritemap index");
+    AssertEqual(0x0122, samus.BottomSpritemapIndex, "suited forward bottom spritemap index");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "suited forward emits no power-suit chest patch");
 
     // `$90:85E2` suppresses body OAM on odd invincibility frames but still calls the
@@ -300,13 +300,13 @@ static void VerifySamusRenderingSlice()
     oam.BeginFrame();
     samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: 0);
     oam.FinalizeFrame();
-    AssertEqual((ushort)0x0082, samus.SpritemapYPosition,
+    AssertEqual(0x0082, samus.SpritemapYPosition,
         "morph transition frame zero reads signed minus-four table byte");
     samus.AnimationFrame = 1;
     oam.BeginFrame();
     samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: 0);
     oam.FinalizeFrame();
-    AssertEqual((ushort)0x0084, samus.SpritemapYPosition,
+    AssertEqual(0x0084, samus.SpritemapYPosition,
         "morph transition frame one reads signed minus-two table byte");
 
     WritePoseDefinition(bus, 0x39, [8, 0x0f, 0xff, 0xff, 9, 0, 16, 0]);
@@ -317,7 +317,7 @@ static void VerifySamusRenderingSlice()
     oam.BeginFrame();
     samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: 0);
     oam.FinalizeFrame();
-    AssertEqual((ushort)0x0086, samus.SpritemapYPosition,
+    AssertEqual(0x0086, samus.SpritemapYPosition,
         "unused transition pose reads native zero instead of generic graphics offset");
 
     // Standing's position selector has two special families. Front-view frames zero/one
@@ -329,7 +329,7 @@ static void VerifySamusRenderingSlice()
     oam.BeginFrame();
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
     oam.FinalizeFrame();
-    AssertEqual((ushort)0x0085, samus.SpritemapYPosition,
+    AssertEqual(0x0085, samus.SpritemapYPosition,
         "front-facing frame two uses fixed one-pixel graphics offset");
 
     // Landing's `$90:8D28` table is byte-packed but read by a 16-bit unaligned LDA. The
@@ -351,16 +351,16 @@ static void VerifySamusRenderingSlice()
     oam.BeginFrame();
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
     oam.FinalizeFrame();
-    AssertEqual((ushort)0xfa83, samus.SpritemapYPosition,
+    AssertEqual(0xfa83, samus.SpritemapYPosition,
         "normal-jump landing frame zero preserves unaligned word subtraction");
-    AssertEqual((byte)0x83, oam.GetEntry(0).Y,
+    AssertEqual(0x83, oam.GetEntry(0).Y,
         "landing OAM exposes low-byte three-pixel visual nudge");
 
     samus.AnimationFrame = 1;
     oam.BeginFrame();
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
     oam.FinalizeFrame();
-    AssertEqual((ushort)0x0080, samus.SpritemapYPosition,
+    AssertEqual(0x0080, samus.SpritemapYPosition,
         "normal-jump landing frame one reads overlapping 0006 word");
 
     // Ceres status bit `$8000` makes `$90:8C1F` borrow bank `$8B`'s Mode 7 point
@@ -385,13 +385,13 @@ static void VerifySamusRenderingSlice()
         layer1Y: 0,
         mode7Transform: quarterTurn);
     oam.FinalizeFrame();
-    AssertEqual((ushort)0x007a, samus.SpritemapXPosition,
+    AssertEqual(0x007a, samus.SpritemapXPosition,
         "Mode 7 quarter-turn rotates Samus render X around M7X");
-    AssertEqual((ushort)0x0082, samus.SpritemapYPosition,
+    AssertEqual(0x0082, samus.SpritemapYPosition,
         "Mode 7 quarter-turn applies pose graphics offset after rotated Y");
-    AssertEqual((ushort)0x0488, samus.XPosition,
+    AssertEqual(0x0488, samus.XPosition,
         "Mode 7 body calculation restores physical Samus X");
-    AssertEqual((ushort)0x0086, samus.YPosition,
+    AssertEqual(0x0086, samus.YPosition,
         "Mode 7 body calculation restores physical Samus Y");
 
     // Exercise negative products and a coordinate wrap independently of the convenient
@@ -404,9 +404,9 @@ static void VerifySamusRenderingSlice()
         CenterX: 0xfff0,
         CenterY: 0x0010);
     SamusMode7Point wrapped = wrappedMatrix.Transform(0x0010, 0xffe0);
-    AssertEqual((ushort)0x0028, wrapped.X,
+    AssertEqual(0x0028, wrapped.X,
         "Mode 7 transform preserves signed-product and center-X word wrap");
-    AssertEqual((ushort)0x0058, wrapped.Y,
+    AssertEqual(0x0058, wrapped.Y,
         "Mode 7 transform preserves signed-product and center-Y word wrap");
 
     Console.WriteLine("  Samus: body art, Mode 7 position, bottom rules, tile DMA, OAM, and invincibility flicker agree.");
@@ -455,35 +455,35 @@ static void VerifySamusArmCannon()
     // native toggle word to one; only the following stable frame is allowed to transition.
     SamusArmCannonUpdateResult closedSampleOne = samus.ArmCannon.Update(bus, samus);
     SamusArmCannonUpdateResult closedSampleTwo = samus.ArmCannon.Update(bus, samus);
-    AssertEqual((ushort)0, closedSampleOne.FrameAfter,
+    AssertEqual(0, closedSampleOne.FrameAfter,
         "first closed HUD sample leaves cannon invisible");
-    AssertEqual((ushort)0, closedSampleTwo.FrameAfter,
+    AssertEqual(0, closedSampleTwo.FrameAfter,
         "second closed HUD sample agrees with already-closed state");
-    AssertEqual((ushort)2, samus.ArmCannon.ToggleFlag,
+    AssertEqual(2, samus.ArmCannon.ToggleFlag,
         "stable HUD selection saturates arm-cannon toggle at two");
-    AssertEqual((ushort)2, closedSampleTwo.DrawingMode,
+    AssertEqual(2, closedSampleTwo.DrawingMode,
         "pose record publishes after-body arm-cannon draw mode");
 
     samus.SelectedHudItem = 1;
     SamusArmCannonUpdateResult selectionChanged = samus.ArmCannon.Update(bus, samus);
     AssertTrue(selectionChanged.HudItemChanged && !selectionChanged.TransitionStarted,
         "new missile selection waits one stable HUD frame");
-    AssertEqual((ushort)0, selectionChanged.FrameAfter,
+    AssertEqual(0, selectionChanged.FrameAfter,
         "selection-change frame keeps cannon closed");
 
     SamusArmCannonUpdateResult openingOne = samus.ArmCannon.Update(bus, samus);
     AssertTrue(openingOne.TransitionStarted, "second missile sample begins opening");
-    AssertEqual((ushort)1, openingOne.FrameAfter,
+    AssertEqual(1, openingOne.FrameAfter,
         "opening starts at zero and advances to frame one in the same call");
-    AssertEqual((byte)1, openingOne.OpenFlag, "missile selection stores open flag one");
-    AssertEqual((byte)1, openingOne.CloseFlag, "opening frame one retains transition flag");
+    AssertEqual(1, openingOne.OpenFlag, "missile selection stores open flag one");
+    AssertEqual(1, openingOne.CloseFlag, "opening frame one retains transition flag");
 
     SamusArmCannonUpdateResult openingTwo = samus.ArmCannon.Update(bus, samus);
     SamusArmCannonUpdateResult openingThree = samus.ArmCannon.Update(bus, samus);
-    AssertEqual((ushort)2, openingTwo.FrameAfter, "opening advances to cover frame two");
-    AssertEqual((byte)1, openingTwo.CloseFlag, "frame two remains transitional");
-    AssertEqual((ushort)3, openingThree.FrameAfter, "opening clamps at cover frame three");
-    AssertEqual((byte)0, openingThree.CloseFlag, "fully open cover clears transition flag");
+    AssertEqual(2, openingTwo.FrameAfter, "opening advances to cover frame two");
+    AssertEqual(1, openingTwo.CloseFlag, "frame two remains transitional");
+    AssertEqual(3, openingThree.FrameAfter, "opening clamps at cover frame three");
+    AssertEqual(0, openingThree.CloseFlag, "fully open cover clears transition flag");
 
     // Rewind is intentionally unnecessary: selecting frame one in the public state is not
     // possible, which protects the model from debugger-only invalid combinations. The
@@ -495,16 +495,16 @@ static void VerifySamusArmCannon()
         bus, oam, vramWrites, samus, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 0);
     AssertTrue(draw.SpriteWritten && draw.TileUploadQueued,
         "open cover emits one OBJ and queues its tile upload");
-    AssertEqual((byte)2, draw.DirectionSelector, "pose record selects direction two");
-    AssertEqual((ushort)0x281f, draw.Attributes, "direction two uses retail OAM attributes");
-    AssertEqual((ushort)0x8160, draw.TileSource, "frame three indexes third cover tile");
-    AssertEqual((short)135, draw.ScreenX, "cover X includes signed pose offset and camera");
-    AssertEqual((short)125, draw.ScreenY,
+    AssertEqual(2, draw.DirectionSelector, "pose record selects direction two");
+    AssertEqual(0x281f, draw.Attributes, "direction two uses retail OAM attributes");
+    AssertEqual(0x8160, draw.TileSource, "frame three indexes third cover tile");
+    AssertEqual(135, draw.ScreenX, "cover X includes signed pose offset and camera");
+    AssertEqual(125, draw.ScreenY,
         "cover Y includes signed offset, graphics origin, and camera");
     AssertEqual(4, oam.NextByteOffset, "cover consumes exactly one four-byte OAM record");
     OamEntry cover = oam.GetEntry(0);
     AssertEqual(135, cover.X, "cover OAM X");
-    AssertEqual((byte)125, cover.Y, "cover OAM Y");
+    AssertEqual(125, cover.Y, "cover OAM Y");
     AssertEqual(0x1f, cover.TileNumber, "cover OAM tile slot");
     AssertEqual(4, cover.Palette, "cover OAM palette");
     AssertEqual(2, cover.Priority, "cover OAM priority");
@@ -545,11 +545,11 @@ static void VerifySamusArmCannon()
     SamusArmCannonUpdateResult closingOne = samus.ArmCannon.Update(bus, samus);
     SamusArmCannonUpdateResult closingZero = samus.ArmCannon.Update(bus, samus);
     AssertTrue(closingThree.TransitionStarted, "second empty-item sample begins closing");
-    AssertEqual((ushort)3, closingThree.FrameAfter, "closing begins visibly at frame three");
-    AssertEqual((ushort)2, closingTwo.FrameAfter, "closing decrements to frame two");
-    AssertEqual((ushort)1, closingOne.FrameAfter, "closing decrements to frame one");
-    AssertEqual((ushort)0, closingZero.FrameAfter, "closing reaches invisible frame zero");
-    AssertEqual((byte)0, closingZero.CloseFlag, "fully closed cover clears transition flag");
+    AssertEqual(3, closingThree.FrameAfter, "closing begins visibly at frame three");
+    AssertEqual(2, closingTwo.FrameAfter, "closing decrements to frame two");
+    AssertEqual(1, closingOne.FrameAfter, "closing decrements to frame one");
+    AssertEqual(0, closingZero.FrameAfter, "closing reaches invisible frame zero");
+    AssertEqual(0, closingZero.CloseFlag, "fully closed cover clears transition flag");
 
     Console.WriteLine(
         "  Samus arm cannon: HUD debounce, open/close cadence, OAM, clipping, flicker, and tile DMA agree.");
@@ -572,9 +572,9 @@ static void VerifySamusVisorPalette()
         bus, cgram, specialSamusPaletteType: 0, layerBlendingDefaultConfig: 2);
     AssertEqual(SamusVisorPaletteAction.ResetForNormalRoom, normal.Action,
         "ordinary room resets visor animation");
-    AssertEqual((ushort)0x0601, state.PackedTimerIndex,
+    AssertEqual(0x0601, state.PackedTimerIndex,
         "ordinary room primes timer one and table offset six");
-    AssertEqual((ushort)0x7777, cgram.Colors[196],
+    AssertEqual(0x7777, cgram.Colors[196],
         "ordinary room reset does not overwrite current visor color");
 
     // The first `$28` call decrements timer one to zero and immediately copies offset six.
@@ -582,8 +582,8 @@ static void VerifySamusVisorPalette()
     AssertEqual(SamusVisorPaletteAction.ColorWritten, first.Action,
         "backdrop room writes first visor color immediately");
     AssertEqual((byte?)6, first.SourceByteOffset, "first visor source is table offset six");
-    AssertEqual((ushort)0x2000, cgram.Colors[196], "first backdrop visor color");
-    AssertEqual((ushort)0x0805, state.PackedTimerIndex,
+    AssertEqual(0x2000, cgram.Colors[196], "first backdrop visor color");
+    AssertEqual(0x0805, state.PackedTimerIndex,
         "first write reloads five and advances packed offset to eight");
 
     // Four calls retain timers 4/3/2/1. The fifth reaches zero, writes, and reloads five.
@@ -599,14 +599,14 @@ static void VerifySamusVisorPalette()
     }
     SamusVisorPaletteStepResult second = state.Update(bus, cgram, 0, 0x002a);
     AssertEqual((byte?)8, second.SourceByteOffset, "second visor source is table offset eight");
-    AssertEqual((ushort)0x2001, cgram.Colors[196], "second backdrop visor color");
-    AssertEqual((ushort)0x0a05, state.PackedTimerIndex,
+    AssertEqual(0x2001, cgram.Colors[196], "second backdrop visor color");
+    AssertEqual(0x0a05, state.PackedTimerIndex,
         "second write advances packed offset to ten");
 
     for (int call = 0; call < 5; call++)
         state.Update(bus, cgram, 0, 0x0028);
-    AssertEqual((ushort)0x2002, cgram.Colors[196], "third backdrop visor color");
-    AssertEqual((ushort)0x0605, state.PackedTimerIndex,
+    AssertEqual(0x2002, cgram.Colors[196], "third backdrop visor color");
+    AssertEqual(0x0605, state.PackedTimerIndex,
         "third write wraps only to room-cycle offset six");
 
     ushort packedBeforeXray = state.PackedTimerIndex;
@@ -616,7 +616,7 @@ static void VerifySamusVisorPalette()
         "X-ray special handler suppresses ordinary visor cycle");
     AssertEqual(packedBeforeXray, state.PackedTimerIndex,
         "X-ray suppression freezes both packed bytes");
-    AssertEqual((ushort)0x3456, cgram.Colors[196],
+    AssertEqual(0x3456, cgram.Colors[196],
         "X-ray suppression preserves its independently owned color");
 
     // `HandleBeamChargePalettes` reaches the visor only through its no-charge branch.
@@ -630,7 +630,7 @@ static void VerifySamusVisorPalette()
     AssertEqual(SamusVisorPaletteAction.ColorWritten,
         projectiles.LastVisorPaletteStep.Action,
         "inactive charging falls through to visor handler");
-    AssertEqual((ushort)0x2000, cgram.Colors[196],
+    AssertEqual(0x2000, cgram.Colors[196],
         "integrated visor call reads bank-$9B room-cycle color");
 
     Console.WriteLine(
@@ -675,7 +675,7 @@ static void VerifySamusHurtFlashPalette()
     {
         SamusHurtFlashPaletteStepResult step = SamusHurtFlashPalette.Update(
             bus, cgram, samus, controllerInput: 0);
-        AssertEqual((ushort)call, step.CounterBefore,
+        AssertEqual(call, step.CounterBefore,
             $"hurt palette call {call} reads pre-increment counter");
 
         if (call <= 6 && (call & 1) != 0)
@@ -721,7 +721,7 @@ static void VerifySamusHurtFlashPalette()
     AssertEqual(3, hurtPaletteCalls, "hurt lifetime has three flash writes");
     AssertEqual(3, normalPaletteCalls, "hurt lifetime has three suit restores");
     AssertEqual(53, untouchedCalls, "hurt lifetime has fifty-three preserving calls");
-    AssertEqual((ushort)0, samus.HurtFlashCounter,
+    AssertEqual(0, samus.HurtFlashCounter,
         "hurt counter clears when call fifty-nine increments it to sixty");
     AssertEqual(1, samus.LiquidPhysics.SoundRequests.Count,
         "ordinary hurt lifetime queues impact sound only once");
@@ -775,12 +775,12 @@ static void VerifySamusHurtFlashPalette()
     AssertEqual(SamusHurtFlashRecoveryAction.ResumeChargingBeamRequested,
         chargeRecovery.Recovery,
         "counter forty arms charging-beam recovery");
-    AssertEqual((ushort)1, charging.ResumeChargingBeamSoundFlag,
+    AssertEqual(1, charging.ResumeChargingBeamSoundFlag,
         "charging recovery publishes native flag one");
     AssertTrue(SamusHurtFlashPalette.ConsumeResumeChargingBeamSound(
             charging, (ushort)SnesButton.X),
         "post-draw handler queues held charging sound");
-    AssertEqual((ushort)0, charging.ResumeChargingBeamSoundFlag,
+    AssertEqual(0, charging.ResumeChargingBeamSoundFlag,
         "post-draw handler clears charging recovery flag");
     AssertEqual(new SamusSoundRequest(1, 0x41, 9),
         charging.LiquidPhysics.SoundRequests[^1],

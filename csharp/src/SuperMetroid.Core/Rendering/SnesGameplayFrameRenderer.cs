@@ -190,6 +190,104 @@ public static class SnesGameplayFrameRenderer
     }
 
     /// <summary>
+    /// Composes the ordinary gameplay PPU layout used by Ceres and most interior rooms:
+    /// BG2 at word $4800, BG1 at word $5000, then BG3 HUD and OBJ.
+    /// </summary>
+    public static Rgba32[] RenderHudOrdinaryBackgroundsAndObjs(
+        SnesVram vram,
+        SnesCgram cgram,
+        OamBuffer oam,
+        ushort bg1HorizontalScroll,
+        ushort bg1VerticalScroll,
+        ushort bg2HorizontalScroll,
+        ushort bg2VerticalScroll,
+        byte obsel = 0x03)
+    {
+        Rgba32[] output = CreateBackdrop(cgram);
+        Rgba32[] bg2 = SnesBgTilemapRenderer.Render4BppViewport(
+            vram,
+            cgram,
+            tilemapBaseWord: 0x4800,
+            characterBaseWord: 0,
+            bg2HorizontalScroll,
+            unchecked((ushort)(bg2VerticalScroll + HudHeight)),
+            Width,
+            Height - HudHeight);
+        Rgba32[] bg1 = SnesBgTilemapRenderer.Render4BppViewport(
+            vram,
+            cgram,
+            tilemapBaseWord: 0x5000,
+            characterBaseWord: 0,
+            bg1HorizontalScroll,
+            unchecked((ushort)(bg1VerticalScroll + HudHeight)),
+            Width,
+            Height - HudHeight);
+
+        for (int pixel = 0; pixel < bg2.Length; pixel++)
+        {
+            int destination = HudHeight * Width + pixel;
+            if (bg2[pixel].A != 0)
+                output[destination] = bg2[pixel];
+            if (bg1[pixel].A != 0)
+                output[destination] = bg1[pixel];
+        }
+        DrawHudAndObjects(output, vram, cgram, oam, obsel);
+        return output;
+    }
+
+    /// <summary>
+    /// Composes the IRQ-split gameplay display used by the opening Ceres elevator: Mode 7
+    /// below scanline 32, the ordinary BG3 HUD above it, then gameplay-region objects.
+    /// </summary>
+    /// <remarks>
+    /// Door setup $8F:E4E0 changes BGMODE from the gameplay default $09 to $07 and installs
+    /// the identity matrix A=D=$0100, B=C=0 with center ($0080,$03F0). Rendering the same
+    /// interleaved VRAM as Mode-1 4-bpp tiles produces regular one-pixel color stripes—the
+    /// conspicuous failure this dedicated path prevents.
+    /// </remarks>
+    public static Rgba32[] RenderHudMode7AndObjs(
+        SnesVram vram,
+        SnesCgram cgram,
+        OamBuffer oam,
+        short matrixA,
+        short matrixB,
+        short matrixC,
+        short matrixD,
+        short centerX,
+        short centerY,
+        short horizontalOffset,
+        short verticalOffset,
+        byte obsel = 0x03)
+    {
+        Rgba32[] output = CreateBackdrop(cgram);
+        Rgba32[] mode7 = SnesMode7Renderer.RenderViewport(
+            vram,
+            cgram,
+            matrixA,
+            matrixB,
+            matrixC,
+            matrixD,
+            centerX,
+            centerY,
+            horizontalOffset,
+            verticalOffset,
+            Width,
+            Height);
+
+        // IRQ command four gives the upper 32 physical scanlines exclusively to BG3.
+        // Mode 7 continues to use physical screen coordinates below the split; cropping a
+        // separately rendered 192-line image would incorrectly restart its Y coordinate.
+        for (int pixel = HudHeight * Width; pixel < output.Length; pixel++)
+        {
+            if (mode7[pixel].A != 0)
+                output[pixel] = mode7[pixel];
+        }
+
+        DrawHudAndObjects(output, vram, cgram, oam, obsel);
+        return output;
+    }
+
+    /// <summary>
     /// Applies the translated power-bomb fixed-color window to a composed gameplay frame.
     /// </summary>
     /// <remarks>

@@ -24,17 +24,17 @@ static void VerifyTypedNativeWords()
     AssertTrue(equipment.HasAll(SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.Bombs),
         "typed equipment flags set independently");
     equipment = equipment.Without(SamusEquipmentFlags.GravitySuit);
-    AssertEqual((ushort)0x1080, equipment, "equipment helper preserves unnamed bits");
+    AssertEqual(0x1080, equipment, "equipment helper preserves unnamed bits");
 
     // Suit palette tables use byte offsets rather than enum ordinals. Verify all three
     // branches plus the native Gravity-over-Varia priority that motivated centralization.
-    AssertEqual((ushort)0, ((ushort)0).GetSuitPaletteTableOffset(),
+    AssertEqual(0, ((ushort)0).GetSuitPaletteTableOffset(),
         "Power Suit palette table offset");
-    AssertEqual((ushort)2, SamusEquipmentFlags.VariaSuit.ToNativeWord().GetSuitPaletteTableOffset(),
+    AssertEqual(2, SamusEquipmentFlags.VariaSuit.ToNativeWord().GetSuitPaletteTableOffset(),
         "Varia Suit palette table offset");
-    AssertEqual((ushort)4, SamusEquipmentFlags.GravitySuit.ToNativeWord().GetSuitPaletteTableOffset(),
+    AssertEqual(4, SamusEquipmentFlags.GravitySuit.ToNativeWord().GetSuitPaletteTableOffset(),
         "Gravity Suit palette table offset");
-    AssertEqual((ushort)4,
+    AssertEqual(4,
         (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit)
             .ToNativeWord()
             .GetSuitPaletteTableOffset(),
@@ -49,7 +49,7 @@ static void VerifyTypedNativeWords()
     AssertTrue(SamusState.IsFacingLeft(poseBus, 1), "typed left-facing pose query");
     AssertEqual(SamusFacingDirection.Right, SamusState.ReadFacingDirection(poseBus, 2),
         "typed right-facing pose query");
-    AssertEqual((byte)0x7f, (byte)SamusState.ReadFacingDirection(poseBus, 3),
+    AssertEqual(0x7f, (byte)SamusState.ReadFacingDirection(poseBus, 3),
         "typed facing query preserves unnamed direction byte");
 
     // Fixed-bank pointer arithmetic must wrap only the low word. A host addition would
@@ -63,21 +63,21 @@ static void VerifyTypedNativeWords()
     enemyProperties = enemyProperties.With(
         EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
     enemyProperties = enemyProperties.Without(EnemyProperties.Invisible);
-    AssertEqual((ushort)0x1400, enemyProperties, "enemy flags preserve unnamed property bits");
+    AssertEqual(0x1400, enemyProperties, "enemy flags preserve unnamed property bits");
 
     // $E selects the verified grapple collision handler, $C supplies both parent flips,
     // and $02A is the visual block. All three packed fields share this exact raw word.
     var levelWord = new RoomLevelWord(0xec2a);
     AssertEqual(RoomCollisionType.Grapple, levelWord.CollisionType, "level collision enum");
-    AssertEqual((ushort)0x002a, levelWord.VisualBlockIndex, "level visual index field");
+    AssertEqual(0x002a, levelWord.VisualBlockIndex, "level visual index field");
     AssertEqual(LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical,
         levelWord.VisualFlipFlags, "level parent flip flags");
-    AssertEqual((ushort)0xec2a, (ushort)levelWord, "level word raw round trip");
+    AssertEqual(0xec2a, (ushort)levelWord, "level word raw round trip");
 
     // Untranslated collision value $A remains observable as enum numeric value $A rather
     // than being coerced to a known handler or rejected by the wrapper.
     var unnamedCollision = new RoomLevelWord(0xa123);
-    AssertEqual((byte)0x0a, (byte)unnamedCollision.CollisionType,
+    AssertEqual(0x0a, (byte)unnamedCollision.CollisionType,
         "unnamed collision nibble remains lossless");
 
     var bgEntry = new SnesBgTilemapWord(0xf555);
@@ -86,7 +86,7 @@ static void VerifyTypedNativeWords()
     AssertTrue(bgEntry.HasPriority, "BG tile priority bit");
     AssertEqual(SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical,
         bgEntry.FlipFlags, "BG tile flip flags");
-    AssertEqual((ushort)0x7555, bgEntry.ToggleFlips(SnesTileFlipFlags.Vertical),
+    AssertEqual(0x7555, bgEntry.ToggleFlips(SnesTileFlipFlags.Vertical),
         "BG tile toggles only vertical flip");
 
     var objEntry = new SnesObjAttributeWord(0x6dab);
@@ -104,7 +104,7 @@ static void VerifyTypedNativeWords()
     AssertEqual(9, projectileType.BeamCombinationIndex, "projectile low-nibble payload");
     AssertTrue(projectileType.IsChargedBeam && projectileType.IsLive,
         "projectile verified control fields");
-    AssertEqual((ushort)0x9819,
+    AssertEqual(0x9819,
         projectileType.WithFamily(SamusProjectileFamily.MissileExplosion),
         "projectile family replacement preserves all other bits");
 
@@ -119,7 +119,7 @@ static void VerifyTypedNativeWords()
     var beams = new SamusBeamLoadoutWord(0x9009);
     AssertTrue(beams.HasAny(SamusBeamFlags.Charge | SamusBeamFlags.Plasma),
         "beam loadout exposes verified flags");
-    AssertEqual((ushort)0x9002, beams.WithCombinationIndex(2),
+    AssertEqual(0x9002, beams.WithCombinationIndex(2),
         "beam combination replacement preserves upper raw bits");
 
     AssertTrue(((ushort)LayerBlendingConfiguration.VisorBackdrop2A).AnimatesVisor(),

@@ -483,6 +483,13 @@ public sealed partial class SamusState
     {
         ArgumentNullException.ThrowIfNull(bus);
 
+        // `$91:F8D3-$F8DB` gives the two front-view poses a deliberately unusual route.
+        // Their pose-X direction is zero, so they cannot honestly be classified as either
+        // a right-facing or left-facing source. Native code instead skips the shot-direction
+        // lookup entirely when the previous pose is `$00/$9B`, retaining the generic
+        // `$25/$26` selected by that front-view pose's input transition table.
+        bool wasForwardFacing = IsForwardFacingPose(Pose);
+
         // Crouching transition tables publish `$43/$44` directly, whereas every admitted
         // standing/running/landing table publishes `$25/$26`. The initializer still uses
         // previous movement type five to choose the full crouched aim-preserving table.
@@ -513,7 +520,9 @@ public sealed partial class SamusState
         bool turnsRight = targetPose == (wasCrouching
             ? TurningLeftToRightCrouchingPose
             : TurningLeftToRightPose) && leftSource;
-        if (!turnsLeft && !turnsRight)
+        bool leavesForwardView = wasForwardFacing &&
+            targetPose is TurningRightToLeftPose or TurningLeftToRightPose;
+        if (!turnsLeft && !turnsRight && !leavesForwardView)
         {
             throw new InvalidOperationException(
                 $"Grounded turn ${Pose:X2} -> ${targetPose:X2} is not a verified transition.");
@@ -523,36 +532,49 @@ public sealed partial class SamusState
         // Previous movement type five selects `$91:F9CC`; every other admitted source uses
         // `$91:F9C2`. Both tables have ten entries, but shot directions four/five belong to
         // the compact straight-down family that remains untranslated.
-        byte shotDirection = ReadShotDirection(bus);
-        byte selectedTurnPose = wasCrouching
-            ? shotDirection switch
-            {
-                0 => TurningRightToLeftCrouchingAimUpPose,
-                1 => TurningRightToLeftCrouchingAimDiagonalUpPose,
-                2 => TurningRightToLeftCrouchingPose,
-                3 => TurningRightToLeftCrouchingAimDiagonalDownPose,
-                6 => TurningLeftToRightCrouchingAimDiagonalDownPose,
-                7 => TurningLeftToRightCrouchingPose,
-                8 => TurningLeftToRightCrouchingAimDiagonalUpPose,
-                9 => TurningLeftToRightCrouchingAimUpPose,
-                _ => throw new NotSupportedException(
-                    $"Crouched turn shot direction ${shotDirection:X2} is not translated."),
-            }
-            : shotDirection switch
-            {
-                0 => TurningRightToLeftAimUpPose,
-                1 => TurningRightToLeftAimDiagonalUpPose,
-                2 => TurningRightToLeftPose,
-                3 => TurningRightToLeftAimDiagonalDownPose,
-                6 => TurningLeftToRightAimDiagonalDownPose,
-                7 => TurningLeftToRightPose,
-                8 => TurningLeftToRightAimDiagonalUpPose,
-                9 => TurningLeftToRightAimUpPose,
-                _ => throw new NotSupportedException(
-                    $"Grounded turn shot direction ${shotDirection:X2} is not translated."),
-            };
-        if ((turnsLeft && !IsRightToLeftGroundTurnPose(selectedTurnPose)) ||
-            (turnsRight && !IsLeftToRightGroundTurnPose(selectedTurnPose)))
+        byte selectedTurnPose;
+        if (wasForwardFacing)
+        {
+            // This is the literal early branch to `$91:F931`: keep the transition-table
+            // result. Reading byte three from `$00/$9B` here would manufacture an aim/facing
+            // direction that the cartridge explicitly declines to inspect.
+            selectedTurnPose = targetPose;
+        }
+        else
+        {
+            byte shotDirection = ReadShotDirection(bus);
+            selectedTurnPose = wasCrouching
+                ? shotDirection switch
+                {
+                    0 => TurningRightToLeftCrouchingAimUpPose,
+                    1 => TurningRightToLeftCrouchingAimDiagonalUpPose,
+                    2 => TurningRightToLeftCrouchingPose,
+                    3 => TurningRightToLeftCrouchingAimDiagonalDownPose,
+                    6 => TurningLeftToRightCrouchingAimDiagonalDownPose,
+                    7 => TurningLeftToRightCrouchingPose,
+                    8 => TurningLeftToRightCrouchingAimDiagonalUpPose,
+                    9 => TurningLeftToRightCrouchingAimUpPose,
+                    _ => throw new NotSupportedException(
+                        $"Crouched turn shot direction ${shotDirection:X2} is not translated."),
+                }
+                : shotDirection switch
+                {
+                    0 => TurningRightToLeftAimUpPose,
+                    1 => TurningRightToLeftAimDiagonalUpPose,
+                    2 => TurningRightToLeftPose,
+                    3 => TurningRightToLeftAimDiagonalDownPose,
+                    6 => TurningLeftToRightAimDiagonalDownPose,
+                    7 => TurningLeftToRightPose,
+                    8 => TurningLeftToRightAimDiagonalUpPose,
+                    9 => TurningLeftToRightAimUpPose,
+                    _ => throw new NotSupportedException(
+                        $"Grounded turn shot direction ${shotDirection:X2} is not translated."),
+                };
+        }
+
+        if (!wasForwardFacing &&
+            ((turnsLeft && !IsRightToLeftGroundTurnPose(selectedTurnPose)) ||
+             (turnsRight && !IsLeftToRightGroundTurnPose(selectedTurnPose))))
         {
             throw new InvalidOperationException(
                 $"Grounded turn source ${Pose:X2} has direction metadata inconsistent with target ${targetPose:X2}.");

@@ -84,7 +84,7 @@ static void VerifyMotherBrainBombProjectiles()
         bus, samus, 0, 0, randomNumberSeed: 0x8000);
     AssertEqual(MotherBrainPhase3AttackKind.Bomb, selected.Phase3Attack,
         "phase-three combat selects bomb fixture");
-    AssertEqual((ushort)0x9f00, motherBrain.HeadInstructionPointer,
+    AssertEqual(0x9f00, motherBrain.HeadInstructionPointer,
         "bomb selection exposes first head bytecode word");
 
     MotherBrainHeadAnimationStepResult spawnHead = default;
@@ -103,51 +103,51 @@ static void VerifyMotherBrainBombProjectiles()
         "phase-three head supplies one-afterburn operand");
     AssertTrue(spawnHead.PurpleBreathBigSpawnRequested,
         "same head call executes adjacent large-purple-breath opcode");
-    AssertEqual<ushort?>(0x006f, headSoundLibraryTwo,
+    AssertEqual(0x006f, headSoundLibraryTwo,
         "phase-three bomb head consumes library-two cry operand");
-    AssertEqual((ushort)0x9f28, spawnHead.InstructionPointerAfter,
+    AssertEqual(0x9f28, spawnHead.InstructionPointerAfter,
         "spawn call loads the 32-frame open-mouth record after both opcodes");
 
     // Finish the close-mouth tail. `$9B14` must re-enable the neck, jump to `$9CB9`, and
     // load the first neutral frame during the same interpreter call.
     for (int call = 0; call < 52; call++)
         motherBrain.StepHeadAnimation(bus, samus, baby: null, randomNumberSeed: 0x0100);
-    AssertEqual((ushort)0x9cbd, motherBrain.HeadInstructionPointer,
+    AssertEqual(0x9cbd, motherBrain.HeadInstructionPointer,
         "bomb tail returns to first phase-three neutral frame without a blank call");
-    AssertEqual((ushort)1, motherBrain.NeckMovementEnabled,
+    AssertEqual(1, motherBrain.NeckMovementEnabled,
         "bomb tail re-enables neck movement before entering neutral list");
 
     // The retail `$9D0D` contains an unconditional BRA over a tempting cry branch. Low
     // twelve-bit RNG below `$EC0` loops to `$9CD1`; exactly `$EC0` falls through to `$9CDB`.
     for (int call = 0; call < 44; call++)
         motherBrain.StepHeadAnimation(bus, samus, baby: null, randomNumberSeed: 0x0ebf);
-    AssertEqual((ushort)0x9cd5, motherBrain.HeadInstructionPointer,
+    AssertEqual(0x9cd5, motherBrain.HeadInstructionPointer,
         "neutral low-RNG branch reloads `$9CD1` frame");
     for (int call = 0; call < 16; call++)
         motherBrain.StepHeadAnimation(bus, samus, baby: null, randomNumberSeed: 0x0ec0);
-    AssertEqual((ushort)0x9cdf, motherBrain.HeadInstructionPointer,
+    AssertEqual(0x9cdf, motherBrain.HeadInstructionPointer,
         "neutral RNG `$EC0` boundary falls through to `$9CDB` frame");
 
     var projectiles = new MotherBrainEnemyProjectileSystem();
     AssertEqual<int?>(17, projectiles.SpawnBomb(motherBrain, spawnHead.BombSpawn.Value),
         "Mother Brain bomb uses highest free shared slot");
-    AssertEqual((ushort)1, motherBrain.BombCounter, "bomb initializer increments body counter");
+    AssertEqual(1, motherBrain.BombCounter, "bomb initializer increments body counter");
     MotherBrainEnemyProjectileSlot bomb = projectiles.Slots[17];
-    AssertEqual((ushort)0x004c, bomb.XPosition, "bomb initializes at brain X plus twelve");
-    AssertEqual((ushort)0x0070, bomb.YPosition, "bomb initializes at brain Y plus sixteen");
-    AssertEqual((ushort)0x0001, bomb.XSubposition,
+    AssertEqual(0x004c, bomb.XPosition, "bomb initializes at brain X plus twelve");
+    AssertEqual(0x0070, bomb.YPosition, "bomb initializes at brain Y plus sixteen");
+    AssertEqual(0x0001, bomb.XSubposition,
         "eight-bit initializer preserves afterburn count in low X-subposition byte");
 
     MotherBrainEnemyProjectileFrameResult first = projectiles.StepFrame(
         bus, motherBrain, baby: null, samus, layer1X: 0);
-    AssertEqual((ushort)0x004c, bomb.XPosition, "first `$00.DE` X move remains subpixel");
-    AssertEqual((ushort)0xde01, bomb.XSubposition,
+    AssertEqual(0x004c, bomb.XPosition, "first `$00.DE` X move remains subpixel");
+    AssertEqual(0xde01, bomb.XSubposition,
         "first X move updates high fraction without destroying low afterburn byte");
-    AssertEqual((ushort)0x0071, bomb.YPosition, "first `$01.07` Y move advances one pixel");
-    AssertEqual((ushort)0x0700, bomb.YSubposition, "first Y move retains `$07` fraction");
-    AssertEqual((ushort)0x00de, bomb.XVelocity, "pre-bounce friction subtracts exactly two");
-    AssertEqual((ushort)0x0107, bomb.YVelocity, "first gravity stage adds seven");
-    AssertEqual((ushort)0x82dc, bomb.SpritemapPointer, "spawn frame loads bomb spritemap zero");
+    AssertEqual(0x0071, bomb.YPosition, "first `$01.07` Y move advances one pixel");
+    AssertEqual(0x0700, bomb.YSubposition, "first Y move retains `$07` fraction");
+    AssertEqual(0x00de, bomb.XVelocity, "pre-bounce friction subtracts exactly two");
+    AssertEqual(0x0107, bomb.YVelocity, "first gravity stage adds seven");
+    AssertEqual(0x82dc, bomb.SpritemapPointer, "spawn frame loads bomb spritemap zero");
     AssertEqual(0, first.BombEvents.Count, "ordinary movement emits no synthetic event");
 
     // Check every frame in the first complete 34-call ROM animation cycle. This catches
@@ -188,17 +188,17 @@ static void VerifyMotherBrainBombProjectiles()
         AssertEqual(unchecked((ushort)((bounceIndex + 1) * 2)),
             bounceEvents[bounceIndex].BounceTableOffset,
             $"bounce {bounceIndex + 1} advances acceleration-table byte offset");
-        AssertEqual((ushort)0x00d0, bounceEvents[bounceIndex].YPosition,
+        AssertEqual(0x00d0, bounceEvents[bounceIndex].YPosition,
             $"bounce {bounceIndex + 1} clamps to floor Y `$D0`");
     }
     AssertTrue(expired.HasValue, "zero acceleration-table entry naturally expires bomb");
-    AssertEqual<ushort?>(1, expired!.Value.AfterburnCount,
+    AssertEqual(1, expired!.Value.AfterburnCount,
         "natural expiry publishes preserved low-byte afterburn count");
-    AssertEqual((ushort)3, expired.Value.DustParameter, "natural expiry requests misc dust three");
-    AssertEqual<ushort?>(0x0013, expired.Value.QueuedSoundLibraryThree,
+    AssertEqual(3, expired.Value.DustParameter, "natural expiry requests misc dust three");
+    AssertEqual(0x0013, expired.Value.QueuedSoundLibraryThree,
         "natural expiry queues library-three sound `$13`");
     AssertTrue(!expired.Value.EnemyDropRequested, "natural expiry does not spawn enemy drops");
-    AssertEqual((ushort)0, motherBrain.BombCounter, "natural expiry decrements body counter");
+    AssertEqual(0, motherBrain.BombCounter, "natural expiry decrements body counter");
 
     // Build a genuine bank-$93 normal bomb and run it to timer zero. The bank-$86 collision
     // then consumes the public translated slot state exactly as gameplay ordering does.
@@ -245,20 +245,20 @@ static void VerifyMotherBrainBombProjectiles()
     MotherBrainBombEvent destroyed = collision.BombEvents[0];
     AssertEqual(MotherBrainBombEventKind.DestroyedBySamusBomb, destroyed.Kind,
         "timer-zero normal bomb selects collision deletion path");
-    AssertEqual((ushort)9, destroyed.DustParameter, "collision path requests misc dust nine");
+    AssertEqual(9, destroyed.DustParameter, "collision path requests misc dust nine");
     AssertTrue(destroyed.EnemyDropRequested, "collision path requests Mother Brain head drops");
-    AssertEqual<ushort?>(null, destroyed.AfterburnCount,
+    AssertEqual(null, destroyed.AfterburnCount,
         "collision path suppresses natural afterburn spawn");
-    AssertEqual<ushort?>(null, destroyed.QueuedSoundLibraryThree,
+    AssertEqual(null, destroyed.QueuedSoundLibraryThree,
         "collision path suppresses natural expiry sound");
-    AssertEqual((ushort)0, motherBrain.BombCounter, "collision deletion decrements body counter");
+    AssertEqual(0, motherBrain.BombCounter, "collision deletion decrements body counter");
     MotherBrainEnemyProjectileSlot collisionDust = collisionProjectiles.Slots[17];
     AssertEqual(MotherBrainEnemyProjectileSystem.MiscDustDefinition,
         collisionDust.ProjectileId,
         "collision deletion replaces the source bomb with parameter-nine dust");
-    AssertEqual((ushort)0x0005, collisionDust.InstructionTimer,
+    AssertEqual(0x0005, collisionDust.InstructionTimer,
         "same-slot collision dust loads its first duration immediately");
-    AssertEqual((ushort)0x9a5a, collisionDust.SpritemapPointer,
+    AssertEqual(0x9a5a, collisionDust.SpritemapPointer,
         "same-slot collision dust loads its first spritemap immediately");
 
     Console.WriteLine(
@@ -311,15 +311,15 @@ static void VerifyMotherBrainProjectileRendering()
         "high-priority breath takes next shared slot");
     MotherBrainEnemyProjectileSlot bomb = mixedPool.Slots[17];
     MotherBrainEnemyProjectileSlot breath = mixedPool.Slots[16];
-    AssertEqual((ushort)0x40a0, bomb.Properties, "bomb definition properties");
-    AssertEqual((ushort)0x3000, breath.Properties, "purple-breath definition properties");
-    AssertEqual((ushort)0x0046, breath.XPosition, "purple breath initializes at brain X plus six");
-    AssertEqual((ushort)0x0070, breath.YPosition, "purple breath initializes at brain Y plus sixteen");
+    AssertEqual(0x40a0, bomb.Properties, "bomb definition properties");
+    AssertEqual(0x3000, breath.Properties, "purple-breath definition properties");
+    AssertEqual(0x0046, breath.XPosition, "purple breath initializes at brain X plus six");
+    AssertEqual(0x0070, breath.YPosition, "purple breath initializes at brain Y plus sixteen");
 
     mixedPool.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
-    AssertEqual((ushort)0x954f, breath.SpritemapPointer,
+    AssertEqual(0x954f, breath.SpritemapPointer,
         "purple breath spawn call loads first bank-$8D spritemap");
-    AssertEqual((ushort)0x82dc, bomb.SpritemapPointer,
+    AssertEqual(0x82dc, bomb.SpritemapPointer,
         "bomb spawn call loads first bank-$8D spritemap");
 
     var oam = new OamBuffer();
@@ -328,7 +328,7 @@ static void VerifyMotherBrainProjectileRendering()
     AssertEqual(4, oam.NextByteOffset, "high pass emits only purple breath");
     OamEntry high = oam.GetEntry(0);
     AssertEqual(0x047, high.X, "high-pass breath screen X plus spritemap offset");
-    AssertEqual((byte)0x72, high.Y, "high-pass breath screen Y plus spritemap offset");
+    AssertEqual(0x72, high.Y, "high-pass breath screen Y plus spritemap offset");
     AssertTrue(high.IsLarge, "high-pass breath preserves large OBJ bit");
     AssertEqual(0x011, high.TileNumber, "high-pass breath tile");
 
@@ -336,7 +336,7 @@ static void VerifyMotherBrainProjectileRendering()
     AssertEqual(8, oam.NextByteOffset, "low pass appends only bomb after high pass");
     OamEntry low = oam.GetEntry(1);
     AssertEqual(0x04a, low.X, "low-pass bomb signed X offset");
-    AssertEqual((byte)0x70, low.Y, "low-pass bomb negative Y offset");
+    AssertEqual(0x70, low.Y, "low-pass bomb negative Y offset");
     AssertEqual(2, low.Palette, "low-pass bomb graphics-index palette");
     AssertEqual(0x022, low.TileNumber, "low-pass bomb tile");
 
@@ -358,9 +358,9 @@ static void VerifyMotherBrainProjectileRendering()
             AssertTrue(timedBreath.IsActive, $"purple breath remains active on call {call}");
             AssertEqual(spritemaps[frame], timedBreath.SpritemapPointer,
                 $"purple-breath animation call {call}");
-            AssertEqual((ushort)0x0046, timedBreath.XPosition,
+            AssertEqual(0x0046, timedBreath.XPosition,
                 $"purple breath remains stationary in X on call {call}");
-            AssertEqual((ushort)0x0070, timedBreath.YPosition,
+            AssertEqual(0x0070, timedBreath.YPosition,
                 $"purple breath remains stationary in Y on call {call}");
         }
     }
@@ -410,9 +410,9 @@ static void VerifyMiscDustProjectiles()
     MotherBrainEnemyProjectileSlot dust = projectiles.Slots[17];
     AssertEqual(MotherBrainEnemyProjectileSystem.MiscDustDefinition, dust.ProjectileId,
         "misc-dust definition ID");
-    AssertEqual((ushort)0x1000, dust.Properties, "misc dust uses high-priority pass");
-    AssertEqual((ushort)3, dust.SpawnParameter, "misc-dust animation parameter retained");
-    AssertEqual((ushort)0xe138, dust.InstructionPointer,
+    AssertEqual(0x1000, dust.Properties, "misc dust uses high-priority pass");
+    AssertEqual(3, dust.SpawnParameter, "misc-dust animation parameter retained");
+    AssertEqual(0xe138, dust.InstructionPointer,
         "misc-dust initializer follows parameter-three pointer table");
 
     ushort[] spritemaps = [0x9800, 0x9807, 0x980e, 0x9815, 0x981c, 0x9823];
@@ -428,9 +428,9 @@ static void VerifyMiscDustProjectiles()
             AssertTrue(dust.IsActive, $"misc dust remains active on call {call}");
             AssertEqual(spritemaps[frame], dust.SpritemapPointer,
                 $"misc-dust animation call {call}");
-            AssertEqual((ushort)0x0064, dust.XPosition,
+            AssertEqual(0x0064, dust.XPosition,
                 $"misc dust remains stationary in X on call {call}");
-            AssertEqual((ushort)0x0050, dust.YPosition,
+            AssertEqual(0x0050, dust.YPosition,
                 $"misc dust remains stationary in Y on call {call}");
         }
     }
@@ -521,14 +521,14 @@ static void VerifyMotherBrainEscapeDoorParticles()
         MotherBrainEnemyProjectileSlot slot = projectiles.Slots[17 - parameter];
         AssertEqual(MotherBrainEnemyProjectileSystem.EscapeDoorParticleDefinition,
             slot.ProjectileId, $"door fragment {parameter} definition");
-        AssertEqual((ushort)0x0010, slot.XPosition, $"door fragment {parameter} initial X");
+        AssertEqual(0x0010, slot.XPosition, $"door fragment {parameter} initial X");
         AssertEqual(unchecked((ushort)(0x0080 + expectedYOffsets[parameter])),
             slot.YPosition, $"door fragment {parameter} initial Y");
-        AssertEqual((ushort)0x0500, slot.XVelocity,
+        AssertEqual(0x0500, slot.XVelocity,
             $"door fragment {parameter} initial X velocity");
         AssertEqual(unchecked((ushort)expectedYVelocities[parameter]),
             slot.YVelocity, $"door fragment {parameter} initial Y velocity");
-        AssertEqual((ushort)0x0020, slot.Lifetime,
+        AssertEqual(0x0020, slot.Lifetime,
             $"door fragment {parameter} initial lifetime");
     }
 
@@ -542,21 +542,21 @@ static void VerifyMotherBrainEscapeDoorParticles()
         bus, motherBrain, baby: null, samus, layer1X: 0);
     AssertEqual(8, first.ActiveCount, "all eight door fragments survive first movement call");
     MotherBrainEnemyProjectileSlot firstFragment = projectiles.Slots[17];
-    AssertEqual((ushort)0x0014, firstFragment.XPosition,
+    AssertEqual(0x0014, firstFragment.XPosition,
         "first fragment applies slowed `$04.F0` whole X movement");
-    AssertEqual((ushort)0xf000, firstFragment.XSubposition,
+    AssertEqual(0xf000, firstFragment.XSubposition,
         "first fragment retains `$F0` X velocity fraction in high subposition byte");
-    AssertEqual((ushort)0x005e, firstFragment.YPosition,
+    AssertEqual(0x005e, firstFragment.YPosition,
         "first fragment applies gravity then signed `$FE.20` Y movement");
-    AssertEqual((ushort)0x2000, firstFragment.YSubposition,
+    AssertEqual(0x2000, firstFragment.YSubposition,
         "first fragment retains `$20` Y fraction");
-    AssertEqual((ushort)0x04f0, firstFragment.XVelocity,
+    AssertEqual(0x04f0, firstFragment.XVelocity,
         "first fragment X friction subtracts `$10`");
-    AssertEqual((ushort)0xfe20, firstFragment.YVelocity,
+    AssertEqual(0xfe20, firstFragment.YVelocity,
         "first fragment gravity adds `$20`");
-    AssertEqual((ushort)0x969b, firstFragment.SpritemapPointer,
+    AssertEqual(0x969b, firstFragment.SpritemapPointer,
         "spawn frame loads exploded-door spritemap zero");
-    AssertEqual((ushort)0x001f, firstFragment.Lifetime,
+    AssertEqual(0x001f, firstFragment.Lifetime,
         "spawn frame performs lifetime decrement one");
 
     ushort[] expectedSpritemapsByCall =
@@ -595,7 +595,7 @@ static void VerifyMotherBrainEscapeDoorParticles()
     AssertEqual(8, lifetimeResult.EscapeDoorDustRequests.Count,
         "all eight expiring fragments request terminal dust");
     foreach (MotherBrainEscapeDoorParticleDustRequest dust in lifetimeResult.EscapeDoorDustRequests)
-        AssertEqual((ushort)0x0009, dust.ProjectileParameter, "terminal fragment dust parameter");
+        AssertEqual(0x0009, dust.ProjectileParameter, "terminal fragment dust parameter");
     AssertTrue(!projectiles.Slots[10].IsActive,
         "lowest slot's downward fragment dust deletes off-screen during the same pass");
     for (int slotIndex = 11; slotIndex < MotherBrainEnemyProjectileSystem.SlotCount; slotIndex++)
@@ -604,11 +604,11 @@ static void VerifyMotherBrainEscapeDoorParticles()
         AssertEqual(MotherBrainEnemyProjectileSystem.MiscDustDefinition,
             terminalDust.ProjectileId,
             $"terminal fragment slot {slotIndex} now contains misc dust");
-        AssertEqual((ushort)0x0005, terminalDust.InstructionTimer,
+        AssertEqual(0x0005, terminalDust.InstructionTimer,
             $"same-pass terminal dust slot {slotIndex} loads first duration");
-        AssertEqual((ushort)0x9abc, terminalDust.SpritemapPointer,
+        AssertEqual(0x9abc, terminalDust.SpritemapPointer,
             $"same-pass terminal dust slot {slotIndex} loads first spritemap");
-        AssertEqual((ushort)0xe1b4, terminalDust.InstructionPointer,
+        AssertEqual(0xe1b4, terminalDust.InstructionPointer,
             $"same-pass terminal dust slot {slotIndex} advances its list pointer");
     }
 
@@ -634,16 +634,16 @@ static void VerifyMotherBrainEscapeDoorParticles()
         "alternate subtitle uses highest free shared slot");
     MotherBrainEnemyProjectileSlot subtitle = subtitlePool.Slots[17];
     subtitlePool.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
-    AssertEqual((ushort)0x970b, subtitle.SpritemapPointer,
+    AssertEqual(0x970b, subtitle.SpritemapPointer,
         "alternate subtitle loads Japanese text spritemap");
     subtitlePool.StepFrame(bus, motherBrain, baby: null, samus, layer1X: 0);
-    AssertEqual((ushort)0x0080, subtitle.XPosition,
+    AssertEqual(0x0080, subtitle.XPosition,
         "alternate subtitle pre-instruction repins X");
-    AssertEqual((ushort)0x00c0, subtitle.YPosition,
+    AssertEqual(0x00c0, subtitle.YPosition,
         "alternate subtitle pre-instruction repins Y");
-    AssertEqual((ushort)0, subtitle.XVelocity,
+    AssertEqual(0, subtitle.XVelocity,
         "alternate subtitle pre-instruction clears X velocity");
-    AssertEqual((ushort)0, subtitle.YVelocity,
+    AssertEqual(0, subtitle.YVelocity,
         "alternate subtitle pre-instruction clears Y velocity");
     AssertTrue(subtitle.IsActive, "alternate subtitle sleep keeps projectile alive");
 

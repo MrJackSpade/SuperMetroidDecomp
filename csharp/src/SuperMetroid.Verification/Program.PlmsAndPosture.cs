@@ -86,26 +86,26 @@ static void VerifyBreakableGrapplePlms()
     var respawningPlms = new RoomPlmSystem();
     AssertTrue(respawningPlms.TrySpawnBreakableGrappleBlock(respawning, blockIndex, 1),
         "respawning grapple PLM occupies a native slot");
-    AssertEqual((byte)0, respawning.GetCollisionBlockByIndex(blockIndex).Behavior,
+    AssertEqual(0, respawning.GetCollisionBlockByIndex(blockIndex).Behavior,
         "CFB5 clears breakable grapple BTS immediately");
-    AssertEqual((ushort)0xe123, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+    AssertEqual(0xe123, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "CFB5 retains original level word until handler");
 
     IReadOnlyList<PlmTilemapUpdate> firstDraw = respawningPlms.Step(
         bus, respawning, respawningStreamer, 0, 0, 0);
-    AssertEqual((ushort)0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+    AssertEqual(0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "connection-frame PLM pass draws grapple frame zero");
     AssertEqual(1, firstDraw.Count, "visible grapple mutation emits one VRAM redraw");
-    AssertEqual((ushort)0x50c6, firstDraw[0].TopRowDestination,
+    AssertEqual(0x50c6, firstDraw[0].TopRowDestination,
         "PLM redraw targets block (3,3) in left BG1 ring screen");
-    AssertEqual((ushort)0x1111, firstDraw[0].TopRow[0],
+    AssertEqual(0x1111, firstDraw[0].TopRow[0],
         "PLM redraw expands ROM-selected visual block definition");
 
     StepMany(respawningPlms, bus, respawning, respawningStreamer, 239);
-    AssertEqual((ushort)0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+    AssertEqual(0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "respawning block remains grapple terrain through timer 240 minus one");
     respawningPlms.Step(bus, respawning, respawningStreamer, 0, 0, 0);
-    AssertEqual((ushort)0x0053, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+    AssertEqual(0x0053, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "timer 240 expiry draws first air frame");
     AssertEqual(1, respawningPlms.SoundRequests.Count,
         "break transition queues one sound request");
@@ -113,18 +113,18 @@ static void VerifyBreakableGrapplePlms()
         "break transition uses library two sound $0A with maximum six");
 
     StepMany(respawningPlms, bus, respawning, respawningStreamer, 4);
-    AssertEqual((ushort)0x0054, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+    AssertEqual(0x0054, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "respawning break frame one advances after four");
     StepMany(respawningPlms, bus, respawning, respawningStreamer, 4);
-    AssertEqual((ushort)0x0055, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+    AssertEqual(0x0055, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "respawning break frame two advances after four");
     StepMany(respawningPlms, bus, respawning, respawningStreamer, 6);
-    AssertEqual((ushort)0x00ff, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+    AssertEqual(0x00ff, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "respawning break reaches blank frame after six");
     StepMany(respawningPlms, bus, respawning, respawningStreamer, 4 + 4 + 4 + 4);
-    AssertEqual((ushort)0xe123, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
+    AssertEqual(0xe123, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "DrawPLMBlock restores the complete saved grapple word");
-    AssertEqual((byte)1, respawning.GetCollisionBlockByIndex(blockIndex).Behavior,
+    AssertEqual(1, respawning.GetCollisionBlockByIndex(blockIndex).Behavior,
         "respawning instruction restores BTS one before terrain");
     AssertEqual(1, respawningPlms.ActiveCount,
         "restoration pass retains PLM for timer-one delete delay");
@@ -140,18 +140,18 @@ static void VerifyBreakableGrapplePlms()
         "nonrespawning grapple PLM occupies a native slot");
     permanentPlms.Step(bus, permanent, permanentStreamer, 0, 0, 0);
     StepMany(permanentPlms, bus, permanent, permanentStreamer, 119);
-    AssertEqual((ushort)0xe0b7, permanent.GetCollisionBlockByIndex(blockIndex).LevelWord,
+    AssertEqual(0xe0b7, permanent.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "nonrespawning block retains grapple terrain through timer 120 minus one");
     permanentPlms.Step(bus, permanent, permanentStreamer, 0, 0, 0);
-    AssertEqual((ushort)0x0053, permanent.GetCollisionBlockByIndex(blockIndex).LevelWord,
+    AssertEqual(0x0053, permanent.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "nonrespawning timer 120 begins break sequence");
     StepMany(permanentPlms, bus, permanent, permanentStreamer, 4 + 4 + 4);
-    AssertEqual((ushort)0x00ff, permanent.GetCollisionBlockByIndex(blockIndex).LevelWord,
+    AssertEqual(0x00ff, permanent.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "nonrespawning sequence ends on blank-air visual word");
     permanentPlms.Step(bus, permanent, permanentStreamer, 0, 0, 0);
     AssertEqual(0, permanentPlms.ActiveCount,
         "nonrespawning sequence deletes one frame after timer-one blank draw");
-    AssertEqual((byte)0, permanent.GetCollisionBlockByIndex(blockIndex).Behavior,
+    AssertEqual(0, permanent.GetCollisionBlockByIndex(blockIndex).Behavior,
         "nonrespawning sequence leaves cleared BTS");
 
     // The following bytes are the exact BTS-3/BTS-6 collision heads and their shared
@@ -237,7 +237,7 @@ static void VerifyBreakableGrapplePlms()
     AssertTrue(respawning2x2Plms.TrySpawnCollisionBombBlock(
         respawning2x2, blockIndex, behavior: 3),
         "BTS-3 collision setup occupies a native PLM slot");
-    AssertEqual((ushort)0x0321, respawning2x2.GetCollisionBlockByIndex(blockIndex).LevelWord,
+    AssertEqual(0x0321, respawning2x2.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "CE83 synchronously removes only the type-F collision nibble");
     IReadOnlyList<PlmTilemapUpdate> first2x2Draw = respawning2x2Plms.Step(
         bus, respawning2x2, respawning2x2Streamer, 0, 0, 0);
@@ -245,22 +245,22 @@ static void VerifyBreakableGrapplePlms()
         "collision break queues library-two sound six with native maximum three");
     AssertEqual(4, first2x2Draw.Count,
         "2x2 draw record emits one debugger-visible redraw for each mutated level word");
-    AssertEqual((ushort)0x0053,
+    AssertEqual(0x0053,
         respawning2x2.GetCollisionBlock(3, 3).LevelWord,
         "2x2 first row begins at PLM origin");
-    AssertEqual((ushort)0x0053,
+    AssertEqual(0x0053,
         respawning2x2.GetCollisionBlock(4, 4).LevelWord,
         "signed {0,+1} record draws the 2x2 lower-right block");
 
     StepMany(respawning2x2Plms, bus, respawning2x2, respawning2x2Streamer, 12);
-    AssertEqual((ushort)0x00ff, respawning2x2.GetCollisionBlock(4, 4).LevelWord,
+    AssertEqual(0x00ff, respawning2x2.GetCollisionBlock(4, 4).LevelWord,
         "BTS-3 reaches its four-block blank frame after three four-frame transitions");
     StepMany(respawning2x2Plms, bus, respawning2x2, respawning2x2Streamer, 384 + 12);
-    AssertEqual((ushort)0xf058, respawning2x2.GetCollisionBlock(3, 3).LevelWord,
+    AssertEqual(0xf058, respawning2x2.GetCollisionBlock(3, 3).LevelWord,
         "BTS-3 restores the type-F parent after the exact 384-frame blank hold");
-    AssertEqual((ushort)0x5058, respawning2x2.GetCollisionBlock(4, 3).LevelWord,
+    AssertEqual(0x5058, respawning2x2.GetCollisionBlock(4, 3).LevelWord,
         "BTS-3 restores the type-5 horizontal extension");
-    AssertEqual((ushort)0xd058, respawning2x2.GetCollisionBlock(3, 4).LevelWord,
+    AssertEqual(0xd058, respawning2x2.GetCollisionBlock(3, 4).LevelWord,
         "BTS-3 restores the type-D vertical extension row");
     AssertEqual(1, respawning2x2Plms.ActiveCount,
         "timer-one restored frame keeps BTS-3 PLM alive through this handler pass");
@@ -276,14 +276,14 @@ static void VerifyBreakableGrapplePlms()
         permanent1x2, blockIndex, behavior: 6),
         "BTS-6 collision setup occupies a native PLM slot");
     permanent1x2Plms.Step(bus, permanent1x2, permanent1x2Streamer, 0, 0, 0);
-    AssertEqual((ushort)0x0053, permanent1x2.GetCollisionBlock(3, 3).LevelWord,
+    AssertEqual(0x0053, permanent1x2.GetCollisionBlock(3, 3).LevelWord,
         "vertical draw writes BTS-6 origin");
-    AssertEqual((ushort)0x0053, permanent1x2.GetCollisionBlock(3, 4).LevelWord,
+    AssertEqual(0x0053, permanent1x2.GetCollisionBlock(3, 4).LevelWord,
         "vertical draw advances its second word by one room row");
-    AssertEqual((ushort)0, permanent1x2.GetCollisionBlock(4, 3).LevelWord,
+    AssertEqual(0, permanent1x2.GetCollisionBlock(4, 3).LevelWord,
         "vertical draw does not accidentally advance into the neighboring column");
     StepMany(permanent1x2Plms, bus, permanent1x2, permanent1x2Streamer, 12);
-    AssertEqual((ushort)0x00ff, permanent1x2.GetCollisionBlock(3, 4).LevelWord,
+    AssertEqual(0x00ff, permanent1x2.GetCollisionBlock(3, 4).LevelWord,
         "permanent BTS-6 finishes on two vertical blank-air words");
     permanent1x2Plms.Step(bus, permanent1x2, permanent1x2Streamer, 0, 0, 0);
     AssertEqual(0, permanent1x2Plms.ActiveCount,
@@ -406,14 +406,14 @@ static void VerifySamusPostureMovement()
         samus.TryApplyPostureTransition(
             bus, level, SamusState.CrouchingTransitionRightPose, nmiFrameCounter: 0),
         "standing begins crouch transition");
-    AssertEqual((ushort)16, samus.Kinematics.YRadius, "crouch transition radius");
-    AssertEqual((ushort)48, samus.YPosition, "command seven moves crouch center down five");
+    AssertEqual(16, samus.Kinematics.YRadius, "crouch transition radius");
+    AssertEqual(48, samus.YPosition, "command seven moves crouch center down five");
 
     for (int tick = 0; tick < 2; tick++)
         samus.AnimateNoFx(bus);
-    AssertEqual((byte)0xfd, samus.LastAnimationDelayCommand!.Value, "crouch transition reaches FD");
+    AssertEqual(0xfd, samus.LastAnimationDelayCommand!.Value, "crouch transition reaches FD");
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "crouch FD applies");
-    AssertEqual((byte)0x27, samus.Pose, "crouch transition target");
+    AssertEqual(0x27, samus.Pose, "crouch transition target");
     GroundedMovementResult crouchFrame = SamusPostureMovement.StepCrouching(
         bus, level, samus, nmiFrameCounter: 0);
     AssertTrue(crouchFrame.Vertical.Collided, "crouch performs grounded probe");
@@ -422,12 +422,12 @@ static void VerifySamusPostureMovement()
         samus.TryApplyPostureTransition(
             bus, level, SamusState.StandingTransitionRightPose, nmiFrameCounter: 1),
         "crouch begins standing transition");
-    AssertEqual((ushort)21, samus.Kinematics.YRadius, "standing transition radius");
-    AssertEqual((ushort)43, samus.YPosition, "floor-constrained expansion moves center up five");
+    AssertEqual(21, samus.Kinematics.YRadius, "standing transition radius");
+    AssertEqual(43, samus.YPosition, "floor-constrained expansion moves center up five");
     for (int tick = 0; tick < 2; tick++)
         samus.AnimateNoFx(bus);
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "standing FD applies");
-    AssertEqual((byte)0x01, samus.Pose, "standing transition target");
+    AssertEqual(0x01, samus.Pose, "standing transition target");
 
     // Exercise all six facing/direction variants through both radius-changing halves. This
     // is intentionally a table test because the retail transition tables route every one
@@ -447,8 +447,8 @@ static void VerifySamusPostureMovement()
             aimedSamus.TryApplyPostureTransition(
                 bus, level, aimedCrouchTransitions[index], unchecked((ushort)index)),
             $"aimed crouch transition ${aimedCrouchTransitions[index]:X2} begins");
-        AssertEqual((ushort)16, aimedSamus.Kinematics.YRadius, "aimed crouch transition radius");
-        AssertEqual((ushort)48, aimedSamus.YPosition, "aimed crouch keeps feet aligned");
+        AssertEqual(16, aimedSamus.Kinematics.YRadius, "aimed crouch transition radius");
+        AssertEqual(48, aimedSamus.YPosition, "aimed crouch keeps feet aligned");
         SamusPostureMovement.StepCrouchStandTransition(
             bus, level, aimedSamus, unchecked((ushort)index));
         aimedSamus.AnimateNoFx(bus);
@@ -467,8 +467,8 @@ static void VerifySamusPostureMovement()
             aimedSamus.TryApplyPostureTransition(
                 bus, level, aimedStandTransitions[index], unchecked((ushort)index)),
             $"aimed stand transition ${aimedStandTransitions[index]:X2} begins");
-        AssertEqual((ushort)21, aimedSamus.Kinematics.YRadius, "aimed standing transition radius");
-        AssertEqual((ushort)43, aimedSamus.YPosition, "aimed stand keeps feet aligned");
+        AssertEqual(21, aimedSamus.Kinematics.YRadius, "aimed standing transition radius");
+        AssertEqual(43, aimedSamus.YPosition, "aimed stand keeps feet aligned");
         aimedSamus.AnimateNoFx(bus);
         aimedSamus.AnimateNoFx(bus);
         AssertTrue(aimedSamus.ApplyPendingVerifiedAnimationTransition(bus), "aimed stand FD applies");
@@ -493,7 +493,7 @@ static void VerifySamusPostureMovement()
     })
     {
         crouchAim.ApplyGroundedAimTransition(bus, target);
-        AssertEqual((ushort)16, crouchAim.Kinematics.YRadius, $"right crouch aim ${target:X2} radius");
+        AssertEqual(16, crouchAim.Kinematics.YRadius, $"right crouch aim ${target:X2} radius");
     }
     AssertThrows<NotSupportedException>(
         () => crouchAim.ApplyGroundedAimTransition(bus, SamusState.CrouchingAimUpLeftPose),
@@ -514,9 +514,9 @@ static void VerifySamusPostureMovement()
         directStand.TryApplyDirectCrouchToStandingTransition(
             bus, level, SamusState.FacingRightNormalPose, nmiFrameCounter: 0),
         "direct crouch-to-standing record applies");
-    AssertEqual((byte)0x01, directStand.Pose, "direct crouch exit target");
-    AssertEqual((ushort)21, directStand.Kinematics.YRadius, "direct crouch exit radius");
-    AssertEqual((ushort)43, directStand.YPosition, "direct crouch exit keeps feet aligned");
+    AssertEqual(0x01, directStand.Pose, "direct crouch exit target");
+    AssertEqual(21, directStand.Kinematics.YRadius, "direct crouch exit radius");
+    AssertEqual(43, directStand.YPosition, "direct crouch exit keeps feet aligned");
 
     var directStandLeft = new SamusState
     {
@@ -530,8 +530,8 @@ static void VerifySamusPostureMovement()
         directStandLeft.TryApplyDirectCrouchToStandingTransition(
             bus, level, SamusState.FacingLeftNormalPose, nmiFrameCounter: 1),
         "mirrored direct crouch-to-standing record applies");
-    AssertEqual((byte)0x02, directStandLeft.Pose, "mirrored direct crouch exit target");
-    AssertEqual((ushort)43, directStandLeft.YPosition, "mirrored direct crouch exit alignment");
+    AssertEqual(0x02, directStandLeft.Pose, "mirrored direct crouch exit target");
+    AssertEqual(43, directStandLeft.YPosition, "mirrored direct crouch exit alignment");
 
     // `$91:FC66` first accepts the 16 -> 19 radius expansion, moving the center up three
     // against the floor, then subtracts ten more pixels only when PreviousPose is exactly
@@ -548,12 +548,12 @@ static void VerifySamusPostureMovement()
         crouchJump.TryApplyCrouchJumpTransition(
             bus, level, SamusState.NeutralJumpTransitionRightPose, nmiFrameCounter: 0),
         "ordinary crouch jump applies");
-    AssertEqual((byte)0x4b, crouchJump.Pose, "ordinary crouch jump transition pose");
-    AssertEqual((ushort)19, crouchJump.Kinematics.YRadius, "ordinary crouch jump radius");
-    AssertEqual((ushort)35, crouchJump.YPosition, "ordinary crouch jump collision plus FC8A offset");
-    AssertEqual((ushort)4, crouchJump.Kinematics.YSpeed, "ordinary crouch jump Y speed");
-    AssertEqual((ushort)0xe000, crouchJump.Kinematics.YSubspeed, "ordinary crouch jump Y subspeed");
-    AssertEqual((ushort)1, crouchJump.Kinematics.YDirection, "ordinary crouch jump rises");
+    AssertEqual(0x4b, crouchJump.Pose, "ordinary crouch jump transition pose");
+    AssertEqual(19, crouchJump.Kinematics.YRadius, "ordinary crouch jump radius");
+    AssertEqual(35, crouchJump.YPosition, "ordinary crouch jump collision plus FC8A offset");
+    AssertEqual(4, crouchJump.Kinematics.YSpeed, "ordinary crouch jump Y speed");
+    AssertEqual(0xe000, crouchJump.Kinematics.YSubspeed, "ordinary crouch jump Y subspeed");
+    AssertEqual(1, crouchJump.Kinematics.YDirection, "ordinary crouch jump rises");
 
     var crouchJumpLeft = new SamusState
     {
@@ -567,8 +567,8 @@ static void VerifySamusPostureMovement()
         crouchJumpLeft.TryApplyCrouchJumpTransition(
             bus, level, SamusState.NeutralJumpTransitionLeftPose, nmiFrameCounter: 1),
         "mirrored ordinary crouch jump applies");
-    AssertEqual((byte)0x4c, crouchJumpLeft.Pose, "mirrored crouch jump transition pose");
-    AssertEqual((ushort)35, crouchJumpLeft.YPosition, "mirrored crouch jump Y adjustment");
+    AssertEqual(0x4c, crouchJumpLeft.Pose, "mirrored crouch jump transition pose");
+    AssertEqual(35, crouchJumpLeft.YPosition, "mirrored crouch jump Y adjustment");
 
     // The native literal-pose comparison intentionally excludes aimed crouches. They use
     // the same `$4B` art and jump velocity but receive only the three-pixel floor-alignment
@@ -585,7 +585,7 @@ static void VerifySamusPostureMovement()
         aimedCrouchJump.TryApplyCrouchJumpTransition(
             bus, level, SamusState.NeutralJumpTransitionRightPose, nmiFrameCounter: 1),
         "aimed crouch jump applies");
-    AssertEqual((ushort)45, aimedCrouchJump.YPosition, "aimed crouch jump omits FC8A offset");
+    AssertEqual(45, aimedCrouchJump.YPosition, "aimed crouch jump omits FC8A offset");
 
     // Ceiling row one ends at pixel 31. A crouched body occupies 32..63 exactly, while a
     // standing body would need 27..63. Both five-pixel probes collide, so native pose
@@ -607,8 +607,8 @@ static void VerifySamusPostureMovement()
         !tunnelSamus.TryApplyPostureTransition(
             bus, tunnel, SamusState.StandingTransitionRightPose, nmiFrameCounter: 0),
         "low tunnel rejects standing radius expansion");
-    AssertEqual((byte)0x27, tunnelSamus.Pose, "rejected stand retains crouch pose");
-    AssertEqual((ushort)48, tunnelSamus.YPosition, "rejected stand preserves center Y");
+    AssertEqual(0x27, tunnelSamus.Pose, "rejected stand retains crouch pose");
+    AssertEqual(48, tunnelSamus.YPosition, "rejected stand preserves center Y");
 
     var tunnelJump = new SamusState
     {
@@ -622,9 +622,9 @@ static void VerifySamusPostureMovement()
         !tunnelJump.TryApplyCrouchJumpTransition(
             bus, tunnel, SamusState.NeutralJumpTransitionRightPose, nmiFrameCounter: 1),
         "low tunnel rejects crouch-jump radius expansion");
-    AssertEqual((byte)0x27, tunnelJump.Pose, "boxed aimed jump falls back to ordinary crouch");
-    AssertEqual((ushort)16, tunnelJump.Kinematics.YRadius, "boxed aimed jump retains crouch radius");
-    AssertEqual((ushort)0, tunnelJump.Kinematics.YSpeed, "boxed aimed jump does not call Make_Samus_Jump");
+    AssertEqual(0x27, tunnelJump.Pose, "boxed aimed jump falls back to ordinary crouch");
+    AssertEqual(16, tunnelJump.Kinematics.YRadius, "boxed aimed jump retains crouch radius");
+    AssertEqual(0, tunnelJump.Kinematics.YSpeed, "boxed aimed jump does not call Make_Samus_Jump");
 
     Console.WriteLine("  Samus posture: animated/direct exits, crouch jumps, radii, movement, FD targets, and low-ceiling fallback agree.");
 }

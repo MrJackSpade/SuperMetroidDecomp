@@ -64,8 +64,8 @@ static void VerifyHudStateAndBg3Rendering()
 
     var hud = new HudState();
     hud.Initialize(bus, HudSnapshot.CeresDebug);
-    AssertEqual((ushort)0x2d09, hud.Tiles[0x8c / 2], "HUD health tens digit from ROM table");
-    AssertEqual((ushort)0x2d09, hud.Tiles[0x8e / 2], "HUD health ones digit from ROM table");
+    AssertEqual(0x2d09, hud.Tiles[0x8c / 2], "HUD health tens digit from ROM table");
+    AssertEqual(0x2d09, hud.Tiles[0x8e / 2], "HUD health ones digit from ROM table");
 
     // Area zero points to a synthetic two-screen-wide Crateria map. Give every map tile a
     // character equal to its SNES-layout index and mark every coordinate as existing; the
@@ -91,10 +91,10 @@ static void VerifyHudStateAndBg3Rendering()
         samusY: 0x04bb,
         nmiFrameCounter: 8,
         hasAreaMap: true);
-    AssertEqual((byte)27, hud.MinimapCenterX, "minimap Landing Site absolute X");
-    AssertEqual((byte)5, hud.MinimapCenterY, "minimap Landing Site absolute Y");
-    AssertEqual((ushort)0x2c99, hud.Tiles[26], "minimap top-left unvisited map-station tile");
-    AssertEqual((ushort)0x28bb, hud.Tiles[60], "minimap explored center tile");
+    AssertEqual(27, hud.MinimapCenterX, "minimap Landing Site absolute X");
+    AssertEqual(5, hud.MinimapCenterY, "minimap Landing Site absolute Y");
+    AssertEqual(0x2c99, hud.Tiles[26], "minimap top-left unvisited map-station tile");
+    AssertEqual(0x28bb, hud.Tiles[60], "minimap explored center tile");
 
     hud.UpdateMinimap(
         bus,
@@ -107,8 +107,8 @@ static void VerifyHudStateAndBg3Rendering()
         samusY: 0x04bb,
         nmiFrameCounter: 0,
         hasAreaMap: false);
-    AssertEqual((ushort)0x3cbb, hud.Tiles[60], "minimap blinking center palette");
-    AssertEqual((ushort)0x2c1f, hud.Tiles[26], "minimap hides unvisited tile without map station");
+    AssertEqual(0x3cbb, hud.Tiles[60], "minimap blinking center palette");
+    AssertEqual(0x2c1f, hud.Tiles[26], "minimap hides unvisited tile without map station");
 
     var queue = new VramWriteQueue();
     var vram = new SnesVram();
@@ -117,8 +117,8 @@ static void VerifyHudStateAndBg3Rendering()
     AssertEqual(HudState.WorkRamAddress, queue.Entries[0].SourceAddress, "HUD queue WRAM source");
     AssertEqual(HudState.VramDestination, queue.Entries[0].EncodedVramDestination, "HUD queue VRAM destination");
     queue.DrainTo(vram, bus);
-    AssertEqual((byte)0x0f, vram.ReadByte(HudState.VramDestination * 2), "HUD first tilemap low byte reaches VRAM");
-    AssertEqual((byte)0x2c, vram.ReadByte(HudState.VramDestination * 2 + 1), "HUD first tilemap high byte reaches VRAM");
+    AssertEqual(0x0f, vram.ReadByte(HudState.VramDestination * 2), "HUD first tilemap low byte reaches VRAM");
+    AssertEqual(0x2c, vram.ReadByte(HudState.VramDestination * 2 + 1), "HUD first tilemap high byte reaches VRAM");
 
     // Isolate the BG3 renderer at a harmless tilemap base. Entry tile 2 / palette 1 points
     // at a tile whose upper-left plane-0 bit is set; CGRAM 5 is maximum green.
@@ -228,9 +228,9 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
         bus.WriteByte(source + index, (byte)(0x80 + index));
 
     RoomScrollGrid grid = RoomScrollGrid.LoadExplicit(bus, source, widthInScreens: 3, heightInScreens: 2);
-    AssertEqual((byte)0x86, grid.Storage[6], "scroll loader retains first nonlogical byte");
-    AssertEqual((byte)0xb1, grid.Storage[49], "scroll loader retains fiftieth byte");
-    AssertEqual((byte)0x86, bus.ReadByte(RoomScrollGrid.WorkRamAddress + 6), "scroll loader mirrors WRAM padding");
+    AssertEqual(0x86, grid.Storage[6], "scroll loader retains first nonlogical byte");
+    AssertEqual(0xb1, grid.Storage[49], "scroll loader retains fiftieth byte");
+    AssertEqual(0x86, bus.ReadByte(RoomScrollGrid.WorkRamAddress + 6), "scroll loader mirrors WRAM padding");
 
     var camera = new ScrollBoundaryCamera(grid);
 
@@ -239,13 +239,13 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     grid.SetLogicalCell(1, 0, 0);
     camera.SetPosition(0, 0);
     camera.MoveRight(16);
-    AssertEqual((ushort)0, camera.XPosition, "$80:A641 red boundary moving right");
+    AssertEqual(0, camera.XPosition, "$80:A641 red boundary moving right");
 
     // Left: entering a red current cell from its right edge produces the symmetric +2
     // retreat described by $80:A719-$80:A72B.
     camera.SetPosition(272, 0);
     camera.MoveLeft(16);
-    AssertEqual((ushort)274, camera.XPosition, "$80:A6BB red boundary moving left");
+    AssertEqual(274, camera.XPosition, "$80:A6BB red boundary moving left");
 
     // Down: a blue current cell over a red lower cell rejects the move and retreats two
     // pixels above the pre-move position (224 -> proposed 240 -> result 222).
@@ -253,18 +253,18 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     grid.SetLogicalCell(0, 1, 0);
     camera.SetPosition(0, 224);
     camera.MoveDown(16);
-    AssertEqual((ushort)222, camera.YPosition, "$80:A893 red boundary moving down");
+    AssertEqual(222, camera.YPosition, "$80:A893 red boundary moving down");
 
     // Up: starting inside that red lower cell gives the corresponding two-pixel retreat.
     camera.SetPosition(0, 272);
     camera.MoveUp(16);
-    AssertEqual((ushort)274, camera.YPosition, "$80:A936 red boundary moving up");
+    AssertEqual(274, camera.YPosition, "$80:A936 red boundary moving up");
 
     // Physical right edge is (width-1)*$100 regardless of the scroll padding bytes.
     grid.SetLogicalCell(1, 0, 1);
     camera.SetPosition(0x01f8, 0);
     camera.MoveRight(16);
-    AssertEqual((ushort)0x0200, camera.XPosition, "scroll camera physical room maximum");
+    AssertEqual(0x0200, camera.XPosition, "scroll camera physical room maximum");
 
     Console.WriteLine("  Scrolls: 50-byte load and four directional boundary handlers agree.");
 }
@@ -291,9 +291,9 @@ static void VerifyMovedSamusCameraTracking()
         previous,
         current,
         new HorizontalCameraContext(0, MovementType: 0, XAccelerationMode: 0, PoseXDirection: 8, CameraDistanceIndex: 0));
-    AssertEqual((ushort)108, camera.IdealXPosition, "camera facing-right ideal X");
-    AssertEqual((ushort)5, camera.CameraXSpeed, "camera X distance includes one pixel");
-    AssertEqual((ushort)105, camera.XPosition, "camera X follows by calculated speed");
+    AssertEqual(108, camera.IdealXPosition, "camera facing-right ideal X");
+    AssertEqual(5, camera.CameraXSpeed, "camera X distance includes one pixel");
+    AssertEqual(105, camera.XPosition, "camera X follows by calculated speed");
 
     // The complete fixed-point difference matters: 200.8000 -> 201.4000 is +0.C000;
     // adding 1.0 yields a camera delta of 1.C000.
@@ -304,10 +304,10 @@ static void VerifyMovedSamusCameraTracking()
         previous,
         current,
         new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0));
-    AssertEqual((ushort)1, camera.CameraXSpeed, "camera fixed X speed integer");
-    AssertEqual((ushort)0xc000, camera.CameraXSubspeed, "camera fixed X speed fraction");
-    AssertEqual((ushort)101, camera.XPosition, "camera fixed X position integer");
-    AssertEqual((ushort)0xc000, camera.XSubposition, "camera fixed X position fraction");
+    AssertEqual(1, camera.CameraXSpeed, "camera fixed X speed integer");
+    AssertEqual(0xc000, camera.CameraXSubspeed, "camera fixed X speed fraction");
+    AssertEqual(101, camera.XPosition, "camera fixed X position integer");
+    AssertEqual(0xc000, camera.XSubposition, "camera fixed X position fraction");
 
     // Downward Samus movement uses up_scroller. 210-$64 gives ideal 110; a two-pixel move
     // becomes camera speed three and advances layer Y from 100 to 103 without overshoot.
@@ -318,9 +318,9 @@ static void VerifyMovedSamusCameraTracking()
         previous,
         current,
         new VerticalCameraContext(YDirection: 2, UpScroller: 100, DownScroller: 112));
-    AssertEqual((ushort)110, camera.IdealYPosition, "camera downward ideal Y");
-    AssertEqual((ushort)3, camera.CameraYSpeed, "camera Y distance includes one pixel");
-    AssertEqual((ushort)103, camera.YPosition, "camera Y follows by calculated speed");
+    AssertEqual(110, camera.IdealYPosition, "camera downward ideal Y");
+    AssertEqual(3, camera.CameraYSpeed, "camera Y distance includes one pixel");
+    AssertEqual(103, camera.YPosition, "camera Y follows by calculated speed");
 
     // Equal integer coordinates take $80:A528/$80:A731. With identical fixed-point
     // samples, the bank-$90 distance routine still produces speed 1; autoscroll then adds
@@ -333,8 +333,8 @@ static void VerifyMovedSamusCameraTracking()
         stationary,
         stationary,
         new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0));
-    AssertEqual((ushort)1, camera.CameraXSpeed, "stationary camera X speed still includes one");
-    AssertEqual((ushort)0x0023, camera.XPosition, "$80:A528 red-cell rightward drift");
+    AssertEqual(1, camera.CameraXSpeed, "stationary camera X speed still includes one");
+    AssertEqual(0x0023, camera.XPosition, "$80:A528 red-cell rightward drift");
 
     // Red on both sides cancels that drift by rounding back to the current screen edge.
     grid.SetLogicalCell(1, 0, 0);
@@ -343,7 +343,7 @@ static void VerifyMovedSamusCameraTracking()
         stationary,
         stationary,
         new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0));
-    AssertEqual((ushort)0, camera.XPosition, "$80:A528 adjacent-red horizontal rounding");
+    AssertEqual(0, camera.XPosition, "$80:A528 adjacent-red horizontal rounding");
 
     // The time-frozen flag short-circuits autoscrolling after bank $90 has calculated the
     // speed. It is intentionally not a blanket prohibition on moved-axis handling.
@@ -354,7 +354,7 @@ static void VerifyMovedSamusCameraTracking()
         stationary,
         new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0),
         timeIsFrozen: true);
-    AssertEqual((ushort)0x0020, camera.XPosition, "$80:A528 time-frozen return");
+    AssertEqual(0x0020, camera.XPosition, "$80:A528 time-frozen return");
 
     // A 9x5 room at its padded bottom can select scroll index 50 after centered camera X
     // advances into screen five. Native WRAM continues into ExploredMapTiles at $CD52;
@@ -373,7 +373,7 @@ static void VerifyMovedSamusCameraTracking()
         stationary,
         stationary,
         new VerticalCameraContext(YDirection: 0, UpScroller: 0x70, DownScroller: 0xa0));
-    AssertEqual((ushort)0x0400, bottomEdgeCamera.YPosition, "$80:A731 index-$32 adjacent-WRAM bottom clamp");
+    AssertEqual(0x0400, bottomEdgeCamera.YPosition, "$80:A731 index-$32 adjacent-WRAM bottom clamp");
 
     // Vertical autoscrolling uses the centered X cell and the same speed+2 drift. This
     // three-row grid leaves the cell below blue so the candidate remains unrounded.
@@ -393,8 +393,8 @@ static void VerifyMovedSamusCameraTracking()
         stationary,
         stationary,
         new VerticalCameraContext(YDirection: 0, UpScroller: 0, DownScroller: 0));
-    AssertEqual((ushort)1, verticalCamera.CameraYSpeed, "stationary camera Y speed still includes one");
-    AssertEqual((ushort)0x0023, verticalCamera.YPosition, "$80:A731 red-cell downward drift");
+    AssertEqual(1, verticalCamera.CameraYSpeed, "stationary camera Y speed still includes one");
+    AssertEqual(0x0023, verticalCamera.YPosition, "$80:A731 red-cell downward drift");
 
     Console.WriteLine("  Camera: bank $90 tracking and bank $80 stationary autoscroll agree.");
 }
@@ -419,11 +419,11 @@ static void VerifyBackgroundScrollState()
 
     state.PrimePreviousBlocks();
     IReadOnlyList<BackgroundUpdateRequest> requests = state.StepScrolling();
-    AssertEqual((ushort)0x1244, state.Bg1HorizontalScroll, "$80:A3B7 BG1 X plus offset");
-    AssertEqual((ushort)0x01f0, state.Bg1VerticalScroll, "$80:A3C0 BG1 Y wrapping offset");
-    AssertEqual((ushort)0x091a, state.Layer2XPosition, "$80:A2F9 half-speed X parallax");
-    AssertEqual((ushort)0x0200, state.Layer2YPosition, "$80:A33A zero mode copies layer 1");
-    AssertEqual((ushort)0x091d, state.Bg2HorizontalScroll, "$80:A3CF BG2 X plus offset");
+    AssertEqual(0x1244, state.Bg1HorizontalScroll, "$80:A3B7 BG1 X plus offset");
+    AssertEqual(0x01f0, state.Bg1VerticalScroll, "$80:A3C0 BG1 Y wrapping offset");
+    AssertEqual(0x091a, state.Layer2XPosition, "$80:A2F9 half-speed X parallax");
+    AssertEqual(0x0200, state.Layer2YPosition, "$80:A33A zero mode copies layer 1");
+    AssertEqual(0x091d, state.Bg2HorizontalScroll, "$80:A3CF BG2 X plus offset");
     AssertEqual(0, requests.Count, "primed scrolling emits no unchanged block updates");
 
     // Crossing one 16-pixel boundary right/down creates requests in native order: level
@@ -463,7 +463,7 @@ static void VerifyBackgroundScrollState()
     // always logically shifted. $FFF0 therefore means block -1 ($FFFF), not $0FFF.
     state.Layer1XPosition = 0xfff0;
     state.PrimePreviousBlocks();
-    AssertEqual((ushort)0xffff, state.Layer1XBlock, "$80:A4CD signed layer block");
+    AssertEqual(0xffff, state.Layer1XBlock, "$80:A4CD signed layer block");
 
     ushort frozenBg1X = state.Bg1HorizontalScroll;
     state.Layer1XPosition = 0x4444;
@@ -528,10 +528,10 @@ static void VerifyRoomLevelData()
 
     RoomCollisionBlock block = level.GetCollisionBlock(blockX: 1, blockY: 1);
     AssertEqual(4, block.Index, "room collision row-major index");
-    AssertEqual((ushort)0xe002, block.LevelWord, "room collision level word");
-    AssertEqual((byte)0x22, block.Behavior, "room collision parallel BTS byte");
-    AssertEqual((byte)0x0e, block.CollisionType, "room collision high-nibble dispatcher type");
-    AssertEqual((ushort)2, block.VisualBlockIndex, "room collision visual block index");
+    AssertEqual(0xe002, block.LevelWord, "room collision level word");
+    AssertEqual(0x22, block.Behavior, "room collision parallel BTS byte");
+    AssertEqual(0x0e, block.CollisionType, "room collision high-nibble dispatcher type");
+    AssertEqual(2, block.VisualBlockIndex, "room collision visual block index");
 
     // Pixel (31,17) is block (1,1); shifts must occur before multiplication/indexing.
     AssertEqual(block, level.GetCollisionBlockAtPixel(31, 17), "room pixel-to-block conversion");
@@ -573,19 +573,19 @@ static void VerifyBackgroundTilemapStreamer()
     TilemapStreamUpdate column = streamer.Build(columnRequest)!
         ?? throw new InvalidOperationException("Non-Mode-7 column was incorrectly skipped.");
     AssertEqual(32, column.FirstHalves.Length, "column left staging words");
-    AssertEqual((ushort)0x0001, column.FirstHalves[0], "column top-left tile");
-    AssertEqual((ushort)0x0003, column.FirstHalves[1], "column bottom-left tile");
+    AssertEqual(0x0001, column.FirstHalves[0], "column top-left tile");
+    AssertEqual(0x0003, column.FirstHalves[1], "column bottom-left tile");
     AssertEqual(4, column.Segments.Count, "wrapped column DMA count");
     AssertEqual(22, column.Segments[0].WordCount, "column unwrapped word count");
     AssertEqual(10, column.Segments[2].WordCount, "column wrapped word count");
-    AssertEqual((ushort)0x5542, column.Segments[0].VramWordDestination, "column unwrapped destination");
-    AssertEqual((ushort)0x5402, column.Segments[2].VramWordDestination, "column wrapped destination");
+    AssertEqual(0x5542, column.Segments[0].VramWordDestination, "column unwrapped destination");
+    AssertEqual(0x5402, column.Segments[2].VramWordDestination, "column wrapped destination");
     AssertEqual(TilemapDmaDirection.Column, column.Segments[0].Direction, "column VMAIN mode");
     var streamedVram = new SnesVram();
     column.ExecuteTo(streamedVram);
-    AssertEqual((ushort)0x0001, streamedVram.ReadWord(0x5542), "column DMA left top word");
-    AssertEqual((ushort)0x0002, streamedVram.ReadWord(0x5543), "column DMA right top word");
-    AssertEqual((ushort)0x0003, streamedVram.ReadWord(0x5562), "column DMA left bottom word");
+    AssertEqual(0x0001, streamedVram.ReadWord(0x5542), "column DMA left top word");
+    AssertEqual(0x0002, streamedVram.ReadWord(0x5543), "column DMA right top word");
+    AssertEqual(0x0003, streamedVram.ReadWord(0x5562), "column DMA left bottom word");
 
     // X within-screen 5 yields 22 unwrapped and 12 wrapped row words. The bottom half uses
     // the same destination with bit $20 set, exactly as the NMI routine does.
@@ -599,19 +599,19 @@ static void VerifyBackgroundTilemapStreamer()
     TilemapStreamUpdate row = streamer.Build(rowRequest)!
         ?? throw new InvalidOperationException("Non-Mode-7 row was incorrectly skipped.");
     AssertEqual(34, row.FirstHalves.Length, "row top staging words");
-    AssertEqual((ushort)0x0001, row.FirstHalves[0], "row top-left tile");
-    AssertEqual((ushort)0x0002, row.FirstHalves[1], "row top-right tile");
+    AssertEqual(0x0001, row.FirstHalves[0], "row top-left tile");
+    AssertEqual(0x0002, row.FirstHalves[1], "row top-right tile");
     AssertEqual(22, row.Segments[0].WordCount, "row unwrapped word count");
     AssertEqual(12, row.Segments[2].WordCount, "row wrapped word count");
-    AssertEqual((ushort)0x518a, row.Segments[0].VramWordDestination, "row unwrapped destination");
-    AssertEqual((ushort)0x51aa, row.Segments[1].VramWordDestination, "row bottom destination");
-    AssertEqual((ushort)0x5580, row.Segments[2].VramWordDestination, "row wrapped destination");
+    AssertEqual(0x518a, row.Segments[0].VramWordDestination, "row unwrapped destination");
+    AssertEqual(0x51aa, row.Segments[1].VramWordDestination, "row bottom destination");
+    AssertEqual(0x5580, row.Segments[2].VramWordDestination, "row wrapped destination");
     AssertEqual(TilemapDmaDirection.Row, row.Segments[0].Direction, "row VMAIN mode");
     streamedVram.Clear();
     row.ExecuteTo(streamedVram);
-    AssertEqual((ushort)0x0001, streamedVram.ReadWord(0x518a), "row DMA top-left word");
-    AssertEqual((ushort)0x0002, streamedVram.ReadWord(0x518b), "row DMA top-right word");
-    AssertEqual((ushort)0x0003, streamedVram.ReadWord(0x51aa), "row DMA bottom-left word");
+    AssertEqual(0x0001, streamedVram.ReadWord(0x518a), "row DMA top-left word");
+    AssertEqual(0x0002, streamedVram.ReadWord(0x518b), "row DMA top-right word");
+    AssertEqual(0x0003, streamedVram.ReadWord(0x51aa), "row DMA bottom-left word");
 
     AssertEqual<TilemapStreamUpdate?>(null, streamer.Build(rowRequest, mode7Enabled: true), "$80:AB78 Mode 7 return");
     Console.WriteLine("  BG stream: row/column staging splits and NMI destinations agree.");
@@ -634,13 +634,13 @@ static void VerifyFourBitBackgroundRendering()
     Rgba32[] pixels = SnesBgTilemapRenderer.Render4BppViewport(
         vram, cgram, 0x5000, 0, 0, 0, width: 8, height: 8);
     AssertEqual(new Rgba32(255, 0, 0), pixels[0], "4-bpp BG palette pixel");
-    AssertEqual((byte)0, pixels[1].A, "4-bpp BG color zero transparency");
+    AssertEqual(0, pixels[1].A, "4-bpp BG color zero transparency");
 
     mapEntry[0] |= 0x4000;
     vram.ExecuteWordTransfer(mapEntry, destinationWord: 0x5000, wordIncrement: 1);
     pixels = SnesBgTilemapRenderer.Render4BppViewport(
         vram, cgram, 0x5000, 0, 0, 0, width: 8, height: 1);
-    AssertEqual((byte)0, pixels[0].A, "4-bpp H-flip old pixel becomes transparent");
+    AssertEqual(0, pixels[0].A, "4-bpp H-flip old pixel becomes transparent");
     AssertEqual(new Rgba32(255, 0, 0), pixels[7], "4-bpp H-flip mirrored pixel");
 
     // BG2SC=$4A means a 32x64-tile map rooted at word $4800. Once VOFS bit eight
@@ -662,8 +662,8 @@ static void VerifyFourBitBackgroundRendering()
     };
     IReadOnlyList<BackgroundUpdateRequest> initial = scroll.BuildInitialViewportRequests();
     AssertEqual(17, initial.Count, "$80:A176 initial BG1 column count");
-    AssertEqual((ushort)0x0012, initial[0].SourceXBlock, "initial first source column");
-    AssertEqual((ushort)0x0022, initial[16].SourceXBlock, "initial seventeenth source column");
+    AssertEqual(0x0012, initial[0].SourceXBlock, "initial first source column");
+    AssertEqual(0x0022, initial[16].SourceXBlock, "initial seventeenth source column");
 
     Console.WriteLine("  BG render: 4-bpp pixels, BGSC geometry, and 17-column initial fill agree.");
 }
@@ -763,9 +763,9 @@ static void VerifyPowerBombColorMathWindow()
     // gives a three-pixel center half-width. Testing beyond both extents catches use of
     // the already-updated `$34.00` radius as well as floating-point ellipse substitution.
     explosion.StepFrame(bus);
-    AssertEqual((ushort)0x0400, explosion.RenderedPreExplosionRadius,
+    AssertEqual(0x0400, explosion.RenderedPreExplosionRadius,
         "power-bomb renderer retains pre-update radius");
-    AssertEqual((ushort)0x3400, explosion.PreExplosionRadius,
+    AssertEqual(0x3400, explosion.PreExplosionRadius,
         "power-bomb logic advances next-frame radius");
     Rgba32[] scaledFrame = CreateOpaqueBlackGameplayFrame();
     SnesGameplayFrameRenderer.ApplyPowerBombColorMath(scaledFrame, bus, explosion, 0, 0);
@@ -818,7 +818,7 @@ static void VerifyScrollingSkyState()
     var writes = new VramWriteQueue();
     sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: false, writes);
 
-    AssertEqual((ushort)0x041f, sky.VerticalScroll, "$88:AFB2 BG2 vertical scroll");
+    AssertEqual(0x041f, sky.VerticalScroll, "$88:AFB2 BG2 vertical scroll");
     AssertEqual(4, writes.Entries.Count, "$88:AFA3 four sky transfers");
     AssertEqual(new VramWriteEntry(0x0040, 0x8ad1c0, 0x4820), writes.Entries[0], "sky upper first row");
     AssertEqual(new VramWriteEntry(0x0040, 0x8ad200, 0x4840), writes.Entries[1], "sky upper second row");
@@ -848,9 +848,9 @@ static void VerifyScrollingSkyState()
 
     // The $02E0 section aliases data slot eight, which already received the $0238 row's
     // +0.8000. Its additional +0.C000 produces integer 1 after only one frame.
-    AssertEqual((ushort)1, sky.GetDataSlotPosition(8), "sky aliased fast HDMA slot");
+    AssertEqual(1, sky.GetDataSlotPosition(8), "sky aliased fast HDMA slot");
     ushort[] lines = sky.BuildGameplayHorizontalScrolls(layer1YPosition: 0x02c0, lineCount: 1);
-    AssertEqual((ushort)1, lines[0], "sky scanline resolves aliased HDMA slot");
+    AssertEqual(1, lines[0], "sky scanline resolves aliased HDMA slot");
 
     int tailBeforeFreeze = writes.TailInBytes;
     sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: true, writes);

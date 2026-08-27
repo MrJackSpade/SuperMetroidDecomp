@@ -69,6 +69,34 @@ public sealed class RoomScrollGrid
     public static RoomScrollGrid LoadLandingSite(ISnesAddressSpace bus) =>
         LoadExplicit(bus, LandingSiteRomAddress, widthInScreens: 9, heightInScreens: 5);
 
+    /// <summary>
+    /// Builds the implicit scroll table used when a room state's scroll word is nonnegative.
+    /// </summary>
+    /// <remarks>
+    /// This is the literal nested loop at $82:E84A: every row begins as blue/green value
+    /// two, while the final row receives the low byte of <paramref name="lastRowValue" />.
+    /// The remaining bytes in the fixed 50-byte WRAM allocation are cleared because this
+    /// path constructs the buffer rather than copying adjacent ROM bytes into all 50 slots.
+    /// </remarks>
+    public static RoomScrollGrid CreateImplicit(
+        ISnesAddressSpace bus,
+        int widthInScreens,
+        int heightInScreens,
+        byte lastRowValue)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        var grid = new RoomScrollGrid(bus, widthInScreens, heightInScreens);
+        for (int index = 0; index < StorageByteCount; index++)
+        {
+            byte value = index < grid.LogicalCellCount
+                ? (index / widthInScreens == heightInScreens - 1 ? lastRowValue : (byte)2)
+                : (byte)0;
+            grid._cells[index] = value;
+            bus.WriteByte(WorkRamAddress + index, value);
+        }
+        return grid;
+    }
+
     /// <summary>Reads one raw WRAM index used by the assembly's multiplication arithmetic.</summary>
     public byte ReadStorage(int index)
     {

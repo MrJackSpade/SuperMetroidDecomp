@@ -3878,7 +3878,12 @@ public sealed class SamusState
     /// spritemap; spin-jump `$03` retains its own conditional bottom rule. Draygon's ten
     /// type-`$1A` bodies have ordinary split top/bottom spritemaps and no draw-time offset.
     /// </remarks>
-    public void Draw(ISnesAddressSpace bus, OamBuffer oam, ushort layer1X, ushort layer1Y)
+    public void Draw(
+        ISnesAddressSpace bus,
+        OamBuffer oam,
+        ushort layer1X,
+        ushort layer1Y,
+        ushort nmiFrameCounter = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
@@ -3893,11 +3898,51 @@ public sealed class SamusState
                 $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");
         }
 
+        // `$90:85E2-$90:85FC` applies invincibility flicker to the body spritemaps, not to
+        // animation or graphics streaming as a whole. An odd NMI hides ordinary invincible
+        // Samus. Active knockback and any nonzero stored/active shine timer independently
+        // force the body visible, even though the separately drawn arm cannon follows its
+        // stricter `$90:C663` rule and may still disappear on that same odd frame.
+        bool bodyVisible = KnockbackTimer != 0 ||
+            InvincibilityTimer == 0 ||
+            Shinespark.ShineTimer != 0 ||
+            (nmiFrameCounter & 1) == 0;
+        if (!bodyVisible)
+        {
+            // Native branches around every position/index/OAM write, then still falls
+            // through to `$92:8000`. Preserve the previous visible spritemap indices for
+            // echo drawing while selecting this frame's tile definitions for the next NMI.
+            TileTransfers.SelectForPoseFrame(bus, Pose, AnimationFrame);
+            return;
+        }
+
         // $90:8C94 sign-extends the byte at pose-definition offset four. Pose $01 stores
         // +6, moving the art origin six pixels above Samus's world-space center.
         sbyte graphicsYOffset = unchecked((sbyte)bus.ReadByte(AddWithinBank(poseDefinition, 4)));
         SpritemapXPosition = unchecked((ushort)(XPosition - layer1X));
-        if (movementType == 0x0f && Pose is
+        if (movementType == 0 &&
+            Pose is ForwardFacingPowerSuitPose or ForwardFacingSuitedPose &&
+            AnimationFrame >= 2)
+        {
+            // `$90:8D07-$90:8D27` uses the ordinary pose graphics offset for front-facing
+            // frames zero/one, then pins every later frame exactly one pixel above Samus's
+            // center. This is independent of `$00`'s extra power-suit chest-cover OBJ.
+            SpritemapYPosition = unchecked((ushort)(YPosition - 1 - layer1Y));
+        }
+        else if (movementType == 0 && Pose >= 0xa4 && Pose < 0xa8)
+        {
+            // `$90:8CDC-$90:8CF6` indexes sixteen packed bytes, but performs a 16-bit
+            // unaligned LDA. The following landing frame's byte therefore becomes the high
+            // byte of the subtraction. OAM ultimately displays only low Y, yet the complete
+            // wrapped `$0AFA` spritemap-position word is observable and is preserved here.
+            int landingOffsetIndex = (Pose - 0xa4) * 4 + AnimationFrame;
+            ushort landingOffset = ReadWord(
+                bus,
+                AddWithinBank(0x908d28, landingOffsetIndex));
+            SpritemapYPosition = unchecked((ushort)(
+                YPosition - landingOffset - layer1Y));
+        }
+        else if (movementType == 0x0f && Pose is
             CrouchingTransitionRightPose or CrouchingTransitionLeftPose or
             MorphingTransitionRightPose or MorphingTransitionLeftPose or
             StandingTransitionRightPose or StandingTransitionLeftPose or
@@ -3969,6 +4014,25 @@ public sealed class SamusState
             Pose is SpaceJumpRightPose or SpaceJumpLeftPose or
                 ScrewAttackRightPose or ScrewAttackLeftPose ||
             AnimationFrame == 0 || AnimationFrame >= 0x0b;
+
+        // `$90:86EE` is movement type `$0A`'s only exception. The first three frames of
+        // the `$D7/$D8` Crystal-Flash-end/fatal-damage body are complete top spritemaps;
+        // all other knockback-family poses and later frames retain an ordinary lower half.
+        bool knockbackBottom = movementType != 0x0a ||
+            Pose is not (DeathSequenceRightPose or DeathSequenceLeftPose) ||
+            AnimationFrame >= 3;
+
+        // `$90:870C-$90:874B` is a pose-and-frame dispatcher, not a blanket type-$0F
+        // policy. Basic crouch/stand transitions always use a lower half. Morph/unmorph
+        // bodies below `$DB` never do. `$DB/$DC` draw it only on frame zero, `$DD-$F0`
+        // only on frame two, and the aimed transition family `$F1+` always draws it.
+        bool transitionBottom = movementType != 0x0f ||
+            Pose >= 0xf1 ||
+            Pose is CrouchingTransitionRightPose or CrouchingTransitionLeftPose or
+                StandingTransitionRightPose or StandingTransitionLeftPose ||
+            (Pose is 0xdb or 0xdc && AnimationFrame == 0) ||
+            (Pose >= 0xdd && Pose < 0xf1 && AnimationFrame == 2);
+
         bool wallJumpBottom = movementType != 0x14 ||
             AnimationFrame < 3 || AnimationFrame >= 0x0d;
         bool damageBoostBottom = movementType != 0x19 ||
@@ -3980,7 +4044,8 @@ public sealed class SamusState
              (Pose is not (DrainedCrouchingRightPose or DrainedCrouchingLeftPose) ||
               AnimationFrame >= 2));
         bool drawBottom = movementType is not (4 or 8 or 0x11 or 0x12 or 0x13) &&
-            ordinarySpinBottom && wallJumpBottom && damageBoostBottom && specialType1BBottom;
+            ordinarySpinBottom && knockbackBottom && transitionBottom &&
+            wallJumpBottom && damageBoostBottom && specialType1BBottom;
         // The native bottom selector clears this word when a complete top-half frame does
         // not need a bottom. Clearing it here also prevents the following echo renderer
         // from reusing a bottom spritemap left by an earlier animation frame.

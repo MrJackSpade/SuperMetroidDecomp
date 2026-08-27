@@ -526,6 +526,15 @@ translated status is documented with the Morph Ball family below.
 - Ordinary and Space Jump wall contact rewind to frame ten; Screw Attack rewinds to 26 and
   reaches eligibility/palette cycling at 27. Screw and Space bottom halves use their native
   always-drawn rule. Landing and wall-jump exit restore the normal suit palette.
+- The shared `$90:85E2` draw gate now hides body OAM on odd invincibility frames while still
+  selecting bank-$92 graphics DMA. Knockback or a nonzero stored/active shine timer forces
+  the body visible; the independent arm cannon retains `$90:C663`'s stricter blink rule.
+- Lower-body selection now includes `$90:86EE`'s `$D7/$D8` frame-0-through-2 suppression
+  and the complete `$90:870C` type-`$0F` pose/frame matrix: ordinary crouch/stand, top-only
+  morph/unmorph, `$DB/$DC` frame zero, `$DD-$F0` frame two, and always-split `$F1+` art.
+- Standing-position dispatch preserves front-view frame-two-plus Y-1 placement and landing
+  poses `$A4-$A7`'s packed `$90:8D28` offsets, including the native unaligned 16-bit read;
+  visible OAM gets its intended low-byte nudge while debugger state retains the wrapped word.
 - Synthetic checks cover both velocity boundaries, held-versus-new input, equipment priority,
   specialized direction targets, contact damage, wall frames, six palette pointers/wrap, and
   landing restoration. The private-ROM routes freeze `$1B` and frame-27 `$82` against live

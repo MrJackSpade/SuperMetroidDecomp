@@ -2676,7 +2676,12 @@ public sealed class SuperMetroidRuntime
                         Camera.YPosition,
                         NmiFrameCounter);
                 }
-                Samus.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
+                Samus.Draw(
+                    _addressSpace,
+                    Oam,
+                    Camera.XPosition,
+                    Camera.YPosition,
+                    NmiFrameCounter);
                 if (Samus.ArmCannon.EffectiveDrawingMode == 2)
                 {
                     LastArmCannonDraw = Samus.ArmCannon.Draw(

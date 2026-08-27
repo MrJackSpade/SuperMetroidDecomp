@@ -810,7 +810,128 @@ static void VerifySamusRenderingSlice()
     AssertEqual((ushort)0x0122, samus.BottomSpritemapIndex, "suited forward bottom spritemap index");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "suited forward emits no power-suit chest patch");
 
-    Console.WriteLine("  Samus: standing/running/forward pose tables, split tile DMA, position, and OAM agree.");
+    // `$90:85E2` suppresses body OAM on odd invincibility frames but still calls the
+    // bank-$92 tile-definition selector. This is deliberately not folded into the arm-
+    // cannon test: `$90:C663` has a similar-looking but stricter condition of its own.
+    samus.InvincibilityTimer = 1;
+    samus.KnockbackTimer = 0;
+    samus.TileTransfers.ClearTransferFlags();
+    oam.BeginFrame();
+    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 1);
+    oam.FinalizeFrame();
+    AssertEqual(0, oam.LastFinalizedSpriteCount,
+        "odd invincibility frame suppresses complete Samus body");
+    AssertTrue(samus.TileTransfers.TopTransferEnabled,
+        "hidden invincibility frame still selects top graphics DMA");
+    AssertTrue(!samus.TileTransfers.BottomTransferEnabled,
+        "hidden suited-forward frame preserves its bank-$92 bottom-set FF sentinel");
+
+    oam.BeginFrame();
+    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 2);
+    oam.FinalizeFrame();
+    AssertEqual(2, oam.LastFinalizedSpriteCount,
+        "even invincibility frame draws complete Samus body");
+
+    // Knockback and shine are two independent OR terms in the native branch. Prove each
+    // on an odd frame so neither can pass accidentally through the even-NMI condition.
+    samus.KnockbackTimer = 1;
+    oam.BeginFrame();
+    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 1);
+    oam.FinalizeFrame();
+    AssertEqual(2, oam.LastFinalizedSpriteCount,
+        "knockback overrides odd-frame invincibility blink");
+
+    samus.KnockbackTimer = 0;
+    AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(0x0400),
+        "test fixture installs nonzero native shine timer");
+    oam.BeginFrame();
+    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 1);
+    oam.FinalizeFrame();
+    AssertEqual(2, oam.LastFinalizedSpriteCount,
+        "shine timer overrides odd-frame invincibility blink");
+
+    // Give every synthetic spritemap index used below one visible OBJ. Top and bottom base
+    // indices are both zero, so finalized OAM count becomes a direct witness: one means the
+    // top-only branch, two means the native bottom selector accepted that pose/frame.
+    bus.WriteBytes(0x92e000, [1, 0, 0, 0, 0, 0x00, 0x28]);
+    for (int index = 0; index <= 3; index++)
+        WriteTestWord(bus, 0x92808d + index * 2, 0xe000);
+
+    // Reset the unrelated flicker inputs before exercising the complete `$90:86EE/$870C`
+    // bottom-half matrix. The named cases cover every comparison boundary in the native
+    // code rather than checking only the common morph pose that first exposed the gap.
+    samus.InvincibilityTimer = 0;
+    samus.KnockbackTimer = 0;
+    foreach ((byte pose, byte movementType, ushort frame, int expectedSprites, string name) in new[]
+    {
+        ((byte)0xd7, (byte)0x0a, (ushort)0, 1, "$D7 frame zero top-only"),
+        ((byte)0xd8, (byte)0x0a, (ushort)2, 1, "$D8 frame two top-only"),
+        ((byte)0xd7, (byte)0x0a, (ushort)3, 2, "$D7 frame three split"),
+        ((byte)0x35, (byte)0x0f, (ushort)0, 2, "$35 basic crouch transition split"),
+        ((byte)0x37, (byte)0x0f, (ushort)0, 1, "$37 morph transition top-only"),
+        ((byte)0x3d, (byte)0x0f, (ushort)1, 1, "$3D unmorph transition top-only"),
+        ((byte)0xdb, (byte)0x0f, (ushort)0, 2, "$DB frame-zero split"),
+        ((byte)0xdc, (byte)0x0f, (ushort)1, 1, "$DC nonzero frame top-only"),
+        ((byte)0xdd, (byte)0x0f, (ushort)1, 1, "$DD pre-frame-two top-only"),
+        ((byte)0xf0, (byte)0x0f, (ushort)2, 2, "$F0 frame-two split"),
+        ((byte)0xf1, (byte)0x0f, (ushort)0, 2, "$F1 aimed transition always split"),
+    })
+    {
+        bus.WriteBytes(0x91b629 + pose * 8, [8, movementType, 0xff, 0xff, 0, 0, 16, 0]);
+        WriteTestWord(bus, 0x929263 + pose * 2, 0);
+        WriteTestWord(bus, 0x92945d + pose * 2, 0);
+        samus.Pose = pose;
+        samus.AnimationFrame = frame;
+        oam.BeginFrame();
+        samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: samus.YPosition);
+        oam.FinalizeFrame();
+        AssertEqual(expectedSprites, oam.LastFinalizedSpriteCount, name);
+    }
+
+    // Standing's position selector has two special families. Front-view frames zero/one
+    // remain generic, but frame two and later use Y-1. Keep frame two here because pose `$00`
+    // already carries a deliberately different graphics offset in the fixture above.
+    samus.Pose = SamusState.ForwardFacingPowerSuitPose;
+    samus.AnimationFrame = 2;
+    samus.YPosition = 0x0086;
+    oam.BeginFrame();
+    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
+    oam.FinalizeFrame();
+    AssertEqual((ushort)0x0085, samus.SpritemapYPosition,
+        "front-facing frame two uses fixed one-pixel graphics offset");
+
+    // Landing's `$90:8D28` table is byte-packed but read by a 16-bit unaligned LDA. The
+    // next frame's byte becomes the high half of the subtraction. Its low byte produces the
+    // expected on-screen nudge; retaining the wrapped high byte proves this is the actual
+    // 65816 operation rather than a visually plausible host-only byte lookup.
+    bus.WriteBytes(0x908d28, [
+        3, 6, 0, 0,
+        3, 6, 0, 0,
+        3, 3, 6, 0,
+        3, 3, 6, 0,
+        0,
+    ]);
+    bus.WriteBytes(0x91b629 + 0xa4 * 8, [8, 0, 0xff, 0xff, 9, 0, 21, 0]);
+    WriteTestWord(bus, 0x929263 + 0xa4 * 2, 0);
+    WriteTestWord(bus, 0x92945d + 0xa4 * 2, 0);
+    samus.Pose = 0xa4;
+    samus.AnimationFrame = 0;
+    oam.BeginFrame();
+    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
+    oam.FinalizeFrame();
+    AssertEqual((ushort)0xfa83, samus.SpritemapYPosition,
+        "normal-jump landing frame zero preserves unaligned word subtraction");
+    AssertEqual((byte)0x83, oam.GetEntry(0).Y,
+        "landing OAM exposes low-byte three-pixel visual nudge");
+
+    samus.AnimationFrame = 1;
+    oam.BeginFrame();
+    samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
+    oam.FinalizeFrame();
+    AssertEqual((ushort)0x0080, samus.SpritemapYPosition,
+        "normal-jump landing frame one reads overlapping 0006 word");
+
+    Console.WriteLine("  Samus: body art, position/bottom rules, tile DMA, OAM, and invincibility flicker agree.");
 }
 
 /// <summary>

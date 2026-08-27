@@ -43,10 +43,11 @@ Open `SuperMetroid.slnx` in Visual Studio. The code currently contains the first
 - bank-$90 ordinary dry-air neutral/spin jump and falling: ROM initial velocity/gravity,
   old-speed 16.16 displacement, variable-height cutoff, ceiling/floor collision, radius-aligned
   landing, `$FD/$F8/$FE/$FF` animation bytecode, and spin bottom-half selection
-- bank-$90/$93/$94 plain power beams: five ordinary slots, all ten muzzle directions,
+- bank-$90/$93/$94 plain power beams plus ordinary and Super Missiles: five ordinary slots, all ten muzzle directions,
   shared shot/bomb cooldown, signed 8.8 velocity and acceleration, terrain impact, cartridge
   animation/explosion lists, exact uncharged/charged OAM rules, Charge Beam's 60-frame
-  hold/release producer and three-component ROM muzzle flare, and exact tile/palette upload
+  hold/release producer and three-component ROM muzzle flare, exact tile/palette upload,
+  missile exhaust, and the Super Missile's invisible high-speed collision link and quake
 - exact four-row BG3 HUD initialization, WRAM-to-VRAM updates, digits, icons, and palette bits
 - exact Landing Site scroll-table loading, directional boundaries, stationary autoscroll,
   and bank-$90 16.16 Samus camera target/speed calculations
@@ -129,6 +130,7 @@ dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Sup
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 390 --aim-air-script --output ../standalone-assets/runtime/AimAirTraceFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 68 --charge-beam-script --output ../standalone-assets/runtime/ChargeBeamRelease.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 8 --missile-script --output ../standalone-assets/runtime/MissileFrame.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 8 --super-missile-script --output ../standalone-assets/runtime/SuperMissileFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 120 --aerial-turn-script --output ../standalone-assets/runtime/AerialTurnFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 24 --compact-air-script --output ../standalone-assets/runtime/CompactAirPoseFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 240 --compact-air-script --output ../standalone-assets/runtime/CompactAirTraceFrame.png
@@ -291,6 +293,15 @@ frame seven. The viewer exposes the same seam as **Missiles selected**; its fini
 debugger reserve still runs the translated producer, cooldown, acceleration, trail, point
 collision, missile explosion, and deletion on every stepped frame.
 
+`--super-missile-script` grants ten rounds and selects HUD item two at that same explicit
+inventory seam. The translated `$90:BE62/$AFE5` route produces type `$8200`, retail damage
+`$012C`, sound `$04`, the twenty-frame cooldown, and two-frame exhaust cadence. Ignition also
+allocates `$90:BF46`'s invisible linked slot; once the owner exceeds ten pixels per frame the
+link samples the otherwise skipped interval and follows the owner's collision/explosion
+lifecycle. Type-$1 point reactions use the cartridge's `$94:8B2B/$8E54` non-square and square
+slope definitions, while an impact selects `$93:8693`, publishes quake `$14` for thirty
+frames, and clears the link. The viewer exposes this as **Supers selected**.
+
 `--grapple-fire-script` selects grapple at the explicit untranslated HUD seam, then presses only Shoot/X. Bank `$9B` supplies the current pose's direction, signed 16.16 velocities, hand/flare origins, twelve-pixel length growth, and 128-pixel cutoff. Bank `$94` performs four fractional endpoint probes per frame and dispatches real BG1/BTS collision; persistent type-`$E` BTS zero/three connects, while ordinary solid collision cancels and unsupported PLM-producing reactions throw. Landing Site contains no type-`$E` blocks, so its real-ROM trace honestly proves firing, rendering, and queued cancellation. The eight-frame capture freezes the visible extending beam; fourteen frames prove cancellation completion.
 
 `--grapple-script` still supplies one already-accepted world-space anchor because Landing Site has no grapple block and enemies are not translated. Bank `$9B` supplies the pendulum pump, rope-length rules, quadrant gravity, 16-frame collision-kick gate, release products, art lookup, and one-frame `$51/$52` handoff. Bank `$94` walks rope changes one pixel at a time, sweeps six body points for every crossed whole angle byte, restores the last-safe `$xx80` angle, and negates arithmetic half velocity on terrain collision. It also supplies the sixteen staggered segment instruction phases and packed OAM attributes; bank `$9A` supplies the endpoint/rope tile data selected by the live angle. The two-frame capture freezes Landing Site's immediate reflected beam, while 100 frames proves terrain reflection, release, and jump-pose handoff.
@@ -342,8 +353,8 @@ grapple, plain power/Charge Beam, Crystal Flash, X-ray, drained/Draygon,
 liquid/atmospheric/landing-impact, and documented
 Mother Brain/Baby routes described above. Unsupported paths throw instead of becoming guessed
 physics. Remaining cross-system work includes Crystal Flash/drain presentation, earlier Mother
-Brain attack selection, live Hyper Beam damage routing, combined beam and missile/super/
-power-bomb producers and their weapon-specific trail variants, projectile-triggered shootable/special-block PLMs,
+Brain attack selection, live Hyper Beam damage routing, combined-beam and power-bomb producers,
+remaining weapon-specific trails, projectile-triggered shootable/special-block PLMs,
 missing actor spritemaps, live enemy damage producers, solid-enemy wall-jump branches,
 native enemy spawn selection, and the unported enemies/effects/
 actors. Raw files and PNGs contain private ROM-derived material and must not be distributed;

@@ -11844,6 +11844,25 @@ static void VerifySamusPowerBeamProjectiles()
         0x39, 0x82, 0x00, 0x92,
     ]);
 
+    // Super Missiles use the adjacent non-beam family plus an invisible `$93:866D` link.
+    // The link's empty spritemap is intentional: it exists for collision continuity and
+    // shared-slot accounting, not as a second visible rocket.
+    WriteTestWord(bus, 0x9383f5, 0x8657);
+    WriteTestWord(bus, 0x938657, 0x012c);
+    for (int direction = 0; direction < 10; direction++)
+        WriteTestWord(bus, 0x938659 + direction * 2, 0x9240);
+    bus.WriteBytes(0x939240, [
+        0x0f, 0x00, 0x30, 0xa0, 0x08, 0x08, 0x00, 0x00,
+        0x39, 0x82, 0x40, 0x92,
+    ]);
+    WriteTestWord(bus, 0x93842f, 0x866d);
+    WriteTestWord(bus, 0x93866d, 0x012c);
+    WriteTestWord(bus, 0x93866f, 0x9280);
+    bus.WriteBytes(0x939280, [
+        0x0f, 0x00, 0x40, 0xa0, 0x08, 0x08, 0x00, 0x00,
+        0x39, 0x82, 0x80, 0x92,
+    ]);
+
     // The animation record's `$A000` pointer is a bank-$93 spritemap, not merely an opaque
     // animation token. One literal entry makes the draw path observable independently of
     // the separate flare spritemap family seeded below.
@@ -11862,6 +11881,11 @@ static void VerifySamusPowerBeamProjectiles()
     WriteTestWord(bus, 0x93a022, 0);
     bus.WriteByte(0x93a024, 0);
     WriteTestWord(bus, 0x93a025, 0x2a44);
+    WriteTestWord(bus, 0x93a030, 1);
+    WriteTestWord(bus, 0x93a032, 0);
+    bus.WriteByte(0x93a034, 0);
+    WriteTestWord(bus, 0x93a035, 0x2a45);
+    WriteTestWord(bus, 0x93a040, 0);
 
     // Charge-only power beam uses the parallel `$93:83D9` pointer family. Keep its
     // direction records shared but give it unmistakable damage so release cannot pass by
@@ -11881,6 +11905,8 @@ static void VerifySamusPowerBeamProjectiles()
     WriteTestWord(bus, 0x90b629, 0xb4c9);
     WriteTestWord(bus, 0x90b5fb, 0xb5a1);
     WriteTestWord(bus, 0x90b649, 0xb4c9);
+    WriteTestWord(bus, 0x90b5fd, 0xb5a1);
+    WriteTestWord(bus, 0x90b64b, 0xb4c9);
     WriteTestWord(bus, 0x90b4c9, 0x0000);
     bus.WriteBytes(0x90b5a1, [
         0x04, 0x00, 0x48, 0x2a,
@@ -11941,6 +11967,11 @@ static void VerifySamusPowerBeamProjectiles()
     // `$93:867F` is the missile-explosion instruction pointer consumed by `$93:80CF`.
     WriteTestWord(bus, 0x93867f, 0x9300);
     bus.WriteBytes(0x939300, [
+        0x02, 0x00, 0x10, 0xa0, 0x08, 0x08, 0x00, 0x00,
+        0x2f, 0x82,
+    ]);
+    WriteTestWord(bus, 0x938693, 0x9340);
+    bus.WriteBytes(0x939340, [
         0x02, 0x00, 0x10, 0xa0, 0x08, 0x08, 0x00, 0x00,
         0x2f, 0x82,
     ]);
@@ -12022,6 +12053,24 @@ static void VerifySamusPowerBeamProjectiles()
         };
         WriteTestWord(bus, 0x90c303 + direction * 4, unchecked((ushort)missileXAcceleration));
         WriteTestWord(bus, 0x90c305 + direction * 4, unchecked((ushort)missileYAcceleration));
+        short superXAcceleration = direction switch
+        {
+            1 or 3 => 0x00b6,
+            2 => 0x0100,
+            6 or 8 => -0x00b6,
+            7 => -0x0100,
+            _ => 0,
+        };
+        short superYAcceleration = direction switch
+        {
+            0 or 9 => -0x0100,
+            1 or 8 => -0x00b6,
+            3 or 6 => 0x00b6,
+            4 or 5 => 0x0100,
+            _ => 0,
+        };
+        WriteTestWord(bus, 0x90c32b + direction * 4, unchecked((ushort)superXAcceleration));
+        WriteTestWord(bus, 0x90c32d + direction * 4, unchecked((ushort)superYAcceleration));
     }
 
     const int width = 32;
@@ -12406,8 +12455,164 @@ static void VerifySamusPowerBeamProjectiles()
         "missile explosion delete decrements ordinary counter");
     AssertTrue(!missile.IsActive, "missile explosion delete clears its slot");
 
+    // Point missiles use a deliberately different slope route from radius-spanning beams.
+    // Put the muzzle directly inside one synthetic type-one block and compare points above
+    // and inside the exact cartridge height. This locks `$94:A58F`'s shape-row indexing and
+    // `height <= y` comparison independently of the Landing Site cartridge smoke test.
+    bus.WriteBytes(0x948b2b + 0x12 * 16, [
+        0x10, 0x0f, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09,
+        0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01,
+    ]);
+    bus.WriteBytes(0x948e54, [0x00, 0x00, 0x80, 0x80]);
+
+    RoomLevelData BuildPointSlopeRoom(byte behavior)
+    {
+        var words = new ushort[width * height];
+        var behaviors = new byte[words.Length];
+        int muzzleBlock = 6 * width + 4;
+        words[muzzleBlock] = 0x1000;
+        behaviors[muzzleBlock] = behavior;
+        return new RoomLevelData(
+            width,
+            height,
+            words,
+            behaviors,
+            new ushort[words.Length],
+            new byte[8]);
+    }
+
+    SamusProjectileFrameResult FirePointMissile(RoomLevelData terrain, ushort yPosition)
+    {
+        var pointSamus = new SamusState
+        {
+            Pose = rightPose,
+            XPosition = 64,
+            YPosition = yPosition,
+            SelectedHudItem = 1,
+            Missiles = 1,
+        };
+        var pointBombs = new SamusBombProjectileSystem();
+        var pointProjectiles = new SamusProjectileSystem();
+        pointBombs.StepFrame(bus, terrain, pointSamus, 0, 0);
+        return pointProjectiles.StepFrame(
+            bus,
+            terrain,
+            pointSamus,
+            (ushort)SnesButton.X,
+            (ushort)SnesButton.X,
+            0,
+            0,
+            pointBombs);
+    }
+
+    RoomLevelData nonSquareSlope = BuildPointSlopeRoom(0x12);
+    AssertTrue(!FirePointMissile(nonSquareSlope, 96).CollisionStartedExplosion,
+        "non-square point above ROM height remains air");
+    AssertTrue(FirePointMissile(nonSquareSlope, 111).CollisionStartedExplosion,
+        "non-square point at ROM height collides");
+
+    // Shape zero is the retail half-height square: top-left/top-right are air and both
+    // bottom quadrants are solid. These two centers differ only in bit three of Y, proving
+    // `$94:A66A`'s perpendicular quadrant XOR used during horizontal missile movement.
+    RoomLevelData squareSlope = BuildPointSlopeRoom(0x00);
+    AssertTrue(!FirePointMissile(squareSlope, 96).CollisionStartedExplosion,
+        "square-slope top half remains air");
+    AssertTrue(FirePointMissile(squareSlope, 104).CollisionStartedExplosion,
+        "square-slope bottom half collides");
+
+    // Super Missiles share `$BE62` but differ in every animation-adjacent constant: HUD item
+    // two, type `$8200`, sound four, cooldown twenty, `$012C` damage, acceleration `$0100`,
+    // two-frame exhaust after the initial delay, an invisible linked slot, and a larger quake-
+    // producing explosion. Keep those distinctions together so a speed-only implementation
+    // cannot satisfy the regression.
+    var superSamus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 64,
+        YPosition = 96,
+        SelectedHudItem = 2,
+        SuperMissiles = 3,
+    };
+    var superBombs = new SamusBombProjectileSystem();
+    var superProjectiles = new SamusProjectileSystem();
+    superBombs.StepFrame(bus, wall, superSamus, 0, 0);
+    SamusProjectileFrameResult superFired = superProjectiles.StepFrame(
+        bus,
+        wall,
+        superSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X,
+        0,
+        0,
+        superBombs);
+    SamusProjectileSlot super = superProjectiles.Slots[0];
+    SamusProjectileSlot superLink = superProjectiles.Slots[1];
+    AssertEqual((int?)0, superFired.FiredSlot, "super fresh press allocates owner slot zero");
+    AssertEqual((ushort)4, superFired.QueuedSoundEffect,
+        "super producer queues library-one effect four");
+    AssertEqual((ushort)2, superSamus.SuperMissiles,
+        "super producer consumes exactly one ammo");
+    AssertEqual((ushort)20, superBombs.CooldownTimer,
+        "super producer installs literal twenty-frame cooldown");
+    AssertEqual((ushort)2, superProjectiles.ProjectileCounter,
+        "super ignition counts visible owner plus invisible link");
+    AssertEqual((ushort)0x8200, super.Type, "super owner uses active type `$8200`");
+    AssertEqual((ushort)0x012c, super.Damage, "super owner reads retail 300 damage");
+    AssertEqual((short)0x0100, super.XVelocity,
+        "super ignition begins at one pixel per frame");
+    AssertEqual((ushort)0x0102, super.Variable,
+        "super variable combines initialized high byte and link byte index two");
+    AssertEqual(SamusProjectilePreInstruction.SuperMissile, super.PreInstruction,
+        "super owner selects `$90:AFE5`");
+    AssertEqual((ushort)0x8200, superLink.Type, "super link retains family `$0200`");
+    AssertEqual((ushort)0x012c, superLink.Damage, "super link carries native damage sentinel");
+    AssertEqual(SamusProjectilePreInstruction.SuperMissileLink, superLink.PreInstruction,
+        "super link selects stationary `$90:B075`");
+    AssertEqual(super.XPosition, superLink.XPosition,
+        "slow horizontal link follows owner center after ignition movement");
+
+    // The link instruction list is intentionally invisible; only the owner contributes an
+    // OBJ after its own bank-$93 program selects `$A030`.
+    var superOam = new OamBuffer();
+    superOam.BeginFrame();
+    superProjectiles.DrawLiveProjectiles(bus, superOam, 0, 0, nmiFrameCounter: 0);
+    AssertEqual(4, superOam.NextByteOffset, "super owner draws while link spritemap is empty");
+    AssertEqual(0x045, superOam.GetEntry(0).TileNumber,
+        "super owner consumes its distinct `$2A45` OBJ");
+
+    for (int frame = 0; frame < 3; frame++)
+    {
+        superBombs.StepFrame(bus, wall, superSamus, 0, 0);
+        superProjectiles.StepFrame(bus, wall, superSamus, 0, 0, 0, 0, superBombs);
+    }
+    AssertEqual(1, superProjectiles.ActiveTrailCount,
+        "super's initial four-count allocates first exhaust trail");
+    AssertEqual((ushort)2, super.TrailTimer,
+        "super exhaust reloads two instead of missile four");
+
+    SamusProjectileFrameResult superImpact = default;
+    for (int frame = 0; frame < 24 && !superImpact.CollisionStartedExplosion; frame++)
+    {
+        superBombs.StepFrame(bus, wall, superSamus, 0, 0);
+        superImpact = superProjectiles.StepFrame(
+            bus, wall, superSamus, 0, 0, 0, 0, superBombs);
+    }
+    AssertTrue(superImpact.CollisionStartedExplosion,
+        "accelerating super reaches the type-eight wall");
+    AssertEqual((ushort)0x8800, super.Type,
+        "super impact preserves active bit and selects family `$0800`");
+    AssertEqual((ushort)0x9348, super.InstructionPointer,
+        "super collision consumes first record of `$93:9340` explosion fixture");
+    AssertEqual((ushort)20, superProjectiles.EarthquakeType,
+        "super impact publishes quake type `$14`");
+    AssertEqual((ushort)30, superProjectiles.EarthquakeTimer,
+        "super impact publishes thirty-frame quake timer");
+    AssertTrue(!superLink.IsActive, "super owner impact clears invisible linked slot");
+    AssertEqual((ushort)1, superProjectiles.ProjectileCounter,
+        "super explosion retains only its visible owner count");
+
     Console.WriteLine(
-        "  Samus beams/missiles: producers, charge flare, trails, ROM records, motion, collision, and explosions agree.");
+        "  Samus beams/missiles: producers, charge flare, linked supers, trails, motion, collision, and explosions agree.");
 }
 
 /// <summary>

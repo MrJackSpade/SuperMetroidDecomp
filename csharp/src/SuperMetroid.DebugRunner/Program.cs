@@ -116,6 +116,11 @@ else if (options.MissileScript)
     Console.WriteLine(
         "Input script: select HUD item one, grant ten debugger missiles, fire one fresh Shoot edge, and follow the retail projectile art, acceleration, and exhaust trail.");
 }
+else if (options.SuperMissileScript)
+{
+    Console.WriteLine(
+        "Input script: select HUD item two, grant ten debugger Super Missiles, fire one fresh Shoot edge, and follow its visible owner plus invisible linked collision slot.");
+}
 else if (options.AerialTurnScript)
 {
     Console.WriteLine(
@@ -263,7 +268,7 @@ if (options.GroundedRun)
     {
         groundedPlacement = runtime.InitializeDebugGrappleSwing();
     }
-    else if (options.RanIntoWallScript || options.ScrewAttackScript)
+    else if (options.RanIntoWallScript || options.ScrewAttackScript || options.SuperMissileScript)
     {
         // The core scans the decompressed room for an ordinary type-$8 corner. Keeping
         // the returned coordinates here makes the host-authored placement as inspectable
@@ -290,6 +295,27 @@ if (options.GroundedRun)
                     screwFloorBlockX,
                     original.BlockY),
             };
+        }
+        else if (options.SuperMissileScript)
+        {
+            // `$90:AFE5` needs enough unobstructed distance to cross the ten-pixel threshold
+            // that activates `$90:B00E`'s linked gap probe. Begin six blocks left of the
+            // already-inspected ordinary-solid wall while retaining its ROM-authored floor.
+            // This host placement replaces no collision: every crossed air/slope block and
+            // the eventual impact block still come from Landing Site's decompressed level.
+            ushort missileStartX = unchecked((ushort)(runtime.Samus!.XPosition - 96));
+            runtime.Samus.XPosition = missileStartX;
+            int missileFloorBlockX = missileStartX >> 4;
+            DebugGroundedSamusPlacement original = groundedPlacement.Value;
+            groundedPlacement = original with
+            {
+                XPosition = missileStartX,
+                BlockX = missileFloorBlockX,
+                FloorBlock = runtime.LevelData!.GetCollisionBlock(
+                    missileFloorBlockX,
+                    original.BlockY),
+            };
+
         }
     }
     else
@@ -523,6 +549,14 @@ if (options.MissileScript)
     runtime.Samus.SelectedHudItem = 1;
 }
 
+if (options.SuperMissileScript)
+{
+    // The inventory/menu seam is the same as ordinary missiles. No link is injected here:
+    // the translated first alpha pass must allocate `$90:BF46` itself from a real free slot.
+    runtime.Samus!.SuperMissiles = 10;
+    runtime.Samus.SelectedHudItem = 2;
+}
+
 Console.WriteLine(
     $"Loaded Landing Site scrolls $8F:9283 -> $7E:CD20: " +
     $"{Convert.ToHexString(camera.Scrolls.Storage[..camera.Scrolls.LogicalCellCount])}.");
@@ -548,11 +582,22 @@ Console.WriteLine(
         : "only that placement is host-selected."));
 if (wallPlacement is DebugRanIntoWallSamusPlacement wallDiagnostic)
 {
-    Console.WriteLine(
-        $"Wall regression uses ROM column ${wallDiagnostic.WallBlockX:X2}, rows " +
-        $"${wallDiagnostic.WallTopBlockY:X2}-${wallDiagnostic.WallBottomBlockY:X2}; " +
-        $"standing center X=${wallDiagnostic.Grounded.XPosition:X4} is exactly one " +
-        "prospective running pixel from collision.");
+    if (options.SuperMissileScript)
+    {
+        Console.WriteLine(
+            $"Super Missile regression starts six blocks left of ROM wall column " +
+            $"${wallDiagnostic.WallBlockX:X2}, rows " +
+            $"${wallDiagnostic.WallTopBlockY:X2}-${wallDiagnostic.WallBottomBlockY:X2}; " +
+            "the intervening terrain and impact remain cartridge-authored.");
+    }
+    else
+    {
+        Console.WriteLine(
+            $"Wall regression uses ROM column ${wallDiagnostic.WallBlockX:X2}, rows " +
+            $"${wallDiagnostic.WallTopBlockY:X2}-${wallDiagnostic.WallBottomBlockY:X2}; " +
+            $"standing center X=${wallDiagnostic.Grounded.XPosition:X4} is exactly one " +
+            "prospective running pixel from collision.");
+    }
 }
 if (options.GrappleScript || options.GrappleFireScript)
 {
@@ -758,6 +803,14 @@ bool observedMissileArt = false;
 bool observedMissileTrail = false;
 ushort observedMissileDamage = 0;
 ushort observedMissileSound = 0;
+bool observedSuperMissileShot = false;
+bool observedSuperMissileArt = false;
+bool observedSuperMissileTrail = false;
+bool observedSuperMissileLink = false;
+bool observedSuperMissileImpact = false;
+bool observedSuperMissileQuake = false;
+ushort observedSuperMissileDamage = 0;
+ushort observedSuperMissileSound = 0;
 bool observedKnockbackMovement = false;
 bool observedDamageBoostMovement = false;
 bool observedMorphedKnockbackPosePreserved = false;
@@ -1253,6 +1306,13 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 // `$90:BE62` is edge-triggered through `$8F`; one isolated X sample after
                 // timer dismissal proves a held desktop button is not being turned into a
                 // fabricated auto-fire stream.
+                2 => (ushort)SnesButton.X,
+                _ => (ushort)0,
+            }
+        : options.SuperMissileScript
+            ? frameIndex switch
+            {
+                0 => (ushort)SnesButton.Start,
                 2 => (ushort)SnesButton.X,
                 _ => (ushort)0,
             }
@@ -2218,6 +2278,16 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     if (runtime.Projectiles.LastFrameResult.FiredSlot is int firedSlot)
     {
         SamusProjectileSlot firedProjectile = runtime.Projectiles.Slots[firedSlot];
+        if ((firedProjectile.Type & 0x0f00) == 0x0200)
+        {
+            observedSuperMissileShot = true;
+            observedSuperMissileDamage = firedProjectile.Damage;
+            observedSuperMissileSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect;
+            Console.WriteLine(
+                $"frame {result.FrameNumber,4}: super missile slot {firedSlot}, " +
+                $"type=${firedProjectile.Type:X4}, damage=${firedProjectile.Damage:X4}, " +
+                $"sound=${observedSuperMissileSound:X2}, ammo={runtime.Samus.SuperMissiles}.");
+        }
         if ((firedProjectile.Type & 0x0f00) == 0x0100)
         {
             observedMissileShot = true;
@@ -2244,6 +2314,22 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     observedMissileArt |= runtime.Projectiles.Slots.Any(
         slot => slot.IsActive && (slot.Type & 0x0f00) == 0x0100 && slot.SpritemapPointer != 0);
     observedMissileTrail |= options.MissileScript && runtime.Projectiles.ActiveTrailCount != 0;
+    observedSuperMissileArt |= runtime.Projectiles.Slots.Any(
+        slot => slot.IsActive &&
+            slot.PreInstruction == SamusProjectilePreInstruction.SuperMissile &&
+            slot.SpritemapPointer != 0);
+    observedSuperMissileLink |= runtime.Projectiles.Slots.Any(
+        slot => slot.IsActive &&
+            slot.PreInstruction == SamusProjectilePreInstruction.SuperMissileLink);
+    observedSuperMissileTrail |=
+        options.SuperMissileScript && runtime.Projectiles.ActiveTrailCount != 0;
+    observedSuperMissileImpact |=
+        options.SuperMissileScript &&
+        runtime.Projectiles.LastFrameResult.CollisionStartedExplosion;
+    observedSuperMissileQuake |=
+        options.SuperMissileScript &&
+        runtime.Projectiles.EarthquakeType == 20 &&
+        runtime.Projectiles.EarthquakeTimer == 30;
     observedPowerBeamExplosion |=
         runtime.Projectiles.LastFrameResult.CollisionStartedExplosion;
     uint currentExtraRunSpeed =
@@ -2911,6 +2997,43 @@ if (options.MissileScript)
         $"Missile ROM route fired={observedMissileShot}, damage=${observedMissileDamage:X4}, " +
         $"sound=${observedMissileSound:X2}, art={observedMissileArt}, " +
         $"trail={observedMissileTrail}, ammo={runtime.Samus!.Missiles}.");
+}
+
+if (options.SuperMissileScript)
+{
+    if (options.FrameCount >= 3 &&
+        (!observedSuperMissileShot ||
+         observedSuperMissileDamage == 0 ||
+         observedSuperMissileSound != 4 ||
+         !observedSuperMissileLink))
+    {
+        throw new InvalidOperationException(
+            $"Super Missile producer mismatch: fired={observedSuperMissileShot}, " +
+            $"damage=${observedSuperMissileDamage:X4}, sound=${observedSuperMissileSound:X2}, " +
+            $"link={observedSuperMissileLink}.");
+    }
+    if (options.FrameCount >= 4 && !observedSuperMissileArt)
+        throw new InvalidOperationException("Super Missile route never decoded owner bank-$93 art.");
+    if (options.FrameCount >= 7 && !observedSuperMissileTrail)
+        throw new InvalidOperationException("Super Missile route never allocated two-count exhaust.");
+    if (options.FrameCount >= 20 && (!observedSuperMissileImpact || !observedSuperMissileQuake))
+    {
+        throw new InvalidOperationException(
+            $"Super Missile wall route did not complete its native impact: " +
+            $"explosion={observedSuperMissileImpact}, quake={observedSuperMissileQuake}.");
+    }
+    if (options.FrameCount >= 3 && runtime.Samus!.SuperMissiles != 9)
+    {
+        throw new InvalidOperationException(
+            $"Super Missile route expected one round consumed from ten; remaining={runtime.Samus.SuperMissiles}.");
+    }
+
+    Console.WriteLine(
+        $"Super Missile ROM route fired={observedSuperMissileShot}, " +
+        $"damage=${observedSuperMissileDamage:X4}, sound=${observedSuperMissileSound:X2}, " +
+        $"art={observedSuperMissileArt}, link={observedSuperMissileLink}, " +
+        $"trail={observedSuperMissileTrail}, impact={observedSuperMissileImpact}, " +
+        $"quake={observedSuperMissileQuake}, ammo={runtime.Samus!.SuperMissiles}.");
 }
 
 if (options.MorphKnockbackScript)
@@ -3760,6 +3883,7 @@ readonly record struct DebugRunnerOptions(
     bool GunExtendedScript,
     bool ChargeBeamScript,
     bool MissileScript,
+    bool SuperMissileScript,
     bool AerialTurnScript,
     bool CompactAirScript,
     bool AimCrouchScript,
@@ -3809,6 +3933,7 @@ readonly record struct DebugRunnerOptions(
         bool gunExtendedScript = false;
         bool chargeBeamScript = false;
         bool missileScript = false;
+        bool superMissileScript = false;
         bool aerialTurnScript = false;
         bool compactAirScript = false;
         bool aimCrouchScript = false;
@@ -3955,6 +4080,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--super-missile-script":
+                    superMissileScript = true;
+                    groundedRun = true;
+                    break;
+
                 case "--aerial-turn-script":
                     aerialTurnScript = true;
                     groundedRun = true;
@@ -4086,7 +4216,8 @@ readonly record struct DebugRunnerOptions(
             "runtime",
             deathScript ? "DeathFrame.png" :
             xrayScript ? "XrayFrame.png" :
-            missileScript ? "MissileFrame.png" : "EscapeTimerFrame.png");
+            missileScript ? "MissileFrame.png" :
+            superMissileScript ? "SuperMissileFrame.png" : "EscapeTimerFrame.png");
 
         // The frame runtime reads compressed room data, graphics, palette, door metadata,
         // and library-background tilemaps directly from the ROM. It deliberately has no
@@ -4117,6 +4248,7 @@ readonly record struct DebugRunnerOptions(
             gunExtendedScript,
             chargeBeamScript,
             missileScript,
+            superMissileScript,
             aerialTurnScript,
             compactAirScript,
             aimCrouchScript,

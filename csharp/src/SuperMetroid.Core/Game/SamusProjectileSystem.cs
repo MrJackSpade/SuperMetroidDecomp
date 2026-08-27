@@ -58,8 +58,13 @@ public sealed class SamusProjectileSystem
     private const int ChargedBeamDataPointers = 0x9383d9;
     private const int BeamExplosionInstructionPointerAddress = 0x9383ff;
     private const int MissileExplosionInstructionPointerAddress = 0x93867f;
+    private const int SuperMissileExplosionInstructionPointerAddress = 0x938693;
     private const int NonBeamProjectileDataPointers = 0x9383f1;
+    private const int SuperMissileLinkDataPointers = 0x93842b;
     private const int MissileAccelerations = 0x90c303;
+    private const int SuperMissileAccelerations = 0x90c32b;
+    private const int NonSquareSlopeDefinitions = 0x948b2b;
+    private const int SquareSlopeDefinitions = 0x948e54;
     private const int TrailLeftInstructionPointers = 0x90b5bb;
     private const int TrailRightInstructionPointers = 0x90b609;
     private const int UnchargedTrailOffsetFamilies = 0x9ba4b3;
@@ -109,6 +114,10 @@ public sealed class SamusProjectileSystem
     /// That consumer is not translated yet, so the producer-owned value remains inspectable.
     /// </summary>
     public ushort ProjectileInvincibilityTimer { get; private set; }
+
+    /// <summary>Global quake words written by a super-missile impact at `$93:8125-$812E`.</summary>
+    public ushort EarthquakeType { get; private set; }
+    public ushort EarthquakeTimer { get; private set; }
 
     private readonly ushort[] _flareFrames = new ushort[3];
     private readonly ushort[] _flareTimers = new ushort[3];
@@ -232,7 +241,7 @@ public sealed class SamusProjectileSystem
                     controllerNewInput,
                     sharedProjectiles);
             }
-            else if (samus.SelectedHudItem == 1)
+            else if (samus.SelectedHudItem is 1 or 2)
             {
                 (firedSlot, queuedSound) = TryFireMissile(
                     bus,
@@ -272,6 +281,21 @@ public sealed class SamusProjectileSystem
                     layer1X,
                     layer1Y,
                     sharedProjectiles);
+            }
+            else if (slot.PreInstruction == SamusProjectilePreInstruction.SuperMissile)
+            {
+                collisionStartedExplosion |= RunSuperMissilePreInstruction(
+                    bus,
+                    level,
+                    samus,
+                    slot,
+                    layer1X,
+                    layer1Y,
+                    sharedProjectiles);
+            }
+            else if (slot.PreInstruction == SamusProjectilePreInstruction.SuperMissileLink)
+            {
+                RunSuperMissileLinkPreInstruction(slot);
             }
 
             // Kill_Projectile replaces rather than clears a live beam. Consequently the
@@ -423,6 +447,8 @@ public sealed class SamusProjectileSystem
         PreviousBeamChargeCounter = 0;
         ChargedShotGlowTimer = 0;
         ProjectileInvincibilityTimer = 0;
+        EarthquakeType = 0;
+        EarthquakeTimer = 0;
         Array.Clear(_flareFrames);
         Array.Clear(_flareTimers);
         LastFrameResult = default;
@@ -608,9 +634,11 @@ public sealed class SamusProjectileSystem
         // `$BE62`; every failing branch rolls it back. Testing the stable preconditions first
         // yields the same externally visible state without temporarily corrupting debugger
         // watches between C# statements.
+        bool isSuperMissile = samus.SelectedHudItem == 2;
+        ushort ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
         if (ProjectileCounter >= SlotCount ||
             (sharedProjectiles.CooldownTimer & 0x00ff) != 0 ||
-            samus.Missiles == 0)
+            ammo == 0)
         {
             return (null, 0);
         }
@@ -628,9 +656,12 @@ public sealed class SamusProjectileSystem
         InitializePosition(bus, samus, slot);
         ProjectileCounter = unchecked((ushort)(ProjectileCounter + 1));
         ProjectileInvincibilityTimer = 20;
-        samus.Missiles = unchecked((ushort)(samus.Missiles - 1));
+        if (isSuperMissile)
+            samus.SuperMissiles = unchecked((ushort)(samus.SuperMissiles - 1));
+        else
+            samus.Missiles = unchecked((ushort)(samus.Missiles - 1));
         slot.TrailTimer = 4;
-        slot.Type = 0x8100;
+        slot.Type = isSuperMissile ? (ushort)0x8200 : (ushort)0x8100;
         slot.Variable = 0;
 
         // The producer first calls the generic velocity initializer with base speed zero.
@@ -638,7 +669,9 @@ public sealed class SamusProjectileSystem
         // keeping both calls makes the one-frame ignition transition directly inspectable.
         InitializeDirectionalVelocity(slot, baseSpeed: 0);
 
-        ushort dataPointer = ReadWord(bus, NonBeamProjectileDataPointers + 2);
+        ushort dataPointer = ReadWord(
+            bus,
+            NonBeamProjectileDataPointers + samus.SelectedHudItem * 2);
         slot.Damage = ReadWord(bus, 0x930000 | dataPointer);
         slot.InstructionPointer = ReadWord(
             bus,
@@ -646,14 +679,16 @@ public sealed class SamusProjectileSystem
         slot.XRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 4)));
         slot.YRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 5)));
         slot.InstructionTimer = 1;
-        slot.PreInstruction = SamusProjectilePreInstruction.Missile;
+        slot.PreInstruction = isSuperMissile
+            ? SamusProjectilePreInstruction.SuperMissile
+            : SamusProjectilePreInstruction.Missile;
 
         // Retail constants embedded beside the bank-$90 producer: missile sound library-one
         // effect three and ten-frame shared cooldown. Empty ammo auto-deselects the HUD item.
-        sharedProjectiles.SetSharedCooldown(10);
-        if (samus.Missiles == 0)
+        sharedProjectiles.SetSharedCooldown(isSuperMissile ? (ushort)20 : (ushort)10);
+        if ((isSuperMissile ? samus.SuperMissiles : samus.Missiles) == 0)
             samus.SelectedHudItem = 0;
-        return (slotIndex, 3);
+        return (slotIndex, isSuperMissile ? (ushort)4 : (ushort)3);
     }
 
     private static void InitializePosition(
@@ -821,10 +856,11 @@ public sealed class SamusProjectileSystem
 
         bool collided = direction switch
         {
-            0 or 4 or 5 or 9 => MoveMissileVertically(level, slot),
-            2 or 7 => MoveMissileHorizontally(level, slot),
+            0 or 4 or 5 or 9 => MoveMissileVertically(bus, level, slot),
+            2 or 7 => MoveMissileHorizontally(bus, level, slot),
             1 or 3 or 6 or 8 =>
-                MoveMissileHorizontally(level, slot) || MoveMissileVertically(level, slot),
+                MoveMissileHorizontally(bus, level, slot) ||
+                MoveMissileVertically(bus, level, slot),
             _ => false,
         };
         if (collided)
@@ -840,7 +876,181 @@ public sealed class SamusProjectileSystem
         return false;
     }
 
+    private bool RunSuperMissilePreInstruction(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        SamusProjectileSlot slot,
+        ushort layer1X,
+        ushort layer1Y,
+        SamusBombProjectileSystem sharedProjectiles)
+    {
+        if ((slot.Direction & 0x00f0) != 0)
+        {
+            ClearProjectile(slot);
+            ClearAllSuperMissileLinks();
+            return false;
+        }
+
+        // `$90:AFF3` begins with the producer's value four but reloads two after every
+        // expiry. Super Missiles therefore emit twice as frequently as ordinary missiles;
+        // both families still select the same `$B5A1` art through pointer entries $20/$21.
+        slot.TrailTimer = unchecked((ushort)(slot.TrailTimer - 1));
+        if (slot.TrailTimer == 0)
+        {
+            slot.TrailTimer = 2;
+            SpawnTrail(bus, slot);
+        }
+
+        int direction = slot.Direction & 0x000f;
+        if ((slot.Variable & 0xff00) == 0)
+        {
+            // The shared missile accelerator crosses `$0100` on its first alpha pass. Only
+            // the Super family immediately allocates `$90:BF46`'s invisible collision link;
+            // the link's native byte index is retained in the variable's low byte.
+            slot.Variable = unchecked((ushort)(slot.Variable + 0x0100));
+            if ((slot.Variable & 0xff00) != 0)
+            {
+                InitializeDirectionalVelocity(slot, unchecked((short)slot.Variable));
+                SpawnSuperMissileLink(bus, samus, slot);
+            }
+        }
+        else
+        {
+            int acceleration = SuperMissileAccelerations + direction * 4;
+            slot.XVelocity = unchecked((short)(slot.XVelocity +
+                unchecked((short)ReadWord(bus, acceleration))));
+            slot.YVelocity = unchecked((short)(slot.YVelocity +
+                unchecked((short)ReadWord(bus, acceleration + 2))));
+        }
+
+        bool collided = false;
+        if (direction is 2 or 7 or 1 or 3 or 6 or 8)
+        {
+            collided = MoveMissileHorizontally(bus, level, slot);
+            if (collided)
+                KillMissile(bus, slot, sharedProjectiles);
+            UpdateSuperMissileLinkAxis(bus, level, slot, vertical: false, sharedProjectiles);
+        }
+        if (!collided && direction is 0 or 4 or 5 or 9 or 1 or 3 or 6 or 8)
+        {
+            collided = MoveMissileVertically(bus, level, slot);
+            if (collided)
+                KillMissile(bus, slot, sharedProjectiles);
+            UpdateSuperMissileLinkAxis(bus, level, slot, vertical: true, sharedProjectiles);
+        }
+
+        short screenX = unchecked((short)(slot.XPosition - layer1X));
+        short screenY = unchecked((short)(slot.YPosition - layer1Y));
+        if (screenX < -64 || screenX >= 320 || screenY < -64 || screenY >= 320)
+        {
+            ClearProjectile(slot);
+            ClearAllSuperMissileLinks();
+        }
+        return collided;
+    }
+
+    private void SpawnSuperMissileLink(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        SamusProjectileSlot owner)
+    {
+        SamusProjectileSlot? link = _slots.FirstOrDefault(candidate => candidate.Damage == 0);
+        if (link is null)
+            return;
+
+        link.ClearFields();
+        link.Type = 0x8200;
+        link.Direction = owner.Direction;
+        link.XPosition = owner.XPosition;
+        link.YPosition = owner.YPosition;
+
+        // `$90:BF78` deliberately calls the ordinary muzzle initializer again after copying
+        // the owner's coordinates. At ignition both positions are equivalent; retaining the
+        // call matters for moving/transition poses whose cartridge origin tables can change.
+        InitializePosition(bus, samus, link);
+        ushort dataPointer = ReadWord(bus, SuperMissileLinkDataPointers + 4);
+        link.Damage = ReadWord(bus, 0x930000 | dataPointer);
+        link.InstructionPointer = ReadWord(bus, 0x930000 | unchecked((ushort)(dataPointer + 2)));
+        link.InstructionTimer = 1;
+        link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
+
+        owner.Variable = unchecked((ushort)((owner.Variable & 0xff00) + link.NativeByteIndex));
+        ProjectileCounter = unchecked((ushort)(ProjectileCounter + 1));
+    }
+
+    private void RunSuperMissileLinkPreInstruction(SamusProjectileSlot link)
+    {
+        // `$90:B075` leaves an ordinary link completely stationary. A high direction nibble
+        // is a deletion signal and clears every `$x200` family slot, including its owner.
+        if ((link.Direction & 0x00f0) == 0)
+            return;
+        ClearProjectile(link);
+        ClearAllSuperMissileLinks();
+    }
+
+    private void UpdateSuperMissileLinkAxis(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusProjectileSlot owner,
+        bool vertical,
+        SamusBombProjectileSystem sharedProjectiles)
+    {
+        if ((owner.Variable & 0xff00) == 0)
+            return;
+
+        int linkIndex = (owner.Variable & 0x00ff) >> 1;
+        if ((uint)linkIndex >= (uint)_slots.Length)
+            return;
+        SamusProjectileSlot link = _slots[linkIndex];
+        if (!link.IsActive)
+            return;
+
+        // A primary collision has already converted the owner to `$0800`. Both slow and fast
+        // native branches then clear the invisible link rather than allowing a second quake.
+        if ((owner.Type & 0x0f00) == MissileExplosionFamily)
+        {
+            ClearProjectile(link);
+            return;
+        }
+
+        short velocity = vertical ? owner.YVelocity : owner.XVelocity;
+        int wholeMagnitude = (Math.Abs((int)velocity) & 0xff00) >> 8;
+        ushort ownerPosition = vertical ? owner.YPosition : owner.XPosition;
+        ushort linkPosition = ownerPosition;
+        if (wholeMagnitude >= 11)
+        {
+            int offset = wholeMagnitude - 10;
+            linkPosition = unchecked((ushort)(ownerPosition + (velocity < 0 ? offset : -offset)));
+        }
+
+        if (vertical)
+            link.YPosition = linkPosition;
+        else
+            link.XPosition = linkPosition;
+
+        // At <11 px/frame the link only follows the main center. At higher speeds it samples
+        // exactly ten pixels beyond the previous position to close the point-collision gap.
+        if (wholeMagnitude >= 11 && MissilePointReaction(
+                bus,
+                level,
+                link,
+                horizontalMovement: !vertical))
+            KillMissile(bus, link, sharedProjectiles);
+    }
+
+    private void ClearAllSuperMissileLinks()
+    {
+        for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
+        {
+            SamusProjectileSlot candidate = _slots[slotIndex];
+            if ((candidate.Type & 0x0fff) == 0x0200)
+                ClearProjectile(candidate);
+        }
+    }
+
     private static bool MoveMissileHorizontally(
+        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot)
     {
@@ -855,10 +1065,11 @@ public sealed class SamusProjectileSystem
         int roomWidthInScreens = (level.WidthInBlocks + 15) >> 4;
         if ((slot.XPosition >> 8) >= roomWidthInScreens)
             return false;
-        return MissilePointReaction(level, slot);
+        return MissilePointReaction(bus, level, slot, horizontalMovement: true);
     }
 
     private static bool MoveMissileVertically(
+        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot)
     {
@@ -870,12 +1081,14 @@ public sealed class SamusProjectileSystem
         int roomHeightInScreens = (level.HeightInBlocks + 15) >> 4;
         if ((slot.YPosition >> 8) >= roomHeightInScreens)
             return false;
-        return MissilePointReaction(level, slot);
+        return MissilePointReaction(bus, level, slot, horizontalMovement: false);
     }
 
     private static bool MissilePointReaction(
+        ISnesAddressSpace bus,
         RoomLevelData level,
-        SamusProjectileSlot slot)
+        SamusProjectileSlot slot,
+        bool horizontalMovement)
     {
         int blockX = slot.XPosition >> 4;
         int blockY = slot.YPosition >> 4;
@@ -894,13 +1107,65 @@ public sealed class SamusProjectileSystem
             // These categories return carry immediately and therefore kill the missile.
             8 or 9 or 10 or 11 or 14 => true,
 
-            // Slopes and block families below have data-dependent geometry, extension walks,
-            // or bank-$84 PLM side effects. Throwing at the exact contacted block prevents a
-            // shootable/bombable tile from being guessed into plain air or plain solid.
+            // `$94:A147/$A15E` divide slope BTS values into the five square definitions and
+            // the remaining 27 pixel-height definitions. Both paths use the missile center;
+            // the direction only changes which half of a square definition is sampled.
+            1 => MissileSlopePointReaction(bus, block, slot, horizontalMovement),
+
+            // Block families below have extension walks or bank-$84 PLM side effects.
+            // Throwing at the exact contacted block prevents a shootable/bombable tile from
+            // being guessed into plain air or plain solid.
             _ => throw new NotSupportedException(
                 $"Missile point reaction for collision type ${block.CollisionType:X1}, " +
                 $"BTS ${block.Behavior:X2}, block index {block.Index} is not translated."),
         };
+    }
+
+    private static bool MissileSlopePointReaction(
+        ISnesAddressSpace bus,
+        RoomCollisionBlock block,
+        SamusProjectileSlot slot,
+        bool horizontalMovement)
+    {
+        int slopeShape = block.Behavior & 0x1f;
+        if (slopeShape >= 5)
+        {
+            // `$94:A58F` mirrors the projectile's within-block coordinate before indexing
+            // the cartridge table. BTS bit 6 flips X and bit 7 flips Y. A table height at or
+            // above the mirrored Y point (the original uses signed `height - y <= 0`) is
+            // solid. Values can reach 20 for overhanging shapes, so do not mask to a nibble.
+            int xInBlock = slot.XPosition & 0x000f;
+            if ((block.Behavior & 0x40) != 0)
+                xInBlock ^= 0x000f;
+
+            int yInBlock = slot.YPosition & 0x000f;
+            if ((block.Behavior & 0x80) != 0)
+                yInBlock ^= 0x000f;
+
+            int height = bus.ReadByte(
+                NonSquareSlopeDefinitions + slopeShape * 16 + xInBlock) & 0x1f;
+            return height <= yInBlock;
+        }
+
+        // `$94:A66A/$A71A` treat each square slope as four 8x8 quadrants. The top two BTS
+        // bits select the base flip, while the projectile half along the movement axis and
+        // then the perpendicular axis select the exact quadrant. Each ROM byte is either
+        // `$00` (air) or `$80` (solid).
+        int quadrant = slopeShape * 4 + (block.Behavior >> 6);
+        if (horizontalMovement)
+        {
+            quadrant ^= (slot.XPosition & 8) >> 3;
+            if ((slot.YPosition & 8) != 0)
+                quadrant ^= 2;
+        }
+        else
+        {
+            quadrant ^= (slot.YPosition & 8) >> 2;
+            if ((slot.XPosition & 8) != 0)
+                quadrant ^= 1;
+        }
+
+        return bus.ReadByte(SquareSlopeDefinitions + quadrant) != 0;
     }
 
     private void SpawnTrail(ISnesAddressSpace bus, SamusProjectileSlot projectile)
@@ -1160,7 +1425,7 @@ public sealed class SamusProjectileSystem
         slot.PreInstruction = SamusProjectilePreInstruction.None;
     }
 
-    private static void KillMissile(
+    private void KillMissile(
         ISnesAddressSpace bus,
         SamusProjectileSlot slot,
         SamusBombProjectileSystem sharedProjectiles)
@@ -1182,11 +1447,25 @@ public sealed class SamusProjectileSystem
         // `$93:80CF` queues library-two sound seven, converts non-beams to family `$0800`,
         // selects `$86:7F`, and leaves the slot counted until its delete opcode. Sound-library
         // two has no public frame-result channel yet; every stateful effect is retained here.
+        bool wasSuperMissile = (slot.Type & 0x0200) != 0;
         slot.Type = unchecked((ushort)((slot.Type & 0xf0ff) | MissileExplosionFamily));
-        slot.InstructionPointer = ReadWord(bus, MissileExplosionInstructionPointerAddress);
+        slot.InstructionPointer = ReadWord(
+            bus,
+            wasSuperMissile
+                ? SuperMissileExplosionInstructionPointerAddress
+                : MissileExplosionInstructionPointerAddress);
         slot.InstructionTimer = 1;
         slot.Damage = 8;
         slot.PreInstruction = SamusProjectilePreInstruction.None;
+
+        if (wasSuperMissile)
+        {
+            // `$93:8125-$812E` is presentation state, but it is authored by the projectile
+            // impact itself: quake type $14 for thirty frames. The screen-offset consumer is
+            // still separate, so expose the exact words for debugger watches and integration.
+            EarthquakeType = 20;
+            EarthquakeTimer = 30;
+        }
 
         // Only cooldowns 21+ are shortened to 20. A normal missile begins at ten, so ordinary
         // wall impact does not extend or replace its remaining fire delay.
@@ -1415,6 +1694,8 @@ public enum SamusProjectilePreInstruction : byte
     None,
     NoWaveBeam,
     Missile,
+    SuperMissile,
+    SuperMissileLink,
 }
 
 /// <summary>

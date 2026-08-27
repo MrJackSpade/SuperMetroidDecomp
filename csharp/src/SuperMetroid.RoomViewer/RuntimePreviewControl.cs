@@ -35,6 +35,7 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton holdAimDownButton = new("Hold Aim Down");
     private readonly ToolStripButton chargeBeamButton = new("Charge Beam equipped");
     private readonly ToolStripButton missileButton = new("Missiles selected");
+    private readonly ToolStripButton superMissileButton = new("Supers selected");
     private readonly ToolStripButton moonwalkButton = new("Moonwalk enabled");
     private readonly ToolStripButton springBallButton = new("Spring Ball equipped");
     private readonly ToolStripButton spaceJumpButton = new("Space Jump equipped");
@@ -137,10 +138,35 @@ internal sealed class RuntimePreviewControl : UserControl
             // motion, animation, collision, trail, and explosion remain ROM-driven.
             if (missileButton.Checked)
             {
+                superMissileButton.Checked = false;
                 runtime.Samus.Missiles = 99;
                 runtime.Samus.SelectedHudItem = 1;
             }
             else if (runtime.Samus.SelectedHudItem == 1)
+            {
+                runtime.Samus.SelectedHudItem = 0;
+            }
+
+            RefreshFrame();
+        };
+        superMissileButton.CheckOnClick = true;
+        superMissileButton.ToolTipText =
+            "Selects HUD item two and grants 99 debugger Super Missiles. The invisible linked collision slot remains visible in the projectile counter.";
+        superMissileButton.CheckedChanged += (_, _) =>
+        {
+            if (runtime?.Samus is null || !groundedRunScenario)
+                return;
+
+            // As with ordinary missiles, this is the narrow save/pause seam. The second
+            // counted slot is not a host particle: `$90:BF46` allocates it during the first
+            // live projectile pass and `$90:B366/$B406` owns its anti-tunneling position.
+            if (superMissileButton.Checked)
+            {
+                missileButton.Checked = false;
+                runtime.Samus.SuperMissiles = 99;
+                runtime.Samus.SelectedHudItem = 2;
+            }
+            else if (runtime.Samus.SelectedHudItem == 2)
             {
                 runtime.Samus.SelectedHudItem = 0;
             }
@@ -327,6 +353,7 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(holdAimDownButton);
         toolStrip.Items.Add(chargeBeamButton);
         toolStrip.Items.Add(missileButton);
+        toolStrip.Items.Add(superMissileButton);
         toolStrip.Items.Add(moonwalkButton);
         toolStrip.Items.Add(springBallButton);
         toolStrip.Items.Add(spaceJumpButton);
@@ -428,7 +455,12 @@ internal sealed class RuntimePreviewControl : UserControl
                 runtime.Samus.EquippedItems |= SamusLiquidPhysicsState.GravitySuitItem;
             if (chargeBeamButton.Checked)
                 runtime.Samus.EquippedBeams |= 0x1000;
-            if (missileButton.Checked)
+            if (superMissileButton.Checked)
+            {
+                runtime.Samus.SuperMissiles = 99;
+                runtime.Samus.SelectedHudItem = 2;
+            }
+            else if (missileButton.Checked)
             {
                 // Reapply the explicit debugger inventory after constructing a fresh runtime;
                 // otherwise Restart would visually leave the toggle checked while silently

@@ -11833,6 +11833,22 @@ static void VerifySamusPowerBeamProjectiles()
     WriteTestWord(bus, 0x939008, 0x8239);
     WriteTestWord(bus, 0x93900a, 0x9000);
 
+    // The animation record's `$A000` pointer is a bank-$93 spritemap, not merely an opaque
+    // animation token. One literal entry makes the draw path observable independently of
+    // the separate flare spritemap family seeded below.
+    WriteTestWord(bus, 0x93a000, 1);
+    WriteTestWord(bus, 0x93a002, 0);
+    bus.WriteByte(0x93a004, 0);
+    WriteTestWord(bus, 0x93a005, 0x2c20);
+
+    // Charge-only power beam uses the parallel `$93:83D9` pointer family. Keep its
+    // direction records shared but give it unmistakable damage so release cannot pass by
+    // accidentally reusing the uncharged table.
+    WriteTestWord(bus, 0x9383d9, 0x8460);
+    WriteTestWord(bus, 0x938460, 0x0064);
+    for (int direction = 0; direction < 10; direction++)
+        WriteTestWord(bus, 0x938462 + direction * 2, 0x9000);
+
     // Collision swaps to this two-frame explosion record. Its following delete opcode
     // proves that damage remains occupied during the explosion and decrements the separate
     // projectile counter only when `$93:822F` finally clears the slot.
@@ -11845,7 +11861,9 @@ static void VerifySamusPowerBeamProjectiles()
     WriteTestWord(bus, 0x939108, 0x822f);
 
     bus.WriteByte(0x90c254, 0x0f);
+    bus.WriteByte(0x90c264, 0x1e);
     WriteTestWord(bus, 0x90c28f, 0x000b);
+    WriteTestWord(bus, 0x90c2a7, 0x0017);
     WriteTestWord(bus, 0x90c2d1, 0x0400);
     WriteTestWord(bus, 0x90c2d3, 0x02ab);
     WriteTestWord(bus, 0x90c3b1, 0x8000);
@@ -11854,6 +11872,26 @@ static void VerifySamusPowerBeamProjectiles()
         bus.WriteByte(0x9a8000 + index, unchecked((byte)(index ^ 0x5a)));
     for (int index = 0; index < 16; index++)
         WriteTestWord(bus, 0x90c3e1 + index * 2, unchecked((ushort)(0x0100 + index)));
+
+    // Minimal but structurally authentic flare tables let the verifier exercise bank
+    // `$90:BAFC` -> `$81:8A37` without copying production animation logic. Every possible
+    // early table index selects the same one-entry spritemap; timing still comes from the
+    // three independently addressed delay lists.
+    for (int index = 0; index < 0x36; index++)
+        WriteTestWord(bus, 0x93a1a1 + index * 2, 0xa500);
+    WriteTestWord(bus, 0x93a500, 1);
+    WriteTestWord(bus, 0x93a502, 0);
+    bus.WriteByte(0x93a504, 0);
+    WriteTestWord(bus, 0x93a505, 0x2c30);
+    WriteTestWord(bus, 0x90c481, 0xc487);
+    WriteTestWord(bus, 0x90c483, 0xc4a7);
+    WriteTestWord(bus, 0x90c485, 0xc4ae);
+    for (int index = 0; index < 30; index++)
+        bus.WriteByte(0x90c487 + index, 3);
+    bus.WriteByte(0x90c4a7, 5);
+    bus.WriteByte(0x90c4a8, 0xff);
+    bus.WriteByte(0x90c4ae, 4);
+    bus.WriteByte(0x90c4af, 0xff);
     for (int direction = 0; direction < 10; direction++)
     {
         // These are the retail power-beam accelerations at `$90:C353/$C367`.
@@ -11955,6 +11993,73 @@ static void VerifySamusPowerBeamProjectiles()
             $"power beam direction {direction} loads Y radius");
     }
 
+    // Charge Beam fires an ordinary shot on the initial held frame, counts to sixty while
+    // the muzzle flare becomes visible at fifteen, and emits the charged data family only
+    // when Shoot is released. This sequence mirrors `$90:B80D` frame by frame.
+    const byte rightPose = 1;
+    bus.WriteBytes(
+        0x91b629 + rightPose * 8,
+        [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
+    var chargeSamus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 128,
+        YPosition = 96,
+        EquippedBeams = 0x1000,
+    };
+    var chargeBombs = new SamusBombProjectileSystem();
+    var chargeProjectiles = new SamusProjectileSystem();
+    var flareOam = new OamBuffer();
+    bool flareBecameVisible = false;
+    for (int frame = 0; frame < 60; frame++)
+    {
+        chargeBombs.StepFrame(bus, air, chargeSamus, 0, 0);
+        SamusProjectileFrameResult chargeFrame = chargeProjectiles.StepFrame(
+            bus,
+            air,
+            chargeSamus,
+            (ushort)SnesButton.X,
+            frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+            0,
+            0,
+            chargeBombs);
+        if (frame == 0)
+            AssertEqual((int?)0, chargeFrame.FiredSlot, "charge press fires initial ordinary shot");
+
+        flareOam.BeginFrame();
+        chargeProjectiles.HandleChargeFlareAndDraw(bus, flareOam, chargeSamus, 0, 0);
+        flareBecameVisible |= flareOam.NextByteOffset != 0;
+    }
+    AssertEqual((ushort)60, chargeProjectiles.FlareCounter,
+        "charge held frames reach armed threshold");
+    AssertTrue(flareBecameVisible, "charge flare becomes visible from ROM spritemap table");
+
+    chargeBombs.StepFrame(bus, air, chargeSamus, 0, 0);
+    SamusProjectileFrameResult chargedRelease = chargeProjectiles.StepFrame(
+        bus, air, chargeSamus, 0, 0, 0, 0, chargeBombs);
+    AssertTrue(chargedRelease.FiredSlot is not null, "charged release allocates projectile");
+    SamusProjectileSlot chargedSlot = chargeProjectiles.Slots[chargedRelease.FiredSlot!.Value];
+    AssertEqual((ushort)0x0064, chargedSlot.Damage, "charged release uses charged data pointer");
+    AssertEqual((ushort)0x0010, unchecked((ushort)(chargedSlot.Type & 0x0010)),
+        "charged release sets charged type bit");
+    AssertEqual((ushort)0x0017, chargedRelease.QueuedSoundEffect,
+        "charged power beam queues ROM sound");
+    AssertEqual((ushort)0x001e, chargeBombs.CooldownTimer,
+        "charged power beam installs charged cooldown");
+    AssertEqual((ushort)4, chargeProjectiles.ChargedShotGlowTimer,
+        "charged release installs glow timer");
+    AssertEqual((ushort)0, chargeProjectiles.FlareCounter,
+        "charged release clears flare counter");
+
+    // `$93:8268` exempts charged-family bit `$0010` from ordinary beam flicker. Slot zero
+    // would be suppressed on even NMI under the uncharged rule, making this a direct guard
+    // against accidentally applying that branch to the charged projectile.
+    var chargedOam = new OamBuffer();
+    chargedOam.BeginFrame();
+    chargeProjectiles.DrawLiveProjectiles(bus, chargedOam, 0, 0, nmiFrameCounter: 0);
+    AssertTrue(chargedOam.NextByteOffset != 0,
+        "charged power beam bypasses ordinary alternating-frame flicker");
+
     // Isolate horizontal fixed-point motion and collision against an authentic type-eight
     // solid column. The first rightward frame uses velocity `$0400+$0010`, producing four
     // whole pixels and subposition `$1000`; repeated alpha passes eventually install the
@@ -11969,7 +12074,6 @@ static void VerifySamusPowerBeamProjectiles()
         new byte[wallWords.Length],
         new ushort[wallWords.Length],
         new byte[8]);
-    const byte rightPose = 1;
     bus.WriteBytes(
         0x91b629 + rightPose * 8,
         [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
@@ -12023,7 +12127,7 @@ static void VerifySamusPowerBeamProjectiles()
         "explosion delete clears ordinary slot");
 
     Console.WriteLine(
-        "  Samus power beam: ten directions, ROM records, shared cooldown, fixed-point motion, collision, and explosion agree.");
+        "  Samus power/charge beam: ten directions, hold/release flare, ROM records, cooldown, motion, collision, and explosion agree.");
 }
 
 /// <summary>

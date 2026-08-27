@@ -14,7 +14,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$00` | Standing | Forward `$00/$9B` equipment selector, zero-status lock, active `$0E18` one-pixel elevator descent through no-solid-enemy `$94:9763`, power-suit chest-cover OAM; ordinary `$01-$08`, landing `$A4-$A7/$E0-$E7`, including held-Shot horizontal firing landings; X-ray `$D5/$D6` admission, angle art, time freeze, beam state, visor palette, and teardown | Live elevator actor/status producer; X-ray BG2 reveal/window-HDMA presentation |
 | `$01` | Running | `$09/$0A/$0B/$0C/$0D-$12`, including horizontal gun extension with preserved native run phase; air/water/lava X tables and submerged Dash gate, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes; ROM-timed wet/dust footsteps and area-selected landing impact | Live collision producers |
 | `$02` | Normal jumping | `$4B-$4E/$13-$18/$51-$52/$55-$5A/$69-$6C`, including horizontal gun extension, compact straight-down collision changes, air/water/lava normal/Hi-Jump launch, X tables, gravity, persistent external X/Y displacement, variable height, ceiling/floor collision; liquid entry/exit splash, bubbles, sound, and damage | Collision-producer side effects |
-| `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, air/water/lava X/gravity/launch/repeat gates, variable height, split-body animation, charged-spin/Screw contact damage, speed-stage/Screw collision-bomb PLMs, underwater frame-selected Space-Jump sound, damage palette, block/solid-enemy wall contact and launch; liquid entry/exit splash, bubbles, sound, and damage | Live enemy actor producer; charge-beam flare producer |
+| `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, air/water/lava X/gravity/launch/repeat gates, variable height, split-body animation, charged-spin/Screw contact damage, speed-stage/Screw collision-bomb PLMs, underwater frame-selected Space-Jump sound, damage palette, block/solid-enemy wall contact and launch; liquid entry/exit splash, bubbles, sound, and damage | Live enemy actor producer |
 | `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, air/water/lava X tables, persistent external X/Y displacement, slopes, reversal, deceleration, walk-off, normal-bomb deployment and bombable/shootable/special-block PLMs, solid/frozen-enemy clipping | Non-bomb projectile reaction families, live enemy actor producer |
 | `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry, ordinary/Spring morph entry; X-ray `$D9/$DA` admission, angle art, time freeze, beam state, visor palette, and teardown | X-ray BG2 reveal/window-HDMA presentation |
 | `$06` | Falling | `$29-$2E/$67-$70`, including horizontal gun extension, compact straight-down collision changes, walk-off, air/water/lava X and gravity, persistent external X/Y displacement, held-Shot landing, aerial-turn entry, live `$F0` animation cadence, and liquid entry/exit effects | Collision-producer side effects |
@@ -31,7 +31,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$11` | Spring ball on ground | `$79-$7C`, air/water/lava X tables, persistent external X/Y displacement, slopes, reversal, jump entry, walk-off, normal-bomb deployment and bombable/shootable/special-block PLMs, solid/frozen-enemy clipping | Non-bomb projectile reaction families, live enemy actor producer |
 | `$12` | Spring ball in air | `$7F/$80`, air/water/lava launch/X/gravity, persistent external X/Y displacement, variable height, ceiling/floor/solid-enemy collision, normal-bomb deployment and bombable/shootable/special-block PLMs | Non-bomb projectile reaction families, live enemy actor producer |
 | `$13` | Spring ball falling | `$7D/$7E`, air/water/lava X/gravity, persistent external X/Y displacement and bounce override, held-jump relaunch, automatic bounce, solid/frozen-enemy clipping, normal-bomb deployment and bombable/shootable/special-block PLMs | Non-bomb projectile reaction families, live enemy actor producer |
-| `$14` | Wall jumping | `$83/$84`, air/water/lava normal/Hi-Jump launch tables, variable height, submerged `$FB` selection, spin handoff, terrain/solid-enemy launch and landing, ordinary/grapple launch sounds, charged frames 3-22 contact damage and frame-23+ Screw-style damage | Live enemy actor/shake consumer; charge-beam flare producer |
+| `$14` | Wall jumping | `$83/$84`, air/water/lava normal/Hi-Jump launch tables, variable height, submerged `$FB` selection, spin handoff, terrain/solid-enemy launch and landing, ordinary/grapple launch sounds, charged frames 3-22 contact damage and frame-23+ Screw-style damage | Live enemy actor/shake consumer |
 | `$15` | Ran into a wall | `$89/$8A/$CF-$D2`, terrain/solid-enemy prospective-run selector, one-pixel probe, persistent external X/Y displacement, aim/fallback/turn/jump/walk-off routes, grounded cleanup and liquid animation state | Live enemy actor producer |
 | `$16` | Grappling | ROM-backed firing, four-step block collision, persistent and breakable type-`$E` acquisition/validation, bank-`$84` break/respawn/BTS/VRAM lifecycle, type-`$A` cancellation/Draygon-turret damage, all 30 standing/crouching/vertical connection records, `$B2/$B3` air/water pendulum, `$A8-$AB/$B4-$B7` locked poses, per-pixel rope collision, six-point terrain sweep/reflection with exact spike-air/spike-block damage tables, collision kick, all eight exact locked/wallgrab angles, `$B8/$B9` terrain/solid-enemy grace-window wall jump, dropped-pose tables, release `$51/$52` plus persistent air/water/lava `$90:946E` motion, ROM art/beam DMA and OAM | Enemy acquisition, live enemy actor/shake consumer |
 | `$17` | Turning while jumping | Grounded-Y crouch turns `$97-$9A/$A2/$A3`; airborne `$2F/$30/$8F-$92/$9E/$9F`, persistent external X/Y displacement, momentum, collision, `$F8` | No unadmitted reachable pose branch found; shared presentation/producer gaps remain tracked below |
@@ -880,6 +880,29 @@ translated status is documented with the Morph Ball family below.
   before its release handoff, then the 100-frame route proves `$90:946E` keeps moving the
   `$51/$52` body after the beam function has become inactive.
 
+## Verified plain power/Charge Beam projectile slice
+
+- HUD item zero/three dispatches `$90:B80D` into the five ordinary slots while sharing
+  cooldown `$0CCC` with bombs. Plain power shots use all ten pose-authored directions,
+  cartridge muzzle origins, signed 8.8 velocity/acceleration, bank-$94 terrain collision,
+  bank-$93 data/instruction/explosion lists, and exact beam tile/palette upload.
+- Equipped Charge bit `$1000` fires one ordinary shot on the first held frame, increments
+  `$0CD0` to the 120 clamp, treats 60 as the armed threshold, and chooses ordinary or charged
+  release accordingly. The same live counter is mirrored into Samus beta movement so charged
+  spin/wall-jump contact damage consumes the word produced during projectile alpha.
+- `$90:BAFC-$BC98` initializes flare timers 3/5/4, draws the central component from count 15,
+  adds both sparks from count 30, and interprets `$FF` loop/`$FE` rewind commands through
+  `$90:C481`. Direction/running origins and all `$93:A1A1` spritemaps remain ROM-authored.
+- Charged plain power uses `$93:83D9`, type bit `$0010`, the charged cooldown/sound tables,
+  and `$93:8268`'s no-flicker branch. The real ROM route observes final type `$9010`, damage
+  `$003C`, sound `$17`, and a visible orange cannon flare in the composed/OAM capture.
+- Synthetic verification covers all ten ordinary directions, charge threshold/release,
+  flare animation, charged data routing and no-flicker OAM, fixed-point travel, type-eight
+  impact, explosion retention, and deletion. `--charge-beam-script` supplies the private-ROM
+  hold/release regression. The `$0CFA` transition-direction bridge, post-shot Samus palette
+  recolor, combined beam families, weapon-specific block reactions, and trails remain seams;
+  plain power's left/right trail instruction pointers are deliberately empty in retail data.
+
 ## Verified ordinary Morph Ball slice
 
 - Stable crouch requires a second newly-pressed Down edge, not merely the held input that
@@ -1044,6 +1067,10 @@ translated status is documented with the Morph Ball family below.
   `$01`'s direction and every velocity/origin/tile pointer from the cartridge, renders the
   growing horizontal beam, and completes its queued no-target cancellation. A room-wide
   collision scan confirms Landing Site contains no type-`$E` grapple blocks.
+- The real-ROM `--charge-beam-script` reaches counter 65 through controller samples, draws
+  the ROM-authored main flare and sparks, then releases a type-`$9010`, damage-`$003C` shot
+  with sound `$17`. The 50-frame capture visibly retains the cannon flare; the 68-frame
+  regression requires charged-family allocation and nonzero bank-$93 art.
 - The real-ROM `--draygon-grab-script` publishes a fixed owner coordinate at `$A5:94A9`, then
   observes every right-facing grabbed pose, the moving-body animation loop, `$F0->$EC`
   fallback, 60-pattern escape, owner signal, and `$01` release. Its assertions sample actual

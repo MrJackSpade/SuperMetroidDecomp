@@ -106,6 +106,11 @@ else if (options.GunExtendedScript)
     Console.WriteLine(
         "Input script: fire live power beams while running through $0B, during a neutral jump through $13/$E6, then across the documented walk-off seam through $67/$E6.");
 }
+else if (options.ChargeBeamScript)
+{
+    Console.WriteLine(
+        "Input script: equip Charge Beam, hold Shoot through the native 60-frame arming threshold and three-component muzzle flare, then release one charged power shot.");
+}
 else if (options.AerialTurnScript)
 {
     Console.WriteLine(
@@ -494,6 +499,15 @@ if (options.LandingImpactScript)
 if (options.GrappleFireScript)
     runtime.EnableDebugGrappleItemSelection();
 
+if (options.ChargeBeamScript)
+{
+    // Landing Site's diagnostic spawn has no save-file inventory. Grant only the retail
+    // Charge Beam equipment bit `$1000`; `$90:B80D/$BAFC`, the ROM delay lists, bank-$93
+    // projectile records, tile DMA, OAM, and the release threshold remain live cartridge
+    // behavior. No charge counter, flare frame, projectile type, or damage is host-written.
+    runtime.Samus!.EquippedBeams |= 0x1000;
+}
+
 Console.WriteLine(
     $"Loaded Landing Site scrolls $8F:9283 -> $7E:CD20: " +
     $"{Convert.ToHexString(camera.Scrolls.Storage[..camera.Scrolls.LogicalCellCount])}.");
@@ -719,6 +733,10 @@ bool observedStraightBombOverlap = false;
 int observedPowerBeamShots = 0;
 bool observedPowerBeamArt = false;
 bool observedPowerBeamExplosion = false;
+ushort maximumObservedCharge = 0;
+bool observedChargedShot = false;
+ushort observedChargedShotDamage = 0;
+ushort observedChargedShotSound = 0;
 bool observedKnockbackMovement = false;
 bool observedDamageBoostMovement = false;
 bool observedMorphedKnockbackPosePreserved = false;
@@ -1193,6 +1211,17 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 // Holding X lets `$29`'s literal table select falling fire pose `$67`,
                 // then keeps the same horizontal firing direction through landing.
                 >= 110 and < 160 => (ushort)SnesButton.X,
+                _ => (ushort)0,
+            }
+        : options.ChargeBeamScript
+            ? frameIndex switch
+            {
+                0 => (ushort)SnesButton.Start,
+
+                // Begin with a fresh Shot edge after dismissing the timer state. Sixty-five
+                // consecutive held samples cross `$90:B856`'s threshold without relying on
+                // a host counter; the first blank sample is the real charged-shot trigger.
+                >= 2 and < 67 => (ushort)SnesButton.X,
                 _ => (ushort)0,
             }
         : options.AimAirScript
@@ -2152,6 +2181,21 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     // the projectile is still travelling and some long shots leave the 320-pixel kill box.
     if (runtime.Projectiles.LastFrameResult.FiredSlot is not null)
         observedPowerBeamShots++;
+    maximumObservedCharge = Math.Max(maximumObservedCharge, runtime.Projectiles.FlareCounter);
+    if (runtime.Projectiles.LastFrameResult.FiredSlot is int firedSlot)
+    {
+        SamusProjectileSlot firedProjectile = runtime.Projectiles.Slots[firedSlot];
+        if ((firedProjectile.Type & 0x0010) != 0)
+        {
+            observedChargedShot = true;
+            observedChargedShotDamage = firedProjectile.Damage;
+            observedChargedShotSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect;
+            Console.WriteLine(
+                $"frame {result.FrameNumber,4}: charged beam slot {firedSlot}, " +
+                $"type=${firedProjectile.Type:X4}, damage=${firedProjectile.Damage:X4}, " +
+                $"sound=${observedChargedShotSound:X2}.");
+        }
+    }
     observedPowerBeamArt |= runtime.Projectiles.Slots.Any(
         slot => slot.IsActive && slot.SpritemapPointer != 0);
     observedPowerBeamExplosion |=
@@ -2762,6 +2806,31 @@ if (options.GunExtendedScript && options.FrameCount >= 3)
     Console.WriteLine(
         $"Power-beam ROM route fired {observedPowerBeamShots} shot(s), decoded bank-$93 art, " +
         $"and observedCollision={observedPowerBeamExplosion}.");
+}
+
+if (options.ChargeBeamScript)
+{
+    // Counter 15 is the first visible main flare and 60 is the charged-release threshold.
+    // Requiring the latter on a long capture proves the real frame loop did not merely draw
+    // a transient spark. The charged-family bit, nonzero ROM damage, and `$17` sound then
+    // prove release selected `$90:B986/$93:83D9`, not a second ordinary power shot.
+    if (options.FrameCount >= 62 && maximumObservedCharge < 60)
+    {
+        throw new InvalidOperationException(
+            $"Charge Beam route reached only {maximumObservedCharge}/60 held frames.");
+    }
+    if (options.FrameCount >= 68 &&
+        (!observedChargedShot || observedChargedShotDamage == 0 || observedChargedShotSound != 0x17))
+    {
+        throw new InvalidOperationException(
+            $"Charge Beam release mismatch: charged={observedChargedShot}, " +
+            $"damage=${observedChargedShotDamage:X4}, sound=${observedChargedShotSound:X2}.");
+    }
+
+    Console.WriteLine(
+        $"Charge Beam ROM route reached {maximumObservedCharge}/60, " +
+        $"chargedShot={observedChargedShot}, damage=${observedChargedShotDamage:X4}, " +
+        $"sound=${observedChargedShotSound:X2}.");
 }
 
 if (options.MorphKnockbackScript)
@@ -3608,6 +3677,7 @@ readonly record struct DebugRunnerOptions(
     bool AimRunScript,
     bool AimAirScript,
     bool GunExtendedScript,
+    bool ChargeBeamScript,
     bool AerialTurnScript,
     bool CompactAirScript,
     bool AimCrouchScript,
@@ -3655,6 +3725,7 @@ readonly record struct DebugRunnerOptions(
         bool aimRunScript = false;
         bool aimAirScript = false;
         bool gunExtendedScript = false;
+        bool chargeBeamScript = false;
         bool aerialTurnScript = false;
         bool compactAirScript = false;
         bool aimCrouchScript = false;
@@ -3788,6 +3859,11 @@ readonly record struct DebugRunnerOptions(
 
                 case "--gun-extended-script":
                     gunExtendedScript = true;
+                    groundedRun = true;
+                    break;
+
+                case "--charge-beam-script":
+                    chargeBeamScript = true;
                     groundedRun = true;
                     break;
 
@@ -3950,6 +4026,7 @@ readonly record struct DebugRunnerOptions(
             aimRunScript,
             aimAirScript,
             gunExtendedScript,
+            chargeBeamScript,
             aerialTurnScript,
             compactAirScript,
             aimCrouchScript,

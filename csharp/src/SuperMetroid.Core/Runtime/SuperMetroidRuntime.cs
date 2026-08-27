@@ -1075,6 +1075,11 @@ public sealed class SuperMetroidRuntime
                         Camera.YPosition,
                         BombProjectiles,
                         projectileProducerEnabled: !DebugGrappleItemSelected);
+
+                    // `$0CD0` is one shared WRAM word, not independent projectile/movement
+                    // state. Samus's spin/wall-jump contact-damage handlers run in beta and
+                    // must see the counter that `$90:B80D` just updated during alpha.
+                    Samus.ProjectileFlareCounter = Projectiles.FlareCounter;
                 }
 
                 // Native HandleProjectile runs `$90:D4D2` during alpha, before Samus's beta
@@ -2526,6 +2531,15 @@ public sealed class SuperMetroidRuntime
                     Camera.XPosition,
                     Camera.YPosition,
                     Samus.LiquidPhysics.FxYPosition);
+                // Default drawing handler `$90:EB52` advances/emits charge flare pieces
+                // before falling through to the ordinary Samus body. This ordering lets
+                // the gun and body cover sparks exactly as their OAM indices do on SNES.
+                Projectiles.HandleChargeFlareAndDraw(
+                    _addressSpace,
+                    Oam,
+                    Samus,
+                    Camera.XPosition,
+                    Camera.YPosition);
                 Samus.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
                 Samus.DrawSpeedBoosterEchoes(
                     _addressSpace,

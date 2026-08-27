@@ -33,6 +33,7 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton holdDownButton = new("Hold Down");
     private readonly ToolStripButton holdAimUpButton = new("Hold Aim Up");
     private readonly ToolStripButton holdAimDownButton = new("Hold Aim Down");
+    private readonly ToolStripButton chargeBeamButton = new("Charge Beam equipped");
     private readonly ToolStripButton moonwalkButton = new("Moonwalk enabled");
     private readonly ToolStripButton springBallButton = new("Spring Ball equipped");
     private readonly ToolStripButton spaceJumpButton = new("Space Jump equipped");
@@ -106,6 +107,21 @@ internal sealed class RuntimePreviewControl : UserControl
         holdAimUpButton.ToolTipText = "Feeds canonical aim-up bit $0010 (default R shoulder), selecting diagonal-up poses.";
         holdAimDownButton.CheckOnClick = true;
         holdAimDownButton.ToolTipText = "Feeds canonical aim-down bit $0020 (default L shoulder), selecting diagonal-down poses.";
+        chargeBeamButton.CheckOnClick = true;
+        chargeBeamButton.ToolTipText =
+            "Toggles beam bit $1000. Hold Shoot for 60 frames, then release to fire the cartridge's charged power beam.";
+        chargeBeamButton.CheckedChanged += (_, _) =>
+        {
+            // Pause/equipment code is not translated yet. This switch owns only Charge
+            // Beam bit `$1000`; every counter, flare frame, release threshold, projectile
+            // record, and OAM sprite remains selected by the cartridge-backed subsystem.
+            if (runtime?.Samus is null || !groundedRunScenario)
+                return;
+            if (chargeBeamButton.Checked)
+                runtime.Samus.EquippedBeams |= 0x1000;
+            else
+                runtime.Samus.EquippedBeams &= unchecked((ushort)~0x1000);
+        };
         moonwalkButton.CheckOnClick = true;
         moonwalkButton.ToolTipText =
             "Mirrors the cartridge Moonwalk option word. Enable it, then hold Shoot plus the direction behind Samus.";
@@ -284,6 +300,7 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(holdDownButton);
         toolStrip.Items.Add(holdAimUpButton);
         toolStrip.Items.Add(holdAimDownButton);
+        toolStrip.Items.Add(chargeBeamButton);
         toolStrip.Items.Add(moonwalkButton);
         toolStrip.Items.Add(springBallButton);
         toolStrip.Items.Add(spaceJumpButton);
@@ -383,6 +400,8 @@ internal sealed class RuntimePreviewControl : UserControl
                 runtime.Samus.EquippedItems |= 0x2000;
             if (gravitySuitButton.Checked)
                 runtime.Samus.EquippedItems |= SamusLiquidPhysicsState.GravitySuitItem;
+            if (chargeBeamButton.Checked)
+                runtime.Samus.EquippedBeams |= 0x1000;
             if (waterPhysicsButton.Checked)
             {
                 // Restart gives the debugger a new Samus center, so capture a new fixed
@@ -709,6 +728,7 @@ internal sealed class RuntimePreviewControl : UserControl
             // counter beside that clock makes allocation, terrain impact, explosion, and
             // eventual bank-$93 deletion directly visible while stepping Hold Shoot.
             $"beams {runtime.Projectiles.ProjectileCounter}/5 " +
+            $"charge {runtime.Projectiles.FlareCounter}/120 " +
             $"lastShot={(runtime.Projectiles.LastFrameResult.FiredSlot is int shot ? shot : -1)} " +
             $"impact={(runtime.Projectiles.LastFrameResult.CollisionStartedExplosion ? "yes" : "no")}  |  " +
             $"moonwalk={(runtime.MoonwalkEnabled ? "on" : "off")}  |  " +

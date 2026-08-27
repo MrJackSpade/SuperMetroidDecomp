@@ -14,9 +14,9 @@ namespace SuperMetroid.Core.Game;
 /// inspectable in a C# debugger and prevents a convenient host sprite from replacing the
 /// actual cartridge projectile lifecycle.
 ///
-/// The first implemented producer is the uncharged power beam. The shared slot model and
-/// bank-$93 interpreter are intentionally general enough for the remaining beam and missile
-/// families, but unsupported producers are rejected before allocating a slot.
+/// The implemented producer covers ordinary and charged plain power beams. The shared slot
+/// model and bank-$93 interpreter are intentionally general enough for the remaining beam
+/// and missile families, but unsupported producers are rejected before allocating a slot.
 /// </remarks>
 public sealed class SamusProjectileSystem
 {
@@ -38,6 +38,7 @@ public sealed class SamusProjectileSystem
     private const int ProjectileYRunning = 0x90c240;
     private const int UnchargedCooldowns = 0x90c254;
     private const int UnchargedSounds = 0x90c28f;
+    private const int ChargedSounds = 0x90c2a7;
     private const int BeamSpeedsHorizontalVertical = 0x90c2d1;
     private const int BeamSpeedsDiagonal = 0x90c2d3;
     private const int ProjectileAccelerationX = 0x90c353;
@@ -45,6 +46,7 @@ public sealed class SamusProjectileSystem
     private const int BeamTilePointers = 0x90c3b1;
     private const int BeamPalettePointers = 0x90c3c9;
     private const int UnchargedBeamDataPointers = 0x9383c1;
+    private const int ChargedBeamDataPointers = 0x9383d9;
     private const int BeamExplosionInstructionPointerAddress = 0x9383ff;
     private const ushort ProjectileInstructionDelete = 0x822f;
     private const ushort ProjectileInstructionGoto = 0x8239;
@@ -57,6 +59,22 @@ public sealed class SamusProjectileSystem
 
     /// <summary>WRAM <c>$0CCE</c>; maintained separately from free-slot scans by the ROM.</summary>
     public ushort ProjectileCounter { get; private set; }
+
+    /// <summary>WRAM <c>$0CD0</c>; 60 frames arms a charged shot, 120 is the SBA clamp.</summary>
+    public ushort FlareCounter { get; private set; }
+
+    /// <summary>WRAM <c>$0DC2</c>; sampled before the current charge-input update.</summary>
+    public ushort PreviousBeamChargeCounter { get; private set; }
+
+    /// <summary>
+    /// WRAM <c>$0B18</c>; four calls of post-shot glow state. The palette consumer is a
+    /// separate, still-untranslated presentation routine, so this value is debugger-visible
+    /// and cadence-correct but does not yet recolor Samus.
+    /// </summary>
+    public ushort ChargedShotGlowTimer { get; private set; }
+
+    private readonly ushort[] _flareFrames = new ushort[3];
+    private readonly ushort[] _flareTimers = new ushort[3];
 
     /// <summary>The last alpha-pass result, retained for debugger watches and verification.</summary>
     public SamusProjectileFrameResult LastFrameResult { get; private set; }
@@ -169,7 +187,7 @@ public sealed class SamusProjectileSystem
             samus.SelectedHudItem is 0 or 3 &&
             !SamusState.IsStableBallPose(samus.Pose))
         {
-            (firedSlot, queuedSound) = TryFireUnchargedPowerBeam(
+            (firedSlot, queuedSound) = HandleBeamInput(
                 bus,
                 samus,
                 controllerInput,
@@ -213,6 +231,45 @@ public sealed class SamusProjectileSystem
         return LastFrameResult;
     }
 
+    /// <summary>
+    /// Runs and draws <c>$90:BAFC</c>'s three charge-flare animation components before Samus.
+    /// </summary>
+    public void HandleChargeFlareAndDraw(
+        ISnesAddressSpace bus,
+        OamBuffer oam,
+        SamusState samus,
+        ushort layer1X,
+        ushort layer1Y)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(oam);
+        ArgumentNullException.ThrowIfNull(samus);
+
+        if (ChargedShotGlowTimer != 0)
+            ChargedShotGlowTimer--;
+        if (FlareCounter == 0)
+            return;
+
+        // Calls 1..14 initialize/retain the hidden animation state. Call 15 begins drawing
+        // the central flare; calls 30+ additionally draw both orbiting spark components.
+        if (FlareCounter == 1)
+        {
+            _flareFrames[0] = _flareFrames[1] = _flareFrames[2] = 0;
+            _flareTimers[0] = 3;
+            _flareTimers[1] = 5;
+            _flareTimers[2] = 4;
+        }
+        if (FlareCounter < 15)
+            return;
+
+        int componentCount = FlareCounter < 30 ? 1 : 3;
+        for (int component = 0; component < componentCount; component++)
+        {
+            AdvanceFlareComponent(bus, component);
+            DrawFlareComponent(bus, oam, samus, layer1X, layer1Y, component);
+        }
+    }
+
     /// <summary>Draws `$93:8254`'s live ordinary-projectile subset after Samus.</summary>
     public void DrawLiveProjectiles(
         ISnesAddressSpace bus,
@@ -230,12 +287,17 @@ public sealed class SamusProjectileSystem
             if (!slot.IsActive || (slot.Type & 0x0f00) >= 0x0300)
                 continue;
 
-            // Uncharged non-spazer/non-plasma beams flicker on alternating frames and slot
-            // parity at `$93:826D-$828A`. Slot index parity here equals bit one of native X.
-            bool oddNativeSlot = (slotIndex & 1) != 0;
-            bool oddFrame = (nmiFrameCounter & 1) != 0;
-            if (oddNativeSlot == oddFrame)
-                continue;
+            // `$93:8268` first exempts every charged/projectile-family word selected by
+            // mask `$0F10`. Only an ordinary uncharged power/ice/wave shot reaches the
+            // alternating frame/slot test at `$826D-$828A`; a charged power shot must remain
+            // visible on both parities. Slot index parity here equals bit one of native X.
+            if ((slot.Type & 0x0f10) == 0)
+            {
+                bool oddNativeSlot = (slotIndex & 1) != 0;
+                bool oddFrame = (nmiFrameCounter & 1) != 0;
+                if (oddNativeSlot == oddFrame)
+                    continue;
+            }
 
             DrawSlot(bus, oam, slot, layer1X, layer1Y, horizontalMargin: 64);
         }
@@ -269,10 +331,15 @@ public sealed class SamusProjectileSystem
         foreach (SamusProjectileSlot slot in _slots)
             slot.ClearFields();
         ProjectileCounter = 0;
+        FlareCounter = 0;
+        PreviousBeamChargeCounter = 0;
+        ChargedShotGlowTimer = 0;
+        Array.Clear(_flareFrames);
+        Array.Clear(_flareTimers);
         LastFrameResult = default;
     }
 
-    private (int? Slot, ushort Sound) TryFireUnchargedPowerBeam(
+    private (int? Slot, ushort Sound) HandleBeamInput(
         ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerInput,
@@ -280,14 +347,82 @@ public sealed class SamusProjectileSystem
         SamusBombProjectileSystem sharedProjectiles)
     {
         const ushort shoot = (ushort)SnesButton.X;
+        PreviousBeamChargeCounter = FlareCounter;
 
-        // Without Charge Beam, `$90:B823` attempts an uncharged shot for every frame Shoot
-        // remains held. Cooldown $0CCC, rather than an invented edge trigger, provides the
-        // familiar rate limit. Other beam combinations are admitted in later slices only
-        // after their wave/spazer/plasma pre-instructions are translated.
-        if ((controllerInput & shoot) == 0 ||
-            (samus.EquippedBeams & 0x100f) != 0 ||
-            ProjectileCounter >= SlotCount ||
+        // Native `$90:B80D` can also consume charge through the one-frame `$0CFA`
+        // "projectile direction changed by pose" bridge. The translated pose pipeline does
+        // not publish that overlapped WRAM word yet, so standing/running/air poses with a
+        // stable shot direction follow the exact path below; firing during the transitional
+        // direction-change frame remains an explicit producer seam rather than a guess.
+
+        // This slice admits power plus the independent Charge bit. Ice/wave/spazer/plasma
+        // select different collision pre-instructions and must not leak through the no-wave
+        // path until those handlers are translated.
+        if ((samus.EquippedBeams & 0x000f) != 0)
+            return (null, 0);
+
+        bool chargeEquipped = (samus.EquippedBeams & 0x1000) != 0;
+        bool held = (controllerInput & shoot) != 0;
+        if (!chargeEquipped)
+        {
+            FlareCounter = 0;
+            ClearFlareAnimationState();
+            return held
+                ? TryFirePowerBeam(bus, samus, controllerNewInput, sharedProjectiles, charged: false)
+                : (null, 0);
+        }
+
+        if (held)
+        {
+            // `$90:B843` increments through 120 and fires one ordinary shot on the first
+            // held frame. Charge Beam therefore changes sustained-fire semantics rather
+            // than suppressing the familiar initial power shot.
+            if (FlareCounter < 120)
+            {
+                FlareCounter++;
+                if (FlareCounter == 1)
+                {
+                    ClearFlareAnimationState();
+                    return TryFirePowerBeam(
+                        bus,
+                        samus,
+                        controllerNewInput,
+                        sharedProjectiles,
+                        charged: false);
+                }
+            }
+            return (null, 0);
+        }
+
+        if (FlareCounter == 0)
+            return (null, 0);
+
+        bool releaseCharged = FlareCounter >= 60;
+        FlareCounter = 0;
+        ClearFlareAnimationState();
+        return TryFirePowerBeam(
+            bus,
+            samus,
+            controllerNewInput,
+            sharedProjectiles,
+            charged: releaseCharged);
+    }
+
+    private (int? Slot, ushort Sound) TryFirePowerBeam(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        ushort controllerNewInput,
+        SamusBombProjectileSystem sharedProjectiles,
+        bool charged)
+    {
+        const ushort shoot = (ushort)SnesButton.X;
+
+        // `$90:B823/$90:B986` converge on this allocation gate for ordinary and charged
+        // power shots. Without Charge Beam, callers attempt an ordinary shot every held
+        // frame and cooldown `$0CCC` supplies the native rate limit; charged releases reach
+        // the same gate once. Other beam combinations remain excluded until their distinct
+        // wave/spazer/plasma pre-instructions are translated.
+        if (ProjectileCounter >= SlotCount ||
             (sharedProjectiles.CooldownTimer & 0x00ff) != 0)
         {
             return (null, 0);
@@ -330,11 +465,15 @@ public sealed class SamusProjectileSystem
         slot.Direction = direction;
         InitializePosition(bus, samus, slot);
         slot.TrailTimer = 4;
-        slot.Type = unchecked((ushort)(samus.EquippedBeams | LiveUnchargedBeamFlag));
+        slot.Type = charged
+            ? unchecked((ushort)((samus.EquippedBeams & 0x100f) | 0x8010))
+            : unchecked((ushort)(samus.EquippedBeams | LiveUnchargedBeamFlag));
 
         // `$93:8000` indexes a data-table pointer by beam type, stores damage, chooses the
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
-        ushort dataPointer = ReadWord(bus, UnchargedBeamDataPointers);
+        ushort dataPointer = ReadWord(
+            bus,
+            charged ? ChargedBeamDataPointers : UnchargedBeamDataPointers);
         slot.Damage = ReadWord(bus, 0x930000 | dataPointer);
         slot.InstructionPointer = ReadWord(
             bus,
@@ -348,12 +487,16 @@ public sealed class SamusProjectileSystem
 
         // A fresh press takes the ordinary table path. Held auto-fire without a new edge
         // uses $19 instead, preserving the native distinction even though both read ROM.
-        byte cooldown = (controllerNewInput & shoot) != 0
-            ? bus.ReadByte(UnchargedCooldowns)
-            : bus.ReadByte(0x90c283);
+        byte cooldown = charged
+            ? bus.ReadByte(UnchargedCooldowns + 0x10)
+            : (controllerNewInput & shoot) != 0
+                ? bus.ReadByte(UnchargedCooldowns)
+                : bus.ReadByte(0x90c283);
         sharedProjectiles.SetSharedCooldown(cooldown);
 
-        ushort sound = ReadWord(bus, UnchargedSounds);
+        ushort sound = ReadWord(bus, charged ? ChargedSounds : UnchargedSounds);
+        if (charged)
+            ChargedShotGlowTimer = 4;
         return (slotIndex, sound);
     }
 
@@ -636,6 +779,76 @@ public sealed class SamusProjectileSystem
             slot.SpritemapPointer,
             unchecked((ushort)screenX),
             screenY);
+    }
+
+    private void AdvanceFlareComponent(ISnesAddressSpace bus, int component)
+    {
+        // The assembly advances only when 16-bit DEC crosses zero into `$FFFF`. A timer
+        // value of zero therefore survives one visible call; testing equality here would
+        // make every ROM-authored delay one frame too short.
+        _flareTimers[component] = unchecked((ushort)(_flareTimers[component] - 1));
+        if ((_flareTimers[component] & 0x8000) == 0)
+            return;
+
+        ushort frame = unchecked((ushort)(_flareFrames[component] + 1));
+        ushort delayList = ReadWord(bus, 0x90c481 + component * 2);
+        byte delay = bus.ReadByte(0x900000 | unchecked((ushort)(delayList + frame)));
+        if (delay == 0xff)
+        {
+            frame = 0;
+            delay = bus.ReadByte(0x900000 | delayList);
+        }
+        else if (delay == 0xfe)
+        {
+            byte rewind = bus.ReadByte(0x900000 | unchecked((ushort)(delayList + frame + 1)));
+            frame = unchecked((ushort)(frame - rewind));
+            delay = bus.ReadByte(0x900000 | unchecked((ushort)(delayList + frame)));
+        }
+
+        _flareFrames[component] = frame;
+        _flareTimers[component] = delay;
+    }
+
+    private void DrawFlareComponent(
+        ISnesAddressSpace bus,
+        OamBuffer oam,
+        SamusState samus,
+        ushort layer1X,
+        ushort layer1Y,
+        int component)
+    {
+        byte direction = ReadPoseByte(bus, samus.Pose, PoseDirectionOffset);
+        if (direction is 0xff or 0x10 || (direction & 0xf0) != 0)
+            return;
+
+        int directionOffset = (direction & 0x0f) * 2;
+        bool running = samus.ReadMovementType(bus) == 1;
+        int xTable = running ? 0x90c1dc : 0x90c1a8;
+        int yTable = running ? 0x90c1f0 : 0x90c1c2;
+        short xOffset = unchecked((short)ReadWord(bus, xTable + directionOffset));
+        short yOffset = unchecked((short)ReadWord(bus, yTable + directionOffset));
+        byte poseYOffset = ReadPoseByte(bus, samus.Pose, PoseYOffsetOffset);
+        ushort screenX = unchecked((ushort)(samus.XPosition + xOffset - layer1X));
+        ushort screenY = unchecked((ushort)(samus.YPosition + yOffset - poseYOffset - layer1Y));
+
+        // `$90:BC98` clips only by the origin's Y high byte. The shared bank-$81 loader
+        // deliberately allows individual entries to wrap, matching charge sparks near an
+        // edge instead of applying the generic on-screen-origin parking rule.
+        if ((screenY & 0xff00) != 0)
+            return;
+
+        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        ushort indexOffset = unchecked((ushort)(facingLeft
+            ? component switch { 0 => 0, 1 => 0x2a, _ => 0x30 }
+            : component switch { 0 => 0, 1 => 0x1e, _ => 0x24 }));
+        ushort tableIndex = unchecked((ushort)(indexOffset + _flareFrames[component]));
+        oam.AddFlareSpritemap(bus, tableIndex, screenX, screenY);
+    }
+
+    private void ClearFlareAnimationState()
+    {
+        Array.Clear(_flareFrames);
+        Array.Clear(_flareTimers);
     }
 
     private static byte ReadPoseByte(ISnesAddressSpace bus, byte pose, int fieldOffset) =>

@@ -236,6 +236,27 @@ public sealed class OamBuffer
     }
 
     /// <summary>
+    /// Ports <c>$81:8A37</c>: follows an index through bank-$93 table <c>$A1A1</c> and
+    /// emits the selected charge/grapple-flare spritemap without off-screen correction.
+    /// </summary>
+    public void AddFlareSpritemap(
+        ISnesAddressSpace bus,
+        ushort tableIndex,
+        ushort originX,
+        ushort originY)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+
+        // The native entry point doubles A, then reads a same-bank pointer. Reusing the
+        // projectile loader below is exact after that one lookup: both routes keep the
+        // ROM-authored palette/priority bits and wrap the nine-bit OAM stack identically.
+        ushort pointer = ReadWordInFixedBank(
+            bus,
+            0x930000 | ((0xa1a1 + tableIndex * 2) & 0xffff));
+        AddProjectileSpritemap(bus, pointer, originX, originY);
+    }
+
+    /// <summary>
     /// Ports the bank-$86 enemy-projectile loaders at <c>$81:8C0A/$81:8C7F</c> for a direct
     /// bank-$8D spritemap pointer and the projectile slot's packed graphics index.
     /// </summary>

@@ -55,6 +55,9 @@ public sealed class SamusProjectileSystem
     private const int ProjectileAccelerationY = 0x90c367;
     private const int BeamTilePointers = 0x90c3b1;
     private const int BeamPalettePointers = 0x90c3c9;
+    private const int NormalSuitPalettePointers = 0x91d727;
+    private const int HyperBeamShotPalettePointers = 0x91d829;
+    private const int SamusPaletteCgramIndex = 192;
     private const int UnchargedBeamDataPointers = 0x9383c1;
     private const int ChargedBeamDataPointers = 0x9383d9;
     private const int BeamExplosionInstructionPointerAddress = 0x9383ff;
@@ -104,11 +107,14 @@ public sealed class SamusProjectileSystem
     public ushort PreviousBeamChargeCounter { get; private set; }
 
     /// <summary>
-    /// WRAM <c>$0B18</c>; four calls of post-shot glow state. The palette consumer is a
-    /// separate, still-untranslated presentation routine, so this value is debugger-visible
-    /// and cadence-correct but does not yet recolor Samus.
+    /// WRAM <c>$0B18</c>. Ordinary charged shots use values four through zero for three
+    /// white frames and a fourth-call suit restore. Hyper Beam uses `$8014` through `$8000`
+    /// for ten ROM palettes held two calls each before the same restore path.
     /// </summary>
     public ushort ChargedShotGlowTimer { get; private set; }
+
+    /// <summary>The most recent `$91:D743` charged-shot palette sub-handler result.</summary>
+    public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; private set; }
 
     /// <summary>
     /// WRAM <c>$0BD0</c>; firing a missile writes 20 before the enemy-collision consumer.
@@ -198,6 +204,119 @@ public sealed class SamusProjectileSystem
             0x900000 | palettePointer,
             colorCount: 16,
             destinationIndex: 0xe0);
+    }
+
+    /// <summary>
+    /// Runs the nonzero-<c>$0B18</c> branches of <c>HandleBeamChargePalettes</c> at
+    /// <c>$91:D743-$D7D4</c> against the modeled Samus CGRAM palette.
+    /// </summary>
+    /// <remarks>
+    /// This belongs to the Samus palette handler, not charge-flare drawing. On hardware the
+    /// main thread edits palette-buffer colors 192-207 and a later NMI uploads them. The
+    /// software PPU exposes CGRAM directly, so the same words are written at this phase.
+    /// The runtime still executes special Speed Booster/Screw/Shinespark/Crystal Flash/X-ray
+    /// handlers afterward, preserving `$91:D708-$D721`'s ability to replace this result.
+    /// </remarks>
+    public SamusBeamChargePaletteStepResult UpdateBeamChargePalette(
+        ISnesAddressSpace bus,
+        SnesCgram cgram,
+        SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(cgram);
+        ArgumentNullException.ThrowIfNull(samus);
+
+        ushort timerBefore = ChargedShotGlowTimer;
+        if (timerBefore == 0)
+        {
+            LastBeamChargePaletteStep = new(
+                SamusBeamChargePaletteAction.Inactive,
+                TimerBefore: 0,
+                TimerAfter: 0,
+                PalettePointer: 0,
+                HyperPaletteIndex: null);
+            return LastBeamChargePaletteStep;
+        }
+
+        if (samus.HyperBeam == 0)
+        {
+            // `$91:D799` decrements before its BEQ. Starting at four therefore produces
+            // white on timers 3, 2, and 1. Timer 1 -> 0 takes carry-set `$D7AE`, causing
+            // outer `$D717` to restore the complete suit palette on the fourth call.
+            ChargedShotGlowTimer = unchecked((ushort)(ChargedShotGlowTimer - 1));
+            if (ChargedShotGlowTimer == 0)
+            {
+                ushort normalPointer = LoadNormalSuitPalette(bus, cgram, samus.EquippedItems);
+                LastBeamChargePaletteStep = new(
+                    SamusBeamChargePaletteAction.RestoredNormalSuit,
+                    timerBefore,
+                    ChargedShotGlowTimer,
+                    normalPointer,
+                    HyperPaletteIndex: null);
+                return LastBeamChargePaletteStep;
+            }
+
+            // Native starts at `Palettes_SpriteP4C1 + $1C` and walks backward by words.
+            // That is exactly colors 15..1: transparent color zero is intentionally left
+            // untouched while every visible Samus color becomes BGR555 `$03FF`.
+            for (int color = 1; color < 16; color++)
+                cgram.SetColor(SamusPaletteCgramIndex + color, 0x03ff);
+
+            LastBeamChargePaletteStep = new(
+                SamusBeamChargePaletteAction.OrdinaryWhite,
+                timerBefore,
+                ChargedShotGlowTimer,
+                PalettePointer: 0,
+                HyperPaletteIndex: null);
+            return LastBeamChargePaletteStep;
+        }
+
+        // Hyper's sign bit selects this branch but is not part of the table index. Odd
+        // values are pure hold calls; even low-five-bit values 20..2 select palette 0..9.
+        // Each selected ROM palette consequently remains visible for exactly two calls.
+        if ((ChargedShotGlowTimer & 1) != 0)
+        {
+            ChargedShotGlowTimer = unchecked((ushort)(ChargedShotGlowTimer - 1));
+            LastBeamChargePaletteStep = new(
+                SamusBeamChargePaletteAction.HyperHold,
+                timerBefore,
+                ChargedShotGlowTimer,
+                PalettePointer: 0,
+                HyperPaletteIndex: null);
+            return LastBeamChargePaletteStep;
+        }
+
+        ushort tableOffset = unchecked((ushort)(ChargedShotGlowTimer & 0x001e));
+        if (tableOffset == 0)
+        {
+            // `$91:D7C1` branches before DEC at `$D7CB`. Native explicitly zeroes the
+            // already-`$8000` timer and returns carry so `$D717` performs the suit copy.
+            ChargedShotGlowTimer = 0;
+            ushort normalPointer = LoadNormalSuitPalette(bus, cgram, samus.EquippedItems);
+            LastBeamChargePaletteStep = new(
+                SamusBeamChargePaletteAction.RestoredNormalSuit,
+                timerBefore,
+                ChargedShotGlowTimer,
+                normalPointer,
+                HyperPaletteIndex: null);
+            return LastBeamChargePaletteStep;
+        }
+
+        ushort hyperPointer = ReadWord(bus, HyperBeamShotPalettePointers + tableOffset);
+        cgram.LoadFromBus(
+            bus,
+            0x9b0000 | hyperPointer,
+            colorCount: 16,
+            destinationIndex: SamusPaletteCgramIndex);
+        int hyperPaletteIndex = (0x14 - tableOffset) / 2;
+        ChargedShotGlowTimer = unchecked((ushort)(ChargedShotGlowTimer - 1));
+        LastBeamChargePaletteStep = new(
+            SamusBeamChargePaletteAction.HyperPalette,
+            timerBefore,
+            ChargedShotGlowTimer,
+            hyperPointer,
+            hyperPaletteIndex);
+        return LastBeamChargePaletteStep;
     }
 
     /// <summary>
@@ -341,8 +460,6 @@ public sealed class SamusProjectileSystem
         ArgumentNullException.ThrowIfNull(oam);
         ArgumentNullException.ThrowIfNull(samus);
 
-        if (ChargedShotGlowTimer != 0)
-            ChargedShotGlowTimer--;
         if (FlareCounter == 0)
             return;
 
@@ -503,6 +620,7 @@ public sealed class SamusProjectileSystem
         Array.Clear(_flareFrames);
         Array.Clear(_flareTimers);
         LastFrameResult = default;
+        LastBeamChargePaletteStep = default;
     }
 
     private (int? Slot, ushort Sound) HandleBeamInput(
@@ -523,12 +641,6 @@ public sealed class SamusProjectileSystem
                 ? TryFireHyperBeam(bus, samus, sharedProjectiles)
                 : (null, 0);
 
-        // Native `$90:B80D` can also consume charge through the one-frame `$0CFA`
-        // "projectile direction changed by pose" bridge. The translated pose pipeline does
-        // not publish that overlapped WRAM word yet, so standing/running/air poses with a
-        // stable shot direction follow the exact path below; firing during the transitional
-        // direction-change frame remains an explicit producer seam rather than a guess.
-
         // Retail owns twelve low-nibble beam combinations: power through ice+wave+plasma.
         // Spazer and plasma are mutually exclusive in normal inventory state, which is why
         // indices `$C-$F` have no tile, palette, projectile-data, sound, or dispatch entry.
@@ -545,6 +657,23 @@ public sealed class SamusProjectileSystem
             return held
                 ? TryFireBeam(bus, samus, controllerNewInput, sharedProjectiles, charged: false)
                 : (null, 0);
+        }
+
+        if (samus.PoseTransitionShotDirection != 0)
+        {
+            // `$90:B82D-$B83A` forces release before testing held Shoot. This is why a
+            // charged beam can leave the OLD gun direction while a normal-jump or moonwalk
+            // transition installs new body art. Values below 60 release an ordinary beam;
+            // values 60+ release the charged family through the same allocation gate.
+            bool forcedChargedRelease = FlareCounter >= 60;
+            FlareCounter = 0;
+            ClearFlareAnimationState();
+            return TryFireBeam(
+                bus,
+                samus,
+                controllerNewInput,
+                sharedProjectiles,
+                charged: forcedChargedRelease);
         }
 
         if (held)
@@ -619,15 +748,9 @@ public sealed class SamusProjectileSystem
         SamusProjectileSlot slot = _slots[slotIndex];
         slot.ClearFields();
 
-        byte poseDirection = ReadPoseByte(bus, samus.Pose, PoseDirectionOffset);
-        byte direction = poseDirection;
-
-        // `$91:F5CF-$F5E6` publishes the OLD pose's direction when a fresh Shot press causes
-        // a gun-pose transition. `$90:BA5F` consumes its low byte before the prospective pose
-        // is installed. Reconstructing that one-frame bridge here avoids a shot lag and does
-        // not guess from host-facing artwork.
-        if ((controllerNewInput & shoot) != 0)
-            direction = unchecked((byte)(poseDirection & 0x0f));
+        byte direction = samus.PoseTransitionShotDirection != 0
+            ? unchecked((byte)samus.PoseTransitionShotDirection)
+            : ReadPoseByte(bus, samus.Pose, PoseDirectionOffset);
 
         if ((direction & 0xf0) != 0 || (direction & 0x0f) > 9)
         {
@@ -1939,6 +2062,27 @@ public sealed class SamusProjectileSystem
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(AddWithinBank(address, 1)) << 8)));
 
+    private static ushort LoadNormalSuitPalette(
+        ISnesAddressSpace bus,
+        SnesCgram cgram,
+        ushort equippedItems)
+    {
+        // `SuitPaletteIndex` is a byte offset, not an ordinal: Power=0, Varia=2,
+        // Gravity=4. Gravity wins when externally stimulated state contains both bits.
+        ushort suitOffset = (equippedItems & 0x0020) != 0
+            ? (ushort)4
+            : (equippedItems & 0x0001) != 0
+                ? (ushort)2
+                : (ushort)0;
+        ushort pointer = ReadWord(bus, NormalSuitPalettePointers + suitOffset);
+        cgram.LoadFromBus(
+            bus,
+            0x9b0000 | pointer,
+            colorCount: 16,
+            destinationIndex: SamusPaletteCgramIndex);
+        return pointer;
+    }
+
     private static int AddWithinBank(int address, int byteCount) =>
         (address & 0xff0000) | ((address + byteCount) & 0xffff);
 }
@@ -2070,3 +2214,21 @@ public readonly record struct SamusProjectileFrameResult(
     ushort QueuedSoundEffect,
     bool CollisionStartedExplosion,
     bool ProjectileDeleted);
+
+/// <summary>Semantic branch and raw table/timer evidence from one `$91:D743` call.</summary>
+public readonly record struct SamusBeamChargePaletteStepResult(
+    SamusBeamChargePaletteAction Action,
+    ushort TimerBefore,
+    ushort TimerAfter,
+    ushort PalettePointer,
+    int? HyperPaletteIndex);
+
+/// <summary>Named outcomes of the nonzero charged-shot glow branches.</summary>
+public enum SamusBeamChargePaletteAction : byte
+{
+    Inactive,
+    OrdinaryWhite,
+    HyperPalette,
+    HyperHold,
+    RestoredNormalSuit,
+}

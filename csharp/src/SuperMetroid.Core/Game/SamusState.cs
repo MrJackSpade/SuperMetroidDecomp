@@ -812,6 +812,19 @@ public sealed class SamusState
     /// </summary>
     public ushort ProjectileFlareCounter { get; set; }
 
+    /// <summary>
+    /// WRAM <c>$0B5E</c>, <c>PoseTransitionShotDirection</c>. A pose initializer can
+    /// publish one shot direction after the current frame's projectile handler has already
+    /// run. The following frame's bank-$90 producer consumes the low byte, then the normal
+    /// current-state epilogue clears the complete word whether or not allocation succeeded.
+    /// </summary>
+    /// <remarks>
+    /// The high byte is meaningful provenance, not part of the direction: `$8000` marks a
+    /// fresh-shot normal-jump transition and `$0100` marks a moonwalk turn. Keeping the raw
+    /// word visible makes both native producers and the single consumer debugger-auditable.
+    /// </remarks>
+    public ushort PoseTransitionShotDirection { get; private set; }
+
     /// <summary>WRAM `$0A76`; `$8000` marks Mother Brain's hyper beam as enabled.</summary>
     public ushort HyperBeam { get; set; }
 
@@ -1991,7 +2004,16 @@ public sealed class SamusState
         // Crouching transition tables publish `$43/$44` directly, whereas every admitted
         // standing/running/landing table publishes `$25/$26`. The initializer still uses
         // previous movement type five to choose the full crouched aim-preserving table.
-        bool wasCrouching = ReadMovementType(bus) == 5;
+        byte sourceMovementType = ReadMovementType(bus);
+        bool wasCrouching = sourceMovementType == 5;
+        bool wasMoonwalking = sourceMovementType == 0x10;
+
+        // `$91:F8F3-$F903` reads the PREVIOUS moonwalk pose, not the selected turn pose.
+        // Preserve the complete source byte now so the low-nibble projectile direction is
+        // still available after ApplySimpleGroundedPoseChange replaces `Pose` below.
+        byte moonwalkSourceShotDirection = wasMoonwalking
+            ? ReadShotDirection(bus)
+            : (byte)0;
 
         bool rightSource = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
             IsMoonwalkingFacingRightPose(Pose) ||
@@ -2072,6 +2094,14 @@ public sealed class SamusState
         speed.AccelerationMode = 1;
 
         ApplySimpleGroundedPoseChange(bus, Pose, selectedTurnPose, "Grounded turn");
+
+        if (wasMoonwalking)
+        {
+            // The `$0100` tag makes HUD handler `$90:DD74` treat the one-frame turning
+            // state as shooting. `$90:BA5F` later masks it away and consumes only this
+            // source pose's direction byte when a beam slot can actually be initialized.
+            PoseTransitionShotDirection = unchecked((ushort)(0x0100 | moonwalkSourceShotDirection));
+        }
     }
 
     /// <summary>
@@ -2482,7 +2512,10 @@ public sealed class SamusState
     /// <c>Make_Samus_Jump</c>. Only the four no-equipment/no-aim routes admitted by the
     /// current runtime are accepted.
     /// </summary>
-    public void ApplyOrdinaryJumpTransition(ISnesAddressSpace bus, byte targetPose)
+    public void ApplyOrdinaryJumpTransition(
+        ISnesAddressSpace bus,
+        byte targetPose,
+        ushort controllerNewInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         bool verified = (Pose, targetPose) is
@@ -2533,7 +2566,23 @@ public sealed class SamusState
         RefreshCollisionRadii(bus);
         InitializeAnimation(bus, initialFrame: 0);
         SamusAerialMovement.InitializeJump(bus, this);
+
+        if (ReadMovementType(bus) == 2 &&
+            (controllerNewInput & (ushort)SnesButton.X) != 0)
+        {
+            // `$91:F5CF-$F5E6` runs only in the normal-jumping initializer. It reads the
+            // newly installed pose's direction byte and adds `$8000`; spin-jump's separate
+            // initializer never publishes this bridge even when Shoot and Jump share a frame.
+            PoseTransitionShotDirection = unchecked((ushort)(0x8000 | ReadShotDirection(bus)));
+        }
     }
+
+    /// <summary>
+    /// Ports `$90:EB20`, the unconditional current-state epilogue clear that follows the
+    /// HUD/projectile handler. A failed cooldown/slot allocation must lose the bridge too;
+    /// it is deliberately not retained until some later shot succeeds.
+    /// </summary>
+    public void ClearPoseTransitionShotDirection() => PoseTransitionShotDirection = 0;
 
     /// <summary>
     /// Applies the crouching table's direct `$27/$71/$73/$85 -> $01` and mirrored

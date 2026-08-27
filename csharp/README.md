@@ -298,8 +298,13 @@ Supplying `--beam-type 0..11` makes the same route validate the selected charged
 entries; type eleven is observed as `$901B`, damage `$0384`, and sound `$21`. The trail uses the retail 18-slot backward allocation scan, bank-$9B animation-frame offsets,
 independent left/right bank-$90 instruction streams, inline position commands, and frozen-time
 draw rule. A 50-frame capture freezes the active flare; a 68-frame capture freezes the release;
-a 72-frame capture freezes the projectile with its orange trail. The one-frame `$0CFA` shot-direction-change
-bridge and the four-call post-shot Samus palette recolor remain explicit presentation seams.
+a 72-frame capture freezes the projectile with its orange trail. The one-frame `$0B5E`
+pose-transition shot-direction bridge is live: normal-jump Shoot edges publish the new pose's
+direction with flag `$8000`, Moonwalk turns publish the source direction with flag `$0100`, and
+the following projectile pass forces the cartridge's charge-release decision before consuming
+the low-byte direction. Charged shots also drive `$91:D799`'s four-call Samus-body sequence:
+three calls replace only colors 1..15 with `$03FF`, preserving suit color zero, and the fourth
+restores the full equipment-selected Power/Varia/Gravity palette.
 
 `--hyper-beam-script` invokes the translated `$91:E5F0` endgame grant before initial beam
 tiles and palette are uploaded, then supplies one Shoot sample. `$90:BCD1` allocates literal
@@ -310,7 +315,9 @@ does not allocate a detached trail. Controller three also spawns palette-FX obje
 `$8D:E1F0`: its native timer-one initialization executes `$C655,$01C2`, then cycles ten
 ROM-authored eight-color records for exactly two handler calls each before `$C61E` loops to
 `$D904`. The private-ROM regression requires every projectile literal, decoded bank-$93 art,
-all ten palette records in live CGRAM `$E1-$E8`, and unchanged neighboring colors;
+all ten palette records in live CGRAM `$E1-$E8`, and unchanged neighboring colors. Independently,
+`$91:D7B6` interprets the `$8014` body-glow timer through `$91:D829`: ten bank-$9B Samus palettes
+alternate with ten hold/decrement calls, then call 21 restores the equipment-selected suit palette;
 `HyperBeamFrame.png` captures the shot against live Landing Site terrain. The viewer exposes
 the same path as **Hyper Beam enabled**;
 disabling it is explicitly a debugger-only reverse seam because normal play never revokes it.

@@ -178,6 +178,13 @@ public sealed class SuperMetroidRuntime
     /// </summary>
     public HyperBeamPaletteFxStepResult? LastHyperBeamPaletteFxStep { get; private set; }
 
+    /// <summary>
+    /// Most recent nonzero charged-shot body-palette branch from `$91:D743`. This remains
+    /// distinct from the global Hyper Beam projectile palette object above: it owns Samus's
+    /// OBJ palette four rather than projectile OBJ palette six.
+    /// </summary>
+    public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; private set; }
+
     /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; private set; }
 
@@ -1097,6 +1104,12 @@ public sealed class SuperMetroidRuntime
                         projectileProducerEnabled: !DebugGrappleItemSelected,
                         roomPlms: Plms);
 
+                    // `$90:E6C0` dispatches the selected HUD producer and `$90:EB20`
+                    // immediately clears `$0B5E`. Pose initialization occurs later in the
+                    // new-state handler, so a bridge published below survives precisely
+                    // until this point in the following gameplay frame.
+                    Samus.ClearPoseTransitionShotDirection();
+
                     // `$0CD0` is one shared WRAM word, not independent projectile/movement
                     // state. Samus's spin/wall-jump contact-damage handlers run in beta and
                     // must see the counter that `$90:B80D` just updated during alpha.
@@ -2007,7 +2020,10 @@ public sealed class SuperMetroidRuntime
                                      SamusState.IsMoonwalkTurnJumpRightPose(source) &&
                                          target is SamusState.SpinJumpRightPose or
                                              SamusState.NeutralJumpTransitionRightPose:
-                                Samus.ApplyOrdinaryJumpTransition(_addressSpace, targetPose);
+                                Samus.ApplyOrdinaryJumpTransition(
+                                    _addressSpace,
+                                    targetPose,
+                                    Controller1.NewlyPressed);
                                 break;
                             case (SamusState.KnockbackRightPose, SamusState.DamageBoostRightPose):
                             case (SamusState.KnockbackLeftPose, SamusState.DamageBoostLeftPose):
@@ -2521,6 +2537,15 @@ public sealed class SuperMetroidRuntime
                 Samus.Drained.UpdatePalette(_addressSpace, Cgram, Samus.EquippedItems);
             if (!deathOwnsSamus && !drainedOwnsSamusPalette)
             {
+                // `$91:D708` always runs charge/post-shot handling before dispatching the
+                // selected special Samus palette. Ordinary charged shots paint colors 1-15
+                // white for three calls and restore the ROM suit on call four; Hyper shots
+                // step ten complete bank-$9B palettes on alternating calls before restore.
+                LastBeamChargePaletteStep = Projectiles.UpdateBeamChargePalette(
+                    _addressSpace,
+                    Cgram,
+                    Samus);
+
                 Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(
                     _addressSpace,
                     Cgram,

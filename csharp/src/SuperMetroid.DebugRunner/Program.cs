@@ -837,6 +837,8 @@ bool observedChargedShot = false;
 bool observedChargedTrail = false;
 ushort observedChargedShotDamage = 0;
 ushort observedChargedShotSound = 0;
+int observedOrdinaryChargedWhitePaletteCalls = 0;
+bool observedOrdinaryChargedSuitRestore = false;
 bool observedHyperBeamShot = false;
 bool observedHyperBeamArt = false;
 bool observedHyperBeamFlare = false;
@@ -844,6 +846,9 @@ ushort observedHyperBeamType = 0;
 ushort observedHyperBeamDamage = 0;
 ushort observedHyperBeamSound = 0;
 var observedHyperBeamPaletteFrames = new HashSet<int>();
+var observedHyperBeamBodyPalettes = new HashSet<int>();
+int observedHyperBeamBodyPaletteHolds = 0;
+bool observedHyperBeamBodySuitRestore = false;
 bool observedMissileShot = false;
 bool observedMissileArt = false;
 bool observedMissileTrail = false;
@@ -2190,6 +2195,60 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
 
         observedHyperBeamPaletteFrames.Add(hyperPalette.FrameIndex);
     }
+    SamusBeamChargePaletteStepResult bodyPalette = runtime.LastBeamChargePaletteStep;
+    if (bodyPalette.Action == SamusBeamChargePaletteAction.OrdinaryWhite)
+    {
+        // `$91:D7A4` writes `$03FF` backward over visible colors 15..1. Validate the final
+        // live CGRAM image after all later special-palette dispatch, not merely the typed
+        // branch result, so an ordering regression cannot pass this real-ROM route.
+        for (int color = 1; color < 16; color++)
+        {
+            if (runtime.Cgram.Colors[192 + color] != 0x03ff)
+            {
+                throw new InvalidOperationException(
+                    $"Charged-shot body glow wrote ${runtime.Cgram.Colors[192 + color]:X4} " +
+                    $"to Samus color {color}, expected $03FF.");
+            }
+        }
+        observedOrdinaryChargedWhitePaletteCalls++;
+    }
+    else if (bodyPalette.Action == SamusBeamChargePaletteAction.HyperPalette)
+    {
+        int paletteIndex = bodyPalette.HyperPaletteIndex ??
+            throw new InvalidOperationException("Hyper body palette write omitted its table index.");
+        int pointerCell = 0x91d829 + (bodyPalette.TimerBefore & 0x001e);
+        ushort expectedPointer = unchecked((ushort)(
+            bus.ReadByte(pointerCell) | (bus.ReadByte(pointerCell + 1) << 8)));
+        if (bodyPalette.PalettePointer != expectedPointer)
+        {
+            throw new InvalidOperationException(
+                $"Hyper body palette {paletteIndex} used pointer ${bodyPalette.PalettePointer:X4}, " +
+                $"ROM table contains ${expectedPointer:X4}.");
+        }
+        for (int color = 0; color < 16; color++)
+        {
+            int source = 0x9b0000 | unchecked((ushort)(expectedPointer + color * 2));
+            ushort expectedColor = unchecked((ushort)(
+                bus.ReadByte(source) | (bus.ReadByte(source + 1) << 8)));
+            if (runtime.Cgram.Colors[192 + color] != expectedColor)
+            {
+                throw new InvalidOperationException(
+                    $"Hyper body palette {paletteIndex} color {color} differs from ROM.");
+            }
+        }
+        observedHyperBeamBodyPalettes.Add(paletteIndex);
+    }
+    else if (bodyPalette.Action == SamusBeamChargePaletteAction.HyperHold)
+    {
+        observedHyperBeamBodyPaletteHolds++;
+    }
+    else if (bodyPalette.Action == SamusBeamChargePaletteAction.RestoredNormalSuit)
+    {
+        if (bodyPalette.TimerBefore == 1)
+            observedOrdinaryChargedSuitRestore = true;
+        else if (bodyPalette.TimerBefore == 0x8000)
+            observedHyperBeamBodySuitRestore = true;
+    }
     if (options.LandingImpactScript &&
         (runtime.LastAerialSamusMovement is { Landed: true } ||
          runtime.LastMorphBallMovement is { Landed: true }))
@@ -3123,11 +3182,21 @@ if (options.ChargeBeamScript)
         throw new InvalidOperationException(
             "Charge Beam release did not allocate its native bank-$90 projectile trail.");
     }
+    if (options.FrameCount >= 71 &&
+        (observedOrdinaryChargedWhitePaletteCalls != 3 ||
+         !observedOrdinaryChargedSuitRestore))
+    {
+        throw new InvalidOperationException(
+            $"Charge Beam body palette cadence mismatch: white calls=" +
+            $"{observedOrdinaryChargedWhitePaletteCalls}/3, " +
+            $"suitRestore={observedOrdinaryChargedSuitRestore}.");
+    }
 
     Console.WriteLine(
         $"Charge Beam type ${options.BeamType:X1} ROM route reached {maximumObservedCharge}/60, " +
         $"chargedShot={observedChargedShot}, damage=${observedChargedShotDamage:X4}, " +
-        $"sound=${observedChargedShotSound:X2}, trail={observedChargedTrail}.");
+        $"sound=${observedChargedShotSound:X2}, trail={observedChargedTrail}, " +
+        $"bodyGlow={observedOrdinaryChargedWhitePaletteCalls}/3+restore.");
 }
 
 if (options.HyperBeamScript)
@@ -3154,6 +3223,18 @@ if (options.HyperBeamScript)
     if (runtime.Projectiles.ActiveTrailCount != 0)
         throw new InvalidOperationException("Hyper Beam incorrectly allocated an ordinary Wave trail.");
 
+    if (options.FrameCount >= 23 &&
+        (observedHyperBeamBodyPalettes.Count != 10 ||
+         observedHyperBeamBodyPaletteHolds != 10 ||
+         !observedHyperBeamBodySuitRestore))
+    {
+        throw new InvalidOperationException(
+            $"Hyper Beam body palette cadence mismatch: palettes=" +
+            $"{observedHyperBeamBodyPalettes.Count}/10, " +
+            $"holds={observedHyperBeamBodyPaletteHolds}/10, " +
+            $"suitRestore={observedHyperBeamBodySuitRestore}.");
+    }
+
     // Every ROM record lasts two handler calls. Short captures must visit every record
     // they had time to reach; captures of nineteen calls or more must cover all ten before
     // the following odd call executes the terminal goto and starts the next cycle.
@@ -3171,7 +3252,8 @@ if (options.HyperBeamScript)
         $"Hyper Beam ROM route fired type ${observedHyperBeamType:X4}, " +
         $"damage=${observedHyperBeamDamage:X4}, sound=${observedHyperBeamSound:X2}, " +
         $"art={observedHyperBeamArt}, flare={observedHyperBeamFlare}, trail=false; " +
-        $"paletteFX={observedHyperBeamPaletteFrames.Count}/10 ROM frames.");
+        $"paletteFX={observedHyperBeamPaletteFrames.Count}/10 ROM frames, " +
+        $"bodyGlow={observedHyperBeamBodyPalettes.Count}/10+restore.");
 }
 
 if (options.MissileScript)

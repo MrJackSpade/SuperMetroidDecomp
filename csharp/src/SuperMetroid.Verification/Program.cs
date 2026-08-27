@@ -11022,6 +11022,19 @@ static void VerifySamusMoonwalking()
     AssertEqual((ushort)1, disabled.HorizontalSpeed.AccelerationMode,
         "disabled Moonwalk substitution starts mode one");
 
+    // `$91:F8F3-$F903` is specific to a turn whose PREVIOUS movement type is Moonwalk.
+    // It publishes the source pose's shot direction with tag `$0100`; ordinary standing
+    // turns, including the disabled-option substitution above, must not create this word.
+    AssertEqual((ushort)0, disabled.PoseTransitionShotDirection,
+        "ordinary standing turn does not publish moonwalk shot bridge");
+    var moonwalkBridge = new SamusState { Pose = SamusState.MoonwalkFacingRightPose };
+    moonwalkBridge.ApplyGroundedTurn(bus, SamusState.TurningRightToLeftPose);
+    AssertEqual((ushort)0x0102, moonwalkBridge.PoseTransitionShotDirection,
+        "moonwalk turn publishes tagged source shot direction");
+    moonwalkBridge.ClearPoseTransitionShotDirection();
+    AssertEqual((ushort)0, moonwalkBridge.PoseTransitionShotDirection,
+        "moonwalk shot bridge is one-current-handler state");
+
     // Enabled entry must preserve every exact candidate, not merely the unaimed pair.
     foreach ((byte target, _, byte fallback, _) in stable)
     {
@@ -12360,6 +12373,38 @@ static void VerifySamusPowerBeamProjectiles()
     for (int index = 0; index < 16; index++)
         WriteTestWord(bus, 0x90c3e1 + index * 2, unchecked((ushort)(0x0100 + index)));
 
+    // Samus body palette fixtures for `$91:D743`. The normal table uses all three native
+    // byte offsets so a Gravity restore can prove selection priority independently of the
+    // ten Hyper-shot pointers. Every palette/color word is unique and remains valid BGR555.
+    ushort[] normalSuitPalettePointers = [0xe300, 0xe320, 0xe340];
+    for (int suit = 0; suit < normalSuitPalettePointers.Length; suit++)
+    {
+        WriteTestWord(bus, 0x91d727 + suit * 2, normalSuitPalettePointers[suit]);
+        for (int color = 0; color < 16; color++)
+        {
+            WriteTestWord(
+                bus,
+                0x9b0000 | unchecked((ushort)(normalSuitPalettePointers[suit] + color * 2)),
+                unchecked((ushort)(0x0100 + suit * 0x20 + color)));
+        }
+    }
+    ushort[] hyperShotPalettePointers = new ushort[10];
+    for (int palette = 0; palette < hyperShotPalettePointers.Length; palette++)
+    {
+        ushort pointer = unchecked((ushort)(0xe400 + palette * 0x20));
+        hyperShotPalettePointers[palette] = pointer;
+        // `$91:D829` has one padding word; timer `$8014` indexes byte offset 20 and thus
+        // palette zero, descending by one palette on each later even timer value.
+        WriteTestWord(bus, 0x91d829 + 0x14 - palette * 2, pointer);
+        for (int color = 0; color < 16; color++)
+        {
+            WriteTestWord(
+                bus,
+                0x9b0000 | unchecked((ushort)(pointer + color * 2)),
+                unchecked((ushort)(0x2000 + palette * 0x20 + color)));
+        }
+    }
+
     // Minimal but structurally authentic flare tables let the verifier exercise bank
     // `$90:BAFC` -> `$81:8A37` without copying production animation logic. Every possible
     // early table index selects the same one-entry spritemap; timing still comes from the
@@ -12697,6 +12742,103 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual((ushort)0, chargeProjectiles.FlareCounter,
         "charged release clears flare counter");
 
+    // `$91:D799-$D7AE` decrements before testing zero. Calls one through three paint only
+    // colors 1-15 white; call four takes carry-set back to `$91:D717` and restores the
+    // complete suit palette. Seed transparent color zero with a sentinel to catch a broad
+    // sixteen-color white fill, and equip both suit bits to prove Gravity wins over Varia.
+    chargeSamus.EquippedItems = 0x0021;
+    var chargedGlowCgram = new SnesCgram();
+    chargedGlowCgram.SetColor(192, 0x4321);
+    for (int call = 0; call < 4; call++)
+    {
+        SamusBeamChargePaletteStepResult paletteStep =
+            chargeProjectiles.UpdateBeamChargePalette(bus, chargedGlowCgram, chargeSamus);
+        if (call < 3)
+        {
+            AssertEqual(SamusBeamChargePaletteAction.OrdinaryWhite, paletteStep.Action,
+                $"ordinary charged glow call {call + 1} selects white branch");
+            AssertEqual(unchecked((ushort)(3 - call)), paletteStep.TimerAfter,
+                $"ordinary charged glow call {call + 1} decrements before branch");
+            AssertEqual((ushort)0x4321, chargedGlowCgram.Colors[192],
+                $"ordinary charged glow call {call + 1} preserves transparent color zero");
+            for (int color = 1; color < 16; color++)
+            {
+                AssertEqual((ushort)0x03ff, chargedGlowCgram.Colors[192 + color],
+                    $"ordinary charged glow call {call + 1} paints visible color {color}");
+            }
+        }
+        else
+        {
+            AssertEqual(SamusBeamChargePaletteAction.RestoredNormalSuit, paletteStep.Action,
+                "ordinary charged glow fourth call restores suit");
+            AssertEqual(normalSuitPalettePointers[2], paletteStep.PalettePointer,
+                "ordinary charged glow restore selects Gravity pointer");
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(unchecked((ushort)(0x0140 + color)), chargedGlowCgram.Colors[192 + color],
+                    $"ordinary charged glow restore copies Gravity color {color}");
+            }
+        }
+    }
+    AssertEqual((ushort)0, chargeProjectiles.ChargedShotGlowTimer,
+        "ordinary charged glow ends exactly on fourth palette call");
+
+    // Recreate `$91:F5CF-$F5E6 -> $90:B82D/$BA5F -> $90:EB20`: a new Shoot edge while
+    // normal-jump pose initialization occurs publishes `$8000 | direction` after this
+    // frame's projectile phase. On the next phase it forces release even though Shoot is
+    // still held, supplies the stored direction to the new projectile, and is then cleared.
+    bus.WriteBytes(
+        0x91b629 + SamusState.NeutralJumpTransitionRightPose * 8,
+        [0x08, 0x02, 0xff, 0x02, 0x00, 0x00, 0x13, 0x00]);
+    var bridgeSamus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 128,
+        YPosition = 96,
+        EquippedBeams = 0x1000,
+    };
+    var bridgeBombs = new SamusBombProjectileSystem();
+    var bridgeProjectiles = new SamusProjectileSystem();
+    for (int frame = 0; frame < 60; frame++)
+    {
+        bridgeBombs.StepFrame(bus, air, bridgeSamus, 0, 0);
+        bridgeProjectiles.StepFrame(
+            bus,
+            air,
+            bridgeSamus,
+            (ushort)SnesButton.X,
+            frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+            0,
+            0,
+            bridgeBombs);
+    }
+    bridgeSamus.ApplyOrdinaryJumpTransition(
+        bus,
+        SamusState.NeutralJumpTransitionRightPose,
+        controllerNewInput: (ushort)SnesButton.X);
+    AssertEqual((ushort)0x8002, bridgeSamus.PoseTransitionShotDirection,
+        "normal-jump initializer publishes tagged shot direction");
+    bridgeBombs.StepFrame(bus, air, bridgeSamus, 0, 0);
+    SamusProjectileFrameResult bridgeRelease = bridgeProjectiles.StepFrame(
+        bus,
+        air,
+        bridgeSamus,
+        (ushort)SnesButton.X,
+        controllerNewInput: 0,
+        layer1X: 0,
+        layer1Y: 0,
+        sharedProjectiles: bridgeBombs);
+    AssertTrue(bridgeRelease.FiredSlot is not null,
+        "pose-direction bridge forces charged release while Shoot remains held");
+    AssertEqual((ushort)2,
+        bridgeProjectiles.Slots[bridgeRelease.FiredSlot!.Value].Direction,
+        "pose-direction bridge supplies stored low-byte direction");
+    AssertEqual((ushort)0, bridgeProjectiles.FlareCounter,
+        "pose-direction bridge consumes charge counter");
+    bridgeSamus.ClearPoseTransitionShotDirection();
+    AssertEqual((ushort)0, bridgeSamus.PoseTransitionShotDirection,
+        "current-state epilogue clears pose-direction bridge");
+
     // Charged combinations index the parallel pointer/sound range and cooldown bytes
     // `$10-$1B`. Even a low-family wave now uses the common four-frame wave routine; the
     // special three-frame reload belongs only to uncharged types one and three.
@@ -12783,6 +12925,53 @@ static void VerifySamusPowerBeamProjectiles()
         "Hyper Beam installs signed palette/glow phase `$8014`");
     AssertEqual((ushort)0x8000, hyperProjectiles.FlareCounter,
         "Hyper Beam arms descending flare sentinel");
+
+    // `$8014` supplies ten descending even table offsets with an odd no-write hold after
+    // each one. The twenty-first call sees `$8000`, skips the padding pointer, and restores
+    // Power Suit. Verify every ROM word so reversed palette order cannot look plausible.
+    var hyperGlowCgram = new SnesCgram();
+    for (int call = 0; call < 21; call++)
+    {
+        ushort[] beforeColors = hyperGlowCgram.Colors.ToArray();
+        SamusBeamChargePaletteStepResult paletteStep =
+            hyperProjectiles.UpdateBeamChargePalette(bus, hyperGlowCgram, hyperSamus);
+        if (call < 20 && (call & 1) == 0)
+        {
+            int palette = call / 2;
+            AssertEqual(SamusBeamChargePaletteAction.HyperPalette, paletteStep.Action,
+                $"Hyper body glow call {call + 1} loads palette");
+            AssertEqual(palette, paletteStep.HyperPaletteIndex,
+                $"Hyper body glow call {call + 1} reports descending table index");
+            AssertEqual(hyperShotPalettePointers[palette], paletteStep.PalettePointer,
+                $"Hyper body glow call {call + 1} reads exact pointer");
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(
+                    unchecked((ushort)(0x2000 + palette * 0x20 + color)),
+                    hyperGlowCgram.Colors[192 + color],
+                    $"Hyper body palette {palette} color {color}");
+            }
+        }
+        else if (call < 20)
+        {
+            AssertEqual(SamusBeamChargePaletteAction.HyperHold, paletteStep.Action,
+                $"Hyper body glow call {call + 1} is odd hold");
+            for (int color = 0; color < SnesCgram.ColorCount; color++)
+            {
+                AssertEqual(beforeColors[color], hyperGlowCgram.Colors[color],
+                    $"Hyper body glow hold {call + 1} leaves CGRAM color {color}");
+            }
+        }
+        else
+        {
+            AssertEqual(SamusBeamChargePaletteAction.RestoredNormalSuit, paletteStep.Action,
+                "Hyper body glow call 21 restores suit");
+            AssertEqual(normalSuitPalettePointers[0], paletteStep.PalettePointer,
+                "Hyper body glow restore selects Power Suit pointer");
+        }
+    }
+    AssertEqual((ushort)0, hyperProjectiles.ChargedShotGlowTimer,
+        "Hyper body glow clears signed timer after 21 calls");
 
     // Its three components begin at frames 29/5/5 with timer three. Fast sparks (component
     // two) own completion, so exactly fifteen draw calls count five records down to zero.

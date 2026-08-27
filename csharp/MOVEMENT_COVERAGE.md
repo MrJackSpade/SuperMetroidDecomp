@@ -931,8 +931,11 @@ translated status is documented with the Morph Ball family below.
   impact, explosion retention, and deletion. `--charge-beam-script` supplies the private-ROM
   hold/release regression; `--beam-type 0..11` selects and asserts any family. Real-ROM type
   eleven produces uncharged Ice+Wave+Plasma multi-streak art and charged type `$901B`, damage
-  `$0384`, sound `$21`. The `$0CFA` transition-direction bridge, post-shot Samus palette
-  recolor and non-shootable projectile block families remain seams;
+  `$0384`, sound `$21`. `$91:F5CF/$F8F3` now publish the normal-jump (`$8000`) and Moonwalk-turn
+  (`$0100`) forms of the one-frame `$0B5E` transition-direction bridge; `$90:B82D/$BA5F/$EB20`
+  force release, consume its low-byte direction, and clear it in native phase order. `$91:D799`
+  also runs the charged shot's three white-body calls plus equipment-selected suit restoration.
+  The non-shootable projectile block families remain seams;
   plain power's left/right trail instruction pointers are deliberately empty in retail data.
 - Hyper Beam follows the forced `$91:E5F0` equipment `$1009`/flag `$8000` grant and bypasses
   ordinary charge input. `$90:BCD1` publishes type `$9018`, charged data-table index eight,
@@ -940,6 +943,8 @@ translated status is documented with the Morph Ball family below.
   `$90:B159` reuses Wave fixed-point motion without its detached trail. The same grant spawns
   `$8D:E1F0`; timer-one initialization executes `$C655,$01C2`, then ten eight-color records
   each last two handler calls and write only CGRAM `$E1-$E8` before `$C61E,$D904` loops.
+  The independent `$8014` Samus-body timer follows `$91:D7B6/$D829`: ten bank-$9B palettes
+  alternate with ten hold calls before the 21st call restores the selected suit palette.
   Synthetic and private-ROM checks require every projectile literal, native flare lifetime,
   decoded bank-$93 art, all ten palette records, exact cadence, and no trail; the interactive
   viewer exposes the same path through **Hyper Beam enabled**.

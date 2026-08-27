@@ -171,6 +171,11 @@ else if (options.BombJumpScript)
     Console.WriteLine(
         "Input script: crouch/morph, place a real normal bomb, then follow its ROM countdown, overlap, explosion, and straight bomb-jump arc.");
 }
+else if (options.PowerBombScript)
+{
+    Console.WriteLine(
+        "Input script: select ten Power Bombs, crouch/morph, fire one fresh Shoot edge, then follow the retail fuse, bank-$88 radius phases, terrain border scan, and color-math window.");
+}
 else if (options.KnockbackScript)
 {
     Console.WriteLine(
@@ -194,7 +199,7 @@ else if (options.GrappleScript)
 else if (options.CrystalFlashScript)
 {
     Console.WriteLine(
-        "Input script: host-publish the untranslated power-bomb-cleanup seam with exact Down+L+R+Shoot input, then execute ROM poses $D3/$01 through all three native Crystal Flash handlers.");
+        "Input script: invoke the translated centred power-bomb-cleanup entry with exact Down+L+R+Shoot input, then execute ROM poses $D3/$01 through all three native Crystal Flash handlers.");
 }
 else if (options.XrayScript)
 {
@@ -400,12 +405,19 @@ MotherBrainRainbowBeamAttackSequence? rainbowAttack = null;
 BabyMetroidCutsceneState? cutsceneBaby = null;
 MotherBrainEnemyProjectileSystem? motherBrainProjectiles = null;
 
-if (options.MorphBallScript || options.BombJumpScript || options.MorphKnockbackScript)
+if (options.MorphBallScript || options.BombJumpScript || options.PowerBombScript || options.MorphKnockbackScript)
 {
     // The Landing Site debugger spawn has no save-file inventory. The ordinary route needs
     // Morph Ball `$0004`; the bomb route additionally needs Bombs `$1000`. These are the
     // only host grants: placement/countdown/instructions/overlap/movement remain ROM-backed.
     runtime.Samus!.EquippedItems |= options.BombJumpScript ? (ushort)0x1004 : (ushort)0x0004;
+    if (options.PowerBombScript)
+    {
+        // Save/pause loading is the explicit host seam. The selected item and reserve are
+        // ordinary Samus words; every producer/lifecycle value after this grant is native.
+        runtime.Samus.PowerBombs = 10;
+        runtime.Samus.SelectedHudItem = 3;
+    }
 }
 else if (options.SpringBallScript)
 {
@@ -431,8 +443,9 @@ else if (options.SpaceJumpScript || options.WaterSpaceJumpScript || options.Scre
 }
 else if (options.CrystalFlashScript)
 {
-    // The runner has no save-file loader or complete power-bomb explosion lifecycle yet.
-    // Publish only the missing inventory and bank-$88 cleanup stimulus. TryBegin below still
+    // The runner has no save-file loader, and this focused script intentionally skips the
+    // several-second translated fuse/explosion wait. Publish the inventory and invoke the
+    // same bank-$88 cleanup entry reached by ordinary power-bomb play. TryBegin below still
     // performs the native exact-input, velocity, energy, reserve, ammo, direction, and pose
     // checks before any scripted handler is allowed to become active.
     runtime.Samus!.Health = 1;
@@ -1516,7 +1529,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 238 => (ushort)SnesButton.Right,
                 _ => (ushort)0,
             }
-        : options.MorphBallScript || options.BombJumpScript || options.MorphKnockbackScript
+        : options.MorphBallScript || options.BombJumpScript || options.PowerBombScript || options.MorphKnockbackScript
             ? frameIndex switch
             {
                 0 => (ushort)SnesButton.Start,
@@ -1532,6 +1545,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 // binding once. Everything after this edge is produced by the translated
                 // five-slot projectile lifecycle and cartridge instruction data.
                 25 when options.BombJumpScript => (ushort)SnesButton.X,
+                25 when options.PowerBombScript => (ushort)SnesButton.X,
                 >= 25 and < 80 when options.MorphBallScript => (ushort)SnesButton.Right,
                 >= 80 and < 140 when options.MorphBallScript => (ushort)SnesButton.Left,
 
@@ -2926,6 +2940,41 @@ if (options.BombJumpScript)
         $"Bomb-jump ROM route validated every milestone reachable within {options.FrameCount} frame(s).");
 }
 
+if (options.PowerBombScript)
+{
+    SamusPowerBombExplosionState powerBomb = runtime.BombProjectiles.PowerBombExplosion;
+    if (options.FrameCount >= 17 &&
+        !observedSamusPoses.Contains(SamusState.MorphBallGroundRightPose))
+    {
+        throw new InvalidOperationException(
+            "Power-bomb ROM script never reached stable Morph Ball pose $1D.");
+    }
+    if (options.FrameCount >= 26 &&
+        (runtime.Samus!.PowerBombs != 9 ||
+         runtime.BombProjectiles.Slots[0].Damage != 0x00c8 ||
+         (runtime.BombProjectiles.Slots[0].Type & 0x0f00) != 0x0300 ||
+         !powerBomb.IsArmed))
+    {
+        throw new InvalidOperationException(
+            $"Power-bomb producer mismatch: ammo={runtime.Samus!.PowerBombs}/9, " +
+            $"type=${runtime.BombProjectiles.Slots[0].Type:X4}/0300, " +
+            $"damage=${runtime.BombProjectiles.Slots[0].Damage:X4}/00C8, " +
+            $"armed={powerBomb.IsArmed}.");
+    }
+    if (options.FrameCount >= 86 && !powerBomb.IsActive)
+    {
+        throw new InvalidOperationException(
+            "Power-bomb fuse expired without starting bank-$88 explosion status $8000.");
+    }
+
+    Console.WriteLine(
+        $"Power-bomb ROM route: ammo={runtime.Samus!.PowerBombs}, " +
+        $"slotType=${runtime.BombProjectiles.Slots[0].Type:X4}, " +
+        $"damage=${runtime.BombProjectiles.Slots[0].Damage:X4}, " +
+        $"phase={powerBomb.Phase}, preRadius=${powerBomb.PreExplosionRadius:X4}, " +
+        $"radius=${powerBomb.ExplosionRadius:X4}.");
+}
+
 if (options.LandingImpactScript)
 {
     if (options.FrameCount >= 28 && !observedLandingImpactDust)
@@ -3940,6 +3989,12 @@ Rgba32[] gameplayFrame = SnesGameplayFrameRenderer.RenderHudLiveBackgroundsAndOb
     runtime.BackgroundScroll.Bg1VerticalScroll,
     runtime.ScrollingSky.VerticalScroll,
     skyHorizontalScrolls);
+SnesGameplayFrameRenderer.ApplyPowerBombColorMath(
+    gameplayFrame,
+    bus,
+    runtime.BombProjectiles.PowerBombExplosion,
+    camera.XPosition,
+    camera.YPosition);
 PngWriter.WriteRgba(options.OutputPath, width: 256, height: 224, gameplayFrame);
 Console.WriteLine($"Wrote ROM-backed HUD/OBJ frame to {Path.GetFullPath(options.OutputPath)}.");
 Console.WriteLine($"Wrote transparent OBJ layer to {Path.GetFullPath(objectOutputPath)}.");
@@ -4000,6 +4055,7 @@ readonly record struct DebugRunnerOptions(
     bool MorphBallScript,
     bool SpringBallScript,
     bool BombJumpScript,
+    bool PowerBombScript,
     bool KnockbackScript,
     bool MorphKnockbackScript,
     bool GrappleScript,
@@ -4052,6 +4108,7 @@ readonly record struct DebugRunnerOptions(
         bool morphBallScript = false;
         bool springBallScript = false;
         bool bombJumpScript = false;
+        bool powerBombScript = false;
         bool knockbackScript = false;
         bool morphKnockbackScript = false;
         bool grappleScript = false;
@@ -4257,6 +4314,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--power-bomb-script":
+                    powerBombScript = true;
+                    groundedRun = true;
+                    break;
+
                 case "--knockback-script":
                     knockbackScript = true;
                     groundedRun = true;
@@ -4345,7 +4407,8 @@ readonly record struct DebugRunnerOptions(
             xrayScript ? "XrayFrame.png" :
             hyperBeamScript ? "HyperBeamFrame.png" :
             missileScript ? "MissileFrame.png" :
-            superMissileScript ? "SuperMissileFrame.png" : "EscapeTimerFrame.png");
+            superMissileScript ? "SuperMissileFrame.png" :
+            powerBombScript ? "PowerBombFrame.png" : "EscapeTimerFrame.png");
 
         // The frame runtime reads compressed room data, graphics, palette, door metadata,
         // and library-background tilemaps directly from the ROM. It deliberately has no
@@ -4387,6 +4450,7 @@ readonly record struct DebugRunnerOptions(
             morphBallScript,
             springBallScript,
             bombJumpScript,
+            powerBombScript,
             knockbackScript,
             morphKnockbackScript,
             grappleScript,

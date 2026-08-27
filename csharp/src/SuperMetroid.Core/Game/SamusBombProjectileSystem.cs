@@ -26,11 +26,15 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Normal-bomb projectile type written by $90:BF9D.</summary>
     public const ushort NormalBombType = 0x0500;
 
+    /// <summary>Power-bomb projectile type formed from HUD item index three.</summary>
+    public const ushort PowerBombType = 0x0300;
+
     private const int NonBeamProjectileDataPointerTable = 0x9383f1;
     private const int BombExplosionInstructionPointerAddress = 0x938683;
     private const ushort ProjectileInstructionDelete = 0x822f;
     private const ushort ProjectileInstructionGoto = 0x8239;
     private const ushort NormalBombCooldown = 0x0010;
+    private const ushort PowerBombCooldown = 0x0028;
     private const ushort InitialBombTimer = 60;
 
     private readonly SamusBombProjectileSlot[] _slots =
@@ -38,6 +42,9 @@ public sealed class SamusBombProjectileSystem
 
     /// <summary>The five slots in the same low-to-high order as WRAM $0C86-$0C8E.</summary>
     public IReadOnlyList<SamusBombProjectileSlot> Slots => _slots;
+
+    /// <summary>Bank-$88 owner of the flash, damaging radius, and armed flag.</summary>
+    public SamusPowerBombExplosionState PowerBombExplosion { get; } = new();
 
     /// <summary>WRAM $0CD2, maintained independently from slot scans by the original.</summary>
     public ushort BombCounter { get; private set; }
@@ -75,6 +82,27 @@ public sealed class SamusBombProjectileSystem
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
 
+        // RunOneFrameOfGame invokes HdmaObjectHandler before GameState_8 reaches Samus's
+        // frame handler. A power bomb spawned later in this method consequently receives
+        // its first radius update on the next frame, not on its fuse-expiration frame.
+        bool powerBombCleanup = PowerBombExplosion.StepFrame(bus);
+        if (powerBombCleanup)
+        {
+            // $88:8B4E offers Crystal Flash only if Samus has remained on the exact bomb
+            // origin. Failure (including moving one pixel) releases $0CEA immediately.
+            bool crystalFlashStarted =
+                samus.XPosition == PowerBombExplosion.XPosition &&
+                samus.YPosition == PowerBombExplosion.YPosition &&
+                samus.CrystalFlash.TryBegin(
+                    bus,
+                    samus,
+                    controllerInput,
+                    (ushort)SnesButton.X,
+                    skipInputCheck: false);
+            if (!crystalFlashStarted)
+                PowerBombExplosion.ReleaseFlag();
+        }
+
         // $90:AC1C runs before the movement-type-specific HUD handler. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.
         StepCooldown();
@@ -82,7 +110,7 @@ public sealed class SamusBombProjectileSystem
         int? placedSlot = null;
         if (SamusState.IsStableBallPose(samus.Pose))
         {
-            placedSlot = TryPlaceNormalBomb(
+            placedSlot = TryPlaceBomb(
                 bus,
                 samus,
                 controllerInput,
@@ -138,7 +166,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// Draws $93:834D's normal-bomb/explosion subset in descending physical-slot order.
+    /// Draws $93:834D's bomb-slot subset in descending physical-slot order.
     /// </summary>
     public void Draw(
         ISnesAddressSpace bus,
@@ -152,7 +180,11 @@ public sealed class SamusBombProjectileSystem
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusBombProjectileSlot slot = _slots[slotIndex];
-            if (slot.InstructionPointer == 0 || (slot.Type & 0x0f00) != 0x0500)
+            // Type $0300 power bombs and type $0500 normal bombs both use the same bank-$93
+            // timed-spritemap interpreter. The large power-bomb flash itself is an HDMA
+            // color-math window and is composed separately from OAM.
+            ushort family = (ushort)(slot.Type & 0x0f00);
+            if (slot.InstructionPointer == 0 || (family != PowerBombType && family != NormalBombType))
                 continue;
 
             // $93:837F admits X in [-48,304). Y is admitted only when the high byte of
@@ -178,6 +210,7 @@ public sealed class SamusBombProjectileSystem
             slot.ClearFields();
         BombCounter = 0;
         CooldownTimer = 0;
+        PowerBombExplosion.Reset();
         LastFrameResult = default;
     }
 
@@ -200,21 +233,75 @@ public sealed class SamusBombProjectileSystem
             CooldownTimer = 0;
     }
 
-    private int? TryPlaceNormalBomb(
+    private int? TryPlaceBomb(
         ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerInput,
         ushort controllerNewInput)
     {
-        // The outer $90:BF9D test uses held Shoot, while helper two separately insists on
-        // the newly-pressed bit. X is the retail default shoot binding in this runtime.
+        // The outer $90:BF9D test uses held Shoot. Both item branches eventually call
+        // helper two, which separately insists on the newly-pressed bit.
         const ushort shoot = (ushort)SnesButton.X;
-        if ((samus.EquippedItems & BombItemBit) == 0 ||
-            (controllerInput & shoot) == 0 ||
-            (controllerNewInput & shoot) == 0)
-        {
+        if ((controllerInput & shoot) == 0)
             return null;
+
+        bool placingPowerBomb = samus.SelectedHudItem == 3;
+        if (placingPowerBomb && PowerBombExplosion.IsArmed)
+            return null;
+
+        // Normal bombs require the Bomb item. The selected-power-bomb branch in the ROM
+        // deliberately bypasses this equipment check and calls helper two directly.
+        if (!placingPowerBomb && (samus.EquippedItems & BombItemBit) == 0)
+            return null;
+
+        if (!TryReserveBombSlot(controllerNewInput, shoot))
+            return null;
+
+        // Retail HUD selection cannot normally point at an empty ammo class. Preserve the
+        // native ordering nonetheless: helper two has already incremented the aggregate
+        // counter if a debugger forces selected item three with zero power bombs.
+        if (placingPowerBomb && samus.PowerBombs == 0)
+            return null;
+
+        if (placingPowerBomb)
+        {
+            samus.PowerBombs = unchecked((ushort)(samus.PowerBombs - 1));
+            PowerBombExplosion.Arm();
         }
+
+        int slotIndex = FindFreeBombSlot();
+        SamusBombProjectileSlot slot = _slots[slotIndex];
+        slot.ClearFields();
+        slot.Type = placingPowerBomb ? PowerBombType : NormalBombType;
+        slot.Direction = 0;
+        slot.XPosition = samus.XPosition;
+        slot.YPosition = samus.YPosition;
+        slot.BombTimer = InitialBombTimer;
+        InitializeBombFromRom(bus, slot);
+        CooldownTimer = placingPowerBomb ? PowerBombCooldown : NormalBombCooldown;
+
+        if (placingPowerBomb)
+        {
+            // The auto-cancel flag always wins. Otherwise consuming the last round clears
+            // item index three so the next Shoot edge returns to the beam/normal-bomb path.
+            if (samus.AutoCancelHudItemIndex != 0)
+            {
+                samus.SelectedHudItem = 0;
+                samus.AutoCancelHudItemIndex = 0;
+            }
+            else if (samus.PowerBombs == 0)
+            {
+                samus.SelectedHudItem = 0;
+            }
+        }
+
+        return slotIndex;
+    }
+
+    private bool TryReserveBombSlot(ushort controllerNewInput, ushort shoot)
+    {
+        if ((controllerNewInput & shoot) == 0)
+            return false;
 
         // $90:C0E7 allows the first bomb regardless of cooldown. With any active bomb,
         // five slots or a nonzero LOW cooldown byte reject the edge. The high byte is not
@@ -222,7 +309,7 @@ public sealed class SamusBombProjectileSystem
         if (BombCounter != 0 &&
             (BombCounter >= SlotCount || (CooldownTimer & 0x00ff) != 0))
         {
-            return null;
+            return false;
         }
 
         // Helper two increments both values before the caller searches for storage. The
@@ -230,6 +317,11 @@ public sealed class SamusBombProjectileSystem
         CooldownTimer = unchecked((ushort)(CooldownTimer + 1));
         BombCounter = unchecked((ushort)(BombCounter + 1));
 
+        return true;
+    }
+
+    private int FindFreeBombSlot()
+    {
         int slotIndex = 0;
         while (_slots[slotIndex].Type != 0)
         {
@@ -242,16 +334,6 @@ public sealed class SamusBombProjectileSystem
                 break;
             }
         }
-
-        SamusBombProjectileSlot slot = _slots[slotIndex];
-        slot.ClearFields();
-        slot.Type = NormalBombType;
-        slot.Direction = 0;
-        slot.XPosition = samus.XPosition;
-        slot.YPosition = samus.YPosition;
-        slot.BombTimer = InitialBombTimer;
-        InitializeBombFromRom(bus, slot);
-        CooldownTimer = NormalBombCooldown;
         return slotIndex;
     }
 
@@ -291,6 +373,13 @@ public sealed class SamusBombProjectileSystem
             return false;
         }
 
+        ushort typeFamily = (ushort)(slot.Type & 0x0f00);
+        if (typeFamily != NormalBombType && typeFamily != PowerBombType)
+        {
+            throw new NotSupportedException(
+                $"Bomb slot {slot.Index} has untranslated projectile family ${typeFamily:X4}.");
+        }
+
         bool explosionStarted = false;
         if (slot.BombTimer != 0)
         {
@@ -303,26 +392,90 @@ public sealed class SamusBombProjectileSystem
             }
             else if (slot.BombTimer == 0)
             {
-                // $93:814E reads the pointer word embedded in the bomb-explosion data
-                // record at $93:8683 and resets the instruction timer to one.
-                slot.InstructionPointer = ReadWord(bus, BombExplosionInstructionPointerAddress);
-                slot.InstructionTimer = 1;
+                if (typeFamily == NormalBombType)
+                {
+                    // $93:814E reads the pointer word embedded in the bomb-explosion data
+                    // record at $93:8683 and resets the instruction timer to one.
+                    slot.InstructionPointer = ReadWord(bus, BombExplosionInstructionPointerAddress);
+                    slot.InstructionTimer = 1;
+                }
+                else
+                {
+                    // $90:C157 copies the projectile center to the global HDMA owner and
+                    // leaves the bank-$93 power-bomb animation on its fast looping list.
+                    PowerBombExplosion.Spawn(slot.XPosition, slot.YPosition);
+                    slot.BombTimer = 0xffff;
+                }
                 explosionStarted = true;
             }
         }
 
-        // Normal bomb type five maps through $94:9C73 to collision mode two. As soon as
-        // timer zero is visible, $94:9CF4 sets type bit zero and reacts to a five-block
-        // cross exactly once. Reactive blocks and their type-$5/$D extension children enter
-        // the same shared bank-$84 PLM owner used by collision and grapple movement. Passing
-        // the room's area byte is required for negative-BTS special-block table dispatch.
-        if (slot.BombTimer == 0 && (slot.Type & 0x0001) == 0)
+        if (typeFamily == NormalBombType && slot.BombTimer == 0 && (slot.Type & 0x0001) == 0)
         {
+            // Normal bomb type five maps through $94:9C73 to collision mode two. As soon
+            // as timer zero is visible, $94:9CF4 sets type bit zero and reacts to a
+            // five-block cross exactly once.
             slot.Type |= 0x0001;
             CollectBlockExplosionReactions(level, slot, blockReactions, roomPlms, areaIndex);
         }
+        else if (typeFamily == PowerBombType)
+        {
+            // Collision mode three first turns the fuse-expiration sentinel $FFFF into
+            // zero without touching terrain. Every later frame scans the newly reached
+            // rectangle border using the high bytes of bank-$88's shared radii.
+            if ((slot.BombTimer & 0x8000) != 0)
+            {
+                slot.BombTimer = 0;
+            }
+            else if (slot.BombTimer == 0 && PowerBombExplosion.IsArmed)
+            {
+                CollectPowerBombBoundaryReactions(
+                    level,
+                    blockReactions,
+                    roomPlms,
+                    areaIndex,
+                    slot.Type);
+            }
+
+            // Once cleanup clears $0CEA, $90:C157 deletes the otherwise immortal looping
+            // projectile. Crystal Flash deliberately retains the flag and slot instead.
+            if (slot.BombTimer == 0 && !PowerBombExplosion.IsArmed)
+                ClearProjectile(slot);
+        }
 
         return explosionStarted;
+    }
+
+    private void CollectPowerBombBoundaryReactions(
+        RoomLevelData level,
+        List<BombBlockReaction> reactions,
+        RoomPlmSystem? roomPlms,
+        byte areaIndex,
+        ushort projectileType)
+    {
+        int horizontalRadius = PowerBombExplosion.ExplosionRadius >> 8;
+        int verticalRadius = (3 * horizontalRadius) >> 2;
+
+        int left = Math.Max(0, PowerBombExplosion.XPosition - horizontalRadius) >> 4;
+        int right = Math.Min(
+            level.WidthInBlocks - 1,
+            (PowerBombExplosion.XPosition + horizontalRadius) >> 4);
+        int top = Math.Max(0, PowerBombExplosion.YPosition - verticalRadius) >> 4;
+        int bottom = Math.Min(
+            level.HeightInBlocks - 1,
+            (PowerBombExplosion.YPosition + verticalRadius) >> 4);
+
+        // $94:A0F4/$A11A visit all four inclusive edges in this exact order. Corners are
+        // intentionally visited twice; synchronous PLM terrain mutation means the second
+        // visit can observe a different collision type than the first.
+        for (int x = left; x <= right; x++)
+            CollectSingleBombedBlockReaction(level, x, top, reactions, roomPlms, areaIndex, projectileType);
+        for (int y = top; y <= bottom; y++)
+            CollectSingleBombedBlockReaction(level, left, y, reactions, roomPlms, areaIndex, projectileType);
+        for (int x = left; x <= right; x++)
+            CollectSingleBombedBlockReaction(level, x, bottom, reactions, roomPlms, areaIndex, projectileType);
+        for (int y = top; y <= bottom; y++)
+            CollectSingleBombedBlockReaction(level, right, y, reactions, roomPlms, areaIndex, projectileType);
     }
 
     private static void CollectBlockExplosionReactions(
@@ -351,115 +504,132 @@ public sealed class SamusBombProjectileSystem
                     $"Bomb explosion cross reaches outside translated room storage at block ({x},{y}).");
             }
 
-            RoomCollisionBlock visitedBlock = level.GetCollisionBlock(x, y);
-            reactions.Add(new BombBlockReaction(
+            CollectSingleBombedBlockReaction(
+                level,
                 x,
                 y,
-                visitedBlock.CollisionType,
-                visitedBlock.Behavior));
-
-            // `$94:9411/$9447` do not react to an extension block directly. A nonzero signed
-            // BTS redirects CurrentBlockIndex horizontally (type $5) or by whole room rows
-            // (type $D), then rewinds the dispatcher return address so the resolved parent
-            // is dispatched again. A zero-BTS extension is simply air for this reaction.
-            RoomCollisionBlock block = visitedBlock;
-            if (!SamusBlockCollision.TryResolveExtension(level, ref block))
-                continue;
-
-            // $94:A052 dispatches these types to immediate clear/set-carry routines. They
-            // spawn no PLM and do not alter the level/BTS arrays, so recording the visit is
-            // the complete observable effect for this runtime.
-            if (block.CollisionType is 0 or 1 or 2 or 3 or 6 or 8 or 9 or 10 or 14)
-                continue;
-
-            if (block.CollisionType is 7 or 15)
-            {
-                // Both bombable-air and bombable-solid handlers use `$94:A012`. Negative
-                // BTS takes the native duplicate/area-dependent early return and therefore
-                // neither allocates a PLM nor mutates terrain.
-                if ((block.Behavior & 0x80) != 0)
-                    continue;
-                if (block.Behavior > 15)
-                {
-                    throw new NotSupportedException(
-                        $"Bombable block {block.Index} has BTS ${block.Behavior:X2} outside " +
-                        "the native $94:A012 reaction table.");
-                }
-                if (roomPlms is null)
-                {
-                    throw new NotSupportedException(
-                        $"Bombed block reaction type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
-                        $"at ({x},{y}) requires a room PLM owner.");
-                }
-
-                // Spawn is synchronous: accepted BTS 0..7 applies CEDA's temporary type-$8
-                // or type-$0 word before the cross proceeds to its next member. If another
-                // extension in this same cross points back to the parent, it consequently
-                // observes the already-mutated type and does not allocate a duplicate PLM.
-                roomPlms.TrySpawnBombReactionBlock(
-                    level,
-                    block.Index,
-                    block.Behavior,
-                    slot.Type);
-                continue;
-            }
-
-            if (block.CollisionType is 4 or 12)
-            {
-                // Type-$4 shootable air treats negative BTS as a duplicate and returns.
-                // Type-$C instead indexes one of eight area tables; every retail entry is
-                // PLMEntries_nothing, but Spawn_PLM still consumes a slot for one pass.
-                if (block.CollisionType == 4 && (block.Behavior & 0x80) != 0)
-                    continue;
-                if ((block.Behavior & 0x80) == 0 && block.Behavior > 15)
-                {
-                    throw new NotSupportedException(
-                        $"Shootable block {block.Index} has BTS ${block.Behavior:X2} outside " +
-                        "the translated normal-bomb table range.");
-                }
-                if ((block.Behavior & 0x80) != 0 && (block.Behavior & 0x7f) > 7)
-                {
-                    throw new NotSupportedException(
-                        $"Area-dependent shootable block {block.Index} has BTS " +
-                        $"${block.Behavior:X2} outside its eight-entry native table.");
-                }
-                if (roomPlms is null)
-                {
-                    throw new NotSupportedException(
-                        $"Bombed shootable type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
-                        $"at ({x},{y}) requires a room PLM owner.");
-                }
-
-                roomPlms.TrySpawnBombedShootableBlock(
-                    level,
-                    block.Index,
-                    block.Behavior,
-                    slot.Type);
-                continue;
-            }
-
-            if (block.CollisionType == 11)
-            {
-                if (roomPlms is null)
-                {
-                    throw new NotSupportedException(
-                        $"Bombed special block BTS ${block.Behavior:X2} at ({x},{y}) " +
-                        "requires a room PLM owner.");
-                }
-
-                roomPlms.TrySpawnBombedSpecialBlock(
-                    level,
-                    block.Index,
-                    block.Behavior,
-                    areaIndex,
-                    slot.Type);
-                continue;
-            }
-
-            throw new NotSupportedException(
-                $"Bombed block reaction type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
-                $"at ({x},{y}) requires the untranslated bank-$84 PLM pipeline.");
+                reactions,
+                roomPlms,
+                areaIndex,
+                slot.Type);
         }
+    }
+
+    private static void CollectSingleBombedBlockReaction(
+        RoomLevelData level,
+        int x,
+        int y,
+        List<BombBlockReaction> reactions,
+        RoomPlmSystem? roomPlms,
+        byte areaIndex,
+        ushort projectileType)
+    {
+        RoomCollisionBlock visitedBlock = level.GetCollisionBlock(x, y);
+        reactions.Add(new BombBlockReaction(
+            x,
+            y,
+            visitedBlock.CollisionType,
+            visitedBlock.Behavior));
+
+        // `$94:9411/$9447` do not react to an extension block directly. A nonzero signed
+        // BTS redirects CurrentBlockIndex horizontally (type $5) or by whole room rows
+        // (type $D), then rewinds the dispatcher return address so the resolved parent
+        // is dispatched again. A zero-BTS extension is simply air for this reaction.
+        RoomCollisionBlock block = visitedBlock;
+        if (!SamusBlockCollision.TryResolveExtension(level, ref block))
+            return;
+
+        // $94:A052 dispatches these types to immediate clear/set-carry routines. They
+        // spawn no PLM and do not alter the level/BTS arrays, so recording the visit is
+        // the complete observable effect for this runtime.
+        if (block.CollisionType is 0 or 1 or 2 or 3 or 6 or 8 or 9 or 10 or 14)
+            return;
+
+        if (block.CollisionType is 7 or 15)
+        {
+            // Both bombable-air and bombable-solid handlers use `$94:A012`. Negative
+            // BTS takes the native duplicate/area-dependent early return and therefore
+            // neither allocates a PLM nor mutates terrain.
+            if ((block.Behavior & 0x80) != 0)
+                return;
+            if (block.Behavior > 15)
+            {
+                throw new NotSupportedException(
+                    $"Bombable block {block.Index} has BTS ${block.Behavior:X2} outside " +
+                    "the native $94:A012 reaction table.");
+            }
+            if (roomPlms is null)
+            {
+                throw new NotSupportedException(
+                    $"Bombed block reaction type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
+                    $"at ({x},{y}) requires a room PLM owner.");
+            }
+
+            // Spawn is synchronous: accepted BTS 0..7 applies CEDA's temporary type-$8
+            // or type-$0 word before the caller proceeds to its next border/cross member.
+            roomPlms.TrySpawnBombReactionBlock(
+                level,
+                block.Index,
+                block.Behavior,
+                projectileType);
+            return;
+        }
+
+        if (block.CollisionType is 4 or 12)
+        {
+            // Type-$4 shootable air treats negative BTS as a duplicate and returns.
+            // Type-$C instead indexes one of eight area tables; every retail entry is
+            // PLMEntries_nothing, but Spawn_PLM still consumes a slot for one pass.
+            if (block.CollisionType == 4 && (block.Behavior & 0x80) != 0)
+                return;
+            if ((block.Behavior & 0x80) == 0 && block.Behavior > 15)
+            {
+                throw new NotSupportedException(
+                    $"Shootable block {block.Index} has BTS ${block.Behavior:X2} outside " +
+                    "the translated normal-bomb table range.");
+            }
+            if ((block.Behavior & 0x80) != 0 && (block.Behavior & 0x7f) > 7)
+            {
+                throw new NotSupportedException(
+                    $"Area-dependent shootable block {block.Index} has BTS " +
+                    $"${block.Behavior:X2} outside its eight-entry native table.");
+            }
+            if (roomPlms is null)
+            {
+                throw new NotSupportedException(
+                    $"Bombed shootable type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
+                    $"at ({x},{y}) requires a room PLM owner.");
+            }
+
+            roomPlms.TrySpawnBombedShootableBlock(
+                level,
+                block.Index,
+                block.Behavior,
+                projectileType);
+            return;
+        }
+
+        if (block.CollisionType == 11)
+        {
+            if (roomPlms is null)
+            {
+                throw new NotSupportedException(
+                    $"Bombed special block BTS ${block.Behavior:X2} at ({x},{y}) " +
+                    "requires a room PLM owner.");
+            }
+
+            roomPlms.TrySpawnBombedSpecialBlock(
+                level,
+                block.Index,
+                block.Behavior,
+                areaIndex,
+                projectileType);
+            return;
+        }
+
+        throw new NotSupportedException(
+            $"Bombed block reaction type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
+            $"at ({x},{y}) requires the untranslated bank-$84 PLM pipeline.");
     }
 
     private bool RunProjectileInstructionHandler(
@@ -602,7 +772,10 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Instruction pointer is the native active-slot sentinel.</summary>
     public bool IsActive => InstructionPointer != 0;
 
-    /// <summary>True after timer zero has selected $93:A06B and before delete $93:822F.</summary>
+    /// <summary>
+    /// True after a normal bomb selects `$93:A06B`, or while a Power Bomb's timer-zero
+    /// slot owns the expanding bank-$88 terrain scan, and before native-style deletion.
+    /// </summary>
     public bool IsExploding => IsActive && BombTimer == 0;
 
     internal void ClearFields()
@@ -629,7 +802,9 @@ public readonly record struct BombProjectileFrameResult(
     byte PublishedBombJumpDirection,
     IReadOnlyList<BombBlockReaction>? BlockReactions);
 
-/// <summary>One member of $94:9CF4's center/up/right/left/down reaction cross.</summary>
+/// <summary>
+/// One block visited by `$94:9CF4`'s normal-bomb cross or `$94:9D68`'s Power Bomb border.
+/// </summary>
 public readonly record struct BombBlockReaction(
     int BlockX,
     int BlockY,

@@ -25,7 +25,7 @@ public sealed class SuperMetroidRuntime
 
         // These two host objects represent the lower and upper halves of the cartridge's
         // parallel ten-slot projectile arrays. BombProjectiles remains the owner of shared
-        // cooldown $0CCC until the remaining missile/power-bomb producers are consolidated.
+        // cooldown $0CCC until the remaining weapon producers are consolidated.
         BombProjectiles = new SamusBombProjectileSystem();
         Projectiles = new SamusProjectileSystem();
 
@@ -115,9 +115,15 @@ public sealed class SuperMetroidRuntime
 
     /// <summary>
     /// Native power-bomb explosion status at WRAM <c>$0CE2</c>. X-ray setup rejects every
-    /// nonzero phase; the eventual bank-$88 explosion owner is responsible for publishing it.
+    /// nonzero phase. The getter now reads the translated bank-$88 owner; the setter remains
+    /// solely as a debugger seam for precondition tests that force an otherwise impossible
+    /// status without constructing an entire explosion.
     /// </summary>
-    public ushort PowerBombExplosionStatus { get; set; }
+    public ushort PowerBombExplosionStatus
+    {
+        get => BombProjectiles.PowerBombExplosion.Status;
+        set => BombProjectiles.PowerBombExplosion.SetStatusForDebugging(value);
+    }
 
     /// <summary>
     /// Low-byte snapshot at WRAM <c>$0A11</c> used only by X-ray's one-frame stability gate.
@@ -731,10 +737,9 @@ public sealed class SuperMetroidRuntime
     /// initiation routine.
     /// </summary>
     /// <remarks>
-    /// The normal power-bomb explosion/HDMA lifecycle is not translated yet. Exposing this
-    /// seam makes that missing producer explicit: callers provide the controller sample
-    /// that `$88:8B5F` would have observed, while every precondition and all subsequent
-    /// movement/animation work remain the literal bank-$90 implementation.
+    /// Normal gameplay now invokes this path automatically from translated bank-$88
+    /// cleanup. This public seam remains useful for focused Crystal Flash debugger tests:
+    /// callers provide exactly the controller sample that `$88:8B5F` would have observed.
     /// </remarks>
     public bool TryBeginCrystalFlashFromPowerBombCleanup(
         ushort controllerInput,
@@ -1303,6 +1308,13 @@ public sealed class SuperMetroidRuntime
                         _addressSpace,
                         Samus,
                         NmiFrameCounter);
+                    if (LastCrystalFlashMovement.Value.Completed)
+                    {
+                        // `$88:A317` is the Crystal Flash HDMA cleanup counterpart to the
+                        // ordinary power-bomb cleanup. It releases the same `$0CEA` flag;
+                        // the retained type-$0300 slot then deletes during the next alpha.
+                        BombProjectiles.PowerBombExplosion.ReleaseFlag();
+                    }
                 }
                 // `$90:CFFA` replaces the normal movement-handler pointer. Windup, active
                 // launch, and crash therefore own beta movement regardless of the pose's

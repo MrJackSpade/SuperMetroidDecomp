@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rendering;
@@ -182,6 +183,154 @@ public static class SnesGameplayFrameRenderer
         DrawHudAndObjects(output, vram, cgram, oam, obsel);
         return output;
     }
+
+    /// <summary>
+    /// Applies the translated power-bomb fixed-color window to a composed gameplay frame.
+    /// </summary>
+    /// <remarks>
+    /// The PPU performs this during scanout through two indirect HDMA channels. Desktop
+    /// rendering already owns a flat RGBA frame, so replaying the resulting per-scanline
+    /// window is equivalent and keeps the ordinary BG/OBJ compositors independent of this
+    /// one effect. Pre-scaled yellow/white phases read the cartridge's actual 192-byte
+    /// shape records. The two continuously accelerated phases replay `$88:8D04`
+    /// against the ROM's horizontal and vertical curve bytes at `$88:A266/A286`; this
+    /// deliberately preserves the SNES routine's 8x8 multiply truncation and its
+    /// one-scanline overlap between adjacent curve bands.
+    /// </remarks>
+    public static void ApplyPowerBombColorMath(
+        Span<Rgba32> frame,
+        ISnesAddressSpace bus,
+        SamusPowerBombExplosionState explosion,
+        ushort layer1X,
+        ushort layer1Y)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(explosion);
+        if (frame.Length != Width * Height)
+            throw new ArgumentException("Power-bomb compositor requires one complete 256x224 frame.", nameof(frame));
+        if (!explosion.IsActive)
+            return;
+
+        int centerX = unchecked((short)(explosion.XPosition - layer1X));
+        int centerY = unchecked((short)(explosion.YPosition - layer1Y));
+        byte addRed = ExpandFiveBit(explosion.FixedColorRed);
+        byte addGreen = ExpandFiveBit(explosion.FixedColorGreen);
+        byte addBlue = ExpandFiveBit(explosion.FixedColorBlue);
+
+        for (int screenY = HudHeight; screenY < Height; screenY++)
+        {
+            int halfWidth = ReadPowerBombHalfWidth(bus, explosion, screenY - centerY);
+            if (halfWidth < 0)
+                continue;
+
+            int left = Math.Max(0, centerX - halfWidth);
+            int right = Math.Min(Width - 1, centerX + halfWidth);
+            if (left > right)
+                continue;
+
+            int row = screenY * Width;
+            for (int screenX = left; screenX <= right; screenX++)
+            {
+                Rgba32 source = frame[row + screenX];
+
+                // The active room blending mode adds fixed COLDATA to the main-screen
+                // layers with SNES saturation. Expanding five-bit components before the
+                // addition produces the same 8-bit endpoint as the rest of this renderer.
+                frame[row + screenX] = new Rgba32(
+                    SaturatingAdd(source.R, addRed),
+                    SaturatingAdd(source.G, addGreen),
+                    SaturatingAdd(source.B, addBlue),
+                    source.A);
+            }
+        }
+    }
+
+    private static int ReadPowerBombHalfWidth(
+        ISnesAddressSpace bus,
+        SamusPowerBombExplosionState explosion,
+        int yFromCenter)
+    {
+        PowerBombExplosionPhase renderedPhase = explosion.RenderedPhase;
+        if (renderedPhase == PowerBombExplosionPhase.Inactive)
+        {
+            // Spawn occurs during projectile processing, after the frame's HDMA-object
+            // pass. Status is already active at that point, but no window table exists
+            // until the next frame; the cartridge therefore displays no flash yet.
+            return -1;
+        }
+
+        if (renderedPhase == PowerBombExplosionPhase.Afterglow)
+        {
+            // The final `$9E46` table has expanded beyond the 256-pixel viewport. Stage
+            // five stops updating HDMA data and fades the already full-screen fixed color.
+            return Width;
+        }
+
+        ushort shapePointer = explosion.RenderedShapeDefinitionPointer;
+        if ((renderedPhase is PowerBombExplosionPhase.PreExplosionYellow or
+             PowerBombExplosionPhase.ExplosionWhite) && shapePointer != 0)
+        {
+            // Each 192-byte record is a half-profile, not a 192-line top-to-bottom
+            // bitmap. Byte zero is the widest center line; increasing indices travel
+            // away from the center until the first zero terminates the native copier.
+            int shapeLine = Math.Abs(yFromCenter);
+            if ((uint)shapeLine >= 192)
+                return -1;
+            byte halfWidth = bus.ReadByte(0x880000 | unchecked((ushort)(shapePointer + shapeLine)));
+            return halfWidth == 0 ? -1 : halfWidth;
+        }
+
+        int horizontalRadius = renderedPhase == PowerBombExplosionPhase.PreExplosionWhite
+            ? explosion.RenderedPreExplosionRadius >> 8
+            : explosion.RenderedExplosionRadius >> 8;
+        int scanlineDistance = Math.Abs(yFromCenter);
+        if (horizontalRadius == 0 || scanlineDistance >= 192)
+            return -1;
+
+        // `$88:8CC6/8D04/8D46` all build the same width profile and differ only in how
+        // they clip left/right endpoints for an off-screen origin. The desktop renderer
+        // performs that clipping after this method, so only the common profile builder
+        // is needed here. `$88:A266` contains 32 increasing horizontal samples, while
+        // `$88:A286` contains their decreasing vertical boundaries.
+        const int HorizontalCurveAddress = 0x88A266;
+        const int VerticalCurveAddress = 0x88A286;
+        int currentOuterScanline =
+            horizontalRadius * bus.ReadByte(VerticalCurveAddress) >> 8;
+        if (scanlineDistance > currentOuterScanline)
+            return -1;
+
+        int selectedHalfWidth = -1;
+        int finalHalfWidth = 0;
+        for (int curveIndex = 0; curveIndex < 32; curveIndex++)
+        {
+            // The 65816 routine uses the high byte of an unsigned 8x8 product. An
+            // ordinary integer multiply followed by `>> 8` is exactly that operation.
+            int innerScanline = horizontalRadius * bus.ReadByte(VerticalCurveAddress + curveIndex) >> 8;
+            int halfWidth = horizontalRadius * bus.ReadByte(HorizontalCurveAddress + curveIndex) >> 8;
+            finalHalfWidth = halfWidth;
+
+            // Native code fills both endpoints inclusively, then begins the next band
+            // on the same endpoint. Assigning again on a shared boundary intentionally
+            // lets the later, wider band win just as the original loop does.
+            if (scanlineDistance >= innerScanline && scanlineDistance <= currentOuterScanline)
+                selectedHalfWidth = halfWidth;
+
+            currentOuterScanline = innerScanline;
+        }
+
+        // After the 32 curve bands, `$88:8DE9/90DF` fills every remaining line through
+        // the center with the final (nearly full-radius) width.
+        if (scanlineDistance <= currentOuterScanline)
+            selectedHalfWidth = finalHalfWidth;
+
+        return selectedHalfWidth;
+    }
+
+    private static byte ExpandFiveBit(byte value) =>
+        (byte)(((value & 0x1f) << 3) | ((value & 0x1f) >> 2));
+
+    private static byte SaturatingAdd(byte left, byte right) =>
+        (byte)Math.Min(byte.MaxValue, left + right);
 
     private static Rgba32[] CreateBackdrop(SnesCgram cgram)
     {

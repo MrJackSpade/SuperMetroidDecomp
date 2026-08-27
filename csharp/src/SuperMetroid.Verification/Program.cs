@@ -83,6 +83,7 @@ VerifyRoomLevelData();
 VerifyBackgroundTilemapStreamer();
 VerifyFourBitBackgroundRendering();
 VerifyHostRoomViewportAlignment();
+VerifyPowerBombColorMathWindow();
 VerifyScrollingSkyState();
 
 Console.WriteLine("All bank $80 verification checks passed.");
@@ -5369,6 +5370,7 @@ static void VerifyMotherBrainBombProjectiles()
         0x02, 0x00, 0x3e, 0xa8, 0x08, 0x08, 0x00, 0x00,
         0x2f, 0x82,
     ]);
+
     const int roomWidth = 16;
     const int roomHeight = 16;
     var emptyBlocks = new ushort[roomWidth * roomHeight];
@@ -11760,6 +11762,103 @@ static void VerifyHostRoomViewportAlignment()
     Console.WriteLine("  Host terrain: room crop remains aligned with physical BG1 scanlines and live OAM.");
 }
 
+/// <summary>
+/// Proves that desktop power-bomb composition consumes the same bank-$88 radius frame and
+/// half-profile orientation as the original indirect-HDMA window builder.
+/// </summary>
+static void VerifyPowerBombColorMathWindow()
+{
+    var bus = new TestAddressSpace();
+
+    // These are the literal `$88:A266-$88:A2A5` horizontal samples and vertical band
+    // boundaries used by `$88:8CC6/$8D04/$8D46`. Keeping the fixture independent of the
+    // production loop ensures a transposed table or rounded product cannot self-validate.
+    bus.WriteBytes(0x88a266, [
+        0x00, 0x0c, 0x19, 0x25, 0x31, 0x3e, 0x4a, 0x56,
+        0x61, 0x6d, 0x78, 0x83, 0x8e, 0x98, 0xa2, 0xab,
+        0xb5, 0xbd, 0xc5, 0xcd, 0xd4, 0xdb, 0xe1, 0xe7,
+        0xec, 0xf1, 0xf4, 0xf8, 0xfb, 0xfd, 0xfe, 0xff,
+    ]);
+    bus.WriteBytes(0x88a286, [
+        0xbf, 0xbf, 0xbe, 0xbd, 0xba, 0xb8, 0xb6, 0xb2,
+        0xaf, 0xab, 0xa6, 0xa2, 0x9c, 0x96, 0x90, 0x8a,
+        0x84, 0x7d, 0x75, 0x6e, 0x66, 0x5e, 0x56, 0x4d,
+        0x45, 0x3c, 0x33, 0x2a, 0x20, 0x17, 0x0d, 0x04,
+    ]);
+
+    // All sixteen pre-explosion color entries use the same unmistakable fixed color in
+    // this fixture. The state still performs its authentic radius-derived table lookup;
+    // repeating the value merely keeps these geometry assertions focused and readable.
+    for (int color = 0; color < 16; color++)
+        bus.WriteBytes(0x889079 + color * 3, [0x01, 0x02, 0x03]);
+
+    const ushort centerX = 100;
+    const ushort centerY = 100;
+    var explosion = new SamusPowerBombExplosionState();
+    explosion.Arm();
+    explosion.Spawn(centerX, centerY);
+
+    // Spawn happens after the native HDMA pass. Even though status is already `$8000`,
+    // the host must not invent an explosion table on this frame.
+    Rgba32[] spawnFrame = CreateOpaqueBlackGameplayFrame();
+    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(spawnFrame, bus, explosion, 0, 0);
+    AssertEqual(new Rgba32(0, 0, 0, 255),
+        spawnFrame[centerY * SnesGameplayFrameRenderer.Width + centerX],
+        "power-bomb spawn frame has no premature HDMA window");
+
+    // The first pre-instruction draws radius `$04.00`, then advances the live state to
+    // `$34.00`. `$04 * $BF >> 8` gives a two-line vertical extent and `$04 * $FF >> 8`
+    // gives a three-pixel center half-width. Testing beyond both extents catches use of
+    // the already-updated `$34.00` radius as well as floating-point ellipse substitution.
+    explosion.StepFrame(bus);
+    AssertEqual((ushort)0x0400, explosion.RenderedPreExplosionRadius,
+        "power-bomb renderer retains pre-update radius");
+    AssertEqual((ushort)0x3400, explosion.PreExplosionRadius,
+        "power-bomb logic advances next-frame radius");
+    Rgba32[] scaledFrame = CreateOpaqueBlackGameplayFrame();
+    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(scaledFrame, bus, explosion, 0, 0);
+    Rgba32 fixedColor = new(8, 16, 24, 255);
+    AssertEqual(fixedColor,
+        scaledFrame[centerY * SnesGameplayFrameRenderer.Width + centerX + 3],
+        "scaled power-bomb center uses truncated final horizontal sample");
+    AssertEqual(new Rgba32(0, 0, 0, 255),
+        scaledFrame[centerY * SnesGameplayFrameRenderer.Width + centerX + 4],
+        "scaled power-bomb center excludes first outside pixel");
+    AssertEqual(new Rgba32(0, 0, 0, 255),
+        scaledFrame[(centerY + 3) * SnesGameplayFrameRenderer.Width + centerX],
+        "scaled power-bomb vertical extent uses ROM boundary table");
+
+    // A pre-scaled record is a center-outward half-profile. Native HDMA mirrors it around
+    // the explosion Y coordinate; it is not indexed by adding a screen-space midpoint.
+    while (explosion.Phase == PowerBombExplosionPhase.PreExplosionWhite)
+        explosion.StepFrame(bus);
+    bus.WriteBytes(0x889f06, [0x07, 0x03, 0x00]);
+    explosion.StepFrame(bus);
+    AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.RenderedPhase,
+        "first pre-scaled yellow frame is retained for composition");
+    Rgba32[] shapeFrame = CreateOpaqueBlackGameplayFrame();
+    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(shapeFrame, bus, explosion, 0, 0);
+    AssertEqual(fixedColor,
+        shapeFrame[centerY * SnesGameplayFrameRenderer.Width + centerX + 7],
+        "pre-scaled profile byte zero draws center half-width");
+    AssertEqual(fixedColor,
+        shapeFrame[(centerY + 1) * SnesGameplayFrameRenderer.Width + centerX + 3],
+        "pre-scaled profile byte one draws mirrored adjacent line");
+    AssertEqual(new Rgba32(0, 0, 0, 255),
+        shapeFrame[(centerY + 2) * SnesGameplayFrameRenderer.Width + centerX],
+        "pre-scaled zero terminates shape extent");
+
+    Console.WriteLine("  Power bomb: ROM curve bands, rendered-frame timing, and center-outward shapes agree.");
+}
+
+static Rgba32[] CreateOpaqueBlackGameplayFrame()
+{
+    var frame = new Rgba32[
+        SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
+    Array.Fill(frame, new Rgba32(0, 0, 0, 255));
+    return frame;
+}
+
 /// <summary>Checks bank-$88 sky fixed-point bands and four queued circular-map rows.</summary>
 static void VerifyScrollingSkyState()
 {
@@ -13418,6 +13517,44 @@ static void VerifySamusMorphBallMovement()
         0x2f, 0x82,
     ]);
 
+    // Power-bomb type three follows its own literal pointer/data record and three-frame
+    // slow/fast loops. These bytes are ROM `$93:83F7/$8671/$9F87-$9FBE`; in particular,
+    // damage `$00C8` and pointer `$9F87` are not host-selected stand-ins.
+    WriteTestWord(bus, 0x9383f7, 0x8671);
+    bus.WriteBytes(0x938671, [0xc8, 0x00, 0x87, 0x9f]);
+    bus.WriteBytes(0x939f87, [
+        0x05, 0x00, 0x97, 0xab, 0x04, 0x04, 0x00, 0x00,
+        0x05, 0x00, 0x9e, 0xab, 0x04, 0x04, 0x00, 0x00,
+        0x05, 0x00, 0xa5, 0xab, 0x04, 0x04, 0x00, 0x00,
+        0x39, 0x82, 0x87, 0x9f,
+    ]);
+    bus.WriteBytes(0x939fa3, [
+        0x01, 0x00, 0x97, 0xab, 0x04, 0x04, 0x00, 0x00,
+        0x01, 0x00, 0x9e, 0xab, 0x04, 0x04, 0x00, 0x00,
+        0x01, 0x00, 0xa5, 0xab, 0x04, 0x04, 0x00, 0x00,
+        0x39, 0x82, 0xa3, 0x9f,
+    ]);
+
+    // `$88:9079` and `$88:8D85` are the fixed-color tables indexed by the high byte of
+    // the two authentic 8.8 radii. Keeping the retail bytes makes phase/color assertions
+    // detect an incorrect radius update as well as a merely incorrect phase enum.
+    bus.WriteBytes(0x889079, [
+        0x10, 0x10, 0x10, 0x04, 0x04, 0x04, 0x06, 0x06, 0x06,
+        0x08, 0x08, 0x08, 0x0a, 0x0a, 0x0a, 0x0c, 0x0c, 0x0c,
+        0x0e, 0x0e, 0x0a, 0x10, 0x10, 0x08, 0x12, 0x12, 0x08,
+        0x14, 0x14, 0x08, 0x16, 0x16, 0x08, 0x18, 0x18, 0x08,
+        0x1a, 0x1a, 0x0a, 0x18, 0x18, 0x08, 0x16, 0x16, 0x06,
+        0x14, 0x14, 0x04,
+    ]);
+    bus.WriteBytes(0x888d85, [
+        0x0e, 0x0e, 0x0a, 0x0f, 0x0f, 0x09, 0x10, 0x10, 0x08,
+        0x11, 0x11, 0x07, 0x12, 0x12, 0x06, 0x13, 0x13, 0x05,
+        0x14, 0x14, 0x04, 0x15, 0x15, 0x03, 0x16, 0x16, 0x02,
+        0x17, 0x17, 0x01, 0x18, 0x18, 0x00, 0x19, 0x19, 0x00,
+        0x1a, 0x1a, 0x00, 0x1a, 0x1a, 0x00, 0x1a, 0x1a, 0x1a,
+        0x1a, 0x1a, 0x1a, 0x1b, 0x1b, 0x1b,
+    ]);
+
     // The bombable-terrain integration below intentionally supplies the literal bank-$84
     // BTS-zero reaction head and complete shared 1x1 respawn tail. `$84:CEDA` advances a
     // normal bomb's live pointer by three, so the leading `$8C46,$0A` sound instruction is
@@ -13656,6 +13793,170 @@ static void VerifySamusMorphBallMovement()
         bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
     AssertEqual((ushort)0, bombs.BombCounter, "explosion delete decrements bomb counter");
     AssertTrue(!bombs.Slots[0].IsActive, "delete opcode clears complete bomb slot");
+
+    // Selected HUD item three takes the power-bomb branch even without the normal Bomb
+    // item bit. Placement consumes one round, locks `$0CEA`, initializes type `$0300` from
+    // the literal bank-$93 record, and installs cooldown table entry three (`$28`).
+    var powerBombSamus = new SamusState
+    {
+        Pose = SamusState.MorphBallGroundRightPose,
+        EquippedItems = 0x0004,
+        SelectedHudItem = 3,
+        PowerBombs = 2,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    powerBombSamus.RefreshCollisionRadii(bus);
+    var powerBombs = new SamusBombProjectileSystem();
+    BombProjectileFrameResult powerBombPlacement = powerBombs.StepFrame(
+        bus,
+        floor,
+        powerBombSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X);
+    AssertEqual<int?>(0, powerBombPlacement.PlacedSlot,
+        "selected power bomb uses first physical bomb slot");
+    AssertEqual((ushort)1, powerBombSamus.PowerBombs,
+        "power-bomb placement decrements ammo exactly once");
+    AssertEqual((ushort)3, powerBombSamus.SelectedHudItem,
+        "remaining power-bomb ammo retains HUD selection");
+    AssertEqual((ushort)0x0028, powerBombs.CooldownTimer,
+        "power bomb loads non-beam cooldown table entry three");
+    AssertEqual((ushort)0x0300, powerBombs.Slots[0].Type,
+        "power-bomb projectile family is HUD index in high byte");
+    AssertEqual((ushort)0x00c8, powerBombs.Slots[0].Damage,
+        "power-bomb damage follows bank-$93 type-three data");
+    AssertEqual((ushort)0xab97, powerBombs.Slots[0].SpritemapPointer,
+        "power-bomb placement selects first retail slow-list spritemap");
+    AssertTrue(powerBombs.PowerBombExplosion.IsArmed,
+        "placement sets negative native power-bomb flag");
+    AssertTrue(!powerBombs.PowerBombExplosion.IsActive,
+        "bank-$88 explosion waits for projectile fuse");
+
+    // `$90:C157` shares the normal bomb's 60->15 timing and adds `$1C` to the live
+    // instruction pointer. A second selected-item edge is rejected by the armed flag
+    // before helper two can perturb either aggregate counter.
+    powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+    BombProjectileFrameResult armedRejected = powerBombs.StepFrame(
+        bus,
+        floor,
+        powerBombSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X);
+    AssertEqual<int?>(null, armedRejected.PlacedSlot,
+        "negative power-bomb flag rejects a second placement");
+    AssertEqual((ushort)1, powerBombs.BombCounter,
+        "armed rejection preserves bomb aggregate");
+    while (powerBombs.Slots[0].BombTimer > 15)
+        powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+    AssertTrue(powerBombs.Slots[0].InstructionPointer >= 0x9fa3,
+        "power-bomb timer fifteen enters retail fast list");
+
+    BombProjectileFrameResult powerBombFuse = default;
+    while (!powerBombFuse.ExplosionStarted)
+        powerBombFuse = powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+    AssertEqual((ushort)0, powerBombs.Slots[0].BombTimer,
+        "$FFFF fuse sentinel is consumed by first mode-three collision call");
+    AssertEqual(PowerBombExplosionPhase.PreExplosionWhite,
+        powerBombs.PowerBombExplosion.Phase,
+        "fuse expiry executes $88:8B14 setup");
+    AssertEqual((ushort)0x0400, powerBombs.PowerBombExplosion.PreExplosionRadius,
+        "pre-explosion begins at retail 4.00-pixel radius");
+    AssertEqual((ushort)0x8000, powerBombs.PowerBombExplosion.Status,
+        "normal explosion publishes active status $8000");
+    AssertEqual(0, powerBombFuse.BlockReactions!.Count,
+        "fuse-expiration sentinel frame does not scan terrain");
+
+    // HDMA executes before the next projectile pass. White pre-flash grows 4.00 by 48.00,
+    // then the still-zero damaging radius scans the one-block rectangle's four duplicated
+    // corners in bank-$94 top/left/bottom/right order.
+    BombProjectileFrameResult firstPowerBombRadius = powerBombs.StepFrame(
+        bus, floor, powerBombSamus, 0, 0);
+    AssertEqual((ushort)0x3400, powerBombs.PowerBombExplosion.PreExplosionRadius,
+        "first white pre-explosion frame applies $3000 speed");
+    AssertEqual((ushort)0x2f80, powerBombs.PowerBombExplosion.RadiusSpeed,
+        "white pre-explosion subtracts $0080 acceleration");
+    AssertEqual(4, firstPowerBombRadius.BlockReactions!.Count,
+        "zero damaging radius scans four inclusive one-block edges");
+    AssertTrue(firstPowerBombRadius.BlockReactions.All(reaction =>
+            reaction.BlockX == 3 && reaction.BlockY == 3),
+        "zero-radius border duplicates the center exactly four times");
+
+    int whiteFlashFrames = 1;
+    while (powerBombs.PowerBombExplosion.Phase == PowerBombExplosionPhase.PreExplosionWhite)
+    {
+        powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+        whiteFlashFrames++;
+        AssertTrue(whiteFlashFrames < 32, "white pre-explosion phase terminates");
+    }
+    AssertEqual(PowerBombExplosionPhase.PreExplosionYellow,
+        powerBombs.PowerBombExplosion.Phase,
+        "white threshold advances to yellow shape phase");
+    AssertTrue(powerBombs.PowerBombExplosion.PreExplosionRadius >= 0x9200,
+        "white phase crosses literal $9200 radius threshold");
+    AssertEqual((ushort)0x9f06, powerBombs.PowerBombExplosion.ShapeDefinitionPointer,
+        "yellow pre-explosion starts at shape table $9F06");
+
+    for (int frame = 0; frame < 4; frame++)
+        powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+    AssertEqual(PowerBombExplosionPhase.ExplosionYellow,
+        powerBombs.PowerBombExplosion.Phase,
+        "four 192-byte yellow shapes advance to damaging explosion");
+    AssertEqual((ushort)0x0400, powerBombs.PowerBombExplosion.ExplosionRadius,
+        "damaging yellow explosion restarts at 4.00 pixels");
+    AssertEqual((ushort)0, powerBombs.PowerBombExplosion.RadiusSpeed,
+        "damaging yellow explosion restarts with zero speed");
+
+    int yellowExplosionFrames = 0;
+    while (powerBombs.PowerBombExplosion.Phase == PowerBombExplosionPhase.ExplosionYellow)
+    {
+        powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+        yellowExplosionFrames++;
+        AssertTrue(yellowExplosionFrames < 128, "yellow explosion reaches $8600 threshold");
+    }
+    AssertEqual(PowerBombExplosionPhase.ExplosionWhite,
+        powerBombs.PowerBombExplosion.Phase,
+        "yellow radius threshold advances to white shape phase");
+    AssertTrue(powerBombs.PowerBombExplosion.ExplosionRadius >= 0x8600,
+        "yellow explosion crosses literal $8600 threshold");
+    AssertEqual((ushort)0x9246, powerBombs.PowerBombExplosion.ShapeDefinitionPointer,
+        "white explosion starts at first retail ellipse table");
+
+    int whiteExplosionFrames = 0;
+    while (powerBombs.PowerBombExplosion.Phase == PowerBombExplosionPhase.ExplosionWhite)
+    {
+        powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+        whiteExplosionFrames++;
+        AssertTrue(whiteExplosionFrames < 32, "white explosion shape sequence terminates");
+    }
+    AssertEqual(17, whiteExplosionFrames,
+        "$9246-$9F06 white phase contains seventeen 192-byte shapes");
+    AssertEqual(PowerBombExplosionPhase.Afterglow,
+        powerBombs.PowerBombExplosion.Phase,
+        "white shapes advance to stage-five afterglow");
+
+    // Moving one pixel guarantees cleanup cannot begin Crystal Flash. The 32-step byte
+    // counter performs 31 fades four frames apart, then `$88:8B4E` clears status/radii and
+    // releases the flag; the same projectile pass sees flag zero and deletes the slot.
+    powerBombSamus.XPosition++;
+    int afterglowFrames = 0;
+    BombProjectileFrameResult cleanupFrame = default;
+    while (powerBombs.PowerBombExplosion.IsActive)
+    {
+        cleanupFrame = powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+        afterglowFrames++;
+        AssertTrue(afterglowFrames < 160, "power-bomb afterglow reaches cleanup");
+    }
+    AssertEqual(125, afterglowFrames,
+        "afterglow uses wrapping timer zero then 31 four-frame waits");
+    AssertTrue(cleanupFrame.ProjectileDeleted,
+        "cleanup frame deletes released power-bomb projectile");
+    AssertEqual((ushort)0, powerBombs.BombCounter,
+        "power-bomb cleanup decrements shared bomb counter");
+    AssertTrue(!powerBombs.PowerBombExplosion.IsArmed,
+        "failed Crystal Flash cleanup releases power-bomb flag");
+    AssertEqual((ushort)0, powerBombs.PowerBombExplosion.ExplosionRadius,
+        "cleanup clears damaging radius");
 
     // Put the explosion center on a type-$5 horizontal extension whose signed BTS $FF
     // redirects one column left to a BTS-zero type-$F parent. `$94:9CF4` visits center

@@ -38,6 +38,7 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton hyperBeamButton = new("Hyper Beam enabled");
     private readonly ToolStripButton missileButton = new("Missiles selected");
     private readonly ToolStripButton superMissileButton = new("Supers selected");
+    private readonly ToolStripButton powerBombButton = new("Power Bombs selected");
     private readonly ToolStripButton moonwalkButton = new("Moonwalk enabled");
     private readonly ToolStripButton springBallButton = new("Spring Ball equipped");
     private readonly ToolStripButton spaceJumpButton = new("Space Jump equipped");
@@ -78,7 +79,7 @@ internal sealed class RuntimePreviewControl : UserControl
         groundedRunButton.Click += (_, _) => Restart(motherBrain: false, groundedRun: true);
         crystalFlashButton.Click += (_, _) => RestartCrystalFlash();
         crystalFlashButton.ToolTipText =
-            "Restarts grounded Samus, grants the exact 10/10/10 ammo fixture, and publishes the missing power-bomb-cleanup call with Down+L+R+Shoot.";
+            "Restarts grounded Samus, grants the exact 10/10/10 ammo fixture, and invokes the translated centred power-bomb-cleanup entry with Down+L+R+Shoot.";
         cameraLeftButton.Click += (_, _) => MoveCamera(-16, 0);
         cameraRightButton.Click += (_, _) => MoveCamera(16, 0);
         cameraUpButton.Click += (_, _) => MoveCamera(0, -16);
@@ -207,6 +208,7 @@ internal sealed class RuntimePreviewControl : UserControl
             if (missileButton.Checked)
             {
                 superMissileButton.Checked = false;
+                powerBombButton.Checked = false;
                 runtime.Samus.Missiles = 99;
                 runtime.Samus.SelectedHudItem = 1;
             }
@@ -231,10 +233,36 @@ internal sealed class RuntimePreviewControl : UserControl
             if (superMissileButton.Checked)
             {
                 missileButton.Checked = false;
+                powerBombButton.Checked = false;
                 runtime.Samus.SuperMissiles = 99;
                 runtime.Samus.SelectedHudItem = 2;
             }
             else if (runtime.Samus.SelectedHudItem == 2)
+            {
+                runtime.Samus.SelectedHudItem = 0;
+            }
+
+            RefreshFrame();
+        };
+        powerBombButton.CheckOnClick = true;
+        powerBombButton.ToolTipText =
+            "Selects HUD item three and grants 99 debugger Power Bombs. Morph, release Shoot, then freshly press it to run the real fuse, expanding terrain scan, and color-math animation.";
+        powerBombButton.CheckedChanged += (_, _) =>
+        {
+            if (runtime?.Samus is null || !groundedRunScenario)
+                return;
+
+            // Save/pause inventory loading is the only host seam. Once item three is
+            // selected, ammo consumption, the `$0CEA` one-at-a-time lock, slot allocation,
+            // fuse, bank-$88 phase machine, block reactions, and cleanup are all live code.
+            if (powerBombButton.Checked)
+            {
+                missileButton.Checked = false;
+                superMissileButton.Checked = false;
+                runtime.Samus.PowerBombs = 99;
+                runtime.Samus.SelectedHudItem = 3;
+            }
+            else if (runtime.Samus.SelectedHudItem == 3)
             {
                 runtime.Samus.SelectedHudItem = 0;
             }
@@ -424,6 +452,7 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(hyperBeamButton);
         toolStrip.Items.Add(missileButton);
         toolStrip.Items.Add(superMissileButton);
+        toolStrip.Items.Add(powerBombButton);
         toolStrip.Items.Add(moonwalkButton);
         toolStrip.Items.Add(springBallButton);
         toolStrip.Items.Add(spaceJumpButton);
@@ -536,7 +565,12 @@ internal sealed class RuntimePreviewControl : UserControl
                 runtime.Samus.EquippedItems |= SamusLiquidPhysicsState.GravitySuitItem;
             if (chargeBeamButton.Checked && !hyperBeamButton.Checked)
                 runtime.Samus.EquippedBeams |= 0x1000;
-            if (superMissileButton.Checked)
+            if (powerBombButton.Checked)
+            {
+                runtime.Samus.PowerBombs = 99;
+                runtime.Samus.SelectedHudItem = 3;
+            }
+            else if (superMissileButton.Checked)
             {
                 runtime.Samus.SuperMissiles = 99;
                 runtime.Samus.SelectedHudItem = 2;
@@ -688,9 +722,9 @@ internal sealed class RuntimePreviewControl : UserControl
         // rest and also primes the normal VRAM/OAM producer-consumer pipeline.
         Restart(motherBrain: false, groundedRun: true);
 
-        // Save-file loading and the complete power-bomb HDMA producer are still outside the
-        // current runtime. These values are explicit debugger stimuli at that boundary; the
-        // called routine still checks every current word exactly as `$90:D5A2` does.
+        // Save-file loading remains outside the runtime. This shortcut still bypasses the
+        // now-translated power-bomb fuse/HDMA wait so Crystal Flash can be inspected without
+        // first stepping its full animation; `$90:D5A2` checks every supplied word normally.
         runtime.Samus!.Health = 1;
         runtime.Samus.MaxHealth = 99;
         runtime.Samus.ReserveEnergy = 0;
@@ -741,6 +775,16 @@ internal sealed class RuntimePreviewControl : UserControl
                 camera.YPosition,
                 GameplayObsel);
         }
+
+        // The SNES applies the power-bomb window after BG/OBJ pixels have been selected.
+        // Replay that final color-math operation against either background source so the
+        // live effect stays identical when the debugger toggles terrain composition.
+        SnesGameplayFrameRenderer.ApplyPowerBombColorMath(
+            pixels,
+            bus,
+            runtime.BombProjectiles.PowerBombExplosion,
+            camera.XPosition,
+            camera.YPosition);
         canvas.ReplaceFrame(RgbaBitmap.Create(FrameWidth, FrameHeight, pixels));
 
         EscapeTimer timer = runtime.EscapeTimer;
@@ -907,6 +951,8 @@ internal sealed class RuntimePreviewControl : UserControl
             $"{runtime.Samus.HorizontalSpeed.SecondSpeedEchoXPosition:X4})  |  " +
             $"bombs {runtime.BombProjectiles.BombCounter}/5 " +
             $"cooldown {runtime.BombProjectiles.CooldownTimer} " +
+            $"power={runtime.BombProjectiles.PowerBombExplosion.Phase}/" +
+            $"{runtime.BombProjectiles.PowerBombExplosion.ExplosionRadius:X4} " +
             $"jump ${runtime.Samus.BombJumpDirection:X4}  |  " +
             // Ordinary beams and bombs share native cooldown `$0CCC`; showing the ordinary
             // counter beside that clock makes allocation, terrain impact, explosion, and

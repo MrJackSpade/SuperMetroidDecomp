@@ -834,11 +834,21 @@ public static class SamusAerialMovement
 
         bool jumpNew = (controllerNewInput & (ushort)SnesButton.A) != 0;
         bool triggered = jumpNew && distance < 8;
-        if (triggered && probe.EnemyCollision is { EnemyIndex: ushort enemyIndex })
+        if (triggered)
         {
-            // `$90:9E64-$90:9E66` publishes only enemy-backed launches. Terrain wall jumps
-            // intentionally leave the previous `$0E18` value alone.
-            samus.EnemyIndexToShake = enemyIndex;
+            // Both successful exits converge on the same native result: the solid-enemy
+            // branch writes five at `$90:9E5E`, and the terrain branch repeats that write at
+            // `$90:9E7F`. This is not merely an internal boolean. `$0DC6` is shared WRAM
+            // state, so retain the publication even though the host result below also tells
+            // the runtime to install the wall-jump pose explicitly.
+            samus.SolidVerticalCollisionResult = 5;
+
+            if (probe.EnemyCollision is { EnemyIndex: ushort enemyIndex })
+            {
+                // `$90:9E64-$90:9E66` publishes only enemy-backed launches. Terrain wall
+                // jumps intentionally leave the previous `$0E18` value alone.
+                samus.EnemyIndexToShake = enemyIndex;
+            }
         }
         return new WallJumpCheckResult(triggered, Contact: true, distance);
     }

@@ -7736,10 +7736,23 @@ static void VerifySamusAerialTurnsAndWallJump()
     WriteTestWord(bus, 0x909ed7, 0xa000);
 
     var earlyContact = CreateSpinSamus(animationFrame: 0);
+    earlyContact.SolidVerticalCollisionResult = 0x7777;
     AerialMovementResult contactFrame = SamusAerialMovement.StepSpinJump(
         bus, level, earlyContact, (ushort)(SnesButton.Left | SnesButton.A), 0, 0);
     AssertTrue(contactFrame.WallContact && !contactFrame.WallJumpTriggered, "early wall chord contacts without launch");
     AssertEqual((ushort)0x0a, earlyContact.AnimationFrame, "early wall contact rewinds to frame A");
+    AssertEqual((ushort)0x7777, earlyContact.SolidVerticalCollisionResult,
+        "early wall contact does not publish launch collision result");
+
+    // Merely holding Jump after the eligible frame is still contact, not a launch. In
+    // particular it must not leak the result-five write from the accepted paths below.
+    var heldOnly = CreateSpinSamus(animationFrame: 0x0b);
+    AerialMovementResult heldOnlyFrame = SamusAerialMovement.StepSpinJump(
+        bus, level, heldOnly, (ushort)(SnesButton.Left | SnesButton.A), 0, 0);
+    AssertTrue(heldOnlyFrame.WallContact && !heldOnlyFrame.WallJumpTriggered,
+        "eligible held Jump without a fresh edge remains contact only");
+    AssertEqual((ushort)0, heldOnly.SolidVerticalCollisionResult,
+        "held-only wall contact leaves collision result clear");
 
     var eligible = CreateSpinSamus(animationFrame: 0x0b);
     ushort beforeTriggerY = eligible.YPosition;
@@ -7754,6 +7767,8 @@ static void VerifySamusAerialTurnsAndWallJump()
     AssertTrue(triggerFrame.Vertical is null, "wall trigger carry skips vertical movement");
     AssertEqual(beforeTriggerY, eligible.YPosition, "wall trigger frame preserves Y");
     AssertEqual((ushort)7, triggerFrame.WallDistance, "wall trigger reports clipped seven-pixel distance");
+    AssertEqual((ushort)5, eligible.SolidVerticalCollisionResult,
+        "terrain wall jump publishes native solid-vertical result five");
 
     // Repeat the same eligible chord with a native solid-enemy snapshot in front of the
     // terrain. `$90:9E64` must publish that exact slot for enemy AI's shake response; a
@@ -7779,6 +7794,8 @@ static void VerifySamusAerialTurnsAndWallJump()
         (ushort)SnesButton.A);
     AssertTrue(enemyTrigger.WallJumpTriggered, "solid enemy can trigger ordinary wall jump");
     AssertEqual((ushort)7, enemyTrigger.WallDistance, "enemy wall jump retains directional gap");
+    AssertEqual((ushort)5, enemyEligible.SolidVerticalCollisionResult,
+        "enemy wall jump publishes native solid-vertical result five");
     AssertEqual((ushort)0x0240, enemyEligible.EnemyIndexToShake,
         "enemy wall jump publishes contacted slot for shake");
 

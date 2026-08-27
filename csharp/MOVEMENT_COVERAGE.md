@@ -380,9 +380,11 @@ translated status is documented with the Morph Ball family below.
   a miss retains the previous room-block behavior. `BlockMoveResult` distinguishes the enemy
   slot from a terrain block so callers do not infer actor identity from scenery.
 - Ordinary and grapple wall-jump probes use the same source and publish native
-  `EnemyIndexToShake` only when a fresh Jump edge accepts an enemy-backed launch. Prospective
-  wall and larger-pose copies share the immutable snapshot but commit no motion; only the
-  touching routine's real Y-subposition side effect is copied back.
+  `EnemyIndexToShake` only when a fresh Jump edge accepts an enemy-backed launch. Ordinary
+  terrain and enemy-backed launches both publish solid-vertical collision result five at
+  their distinct `$90:9E5E/$90:9E7F` exits; contact or a held-only Jump chord does neither.
+  Prospective wall and larger-pose copies share the immutable snapshot but commit no motion;
+  only the touching routine's real Y-subposition side effect is copied back.
 - Synthetic verification covers empty/non-solid/frozen/property-solid lists, all four target
   directions, fractional underflow/overflow, strict tangency, perpendicular separation,
   embedded rejection, first-list priority, exact gap clipping, the horizontal-touch bug,

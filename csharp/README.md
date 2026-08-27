@@ -443,7 +443,7 @@ physics. Remaining cross-system work includes earlier Mother Brain attack select
 Hyper Beam enemy-hit/recoil integration,
 X-ray hidden-block BG2 substitution,
 projectile-triggered door/bombable/special-block PLMs,
-missing actor spritemaps, live enemy damage producers, solid-enemy wall-jump branches,
+missing actor spritemaps, live enemy damage producers,
 native enemy spawn selection, and the unported enemies/effects/
 actors. Raw files and PNGs contain private ROM-derived material and must not be distributed;
 this private preservation repository intentionally retains them until a future shareable cleanup.

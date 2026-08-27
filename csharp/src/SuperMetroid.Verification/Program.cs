@@ -2135,6 +2135,13 @@ static void VerifySamusXray()
     for (ushort index = 0; index < 16; index++)
         WriteTestWord(bus, 0x9b9400 + index * 2, unchecked((ushort)(0x0100 + index)));
 
+    // Full right-facing width ten uses boundary angles `$36/$4A`. Both entries in the
+    // literal `$91:C9D4` absolute-tangent table are `$03FE`; seeding only those two words
+    // makes the window test fail if production code invents trigonometry or reads a nearby
+    // table entry. Ten scanlines from the origin, the 8.8 accumulator lands on X+39.
+    WriteTestWord(bus, 0x91c9d4 + 0x36 * 2, 0x03fe);
+    WriteTestWord(bus, 0x91c9d4 + 0x4a * 2, 0x03fe);
+
     var cgram = new SnesCgram();
     var standing = new SamusState
     {
@@ -2194,6 +2201,32 @@ static void VerifySamusXray()
     AssertEqual(XrayBeamPhase.Full, standing.Xray.BeamPhase, "call 27 reaches full beam");
     AssertEqual((ushort)10, standing.Xray.AngularWidth, "full beam clamps width ten");
     AssertEqual((ushort)0, standing.Xray.AngularSubwidth, "full beam clears width fraction");
+
+    // `$88:88B8/$88DC` puts this standing-right fixture's origin at screen (103,184).
+    // `$91:C5FF` advances `$03FE` once per scanline and publishes the high byte, making
+    // X=142 the inclusive upper/lower boundary ten lines away. `$88:817B` keeps the cone
+    // bright and applies add-seven-then-half color math everywhere outside it.
+    var xrayFrame = new Rgba32[SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
+    Array.Fill(xrayFrame, new Rgba32(248, 248, 248, 255));
+    SnesGameplayFrameRenderer.ApplyXrayWindowColorMath(
+        xrayFrame,
+        bus,
+        standing.Xray,
+        standing,
+        layer1X: 0,
+        layer1Y: 0);
+    AssertEqual((byte)248, xrayFrame[184 * 256 + 255].R,
+        "X-ray horizontal center remains inside window");
+    AssertEqual((byte)123, xrayFrame[184 * 256].R,
+        "X-ray opposite half-plane receives outside half color math");
+    AssertEqual((byte)248, xrayFrame[174 * 256 + 142].R,
+        "X-ray upper tangent boundary is inclusive after 8.8 truncation");
+    AssertEqual((byte)123, xrayFrame[174 * 256 + 141].R,
+        "X-ray pixel beyond upper tangent boundary is outside");
+    AssertEqual((byte)248, xrayFrame[194 * 256 + 142].R,
+        "X-ray lower tangent boundary mirrors upper boundary");
+    AssertEqual((byte)248, xrayFrame[0].R,
+        "X-ray gameplay window never modifies the IRQ-owned HUD band");
 
     AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems),
         "full beam enters visor cycle");
@@ -2326,7 +2359,7 @@ static void VerifySamusXray()
         "X-ray preserves five-bomb cooldown/divisor rejection");
 
     Console.WriteLine(
-        "  X-ray: admission, four poses, turns, angle art, setup/widen/aim, visor palette, teardown, and stand-up glitch agree.");
+        "  X-ray: admission, poses, turns, ROM-tangent window, half color math, visor palette, teardown, and stand-up glitch agree.");
 }
 
 /// <summary>

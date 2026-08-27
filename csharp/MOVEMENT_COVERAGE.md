@@ -11,12 +11,12 @@ are listed below so later work cannot accidentally confuse “the current viewer
 
 | Type | Native family | Current C# admission | Remaining native branches |
 |---:|---|---|---|
-| `$00` | Standing | Forward `$00/$9B` equipment selector, zero-status lock, active `$0E18` one-pixel elevator descent through no-solid-enemy `$94:9763`, power-suit chest-cover OAM; ordinary `$01-$08`, landing `$A4-$A7/$E0-$E7`, including held-Shot horizontal firing landings; X-ray `$D5/$D6` admission, angle art, time freeze, beam state, visor palette, and teardown | Live elevator actor/status producer; X-ray BG2 reveal/window-HDMA presentation |
+| `$00` | Standing | Forward `$00/$9B` equipment selector, zero-status lock, active `$0E18` one-pixel elevator descent through no-solid-enemy `$94:9763`, power-suit chest-cover OAM; ordinary `$01-$08`, landing `$A4-$A7/$E0-$E7`, including held-Shot horizontal firing landings; X-ray `$D5/$D6` admission, angle art, time freeze, beam state, ROM-tangent window/color math, visor palette, and teardown | Live elevator actor/status producer; X-ray revealed-block BG2 tilemap producer |
 | `$01` | Running | `$09/$0A/$0B/$0C/$0D-$12`, including horizontal gun extension with preserved native run phase; air/water/lava X tables and submerged Dash gate, ordinary Dash/B 2.0000 cap, equipped Speed Booster stages/7.0000 cap/palette/active and post-cancel echoes; ROM-timed wet/dust footsteps and area-selected landing impact | Live collision producers |
 | `$02` | Normal jumping | `$4B-$4E/$13-$18/$51-$52/$55-$5A/$69-$6C`, including horizontal gun extension, compact straight-down collision changes, air/water/lava normal/Hi-Jump launch, X tables, gravity, persistent external X/Y displacement, variable height, ceiling/floor collision; liquid entry/exit splash, bubbles, sound, and damage | Collision-producer side effects |
 | `$03` | Spin jumping | `$19/$1A`, Space Jump `$1B/$1C`, Screw Attack `$81/$82`, air/water/lava X/gravity/launch/repeat gates, variable height, split-body animation, charged-spin/Screw contact damage, speed-stage/Screw collision-bomb PLMs, underwater frame-selected Space-Jump sound, damage palette, block/solid-enemy wall contact and launch; liquid entry/exit splash, bubbles, sound, and damage | Live enemy actor producer |
 | `$04` | Morph ball on ground | `$1D/$1E/$1F/$41`, air/water/lava X tables, persistent external X/Y displacement, slopes, reversal, deceleration, walk-off, normal/power-bomb deployment, fuse/HDMA window, expanding terrain reactions, normal-bomb bombable/shootable/special-block PLMs, solid/frozen-enemy clipping | Projectile door/bombable/special reactions; live enemy actor producer |
-| `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry, ordinary/Spring morph entry; X-ray `$D9/$DA` admission, angle art, time freeze, beam state, visor palette, and teardown | X-ray BG2 reveal/window-HDMA presentation |
+| `$05` | Crouching | `$27/$28/$71-$74/$85/$86`, grounded probe, aim fallback, momentum clear, direct `$01/$02` exits, `$4B/$4C` crouch-jump entry, ordinary/Spring morph entry; X-ray `$D9/$DA` admission, angle art, time freeze, beam state, ROM-tangent window/color math, visor palette, and teardown | X-ray revealed-block BG2 tilemap producer |
 | `$06` | Falling | `$29-$2E/$67-$70`, including horizontal gun extension, compact straight-down collision changes, walk-off, air/water/lava X and gravity, persistent external X/Y displacement, held-Shot landing, aerial-turn entry, live `$F0` animation cadence, and liquid entry/exit effects | Collision-producer side effects |
 | `$07` | Unused | — | Preserve only if an exhaustive compatibility route needs it |
 | `$08` | Morph ball falling | `$31/$32`, air/water/lava X and gravity, persistent external X/Y displacement and bounce override, ceiling/floor/solid-enemy collision, two-stage hard bounce, gentle landing, normal/power-bomb deployment, fuse/HDMA window, expanding terrain reactions, normal-bomb bombable/shootable/special-block PLMs | Projectile door/bombable/special reactions; live enemy actor producer |
@@ -55,7 +55,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
   tick and advances to the next literal delay.
 - This audit is deliberately not a claim that all movement-related systems are complete.
   Fatal-damage acquisition/post-fade ownership, the elevator actor/status producer,
-  X-ray reveal/window rendering, PLM reactions, and live enemy collision/displacement
+  X-ray hidden-block BG2 substitution, PLM reactions, and live enemy collision/displacement
   producers remain concrete cross-system gaps.
 
 The bomb-jump movement handler is installed outside this normal dispatcher. `$90:E025`
@@ -106,9 +106,15 @@ translated status is documented with the Morph Ball family below.
   widening boundaries, palette words, teardown, rejection gates, and the glitch. The
   private-ROM `--xray-script` independently reaches full width on frame 36 and completes
   `$D5->$25->$D6` on frame 56 through live animation DMA/OAM over Landing Site terrain.
-- BG2 revealed-block copying and the HDMA window polygon are still renderer work. They are
-  intentionally not approximated by the movement state; the checked-in frame therefore shows
-  authentic X-ray Samus/visor/terrain/sky while making that missing visual layer obvious.
+- Desktop composition now reconstructs both boundary rays from the cartridge's `$91:C9D4`
+  8.8 absolute-tangent table, preserves the zero-width horizontal special case and inclusive
+  fractional edge pixels, and applies `$88:817B`'s add-seven-then-half operation outside the
+  moving polygon without touching the IRQ-owned HUD. The deterministic fixture locks the
+  exact `$03FE` angle-`$36/$4A` boundary, while the checked-in private-ROM frame captures the
+  final up-left beam after the live `$D5->$25->$D6` turn.
+- Building the replacement BG2 tilemap in setup stages four through eight is still renderer
+  work. Until that producer lands, the window moves and shades correctly but cannot substitute
+  the special hidden-block tiles which differ from the ordinary BG1 terrain beneath it.
 
 ## Verified fatal-damage animation slice
 

@@ -12,8 +12,9 @@ namespace SuperMetroid.Core.Game;
 /// poses, `$91:FCAF` and `$90:E94F` own turning and angle-selected body art, and
 /// `$88:86EF-$8AA3` widens/aims/deactivates the window beam. Keeping those words in one
 /// explicit state prevents `$D5/$D6/$D9/$DA` from silently inheriting ordinary standing or
-/// crouching input. Building the revealed-block BG2 tilemap and emitting window HDMA remain
-/// presentation work; no fake visibility mask is generated here.
+/// crouching input. The desktop compositor now consumes these exact angle/width words to
+/// reproduce the moving ROM-tangent window; building the revealed-block BG2 tilemap remains
+/// separate presentation work and no fake hidden tiles are generated here.
 /// </remarks>
 public sealed class SamusXrayState
 {
@@ -232,8 +233,8 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// Advances one bank-$88 HDMA-object call. The setup-stage count represents the eight
-    /// real cartridge functions; actual BG2 copies/window-table rendering are intentionally
-    /// not fabricated by this movement state.
+    /// real cartridge functions. Actual BG2 copies remain intentionally outside this movement
+    /// state; the renderer consumes its angle/width only after setup has completed.
     /// </summary>
     public XrayBeamStepResult StepBeam(
         ISnesAddressSpace bus,
@@ -567,7 +568,7 @@ public readonly record struct XrayPoseInputResult(
     byte Pose,
     ushort Angle);
 
-/// <summary>One bank-$88 beam-state call without pretending the HDMA pixels are translated.</summary>
+/// <summary>One bank-$88 beam-state call exposing the words consumed by the window renderer.</summary>
 public readonly record struct XrayBeamStepResult(
     XrayBeamPhase PhaseAtStart,
     XrayBeamPhase PhaseAfterStep,

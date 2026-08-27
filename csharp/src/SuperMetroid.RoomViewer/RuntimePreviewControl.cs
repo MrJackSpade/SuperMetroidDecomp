@@ -785,6 +785,15 @@ internal sealed class RuntimePreviewControl : UserControl
             runtime.BombProjectiles.PowerBombExplosion,
             camera.XPosition,
             camera.YPosition);
+        // Keep X-ray's scanline window live in both the all-PPU and ROM-composite views.
+        // The geometry reads the same cartridge tangent words in either presentation mode.
+        SnesGameplayFrameRenderer.ApplyXrayWindowColorMath(
+            pixels,
+            bus,
+            runtime.Samus!.Xray,
+            runtime.Samus,
+            camera.XPosition,
+            camera.YPosition);
         canvas.ReplaceFrame(RgbaBitmap.Create(FrameWidth, FrameHeight, pixels));
 
         EscapeTimer timer = runtime.EscapeTimer;

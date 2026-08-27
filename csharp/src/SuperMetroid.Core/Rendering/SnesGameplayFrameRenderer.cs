@@ -7,6 +7,11 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Composes the currently modeled gameplay PPU layers into one desktop frame.</summary>
 public static class SnesGameplayFrameRenderer
 {
+    // `$91:C9D4` is the 129-word absolute-tangent table shared by the on-screen and
+    // off-screen X-ray window builders. Angles are measured clockwise in 1/256 turns,
+    // with zero pointing up; every table word is |dx/dy| in 8.8 fixed point.
+    private const int XrayAbsoluteTangentTableAddress = 0x91c9d4;
+
     public const int Width = 256;
     public const int Height = 224;
     public const int HudHeight = 32;
@@ -245,6 +250,97 @@ public static class SnesGameplayFrameRenderer
         }
     }
 
+    /// <summary>
+    /// Applies X-ray's moving window and outside-window half-color-math operation.
+    /// </summary>
+    /// <remarks>
+    /// The cartridge writes two window endpoints per scanline through `$88:8896` and the
+    /// bank-$91 `$C54B/$BD1A` geometry routines. Replaying the same angular boundaries at
+    /// desktop composition time is equivalent to those WH2/WH3 writes: the two edge rays
+    /// use the ROM's own 8.8 absolute-tangent table and pixels between them remain bright.
+    /// `$88:817B/$81A4` then enable halved color math outside that window. The separate
+    /// X-ray BG2 tilemap producer—which replaces hidden block tiles inside the window—is
+    /// intentionally not claimed here; this method only owns the already-independent PPU
+    /// window/color-math part of the effect.
+    /// </remarks>
+    public static void ApplyXrayWindowColorMath(
+        Span<Rgba32> frame,
+        ISnesAddressSpace bus,
+        SamusXrayState xray,
+        SamusState samus,
+        ushort layer1X,
+        ushort layer1Y)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(xray);
+        ArgumentNullException.ThrowIfNull(samus);
+        if (frame.Length != Width * Height)
+            throw new ArgumentException("X-ray compositor requires one complete 256x224 frame.", nameof(frame));
+
+        // Setup stages have not installed `$88:86EF` yet. States three through five have
+        // already replaced the active table with `$00FF` endpoints while the two backed-up
+        // BG2 screens are restored, so neither interval has a visible beam to composite.
+        if (!xray.IsActive || xray.SetupStage != 0 ||
+            xray.BeamPhase is not (XrayBeamPhase.Widening or XrayBeamPhase.Full))
+        {
+            return;
+        }
+
+        bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+        byte movementType = samus.ReadMovementType(bus);
+
+        // `$88:88B8-$88F3` anchors the ray three pixels in front of Samus. Standing and
+        // turning bodies place it sixteen pixels above the center; only stable movement
+        // type five uses the crouching twelve-pixel offset.
+        int originX = unchecked((short)(samus.XPosition - layer1X)) + (facingLeft ? -3 : 3);
+        int originY = unchecked((short)(samus.YPosition - layer1Y)) - (movementType == 5 ? 12 : 16);
+        int centerAngle = xray.Angle & 0x00ff;
+        int angularWidth = xray.AngularWidth & 0x00ff;
+        int leftEdgeAngle = (centerAngle - angularWidth) & 0x00ff;
+        int rightEdgeAngle = (centerAngle + angularWidth) & 0x00ff;
+
+        // State zero calculates a genuinely zero-width horizontal table before changing
+        // state to one. `$91:C901` special-cases exactly right/left so it produces a single
+        // horizontal scanline instead of using the finite `$3C00` tangent-table sentinel.
+        bool horizontalLine = angularWidth == 0 && centerAngle is 0x40 or 0xc0;
+        XrayDirection leftEdge = ReadXrayDirection(bus, leftEdgeAngle);
+        XrayDirection rightEdge = ReadXrayDirection(bus, rightEdgeAngle);
+
+        for (int screenY = HudHeight; screenY < Height; screenY++)
+        {
+            int fromOriginY = screenY - originY;
+            int row = screenY * Width;
+            for (int screenX = 0; screenX < Width; screenX++)
+            {
+                int fromOriginX = screenX - originX;
+                bool inside;
+                if (horizontalLine)
+                {
+                    inside = fromOriginY == 0 &&
+                        (centerAngle == 0x40 ? fromOriginX >= 0 : fromOriginX <= 0);
+                }
+                else
+                {
+                    // Super Metroid angles increase clockwise. A point is inside this
+                    // always-narrower-than-180-degree cone when it is clockwise from the
+                    // left edge and counter-clockwise from the right edge. Cross products
+                    // retain the exact ROM tangent ratios without floating-point atan/trig.
+                    long leftCross = (long)leftEdge.X * fromOriginY -
+                        (long)leftEdge.Y * fromOriginX;
+                    long rightCross = (long)rightEdge.X * fromOriginY -
+                        (long)rightEdge.Y * fromOriginX;
+                    // The assembly stores the high byte after each 8.8 accumulation, so
+                    // a fractional boundary is rounded outward to its containing pixel.
+                    // A ±$FF cross-product tolerance is precisely that subpixel remainder.
+                    inside = leftCross >= -0x00ff && rightCross <= 0x00ff;
+                }
+
+                if (!inside)
+                    frame[row + screenX] = ApplyXrayOutsideHalfColor(frame[row + screenX]);
+            }
+        }
+    }
+
     private static int ReadPowerBombHalfWidth(
         ISnesAddressSpace bus,
         SamusPowerBombExplosionState explosion,
@@ -332,6 +428,48 @@ public static class SnesGameplayFrameRenderer
     private static byte SaturatingAdd(byte left, byte right) =>
         (byte)Math.Min(byte.MaxValue, left + right);
 
+    private static XrayDirection ReadXrayDirection(ISnesAddressSpace bus, int angle)
+    {
+        int wrappedAngle = angle & 0x00ff;
+
+        // The four cardinals are mathematically exact. At horizontal entries the ROM table
+        // contains `$3C00` as a screen-sized infinity substitute, but using (±1,0) here is
+        // the identical limiting ray and also preserves the dedicated zero-width line.
+        if (wrappedAngle == 0x00)
+            return new XrayDirection(0, -0x0100);
+        if (wrappedAngle == 0x40)
+            return new XrayDirection(0x0100, 0);
+        if (wrappedAngle == 0x80)
+            return new XrayDirection(0, 0x0100);
+        if (wrappedAngle == 0xc0)
+            return new XrayDirection(-0x0100, 0);
+
+        int tangentIndex = wrappedAngle & 0x007f;
+        int tableAddress = XrayAbsoluteTangentTableAddress + tangentIndex * 2;
+        int tangent = bus.ReadByte(tableAddress) | (bus.ReadByte(tableAddress + 1) << 8);
+        return wrappedAngle switch
+        {
+            < 0x40 => new XrayDirection(tangent, -0x0100),
+            < 0x80 => new XrayDirection(tangent, 0x0100),
+            < 0xc0 => new XrayDirection(-tangent, 0x0100),
+            _ => new XrayDirection(-tangent, -0x0100),
+        };
+    }
+
+    private static Rgba32 ApplyXrayOutsideHalfColor(Rgba32 source)
+    {
+        // `$88:8709-$8716` loads COLDATA component seven when the room has revealable
+        // blocks, and `$88:817B/$81A4` selects addition followed by SNES half-color math.
+        // All compositor colors originated as expanded BGR555, so reducing with `>> 3`,
+        // saturating in five-bit space, halving, and expanding again is lossless here.
+        const int FixedComponent = 7;
+        return new Rgba32(
+            ExpandFiveBit((byte)(Math.Min(31, (source.R >> 3) + FixedComponent) >> 1)),
+            ExpandFiveBit((byte)(Math.Min(31, (source.G >> 3) + FixedComponent) >> 1)),
+            ExpandFiveBit((byte)(Math.Min(31, (source.B >> 3) + FixedComponent) >> 1)),
+            source.A);
+    }
+
     private static Rgba32[] CreateBackdrop(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -374,4 +512,7 @@ public static class SnesGameplayFrameRenderer
         }
 
     }
+
+    /// <summary>One signed 8.8 direction vector reconstructed from `$91:C9D4`.</summary>
+    private readonly record struct XrayDirection(int X, int Y);
 }

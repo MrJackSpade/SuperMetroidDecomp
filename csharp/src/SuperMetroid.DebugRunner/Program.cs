@@ -4015,6 +4015,15 @@ SnesGameplayFrameRenderer.ApplyPowerBombColorMath(
     runtime.BombProjectiles.PowerBombExplosion,
     camera.XPosition,
     camera.YPosition);
+// X-ray's bank-$91 boundary rays and bank-$88 outside-window half color math run after
+// ordinary layer/OBJ composition, just like the two physical WH2/WH3 HDMA channels.
+SnesGameplayFrameRenderer.ApplyXrayWindowColorMath(
+    gameplayFrame,
+    bus,
+    runtime.Samus!.Xray,
+    runtime.Samus,
+    camera.XPosition,
+    camera.YPosition);
 PngWriter.WriteRgba(options.OutputPath, width: 256, height: 224, gameplayFrame);
 Console.WriteLine($"Wrote ROM-backed HUD/OBJ frame to {Path.GetFullPath(options.OutputPath)}.");
 Console.WriteLine($"Wrote transparent OBJ layer to {Path.GetFullPath(objectOutputPath)}.");

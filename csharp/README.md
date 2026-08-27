@@ -349,9 +349,12 @@ toggle runs this same producer and lifecycle interactively.
 then lets `$91:E16D` admit the grounded body and choose `$D5`. Holding Dash executes the eight
 bank-$88 setup calls and reaches the carry-accurate 10.0000 width clamp on frame 36; Up crosses
 the ROM animation thresholds, and Left mirrors the center angle and completes `$D5->$25->$D6`
-on frame 56. The 80-frame PNG uses live Landing Site BG1/BG2, palette, Samus DMA, and OAM.
-The revealed-block BG2 copies and window-HDMA polygon are not rendered yet, so the image is an
-honest movement/art diagnostic rather than a fabricated approximation of the scanner mask.
+on frame 56. The compositor builds the two beam edges from the ROM's `$91:C9D4` 8.8 tangent
+words, retains `$91:C901`'s zero-width horizontal line, and applies the bank-$88 outside-window
+half color math after live Landing Site BG1/BG2, Samus DMA, and OAM composition. The 80-frame
+PNG therefore captures the actual final up-left scanner window. Setup stages four through
+eight do not yet build the replacement hidden-block BG2 tilemap, so special reveal tiles are
+the remaining visual half of X-ray rather than being faked inside the otherwise live polygon.
 
 `--death-script` enters only after the outer fatal-damage music wait has cleared, then lets
 bank `$9B` select `$D7/$D8` and the movement-type-specific start frame. Sixteen preflash calls
@@ -393,12 +396,13 @@ its unconditional pass-through result.
 The translated runtime now covers the admitted grounded/aerial/posture/aim/turn/landing,
 Dash/Speed Booster/shinespark, Space Jump/Screw Attack, Morph/Spring/Bomb jump, knockback,
 grapple, all twelve ordinary/charged beam combinations plus Hyper Beam production/motion,
-Crystal Flash, X-ray, drained/Draygon,
+Crystal Flash, X-ray mechanics/window color math, drained/Draygon,
 liquid/atmospheric/landing-impact, and documented
 Mother Brain/Baby routes described above. Unsupported paths throw instead of becoming guessed
 physics. Remaining cross-system work includes drained-Samus presentation, earlier Mother
 Brain attack selection, Hyper Beam enemy-hit/recoil integration,
-remaining weapon-specific trails, projectile-triggered door/bombable/special-block PLMs,
+X-ray hidden-block BG2 substitution, remaining weapon-specific trails,
+projectile-triggered door/bombable/special-block PLMs,
 missing actor spritemaps, live enemy damage producers, solid-enemy wall-jump branches,
 native enemy spawn selection, and the unported enemies/effects/
 actors. Raw files and PNGs contain private ROM-derived material and must not be distributed;

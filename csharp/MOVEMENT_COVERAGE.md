@@ -48,11 +48,13 @@ are listed below so later work cannot accidentally confuse “the current viewer
   and verified. The earlier blanket
   “later firing variants” labels were stale: ordinary active firing bodies are exactly
   `$0B/$0C`, `$13/$14`, `$67/$68`, `$E6/$E7`, plus translated Draygon `$BC/$EE`.
-- The bank-`$90` animation command table has active handlers `$F6-$F9/$FB/$FD-$FF` and six
-  shared CLC/RTS slots for `$F0-$F5`; `$FA/$FC` point only at explicitly unused native
-  handlers. The C# interpreter now preserves the live `$F0` cadence in aimed-falling
-  `$6D-$70`: the command leaves frame/timer untouched, then zero underflows on the following
-  tick and advances to the next literal delay.
+- The bank-`$90` animation command table is now complete across all sixteen low-nibble
+  dispatch slots: six shared CLC/RTS entries `$F0-$F5`, active handlers
+  `$F6-$F9/$FB/$FD-$FF`, and the explicitly unused but faithfully translated `$FA/$FC`
+  Y-speed/equipment pose selectors. The C# interpreter preserves the live `$F0` cadence in
+  aimed-falling `$6D-$70`: the command leaves frame/timer untouched, then zero underflows on
+  the following tick and advances to the next literal delay. Synthetic bytecode independently
+  proves both branches of each unused selector instead of claiming they are reachable poses.
 - This audit is deliberately not a claim that all movement-related systems are complete.
   Fatal-damage acquisition/post-fade ownership, the elevator actor/status producer,
   X-ray hidden-block BG2 substitution, PLM reactions, and live enemy collision/displacement

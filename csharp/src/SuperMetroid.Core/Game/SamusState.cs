@@ -3735,6 +3735,18 @@ public sealed class SamusState
                     unchecked((ushort)(AnimationFrame + targetOffset)));
                 return;
 
+            case 10:
+                // `$90:83F6`, unused command `$FA gg aa`: select one transitional pose
+                // when both halves of Y speed are zero and the other when either half is
+                // nonzero. Retail has no reachable active pose using this instruction, but
+                // preserving it completes the actual sixteen-entry interpreter instead of
+                // treating valid cartridge bytecode as corrupt data.
+                bool faMovingVertically = Kinematics.YSpeed != 0 || Kinematics.YSubspeed != 0;
+                PendingTransitionalPose = ReadAnimationByte(
+                    bus,
+                    unchecked((ushort)(AnimationFrame + (faMovingVertically ? 2 : 1))));
+                return;
+
             case 11:
                 // `$90:841D`, command `$FB`, first checks TOP-boundary submersion. A fully
                 // submerged non-Gravity body is forced to the ordinary one-byte sequence;
@@ -3746,6 +3758,20 @@ public sealed class SamusState
                     (EquippedItems & 0x0008) != 0 ? 0x15 :
                     (EquippedItems & 0x0200) != 0 ? 0x0b : 1)));
                 break;
+
+            case 12:
+                // `$90:848B`, unused command `$FC eeee gg aa`: the little-endian item
+                // mask is followed by unequipped/equipped pose bytes. Poses `$3F/$40` are
+                // the only retail users (Spring Ball-aware Morph Ball selection), but the
+                // command still publishes through the ordinary transitional-pose seam.
+                ushort fcItemMask = unchecked((ushort)(
+                    ReadAnimationByte(bus, unchecked((ushort)(AnimationFrame + 1))) |
+                    (ReadAnimationByte(bus, unchecked((ushort)(AnimationFrame + 2))) << 8)));
+                bool fcItemEquipped = (EquippedItems & fcItemMask) != 0;
+                PendingTransitionalPose = ReadAnimationByte(
+                    bus,
+                    unchecked((ushort)(AnimationFrame + (fcItemEquipped ? 4 : 3))));
+                return;
 
             case 13:
                 // $90:83A0, command $FD pp: publish pose pp through the same command-three
@@ -3768,12 +3794,6 @@ public sealed class SamusState
                 AnimationFrame = 0;
                 break;
 
-            default:
-                // Other commands trigger pose transitions, equipment-dependent branches,
-                // movement handlers, or speed-booster state. Failing at that boundary is
-                // safer than displaying a plausible but fabricated continuation.
-                throw new NotSupportedException(
-                    $"Samus animation command ${delayOrCommand:X2} is not translated for pose ${Pose:X2}.");
         }
 
         byte selectedDelay = ReadAnimationByte(bus, AnimationFrame);

@@ -33,7 +33,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$13` | Spring ball falling | `$7D/$7E`, air/water/lava X/gravity, persistent external X/Y displacement and bounce override, held-jump relaunch, automatic bounce, solid/frozen-enemy clipping, normal/power-bomb deployment, fuse/HDMA window, expanding terrain reactions, normal-bomb bombable/shootable/special-block PLMs | Projectile door/bombable/special reactions; live enemy actor producer |
 | `$14` | Wall jumping | `$83/$84`, air/water/lava normal/Hi-Jump launch tables, variable height, submerged `$FB` selection, spin handoff, terrain/solid-enemy launch and landing, ordinary/grapple launch sounds, charged frames 3-22 contact damage and frame-23+ Screw-style damage | Live enemy actor/shake consumer |
 | `$15` | Ran into a wall | `$89/$8A/$CF-$D2`, terrain/solid-enemy prospective-run selector, one-pixel probe, persistent external X/Y displacement, aim/fallback/turn/jump/walk-off routes, grounded cleanup and liquid animation state | Live enemy actor producer |
-| `$16` | Grappling | ROM-backed firing, four-step block collision, persistent and breakable type-`$E` acquisition/validation, bank-`$84` break/respawn/BTS/VRAM lifecycle, type-`$A` cancellation/Draygon-turret damage, all 30 standing/crouching/vertical connection records, `$B2/$B3` air/water pendulum, `$A8-$AB/$B4-$B7` locked poses, per-pixel rope collision, six-point terrain sweep/reflection with exact spike-air/spike-block damage tables, collision kick, all eight exact locked/wallgrab angles, `$B8/$B9` terrain/solid-enemy grace-window wall jump, dropped-pose tables, release `$51/$52` plus persistent air/water/lava `$90:946E` motion, ROM art/beam DMA and OAM | Enemy acquisition, live enemy actor/shake consumer |
+| `$16` | Grappling | ROM-backed firing, four-step block collision, persistent and breakable type-`$E` acquisition/validation, bank-`$84` break/respawn/BTS/VRAM lifecycle, type-`$A` cancellation/Draygon-turret damage, all 30 standing/crouching/vertical connection records, `$B2/$B3` air/water pendulum, `$A8-$AB/$B4-$B7` locked poses, per-pixel rope collision, six-point terrain sweep/reflection with exact spike-air/spike-block damage tables, collision kick, all eight exact locked/wallgrab angles, `$B8/$B9` terrain/solid-enemy grace-window wall jump, dropped-pose tables, release `$51/$52` plus persistent air/water/lava `$90:946E` motion, and `$90:EB86`'s separate flare/body/rope renderer with teardown fallback, ROM animation, DMA, and OAM | Enemy acquisition, live enemy actor/shake consumer |
 | `$17` | Turning while jumping | Grounded-Y crouch turns `$97-$9A/$A2/$A3`; airborne `$2F/$30/$8F-$92/$9E/$9F`, persistent external X/Y displacement, momentum, collision, `$F8` | No unadmitted reachable pose branch found; shared presentation/producer gaps remain tracked below |
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, persistent external X/Y displacement, momentum, gravity/collision, `$F8` | No unadmitted reachable pose branch found; shared presentation/producer gaps remain tracked below |
 | `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, persistent external X/Y displacement, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | Live enemy producer |
@@ -66,6 +66,17 @@ are listed below so later work cannot accidentally confuse “the current viewer
   suppresses default atmosphere, charge flare, arm cannon, ordinary speed echoes, and grapple
   art without suppressing the shared projectile/trail phase. The private-ROM route requires
   the dedicated handler by its first crash milestone and rejects leaked cannon OAM or DMA.
+- Grapple now retains the independent `$90:EB86` draw-handler lifetime instead of treating
+  every active beam as an accessory of the default Samus renderer. Firing refreshes both hand
+  origins from post-movement Samus coordinates; `$9B:C036` interprets the shared main-flare
+  delay program from frame 16; atmosphere and cannon/body retain native OAM priority; and
+  `$9B:BFA5/$94:AFBA` update endpoint/segment tiles, saturate the flare counter at 120, and
+  draw the rope only after Samus. Active grapple suppresses ordinary charge flare and speed/
+  shinespark echoes. Cancel, release, drop, and wall-jump pending frames keep `$90:EB86`
+  installed but take its signed-range body/cannon/echo fallback, still without charge flare
+  or rope. Synthetic checks lock the range split, first flare timer, bank-$93 OAM, zero-length
+  tile uploads, counter lifetime, and cleanup; both private-ROM grapple routes require the
+  active renderer and their one-frame teardown fallback.
 - This audit is deliberately not a claim that all movement-related systems are complete.
   Fatal-damage acquisition/post-fade ownership, the elevator actor/status producer,
   X-ray hidden-block BG2 substitution, PLM reactions, and live enemy collision/displacement
@@ -1190,10 +1201,12 @@ translated status is documented with the Morph Ball family below.
 - The real-ROM `--grapple-script` publishes only an accepted anchor, then collides on frame
   one against Landing Site terrain at radial point 6/6. It records safe angle `$4080`,
   reflected velocity `$FF2E`, and kick timer 16 before releasing through `$B2 -> $52`.
-  The two-frame object capture visibly retains the cartridge-selected beam at that reflection.
+  `GrappleSwingDrawFrame.png` visibly retains the cartridge-selected flare, staggered rope,
+  endpoint, and swinging body during that reflection.
 - The real-ROM `--grapple-fire-script` selects grapple at the documented HUD seam, reads pose
   `$01`'s direction and every velocity/origin/tile pointer from the cartridge, renders the
-  growing horizontal beam, and completes its queued no-target cancellation. A room-wide
+  growing horizontal beam through the dedicated `$90:EB86` path, and completes its queued
+  no-target cancellation through the handler's ordinary-body fallback. A room-wide
   collision scan confirms Landing Site contains no type-`$E` grapple blocks.
 - The real-ROM `--charge-beam-script` reaches counter 65 through controller samples, draws
   the ROM-authored main flare and sparks, then releases a type-`$9010`, damage-`$003C` shot

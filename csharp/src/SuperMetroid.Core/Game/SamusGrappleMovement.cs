@@ -44,6 +44,13 @@ public static class SamusGrappleMovement
     private const int GrapplePointTilePointers = 0x9bc342;
     private const int GrappleSegmentTilePointers = 0x9bc346;
 
+    // `$9B:C036` deliberately reuses the main charge-flare delay program and bank-$93
+    // spritemap index tables. Grapple owns independent copies of the three live WRAM words,
+    // however, because `$90:EB86` bypasses the ordinary projectile charge-flare handler.
+    private const int MainFlareAnimationDelays = 0x90c487;
+    private const int RightFlareSpritemapOffsets = 0x93a225;
+    private const int LeftFlareSpritemapOffsets = 0x93a22b;
+
     // Eight ten-byte records at $9B:C43E drive close-collision snapping. Keeping the
     // function words named lets us validate the ROM table instead of reducing its final
     // field to a guessed host boolean.
@@ -161,6 +168,103 @@ public static class SamusGrappleMovement
         grapple.BeamStartY = unchecked((ushort)(samus.YPosition + grapple.FlareYOffset));
         grapple.AnchorX = unchecked((ushort)(samus.XPosition + grapple.OriginXOffset));
         grapple.AnchorY = unchecked((ushort)(samus.YPosition + grapple.OriginYOffset));
+    }
+
+    /// <summary>
+    /// Reports whether grapple's replacement Samus draw-handler pointer is still installed.
+    /// </summary>
+    /// <remarks>
+    /// Cancellation, release, drop, and grapple wall-jump are one-call teardown functions.
+    /// On the frame that installs one of them, `$90:EB86` is still the selected handler even
+    /// though its signed function-pointer test falls back to the ordinary body/echo path.
+    /// Keeping that distinction explicit prevents the normal charge flare from leaking into
+    /// the teardown frame; `$90:EB52`, which owns that flare, has not been restored yet.
+    /// </remarks>
+    public static bool UsesGrappleDrawingHandler(GrapplePhase phase) =>
+        phase != GrapplePhase.Inactive;
+
+    /// <summary>
+    /// Mirrors `$90:EB86`'s signed function-pointer range test for the beam-specific path.
+    /// </summary>
+    public static bool UsesBeamSpecificDrawingPath(GrapplePhase phase) => phase is
+        GrapplePhase.Firing or
+        GrapplePhase.ConnectedSwinging or
+        GrapplePhase.ConnectedLocked or
+        GrapplePhase.WallGrab or
+        GrapplePhase.WallGrabRelease;
+
+    /// <summary>
+    /// Ports <c>HandleGrappleBeamFlare</c> at `$9B:C036`. Call before atmosphere and Samus,
+    /// exactly where the active half of `$90:EB86` calls it.
+    /// </summary>
+    /// <returns>True when the flare origin passed the native vertical visibility test.</returns>
+    public static bool DrawFlareBeforeSamus(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        OamBuffer oam,
+        ushort layer1X,
+        ushort layer1Y)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+        ArgumentNullException.ThrowIfNull(oam);
+
+        SamusGrappleState grapple = samus.Grapple;
+        if (!UsesBeamSpecificDrawingPath(grapple.Phase) || grapple.FlareCounter == 0)
+            return false;
+
+        // While firing, `$90:EB86` calls `$9B:BF1B` immediately before the flare. Grapple
+        // physics ran before ordinary Samus movement, so the renderer must reconstruct both
+        // hand origins from the final body position or a running shot visibly lags one frame.
+        // Connected functions already publish their exact rope/flare pair during movement.
+        if (grapple.Phase == GrapplePhase.Firing)
+            RefreshFiringDrawOrigins(bus, samus, grapple);
+
+        // Counter one is a sentinel, not merely the first ordinary animation tick. Native
+        // code force-selects main-flare frame 16 and timer three on every such call, then
+        // performs the usual 16-bit DEC/BMI. The first visible frame therefore stores two.
+        if (grapple.FlareCounter == 1)
+        {
+            grapple.FlareAnimationFrame = 16;
+            grapple.FlareAnimationTimer = 3;
+        }
+
+        grapple.FlareAnimationTimer = unchecked((ushort)(grapple.FlareAnimationTimer - 1));
+        if (unchecked((short)grapple.FlareAnimationTimer) < 0)
+        {
+            grapple.FlareAnimationFrame = unchecked((ushort)(grapple.FlareAnimationFrame + 1));
+            byte delay = bus.ReadByte(MainFlareAnimationDelays + grapple.FlareAnimationFrame);
+            if (delay == 0xfe)
+            {
+                // `$FE,n` is the compact loop command in the shared delay bytecode. The
+                // subtraction applies to the already-incremented frame word and wraps like
+                // 16-bit ADC/SBC; malformed ROM data remains visible instead of clamped.
+                byte rewind = bus.ReadByte(
+                    MainFlareAnimationDelays +
+                    unchecked((ushort)(grapple.FlareAnimationFrame + 1)));
+                grapple.FlareAnimationFrame = unchecked((ushort)(
+                    grapple.FlareAnimationFrame - rewind));
+                delay = bus.ReadByte(
+                    MainFlareAnimationDelays + grapple.FlareAnimationFrame);
+            }
+
+            grapple.FlareAnimationTimer = delay;
+        }
+
+        ushort screenX = unchecked((ushort)(grapple.BeamStartX - layer1X));
+        ushort screenY = unchecked((ushort)(grapple.BeamStartY - layer1Y));
+        // The assembly tests only Y's high byte. X is allowed to wrap into high OAM, while
+        // any Y outside unsigned screen rows `$00-$FF` suppresses the whole spritemap.
+        if ((screenY & 0xff00) != 0)
+            return false;
+
+        int orientationTable = SamusState.ReadPoseXDirection(bus, samus.Pose) == 4
+            ? LeftFlareSpritemapOffsets
+            : RightFlareSpritemapOffsets;
+        ushort tableIndex = unchecked((ushort)(
+            grapple.FlareAnimationFrame + ReadWord(bus, orientationTable)));
+        oam.AddFlareSpritemap(bus, tableIndex, screenX, screenY);
+        return true;
     }
 
     /// <summary>
@@ -727,8 +831,8 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Ports the tile-upload and small-OBJ portion of $90:EB86/$9B:BFA5/$94:AFBA for a
-    /// connected rope. Call after drawing Samus, matching the native grapple draw handler.
+    /// Ports the post-Samus tile-upload and small-OBJ portion of
+    /// `$90:EB86/$9B:BFA5/$94:AFBA`.
     /// </summary>
     public static void DrawConnectedBeam(
         ISnesAddressSpace bus,
@@ -742,7 +846,7 @@ public static class SamusGrappleMovement
         ArgumentNullException.ThrowIfNull(grapple);
         ArgumentNullException.ThrowIfNull(oam);
         ArgumentNullException.ThrowIfNull(vramWrites);
-        if (grapple.Phase == GrapplePhase.Inactive || grapple.RopeLength == 0)
+        if (!UsesBeamSpecificDrawingPath(grapple.Phase))
             return;
 
         // $9B:BFBD alternates the 32-byte grapple-point tile every six calls (timer five
@@ -770,6 +874,15 @@ public static class SamusGrappleMovement
         int foldedAngleOffset = (grapple.Angle >> 9) & 0xfe;
         ushort segmentPointer = ReadWord(bus, GrappleSegmentTilePointers + foldedAngleOffset);
         vramWrites.Enqueue(0x80, 0x9a0000 | segmentPointer, 0x6210);
+
+        // `$9B:BFA5` increments the shared flare counter after both tile records, saturating
+        // at 120 by a signed comparison. It happens even at zero rope length; only the OAM
+        // rope renderer below is conditional. This is why a newly fired beam can animate
+        // its muzzle flare before its first eight-pixel body segment exists.
+        if (unchecked((short)(grapple.FlareCounter - 120)) < 0)
+            grapple.FlareCounter = unchecked((ushort)(grapple.FlareCounter + 1));
+        if (grapple.RopeLength == 0)
+            return;
 
         // $94:AFCF recalculates the draw vector from endpoint-minus-flare geometry. This
         // is observably different from merely reversing EndAngle while firing, and it also
@@ -873,6 +986,7 @@ public static class SamusGrappleMovement
         grapple.EndpointXOffsetFixed = 0;
         grapple.EndpointYOffsetFixed = 0;
         grapple.CancelFromConnectedPose = false;
+        ClearFlareAnimation(grapple);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
             Released: false,
@@ -1230,6 +1344,12 @@ public static class SamusGrappleMovement
 
     private static void InitializeBeamAnimation(SamusGrappleState grapple)
     {
+        // `$9B:C51E` installs counter one after initializing the rope instruction slots.
+        // The debugger's already-connected seam has no preceding firing history, so it
+        // begins at the same authentic first flare state rather than inventing a static OBJ.
+        grapple.FlareCounter = 1;
+        grapple.FlareAnimationFrame = 0;
+        grapple.FlareAnimationTimer = 0;
         grapple.PointAnimationTimer = 5;
         grapple.PointAnimationFrame = 0;
         // GrappleFunc_AF87 at $94:AF87 seeds sixteen independent segment instruction
@@ -1242,6 +1362,34 @@ public static class SamusGrappleMovement
             grapple.SegmentAnimationFrames[slot] = unchecked((byte)(slot & 3));
             grapple.SegmentAnimationStarted[slot] = false;
         }
+    }
+
+    private static void RefreshFiringDrawOrigins(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        SamusGrappleState grapple)
+    {
+        int tableOffset = grapple.FireDirection * 2;
+        bool useRunOffsets = samus.ReadMovementType(bus) == 1;
+        int originXTable = useRunOffsets ? RunOriginXTable : NoRunOriginXTable;
+        int originYTable = useRunOffsets ? RunOriginYTable : NoRunOriginYTable;
+        int flareXTable = useRunOffsets ? RunFlareXTable : NoRunFlareXTable;
+        int flareYTable = useRunOffsets ? RunFlareYTable : NoRunFlareYTable;
+        sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
+
+        // `$9B:BF1B` rereads ROM instead of trusting `$0D0A/$0D0C`, then publishes Start
+        // and previous-frame/Flare as separate coordinate pairs. Retain the same behavior
+        // so a debugger edit to the offset tables is visible immediately in presentation.
+        grapple.RopeStartX = unchecked((ushort)(
+            samus.XPosition + (short)ReadWord(bus, originXTable + tableOffset)));
+        grapple.RopeStartY = unchecked((ushort)(
+            samus.YPosition + (short)ReadWord(bus, originYTable + tableOffset) -
+            graphicsYOffset));
+        grapple.BeamStartX = unchecked((ushort)(
+            samus.XPosition + (short)ReadWord(bus, flareXTable + tableOffset)));
+        grapple.BeamStartY = unchecked((ushort)(
+            samus.YPosition + (short)ReadWord(bus, flareYTable + tableOffset) -
+            graphicsYOffset));
     }
 
     private static void ApplyRopeAndDirectionInput(
@@ -1806,6 +1954,7 @@ public static class SamusGrappleMovement
         grapple.JumpImpulse = 0;
         grapple.RopeLengthDelta = 0;
         grapple.CollisionBounceTimer = 0;
+        ClearFlareAnimation(grapple);
     }
 
     private static void ClearConnectedGrapple(SamusGrappleState grapple)
@@ -1826,6 +1975,16 @@ public static class SamusGrappleMovement
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
         grapple.ValidateAnchorBlock = false;
+        ClearFlareAnimation(grapple);
+    }
+
+    private static void ClearFlareAnimation(SamusGrappleState grapple)
+    {
+        // `$9B:C856/$C8C5/$C9CE/$CB8B` all clear these same shared charge/grapple WRAM
+        // words before restoring the ordinary draw handler and projectile palette.
+        grapple.FlareCounter = 0;
+        grapple.FlareAnimationFrame = 0;
+        grapple.FlareAnimationTimer = 0;
     }
 
     private static int ScaleCoordinate(short sine, int length) => sine switch
@@ -1941,6 +2100,20 @@ public sealed class SamusGrappleState
     /// cancellation, whose pre-existing movement and pose continue in the same frame.
     /// </summary>
     public bool CancelFromConnectedPose { get; set; }
+
+    /// <summary>
+    /// Native shared flare counter `$0CD0`. Grapple seeds one, increments it after tile
+    /// uploads, and saturates at 120; teardown returns it to zero before ordinary charge
+    /// handling can resume.
+    /// </summary>
+    public ushort FlareCounter { get; set; }
+
+    /// <summary>Native main-flare bytecode index `$0CD2`, stored as a 16-bit WRAM word.</summary>
+    public ushort FlareAnimationFrame { get; set; }
+
+    /// <summary>Native decrement-before-test animation timer `$0CD8`.</summary>
+    public ushort FlareAnimationTimer { get; set; }
+
     public ushort PointAnimationTimer { get; set; }
     public byte PointAnimationFrame { get; set; }
     /// <summary>

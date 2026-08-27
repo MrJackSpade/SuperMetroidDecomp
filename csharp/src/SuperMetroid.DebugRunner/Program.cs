@@ -910,6 +910,10 @@ bool observedGrappleTerrainCollision = false;
 bool observedGrappleFire = false;
 bool observedGrappleFireCancelQueue = false;
 bool observedGrappleFireCancel = false;
+bool observedGrappleDrawHandler = false;
+bool observedGrappleBeamDrawPath = false;
+bool observedGrappleFlare = false;
+bool observedGrappleTeardownDrawFallback = false;
 bool observedBlockedRanIntoWallProbe = false;
 bool observedDashMomentum = false;
 bool observedDashAerialCarry = false;
@@ -2674,6 +2678,12 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     observedGrappleFire |= runtime.LastGrappleMovement is { Fired: true };
     observedGrappleFireCancelQueue |= runtime.LastGrappleMovement is { CancelQueued: true };
     observedGrappleFireCancel |= runtime.LastGrappleMovement is { Cancelled: true };
+    observedGrappleDrawHandler |= runtime.LastGrappleDrawingHandlerActive;
+    observedGrappleBeamDrawPath |= runtime.LastGrappleBeamSpecificDrawingPath;
+    observedGrappleFlare |= runtime.LastGrappleFlareDrawn;
+    observedGrappleTeardownDrawFallback |=
+        runtime.LastGrappleDrawingHandlerActive &&
+        !runtime.LastGrappleBeamSpecificDrawingPath;
     observedBlockedRanIntoWallProbe |= runtime.LastRanIntoWallProbe is { Collided: true };
     observedBombJumpStart |= runtime.LastBombJumpMovement is { Started: true };
     observedBombJumpEnd |= runtime.LastBombJumpMovement is { Ended: true };
@@ -3912,8 +3922,18 @@ if (options.GrappleScript)
         throw new InvalidOperationException("Grapple ROM script never executed connected swinging.");
     if (!observedGrappleTerrainCollision)
         throw new InvalidOperationException("Grapple ROM script never exercised connected terrain collision.");
+    if (!observedGrappleDrawHandler || !observedGrappleBeamDrawPath || !observedGrappleFlare)
+    {
+        throw new InvalidOperationException(
+            "Grapple ROM script never rendered the complete $90:EB86 flare/body/rope path.");
+    }
     if (options.FrameCount >= 91 && !observedGrappleReleaseQueue)
         throw new InvalidOperationException("Grapple ROM script never queued release at $9B:C79D.");
+    if (options.FrameCount >= 91 && !observedGrappleTeardownDrawFallback)
+    {
+        throw new InvalidOperationException(
+            "Grapple release frame never took $90:EB86's body-and-echo fallback.");
+    }
     if (options.FrameCount >= 92 && !observedGrappleRelease)
         throw new InvalidOperationException("Grapple ROM script never completed release at $9B:CB8B.");
     if (options.FrameCount >= 91 && !observedGrappleReleaseMovement)
@@ -4319,8 +4339,18 @@ if (options.GrappleFireScript)
 {
     if (!observedGrappleFire)
         throw new InvalidOperationException("Grapple-fire ROM script never initialized or extended a beam.");
+    if (!observedGrappleDrawHandler || !observedGrappleBeamDrawPath || !observedGrappleFlare)
+    {
+        throw new InvalidOperationException(
+            "Grapple-fire ROM script never rendered the complete $90:EB86 flare/body/rope path.");
+    }
     if (options.FrameCount >= 13 && !observedGrappleFireCancelQueue)
         throw new InvalidOperationException("Grapple-fire ROM script never queued collision/range cancellation.");
+    if (options.FrameCount >= 13 && !observedGrappleTeardownDrawFallback)
+    {
+        throw new InvalidOperationException(
+            "Grapple cancellation frame never took $90:EB86's body-and-echo fallback.");
+    }
     if (options.FrameCount >= 14 && !observedGrappleFireCancel)
         throw new InvalidOperationException("Grapple-fire ROM script never completed queued cancellation.");
     Console.WriteLine(

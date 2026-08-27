@@ -221,6 +221,22 @@ public sealed class SuperMetroidRuntime
     public bool LastShinesparkCrashDrawingHandlerActive { get; private set; }
 
     /// <summary>
+    /// True when this frame dispatched grapple's replacement `$90:EB86` Samus handler.
+    /// Teardown phases remain true for their one pending frame even though the handler's
+    /// signed range test selects ordinary body/cannon/echo rendering inside that routine.
+    /// </summary>
+    public bool LastGrappleDrawingHandlerActive { get; private set; }
+
+    /// <summary>
+    /// True when `$90:EB86` took its beam-specific flare/body/rope half rather than the
+    /// teardown fallback. This is intentionally narrower than handler installation.
+    /// </summary>
+    public bool LastGrappleBeamSpecificDrawingPath { get; private set; }
+
+    /// <summary>Whether grapple's bank-$93 flare passed its unsigned screen-Y gate.</summary>
+    public bool LastGrappleFlareDrawn { get; private set; }
+
+    /// <summary>
     /// Optional Ceres-owned Mode 7 matrix used only to calculate Samus's rendered body
     /// origin. Null is ordinary gameplay. A future Ceres cinematic actor should publish
     /// and clear this value with its status high bit; the translated consumer never moves
@@ -903,6 +919,9 @@ public sealed class SuperMetroidRuntime
         Oam.BeginFrame();
         LastSamusBodyDrawn = false;
         LastShinesparkCrashDrawingHandlerActive = false;
+        LastGrappleDrawingHandlerActive = false;
+        LastGrappleBeamSpecificDrawingPath = false;
+        LastGrappleFlareDrawn = false;
         bool escapeTimerExpired = EscapeTimer.Process(NmiFrameCounter);
         if (Samus is not null && Camera is not null)
         {
@@ -2724,30 +2743,53 @@ public sealed class SuperMetroidRuntime
                 }
                 else
                 {
+                    bool grappleHandlerInstalled =
+                        SamusGrappleMovement.UsesGrappleDrawingHandler(Samus.Grapple.Phase);
+                    bool grappleBeamSpecificPath = grappleHandlerInstalled &&
+                        SamusGrappleMovement.UsesBeamSpecificDrawingPath(Samus.Grapple.Phase);
+                    LastGrappleDrawingHandlerActive = grappleHandlerInstalled;
+                    LastGrappleBeamSpecificDrawingPath = grappleBeamSpecificPath;
 
-                    // Every ordinary Samus drawing handler calls `$90:8A4C` before Samus OAM.
-                    // Updating here preserves both reverse atmospheric-slot order and overlap:
-                    // splashes/dust receive earlier OAM indices than Samus's body pieces.
+                    if (grappleBeamSpecificPath)
+                    {
+                        // Active `$90:EB86` begins with `$9B:C036`. Firing also refreshes
+                        // its hand origins here from Samus's post-movement position. This
+                        // flare is a different animation owner from the charge flare below.
+                        LastGrappleFlareDrawn = SamusGrappleMovement.DrawFlareBeforeSamus(
+                            _addressSpace,
+                            Samus,
+                            Oam,
+                            Camera.XPosition,
+                            Camera.YPosition);
+                    }
+                    else if (!grappleHandlerInstalled)
+                    {
+                        // `$90:EB52` advances/emits the ordinary charge flare before it
+                        // falls through to `$90:EB55`. Grapple's handler never calls this,
+                        // including its cancel/release fallback frames.
+                        Projectiles.HandleChargeFlareAndDraw(
+                            _addressSpace,
+                            Oam,
+                            Samus,
+                            Camera.XPosition,
+                            Camera.YPosition,
+                            ActiveSamusMode7Transform);
+                    }
+
+                    // `$90:EB55` begins here for all three routes: ordinary, active grapple,
+                    // and grapple teardown. Reverse atmospheric-slot order is therefore
+                    // earlier in OAM than cannon/body, but later than either applicable
+                    // flare. This exact overlap order is visible through transparent pixels.
                     Samus.LiquidPhysics.AtmosphericEffects.UpdateAndDraw(
                         _addressSpace,
                         Oam,
                         Camera.XPosition,
                         Camera.YPosition,
                         Samus.LiquidPhysics.FxYPosition);
-                // Default drawing handler `$90:EB52` advances/emits charge flare pieces
-                // before falling through to the ordinary Samus body. This ordering lets
-                // the gun and body cover sparks exactly as their OAM indices do on SNES.
-                    Projectiles.HandleChargeFlareAndDraw(
-                        _addressSpace,
-                        Oam,
-                        Samus,
-                        Camera.XPosition,
-                        Camera.YPosition,
-                        ActiveSamusMode7Transform);
 
-                // Drawing modes one and two differ only in OAM priority: one appends the
-                // cannon before the body, while two appends it after. Mode zero suppresses
-                // the independent object even if a HUD-driven cover frame remains nonzero.
+                    // Drawing modes one and two differ only in OAM priority: one appends the
+                    // cannon before the body, while two appends it after. Mode zero suppresses
+                    // the independent object even if a HUD-driven cover frame remains nonzero.
                     if (Samus.ArmCannon.EffectiveDrawingMode != 0 &&
                         Samus.ArmCannon.EffectiveDrawingMode != 2)
                     {
@@ -2778,24 +2820,37 @@ public sealed class SuperMetroidRuntime
                             Camera.YPosition,
                             NmiFrameCounter);
                     }
-                    Samus.DrawSpeedBoosterEchoes(
-                        _addressSpace,
-                        Oam,
-                        Camera.XPosition,
-                        Camera.YPosition);
-                    Samus.DrawReleasedShinesparkCrashEchoes(
-                        _addressSpace,
-                        Oam,
-                        Camera.XPosition,
-                        Camera.YPosition,
-                        NmiFrameCounter);
-                    SamusGrappleMovement.DrawConnectedBeam(
-                        _addressSpace,
-                        Samus.Grapple,
-                        Oam,
-                        VramWrites,
-                        Camera.XPosition,
-                        Camera.YPosition);
+
+                    if (grappleBeamSpecificPath)
+                    {
+                        // Active `$90:EB86` deliberately omits `Samus_DrawEchoes`. It updates
+                        // endpoint/segment tiles after Samus, increments flare time, and only
+                        // then emits rope pieces when length is nonzero.
+                        SamusGrappleMovement.DrawConnectedBeam(
+                            _addressSpace,
+                            Samus.Grapple,
+                            Oam,
+                            VramWrites,
+                            Camera.XPosition,
+                            Camera.YPosition);
+                    }
+                    else
+                    {
+                        // Ordinary `$90:EB55` and grapple's signed-range fallback share this
+                        // exact echo tail. The latter still suppresses charge flare and rope
+                        // because `$90:EB52` and the active half of `$90:EB86` were bypassed.
+                        Samus.DrawSpeedBoosterEchoes(
+                            _addressSpace,
+                            Oam,
+                            Camera.XPosition,
+                            Camera.YPosition);
+                        Samus.DrawReleasedShinesparkCrashEchoes(
+                            _addressSpace,
+                            Oam,
+                            Camera.XPosition,
+                            Camera.YPosition,
+                            NmiFrameCounter);
+                    }
                 }
 
                 // `$90:EB3B` draws Samus first and immediately calls `$93:8254`. This is

@@ -9084,6 +9084,49 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual((ushort)102, samus.YPosition, "advanced grapple art-corrected Y");
     AssertEqual((ushort)4, samus.AnimationFrame, "advanced grapple angle art frame");
 
+    // `$90:EB86` remains installed for every noninactive host phase, but its signed native
+    // function-pointer test selects beam-specific graphics only through `$9B:C832`. The
+    // later one-frame functions must therefore suppress both ordinary charge flare and rope
+    // while still falling through to the normal atmosphere/body/cannon/echo subroutine.
+    AssertTrue(SamusGrappleMovement.UsesGrappleDrawingHandler(GrapplePhase.Firing),
+        "grapple firing owns replacement draw handler");
+    AssertTrue(SamusGrappleMovement.UsesBeamSpecificDrawingPath(GrapplePhase.WallGrabRelease),
+        "grapple wall-release remains inside beam-specific pointer range");
+    AssertTrue(SamusGrappleMovement.UsesGrappleDrawingHandler(GrapplePhase.CancelPending),
+        "grapple cancel keeps replacement draw handler for pending frame");
+    AssertTrue(!SamusGrappleMovement.UsesBeamSpecificDrawingPath(GrapplePhase.CancelPending),
+        "grapple cancel takes ordinary body-and-echo fallback");
+    AssertTrue(!SamusGrappleMovement.UsesGrappleDrawingHandler(GrapplePhase.Inactive),
+        "inactive grapple restores default draw handler");
+
+    // Give bank-$93 table index 16 one deliberately recognizable one-piece spritemap.
+    // The first flare call must force frame 16/timer three, decrement the timer to two,
+    // and draw at the connected Flare origin before any rope or Samus objects are appended.
+    WriteTestWord(bus, 0x93a1a1 + 16 * 2, 0x9000);
+    WriteTestWord(bus, 0x939000, 1);
+    WriteTestWord(bus, 0x939002, 2);
+    bus.WriteByte(0x939004, 0xfd);
+    WriteTestWord(bus, 0x939005, 0x3456);
+    var grappleFlareOam = new OamBuffer();
+    grappleFlareOam.BeginFrame();
+    AssertTrue(SamusGrappleMovement.DrawFlareBeforeSamus(
+            bus, samus, grappleFlareOam, layer1X: 100, layer1Y: 50),
+        "connected grapple flare passes unsigned screen-Y gate");
+    AssertEqual((ushort)1, samus.Grapple.FlareCounter,
+        "grapple flare counter increments only in post-Samus tile pass");
+    AssertEqual((ushort)16, samus.Grapple.FlareAnimationFrame,
+        "first grapple flare selects shared main frame sixteen");
+    AssertEqual((ushort)2, samus.Grapple.FlareAnimationTimer,
+        "first grapple flare performs decrement-before-test");
+    AssertEqual(4, grappleFlareOam.NextByteOffset,
+        "grapple flare appends one ROM-authored OAM entry");
+    OamEntry grappleFlare = grappleFlareOam.GetEntry(0);
+    AssertEqual(52, grappleFlare.X, "grapple flare spritemap X offset");
+    AssertEqual((byte)52, grappleFlare.Y, "grapple flare signed Y offset");
+    AssertEqual(0x56, grappleFlare.TileNumber, "grapple flare retains ROM tile bits");
+    AssertEqual(2, grappleFlare.Palette, "grapple flare retains ROM palette bits");
+    AssertEqual(3, grappleFlare.Priority, "grapple flare retains ROM priority bits");
+
     // UpdateGrappleBeamTiles reads one 32-byte endpoint source and one angle-selected
     // 128-byte segment source from bank-$9B pointer tables, but queues bank $9A as the DMA
     // source. Give this angle unique pointers so a hard-coded host tile cannot pass.
@@ -9115,6 +9158,8 @@ static void VerifySamusGrappleSwingAndRelease()
         "grapple endpoint tile DMA record");
     AssertEqual(new VramWriteEntry(0x80, 0x9a5678, 0x6210), grappleVramWrites.Entries[1],
         "grapple angle-selected segment DMA record");
+    AssertEqual((ushort)2, samus.Grapple.FlareCounter,
+        "post-Samus grapple tile pass increments flare counter");
 
     // Fifty pixels yields six body pieces because $94:AFBA uses (length / 8) before drawing
     // the endpoint. Instruction slots descend 15..10, so GrappleFunc_AF87's phases are
@@ -9137,6 +9182,32 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual((byte)50, grappleEndpoint.Y, "grapple endpoint screen Y");
     AssertEqual(0x20, grappleEndpoint.TileNumber, "grapple endpoint tile");
 
+    // `$9B:BFA5` still uploads both graphics blocks and increments flare time when length
+    // is zero; `$90:EB86` tests length only before calling the bank-$94 OAM rope renderer.
+    var zeroLengthGrapple = new SamusGrappleState
+    {
+        Phase = GrapplePhase.Firing,
+        RopeLength = 0,
+        Angle = samus.Grapple.Angle,
+        FlareCounter = 1,
+    };
+    var zeroLengthOam = new OamBuffer();
+    var zeroLengthWrites = new VramWriteQueue();
+    zeroLengthOam.BeginFrame();
+    SamusGrappleMovement.DrawConnectedBeam(
+        bus,
+        zeroLengthGrapple,
+        zeroLengthOam,
+        zeroLengthWrites,
+        layer1X: 100,
+        layer1Y: 50);
+    AssertEqual(2, zeroLengthWrites.Entries.Count,
+        "zero-length grapple still queues endpoint and segment tiles");
+    AssertEqual((ushort)2, zeroLengthGrapple.FlareCounter,
+        "zero-length grapple still advances flare counter");
+    AssertEqual(0, zeroLengthOam.NextByteOffset,
+        "zero-length grapple emits no rope or endpoint OAM");
+
     // Releasing Shoot runs $9B:CA65 now but queues $9B:CB8B for the next call. With signed
     // cosine -255 and doubled angular velocity 536, vertical magnitude is $000215E8.
     GrappleMovementResult queued = SamusGrappleMovement.Step(bus, swingLevel, samus, 0, 0);
@@ -9156,6 +9227,12 @@ static void VerifySamusGrappleSwingAndRelease()
         "nonnegative angular velocity selects left-facing release pose $52");
     AssertEqual((ushort)2, samus.Kinematics.YSpeed, "release pose preserves whole Y velocity");
     AssertEqual((ushort)0x15e8, samus.Kinematics.YSubspeed, "release pose preserves fractional Y velocity");
+    AssertEqual((ushort)0, samus.Grapple.FlareCounter,
+        "completed grapple release clears shared flare counter");
+    AssertEqual((ushort)0, samus.Grapple.FlareAnimationFrame,
+        "completed grapple release clears flare frame");
+    AssertEqual((ushort)0, samus.Grapple.FlareAnimationTimer,
+        "completed grapple release clears flare timer");
 
     // Build a deliberately axis-aligned bank-$94 swing table around angle $40. At this
     // angle the radial vector points right: sine is +256 and negative cosine is zero. The

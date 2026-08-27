@@ -705,6 +705,12 @@ internal sealed class RuntimePreviewControl : UserControl
             $"bombs {runtime.BombProjectiles.BombCounter}/5 " +
             $"cooldown {runtime.BombProjectiles.CooldownTimer} " +
             $"jump ${runtime.Samus.BombJumpDirection:X4}  |  " +
+            // Ordinary beams and bombs share native cooldown `$0CCC`; showing the ordinary
+            // counter beside that clock makes allocation, terrain impact, explosion, and
+            // eventual bank-$93 deletion directly visible while stepping Hold Shoot.
+            $"beams {runtime.Projectiles.ProjectileCounter}/5 " +
+            $"lastShot={(runtime.Projectiles.LastFrameResult.FiredSlot is int shot ? shot : -1)} " +
+            $"impact={(runtime.Projectiles.LastFrameResult.CollisionStartedExplosion ? "yes" : "no")}  |  " +
             $"moonwalk={(runtime.MoonwalkEnabled ? "on" : "off")}  |  " +
             $"liquid={runtime.Samus.LiquidPhysics.LiquidPhysicsType}/" +
             $"FX ${runtime.Samus.LiquidPhysics.FxType:X2}@" +

@@ -45,6 +45,17 @@ public sealed class SamusBombProjectileSystem
     /// <summary>WRAM $0CCC. Its low byte gates another bomb while one is active.</summary>
     public ushort CooldownTimer { get; private set; }
 
+    /// <summary>
+    /// Replaces WRAM <c>$0CCC</c> from another Samus-projectile producer.
+    /// </summary>
+    /// <remarks>
+    /// Beams, missiles, power bombs, and normal bombs do not own separate cooldowns in the
+    /// cartridge. They all read and write the same word. Ordinary projectiles live in a
+    /// separate translated class because the native slot arrays split cleanly at byte index
+    /// <c>$0A</c>, but that host boundary must not accidentally create a second clock.
+    /// </remarks>
+    internal void SetSharedCooldown(ushort value) => CooldownTimer = value;
+
     /// <summary>Observable result of the most recent translated alpha/interaction pass.</summary>
     public BombProjectileFrameResult LastFrameResult { get; private set; }
 

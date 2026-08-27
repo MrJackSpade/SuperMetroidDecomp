@@ -23,6 +23,12 @@ public sealed class SuperMetroidRuntime
     {
         _addressSpace = addressSpace ?? throw new ArgumentNullException(nameof(addressSpace));
 
+        // These two host objects represent the lower and upper halves of the cartridge's
+        // parallel ten-slot projectile arrays. BombProjectiles remains the owner of shared
+        // cooldown $0CCC until the remaining missile/power-bomb producers are consolidated.
+        BombProjectiles = new SamusBombProjectileSystem();
+        Projectiles = new SamusProjectileSystem();
+
         // $82:82C5 copies all 512 bytes of kInitialPalette from ROM $9A:8000. The retail
         // game stages this through WRAM before NMI uploads CGRAM; initializing the modeled
         // PPU here produces the same starting colors while that fade pipeline is ported.
@@ -179,7 +185,12 @@ public sealed class SuperMetroidRuntime
     /// <summary>
     /// Five-slot normal-bomb lifecycle spanning the translated bank-$90/$93/$94/$A0 seams.
     /// </summary>
-    public SamusBombProjectileSystem BombProjectiles { get; } = new();
+    public SamusBombProjectileSystem BombProjectiles { get; }
+
+    /// <summary>
+    /// Five-slot ordinary beam/missile lifecycle spanning banks $90, $93, and $94.
+    /// </summary>
+    public SamusProjectileSystem Projectiles { get; }
 
     /// <summary>
     /// Forty-slot bank-$84 room-object owner. Breakable grapple terrain lives here rather
@@ -273,6 +284,16 @@ public sealed class SuperMetroidRuntime
             throw new InvalidOperationException("Landing Site entry metadata was not initialized.");
 
         LandingSiteStreamingData.LoadCharacterGraphics(_addressSpace, Vram, LandingSiteEntry);
+
+        // `$90:AC8D` is normally reached when equipment/room setup settles. Queue it here,
+        // after InitializeHud's $2E00-byte standard OBJ transfer, so the smaller $0100 beam
+        // region at VRAM $6300 wins in the same NMI order as the cartridge. The gameplay
+        // debug spawn has power beam type zero when no save inventory has been supplied.
+        Projectiles.QueueBeamTilesAndLoadPalette(
+            _addressSpace,
+            VramWrites,
+            Cgram,
+            Samus?.EquippedBeams ?? 0);
         BackgroundScroll.Layer1XPosition = Camera.XPosition;
         BackgroundScroll.Layer1YPosition = Camera.YPosition;
         IReadOnlyList<BackgroundUpdateRequest> requests = BackgroundScroll.BuildInitialViewportRequests();
@@ -367,6 +388,7 @@ public sealed class SuperMetroidRuntime
         LastBombJumpMovement = null;
         LastKnockbackMovement = null;
         BombProjectiles.Reset();
+        Projectiles.Reset();
         InitializeDebugSamus(
             xPosition: unchecked((ushort)(Camera.XPosition + 64)),
             yPosition: unchecked((ushort)(Camera.YPosition + 166)));
@@ -451,6 +473,7 @@ public sealed class SuperMetroidRuntime
             LastBombJumpMovement = null;
             LastKnockbackMovement = null;
             BombProjectiles.Reset();
+            Projectiles.Reset();
             return new DebugGroundedSamusPlacement(
                 xPosition,
                 restingY,
@@ -1037,6 +1060,21 @@ public sealed class SuperMetroidRuntime
                         Controller1.Current,
                         Controller1.NewlyPressed,
                         Plms);
+
+                    // The bomb half above has already decremented shared cooldown $0CCC.
+                    // `$90:DD31` then dispatches the humanoid HUD producer before the same
+                    // HandleProjectile pass. Passing the live layer-1 position also gives
+                    // `$90:B16A` its exact off-screen deletion window.
+                    Projectiles.StepFrame(
+                        _addressSpace,
+                        LevelData,
+                        Samus,
+                        Controller1.Current,
+                        Controller1.NewlyPressed,
+                        Camera.XPosition,
+                        Camera.YPosition,
+                        BombProjectiles,
+                        projectileProducerEnabled: !DebugGrappleItemSelected);
                 }
 
                 // Native HandleProjectile runs `$90:D4D2` during alpha, before Samus's beta
@@ -2424,7 +2462,10 @@ public sealed class SuperMetroidRuntime
             // $A0:884D draws bomb/projectile explosions before reaching the enemy-layer
             // phase that calls DrawSamusAndProjectiles. Preserve that OAM ordering.
             if (!deathOwnsSamus)
+            {
                 BombProjectiles.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
+                Projectiles.DrawExplosions(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
+            }
 
             // `$A0:885D` calls `$86:8390` after bomb/projectile explosions and before the
             // layer loop reaches Samus at layer three. Room-specific actors may supply this
@@ -2510,6 +2551,15 @@ public sealed class SuperMetroidRuntime
                     VramWrites,
                     Camera.XPosition,
                     Camera.YPosition);
+                // `$90:EB3B` draws Samus first and immediately calls `$93:8254`. This is
+                // deliberately after the grapple beam too in the translated composite pass;
+                // all live beam art still receives later OAM indices than Samus's body.
+                Projectiles.DrawLiveProjectiles(
+                    _addressSpace,
+                    Oam,
+                    Camera.XPosition,
+                    Camera.YPosition,
+                    NmiFrameCounter);
             }
 
             // Enemy layer six calls `$86:83B2`, after DrawSamusAndProjectiles. Keeping this

@@ -104,7 +104,7 @@ else if (options.AimAirScript)
 else if (options.GunExtendedScript)
 {
     Console.WriteLine(
-        "Input script: fire while running through $0B, fire during a neutral jump through $13/$E6, then host-publish the documented walk-off seam and fire through $67/$E6.");
+        "Input script: fire live power beams while running through $0B, during a neutral jump through $13/$E6, then across the documented walk-off seam through $67/$E6.");
 }
 else if (options.AerialTurnScript)
 {
@@ -716,6 +716,9 @@ bool observedBombPlacement = false;
 bool observedBombExplosion = false;
 bool observedBombDeletion = false;
 bool observedStraightBombOverlap = false;
+int observedPowerBeamShots = 0;
+bool observedPowerBeamArt = false;
+bool observedPowerBeamExplosion = false;
 bool observedKnockbackMovement = false;
 bool observedDamageBoostMovement = false;
 bool observedMorphedKnockbackPosePreserved = false;
@@ -2142,6 +2145,17 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     observedBombDeletion |= runtime.BombProjectiles.LastFrameResult.ProjectileDeleted;
     observedStraightBombOverlap |=
         runtime.BombProjectiles.LastFrameResult.PublishedBombJumpDirection == 2;
+    // These are sampled only after the complete frame/NMI handoff. A shot count therefore
+    // proves the live bank-$90 producer allocated a real ordinary slot; a nonzero spritemap
+    // proves bank `$93:81E9` consumed the cartridge's direction-specific instruction list.
+    // The collision flag is diagnostic because a short capture may legitimately stop while
+    // the projectile is still travelling and some long shots leave the 320-pixel kill box.
+    if (runtime.Projectiles.LastFrameResult.FiredSlot is not null)
+        observedPowerBeamShots++;
+    observedPowerBeamArt |= runtime.Projectiles.Slots.Any(
+        slot => slot.IsActive && slot.SpritemapPointer != 0);
+    observedPowerBeamExplosion |=
+        runtime.Projectiles.LastFrameResult.CollisionStartedExplosion;
     uint currentExtraRunSpeed =
         ((uint)runtime.Samus.HorizontalSpeed.ExtraRunSpeed << 16) |
         runtime.Samus.HorizontalSpeed.ExtraRunSubspeed;
@@ -2731,6 +2745,23 @@ if (options.GunExtendedScript && options.FrameCount >= 150)
 
     Console.WriteLine(
         "Horizontal-fire ROM route validated running $0B, neutral-jump $13, falling $67, and held-Shot landing $E6.");
+}
+
+if (options.GunExtendedScript && options.FrameCount >= 3)
+{
+    // Pose milestones alone could pass if projectile production were accidentally removed.
+    // Require both allocation and decoded bank-$93 art so this route guards the newly joined
+    // producer -> instruction interpreter -> OAM chain on the private retail cartridge.
+    if (observedPowerBeamShots == 0 || !observedPowerBeamArt)
+    {
+        throw new InvalidOperationException(
+            $"Power-beam route missed live projectile state: shots={observedPowerBeamShots}, " +
+            $"art={observedPowerBeamArt}, collision={observedPowerBeamExplosion}.");
+    }
+
+    Console.WriteLine(
+        $"Power-beam ROM route fired {observedPowerBeamShots} shot(s), decoded bank-$93 art, " +
+        $"and observedCollision={observedPowerBeamExplosion}.");
 }
 
 if (options.MorphKnockbackScript)

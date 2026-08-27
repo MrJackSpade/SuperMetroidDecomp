@@ -61,6 +61,7 @@ VerifySamusKnockbackAndDamageBoost();
 VerifySamusGrappleSwingAndRelease();
 VerifyBreakableGrapplePlms();
 VerifySamusPostureMovement();
+VerifySamusPowerBeamProjectiles();
 VerifySamusMorphBallMovement();
 VerifySamusStandingAimMovement();
 VerifySamusAimedAerialMovement();
@@ -11809,9 +11810,222 @@ static void VerifyScrollingSkyState()
 }
 
 /// <summary>
-/// A deliberately register-oriented RNG reference. Unlike the production method, this
-/// mutates a two-byte emulated stack value and an explicit carry flag in assembly order.
+/// Exercises bank-$90 firing and movement, bank-$93 animation, and bank-$94 solid collision
+/// for an uncharged power beam without sharing implementation code with the production path.
 /// </summary>
+static void VerifySamusPowerBeamProjectiles()
+{
+    var bus = new TestAddressSpace();
+
+    // Construct the literal ROM records consumed by `$90:B887`, `$93:8000`, and
+    // `$93:81E9`. Every direction points at one deliberately shared animation record; the
+    // direction-table lookup itself is still exercised because all ten pointer cells must
+    // be populated for the loop below to succeed.
+    WriteTestWord(bus, 0x9383c1, 0x8431);
+    WriteTestWord(bus, 0x938431, 0x0014);
+    for (int direction = 0; direction < 10; direction++)
+        WriteTestWord(bus, 0x938433 + direction * 2, 0x9000);
+    WriteTestWord(bus, 0x939000, 0x000f);
+    WriteTestWord(bus, 0x939002, 0xa000);
+    bus.WriteByte(0x939004, 8);
+    bus.WriteByte(0x939005, 4);
+    WriteTestWord(bus, 0x939006, 0);
+    WriteTestWord(bus, 0x939008, 0x8239);
+    WriteTestWord(bus, 0x93900a, 0x9000);
+
+    // Collision swaps to this two-frame explosion record. Its following delete opcode
+    // proves that damage remains occupied during the explosion and decrements the separate
+    // projectile counter only when `$93:822F` finally clears the slot.
+    WriteTestWord(bus, 0x9383ff, 0x9100);
+    WriteTestWord(bus, 0x939100, 0x0002);
+    WriteTestWord(bus, 0x939102, 0xa010);
+    bus.WriteByte(0x939104, 8);
+    bus.WriteByte(0x939105, 8);
+    WriteTestWord(bus, 0x939106, 0);
+    WriteTestWord(bus, 0x939108, 0x822f);
+
+    bus.WriteByte(0x90c254, 0x0f);
+    WriteTestWord(bus, 0x90c28f, 0x000b);
+    WriteTestWord(bus, 0x90c2d1, 0x0400);
+    WriteTestWord(bus, 0x90c2d3, 0x02ab);
+    WriteTestWord(bus, 0x90c3b1, 0x8000);
+    WriteTestWord(bus, 0x90c3c9, 0xc3e1);
+    for (int index = 0; index < 0x100; index++)
+        bus.WriteByte(0x9a8000 + index, unchecked((byte)(index ^ 0x5a)));
+    for (int index = 0; index < 16; index++)
+        WriteTestWord(bus, 0x90c3e1 + index * 2, unchecked((ushort)(0x0100 + index)));
+    for (int direction = 0; direction < 10; direction++)
+    {
+        // These are the retail power-beam accelerations at `$90:C353/$C367`.
+        short xAcceleration = direction switch
+        {
+            1 or 2 or 3 => 0x0010,
+            6 or 7 or 8 => -0x0010,
+            _ => 0,
+        };
+        short yAcceleration = direction switch
+        {
+            0 or 1 or 8 or 9 => -0x0010,
+            3 or 4 or 5 or 6 => 0x0010,
+            _ => 0,
+        };
+        WriteTestWord(bus, 0x90c353 + direction * 2, unchecked((ushort)xAcceleration));
+        WriteTestWord(bus, 0x90c367 + direction * 2, unchecked((ushort)yAcceleration));
+        WriteTestWord(bus, 0x90c204 + direction * 2, 0);
+        WriteTestWord(bus, 0x90c218 + direction * 2, 0);
+        WriteTestWord(bus, 0x90c22c + direction * 2, 0);
+        WriteTestWord(bus, 0x90c240 + direction * 2, 0);
+    }
+
+    const int width = 32;
+    const int height = 16;
+    RoomLevelData air = new(
+        width,
+        height,
+        new ushort[width * height],
+        new byte[width * height],
+        new ushort[width * height],
+        new byte[8]);
+
+    // Update_Beam_Tiles_and_Palette queues exactly $100 bytes to VRAM word $6300 and
+    // writes sprite palette six. Drain the ordinary queue so this also validates the same
+    // hardware path used by runtime room setup, not a verifier-only direct memory copy.
+    var beamVram = new SnesVram();
+    var beamCgram = new SnesCgram();
+    var beamWrites = new VramWriteQueue();
+    var beamGraphics = new SamusProjectileSystem();
+    beamGraphics.QueueBeamTilesAndLoadPalette(bus, beamWrites, beamCgram, equippedBeams: 0);
+    AssertEqual(1, beamWrites.Entries.Count, "power beam queues one tile DMA");
+    beamWrites.DrainTo(beamVram, bus);
+    AssertEqual((byte)0x5a, beamVram.ReadByte(0x6300 * 2),
+        "power beam tiles begin at VRAM word $6300");
+    AssertEqual((byte)0xa5, beamVram.ReadByte(0x6300 * 2 + 0xff),
+        "power beam tile DMA copies exactly $100 source bytes");
+    AssertEqual((ushort)0x0100, beamCgram.Colors[0xe0],
+        "power beam palette begins at OBJ palette six");
+    AssertEqual((ushort)0x010f, beamCgram.Colors[0xef],
+        "power beam palette copies sixteen colors");
+
+    // `$90:BA56` accepts exactly ten low-nibble direction values. Exercise every pointer,
+    // horizontal/vertical/diagonal base-speed choice, acceleration sign, immediate movement,
+    // animation selection, cooldown, sound, and live-slot counter in isolation.
+    for (byte direction = 0; direction < 10; direction++)
+    {
+        byte pose = unchecked((byte)(0x20 + direction));
+        bus.WriteBytes(
+            0x91b629 + pose * 8,
+            [0x08, 0x00, 0x00, direction, 0x00, 0x00, 0x00, 0x00]);
+        var samus = new SamusState
+        {
+            Pose = pose,
+            XPosition = 128,
+            YPosition = 96,
+            EquippedBeams = 0,
+            SelectedHudItem = 0,
+        };
+        var bombs = new SamusBombProjectileSystem();
+        var projectiles = new SamusProjectileSystem();
+        bombs.StepFrame(bus, air, samus, 0, 0);
+        SamusProjectileFrameResult result = projectiles.StepFrame(
+            bus,
+            air,
+            samus,
+            (ushort)SnesButton.X,
+            (ushort)SnesButton.X,
+            0,
+            0,
+            bombs);
+
+        AssertEqual((int?)0, result.FiredSlot, $"power beam direction {direction} allocates slot zero");
+        AssertEqual((ushort)0x000b, result.QueuedSoundEffect,
+            $"power beam direction {direction} queues ROM sound");
+        AssertEqual((ushort)1, projectiles.ProjectileCounter,
+            $"power beam direction {direction} increments counter");
+        AssertEqual((ushort)0x000f, bombs.CooldownTimer,
+            $"power beam direction {direction} installs cooldown");
+        AssertEqual((ushort)direction, projectiles.Slots[0].Direction,
+            $"power beam direction {direction} survives initialization");
+        AssertEqual((ushort)0x0014, projectiles.Slots[0].Damage,
+            $"power beam direction {direction} loads damage");
+        AssertEqual((ushort)0xa000, projectiles.Slots[0].SpritemapPointer,
+            $"power beam direction {direction} selects first art record");
+        AssertEqual((ushort)8, projectiles.Slots[0].XRadius,
+            $"power beam direction {direction} loads X radius");
+        AssertEqual((ushort)4, projectiles.Slots[0].YRadius,
+            $"power beam direction {direction} loads Y radius");
+    }
+
+    // Isolate horizontal fixed-point motion and collision against an authentic type-eight
+    // solid column. The first rightward frame uses velocity `$0400+$0010`, producing four
+    // whole pixels and subposition `$1000`; repeated alpha passes eventually install the
+    // ROM explosion without freeing the slot early.
+    var wallWords = new ushort[width * height];
+    for (int y = 0; y < height; y++)
+        wallWords[y * width + 6] = 0x8000;
+    RoomLevelData wall = new(
+        width,
+        height,
+        wallWords,
+        new byte[wallWords.Length],
+        new ushort[wallWords.Length],
+        new byte[8]);
+    const byte rightPose = 1;
+    bus.WriteBytes(
+        0x91b629 + rightPose * 8,
+        [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
+    var wallSamus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 64,
+        YPosition = 96,
+    };
+    var wallBombs = new SamusBombProjectileSystem();
+    var wallProjectiles = new SamusProjectileSystem();
+    wallBombs.StepFrame(bus, wall, wallSamus, 0, 0);
+    wallProjectiles.StepFrame(
+        bus,
+        wall,
+        wallSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X,
+        0,
+        0,
+        wallBombs);
+    AssertEqual((ushort)68, wallProjectiles.Slots[0].XPosition,
+        "right beam first frame moves four whole pixels");
+    AssertEqual((ushort)0x1000, wallProjectiles.Slots[0].XSubposition,
+        "right beam first frame retains one-sixteenth pixel");
+
+    SamusProjectileFrameResult wallResult = default;
+    for (int frame = 0; frame < 16 && !wallResult.CollisionStartedExplosion; frame++)
+    {
+        wallBombs.StepFrame(bus, wall, wallSamus, 0, 0);
+        wallResult = wallProjectiles.StepFrame(
+            bus, wall, wallSamus, 0, 0, 0, 0, wallBombs);
+    }
+    AssertTrue(wallResult.CollisionStartedExplosion, "power beam reaches type-eight wall");
+    AssertEqual((ushort)0x0700,
+        unchecked((ushort)(wallProjectiles.Slots[0].Type & 0x0f00)),
+        "wall collision installs beam-explosion family");
+    AssertEqual((ushort)1, wallProjectiles.ProjectileCounter,
+        "beam explosion retains ordinary slot count");
+    AssertEqual((ushort)0xa010, wallProjectiles.Slots[0].SpritemapPointer,
+        "collision frame selects first explosion art");
+
+    for (int frame = 0; frame < 2; frame++)
+    {
+        wallBombs.StepFrame(bus, wall, wallSamus, 0, 0);
+        wallProjectiles.StepFrame(bus, wall, wallSamus, 0, 0, 0, 0, wallBombs);
+    }
+    AssertEqual((ushort)0, wallProjectiles.ProjectileCounter,
+        "explosion delete decrements ordinary counter");
+    AssertTrue(!wallProjectiles.Slots[0].IsActive,
+        "explosion delete clears ordinary slot");
+
+    Console.WriteLine(
+        "  Samus power beam: ten directions, ROM records, shared cooldown, fixed-point motion, collision, and explosion agree.");
+}
+
 /// <summary>
 /// Exercises ordinary Morph-Ball entry, `$F9` endpoint selection, rolling momentum,
 /// walk-off, both automatic rebounds, grounded recovery, and blocked unmorph expansion.

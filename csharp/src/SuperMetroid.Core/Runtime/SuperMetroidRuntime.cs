@@ -213,6 +213,14 @@ public sealed class SuperMetroidRuntime
     /// </summary>
     public bool LastSamusBodyDrawn { get; private set; }
 
+    /// <summary>
+    /// Optional Ceres-owned Mode 7 matrix used only to calculate Samus's rendered body
+    /// origin. Null is ordinary gameplay. A future Ceres cinematic actor should publish
+    /// and clear this value with its status high bit; the translated consumer never moves
+    /// Samus's physical coordinates.
+    /// </summary>
+    public SamusMode7Transform? ActiveSamusMode7Transform { get; set; }
+
     /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; private set; }
 
@@ -2642,7 +2650,8 @@ public sealed class SuperMetroidRuntime
                         _addressSpace,
                         Oam,
                         Camera.XPosition,
-                        Camera.YPosition);
+                        Camera.YPosition,
+                        mode7Transform: ActiveSamusMode7Transform);
                 }
                 else if (LastDeathSequenceStep is { DrawExplosion: true })
                     Samus.DeathSequence.DrawExplosion(_addressSpace, Oam);
@@ -2677,7 +2686,8 @@ public sealed class SuperMetroidRuntime
                             _addressSpace,
                             Oam,
                             Camera.XPosition,
-                            Camera.YPosition);
+                            Camera.YPosition,
+                            mode7Transform: ActiveSamusMode7Transform);
                     }
                 }
                 else
@@ -2700,7 +2710,8 @@ public sealed class SuperMetroidRuntime
                         Oam,
                         Samus,
                         Camera.XPosition,
-                        Camera.YPosition);
+                        Camera.YPosition,
+                        ActiveSamusMode7Transform);
 
                 // Drawing modes one and two differ only in OAM priority: one appends the
                 // cannon before the body, while two appends it after. Mode zero suppresses
@@ -2722,7 +2733,8 @@ public sealed class SuperMetroidRuntime
                         Oam,
                         Camera.XPosition,
                         Camera.YPosition,
-                        NmiFrameCounter);
+                        NmiFrameCounter,
+                        ActiveSamusMode7Transform);
                     if (Samus.ArmCannon.EffectiveDrawingMode == 2)
                     {
                         LastArmCannonDraw = Samus.ArmCannon.Draw(

@@ -522,7 +522,8 @@ public sealed class SamusProjectileSystem
         OamBuffer oam,
         SamusState samus,
         ushort layer1X,
-        ushort layer1Y)
+        ushort layer1Y,
+        SamusMode7Transform? mode7Transform = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
@@ -556,7 +557,8 @@ public sealed class SamusProjectileSystem
                     }
                 }
 
-                DrawFlareComponent(bus, oam, samus, layer1X, layer1Y, component);
+                DrawFlareComponent(
+                    bus, oam, samus, layer1X, layer1Y, component, mode7Transform);
             }
             return;
         }
@@ -577,7 +579,8 @@ public sealed class SamusProjectileSystem
         for (int component = 0; component < componentCount; component++)
         {
             AdvanceFlareComponent(bus, component);
-            DrawFlareComponent(bus, oam, samus, layer1X, layer1Y, component);
+            DrawFlareComponent(
+                bus, oam, samus, layer1X, layer1Y, component, mode7Transform);
         }
     }
 
@@ -2090,7 +2093,8 @@ public sealed class SamusProjectileSystem
         SamusState samus,
         ushort layer1X,
         ushort layer1Y,
-        int component)
+        int component,
+        SamusMode7Transform? mode7Transform)
     {
         byte direction = ReadPoseByte(bus, samus.Pose, PoseDirectionOffset);
         if (direction is 0xff or 0x10 || (direction & 0xf0) != 0)
@@ -2103,8 +2107,16 @@ public sealed class SamusProjectileSystem
         short xOffset = unchecked((short)ReadWord(bus, xTable + directionOffset));
         short yOffset = unchecked((short)ReadWord(bus, yTable + directionOffset));
         byte poseYOffset = ReadPoseByte(bus, samus.Pose, PoseYOffsetOffset);
-        ushort screenX = unchecked((ushort)(samus.XPosition + xOffset - layer1X));
-        ushort screenY = unchecked((ushort)(samus.YPosition + yOffset - poseYOffset - layer1Y));
+
+        // `$90:BBE1` calls `$8B:8A52` under the same Ceres-status high bit used by the
+        // body renderer. Only Samus's center is transformed; the pose-selected muzzle
+        // offsets are added afterward. Retail then restores `$0AF6/$0AFA`, so this path
+        // must never write the public physics coordinates merely to reuse the arithmetic.
+        SamusMode7Point renderPoint = mode7Transform is { } transform
+            ? transform.Transform(samus.XPosition, samus.YPosition)
+            : new SamusMode7Point(samus.XPosition, samus.YPosition);
+        ushort screenX = unchecked((ushort)(renderPoint.X + xOffset - layer1X));
+        ushort screenY = unchecked((ushort)(renderPoint.Y + yOffset - poseYOffset - layer1Y));
 
         // `$90:BC98` clips only by the origin's Y high byte. The shared bank-$81 loader
         // deliberately allows individual entries to wrap, matching charge sparks near an

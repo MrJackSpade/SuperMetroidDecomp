@@ -55,6 +55,12 @@ are listed below so later work cannot accidentally confuse “the current viewer
   aimed-falling `$6D-$70`: the command leaves frame/timer untouched, then zero underflows on
   the following tick and advances to the next literal delay. Synthetic bytecode independently
   proves both branches of each unused selector instead of claiming they are reachable poses.
+- Ceres's `$90:8C1F -> $8B:8A52` body-position branch now consumes an explicit live Mode 7
+  matrix/pivot seam. Its signed 16x16 products, separate 8.8 shifts, intermediate word
+  additions, and coordinate wrap match the cartridge for both body and charge-flare origins,
+  while the temporary transformed point cannot leak into collision or camera state. The
+  Ceres cinematic remains the producer that must publish and retire that matrix when its
+  status high bit changes.
 - This audit is deliberately not a claim that all movement-related systems are complete.
   Fatal-damage acquisition/post-fade ownership, the elevator actor/status producer,
   X-ray hidden-block BG2 substitution, PLM reactions, and live enemy collision/displacement

@@ -3884,7 +3884,8 @@ public sealed class SamusState
         OamBuffer oam,
         ushort layer1X,
         ushort layer1Y,
-        ushort nmiFrameCounter = 0)
+        ushort nmiFrameCounter = 0,
+        SamusMode7Transform? mode7Transform = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
@@ -3915,10 +3916,19 @@ public sealed class SamusState
             return false;
         }
 
+        // `$90:8C1F` temporarily overwrites Samus's integer world point only while Ceres's
+        // high status bit is set. Every position selector below therefore consumes the
+        // rotated point, but public physics coordinates remain completely untouched.
+        SamusMode7Point renderPoint = mode7Transform is { } transform
+            ? transform.Transform(XPosition, YPosition)
+            : new SamusMode7Point(XPosition, YPosition);
+        ushort renderX = renderPoint.X;
+        ushort renderY = renderPoint.Y;
+
         // $90:8C94 sign-extends the byte at pose-definition offset four. Pose $01 stores
         // +6, moving the art origin six pixels above Samus's world-space center.
         sbyte graphicsYOffset = unchecked((sbyte)bus.ReadByte(AddWithinBank(poseDefinition, 4)));
-        SpritemapXPosition = unchecked((ushort)(XPosition - layer1X));
+        SpritemapXPosition = unchecked((ushort)(renderX - layer1X));
         if (movementType == 0 &&
             Pose is ForwardFacingPowerSuitPose or ForwardFacingSuitedPose &&
             AnimationFrame >= 2)
@@ -3926,7 +3936,7 @@ public sealed class SamusState
             // `$90:8D07-$90:8D27` uses the ordinary pose graphics offset for front-facing
             // frames zero/one, then pins every later frame exactly one pixel above Samus's
             // center. This is independent of `$00`'s extra power-suit chest-cover OBJ.
-            SpritemapYPosition = unchecked((ushort)(YPosition - 1 - layer1Y));
+            SpritemapYPosition = unchecked((ushort)(renderY - 1 - layer1Y));
         }
         else if (movementType == 0 && Pose >= 0xa4 && Pose < 0xa8)
         {
@@ -3939,7 +3949,7 @@ public sealed class SamusState
                 bus,
                 AddWithinBank(0x908d28, landingOffsetIndex));
             SpritemapYPosition = unchecked((ushort)(
-                YPosition - landingOffset - layer1Y));
+                renderY - landingOffset - layer1Y));
         }
         else if (movementType == 0x0f && Pose >= 0x35 && Pose < 0x41)
         {
@@ -3952,7 +3962,7 @@ public sealed class SamusState
                 0x908d80,
                 (Pose - 0x35) * 2 + AnimationFrame);
             sbyte transitionOffset = unchecked((sbyte)bus.ReadByte(transitionOffsetAddress));
-            SpritemapYPosition = unchecked((ushort)(YPosition + transitionOffset - layer1Y));
+            SpritemapYPosition = unchecked((ushort)(renderY + transitionOffset - layer1Y));
         }
         else if (Pose is DrainedCrouchingRightPose or DrainedCrouchingLeftPose)
         {
@@ -3962,18 +3972,18 @@ public sealed class SamusState
             // visible frame. Reading ROM keeps that odd layout authoritative.
             sbyte drainedOffset = unchecked((sbyte)bus.ReadByte(
                 AddWithinBank(0x908def, AnimationFrame)));
-            SpritemapYPosition = unchecked((ushort)(YPosition + drainedOffset - layer1Y));
+            SpritemapYPosition = unchecked((ushort)(renderY + drainedOffset - layer1Y));
         }
         else if ((Pose is DrainedStandingRightPose or DrainedStandingLeftPose) &&
                  AnimationFrame >= 5)
         {
             // `$90:8DB1-$8DBC` replaces the usual pose graphics offset with -3 after
             // standing drained art reaches byte index five.
-            SpritemapYPosition = unchecked((ushort)(YPosition - 3 - layer1Y));
+            SpritemapYPosition = unchecked((ushort)(renderY - 3 - layer1Y));
         }
         else
         {
-            SpritemapYPosition = unchecked((ushort)(YPosition - graphicsYOffset - layer1Y));
+            SpritemapYPosition = unchecked((ushort)(renderY - graphicsYOffset - layer1Y));
         }
 
         ushort topBase = ReadWord(bus, AddWithinBank(TopSpritemapBaseIndexTable, Pose * 2));

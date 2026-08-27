@@ -975,7 +975,53 @@ static void VerifySamusRenderingSlice()
     AssertEqual((ushort)0x0080, samus.SpritemapYPosition,
         "normal-jump landing frame one reads overlapping 0006 word");
 
-    Console.WriteLine("  Samus: body art, position/bottom rules, tile DMA, OAM, and invincibility flicker agree.");
+    // Ceres status bit `$8000` makes `$90:8C1F` borrow bank `$8B`'s Mode 7 point
+    // transform before applying the ordinary pose offset. A 90-degree matrix around
+    // ($0480,$0080) maps (+8,+6) to (-6,+8). The body must use that temporary point while
+    // collision-visible Samus coordinates remain byte-for-byte unchanged afterward.
+    samus.Pose = SamusState.FacingRightNormalPose;
+    samus.AnimationFrame = 0;
+    samus.XPosition = 0x0488;
+    samus.YPosition = 0x0086;
+    var quarterTurn = new SamusMode7Transform(
+        MatrixA: 0x0000,
+        MatrixB: 0x0100,
+        MatrixC: 0xff00,
+        CenterX: 0x0480,
+        CenterY: 0x0080);
+    oam.BeginFrame();
+    samus.Draw(
+        bus,
+        oam,
+        layer1X: 0x0400,
+        layer1Y: 0,
+        mode7Transform: quarterTurn);
+    oam.FinalizeFrame();
+    AssertEqual((ushort)0x007a, samus.SpritemapXPosition,
+        "Mode 7 quarter-turn rotates Samus render X around M7X");
+    AssertEqual((ushort)0x0082, samus.SpritemapYPosition,
+        "Mode 7 quarter-turn applies pose graphics offset after rotated Y");
+    AssertEqual((ushort)0x0488, samus.XPosition,
+        "Mode 7 body calculation restores physical Samus X");
+    AssertEqual((ushort)0x0086, samus.YPosition,
+        "Mode 7 body calculation restores physical Samus Y");
+
+    // Exercise negative products and a coordinate wrap independently of the convenient
+    // quarter-turn result. The explicit reference operations mirror `$8B:8A52`'s two
+    // word-sized accumulators and catch a host implementation that retains extra precision.
+    var wrappedMatrix = new SamusMode7Transform(
+        MatrixA: 0xff80,
+        MatrixB: 0x0180,
+        MatrixC: 0xfe80,
+        CenterX: 0xfff0,
+        CenterY: 0x0010);
+    SamusMode7Point wrapped = wrappedMatrix.Transform(0x0010, 0xffe0);
+    AssertEqual((ushort)0x0028, wrapped.X,
+        "Mode 7 transform preserves signed-product and center-X word wrap");
+    AssertEqual((ushort)0x0058, wrapped.Y,
+        "Mode 7 transform preserves signed-product and center-Y word wrap");
+
+    Console.WriteLine("  Samus: body art, Mode 7 position, bottom rules, tile DMA, OAM, and invincibility flicker agree.");
 }
 
 /// <summary>
@@ -13467,6 +13513,72 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual((ushort)60, chargeProjectiles.FlareCounter,
         "charge held frames reach armed threshold");
     AssertTrue(flareBecameVisible, "charge flare becomes visible from ROM spritemap table");
+
+    // Build two identical fifteen-call charge states so their central flare frame and
+    // spritemap are identical. Rotating Samus's (+8,0) displacement around (120,96) by
+    // 90 degrees moves the temporary render center from (128,96) to (120,104): every OBJ
+    // entry must therefore shift exactly (-8,+8), while both physical Samus points stay put.
+    var baselineMode7Samus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 128,
+        YPosition = 96,
+        EquippedBeams = 0x1000,
+    };
+    var rotatedMode7Samus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 128,
+        YPosition = 96,
+        EquippedBeams = 0x1000,
+    };
+    var baselineMode7Bombs = new SamusBombProjectileSystem();
+    var rotatedMode7Bombs = new SamusBombProjectileSystem();
+    var baselineMode7Projectiles = new SamusProjectileSystem();
+    var rotatedMode7Projectiles = new SamusProjectileSystem();
+    for (int frame = 0; frame < 15; frame++)
+    {
+        baselineMode7Bombs.StepFrame(bus, air, baselineMode7Samus, 0, 0);
+        rotatedMode7Bombs.StepFrame(bus, air, rotatedMode7Samus, 0, 0);
+        ushort newInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
+        baselineMode7Projectiles.StepFrame(
+            bus, air, baselineMode7Samus, (ushort)SnesButton.X, newInput,
+            0, 0, baselineMode7Bombs);
+        rotatedMode7Projectiles.StepFrame(
+            bus, air, rotatedMode7Samus, (ushort)SnesButton.X, newInput,
+            0, 0, rotatedMode7Bombs);
+    }
+    var baselineMode7FlareOam = new OamBuffer();
+    var rotatedMode7FlareOam = new OamBuffer();
+    baselineMode7FlareOam.BeginFrame();
+    rotatedMode7FlareOam.BeginFrame();
+    baselineMode7Projectiles.HandleChargeFlareAndDraw(
+        bus, baselineMode7FlareOam, baselineMode7Samus, 0, 0);
+    rotatedMode7Projectiles.HandleChargeFlareAndDraw(
+        bus,
+        rotatedMode7FlareOam,
+        rotatedMode7Samus,
+        0,
+        0,
+        new SamusMode7Transform(0, 0x0100, 0xff00, 120, 96));
+    AssertTrue(baselineMode7FlareOam.NextByteOffset != 0,
+        "Mode 7 flare fixture reaches visible central component");
+    AssertEqual(baselineMode7FlareOam.NextByteOffset, rotatedMode7FlareOam.NextByteOffset,
+        "Mode 7 transform preserves charge-flare OBJ count");
+    int flareEntryCount = baselineMode7FlareOam.NextByteOffset / 4;
+    for (int entry = 0; entry < flareEntryCount; entry++)
+    {
+        OamEntry baselineEntry = baselineMode7FlareOam.GetEntry(entry);
+        OamEntry rotatedEntry = rotatedMode7FlareOam.GetEntry(entry);
+        AssertEqual((baselineEntry.X - 8) & 0x01ff, rotatedEntry.X,
+            $"Mode 7 charge-flare OBJ {entry} receives transformed center X");
+        AssertEqual(unchecked((byte)(baselineEntry.Y + 8)), rotatedEntry.Y,
+            $"Mode 7 charge-flare OBJ {entry} receives transformed center Y");
+    }
+    AssertEqual((ushort)128, rotatedMode7Samus.XPosition,
+        "Mode 7 flare calculation preserves physical Samus X");
+    AssertEqual((ushort)96, rotatedMode7Samus.YPosition,
+        "Mode 7 flare calculation preserves physical Samus Y");
 
     // While `$0B18` is zero and grapple is inactive, a fully charged beam cycles all six
     // entries once per palette call. Verify Power/Varia/Gravity independently for both the

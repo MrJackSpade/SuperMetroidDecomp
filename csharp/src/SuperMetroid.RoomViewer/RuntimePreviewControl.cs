@@ -35,6 +35,7 @@ internal sealed class RuntimePreviewControl : UserControl
     private readonly ToolStripButton holdAimDownButton = new("Hold Aim Down");
     private readonly ToolStripDropDownButton beamLoadoutDropDown = new("Beam: Power");
     private readonly ToolStripButton chargeBeamButton = new("Charge Beam equipped");
+    private readonly ToolStripButton hyperBeamButton = new("Hyper Beam enabled");
     private readonly ToolStripButton missileButton = new("Missiles selected");
     private readonly ToolStripButton superMissileButton = new("Supers selected");
     private readonly ToolStripButton moonwalkButton = new("Moonwalk enabled");
@@ -154,6 +155,42 @@ internal sealed class RuntimePreviewControl : UserControl
                 runtime.Samus.EquippedBeams |= 0x1000;
             else
                 runtime.Samus.EquippedBeams &= unchecked((ushort)~0x1000);
+        };
+        hyperBeamButton.CheckOnClick = true;
+        hyperBeamButton.ToolTipText =
+            "Toggles the retail $91:E5F0 Hyper Beam state. Hold Shoot to fire its native $9018 projectile, flare, Wave motion, damage, sound, and art.";
+        hyperBeamButton.CheckedChanged += (_, _) =>
+        {
+            if (runtime?.Samus is null || !groundedRunScenario)
+                return;
+
+            if (hyperBeamButton.Checked)
+            {
+                // The native grant includes Charge and forces equipment `$1009`. Reflect the
+                // former in the visible debugger control, then call the translated grant so
+                // `$0A76`, the palette-FX request, and equipment all change as one retail act.
+                chargeBeamButton.Checked = true;
+                runtime.Samus.Drained.EnableHyperBeam(runtime.Samus);
+            }
+            else
+            {
+                // There is no normal-game command that revokes Hyper Beam: Mother Brain's
+                // fight ends shortly afterward. This explicit debugger-only reverse seam
+                // restores the menu-selected family while preserving the Charge checkbox.
+                runtime.Samus.HyperBeam = 0;
+                runtime.Samus.EquippedBeams = unchecked((ushort)(
+                    selectedBeamType | (chargeBeamButton.Checked ? 0x1000 : 0)));
+            }
+
+            // `$90:AC8D` normally performs this after equipment changes. The paused viewer
+            // executes the same cartridge-to-VRAM/CGRAM transfer immediately so the next
+            // stepped frame cannot display stale ordinary-beam tiles with Hyper behavior.
+            runtime.Projectiles.LoadBeamTilesAndPalette(
+                bus,
+                runtime.Vram,
+                runtime.Cgram,
+                runtime.Samus.EquippedBeams);
+            RefreshFrame();
         };
         missileButton.CheckOnClick = true;
         missileButton.ToolTipText =
@@ -384,6 +421,7 @@ internal sealed class RuntimePreviewControl : UserControl
         toolStrip.Items.Add(holdAimDownButton);
         toolStrip.Items.Add(beamLoadoutDropDown);
         toolStrip.Items.Add(chargeBeamButton);
+        toolStrip.Items.Add(hyperBeamButton);
         toolStrip.Items.Add(missileButton);
         toolStrip.Items.Add(superMissileButton);
         toolStrip.Items.Add(moonwalkButton);
@@ -475,8 +513,17 @@ internal sealed class RuntimePreviewControl : UserControl
             // Cinematic diagnostics receive no inventory, and later save-state work should
             // replace this one deliberately visible host grant rather than hiding it.
             runtime.Samus!.EquippedItems |= 0x1004;
-            runtime.Samus.EquippedBeams = unchecked((ushort)(
-                (runtime.Samus.EquippedBeams & 0xfff0) | selectedBeamType));
+            if (hyperBeamButton.Checked)
+            {
+                // Reapply the real endgame grant before viewport initialization so its
+                // `$1009` tile/palette family is the one uploaded into the fresh runtime.
+                runtime.Samus.Drained.EnableHyperBeam(runtime.Samus);
+            }
+            else
+            {
+                runtime.Samus.EquippedBeams = unchecked((ushort)(
+                    (runtime.Samus.EquippedBeams & 0xfff0) | selectedBeamType));
+            }
             if (springBallButton.Checked)
                 runtime.Samus.EquippedItems |= 0x0002;
             if (spaceJumpButton.Checked)
@@ -487,7 +534,7 @@ internal sealed class RuntimePreviewControl : UserControl
                 runtime.Samus.EquippedItems |= 0x2000;
             if (gravitySuitButton.Checked)
                 runtime.Samus.EquippedItems |= SamusLiquidPhysicsState.GravitySuitItem;
-            if (chargeBeamButton.Checked)
+            if (chargeBeamButton.Checked && !hyperBeamButton.Checked)
                 runtime.Samus.EquippedBeams |= 0x1000;
             if (superMissileButton.Checked)
             {
@@ -608,6 +655,12 @@ internal sealed class RuntimePreviewControl : UserControl
 
         if (runtime?.Samus is null || !groundedRunScenario)
             return;
+
+        // Selecting an ordinary family is an explicit request to leave the forced `$1009`
+        // Hyper loadout. The checkbox handler restores this just-selected family and Charge
+        // state before the ordinary transfer below repeats the now-idempotent upload.
+        if (hyperBeamButton.Checked)
+            hyperBeamButton.Checked = false;
 
         runtime.Samus.EquippedBeams = unchecked((ushort)(
             (runtime.Samus.EquippedBeams & 0xfff0) | type));

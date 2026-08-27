@@ -38,7 +38,7 @@ are listed below so later work cannot accidentally confuse “the current viewer
 | `$18` | Turning while falling | `$87/$88/$93-$96/$A0/$A1`, persistent external X/Y displacement, momentum, gravity/collision, `$F8` | No unadmitted reachable pose branch found; shared presentation/producer gaps remain tracked below |
 | `$19` | Damage boost | `$4F/$50`, fresh air/water/lava jump, type-indexed X physics, persistent external X/Y displacement, gravity, variable height, ceiling/floor collision, `$FF` sentinel landing | Live enemy producer |
 | `$1A` | Grabbed by Draygon | `$BA-$BE/$EC-$F0`: exact owner pin, ten ROM pose/animation routes, input/fallback transitions, type-$1A vertical-result clear, 60-pattern escape hack, `$01/$02` release cleanup and owner signal | Live Draygon actor/flight producer |
-| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, hyper beam; bank `$A9`: repeat/active/final rainbow, painful-walk/corpse, revival, Baby murder/death, phase-three combat/death, and escape `$B8EB-$B3C5`, including body/head bytecode, live neck geometry, Baby graphics DMA/spawn, sine-driven entrance, moving-head latch, drain/corpse handshake, release, ceiling retreat, eight-record flight, generic-touch Samus latch, one-point healing, bank-$86 ring/bomb movement and damage, purple-breath/misc-explosion animation, high/low enemy-projectile OAM, release/stare/retreat/final charge/final blow, rainbow commands, six black palettes, 30 rendered death explosions, attack-tile DMA, room-light restoration, deletion, Hyper Beam, controller four, corpse rotting, escape timer, and exploded door | Crystal Flash/drain palette and HDMA presentation, earlier attack-selection, live Hyper Beam projectile producer, typewriter character engine/glyphs, Baby actor spritemap and remaining dust producers, live enemy actor producer |
+| `$1B` | Shinespark / crystal flash / drained / Mother Brain damage | `$C7-$CE`: stored-shine windup, six launch poses, active terrain/solid-enemy motion, crash orbit/circle, released echoes, standing return; `$D3/$D4`: exact initiation checks, 20-pixel raise, NMI-timed 10/10/10 ammo drain, energy/reserve restore, ROM finish animation, standing return; `$E8-$EB`: rainbow commands 5/`$18`/`$19`/`$17`, both Up-edge handlers, all five drained-controller calls, `$F7` fall/collision landing, asymmetric release, draw offsets/bottom halves, Hyper Beam grant and live `$9018` projectile/flare/Wave motion; bank `$A9`: repeat/active/final rainbow, painful-walk/corpse, revival, Baby murder/death, phase-three combat/death, and escape `$B8EB-$B3C5`, including body/head bytecode, live neck geometry, Baby graphics DMA/spawn, sine-driven entrance, moving-head latch, drain/corpse handshake, release, ceiling retreat, eight-record flight, generic-touch Samus latch, one-point healing, bank-$86 ring/bomb movement and damage, purple-breath/misc-explosion animation, high/low enemy-projectile OAM, release/stare/retreat/final charge/final blow, rainbow commands, six black palettes, 30 rendered death explosions, attack-tile DMA, room-light restoration, deletion, Hyper Beam, controller four, corpse rotting, escape timer, and exploded door | Crystal Flash/drain palette and HDMA presentation, earlier attack-selection, Hyper Beam enemy-hit/recoil integration, typewriter character engine/glyphs, Baby actor spritemap and remaining dust producers, live enemy actor producer |
 
 ## Active-pose and animation audit
 
@@ -880,7 +880,7 @@ translated status is documented with the Morph Ball family below.
   before its release handoff, then the 100-frame route proves `$90:946E` keeps moving the
   `$51/$52` body after the beam function has become inactive.
 
-## Verified combined/Charge Beam/missile projectile slice
+## Verified combined/Charge/Hyper Beam/missile projectile slice
 
 - HUD item zero/three dispatches `$90:B80D` into the five ordinary slots while sharing
   cooldown `$0CCC` with bombs. All twelve valid low-nibble beam combinations use all ten pose-authored directions,
@@ -916,6 +916,12 @@ translated status is documented with the Morph Ball family below.
   `$0384`, sound `$21`. The `$0CFA` transition-direction bridge, post-shot Samus palette
   recolor, and weapon-specific block-reaction PLMs remain seams;
   plain power's left/right trail instruction pointers are deliberately empty in retail data.
+- Hyper Beam follows the forced `$91:E5F0` equipment `$1009`/flag `$8000` grant and bypasses
+  ordinary charge input. `$90:BCD1` publishes type `$9018`, charged data-table index eight,
+  damage `$03E8`, sound `$1F`, cooldown 21, glow `$8014`, and flare sentinel `$8000`.
+  `$90:B159` reuses Wave fixed-point motion without its detached trail. Synthetic and private-
+  ROM checks require every literal, native flare lifetime, decoded bank-$93 art, and no trail;
+  the interactive viewer exposes the same path through **Hyper Beam enabled**.
 - HUD item one now dispatches `$90:BE62`: fresh Shoot allocates from the shared five slots,
   installs invincibility 20/cooldown 10, consumes one round, reads damage/direction art through
   `$93:83F3 -> $8641`, and auto-deselects on the last round. `$90:AF68/$B2F6` preserves the
@@ -1111,8 +1117,8 @@ producers now allocate concrete `$86:E509` slots in native scheduler order. The 
 projectile effects are Mother Brain's distinct death-explosion definition, the natural-bomb
 Ridley-afterburn-first chain, and the typewriter glyph family.
 
-1. Wire live Hyper Beam projectiles into `$B562` recoil/health and the earlier attack-selection
-   trigger that enters `$B8EB`, then translate the Mother Brain death explosion, natural-bomb
+1. Wire translated Hyper Beam enemy hits into `$B562` recoil/health and the earlier attack-
+   selection trigger that enters `$B8EB`, then translate the Mother Brain death explosion, natural-bomb
    afterburn chain, and typewriter glyph producers.
 2. Live room-enemy loading/updates so translated solid collision and shake words have real actors.
 3. Enemy touch/damage producers so knockback and grapple acquisition begin from live actors.

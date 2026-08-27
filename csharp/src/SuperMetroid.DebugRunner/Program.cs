@@ -111,6 +111,11 @@ else if (options.ChargeBeamScript)
     Console.WriteLine(
         "Input script: equip Charge Beam, hold Shoot through the native 60-frame arming threshold and three-component muzzle flare, then release one charged power shot.");
 }
+else if (options.HyperBeamScript)
+{
+    Console.WriteLine(
+        "Input script: install the retail endgame Hyper Beam state, fire one fresh Shoot edge, and follow its native flare, Wave motion, and bank-$93 projectile art.");
+}
 else if (options.MissileScript)
 {
     Console.WriteLine(
@@ -326,11 +331,22 @@ if (options.GroundedRun)
 
 if (options.GroundedRun)
 {
-    // Save loading and pause equipment are outside this debugger route. Publish only the
-    // validated low-nibble combination before `$90:AC8D` queues its matching tile/palette
-    // transfer below. Every live projectile table lookup still consumes the private ROM.
-    runtime.Samus!.EquippedBeams = unchecked((ushort)(
-        (runtime.Samus.EquippedBeams & 0xfff0) | options.BeamType));
+    if (options.HyperBeamScript)
+    {
+        // `$91:E5F0` is the actual Mother Brain phase-three reward handler. Calling the
+        // translated routine here installs equipment `$1009`, requests the matching beam
+        // tile/palette upload, sets `$0A76 = $8000`, and records the still-explicit palette-
+        // FX seam. The debugger does not manufacture a special projectile or its constants.
+        runtime.Samus!.Drained.EnableHyperBeam(runtime.Samus);
+    }
+    else
+    {
+        // Save loading and pause equipment are outside this debugger route. Publish only the
+        // validated low-nibble combination before `$90:AC8D` queues its matching tile/palette
+        // transfer below. Every live projectile table lookup still consumes the private ROM.
+        runtime.Samus!.EquippedBeams = unchecked((ushort)(
+            (runtime.Samus.EquippedBeams & 0xfff0) | options.BeamType));
+    }
 }
 
 if (options.SpeedBoosterScript || options.ShinesparkScript)
@@ -808,6 +824,12 @@ bool observedChargedShot = false;
 bool observedChargedTrail = false;
 ushort observedChargedShotDamage = 0;
 ushort observedChargedShotSound = 0;
+bool observedHyperBeamShot = false;
+bool observedHyperBeamArt = false;
+bool observedHyperBeamFlare = false;
+ushort observedHyperBeamType = 0;
+ushort observedHyperBeamDamage = 0;
+ushort observedHyperBeamSound = 0;
 bool observedMissileShot = false;
 bool observedMissileArt = false;
 bool observedMissileTrail = false;
@@ -1306,6 +1328,17 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 // consecutive held samples cross `$90:B856`'s threshold without relying on
                 // a host counter; the first blank sample is the real charged-shot trigger.
                 >= 2 and < 67 => (ushort)SnesButton.X,
+                _ => (ushort)0,
+            }
+        : options.HyperBeamScript
+            ? frameIndex switch
+            {
+                0 => (ushort)SnesButton.Start,
+
+                // Hyper Beam is fired by held Shoot in `$90:BCBE`, but the normal projectile
+                // cooldown still prevents repeats. One sample keeps this proof isolated and
+                // leaves the following frames free to expose native Wave movement and art.
+                2 => (ushort)SnesButton.X,
                 _ => (ushort)0,
             }
         : options.MissileScript
@@ -2288,6 +2321,19 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     if (runtime.Projectiles.LastFrameResult.FiredSlot is int firedSlot)
     {
         SamusProjectileSlot firedProjectile = runtime.Projectiles.Slots[firedSlot];
+        if (firedProjectile.PreInstruction == SamusProjectilePreInstruction.HyperBeam)
+        {
+            // Preserve the actual values published by `$90:BCD1`; the final assertion below
+            // compares them with the retail literals instead of accepting generic beam state.
+            observedHyperBeamShot = true;
+            observedHyperBeamType = firedProjectile.Type;
+            observedHyperBeamDamage = firedProjectile.Damage;
+            observedHyperBeamSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect;
+            Console.WriteLine(
+                $"frame {result.FrameNumber,4}: Hyper Beam slot {firedSlot}, " +
+                $"type=${firedProjectile.Type:X4}, damage=${firedProjectile.Damage:X4}, " +
+                $"sound=${observedHyperBeamSound:X2}.");
+        }
         if ((firedProjectile.Type & 0x0f00) == 0 &&
             (firedProjectile.Type & 0x000f) == options.BeamType)
         {
@@ -2326,6 +2372,12 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     }
     observedPowerBeamArt |= runtime.Projectiles.Slots.Any(
         slot => slot.IsActive && slot.SpritemapPointer != 0);
+    observedHyperBeamArt |= runtime.Projectiles.Slots.Any(
+        slot => slot.IsActive &&
+            slot.PreInstruction == SamusProjectilePreInstruction.HyperBeam &&
+            slot.SpritemapPointer != 0);
+    observedHyperBeamFlare |=
+        options.HyperBeamScript && runtime.Projectiles.FlareCounter == 0x8000;
     observedMissileArt |= runtime.Projectiles.Slots.Any(
         slot => slot.IsActive && (slot.Type & 0x0f00) == 0x0100 && slot.SpritemapPointer != 0);
     observedMissileTrail |= options.MissileScript && runtime.Projectiles.ActiveTrailCount != 0;
@@ -2992,6 +3044,36 @@ if (options.ChargeBeamScript)
         $"Charge Beam type ${options.BeamType:X1} ROM route reached {maximumObservedCharge}/60, " +
         $"chargedShot={observedChargedShot}, damage=${observedChargedShotDamage:X4}, " +
         $"sound=${observedChargedShotSound:X2}, trail={observedChargedTrail}.");
+}
+
+if (options.HyperBeamScript)
+{
+    // `$90:BCD1` does not use the ordinary charge-release family even though type `$9018`
+    // carries bit `$0010`. Require every literal written by that routine, decoded ROM art,
+    // and its special `$8000` flare sentinel. Hyper's `$90:B159` movement intentionally
+    // falls into Wave motion without allocating the ordinary Wave trail, so a trail is a bug.
+    if (options.FrameCount >= 3 &&
+        (!observedHyperBeamShot ||
+         observedHyperBeamType != 0x9018 ||
+         observedHyperBeamDamage != 0x03e8 ||
+         observedHyperBeamSound != 0x001f ||
+         !observedHyperBeamFlare))
+    {
+        throw new InvalidOperationException(
+            $"Hyper Beam fire mismatch: fired={observedHyperBeamShot}, " +
+            $"type=${observedHyperBeamType:X4}/9018, " +
+            $"damage=${observedHyperBeamDamage:X4}/03E8, " +
+            $"sound=${observedHyperBeamSound:X2}/1F, flare={observedHyperBeamFlare}.");
+    }
+    if (options.FrameCount >= 4 && !observedHyperBeamArt)
+        throw new InvalidOperationException("Hyper Beam never decoded its native bank-$93 art.");
+    if (runtime.Projectiles.ActiveTrailCount != 0)
+        throw new InvalidOperationException("Hyper Beam incorrectly allocated an ordinary Wave trail.");
+
+    Console.WriteLine(
+        $"Hyper Beam ROM route fired type ${observedHyperBeamType:X4}, " +
+        $"damage=${observedHyperBeamDamage:X4}, sound=${observedHyperBeamSound:X2}, " +
+        $"art={observedHyperBeamArt}, flare={observedHyperBeamFlare}, trail=false.");
 }
 
 if (options.MissileScript)
@@ -3906,6 +3988,7 @@ readonly record struct DebugRunnerOptions(
     bool AimAirScript,
     bool GunExtendedScript,
     bool ChargeBeamScript,
+    bool HyperBeamScript,
     bool MissileScript,
     bool SuperMissileScript,
     bool AerialTurnScript,
@@ -3957,6 +4040,7 @@ readonly record struct DebugRunnerOptions(
         bool aimAirScript = false;
         bool gunExtendedScript = false;
         bool chargeBeamScript = false;
+        bool hyperBeamScript = false;
         bool missileScript = false;
         bool superMissileScript = false;
         bool aerialTurnScript = false;
@@ -4113,6 +4197,11 @@ readonly record struct DebugRunnerOptions(
                     groundedRun = true;
                     break;
 
+                case "--hyper-beam-script":
+                    hyperBeamScript = true;
+                    groundedRun = true;
+                    break;
+
                 case "--missile-script":
                     missileScript = true;
                     groundedRun = true;
@@ -4254,6 +4343,7 @@ readonly record struct DebugRunnerOptions(
             "runtime",
             deathScript ? "DeathFrame.png" :
             xrayScript ? "XrayFrame.png" :
+            hyperBeamScript ? "HyperBeamFrame.png" :
             missileScript ? "MissileFrame.png" :
             superMissileScript ? "SuperMissileFrame.png" : "EscapeTimerFrame.png");
 
@@ -4285,6 +4375,7 @@ readonly record struct DebugRunnerOptions(
             aimAirScript,
             gunExtendedScript,
             chargeBeamScript,
+            hyperBeamScript,
             missileScript,
             superMissileScript,
             aerialTurnScript,

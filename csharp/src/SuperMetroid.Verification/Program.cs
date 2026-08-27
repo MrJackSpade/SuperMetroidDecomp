@@ -12405,6 +12405,57 @@ static void VerifySamusPowerBeamProjectiles()
             $"charged beam combination {beamType} selects native wave dispatch");
     }
 
+    // Hyper Beam ignores the equipped combination for projectile identity and forces
+    // charged-Plasma type `$9018`. Bank `$93` supplies its direction art/radii, after which
+    // the producer overwrites damage with literal 1000 and arms the descending flare state.
+    var hyperSamus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 128,
+        YPosition = 96,
+        EquippedBeams = 0x1009,
+        HyperBeam = 0x8000,
+    };
+    var hyperBombs = new SamusBombProjectileSystem();
+    var hyperProjectiles = new SamusProjectileSystem();
+    hyperBombs.StepFrame(bus, air, hyperSamus, 0, 0);
+    SamusProjectileFrameResult hyperResult = hyperProjectiles.StepFrame(
+        bus,
+        air,
+        hyperSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X,
+        0,
+        0,
+        hyperBombs);
+    SamusProjectileSlot hyperSlot = hyperProjectiles.Slots[0];
+    AssertEqual((int?)0, hyperResult.FiredSlot, "Hyper Beam allocates ordinary slot zero");
+    AssertEqual((ushort)0x9018, hyperSlot.Type, "Hyper Beam forces literal type `$9018`");
+    AssertEqual((ushort)1000, hyperSlot.Damage, "Hyper Beam overwrites ROM-table damage with 1000");
+    AssertEqual(SamusProjectilePreInstruction.HyperBeam, hyperSlot.PreInstruction,
+        "Hyper Beam selects trail-free Wave movement");
+    AssertEqual((ushort)0, hyperSlot.TrailTimer, "Hyper Beam does not arm a projectile trail");
+    AssertEqual((ushort)21, hyperBombs.CooldownTimer, "Hyper Beam installs literal cooldown 21");
+    AssertEqual((ushort)0x0058, hyperResult.QueuedSoundEffect,
+        "Hyper Beam indexes charged sound entry eight");
+    AssertEqual((ushort)0x8014, hyperProjectiles.ChargedShotGlowTimer,
+        "Hyper Beam installs signed palette/glow phase `$8014`");
+    AssertEqual((ushort)0x8000, hyperProjectiles.FlareCounter,
+        "Hyper Beam arms descending flare sentinel");
+
+    // Its three components begin at frames 29/5/5 with timer three. Fast sparks (component
+    // two) own completion, so exactly fifteen draw calls count five records down to zero.
+    var hyperFlareOam = new OamBuffer();
+    for (int call = 0; call < 15; call++)
+    {
+        hyperFlareOam.BeginFrame();
+        hyperProjectiles.HandleChargeFlareAndDraw(bus, hyperFlareOam, hyperSamus, 0, 0);
+        AssertTrue(hyperFlareOam.NextByteOffset != 0,
+            $"Hyper Beam descending flare call {call + 1} draws ROM spritemaps");
+    }
+    AssertEqual((ushort)0, hyperProjectiles.FlareCounter,
+        "Hyper Beam fast-spark frame one clears flare sentinel");
+
     // `$93:8268` exempts charged-family bit `$0010` from ordinary beam flicker. Slot zero
     // would be suppressed on even NMI under the uncharged rule, making this a direct guard
     // against accidentally applying that branch to the charged projectile.

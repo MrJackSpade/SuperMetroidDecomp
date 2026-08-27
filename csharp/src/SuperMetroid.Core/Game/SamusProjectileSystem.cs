@@ -279,6 +279,10 @@ public sealed class SamusProjectileSystem
             {
                 RunWaveBeamPreInstruction(bus, slot, layer1X, layer1Y);
             }
+            else if (slot.PreInstruction == SamusProjectilePreInstruction.HyperBeam)
+            {
+                RunHyperBeamPreInstruction(bus, slot, layer1X, layer1Y);
+            }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.Missile)
             {
                 collisionStartedExplosion |= RunMissilePreInstruction(
@@ -337,6 +341,36 @@ public sealed class SamusProjectileSystem
             ChargedShotGlowTimer--;
         if (FlareCounter == 0)
             return;
+
+        if (samus.HyperBeam != 0)
+        {
+            // Hyper Beam replaces the ordinary count-up flare with `$90:BAFC`'s descending
+            // three-component program. Native iteration is fast spark -> slow spark -> main
+            // flare (WRAM offsets four, two, zero), so preserve that reverse OAM order.
+            for (int component = 2; component >= 0; component--)
+            {
+                _flareTimers[component] = unchecked((ushort)(_flareTimers[component] - 1));
+                if (_flareTimers[component] == 0 || (_flareTimers[component] & 0x8000) != 0)
+                {
+                    bool finalFrame = _flareFrames[component] == 1;
+                    _flareFrames[component] = unchecked((ushort)(_flareFrames[component] - 1));
+                    if (finalFrame)
+                    {
+                        // The fast-spark component at native offset four owns the global
+                        // completion signal. Other zero frames merely stop rearming.
+                        if (component == 2)
+                            FlareCounter = 0;
+                    }
+                    else
+                    {
+                        _flareTimers[component] = 3;
+                    }
+                }
+
+                DrawFlareComponent(bus, oam, samus, layer1X, layer1Y, component);
+            }
+            return;
+        }
 
         // Calls 1..14 initialize/retain the hidden animation state. Call 15 begins drawing
         // the central flare; calls 30+ additionally draw both orbiting spark components.
@@ -476,6 +510,14 @@ public sealed class SamusProjectileSystem
     {
         const ushort shoot = (ushort)SnesButton.X;
         PreviousBeamChargeCounter = FlareCounter;
+
+        // `$90:B80D` gives the Hyper flag priority over Charge equipment. It still uses
+        // held Shoot rather than a new edge, with its own 21-frame cooldown preventing a
+        // desktop-held button from allocating more frequently than the cartridge.
+        if (samus.HyperBeam != 0)
+            return (controllerInput & shoot) != 0
+                ? TryFireHyperBeam(bus, samus, sharedProjectiles)
+                : (null, 0);
 
         // Native `$90:B80D` can also consume charge through the one-frame `$0CFA`
         // "projectile direction changed by pose" bridge. The translated pose pipeline does
@@ -642,6 +684,73 @@ public sealed class SamusProjectileSystem
             (charged ? ChargedSounds : UnchargedSounds) + beamType * 2);
         if (charged)
             ChargedShotGlowTimer = 4;
+        return (slotIndex, sound);
+    }
+
+    private (int? Slot, ushort Sound) TryFireHyperBeam(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        SamusBombProjectileSystem sharedProjectiles)
+    {
+        // `$90:AC39` is shared with normal beams: five counted ordinary slots and a nonzero
+        // low cooldown byte reject firing before any slot fields are touched.
+        if (ProjectileCounter >= SlotCount ||
+            (sharedProjectiles.CooldownTimer & 0x00ff) != 0)
+        {
+            return (null, 0);
+        }
+
+        sharedProjectiles.SetSharedCooldown(1);
+        ProjectileCounter = unchecked((ushort)(ProjectileCounter + 1));
+        int slotIndex = Array.FindIndex(_slots, candidate => candidate.Damage == 0);
+        if (slotIndex < 0)
+        {
+            ProjectileCounter = unchecked((ushort)(ProjectileCounter - 1));
+            return (null, 0);
+        }
+
+        SamusProjectileSlot slot = _slots[slotIndex];
+        slot.ClearFields();
+        slot.Direction = ReadPoseByte(bus, samus.Pose, PoseDirectionOffset);
+        if ((slot.Direction & 0x00f0) != 0 || (slot.Direction & 0x000f) > 9)
+        {
+            ProjectileCounter = unchecked((ushort)(ProjectileCounter - 1));
+            slot.ClearFields();
+            return (null, 0);
+        }
+
+        InitializePosition(bus, samus, slot);
+        ProjectileInvincibilityTimer = 10;
+
+        // The literal `$9018` is charged Plasma for bank-$93 data/art purposes even though
+        // acquisition equips `$1009` Wave+Plasma tiles/palette. InitializeProjectile first
+        // reads charged table entry eight; `$90:BD21` then deliberately replaces its damage
+        // with 1000 before the first instruction record executes.
+        slot.Type = 0x9018;
+        const int hyperBeamType = 8;
+        ushort dataPointer = ReadWord(bus, ChargedBeamDataPointers + hyperBeamType * 2);
+        slot.Damage = ReadWord(bus, 0x930000 | dataPointer);
+        slot.InstructionPointer = ReadWord(
+            bus,
+            0x930000 | unchecked((ushort)(dataPointer + 2 + (slot.Direction & 0x000f) * 2)));
+        slot.XRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 4)));
+        slot.YRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 5)));
+        slot.InstructionTimer = 1;
+        slot.Damage = 1000;
+        slot.PreInstruction = SamusProjectilePreInstruction.HyperBeam;
+        InitializePowerBeamVelocity(bus, slot);
+
+        // These are literal stores at `$90:BD29-$BD52`. `$8014` is not an ordinary four-call
+        // glow timer: its sign bit identifies Hyper's palette phase to the later consumer.
+        sharedProjectiles.SetSharedCooldown(21);
+        ChargedShotGlowTimer = 0x8014;
+        _flareFrames[0] = 29;
+        _flareFrames[1] = 5;
+        _flareFrames[2] = 5;
+        _flareTimers[0] = _flareTimers[1] = _flareTimers[2] = 3;
+        FlareCounter = 0x8000;
+
+        ushort sound = ReadWord(bus, ChargedSounds + hyperBeamType * 2);
         return (slotIndex, sound);
     }
 
@@ -861,6 +970,33 @@ public sealed class SamusProjectileSystem
             SpawnTrail(bus, slot);
         }
 
+        RunWaveBeamShared(bus, slot, layer1X, layer1Y);
+    }
+
+    private void RunHyperBeamPreInstruction(
+        ISnesAddressSpace bus,
+        SamusProjectileSlot slot,
+        ushort layer1X,
+        ushort layer1Y)
+    {
+        if ((slot.Direction & 0x00f0) != 0)
+        {
+            ClearProjectile(slot);
+            return;
+        }
+
+        // `$90:B159` falls directly into the shared Wave movement. Hyper deliberately has
+        // no projectile-trail timer or SpawnProjectileTrail call; its long beam spritemap
+        // and the separately counting muzzle flare provide the complete native presentation.
+        RunWaveBeamShared(bus, slot, layer1X, layer1Y);
+    }
+
+    private void RunWaveBeamShared(
+        ISnesAddressSpace bus,
+        SamusProjectileSlot slot,
+        ushort layer1X,
+        ushort layer1Y)
+    {
         int direction = slot.Direction & 0x000f;
         slot.XVelocity = unchecked((short)(slot.XVelocity +
             unchecked((short)ReadWord(bus, ProjectileAccelerationX + direction * 2))));
@@ -1784,6 +1920,7 @@ public enum SamusProjectilePreInstruction : byte
     NoWaveBeam,
     WaveBeamThreeFrameTrail,
     WaveBeamFourFrameTrail,
+    HyperBeam,
     Missile,
     SuperMissile,
     SuperMissileLink,

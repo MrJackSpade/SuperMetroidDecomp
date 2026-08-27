@@ -132,6 +132,7 @@ dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Sup
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 68 --charge-beam-script --output ../standalone-assets/runtime/ChargeBeamRelease.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 28 --gun-extended-script --beam-type 11 --output ../standalone-assets/runtime/IceWavePlasmaFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 72 --charge-beam-script --beam-type 11 --output ../standalone-assets/runtime/ChargedIceWavePlasmaFrame.png
+dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 12 --hyper-beam-script --output ../standalone-assets/runtime/HyperBeamFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 8 --missile-script --output ../standalone-assets/runtime/MissileFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 8 --super-missile-script --output ../standalone-assets/runtime/SuperMissileFrame.png
 dotnet run --no-launch-profile --project src/SuperMetroid.DebugRunner -- "../Super Metroid.smc" --frames 120 --aerial-turn-script --output ../standalone-assets/runtime/AerialTurnFrame.png
@@ -291,6 +292,16 @@ draw rule. A 50-frame capture freezes the active flare; a 68-frame capture freez
 a 72-frame capture freezes the projectile with its orange trail. The one-frame `$0CFA` shot-direction-change
 bridge and the four-call post-shot Samus palette recolor remain explicit presentation seams.
 
+`--hyper-beam-script` invokes the translated `$91:E5F0` endgame grant before initial beam
+tiles and palette are uploaded, then supplies one Shoot sample. `$90:BCD1` allocates literal
+type `$9018`, initializes art/radii through charged-table index eight, overrides damage to
+`$03E8`, queues sound `$1F`, sets cooldown 21, and starts the special `$8014/$8000` glow and
+three-component flare. `$90:B159` then shares Wave's signed 8.8 movement but deliberately
+does not allocate a detached trail. The private-ROM regression requires all of those values
+and decoded bank-$93 art; `HyperBeamFrame.png` captures the shot and muzzle flare against
+live Landing Site terrain. The viewer exposes the same path as **Hyper Beam enabled**;
+disabling it is explicitly a debugger-only reverse seam because normal play never revokes it.
+
 `--missile-script` grants ten rounds and selects HUD item one at the untranslated save/pause
 seam, then sends one fresh Shoot edge. The private-ROM regression requires type `$8100`, damage
 `$0064`, sound `$03`, bank-$93 missile art, a one-round decrement, and `$90:B5A1` exhaust by
@@ -354,11 +365,12 @@ stimuli because Landing Site's cinematic door does not define a gameplay spawn.
 
 The translated runtime now covers the admitted grounded/aerial/posture/aim/turn/landing,
 Dash/Speed Booster/shinespark, Space Jump/Screw Attack, Morph/Spring/Bomb jump, knockback,
-grapple, all twelve ordinary/charged beam combinations, Crystal Flash, X-ray, drained/Draygon,
+grapple, all twelve ordinary/charged beam combinations plus Hyper Beam production/motion,
+Crystal Flash, X-ray, drained/Draygon,
 liquid/atmospheric/landing-impact, and documented
 Mother Brain/Baby routes described above. Unsupported paths throw instead of becoming guessed
 physics. Remaining cross-system work includes Crystal Flash/drain presentation, earlier Mother
-Brain attack selection, live Hyper Beam damage routing, the power-bomb producer,
+Brain attack selection, Hyper Beam enemy-hit/recoil integration, the power-bomb producer,
 remaining weapon-specific trails, projectile-triggered shootable/special-block PLMs,
 missing actor spritemaps, live enemy damage producers, solid-enemy wall-jump branches,
 native enemy spawn selection, and the unported enemies/effects/

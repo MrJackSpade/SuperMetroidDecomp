@@ -929,6 +929,7 @@ bool observedShinesparkPalette = false;
 bool observedShinesparkCrashOrbit = false;
 bool observedShinesparkCrashEchoCircle = false;
 bool observedShinesparkCrashFinish = false;
+bool observedShinesparkCrashDrawingHandler = false;
 bool observedReleasedShinesparkEcho = false;
 int priorReleasedShinesparkEchoCount = 0;
 int observedSpaceJumpRestarts = 0;
@@ -2816,6 +2817,19 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     // handler-execution witness instead of hoping to sample a transient host enum value.
     observedShinesparkCrashFinish |=
         runtime.LastShinesparkMovement is { CrashSequenceFinished: true };
+    if (runtime.LastShinesparkCrashDrawingHandlerActive)
+    {
+        observedShinesparkCrashDrawingHandler = true;
+        // `$90:EBF3` never reaches either arm-cannon priority branch. Checking the typed
+        // draw result on every observed crash frame catches both a leaked OBJ and the less
+        // visible tile-$1F DMA side effect even when the final screenshot happens to overlap.
+        if (runtime.LastArmCannonDraw.SpriteWritten ||
+            runtime.LastArmCannonDraw.TileUploadQueued)
+        {
+            throw new InvalidOperationException(
+                $"Shinespark crash frame {result.FrameNumber} leaked ordinary arm-cannon drawing.");
+        }
+    }
     observedReleasedShinesparkEcho |= runtime.Samus.Shinespark.ReleasedCrashEchoCount != 0;
     if (runtime.Samus.Shinespark.ReleasedCrashEchoCount != priorReleasedShinesparkEchoCount)
     {
@@ -3873,6 +3887,8 @@ if (options.ShinesparkScript)
     }
     if (options.FrameCount >= 220 && !observedShinesparkCrashOrbit)
         throw new InvalidOperationException("Shinespark ROM script never entered the collision crash orbit.");
+    if (options.FrameCount >= 220 && !observedShinesparkCrashDrawingHandler)
+        throw new InvalidOperationException("Shinespark crash never installed its dedicated draw handler.");
     if (options.FrameCount >= 260 && !observedShinesparkCrashEchoCircle)
         throw new InvalidOperationException("Shinespark ROM script never entered the 30-frame crash echo circle.");
     if (options.FrameCount >= 291 &&
@@ -3885,6 +3901,7 @@ if (options.ShinesparkScript)
         $"Shinespark ROM route observed stored={observedStoredShine}, windup={observedShinesparkWindup}, " +
         $"directional={observedDirectionalShinespark}, movement={observedShinesparkMovement}, " +
         $"palette={observedShinesparkPalette}, crash={observedShinesparkCrashOrbit}, " +
+        $"crashDraw={observedShinesparkCrashDrawingHandler}, " +
         $"circle={observedShinesparkCrashEchoCircle}, finish={observedShinesparkCrashFinish}, " +
         $"releasedEcho={observedReleasedShinesparkEcho}.");
 }

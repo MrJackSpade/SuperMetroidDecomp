@@ -214,6 +214,13 @@ public sealed class SuperMetroidRuntime
     public bool LastSamusBodyDrawn { get; private set; }
 
     /// <summary>
+    /// True only when the current frame dispatched `$90:EBF3`, the deliberately minimal
+    /// shinespark-crash body-plus-two-echo renderer. Exposed separately from phase state so
+    /// a debugger can verify that handler installation and presentation agree on a frame.
+    /// </summary>
+    public bool LastShinesparkCrashDrawingHandlerActive { get; private set; }
+
+    /// <summary>
     /// Optional Ceres-owned Mode 7 matrix used only to calculate Samus's rendered body
     /// origin. Null is ordinary gameplay. A future Ceres cinematic actor should publish
     /// and clear this value with its status high bit; the translated consumer never moves
@@ -895,6 +902,7 @@ public sealed class SuperMetroidRuntime
         // escape timer so lower OAM indices retain their normal overlap precedence.
         Oam.BeginFrame();
         LastSamusBodyDrawn = false;
+        LastShinesparkCrashDrawingHandlerActive = false;
         bool escapeTimerExpired = EscapeTimer.Process(NmiFrameCounter);
         if (Samus is not null && Camera is not null)
         {
@@ -2690,6 +2698,30 @@ public sealed class SuperMetroidRuntime
                             mode7Transform: ActiveSamusMode7Transform);
                     }
                 }
+                else if (Samus.Shinespark.Phase is
+                         ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle)
+                {
+                    // `$90:EBF3` is installed by `$90:D2BA` at the instant an active
+                    // shinespark crashes. Unlike the default handler, it intentionally
+                    // omits charging flare/audio, atmosphere, both arm-cannon priority
+                    // paths, ordinary departing speed echoes, and grapple graphics. It
+                    // draws the live body first, then crash slot one before slot zero on
+                    // odd NMIs. The shared projectile/trail tail below still follows.
+                    LastShinesparkCrashDrawingHandlerActive = true;
+                    LastSamusBodyDrawn = Samus.Draw(
+                        _addressSpace,
+                        Oam,
+                        Camera.XPosition,
+                        Camera.YPosition,
+                        NmiFrameCounter,
+                        ActiveSamusMode7Transform);
+                    Samus.DrawShinesparkCrashEchoes(
+                        _addressSpace,
+                        Oam,
+                        Camera.XPosition,
+                        Camera.YPosition,
+                        NmiFrameCounter);
+                }
                 else
                 {
 
@@ -2751,12 +2783,6 @@ public sealed class SuperMetroidRuntime
                         Oam,
                         Camera.XPosition,
                         Camera.YPosition);
-                    Samus.DrawShinesparkCrashEchoes(
-                        _addressSpace,
-                        Oam,
-                        Camera.XPosition,
-                        Camera.YPosition,
-                        NmiFrameCounter);
                     Samus.DrawReleasedShinesparkCrashEchoes(
                         _addressSpace,
                         Oam,

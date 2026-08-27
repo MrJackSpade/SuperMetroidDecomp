@@ -61,6 +61,11 @@ are listed below so later work cannot accidentally confuse “the current viewer
   while the temporary transformed point cannot leak into collision or camera state. The
   Ceres cinematic remains the producer that must publish and retire that matrix when its
   status high bit changes.
+- Shinespark collision now installs `$90:EBF3`'s actual presentation behavior for the crash
+  orbit and center-circle phases: body first, then both parity-gated crash echoes. The handler
+  suppresses default atmosphere, charge flare, arm cannon, ordinary speed echoes, and grapple
+  art without suppressing the shared projectile/trail phase. The private-ROM route requires
+  the dedicated handler by its first crash milestone and rejects leaked cannon OAM or DMA.
 - This audit is deliberately not a claim that all movement-related systems are complete.
   Fatal-damage acquisition/post-fade ownership, the elevator actor/status producer,
   X-ray hidden-block BG2 substitution, PLM reactions, and live enemy collision/displacement

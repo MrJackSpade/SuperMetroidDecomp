@@ -48,7 +48,9 @@ Open `SuperMetroid.slnx` in Visual Studio. The code currently contains the first
   animation/explosion lists, indexed damage/cooldown/sound data, no-wave collision, Wave Beam
   pass-through movement and three/four-frame trails, exact family-specific OAM flicker, Charge Beam's 60-frame
   hold/release producer and three-component ROM muzzle flare, exact tile/palette upload,
-  missile exhaust, and the Super Missile's invisible high-speed collision link and quake
+  missile exhaust, the Super Missile's invisible high-speed collision link and quake, and the
+  complete type-`$4/$C` shootable-block table with ordinary, power-bomb, and Super-Missile
+  permanent/respawning bank-$84 animation programs
 - exact four-row BG3 HUD initialization, WRAM-to-VRAM updates, digits, icons, and palette bits
 - exact Landing Site scroll-table loading, directional boundaries, stationary autoscroll,
   and bank-$90 16.16 Samus camera target/speed calculations
@@ -363,6 +365,12 @@ that composition or its incomplete all-live PPU layers for direct comparison. Ca
 initial placement, optional water, and actor-owned triggers remain clearly labelled host
 stimuli because Landing Site's cinematic door does not define a gameplay spawn.
 
+Projectile collision now publishes type-`$4/$C` shot-block PLMs directly from ordinary beam,
+Wave, missile, and linked Super-Missile scans. All `$94:9EA6` BTS entries preserve their native
+weapon gates, `$x052/$x057/$x09F` setup words, bank-$84 sound opcodes, permanent or 384-frame
+respawn timing, and no-op allocation behavior; Wave executes the side effect while retaining
+its unconditional pass-through result.
+
 The translated runtime now covers the admitted grounded/aerial/posture/aim/turn/landing,
 Dash/Speed Booster/shinespark, Space Jump/Screw Attack, Morph/Spring/Bomb jump, knockback,
 grapple, all twelve ordinary/charged beam combinations plus Hyper Beam production/motion,
@@ -371,7 +379,7 @@ liquid/atmospheric/landing-impact, and documented
 Mother Brain/Baby routes described above. Unsupported paths throw instead of becoming guessed
 physics. Remaining cross-system work includes Crystal Flash/drain presentation, earlier Mother
 Brain attack selection, Hyper Beam enemy-hit/recoil integration, the power-bomb producer,
-remaining weapon-specific trails, projectile-triggered shootable/special-block PLMs,
+remaining weapon-specific trails, projectile-triggered door/bombable/special-block PLMs,
 missing actor spritemaps, live enemy damage producers, solid-enemy wall-jump branches,
 native enemy spawn selection, and the unported enemies/effects/
 actors. Raw files and PNGs contain private ROM-derived material and must not be distributed;

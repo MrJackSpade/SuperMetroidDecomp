@@ -12625,6 +12625,116 @@ static void VerifySamusPowerBeamProjectiles()
     AssertTrue(!wallProjectiles.Slots[0].IsActive,
         "explosion delete clears ordinary slot");
 
+    // Replace the inert type-eight column with the two native shootable collision nibbles.
+    // This is an end-to-end producer test: a fired projectile must reach bank-$94's radius
+    // scanner, publish the correct bank-$84 PLM, run CE6B's synchronous terrain mutation,
+    // and retain the collision nibble's carry result. Filling the entire column makes the
+    // fixture independent of the pose-authored cannon Y offset while still requiring the
+    // projectile to travel from Samus to block column six.
+    var solidShotWords = new ushort[width * height];
+    var solidShotBehaviors = new byte[solidShotWords.Length];
+    for (int y = 0; y < height; y++)
+        solidShotWords[y * width + 6] = 0xc000;
+    RoomLevelData solidShotWall = new(
+        width,
+        height,
+        solidShotWords,
+        solidShotBehaviors,
+        new ushort[solidShotWords.Length],
+        new byte[8]);
+    var solidShotSamus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 64,
+        YPosition = 96,
+    };
+    var solidShotBombs = new SamusBombProjectileSystem();
+    var solidShotProjectiles = new SamusProjectileSystem();
+    var solidShotPlms = new RoomPlmSystem();
+    SamusProjectileFrameResult solidShotResult = default;
+    for (int frame = 0; frame < 16 && !solidShotResult.CollisionStartedExplosion; frame++)
+    {
+        solidShotBombs.StepFrame(bus, solidShotWall, solidShotSamus, 0, 0);
+        solidShotResult = solidShotProjectiles.StepFrame(
+            bus,
+            solidShotWall,
+            solidShotSamus,
+            frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+            frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+            0,
+            0,
+            solidShotBombs,
+            roomPlms: solidShotPlms);
+    }
+    AssertTrue(solidShotResult.CollisionStartedExplosion,
+        "type-C shootable block retains solid shot collision");
+    AssertTrue(solidShotPlms.ActiveCount > 0,
+        "ordinary beam collision allocates bank-$84 shot-block PLM");
+    int synthesizedSolidShotBlocks = 0;
+    for (int y = 0; y < height; y++)
+    {
+        if (solidShotWall.GetCollisionBlock(6, y).LevelWord == 0x8052)
+            synthesizedSolidShotBlocks++;
+    }
+    AssertTrue(synthesizedSolidShotBlocks > 0,
+        "CE6B synchronously converts contacted type-C block to synthesized $8052");
+
+    // Type four calls the very same setup but returns carry clear. Wave compounds that rule:
+    // `$94:A352` must run every block side effect and then discard even a carry-set reaction.
+    // Crossing the whole column without an explosion proves neither the new PLM publication
+    // nor the temporary `$0052` word accidentally turned Wave into a clipping projectile.
+    var waveShotWords = new ushort[width * height];
+    var waveShotBehaviors = new byte[waveShotWords.Length];
+    for (int y = 0; y < height; y++)
+        waveShotWords[y * width + 6] = 0x4000;
+    RoomLevelData waveShotWall = new(
+        width,
+        height,
+        waveShotWords,
+        waveShotBehaviors,
+        new ushort[waveShotWords.Length],
+        new byte[8]);
+    var waveShotSamus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 64,
+        YPosition = 96,
+        EquippedBeams = 1,
+    };
+    var waveShotBombs = new SamusBombProjectileSystem();
+    var waveShotProjectiles = new SamusProjectileSystem();
+    var waveShotPlms = new RoomPlmSystem();
+    bool waveShotReportedExplosion = false;
+    for (int frame = 0; frame < 12; frame++)
+    {
+        waveShotBombs.StepFrame(bus, waveShotWall, waveShotSamus, 0, 0);
+        SamusProjectileFrameResult waveShotFrame = waveShotProjectiles.StepFrame(
+            bus,
+            waveShotWall,
+            waveShotSamus,
+            frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+            frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+            0,
+            0,
+            waveShotBombs,
+            roomPlms: waveShotPlms);
+        waveShotReportedExplosion |= waveShotFrame.CollisionStartedExplosion;
+    }
+    AssertTrue(!waveShotReportedExplosion,
+        "Wave remains alive after publishing type-four shot-block reaction");
+    AssertTrue(waveShotProjectiles.Slots[0].XPosition > 112,
+        "Wave crosses the complete shootable-air column");
+    AssertTrue(waveShotPlms.ActiveCount > 0,
+        "Wave scan allocates bank-$84 shot-block PLM");
+    int synthesizedAirShotBlocks = 0;
+    for (int y = 0; y < height; y++)
+    {
+        if (waveShotWall.GetCollisionBlock(6, y).LevelWord == 0x0052)
+            synthesizedAirShotBlocks++;
+    }
+    AssertTrue(synthesizedAirShotBlocks > 0,
+        "CE6B synchronously converts contacted type-four block to synthesized $0052");
+
     // `$90:BE62` shares the ordinary five-slot array with beams but selects a completely
     // different bank-$93 data family and bank-$90 pre-instruction. Fire a rightward missile
     // into the same type-eight column so producer state, first-frame ignition, persistent
@@ -12890,8 +13000,65 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual((ushort)1, superProjectiles.ProjectileCounter,
         "super explosion retains only its visible owner count");
 
+    // Drive a second real Super Missile into type-$C/BTS-A rather than calling the PLM
+    // owner directly. `$90:B00E`'s invisible linked point probe and the visible owner both
+    // carry family `$0200`; whichever reaches the column first must publish `$84:D08C`, run
+    // CF67 synchronously, and leave `$809F` behind for the normal same-frame PLM pass.
+    var integratedSuperWords = new ushort[width * height];
+    var integratedSuperBehaviors = new byte[integratedSuperWords.Length];
+    for (int y = 0; y < height; y++)
+    {
+        int index = y * width + 6;
+        integratedSuperWords[index] = 0xc000;
+        integratedSuperBehaviors[index] = 10;
+    }
+    RoomLevelData integratedSuperWall = new(
+        width,
+        height,
+        integratedSuperWords,
+        integratedSuperBehaviors,
+        new ushort[integratedSuperWords.Length],
+        new byte[8]);
+    var integratedSuperSamus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 64,
+        YPosition = 96,
+        SelectedHudItem = 2,
+        SuperMissiles = 1,
+    };
+    var integratedSuperBombs = new SamusBombProjectileSystem();
+    var integratedSuperProjectiles = new SamusProjectileSystem();
+    var integratedSuperPlms = new RoomPlmSystem();
+    SamusProjectileFrameResult integratedSuperResult = default;
+    for (int frame = 0; frame < 32 && !integratedSuperResult.CollisionStartedExplosion; frame++)
+    {
+        integratedSuperBombs.StepFrame(
+            bus, integratedSuperWall, integratedSuperSamus, 0, 0);
+        integratedSuperResult = integratedSuperProjectiles.StepFrame(
+            bus,
+            integratedSuperWall,
+            integratedSuperSamus,
+            frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+            frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+            0,
+            0,
+            integratedSuperBombs,
+            roomPlms: integratedSuperPlms);
+    }
+    AssertTrue(integratedSuperPlms.ActiveCount > 0,
+        "live Super Missile publishes weapon-gated block PLM");
+    int integratedSuperMutations = 0;
+    for (int y = 0; y < height; y++)
+    {
+        if (integratedSuperWall.GetCollisionBlock(6, y).LevelWord == 0x809f)
+            integratedSuperMutations++;
+    }
+    AssertTrue(integratedSuperMutations > 0,
+        "live Super Missile collision runs CF67 and synthesizes $809F");
+
     Console.WriteLine(
-        "  Samus beams/missiles: producers, charge flare, linked supers, trails, motion, collision, and explosions agree.");
+        "  Samus beams/missiles: producers, charge flare, linked supers, trails, shootable-block PLMs, motion, collision, and explosions agree.");
 }
 
 /// <summary>
@@ -13289,6 +13456,56 @@ static void VerifySamusMorphBallMovement()
         0x17, 0x8b,
         0xbc, 0x86,
     ]);
+
+    // `$84:D084/$D08C` retain these complete power-bomb and Super-Missile respawning
+    // programs after their weapon-family setup succeeds. They differ only in the sound
+    // opcode's native entry point: `$8C7C` and `$8C10` both consume the odd byte `$0A`, but
+    // queue at maximum one and maximum six respectively. The shared draw pointers below are
+    // cartridge-authored shot-break art, and DrawPLMBlock restores synthesized `$x057/$x09F`.
+    bus.WriteBytes(0x84cb71, [
+        0x10, 0x8c, 0x0a,
+        0x04, 0x00, 0x45, 0xa3,
+        0x04, 0x00, 0x4b, 0xa3,
+        0x04, 0x00, 0x51, 0xa3,
+        0x80, 0x01, 0x57, 0xa3,
+        0x04, 0x00, 0x51, 0xa3,
+        0x04, 0x00, 0x4b, 0xa3,
+        0x04, 0x00, 0x45, 0xa3,
+        0x17, 0x8b,
+        0xbc, 0x86,
+    ]);
+    bus.WriteBytes(0x84cb94, [
+        0x7c, 0x8c, 0x0a,
+        0x04, 0x00, 0x45, 0xa3,
+        0x04, 0x00, 0x4b, 0xa3,
+        0x04, 0x00, 0x51, 0xa3,
+        0x80, 0x01, 0x57, 0xa3,
+        0x04, 0x00, 0x51, 0xa3,
+        0x04, 0x00, 0x4b, 0xa3,
+        0x04, 0x00, 0x45, 0xa3,
+        0x17, 0x8b,
+        0xbc, 0x86,
+    ]);
+
+    // The adjacent `$D090/$D088` headers select the permanent variants. Their shortened
+    // 4/4/4 or 3/2/1 forward animation ends on one blank frame and deletes without executing
+    // DrawPLMBlock, so the cleared terrain never grows back.
+    bus.WriteBytes(0x84cc0b, [
+        0x10, 0x8c, 0x0a,
+        0x04, 0x00, 0x45, 0xa3,
+        0x04, 0x00, 0x4b, 0xa3,
+        0x04, 0x00, 0x51, 0xa3,
+        0x01, 0x00, 0x57, 0xa3,
+        0xbc, 0x86,
+    ]);
+    bus.WriteBytes(0x84cc20, [
+        0x7c, 0x8c, 0x0a,
+        0x03, 0x00, 0x45, 0xa3,
+        0x02, 0x00, 0x4b, 0xa3,
+        0x01, 0x00, 0x51, 0xa3,
+        0x01, 0x00, 0x57, 0xa3,
+        0xbc, 0x86,
+    ]);
     bus.WriteBytes(0x84c91c, [0x01, 0x00, 0xe7, 0xa4, 0xbc, 0x86]);
     bus.WriteBytes(0x84c922, [0x01, 0x00, 0xed, 0xa4, 0xbc, 0x86]);
     bus.WriteBytes(0x84c8fe, [0x01, 0x00, 0xb1, 0xa4, 0xbc, 0x86]);
@@ -13641,6 +13858,177 @@ static void VerifySamusMorphBallMovement()
     shotPlms.Step(bus, shotLevel, shotStreamer, 0, 0, 0);
     AssertEqual(0, shotPlms.ActiveCount,
         "respawning shot block deletes one handler pass after restoration");
+
+    // `$84:D084` is the respawning power-bomb block. Its CF2E setup accepts family `$0300`,
+    // synthesizes `$C057`, and executes `$CB94`; the latter begins with the direct `$8C7C`
+    // max-one sound opcode rather than ordinary shot block `$8C79`. Following the entire
+    // reverse animation proves RestoreLevelWord is the setup-produced `$C057`, never the
+    // fixture's original visual block `$C321`.
+    RoomLevelData powerBombShotLevel = new(
+        width,
+        height,
+        shotWords,
+        new byte[shotWords.Length],
+        new ushort[shotWords.Length],
+        reactionDefinitions);
+    BackgroundTilemapStreamer powerBombShotStreamer =
+        powerBombShotLevel.CreateBackgroundStreamer();
+    var powerBombShotPlms = new RoomPlmSystem();
+    AssertTrue(
+        powerBombShotPlms.TrySpawnProjectileShotBlock(
+            powerBombShotLevel,
+            shotIndex,
+            behavior: 8,
+            projectileType: 0x0300,
+            solidBlock: true),
+        "power bomb allocates BTS-eight respawning block PLM");
+    AssertEqual((ushort)0x8057,
+        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "CF2E installs synthesized temporary power-bomb word");
+    powerBombShotPlms.Step(
+        bus, powerBombShotLevel, powerBombShotStreamer, 0, 0, 0);
+    AssertEqual((ushort)0x0053,
+        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "power-bomb block begins with retail air frame");
+    AssertEqual(new PlmSoundRequest(2, 0x0a, 1), powerBombShotPlms.SoundRequests[0],
+        "$8C7C queues power-bomb breakup sound with maximum one");
+    for (int frame = 0; frame < 12 + 384 + 12; frame++)
+        powerBombShotPlms.Step(bus, powerBombShotLevel, powerBombShotStreamer, 0, 0, 0);
+    AssertEqual((ushort)0xc057,
+        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "respawning power-bomb block restores synthesized $C057 parent");
+    powerBombShotPlms.Step(
+        bus, powerBombShotLevel, powerBombShotStreamer, 0, 0, 0);
+    AssertEqual(0, powerBombShotPlms.ActiveCount,
+        "respawning power-bomb block deletes after restoration");
+
+    // `$84:D08C` is the corresponding Super Missile block. CF67 accepts family `$0200`,
+    // synthesizes `$C09F`, and retains `$CB71`'s max-six sound plus the same 384-frame
+    // blank hold. An ordinary missile must fail that setup without touching terrain or
+    // leaving an apparently occupied host PLM slot.
+    RoomLevelData superShotLevel = new(
+        width,
+        height,
+        shotWords,
+        new byte[shotWords.Length],
+        new ushort[shotWords.Length],
+        reactionDefinitions);
+    BackgroundTilemapStreamer superShotStreamer = superShotLevel.CreateBackgroundStreamer();
+    var superShotPlms = new RoomPlmSystem();
+    AssertTrue(!superShotPlms.TrySpawnProjectileShotBlock(
+            superShotLevel,
+            shotIndex,
+            behavior: 10,
+            projectileType: 0x0100,
+            solidBlock: true),
+        "ordinary missile is rejected by Super Missile block setup");
+    AssertEqual((ushort)0xc321,
+        superShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "rejected missile leaves Super Missile block word untouched");
+    AssertEqual(0, superShotPlms.ActiveCount,
+        "rejected missile leaves no live PLM header");
+    AssertTrue(superShotPlms.TrySpawnProjectileShotBlock(
+            superShotLevel,
+            shotIndex,
+            behavior: 10,
+            projectileType: 0x0200,
+            solidBlock: true),
+        "Super Missile allocates BTS-A respawning block PLM");
+    AssertEqual((ushort)0x809f,
+        superShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "CF67 installs synthesized temporary Super Missile word");
+    superShotPlms.Step(bus, superShotLevel, superShotStreamer, 0, 0, 0);
+    AssertEqual(new PlmSoundRequest(2, 0x0a, 6), superShotPlms.SoundRequests[0],
+        "$CB71 queues Super Missile breakup sound with maximum six");
+    for (int frame = 0; frame < 12 + 384 + 12; frame++)
+        superShotPlms.Step(bus, superShotLevel, superShotStreamer, 0, 0, 0);
+    AssertEqual((ushort)0xc09f,
+        superShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "respawning Super Missile block restores synthesized $C09F parent");
+    superShotPlms.Step(bus, superShotLevel, superShotStreamer, 0, 0, 0);
+    AssertEqual(0, superShotPlms.ActiveCount,
+        "respawning Super Missile block deletes after restoration");
+
+    // BTS nine and B select the two permanent lists. Run both beyond their final timer so
+    // `$CC20`'s asymmetric 3/2/1 timing and `$CC0B`'s ordinary 4/4/4 timing must each parse,
+    // publish blank `$00FF`, and delete without executing DrawPLMBlock.
+    foreach ((byte behavior, ushort projectileType, string familyName) in new[]
+    {
+        ((byte)9, (ushort)0x0300, "power-bomb"),
+        ((byte)11, (ushort)0x0200, "Super-Missile"),
+    })
+    {
+        RoomLevelData permanentWeaponLevel = new(
+            width,
+            height,
+            shotWords,
+            new byte[shotWords.Length],
+            new ushort[shotWords.Length],
+            reactionDefinitions);
+        BackgroundTilemapStreamer permanentWeaponStreamer =
+            permanentWeaponLevel.CreateBackgroundStreamer();
+        var permanentWeaponPlms = new RoomPlmSystem();
+        AssertTrue(permanentWeaponPlms.TrySpawnProjectileShotBlock(
+                permanentWeaponLevel,
+                shotIndex,
+                behavior,
+                projectileType,
+                solidBlock: true),
+            $"{familyName} allocates permanent weapon-gated block PLM");
+        for (int frame = 0; frame < 20; frame++)
+        {
+            permanentWeaponPlms.Step(
+                bus, permanentWeaponLevel, permanentWeaponStreamer, 0, 0, 0);
+        }
+        AssertEqual((ushort)0x00ff,
+            permanentWeaponLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+            $"permanent {familyName} block ends on retail blank word");
+        AssertEqual(0, permanentWeaponPlms.ActiveCount,
+            $"permanent {familyName} block deletes without restoration");
+    }
+
+    // The final four nonnegative table entries all point to PLMEntries_nothing. Negative BTS
+    // has a collision-nibble asymmetry instead: type C allocates an area-table no-op, while
+    // type four returns before Spawn_PLM. These slots are visually invisible, but retaining
+    // their one-handler lifetime prevents the finite 40-slot pool from behaving differently.
+    RoomLevelData noOpShotLevel = new(
+        width,
+        height,
+        shotWords,
+        new byte[shotWords.Length],
+        new ushort[shotWords.Length],
+        reactionDefinitions);
+    BackgroundTilemapStreamer noOpShotStreamer = noOpShotLevel.CreateBackgroundStreamer();
+    var noOpShotPlms = new RoomPlmSystem();
+    AssertTrue(noOpShotPlms.TrySpawnProjectileShotBlock(
+            noOpShotLevel,
+            shotIndex,
+            behavior: 12,
+            projectileType: 0,
+            solidBlock: true),
+        "BTS-C allocates retail no-op shot PLM");
+    AssertTrue(noOpShotPlms.TrySpawnProjectileShotBlock(
+            noOpShotLevel,
+            shotIndex,
+            behavior: 0x80,
+            projectileType: 0,
+            solidBlock: true),
+        "negative type-C BTS allocates area-table no-op shot PLM");
+    AssertTrue(!noOpShotPlms.TrySpawnProjectileShotBlock(
+            noOpShotLevel,
+            shotIndex,
+            behavior: 0x80,
+            projectileType: 0,
+            solidBlock: false),
+        "negative type-four BTS exits before shot PLM allocation");
+    AssertEqual(2, noOpShotPlms.ActiveCount,
+        "only the two solid/no-op reactions occupy native slots");
+    AssertEqual((ushort)0xc321,
+        noOpShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "all no-op shot reactions preserve terrain");
+    noOpShotPlms.Step(bus, noOpShotLevel, noOpShotStreamer, 0, 0, 0);
+    AssertEqual(0, noOpShotPlms.ActiveCount,
+        "no-op shot PLMs delete on their first handler pass");
 
     // Normal bombs striking BTS 8 and A do not break their weapon-gated blocks. CF2E/CF67
     // redirect the PLM pointer to one-frame diagnostic reveals. The complete level word is

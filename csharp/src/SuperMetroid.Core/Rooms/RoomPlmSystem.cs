@@ -29,6 +29,7 @@ public sealed class RoomPlmSystem
     private const ushort QueueSoundLibrary2Maximum6Instruction = 0x8c10;
     private const ushort QueueSoundLibrary2Maximum3Instruction = 0x8c46;
     private const ushort QueueSoundLibrary2Maximum1Instruction = 0x8c79;
+    private const ushort QueueSoundLibrary2Maximum1DirectInstruction = 0x8c7c;
     private const ushort GotoInstruction = 0x8724;
     private const ushort SetPlmBtsTo1Instruction = 0xcd93;
     private const ushort DeleteInstructionList = 0xaae3;
@@ -399,6 +400,158 @@ public sealed class RoomPlmSystem
     }
 
     /// <summary>
+    /// Spawns the projectile reaction selected by a type-$4/$C shootable block's BTS byte.
+    /// </summary>
+    /// <remarks>
+    /// `$94:9E55/$9E73` share table `$94:9EA6` for beams, missiles, bombs, and grapple.
+    /// Entries zero through three select `$84:CE6B`'s respawning shot-block setup; entries
+    /// four through seven select `$84:B3C1`'s permanent deactivation setup. Entries eight
+    /// and nine run `$84:CF2E`'s power-bomb-family gate, while A and B run `$84:CF67`'s
+    /// Super-Missile-family gate. Entries C through F are the retail no-op PLM header.
+    ///
+    /// Negative BTS behaves differently for the two collision nibbles. Shootable air exits
+    /// without spawning anything, while shootable solid indexes an area table whose retail
+    /// entries are all `PLMEntries_nothing`; preserve that otherwise invisible allocation.
+    /// The normal-bomb `$0500` reveal redirects are retained because bombed block reactions
+    /// call the same table. All other rejected families reproduce setup's cleared PLM header:
+    /// no terrain mutation and no live slot survives the synchronous Spawn_PLM call.
+    /// </remarks>
+    public bool TrySpawnProjectileShotBlock(
+        RoomLevelData level,
+        int blockIndex,
+        byte behavior,
+        ushort projectileType,
+        bool solidBlock)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        bool areaDependent = (behavior & 0x80) != 0;
+        if (areaDependent && (behavior & 0x7f) > 7)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(behavior),
+                "Area-dependent shootable BTS must address one of its eight native entries.");
+        }
+        if (!areaDependent && behavior > 15)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(behavior),
+                "Area-independent shootable BTS must be zero through fifteen.");
+        }
+
+        // `$94:9E55` checks the sign bit before Spawn_PLM for shootable air. Its solid-block
+        // sibling `$94:9E73` instead performs the area-table lookup and allocates the retail
+        // no-op entry. This early return is therefore collision-nibble-specific.
+        if (areaDependent && !solidBlock)
+            return false;
+
+        ushort projectileFamily = unchecked((ushort)(projectileType & 0x0f00));
+
+        // `$84:CF2E/$CF67` clear the newly allocated PLM header when the weapon family is
+        // wrong. Observably that is identical to returning with no active slot: setup never
+        // changes the live word, and the next handler has nothing to process. Perform this
+        // gate before the host allocation loop while preserving every accepted native path.
+        if (behavior is 8 or 9 && projectileFamily is not (0x0300 or 0x0500))
+            return false;
+        if (behavior is 10 or 11 && projectileFamily is not (0x0200 or 0x0500))
+            return false;
+
+        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
+        {
+            PlmSlot slot = _slots[slotIndex];
+            if (slot.Active)
+                continue;
+
+            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+            slot.Active = true;
+            slot.BlockIndex = blockIndex;
+            slot.InstructionTimer = 1;
+            slot.RestoreLevelWord = 0;
+
+            if (areaDependent)
+            {
+                // Every retail area-table target at `$94:9FC6-$9FD4` is the nothing entry.
+                // Spawn_PLM still consumes a slot until its delete instruction runs.
+                slot.InstructionPointer = DeleteInstructionList;
+                return true;
+            }
+
+            if (behavior < 4)
+            {
+                // `$84:CE6B` synthesizes `$x052`, stores it for the 384-frame restoration,
+                // and clears type bits `$4000/$2000/$1000` through `AND $8FFF` immediately.
+                slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
+                slot.InstructionPointer = RespawningShotInstructionLists[behavior];
+                level.SetForegroundEntry(
+                    blockIndex,
+                    unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
+                return true;
+            }
+
+            if (behavior < 8)
+            {
+                // `$84:B3C1` keeps no restoration word: BTS four through seven are
+                // permanent. The current word loses the shootable collision bits before
+                // the first animated breaking frame runs later in this gameplay pass.
+                slot.InstructionPointer = PermanentShotInstructionLists[behavior - 4];
+                level.SetForegroundEntry(
+                    blockIndex,
+                    unchecked((ushort)(block.LevelWord & 0x8fff)));
+                return true;
+            }
+
+            if (behavior is 8 or 9)
+            {
+                if (projectileFamily == 0x0500)
+                {
+                    // A normal bomb does not break this block. `$84:CF2E` redirects to the
+                    // one-frame visible power-bomb diagnostic without touching collision.
+                    slot.InstructionPointer = 0xc91c;
+                    return true;
+                }
+
+                // A power bomb synthesizes `$x057`, applies `AND $8FFF`, and retains the
+                // exact list selected by header `$D084/$D088`. BTS eight uses the ordinary
+                // four-frame breakup; BTS nine uses its shorter 3/2/1-frame counterpart.
+                slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0057));
+                slot.InstructionPointer = behavior == 8 ? (ushort)0xcb94 : (ushort)0xcc20;
+                level.SetForegroundEntry(
+                    blockIndex,
+                    unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
+                return true;
+            }
+
+            if (behavior is 10 or 11)
+            {
+                if (projectileFamily == 0x0500)
+                {
+                    // `$84:CF67` gives ordinary bombs the analogous one-frame Super Missile
+                    // reveal. It deliberately leaves the live collision word untouched.
+                    slot.InstructionPointer = 0xc922;
+                    return true;
+                }
+
+                // Super Missiles synthesize `$x09F`. Header `$D08C` owns the respawning
+                // `$CB71` list and `$D090` owns the permanent `$CC0B` list.
+                slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x009f));
+                slot.InstructionPointer = behavior == 10 ? (ushort)0xcb71 : (ushort)0xcc0b;
+                level.SetForegroundEntry(
+                    blockIndex,
+                    unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
+                return true;
+            }
+
+            // `$94:9EA6` entries C..F all point to `$84:B62F`. Its empty setup leaves the
+            // block alone and its one-word `$AAE3` list deletes on the next handler pass.
+            slot.InstructionPointer = DeleteInstructionList;
+            return true;
+        }
+
+        // Spawn_PLM scans from native slot `$4E` down and performs no setup mutation when
+        // full. The projectile still receives the collision nibble's normal carry result.
+        return false;
+    }
+
+    /// <summary>
     /// Spawns the special-block reveal selected by <c>$94:9D71-$9E53</c> for a normal bomb.
     /// </summary>
     /// <remarks>
@@ -563,6 +716,19 @@ public sealed class RoomPlmSystem
                     byte singleSoundId = bus.ReadByte(
                         0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
                     _soundRequests.Add(new PlmSoundRequest(2, singleSoundId, MaximumQueued: 1));
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
+                    continue;
+
+                case QueueSoundLibrary2Maximum1DirectInstruction:
+                    // `$84:8C7C` is the direct LDA/JSL form used by the power-bomb-gated
+                    // shot-block lists; `$8C79` enters the same max-one queue routine through
+                    // a short branch. Both consume the identical odd-byte sound operand.
+                    byte directSingleSoundId = bus.ReadByte(
+                        0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
+                    _soundRequests.Add(new PlmSoundRequest(
+                        2,
+                        directSingleSoundId,
+                        MaximumQueued: 1));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 

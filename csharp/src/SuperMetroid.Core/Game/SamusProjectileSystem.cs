@@ -217,7 +217,8 @@ public sealed class SamusProjectileSystem
         ushort layer1X,
         ushort layer1Y,
         SamusBombProjectileSystem sharedProjectiles,
-        bool projectileProducerEnabled = true)
+        bool projectileProducerEnabled = true,
+        RoomPlmSystem? roomPlms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -271,17 +272,18 @@ public sealed class SamusProjectileSystem
                     level,
                     slot,
                     layer1X,
-                    layer1Y);
+                    layer1Y,
+                    roomPlms);
             }
             else if (slot.PreInstruction is
                 SamusProjectilePreInstruction.WaveBeamThreeFrameTrail or
                 SamusProjectilePreInstruction.WaveBeamFourFrameTrail)
             {
-                RunWaveBeamPreInstruction(bus, slot, layer1X, layer1Y);
+                RunWaveBeamPreInstruction(bus, level, slot, layer1X, layer1Y, roomPlms);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.HyperBeam)
             {
-                RunHyperBeamPreInstruction(bus, slot, layer1X, layer1Y);
+                RunHyperBeamPreInstruction(bus, level, slot, layer1X, layer1Y, roomPlms);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.Missile)
             {
@@ -291,7 +293,8 @@ public sealed class SamusProjectileSystem
                     slot,
                     layer1X,
                     layer1Y,
-                    sharedProjectiles);
+                    sharedProjectiles,
+                    roomPlms);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.SuperMissile)
             {
@@ -302,7 +305,8 @@ public sealed class SamusProjectileSystem
                     slot,
                     layer1X,
                     layer1Y,
-                    sharedProjectiles);
+                    sharedProjectiles,
+                    roomPlms);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.SuperMissileLink)
             {
@@ -896,7 +900,8 @@ public sealed class SamusProjectileSystem
         RoomLevelData level,
         SamusProjectileSlot slot,
         ushort layer1X,
-        ushort layer1Y)
+        ushort layer1Y,
+        RoomPlmSystem? roomPlms)
     {
         if ((slot.Direction & 0x00f0) != 0)
         {
@@ -923,10 +928,11 @@ public sealed class SamusProjectileSystem
         byte direction = unchecked((byte)(slot.Direction & 0x0f));
         bool collided = direction switch
         {
-            0 or 4 or 5 or 9 => MoveVertically(level, slot),
-            2 or 7 => MoveHorizontally(level, slot),
+            0 or 4 or 5 or 9 => MoveVertically(level, slot, roomPlms),
+            2 or 7 => MoveHorizontally(level, slot, roomPlms),
             1 or 3 or 6 or 8 =>
-                MoveHorizontally(level, slot) || MoveVertically(level, slot),
+                MoveHorizontally(level, slot, roomPlms) ||
+                MoveVertically(level, slot, roomPlms),
             _ => false,
         };
 
@@ -946,9 +952,11 @@ public sealed class SamusProjectileSystem
 
     private void RunWaveBeamPreInstruction(
         ISnesAddressSpace bus,
+        RoomLevelData level,
         SamusProjectileSlot slot,
         ushort layer1X,
-        ushort layer1Y)
+        ushort layer1Y,
+        RoomPlmSystem? roomPlms)
     {
         if ((slot.Direction & 0x00f0) != 0)
         {
@@ -970,14 +978,16 @@ public sealed class SamusProjectileSystem
             SpawnTrail(bus, slot);
         }
 
-        RunWaveBeamShared(bus, slot, layer1X, layer1Y);
+        RunWaveBeamShared(bus, level, slot, layer1X, layer1Y, roomPlms);
     }
 
     private void RunHyperBeamPreInstruction(
         ISnesAddressSpace bus,
+        RoomLevelData level,
         SamusProjectileSlot slot,
         ushort layer1X,
-        ushort layer1Y)
+        ushort layer1Y,
+        RoomPlmSystem? roomPlms)
     {
         if ((slot.Direction & 0x00f0) != 0)
         {
@@ -988,14 +998,16 @@ public sealed class SamusProjectileSystem
         // `$90:B159` falls directly into the shared Wave movement. Hyper deliberately has
         // no projectile-trail timer or SpawnProjectileTrail call; its long beam spritemap
         // and the separately counting muzzle flare provide the complete native presentation.
-        RunWaveBeamShared(bus, slot, layer1X, layer1Y);
+        RunWaveBeamShared(bus, level, slot, layer1X, layer1Y, roomPlms);
     }
 
     private void RunWaveBeamShared(
         ISnesAddressSpace bus,
+        RoomLevelData level,
         SamusProjectileSlot slot,
         ushort layer1X,
-        ushort layer1Y)
+        ushort layer1Y,
+        RoomPlmSystem? roomPlms)
     {
         int direction = slot.Direction & 0x000f;
         slot.XVelocity = unchecked((short)(slot.XVelocity +
@@ -1006,15 +1018,15 @@ public sealed class SamusProjectileSystem
         // `$94:A352/$A3E4` advance the same 16.16 positions and scan every block touched by
         // the projectile radii, but deliberately return carry clear unconditionally. That is
         // the defining Wave Beam behavior: block reactions may run, yet terrain never kills
-        // or clips the shot. Shootable-block PLM production is still owned by the incomplete
-        // general shot-reaction dispatcher; until that owner is connected, this method keeps
-        // the native pass-through motion without fabricating terrain mutations.
+        // or clips the shot. The span scanners below now publish ordinary shootable-block
+        // PLMs while intentionally discarding their carry result, matching this fallthrough.
         if (direction is 2 or 7 or 1 or 3 or 6 or 8)
         {
             (slot.XPosition, slot.XSubposition) = AddVelocity(
                 slot.XPosition,
                 slot.XSubposition,
                 slot.XVelocity);
+            ScanHorizontalShotReactions(level, slot, roomPlms);
         }
         if (direction is 0 or 4 or 5 or 9 or 1 or 3 or 6 or 8)
         {
@@ -1022,6 +1034,7 @@ public sealed class SamusProjectileSystem
                 slot.YPosition,
                 slot.YSubposition,
                 slot.YVelocity);
+            ScanVerticalShotReactions(level, slot, roomPlms);
         }
 
         short screenX = unchecked((short)(slot.XPosition - layer1X));
@@ -1036,7 +1049,8 @@ public sealed class SamusProjectileSystem
         SamusProjectileSlot slot,
         ushort layer1X,
         ushort layer1Y,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles,
+        RoomPlmSystem? roomPlms)
     {
         if ((slot.Direction & 0x00f0) != 0)
         {
@@ -1081,11 +1095,11 @@ public sealed class SamusProjectileSystem
 
         bool collided = direction switch
         {
-            0 or 4 or 5 or 9 => MoveMissileVertically(bus, level, slot),
-            2 or 7 => MoveMissileHorizontally(bus, level, slot),
+            0 or 4 or 5 or 9 => MoveMissileVertically(bus, level, slot, roomPlms),
+            2 or 7 => MoveMissileHorizontally(bus, level, slot, roomPlms),
             1 or 3 or 6 or 8 =>
-                MoveMissileHorizontally(bus, level, slot) ||
-                MoveMissileVertically(bus, level, slot),
+                MoveMissileHorizontally(bus, level, slot, roomPlms) ||
+                MoveMissileVertically(bus, level, slot, roomPlms),
             _ => false,
         };
         if (collided)
@@ -1108,7 +1122,8 @@ public sealed class SamusProjectileSystem
         SamusProjectileSlot slot,
         ushort layer1X,
         ushort layer1Y,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles,
+        RoomPlmSystem? roomPlms)
     {
         if ((slot.Direction & 0x00f0) != 0)
         {
@@ -1152,17 +1167,19 @@ public sealed class SamusProjectileSystem
         bool collided = false;
         if (direction is 2 or 7 or 1 or 3 or 6 or 8)
         {
-            collided = MoveMissileHorizontally(bus, level, slot);
+            collided = MoveMissileHorizontally(bus, level, slot, roomPlms);
             if (collided)
                 KillMissile(bus, slot, sharedProjectiles);
-            UpdateSuperMissileLinkAxis(bus, level, slot, vertical: false, sharedProjectiles);
+            UpdateSuperMissileLinkAxis(
+                bus, level, slot, vertical: false, sharedProjectiles, roomPlms);
         }
         if (!collided && direction is 0 or 4 or 5 or 9 or 1 or 3 or 6 or 8)
         {
-            collided = MoveMissileVertically(bus, level, slot);
+            collided = MoveMissileVertically(bus, level, slot, roomPlms);
             if (collided)
                 KillMissile(bus, slot, sharedProjectiles);
-            UpdateSuperMissileLinkAxis(bus, level, slot, vertical: true, sharedProjectiles);
+            UpdateSuperMissileLinkAxis(
+                bus, level, slot, vertical: true, sharedProjectiles, roomPlms);
         }
 
         short screenX = unchecked((short)(slot.XPosition - layer1X));
@@ -1219,7 +1236,8 @@ public sealed class SamusProjectileSystem
         RoomLevelData level,
         SamusProjectileSlot owner,
         bool vertical,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles,
+        RoomPlmSystem? roomPlms)
     {
         if ((owner.Variable & 0xff00) == 0)
             return;
@@ -1260,7 +1278,8 @@ public sealed class SamusProjectileSystem
                 bus,
                 level,
                 link,
-                horizontalMovement: !vertical))
+                horizontalMovement: !vertical,
+                roomPlms: roomPlms))
             KillMissile(bus, link, sharedProjectiles);
     }
 
@@ -1277,7 +1296,8 @@ public sealed class SamusProjectileSystem
     private static bool MoveMissileHorizontally(
         ISnesAddressSpace bus,
         RoomLevelData level,
-        SamusProjectileSlot slot)
+        SamusProjectileSlot slot,
+        RoomPlmSystem? roomPlms)
     {
         (slot.XPosition, slot.XSubposition) = AddVelocity(
             slot.XPosition,
@@ -1290,13 +1310,15 @@ public sealed class SamusProjectileSystem
         int roomWidthInScreens = (level.WidthInBlocks + 15) >> 4;
         if ((slot.XPosition >> 8) >= roomWidthInScreens)
             return false;
-        return MissilePointReaction(bus, level, slot, horizontalMovement: true);
+        return MissilePointReaction(
+            bus, level, slot, horizontalMovement: true, roomPlms: roomPlms);
     }
 
     private static bool MoveMissileVertically(
         ISnesAddressSpace bus,
         RoomLevelData level,
-        SamusProjectileSlot slot)
+        SamusProjectileSlot slot,
+        RoomPlmSystem? roomPlms)
     {
         (slot.YPosition, slot.YSubposition) = AddVelocity(
             slot.YPosition,
@@ -1306,14 +1328,16 @@ public sealed class SamusProjectileSystem
         int roomHeightInScreens = (level.HeightInBlocks + 15) >> 4;
         if ((slot.YPosition >> 8) >= roomHeightInScreens)
             return false;
-        return MissilePointReaction(bus, level, slot, horizontalMovement: false);
+        return MissilePointReaction(
+            bus, level, slot, horizontalMovement: false, roomPlms: roomPlms);
     }
 
     private static bool MissilePointReaction(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
-        bool horizontalMovement)
+        bool horizontalMovement,
+        RoomPlmSystem? roomPlms)
     {
         int blockX = slot.XPosition >> 4;
         int blockY = slot.YPosition >> 4;
@@ -1324,6 +1348,13 @@ public sealed class SamusProjectileSystem
         }
 
         RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+        if (block.CollisionType is 4 or 12)
+        {
+            // `$94:9E55/$9E73` run the bank-$84 spawn before returning the collision
+            // nibble's normal carry: type four remains pass-through; type C is solid.
+            TrySpawnShootableReaction(level, slot, block, roomPlms);
+            return block.CollisionType == 12;
+        }
         return block.CollisionType switch
         {
             // The point reaction dispatch treats these categories as transparent air.
@@ -1337,7 +1368,7 @@ public sealed class SamusProjectileSystem
             // the direction only changes which half of a square definition is sampled.
             1 => MissileSlopePointReaction(bus, block, slot, horizontalMovement),
 
-            // Block families below have extension walks or bank-$84 PLM side effects.
+            // Block families below still have extension walks or weapon-gated PLM effects.
             // Throwing at the exact contacted block prevents a shootable/bombable tile from
             // being guessed into plain air or plain solid.
             _ => throw new NotSupportedException(
@@ -1543,13 +1574,37 @@ public sealed class SamusProjectileSystem
             side.TileNumberAttributes);
     }
 
-    private static bool MoveHorizontally(RoomLevelData level, SamusProjectileSlot slot)
+    private static bool MoveHorizontally(
+        RoomLevelData level,
+        SamusProjectileSlot slot,
+        RoomPlmSystem? roomPlms)
     {
         (slot.XPosition, slot.XSubposition) = AddVelocity(
             slot.XPosition,
             slot.XSubposition,
             slot.XVelocity);
 
+        return ScanHorizontalShotReactions(level, slot, roomPlms);
+    }
+
+    private static bool MoveVertically(
+        RoomLevelData level,
+        SamusProjectileSlot slot,
+        RoomPlmSystem? roomPlms)
+    {
+        (slot.YPosition, slot.YSubposition) = AddVelocity(
+            slot.YPosition,
+            slot.YSubposition,
+            slot.YVelocity);
+
+        return ScanVerticalShotReactions(level, slot, roomPlms);
+    }
+
+    private static bool ScanHorizontalShotReactions(
+        RoomLevelData level,
+        SamusProjectileSlot slot,
+        RoomPlmSystem? roomPlms)
+    {
         int topBlock = unchecked((ushort)(slot.YPosition - slot.YRadius)) >> 4;
         int bottomBlock = unchecked((ushort)(slot.YPosition + slot.YRadius - 1)) >> 4;
         int targetX = slot.XVelocity < 0
@@ -1564,24 +1619,24 @@ public sealed class SamusProjectileSystem
             return false;
         }
 
-        // The native target-collision counter starts at span-1 and goes negative only when
-        // every crossed block returns carry set. A tall beam grazing air beside one solid
-        // block therefore keeps moving; this is not an ordinary "any overlap" AABB test.
+        // `$94:A1B5` decrements its target counter only for carry-set reactions. A tall
+        // projectile grazing air beside one solid block therefore keeps moving; every
+        // touched block still gets its side effect before that aggregate result is tested.
+        bool everyBlockSolid = true;
         for (int blockY = topBlock; blockY <= bottomBlock; blockY++)
         {
-            if (!IsUnconditionallySolidShotBlock(level.GetCollisionBlock(blockX, blockY)))
-                return false;
+            RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+            if (!RunShotReaction(level, slot, block, roomPlms))
+                everyBlockSolid = false;
         }
-        return true;
+        return everyBlockSolid;
     }
 
-    private static bool MoveVertically(RoomLevelData level, SamusProjectileSlot slot)
+    private static bool ScanVerticalShotReactions(
+        RoomLevelData level,
+        SamusProjectileSlot slot,
+        RoomPlmSystem? roomPlms)
     {
-        (slot.YPosition, slot.YSubposition) = AddVelocity(
-            slot.YPosition,
-            slot.YSubposition,
-            slot.YVelocity);
-
         int leftBlock = unchecked((ushort)(slot.XPosition - slot.XRadius)) >> 4;
         int rightBlock = unchecked((ushort)(slot.XPosition + slot.XRadius - 1)) >> 4;
         int targetY = slot.YVelocity < 0
@@ -1596,21 +1651,59 @@ public sealed class SamusProjectileSystem
             return false;
         }
 
+        bool everyBlockSolid = true;
         for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
         {
-            if (!IsUnconditionallySolidShotBlock(level.GetCollisionBlock(blockX, blockY)))
-                return false;
+            RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+            if (!RunShotReaction(level, slot, block, roomPlms))
+                everyBlockSolid = false;
         }
-        return true;
+        return everyBlockSolid;
     }
 
-    private static bool IsUnconditionallySolidShotBlock(RoomCollisionBlock block)
+    private static bool RunShotReaction(
+        RoomLevelData level,
+        SamusProjectileSlot slot,
+        RoomCollisionBlock block,
+        RoomPlmSystem? roomPlms)
     {
-        // `$94:A175/$A195` return carry for 8/B/E directly. Door ($9), spike ($A),
-        // shootable ($C), and bombable ($F) blocks also collide after their actor/PLM
-        // reactions; this initial power-beam slice has no Landing Site instance requiring
-        // those producers, but retaining their collision result prevents tunneling.
+        if (block.CollisionType is 4 or 12)
+        {
+            TrySpawnShootableReaction(level, slot, block, roomPlms);
+            return block.CollisionType == 12;
+        }
+
+        // `$94:A175/$A195` return carry for 8/B/E directly. Door ($9), spike ($A), and
+        // bombable ($F) also collide; their actor/weapon-gated setup remains a later slice.
         return block.CollisionType is >= 8 and <= 15;
+    }
+
+    private static void TrySpawnShootableReaction(
+        RoomLevelData level,
+        SamusProjectileSlot slot,
+        RoomCollisionBlock block,
+        RoomPlmSystem? roomPlms)
+    {
+        if (roomPlms is null)
+            return;
+
+        // Nonnegative BTS 0..F indexes the complete retail `$94:9EA6` table. Negative BTS
+        // 0..7 is also admitted so shootable-solid can preserve its native area-table no-op
+        // slot; shootable-air's method exits without allocating. The RoomPlm owner performs
+        // the power-bomb/Super-Missile family checks for entries 8..B synchronously, just as
+        // each bank-$84 setup sees the current native projectile type during Spawn_PLM.
+        bool translatedBehavior = (block.Behavior & 0x80) != 0
+            ? (block.Behavior & 0x7f) <= 7
+            : block.Behavior <= 15;
+        if (translatedBehavior)
+        {
+            roomPlms.TrySpawnProjectileShotBlock(
+                level,
+                block.Index,
+                block.Behavior,
+                slot.Type,
+                solidBlock: block.CollisionType == 12);
+        }
     }
 
     private static (ushort Position, ushort Subposition) AddVelocity(

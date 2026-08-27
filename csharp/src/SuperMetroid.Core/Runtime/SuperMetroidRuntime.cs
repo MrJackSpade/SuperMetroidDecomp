@@ -1074,7 +1074,8 @@ public sealed class SuperMetroidRuntime
                         Camera.XPosition,
                         Camera.YPosition,
                         BombProjectiles,
-                        projectileProducerEnabled: !DebugGrappleItemSelected);
+                        projectileProducerEnabled: !DebugGrappleItemSelected,
+                        roomPlms: Plms);
 
                     // `$0CD0` is one shared WRAM word, not independent projectile/movement
                     // state. Samus's spin/wall-jump contact-damage handlers run in beta and

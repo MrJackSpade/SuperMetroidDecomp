@@ -11849,6 +11849,53 @@ static void VerifySamusPowerBeamProjectiles()
     for (int direction = 0; direction < 10; direction++)
         WriteTestWord(bus, 0x938462 + direction * 2, 0x9000);
 
+    // `$90:B5BB/$B609` select two independent trail instruction streams from the beam's
+    // low six type bits. Ordinary power selects two empty lists; charged power selects the
+    // long ice-style left list and an empty right list. These are genuine table relationships,
+    // not a verifier-specific particle definition.
+    WriteTestWord(bus, 0x90b5bb, 0xb4c9);
+    WriteTestWord(bus, 0x90b609, 0xb4c9);
+    WriteTestWord(bus, 0x90b5db, 0xb4cb);
+    WriteTestWord(bus, 0x90b629, 0xb4c9);
+    WriteTestWord(bus, 0x90b4c9, 0x0000);
+
+    // Retain enough of retail `$90:B4CB` to prove repeated one-frame tiles and the embedded
+    // `$B525` position command. The production interpreter remains ROM-driven and continues
+    // through the full list when the real cartridge data is mounted.
+    ushort chargedTrailInstruction = 0xb4cb;
+    void WriteChargedTrailWord(ushort value)
+    {
+        WriteTestWord(bus, 0x900000 | chargedTrailInstruction, value);
+        chargedTrailInstruction = unchecked((ushort)(chargedTrailInstruction + 2));
+    }
+    for (int record = 0; record < 4; record++)
+    {
+        WriteChargedTrailWord(1);
+        WriteChargedTrailWord(0x2c38);
+    }
+    for (int record = 0; record < 2; record++)
+    {
+        WriteChargedTrailWord(1);
+        WriteChargedTrailWord(0x2c39);
+    }
+    WriteChargedTrailWord(0xb525);
+    WriteChargedTrailWord(1);
+    WriteChargedTrailWord(0x2c39);
+    WriteChargedTrailWord(0);
+
+    // `$9B:A4B3/$A4CB` first choose a beam-combination family, then a direction-specific
+    // offset list. Plain power's offsets are all zero, so `$9B:A3CC` positions the 8x8 trail
+    // exactly four pixels above and left of the projectile's pre-movement center.
+    WriteTestWord(bus, 0x9ba4b3, 0xa50b);
+    WriteTestWord(bus, 0x9ba4cb, 0xa98f);
+    for (int direction = 0; direction < 10; direction++)
+    {
+        WriteTestWord(bus, 0x9ba50b + direction * 2, 0xa56f);
+        WriteTestWord(bus, 0x9ba98f + direction * 2, 0xaa07);
+    }
+    bus.WriteBytes(0x9ba56f, new byte[32]);
+    bus.WriteBytes(0x9baa07, new byte[32]);
+
     // Collision swaps to this two-frame explosion record. Its following delete opcode
     // proves that damage remains occupied during the explosion and decrements the separate
     // projectile counter only when `$93:822F` finally clears the slot.
@@ -12028,6 +12075,10 @@ static void VerifySamusPowerBeamProjectiles()
 
         flareOam.BeginFrame();
         chargeProjectiles.HandleChargeFlareAndDraw(bus, flareOam, chargeSamus, 0, 0);
+        // Runtime's later `$93:82F7` draw phase must run on every simulated gameplay frame.
+        // The ordinary power beam periodically allocates two empty streams; `$90:B6A9`
+        // consumes their zero terminators immediately instead of leaving timer-one slots.
+        chargeProjectiles.HandleTrailsAndDraw(bus, flareOam, 0, 0, timeIsFrozen: false);
         flareBecameVisible |= flareOam.NextByteOffset != 0;
     }
     AssertEqual((ushort)60, chargeProjectiles.FlareCounter,
@@ -12059,6 +12110,64 @@ static void VerifySamusPowerBeamProjectiles()
     chargeProjectiles.DrawLiveProjectiles(bus, chargedOam, 0, 0, nmiFrameCounter: 0);
     AssertTrue(chargedOam.NextByteOffset != 0,
         "charged power beam bypasses ordinary alternating-frame flicker");
+
+    // The release frame has already changed trail timer 4 to 3. Three more alpha passes
+    // reach zero and allocate native trail byte index `$22` before the third pass moves the
+    // projectile. Handling the draw immediately must consume only the populated left stream.
+    chargeBombs.StepFrame(bus, air, chargeSamus, 0, 0);
+    chargeProjectiles.StepFrame(bus, air, chargeSamus, 0, 0, 0, 0, chargeBombs);
+    chargeBombs.StepFrame(bus, air, chargeSamus, 0, 0);
+    chargeProjectiles.StepFrame(bus, air, chargeSamus, 0, 0, 0, 0, chargeBombs);
+    ushort trailSourceX = chargedSlot.XPosition;
+    ushort trailSourceY = chargedSlot.YPosition;
+    chargeBombs.StepFrame(bus, air, chargeSamus, 0, 0);
+    chargeProjectiles.StepFrame(bus, air, chargeSamus, 0, 0, 0, 0, chargeBombs);
+
+    AssertEqual(1, chargeProjectiles.ActiveTrailCount,
+        "charged power allocates one of eighteen trail slots every fourth alpha pass");
+    SamusProjectileTrailSlot chargedTrail =
+        chargeProjectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
+    AssertTrue(chargedTrail.IsActive, "trail allocation scans downward from native index $22");
+    AssertEqual(unchecked((ushort)(trailSourceX - 4)), chargedTrail.Left.XPosition,
+        "trail samples projectile X before movement and subtracts four");
+    AssertEqual(unchecked((ushort)(trailSourceY - 4)), chargedTrail.Left.YPosition,
+        "trail samples projectile Y before movement and subtracts four");
+
+    var trailOam = new OamBuffer();
+    trailOam.BeginFrame();
+    chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: false);
+    AssertEqual(4, trailOam.NextByteOffset, "charged power's left stream emits one raw OBJ");
+    AssertEqual((ushort)0, chargedTrail.Right.InstructionTimer,
+        "charged power's empty right stream terminates without drawing");
+    OamEntry firstTrailObj = trailOam.GetEntry(0);
+    AssertEqual(0x038, firstTrailObj.TileNumber, "charged trail reads first `$2C38` tile");
+    AssertEqual(6, firstTrailObj.Palette, "charged trail retains packed OBJ palette six");
+    AssertTrue(!firstTrailObj.IsLarge, "projectile trail is an explicit small OBJ");
+
+    // Time freeze bypasses DEC and command parsing but not OAM emission. The same record and
+    // instruction pointer must remain visible and unchanged for an arbitrary frozen frame.
+    ushort frozenTrailPointer = chargedTrail.Left.InstructionPointer;
+    ushort frozenTrailTimer = chargedTrail.Left.InstructionTimer;
+    trailOam.BeginFrame();
+    chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: true);
+    AssertEqual(frozenTrailPointer, chargedTrail.Left.InstructionPointer,
+        "frozen trail retains instruction pointer");
+    AssertEqual(frozenTrailTimer, chargedTrail.Left.InstructionTimer,
+        "frozen trail retains instruction timer");
+    AssertEqual(4, trailOam.NextByteOffset, "frozen active trail still draws");
+
+    // Five more records reach the inline `$B525` opcode on the sixth call after the first
+    // draw. It mutates world Y, then falls through to the following timed tile in one pass.
+    ushort beforeTrailCommandY = chargedTrail.Left.YPosition;
+    for (int call = 0; call < 6; call++)
+    {
+        trailOam.BeginFrame();
+        chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: false);
+    }
+    AssertEqual(unchecked((ushort)(beforeTrailCommandY + 1)), chargedTrail.Left.YPosition,
+        "inline `$B525` command moves the left trail down one pixel");
+    AssertEqual(0x039, trailOam.GetEntry(0).TileNumber,
+        "position command falls through to the following `$2C39` timed record");
 
     // Isolate horizontal fixed-point motion and collision against an authentic type-eight
     // solid column. The first rightward frame uses velocity `$0400+$0010`, producing four
@@ -12127,7 +12236,7 @@ static void VerifySamusPowerBeamProjectiles()
         "explosion delete clears ordinary slot");
 
     Console.WriteLine(
-        "  Samus power/charge beam: ten directions, hold/release flare, ROM records, cooldown, motion, collision, and explosion agree.");
+        "  Samus power/charge beam: directions, charge flare, trails, ROM records, motion, collision, and explosion agree.");
 }
 
 /// <summary>

@@ -2574,6 +2574,15 @@ public sealed class SuperMetroidRuntime
                     Camera.XPosition,
                     Camera.YPosition,
                     NmiFrameCounter);
+                // `$93:82F7` immediately follows the ordinary projectile draw with bank
+                // `$90:B6A9`. Trails are detached world-space objects, so they must keep
+                // animating after their source beam has collided or left the viewport.
+                Projectiles.HandleTrailsAndDraw(
+                    _addressSpace,
+                    Oam,
+                    Camera.XPosition,
+                    Camera.YPosition,
+                    Samus.Xray.TimeIsFrozen);
             }
 
             // Enemy layer six calls `$86:83B2`, after DrawSamusAndProjectiles. Keeping this

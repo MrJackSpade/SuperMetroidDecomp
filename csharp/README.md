@@ -276,8 +276,11 @@ frames and releases it. `$90:B80D` fires the initial ordinary shot, counts towar
 60-frame threshold, and `$90:BAFC` animates the central flare from count 15 plus both sparks
 from count 30 through ROM delay lists and `$93:A1A1` spritemaps. Release selects `$90:B986`
 and `$93:83D9`; the private ROM regression observes type `$9010`, damage `$003C`, cooldown
-30, sound `$17`, and the charged no-flicker OAM branch. A 50-frame capture freezes the active
-flare; a 68-frame capture freezes the release. The one-frame `$0CFA` shot-direction-change
+30, sound `$17`, the charged no-flicker OAM branch, and `$90:B657-$B80C`'s detached trail.
+The trail uses the retail 18-slot backward allocation scan, bank-$9B animation-frame offsets,
+independent left/right bank-$90 instruction streams, inline position commands, and frozen-time
+draw rule. A 50-frame capture freezes the active flare; a 68-frame capture freezes the release;
+a 72-frame capture freezes the projectile with its orange trail. The one-frame `$0CFA` shot-direction-change
 bridge and the four-call post-shot Samus palette recolor remain explicit presentation seams.
 
 `--grapple-fire-script` selects grapple at the explicit untranslated HUD seam, then presses only Shoot/X. Bank `$9B` supplies the current pose's direction, signed 16.16 velocities, hand/flare origins, twelve-pixel length growth, and 128-pixel cutoff. Bank `$94` performs four fractional endpoint probes per frame and dispatches real BG1/BTS collision; persistent type-`$E` BTS zero/three connects, while ordinary solid collision cancels and unsupported PLM-producing reactions throw. Landing Site contains no type-`$E` blocks, so its real-ROM trace honestly proves firing, rendering, and queued cancellation. The eight-frame capture freezes the visible extending beam; fourteen frames prove cancellation completion.
@@ -332,7 +335,7 @@ liquid/atmospheric/landing-impact, and documented
 Mother Brain/Baby routes described above. Unsupported paths throw instead of becoming guessed
 physics. Remaining cross-system work includes Crystal Flash/drain presentation, earlier Mother
 Brain attack selection, live Hyper Beam damage routing, combined beam and missile/super/
-power-bomb producers, projectile trails, projectile-triggered shootable/special-block PLMs,
+power-bomb producers and their weapon-specific trail variants, projectile-triggered shootable/special-block PLMs,
 missing actor spritemaps, live enemy damage producers, solid-enemy wall-jump branches,
 native enemy spawn selection, and the unported enemies/effects/
 actors. Raw files and PNGs contain private ROM-derived material and must not be distributed;

@@ -729,6 +729,7 @@ internal sealed class RuntimePreviewControl : UserControl
             // eventual bank-$93 deletion directly visible while stepping Hold Shoot.
             $"beams {runtime.Projectiles.ProjectileCounter}/5 " +
             $"charge {runtime.Projectiles.FlareCounter}/120 " +
+            $"trails {runtime.Projectiles.ActiveTrailCount}/18 " +
             $"lastShot={(runtime.Projectiles.LastFrameResult.FiredSlot is int shot ? shot : -1)} " +
             $"impact={(runtime.Projectiles.LastFrameResult.CollisionStartedExplosion ? "yes" : "no")}  |  " +
             $"moonwalk={(runtime.MoonwalkEnabled ? "on" : "off")}  |  " +

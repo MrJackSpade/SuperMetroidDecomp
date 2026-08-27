@@ -896,11 +896,17 @@ translated status is documented with the Morph Ball family below.
 - Charged plain power uses `$93:83D9`, type bit `$0010`, the charged cooldown/sound tables,
   and `$93:8268`'s no-flicker branch. The real ROM route observes final type `$9010`, damage
   `$003C`, sound `$17`, and a visible orange cannon flare in the composed/OAM capture.
+- `$90:B657-$B80C` owns eighteen detached trail slots, scans from native index `$22`, and
+  selects left/right instruction lists from the projectile's exact type bits. Charged plain
+  power selects `$B4CB` on the left and the intentional empty `$B4C9` on the right. Spawn
+  position uses `$93:81D1`'s current animation field and bank-$9B's signed four-byte offset;
+  drawing interprets timed tile records plus `$B525/$B587/$B5B3` position commands, preserves
+  live records while time is frozen, and writes the native raw small-OBJ form after beams.
 - Synthetic verification covers all ten ordinary directions, charge threshold/release,
-  flare animation, charged data routing and no-flicker OAM, fixed-point travel, type-eight
+  flare/trail animation, charged data routing and no-flicker OAM, fixed-point travel, type-eight
   impact, explosion retention, and deletion. `--charge-beam-script` supplies the private-ROM
   hold/release regression. The `$0CFA` transition-direction bridge, post-shot Samus palette
-  recolor, combined beam families, weapon-specific block reactions, and trails remain seams;
+  recolor, combined beam families, and weapon-specific block reactions remain seams;
   plain power's left/right trail instruction pointers are deliberately empty in retail data.
 
 ## Verified ordinary Morph Ball slice
@@ -1070,7 +1076,8 @@ translated status is documented with the Morph Ball family below.
 - The real-ROM `--charge-beam-script` reaches counter 65 through controller samples, draws
   the ROM-authored main flare and sparks, then releases a type-`$9010`, damage-`$003C` shot
   with sound `$17`. The 50-frame capture visibly retains the cannon flare; the 68-frame
-  regression requires charged-family allocation and nonzero bank-$93 art.
+  regression requires charged-family allocation and nonzero bank-$93 art; a 71+ frame run
+  also requires the native charged-trail allocation and the 72-frame PNG captures it.
 - The real-ROM `--draygon-grab-script` publishes a fixed owner coordinate at `$A5:94A9`, then
   observes every right-facing grabbed pose, the moving-body animation loop, `$F0->$EC`
   fallback, 60-pattern escape, owner signal, and `$01` release. Its assertions sample actual

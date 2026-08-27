@@ -735,6 +735,7 @@ bool observedPowerBeamArt = false;
 bool observedPowerBeamExplosion = false;
 ushort maximumObservedCharge = 0;
 bool observedChargedShot = false;
+bool observedChargedTrail = false;
 ushort observedChargedShotDamage = 0;
 ushort observedChargedShotSound = 0;
 bool observedKnockbackMovement = false;
@@ -2182,6 +2183,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     if (runtime.Projectiles.LastFrameResult.FiredSlot is not null)
         observedPowerBeamShots++;
     maximumObservedCharge = Math.Max(maximumObservedCharge, runtime.Projectiles.FlareCounter);
+    observedChargedTrail |= runtime.Projectiles.ActiveTrailCount != 0;
     if (runtime.Projectiles.LastFrameResult.FiredSlot is int firedSlot)
     {
         SamusProjectileSlot firedProjectile = runtime.Projectiles.Slots[firedSlot];
@@ -2826,11 +2828,16 @@ if (options.ChargeBeamScript)
             $"Charge Beam release mismatch: charged={observedChargedShot}, " +
             $"damage=${observedChargedShotDamage:X4}, sound=${observedChargedShotSound:X2}.");
     }
+    if (options.FrameCount >= 71 && !observedChargedTrail)
+    {
+        throw new InvalidOperationException(
+            "Charge Beam release did not allocate its native bank-$90 projectile trail.");
+    }
 
     Console.WriteLine(
         $"Charge Beam ROM route reached {maximumObservedCharge}/60, " +
         $"chargedShot={observedChargedShot}, damage=${observedChargedShotDamage:X4}, " +
-        $"sound=${observedChargedShotSound:X2}.");
+        $"sound=${observedChargedShotSound:X2}, trail={observedChargedTrail}.");
 }
 
 if (options.MorphKnockbackScript)
@@ -3486,6 +3493,7 @@ Console.WriteLine(
     $"timer {runtime.EscapeTimer.MinutesBcd:X2}:{runtime.EscapeTimer.SecondsBcd:X2}.{runtime.EscapeTimer.CentisecondsBcd:X2}; " +
     $"camera=({camera.XPosition:X4}.{camera.XSubposition:X4},{camera.YPosition:X4}.{camera.YSubposition:X4}); " +
     $"minimap=({runtime.Hud.MinimapCenterX},{runtime.Hud.MinimapCenterY}); " +
+    $"projectileTrails={runtime.Projectiles.ActiveTrailCount}; " +
     $"OAM staged/displayed sprites={runtime.Oam.LastFinalizedSpriteCount}/{runtime.DisplayedOam.LastFinalizedSpriteCount}; " +
     $"VRAM[$F000..$F00F] = {Convert.ToHexString(runtime.Vram.Bytes[0xf000..0xf010])}.");
 

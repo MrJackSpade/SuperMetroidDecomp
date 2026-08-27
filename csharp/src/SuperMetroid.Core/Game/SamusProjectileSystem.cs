@@ -23,6 +23,12 @@ public sealed class SamusProjectileSystem
     /// <summary>Native ordinary-projectile capacity; bombs occupy the other five slots.</summary>
     public const int SlotCount = 5;
 
+    /// <summary>
+    /// WRAM allocates byte indices <c>$00-$22</c>, inclusive, for projectile trails.
+    /// Because every parallel array is word-indexed, that is eighteen independent slots.
+    /// </summary>
+    public const int TrailSlotCount = 18;
+
     /// <summary>Live, uncharged beam flag written by <c>Fire_Uncharge_Beam</c>.</summary>
     public const ushort LiveUnchargedBeamFlag = 0x8000;
 
@@ -48,14 +54,33 @@ public sealed class SamusProjectileSystem
     private const int UnchargedBeamDataPointers = 0x9383c1;
     private const int ChargedBeamDataPointers = 0x9383d9;
     private const int BeamExplosionInstructionPointerAddress = 0x9383ff;
+    private const int TrailLeftInstructionPointers = 0x90b5bb;
+    private const int TrailRightInstructionPointers = 0x90b609;
+    private const int UnchargedTrailOffsetFamilies = 0x9ba4b3;
+    private const int ChargedTrailOffsetFamilies = 0x9ba4cb;
+    private const int SpazerSbaTrailOffsetFamilies = 0x9ba4e3;
+    private const ushort MoveLeftTrailDown = 0xb525;
+    private const ushort MoveRightTrailDown = 0xb587;
+    private const ushort MoveLeftTrailUp = 0xb5b3;
     private const ushort ProjectileInstructionDelete = 0x822f;
     private const ushort ProjectileInstructionGoto = 0x8239;
 
     private readonly SamusProjectileSlot[] _slots =
         Enumerable.Range(0, SlotCount).Select(index => new SamusProjectileSlot(index)).ToArray();
+    private readonly SamusProjectileTrailSlot[] _trailSlots =
+        Enumerable.Range(0, TrailSlotCount).Select(index => new SamusProjectileTrailSlot(index)).ToArray();
 
     /// <summary>The slots in native low-to-high byte-index order: $00, $02, ... $08.</summary>
     public IReadOnlyList<SamusProjectileSlot> Slots => _slots;
+
+    /// <summary>
+    /// The independent trail pool in native low-to-high byte-index order. Allocation scans
+    /// this collection backward, matching <c>$90:B679-$B683</c> rather than using a queue.
+    /// </summary>
+    public IReadOnlyList<SamusProjectileTrailSlot> TrailSlots => _trailSlots;
+
+    /// <summary>Debugger-friendly count of slots whose left stream still owns the slot.</summary>
+    public int ActiveTrailCount => _trailSlots.Count(slot => slot.IsActive);
 
     /// <summary>WRAM <c>$0CCE</c>; maintained separately from free-slot scans by the ROM.</summary>
     public ushort ProjectileCounter { get; private set; }
@@ -304,6 +329,34 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
+    /// Runs and draws <c>$90:B6A9</c>'s eighteen projectile-trail slots after the ordinary
+    /// projectile pass. Each side owns its own timer, instruction pointer, position, and OBJ.
+    /// </summary>
+    /// <param name="timeIsFrozen">
+    /// WRAM <c>$0A78</c>. Frozen trails retain their current record and are still drawn;
+    /// their timers and embedded position commands do not advance.
+    /// </param>
+    public void HandleTrailsAndDraw(
+        ISnesAddressSpace bus,
+        OamBuffer oam,
+        ushort layer1X,
+        ushort layer1Y,
+        bool timeIsFrozen)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(oam);
+
+        // Native Y starts at byte index $22, so the most recently preferred allocation slot
+        // is also handled first. Preserve that order because overlapping 8x8 OBJs reveal it.
+        for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
+        {
+            SamusProjectileTrailSlot slot = _trailSlots[slotIndex];
+            HandleTrailSideAndDraw(bus, oam, slot.Left, layer1X, layer1Y, timeIsFrozen, isLeft: true);
+            HandleTrailSideAndDraw(bus, oam, slot.Right, layer1X, layer1Y, timeIsFrozen, isLeft: false);
+        }
+    }
+
+    /// <summary>
     /// Draws beam explosions in bank-$A0's earlier bomb/explosion phase.
     /// </summary>
     public void DrawExplosions(
@@ -330,6 +383,8 @@ public sealed class SamusProjectileSystem
     {
         foreach (SamusProjectileSlot slot in _slots)
             slot.ClearFields();
+        foreach (SamusProjectileTrailSlot trail in _trailSlots)
+            trail.ClearFields();
         ProjectileCounter = 0;
         FlareCounter = 0;
         PreviousBeamChargeCounter = 0;
@@ -565,12 +620,15 @@ public sealed class SamusProjectileSystem
             return false;
         }
 
-        // Trails are allocated every fourth frame at $90:AF00. Their two independent
-        // bank-$90 instruction streams are the next projectile-animation slice; retain the
-        // exact timer now so adding their visible slots cannot shift live-beam timing later.
+        // `$90:AF00` allocates a persistent trail before applying acceleration or movement.
+        // Thus the detached 8x8 OBJ records the beam's old world position and visibly falls
+        // behind it. Failure to preserve this order makes the trail sit inside the projectile.
         slot.TrailTimer = unchecked((ushort)(slot.TrailTimer - 1));
         if (slot.TrailTimer == 0)
+        {
             slot.TrailTimer = 4;
+            SpawnTrail(bus, slot);
+        }
 
         int directionOffset = (slot.Direction & 0x0f) * 2;
         slot.XVelocity = unchecked((short)(slot.XVelocity +
@@ -600,6 +658,156 @@ public sealed class SamusProjectileSystem
             ClearProjectile(slot);
 
         return false;
+    }
+
+    private void SpawnTrail(ISnesAddressSpace bus, SamusProjectileSlot projectile)
+    {
+        int pointerIndex;
+        if ((projectile.Type & 0x0f00) == 0)
+        {
+            // Beam indices retain charge/SBA bits in the low six bits. Charged plain power
+            // therefore selects entry $10, not ordinary-power entry zero.
+            pointerIndex = projectile.Type & 0x003f;
+        }
+        else
+        {
+            // Missiles and supers map families $01/$02 to table entries $20/$21. Other
+            // projectile families return carry set and do not consume a trail slot.
+            int family = (projectile.Type >> 8) & 0x000f;
+            if (family >= 3)
+                return;
+            pointerIndex = family + 0x001f;
+        }
+
+        SamusProjectileTrailSlot? trail = null;
+        for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
+        {
+            // The original tests only the left timer. A right stream can still be alive in
+            // malformed/debug-edited state and will be overwritten when the left sentinel is
+            // clear; retain that asymmetric allocation contract rather than being "safer".
+            if (_trailSlots[slotIndex].Left.InstructionTimer == 0)
+            {
+                trail = _trailSlots[slotIndex];
+                break;
+            }
+        }
+        if (trail is null)
+            return;
+
+        trail.Left.InstructionTimer = 1;
+        trail.Right.InstructionTimer = 1;
+        trail.Left.InstructionPointer = ReadWord(bus, TrailLeftInstructionPointers + pointerIndex * 2);
+        trail.Right.InstructionPointer = ReadWord(bus, TrailRightInstructionPointers + pointerIndex * 2);
+
+        // `$93:81D1` returns the animation field that is current at this exact pre-instruction
+        // instant. When the timer is one and the upcoming word is a normal record, that means
+        // the upcoming field; otherwise it means the record eight bytes behind the pointer.
+        ushort animationFrame = GetTrailAnimationFrame(bus, projectile);
+        int direction = projectile.Direction & 0x000f;
+        int familyTable = (projectile.Type & 0x0020) != 0
+            ? SpazerSbaTrailOffsetFamilies
+            : (projectile.Type & 0x0010) != 0
+                ? ChargedTrailOffsetFamilies
+                : UnchargedTrailOffsetFamilies;
+        ushort directionTable = ReadWord(
+            bus,
+            familyTable + (projectile.Type & 0x000f) * 2);
+        ushort offsetList = ReadWord(
+            bus,
+            0x9b0000 | unchecked((ushort)(directionTable + direction * 2)));
+        int offsets = 0x9b0000 | unchecked((ushort)(offsetList + animationFrame * 4));
+
+        // All four bytes are signed offsets. The final minus four converts a beam-centered
+        // point to the upper-left origin of the raw 8x8 trail OBJ, exactly as `$9B:A3CC`.
+        trail.Left.XPosition = AddSignedOffset(projectile.XPosition, bus.ReadByte(offsets), -4);
+        trail.Left.YPosition = AddSignedOffset(projectile.YPosition, bus.ReadByte(offsets + 1), -4);
+        trail.Right.XPosition = AddSignedOffset(projectile.XPosition, bus.ReadByte(offsets + 2), -4);
+        trail.Right.YPosition = AddSignedOffset(projectile.YPosition, bus.ReadByte(offsets + 3), -4);
+    }
+
+    private static ushort GetTrailAnimationFrame(
+        ISnesAddressSpace bus,
+        SamusProjectileSlot projectile)
+    {
+        ushort pointer = projectile.InstructionPointer;
+        ushort upcomingWord = ReadWord(bus, 0x930000 | pointer);
+        int recordDelta = projectile.InstructionTimer == 1 && (upcomingWord & 0x8000) == 0
+            ? 0
+            : -8;
+        ushort frameAddress = unchecked((ushort)(pointer + recordDelta + 6));
+        return ReadWord(bus, 0x930000 | frameAddress);
+    }
+
+    private static ushort AddSignedOffset(ushort origin, byte encodedOffset, int constant) =>
+        unchecked((ushort)(origin + unchecked((sbyte)encodedOffset) + constant));
+
+    private static void HandleTrailSideAndDraw(
+        ISnesAddressSpace bus,
+        OamBuffer oam,
+        SamusProjectileTrailSide side,
+        ushort layer1X,
+        ushort layer1Y,
+        bool timeIsFrozen,
+        bool isLeft)
+    {
+        if (side.InstructionTimer == 0)
+            return;
+
+        if (!timeIsFrozen)
+        {
+            side.InstructionTimer = unchecked((ushort)(side.InstructionTimer - 1));
+            if (side.InstructionTimer == 0)
+            {
+                ushort pointer = side.InstructionPointer;
+                while (true)
+                {
+                    ushort instructionOrTimer = ReadWord(bus, 0x900000 | pointer);
+                    if ((instructionOrTimer & 0x8000) == 0)
+                    {
+                        side.InstructionTimer = instructionOrTimer;
+                        if (instructionOrTimer == 0)
+                            return;
+
+                        side.TileNumberAttributes = ReadWord(
+                            bus,
+                            0x900000 | unchecked((ushort)(pointer + 2)));
+                        side.InstructionPointer = unchecked((ushort)(pointer + 4));
+                        break;
+                    }
+
+                    // Bank $90 stores executable instruction addresses inline. Each handler
+                    // returns to the parser with X already advanced past its one-word opcode.
+                    pointer = unchecked((ushort)(pointer + 2));
+                    switch (instructionOrTimer)
+                    {
+                        case MoveLeftTrailDown when isLeft:
+                        case MoveRightTrailDown when !isLeft:
+                            side.YPosition = unchecked((ushort)(side.YPosition + 1));
+                            break;
+                        case MoveLeftTrailUp when isLeft:
+                            side.YPosition = unchecked((ushort)(side.YPosition - 1));
+                            break;
+                        default:
+                            throw new InvalidOperationException(
+                                $"Unsupported {(isLeft ? "left" : "right")} projectile-trail " +
+                                $"instruction ${instructionOrTimer:X4} at $90:{unchecked((ushort)(pointer - 2)):X4}.");
+                    }
+                }
+            }
+        }
+
+        // `$90:B6F4/$B703` require both complete 16-bit camera-relative coordinates to have
+        // a zero high byte. Unlike the generic spritemap path, negative or 256+ coordinates
+        // are skipped rather than wrapped or parked.
+        ushort screenX = unchecked((ushort)(side.XPosition - layer1X));
+        ushort screenY = unchecked((ushort)(side.YPosition - layer1Y));
+        if ((screenX & 0xff00) != 0 || (screenY & 0xff00) != 0)
+            return;
+
+        oam.AddProjectileTrailSprite(
+            unchecked((byte)screenX),
+            unchecked((byte)screenY),
+            side.TileNumberAttributes);
     }
 
     private static bool MoveHorizontally(RoomLevelData level, SamusProjectileSlot slot)
@@ -926,6 +1134,51 @@ public enum SamusProjectilePreInstruction : byte
 {
     None,
     NoWaveBeam,
+}
+
+/// <summary>
+/// One of the eighteen independent projectile-trail allocations. The left timer is the
+/// native free-slot sentinel even though both sides otherwise animate independently.
+/// </summary>
+public sealed class SamusProjectileTrailSlot
+{
+    internal SamusProjectileTrailSlot(int slotIndex)
+    {
+        SlotIndex = slotIndex;
+        Left = new SamusProjectileTrailSide();
+        Right = new SamusProjectileTrailSide();
+    }
+
+    public int SlotIndex { get; }
+    public int NativeByteIndex => SlotIndex * 2;
+    public SamusProjectileTrailSide Left { get; }
+    public SamusProjectileTrailSide Right { get; }
+    public bool IsActive => Left.InstructionTimer != 0;
+
+    internal void ClearFields()
+    {
+        Left.ClearFields();
+        Right.ClearFields();
+    }
+}
+
+/// <summary>One side of a two-stream bank-$90 projectile-trail animation.</summary>
+public sealed class SamusProjectileTrailSide
+{
+    public ushort XPosition { get; internal set; }
+    public ushort YPosition { get; internal set; }
+    public ushort InstructionTimer { get; internal set; }
+    public ushort InstructionPointer { get; internal set; }
+    public ushort TileNumberAttributes { get; internal set; }
+
+    internal void ClearFields()
+    {
+        XPosition = 0;
+        YPosition = 0;
+        InstructionTimer = 0;
+        InstructionPointer = 0;
+        TileNumberAttributes = 0;
+    }
 }
 
 /// <summary>Immutable summary of one ordinary-projectile alpha pass.</summary>

@@ -345,6 +345,30 @@ public sealed class OamBuffer
     }
 
     /// <summary>
+    /// Appends one projectile-trail OBJ exactly as <c>$90:B700/$90:B766</c> do: four low-OAM
+    /// bytes, no high-OAM write, and a non-wrapping stack increment.
+    /// </summary>
+    /// <remarks>
+    /// The distinction from <see cref="AddRawSmallSprite"/> is small but observable at the
+    /// 128th OBJ. The trail handler permits offset <c>$01FC</c>, advances the native stack to
+    /// <c>$0200</c>, and then rejects every later trail. It also knows that both screen
+    /// coordinates have zero high bytes, so the cleared high-OAM pair already describes a
+    /// small object at X 0..255 and is deliberately left untouched.
+    /// </remarks>
+    public void AddProjectileTrailSprite(byte x, byte y, ushort attributes)
+    {
+        if (NextByteOffset >= LowTableByteCount)
+            return;
+
+        int lowOffset = NextByteOffset;
+        _lowTable[lowOffset] = x;
+        _lowTable[lowOffset + 1] = y;
+        _lowTable[lowOffset + 2] = unchecked((byte)attributes);
+        _lowTable[lowOffset + 3] = unchecked((byte)(attributes >> 8));
+        NextByteOffset += 4;
+    }
+
+    /// <summary>
     /// Ports <c>$80:896E</c>: move every unused sprite to Y=<c>$F0</c> and reset the OAM
     /// stack pointer for the following construction pass.
     /// </summary>

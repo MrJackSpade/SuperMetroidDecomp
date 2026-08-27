@@ -342,7 +342,9 @@ public sealed class OamBuffer
         ushort originX,
         ushort originY,
         ushort paletteBits,
-        ushort baseTileIndex)
+        ushort baseTileIndex,
+        bool clipVerticalWrap = false,
+        bool originYIsOnScreen = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if ((paletteBits & ~0x0e00) != 0)
@@ -358,7 +360,23 @@ public sealed class OamBuffer
             ushort sourceAttributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
 
             ushort calculatedX = unchecked((ushort)(originX + encodedXOffset));
-            byte calculatedY = unchecked((byte)(originY + encodedYOffset));
+            int unsignedYSum = unchecked((byte)originY) + encodedYOffset;
+            byte calculatedY;
+            if (!clipVerticalWrap)
+            {
+                calculatedY = unchecked((byte)unsignedYSum);
+            }
+            else
+            {
+                // Extended enemy spritemaps route each component through $81:8B22 or
+                // $81:8B96. Their complementary carry/sign tests prevent a piece on one
+                // side of the vertical boundary from wrapping onto the other side.
+                bool yOffsetIsNegative = (encodedYOffset & 0x80) != 0;
+                bool hideForVerticalWrap = originYIsOnScreen
+                    ? yOffsetIsNegative ? unsignedYSum < 0x100 : unsignedYSum >= 0x100
+                    : yOffsetIsNegative ? unsignedYSum >= 0x100 : unsignedYSum < 0x100;
+                calculatedY = hideForVerticalWrap ? (byte)0xf0 : unchecked((byte)unsignedYSum);
+            }
             ushort finalAttributes = unchecked((ushort)(sourceAttributes + baseTileIndex));
             finalAttributes |= paletteBits;
 

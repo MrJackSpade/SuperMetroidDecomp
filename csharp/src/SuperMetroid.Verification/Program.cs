@@ -649,8 +649,44 @@ static void VerifyOamSpritemapPacking()
     AssertEqual(2, roomEnemySecond.Priority,
         "room-enemy tile-base ADC carry reaches the attribute high byte");
 
+    // Extended enemy components use `$81:8B22/$81:8B96` rather than the ordinary
+    // `$81:8AB8` writer. The same two-piece fixture therefore exposes both complementary
+    // boundary rules: an on-screen origin parks a negative piece that failed to carry,
+    // while an off-screen origin admits only the positive piece that did carry to Y=$01.
+    oam.BeginFrame();
+    oam.AddEnemySpritemap(
+        bus,
+        bank: 0xa2,
+        spritemapPointer: 0x9000,
+        originX: 0,
+        originY: 0x0001,
+        paletteBits: 0,
+        baseTileIndex: 0,
+        clipVerticalWrap: true,
+        originYIsOnScreen: true);
+    AssertEqual((byte)0xf0, oam.GetEntry(0).Y,
+        "extended enemy on-screen origin parks uncrossed negative piece");
+    AssertEqual((byte)0x03, oam.GetEntry(1).Y,
+        "extended enemy on-screen origin retains positive piece");
+
+    oam.BeginFrame();
+    oam.AddEnemySpritemap(
+        bus,
+        bank: 0xa2,
+        spritemapPointer: 0x9000,
+        originX: 0,
+        originY: 0xffff,
+        paletteBits: 0,
+        baseTileIndex: 0,
+        clipVerticalWrap: true,
+        originYIsOnScreen: false);
+    AssertEqual((byte)0xf0, oam.GetEntry(0).Y,
+        "extended enemy off-screen origin parks negative piece that remains above screen");
+    AssertEqual((byte)0x01, oam.GetEntry(1).Y,
+        "extended enemy off-screen origin admits positive piece crossing onto screen");
+
     Console.WriteLine(
-        "  OAM: spritemap packing, enemy/enemy-projectile arithmetic, wrap, and finalization agree.");
+        "  OAM: spritemap packing, enemy/enemy-projectile arithmetic, extended clipping, wrap, and finalization agree.");
 }
 
 /// <summary>

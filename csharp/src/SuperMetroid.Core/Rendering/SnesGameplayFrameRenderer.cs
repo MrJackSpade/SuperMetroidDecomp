@@ -160,8 +160,8 @@ public static class SnesGameplayFrameRenderer
             width: Width,
             height: Height - HudHeight,
             tilemapWidthInTiles: 32,
-            // Setup ASM and the HDMA pre-instruction both write BG2SC=$4A. Its low bits
-            // are %10: one 32x32 screen at $4800 above another at $4C00.
+            // Scrolling-sky setup selects BG2SC=$4A. Its low bits are %10: one 32x32
+            // circular screen at $4800 above another at $4C00.
             tilemapHeightInTiles: 64,
             horizontalScrollByLine: bg2HorizontalScrollByLine);
         Rgba32[] bg1 = SnesBgTilemapRenderer.Render4BppViewport(

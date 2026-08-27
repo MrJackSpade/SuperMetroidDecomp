@@ -33,6 +33,7 @@ public sealed class RoomEnemySystem
     private readonly List<SolidEnemyCollisionBody> _interactiveCollisionBodies = new();
     private readonly List<RoomEnemyGraphicsSetEntry> _graphicsSet = new();
     private ISnesAddressSpace? _bus;
+    private Func<ushort>? _nextRandom;
 
     public RoomEnemySystem()
     {
@@ -75,13 +76,16 @@ public sealed class RoomEnemySystem
         ushort populationPointer,
         ushort tilesetPointer,
         SnesVram vram,
-        SnesCgram cgram)
+        SnesCgram cgram,
+        Func<ushort> nextRandom)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
+        ArgumentNullException.ThrowIfNull(nextRandom);
 
         _bus = bus;
+        _nextRandom = nextRandom;
         PopulationPointer = populationPointer;
         TilesetPointer = tilesetPointer;
         FirstFreeEnemyIndex = 0;
@@ -232,14 +236,55 @@ public sealed class RoomEnemySystem
                 // layer-1 position, so preserve modular 16-bit arithmetic here.
                 ushort originX = unchecked((ushort)(slot.SpawnXOffset + slot.XPosition - cameraX));
                 ushort originY = unchecked((ushort)(slot.SpawnYOffset + slot.YPosition - cameraY));
-                oam.AddEnemySpritemap(
-                    _bus!,
-                    slot.Definition.Bank,
-                    slot.SpritemapPointer,
-                    originX,
-                    originY,
-                    slot.PaletteIndex,
-                    slot.VramTilesIndex);
+                if ((slot.ExtraProperties & 0x0004) == 0)
+                {
+                    oam.AddEnemySpritemap(
+                        _bus!,
+                        slot.Definition.Bank,
+                        slot.SpritemapPointer,
+                        originX,
+                        originY,
+                        slot.PaletteIndex,
+                        slot.VramTilesIndex);
+                    continue;
+                }
+
+                // Extended spritemaps begin with a low-byte component count followed by
+                // eight-byte {X,Y,spritemap,hitbox} records. Steam uses one component, but
+                // retaining the native list format is necessary for bosses and composite
+                // enemies that share this bank-$A0 draw path.
+                int extendedAddress = (slot.Definition.Bank << 16) | slot.SpritemapPointer;
+                int componentCount = _bus!.ReadByte(extendedAddress);
+                ushort componentPointer = unchecked((ushort)(slot.SpritemapPointer + 2));
+                for (int component = 0; component < componentCount; component++)
+                {
+                    int componentAddress = (slot.Definition.Bank << 16) | componentPointer;
+                    ushort componentX = unchecked((ushort)(originX + ReadWord(_bus, componentAddress)));
+                    ushort componentY = unchecked((ushort)(originY + ReadWord(_bus, AddWithinBank(componentAddress, 2))));
+                    ushort ordinarySpritemap = ReadWord(_bus, AddWithinBank(componentAddress, 4));
+
+                    // $FFFE names a BG2 tilemap command stream, not OBJ art. Its writer is
+                    // a separate modeled-BG seam; invisible steam frames never use it.
+                    if (ReadWord(
+                            _bus,
+                            (slot.Definition.Bank << 16) | ordinarySpritemap) != 0xfffe &&
+                        ((componentX + 128) & 0xfe00) == 0 &&
+                        ((componentY + 128) & 0xfe00) == 0)
+                    {
+                        oam.AddEnemySpritemap(
+                            _bus,
+                            slot.Definition.Bank,
+                            ordinarySpritemap,
+                            componentX,
+                            componentY,
+                            slot.PaletteIndex,
+                            slot.VramTilesIndex,
+                            clipVerticalWrap: true,
+                            originYIsOnScreen: (componentY >> 8) == 0);
+                    }
+
+                    componentPointer = unchecked((ushort)(componentPointer + 8));
+                }
             }
         }
     }
@@ -416,12 +461,35 @@ public sealed class RoomEnemySystem
             case 0xa2a6d2:
                 InitializeGunshipBottom(slot);
                 return;
+            case 0xa6efb1:
+                InitializeCeresSteam(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
                 throw new NotSupportedException(
                     $"Enemy ${slot.EnemyDefinitionPointer:X4} initialization AI ${address:X6} is not translated.");
         }
+    }
+
+    private void InitializeCeresSteam(RoomEnemySlot slot)
+    {
+        if (slot.Parameter1 >= 6)
+        {
+            throw new InvalidDataException(
+                $"Ceres steam parameter one ${slot.Parameter1:X4} exceeds its six-entry tables.");
+        }
+
+        slot.VramTilesIndex = 0;
+        slot.Properties |= 0x2000;
+        slot.ExtraProperties |= 0x0004;
+        slot.InstructionTimer = 1;
+        slot.Timer = 0;
+        slot.PaletteIndex = 0x0a00;
+        slot.VariableD = unchecked((ushort)((_nextRandom!() & 0x001f) + 1));
+        int tableIndex = slot.Parameter1 * 2;
+        slot.CurrentInstruction = ReadWord(_bus!, 0xa6eff5 + tableIndex);
+        slot.VariableA = ReadWord(_bus!, 0xa6f001 + tableIndex);
     }
 
     private static void InitializeGunshipTop(RoomEnemySlot slot)
@@ -482,10 +550,27 @@ public sealed class RoomEnemySystem
                 return;
             case 0xa2804c:
                 return;
+            case 0xa6f00d:
+                RunCeresSteamMain(slot);
+                return;
             default:
                 throw new NotSupportedException(
                     $"Enemy ${slot.EnemyDefinitionPointer:X4} main AI ${address:X6} is not translated.");
         }
+    }
+
+    private static void RunCeresSteamMain(RoomEnemySlot slot)
+    {
+        slot.Health = 0x7fff;
+        if (slot.VariableA == 0xeff4)
+            return;
+
+        // Parameters four/five install $A6:F019 through table words at $F009/$F00B; its
+        // graphical offsets depend on the Ceres elevator's Mode-7 matrix. They are retained
+        // as a named unsupported AI boundary instead of silently drawing the untransformed
+        // actor at its base point.
+        throw new NotSupportedException(
+            $"Ceres steam Mode-7 function $A6:{slot.VariableA:X4} is not translated.");
     }
 
     private void RunGunshipTopMain(
@@ -705,6 +790,30 @@ public sealed class RoomEnemySystem
                 case 0x812f: // EnemyInstr_Sleep: pin the PC on this command and stop forever.
                     slot.CurrentInstruction = cursor;
                     return;
+                case 0xf11d: // Ceres steam: hide and exclude from interaction.
+                    slot.Properties |= 0x0500;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xf127: // Ceres steam: randomized dormant-loop branch.
+                    slot.VariableD = unchecked((ushort)(slot.VariableD - 1));
+                    if (slot.VariableD != 0)
+                    {
+                        cursor = ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    }
+                    else
+                    {
+                        cursor = ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 4)));
+                        slot.Properties &= 0xfaff;
+                    }
+                    break;
+                case 0xf135: // Ceres steam: show and admit interaction.
+                    slot.Properties &= 0xfaff;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
                 default:
                     throw new NotSupportedException(
                         $"Enemy ${slot.EnemyDefinitionPointer:X4} instruction " +

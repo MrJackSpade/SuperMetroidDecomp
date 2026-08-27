@@ -312,16 +312,21 @@ public sealed class SuperMetroidRuntime
     /// <summary>Door/header/library-background data selected for the current Landing Site entry.</summary>
     public LandingSiteEntryState? LandingSiteEntry { get; private set; }
 
-    /// <summary>Loads Landing Site's exact 50-byte scroll buffer and creates its camera.</summary>
-    public void InitializeLandingSiteCamera()
+    /// <summary>
+    /// Loads Landing Site's exact 50-byte scroll buffer and creates the door-selected camera
+    /// and library-background state.
+    /// </summary>
+    public void InitializeLandingSiteCamera(
+        ushort doorPointer = LandingSiteEntryState.LandingCutsceneDoorPointer)
     {
-        LandingSiteEntry = LandingSiteEntryState.LoadLandingCutscene(_addressSpace);
+        LandingSiteEntry = LandingSiteEntryState.Load(_addressSpace, doorPointer);
         RoomScrollGrid scrolls = RoomScrollGrid.LoadLandingSite(_addressSpace);
         Camera = new ScrollBoundaryCamera(scrolls);
 
-        // Door_LandingSite_LandingCutscene ($83:88FE) declares screen position (4,0).
-        // Applying it here keeps the selected sky command and camera inseparable; callers
-        // can still move through authentic scroll-zone handlers after initialization.
+        // Applying the selected door's screen bytes here keeps its command-E sky tilemap
+        // page and initial camera inseparable. This matters vertically: using cutscene door
+        // $88FE's top-of-room page after host-moving to screen row four produces a repeating
+        // purple strip instead of the lower cloudy Landing Site sky.
         Camera.SetPosition(LandingSiteEntry.CameraX, LandingSiteEntry.CameraY);
 
         // Every Landing Site state header stores layer2Scrolls($81, 1). Both axes are odd,
@@ -374,7 +379,16 @@ public sealed class SuperMetroidRuntime
             LandingSiteEntry.EnemyPopulationPointer,
             LandingSiteEntry.EnemyTilesetPointer,
             Vram,
-            Cgram);
+            Cgram,
+            System.NextRandom);
+
+        // InitializeHud queued the cartridge's $2E00-byte standard OBJ sheet before this
+        // room loader existed. That transfer reaches VRAM byte $EDFF and overlaps the main
+        // gunship allocation at $E000-$EDFF. Native LoadEnemyTileData follows the standard
+        // upload, so append the room enemy transfers now as well as applying their immediate
+        // debugger-visible copies above. Omitting this reorder left only the gunship's small
+        // $F000 tail intact and decoded HUD/standard tiles through most of its spritemaps.
+        Enemies.QueueGraphicsUploads(VramWrites);
 
         // `$90:AC8D` is normally reached when equipment/room setup settles. Queue it here,
         // after InitializeHud's $2E00-byte standard OBJ transfer, so the smaller $0100 beam
@@ -385,6 +399,16 @@ public sealed class SuperMetroidRuntime
             VramWrites,
             Cgram,
             Samus?.EquippedBeams ?? 0);
+
+        // The queued HUD graphics begin at VRAM word $4000 and span through byte $9FFF,
+        // overlapping both scrolling-sky pages at words $4800-$4FFF. The door-selected
+        // library background is installed later in the cartridge's room-loading sequence.
+        // Requeue its literal ROM slice here so it wins at the first accepted NMI; the four
+        // per-frame circular row updates are appended after it and remain the final writers.
+        VramWrites.Enqueue(
+            LandingSiteEntry.SkyByteCount,
+            LandingSiteEntry.SkySourceAddress,
+            LandingSiteEntry.SkyVramDestination);
         BackgroundScroll.Layer1XPosition = Camera.XPosition;
         BackgroundScroll.Layer1YPosition = Camera.YPosition;
         IReadOnlyList<BackgroundUpdateRequest> requests = BackgroundScroll.BuildInitialViewportRequests();

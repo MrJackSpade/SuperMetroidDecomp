@@ -267,14 +267,23 @@ runtime.InitializeHud(HudSnapshot.CeresDebug);
 
 // These are the exact first two entries of the Ceres escape-timer transfer table at
 // $A6:C4CB. They land at the OBJ addresses selected by gameplay's OBSEL=$03.
-runtime.QueueEscapeTimerSpriteTiles();
+// The gunship route is normal Landing Site gameplay, not either escape. Keeping the timer
+// tile upload would be harmless by itself, but its independently started actor was also
+// being drawn over the ship in earlier captures and made a bad visual test look plausible.
+if (!options.GunshipScript)
+    runtime.QueueEscapeTimerSpriteTiles();
 
 // Establish the room before frame one. The command-line runner used to do this after the
 // stepping loop, which meant its requested frames could advance the timer but could not run
 // Landing Site's room-main sky uploads. The 9x5 dimensions come directly from
 // RoomHeader_LandingSite ($8F:91F8); no extracted PNG or raw-asset directory participates in
 // this live path.
-runtime.InitializeLandingSiteCamera();
+// The gunship route is explicitly placed on Landing Site's bottom row. Door $83:896A is
+// an actual entry into that row and its command-E record installs sky page $8A:D180. Other
+// debug routes can choose non-door camera coordinates after this call, so keep their prior
+// cutscene page until their entry-page selection is modeled rather than guessing by script.
+runtime.InitializeLandingSiteCamera(
+    options.GunshipScript ? (ushort)0x896a : LandingSiteEntryState.LandingCutsceneDoorPointer);
 ScrollBoundaryCamera camera = runtime.Camera!;
 
 // The optional grounded scenario must choose its camera before the native initial viewport
@@ -372,6 +381,16 @@ if (options.SpeedBoosterScript || options.ShinesparkScript)
     // motion remain native-data driven, while the separate type-$F dispatcher stays honest.
     runtime.Samus!.XPosition = unchecked((ushort)(runtime.Samus.XPosition - 256));
 }
+
+if (options.GunshipScript)
+{
+    // `$A1:883D` places the ship at X=$0480. The ordinary grounded-debug placement chosen
+    // above is one block column to its left and had already centered the camera on that
+    // unrelated stimulus, leaving every gunship OBJ 32 pixels right of its true viewport
+    // location. Select the ship-centred Landing Site camera before initial BG streaming;
+    // the exact actor coordinates are still read back from the loaded slot below.
+    camera.SetPosition(x: 0x0400, y: 0x0400);
+}
 InitialViewportResult initialViewport = runtime.InitializeLandingSiteViewport();
 
 // Validate the complete room-owned chain before a frame has a chance to mutate it. These
@@ -425,6 +444,96 @@ if (runtime.Vram.ReadByte(0xe000) != bus.ReadByte(0xadb600) ||
 Console.WriteLine(
     "Loaded Landing Site enemies from $A1:883D: gunship top $D07F plus two " +
     "bottom/pad $D0BF slots; graphics $B4:8193 now occupy VRAM $E000-$F1FF.");
+
+// Cross-room proof: Parlor's post-Ceres state is a dense nineteen-slot population of steam
+// actors at $A1:8DA0. It exercises fallback graphics indexes, RNG-consuming initialization,
+// actor-specific branch instructions, property-driven visibility, and extended spritemaps.
+// Use independent PPU/RNG state so this diagnostic cannot perturb the live Landing Site run.
+var parlorEnemies = new RoomEnemySystem();
+var parlorVram = new SnesVram();
+var parlorCgram = new SnesCgram();
+var parlorRandom = new Bank80SystemState();
+
+// Steam deliberately has a zero-byte enemy-graphics allocation and therefore draws from
+// the standard sprite sheet installed during $82:82E2. Reproduce that earlier game-start
+// DMA here; otherwise the actor state and OAM would be exact while its diagnostic PNG was
+// transparently decoding an empty private VRAM buffer. The default palette at $9A:8000 is
+// loaded for the same reason. RoomEnemySystem.Load then applies Parlor's enemy transfers on
+// top, preserving the native ordering in which room-specific art wins any overlap.
+parlorVram.ExecuteQueuedWrite(
+    bus,
+    sourceAddress: 0x9ad200,
+    sizeInBytes: 0x2e00,
+    encodedDestination: 0x6000);
+parlorCgram.LoadFromBus(bus, sourceAddress: 0x9a8000);
+parlorEnemies.Load(
+    bus,
+    populationPointer: 0x8da0,
+    tilesetPointer: 0x8295,
+    parlorVram,
+    parlorCgram,
+    parlorRandom.NextRandom);
+if (parlorEnemies.EnemyCount != 19 ||
+    parlorEnemies.FirstFreeEnemyIndex != 19 * RoomEnemySystem.NativeSlotSize ||
+    parlorEnemies.GraphicsSet.Count != 1 ||
+    parlorEnemies.GraphicsSet[0].DefinitionPointer != 0xd87f)
+{
+    throw new InvalidOperationException(
+        "Parlor escape-state enemy population/graphics set did not load exactly.");
+}
+RoomEnemySlot firstSteam = parlorEnemies.Slots[0];
+if (firstSteam.EnemyDefinitionPointer != 0xe1ff ||
+    firstSteam.CurrentInstruction != 0xf04d ||
+    firstSteam.VariableA != 0xeff4 ||
+    firstSteam.VariableD != 23 ||
+    firstSteam.VramTilesIndex != 0 ||
+    firstSteam.PaletteIndex != 0x0a00 ||
+    firstSteam.ExtraProperties != 0x0004)
+{
+    throw new InvalidOperationException(
+        "First Parlor steam slot disagrees with $A6:EFB1 initialization and RNG seed $0061: " +
+        $"def=${firstSteam.EnemyDefinitionPointer:X4}, list=${firstSteam.CurrentInstruction:X4}, " +
+        $"func=${firstSteam.VariableA:X4}, delay={firstSteam.VariableD}, " +
+        $"tile=${firstSteam.VramTilesIndex:X4}, palette=${firstSteam.PaletteIndex:X4}, " +
+        $"extra=${firstSteam.ExtraProperties:X4}.");
+}
+for (int steamFrame = 0; steamFrame < 24; steamFrame++)
+    parlorEnemies.StepFrame(cameraX: 0x0100, cameraY: 0, timeIsFrozen: false);
+if (firstSteam.Health != 0x7fff ||
+    firstSteam.Properties != 0x2000 ||
+    firstSteam.SpritemapPointer != 0xf142 ||
+    firstSteam.CurrentInstruction != 0xf065 ||
+    firstSteam.InstructionTimer != 3)
+{
+    throw new InvalidOperationException(
+        "First Parlor steam did not emerge on its exact randomized instruction-list frame.");
+}
+var parlorOam = new OamBuffer();
+parlorOam.BeginFrame();
+parlorEnemies.DrawLayers(parlorOam, cameraX: 0x0100, cameraY: 0, firstLayer: 5, lastLayer: 5);
+parlorOam.FinalizeFrame();
+if (parlorOam.LastFinalizedSpriteCount == 0)
+    throw new InvalidOperationException("Visible Parlor steam emitted no extended-spritemap OAM.");
+
+// Keep a standalone visual artifact beside the requested gameplay capture. It contains
+// only the authentic steam OBJ layer (transparent elsewhere), which makes incorrect tile
+// indexes, palettes, clipping, or extended-spritemap offsets immediately obvious without
+// needing a full Parlor background renderer first.
+Rgba32[] parlorSteamFrame = SnesObjRenderer.Render(
+    parlorOam,
+    parlorVram,
+    parlorCgram,
+    obsel: 0x03,
+    width: 256,
+    height: 224);
+string parlorSteamOutputPath = Path.Combine(
+    Path.GetDirectoryName(Path.GetFullPath(options.OutputPath))!,
+    "ParlorSteamFrame.png");
+PngWriter.WriteRgba(parlorSteamOutputPath, 256, 224, parlorSteamFrame);
+Console.WriteLine(
+    $"Cross-room enemy proof: Parlor $A1:8DA0 loaded 19 steam slots; first RNG delay " +
+    $"23 reached extended map $A6:F142 on frame 24 and emitted " +
+    $"{parlorOam.LastFinalizedSpriteCount} OBJ piece(s) to {Path.GetFullPath(parlorSteamOutputPath)}.");
 
 if (options.GunshipScript)
 {
@@ -897,7 +1006,7 @@ for (int blockY = (runtime.Samus.YPosition + samusYRadius - 1) >> 4;
 // Ordinary timer diagnostics still choose a host scenario at startup. The Mother Brain
 // route must not do that: `$A9:B309` owns its real status-$0002 request near the very end of
 // the death sequence, and prestarting it here would let the timer expire during the fight.
-if (!options.MotherBrainRainbowScript)
+if (!options.MotherBrainRainbowScript && !options.GunshipScript)
 {
     if (options.TimerScenario == TimerScenario.Ceres)
         runtime.EscapeTimer.RequestCeresStart();
@@ -2334,6 +2443,27 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
 
     if (frameIndex == 0 && options.GroundedRun)
     {
+        if (options.GunshipScript)
+        {
+            // These assertions deliberately run after accepted NMI, not immediately after
+            // RoomEnemySystem.Load. The latter used to pass while the deferred standard OBJ
+            // and BG3 uploads subsequently erased both room-owned regions. Lock the first
+            // and last bytes of each gunship allocation plus both ends of door $896A's sky
+            // page so future queue-order regressions fail before producing another bad PNG.
+            if (runtime.Vram.ReadByte(0xe000) != bus.ReadByte(0xadb600) ||
+                runtime.Vram.ReadByte(0xefff) != bus.ReadByte(0xadc5ff) ||
+                runtime.Vram.ReadByte(0xf000) != bus.ReadByte(0xadb600) ||
+                runtime.Vram.ReadByte(0xf1ff) != bus.ReadByte(0xadb7ff) ||
+                runtime.Vram.ReadWord(0x4800) != unchecked((ushort)(
+                    bus.ReadByte(0x8ad180) | (bus.ReadByte(0x8ad181) << 8))) ||
+                runtime.Vram.ReadWord(0x4bff) != unchecked((ushort)(
+                    bus.ReadByte(0x8ad97e) | (bus.ReadByte(0x8ad97f) << 8))))
+            {
+                throw new InvalidOperationException(
+                    "First NMI overwrote room-owned gunship graphics or scrolling-sky tilemap data.");
+            }
+        }
+
         // The first active call proves three independent operations happened in native
         // order: $A759 bobbed every component down one pixel from ROM table $A2:A7CF,
         // property $2000 ran each instruction list, and each duration/map pair replaced
@@ -4547,6 +4677,11 @@ Console.WriteLine(
     $"projectileTrails={runtime.Projectiles.ActiveTrailCount}; " +
     $"OAM staged/displayed sprites={runtime.Oam.LastFinalizedSpriteCount}/{runtime.DisplayedOam.LastFinalizedSpriteCount}; " +
     $"VRAM[$F000..$F00F] = {Convert.ToHexString(runtime.Vram.Bytes[0xf000..0xf010])}.");
+Console.WriteLine(
+    $"BG2 map row heads $4800/$4880/$48E0/$4900/$4A00 = " +
+    $"${runtime.Vram.ReadWord(0x4800):X4}/${runtime.Vram.ReadWord(0x4880):X4}/" +
+    $"${runtime.Vram.ReadWord(0x48e0):X4}/${runtime.Vram.ReadWord(0x4900):X4}/" +
+    $"${runtime.Vram.ReadWord(0x4a00):X4}.");
 
 OamEntry firstSamusSprite = runtime.DisplayedOam.GetEntry(0);
 Console.WriteLine(

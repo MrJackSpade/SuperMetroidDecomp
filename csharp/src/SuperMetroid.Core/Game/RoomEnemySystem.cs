@@ -81,6 +81,9 @@ public sealed partial class RoomEnemySystem
     public ushort? LastYardSoundEffect { get; private set; }
     public ushort? LastMetareeSoundEffect { get; private set; }
     public ushort? LastAlcoonSoundEffect { get; private set; }
+
+    /// <summary>Last library-three sound requested by an attached Beetom this frame.</summary>
+    public ushort? LastBeetomSoundEffect { get; private set; }
     public ushort FirefleaDarknessLevel { get; private set; }
     public ushort EarthquakeTimer { get; set; }
     public ushort EarthquakeType { get; set; }
@@ -112,7 +115,9 @@ public sealed partial class RoomEnemySystem
         Func<ushort> nextRandom,
         Action<ushort>? setRandomNumber = null,
         Func<ushort>? readRandomNumber = null,
-        RoomLevelData? level = null)
+        RoomLevelData? level = null,
+        SamusState? samus = null,
+        ushort controllerInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -141,6 +146,7 @@ public sealed partial class RoomEnemySystem
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
         LastAlcoonSoundEffect = null;
+        LastBeetomSoundEffect = null;
         FirefleaDarknessLevel = 0;
         EarthquakeTimer = 0;
         EarthquakeType = 0;
@@ -186,6 +192,16 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_alcoonSpawnXPositions);
         Array.Clear(_alcoonLandingYPositions);
         Array.Clear(_alcoonStepCounters);
+        Array.Clear(_beetomStates);
+        Array.Clear(_beetomInstalledInstructionLists);
+        Array.Clear(_beetomInitialShortLeapYSpeedIndexes);
+        Array.Clear(_beetomInitialLongLeapYSpeedIndexes);
+        Array.Clear(_beetomInitialLungeYSpeedIndexes);
+        Array.Clear(_beetomFallingFlags);
+        Array.Clear(_beetomAttachedToSamusFlags);
+        Array.Clear(_beetomDirections);
+        Array.Clear(_beetomInitialAttachmentXOffsets);
+        Array.Clear(_beetomInitialAttachmentYOffsets);
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -206,7 +222,7 @@ public sealed partial class RoomEnemySystem
         // CGRAM or VRAM merely because its state happens to retain a non-empty set pointer.
         if (ReadWord(bus, EnemyPopulationBank | populationPointer) != 0xffff)
             LoadGraphicsSet(bus, tilesetPointer, vram, cgram);
-        LoadPopulation(bus, populationPointer, level);
+        LoadPopulation(bus, populationPointer, level, samus, controllerInput);
     }
 
     /// <summary>
@@ -244,7 +260,8 @@ public sealed partial class RoomEnemySystem
         bool timeIsFrozen,
         SamusState? samus = null,
         ushort newlyPressedControllerInput = 0,
-        RoomLevelData? level = null)
+        RoomLevelData? level = null,
+        ushort controllerInput = 0)
     {
         EnsureLoaded();
         LastGunshipEvent = GunshipFrameEvent.None;
@@ -253,6 +270,7 @@ public sealed partial class RoomEnemySystem
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
         LastAlcoonSoundEffect = null;
+        LastBeetomSoundEffect = null;
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
             queue.Clear();
@@ -276,6 +294,7 @@ public sealed partial class RoomEnemySystem
                         slot,
                         samus,
                         newlyPressedControllerInput,
+                        controllerInput,
                         level,
                         cameraX,
                         cameraY);
@@ -506,7 +525,9 @@ public sealed partial class RoomEnemySystem
     private void LoadPopulation(
         ISnesAddressSpace bus,
         ushort populationPointer,
-        RoomLevelData? level)
+        RoomLevelData? level,
+        SamusState? samus,
+        ushort controllerInput)
     {
         int cursor = EnemyPopulationBank | populationPointer;
         int slotIndex = 0;
@@ -546,7 +567,7 @@ public sealed partial class RoomEnemySystem
             InitializeSlotFromDefinition(slot, population, definition);
             if (definition.BossId != 0)
                 BossId = definition.BossId;
-            RunInitializationAi(slot, level);
+            RunInitializationAi(slot, level, samus, controllerInput);
 
             // InitializeEnemies deliberately clears the init routine's immediate map.
             // Disable-Samus-collision actors receive the canonical empty map until their
@@ -619,7 +640,11 @@ public sealed partial class RoomEnemySystem
         return (0, 0x0a00);
     }
 
-    private void RunInitializationAi(RoomEnemySlot slot, RoomLevelData? level = null)
+    private void RunInitializationAi(
+        RoomEnemySlot slot,
+        RoomLevelData? level = null,
+        SamusState? samus = null,
+        ushort controllerInput = 0)
     {
         int address = (slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer;
         switch (address)
@@ -702,6 +727,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa8dccd when slot.EnemyDefinitionPointer == AlcoonDefinition:
                 InitializeAlcoon(slot, level);
+                return;
+            case 0xa8b776 when slot.EnemyDefinitionPointer == BeetomDefinition:
+                InitializeBeetom(slot, samus, controllerInput);
                 return;
             case 0xa2804c:
                 return;
@@ -833,6 +861,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         SamusState? samus,
         ushort newlyPressedControllerInput,
+        ushort controllerInput,
         RoomLevelData? level,
         ushort cameraX,
         ushort cameraY)
@@ -905,6 +934,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa8dd6b when slot.EnemyDefinitionPointer == AlcoonDefinition:
                 RunAlcoonMain(slot, RequireAlcoonState(slot), samus, level);
+                return;
+            case 0xa8b80d when slot.EnemyDefinitionPointer == BeetomDefinition:
+                RunBeetomMain(slot, RequireBeetomState(slot), samus, level, controllerInput);
                 return;
             default:
                 throw new NotSupportedException(
@@ -1210,6 +1242,12 @@ public sealed partial class RoomEnemySystem
                     break;
                 case 0x817d: // EnemyInstr_DisableOffScreenProcessing.
                     slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xb75e when slot.EnemyDefinitionPointer == BeetomDefinition:
+                    // Beetom's initial drain animation calls a literal RTS stub before it
+                    // falls through into the looping blood-spray frames. It consumes no
+                    // operand and changes no state beyond advancing the instruction cursor.
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xcc36 when slot.EnemyDefinitionPointer == YardDefinition:

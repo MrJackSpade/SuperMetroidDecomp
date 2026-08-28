@@ -20,6 +20,8 @@ public sealed partial class RoomEnemySystem
     private const ushort MochtroidShotAi = 0xa9a8;
     private const ushort YardTouchAi = 0xd3b0;
     private const ushort YardShotAi = 0xd469;
+    private const ushort BeetomTouchAi = 0xbe2e;
+    private const ushort BeetomShotAi = 0xbeac;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -40,9 +42,12 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == FirefleaTouchAi;
             bool isPlatform = IsPlatformDefinition(slot.EnemyDefinitionPointer) &&
                 slot.Definition.TouchAiPointer == PlatformNoOpTouchAi;
+            bool isBeetom = slot.EnemyDefinitionPointer == BeetomDefinition &&
+                slot.Definition.TouchAiPointer == BeetomTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
+                isBeetom ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -90,6 +95,14 @@ public sealed partial class RoomEnemySystem
                     samus,
                     controllerInput);
             }
+            else if (isBeetom)
+            {
+                ResolveBeetomTouch(
+                    slot,
+                    RequireBeetomState(slot),
+                    samus,
+                    controllerInput);
+            }
             else if (isFireflea)
             {
                 ResolveFirefleaTouch(slot, samus, controllerInput);
@@ -130,12 +143,15 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == FirefleaShotAi;
             bool isTripper = enemy.EnemyDefinitionPointer == TripperDefinition &&
                 enemy.Definition.ShotAiPointer == TripperShotAi;
+            bool isBeetom = enemy.EnemyDefinitionPointer == BeetomDefinition &&
+                enemy.Definition.ShotAiPointer == BeetomShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
                 isMetaree ||
                 isFireflea ||
                 isTripper ||
+                isBeetom ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -224,6 +240,8 @@ public sealed partial class RoomEnemySystem
                                 ? TripperFrozenMovingLeftSpritemap
                                 : TripperFrozenMovingRightSpritemap;
                     }
+                    if (isBeetom)
+                        ResolveBeetomShotAfterCommon(enemy, RequireBeetomState(enemy));
                     hitCount++;
                     break;
                 }
@@ -260,6 +278,11 @@ public sealed partial class RoomEnemySystem
                         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
                     }
                 }
+
+                // Beetom's private tail runs after common shot AI for every accepted hit,
+                // including immune/zero-damage vulnerability results.
+                if (isBeetom)
+                    ResolveBeetomShotAfterCommon(enemy, RequireBeetomState(enemy));
 
                 hitCount++;
                 break;

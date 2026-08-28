@@ -200,7 +200,9 @@ public sealed partial class SuperMetroidRuntime
             System.NextRandom,
             System.SetRandomNumber,
             readRandomNumber: () => System.RandomNumber,
-            level: LevelData);
+            level: LevelData,
+            samus: Samus,
+            controllerInput: Controller1.Current);
         Enemies.QueueGraphicsUploads(VramWrites);
 
         // `$90:AC8D` follows the standard-sprite and room-enemy uploads during gameplay

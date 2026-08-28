@@ -406,7 +406,9 @@ public sealed partial class SuperMetroidRuntime
             System.NextRandom,
             System.SetRandomNumber,
             readRandomNumber: () => System.RandomNumber,
-            level: LevelData);
+            level: LevelData,
+            samus: Samus,
+            controllerInput: Controller1.Current);
 
         // InitializeHud queued the cartridge's $2E00-byte standard OBJ sheet before this
         // room loader existed. That transfer reaches VRAM byte $EDFF and overlaps the main
@@ -1023,7 +1025,8 @@ public sealed partial class SuperMetroidRuntime
                 Samus?.Xray.TimeIsFrozen ?? false,
                 Samus,
                 Controller1.NewlyPressed,
-                LevelData);
+                LevelData,
+                Controller1.Current);
             // `$A6:A2DF` does not install the post-enemy hook until Ridley's animation word
             // becomes nonzero. Before the reveal it branches directly into `$A6:A2E3`
             // during EnemyMain, so emit the Baby/door OBJ now—before queued enemy layers.

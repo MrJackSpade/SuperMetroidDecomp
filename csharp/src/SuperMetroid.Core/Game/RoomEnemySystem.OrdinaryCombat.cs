@@ -38,7 +38,10 @@ public sealed partial class RoomEnemySystem
             RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
             bool isFireflea = slot.EnemyDefinitionPointer == FirefleaDefinition &&
                 slot.Definition.TouchAiPointer == FirefleaTouchAi;
+            bool isPlatform = IsPlatformDefinition(slot.EnemyDefinitionPointer) &&
+                slot.Definition.TouchAiPointer == PlatformNoOpTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
+                isPlatform ||
                 isFireflea ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
@@ -65,7 +68,13 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            if (slot.EnemyDefinitionPointer == MochtroidDefinition)
+            if (isPlatform)
+            {
+                // `$A3:9F07` is a literal RTL. Platform solidity and the asymmetric rider
+                // test live in other handlers; ordinary body overlap must neither injure
+                // Samus nor synthesize knockback here.
+            }
+            else if (slot.EnemyDefinitionPointer == MochtroidDefinition)
             {
                 ResolveMochtroidTouch(
                     slot,
@@ -119,11 +128,14 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == MetareeShotAi;
             bool isFireflea = enemy.EnemyDefinitionPointer == FirefleaDefinition &&
                 enemy.Definition.ShotAiPointer == FirefleaShotAi;
+            bool isTripper = enemy.EnemyDefinitionPointer == TripperDefinition &&
+                enemy.Definition.ShotAiPointer == TripperShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
                 isMetaree ||
                 isFireflea ||
+                isTripper ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -203,6 +215,15 @@ public sealed partial class RoomEnemySystem
                     enemy.FrozenTimer = 400;
                     enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | 0x0004));
                     enemy.InvincibilityTimer = 10;
+                    if (isTripper)
+                    {
+                        // Tripper's private tail runs after common shot AI and replaces the
+                        // current frame with a direction-specific two-piece frozen map.
+                        enemy.SpritemapPointer = RequirePlatformState(enemy).XMovement ==
+                            PlatformHorizontalMovement.Left
+                                ? TripperFrozenMovingLeftSpritemap
+                                : TripperFrozenMovingRightSpritemap;
+                    }
                     hitCount++;
                     break;
                 }

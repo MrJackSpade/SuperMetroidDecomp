@@ -1004,6 +1004,17 @@ public sealed partial class SuperMetroidRuntime
         // dereference the post-AI slot words, which RoomEnemySystem publishes as bodies.
         if (Camera is not null && Enemies.IsLoaded)
         {
+            if (Samus is not null)
+            {
+                // `$94:9B60-$9B72` clears all four external-displacement words before
+                // EnemyMain. Rideable enemies then accumulate accepted platform deltas and
+                // bank `$90` consumes those live values during Samus movement below. They
+                // are producer-owned words, so movement deliberately does not clear them.
+                Samus.Kinematics.ExtraXSubdisplacement = 0;
+                Samus.Kinematics.ExtraXDisplacement = 0;
+                Samus.Kinematics.ExtraYSubdisplacement = 0;
+                Samus.Kinematics.ExtraYDisplacement = 0;
+            }
             Enemies.StepFrame(
                 Camera.XPosition,
                 Camera.YPosition,

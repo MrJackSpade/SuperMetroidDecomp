@@ -162,6 +162,15 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_chootFallingYOrigins);
         Array.Clear(_chootInitialYSpeedTableIndexes);
         Array.Clear(_chootJumpDelayTimers);
+        Array.Clear(_platformStates);
+        Array.Clear(_platformYMovementFunctions);
+        Array.Clear(_platformPreviousPositions);
+        Array.Clear(_platformXMovementFunctions);
+        Array.Clear(_platformVerticallyMovingFlags);
+        Array.Clear(_platformVerticallyStillFlags);
+        Array.Clear(_platformMaximumYSpeedTableIndexes);
+        Array.Clear(_platformPreviousYMovementFunctions);
+        Array.Clear(_platformSuspensorPlatformFlags);
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -668,6 +677,10 @@ public sealed partial class RoomEnemySystem
             case 0xa390b5 when slot.EnemyDefinitionPointer == SkulteraDefinition:
                 InitializeSkultera(slot);
                 return;
+            case 0xa39c9f when slot.EnemyDefinitionPointer == KamerDefinition:
+            case 0xa39cba when slot.EnemyDefinitionPointer == TripperDefinition:
+                InitializePlatform(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -864,6 +877,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa3912b when slot.EnemyDefinitionPointer == SkulteraDefinition:
                 RunSkulteraMain(slot, RequireSkulteraState(slot), level);
+                return;
+            case 0xa39d16 when IsPlatformDefinition(slot.EnemyDefinitionPointer):
+                RunPlatformMain(slot, RequirePlatformState(slot), samus, level);
                 return;
             default:
                 throw new NotSupportedException(
@@ -1284,6 +1300,22 @@ public sealed partial class RoomEnemySystem
                     // Turning lists sleep immediately after publishing this flag. Main AI
                     // consumes it on the following frame and installs steady facing art.
                     RequireSkulteraState(slot).TurnFinished = true;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9c6b when IsPlatformDefinition(slot.EnemyDefinitionPointer):
+                case 0x9c81 when IsPlatformDefinition(slot.EnemyDefinitionPointer):
+                    // The "ordinary" and duplicate commands are byte-for-byte equivalent:
+                    // both publish horizontal dispatcher index zero before the next frame.
+                    SetPlatformHorizontalMovementFromInstruction(
+                        slot,
+                        PlatformHorizontalMovement.Left);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9c76 when IsPlatformDefinition(slot.EnemyDefinitionPointer):
+                case 0x9c8c when IsPlatformDefinition(slot.EnemyDefinitionPointer):
+                    SetPlatformHorizontalMovementFromInstruction(
+                        slot,
+                        PlatformHorizontalMovement.Right);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe4be: // Ridley: begin roar; audio playback is outside this subsystem.

@@ -93,6 +93,8 @@ public sealed partial class SuperMetroidRuntime
         Samus.Kinematics.YSubspeed = 0;
         Samus.Kinematics.ExtraXDisplacement = 0;
         Samus.Kinematics.ExtraXSubdisplacement = 0;
+        Samus.Kinematics.ExtraYDisplacement = 0;
+        Samus.Kinematics.ExtraYSubdisplacement = 0;
         Samus.LiquidPhysics.AreaIndex = room.AreaIndex;
         Samus.LiquidPhysics.RoomIndex = room.RoomIndex;
         Samus.RefreshCollisionRadii(_addressSpace);

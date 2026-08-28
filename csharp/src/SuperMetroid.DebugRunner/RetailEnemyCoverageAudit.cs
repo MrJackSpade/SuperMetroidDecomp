@@ -46,6 +46,8 @@ internal static class RetailEnemyCoverageAudit
             [0xd2ff] = "Norfair Rio",
             [0xd33f] = "Lower Norfair Rio",
             [0xd37f] = "Maridia Large Snail",
+            [0xd3ff] = "GRipper",
+            [0xd43f] = "Ripper II",
         };
         var focusedPopulations = focusedDefinitions.Keys.ToDictionary(
             definition => definition,

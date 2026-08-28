@@ -326,6 +326,9 @@ public sealed partial class RoomEnemySystem
             bool isMaridiaLargeSnail =
                 enemy.EnemyDefinitionPointer == MaridiaLargeSnailDefinition &&
                 enemy.Definition.ShotAiPointer == MaridiaLargeSnailShotAi;
+            bool isGRipperOrRipper2 =
+                enemy.EnemyDefinitionPointer is GRipperDefinition or Ripper2Definition &&
+                enemy.Definition.ShotAiPointer == GRipperRipper2ShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -345,6 +348,7 @@ public sealed partial class RoomEnemySystem
                 isMagdollite ||
                 isRinka ||
                 isMaridiaLargeSnail ||
+                isGRipperOrRipper2 ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -602,6 +606,8 @@ public sealed partial class RoomEnemySystem
                         ResolveMagdolliteCombatAfterCommon(enemy);
                     if (isMaridiaLargeSnail)
                         ResolveMaridiaLargeSnailShotAfterCommon();
+                    if (isGRipperOrRipper2)
+                        ResolveGRipperRipper2ShotAfterCommon(enemy);
                     hitCount++;
                     break;
                 }
@@ -673,6 +679,8 @@ public sealed partial class RoomEnemySystem
                     ResolveRinkaCombatAfterCommon(enemy);
                 if (isMaridiaLargeSnail)
                     ResolveMaridiaLargeSnailShotAfterCommon();
+                if (isGRipperOrRipper2)
+                    ResolveGRipperRipper2ShotAfterCommon(enemy);
 
                 hitCount++;
                 break;

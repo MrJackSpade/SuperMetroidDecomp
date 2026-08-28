@@ -165,6 +165,7 @@ public sealed partial class RoomEnemySystem
         ResetNorfairRioRoomState();
         ResetLowerNorfairRioRoomState();
         ResetMaridiaLargeSnailRoomState();
+        ResetRipperVariantRoomState();
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
@@ -831,6 +832,12 @@ public sealed partial class RoomEnemySystem
             case 0xa2ccd4 when slot.EnemyDefinitionPointer == MaridiaLargeSnailDefinition:
                 InitializeMaridiaLargeSnail(slot);
                 return;
+            case 0xa2e1d3 when slot.EnemyDefinitionPointer == GRipperDefinition:
+                InitializeGRipper(slot);
+                return;
+            case 0xa2e318 when slot.EnemyDefinitionPointer == Ripper2Definition:
+                InitializeRipper2(slot);
+                return;
             case 0xa896e3 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 InitializeFuneNamihe(slot);
                 return;
@@ -1173,6 +1180,12 @@ public sealed partial class RoomEnemySystem
                     samus,
                     level,
                     controllerInput);
+                return;
+            case 0xa2e221 when slot.EnemyDefinitionPointer == GRipperDefinition:
+                RunGRipperMain(slot, RequireRipperVariantState(slot), level);
+                return;
+            case 0xa2e353 when slot.EnemyDefinitionPointer == Ripper2Definition:
+                RunRipper2Main(slot, level);
                 return;
             case 0xa89730 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), samus);

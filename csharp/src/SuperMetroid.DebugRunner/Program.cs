@@ -144,6 +144,12 @@ if (args.Length >= 2 && args[0] == "--maridia-large-snail-audit")
     return MaridiaLargeSnailAudit.Run(maridiaLargeSnailRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--gripper-ripper2-audit")
+{
+    string gripperRipper2RomPath = string.Join(' ', args[1..]).Trim('"');
+    return GRipperRipper2Audit.Run(gripperRipper2RomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

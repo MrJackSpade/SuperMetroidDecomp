@@ -170,6 +170,14 @@ if (args.Length >= 2 && args[0] == "--crateria-wall-pirate-audit")
     return WallSpacePirateAudit.Run(wallPirateRomPath);
 }
 
+// The Metal Pirates room contains exactly two untouched gold ninja Pirates facing inward,
+// making both directions and all post-relative branches independently reproducible.
+if (args.Length >= 2 && args[0] == "--norfair-ninja-pirate-audit")
+{
+    string ninjaPirateRomPath = string.Join(' ', args[1..]).Trim('"');
+    return NinjaSpacePirateAudit.Run(ninjaPirateRomPath);
+}
+
 // Loads the normal, pre-escape Parlor state directly from the retail header. This keeps the
 // first ordinary Zebes enemy family independently auditable without walking the frontend,
 // while still sourcing its population, graphics, level collision, and instruction lists

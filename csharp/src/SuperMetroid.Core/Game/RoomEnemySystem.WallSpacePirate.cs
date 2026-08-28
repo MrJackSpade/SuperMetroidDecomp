@@ -141,7 +141,9 @@ public sealed partial class RoomEnemySystem
         SilverWallSpacePirateDefinition;
 
     internal static bool IsOrdinarySpacePirateDefinition(ushort definition) =>
-        IsWallSpacePirateDefinition(definition) || IsWalkingSpacePirateDefinition(definition);
+        IsWallSpacePirateDefinition(definition) ||
+        IsWalkingSpacePirateDefinition(definition) ||
+        IsNinjaSpacePirateDefinition(definition);
 
     /// <summary>Ports <c>InitAI_PirateWall</c> at <c>$B2:EF9F</c>.</summary>
     private void InitializeWallSpacePirate(RoomEnemySlot slot)

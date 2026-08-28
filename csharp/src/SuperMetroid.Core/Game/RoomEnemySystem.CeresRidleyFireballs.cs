@@ -39,6 +39,7 @@ public enum RoomEnemyProjectileKind : ushort
     FakeKraidSpikeLeft = 0x9dbe,
     FakeKraidSpikeRight = 0x9dcc,
     PirateMotherBrainLaser = 0xa17b,
+    PirateClaw = 0xa189,
 }
 
 /// <summary>
@@ -507,6 +508,11 @@ public sealed partial class RoomEnemySystem
                     projectile,
                     cameraX,
                     cameraY);
+                return;
+
+            case 0xa0d1: // Ninja Space Pirate claw: thrown left, then returns right.
+            case 0xa124: // Ninja Space Pirate claw: thrown right, then returns left.
+                RunNinjaPirateClawPreInstruction(projectile, cameraX, cameraY);
                 return;
 
             default:

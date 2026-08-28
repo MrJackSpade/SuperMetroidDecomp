@@ -240,6 +240,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_fakeKraidStates);
         Array.Clear(_walkingSpacePirateStates);
         Array.Clear(_wallSpacePirateStates);
+        Array.Clear(_ninjaSpacePirateStates);
         Array.Clear(_kzanFallWaitTimerResetValues);
         Array.Clear(_kzanPreviousYPositions);
         Array.Clear(_kzanFallingYSpeedTableIndexes);
@@ -843,6 +844,9 @@ public sealed partial class RoomEnemySystem
             case 0xb2ef9f when IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 InitializeWallSpacePirate(slot);
                 return;
+            case 0xb2f5de when IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer):
+                InitializeNinjaSpacePirate(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -1100,6 +1104,14 @@ public sealed partial class RoomEnemySystem
                     slot,
                     RequireWallSpacePirateState(slot),
                     samus);
+                return;
+            case 0xb2f6a2 when IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer):
+                RunNinjaSpacePirateMain(
+                    slot,
+                    RequireNinjaSpacePirateState(slot),
+                    samus,
+                    level,
+                    samusProjectiles);
                 return;
             default:
                 throw new NotSupportedException(
@@ -1433,6 +1445,12 @@ public sealed partial class RoomEnemySystem
                 case >= 0x8000 when TryProcessWallSpacePirateInstruction(
                     slot,
                     level,
+                    word,
+                    ref cursor):
+                    break;
+                case >= 0x8000 when TryProcessNinjaSpacePirateInstruction(
+                    slot,
+                    samus,
                     word,
                     ref cursor):
                     break;

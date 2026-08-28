@@ -140,6 +140,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_hopperStates);
         Array.Clear(_zoaStates);
         Array.Clear(_yardStates);
+        Array.Clear(_waverStates);
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -630,6 +631,9 @@ public sealed partial class RoomEnemySystem
             case 0xa3cde2 when slot.EnemyDefinitionPointer == YardDefinition:
                 InitializeYard(slot);
                 return;
+            case 0xa386ed when slot.EnemyDefinitionPointer == WaverDefinition:
+                InitializeWaver(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -811,6 +815,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa3ce64 when slot.EnemyDefinitionPointer == YardDefinition:
                 RunYardMain(slot, samus, level);
+                return;
+            case 0xa3874c when slot.EnemyDefinitionPointer == WaverDefinition:
+                RunWaverMain(slot, RequireWaverState(slot), level);
                 return;
             default:
                 throw new NotSupportedException(
@@ -1201,6 +1208,12 @@ public sealed partial class RoomEnemySystem
                     break;
                 case 0xc6a4: // Skree: the preparation animation releases the dive AI.
                     RequireSkreeState(slot).AttackReady = true;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x86e3 when slot.EnemyDefinitionPointer == WaverDefinition:
+                    // The four-frame spin list hands its completion back to main AI rather
+                    // than branching directly to steady art.
+                    RequireWaverState(slot).SpinFinished = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe4be: // Ridley: begin roar; audio playback is outside this subsystem.

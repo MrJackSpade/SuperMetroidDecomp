@@ -60,6 +60,12 @@ if (args.Length >= 2 && args[0] == "--aqueduct-yard-audit")
     return YardAudit.Run(yardRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--terminator-waver-audit")
+{
+    string waverRomPath = string.Join(' ', args[1..]).Trim('"');
+    return WaverAudit.Run(waverRomPath);
+}
+
 // Loads the normal, pre-escape Parlor state directly from the retail header. This keeps the
 // first ordinary Zebes enemy family independently auditable without walking the frontend,
 // while still sourcing its population, graphics, level collision, and instruction lists

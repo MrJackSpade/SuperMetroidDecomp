@@ -81,6 +81,8 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == BabyTurtleTouchAi;
             bool isMagdollite = slot.EnemyDefinitionPointer == MagdolliteDefinition &&
                 slot.Definition.TouchAiPointer == MagdolliteTouchAi;
+            bool isRinka = slot.EnemyDefinitionPointer == RinkaDefinition &&
+                slot.Definition.TouchAiPointer == RinkaTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
@@ -92,6 +94,7 @@ public sealed partial class RoomEnemySystem
                 isMamaTurtle ||
                 isBabyTurtle ||
                 isMagdollite ||
+                isRinka ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -221,9 +224,15 @@ public sealed partial class RoomEnemySystem
             else
             {
                 ushort healthBefore = slot.Health;
-                ResolveNormalEnemyTouch(slot, samus, controllerInput);
+                ResolveNormalEnemyTouch(
+                    slot,
+                    samus,
+                    controllerInput,
+                    skipDeathAnimation: isRinka);
                 if (isMagdollite)
                     ResolveMagdolliteCombatAfterCommon(slot);
+                if (isRinka)
+                    ResolveRinkaCombatAfterCommon(slot);
                 if (isFakeKraid && healthBefore != 0 && slot.Health == 0)
                     RequestFakeKraidDeathDrop(slot);
             }
@@ -282,6 +291,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == KagoShotAi;
             bool isMagdollite = enemy.EnemyDefinitionPointer == MagdolliteDefinition &&
                 enemy.Definition.ShotAiPointer == MagdolliteShotAi;
+            bool isRinka = enemy.EnemyDefinitionPointer == RinkaDefinition &&
+                enemy.Definition.ShotAiPointer == RinkaShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -299,6 +310,7 @@ public sealed partial class RoomEnemySystem
                 isOwtch ||
                 isKago ||
                 isMagdollite ||
+                isRinka ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -532,7 +544,7 @@ public sealed partial class RoomEnemySystem
                     enemy.Health = damage >= enemy.Health
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
-                    if (enemy.Health == 0 && !isPowamp)
+                    if (enemy.Health == 0 && !isPowamp && !isRinka)
                     {
                         // $A3:C7F5 adds Skree's four debris actors after the shared normal
                         // shot handler reports death, before the common death animation
@@ -586,6 +598,8 @@ public sealed partial class RoomEnemySystem
                     ResolveKagoShotAfterCommon(enemy, RequireKagoState(enemy));
                 if (isMagdollite)
                     ResolveMagdolliteCombatAfterCommon(enemy);
+                if (isRinka)
+                    ResolveRinkaCombatAfterCommon(enemy);
 
                 hitCount++;
                 break;
@@ -648,11 +662,15 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == FakeKraidShotAi;
             bool isMagdollite = enemy.EnemyDefinitionPointer == MagdolliteDefinition &&
                 reactionPointer == MagdollitePowerBombAi;
+            bool isRinka = enemy.EnemyDefinitionPointer == RinkaDefinition &&
+                reactionPointer == RinkaPowerBombAi;
             bool isSpacePiratePowerBombReaction =
                 IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
                 reactionPointer == SpacePiratePowerBombAi;
+            if (isRinka && enemy.Properties.HasAny(EnemyProperties.Invisible))
+                continue;
             if (reactionPointer != 0 && !isFireflea && !isPowamp && !isFakeKraid &&
-                !isMagdollite &&
+                !isMagdollite && !isRinka &&
                 !isSpacePiratePowerBombReaction)
             {
                 throw new NotSupportedException(
@@ -676,7 +694,7 @@ public sealed partial class RoomEnemySystem
                     enemy.Health = damage >= enemy.Health
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
-                    if (enemy.Health == 0)
+                    if (enemy.Health == 0 && !isRinka)
                     {
                         enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
                         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
@@ -692,6 +710,8 @@ public sealed partial class RoomEnemySystem
                 ResolvePowampPowerBombAfterCommon(enemy);
             if (isMagdollite)
                 ResolveMagdolliteCombatAfterCommon(enemy);
+            if (isRinka)
+                ResolveRinkaCombatAfterCommon(enemy);
 
             enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
             reactionCount++;
@@ -863,7 +883,8 @@ public sealed partial class RoomEnemySystem
     private void ResolveNormalEnemyTouch(
         RoomEnemySlot enemy,
         SamusState samus,
-        ushort controllerInput)
+        ushort controllerInput,
+        bool skipDeathAnimation = false)
     {
         ushort contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
         if (contactDamageIndex == 0)
@@ -906,6 +927,12 @@ public sealed partial class RoomEnemySystem
             ? (ushort)0
             : unchecked((ushort)(enemy.Health - damage));
         if (enemy.Health != 0)
+            return;
+
+        // Rinka's bank-$A2 callback calls this common damage body explicitly, inspects the
+        // resulting zero health, then chooses either generic respawn death or its private
+        // hidden two-frame Mother Brain respawn. Do not clear the slot before that tail.
+        if (skipDeathAnimation)
             return;
 
         enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);

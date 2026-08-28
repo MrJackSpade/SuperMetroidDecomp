@@ -121,7 +121,9 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level = null,
         SamusState? samus = null,
         ushort controllerInput = 0,
-        Func<bool>? isAreaBossDefeated = null)
+        Func<bool>? isAreaBossDefeated = null,
+        ushort cameraX = 0,
+        ushort cameraY = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -157,6 +159,8 @@ public sealed partial class RoomEnemySystem
         LastKagoBugSoundEffect = null;
         LastKagoBugDropRequest = null;
         ResetMagdolliteRoomState();
+        ResetRinkaRoomState(cameraX, cameraY);
+        ResetRioRoomState();
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
@@ -355,6 +359,8 @@ public sealed partial class RoomEnemySystem
         LastEnemyProjectileDudSoundEffect = null;
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
+        LastRioSoundEffect = null;
+        SetRinkaCamera(cameraX, cameraY);
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
             queue.Clear();
@@ -376,6 +382,15 @@ public sealed partial class RoomEnemySystem
                 if (!ranActorAi &&
                     (slot.FrozenTimer != 0 || (slot.AiHandlerBits & 0x0004) != 0))
                 {
+                    if (slot.EnemyDefinitionPointer == RinkaDefinition &&
+                        RunRinkaFrozenTail(slot))
+                    {
+                        // Rinka's termination tail clears/replaces the current actor record.
+                        // The active-index array was frozen before AI, so skip the remainder
+                        // of this stale entry exactly as the private routine's death call does.
+                        continue;
+                    }
+
                     // Common_NormalEnemyFrozenAI owns the actor while its freeze clock is
                     // nonzero. Grapple-cancel reactions also select this handler with a
                     // zero clock; that call clears bit four without running main AI.
@@ -790,6 +805,12 @@ public sealed partial class RoomEnemySystem
             case 0xa2b570 when slot.EnemyDefinitionPointer == PolypDefinition:
                 InitializePolyp(slot);
                 return;
+            case 0xa2b602 when slot.EnemyDefinitionPointer == RinkaDefinition:
+                InitializeRinka(slot);
+                return;
+            case 0xa2bbcd when slot.EnemyDefinitionPointer == RioDefinition:
+                InitializeRio(slot);
+                return;
             case 0xa896e3 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 InitializeFuneNamihe(slot);
                 return;
@@ -1093,6 +1114,18 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa2b58f when slot.EnemyDefinitionPointer == PolypDefinition:
                 RunPolypMain(slot, RequirePolypState(slot), samus);
+                return;
+            case 0xa2b7c4 when slot.EnemyDefinitionPointer == RinkaDefinition:
+                RunRinkaMain(slot, RequireRinkaState(slot), samus);
+                return;
+            case 0xa2bbe3 when slot.EnemyDefinitionPointer == RioDefinition:
+                RunRioMain(
+                    slot,
+                    RequireRioState(slot),
+                    samus,
+                    level,
+                    cameraX,
+                    cameraY);
                 return;
             case 0xa89730 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), samus);
@@ -2174,6 +2207,10 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 default:
+                    if (TryProcessRinkaInstruction(slot, word, ref cursor))
+                        break;
+                    if (TryProcessRioInstruction(slot, word, ref cursor))
+                        break;
                     if (TryProcessMagdolliteInstruction(
                         slot,
                         word,

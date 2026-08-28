@@ -14,6 +14,14 @@ public enum EnemyProperties : ushort
     IgnoreSamusCollision = 0x0400,
     ProcessOffScreen = 0x0800,
     ProcessInstructions = 0x2000,
+
+    /// <summary>
+    /// Native property $4000. Enemy death retains the physical slot as definition $DAFF,
+    /// and the death-projectile instruction stream later reconstructs it from the immutable
+    /// population/spawn record. Rinka is the first translated family that exercises this
+    /// lifecycle, so the bit now has directly observed behavior rather than a speculative name.
+    /// </summary>
+    RespawnIfKilled = 0x4000,
 }
 
 /// <summary>

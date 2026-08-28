@@ -46,6 +46,8 @@ public enum RoomEnemyProjectileKind : ushort
     NamiheFireball = 0xdfbc,
     FuneFireball = 0xdfca,
     LavaThrownByMagdollite = 0xe0e0,
+    MiscDustExplosion = 0xe509,
+    EnemyDeathExplosion = 0xf345,
     KagoBug = 0xd02e,
 }
 
@@ -101,6 +103,11 @@ public sealed class RoomEnemyProjectileSlot
     /// the authority on which meaning is currently active.
     /// </summary>
     public ushort CollidedProjectileType { get; internal set; }
+    /// <summary>
+    /// Native <c>eproj_killed_enemy_index</c>. Enemy-death explosions set bit $8000 when
+    /// their terminal instruction must rebuild this physical enemy slot.
+    /// </summary>
+    public ushort KilledEnemyNativeIndex { get; internal set; }
 
     internal void Clear()
     {
@@ -111,7 +118,7 @@ public sealed class RoomEnemyProjectileSlot
         GraphicsIndex = XRadius = YRadius = Damage = InvincibilityFrames = 0;
         RemainingAfterburns = NextAfterburnKind = 0;
         DirectionParameter = Variable0 = Variable1 = 0;
-        CollisionOption = CollidedProjectileType = 0;
+        CollisionOption = CollidedProjectileType = KilledEnemyNativeIndex = 0;
         CanDamageSamus = PersistsOnSamusContact = BlocksSamusProjectiles = false;
     }
 }
@@ -472,6 +479,11 @@ public sealed partial class RoomEnemySystem
             case 0x950c: // Center afterburn is stationary while its instruction list blooms.
             case 0xbbc6: // Nuclear Waffle body: position is owned by bank-$A6 main AI.
             case 0xa05b: // Pirate laser startup: three muzzle-flash frames do not move.
+            case 0xefdf: // Enemy death/pickup subsystem's empty pre-instruction.
+                return;
+
+            case 0xe4fe: // Generic room-coordinate dust/explosion camera cull.
+                CullMiscDustOutsideCamera(projectile, cameraX, cameraY);
                 return;
 
             case 0x940e:
@@ -807,6 +819,32 @@ public sealed partial class RoomEnemySystem
                     break;
                 case MagdolliteLavaDropInstruction:
                     RequestMagdolliteLavaDrop(projectile);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xee8b: // Queue sound 9 in library two; this opcode has no operand.
+                    // The native dispatcher passes a pointer to the first byte after the
+                    // opcode into EprojInstr_QueueSfx2_9, and that routine returns the same
+                    // pointer unchanged. Therefore the timed duration begins immediately
+                    // after $EE8B. Treating that duration as an operand skips two bytes and
+                    // interprets the following spritemap pointer as another opcode.
+                    // Audio remains an outer seam, but the list cursor must still match ROM.
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xeeaf: // Random drop selection after an enemy death animation.
+                    if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
+                    {
+                        throw new NotSupportedException(
+                            $"Enemy projectile $86:{(ushort)projectile.Kind:X4} reached death-drop opcode $EEAF.");
+                    }
+                    ContinueRinkaDeathWithoutPickup(projectile);
+                    cursor = EnemyDeathNoDropTail;
+                    break;
+                case 0xef10: // Respawn the retained physical enemy slot, when bit $8000 is set.
+                    if (unchecked((short)projectile.KilledEnemyNativeIndex) <= -2)
+                    {
+                        RespawnEnemyFromSnapshot(unchecked((ushort)(
+                            projectile.KilledEnemyNativeIndex & 0x7fff)));
+                    }
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 default:

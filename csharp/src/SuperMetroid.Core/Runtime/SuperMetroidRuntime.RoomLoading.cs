@@ -204,7 +204,9 @@ public sealed partial class SuperMetroidRuntime
             samus: Samus,
             controllerInput: Controller1.Current,
             isAreaBossDefeated: () =>
-                System.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss));
+                System.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
+            cameraX: Camera.XPosition,
+            cameraY: Camera.YPosition);
         Enemies.QueueGraphicsUploads(VramWrites);
 
         // `$90:AC8D` follows the standard-sprite and room-enemy uploads during gameplay

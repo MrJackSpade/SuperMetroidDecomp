@@ -108,6 +108,18 @@ if (args.Length >= 2 && args[0] == "--retail-enemy-coverage-audit")
     return RetailEnemyCoverageAudit.Run(coverageRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--rinka-audit")
+{
+    string rinkaRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RinkaAudit.Run(rinkaRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--rio-audit")
+{
+    string rioRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RioAudit.Run(rioRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

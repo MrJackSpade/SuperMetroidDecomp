@@ -33,7 +33,20 @@ internal static class RetailEnemyCoverageAudit
             .ToArray();
 
         var occurrences = new Dictionary<ushort, (int Populations, int Records)>();
-        var rinkaPopulations = new List<ushort>();
+
+        // Keep focused population dumps beside the complete definition inventory. These
+        // are not hard-coded fixture claims: the lists below are populated by scanning the
+        // named retail population boundaries on every run. Adding the family currently
+        // being translated makes the audit double as a reproducible room-discovery tool.
+        var focusedDefinitions = new Dictionary<ushort, string>
+        {
+            [0xd23f] = "Rinka",
+            [0xd27f] = "Rio",
+            [0xd2bf] = "Norfair lava-jumping enemy",
+        };
+        var focusedPopulations = focusedDefinitions.Keys.ToDictionary(
+            definition => definition,
+            _ => new List<ushort>());
         foreach (ushort population in populations)
         {
             var definitionsInPopulation = new HashSet<ushort>();
@@ -61,8 +74,11 @@ internal static class RetailEnemyCoverageAudit
                 (int populationCount, int recordCount) = occurrences[definition];
                 occurrences[definition] = (populationCount + 1, recordCount);
             }
-            if (definitionsInPopulation.Contains(0xd23f))
-                rinkaPopulations.Add(population);
+            foreach (ushort definition in focusedDefinitions.Keys)
+            {
+                if (definitionsInPopulation.Contains(definition))
+                    focusedPopulations[definition].Add(population);
+            }
         }
 
         foreach ((ushort pointer, (int populationCount, int recordCount)) in occurrences.OrderBy(pair => pair.Key))
@@ -79,33 +95,42 @@ internal static class RetailEnemyCoverageAudit
         Console.WriteLine(
             $"Retail inventory: {occurrences.Count} definitions across " +
             $"{populations.Length} named enemy populations.");
-        Console.WriteLine(
-            "Rinka populations: " +
-            string.Join(", ", rinkaPopulations.Select(pointer => $"$A1:{pointer:X4}")));
-        foreach (ushort population in rinkaPopulations)
+        foreach ((ushort definition, string familyName) in focusedDefinitions)
         {
-            Console.WriteLine($"  $A1:{population:X4}:");
-            for (int cursor = population, recordIndex = 0;
-                recordIndex < RoomEnemySystem.MaximumEnemyCount;
-                cursor = unchecked((ushort)(cursor + 16)), recordIndex++)
+            List<ushort> familyPopulations = focusedPopulations[definition];
+            Console.WriteLine(
+                $"{familyName} populations: " +
+                string.Join(", ", familyPopulations.Select(pointer => $"$A1:{pointer:X4}")));
+            foreach (ushort population in familyPopulations)
             {
-                ushort definition = ReadWord(bus, 0xa10000 | cursor);
-                if (definition == 0xffff)
-                    break;
-                ushort[] words = Enumerable.Range(0, 8)
-                    .Select(index => ReadWord(bus, 0xa10000 | (cursor + index * 2)))
-                    .ToArray();
-                Console.WriteLine("    " + string.Join(' ', words.Select(word => $"{word:X4}")));
+                Console.WriteLine($"  $A1:{population:X4}:");
+                for (int cursor = population, recordIndex = 0;
+                    recordIndex < RoomEnemySystem.MaximumEnemyCount;
+                    cursor = unchecked((ushort)(cursor + 16)), recordIndex++)
+                {
+                    ushort recordDefinition = ReadWord(bus, 0xa10000 | cursor);
+                    if (recordDefinition == 0xffff)
+                        break;
+                    ushort[] words = Enumerable.Range(0, 8)
+                        .Select(index => ReadWord(bus, 0xa10000 | (cursor + index * 2)))
+                        .ToArray();
+                    Console.WriteLine("    " + string.Join(' ', words.Select(word => $"{word:X4}")));
+                }
             }
-        }
-        foreach (string line in File.ReadLines(symbolPath).Where(line =>
-            line.StartsWith("0x8f", StringComparison.OrdinalIgnoreCase) &&
-            line.Contains(" kRoomState_", StringComparison.Ordinal)))
-        {
-            ushort statePointer = ParseFixedBankPointer(line, 0x8f0000);
-            ushort populationPointer = ReadWord(bus, 0x8f0000 | (statePointer + 8));
-            if (rinkaPopulations.Contains(populationPointer))
-                Console.WriteLine($"  Rinka state $8F:{statePointer:X4} -> $A1:{populationPointer:X4} {line[(line.IndexOf(' ') + 1)..]}");
+
+            foreach (string line in File.ReadLines(symbolPath).Where(line =>
+                line.StartsWith("0x8f", StringComparison.OrdinalIgnoreCase) &&
+                line.Contains(" kRoomState_", StringComparison.Ordinal)))
+            {
+                ushort statePointer = ParseFixedBankPointer(line, 0x8f0000);
+                ushort populationPointer = ReadWord(bus, 0x8f0000 | (statePointer + 8));
+                if (familyPopulations.Contains(populationPointer))
+                {
+                    Console.WriteLine(
+                        $"  {familyName} state $8F:{statePointer:X4} -> " +
+                        $"$A1:{populationPointer:X4} {line[(line.IndexOf(' ') + 1)..]}");
+                }
+            }
         }
         return 0;
     }

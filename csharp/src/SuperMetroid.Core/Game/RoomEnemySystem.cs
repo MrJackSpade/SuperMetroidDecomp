@@ -225,6 +225,10 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_atomicSpeedWholes);
         Array.Clear(_atomicNegativeSpeedFractions);
         Array.Clear(_atomicNegativeSpeedWholes);
+        Array.Clear(_sparkStates);
+        _standaloneEnemyProjectileFrameCounter8 = 0;
+        foreach (FallingSparkTrailSlot trail in _fallingSparkTrails)
+            trail.Clear();
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -381,6 +385,8 @@ public sealed partial class RoomEnemySystem
         }
         _randomEnemyCounter = unchecked((ushort)(_randomEnemyCounter + 1));
         StepWorkRobotPaletteAnimation();
+        if (!timeIsFrozen)
+            StepFallingSparkTrails();
     }
 
     /// <summary>
@@ -786,6 +792,9 @@ public sealed partial class RoomEnemySystem
             case 0xa8e388 when slot.EnemyDefinitionPointer == AtomicDefinition:
                 InitializeAtomic(slot);
                 return;
+            case 0xa8e637 when slot.EnemyDefinitionPointer == SparkDefinition:
+                InitializeSpark(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -1006,6 +1015,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa8e3c3 when slot.EnemyDefinitionPointer == AtomicDefinition:
                 RunAtomicMain(slot, RequireAtomicState(slot), samus);
+                return;
+            case 0xa8e68e when slot.EnemyDefinitionPointer == SparkDefinition:
+                RunSparkMain(slot, RequireSparkState(slot));
                 return;
             default:
                 throw new NotSupportedException(
@@ -1515,6 +1527,18 @@ public sealed partial class RoomEnemySystem
                     break;
                 case 0xe4be: // Ridley: begin roar; audio playback is outside this subsystem.
                     RequireCeresRidley(slot).Roaring = true;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xe61d when slot.EnemyDefinitionPointer == SparkDefinition:
+                    // Spark flicker-out command: property bit $0400 removes the actor from
+                    // every ordinary Samus, beam, and grapple collision pass.
+                    slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xe62a when slot.EnemyDefinitionPointer == SparkDefinition:
+                    // Spark flicker-on command executes before the first visible activation
+                    // frame, so collision and art become live together.
+                    slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe4ca: // Ridley: close mouth / clear the roaring presentation flag.

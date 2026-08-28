@@ -33,6 +33,7 @@ public enum RoomEnemyProjectileKind : ushort
     WorkRobotLaserDownLeft = 0xd2c2,
     WorkRobotLaserUpRight = 0xd2d0,
     WorkRobotLaserDownRight = 0xd2de,
+    FallingSpark = 0xf498,
 }
 
 /// <summary>
@@ -65,6 +66,10 @@ public sealed class RoomEnemyProjectileSlot
     public ushort RemainingAfterburns { get; internal set; }
     public ushort NextAfterburnKind { get; internal set; }
     public ushort DirectionParameter { get; internal set; }
+    /// <summary>Native generic enemy-projectile variable zero at WRAM <c>$1B23,x</c>.</summary>
+    public ushort Variable0 { get; internal set; }
+    /// <summary>Native generic enemy-projectile variable one at WRAM <c>$1B47,x</c>.</summary>
+    public ushort Variable1 { get; internal set; }
     public bool CanDamageSamus { get; internal set; }
 
     internal void Clear()
@@ -75,7 +80,7 @@ public sealed class RoomEnemyProjectileSlot
         InstructionPointer = InstructionTimer = SpritemapPointer = PreInstruction = 0;
         GraphicsIndex = XRadius = YRadius = Damage = InvincibilityFrames = 0;
         RemainingAfterburns = NextAfterburnKind = 0;
-        DirectionParameter = 0;
+        DirectionParameter = Variable0 = Variable1 = 0;
         CanDamageSamus = false;
     }
 }
@@ -112,7 +117,8 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         ushort controllerInput = 0,
         ushort cameraX = 0,
-        ushort cameraY = 0)
+        ushort cameraY = 0,
+        byte? nmiFrameCounter8 = null)
     {
         ArgumentNullException.ThrowIfNull(level);
         EnsureLoaded();
@@ -120,6 +126,7 @@ public sealed partial class RoomEnemySystem
         // Snapshot the active set. Afterburn instruction opcodes may allocate later slots;
         // native descending-slot iteration does not execute a newly spawned lower-priority
         // actor twice in the same logical instruction pass.
+        byte projectileFrame = nmiFrameCounter8 ?? _standaloneEnemyProjectileFrameCounter8++;
         RoomEnemyProjectileSlot[] activeAtFrameStart =
             _enemyProjectiles.Where(projectile => projectile.IsActive).ToArray();
         foreach (RoomEnemyProjectileSlot projectile in activeAtFrameStart)
@@ -127,7 +134,12 @@ public sealed partial class RoomEnemySystem
             if (!projectile.IsActive)
                 continue;
 
-            RunEnemyProjectilePreInstruction(projectile, level, cameraX, cameraY);
+            RunEnemyProjectilePreInstruction(
+                projectile,
+                level,
+                cameraX,
+                cameraY,
+                projectileFrame);
             if (!projectile.IsActive)
                 continue;
 
@@ -148,6 +160,11 @@ public sealed partial class RoomEnemySystem
     {
         ArgumentNullException.ThrowIfNull(oam);
         EnsureLoaded();
+
+        // `$A0:8855` draws global sprite objects before `$A0:885D` draws high-priority
+        // enemy projectiles. Spark's four-frame trail uses that pool, so preserve its OAM
+        // precedence even though both translated collections are owned here.
+        DrawFallingSparkTrails(oam, cameraX, cameraY);
 
         foreach (RoomEnemyProjectileSlot projectile in _enemyProjectiles)
         {
@@ -259,7 +276,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
         ushort cameraX,
-        ushort cameraY)
+        ushort cameraY,
+        byte nmiFrameCounter8)
     {
         switch (projectile.PreInstruction)
         {
@@ -332,6 +350,10 @@ public sealed partial class RoomEnemySystem
 
             case 0xd3bf: // Work Robot laser: clear graphics index, then X/Y room collision.
                 RunWorkRobotLaserPreInstruction(projectile, level);
+                return;
+
+            case 0xf3f0: // Spark projectile: 16.16 gravity, floor bounce, and trail objects.
+                RunFallingSparkPreInstruction(projectile, level, nmiFrameCounter8);
                 return;
 
             default:

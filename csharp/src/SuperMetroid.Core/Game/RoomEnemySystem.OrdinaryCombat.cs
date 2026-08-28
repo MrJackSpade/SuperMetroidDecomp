@@ -176,6 +176,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer is WorkRobotShotAi or WorkRobotNoPowerShotAi;
             bool isBull = enemy.EnemyDefinitionPointer == BullDefinition &&
                 enemy.Definition.ShotAiPointer == BullShotAi;
+            bool isSpark = enemy.EnemyDefinitionPointer == SparkDefinition &&
+                enemy.Definition.ShotAiPointer == SparkShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -186,6 +188,7 @@ public sealed partial class RoomEnemySystem
                 isPowamp ||
                 isWorkRobot ||
                 isBull ||
+                isSpark ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -253,6 +256,18 @@ public sealed partial class RoomEnemySystem
                         projectile.YRadius))
                 {
                     continue;
+                }
+
+                // Spark's private `$A8:E70E` handler never enters common shot AI. It only
+                // clears direction bit $10 on the colliding Samus projectile, allowing the
+                // beam/missile actor to continue rather than becoming an impact animation.
+                // This must occur before TryStartEnemyImpact, which would irreversibly
+                // rewrite the projectile family to explosion `$0700`.
+                if (isSpark)
+                {
+                    projectile.Direction = unchecked((ushort)(projectile.Direction & 0xffef));
+                    hitCount++;
+                    break;
                 }
 
                 if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))

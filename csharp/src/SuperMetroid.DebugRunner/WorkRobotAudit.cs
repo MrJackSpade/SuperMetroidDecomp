@@ -6,9 +6,9 @@ using SuperMetroid.Core.Rooms;
 /// <summary>
 /// ROM-backed regression for both versions of the Wrecked Ship Work Robot. The basement's
 /// ordinary state supplies its complete pre-Phantoon population; the defeated-boss state is
-/// exposed through a read-only population prefix containing its two robots and three translated
-/// Atomics. Only the final, separately owned Spark remains beyond that terminator. Robot headers,
-/// code, lists, graphics, palette, projectiles, and collision data remain cartridge sourced.
+/// now loaded through its untouched six-record population: two robots, three Atomics, and the
+/// final Spark. Robot headers, code, lists, graphics, palette, projectiles, and collision data
+/// remain cartridge sourced.
 /// </summary>
 internal static class WorkRobotAudit
 {
@@ -30,16 +30,7 @@ internal static class WorkRobotAudit
             BasementRoom,
             new RoomStateSelectionContext(default, BossBits: 1, false, false));
         CartridgeRoomAssets poweredAssets = CartridgeRoomAssets.Load(bus, poweredRoom);
-        var translatedBasementBus = new PopulationPrefixAddressSpace(
-            bus,
-            poweredRoom.State.EnemyPopulationPointer,
-            retainedRecordCount: 5,
-            deathQuota: 0);
-        LoadedRobots powered = Load(
-            translatedBasementBus,
-            poweredRoom,
-            poweredAssets,
-            bossDefeated: true);
+        LoadedRobots powered = Load(bus, poweredRoom, poweredAssets, bossDefeated: true);
         VerifyPoweredInitialization(poweredRoom, powered);
         NaturalResult natural = VerifyNaturalBehavior(powered, poweredRoom, poweredAssets);
         VerifyDrawing(powered, poweredRoom);
@@ -118,13 +109,19 @@ internal static class WorkRobotAudit
             .Take(loaded.Enemies.EnemyCount)
             .Where(slot => slot.EnemyDefinitionPointer == 0xe9ff)
             .ToArray();
-        if (room.State.Pointer != 0xcc9b || loaded.Enemies.EnemyCount != 5 ||
+        RoomEnemySlot[] sparks = loaded.Enemies.Slots
+            .Take(loaded.Enemies.EnemyCount)
+            .Where(slot => slot.EnemyDefinitionPointer == 0xea3f)
+            .ToArray();
+        if (room.State.Pointer != 0xcc9b || loaded.Enemies.EnemyCount != 6 ||
             atomics.Length != 3 || atomics.Any(actor =>
-                loaded.Enemies.AtomicStates[actor.SlotIndex] is null))
+                loaded.Enemies.AtomicStates[actor.SlotIndex] is null) ||
+            sparks.Length != 1 || loaded.Enemies.SparkStates[sparks[0].SlotIndex] is null)
             throw new InvalidDataException(
-                $"Powered basement prefix failed: state=${room.State.Pointer:X4}, " +
+                $"Powered basement population failed: state=${room.State.Pointer:X4}, " +
                 $"count={loaded.Enemies.EnemyCount}, Atomics={atomics.Length}/" +
-                $"{atomics.Count(actor => loaded.Enemies.AtomicStates[actor.SlotIndex] is not null)}.");
+                $"{atomics.Count(actor => loaded.Enemies.AtomicStates[actor.SlotIndex] is not null)}, " +
+                $"Sparks={sparks.Length}.");
 
         ushort[] expectedX = [0x004d, 0x0370];
         for (int index = 0; index < 2; index++)
@@ -223,7 +220,7 @@ internal static class WorkRobotAudit
         CartridgeRoomHeader room,
         CartridgeRoomAssets assets)
     {
-        LoadedRobots loaded = LoadPoweredPrefix(bus, room, assets, bossDefeated: true);
+        LoadedRobots loaded = Load(bus, room, assets, bossDefeated: true);
         RoomEnemySlot robot = loaded.Enemies.Slots[0];
         WorkRobotEnemyState state = RequireState(loaded.Enemies, robot);
         Step(loaded, assets, robot, room);
@@ -252,7 +249,7 @@ internal static class WorkRobotAudit
         CartridgeRoomHeader room,
         CartridgeRoomAssets assets)
     {
-        LoadedRobots loaded = LoadPoweredPrefix(bus, room, assets, bossDefeated: false);
+        LoadedRobots loaded = Load(bus, room, assets, bossDefeated: false);
         RoomEnemySlot robot = loaded.Enemies.Slots[0];
         if (RequireState(loaded.Enemies, robot).Powered)
             throw new InvalidDataException("Pre-Phantoon powered definition failed to deactivate.");
@@ -270,20 +267,6 @@ internal static class WorkRobotAudit
                 $"Pre-Phantoon Work Robot shot gate failed: hits={hits}, projectile=" +
                 $"${projectiles.Slots[0].InstructionPointer:X4}.");
         }
-    }
-
-    private static LoadedRobots LoadPoweredPrefix(
-        SuperMetroidAddressSpace bus,
-        CartridgeRoomHeader room,
-        CartridgeRoomAssets assets,
-        bool bossDefeated)
-    {
-        var prefix = new PopulationPrefixAddressSpace(
-            bus,
-            room.State.EnemyPopulationPointer,
-            retainedRecordCount: 5,
-            deathQuota: 0);
-        return Load(prefix, room, assets, bossDefeated);
     }
 
     private static LoadedRobots Load(

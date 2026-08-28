@@ -28,6 +28,11 @@ public enum RoomEnemyProjectileKind : ushort
     CeresRidleyVerticalAfterburnDown = 0x9696,
     AlcoonFireball = 0x9e90,
     PowampSpike = 0xd298,
+    WorkRobotLaserUpLeft = 0xd2a6,
+    WorkRobotLaserHorizontal = 0xd2b4,
+    WorkRobotLaserDownLeft = 0xd2c2,
+    WorkRobotLaserUpRight = 0xd2d0,
+    WorkRobotLaserDownRight = 0xd2de,
 }
 
 /// <summary>
@@ -323,6 +328,10 @@ public sealed partial class RoomEnemySystem
 
             case 0xd263: // Powamp spike: radial acceleration and X-then-Y room collision.
                 RunPowampSpikePreInstruction(projectile, level);
+                return;
+
+            case 0xd3bf: // Work Robot laser: clear graphics index, then X/Y room collision.
+                RunWorkRobotLaserPreInstruction(projectile, level);
                 return;
 
             default:

@@ -37,6 +37,7 @@ public sealed partial class RoomEnemySystem
     private ISnesAddressSpace? _bus;
     private Func<ushort>? _nextRandom;
     private Func<ushort>? _readRandomNumber;
+    private Func<bool>? _isAreaBossDefeated;
     private Action<ushort>? _setRandomNumber;
     private ushort _randomEnemyCounter;
     private SnesVram? _vram;
@@ -117,7 +118,8 @@ public sealed partial class RoomEnemySystem
         Func<ushort>? readRandomNumber = null,
         RoomLevelData? level = null,
         SamusState? samus = null,
-        ushort controllerInput = 0)
+        ushort controllerInput = 0,
+        Func<bool>? isAreaBossDefeated = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -131,6 +133,7 @@ public sealed partial class RoomEnemySystem
         // distinct: substituting nextRandom here would silently advance the cartridge RNG.
         _readRandomNumber = readRandomNumber;
         _setRandomNumber = setRandomNumber;
+        _isAreaBossDefeated = isAreaBossDefeated;
         _vram = vram;
         _cgram = cgram;
         PopulationPointer = populationPointer;
@@ -147,6 +150,7 @@ public sealed partial class RoomEnemySystem
         LastMetareeSoundEffect = null;
         LastAlcoonSoundEffect = null;
         LastBeetomSoundEffect = null;
+        LastWorkRobotSoundEffect = null;
         FirefleaDarknessLevel = 0;
         EarthquakeTimer = 0;
         EarthquakeType = 0;
@@ -203,6 +207,10 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_beetomInitialAttachmentXOffsets);
         Array.Clear(_beetomInitialAttachmentYOffsets);
         Array.Clear(_powampStates);
+        Array.Clear(_workRobotStates);
+        _workRobotPaletteAnimationTimer = 0;
+        _workRobotPaletteAnimationTableOffset = 0;
+        _workRobotPaletteAnimationPaletteIndex = 0;
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -272,6 +280,7 @@ public sealed partial class RoomEnemySystem
         LastMetareeSoundEffect = null;
         LastAlcoonSoundEffect = null;
         LastBeetomSoundEffect = null;
+        LastWorkRobotSoundEffect = null;
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
             queue.Clear();
@@ -318,7 +327,7 @@ public sealed partial class RoomEnemySystem
                 {
                     slot.FrameCounter = unchecked((ushort)(slot.FrameCounter + 1));
                     if (slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
-                        ProcessInstructions(slot, samus, level);
+                        ProcessInstructions(slot, samus, level, cameraX, cameraY);
                 }
             }
 
@@ -357,6 +366,7 @@ public sealed partial class RoomEnemySystem
                 slot.Properties));
         }
         _randomEnemyCounter = unchecked((ushort)(_randomEnemyCounter + 1));
+        StepWorkRobotPaletteAnimation();
     }
 
     /// <summary>
@@ -752,6 +762,10 @@ public sealed partial class RoomEnemySystem
             case 0xa8c1c9 when slot.EnemyDefinitionPointer == PowampDefinition:
                 InitializePowamp(slot);
                 return;
+            case 0xa8cb77 when slot.EnemyDefinitionPointer == WorkRobotDefinition:
+            case 0xa8cbcc when slot.EnemyDefinitionPointer == WorkRobotNoPowerDefinition:
+                InitializeWorkRobot(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -961,6 +975,11 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa8c21c when slot.EnemyDefinitionPointer == PowampDefinition:
                 RunPowampMain(slot, RequirePowampState(slot), level);
+                return;
+            case 0xa8cc36 when slot.EnemyDefinitionPointer == WorkRobotDefinition:
+                RunWorkRobotMain(slot, RequireWorkRobotState(slot), level);
+                return;
+            case 0xa8cc66 when slot.EnemyDefinitionPointer == WorkRobotNoPowerDefinition:
                 return;
             default:
                 throw new NotSupportedException(
@@ -1225,7 +1244,9 @@ public sealed partial class RoomEnemySystem
     private void ProcessInstructions(
         RoomEnemySlot slot,
         SamusState? samus,
-        RoomLevelData? level)
+        RoomLevelData? level,
+        ushort cameraX,
+        ushort cameraY)
     {
         ushort oldTimer = slot.InstructionTimer;
         slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
@@ -1267,6 +1288,15 @@ public sealed partial class RoomEnemySystem
                 case 0x817d: // EnemyInstr_DisableOffScreenProcessing.
                     slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
                     cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case >= 0x8000 when TryProcessWorkRobotInstruction(
+                    slot,
+                    samus,
+                    level,
+                    word,
+                    ref cursor,
+                    cameraX,
+                    cameraY):
                     break;
                 case 0xb75e when slot.EnemyDefinitionPointer == BeetomDefinition:
                     // Beetom's initial drain animation calls a literal RTS stub before it

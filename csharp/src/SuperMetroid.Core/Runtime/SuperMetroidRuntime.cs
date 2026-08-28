@@ -408,7 +408,10 @@ public sealed partial class SuperMetroidRuntime
             readRandomNumber: () => System.RandomNumber,
             level: LevelData,
             samus: Samus,
-            controllerInput: Controller1.Current);
+            controllerInput: Controller1.Current,
+            isAreaBossDefeated: () => System.HasAnyBossBits(
+                LandingSiteEntry.AreaIndex,
+                BossBits.AreaBoss));
 
         // InitializeHud queued the cartridge's $2E00-byte standard OBJ sheet before this
         // room loader existed. That transfer reaches VRAM byte $EDFF and overlaps the main

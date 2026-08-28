@@ -25,6 +25,9 @@ public sealed partial class RoomEnemySystem
     private const ushort PowampTouchAi = 0xc5be;
     private const ushort PowampShotAi = 0xc5ef;
     private const ushort PowampPowerBombAi = 0xc63f;
+    private const ushort WorkRobotTouchAi = 0xd174;
+    private const ushort WorkRobotNoPowerShotAi = 0xd18d;
+    private const ushort WorkRobotShotAi = 0xd192;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -49,11 +52,14 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == BeetomTouchAi;
             bool isPowamp = slot.EnemyDefinitionPointer == PowampDefinition &&
                 slot.Definition.TouchAiPointer == PowampTouchAi;
+            bool isWorkRobot = IsWorkRobotDefinition(slot.EnemyDefinitionPointer) &&
+                slot.Definition.TouchAiPointer == WorkRobotTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
                 isBeetom ||
                 isPowamp ||
+                isWorkRobot ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -117,6 +123,10 @@ public sealed partial class RoomEnemySystem
                 if (slot.Parameter2 == 0)
                     ResolvePowampTouch(slot, samus, controllerInput);
             }
+            else if (isWorkRobot)
+            {
+                ResolveWorkRobotTouch(slot, samus);
+            }
             else if (isFireflea)
             {
                 ResolveFirefleaTouch(slot, samus, controllerInput);
@@ -161,6 +171,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == BeetomShotAi;
             bool isPowamp = enemy.EnemyDefinitionPointer == PowampDefinition &&
                 enemy.Definition.ShotAiPointer == PowampShotAi;
+            bool isWorkRobot = IsWorkRobotDefinition(enemy.EnemyDefinitionPointer) &&
+                enemy.Definition.ShotAiPointer is WorkRobotShotAi or WorkRobotNoPowerShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -169,6 +181,7 @@ public sealed partial class RoomEnemySystem
                 isTripper ||
                 isBeetom ||
                 isPowamp ||
+                isWorkRobot ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -180,6 +193,15 @@ public sealed partial class RoomEnemySystem
                     EnemyProperties.Invisible |
                     EnemyProperties.Deleted |
                     EnemyProperties.IgnoreSamusCollision))
+            {
+                continue;
+            }
+
+            // Powered definition $E8FF explicitly returns before common shot AI while
+            // Phantoon's area-boss bit is clear. The projectile therefore does not begin an
+            // impact, and the deactivated-looking body does not enter its recoil sequence.
+            if (enemy.EnemyDefinitionPointer == WorkRobotDefinition &&
+                !(_isAreaBossDefeated?.Invoke() ?? false))
             {
                 continue;
             }
@@ -267,6 +289,8 @@ public sealed partial class RoomEnemySystem
                         ResolveBeetomShotAfterCommon(enemy, RequireBeetomState(enemy));
                     if (isPowamp)
                         ResolvePowampShotAfterCommon(enemy);
+                    if (isWorkRobot)
+                        ResolveWorkRobotShotAfterCommon(enemy, samus);
                     hitCount++;
                     break;
                 }
@@ -310,6 +334,8 @@ public sealed partial class RoomEnemySystem
                     ResolveBeetomShotAfterCommon(enemy, RequireBeetomState(enemy));
                 if (isPowamp)
                     ResolvePowampShotAfterCommon(enemy);
+                if (isWorkRobot)
+                    ResolveWorkRobotShotAfterCommon(enemy, samus);
 
                 hitCount++;
                 break;

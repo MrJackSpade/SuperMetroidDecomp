@@ -202,7 +202,9 @@ public sealed partial class SuperMetroidRuntime
             readRandomNumber: () => System.RandomNumber,
             level: LevelData,
             samus: Samus,
-            controllerInput: Controller1.Current);
+            controllerInput: Controller1.Current,
+            isAreaBossDefeated: () =>
+                System.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss));
         Enemies.QueueGraphicsUploads(VramWrites);
 
         // `$90:AC8D` follows the standard-sprite and room-enemy uploads during gameplay

@@ -45,6 +45,7 @@ internal static class RetailEnemyCoverageAudit
             [0xd2bf] = "Norfair lava-jumping enemy",
             [0xd2ff] = "Norfair Rio",
             [0xd33f] = "Lower Norfair Rio",
+            [0xd37f] = "Maridia Large Snail",
         };
         var focusedPopulations = focusedDefinitions.Keys.ToDictionary(
             definition => definition,

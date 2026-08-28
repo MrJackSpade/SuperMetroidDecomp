@@ -164,6 +164,7 @@ public sealed partial class RoomEnemySystem
         ResetNorfairLavaJumpingEnemyRoomState();
         ResetNorfairRioRoomState();
         ResetLowerNorfairRioRoomState();
+        ResetMaridiaLargeSnailRoomState();
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
@@ -366,6 +367,7 @@ public sealed partial class RoomEnemySystem
         LastNorfairLavaJumpingEnemySoundEffect = null;
         LastNorfairRioSoundEffect = null;
         LastLowerNorfairRioSoundEffect = null;
+        LastMaridiaLargeSnailSoundEffect = null;
         SetRinkaCamera(cameraX, cameraY);
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
@@ -826,6 +828,9 @@ public sealed partial class RoomEnemySystem
             case 0xa2c6f3 when slot.EnemyDefinitionPointer == LowerNorfairRioDefinition:
                 InitializeLowerNorfairRio(slot);
                 return;
+            case 0xa2ccd4 when slot.EnemyDefinitionPointer == MaridiaLargeSnailDefinition:
+                InitializeMaridiaLargeSnail(slot);
+                return;
             case 0xa896e3 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 InitializeFuneNamihe(slot);
                 return;
@@ -1160,6 +1165,14 @@ public sealed partial class RoomEnemySystem
                     RequireLowerNorfairRioState(slot),
                     samus,
                     level);
+                return;
+            case 0xa2cd13 when slot.EnemyDefinitionPointer == MaridiaLargeSnailDefinition:
+                RunMaridiaLargeSnailMain(
+                    slot,
+                    RequireMaridiaLargeSnailState(slot),
+                    samus,
+                    level,
+                    controllerInput);
                 return;
             case 0xa89730 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), samus);
@@ -2250,6 +2263,8 @@ public sealed partial class RoomEnemySystem
                     if (TryProcessNorfairRioInstruction(slot, word, ref cursor))
                         break;
                     if (TryProcessLowerNorfairRioInstruction(slot, word, ref cursor))
+                        break;
+                    if (TryProcessMaridiaLargeSnailInstruction(slot, word, ref cursor))
                         break;
                     if (TryProcessMagdolliteInstruction(
                         slot,

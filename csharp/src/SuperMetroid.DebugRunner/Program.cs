@@ -138,6 +138,12 @@ if (args.Length >= 2 && args[0] == "--lower-norfair-rio-audit")
     return LowerNorfairRioAudit.Run(lowerNorfairRioRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--maridia-large-snail-audit")
+{
+    string maridiaLargeSnailRomPath = string.Join(' ', args[1..]).Trim('"');
+    return MaridiaLargeSnailAudit.Run(maridiaLargeSnailRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

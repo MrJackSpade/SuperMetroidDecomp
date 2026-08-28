@@ -83,6 +83,9 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == MagdolliteTouchAi;
             bool isRinka = slot.EnemyDefinitionPointer == RinkaDefinition &&
                 slot.Definition.TouchAiPointer == RinkaTouchAi;
+            bool isMaridiaLargeSnail =
+                slot.EnemyDefinitionPointer == MaridiaLargeSnailDefinition &&
+                slot.Definition.TouchAiPointer == MaridiaLargeSnailNonDamagingTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
@@ -95,6 +98,7 @@ public sealed partial class RoomEnemySystem
                 isBabyTurtle ||
                 isMagdollite ||
                 isRinka ||
+                isMaridiaLargeSnail ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -111,11 +115,11 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            bool usesPirateExtendedHitboxes = isOrdinarySpacePirate &&
+            bool usesExtendedHitboxes = (isOrdinarySpacePirate || isMaridiaLargeSnail) &&
                 slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
             bool overlapsSamus;
             ushort hitboxTouchAi = slot.Definition.TouchAiPointer;
-            if (usesPirateExtendedHitboxes)
+            if (usesExtendedHitboxes)
             {
                 overlapsSamus = TryFindExtendedHitboxCallback(
                     slot,
@@ -148,10 +152,36 @@ public sealed partial class RoomEnemySystem
             // callback in every retail hitbox. Keep the pointer check explicit: silently
             // treating a later family-specific attack box as ordinary body contact would
             // recreate the exact radius-flattening bug this path is intended to remove.
-            if (usesPirateExtendedHitboxes && hitboxTouchAi != SpacePirateTouchAi)
+            if (isOrdinarySpacePirate && usesExtendedHitboxes &&
+                hitboxTouchAi != SpacePirateTouchAi)
             {
                 throw new NotSupportedException(
                     $"Space Pirate hitbox touch AI $B2:{hitboxTouchAi:X4} is not translated.");
+            }
+
+            if (isMaridiaLargeSnail)
+            {
+                if (!usesExtendedHitboxes)
+                {
+                    throw new InvalidDataException(
+                        "Maridia Large Snail lost its required extended-spritemap property.");
+                }
+                if (hitboxTouchAi is not (
+                        MaridiaLargeSnailDamagingTouchAi or
+                        MaridiaLargeSnailNonDamagingTouchAi))
+                {
+                    throw new NotSupportedException(
+                        $"Maridia Large Snail hitbox touch AI " +
+                        $"$A2:{hitboxTouchAi:X4} is not translated.");
+                }
+
+                // $D388 enters common touch damage and falls directly through $D38C's
+                // asymmetric shove. $D38C frames execute only the shove, which is why the
+                // closed shell can carry/push Samus without inflicting the header's 100 HP.
+                if (hitboxTouchAi == MaridiaLargeSnailDamagingTouchAi)
+                    ResolveNormalEnemyTouch(slot, samus, controllerInput);
+                ResolveMaridiaLargeSnailTouchAfterCommon(slot, samus);
+                return true;
             }
 
             if (isOrdinarySpacePirate && slot.FrozenTimer != 0)
@@ -293,6 +323,9 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == MagdolliteShotAi;
             bool isRinka = enemy.EnemyDefinitionPointer == RinkaDefinition &&
                 enemy.Definition.ShotAiPointer == RinkaShotAi;
+            bool isMaridiaLargeSnail =
+                enemy.EnemyDefinitionPointer == MaridiaLargeSnailDefinition &&
+                enemy.Definition.ShotAiPointer == MaridiaLargeSnailShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -311,6 +344,7 @@ public sealed partial class RoomEnemySystem
                 isKago ||
                 isMagdollite ||
                 isRinka ||
+                isMaridiaLargeSnail ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -370,11 +404,11 @@ public sealed partial class RoomEnemySystem
                     continue;
                 }
 
-                bool usesPirateExtendedHitboxes = isOrdinarySpacePirate &&
+                bool usesExtendedHitboxes = (isOrdinarySpacePirate || isMaridiaLargeSnail) &&
                     enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
                 bool overlapsProjectile;
                 ushort hitboxShotAi = enemy.Definition.ShotAiPointer;
-                if (usesPirateExtendedHitboxes)
+                if (usesExtendedHitboxes)
                 {
                     overlapsProjectile = TryFindExtendedHitboxCallback(
                         enemy,
@@ -403,6 +437,41 @@ public sealed partial class RoomEnemySystem
                     continue;
                 }
 
+                if (usesExtendedHitboxes && family == 0x0200)
+                {
+                    // The multibox prelude requests this earthquake before dispatching the
+                    // hitbox callback, even when that callback is the no-op shell region.
+                    EarthquakeTimer = 30;
+                    EarthquakeType = 18;
+                }
+
+                if (isMaridiaLargeSnail)
+                {
+                    if (!usesExtendedHitboxes)
+                    {
+                        throw new InvalidDataException(
+                            "Maridia Large Snail lost its required extended-spritemap property.");
+                    }
+                    if (hitboxShotAi == MaridiaLargeSnailNoOpHitboxAi)
+                    {
+                        // Native multibox collision marks the projectile before calling the
+                        // no-op. It does not run normal shot AI, create an impact, play $57,
+                        // or consult vulnerability for this protected shell component.
+                        projectiles.ApplyExtendedEnemyCollisionPrelude(
+                            projectile.SlotIndex,
+                            (enemy.Properties & 0x1000) != 0 ||
+                                (projectile.Type & 0x0008) == 0);
+                        hitCount++;
+                        break;
+                    }
+                    if (hitboxShotAi != MaridiaLargeSnailShotAi)
+                    {
+                        throw new NotSupportedException(
+                            $"Maridia Large Snail hitbox shot AI " +
+                            $"$A2:{hitboxShotAi:X4} is not translated.");
+                    }
+                }
+
                 // Owtch's private $A2:A579 callback returns before common shot AI unless
                 // signed(state - 1) is negative. The bank-$A0 collision prelude has already
                 // marked ordinary non-plasma shots as collided at this point, but it has not
@@ -416,7 +485,7 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
 
-                if (usesPirateExtendedHitboxes)
+                if (isOrdinarySpacePirate && usesExtendedHitboxes)
                 {
                     PirateHitboxShotAction pirateAction = SelectPirateHitboxShotAction(
                         bus,
@@ -531,6 +600,8 @@ public sealed partial class RoomEnemySystem
                         ResolveKagoShotAfterCommon(enemy, RequireKagoState(enemy));
                     if (isMagdollite)
                         ResolveMagdolliteCombatAfterCommon(enemy);
+                    if (isMaridiaLargeSnail)
+                        ResolveMaridiaLargeSnailShotAfterCommon();
                     hitCount++;
                     break;
                 }
@@ -600,6 +671,8 @@ public sealed partial class RoomEnemySystem
                     ResolveMagdolliteCombatAfterCommon(enemy);
                 if (isRinka)
                     ResolveRinkaCombatAfterCommon(enemy);
+                if (isMaridiaLargeSnail)
+                    ResolveMaridiaLargeSnailShotAfterCommon();
 
                 hitCount++;
                 break;

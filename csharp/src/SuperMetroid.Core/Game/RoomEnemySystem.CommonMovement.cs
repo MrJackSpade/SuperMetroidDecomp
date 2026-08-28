@@ -25,7 +25,37 @@ public sealed partial class RoomEnemySystem
     private bool MoveEnemyHorizontallyIgnoringNonSquareSlopes(
         RoomLevelData level,
         RoomEnemySlot slot,
-        int displacement)
+        int displacement) =>
+        MoveEnemyHorizontally(
+            level,
+            slot,
+            displacement,
+            treatNonSquareSlopesAsWalls: false);
+
+    /// <summary>
+    /// Ports <c>MoveEnemyRightBy_14_12_TreatSlopesAsWalls</c> at $A0:C69D. Square slopes
+    /// retain their native half-tile geometry; only non-square slopes consume direct-page
+    /// flag $4000 and become solid walls.
+    /// </summary>
+    private bool MoveEnemyHorizontallyTreatingSlopesAsWalls(
+        RoomLevelData level,
+        RoomEnemySlot slot,
+        int displacement) =>
+        MoveEnemyHorizontally(
+            level,
+            slot,
+            displacement,
+            treatNonSquareSlopesAsWalls: true);
+
+    /// <summary>
+    /// Shared body of the three native horizontal enemy movers. The remaining $8000
+    /// process-slopes mode will reuse this seam when its first retail caller is translated.
+    /// </summary>
+    private bool MoveEnemyHorizontally(
+        RoomLevelData level,
+        RoomEnemySlot slot,
+        int displacement,
+        bool treatNonSquareSlopesAsWalls)
     {
         if (displacement == 0)
             return false;
@@ -54,7 +84,8 @@ public sealed partial class RoomEnemySystem
                     row,
                     targetEdge,
                     remaining,
-                    spanMinusOne))
+                    spanMinusOne,
+                    treatNonSquareSlopesAsWalls))
             {
                 collided = true;
                 break;
@@ -195,7 +226,8 @@ public sealed partial class RoomEnemySystem
         int blockY,
         ushort targetEdge,
         int remaining,
-        int spanMinusOne)
+        int spanMinusOne,
+        bool treatNonSquareSlopesAsWalls)
     {
         int blockIndex = ResolveEnemyCollisionBlockIndex(level, blockX, blockY);
         if (blockIndex < 0)
@@ -205,7 +237,7 @@ public sealed partial class RoomEnemySystem
         return block.CollisionType switch
         {
             0x0 or 0x2 or 0x3 or 0x4 or 0x6 or 0x7 => false,
-            0x1 when (block.Behavior & 0x1f) >= 5 => false,
+            0x1 when (block.Behavior & 0x1f) >= 5 => treatNonSquareSlopesAsWalls,
             0x1 => SquareHorizontalSlopeIsSolid(
                 slot,
                 targetEdge,

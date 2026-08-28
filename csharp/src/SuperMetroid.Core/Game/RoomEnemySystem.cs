@@ -147,6 +147,7 @@ public sealed partial class RoomEnemySystem
         GunshipSavePromptPending = false;
         GunshipSaveRequested = false;
         LastBoyonSoundEffect = null;
+        LastMamaTurtleSoundEffect = null;
         LastMochtroidSoundEffect = null;
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
@@ -166,6 +167,8 @@ public sealed partial class RoomEnemySystem
         _ceresRidley = null;
         Array.Clear(_boyonStates);
         Array.Clear(_stokeStates);
+        Array.Clear(_mamaTurtleStates);
+        Array.Clear(_babyTurtleStates);
         Array.Clear(_crawlerStates);
         Array.Clear(_skreeStates);
         Array.Clear(_flyStates);
@@ -311,11 +314,17 @@ public sealed partial class RoomEnemySystem
         ushort newlyPressedControllerInput = 0,
         RoomLevelData? level = null,
         ushort controllerInput = 0,
-        SamusProjectileSystem? samusProjectiles = null)
+        SamusProjectileSystem? samusProjectiles = null,
+        byte? nmiFrameCounter8 = null)
     {
         EnsureLoaded();
+        // Standalone audits do not own the runtime NMI clock. In that case the enemy-frame
+        // counter begins at zero and advances at the same end-of-frame point, which gives
+        // Mama Turtle's even-frame shell jitter the same initial phase as retail room load.
+        byte enemyNmiFrameCounter8 = nmiFrameCounter8 ?? unchecked((byte)_randomEnemyCounter);
         LastGunshipEvent = GunshipFrameEvent.None;
         LastBoyonSoundEffect = null;
+        LastMamaTurtleSoundEffect = null;
         LastMochtroidSoundEffect = null;
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
@@ -346,7 +355,8 @@ public sealed partial class RoomEnemySystem
                     controllerInput,
                     level,
                     cameraX,
-                    cameraY);
+                    cameraY,
+                    enemyNmiFrameCounter8);
                 if (!ranActorAi &&
                     (slot.FrozenTimer != 0 || (slot.AiHandlerBits & 0x0004) != 0))
                 {
@@ -369,7 +379,8 @@ public sealed partial class RoomEnemySystem
                         level,
                         cameraX,
                         cameraY,
-                        samusProjectiles);
+                        samusProjectiles,
+                        enemyNmiFrameCounter8);
                     ranActorAi = true;
                 }
 
@@ -738,6 +749,12 @@ public sealed partial class RoomEnemySystem
             case 0xa289ad when slot.EnemyDefinitionPointer == StokeDefinition:
                 InitializeStoke(slot);
                 return;
+            case 0xa28d6c when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+                InitializeMamaTurtle(slot);
+                return;
+            case 0xa28d9d when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                InitializeBabyTurtle(slot);
+                return;
             case 0xa2a6d2:
                 InitializeGunshipBottom(slot);
                 return;
@@ -991,7 +1008,8 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level,
         ushort cameraX,
         ushort cameraY,
-        SamusProjectileSystem? samusProjectiles)
+        SamusProjectileSystem? samusProjectiles,
+        byte nmiFrameCounter8)
     {
         int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
         switch (address)
@@ -1004,6 +1022,18 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa289f0 when slot.EnemyDefinitionPointer == StokeDefinition:
                 RunStokeMain(slot, RequireStokeState(slot), level);
+                return;
+            case 0xa28dd2 when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+                RunMamaTurtleMain(
+                    slot,
+                    RequireMamaTurtleState(slot),
+                    samus,
+                    level,
+                    controllerInput,
+                    nmiFrameCounter8);
+                return;
+            case 0xa2912e when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                RunBabyTurtleMain(slot, RequireBabyTurtleState(slot), samus, level);
                 return;
             case 0xa2804c:
                 return;
@@ -1460,6 +1490,56 @@ public sealed partial class RoomEnemySystem
                     break;
                 case 0x899d when slot.EnemyDefinitionPointer == StokeDefinition:
                     SetStokeMovingRight(RequireStokeState(slot));
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9381 when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                    ProcessBabyTurtleCrawlInstruction(
+                        slot,
+                        RequireBabyTurtleState(slot),
+                        samus,
+                        level);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9412 when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                    cursor = SelectBabyTurtleCrawlLoop(slot, RequireBabyTurtleState(slot));
+                    break;
+                case 0x9447 when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+                    StartMamaTurtleEnteringShell(RequireMamaTurtleState(slot));
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9451 when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+                    StartMamaTurtleRisingToHover(
+                        RequireMamaTurtleState(slot),
+                        rightward: true);
+                    cursor = MamaTurtleSpinningInstruction;
+                    break;
+                case 0x946b when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+                    StartMamaTurtleRisingToHover(
+                        RequireMamaTurtleState(slot),
+                        rightward: false);
+                    cursor = MamaTurtleSpinningInstruction;
+                    break;
+                case 0x9485 when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                    cursor = SelectBabyTurtleLeaveShell(
+                        slot,
+                        RequireBabyTurtleState(slot),
+                        samus,
+                        unchecked((ushort)(cursor + 2)));
+                    break;
+                case 0x94a1 when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                    cursor = FinishBabyTurtleLeavingShell(
+                        slot,
+                        RequireBabyTurtleState(slot),
+                        samus);
+                    break;
+                case 0x94c7 when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                    RequireBabyTurtleState(slot).Function =
+                        BabyTurtleAiFunction.SpinningStoppable;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x94d1 when slot.EnemyDefinitionPointer is
+                    MamaTurtleDefinition or BabyTurtleDefinition:
+                    LastMamaTurtleSoundEffect = MamaTurtleSpinSound;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0x8108: // EnemyInstr_DecrementTimerAndGoto.

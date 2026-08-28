@@ -77,7 +77,8 @@ public sealed partial class RoomEnemySystem
         ushort controllerInput,
         RoomLevelData? level,
         ushort cameraX,
-        ushort cameraY)
+        ushort cameraY,
+        byte nmiFrameCounter8)
     {
         if ((enemy.AiHandlerBits & 1) == 0)
             return false;
@@ -133,7 +134,8 @@ public sealed partial class RoomEnemySystem
                     level,
                     cameraX,
                     cameraY,
-                    samusProjectiles: null);
+                    samusProjectiles: null,
+                    nmiFrameCounter8);
                 enemy.AiHandlerBits = 0;
                 return true;
 

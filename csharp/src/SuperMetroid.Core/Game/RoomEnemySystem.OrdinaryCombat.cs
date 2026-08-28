@@ -1,5 +1,6 @@
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
 
@@ -35,12 +36,18 @@ public sealed partial class RoomEnemySystem
     private const ushort SpacePiratePowerBombAi = 0x8767;
     private const ushort SpacePirateTouchAi = 0x876c;
     private const ushort SpacePirateShotAi = 0x8779;
+    private const ushort MamaTurtleTouchAi = 0x9281;
+    private const ushort BabyTurtleTouchAi = 0x929f;
+    private const ushort BabyTurtleShotAi = 0x930f;
     private const ushort GoldNinjaVulnerableHitboxShotAi = 0x87c8;
     private const ushort GoldNinjaInvincibleHitboxShotAi = 0x883e;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
-    public bool ResolveOrdinarySamusContact(SamusState samus, ushort controllerInput)
+    public bool ResolveOrdinarySamusContact(
+        SamusState samus,
+        ushort controllerInput,
+        RoomLevelData? level = null)
     {
         ArgumentNullException.ThrowIfNull(samus);
         EnsureLoaded();
@@ -68,6 +75,10 @@ public sealed partial class RoomEnemySystem
             bool isOrdinarySpacePirate =
                 IsOrdinarySpacePirateDefinition(slot.EnemyDefinitionPointer) &&
                 slot.Definition.TouchAiPointer == SpacePirateTouchAi;
+            bool isMamaTurtle = slot.EnemyDefinitionPointer == MamaTurtleDefinition &&
+                slot.Definition.TouchAiPointer == MamaTurtleTouchAi;
+            bool isBabyTurtle = slot.EnemyDefinitionPointer == BabyTurtleDefinition &&
+                slot.Definition.TouchAiPointer == BabyTurtleTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
@@ -76,6 +87,8 @@ public sealed partial class RoomEnemySystem
                 isWorkRobot ||
                 isFakeKraid ||
                 isOrdinarySpacePirate ||
+                isMamaTurtle ||
+                isBabyTurtle ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -186,6 +199,22 @@ public sealed partial class RoomEnemySystem
             {
                 ResolveFirefleaTouch(slot, samus, controllerInput);
             }
+            else if (isMamaTurtle)
+            {
+                ResolveMamaTurtleTouch(
+                    slot,
+                    RequireMamaTurtleState(slot),
+                    samus,
+                    controllerInput);
+            }
+            else if (isBabyTurtle)
+            {
+                ResolveBabyTurtleTouch(
+                    slot,
+                    RequireBabyTurtleState(slot),
+                    samus,
+                    level);
+            }
             else
             {
                 ushort healthBefore = slot.Health;
@@ -240,6 +269,8 @@ public sealed partial class RoomEnemySystem
             bool isOrdinarySpacePirate =
                 IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
                 enemy.Definition.ShotAiPointer == SpacePirateShotAi;
+            bool isBabyTurtle = enemy.EnemyDefinitionPointer == BabyTurtleDefinition &&
+                enemy.Definition.ShotAiPointer == BabyTurtleShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -253,6 +284,7 @@ public sealed partial class RoomEnemySystem
                 isSpark ||
                 isFakeKraid ||
                 isOrdinarySpacePirate ||
+                isBabyTurtle ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -454,6 +486,8 @@ public sealed partial class RoomEnemySystem
                         bullState.PreviousHealth = enemyHealthBefore;
                         ResolveBullImmuneShot(enemy, bullState, projectileDirection);
                     }
+                    if (isBabyTurtle)
+                        ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
                     hitCount++;
                     break;
                 }
@@ -515,6 +549,8 @@ public sealed partial class RoomEnemySystem
                 }
                 if (isFakeKraid && enemyHealthBefore != 0 && enemy.Health == 0)
                     RequestFakeKraidDeathDrop(enemy);
+                if (isBabyTurtle)
+                    ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
 
                 hitCount++;
                 break;

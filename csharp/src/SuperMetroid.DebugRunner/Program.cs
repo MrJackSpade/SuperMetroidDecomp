@@ -48,6 +48,12 @@ if (args.Length >= 2 && args[0] == "--stoke-audit")
     return StokeAudit.Run(stokeRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--mama-turtle-audit")
+{
+    string turtleRomPath = string.Join(' ', args[1..]).Trim('"');
+    return MamaTurtleAudit.Run(turtleRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

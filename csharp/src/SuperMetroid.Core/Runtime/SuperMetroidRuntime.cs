@@ -1030,7 +1030,8 @@ public sealed partial class SuperMetroidRuntime
                 Controller1.NewlyPressed,
                 LevelData,
                 Controller1.Current,
-                Projectiles);
+                Projectiles,
+                NmiFrameCounter8);
             // `$A6:A2DF` does not install the post-enemy hook until Ridley's animation word
             // becomes nonzero. Before the reveal it branches directly into `$A6:A2E3`
             // during EnemyMain, so emit the Baby/door OBJ now—before queued enemy layers.
@@ -1045,7 +1046,8 @@ public sealed partial class SuperMetroidRuntime
                     Controller1.Current);
                 Enemies.ResolveOrdinarySamusContact(
                     Samus,
-                    Controller1.Current);
+                    Controller1.Current,
+                    LevelData);
             }
             if (LevelData is not null && !(Samus?.Xray.TimeIsFrozen ?? false))
                 Enemies.StepEnemyProjectiles(

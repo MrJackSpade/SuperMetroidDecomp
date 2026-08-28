@@ -146,6 +146,7 @@ public sealed partial class RoomEnemySystem
         LastGunshipEvent = GunshipFrameEvent.None;
         GunshipSavePromptPending = false;
         GunshipSaveRequested = false;
+        LastBoyonSoundEffect = null;
         LastMochtroidSoundEffect = null;
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
@@ -163,6 +164,7 @@ public sealed partial class RoomEnemySystem
         EarthquakeTimer = 0;
         EarthquakeType = 0;
         _ceresRidley = null;
+        Array.Clear(_boyonStates);
         Array.Clear(_crawlerStates);
         Array.Clear(_skreeStates);
         Array.Clear(_flyStates);
@@ -312,6 +314,7 @@ public sealed partial class RoomEnemySystem
     {
         EnsureLoaded();
         LastGunshipEvent = GunshipFrameEvent.None;
+        LastBoyonSoundEffect = null;
         LastMochtroidSoundEffect = null;
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
@@ -728,6 +731,9 @@ public sealed partial class RoomEnemySystem
             case 0xa2a644:
                 InitializeGunshipTop(slot);
                 return;
+            case 0xa2871c when slot.EnemyDefinitionPointer == BoyonDefinition:
+                InitializeBoyon(slot);
+                return;
             case 0xa2a6d2:
                 InitializeGunshipBottom(slot);
                 return;
@@ -988,6 +994,9 @@ public sealed partial class RoomEnemySystem
         {
             case 0xa2a759:
                 RunGunshipTopMain(slot, samus, newlyPressedControllerInput);
+                return;
+            case 0xa2879c when slot.EnemyDefinitionPointer == BoyonDefinition:
+                RunBoyonMain(slot, RequireBoyonState(slot), samus);
                 return;
             case 0xa2804c:
                 return;
@@ -1419,6 +1428,15 @@ public sealed partial class RoomEnemySystem
                     break;
                 case 0x817d: // EnemyInstr_DisableOffScreenProcessing.
                     slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x88c5 when slot.EnemyDefinitionPointer == BoyonDefinition:
+                    // `$A2:88C5` is an explicit RTL instruction. It consumes only itself;
+                    // keeping it distinct documents the idle-list seam in the ROM.
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x88c6 when slot.EnemyDefinitionPointer == BoyonDefinition:
+                    StartBoyonBounce(RequireBoyonState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0x8108: // EnemyInstr_DecrementTimerAndGoto.

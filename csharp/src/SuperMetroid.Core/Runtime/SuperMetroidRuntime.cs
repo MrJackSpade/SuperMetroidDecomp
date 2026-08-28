@@ -1019,7 +1019,12 @@ public sealed partial class SuperMetroidRuntime
                     Controller1.Current);
             }
             if (LevelData is not null && !(Samus?.Xray.TimeIsFrozen ?? false))
-                Enemies.StepCeresRidleyProjectiles(LevelData, Samus, Controller1.Current);
+                Enemies.StepEnemyProjectiles(
+                    LevelData,
+                    Samus,
+                    Controller1.Current,
+                    Camera.XPosition,
+                    Camera.YPosition);
             if (Samus is not null)
             {
                 Samus.Kinematics.InteractiveEnemies = Enemies.InteractiveCollisionBodies;
@@ -2764,7 +2769,7 @@ public sealed partial class SuperMetroidRuntime
                 // Samus; lower OAM indices retain their native same-priority overlap win.
                 CeresElevatorArrival?.Draw(Oam, Camera.XPosition, Camera.YPosition);
                 if (Enemies.IsLoaded)
-                    Enemies.DrawCeresRidleyProjectiles(Oam, Camera.XPosition, Camera.YPosition);
+                    Enemies.DrawEnemyProjectiles(Oam, Camera.XPosition, Camera.YPosition);
                 drawHighPriorityEnemyProjectiles?.Invoke(Oam);
             }
 

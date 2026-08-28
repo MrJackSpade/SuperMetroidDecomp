@@ -11,6 +11,7 @@ public sealed partial class RoomEnemySystem
 {
     private const ushort CommonNormalEnemyTouchAi = 0x8023;
     private const ushort CommonNormalEnemyShotAi = 0x802d;
+    private const ushort SkreeShotAi = 0xc7f5;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -73,8 +74,11 @@ public sealed partial class RoomEnemySystem
         foreach (ushort nativeIndex in _interactiveEnemyIndexes)
         {
             RoomEnemySlot enemy = SlotFromNativeIndex(nativeIndex);
+            bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
+                enemy.EnemyDefinitionPointer == SkreeDefinition &&
+                enemy.Definition.ShotAiPointer == SkreeShotAi;
             if (enemy.EnemyDefinitionPointer == CeresRidleyDefinition ||
-                enemy.Definition.ShotAiPointer != CommonNormalEnemyShotAi ||
+                !usesTranslatedShotAi ||
                 enemy.SpritemapPointer == 0 ||
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Properties.HasAny(
@@ -127,6 +131,11 @@ public sealed partial class RoomEnemySystem
                         : unchecked((ushort)(enemy.Health - damage));
                     if (enemy.Health == 0)
                     {
+                        // $A3:C7F5 adds Skree's four debris actors after the shared normal
+                        // shot handler reports death, before the common death animation
+                        // releases the enemy slot.
+                        if (enemy.EnemyDefinitionPointer == SkreeDefinition)
+                            SpawnSkreeParticleBurst(enemy);
                         enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
                         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
                     }

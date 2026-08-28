@@ -3,17 +3,25 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>The bank-$86 identity of one live Ceres Ridley projectile slot.</summary>
-public enum CeresRidleyProjectileKind : ushort
+/// <summary>
+/// The bank-$86 definition pointer occupying one live room-enemy projectile slot. Keeping
+/// the cartridge pointer as the enum value makes debugger state directly comparable with
+/// <c>eproj_id</c> rather than inventing a host-only identity layer.
+/// </summary>
+public enum RoomEnemyProjectileKind : ushort
 {
     None = 0,
-    Fireball = 0x9642,
-    HorizontalAfterburnCenter = 0x9650,
-    VerticalAfterburnCenter = 0x965e,
-    HorizontalAfterburnRight = 0x966c,
-    HorizontalAfterburnLeft = 0x967a,
-    VerticalAfterburnUp = 0x9688,
-    VerticalAfterburnDown = 0x9696,
+    SkreeParticleDownRight = 0x8bc2,
+    SkreeParticleUpRight = 0x8bd0,
+    SkreeParticleDownLeft = 0x8bde,
+    SkreeParticleUpLeft = 0x8bec,
+    CeresRidleyFireball = 0x9642,
+    CeresRidleyHorizontalAfterburnCenter = 0x9650,
+    CeresRidleyVerticalAfterburnCenter = 0x965e,
+    CeresRidleyHorizontalAfterburnRight = 0x966c,
+    CeresRidleyHorizontalAfterburnLeft = 0x967a,
+    CeresRidleyVerticalAfterburnUp = 0x9688,
+    CeresRidleyVerticalAfterburnDown = 0x9696,
 }
 
 /// <summary>
@@ -21,13 +29,13 @@ public enum CeresRidleyProjectileKind : ushort
 /// Positions retain separate 16-bit subpositions because a fireball's signed 8.8 velocity
 /// is added to the high byte of that fraction by the original movement helpers.
 /// </summary>
-public sealed class CeresRidleyProjectileSlot
+public sealed class RoomEnemyProjectileSlot
 {
-    internal CeresRidleyProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
+    internal RoomEnemyProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
 
     public int SlotIndex { get; }
-    public CeresRidleyProjectileKind Kind { get; internal set; }
-    public bool IsActive => Kind != CeresRidleyProjectileKind.None;
+    public RoomEnemyProjectileKind Kind { get; internal set; }
+    public bool IsActive => Kind != RoomEnemyProjectileKind.None;
     public ushort XPosition { get; internal set; }
     public ushort XSubposition { get; internal set; }
     public ushort YPosition { get; internal set; }
@@ -38,16 +46,22 @@ public sealed class CeresRidleyProjectileSlot
     public ushort InstructionTimer { get; internal set; }
     public ushort SpritemapPointer { get; internal set; }
     public ushort PreInstruction { get; internal set; }
+    public ushort GraphicsIndex { get; internal set; }
+    public ushort XRadius { get; internal set; }
+    public ushort YRadius { get; internal set; }
+    public ushort Damage { get; internal set; }
+    public ushort InvincibilityFrames { get; internal set; }
     public ushort RemainingAfterburns { get; internal set; }
     public ushort NextAfterburnKind { get; internal set; }
     public bool CanDamageSamus { get; internal set; }
 
     internal void Clear()
     {
-        Kind = CeresRidleyProjectileKind.None;
+        Kind = RoomEnemyProjectileKind.None;
         XPosition = XSubposition = YPosition = YSubposition = 0;
         XVelocity = YVelocity = 0;
         InstructionPointer = InstructionTimer = SpritemapPointer = PreInstruction = 0;
+        GraphicsIndex = XRadius = YRadius = Damage = InvincibilityFrames = 0;
         RemainingAfterburns = NextAfterburnKind = 0;
         CanDamageSamus = false;
     }
@@ -57,34 +71,35 @@ public sealed partial class RoomEnemySystem
 {
     // Super Metroid reserves native indexes $00..$22, in steps of two, for eighteen enemy
     // projectiles. Keeping the same capacity exposes saturation and spawn failure honestly.
-    private const int CeresRidleyProjectileSlotCount = 18;
+    private const int RoomEnemyProjectileSlotCount = 18;
     private const ushort FireballGraphicsIndex = 0x0a00;
     private const ushort FireballRadius = 6;
     private const ushort FireballDamage = 3;
     private const ushort FireballInvincibilityFrames = 96;
 
-    private readonly CeresRidleyProjectileSlot[] _ceresRidleyProjectiles =
-        Enumerable.Range(0, CeresRidleyProjectileSlotCount)
-            .Select(index => new CeresRidleyProjectileSlot(index))
+    private readonly RoomEnemyProjectileSlot[] _enemyProjectiles =
+        Enumerable.Range(0, RoomEnemyProjectileSlotCount)
+            .Select(index => new RoomEnemyProjectileSlot(index))
             .ToArray();
 
     /// <summary>All eighteen physical bank-$86 slots, including currently inactive slots.</summary>
-    public IReadOnlyList<CeresRidleyProjectileSlot> CeresRidleyProjectiles =>
-        _ceresRidleyProjectiles;
+    public IReadOnlyList<RoomEnemyProjectileSlot> EnemyProjectiles => _enemyProjectiles;
 
-    /// <summary>Number of live Ridley fireball or afterburn actors.</summary>
-    public int ActiveCeresRidleyProjectileCount =>
-        _ceresRidleyProjectiles.Count(projectile => projectile.IsActive);
+    /// <summary>Number of live actors in the shared bank-$86 enemy-projectile pool.</summary>
+    public int ActiveEnemyProjectileCount =>
+        _enemyProjectiles.Count(projectile => projectile.IsActive);
 
     /// <summary>
     /// Executes the projectile portion of the gameplay frame after enemy instructions have
     /// had their opportunity to spawn a fireball. This is the same producer/consumer order
     /// as EnemyMain followed by bank $86's enemy-projectile handler.
     /// </summary>
-    public void StepCeresRidleyProjectiles(
+    public void StepEnemyProjectiles(
         RoomLevelData level,
         SamusState? samus,
-        ushort controllerInput = 0)
+        ushort controllerInput = 0,
+        ushort cameraX = 0,
+        ushort cameraY = 0)
     {
         ArgumentNullException.ThrowIfNull(level);
         EnsureLoaded();
@@ -92,14 +107,14 @@ public sealed partial class RoomEnemySystem
         // Snapshot the active set. Afterburn instruction opcodes may allocate later slots;
         // native descending-slot iteration does not execute a newly spawned lower-priority
         // actor twice in the same logical instruction pass.
-        CeresRidleyProjectileSlot[] activeAtFrameStart =
-            _ceresRidleyProjectiles.Where(projectile => projectile.IsActive).ToArray();
-        foreach (CeresRidleyProjectileSlot projectile in activeAtFrameStart)
+        RoomEnemyProjectileSlot[] activeAtFrameStart =
+            _enemyProjectiles.Where(projectile => projectile.IsActive).ToArray();
+        foreach (RoomEnemyProjectileSlot projectile in activeAtFrameStart)
         {
             if (!projectile.IsActive)
                 continue;
 
-            RunCeresRidleyProjectilePreInstruction(projectile, level);
+            RunEnemyProjectilePreInstruction(projectile, level, cameraX, cameraY);
             if (!projectile.IsActive)
                 continue;
 
@@ -116,12 +131,12 @@ public sealed partial class RoomEnemySystem
     /// spritemap writer. Their cartridge properties are $5003, selecting the first enemy-
     /// projectile draw phase used by the runtime.
     /// </summary>
-    public void DrawCeresRidleyProjectiles(OamBuffer oam, ushort cameraX, ushort cameraY)
+    public void DrawEnemyProjectiles(OamBuffer oam, ushort cameraX, ushort cameraY)
     {
         ArgumentNullException.ThrowIfNull(oam);
         EnsureLoaded();
 
-        foreach (CeresRidleyProjectileSlot projectile in _ceresRidleyProjectiles)
+        foreach (RoomEnemyProjectileSlot projectile in _enemyProjectiles)
         {
             if (!projectile.IsActive || projectile.SpritemapPointer == 0)
                 continue;
@@ -136,7 +151,7 @@ public sealed partial class RoomEnemySystem
                 projectile.SpritemapPointer,
                 screenX,
                 screenY,
-                FireballGraphicsIndex,
+                projectile.GraphicsIndex,
                 originYIsOnScreen: (screenY >> 8) == 0);
         }
     }
@@ -232,12 +247,12 @@ public sealed partial class RoomEnemySystem
     /// <summary>Allocates and initializes enemy projectile $86:9642.</summary>
     private void SpawnCeresRidleyFireball(RoomEnemySlot ridley, bool spawnAfterburn)
     {
-        CeresRidleyProjectileSlot? projectile = AllocateCeresRidleyProjectile();
+        RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
         CeresRidleyState state = RequireCeresRidley(ridley);
-        projectile.Kind = CeresRidleyProjectileKind.Fireball;
+        projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
         projectile.XPosition = unchecked((ushort)(ridley.XPosition +
             (state.FacingDirection == 0 ? -25 : 25)));
         projectile.YPosition = unchecked((ushort)(ridley.YPosition - 43));
@@ -247,15 +262,20 @@ public sealed partial class RoomEnemySystem
         projectile.InstructionPointer = 0x9552;
         projectile.InstructionTimer = 1;
         projectile.PreInstruction = 0x940e;
+        projectile.GraphicsIndex = FireballGraphicsIndex;
+        projectile.XRadius = FireballRadius;
+        projectile.YRadius = FireballRadius;
+        projectile.Damage = FireballDamage;
+        projectile.InvincibilityFrames = FireballInvincibilityFrames;
         projectile.CanDamageSamus = true;
     }
 
-    private CeresRidleyProjectileSlot? AllocateCeresRidleyProjectile()
+    private RoomEnemyProjectileSlot? AllocateEnemyProjectile()
     {
         // SpawnEnemyProjectile searches from native index $22 toward zero.
-        for (int index = _ceresRidleyProjectiles.Length - 1; index >= 0; index--)
+        for (int index = _enemyProjectiles.Length - 1; index >= 0; index--)
         {
-            CeresRidleyProjectileSlot projectile = _ceresRidleyProjectiles[index];
+            RoomEnemyProjectileSlot projectile = _enemyProjectiles[index];
             if (!projectile.IsActive)
             {
                 projectile.Clear();
@@ -265,9 +285,11 @@ public sealed partial class RoomEnemySystem
         return null;
     }
 
-    private void RunCeresRidleyProjectilePreInstruction(
-        CeresRidleyProjectileSlot projectile,
-        RoomLevelData level)
+    private void RunEnemyProjectilePreInstruction(
+        RoomEnemyProjectileSlot projectile,
+        RoomLevelData level,
+        ushort cameraX,
+        ushort cameraY)
     {
         switch (projectile.PreInstruction)
         {
@@ -291,8 +313,8 @@ public sealed partial class RoomEnemySystem
                     {
                         SpawnAfterburnCenter(
                             horizontalCollision
-                                ? CeresRidleyProjectileKind.VerticalAfterburnCenter
-                                : CeresRidleyProjectileKind.HorizontalAfterburnCenter,
+                                ? RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter
+                                : RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter,
                             x,
                             y,
                             count);
@@ -313,6 +335,23 @@ public sealed partial class RoomEnemySystem
                     BeginAfterburnFinalAnimation(projectile);
                 return;
 
+            case 0x8b5d: // Skree particle: signed 8.8 movement, gravity, camera deletion.
+                (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
+                    projectile.XPosition,
+                    projectile.XSubposition,
+                    projectile.XVelocity);
+                (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
+                    projectile.YPosition,
+                    projectile.YSubposition,
+                    projectile.YVelocity);
+                projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 0x0050));
+                if (unchecked((ushort)(projectile.XPosition - cameraX)) >= 256 ||
+                    unchecked((ushort)(projectile.YPosition - cameraY)) >= 256)
+                {
+                    projectile.Clear();
+                }
+                return;
+
             default:
                 throw new NotSupportedException(
                     $"Ridley projectile pre-instruction $86:{projectile.PreInstruction:X4} is not translated.");
@@ -320,7 +359,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private static bool MoveProjectileAxis(
-        CeresRidleyProjectileSlot projectile,
+        RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
         bool horizontal)
     {
@@ -372,7 +411,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private void ResolveCeresRidleyFireballSamusCollision(
-        CeresRidleyProjectileSlot projectile,
+        RoomEnemyProjectileSlot projectile,
         SamusState? samus,
         ushort controllerInput)
     {
@@ -381,16 +420,16 @@ public sealed partial class RoomEnemySystem
 
         int xDistance = Math.Abs(unchecked((short)(projectile.XPosition - samus.XPosition)));
         int yDistance = Math.Abs(unchecked((short)(projectile.YPosition - samus.YPosition)));
-        if (xDistance >= FireballRadius + samus.Kinematics.XRadius ||
-            yDistance >= FireballRadius + samus.Kinematics.YRadius)
+        if (xDistance >= projectile.XRadius + samus.Kinematics.XRadius ||
+            yDistance >= projectile.YRadius + samus.Kinematics.YRadius)
         {
             return;
         }
 
-        samus.Health = samus.Health <= FireballDamage
+        samus.Health = samus.Health <= projectile.Damage
             ? (ushort)0
-            : unchecked((ushort)(samus.Health - FireballDamage));
-        samus.InvincibilityTimer = FireballInvincibilityFrames;
+            : unchecked((ushort)(samus.Health - projectile.Damage));
+        samus.InvincibilityTimer = projectile.InvincibilityFrames;
         ushort knockbackXDirection = unchecked((short)(
             samus.XPosition - projectile.XPosition)) >= 0
             ? (ushort)1
@@ -414,7 +453,7 @@ public sealed partial class RoomEnemySystem
         projectile.Clear();
     }
 
-    private void ProcessCeresRidleyProjectileInstructions(CeresRidleyProjectileSlot projectile)
+    private void ProcessCeresRidleyProjectileInstructions(RoomEnemyProjectileSlot projectile)
     {
         ushort oldTimer = projectile.InstructionTimer;
         projectile.InstructionTimer = unchecked((ushort)(projectile.InstructionTimer - 1));
@@ -477,47 +516,52 @@ public sealed partial class RoomEnemySystem
     }
 
     private void SpawnAfterburnCenter(
-        CeresRidleyProjectileKind kind,
+        RoomEnemyProjectileKind kind,
         ushort x,
         ushort y,
         ushort remaining)
     {
-        CeresRidleyProjectileSlot? center = AllocateCeresRidleyProjectile();
+        RoomEnemyProjectileSlot? center = AllocateEnemyProjectile();
         if (center is null)
             return;
         center.Kind = kind;
         center.XPosition = x;
         center.YPosition = y;
         center.RemainingAfterburns = remaining;
-        center.InstructionPointer = kind == CeresRidleyProjectileKind.HorizontalAfterburnCenter
+        center.InstructionPointer = kind == RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter
             ? (ushort)0x95a0
             : (ushort)0x95d3;
         center.InstructionTimer = 1;
         center.PreInstruction = 0x950c;
+        center.GraphicsIndex = FireballGraphicsIndex;
+        center.XRadius = FireballRadius;
+        center.YRadius = FireballRadius;
+        center.Damage = FireballDamage;
+        center.InvincibilityFrames = FireballInvincibilityFrames;
         center.CanDamageSamus = true;
     }
 
-    private void SpawnAfterburnPair(CeresRidleyProjectileSlot center, bool horizontal)
+    private void SpawnAfterburnPair(RoomEnemyProjectileSlot center, bool horizontal)
     {
         if (horizontal)
         {
-            SpawnDirectionalAfterburn(center, CeresRidleyProjectileKind.HorizontalAfterburnRight, 0x0e00, 0);
-            SpawnDirectionalAfterburn(center, CeresRidleyProjectileKind.HorizontalAfterburnLeft, 0xf200, 0);
+            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight, 0x0e00, 0);
+            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft, 0xf200, 0);
         }
         else
         {
-            SpawnDirectionalAfterburn(center, CeresRidleyProjectileKind.VerticalAfterburnUp, 0, 0xf200);
-            SpawnDirectionalAfterburn(center, CeresRidleyProjectileKind.VerticalAfterburnDown, 0, 0x0e00);
+            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp, 0, 0xf200);
+            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown, 0, 0x0e00);
         }
     }
 
     private void SpawnDirectionalAfterburn(
-        CeresRidleyProjectileSlot source,
-        CeresRidleyProjectileKind kind,
+        RoomEnemyProjectileSlot source,
+        RoomEnemyProjectileKind kind,
         ushort xVelocity,
         ushort yVelocity)
     {
-        CeresRidleyProjectileSlot? afterburn = AllocateCeresRidleyProjectile();
+        RoomEnemyProjectileSlot? afterburn = AllocateEnemyProjectile();
         if (afterburn is null)
             return;
         afterburn.Kind = kind;
@@ -530,10 +574,15 @@ public sealed partial class RoomEnemySystem
         afterburn.InstructionPointer = 0x9606;
         afterburn.InstructionTimer = 1;
         afterburn.PreInstruction = xVelocity != 0 ? (ushort)0x950d : (ushort)0x9522;
+        afterburn.GraphicsIndex = FireballGraphicsIndex;
+        afterburn.XRadius = FireballRadius;
+        afterburn.YRadius = FireballRadius;
+        afterburn.Damage = FireballDamage;
+        afterburn.InvincibilityFrames = FireballInvincibilityFrames;
         afterburn.CanDamageSamus = true;
     }
 
-    private void SpawnNextAfterburn(CeresRidleyProjectileSlot source)
+    private void SpawnNextAfterburn(RoomEnemyProjectileSlot source)
     {
         byte lowCount = unchecked((byte)(source.RemainingAfterburns - 1));
         source.RemainingAfterburns = unchecked((ushort)((source.RemainingAfterburns & 0xff00) | lowCount));
@@ -541,17 +590,62 @@ public sealed partial class RoomEnemySystem
             return;
         SpawnDirectionalAfterburn(
             source,
-            (CeresRidleyProjectileKind)source.NextAfterburnKind,
+            (RoomEnemyProjectileKind)source.NextAfterburnKind,
             source.XVelocity,
             source.YVelocity);
     }
 
-    private static void BeginAfterburnFinalAnimation(CeresRidleyProjectileSlot projectile)
+    private static void BeginAfterburnFinalAnimation(RoomEnemyProjectileSlot projectile)
     {
         projectile.InstructionPointer = 0x9574;
         projectile.InstructionTimer = 1;
         projectile.XVelocity = 0;
         projectile.YVelocity = 0;
         projectile.CanDamageSamus = false;
+    }
+
+    /// <summary>Spawns the four bank-$86 particles emitted by a dying/burrowing Skree.</summary>
+    private void SpawnSkreeParticleBurst(RoomEnemySlot skree)
+    {
+        SpawnSkreeParticle(skree, RoomEnemyProjectileKind.SkreeParticleDownRight, 6, 0x0140, 0xfcff);
+        SpawnSkreeParticle(skree, RoomEnemyProjectileKind.SkreeParticleUpRight, 6, 0x0060, 0xfbff);
+        SpawnSkreeParticle(skree, RoomEnemyProjectileKind.SkreeParticleDownLeft, -6, 0xfec0, 0xfcff);
+        SpawnSkreeParticle(skree, RoomEnemyProjectileKind.SkreeParticleUpLeft, -6, 0xffa0, 0xfbff);
+    }
+
+    private void SpawnSkreeParticle(
+        RoomEnemySlot skree,
+        RoomEnemyProjectileKind kind,
+        int xOffset,
+        ushort xVelocity,
+        ushort yVelocity)
+    {
+        RoomEnemyProjectileSlot? particle = AllocateEnemyProjectile();
+        if (particle is null)
+            return;
+
+        particle.Kind = kind;
+        particle.XPosition = unchecked((ushort)(skree.XPosition + xOffset));
+        particle.YPosition = skree.YPosition;
+        particle.XVelocity = xVelocity;
+        particle.YVelocity = yVelocity;
+        particle.InstructionPointer = 0x8abd;
+        particle.InstructionTimer = 1;
+        particle.PreInstruction = 0x8b5d;
+        particle.GraphicsIndex = unchecked((ushort)(skree.VramTilesIndex | skree.PaletteIndex));
+        particle.XRadius = 2;
+        particle.YRadius = 2;
+    }
+
+    private static (ushort Position, ushort Subposition) AddEightBitVelocity(
+        ushort position,
+        ushort subposition,
+        ushort velocity)
+    {
+        int fixedPosition = (position << 16) | subposition;
+        fixedPosition = unchecked(fixedPosition + (unchecked((short)velocity) << 8));
+        return (
+            unchecked((ushort)(fixedPosition >> 16)),
+            unchecked((ushort)fixedPosition));
     }
 }

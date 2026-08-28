@@ -118,11 +118,13 @@ public sealed partial class RoomEnemySystem
         GunshipSavePromptPending = false;
         GunshipSaveRequested = false;
         _ceresRidley = null;
+        Array.Clear(_crawlerStates);
+        Array.Clear(_skreeStates);
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
         // collision coordinates) into the destination room.
-        foreach (CeresRidleyProjectileSlot projectile in _ceresRidleyProjectiles)
+        foreach (RoomEnemyProjectileSlot projectile in _enemyProjectiles)
             projectile.Clear();
         _activeEnemyIndexes.Clear();
         _interactiveEnemyIndexes.Clear();
@@ -559,6 +561,12 @@ public sealed partial class RoomEnemySystem
             case 0xa2e49f when slot.EnemyDefinitionPointer == RipperDefinition:
                 InitializeRipper(slot);
                 return;
+            case 0xa3e669 when slot.EnemyDefinitionPointer is ZoomerDefinition or StoneZoomerDefinition:
+                InitializeZoomer(slot);
+                return;
+            case 0xa3c6ae when slot.EnemyDefinitionPointer == SkreeDefinition:
+                InitializeSkree(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -710,6 +718,12 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa2e4da when slot.EnemyDefinitionPointer == RipperDefinition:
                 RunRipperMain(slot, level);
+                return;
+            case 0xa3e6c2 when slot.EnemyDefinitionPointer is ZoomerDefinition or StoneZoomerDefinition:
+                RunCrawlerMain(slot, level);
+                return;
+            case 0xa3c6c7 when slot.EnemyDefinitionPointer == SkreeDefinition:
+                RunSkreeMain(slot, samus, level);
                 return;
             default:
                 throw new NotSupportedException(
@@ -1006,6 +1020,24 @@ public sealed partial class RoomEnemySystem
                 case 0x812f: // EnemyInstr_Sleep: pin the PC on this command and stop forever.
                     slot.CurrentInstruction = cursor;
                     return;
+                case 0x8173: // EnemyInstr_EnableOffScreenProcessing.
+                    slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x817d: // EnemyInstr_DisableOffScreenProcessing.
+                    slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xe660: // Shared crawler: install the function pointer operand.
+                    RequireCrawlerState(slot).Function = (CrawlerEnemyFunction)ReadWord(
+                        _bus!,
+                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xc6a4: // Skree: the preparation animation releases the dive AI.
+                    RequireSkreeState(slot).AttackReady = true;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
                 case 0xe4be: // Ridley: begin roar; audio playback is outside this subsystem.
                     RequireCeresRidley(slot).Roaring = true;
                     cursor = unchecked((ushort)(cursor + 2));

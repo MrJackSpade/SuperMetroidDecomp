@@ -30,6 +30,91 @@ if (args.Length >= 3 && args[0] == "--frontend-skip-intro-capture")
     return FrontendSkipIntroAudit.Run(skipIntroRomPath, skipIntroOutputPath);
 }
 
+// Loads the normal, pre-escape Parlor state directly from the retail header. This keeps the
+// first ordinary Zebes enemy family independently auditable without walking the frontend,
+// while still sourcing its population, graphics, level collision, and instruction lists
+// from the user's private cartridge image.
+if (args.Length >= 2 && args[0] == "--parlor-awake-audit")
+{
+    string parlorRomPath = string.Join(' ', args[1..]).Trim('"');
+    SuperMetroidAddressSpace parlorBus = SuperMetroidAddressSpace.LoadRetailRom(parlorRomPath);
+    var awakeEvents = new byte[] { 1 }; // Event zero selects room state $8F:932E.
+    CartridgeRoomHeader parlorRoom = CartridgeRoomHeader.Load(
+        parlorBus,
+        0x92fd,
+        new RoomStateSelectionContext(awakeEvents, 0, false, false));
+    CartridgeRoomAssets parlorAssets = CartridgeRoomAssets.Load(parlorBus, parlorRoom);
+    var awakeParlorVram = new SnesVram();
+    var awakeParlorCgram = new SnesCgram();
+    parlorAssets.LoadGraphics(awakeParlorVram, awakeParlorCgram);
+    var awakeParlorEnemies = new RoomEnemySystem();
+    awakeParlorEnemies.Load(
+        parlorBus,
+        parlorRoom.State.EnemyPopulationPointer,
+        parlorRoom.State.EnemyTilesetPointer,
+        awakeParlorVram,
+        awakeParlorCgram,
+        () => 0x1234);
+
+    int zoomerCount = awakeParlorEnemies.Slots.Count(slot => slot.EnemyDefinitionPointer == 0xdcff);
+    int skreeCount = awakeParlorEnemies.Slots.Count(slot => slot.EnemyDefinitionPointer == 0xdb7f);
+    int ripperCount = awakeParlorEnemies.Slots.Count(slot => slot.EnemyDefinitionPointer == 0xd47f);
+    if (parlorRoom.State.Pointer != 0x932e || awakeParlorEnemies.EnemyCount != 16 ||
+        zoomerCount != 11 || skreeCount != 3 || ripperCount != 2)
+    {
+        throw new InvalidDataException(
+            $"Awake Parlor selected state ${parlorRoom.State.Pointer:X4} with " +
+            $"{awakeParlorEnemies.EnemyCount} enemies: Zoomer={zoomerCount}, " +
+            $"Skree={skreeCount}, Ripper={ripperCount}.");
+    }
+
+    var parlorSamus = new SamusState
+    {
+        Health = 99,
+        XPosition = 0x02be,
+        YPosition = 0x0080,
+    };
+    ushort firstZoomerStartX = awakeParlorEnemies.Slots[0].XPosition;
+    bool sawSkreeDive = false;
+    bool sawSkreeParticles = false;
+    for (int frame = 0; frame < 180; frame++)
+    {
+        awakeParlorEnemies.StepFrame(
+            cameraX: 0x0200,
+            cameraY: 0,
+            timeIsFrozen: false,
+            parlorSamus,
+            level: parlorAssets.LevelData);
+        awakeParlorEnemies.StepEnemyProjectiles(
+            parlorAssets.LevelData,
+            parlorSamus,
+            cameraX: 0x0200,
+            cameraY: 0);
+        sawSkreeDive |= awakeParlorEnemies.SkreeStates.Any(
+            state => state?.Function is SkreeEnemyFunction.Diving or SkreeEnemyFunction.Burrowing);
+        sawSkreeParticles |= awakeParlorEnemies.EnemyProjectiles.Any(
+            projectile => projectile.Kind is >= RoomEnemyProjectileKind.SkreeParticleDownRight and
+                <= RoomEnemyProjectileKind.SkreeParticleUpLeft);
+    }
+
+    CrawlerEnemyState firstZoomer = awakeParlorEnemies.CrawlerStates[0]
+        ?? throw new InvalidDataException("Awake Parlor slot zero did not create crawler state.");
+    if (firstZoomer.Function == CrawlerEnemyFunction.InstructionPending ||
+        awakeParlorEnemies.Slots[0].XPosition == firstZoomerStartX ||
+        !sawSkreeDive || !sawSkreeParticles)
+    {
+        throw new InvalidDataException(
+            $"Awake Parlor AI did not advance: Zoomer=$A3:{(ushort)firstZoomer.Function:X4} " +
+            $"X=${firstZoomerStartX:X4}->${awakeParlorEnemies.Slots[0].XPosition:X4}, " +
+            $"SkreeDive={sawSkreeDive}, particles={sawSkreeParticles}.");
+    }
+
+    Console.WriteLine(
+        $"Awake Parlor audit passed: 11 Zoomers, three Skrees, and two Rippers loaded; " +
+        $"crawler movement, Skree dive/burrow, and shared bank-$86 debris advanced for 180 frames.");
+    return 0;
+}
+
 // Measures the exact hot path used by ordinary gameplay's four BG-relative OBJ priority
 // insertions. The legacy side intentionally calls the public filtered renderer four times;
 // the resolved side uses the single OAM raster consumed by the optimized compositor. This
@@ -497,15 +582,15 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     {
         ushort healthBefore = auditSamus.Health;
         ridleyEnemies.StepFrame(0, 0, timeIsFrozen: false, auditSamus);
-        ridleyEnemies.StepCeresRidleyProjectiles(retailRidleyLevel, auditSamus);
-        sawFireball |= ridleyEnemies.CeresRidleyProjectiles.Any(
-            projectile => projectile.Kind == CeresRidleyProjectileKind.Fireball);
-        sawAfterburn |= ridleyEnemies.CeresRidleyProjectiles.Any(
+        ridleyEnemies.StepEnemyProjectiles(retailRidleyLevel, auditSamus);
+        sawFireball |= ridleyEnemies.EnemyProjectiles.Any(
+            projectile => projectile.Kind == RoomEnemyProjectileKind.CeresRidleyFireball);
+        sawAfterburn |= ridleyEnemies.EnemyProjectiles.Any(
             projectile => projectile.Kind is not (
-                CeresRidleyProjectileKind.None or CeresRidleyProjectileKind.Fireball));
+                RoomEnemyProjectileKind.None or RoomEnemyProjectileKind.CeresRidleyFireball));
         sawSamusDamage |= auditSamus.Health < healthBefore;
-        if (ridleyEnemies.CeresRidleyProjectiles.Any(
-            projectile => projectile.Kind == CeresRidleyProjectileKind.Fireball))
+        if (ridleyEnemies.EnemyProjectiles.Any(
+            projectile => projectile.Kind == RoomEnemyProjectileKind.CeresRidleyFireball))
         {
             // Speed $0500 multiplied by a signed unit sine can never exceed $0500.
             // This catches both an incorrect table bank and accidental double $40 angle
@@ -525,7 +610,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
             $"nativeVelocity={sawNativeVelocityRange}, " +
             $"AI=$A6:{(ushort)ridleyState.Function:X4}, " +
             $"velocity=({(short)ridleyState.FireballXVelocity},{(short)ridleyState.FireballYVelocity}), " +
-            $"live={string.Join(';', ridleyEnemies.CeresRidleyProjectiles.Where(p => p.IsActive).Select(p => $"{p.Kind}@{p.XPosition},{p.YPosition}"))}.");
+            $"live={string.Join(';', ridleyEnemies.EnemyProjectiles.Where(p => p.IsActive).Select(p => $"{p.Kind}@{p.XPosition},{p.YPosition}"))}.");
     }
 
     // A projectile hit must enter the shared bank-$90 hurt state, not merely subtract
@@ -849,7 +934,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     while (ridleyState.Mode7Active && mode7Frames < 512)
     {
         ridleyEnemies.StepFrame(0, 0, timeIsFrozen: false, auditSamus);
-        ridleyEnemies.StepCeresRidleyProjectiles(retailRidleyLevel, auditSamus);
+        ridleyEnemies.StepEnemyProjectiles(retailRidleyLevel, auditSamus);
         sawRotatedMatrix |= ridleyState.Mode7MatrixB != 0 &&
             ridleyState.Mode7MatrixC != 0;
         sawSamusPushOwnership |= auditSamus.InputLocked;

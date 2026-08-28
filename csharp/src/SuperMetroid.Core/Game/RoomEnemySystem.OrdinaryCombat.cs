@@ -29,6 +29,8 @@ public sealed partial class RoomEnemySystem
     private const ushort WorkRobotNoPowerShotAi = 0xd18d;
     private const ushort WorkRobotShotAi = 0xd192;
     private const ushort BullShotAi = 0xdb14;
+    private const ushort FakeKraidTouchAi = 0x9c22;
+    private const ushort FakeKraidShotAi = 0x9c39;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -55,12 +57,15 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == PowampTouchAi;
             bool isWorkRobot = IsWorkRobotDefinition(slot.EnemyDefinitionPointer) &&
                 slot.Definition.TouchAiPointer == WorkRobotTouchAi;
+            bool isFakeKraid = slot.EnemyDefinitionPointer == FakeKraidDefinition &&
+                slot.Definition.TouchAiPointer == FakeKraidTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
                 isBeetom ||
                 isPowamp ||
                 isWorkRobot ||
+                isFakeKraid ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -138,7 +143,10 @@ public sealed partial class RoomEnemySystem
             }
             else
             {
+                ushort healthBefore = slot.Health;
                 ResolveNormalEnemyTouch(slot, samus, controllerInput);
+                if (isFakeKraid && healthBefore != 0 && slot.Health == 0)
+                    RequestFakeKraidDeathDrop(slot);
             }
             return true;
         }
@@ -182,6 +190,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == BullShotAi;
             bool isSpark = enemy.EnemyDefinitionPointer == SparkDefinition &&
                 enemy.Definition.ShotAiPointer == SparkShotAi;
+            bool isFakeKraid = enemy.EnemyDefinitionPointer == FakeKraidDefinition &&
+                enemy.Definition.ShotAiPointer == FakeKraidShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -193,6 +203,7 @@ public sealed partial class RoomEnemySystem
                 isWorkRobot ||
                 isBull ||
                 isSpark ||
+                isFakeKraid ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -378,6 +389,8 @@ public sealed partial class RoomEnemySystem
                     if (enemy.Health == enemyHealthBefore)
                         ResolveBullImmuneShot(enemy, bullState, projectileDirection);
                 }
+                if (isFakeKraid && enemyHealthBefore != 0 && enemy.Health == 0)
+                    RequestFakeKraidDeathDrop(enemy);
 
                 hitCount++;
                 break;
@@ -436,7 +449,9 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == FirefleaPowerBombAi;
             bool isPowamp = enemy.EnemyDefinitionPointer == PowampDefinition &&
                 reactionPointer == PowampPowerBombAi;
-            if (reactionPointer != 0 && !isFireflea && !isPowamp)
+            bool isFakeKraid = enemy.EnemyDefinitionPointer == FakeKraidDefinition &&
+                reactionPointer == FakeKraidShotAi;
+            if (reactionPointer != 0 && !isFireflea && !isPowamp && !isFakeKraid)
             {
                 throw new NotSupportedException(
                     $"Enemy ${enemy.EnemyDefinitionPointer:X4} power-bomb reaction " +
@@ -451,6 +466,7 @@ public sealed partial class RoomEnemySystem
                 int damage = 100 * (vulnerability & 0x7f);
                 if (damage != 0)
                 {
+                    ushort healthBefore = enemy.Health;
                     enemy.InvincibilityTimer = 48;
                     ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
                     enemy.FlashTimer = unchecked((ushort)(hurtTime + 8));
@@ -465,6 +481,8 @@ public sealed partial class RoomEnemySystem
                         if (isFireflea)
                             AdvanceFirefleaDarknessLevel();
                     }
+                    if (isFakeKraid && healthBefore != 0 && enemy.Health == 0)
+                        RequestFakeKraidDeathDrop(enemy);
                 }
             }
 

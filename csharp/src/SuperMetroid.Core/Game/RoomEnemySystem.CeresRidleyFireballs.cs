@@ -35,6 +35,9 @@ public enum RoomEnemyProjectileKind : ushort
     WorkRobotLaserDownRight = 0xd2de,
     FallingSpark = 0xf498,
     NuclearWaffleBody = 0xbbc7,
+    FakeKraidSpit = 0x9db0,
+    FakeKraidSpikeLeft = 0x9dbe,
+    FakeKraidSpikeRight = 0x9dcc,
 }
 
 /// <summary>
@@ -454,6 +457,14 @@ public sealed partial class RoomEnemySystem
 
             case 0xf3f0: // Spark projectile: 16.16 gravity, floor bounce, and trail objects.
                 RunFallingSparkPreInstruction(projectile, level, nmiFrameCounter8);
+                return;
+
+            case 0x9e1e: // Fake Kraid spit: X/Y room collision, then capped gravity.
+                RunFakeKraidSpitPreInstruction(projectile, level);
+                return;
+
+            case 0x9e83: // Fake Kraid spike: horizontal motion until wall contact.
+                RunFakeKraidSpikePreInstruction(projectile, level);
                 return;
 
             default:

@@ -154,6 +154,8 @@ public sealed partial class RoomEnemySystem
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
+        LastFakeKraidSoundEffect = null;
+        LastFakeKraidDropRequest = null;
         LastEnemyProjectileDudSoundEffect = null;
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
@@ -235,6 +237,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_kzanStates);
         Array.Clear(_hibashiStates);
         Array.Clear(_nuclearWaffleStates);
+        Array.Clear(_fakeKraidStates);
         Array.Clear(_kzanFallWaitTimerResetValues);
         Array.Clear(_kzanPreviousYPositions);
         Array.Clear(_kzanFallingYSpeedTableIndexes);
@@ -313,6 +316,8 @@ public sealed partial class RoomEnemySystem
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
+        LastFakeKraidSoundEffect = null;
+        LastFakeKraidDropRequest = null;
         LastEnemyProjectileDudSoundEffect = null;
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
@@ -824,6 +829,9 @@ public sealed partial class RoomEnemySystem
             case 0xa694c4 when slot.EnemyDefinitionPointer == NuclearWaffleDefinition:
                 InitializeNuclearWaffle(slot);
                 return;
+            case 0xa69a58 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
+                InitializeFakeKraid(slot, samus);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -1059,6 +1067,13 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa6960e when slot.EnemyDefinitionPointer == NuclearWaffleDefinition:
                 RunNuclearWaffleMain(slot, RequireNuclearWaffleState(slot));
+                return;
+            case 0xa69ac2 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
+                RunFakeKraidMain(
+                    slot,
+                    RequireFakeKraidState(slot),
+                    cameraX,
+                    cameraY);
                 return;
             default:
                 throw new NotSupportedException(
@@ -1625,6 +1640,42 @@ public sealed partial class RoomEnemySystem
                     break;
                 case 0x8fd1 when slot.EnemyDefinitionPointer == HibashiDefinition:
                     FinishHibashiActivity(slot);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9b26 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
+                    // Walk opcode: advance one four-pixel step unless its random reversal
+                    // clock expires, then refresh the live facing marker from Samus.
+                    ProcessFakeKraidWalkInstruction(
+                        slot,
+                        RequireFakeKraidState(slot),
+                        samus,
+                        level);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9b74 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
+                    // Decision opcode returns a direct same-bank address. Several targets
+                    // deliberately begin two bytes inside a named list to skip this opcode.
+                    cursor = SelectFakeKraidInstruction(RequireFakeKraidState(slot));
+                    break;
+                case 0x9bb2 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
+                    // `$A6:9BB2` queues sound $16 only while the actor origin is inside the
+                    // inclusive 256x256 native screen rectangle.
+                    if (FakeKraidOriginIsOnScreen(slot, cameraX, cameraY))
+                        LastFakeKraidSoundEffect = FakeKraidSpitSound;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9bc4 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
+                    SpawnFakeKraidSpitPair(
+                        slot,
+                        RequireFakeKraidState(slot),
+                        movingRight: false);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9c02 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
+                    SpawnFakeKraidSpitPair(
+                        slot,
+                        RequireFakeKraidState(slot),
+                        movingRight: true);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe4ca: // Ridley: close mouth / clear the roaring presentation flag.

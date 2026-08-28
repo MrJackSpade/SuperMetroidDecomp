@@ -40,6 +40,7 @@ public enum RoomEnemyProjectileKind : ushort
     FakeKraidSpikeRight = 0x9dcc,
     PirateMotherBrainLaser = 0xa17b,
     PirateClaw = 0xa189,
+    PolypRock = 0xbd5a,
     CacatacSpike = 0xdafe,
     StokeProjectile = 0xdbf2,
 }
@@ -498,6 +499,10 @@ public sealed partial class RoomEnemySystem
 
             case CacatacSpikePreInstruction: // Cacatac spike: ten direction-table movers.
                 RunCacatacSpikePreInstruction(projectile, cameraX, cameraY);
+                return;
+
+            case PolypRockPreInstruction: // Polyp rock: quadratic rise/fall and viewport cull.
+                RunPolypRockPreInstruction(projectile, cameraX, cameraY);
                 return;
 
             case 0xf3f0: // Spark projectile: 16.16 gravity, floor bounce, and trail objects.

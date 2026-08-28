@@ -172,6 +172,8 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_puyoStates);
         Array.Clear(_cacatacStates);
         Array.Clear(_owtchStates);
+        Array.Clear(_multiviolaStates);
+        Array.Clear(_polypStates);
         Array.Clear(_crawlerStates);
         Array.Clear(_skreeStates);
         Array.Clear(_flyStates);
@@ -768,6 +770,12 @@ public sealed partial class RoomEnemySystem
             case 0xa2a3f9 when slot.EnemyDefinitionPointer == OwtchDefinition:
                 InitializeOwtch(slot);
                 return;
+            case 0xa2b3e0 when slot.EnemyDefinitionPointer == MultiviolaDefinition:
+                InitializeMultiviola(slot);
+                return;
+            case 0xa2b570 when slot.EnemyDefinitionPointer == PolypDefinition:
+                InitializePolyp(slot);
+                return;
             case 0xa2a6d2:
                 InitializeGunshipBottom(slot);
                 return;
@@ -1056,6 +1064,12 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa2a47e when slot.EnemyDefinitionPointer == OwtchDefinition:
                 RunOwtchMain(slot, RequireOwtchState(slot));
+                return;
+            case 0xa2b40f when slot.EnemyDefinitionPointer == MultiviolaDefinition:
+                RunMultiviolaMain(slot, RequireMultiviolaState(slot), level);
+                return;
+            case 0xa2b58f when slot.EnemyDefinitionPointer == PolypDefinition:
+                RunPolypMain(slot, RequirePolypState(slot), samus);
                 return;
             case 0xa2804c:
                 return;

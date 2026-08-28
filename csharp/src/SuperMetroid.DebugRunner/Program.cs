@@ -72,6 +72,12 @@ if (args.Length >= 2 && args[0] == "--pseudo-plasma-owtch-audit")
     return OwtchAudit.Run(owtchRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--single-chamber-multiviola-audit")
+{
+    string multiviolaRomPath = string.Join(' ', args[1..]).Trim('"');
+    return MultiviolaAudit.Run(multiviolaRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

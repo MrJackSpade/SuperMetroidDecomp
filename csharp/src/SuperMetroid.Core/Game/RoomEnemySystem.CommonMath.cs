@@ -9,6 +9,7 @@ public sealed partial class RoomEnemySystem
     private const int LinearEnemySpeedTable = 0xa08187;
     private const int QuadraticEnemySpeedTable = 0xa0838f;
     private const int SharedEightBitSineTable = 0xa0b143;
+    private const int SharedUnsignedSineTable = 0xa0b7ee;
 
     /// <summary>
     /// Ports <c>CalculateAngleOf_12_14_Offset</c> at $A0:C0AF. Zero points upward and the
@@ -114,4 +115,23 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>EightBitNegativeSineMultiplication</c> at $A0:B0C6.</summary>
     private int ReadEightBitNegativeSineProduct(ushort angle, ushort radius) =>
         ReadEightBitSineProduct(unchecked((ushort)(angle + 0x80)), radius);
+
+    /// <summary>
+    /// Ports one half of <c>Do_Some_Math_With_Sine_Cosine_Terrible_Label_Name</c> at
+    /// $A0:B643. The routine reads a 16-bit unsigned quarter-circle sample, multiplies it
+    /// by an unsigned 16-bit magnitude, and returns the complete 16.16 product. Callers
+    /// supply either $40 (absolute cosine) or $80 (absolute sine) as the angle offset.
+    /// Keeping this table-backed avoids host floating-point rounding and makes the raw
+    /// velocity words directly comparable with the SNES multiplication result.
+    /// </summary>
+    private int ReadUnsignedSineMagnitudeProduct(
+        ushort angle,
+        ushort magnitude,
+        ushort angleOffset)
+    {
+        int tableIndex = unchecked((ushort)(angle + angleOffset)) & 0x007f;
+        ushort sample = ReadWord(_bus!, SharedUnsignedSineTable + tableIndex * 2);
+        uint product = (uint)sample * magnitude;
+        return unchecked((int)product);
+    }
 }

@@ -102,6 +102,12 @@ if (args.Length >= 2 && args[0] == "--magdollite-tunnel-audit")
     return MagdolliteAudit.Run(magdolliteRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--retail-enemy-coverage-audit")
+{
+    string coverageRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailEnemyCoverageAudit.Run(coverageRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

@@ -31,6 +31,9 @@ public sealed partial class RoomEnemySystem
     private const ushort BullShotAi = 0xdb14;
     private const ushort FakeKraidTouchAi = 0x9c22;
     private const ushort FakeKraidShotAi = 0x9c39;
+    private const ushort WalkingSpacePiratePowerBombAi = 0x8767;
+    private const ushort WalkingSpacePirateTouchAi = 0x876c;
+    private const ushort WalkingSpacePirateShotAi = 0x8779;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -59,6 +62,9 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == WorkRobotTouchAi;
             bool isFakeKraid = slot.EnemyDefinitionPointer == FakeKraidDefinition &&
                 slot.Definition.TouchAiPointer == FakeKraidTouchAi;
+            bool isWalkingSpacePirate =
+                IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer) &&
+                slot.Definition.TouchAiPointer == WalkingSpacePirateTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
@@ -66,6 +72,7 @@ public sealed partial class RoomEnemySystem
                 isPowamp ||
                 isWorkRobot ||
                 isFakeKraid ||
+                isWalkingSpacePirate ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -95,7 +102,12 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            if (isPlatform)
+            if (isWalkingSpacePirate && slot.FrozenTimer != 0)
+            {
+                // `$B2:876C` returns before common touch AI while frozen. The overlap was
+                // still found, but neither Samus nor the Pirate receives contact damage.
+            }
+            else if (isPlatform)
             {
                 // `$A3:9F07` is a literal RTL. Platform solidity and the asymmetric rider
                 // test live in other handlers; ordinary body overlap must neither injure
@@ -192,6 +204,9 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == SparkShotAi;
             bool isFakeKraid = enemy.EnemyDefinitionPointer == FakeKraidDefinition &&
                 enemy.Definition.ShotAiPointer == FakeKraidShotAi;
+            bool isWalkingSpacePirate =
+                IsWalkingSpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
+                enemy.Definition.ShotAiPointer == WalkingSpacePirateShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -204,6 +219,7 @@ public sealed partial class RoomEnemySystem
                 isBull ||
                 isSpark ||
                 isFakeKraid ||
+                isWalkingSpacePirate ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -369,6 +385,13 @@ public sealed partial class RoomEnemySystem
                         }
                         if (isFireflea)
                             AdvanceFirefleaDarknessLevel();
+                        if (isWalkingSpacePirate)
+                        {
+                            // The shared Pirate shot tail clears native variable B before
+                            // requesting death animation variant four. Walking AI does not
+                            // otherwise consume B, but the debugger-visible word is exact.
+                            enemy.VariableB = 0;
+                        }
                         enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
                         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
                     }
@@ -451,7 +474,11 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == PowampPowerBombAi;
             bool isFakeKraid = enemy.EnemyDefinitionPointer == FakeKraidDefinition &&
                 reactionPointer == FakeKraidShotAi;
-            if (reactionPointer != 0 && !isFireflea && !isPowamp && !isFakeKraid)
+            bool isWalkingSpacePirate =
+                IsWalkingSpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
+                reactionPointer == WalkingSpacePiratePowerBombAi;
+            if (reactionPointer != 0 && !isFireflea && !isPowamp && !isFakeKraid &&
+                !isWalkingSpacePirate)
             {
                 throw new NotSupportedException(
                     $"Enemy ${enemy.EnemyDefinitionPointer:X4} power-bomb reaction " +

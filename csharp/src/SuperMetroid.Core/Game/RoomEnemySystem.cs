@@ -238,6 +238,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_hibashiStates);
         Array.Clear(_nuclearWaffleStates);
         Array.Clear(_fakeKraidStates);
+        Array.Clear(_walkingSpacePirateStates);
         Array.Clear(_kzanFallWaitTimerResetValues);
         Array.Clear(_kzanPreviousYPositions);
         Array.Clear(_kzanFallingYSpeedTableIndexes);
@@ -304,7 +305,8 @@ public sealed partial class RoomEnemySystem
         SamusState? samus = null,
         ushort newlyPressedControllerInput = 0,
         RoomLevelData? level = null,
-        ushort controllerInput = 0)
+        ushort controllerInput = 0,
+        SamusProjectileSystem? samusProjectiles = null)
     {
         EnsureLoaded();
         LastGunshipEvent = GunshipFrameEvent.None;
@@ -318,6 +320,7 @@ public sealed partial class RoomEnemySystem
         LastNuclearWaffleSoundEffect = null;
         LastFakeKraidSoundEffect = null;
         LastFakeKraidDropRequest = null;
+        LastWalkingSpacePirateSoundEffect = null;
         LastEnemyProjectileDudSoundEffect = null;
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
@@ -359,7 +362,8 @@ public sealed partial class RoomEnemySystem
                         controllerInput,
                         level,
                         cameraX,
-                        cameraY);
+                        cameraY,
+                        samusProjectiles);
                     ranActorAi = true;
                 }
 
@@ -832,6 +836,9 @@ public sealed partial class RoomEnemySystem
             case 0xa69a58 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
                 InitializeFakeKraid(slot, samus);
                 return;
+            case 0xb2fd02 when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
+                InitializeWalkingSpacePirate(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -965,7 +972,8 @@ public sealed partial class RoomEnemySystem
         ushort controllerInput,
         RoomLevelData? level,
         ushort cameraX,
-        ushort cameraY)
+        ushort cameraY,
+        SamusProjectileSystem? samusProjectiles)
     {
         int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
         switch (address)
@@ -1074,6 +1082,14 @@ public sealed partial class RoomEnemySystem
                     RequireFakeKraidState(slot),
                     cameraX,
                     cameraY);
+                return;
+            case 0xb2fd32 when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
+                RunWalkingSpacePirateMain(
+                    slot,
+                    RequireWalkingSpacePirateState(slot),
+                    samus,
+                    level,
+                    samusProjectiles);
                 return;
             default:
                 throw new NotSupportedException(
@@ -1677,6 +1693,44 @@ public sealed partial class RoomEnemySystem
                         RequireFakeKraidState(slot),
                         movingRight: true);
                     cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xfcb8 when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
+                    // Pirate bytecode does not jump to the operand. It stores that bank-$B2
+                    // function address in native variable A for main AI to dispatch next
+                    // frame, then resumes immediately after the two-byte operand.
+                    RequireWalkingSpacePirateState(slot).Function =
+                        (WalkingSpacePirateFunction)ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) |
+                            unchecked((ushort)(cursor + 2)));
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xfc68 when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
+                    SpawnWalkingSpacePirateLaser(
+                        slot,
+                        RequireWalkingSpacePirateState(slot),
+                        movingRight: false,
+                        ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) |
+                            unchecked((ushort)(cursor + 2))));
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xfc90 when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
+                    SpawnWalkingSpacePirateLaser(
+                        slot,
+                        RequireWalkingSpacePirateState(slot),
+                        movingRight: true,
+                        ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) |
+                            unchecked((ushort)(cursor + 2))));
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xfcc8 when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
+                    // Unlike common goto, this opcode returns a direct instruction-list
+                    // pointer chosen from Samus's current side and vertical proximity.
+                    cursor = SelectWalkingSpacePirateMovement(slot, samus);
                     break;
                 case 0xe4ca: // Ridley: close mouth / clear the roaring presentation flag.
                     RequireCeresRidley(slot).Roaring = false;

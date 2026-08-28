@@ -278,10 +278,10 @@ public sealed partial class RoomEnemySystem
         if (projectile is null)
             return false;
 
-        InitializeFakeKraidProjectileDefinition(
+        InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.FakeKraidSpit,
-            source);
+            unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
         projectile.XPosition = unchecked((ushort)(source.XPosition + xOffset));
         projectile.YPosition = unchecked((ushort)(source.YPosition - 16));
         projectile.XSubposition = 0;
@@ -303,7 +303,10 @@ public sealed partial class RoomEnemySystem
         if (projectile is null)
             return false;
 
-        InitializeFakeKraidProjectileDefinition(projectile, kind, source);
+        InitializeEnemyProjectileFromDefinition(
+            projectile,
+            kind,
+            unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
         short yOffset = unchecked((short)ReadWord(
             _bus!,
             FakeKraidSpikeYOffsetTable + row * 2));
@@ -317,32 +320,6 @@ public sealed partial class RoomEnemySystem
         projectile.YVelocity = 0;
         state.SpawnedSpikeCount++;
         return true;
-    }
-
-    private void InitializeFakeKraidProjectileDefinition(
-        RoomEnemyProjectileSlot projectile,
-        RoomEnemyProjectileKind kind,
-        RoomEnemySlot source)
-    {
-        // SpawnEprojInner copies all seven words from the selected definition before calling
-        // its initializer. Reading those words live retains regional/modded list, radius,
-        // and damage data while the kind enum preserves the native definition identity.
-        int definition = 0x860000 | (ushort)kind;
-        projectile.Kind = kind;
-        projectile.PreInstruction = ReadWord(_bus!, definition + 2);
-        projectile.InstructionPointer = ReadWord(_bus!, definition + 4);
-        projectile.InstructionTimer = 1;
-        projectile.SpritemapPointer = 0x8000;
-        ushort radii = ReadWord(_bus!, definition + 6);
-        projectile.XRadius = unchecked((byte)radii);
-        projectile.YRadius = unchecked((byte)(radii >> 8));
-        ushort properties = ReadWord(_bus!, definition + 8);
-        projectile.Damage = unchecked((ushort)(properties & 0x0fff));
-        projectile.InvincibilityFrames = 96;
-        projectile.CanDamageSamus = (properties & 0x2000) == 0;
-        projectile.PersistsOnSamusContact = (properties & 0x4000) != 0;
-        projectile.BlocksSamusProjectiles = (properties & 0x8000) != 0;
-        projectile.GraphicsIndex = unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex));
     }
 
     /// <summary>Ports <c>EprojPreInit_MiniKraidSpit</c> at <c>$86:9E1E</c>.</summary>

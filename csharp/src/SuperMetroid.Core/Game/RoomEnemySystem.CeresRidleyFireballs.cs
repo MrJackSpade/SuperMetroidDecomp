@@ -38,6 +38,7 @@ public enum RoomEnemyProjectileKind : ushort
     FakeKraidSpit = 0x9db0,
     FakeKraidSpikeLeft = 0x9dbe,
     FakeKraidSpikeRight = 0x9dcc,
+    WalkingSpacePirateLaser = 0xa17b,
 }
 
 /// <summary>
@@ -211,7 +212,7 @@ public sealed partial class RoomEnemySystem
             if (!projectile.IsActive)
                 continue;
 
-            ProcessEnemyProjectileInstructions(projectile);
+            ProcessEnemyProjectileInstructions(projectile, cameraX, cameraY);
         }
 
         // Native gameplay runs `$86:868B` for every projectile first, then enters the
@@ -374,6 +375,38 @@ public sealed partial class RoomEnemySystem
         return null;
     }
 
+    /// <summary>
+    /// Copies the seven-word bank-$86 definition record installed by
+    /// <c>SpawnEprojInner</c>. Family initializers may then replace fields exactly as their
+    /// cartridge routine does; centralizing the copy prevents each projectile translation
+    /// from inventing subtly different radius/property semantics.
+    /// </summary>
+    private void InitializeEnemyProjectileFromDefinition(
+        RoomEnemyProjectileSlot projectile,
+        RoomEnemyProjectileKind kind,
+        ushort graphicsIndex)
+    {
+        int definition = 0x860000 | (ushort)kind;
+        projectile.Kind = kind;
+        projectile.PreInstruction = ReadWord(_bus!, definition + 2);
+        projectile.InstructionPointer = ReadWord(_bus!, definition + 4);
+        projectile.InstructionTimer = 1;
+
+        // SpawnEprojInner initializes the drawable map to $8000 before the first list tick.
+        // It is intentionally not the first list map; bank-$86 advances it on its own pass.
+        projectile.SpritemapPointer = 0x8000;
+        ushort radii = ReadWord(_bus!, definition + 6);
+        projectile.XRadius = unchecked((byte)radii);
+        projectile.YRadius = unchecked((byte)(radii >> 8));
+        ushort properties = ReadWord(_bus!, definition + 8);
+        projectile.Damage = unchecked((ushort)(properties & 0x0fff));
+        projectile.InvincibilityFrames = 96;
+        projectile.CanDamageSamus = (properties & 0x2000) == 0;
+        projectile.PersistsOnSamusContact = (properties & 0x4000) != 0;
+        projectile.BlocksSamusProjectiles = (properties & 0x8000) != 0;
+        projectile.GraphicsIndex = graphicsIndex;
+    }
+
     private void RunEnemyProjectilePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
@@ -387,6 +420,7 @@ public sealed partial class RoomEnemySystem
             case 0x8170: // The common cleared-pre-instruction RTS.
             case 0x950c: // Center afterburn is stationary while its instruction list blooms.
             case 0xbbc6: // Nuclear Waffle body: position is owned by bank-$A6 main AI.
+            case 0xa05b: // Pirate laser startup: three muzzle-flash frames do not move.
                 return;
 
             case 0x940e:
@@ -465,6 +499,14 @@ public sealed partial class RoomEnemySystem
 
             case 0x9e83: // Fake Kraid spike: horizontal motion until wall contact.
                 RunFakeKraidSpikePreInstruction(projectile, level);
+                return;
+
+            case 0xa05c: // Walking Pirate/Mother Brain laser: move left, then camera cull.
+            case 0xa07a: // Walking Pirate/Mother Brain laser: move right, then camera cull.
+                RunWalkingSpacePirateLaserPreInstruction(
+                    projectile,
+                    cameraX,
+                    cameraY);
                 return;
 
             default:
@@ -578,7 +620,10 @@ public sealed partial class RoomEnemySystem
         return knockbackXDirection;
     }
 
-    private void ProcessEnemyProjectileInstructions(RoomEnemyProjectileSlot projectile)
+    private void ProcessEnemyProjectileInstructions(
+        RoomEnemyProjectileSlot projectile,
+        ushort cameraX,
+        ushort cameraY)
     {
         ushort oldTimer = projectile.InstructionTimer;
         projectile.InstructionTimer = unchecked((ushort)(projectile.InstructionTimer - 1));
@@ -618,6 +663,24 @@ public sealed partial class RoomEnemySystem
                     break;
                 case 0x81ab: // Same-bank goto.
                     cursor = ReadWord(_bus!, 0x860000 | unchecked((ushort)(cursor + 2)));
+                    break;
+                case 0xa050: // Pirate laser: install operand as pre-instruction and run it.
+                    projectile.PreInstruction = ReadWord(
+                        _bus!,
+                        0x860000 | unchecked((ushort)(cursor + 2)));
+
+                    // A050 returns the argument cursor unchanged. The common interpreter
+                    // consequently sees A05C/A07A as the next instruction, dispatches that
+                    // movement routine once immediately, then resumes after the operand.
+                    // Merely installing the pointer would leave every laser four/two pixels
+                    // behind the cartridge for its entire lifetime.
+                    RunWalkingSpacePirateLaserPreInstruction(
+                        projectile,
+                        cameraX,
+                        cameraY);
+                    if (!projectile.IsActive)
+                        return;
+                    cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case 0x95ba: // Spawn horizontal right/left afterburn pair.
                     SpawnAfterburnPair(projectile, horizontal: true);

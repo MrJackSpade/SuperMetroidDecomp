@@ -4,10 +4,9 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// ROM-backed audit for Fake Kraid/Mini-Kraid definition $E0FF. The retail room begins
-/// with three still-untranslated walking Space Pirates, so this audit validates their
-/// records and then starts the loader at the untouched fourth population record. That
-/// isolates the real Fake Kraid actor without replacing any of its cartridge data.
+/// ROM-backed audit for Fake Kraid/Mini-Kraid definition $E0FF. The loader starts at the
+/// room's untouched population pointer, proving that the three preceding walking Space
+/// Pirates and Fake Kraid can coexist through the real room initialization path.
 /// </summary>
 internal static class FakeKraidAudit
 {
@@ -146,7 +145,7 @@ internal static class FakeKraidAudit
         LoadedFakeKraid loaded = Load(bus, room, assets, samusX: 0x0560);
         RoomEnemySlot actor = loaded.Actor;
         FakeKraidEnemyState state = loaded.State;
-        if (loaded.Enemies.EnemyCount != 1 || actor.EnemyDefinitionPointer != Definition ||
+        if (loaded.Enemies.EnemyCount != 4 || actor.EnemyDefinitionPointer != Definition ||
             actor.XPosition != 0x0530 || actor.YPosition != 0x00a0 ||
             actor.Properties != 0x2800 || actor.Health != 400 ||
             actor.CurrentInstruction != 0x99fc || actor.InstructionTimer != 1 ||
@@ -417,11 +416,9 @@ internal static class FakeKraidAudit
         samus.InitializeAnimation(bus);
         var random = new Bank80SystemState();
         var enemies = new RoomEnemySystem();
-        ushort isolatedRecordPointer = unchecked((ushort)(
-            room.State.EnemyPopulationPointer + FakeKraidPopulationRecordIndex * 16));
         enemies.Load(
             bus,
-            isolatedRecordPointer,
+            room.State.EnemyPopulationPointer,
             room.State.EnemyTilesetPointer,
             vram,
             cgram,

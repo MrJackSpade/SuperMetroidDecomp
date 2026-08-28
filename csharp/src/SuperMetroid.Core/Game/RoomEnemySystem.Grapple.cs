@@ -132,7 +132,8 @@ public sealed partial class RoomEnemySystem
                     controllerInput,
                     level,
                     cameraX,
-                    cameraY);
+                    cameraY,
+                    samusProjectiles: null);
                 enemy.AiHandlerBits = 0;
                 return true;
 

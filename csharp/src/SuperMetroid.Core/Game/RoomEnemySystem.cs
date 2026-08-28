@@ -82,6 +82,7 @@ public sealed partial class RoomEnemySystem
     public ushort? LastYardSoundEffect { get; private set; }
     public ushort? LastMetareeSoundEffect { get; private set; }
     public ushort? LastAlcoonSoundEffect { get; private set; }
+    public ushort? LastKzanSoundEffect { get; private set; }
 
     /// <summary>Last library-three sound requested by an attached Beetom this frame.</summary>
     public ushort? LastBeetomSoundEffect { get; private set; }
@@ -149,6 +150,7 @@ public sealed partial class RoomEnemySystem
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
         LastAlcoonSoundEffect = null;
+        LastKzanSoundEffect = null;
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
         FirefleaDarknessLevel = 0;
@@ -226,6 +228,11 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_atomicNegativeSpeedFractions);
         Array.Clear(_atomicNegativeSpeedWholes);
         Array.Clear(_sparkStates);
+        Array.Clear(_kzanStates);
+        Array.Clear(_kzanFallWaitTimerResetValues);
+        Array.Clear(_kzanPreviousYPositions);
+        Array.Clear(_kzanFallingYSpeedTableIndexes);
+        Array.Clear(_kzanRiseWaitTimers);
         _standaloneEnemyProjectileFrameCounter8 = 0;
         foreach (FallingSparkTrailSlot trail in _fallingSparkTrails)
             trail.Clear();
@@ -297,6 +304,7 @@ public sealed partial class RoomEnemySystem
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
         LastAlcoonSoundEffect = null;
+        LastKzanSoundEffect = null;
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
@@ -795,6 +803,12 @@ public sealed partial class RoomEnemySystem
             case 0xa8e637 when slot.EnemyDefinitionPointer == SparkDefinition:
                 InitializeSpark(slot);
                 return;
+            case 0xa68b2f when slot.EnemyDefinitionPointer == KzanTopDefinition:
+                InitializeKzanTop(slot);
+                return;
+            case 0xa68b85 when slot.EnemyDefinitionPointer == KzanBottomDefinition:
+                InitializeKzanBottom(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -1018,6 +1032,12 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa8e68e when slot.EnemyDefinitionPointer == SparkDefinition:
                 RunSparkMain(slot, RequireSparkState(slot));
+                return;
+            case 0xa68bad when slot.EnemyDefinitionPointer == KzanTopDefinition:
+                RunKzanTopMain(slot, RequireKzanState(slot), samus);
+                return;
+            case 0xa68b99 when slot.EnemyDefinitionPointer == KzanBottomDefinition:
+                RunKzanBottomMain(slot);
                 return;
             default:
                 throw new NotSupportedException(

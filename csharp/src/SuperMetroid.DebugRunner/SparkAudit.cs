@@ -459,18 +459,18 @@ internal static class SparkAudit
             MainShaftRoom,
             new RoomStateSelectionContext(default, BossBits: 1, false, false));
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
-        ushort cursor = room.State.EnemyPopulationPointer;
-        for (int record = 0; record < 5; record++)
-            cursor = unchecked((ushort)(cursor + 16));
-        var prefix = new PopulationPrefixAddressSpace(bus, cursor, 1, deathQuota: 0);
+        // Kzan was the final untranslated family in this state. Load the entire untouched
+        // population now so the always-active Spark variant is proven in its actual mix of
+        // Sbugs, Atomics, Kzan pairs, and the second Spark rather than behind a terminator.
         LoadedSparks loaded = Load(
-            prefix,
+            bus,
             room,
             assets,
             true,
-            randomSeed: 0x5678,
-            populationPointer: cursor);
-        RoomEnemySlot actor = loaded.Enemies.Slots[0];
+            randomSeed: 0x5678);
+        RoomEnemySlot actor = loaded.Enemies.Slots.Single(candidate =>
+            candidate.EnemyDefinitionPointer == SparkDefinition &&
+            candidate.XPosition == 0x0469 && candidate.YPosition == 0x071a);
         SparkEnemyState state = RequireState(loaded.Enemies, actor);
         if (actor.XPosition != 0x0469 || actor.YPosition != 0x071a ||
             actor.Parameter1 != 0 || actor.Parameter2 != 0 ||

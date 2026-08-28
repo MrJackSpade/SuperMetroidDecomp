@@ -259,6 +259,9 @@ public sealed partial class RoomEnemySystem
             segment.CanDamageSamus = true;
             segment.PersistsOnSamusContact = true;
             segment.BlocksSamusProjectiles = true;
+            // SpawnEprojWithRoomGfx passes initializer flag one for these four links.
+            // Property $8000 admits the overlap; this flag selects the persistent dud path.
+            segment.CollisionOption = 1;
             state.ProjectileSegments[segmentIndex] = segment;
         }
     }

@@ -45,6 +45,7 @@ public enum RoomEnemyProjectileKind : ushort
     StokeProjectile = 0xdbf2,
     NamiheFireball = 0xdfbc,
     FuneFireball = 0xdfca,
+    KagoBug = 0xd02e,
 }
 
 /// <summary>
@@ -84,8 +85,21 @@ public sealed class RoomEnemyProjectileSlot
     public bool CanDamageSamus { get; internal set; }
     /// <summary>Native projectile property $4000: contact does not delete this actor.</summary>
     public bool PersistsOnSamusContact { get; internal set; }
-    /// <summary>Native projectile property $8000 plus initializer flag one.</summary>
+    /// <summary>Native projectile property $8000: Samus's shots test this actor for collision.</summary>
     public bool BlocksSamusProjectiles { get; internal set; }
+    /// <summary>
+    /// Native enemy-projectile initializer flag. Zero runs the actor's shot list, one
+    /// creates an indestructible dud, and two suppresses the collision scan altogether.
+    /// This is deliberately separate from property $8000: Kago enables that property only
+    /// after its bug has moved far enough from the source shell, while retaining flag zero.
+    /// </summary>
+    public ushort CollisionOption { get; internal set; }
+    /// <summary>
+    /// Native <c>eproj_G</c> collision word after a destructible projectile is shot. Kago
+    /// reuses the same word as its idle timer before collision, so the typed bug wrapper is
+    /// the authority on which meaning is currently active.
+    /// </summary>
+    public ushort CollidedProjectileType { get; internal set; }
 
     internal void Clear()
     {
@@ -96,6 +110,7 @@ public sealed class RoomEnemyProjectileSlot
         GraphicsIndex = XRadius = YRadius = Damage = InvincibilityFrames = 0;
         RemainingAfterburns = NextAfterburnKind = 0;
         DirectionParameter = Variable0 = Variable1 = 0;
+        CollisionOption = CollidedProjectileType = 0;
         CanDamageSamus = PersistsOnSamusContact = BlocksSamusProjectiles = false;
     }
 }
@@ -129,9 +144,9 @@ public sealed partial class RoomEnemySystem
         _enemyProjectiles.Count(projectile => projectile.IsActive);
 
     /// <summary>
-    /// Ports <c>EprojProjCollDet</c> and the initializer-flag-one branch of
-    /// <c>HandleEprojCollWithProj</c> at $A0:996C-$9A30. Nuclear Waffle body links use this
-    /// path to block beams without losing the persistent segment.
+    /// Ports <c>EprojProjCollDet</c> and <c>HandleEprojCollWithProj</c> at
+    /// $A0:996C-$9A30. Flag-one Nuclear Waffle links create duds and remain alive; flag-zero
+    /// Kago bugs remember the incoming projectile type and switch to their ROM shot list.
     /// </summary>
     public int ResolveEnemyProjectileSamusProjectileHits(
         ISnesAddressSpace bus,
@@ -150,7 +165,9 @@ public sealed partial class RoomEnemySystem
         {
             RoomEnemyProjectileSlot enemyProjectile =
                 _enemyProjectiles[enemyProjectileIndex];
-            if (!enemyProjectile.IsActive || !enemyProjectile.BlocksSamusProjectiles)
+            if (!enemyProjectile.IsActive ||
+                !enemyProjectile.BlocksSamusProjectiles ||
+                enemyProjectile.CollisionOption == 2)
                 continue;
 
             foreach (SamusProjectileSlot shot in projectiles.Slots.Take(5))
@@ -171,11 +188,34 @@ public sealed partial class RoomEnemySystem
                     continue;
                 }
 
-                if ((shot.Type & 8) == 0)
+                // Save the live type before the host projectile owner turns the shot into
+                // its bank-$93 impact animation. The cartridge writes this original word
+                // into eproj_G, and Kago's death/drop path exposes it to debugger watches.
+                ushort collidedProjectileType = shot.Type;
+                if ((collidedProjectileType & 8) == 0)
                     _ = projectiles.TryStartEnemyImpact(bus, sharedProjectiles, shot.SlotIndex);
-                LastEnemyProjectileDudSoundEffect = 0x003d;
+
+                if (enemyProjectile.CollisionOption == 1)
+                {
+                    LastEnemyProjectileDudSoundEffect = 0x003d;
+                }
+                else
+                {
+                    enemyProjectile.CollidedProjectileType = collidedProjectileType;
+                    enemyProjectile.InstructionPointer = ReadWord(
+                        bus,
+                        0x860000 | unchecked((ushort)((ushort)enemyProjectile.Kind + 12)));
+                    enemyProjectile.InstructionTimer = 1;
+                    enemyProjectile.PreInstruction = 0x84fb;
+
+                    // Native masks properties with $0FFF. The typed fields below are the
+                    // three high property bits represented by this runtime, so clearing
+                    // them is the exact structural equivalent rather than a Kago special.
+                    enemyProjectile.BlocksSamusProjectiles = false;
+                    enemyProjectile.PersistsOnSamusContact = false;
+                    enemyProjectile.CanDamageSamus = true;
+                }
                 hitCount++;
-                break;
             }
         }
 
@@ -410,6 +450,8 @@ public sealed partial class RoomEnemySystem
         projectile.CanDamageSamus = (properties & 0x2000) == 0;
         projectile.PersistsOnSamusContact = (properties & 0x4000) != 0;
         projectile.BlocksSamusProjectiles = (properties & 0x8000) != 0;
+        projectile.CollisionOption = 0;
+        projectile.CollidedProjectileType = 0;
         projectile.GraphicsIndex = graphicsIndex;
     }
 
@@ -424,6 +466,8 @@ public sealed partial class RoomEnemySystem
         {
             case 0:
             case 0x8170: // The common cleared-pre-instruction RTS.
+            case 0x84fb: // Collision handler's common inert pre-instruction.
+            case 0xd0eb: // Kago bug startup/landed no-op.
             case 0x950c: // Center afterburn is stationary while its instruction list blooms.
             case 0xbbc6: // Nuclear Waffle body: position is owned by bank-$A6 main AI.
             case 0xa05b: // Pirate laser startup: three muzzle-flash frames do not move.
@@ -509,6 +553,18 @@ public sealed partial class RoomEnemySystem
 
             case NamiFuneFireballPreInstruction: // Fune/Namihe: directional 8.8 flight and cull.
                 RunFuneNamiheFireballPreInstruction(projectile, cameraX, cameraY);
+                return;
+
+            case KagoBugIdlePreInstruction:
+                RunKagoBugIdle(projectile);
+                return;
+
+            case KagoBugJumpingPreInstruction:
+                RunKagoBugJumping(projectile, level);
+                return;
+
+            case KagoBugFallingPreInstruction:
+                RunKagoBugFalling(projectile, level);
                 return;
 
             case 0xf3f0: // Spark projectile: 16.16 gravity, floor bounce, and trail objects.
@@ -726,6 +782,22 @@ public sealed partial class RoomEnemySystem
                     break;
                 case 0x9620: // Decrement count and spawn the next actor in this direction.
                     SpawnNextAfterburn(projectile);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case KagoBugStartJumpInstruction:
+                    StartKagoBugJump(projectile);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case KagoBugStartIdleInstruction:
+                    StartKagoBugIdle(projectile);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case KagoBugUsePaletteZeroInstruction:
+                    projectile.GraphicsIndex = 0;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case KagoBugSpawnDropInstruction:
+                    RequestKagoBugDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 default:

@@ -273,6 +273,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == BabyTurtleShotAi;
             bool isOwtch = enemy.EnemyDefinitionPointer == OwtchDefinition &&
                 enemy.Definition.ShotAiPointer == OwtchShotAi;
+            bool isKago = enemy.EnemyDefinitionPointer == KagoDefinition &&
+                enemy.Definition.ShotAiPointer == KagoShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -288,6 +290,7 @@ public sealed partial class RoomEnemySystem
                 isOrdinarySpacePirate ||
                 isBabyTurtle ||
                 isOwtch ||
+                isKago ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -504,6 +507,8 @@ public sealed partial class RoomEnemySystem
                     }
                     if (isBabyTurtle)
                         ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
+                    if (isKago)
+                        ResolveKagoShotAfterCommon(enemy, RequireKagoState(enemy));
                     hitCount++;
                     break;
                 }
@@ -567,6 +572,8 @@ public sealed partial class RoomEnemySystem
                     RequestFakeKraidDeathDrop(enemy);
                 if (isBabyTurtle)
                     ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
+                if (isKago)
+                    ResolveKagoShotAfterCommon(enemy, RequireKagoState(enemy));
 
                 hitCount++;
                 break;

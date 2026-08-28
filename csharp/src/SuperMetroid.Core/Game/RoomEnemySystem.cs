@@ -154,6 +154,8 @@ public sealed partial class RoomEnemySystem
         LastMetareeSoundEffect = null;
         LastAlcoonSoundEffect = null;
         LastFuneNamiheSoundEffect = null;
+        LastKagoBugSoundEffect = null;
+        LastKagoBugDropRequest = null;
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
@@ -176,6 +178,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_multiviolaStates);
         Array.Clear(_polypStates);
         Array.Clear(_funeNamiheStates);
+        Array.Clear(_kagoStates);
         Array.Clear(_crawlerStates);
         Array.Clear(_skreeStates);
         Array.Clear(_flyStates);
@@ -339,6 +342,8 @@ public sealed partial class RoomEnemySystem
         LastMetareeSoundEffect = null;
         LastAlcoonSoundEffect = null;
         LastFuneNamiheSoundEffect = null;
+        LastKagoBugSoundEffect = null;
+        LastKagoBugDropRequest = null;
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
@@ -858,6 +863,9 @@ public sealed partial class RoomEnemySystem
             case 0xa8dccd when slot.EnemyDefinitionPointer == AlcoonDefinition:
                 InitializeAlcoon(slot, level);
                 return;
+            case 0xa8ab46 when slot.EnemyDefinitionPointer == KagoDefinition:
+                InitializeKago(slot);
+                return;
             case 0xa8b776 when slot.EnemyDefinitionPointer == BeetomDefinition:
                 InitializeBeetom(slot, samus, controllerInput);
                 return;
@@ -1079,6 +1087,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa89730 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), samus);
+                return;
+            case 0xa8ab75 when slot.EnemyDefinitionPointer == KagoDefinition:
+                RunKagoMain(RequireKagoState(slot));
                 return;
             case 0xa2804c:
                 return;

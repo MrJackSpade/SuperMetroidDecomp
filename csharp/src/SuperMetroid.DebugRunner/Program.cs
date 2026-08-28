@@ -90,6 +90,12 @@ if (args.Length >= 2 && args[0] == "--lava-dive-namihe-audit")
     return NamiheAudit.Run(namiheRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--forgotten-highway-kago-audit")
+{
+    string kagoRomPath = string.Join(' ', args[1..]).Trim('"');
+    return KagoAudit.Run(kagoRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

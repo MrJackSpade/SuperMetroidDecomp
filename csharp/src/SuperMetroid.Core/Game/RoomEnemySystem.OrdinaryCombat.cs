@@ -79,6 +79,8 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == MamaTurtleTouchAi;
             bool isBabyTurtle = slot.EnemyDefinitionPointer == BabyTurtleDefinition &&
                 slot.Definition.TouchAiPointer == BabyTurtleTouchAi;
+            bool isMagdollite = slot.EnemyDefinitionPointer == MagdolliteDefinition &&
+                slot.Definition.TouchAiPointer == MagdolliteTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
@@ -89,6 +91,7 @@ public sealed partial class RoomEnemySystem
                 isOrdinarySpacePirate ||
                 isMamaTurtle ||
                 isBabyTurtle ||
+                isMagdollite ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -219,6 +222,8 @@ public sealed partial class RoomEnemySystem
             {
                 ushort healthBefore = slot.Health;
                 ResolveNormalEnemyTouch(slot, samus, controllerInput);
+                if (isMagdollite)
+                    ResolveMagdolliteCombatAfterCommon(slot);
                 if (isFakeKraid && healthBefore != 0 && slot.Health == 0)
                     RequestFakeKraidDeathDrop(slot);
             }
@@ -275,6 +280,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == OwtchShotAi;
             bool isKago = enemy.EnemyDefinitionPointer == KagoDefinition &&
                 enemy.Definition.ShotAiPointer == KagoShotAi;
+            bool isMagdollite = enemy.EnemyDefinitionPointer == MagdolliteDefinition &&
+                enemy.Definition.ShotAiPointer == MagdolliteShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -291,6 +298,7 @@ public sealed partial class RoomEnemySystem
                 isBabyTurtle ||
                 isOwtch ||
                 isKago ||
+                isMagdollite ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -509,6 +517,8 @@ public sealed partial class RoomEnemySystem
                         ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
                     if (isKago)
                         ResolveKagoShotAfterCommon(enemy, RequireKagoState(enemy));
+                    if (isMagdollite)
+                        ResolveMagdolliteCombatAfterCommon(enemy);
                     hitCount++;
                     break;
                 }
@@ -574,6 +584,8 @@ public sealed partial class RoomEnemySystem
                     ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
                 if (isKago)
                     ResolveKagoShotAfterCommon(enemy, RequireKagoState(enemy));
+                if (isMagdollite)
+                    ResolveMagdolliteCombatAfterCommon(enemy);
 
                 hitCount++;
                 break;
@@ -634,10 +646,13 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == PowampPowerBombAi;
             bool isFakeKraid = enemy.EnemyDefinitionPointer == FakeKraidDefinition &&
                 reactionPointer == FakeKraidShotAi;
+            bool isMagdollite = enemy.EnemyDefinitionPointer == MagdolliteDefinition &&
+                reactionPointer == MagdollitePowerBombAi;
             bool isSpacePiratePowerBombReaction =
                 IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
                 reactionPointer == SpacePiratePowerBombAi;
             if (reactionPointer != 0 && !isFireflea && !isPowamp && !isFakeKraid &&
+                !isMagdollite &&
                 !isSpacePiratePowerBombReaction)
             {
                 throw new NotSupportedException(
@@ -675,6 +690,8 @@ public sealed partial class RoomEnemySystem
 
             if (isPowamp && enemy.Parameter1 == 0)
                 ResolvePowampPowerBombAfterCommon(enemy);
+            if (isMagdollite)
+                ResolveMagdolliteCombatAfterCommon(enemy);
 
             enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
             reactionCount++;

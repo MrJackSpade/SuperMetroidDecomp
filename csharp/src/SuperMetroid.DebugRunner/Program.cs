@@ -96,6 +96,12 @@ if (args.Length >= 2 && args[0] == "--forgotten-highway-kago-audit")
     return KagoAudit.Run(kagoRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--magdollite-tunnel-audit")
+{
+    string magdolliteRomPath = string.Join(' ', args[1..]).Trim('"');
+    return MagdolliteAudit.Run(magdolliteRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

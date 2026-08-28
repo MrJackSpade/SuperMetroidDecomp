@@ -45,6 +45,7 @@ public enum RoomEnemyProjectileKind : ushort
     StokeProjectile = 0xdbf2,
     NamiheFireball = 0xdfbc,
     FuneFireball = 0xdfca,
+    LavaThrownByMagdollite = 0xe0e0,
     KagoBug = 0xd02e,
 }
 
@@ -555,6 +556,10 @@ public sealed partial class RoomEnemySystem
                 RunFuneNamiheFireballPreInstruction(projectile, cameraX, cameraY);
                 return;
 
+            case MagdolliteLavaPreInstruction:
+                RunMagdolliteLavaPreInstruction(projectile, cameraX, cameraY);
+                return;
+
             case KagoBugIdlePreInstruction:
                 RunKagoBugIdle(projectile);
                 return;
@@ -798,6 +803,10 @@ public sealed partial class RoomEnemySystem
                     break;
                 case KagoBugSpawnDropInstruction:
                     RequestKagoBugDrop(projectile);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case MagdolliteLavaDropInstruction:
+                    RequestMagdolliteLavaDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 default:

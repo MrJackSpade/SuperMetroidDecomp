@@ -156,6 +156,7 @@ public sealed partial class RoomEnemySystem
         LastFuneNamiheSoundEffect = null;
         LastKagoBugSoundEffect = null;
         LastKagoBugDropRequest = null;
+        ResetMagdolliteRoomState();
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
@@ -344,6 +345,7 @@ public sealed partial class RoomEnemySystem
         LastFuneNamiheSoundEffect = null;
         LastKagoBugSoundEffect = null;
         LastKagoBugDropRequest = null;
+        ResetMagdolliteFrameEvents();
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
@@ -442,6 +444,7 @@ public sealed partial class RoomEnemySystem
         }
         _randomEnemyCounter = unchecked((ushort)(_randomEnemyCounter + 1));
         StepWorkRobotPaletteAnimation();
+        StepMagdollitePaletteAnimation();
         if (!timeIsFrozen)
             StepRoomSpriteObjects();
     }
@@ -754,6 +757,9 @@ public sealed partial class RoomEnemySystem
         int address = (slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer;
         switch (address)
         {
+            case 0xa8af8b when slot.EnemyDefinitionPointer == MagdolliteDefinition:
+                InitializeMagdollite(slot, samus);
+                return;
             case 0xa2a644:
                 InitializeGunshipTop(slot);
                 return;
@@ -1049,6 +1055,9 @@ public sealed partial class RoomEnemySystem
         int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
         switch (address)
         {
+            case 0xa8b10a when slot.EnemyDefinitionPointer == MagdolliteDefinition:
+                RunMagdolliteMain(slot, RequireMagdolliteState(slot), samus);
+                return;
             case 0xa2a759:
                 RunGunshipTopMain(slot, samus, newlyPressedControllerInput);
                 return;
@@ -2165,6 +2174,15 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 default:
+                    if (TryProcessMagdolliteInstruction(
+                        slot,
+                        word,
+                        ref cursor,
+                        cameraX,
+                        cameraY))
+                    {
+                        break;
+                    }
                     throw new NotSupportedException(
                         $"Enemy ${slot.EnemyDefinitionPointer:X4} instruction " +
                         $"${slot.Definition.Bank:X2}:{cursor:X4} opcode ${word:X4} is not translated.");

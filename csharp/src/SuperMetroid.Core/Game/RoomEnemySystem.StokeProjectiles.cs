@@ -54,15 +54,7 @@ public sealed partial class RoomEnemySystem
             projectile.XSubposition,
             horizontalVelocity);
 
-        // $86:DBC2 uses four signed CMP/BMI checks. Equality with camera+256 remains alive;
-        // only positions strictly outside the inclusive 256-pixel bounds are deleted.
-        ushort right = unchecked((ushort)(cameraX + 0x0100));
-        ushort bottom = unchecked((ushort)(cameraY + 0x0100));
-        bool offScreen = unchecked((short)(projectile.XPosition - cameraX)) < 0 ||
-            unchecked((short)(right - projectile.XPosition)) < 0 ||
-            unchecked((short)(projectile.YPosition - cameraY)) < 0 ||
-            unchecked((short)(bottom - projectile.YPosition)) < 0;
-        if (offScreen)
-            projectile.Clear();
+        // Stoke's $DBB6 helper is another byte-for-byte clone of Cacatac's $DAC2 cull.
+        DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, cameraX, cameraY);
     }
 }

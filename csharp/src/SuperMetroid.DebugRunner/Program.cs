@@ -54,6 +54,18 @@ if (args.Length >= 2 && args[0] == "--mama-turtle-audit")
     return MamaTurtleAudit.Run(turtleRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--waterway-puyo-audit")
+{
+    string puyoRomPath = string.Join(' ', args[1..]).Trim('"');
+    return PuyoAudit.Run(puyoRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--noob-bridge-cacatac-audit")
+{
+    string cacatacRomPath = string.Join(' ', args[1..]).Trim('"');
+    return CacatacAudit.Run(cacatacRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

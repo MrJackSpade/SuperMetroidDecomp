@@ -40,6 +40,7 @@ public enum RoomEnemyProjectileKind : ushort
     FakeKraidSpikeRight = 0x9dcc,
     PirateMotherBrainLaser = 0xa17b,
     PirateClaw = 0xa189,
+    CacatacSpike = 0xdafe,
     StokeProjectile = 0xdbf2,
 }
 
@@ -495,6 +496,10 @@ public sealed partial class RoomEnemySystem
                 RunStokeProjectilePreInstruction(projectile, cameraX, cameraY);
                 return;
 
+            case CacatacSpikePreInstruction: // Cacatac spike: ten direction-table movers.
+                RunCacatacSpikePreInstruction(projectile, cameraX, cameraY);
+                return;
+
             case 0xf3f0: // Spark projectile: 16.16 gravity, floor bounce, and trail objects.
                 RunFallingSparkPreInstruction(projectile, level, nmiFrameCounter8);
                 return;
@@ -661,6 +666,13 @@ public sealed partial class RoomEnemySystem
             {
                 case 0x8154: // Delete.
                     projectile.Clear();
+                    return;
+                case 0x8159: // Sleep forever while pre-instruction movement remains active.
+                    // The native command rewinds Y to its own opcode, stores that pointer,
+                    // pops the instruction-handler return address, and leaves timer zero.
+                    // Subsequent frames wrap zero to FFFF and therefore never parse again.
+                    projectile.InstructionPointer = cursor;
+                    projectile.InstructionTimer = 0;
                     return;
                 case 0x8161: // Install the operand as pre-instruction.
                     projectile.PreInstruction = ReadWord(

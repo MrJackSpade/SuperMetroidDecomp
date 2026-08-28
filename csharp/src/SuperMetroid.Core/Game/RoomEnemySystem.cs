@@ -169,6 +169,8 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_stokeStates);
         Array.Clear(_mamaTurtleStates);
         Array.Clear(_babyTurtleStates);
+        Array.Clear(_puyoStates);
+        Array.Clear(_cacatacStates);
         Array.Clear(_crawlerStates);
         Array.Clear(_skreeStates);
         Array.Clear(_flyStates);
@@ -325,6 +327,7 @@ public sealed partial class RoomEnemySystem
         LastGunshipEvent = GunshipFrameEvent.None;
         LastBoyonSoundEffect = null;
         LastMamaTurtleSoundEffect = null;
+        LastCacatacSoundEffect = null;
         LastMochtroidSoundEffect = null;
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
@@ -755,6 +758,12 @@ public sealed partial class RoomEnemySystem
             case 0xa28d9d when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
                 InitializeBabyTurtle(slot);
                 return;
+            case 0xa29a3f when slot.EnemyDefinitionPointer == PuyoDefinition:
+                InitializePuyo(slot);
+                return;
+            case 0xa29f48 when slot.EnemyDefinitionPointer == CacatacDefinition:
+                InitializeCacatac(slot);
+                return;
             case 0xa2a6d2:
                 InitializeGunshipBottom(slot);
                 return;
@@ -1034,6 +1043,12 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa2912e when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
                 RunBabyTurtleMain(slot, RequireBabyTurtleState(slot), samus, level);
+                return;
+            case 0xa29a7d when slot.EnemyDefinitionPointer == PuyoDefinition:
+                RunPuyoMain(slot, RequirePuyoState(slot), samus, level);
+                return;
+            case 0xa29fb3 when slot.EnemyDefinitionPointer == CacatacDefinition:
+                RunCacatacMain(slot, RequireCacatacState(slot));
                 return;
             case 0xa2804c:
                 return;
@@ -1589,6 +1604,23 @@ public sealed partial class RoomEnemySystem
                     // falls through into the looping blood-spray frames. It consumes no
                     // operand and changes no state beyond advancing the instruction cursor.
                     cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xa095 when slot.EnemyDefinitionPointer == CacatacDefinition:
+                    RestoreCacatacPatrol(RequireCacatacState(slot));
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9f2a when slot.EnemyDefinitionPointer == CacatacDefinition:
+                    PlayCacatacSpikeSound();
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xa0a7 when slot.EnemyDefinitionPointer == CacatacDefinition:
+                    SpawnCacatacSpike(
+                        slot,
+                        ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) |
+                            unchecked((ushort)(cursor + 2))));
+                    cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case 0xcc36 when slot.EnemyDefinitionPointer == YardDefinition:
                     // Yard animation bytecode owns movement dispatch. The word after the

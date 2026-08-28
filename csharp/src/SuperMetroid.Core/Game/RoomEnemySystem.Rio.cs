@@ -166,13 +166,16 @@ public sealed partial class RoomEnemySystem
                 if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                         level!,
                         slot,
-                        ToRioDisplacement(state.XVelocity)))
+                        ToEightBitVelocityDisplacement(state.XVelocity)))
                 {
                     state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
                     ReverseRioVerticalVelocityAndBounce(state);
                     return;
                 }
-                if (MoveEnemyVertically(level!, slot, ToRioDisplacement(state.YVelocity)))
+                if (MoveEnemyVertically(
+                        level!,
+                        slot,
+                        ToEightBitVelocityDisplacement(state.YVelocity)))
                 {
                     ReverseRioVerticalVelocityAndBounce(state);
                     return;
@@ -198,11 +201,14 @@ public sealed partial class RoomEnemySystem
                 if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                         level!,
                         slot,
-                        ToRioDisplacement(state.XVelocity)))
+                        ToEightBitVelocityDisplacement(state.XVelocity)))
                 {
                     state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
                 }
-                if (MoveEnemyVertically(level!, slot, ToRioDisplacement(state.YVelocity)))
+                if (MoveEnemyVertically(
+                        level!,
+                        slot,
+                        ToEightBitVelocityDisplacement(state.YVelocity)))
                 {
                     InstallRioInstructionList(slot, state, RioLandingInstructionList);
                     state.Function = RioEnemyFunction.WaitingForLandingAnimation;
@@ -237,8 +243,11 @@ public sealed partial class RoomEnemySystem
                 MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                     level!,
                     slot,
-                    ToRioDisplacement(state.XVelocity));
-                MoveEnemyVertically(level!, slot, ToRioDisplacement(state.YVelocity));
+                    ToEightBitVelocityDisplacement(state.XVelocity));
+                MoveEnemyVertically(
+                    level!,
+                    slot,
+                    ToEightBitVelocityDisplacement(state.YVelocity));
                 return;
 
             default:
@@ -280,11 +289,6 @@ public sealed partial class RoomEnemySystem
         state.YVelocity = unchecked((ushort)-(short)state.YVelocity);
         state.Function = RioEnemyFunction.BouncingBackToPerch;
     }
-
-    /// <summary>
-    /// INT16_SHL8 sign-extends Rio's 8.8 word, then shifts it into a signed 16.16 movement.
-    /// </summary>
-    private static int ToRioDisplacement(ushort velocity) => unchecked((short)velocity) << 8;
 
     /// <summary>
     /// Reads one sign-extended entry from kSinCosTable8bit_Sext at $A0:B443. Rio consumes

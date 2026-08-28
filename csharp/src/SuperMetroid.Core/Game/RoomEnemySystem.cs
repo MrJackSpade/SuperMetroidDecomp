@@ -161,6 +161,9 @@ public sealed partial class RoomEnemySystem
         ResetMagdolliteRoomState();
         ResetRinkaRoomState(cameraX, cameraY);
         ResetRioRoomState();
+        ResetNorfairLavaJumpingEnemyRoomState();
+        ResetNorfairRioRoomState();
+        ResetLowerNorfairRioRoomState();
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
@@ -360,6 +363,9 @@ public sealed partial class RoomEnemySystem
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
         LastRioSoundEffect = null;
+        LastNorfairLavaJumpingEnemySoundEffect = null;
+        LastNorfairRioSoundEffect = null;
+        LastLowerNorfairRioSoundEffect = null;
         SetRinkaCamera(cameraX, cameraY);
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
@@ -811,6 +817,15 @@ public sealed partial class RoomEnemySystem
             case 0xa2bbcd when slot.EnemyDefinitionPointer == RioDefinition:
                 InitializeRio(slot);
                 return;
+            case 0xa2be99 when slot.EnemyDefinitionPointer == NorfairLavaJumpingEnemyDefinition:
+                InitializeNorfairLavaJumpingEnemy(slot);
+                return;
+            case 0xa2c242 when slot.EnemyDefinitionPointer == NorfairRioDefinition:
+                InitializeNorfairRio(slot);
+                return;
+            case 0xa2c6f3 when slot.EnemyDefinitionPointer == LowerNorfairRioDefinition:
+                InitializeLowerNorfairRio(slot);
+                return;
             case 0xa896e3 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 InitializeFuneNamihe(slot);
                 return;
@@ -1126,6 +1141,25 @@ public sealed partial class RoomEnemySystem
                     level,
                     cameraX,
                     cameraY);
+                return;
+            case 0xa2bed2 when slot.EnemyDefinitionPointer == NorfairLavaJumpingEnemyDefinition:
+                RunNorfairLavaJumpingEnemyMain(
+                    slot,
+                    RequireNorfairLavaJumpingEnemyState(slot));
+                return;
+            case 0xa2c277 when slot.EnemyDefinitionPointer == NorfairRioDefinition:
+                RunNorfairRioMain(
+                    slot,
+                    RequireNorfairRioState(slot),
+                    samus,
+                    level);
+                return;
+            case 0xa2c724 when slot.EnemyDefinitionPointer == LowerNorfairRioDefinition:
+                RunLowerNorfairRioMain(
+                    slot,
+                    RequireLowerNorfairRioState(slot),
+                    samus,
+                    level);
                 return;
             case 0xa89730 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), samus);
@@ -2210,6 +2244,12 @@ public sealed partial class RoomEnemySystem
                     if (TryProcessRinkaInstruction(slot, word, ref cursor))
                         break;
                     if (TryProcessRioInstruction(slot, word, ref cursor))
+                        break;
+                    if (TryProcessNorfairLavaJumpingEnemyInstruction(slot, word, ref cursor))
+                        break;
+                    if (TryProcessNorfairRioInstruction(slot, word, ref cursor))
+                        break;
+                    if (TryProcessLowerNorfairRioInstruction(slot, word, ref cursor))
                         break;
                     if (TryProcessMagdolliteInstruction(
                         slot,

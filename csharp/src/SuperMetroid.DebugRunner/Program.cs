@@ -120,6 +120,24 @@ if (args.Length >= 2 && args[0] == "--rio-audit")
     return RioAudit.Run(rioRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--norfair-lava-jumper-audit")
+{
+    string lavaJumperRomPath = string.Join(' ', args[1..]).Trim('"');
+    return NorfairLavaJumpingEnemyAudit.Run(lavaJumperRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--norfair-rio-audit")
+{
+    string norfairRioRomPath = string.Join(' ', args[1..]).Trim('"');
+    return NorfairRioAudit.Run(norfairRioRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--lower-norfair-rio-audit")
+{
+    string lowerNorfairRioRomPath = string.Join(' ', args[1..]).Trim('"');
+    return LowerNorfairRioAudit.Run(lowerNorfairRioRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

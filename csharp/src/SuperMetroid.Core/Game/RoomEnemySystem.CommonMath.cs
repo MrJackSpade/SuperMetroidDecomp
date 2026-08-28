@@ -67,6 +67,14 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
+    /// Sign-extends one native 8.8 velocity and shifts it into the signed 16.16 displacement
+    /// consumed by the shared enemy collision routines. Rio-family AI uses this exact
+    /// <c>INT16_SHL8</c> conversion on both axes.
+    /// </summary>
+    private static int ToEightBitVelocityDisplacement(ushort velocity) =>
+        unchecked((short)velocity) << 8;
+
+    /// <summary>
     /// Returns the cartridge's modular absolute value of one signed 16-bit difference.
     /// Value $8000 intentionally remains $8000: the 65816 negation wraps, just like this
     /// unchecked host operation. Alcoon, Beetom, Work Robot, Polyp, and Namihe all consume

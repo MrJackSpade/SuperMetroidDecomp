@@ -18,12 +18,15 @@ public sealed class SuperMetroidGame
 {
     private readonly ISnesAddressSpace bus;
     private readonly SuperMetroidGameOptions gameOptions;
+    private readonly SuperMetroidSaveRam saveRam;
     private TitleSequenceState? title;
     private FileSelectMenuState? fileSelect;
     private GameOptionsMenuState? options;
     private IntroCinematicState? intro;
     private SuperMetroidRuntime? runtime;
     private Rgba32[] lastPixels = CreateBlackFrame();
+    private int selectedSaveSlot;
+    private bool loadingExistingSave;
 
     public SuperMetroidGame(
         ISnesAddressSpace bus,
@@ -31,7 +34,15 @@ public sealed class SuperMetroidGame
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.gameOptions = gameOptions ?? new SuperMetroidGameOptions();
+        saveRam = new SuperMetroidSaveRam(bus);
+        selectedSaveSlot = saveRam.ReadSelectedSlot();
     }
+
+    /// <summary>
+    /// Raised after translated code changes battery-backed SRAM. The core owns cartridge
+    /// bytes; a desktop/console host owns the choice of durable storage medium.
+    /// </summary>
+    public event Action? SaveRamChanged;
 
     /// <summary>Current value of the native game-state word at WRAM $0998.</summary>
     public SuperMetroidGameState GameState { get; private set; } = SuperMetroidGameState.Reset;
@@ -136,6 +147,10 @@ public sealed class SuperMetroidGame
                 }
                 else if (fileSelect.NewGameRequested)
                 {
+                    selectedSaveSlot = fileSelect.SelectedSaveSlot;
+                    loadingExistingSave = fileSelect.SelectedSlotContainsSave;
+                    saveRam.SelectSlot(selectedSaveSlot);
+                    SaveRamChanged?.Invoke();
                     options = new GameOptionsMenuState(bus);
                     GameState = SuperMetroidGameState.GameOptionsMenu;
                     lastPixels = options.Render();
@@ -153,7 +168,7 @@ public sealed class SuperMetroidGame
                 }
                 else if (options.IntroRequested)
                 {
-                    if (gameOptions.SkipOpeningCinematic)
+                    if (loadingExistingSave || gameOptions.SkipOpeningCinematic)
                     {
                         // This is the same dispatcher boundary reached by `$8B:C100` after
                         // the SPACE COLONY fade. Do not fake Start presses or build a host-
@@ -277,6 +292,36 @@ public sealed class SuperMetroidGame
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
+        SamusState samus = runtime.Samus
+            ?? throw new InvalidOperationException("Ceres initialization did not create Samus.");
+
+        if (loadingExistingSave)
+        {
+            SuperMetroidSaveSlot slot = saveRam.ReadSlot(selectedSaveSlot)
+                ?? throw new InvalidDataException(
+                    $"Selected save slot {selectedSaveSlot} became invalid during startup.");
+            if (slot.Area != 6 || slot.SaveStation != 0)
+            {
+                throw new NotSupportedException(
+                    $"Save slot {selectedSaveSlot} targets untranslated area {slot.Area}, " +
+                    $"station {slot.SaveStation}; the current playable loader supports Ceres 6:0.");
+            }
+            slot.ApplyTo(samus);
+            return;
+        }
+
+        // CinematicFunction_Intro_Func73 at `$8B:C100` publishes area six/station zero
+        // and calls the ordinary `$81:8000` saver immediately before state $1F. Both the
+        // full cinematic and host-configured skip converge here, so neither path can omit
+        // the automatic checkpoint.
+        saveRam.SaveSlot(
+            selectedSaveSlot,
+            SuperMetroidSaveSnapshot.Capture(
+                samus,
+                runtime.System,
+                area: 6,
+                saveStation: 0));
+        SaveRamChanged?.Invoke();
     }
 
     private static Rgba32[] CreateBlackFrame()

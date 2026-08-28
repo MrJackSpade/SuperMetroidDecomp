@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -205,6 +206,11 @@ static void VerifyFileSelectFreshSaveTilemap()
     ushort[] timeWords = [0x20ad, 0x20ae, 0x20af, 0xffff];
     for (int index = 0; index < timeWords.Length; index++)
         WriteRomWord(rom, 0x81b4a0 + index * 2, timeWords[index]);
+    ushort[] energyWords = [0x209d, 0x209e, 0x209f, 0x20cc, 0xffff];
+    for (int index = 0; index < energyWords.Length; index++)
+        WriteRomWord(rom, 0x81b496 + index * 2, energyWords[index]);
+    WriteRomWord(rom, 0x81b4a8, 0x208c);
+    WriteRomWord(rom, 0x81b4aa, 0xffff);
 
     // This is the literal retail structure at $81:B4AC: one leading blank, "NO DATA",
     // and three trailing blanks. Keeping the exact words makes the test cover both the
@@ -222,7 +228,8 @@ static void VerifyFileSelectFreshSaveTilemap()
     for (int index = 0; index < noDataWords.Length; index++)
         WriteRomWord(rom, 0x81b4ac + index * 2, noDataWords[index]);
 
-    var menu = new FileSelectMenuState(new SuperMetroidAddressSpace(rom));
+    var addressSpace = new SuperMetroidAddressSpace(rom);
+    var menu = new FileSelectMenuState(addressSpace);
     ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap;
 
     // Native empty-slot origins are energy-field X plus one $40-byte row: rows 6, 11,
@@ -251,10 +258,46 @@ static void VerifyFileSelectFreshSaveTilemap()
     {
         AssertEqual(0x20ad, tilemap[start], "file-select empty-slot TIME T tile");
         AssertEqual(0x20ae, tilemap[start + 1], "file-select empty-slot TIME I/M tile");
-        AssertEqual(0x20af, tilemap[start + 2], "file-select empty-slot TIME M/E tile");
+            AssertEqual(0x20af, tilemap[start + 2], "file-select empty-slot TIME M/E tile");
     }
 
-    Console.WriteLine("  File select: fresh-save NO DATA rows and unconditional TIME captions match ROM flow.");
+    // `$8B:C100` saves area six/station zero through the ordinary `$81:8000` encoder.
+    // Verify both redundant checksum directories, the decoded player/checkpoint data, and
+    // the menu's subsequent ENERGY + HH:MM path against one shared physical SRAM image.
+    var saveRam = new SuperMetroidSaveRam(addressSpace);
+    saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
+    {
+        Health = 99,
+        MaxHealth = 99,
+        GameTimeMinutes = 34,
+        GameTimeHours = 12,
+        Area = 6,
+        SaveStation = 0,
+    });
+    SuperMetroidSaveSlot saved = saveRam.ReadSlot(0)
+        ?? throw new InvalidOperationException("Fresh Ceres SRAM slot failed its own checksums.");
+    AssertEqual(99, saved.Health, "Ceres checkpoint saved health");
+    AssertEqual(99, saved.MaxHealth, "Ceres checkpoint saved maximum health");
+    AssertEqual(6, saved.Area, "Ceres checkpoint saved area");
+    AssertEqual(0, saved.SaveStation, "Ceres checkpoint saved load station");
+
+    var savedMenu = new FileSelectMenuState(addressSpace);
+    ReadOnlySpan<ushort> savedTilemap = savedMenu.BackgroundTilemap;
+    AssertEqual(0x209d, savedTilemap[0x15c / 2], "saved slot ENERGY first tile");
+    AssertEqual(0x2069, savedTilemap[(0x15c + 0x42) / 2], "saved slot energy tens");
+    AssertEqual(0x2069, savedTilemap[(0x15c + 0x44) / 2], "saved slot energy ones");
+    AssertEqual(0x2061, savedTilemap[0x1b4 / 2], "saved slot hour tens");
+    AssertEqual(0x2062, savedTilemap[(0x1b4 + 2) / 2], "saved slot hour ones");
+    AssertEqual(0x208c, savedTilemap[(0x1b4 + 4) / 2], "saved slot time colon");
+    AssertEqual(0x2063, savedTilemap[(0x1b4 + 6) / 2], "saved slot minute tens");
+    AssertEqual(0x2064, savedTilemap[(0x1b4 + 8) / 2], "saved slot minute ones");
+
+    saveRam.SelectSlot(2);
+    AssertEqual(2, saveRam.ReadSelectedSlot(), "SRAM selected-slot word and complement");
+    addressSpace.SaveRam[0x0010 + 0x20] ^= 1;
+    AssertTrue(saveRam.ReadSlot(0) is null, "SRAM payload corruption invalidates both directories");
+
+    Console.WriteLine("  SRAM/file select: Ceres checkpoint, redundant checksums, NO DATA, ENERGY, and TIME agree.");
 }
 
 static void VerifyIntroGameplayFlashbackVerticalScroll()

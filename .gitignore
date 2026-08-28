@@ -13,6 +13,8 @@ csharp/**/bin/
 csharp/**/obj/
 csharp/**/altbin/
 *.csproj.user
+# Per-user battery-backed cartridge state written beside the private ROM.
+*.srm
 # Ad-hoc BaseOutputPath/BaseIntermediateOutputPath names used to evade IDE-held DLL locks
 # during isolated regression builds. They are compiler products, never source artifacts.
 csharp/**/.*-build/

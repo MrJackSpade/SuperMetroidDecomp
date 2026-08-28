@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -17,6 +18,8 @@ internal static class FrontendSkipIntroAudit
         var game = new SuperMetroidGame(
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
+        int saveRamChangeCount = 0;
+        game.SaveRamChanged += () => saveRamChangeCount++;
 
         FrontendFrame frame = game.Step(0);
         frame = game.Step((ushort)SnesButton.Start);
@@ -71,6 +74,22 @@ internal static class FrontendSkipIntroAudit
         frame = game.Step(0);
         if (frame.GameState != SuperMetroidGameState.MadeItToCeresElevator)
             throw new InvalidOperationException("New-game setup did not enter the Ceres elevator.");
+        SuperMetroidSaveSlot saved = new SuperMetroidSaveRam(bus).ReadSlot(0)
+            ?? throw new InvalidDataException("Ceres setup did not produce a valid slot-A SRAM checkpoint.");
+        if (saved.Area != 6 || saved.SaveStation != 0 || saved.Health != 99)
+        {
+            throw new InvalidDataException(
+                $"Ceres checkpoint decoded as area {saved.Area}, station {saved.SaveStation}, " +
+                $"energy {saved.Health}, not 6:0/99.");
+        }
+        if (saveRamChangeCount != 2)
+        {
+            throw new InvalidOperationException(
+                $"Expected selected-slot and checkpoint SRAM publications, observed {saveRamChangeCount}.");
+        }
+        var reloadedMenu = new FileSelectMenuState(bus);
+        if (!reloadedMenu.SelectedSlotContainsSave)
+            throw new InvalidDataException("A restarted file-select menu did not recognize the Ceres checkpoint.");
         frame = StepUntil(
             game,
             frame,
@@ -92,7 +111,8 @@ internal static class FrontendSkipIntroAudit
         PngWriter.WriteRgba(outputPath, FrontendFrame.Width, FrontendFrame.Height, frame.Pixels);
         Console.WriteLine(
             $"Skip-opening-cinematic audit reached {frame.GameState} on dispatcher frame " +
-            $"{frame.FrameNumber}, Samus=(${game.GameplaySamusX:X4},${game.GameplaySamusY:X4}).");
+            $"{frame.FrameNumber}, Samus=(${game.GameplaySamusX:X4},${game.GameplaySamusY:X4}), " +
+            "slot A saved as Ceres 6:0 and recognized after menu reconstruction.");
         Console.WriteLine($"Captured skip-intro Ceres frame to {Path.GetFullPath(outputPath)}.");
         return 0;
     }

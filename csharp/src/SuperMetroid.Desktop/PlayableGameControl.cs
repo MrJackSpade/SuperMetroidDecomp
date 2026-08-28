@@ -11,6 +11,7 @@ namespace SuperMetroid.Desktop;
 public sealed class PlayableGameControl : UserControl
 {
     private readonly string romPath;
+    private readonly string saveRamPath;
     private readonly SuperMetroidGameOptions gameOptions;
     private readonly RuntimeCanvas canvas = new() { Dock = DockStyle.Fill, TabStop = true };
     private readonly ToolStripLabel statusLabel = new();
@@ -18,6 +19,7 @@ public sealed class PlayableGameControl : UserControl
     private readonly Stopwatch playbackClock = new();
     private readonly HashSet<Keys> heldKeys = [];
     private double pendingPlaybackFrames;
+    private SuperMetroidAddressSpace addressSpace = null!;
     private SuperMetroidGame game = null!;
 
     // The host's wall clock is intentionally separate from the translated frame counter.
@@ -30,6 +32,7 @@ public sealed class PlayableGameControl : UserControl
     public PlayableGameControl(string romPath, SuperMetroidGameOptions gameOptions)
     {
         this.romPath = romPath;
+        saveRamPath = Path.ChangeExtension(Path.GetFullPath(romPath), ".srm");
         this.gameOptions = gameOptions ?? throw new ArgumentNullException(nameof(gameOptions));
         Dock = DockStyle.Fill;
 
@@ -107,13 +110,42 @@ public sealed class PlayableGameControl : UserControl
         // Restart must retain host configuration. Re-reading the INI here would make an
         // ordinary in-window reset depend on a mid-session disk edit and would obscure the
         // exact options with which the debugger-visible session was constructed.
-        game = new SuperMetroidGame(
-            SuperMetroidAddressSpace.LoadRetailRom(romPath),
-            gameOptions);
+        addressSpace = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        LoadSaveRamFromDisk();
+        game = new SuperMetroidGame(addressSpace, gameOptions);
+        game.SaveRamChanged += PersistSaveRamToDisk;
         // Execute reset once so the first visible debugger frame is state one's native setup.
         RefreshFrame(game.Step(0));
         canvas.Focus();
     }
+
+    /// <summary>
+    /// Restores the same 8 KiB battery-backed image an emulator associates with the ROM.
+    /// A malformed file is rejected explicitly; silently padding/truncating it could turn
+    /// corruption into an apparently valid checksum pair.
+    /// </summary>
+    private void LoadSaveRamFromDisk()
+    {
+        if (!File.Exists(saveRamPath))
+            return;
+
+        byte[] bytes = File.ReadAllBytes(saveRamPath);
+        if (bytes.Length != SuperMetroidAddressSpace.SaveRamByteCount)
+        {
+            throw new InvalidDataException(
+                $"Save RAM '{saveRamPath}' contains {bytes.Length} bytes; " +
+                $"Super Metroid requires exactly {SuperMetroidAddressSpace.SaveRamByteCount} bytes.");
+        }
+        bytes.CopyTo(addressSpace.SaveRam);
+    }
+
+    /// <summary>
+    /// Flushes translated SRAM mutations synchronously. The cartridge call is infrequent,
+    /// and completing the write before the next frame preserves the save even if the host is
+    /// stopped at a breakpoint or closed immediately after the Ceres checkpoint.
+    /// </summary>
+    private void PersistSaveRamToDisk() =>
+        File.WriteAllBytes(saveRamPath, addressSpace.SaveRam.ToArray());
 
     private void StepFrame(ushort? forcedInput = null)
     {

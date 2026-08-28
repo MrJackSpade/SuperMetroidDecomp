@@ -96,6 +96,12 @@ if (args.Length >= 2 && args[0] == "--ocean-platform-audit")
     return PlatformAudit.Run(platformRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--crateria-power-bombs-alcoon-audit")
+{
+    string alcoonRomPath = string.Join(' ', args[1..]).Trim('"');
+    return AlcoonAudit.Run(alcoonRomPath);
+}
+
 // Loads the normal, pre-escape Parlor state directly from the retail header. This keeps the
 // first ordinary Zebes enemy family independently auditable without walking the frontend,
 // while still sourcing its population, graphics, level collision, and instruction lists

@@ -26,6 +26,7 @@ public enum RoomEnemyProjectileKind : ushort
     CeresRidleyHorizontalAfterburnLeft = 0x967a,
     CeresRidleyVerticalAfterburnUp = 0x9688,
     CeresRidleyVerticalAfterburnDown = 0x9696,
+    AlcoonFireball = 0x9e90,
 }
 
 /// <summary>
@@ -122,11 +123,11 @@ public sealed partial class RoomEnemySystem
             if (!projectile.IsActive)
                 continue;
 
-            ResolveCeresRidleyFireballSamusCollision(projectile, samus, controllerInput);
+            ResolveEnemyProjectileSamusCollision(projectile, samus, controllerInput);
             if (!projectile.IsActive)
                 continue;
 
-            ProcessCeresRidleyProjectileInstructions(projectile);
+            ProcessEnemyProjectileInstructions(projectile);
         }
     }
 
@@ -313,9 +314,13 @@ public sealed partial class RoomEnemySystem
                 }
                 return;
 
+            case 0x9eff: // Alcoon fireball: Y then X collision, followed by horizontal drag.
+                RunAlcoonFireballPreInstruction(projectile, level);
+                return;
+
             default:
                 throw new NotSupportedException(
-                    $"Ridley projectile pre-instruction $86:{projectile.PreInstruction:X4} is not translated.");
+                    $"Enemy projectile pre-instruction $86:{projectile.PreInstruction:X4} is not translated.");
         }
     }
 
@@ -332,14 +337,28 @@ public sealed partial class RoomEnemySystem
         ushort nextPosition = unchecked((ushort)(fixedPosition >> 16));
         ushort nextSubposition = unchecked((ushort)fixedPosition);
 
-        ushort probeX = horizontal
-            ? unchecked((ushort)(nextPosition + (velocity < 0 ? -FireballRadius : FireballRadius)))
-            : projectile.XPosition;
-        ushort probeY = horizontal
+        ushort movementRadius = horizontal ? projectile.XRadius : projectile.YRadius;
+        ushort perpendicularPosition = horizontal
             ? projectile.YPosition
-            : unchecked((ushort)(nextPosition + (velocity < 0 ? -FireballRadius : FireballRadius)));
-        if (ProjectileProbeHitsRoom(level, probeX, probeY))
-            return true;
+            : projectile.XPosition;
+        ushort perpendicularRadius = horizontal
+            ? projectile.YRadius
+            : projectile.XRadius;
+
+        // Bank $86 checks every room block crossed by the projectile's perpendicular
+        // diameter. The positive edge is inclusive, hence radius - 1; using +radius made
+        // right/down projectiles collide one pixel earlier than their native counterparts.
+        ushort movementEdge = unchecked((ushort)(nextPosition +
+            (velocity < 0 ? -movementRadius : movementRadius - 1)));
+        int firstPerpendicularBlock = (perpendicularPosition - perpendicularRadius) >> 4;
+        int lastPerpendicularBlock = (perpendicularPosition + perpendicularRadius - 1) >> 4;
+        for (int block = firstPerpendicularBlock; block <= lastPerpendicularBlock; block++)
+        {
+            ushort probeX = horizontal ? movementEdge : unchecked((ushort)(block << 4));
+            ushort probeY = horizontal ? unchecked((ushort)(block << 4)) : movementEdge;
+            if (ProjectileProbeHitsRoom(level, probeX, probeY))
+                return true;
+        }
 
         if (horizontal)
         {
@@ -364,14 +383,18 @@ public sealed partial class RoomEnemySystem
             return true;
         }
 
-        // Ceres uses ordinary slope and solid-family collision dispatchers. Type zero is
-        // air; type nine is a door and remains a wall to an enemy projectile. The special
-        // extension types 5/D are treated as their resolved solid family for this actor.
-        byte type = level.GetCollisionBlock(blockX, blockY).CollisionType;
+        // Resolve type-$5/$D BTS links before dispatching the final block family, just as
+        // the native projectile collision loop does. Type zero is air; type nine is a door
+        // and remains a wall to an enemy projectile.
+        int blockIndex = ResolveEnemyCollisionBlockIndex(level, blockX, blockY);
+        if (blockIndex < 0)
+            return true;
+
+        byte type = level.GetCollisionBlockByIndex(blockIndex).CollisionType;
         return type is 1 or 5 or 8 or 9 or 0x0b or 0x0c or 0x0d or 0x0e or 0x0f;
     }
 
-    private void ResolveCeresRidleyFireballSamusCollision(
+    private void ResolveEnemyProjectileSamusCollision(
         RoomEnemyProjectileSlot projectile,
         SamusState? samus,
         ushort controllerInput)
@@ -414,7 +437,7 @@ public sealed partial class RoomEnemySystem
         projectile.Clear();
     }
 
-    private void ProcessCeresRidleyProjectileInstructions(RoomEnemyProjectileSlot projectile)
+    private void ProcessEnemyProjectileInstructions(RoomEnemyProjectileSlot projectile)
     {
         ushort oldTimer = projectile.InstructionTimer;
         projectile.InstructionTimer = unchecked((ushort)(projectile.InstructionTimer - 1));
@@ -428,7 +451,7 @@ public sealed partial class RoomEnemySystem
             if ((word & 0x8000) == 0)
             {
                 if (word == 0)
-                    throw new InvalidDataException($"Ridley projectile frame $86:{cursor:X4} has zero duration.");
+                    throw new InvalidDataException($"Enemy projectile frame $86:{cursor:X4} has zero duration.");
                 projectile.InstructionTimer = word;
                 projectile.SpritemapPointer = ReadWord(
                     _bus!,
@@ -469,11 +492,12 @@ public sealed partial class RoomEnemySystem
                     break;
                 default:
                     throw new NotSupportedException(
-                        $"Ridley projectile instruction $86:{word:X4} at $86:{cursor:X4} is not translated.");
+                        $"Enemy projectile instruction $86:{word:X4} at $86:{cursor:X4} is not translated.");
             }
         }
 
-        throw new InvalidDataException("Ridley projectile list did not reach a timed frame within 24 operations.");
+        throw new InvalidDataException(
+            "Enemy projectile list did not reach a timed frame within 24 operations.");
     }
 
     private void SpawnAfterburnCenter(

@@ -36,6 +36,7 @@ public sealed partial class RoomEnemySystem
     private readonly List<RoomEnemyGraphicsSetEntry> _graphicsSet = new();
     private ISnesAddressSpace? _bus;
     private Func<ushort>? _nextRandom;
+    private Func<ushort>? _readRandomNumber;
     private Action<ushort>? _setRandomNumber;
     private ushort _randomEnemyCounter;
     private SnesVram? _vram;
@@ -79,6 +80,7 @@ public sealed partial class RoomEnemySystem
     public ushort? LastHopperSoundEffect { get; private set; }
     public ushort? LastYardSoundEffect { get; private set; }
     public ushort? LastMetareeSoundEffect { get; private set; }
+    public ushort? LastAlcoonSoundEffect { get; private set; }
     public ushort FirefleaDarknessLevel { get; private set; }
     public ushort EarthquakeTimer { get; set; }
     public ushort EarthquakeType { get; set; }
@@ -108,7 +110,9 @@ public sealed partial class RoomEnemySystem
         SnesVram vram,
         SnesCgram cgram,
         Func<ushort> nextRandom,
-        Action<ushort>? setRandomNumber = null)
+        Action<ushort>? setRandomNumber = null,
+        Func<ushort>? readRandomNumber = null,
+        RoomLevelData? level = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -117,6 +121,10 @@ public sealed partial class RoomEnemySystem
 
         _bus = bus;
         _nextRandom = nextRandom;
+        // Some enemy routines call GenerateRandomNumber while others, including Alcoon's
+        // post-volley bytecode, merely sample the existing WRAM seed. Keep those operations
+        // distinct: substituting nextRandom here would silently advance the cartridge RNG.
+        _readRandomNumber = readRandomNumber;
         _setRandomNumber = setRandomNumber;
         _vram = vram;
         _cgram = cgram;
@@ -132,6 +140,7 @@ public sealed partial class RoomEnemySystem
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
+        LastAlcoonSoundEffect = null;
         FirefleaDarknessLevel = 0;
         EarthquakeTimer = 0;
         EarthquakeType = 0;
@@ -171,6 +180,12 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_platformMaximumYSpeedTableIndexes);
         Array.Clear(_platformPreviousYMovementFunctions);
         Array.Clear(_platformSuspensorPlatformFlags);
+        Array.Clear(_alcoonStates);
+        Array.Clear(_alcoonYAccelerations);
+        Array.Clear(_alcoonYSubaccelerations);
+        Array.Clear(_alcoonSpawnXPositions);
+        Array.Clear(_alcoonLandingYPositions);
+        Array.Clear(_alcoonStepCounters);
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -191,7 +206,7 @@ public sealed partial class RoomEnemySystem
         // CGRAM or VRAM merely because its state happens to retain a non-empty set pointer.
         if (ReadWord(bus, EnemyPopulationBank | populationPointer) != 0xffff)
             LoadGraphicsSet(bus, tilesetPointer, vram, cgram);
-        LoadPopulation(bus, populationPointer);
+        LoadPopulation(bus, populationPointer, level);
     }
 
     /// <summary>
@@ -237,6 +252,7 @@ public sealed partial class RoomEnemySystem
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
+        LastAlcoonSoundEffect = null;
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
             queue.Clear();
@@ -265,7 +281,7 @@ public sealed partial class RoomEnemySystem
                         cameraY);
                     slot.FrameCounter = unchecked((ushort)(slot.FrameCounter + 1));
                     if (slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
-                        ProcessInstructions(slot, samus);
+                        ProcessInstructions(slot, samus, level);
                 }
             }
 
@@ -487,7 +503,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void LoadPopulation(ISnesAddressSpace bus, ushort populationPointer)
+    private void LoadPopulation(
+        ISnesAddressSpace bus,
+        ushort populationPointer,
+        RoomLevelData? level)
     {
         int cursor = EnemyPopulationBank | populationPointer;
         int slotIndex = 0;
@@ -527,7 +546,7 @@ public sealed partial class RoomEnemySystem
             InitializeSlotFromDefinition(slot, population, definition);
             if (definition.BossId != 0)
                 BossId = definition.BossId;
-            RunInitializationAi(slot);
+            RunInitializationAi(slot, level);
 
             // InitializeEnemies deliberately clears the init routine's immediate map.
             // Disable-Samus-collision actors receive the canonical empty map until their
@@ -600,7 +619,7 @@ public sealed partial class RoomEnemySystem
         return (0, 0x0a00);
     }
 
-    private void RunInitializationAi(RoomEnemySlot slot)
+    private void RunInitializationAi(RoomEnemySlot slot, RoomLevelData? level = null)
     {
         int address = (slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer;
         switch (address)
@@ -680,6 +699,9 @@ public sealed partial class RoomEnemySystem
             case 0xa39c9f when slot.EnemyDefinitionPointer == KamerDefinition:
             case 0xa39cba when slot.EnemyDefinitionPointer == TripperDefinition:
                 InitializePlatform(slot);
+                return;
+            case 0xa8dccd when slot.EnemyDefinitionPointer == AlcoonDefinition:
+                InitializeAlcoon(slot, level);
                 return;
             case 0xa2804c:
                 return;
@@ -880,6 +902,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa39d16 when IsPlatformDefinition(slot.EnemyDefinitionPointer):
                 RunPlatformMain(slot, RequirePlatformState(slot), samus, level);
+                return;
+            case 0xa8dd6b when slot.EnemyDefinitionPointer == AlcoonDefinition:
+                RunAlcoonMain(slot, RequireAlcoonState(slot), samus, level);
                 return;
             default:
                 throw new NotSupportedException(
@@ -1141,7 +1166,10 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)Math.Min(current + 2, maximum));
     }
 
-    private void ProcessInstructions(RoomEnemySlot slot, SamusState? samus)
+    private void ProcessInstructions(
+        RoomEnemySlot slot,
+        SamusState? samus,
+        RoomLevelData? level)
     {
         ushort oldTimer = slot.InstructionTimer;
         slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
@@ -1317,6 +1345,40 @@ public sealed partial class RoomEnemySystem
                         slot,
                         PlatformHorizontalMovement.Right);
                     cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xdf1c when slot.EnemyDefinitionPointer == AlcoonDefinition:
+                    SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 0);
+                    LastAlcoonSoundEffect = AlcoonFireSound;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xdf33 when slot.EnemyDefinitionPointer == AlcoonDefinition:
+                    SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 2);
+                    LastAlcoonSoundEffect = AlcoonFireSound;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xdf39 when slot.EnemyDefinitionPointer == AlcoonDefinition:
+                    SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 4);
+                    LastAlcoonSoundEffect = AlcoonFireSound;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xdf3f when slot.EnemyDefinitionPointer == AlcoonDefinition:
+                    cursor = StartAlcoonWalking(slot, RequireAlcoonState(slot));
+                    break;
+                case 0xdf63 when slot.EnemyDefinitionPointer == AlcoonDefinition:
+                    cursor = MoveAlcoonHorizontally(
+                        slot,
+                        RequireAlcoonState(slot),
+                        level,
+                        unchecked((ushort)(cursor + 2)),
+                        decrementStepCounter: true);
+                    break;
+                case 0xdf71 when slot.EnemyDefinitionPointer == AlcoonDefinition:
+                    cursor = MoveAlcoonHorizontally(
+                        slot,
+                        RequireAlcoonState(slot),
+                        level,
+                        unchecked((ushort)(cursor + 2)),
+                        decrementStepCounter: false);
                     break;
                 case 0xe4be: // Ridley: begin roar; audio playback is outside this subsystem.
                     RequireCeresRidley(slot).Roaring = true;

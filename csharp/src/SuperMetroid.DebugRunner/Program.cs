@@ -115,6 +115,112 @@ if (args.Length >= 2 && args[0] == "--parlor-awake-audit")
     return 0;
 }
 
+// The next normal traversal room after Parlor contains only the shared fly family. Audit
+// it separately so ROM animation, circle/attack/retreat motion, and ordinary contact damage
+// remain a fast regression instead of being hidden inside a long playable frontend route.
+if (args.Length >= 2 && args[0] == "--flyway-audit")
+{
+    string flywayRomPath = string.Join(' ', args[1..]).Trim('"');
+    SuperMetroidAddressSpace flywayBus = SuperMetroidAddressSpace.LoadRetailRom(flywayRomPath);
+    CartridgeRoomHeader flywayRoom = CartridgeRoomHeader.Load(flywayBus, 0x9879);
+    CartridgeRoomAssets flywayAssets = CartridgeRoomAssets.Load(flywayBus, flywayRoom);
+    var flywayVram = new SnesVram();
+    var flywayCgram = new SnesCgram();
+    flywayAssets.LoadGraphics(flywayVram, flywayCgram);
+    var flywayEnemies = new RoomEnemySystem();
+    var flywayRandom = new Bank80SystemState();
+    flywayEnemies.Load(
+        flywayBus,
+        flywayRoom.State.EnemyPopulationPointer,
+        flywayRoom.State.EnemyTilesetPointer,
+        flywayVram,
+        flywayCgram,
+        flywayRandom.NextRandom);
+    if (flywayRoom.State.Pointer != 0x9890 || flywayEnemies.EnemyCount != 12 ||
+        flywayEnemies.Slots.Take(12).Any(slot => slot.EnemyDefinitionPointer != 0xd0ff))
+    {
+        throw new InvalidDataException(
+            $"Flyway selected state ${flywayRoom.State.Pointer:X4} with " +
+            $"{flywayEnemies.EnemyCount} non-uniform enemies.");
+    }
+
+    RoomEnemySlot auditedFly = flywayEnemies.Slots[0];
+    FlyEnemyState auditedFlyState = flywayEnemies.FlyStates[0]
+        ?? throw new InvalidDataException("Flyway slot zero did not create fly-family state.");
+    var flywaySamus = new SamusState
+    {
+        Health = 99,
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 0x02ff,
+        YPosition = 0x0080,
+    };
+    flywaySamus.RefreshCollisionRadii(flywayBus);
+    flywaySamus.InitializeAnimation(flywayBus);
+
+    ushort flyStartX = auditedFly.XPosition;
+    ushort flyStartY = auditedFly.YPosition;
+    var animationMaps = new HashSet<ushort>();
+    for (int frame = 0; frame < 20; frame++)
+    {
+        flywayEnemies.StepFrame(0, 0, false, flywaySamus);
+        animationMaps.Add(auditedFly.SpritemapPointer);
+    }
+    if (animationMaps.Count != 4 ||
+        auditedFly.XPosition == flyStartX && auditedFly.YPosition == flyStartY)
+    {
+        throw new InvalidDataException(
+            $"Flyway idle animation/motion failed: maps={animationMaps.Count}, " +
+            $"position=({flyStartX},{flyStartY})->({auditedFly.XPosition},{auditedFly.YPosition}).");
+    }
+
+    flywaySamus.XPosition = auditedFly.XPosition;
+    flywaySamus.YPosition = unchecked((ushort)(auditedFly.YPosition + 64));
+    flywayEnemies.StepFrame(0, 0, false, flywaySamus);
+    bool sawAttack = auditedFlyState.Function == FlyEnemyFunction.AttackSamus;
+    bool sawRetreat = false;
+    bool returnedToCircle = false;
+    for (int frame = 0; frame < 256 && !returnedToCircle; frame++)
+    {
+        flywayEnemies.StepFrame(0, 0, false, flywaySamus);
+        sawRetreat |= auditedFlyState.Function == FlyEnemyFunction.Retreat;
+        returnedToCircle = sawRetreat && auditedFlyState.Function == FlyEnemyFunction.ClockwiseCircle;
+    }
+    if (!sawAttack || !sawRetreat || !returnedToCircle)
+    {
+        throw new InvalidDataException(
+            $"Flyway attack cycle failed: attack={sawAttack}, retreat={sawRetreat}, " +
+            $"function=$A2:{(ushort)auditedFlyState.Function:X4}.");
+    }
+
+    // Rebuild the interactive list, then overlap the actor after its AI movement so the
+    // shared $A0:8023 handler must consume the Mellow header's literal eight damage.
+    flywayEnemies.StepFrame(0, 0, false, flywaySamus);
+    flywaySamus.XPosition = auditedFly.XPosition;
+    flywaySamus.YPosition = auditedFly.YPosition;
+    flywaySamus.InvincibilityTimer = 0;
+    flywaySamus.Health = 99;
+    if (!flywayEnemies.ResolveOrdinarySamusContact(flywaySamus, 0) ||
+        flywaySamus.Health != 91 || !flywaySamus.KnockbackActive)
+    {
+        throw new InvalidDataException(
+            $"Mellow contact failed: health={flywaySamus.Health}, " +
+            $"knockback={flywaySamus.KnockbackActive}.");
+    }
+
+    var flywayOam = new OamBuffer();
+    flywayOam.BeginFrame();
+    flywayEnemies.DrawLayers(flywayOam, 0, 0, 0, 7);
+    flywayOam.FinalizeFrame();
+    if (flywayOam.LastFinalizedSpriteCount == 0)
+        throw new InvalidDataException("Flyway's live ROM spritemaps emitted no enemy OBJ.");
+
+    Console.WriteLine(
+        $"Flyway audit passed: 12 Mellows loaded, four ROM maps animated, native circle/" +
+        $"attack/retreat motion completed, contact dealt eight damage, and " +
+        $"{flywayOam.LastFinalizedSpriteCount} OBJ pieces rendered.");
+    return 0;
+}
+
 // Measures the exact hot path used by ordinary gameplay's four BG-relative OBJ priority
 // insertions. The legacy side intentionally calls the public filtered renderer four times;
 // the resolved side uses the single OAM raster consumed by the optimized compositor. This

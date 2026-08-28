@@ -120,6 +120,7 @@ public sealed partial class RoomEnemySystem
         _ceresRidley = null;
         Array.Clear(_crawlerStates);
         Array.Clear(_skreeStates);
+        Array.Clear(_flyStates);
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -567,6 +568,10 @@ public sealed partial class RoomEnemySystem
             case 0xa3c6ae when slot.EnemyDefinitionPointer == SkreeDefinition:
                 InitializeSkree(slot);
                 return;
+            case 0xa2b06b when slot.EnemyDefinitionPointer is
+                MellowDefinition or MellaDefinition or MemuDefinition:
+                InitializeFly(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -724,6 +729,10 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa3c6c7 when slot.EnemyDefinitionPointer == SkreeDefinition:
                 RunSkreeMain(slot, samus, level);
+                return;
+            case 0xa2b11f when slot.EnemyDefinitionPointer is
+                MellowDefinition or MellaDefinition or MemuDefinition:
+                RunFlyMain(slot, samus);
                 return;
             default:
                 throw new NotSupportedException(

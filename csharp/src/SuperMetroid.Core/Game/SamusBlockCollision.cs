@@ -187,6 +187,25 @@ public static class SamusBlockCollision
                         collisionBlock = block;
                         break;
 
+                    case 9:
+                        // `$94:938B` resolves BTS through the current room's bank-$8F door
+                        // list. A normal bank-$8F destination publishes `door_def_ptr`, sets
+                        // game state $09, and returns carry clear, so this scan must allow
+                        // Samus into the doorway. Elevator pseudo-destinations have bit 15
+                        // clear and fall through to the ordinary solid clipping routine.
+                        CartridgeDoorHeader horizontalDoor =
+                            level.ResolveDoorCollision(bus, block.Behavior);
+                        if ((horizontalDoor.DestinationRoomPointer & 0x8000) == 0)
+                        {
+                            acceptedDisplacement = ClipHorizontalToSolid(
+                                state,
+                                acceptedDisplacement,
+                                leadingBoundary);
+                            collided = true;
+                            collisionBlock = block;
+                        }
+                        break;
+
                     case 15:
                         // `$94:932D` indexes the collision-bomb-block PLM table with BTS
                         // 0..7. Its setup at `$84:CE83` returns carry (solid) unless Samus
@@ -375,6 +394,23 @@ public static class SamusBlockCollision
                             leadingBoundary);
                         collided = true;
                         collisionBlock = block;
+                        break;
+
+                    case 9:
+                        // `$94:93CE` is the vertical twin of the handler above. Preserve
+                        // its carry result here; the room-level owner publishes the same
+                        // native door pointer for the frontend dispatcher to consume.
+                        CartridgeDoorHeader verticalDoor =
+                            level.ResolveDoorCollision(bus, block.Behavior);
+                        if ((verticalDoor.DestinationRoomPointer & 0x8000) == 0)
+                        {
+                            acceptedDisplacement = ClipVerticalToSolid(
+                                state,
+                                acceptedDisplacement,
+                                leadingBoundary);
+                            collided = true;
+                            collisionBlock = block;
+                        }
                         break;
 
                     case 15:

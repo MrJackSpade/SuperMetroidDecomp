@@ -232,7 +232,77 @@ static void VerifySamusBlockCollision()
     AssertTrue(squareFloorBody.PositionAdjustedBySlope, "downward square slope sets adjusted flag");
     AssertEqual(0xffff, squareFloorBody.YSubposition, "downward square slope writes floor fraction");
 
-    Console.WriteLine("  Samus blocks: spans, air, square/non-square slopes, and solid clipping agree.");
+    // `$94:938B` masks the BTS index, reads a bank-$8F door-pointer table, then inspects
+    // the bank-$83 destination. Entry zero is a normal room door: carry stays clear and the
+    // exact header is published for game state $09. Entry one is an elevator pseudo-door
+    // with destination bit 15 clear and therefore retains ordinary solid clipping.
+    const ushort doorListPointer = 0x9000;
+    const ushort normalDoorPointer = 0xa000;
+    const ushort elevatorDoorPointer = 0xa00c;
+    WriteTestWord(bus, 0x8f0000 | doorListPointer, normalDoorPointer);
+    WriteTestWord(bus, 0x8f0000 | (doorListPointer + 2), elevatorDoorPointer);
+    WriteTestWord(bus, 0x830000 | normalDoorPointer, 0x9123);
+    WriteTestWord(bus, 0x830000 | elevatorDoorPointer, 0x1234);
+
+    var doorForeground = new ushort[width * height];
+    var doorBehavior = new byte[doorForeground.Length];
+    doorForeground[1 * width + 2] = 0x9000;
+    RoomLevelData doorLevel = new(
+        width,
+        height,
+        doorForeground,
+        doorBehavior,
+        new ushort[doorForeground.Length],
+        new byte[8],
+        doorListPointer: doorListPointer);
+    var doorBody = new SamusKinematicsState
+    {
+        XPosition = 26,
+        YPosition = 24,
+        XRadius = 5,
+        YRadius = 5,
+        HorizontalSlopeCollisionEnable = 0,
+    };
+    BlockMoveResult normalDoorMove = SamusBlockCollision.MoveHorizontal(
+        bus,
+        doorLevel,
+        doorBody,
+        displacement: 0x00020000);
+    AssertTrue(!normalDoorMove.Collided, "normal type-$9 door returns carry clear");
+    AssertEqual(0x00020000, normalDoorMove.AcceptedDisplacement,
+        "normal type-$9 door accepts full horizontal displacement");
+    AssertEqual(normalDoorPointer, doorLevel.PendingDoorTransition!.Pointer,
+        "normal type-$9 door publishes exact bank-$83 pointer");
+    AssertEqual(0x9123, doorLevel.PendingDoorTransition!.DestinationRoomPointer,
+        "normal type-$9 door preserves destination room header");
+    AssertEqual(normalDoorPointer, doorLevel.ConsumePendingDoorTransition()!.Pointer,
+        "door transition publication is consumed exactly once");
+    AssertTrue(doorLevel.PendingDoorTransition is null,
+        "consumed door transition does not leak into later movement");
+
+    doorBehavior[1 * width + 2] = 1;
+    RoomLevelData elevatorDoorLevel = new(
+        width,
+        height,
+        doorForeground,
+        doorBehavior,
+        new ushort[doorForeground.Length],
+        new byte[8],
+        doorListPointer: doorListPointer);
+    doorBody.XPosition = 26;
+    doorBody.XSubposition = 0;
+    BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(
+        bus,
+        elevatorDoorLevel,
+        doorBody,
+        displacement: 0x00020000);
+    AssertTrue(elevatorDoorMove.Collided, "elevator pseudo-door remains solid");
+    AssertEqual(0x00010000, elevatorDoorMove.AcceptedDisplacement,
+        "elevator pseudo-door uses ordinary solid clipping");
+    AssertTrue(elevatorDoorLevel.PendingDoorTransition is null,
+        "elevator pseudo-door does not publish normal room transition");
+
+    Console.WriteLine("  Samus blocks: spans, air, slopes, solids, and native door dispatch agree.");
 }
 
 /// <summary>

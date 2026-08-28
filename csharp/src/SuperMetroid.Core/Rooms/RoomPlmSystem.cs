@@ -112,6 +112,25 @@ public sealed class RoomPlmSystem
     public int ActiveCount => _slots.Count(slot => slot.Active);
 
     /// <summary>
+    /// Clears the room-owned allocation during <c>$82:E3C0</c>'s destination-room setup.
+    /// PLMs never survive a door transition; retaining one would let its old block index
+    /// mutate unrelated level data in the newly decompressed room.
+    /// </summary>
+    public void Reset()
+    {
+        foreach (PlmSlot slot in _slots)
+        {
+            slot.Active = false;
+            slot.BlockIndex = 0;
+            slot.RestoreLevelWord = 0;
+            slot.InstructionPointer = 0;
+            slot.InstructionTimer = 0;
+        }
+        _soundRequests.Clear();
+        _tilemapUpdates.Clear();
+    }
+
+    /// <summary>
     /// Runs setup <c>$84:CFB5</c> for BTS one or two and installs the corresponding PLM.
     /// </summary>
     /// <returns>False only when all 40 native slots are occupied.</returns>

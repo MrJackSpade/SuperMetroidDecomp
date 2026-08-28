@@ -11,6 +11,7 @@ namespace SuperMetroid.Desktop;
 public sealed class PlayableGameControl : UserControl
 {
     private readonly string romPath;
+    private readonly SuperMetroidGameOptions gameOptions;
     private readonly RuntimeCanvas canvas = new() { Dock = DockStyle.Fill, TabStop = true };
     private readonly ToolStripLabel statusLabel = new();
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 8 };
@@ -26,9 +27,10 @@ public sealed class PlayableGameControl : UserControl
     private const double TargetFramesPerSecond = 60.0;
     private const int MaximumCatchUpFrames = 4;
 
-    public PlayableGameControl(string romPath)
+    public PlayableGameControl(string romPath, SuperMetroidGameOptions gameOptions)
     {
         this.romPath = romPath;
+        this.gameOptions = gameOptions ?? throw new ArgumentNullException(nameof(gameOptions));
         Dock = DockStyle.Fill;
 
         var toolStrip = new ToolStrip { GripStyle = ToolStripGripStyle.Hidden };
@@ -102,7 +104,12 @@ public sealed class PlayableGameControl : UserControl
     private void Restart()
     {
         heldKeys.Clear();
-        game = new SuperMetroidGame(SuperMetroidAddressSpace.LoadRetailRom(romPath));
+        // Restart must retain host configuration. Re-reading the INI here would make an
+        // ordinary in-window reset depend on a mid-session disk edit and would obscure the
+        // exact options with which the debugger-visible session was constructed.
+        game = new SuperMetroidGame(
+            SuperMetroidAddressSpace.LoadRetailRom(romPath),
+            gameOptions);
         // Execute reset once so the first visible debugger frame is state one's native setup.
         RefreshFrame(game.Step(0));
         canvas.Focus();

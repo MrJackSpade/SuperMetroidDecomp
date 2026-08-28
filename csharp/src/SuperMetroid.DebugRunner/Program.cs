@@ -21,6 +21,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+// Configuration regression kept as its own small audit rather than adding another branch
+// to the already deep cinematic capture tree below.
+if (args.Length >= 3 && args[0] == "--frontend-skip-intro-capture")
+{
+    string skipIntroRomPath = string.Join(' ', args[1..^1]).Trim('"');
+    string skipIntroOutputPath = args[^1].Trim('"');
+    return FrontendSkipIntroAudit.Run(skipIntroRomPath, skipIntroOutputPath);
+}
+
 // This milestone capture exercises the actual new-game load-station/room pipeline without
 // requiring the still-in-progress intro object interpreter to reach its final state first.
 // It is diagnostic entry only: the Playable dispatcher will own this same runtime once the
@@ -55,7 +64,22 @@ if (args.Length >= 3 && args[0] == "--ceres-room-capture")
     // bank-$86 arrival. One additional frame publishes the completed OAM through NMI so
     // the requested PNG represents the actual first controllable Ceres frame.
     for (int arrivalFrame = 0; arrivalFrame < 132; arrivalFrame++)
+    {
         ceresRuntime.StepFrame(0);
+
+        // Preserve a frame while both bank-$86 elevator projectiles are visible. The final
+        // controllable capture cannot catch a wrong level-data-concealer palette because
+        // that object deletes itself precisely when Samus lands.
+        if (arrivalFrame == 0)
+        {
+            string arrivalPath = Path.Combine(
+                Path.GetDirectoryName(ceresOutputPath) ?? string.Empty,
+                $"{Path.GetFileNameWithoutExtension(ceresOutputPath)}.arrival{Path.GetExtension(ceresOutputPath)}");
+            Rgba32[] arrivalPixels = SuperMetroidRuntimeFrameRenderer.Render(ceresRuntime);
+            EnsureOpaqueFrame(arrivalPixels, "Ceres elevator arrival");
+            PngWriter.WriteRgba(arrivalPath, 256, 224, arrivalPixels);
+        }
+    }
     if (ceresRuntime.CeresElevatorArrival is not { IsComplete: true } ||
         ceresRuntime.Samus?.YPosition != 72 ||
         !ceresRuntime.GroundedSamusMovementEnabled)
@@ -63,6 +87,8 @@ if (args.Length >= 3 && args[0] == "--ceres-room-capture")
         throw new InvalidOperationException(
             "Ceres elevator did not finish at native Samus Y=$0048 with controls unlocked.");
     }
+
+    CeresProjectileAudit.AssertPowerBeamGraphics(ceresBus, ceresRuntime);
 
     CartridgeRoomHeader room = ceresRuntime.ActiveRoom!;
     LoadStationEntry station = ceresRuntime.ActiveLoadStation!;
@@ -117,6 +143,63 @@ if (args.Length >= 3 && args[0] == "--ceres-room-capture")
     }
     Console.WriteLine($"Captured pre-NMI Ceres room to {Path.GetFullPath(ceresPreNmiPath)}.");
     Console.WriteLine($"Captured cartridge-backed starting Ceres room to {Path.GetFullPath(ceresOutputPath)}.");
+
+    CeresProjectileAudit.RunPowerBeamLifetime(ceresRuntime);
+
+    // Reproduce the reported block-639/BTS-$00 path against a separate runtime so this
+    // room-capture mode still exports its documented elevator-arrival frame. A one-pixel
+    // high probe isolates the exact door row from adjacent cap/terrain rows while retaining
+    // the real bank-$94 horizontal dispatcher, room door table, bank-$83 header, and full
+    // destination loader. This fails if type $9 is merely treated as air or solid.
+    var doorProbeRuntime = new SuperMetroidRuntime(ceresBus);
+    doorProbeRuntime.InitializeHud(HudSnapshot.CeresDebug);
+    doorProbeRuntime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+    doorProbeRuntime.InitializeStartingCeresRoom();
+    doorProbeRuntime.InitializeCeresStartSamus();
+    RoomLevelData probeLevel = doorProbeRuntime.LevelData!;
+    const int reportedDoorBlockIndex = 639;
+    RoomCollisionBlock reportedDoorBlock = probeLevel.GetCollisionBlockByIndex(reportedDoorBlockIndex);
+    if (reportedDoorBlock.CollisionType != 9 || reportedDoorBlock.Behavior != 0)
+    {
+        throw new InvalidDataException(
+            $"Expected reported Ceres block 639 to remain type $9/BTS $00, got " +
+            $"${reportedDoorBlock.CollisionType:X1}/${reportedDoorBlock.Behavior:X2}.");
+    }
+
+    int reportedDoorX = reportedDoorBlockIndex % probeLevel.WidthInBlocks;
+    int reportedDoorY = reportedDoorBlockIndex / probeLevel.WidthInBlocks;
+    SamusState doorProbeSamus = doorProbeRuntime.Samus!;
+    doorProbeSamus.Pose = SamusState.MovingRightNormalPose;
+    doorProbeSamus.InitializeAnimation(ceresBus);
+    doorProbeSamus.Kinematics.XPosition = unchecked((ushort)(reportedDoorX * 16 - 8));
+    doorProbeSamus.Kinematics.YPosition = unchecked((ushort)(reportedDoorY * 16 + 8));
+    doorProbeSamus.Kinematics.XRadius = 8;
+    doorProbeSamus.Kinematics.YRadius = 1;
+    SamusBlockCollision.MoveHorizontal(
+        ceresBus,
+        probeLevel,
+        doorProbeSamus.Kinematics,
+        displacement: 1 << 16);
+    CartridgeDoorHeader selectedDoor = probeLevel.PendingDoorTransition
+        ?? throw new InvalidOperationException(
+            "Reported Ceres type-$9 collision did not publish its door transition.");
+    ushort sourceRoomPointer = doorProbeRuntime.ActiveRoom!.Pointer;
+    doorProbeRuntime.LoadPendingDoorDestination();
+    ushort destinationRoomPointer = doorProbeRuntime.ActiveRoom!.Pointer;
+    if (destinationRoomPointer == sourceRoomPointer)
+    {
+        throw new InvalidOperationException(
+            $"Reported Ceres door $83:{selectedDoor.Pointer:X4} reloaded source room " +
+            $"$8F:{sourceRoomPointer:X4}.");
+    }
+    for (int destinationFrame = 0; destinationFrame < 4; destinationFrame++)
+        doorProbeRuntime.StepFrame(0);
+    EnsureOpaqueFrame(
+        SuperMetroidRuntimeFrameRenderer.Render(doorProbeRuntime),
+        "Ceres door destination");
+    Console.WriteLine(
+        $"Ceres block 639 door probe: $8F:{sourceRoomPointer:X4} via " +
+        $"$83:{selectedDoor.Pointer:X4} -> $8F:{destinationRoomPointer:X4}.");
     return 0;
 }
 
@@ -691,12 +774,32 @@ if (args.Length >= 3 && args[0] is
                                                                                     $"camera ${fallStartCameraY:X4}->${maximumCameraY:X4}.");
                                                                             }
 
+                                                                            // Fire the desktop host's documented S/SNES-X action through
+                                                                            // the same dispatcher used by interactive play. A new slot is
+                                                                            // stronger evidence than a cannon/body animation: it proves
+                                                                            // keyboard-bit semantics reached `$90:B80D/$90:B986` and that
+                                                                            // the bank-$93 projectile object survived its creation frame.
+                                                                            frontendFrame = frontend.Step((ushort)SnesButton.X);
+                                                                            if (frontend.GameplayLastFiredProjectileSlot is null ||
+                                                                                frontend.GameplayProjectileCount == 0)
+                                                                            {
+                                                                                throw new InvalidOperationException(
+                                                                                    "Playable Ceres Shoot did not allocate a power-beam projectile.");
+                                                                            }
+                                                                            int firedSlot = frontend.GameplayLastFiredProjectileSlot.Value;
+                                                                            // Power/ice/wave slot zero intentionally flickers on odd NMIs.
+                                                                            // Four releases leave this deterministic capture on its visible
+                                                                            // phase while still keeping the shot near Samus for inspection.
+                                                                            for (int frame = 0; frame < 4; frame++)
+                                                                                frontendFrame = frontend.Step(0);
+
                                                                             Console.WriteLine(
                                                                                 $"Playable input smoke: X ${controllableStartX:X4} -> " +
                                                                                 $"${afterRightX:X4} -> ${frontend.GameplaySamusX:X4}; " +
                                                                                 $"jump Y ${groundedY:X4} -> ${minimumJumpY:X4}; " +
                                                                                 $"fall Y ${fallStartY:X4} -> ${maximumFallY:X4}; " +
                                                                                 $"camera Y ${fallStartCameraY:X4} -> ${maximumCameraY:X4}; " +
+                                                                                $"beam slot {firedSlot}, count {frontend.GameplayProjectileCount}; " +
                                                                                 $"pose ${frontend.GameplaySamusPose:X2}.");
                                                                         }
                                                                     }

@@ -53,7 +53,13 @@ public sealed partial class SamusProjectileSystem
     private const int SamusPaletteCgramIndex = 192;
     private const int UnchargedBeamDataPointers = 0x9383c1;
     private const int ChargedBeamDataPointers = 0x9383d9;
-    private const int BeamExplosionInstructionPointerAddress = 0x9383ff;
+    // `$93:83FF` is only the pointer-table entry that names the beam-explosion DATA
+    // record (`$8679`). KillProjectileInner does not install that address. Its assembly
+    // reads the instruction-list pointer stored two bytes into the data record, at
+    // `$93:867B`. Treating `$83FF` itself as the list made the interpreter consume data
+    // tables as eight-byte animation records: the first bogus "spritemap" was the real
+    // list pointer, producing unrelated OBJ fragments, and no delete opcode was reached.
+    private const int BeamExplosionInstructionPointerAddress = 0x93867b;
     private const int MissileExplosionInstructionPointerAddress = 0x93867f;
     private const int SuperMissileExplosionInstructionPointerAddress = 0x938693;
     private const int NonBeamProjectileDataPointers = 0x9383f1;

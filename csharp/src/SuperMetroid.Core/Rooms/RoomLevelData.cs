@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
@@ -25,7 +27,8 @@ public sealed class RoomLevelData
         ReadOnlySpan<byte> behaviorBytes,
         ReadOnlySpan<ushort> backgroundEntries,
         ReadOnlySpan<byte> blockDefinitions,
-        ReadOnlySpan<ushort> streamingForegroundAllocation = default)
+        ReadOnlySpan<ushort> streamingForegroundAllocation = default,
+        ushort? doorListPointer = null)
     {
         if (widthInBlocks is <= 0 or > 0xff)
             throw new ArgumentOutOfRangeException(nameof(widthInBlocks));
@@ -44,6 +47,7 @@ public sealed class RoomLevelData
 
         WidthInBlocks = widthInBlocks;
         HeightInBlocks = heightInBlocks;
+        DoorListPointer = doorListPointer;
         _foregroundEntries = foregroundEntries.ToArray();
         _behaviorBytes = behaviorBytes.ToArray();
         _backgroundEntries = backgroundEntries.ToArray();
@@ -69,6 +73,18 @@ public sealed class RoomLevelData
 
     /// <summary>Logical room height from the room header, measured in 16-pixel blocks.</summary>
     public int HeightInBlocks { get; }
+
+    /// <summary>
+    /// Bank-$8F pointer to this room's native door-pointer table. Synthetic collision
+    /// fixtures deliberately leave it null; cartridge room loading always supplies it.
+    /// </summary>
+    public ushort? DoorListPointer { get; }
+
+    /// <summary>
+    /// Door definition selected by the most recent native type-$9 collision, mirroring
+    /// the side effect on WRAM <c>door_def_ptr</c> made by <c>$94:938B/$93CE</c>.
+    /// </summary>
+    public CartridgeDoorHeader? PendingDoorTransition { get; private set; }
 
     /// <summary>Read-only logical BG1 words, including collision type in bits 12–15.</summary>
     public ReadOnlyMemory<ushort> ForegroundEntries => _foregroundEntries;
@@ -121,6 +137,41 @@ public sealed class RoomLevelData
     /// </summary>
     public RoomCollisionBlock GetCollisionBlockAtPixel(ushort xPosition, ushort yPosition) =>
         GetCollisionBlock(xPosition >> 4, yPosition >> 4);
+
+    /// <summary>
+    /// Resolves a type-$9 BTS byte through the active room's door list exactly as bank $94
+    /// does, then publishes the normal-door transition request for the top-level dispatcher.
+    /// </summary>
+    public CartridgeDoorHeader ResolveDoorCollision(ISnesAddressSpace bus, byte behavior)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if (DoorListPointer is not ushort doorListPointer)
+        {
+            throw new NotSupportedException(
+                "Door collision requires cartridge room metadata; this level has no door list pointer.");
+        }
+
+        // Bit seven is not part of the list index. Native elevator/special-door BTS values
+        // share the same seven-bit table lookup before the destination-room high bit decides
+        // whether collision is solid or starts game state $09.
+        int pointerAddress = 0x8f0000 | unchecked((ushort)(
+            doorListPointer + ((behavior & 0x7f) * 2)));
+        ushort doorPointer = unchecked((ushort)(
+            bus.ReadByte(pointerAddress) |
+            (bus.ReadByte(0x8f0000 | unchecked((ushort)(pointerAddress + 1))) << 8)));
+        CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, doorPointer);
+        if ((door.DestinationRoomPointer & 0x8000) != 0)
+            PendingDoorTransition ??= door;
+        return door;
+    }
+
+    /// <summary>Consumes the native-equivalent <c>door_def_ptr</c> publication once.</summary>
+    public CartridgeDoorHeader? ConsumePendingDoorTransition()
+    {
+        CartridgeDoorHeader? pending = PendingDoorTransition;
+        PendingDoorTransition = null;
+        return pending;
+    }
 
     /// <summary>
     /// Applies bank-$84 bomb-block setup's immediate <c>level_data &amp;= $0FFF</c> write.

@@ -22,6 +22,15 @@ public sealed class CeresElevatorArrivalState
     private const ushort DeleteOpcode = 0x8154;
     private const ushort GotoOpcode = 0x81ab;
 
+    // SpawnEprojWithGfx initially copies enemy slot zero's packed tile/palette word into
+    // both projectile slots. That value is intentionally short-lived: the shared native
+    // initializer at $86:A301 executes afterward and stores zero to the graphics index.
+    // These elevator objects therefore draw directly from the room-loaded OBJ tiles while
+    // retaining palette 5 authored into their bank-$8D spritemaps. Retaining the transient
+    // enemy word adds an unrelated tile base and palette, making the level-data concealer
+    // appear teal until it deletes at touchdown.
+    private const ushort NativeGraphicsIndex = 0;
+
     private readonly ISnesAddressSpace bus;
     private readonly CeresElevatorProjectile pad;
     private readonly CeresElevatorProjectile platform;
@@ -29,8 +38,7 @@ public sealed class CeresElevatorArrivalState
     /// <summary>Reads both native definitions and performs their two initialization AIs.</summary>
     public CeresElevatorArrivalState(
         ISnesAddressSpace bus,
-        SamusState samus,
-        ushort graphicsIndex)
+        SamusState samus)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         ArgumentNullException.ThrowIfNull(samus);
@@ -42,7 +50,7 @@ public sealed class CeresElevatorArrivalState
             expectedInstructionList: 0xa28d,
             samus.XPosition,
             unchecked((ushort)(samus.YPosition + 28)),
-            graphicsIndex);
+            NativeGraphicsIndex);
         pad.WaitTimer = 60;
 
         platform = LoadProjectile(
@@ -52,7 +60,7 @@ public sealed class CeresElevatorArrivalState
             expectedInstructionList: 0xa299,
             samus.XPosition,
             yPosition: 97,
-            graphicsIndex);
+            NativeGraphicsIndex);
     }
 
     /// <summary>True after both projectiles delete themselves when Samus reaches Y=72.</summary>

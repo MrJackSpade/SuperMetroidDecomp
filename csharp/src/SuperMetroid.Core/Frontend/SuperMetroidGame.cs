@@ -17,6 +17,7 @@ namespace SuperMetroid.Core.Frontend;
 public sealed class SuperMetroidGame
 {
     private readonly ISnesAddressSpace bus;
+    private readonly SuperMetroidGameOptions gameOptions;
     private TitleSequenceState? title;
     private FileSelectMenuState? fileSelect;
     private GameOptionsMenuState? options;
@@ -24,9 +25,12 @@ public sealed class SuperMetroidGame
     private SuperMetroidRuntime? runtime;
     private Rgba32[] lastPixels = CreateBlackFrame();
 
-    public SuperMetroidGame(ISnesAddressSpace bus)
+    public SuperMetroidGame(
+        ISnesAddressSpace bus,
+        SuperMetroidGameOptions? gameOptions = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.gameOptions = gameOptions ?? new SuperMetroidGameOptions();
     }
 
     /// <summary>Current value of the native game-state word at WRAM $0998.</summary>
@@ -76,11 +80,23 @@ public sealed class SuperMetroidGame
     /// <summary>Ordinary tilemap uploads produced by the most recent gameplay scroll pass.</summary>
     public int GameplayBackgroundUpdateCount => runtime?.LastBackgroundUpdateCount ?? 0;
 
+    /// <summary>Live ordinary beam/missile slots in the gameplay projectile owner.</summary>
+    public ushort GameplayProjectileCount => runtime?.Projectiles.ProjectileCounter ?? 0;
+
+    /// <summary>Most recent projectile slot allocated by the gameplay alpha handler.</summary>
+    public int? GameplayLastFiredProjectileSlot => runtime?.Projectiles.LastFrameResult.FiredSlot;
+
     /// <summary>The live cartridge pose byte, or zero before the gameplay runtime exists.</summary>
     public byte GameplaySamusPose => runtime?.Samus?.Pose ?? 0;
 
     /// <summary>Whether the Ceres elevator has restored ordinary player movement.</summary>
     public bool GameplayMovementEnabled => runtime?.GroundedSamusMovementEnabled ?? false;
+
+    /// <summary>Current bank-$8F room header pointer, exposed for door-transition watches.</summary>
+    public ushort? GameplayActiveRoomPointer => runtime?.ActiveRoom?.Pointer;
+
+    /// <summary>Current bank-$83 entry door pointer, exposed for door-transition watches.</summary>
+    public ushort? GameplayActiveDoorPointer => runtime?.ActiveDoor?.Pointer;
 
     /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>
     public FrontendFrame Step(ushort controllerInput)
@@ -137,9 +153,22 @@ public sealed class SuperMetroidGame
                 }
                 else if (options.IntroRequested)
                 {
-                    intro = new IntroCinematicState(bus);
-                    GameState = SuperMetroidGameState.IntroCinematic;
-                    lastPixels = intro.Render();
+                    if (gameOptions.SkipOpeningCinematic)
+                    {
+                        // This is the same dispatcher boundary reached by `$8B:C100` after
+                        // the SPACE COLONY fade. Do not fake Start presses or build a host-
+                        // authored Ceres room: the following frame will execute the ordinary
+                        // new-game loader, elevator arrival, and movement-unlock sequence.
+                        intro = null;
+                        GameState = SuperMetroidGameState.SetUpNewGame;
+                        lastPixels = CreateBlackFrame();
+                    }
+                    else
+                    {
+                        intro = new IntroCinematicState(bus);
+                        GameState = SuperMetroidGameState.IntroCinematic;
+                        lastPixels = intro.Render();
+                    }
                 }
                 break;
 
@@ -177,6 +206,33 @@ public sealed class SuperMetroidGame
             case SuperMetroidGameState.MainGameplay:
                 runtime!.StepFrame(controllerInput);
                 lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+                if (runtime.HasPendingDoorTransition)
+                {
+                    // `$94:938B/$93CE` changes WRAM game_state during the gameplay call.
+                    // The already-produced gameplay image remains this frame's image; the
+                    // following dispatcher call begins state `$09` from that publication.
+                    GameState = SuperMetroidGameState.HitDoorBlock;
+                }
+                break;
+
+            case SuperMetroidGameState.HitDoorBlock:
+                // A non-elevator type-$9 door enters `$82:E17D`, which immediately advances
+                // through state $0A into the state-$0B transition coroutine. Audio draining,
+                // palette fade, and scrolling are not translated yet, so keep those native
+                // state boundaries explicit while loading only the cartridge destination.
+                GameState = SuperMetroidGameState.LoadingNextRoomA;
+                runtime!.LoadPendingDoorDestination();
+                lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+                GameState = SuperMetroidGameState.LoadingNextRoomB;
+                break;
+
+            case SuperMetroidGameState.LoadingNextRoomB:
+                // This is the current endpoint of the incremental state-$0B port. The room
+                // header, level, scrolls, graphics, enemies, beam tiles, and native final
+                // Samus placement are live; the omitted presentation phase is intentionally
+                // not simulated with invented fade/scroll timings.
+                GameState = SuperMetroidGameState.MainGameplay;
+                lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime!);
                 break;
 
             default:
@@ -203,6 +259,9 @@ public sealed class SuperMetroidGame
                 ? "Ceres elevator arrival"
                 : "Ceres controls unlocked",
         SuperMetroidGameState.MainGameplay => "Ceres gameplay",
+        SuperMetroidGameState.HitDoorBlock => "Door collision",
+        SuperMetroidGameState.LoadingNextRoomA => "Loading destination room",
+        SuperMetroidGameState.LoadingNextRoomB => "Destination room ready",
         _ => GameState.ToString(),
     };
 

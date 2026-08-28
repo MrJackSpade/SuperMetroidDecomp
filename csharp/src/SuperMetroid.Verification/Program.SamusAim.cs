@@ -491,6 +491,8 @@ static void VerifySamusGunExtendedMovement()
         (0x14, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
         (0x4d, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
         (0x4e, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
+        (0x51, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
+        (0x52, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
         (0x29, [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
         (0x2a, [0x04, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
         (0x67, [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
@@ -517,6 +519,8 @@ static void VerifySamusGunExtendedMovement()
         (0x14, 0xd040, [0x02, 0x10, 0xfe, 0x01]),
         (0x4d, 0xd050, [0x02, 0x03, 0xfe, 0x01]),
         (0x4e, 0xd050, [0x02, 0x03, 0xfe, 0x01]),
+        (0x51, 0xd058, [0x02, 0x03, 0xfe, 0x01]),
+        (0x52, 0xd058, [0x02, 0x03, 0xfe, 0x01]),
         (0x29, 0xd060, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
         (0x2a, 0xd060, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
         (0x67, 0xd080, [0x08, 0x06, 0x06, 0xfe, 0x01, 0x08, 0x10, 0xfe, 0x01]),
@@ -542,6 +546,14 @@ static void VerifySamusGunExtendedMovement()
     WriteTestWord(bus, 0x919f34, 0xd120); // pose $29 pointer
     bus.WriteBytes(0x91d120, [0x00, 0x00, 0x40, 0x00, 0x67, 0x00, 0xff, 0xff]);
 
+    // `$51/$52` share the complete `$91:A2F6/$A376` tables with their neutral-jump
+    // mirrors. These minimal copies retain the exact held-Jump record that caused the
+    // playable runtime failure: required-new is zero, held `$0080`, targets `$4D/$4E`.
+    WriteTestWord(bus, 0x919f84, 0xd130); // pose $51 pointer
+    bus.WriteBytes(0x91d130, [0x00, 0x00, 0x80, 0x00, 0x4d, 0x00, 0xff, 0xff]);
+    WriteTestWord(bus, 0x919f86, 0xd140); // pose $52 pointer
+    bus.WriteBytes(0x91d140, [0x00, 0x00, 0x80, 0x00, 0x4e, 0x00, 0xff, 0xff]);
+
     AssertEqual(0x0b,
         SamusPoseTransitionTable.Find(bus, 0x09, 0x0140, 0)!.Value.ProspectivePose,
         "Shot+Right selects running gun extension");
@@ -551,6 +563,48 @@ static void VerifySamusGunExtendedMovement()
     AssertEqual(0x67,
         SamusPoseTransitionTable.Find(bus, 0x29, 0x0040, 0)!.Value.ProspectivePose,
         "Shot selects falling gun extension");
+
+    SamusPoseTransition forwardRightRelease =
+        SamusPoseTransitionTable.Find(bus, 0x51, (ushort)SnesButton.A, 0)!.Value;
+    SamusPoseTransition forwardLeftRelease =
+        SamusPoseTransitionTable.Find(bus, 0x52, (ushort)SnesButton.A, 0)!.Value;
+    AssertEqual(0x4d, forwardRightRelease.ProspectivePose,
+        "held Jump without Right selects neutral right jump");
+    AssertEqual(0x4e, forwardLeftRelease.ProspectivePose,
+        "held Jump without Left selects neutral left jump");
+
+    // Apply both winners through the exact helper used by the runtime switch. Pose and
+    // animation restart, while every live movement word survives the same-radius change.
+    // Mirroring the assertion is important: `$51` and `$52` use adjacent pointer-table
+    // entries, so a one-sided admission fix could make keyboard direction appear random.
+    foreach ((byte source, byte target, string facing) in new[]
+    {
+        (SamusState.NormalJumpForwardRightPose, (byte)forwardRightRelease.ProspectivePose, "right"),
+        (SamusState.NormalJumpForwardLeftPose, (byte)forwardLeftRelease.ProspectivePose, "left"),
+    })
+    {
+        var releasedForwardJump = new SamusState { Pose = source };
+        releasedForwardJump.RefreshCollisionRadii(bus);
+        releasedForwardJump.InitializeAnimation(bus, initialFrame: 1);
+        releasedForwardJump.Kinematics.YSpeed = 3;
+        releasedForwardJump.Kinematics.YSubspeed = 0x4567;
+        releasedForwardJump.Kinematics.YDirection = 1;
+        releasedForwardJump.HorizontalSpeed.BaseSpeed = 2;
+        releasedForwardJump.HorizontalSpeed.BaseSubspeed = 0x89ab;
+
+        releasedForwardJump.ApplyAerialAimTransition(bus, target);
+
+        AssertEqual(target, releasedForwardJump.Pose,
+            $"{facing} forward-jump release installs neutral pose");
+        AssertEqual(0, releasedForwardJump.AnimationFrame,
+            $"{facing} forward-jump release restarts target animation");
+        AssertEqual(0x00034567u, releasedForwardJump.Kinematics.VerticalSpeedFixed,
+            $"{facing} forward-jump release preserves vertical velocity");
+        AssertEqual(0x000289abu, releasedForwardJump.HorizontalSpeed.BaseFixed,
+            $"{facing} forward-jump release preserves horizontal velocity");
+        AssertEqual(1, releasedForwardJump.Kinematics.YDirection,
+            $"{facing} forward-jump release preserves vertical direction");
+    }
 
     // `$91:F50C` preserves the animation phase across movement-type-one arm changes. Begin
     // on a nonzero index so resetting to frame zero cannot accidentally satisfy the check.
@@ -619,7 +673,7 @@ static void VerifySamusGunExtendedMovement()
     AssertTrue(SamusState.IsRightFacingLandingPose(0xe6), "$E6 is admitted by landing dispatcher");
     AssertTrue(SamusState.IsLeftFacingLandingPose(0xe7), "$E7 is admitted by mirrored landing dispatcher");
 
-    Console.WriteLine("  Samus horizontal fire: ROM selection, six extended bodies, run-phase preservation, and firing landings agree.");
+    Console.WriteLine("  Samus horizontal fire: ROM selection, six extended bodies, forward-jump release, run-phase preservation, and firing landings agree.");
 }
 
 /// <summary>

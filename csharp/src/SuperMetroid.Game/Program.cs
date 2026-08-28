@@ -31,7 +31,12 @@ ApplicationConfiguration.Initialize();
 try
 {
     string romPath = PrivateRomPath.Resolve(args);
-    Application.Run(new GameForm(romPath));
+    GameConfigurationFile configuration = GameConfigurationFile.LoadOrCreate(romPath);
+    Console.WriteLine(
+        $"Loaded {GameConfigurationFile.FileName}: " +
+        $"SkipOpeningCinematic={configuration.Options.SkipOpeningCinematic} " +
+        $"({configuration.Path})");
+    Application.Run(new GameForm(romPath, configuration.Options));
 }
 catch (Exception exception)
 {

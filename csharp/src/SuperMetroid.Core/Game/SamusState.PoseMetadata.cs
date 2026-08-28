@@ -609,6 +609,44 @@ public sealed partial class SamusState
         NormalJumpAimDownRightPose or NormalJumpAimDownLeftPose or
         FallingAimDownRightPose or FallingAimDownLeftPose;
 
+    /// <summary>
+    /// True for `$51/$52`, the two movement-type-two normal-jump bodies used while Samus
+    /// has a same-facing horizontal direction held. These are ordinary aerial poses, not
+    /// aimed or spinning poses; naming the pair prevents their transition semantics from
+    /// being hidden inside another aim-specific condition.
+    /// </summary>
+    public static bool IsForwardMovingNormalJumpPose(byte pose) => pose is
+        NormalJumpForwardRightPose or NormalJumpForwardLeftPose;
+
+    /// <summary>
+    /// Reports whether a same-facing normal-jump/falling pose change belongs to the shared
+    /// bank-$91 aim, horizontal-fire, or moving-forward transition seam.
+    /// </summary>
+    /// <remarks>
+    /// `$91:A2F6/$A376` deliberately share one input table among neutral `$4D/$4E`, forward
+    /// `$51/$52`, and the non-compact aimed jump bodies. In particular, holding Jump after
+    /// releasing Right/Left produces `$51->$4D` or `$52->$4E`. Both endpoints must therefore
+    /// participate in this classification. The previous target-only `$51/$52` check admitted
+    /// entering the forward body but rejected leaving it, even though both routes execute the
+    /// same native pose/animation initializer and preserve live velocity.
+    /// </remarks>
+    public static bool IsSameFacingAerialAimFireOrForwardTransition(byte source, byte target)
+    {
+        bool hasTranslatedBodyChange =
+            IsAimedAerialPose(source) || IsAimedAerialPose(target) ||
+            IsGunExtendedPose(source) || IsGunExtendedPose(target) ||
+            IsForwardMovingNormalJumpPose(source) ||
+            IsForwardMovingNormalJumpPose(target);
+        if (!hasTranslatedBodyChange)
+            return false;
+
+        return
+            (IsRightFacingNormalJumpPose(source) && IsRightFacingNormalJumpPose(target)) ||
+            (IsLeftFacingNormalJumpPose(source) && IsLeftFacingNormalJumpPose(target)) ||
+            (IsRightFacingFallingPose(source) && IsRightFacingFallingPose(target)) ||
+            (IsLeftFacingFallingPose(source) && IsLeftFacingFallingPose(target));
+    }
+
     /// <summary>True only for the four radius-ten straight-down aerial bodies.</summary>
     public static bool IsCompactAerialPose(byte pose) => pose is
         NormalJumpAimDownRightPose or NormalJumpAimDownLeftPose or

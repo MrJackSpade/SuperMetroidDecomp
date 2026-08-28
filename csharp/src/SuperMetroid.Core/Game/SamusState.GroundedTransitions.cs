@@ -23,25 +23,10 @@ public sealed partial class SamusState
             throw new NotSupportedException(
                 "Radius-ten aerial transitions require TryApplyCompactAerialTransition and active room collision data.");
         }
-        bool rightJump = IsRightFacingNormalJumpPose(Pose) &&
-            IsRightFacingNormalJumpPose(targetPose);
-        bool leftJump = IsLeftFacingNormalJumpPose(Pose) &&
-            IsLeftFacingNormalJumpPose(targetPose);
-        bool rightFall = IsRightFacingFallingPose(Pose) &&
-            IsRightFacingFallingPose(targetPose);
-        bool leftFall = IsLeftFacingFallingPose(Pose) &&
-            IsLeftFacingFallingPose(targetPose);
-        if (!rightJump && !leftJump && !rightFall && !leftFall)
+        if (!IsSameFacingAerialAimFireOrForwardTransition(Pose, targetPose))
         {
             throw new NotSupportedException(
-                $"Aerial aim transition ${Pose:X2} -> ${targetPose:X2} crosses an untranslated family.");
-        }
-        if (!IsAimedAerialPose(Pose) && !IsAimedAerialPose(targetPose) &&
-            !IsGunExtendedPose(Pose) && !IsGunExtendedPose(targetPose) &&
-            targetPose is not (NormalJumpForwardRightPose or NormalJumpForwardLeftPose))
-        {
-            throw new InvalidOperationException(
-                "Aerial arm transition requires aimed, gun-extended, or forward-jump metadata.");
+                $"Aerial aim/fire/forward transition ${Pose:X2} -> ${targetPose:X2} crosses an untranslated family.");
         }
 
         ushort oldRadius = Kinematics.YRadius;

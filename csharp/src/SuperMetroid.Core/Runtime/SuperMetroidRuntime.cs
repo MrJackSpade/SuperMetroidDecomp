@@ -2302,20 +2302,9 @@ public sealed partial class SuperMetroidRuntime
                                 Samus.ApplyGroundedAimTransition(_addressSpace, targetPose);
                                 break;
                             case var (source, target)
-                                when (SamusState.IsAimedAerialPose(source) ||
-                                      SamusState.IsAimedAerialPose(target) ||
-                                      SamusState.IsGunExtendedPose(source) ||
-                                      SamusState.IsGunExtendedPose(target) ||
-                                      target is SamusState.NormalJumpForwardRightPose or
-                                          SamusState.NormalJumpForwardLeftPose) &&
-                                     ((SamusState.IsRightFacingNormalJumpPose(source) &&
-                                       SamusState.IsRightFacingNormalJumpPose(target)) ||
-                                      (SamusState.IsLeftFacingNormalJumpPose(source) &&
-                                       SamusState.IsLeftFacingNormalJumpPose(target)) ||
-                                      (SamusState.IsRightFacingFallingPose(source) &&
-                                       SamusState.IsRightFacingFallingPose(target)) ||
-                                      (SamusState.IsLeftFacingFallingPose(source) &&
-                                       SamusState.IsLeftFacingFallingPose(target))):
+                                when SamusState.IsSameFacingAerialAimFireOrForwardTransition(
+                                    source,
+                                    target):
                                 Samus.ApplyAerialAimTransition(_addressSpace, targetPose);
                                 break;
                             case (SamusState.FacingRightNormalPose, SamusState.MovingRightNormalPose):

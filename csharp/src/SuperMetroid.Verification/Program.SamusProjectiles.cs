@@ -171,10 +171,18 @@ static void VerifySamusPowerBeamProjectiles()
     bus.WriteBytes(0x9ba56f, new byte[32]);
     bus.WriteBytes(0x9baa07, new byte[32]);
 
+    // `$93:83FF` does NOT point directly at animation bytecode. It selects the two-word
+    // non-beam data record at `$93:8679`: ignored damage eight followed by the actual
+    // instruction-list pointer at `$93:867B`. Mirroring both indirections is important.
+    // A regression that reads `$83FF` as the list will interpret `$8679`'s data tables as
+    // animation records, publish garbage spritemaps, and never reach the delete opcode.
+    WriteTestWord(bus, 0x9383ff, 0x8679);
+    WriteTestWord(bus, 0x938679, 0x0008);
+    WriteTestWord(bus, 0x93867b, 0x9100);
+
     // Collision swaps to this two-frame explosion record. Its following delete opcode
     // proves that damage remains occupied during the explosion and decrements the separate
     // projectile counter only when `$93:822F` finally clears the slot.
-    WriteTestWord(bus, 0x9383ff, 0x9100);
     WriteTestWord(bus, 0x939100, 0x0002);
     WriteTestWord(bus, 0x939102, 0xa010);
     bus.WriteByte(0x939104, 8);

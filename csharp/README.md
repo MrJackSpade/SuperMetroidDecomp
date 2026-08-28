@@ -93,7 +93,15 @@ To run the translated game from reset, select `SuperMetroid.Game` as the startup
 dotnet run --project src/SuperMetroid.Game
 ```
 
-The game executable runs the shared top-level dispatcher through the title, file select, options, complete opening cinematic, Ceres approach, elevator arrival, and interactive Ceres room. Click the game picture if keyboard focus has moved elsewhere. Controls are arrows = D-pad, `Z` = B, `X` = A/Jump, `A` = Y, `S` = X/Shoot, Enter = Start, and Shift = Select. **Pause/Play**, **Step**, **Press Start**, and **Restart** are debugger controls around that same dispatcher; they do not install alternate game state.
+The game executable runs the shared top-level dispatcher through the title, file select, options, complete opening cinematic, Ceres approach, elevator arrival, and interactive Ceres room. Click the game picture if keyboard focus has moved elsewhere. Controls are arrows = D-pad, `Space` or `X` = A/Jump, `Z` = B/Dash, `S` = X/Shoot, `A` = Y/Item Cancel, `Q` = L/Aim Up, `W` = R/Aim Down, Enter = Start, and Shift = Select. **Pause/Play**, **Step**, **Press Start**, and **Restart** are debugger controls around that same dispatcher; they do not install alternate game state.
+
+The playable host reads `SuperMetroid.ini` from the directory containing the private ROM and
+creates a documented default file there if it is missing. Set
+`SkipOpeningCinematic=true` under `[Game]` to keep the title, file select, and options screens
+but jump from accepted options to the normal Ceres new-game loader and elevator. The default
+is `false`, so the narration, flashbacks, and Ceres approach still play. Unknown, duplicate,
+or non-boolean options fail with the exact file and line number instead of being silently
+ignored; the loaded path and effective value are also printed at startup.
 
 `SuperMetroid.RoomViewer` is the separate room/runtime diagnostics executable. It requires `standalone-assets/raw` in addition to the private ROM and can be launched with `dotnet run --project src/SuperMetroid.RoomViewer`.
 

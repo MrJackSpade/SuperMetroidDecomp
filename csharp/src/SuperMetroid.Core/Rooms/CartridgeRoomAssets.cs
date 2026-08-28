@@ -144,16 +144,35 @@ public sealed class CartridgeRoomAssets
         int foregroundOffset = 2;
         int behaviorOffset = foregroundOffset + layerByteCount;
         int backgroundOffset = behaviorOffset + blockCount;
-        if (levelStream.Length < backgroundOffset + layerByteCount)
+        if (levelStream.Length < backgroundOffset)
         {
             throw new InvalidDataException(
-                $"Room $8F:{header.Pointer:X4} level stream is missing its complete BG1/BTS/BG2 allocation.");
+                $"Room $8F:{header.Pointer:X4} level stream is missing its complete BG1/BTS allocation.");
         }
 
         ushort[] streamingAllocation = ReadWords(levelStream.AsSpan(foregroundOffset));
         ushort[] foreground = ReadWords(levelStream.AsSpan(foregroundOffset, layerByteCount));
         byte[] behavior = levelStream.AsSpan(behaviorOffset, blockCount).ToArray();
-        ushort[] background = ReadWords(levelStream.AsSpan(backgroundOffset, layerByteCount));
+
+        // `LoadLevelDataAndOtherThings` first fills the entire WRAM level allocation with
+        // word `$8000`, then decompresses the room stream over its beginning. Several Ceres
+        // rooms stop after BG1+BTS because they have no authored BG2 plane; the subsequent
+        // native memcpy still copies a full layer from the untouched `$8000` tail. Requiring
+        // compressed bytes for that tail rejected valid retail room $DF8D. Preserve any
+        // partial authored words, but materialize every omitted word from the real fill.
+        ushort[] background = new ushort[blockCount];
+        Array.Fill(background, (ushort)0x8000);
+        int availableBackgroundBytes = Math.Min(
+            layerByteCount,
+            levelStream.Length - backgroundOffset);
+        if ((availableBackgroundBytes & 1) != 0)
+        {
+            throw new InvalidDataException(
+                $"Room $8F:{header.Pointer:X4} ends midway through a BG2 level word.");
+        }
+        ushort[] authoredBackground = ReadWords(
+            levelStream.AsSpan(backgroundOffset, availableBackgroundBytes));
+        authoredBackground.CopyTo(background, 0);
         return new RoomLevelData(
             header.WidthInScreens * 16,
             header.HeightInScreens * 16,
@@ -161,7 +180,8 @@ public sealed class CartridgeRoomAssets
             behavior,
             background,
             blockDefinitions,
-            streamingAllocation);
+            streamingAllocation,
+            header.DoorListPointer);
     }
 
     private static RoomScrollGrid LoadScrolls(ISnesAddressSpace bus, CartridgeRoomHeader header)

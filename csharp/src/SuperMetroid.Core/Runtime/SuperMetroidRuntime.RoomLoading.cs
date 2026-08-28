@@ -46,14 +46,75 @@ public sealed partial class SuperMetroidRuntime
                 $"Fresh Ceres station targets area ${room.AreaIndex:X2}, expected area $06.");
         }
 
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_addressSpace, room);
         ActiveLoadStation = station;
+        return LoadCartridgeRoom(door, room, station.CameraX, station.CameraY);
+    }
+
+    /// <summary>
+    /// True after bank-$94's type-$9 handler has selected a normal destination door and
+    /// before the frontend's states $09-$0B consume it.
+    /// </summary>
+    public bool HasPendingDoorTransition => LevelData?.PendingDoorTransition is not null;
+
+    /// <summary>
+    /// Loads the destination selected by the live room's type-$9 collision. This is the
+    /// cartridge-data portion of states $0A/$0B; the scrolling/fade presentation remains a
+    /// separately visible frontend phase rather than being disguised as ordinary gameplay.
+    /// </summary>
+    public InitialViewportResult LoadPendingDoorDestination()
+    {
+        if (LevelData is null || Samus is null)
+            throw new InvalidOperationException("A live room and Samus are required for a door transition.");
+
+        CartridgeDoorHeader door = LevelData.ConsumePendingDoorTransition()
+            ?? throw new InvalidOperationException("No type-$9 door collision is pending.");
+        if ((door.DestinationRoomPointer & 0x8000) == 0)
+        {
+            throw new InvalidOperationException(
+                $"Elevator pseudo-door $83:{door.Pointer:X4} cannot enter the normal room loader.");
+        }
+
+        DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, Samus);
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(_addressSpace, door.DestinationRoomPointer);
+
+        // The load-station record established only the first room. Once bank $94 publishes
+        // a door definition, that definition and its destination header become authoritative.
+        ActiveLoadStation = null;
+        CeresElevatorArrival = null;
+        InitialViewportResult viewport = LoadCartridgeRoom(
+            door,
+            room,
+            placement.CameraX,
+            placement.CameraY);
+
+        Samus.Kinematics.SetXFixed(placement.SamusXFixed);
+        Samus.Kinematics.SetYFixed(placement.SamusYFixed);
+        Samus.Kinematics.YSpeed = 0;
+        Samus.Kinematics.YSubspeed = 0;
+        Samus.Kinematics.ExtraXDisplacement = 0;
+        Samus.Kinematics.ExtraXSubdisplacement = 0;
+        Samus.LiquidPhysics.AreaIndex = room.AreaIndex;
+        Samus.LiquidPhysics.RoomIndex = room.RoomIndex;
+        Samus.RefreshCollisionRadii(_addressSpace);
+        Samus.PrimeGraphics(_addressSpace);
+        GroundedSamusMovementEnabled = true;
+        return viewport;
+    }
+
+    /// <summary>Shared cartridge room/state/graphics load used by stations and doors.</summary>
+    private InitialViewportResult LoadCartridgeRoom(
+        CartridgeDoorHeader door,
+        CartridgeRoomHeader room,
+        ushort cameraX,
+        ushort cameraY)
+    {
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_addressSpace, room);
         ActiveDoor = door;
         ActiveRoom = room;
         ActiveRoomAssets = assets;
         LevelData = assets.LevelData;
         Camera = new ScrollBoundaryCamera(assets.Scrolls);
-        Camera.SetPosition(station.CameraX, station.CameraY);
+        Camera.SetPosition(cameraX, cameraY);
         BackgroundScroll.Layer2ScrollX = room.State.Layer2ScrollX;
         BackgroundScroll.Layer2ScrollY = room.State.Layer2ScrollY;
         BackgroundScroll.PrimePreviousBlocks();
@@ -65,6 +126,13 @@ public sealed partial class SuperMetroidRuntime
         LandingSiteEntry = null;
         assets.LoadGraphics(Vram, Cgram);
 
+        // `$82:E43A-$E472` destroys room-owned objects before constructing the destination.
+        // Resetting these owners before Load/beam upload prevents stale projectile and PLM
+        // indices from addressing a different room's new arrays on the first visible frame.
+        Plms.Reset();
+        BombProjectiles.Reset();
+        Projectiles.Reset();
+
         Enemies.Load(
             _addressSpace,
             room.State.EnemyPopulationPointer,
@@ -73,6 +141,19 @@ public sealed partial class SuperMetroidRuntime
             Cgram,
             System.NextRandom);
         Enemies.QueueGraphicsUploads(VramWrites);
+
+        // `$90:AC8D` follows the standard-sprite and room-enemy uploads during gameplay
+        // setup. Power-beam spritemaps address VRAM words $6300-$637F; without this final
+        // $0100-byte transfer, fresh Ceres leaves that range containing the overlapping
+        // standard OBJ sheet. Input and projectile physics still work, but the first shot
+        // appears as a small patch of unrelated pixels—the desktop corruption that made
+        // Shoot look unwired. The starting-room call has no Samus yet and therefore selects
+        // power beam zero; door calls preserve the live equipment combination.
+        Projectiles.QueueBeamTilesAndLoadPalette(
+            _addressSpace,
+            VramWrites,
+            Cgram,
+            Samus?.EquippedBeams ?? 0);
 
         BackgroundScroll.Layer1XPosition = Camera.XPosition;
         BackgroundScroll.Layer1YPosition = Camera.YPosition;
@@ -89,6 +170,102 @@ public sealed partial class SuperMetroidRuntime
         BackgroundScroll.PrimePreviousBlocks();
         return new InitialViewportResult(requests.Count, segmentCount);
     }
+
+    /// <summary>
+    /// Replays the position arithmetic from <c>$80:AD30-$AF89</c> and <c>$82:E3C0/E6A2</c>
+    /// to obtain the final camera/Samus coordinates after the native scrolling phase.
+    /// </summary>
+    private static DoorTransitionPlacement CalculateDoorTransitionPlacement(
+        CartridgeDoorHeader door,
+        SamusState samus)
+    {
+        int direction = door.Orientation & 3;
+        int distance = unchecked((short)door.SamusDistance);
+        if (distance < 0)
+            distance = (direction & 2) != 0 ? 384 : 200;
+        uint step = unchecked((uint)(distance << 8));
+
+        ushort destinationX = unchecked((ushort)(door.DestinationScreenX << 8));
+        ushort destinationY = unchecked((ushort)(door.DestinationScreenY << 8));
+        uint xFixed = samus.Kinematics.XFixed;
+        uint yFixed = samus.Kinematics.YFixed;
+
+        switch (direction)
+        {
+            case 0: // Right: setup executes frame zero before PlaceSamusLoadTiles.
+                xFixed = unchecked(xFixed + step);
+                xFixed = ReplaceWholePosition(
+                    unchecked((ushort)(destinationX - 252 + (byte)(xFixed >> 16))),
+                    xFixed);
+                for (int frame = 1; frame < 64; frame++)
+                    xFixed = unchecked(xFixed + step);
+                break;
+
+            case 1: // Left is the exact subtracting mirror of the right-door path.
+                xFixed = unchecked(xFixed - step);
+                xFixed = ReplaceWholePosition(
+                    unchecked((ushort)(destinationX + 252 + (byte)(xFixed >> 16))),
+                    xFixed);
+                for (int frame = 1; frame < 64; frame++)
+                    xFixed = unchecked(xFixed - step);
+                break;
+
+            case 2: // Down waits on setup frame zero, then advances on frames 1..56.
+                yFixed = ReplaceWholePosition(
+                    unchecked((ushort)(destinationY - 224 + (byte)(yFixed >> 16))),
+                    yFixed);
+                for (int frame = 1; frame <= 56; frame++)
+                    yFixed = unchecked(yFixed + step);
+                break;
+
+            case 3: // Up starts one pixel below destination+screen after its setup fixup.
+                yFixed = ReplaceWholePosition(
+                    unchecked((ushort)(destinationY + 255 + (byte)(yFixed >> 16))),
+                    yFixed);
+                for (int frame = 1; frame <= 56; frame++)
+                    yFixed = unchecked(yFixed - step);
+                break;
+        }
+
+        // PlaceSamusLoadTiles replaces both whole positions, not only the transition axis.
+        if ((direction & 2) == 0)
+        {
+            yFixed = ReplaceWholePosition(
+                unchecked((ushort)(destinationY + (byte)(samus.YPosition))),
+                yFixed);
+        }
+        else
+        {
+            xFixed = ReplaceWholePosition(
+                unchecked((ushort)(destinationX + (byte)(samus.XPosition))),
+                xFixed);
+        }
+
+        ushort finalX = unchecked((ushort)(xFixed >> 16));
+        ushort finalY = unchecked((ushort)(yFixed >> 16));
+        if ((finalX & 0x00f0) == 0x0010)
+            finalX = unchecked((ushort)((finalX | 0x000f) + 8));
+        else if ((finalX & 0x00f0) == 0x00e0)
+            finalX = unchecked((ushort)((finalX & 0xfff0) - 8));
+        if ((finalY & 0x00f0) == 0x0010)
+            finalY = unchecked((ushort)((finalY | 0x000f) + 8));
+
+        // LoadMoreThings applies this eight-pixel doorway alignment only horizontally.
+        if ((direction & 2) == 0)
+            finalX = direction == 0 ? (ushort)(finalX | 7) : (ushort)(finalX & 0xfff8);
+        xFixed = ReplaceWholePosition(finalX, xFixed);
+        yFixed = ReplaceWholePosition(finalY, yFixed);
+        // `$80:ADC8` adds $20 to door_destination_y_pos after using the unmodified value
+        // for Samus's setup origin. The IRQ completion later snaps an upward transition's
+        // camera to that adjusted destination; the other three directions retain theirs.
+        ushort finalCameraY = direction == 3
+            ? unchecked((ushort)(destinationY + 32))
+            : destinationY;
+        return new DoorTransitionPlacement(destinationX, finalCameraY, xFixed, yFixed);
+    }
+
+    private static uint ReplaceWholePosition(ushort whole, uint fixedPosition) =>
+        ((uint)whole << 16) | (fixedPosition & 0xffff);
 
     /// <summary>
     /// Applies $90:F1E9's Ceres-start Samus pose/state after room loading.
@@ -119,16 +296,14 @@ public sealed partial class SuperMetroidRuntime
         Samus.PrimeGraphics(_addressSpace);
         PreviousMovementTypeForXray = Samus.ReadMovementType(_addressSpace);
 
-        // SpawnEprojWithGfx receives enemy slot zero as its graphics owner. Preserve that
-        // otherwise-surprising dependency: the Ceres elevator art uses exactly the base
-        // tile and palette words produced while initializing the first room enemy.
-        RoomEnemySlot graphicsOwner = Enemies.Slots[0];
-        ushort graphicsIndex = unchecked((ushort)(
-            graphicsOwner.VramTilesIndex | graphicsOwner.PaletteIndex));
+        // `$90:F21B/$90:F226` use SpawnEprojWithGfx and thus briefly seed both objects
+        // from enemy slot zero. Their shared initializer at `$86:A301`, however, runs
+        // before the first draw and explicitly clears that graphics index. The specialized
+        // arrival model owns that native post-initialization value; passing the transient
+        // enemy word here previously recolored the level-data concealer teal.
         CeresElevatorArrival = new CeresElevatorArrivalState(
             _addressSpace,
-            Samus,
-            graphicsIndex);
+            Samus);
 
         // `SamusCode_08_SetupForCeresStart` installs a locked frame handler. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the
@@ -170,3 +345,10 @@ internal readonly record struct ActiveRoomGeometry(
     byte MapY,
     byte UpScroller,
     byte DownScroller);
+
+/// <summary>Final native door-scroll camera and 16.16 Samus coordinates.</summary>
+internal readonly record struct DoorTransitionPlacement(
+    ushort CameraX,
+    ushort CameraY,
+    uint SamusXFixed,
+    uint SamusYFixed);

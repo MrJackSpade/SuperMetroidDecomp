@@ -126,6 +126,20 @@ public sealed partial class SuperMetroidRuntime
         LandingSiteEntry = null;
         assets.LoadGraphics(Vram, Cgram);
 
+        // A negative background-data pointer names bank-$82's command interpreter. Rooms
+        // whose layer-2 scroll mode is fixed/odd rely on this list as their only BG2 source;
+        // it must run before the initial BG1 fill so a door cannot expose the previous
+        // room's tilemap. Ceres $DF8D, for example, decompresses the Tourian statue hall to
+        // $7E:4000 and copies it to both VRAM $4800 and $4C00.
+        if (unchecked((short)room.State.BackgroundDataPointer) < 0)
+        {
+            LibraryBackgroundLoader.Execute(
+                _addressSpace,
+                Vram,
+                room.State.BackgroundDataPointer,
+                door.Pointer);
+        }
+
         // `$82:E43A-$E472` destroys room-owned objects before constructing the destination.
         // Resetting these owners before Load/beam upload prevents stale projectile and PLM
         // indices from addressing a different room's new arrays on the first visible frame.

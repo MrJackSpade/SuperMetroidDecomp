@@ -20,6 +20,25 @@ public static class SuperMetroidRuntimeFrameRenderer
         if (runtime.ActiveDoor is null)
             throw new InvalidOperationException("A cartridge room and door must be loaded before rendering gameplay.");
 
+        if (runtime.Enemies.CeresRidley is { Mode7Active: true } getaway)
+        {
+            // Ceres room main $A6:AAAF temporarily replaces ordinary mode-nine BG1/BG2
+            // below the HUD with the rotating Ridley/Baby Mode-7 map. OAM stays live, so
+            // Samus and the timer retain the usual gameplay compositor and priority rules.
+            return SnesGameplayFrameRenderer.RenderHudMode7AndObjs(
+                runtime.Vram,
+                runtime.Cgram,
+                runtime.DisplayedOam,
+                matrixA: unchecked((short)getaway.Mode7MatrixA),
+                matrixB: unchecked((short)getaway.Mode7MatrixB),
+                matrixC: unchecked((short)getaway.Mode7MatrixC),
+                matrixD: unchecked((short)getaway.Mode7MatrixD),
+                centerX: unchecked((short)getaway.Mode7CenterX),
+                centerY: unchecked((short)getaway.Mode7CenterY),
+                horizontalOffset: unchecked((short)getaway.Mode7HorizontalOffset),
+                verticalOffset: unchecked((short)getaway.Mode7VerticalOffset));
+        }
+
         if (runtime.ActiveDoor.UsesCeresElevatorMode7)
         {
             // DoorCode_CeresElevatorShaft at `$8F:E4E0` installs these literal Mode 7

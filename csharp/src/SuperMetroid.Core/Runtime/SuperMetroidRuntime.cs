@@ -1001,6 +1001,8 @@ public sealed partial class SuperMetroidRuntime
                 Samus?.Xray.TimeIsFrozen ?? false,
                 Samus,
                 Controller1.NewlyPressed);
+            if (LevelData is not null && !(Samus?.Xray.TimeIsFrozen ?? false))
+                Enemies.StepCeresRidleyProjectiles(LevelData, Samus);
             if (Samus is not null)
             {
                 Samus.Kinematics.InteractiveEnemies = Enemies.InteractiveCollisionBodies;
@@ -1259,6 +1261,15 @@ public sealed partial class SuperMetroidRuntime
                         BombProjectiles,
                         projectileProducerEnabled: !DebugGrappleItemSelected,
                         roomPlms: Plms);
+
+                    // Bank-$A0's enemy collision index list was selected before EnemyMain;
+                    // bank-$90 has now advanced the projectile slots, and the enemy-specific
+                    // shot handler owns the overlap result. Ceres Ridley deliberately counts
+                    // contacts instead of losing his pinned $7FFF health word.
+                    Enemies.ResolveCeresRidleyProjectileHits(
+                        _addressSpace,
+                        Projectiles,
+                        BombProjectiles);
 
                     // `$90:E6C0` dispatches the selected HUD producer and `$90:EB20`
                     // immediately clears `$0B5E`. Pose initialization occurs later in the
@@ -2710,6 +2721,8 @@ public sealed partial class SuperMetroidRuntime
                 // low-priority-projectile bit. They therefore draw in the cartridge's first
                 // `$86:8390` pass, before enemy layers zero through two and Samus.
                 CeresElevatorArrival?.Draw(Oam, Camera.XPosition, Camera.YPosition);
+                if (Enemies.IsLoaded)
+                    Enemies.DrawCeresRidleyProjectiles(Oam, Camera.XPosition, Camera.YPosition);
                 drawHighPriorityEnemyProjectiles?.Invoke(Oam);
             }
 

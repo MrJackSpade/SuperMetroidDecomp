@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Game;
 /// WRAM-array aliasing to copy fields from earlier slots. A compact host list would appear
 /// cleaner while destroying behavior that the original code expects.
 /// </remarks>
-public sealed class RoomEnemySystem
+public sealed partial class RoomEnemySystem
 {
     public const int MaximumEnemyCount = 32;
     public const int NativeSlotSize = 0x40;
@@ -37,6 +37,7 @@ public sealed class RoomEnemySystem
     private Func<ushort>? _nextRandom;
     private SnesVram? _vram;
     private SnesCgram? _cgram;
+    private CeresRidleyState? _ceresRidley;
 
     public RoomEnemySystem()
     {
@@ -73,6 +74,14 @@ public sealed class RoomEnemySystem
     public bool GunshipSaveRequested { get; private set; }
 
     /// <summary>
+    /// Ridley's bank-$A6 state extension while enemy $E13F owns slot zero. The native actor
+    /// extends far beyond the common $40-byte enemy record, so exposing a deliberately named
+    /// object is both more accurate and considerably easier to inspect than aliasing dozens
+    /// of unrelated generic slot words.
+    /// </summary>
+    public CeresRidleyState? CeresRidley => _ceresRidley;
+
+    /// <summary>
     /// Native <c>ceres_status</c> word consumed by the Ceres door actor. Fresh station load
     /// begins at zero; Ridley's escape sequence is the later producer of values one/two.
     /// </summary>
@@ -107,6 +116,13 @@ public sealed class RoomEnemySystem
         LastGunshipEvent = GunshipFrameEvent.None;
         GunshipSavePromptPending = false;
         GunshipSaveRequested = false;
+        _ceresRidley = null;
+        // Enemy projectiles live in a separate native bank-$86 pool, but room loading
+        // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
+        // this reset, leaving Ridley's room could carry a fireball (and its stale room
+        // collision coordinates) into the destination room.
+        foreach (CeresRidleyProjectileSlot projectile in _ceresRidleyProjectiles)
+            projectile.Clear();
         _activeEnemyIndexes.Clear();
         _interactiveEnemyIndexes.Clear();
         _interactiveCollisionBodies.Clear();
@@ -505,6 +521,9 @@ public sealed class RoomEnemySystem
             case 0xa6f6c5:
                 InitializeCeresDoor(slot);
                 return;
+            case 0xa6a0f5 when slot.EnemyDefinitionPointer == 0xe13f:
+                InitializeCeresRidley(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -646,6 +665,9 @@ public sealed class RoomEnemySystem
                 return;
             case 0xa6f765:
                 RunCeresDoorMain(slot);
+                return;
+            case 0xa6a288 when slot.EnemyDefinitionPointer == 0xe13f:
+                RunCeresRidleyMain(slot, samus);
                 return;
             default:
                 throw new NotSupportedException(
@@ -937,6 +959,72 @@ public sealed class RoomEnemySystem
                 case 0x812f: // EnemyInstr_Sleep: pin the PC on this command and stop forever.
                     slot.CurrentInstruction = cursor;
                     return;
+                case 0xe4be: // Ridley: begin roar; audio playback is outside this subsystem.
+                    RequireCeresRidley(slot).Roaring = true;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xe4ca: // Ridley: close mouth / clear the roaring presentation flag.
+                    RequireCeresRidley(slot).Roaring = false;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xe4d2: // Ceres: low-energy branch embedded in the fireball animation.
+                    if (samus is null)
+                    {
+                        throw new InvalidOperationException(
+                            "Ceres Ridley fireball branch requires the active Samus actor.");
+                    }
+                    cursor = unchecked((short)(samus.Health - 30)) < 0
+                        ? ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))
+                        : unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xe501: // Ceres Ridley: select feet-distance animation index operand.
+                    RequireCeresRidley(slot).FeetDistanceIndex = ReadWord(
+                        _bus!,
+                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xe517: // Ridley: branch to operand when he is not facing left.
+                    CeresRidleyState ridley = RequireCeresRidley(slot);
+                    cursor = ridley.FacingDirection != 0
+                        ? ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))
+                        : unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xe51f: // Ridley: add the two signed pixel operands to his origin.
+                    slot.XPosition = unchecked((ushort)(
+                        slot.XPosition +
+                        ReadWord(_bus!, (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))));
+                    slot.YPosition = unchecked((ushort)(
+                        slot.YPosition +
+                        ReadWord(_bus!, (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 4)))));
+                    cursor = unchecked((ushort)(cursor + 6));
+                    break;
+                case 0xe84d: // Ridley: aim the next fireball from the facing-dependent mouth.
+                    if (samus is null)
+                    {
+                        throw new InvalidOperationException(
+                            "Ceres Ridley fireball aim requires the active Samus actor.");
+                    }
+                    CalculateCeresRidleyFireballVelocity(slot, samus);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xe904: // Ridley: spawn the leading fireball with a wall afterburn.
+                    SpawnCeresRidleyFireball(slot, spawnAfterburn: true);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xe909: // Ridley: spawn a following fireball without an afterburn.
+                    SpawnCeresRidleyFireball(slot, spawnAfterburn: false);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xe969: // Ceres Ridley: animation hands control to accelerating liftoff.
+                    CeresRidleyState liftoff = RequireCeresRidley(slot);
+                    liftoff.Function = CeresRidleyAiFunction.LiftoffAccelerating;
+                    liftoff.VerticalVelocity = unchecked((ushort)-352);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
                 case 0xf11d: // Ceres steam: hide and exclude from interaction.
                     slot.Properties = slot.Properties.With(
                         EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);

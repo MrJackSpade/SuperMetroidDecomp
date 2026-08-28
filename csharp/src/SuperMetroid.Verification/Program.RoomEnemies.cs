@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
@@ -162,6 +164,271 @@ static void VerifyRoomEnemyLoading()
     Console.WriteLine(
         "  Enemies: complete headers, populations, spawn snapshots, palettes, tile staging, " +
         "boss state, placeholders, and empty-room behavior agree.");
+}
+
+/// <summary>
+/// Regresses the exact enemy $E13F failure reported when the second normal Ceres door loads
+/// room $E0B5. This fixture uses native $A0/$A1/$A6/$B4 layouts and follows the translated
+/// dispatcher through the complete initial delay, eye fade, and body fade.
+/// </summary>
+static void VerifyCeresRidleyRoomEntry()
+{
+    const ushort definitionPointer = 0xe13f;
+    const ushort populationPointer = 0x9500;
+    const ushort tilesetPointer = 0x9500;
+
+    var bus = new TestAddressSpace();
+    var vram = new SnesVram();
+    var cgram = new SnesCgram();
+
+    WriteEnemyDefinition(
+        bus,
+        definitionPointer,
+        tileDataSize: 0x0020,
+        palettePointer: 0xe14f,
+        bank: 0xa6,
+        tileDataAddress: 0xa69000,
+        bossId: 1,
+        namePointer: 0,
+        fieldSeed: 0x4000);
+    WriteWord(bus, 0xa00000 | (definitionPointer + 18), 0xa0f5);
+    WriteWord(bus, 0xa00000 | (definitionPointer + 24), 0xa288);
+
+    // One graphics-set entry supplies Ridley's OBJ palette/tile association. The byte data
+    // need not depict retail art here; the regression concerns loader and AI addresses, and
+    // the real-ROM audit covers the actual encoded graphics immediately afterward.
+    WriteWord(bus, 0xb40000 | tilesetPointer, definitionPointer);
+    WriteWord(bus, (0xb40000 | tilesetPointer) + 2, 0x0001);
+    WriteWord(bus, (0xb40000 | tilesetPointer) + 4, 0xffff);
+    for (int color = 0; color < 16; color++)
+        WriteWord(bus, 0xa6e14f + color * 2, unchecked((ushort)(0x1000 + color)));
+
+    // The Ceres population record is deliberately the retail one: ($BA,$AB), init zero,
+    // properties $2800, no extra bits, and two zero speed/parameter words.
+    int population = 0xa10000 | populationPointer;
+    WriteWord(bus, population, definitionPointer);
+    WriteWord(bus, population + 2, 0x00ba);
+    WriteWord(bus, population + 4, 0x00ab);
+    WriteWord(bus, population + 6, 0);
+    WriteWord(bus, population + 8, 0x2800);
+    WriteWord(bus, population + 10, 0);
+    WriteWord(bus, population + 12, 0);
+    WriteWord(bus, population + 14, 0);
+    WriteWord(bus, population + 16, 0xffff);
+    bus.WriteByte(population + 18, 0);
+
+    // $E538 selects the left-facing initial frame and then sleeps. Supplying the literal
+    // list catches the custom $E517 branch rather than letting a generic timed frame mask it.
+    WriteWord(bus, 0xa6e538, 0xe517);
+    WriteWord(bus, 0xa6e53a, 0xe542);
+    WriteWord(bus, 0xa6e53c, 12);
+    WriteWord(bus, 0xa6e53e, 0x9000);
+    WriteWord(bus, 0xa6e540, 0x812f);
+
+    // Initial additional palettes are copied to OBJ palettes two/three. The later eye and
+    // body tables use distinct sentinels so destination/index mistakes remain observable.
+    for (int color = 0; color < 32; color++)
+        WriteWord(bus, 0xa6e16f + color * 2, unchecked((ushort)(0x2000 + color)));
+    for (int index = 0; index < 64; index++)
+        bus.WriteByte(0xa6e269 + index, index < 16 ? unchecked((byte)(15 - index)) : (byte)0);
+    bus.WriteByte(0xa6e2a9, 0xff);
+    for (int word = 0; word < (0xe30a - 0xe2aa) / 2; word++)
+        WriteWord(bus, 0xa6e2aa + word * 2, unchecked((ushort)(0x3000 + word)));
+    for (int word = 0; word < 0x160 / 2; word++)
+        WriteWord(bus, 0xa6e30a + word * 2, unchecked((ushort)(0x5000 + word)));
+
+    // The two later animation lists are the actual dispatcher seams that make reveal-only
+    // implementations fail. A compact timed map stands in for the long roar presentation;
+    // the liftoff list retains its real $E969 instruction so AI control changes exactly as
+    // it does in the cartridge. Movement divisors are the literal $10..$01 D712 table.
+    WriteWord(bus, 0xa6e690, 1);
+    WriteWord(bus, 0xa6e692, 0x9000);
+    WriteWord(bus, 0xa6e694, 0x812f);
+    WriteWord(bus, 0xa6e91d, 0xe969);
+    WriteWord(bus, 0xa6e91f, 1);
+    WriteWord(bus, 0xa6e921, 0x9000);
+    WriteWord(bus, 0xa6e923, 0x812f);
+    for (int divisor = 0; divisor < 16; divisor++)
+        bus.WriteByte(0xa6d712 + divisor, unchecked((byte)(16 - divisor)));
+
+    // End-of-battle palette records are deliberately unmistakable. AA11 must not publish
+    // status one without A9A0 first copying all three native destination ranges.
+    for (int color = 0; color < 15; color++)
+        WriteWord(bus, 0xa6a9e3 + color * 2, unchecked((ushort)(0x6100 + color)));
+    for (int color = 0; color < 8; color++)
+        WriteWord(bus, 0xa6aa01 + color * 2, unchecked((ushort)(0x6200 + color)));
+
+    // One minimal power-beam data/list pair lets this regression reach Ridley's shot AI
+    // through the public producer and explosion owner, rather than mutating HitCounter.
+    WritePoseDefinition(
+        bus,
+        SamusState.FacingRightNormalPose,
+        [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
+    WriteWord(bus, 0x9383c1, 0x8431);
+    WriteWord(bus, 0x938431, 20);
+    WriteWord(bus, 0x938437, 0x9000); // Direction two is data-pointer word three.
+    WriteWord(bus, 0x939000, 1);
+    WriteWord(bus, 0x939002, 0x9000);
+    bus.WriteByte(0x939004, 8);
+    bus.WriteByte(0x939005, 8);
+    WriteWord(bus, 0x939006, 0);
+    WriteWord(bus, 0x939008, 0x8239);
+    WriteWord(bus, 0x93900a, 0x9000);
+    WriteWord(bus, 0x93867b, 0x9100);
+    WriteWord(bus, 0x939100, 1);
+    WriteWord(bus, 0x939102, 0x9000);
+    bus.WriteByte(0x939104, 8);
+    bus.WriteByte(0x939105, 8);
+    WriteWord(bus, 0x939106, 0);
+    WriteWord(bus, 0x939108, 0x822f);
+    bus.WriteByte(0x90c254, 1);
+    WriteWord(bus, 0x90c28f, 0x000b);
+
+    var enemies = new RoomEnemySystem();
+    enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0x1234);
+
+    RoomEnemySlot ridley = enemies.Slots[0];
+    CeresRidleyState state = enemies.CeresRidley
+        ?? throw new InvalidOperationException("Ceres Ridley did not allocate its extended state.");
+    AssertEqual(0x00ba, ridley.XPosition, "Ceres Ridley init X");
+    AssertEqual(0x00a9, ridley.YPosition, "Ceres Ridley init Y overrides population Y");
+    AssertEqual(0xe538, ridley.CurrentInstruction, "Ceres Ridley initial instruction list");
+    AssertEqual(0x0e00, ridley.PaletteIndex, "Ceres Ridley dedicated OBJ palette");
+    AssertEqual(0x3c00, ridley.Properties, "Ceres Ridley native initialized properties");
+    AssertEqual(0x804f, ridley.SpritemapPointer, "Ceres Ridley post-init empty extended map");
+    AssertEqual((ushort)CeresRidleyAiFunction.WaitForDoorTransition, (ushort)state.Function,
+        "Ceres Ridley initial dispatcher function");
+    AssertEqual(0x2000, cgram.Colors[0xa0], "Ceres Ridley first added palette color");
+    AssertEqual(0x201f, cgram.Colors[0xbf], "Ceres Ridley final added palette color");
+    AssertEqual(0, cgram.Colors[0xf1], "Ceres Ridley hidden body palette starts black");
+    AssertEqual(0, cgram.Colors[0xff], "Ceres Ridley hidden body palette ends black");
+
+    enemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);
+    AssertEqual((ushort)CeresRidleyAiFunction.InitialDelay, (ushort)state.Function,
+        "Ceres Ridley door-clear transition");
+    AssertEqual(511, state.FunctionTimer, "Ceres Ridley first delay decrement");
+    AssertEqual(0x9000, ridley.SpritemapPointer, "Ceres Ridley left-facing initial map");
+    AssertEqual(0xe540, ridley.CurrentInstruction, "Ceres Ridley initial list sleeps");
+
+    for (int frame = 0; frame < 512; frame++)
+        enemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);
+    AssertEqual((ushort)CeresRidleyAiFunction.FadeInEyes, (ushort)state.Function,
+        "Ceres Ridley 512-counter underflow starts eye fade");
+
+    for (int frame = 0; frame < 65; frame++)
+        enemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);
+    AssertEqual((ushort)CeresRidleyAiFunction.FadeInBody, (ushort)state.Function,
+        "Ceres Ridley eye table terminator starts body fade");
+    AssertEqual(1, state.MovementAnimationEnabled,
+        "Ceres Ridley eye fade enables composite animation");
+
+    for (int frame = 0; frame < 32; frame++)
+        enemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);
+    AssertEqual((ushort)CeresRidleyAiFunction.WaitBeforeRoar, (ushort)state.Function,
+        "Ceres Ridley body fade completes");
+    AssertEqual(4, state.FunctionTimer, "Ceres Ridley pre-roar timer");
+    AssertEqual(0x5000 + 0x14a / 2, cgram.Colors[0x91],
+        "Ceres Ridley final body-fade row reaches OBJ palette one");
+    AssertEqual(0, ridley.Properties & (ushort)EnemyProperties.IgnoreSamusCollision,
+        "Ceres Ridley becomes tangible after body fade");
+
+    // Finish the 5-frame pre-roar and 253-frame pre-liftoff countdowns, then let the real
+    // E969 instruction arm A6AF. Movement uses the translated common 8.8 integrator until
+    // A6C8 crosses Y=$50 and publishes fight mode one.
+    var samus = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        Health = 99,
+    };
+    int battleEntryFrames = 0;
+    while (state.Function != CeresRidleyAiFunction.Hovering && battleEntryFrames < 1024)
+    {
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
+        battleEntryFrames++;
+    }
+    AssertEqual((ushort)CeresRidleyAiFunction.Hovering, (ushort)state.Function,
+        "Ceres Ridley liftoff reaches hover dispatcher");
+    AssertEqual(1, state.FightMode, "Ceres Ridley liftoff enables battle mode");
+    AssertTrue(ridley.YPosition < 80,
+        "Ceres Ridley crosses the cartridge's Y=$50 battle threshold");
+
+    const int roomWidth = 32;
+    const int roomHeight = 16;
+    RoomLevelData air = new(
+        roomWidth,
+        roomHeight,
+        new ushort[roomWidth * roomHeight],
+        new byte[roomWidth * roomHeight],
+        new ushort[roomWidth * roomHeight],
+        new byte[8]);
+    var sharedProjectiles = new SamusBombProjectileSystem();
+    var projectiles = new SamusProjectileSystem();
+
+    for (int hit = 0; hit < 100; hit++)
+    {
+        // Zero fixture muzzle offsets place each stationary power beam at Ridley's live
+        // origin. Running the public producer proves slot allocation/type/radii first.
+        samus.XPosition = ridley.XPosition;
+        samus.YPosition = ridley.YPosition;
+        sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
+        SamusProjectileFrameResult fired = projectiles.StepFrame(
+            bus,
+            air,
+            samus,
+            (ushort)SnesButton.X,
+            (ushort)SnesButton.X,
+            0,
+            0,
+            sharedProjectiles);
+        AssertEqual((int?)0, fired.FiredSlot,
+            $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
+        AssertEqual(1, enemies.ResolveCeresRidleyProjectileHits(
+            bus, projectiles, sharedProjectiles),
+            $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
+
+        // Two bank-$93 calls consume the one-frame explosion record and its delete opcode,
+        // returning the same slot to the next shot without debugger-only state mutation.
+        for (int explosionFrame = 0; explosionFrame < 2; explosionFrame++)
+        {
+            sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
+            projectiles.StepFrame(bus, air, samus, 0, 0, 0, 0, sharedProjectiles);
+        }
+
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
+    }
+
+    AssertEqual(100, state.HitCounter, "Ceres Ridley uses dedicated 100-shot counter");
+
+    int retreatFrames = 0;
+    bool observedFakeRetreat = false;
+    while (enemies.CeresStatus != 1 && retreatFrames < 1024)
+    {
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
+        observedFakeRetreat |= state.Function is
+            CeresRidleyAiFunction.FakeRetreatMoveToPosition or
+            CeresRidleyAiFunction.FakeRetreatRising or
+            CeresRidleyAiFunction.WaitBeforeRetrievingBaby or
+            CeresRidleyAiFunction.RetrieveBaby;
+        retreatFrames++;
+    }
+    AssertTrue(observedFakeRetreat,
+        "Ceres Ridley returns from current attack through fake retreat/Baby retrieval");
+    AssertEqual(0, state.FightMode, "Ceres Ridley retreat disables battle mode");
+    AssertEqual(1, enemies.CeresStatus, "Ceres Ridley publishes escape handoff status");
+    AssertEqual((ushort)CeresRidleyAiFunction.Inactive, (ushort)state.Function,
+        "Ceres Ridley installs null dispatcher after battle");
+    AssertTrue(ridley.Properties.HasAny(EnemyProperties.Invisible),
+        "Ceres Ridley ordinary actor yields to getaway presentation");
+    AssertEqual(0x6100, cgram.Colors[0x51],
+        "Ceres Ridley retreat copies BG palette-five colors");
+    AssertEqual(0x6200, cgram.Colors[0x21],
+        "Ceres Ridley retreat copies BG palette-two colors");
+    AssertEqual(0x6200, cgram.Colors[0xf1],
+        "Ceres Ridley retreat copies OBJ palette-seven colors");
+
+    Console.WriteLine(
+        "  Ceres Ridley: reveal, liftoff, real beam impacts, 100-hit battle exit, " +
+        "retreat palettes, and escape handoff agree.");
 }
 
 /// <summary>Writes one complete fixture header while keeping pointer-bearing fields valid.</summary>

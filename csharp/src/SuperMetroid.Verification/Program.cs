@@ -97,6 +97,7 @@ VerifyLoRomCrossBankCompressedData();
 VerifyMode7Rendering();
 VerifyLayerCompositorBackdrop();
 VerifyBgPriorityPlaneRendering();
+VerifyLibraryBackgroundLoader();
 VerifyGameConfigurationIni();
 VerifyFileSelectFreshSaveTilemap();
 VerifyIntroGameplayFlashbackVerticalScroll();
@@ -105,6 +106,7 @@ VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();
 VerifyScrollingSkyState();
 VerifyRoomEnemyLoading();
+VerifyCeresRidleyRoomEntry();
 
 Console.WriteLine("All bank $80 verification checks passed.");
 return 0;

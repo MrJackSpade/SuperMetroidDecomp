@@ -30,6 +30,227 @@ if (args.Length >= 3 && args[0] == "--frontend-skip-intro-capture")
     return FrontendSkipIntroAudit.Run(skipIntroRomPath, skipIntroOutputPath);
 }
 
+// Load Ceres Ridley's room directly from its retail bank-$8F header, then run the complete
+// deterministic dispatcher/palette reveal slice. This is separate from screenshot capture: it
+// gives regressions in $E13F initialization, instruction dispatch, or palette timing a fast
+// ROM-backed command with concrete debugger-visible state.
+if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
+{
+    string ridleyRomPath = string.Join(' ', args[1..]).Trim('"');
+    SuperMetroidAddressSpace ridleyBus = SuperMetroidAddressSpace.LoadRetailRom(ridleyRomPath);
+    CartridgeRoomHeader ridleyRoom = CartridgeRoomHeader.Load(ridleyBus, 0xe0b5);
+    var ridleyEnemies = new RoomEnemySystem();
+    var ridleyVram = new SnesVram();
+    var ridleyCgram = new SnesCgram();
+    ridleyEnemies.Load(
+        ridleyBus,
+        ridleyRoom.State.EnemyPopulationPointer,
+        ridleyRoom.State.EnemyTilesetPointer,
+        ridleyVram,
+        ridleyCgram,
+        // Low nibble zero selects the first literal $A6:A743 fireball route after hover.
+        () => 0x1230);
+
+    RoomEnemySlot ridleySlot = ridleyEnemies.Slots[0];
+    CeresRidleyState ridleyState = ridleyEnemies.CeresRidley
+        ?? throw new InvalidDataException("Retail room $E0B5 did not initialize enemy $E13F.");
+    if (ridleySlot.EnemyDefinitionPointer != 0xe13f ||
+        ridleySlot.Definition.InitializationAiPointer != 0xa0f5 ||
+        ridleySlot.Definition.MainAiPointer != 0xa288)
+    {
+        throw new InvalidDataException(
+            $"Retail room $E0B5 selected enemy ${ridleySlot.EnemyDefinitionPointer:X4}, " +
+            $"init ${ridleySlot.Definition.InitializationAiPointer:X4}, " +
+            $"main ${ridleySlot.Definition.MainAiPointer:X4}.");
+    }
+
+    // 1 entry call + 512 remaining delay calls + 65 eye-table calls + 32 body-fade calls.
+    for (int frame = 0; frame < 610; frame++)
+        ridleyEnemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);
+    if (ridleyState.Function != CeresRidleyAiFunction.WaitBeforeRoar ||
+        ridleyState.FunctionTimer != 4)
+    {
+        throw new InvalidDataException(
+            $"Retail Ceres Ridley reveal ended at $A6:{(ushort)ridleyState.Function:X4}, " +
+            $"timer ${ridleyState.FunctionTimer:X4} instead of $A455/$0004.");
+    }
+
+    // Continue through the cartridge's roar/liftoff lists until $A6:A6E8 publishes the
+    // active fight. Supplying a real Samus object matters: the dispatcher reads her energy
+    // every frame and must not be audited through a host-only null shortcut.
+    var auditSamus = new SamusState { Health = 99 };
+    int battleEntryFrames = 0;
+    while (ridleyState.Function != CeresRidleyAiFunction.Hovering && battleEntryFrames < 1024)
+    {
+        ridleyEnemies.StepFrame(0, 0, timeIsFrozen: false, auditSamus);
+        battleEntryFrames++;
+    }
+    if (ridleyState.Function != CeresRidleyAiFunction.Hovering || ridleyState.FightMode != 1)
+    {
+        throw new InvalidDataException(
+            $"Retail Ceres Ridley never entered battle; stopped at " +
+            $"$A6:{(ushort)ridleyState.Function:X4} after {battleEntryFrames} frames.");
+    }
+
+    // Exercise the actual $A6:E73A mouth animation before shortening the battle with the
+    // scripted 100-hit condition. It must produce $86:9642 actors, collide with the retail
+    // room plane, damage Samus, and bloom into the directional afterburn definitions.
+    RoomLevelData retailRidleyLevel = CartridgeRoomAssets.Load(ridleyBus, ridleyRoom).LevelData;
+    auditSamus.Health = 999;
+    auditSamus.XPosition = 0x0080;
+    auditSamus.YPosition = 0x0064;
+    bool sawFireball = false;
+    bool sawAfterburn = false;
+    bool sawSamusDamage = false;
+    bool sawNativeVelocityRange = false;
+    int fireballAuditFrames = 0;
+    while (!(sawFireball && sawAfterburn && sawSamusDamage && sawNativeVelocityRange) &&
+        fireballAuditFrames < 2048)
+    {
+        ushort healthBefore = auditSamus.Health;
+        ridleyEnemies.StepFrame(0, 0, timeIsFrozen: false, auditSamus);
+        ridleyEnemies.StepCeresRidleyProjectiles(retailRidleyLevel, auditSamus);
+        sawFireball |= ridleyEnemies.CeresRidleyProjectiles.Any(
+            projectile => projectile.Kind == CeresRidleyProjectileKind.Fireball);
+        sawAfterburn |= ridleyEnemies.CeresRidleyProjectiles.Any(
+            projectile => projectile.Kind is not (
+                CeresRidleyProjectileKind.None or CeresRidleyProjectileKind.Fireball));
+        sawSamusDamage |= auditSamus.Health < healthBefore;
+        if (ridleyEnemies.CeresRidleyProjectiles.Any(
+            projectile => projectile.Kind == CeresRidleyProjectileKind.Fireball))
+        {
+            // Speed $0500 multiplied by a signed unit sine can never exceed $0500.
+            // This catches both an incorrect table bank and accidental double $40 angle
+            // bias; either mistake still creates moving actors but sends them far offscreen.
+            int absoluteXVelocity = Math.Abs((int)(short)ridleyState.FireballXVelocity);
+            int absoluteYVelocity = Math.Abs((int)(short)ridleyState.FireballYVelocity);
+            sawNativeVelocityRange = absoluteXVelocity <= 0x0500 &&
+                absoluteYVelocity <= 0x0500;
+        }
+        fireballAuditFrames++;
+    }
+    if (!sawFireball || !sawAfterburn || !sawSamusDamage || !sawNativeVelocityRange)
+    {
+        throw new InvalidDataException(
+            $"Retail fireball audit stopped after {fireballAuditFrames} frames: " +
+            $"fireball={sawFireball}, afterburn={sawAfterburn}, damage={sawSamusDamage}, " +
+            $"nativeVelocity={sawNativeVelocityRange}, " +
+            $"AI=$A6:{(ushort)ridleyState.Function:X4}, " +
+            $"velocity=({(short)ridleyState.FireballXVelocity},{(short)ridleyState.FireballYVelocity}), " +
+            $"live={string.Join(';', ridleyEnemies.CeresRidleyProjectiles.Where(p => p.IsActive).Select(p => $"{p.Kind}@{p.XPosition},{p.YPosition}"))}.");
+    }
+    auditSamus.Health = 99;
+    auditSamus.InvincibilityTimer = 0;
+
+    // Fire 100 actual power-beam slots through the retail bank-$90/$93 producer, let the
+    // Ceres shot AI convert every one to its retail explosion, and wait for each delete
+    // opcode before reusing the slot. This deliberately avoids assigning HitCounter from
+    // the audit: the real-ROM path must prove the playable trigger itself.
+    const int auditRoomWidth = 32;
+    const int auditRoomHeight = 16;
+    var auditAir = new RoomLevelData(
+        auditRoomWidth,
+        auditRoomHeight,
+        new ushort[auditRoomWidth * auditRoomHeight],
+        new byte[auditRoomWidth * auditRoomHeight],
+        new ushort[auditRoomWidth * auditRoomHeight],
+        new byte[8]);
+    var auditBombs = new SamusBombProjectileSystem();
+    var auditProjectiles = new SamusProjectileSystem();
+    for (int hit = 0; hit < 100; hit++)
+    {
+        auditSamus.XPosition = ridleySlot.XPosition;
+        auditSamus.YPosition = ridleySlot.YPosition;
+        auditBombs.StepFrame(ridleyBus, auditAir, auditSamus, 0, 0);
+        SamusProjectileFrameResult fired = auditProjectiles.StepFrame(
+            ridleyBus,
+            auditAir,
+            auditSamus,
+            (ushort)SnesButton.X,
+            (ushort)SnesButton.X,
+            0,
+            0,
+            auditBombs);
+        if (fired.FiredSlot is not int firedSlot ||
+            ridleyEnemies.ResolveCeresRidleyProjectileHits(
+                ridleyBus, auditProjectiles, auditBombs) != 1)
+        {
+            throw new InvalidDataException(
+                $"Retail Ceres Ridley shot {hit + 1} did not produce exactly one hit.");
+        }
+
+        int explosionFrames = 0;
+        while (auditProjectiles.Slots[firedSlot].IsActive && explosionFrames < 64)
+        {
+            auditBombs.StepFrame(ridleyBus, auditAir, auditSamus, 0, 0);
+            auditProjectiles.StepFrame(
+                ridleyBus, auditAir, auditSamus, 0, 0, 0, 0, auditBombs);
+            explosionFrames++;
+        }
+        if (auditProjectiles.Slots[firedSlot].IsActive)
+            throw new InvalidDataException("Retail power-beam explosion did not delete within 64 frames.");
+
+        ridleyEnemies.StepFrame(0, 0, timeIsFrozen: false, auditSamus);
+    }
+    if (ridleyState.HitCounter != 100)
+        throw new InvalidDataException($"Retail Ceres hit counter ended at {ridleyState.HitCounter}.");
+
+    int retreatFrames = 0;
+    while (ridleyEnemies.CeresStatus != 1 && retreatFrames < 1024)
+    {
+        ridleyEnemies.StepFrame(0, 0, timeIsFrozen: false, auditSamus);
+        retreatFrames++;
+    }
+    if (ridleyEnemies.CeresStatus != 1 ||
+        ridleyState.Function != CeresRidleyAiFunction.Inactive)
+    {
+        throw new InvalidDataException(
+            $"Retail Ceres Ridley retreat did not publish status one; stopped at " +
+            $"$A6:{(ushort)ridleyState.Function:X4}/status={ridleyEnemies.CeresStatus} " +
+            $"after {retreatFrames} frames.");
+    }
+
+    // Continue room main through the retail zoom table's $FFFF terminator and verify the
+    // explicit return to ordinary mode-nine rendering state.
+    byte[] vramBeforeMode7Animation = ridleyVram.Bytes.ToArray();
+    bool sawRotatedMatrix = false;
+    bool sawSamusPushOwnership = false;
+    bool sawAnimatedMode7Map = false;
+    int mode7Frames = 0;
+    while (ridleyState.Mode7Active && mode7Frames < 512)
+    {
+        ridleyEnemies.StepFrame(0, 0, timeIsFrozen: false, auditSamus);
+        ridleyEnemies.StepCeresRidleyProjectiles(retailRidleyLevel, auditSamus);
+        sawRotatedMatrix |= ridleyState.Mode7MatrixB != 0 &&
+            ridleyState.Mode7MatrixC != 0;
+        sawSamusPushOwnership |= auditSamus.InputLocked;
+        sawAnimatedMode7Map |= !ridleyVram.Bytes.SequenceEqual(vramBeforeMode7Animation);
+        mode7Frames++;
+    }
+    if (!ridleyState.Mode7Finished || ridleyState.Mode7Active ||
+        ridleyState.Mode7MatrixA != 0 || ridleyState.Mode7HorizontalOffset != 0 ||
+        !sawRotatedMatrix || !sawSamusPushOwnership || !sawAnimatedMode7Map ||
+        auditSamus.InputLocked)
+    {
+        throw new InvalidDataException(
+            $"Retail Mode-7 getaway failed to restore mode nine after {mode7Frames} frames: " +
+            $"active={ridleyState.Mode7Active}, finished={ridleyState.Mode7Finished}, " +
+            $"rotated={sawRotatedMatrix}, pushedSamus={sawSamusPushOwnership}, " +
+            $"animatedMap={sawAnimatedMode7Map}, inputLocked={auditSamus.InputLocked}, " +
+            $"A=${ridleyState.Mode7MatrixA:X4}, X=${ridleyState.Mode7HorizontalOffset:X4}.");
+    }
+
+    Console.WriteLine(
+        $"Ceres Ridley audit passed: room $8F:{ridleyRoom.Pointer:X4}, " +
+        $"state $8F:{ridleyRoom.State.Pointer:X4}, " +
+        $"population $A1:{ridleyRoom.State.EnemyPopulationPointer:X4}, " +
+        $"enemy ${ridleySlot.EnemyDefinitionPointer:X4}, reveal $A6:A455/$0004, " +
+        $"battle in {battleEntryFrames} frames, fireballs/afterburn/damage in " +
+        $"{fireballAuditFrames} frames, 100 retail beam hits, " +
+        $"escape handoff in {retreatFrames} frames, Mode 7 restored in {mode7Frames} frames.");
+    return 0;
+}
+
 // This milestone capture exercises the actual new-game load-station/room pipeline without
 // requiring the still-in-progress intro object interpreter to reach its final state first.
 // It is diagnostic entry only: the Playable dispatcher will own this same runtime once the
@@ -185,21 +406,54 @@ if (args.Length >= 3 && args[0] == "--ceres-room-capture")
             "Reported Ceres type-$9 collision did not publish its door transition.");
     ushort sourceRoomPointer = doorProbeRuntime.ActiveRoom!.Pointer;
     doorProbeRuntime.LoadPendingDoorDestination();
-    ushort destinationRoomPointer = doorProbeRuntime.ActiveRoom!.Pointer;
+    CartridgeRoomHeader destinationRoom = doorProbeRuntime.ActiveRoom!;
+    CartridgeRoomAssets destinationAssets = doorProbeRuntime.ActiveRoomAssets!;
+    ushort destinationRoomPointer = destinationRoom.Pointer;
     if (destinationRoomPointer == sourceRoomPointer)
     {
         throw new InvalidOperationException(
             $"Reported Ceres door $83:{selectedDoor.Pointer:X4} reloaded source room " +
             $"$8F:{sourceRoomPointer:X4}.");
     }
+    for (int tilemapWord = 0; tilemapWord < 0x0400; tilemapWord++)
+    {
+        ushort firstPage = doorProbeRuntime.Vram.ReadWord(0x4800 + tilemapWord);
+        ushort secondPage = doorProbeRuntime.Vram.ReadWord(0x4c00 + tilemapWord);
+        if (firstPage != secondPage)
+        {
+            throw new InvalidDataException(
+                $"Ceres $8F:{destinationRoomPointer:X4} library BG differs between " +
+                $"VRAM pages at word ${tilemapWord:X3}: ${firstPage:X4}/${secondPage:X4}.");
+        }
+    }
     for (int destinationFrame = 0; destinationFrame < 4; destinationFrame++)
         doorProbeRuntime.StepFrame(0);
-    EnsureOpaqueFrame(
-        SuperMetroidRuntimeFrameRenderer.Render(doorProbeRuntime),
-        "Ceres door destination");
+    Rgba32[] destinationPixels = SuperMetroidRuntimeFrameRenderer.Render(doorProbeRuntime);
+    EnsureOpaqueFrame(destinationPixels, "Ceres door destination");
+    string destinationPath = Path.Combine(
+        Path.GetDirectoryName(ceresOutputPath) ?? string.Empty,
+        $"{Path.GetFileNameWithoutExtension(ceresOutputPath)}.door-destination" +
+        Path.GetExtension(ceresOutputPath));
+    PngWriter.WriteRgba(destinationPath, 256, 224, destinationPixels);
     Console.WriteLine(
         $"Ceres block 639 door probe: $8F:{sourceRoomPointer:X4} via " +
-        $"$83:{selectedDoor.Pointer:X4} -> $8F:{destinationRoomPointer:X4}.");
+        $"$83:{selectedDoor.Pointer:X4} -> $8F:{destinationRoomPointer:X4}; " +
+        $"state=$8F:{destinationRoom.State.Pointer:X4}, " +
+        $"screens={destinationRoom.WidthInScreens}x{destinationRoom.HeightInScreens}, " +
+        $"camera=(${doorProbeRuntime.Camera!.XPosition:X4},${doorProbeRuntime.Camera.YPosition:X4}), " +
+        $"Samus=(${doorProbeRuntime.Samus!.XPosition:X4},${doorProbeRuntime.Samus.YPosition:X4}), " +
+        $"tileset=${destinationRoom.State.GraphicsSet:X2}, " +
+        $"layer2=(${destinationRoom.State.Layer2ScrollX:X2},${destinationRoom.State.Layer2ScrollY:X2}).");
+    Console.WriteLine(
+        $"Destination assets: definitions=${destinationAssets.LevelData.BlockDefinitions.Length:X}, " +
+        $"characters=${destinationAssets.RoomCharacters.Length:X}, " +
+        $"definition-source=${destinationAssets.Tileset.BlockDefinitionsAddress:X6}, " +
+        $"character-source=${destinationAssets.Tileset.CharacterAddress:X6}.");
+    Console.Write("Destination first level words:");
+    foreach (ushort word in destinationAssets.LevelData.ForegroundEntries.Span[..16])
+        Console.Write($" ${word:X4}");
+    Console.WriteLine();
+    Console.WriteLine($"Captured first Ceres door destination to {Path.GetFullPath(destinationPath)}.");
     return 0;
 }
 

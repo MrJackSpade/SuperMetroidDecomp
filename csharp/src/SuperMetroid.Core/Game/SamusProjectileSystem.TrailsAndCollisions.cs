@@ -41,6 +41,41 @@ public sealed partial class SamusProjectileSystem
         return false;
     }
 
+    /// <summary>
+    /// Converts one live beam or missile into its ordinary bank-$93 impact animation after
+    /// an enemy-owned overlap test accepts it. Enemy shot AI owns damage/counters; this
+    /// projectile owner alone mutates the parallel slot arrays and shared cooldown.
+    /// </summary>
+    public bool TryStartEnemyImpact(
+        ISnesAddressSpace bus,
+        SamusBombProjectileSystem sharedProjectiles,
+        int slotIndex)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(sharedProjectiles);
+        if ((uint)slotIndex >= SlotCount)
+            throw new ArgumentOutOfRangeException(nameof(slotIndex));
+
+        SamusProjectileSlot slot = _slots[slotIndex];
+        if (!slot.IsActive || slot.PackedDirection.HasLowByteLifecycleState)
+            return false;
+
+        switch (slot.PackedType.Family)
+        {
+            case SamusProjectileFamily.Beam:
+                KillBeam(bus, slot);
+                return true;
+            case SamusProjectileFamily.Missile:
+            case SamusProjectileFamily.SuperMissile:
+                KillMissile(bus, slot, sharedProjectiles);
+                return true;
+            default:
+                // Existing explosion, bomb, and unknown family slots cannot repeatedly
+                // increment an enemy hit counter merely because their art still overlaps.
+                return false;
+        }
+    }
+
     private void SpawnTrail(ISnesAddressSpace bus, SamusProjectileSlot projectile)
     {
         int pointerIndex;

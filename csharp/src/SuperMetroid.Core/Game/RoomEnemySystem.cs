@@ -239,6 +239,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_nuclearWaffleStates);
         Array.Clear(_fakeKraidStates);
         Array.Clear(_walkingSpacePirateStates);
+        Array.Clear(_wallSpacePirateStates);
         Array.Clear(_kzanFallWaitTimerResetValues);
         Array.Clear(_kzanPreviousYPositions);
         Array.Clear(_kzanFallingYSpeedTableIndexes);
@@ -320,7 +321,7 @@ public sealed partial class RoomEnemySystem
         LastNuclearWaffleSoundEffect = null;
         LastFakeKraidSoundEffect = null;
         LastFakeKraidDropRequest = null;
-        LastWalkingSpacePirateSoundEffect = null;
+        LastSpacePirateSoundEffect = null;
         LastEnemyProjectileDudSoundEffect = null;
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
@@ -839,6 +840,9 @@ public sealed partial class RoomEnemySystem
             case 0xb2fd02 when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 InitializeWalkingSpacePirate(slot);
                 return;
+            case 0xb2ef9f when IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer):
+                InitializeWallSpacePirate(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -1090,6 +1094,12 @@ public sealed partial class RoomEnemySystem
                     samus,
                     level,
                     samusProjectiles);
+                return;
+            case 0xb2f02d when IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer):
+                RunWallSpacePirateMain(
+                    slot,
+                    RequireWallSpacePirateState(slot),
+                    samus);
                 return;
             default:
                 throw new NotSupportedException(
@@ -1413,6 +1423,18 @@ public sealed partial class RoomEnemySystem
                         _bus!,
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0x813a: // EnemyInstr_WaitYFrames: delay without changing the map.
+                    slot.InstructionTimer = ReadWord(
+                        _bus!,
+                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    slot.CurrentInstruction = unchecked((ushort)(cursor + 4));
+                    return;
+                case >= 0x8000 when TryProcessWallSpacePirateInstruction(
+                    slot,
+                    level,
+                    word,
+                    ref cursor):
                     break;
                 case >= 0x8000 when TryProcessWorkRobotInstruction(
                     slot,

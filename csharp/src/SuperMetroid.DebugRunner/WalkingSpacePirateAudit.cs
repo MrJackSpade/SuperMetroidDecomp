@@ -249,7 +249,7 @@ internal static class WalkingSpacePirateAudit
                 level: assets.LevelData,
                 samusProjectiles: loaded.Projectiles);
             seenActorMaps.Add(actor.SpritemapPointer);
-            sawSound |= loaded.Enemies.LastWalkingSpacePirateSoundEffect == 0x0067;
+            sawSound |= loaded.Enemies.LastSpacePirateSoundEffect == 0x0067;
 
             // Snapshot physical slots because StepEnemyProjectiles mutates the same exposed
             // objects. This lets the audit distinguish A050's immediate move from the normal
@@ -259,7 +259,7 @@ internal static class WalkingSpacePirateAudit
                 projectile => (projectile.Kind, projectile.XPosition, projectile.PreInstruction));
             foreach (RoomEnemyProjectileSlot projectile in loaded.Enemies.EnemyProjectiles)
             {
-                if (projectile.Kind == RoomEnemyProjectileKind.WalkingSpacePirateLaser &&
+                if (projectile.Kind == RoomEnemyProjectileKind.PirateMotherBrainLaser &&
                     projectile.PreInstruction == 0xa05b)
                 {
                     seenSpawnY.Add(projectile.YPosition);
@@ -275,14 +275,14 @@ internal static class WalkingSpacePirateAudit
             foreach (RoomEnemyProjectileSlot projectile in loaded.Enemies.EnemyProjectiles)
             {
                 if (!projectile.IsActive ||
-                    projectile.Kind != RoomEnemyProjectileKind.WalkingSpacePirateLaser)
+                    projectile.Kind != RoomEnemyProjectileKind.PirateMotherBrainLaser)
                 {
                     continue;
                 }
                 seenLaserMaps.Add(projectile.SpritemapPointer);
                 (RoomEnemyProjectileKind oldKind, ushort oldX, ushort oldPre) =
                     before[projectile.SlotIndex];
-                if (oldKind != RoomEnemyProjectileKind.WalkingSpacePirateLaser)
+                if (oldKind != RoomEnemyProjectileKind.PirateMotherBrainLaser)
                     continue;
                 ushort delta = unchecked((ushort)(projectile.XPosition - oldX));
                 if (oldPre == 0xa05b && projectile.PreInstruction == 0xa07a && delta == 2)
@@ -357,14 +357,14 @@ internal static class WalkingSpacePirateAudit
                 level: assets.LevelData,
                 samusProjectiles: loaded.Projectiles);
             seenActorMaps.Add(actor.SpritemapPointer);
-            sawSound |= loaded.Enemies.LastWalkingSpacePirateSoundEffect == 0x0067;
+            sawSound |= loaded.Enemies.LastSpacePirateSoundEffect == 0x0067;
 
             var before = loaded.Enemies.EnemyProjectiles.ToDictionary(
                 projectile => projectile.SlotIndex,
                 projectile => (projectile.Kind, projectile.XPosition, projectile.PreInstruction));
             foreach (RoomEnemyProjectileSlot projectile in loaded.Enemies.EnemyProjectiles)
             {
-                if (projectile.Kind == RoomEnemyProjectileKind.WalkingSpacePirateLaser &&
+                if (projectile.Kind == RoomEnemyProjectileKind.PirateMotherBrainLaser &&
                     projectile.PreInstruction == 0xa05b)
                 {
                     seenSpawnY.Add(projectile.YPosition);
@@ -379,14 +379,14 @@ internal static class WalkingSpacePirateAudit
             foreach (RoomEnemyProjectileSlot projectile in loaded.Enemies.EnemyProjectiles)
             {
                 if (!projectile.IsActive ||
-                    projectile.Kind != RoomEnemyProjectileKind.WalkingSpacePirateLaser)
+                    projectile.Kind != RoomEnemyProjectileKind.PirateMotherBrainLaser)
                 {
                     continue;
                 }
                 seenLaserMaps.Add(projectile.SpritemapPointer);
                 (RoomEnemyProjectileKind oldKind, ushort oldX, ushort oldPre) =
                     before[projectile.SlotIndex];
-                if (oldKind != RoomEnemyProjectileKind.WalkingSpacePirateLaser)
+                if (oldKind != RoomEnemyProjectileKind.PirateMotherBrainLaser)
                     continue;
                 ushort leftDelta = unchecked((ushort)(oldX - projectile.XPosition));
                 if (oldPre == 0xa05b && projectile.PreInstruction == 0xa05c && leftDelta == 4)
@@ -524,7 +524,7 @@ internal static class WalkingSpacePirateAudit
                 level: assets.LevelData,
                 samusProjectiles: laser.Projectiles);
             laserActor = laser.Enemies.EnemyProjectiles.FirstOrDefault(
-                projectile => projectile.Kind == RoomEnemyProjectileKind.WalkingSpacePirateLaser);
+                projectile => projectile.Kind == RoomEnemyProjectileKind.PirateMotherBrainLaser);
         }
         if (laserActor is null)
             throw new InvalidDataException("Walking Pirate never spawned a contact-test laser.");

@@ -162,6 +162,14 @@ if (args.Length >= 2 && args[0] == "--brinstar-walking-pirate-audit")
     return WalkingSpacePirateAudit.Run(walkingPirateRomPath);
 }
 
+// Exercises the complete bank-$B2 wall Pirate family against the Climb's untouched eleven
+// actors plus the Pit's real bit-15-clear fast variant.
+if (args.Length >= 2 && args[0] == "--crateria-wall-pirate-audit")
+{
+    string wallPirateRomPath = string.Join(' ', args[1..]).Trim('"');
+    return WallSpacePirateAudit.Run(wallPirateRomPath);
+}
+
 // Loads the normal, pre-escape Parlor state directly from the retail header. This keeps the
 // first ordinary Zebes enemy family independently auditable without walking the frontend,
 // while still sourcing its population, graphics, level collision, and instruction lists

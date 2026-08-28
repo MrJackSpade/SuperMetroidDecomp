@@ -117,8 +117,11 @@ public sealed partial class RoomEnemySystem
     public IReadOnlyList<WalkingSpacePirateEnemyState?> WalkingSpacePirateStates =>
         _walkingSpacePirateStates;
 
-    /// <summary>Last library-two sound requested by a walking Pirate during this frame.</summary>
-    public ushort? LastWalkingSpacePirateSoundEffect { get; private set; }
+    /// <summary>
+    /// Last library-two sound requested by the shared Pirate/Mother-Brain laser initializer
+    /// or a Space Pirate instruction during this frame.
+    /// </summary>
+    public ushort? LastSpacePirateSoundEffect { get; private set; }
 
     internal static bool IsWalkingSpacePirateDefinition(ushort definition) => definition is
         GreyWalkingSpacePirateDefinition or
@@ -363,13 +366,29 @@ public sealed partial class RoomEnemySystem
         bool movingRight,
         ushort yOffset)
     {
+        if (!SpawnSpacePirateLaser(source, movingRight, yOffset))
+            return;
+
+        state.SpawnedLaserCount++;
+    }
+
+    /// <summary>
+    /// Ports the common projectile initializer <c>$86:A009</c>. Wall and walking Pirates
+    /// use different actor opcodes and muzzle offsets, but the allocated projectile is the
+    /// same retail definition and therefore belongs in one shared implementation.
+    /// </summary>
+    private bool SpawnSpacePirateLaser(
+        RoomEnemySlot source,
+        bool movingRight,
+        ushort yOffset)
+    {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
-            return;
+            return false;
 
         InitializeEnemyProjectileFromDefinition(
             projectile,
-            RoomEnemyProjectileKind.WalkingSpacePirateLaser,
+            RoomEnemyProjectileKind.PirateMotherBrainLaser,
             graphicsIndex: 0);
 
         projectile.XPosition = unchecked((ushort)(
@@ -397,12 +416,12 @@ public sealed partial class RoomEnemySystem
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;
         projectile.DirectionParameter = movingRight ? (ushort)1 : (ushort)0;
-        LastWalkingSpacePirateSoundEffect = WalkingPirateLaserSound;
-        state.SpawnedLaserCount++;
+        LastSpacePirateSoundEffect = WalkingPirateLaserSound;
+        return true;
     }
 
     /// <summary>Runs pre-instructions $86:A05C/$A07A and exact 256x256 camera deletion.</summary>
-    private static void RunWalkingSpacePirateLaserPreInstruction(
+    private static void RunPirateMotherBrainLaserPreInstruction(
         RoomEnemyProjectileSlot projectile,
         ushort cameraX,
         ushort cameraY)

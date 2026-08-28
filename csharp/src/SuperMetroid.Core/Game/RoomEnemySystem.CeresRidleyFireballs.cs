@@ -38,7 +38,7 @@ public enum RoomEnemyProjectileKind : ushort
     FakeKraidSpit = 0x9db0,
     FakeKraidSpikeLeft = 0x9dbe,
     FakeKraidSpikeRight = 0x9dcc,
-    WalkingSpacePirateLaser = 0xa17b,
+    PirateMotherBrainLaser = 0xa17b,
 }
 
 /// <summary>
@@ -501,9 +501,9 @@ public sealed partial class RoomEnemySystem
                 RunFakeKraidSpikePreInstruction(projectile, level);
                 return;
 
-            case 0xa05c: // Walking Pirate/Mother Brain laser: move left, then camera cull.
-            case 0xa07a: // Walking Pirate/Mother Brain laser: move right, then camera cull.
-                RunWalkingSpacePirateLaserPreInstruction(
+            case 0xa05c: // Space Pirate/Mother Brain laser: move left, then camera cull.
+            case 0xa07a: // Space Pirate/Mother Brain laser: move right, then camera cull.
+                RunPirateMotherBrainLaserPreInstruction(
                     projectile,
                     cameraX,
                     cameraY);
@@ -674,7 +674,7 @@ public sealed partial class RoomEnemySystem
                     // movement routine once immediately, then resumes after the operand.
                     // Merely installing the pointer would leave every laser four/two pixels
                     // behind the cartridge for its entire lifetime.
-                    RunWalkingSpacePirateLaserPreInstruction(
+                    RunPirateMotherBrainLaserPreInstruction(
                         projectile,
                         cameraX,
                         cameraY);

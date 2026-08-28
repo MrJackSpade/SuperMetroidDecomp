@@ -167,6 +167,181 @@ static void VerifyRoomEnemyLoading()
 }
 
 /// <summary>
+/// Exercises the first ordinary hostile-enemy translation end to end. Every actor pointer,
+/// speed word, animation list, and vulnerability byte is expressed in its native ROM layout;
+/// the assertions then enter only through the public loader/frame/contact/projectile seams.
+/// </summary>
+static void VerifyRipperEnemy()
+{
+    const ushort definitionPointer = 0xd47f;
+    const ushort populationPointer = 0x9580;
+    const ushort tilesetPointer = 0x9580;
+    const ushort vulnerabilityPointer = 0xedea;
+    var bus = new TestAddressSpace();
+    var vram = new SnesVram();
+    var cgram = new SnesCgram();
+
+    WriteEnemyDefinition(
+        bus,
+        definitionPointer,
+        tileDataSize: 0,
+        palettePointer: 0xe457,
+        bank: 0xa2,
+        tileDataAddress: 0xa28000,
+        bossId: 0,
+        namePointer: 0,
+        fieldSeed: 0x5200);
+    int header = 0xa00000 | definitionPointer;
+    WriteWord(bus, header + 4, 200);
+    WriteWord(bus, header + 6, 5);
+    WriteWord(bus, header + 8, 8);
+    WriteWord(bus, header + 10, 4);
+    bus.WriteByte(header + 13, 0);
+    WriteWord(bus, header + 18, 0xe49f);
+    WriteWord(bus, header + 24, 0xe4da);
+    WriteWord(bus, header + 48, 0x8023);
+    WriteWord(bus, header + 50, 0x802d);
+    WriteWord(bus, header + 60, vulnerabilityPointer);
+
+    // Logical speed one occupies the second eight-byte common-speed record. The pair is
+    // +1.0000 and -1.0000 in signed 16.16 form, making wall alignment easy to observe.
+    WriteWord(bus, 0xa28187 + 8, 0x0001);
+    WriteWord(bus, 0xa28187 + 10, 0x0000);
+    WriteWord(bus, 0xa28187 + 12, 0xffff);
+    WriteWord(bus, 0xa28187 + 14, 0x0000);
+
+    // Literal four-frame Ripper lists. The map words are the cartridge addresses; the test
+    // need not render their entry payloads to prove list selection and timing.
+    ushort[] rightList = [8, 0xe54b, 7, 0xe557, 8, 0xe54b, 7, 0xe563, 0x80ed, 0xe477];
+    ushort[] leftList = [8, 0xe527, 7, 0xe533, 8, 0xe527, 7, 0xe53f, 0x80ed, 0xe48b];
+    for (int index = 0; index < rightList.Length; index++)
+        WriteWord(bus, 0xa2e477 + index * 2, rightList[index]);
+    for (int index = 0; index < leftList.Length; index++)
+        WriteWord(bus, 0xa2e48b + index * 2, leftList[index]);
+
+    // Power Beam is ineffective, Ice freezes, and missiles/supers use multiplier two.
+    for (int offset = 0; offset < 22; offset++)
+        bus.WriteByte(0xb40000 | (vulnerabilityPointer + offset), 0);
+    bus.WriteByte(0xb40000 | (vulnerabilityPointer + 2), 0xff);
+    bus.WriteByte(0xb40000 | (vulnerabilityPointer + 12), 2);
+    bus.WriteByte(0xb40000 | (vulnerabilityPointer + 13), 2);
+
+    WriteWord(bus, 0xb40000 | tilesetPointer, definitionPointer);
+    WriteWord(bus, (0xb40000 | tilesetPointer) + 2, 0);
+    WriteWord(bus, (0xb40000 | tilesetPointer) + 4, 0xffff);
+
+    int population = 0xa10000 | populationPointer;
+    WriteWord(bus, population, definitionPointer);
+    WriteWord(bus, population + 2, 80);
+    WriteWord(bus, population + 4, 64);
+    WriteWord(bus, population + 6, 0);
+    WriteWord(bus, population + 8, 0x2800);
+    WriteWord(bus, population + 10, 0);
+    WriteWord(bus, population + 12, 1);
+    WriteWord(bus, population + 14, 1);
+    WriteWord(bus, population + 16, 0xffff);
+    bus.WriteByte(population + 18, 1);
+
+    const int roomWidth = 16;
+    const int roomHeight = 8;
+    ushort[] foreground = new ushort[roomWidth * roomHeight];
+    // Column six begins at X=96. Ripper's eight-pixel radius therefore aligns its center to
+    // X=88 and reverses when its positive leading edge first enters this wall.
+    for (int row = 0; row < roomHeight; row++)
+        foreground[row * roomWidth + 6] = 0x8000;
+    RoomLevelData level = new(
+        roomWidth,
+        roomHeight,
+        foreground,
+        new byte[foreground.Length],
+        new ushort[foreground.Length],
+        new byte[8]);
+
+    var enemies = new RoomEnemySystem();
+    enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0);
+    RoomEnemySlot ripper = enemies.Slots[0];
+    AssertEqual(0xe477, ripper.CurrentInstruction, "Ripper init right animation list");
+    AssertEqual(1, ripper.VariableD, "Ripper init signed whole X velocity");
+    AssertEqual(0, ripper.VariableC, "Ripper init X subvelocity");
+
+    for (int frame = 0; frame < 9; frame++)
+        enemies.StepFrame(0, 0, timeIsFrozen: false, level: level);
+    AssertEqual(88, ripper.XPosition, "Ripper wall-aligned reversal X");
+    AssertEqual(0xffff, ripper.VariableD, "Ripper reversal signed whole X velocity");
+    AssertEqual(0xe527, ripper.SpritemapPointer, "Ripper reversal selects left-facing frame");
+
+    var samus = new SamusState
+    {
+        Health = 99,
+        XPosition = ripper.XPosition,
+        YPosition = ripper.YPosition,
+    };
+    AssertTrue(enemies.ResolveOrdinarySamusContact(samus, controllerInput: 0),
+        "Ripper radius contact reaches common touch AI");
+    AssertEqual(94, samus.Health, "Ripper header contact damage");
+    AssertEqual(0x60, samus.InvincibilityTimer, "Ripper contact invincibility clock");
+    AssertEqual(5, samus.KnockbackTimer, "Ripper contact knockback clock");
+
+    var projectiles = new SamusProjectileSystem();
+    var sharedProjectiles = new SamusBombProjectileSystem();
+    WriteWord(bus, 0x93867b, 0x9100);
+    WriteWord(bus, 0x93867f, 0x9200);
+
+    static void ArmProjectile(
+        SamusProjectileSlot projectile,
+        RoomEnemySlot target,
+        ushort type,
+        ushort damage)
+    {
+        projectile.ClearFields();
+        projectile.Type = type;
+        projectile.Damage = damage;
+        projectile.Direction = 2;
+        projectile.XPosition = target.XPosition;
+        projectile.YPosition = target.YPosition;
+        projectile.XRadius = 4;
+        projectile.YRadius = 4;
+        projectile.InstructionPointer = 0x9000;
+        projectile.InstructionTimer = 1;
+    }
+
+    SamusProjectileSlot shot = projectiles.Slots[0];
+    ArmProjectile(shot, ripper, type: 0, damage: 20);
+    AssertEqual(1, enemies.ResolveOrdinaryProjectileHits(bus, projectiles, sharedProjectiles),
+        "Ripper ineffective power-beam collision");
+    AssertEqual(200, ripper.Health, "Ripper power-beam immunity comes from ROM vulnerability");
+
+    ArmProjectile(shot, ripper, type: 2, damage: 20);
+    AssertEqual(1, enemies.ResolveOrdinaryProjectileHits(bus, projectiles, sharedProjectiles),
+        "Ripper Ice Beam collision");
+    AssertEqual(400, ripper.FrozenTimer, "Ripper Ice vulnerability freezes actor");
+    ushort frozenX = ripper.XPosition;
+    enemies.StepFrame(0, 0, timeIsFrozen: false, level: level);
+    AssertEqual(frozenX, ripper.XPosition, "frozen Ripper suppresses movement");
+    AssertEqual(399, ripper.FrozenTimer, "frozen Ripper timer advances");
+
+    // Clear the focused freeze fixture and prove the missile multiplier, hurt flash, and
+    // common death/deletion accounting on the same loaded actor.
+    ripper.FrozenTimer = 0;
+    ripper.InvincibilityTimer = 0;
+    ripper.AiHandlerBits = 0;
+    for (int hit = 0; hit < 2; hit++)
+    {
+        ArmProjectile(shot, ripper, type: 0x0100, damage: 100);
+        AssertEqual(1, enemies.ResolveOrdinaryProjectileHits(bus, projectiles, sharedProjectiles),
+            $"Ripper missile hit {hit + 1}");
+    }
+    AssertEqual(0, ripper.Health, "Ripper missile vulnerability reaches zero health");
+    AssertTrue(ripper.Properties.HasAny(EnemyProperties.Deleted),
+        "Ripper zero health publishes deleted property");
+    AssertEqual(1, enemies.EnemiesKilled, "Ripper death increments room kill count");
+
+    Console.WriteLine(
+        "  Ripper: ROM load, animation, 16.16 movement, wall reversal, contact, " +
+        "vulnerabilities, freeze, damage, and death agree.");
+}
+
+/// <summary>
 /// Proves that the stationary Ceres elevator platform is animated by the room's variant-two
 /// door actor, not by either arrival projectile that is deleted when the platform lands.
 /// </summary>

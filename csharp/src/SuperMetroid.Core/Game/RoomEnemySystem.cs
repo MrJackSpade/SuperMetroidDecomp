@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
 
@@ -174,7 +175,8 @@ public sealed partial class RoomEnemySystem
         ushort cameraY,
         bool timeIsFrozen,
         SamusState? samus = null,
-        ushort newlyPressedControllerInput = 0)
+        ushort newlyPressedControllerInput = 0,
+        RoomLevelData? level = null)
     {
         EnsureLoaded();
         LastGunshipEvent = GunshipFrameEvent.None;
@@ -187,10 +189,21 @@ public sealed partial class RoomEnemySystem
             RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
             if (!timeIsFrozen)
             {
-                RunMainAi(slot, samus, newlyPressedControllerInput);
-                slot.FrameCounter = unchecked((ushort)(slot.FrameCounter + 1));
-                if (slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
-                    ProcessInstructions(slot, samus);
+                if (slot.FrozenTimer != 0)
+                {
+                    // Common_NormalEnemyFrozenAI owns the actor while its freeze clock is
+                    // nonzero. Movement and instruction animation do not run underneath it.
+                    slot.FrozenTimer = unchecked((ushort)(slot.FrozenTimer - 1));
+                    if (slot.FrozenTimer == 0)
+                        slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~0x0004));
+                }
+                else
+                {
+                    RunMainAi(slot, samus, newlyPressedControllerInput, level);
+                    slot.FrameCounter = unchecked((ushort)(slot.FrameCounter + 1));
+                    if (slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
+                        ProcessInstructions(slot, samus);
+                }
             }
 
             // EnemyMain queues ordinary-sprite actors only after AI and instruction work.
@@ -207,6 +220,8 @@ public sealed partial class RoomEnemySystem
             // frame just processed rather than the already-decremented following frame.
             if (!timeIsFrozen && slot.FlashTimer != 0)
                 slot.FlashTimer = unchecked((ushort)(slot.FlashTimer - 1));
+            if (!timeIsFrozen && slot.InvincibilityTimer != 0)
+                slot.InvincibilityTimer = unchecked((ushort)(slot.InvincibilityTimer - 1));
         }
 
         // DetermineWhichEnemiesToProcess freezes only the index list. Later bank-$94
@@ -541,6 +556,9 @@ public sealed partial class RoomEnemySystem
             case 0xa6a0f5 when slot.EnemyDefinitionPointer == 0xe13f:
                 InitializeCeresRidley(slot);
                 return;
+            case 0xa2e49f when slot.EnemyDefinitionPointer == RipperDefinition:
+                InitializeRipper(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -667,7 +685,11 @@ public sealed partial class RoomEnemySystem
         slot.VariableF = 0x804c;
     }
 
-    private void RunMainAi(RoomEnemySlot slot, SamusState? samus, ushort newlyPressedControllerInput)
+    private void RunMainAi(
+        RoomEnemySlot slot,
+        SamusState? samus,
+        ushort newlyPressedControllerInput,
+        RoomLevelData? level)
     {
         int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
         switch (address)
@@ -685,6 +707,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa6a288 when slot.EnemyDefinitionPointer == 0xe13f:
                 RunCeresRidleyMain(slot, samus);
+                return;
+            case 0xa2e4da when slot.EnemyDefinitionPointer == RipperDefinition:
+                RunRipperMain(slot, level);
                 return;
             default:
                 throw new NotSupportedException(

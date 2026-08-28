@@ -106,6 +106,7 @@ VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();
 VerifyScrollingSkyState();
 VerifyRoomEnemyLoading();
+VerifyRipperEnemy();
 VerifyCeresElevatorPlatformAnimation();
 VerifyCeresRidleyRoomEntry();
 

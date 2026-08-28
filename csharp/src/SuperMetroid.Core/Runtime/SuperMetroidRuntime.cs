@@ -1000,7 +1000,8 @@ public sealed partial class SuperMetroidRuntime
                 Camera.YPosition,
                 Samus?.Xray.TimeIsFrozen ?? false,
                 Samus,
-                Controller1.NewlyPressed);
+                Controller1.NewlyPressed,
+                LevelData);
             // `$A6:A2DF` does not install the post-enemy hook until Ridley's animation word
             // becomes nonzero. Before the reveal it branches directly into `$A6:A2E3`
             // during EnemyMain, so emit the Baby/door OBJ now—before queued enemy layers.
@@ -1011,6 +1012,9 @@ public sealed partial class SuperMetroidRuntime
             if (Samus is not null && !(Samus.Xray.TimeIsFrozen))
             {
                 Enemies.ResolveCeresRidleySamusContact(
+                    Samus,
+                    Controller1.Current);
+                Enemies.ResolveOrdinarySamusContact(
                     Samus,
                     Controller1.Current);
             }
@@ -1279,10 +1283,14 @@ public sealed partial class SuperMetroidRuntime
                     // bank-$90 has now advanced the projectile slots, and the enemy-specific
                     // shot handler owns the overlap result. Ceres Ridley deliberately counts
                     // contacts instead of losing his pinned $7FFF health word.
-                    Enemies.ResolveCeresRidleyProjectileHits(
-                        _addressSpace,
-                        Projectiles,
-                        BombProjectiles);
+                Enemies.ResolveCeresRidleyProjectileHits(
+                    _addressSpace,
+                    Projectiles,
+                    BombProjectiles);
+                Enemies.ResolveOrdinaryProjectileHits(
+                    _addressSpace,
+                    Projectiles,
+                    BombProjectiles);
 
                     // `$90:E6C0` dispatches the selected HUD producer and `$90:EB20`
                     // immediately clears `$0B5E`. Pose initialization occurs later in the

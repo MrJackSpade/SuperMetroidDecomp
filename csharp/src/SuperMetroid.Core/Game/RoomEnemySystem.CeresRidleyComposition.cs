@@ -646,7 +646,7 @@ public sealed partial class RoomEnemySystem
             if (xDistance < samus.Kinematics.XRadius + 14 &&
                 yDistance < samus.Kinematics.YRadius + 14)
             {
-                ApplyCeresRidleyTouchDamage(
+                ApplyNormalEnemyTouchDamage(
                     samus,
                     controllerInput,
                     _ceresRidley.TailDamage,
@@ -665,7 +665,7 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        ApplyCeresRidleyTouchDamage(
+        ApplyNormalEnemyTouchDamage(
             samus,
             controllerInput,
             damageBeforeSuit: 5,
@@ -740,7 +740,7 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
-    private void ApplyCeresRidleyTouchDamage(
+    private void ApplyNormalEnemyTouchDamage(
         SamusState samus,
         ushort controllerInput,
         ushort damageBeforeSuit,

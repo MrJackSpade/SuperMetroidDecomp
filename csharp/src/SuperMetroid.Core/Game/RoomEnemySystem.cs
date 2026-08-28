@@ -220,6 +220,11 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_bullDecelerationTimerResets);
         Array.Clear(_bullShotReactionDisableTimers);
         Array.Clear(_bullPreviousHealth);
+        Array.Clear(_atomicStates);
+        Array.Clear(_atomicSpeedFractions);
+        Array.Clear(_atomicSpeedWholes);
+        Array.Clear(_atomicNegativeSpeedFractions);
+        Array.Clear(_atomicNegativeSpeedWholes);
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -778,6 +783,9 @@ public sealed partial class RoomEnemySystem
             case 0xa8d8c9 when slot.EnemyDefinitionPointer == BullDefinition:
                 InitializeBull(slot);
                 return;
+            case 0xa8e388 when slot.EnemyDefinitionPointer == AtomicDefinition:
+                InitializeAtomic(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -995,6 +1003,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa8d90b when slot.EnemyDefinitionPointer == BullDefinition:
                 RunBullMain(slot, RequireBullState(slot), samus);
+                return;
+            case 0xa8e3c3 when slot.EnemyDefinitionPointer == AtomicDefinition:
+                RunAtomicMain(slot, RequireAtomicState(slot), samus);
                 return;
             default:
                 throw new NotSupportedException(

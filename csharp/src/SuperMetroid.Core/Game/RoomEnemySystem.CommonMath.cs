@@ -67,6 +67,25 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
+    /// Returns the cartridge's modular absolute value of one signed 16-bit difference.
+    /// Value $8000 intentionally remains $8000: the 65816 negation wraps, just like this
+    /// unchecked host operation. Alcoon, Beetom, Work Robot, Polyp, and Namihe all consume
+    /// this exact bank-$A0 distance convention.
+    /// </summary>
+    private static ushort WrappedMagnitude(ushort value) =>
+        unchecked((short)value) < 0 ? unchecked((ushort)-value) : value;
+
+    /// <summary>
+    /// Implements the shared bank-$A0 proximity helpers' strict <c>magnitude &lt; limit</c>
+    /// test. Equality is outside, and subtraction happens in wrapped 16-bit world space.
+    /// </summary>
+    private static bool IsWithinStrictModularDistance(
+        ushort firstCoordinate,
+        ushort secondCoordinate,
+        ushort limit) =>
+        WrappedMagnitude(unchecked((ushort)(firstCoordinate - secondCoordinate))) < limit;
+
+    /// <summary>
     /// Reads one signed 16.16 entry from <c>CommonEnemySpeeds_LinearlyIncreasing</c>.
     /// <paramref name="byteOffset"/> is the native byte index, including the four-byte
     /// positive/negative half selector used by several enemy parameter formats.

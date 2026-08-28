@@ -409,9 +409,6 @@ public sealed partial class RoomEnemySystem
         slot.YSubposition = unchecked((ushort)fixedY);
     }
 
-    private static ushort WrappedMagnitude(ushort value) =>
-        unchecked((short)value) < 0 ? unchecked((ushort)-value) : value;
-
     private static void GuardAlcoonJumpSimulation(int iterations, RoomEnemySlot slot)
     {
         if (iterations > AlcoonJumpSimulationLimit)

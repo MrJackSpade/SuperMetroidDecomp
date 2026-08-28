@@ -153,6 +153,7 @@ public sealed partial class RoomEnemySystem
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
         LastAlcoonSoundEffect = null;
+        LastFuneNamiheSoundEffect = null;
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
@@ -174,6 +175,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_owtchStates);
         Array.Clear(_multiviolaStates);
         Array.Clear(_polypStates);
+        Array.Clear(_funeNamiheStates);
         Array.Clear(_crawlerStates);
         Array.Clear(_skreeStates);
         Array.Clear(_flyStates);
@@ -336,6 +338,7 @@ public sealed partial class RoomEnemySystem
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
         LastAlcoonSoundEffect = null;
+        LastFuneNamiheSoundEffect = null;
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
@@ -776,6 +779,9 @@ public sealed partial class RoomEnemySystem
             case 0xa2b570 when slot.EnemyDefinitionPointer == PolypDefinition:
                 InitializePolyp(slot);
                 return;
+            case 0xa896e3 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                InitializeFuneNamihe(slot);
+                return;
             case 0xa2a6d2:
                 InitializeGunshipBottom(slot);
                 return;
@@ -1070,6 +1076,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa2b58f when slot.EnemyDefinitionPointer == PolypDefinition:
                 RunPolypMain(slot, RequirePolypState(slot), samus);
+                return;
+            case 0xa89730 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), samus);
                 return;
             case 0xa2804c:
                 return;
@@ -1649,6 +1658,45 @@ public sealed partial class RoomEnemySystem
                     break;
                 case 0xa571 when slot.EnemyDefinitionPointer == OwtchDefinition:
                     SetOwtchMovingRight(RequireOwtchState(slot));
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9625 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                    // Shared mouth animation queues library-two sound $1F.
+                    QueueFuneNamiheSpitSound();
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9631 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                    SpawnFuneNamiheFireball(
+                        slot,
+                        movingRight: false,
+                        RoomEnemyProjectileKind.NamiheFireball);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x964a when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                    SpawnFuneNamiheFireball(
+                        slot,
+                        movingRight: true,
+                        RoomEnemyProjectileKind.NamiheFireball);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9663 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                    SpawnFuneNamiheFireball(
+                        slot,
+                        movingRight: false,
+                        RoomEnemyProjectileKind.FuneFireball);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x967c when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                    SpawnFuneNamiheFireball(
+                        slot,
+                        movingRight: true,
+                        RoomEnemyProjectileKind.FuneFireball);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9695 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                case 0x96b4 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                    // Left/right lists use duplicate opcodes with byte-for-byte state effects.
+                    FinishFuneNamiheActivity(RequireFuneNamiheState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xcc36 when slot.EnemyDefinitionPointer == YardDefinition:

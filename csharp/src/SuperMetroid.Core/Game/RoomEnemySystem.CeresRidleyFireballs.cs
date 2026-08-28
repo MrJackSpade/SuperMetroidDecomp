@@ -43,6 +43,8 @@ public enum RoomEnemyProjectileKind : ushort
     PolypRock = 0xbd5a,
     CacatacSpike = 0xdafe,
     StokeProjectile = 0xdbf2,
+    NamiheFireball = 0xdfbc,
+    FuneFireball = 0xdfca,
 }
 
 /// <summary>
@@ -503,6 +505,10 @@ public sealed partial class RoomEnemySystem
 
             case PolypRockPreInstruction: // Polyp rock: quadratic rise/fall and viewport cull.
                 RunPolypRockPreInstruction(projectile, cameraX, cameraY);
+                return;
+
+            case NamiFuneFireballPreInstruction: // Fune/Namihe: directional 8.8 flight and cull.
+                RunFuneNamiheFireballPreInstruction(projectile, cameraX, cameraY);
                 return;
 
             case 0xf3f0: // Spark projectile: 16.16 gravity, floor bounce, and trail objects.

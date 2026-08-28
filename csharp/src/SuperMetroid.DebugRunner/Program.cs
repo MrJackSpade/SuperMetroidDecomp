@@ -78,6 +78,18 @@ if (args.Length >= 2 && args[0] == "--single-chamber-multiviola-audit")
     return MultiviolaAudit.Run(multiviolaRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--volcano-enemy-audit")
+{
+    string volcanoRomPath = string.Join(' ', args[1..]).Trim('"');
+    return VolcanoEnemyAudit.Run(volcanoRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--lava-dive-namihe-audit")
+{
+    string namiheRomPath = string.Join(' ', args[1..]).Trim('"');
+    return NamiheAudit.Run(namiheRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

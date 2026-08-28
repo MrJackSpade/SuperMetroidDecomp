@@ -1390,7 +1390,8 @@ public sealed partial class SuperMetroidRuntime
                         LevelData,
                         Samus,
                         Controller1.Current,
-                        Plms);
+                        Plms,
+                        Enemies.ResolveGrappleEndpoint);
                     grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
                 }
                 else if (Samus.Grapple.Phase == GrapplePhase.CancelPending)
@@ -1411,7 +1412,8 @@ public sealed partial class SuperMetroidRuntime
                         Samus,
                         Controller1.Current,
                         Controller1.NewlyPressed,
-                        NmiFrameCounter);
+                        NmiFrameCounter,
+                        Enemies.ResolveGrappleEndpoint);
                     grappleOwnsMovement = true;
                 }
                 else if (DebugGrappleItemSelected &&

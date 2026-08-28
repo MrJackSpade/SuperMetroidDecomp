@@ -154,6 +154,7 @@ public static partial class SamusGrappleMovement
         grapple.JumpImpulse = 0;
         grapple.CollisionBounceTimer = 0;
         grapple.ValidateAnchorBlock = false;
+        grapple.ValidateAnchorEnemy = false;
         grapple.SpecialAngleHandling = false;
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
@@ -268,16 +269,16 @@ public static partial class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Ports the block-only portion of <c>GrappleBeamFunc_Firing</c> at <c>$9B:C703</c>
-    /// and <c>BlockCollGrappleBeam</c> at <c>$94:A85B</c>. Enemy grapple collision remains
-    /// an explicit producer seam because the runtime has not introduced live enemies.
+    /// Ports <c>GrappleBeamFunc_Firing</c> at <c>$9B:C703</c>, including the bank-$A0
+    /// enemy pass which precedes <c>BlockCollGrappleBeam</c> at <c>$94:A85B</c>.
     /// </summary>
     public static GrappleMovementResult StepFiring(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        RoomPlmSystem? plms = null)
+        RoomPlmSystem? plms = null,
+        Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -299,6 +300,43 @@ public static partial class SamusGrappleMovement
         grapple.RopeLength = unchecked((ushort)(grapple.RopeLength + 12));
         if (grapple.RopeLength >= 128)
             return QueueFiringCancellation(grapple);
+
+        // `$9B:C73D` tests the current endpoint against ordinary enemies before moving the
+        // beam through its four block-collision substeps. The collision producer sets the
+        // enemy's common grapple-handler bit; this consumer interprets only the header's
+        // seven common reaction indexes. Kill/no-interaction deliberately fall through to
+        // terrain, exactly like the native zero return from their reaction functions.
+        if (enemyCollision is not null)
+        {
+            GrappleEnemyCollision enemy = enemyCollision(grapple.AnchorX, grapple.AnchorY);
+            switch (enemy.Reaction)
+            {
+                case GrappleEnemyReaction.Attach:
+                case GrappleEnemyReaction.AttachWithoutInvincibility:
+                case GrappleEnemyReaction.AttachAndParalyze:
+                    grapple.AnchorX = enemy.AnchorX;
+                    grapple.AnchorY = enemy.AnchorY;
+                    return ConnectAcceptedFiring(
+                        bus,
+                        samus,
+                        grapple,
+                        previousXPosition,
+                        previousYPosition,
+                        validateAnchorBlock: false,
+                        validateAnchorEnemy: true);
+
+                case GrappleEnemyReaction.Cancel:
+                    return QueueFiringCancellation(grapple);
+
+                case GrappleEnemyReaction.HurtSamus:
+                    ApplyGrappleEnemyDamage(
+                        bus,
+                        samus,
+                        controllerInput,
+                        enemy.EnemyDamage);
+                    return QueueFiringCancellation(grapple);
+            }
+        }
 
         // $94:A85B shifts each table velocity left six and performs four identical probes.
         // Since the table is velocity*100h, the four additions together move exactly one
@@ -392,6 +430,7 @@ public static partial class SamusGrappleMovement
         // Landing Site regression does exactly that), so only a beam acquired through the
         // block dispatcher opts into bank-$9B's per-frame connection revalidation.
         grapple.ValidateAnchorBlock = false;
+        grapple.ValidateAnchorEnemy = false;
         grapple.SpecialAngleHandling = false;
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
@@ -442,7 +481,8 @@ public static partial class SamusGrappleMovement
         SamusState samus,
         ushort controllerInput,
         ushort newlyPressedInput,
-        ushort nmiFrameCounter = 0)
+        ushort nmiFrameCounter = 0,
+        Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -460,9 +500,9 @@ public static partial class SamusGrappleMovement
         // These are literal bank-$9B function-pointer phases. Each handler owns the whole
         // grapple beta pass, so dispatch it before entering ordinary pendulum integration.
         if (grapple.Phase == GrapplePhase.ConnectedLocked)
-            return StepLocked(level, samus, controllerInput);
+            return StepLocked(level, samus, controllerInput, enemyCollision);
         if (grapple.Phase == GrapplePhase.WallGrab)
-            return StepWallGrab(level, samus, controllerInput);
+            return StepWallGrab(level, samus, controllerInput, enemyCollision);
         if (grapple.Phase == GrapplePhase.WallGrabRelease)
             return StepWallGrabRelease(bus, level, samus, newlyPressedInput);
         if (grapple.Phase == GrapplePhase.WallJumping)
@@ -533,7 +573,12 @@ public static partial class SamusGrappleMovement
             };
         }
 
-        if (grapple.ValidateAnchorBlock && !IsStillConnectedToSupportedBlock(level, samus, grapple))
+        bool enemyAnchorHeld = TryRetainEnemyAnchor(grapple, enemyCollision);
+        bool anchorDisconnected = !enemyAnchorHeld &&
+            (grapple.ValidateAnchorEnemy ||
+             grapple.ValidateAnchorBlock &&
+                !IsStillConnectedToSupportedBlock(level, samus, grapple));
+        if (anchorDisconnected)
         {
             // The persistent block path normally remains connected forever. Retain the
             // native validation seam so a future dynamic/breakable PLM cannot leave a rope
@@ -581,15 +626,19 @@ public static partial class SamusGrappleMovement
     private static GrappleMovementResult StepLocked(
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput)
+        ushort controllerInput,
+        Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
 
         // `$9B:C77E` does no pendulum work. It merely retains the frozen pose while Shoot
         // remains held and either an enemy or the stored block still supports the endpoint.
         bool shootHeld = (controllerInput & (ushort)SnesButton.X) != 0;
-        bool anchorHeld = !grapple.ValidateAnchorBlock ||
-            IsStillConnectedToSupportedBlock(level, samus, grapple);
+        bool enemyAnchorHeld = TryRetainEnemyAnchor(grapple, enemyCollision);
+        bool anchorHeld = enemyAnchorHeld || (grapple.ValidateAnchorEnemy
+            ? false
+            : !grapple.ValidateAnchorBlock ||
+                IsStillConnectedToSupportedBlock(level, samus, grapple));
         if (shootHeld && anchorHeld)
         {
             return new GrappleMovementResult(
@@ -614,15 +663,81 @@ public static partial class SamusGrappleMovement
             AnchorDisconnected: !anchorHeld);
     }
 
+    /// <summary>
+    /// Replays the connected-beam enemy test at <c>$9B:C7E4</c>. Any nonzero common
+    /// reaction keeps the connection alive for this frame; attach reactions additionally
+    /// follow a moving actor's center. A missing callback is accepted only for debugger
+    /// states that did not opt into live-enemy validation.
+    /// </summary>
+    private static bool TryRetainEnemyAnchor(
+        SamusGrappleState grapple,
+        Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision)
+    {
+        if (enemyCollision is null)
+            return false;
+
+        GrappleEnemyCollision enemy = enemyCollision(grapple.AnchorX, grapple.AnchorY);
+        if (enemy.Reaction == GrappleEnemyReaction.None)
+            return false;
+
+        if (enemy.Attaches)
+        {
+            grapple.AnchorX = enemy.AnchorX;
+            grapple.AnchorY = enemy.AnchorY;
+            grapple.ValidateAnchorBlock = false;
+            grapple.ValidateAnchorEnemy = true;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Applies common grapple reaction six. Unlike ordinary body contact, bank $9B selects
+    /// horizontal knockback from Samus's facing direction, but suit division and the
+    /// `$60/$05` hurt lifetimes are the same shared gameplay contracts.
+    /// </summary>
+    private static void ApplyGrappleEnemyDamage(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        ushort controllerInput,
+        ushort damageBeforeSuit)
+    {
+        ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+            ? unchecked((ushort)(damageBeforeSuit >> 2))
+            : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
+                ? unchecked((ushort)(damageBeforeSuit >> 1))
+                : damageBeforeSuit;
+        samus.Health = samus.Health <= damage
+            ? (ushort)0
+            : unchecked((ushort)(samus.Health - damage));
+        samus.InvincibilityTimer = 0x0060;
+
+        // Facing left is knocked right and facing right is knocked left. Start owns the
+        // authentic pose, animation, vertical speed, contact-damage cancellation, and
+        // hurt-flash side effects instead of duplicating those writes here.
+        ushort knockbackXDirection = SamusState.IsFacingLeft(bus, samus.Pose)
+            ? (ushort)1
+            : (ushort)0;
+        SamusKnockbackMovement.Start(
+            bus,
+            samus,
+            controllerInput,
+            knockbackXDirection,
+            knockbackTimer: 5);
+    }
+
     private static GrappleMovementResult StepWallGrab(
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput)
+        ushort controllerInput,
+        Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
         bool shootHeld = (controllerInput & (ushort)SnesButton.X) != 0;
-        bool anchorHeld = !grapple.ValidateAnchorBlock ||
-            IsStillConnectedToSupportedBlock(level, samus, grapple);
+        bool enemyAnchorHeld = TryRetainEnemyAnchor(grapple, enemyCollision);
+        bool anchorHeld = enemyAnchorHeld || (grapple.ValidateAnchorEnemy
+            ? false
+            : !grapple.ValidateAnchorBlock ||
+                IsStillConnectedToSupportedBlock(level, samus, grapple));
         if (shootHeld && anchorHeld)
         {
             return new GrappleMovementResult(

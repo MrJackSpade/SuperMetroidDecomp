@@ -93,6 +93,8 @@ public static partial class SamusGrappleMovement
         grapple.JumpImpulse = 0;
         grapple.RopeLengthDelta = 0;
         grapple.CollisionBounceTimer = 0;
+        grapple.ValidateAnchorBlock = false;
+        grapple.ValidateAnchorEnemy = false;
         ClearFlareAnimation(grapple);
     }
 
@@ -114,6 +116,7 @@ public static partial class SamusGrappleMovement
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
         grapple.ValidateAnchorBlock = false;
+        grapple.ValidateAnchorEnemy = false;
         ClearFlareAnimation(grapple);
     }
 

@@ -202,6 +202,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_beetomDirections);
         Array.Clear(_beetomInitialAttachmentXOffsets);
         Array.Clear(_beetomInitialAttachmentYOffsets);
+        Array.Clear(_powampStates);
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -280,15 +281,27 @@ public sealed partial class RoomEnemySystem
             RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
             if (!timeIsFrozen)
             {
-                if (slot.FrozenTimer != 0)
+                bool ranActorAi = RunCommonGrappleAi(
+                    slot,
+                    samus,
+                    newlyPressedControllerInput,
+                    controllerInput,
+                    level,
+                    cameraX,
+                    cameraY);
+                if (!ranActorAi &&
+                    (slot.FrozenTimer != 0 || (slot.AiHandlerBits & 0x0004) != 0))
                 {
                     // Common_NormalEnemyFrozenAI owns the actor while its freeze clock is
-                    // nonzero. Movement and instruction animation do not run underneath it.
-                    slot.FrozenTimer = unchecked((ushort)(slot.FrozenTimer - 1));
+                    // nonzero. Grapple-cancel reactions also select this handler with a
+                    // zero clock; that call clears bit four without running main AI.
+                    slot.FlashTimer = 0;
+                    if (slot.FrozenTimer != 0)
+                        slot.FrozenTimer = unchecked((ushort)(slot.FrozenTimer - 1));
                     if (slot.FrozenTimer == 0)
                         slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~0x0004));
                 }
-                else
+                else if (!ranActorAi)
                 {
                     RunMainAi(
                         slot,
@@ -298,6 +311,11 @@ public sealed partial class RoomEnemySystem
                         level,
                         cameraX,
                         cameraY);
+                    ranActorAi = true;
+                }
+
+                if (ranActorAi)
+                {
                     slot.FrameCounter = unchecked((ushort)(slot.FrameCounter + 1));
                     if (slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
                         ProcessInstructions(slot, samus, level);
@@ -731,6 +749,9 @@ public sealed partial class RoomEnemySystem
             case 0xa8b776 when slot.EnemyDefinitionPointer == BeetomDefinition:
                 InitializeBeetom(slot, samus, controllerInput);
                 return;
+            case 0xa8c1c9 when slot.EnemyDefinitionPointer == PowampDefinition:
+                InitializePowamp(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -937,6 +958,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa8b80d when slot.EnemyDefinitionPointer == BeetomDefinition:
                 RunBeetomMain(slot, RequireBeetomState(slot), samus, level, controllerInput);
+                return;
+            case 0xa8c21c when slot.EnemyDefinitionPointer == PowampDefinition:
+                RunPowampMain(slot, RequirePowampState(slot), level);
                 return;
             default:
                 throw new NotSupportedException(

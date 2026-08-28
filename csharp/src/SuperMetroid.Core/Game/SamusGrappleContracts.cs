@@ -16,6 +16,36 @@ public enum GrapplePhase
 }
 
 /// <summary>
+/// The seven indices returned by <c>EnemyGrappleBeamCollisionDetection</c> at $A0:9E9A.
+/// Values intentionally match bank-$9B's jump table rather than introducing host ordering.
+/// </summary>
+public enum GrappleEnemyReaction : ushort
+{
+    None = 0,
+    Attach = 1,
+    Kill = 2,
+    Cancel = 3,
+    AttachWithoutInvincibility = 4,
+    AttachAndParalyze = 5,
+    HurtSamus = 6,
+}
+
+/// <summary>One endpoint sample from the live interactive-enemy list.</summary>
+public readonly record struct GrappleEnemyCollision(
+    bool Collided,
+    GrappleEnemyReaction Reaction,
+    ushort EnemyNativeIndex,
+    ushort AnchorX,
+    ushort AnchorY,
+    ushort EnemyDamage)
+{
+    public bool Attaches => Reaction is
+        GrappleEnemyReaction.Attach or
+        GrappleEnemyReaction.AttachWithoutInvincibility or
+        GrappleEnemyReaction.AttachAndParalyze;
+}
+
+/// <summary>
 /// Named equivalents of the bank-$9B grapple WRAM words used by connected swinging.
 /// </summary>
 public sealed class SamusGrappleState
@@ -77,6 +107,13 @@ public sealed class SamusGrappleState
     /// corresponding type-$E block in the selected diagnostic room.
     /// </summary>
     public bool ValidateAnchorBlock { get; set; }
+
+    /// <summary>
+    /// True when the accepted endpoint came from bank-$A0's interactive-enemy list. Such an
+    /// anchor must be reacquired every connected frame; it cannot be treated as the permanent
+    /// debugger seam merely because <see cref="ValidateAnchorBlock"/> is false.
+    /// </summary>
+    public bool ValidateAnchorEnemy { get; set; }
 
     /// <summary>
     /// Host-readable form of bit 15 in `$0D26`. A close collision at minimum rope length

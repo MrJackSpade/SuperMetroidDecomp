@@ -22,6 +22,9 @@ public sealed partial class RoomEnemySystem
     private const ushort YardShotAi = 0xd469;
     private const ushort BeetomTouchAi = 0xbe2e;
     private const ushort BeetomShotAi = 0xbeac;
+    private const ushort PowampTouchAi = 0xc5be;
+    private const ushort PowampShotAi = 0xc5ef;
+    private const ushort PowampPowerBombAi = 0xc63f;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -44,10 +47,13 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == PlatformNoOpTouchAi;
             bool isBeetom = slot.EnemyDefinitionPointer == BeetomDefinition &&
                 slot.Definition.TouchAiPointer == BeetomTouchAi;
+            bool isPowamp = slot.EnemyDefinitionPointer == PowampDefinition &&
+                slot.Definition.TouchAiPointer == PowampTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
                 isBeetom ||
+                isPowamp ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -103,6 +109,14 @@ public sealed partial class RoomEnemySystem
                     samus,
                     controllerInput);
             }
+            else if (isPowamp)
+            {
+                // init1 is zero only for the body before fatal shot damage. Balloons are
+                // normally absent from the interactive list because population property
+                // $0400 excludes them, but retain the handler's literal guard here too.
+                if (slot.Parameter2 == 0)
+                    ResolvePowampTouch(slot, samus, controllerInput);
+            }
             else if (isFireflea)
             {
                 ResolveFirefleaTouch(slot, samus, controllerInput);
@@ -145,6 +159,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == TripperShotAi;
             bool isBeetom = enemy.EnemyDefinitionPointer == BeetomDefinition &&
                 enemy.Definition.ShotAiPointer == BeetomShotAi;
+            bool isPowamp = enemy.EnemyDefinitionPointer == PowampDefinition &&
+                enemy.Definition.ShotAiPointer == PowampShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -152,6 +168,7 @@ public sealed partial class RoomEnemySystem
                 isFireflea ||
                 isTripper ||
                 isBeetom ||
+                isPowamp ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -166,6 +183,12 @@ public sealed partial class RoomEnemySystem
             {
                 continue;
             }
+
+            // Powamp writes one to body init1 as soon as a lethal shot starts its private
+            // 32-frame death. Later overlaps return before common shot AI, so they must not
+            // consume or explode the projectile while the body is still visibly deflating.
+            if (isPowamp && enemy.Parameter2 != 0)
+                continue;
 
             foreach (SamusProjectileSlot projectile in projectiles.Slots)
             {
@@ -242,6 +265,8 @@ public sealed partial class RoomEnemySystem
                     }
                     if (isBeetom)
                         ResolveBeetomShotAfterCommon(enemy, RequireBeetomState(enemy));
+                    if (isPowamp)
+                        ResolvePowampShotAfterCommon(enemy);
                     hitCount++;
                     break;
                 }
@@ -255,7 +280,7 @@ public sealed partial class RoomEnemySystem
                     enemy.Health = damage >= enemy.Health
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
-                    if (enemy.Health == 0)
+                    if (enemy.Health == 0 && !isPowamp)
                     {
                         // $A3:C7F5 adds Skree's four debris actors after the shared normal
                         // shot handler reports death, before the common death animation
@@ -283,6 +308,8 @@ public sealed partial class RoomEnemySystem
                 // including immune/zero-damage vulnerability results.
                 if (isBeetom)
                     ResolveBeetomShotAfterCommon(enemy, RequireBeetomState(enemy));
+                if (isPowamp)
+                    ResolvePowampShotAfterCommon(enemy);
 
                 hitCount++;
                 break;
@@ -339,7 +366,9 @@ public sealed partial class RoomEnemySystem
             ushort reactionPointer = enemy.Definition.PowerBombReactionPointer;
             bool isFireflea = enemy.EnemyDefinitionPointer == FirefleaDefinition &&
                 reactionPointer == FirefleaPowerBombAi;
-            if (reactionPointer != 0 && !isFireflea)
+            bool isPowamp = enemy.EnemyDefinitionPointer == PowampDefinition &&
+                reactionPointer == PowampPowerBombAi;
+            if (reactionPointer != 0 && !isFireflea && !isPowamp)
             {
                 throw new NotSupportedException(
                     $"Enemy ${enemy.EnemyDefinitionPointer:X4} power-bomb reaction " +
@@ -370,6 +399,9 @@ public sealed partial class RoomEnemySystem
                     }
                 }
             }
+
+            if (isPowamp && enemy.Parameter1 == 0)
+                ResolvePowampPowerBombAfterCommon(enemy);
 
             enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
             reactionCount++;

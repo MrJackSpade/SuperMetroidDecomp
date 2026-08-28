@@ -180,7 +180,9 @@ public static partial class SamusGrappleMovement
         SamusState samus,
         SamusGrappleState grapple,
         ushort previousXPosition,
-        ushort previousYPosition)
+        ushort previousYPosition,
+        bool validateAnchorBlock = true,
+        bool validateAnchorEnemy = false)
     {
         // Movement type $1A is the Draygon-held actor route at $9B:B98C. It bypasses all
         // three direction tables and depends on untranslated enemy ownership/positioning.
@@ -292,9 +294,16 @@ public static partial class SamusGrappleMovement
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
 
-        // Unlike ConnectUnobstructedSwing's explicit debugger seam, this anchor came from
-        // BlockGrappleReaction and must be revalidated every connected frame at $9B:C802.
-        grapple.ValidateAnchorBlock = true;
+        // Block and enemy acquisition share the same connection/pose machinery, but their
+        // following-frame validators have different owners. Keep those origins mutually
+        // exclusive so a moving Powamp anchor is never reinterpreted as room terrain.
+        if (validateAnchorBlock == validateAnchorEnemy)
+        {
+            throw new ArgumentException(
+                "A live grapple connection must have exactly one anchor validator.");
+        }
+        grapple.ValidateAnchorBlock = validateAnchorBlock;
+        grapple.ValidateAnchorEnemy = validateAnchorEnemy;
         grapple.SpecialAngleHandling = false;
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;

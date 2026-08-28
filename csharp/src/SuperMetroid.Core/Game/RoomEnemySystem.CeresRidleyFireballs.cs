@@ -27,6 +27,7 @@ public enum RoomEnemyProjectileKind : ushort
     CeresRidleyVerticalAfterburnUp = 0x9688,
     CeresRidleyVerticalAfterburnDown = 0x9696,
     AlcoonFireball = 0x9e90,
+    PowampSpike = 0xd298,
 }
 
 /// <summary>
@@ -58,6 +59,7 @@ public sealed class RoomEnemyProjectileSlot
     public ushort InvincibilityFrames { get; internal set; }
     public ushort RemainingAfterburns { get; internal set; }
     public ushort NextAfterburnKind { get; internal set; }
+    public ushort DirectionParameter { get; internal set; }
     public bool CanDamageSamus { get; internal set; }
 
     internal void Clear()
@@ -68,6 +70,7 @@ public sealed class RoomEnemyProjectileSlot
         InstructionPointer = InstructionTimer = SpritemapPointer = PreInstruction = 0;
         GraphicsIndex = XRadius = YRadius = Damage = InvincibilityFrames = 0;
         RemainingAfterburns = NextAfterburnKind = 0;
+        DirectionParameter = 0;
         CanDamageSamus = false;
     }
 }
@@ -316,6 +319,10 @@ public sealed partial class RoomEnemySystem
 
             case 0x9eff: // Alcoon fireball: Y then X collision, followed by horizontal drag.
                 RunAlcoonFireballPreInstruction(projectile, level);
+                return;
+
+            case 0xd263: // Powamp spike: radial acceleration and X-then-Y room collision.
+                RunPowampSpikePreInstruction(projectile, level);
                 return;
 
             default:

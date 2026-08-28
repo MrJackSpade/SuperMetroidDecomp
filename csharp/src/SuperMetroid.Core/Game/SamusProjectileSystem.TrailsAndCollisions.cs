@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -9,6 +10,119 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class SamusProjectileSystem
 {
+    /// <summary>
+    /// Applies the projectile-owned side effects that `$A0:9CC8-$9CD6` performs before an
+    /// extended enemy hitbox callback. Callers use this only when the callback rejects or
+    /// reflects the shot; accepted hits receive the same state through the ordinary impact
+    /// conversion path.
+    /// </summary>
+    public void ApplyExtendedEnemyCollisionPrelude(int slotIndex, bool markCollisionState)
+    {
+        if ((uint)slotIndex >= SlotCount)
+            throw new ArgumentOutOfRangeException(nameof(slotIndex));
+
+        SamusProjectileSlot slot = _slots[slotIndex];
+        if (!slot.IsActive)
+            return;
+
+        if (slot.PackedType.Family == SamusProjectileFamily.SuperMissile)
+        {
+            // The multibox collision walker writes the same global quake as a normal Super
+            // Missile impact before dispatching the hitbox callback. This remains observable
+            // even when gold Ninja armor ignores a fresh, not-yet-linked Super Missile.
+            EarthquakeType = 20;
+            EarthquakeTimer = 30;
+        }
+
+        if (markCollisionState)
+            slot.Direction = unchecked((ushort)(slot.Direction | 0x0010));
+    }
+
+    /// <summary>
+    /// Ports <c>ProjectileReflection</c> at `$90:BE00` after an enemy callback has replaced
+    /// the projectile direction. Reflection preserves the projectile family/type and world
+    /// position, but reconstructs its bank-$93 damage, direction-specific animation, radii,
+    /// and family pre-instruction exactly as the native routine does.
+    /// </summary>
+    public void ReflectFromEnemy(ISnesAddressSpace bus, int slotIndex)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if ((uint)slotIndex >= SlotCount)
+            throw new ArgumentOutOfRangeException(nameof(slotIndex));
+
+        SamusProjectileSlot slot = _slots[slotIndex];
+        if (!slot.IsActive)
+            return;
+
+        SamusProjectileFamily family = slot.PackedType.Family;
+        if (family == SamusProjectileFamily.SuperMissile)
+        {
+            // A live Super Missile stores its invisible collision-link byte index in the
+            // variable's low byte. `$90:BE17` clears that exact slot before repurposing the
+            // owner; it does not broadly delete unrelated Super Missile records.
+            int linkIndex = (slot.Variable & 0x00ff) >> 1;
+            if ((uint)linkIndex < SlotCount && linkIndex != slotIndex && _slots[linkIndex].IsActive)
+                ClearProjectile(_slots[linkIndex]);
+        }
+
+        if (family == SamusProjectileFamily.Beam)
+        {
+            // Beam reflection alone reinitializes velocity immediately. Missile families
+            // retain their old velocity until variable `$00F0` crosses into `$01F0` in the
+            // next Missile_Func1 call, at which point the new direction takes effect.
+            InitializePowerBeamVelocity(bus, slot);
+        }
+
+        int dataPointerTable;
+        int dataPointerIndex;
+        if (family == SamusProjectileFamily.Beam)
+        {
+            dataPointerTable = slot.PackedType.IsChargedBeam
+                ? ChargedBeamDataPointers
+                : UnchargedBeamDataPointers;
+            dataPointerIndex = slot.PackedType.BeamCombinationIndex;
+        }
+        else if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
+        {
+            dataPointerTable = NonBeamProjectileDataPointers;
+            dataPointerIndex = slot.PackedType.FamilyValue >> 8;
+        }
+        else
+        {
+            throw new NotSupportedException(
+                $"Projectile family ${slot.PackedType.FamilyValue:X3} cannot be reflected.");
+        }
+
+        ushort dataPointer = ReadWord(bus, dataPointerTable + dataPointerIndex * 2);
+        int data = 0x930000 | dataPointer;
+        slot.Damage = ReadWord(bus, data);
+        slot.InstructionPointer = ReadWord(
+            bus,
+            AddWithinBank(data, 2 + slot.PackedDirection.DirectionIndex * 2));
+        slot.XRadius = bus.ReadByte(
+            0x930000 | unchecked((ushort)(slot.InstructionPointer + 4)));
+        slot.YRadius = bus.ReadByte(
+            0x930000 | unchecked((ushort)(slot.InstructionPointer + 5)));
+        slot.InstructionTimer = 1;
+
+        if (family == SamusProjectileFamily.Missile)
+        {
+            slot.PreInstruction = SamusProjectilePreInstruction.Missile;
+            slot.Variable = 240;
+        }
+        else if (family == SamusProjectileFamily.SuperMissile)
+        {
+            slot.PreInstruction = SamusProjectilePreInstruction.SuperMissile;
+            slot.Variable = 240;
+        }
+        else
+        {
+            slot.PreInstruction = (slot.PackedType.BeamCombinationIndex & 1) == 0
+                ? SamusProjectilePreInstruction.NoWaveBeam
+                : SamusProjectilePreInstruction.WaveBeamFourFrameTrail;
+        }
+    }
+
     /// <summary>
     /// Applies intro Mother Brain's external projectile test at <c>$8B:B78A..B7BA</c>.
     /// </summary>

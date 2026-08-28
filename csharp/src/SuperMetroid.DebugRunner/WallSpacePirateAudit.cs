@@ -371,8 +371,11 @@ internal static class WallSpacePirateAudit
 
         LoadedWallPirates frozen = Load(bus, room, assets, 0, 0);
         RoomEnemySlot frozenActor = KeepOnly(frozen, 0);
-        frozenActor.FrozenTimer = 2;
+        // Freeze only after the initialization cursor has installed a real bank-$B2 map.
+        // `$804F` is a common-bank empty-map sentinel during allocation, not a Wall Pirate
+        // frame that native gameplay can collide while the family is already frozen.
         Prime(frozen, assets, frozenActor);
+        frozenActor.FrozenTimer = 2;
         frozen.Samus.XPosition = frozenActor.XPosition;
         frozen.Samus.YPosition = frozenActor.YPosition;
         frozen.Samus.InvincibilityTimer = 0;

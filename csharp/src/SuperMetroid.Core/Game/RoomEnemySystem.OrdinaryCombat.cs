@@ -1,3 +1,4 @@
+using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -34,6 +35,8 @@ public sealed partial class RoomEnemySystem
     private const ushort SpacePiratePowerBombAi = 0x8767;
     private const ushort SpacePirateTouchAi = 0x876c;
     private const ushort SpacePirateShotAi = 0x8779;
+    private const ushort GoldNinjaVulnerableHitboxShotAi = 0x87c8;
+    private const ushort GoldNinjaInvincibleHitboxShotAi = 0x883e;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -89,7 +92,24 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            if (!RadiusBoxesOverlap(
+            bool usesPirateExtendedHitboxes = isOrdinarySpacePirate &&
+                slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
+            bool overlapsSamus;
+            ushort hitboxTouchAi = slot.Definition.TouchAiPointer;
+            if (usesPirateExtendedHitboxes)
+            {
+                overlapsSamus = TryFindExtendedHitboxCallback(
+                    slot,
+                    samus.XPosition,
+                    samus.YPosition,
+                    samus.Kinematics.XRadius,
+                    samus.Kinematics.YRadius,
+                    selectShotCallback: false,
+                    out hitboxTouchAi);
+            }
+            else
+            {
+                overlapsSamus = RadiusBoxesOverlap(
                     slot.XPosition,
                     slot.YPosition,
                     slot.XRadius,
@@ -97,9 +117,22 @@ public sealed partial class RoomEnemySystem
                     samus.XPosition,
                     samus.YPosition,
                     samus.Kinematics.XRadius,
-                    samus.Kinematics.YRadius))
+                    samus.Kinematics.YRadius);
+            }
+
+            if (!overlapsSamus)
             {
                 continue;
+            }
+
+            // Space Pirate extended maps currently use the shared `$B2:876C` touch
+            // callback in every retail hitbox. Keep the pointer check explicit: silently
+            // treating a later family-specific attack box as ordinary body contact would
+            // recreate the exact radius-flattening bug this path is intended to remove.
+            if (usesPirateExtendedHitboxes && hitboxTouchAi != SpacePirateTouchAi)
+            {
+                throw new NotSupportedException(
+                    $"Space Pirate hitbox touch AI $B2:{hitboxTouchAi:X4} is not translated.");
             }
 
             if (isOrdinarySpacePirate && slot.FrozenTimer != 0)
@@ -279,7 +312,24 @@ public sealed partial class RoomEnemySystem
                     continue;
                 }
 
-                if (!RadiusBoxesOverlap(
+                bool usesPirateExtendedHitboxes = isOrdinarySpacePirate &&
+                    enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
+                bool overlapsProjectile;
+                ushort hitboxShotAi = enemy.Definition.ShotAiPointer;
+                if (usesPirateExtendedHitboxes)
+                {
+                    overlapsProjectile = TryFindExtendedHitboxCallback(
+                        enemy,
+                        projectile.XPosition,
+                        projectile.YPosition,
+                        projectile.XRadius,
+                        projectile.YRadius,
+                        selectShotCallback: true,
+                        out hitboxShotAi);
+                }
+                else
+                {
+                    overlapsProjectile = RadiusBoxesOverlap(
                         enemy.XPosition,
                         enemy.YPosition,
                         enemy.XRadius,
@@ -287,9 +337,60 @@ public sealed partial class RoomEnemySystem
                         projectile.XPosition,
                         projectile.YPosition,
                         projectile.XRadius,
-                        projectile.YRadius))
+                        projectile.YRadius);
+                }
+
+                if (!overlapsProjectile)
                 {
                     continue;
+                }
+
+                if (usesPirateExtendedHitboxes)
+                {
+                    PirateHitboxShotAction pirateAction = SelectPirateHitboxShotAction(
+                        bus,
+                        enemy,
+                        projectile,
+                        hitboxShotAi);
+                    if (pirateAction != PirateHitboxShotAction.Normal)
+                    {
+                        // `$A0:9CD1-$9CD6` marks a non-plasma projectile as having entered
+                        // an extended hitbox before the selected callback runs. Normal hits
+                        // get the equivalent lifecycle transition from TryStartEnemyImpact;
+                        // rejected and reflected hits return before that shared host path.
+                        // Enemy property bit $1000 also forces the mark in native code, but
+                        // its broader meaning is not yet proven, so it deliberately remains
+                        // a documented raw bit rather than a prematurely named enum member.
+                        bool forceCollisionState = (enemy.Properties & 0x1000) != 0 ||
+                            (projectile.Type & 0x0008) == 0;
+                        projectiles.ApplyExtendedEnemyCollisionPrelude(
+                            projectile.SlotIndex,
+                            forceCollisionState);
+                    }
+                    if (pirateAction == PirateHitboxShotAction.Ignore)
+                    {
+                        // `$B2:883E` deliberately returns for a just-fired Super Missile
+                        // whose link variable is still zero. The multibox collision walk
+                        // nevertheless exits after invoking that callback.
+                        hitCount++;
+                        break;
+                    }
+                    if (pirateAction == PirateHitboxShotAction.Reflect)
+                    {
+                        enemy.InvincibilityTimer = 10;
+                        projectile.Direction = (projectile.Direction & 0x000f) switch
+                        {
+                            (ushort)SamusProjectileDirection.Left =>
+                                (ushort)SamusProjectileDirection.UpRight,
+                            (ushort)SamusProjectileDirection.Right =>
+                                (ushort)SamusProjectileDirection.UpLeft,
+                            _ => (ushort)SamusProjectileDirection.DownFacingLeft,
+                        };
+                        projectiles.ReflectFromEnemy(bus, projectile.SlotIndex);
+                        LastSpacePirateSoundEffect = 0x0066;
+                        hitCount++;
+                        break;
+                    }
                 }
 
                 // Spark's private `$A8:E70E` handler never enters common shot AI. It only
@@ -543,6 +644,139 @@ public sealed partial class RoomEnemySystem
                 $"Projectile family ${family:X3} has no translated vulnerability field."),
         };
         return bus.ReadByte(0xb40000 | unchecked((ushort)(pointer + byteOffset)));
+    }
+
+    /// <summary>
+    /// Walks `$A0:9A5A/$A0:9B7F`'s bank-local extended-spritemap structure and returns the
+    /// callback belonging to the first overlapping hitbox. One displayed enemy frame may
+    /// contain several independently offset ordinary spritemaps; every component points at
+    /// a hitbox list whose records are signed bounds plus touch/shot function pointers.
+    /// </summary>
+    private bool TryFindExtendedHitboxCallback(
+        RoomEnemySlot enemy,
+        ushort targetX,
+        ushort targetY,
+        ushort targetXRadius,
+        ushort targetYRadius,
+        bool selectShotCallback,
+        out ushort callback)
+    {
+        callback = 0;
+
+        // Native multibox collision only accepts negative 16-bit spritemap pointers. The
+        // common empty map `$804F` has a zero component count and naturally returns false.
+        if ((enemy.SpritemapPointer & 0x8000) == 0)
+            return false;
+
+        int bank = enemy.Definition.Bank << 16;
+        int extendedMap = bank | enemy.SpritemapPointer;
+        int componentCount = ReadWord(_bus!, extendedMap);
+        ushort targetLeft = unchecked((ushort)(targetX - targetXRadius));
+        ushort targetRight = unchecked((ushort)(targetX + targetXRadius));
+        ushort targetTop = unchecked((ushort)(targetY - targetYRadius));
+        ushort targetBottom = unchecked((ushort)(targetY + targetYRadius));
+
+        for (int componentIndex = 0; componentIndex < componentCount; componentIndex++)
+        {
+            int component = AddWithinBank(extendedMap, 2 + componentIndex * 8);
+            ushort componentX = unchecked((ushort)(
+                enemy.XPosition + ReadWord(_bus!, component)));
+            ushort componentY = unchecked((ushort)(
+                enemy.YPosition + ReadWord(_bus!, AddWithinBank(component, 2))));
+            ushort hitboxListPointer = ReadWord(_bus!, AddWithinBank(component, 6));
+            int hitboxList = bank | hitboxListPointer;
+            int hitboxCount = ReadWord(_bus!, hitboxList);
+
+            for (int hitboxIndex = 0; hitboxIndex < hitboxCount; hitboxIndex++)
+            {
+                int hitbox = AddWithinBank(hitboxList, 2 + hitboxIndex * 12);
+                ushort left = unchecked((ushort)(
+                    componentX + ReadWord(_bus!, hitbox)));
+                ushort top = unchecked((ushort)(
+                    componentY + ReadWord(_bus!, AddWithinBank(hitbox, 2))));
+                ushort right = unchecked((ushort)(
+                    componentX + ReadWord(_bus!, AddWithinBank(hitbox, 4))));
+                ushort bottom = unchecked((ushort)(
+                    componentY + ReadWord(_bus!, AddWithinBank(hitbox, 6))));
+
+                // These asymmetric signed comparisons are literal translations. They
+                // retain the cartridge's inclusive left/bottom and exclusive right/top
+                // edges instead of replacing them with a friendlier host rectangle API.
+                bool overlaps = selectShotCallback
+                    ? !IsNegative16(targetRight - left) &&
+                      IsNegative16(targetLeft - right) &&
+                      !IsNegative16(targetBottom - top) &&
+                      IsNegative16(targetTop - bottom)
+                    : IsNegative16(left - targetRight) &&
+                      !IsNegative16(right - targetLeft) &&
+                      IsNegative16(top - targetBottom) &&
+                      !IsNegative16(bottom - targetTop);
+                if (!overlaps)
+                    continue;
+
+                callback = ReadWord(
+                    _bus!,
+                    AddWithinBank(hitbox, selectShotCallback ? 10 : 8));
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Dispatches the three shot callbacks stored in Space Pirate hitbox records. Only the
+    /// gold Ninja gives `$87C8/$883E` special meaning; every other Pirate deliberately falls
+    /// through to normal shot AI even when it displays one of the shared Ninja maps.
+    /// </summary>
+    private static PirateHitboxShotAction SelectPirateHitboxShotAction(
+        ISnesAddressSpace bus,
+        RoomEnemySlot enemy,
+        SamusProjectileSlot projectile,
+        ushort hitboxShotAi)
+    {
+        if (hitboxShotAi == SpacePirateShotAi)
+            return PirateHitboxShotAction.Normal;
+        if (hitboxShotAi is not (
+                GoldNinjaVulnerableHitboxShotAi or GoldNinjaInvincibleHitboxShotAi))
+        {
+            throw new NotSupportedException(
+                $"Space Pirate hitbox shot AI $B2:{hitboxShotAi:X4} is not translated.");
+        }
+        if (enemy.EnemyDefinitionPointer != GoldNinjaSpacePirateDefinition)
+            return PirateHitboxShotAction.Normal;
+
+        ushort family = unchecked((ushort)(projectile.Type & 0x0f00));
+        if (hitboxShotAi == GoldNinjaInvincibleHitboxShotAi)
+        {
+            if (family == (ushort)SamusProjectileFamily.SuperMissile && projectile.Variable == 0)
+                return PirateHitboxShotAction.Ignore;
+            return family < (ushort)SamusProjectileFamily.PowerBomb
+                ? PirateHitboxShotAction.Reflect
+                : PirateHitboxShotAction.Ignore;
+        }
+
+        if (family >= (ushort)SamusProjectileFamily.PowerBomb)
+            return PirateHitboxShotAction.Ignore;
+
+        ushort vulnerabilityPointer = enemy.Definition.VulnerabilityPointer != 0
+            ? enemy.Definition.VulnerabilityPointer
+            : DefaultEnemyVulnerability;
+        int vulnerabilityOffset = family == (ushort)SamusProjectileFamily.Beam
+            ? projectile.Type & 0x000f
+            : 11 + (family >> 8);
+        int multiplier = bus.ReadByte(
+            0xb40000 | unchecked((ushort)(vulnerabilityPointer + vulnerabilityOffset))) & 0x0f;
+        return multiplier is not (0 or 15)
+            ? PirateHitboxShotAction.Normal
+            : PirateHitboxShotAction.Reflect;
+    }
+
+    private enum PirateHitboxShotAction : byte
+    {
+        Normal,
+        Ignore,
+        Reflect,
     }
 
     /// <summary>

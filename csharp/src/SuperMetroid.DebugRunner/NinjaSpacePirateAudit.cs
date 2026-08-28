@@ -37,7 +37,8 @@ internal static class NinjaSpacePirateAudit
             "Pirate room population, derived post geometry, both spin-jump arcs, both " +
             "divekicks and return walks, landing dust, kick/flinch priority, palette/sound " +
             $"opcodes, {claw.SpawnedCount} left/right returning claws ({claw.MapCount} ROM " +
-            $"maps), contact damage, shot/power-bomb/grapple handling, and extended OBJ " +
+            $"maps), per-frame extended hitboxes, vulnerable/reflective gold armor, contact " +
+            $"damage, shot/power-bomb/grapple handling, and extended OBJ " +
             $"rendering passed across {leftToRight.FunctionCount + rightToLeft.FunctionCount} " +
             "observed movement functions.");
         return 0;
@@ -361,12 +362,92 @@ internal static class NinjaSpacePirateAudit
         LoadedNinjas shot = Load(bus, room, assets);
         RoomEnemySlot shotActor = KeepOnly(shot, 0);
         PrimeActive(shot, assets, shotActor);
-        ArmProjectile(shot.Projectiles.Slots[0], shotActor.XPosition, shotActor.YPosition);
+        // `$B2:89C4` puts the shared `$87C8` vulnerable callback on its first component.
+        // Aim inside that component instead of the actor origin: the origin belongs to the
+        // overlapping armored body in several idle frames and must reflect rather than hurt.
+        shotActor.SpritemapPointer = 0x89c4;
+        ArmProjectile(
+            shot.Projectiles.Slots[0],
+            unchecked((ushort)(shotActor.XPosition - 10)),
+            unchecked((ushort)(shotActor.YPosition - 10)));
         ushort healthBefore = shotActor.Health;
         if (shot.Enemies.ResolveOrdinaryProjectileHits(
                 bus, shot.Projectiles, shot.SharedProjectiles, shot.Samus) != 1 ||
             shotActor.Health >= healthBefore || shotActor.FlashTimer == 0)
             throw new InvalidDataException("Gold ninja accepted shot did not apply ROM damage.");
+
+        LoadedNinjas armored = Load(bus, room, assets);
+        RoomEnemySlot armoredActor = KeepOnly(armored, 0);
+        PrimeActive(armored, assets, armoredActor);
+        // Idle extended map zero's first component points at `$883E`. A rightward missile
+        // must become the native up-left direction, reload bank-$93 art/damage, enter the
+        // `$00F0` reflected acceleration state, and leave Pirate health untouched.
+        armoredActor.SpritemapPointer = 0x8a54;
+        SamusProjectileSlot reflectedMissile = armored.Projectiles.Slots[0];
+        ArmProjectile(
+            reflectedMissile,
+            armoredActor.XPosition,
+            armoredActor.YPosition,
+            type: 0x0100,
+            variable: 0x0300);
+        ushort armoredHealth = armoredActor.Health;
+        if (armored.Enemies.ResolveOrdinaryProjectileHits(
+                bus, armored.Projectiles, armored.SharedProjectiles, armored.Samus) != 1 ||
+            armoredActor.Health != armoredHealth || armoredActor.InvincibilityTimer != 10 ||
+            reflectedMissile.Direction != (ushort)SamusProjectileDirection.UpLeft ||
+            reflectedMissile.Variable != 240 ||
+            reflectedMissile.PreInstruction != SamusProjectilePreInstruction.Missile ||
+            reflectedMissile.InstructionPointer == 0x9000 || reflectedMissile.Damage == 300 ||
+            armored.Enemies.LastSpacePirateSoundEffect != 0x0066)
+        {
+            throw new InvalidDataException(
+                "Gold ninja armored hitbox did not perform native missile reflection.");
+        }
+
+        LoadedNinjas immuneBeam = Load(bus, room, assets);
+        RoomEnemySlot immuneBeamActor = KeepOnly(immuneBeam, 0);
+        PrimeActive(immuneBeam, assets, immuneBeamActor);
+        immuneBeamActor.SpritemapPointer = 0x89c4;
+        SamusProjectileSlot reflectedPowerBeam = immuneBeam.Projectiles.Slots[0];
+        ArmProjectile(
+            reflectedPowerBeam,
+            unchecked((ushort)(immuneBeamActor.XPosition - 10)),
+            unchecked((ushort)(immuneBeamActor.YPosition - 10)),
+            type: 0x0000);
+        if (immuneBeam.Enemies.ResolveOrdinaryProjectileHits(
+                bus, immuneBeam.Projectiles, immuneBeam.SharedProjectiles,
+                immuneBeam.Samus) != 1 ||
+            reflectedPowerBeam.Direction != (ushort)SamusProjectileDirection.UpLeft ||
+            reflectedPowerBeam.PreInstruction != SamusProjectilePreInstruction.NoWaveBeam ||
+            immuneBeamActor.Health != 1800)
+        {
+            throw new InvalidDataException(
+                "Gold ninja vulnerable callback did not redirect an immune power beam to reflection.");
+        }
+
+        LoadedNinjas freshSuper = Load(bus, room, assets);
+        RoomEnemySlot freshSuperActor = KeepOnly(freshSuper, 0);
+        PrimeActive(freshSuper, assets, freshSuperActor);
+        freshSuperActor.SpritemapPointer = 0x8a54;
+        SamusProjectileSlot ignoredSuper = freshSuper.Projectiles.Slots[0];
+        ArmProjectile(
+            ignoredSuper,
+            freshSuperActor.XPosition,
+            freshSuperActor.YPosition,
+            type: 0x0200,
+            variable: 0);
+        if (freshSuper.Enemies.ResolveOrdinaryProjectileHits(
+                bus, freshSuper.Projectiles, freshSuper.SharedProjectiles,
+                freshSuper.Samus) != 1 ||
+            ignoredSuper.Direction !=
+                ((ushort)SamusProjectileDirection.Right | 0x0010) ||
+            ignoredSuper.InstructionPointer != 0x9000 || freshSuperActor.InvincibilityTimer != 0 ||
+            freshSuperActor.Health != 1800 || freshSuper.Projectiles.EarthquakeType != 20 ||
+            freshSuper.Projectiles.EarthquakeTimer != 30)
+        {
+            throw new InvalidDataException(
+                "Gold ninja armor did not ignore a pre-link Super Missile exactly once.");
+        }
 
         LoadedNinjas powerBomb = Load(bus, room, assets);
         RoomEnemySlot powerBombActor = KeepOnly(powerBomb, 0);
@@ -505,10 +586,15 @@ internal static class NinjaSpacePirateAudit
         throw new InvalidDataException(
             $"Ninja Pirate slot {actor.SlotIndex} did not initialize typed state.");
 
-    private static void ArmProjectile(SamusProjectileSlot projectile, ushort x, ushort y)
+    private static void ArmProjectile(
+        SamusProjectileSlot projectile,
+        ushort x,
+        ushort y,
+        ushort type = 0x0200,
+        ushort variable = 0)
     {
         projectile.ClearFields();
-        projectile.Type = 0x0200;
+        projectile.Type = type;
         projectile.Damage = 300;
         projectile.Direction = 2;
         projectile.XPosition = x;
@@ -517,6 +603,7 @@ internal static class NinjaSpacePirateAudit
         projectile.YRadius = 4;
         projectile.InstructionPointer = 0x9000;
         projectile.InstructionTimer = 1;
+        projectile.Variable = variable;
     }
 
     private static void VerifyWords(

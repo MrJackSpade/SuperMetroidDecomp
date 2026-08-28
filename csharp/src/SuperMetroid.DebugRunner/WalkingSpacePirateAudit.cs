@@ -501,8 +501,12 @@ internal static class WalkingSpacePirateAudit
         }
 
         LoadedPirates frozen = Load(bus, room, assets, samusX: 0x0080, samusY: 0x0040);
-        frozen.Pirates[0].FrozenTimer = 2;
+        // Let the actor install its first real extended map before freezing it. A freshly
+        // allocated `$804F` is the common-bank "nothing" sentinel, not a bank-$B2 Pirate
+        // map, and production never asks the family hitbox walker to collide that transient
+        // initialization frame.
         Prime(frozen, assets);
+        frozen.Pirates[0].FrozenTimer = 2;
         frozen.Samus.XPosition = frozen.Pirates[0].XPosition;
         frozen.Samus.YPosition = frozen.Pirates[0].YPosition;
         frozen.Samus.InvincibilityTimer = 0;

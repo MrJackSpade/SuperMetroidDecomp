@@ -333,6 +333,8 @@ static void VerifySamusKnockbackAndDamageBoost()
     // `$90:99D6` selects dry-air knockback magnitude 5.0000. Damage boost subsequently
     // calls Make_Samus_Jump, whose independent dry-air value is 4.E000. Both share the
     // same 0.2800 gravity record in this no-water/no-lava fixture.
+    // `$90:99D6` is the selector's code address, while the named arrays themselves live at
+    // `$90:9EE9/$9EEF`. Their non-adjacent placement is explicit in the symbol map.
     WriteTestWord(bus, 0x909ee9, 0x0005);
     WriteTestWord(bus, 0x909eef, 0x0000);
     WriteTestWord(bus, 0x909eb9, 0x0004);
@@ -380,6 +382,26 @@ static void VerifySamusKnockbackAndDamageBoost()
     AssertTrue(samus.KnockbackActive, "special knockback handler installed");
     AssertEqual(5, samus.Kinematics.YSpeed, "knockback dry-air whole speed");
     AssertEqual(0, samus.Kinematics.YSubspeed, "knockback dry-air subspeed");
+
+    // Intro Rinkas publish eleven in `$18AA` before the shared command-one initializer.
+    // That initializer must consume the producer-owned value rather than replacing it with
+    // ordinary enemy contact's five; otherwise the cinematic reaction is cut in half.
+    var introTimedKnockback = new SamusState
+    {
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 96,
+        YPosition = 96,
+    };
+    SamusKnockbackMovement.Start(
+        bus,
+        introTimedKnockback,
+        controllerInput: 0,
+        knockbackXDirection: 1,
+        knockbackTimer: 11);
+    AssertEqual(11, introTimedKnockback.KnockbackTimer,
+        "intro Rinka preserves producer-owned eleven-frame knockback timer");
+    AssertEqual(SamusState.KnockbackRightPose, introTimedKnockback.Pose,
+        "intro Rinka enters visible humanoid hurt pose");
 
     KnockbackMovementResult hurtFrame = SamusKnockbackMovement.Step(bus, empty, samus, 0);
     // Movement consumes the current timer; gameplay state eight then calls `$A0:9169`

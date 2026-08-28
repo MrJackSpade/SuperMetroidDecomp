@@ -24,10 +24,55 @@ public static class SnesBgTilemapRenderer
         IReadOnlyList<ushort>? horizontalScrollByLine = null,
         bool? priority = null)
     {
+        var output = new Rgba32[checked(width * height)];
+        Composite4BppViewport(
+            output,
+            vram,
+            cgram,
+            tilemapBaseWord,
+            characterBaseWord,
+            horizontalScroll,
+            verticalScroll,
+            width,
+            height,
+            tilemapWidthInTiles,
+            tilemapHeightInTiles,
+            horizontalScrollByLine,
+            priority);
+        return output;
+    }
+
+    /// <summary>
+    /// Decodes a pixel-scrolled Mode-1 4-bpp viewport directly over an existing raster.
+    /// Transparent character pixels and nonmatching priority tiles leave the destination
+    /// untouched, allowing a PPU compositor to build its priority ladder without allocating
+    /// and copying a temporary full-plane RGBA array for every BG insertion.
+    /// </summary>
+    public static void Composite4BppViewport(
+        Span<Rgba32> output,
+        SnesVram vram,
+        SnesCgram cgram,
+        ushort tilemapBaseWord,
+        ushort characterBaseWord,
+        ushort horizontalScroll,
+        ushort verticalScroll,
+        int width,
+        int height,
+        int tilemapWidthInTiles = 64,
+        int tilemapHeightInTiles = 32,
+        IReadOnlyList<ushort>? horizontalScrollByLine = null,
+        bool? priority = null)
+    {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
         if (width <= 0 || height <= 0)
             throw new ArgumentOutOfRangeException(nameof(width));
+        if (output.Length != checked(width * height))
+        {
+            throw new ArgumentException(
+                "A 4-bpp destination must contain exactly width*height pixels.",
+                nameof(output));
+        }
         if (tilemapWidthInTiles is not (32 or 64))
             throw new ArgumentOutOfRangeException(nameof(tilemapWidthInTiles));
         if (tilemapHeightInTiles is not (32 or 64))
@@ -35,7 +80,6 @@ public static class SnesBgTilemapRenderer
         if (horizontalScrollByLine is not null && horizontalScrollByLine.Count != height)
             throw new ArgumentException("Per-line scroll list must contain exactly one word per output line.", nameof(horizontalScrollByLine));
 
-        var output = new Rgba32[checked(width * height)];
         for (int screenY = 0; screenY < height; screenY++)
         {
             // BGSC bits 0-1 select one, two horizontal, two vertical, or four 32x32-tile
@@ -90,7 +134,6 @@ public static class SnesBgTilemapRenderer
                     output[screenY * width + screenX] = cgram.GetRgba(palette * 16 + color);
             }
         }
-        return output;
     }
 
     /// <summary>

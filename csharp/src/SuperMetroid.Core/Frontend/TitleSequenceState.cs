@@ -49,6 +49,7 @@ public sealed class TitleSequenceState
     private int brightness;
     private int babyFrame;
     private int babyFrameTimer;
+    private bool mode7BackgroundEnabled;
 
     /// <summary>Creates the native initial title setup performed by <c>$8B:9B68</c>.</summary>
     public TitleSequenceState(ISnesAddressSpace bus)
@@ -79,6 +80,18 @@ public sealed class TitleSequenceState
 
     /// <summary>Current INIDISP brightness nibble; zero is black and fifteen is full.</summary>
     public byte Brightness => (byte)brightness;
+
+    /// <summary>Current native Mode-7 A/D scalar, exposed for transform regression audits.</summary>
+    public ushort Mode7MatrixScale => unchecked((ushort)zoom);
+
+    /// <summary>Current signed M7HOFS word, exposed for pre-title pan regression audits.</summary>
+    public short Mode7HorizontalOffset => unchecked((short)mode7X);
+
+    /// <summary>
+    /// NTSC demo countdown. Retail initializes this to $0384 (900 frames); PAL uses $02D0
+    /// so both revisions hold the title for approximately fifteen seconds.
+    /// </summary>
+    public int TitleScreenFramesRemaining => phase == TitleSequencePhase.TitleScreen ? phaseTimer : 0;
 
     /// <summary>True after the title's slow fade has handed control to file select.</summary>
     public bool FileSelectRequested { get; private set; }
@@ -205,23 +218,38 @@ public sealed class TitleSequenceState
     /// <summary>Renders the current Mode 7 background and bank-$8C title spritemaps.</summary>
     public Rgba32[] Render()
     {
-        // `$8B:9E8B` reaches identity A=D=$0100. Earlier scenes use the same scalar for
-        // both axes and no rotation; the native helper computes reciprocal matrix values.
-        int safeZoom = Math.Max(1, zoom);
-        short matrixScale = unchecked((short)Math.Clamp((0x10000 + safeZoom / 2) / safeZoom, 1, short.MaxValue));
+        // `$8B:9E8B` reaches identity A=D=$0100. The value being animated is already the
+        // Mode 7 matrix scalar, not a camera magnification that needs to be inverted. A
+        // small matrix samples less source texture across the output screen, so the early
+        // title image is enlarged; increasing $43 -> $100 therefore performs the retail
+        // zoom *out*. Taking its reciprocal reversed that motion and also magnified the
+        // Nintendo Presents pan offsets until much of their movement wrapped off-screen.
+        short matrixScale = unchecked((short)zoom);
         Rgba32[] background = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
-        Rgba32[] mode7Layer = SnesMode7Renderer.RenderViewport(
-            vram,
-            cgram,
-            matrixScale,
-            0,
-            0,
-            matrixScale,
-            128,
-            128,
-            unchecked((short)mode7X),
-            unchecked((short)mode7Y));
-        SnesLayerCompositor.Composite(background, mode7Layer);
+
+        // Setup_PPU_TitleSequence writes TM=$10 at `$8B:803F`: OBJ is visible but BG1 is
+        // not. Each scrolling-text command leaves that state alone, so the 1994/NINTENDO/
+        // PRESENTS/METROID 3 cards sit over the CGRAM-zero black backdrop. Their following
+        // `$9CE1/$9D5D/$9DD6/$9E58` scene command writes TM=$11 and enables Mode 7 BG1;
+        // each of the first three completed pans restores TM=$10 before spawning the next
+        // text object. Rendering a zero-scale Mode 7 sample during YearText was therefore
+        // not merely the wrong transform—it displayed a layer the SNES had disabled and
+        // turned the whole screen into the sampled red texel.
+        if (mode7BackgroundEnabled)
+        {
+            Rgba32[] mode7Layer = SnesMode7Renderer.RenderViewport(
+                vram,
+                cgram,
+                matrixScale,
+                0,
+                0,
+                matrixScale,
+                128,
+                128,
+                unchecked((short)mode7X),
+                unchecked((short)mode7Y));
+            SnesLayerCompositor.Composite(background, mode7Layer);
+        }
 
         oam.BeginFrame();
         if (activeSpritemap != BlankSpritemap)
@@ -278,6 +306,7 @@ public sealed class TitleSequenceState
             {
                 case 0x9ce1: // Trigger title scene zero.
                     phase = TitleSequencePhase.SceneZeroPan;
+                    mode7BackgroundEnabled = true; // TM=$11 at `$8B:9CE3-$9CE5`.
                     zoom = 0x48;
                     mode7X = 0x013b;
                     mode7Y = 0x00e1;
@@ -286,6 +315,7 @@ public sealed class TitleSequenceState
 
                 case 0x9d5d: // Trigger title scene one.
                     phase = TitleSequencePhase.SceneOnePan;
+                    mode7BackgroundEnabled = true; // TM=$11 at `$8B:9D5D-$9D61`.
                     zoom = 0x60;
                     mode7X = 0x002c;
                     mode7Y = unchecked((short)0xff65);
@@ -294,6 +324,7 @@ public sealed class TitleSequenceState
 
                 case 0x9dd6: // Trigger title scene two.
                     phase = TitleSequencePhase.SceneTwoPan;
+                    mode7BackgroundEnabled = true; // TM=$11 at `$8B:9DD6-$9DDA`.
                     zoom = 0x60;
                     mode7X = unchecked((short)0xff4f);
                     mode7Y = unchecked((short)0xff60);
@@ -302,6 +333,7 @@ public sealed class TitleSequenceState
 
                 case 0x9e58: // Trigger title scene three.
                     phase = TitleSequencePhase.SceneThreeZoom;
+                    mode7BackgroundEnabled = true; // TM=$11 at `$8B:9E58-$9E5C`.
                     phaseTimer = 0;
                     zoom = 0x43;
                     mode7X = 0;
@@ -336,6 +368,12 @@ public sealed class TitleSequenceState
         activeCharacterOffset = characterOffset;
         mode7XSubposition = 0;
         mode7YSubposition = 0;
+
+        // Initial PPU setup and each of the first three completed pan functions select
+        // TM=$10 before the next text actor becomes visible. Keeping an explicit register
+        // bit also matters when Start skips during a pan: the fade-out preserves whichever
+        // TM value was live rather than inferring visibility from the host phase name.
+        mode7BackgroundEnabled = false;
     }
 
     private void EnterImmediateTitleObjects()
@@ -348,6 +386,7 @@ public sealed class TitleSequenceState
         activeOriginX = 128;
         activeOriginY = 48;
         activeCharacterOffset = 0x0400;
+        mode7BackgroundEnabled = true;
         mode7X = 0;
         mode7Y = 0;
         zoom = 0x0100;

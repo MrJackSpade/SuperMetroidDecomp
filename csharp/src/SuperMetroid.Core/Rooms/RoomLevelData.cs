@@ -19,6 +19,7 @@ public sealed class RoomLevelData
     private readonly ushort[] _backgroundEntries;
     private readonly byte[] _blockDefinitions;
     private readonly ushort[] _streamingForegroundAllocation;
+    private readonly ushort[] _streamingBackgroundAllocation;
 
     public RoomLevelData(
         int widthInBlocks,
@@ -28,7 +29,8 @@ public sealed class RoomLevelData
         ReadOnlySpan<ushort> backgroundEntries,
         ReadOnlySpan<byte> blockDefinitions,
         ReadOnlySpan<ushort> streamingForegroundAllocation = default,
-        ushort? doorListPointer = null)
+        ushort? doorListPointer = null,
+        ReadOnlySpan<ushort> streamingBackgroundAllocation = default)
     {
         if (widthInBlocks is <= 0 or > 0xff)
             throw new ArgumentOutOfRangeException(nameof(widthInBlocks));
@@ -65,6 +67,20 @@ public sealed class RoomLevelData
             throw new ArgumentException(
                 "The streaming BG1 allocation cannot be shorter than logical BG1.",
                 nameof(streamingForegroundAllocation));
+        }
+
+        // BG2 is copied to another region of the same pre-cleared WRAM allocation and can
+        // be overread by the same 17-column/row camera fill. Keep its logical plane exact
+        // for collision-independent inspection while giving bank $80 the native tail when
+        // a cartridge loader supplies it.
+        _streamingBackgroundAllocation = streamingBackgroundAllocation.IsEmpty
+            ? _backgroundEntries.ToArray()
+            : streamingBackgroundAllocation.ToArray();
+        if (_streamingBackgroundAllocation.Length < expectedBlocks)
+        {
+            throw new ArgumentException(
+                "The streaming BG2 allocation cannot be shorter than logical BG2.",
+                nameof(streamingBackgroundAllocation));
         }
     }
 
@@ -237,7 +253,7 @@ public sealed class RoomLevelData
         new(
             WidthInBlocks,
             _streamingForegroundAllocation,
-            _backgroundEntries,
+            _streamingBackgroundAllocation,
             _blockDefinitions,
             sizeOfBg2);
 }

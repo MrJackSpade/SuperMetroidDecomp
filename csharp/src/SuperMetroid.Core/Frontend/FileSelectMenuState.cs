@@ -181,10 +181,19 @@ public sealed class FileSelectMenuState
         // string then places N at column 15. Using $01BC here would instead begin at column
         // 30, putting N in column 31 and wrapping O DATA onto the following scanline.
         LoadMenuTilemap(destinationByteOffset: 0x19c, sourcePointer: 0xb4ac); // NO DATA
+        // `$81:9F3A` conditionally draws only the numeric HH:MM value. The following
+        // `$81:9F3D-$81:9F43` tilemap load is unconditional, so the static TIME caption
+        // remains visible even when slot A is empty and its numeric fields are omitted.
+        LoadMenuTilemap(destinationByteOffset: 0x176, sourcePointer: 0xb4a0); // TIME
         LoadMenuTilemap(destinationByteOffset: 0x286, sourcePointer: 0xb456); // SAMUS B
         LoadMenuTilemap(destinationByteOffset: 0x2dc, sourcePointer: 0xb4ac); // NO DATA
+        // Slot B repeats the same native split between conditional digits and an
+        // unconditional ROM-authored caption (`$81:9F70-$81:9F79`).
+        LoadMenuTilemap(destinationByteOffset: 0x2b6, sourcePointer: 0xb4a0); // TIME
         LoadMenuTilemap(destinationByteOffset: 0x3c6, sourcePointer: 0xb476); // SAMUS C
         LoadMenuTilemap(destinationByteOffset: 0x41c, sourcePointer: 0xb4ac); // NO DATA
+        // Slot C's caption is likewise loaded unconditionally at `$81:9FA9-$81:9FAF`.
+        LoadMenuTilemap(destinationByteOffset: 0x3f6, sourcePointer: 0xb4a0); // TIME
         LoadMenuTilemap(destinationByteOffset: 0x688, sourcePointer: 0xb4ee); // EXIT
     }
 

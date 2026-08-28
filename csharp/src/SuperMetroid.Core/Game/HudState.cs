@@ -91,6 +91,30 @@ public sealed class HudState
     }
 
     /// <summary>
+    /// Replays the mutable counter portion of <c>$80:9B44</c> from live Samus state. The
+    /// three-row HUD upload runs every gameplay frame; initialization is not the sole owner
+    /// of the energy digits. Keeping this update beside <see cref="QueueUpload"/> prevents
+    /// enemy damage from changing physics state while the visible HUD remains frozen at 99.
+    /// </summary>
+    public void UpdateGameplayCounters(ISnesAddressSpace bus, SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+        if (!IsInitialized)
+            throw new InvalidOperationException("Initialize the HUD before updating gameplay counters.");
+
+        DrawHealth(bus, samus.Health, samus.MaxHealth);
+        if (samus.MaxMissiles != 0)
+            DrawThreeDigits(bus, AmmoDigitsAddress, samus.Missiles, byteOffset: 0x94);
+        if (samus.MaxSuperMissiles != 0)
+            DrawTwoDigits(bus, AmmoDigitsAddress, samus.SuperMissiles, byteOffset: 0x9c);
+        if (samus.MaxPowerBombs != 0)
+            DrawTwoDigits(bus, AmmoDigitsAddress, samus.PowerBombs, byteOffset: 0xa2);
+        if (samus.ReserveTankMode == 1)
+            DrawAutoReserve(bus, samus.ReserveEnergy != 0);
+    }
+
+    /// <summary>
     /// Ports the visible 5x3 result of <c>UpdateMinimap</c> at <c>$90:A91B</c> for a
     /// supplied room/map position, including exploration bits and the blinking center tile.
     /// </summary>

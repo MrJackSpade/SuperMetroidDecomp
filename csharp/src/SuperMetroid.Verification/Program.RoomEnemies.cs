@@ -167,6 +167,93 @@ static void VerifyRoomEnemyLoading()
 }
 
 /// <summary>
+/// Proves that the stationary Ceres elevator platform is animated by the room's variant-two
+/// door actor, not by either arrival projectile that is deleted when the platform lands.
+/// </summary>
+static void VerifyCeresElevatorPlatformAnimation()
+{
+    const ushort definitionPointer = 0xe23f;
+    const ushort populationPointer = 0x9480;
+    const ushort tilesetPointer = 0x9480;
+    var bus = new TestAddressSpace();
+    var vram = new SnesVram();
+    var cgram = new SnesCgram();
+
+    WriteEnemyDefinition(
+        bus,
+        definitionPointer,
+        tileDataSize: 0,
+        palettePointer: 0xf4ec,
+        bank: 0xa6,
+        tileDataAddress: 0xa68000,
+        bossId: 0,
+        namePointer: 0,
+        fieldSeed: 0x4300);
+    WriteWord(bus, 0xa00000 | (definitionPointer + 18), 0xf6c5);
+    WriteWord(bus, 0xa00000 | (definitionPointer + 24), 0xf765);
+    bus.WriteByte(0xa00000 | (definitionPointer + 57), 2);
+
+    // Parameter one equals two, selecting main function $F850. This focused population
+    // omits ProcessInstructions because only the independently executing main AI owns the
+    // persistent platform transfer.
+    int population = 0xa10000 | populationPointer;
+    WriteWord(bus, population, definitionPointer);
+    WriteWord(bus, population + 2, 0x0080);
+    WriteWord(bus, population + 4, 0x0080);
+    WriteWord(bus, population + 6, 0);
+    WriteWord(bus, population + 8, 0x0800);
+    WriteWord(bus, population + 10, 0);
+    WriteWord(bus, population + 12, 2);
+    WriteWord(bus, population + 14, 0);
+    WriteWord(bus, population + 16, 0xffff);
+    bus.WriteByte(population + 18, 0);
+    WriteWord(bus, 0xb40000 | tilesetPointer, 0xffff);
+    WriteWord(bus, 0xa6f72f, 0xf850);
+    WriteWord(bus, 0xa6f530, 0xfac7);
+
+    // These are the literal two one-entry transfer records at $A6:F904/$F90E. Each writes
+    // four low map bytes to Mode-7 word $060E, alternating by NMI bit one.
+    WriteWord(bus, 0xa6f900, 0xf904);
+    WriteWord(bus, 0xa6f902, 0xf90e);
+    bus.WriteByte(0xa6f904, 0x80);
+    WriteLong(bus, 0xa6f905, 0xa6f918);
+    WriteWord(bus, 0xa6f908, 4);
+    WriteWord(bus, 0xa6f90a, 0x060e);
+    bus.WriteByte(0xa6f90c, 0);
+    bus.WriteByte(0xa6f90d, 0);
+    bus.WriteByte(0xa6f90e, 0x80);
+    WriteLong(bus, 0xa6f90f, 0xa6f91c);
+    WriteWord(bus, 0xa6f912, 4);
+    WriteWord(bus, 0xa6f914, 0x060e);
+    bus.WriteByte(0xa6f916, 0);
+    bus.WriteByte(0xa6f917, 0);
+    byte[] light = [0x68, 0x69, 0x69, 0x78];
+    byte[] dark = [0x8d, 0x8e, 0x8e, 0x79];
+    for (int index = 0; index < 4; index++)
+    {
+        bus.WriteByte(0xa6f918 + index, light[index]);
+        bus.WriteByte(0xa6f91c + index, dark[index]);
+    }
+    for (int color = 0; color < 6; color++)
+        WriteWord(bus, 0xa6f871 + color * 2, unchecked((ushort)(0x4400 + color)));
+
+    var enemies = new RoomEnemySystem();
+    enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0);
+    enemies.StepFrame(0, 0, timeIsFrozen: false);
+    for (int index = 0; index < 4; index++)
+        AssertEqual(light[index], vram.ReadByte((0x060e + index) * 2),
+            "Ceres elevator landed platform light map frame");
+
+    enemies.StepFrame(0, 0, timeIsFrozen: false);
+    enemies.StepFrame(0, 0, timeIsFrozen: false);
+    for (int index = 0; index < 4; index++)
+        AssertEqual(dark[index], vram.ReadByte((0x060e + index) * 2),
+            "Ceres elevator landed platform dark map frame");
+
+    Console.WriteLine("  Ceres elevator: landed Mode-7 platform continues its ROM transfer animation.");
+}
+
+/// <summary>
 /// Regresses the exact enemy $E13F failure reported when the second normal Ceres door loads
 /// room $E0B5. This fixture uses native $A0/$A1/$A6/$B4 layouts and follows the translated
 /// dispatcher through the complete initial delay, eye fade, and body fade.
@@ -193,6 +280,40 @@ static void VerifyCeresRidleyRoomEntry()
         fieldSeed: 0x4000);
     WriteWord(bus, 0xa00000 | (definitionPointer + 18), 0xa0f5);
     WriteWord(bus, 0xa00000 | (definitionPointer + 24), 0xa288);
+    WriteWord(bus, 0xa00000 | (definitionPointer + 8), 8);
+    WriteWord(bus, 0xa00000 | (definitionPointer + 10), 8);
+
+    // The native post-battle path dynamically spawns Ceres-door variants five and six as
+    // the two Mode-7 chamber walls. Keep their real header/dispatch/list boundaries in this
+    // fixture so the escape audit cannot pass by changing only Ridley's logical status.
+    const ushort ceresDoorDefinitionPointer = 0xe23f;
+    WriteEnemyDefinition(
+        bus,
+        ceresDoorDefinitionPointer,
+        tileDataSize: 0,
+        palettePointer: 0xf4ec,
+        bank: 0xa6,
+        tileDataAddress: 0xa69000,
+        bossId: 0,
+        namePointer: 0,
+        fieldSeed: 0x4100);
+    WriteWord(bus, 0xa00000 | (ceresDoorDefinitionPointer + 18), 0xf6c5);
+    WriteWord(bus, 0xa00000 | (ceresDoorDefinitionPointer + 24), 0xf765);
+    bus.WriteByte(0xa00000 | (ceresDoorDefinitionPointer + 57), 2);
+    WriteWord(bus, 0xa6f735, 0xf7a5);
+    WriteWord(bus, 0xa6f737, 0xf7a5);
+    WriteWord(bus, 0xa6f536, 0xf62a);
+    WriteWord(bus, 0xa6f538, 0xf634);
+    WriteWord(bus, 0xa6f62a, 0xf68b);
+    WriteWord(bus, 0xa6f62c, 1);
+    WriteWord(bus, 0xa6f62e, 0xface);
+    WriteWord(bus, 0xa6f630, 0x80ed);
+    WriteWord(bus, 0xa6f632, 0xf62c);
+    WriteWord(bus, 0xa6f634, 0xf68b);
+    WriteWord(bus, 0xa6f636, 1);
+    WriteWord(bus, 0xa6f638, 0xfb2f);
+    WriteWord(bus, 0xa6f63a, 0x80ed);
+    WriteWord(bus, 0xa6f63c, 0xf636);
 
     // One graphics-set entry supplies Ridley's OBJ palette/tile association. The byte data
     // need not depict retail art here; the regression concerns loader and AI addresses, and
@@ -225,6 +346,23 @@ static void VerifyCeresRidleyRoomEntry()
     WriteWord(bus, 0xa6e53e, 0x9000);
     WriteWord(bus, 0xa6e540, 0x812f);
 
+    // Active extended frame: one body component sits 32 pixels right of Ridley's origin.
+    // Its 16x16 hitbox is outside the header's deliberately tiny 8x8 fallback radius,
+    // proving that projectile collision walks cartridge hitboxes instead of a host box.
+    WriteWord(bus, 0xa69000, 1);
+    WriteWord(bus, 0xa69002, 32);
+    WriteWord(bus, 0xa69004, 0);
+    WriteWord(bus, 0xa69006, 0x9200);
+    WriteWord(bus, 0xa69008, 0x9010);
+    WriteWord(bus, 0xa69010, 1);
+    WriteWord(bus, 0xa69012, unchecked((ushort)-8));
+    WriteWord(bus, 0xa69014, unchecked((ushort)-8));
+    WriteWord(bus, 0xa69016, 8);
+    WriteWord(bus, 0xa69018, 8);
+    WriteWord(bus, 0xa6901a, 0xdf59);
+    WriteWord(bus, 0xa6901c, 0xdf8a);
+    WriteWord(bus, 0xa69200, 0);
+
     // Initial additional palettes are copied to OBJ palettes two/three. The later eye and
     // body tables use distinct sentinels so destination/index mistakes remain observable.
     for (int color = 0; color < 32; color++)
@@ -236,6 +374,12 @@ static void VerifyCeresRidleyRoomEntry()
         WriteWord(bus, 0xa6e2aa + word * 2, unchecked((ushort)(0x3000 + word)));
     for (int word = 0; word < 0x160 / 2; word++)
         WriteWord(bus, 0xa6e30a + word * 2, unchecked((ushort)(0x5000 + word)));
+    for (int palette = 0; palette < 3; palette++)
+    {
+        for (int color = 0; color < 14; color++)
+            WriteWord(bus, 0xa6e46a + palette * 28 + color * 2,
+                unchecked((ushort)(0x7000 + palette * 0x0100 + color)));
+    }
 
     // The two later animation lists are the actual dispatcher seams that make reveal-only
     // implementations fail. A compact timed map stands in for the long roar presentation;
@@ -244,12 +388,29 @@ static void VerifyCeresRidleyRoomEntry()
     WriteWord(bus, 0xa6e690, 1);
     WriteWord(bus, 0xa6e692, 0x9000);
     WriteWord(bus, 0xa6e694, 0x812f);
+    WriteWord(bus, 0xa6e548, 1);
+    WriteWord(bus, 0xa6e54a, 0x9000);
+    WriteWord(bus, 0xa6e54c, 0x812f);
     WriteWord(bus, 0xa6e91d, 0xe969);
     WriteWord(bus, 0xa6e91f, 1);
     WriteWord(bus, 0xa6e921, 0x9000);
     WriteWord(bus, 0xa6e923, 0x812f);
     for (int divisor = 0; divisor < 16; divisor++)
         bus.WriteByte(0xa6d712 + divisor, unchecked((byte)(16 - divisor)));
+
+    // The tail position solver reads the shared signed 8.8 sine table at $A0:B443.
+    // Populate the sixteen cardinal/intercardinal samples touched by the initialized
+    // $4000,$4010... tail angles; an all-zero synthetic bus would otherwise make correct
+    // polar-to-Cartesian code appear to leave every tail piece at the same coordinate.
+    (byte Angle, short Value)[] sineSamples =
+    [
+        (0x00, 0), (0x10, 98), (0x20, 181), (0x30, 237),
+        (0x40, 256), (0x50, 237), (0x60, 181), (0x70, 98),
+        (0x80, 0), (0x90, -98), (0xa0, -181), (0xb0, -237),
+        (0xc0, -256), (0xd0, -237), (0xe0, -181), (0xf0, -98),
+    ];
+    foreach ((byte angle, short value) in sineSamples)
+        WriteWord(bus, 0xa0b443 + angle * 2, unchecked((ushort)value));
 
     // End-of-battle palette records are deliberately unmistakable. AA11 must not publish
     // status one without A9A0 first copying all three native destination ranges.
@@ -321,6 +482,14 @@ static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley eye table terminator starts body fade");
     AssertEqual(1, state.MovementAnimationEnabled,
         "Ceres Ridley eye fade enables composite animation");
+    AssertEqual(0, state.TailFunctionIndex,
+        "Ceres Ridley resting tail has not started its liftoff motion");
+    AssertTrue(
+        state.TailSegments
+            .Select(segment => (segment.XPosition, segment.YPosition))
+            .Distinct()
+            .Count() > 1,
+        "Ceres Ridley resting tail is articulated before liftoff");
 
     for (int frame = 0; frame < 32; frame++)
         enemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);
@@ -352,6 +521,33 @@ static void VerifyCeresRidleyRoomEntry()
     AssertTrue(ridley.YPosition < 80,
         "Ceres Ridley crosses the cartridge's Y=$50 battle threshold");
 
+    // Ceres lunge retains neutral-tail AI. Once Ridley closes within 128 pixels,
+    // `$A6:CC9A-$CCB9` aims a real seven-segment whip at Samus instead of merely moving
+    // the body/wing composite. Start from the cartridge's all-active steady state so this
+    // assertion isolates the missing request/target side effects reported in gameplay.
+    foreach (CeresRidleyTailSegment segment in state.TailSegments)
+    {
+        segment.Active = true;
+        segment.StaggerAngle = 0xffff;
+        segment.MovementDirection = 0x8000;
+        segment.TargetDistance = 0;
+    }
+    state.TailSegments[0].Angle = 0x4000;
+    state.TailWhipTargetClockwiseAngle = 0xffff;
+    state.TailWhipTargetCounterClockwiseAngle = 0xffff;
+    state.Function = CeresRidleyAiFunction.LungeSetup;
+    samus.XPosition = unchecked((ushort)(ridley.XPosition - 64));
+    samus.YPosition = unchecked((ushort)(ridley.YPosition + 68));
+    enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
+    AssertEqual((ushort)CeresRidleyAiFunction.LungeMain, (ushort)state.Function,
+        "Ceres Ridley enters lunge main");
+    AssertTrue(state.TailWhipTargetClockwiseAngle != 0xffff,
+        "Ceres Ridley lunge installs cartridge tail-whip target");
+    AssertEqual(8, state.TailAngleDelta,
+        "Ceres Ridley aimed whip uses eight-angle step");
+    AssertTrue(state.TailSegments.Skip(1).Any(segment => segment.TargetDistance == 0x0c00),
+        "Ceres Ridley lunge extends articulated tail segments");
+
     const int roomWidth = 32;
     const int roomHeight = 16;
     RoomLevelData air = new(
@@ -364,11 +560,14 @@ static void VerifyCeresRidleyRoomEntry()
     var sharedProjectiles = new SamusBombProjectileSystem();
     var projectiles = new SamusProjectileSystem();
 
+    bool observedNormalRidleyPalette = false;
+    bool observedFlashRidleyPalette = false;
     for (int hit = 0; hit < 100; hit++)
     {
-        // Zero fixture muzzle offsets place each stationary power beam at Ridley's live
-        // origin. Running the public producer proves slot allocation/type/radii first.
-        samus.XPosition = ridley.XPosition;
+        // Zero fixture muzzle offsets place each stationary power beam at the active ROM
+        // component's center, 32 pixels right of Ridley's live origin. Running the public
+        // producer proves slot allocation/type/radii before the extended-hitbox walk.
+        samus.XPosition = unchecked((ushort)(ridley.XPosition + 32));
         samus.YPosition = ridley.YPosition;
         sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
         SamusProjectileFrameResult fired = projectiles.StepFrame(
@@ -385,6 +584,14 @@ static void VerifyCeresRidleyRoomEntry()
         AssertEqual(1, enemies.ResolveCeresRidleyProjectileHits(
             bus, projectiles, sharedProjectiles),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
+        observedNormalRidleyPalette |= state.CommonDrawPaletteIndex == 0x0e00;
+        observedFlashRidleyPalette |= state.CommonDrawPaletteIndex == 0;
+        if (hit == 49)
+            AssertEqual(0x7000, cgram.Colors[0xf1],
+                "Ceres Ridley 50-hit health palette");
+        if (hit == 69)
+            AssertEqual(0x7200, cgram.Colors[0xf1],
+                "Ceres Ridley 70-hit missing-branch palette quirk");
 
         // Two bank-$93 calls consume the one-frame explosion record and its delete opcode,
         // returning the same slot to the next shot without debugger-only state mutation.
@@ -398,6 +605,8 @@ static void VerifyCeresRidleyRoomEntry()
     }
 
     AssertEqual(100, state.HitCounter, "Ceres Ridley uses dedicated 100-shot counter");
+    AssertTrue(observedNormalRidleyPalette && observedFlashRidleyPalette,
+        "Ceres Ridley beam hits alternate common body damage palette");
 
     int retreatFrames = 0;
     bool observedFakeRetreat = false;
@@ -419,6 +628,12 @@ static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley installs null dispatcher after battle");
     AssertTrue(ridley.Properties.HasAny(EnemyProperties.Invisible),
         "Ceres Ridley ordinary actor yields to getaway presentation");
+    RoomEnemySlot[] mode7Walls = enemies.Slots
+        .Where(slot => slot.EnemyDefinitionPointer == ceresDoorDefinitionPointer &&
+            slot.Parameter1 is 5 or 6)
+        .ToArray();
+    AssertEqual(2, mode7Walls.Length,
+        "Ceres Ridley spawns both native Mode-7 wall actors");
     AssertEqual(0x6100, cgram.Colors[0x51],
         "Ceres Ridley retreat copies BG palette-five colors");
     AssertEqual(0x6200, cgram.Colors[0x21],

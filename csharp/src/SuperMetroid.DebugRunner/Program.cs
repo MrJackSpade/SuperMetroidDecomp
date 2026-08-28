@@ -30,6 +30,324 @@ if (args.Length >= 3 && args[0] == "--frontend-skip-intro-capture")
     return FrontendSkipIntroAudit.Run(skipIntroRomPath, skipIntroOutputPath);
 }
 
+// Measures the exact hot path used by ordinary gameplay's four BG-relative OBJ priority
+// insertions. The legacy side intentionally calls the public filtered renderer four times;
+// the resolved side uses the single OAM raster consumed by the optimized compositor. This
+// stays as a CLI audit so future correctness work can detect an accidental return to four
+// tile decodes per sprite without relying on subjective desktop smoothness.
+if (args.Length >= 2 && args[0] == "--obj-render-benchmark")
+{
+    string benchmarkRomPath = string.Join(' ', args[1..]).Trim('"');
+    SuperMetroidAddressSpace benchmarkBus =
+        SuperMetroidAddressSpace.LoadRetailRom(benchmarkRomPath);
+    CartridgeRoomHeader benchmarkRoom = CartridgeRoomHeader.Load(benchmarkBus, 0xe0b5);
+    var benchmarkRuntime = new SuperMetroidRuntime(benchmarkBus);
+    benchmarkRuntime.InitializeHud(HudSnapshot.CeresDebug);
+    benchmarkRuntime.InitializeStartingCeresRoom();
+    benchmarkRuntime.InitializeCeresStartSamus();
+    benchmarkRuntime.LoadCartridgeRoomForDebug(benchmarkRoom.Pointer);
+    benchmarkRuntime.Samus!.InputLocked = true;
+    benchmarkRuntime.StepFrame(0);
+    benchmarkRuntime.StepFrame(0);
+
+    // Before measuring, compare the optimized single-scan compositor with the deliberately
+    // slow, independently assembled priority-plane reference that production used before
+    // this optimization. The retail Ridley room exercises BG12NBA=$66, both BG priorities,
+    // and the cross-priority Samus/Ridley OAM overlap in one deterministic frame.
+    Rgba32[] optimizedOrdinaryFrame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
+        benchmarkRuntime.Vram,
+        benchmarkRuntime.Cgram,
+        benchmarkRuntime.Oam,
+        benchmarkRuntime.BackgroundScroll.Bg1HorizontalScroll,
+        benchmarkRuntime.BackgroundScroll.Bg1VerticalScroll,
+        benchmarkRuntime.BackgroundScroll.Bg2HorizontalScroll,
+        benchmarkRuntime.BackgroundScroll.Bg2VerticalScroll,
+        bg1CharacterBaseWord: 0x6000,
+        bg2CharacterBaseWord: 0x6000);
+    Rgba32[] referenceOrdinaryFrame = RenderOrdinaryGameplayReference(
+        benchmarkRuntime.Vram,
+        benchmarkRuntime.Cgram,
+        benchmarkRuntime.Oam,
+        benchmarkRuntime.BackgroundScroll.Bg1HorizontalScroll,
+        benchmarkRuntime.BackgroundScroll.Bg1VerticalScroll,
+        benchmarkRuntime.BackgroundScroll.Bg2HorizontalScroll,
+        benchmarkRuntime.BackgroundScroll.Bg2VerticalScroll,
+        bg1CharacterBaseWord: 0x6000,
+        bg2CharacterBaseWord: 0x6000);
+    int ordinaryMismatch = optimizedOrdinaryFrame.AsSpan().SequenceEqual(referenceOrdinaryFrame)
+        ? -1
+        : Enumerable.Range(0, optimizedOrdinaryFrame.Length)
+            .First(pixel => optimizedOrdinaryFrame[pixel] != referenceOrdinaryFrame[pixel]);
+    if (ordinaryMismatch >= 0)
+    {
+        throw new InvalidDataException(
+            $"Optimized Mode-1 compositor diverged from the priority-plane reference at " +
+            $"({ordinaryMismatch % 256},{ordinaryMismatch / 256}): " +
+            $"optimized={optimizedOrdinaryFrame[ordinaryMismatch]}, " +
+            $"reference={referenceOrdinaryFrame[ordinaryMismatch]}.");
+    }
+
+    const int benchmarkIterations = 250;
+    const byte benchmarkObsel = 0x03;
+
+    // Warm both JIT paths and ROM/VRAM cache lines before collecting time or allocation
+    // counts. Consuming one field prevents an optimizing runtime from proving the raster
+    // result dead if this benchmark is ever compiled with more aggressive whole-program
+    // optimization.
+    int benchmarkChecksum = 0;
+    for (int priority = 0; priority < 4; priority++)
+    {
+        benchmarkChecksum ^= SnesObjRenderer.Render(
+            benchmarkRuntime.Oam,
+            benchmarkRuntime.Vram,
+            benchmarkRuntime.Cgram,
+            benchmarkObsel,
+            priority: priority)[0].A;
+    }
+    benchmarkChecksum ^= SnesObjRenderer.RenderResolved(
+        benchmarkRuntime.Oam,
+        benchmarkRuntime.Vram,
+        benchmarkRuntime.Cgram,
+        benchmarkObsel).Priorities[0];
+
+    GC.Collect();
+    GC.WaitForPendingFinalizers();
+    GC.Collect();
+    long legacyAllocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+    long legacyStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+    for (int iteration = 0; iteration < benchmarkIterations; iteration++)
+    {
+        for (int priority = 0; priority < 4; priority++)
+        {
+            Rgba32[] plane = SnesObjRenderer.Render(
+                benchmarkRuntime.Oam,
+                benchmarkRuntime.Vram,
+                benchmarkRuntime.Cgram,
+                benchmarkObsel,
+                priority: priority);
+            benchmarkChecksum ^= plane[(iteration * 257 + priority) % plane.Length].A;
+        }
+    }
+    TimeSpan legacyElapsed = System.Diagnostics.Stopwatch.GetElapsedTime(legacyStarted);
+    long legacyAllocated = GC.GetAllocatedBytesForCurrentThread() - legacyAllocatedBefore;
+
+    GC.Collect();
+    GC.WaitForPendingFinalizers();
+    GC.Collect();
+    long resolvedAllocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+    long resolvedStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+    for (int iteration = 0; iteration < benchmarkIterations; iteration++)
+    {
+        ResolvedObjFrame resolved = SnesObjRenderer.RenderResolved(
+            benchmarkRuntime.Oam,
+            benchmarkRuntime.Vram,
+            benchmarkRuntime.Cgram,
+            benchmarkObsel);
+        int sample = (iteration * 257) % resolved.Pixels.Length;
+        benchmarkChecksum ^= resolved.Pixels[sample].A ^ resolved.Priorities[sample];
+    }
+    TimeSpan resolvedElapsed = System.Diagnostics.Stopwatch.GetElapsedTime(resolvedStarted);
+    long resolvedAllocated = GC.GetAllocatedBytesForCurrentThread() - resolvedAllocatedBefore;
+
+    // Measure the whole ordinary-room compositor as a second number. This separates the
+    // now-cheap OBJ raster from BG tilemap decoding, HUD composition, and frame-buffer
+    // allocation, making the next optimization target obvious instead of speculative.
+    SuperMetroidRuntimeFrameRenderer.Render(benchmarkRuntime);
+    GC.Collect();
+    GC.WaitForPendingFinalizers();
+    GC.Collect();
+    long frameAllocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+    long frameStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+    for (int iteration = 0; iteration < benchmarkIterations; iteration++)
+    {
+        Rgba32[] frame = SuperMetroidRuntimeFrameRenderer.Render(benchmarkRuntime);
+        benchmarkChecksum ^= frame[(iteration * 257) % frame.Length].A;
+    }
+    TimeSpan frameElapsed = System.Diagnostics.Stopwatch.GetElapsedTime(frameStarted);
+    long frameAllocated = GC.GetAllocatedBytesForCurrentThread() - frameAllocatedBefore;
+
+    Console.WriteLine(
+        $"OBJ raster benchmark ({benchmarkIterations} Ceres frames, " +
+        $"{benchmarkRuntime.Oam.LastFinalizedSpriteCount} finalized sprites, " +
+        $"pixel-exact reference parity):");
+    Console.WriteLine(
+        $"  four filtered passes: {legacyElapsed.TotalMilliseconds:F1} ms, " +
+        $"{legacyAllocated / 1024.0 / 1024.0:F1} MiB allocated");
+    Console.WriteLine(
+        $"  one resolved pass:    {resolvedElapsed.TotalMilliseconds:F1} ms, " +
+        $"{resolvedAllocated / 1024.0 / 1024.0:F1} MiB allocated");
+    Console.WriteLine(
+        $"  improvement: {legacyElapsed.TotalMilliseconds / resolvedElapsed.TotalMilliseconds:F2}x time, " +
+        $"{legacyAllocated / (double)resolvedAllocated:F2}x allocation; checksum {benchmarkChecksum}.");
+    Console.WriteLine(
+        $"  complete PPU frame: {frameElapsed.TotalMilliseconds / benchmarkIterations:F2} ms/frame, " +
+        $"{benchmarkIterations / frameElapsed.TotalSeconds:F1} fps, " +
+        $"{frameAllocated / 1024.0 / benchmarkIterations:F1} KiB/frame allocated.");
+    return 0;
+}
+
+// Exercise the reported title/cinematic parity boundaries without opening a window. This
+// keeps transform direction, retail title dwell, caret motion, and both Rinka spawn waves
+// independently debuggable from the much larger playable-room audit.
+if (args.Length >= 2 && args[0] == "--frontend-parity-audit")
+{
+    string frontendRomPath = string.Join(' ', args[1..]).Trim('"');
+    SuperMetroidAddressSpace frontendBus = SuperMetroidAddressSpace.LoadRetailRom(frontendRomPath);
+    var titleAudit = new TitleSequenceState(frontendBus);
+    Rgba32[] yearFrame = titleAudit.Render();
+    if (yearFrame[0] != new Rgba32(0, 0, 0, 255))
+    {
+        throw new InvalidDataException(
+            $"1994 card enabled a non-OBJ layer; top-left backdrop was {yearFrame[0]} instead of black.");
+    }
+    bool sawNintendoPan = false;
+    bool sawZoomOut = false;
+    ushort previousScale = 0;
+    short previousOffset = 0;
+    for (int frame = 0; frame < 8192 && titleAudit.Phase != TitleSequencePhase.TitleScreen; frame++)
+    {
+        TitleSequencePhase beforePhase = titleAudit.Phase;
+        previousScale = titleAudit.Mode7MatrixScale;
+        previousOffset = titleAudit.Mode7HorizontalOffset;
+        titleAudit.Step(0);
+        if (beforePhase == TitleSequencePhase.SceneZeroPan &&
+            titleAudit.Mode7HorizontalOffset < previousOffset)
+        {
+            sawNintendoPan = true;
+        }
+        if (beforePhase == TitleSequencePhase.SceneThreeZoom &&
+            titleAudit.Mode7MatrixScale > previousScale)
+        {
+            sawZoomOut = true;
+        }
+    }
+    if (titleAudit.Phase != TitleSequencePhase.TitleScreen ||
+        titleAudit.TitleScreenFramesRemaining != 900 ||
+        !sawNintendoPan ||
+        !sawZoomOut)
+    {
+        throw new InvalidDataException(
+            $"Frontend title parity failed: phase={titleAudit.Phase}, " +
+            $"timer={titleAudit.TitleScreenFramesRemaining}, pan={sawNintendoPan}, zoomOut={sawZoomOut}.");
+    }
+
+    var introAudit = new IntroCinematicState(frontendBus);
+    int narrationFrames = 0;
+    var pageOneCaretPositions = new HashSet<(ushort X, ushort Y)>();
+    while (introAudit.Phase != IntroCinematicPhase.PageOneAwaitingInput && narrationFrames < 8192)
+    {
+        introAudit.Step(0);
+        if (introAudit.Phase is IntroCinematicPhase.PageOneText or
+            IntroCinematicPhase.PageOneAwaitingInput)
+        {
+            pageOneCaretPositions.Add((introAudit.IntroCaretX, introAudit.IntroCaretY));
+        }
+        narrationFrames++;
+    }
+    if (introAudit.Phase != IntroCinematicPhase.PageOneAwaitingInput ||
+        introAudit.IntroCaretX != 8 ||
+        introAudit.IntroCaretY != 136 ||
+        pageOneCaretPositions.Count < 8)
+    {
+        throw new InvalidDataException(
+            $"Intro page one did not advance its retail caret: phase={introAudit.Phase}, " +
+            $"caret=({introAudit.IntroCaretX},{introAudit.IntroCaretY}), " +
+            $"distinctPositions={pageOneCaretPositions.Count}.");
+    }
+
+    introAudit.Step((ushort)SnesButton.A);
+    if (introAudit.IntroCaretY != 0x00f8)
+        throw new InvalidDataException($"Intro caret remained at Y=${introAudit.IntroCaretY:X4} during crossfade.");
+
+    bool sawRinkaHit = false;
+    bool sawRinkaHurtPose = false;
+    bool sawRinkaKnockbackMotion = false;
+    bool sawRinkaRise = false;
+    bool sawPostKnockbackFall = false;
+    bool sawFloorRecovery = false;
+    var hurtAnimationFrames = new HashSet<ushort>();
+    ushort previousFlashbackSamusX = introAudit.FlashbackSamusX;
+    ushort previousFlashbackSamusY = introAudit.FlashbackSamusY;
+    int flashbackFrames = 0;
+    while (flashbackFrames < 1024 &&
+        (!sawRinkaHit || !sawRinkaHurtPose || !sawRinkaKnockbackMotion ||
+            !sawRinkaRise || !sawPostKnockbackFall || !sawFloorRecovery ||
+            hurtAnimationFrames.Count < 2 || introAudit.SpawnedIntroRinkaCount < 4 ||
+            introAudit.MotherBrainHitCount < 4))
+    {
+        introAudit.Step(0);
+        sawRinkaHit |= introAudit.FlashbackSamusInvincibilityTimer != 0;
+        sawRinkaHurtPose |= introAudit.FlashbackSamusPose == SamusState.KnockbackLeftPose;
+        sawRinkaKnockbackMotion |= introAudit.FlashbackSamusKnockbackActive &&
+            introAudit.FlashbackSamusX != previousFlashbackSamusX;
+        sawRinkaRise |= introAudit.FlashbackSamusKnockbackActive &&
+            introAudit.FlashbackSamusY < previousFlashbackSamusY;
+        sawPostKnockbackFall |= !introAudit.FlashbackSamusKnockbackActive &&
+            introAudit.FlashbackSamusPose == SamusState.FallingLeftPose &&
+            introAudit.FlashbackSamusY > previousFlashbackSamusY;
+        sawFloorRecovery |= sawRinkaHit &&
+            !introAudit.FlashbackSamusKnockbackActive &&
+            introAudit.FlashbackSamusY == 115 &&
+            introAudit.FlashbackSamusPose is not (
+                SamusState.KnockbackLeftPose or SamusState.FallingLeftPose);
+        if (introAudit.FlashbackSamusPose == SamusState.KnockbackLeftPose)
+            hurtAnimationFrames.Add(introAudit.FlashbackSamusAnimationFrame);
+        previousFlashbackSamusX = introAudit.FlashbackSamusX;
+        previousFlashbackSamusY = introAudit.FlashbackSamusY;
+        flashbackFrames++;
+    }
+    if (!sawRinkaHit || !sawRinkaHurtPose || !sawRinkaKnockbackMotion ||
+        !sawRinkaRise || !sawPostKnockbackFall || !sawFloorRecovery ||
+        hurtAnimationFrames.Count < 2 || introAudit.SpawnedIntroRinkaCount != 4 ||
+        introAudit.MotherBrainHitCount != 4)
+    {
+        throw new InvalidDataException(
+            $"Intro Rinka audit stopped after {flashbackFrames} frames with " +
+            $"spawned={introAudit.SpawnedIntroRinkaCount}, hit={sawRinkaHit}, " +
+            $"hurtPose={sawRinkaHurtPose}, hurtFrames={hurtAnimationFrames.Count}, " +
+            $"knockbackMotion={sawRinkaKnockbackMotion}, rise={sawRinkaRise}, " +
+            $"fall={sawPostKnockbackFall}, floor={sawFloorRecovery}, " +
+            $"Samus=({introAudit.FlashbackSamusX},{introAudit.FlashbackSamusY})/" +
+            $"${introAudit.FlashbackSamusPose:X2}, MotherBrainHits={introAudit.MotherBrainHitCount}.");
+    }
+
+    var ceresStartAudit = new SuperMetroidRuntime(frontendBus);
+    ceresStartAudit.InitializeHud(HudSnapshot.CeresDebug);
+    ceresStartAudit.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+    ceresStartAudit.InitializeStartingCeresRoom();
+    ceresStartAudit.InitializeCeresStartSamus();
+    byte expectedMapX = ceresStartAudit.ActiveRoom!.MapX;
+    byte expectedMapY = unchecked((byte)(ceresStartAudit.ActiveRoom.MapY + 1));
+    if (ceresStartAudit.Hud.MinimapCenterX != expectedMapX ||
+        ceresStartAudit.Hud.MinimapCenterY != expectedMapY)
+    {
+        throw new InvalidDataException(
+            $"Locked Ceres arrival published minimap " +
+            $"({ceresStartAudit.Hud.MinimapCenterX},{ceresStartAudit.Hud.MinimapCenterY}) " +
+            $"instead of ({expectedMapX},{expectedMapY}).");
+    }
+
+    var hazeAudit = new Rgba32[SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
+    Array.Fill(hazeAudit, new Rgba32(0, 0, 0, 255));
+    SnesGameplayFrameRenderer.ApplyCeresHaze(hazeAudit, ridleyIsDead: false);
+    if (hazeAudit[0].B != 0 ||
+        hazeAudit[32 * SnesGameplayFrameRenderer.Width].B == 0 ||
+        hazeAudit[223 * SnesGameplayFrameRenderer.Width].B <=
+            hazeAudit[64 * SnesGameplayFrameRenderer.Width].B)
+    {
+        throw new InvalidDataException("Ceres haze did not preserve BG3 HUD and increase blue toward the floor.");
+    }
+
+    Console.WriteLine(
+        $"Frontend parity audit passed: black 1994 card, Nintendo pan, title zoom-out, " +
+        $"900-frame NTSC dwell, " +
+        $"{pageOneCaretPositions.Count} caret positions then Y=$F8, four Rinkas, " +
+        $"Samus hurt/rise/fall/floor recovery and four later Mother Brain hits after " +
+        $"{flashbackFrames} flashback frames, " +
+        $"arrival minimap ({expectedMapX},{expectedMapY}), and ROM-selected Ceres haze.");
+    return 0;
+}
+
 // Load Ceres Ridley's room directly from its retail bank-$8F header, then run the complete
 // deterministic dispatcher/palette reveal slice. This is separate from screenshot capture: it
 // gives regressions in $E13F initialization, instruction dispatch, or palette timing a fast
@@ -42,6 +360,11 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     var ridleyEnemies = new RoomEnemySystem();
     var ridleyVram = new SnesVram();
     var ridleyCgram = new SnesCgram();
+    CartridgeRoomAssets retailRidleyAssets = CartridgeRoomAssets.Load(ridleyBus, ridleyRoom);
+    // StartGameplay loads room characters first, then lets enemy graphics replace their
+    // reserved OBJ region. This ordering is also what makes the later Mode-7 getaway's
+    // interleaved view of the same VRAM deterministic.
+    retailRidleyAssets.LoadGraphics(ridleyVram, ridleyCgram);
     ridleyEnemies.Load(
         ridleyBus,
         ridleyRoom.State.EnemyPopulationPointer,
@@ -62,6 +385,27 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
             $"Retail room $E0B5 selected enemy ${ridleySlot.EnemyDefinitionPointer:X4}, " +
             $"init ${ridleySlot.Definition.InitializationAiPointer:X4}, " +
             $"main ${ridleySlot.Definition.MainAiPointer:X4}.");
+    }
+
+    // `$A6:A2DF` branches directly to the Baby-and-door routine while Ridley's animation
+    // word is zero. Prove both halves of that scheduling contract before advancing reveal:
+    // the immediate EnemyMain phase must emit the Baby, and the not-yet-installed deferred
+    // hook must be inert. A test that starts only after battle entry misses the exact visual
+    // ordering regression where the Baby first appears together with Ridley.
+    var preRevealOam = new OamBuffer();
+    preRevealOam.BeginFrame();
+    ridleyEnemies.DrawCeresRidleyImmediateBabyAndDoor(preRevealOam, cameraX: 0, cameraY: 0);
+    int preRevealImmediateBytes = preRevealOam.NextByteOffset;
+    ridleyEnemies.DrawCeresRidleyPostEnemyHook(preRevealOam, cameraX: 0, cameraY: 0);
+    if (ridleyState.MovementAnimationEnabled != 0 ||
+        ridleyState.BabyCurrentSpritemap == 0 ||
+        preRevealImmediateBytes == 0 ||
+        preRevealOam.NextByteOffset != preRevealImmediateBytes)
+    {
+        throw new InvalidDataException(
+            $"Ceres Baby pre-reveal scheduling failed: movement={ridleyState.MovementAnimationEnabled}, " +
+            $"map=${ridleyState.BabyCurrentSpritemap:X4}, immediate={preRevealImmediateBytes}, " +
+            $"afterDeferred={preRevealOam.NextByteOffset}.");
     }
 
     // 1 entry call + 512 remaining delay calls + 65 eye-table calls + 32 body-fade calls.
@@ -92,10 +436,54 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
             $"$A6:{(ushort)ridleyState.Function:X4} after {battleEntryFrames} frames.");
     }
 
+    // DrawLayers must prepend the seven tail pieces and current wing map before the common
+    // extended body. Checking both the solved segment chain and its OAM output catches a
+    // future regression that leaves the Baby actor working while silently dropping the two
+    // special draw calls again.
+    if (ridleyState.TailSegments.Length != 7 ||
+        ridleyState.TailSegments.Select(segment => segment.XPosition).Distinct().Count() < 3)
+    {
+        throw new InvalidDataException("Ceres Ridley neutral tail did not solve seven world-space segments.");
+    }
+    var ridleyCompositeOam = new OamBuffer();
+    ridleyCompositeOam.BeginFrame();
+    ridleyEnemies.DrawLayers(ridleyCompositeOam, cameraX: 0, cameraY: 0, 0, 7);
+    int compositeByteOffsetBeforePostHook = ridleyCompositeOam.NextByteOffset;
+    ridleyEnemies.DrawCeresRidleyPostEnemyHook(ridleyCompositeOam, cameraX: 0, cameraY: 0);
+    if (ridleyCompositeOam.NextByteOffset < 12 * 4)
+    {
+        throw new InvalidDataException(
+            $"Ceres Ridley composite emitted only {ridleyCompositeOam.NextByteOffset / 4} OBJ entries.");
+    }
+    if (ridleyState.BabyCurrentSpritemap == 0 ||
+        ridleyCompositeOam.NextByteOffset <= compositeByteOffsetBeforePostHook)
+    {
+        throw new InvalidDataException(
+            $"Ceres Baby post-enemy hook emitted no OBJ: map=${ridleyState.BabyCurrentSpritemap:X4}, " +
+            $"OAM={compositeByteOffsetBeforePostHook}->{ridleyCompositeOam.NextByteOffset}.");
+    }
+
     // Exercise the actual $A6:E73A mouth animation before shortening the battle with the
     // scripted 100-hit condition. It must produce $86:9642 actors, collide with the retail
     // room plane, damage Samus, and bloom into the directional afterburn definitions.
-    RoomLevelData retailRidleyLevel = CartridgeRoomAssets.Load(ridleyBus, ridleyRoom).LevelData;
+    RoomLevelData retailRidleyLevel = retailRidleyAssets.LevelData;
+    var ridleyInitialScroll = new BackgroundScrollState
+    {
+        Layer2ScrollX = ridleyRoom.State.Layer2ScrollX,
+        Layer2ScrollY = ridleyRoom.State.Layer2ScrollY,
+    };
+    BackgroundTilemapStreamer ridleyInitialStreamer =
+        retailRidleyLevel.CreateBackgroundStreamer(sizeOfBg2: 0x0800);
+    IReadOnlyList<BackgroundUpdateRequest> ridleyInitialRequests =
+        ridleyInitialScroll.BuildInitialViewportRequests();
+    foreach (BackgroundUpdateRequest request in ridleyInitialRequests)
+        ridleyInitialStreamer.Build(request)?.ExecuteTo(ridleyVram);
+    if (ridleyInitialRequests.Count != 34)
+    {
+        throw new InvalidDataException(
+            $"Retail Ridley room initial viewport produced {ridleyInitialRequests.Count} requests, expected 34.");
+    }
+
     auditSamus.Health = 999;
     auditSamus.XPosition = 0x0080;
     auditSamus.YPosition = 0x0064;
@@ -139,6 +527,236 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
             $"velocity=({(short)ridleyState.FireballXVelocity},{(short)ridleyState.FireballYVelocity}), " +
             $"live={string.Join(';', ridleyEnemies.CeresRidleyProjectiles.Where(p => p.IsActive).Select(p => $"{p.Kind}@{p.XPosition},{p.YPosition}"))}.");
     }
+
+    // A projectile hit must enter the shared bank-$90 hurt state, not merely subtract
+    // energy and set invincibility. The old partial translation made the OBJ flicker hide
+    // an unchanged normal pose, which looked like Samus vanished on contact.
+    if (!auditSamus.KnockbackActive ||
+        auditSamus.Pose is not (SamusState.KnockbackRightPose or SamusState.KnockbackLeftPose) ||
+        auditSamus.HurtFlashCounter == 0 ||
+        auditSamus.Kinematics.YSpeed != 5 ||
+        auditSamus.Kinematics.YSubspeed != 0)
+    {
+        throw new InvalidDataException(
+            $"Ridley fireball damage omitted the shared hurt transition: " +
+            $"active={auditSamus.KnockbackActive}, pose=${auditSamus.Pose:X2}, " +
+            $"flash={auditSamus.HurtFlashCounter}, " +
+            $"Y={auditSamus.Kinematics.YSpeed:X4}.{auditSamus.Kinematics.YSubspeed:X4}.");
+    }
+
+    var hurtOam = new OamBuffer();
+    hurtOam.BeginFrame();
+    if (!auditSamus.Draw(
+            ridleyBus,
+            hurtOam,
+            layer1X: 0,
+            layer1Y: 0,
+            nmiFrameCounter: 1) ||
+        hurtOam.NextByteOffset == 0)
+    {
+        throw new InvalidDataException(
+            $"Ridley fireball hurt pose ${auditSamus.Pose:X2} emitted no Samus OBJ entries.");
+    }
+
+    // This isolated enemy audit does not run Samus's alpha/beta handlers, so explicitly
+    // return the fixture to a normal cartridge pose before testing the independent beam
+    // producer below. PlayableGame advances the same state through KnockbackMovement.Step.
+    ResetRidleyAuditSamusAfterHurt(ridleyBus, auditSamus);
+
+    // Exercise the active extended-spritemap frame through $A0:9A5A's exact component and
+    // hitbox lists. Ridley's origin lies inside his torso frame at this point.
+    auditSamus.Health = 999;
+    auditSamus.XPosition = ridleySlot.XPosition;
+    auditSamus.YPosition = ridleySlot.YPosition;
+    if (!ridleyEnemies.ResolveCeresRidleySamusContact(auditSamus, controllerInput: 0) ||
+        auditSamus.Health != 994 || !auditSamus.KnockbackActive ||
+        auditSamus.Kinematics.YSpeed != 5 || auditSamus.Kinematics.YSubspeed != 0)
+    {
+        throw new InvalidDataException(
+            $"Ceres Ridley extended body contact failed: health={auditSamus.Health}, " +
+            $"hurt={auditSamus.KnockbackActive}, pose=${auditSamus.Pose:X2}.");
+    }
+    ResetRidleyAuditSamusAfterHurt(ridleyBus, auditSamus);
+
+    // Ridley_Func_127 at $A6:DFD9 gives the final tail entry its own 14-by-14
+    // contact rectangle and applies the Ceres tail damage word ($000F). This is
+    // deliberately separate from the extended body-map audit above: the tail is
+    // drawn by custom OAM code and therefore never appears in $A0:9A5A's list.
+    CeresRidleyTailSegment tailTip = ridleyState.TailSegments[^1];
+    auditSamus.Health = 999;
+    auditSamus.XPosition = tailTip.XPosition;
+    auditSamus.YPosition = tailTip.YPosition;
+    if (!ridleyEnemies.ResolveCeresRidleySamusContact(auditSamus, controllerInput: 0) ||
+        auditSamus.Health != 984 || !auditSamus.KnockbackActive)
+    {
+        throw new InvalidDataException(
+            $"Ceres Ridley tail-tip contact failed: health={auditSamus.Health}, " +
+            $"hurt={auditSamus.KnockbackActive}, pose=${auditSamus.Pose:X2}, " +
+            $"tip=({tailTip.XPosition},{tailTip.YPosition}).");
+    }
+    ResetRidleyAuditSamusAfterHurt(ridleyBus, auditSamus);
+
+    // Repeat body contact through SuperMetroidRuntime itself. The isolated checks above
+    // validate bank-$A0 geometry, but previously let a missing scheduler call, hurt-handler
+    // dispatch, or Samus draw silently escape. Direct room loading is an internal debugger
+    // seam; every frame below still runs the production NMI, enemy, collision, movement,
+    // palette, OAM, and finalization order used by the desktop game.
+    var liveRidleyRuntime = new SuperMetroidRuntime(ridleyBus);
+    liveRidleyRuntime.InitializeHud(HudSnapshot.CeresDebug);
+    liveRidleyRuntime.InitializeStartingCeresRoom();
+    liveRidleyRuntime.InitializeCeresStartSamus();
+    liveRidleyRuntime.LoadCartridgeRoomForDebug(ridleyRoom.Pointer);
+    SamusState liveSamus = liveRidleyRuntime.Samus!;
+    RoomEnemySlot liveRidleySlot = liveRidleyRuntime.Enemies.Slots[0];
+    CeresRidleyState liveRidleyState = liveRidleyRuntime.Enemies.CeresRidley
+        ?? throw new InvalidDataException("Runtime Ridley room omitted its Ceres actor.");
+
+    // Reproduce the pre-reveal overlap that exposed the software-PPU bug. Ceres Ridley's
+    // bank-$A0 header places him on enemy layer five and his bank-$A6 maps use OBJ3; Samus
+    // is emitted earlier by the layer-three insertion and her bank-$92 maps use OBJ2. The
+    // SNES first resolves the two opaque OBJ pixels by OAM number, then compares the winner
+    // with BG priority. Rendering OBJ3 as an independent plane used to resurrect Ridley's
+    // later pixel and make Samus disappear behind the still-black body.
+    liveSamus.Pose = SamusState.FacingRightNormalPose;
+    liveSamus.XPosition = liveRidleySlot.XPosition;
+    liveSamus.YPosition = liveRidleySlot.YPosition;
+    liveSamus.Health = 999;
+    liveSamus.InvincibilityTimer = 0;
+    liveSamus.InputLocked = true;
+    liveSamus.RefreshCollisionRadii(ridleyBus);
+    liveSamus.InitializeAnimation(ridleyBus);
+    // Two frames admit the initial enemy instruction map and the selected Samus tiles
+    // through their real main-loop/NMI producer-consumer boundary.
+    liveRidleyRuntime.StepFrame(0);
+    liveRidleyRuntime.StepFrame(0);
+
+    var preRevealRidleyOnlyOam = new OamBuffer();
+    preRevealRidleyOnlyOam.BeginFrame();
+    liveRidleyRuntime.Enemies.DrawLayers(
+        preRevealRidleyOnlyOam,
+        liveRidleyRuntime.Camera!.XPosition,
+        liveRidleyRuntime.Camera.YPosition,
+        firstLayer: 5,
+        lastLayer: 5);
+    preRevealRidleyOnlyOam.FinalizeFrame();
+
+    var preRevealSamusOnlyOam = new OamBuffer();
+    preRevealSamusOnlyOam.BeginFrame();
+    liveSamus.Draw(
+        ridleyBus,
+        preRevealSamusOnlyOam,
+        liveRidleyRuntime.Camera.XPosition,
+        liveRidleyRuntime.Camera.YPosition,
+        liveRidleyRuntime.NmiFrameCounter);
+    preRevealSamusOnlyOam.FinalizeFrame();
+
+    Rgba32[] preRevealRidleyOnly = SnesObjRenderer.Render(
+        preRevealRidleyOnlyOam,
+        liveRidleyRuntime.Vram,
+        liveRidleyRuntime.Cgram,
+        obsel: 0x03,
+        priority: 3);
+    Rgba32[] preRevealSamusOnly = SnesObjRenderer.Render(
+        preRevealSamusOnlyOam,
+        liveRidleyRuntime.Vram,
+        liveRidleyRuntime.Cgram,
+        obsel: 0x03,
+        priority: 2);
+    Rgba32[] preRevealCombinedObj2 = SnesObjRenderer.Render(
+        liveRidleyRuntime.Oam,
+        liveRidleyRuntime.Vram,
+        liveRidleyRuntime.Cgram,
+        obsel: 0x03,
+        priority: 2);
+    Rgba32[] preRevealCombinedObj3 = SnesObjRenderer.Render(
+        liveRidleyRuntime.Oam,
+        liveRidleyRuntime.Vram,
+        liveRidleyRuntime.Cgram,
+        obsel: 0x03,
+        priority: 3);
+
+    int preRevealOverlapPixel = -1;
+    for (int pixel = 32 * 256; pixel < preRevealSamusOnly.Length; pixel++)
+    {
+        if (preRevealSamusOnly[pixel].A != 0 && preRevealRidleyOnly[pixel].A != 0)
+        {
+            preRevealOverlapPixel = pixel;
+            break;
+        }
+    }
+    if (preRevealOverlapPixel < 0 ||
+        preRevealCombinedObj2[preRevealOverlapPixel] != preRevealSamusOnly[preRevealOverlapPixel] ||
+        preRevealCombinedObj3[preRevealOverlapPixel].A != 0)
+    {
+        throw new InvalidDataException(
+            $"Pre-reveal Samus/Ridley OBJ ownership failed at pixel {preRevealOverlapPixel}: " +
+            $"Samus={((preRevealOverlapPixel >= 0) ? preRevealSamusOnly[preRevealOverlapPixel] : default)}, " +
+            $"Ridley={((preRevealOverlapPixel >= 0) ? preRevealRidleyOnly[preRevealOverlapPixel] : default)}, " +
+            $"combined2={((preRevealOverlapPixel >= 0) ? preRevealCombinedObj2[preRevealOverlapPixel] : default)}, " +
+            $"combined3={((preRevealOverlapPixel >= 0) ? preRevealCombinedObj3[preRevealOverlapPixel] : default)}.");
+    }
+
+    // Move the audit actor out of the arena while the literal 512-frame reveal delay runs;
+    // this keeps the later battle-contact assertion independent of the overlap probe.
+    liveSamus.Pose = SamusState.ForwardFacingPowerSuitPose;
+    liveSamus.XPosition = 0x0010;
+    liveSamus.YPosition = 0x0010;
+    liveSamus.InvincibilityTimer = ushort.MaxValue;
+    liveSamus.RefreshCollisionRadii(ridleyBus);
+    liveSamus.InitializeAnimation(ridleyBus);
+    int liveBattleEntryFrames = 0;
+    while (liveRidleyState.Function != CeresRidleyAiFunction.Hovering &&
+        liveBattleEntryFrames < 2048)
+    {
+        liveRidleyRuntime.StepFrame(0);
+        liveBattleEntryFrames++;
+    }
+    if (liveRidleyState.Function != CeresRidleyAiFunction.Hovering)
+    {
+        throw new InvalidDataException(
+            $"Runtime Ceres Ridley never entered battle after {liveBattleEntryFrames} frames.");
+    }
+
+    liveSamus.Pose = SamusState.FacingRightNormalPose;
+    liveSamus.XPosition = liveRidleySlot.XPosition;
+    liveSamus.YPosition = liveRidleySlot.YPosition;
+    liveSamus.Health = 999;
+    liveSamus.InvincibilityTimer = 0;
+    liveSamus.InputLocked = false;
+    liveSamus.RefreshCollisionRadii(ridleyBus);
+    liveSamus.InitializeAnimation(ridleyBus);
+    ushort liveContactStartY = liveSamus.YPosition;
+    ushort hudOnesBeforeContact = liveRidleyRuntime.Hud.Tiles[0x8e / 2];
+    liveRidleyRuntime.StepFrame(0);
+    int liveContactOamCount = liveRidleyRuntime.Oam.LastFinalizedSpriteCount;
+    if (liveSamus.Health != 994 || !liveSamus.KnockbackActive ||
+        liveSamus.Pose is not (SamusState.KnockbackRightPose or SamusState.KnockbackLeftPose) ||
+        !liveRidleyRuntime.LastSamusBodyDrawn ||
+        liveRidleyRuntime.Hud.Tiles[0x8e / 2] == hudOnesBeforeContact)
+    {
+        throw new InvalidDataException(
+            $"Runtime Ceres Ridley contact failed: health={liveSamus.Health}, " +
+            $"hurt={liveSamus.KnockbackActive}, pose=${liveSamus.Pose:X2}, " +
+            $"body={liveRidleyRuntime.LastSamusBodyDrawn}, " +
+            $"HUD=${hudOnesBeforeContact:X4}->${liveRidleyRuntime.Hud.Tiles[0x8e / 2]:X4}.");
+    }
+
+    // `$18AA=5` forces the body visible throughout the special knockback handler. Verify
+    // every remaining owned frame, not just its initial state, and bound the five-pixel
+    // launch so a bad ROM table cannot masquerade as successful OAM emission off-screen.
+    for (int hurtFrame = 1; hurtFrame < 5; hurtFrame++)
+    {
+        liveRidleyRuntime.StepFrame(0);
+        if (!liveRidleyRuntime.LastSamusBodyDrawn ||
+            Math.Abs(unchecked((short)(liveSamus.YPosition - liveContactStartY))) > 32)
+        {
+            throw new InvalidDataException(
+                $"Runtime hurt frame {hurtFrame} lost Samus: body={liveRidleyRuntime.LastSamusBodyDrawn}, " +
+                $"Y=${liveContactStartY:X4}->${liveSamus.YPosition:X4}, " +
+                $"timer={liveSamus.KnockbackTimer}.");
+        }
+    }
+
     auditSamus.Health = 99;
     auditSamus.InvincibilityTimer = 0;
 
@@ -209,6 +827,15 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
             $"$A6:{(ushort)ridleyState.Function:X4}/status={ridleyEnemies.CeresStatus} " +
             $"after {retreatFrames} frames.");
     }
+    RoomEnemySlot[] getawayWalls = ridleyEnemies.Slots
+        .Where(slot => slot.EnemyDefinitionPointer == 0xe23f && slot.Parameter1 is 5 or 6)
+        .ToArray();
+    if (getawayWalls.Length != 2 ||
+        getawayWalls.Select(wall => wall.Parameter1).Distinct().Count() != 2)
+    {
+        throw new InvalidDataException(
+            $"Ceres getaway spawned {getawayWalls.Length} Mode-7 walls instead of native variants five/six.");
+    }
 
     // Continue room main through the retail zoom table's $FFFF terminator and verify the
     // explicit return to ordinary mode-nine rendering state.
@@ -216,6 +843,8 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     bool sawRotatedMatrix = false;
     bool sawSamusPushOwnership = false;
     bool sawAnimatedMode7Map = false;
+    bool sawVisibleMode7Getaway = false;
+    bool sawBothMode7WallsDrawn = false;
     int mode7Frames = 0;
     while (ridleyState.Mode7Active && mode7Frames < 512)
     {
@@ -225,18 +854,51 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
             ridleyState.Mode7MatrixC != 0;
         sawSamusPushOwnership |= auditSamus.InputLocked;
         sawAnimatedMode7Map |= !ridleyVram.Bytes.SequenceEqual(vramBeforeMode7Animation);
+        if (!sawVisibleMode7Getaway)
+        {
+            var getawayOam = new OamBuffer();
+            getawayOam.BeginFrame();
+            ridleyEnemies.DrawLayers(getawayOam, cameraX: 0, cameraY: 0, 0, 7);
+            // The two literal wall maps contain 19 and 13 entries. This assertion is
+            // intentionally about emitted OAM, not merely the existence of logical slots.
+            sawBothMode7WallsDrawn |= getawayOam.NextByteOffset >= (19 + 13) * 4;
+            getawayOam.FinalizeFrame();
+            Rgba32[] mode7Frame = SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(
+                ridleyVram,
+                ridleyCgram,
+                getawayOam,
+                unchecked((short)ridleyState.Mode7MatrixA),
+                unchecked((short)ridleyState.Mode7MatrixB),
+                unchecked((short)ridleyState.Mode7MatrixC),
+                unchecked((short)ridleyState.Mode7MatrixD),
+                unchecked((short)ridleyState.Mode7CenterX),
+                unchecked((short)ridleyState.Mode7CenterY),
+                unchecked((short)ridleyState.Mode7HorizontalOffset),
+                unchecked((short)ridleyState.Mode7VerticalOffset),
+                ridleyInitialScroll.Bg2HorizontalScroll,
+                ridleyInitialScroll.Bg2VerticalScroll,
+                bg2CharacterBaseWord: 0x6000);
+            sawVisibleMode7Getaway = mode7Frame
+                .Skip(SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.HudHeight)
+                .Distinct()
+                .Take(2)
+                .Count() == 2;
+        }
         mode7Frames++;
     }
     if (!ridleyState.Mode7Finished || ridleyState.Mode7Active ||
         ridleyState.Mode7MatrixA != 0 || ridleyState.Mode7HorizontalOffset != 0 ||
         !sawRotatedMatrix || !sawSamusPushOwnership || !sawAnimatedMode7Map ||
+        !sawVisibleMode7Getaway || !sawBothMode7WallsDrawn ||
         auditSamus.InputLocked)
     {
         throw new InvalidDataException(
             $"Retail Mode-7 getaway failed to restore mode nine after {mode7Frames} frames: " +
             $"active={ridleyState.Mode7Active}, finished={ridleyState.Mode7Finished}, " +
             $"rotated={sawRotatedMatrix}, pushedSamus={sawSamusPushOwnership}, " +
-            $"animatedMap={sawAnimatedMode7Map}, inputLocked={auditSamus.InputLocked}, " +
+            $"animatedMap={sawAnimatedMode7Map}, visible={sawVisibleMode7Getaway}, " +
+            $"wallsDrawn={sawBothMode7WallsDrawn}, " +
+            $"inputLocked={auditSamus.InputLocked}, " +
             $"A=${ridleyState.Mode7MatrixA:X4}, X=${ridleyState.Mode7HorizontalOffset:X4}.");
     }
 
@@ -245,10 +907,110 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         $"state $8F:{ridleyRoom.State.Pointer:X4}, " +
         $"population $A1:{ridleyRoom.State.EnemyPopulationPointer:X4}, " +
         $"enemy ${ridleySlot.EnemyDefinitionPointer:X4}, reveal $A6:A455/$0004, " +
+        $"pre-reveal Samus-owned overlap " +
+        $"({preRevealOverlapPixel % 256},{preRevealOverlapPixel / 256}), " +
         $"battle in {battleEntryFrames} frames, fireballs/afterburn/damage in " +
-        $"{fireballAuditFrames} frames, 100 retail beam hits, " +
+        $"{fireballAuditFrames} frames, runtime hurt OAM {liveContactOamCount}/128, " +
+        $"100 retail beam hits, " +
         $"escape handoff in {retreatFrames} frames, Mode 7 restored in {mode7Frames} frames.");
     return 0;
+}
+
+/// <summary>
+/// Slow, explicit Mode-1 gameplay compositor retained only as a pixel-parity oracle for the
+/// optimized software PPU benchmark. It intentionally allocates every old priority plane.
+/// </summary>
+static Rgba32[] RenderOrdinaryGameplayReference(
+    SnesVram vram,
+    SnesCgram cgram,
+    OamBuffer oam,
+    ushort bg1HorizontalScroll,
+    ushort bg1VerticalScroll,
+    ushort bg2HorizontalScroll,
+    ushort bg2VerticalScroll,
+    ushort bg1CharacterBaseWord,
+    ushort bg2CharacterBaseWord)
+{
+    const int width = SnesGameplayFrameRenderer.Width;
+    const int height = SnesGameplayFrameRenderer.Height;
+    const int hudHeight = SnesGameplayFrameRenderer.HudHeight;
+    var output = new Rgba32[width * height];
+    Array.Fill(output, cgram.GetRgba(0));
+
+    void CompositeObj(int priority)
+    {
+        Rgba32[] plane = SnesObjRenderer.Render(
+            oam,
+            vram,
+            cgram,
+            obsel: 0x03,
+            width,
+            height,
+            priority);
+        for (int pixel = hudHeight * width; pixel < output.Length; pixel++)
+        {
+            if (plane[pixel].A != 0)
+                output[pixel] = plane[pixel];
+        }
+    }
+
+    void CompositeBg(
+        ushort tilemapBaseWord,
+        ushort characterBaseWord,
+        ushort horizontalScroll,
+        ushort verticalScroll,
+        bool priority)
+    {
+        Rgba32[] plane = SnesBgTilemapRenderer.Render4BppViewport(
+            vram,
+            cgram,
+            tilemapBaseWord,
+            characterBaseWord,
+            horizontalScroll,
+            unchecked((ushort)(verticalScroll + hudHeight)),
+            width,
+            height - hudHeight,
+            priority: priority);
+        int destinationBase = hudHeight * width;
+        for (int pixel = 0; pixel < plane.Length; pixel++)
+        {
+            if (plane[pixel].A != 0)
+                output[destinationBase + pixel] = plane[pixel];
+        }
+    }
+
+    // This is the literal BGMODE=$09 back-to-front ladder. Keeping the oracle phrased as
+    // separate planes makes it structurally independent from the optimized rank selection.
+    CompositeObj(priority: 0);
+    CompositeObj(priority: 1);
+    CompositeBg(0x4800, bg2CharacterBaseWord, bg2HorizontalScroll, bg2VerticalScroll, priority: false);
+    CompositeBg(0x5000, bg1CharacterBaseWord, bg1HorizontalScroll, bg1VerticalScroll, priority: false);
+    CompositeObj(priority: 2);
+    CompositeBg(0x4800, bg2CharacterBaseWord, bg2HorizontalScroll, bg2VerticalScroll, priority: true);
+    CompositeBg(0x5000, bg1CharacterBaseWord, bg1HorizontalScroll, bg1VerticalScroll, priority: true);
+    CompositeObj(priority: 3);
+
+    Rgba32[] hud = SnesBgTilemapRenderer.Render2Bpp(
+        vram,
+        cgram,
+        tilemapBaseWord: 0x5800,
+        characterBaseWord: 0x4000,
+        rowCount: 4);
+    hud.CopyTo(output, 0);
+    return output;
+}
+
+static void ResetRidleyAuditSamusAfterHurt(
+    ISnesAddressSpace bus,
+    SamusState samus)
+{
+    samus.KnockbackActive = false;
+    samus.KnockbackDirection = 0;
+    samus.KnockbackTimer = 0;
+    samus.InvincibilityTimer = 0;
+    samus.Pose = SamusState.FacingRightNormalPose;
+    samus.RefreshCollisionRadii(bus);
+    samus.InitializeAnimation(bus);
 }
 
 // This milestone capture exercises the actual new-game load-station/room pipeline without
@@ -317,6 +1079,26 @@ if (args.Length >= 3 && args[0] == "--ceres-room-capture")
     Rgba32[] ceresFrame = SuperMetroidRuntimeFrameRenderer.Render(ceresRuntime);
     EnsureOpaqueFrame(ceresFrame, "Ceres gameplay");
     PngWriter.WriteRgba(ceresOutputPath, 256, 224, ceresFrame);
+
+    // Both bank-$86 arrival projectiles are gone at this point. The platform must still
+    // alternate because Ceres-door variant two owns $A6:F8F1 independently. Cross one
+    // complete bit-one phase and compare the literal four map bytes written at word $060E;
+    // this is a retail-ROM end-to-end guard against the exact “flashes only while moving”
+    // regression that a projectile-only screenshot cannot detect.
+    byte[] landedPlatformFrame = Enumerable.Range(0, 4)
+        .Select(index => ceresRuntime.Vram.ReadByte((0x060e + index) * 2))
+        .ToArray();
+    ceresRuntime.StepFrame(0);
+    ceresRuntime.StepFrame(0);
+    byte[] nextLandedPlatformFrame = Enumerable.Range(0, 4)
+        .Select(index => ceresRuntime.Vram.ReadByte((0x060e + index) * 2))
+        .ToArray();
+    if (landedPlatformFrame.AsSpan().SequenceEqual(nextLandedPlatformFrame))
+    {
+        throw new InvalidDataException(
+            $"Landed Ceres platform stopped animating at Mode-7 word $060E: " +
+            $"{Convert.ToHexString(landedPlatformFrame)}.");
+    }
     Console.WriteLine(
         $"Ceres station area={station.RequestedAreaIndex} index={station.StationIndex} " +
         $"room=$8F:{room.Pointer:X4} state=$8F:{room.State.Pointer:X4} " +

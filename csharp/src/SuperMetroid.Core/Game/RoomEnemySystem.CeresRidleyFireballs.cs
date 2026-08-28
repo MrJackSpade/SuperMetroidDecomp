@@ -81,7 +81,10 @@ public sealed partial class RoomEnemySystem
     /// had their opportunity to spawn a fireball. This is the same producer/consumer order
     /// as EnemyMain followed by bank $86's enemy-projectile handler.
     /// </summary>
-    public void StepCeresRidleyProjectiles(RoomLevelData level, SamusState? samus)
+    public void StepCeresRidleyProjectiles(
+        RoomLevelData level,
+        SamusState? samus,
+        ushort controllerInput = 0)
     {
         ArgumentNullException.ThrowIfNull(level);
         EnsureLoaded();
@@ -100,7 +103,7 @@ public sealed partial class RoomEnemySystem
             if (!projectile.IsActive)
                 continue;
 
-            ResolveCeresRidleyFireballSamusCollision(projectile, samus);
+            ResolveCeresRidleyFireballSamusCollision(projectile, samus, controllerInput);
             if (!projectile.IsActive)
                 continue;
 
@@ -370,7 +373,8 @@ public sealed partial class RoomEnemySystem
 
     private void ResolveCeresRidleyFireballSamusCollision(
         CeresRidleyProjectileSlot projectile,
-        SamusState? samus)
+        SamusState? samus,
+        ushort controllerInput)
     {
         if (!projectile.CanDamageSamus || samus is null || samus.InvincibilityTimer != 0)
             return;
@@ -387,10 +391,23 @@ public sealed partial class RoomEnemySystem
             ? (ushort)0
             : unchecked((ushort)(samus.Health - FireballDamage));
         samus.InvincibilityTimer = FireballInvincibilityFrames;
-        samus.KnockbackTimer = 5;
-        samus.KnockbackXDirection = unchecked((short)(samus.XPosition - projectile.XPosition)) >= 0
+        ushort knockbackXDirection = unchecked((short)(
+            samus.XPosition - projectile.XPosition)) >= 0
             ? (ushort)1
             : (ushort)0;
+
+        // Generic enemy-projectile touch publishes the five-frame knockback request and
+        // bank $90 consumes it through special prospective command one. In this runtime
+        // the common initializer is the typed form of that consumer: it installs pose
+        // $53/$54, hurt animation, vertical launch, and the 60-frame flash lifetime. Merely
+        // writing $18AA/$0A54 left Samus in an ordinary pose while invincibility hid her,
+        // which looked exactly like the actor had disappeared after a fireball impact.
+        SamusKnockbackMovement.Start(
+            _bus!,
+            samus,
+            controllerInput,
+            knockbackXDirection,
+            knockbackTimer: 5);
 
         // Generic enemy-projectile contact deletes Ridley's fireball. Afterburn is a wall-
         // impact feature from $86:940E, so a Samus contact does not create the wall bloom.

@@ -40,6 +40,29 @@ public enum CeresRidleyAiFunction : ushort
 }
 
 /// <summary>
+/// One of the seven twenty-byte logical entries initialized by $A6:D2D6. Only fields
+/// consumed by the Ceres neutral-tail path are named here; the Norfair-only pogo and whip
+/// targets remain outside this translation until their dispatchers are brought across.
+/// </summary>
+public sealed class CeresRidleyTailSegment
+{
+    public bool Active { get; internal set; }
+    public ushort StaggerAngle { get; internal set; }
+    public ushort MovementDirection { get; internal set; }
+    public ushort Distance { get; internal set; }
+    /// <summary>
+    /// Nonzero while this segment is extending for a whip. Native stores this separately
+    /// from the live radius and clears it after the live distance passes the request.
+    /// </summary>
+    public ushort TargetDistance { get; internal set; }
+    public ushort Angle { get; internal set; }
+    public ushort XOffset { get; internal set; }
+    public ushort YOffset { get; internal set; }
+    public ushort XPosition { get; internal set; }
+    public ushort YPosition { get; internal set; }
+}
+
+/// <summary>
 /// Named projection of the Ceres Ridley words that live beyond the common enemy slot.
 /// Keeping this state explicit prevents boss-only meanings such as fade indices, movement
 /// limits, and Baby Metroid animation pointers from being mislabeled VariableA..VariableF.
@@ -49,6 +72,20 @@ public sealed class CeresRidleyState
     public CeresRidleyAiFunction Function { get; internal set; }
     public ushort FightMode { get; internal set; }
     public ushort HitCounter { get; internal set; }
+    /// <summary>
+    /// Palette bits used by Ridley's manually emitted tail and wing spritemaps. The ROM
+    /// stores this separately from the common enemy palette because those pieces bypass
+    /// <c>WriteEnemyOams</c>' normal flash-palette substitution.
+    /// </summary>
+    public ushort SpritemapPaletteIndex { get; internal set; }
+
+    /// <summary>
+    /// Palette bits latched for the extended body during enemy AI. The desktop runtime
+    /// defers OAM construction until later in the frame, so retaining the value selected
+    /// by the native common draw path prevents a later flash-timer decrement from changing
+    /// which palette that already-processed frame should display.
+    /// </summary>
+    public ushort CommonDrawPaletteIndex { get; internal set; }
     public ushort MovementAnimationEnabled { get; internal set; }
     public ushort FacingDirection { get; internal set; }
     public ushort IdleTailWhipEnabled { get; internal set; }
@@ -64,7 +101,20 @@ public sealed class CeresRidleyState
     public ushort BabyInstruction { get; internal set; }
     public ushort BabyInstructionTimer { get; internal set; }
     public ushort BabyFunction { get; internal set; }
+    public ushort BabyCurrentSpritemap { get; internal set; }
     public ushort WingFrame { get; internal set; }
+    public ushort WingAnimationTimer { get; internal set; }
+    public ushort WingAnimationTimerDelta { get; internal set; }
+    public ushort TailFunctionIndex { get; internal set; }
+    public ushort TailAngleDelta { get; internal set; }
+    public ushort TailMinimumClockwiseAngle { get; internal set; }
+    public ushort TailMaximumCounterClockwiseAngle { get; internal set; }
+    public ushort TailWhipTargetClockwiseAngle { get; internal set; }
+    public ushort TailWhipTargetCounterClockwiseAngle { get; internal set; }
+    public ushort TailWhipRequest { get; internal set; }
+    public ushort TailExtensionSpeed { get; internal set; }
+    public ushort IdealInterSegmentTailAngle { get; internal set; }
+    public CeresRidleyTailSegment[] TailSegments { get; internal set; } = [];
     public bool Roaring { get; internal set; }
     public ushort HoverCounter { get; internal set; }
     public ushort FeetDistanceIndex { get; internal set; }
@@ -126,40 +176,41 @@ public sealed partial class RoomEnemySystem
             return 0;
         }
 
-        int hits = 0;
         foreach (SamusProjectileSlot projectile in projectiles.Slots)
         {
-            if (!ProjectileOverlapsCeresRidley(projectile, slot))
+            if (!projectile.IsActive ||
+                !ExtendedSpritemapOverlapsRectangle(
+                    slot,
+                    projectile.XPosition,
+                    projectile.YPosition,
+                    projectile.XRadius,
+                    projectile.YRadius))
+            {
                 continue;
+            }
             if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
                 continue;
 
             // EnemyShot_Ridley at $A6:DF8A alternates 13/14-frame flashes according to
-            // bit one of the previous timer, then increments the Ceres-only hit counter.
-            slot.FlashTimer = slot.FlashTimer != 0 && (slot.FlashTimer & 2) != 0
+            // the carry shifted out of the previous timer: that is bit zero, not bit one.
+            slot.FlashTimer = slot.FlashTimer != 0 && (slot.FlashTimer & 1) != 0
                 ? (ushort)14
                 : (ushort)13;
             _ceresRidley.HitCounter = unchecked((ushort)(_ceresRidley.HitCounter + 1));
-            hits++;
+
+            // The cartridge's collision walk exits through the selected hitbox's shot AI,
+            // so no second projectile can hit the same enemy during this EnemyMain call.
+            // Our projectile pass occurs after RoomEnemySystem.StepFrame; explicitly latch
+            // the same pre-increment actor frame used by Ridley's native draw routines.
+            UpdateCeresRidleyHurtFlashPalettes(
+                slot,
+                _ceresRidley,
+                unchecked((ushort)(slot.FrameCounter - 1)));
+            UpdateCeresRidleyHealthPalette(_ceresRidley);
+            return 1;
         }
 
-        return hits;
-    }
-
-    private static bool ProjectileOverlapsCeresRidley(
-        SamusProjectileSlot projectile,
-        RoomEnemySlot ridley)
-    {
-        if (!projectile.IsActive)
-            return false;
-
-        // Enemy shot collision is radius-based before it invokes $A6:DF8A. The dedicated
-        // extended-spritemap hitbox parser is not yet shared by RoomEnemySystem, so use the
-        // definition's cartridge-authored collision radii rather than a guessed screen box.
-        int xDistance = Math.Abs(unchecked((short)(projectile.XPosition - ridley.XPosition)));
-        int yDistance = Math.Abs(unchecked((short)(projectile.YPosition - ridley.YPosition)));
-        return xDistance < projectile.XRadius + ridley.XRadius &&
-            yDistance < projectile.YRadius + ridley.YRadius;
+        return 0;
     }
 
     /// <summary>
@@ -198,6 +249,8 @@ public sealed partial class RoomEnemySystem
             Function = CeresRidleyAiFunction.WaitForDoorTransition,
             FightMode = 0,
             HitCounter = 0,
+            SpritemapPaletteIndex = 0x0e00,
+            CommonDrawPaletteIndex = 0x0e00,
             MovementAnimationEnabled = 0,
             FacingDirection = 0,
             IdleTailWhipEnabled = 1,
@@ -211,9 +264,22 @@ public sealed partial class RoomEnemySystem
             BabyInstruction = 0xbf31,
             BabyInstructionTimer = 1,
             BabyFunction = 0xbe9c,
+            BabyCurrentSpritemap = 0,
             BabyXPosition = unchecked((ushort)(slot.XPosition - 16)),
             BabyYPosition = unchecked((ushort)(slot.YPosition + 22)),
             WingFrame = 5,
+            WingAnimationTimer = 0,
+            WingAnimationTimerDelta = 0,
+            TailFunctionIndex = 0,
+            TailAngleDelta = 1,
+            TailMinimumClockwiseAngle = 0x3ff0,
+            TailMaximumCounterClockwiseAngle = 0x4040,
+            TailWhipTargetClockwiseAngle = 0xffff,
+            TailWhipTargetCounterClockwiseAngle = 0xffff,
+            TailWhipRequest = 0,
+            TailExtensionSpeed = 0x00f0,
+            IdealInterSegmentTailAngle = 0x0010,
+            TailSegments = CreateInitialCeresRidleyTailSegments(),
         };
 
         // WriteColorsToTargetPalette($140, $A6:E16F, $20) installs the Ceres door and Baby
@@ -239,6 +305,13 @@ public sealed partial class RoomEnemySystem
         CeresRidleyState state = RequireCeresRidley(slot);
         slot.Health = 0x7fff;
 
+        // $A6:A29F runs after the boss dispatcher and before movement. None of the
+        // translated dispatcher branches mutate the flash timer, so selecting the two
+        // draw palettes here is equivalent while keeping their decision ahead of the
+        // shared movement/composition continuation below.
+        if (state.MovementAnimationEnabled != 0 && CeresStatus == 0)
+            UpdateCeresRidleyHurtFlashPalettes(slot, state, slot.FrameCounter);
+
         switch (state.Function)
         {
             case CeresRidleyAiFunction.WaitForDoorTransition:
@@ -247,19 +320,19 @@ public sealed partial class RoomEnemySystem
                 state.Function = CeresRidleyAiFunction.InitialDelay;
                 state.FunctionTimer = 512;
                 TickCeresRidleyInitialDelay(state);
-                return;
+                break;
 
             case CeresRidleyAiFunction.InitialDelay:
                 TickCeresRidleyInitialDelay(state);
-                return;
+                break;
 
             case CeresRidleyAiFunction.FadeInEyes:
                 TickCeresRidleyEyeFade(state);
-                return;
+                break;
 
             case CeresRidleyAiFunction.FadeInBody:
                 TickCeresRidleyBodyFade(slot, state);
-                return;
+                break;
 
             case CeresRidleyAiFunction.WaitBeforeRoar:
                 state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
@@ -269,7 +342,7 @@ public sealed partial class RoomEnemySystem
                     state.FunctionTimer = 252;
                     state.Function = CeresRidleyAiFunction.WaitBeforeLiftoff;
                 }
-                return;
+                break;
 
             case CeresRidleyAiFunction.WaitBeforeLiftoff:
                 state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
@@ -277,14 +350,22 @@ public sealed partial class RoomEnemySystem
                 {
                     state.FadePaletteOffset = 0;
                     SetCeresRidleyInstruction(slot, 0xe91d);
+                    // Function_Ridley_RoarBeforeFly at $A6:A4B4-A4CB primes the wing
+                    // timer, enables every tail segment, and selects neutral tail AI in
+                    // the same transition that installs instruction list $E91D.
+                    state.WingAnimationTimer = 8;
+                    state.WingAnimationTimerDelta = 8;
+                    foreach (CeresRidleyTailSegment segment in state.TailSegments)
+                        segment.Active = true;
+                    state.TailFunctionIndex = 1;
                     state.Function = CeresRidleyAiFunction.ClearVelocity;
                 }
-                return;
+                break;
 
             case CeresRidleyAiFunction.ClearVelocity:
                 state.HorizontalVelocity = 0;
                 state.VerticalVelocity = 0;
-                return;
+                break;
 
             case CeresRidleyAiFunction.LiftoffAccelerating:
                 // $A6:A6AF adds -16 to the 8.8 Y velocity before the common movement pass.
@@ -353,6 +434,14 @@ public sealed partial class RoomEnemySystem
                     targetMagnitude: 768,
                     nextFunction: CeresRidleyAiFunction.SwoopAscendingAimingUp,
                     nextTimer: 28);
+                if (state.Function == CeresRidleyAiFunction.SwoopAscendingAimingUp)
+                {
+                    // `$A6:A91B-$A91E` requests one aimed tail fling at the exact bottom
+                    // of the swoop. Neutral tail AI consumes and clears it later this same
+                    // enemy-main pass; treating it as a persistent animation mode makes the
+                    // tail lag an entire attack behind Ridley.
+                    state.TailWhipRequest = 1;
+                }
                 break;
 
             case CeresRidleyAiFunction.SwoopAscendingAimingUp:
@@ -407,6 +496,11 @@ public sealed partial class RoomEnemySystem
                 state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
                 if ((short)state.FunctionTimer < 0)
                 {
+                    // $A6:A9A5 spawns the two $E23F wall actors before the following
+                    // dispatcher switches BG mode. They are not decorative bookkeeping:
+                    // Mode 7 has no BG2, so these OBJ strips are what keep the chamber
+                    // visible around the rotating Ridley/Baby image.
+                    SpawnCeresRidleyMode7Walls();
                     state.HorizontalVelocity = 0;
                     state.VerticalVelocity = 0;
                     state.Function = CeresRidleyAiFunction.PublishEscapeHandoff;
@@ -444,9 +538,55 @@ public sealed partial class RoomEnemySystem
         // common Ridley 8.8 movement pass after every dispatcher call. Keeping that order
         // matters at A6AF/A6C8: velocity changes affect position in the very same frame.
         if (state.MovementAnimationEnabled != 0 && CeresStatus == 0)
+        {
             IntegrateCeresRidleyMovement(slot, state);
+            TickCeresRidleyWingAnimation(state);
+            TickCeresRidleyTail(slot, state, samus);
+            UpdateCeresRidleyHealthPalette(state);
+        }
         if (CeresStatus == 0)
             TickCeresBaby(slot, state);
+    }
+
+    /// <summary>
+    /// Ports <c>RidleyHurtFlashHandling</c> at $A6:D4DA and the common extended-enemy
+    /// palette override at $A0:9497. Ridley's composite is split between those two writers:
+    /// the ordinary body uses the current execution counter, while the manual tail/wings
+    /// deliberately test the counter after an increment.
+    /// </summary>
+    private static void UpdateCeresRidleyHurtFlashPalettes(
+        RoomEnemySlot slot,
+        CeresRidleyState state,
+        ushort enemyMainExecutionCounter)
+    {
+        state.CommonDrawPaletteIndex = slot.FlashTimer != 0 &&
+            (enemyMainExecutionCounter & 2) != 0
+                ? (ushort)0
+                : slot.PaletteIndex;
+
+        state.SpritemapPaletteIndex = slot.FlashTimer > 1 &&
+            (unchecked((ushort)(enemyMainExecutionCounter + 1)) & 2) != 0
+                ? (ushort)0
+                : (ushort)0x0e00;
+    }
+
+    /// <summary>
+    /// Ports $A6:D4B5-$D4D7. Ceres uses shot count in place of health, including the
+    /// original missing branch after the 90-shot comparison: 50-69 selects palette zero,
+    /// and every value from 70 onward selects palette two.
+    /// </summary>
+    private void UpdateCeresRidleyHealthPalette(CeresRidleyState state)
+    {
+        if (state.FightMode == 0 || state.HitCounter < 50)
+            return;
+
+        int paletteIndex = state.HitCounter < 70 ? 0 : 2;
+        const int colorsPerHealthPalette = 14;
+        _cgram!.LoadFromBus(
+            _bus!,
+            0xa6e46a + paletteIndex * colorsPerHealthPalette * 2,
+            colorCount: colorsPerHealthPalette,
+            destinationIndex: 0x01e2 / 2);
     }
 
     private void TickCeresRidleyLiftoffDecelerating(
@@ -870,7 +1010,28 @@ public sealed partial class RoomEnemySystem
         ushort radiusX,
         ushort radiusY) =>
         Math.Abs(unchecked((short)(slot.XPosition - centerX))) < radiusX &&
-        Math.Abs(unchecked((short)(slot.YPosition - centerY))) < radiusY;
+            Math.Abs(unchecked((short)(slot.YPosition - centerY))) < radiusY;
+
+    private static CeresRidleyTailSegment[] CreateInitialCeresRidleyTailSegments()
+    {
+        // InitializeTailParts at $A6:D2D6 copies these five seven-word ROM tables into
+        // the bank-$7E tail workspace. Keeping the data together makes the otherwise odd
+        // initial $4000,$4010... phase staggering directly auditable against the cartridge.
+        ushort[] distances = [0x0200, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0500];
+        ushort[] angles = [0x4000, 0x4010, 0x4020, 0x4030, 0x4040, 0x4050, 0x4060];
+        var segments = new CeresRidleyTailSegment[7];
+        for (int index = 0; index < segments.Length; index++)
+        {
+            segments[index] = new CeresRidleyTailSegment
+            {
+                MovementDirection = 0x8000,
+                Distance = distances[index],
+                Angle = angles[index],
+                StaggerAngle = 0x0011,
+            };
+        }
+        return segments;
+    }
 
     private static void TickCeresRidleyInitialDelay(CeresRidleyState state)
     {

@@ -190,8 +190,8 @@ public static class SnesGameplayFrameRenderer
     }
 
     /// <summary>
-    /// Composes the ordinary gameplay PPU layout used by Ceres and most interior rooms:
-    /// BG2 at word $4800, BG1 at word $5000, then BG3 HUD and OBJ.
+    /// Composes the ordinary gameplay PPU layout used by Ceres and most interior rooms,
+    /// including the priority bit of every BG tile and all four OBJ priority groups.
     /// </summary>
     public static Rgba32[] RenderHudOrdinaryBackgroundsAndObjs(
         SnesVram vram,
@@ -201,38 +201,211 @@ public static class SnesGameplayFrameRenderer
         ushort bg1VerticalScroll,
         ushort bg2HorizontalScroll,
         ushort bg2VerticalScroll,
+        ushort bg1CharacterBaseWord = 0,
+        ushort bg2CharacterBaseWord = 0,
         byte obsel = 0x03)
     {
         Rgba32[] output = CreateBackdrop(cgram);
-        Rgba32[] bg2 = SnesBgTilemapRenderer.Render4BppViewport(
+        // BGMODE=$09 is Mode 1 with the BG3-priority flag. Below the HUD, BG3 is disabled
+        // by TM and the relevant back-to-front ladder is OBJ0, OBJ1, BG2-low, BG1-low,
+        // OBJ2, BG2-high, BG1-high, OBJ3. Samus's body entries use OBJ2, so cartridge-
+        // authored high-priority door frames, railings, and laboratory consoles cover her.
+        // Resolve OAM ownership once. Priority planes are a BG-compositor concern only;
+        // decoding all 128 sprite records independently for each of the four planes was
+        // both slower and easier to get subtly wrong at cross-priority overlaps.
+        ResolvedObjFrame objects = SnesObjRenderer.RenderResolved(
+            oam,
             vram,
             cgram,
-            tilemapBaseWord: 0x4800,
-            characterBaseWord: 0,
-            bg2HorizontalScroll,
-            unchecked((ushort)(bg2VerticalScroll + HudHeight)),
+            obsel,
             Width,
-            Height - HudHeight);
-        Rgba32[] bg1 = SnesBgTilemapRenderer.Render4BppViewport(
+            Height);
+        CompositeOrdinaryGameplayViewport(
+            output,
             vram,
             cgram,
-            tilemapBaseWord: 0x5000,
-            characterBaseWord: 0,
+            objects,
+            bg1CharacterBaseWord,
+            bg2CharacterBaseWord,
             bg1HorizontalScroll,
-            unchecked((ushort)(bg1VerticalScroll + HudHeight)),
-            Width,
-            Height - HudHeight);
-
-        for (int pixel = 0; pixel < bg2.Length; pixel++)
-        {
-            int destination = HudHeight * Width + pixel;
-            if (bg2[pixel].A != 0)
-                output[destination] = bg2[pixel];
-            if (bg1[pixel].A != 0)
-                output[destination] = bg1[pixel];
-        }
-        DrawHudAndObjects(output, vram, cgram, oam, obsel);
+            bg1VerticalScroll,
+            bg2HorizontalScroll,
+            bg2VerticalScroll);
+        DrawHud(output, vram, cgram);
         return output;
+    }
+
+    private static void CompositeOrdinaryGameplayViewport(
+        Span<Rgba32> output,
+        SnesVram vram,
+        SnesCgram cgram,
+        ResolvedObjFrame objects,
+        ushort bg1CharacterBaseWord,
+        ushort bg2CharacterBaseWord,
+        ushort bg1HorizontalScroll,
+        ushort bg1VerticalScroll,
+        ushort bg2HorizontalScroll,
+        ushort bg2VerticalScroll)
+    {
+        if (objects.Width != Width || objects.Height != Height ||
+            objects.Pixels.Length != output.Length ||
+            objects.Priorities.Length != output.Length)
+        {
+            throw new ArgumentException(
+                "A resolved gameplay OBJ raster must contain exactly 256x224 pixels.",
+                nameof(objects));
+        }
+
+        // Resolve the complete Mode-1 ladder in a single destination scan. The previous
+        // implementation walked the 256x192 viewport eight times (four BG insertions and
+        // four OBJ insertions), repeating tilemap address arithmetic and moving temporary
+        // RGBA planes through memory. Each candidate below receives its literal back-to-
+        // front rank from BGMODE=$09; the largest opaque rank owns the final pixel.
+        for (int screenY = HudHeight; screenY < Height; screenY++)
+        {
+            int bg1ScrolledY = unchecked(bg1VerticalScroll + screenY) & 0xff;
+            int bg2ScrolledY = unchecked(bg2VerticalScroll + screenY) & 0xff;
+            int bg1TileY = bg1ScrolledY >> 3;
+            int bg2TileY = bg2ScrolledY >> 3;
+            int bg1PixelY = bg1ScrolledY & 7;
+            int bg2PixelY = bg2ScrolledY & 7;
+            int previousBg1TileX = -1;
+            int previousBg2TileX = -1;
+            SnesBgTilemapWord bg1Entry = default;
+            SnesBgTilemapWord bg2Entry = default;
+
+            for (int screenX = 0; screenX < Width; screenX++)
+            {
+                int destination = screenY * Width + screenX;
+                Rgba32 winner = output[destination];
+                int winnerRank = 0;
+
+                // Horizontal fine scrolling changes the active tile only once every eight
+                // output pixels. Cache each BGSC word across that run; rereading the same
+                // two VRAM bytes for every pixel was pure interpreter overhead, especially
+                // in Debug builds where these tiny accessors are not reliably inlined.
+                int bg2ScrolledX = unchecked(bg2HorizontalScroll + screenX) & 0x01ff;
+                int bg2TileX = bg2ScrolledX >> 3;
+                if (bg2TileX != previousBg2TileX)
+                {
+                    int bg2MapWord = (
+                        0x4800 +
+                        (bg2TileX >> 5) * 0x0400 +
+                        bg2TileY * 32 +
+                        (bg2TileX & 31)) & 0x7fff;
+                    bg2Entry = vram.ReadWord(bg2MapWord);
+                    previousBg2TileX = bg2TileX;
+                }
+
+                if (TryDecodeOrdinaryGameplayBgPixel(
+                        vram,
+                        cgram,
+                        bg2Entry,
+                        bg2CharacterBaseWord,
+                        bg2ScrolledX & 7,
+                        bg2PixelY,
+                        out Rgba32 bg2Color,
+                        out bool bg2High))
+                {
+                    winner = bg2Color;
+                    winnerRank = bg2High ? 6 : 3;
+                }
+
+                int bg1ScrolledX = unchecked(bg1HorizontalScroll + screenX) & 0x01ff;
+                int bg1TileX = bg1ScrolledX >> 3;
+                if (bg1TileX != previousBg1TileX)
+                {
+                    int bg1MapWord = (
+                        0x5000 +
+                        (bg1TileX >> 5) * 0x0400 +
+                        bg1TileY * 32 +
+                        (bg1TileX & 31)) & 0x7fff;
+                    bg1Entry = vram.ReadWord(bg1MapWord);
+                    previousBg1TileX = bg1TileX;
+                }
+
+                if (TryDecodeOrdinaryGameplayBgPixel(
+                        vram,
+                        cgram,
+                        bg1Entry,
+                        bg1CharacterBaseWord,
+                        bg1ScrolledX & 7,
+                        bg1PixelY,
+                        out Rgba32 bg1Color,
+                        out bool bg1High))
+                {
+                    int bg1Rank = bg1High ? 7 : 4;
+                    if (bg1Rank > winnerRank)
+                    {
+                        winner = bg1Color;
+                        winnerRank = bg1Rank;
+                    }
+                }
+
+                byte objPriority = objects.Priorities[destination];
+                if (objPriority != SnesObjRenderer.TransparentPriority)
+                {
+                    int objRank = objPriority switch
+                    {
+                        0 => 1,
+                        1 => 2,
+                        2 => 5,
+                        3 => 8,
+                        _ => throw new InvalidDataException(
+                            $"Resolved OBJ priority {objPriority} is outside zero through three."),
+                    };
+                    if (objRank > winnerRank)
+                        winner = objects.Pixels[destination];
+                }
+
+                output[destination] = winner;
+            }
+        }
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(
+        System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+    private static bool TryDecodeOrdinaryGameplayBgPixel(
+        SnesVram vram,
+        SnesCgram cgram,
+        SnesBgTilemapWord entry,
+        ushort characterBaseWord,
+        int pixelX,
+        int pixelY,
+        out Rgba32 color,
+        out bool highPriority)
+    {
+        highPriority = entry.HasPriority;
+
+        int sourceX = entry.FlipHorizontally ? 7 - pixelX : pixelX;
+        int sourceY = entry.FlipVertically ? 7 - pixelY : pixelY;
+        int characterByteAddress =
+            ((characterBaseWord + entry.CharacterIndex * 16) & 0x7fff) * 2;
+        int mask = 1 << (7 - sourceX);
+        int rowAddress = characterByteAddress + sourceY * 2;
+        int colorIndex = ((vram.ReadByte(rowAddress) & mask) != 0 ? 1 : 0)
+                       | ((vram.ReadByte(rowAddress + 1) & mask) != 0 ? 2 : 0)
+                       | ((vram.ReadByte(rowAddress + 16) & mask) != 0 ? 4 : 0)
+                       | ((vram.ReadByte(rowAddress + 17) & mask) != 0 ? 8 : 0);
+        if (colorIndex == 0)
+        {
+            color = default;
+            return false;
+        }
+
+        color = cgram.GetRgba(entry.PaletteIndex * 16 + colorIndex);
+        return true;
+    }
+
+    private static void DrawHud(Span<Rgba32> output, SnesVram vram, SnesCgram cgram)
+    {
+        Rgba32[] hud = SnesBgTilemapRenderer.Render2Bpp(
+            vram,
+            cgram,
+            tilemapBaseWord: 0x5800,
+            characterBaseWord: 0x4000,
+            rowCount: 4);
+        hud.CopyTo(output);
     }
 
     /// <summary>
@@ -285,6 +458,175 @@ public static class SnesGameplayFrameRenderer
 
         DrawHudAndObjects(output, vram, cgram, oam, obsel);
         return output;
+    }
+
+    /// <summary>
+    /// Composes Ceres Ridley's getaway with the two bank-$88 HDMA layer splits that the
+    /// generic Mode-7 elevator path does not have: BG3 owns the HUD, Mode 7 owns the arena,
+    /// and the final sixteen scanlines switch back to Mode 1 with only BG2 and OBJ enabled.
+    /// </summary>
+    public static Rgba32[] RenderHudCeresRidleyGetawayAndObjs(
+        SnesVram vram,
+        SnesCgram cgram,
+        OamBuffer oam,
+        short matrixA,
+        short matrixB,
+        short matrixC,
+        short matrixD,
+        short centerX,
+        short centerY,
+        short horizontalOffset,
+        short verticalOffset,
+        ushort bg2HorizontalScroll,
+        ushort bg2VerticalScroll,
+        ushort bg2CharacterBaseWord,
+        byte obsel = 0x03)
+    {
+        ArgumentNullException.ThrowIfNull(vram);
+        ArgumentNullException.ThrowIfNull(cgram);
+        ArgumentNullException.ThrowIfNull(oam);
+
+        const int floorHeight = 16;
+        const int floorFirstScanline = Height - floorHeight;
+        Rgba32[] output = CreateBackdrop(cgram);
+        Rgba32[] mode7 = SnesMode7Renderer.RenderViewport(
+            vram,
+            cgram,
+            matrixA,
+            matrixB,
+            matrixC,
+            matrixD,
+            centerX,
+            centerY,
+            horizontalOffset,
+            verticalOffset,
+            Width,
+            Height);
+        ResolvedObjFrame objects = SnesObjRenderer.RenderResolved(
+            oam,
+            vram,
+            cgram,
+            obsel,
+            Width,
+            Height);
+
+        // IndirectHDMATable_CeresRidleyMode_BGTileSize and its matching TM table keep
+        // scanlines 32..207 in Mode 7 with BG1/BG2/OBJ selected. The existing Mode-7
+        // compositor treats every OBJ priority alike here because no ordinary BG priority
+        // planes compete with it.
+        for (int screenY = HudHeight; screenY < floorFirstScanline; screenY++)
+        {
+            int row = screenY * Width;
+            for (int screenX = 0; screenX < Width; screenX++)
+            {
+                int destination = row + screenX;
+                if (mode7[destination].A != 0)
+                    output[destination] = mode7[destination];
+                if (objects.Priorities[destination] != SnesObjRenderer.TransparentPriority)
+                    output[destination] = objects.Pixels[destination];
+            }
+        }
+
+        // Instruction_VideoMode_for_HUD_and_Floor_1 installs BGMODE=$09 for the last
+        // sixteen lines and TM=$12: BG2 plus sprites, with BG1 deliberately absent. Reuse
+        // the ordinary Mode-1 pixel decoder but resolve only the surviving two layer types.
+        // Their native back-to-front ranks are OBJ0, OBJ1, BG2-low, OBJ2, BG2-high, OBJ3.
+        for (int screenY = floorFirstScanline; screenY < Height; screenY++)
+        {
+            int scrolledY = unchecked(bg2VerticalScroll + screenY) & 0xff;
+            int tileY = scrolledY >> 3;
+            int pixelY = scrolledY & 7;
+            int previousTileX = -1;
+            SnesBgTilemapWord bg2Entry = default;
+
+            for (int screenX = 0; screenX < Width; screenX++)
+            {
+                int destination = screenY * Width + screenX;
+                Rgba32 winner = output[destination];
+                int winnerRank = 0;
+                int scrolledX = unchecked(bg2HorizontalScroll + screenX) & 0x01ff;
+                int tileX = scrolledX >> 3;
+                if (tileX != previousTileX)
+                {
+                    int mapWord = (
+                        0x4800 +
+                        (tileX >> 5) * 0x0400 +
+                        tileY * 32 +
+                        (tileX & 31)) & 0x7fff;
+                    bg2Entry = vram.ReadWord(mapWord);
+                    previousTileX = tileX;
+                }
+
+                if (TryDecodeOrdinaryGameplayBgPixel(
+                        vram,
+                        cgram,
+                        bg2Entry,
+                        bg2CharacterBaseWord,
+                        scrolledX & 7,
+                        pixelY,
+                        out Rgba32 bg2Color,
+                        out bool bg2High))
+                {
+                    winner = bg2Color;
+                    winnerRank = bg2High ? 6 : 3;
+                }
+
+                byte objPriority = objects.Priorities[destination];
+                if (objPriority != SnesObjRenderer.TransparentPriority)
+                {
+                    int objRank = objPriority switch
+                    {
+                        0 => 1,
+                        1 => 2,
+                        2 => 5,
+                        3 => 8,
+                        _ => throw new InvalidDataException(
+                            $"Resolved OBJ priority {objPriority} is outside zero through three."),
+                    };
+                    if (objRank > winnerRank)
+                        winner = objects.Pixels[destination];
+                }
+
+                output[destination] = winner;
+            }
+        }
+
+        DrawHud(output, vram, cgram);
+        return output;
+    }
+
+    /// <summary>
+    /// Replays the fully faded-in scanline result of FX type $2C (Ceres haze).
+    /// </summary>
+    /// <remarks>
+    /// The HDMA table at $88:DF03 holds blue fixed colour one for its first 64 scanlines,
+    /// then advances through blue two..sixteen in eight-line bands. Layer-blending config
+    /// $2C adds that fixed backdrop colour to BG1, BG2, OBJ, and the backdrop while excluding
+    /// BG3; consequently the IRQ-owned 32-line HUD must remain untouched. The Ridley-dead
+    /// route uses the same table with a red selector and is retained as an explicit argument
+    /// rather than hiding boss-state policy in this renderer.
+    /// </remarks>
+    public static void ApplyCeresHaze(Span<Rgba32> frame, bool ridleyIsDead)
+    {
+        if (frame.Length != Width * Height)
+            throw new ArgumentException("Ceres haze requires one complete 256x224 frame.", nameof(frame));
+
+        for (int screenY = HudHeight; screenY < Height; screenY++)
+        {
+            int component = screenY < 64
+                ? 1
+                : Math.Min(16, 2 + (screenY - 64) / 8);
+            byte addition = ExpandFiveBit((byte)component);
+            int row = screenY * Width;
+            for (int screenX = 0; screenX < Width; screenX++)
+            {
+                int pixel = row + screenX;
+                Rgba32 source = frame[pixel];
+                frame[pixel] = ridleyIsDead
+                    ? new Rgba32(SaturatingAdd(source.R, addition), source.G, source.B, source.A)
+                    : new Rgba32(source.R, source.G, SaturatingAdd(source.B, addition), source.A);
+            }
+        }
     }
 
     /// <summary>

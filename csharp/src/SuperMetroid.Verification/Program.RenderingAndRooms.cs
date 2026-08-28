@@ -36,12 +36,44 @@ static void VerifyObjRendering()
     AssertEqual(new SuperMetroid.Core.Assets.Rgba32(255, 0, 0), pixels[20 * 256 + 10], "OBJ colored planar pixel");
     AssertEqual(new SuperMetroid.Core.Assets.Rgba32(0, 0, 0, 0), pixels[20 * 256 + 11], "OBJ color zero transparency");
 
+    // OBJ priority controls only the winning sprite pixel's position relative to BGs.
+    // It does not override OAM order when two sprites overlap. Model the Ceres failure
+    // directly: an earlier Samus-like OBJ2 must exclude a later Ridley-like OBJ3 from the
+    // OBJ3 plane, otherwise the compositor paints the hidden boss over Samus at the end of
+    // its BG/OBJ ladder. Distinct palettes make the winner observable without private ROM
+    // art; both entries deliberately use the same one-pixel tile and screen coordinate.
+    cgram.SetColor(128 + 3 * 16 + 1, 0x03e0);
+    oam.BeginFrame();
+    oam.AddRawSmallSprite(x: 10, y: 20, attributes: 0x2400); // OAM 0: OBJ2, palette 2.
+    oam.AddRawSmallSprite(x: 10, y: 20, attributes: 0x3600); // OAM 1: OBJ3, palette 3.
+    oam.FinalizeFrame();
+    Rgba32[] obj2Plane = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0, priority: 2);
+    Rgba32[] obj3Plane = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0, priority: 3);
+    ResolvedObjFrame resolvedObjects = SnesObjRenderer.RenderResolved(oam, vram, cgram, obsel: 0);
+    AssertEqual(
+        new SuperMetroid.Core.Assets.Rgba32(255, 0, 0),
+        obj2Plane[20 * 256 + 10],
+        "lower-OAM OBJ2 wins cross-priority overlap");
+    AssertEqual(
+        new SuperMetroid.Core.Assets.Rgba32(0, 0, 0, 0),
+        obj3Plane[20 * 256 + 10],
+        "higher-OAM OBJ3 excluded by cross-priority overlap");
+    AssertEqual(
+        new SuperMetroid.Core.Assets.Rgba32(255, 0, 0),
+        resolvedObjects.Pixels[20 * 256 + 10],
+        "single-pass resolved OBJ color");
+    AssertEqual((byte)2, resolvedObjects.Priorities[20 * 256 + 10], "single-pass resolved OBJ priority");
+    AssertEqual(
+        SnesObjRenderer.TransparentPriority,
+        resolvedObjects.Priorities[20 * 256 + 11],
+        "single-pass transparent OBJ priority sentinel");
+
     // The production timer's first tile is $1E0 under OBSEL=$03. This assertion fixes
     // the important reverse-engineered relationship: character data starts at word $7E00.
     AssertEqual(0xfc00, SnesObjRenderer.ResolveTileByteAddress(0x1e0, 0x03), "timer tile $1E0 VRAM byte address");
     AssertEqual(0xff00, SnesObjRenderer.ResolveTileByteAddress(0x1f8, 0x03), "timer tile $1F8 VRAM byte address");
 
-    Console.WriteLine("  OBJ: OBSEL addressing, planar pixels, CGRAM, and transparency agree.");
+    Console.WriteLine("  OBJ: OBSEL addressing, planar pixels, CGRAM, transparency, and cross-priority OAM ownership agree.");
 }
 
 /// <summary>
@@ -66,6 +98,11 @@ static void VerifyHudStateAndBg3Rendering()
     hud.Initialize(bus, HudSnapshot.CeresDebug);
     AssertEqual(0x2d09, hud.Tiles[0x8c / 2], "HUD health tens digit from ROM table");
     AssertEqual(0x2d09, hud.Tiles[0x8e / 2], "HUD health ones digit from ROM table");
+
+    var damagedSamus = new SamusState { Health = 94, MaxHealth = 99 };
+    hud.UpdateGameplayCounters(bus, damagedSamus);
+    AssertEqual(0x2d09, hud.Tiles[0x8c / 2], "live HUD damage tens digit");
+    AssertEqual(0x2d04, hud.Tiles[0x8e / 2], "live HUD damage ones digit");
 
     // Area zero points to a synthetic two-screen-wide Crateria map. Give every map tile a
     // character equal to its SNES-layout index and mark every coordinate as existing; the

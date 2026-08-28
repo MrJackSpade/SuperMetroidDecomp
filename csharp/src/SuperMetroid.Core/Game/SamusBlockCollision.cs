@@ -362,7 +362,14 @@ public static class SamusBlockCollision
                                 block,
                                 acceptedDisplacement,
                                 leadingBoundary,
-                                scanOffset: offset,
+                                // $94:959E initializes $1A to the span and decrements it
+                                // while scanning left-to-right. $94:95F5 initializes it to
+                                // zero and increments while scanning right-to-left. Passing
+                                // the traversal offset directly made the physical left/right
+                                // edge tests alternate every NMI beside a square-slope wall.
+                                blocksLeftToCheck: scanLeftToRight
+                                    ? horizontalSpan - offset
+                                    : offset,
                                 totalColumns: horizontalSpan,
                                 out int clippedDisplacement);
                             if (squareCollision)
@@ -593,7 +600,7 @@ public static class SamusBlockCollision
         RoomCollisionBlock block,
         int displacement,
         ushort leadingBoundary,
-        int scanOffset,
+        int blocksLeftToCheck,
         int totalColumns,
         out int clippedDisplacement)
     {
@@ -601,13 +608,16 @@ public static class SamusBlockCollision
         int orientation = block.Behavior >> 6;
 
         // Vertical collision uses leading Y bit three as the high quadrant-coordinate bit,
-        // hence >>2 yields zero or two. The horizontal scan counter is traversal order, not
-        // absolute room X; both left-to-right and right-to-left start it at zero.
+        // hence >>2 yields zero or two. The horizontal counter is the native number of
+        // physical blocks left: LTR counts span..0 while RTL counts 0..span.
         int quadrant = 4 * shape + (orientation ^ ((leadingBoundary & 8) >> 2));
         bool selectedSolid = SquareSlopeQuadrantSolidity[quadrant] != 0;
         bool collide;
 
-        if (scanOffset == 0)
+        // $1A=0 always denotes the physical rightmost block, independent of which of the
+        // two alternating scan routines reached it. $1A=$1C denotes the physical leftmost
+        // block. Interior blocks necessarily test both eight-pixel halves.
+        if (blocksLeftToCheck == 0)
         {
             if (((state.XRadius + state.XPosition - 1) & 8) == 0 && !selectedSolid)
             {
@@ -619,7 +629,8 @@ public static class SamusBlockCollision
         }
         else
         {
-            if (scanOffset != totalColumns || ((state.XPosition - state.XRadius) & 8) == 0)
+            if (blocksLeftToCheck != totalColumns ||
+                ((state.XPosition - state.XRadius) & 8) == 0)
             {
                 if (selectedSolid)
                 {

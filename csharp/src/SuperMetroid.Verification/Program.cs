@@ -106,6 +106,7 @@ VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();
 VerifyScrollingSkyState();
 VerifyRoomEnemyLoading();
+VerifyCeresElevatorPlatformAnimation();
 VerifyCeresRidleyRoomEntry();
 
 Console.WriteLine("All bank $80 verification checks passed.");

@@ -138,8 +138,11 @@ static void VerifySamusAerialMovement()
     // Mirror the launch through the left-facing spin-jump route. This checks that mode two
     // uses the pose direction normally, and that the type-three speed entry (not running's
     // type-one entry) supplies the in-air cap/acceleration.
+    bus.WriteBytes(0x91b6f1, [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]); // $19
     bus.WriteBytes(0x91b6f9, [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]); // $1A
+    WriteTestWord(bus, 0x91b042, 0xc138);
     WriteTestWord(bus, 0x91b044, 0xc140);
+    bus.WriteBytes(0x91c138, [0x03, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0x03]);
     bus.WriteBytes(0x91c140, [0x03, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0xfe, 0x08]);
     WriteTestWord(bus, 0x909f79, 0x0000);
     WriteTestWord(bus, 0x909f7b, 0x2000);
@@ -165,6 +168,24 @@ static void VerifySamusAerialMovement()
     AssertEqual(2, spinLeft.HorizontalSpeed.AccelerationMode, "spin jump selects aerial mode two");
     AssertEqual(46, spinLeft.XPosition, "left spin jump whole X");
     AssertEqual(0xe000, spinLeft.Kinematics.XSubposition, "left spin jump fractional X");
+
+    // Turning input handler `$91:8142` uses the ordinary transition table. The reported
+    // retail match `$26 -> $19` is therefore a real spin-jump launch, not an unsupported
+    // turning-only side effect. Lock down both mirrors so the runtime cannot regress to a
+    // NotSupportedException when Jump is pressed during either one-frame ground turn.
+    var turnJumpRight = new SamusState { Pose = SamusState.TurningLeftToRightPose };
+    turnJumpRight.ApplyOrdinaryJumpTransition(bus, SamusState.SpinJumpRightPose);
+    AssertEqual(SamusState.SpinJumpRightPose, turnJumpRight.Pose,
+        "left-to-right ground turn accepts spin jump");
+    AssertEqual(1, turnJumpRight.Kinematics.YDirection,
+        "left-to-right turn jump launches upward");
+
+    var turnJumpLeft = new SamusState { Pose = SamusState.TurningRightToLeftPose };
+    turnJumpLeft.ApplyOrdinaryJumpTransition(bus, SamusState.SpinJumpLeftPose);
+    AssertEqual(SamusState.SpinJumpLeftPose, turnJumpLeft.Pose,
+        "right-to-left ground turn accepts spin jump");
+    AssertEqual(1, turnJumpLeft.Kinematics.YDirection,
+        "right-to-left turn jump launches upward");
 
     // Walking off a ledge is the movement-type-six entry point. $91:E8F2 selects pose $2A
     // from the old left-facing direction and command five begins with a stationary falling
@@ -226,7 +247,58 @@ static void VerifySamusAerialMovement()
     AssertEqual(1, interruptLeftLanding.Kinematics.YDirection,
         "left landing jump starts upward");
 
-    Console.WriteLine("  Samus aerial: FD launch, exact 16.16 arc, jump cut, floor landing, radius, and F8 agree.");
+    // The engine alternates $94:959E left-to-right and $94:95F5 right-to-left vertical
+    // scans on successive NMIs. Their $1A counters run in opposite numerical directions,
+    // but the physical result must be identical. Exercise every square-slope shape,
+    // orientation, and grazed column with exactly one candidate block; this is the case
+    // that previously made a fall beside a wall report landing every other frame.
+    for (int shape = 0; shape < 5; shape++)
+    {
+        for (int orientation = 0; orientation < 4; orientation++)
+        {
+            for (int solidBlockX = 1; solidBlockX <= 4; solidBlockX++)
+            {
+                var squareForeground = new ushort[width * height];
+                var squareBehavior = new byte[width * height];
+                squareForeground[3 * width + solidBlockX] = 0x1000;
+                squareBehavior[3 * width + solidBlockX] = unchecked((byte)(
+                    shape | (orientation << 6)));
+                RoomLevelData squareRoom = CreateRoom(
+                    width,
+                    height,
+                    squareForeground,
+                    squareBehavior);
+
+                for (ushort x = 20; x <= 68; x += 4)
+                {
+                    SamusKinematicsState leftToRight = new()
+                    {
+                        XPosition = x,
+                        YPosition = 36,
+                        XRadius = 12,
+                        YRadius = 12,
+                    };
+                    SamusKinematicsState rightToLeft = new()
+                    {
+                        XPosition = x,
+                        YPosition = 36,
+                        XRadius = 12,
+                        YRadius = 12,
+                    };
+                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(
+                        bus, squareRoom, leftToRight, 1 << 16, scanLeftToRight: true);
+                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(
+                        bus, squareRoom, rightToLeft, 1 << 16, scanLeftToRight: false);
+                    AssertEqual(ltr.Collided, rtl.Collided,
+                        $"square slope {shape}/{orientation} X={x} collision scan parity");
+                    AssertEqual(ltr.AcceptedDisplacement, rtl.AcceptedDisplacement,
+                        $"square slope {shape}/{orientation} X={x} displacement scan parity");
+                }
+            }
+        }
+    }
+
+    Console.WriteLine("  Samus aerial: FD launch, exact 16.16 arc, jump cut, floor landing, radius, F8, and alternating square-slope scans agree.");
 }
 
 /// <summary>
@@ -269,10 +341,14 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         [8, 0, 0xff, 2, 0, 0, 21, 0]);
     WritePoseDefinition(bus, SamusState.SpinLandingLeftPose,
         [4, 0, 0xff, 7, 0, 0, 21, 0]);
+    WritePoseDefinition(bus, SamusState.NormalJumpGunExtendedRightPose,
+        [8, 2, 0xff, 2, 0, 0, 24, 0]);
     WriteTestWord(bus, 0x91b010 + SamusState.SpinLandingRightPose * 2, 0xc800);
     WriteTestWord(bus, 0x91b010 + SamusState.SpinLandingLeftPose * 2, 0xc810);
+    WriteTestWord(bus, 0x91b010 + SamusState.NormalJumpGunExtendedRightPose * 2, 0xc820);
     bus.WriteByte(0x91c800, 4);
     bus.WriteByte(0x91c810, 4);
+    bus.WriteByte(0x91c820, 4);
 
     // Dry-air Samus_InitJump and gravity words. The type-three horizontal record is zeroed
     // intentionally so the assertions isolate the vertical 8.8 gate from X acceleration.
@@ -316,6 +392,47 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         "direct Screw table target preserves equipped art");
     AssertEqual(1, screwLaunch.AnimationFrame,
         "direct Screw direction transition starts at frame one");
+
+    // Fire from a spin uses `$19/$1B/$81 -> $13`, expanding radius 12 -> 24 through
+    // changed-pose collision but preserving the live jump arc. `$91:F543` also selects
+    // mode two from residual extra-run speed and publishes the target's shot direction.
+    var spinFire = new SamusState
+    {
+        Pose = SamusState.ScrewAttackRightPose,
+        EquippedItems = SamusEquipmentFlags.ScrewAttack.ToNativeWord(),
+        XPosition = 128,
+        YPosition = 128,
+        Kinematics =
+        {
+            XRadius = 5,
+            YRadius = 12,
+            YDirection = 1,
+            YSpeed = 3,
+            YSubspeed = 0x4567,
+        },
+    };
+    spinFire.HorizontalSpeed.ExtraRunSubspeed = 1;
+    AssertTrue(spinFire.TryApplySpinToNormalJumpFireTransition(
+        bus,
+        empty,
+        SamusState.NormalJumpGunExtendedRightPose,
+        nmiFrameCounter: 0,
+        controllerNewInput: (ushort)SnesButton.X),
+        "spin Fire body expansion fits empty room");
+    AssertEqual(SamusState.NormalJumpGunExtendedRightPose, spinFire.Pose,
+        "spin Fire selects gun-extended normal jump");
+    AssertEqual(24, spinFire.Kinematics.YRadius,
+        "spin Fire expands to normal-jump radius");
+    AssertEqual(3, spinFire.Kinematics.YSpeed,
+        "spin Fire preserves whole vertical speed");
+    AssertEqual(0x4567, spinFire.Kinematics.YSubspeed,
+        "spin Fire preserves fractional vertical speed");
+    AssertEqual(2, spinFire.HorizontalSpeed.AccelerationMode,
+        "spin Fire retains extra-run aerial acceleration");
+    AssertEqual(0x8002, spinFire.PoseTransitionShotDirection,
+        "spin Fire publishes target shot direction");
+    AssertTrue(spinFire.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
+        "leaving Screw Attack requests normal suit palette");
 
     static SamusState CreateFallingSpin(byte pose, ushort items, ushort speed, ushort subspeed) => new()
     {

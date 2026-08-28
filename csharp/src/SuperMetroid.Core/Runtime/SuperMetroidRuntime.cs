@@ -1001,8 +1001,21 @@ public sealed partial class SuperMetroidRuntime
                 Samus?.Xray.TimeIsFrozen ?? false,
                 Samus,
                 Controller1.NewlyPressed);
+            // `$A6:A2DF` does not install the post-enemy hook until Ridley's animation word
+            // becomes nonzero. Before the reveal it branches directly into `$A6:A2E3`
+            // during EnemyMain, so emit the Baby/door OBJ now—before queued enemy layers.
+            Enemies.DrawCeresRidleyImmediateBabyAndDoor(
+                Oam,
+                Camera.XPosition,
+                Camera.YPosition);
+            if (Samus is not null && !(Samus.Xray.TimeIsFrozen))
+            {
+                Enemies.ResolveCeresRidleySamusContact(
+                    Samus,
+                    Controller1.Current);
+            }
             if (LevelData is not null && !(Samus?.Xray.TimeIsFrozen ?? false))
-                Enemies.StepCeresRidleyProjectiles(LevelData, Samus);
+                Enemies.StepCeresRidleyProjectiles(LevelData, Samus, Controller1.Current);
             if (Samus is not null)
             {
                 Samus.Kinematics.InteractiveEnemies = Enemies.InteractiveCollisionBodies;
@@ -2403,6 +2416,10 @@ public sealed partial class SuperMetroidRuntime
                                   SamusState.RunningAimDiagonalUpLeftPose or
                                   SamusState.RunningAimDiagonalDownLeftPose,
                                   SamusState.SpinJumpLeftPose):
+                            case (SamusState.TurningLeftToRightPose,
+                                  SamusState.SpinJumpRightPose):
+                            case (SamusState.TurningRightToLeftPose,
+                                  SamusState.SpinJumpLeftPose):
                                 Samus.ApplyOrdinaryJumpTransition(_addressSpace, targetPose);
                                 break;
                             case var (source, target)
@@ -2419,6 +2436,22 @@ public sealed partial class SuperMetroidRuntime
                                         "Crouch jump requires active room level data."),
                                     targetPose,
                                     NmiFrameCounter);
+                                break;
+                            case var (source, target)
+                                when SamusState.IsSpinJumpPose(source) &&
+                                     target is SamusState.NormalJumpGunExtendedRightPose or
+                                         SamusState.NormalJumpGunExtendedLeftPose:
+                                // Fire cancels the compact spinning body through the normal-
+                                // jump initializer without restarting the jump arc. The helper
+                                // also performs $91:F404's required expansion collision; a
+                                // rejected body simply leaves the source spin pose installed.
+                                Samus.TryApplySpinToNormalJumpFireTransition(
+                                    _addressSpace,
+                                    LevelData ?? throw new InvalidOperationException(
+                                        "Spin-fire transition requires active room level data."),
+                                    targetPose,
+                                    NmiFrameCounter,
+                                    Controller1.NewlyPressed);
                                 break;
                             case var (source, target)
                                 when ((SamusState.IsRightFacingCrouchingPose(source) &&
@@ -2717,9 +2750,10 @@ public sealed partial class SuperMetroidRuntime
             // pass without teaching the reusable Landing Site runtime how to own enemies.
             if (!deathOwnsSamus)
             {
-                // Both Ceres elevator definitions carry properties $3000, including the
-                // low-priority-projectile bit. They therefore draw in the cartridge's first
-                // `$86:8390` pass, before enemy layers zero through two and Samus.
+                // Both Ceres elevator definitions carry properties $3000, including bit
+                // $1000 selected by Draw_HighPriority_EnemyProjectile at `$86:8390`.
+                // That named pass occurs here, before enemy layers zero through two and
+                // Samus; lower OAM indices retain their native same-priority overlap win.
                 CeresElevatorArrival?.Draw(Oam, Camera.XPosition, Camera.YPosition);
                 if (Enemies.IsLoaded)
                     Enemies.DrawCeresRidleyProjectiles(Oam, Camera.XPosition, Camera.YPosition);
@@ -3038,6 +3072,18 @@ public sealed partial class SuperMetroidRuntime
 
             if (!deathOwnsSamus && Enemies.IsLoaded)
                 Enemies.DrawLayers(Oam, Camera.XPosition, Camera.YPosition, 6, 7);
+
+            if (!deathOwnsSamus && Enemies.IsLoaded)
+            {
+                // CeresRidley_Main installs $A6:A2F2 as EnemyGraphicsDrawnHook. It runs
+                // after every ordinary enemy layer and is the only producer of the Baby
+                // Metroid OBJ (plus the arena-door overlay). Keeping this after layer seven
+                // preserves the hook's actual OAM position instead of inventing a Baby slot.
+                Enemies.DrawCeresRidleyPostEnemyHook(
+                    Oam,
+                    Camera.XPosition,
+                    Camera.YPosition);
+            }
         }
         if (EscapeTimer.IsActive)
             EscapeTimerRenderer.Draw(EscapeTimer, Oam, _addressSpace);
@@ -3047,7 +3093,14 @@ public sealed partial class SuperMetroidRuntime
         // becomes visible when the next accepted NMI drains this queue. The first frame's
         // initialization upload has already been consumed earlier in this StepFrame call.
         if (Hud.IsInitialized)
+        {
+            // `$80:9B44` rebuilds live energy/ammo words before appending the HUD transfer.
+            // Initialization alone is insufficient: Ridley contact and fireballs mutate
+            // Samus during this frame, and those values must enter the next accepted NMI.
+            if (Samus is not null)
+                Hud.UpdateGameplayCounters(_addressSpace, Samus);
             Hud.QueueUpload(_addressSpace, VramWrites);
+        }
 
         // Landing Site's room main ASM appends four sky rows after ordinary gameplay logic;
         // they become visible when the following accepted NMI drains the queue.

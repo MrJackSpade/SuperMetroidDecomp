@@ -101,6 +101,48 @@ public sealed partial class SuperMetroidRuntime
         return viewport;
     }
 
+    /// <summary>
+    /// Loads one retail room header directly for the ROM-backed debug runner. Gameplay never
+    /// calls this seam: normal play must still arrive through a bank-$83 door so placement
+    /// and setup code remain authoritative. Keeping the helper internal lets end-to-end
+    /// audits exercise the complete runtime, renderer, enemy scheduler, and Samus handlers
+    /// in a late room without duplicating several minutes of controller input.
+    /// </summary>
+    internal InitialViewportResult LoadCartridgeRoomForDebug(
+        ushort roomPointer,
+        ushort cameraX = 0,
+        ushort cameraY = 0)
+    {
+        if (Samus is null)
+            throw new InvalidOperationException("Direct debug room loading requires initialized Samus state.");
+
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(_addressSpace, roomPointer);
+        // The debug seam intentionally supplies an inert synthetic door. Any room whose
+        // correctness depends on setup code must instead be audited through its real door;
+        // Ceres Ridley's ordinary mode-nine room has no incoming setup routine dependency.
+        var door = new CartridgeDoorHeader(
+            Pointer: 0,
+            DestinationRoomPointer: roomPointer,
+            BitFlags: 0,
+            Orientation: 0,
+            PlmX: 0,
+            PlmY: 0,
+            DestinationScreenX: unchecked((byte)(cameraX >> 8)),
+            DestinationScreenY: unchecked((byte)(cameraY >> 8)),
+            SamusDistance: 0,
+            SetupCodePointer: 0);
+
+        ActiveLoadStation = null;
+        CeresElevatorArrival = null;
+        InitialViewportResult viewport = LoadCartridgeRoom(door, room, cameraX, cameraY);
+        Samus.LiquidPhysics.AreaIndex = room.AreaIndex;
+        Samus.LiquidPhysics.RoomIndex = room.RoomIndex;
+        Samus.RefreshCollisionRadii(_addressSpace);
+        Samus.PrimeGraphics(_addressSpace);
+        GroundedSamusMovementEnabled = true;
+        return viewport;
+    }
+
     /// <summary>Shared cartridge room/state/graphics load used by stations and doors.</summary>
     private InitialViewportResult LoadCartridgeRoom(
         CartridgeDoorHeader door,
@@ -318,6 +360,23 @@ public sealed partial class SuperMetroidRuntime
         CeresElevatorArrival = new CeresElevatorArrivalState(
             _addressSpace,
             Samus);
+
+        // The locked Ceres-start frame handler still publishes the initial minimap. The
+        // ordinary update below used to be gated on GroundedSamusMovementEnabled, leaving
+        // the ROM HUD template's unrelated map glyphs visible for the entire descent. Seed
+        // the real area-six room coordinate now; subsequent normal frames keep updating it.
+        ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
+        Hud.UpdateMinimap(
+            _addressSpace,
+            roomGeometry.AreaIndex,
+            roomGeometry.MapX,
+            roomGeometry.MapY,
+            LevelData?.WidthInBlocks ?? ActiveRoom.WidthInScreens * 16,
+            LevelData?.HeightInBlocks ?? ActiveRoom.HeightInScreens * 16,
+            Samus.XPosition,
+            Samus.YPosition,
+            NmiFrameCounter8,
+            hasAreaMap: false);
 
         // `SamusCode_08_SetupForCeresStart` installs a locked frame handler. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the

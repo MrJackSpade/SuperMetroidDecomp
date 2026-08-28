@@ -173,6 +173,16 @@ public sealed class CartridgeRoomAssets
         ushort[] authoredBackground = ReadWords(
             levelStream.AsSpan(backgroundOffset, availableBackgroundBytes));
         authoredBackground.CopyTo(background, 0);
+
+        // DisplayViewablePartOfRoom always asks for seventeen columns even though the SNES
+        // viewport is only sixteen blocks wide. At a room's right/bottom edge that request
+        // legally crosses the logical BG2 plane into the remainder of the level-data WRAM
+        // allocation, which LoadLevelDataAndOtherThings prefilled with $8000. Seventeen
+        // extra words cover the widest possible row overread; a one-screen Ridley room
+        // specifically consumes the first word at logical index 256.
+        ushort[] streamingBackground = new ushort[blockCount + 17];
+        Array.Fill(streamingBackground, (ushort)0x8000);
+        background.CopyTo(streamingBackground, 0);
         return new RoomLevelData(
             header.WidthInScreens * 16,
             header.HeightInScreens * 16,
@@ -181,7 +191,8 @@ public sealed class CartridgeRoomAssets
             background,
             blockDefinitions,
             streamingAllocation,
-            header.DoorListPointer);
+            header.DoorListPointer,
+            streamingBackground);
     }
 
     private static RoomScrollGrid LoadScrolls(ISnesAddressSpace bus, CartridgeRoomHeader header)

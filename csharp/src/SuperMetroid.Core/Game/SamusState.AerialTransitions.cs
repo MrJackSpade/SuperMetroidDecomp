@@ -9,6 +9,71 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class SamusState
 {
+    /// <summary>
+    /// Applies the normal-jump body selected when Fire cancels a spin, Space Jump, or
+    /// Screw Attack pose. This is the concrete <c>$19/$1A/$1B/$1C/$81/$82 -&gt; $13/$14</c>
+    /// route through <c>$91:F404</c>, <c>$91:F543</c>, and <c>$91:FC66</c>.
+    /// </summary>
+    /// <remarks>
+    /// The transition does not call <c>Make_Samus_Jump</c>: <c>$13/$14</c> are deliberately
+    /// excluded by <c>$91:FC66</c>, so the live vertical velocity survives. Spin bodies are
+    /// shorter than the resulting normal-jump body, however, so the shared changed-pose
+    /// collision pass must still be allowed to reject the expansion under a low ceiling.
+    /// </remarks>
+    public bool TryApplySpinToNormalJumpFireTransition(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        byte targetPose,
+        ushort nmiFrameCounter,
+        ushort controllerNewInput)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+
+        byte sourcePose = Pose;
+        if (!IsSpinJumpPose(sourcePose) ||
+            targetPose is not (NormalJumpGunExtendedRightPose or NormalJumpGunExtendedLeftPose) ||
+            ReadPoseXDirection(bus, sourcePose) != ReadPoseXDirection(bus, targetPose))
+        {
+            throw new NotSupportedException(
+                $"Spin-fire transition ${sourcePose:X2} -> ${targetPose:X2} is not a same-facing retail route.");
+        }
+
+        LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
+            bus,
+            level,
+            targetPose,
+            nmiFrameCounter,
+            out int centerAdjustment);
+        if (collision != LargerPoseCollisionOutcome.Allowed)
+            return false;
+
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+
+        // InitializeSamusPose_NormalJumping chooses acceleration mode two only while some
+        // stored extra-run speed remains. It never clears either speed pair on this route.
+        HorizontalSpeed.AccelerationMode =
+            HorizontalSpeed.ExtraRunSpeed != 0 || HorizontalSpeed.ExtraRunSubspeed != 0
+                ? (ushort)2
+                : (ushort)0;
+
+        // SamusFunc_F433 reloads the ordinary suit palette whenever the previous movement
+        // type was spin/wall-jump and Screw Attack is equipped, even if the visible source
+        // happened to be generic spin or Space Jump art.
+        if (EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
+            HorizontalSpeed.RequestNormalSuitPaletteRestore();
+
+        // $91:F5CF publishes the newly installed pose's shot direction on the exact Fire
+        // edge that selected this record. The projectile producer consumes it in alpha.
+        if ((controllerNewInput & (ushort)SnesButton.X) != 0)
+            PoseTransitionShotDirection = unchecked((ushort)(0x8000 | ReadShotDirection(bus)));
+
+        InitializeAnimation(bus, initialFrame: 0);
+        return true;
+    }
+
     public bool TryApplyAerialTurn(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -438,6 +503,12 @@ public sealed partial class SamusState
             (MovingLeftNormalPose or MovingLeftGunExtendedPose or RunningAimUpLeftPose or
                 RunningAimDiagonalUpLeftPose or RunningAimDiagonalDownLeftPose,
              SpinJumpLeftPose) or
+            // Turning-on-ground uses its own movement-type-$0E input handler, but a Jump
+            // record still enters the ordinary spin-jump initializer. The turn pose has
+            // already folded run momentum in `$91:F8D3`; `$91:F624` now owns the same jump
+            // speed, radius, equipment substitution, and frame-zero setup as a run jump.
+            (TurningLeftToRightPose, SpinJumpRightPose) or
+            (TurningRightToLeftPose, SpinJumpLeftPose) or
             // `$91:AF98-$AFFF` can leave the moonwalk turn art early while the backward
             // direction remains held, or select `$4B/$4C` on a fresh Jump edge. Both
             // routes call the same dry-air jump initializer after changing pose.

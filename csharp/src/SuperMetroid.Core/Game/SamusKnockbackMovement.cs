@@ -17,6 +17,11 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusKnockbackMovement
 {
+    // The selector routine is `$90:99D6`, but its two three-word data arrays live later in
+    // bank $90 at `$9EE9/$9EEF` (named exactly that way in the disassembly): whole speeds
+    // `{5,2,2}` followed by subspeeds `{0,0,0}`. Do not infer data placement from the C
+    // decompiler's declaration order; `$99CA/$99D0` are executable bytes/data belonging to
+    // the preceding routine and produce enormous bogus hurt velocities when read as tables.
     private const int InitialYSpeedTable = 0x909ee9;
     private const int InitialYSubspeedTable = 0x909eef;
 
@@ -31,12 +36,15 @@ public static class SamusKnockbackMovement
         ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerInput,
-        ushort knockbackXDirection)
+        ushort knockbackXDirection,
+        ushort knockbackTimer = 5)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
         if (knockbackXDirection > 1)
             throw new ArgumentOutOfRangeException(nameof(knockbackXDirection));
+        if (knockbackTimer == 0)
+            throw new ArgumentOutOfRangeException(nameof(knockbackTimer));
         if (samus.KnockbackActive || samus.KnockbackDirection != 0)
             throw new InvalidOperationException("Normal knockback is already active or pending.");
 
@@ -81,10 +89,11 @@ public static class SamusKnockbackMovement
                 : forwardHeld ? (ushort)5 : (ushort)2;
         }
 
-        // Enemy and enemy-projectile collision both write five. The first bank-$A0 hurt-
-        // timer pass following the hit decrements it; keeping the native five in state lets
-        // callers and debugger watches see the actual published value.
-        samus.KnockbackTimer = 5;
+        // Enemy and enemy-projectile collision normally publish five, which is the default
+        // supplied above. The intro Rinka deliberately publishes eleven at `$8B:B918`;
+        // accepting the producer-owned value here prevents this shared initializer from
+        // shortening that visibly longer scripted reaction to ordinary gameplay timing.
+        samus.KnockbackTimer = knockbackTimer;
         samus.KnockbackActive = true;
 
         // The remainder of `$91:ED4E` runs for both pointer-table families. A pending bomb
@@ -150,7 +159,7 @@ public static class SamusKnockbackMovement
             requestedX);
 
         BlockMoveResult vertical = samus.KnockbackDirection is 1 or 2
-            ? MoveUpWithGravity(bus, level, samus, nmiFrameCounter)
+            ? MoveWithSharedVerticalSpeedCalculation(bus, level, samus, nmiFrameCounter)
             : MoveDownWithoutSpeedCalculation(bus, level, samus, nmiFrameCounter);
 
         // `$91:F010` observes these words inside downward collision, before `$90:DF6E`
@@ -283,25 +292,25 @@ public static class SamusKnockbackMovement
         return new KnockbackMovementResult(null, null, Ended: true);
     }
 
-    private static BlockMoveResult MoveUpWithGravity(
+    private static BlockMoveResult MoveWithSharedVerticalSpeedCalculation(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter)
     {
-        SamusKinematicsState state = samus.Kinematics;
-        uint oldSpeed = state.VerticalSpeedFixed;
-        uint acceleration = Compose(state.YAcceleration, state.YSubacceleration);
-        SetVerticalSpeed(state, unchecked(oldSpeed - acceleration));
-        int displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
-            state,
-            unchecked(-(int)oldSpeed));
-        return SamusBlockCollision.MoveVertical(
+        // `$90:DF53` calls the exact same `$90:90E2` vertical routine as ordinary aerial
+        // movement, so reuse that translated owner instead of maintaining a subtly narrower
+        // copy. The retail Rinka timer expires while Samus is still rising; her reported
+        // midair hang came from failing to dispatch ordinary falling after that expiry, not
+        // from this calculation. Sharing the routine still preserves the real direction-
+        // reversal behavior for any longer knockback stimulus without inventing a new path.
+        return SamusAerialMovement.StepVerticalWithSpeedCalculations(
             bus,
             level,
-            state,
-            displacement,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+            samus,
+            nmiFrameCounter,
+            out _,
+            out _);
     }
 
     private static BlockMoveResult MoveDownWithoutSpeedCalculation(
@@ -322,14 +331,6 @@ public static class SamusKnockbackMovement
             requested,
             scanLeftToRight: (nmiFrameCounter & 1) == 0);
     }
-
-    private static void SetVerticalSpeed(SamusKinematicsState state, uint speed)
-    {
-        state.YSpeed = unchecked((ushort)(speed >> 16));
-        state.YSubspeed = unchecked((ushort)speed);
-    }
-
-    private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));

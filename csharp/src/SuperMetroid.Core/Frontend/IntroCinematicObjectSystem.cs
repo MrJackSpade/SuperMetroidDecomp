@@ -49,6 +49,8 @@ internal sealed class IntroCinematicObjectSystem
     private ushort spriteInstructionPointer = 0xcbfb;
     private ushort spriteInstructionTimer = 1;
     private ushort spriteMapPointer;
+    private ushort caretX = 8;
+    private ushort caretY = 24;
 
     public IntroCinematicObjectSystem(
         ISnesAddressSpace bus,
@@ -82,6 +84,23 @@ internal sealed class IntroCinematicObjectSystem
 
     /// <summary>The bank-$8C spritemap selected by the current sprite timing record.</summary>
     public ushort SpriteMapPointer => spriteMapPointer;
+
+    /// <summary>Current native X coordinate of the persistent text caret object.</summary>
+    public ushort CaretX => caretX;
+
+    /// <summary>Current native Y coordinate; $F8 deliberately hides it below the viewport.</summary>
+    public ushort CaretY => caretY;
+
+    /// <summary>
+    /// Implements <c>PlaceIntroTextCaretOffScreen</c> at $8B:ADE1. The retail game keeps
+    /// the same object slot alive between narration pages and visibly moves it to Y=$F8
+    /// while a gameplay or scientist illustration owns the screen.
+    /// </summary>
+    public void PlaceCaretOffScreen()
+    {
+        caretX = 8;
+        caretY = 0x00f8;
+    }
 
     /// <summary>
     /// Starts the letter-by-letter narration stream from definition $8B:CF3F. The eye-blink
@@ -212,7 +231,7 @@ internal sealed class IntroCinematicObjectSystem
                 instructionTimer = instructionOrDuration;
                 ushort tilePosition = ReadBank8C(Add(pointer, 2));
                 ushort dataPointer = ReadBank8C(Add(pointer, 4));
-                ProcessTileData(tilePosition, dataPointer);
+                ProcessTileData(pointer, tilePosition, dataPointer);
                 instructionPointer = Add(pointer, 6);
                 return;
             }
@@ -294,7 +313,10 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
-    private void ProcessTileData(ushort packedPosition, ushort dataPointer)
+    private void ProcessTileData(
+        ushort instructionRecordPointer,
+        ushort packedPosition,
+        ushort dataPointer)
     {
         ushort drawFunction = ReadBank8C(dataPointer);
         if (drawFunction == DrawNothing)
@@ -311,6 +333,15 @@ internal sealed class IntroCinematicObjectSystem
         switch (drawFunction)
         {
             case DrawCharacter:
+                // `$8B:884D-$8B:889F` does more than copy the glyph. It looks ahead from
+                // the *current six-byte BG-object record* to the following record and moves
+                // cinematic sprite slot $1E to that next character cell. If the following
+                // word is an opcode instead of a duration, the caret wraps to column one of
+                // the next text row. This is why the object's own pre-instruction can be an
+                // RTS while the visible typewriter block still walks across every line.
+                UpdateCaretAfterCharacter(instructionRecordPointer, packedPosition);
+                CopyRectangleToText(destinationX, destinationY, width, height, source);
+                return;
             case DrawToTextTilemap:
                 CopyRectangleToText(destinationX, destinationY, width, height, source);
                 return;
@@ -321,6 +352,34 @@ internal sealed class IntroCinematicObjectSystem
                 throw new NotSupportedException(
                     $"Cinematic tile-data function $8B:{drawFunction:X4} at $8C:{dataPointer:X4} is not translated.");
         }
+    }
+
+    /// <summary>
+    /// Translates the caret side effect embedded in the native draw-character indirect
+    /// instruction at <c>$8B:884D</c>.
+    /// </summary>
+    private void UpdateCaretAfterCharacter(ushort instructionRecordPointer, ushort packedPosition)
+    {
+        // A normal record is [duration:2, packed X/Y:2, indirect-data pointer:2]. The next
+        // duration therefore begins six bytes after this record; its packed coordinates
+        // begin eight bytes after this record. ROM words with bit 15 set are interpreter
+        // opcodes, so there is no following cell to read in that branch.
+        ushort nextDurationOrOpcode = ReadBank8C(Add(instructionRecordPointer, 6));
+        if ((nextDurationOrOpcode & 0x8000) == 0)
+        {
+            caretX = unchecked((ushort)(
+                bus.ReadByte(0x8c0000 | Add(instructionRecordPointer, 8)) * 8));
+            caretY = unchecked((ushort)(
+                bus.ReadByte(0x8c0000 | Add(instructionRecordPointer, 9)) * 8 - 8));
+            return;
+        }
+
+        // At an instruction boundary `$8B:888A-$889F` retains the native left margin and
+        // derives the following line from the just-drawn record's Y byte: (Y + 2)*8 - 8.
+        // packedPosition is already the little-endian form of that exact X/Y operand.
+        caretX = 8;
+        int currentTileY = packedPosition >> 8;
+        caretY = unchecked((ushort)((currentTileY + 1) * 8));
     }
 
     private void CopyRectangleToText(int destinationX, int destinationY, int width, int height, ushort source)
@@ -358,8 +417,10 @@ internal sealed class IntroCinematicObjectSystem
 
     private void ResetCaret()
     {
-        // RestIntroTextCaret ($8B:ADEE) also restores (8,24). Those coordinates are fixed
-        // by this focused renderer, so only its mutable instruction state lives here.
+        // RestIntroTextCaret ($8B:ADEE) moves the persistent slot back from Y=$F8 before
+        // restoring its non-blinking list. Position is state, not a renderer constant.
+        caretX = 8;
+        caretY = 24;
         spriteInstructionPointer = 0xcbfb;
         spriteInstructionTimer = 1;
     }

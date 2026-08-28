@@ -20,12 +20,13 @@ public static class SuperMetroidRuntimeFrameRenderer
         if (runtime.ActiveDoor is null)
             throw new InvalidOperationException("A cartridge room and door must be loaded before rendering gameplay.");
 
+        Rgba32[] frame;
         if (runtime.Enemies.CeresRidley is { Mode7Active: true } getaway)
         {
             // Ceres room main $A6:AAAF temporarily replaces ordinary mode-nine BG1/BG2
             // below the HUD with the rotating Ridley/Baby Mode-7 map. OAM stays live, so
             // Samus and the timer retain the usual gameplay compositor and priority rules.
-            return SnesGameplayFrameRenderer.RenderHudMode7AndObjs(
+            frame = SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(
                 runtime.Vram,
                 runtime.Cgram,
                 runtime.DisplayedOam,
@@ -36,15 +37,20 @@ public static class SuperMetroidRuntimeFrameRenderer
                 centerX: unchecked((short)getaway.Mode7CenterX),
                 centerY: unchecked((short)getaway.Mode7CenterY),
                 horizontalOffset: unchecked((short)getaway.Mode7HorizontalOffset),
-                verticalOffset: unchecked((short)getaway.Mode7VerticalOffset));
+                verticalOffset: unchecked((short)getaway.Mode7VerticalOffset),
+                bg2HorizontalScroll: runtime.BackgroundScroll.Bg2HorizontalScroll,
+                bg2VerticalScroll: runtime.BackgroundScroll.Bg2VerticalScroll,
+                // Setup ASM $8F:C97B writes BG12NBA=$66; the floor slice returns to
+                // Mode 1 and therefore consumes the same $6000 character base as BG2 did
+                // before the getaway HDMA tables changed BGMODE.
+                bg2CharacterBaseWord: 0x6000);
         }
-
-        if (runtime.ActiveDoor.UsesCeresElevatorMode7)
+        else if (runtime.ActiveDoor.UsesCeresElevatorMode7)
         {
             // DoorCode_CeresElevatorShaft at `$8F:E4E0` installs these literal Mode 7
             // registers below the HUD IRQ split. They are door behavior, not a visual
             // approximation inferred from the room's area or name.
-            return SnesGameplayFrameRenderer.RenderHudMode7AndObjs(
+            frame = SnesGameplayFrameRenderer.RenderHudMode7AndObjs(
                 runtime.Vram,
                 runtime.Cgram,
                 runtime.DisplayedOam,
@@ -62,14 +68,36 @@ public static class SuperMetroidRuntimeFrameRenderer
                 horizontalOffset: unchecked((short)runtime.BackgroundScroll.Bg1HorizontalScroll),
                 verticalOffset: unchecked((short)runtime.BackgroundScroll.Bg1VerticalScroll));
         }
+        else
+        {
+            // Setup ASM $8F:C97B writes BG12NBA=$66 for the Ceres Ridley arena. Each
+            // register nibble is a $1000-word character-base selector, so both BG1 and
+            // BG2 deliberately reuse VRAM $6000. This is not a Ridley-art special case in
+            // the compositor: it is the literal PPU register value selected by the room.
+            // Other translated ordinary-room setup routines retain power-on base zero.
+            bool usesCeresRidleyCharacterBase =
+                runtime.ActiveRoom?.State.SetupCodePointer == 0xc97b;
+            ushort bgCharacterBaseWord = usesCeresRidleyCharacterBase
+                ? (ushort)0x6000
+                : (ushort)0;
+            frame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
+                runtime.Vram,
+                runtime.Cgram,
+                runtime.DisplayedOam,
+                runtime.BackgroundScroll.Bg1HorizontalScroll,
+                runtime.BackgroundScroll.Bg1VerticalScroll,
+                runtime.BackgroundScroll.Bg2HorizontalScroll,
+                runtime.BackgroundScroll.Bg2VerticalScroll,
+                bg1CharacterBaseWord: bgCharacterBaseWord,
+                bg2CharacterBaseWord: bgCharacterBaseWord);
+        }
 
-        return SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
-            runtime.Vram,
-            runtime.Cgram,
-            runtime.DisplayedOam,
-            runtime.BackgroundScroll.Bg1HorizontalScroll,
-            runtime.BackgroundScroll.Bg1VerticalScroll,
-            runtime.BackgroundScroll.Bg2HorizontalScroll,
-            runtime.BackgroundScroll.Bg2VerticalScroll);
+        // These are the three setup routines that explicitly call FXType_2C_CeresHaze.
+        // Keying the effect from cartridge state avoids applying a guessed “Ceres tint” to
+        // scenes that do not spawn the HDMA object.
+        if (runtime.ActiveRoom?.State.SetupCodePointer is 0xc96e or 0xc976 or 0xc97b)
+            SnesGameplayFrameRenderer.ApplyCeresHaze(frame, ridleyIsDead: false);
+
+        return frame;
     }
 }

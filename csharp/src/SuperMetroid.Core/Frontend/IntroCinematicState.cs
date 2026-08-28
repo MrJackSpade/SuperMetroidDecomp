@@ -42,6 +42,7 @@ public sealed class IntroCinematicState
     private SamusState? flashbackSamus;
     private IntroMotherBrainSpriteState? flashbackMotherBrain;
     private IntroMotherBrainExplosionSystem? flashbackMotherBrainExplosions;
+    private IntroRinkaSystem? flashbackRinkas;
     private IntroBabyDiscoveryState? babyDiscovery;
     private IntroScientistCutsceneState? scientistCutscene;
     private IntroCeresFlightState? ceresFlight;
@@ -118,6 +119,36 @@ public sealed class IntroCinematicState
 
     /// <summary>Allocated fourth-hit explosion actors that remain visible in this scene.</summary>
     public int ActiveMotherBrainExplosionCount => flashbackMotherBrainExplosions?.ActiveCount ?? 0;
+
+    /// <summary>Live ring-projectile actors spawned by the retail $8B:CF27 script.</summary>
+    public int ActiveIntroRinkaCount => flashbackRinkas?.ActiveCount ?? 0;
+
+    /// <summary>Total Rinkas allocated so far, including actors already deleted on hit.</summary>
+    public int SpawnedIntroRinkaCount => flashbackRinkas?.SpawnedCount ?? 0;
+
+    /// <summary>Persistent narration-caret Y word, including native off-screen value $F8.</summary>
+    public ushort IntroCaretY => objects?.CaretY ?? 0;
+
+    /// <summary>Live typewriter-block X position updated by each drawn text character.</summary>
+    public ushort IntroCaretX => objects?.CaretX ?? 0;
+
+    /// <summary>Live scripted hit timer used to prove the first Rinka reached Samus.</summary>
+    public ushort FlashbackSamusInvincibilityTimer => flashbackSamus?.InvincibilityTimer ?? 0;
+
+    /// <summary>Current SR388 Samus pose, exposed so tests verify a hit is visibly consumed.</summary>
+    public byte FlashbackSamusPose => flashbackSamus?.Pose ?? 0;
+
+    /// <summary>Current SR388 Samus world X, including the native Rinka knockback motion.</summary>
+    public ushort FlashbackSamusX => flashbackSamus?.XPosition ?? 0;
+
+    /// <summary>Current SR388 Samus world Y across the complete hurt arc and landing.</summary>
+    public ushort FlashbackSamusY => flashbackSamus?.YPosition ?? 0;
+
+    /// <summary>Current ROM delay-list frame, exposed to audit visible hurt animation.</summary>
+    public ushort FlashbackSamusAnimationFrame => flashbackSamus?.AnimationFrame ?? 0;
+
+    /// <summary>Whether the bank-$91 knockback handler owns SR388 Samus this frame.</summary>
+    public bool FlashbackSamusKnockbackActive => flashbackSamus?.KnockbackActive ?? false;
 
     /// <summary>World X of the live SR388 demo Samus, or zero before that scene.</summary>
     public ushort BabyDiscoverySamusX => babyDiscovery?.Samus.XPosition ?? 0;
@@ -366,6 +397,9 @@ public sealed class IntroCinematicState
         if (demoWasLoadedBeforeThisFrame && flashbackDemoInput is not null)
             StepMotherBrainDemo();
 
+        if (flashbackSamus is not null)
+            StepMotherBrainFlashbackSamus();
+
         // Game state $25 handles cinematic sprites after the active cinematic function and
         // after Samus/projectiles. Mother Brain can therefore consume a missile at its new
         // position during this same frame, exactly as $8B:B786 does.
@@ -385,6 +419,14 @@ public sealed class IntroCinematicState
                     flashbackMotherBrainExplosions.SpawnFourthHitExplosions();
                 }
             }
+        }
+
+        if (flashbackRinkas is not null && flashbackSamus is not null)
+        {
+            flashbackRinkas.Step(
+                bus,
+                flashbackSamus,
+                motherBrainExploding: flashbackMotherBrain?.ExplosionStarted == true);
         }
 
         // This ordering makes a newly spawned timer-one object select its first spritemap
@@ -440,6 +482,10 @@ public sealed class IntroCinematicState
 
     private void SetupMotherBrainFlashback()
     {
+        // Shared native setup $8B:B018 moves the persistent narration caret to Y=$F8.
+        // It remains alive and will be restored by the next text-page setup.
+        objects!.PlaceCaretOffScreen();
+
         // $8B:AEB8 changes BG1SC to $50. The corresponding 32x32 visual map was already
         // uploaded by the initial $96:FF14 decompression; $8C:BEC3 below is gameplay
         // collision data and must never be expanded as a visual block map.
@@ -461,6 +507,7 @@ public sealed class IntroCinematicState
         flashbackSamus.TileTransfers.TransferToVram(bus, vram);
         flashbackMotherBrain = new IntroMotherBrainSpriteState();
         flashbackMotherBrainExplosions = null;
+        flashbackRinkas = new IntroRinkaSystem();
 
         // Retain the exact 224-word level-data copy as debugger-visible state. The later
         // $91:8784 demo movement/collision translation will consume this array; loading it
@@ -563,6 +610,8 @@ public sealed class IntroCinematicState
 
     private void SetupBabyDiscoveryCrossfade()
     {
+        objects!.PlaceCaretOffScreen();
+
         // $8B:AF7B selects BG1SC=$54 (the second cartridge-authored room page), declares a
         // 32x16 collision room, creates Samus/egg/baby/demo owners, and reuses the same
         // text-to-gameplay palette crossfade as the Mother Brain scene.
@@ -575,6 +624,7 @@ public sealed class IntroCinematicState
         flashbackSamus = null;
         flashbackMotherBrain = null;
         flashbackMotherBrainExplosions = null;
+        flashbackRinkas = null;
         flashbackDemoInput = null;
         flashbackLevel = null;
         flashbackProjectiles.Reset();
@@ -638,6 +688,10 @@ public sealed class IntroCinematicState
 
     private void SetupBabyMetroidDelivery()
     {
+        // Scientist crossfades use the sibling native setup at $8B:B151, which performs
+        // the same off-screen caret move before changing the visible layer configuration.
+        objects!.PlaceCaretOffScreen();
+
         // $B0F2 selects BG1SC=$58, starts it 32 pixels right with vertical scroll eight,
         // seeds IntroCrossFadeTimer, and spawns definition $CE61 before configuring the
         // scientist palette transition. Its tilemap is already in the $96:FF14 payload.
@@ -725,6 +779,8 @@ public sealed class IntroCinematicState
 
     private void SetupBabyMetroidExamination()
     {
+        objects!.PlaceCaretOffScreen();
+
         // $B123 selects BG1SC=$5C, starts the page at Y=-24, and spawns definition $CE67.
         // Its setup is otherwise the same two-counter scientist crossfade as delivery.
         scientistCutscene = IntroScientistCutsceneState.CreateExamination();
@@ -790,6 +846,82 @@ public sealed class IntroCinematicState
             controllerPreviousNewInput: flashbackDemoInput.PublishedPreviousNewlyPressed);
     }
 
+    /// <summary>
+    /// Runs the movement/animation/interruption/palette slice of the native intro-demo
+    /// handler at <c>$90:E833-$90:E84D</c>, followed by the timer owner at <c>$8B:8E1A</c>.
+    /// </summary>
+    private void StepMotherBrainFlashbackSamus()
+    {
+        SamusState samus = flashbackSamus!;
+        RoomLevelData level = flashbackLevel!;
+        ushort demoInput = flashbackDemoInput?.Held ?? 0;
+
+        // Accepted NMI transfers the definitions selected by the previous Samus draw. This
+        // is what makes pose/frame changes use their corresponding ROM graphics rather than
+        // interpreting stale standing tiles as a hurt body on the next visible frame.
+        samus.TileTransfers.TransferToVram(bus, vram);
+
+        AerialMovementResult? fallingMovement = null;
+        if (samus.KnockbackActive)
+        {
+            // `$90:E83C` dispatches the installed `$90:DF38` movement handler. Its shared
+            // vertical calculation now carries the eleven-frame Rinka arc through its apex.
+            SamusKnockbackMovement.Step(bus, level, samus, nmiFrameCounter);
+        }
+        else if (samus.Pose is SamusState.FallingRightPose or SamusState.FallingLeftPose)
+        {
+            // When `$90:DDE9` ends humanoid knockback it selects pose $29/$2A and restores
+            // normal movement. The following frames therefore execute the ordinary type-6
+            // fall until the cartridge collision layer reports the original laboratory floor.
+            fallingMovement = SamusAerialMovement.StepFalling(
+                bus,
+                level,
+                samus,
+                demoInput,
+                nmiFrameCounter);
+        }
+
+        // Intro-demo state is not an animation shortcut. `$90:E83F` advances the same
+        // cartridge delay programs as gameplay, including every visible hurt/fall frame.
+        samus.AnimateNoFx(bus, demoInput, nmiFrameCounter);
+
+        // Delay opcodes `$F8/$FD` publish a prospective pose; they are not ordinary frame
+        // delays. `$90:E849` consumes that publication before the byte following the opcode
+        // can ever be misread as another animation duration. This completes landing art's
+        // native A5 -> 02 transition instead of walking beyond its ROM delay list.
+        bool animationTransitionApplied = samus.ApplyPendingVerifiedAnimationTransition(bus);
+
+        // The normal new-state handler resolves a downward collision only after animation.
+        // Apply the shared landing transition here so pose, radii, feet alignment, and the
+        // next animation list all come from the same bank-$91 implementation as gameplay.
+        if (!animationTransitionApplied && fallingMovement is { Landed: true })
+            samus.ApplyAerialLanding(bus, wasSpinning: false, demoInput);
+
+        // `$90:E842` consumes the timer published by Rinka zero on the preceding cinematic-
+        // sprite pass. Keeping this after animation matches SamusNewStateHandler_IntroDemo:
+        // the hit frame finishes its standing animation before command one installs $53/$54.
+        if (!samus.KnockbackActive &&
+            samus.KnockbackTimer != 0 &&
+            samus.KnockbackDirection == 0)
+        {
+            SamusKnockbackMovement.Start(
+                bus,
+                samus,
+                demoInput,
+                samus.KnockbackXDirection,
+                samus.KnockbackTimer);
+        }
+
+        // `$90:E84D` runs the ordinary Samus palette handler even in intro-demo state.
+        // This supplies the alternating hurt colors and eventual suit-palette restoration;
+        // invincibility flicker remains independently enforced by Samus.Draw.
+        SamusHurtFlashPalette.Update(bus, cgram, samus, demoInput);
+
+        // `$8B:8E0D` ages the two hit words after both Samus state handlers, but before the
+        // cinematic-object walker can publish a new Rinka collision later in this frame.
+        samus.DecrementHurtTimers();
+    }
+
     private DemoInputInstructionResult HandleMotherBrainDemoInstruction(
         DemoInputState demo,
         ushort instructionPointer,
@@ -848,6 +980,7 @@ public sealed class IntroCinematicState
             flashbackProjectiles.DrawLiveProjectiles(bus, oam, 0, 0, nmiFrameCounter);
             flashbackProjectiles.HandleTrailsAndDraw(bus, oam, 0, 0, timeIsFrozen: false);
             flashbackProjectiles.DrawExplosions(bus, oam, 0, 0);
+            flashbackRinkas?.Draw(bus, oam);
         }
         flashbackMotherBrainExplosions?.Draw(bus, oam);
         if (flashbackMotherBrain.IsVisible && flashbackMotherBrain.SpriteMapPointer != 0)
@@ -992,14 +1125,15 @@ public sealed class IntroCinematicState
         oam.BeginFrame();
         if (objects!.SpriteMapPointer != 0)
         {
-            // SetSomeStuffForSpriteObject_2 fixes the object at (8,24), palette bits $0C00.
+            // The persistent caret begins at (8,24), moves to (8,$F8) during illustrated
+            // crossfades, and is restored when the next narration page starts.
             // The spritemap itself lives in bank $8C and OBSEL=$03 selects word $6000 as
             // the OBJ character base, matching the initial $9A:D200 -> VMADD $6000 DMA.
             oam.AddOnScreenSpritemap(
                 bus,
                 0x8c0000 | objects.SpriteMapPointer,
-                originX: 8,
-                originY: 24,
+                originX: objects.CaretX,
+                originY: objects.CaretY,
                 paletteBits: 0x0c00);
         }
         oam.FinalizeFrame();

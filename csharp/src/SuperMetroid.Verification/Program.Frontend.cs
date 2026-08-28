@@ -90,6 +90,49 @@ static void VerifyMode7Rendering()
         width: 17, height: 17);
     AssertEqual(cgram.GetRgba(5), rotatedScroll[16 * 17 + 16],
         "Mode 7 transforms scroll before adding pivot");
+
+    // Ridley's getaway is not one uninterrupted Mode-7 field. Bank-$88's paired BGMODE/TM
+    // tables return the last sixteen scanlines to Mode 1 with BG2+OBJ, preserving the arena
+    // floor while the chamber above rotates. Give the two sources unmistakably different
+    // colors so a compositor that accidentally extends Mode 7 to line 223 fails directly.
+    var splitVram = new SnesVram();
+    var splitCgram = new SnesCgram();
+    var emptyOam = new OamBuffer();
+    emptyOam.BeginFrame();
+    emptyOam.FinalizeFrame();
+    splitCgram.SetColor(1, 0x001f); // Red Mode-1 BG2 floor.
+    splitCgram.SetColor(2, 0x03e0); // Green Mode-7 arena.
+
+    // Identity Mode 7 maps physical scanline 207 through map row 25. Character two is a
+    // solid green tile. The following physical line is deliberately covered by the Mode-1
+    // floor setup below, so its Mode-7 contents cannot influence the expected result.
+    splitVram.LoadMode7MapBytes([2], destinationWord: 25 * 128);
+    splitVram.LoadMode7CharacterBytes(Enumerable.Repeat((byte)2, 64).ToArray(), destinationWord: 2 * 64);
+
+    // At screen Y=208 with zero BG2VOFS, tile row 26/pixel row zero is sampled from BG2SC
+    // $48. Character one at BG12NBA=$66 supplies a solid palette-zero/color-one red row.
+    splitVram.ExecuteWordTransfer([0x0001], destinationWord: 0x4800 + 26 * 32, wordIncrement: 1);
+    splitVram.LoadBytes((0x6000 + 16) * 2, [0xff, 0x00]);
+
+    Rgba32[] split = SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(
+        splitVram,
+        splitCgram,
+        emptyOam,
+        matrixA: 0x0100,
+        matrixB: 0,
+        matrixC: 0,
+        matrixD: 0x0100,
+        centerX: 0,
+        centerY: 0,
+        horizontalOffset: 0,
+        verticalOffset: 0,
+        bg2HorizontalScroll: 0,
+        bg2VerticalScroll: 0,
+        bg2CharacterBaseWord: 0x6000);
+    AssertEqual(splitCgram.GetRgba(2), split[207 * 256],
+        "Ceres Ridley scanline 207 remains Mode 7");
+    AssertEqual(splitCgram.GetRgba(1), split[208 * 256],
+        "Ceres Ridley scanline 208 restores Mode-1 BG2 floor");
 }
 
 static void VerifyLayerCompositorBackdrop()
@@ -142,7 +185,7 @@ static void VerifyFileSelectFreshSaveTilemap()
 {
     var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
 
-    // FileSelectMenuState also loads the five labels surrounding NO DATA. Empty streams are
+    // FileSelectMenuState also loads the labels surrounding NO DATA. Empty streams are
     // sufficient for this focused fixture, but each one still needs the native $FFFF
     // terminator so the cartridge-backed loader cannot wander into zero-filled ROM.
     int[] unusedLabelAddresses =
@@ -155,6 +198,13 @@ static void VerifyFileSelectFreshSaveTilemap()
     ];
     foreach (int address in unusedLabelAddresses)
         WriteRomWord(rom, address, 0xffff);
+
+    // The retail menu always loads the static TIME caption for each slot. Only the adjacent
+    // HH:MM digits are conditional on a valid save. Reproduce the exact `$81:B4A0` stream so
+    // an empty-slot fixture verifies that important distinction instead of hiding it.
+    ushort[] timeWords = [0x20ad, 0x20ae, 0x20af, 0xffff];
+    for (int index = 0; index < timeWords.Length; index++)
+        WriteRomWord(rom, 0x81b4a0 + index * 2, timeWords[index]);
 
     // This is the literal retail structure at $81:B4AC: one leading blank, "NO DATA",
     // and three trailing blanks. Keeping the exact words makes the test cover both the
@@ -194,7 +244,17 @@ static void VerifyFileSelectFreshSaveTilemap()
             "file-select NO DATA does not wrap to next row");
     }
 
-    Console.WriteLine("  File select: all three fresh-save NO DATA labels stay on their native rows.");
+    // `$81:9F3D/$9F73/$9FA9` place TIME at row 5/10/15, column 27. These calls
+    // occur after Draw_FileSelection_Time returns for an empty slot and are not gated.
+    int[] timeStarts = [0x0176 / 2, 0x02b6 / 2, 0x03f6 / 2];
+    foreach (int start in timeStarts)
+    {
+        AssertEqual(0x20ad, tilemap[start], "file-select empty-slot TIME T tile");
+        AssertEqual(0x20ae, tilemap[start + 1], "file-select empty-slot TIME I/M tile");
+        AssertEqual(0x20af, tilemap[start + 2], "file-select empty-slot TIME M/E tile");
+    }
+
+    Console.WriteLine("  File select: fresh-save NO DATA rows and unconditional TIME captions match ROM flow.");
 }
 
 static void VerifyIntroGameplayFlashbackVerticalScroll()

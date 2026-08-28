@@ -201,6 +201,12 @@ public sealed partial class RoomEnemySystem
                 !EnemyWithNormalSpritesIsOffScreen(slot, cameraX, cameraY);
             if (visible && !slot.Properties.HasAny(EnemyProperties.Invisible | EnemyProperties.Deleted))
                 _drawQueues[slot.Layer & 7].Add(nativeIndex);
+
+            // $A0:9128 performs this after the enemy has been admitted to its draw queue.
+            // Keeping it here also makes the boss's latched draw palettes describe the
+            // frame just processed rather than the already-decremented following frame.
+            if (!timeIsFrozen && slot.FlashTimer != 0)
+                slot.FlashTimer = unchecked((ushort)(slot.FlashTimer - 1));
         }
 
         // DetermineWhichEnemiesToProcess freezes only the index list. Later bank-$94
@@ -269,6 +275,17 @@ public sealed partial class RoomEnemySystem
                 // layer-1 position, so preserve modular 16-bit arithmetic here.
                 ushort originX = unchecked((ushort)(slot.SpawnXOffset + slot.XPosition - cameraX));
                 ushort originY = unchecked((ushort)(slot.SpawnYOffset + slot.YPosition - cameraY));
+                ushort drawPaletteIndex = slot.EnemyDefinitionPointer == CeresRidleyDefinition &&
+                    _ceresRidley is not null
+                        ? _ceresRidley.CommonDrawPaletteIndex
+                        : slot.PaletteIndex;
+                if (slot.EnemyDefinitionPointer == CeresRidleyDefinition)
+                {
+                    // CeresRidley_Main calls DrawRidleyTail/DrawRidleyWings before the
+                    // common WriteEnemyOams pass emits the extended body. Appending these
+                    // here preserves both that OAM order and the enemy's normal layer queue.
+                    DrawCeresRidleySupplementalSprites(oam, slot, cameraX, cameraY);
+                }
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
                     oam.AddEnemySpritemap(
@@ -277,7 +294,7 @@ public sealed partial class RoomEnemySystem
                         slot.SpritemapPointer,
                         originX,
                         originY,
-                        slot.PaletteIndex,
+                        drawPaletteIndex,
                         slot.VramTilesIndex);
                     continue;
                 }
@@ -310,7 +327,7 @@ public sealed partial class RoomEnemySystem
                             ordinarySpritemap,
                             componentX,
                             componentY,
-                            slot.PaletteIndex,
+                            drawPaletteIndex,
                             slot.VramTilesIndex,
                             clipVerticalWrap: true,
                             originYIsOnScreen: (componentY >> 8) == 0);
@@ -555,13 +572,13 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>CeresDoor_Init</c> at $A6:F6C5 for the live Ceres room path.</summary>
     private void InitializeCeresDoor(RoomEnemySlot slot)
     {
-        // Both ROM tables contain one word per population parameter. Retail Ceres doors use
-        // the compact variants zero through three; reject a corrupt index before it walks
-        // into the executable code immediately following the tables.
-        if (slot.Parameter1 >= 4)
+        // Both ROM tables contain one word per population parameter. Variants five and six
+        // are the left/right OBJ walls spawned at $A6:A9A5 for Ridley's Mode-7 departure;
+        // the old four-entry bound made the native spawned records impossible to create.
+        if (slot.Parameter1 >= 7)
         {
             throw new InvalidDataException(
-                $"Ceres door parameter one ${slot.Parameter1:X4} exceeds its four variants.");
+                $"Ceres door parameter one ${slot.Parameter1:X4} exceeds its seven variants.");
         }
 
         slot.SpritemapPointer = 0xfac7;
@@ -734,12 +751,17 @@ public sealed partial class RoomEnemySystem
         // at the same accepted-frame cadence in this runtime, so slot zero is the shared
         // timebase for the room-owned palette cycle.
         ushort frame = _slots[0].FrameCounter;
+
+        // AnimateCeresElevatorPlatform at $A6:F8F1 does not belong to either arrival
+        // projectile. It survives their touchdown deletion because the rotating-room door
+        // actor keeps alternating these four Mode-7 tilemap bytes forever. Omitting this
+        // queue made the moving OBJ pad flash correctly, then left the landed tile platform
+        // frozen on whichever frame happened to be present at deletion.
+        ushort transferPointer = ReadWord(_bus!, 0xa6f900 + (frame & 2));
+        ApplyMode7TransferList(transferPointer);
+
         ushort sourcePointer = unchecked((ushort)(2 * (frame & 0x0038) - 0x078f));
         _cgram!.LoadFromBus(_bus!, 0xa60000 | sourcePointer, colorCount: 6, destinationIndex: 0x52 / 2);
-
-        // CeresDoor_Func_8 also queues one of two Mode-7 transfer lists at $A6:F900. That
-        // writer matters only after a shaft room enables Mode 7; this ordinary starting
-        // room still retains the exact selected pointer for a future generic queue port.
     }
 
     private void RunGunshipTopMain(

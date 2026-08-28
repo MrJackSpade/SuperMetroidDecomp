@@ -11,6 +11,9 @@ namespace SuperMetroid.Core.Rendering;
 /// </remarks>
 public static class SnesObjRenderer
 {
+    /// <summary>Sentinel used when no opaque OBJ owns a raster pixel.</summary>
+    public const byte TransparentPriority = byte.MaxValue;
+
     // Bits 7-5 of OBSEL select these small/large OBJ dimensions. Modes 6 and 7 are the
     // rectangular interlace-oriented modes; retaining them keeps the register decoder
     // honest even though ordinary Super Metroid gameplay uses mode 0 (8x8 / 16x16).
@@ -52,14 +55,75 @@ public static class SnesObjRenderer
         // A lower OAM number wins an OBJ-vs-OBJ overlap on the normal SNES priority
         // rotation setting. Painting records backwards lets the lower index overwrite
         // the higher one without a second priority buffer.
+        //
+        // Crucially, an OBJ's two priority bits do *not* participate in that OBJ-vs-OBJ
+        // choice. They only place the already-selected OBJ pixel relative to the BG
+        // planes. The gameplay compositor asks for one priority plane at a time so it can
+        // interleave those planes with BG1/BG2. We must therefore visit every OAM entry on
+        // every pass: when a lower-numbered sprite of a different priority owns a pixel,
+        // it clears that pixel from this plane. Skipping nonmatching entries would let a
+        // later OBJ3 (Ceres Ridley) incorrectly paint over an earlier OBJ2 (Samus).
         for (int spriteIndex = oam.LastFinalizedSpriteCount - 1; spriteIndex >= 0; spriteIndex--)
         {
             OamEntry entry = oam.GetEntry(spriteIndex);
-            if (!priority.HasValue || entry.Priority == priority.Value)
-                DrawSprite(output, width, height, entry, vram, cgram, obsel);
+            DrawSprite(output, width, height, entry, vram, cgram, obsel, priority);
         }
 
         return output;
+    }
+
+    /// <summary>
+    /// Resolves the winning OBJ and its BG-relative priority for every output pixel in one
+    /// OAM walk.
+    /// </summary>
+    /// <remarks>
+    /// Ordinary gameplay needs to interleave four OBJ priority groups with BG1 and BG2.
+    /// Calling <see cref="Render"/> four times is correct but needlessly decodes every
+    /// sprite tile four times and allocates four RGBA canvases. This form performs the
+    /// expensive character decode once, stores only the winning color plus its priority,
+    /// and lets the PPU compositor place that winner at the appropriate point in its BG
+    /// ladder. Empty pixels retain <see cref="TransparentPriority"/>.
+    /// </remarks>
+    public static ResolvedObjFrame RenderResolved(
+        OamBuffer oam,
+        SnesVram vram,
+        SnesCgram cgram,
+        byte obsel,
+        int width = 256,
+        int height = 224)
+    {
+        ArgumentNullException.ThrowIfNull(oam);
+        ArgumentNullException.ThrowIfNull(vram);
+        ArgumentNullException.ThrowIfNull(cgram);
+        if (width <= 0)
+            throw new ArgumentOutOfRangeException(nameof(width));
+        if (height <= 0)
+            throw new ArgumentOutOfRangeException(nameof(height));
+
+        var pixels = new Rgba32[checked(width * height)];
+        var priorities = new byte[pixels.Length];
+        Array.Fill(priorities, TransparentPriority);
+
+        // As in Render, walking backwards makes each successively lower OAM number replace
+        // the previous winner. Unlike a priority-filtered plane, the resolved buffer keeps
+        // that winner's priority beside its color so no later pass can resurrect a sprite
+        // that already lost the OBJ-vs-OBJ comparison.
+        for (int spriteIndex = oam.LastFinalizedSpriteCount - 1; spriteIndex >= 0; spriteIndex--)
+        {
+            OamEntry entry = oam.GetEntry(spriteIndex);
+            DrawSprite(
+                pixels,
+                width,
+                height,
+                entry,
+                vram,
+                cgram,
+                obsel,
+                selectedPriority: null,
+                priorities);
+        }
+
+        return new ResolvedObjFrame(pixels, priorities, width, height);
     }
 
     private static void DrawSprite(
@@ -69,7 +133,9 @@ public static class SnesObjRenderer
         OamEntry entry,
         SnesVram vram,
         SnesCgram cgram,
-        byte obsel)
+        byte obsel,
+        int? selectedPriority,
+        Span<byte> resolvedPriorities = default)
     {
         var mode = SizeModes[(obsel >> 5) & 7];
         int objectWidth = entry.IsLarge ? mode.LargeWidth : mode.SmallWidth;
@@ -112,10 +178,34 @@ public static class SnesObjRenderer
                 if (colorIndex == 0)
                     continue;
 
+                int destination = screenY * frameWidth + screenX;
+                if (!resolvedPriorities.IsEmpty)
+                {
+                    // Every call reaching this point represents an opaque source pixel.
+                    // The reverse OAM walk guarantees that overwriting both fields here
+                    // leaves the lowest-numbered sprite as the final hardware winner.
+                    int resolvedCgramIndex = 128 + entry.Palette * 16 + colorIndex;
+                    output[destination] = cgram.GetRgba(resolvedCgramIndex);
+                    resolvedPriorities[destination] = (byte)entry.Priority;
+                    continue;
+                }
+
+                // This assignment is deliberately performed for opaque pixels belonging
+                // to another priority plane. Because entries are visited from high OAM
+                // number to low, transparent here means "a lower-numbered OBJ owns this
+                // pixel, but its BG-relative priority is emitted by a different pass."
+                // It erases any higher-numbered sprite previously painted into this plane
+                // while leaving genuinely transparent source pixels alone.
+                if (selectedPriority.HasValue && entry.Priority != selectedPriority.Value)
+                {
+                    output[destination] = default;
+                    continue;
+                }
+
                 // OBJ palettes live in the upper half of CGRAM. Each OAM palette number
                 // selects one 16-color row: 128 + palette*16 + the 4-bpp pixel value.
                 int cgramIndex = 128 + entry.Palette * 16 + colorIndex;
-                output[screenY * frameWidth + screenX] = cgram.GetRgba(cgramIndex);
+                output[destination] = cgram.GetRgba(cgramIndex);
             }
         }
     }
@@ -153,3 +243,16 @@ public static class SnesObjRenderer
             | ((vram.ReadByte(plane23 + 1) & mask) != 0 ? 8 : 0));
     }
 }
+
+/// <summary>
+/// One software-PPU OBJ raster after SNES OAM-order ownership has been resolved.
+/// </summary>
+/// <param name="Pixels">Winning opaque color at each pixel, or transparent RGBA.</param>
+/// <param name="Priorities">Winning OBJ priority zero through three, or $FF when empty.</param>
+/// <param name="Width">Raster width used to resolve the parallel arrays.</param>
+/// <param name="Height">Raster height used to resolve the parallel arrays.</param>
+public readonly record struct ResolvedObjFrame(
+    Rgba32[] Pixels,
+    byte[] Priorities,
+    int Width,
+    int Height);

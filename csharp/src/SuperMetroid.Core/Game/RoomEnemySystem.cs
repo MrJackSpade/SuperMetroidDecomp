@@ -78,6 +78,8 @@ public sealed partial class RoomEnemySystem
     public ushort? LastMochtroidSoundEffect { get; private set; }
     public ushort? LastHopperSoundEffect { get; private set; }
     public ushort? LastYardSoundEffect { get; private set; }
+    public ushort? LastMetareeSoundEffect { get; private set; }
+    public ushort FirefleaDarknessLevel { get; private set; }
     public ushort EarthquakeTimer { get; set; }
     public ushort EarthquakeType { get; set; }
 
@@ -129,6 +131,8 @@ public sealed partial class RoomEnemySystem
         LastMochtroidSoundEffect = null;
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
+        LastMetareeSoundEffect = null;
+        FirefleaDarknessLevel = 0;
         EarthquakeTimer = 0;
         EarthquakeType = 0;
         _ceresRidley = null;
@@ -141,6 +145,8 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_zoaStates);
         Array.Clear(_yardStates);
         Array.Clear(_waverStates);
+        Array.Clear(_metareeStates);
+        Array.Clear(_firefleaStates);
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -206,6 +212,7 @@ public sealed partial class RoomEnemySystem
         LastMochtroidSoundEffect = null;
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
+        LastMetareeSoundEffect = null;
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
             queue.Clear();
@@ -634,6 +641,12 @@ public sealed partial class RoomEnemySystem
             case 0xa386ed when slot.EnemyDefinitionPointer == WaverDefinition:
                 InitializeWaver(slot);
                 return;
+            case 0xa38960 when slot.EnemyDefinitionPointer == MetareeDefinition:
+                InitializeMetaree(slot);
+                return;
+            case 0xa38d2d when slot.EnemyDefinitionPointer == FirefleaDefinition:
+                InitializeFireflea(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -818,6 +831,12 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa3874c when slot.EnemyDefinitionPointer == WaverDefinition:
                 RunWaverMain(slot, RequireWaverState(slot), level);
+                return;
+            case 0xa38979 when slot.EnemyDefinitionPointer == MetareeDefinition:
+                RunMetareeMain(slot, RequireMetareeState(slot), samus, level);
+                return;
+            case 0xa38dee when slot.EnemyDefinitionPointer == FirefleaDefinition:
+                RunFirefleaMain(slot, RequireFirefleaState(slot));
                 return;
             default:
                 throw new NotSupportedException(
@@ -1214,6 +1233,13 @@ public sealed partial class RoomEnemySystem
                     // The four-frame spin list hands its completion back to main AI rather
                     // than branching directly to steady art.
                     RequireWaverState(slot).SpinFinished = true;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x8956 when slot.EnemyDefinitionPointer == MetareeDefinition:
+                    // The preparation list sleeps immediately after publishing this flag.
+                    // Main AI consumes it on the following enemy frame and installs the
+                    // launched list, exactly matching the native instruction/AI hand-off.
+                    RequireMetareeState(slot).AttackReady = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe4be: // Ridley: begin roar; audio playback is outside this subsystem.

@@ -66,6 +66,18 @@ if (args.Length >= 2 && args[0] == "--terminator-waver-audit")
     return WaverAudit.Run(waverRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--dachora-metaree-audit")
+{
+    string metareeRomPath = string.Join(' ', args[1..]).Trim('"');
+    return MetareeAudit.Run(metareeRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--green-brinstar-fireflea-audit")
+{
+    string firefleaRomPath = string.Join(' ', args[1..]).Trim('"');
+    return FirefleaAudit.Run(firefleaRomPath);
+}
+
 // Loads the normal, pre-escape Parlor state directly from the retail header. This keeps the
 // first ordinary Zebes enemy family independently auditable without walking the frontend,
 // while still sourcing its population, graphics, level collision, and instruction lists

@@ -12,6 +12,10 @@ public sealed partial class RoomEnemySystem
     private const ushort CommonNormalEnemyTouchAi = 0x8023;
     private const ushort CommonNormalEnemyShotAi = 0x802d;
     private const ushort SkreeShotAi = 0xc7f5;
+    private const ushort MetareeShotAi = 0x8b0f;
+    private const ushort FirefleaTouchAi = 0x8e6b;
+    private const ushort FirefleaPowerBombAi = 0x8e83;
+    private const ushort FirefleaShotAi = 0x8e89;
     private const ushort MochtroidTouchAi = 0xa953;
     private const ushort MochtroidShotAi = 0xa9a8;
     private const ushort YardTouchAi = 0xd3b0;
@@ -32,7 +36,10 @@ public sealed partial class RoomEnemySystem
         foreach (ushort nativeIndex in _interactiveEnemyIndexes)
         {
             RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
+            bool isFireflea = slot.EnemyDefinitionPointer == FirefleaDefinition &&
+                slot.Definition.TouchAiPointer == FirefleaTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
+                isFireflea ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -74,6 +81,10 @@ public sealed partial class RoomEnemySystem
                     samus,
                     controllerInput);
             }
+            else if (isFireflea)
+            {
+                ResolveFirefleaTouch(slot, samus, controllerInput);
+            }
             else
             {
                 ResolveNormalEnemyTouch(slot, samus, controllerInput);
@@ -104,9 +115,15 @@ public sealed partial class RoomEnemySystem
             RoomEnemySlot enemy = SlotFromNativeIndex(nativeIndex);
             bool isYard = enemy.EnemyDefinitionPointer == YardDefinition &&
                 enemy.Definition.ShotAiPointer == YardShotAi;
+            bool isMetaree = enemy.EnemyDefinitionPointer == MetareeDefinition &&
+                enemy.Definition.ShotAiPointer == MetareeShotAi;
+            bool isFireflea = enemy.EnemyDefinitionPointer == FirefleaDefinition &&
+                enemy.Definition.ShotAiPointer == FirefleaShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
+                isMetaree ||
+                isFireflea ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -206,6 +223,18 @@ public sealed partial class RoomEnemySystem
                         // releases the enemy slot.
                         if (enemy.EnemyDefinitionPointer == SkreeDefinition)
                             SpawnSkreeParticleBurst(enemy);
+                        else if (isMetaree)
+                        {
+                            // `$A3:8B0F` saves these graphics words around common shot AI,
+                            // uses them for four metal debris actors on death, then clears
+                            // the dead body. Spawning before the clears preserves that exact
+                            // graphics index without inventing projectile-local assets.
+                            SpawnMetareeParticleBurst(enemy);
+                            enemy.VramTilesIndex = 0;
+                            enemy.PaletteIndex = 0;
+                        }
+                        if (isFireflea)
+                            AdvanceFirefleaDarknessLevel();
                         enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
                         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
                     }
@@ -216,6 +245,93 @@ public sealed partial class RoomEnemySystem
             }
         }
         return hitCount;
+    }
+
+    /// <summary>
+    /// Ports <c>Process_Enemy_PowerBomb_Interaction</c> at $A0:A306 for one expansion
+    /// sample. The caller supplies the high byte of the live power-bomb radius; native code
+    /// uses it as the horizontal radius and derives a three-quarter-height vertical ellipse.
+    /// </summary>
+    public int ResolveOrdinaryPowerBombHits(
+        ISnesAddressSpace bus,
+        ushort explosionX,
+        ushort explosionY,
+        byte explosionRadius)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        EnsureLoaded();
+        if (explosionRadius == 0)
+            return 0;
+
+        int horizontalRadius = explosionRadius;
+        // `$A0:A31A-$A31D` retains carry from the first LSR through ADC. Expressing each
+        // step makes odd-radius rounding agree with the 65C816 rather than using 0.75f.
+        int carry = horizontalRadius & 1;
+        int verticalRadius = ((horizontalRadius >> 1) + horizontalRadius + carry) >> 1;
+        int reactionCount = 0;
+
+        // The native pass walks all 32 physical slots from $07C0 down to zero, independent
+        // of the ordinary active list. That matters while a power bomb reaches off-screen
+        // actors and then sets their process-off-screen property below.
+        for (int slotIndex = MaximumEnemyCount - 1; slotIndex >= 0; slotIndex--)
+        {
+            RoomEnemySlot enemy = _slots[slotIndex];
+            if (enemy.EnemyDefinitionPointer is 0 or 0xdaff ||
+                enemy.InvincibilityTimer != 0 ||
+                enemy.Properties.HasAny(EnemyProperties.Deleted))
+            {
+                continue;
+            }
+
+            byte vulnerability = ReadProjectileVulnerability(bus, enemy, 0x0500);
+            if ((vulnerability & 0x7f) == 0)
+                continue;
+
+            int xDistance = Math.Abs(unchecked((short)(explosionX - enemy.XPosition)));
+            int yDistance = Math.Abs(unchecked((short)(explosionY - enemy.YPosition)));
+            if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
+                continue;
+
+            ushort reactionPointer = enemy.Definition.PowerBombReactionPointer;
+            bool isFireflea = enemy.EnemyDefinitionPointer == FirefleaDefinition &&
+                reactionPointer == FirefleaPowerBombAi;
+            if (reactionPointer != 0 && !isFireflea)
+            {
+                throw new NotSupportedException(
+                    $"Enemy ${enemy.EnemyDefinitionPointer:X4} power-bomb reaction " +
+                    $"${enemy.Definition.Bank:X2}:{reactionPointer:X4} is not translated.");
+            }
+
+            // `$FF` reaches the reaction dispatcher because the outer admission check masks
+            // bit seven, then common AI explicitly returns without damage. It still receives
+            // property $0800 afterward, an observable quirk preserved below.
+            if (vulnerability != 0xff)
+            {
+                int damage = 100 * (vulnerability & 0x7f);
+                if (damage != 0)
+                {
+                    enemy.InvincibilityTimer = 48;
+                    ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
+                    enemy.FlashTimer = unchecked((ushort)(hurtTime + 8));
+                    enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | 0x0002));
+                    enemy.Health = damage >= enemy.Health
+                        ? (ushort)0
+                        : unchecked((ushort)(enemy.Health - damage));
+                    if (enemy.Health == 0)
+                    {
+                        enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
+                        EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
+                        if (isFireflea)
+                            AdvanceFirefleaDarknessLevel();
+                    }
+                }
+            }
+
+            enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
+            reactionCount++;
+        }
+
+        return reactionCount;
     }
 
     private static byte ReadProjectileVulnerability(

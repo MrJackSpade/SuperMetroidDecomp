@@ -64,7 +64,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort WaverDefinition = 0xd63f;
 
     private const int WaverInstructionListPointers = 0xa386db;
-    private const int WaverEightBitSineTable = 0xa0b143;
     private const int WaverHorizontalSpeedFixed = 0x00018000;
     private const int WaverVerticalRadius = 4;
 
@@ -127,7 +126,9 @@ public sealed partial class RoomEnemySystem
         }
         else
         {
-            int verticalPixels = ReadWaverNegativeSinePixels(state.Angle);
+            int verticalPixels = ReadEightBitNegativeSineProduct(
+                state.Angle,
+                WaverVerticalRadius);
             if (MoveEnemyVertically(level, slot, verticalPixels << 16))
             {
                 // Vertical collision reflects the sine phase by half a turn. The explicit
@@ -158,19 +159,6 @@ public sealed partial class RoomEnemySystem
                 state.RequestedInstructionListIndex & 1));
             SetWaverInstructionList(slot, state);
         }
-    }
-
-    /// <summary>
-    /// Replays the integer word returned by <c>EightBitNegativeSineMultiplication</c> with
-    /// radius four. Waver deliberately discards that routine's fractional result before
-    /// calling vertical movement, so the flight path advances in whole-pixel steps.
-    /// </summary>
-    private int ReadWaverNegativeSinePixels(ushort angle)
-    {
-        int byteAngle = angle & 0xff;
-        int magnitude = _bus!.ReadByte(WaverEightBitSineTable + (byteAngle & 0x7f));
-        int pixels = magnitude * WaverVerticalRadius >> 8;
-        return byteAngle < 0x80 ? -pixels : pixels;
     }
 
     private void SetWaverInstructionList(RoomEnemySlot slot, WaverEnemyState state)

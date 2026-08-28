@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    private const int LinearEnemySpeedTable = 0xa08187;
+    private const int SharedEightBitSineTable = 0xa0b143;
+
     /// <summary>
     /// Ports <c>CalculateAngleOf_12_14_Offset</c> at $A0:C0AF. Zero points upward and the
     /// result advances clockwise in 256 units per turn, matching bank-$A0 enemy callers.
@@ -60,4 +63,37 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)(fixedPosition >> 16)),
             unchecked((ushort)fixedPosition));
     }
+
+    /// <summary>
+    /// Reads one signed 16.16 entry from <c>CommonEnemySpeeds_LinearlyIncreasing</c>.
+    /// <paramref name="byteOffset"/> is the native byte index, including the four-byte
+    /// positive/negative half selector used by several enemy parameter formats.
+    /// </summary>
+    private (short Whole, ushort Fraction) ReadLinearEnemySpeed(ushort byteOffset) =>
+        (
+            unchecked((short)ReadWord(_bus!, LinearEnemySpeedTable + byteOffset)),
+            ReadWord(_bus!, LinearEnemySpeedTable + byteOffset + 2));
+
+    /// <summary>
+    /// Ports the integer result of <c>EightBitSineMultiplication</c> at $A0:B0DA. The SNES
+    /// routine multiplies an unsigned table byte by the low byte of radius, then negates the
+    /// integer and fractional words independently for angles with bit seven set. Returning
+    /// <c>-floor(product / 256)</c> therefore preserves its documented negative-fraction bug;
+    /// <c>Math.Sin</c> or a normal fixed-point negation would disagree by one pixel.
+    /// </summary>
+    private int ReadEightBitSineProduct(ushort angle, ushort radius)
+    {
+        int byteAngle = angle & 0xff;
+        int sample = _bus!.ReadByte(SharedEightBitSineTable + (byteAngle & 0x7f));
+        int magnitude = sample * (radius & 0xff) >> 8;
+        return byteAngle < 0x80 ? magnitude : -magnitude;
+    }
+
+    /// <summary>Ports <c>EightBitCosineMultiplication</c> at $A0:B0B2.</summary>
+    private int ReadEightBitCosineProduct(ushort angle, ushort radius) =>
+        ReadEightBitSineProduct(unchecked((ushort)(angle + 0x40)), radius);
+
+    /// <summary>Ports <c>EightBitNegativeSineMultiplication</c> at $A0:B0C6.</summary>
+    private int ReadEightBitNegativeSineProduct(ushort angle, ushort radius) =>
+        ReadEightBitSineProduct(unchecked((ushort)(angle + 0x80)), radius);
 }

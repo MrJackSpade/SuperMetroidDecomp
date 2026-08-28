@@ -15,6 +15,10 @@ public enum RoomEnemyProjectileKind : ushort
     SkreeParticleUpRight = 0x8bd0,
     SkreeParticleDownLeft = 0x8bde,
     SkreeParticleUpLeft = 0x8bec,
+    MetareeParticleDownRight = 0x8bfa,
+    MetareeParticleUpRight = 0x8c08,
+    MetareeParticleDownLeft = 0x8c16,
+    MetareeParticleUpLeft = 0x8c24,
     CeresRidleyFireball = 0x9642,
     CeresRidleyHorizontalAfterburnCenter = 0x9650,
     CeresRidleyVerticalAfterburnCenter = 0x965e,
@@ -564,32 +568,94 @@ public sealed partial class RoomEnemySystem
     /// <summary>Spawns the four bank-$86 particles emitted by a dying/burrowing Skree.</summary>
     private void SpawnSkreeParticleBurst(RoomEnemySlot skree)
     {
-        SpawnSkreeParticle(skree, RoomEnemyProjectileKind.SkreeParticleDownRight, 6, 0x0140, 0xfcff);
-        SpawnSkreeParticle(skree, RoomEnemyProjectileKind.SkreeParticleUpRight, 6, 0x0060, 0xfbff);
-        SpawnSkreeParticle(skree, RoomEnemyProjectileKind.SkreeParticleDownLeft, -6, 0xfec0, 0xfcff);
-        SpawnSkreeParticle(skree, RoomEnemyProjectileKind.SkreeParticleUpLeft, -6, 0xffa0, 0xfbff);
+        SpawnSkreeOrMetareeParticle(
+            skree,
+            RoomEnemyProjectileKind.SkreeParticleDownRight,
+            6,
+            0x0140,
+            0xfcff,
+            instructionPointer: 0x8abd);
+        SpawnSkreeOrMetareeParticle(
+            skree,
+            RoomEnemyProjectileKind.SkreeParticleUpRight,
+            6,
+            0x0060,
+            0xfbff,
+            instructionPointer: 0x8abd);
+        SpawnSkreeOrMetareeParticle(
+            skree,
+            RoomEnemyProjectileKind.SkreeParticleDownLeft,
+            -6,
+            0xfec0,
+            0xfcff,
+            instructionPointer: 0x8abd);
+        SpawnSkreeOrMetareeParticle(
+            skree,
+            RoomEnemyProjectileKind.SkreeParticleUpLeft,
+            -6,
+            0xffa0,
+            0xfbff,
+            instructionPointer: 0x8abd);
     }
 
-    private void SpawnSkreeParticle(
-        RoomEnemySlot skree,
+    /// <summary>
+    /// Spawns Metaree's four metal-particle definitions. Their motion initializers are
+    /// shared byte-for-byte with Skree, but pointer <c>$86:8AC5</c> selects Metaree's ROM
+    /// spritemap instead of silently reusing the visually different Skree debris.
+    /// </summary>
+    private void SpawnMetareeParticleBurst(RoomEnemySlot metaree)
+    {
+        SpawnSkreeOrMetareeParticle(
+            metaree,
+            RoomEnemyProjectileKind.MetareeParticleDownRight,
+            6,
+            0x0140,
+            0xfcff,
+            instructionPointer: 0x8ac5);
+        SpawnSkreeOrMetareeParticle(
+            metaree,
+            RoomEnemyProjectileKind.MetareeParticleUpRight,
+            6,
+            0x0060,
+            0xfbff,
+            instructionPointer: 0x8ac5);
+        SpawnSkreeOrMetareeParticle(
+            metaree,
+            RoomEnemyProjectileKind.MetareeParticleDownLeft,
+            -6,
+            0xfec0,
+            0xfcff,
+            instructionPointer: 0x8ac5);
+        SpawnSkreeOrMetareeParticle(
+            metaree,
+            RoomEnemyProjectileKind.MetareeParticleUpLeft,
+            -6,
+            0xffa0,
+            0xfbff,
+            instructionPointer: 0x8ac5);
+    }
+
+    private void SpawnSkreeOrMetareeParticle(
+        RoomEnemySlot source,
         RoomEnemyProjectileKind kind,
         int xOffset,
         ushort xVelocity,
-        ushort yVelocity)
+        ushort yVelocity,
+        ushort instructionPointer)
     {
         RoomEnemyProjectileSlot? particle = AllocateEnemyProjectile();
         if (particle is null)
             return;
 
         particle.Kind = kind;
-        particle.XPosition = unchecked((ushort)(skree.XPosition + xOffset));
-        particle.YPosition = skree.YPosition;
+        particle.XPosition = unchecked((ushort)(source.XPosition + xOffset));
+        particle.YPosition = source.YPosition;
         particle.XVelocity = xVelocity;
         particle.YVelocity = yVelocity;
-        particle.InstructionPointer = 0x8abd;
+        particle.InstructionPointer = instructionPointer;
         particle.InstructionTimer = 1;
         particle.PreInstruction = 0x8b5d;
-        particle.GraphicsIndex = unchecked((ushort)(skree.VramTilesIndex | skree.PaletteIndex));
+        particle.GraphicsIndex = unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex));
         particle.XRadius = 2;
         particle.YRadius = 2;
     }

@@ -1,33 +1,6 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
-
-/// <summary>
-/// One of the 32 native bank-$B4 sprite-object slots used by falling Spark trails. These
-/// actors are cosmetic and stationary, but exposing their exact instruction state makes
-/// the attack's otherwise easy-to-miss four-stage afterimage inspectable in the debugger.
-/// </summary>
-public sealed class FallingSparkTrailSlot
-{
-    internal FallingSparkTrailSlot(int slotIndex) => SlotIndex = slotIndex;
-
-    public int SlotIndex { get; }
-    public bool IsActive { get; internal set; }
-    public ushort XPosition { get; internal set; }
-    public ushort YPosition { get; internal set; }
-    public ushort GraphicsIndex { get; internal set; }
-    public ushort InstructionPointer { get; internal set; }
-    public ushort InstructionTimer { get; internal set; }
-    public ushort SpritemapPointer { get; internal set; }
-
-    internal void Clear()
-    {
-        IsActive = false;
-        XPosition = YPosition = GraphicsIndex = 0;
-        InstructionPointer = InstructionTimer = SpritemapPointer = 0;
-    }
-}
 
 /// <summary>
 /// Bank-$86 falling-spark projectile <c>$F498</c> plus the bank-$B4 sprite-object-30 trail
@@ -37,23 +10,10 @@ public sealed class FallingSparkTrailSlot
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const int FallingSparkTrailSlotCount = 32;
     private const ushort FallingSparkInstructionList = 0xf353;
     private const ushort FallingSparkFloorInstructionList = 0xf363;
     private const ushort FallingSparkPreInstruction = 0xf3f0;
-    private const ushort FallingSparkTrailInstructionList = 0xc390;
-
-    private readonly FallingSparkTrailSlot[] _fallingSparkTrails =
-        Enumerable.Range(0, FallingSparkTrailSlotCount)
-            .Select(index => new FallingSparkTrailSlot(index))
-            .ToArray();
     private byte _standaloneEnemyProjectileFrameCounter8;
-
-    /// <summary>All 32 physical sprite-object slots currently reserved for Spark trails.</summary>
-    public IReadOnlyList<FallingSparkTrailSlot> FallingSparkTrails => _fallingSparkTrails;
-
-    public int ActiveFallingSparkTrailCount =>
-        _fallingSparkTrails.Count(trail => trail.IsActive);
 
     /// <summary>Allocates and initializes enemy projectile <c>$86:F498</c>.</summary>
     private void SpawnFallingSpark(RoomEnemySlot source)
@@ -233,86 +193,10 @@ public sealed partial class RoomEnemySystem
 
     private void SpawnFallingSparkTrail(RoomEnemyProjectileSlot projectile)
     {
-        // Create_Sprite_Object searches native indexes $3E..$00. Model the same finite
-        // shared capacity; pool saturation simply drops the cosmetic spawn.
-        for (int index = _fallingSparkTrails.Length - 1; index >= 0; index--)
-        {
-            FallingSparkTrailSlot trail = _fallingSparkTrails[index];
-            if (trail.IsActive)
-                continue;
-
-            trail.Clear();
-            trail.IsActive = true;
-            trail.XPosition = projectile.XPosition;
-            trail.YPosition = projectile.YPosition;
-            trail.GraphicsIndex = projectile.GraphicsIndex;
-            trail.InstructionPointer = FallingSparkTrailInstructionList;
-            trail.InstructionTimer = ReadWord(_bus!, 0xb40000 | FallingSparkTrailInstructionList);
-            trail.SpritemapPointer = ReadWord(
-                _bus!,
-                0xb40000 | unchecked((ushort)(FallingSparkTrailInstructionList + 2)));
-            return;
-        }
-    }
-
-    /// <summary>Ports the timed portion of <c>HandleSpriteObjects</c> for object ID $30.</summary>
-    private void StepFallingSparkTrails()
-    {
-        foreach (FallingSparkTrailSlot trail in _fallingSparkTrails)
-        {
-            if (!trail.IsActive)
-                continue;
-
-            trail.InstructionTimer = unchecked((ushort)(trail.InstructionTimer - 1));
-            if (trail.InstructionTimer != 0)
-                continue;
-
-            trail.InstructionPointer = unchecked((ushort)(trail.InstructionPointer + 4));
-            ushort durationOrOpcode = ReadWord(
-                _bus!,
-                0xb40000 | trail.InstructionPointer);
-            if (durationOrOpcode == 0xbd07)
-            {
-                trail.Clear();
-                continue;
-            }
-            if ((durationOrOpcode & 0x8000) != 0 || durationOrOpcode == 0)
-            {
-                throw new NotSupportedException(
-                    $"Falling Spark trail instruction $B4:{durationOrOpcode:X4} at " +
-                    $"$B4:{trail.InstructionPointer:X4} is not translated.");
-            }
-
-            trail.InstructionTimer = durationOrOpcode;
-            trail.SpritemapPointer = ReadWord(
-                _bus!,
-                0xb40000 | unchecked((ushort)(trail.InstructionPointer + 2)));
-        }
-    }
-
-    private void DrawFallingSparkTrails(OamBuffer oam, ushort cameraX, ushort cameraY)
-    {
-        foreach (FallingSparkTrailSlot trail in _fallingSparkTrails)
-        {
-            if (!trail.IsActive)
-                continue;
-
-            ushort screenX = unchecked((ushort)(trail.XPosition - cameraX));
-            ushort screenY = unchecked((ushort)(trail.YPosition - cameraY));
-            if (unchecked((short)(screenX + 16)) < 0 || screenX >= 0x0120 ||
-                unchecked((short)screenY) < 0 || screenY >= 0x0110)
-            {
-                continue;
-            }
-
-            oam.AddEnemySpritemap(
-                _bus!,
-                bank: 0xb4,
-                trail.SpritemapPointer,
-                screenX,
-                screenY,
-                paletteBits: unchecked((ushort)(trail.GraphicsIndex & 0x0e00)),
-                baseTileIndex: unchecked((byte)trail.GraphicsIndex));
-        }
+        _ = SpawnRoomSpriteObject(
+            projectile.XPosition,
+            projectile.YPosition,
+            RoomSpriteObjectKind.FallingSparkTrail,
+            projectile.GraphicsIndex);
     }
 }

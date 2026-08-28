@@ -1321,6 +1321,10 @@ public sealed partial class SuperMetroidRuntime
                     _addressSpace,
                     Projectiles,
                     BombProjectiles);
+                Enemies.ResolveEnemyProjectileSamusProjectileHits(
+                    _addressSpace,
+                    Projectiles,
+                    BombProjectiles);
                 Enemies.ResolveOrdinaryProjectileHits(
                     _addressSpace,
                     Projectiles,

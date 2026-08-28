@@ -243,7 +243,7 @@ internal static class SparkAudit
                 sawProjectileDeletion = true;
             }
 
-            foreach (FallingSparkTrailSlot trail in loaded.Enemies.FallingSparkTrails
+            foreach (RoomSpriteObjectSlot trail in loaded.Enemies.FallingSparkTrails
                          .Where(trail => trail.IsActive))
             {
                 trailMaps.Add(trail.SpritemapPointer);

@@ -153,6 +153,8 @@ public sealed partial class RoomEnemySystem
         LastAlcoonSoundEffect = null;
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
+        LastNuclearWaffleSoundEffect = null;
+        LastEnemyProjectileDudSoundEffect = null;
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
         FirefleaDarknessLevel = 0;
@@ -232,13 +234,14 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_sparkStates);
         Array.Clear(_kzanStates);
         Array.Clear(_hibashiStates);
+        Array.Clear(_nuclearWaffleStates);
         Array.Clear(_kzanFallWaitTimerResetValues);
         Array.Clear(_kzanPreviousYPositions);
         Array.Clear(_kzanFallingYSpeedTableIndexes);
         Array.Clear(_kzanRiseWaitTimers);
         _standaloneEnemyProjectileFrameCounter8 = 0;
-        foreach (FallingSparkTrailSlot trail in _fallingSparkTrails)
-            trail.Clear();
+        foreach (RoomSpriteObjectSlot spriteObject in _roomSpriteObjects)
+            spriteObject.Clear();
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -309,6 +312,8 @@ public sealed partial class RoomEnemySystem
         LastAlcoonSoundEffect = null;
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
+        LastNuclearWaffleSoundEffect = null;
+        LastEnemyProjectileDudSoundEffect = null;
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
@@ -398,7 +403,7 @@ public sealed partial class RoomEnemySystem
         _randomEnemyCounter = unchecked((ushort)(_randomEnemyCounter + 1));
         StepWorkRobotPaletteAnimation();
         if (!timeIsFrozen)
-            StepFallingSparkTrails();
+            StepRoomSpriteObjects();
     }
 
     /// <summary>
@@ -816,6 +821,9 @@ public sealed partial class RoomEnemySystem
             case 0xa68ffc when slot.EnemyDefinitionPointer == HibashiDefinition:
                 InitializeHibashi(slot);
                 return;
+            case 0xa694c4 when slot.EnemyDefinitionPointer == NuclearWaffleDefinition:
+                InitializeNuclearWaffle(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -1048,6 +1056,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa69023 when slot.EnemyDefinitionPointer == HibashiDefinition:
                 RunHibashiMain(slot, RequireHibashiState(slot));
+                return;
+            case 0xa6960e when slot.EnemyDefinitionPointer == NuclearWaffleDefinition:
+                RunNuclearWaffleMain(slot, RequireNuclearWaffleState(slot));
                 return;
             default:
                 throw new NotSupportedException(

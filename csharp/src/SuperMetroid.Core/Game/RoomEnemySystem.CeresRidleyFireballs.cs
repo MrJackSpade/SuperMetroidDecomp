@@ -34,6 +34,7 @@ public enum RoomEnemyProjectileKind : ushort
     WorkRobotLaserUpRight = 0xd2d0,
     WorkRobotLaserDownRight = 0xd2de,
     FallingSpark = 0xf498,
+    NuclearWaffleBody = 0xbbc7,
 }
 
 /// <summary>
@@ -71,6 +72,10 @@ public sealed class RoomEnemyProjectileSlot
     /// <summary>Native generic enemy-projectile variable one at WRAM <c>$1B47,x</c>.</summary>
     public ushort Variable1 { get; internal set; }
     public bool CanDamageSamus { get; internal set; }
+    /// <summary>Native projectile property $4000: contact does not delete this actor.</summary>
+    public bool PersistsOnSamusContact { get; internal set; }
+    /// <summary>Native projectile property $8000 plus initializer flag one.</summary>
+    public bool BlocksSamusProjectiles { get; internal set; }
 
     internal void Clear()
     {
@@ -81,7 +86,7 @@ public sealed class RoomEnemyProjectileSlot
         GraphicsIndex = XRadius = YRadius = Damage = InvincibilityFrames = 0;
         RemainingAfterburns = NextAfterburnKind = 0;
         DirectionParameter = Variable0 = Variable1 = 0;
-        CanDamageSamus = false;
+        CanDamageSamus = PersistsOnSamusContact = BlocksSamusProjectiles = false;
     }
 }
 
@@ -103,9 +108,69 @@ public sealed partial class RoomEnemySystem
     /// <summary>All eighteen physical bank-$86 slots, including currently inactive slots.</summary>
     public IReadOnlyList<RoomEnemyProjectileSlot> EnemyProjectiles => _enemyProjectiles;
 
+    /// <summary>
+    /// Last library-one dud sound requested when an indestructible enemy projectile blocked
+    /// a Samus shot. This is a frame publication; the audio mixer remains an outer seam.
+    /// </summary>
+    public ushort? LastEnemyProjectileDudSoundEffect { get; private set; }
+
     /// <summary>Number of live actors in the shared bank-$86 enemy-projectile pool.</summary>
     public int ActiveEnemyProjectileCount =>
         _enemyProjectiles.Count(projectile => projectile.IsActive);
+
+    /// <summary>
+    /// Ports <c>EprojProjCollDet</c> and the initializer-flag-one branch of
+    /// <c>HandleEprojCollWithProj</c> at $A0:996C-$9A30. Nuclear Waffle body links use this
+    /// path to block beams without losing the persistent segment.
+    /// </summary>
+    public int ResolveEnemyProjectileSamusProjectileHits(
+        ISnesAddressSpace bus,
+        SamusProjectileSystem projectiles,
+        SamusBombProjectileSystem sharedProjectiles)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(projectiles);
+        ArgumentNullException.ThrowIfNull(sharedProjectiles);
+        EnsureLoaded();
+
+        int hitCount = 0;
+        for (int enemyProjectileIndex = _enemyProjectiles.Length - 1;
+             enemyProjectileIndex >= 0;
+             enemyProjectileIndex--)
+        {
+            RoomEnemyProjectileSlot enemyProjectile =
+                _enemyProjectiles[enemyProjectileIndex];
+            if (!enemyProjectile.IsActive || !enemyProjectile.BlocksSamusProjectiles)
+                continue;
+
+            foreach (SamusProjectileSlot shot in projectiles.Slots.Take(5))
+            {
+                if (!shot.IsActive)
+                    continue;
+
+                ushort family = unchecked((ushort)(shot.Type & 0x0f00));
+                if (family is 0x0300 or 0x0500 || family >= 0x0700)
+                    continue;
+
+                // The native path intentionally compares only 32-pixel cells. It does not
+                // run the radius overlap used by ordinary enemies, a coarse quirk preserved
+                // here instead of “fixing” shots near a cell corner.
+                if ((enemyProjectile.XPosition & 0xffe0) != (shot.XPosition & 0xffe0) ||
+                    (enemyProjectile.YPosition & 0xffe0) != (shot.YPosition & 0xffe0))
+                {
+                    continue;
+                }
+
+                if ((shot.Type & 8) == 0)
+                    _ = projectiles.TryStartEnemyImpact(bus, sharedProjectiles, shot.SlotIndex);
+                LastEnemyProjectileDudSoundEffect = 0x003d;
+                hitCount++;
+                break;
+            }
+        }
+
+        return hitCount;
+    }
 
     /// <summary>
     /// Executes the projectile portion of the gameplay frame after enemy instructions have
@@ -143,11 +208,45 @@ public sealed partial class RoomEnemySystem
             if (!projectile.IsActive)
                 continue;
 
-            ResolveEnemyProjectileSamusCollision(projectile, samus, controllerInput);
-            if (!projectile.IsActive)
-                continue;
-
             ProcessEnemyProjectileInstructions(projectile);
+        }
+
+        // Native gameplay runs `$86:868B` for every projectile first, then enters the
+        // separate `$A0:A306` Samus-collision pass. That pass samples invincibility and
+        // contact-damage state once at entry; damage from one overlapping projectile does
+        // not abort the remaining descending-slot scan. This distinction is observable for
+        // Puromi/Nuclear Waffle, whose four persistent body links begin co-located.
+        bool collisionPassEnabled = samus is not null &&
+            samus.InvincibilityTimer == 0 &&
+            samus.HorizontalSpeed.ContactDamageIndex == 0;
+        if (!collisionPassEnabled)
+            return;
+
+        ushort? finalKnockbackXDirection = null;
+        for (int index = _enemyProjectiles.Length - 1; index >= 0; index--)
+        {
+            RoomEnemyProjectileSlot projectile = _enemyProjectiles[index];
+            if (projectile.IsActive)
+            {
+                finalKnockbackXDirection =
+                    ResolveEnemyProjectileSamusCollision(projectile, samus!) ??
+                    finalKnockbackXDirection;
+            }
+        }
+
+        // `$A0:9923` only publishes the five-frame request and overwrites its horizontal
+        // direction for every hit. Bank $90 consumes those words once, after the complete
+        // descending collision scan. Our typed initializer represents that later consumer,
+        // so invoke it once with the final overlapping slot's direction after retaining all
+        // per-slot damage above.
+        if (finalKnockbackXDirection.HasValue)
+        {
+            SamusKnockbackMovement.Start(
+                _bus!,
+                samus!,
+                controllerInput,
+                finalKnockbackXDirection.Value,
+                knockbackTimer: 5);
         }
     }
 
@@ -164,7 +263,7 @@ public sealed partial class RoomEnemySystem
         // `$A0:8855` draws global sprite objects before `$A0:885D` draws high-priority
         // enemy projectiles. Spark's four-frame trail uses that pool, so preserve its OAM
         // precedence even though both translated collections are owned here.
-        DrawFallingSparkTrails(oam, cameraX, cameraY);
+        DrawRoomSpriteObjects(oam, cameraX, cameraY);
 
         foreach (RoomEnemyProjectileSlot projectile in _enemyProjectiles)
         {
@@ -284,6 +383,7 @@ public sealed partial class RoomEnemySystem
             case 0:
             case 0x8170: // The common cleared-pre-instruction RTS.
             case 0x950c: // Center afterburn is stationary while its instruction list blooms.
+            case 0xbbc6: // Nuclear Waffle body: position is owned by bank-$A6 main AI.
                 return;
 
             case 0x940e:
@@ -432,20 +532,22 @@ public sealed partial class RoomEnemySystem
         return type is 1 or 5 or 8 or 9 or 0x0b or 0x0c or 0x0d or 0x0e or 0x0f;
     }
 
-    private void ResolveEnemyProjectileSamusCollision(
+    private ushort? ResolveEnemyProjectileSamusCollision(
         RoomEnemyProjectileSlot projectile,
-        SamusState? samus,
-        ushort controllerInput)
+        SamusState samus)
     {
-        if (!projectile.CanDamageSamus || samus is null || samus.InvincibilityTimer != 0)
-            return;
+        // `$A0:A306` already made the pass-level invincibility/contact-damage decision.
+        // Do not re-read the timer here: the first hit writes it, but the original loop
+        // deliberately continues testing the other projectile slots in this same pass.
+        if (!projectile.CanDamageSamus)
+            return null;
 
         int xDistance = Math.Abs(unchecked((short)(projectile.XPosition - samus.XPosition)));
         int yDistance = Math.Abs(unchecked((short)(projectile.YPosition - samus.YPosition)));
         if (xDistance >= projectile.XRadius + samus.Kinematics.XRadius ||
             yDistance >= projectile.YRadius + samus.Kinematics.YRadius)
         {
-            return;
+            return null;
         }
 
         samus.Health = samus.Health <= projectile.Damage
@@ -457,22 +559,12 @@ public sealed partial class RoomEnemySystem
             ? (ushort)1
             : (ushort)0;
 
-        // Generic enemy-projectile touch publishes the five-frame knockback request and
-        // bank $90 consumes it through special prospective command one. In this runtime
-        // the common initializer is the typed form of that consumer: it installs pose
-        // $53/$54, hurt animation, vertical launch, and the 60-frame flash lifetime. Merely
-        // writing $18AA/$0A54 left Samus in an ordinary pose while invincibility hid her,
-        // which looked exactly like the actor had disappeared after a fireball impact.
-        SamusKnockbackMovement.Start(
-            _bus!,
-            samus,
-            controllerInput,
-            knockbackXDirection,
-            knockbackTimer: 5);
-
         // Generic enemy-projectile contact deletes Ridley's fireball. Afterburn is a wall-
         // impact feature from $86:940E, so a Samus contact does not create the wall bloom.
-        projectile.Clear();
+        if (!projectile.PersistsOnSamusContact)
+            projectile.Clear();
+
+        return knockbackXDirection;
     }
 
     private void ProcessEnemyProjectileInstructions(RoomEnemyProjectileSlot projectile)

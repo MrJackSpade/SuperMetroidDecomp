@@ -28,6 +28,7 @@ public sealed partial class RoomEnemySystem
     private const ushort WorkRobotTouchAi = 0xd174;
     private const ushort WorkRobotNoPowerShotAi = 0xd18d;
     private const ushort WorkRobotShotAi = 0xd192;
+    private const ushort BullShotAi = 0xdb14;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -173,6 +174,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == PowampShotAi;
             bool isWorkRobot = IsWorkRobotDefinition(enemy.EnemyDefinitionPointer) &&
                 enemy.Definition.ShotAiPointer is WorkRobotShotAi or WorkRobotNoPowerShotAi;
+            bool isBull = enemy.EnemyDefinitionPointer == BullDefinition &&
+                enemy.Definition.ShotAiPointer == BullShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -182,6 +185,7 @@ public sealed partial class RoomEnemySystem
                 isBeetom ||
                 isPowamp ||
                 isWorkRobot ||
+                isBull ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -221,6 +225,7 @@ public sealed partial class RoomEnemySystem
                 // newly-created visual effect.
                 ushort projectileType = projectile.Type;
                 ushort projectileDamage = projectile.Damage;
+                ushort projectileDirection = projectile.Direction;
                 ushort family = unchecked((ushort)(projectileType & 0x0f00));
                 if (!projectile.IsActive)
                     continue;
@@ -252,6 +257,8 @@ public sealed partial class RoomEnemySystem
 
                 if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
                     continue;
+
+                ushort enemyHealthBefore = enemy.Health;
 
                 // Yard's custom shot AI sends super-missile/power-bomb families through
                 // normal vulnerability damage, but every other colliding shot merely kicks
@@ -291,6 +298,12 @@ public sealed partial class RoomEnemySystem
                         ResolvePowampShotAfterCommon(enemy);
                     if (isWorkRobot)
                         ResolveWorkRobotShotAfterCommon(enemy, samus);
+                    if (isBull)
+                    {
+                        BullEnemyState bullState = RequireBullState(enemy);
+                        bullState.PreviousHealth = enemyHealthBefore;
+                        ResolveBullImmuneShot(enemy, bullState, projectileDirection);
+                    }
                     hitCount++;
                     break;
                 }
@@ -336,6 +349,13 @@ public sealed partial class RoomEnemySystem
                     ResolvePowampShotAfterCommon(enemy);
                 if (isWorkRobot)
                     ResolveWorkRobotShotAfterCommon(enemy, samus);
+                if (isBull)
+                {
+                    BullEnemyState bullState = RequireBullState(enemy);
+                    bullState.PreviousHealth = enemyHealthBefore;
+                    if (enemy.Health == enemyHealthBefore)
+                        ResolveBullImmuneShot(enemy, bullState, projectileDirection);
+                }
 
                 hitCount++;
                 break;

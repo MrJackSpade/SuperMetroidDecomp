@@ -120,6 +120,12 @@ if (args.Length >= 2 && args[0] == "--wrecked-ship-work-robot-audit")
     return WorkRobotAudit.Run(workRobotRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--sponge-bath-bull-audit")
+{
+    string bullRomPath = string.Join(' ', args[1..]).Trim('"');
+    return BullAudit.Run(bullRomPath);
+}
+
 // Loads the normal, pre-escape Parlor state directly from the retail header. This keeps the
 // first ordinary Zebes enemy family independently auditable without walking the frontend,
 // while still sourcing its population, graphics, level collision, and instruction lists

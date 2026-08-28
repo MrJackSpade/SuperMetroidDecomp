@@ -211,6 +211,15 @@ public sealed partial class RoomEnemySystem
         _workRobotPaletteAnimationTimer = 0;
         _workRobotPaletteAnimationTableOffset = 0;
         _workRobotPaletteAnimationPaletteIndex = 0;
+        Array.Clear(_bullStates);
+        Array.Clear(_bullMaxSpeeds);
+        Array.Clear(_bullAnglesToSamus);
+        Array.Clear(_bullAngles);
+        Array.Clear(_bullShotReactionDisableFlags);
+        Array.Clear(_bullAccelerationTimerResets);
+        Array.Clear(_bullDecelerationTimerResets);
+        Array.Clear(_bullShotReactionDisableTimers);
+        Array.Clear(_bullPreviousHealth);
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -766,6 +775,9 @@ public sealed partial class RoomEnemySystem
             case 0xa8cbcc when slot.EnemyDefinitionPointer == WorkRobotNoPowerDefinition:
                 InitializeWorkRobot(slot);
                 return;
+            case 0xa8d8c9 when slot.EnemyDefinitionPointer == BullDefinition:
+                InitializeBull(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -980,6 +992,9 @@ public sealed partial class RoomEnemySystem
                 RunWorkRobotMain(slot, RequireWorkRobotState(slot), level);
                 return;
             case 0xa8cc66 when slot.EnemyDefinitionPointer == WorkRobotNoPowerDefinition:
+                return;
+            case 0xa8d90b when slot.EnemyDefinitionPointer == BullDefinition:
+                RunBullMain(slot, RequireBullState(slot), samus);
                 return;
             default:
                 throw new NotSupportedException(
@@ -1288,6 +1303,21 @@ public sealed partial class RoomEnemySystem
                 case 0x817d: // EnemyInstr_DisableOffScreenProcessing.
                     slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
                     cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x8108: // EnemyInstr_DecrementTimerAndGoto.
+                case 0x8110: // Byte-for-byte duplicate used by Bull's shot animation.
+                    slot.Timer = unchecked((ushort)(slot.Timer - 1));
+                    cursor = slot.Timer != 0
+                        ? ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))
+                        : unchecked((ushort)(cursor + 4));
+                    break;
+                case 0x8123: // EnemyInstr_SetTimer: operand is a literal loop count.
+                    slot.Timer = ReadWord(
+                        _bus!,
+                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case >= 0x8000 when TryProcessWorkRobotInstruction(
                     slot,

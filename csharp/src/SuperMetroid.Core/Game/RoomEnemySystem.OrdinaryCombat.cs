@@ -271,6 +271,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == SpacePirateShotAi;
             bool isBabyTurtle = enemy.EnemyDefinitionPointer == BabyTurtleDefinition &&
                 enemy.Definition.ShotAiPointer == BabyTurtleShotAi;
+            bool isOwtch = enemy.EnemyDefinitionPointer == OwtchDefinition &&
+                enemy.Definition.ShotAiPointer == OwtchShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -285,6 +287,7 @@ public sealed partial class RoomEnemySystem
                 isFakeKraid ||
                 isOrdinarySpacePirate ||
                 isBabyTurtle ||
+                isOwtch ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -375,6 +378,19 @@ public sealed partial class RoomEnemySystem
                 if (!overlapsProjectile)
                 {
                     continue;
+                }
+
+                // Owtch's private $A2:A579 callback returns before common shot AI unless
+                // signed(state - 1) is negative. The bank-$A0 collision prelude has already
+                // marked ordinary non-plasma shots as collided at this point, but it has not
+                // converted them into an impact animation. Preserve that split so the shell
+                // is genuinely immune while moving right, sinking, buried, or rising.
+                if (isOwtch && !OwtchAcceptsOrdinaryShot(RequireOwtchState(enemy)))
+                {
+                    if ((enemy.Properties & 0x1000) != 0 || (projectile.Type & 0x0008) == 0)
+                        projectile.Direction = unchecked((ushort)(projectile.Direction | 0x0010));
+                    hitCount++;
+                    break;
                 }
 
                 if (usesPirateExtendedHitboxes)

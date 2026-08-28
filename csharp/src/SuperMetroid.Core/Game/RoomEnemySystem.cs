@@ -171,6 +171,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_babyTurtleStates);
         Array.Clear(_puyoStates);
         Array.Clear(_cacatacStates);
+        Array.Clear(_owtchStates);
         Array.Clear(_crawlerStates);
         Array.Clear(_skreeStates);
         Array.Clear(_flyStates);
@@ -764,6 +765,9 @@ public sealed partial class RoomEnemySystem
             case 0xa29f48 when slot.EnemyDefinitionPointer == CacatacDefinition:
                 InitializeCacatac(slot);
                 return;
+            case 0xa2a3f9 when slot.EnemyDefinitionPointer == OwtchDefinition:
+                InitializeOwtch(slot);
+                return;
             case 0xa2a6d2:
                 InitializeGunshipBottom(slot);
                 return;
@@ -1049,6 +1053,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa29fb3 when slot.EnemyDefinitionPointer == CacatacDefinition:
                 RunCacatacMain(slot, RequireCacatacState(slot));
+                return;
+            case 0xa2a47e when slot.EnemyDefinitionPointer == OwtchDefinition:
+                RunOwtchMain(slot, RequireOwtchState(slot));
                 return;
             case 0xa2804c:
                 return;
@@ -1621,6 +1628,14 @@ public sealed partial class RoomEnemySystem
                             (slot.Definition.Bank << 16) |
                             unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xa56d when slot.EnemyDefinitionPointer == OwtchDefinition:
+                    SetOwtchMovingLeft(RequireOwtchState(slot));
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xa571 when slot.EnemyDefinitionPointer == OwtchDefinition:
+                    SetOwtchMovingRight(RequireOwtchState(slot));
+                    cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xcc36 when slot.EnemyDefinitionPointer == YardDefinition:
                     // Yard animation bytecode owns movement dispatch. The word after the

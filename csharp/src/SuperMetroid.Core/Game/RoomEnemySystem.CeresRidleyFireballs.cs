@@ -40,6 +40,7 @@ public enum RoomEnemyProjectileKind : ushort
     FakeKraidSpikeRight = 0x9dcc,
     PirateMotherBrainLaser = 0xa17b,
     PirateClaw = 0xa189,
+    StokeProjectile = 0xdbf2,
 }
 
 /// <summary>
@@ -488,6 +489,10 @@ public sealed partial class RoomEnemySystem
 
             case 0xd3bf: // Work Robot laser: clear graphics index, then X/Y room collision.
                 RunWorkRobotLaserPreInstruction(projectile, level);
+                return;
+
+            case StokeProjectilePreInstruction: // Stoke shot: horizontal motion and viewport cull.
+                RunStokeProjectilePreInstruction(projectile, cameraX, cameraY);
                 return;
 
             case 0xf3f0: // Spark projectile: 16.16 gravity, floor bounce, and trail objects.

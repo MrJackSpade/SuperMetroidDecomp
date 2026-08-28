@@ -165,6 +165,7 @@ public sealed partial class RoomEnemySystem
         EarthquakeType = 0;
         _ceresRidley = null;
         Array.Clear(_boyonStates);
+        Array.Clear(_stokeStates);
         Array.Clear(_crawlerStates);
         Array.Clear(_skreeStates);
         Array.Clear(_flyStates);
@@ -734,6 +735,9 @@ public sealed partial class RoomEnemySystem
             case 0xa2871c when slot.EnemyDefinitionPointer == BoyonDefinition:
                 InitializeBoyon(slot);
                 return;
+            case 0xa289ad when slot.EnemyDefinitionPointer == StokeDefinition:
+                InitializeStoke(slot);
+                return;
             case 0xa2a6d2:
                 InitializeGunshipBottom(slot);
                 return;
@@ -997,6 +1001,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa2879c when slot.EnemyDefinitionPointer == BoyonDefinition:
                 RunBoyonMain(slot, RequireBoyonState(slot), samus);
+                return;
+            case 0xa289f0 when slot.EnemyDefinitionPointer == StokeDefinition:
+                RunStokeMain(slot, RequireStokeState(slot), level);
                 return;
             case 0xa2804c:
                 return;
@@ -1437,6 +1444,22 @@ public sealed partial class RoomEnemySystem
                     break;
                 case 0x88c6 when slot.EnemyDefinitionPointer == BoyonDefinition:
                     StartBoyonBounce(RequireBoyonState(slot));
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x897e when slot.EnemyDefinitionPointer == StokeDefinition:
+                    SpawnStokeProjectile(
+                        slot,
+                        ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2))));
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0x8990 when slot.EnemyDefinitionPointer == StokeDefinition:
+                    SetStokeMovingLeft(RequireStokeState(slot));
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x899d when slot.EnemyDefinitionPointer == StokeDefinition:
+                    SetStokeMovingRight(RequireStokeState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0x8108: // EnemyInstr_DecrementTimerAndGoto.

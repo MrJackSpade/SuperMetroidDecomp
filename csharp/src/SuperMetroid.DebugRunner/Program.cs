@@ -42,6 +42,12 @@ if (args.Length >= 2 && args[0] == "--alpha-power-bomb-boyon-audit")
     return BoyonAudit.Run(boyonRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--stoke-audit")
+{
+    string stokeRomPath = string.Join(' ', args[1..]).Trim('"');
+    return StokeAudit.Run(stokeRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

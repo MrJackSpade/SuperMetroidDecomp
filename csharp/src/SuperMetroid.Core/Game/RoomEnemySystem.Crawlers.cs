@@ -496,9 +496,24 @@ public sealed partial class RoomEnemySystem
     private int GetCrawlerSlopeAdjustedHorizontalDisplacement(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
+        RoomLevelData level) =>
+        GetSurfaceSlopeAdjustedHorizontalDisplacement(
+            slot,
+            state.XVelocity,
+            state.YVelocity,
+            level);
+
+    /// <summary>
+    /// Shared geometry from <c>MoveEnemyRightBy_14_12_ProcessSlopes</c>. Both the common
+    /// crawlers and Yard multiply their tangent by the cartridge's non-square-slope factor.
+    /// </summary>
+    private int GetSurfaceSlopeAdjustedHorizontalDisplacement(
+        RoomEnemySlot slot,
+        ushort xVelocity,
+        ushort yVelocity,
         RoomLevelData level)
     {
-        ushort surfaceY = (short)state.YVelocity < 0
+        ushort surfaceY = unchecked((short)yVelocity) < 0
             ? unchecked((ushort)(slot.YPosition - slot.YRadius))
             : unchecked((ushort)(slot.YPosition + slot.YRadius - 1));
         int blockX = slot.XPosition >> 4;
@@ -513,12 +528,12 @@ public sealed partial class RoomEnemySystem
                 ushort multiplier = ReadWord(
                     _bus!,
                     CrawlerSlopeSpeedMultiplierTable + slopeShape * 4);
-                int speed = unchecked((short)state.XVelocity);
+                int speed = unchecked((short)xVelocity);
                 int product = Math.Abs(speed) * multiplier;
                 return speed < 0 ? -product : product;
             }
         }
-        return unchecked((short)state.XVelocity) << 8;
+        return unchecked((short)xVelocity) << 8;
     }
 
     private CrawlerEnemyState RequireCrawlerState(RoomEnemySlot slot) =>

@@ -328,6 +328,13 @@ public sealed partial class SamusState
     public SamusKinematicsState Kinematics { get; } = new();
 
     /// <summary>
+    /// Unsigned 16.16 horizontal distance actually accepted during the preceding gameplay
+    /// frame. This is the typed equivalent of <c>absolute_moved_last_frame_x</c> and its
+    /// fractional companion; Yard consumes both words when a running Samus kicks it.
+    /// </summary>
+    public uint AbsoluteMovedLastFrameXFixed { get; internal set; }
+
+    /// <summary>
     /// WRAM <c>SamusSolidVerticalCollisionResult</c>. Most translated movement methods
     /// return collision results directly; movement type `$1A` has no displacement and its
     /// sole bank-$90 side effect is explicitly clearing this otherwise-stale word.

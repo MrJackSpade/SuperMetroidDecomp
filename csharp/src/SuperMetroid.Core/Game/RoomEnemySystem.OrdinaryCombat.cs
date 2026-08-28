@@ -14,6 +14,8 @@ public sealed partial class RoomEnemySystem
     private const ushort SkreeShotAi = 0xc7f5;
     private const ushort MochtroidTouchAi = 0xa953;
     private const ushort MochtroidShotAi = 0xa9a8;
+    private const ushort YardTouchAi = 0xd3b0;
+    private const ushort YardShotAi = 0xd469;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -32,7 +34,9 @@ public sealed partial class RoomEnemySystem
             RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
-                slot.Definition.TouchAiPointer == MochtroidTouchAi;
+                slot.Definition.TouchAiPointer == MochtroidTouchAi ||
+                slot.EnemyDefinitionPointer == YardDefinition &&
+                slot.Definition.TouchAiPointer == YardTouchAi;
             if (slot.EnemyDefinitionPointer == CeresRidleyDefinition ||
                 !usesTranslatedTouchAi ||
                 slot.SpritemapPointer == 0 ||
@@ -62,6 +66,14 @@ public sealed partial class RoomEnemySystem
                     samus,
                     controllerInput);
             }
+            else if (slot.EnemyDefinitionPointer == YardDefinition)
+            {
+                ResolveYardTouch(
+                    slot,
+                    RequireYardState(slot),
+                    samus,
+                    controllerInput);
+            }
             else
             {
                 ResolveNormalEnemyTouch(slot, samus, controllerInput);
@@ -78,7 +90,8 @@ public sealed partial class RoomEnemySystem
     public int ResolveOrdinaryProjectileHits(
         ISnesAddressSpace bus,
         SamusProjectileSystem projectiles,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles,
+        SamusState? samus = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(projectiles);
@@ -89,11 +102,14 @@ public sealed partial class RoomEnemySystem
         foreach (ushort nativeIndex in _interactiveEnemyIndexes)
         {
             RoomEnemySlot enemy = SlotFromNativeIndex(nativeIndex);
+            bool isYard = enemy.EnemyDefinitionPointer == YardDefinition &&
+                enemy.Definition.ShotAiPointer == YardShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
-                enemy.Definition.ShotAiPointer == MochtroidShotAi;
+                enemy.Definition.ShotAiPointer == MochtroidShotAi ||
+                isYard;
             if (enemy.EnemyDefinitionPointer == CeresRidleyDefinition ||
                 !usesTranslatedShotAi ||
                 enemy.SpritemapPointer == 0 ||
@@ -108,9 +124,30 @@ public sealed partial class RoomEnemySystem
 
             foreach (SamusProjectileSlot projectile in projectiles.Slots)
             {
-                ushort family = unchecked((ushort)(projectile.Type & 0x0f00));
-                if (!projectile.IsActive || family is 0x0300 or 0x0500 or 0x0700 ||
-                    !RadiusBoxesOverlap(
+                // `$0C18,x` is still the live beam/missile type when the enemy collision
+                // handler selects vulnerability. Starting the impact below deliberately
+                // rewrites that slot to explosion family `$0700`, so retain the incoming
+                // word instead of accidentally asking the vulnerability table about the
+                // newly-created visual effect.
+                ushort projectileType = projectile.Type;
+                ushort projectileDamage = projectile.Damage;
+                ushort family = unchecked((ushort)(projectileType & 0x0f00));
+                if (!projectile.IsActive)
+                    continue;
+
+                // Bomb, power-bomb, and pseudo-screw actors share the projectile slot array,
+                // but ordinary enemy shot AI never interprets them as beam/missile records.
+                // Yard is the one translated exception: its private $A3:D469 handler treats
+                // bomb-family impacts as a physical kick, so those actors must reach its
+                // custom branch below. Keep this as an explicit guard instead of embedding it
+                // in the overlap expression; doing so makes the native dispatch boundary clear.
+                if (!isYard &&
+                    (family == 0x0300 || family == 0x0500 || family == 0x0700))
+                {
+                    continue;
+                }
+
+                if (!RadiusBoxesOverlap(
                         enemy.XPosition,
                         enemy.YPosition,
                         enemy.XRadius,
@@ -123,10 +160,26 @@ public sealed partial class RoomEnemySystem
                     continue;
                 }
 
-                byte vulnerability = ReadProjectileVulnerability(bus, enemy, projectile.Type);
-                ushort projectileDamage = projectile.Damage;
                 if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
                     continue;
+
+                // Yard's custom shot AI sends super-missile/power-bomb families through
+                // normal vulnerability damage, but every other colliding shot merely kicks
+                // the shell into the air. This branch must occur after projectile impact,
+                // exactly where bank $A0 has already accepted the collision index.
+                if (isYard && family is not (0x0300 or 0x0500))
+                {
+                    if (samus is null)
+                    {
+                        throw new InvalidOperationException(
+                            "Yard beam launch requires the active Samus actor.");
+                    }
+                    ResolveYardBeamLaunch(enemy, RequireYardState(enemy), samus);
+                    hitCount++;
+                    break;
+                }
+
+                byte vulnerability = ReadProjectileVulnerability(bus, enemy, projectileType);
 
                 if (vulnerability == 0xff)
                 {

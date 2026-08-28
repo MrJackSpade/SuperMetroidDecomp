@@ -387,23 +387,34 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>AlignEnemyYPositionWIthNonSquareSlope</c> at $A0:C8AD.</summary>
-    private void AlignEnemyYWithNonSquareSlope(RoomLevelData level, RoomEnemySlot slot)
+    private void AlignEnemyYWithNonSquareSlope(RoomLevelData level, RoomEnemySlot slot) =>
+        AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, slot);
+
+    /// <summary>
+    /// Runs the same two probes as <see cref="AlignEnemyYWithNonSquareSlope"/> while retaining
+    /// the carry result returned by native $A0:C8AD. Yard is the first translated caller that
+    /// consumes that carry to suppress corner-transition animation after a slope adjustment.
+    /// </summary>
+    private bool AlignEnemyYWithNonSquareSlopeAndReportAdjustment(
+        RoomLevelData level,
+        RoomEnemySlot slot)
     {
-        AlignAgainstSlopeAtPixel(
+        bool adjustedFloor = AlignAgainstSlopeAtPixel(
             level,
             slot,
             slot.XPosition,
             unchecked((ushort)(slot.YPosition + slot.YRadius - 1)),
             underside: false);
-        AlignAgainstSlopeAtPixel(
+        bool adjustedCeiling = AlignAgainstSlopeAtPixel(
             level,
             slot,
             slot.XPosition,
             unchecked((ushort)(slot.YPosition - slot.YRadius)),
             underside: true);
+        return adjustedFloor || adjustedCeiling;
     }
 
-    private void AlignAgainstSlopeAtPixel(
+    private bool AlignAgainstSlopeAtPixel(
         RoomLevelData level,
         RoomEnemySlot slot,
         ushort x,
@@ -415,24 +426,25 @@ public sealed partial class RoomEnemySystem
         if ((uint)blockX >= (uint)level.WidthInBlocks ||
             (uint)blockY >= (uint)level.HeightInBlocks)
         {
-            return;
+            return false;
         }
 
         RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
         if (block.CollisionType != 1 || (block.Behavior & 0x1f) < 5)
-            return;
+            return false;
         if (underside != ((block.Behavior & 0x80) != 0))
-            return;
+            return false;
 
         int xWithinBlock = ((block.Behavior & 0x40) != 0 ? x ^ 0x000f : x) & 0x000f;
         int height = ReadNonSquareSlopeHeight(block.Behavior, xWithinBlock);
         int edgeWithinBlock = underside ? (y & 0x000f) ^ 0x000f : y & 0x000f;
         int adjustment = height - edgeWithinBlock - 1;
         if (adjustment >= 0)
-            return;
+            return false;
         slot.YPosition = underside
             ? unchecked((ushort)(slot.YPosition - adjustment))
             : unchecked((ushort)(slot.YPosition + adjustment));
+        return true;
     }
 
     private int ReadNonSquareSlopeHeight(byte behavior, int xWithinBlock) =>

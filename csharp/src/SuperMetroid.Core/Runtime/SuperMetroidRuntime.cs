@@ -971,6 +971,14 @@ public sealed partial class SuperMetroidRuntime
     {
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
 
+        // `$0B14/$0B16` retain the unsigned horizontal distance accepted during the prior
+        // gameplay frame. Capture the live fixed-point origin before enemies and bank $90
+        // run; the tail below publishes the modular absolute delta for next frame's Yard
+        // kick calculation.
+        uint samusXAtFrameStart = Samus is null
+            ? 0
+            : ((uint)Samus.Kinematics.XPosition << 16) | Samus.Kinematics.XSubposition;
+
         // Gameplay state eight calls `$8D:C527` before `$91:8000` dispatches Samus and
         // before `$A0:868F` processes enemies. Controller function three is invoked by the
         // Baby during that later enemy phase, so a newly spawned `$E1F0` object naturally
@@ -1296,7 +1304,8 @@ public sealed partial class SuperMetroidRuntime
                 Enemies.ResolveOrdinaryProjectileHits(
                     _addressSpace,
                     Projectiles,
-                    BombProjectiles);
+                    BombProjectiles,
+                    Samus);
 
                     // `$90:E6C0` dispatches the selected HUD producer and `$90:EB20`
                     // immediately clears `$0B5E`. Pose initialization occurs later in the
@@ -3138,7 +3147,16 @@ public sealed partial class SuperMetroidRuntime
         // following gameplay frame. Update it only after every pose/animation transition
         // and special teardown above has settled on the frame's final pose.
         if (Samus is not null)
+        {
             PreviousMovementTypeForXray = Samus.ReadMovementType(_addressSpace);
+
+            uint samusXAtFrameEnd =
+                ((uint)Samus.Kinematics.XPosition << 16) | Samus.Kinematics.XSubposition;
+            int signedDistance = unchecked((int)(samusXAtFrameEnd - samusXAtFrameStart));
+            Samus.AbsoluteMovedLastFrameXFixed = signedDistance < 0
+                ? unchecked((uint)-signedDistance)
+                : unchecked((uint)signedDistance);
+        }
 
         return Snapshot(escapeTimerExpired);
     }

@@ -77,6 +77,7 @@ public sealed partial class RoomEnemySystem
     public bool GunshipSaveRequested { get; private set; }
     public ushort? LastMochtroidSoundEffect { get; private set; }
     public ushort? LastHopperSoundEffect { get; private set; }
+    public ushort? LastYardSoundEffect { get; private set; }
     public ushort EarthquakeTimer { get; set; }
     public ushort EarthquakeType { get; set; }
 
@@ -127,6 +128,7 @@ public sealed partial class RoomEnemySystem
         GunshipSaveRequested = false;
         LastMochtroidSoundEffect = null;
         LastHopperSoundEffect = null;
+        LastYardSoundEffect = null;
         EarthquakeTimer = 0;
         EarthquakeType = 0;
         _ceresRidley = null;
@@ -137,6 +139,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_mochtroidStates);
         Array.Clear(_hopperStates);
         Array.Clear(_zoaStates);
+        Array.Clear(_yardStates);
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -201,6 +204,7 @@ public sealed partial class RoomEnemySystem
         LastGunshipEvent = GunshipFrameEvent.None;
         LastMochtroidSoundEffect = null;
         LastHopperSoundEffect = null;
+        LastYardSoundEffect = null;
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
             queue.Clear();
@@ -623,6 +627,9 @@ public sealed partial class RoomEnemySystem
             case 0xa3b44a when slot.EnemyDefinitionPointer == ZoaDefinition:
                 InitializeZoa(slot);
                 return;
+            case 0xa3cde2 when slot.EnemyDefinitionPointer == YardDefinition:
+                InitializeYard(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -801,6 +808,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa3b47c when slot.EnemyDefinitionPointer == ZoaDefinition:
                 RunZoaMain(slot, RequireZoaState(slot), samus, cameraX, cameraY);
+                return;
+            case 0xa3ce64 when slot.EnemyDefinitionPointer == YardDefinition:
+                RunYardMain(slot, samus, level);
                 return;
             default:
                 throw new NotSupportedException(
@@ -1104,6 +1114,53 @@ public sealed partial class RoomEnemySystem
                 case 0x817d: // EnemyInstr_DisableOffScreenProcessing.
                     slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
                     cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xcc36 when slot.EnemyDefinitionPointer == YardDefinition:
+                    // Yard animation bytecode owns movement dispatch. The word after the
+                    // opcode is a same-bank function pointer, not a branch destination.
+                    RequireYardState(slot).MovementFunction = (YardMovementFunction)ReadWord(
+                        _bus!,
+                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xcc3f when slot.EnemyDefinitionPointer == YardDefinition:
+                    RequireYardState(slot).HidingInstructionList = ReadWord(
+                        _bus!,
+                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xcc48 when slot.EnemyDefinitionPointer == YardDefinition:
+                {
+                    YardEnemyState yard = RequireYardState(slot);
+                    yard.Direction = ReadWord(
+                        _bus!,
+                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    if (yard.Direction >= 8)
+                    {
+                        throw new InvalidDataException(
+                            $"Yard instruction selected invalid direction {yard.Direction}.");
+                    }
+                    yard.AirborneFacingDirection = ReadWord(
+                        _bus!,
+                        YardDirectionData + yard.Direction * 8 + 6);
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                }
+                case 0xcc5f when slot.EnemyDefinitionPointer == YardDefinition:
+                    slot.XPosition = unchecked((ushort)(slot.XPosition + ReadWord(
+                        _bus!,
+                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))));
+                    slot.YPosition = unchecked((ushort)(slot.YPosition + ReadWord(
+                        _bus!,
+                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 4)))));
+                    cursor = unchecked((ushort)(cursor + 6));
+                    break;
+                case 0xcc78 when slot.EnemyDefinitionPointer == YardDefinition:
+                    // The native instruction receives Y already advanced past the opcode.
+                    // Subtracting six therefore resumes four bytes before the opcode.
+                    cursor = RequireYardState(slot).Behavior == 2 || (_nextRandom!() & 1) != 0
+                        ? unchecked((ushort)(cursor - 4))
+                        : unchecked((ushort)(cursor + 2));
                     break;
                 case 0xaa68 when IsHopperDefinition(slot.EnemyDefinitionPointer):
                     // Sidehopper's list passes a library-two sound operand, then the native

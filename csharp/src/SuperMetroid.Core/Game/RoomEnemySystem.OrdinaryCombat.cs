@@ -65,10 +65,14 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
                 slot.Definition.TouchAiPointer == YardTouchAi;
+
+            // Native touch collision does not interpret property $0100 as a collision bit;
+            // it suppresses rendering only. Hibashi relies on that distinction: its second
+            // slot remains invisible while its instruction stream moves a live hitbox.
             if (slot.EnemyDefinitionPointer == CeresRidleyDefinition ||
                 !usesTranslatedTouchAi ||
                 slot.SpritemapPointer == 0 ||
-                slot.Properties.HasAny(EnemyProperties.Invisible | EnemyProperties.Deleted))
+                slot.Properties.HasAny(EnemyProperties.Deleted))
             {
                 continue;
             }
@@ -192,12 +196,15 @@ public sealed partial class RoomEnemySystem
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
+
+            // The shot pass likewise admits visually invisible actors, but rejects the
+            // engine's explicit empty spritemap sentinel $804D and property $0400. Keeping
+            // these meanings separate mirrors the bank-$A0 list/collision machinery.
             if (enemy.EnemyDefinitionPointer == CeresRidleyDefinition ||
                 !usesTranslatedShotAi ||
-                enemy.SpritemapPointer == 0 ||
+                enemy.SpritemapPointer is 0 or 0x804d ||
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Properties.HasAny(
-                    EnemyProperties.Invisible |
                     EnemyProperties.Deleted |
                     EnemyProperties.IgnoreSamusCollision))
             {

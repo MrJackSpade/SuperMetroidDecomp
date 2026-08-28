@@ -83,6 +83,7 @@ public sealed partial class RoomEnemySystem
     public ushort? LastMetareeSoundEffect { get; private set; }
     public ushort? LastAlcoonSoundEffect { get; private set; }
     public ushort? LastKzanSoundEffect { get; private set; }
+    public ushort? LastHibashiSoundEffect { get; private set; }
 
     /// <summary>Last library-three sound requested by an attached Beetom this frame.</summary>
     public ushort? LastBeetomSoundEffect { get; private set; }
@@ -151,6 +152,7 @@ public sealed partial class RoomEnemySystem
         LastMetareeSoundEffect = null;
         LastAlcoonSoundEffect = null;
         LastKzanSoundEffect = null;
+        LastHibashiSoundEffect = null;
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
         FirefleaDarknessLevel = 0;
@@ -229,6 +231,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_atomicNegativeSpeedWholes);
         Array.Clear(_sparkStates);
         Array.Clear(_kzanStates);
+        Array.Clear(_hibashiStates);
         Array.Clear(_kzanFallWaitTimerResetValues);
         Array.Clear(_kzanPreviousYPositions);
         Array.Clear(_kzanFallingYSpeedTableIndexes);
@@ -305,6 +308,7 @@ public sealed partial class RoomEnemySystem
         LastMetareeSoundEffect = null;
         LastAlcoonSoundEffect = null;
         LastKzanSoundEffect = null;
+        LastHibashiSoundEffect = null;
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
@@ -809,6 +813,9 @@ public sealed partial class RoomEnemySystem
             case 0xa68b85 when slot.EnemyDefinitionPointer == KzanBottomDefinition:
                 InitializeKzanBottom(slot);
                 return;
+            case 0xa68ffc when slot.EnemyDefinitionPointer == HibashiDefinition:
+                InitializeHibashi(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -1038,6 +1045,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa68b99 when slot.EnemyDefinitionPointer == KzanBottomDefinition:
                 RunKzanBottomMain(slot);
+                return;
+            case 0xa69023 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                RunHibashiMain(slot, RequireHibashiState(slot));
                 return;
             default:
                 throw new NotSupportedException(
@@ -1559,6 +1569,51 @@ public sealed partial class RoomEnemySystem
                     // Spark flicker-on command executes before the first visible activation
                     // frame, so collision and art become live together.
                     slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x8daf when slot.EnemyDefinitionPointer == HibashiDefinition:
+                    PlayHibashiEruptionSound();
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x8e13 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8e2d when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8e41 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8e55 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8e69 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8e7d when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8e91 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8ea5 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8eb9 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8ecd when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8ee1 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8ef5 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8f09 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8f1d when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8f31 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8f45 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                    ApplyHibashiActivityFrame(slot, word switch
+                    {
+                        0x8e13 => 0,
+                        0x8e2d => 1,
+                        0x8e41 => 2,
+                        0x8e55 => 3,
+                        0x8e69 => 4,
+                        0x8e7d => 5,
+                        0x8e91 => 6,
+                        0x8ea5 => 7,
+                        0x8eb9 => 8,
+                        0x8ecd => 9,
+                        0x8ee1 => 10,
+                        0x8ef5 => 11,
+                        0x8f09 => 12,
+                        0x8f1d => 13,
+                        0x8f31 => 14,
+                        _ => 15,
+                    });
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x8fd1 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                    FinishHibashiActivity(slot);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe4ca: // Ridley: close mouth / clear the roaring presentation flag.

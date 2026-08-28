@@ -36,6 +36,8 @@ public sealed partial class RoomEnemySystem
     private readonly List<RoomEnemyGraphicsSetEntry> _graphicsSet = new();
     private ISnesAddressSpace? _bus;
     private Func<ushort>? _nextRandom;
+    private Action<ushort>? _setRandomNumber;
+    private ushort _randomEnemyCounter;
     private SnesVram? _vram;
     private SnesCgram? _cgram;
     private CeresRidleyState? _ceresRidley;
@@ -73,6 +75,10 @@ public sealed partial class RoomEnemySystem
     public GunshipFrameEvent LastGunshipEvent { get; private set; }
     public bool GunshipSavePromptPending { get; private set; }
     public bool GunshipSaveRequested { get; private set; }
+    public ushort? LastMochtroidSoundEffect { get; private set; }
+    public ushort? LastHopperSoundEffect { get; private set; }
+    public ushort EarthquakeTimer { get; set; }
+    public ushort EarthquakeType { get; set; }
 
     /// <summary>
     /// Ridley's bank-$A6 state extension while enemy $E13F owns slot zero. The native actor
@@ -98,7 +104,8 @@ public sealed partial class RoomEnemySystem
         ushort tilesetPointer,
         SnesVram vram,
         SnesCgram cgram,
-        Func<ushort> nextRandom)
+        Func<ushort> nextRandom,
+        Action<ushort>? setRandomNumber = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -107,6 +114,7 @@ public sealed partial class RoomEnemySystem
 
         _bus = bus;
         _nextRandom = nextRandom;
+        _setRandomNumber = setRandomNumber;
         _vram = vram;
         _cgram = cgram;
         PopulationPointer = populationPointer;
@@ -117,10 +125,18 @@ public sealed partial class RoomEnemySystem
         LastGunshipEvent = GunshipFrameEvent.None;
         GunshipSavePromptPending = false;
         GunshipSaveRequested = false;
+        LastMochtroidSoundEffect = null;
+        LastHopperSoundEffect = null;
+        EarthquakeTimer = 0;
+        EarthquakeType = 0;
         _ceresRidley = null;
         Array.Clear(_crawlerStates);
         Array.Clear(_skreeStates);
         Array.Clear(_flyStates);
+        Array.Clear(_sbugStates);
+        Array.Clear(_mochtroidStates);
+        Array.Clear(_hopperStates);
+        Array.Clear(_zoaStates);
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -183,6 +199,8 @@ public sealed partial class RoomEnemySystem
     {
         EnsureLoaded();
         LastGunshipEvent = GunshipFrameEvent.None;
+        LastMochtroidSoundEffect = null;
+        LastHopperSoundEffect = null;
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
             queue.Clear();
@@ -202,7 +220,13 @@ public sealed partial class RoomEnemySystem
                 }
                 else
                 {
-                    RunMainAi(slot, samus, newlyPressedControllerInput, level);
+                    RunMainAi(
+                        slot,
+                        samus,
+                        newlyPressedControllerInput,
+                        level,
+                        cameraX,
+                        cameraY);
                     slot.FrameCounter = unchecked((ushort)(slot.FrameCounter + 1));
                     if (slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
                         ProcessInstructions(slot, samus);
@@ -243,6 +267,7 @@ public sealed partial class RoomEnemySystem
                 slot.FrozenTimer,
                 slot.Properties));
         }
+        _randomEnemyCounter = unchecked((ushort)(_randomEnemyCounter + 1));
     }
 
     /// <summary>
@@ -562,8 +587,22 @@ public sealed partial class RoomEnemySystem
             case 0xa2e49f when slot.EnemyDefinitionPointer == RipperDefinition:
                 InitializeRipper(slot);
                 return;
+            case 0xa396e3 when slot.EnemyDefinitionPointer == SciserDefinition:
+                InitializeCrawler(slot, SciserInitialInstructionTable, speciesInstructionOffset: 8);
+                return;
+            case 0xa3993b when slot.EnemyDefinitionPointer == ZeroDefinition:
+                InitializeCrawler(slot, ZeroInitialInstructionTable, speciesInstructionOffset: 10);
+                return;
+            case 0xa3b66f when slot.EnemyDefinitionPointer == ViolaDefinition:
+                InitializeCrawler(slot, ViolaInitialInstructionTable, speciesInstructionOffset: 6);
+                return;
+            case 0xa3e2d4 when slot.EnemyDefinitionPointer == ZeelaDefinition:
+            case 0xa3e59c when slot.EnemyDefinitionPointer == SovaDefinition:
             case 0xa3e669 when slot.EnemyDefinitionPointer is ZoomerDefinition or StoneZoomerDefinition:
-                InitializeZoomer(slot);
+                InitializeCrawler(slot, SharedCrawlerInitialInstructionTable);
+                return;
+            case 0xa3e043 when slot.EnemyDefinitionPointer == HZoomerDefinition:
+                InitializeHZoomer(slot);
                 return;
             case 0xa3c6ae when slot.EnemyDefinitionPointer == SkreeDefinition:
                 InitializeSkree(slot);
@@ -571,6 +610,18 @@ public sealed partial class RoomEnemySystem
             case 0xa2b06b when slot.EnemyDefinitionPointer is
                 MellowDefinition or MellaDefinition or MemuDefinition:
                 InitializeFly(slot);
+                return;
+            case 0xa3a14d when slot.EnemyDefinitionPointer is SbugDefinition or Sbug2Definition:
+                InitializeSbug(slot);
+                return;
+            case 0xa3a77d when slot.EnemyDefinitionPointer == MochtroidDefinition:
+                InitializeMochtroid(slot);
+                return;
+            case 0xa3ab09 when IsHopperDefinition(slot.EnemyDefinitionPointer):
+                InitializeHopper(slot);
+                return;
+            case 0xa3b44a when slot.EnemyDefinitionPointer == ZoaDefinition:
+                InitializeZoa(slot);
                 return;
             case 0xa2804c:
                 return;
@@ -702,7 +753,9 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         SamusState? samus,
         ushort newlyPressedControllerInput,
-        RoomLevelData? level)
+        RoomLevelData? level,
+        ushort cameraX,
+        ushort cameraY)
     {
         int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
         switch (address)
@@ -724,8 +777,11 @@ public sealed partial class RoomEnemySystem
             case 0xa2e4da when slot.EnemyDefinitionPointer == RipperDefinition:
                 RunRipperMain(slot, level);
                 return;
-            case 0xa3e6c2 when slot.EnemyDefinitionPointer is ZoomerDefinition or StoneZoomerDefinition:
+            case 0xa3e6c2 when IsSharedCrawlerDefinition(slot.EnemyDefinitionPointer):
                 RunCrawlerMain(slot, level);
+                return;
+            case 0xa3e08b when slot.EnemyDefinitionPointer == HZoomerDefinition:
+                RunHZoomerMain(slot, samus, level);
                 return;
             case 0xa3c6c7 when slot.EnemyDefinitionPointer == SkreeDefinition:
                 RunSkreeMain(slot, samus, level);
@@ -733,6 +789,18 @@ public sealed partial class RoomEnemySystem
             case 0xa2b11f when slot.EnemyDefinitionPointer is
                 MellowDefinition or MellaDefinition or MemuDefinition:
                 RunFlyMain(slot, samus);
+                return;
+            case 0xa3a2d0 when slot.EnemyDefinitionPointer is SbugDefinition or Sbug2Definition:
+                RunSbugMain(slot, samus, level);
+                return;
+            case 0xa3a790 when slot.EnemyDefinitionPointer == MochtroidDefinition:
+                RunMochtroidMain(slot, samus, level);
+                return;
+            case 0xa3abcf when IsHopperDefinition(slot.EnemyDefinitionPointer):
+                RunHopperMain(slot, samus, level);
+                return;
+            case 0xa3b47c when slot.EnemyDefinitionPointer == ZoaDefinition:
+                RunZoaMain(slot, RequireZoaState(slot), samus, cameraX, cameraY);
                 return;
             default:
                 throw new NotSupportedException(
@@ -1037,7 +1105,38 @@ public sealed partial class RoomEnemySystem
                     slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
+                case 0xaa68 when IsHopperDefinition(slot.EnemyDefinitionPointer):
+                    // Sidehopper's list passes a library-two sound operand, then the native
+                    // instruction returns the cursor after that operand. Audio playback is
+                    // an outer concern; publishing the exact word keeps the event observable.
+                    LastHopperSoundEffect = ReadWord(
+                        _bus!,
+                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xaafe when IsHopperDefinition(slot.EnemyDefinitionPointer):
+                    RequireHopperState(slot).ReadyToHop = true;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xb429 when slot.EnemyDefinitionPointer == ZoaDefinition:
+                    RequireZoaState(slot).XSpeedTableIndex = 4;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xb434 when slot.EnemyDefinitionPointer == ZoaDefinition:
+                    RequireZoaState(slot).XSpeedTableIndex = 8;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xb43f when slot.EnemyDefinitionPointer == ZoaDefinition:
+                    RequireZoaState(slot).XSpeedTableIndex = 12;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
                 case 0xe660: // Shared crawler: install the function pointer operand.
+                    RequireCrawlerState(slot).Function = (CrawlerEnemyFunction)ReadWord(
+                        _bus!,
+                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xdfc2 when slot.EnemyDefinitionPointer == HZoomerDefinition:
                     RequireCrawlerState(slot).Function = (CrawlerEnemyFunction)ReadWord(
                         _bus!,
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));

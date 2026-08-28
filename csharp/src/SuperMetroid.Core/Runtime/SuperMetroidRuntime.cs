@@ -403,7 +403,8 @@ public sealed partial class SuperMetroidRuntime
             LandingSiteEntry.EnemyTilesetPointer,
             Vram,
             Cgram,
-            System.NextRandom);
+            System.NextRandom,
+            System.SetRandomNumber);
 
         // InitializeHud queued the cartridge's $2E00-byte standard OBJ sheet before this
         // room loader existed. That transfer reaches VRAM byte $EDFF and overlaps the main

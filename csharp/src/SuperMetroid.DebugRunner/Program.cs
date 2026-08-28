@@ -30,6 +30,30 @@ if (args.Length >= 3 && args[0] == "--frontend-skip-intro-capture")
     return FrontendSkipIntroAudit.Run(skipIntroRomPath, skipIntroOutputPath);
 }
 
+if (args.Length >= 2 && args[0] == "--blue-hopper-audit")
+{
+    string hopperRomPath = string.Join(' ', args[1..]).Trim('"');
+    return HopperAudit.Run(hopperRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
+{
+    string zoaRomPath = string.Join(' ', args[1..]).Trim('"');
+    return ZoaAudit.Run(zoaRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--shared-crawler-audit")
+{
+    string crawlerRomPath = string.Join(' ', args[1..]).Trim('"');
+    return SharedCrawlerAudit.Run(crawlerRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--pre-bowling-hzoomer-audit")
+{
+    string hzoomerRomPath = string.Join(' ', args[1..]).Trim('"');
+    return HZoomerAudit.Run(hzoomerRomPath);
+}
+
 // Loads the normal, pre-escape Parlor state directly from the retail header. This keeps the
 // first ordinary Zebes enemy family independently auditable without walking the frontend,
 // while still sourcing its population, graphics, level collision, and instruction lists
@@ -218,6 +242,434 @@ if (args.Length >= 2 && args[0] == "--flyway-audit")
         $"Flyway audit passed: 12 Mellows loaded, four ROM maps animated, native circle/" +
         $"attack/retreat motion completed, contact dealt eight damage, and " +
         $"{flywayOam.LastFinalizedSpriteCount} OBJ pieces rendered.");
+    return 0;
+}
+
+// Climb is the first retail room whose population consists entirely of Sbugs. Keeping the
+// audit on that unmodified population proves that the translated AI consumes the cartridge's
+// real parameters, trigonometry tables, instruction lists, enemy header, and graphics.
+if (args.Length >= 2 && args[0] == "--climb-sbug-audit")
+{
+    string climbRomPath = string.Join(' ', args[1..]).Trim('"');
+    SuperMetroidAddressSpace climbBus = SuperMetroidAddressSpace.LoadRetailRom(climbRomPath);
+    CartridgeRoomHeader climbRoom = CartridgeRoomHeader.Load(climbBus, 0x96ba);
+    CartridgeRoomAssets climbAssets = CartridgeRoomAssets.Load(climbBus, climbRoom);
+    var climbVram = new SnesVram();
+    var climbCgram = new SnesCgram();
+    climbAssets.LoadGraphics(climbVram, climbCgram);
+    var climbEnemies = new RoomEnemySystem();
+    var climbRandom = new Bank80SystemState();
+    climbEnemies.Load(
+        climbBus,
+        climbRoom.State.EnemyPopulationPointer,
+        climbRoom.State.EnemyTilesetPointer,
+        climbVram,
+        climbCgram,
+        climbRandom.NextRandom,
+        climbRandom.SetRandomNumber);
+
+    const ushort sbugDefinition = 0xd87f;
+    if (climbRoom.State.Pointer != 0x96d1 || climbEnemies.EnemyCount != 10 ||
+        climbEnemies.Slots.Take(10).Any(slot => slot.EnemyDefinitionPointer != sbugDefinition) ||
+        climbEnemies.SbugStates.Take(10).Any(state => state is null))
+    {
+        throw new InvalidDataException(
+            $"Climb selected state ${climbRoom.State.Pointer:X4} with " +
+            $"{climbEnemies.EnemyCount} non-uniform or uninitialized Sbugs.");
+    }
+
+    RoomEnemySlot auditedSbug = climbEnemies.Slots[0];
+    SbugEnemyState auditedState = climbEnemies.SbugStates[0]
+        ?? throw new InvalidDataException("Climb slot zero did not create Sbug state.");
+    if (auditedSbug.XPosition != 0x0114 || auditedSbug.YPosition != 0x004c ||
+        auditedSbug.Parameter1 != 0x5003 || auditedSbug.Parameter2 != 0x0050 ||
+        auditedState.Function != SbugEnemyFunction.WaitForSamus)
+    {
+        throw new InvalidDataException(
+            $"First Climb Sbug disagrees with population/initialization data: " +
+            $"position=(${auditedSbug.XPosition:X4},${auditedSbug.YPosition:X4}), " +
+            $"parameters=${auditedSbug.Parameter1:X4}/${auditedSbug.Parameter2:X4}, " +
+            $"function=$A3:{(ushort)auditedState.Function:X4}.");
+    }
+
+    var climbSamus = new SamusState
+    {
+        Health = 99,
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 0,
+        YPosition = 0,
+    };
+    climbSamus.RefreshCollisionRadii(climbBus);
+    climbSamus.InitializeAnimation(climbBus);
+
+    ushort waitingX = auditedSbug.XPosition;
+    ushort waitingY = auditedSbug.YPosition;
+    var sbugAnimationMaps = new HashSet<ushort>();
+    for (int frame = 0; frame < 20; frame++)
+    {
+        climbEnemies.StepFrame(
+            cameraX: 0x0100,
+            cameraY: 0,
+            timeIsFrozen: false,
+            climbSamus,
+            level: climbAssets.LevelData);
+        sbugAnimationMaps.Add(auditedSbug.SpritemapPointer);
+    }
+    if (sbugAnimationMaps.Count != 3 || auditedSbug.XPosition != waitingX ||
+        auditedSbug.YPosition != waitingY ||
+        auditedState.Function != SbugEnemyFunction.WaitForSamus)
+    {
+        throw new InvalidDataException(
+            $"Waiting Sbug animation/position failed: maps={sbugAnimationMaps.Count}, " +
+            $"position=({waitingX},{waitingY})->" +
+            $"({auditedSbug.XPosition},{auditedSbug.YPosition}), " +
+            $"function=$A3:{(ushort)auditedState.Function:X4}.");
+    }
+
+    // Exercise every entry in the native seven-word activation table. Retail Climb uses
+    // index zero, but the remaining behaviors are part of the same shipped enemy AI and
+    // are retained for other population/state combinations and ROM-derived fixtures.
+    SbugEnemyFunction[] activationFunctions =
+    [
+        SbugEnemyFunction.ActivateMoveForward,
+        SbugEnemyFunction.ActivateZigZag,
+        SbugEnemyFunction.ActivateMoveTowardSamus,
+        SbugEnemyFunction.ActivateRandomUntilCollision,
+        SbugEnemyFunction.ActivateRandomAndReverseWhenFar,
+        SbugEnemyFunction.ActivateMoveForwardThenWait,
+        SbugEnemyFunction.ActivateMoveAwayFromSamus,
+    ];
+    SbugEnemyFunction[] activeFunctions =
+    [
+        SbugEnemyFunction.MoveForward,
+        SbugEnemyFunction.ZigZag,
+        SbugEnemyFunction.MoveTowardSamus,
+        SbugEnemyFunction.ChooseRandomDirectionUntilCollision,
+        SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar,
+        SbugEnemyFunction.MoveForwardThenWait,
+        SbugEnemyFunction.MoveAwayFromSamus,
+    ];
+    for (int behavior = 0; behavior < activationFunctions.Length; behavior++)
+    {
+        auditedSbug.Parameter2 = unchecked((ushort)((behavior << 8) | 0x50));
+        auditedState.Function = SbugEnemyFunction.WaitForSamus;
+        climbSamus.XPosition = auditedSbug.XPosition;
+        climbSamus.YPosition = auditedSbug.YPosition;
+        climbEnemies.StepFrame(0x0100, 0, false, climbSamus, level: climbAssets.LevelData);
+        if (auditedState.Function != activationFunctions[behavior])
+        {
+            throw new InvalidDataException(
+                $"Sbug behavior {behavior} selected $A3:{(ushort)auditedState.Function:X4}, " +
+                $"expected $A3:{(ushort)activationFunctions[behavior]:X4}.");
+        }
+
+        climbRandom.SetRandomNumber(0x1234);
+        climbEnemies.StepFrame(0x0100, 0, false, climbSamus, level: climbAssets.LevelData);
+        if (auditedState.Function != activeFunctions[behavior])
+        {
+            throw new InvalidDataException(
+                $"Sbug behavior {behavior} activated $A3:{(ushort)auditedState.Function:X4}, " +
+                $"expected $A3:{(ushort)activeFunctions[behavior]:X4}.");
+        }
+        if (behavior is 3 or 4 && climbRandom.RandomNumber != 0x000b)
+        {
+            throw new InvalidDataException(
+                $"Sbug behavior {behavior} wrote RNG ${climbRandom.RandomNumber:X4}, expected $000B.");
+        }
+    }
+
+    // Return to the actual population behavior and prove that its activation consumes one
+    // frame before movement begins, exactly as the native indirect-dispatch state machine.
+    auditedSbug.Parameter2 = 0x0050;
+    auditedState.Function = SbugEnemyFunction.WaitForSamus;
+    auditedSbug.XPosition = waitingX;
+    auditedSbug.YPosition = waitingY;
+    auditedSbug.XSubposition = 0;
+    auditedSbug.YSubposition = 0;
+    climbSamus.XPosition = auditedSbug.XPosition;
+    climbSamus.YPosition = auditedSbug.YPosition;
+    climbEnemies.StepFrame(0x0100, 0, false, climbSamus, level: climbAssets.LevelData);
+    climbEnemies.StepFrame(0x0100, 0, false, climbSamus, level: climbAssets.LevelData);
+    if (auditedSbug.XPosition != waitingX || auditedSbug.YPosition != waitingY ||
+        auditedState.Function != SbugEnemyFunction.MoveForward)
+    {
+        throw new InvalidDataException("Sbug moved during its two-frame activation transition.");
+    }
+    climbEnemies.StepFrame(0x0100, 0, false, climbSamus, level: climbAssets.LevelData);
+    if (auditedSbug.XPosition == waitingX && auditedSbug.YPosition == waitingY)
+        throw new InvalidDataException("Activated Sbug did not apply its ROM-derived forward velocity.");
+
+    var climbOam = new OamBuffer();
+    climbOam.BeginFrame();
+    climbEnemies.DrawLayers(climbOam, 0x0100, 0, 0, 7);
+    climbOam.FinalizeFrame();
+    if (climbOam.LastFinalizedSpriteCount == 0)
+        throw new InvalidDataException("Climb's live Sbug spritemaps emitted no enemy OBJ.");
+
+    // Every retail Climb instance sets $0400, intentionally excluding ordinary Samus and
+    // projectile collision. Clear only that population flag for a focused proof that the
+    // Sbug header is nevertheless wired to the common 40-damage touch handler and its ROM
+    // vulnerability table. The gameplay population remains untouched outside this audit.
+    if (!auditedSbug.Properties.HasAny(EnemyProperties.IgnoreSamusCollision))
+        throw new InvalidDataException("Retail Climb Sbug unexpectedly allows collision.");
+    auditedSbug.Properties = auditedSbug.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+    climbEnemies.StepFrame(0x0100, 0, false, climbSamus, level: climbAssets.LevelData);
+    climbSamus.XPosition = auditedSbug.XPosition;
+    climbSamus.YPosition = auditedSbug.YPosition;
+    climbSamus.Health = 99;
+    climbSamus.InvincibilityTimer = 0;
+    if (!climbEnemies.ResolveOrdinarySamusContact(climbSamus, 0) ||
+        climbSamus.Health != 59 || !climbSamus.KnockbackActive)
+    {
+        throw new InvalidDataException(
+            $"Sbug common contact failed: health={climbSamus.Health}, " +
+            $"knockback={climbSamus.KnockbackActive}.");
+    }
+
+    var sbugProjectiles = new SamusProjectileSystem();
+    var sbugBombs = new SamusBombProjectileSystem();
+    SamusProjectileSlot sbugShot = sbugProjectiles.Slots[0];
+    sbugShot.ClearFields();
+    sbugShot.Type = 0;
+    sbugShot.Damage = 20;
+    sbugShot.Direction = 2;
+    sbugShot.XPosition = auditedSbug.XPosition;
+    sbugShot.YPosition = auditedSbug.YPosition;
+    sbugShot.XRadius = 4;
+    sbugShot.YRadius = 4;
+    sbugShot.InstructionPointer = 0x9000;
+    sbugShot.InstructionTimer = 1;
+    ushort sbugHealth = auditedSbug.Health;
+    if (climbEnemies.ResolveOrdinaryProjectileHits(climbBus, sbugProjectiles, sbugBombs) != 1 ||
+        auditedSbug.Health != sbugHealth)
+    {
+        throw new InvalidDataException(
+            $"Sbug indestructible vulnerability failed: health={sbugHealth}->{auditedSbug.Health}.");
+    }
+
+    Console.WriteLine(
+        $"Climb Sbug audit passed: ten retail actors loaded, three ROM maps animated, " +
+        $"all seven activation modes dispatched, movement/contact/vulnerability agreed, and " +
+        $"{climbOam.LastFinalizedSpriteCount} OBJ pieces rendered.");
+    return 0;
+}
+
+// Colosseum's default state is a clean retail fixture containing eight Mochtroids and no
+// other enemy family. It therefore proves the custom steering/attachment/touch behavior
+// without replacing unsupported neighboring actors with host-authored placeholders.
+if (args.Length >= 2 && args[0] == "--colosseum-mochtroid-audit")
+{
+    string colosseumRomPath = string.Join(' ', args[1..]).Trim('"');
+    SuperMetroidAddressSpace colosseumBus =
+        SuperMetroidAddressSpace.LoadRetailRom(colosseumRomPath);
+    CartridgeRoomHeader colosseumRoom = CartridgeRoomHeader.Load(colosseumBus, 0xd72a);
+    CartridgeRoomAssets colosseumAssets = CartridgeRoomAssets.Load(colosseumBus, colosseumRoom);
+    var colosseumVram = new SnesVram();
+    var colosseumCgram = new SnesCgram();
+    colosseumAssets.LoadGraphics(colosseumVram, colosseumCgram);
+    var colosseumEnemies = new RoomEnemySystem();
+    var colosseumRandom = new Bank80SystemState();
+    colosseumEnemies.Load(
+        colosseumBus,
+        colosseumRoom.State.EnemyPopulationPointer,
+        colosseumRoom.State.EnemyTilesetPointer,
+        colosseumVram,
+        colosseumCgram,
+        colosseumRandom.NextRandom,
+        colosseumRandom.SetRandomNumber);
+
+    const ushort mochtroidDefinition = 0xd8ff;
+    if (colosseumRoom.State.Pointer != 0xd737 || colosseumEnemies.EnemyCount != 8 ||
+        colosseumEnemies.Slots.Take(8).Any(
+            slot => slot.EnemyDefinitionPointer != mochtroidDefinition) ||
+        colosseumEnemies.MochtroidStates.Take(8).Any(state => state is null))
+    {
+        throw new InvalidDataException(
+            $"Colosseum selected state ${colosseumRoom.State.Pointer:X4} with " +
+            $"{colosseumEnemies.EnemyCount} non-uniform or uninitialized Mochtroids.");
+    }
+
+    RoomEnemySlot auditedMochtroid = colosseumEnemies.Slots[0];
+    MochtroidEnemyState auditedMochtroidState = colosseumEnemies.MochtroidStates[0]
+        ?? throw new InvalidDataException("Colosseum slot zero did not create Mochtroid state.");
+    if (auditedMochtroid.XPosition != 0x0080 || auditedMochtroid.YPosition != 0x0078 ||
+        auditedMochtroid.Layer != 2 ||
+        auditedMochtroidState.InstalledInstructionList != 0xa745 ||
+        auditedMochtroidState.MovementMode != MochtroidMovementMode.NotTouchingSamus)
+    {
+        throw new InvalidDataException(
+            $"First Colosseum Mochtroid initialization disagrees with ROM data: " +
+            $"position=(${auditedMochtroid.XPosition:X4},${auditedMochtroid.YPosition:X4}), " +
+            $"layer={auditedMochtroid.Layer}, list=$A3:" +
+            $"{auditedMochtroidState.InstalledInstructionList:X4}, " +
+            $"mode={(ushort)auditedMochtroidState.MovementMode}.");
+    }
+
+    var colosseumSamus = new SamusState
+    {
+        Health = 999,
+        Pose = SamusState.FacingRightNormalPose,
+        XPosition = 0x0180,
+        YPosition = 0x0078,
+    };
+    colosseumSamus.RefreshCollisionRadii(colosseumBus);
+    colosseumSamus.InitializeAnimation(colosseumBus);
+
+    // A -256-pixel signed X delta produces +0.4000 on the first proportional-attraction
+    // call: (-256 >> 2) << 8 is -$4000, which the AI subtracts from zero velocity.
+    colosseumEnemies.StepFrame(
+        0,
+        0,
+        false,
+        colosseumSamus,
+        level: colosseumAssets.LevelData);
+    if (auditedMochtroid.XPosition != 0x0080 || auditedMochtroid.XSubposition != 0x4000 ||
+        auditedMochtroidState.XVelocity != 0 ||
+        auditedMochtroidState.XSubvelocity != 0x4000)
+    {
+        throw new InvalidDataException(
+            $"Mochtroid first steering step was " +
+            $"${auditedMochtroid.XPosition:X4}.${auditedMochtroid.XSubposition:X4} with " +
+            $"velocity {auditedMochtroidState.XVelocity}." +
+            $"{auditedMochtroidState.XSubvelocity:X4}, expected $0080.4000.");
+    }
+
+    var mochtroidIdleMaps = new HashSet<ushort> { auditedMochtroid.SpritemapPointer };
+    for (int frame = 1; frame < 56; frame++)
+    {
+        colosseumEnemies.StepFrame(
+            0,
+            0,
+            false,
+            colosseumSamus,
+            level: colosseumAssets.LevelData);
+        mochtroidIdleMaps.Add(auditedMochtroid.SpritemapPointer);
+    }
+    if (mochtroidIdleMaps.Count != 3 || auditedMochtroid.XPosition <= 0x0080)
+    {
+        throw new InvalidDataException(
+            $"Mochtroid free flight/idle animation failed: maps={mochtroidIdleMaps.Count}, " +
+            $"X=${auditedMochtroid.XPosition:X4}.");
+    }
+
+    var colosseumOam = new OamBuffer();
+    ushort mochtroidCameraX = auditedMochtroid.XPosition > 0x0080
+        ? unchecked((ushort)(auditedMochtroid.XPosition - 0x0080))
+        : (ushort)0;
+    ushort mochtroidCameraY = auditedMochtroid.YPosition > 0x0080
+        ? unchecked((ushort)(auditedMochtroid.YPosition - 0x0080))
+        : (ushort)0;
+    colosseumEnemies.StepFrame(
+        mochtroidCameraX,
+        mochtroidCameraY,
+        false,
+        colosseumSamus,
+        level: colosseumAssets.LevelData);
+    colosseumOam.BeginFrame();
+    colosseumEnemies.DrawLayers(
+        colosseumOam,
+        mochtroidCameraX,
+        mochtroidCameraY,
+        0,
+        7);
+    colosseumOam.FinalizeFrame();
+    if (colosseumOam.LastFinalizedSpriteCount == 0)
+        throw new InvalidDataException("Colosseum's live Mochtroid spritemaps emitted no enemy OBJ.");
+
+    // Collision runs after EnemyMain. Re-overlap the moving actor once per frame so touch AI
+    // republishes attached mode exactly as the retail collision scheduler does. Calls 1..79
+    // do no damage; call 80 applies the header's 90 damage and immediately clears both timers.
+    ushort attachedStartHealth = colosseumSamus.Health;
+    var mochtroidAttachedMaps = new HashSet<ushort>();
+    for (int contact = 1; contact <= 80; contact++)
+    {
+        ushort contactCameraX = auditedMochtroid.XPosition > 0x0080
+            ? unchecked((ushort)(auditedMochtroid.XPosition - 0x0080))
+            : (ushort)0;
+        ushort contactCameraY = auditedMochtroid.YPosition > 0x0080
+            ? unchecked((ushort)(auditedMochtroid.YPosition - 0x0080))
+            : (ushort)0;
+        colosseumEnemies.StepFrame(
+            contactCameraX,
+            contactCameraY,
+            false,
+            colosseumSamus,
+            level: colosseumAssets.LevelData);
+        colosseumSamus.XPosition = auditedMochtroid.XPosition;
+        colosseumSamus.YPosition = auditedMochtroid.YPosition;
+        if (!colosseumEnemies.ResolveOrdinarySamusContact(colosseumSamus, 0))
+            throw new InvalidDataException($"Mochtroid lost overlap on contact {contact}.");
+        // Contact changes the instruction pointer after this frame's enemy-instruction
+        // pass. The first overlap therefore still displays the final idle map; sample the
+        // attached list beginning on the following native frame.
+        if (contact > 1)
+            mochtroidAttachedMaps.Add(auditedMochtroid.SpritemapPointer);
+        ushort expectedHealth = contact == 80
+            ? unchecked((ushort)(attachedStartHealth - 90))
+            : attachedStartHealth;
+        if (colosseumSamus.Health != expectedHealth)
+        {
+            throw new InvalidDataException(
+                $"Mochtroid contact {contact} changed health to {colosseumSamus.Health}, " +
+                $"expected {expectedHealth}.");
+        }
+    }
+    if (auditedMochtroidState.AttachmentDamageTimer != 0 ||
+        auditedMochtroidState.InstalledInstructionList != 0xa759 ||
+        mochtroidAttachedMaps.Count != 3 ||
+        colosseumSamus.InvincibilityTimer != 0 || colosseumSamus.KnockbackTimer != 0 ||
+        colosseumSamus.KnockbackActive)
+    {
+        throw new InvalidDataException(
+            $"Mochtroid attachment state failed: timer={auditedMochtroidState.AttachmentDamageTimer}, " +
+            $"list=$A3:{auditedMochtroidState.InstalledInstructionList:X4}, " +
+            $"maps={mochtroidAttachedMaps.Count}, invinc={colosseumSamus.InvincibilityTimer}, " +
+            $"knockback={colosseumSamus.KnockbackTimer}/{colosseumSamus.KnockbackActive}.");
+    }
+
+    // The custom $A3:A9A8 shot entry is a thin wrapper around normal shot AI. Use a real
+    // power-beam collision to prove it consumes the default vulnerability and 100-health
+    // header before testing the newly shared Screw-Attack contact branch.
+    var mochtroidProjectiles = new SamusProjectileSystem();
+    var mochtroidBombs = new SamusBombProjectileSystem();
+    SamusProjectileSlot mochtroidShot = mochtroidProjectiles.Slots[0];
+    mochtroidShot.ClearFields();
+    mochtroidShot.Type = 0;
+    mochtroidShot.Damage = 20;
+    mochtroidShot.Direction = 2;
+    mochtroidShot.XPosition = auditedMochtroid.XPosition;
+    mochtroidShot.YPosition = auditedMochtroid.YPosition;
+    mochtroidShot.XRadius = 4;
+    mochtroidShot.YRadius = 4;
+    mochtroidShot.InstructionPointer = 0x9000;
+    mochtroidShot.InstructionTimer = 1;
+    if (colosseumEnemies.ResolveOrdinaryProjectileHits(
+            colosseumBus,
+            mochtroidProjectiles,
+            mochtroidBombs) != 1 || auditedMochtroid.Health != 80)
+    {
+        throw new InvalidDataException(
+            $"Mochtroid common shot wrapper left health {auditedMochtroid.Health}, expected 80.");
+    }
+
+    auditedMochtroid.InvincibilityTimer = 0;
+    colosseumSamus.HorizontalSpeed.ContactDamageIndex = 3;
+    colosseumSamus.XPosition = auditedMochtroid.XPosition;
+    colosseumSamus.YPosition = auditedMochtroid.YPosition;
+    if (!colosseumEnemies.ResolveOrdinarySamusContact(colosseumSamus, 0) ||
+        auditedMochtroid.Health != 0 ||
+        !auditedMochtroid.Properties.HasAny(EnemyProperties.Deleted))
+    {
+        throw new InvalidDataException(
+            $"Screw-Attack contact failed: health={auditedMochtroid.Health}, " +
+            $"deleted={auditedMochtroid.Properties.HasAny(EnemyProperties.Deleted)}.");
+    }
+
+    Console.WriteLine(
+        $"Colosseum Mochtroid audit passed: eight retail actors loaded, proportional and " +
+        $"attached flight advanced, both three-map ROM animations rendered, the 80-contact " +
+        $"drain dealt 90 damage, beam/Screw damage resolved, and " +
+        $"{colosseumOam.LastFinalizedSpriteCount} OBJ pieces rendered.");
     return 0;
 }
 

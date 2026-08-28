@@ -63,6 +63,18 @@ public sealed class Bank80SystemState
     public ushort RandomNumber { get; private set; }
 
     /// <summary>
+    /// Performs a direct write to the shared RNG word at WRAM <c>$05E5</c>. Most callers
+    /// should use <see cref="NextRandom"/>; this seam exists because a small number of
+    /// cartridge actors deliberately reseed the global generator as part of their AI.
+    /// </summary>
+    /// <remarks>
+    /// This is not a host-only testing shortcut. Sbug activation functions $A3:A315 and
+    /// $A3:A325 both execute <c>STA $05E5</c> with <c>$000B</c>, so later unrelated random
+    /// consumers must observe the replacement seed as well.
+    /// </remarks>
+    public void SetRandomNumber(ushort value) => RandomNumber = value;
+
+    /// <summary>
     /// Most recently calculated held input, corresponding to WRAM <c>$05D9</c>.
     /// Despite the C decompilation's name <c>joypad_released_keys</c>, the assembly names
     /// and behavior show that this is the previous value of "held but not newly pressed."

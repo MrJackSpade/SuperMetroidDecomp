@@ -12,6 +12,8 @@ public sealed partial class RoomEnemySystem
     private const ushort CommonNormalEnemyTouchAi = 0x8023;
     private const ushort CommonNormalEnemyShotAi = 0x802d;
     private const ushort SkreeShotAi = 0xc7f5;
+    private const ushort MochtroidTouchAi = 0xa953;
+    private const ushort MochtroidShotAi = 0xa9a8;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -19,14 +21,20 @@ public sealed partial class RoomEnemySystem
     {
         ArgumentNullException.ThrowIfNull(samus);
         EnsureLoaded();
-        if (samus.InvincibilityTimer != 0)
+        ushort contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
+        if (contactDamageIndex == 0 && samus.InvincibilityTimer != 0)
             return false;
+        if (contactDamageIndex != 0)
+            samus.InvincibilityTimer = 0;
 
         foreach (ushort nativeIndex in _interactiveEnemyIndexes)
         {
             RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
+            bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
+                slot.EnemyDefinitionPointer == MochtroidDefinition &&
+                slot.Definition.TouchAiPointer == MochtroidTouchAi;
             if (slot.EnemyDefinitionPointer == CeresRidleyDefinition ||
-                slot.Definition.TouchAiPointer != CommonNormalEnemyTouchAi ||
+                !usesTranslatedTouchAi ||
                 slot.SpritemapPointer == 0 ||
                 slot.Properties.HasAny(EnemyProperties.Invisible | EnemyProperties.Deleted))
             {
@@ -46,11 +54,18 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            ApplyNormalEnemyTouchDamage(
-                samus,
-                controllerInput,
-                slot.Definition.Damage,
-                slot.XPosition);
+            if (slot.EnemyDefinitionPointer == MochtroidDefinition)
+            {
+                ResolveMochtroidTouch(
+                    slot,
+                    RequireMochtroidState(slot),
+                    samus,
+                    controllerInput);
+            }
+            else
+            {
+                ResolveNormalEnemyTouch(slot, samus, controllerInput);
+            }
             return true;
         }
         return false;
@@ -76,7 +91,9 @@ public sealed partial class RoomEnemySystem
             RoomEnemySlot enemy = SlotFromNativeIndex(nativeIndex);
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
-                enemy.Definition.ShotAiPointer == SkreeShotAi;
+                enemy.Definition.ShotAiPointer == SkreeShotAi ||
+                enemy.EnemyDefinitionPointer == MochtroidDefinition &&
+                enemy.Definition.ShotAiPointer == MochtroidShotAi;
             if (enemy.EnemyDefinitionPointer == CeresRidleyDefinition ||
                 !usesTranslatedShotAi ||
                 enemy.SpritemapPointer == 0 ||
@@ -168,6 +185,63 @@ public sealed partial class RoomEnemySystem
                 $"Projectile family ${family:X3} has no translated vulnerability field."),
         };
         return bus.ReadByte(0xb40000 | unchecked((ushort)(pointer + byteOffset)));
+    }
+
+    /// <summary>
+    /// Ports $A0:A477-$A531 for one already-overlapping ordinary actor. A zero contact index
+    /// damages Samus; Speed Booster, shinespark, Screw Attack, and pseudo-Screw instead read
+    /// their dedicated bytes from the enemy's vulnerability record and damage the actor.
+    /// </summary>
+    private void ResolveNormalEnemyTouch(
+        RoomEnemySlot enemy,
+        SamusState samus,
+        ushort controllerInput)
+    {
+        ushort contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
+        if (contactDamageIndex == 0)
+        {
+            ApplyNormalEnemyTouchDamage(
+                samus,
+                controllerInput,
+                enemy.Definition.Damage,
+                enemy.XPosition);
+            return;
+        }
+
+        ushort baseDamage = contactDamageIndex switch
+        {
+            1 => 500,  // Speed Booster
+            2 => 300,  // Shinespark
+            3 => 2000, // Screw Attack
+            _ => 200,  // Pseudo-Screw and the native fallback
+        };
+        int vulnerabilityOffset = contactDamageIndex <= 3
+            ? contactDamageIndex + 15
+            : contactDamageIndex + 16;
+        ushort vulnerabilityPointer = enemy.Definition.VulnerabilityPointer != 0
+            ? enemy.Definition.VulnerabilityPointer
+            : DefaultEnemyVulnerability;
+        byte vulnerability = _bus!.ReadByte(
+            0xb40000 | unchecked((ushort)(vulnerabilityPointer + vulnerabilityOffset)));
+        int damage = (baseDamage >> 1) * (vulnerability & 0x7f);
+        if (damage == 0)
+            return;
+
+        // Touch damage uses the raw hurt-AI duration (default four), unlike projectile and
+        // power-bomb paths which add their own visible-flash tail. Samus's timers are also
+        // explicitly cleared because this branch represents Samus attacking the enemy.
+        enemy.FlashTimer = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
+        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | 0x0002));
+        samus.InvincibilityTimer = 0;
+        samus.KnockbackTimer = 0;
+        enemy.Health = damage >= enemy.Health
+            ? (ushort)0
+            : unchecked((ushort)(enemy.Health - damage));
+        if (enemy.Health != 0)
+            return;
+
+        enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
+        EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
     }
 
     private static bool RadiusBoxesOverlap(

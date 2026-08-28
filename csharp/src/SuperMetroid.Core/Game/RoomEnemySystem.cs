@@ -147,6 +147,21 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_waverStates);
         Array.Clear(_metareeStates);
         Array.Clear(_firefleaStates);
+        Array.Clear(_skulteraStates);
+        Array.Clear(_skulteraRadii);
+        Array.Clear(_skulteraTurnFinishedFlags);
+        Array.Clear(_skulteraAngleDeltas);
+        Array.Clear(_skulteraPreviousYOffsets);
+        Array.Clear(_skulteraCurrentYOffsets);
+        Array.Clear(_chootStates);
+        Array.Clear(_chootSpawnXPositions);
+        Array.Clear(_chootSpawnYPositions);
+        Array.Clear(_chootInitialFallingXPositions);
+        Array.Clear(_chootInitialFallingYPositions);
+        Array.Clear(_chootFallingXOrigins);
+        Array.Clear(_chootFallingYOrigins);
+        Array.Clear(_chootInitialYSpeedTableIndexes);
+        Array.Clear(_chootJumpDelayTimers);
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
@@ -599,6 +614,9 @@ public sealed partial class RoomEnemySystem
             case 0xa2e49f when slot.EnemyDefinitionPointer == RipperDefinition:
                 InitializeRipper(slot);
                 return;
+            case 0xa2df76 when slot.EnemyDefinitionPointer == ChootDefinition:
+                InitializeChoot(slot);
+                return;
             case 0xa396e3 when slot.EnemyDefinitionPointer == SciserDefinition:
                 InitializeCrawler(slot, SciserInitialInstructionTable, speciesInstructionOffset: 8);
                 return;
@@ -646,6 +664,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa38d2d when slot.EnemyDefinitionPointer == FirefleaDefinition:
                 InitializeFireflea(slot);
+                return;
+            case 0xa390b5 when slot.EnemyDefinitionPointer == SkulteraDefinition:
+                InitializeSkultera(slot);
                 return;
             case 0xa2804c:
                 return;
@@ -801,6 +822,9 @@ public sealed partial class RoomEnemySystem
             case 0xa2e4da when slot.EnemyDefinitionPointer == RipperDefinition:
                 RunRipperMain(slot, level);
                 return;
+            case 0xa2e02e when slot.EnemyDefinitionPointer == ChootDefinition:
+                RunChootMain(slot, RequireChootState(slot), samus);
+                return;
             case 0xa3e6c2 when IsSharedCrawlerDefinition(slot.EnemyDefinitionPointer):
                 RunCrawlerMain(slot, level);
                 return;
@@ -837,6 +861,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa38dee when slot.EnemyDefinitionPointer == FirefleaDefinition:
                 RunFirefleaMain(slot, RequireFirefleaState(slot));
+                return;
+            case 0xa3912b when slot.EnemyDefinitionPointer == SkulteraDefinition:
+                RunSkulteraMain(slot, RequireSkulteraState(slot), level);
                 return;
             default:
                 throw new NotSupportedException(
@@ -1240,6 +1267,23 @@ public sealed partial class RoomEnemySystem
                     // Main AI consumes it on the following enemy frame and installs the
                     // launched list, exactly matching the native instruction/AI hand-off.
                     RequireMetareeState(slot).AttackReady = true;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x9096 when slot.EnemyDefinitionPointer == SkulteraDefinition:
+                    // The right-facing steady list promotes the fish above foreground
+                    // scenery only after its first instruction tick, exactly like the ROM.
+                    slot.Layer = 6;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x90a0 when slot.EnemyDefinitionPointer == SkulteraDefinition:
+                    // The left-facing steady list draws below the matching scenery layer.
+                    slot.Layer = 2;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x90aa when slot.EnemyDefinitionPointer == SkulteraDefinition:
+                    // Turning lists sleep immediately after publishing this flag. Main AI
+                    // consumes it on the following frame and installs steady facing art.
+                    RequireSkulteraState(slot).TurnFinished = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe4be: // Ridley: begin roar; audio playback is outside this subsystem.

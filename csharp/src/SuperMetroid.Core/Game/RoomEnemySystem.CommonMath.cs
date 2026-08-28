@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     private const int LinearEnemySpeedTable = 0xa08187;
+    private const int QuadraticEnemySpeedTable = 0xa0838f;
     private const int SharedEightBitSineTable = 0xa0b143;
 
     /// <summary>
@@ -73,6 +74,23 @@ public sealed partial class RoomEnemySystem
         (
             unchecked((short)ReadWord(_bus!, LinearEnemySpeedTable + byteOffset)),
             ReadWord(_bus!, LinearEnemySpeedTable + byteOffset + 2));
+
+    /// <summary>
+    /// Reads one signed 16.16 entry from <c>CommonEnemySpeeds_QuadraticallyIncreasing</c>.
+    /// The logical table index is multiplied by the native eight-byte record size; the
+    /// negative half uses the separately stored, bug-compatible ROM negation rather than
+    /// negating the positive host integer.
+    /// </summary>
+    private int ReadQuadraticEnemySpeed(ushort tableIndex, bool negative)
+    {
+        int entryAddress = QuadraticEnemySpeedTable + tableIndex * 8;
+        int componentOffset = negative ? 4 : 0;
+        ushort subvelocity = ReadWord(_bus!, entryAddress + componentOffset);
+        short wholeVelocity = unchecked((short)ReadWord(
+            _bus!,
+            entryAddress + componentOffset + 2));
+        return unchecked((wholeVelocity << 16) | subvelocity);
+    }
 
     /// <summary>
     /// Ports the integer result of <c>EightBitSineMultiplication</c> at $A0:B0DA. The SNES

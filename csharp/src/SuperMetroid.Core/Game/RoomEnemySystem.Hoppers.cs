@@ -92,7 +92,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort TourianSidehopperDefinition = 0xd9ff;
     internal const ushort LargeDessgeegaDefinition = 0xda3f;
 
-    private const int QuadraticEnemySpeedTable = 0xa0838f;
     private const int HopperLandedUpsideUpPointerTable = 0xa3aac2;
     private const int HopperLandedUpsideDownPointerTable = 0xa3aaca;
     private const int HopperJumpingUpsideUpPointerTable = 0xa3aad2;
@@ -384,17 +383,6 @@ public sealed partial class RoomEnemySystem
 
         throw new InvalidDataException(
             "Hopper initial-speed calculation did not reach its ROM jump height.");
-    }
-
-    private int ReadQuadraticEnemySpeed(ushort tableIndex, bool negative)
-    {
-        int entryAddress = QuadraticEnemySpeedTable + tableIndex * 8;
-        int componentOffset = negative ? 4 : 0;
-        ushort subvelocity = ReadWord(_bus!, entryAddress + componentOffset);
-        short wholeVelocity = unchecked((short)ReadWord(
-            _bus!,
-            entryAddress + componentOffset + 2));
-        return unchecked((wholeVelocity << 16) | subvelocity);
     }
 
     private ushort ReadHopperInstructionList(HopperEnemyState state, int pointerTable) =>

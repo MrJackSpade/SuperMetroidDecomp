@@ -25,7 +25,7 @@ internal static class MetareeAudit
         // retained record, header, instruction, collision block, palette, and tile still
         // comes from its original cartridge address and executes the production loader.
         const int retainedPopulationRecords = 5;
-        var auditBus = new PopulationTerminatingAddressSpace(
+        var auditBus = new PopulationPrefixAddressSpace(
             retailBus,
             room.State.EnemyPopulationPointer,
             retainedPopulationRecords,
@@ -349,39 +349,4 @@ internal static class MetareeAudit
         projectile.InstructionTimer = 1;
     }
 
-    /// <summary>
-    /// Read-only cartridge decorator that replaces exactly one future population record
-    /// with the native three-byte terminator. It exists only in this audit assembly and
-    /// cannot alter production room loading or hide untranslated actors during gameplay.
-    /// </summary>
-    private sealed class PopulationTerminatingAddressSpace : ISnesAddressSpace
-    {
-        private readonly ISnesAddressSpace _inner;
-        private readonly int _terminatorAddress;
-        private readonly byte _deathQuota;
-
-        public PopulationTerminatingAddressSpace(
-            ISnesAddressSpace inner,
-            ushort populationPointer,
-            int retainedRecordCount,
-            byte deathQuota)
-        {
-            _inner = inner;
-            _terminatorAddress = 0xa10000 |
-                unchecked((ushort)(populationPointer + retainedRecordCount * 16));
-            _deathQuota = deathQuota;
-        }
-
-        public byte ReadByte(int address)
-        {
-            if (address == _terminatorAddress || address == _terminatorAddress + 1)
-                return 0xff;
-            if (address == _terminatorAddress + 2)
-                return _deathQuota;
-            return _inner.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) =>
-            _inner.WriteByte(address, value);
-    }
 }

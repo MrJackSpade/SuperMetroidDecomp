@@ -398,7 +398,8 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level = null,
         ushort controllerInput = 0,
         SamusProjectileSystem? samusProjectiles = null,
-        byte? nmiFrameCounter8 = null)
+        byte? nmiFrameCounter8 = null,
+        SamusMode7Transform? mode7Transform = null)
     {
         EnsureLoaded();
         // Standalone audits do not own the runtime NMI clock. In that case the enemy-frame
@@ -533,7 +534,8 @@ public sealed partial class RoomEnemySystem
                         cameraX,
                         cameraY,
                         samusProjectiles,
-                        enemyNmiFrameCounter8);
+                        enemyNmiFrameCounter8,
+                        mode7Transform);
                     ranActorAi = true;
                 }
 
@@ -1213,26 +1215,6 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void InitializeCeresSteam(RoomEnemySlot slot)
-    {
-        if (slot.Parameter1 >= 6)
-        {
-            throw new InvalidDataException(
-                $"Ceres steam parameter one ${slot.Parameter1:X4} exceeds its six-entry tables.");
-        }
-
-        slot.VramTilesIndex = 0;
-        slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
-        slot.PaletteIndex = 0x0a00;
-        slot.VariableD = unchecked((ushort)((_nextRandom!() & 0x001f) + 1));
-        int tableIndex = slot.Parameter1 * 2;
-        slot.CurrentInstruction = ReadWord(_bus!, 0xa6eff5 + tableIndex);
-        slot.VariableA = ReadWord(_bus!, 0xa6f001 + tableIndex);
-    }
-
     /// <summary>Ports <c>CeresDoor_Init</c> at $A6:F6C5 for the live Ceres room path.</summary>
     private void InitializeCeresDoor(RoomEnemySlot slot)
     {
@@ -1340,7 +1322,8 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY,
         SamusProjectileSystem? samusProjectiles,
-        byte nmiFrameCounter8)
+        byte nmiFrameCounter8,
+        SamusMode7Transform? mode7Transform = null)
     {
         int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
         switch (address)
@@ -1482,7 +1465,7 @@ public sealed partial class RoomEnemySystem
             case 0xa2804c:
                 return;
             case 0xa6f00d:
-                RunCeresSteamMain(slot);
+                RunCeresSteamMain(slot, mode7Transform);
                 return;
             case 0xa6f765:
                 RunCeresDoorMain(slot);
@@ -1706,20 +1689,6 @@ public sealed partial class RoomEnemySystem
                 throw new NotSupportedException(
                     $"Enemy ${slot.EnemyDefinitionPointer:X4} main AI ${address:X6} is not translated.");
         }
-    }
-
-    private static void RunCeresSteamMain(RoomEnemySlot slot)
-    {
-        slot.Health = 0x7fff;
-        if (slot.VariableA == 0xeff4)
-            return;
-
-        // Parameters four/five install $A6:F019 through table words at $F009/$F00B; its
-        // graphical offsets depend on the Ceres elevator's Mode-7 matrix. They are retained
-        // as a named unsupported AI boundary instead of silently drawing the untransformed
-        // actor at its base point.
-        throw new NotSupportedException(
-            $"Ceres steam Mode-7 function $A6:{slot.VariableA:X4} is not translated.");
     }
 
     private void RunCeresDoorMain(RoomEnemySlot slot)

@@ -58,6 +58,7 @@ internal static class RetailEnemyCoverageAudit
             [0xddff] = "Crocomire tongue",
             [0xdf3f] = "Spore Spawn",
             [0xdfbf] = "Boulder",
+            [0xe1ff] = "Ceres steam",
             [0xe27f] = "Zebetites",
             [0xe5bf] = "Etecoon",
             [0xe5ff] = "Dachora",

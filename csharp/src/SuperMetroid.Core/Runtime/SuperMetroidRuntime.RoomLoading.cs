@@ -156,6 +156,18 @@ public sealed partial class SuperMetroidRuntime
         ActiveDoor = door;
         ActiveRoom = room;
         ActiveRoomAssets = assets;
+        // Door setup `$8F:E4E0` writes these exact five registers before the fresh Ceres
+        // elevator room becomes visible. Publishing the immutable transform here gives
+        // Samus, her projectiles, and parameter-four/five steam a single authoritative
+        // producer. Ordinary doors clear it so stale Mode-7 math cannot leak across rooms.
+        ActiveSamusMode7Transform = door.UsesCeresElevatorMode7
+            ? new SamusMode7Transform(
+                MatrixA: 0x0100,
+                MatrixB: 0,
+                MatrixC: 0,
+                CenterX: 0x0080,
+                CenterY: 0x03f0)
+            : null;
         LevelData = assets.LevelData;
         Camera = new ScrollBoundaryCamera(assets.Scrolls);
         Camera.SetPosition(cameraX, cameraY);

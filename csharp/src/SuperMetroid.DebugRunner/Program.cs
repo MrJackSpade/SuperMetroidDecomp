@@ -252,6 +252,12 @@ if (args.Length >= 2 && args[0] == "--spore-spawn-audit")
     return SporeSpawnAudit.Run(sporeSpawnRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--ceres-steam-audit")
+{
+    string ceresSteamRomPath = string.Join(' ', args[1..]).Trim('"');
+    return CeresSteamAudit.Run(ceresSteamRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--bomb-torizo-audit")
 {
     string bombTorizoRomPath = string.Join(' ', args[1..]).Trim('"');

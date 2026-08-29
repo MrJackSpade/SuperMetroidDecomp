@@ -59,6 +59,8 @@ public sealed partial class RoomEnemySystem
     private const ushort SporeSpawnShotAi = 0xed5a;
     private const ushort SporeSpawnDudHitboxShotAi = 0x8046;
     private const ushort SporeSpawnNoOpHitboxTouchAi = 0x804c;
+    private const ushort CeresSteamTouchAi = 0xf03f;
+    private const ushort CeresSteamNoOpShotAi = 0x804c;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -124,6 +126,8 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == BotwoonTouchAi;
             bool isSporeSpawn = slot.EnemyDefinitionPointer == SporeSpawnDefinition &&
                 slot.Definition.TouchAiPointer == SporeSpawnTouchAi;
+            bool isCeresSteam = slot.EnemyDefinitionPointer == CeresSteamDefinition &&
+                slot.Definition.TouchAiPointer == CeresSteamTouchAi;
             bool isBombTorizo = slot.EnemyDefinitionPointer == BombTorizoDefinition &&
                 slot.Definition.TouchAiPointer == BombTorizoTouchAi;
             bool isGoldenTorizo = slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
@@ -165,6 +169,7 @@ public sealed partial class RoomEnemySystem
                 isYappingMaw ||
                 isBotwoon ||
                 isSporeSpawn ||
+                isCeresSteam ||
                 isTorizo ||
                 isShaktool ||
                 isCrocomire ||
@@ -188,7 +193,7 @@ public sealed partial class RoomEnemySystem
 
             bool usesExtendedHitboxes = (
                     isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo ||
-                    isCrocomire || isCrocomireTongue || isSporeSpawn) &&
+                    isCrocomire || isCrocomireTongue || isSporeSpawn || isCeresSteam) &&
                 slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
             bool overlapsSamus;
             ushort hitboxTouchAi = slot.Definition.TouchAiPointer;
@@ -259,6 +264,27 @@ public sealed partial class RoomEnemySystem
                     controllerInput,
                     skipDeathAnimation: true);
                 ResolveSporeSpawnDeathAfterCommon(slot);
+                return true;
+            }
+
+            if (isCeresSteam)
+            {
+                // Every visible steam frame stores `$A6:F03F` in its authored hitbox.
+                // The last two dispersal frames use an empty hitbox list and cannot reach
+                // this branch. Insisting on both facts keeps collision tied to ROM geometry.
+                if (!usesExtendedHitboxes || hitboxTouchAi != CeresSteamTouchAi)
+                {
+                    throw new InvalidDataException(
+                        $"Ceres steam requires extended touch AI $A6:{CeresSteamTouchAi:X4}; " +
+                        $"extended={usesExtendedHitboxes}, selected=$A6:{hitboxTouchAi:X4}, " +
+                        $"map=$A6:{slot.SpritemapPointer:X4}.");
+                }
+
+                // `$A6:F03F` restores health immediately before entering common touch AI.
+                // Header damage is deliberately zero: contact still installs the common
+                // invincibility/knockback state, while Screw/Speed cannot destroy the vent.
+                slot.Health = CeresSteamIndestructibleHealth;
+                ResolveNormalEnemyTouch(slot, samus, controllerInput);
                 return true;
             }
 
@@ -528,6 +554,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == BotwoonShotAi;
             bool isSporeSpawn = enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
                 enemy.Definition.ShotAiPointer == SporeSpawnShotAi;
+            bool isCeresSteam = enemy.EnemyDefinitionPointer == CeresSteamDefinition &&
+                enemy.Definition.ShotAiPointer == CeresSteamNoOpShotAi;
             bool isBombTorizo = enemy.EnemyDefinitionPointer == BombTorizoDefinition &&
                 enemy.Definition.ShotAiPointer == BombTorizoShotAi;
             bool isGoldenTorizo = enemy.EnemyDefinitionPointer == GoldenTorizoDefinition &&
@@ -582,6 +610,7 @@ public sealed partial class RoomEnemySystem
                 isKiHunter ||
                 isBotwoon ||
                 isSporeSpawn ||
+                isCeresSteam ||
                 isTorizo ||
                 isShaktool ||
                 isCrocomire ||
@@ -648,7 +677,7 @@ public sealed partial class RoomEnemySystem
 
                 bool usesExtendedHitboxes = (
                         isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo ||
-                        isCrocomire || isCrocomireTongue || isSporeSpawn) &&
+                        isCrocomire || isCrocomireTongue || isSporeSpawn || isCeresSteam) &&
                     enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
                 bool overlapsProjectile;
                 ushort hitboxShotAi = enemy.Definition.ShotAiPointer;
@@ -758,6 +787,27 @@ public sealed partial class RoomEnemySystem
                         hitCount++;
                         break;
                     }
+                }
+
+                if (isCeresSteam)
+                {
+                    // All active plume hitboxes use the definition's literal `$804C` RTL.
+                    // The shared extended collision walker still marks the projectile (and
+                    // requests Super-Missile quake) before that callback returns; it does
+                    // not create an impact, consult vulnerability, or damage the steam.
+                    if (!usesExtendedHitboxes || hitboxShotAi != CeresSteamNoOpShotAi)
+                    {
+                        throw new InvalidDataException(
+                            $"Ceres steam requires extended shot AI " +
+                            $"$A6:{CeresSteamNoOpShotAi:X4}.");
+                    }
+
+                    projectiles.ApplyExtendedEnemyCollisionPrelude(
+                        projectile.SlotIndex,
+                        (enemy.Properties & 0x1000) != 0 ||
+                            (projectile.Type & 0x0008) == 0);
+                    hitCount++;
+                    break;
                 }
 
                 if ((isCrocomire || isCrocomireTongue) &&
@@ -1533,7 +1583,11 @@ public sealed partial class RoomEnemySystem
 
         int bank = enemy.Definition.Bank << 16;
         int extendedMap = bank | enemy.SpritemapPointer;
-        int componentCount = ReadWord(_bus!, extendedMap);
+        // `$A0:9A5A/$9B7F` load only the low byte. The high byte carries drawing metadata;
+        // Ceres steam, for example, stores `$1001` for one component. Treating the whole
+        // word as 4097 components walks into adjacent ROM and eventually selects garbage
+        // callbacks such as `$F880` instead of the authored `$F03F/$804C` pair.
+        int componentCount = _bus!.ReadByte(extendedMap);
         ushort targetLeft = unchecked((ushort)(targetX - targetXRadius));
         ushort targetRight = unchecked((ushort)(targetX + targetXRadius));
         ushort targetTop = unchecked((ushort)(targetY - targetYRadius));

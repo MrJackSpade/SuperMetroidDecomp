@@ -190,6 +190,17 @@ public sealed partial class RoomEnemySystem
         int xColumn;
         while (true)
         {
+            // The retail table at $A4:9697 contains one permutation of X=0..48 and then
+            // immediately falls into executable opcodes. The upstream C translation adds
+            // this same `index > 48` guard to prevent those opcodes from becoming bogus X
+            // coordinates while the distortion coefficient finishes its last few frames.
+            // Returning success is important: it keeps the HDMA contraction running; false
+            // would skip directly to the next death state several frames too early.
+            if (cursor > 48)
+            {
+                death.MeltingColumnCursor = unchecked((ushort)cursor);
+                return true;
+            }
             if (cursor >= CrocomireDeathState.MeltingColumnCount)
             {
                 death.MeltingColumnCursor = 0;

@@ -33,12 +33,15 @@ internal static class CrocomireAudit
         VerifyInitializationAndWake(bus, room, assets);
         VerifyInstructionMovementAndProjectile(bus, room, assets);
         VerifyMouthAndPowerBombReactions(bus, room, assets);
+        VerifyCompleteDeathSequence(bus, room, assets);
 
         Console.WriteLine(
             "Crocomire audit passed: retail body/tongue records, palette/list setup, " +
             "extended-map wake animation, four-pixel instruction movement, nine-shot " +
             "projectile cadence/vector setup, charged-beam mouth push, and the retail " +
-            "power-bomb vulnerability gate all agreed with cartridge data.");
+            "power-bomb vulnerability gate agreed; bridge collapse, both melting passes, " +
+            "skeleton wall break, spike debris, item drop, and boss completion also ran " +
+            "end-to-end through the cartridge state graph.");
         return 0;
     }
 
@@ -260,6 +263,118 @@ internal static class CrocomireAudit
         }
     }
 
+    private static void VerifyCompleteDeathSequence(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        LoadedCrocomire loaded = Load(bus, room, assets);
+        CrocomireEnemyState state = RequireState(loaded);
+        CrocomireDeathState death = loaded.Enemies.CrocomireDeath ??
+            throw new InvalidDataException("Crocomire death extension was not initialized.");
+
+        // `$A4:8D5E` begins the graph at the exact bridge threshold. This first frame must
+        // publish all ten clear-block PLMs plus the invisible wall before state two runs.
+        state.Body.XPosition = 0x0640;
+        Step(loaded);
+        if (state.DeathSequenceIndex != 0x0002 ||
+            !loaded.Enemies.CrocomireBridgeCollapseStarted ||
+            loaded.Enemies.CrocomirePlmRequests.Count != 11 ||
+            loaded.Enemies.CrocomirePlmRequests.Count(request => request.Header == 0xb74f) != 10 ||
+            !loaded.Enemies.CrocomirePlmRequests.Contains(
+                new CrocomirePlmRequest(0x4e, 0x03, 0xb757)) ||
+            state.Tongue is not { } tongue ||
+            !tongue.Properties.HasAny(EnemyProperties.Invisible))
+        {
+            throw new InvalidDataException(
+                $"Crocomire bridge transition failed: state=${state.DeathSequenceIndex:X2}, " +
+                $"PLMs={loaded.Enemies.CrocomirePlmRequests.Count}, " +
+                $"tongue properties=${state.Tongue?.Properties ?? 0:X4}.");
+        }
+
+        var visited = new HashSet<ushort> { state.DeathSequenceIndex };
+        var publishedPlmHeaders = new HashSet<ushort>(
+            loaded.Enemies.CrocomirePlmRequests.Select(request => request.Header));
+        bool sawBridgeFragment = false;
+        bool sawSpikeWallPiece = false;
+        bool sawNonUniformMeltingScroll = false;
+        bool sawItemDrop = false;
+        bool sawDeathMusic = false;
+        var oam = new OamBuffer();
+
+        const int maximumFrames = 20000;
+        int frame;
+        for (frame = 0; frame < maximumFrames && state.DeathSequenceIndex != 0x0052; frame++)
+        {
+            // State $3E waits for Samus to return to the left side of the wall. The retail
+            // room normally achieves this through player movement; move the audit actor at
+            // that explicit gate without bypassing any boss state.
+            if (state.DeathSequenceIndex == 0x003e)
+                loaded.Samus.XPosition = 0x0270;
+
+            Step(loaded);
+            visited.Add(state.DeathSequenceIndex);
+            foreach (CrocomirePlmRequest request in loaded.Enemies.CrocomirePlmRequests)
+                publishedPlmHeaders.Add(request.Header);
+            sawItemDrop |= loaded.Enemies.LastCrocomireDropRequest is not null;
+            sawDeathMusic |= loaded.Enemies.LastCrocomireMusicRequest is not null;
+
+            // ProcessExtendedTilemap belongs to the draw pass, not EnemyMain. Exercising it
+            // every frame proves the melting tilemaps reach modeled BG2 VRAM instead of only
+            // changing typed debugger state.
+            oam.BeginFrame();
+            loaded.Enemies.DrawLayers(oam, 0x0400, 0, firstLayer: 0, lastLayer: 7);
+            loaded.Enemies.StepEnemyProjectiles(
+                loaded.Level,
+                loaded.Samus,
+                cameraX: 0x0400,
+                cameraY: 0);
+
+            sawBridgeFragment |= loaded.Enemies.EnemyProjectiles.Any(
+                projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireBridgeCrumbling);
+            sawSpikeWallPiece |= loaded.Enemies.EnemyProjectiles.Any(
+                projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireSpikeWallPieces);
+            ushort firstScroll = death.Bg2ScrollByScanline[0];
+            sawNonUniformMeltingScroll |= death.Bg2ScrollByScanline.Any(
+                scroll => scroll != firstScroll);
+        }
+
+        ushort[] requiredStates =
+        [
+            0x02, 0x04, 0x06, 0x08, 0x0a, 0x0c, 0x0e,
+            0x10, 0x12, 0x14, 0x16, 0x18, 0x1a, 0x1c,
+            0x1e, 0x20, 0x22, 0x24, 0x26, 0x28, 0x2a,
+            0x2c, 0x2e, 0x30, 0x32, 0x34, 0x36, 0x38, 0x3a, 0x3c,
+            0x58, 0x3e, 0x40, 0x42, 0x44, 0x46, 0x48, 0x4a, 0x4c,
+            0x4e, 0x50, 0x52,
+        ];
+        ushort[] missingStates = requiredStates.Where(required => !visited.Contains(required)).ToArray();
+        ushort[] requiredHeaders = [0xb747, 0xb74f, 0xb753, 0xb757];
+        ushort[] missingHeaders = requiredHeaders
+            .Where(required => !publishedPlmHeaders.Contains(required))
+            .ToArray();
+        // $A4:9697 contains exactly 49 authored X columns (0..48). The remaining typed
+        // scratch bytes model adjacent WRAM safety, not visible Crocomire pixels.
+        bool allColumnsMelted = death.MeltingColumnHeights
+            .Take(49)
+            .All(height => height == 48);
+        if (frame == maximumFrames || state.DeathSequenceIndex != 0x0052 ||
+            missingStates.Length != 0 || missingHeaders.Length != 0 ||
+            !sawBridgeFragment || !sawSpikeWallPiece || !sawNonUniformMeltingScroll ||
+            !allColumnsMelted || !sawItemDrop || !sawDeathMusic ||
+            !loaded.IsMiniBossDefeated())
+        {
+            throw new InvalidDataException(
+                $"Crocomire death graph failed after {frame} frames at " +
+                $"state ${state.DeathSequenceIndex:X2}: missing states=" +
+                $"[{string.Join(',', missingStates.Select(value => value.ToString("X2")))}], " +
+                $"missing PLMs=[{string.Join(',', missingHeaders.Select(value => value.ToString("X4")))}], " +
+                $"bridge={sawBridgeFragment}, spikes={sawSpikeWallPiece}, " +
+                $"HDMA={sawNonUniformMeltingScroll}, columns={allColumnsMelted}, " +
+                $"drop={sawItemDrop}, music={sawDeathMusic}, boss={loaded.IsMiniBossDefeated()}.");
+        }
+    }
+
     private static LoadedCrocomire Load(
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room,
@@ -269,6 +384,7 @@ internal static class CrocomireAudit
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var system = new Bank80SystemState();
+        bool miniBossDefeated = false;
         var samus = new SamusState
         {
             Health = 999,
@@ -293,8 +409,14 @@ internal static class CrocomireAudit
             level: assets.LevelData,
             samus: samus,
             cameraX: 0x0400,
-            isAreaMiniBossDefeated: () => false);
-        return new LoadedCrocomire(enemies, samus, cgram, assets.LevelData);
+            isAreaMiniBossDefeated: () => miniBossDefeated,
+            setAreaMiniBossDefeated: () => miniBossDefeated = true);
+        return new LoadedCrocomire(
+            enemies,
+            samus,
+            cgram,
+            assets.LevelData,
+            () => miniBossDefeated);
     }
 
     private static void Step(LoadedCrocomire loaded) =>
@@ -353,5 +475,6 @@ internal static class CrocomireAudit
         RoomEnemySystem Enemies,
         SamusState Samus,
         SnesCgram Cgram,
-        RoomLevelData Level);
+        RoomLevelData Level,
+        Func<bool> IsMiniBossDefeated);
 }

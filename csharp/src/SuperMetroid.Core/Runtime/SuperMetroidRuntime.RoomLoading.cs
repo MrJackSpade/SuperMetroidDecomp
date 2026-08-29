@@ -213,7 +213,11 @@ public sealed partial class SuperMetroidRuntime
             isAreaMiniBossDefeated: () =>
                 System.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss),
             setAreaMiniBossDefeated: () =>
-                System.SetBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
+                System.SetBossBits(room.AreaIndex, BossBits.AreaMiniBoss),
+            isAreaTorizoDefeated: () =>
+                System.HasAnyBossBits(room.AreaIndex, BossBits.AreaTorizo),
+            setAreaTorizoDefeated: () =>
+                System.SetBossBits(room.AreaIndex, BossBits.AreaTorizo));
         ApplyPendingBotwoonWallPlm();
         Enemies.QueueGraphicsUploads(VramWrites);
 

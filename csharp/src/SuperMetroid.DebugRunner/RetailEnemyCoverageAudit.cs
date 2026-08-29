@@ -70,6 +70,7 @@ internal static class RetailEnemyCoverageAudit
             [0xeb7f] = "Red Ki-Hunter wings",
             [0xebbf] = "Gold Ki-Hunter body",
             [0xebff] = "Gold Ki-Hunter wings",
+            [0xeeff] = "Bomb Torizo",
             [0xef7f] = "Golden Torizo",
             [0xf193] = "Brinstar Pipe Bug",
             [0xf1d3] = "strong Brinstar Pipe Bug",

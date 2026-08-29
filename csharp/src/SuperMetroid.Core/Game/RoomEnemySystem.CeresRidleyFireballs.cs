@@ -55,6 +55,15 @@ public enum RoomEnemyProjectileKind : ushort
     KagoBug = 0xd02e,
     BotwoonBody = 0xeba0,
     BotwoonSpit = 0xec48,
+    BombTorizoLowHealthDrool = 0xa95b,
+    BombTorizoInitialDrool = 0xa969,
+    BombTorizoExplosiveSwipe = 0xa985,
+    BombTorizoLowHealthExplosion = 0xa9a1,
+    BombTorizoDeathExplosion = 0xa9af,
+    BombTorizoChozoOrb = 0xad5e,
+    BombTorizoSonicBoom = 0xaea8,
+    BombTorizoRightFootDust = 0xafe5,
+    BombTorizoLeftFootDust = 0xaff3,
 }
 
 /// <summary>
@@ -84,6 +93,12 @@ public sealed class RoomEnemyProjectileSlot
     public ushort YRadius { get; internal set; }
     public ushort Damage { get; internal set; }
     public ushort InvincibilityFrames { get; internal set; }
+    /// <summary>
+    /// Bank $86's independent <c>eproj_timers</c> word. This is not the frame-list
+    /// instruction timer: projectile bytecode explicitly initializes and decrements this
+    /// value for counted loops and randomized impact animations.
+    /// </summary>
+    public ushort GeneralTimer { get; internal set; }
     public ushort RemainingAfterburns { get; internal set; }
     public ushort NextAfterburnKind { get; internal set; }
     public ushort DirectionParameter { get; internal set; }
@@ -121,7 +136,7 @@ public sealed class RoomEnemyProjectileSlot
         XPosition = XSubposition = YPosition = YSubposition = 0;
         XVelocity = YVelocity = 0;
         InstructionPointer = InstructionTimer = SpritemapPointer = PreInstruction = 0;
-        GraphicsIndex = XRadius = YRadius = Damage = InvincibilityFrames = 0;
+        GraphicsIndex = XRadius = YRadius = Damage = InvincibilityFrames = GeneralTimer = 0;
         RemainingAfterburns = NextAfterburnKind = 0;
         DirectionParameter = Variable0 = Variable1 = 0;
         CollisionOption = CollidedProjectileType = KilledEnemyNativeIndex = 0;
@@ -487,6 +502,7 @@ public sealed partial class RoomEnemySystem
             case 0xbbc6: // Nuclear Waffle body: position is owned by bank-$A6 main AI.
             case 0xa05b: // Pirate laser startup: three muzzle-flash frames do not move.
             case 0xefdf: // Enemy death/pickup subsystem's empty pre-instruction.
+            case 0xa919: // Bomb Torizo explosive swipe: stationary authored hit flash.
                 return;
 
             case 0xea80: // Botwoon body: orientation, hurt palette, and death dispatcher.
@@ -495,6 +511,14 @@ public sealed partial class RoomEnemySystem
 
             case 0xec05: // Botwoon spit: full 16.16 vector followed by strict camera cull.
                 RunBotwoonSpitPreInstruction(projectile, cameraX, cameraY);
+                return;
+
+            case 0xacad: // Bomb Torizo Chozo orb: room collision followed by gravity.
+                RunBombTorizoChozoOrbPreInstruction(projectile, level);
+                return;
+
+            case 0xae6c: // Bomb Torizo sonic boom: accelerating horizontal room shot.
+                RunBombTorizoSonicBoomPreInstruction(projectile, level);
                 return;
 
             case 0xe4fe: // Generic room-coordinate dust/explosion camera cull.
@@ -782,6 +806,97 @@ public sealed partial class RoomEnemySystem
                 case 0x8154: // Delete.
                     projectile.Clear();
                     return;
+                case 0x8230: // OR packed projectile properties with one literal word.
+                {
+                    ushort mask = ReadWord(_bus!, 0x860000 |
+                        unchecked((ushort)(cursor + 2)));
+                    projectile.Damage = unchecked((ushort)(projectile.Damage | (mask & 0x0fff)));
+                    if ((mask & 0x2000) != 0)
+                        projectile.CanDamageSamus = false;
+                    if ((mask & 0x4000) != 0)
+                        projectile.PersistsOnSamusContact = true;
+                    if ((mask & 0x8000) != 0)
+                        projectile.BlocksSamusProjectiles = true;
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                }
+                case 0x823c: // AND packed projectile properties with one literal word.
+                {
+                    ushort mask = ReadWord(_bus!, 0x860000 |
+                        unchecked((ushort)(cursor + 2)));
+                    projectile.Damage = unchecked((ushort)(projectile.Damage & (mask & 0x0fff)));
+                    if ((mask & 0x2000) == 0)
+                        projectile.CanDamageSamus = true;
+                    if ((mask & 0x4000) == 0)
+                        projectile.PersistsOnSamusContact = false;
+                    if ((mask & 0x8000) == 0)
+                        projectile.BlocksSamusProjectiles = false;
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                }
+                case 0x8248: // Enable collision with Samus projectiles.
+                    projectile.BlocksSamusProjectiles = true;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x8252: // Disable collision with Samus projectiles.
+                    projectile.BlocksSamusProjectiles = false;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x825c: // Disable collision with Samus.
+                    projectile.CanDamageSamus = false;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x8266: // Enable collision with Samus.
+                    projectile.CanDamageSamus = true;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x8270: // Retain actor after Samus contact.
+                    projectile.PersistsOnSamusContact = true;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x827a: // Delete actor after Samus contact.
+                    projectile.PersistsOnSamusContact = false;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x8284: // Set low OAM priority; draw queue priority is not split yet.
+                case 0x828e: // Set high OAM priority.
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x8298: // Set packed {X,Y} collision radii.
+                {
+                    ushort radii = ReadWord(_bus!, 0x860000 |
+                        unchecked((ushort)(cursor + 2)));
+                    projectile.XRadius = unchecked((byte)radii);
+                    projectile.YRadius = unchecked((byte)(radii >> 8));
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                }
+                case 0x82a1: // Clear both collision radii.
+                    projectile.XRadius = 0;
+                    projectile.YRadius = 0;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x82fd: // Queue music with eight-frame delay; one-byte operand.
+                case 0x8309: // Queue SFX library 1, maximum 6.
+                case 0x8312: // Queue SFX library 2, maximum 6.
+                case 0x831b: // Queue SFX library 3, maximum 6.
+                case 0x8324: // Queue SFX library 1, maximum 15.
+                case 0x832d: // Queue SFX library 2, maximum 15.
+                case 0x8336: // Queue SFX library 3, maximum 15.
+                case 0x833f: // Queue SFX library 1, maximum 3.
+                case 0x8348: // Queue SFX library 2, maximum 3.
+                case 0x8351: // Queue SFX library 3, maximum 3.
+                case 0x835a: // Queue SFX library 1, maximum 9.
+                case 0x8363: // Queue SFX library 2, maximum 9.
+                case 0x836c: // Queue SFX library 3, maximum 9.
+                case 0x8375: // Queue SFX library 1, maximum 1.
+                case 0x837e: // Queue SFX library 2, maximum 1.
+                case 0x8387: // Queue SFX library 3, maximum 1.
+                    // Audio is an outer-runtime seam, but these commands are byte-packed.
+                    // Advancing by three (two-byte opcode plus one-byte ID) is essential:
+                    // rounding to a word would desynchronize every following frame.
+                    cursor = unchecked((ushort)(cursor + 3));
+                    break;
                 case 0x8159: // Sleep forever while pre-instruction movement remains active.
                     // The native command rewinds Y to its own opcode, stores that pointer,
                     // pops the instruction-handler return address, and leaves timer zero.
@@ -802,6 +917,45 @@ public sealed partial class RoomEnemySystem
                 case 0x81ab: // Same-bank goto.
                     cursor = ReadWord(_bus!, 0x860000 | unchecked((ushort)(cursor + 2)));
                     break;
+                case 0x81b0: // Signed-byte same-bank relative goto.
+                    cursor = unchecked((ushort)(cursor + 2 + unchecked((sbyte)_bus!.ReadByte(
+                        0x860000 | unchecked((ushort)(cursor + 2))))));
+                    break;
+                case 0x81c6: // Decrement general timer and take an absolute branch while nonzero.
+                {
+                    ushort before = projectile.GeneralTimer;
+                    projectile.GeneralTimer = unchecked((ushort)(before - 1));
+                    cursor = before == 1
+                        ? unchecked((ushort)(cursor + 4))
+                        : ReadWord(_bus!, 0x860000 | unchecked((ushort)(cursor + 2)));
+                    break;
+                }
+                case 0x81ce: // Decrement general timer and take a signed relative branch while nonzero.
+                {
+                    ushort before = projectile.GeneralTimer;
+                    projectile.GeneralTimer = unchecked((ushort)(before - 1));
+                    cursor = before == 1
+                        ? unchecked((ushort)(cursor + 3))
+                        : unchecked((ushort)(cursor + 2 + unchecked((sbyte)_bus!.ReadByte(
+                            0x860000 | unchecked((ushort)(cursor + 2))))));
+                    break;
+                }
+                case 0x81d5: // Initialize the independent general-purpose loop timer.
+                    projectile.GeneralTimer = ReadWord(
+                        _bus!,
+                        0x860000 | unchecked((ushort)(cursor + 2)));
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0x81de: // Deliberate entry at the RTS immediately before $81DF.
+                    // Bomb Torizo's impact list uses this address as a compact no-op before
+                    // its counted branch. It is a real callable ROM entry, not a typo for
+                    // MoveRandomlyWithinRadius at the following byte.
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x81df: // Randomly offset the actor inside authored X/Y radii.
+                    MoveEnemyProjectileRandomlyWithinRadius(projectile, cursor);
+                    cursor = unchecked((ushort)(cursor + 6));
+                    break;
                 case 0xa050: // Pirate laser: install operand as pre-instruction and run it.
                     projectile.PreInstruction = ReadWord(
                         _bus!,
@@ -819,6 +973,16 @@ public sealed partial class RoomEnemySystem
                     if (!projectile.IsActive)
                         return;
                     cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xa3be: // Restore X/Y saved by the sonic-boom collision pre-instruction.
+                    projectile.XPosition = projectile.Variable0;
+                    projectile.YPosition = projectile.Variable1;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xa456: // Take the authored absolute branch with 25-percent probability.
+                    cursor = (_nextRandom!() & 0xc000) == 0xc000
+                        ? ReadWord(_bus!, 0x860000 | unchecked((ushort)(cursor + 2)))
+                        : unchecked((ushort)(cursor + 4));
                     break;
                 case 0x95ba: // Spawn horizontal right/left afterburn pair.
                     SpawnAfterburnPair(projectile, horizontal: true);
@@ -861,6 +1025,10 @@ public sealed partial class RoomEnemySystem
                     // Audio remains an outer seam, but the list cursor must still match ROM.
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
+                case 0xaf92: // Torizo landing-dust instruction: move actor four pixels up.
+                    projectile.YPosition = unchecked((ushort)(projectile.YPosition - 4));
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
                 case 0xeeaf: // Random drop selection after an enemy death animation.
                     if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
                     {
@@ -886,6 +1054,43 @@ public sealed partial class RoomEnemySystem
 
         throw new InvalidDataException(
             "Enemy projectile list did not reach a timed frame within 24 operations.");
+    }
+
+    private void MoveEnemyProjectileRandomlyWithinRadius(
+        RoomEnemyProjectileSlot projectile,
+        ushort instructionPointer)
+    {
+        // $86:81DF consumes four packed bytes: X mask/center followed by Y mask/center.
+        // Each axis rejects negative candidate offsets, while two independent bits from the
+        // first random sample choose the eventual signs. This peculiar rejection loop is
+        // observable in Bomb Torizo's sonic-boom wall impact, so a host RNG approximation
+        // would produce a visibly different debris cloud and desynchronize later randomness.
+        int operands = 0x860000 | unchecked((ushort)(instructionPointer + 2));
+        byte xMask = _bus!.ReadByte(operands);
+        byte xCenter = _bus.ReadByte(operands + 1);
+        byte yMask = _bus.ReadByte(operands + 2);
+        byte yCenter = _bus.ReadByte(operands + 3);
+        ushort signSample = _nextRandom!();
+
+        int xOffset;
+        do
+        {
+            xOffset = (xMask & unchecked((byte)_nextRandom())) - xCenter;
+        }
+        while (xOffset < 0);
+        if ((signSample & 0x8000) != 0)
+            xOffset = -xOffset;
+        projectile.XPosition = unchecked((ushort)(projectile.XPosition + xOffset));
+
+        int yOffset;
+        do
+        {
+            yOffset = (yMask & unchecked((byte)_nextRandom())) - yCenter;
+        }
+        while (yOffset < 0);
+        if ((signSample & 0x4000) != 0)
+            yOffset = -yOffset;
+        projectile.YPosition = unchecked((ushort)(projectile.YPosition + yOffset));
     }
 
     private void SpawnAfterburnCenter(

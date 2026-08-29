@@ -133,7 +133,10 @@ public sealed partial class RoomEnemySystem
         Action<int>? setEvent = null,
         Action<int>? clearEvent = null,
         Func<bool>? isAreaMiniBossDefeated = null,
-        Action? setAreaMiniBossDefeated = null)
+        Action? setAreaMiniBossDefeated = null,
+        Func<bool>? isAreaTorizoDefeated = null,
+        Action? setAreaTorizoDefeated = null,
+        Func<ushort, bool>? isRoomPlmPresent = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -153,6 +156,9 @@ public sealed partial class RoomEnemySystem
         _setEvent = setEvent;
         _clearEvent = clearEvent;
         _setAreaMiniBossDefeated = setAreaMiniBossDefeated;
+        _isAreaTorizoDefeated = isAreaTorizoDefeated;
+        _setAreaTorizoDefeated = setAreaTorizoDefeated;
+        _isRoomPlmPresent = isRoomPlmPresent;
         _vram = vram;
         _cgram = cgram;
         PopulationPointer = populationPointer;
@@ -189,6 +195,7 @@ public sealed partial class RoomEnemySystem
         ResetKiHunterRoomState();
         ResetPipeBugRoomState();
         ResetBotwoonRoomState();
+        ResetBombTorizoRoomState();
         ResetRinkaRoomState(cameraX, cameraY);
         ResetRioRoomState();
         ResetNorfairLavaJumpingEnemyRoomState();
@@ -422,6 +429,8 @@ public sealed partial class RoomEnemySystem
         LastBotwoonDropRequest = null;
         LastBotwoonWallPlm = null;
         LastBotwoonMusicRequest = null;
+        LastBombTorizoSoundEffect = null;
+        LastBombTorizoMusicRequest = null;
         LastRioSoundEffect = null;
         LastNorfairLavaJumpingEnemySoundEffect = null;
         LastNorfairRioSoundEffect = null;
@@ -461,6 +470,15 @@ public sealed partial class RoomEnemySystem
                     // custom hurt entry therefore owns the actor before frozen bit four
                     // when both are present, while instruction bytecode still advances.
                     ApplyMetroidHurt(slot);
+                    ranActorAi = true;
+                }
+                if (!ranActorAi &&
+                    (slot.AiHandlerBits & 0x0002) != 0 &&
+                    slot.EnemyDefinitionPointer == BombTorizoDefinition)
+                {
+                    // Torizo_Hurt owns the actor for the selected hurt frame. The common
+                    // instruction interpreter still advances afterward, matching $A0:8FF7.
+                    ApplyBombTorizoHurt(slot);
                     ranActorAi = true;
                 }
                 if (!ranActorAi &&
@@ -513,7 +531,13 @@ public sealed partial class RoomEnemySystem
                     // callback still owned the two composited outer sprite objects.
                     if ((slot.AiHandlerBits & 0x0004) == 0 &&
                         slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
-                        ProcessInstructions(slot, samus, level, cameraX, cameraY);
+                        ProcessInstructions(
+                            slot,
+                            samus,
+                            level,
+                            cameraX,
+                            cameraY,
+                            enemyNmiFrameCounter8);
                 }
             }
 
@@ -1125,6 +1149,9 @@ public sealed partial class RoomEnemySystem
             case 0xb2f5de when IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 InitializeNinjaSpacePirate(slot);
                 return;
+            case 0xaac87f when slot.EnemyDefinitionPointer == BombTorizoDefinition:
+                InitializeBombTorizo(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -1582,6 +1609,9 @@ public sealed partial class RoomEnemySystem
                     level,
                     samusProjectiles);
                 return;
+            case 0xaac6a4 when slot.EnemyDefinitionPointer == BombTorizoDefinition:
+                RunBombTorizoMain(slot, RequireBombTorizoState(slot), level);
+                return;
             default:
                 throw new NotSupportedException(
                     $"Enemy ${slot.EnemyDefinitionPointer:X4} main AI ${address:X6} is not translated.");
@@ -1847,7 +1877,8 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         RoomLevelData? level,
         ushort cameraX,
-        ushort cameraY)
+        ushort cameraY,
+        byte nmiFrameCounter8)
     {
         ushort oldTimer = slot.InstructionTimer;
         slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
@@ -1874,6 +1905,9 @@ public sealed partial class RoomEnemySystem
 
             switch (word)
             {
+                case 0x807c: // EnemyInstr_StopScript: delete the actor and abort interpretation.
+                    slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
+                    return;
                 case 0x80ed: // EnemyInstr_Goto: next word is a same-bank instruction pointer.
                     cursor = ReadWord(
                         _bus!,
@@ -1991,6 +2025,28 @@ public sealed partial class RoomEnemySystem
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     slot.CurrentInstruction = unchecked((ushort)(cursor + 4));
                     return;
+                case 0x814b: // EnemyInstr_CopyToVram: packed seven-byte DMA descriptor.
+                {
+                    int descriptor = (slot.Definition.Bank << 16) |
+                        unchecked((ushort)(cursor + 2));
+                    ushort byteCount = ReadWord(_bus!, descriptor);
+                    int sourceAddress = _bus!.ReadByte(descriptor + 2) |
+                        (_bus.ReadByte(descriptor + 3) << 8) |
+                        (_bus.ReadByte(descriptor + 4) << 16);
+                    ushort vramDestination = unchecked((ushort)(
+                        _bus.ReadByte(descriptor + 5) |
+                        (_bus.ReadByte(descriptor + 6) << 8)));
+                    var bytes = new byte[byteCount];
+                    for (int byteIndex = 0; byteIndex < bytes.Length; byteIndex++)
+                        bytes[byteIndex] = _bus.ReadByte(sourceAddress + byteIndex);
+                    _vram!.LoadBytes(vramDestination * 2, bytes);
+
+                    // The descriptor is seven bytes rather than words. The next command is
+                    // therefore at opcode+2+7, an odd bank address used intentionally by
+                    // the Torizo crumbling-statue stream.
+                    cursor = unchecked((ushort)(cursor + 9));
+                    break;
+                }
                 case >= 0x8000 when TryProcessWallSpacePirateInstruction(
                     slot,
                     level,
@@ -2640,6 +2696,19 @@ public sealed partial class RoomEnemySystem
                     }
                     if (TryProcessBotwoonInstruction(slot, word, ref cursor))
                         break;
+                    if (TryProcessBombTorizoInstruction(
+                            slot,
+                            samus,
+                            level,
+                            word,
+                            ref cursor,
+                            nmiFrameCounter8,
+                            out bool pauseBombTorizoInterpreter))
+                    {
+                        if (pauseBombTorizoInterpreter)
+                            return;
+                        break;
+                    }
                     throw new NotSupportedException(
                         $"Enemy ${slot.EnemyDefinitionPointer:X4} instruction " +
                         $"${slot.Definition.Bank:X2}:{cursor:X4} opcode ${word:X4} is not translated.");

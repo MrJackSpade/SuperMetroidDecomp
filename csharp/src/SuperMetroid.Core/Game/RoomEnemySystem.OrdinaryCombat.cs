@@ -111,6 +111,8 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == YappingMawTouchAi;
             bool isBotwoon = slot.EnemyDefinitionPointer == BotwoonDefinition &&
                 slot.Definition.TouchAiPointer == BotwoonTouchAi;
+            bool isBombTorizo = slot.EnemyDefinitionPointer == BombTorizoDefinition &&
+                slot.Definition.TouchAiPointer == BombTorizoTouchAi;
             // A handful of utility/terrain enemies intentionally point touch AI at an RTL
             // in their own bank. Detect the native opcode instead of adding a name-specific
             // exception for every inert actor. The collision is still reported, but the
@@ -140,6 +142,7 @@ public sealed partial class RoomEnemySystem
                 isEvir ||
                 isYappingMaw ||
                 isBotwoon ||
+                isBombTorizo ||
                 isLiteralNoOpTouchAi ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
@@ -157,7 +160,8 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            bool usesExtendedHitboxes = (isOrdinarySpacePirate || isMaridiaLargeSnail) &&
+            bool usesExtendedHitboxes = (
+                    isOrdinarySpacePirate || isMaridiaLargeSnail || isBombTorizo) &&
                 slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
             bool overlapsSamus;
             ushort hitboxTouchAi = slot.Definition.TouchAiPointer;
@@ -199,6 +203,12 @@ public sealed partial class RoomEnemySystem
             {
                 throw new NotSupportedException(
                     $"Space Pirate hitbox touch AI $B2:{hitboxTouchAi:X4} is not translated.");
+            }
+
+            if (isBombTorizo && (!usesExtendedHitboxes || hitboxTouchAi != BombTorizoTouchAi))
+            {
+                throw new NotSupportedException(
+                    $"Bomb Torizo hitbox touch AI $AA:{hitboxTouchAi:X4} is not translated.");
             }
 
             if (isMaridiaLargeSnail)
@@ -331,7 +341,7 @@ public sealed partial class RoomEnemySystem
                     slot,
                     samus,
                     controllerInput,
-                    skipDeathAnimation: isRinka || isZebetite || isBotwoon);
+                    skipDeathAnimation: isRinka || isZebetite || isBotwoon || isBombTorizo);
                 if (isMagdollite)
                     ResolveMagdolliteCombatAfterCommon(slot);
                 if (isRinka)
@@ -342,6 +352,8 @@ public sealed partial class RoomEnemySystem
                     ResolveEvirCombatAfterCommon(slot);
                 if (isBotwoon)
                     ResolveBotwoonCombatAfterCommon(slot);
+                if (isBombTorizo && slot.Health == 0)
+                    BeginBombTorizoDeath(slot, RequireBombTorizoState(slot));
                 if (isFakeKraid && healthBefore != 0 && slot.Health == 0)
                     RequestFakeKraidDeathDrop(slot);
             }
@@ -436,6 +448,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == KiHunterShotAi;
             bool isBotwoon = enemy.EnemyDefinitionPointer == BotwoonDefinition &&
                 enemy.Definition.ShotAiPointer == BotwoonShotAi;
+            bool isBombTorizo = enemy.EnemyDefinitionPointer == BombTorizoDefinition &&
+                enemy.Definition.ShotAiPointer == BombTorizoShotAi;
             // Several retail helper/projectile definitions point their shot callback at a
             // literal RTL in their own enemy bank. The bank-$A0 collision walker still runs
             // its projectile prelude before dispatching that no-op callback: supers request
@@ -477,6 +491,7 @@ public sealed partial class RoomEnemySystem
                 isYappingMaw ||
                 isKiHunter ||
                 isBotwoon ||
+                isBombTorizo ||
                 isLiteralNoOpShotAi ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
@@ -537,7 +552,8 @@ public sealed partial class RoomEnemySystem
                     continue;
                 }
 
-                bool usesExtendedHitboxes = (isOrdinarySpacePirate || isMaridiaLargeSnail) &&
+                bool usesExtendedHitboxes = (
+                        isOrdinarySpacePirate || isMaridiaLargeSnail || isBombTorizo) &&
                     enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
                 bool overlapsProjectile;
                 ushort hitboxShotAi = enemy.Definition.ShotAiPointer;
@@ -576,6 +592,13 @@ public sealed partial class RoomEnemySystem
                     // hitbox callback, even when that callback is the no-op shell region.
                     EarthquakeTimer = 30;
                     EarthquakeType = 18;
+                }
+
+                if (isBombTorizo &&
+                    (!usesExtendedHitboxes || hitboxShotAi != BombTorizoShotAi))
+                {
+                    throw new NotSupportedException(
+                        $"Bomb Torizo hitbox shot AI $AA:{hitboxShotAi:X4} is not translated.");
                 }
 
                 if (isMaridiaLargeSnail)
@@ -777,6 +800,23 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
 
+                if (isBombTorizo)
+                {
+                    BombTorizoEnemyState torizoState = RequireBombTorizoState(enemy);
+                    if (torizoState.ShotGuard != 0 || enemy.FlashTimer != 0)
+                    {
+                        // Torizo_Shot returns before common damage AI in protected/flash
+                        // frames. The extended-hitbox prelude has still marked a non-plasma
+                        // projectile collision, but it must not become an impact animation.
+                        projectiles.ApplyExtendedEnemyCollisionPrelude(
+                            projectile.SlotIndex,
+                            (enemy.Properties & 0x1000) != 0 ||
+                                (projectile.Type & 0x0008) == 0);
+                        hitCount++;
+                        break;
+                    }
+                }
+
                 if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
                     continue;
 
@@ -857,6 +897,8 @@ public sealed partial class RoomEnemySystem
                         RequireBotwoonState(enemy).PreviousHealth = enemyHealthBefore;
                         ResolveBotwoonCombatAfterCommon(enemy);
                     }
+                    if (isBombTorizo && enemy.Health == 0)
+                        BeginBombTorizoDeath(enemy, RequireBombTorizoState(enemy));
                     if (isDestroyableVerticalShutter)
                         ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                     if (isHorizontalShutter)
@@ -875,7 +917,7 @@ public sealed partial class RoomEnemySystem
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
                     if (enemy.Health == 0 && !isPowamp && !isRinka && !isHorizontalShutter &&
-                        !isZebetite && !isBotwoon)
+                        !isZebetite && !isBotwoon && !isBombTorizo)
                     {
                         // $A3:C7F5 adds Skree's four debris actors after the shared normal
                         // shot handler reports death, before the common death animation
@@ -953,6 +995,8 @@ public sealed partial class RoomEnemySystem
                     RequireBotwoonState(enemy).PreviousHealth = enemyHealthBefore;
                     ResolveBotwoonCombatAfterCommon(enemy);
                 }
+                if (isBombTorizo && enemy.Health == 0)
+                    BeginBombTorizoDeath(enemy, RequireBombTorizoState(enemy));
                 if (isDestroyableVerticalShutter)
                     ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                 if (isHorizontalShutter)

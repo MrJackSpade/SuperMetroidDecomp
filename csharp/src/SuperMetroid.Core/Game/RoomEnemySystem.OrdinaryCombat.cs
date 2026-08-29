@@ -427,6 +427,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == EvirShotAi;
             bool isYappingMaw = enemy.EnemyDefinitionPointer == YappingMawDefinition &&
                 enemy.Definition.ShotAiPointer == YappingMawShotAi;
+            bool isKiHunter = IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
+                enemy.Definition.ShotAiPointer == KiHunterShotAi;
             // Several retail helper/projectile definitions point their shot callback at a
             // literal RTL in their own enemy bank. The bank-$A0 collision walker still runs
             // its projectile prelude before dispatching that no-op callback: supers request
@@ -466,6 +468,7 @@ public sealed partial class RoomEnemySystem
                 isZebetite ||
                 isEvir ||
                 isYappingMaw ||
+                isKiHunter ||
                 isLiteralNoOpShotAi ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
@@ -839,6 +842,8 @@ public sealed partial class RoomEnemySystem
                             enemy,
                             RequireYappingMawState(enemy),
                             samus);
+                    if (isKiHunter)
+                        ResolveKiHunterShotAfterCommon(enemy);
                     if (isDestroyableVerticalShutter)
                         ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                     if (isHorizontalShutter)
@@ -928,6 +933,8 @@ public sealed partial class RoomEnemySystem
                         enemy,
                         RequireYappingMawState(enemy),
                         samus);
+                if (isKiHunter)
+                    ResolveKiHunterShotAfterCommon(enemy);
                 if (isDestroyableVerticalShutter)
                     ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                 if (isHorizontalShutter)
@@ -1085,6 +1092,8 @@ public sealed partial class RoomEnemySystem
             bool isEvir = enemy.EnemyDefinitionPointer == EvirDefinition &&
                 enemy.Parameter1 == 0 &&
                 reactionPointer == EvirPowerBombAi;
+            bool isKiHunter = IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
+                reactionPointer == KiHunterShotAi;
             // Several banks install a one-byte `RTL` callback when an enemy must receive
             // the native power-bomb collision prelude but deliberately take no damage.
             // Recognize the executable contract itself instead of maintaining a bespoke
@@ -1109,6 +1118,7 @@ public sealed partial class RoomEnemySystem
                 !isMagdollite && !isRinka &&
                 !isDragon &&
                 !isEvir &&
+                !isKiHunter &&
                 !isLiteralNoOpReaction &&
                 !isVerticalShutterReaction &&
                 !isHorizontalShutterReaction &&
@@ -1175,6 +1185,8 @@ public sealed partial class RoomEnemySystem
                 ResolveDragonCombatAfterCommon(enemy);
             if (isEvir)
                 ResolveEvirCombatAfterCommon(enemy);
+            if (isKiHunter)
+                ResolveKiHunterShotAfterCommon(enemy);
 
             enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
             reactionCount++;

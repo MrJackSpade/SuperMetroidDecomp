@@ -180,6 +180,7 @@ public sealed partial class RoomEnemySystem
         LastKagoBugDropRequest = null;
         ResetMagdolliteRoomState();
         ResetBlueBrinstarFaceBlockRoomState();
+        ResetKiHunterRoomState();
         ResetRinkaRoomState(cameraX, cameraY);
         ResetRioRoomState();
         ResetNorfairLavaJumpingEnemyRoomState();
@@ -1068,6 +1069,12 @@ public sealed partial class RoomEnemySystem
                 slot.EnemyDefinitionPointer == BlueBrinstarFaceBlockDefinition:
                 InitializeBlueBrinstarFaceBlock(slot, samus);
                 return;
+            case 0xa8f188 when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+                InitializeKiHunter(slot);
+                return;
+            case 0xa8f214 when IsKiHunterWingDefinition(slot.EnemyDefinitionPointer):
+                InitializeKiHunterWings(slot);
+                return;
             case 0xa68b2f when slot.EnemyDefinitionPointer == KzanTopDefinition:
                 InitializeKzanTop(slot);
                 return;
@@ -1490,6 +1497,10 @@ public sealed partial class RoomEnemySystem
                     slot,
                     RequireBlueBrinstarFaceBlockState(slot),
                     samus);
+                return;
+            case 0xa8f25c when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+            case 0xa8f262 when IsKiHunterWingDefinition(slot.EnemyDefinitionPointer):
+                RunKiHunterMain(slot, RequireKiHunterState(slot), samus, level);
                 return;
             case 0xa68bad when slot.EnemyDefinitionPointer == KzanTopDefinition:
                 RunKzanTopMain(slot, RequireKzanState(slot), samus);
@@ -2258,6 +2269,27 @@ public sealed partial class RoomEnemySystem
                         level,
                         unchecked((ushort)(cursor + 2)),
                         decrementStepCounter: false);
+                    break;
+                case 0xf526 when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+                    // The callback returns a direct body-list pointer while separately
+                    // restarting the following attached wing list.
+                    cursor = ReturnKiHunterToSteadyInstruction(slot);
+                    break;
+                case 0xf5e4 when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+                    StartKiHunterGroundJumpFromInstruction(RequireKiHunterState(slot));
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xf67f when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+                    StartKiHunterGroundWaitFromInstruction(RequireKiHunterState(slot));
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xf6d2 when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+                    SpawnKiHunterAcidFromInstruction(slot, movingRight: false);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xf6d8 when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+                    SpawnKiHunterAcidFromInstruction(slot, movingRight: true);
+                    cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe4be: // Ridley: begin roar; audio playback is outside this subsystem.
                     RequireCeresRidley(slot).Roaring = true;

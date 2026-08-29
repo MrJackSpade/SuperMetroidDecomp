@@ -39,6 +39,8 @@ public enum RoomEnemyProjectileKind : ushort
     FakeKraidSpit = 0x9db0,
     FakeKraidSpikeLeft = 0x9dbe,
     FakeKraidSpikeRight = 0x9dcc,
+    KiHunterAcidSpitLeft = 0xcf18,
+    KiHunterAcidSpitRight = 0xcf26,
     PirateMotherBrainLaser = 0xa17b,
     PirateClaw = 0xa189,
     PolypRock = 0xbd5a,
@@ -549,6 +551,18 @@ public sealed partial class RoomEnemySystem
 
             case 0x9eff: // Alcoon fireball: Y then X collision, followed by horizontal drag.
                 RunAlcoonFireballPreInstruction(projectile, level);
+                return;
+
+            case KiHunterAcidMovingPreInstruction:
+                RunKiHunterAcidMovement(projectile, level);
+                return;
+
+            case KiHunterAcidInitialLeftPreInstruction:
+                StartKiHunterAcidMovement(projectile, movingRight: false);
+                return;
+
+            case KiHunterAcidInitialRightPreInstruction:
+                StartKiHunterAcidMovement(projectile, movingRight: true);
                 return;
 
             case 0xd263: // Powamp spike: radial acceleration and X-then-Y room collision.

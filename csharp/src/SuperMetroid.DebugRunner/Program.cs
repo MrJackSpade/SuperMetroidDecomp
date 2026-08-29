@@ -228,6 +228,12 @@ if (args.Length >= 2 && args[0] == "--blue-brinstar-face-block-audit")
     return BlueBrinstarFaceBlockAudit.Run(faceBlockRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--ki-hunter-audit")
+{
+    string kiHunterRomPath = string.Join(' ', args[1..]).Trim('"');
+    return KiHunterAudit.Run(kiHunterRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

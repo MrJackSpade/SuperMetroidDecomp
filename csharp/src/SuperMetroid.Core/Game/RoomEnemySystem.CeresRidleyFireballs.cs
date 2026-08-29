@@ -20,6 +20,7 @@ public enum RoomEnemyProjectileKind : ushort
     MetareeParticleUpRight = 0x8c08,
     MetareeParticleDownLeft = 0x8c16,
     MetareeParticleUpLeft = 0x8c24,
+    CrocomireProjectile = 0x8f8f,
     CeresRidleyFireball = 0x9642,
     CeresRidleyHorizontalAfterburnCenter = 0x9650,
     CeresRidleyVerticalAfterburnCenter = 0x965e,
@@ -635,6 +636,14 @@ public sealed partial class RoomEnemySystem
                 {
                     projectile.Clear();
                 }
+                return;
+
+            case 0x906b: // Crocomire projectile: derive the fired vector after one setup move.
+                StartCrocomireProjectileFlight(projectile, level);
+                return;
+
+            case 0x90b3: // Crocomire projectile: X then Y collision deletes the actor.
+                RunCrocomireProjectileFlight(projectile, level);
                 return;
 
             case 0x9eff: // Alcoon fireball: Y then X collision, followed by horizontal drag.

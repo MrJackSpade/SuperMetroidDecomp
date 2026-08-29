@@ -282,6 +282,12 @@ if (args.Length >= 2 && args[0] == "--escape-animals-audit")
     return EscapeAnimalsAudit.Run(escapeAnimalsRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--crocomire-audit")
+{
+    string crocomireRomPath = string.Join(' ', args[1..]).Trim('"');
+    return CrocomireAudit.Run(crocomireRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

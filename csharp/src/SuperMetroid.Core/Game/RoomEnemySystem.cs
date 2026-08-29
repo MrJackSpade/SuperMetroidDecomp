@@ -202,6 +202,7 @@ public sealed partial class RoomEnemySystem
         ResetShaktoolRoomState();
         ResetChozoStatueRoomState(setSamusControlsEnabled, setRoomScrollByte);
         ResetEscapeAnimalRoomState();
+        ResetCrocomireRoomState();
         ResetRinkaRoomState(cameraX, cameraY);
         ResetRioRoomState();
         ResetNorfairLavaJumpingEnemyRoomState();
@@ -437,6 +438,7 @@ public sealed partial class RoomEnemySystem
         LastBotwoonMusicRequest = null;
         LastBombTorizoSoundEffect = null;
         LastBombTorizoMusicRequest = null;
+        LastCrocomireSoundEffect = null;
         LastRioSoundEffect = null;
         LastNorfairLavaJumpingEnemySoundEffect = null;
         LastNorfairRioSoundEffect = null;
@@ -905,6 +907,12 @@ public sealed partial class RoomEnemySystem
         int address = (slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer;
         switch (address)
         {
+            case 0xa48a5a when slot.EnemyDefinitionPointer == CrocomireDefinition:
+                InitializeCrocomire(slot);
+                return;
+            case 0xa4f67a when slot.EnemyDefinitionPointer == CrocomireTongueDefinition:
+                InitializeCrocomireTongue(slot);
+                return;
             case 0xa8af8b when slot.EnemyDefinitionPointer == MagdolliteDefinition:
                 InitializeMagdollite(slot, samus);
                 return;
@@ -1318,6 +1326,13 @@ public sealed partial class RoomEnemySystem
         int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
         switch (address)
         {
+            case 0xa48c04 when slot.EnemyDefinitionPointer == CrocomireDefinition:
+                RunCrocomireMain(slot, samus, controllerInput, level, cameraX);
+                return;
+            case 0xa4f6bb when slot.EnemyDefinitionPointer == CrocomireTongueDefinition:
+                // $A4:F6BB is a literal RTL. The tongue's bank-$A4 instruction list and
+                // extended map position the component relative to Crocomire's body.
+                return;
             case 0xa8b10a when slot.EnemyDefinitionPointer == MagdolliteDefinition:
                 RunMagdolliteMain(slot, RequireMagdolliteState(slot), samus);
                 return;
@@ -2727,6 +2742,16 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 default:
+                    if (TryProcessCrocomireInstruction(
+                            slot,
+                            samus,
+                            level,
+                            word,
+                            ref cursor,
+                            cameraX))
+                    {
+                        break;
+                    }
                     if (TryProcessRinkaInstruction(slot, word, ref cursor))
                         break;
                     if (TryProcessRioInstruction(slot, word, ref cursor))

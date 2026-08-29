@@ -48,6 +48,13 @@ public sealed partial class RoomEnemySystem
     private const ushort YappingMawShotAi = 0xa7bd;
     private const ushort GoldNinjaVulnerableHitboxShotAi = 0x87c8;
     private const ushort GoldNinjaInvincibleHitboxShotAi = 0x883e;
+    private const ushort CrocomireHeaderTouchAi = 0xb950;
+    private const ushort CrocomireClawTouchAi = 0xb93d;
+    private const ushort CrocomireNoOpHitboxShotAi = 0xb951;
+    private const ushort CrocomireDustHitboxShotAi = 0xb968;
+    private const ushort CrocomireMouthShotAi = 0xba05;
+    private const ushort CrocomireAlternateDustHitboxShotAi = 0xbab4;
+    private const ushort CrocomirePowerBombAi = 0xb992;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -118,6 +125,10 @@ public sealed partial class RoomEnemySystem
             bool isTorizo = isBombTorizo || isGoldenTorizo;
             bool isShaktool = slot.EnemyDefinitionPointer == ShaktoolDefinition &&
                 slot.Definition.TouchAiPointer == ShaktoolTouchAi;
+            bool isCrocomire = slot.EnemyDefinitionPointer == CrocomireDefinition &&
+                slot.Definition.TouchAiPointer == CrocomireHeaderTouchAi;
+            bool isCrocomireTongue = slot.EnemyDefinitionPointer == CrocomireTongueDefinition &&
+                slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi;
             // A handful of utility/terrain enemies intentionally point touch AI at an RTL
             // in their own bank. Detect the native opcode instead of adding a name-specific
             // exception for every inert actor. The collision is still reported, but the
@@ -149,6 +160,8 @@ public sealed partial class RoomEnemySystem
                 isBotwoon ||
                 isTorizo ||
                 isShaktool ||
+                isCrocomire ||
+                isCrocomireTongue ||
                 isLiteralNoOpTouchAi ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
@@ -167,7 +180,8 @@ public sealed partial class RoomEnemySystem
             }
 
             bool usesExtendedHitboxes = (
-                    isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo) &&
+                    isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo ||
+                    isCrocomire || isCrocomireTongue) &&
                 slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
             bool overlapsSamus;
             ushort hitboxTouchAi = slot.Definition.TouchAiPointer;
@@ -215,6 +229,33 @@ public sealed partial class RoomEnemySystem
             {
                 throw new NotSupportedException(
                     $"Torizo hitbox touch AI $AA:{hitboxTouchAi:X4} is not translated.");
+            }
+
+            if (isCrocomire || isCrocomireTongue)
+            {
+                if (!usesExtendedHitboxes)
+                {
+                    throw new InvalidDataException(
+                        "Crocomire components require extended-spritemap collision.");
+                }
+                if (hitboxTouchAi == CrocomireHeaderTouchAi)
+                    return true; // $A4:B950 is a literal RTL.
+                if (hitboxTouchAi is not (
+                        CrocomireClawTouchAi or CommonNormalEnemyTouchAi))
+                {
+                    throw new NotSupportedException(
+                        $"Crocomire hitbox touch AI $A4:{hitboxTouchAi:X4} is not translated.");
+                }
+
+                ResolveNormalEnemyTouch(slot, samus, controllerInput);
+                if (hitboxTouchAi == CrocomireClawTouchAi)
+                {
+                    CrocomireEnemyState crocomire = _crocomire ??
+                        throw new InvalidOperationException("Crocomire claw has no body owner.");
+                    crocomire.FightFlags |= 0x4000;
+                    samus.Kinematics.ExtraXDisplacement = unchecked((ushort)-4);
+                }
+                return true;
             }
 
             if (isMaridiaLargeSnail)
@@ -461,6 +502,11 @@ public sealed partial class RoomEnemySystem
             bool isTorizo = isBombTorizo || isGoldenTorizo;
             bool isShaktool = enemy.EnemyDefinitionPointer == ShaktoolDefinition &&
                 enemy.Definition.ShotAiPointer == ShaktoolShotAi;
+            bool isCrocomire = enemy.EnemyDefinitionPointer == CrocomireDefinition &&
+                enemy.Definition.ShotAiPointer == 0;
+            bool isCrocomireTongue =
+                enemy.EnemyDefinitionPointer == CrocomireTongueDefinition &&
+                enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi;
             // Several retail helper/projectile definitions point their shot callback at a
             // literal RTL in their own enemy bank. The bank-$A0 collision walker still runs
             // its projectile prelude before dispatching that no-op callback: supers request
@@ -504,6 +550,8 @@ public sealed partial class RoomEnemySystem
                 isBotwoon ||
                 isTorizo ||
                 isShaktool ||
+                isCrocomire ||
+                isCrocomireTongue ||
                 isLiteralNoOpShotAi ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
@@ -565,7 +613,8 @@ public sealed partial class RoomEnemySystem
                 }
 
                 bool usesExtendedHitboxes = (
-                        isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo) &&
+                        isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo ||
+                        isCrocomire || isCrocomireTongue) &&
                     enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
                 bool overlapsProjectile;
                 ushort hitboxShotAi = enemy.Definition.ShotAiPointer;
@@ -640,6 +689,28 @@ public sealed partial class RoomEnemySystem
                             $"Maridia Large Snail hitbox shot AI " +
                             $"$A2:{hitboxShotAi:X4} is not translated.");
                     }
+                }
+
+                if ((isCrocomire || isCrocomireTongue) &&
+                    hitboxShotAi != CommonNormalEnemyShotAi)
+                {
+                    if (!usesExtendedHitboxes)
+                    {
+                        throw new InvalidDataException(
+                            "Crocomire components require extended-spritemap collision.");
+                    }
+
+                    bool markCollision = (enemy.Properties & 0x1000) != 0 ||
+                        (projectile.Type & 0x0008) == 0;
+                    projectiles.ApplyExtendedEnemyCollisionPrelude(
+                        projectile.SlotIndex,
+                        markCollision);
+                    ResolveCrocomireHitboxShot(
+                        enemy,
+                        projectile,
+                        hitboxShotAi);
+                    hitCount++;
+                    break;
                 }
 
                 // Owtch's private $A2:A579 callback returns before common shot AI unless
@@ -1228,6 +1299,8 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == KiHunterShotAi;
             bool isBotwoon = enemy.EnemyDefinitionPointer == BotwoonDefinition &&
                 reactionPointer == BotwoonPowerBombAi;
+            bool isCrocomire = enemy.EnemyDefinitionPointer == CrocomireDefinition &&
+                reactionPointer == CrocomirePowerBombAi;
             // Several banks install a one-byte `RTL` callback when an enemy must receive
             // the native power-bomb collision prelude but deliberately take no damage.
             // Recognize the executable contract itself instead of maintaining a bespoke
@@ -1254,6 +1327,7 @@ public sealed partial class RoomEnemySystem
                 !isEvir &&
                 !isKiHunter &&
                 !isBotwoon &&
+                !isCrocomire &&
                 !isLiteralNoOpReaction &&
                 !isVerticalShutterReaction &&
                 !isHorizontalShutterReaction &&
@@ -1275,6 +1349,14 @@ public sealed partial class RoomEnemySystem
                     ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                 if (isHorizontalShutterReaction)
                     ReactHorizontalShutter(enemy);
+                enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
+                reactionCount++;
+                continue;
+            }
+
+            if (isCrocomire)
+            {
+                ResolveCrocomirePowerBombReaction(enemy);
                 enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
                 reactionCount++;
                 continue;

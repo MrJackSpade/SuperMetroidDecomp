@@ -167,6 +167,7 @@ public sealed partial class RoomEnemySystem
         LastEtecoonSoundEffect = null;
         LastDachoraSoundEffect = null;
         LastEvirSoundEffect = null;
+        LastMorphBallEyeSoundEffect = null;
         PaletteChangeNumber = 0;
         _metroidDropRequests.Clear();
         LastHopperSoundEffect = null;
@@ -221,6 +222,8 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_etecoonStates);
         Array.Clear(_dachoraStates);
         Array.Clear(_evirStates);
+        Array.Clear(_morphBallEyeStates);
+        MorphBallEyeBeam.Reset();
         Array.Clear(_hopperStates);
         Array.Clear(_zoaStates);
         Array.Clear(_yardStates);
@@ -381,6 +384,7 @@ public sealed partial class RoomEnemySystem
         LastEtecoonSoundEffect = null;
         LastDachoraSoundEffect = null;
         LastEvirSoundEffect = null;
+        LastMorphBallEyeSoundEffect = null;
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
@@ -407,6 +411,10 @@ public sealed partial class RoomEnemySystem
         BeginShutterFrame(cameraX, cameraY);
         BeginElevatorFrame();
         SetRinkaCamera(cameraX, cameraY);
+        // Bank-$88 HDMA objects run before the bank-$A0 enemy dispatcher. This ordering is
+        // observable both on spawn (one-frame pending initialization) and shutdown (the
+        // full beam sees the body's cleared activation word on the following frame).
+        StepMorphBallEyeBeam();
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
             queue.Clear();
@@ -950,6 +958,9 @@ public sealed partial class RoomEnemySystem
             case 0xa888b0 when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
                 InitializeEvirProjectile(slot);
                 return;
+            case 0xa89058 when slot.EnemyDefinitionPointer == MorphBallEyeDefinition:
+                InitializeMorphBallEye(slot);
+                return;
             case 0xa2e49f when slot.EnemyDefinitionPointer == RipperDefinition:
                 InitializeRipper(slot);
                 return;
@@ -1365,6 +1376,9 @@ public sealed partial class RoomEnemySystem
                     samus,
                     cameraX,
                     cameraY);
+                return;
+            case 0xa890e2 when slot.EnemyDefinitionPointer == MorphBallEyeDefinition:
+                RunMorphBallEyeMain(slot, RequireMorphBallEyeState(slot), samus);
                 return;
             case 0xa2e4da when slot.EnemyDefinitionPointer == RipperDefinition:
                 RunRipperMain(slot, level);

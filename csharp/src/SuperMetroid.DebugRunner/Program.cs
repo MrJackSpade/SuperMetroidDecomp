@@ -204,6 +204,12 @@ if (args.Length >= 2 && args[0] == "--evir-audit")
     return EvirAudit.Run(evirRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--morph-ball-eye-audit")
+{
+    string eyeRomPath = string.Join(' ', args[1..]).Trim('"');
+    return MorphBallEyeAudit.Run(eyeRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

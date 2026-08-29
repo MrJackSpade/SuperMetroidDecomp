@@ -73,7 +73,8 @@ internal static class EvirAudit
         Console.WriteLine(
             "Evir audit passed: both retail nine-record populations, body/arms following, " +
             "ROM speed-table bobbing, both facings, all 24 referenced maps, aimed spit, " +
-            "far-offscreen regeneration bytecode/SFX, OBJ drawing, contact damage, and " +
+            "far-offscreen regeneration bytecode/SFX, projectile RTL collision prelude, " +
+            "OBJ drawing, contact damage, and " +
             "composite freeze/death propagation were verified from cartridge data.");
         return 0;
     }
@@ -303,6 +304,31 @@ internal static class EvirAudit
         CartridgeRoomHeader room,
         CartridgeRoomAssets assets)
     {
+        LoadedEvir noOpShot = Load(bus, room, assets);
+        Step(noOpShot, room, assets, frame: 0);
+        RoomEnemySlot noOpProjectile = noOpShot.Enemies.Slots[2];
+        // While attached, the spit overlaps the larger body hitbox and bank-$A0 visits the
+        // body first. Isolate the same live projectile record as it would be in flight so
+        // this assertion reaches the projectile header's own literal-RTL callback.
+        noOpProjectile.XPosition = unchecked((ushort)(noOpProjectile.XPosition + 0x0060));
+        var passThroughShots = new SamusProjectileSystem();
+        ArmProjectile(passThroughShots.Slots[0], noOpProjectile, damage: 1000);
+        ushort noOpHealthBefore = noOpProjectile.Health;
+        ushort instructionBefore = passThroughShots.Slots[0].InstructionPointer;
+        int noOpHits = noOpShot.Enemies.ResolveOrdinaryProjectileHits(
+            bus,
+            passThroughShots,
+            new SamusBombProjectileSystem(),
+            noOpShot.Samus);
+        if (noOpHits != 1 || noOpProjectile.Health != noOpHealthBefore ||
+            passThroughShots.Slots[0].InstructionPointer != instructionBefore ||
+            (passThroughShots.Slots[0].Direction & 0x0010) == 0)
+        {
+            throw new InvalidDataException(
+                "Evir projectile's literal-RTL shot callback did not preserve the native " +
+                "collision prelude without impact/damage.");
+        }
+
         LoadedEvir contact = Load(bus, room, assets);
         RoomEnemySlot contactBody = contact.Enemies.Slots[0];
         Step(contact, room, assets, frame: 0);

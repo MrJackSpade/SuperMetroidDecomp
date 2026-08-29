@@ -396,6 +396,16 @@ public sealed partial class RoomEnemySystem
             bool isEvir = enemy.EnemyDefinitionPointer == EvirDefinition &&
                 enemy.Parameter1 == 0 &&
                 enemy.Definition.ShotAiPointer == EvirShotAi;
+            // Several retail helper/projectile definitions point their shot callback at a
+            // literal RTL in their own enemy bank. The bank-$A0 collision walker still runs
+            // its projectile prelude before dispatching that no-op callback: supers request
+            // quake and ordinary non-plasma shots receive direction bit $10, but no impact,
+            // vulnerability lookup, damage, freeze, or death follows. Recognize the opcode
+            // from ROM instead of maintaining another speculative list of enemy names.
+            bool isLiteralNoOpShotAi = enemy.Definition.ShotAiPointer != 0 &&
+                bus.ReadByte(
+                    (enemy.Definition.Bank << 16) |
+                    enemy.Definition.ShotAiPointer) == 0x6b;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -423,6 +433,7 @@ public sealed partial class RoomEnemySystem
                 isMetroid ||
                 isZebetite ||
                 isEvir ||
+                isLiteralNoOpShotAi ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -708,6 +719,16 @@ public sealed partial class RoomEnemySystem
                         projectiles.Slots[0].XPosition,
                         projectiles.Slots[0].YPosition,
                         samus);
+                    hitCount++;
+                    break;
+                }
+
+                if (isLiteralNoOpShotAi)
+                {
+                    projectiles.ApplyEnemyCollisionPrelude(
+                        projectile.SlotIndex,
+                        (enemy.Properties & 0x1000) != 0 ||
+                            (projectile.Type & 0x0008) == 0);
                     hitCount++;
                     break;
                 }

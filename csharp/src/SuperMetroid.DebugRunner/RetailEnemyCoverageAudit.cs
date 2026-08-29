@@ -60,6 +60,7 @@ internal static class RetailEnemyCoverageAudit
             [0xe5ff] = "Dachora",
             [0xe63f] = "Evir",
             [0xe67f] = "Evir projectile",
+            [0xe6bf] = "Morph-ball eye",
         };
         var focusedPopulations = focusedDefinitions.Keys.ToDictionary(
             definition => definition,

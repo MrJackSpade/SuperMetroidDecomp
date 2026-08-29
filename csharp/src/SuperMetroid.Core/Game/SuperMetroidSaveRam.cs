@@ -262,6 +262,7 @@ public sealed record SuperMetroidSaveSlot(
     {
         ArgumentNullException.ThrowIfNull(samus);
         samus.EquippedItems = EquippedItems;
+        samus.CollectedItems = CollectedItems;
         samus.EquippedBeams = EquippedBeams;
         samus.ReserveTankMode = ReserveMode;
         samus.Health = Health;
@@ -324,7 +325,7 @@ public sealed record SuperMetroidSaveSnapshot
         return new SuperMetroidSaveSnapshot
         {
             EquippedItems = samus.EquippedItems,
-            CollectedItems = samus.EquippedItems,
+            CollectedItems = samus.CollectedItems,
             EquippedBeams = samus.EquippedBeams,
             CollectedBeams = samus.EquippedBeams,
             ReserveMode = samus.ReserveTankMode,

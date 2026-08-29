@@ -206,6 +206,13 @@ public sealed partial class SamusState
     public ushort EquippedItems { get; set; }
 
     /// <summary>
+    /// Collected-item bitfield corresponding to WRAM <c>$09A4</c>. This normally contains
+    /// every equipped item, but equipment-menu toggles can make the two words differ. Enemy
+    /// logic such as the morph-ball eye tests ownership through this word specifically.
+    /// </summary>
+    public ushort CollectedItems { get; set; }
+
+    /// <summary>
     /// WRAM <c>samus_special_super_palette_flags</c>. Ordinary Metroid command $12 writes
     /// one while attached; bank-$91 palette handling then increments the word every frame,
     /// alternating the speed-boost and normal suit palettes until command $13 clears it.

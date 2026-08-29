@@ -197,6 +197,7 @@ public sealed partial class RoomEnemySystem
         ResetBotwoonRoomState();
         ResetBombTorizoRoomState();
         ResetTourianEntranceStatueRoomState();
+        ResetShaktoolRoomState();
         ResetRinkaRoomState(cameraX, cameraY);
         ResetRioRoomState();
         ResetNorfairLavaJumpingEnemyRoomState();
@@ -1158,6 +1159,9 @@ public sealed partial class RoomEnemySystem
             case 0xaad7c8 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
                 InitializeTourianEntranceStatue(slot);
                 return;
+            case 0xaade43 when slot.EnemyDefinitionPointer == ShaktoolDefinition:
+                InitializeShaktool(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -1628,6 +1632,9 @@ public sealed partial class RoomEnemySystem
             case 0xaad7c7 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
                 // $AA:D7C7 is the one-byte RTL immediately before the initializer. The
                 // three enemy records animate exclusively through their ROM lists.
+                return;
+            case 0xaadca3 when slot.EnemyDefinitionPointer == ShaktoolDefinition:
+                RunShaktoolMain(slot, RequireShaktoolState(slot), level);
                 return;
             default:
                 throw new NotSupportedException(
@@ -2713,6 +2720,8 @@ public sealed partial class RoomEnemySystem
                         break;
                     }
                     if (TryProcessBotwoonInstruction(slot, word, ref cursor))
+                        break;
+                    if (TryProcessShaktoolInstruction(slot, word, ref cursor))
                         break;
                     if (TryProcessBombTorizoInstruction(
                             slot,

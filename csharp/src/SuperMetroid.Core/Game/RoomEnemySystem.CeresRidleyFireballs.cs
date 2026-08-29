@@ -72,6 +72,9 @@ public enum RoomEnemyProjectileKind : ushort
     TourianStatueRidley = 0xbaa2,
     TourianStatuePhantoon = 0xbab0,
     TourianStatueBaseDecoration = 0xbabe,
+    ShaktoolAttackFrontCircle = 0xbe25,
+    ShaktoolAttackMiddleCircle = 0xbe33,
+    ShaktoolAttackBackCircle = 0xbe41,
 }
 
 /// <summary>
@@ -560,6 +563,14 @@ public sealed partial class RoomEnemySystem
             case 0xba37: // Tourian entrance statue actors follow the HDMA vertical reveal.
             case 0xba42: // Shared position-only tail used after the finished flag is set.
                 PositionTourianEntranceStatueProjectile(projectile);
+                return;
+
+            case 0xbe03: // Unused Shaktool front circle: independent X/Y room collision.
+                RunShaktoolFrontCirclePreInstruction(projectile, level);
+                return;
+
+            case 0xbe12: // Unused middle/back circles live only while their owner slot does.
+                RunShaktoolLinkedCirclePreInstruction(projectile, level);
                 return;
 
             case 0xe4fe: // Generic room-coordinate dust/explosion camera cull.

@@ -116,6 +116,8 @@ public sealed partial class RoomEnemySystem
             bool isGoldenTorizo = slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
                 slot.Definition.TouchAiPointer == BombTorizoTouchAi;
             bool isTorizo = isBombTorizo || isGoldenTorizo;
+            bool isShaktool = slot.EnemyDefinitionPointer == ShaktoolDefinition &&
+                slot.Definition.TouchAiPointer == ShaktoolTouchAi;
             // A handful of utility/terrain enemies intentionally point touch AI at an RTL
             // in their own bank. Detect the native opcode instead of adding a name-specific
             // exception for every inert actor. The collision is still reported, but the
@@ -146,6 +148,7 @@ public sealed partial class RoomEnemySystem
                 isYappingMaw ||
                 isBotwoon ||
                 isTorizo ||
+                isShaktool ||
                 isLiteralNoOpTouchAi ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
@@ -456,6 +459,8 @@ public sealed partial class RoomEnemySystem
             bool isGoldenTorizo = enemy.EnemyDefinitionPointer == GoldenTorizoDefinition &&
                 enemy.Definition.ShotAiPointer == GoldenTorizoShotAi;
             bool isTorizo = isBombTorizo || isGoldenTorizo;
+            bool isShaktool = enemy.EnemyDefinitionPointer == ShaktoolDefinition &&
+                enemy.Definition.ShotAiPointer == ShaktoolShotAi;
             // Several retail helper/projectile definitions point their shot callback at a
             // literal RTL in their own enemy bank. The bank-$A0 collision walker still runs
             // its projectile prelude before dispatching that no-op callback: supers request
@@ -498,6 +503,7 @@ public sealed partial class RoomEnemySystem
                 isKiHunter ||
                 isBotwoon ||
                 isTorizo ||
+                isShaktool ||
                 isLiteralNoOpShotAi ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
@@ -959,6 +965,8 @@ public sealed partial class RoomEnemySystem
                     }
                     if (isTorizo && enemy.Health == 0)
                         BeginBombTorizoDeath(enemy, RequireBombTorizoState(enemy));
+                    if (isShaktool)
+                        ResolveShaktoolShotAfterCommon(enemy);
                     if (isDestroyableVerticalShutter)
                         ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                     if (isHorizontalShutter)
@@ -1057,6 +1065,8 @@ public sealed partial class RoomEnemySystem
                 }
                 if (isTorizo && enemy.Health == 0)
                     BeginBombTorizoDeath(enemy, RequireBombTorizoState(enemy));
+                if (isShaktool)
+                    ResolveShaktoolShotAfterCommon(enemy);
                 if (isDestroyableVerticalShutter)
                     ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                 if (isHorizontalShutter)

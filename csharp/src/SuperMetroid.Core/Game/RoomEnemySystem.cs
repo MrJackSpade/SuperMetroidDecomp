@@ -165,6 +165,8 @@ public sealed partial class RoomEnemySystem
         LastBoulderSoundEffect = null;
         LastZebetiteSoundEffect = null;
         LastEtecoonSoundEffect = null;
+        LastDachoraSoundEffect = null;
+        LastEvirSoundEffect = null;
         PaletteChangeNumber = 0;
         _metroidDropRequests.Clear();
         LastHopperSoundEffect = null;
@@ -217,6 +219,8 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_boulderStates);
         Array.Clear(_zebetiteStates);
         Array.Clear(_etecoonStates);
+        Array.Clear(_dachoraStates);
+        Array.Clear(_evirStates);
         Array.Clear(_hopperStates);
         Array.Clear(_zoaStates);
         Array.Clear(_yardStates);
@@ -375,6 +379,8 @@ public sealed partial class RoomEnemySystem
         LastBoulderSoundEffect = null;
         LastZebetiteSoundEffect = null;
         LastEtecoonSoundEffect = null;
+        LastDachoraSoundEffect = null;
+        LastEvirSoundEffect = null;
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
@@ -935,6 +941,15 @@ public sealed partial class RoomEnemySystem
             case 0xa7e912 when slot.EnemyDefinitionPointer == EtecoonDefinition:
                 InitializeEtecoon(slot);
                 return;
+            case 0xa7f4dd when slot.EnemyDefinitionPointer == DachoraDefinition:
+                InitializeDachora(slot);
+                return;
+            case 0xa887e0 when slot.EnemyDefinitionPointer == EvirDefinition:
+                InitializeEvir(slot, samus);
+                return;
+            case 0xa888b0 when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
+                InitializeEvirProjectile(slot);
+                return;
             case 0xa2e49f when slot.EnemyDefinitionPointer == RipperDefinition:
                 InitializeRipper(slot);
                 return;
@@ -1331,6 +1346,25 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa7e940 when slot.EnemyDefinitionPointer == EtecoonDefinition:
                 RunEtecoonMain(slot, RequireEtecoonState(slot), samus, level);
+                return;
+            case 0xa7f52e when slot.EnemyDefinitionPointer == DachoraDefinition:
+                RunDachoraMain(
+                    slot,
+                    RequireDachoraState(slot),
+                    samus,
+                    level,
+                    nmiFrameCounter8);
+                return;
+            case 0xa8891b when slot.EnemyDefinitionPointer == EvirDefinition:
+                RunEvirMain(slot, RequireEvirState(slot), samus);
+                return;
+            case 0xa8899e when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
+                RunEvirProjectileMain(
+                    slot,
+                    RequireEvirState(slot),
+                    samus,
+                    cameraX,
+                    cameraY);
                 return;
             case 0xa2e4da when slot.EnemyDefinitionPointer == RipperDefinition:
                 RunRipperMain(slot, level);
@@ -1912,6 +1946,22 @@ public sealed partial class RoomEnemySystem
                 case 0x9625 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                     // Shared mouth animation queues library-two sound $1F.
                     QueueFuneNamiheSpitSound();
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x878f when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
+                    QueueEvirSpitSound();
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x879b when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
+                    SetInitialEvirRegenerationOffset(slot, RequireEvirState(slot));
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x87b6 when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
+                    AdvanceEvirRegenerationOffset(slot, RequireEvirState(slot));
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x87cb when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
+                    FinishEvirRegeneration(RequireEvirState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0x9631 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):

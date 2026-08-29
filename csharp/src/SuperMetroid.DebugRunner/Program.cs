@@ -192,6 +192,18 @@ if (args.Length >= 2 && args[0] == "--etecoon-audit")
     return EtecoonAudit.Run(etecoonRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--dachora-audit")
+{
+    string dachoraRomPath = string.Join(' ', args[1..]).Trim('"');
+    return DachoraAudit.Run(dachoraRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--evir-audit")
+{
+    string evirRomPath = string.Join(' ', args[1..]).Trim('"');
+    return EvirAudit.Run(evirRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

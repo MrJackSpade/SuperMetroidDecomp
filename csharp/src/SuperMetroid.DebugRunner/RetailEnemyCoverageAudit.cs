@@ -57,6 +57,9 @@ internal static class RetailEnemyCoverageAudit
             [0xdfbf] = "Boulder",
             [0xe27f] = "Zebetites",
             [0xe5bf] = "Etecoon",
+            [0xe5ff] = "Dachora",
+            [0xe63f] = "Evir",
+            [0xe67f] = "Evir projectile",
         };
         var focusedPopulations = focusedDefinitions.Keys.ToDictionary(
             definition => definition,

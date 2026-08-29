@@ -144,6 +144,40 @@ public sealed partial class RoomEnemySystem
         ReadEightBitSineProduct(unchecked((ushort)(angle + 0x80)), radius);
 
     /// <summary>
+    /// Returns the complete signed 16.16 result produced by the native eight-bit sine
+    /// multiplier, including its independent whole/fraction negation bug. Evir needs both
+    /// words for projectile motion; callers that only need pixels use the helpers above.
+    /// </summary>
+    private (short Whole, ushort Fraction) ReadEightBitSineFixedProduct(
+        ushort angle,
+        ushort radius)
+    {
+        int byteAngle = angle & 0xff;
+        int sample = _bus!.ReadByte(SharedEightBitSineTable + (byteAngle & 0x7f));
+        ushort product = unchecked((ushort)(sample * (radius & 0xff)));
+        ushort whole = unchecked((ushort)(product >> 8));
+        ushort fraction = unchecked((ushort)(product << 8));
+        if (byteAngle >= 0x80)
+        {
+            // $A0:B11B and $B125 negate each word independently instead of carrying the
+            // fractional increment into the whole word. Preserve that documented ROM bug.
+            whole = unchecked((ushort)(~whole + 1));
+            fraction = unchecked((ushort)(~fraction + 1));
+        }
+        return (unchecked((short)whole), fraction);
+    }
+
+    private (short Whole, ushort Fraction) ReadEightBitCosineFixedProduct(
+        ushort angle,
+        ushort radius) =>
+        ReadEightBitSineFixedProduct(unchecked((ushort)(angle + 0x40)), radius);
+
+    private (short Whole, ushort Fraction) ReadEightBitNegativeSineFixedProduct(
+        ushort angle,
+        ushort radius) =>
+        ReadEightBitSineFixedProduct(unchecked((ushort)(angle + 0x80)), radius);
+
+    /// <summary>
     /// Ports one half of <c>Do_Some_Math_With_Sine_Cosine_Terrible_Label_Name</c> at
     /// $A0:B643. The routine reads a 16-bit unsigned quarter-circle sample, multiplies it
     /// by an unsigned 16-bit magnitude, and returns the complete 16.16 product. Callers

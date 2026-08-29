@@ -102,6 +102,9 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == MetroidTouchAi;
             bool isZebetite = slot.EnemyDefinitionPointer == ZebetiteDefinition &&
                 slot.Definition.TouchAiPointer == ZebetiteTouchAi;
+            bool isEvir = slot.EnemyDefinitionPointer == EvirDefinition &&
+                slot.Parameter1 == 0 &&
+                slot.Definition.TouchAiPointer == EvirTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
@@ -120,6 +123,7 @@ public sealed partial class RoomEnemySystem
                 isHorizontalShutter ||
                 isMetroid ||
                 isZebetite ||
+                isEvir ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -305,6 +309,8 @@ public sealed partial class RoomEnemySystem
                     ResolveRinkaCombatAfterCommon(slot);
                 if (isDragon)
                     ResolveDragonCombatAfterCommon(slot);
+                if (isEvir)
+                    ResolveEvirCombatAfterCommon(slot);
                 if (isFakeKraid && healthBefore != 0 && slot.Health == 0)
                     RequestFakeKraidDeathDrop(slot);
             }
@@ -387,6 +393,9 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == MetroidShotAi;
             bool isZebetite = enemy.EnemyDefinitionPointer == ZebetiteDefinition &&
                 enemy.Definition.ShotAiPointer == ZebetiteShotAi;
+            bool isEvir = enemy.EnemyDefinitionPointer == EvirDefinition &&
+                enemy.Parameter1 == 0 &&
+                enemy.Definition.ShotAiPointer == EvirShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -413,6 +422,7 @@ public sealed partial class RoomEnemySystem
                 isHorizontalShutter ||
                 isMetroid ||
                 isZebetite ||
+                isEvir ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -765,6 +775,11 @@ public sealed partial class RoomEnemySystem
                         ResolveDragonCombatAfterCommon(enemy);
                     if (isZebetite)
                         ResolveZebetiteShotAfterCommon(enemy);
+                    // Evir's bank-$A8 shot tail runs after every accepted common shot,
+                    // including the $FF ice result. That is where the body copies the
+                    // newly installed frozen timer to its arms and attached (idle) spit.
+                    if (isEvir)
+                        ResolveEvirCombatAfterCommon(enemy);
                     if (isDestroyableVerticalShutter)
                         ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                     if (isHorizontalShutter)
@@ -847,6 +862,8 @@ public sealed partial class RoomEnemySystem
                     ResolveDragonCombatAfterCommon(enemy);
                 if (isZebetite)
                     ResolveZebetiteShotAfterCommon(enemy);
+                if (isEvir)
+                    ResolveEvirCombatAfterCommon(enemy);
                 if (isDestroyableVerticalShutter)
                     ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                 if (isHorizontalShutter)
@@ -1001,6 +1018,9 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == RinkaPowerBombAi;
             bool isDragon = enemy.EnemyDefinitionPointer == DragonDefinition &&
                 reactionPointer == DragonPowerBombAi;
+            bool isEvir = enemy.EnemyDefinitionPointer == EvirDefinition &&
+                enemy.Parameter1 == 0 &&
+                reactionPointer == EvirPowerBombAi;
             // Several banks install a one-byte `RTL` callback when an enemy must receive
             // the native power-bomb collision prelude but deliberately take no damage.
             // Recognize the executable contract itself instead of maintaining a bespoke
@@ -1024,6 +1044,7 @@ public sealed partial class RoomEnemySystem
             if (reactionPointer != 0 && !isFireflea && !isPowamp && !isFakeKraid &&
                 !isMagdollite && !isRinka &&
                 !isDragon &&
+                !isEvir &&
                 !isLiteralNoOpReaction &&
                 !isVerticalShutterReaction &&
                 !isHorizontalShutterReaction &&
@@ -1088,6 +1109,8 @@ public sealed partial class RoomEnemySystem
                 ResolveRinkaCombatAfterCommon(enemy);
             if (isDragon)
                 ResolveDragonCombatAfterCommon(enemy);
+            if (isEvir)
+                ResolveEvirCombatAfterCommon(enemy);
 
             enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
             reactionCount++;

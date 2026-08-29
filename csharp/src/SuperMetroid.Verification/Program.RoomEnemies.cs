@@ -624,7 +624,7 @@ static void VerifyCeresRidleyRoomEntry()
     enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0x1234);
 
     RoomEnemySlot ridley = enemies.Slots[0];
-    CeresRidleyState state = enemies.CeresRidley
+    RidleyEnemyState state = enemies.CeresRidley
         ?? throw new InvalidOperationException("Ceres Ridley did not allocate its extended state.");
     AssertEqual(0x00ba, ridley.XPosition, "Ceres Ridley init X");
     AssertEqual(0x00a9, ridley.YPosition, "Ceres Ridley init Y overrides population Y");
@@ -632,7 +632,7 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual(0x0e00, ridley.PaletteIndex, "Ceres Ridley dedicated OBJ palette");
     AssertEqual(0x3c00, ridley.Properties, "Ceres Ridley native initialized properties");
     AssertEqual(0x804f, ridley.SpritemapPointer, "Ceres Ridley post-init empty extended map");
-    AssertEqual((ushort)CeresRidleyAiFunction.WaitForDoorTransition, (ushort)state.Function,
+    AssertEqual((ushort)RidleyAiFunction.WaitForDoorTransition, (ushort)state.Function,
         "Ceres Ridley initial dispatcher function");
     AssertEqual(0x2000, cgram.Colors[0xa0], "Ceres Ridley first added palette color");
     AssertEqual(0x201f, cgram.Colors[0xbf], "Ceres Ridley final added palette color");
@@ -640,7 +640,7 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual(0, cgram.Colors[0xff], "Ceres Ridley hidden body palette ends black");
 
     enemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);
-    AssertEqual((ushort)CeresRidleyAiFunction.InitialDelay, (ushort)state.Function,
+    AssertEqual((ushort)RidleyAiFunction.InitialDelay, (ushort)state.Function,
         "Ceres Ridley door-clear transition");
     AssertEqual(511, state.FunctionTimer, "Ceres Ridley first delay decrement");
     AssertEqual(0x9000, ridley.SpritemapPointer, "Ceres Ridley left-facing initial map");
@@ -648,12 +648,12 @@ static void VerifyCeresRidleyRoomEntry()
 
     for (int frame = 0; frame < 512; frame++)
         enemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);
-    AssertEqual((ushort)CeresRidleyAiFunction.FadeInEyes, (ushort)state.Function,
+    AssertEqual((ushort)RidleyAiFunction.FadeInEyes, (ushort)state.Function,
         "Ceres Ridley 512-counter underflow starts eye fade");
 
     for (int frame = 0; frame < 65; frame++)
         enemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);
-    AssertEqual((ushort)CeresRidleyAiFunction.FadeInBody, (ushort)state.Function,
+    AssertEqual((ushort)RidleyAiFunction.FadeInBody, (ushort)state.Function,
         "Ceres Ridley eye table terminator starts body fade");
     AssertEqual(1, state.MovementAnimationEnabled,
         "Ceres Ridley eye fade enables composite animation");
@@ -668,7 +668,7 @@ static void VerifyCeresRidleyRoomEntry()
 
     for (int frame = 0; frame < 32; frame++)
         enemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);
-    AssertEqual((ushort)CeresRidleyAiFunction.WaitBeforeRoar, (ushort)state.Function,
+    AssertEqual((ushort)RidleyAiFunction.WaitBeforeRoar, (ushort)state.Function,
         "Ceres Ridley body fade completes");
     AssertEqual(4, state.FunctionTimer, "Ceres Ridley pre-roar timer");
     AssertEqual(0x5000 + 0x14a / 2, cgram.Colors[0x91],
@@ -685,12 +685,12 @@ static void VerifyCeresRidleyRoomEntry()
         Health = 99,
     };
     int battleEntryFrames = 0;
-    while (state.Function != CeresRidleyAiFunction.Hovering && battleEntryFrames < 1024)
+    while (state.Function != RidleyAiFunction.CeresHovering && battleEntryFrames < 1024)
     {
         enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
         battleEntryFrames++;
     }
-    AssertEqual((ushort)CeresRidleyAiFunction.Hovering, (ushort)state.Function,
+    AssertEqual((ushort)RidleyAiFunction.CeresHovering, (ushort)state.Function,
         "Ceres Ridley liftoff reaches hover dispatcher");
     AssertEqual(1, state.FightMode, "Ceres Ridley liftoff enables battle mode");
     AssertTrue(ridley.YPosition < 80,
@@ -700,7 +700,7 @@ static void VerifyCeresRidleyRoomEntry()
     // `$A6:CC9A-$CCB9` aims a real seven-segment whip at Samus instead of merely moving
     // the body/wing composite. Start from the cartridge's all-active steady state so this
     // assertion isolates the missing request/target side effects reported in gameplay.
-    foreach (CeresRidleyTailSegment segment in state.TailSegments)
+    foreach (RidleyTailSegment segment in state.TailSegments)
     {
         segment.Active = true;
         segment.StaggerAngle = 0xffff;
@@ -710,11 +710,11 @@ static void VerifyCeresRidleyRoomEntry()
     state.TailSegments[0].Angle = 0x4000;
     state.TailWhipTargetClockwiseAngle = 0xffff;
     state.TailWhipTargetCounterClockwiseAngle = 0xffff;
-    state.Function = CeresRidleyAiFunction.LungeSetup;
+    state.Function = RidleyAiFunction.CeresLungeSetup;
     samus.XPosition = unchecked((ushort)(ridley.XPosition - 64));
     samus.YPosition = unchecked((ushort)(ridley.YPosition + 68));
     enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
-    AssertEqual((ushort)CeresRidleyAiFunction.LungeMain, (ushort)state.Function,
+    AssertEqual((ushort)RidleyAiFunction.CeresLungeMain, (ushort)state.Function,
         "Ceres Ridley enters lunge main");
     AssertTrue(state.TailWhipTargetClockwiseAngle != 0xffff,
         "Ceres Ridley lunge installs cartridge tail-whip target");
@@ -789,17 +789,17 @@ static void VerifyCeresRidleyRoomEntry()
     {
         enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
         observedFakeRetreat |= state.Function is
-            CeresRidleyAiFunction.FakeRetreatMoveToPosition or
-            CeresRidleyAiFunction.FakeRetreatRising or
-            CeresRidleyAiFunction.WaitBeforeRetrievingBaby or
-            CeresRidleyAiFunction.RetrieveBaby;
+            RidleyAiFunction.CeresFakeRetreatMoveToPosition or
+            RidleyAiFunction.CeresFakeRetreatRising or
+            RidleyAiFunction.CeresWaitBeforeRetrievingBaby or
+            RidleyAiFunction.CeresRetrieveBaby;
         retreatFrames++;
     }
     AssertTrue(observedFakeRetreat,
         "Ceres Ridley returns from current attack through fake retreat/Baby retrieval");
     AssertEqual(0, state.FightMode, "Ceres Ridley retreat disables battle mode");
     AssertEqual(1, enemies.CeresStatus, "Ceres Ridley publishes escape handoff status");
-    AssertEqual((ushort)CeresRidleyAiFunction.Inactive, (ushort)state.Function,
+    AssertEqual((ushort)RidleyAiFunction.CeresInactive, (ushort)state.Function,
         "Ceres Ridley installs null dispatcher after battle");
     AssertTrue(ridley.Properties.HasAny(EnemyProperties.Invisible),
         "Ceres Ridley ordinary actor yields to getaway presentation");

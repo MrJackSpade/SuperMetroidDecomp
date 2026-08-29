@@ -258,6 +258,12 @@ if (args.Length >= 2 && args[0] == "--ceres-steam-audit")
     return CeresSteamAudit.Run(ceresSteamRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--norfair-ridley-audit")
+{
+    string ridleyRomPath = string.Join(' ', args[1..]).Trim('"');
+    return NorfairRidleyAudit.Run(ridleyRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--bomb-torizo-audit")
 {
     string bombTorizoRomPath = string.Join(' ', args[1..]).Trim('"');
@@ -1406,7 +1412,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         () => 0x1230);
 
     RoomEnemySlot ridleySlot = ridleyEnemies.Slots[0];
-    CeresRidleyState ridleyState = ridleyEnemies.CeresRidley
+    RidleyEnemyState ridleyState = ridleyEnemies.CeresRidley
         ?? throw new InvalidDataException("Retail room $E0B5 did not initialize enemy $E13F.");
     if (ridleySlot.EnemyDefinitionPointer != 0xe13f ||
         ridleySlot.Definition.InitializationAiPointer != 0xa0f5 ||
@@ -1442,7 +1448,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     // 1 entry call + 512 remaining delay calls + 65 eye-table calls + 32 body-fade calls.
     for (int frame = 0; frame < 610; frame++)
         ridleyEnemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);
-    if (ridleyState.Function != CeresRidleyAiFunction.WaitBeforeRoar ||
+    if (ridleyState.Function != RidleyAiFunction.WaitBeforeRoar ||
         ridleyState.FunctionTimer != 4)
     {
         throw new InvalidDataException(
@@ -1455,12 +1461,12 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     // every frame and must not be audited through a host-only null shortcut.
     var auditSamus = new SamusState { Health = 99 };
     int battleEntryFrames = 0;
-    while (ridleyState.Function != CeresRidleyAiFunction.Hovering && battleEntryFrames < 1024)
+    while (ridleyState.Function != RidleyAiFunction.CeresHovering && battleEntryFrames < 1024)
     {
         ridleyEnemies.StepFrame(0, 0, timeIsFrozen: false, auditSamus);
         battleEntryFrames++;
     }
-    if (ridleyState.Function != CeresRidleyAiFunction.Hovering || ridleyState.FightMode != 1)
+    if (ridleyState.Function != RidleyAiFunction.CeresHovering || ridleyState.FightMode != 1)
     {
         throw new InvalidDataException(
             $"Retail Ceres Ridley never entered battle; stopped at " +
@@ -1613,7 +1619,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     // contact rectangle and applies the Ceres tail damage word ($000F). This is
     // deliberately separate from the extended body-map audit above: the tail is
     // drawn by custom OAM code and therefore never appears in $A0:9A5A's list.
-    CeresRidleyTailSegment tailTip = ridleyState.TailSegments[^1];
+    RidleyTailSegment tailTip = ridleyState.TailSegments[^1];
     auditSamus.Health = 999;
     auditSamus.XPosition = tailTip.XPosition;
     auditSamus.YPosition = tailTip.YPosition;
@@ -1639,7 +1645,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     liveRidleyRuntime.LoadCartridgeRoomForDebug(ridleyRoom.Pointer);
     SamusState liveSamus = liveRidleyRuntime.Samus!;
     RoomEnemySlot liveRidleySlot = liveRidleyRuntime.Enemies.Slots[0];
-    CeresRidleyState liveRidleyState = liveRidleyRuntime.Enemies.CeresRidley
+    RidleyEnemyState liveRidleyState = liveRidleyRuntime.Enemies.CeresRidley
         ?? throw new InvalidDataException("Runtime Ridley room omitted its Ceres actor.");
 
     // Reproduce the pre-reveal overlap that exposed the software-PPU bug. Ceres Ridley's
@@ -1736,13 +1742,13 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     liveSamus.RefreshCollisionRadii(ridleyBus);
     liveSamus.InitializeAnimation(ridleyBus);
     int liveBattleEntryFrames = 0;
-    while (liveRidleyState.Function != CeresRidleyAiFunction.Hovering &&
+    while (liveRidleyState.Function != RidleyAiFunction.CeresHovering &&
         liveBattleEntryFrames < 2048)
     {
         liveRidleyRuntime.StepFrame(0);
         liveBattleEntryFrames++;
     }
-    if (liveRidleyState.Function != CeresRidleyAiFunction.Hovering)
+    if (liveRidleyState.Function != RidleyAiFunction.CeresHovering)
     {
         throw new InvalidDataException(
             $"Runtime Ceres Ridley never entered battle after {liveBattleEntryFrames} frames.");
@@ -1851,7 +1857,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         retreatFrames++;
     }
     if (ridleyEnemies.CeresStatus != 1 ||
-        ridleyState.Function != CeresRidleyAiFunction.Inactive)
+        ridleyState.Function != RidleyAiFunction.CeresInactive)
     {
         throw new InvalidDataException(
             $"Retail Ceres Ridley retreat did not publish status one; stopped at " +

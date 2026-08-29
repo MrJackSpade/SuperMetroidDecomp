@@ -10,7 +10,7 @@ public sealed partial class RoomEnemySystem
         [0x000c, 0x000e, 0x0010, 0x0012, 0x001c, 0x0020, 0x0028, 0x0030];
 
     /// <summary>Ports $A6:D97D-$D9EC after the common Ridley movement pass.</summary>
-    private static void TickCeresRidleyWingAnimation(CeresRidleyState state)
+    private static void TickRidleyWingAnimation(RidleyEnemyState state)
     {
         int absoluteXVelocity = Math.Abs(unchecked((short)state.HorizontalVelocity));
         int absoluteYVelocity = Math.Abs(unchecked((short)state.VerticalVelocity));
@@ -46,9 +46,9 @@ public sealed partial class RoomEnemySystem
     /// retaining that documented anomaly is why the tail curls and rotates at the same
     /// rate as the cartridge.
     /// </summary>
-    private void TickCeresRidleyTail(
+    private void TickRidleyTail(
         RoomEnemySlot slot,
-        CeresRidleyState state,
+        RidleyEnemyState state,
         SamusState? samus)
     {
         if (state.TailSegments.Length != 7)
@@ -66,7 +66,7 @@ public sealed partial class RoomEnemySystem
             HandleCeresRidleyNeutralTailControl(slot, state, samus);
 
             for (int index = 0; index < state.TailSegments.Length; index++)
-                TickCeresRidleyTailSegment(state, index);
+                TickRidleyTailSegment(state, index);
         }
         else if (state.TailFunctionIndex != 0)
         {
@@ -81,9 +81,9 @@ public sealed partial class RoomEnemySystem
         // then made the complete tail appear abruptly when the pre-liftoff timer expired.
         // Rebuild geometry unconditionally while retaining the native activation boundary.
         for (int index = 0; index < state.TailSegments.Length; index++)
-            UpdateCeresRidleyTailSegmentOffset(state, index);
+            UpdateRidleyTailSegmentOffset(state, index);
 
-        CeresRidleyTailSegment first = state.TailSegments[0];
+        RidleyTailSegment first = state.TailSegments[0];
         first.YPosition = unchecked((ushort)(slot.YPosition + first.YOffset + 16));
         first.XPosition = state.FacingDirection switch
         {
@@ -96,15 +96,15 @@ public sealed partial class RoomEnemySystem
 
         for (int index = 1; index < state.TailSegments.Length; index++)
         {
-            CeresRidleyTailSegment previous = state.TailSegments[index - 1];
-            CeresRidleyTailSegment current = state.TailSegments[index];
+            RidleyTailSegment previous = state.TailSegments[index - 1];
+            RidleyTailSegment current = state.TailSegments[index];
             current.YPosition = unchecked((ushort)(previous.YPosition + current.YOffset));
             current.XPosition = state.FacingDirection == 1
                 ? slot.XPosition
                 : unchecked((ushort)(previous.XPosition + current.XOffset));
         }
 
-        UpdateCeresRidleyTailDistances(state);
+        UpdateRidleyTailDistances(state);
     }
 
     /// <summary>
@@ -114,7 +114,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void HandleCeresRidleyNeutralTailControl(
         RoomEnemySlot slot,
-        CeresRidleyState state,
+        RidleyEnemyState state,
         SamusState? samus)
     {
         bool allActive = state.TailSegments.All(segment => segment.Active);
@@ -162,7 +162,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private void AimCeresRidleyTailWhip(
-        CeresRidleyState state,
+        RidleyEnemyState state,
         SamusState? samus,
         byte additionalAngle)
     {
@@ -172,7 +172,7 @@ public sealed partial class RoomEnemySystem
         if (samus is null || state.FacingDirection == 1 || state.FightMode == 0)
             return;
 
-        CeresRidleyTailSegment root = state.TailSegments[0];
+        RidleyTailSegment root = state.TailSegments[0];
         byte cartridgeAngle = CalculateCartridgeAngle(
             unchecked((short)(samus.XPosition - root.XPosition)),
             unchecked((short)(samus.YPosition + 24 - root.YPosition)));
@@ -205,9 +205,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void TickCeresRidleyTailSegment(CeresRidleyState state, int index)
+    private void TickRidleyTailSegment(RidleyEnemyState state, int index)
     {
-        CeresRidleyTailSegment segment = state.TailSegments[index];
+        RidleyTailSegment segment = state.TailSegments[index];
         if (segment.Active)
         {
             if (segment.StaggerAngle < state.IdealInterSegmentTailAngle)
@@ -237,7 +237,7 @@ public sealed partial class RoomEnemySystem
                     if (next < state.TailWhipTargetClockwiseAngle)
                     {
                         segment.Angle = state.TailWhipTargetClockwiseAngle;
-                        DeactivateCeresRidleyTailSegment(segment);
+                        DeactivateRidleyTailSegment(segment);
                     }
                     else
                     {
@@ -268,7 +268,7 @@ public sealed partial class RoomEnemySystem
                     if (next >= state.TailWhipTargetCounterClockwiseAngle)
                     {
                         segment.Angle = state.TailWhipTargetCounterClockwiseAngle;
-                        DeactivateCeresRidleyTailSegment(segment);
+                        DeactivateRidleyTailSegment(segment);
                     }
                     else
                     {
@@ -297,9 +297,9 @@ public sealed partial class RoomEnemySystem
     /// offset consumed by $A6:CEBA. This is deliberately independent of the segment's active
     /// flag: inactive tail pieces keep their established pose rather than collapsing.
     /// </summary>
-    private void UpdateCeresRidleyTailSegmentOffset(CeresRidleyState state, int index)
+    private void UpdateRidleyTailSegmentOffset(RidleyEnemyState state, int index)
     {
-        CeresRidleyTailSegment segment = state.TailSegments[index];
+        RidleyTailSegment segment = state.TailSegments[index];
         byte angle = unchecked((byte)segment.Angle);
         if (index != 0)
             angle = unchecked((byte)(angle + state.TailSegments[index - 1].Angle));
@@ -310,7 +310,7 @@ public sealed partial class RoomEnemySystem
             unchecked((byte)(angle + 64)));
     }
 
-    private static void DeactivateCeresRidleyTailSegment(CeresRidleyTailSegment segment)
+    private static void DeactivateRidleyTailSegment(RidleyTailSegment segment)
     {
         segment.Active = false;
         segment.StaggerAngle = 0;
@@ -318,13 +318,13 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the six extend/shrink records at <c>$A6:CF5A-$D09E</c>.</summary>
-    private static void UpdateCeresRidleyTailDistances(CeresRidleyState state)
+    private static void UpdateRidleyTailDistances(RidleyEnemyState state)
     {
         ushort[] maximumDistances = [0, 0x1800, 0x1800, 0x1600, 0x1600, 0x1200, 0x0500];
         ushort[] neutralDistances = [0x0200, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0500];
         for (int index = 1; index < state.TailSegments.Length; index++)
         {
-            CeresRidleyTailSegment segment = state.TailSegments[index];
+            RidleyTailSegment segment = state.TailSegments[index];
             if (segment.TargetDistance != 0)
             {
                 if (segment.TargetDistance < segment.Distance)
@@ -341,19 +341,20 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports DrawRidleyTail $A6:DB2A and DrawRidleyWings $A6:DAD8.</summary>
-    private void DrawCeresRidleySupplementalSprites(
+    private void DrawRidleySupplementalSprites(
         OamBuffer oam,
         RoomEnemySlot slot,
         ushort cameraX,
         ushort cameraY)
     {
-        CeresRidleyState state = RequireCeresRidley(slot);
-        if (CeresStatus != 0 || state.MovementAnimationEnabled == 0)
+        RidleyEnemyState state = RequireRidley(slot);
+        if ((slot.EnemyDefinitionPointer == CeresRidleyDefinition && CeresStatus != 0) ||
+            state.MovementAnimationEnabled == 0)
             return;
 
         if (state.TailSegments.Length == 7)
         {
-            CeresRidleyTailSegment tip = state.TailSegments[6];
+            RidleyTailSegment tip = state.TailSegments[6];
             int tipIndex = unchecked((byte)(
                 tip.Angle + state.TailSegments[5].Angle + 8)) & 0xf0;
             ushort tipSpritemap = ReadWord(_bus!, 0xa6dcba + (tipIndex >> 3));
@@ -409,7 +410,7 @@ public sealed partial class RoomEnemySystem
     {
         ArgumentNullException.ThrowIfNull(oam);
         EnsureLoaded();
-        if (_ceresRidley is null || _ceresRidley.MovementAnimationEnabled != 0)
+        if (_ridleyState is null || _ridleyState.MovementAnimationEnabled != 0)
             return;
 
         DrawCeresRidleyBabyAndDoor(oam, cameraX, cameraY);
@@ -427,7 +428,7 @@ public sealed partial class RoomEnemySystem
     {
         ArgumentNullException.ThrowIfNull(oam);
         EnsureLoaded();
-        if (_ceresRidley is null || _ceresRidley.MovementAnimationEnabled == 0)
+        if (_ridleyState is null || _ridleyState.MovementAnimationEnabled == 0)
             return;
 
         DrawCeresRidleyBabyAndDoor(oam, cameraX, cameraY);
@@ -438,7 +439,7 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
-        CeresRidleyState state = _ceresRidley
+        RidleyEnemyState state = _ridleyState
             ?? throw new InvalidOperationException("Ceres Ridley Baby draw requires active state.");
 
         if (CeresStatus == 0)
@@ -478,7 +479,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private ushort AdvanceCeresBabyDrawInstruction(CeresRidleyState state)
+    private ushort AdvanceCeresBabyDrawInstruction(RidleyEnemyState state)
     {
         ushort cursor = state.BabyInstruction;
         for (int commandCount = 0; commandCount < 64; commandCount++)
@@ -587,7 +588,7 @@ public sealed partial class RoomEnemySystem
     private void DrawRidleyWorldSpritemap(
         OamBuffer oam,
         ushort paletteIndex,
-        CeresRidleyTailSegment segment,
+        RidleyTailSegment segment,
         ushort spritemap,
         ushort cameraX,
         ushort cameraY)
@@ -619,7 +620,7 @@ public sealed partial class RoomEnemySystem
         // Samus's invincibility timer. It does not inspect the bank-$90 knockback-active
         // word. The extra host guard previously made a stale/ongoing aerial knockback
         // suppress every later Ridley overlap even after invincibility had expired.
-        if (_ceresRidley is null || CeresStatus != 0 || samus.InvincibilityTimer != 0)
+        if (_ridleyState is null || CeresStatus != 0 || samus.InvincibilityTimer != 0)
         {
             return false;
         }
@@ -634,13 +635,13 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        if (_ceresRidley.MovementAnimationEnabled != 0 &&
-            _ceresRidley.TailSegments.Length == 7)
+        if (_ridleyState.MovementAnimationEnabled != 0 &&
+            _ridleyState.TailSegments.Length == 7)
         {
             // Ridley_Func_127 at $A6:DFD9 checks a radius-14 rectangle centered on the
             // solved tail tip before the common extended-body collision pass. Ceres writes
             // tail damage $000F during initialization, independently of header damage five.
-            CeresRidleyTailSegment tip = _ceresRidley.TailSegments[6];
+            RidleyTailSegment tip = _ridleyState.TailSegments[6];
             int xDistance = Math.Abs(unchecked((short)(samus.XPosition - tip.XPosition)));
             int yDistance = Math.Abs(unchecked((short)(samus.YPosition - tip.YPosition)));
             if (xDistance < samus.Kinematics.XRadius + 14 &&
@@ -649,7 +650,7 @@ public sealed partial class RoomEnemySystem
                 ApplyNormalEnemyTouchDamage(
                     samus,
                     controllerInput,
-                    _ceresRidley.TailDamage,
+                    _ridleyState.TailDamage,
                     tip.XPosition);
                 return true;
             }

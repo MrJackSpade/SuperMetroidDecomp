@@ -384,9 +384,9 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports Ridley instruction $A6:E84D and retains its asymmetric aim clamps.</summary>
-    private void CalculateCeresRidleyFireballVelocity(RoomEnemySlot ridley, SamusState samus)
+    private void CalculateRidleyFireballVelocity(RoomEnemySlot ridley, SamusState samus)
     {
-        CeresRidleyState state = RequireCeresRidley(ridley);
+        RidleyEnemyState state = RequireRidley(ridley);
         int muzzleX = ridley.XPosition + (state.FacingDirection == 0 ? -25 : 25);
         int muzzleY = ridley.YPosition - 43;
         byte cartridgeAngle = CalculateCartridgeAngle(
@@ -429,13 +429,13 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Allocates and initializes enemy projectile $86:9642.</summary>
-    private void SpawnCeresRidleyFireball(RoomEnemySlot ridley, bool spawnAfterburn)
+    private void SpawnRidleyFireball(RoomEnemySlot ridley, bool spawnAfterburn)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
-        CeresRidleyState state = RequireCeresRidley(ridley);
+        RidleyEnemyState state = RequireRidley(ridley);
         projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
         projectile.XPosition = unchecked((ushort)(ridley.XPosition +
             (state.FacingDirection == 0 ? -25 : 25)));

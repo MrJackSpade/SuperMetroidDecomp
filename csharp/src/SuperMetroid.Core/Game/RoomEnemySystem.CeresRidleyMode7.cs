@@ -13,7 +13,7 @@ public sealed partial class RoomEnemySystem
     /// setup routine; in particular B and C intentionally begin at $0100 before the first
     /// getaway-table entry replaces the matrix.
     /// </summary>
-    private static void SetupCeresRidleyMode7(CeresRidleyState state)
+    private static void SetupCeresRidleyMode7(RidleyEnemyState state)
     {
         state.Mode7Active = true;
         state.Mode7Finished = false;
@@ -38,7 +38,7 @@ public sealed partial class RoomEnemySystem
     /// in room-world coordinates exactly as she does during the boss-room getaway.
     /// </summary>
     private void TickCeresRidleyMode7Getaway(
-        CeresRidleyState state,
+        RidleyEnemyState state,
         SamusState? samus,
         ushort nmiFrameCounter)
     {
@@ -105,7 +105,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void UpdateCeresRidleyMode7Matrix(CeresRidleyState state)
+    private void UpdateCeresRidleyMode7Matrix(RidleyEnemyState state)
     {
         byte angle = unchecked((byte)(state.Mode7Angle >> 8));
         ushort diagonal = MultiplyCartridgeSinCos(state.Mode7Zoom, unchecked((byte)(angle + 64)));

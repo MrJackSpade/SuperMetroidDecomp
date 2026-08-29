@@ -47,7 +47,7 @@ public sealed partial class RoomEnemySystem
     private ushort _randomEnemyCounter;
     private SnesVram? _vram;
     private SnesCgram? _cgram;
-    private CeresRidleyState? _ceresRidley;
+    private RidleyEnemyState? _ridleyState;
     private SporeSpawnEnemyState? _sporeSpawn;
     private bool _processAllEnemies;
 
@@ -99,12 +99,20 @@ public sealed partial class RoomEnemySystem
     public ushort EarthquakeType { get; set; }
 
     /// <summary>
-    /// Ridley's bank-$A6 state extension while enemy $E13F owns slot zero. The native actor
+    /// Ridley's bank-$A6 state extension while either encounter owns slot zero. The native actor
     /// extends far beyond the common $40-byte enemy record, so exposing a deliberately named
     /// object is both more accurate and considerably easier to inspect than aliasing dozens
     /// of unrelated generic slot words.
     /// </summary>
-    public CeresRidleyState? CeresRidley => _ceresRidley;
+    public RidleyEnemyState? Ridley => _ridleyState;
+
+    /// <summary>
+    /// Compatibility view used by the existing Ceres debugger. It deliberately becomes
+    /// null for Lower Norfair Ridley so callers cannot accidentally apply Baby/Mode-7
+    /// encounter assumptions to the real boss fight.
+    /// </summary>
+    public RidleyEnemyState? CeresRidley =>
+        _slots[0].EnemyDefinitionPointer == CeresRidleyDefinition ? _ridleyState : null;
 
     /// <summary>
     /// Native <c>ceres_status</c> word consumed by the Ceres door actor. Fresh station load
@@ -229,7 +237,7 @@ public sealed partial class RoomEnemySystem
         FirefleaDarknessLevel = 0;
         EarthquakeTimer = 0;
         EarthquakeType = 0;
-        _ceresRidley = null;
+        _ridleyState = null;
         _processAllEnemies = false;
         Array.Clear(_boyonStates);
         Array.Clear(_stokeStates);
@@ -657,16 +665,16 @@ public sealed partial class RoomEnemySystem
                 // layer-1 position, so preserve modular 16-bit arithmetic here.
                 ushort originX = unchecked((ushort)(slot.SpawnXOffset + slot.XPosition - cameraX));
                 ushort originY = unchecked((ushort)(slot.SpawnYOffset + slot.YPosition - cameraY));
-                ushort drawPaletteIndex = slot.EnemyDefinitionPointer == CeresRidleyDefinition &&
-                    _ceresRidley is not null
-                        ? _ceresRidley.CommonDrawPaletteIndex
+                ushort drawPaletteIndex = IsRidleyDefinition(slot.EnemyDefinitionPointer) &&
+                    _ridleyState is not null
+                        ? _ridleyState.CommonDrawPaletteIndex
                         : slot.PaletteIndex;
-                if (slot.EnemyDefinitionPointer == CeresRidleyDefinition)
+                if (IsRidleyDefinition(slot.EnemyDefinitionPointer))
                 {
-                    // CeresRidley_Main calls DrawRidleyTail/DrawRidleyWings before the
+                    // Both Ridley mains call DrawRidleyTail/DrawRidleyWings before the
                     // common WriteEnemyOams pass emits the extended body. Appending these
                     // here preserves both that OAM order and the enemy's normal layer queue.
-                    DrawCeresRidleySupplementalSprites(oam, slot, cameraX, cameraY);
+                    DrawRidleySupplementalSprites(oam, slot, cameraX, cameraY);
                 }
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
@@ -1020,8 +1028,11 @@ public sealed partial class RoomEnemySystem
             case 0xa6f6c5:
                 InitializeCeresDoor(slot);
                 return;
-            case 0xa6a0f5 when slot.EnemyDefinitionPointer == 0xe13f:
+            case 0xa6a0f5 when slot.EnemyDefinitionPointer == CeresRidleyDefinition:
                 InitializeCeresRidley(slot);
+                return;
+            case 0xa6a0f5 when slot.EnemyDefinitionPointer == NorfairRidleyDefinition:
+                InitializeNorfairRidley(slot);
                 return;
             case 0xa686f5 when slot.EnemyDefinitionPointer == BoulderDefinition:
                 InitializeBoulder(slot);
@@ -1472,6 +1483,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa6a288 when slot.EnemyDefinitionPointer == 0xe13f:
                 RunCeresRidleyMain(slot, samus);
+                return;
+            case 0xa6b227 when slot.EnemyDefinitionPointer == NorfairRidleyDefinition:
+                RunNorfairRidleyMain(slot, samus, controllerInput, level);
                 return;
             case 0xa68793 when slot.EnemyDefinitionPointer == BoulderDefinition:
                 RunBoulderMain(slot, RequireBoulderState(slot), samus, level);
@@ -2447,7 +2461,7 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe4be: // Ridley: begin roar; audio playback is outside this subsystem.
-                    RequireCeresRidley(slot).Roaring = true;
+                    RequireRidley(slot).Roaring = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe61d when slot.EnemyDefinitionPointer == SparkDefinition:
@@ -2582,10 +2596,15 @@ public sealed partial class RoomEnemySystem
                     cursor = SelectWalkingSpacePirateMovement(slot, samus);
                     break;
                 case 0xe4ca: // Ridley: close mouth / clear the roaring presentation flag.
-                    RequireCeresRidley(slot).Roaring = false;
+                    RequireRidley(slot).Roaring = false;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xe4d2: // Ceres: low-energy branch embedded in the fireball animation.
+                case 0xe4d2: // Ridley: Ceres low-energy branch; area two always skips its operand.
+                    if (slot.EnemyDefinitionPointer == NorfairRidleyDefinition)
+                    {
+                        cursor = unchecked((ushort)(cursor + 4));
+                        break;
+                    }
                     if (samus is null)
                     {
                         throw new InvalidOperationException(
@@ -2597,14 +2616,31 @@ public sealed partial class RoomEnemySystem
                             (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))
                         : unchecked((ushort)(cursor + 4));
                     break;
-                case 0xe501: // Ceres Ridley: select feet-distance animation index operand.
-                    RequireCeresRidley(slot).FeetDistanceIndex = ReadWord(
+                case 0xe4ee: // Ridley: choose one of two lists according to grabbed-Samus state.
+                    RidleyEnemyState grabbedBranch = RequireRidley(slot);
+                    ushort branchOperand = grabbedBranch.GrabState != 0
+                        ? (ushort)2
+                        : (ushort)4;
+                    cursor = ReadWord(
+                        _bus!,
+                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + branchOperand)));
+                    break;
+                case 0xe4f8: // Ridley: skip an operand while carrying Samus, otherwise branch.
+                    RidleyEnemyState carryBranch = RequireRidley(slot);
+                    cursor = carryBranch.GrabState != 0
+                        ? unchecked((ushort)(cursor + 4))
+                        : ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    break;
+                case 0xe501: // Ridley: select feet/hand-distance animation index operand.
+                    RequireRidley(slot).FeetDistanceIndex = ReadWord(
                         _bus!,
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case 0xe517: // Ridley: branch to operand when he is not facing left.
-                    CeresRidleyState ridley = RequireCeresRidley(slot);
+                    RidleyEnemyState ridley = RequireRidley(slot);
                     cursor = ridley.FacingDirection != 0
                         ? ReadWord(
                             _bus!,
@@ -2620,27 +2656,49 @@ public sealed partial class RoomEnemySystem
                         ReadWord(_bus!, (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 4)))));
                     cursor = unchecked((ushort)(cursor + 6));
                     break;
+                case 0xe71c: // Ridley: face left and mirror the shared tail workspace.
+                    MirrorRidleyTail(RequireRidley(slot));
+                    RequireRidley(slot).FacingDirection = 0;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xe727: // Ridley: use the front-facing transition frame.
+                    RequireRidley(slot).FacingDirection = 1;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xe72f: // Ridley: face right and mirror the shared tail workspace.
+                    MirrorRidleyTail(RequireRidley(slot));
+                    RequireRidley(slot).FacingDirection = 2;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
                 case 0xe84d: // Ridley: aim the next fireball from the facing-dependent mouth.
                     if (samus is null)
                     {
                         throw new InvalidOperationException(
                             "Ceres Ridley fireball aim requires the active Samus actor.");
                     }
-                    CalculateCeresRidleyFireballVelocity(slot, samus);
+                    CalculateRidleyFireballVelocity(slot, samus);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe904: // Ridley: spawn the leading fireball with a wall afterburn.
-                    SpawnCeresRidleyFireball(slot, spawnAfterburn: true);
+                    SpawnRidleyFireball(slot, spawnAfterburn: true);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe909: // Ridley: spawn a following fireball without an afterburn.
-                    SpawnCeresRidleyFireball(slot, spawnAfterburn: false);
+                    SpawnRidleyFireball(slot, spawnAfterburn: false);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe969: // Ceres Ridley: animation hands control to accelerating liftoff.
-                    CeresRidleyState liftoff = RequireCeresRidley(slot);
-                    liftoff.Function = CeresRidleyAiFunction.LiftoffAccelerating;
+                    RidleyEnemyState liftoff = RequireCeresRidley(slot);
+                    liftoff.Function = RidleyAiFunction.CeresLiftoffAccelerating;
                     liftoff.VerticalVelocity = unchecked((ushort)-352);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xe976 when slot.EnemyDefinitionPointer == NorfairRidleyDefinition:
+                    // The shared roar/liftoff list hands control to the real fight at
+                    // $B2F3 and supplies the initial upward 8.8 velocity in the same tick.
+                    RidleyEnemyState norfairLiftoff = RequireNorfairRidley(slot);
+                    norfairLiftoff.Function = RidleyAiFunction.NorfairEnterArena;
+                    norfairLiftoff.VerticalVelocity = unchecked((ushort)-352);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xf11d: // Ceres steam: hide and exclude from interaction.

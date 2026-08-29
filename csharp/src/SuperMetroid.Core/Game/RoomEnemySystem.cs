@@ -223,6 +223,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_dachoraStates);
         Array.Clear(_evirStates);
         Array.Clear(_morphBallEyeStates);
+        Array.Clear(_wreckedShipGhostStates);
         MorphBallEyeBeam.Reset();
         Array.Clear(_hopperStates);
         Array.Clear(_zoaStates);
@@ -961,6 +962,9 @@ public sealed partial class RoomEnemySystem
             case 0xa89058 when slot.EnemyDefinitionPointer == MorphBallEyeDefinition:
                 InitializeMorphBallEye(slot);
                 return;
+            case 0xa89aee when slot.EnemyDefinitionPointer == WreckedShipGhostDefinition:
+                InitializeWreckedShipGhost(slot);
+                return;
             case 0xa2e49f when slot.EnemyDefinitionPointer == RipperDefinition:
                 InitializeRipper(slot);
                 return;
@@ -1379,6 +1383,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa890e2 when slot.EnemyDefinitionPointer == MorphBallEyeDefinition:
                 RunMorphBallEyeMain(slot, RequireMorphBallEyeState(slot), samus);
+                return;
+            case 0xa89b3c when slot.EnemyDefinitionPointer == WreckedShipGhostDefinition:
+                RunWreckedShipGhostMain(slot, RequireWreckedShipGhostState(slot), samus);
                 return;
             case 0xa2e4da when slot.EnemyDefinitionPointer == RipperDefinition:
                 RunRipperMain(slot, level);

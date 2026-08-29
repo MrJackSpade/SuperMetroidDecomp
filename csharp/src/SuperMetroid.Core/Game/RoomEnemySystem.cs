@@ -136,7 +136,9 @@ public sealed partial class RoomEnemySystem
         Action? setAreaMiniBossDefeated = null,
         Func<bool>? isAreaTorizoDefeated = null,
         Action? setAreaTorizoDefeated = null,
-        Func<ushort, bool>? isRoomPlmPresent = null)
+        Func<ushort, bool>? isRoomPlmPresent = null,
+        Action<bool>? setSamusControlsEnabled = null,
+        Action<int, byte>? setRoomScrollByte = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -198,6 +200,7 @@ public sealed partial class RoomEnemySystem
         ResetBombTorizoRoomState();
         ResetTourianEntranceStatueRoomState();
         ResetShaktoolRoomState();
+        ResetChozoStatueRoomState(setSamusControlsEnabled, setRoomScrollByte);
         ResetRinkaRoomState(cameraX, cameraY);
         ResetRioRoomState();
         ResetNorfairLavaJumpingEnemyRoomState();
@@ -1162,6 +1165,12 @@ public sealed partial class RoomEnemySystem
             case 0xaade43 when slot.EnemyDefinitionPointer == ShaktoolDefinition:
                 InitializeShaktool(slot);
                 return;
+            case 0xaae716 when slot.EnemyDefinitionPointer == N00bTubeCracksDefinition:
+                InitializeN00bTubeCracks();
+                return;
+            case 0xaae725 when slot.EnemyDefinitionPointer == ChozoStatueDefinition:
+                InitializeChozoStatue(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -1635,6 +1644,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xaadca3 when slot.EnemyDefinitionPointer == ShaktoolDefinition:
                 RunShaktoolMain(slot, RequireShaktoolState(slot), level);
+                return;
+            case 0xaae7a7 when slot.EnemyDefinitionPointer == ChozoStatueDefinition:
+                RunChozoStatueMain(slot, RequireChozoStatueState(slot));
                 return;
             default:
                 throw new NotSupportedException(
@@ -2723,6 +2735,15 @@ public sealed partial class RoomEnemySystem
                         break;
                     if (TryProcessShaktoolInstruction(slot, word, ref cursor))
                         break;
+                    if (TryProcessChozoStatueInstruction(
+                            slot,
+                            samus,
+                            level,
+                            word,
+                            ref cursor))
+                    {
+                        break;
+                    }
                     if (TryProcessBombTorizoInstruction(
                             slot,
                             samus,

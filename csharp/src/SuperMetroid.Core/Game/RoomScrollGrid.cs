@@ -133,6 +133,19 @@ public sealed class RoomScrollGrid
     public RoomScrollState ReadNativeState(int index) =>
         (RoomScrollState)ReadNativeStorage(index);
 
+    /// <summary>
+    /// Writes one raw byte in the fixed 50-byte scroll allocation. Enemy and PLM scripts use
+    /// literal WRAM indexes rather than logical room coordinates, so this seam preserves their
+    /// overlapping word stores without reverse-engineering them into guessed screen cells.
+    /// </summary>
+    public void SetStorage(int index, byte value)
+    {
+        if ((uint)index >= StorageByteCount)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        _cells[index] = value;
+        _bus.WriteByte(WorkRamAddress + index, value);
+    }
+
     /// <summary>Updates a logical cell as a scroll PLM would.</summary>
     public void SetLogicalCell(int x, int y, byte value)
     {

@@ -72,6 +72,8 @@ public enum RoomEnemyProjectileKind : ushort
     TourianStatueRidley = 0xbaa2,
     TourianStatuePhantoon = 0xbab0,
     TourianStatueBaseDecoration = 0xbabe,
+    WreckedShipChozoSpikeFootstep = 0xaf68,
+    WreckedShipChozoSpikeFootstepAlternate = 0xaf76,
     ShaktoolAttackFrontCircle = 0xbe25,
     ShaktoolAttackMiddleCircle = 0xbe33,
     ShaktoolAttackBackCircle = 0xbe41,

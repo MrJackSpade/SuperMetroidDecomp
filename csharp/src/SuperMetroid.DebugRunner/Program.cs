@@ -270,6 +270,12 @@ if (args.Length >= 2 && args[0] == "--shaktool-audit")
     return ShaktoolAudit.Run(shaktoolRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--chozo-statue-audit")
+{
+    string chozoStatueRomPath = string.Join(' ', args[1..]).Trim('"');
+    return ChozoStatueAudit.Run(chozoStatueRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

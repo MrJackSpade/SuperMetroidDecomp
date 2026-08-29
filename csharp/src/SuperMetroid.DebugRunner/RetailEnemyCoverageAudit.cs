@@ -74,6 +74,8 @@ internal static class RetailEnemyCoverageAudit
             [0xef7f] = "Golden Torizo",
             [0xefff] = "Tourian entrance statue",
             [0xf07f] = "Shaktool",
+            [0xf0bf] = "N00b Tube cracks palette actor",
+            [0xf0ff] = "Chozo statue controller",
             [0xf193] = "Brinstar Pipe Bug",
             [0xf1d3] = "strong Brinstar Pipe Bug",
             [0xf213] = "Norfair Pipe Bug",

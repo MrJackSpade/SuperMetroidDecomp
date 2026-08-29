@@ -128,18 +128,34 @@ public sealed class CartridgeRoomAssets
         byte[] levelStream,
         byte[] blockDefinitions)
     {
-        int blockCount = checked(header.WidthInScreens * 16 * header.HeightInScreens * 16);
-        int layerByteCount = checked(blockCount * 2);
+        int widthInBlocks = checked(header.WidthInScreens * 16);
+        int visibleHeightInBlocks = checked(header.HeightInScreens * 16);
+        int visibleBlockCount = checked(widthInBlocks * visibleHeightInBlocks);
         if (levelStream.Length < 2)
             throw new InvalidDataException("Compressed room level stream has no size word.");
 
         int declaredLayerBytes = BinaryPrimitives.ReadUInt16LittleEndian(levelStream);
-        if (declaredLayerBytes != layerByteCount)
+        if ((declaredLayerBytes & 1) != 0)
         {
             throw new InvalidDataException(
-                $"Room $8F:{header.Pointer:X4} declares ${declaredLayerBytes:X} BG1 bytes, " +
-                $"but its {header.WidthInScreens}x{header.HeightInScreens} header requires ${layerByteCount:X}.");
+                $"Room $8F:{header.Pointer:X4} declares an odd ${declaredLayerBytes:X} BG1 byte count.");
         }
+
+        // The room header constrains camera screens; the stream's leading word constrains
+        // the physical level_data/BTS allocations. Most rooms make them equal, but Wrecked
+        // Ship room $C98E is a shipped counterexample: its 6x3 camera owns a 6x4-screen
+        // allocation. Bank $84 scripts and enemy collision may address those extra rows, so
+        // retain them instead of truncating valid cartridge data or adding a room exception.
+        int blockCount = declaredLayerBytes / 2;
+        if (blockCount < visibleBlockCount || blockCount % widthInBlocks != 0)
+        {
+            throw new InvalidDataException(
+                $"Room $8F:{header.Pointer:X4} declares ${declaredLayerBytes:X} BG1 bytes " +
+                $"({blockCount} blocks), which cannot contain its {header.WidthInScreens}x" +
+                $"{header.HeightInScreens} visible screens in complete {widthInBlocks}-block rows.");
+        }
+        int allocationHeightInBlocks = blockCount / widthInBlocks;
+        int layerByteCount = declaredLayerBytes;
 
         int foregroundOffset = 2;
         int behaviorOffset = foregroundOffset + layerByteCount;
@@ -184,8 +200,8 @@ public sealed class CartridgeRoomAssets
         Array.Fill(streamingBackground, (ushort)0x8000);
         background.CopyTo(streamingBackground, 0);
         return new RoomLevelData(
-            header.WidthInScreens * 16,
-            header.HeightInScreens * 16,
+            widthInBlocks,
+            allocationHeightInBlocks,
             foreground,
             behavior,
             background,

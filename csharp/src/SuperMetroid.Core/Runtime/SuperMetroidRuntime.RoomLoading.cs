@@ -217,7 +217,9 @@ public sealed partial class SuperMetroidRuntime
             isAreaTorizoDefeated: () =>
                 System.HasAnyBossBits(room.AreaIndex, BossBits.AreaTorizo),
             setAreaTorizoDefeated: () =>
-                System.SetBossBits(room.AreaIndex, BossBits.AreaTorizo));
+                System.SetBossBits(room.AreaIndex, BossBits.AreaTorizo),
+            setSamusControlsEnabled: enabled => GroundedSamusMovementEnabled = enabled,
+            setRoomScrollByte: (index, value) => Camera.Scrolls.SetStorage(index, value));
         ApplyPendingBotwoonWallPlm();
         Enemies.QueueGraphicsUploads(VramWrites);
 

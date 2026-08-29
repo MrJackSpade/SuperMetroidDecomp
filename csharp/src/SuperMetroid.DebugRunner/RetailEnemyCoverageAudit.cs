@@ -56,6 +56,7 @@ internal static class RetailEnemyCoverageAudit
             [0xd5ff] = "Kamer vertical platform",
             [0xdfbf] = "Boulder",
             [0xe27f] = "Zebetites",
+            [0xe5bf] = "Etecoon",
         };
         var focusedPopulations = focusedDefinitions.Keys.ToDictionary(
             definition => definition,

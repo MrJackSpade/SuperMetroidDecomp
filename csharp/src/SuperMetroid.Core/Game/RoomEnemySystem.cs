@@ -164,6 +164,7 @@ public sealed partial class RoomEnemySystem
         LastMetroidSoundEffectLibrary3 = null;
         LastBoulderSoundEffect = null;
         LastZebetiteSoundEffect = null;
+        LastEtecoonSoundEffect = null;
         PaletteChangeNumber = 0;
         _metroidDropRequests.Clear();
         LastHopperSoundEffect = null;
@@ -215,6 +216,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_metroidStates);
         Array.Clear(_boulderStates);
         Array.Clear(_zebetiteStates);
+        Array.Clear(_etecoonStates);
         Array.Clear(_hopperStates);
         Array.Clear(_zoaStates);
         Array.Clear(_yardStates);
@@ -372,6 +374,7 @@ public sealed partial class RoomEnemySystem
         LastMetroidSoundEffectLibrary3 = null;
         LastBoulderSoundEffect = null;
         LastZebetiteSoundEffect = null;
+        LastEtecoonSoundEffect = null;
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
@@ -929,6 +932,9 @@ public sealed partial class RoomEnemySystem
             case 0xa6fb72 when slot.EnemyDefinitionPointer == ZebetiteDefinition:
                 InitializeZebetite(slot);
                 return;
+            case 0xa7e912 when slot.EnemyDefinitionPointer == EtecoonDefinition:
+                InitializeEtecoon(slot);
+                return;
             case 0xa2e49f when slot.EnemyDefinitionPointer == RipperDefinition:
                 InitializeRipper(slot);
                 return;
@@ -1322,6 +1328,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa6fc33 when slot.EnemyDefinitionPointer == ZebetiteDefinition:
                 RunZebetiteMain(slot, RequireZebetiteState(slot));
+                return;
+            case 0xa7e940 when slot.EnemyDefinitionPointer == EtecoonDefinition:
+                RunEtecoonMain(slot, RequireEtecoonState(slot), samus, level);
                 return;
             case 0xa2e4da when slot.EnemyDefinitionPointer == RipperDefinition:
                 RunRipperMain(slot, level);

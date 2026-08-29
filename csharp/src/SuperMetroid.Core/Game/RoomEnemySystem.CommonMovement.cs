@@ -219,6 +219,40 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    /// <summary>
+    /// Ports <c>EnemyFunc_BBBF</c> at $A0:BBBF. Unlike the ordinary horizontal collision
+    /// mover, this look-ahead probe deliberately considers only raw level-word bit fifteen
+    /// and does not resolve BTS extensions or slope geometry.
+    /// </summary>
+    private static bool EnemyHasSolidHighBitHorizontallyAhead(
+        RoomLevelData level,
+        RoomEnemySlot slot,
+        int displacement)
+    {
+        uint position = ((uint)slot.XPosition << 16) | slot.XSubposition;
+        ushort targetCenter = unchecked((ushort)((position + (uint)displacement) >> 16));
+        bool movingLeft = displacement < 0;
+        ushort targetEdge = movingLeft
+            ? unchecked((ushort)(targetCenter - slot.XRadius))
+            : unchecked((ushort)(targetCenter + slot.XRadius - 1));
+
+        ushort topPixel = unchecked((ushort)(slot.YPosition - slot.YRadius));
+        ushort bottomPixel = unchecked((ushort)(slot.YPosition + slot.YRadius - 1));
+        int firstRow = topPixel >> 4;
+        int lastRow = bottomPixel >> 4;
+        int column = targetEdge >> 4;
+        for (int row = firstRow; row <= lastRow; row++)
+        {
+            if ((uint)column >= (uint)level.WidthInBlocks ||
+                (uint)row >= (uint)level.HeightInBlocks ||
+                (level.GetCollisionBlock(column, row).LevelWord & 0x8000) != 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private bool EnemyHorizontalProbeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,

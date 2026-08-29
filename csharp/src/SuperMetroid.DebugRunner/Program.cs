@@ -186,6 +186,12 @@ if (args.Length >= 2 && args[0] == "--zebetite-audit")
     return ZebetiteAudit.Run(zebetiteRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--etecoon-audit")
+{
+    string etecoonRomPath = string.Join(' ', args[1..]).Trim('"');
+    return EtecoonAudit.Run(etecoonRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

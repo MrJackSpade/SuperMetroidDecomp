@@ -1001,9 +1001,13 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == RinkaPowerBombAi;
             bool isDragon = enemy.EnemyDefinitionPointer == DragonDefinition &&
                 reactionPointer == DragonPowerBombAi;
-            bool isGrowingShutterNoOp =
-                enemy.EnemyDefinitionPointer == GrowingShutterDefinition &&
-                reactionPointer == GrowingShutterNoOpAi;
+            // Several banks install a one-byte `RTL` callback when an enemy must receive
+            // the native power-bomb collision prelude but deliberately take no damage.
+            // Recognize the executable contract itself instead of maintaining a bespoke
+            // definition list: Etecoon and the growing shutter both use bank-local $804C,
+            // and any future retail header pointing at a literal RTL has identical meaning.
+            bool isLiteralNoOpReaction = reactionPointer != 0 &&
+                bus.ReadByte((enemy.Definition.Bank << 16) | reactionPointer) == 0x6b;
             bool isVerticalShutterReaction =
                 IsVerticalShutterDefinition(enemy.EnemyDefinitionPointer) &&
                 reactionPointer == VerticalShutterPowerBombAi;
@@ -1020,7 +1024,7 @@ public sealed partial class RoomEnemySystem
             if (reactionPointer != 0 && !isFireflea && !isPowamp && !isFakeKraid &&
                 !isMagdollite && !isRinka &&
                 !isDragon &&
-                !isGrowingShutterNoOp &&
+                !isLiteralNoOpReaction &&
                 !isVerticalShutterReaction &&
                 !isHorizontalShutterReaction &&
                 !isSpacePiratePowerBombReaction &&
@@ -1032,10 +1036,10 @@ public sealed partial class RoomEnemySystem
             }
 
             // These headers install private callbacks instead of falling through common
-            // power-bomb damage. $804C is a literal RTL for the growing shutter; the other
-            // two callbacks only run their trigger state machines. All still receive the
-            // native process-off-screen bit after a qualifying ellipse overlap.
-            if (isGrowingShutterNoOp || isVerticalShutterReaction || isHorizontalShutterReaction)
+            // power-bomb damage. A literal RTL intentionally does nothing; the other two
+            // callbacks only run their trigger state machines. All still receive the native
+            // process-off-screen bit after a qualifying ellipse overlap.
+            if (isLiteralNoOpReaction || isVerticalShutterReaction || isHorizontalShutterReaction)
             {
                 if (isVerticalShutterReaction)
                     ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms;
@@ -31,8 +32,21 @@ public sealed class RoomPlmSystem
     private const ushort QueueSoundLibrary2Maximum1Instruction = 0x8c79;
     private const ushort QueueSoundLibrary2Maximum1DirectInstruction = 0x8c7c;
     private const ushort GotoInstruction = 0x8724;
+    private const ushort DecrementTimerAndGotoInstruction = 0x873f;
+    private const ushort SetEightBitTimerInstruction = 0x874e;
     private const ushort SetPlmBtsTo1Instruction = 0xcd93;
     private const ushort DeleteInstructionList = 0xaae3;
+    private const ushort SetBotwoonScrollsBlueInstruction = 0xab51;
+    private const ushort MoveBotwoonPlmDownOneBlockInstruction = 0xab59;
+
+    // These are the instruction-list words stored in the two hardcoded Botwoon PLM
+    // headers. Keeping the headers at the API boundary and the lists inside the interpreter
+    // mirrors SpawnHardcodedPLM: callers identify a cartridge object, while setup selects
+    // the executable stream and its initial timer.
+    private const ushort ClearBotwoonWallHeader = 0xb797;
+    private const ushort CrumbleBotwoonWallHeader = 0xb79b;
+    private const ushort ClearBotwoonWallInstructionList = 0xab67;
+    private const ushort CrumbleBotwoonWallInstructionList = 0xab31;
 
     // `$94:936B` selects these eight entry IDs from BTS 0..7. Their setup pointer is common,
     // so storing the post-setup instruction-list pointer is sufficient after we reproduce
@@ -125,9 +139,62 @@ public sealed class RoomPlmSystem
             slot.RestoreLevelWord = 0;
             slot.InstructionPointer = 0;
             slot.InstructionTimer = 0;
+            slot.LoopTimer = 0;
         }
         _soundRequests.Clear();
         _tilemapUpdates.Clear();
+    }
+
+    /// <summary>
+    /// Spawns Botwoon's hardcoded wall PLM at room block (15,4), preserving the header's
+    /// setup routine and the retail descending 40-slot allocation order.
+    /// </summary>
+    /// <remarks>
+    /// Header <c>$B797</c> has an RTS setup and clears an already-defeated room on the next
+    /// handler pass. Header <c>$B79B</c> runs setup <c>$84:AB28</c>, which delays its crumble
+    /// list for exactly 64 PLM frames. The live list itself moves one block downward after
+    /// each four-frame, four-image row and repeats nine times using PLM_Timers.
+    /// </remarks>
+    /// <returns>False only when all 40 native PLM slots are occupied.</returns>
+    public bool TrySpawnBotwoonWall(RoomLevelData level, ushort header)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        if (header is not (ClearBotwoonWallHeader or CrumbleBotwoonWallHeader))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(header),
+                header,
+                "Botwoon wall header must be $B797 (clear) or $B79B (crumble).");
+        }
+
+        // Both `$B3:9590` and `$B3:9ADD` pass the literal hardcoded coordinates (15,4).
+        // Validate through RoomLevelData rather than allowing a malformed fixture to install
+        // a PLM whose later vertical draws would address unrelated host memory.
+        int blockIndex = level.GetBlockIndex(15, 4);
+        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
+        {
+            PlmSlot slot = _slots[slotIndex];
+            if (slot.Active)
+                continue;
+
+            slot.Active = true;
+            slot.BlockIndex = blockIndex;
+            slot.RestoreLevelWord = 0;
+            slot.LoopTimer = 0;
+            slot.InstructionPointer = header == ClearBotwoonWallHeader
+                ? ClearBotwoonWallInstructionList
+                : CrumbleBotwoonWallInstructionList;
+
+            // SpawnHardcodedPLM initializes a new slot's instruction timer to one. Only the
+            // live crumble header replaces it: setup `$84:AB28` writes $0040 to the separate
+            // PLM instruction-timer allocation before returning to the enemy initializer.
+            slot.InstructionTimer = header == CrumbleBotwoonWallHeader
+                ? (ushort)64
+                : (ushort)1;
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -662,7 +729,8 @@ public sealed class RoomPlmSystem
         BackgroundTilemapStreamer streamer,
         ushort layer1XPosition,
         ushort layer1YPosition,
-        ushort bg1XOffset)
+        ushort bg1XOffset,
+        RoomScrollGrid? scrolls = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -687,7 +755,8 @@ public sealed class RoomPlmSystem
                 slot,
                 layer1XPosition,
                 layer1YPosition,
-                bg1XOffset);
+                bg1XOffset,
+                scrolls);
         }
 
         return _tilemapUpdates;
@@ -700,7 +769,8 @@ public sealed class RoomPlmSystem
         PlmSlot slot,
         ushort layer1XPosition,
         ushort layer1YPosition,
-        ushort bg1XOffset)
+        ushort bg1XOffset,
+        RoomScrollGrid? scrolls)
     {
         // An instruction list may execute multiple negative instruction words before it
         // reaches a positive timer/draw pair. The guard catches corrupt ROM/test data while
@@ -776,6 +846,50 @@ public sealed class RoomPlmSystem
                     slot.InstructionPointer = ReadBank84Word(
                         bus,
                         unchecked((ushort)(slot.InstructionPointer + 2)));
+                    continue;
+
+                case SetEightBitTimerInstruction:
+                    // `$84:874E` consumes an odd one-byte operand into PLM_Timers, not the
+                    // instruction countdown. Botwoon's list seeds nine vertical rows here.
+                    slot.LoopTimer = bus.ReadByte(
+                        0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
+                    continue;
+
+                case DecrementTimerAndGotoInstruction:
+                    // `$84:873F` always decrements the independent PLM_Timers word. A
+                    // nonzero result jumps through the following pointer; zero consumes it.
+                    slot.LoopTimer = unchecked((ushort)(slot.LoopTimer - 1));
+                    if (slot.LoopTimer != 0)
+                    {
+                        slot.InstructionPointer = ReadBank84Word(
+                            bus,
+                            unchecked((ushort)(slot.InstructionPointer + 2)));
+                    }
+                    else
+                    {
+                        slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
+                    }
+                    continue;
+
+                case SetBotwoonScrollsBlueInstruction:
+                    if (scrolls is null)
+                    {
+                        throw new InvalidOperationException(
+                            "Botwoon's scroll PLM requires the active room scroll grid.");
+                    }
+                    // `$84:AB51` performs one 16-bit store of $0101 at Scrolls. Express the
+                    // two raw leading cells semantically while retaining the same WRAM mirror.
+                    scrolls.SetLogicalCell(0, 0, (byte)RoomScrollState.Blue);
+                    scrolls.SetLogicalCell(1, 0, (byte)RoomScrollState.Blue);
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
+                    continue;
+
+                case MoveBotwoonPlmDownOneBlockInstruction:
+                    // Native PLM_BlockIndices are byte offsets, so AB59 adds room width
+                    // twice. C# stores logical word indexes; adding width once is identical.
+                    slot.BlockIndex = checked(slot.BlockIndex + level.WidthInBlocks);
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 
                 case SetPlmBtsTo1Instruction:
@@ -938,6 +1052,8 @@ public sealed class RoomPlmSystem
         public ushort RestoreLevelWord { get; set; }
         public ushort InstructionPointer { get; set; }
         public ushort InstructionTimer { get; set; }
+        /// <summary>Native <c>PLM_Timers</c>, distinct from the instruction countdown.</summary>
+        public ushort LoopTimer { get; set; }
     }
 }
 

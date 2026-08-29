@@ -418,6 +418,10 @@ public sealed partial class RoomEnemySystem
         LastEnemyProjectileDudSoundEffect = null;
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
+        LastBotwoonSoundEffect = null;
+        LastBotwoonDropRequest = null;
+        LastBotwoonWallPlm = null;
+        LastBotwoonMusicRequest = null;
         LastRioSoundEffect = null;
         LastNorfairLavaJumpingEnemySoundEffect = null;
         LastNorfairRioSoundEffect = null;

@@ -1041,6 +1041,7 @@ public sealed partial class SuperMetroidRuntime
                 Controller1.Current,
                 Projectiles,
                 NmiFrameCounter8);
+            ApplyPendingBotwoonWallPlm();
             if (Enemies.ElevatorClearedProjectileData)
             {
                 // `$90:ADB7` clears all ten projectile slots and their counters. Ordinary
@@ -2089,7 +2090,8 @@ public sealed partial class SuperMetroidRuntime
                     BackgroundStreamer,
                     Camera.XPosition,
                     Camera.YPosition,
-                    BackgroundScroll.Bg1XOffset);
+                    BackgroundScroll.Bg1XOffset,
+                    Camera.Scrolls);
                 foreach (PlmTilemapUpdate update in plmUpdates)
                     update.ExecuteTo(Vram);
             }

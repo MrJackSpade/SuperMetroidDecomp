@@ -96,7 +96,6 @@ public sealed class BotwoonEnemyState
     public bool HoleLatch { get; internal set; }
     public bool InitialAction { get; internal set; }
     public bool PathComplete { get; internal set; }
-    public bool AttackRequested { get; internal set; }
     public bool SpitFrameReached { get; internal set; }
     public bool PendingDeath { get; internal set; }
     public bool ExitTransitionComplete { get; internal set; }
@@ -132,6 +131,9 @@ public readonly record struct BotwoonDropRequest(
     ushort Y,
     ushort ItemDropChancesPointer);
 
+/// <summary>Delayed music queue request emitted by Botwoon's completed death sequence.</summary>
+public readonly record struct BotwoonMusicRequest(byte Track, byte DelayFrames);
+
 /// <summary>
 /// Cartridge-faithful translation of Botwoon definition <c>$F293</c>. Movement remains
 /// table-driven: the four hole rectangles, phase speeds, random path descriptors, signed
@@ -150,13 +152,14 @@ public sealed partial class RoomEnemySystem
     private const int BotwoonSpitInstructionTable = 0xb3948b;
     private const int BotwoonHoleRectangleTable = 0xb3949b;
     private const int BotwoonSpeedSpacingTable = 0xb394bb;
-    private const int BotwoonAttackProbabilityTable = 0xb39675;
     private const int BotwoonPaletteTable = 0xb3971b;
     private const int BotwoonPaletteThresholdTable = 0xb3981b;
     private const int BotwoonSpitSpeedTable = 0xb39e77;
     private const int BotwoonPathDescriptorTable = 0xb3e150;
+    private const int BotwoonSpecialDropCount = 16;
 
     private BotwoonEnemyState? _botwoonState;
+    private readonly List<BotwoonDropRequest> _botwoonDropRequests = new();
 
     /// <summary>Botwoon's slot-zero extra state, or null outside its room.</summary>
     public BotwoonEnemyState? Botwoon => _botwoonState;
@@ -167,18 +170,26 @@ public sealed partial class RoomEnemySystem
     /// <summary>Specialized drop request published when all body pieces have landed.</summary>
     public BotwoonDropRequest? LastBotwoonDropRequest { get; private set; }
 
+    /// <summary>All sixteen ROM-authored scatter requests from the most recent death.</summary>
+    public IReadOnlyList<BotwoonDropRequest> BotwoonDropRequests => _botwoonDropRequests;
+
     /// <summary>
     /// Hardcoded bank-$84 PLM requested by Botwoon. $B797 is the already-defeated wall;
     /// $B79B is the live crumble sequence.
     /// </summary>
     public ushort? LastBotwoonWallPlm { get; private set; }
 
+    /// <summary>Track three, queued with the native eight-frame delay after wall cleanup.</summary>
+    public BotwoonMusicRequest? LastBotwoonMusicRequest { get; private set; }
+
     private void ResetBotwoonRoomState()
     {
         _botwoonState = null;
         LastBotwoonSoundEffect = null;
         LastBotwoonDropRequest = null;
+        _botwoonDropRequests.Clear();
         LastBotwoonWallPlm = null;
+        LastBotwoonMusicRequest = null;
     }
 
     /// <summary>Ports <c>Botwoon_Init</c> at <c>$B3:9583</c>.</summary>
@@ -358,7 +369,6 @@ public sealed partial class RoomEnemySystem
     {
         if (state.AttackTimer != 0)
         {
-            state.AttackRequested = false;
             RunBotwoonHeadFunction(head, state, samus);
             return;
         }
@@ -784,10 +794,21 @@ public sealed partial class RoomEnemySystem
         state.Function = BotwoonEnemyFunction.WallExplosions;
         LastBotwoonWallPlm = 0xb79b;
         state.WallCrumbleRequested = true;
-        LastBotwoonDropRequest = new BotwoonDropRequest(
-            head.XPosition,
-            head.YPosition,
-            head.Definition.ItemDropChancesPointer);
+
+        // `Enemy_ItemDrop_Botwoon` at `$A0:BA3E` emits sixteen independent pickup
+        // requests. Each position uses both bytes of one RNG result: X samples low seven
+        // bits and Y samples bits 8..13. The shared pickup owner will eventually resolve
+        // each retained item-chance pointer into a concrete health/ammo actor.
+        for (int dropIndex = 0; dropIndex < BotwoonSpecialDropCount; dropIndex++)
+        {
+            ushort random = _nextRandom!();
+            var request = new BotwoonDropRequest(
+                X: unchecked((ushort)((random & 0x007f) + 64)),
+                Y: unchecked((ushort)(((random & 0x3f00) >> 8) + 128)),
+                ItemDropChancesPointer: head.Definition.ItemDropChancesPointer);
+            _botwoonDropRequests.Add(request);
+            LastBotwoonDropRequest = request;
+        }
         state.DropRequested = true;
         state.WallExplosionFrame = 0;
         state.LargeExplosionTimer = 0;
@@ -801,6 +822,9 @@ public sealed partial class RoomEnemySystem
             head.Properties = head.Properties.With(EnemyProperties.Deleted);
             state.BossBitSet = true;
             _setAreaMiniBossDefeated?.Invoke();
+            // `$B3:9B32` invokes QueueMusic_Delayed8(3) only after the complete 192-frame
+            // wall-explosion phase, not when health first reaches zero.
+            LastBotwoonMusicRequest = new BotwoonMusicRequest(Track: 3, DelayFrames: 8);
             return;
         }
 

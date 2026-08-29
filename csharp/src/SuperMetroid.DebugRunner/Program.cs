@@ -240,6 +240,12 @@ if (args.Length >= 2 && args[0] == "--pipe-bug-audit")
     return PipeBugAudit.Run(pipeBugRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--botwoon-audit")
+{
+    string botwoonRomPath = string.Join(' ', args[1..]).Trim('"');
+    return BotwoonAudit.Run(botwoonRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

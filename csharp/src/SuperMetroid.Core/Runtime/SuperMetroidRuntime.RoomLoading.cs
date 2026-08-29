@@ -214,6 +214,7 @@ public sealed partial class SuperMetroidRuntime
                 System.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss),
             setAreaMiniBossDefeated: () =>
                 System.SetBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
+        ApplyPendingBotwoonWallPlm();
         Enemies.QueueGraphicsUploads(VramWrites);
 
         // `$90:AC8D` follows the standard-sprite and room-enemy uploads during gameplay
@@ -243,6 +244,36 @@ public sealed partial class SuperMetroidRuntime
         }
         BackgroundScroll.PrimePreviousBlocks();
         return new InitialViewportResult(requests.Count, segmentCount);
+    }
+
+    /// <summary>
+    /// Applies the cross-bank effect published by Botwoon's bank-$B3 AI through the shared
+    /// bank-$84 PLM owner. This is called at both native producer sites: room initialization
+    /// for an already-defeated boss and EnemyMain when the final body segment lands.
+    /// </summary>
+    private void ApplyPendingBotwoonWallPlm()
+    {
+        if (Enemies.LastBotwoonWallPlm is not ushort header)
+            return;
+        if (LevelData is null || Camera is null)
+        {
+            throw new InvalidOperationException(
+                "Botwoon published a wall PLM without an active room level and scroll grid.");
+        }
+
+        // SpawnHardcodedPLM silently returns when all native slots are occupied. Preserve
+        // that allocator behavior; normal load begins from Reset's empty pool, while an
+        // artificial full-pool audit must not gain a host-only exception or terrain edit.
+        Plms.TrySpawnBotwoonWall(LevelData, header);
+
+        if (header == 0xb797)
+        {
+            // The already-defeated branch performs this 16-bit `$0101` store directly in
+            // `$B3:959E`; unlike the live crumble PLM, it does not wait for instruction
+            // `$84:AB51` during the first handler pass.
+            Camera.Scrolls.SetLogicalCell(0, 0, (byte)RoomScrollState.Blue);
+            Camera.Scrolls.SetLogicalCell(1, 0, (byte)RoomScrollState.Blue);
+        }
     }
 
     /// <summary>

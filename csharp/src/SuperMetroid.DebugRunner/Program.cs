@@ -150,6 +150,12 @@ if (args.Length >= 2 && args[0] == "--gripper-ripper2-audit")
     return GRipperRipper2Audit.Run(gripperRipper2RomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--dragon-audit")
+{
+    string dragonRomPath = string.Join(' ', args[1..]).Trim('"');
+    return DragonAudit.Run(dragonRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

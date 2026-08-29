@@ -48,6 +48,7 @@ internal static class RetailEnemyCoverageAudit
             [0xd37f] = "Maridia Large Snail",
             [0xd3ff] = "GRipper",
             [0xd43f] = "Ripper II",
+            [0xd4bf] = "Dragon",
         };
         var focusedPopulations = focusedDefinitions.Keys.ToDictionary(
             definition => definition,

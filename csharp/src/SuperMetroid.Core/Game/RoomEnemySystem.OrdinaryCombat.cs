@@ -86,6 +86,8 @@ public sealed partial class RoomEnemySystem
             bool isMaridiaLargeSnail =
                 slot.EnemyDefinitionPointer == MaridiaLargeSnailDefinition &&
                 slot.Definition.TouchAiPointer == MaridiaLargeSnailNonDamagingTouchAi;
+            bool isDragon = slot.EnemyDefinitionPointer == DragonDefinition &&
+                slot.Definition.TouchAiPointer == DragonTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
@@ -99,6 +101,7 @@ public sealed partial class RoomEnemySystem
                 isMagdollite ||
                 isRinka ||
                 isMaridiaLargeSnail ||
+                isDragon ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -263,6 +266,8 @@ public sealed partial class RoomEnemySystem
                     ResolveMagdolliteCombatAfterCommon(slot);
                 if (isRinka)
                     ResolveRinkaCombatAfterCommon(slot);
+                if (isDragon)
+                    ResolveDragonCombatAfterCommon(slot);
                 if (isFakeKraid && healthBefore != 0 && slot.Health == 0)
                     RequestFakeKraidDeathDrop(slot);
             }
@@ -329,6 +334,8 @@ public sealed partial class RoomEnemySystem
             bool isGRipperOrRipper2 =
                 enemy.EnemyDefinitionPointer is GRipperDefinition or Ripper2Definition &&
                 enemy.Definition.ShotAiPointer == GRipperRipper2ShotAi;
+            bool isDragon = enemy.EnemyDefinitionPointer == DragonDefinition &&
+                enemy.Definition.ShotAiPointer == DragonShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -349,6 +356,7 @@ public sealed partial class RoomEnemySystem
                 isRinka ||
                 isMaridiaLargeSnail ||
                 isGRipperOrRipper2 ||
+                isDragon ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -608,6 +616,8 @@ public sealed partial class RoomEnemySystem
                         ResolveMaridiaLargeSnailShotAfterCommon();
                     if (isGRipperOrRipper2)
                         ResolveGRipperRipper2ShotAfterCommon(enemy);
+                    if (isDragon)
+                        ResolveDragonCombatAfterCommon(enemy);
                     hitCount++;
                     break;
                 }
@@ -681,6 +691,8 @@ public sealed partial class RoomEnemySystem
                     ResolveMaridiaLargeSnailShotAfterCommon();
                 if (isGRipperOrRipper2)
                     ResolveGRipperRipper2ShotAfterCommon(enemy);
+                if (isDragon)
+                    ResolveDragonCombatAfterCommon(enemy);
 
                 hitCount++;
                 break;
@@ -745,6 +757,8 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == MagdollitePowerBombAi;
             bool isRinka = enemy.EnemyDefinitionPointer == RinkaDefinition &&
                 reactionPointer == RinkaPowerBombAi;
+            bool isDragon = enemy.EnemyDefinitionPointer == DragonDefinition &&
+                reactionPointer == DragonPowerBombAi;
             bool isSpacePiratePowerBombReaction =
                 IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
                 reactionPointer == SpacePiratePowerBombAi;
@@ -752,6 +766,7 @@ public sealed partial class RoomEnemySystem
                 continue;
             if (reactionPointer != 0 && !isFireflea && !isPowamp && !isFakeKraid &&
                 !isMagdollite && !isRinka &&
+                !isDragon &&
                 !isSpacePiratePowerBombReaction)
             {
                 throw new NotSupportedException(
@@ -793,6 +808,8 @@ public sealed partial class RoomEnemySystem
                 ResolveMagdolliteCombatAfterCommon(enemy);
             if (isRinka)
                 ResolveRinkaCombatAfterCommon(enemy);
+            if (isDragon)
+                ResolveDragonCombatAfterCommon(enemy);
 
             enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
             reactionCount++;

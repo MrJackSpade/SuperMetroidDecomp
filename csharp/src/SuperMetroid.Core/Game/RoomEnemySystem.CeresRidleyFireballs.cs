@@ -46,6 +46,7 @@ public enum RoomEnemyProjectileKind : ushort
     NamiheFireball = 0xdfbc,
     FuneFireball = 0xdfca,
     LavaThrownByMagdollite = 0xe0e0,
+    DragonFireball = 0xb5cb,
     MiscDustExplosion = 0xe509,
     EnemyDeathExplosion = 0xf345,
     KagoBug = 0xd02e,
@@ -484,6 +485,10 @@ public sealed partial class RoomEnemySystem
 
             case 0xe4fe: // Generic room-coordinate dust/explosion camera cull.
                 CullMiscDustOutsideCamera(projectile, cameraX, cameraY);
+                return;
+
+            case 0xb535: // Dragon fireball: signed 8.8 arc, gravity, and bottom-only cull.
+                RunDragonFireballPreInstruction(projectile, cameraY);
                 return;
 
             case 0x940e:

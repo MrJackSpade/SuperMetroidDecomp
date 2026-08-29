@@ -166,6 +166,7 @@ public sealed partial class RoomEnemySystem
         ResetLowerNorfairRioRoomState();
         ResetMaridiaLargeSnailRoomState();
         ResetRipperVariantRoomState();
+        ResetDragonRoomState();
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
@@ -369,6 +370,7 @@ public sealed partial class RoomEnemySystem
         LastNorfairRioSoundEffect = null;
         LastLowerNorfairRioSoundEffect = null;
         LastMaridiaLargeSnailSoundEffect = null;
+        LastDragonSoundEffect = null;
         SetRinkaCamera(cameraX, cameraY);
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
@@ -838,6 +840,9 @@ public sealed partial class RoomEnemySystem
             case 0xa2e318 when slot.EnemyDefinitionPointer == Ripper2Definition:
                 InitializeRipper2(slot);
                 return;
+            case 0xa2e606 when slot.EnemyDefinitionPointer == DragonDefinition:
+                InitializeDragon(slot);
+                return;
             case 0xa896e3 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 InitializeFuneNamihe(slot);
                 return;
@@ -1186,6 +1191,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa2e353 when slot.EnemyDefinitionPointer == Ripper2Definition:
                 RunRipper2Main(slot, level);
+                return;
+            case 0xa2e64e when slot.EnemyDefinitionPointer == DragonDefinition:
+                RunDragonMain(slot, RequireDragonState(slot), samus);
                 return;
             case 0xa89730 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), samus);
@@ -1698,6 +1706,11 @@ public sealed partial class RoomEnemySystem
                 case 0x94d1 when slot.EnemyDefinitionPointer is
                     MamaTurtleDefinition or BabyTurtleDefinition:
                     LastMamaTurtleSoundEffect = MamaTurtleSpinSound;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case DragonAnimationFinishedInstruction
+                    when slot.EnemyDefinitionPointer == DragonDefinition:
+                    FinishDragonAttackAnimation(slot);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0x8108: // EnemyInstr_DecrementTimerAndGoto.

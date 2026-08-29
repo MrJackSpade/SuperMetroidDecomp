@@ -206,6 +206,15 @@ public sealed partial class SamusState
     public ushort EquippedItems { get; set; }
 
     /// <summary>
+    /// WRAM <c>samus_special_super_palette_flags</c>. Ordinary Metroid command $12 writes
+    /// one while attached; bank-$91 palette handling then increments the word every frame,
+    /// alternating the speed-boost and normal suit palettes until command $13 clears it.
+    /// Bit $8000 belongs to the separate drained/rainbow sequence modeled by
+    /// <see cref="Drained"/> and is therefore never synthesized by Metroid AI.
+    /// </summary>
+    public ushort SpecialSuperPaletteFlags { get; internal set; }
+
+    /// <summary>
     /// Morph-ball bounce state at WRAM <c>$0B20</c>: zero is not bouncing, one is the first
     /// rebound, and two is the second rebound. Spring Ball also uses the high byte, but that
     /// separate movement family is intentionally not folded into the ordinary-ball state.

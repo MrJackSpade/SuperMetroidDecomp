@@ -223,7 +223,16 @@ internal static class WorkRobotAudit
         LoadedRobots loaded = Load(bus, room, assets, bossDefeated: true);
         RoomEnemySlot robot = loaded.Enemies.Slots[0];
         WorkRobotEnemyState state = RequireState(loaded.Enemies, robot);
-        Step(loaded, assets, robot, room);
+
+        // Powered init deliberately seeds instruction timer four. InitializeEnemies then
+        // replaces the init routine's map with collision sentinel `$804D`, so the robot is
+        // not shootable until four *active* EnemyMain passes select its first timed ROM
+        // frame. The retail room's processing-window admission means host Step calls and
+        // active actor calls are not interchangeable; wait on the actual map sentinel.
+        for (int frame = 0; frame < 16 && robot.SpritemapPointer == 0x804d; frame++)
+            Step(loaded, assets, robot, room);
+        if (robot.SpritemapPointer == 0x804d)
+            throw new InvalidDataException("Powered Work Robot never selected its first visible ROM frame.");
         loaded.Samus.XPosition = unchecked((ushort)(robot.XPosition - 32));
         var projectiles = new SamusProjectileSystem();
         ArmProjectile(projectiles.Slots[0], robot);
@@ -240,7 +249,10 @@ internal static class WorkRobotAudit
                 $"Powered Work Robot shot recoil failed: hits={hits}, health={robot.Health}, " +
                 $"list=${robot.CurrentInstruction:X4}, timer={robot.InstructionTimer}, " +
                 $"cooldown={state.LaserCooldown}, projectile=" +
-                $"${projectiles.Slots[0].InstructionPointer:X4}.");
+                $"${projectiles.Slots[0].InstructionPointer:X4}, map=${robot.SpritemapPointer:X4}, " +
+                $"invincibility={robot.InvincibilityTimer}, properties=${robot.Properties:X4}, " +
+                $"ai=${robot.AiHandlerBits:X4}, frozen={robot.FrozenTimer}, " +
+                $"shot=${robot.Definition.ShotAiPointer:X4}.");
         }
     }
 

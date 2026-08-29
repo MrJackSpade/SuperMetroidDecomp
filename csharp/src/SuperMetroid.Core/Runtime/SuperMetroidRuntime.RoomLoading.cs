@@ -206,7 +206,10 @@ public sealed partial class SuperMetroidRuntime
             isAreaBossDefeated: () =>
                 System.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             cameraX: Camera.XPosition,
-            cameraY: Camera.YPosition);
+            cameraY: Camera.YPosition,
+            hasEvent: System.HasEvent,
+            setEvent: System.SetEvent,
+            clearEvent: System.ClearEvent);
         Enemies.QueueGraphicsUploads(VramWrites);
 
         // `$90:AC8D` follows the standard-sprite and room-enemy uploads during gameplay

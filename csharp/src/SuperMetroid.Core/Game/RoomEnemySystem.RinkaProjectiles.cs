@@ -14,6 +14,18 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>Allocates <c>SpawnEprojWithRoomGfx($E509, 3)</c>.</summary>
     private void SpawnRinkaDustExplosion(ushort xPosition, ushort yPosition)
+        => SpawnRoomGraphicsDustExplosion(xPosition, yPosition, RinkaDustAnimationIndex);
+
+    /// <summary>
+    /// Allocates the shared room-graphics dust/explosion actor at <c>$86:E509</c>.
+    /// The caller supplies the native animation-table index exactly as the spawn parameter;
+    /// this is shared by special Rinka deaths, Boulder's impact clouds, and later families
+    /// that invoke the same engine primitive.
+    /// </summary>
+    private void SpawnRoomGraphicsDustExplosion(
+        ushort xPosition,
+        ushort yPosition,
+        ushort animationIndex)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
@@ -28,11 +40,11 @@ public sealed partial class RoomEnemySystem
 
         // EprojInit_DustCloudOrExplosion ignores the definition's placeholder list and
         // indexes this literal thirty-word table with the spawn parameter. Parameter three
-        // selects $E138, the seven-frame yellow/orange burst used by special Rinkas.
+        // selects $E138 for Rinka; Boulder passes $11 for its impact cloud.
         projectile.InstructionPointer = ReadWord(
             _bus!,
             0x860000 | unchecked((ushort)(
-                MiscDustInstructionPointerTable + RinkaDustAnimationIndex * 2)));
+                MiscDustInstructionPointerTable + animationIndex * 2)));
         projectile.InstructionTimer = 1;
     }
 

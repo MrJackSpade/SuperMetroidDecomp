@@ -54,6 +54,8 @@ internal static class RetailEnemyCoverageAudit
             [0xd57f] = "Shootable horizontal shutter",
             [0xd5bf] = "Destroyable vertical shutter",
             [0xd5ff] = "Kamer vertical platform",
+            [0xdfbf] = "Boulder",
+            [0xe27f] = "Zebetites",
         };
         var focusedPopulations = focusedDefinitions.Keys.ToDictionary(
             definition => definition,

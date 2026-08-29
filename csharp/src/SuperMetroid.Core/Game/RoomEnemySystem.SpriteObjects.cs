@@ -16,6 +16,8 @@ public enum RoomSpriteObjectKind : ushort
     NuclearWaffleTurnCounterClockwise = 0x002d,
     NuclearWaffleTurnOverlay = 0x002e,
     FallingSparkTrail = 0x0030,
+    MetroidOuterBodyA = 0x0032,
+    MetroidOuterBodyB = 0x0034,
 }
 
 /// <summary>

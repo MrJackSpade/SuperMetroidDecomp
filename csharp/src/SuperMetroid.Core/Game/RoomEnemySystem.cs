@@ -38,6 +38,9 @@ public sealed partial class RoomEnemySystem
     private Func<ushort>? _nextRandom;
     private Func<ushort>? _readRandomNumber;
     private Func<bool>? _isAreaBossDefeated;
+    private Func<int, bool>? _hasEvent;
+    private Action<int>? _setEvent;
+    private Action<int>? _clearEvent;
     private Action<ushort>? _setRandomNumber;
     private ushort _randomEnemyCounter;
     private SnesVram? _vram;
@@ -123,7 +126,10 @@ public sealed partial class RoomEnemySystem
         ushort controllerInput = 0,
         Func<bool>? isAreaBossDefeated = null,
         ushort cameraX = 0,
-        ushort cameraY = 0)
+        ushort cameraY = 0,
+        Func<int, bool>? hasEvent = null,
+        Action<int>? setEvent = null,
+        Action<int>? clearEvent = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -138,6 +144,9 @@ public sealed partial class RoomEnemySystem
         _readRandomNumber = readRandomNumber;
         _setRandomNumber = setRandomNumber;
         _isAreaBossDefeated = isAreaBossDefeated;
+        _hasEvent = hasEvent;
+        _setEvent = setEvent;
+        _clearEvent = clearEvent;
         _vram = vram;
         _cgram = cgram;
         PopulationPointer = populationPointer;
@@ -151,6 +160,12 @@ public sealed partial class RoomEnemySystem
         LastBoyonSoundEffect = null;
         LastMamaTurtleSoundEffect = null;
         LastMochtroidSoundEffect = null;
+        LastMetroidSoundEffectLibrary2 = null;
+        LastMetroidSoundEffectLibrary3 = null;
+        LastBoulderSoundEffect = null;
+        LastZebetiteSoundEffect = null;
+        PaletteChangeNumber = 0;
+        _metroidDropRequests.Clear();
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
@@ -197,6 +212,9 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_flyStates);
         Array.Clear(_sbugStates);
         Array.Clear(_mochtroidStates);
+        Array.Clear(_metroidStates);
+        Array.Clear(_boulderStates);
+        Array.Clear(_zebetiteStates);
         Array.Clear(_hopperStates);
         Array.Clear(_zoaStates);
         Array.Clear(_yardStates);
@@ -350,6 +368,10 @@ public sealed partial class RoomEnemySystem
         LastMamaTurtleSoundEffect = null;
         LastCacatacSoundEffect = null;
         LastMochtroidSoundEffect = null;
+        LastMetroidSoundEffectLibrary2 = null;
+        LastMetroidSoundEffectLibrary3 = null;
+        LastBoulderSoundEffect = null;
+        LastZebetiteSoundEffect = null;
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
@@ -395,6 +417,16 @@ public sealed partial class RoomEnemySystem
                     cameraY,
                     enemyNmiFrameCounter8);
                 if (!ranActorAi &&
+                    (slot.AiHandlerBits & 0x0002) != 0 &&
+                    slot.EnemyDefinitionPointer == MetroidDefinition)
+                {
+                    // The native dispatcher selects the lowest set AI bit. Metroid's
+                    // custom hurt entry therefore owns the actor before frozen bit four
+                    // when both are present, while instruction bytecode still advances.
+                    ApplyMetroidHurt(slot);
+                    ranActorAi = true;
+                }
+                if (!ranActorAi &&
                     (slot.FrozenTimer != 0 || (slot.AiHandlerBits & 0x0004) != 0))
                 {
                     if (slot.EnemyDefinitionPointer == RinkaDefinition &&
@@ -414,6 +446,8 @@ public sealed partial class RoomEnemySystem
                         slot.FrozenTimer = unchecked((ushort)(slot.FrozenTimer - 1));
                     if (slot.FrozenTimer == 0)
                         slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~0x0004));
+                    if (slot.EnemyDefinitionPointer == MetroidDefinition)
+                        RunMetroidFrozen(slot);
                 }
                 else if (!ranActorAi)
                 {
@@ -433,7 +467,13 @@ public sealed partial class RoomEnemySystem
                 if (ranActorAi)
                 {
                     slot.FrameCounter = unchecked((ushort)(slot.FrameCounter + 1));
-                    if (slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
+                    // `$A0:8FF7` skips the instruction interpreter whenever frozen bit
+                    // four is present, even if lower-priority hurt bit two selected an
+                    // enemy-specific hurt callback above. Testing only `ranActorAi` here
+                    // incorrectly advanced a Metroid's body animation while its frozen
+                    // callback still owned the two composited outer sprite objects.
+                    if ((slot.AiHandlerBits & 0x0004) == 0 &&
+                        slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
                         ProcessInstructions(slot, samus, level, cameraX, cameraY);
                 }
             }
@@ -451,7 +491,14 @@ public sealed partial class RoomEnemySystem
             // Keeping it here also makes the boss's latched draw palettes describe the
             // frame just processed rather than the already-decremented following frame.
             if (!timeIsFrozen && slot.FlashTimer != 0)
+            {
                 slot.FlashTimer = unchecked((ushort)(slot.FlashTimer - 1));
+                // `$A0:9128` clears hurt dispatch once the post-decrement timer is below
+                // eight. This is a signed comparison and applies even when another AI bit
+                // remains set; omitting it would strand Metroid in custom hurt forever.
+                if (unchecked((short)(slot.FlashTimer - 8)) < 0)
+                    slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~0x0002));
+            }
             if (!timeIsFrozen && slot.InvincibilityTimer != 0)
                 slot.InvincibilityTimer = unchecked((ushort)(slot.InvincibilityTimer - 1));
         }
@@ -876,6 +923,12 @@ public sealed partial class RoomEnemySystem
             case 0xa6a0f5 when slot.EnemyDefinitionPointer == 0xe13f:
                 InitializeCeresRidley(slot);
                 return;
+            case 0xa686f5 when slot.EnemyDefinitionPointer == BoulderDefinition:
+                InitializeBoulder(slot);
+                return;
+            case 0xa6fb72 when slot.EnemyDefinitionPointer == ZebetiteDefinition:
+                InitializeZebetite(slot);
+                return;
             case 0xa2e49f when slot.EnemyDefinitionPointer == RipperDefinition:
                 InitializeRipper(slot);
                 return;
@@ -911,6 +964,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa3a77d when slot.EnemyDefinitionPointer == MochtroidDefinition:
                 InitializeMochtroid(slot);
+                return;
+            case 0xa3ea4f when slot.EnemyDefinitionPointer == MetroidDefinition:
+                InitializeMetroid(slot);
                 return;
             case 0xa3ab09 when IsHopperDefinition(slot.EnemyDefinitionPointer):
                 InitializeHopper(slot);
@@ -1261,6 +1317,12 @@ public sealed partial class RoomEnemySystem
             case 0xa6a288 when slot.EnemyDefinitionPointer == 0xe13f:
                 RunCeresRidleyMain(slot, samus);
                 return;
+            case 0xa68793 when slot.EnemyDefinitionPointer == BoulderDefinition:
+                RunBoulderMain(slot, RequireBoulderState(slot), samus, level);
+                return;
+            case 0xa6fc33 when slot.EnemyDefinitionPointer == ZebetiteDefinition:
+                RunZebetiteMain(slot, RequireZebetiteState(slot));
+                return;
             case 0xa2e4da when slot.EnemyDefinitionPointer == RipperDefinition:
                 RunRipperMain(slot, level);
                 return;
@@ -1285,6 +1347,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa3a790 when slot.EnemyDefinitionPointer == MochtroidDefinition:
                 RunMochtroidMain(slot, samus, level);
+                return;
+            case 0xa3eb98 when slot.EnemyDefinitionPointer == MetroidDefinition:
+                RunMetroidMain(slot, samus, level);
                 return;
             case 0xa3abcf when IsHopperDefinition(slot.EnemyDefinitionPointer):
                 RunHopperMain(slot, samus, level);
@@ -1944,6 +2009,21 @@ public sealed partial class RoomEnemySystem
                     break;
                 case 0xb43f when slot.EnemyDefinitionPointer == ZoaDefinition:
                     RequireZoaState(slot).XSpeedTableIndex = 12;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xeaa5 when slot.EnemyDefinitionPointer == MetroidDefinition:
+                    // The attached loop emits library-two sound $50 without consuming
+                    // an operand; animation parsing resumes at the following word.
+                    LastMetroidSoundEffectLibrary2 = MetroidAnimationSoundEffect;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xeab1 when slot.EnemyDefinitionPointer == MetroidDefinition:
+                    // Eight ROM words supply the idle cry. GenerateRandomNumber advances
+                    // exactly once and the low three result bits choose the table entry.
+                    int soundIndex = _nextRandom!() & 7;
+                    LastMetroidSoundEffectLibrary2 = ReadWord(
+                        _bus!,
+                        MetroidRandomSoundTable + soundIndex * 2);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe660: // Shared crawler: install the function pointer operand.

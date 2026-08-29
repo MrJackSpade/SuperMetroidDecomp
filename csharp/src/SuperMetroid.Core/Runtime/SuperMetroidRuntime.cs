@@ -1350,6 +1350,30 @@ public sealed partial class SuperMetroidRuntime
                     BombProjectiles,
                     Samus);
 
+                // `$A0:A236` is not part of the five-slot beam/missile collision walk.
+                // It scans physical bomb slots five through nine after their bank-$90
+                // update and dispatches the enemy's shot AI only once the overlapping
+                // bomb's fuse/variable word is zero. Ordinary Metroids need that exact
+                // route because family $0500 is what releases an attached Metroid.
+                Enemies.ResolveMetroidBombHits(
+                    BombProjectiles,
+                    Projectiles,
+                    Samus);
+
+                // GameState_8 calls `$A0:A306` every gameplay frame after the enemy-
+                // projectile passes. The native routine reads the high byte of live WRAM
+                // radius `$0CEE`; a zero byte is its own inactive/pre-explosion guard.
+                // Invincibility timers inside the enemy pass prevent the persistent
+                // expansion/afterglow radius from damaging one actor every frame.
+                SamusPowerBombExplosionState powerBomb =
+                    BombProjectiles.PowerBombExplosion;
+                Enemies.ResolveOrdinaryPowerBombHits(
+                    _addressSpace,
+                    powerBomb.XPosition,
+                    powerBomb.YPosition,
+                    unchecked((byte)(powerBomb.ExplosionRadius >> 8)),
+                    Samus);
+
                     // `$90:E6C0` dispatches the selected HUD producer and `$90:EB20`
                     // immediately clears `$0B5E`. Pose initialization occurs later in the
                     // new-state handler, so a bridge published below survives precisely
@@ -2901,11 +2925,14 @@ public sealed partial class SuperMetroidRuntime
                     Cgram,
                     Samus.EquippedItems);
             }
-            // `$91:D8A5` runs after every charge and special-palette family, so hurt calls
-            // one through six must be the final writer of Samus OBJ palette four. Drained
-            // rainbow state took the routine's earlier super-special jump and therefore
-            // neither advances this counter nor reaches the ordinary hurt branch.
-            if (!deathOwnsSamus && !drainedOwnsSamusPalette)
+            // `$91:D8A5` runs after every charge and special-palette family. A Metroid's
+            // nonnegative super-special flag takes the alternating boost/normal branch and
+            // returns before ordinary hurt flash, just as drained rainbow's negative flag
+            // took the routine's earlier branch.
+            bool metroidOwnsSamusPalette = !deathOwnsSamus &&
+                !drainedOwnsSamusPalette &&
+                SamusSpecialSuperPalette.Update(_addressSpace, Cgram, Samus);
+            if (!deathOwnsSamus && !drainedOwnsSamusPalette && !metroidOwnsSamusPalette)
             {
                 LastHurtFlashPaletteStep = SamusHurtFlashPalette.Update(
                     _addressSpace,

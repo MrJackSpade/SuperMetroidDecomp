@@ -20,6 +20,11 @@ public sealed partial class RoomEnemySystem
     private const ushort FirefleaShotAi = 0x8e89;
     private const ushort MochtroidTouchAi = 0xa953;
     private const ushort MochtroidShotAi = 0xa9a8;
+    private const ushort MetroidTouchAi = 0xedeb;
+    private const ushort MetroidShotAi = 0xef07;
+    private const ushort MetroidPowerBombAi = 0xf042;
+    private const ushort ZebetiteTouchAi = 0xfda7;
+    private const ushort ZebetiteShotAi = 0xfdac;
     private const ushort YardTouchAi = 0xd3b0;
     private const ushort YardShotAi = 0xd469;
     private const ushort BeetomTouchAi = 0xbe2e;
@@ -93,6 +98,10 @@ public sealed partial class RoomEnemySystem
             bool isHorizontalShutter =
                 slot.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition &&
                 slot.Definition.TouchAiPointer == HorizontalShutterTouchAi;
+            bool isMetroid = slot.EnemyDefinitionPointer == MetroidDefinition &&
+                slot.Definition.TouchAiPointer == MetroidTouchAi;
+            bool isZebetite = slot.EnemyDefinitionPointer == ZebetiteDefinition &&
+                slot.Definition.TouchAiPointer == ZebetiteTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
@@ -109,6 +118,8 @@ public sealed partial class RoomEnemySystem
                 isDragon ||
                 isVerticalShutter ||
                 isHorizontalShutter ||
+                isMetroid ||
+                isZebetite ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -228,6 +239,10 @@ public sealed partial class RoomEnemySystem
                     samus,
                     controllerInput);
             }
+            else if (isMetroid)
+            {
+                ResolveMetroidTouch(slot, samus);
+            }
             else if (slot.EnemyDefinitionPointer == YardDefinition)
             {
                 ResolveYardTouch(
@@ -283,7 +298,7 @@ public sealed partial class RoomEnemySystem
                     slot,
                     samus,
                     controllerInput,
-                    skipDeathAnimation: isRinka);
+                    skipDeathAnimation: isRinka || isZebetite);
                 if (isMagdollite)
                     ResolveMagdolliteCombatAfterCommon(slot);
                 if (isRinka)
@@ -368,6 +383,10 @@ public sealed partial class RoomEnemySystem
             bool isHorizontalShutter =
                 enemy.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition &&
                 enemy.Definition.ShotAiPointer == HorizontalShutterShotAi;
+            bool isMetroid = enemy.EnemyDefinitionPointer == MetroidDefinition &&
+                enemy.Definition.ShotAiPointer == MetroidShotAi;
+            bool isZebetite = enemy.EnemyDefinitionPointer == ZebetiteDefinition &&
+                enemy.Definition.ShotAiPointer == ZebetiteShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -392,6 +411,8 @@ public sealed partial class RoomEnemySystem
                 isReactionOnlyVerticalShutter ||
                 isDestroyableVerticalShutter ||
                 isHorizontalShutter ||
+                isMetroid ||
+                isZebetite ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -445,7 +466,7 @@ public sealed partial class RoomEnemySystem
                 // bomb-family impacts as a physical kick, so those actors must reach its
                 // custom branch below. Keep this as an explicit guard instead of embedding it
                 // in the overlap expression; doing so makes the native dispatch boundary clear.
-                if (!isYard &&
+                if (!isYard && !isMetroid &&
                     (family == 0x0300 || family == 0x0500 || family == 0x0700))
                 {
                     continue;
@@ -606,6 +627,81 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
 
+                if (isMetroid)
+                {
+                    if (projectile.PackedDirection.HasLowByteLifecycleState)
+                        continue;
+                    if (enemy.FrozenTimer != 0)
+                    {
+                        if (family != (ushort)SamusProjectileFamily.Missile &&
+                            family != (ushort)SamusProjectileFamily.SuperMissile)
+                        {
+                            // Frozen Metroid rejects every beam and bomb family. Bank-$A0
+                            // has already accepted the overlap, so non-plasma shots retain
+                            // only the collision mark and never enter normal damage AI.
+                            projectiles.ApplyEnemyCollisionPrelude(
+                                projectile.SlotIndex,
+                                (enemy.Properties & 0x1000) != 0 ||
+                                    (projectile.Type & 0x0008) == 0);
+                            hitCount++;
+                            break;
+                        }
+
+                        if (!projectiles.TryStartEnemyImpact(
+                                bus,
+                                sharedProjectiles,
+                                projectile.SlotIndex))
+                        {
+                            continue;
+                        }
+
+                        byte frozenVulnerability = ReadProjectileVulnerability(
+                            bus,
+                            enemy,
+                            projectileType);
+                        int frozenDamage = (projectileDamage >> 1) *
+                            (frozenVulnerability & 0x7f);
+                        if (frozenVulnerability != 0xff && frozenDamage != 0)
+                        {
+                            ushort hurtTime = enemy.HurtAiTime == 0
+                                ? (ushort)4
+                                : enemy.HurtAiTime;
+                            enemy.FlashTimer = unchecked((ushort)(hurtTime + 8));
+                            enemy.AiHandlerBits |= 0x0002;
+                            enemy.Health = frozenDamage >= enemy.Health
+                                ? (ushort)0
+                                : unchecked((ushort)(enemy.Health - frozenDamage));
+                        }
+
+                        if (enemy.Health == 0)
+                        {
+                            enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
+                            EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
+                            FinishMetroidDeath(enemy, samus, requestDrops: true);
+                        }
+
+                        hitCount++;
+                        break;
+                    }
+
+                    // Custom Metroid shot AI does not call normal shot AI. Preserve the
+                    // collision prelude, then apply recoil/ice or attached power-bomb escape
+                    // without inventing vulnerability-based health damage.
+                    projectiles.ApplyEnemyCollisionPrelude(
+                        projectile.SlotIndex,
+                        (enemy.Properties & 0x1000) != 0 ||
+                            (projectile.Type & 0x0008) == 0);
+                    ResolveMetroidNonFrozenShot(
+                        enemy,
+                        projectile.Type,
+                        projectile.Damage,
+                        projectiles.Slots[0].XPosition,
+                        projectiles.Slots[0].YPosition,
+                        samus);
+                    hitCount++;
+                    break;
+                }
+
                 if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
                     continue;
 
@@ -667,6 +763,8 @@ public sealed partial class RoomEnemySystem
                         ResolveGRipperRipper2ShotAfterCommon(enemy);
                     if (isDragon)
                         ResolveDragonCombatAfterCommon(enemy);
+                    if (isZebetite)
+                        ResolveZebetiteShotAfterCommon(enemy);
                     if (isDestroyableVerticalShutter)
                         ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                     if (isHorizontalShutter)
@@ -684,7 +782,8 @@ public sealed partial class RoomEnemySystem
                     enemy.Health = damage >= enemy.Health
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
-                    if (enemy.Health == 0 && !isPowamp && !isRinka && !isHorizontalShutter)
+                    if (enemy.Health == 0 && !isPowamp && !isRinka && !isHorizontalShutter &&
+                        !isZebetite)
                     {
                         // $A3:C7F5 adds Skree's four debris actors after the shared normal
                         // shot handler reports death, before the common death animation
@@ -746,6 +845,8 @@ public sealed partial class RoomEnemySystem
                     ResolveGRipperRipper2ShotAfterCommon(enemy);
                 if (isDragon)
                     ResolveDragonCombatAfterCommon(enemy);
+                if (isZebetite)
+                    ResolveZebetiteShotAfterCommon(enemy);
                 if (isDestroyableVerticalShutter)
                     ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                 if (isHorizontalShutter)
@@ -759,6 +860,89 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
+    /// Ports the Metroid branch reached through <c>EnemyBombCollHandler</c> at $A0:A236.
+    /// This is deliberately a bomb-slot pass rather than an extension of the ordinary
+    /// projectile loop: the cartridge stores bombs in physical projectile slots five
+    /// through nine, admits them only after their shared variable/fuse word reaches zero,
+    /// and then dispatches the enemy's normal shot callback with that bomb collision index.
+    /// </summary>
+    public int ResolveMetroidBombHits(
+        SamusBombProjectileSystem bombs,
+        SamusProjectileSystem ordinaryProjectiles,
+        SamusState? samus = null)
+    {
+        ArgumentNullException.ThrowIfNull(bombs);
+        ArgumentNullException.ThrowIfNull(ordinaryProjectiles);
+        EnsureLoaded();
+
+        int hitCount = 0;
+        foreach (ushort nativeIndex in _interactiveEnemyIndexes)
+        {
+            RoomEnemySlot enemy = SlotFromNativeIndex(nativeIndex);
+            if (enemy.EnemyDefinitionPointer != MetroidDefinition ||
+                enemy.Definition.ShotAiPointer != MetroidShotAi ||
+                enemy.SpritemapPointer == 0 ||
+                enemy.InvincibilityTimer != 0 ||
+                enemy.Properties.HasAny(EnemyProperties.Deleted))
+            {
+                continue;
+            }
+
+            foreach (SamusBombProjectileSlot bomb in bombs.Slots)
+            {
+                ushort family = unchecked((ushort)(bomb.Type & 0x0f00));
+
+                // `$A0:A24E-$A265` admits an exploding family-$0500 normal bomb. The
+                // high-bit alternative is retained because reflected bomb-like actors use
+                // the same native collision gate, even though retail Metroids normally see
+                // the ordinary family branch. A nonzero BombTimer is still fuse time and
+                // cannot touch an enemy yet.
+                if (bomb.Type == 0 ||
+                    bomb.BombTimer != 0 ||
+                    (family != SamusBombProjectileSystem.NormalBombType &&
+                     (bomb.Type & 0x8000) == 0))
+                {
+                    continue;
+                }
+
+                if (!RadiusBoxesOverlap(
+                        enemy.XPosition,
+                        enemy.YPosition,
+                        enemy.XRadius,
+                        enemy.YRadius,
+                        bomb.XPosition,
+                        bomb.YPosition,
+                        bomb.XRadius,
+                        bomb.YRadius))
+                {
+                    continue;
+                }
+
+                // EnemyBombCollHandler marks the colliding bomb before dispatch. Metroid
+                // shot AI then ignores all bombs while frozen, detaches an attached body
+                // for family $0500, or applies its peculiar slot-zero recoil otherwise.
+                bomb.Direction = unchecked((ushort)(bomb.Direction | 0x0010));
+                if (enemy.FrozenTimer == 0)
+                {
+                    SamusProjectileSlot recoilOrigin = ordinaryProjectiles.Slots[0];
+                    ResolveMetroidNonFrozenShot(
+                        enemy,
+                        bomb.Type,
+                        bomb.Damage,
+                        recoilOrigin.XPosition,
+                        recoilOrigin.YPosition,
+                        samus);
+                }
+
+                hitCount++;
+                break;
+            }
+        }
+
+        return hitCount;
+    }
+
+    /// <summary>
     /// Ports <c>Process_Enemy_PowerBomb_Interaction</c> at $A0:A306 for one expansion
     /// sample. The caller supplies the high byte of the live power-bomb radius; native code
     /// uses it as the horizontal radius and derives a three-quarter-height vertical ellipse.
@@ -767,7 +951,8 @@ public sealed partial class RoomEnemySystem
         ISnesAddressSpace bus,
         ushort explosionX,
         ushort explosionY,
-        byte explosionRadius)
+        byte explosionRadius,
+        SamusState? samus = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         EnsureLoaded();
@@ -828,6 +1013,8 @@ public sealed partial class RoomEnemySystem
             bool isSpacePiratePowerBombReaction =
                 IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
                 reactionPointer == SpacePiratePowerBombAi;
+            bool isMetroid = enemy.EnemyDefinitionPointer == MetroidDefinition &&
+                reactionPointer == MetroidPowerBombAi;
             if (isRinka && enemy.Properties.HasAny(EnemyProperties.Invisible))
                 continue;
             if (reactionPointer != 0 && !isFireflea && !isPowamp && !isFakeKraid &&
@@ -836,7 +1023,8 @@ public sealed partial class RoomEnemySystem
                 !isGrowingShutterNoOp &&
                 !isVerticalShutterReaction &&
                 !isHorizontalShutterReaction &&
-                !isSpacePiratePowerBombReaction)
+                !isSpacePiratePowerBombReaction &&
+                !isMetroid)
             {
                 throw new NotSupportedException(
                     $"Enemy ${enemy.EnemyDefinitionPointer:X4} power-bomb reaction " +
@@ -880,6 +1068,8 @@ public sealed partial class RoomEnemySystem
                         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
                         if (isFireflea)
                             AdvanceFirefleaDarknessLevel();
+                        if (isMetroid)
+                            FinishMetroidDeath(enemy, samus, requestDrops: false);
                     }
                     if (isFakeKraid && healthBefore != 0 && enemy.Health == 0)
                         RequestFakeKraidDeathDrop(enemy);

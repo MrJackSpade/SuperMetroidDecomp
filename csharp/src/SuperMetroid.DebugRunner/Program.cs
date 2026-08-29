@@ -168,6 +168,24 @@ if (args.Length >= 2 && args[0] == "--elevator-audit")
     return ElevatorAudit.Run(elevatorRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--metroid-audit")
+{
+    string metroidRomPath = string.Join(' ', args[1..]).Trim('"');
+    return MetroidAudit.Run(metroidRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--boulder-audit")
+{
+    string boulderRomPath = string.Join(' ', args[1..]).Trim('"');
+    return BoulderAudit.Run(boulderRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--zebetite-audit")
+{
+    string zebetiteRomPath = string.Join(' ', args[1..]).Trim('"');
+    return ZebetiteAudit.Run(zebetiteRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

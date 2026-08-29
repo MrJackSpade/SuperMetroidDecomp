@@ -80,14 +80,22 @@ public static class SuperMetroidRuntimeFrameRenderer
             ushort bgCharacterBaseWord = usesCeresRidleyCharacterBase
                 ? (ushort)0x6000
                 : (ushort)0;
+            bool crocomireOwnsBg2 = runtime.Enemies.Crocomire is not null;
             frame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
                 runtime.Vram,
                 runtime.Cgram,
                 runtime.DisplayedOam,
                 runtime.BackgroundScroll.Bg1HorizontalScroll,
                 runtime.BackgroundScroll.Bg1VerticalScroll,
-                runtime.BackgroundScroll.Bg2HorizontalScroll,
-                runtime.BackgroundScroll.Bg2VerticalScroll,
+                crocomireOwnsBg2
+                    ? runtime.Enemies.CrocomireBg2HorizontalScroll
+                    : runtime.BackgroundScroll.Bg2HorizontalScroll,
+                crocomireOwnsBg2
+                    ? runtime.Enemies.CrocomireBg2VerticalScroll
+                    : runtime.BackgroundScroll.Bg2VerticalScroll,
+                bg2VerticalScrollByLine: crocomireOwnsBg2
+                    ? runtime.Enemies.CrocomireDeath?.Bg2ScrollByScanline
+                    : null,
                 bg1CharacterBaseWord: bgCharacterBaseWord,
                 bg2CharacterBaseWord: bgCharacterBaseWord);
         }

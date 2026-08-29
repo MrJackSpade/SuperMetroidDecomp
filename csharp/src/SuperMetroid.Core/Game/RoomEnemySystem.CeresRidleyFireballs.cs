@@ -21,6 +21,8 @@ public enum RoomEnemyProjectileKind : ushort
     MetareeParticleDownLeft = 0x8c16,
     MetareeParticleUpLeft = 0x8c24,
     CrocomireProjectile = 0x8f8f,
+    CrocomireBridgeCrumbling = 0x8f9d,
+    CrocomireSpikeWallPieces = 0x90c1,
     CeresRidleyFireball = 0x9642,
     CeresRidleyHorizontalAfterburnCenter = 0x9650,
     CeresRidleyVerticalAfterburnCenter = 0x965e,
@@ -644,6 +646,14 @@ public sealed partial class RoomEnemySystem
 
             case 0x90b3: // Crocomire projectile: X then Y collision deletes the actor.
                 RunCrocomireProjectileFlight(projectile, level);
+                return;
+
+            case 0x9115: // Crocomire spike wall: slot-specific acceleration and fall.
+                RunCrocomireSpikeWallPiece(projectile);
+                return;
+
+            case 0x92ba: // Crocomire bridge fragment: gravity until room collision.
+                RunCrocomireBridgeFragment(projectile, level);
                 return;
 
             case 0x9eff: // Alcoon fireball: Y then X collision, followed by horizontal drag.

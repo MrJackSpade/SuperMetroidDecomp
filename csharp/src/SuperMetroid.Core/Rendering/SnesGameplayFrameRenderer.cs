@@ -201,6 +201,7 @@ public static class SnesGameplayFrameRenderer
         ushort bg1VerticalScroll,
         ushort bg2HorizontalScroll,
         ushort bg2VerticalScroll,
+        IReadOnlyList<ushort>? bg2VerticalScrollByLine = null,
         ushort bg1CharacterBaseWord = 0,
         ushort bg2CharacterBaseWord = 0,
         byte obsel = 0x03)
@@ -230,7 +231,8 @@ public static class SnesGameplayFrameRenderer
             bg1HorizontalScroll,
             bg1VerticalScroll,
             bg2HorizontalScroll,
-            bg2VerticalScroll);
+            bg2VerticalScroll,
+            bg2VerticalScrollByLine);
         DrawHud(output, vram, cgram);
         return output;
     }
@@ -245,7 +247,8 @@ public static class SnesGameplayFrameRenderer
         ushort bg1HorizontalScroll,
         ushort bg1VerticalScroll,
         ushort bg2HorizontalScroll,
-        ushort bg2VerticalScroll)
+        ushort bg2VerticalScroll,
+        IReadOnlyList<ushort>? bg2VerticalScrollByLine)
     {
         if (objects.Width != Width || objects.Height != Height ||
             objects.Pixels.Length != output.Length ||
@@ -254,6 +257,13 @@ public static class SnesGameplayFrameRenderer
             throw new ArgumentException(
                 "A resolved gameplay OBJ raster must contain exactly 256x224 pixels.",
                 nameof(objects));
+        }
+        if (bg2VerticalScrollByLine is not null &&
+            bg2VerticalScrollByLine.Count < Height - HudHeight)
+        {
+            throw new ArgumentException(
+                "BG2 vertical HDMA scrolls must cover all 192 gameplay lines.",
+                nameof(bg2VerticalScrollByLine));
         }
 
         // Resolve the complete Mode-1 ladder in a single destination scan. The previous
@@ -264,7 +274,10 @@ public static class SnesGameplayFrameRenderer
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
             int bg1ScrolledY = unchecked(bg1VerticalScroll + screenY) & 0xff;
-            int bg2ScrolledY = unchecked(bg2VerticalScroll + screenY) & 0xff;
+            ushort activeBg2VerticalScroll = bg2VerticalScrollByLine is null
+                ? bg2VerticalScroll
+                : bg2VerticalScrollByLine[screenY - HudHeight];
+            int bg2ScrolledY = unchecked(activeBg2VerticalScroll + screenY) & 0xff;
             int bg1TileY = bg1ScrolledY >> 3;
             int bg2TileY = bg2ScrolledY >> 3;
             int bg1PixelY = bg1ScrolledY & 7;

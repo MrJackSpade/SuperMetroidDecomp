@@ -221,6 +221,7 @@ public sealed partial class SuperMetroidRuntime
             setSamusControlsEnabled: enabled => GroundedSamusMovementEnabled = enabled,
             setRoomScrollByte: (index, value) => Camera.Scrolls.SetStorage(index, value));
         ApplyPendingBotwoonWallPlm();
+        ApplyPendingCrocomireArenaPlms();
         Enemies.QueueGraphicsUploads(VramWrites);
 
         // `$90:AC8D` follows the standard-sprite and room-enemy uploads during gameplay
@@ -279,6 +280,34 @@ public sealed partial class SuperMetroidRuntime
             // `$84:AB51` during the first handler pass.
             Camera.Scrolls.SetLogicalCell(0, 0, (byte)RoomScrollState.Blue);
             Camera.Scrolls.SetLogicalCell(1, 0, (byte)RoomScrollState.Blue);
+        }
+    }
+
+    /// <summary>
+    /// Applies Crocomire's bank-$A4 hardcoded arena mutations through the shared bank-$84
+    /// PLM owner. The enemy publishes a frame-local list because one collapse step can clear
+    /// ten bridge cells before adding its invisible wall; consuming the entire list here
+    /// preserves both native order and fixed-pool exhaustion behavior.
+    /// </summary>
+    private void ApplyPendingCrocomireArenaPlms()
+    {
+        if (Enemies.CrocomirePlmRequests.Count == 0)
+            return;
+        if (LevelData is null)
+        {
+            throw new InvalidOperationException(
+                "Crocomire published an arena PLM without an active room level.");
+        }
+
+        foreach (CrocomirePlmRequest request in Enemies.CrocomirePlmRequests)
+        {
+            // SpawnHardcodedPLM silently loses a request when all forty native slots are
+            // occupied. TrySpawnCrocomireArenaMutation deliberately mirrors that result.
+            Plms.TrySpawnCrocomireArenaMutation(
+                LevelData,
+                request.BlockX,
+                request.BlockY,
+                request.Header);
         }
     }
 

@@ -48,6 +48,16 @@ public sealed class RoomPlmSystem
     private const ushort ClearBotwoonWallInstructionList = 0xab67;
     private const ushort CrumbleBotwoonWallInstructionList = 0xab31;
 
+    // Crocomire's bank-$A4 AI calls SpawnHardcodedPLM with these five entry headers. All
+    // five headers use Setup_DeactivatePLM (an RTS for the newly allocated actor), then run
+    // a one-frame draw and delete. Keeping the entry IDs at this boundary lets the boss AI
+    // remain a literal producer while this bank-$84 owner performs the terrain mutation.
+    private const ushort ClearCrocomireBridgeHeader = 0xb747;
+    private const ushort CrumbleCrocomireBridgeBlockHeader = 0xb74b;
+    private const ushort ClearCrocomireBridgeBlockHeader = 0xb74f;
+    private const ushort ClearCrocomireInvisibleWallHeader = 0xb753;
+    private const ushort CreateCrocomireInvisibleWallHeader = 0xb757;
+
     // `$94:936B` selects these eight entry IDs from BTS 0..7. Their setup pointer is common,
     // so storing the post-setup instruction-list pointer is sufficient after we reproduce
     // `$84:CE83-$CED9` synchronously in TrySpawnCollisionBombBlock.
@@ -191,6 +201,54 @@ public sealed class RoomPlmSystem
             slot.InstructionTimer = header == CrumbleBotwoonWallHeader
                 ? (ushort)64
                 : (ushort)1;
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Spawns one of Crocomire's five hardcoded arena PLMs at its literal room-block origin.
+    /// </summary>
+    /// <remarks>
+    /// The instruction pointers are the words selected by entries $84:B747-$B757 after
+    /// their no-op setup. The shared instruction interpreter below already understands the
+    /// positive timer/draw pair and $86BC deletion used by every one of these lists.
+    /// </remarks>
+    /// <returns>False only when all 40 native PLM slots are occupied.</returns>
+    public bool TrySpawnCrocomireArenaMutation(
+        RoomLevelData level,
+        byte blockX,
+        byte blockY,
+        ushort header)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        ushort instructionPointer = header switch
+        {
+            ClearCrocomireBridgeHeader => 0xafca,
+            CrumbleCrocomireBridgeBlockHeader => 0xafd0,
+            ClearCrocomireBridgeBlockHeader => 0xafd6,
+            ClearCrocomireInvisibleWallHeader => 0xafdc,
+            CreateCrocomireInvisibleWallHeader => 0xafe2,
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(header),
+                header,
+                "Crocomire arena header must be $B747, $B74B, $B74F, $B753, or $B757."),
+        };
+
+        int blockIndex = level.GetBlockIndex(blockX, blockY);
+        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
+        {
+            PlmSlot slot = _slots[slotIndex];
+            if (slot.Active)
+                continue;
+
+            slot.Active = true;
+            slot.BlockIndex = blockIndex;
+            slot.RestoreLevelWord = 0;
+            slot.LoopTimer = 0;
+            slot.InstructionPointer = instructionPointer;
+            slot.InstructionTimer = 1;
             return true;
         }
 

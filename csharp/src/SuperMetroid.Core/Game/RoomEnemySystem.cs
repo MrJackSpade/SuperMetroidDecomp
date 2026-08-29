@@ -439,6 +439,9 @@ public sealed partial class RoomEnemySystem
         LastBombTorizoSoundEffect = null;
         LastBombTorizoMusicRequest = null;
         LastCrocomireSoundEffect = null;
+        LastCrocomireMusicRequest = null;
+        LastCrocomireDropRequest = null;
+        _crocomirePlmRequests.Clear();
         LastRioSoundEffect = null;
         LastNorfairLavaJumpingEnemySoundEffect = null;
         LastNorfairRioSoundEffect = null;
@@ -685,11 +688,19 @@ public sealed partial class RoomEnemySystem
                     ushort componentY = unchecked((ushort)(originY + ReadWord(_bus, AddWithinBank(componentAddress, 2))));
                     ushort ordinarySpritemap = ReadWord(_bus, AddWithinBank(componentAddress, 4));
 
-                    // $FFFE names a BG2 tilemap command stream, not OBJ art. Its writer is
-                    // a separate modeled-BG seam; invisible steam frames never use it.
-                    if (ReadWord(
-                            _bus,
-                            (slot.Definition.Bank << 16) | ordinarySpritemap) != 0xfffe &&
+                    // $FFFE names ProcessExtendedTilemap's command stream. Extra-property
+                    // $8000 is the native producer gate: Crocomire clears it while sinking
+                    // so the last BG2 image can be erased row-by-row without being restored
+                    // by the still-current extended spritemap on every draw pass.
+                    ushort componentMarker = ReadWord(
+                        _bus,
+                        (slot.Definition.Bank << 16) | ordinarySpritemap);
+                    if (componentMarker == 0xfffe)
+                    {
+                        if ((slot.ExtraProperties & 0x8000) != 0)
+                            ProcessExtendedEnemyBg2Tilemap(slot.Definition.Bank, ordinarySpritemap);
+                    }
+                    else if (
                         ((componentX + 128) & 0xfe00) == 0 &&
                         ((componentY + 128) & 0xfe00) == 0)
                     {

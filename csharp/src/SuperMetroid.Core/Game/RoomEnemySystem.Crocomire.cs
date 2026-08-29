@@ -95,10 +95,30 @@ public sealed partial class RoomEnemySystem
     private const int CrocomireFightPaletteSource = 0xa4b89d;
 
     private CrocomireEnemyState? _crocomire;
+    private CrocomireDeathState? _crocomireDeath;
+    private readonly List<CrocomirePlmRequest> _crocomirePlmRequests = new();
     private ushort _crocomireCameraX;
 
     /// <summary>Debugger-visible Crocomire owner while the current room contains $DDBF.</summary>
     public CrocomireEnemyState? Crocomire => _crocomire;
+
+    /// <summary>Typed WRAM extension used by Crocomire's bridge/melting/skeleton graph.</summary>
+    public CrocomireDeathState? CrocomireDeath => _crocomireDeath;
+
+    /// <summary>Hardcoded bank-$84 arena mutations published during the current frame.</summary>
+    public IReadOnlyList<CrocomirePlmRequest> CrocomirePlmRequests => _crocomirePlmRequests;
+
+    /// <summary>Delayed music publication from the current Crocomire frame.</summary>
+    public CrocomireMusicRequest? LastCrocomireMusicRequest { get; private set; }
+
+    /// <summary>The boss-specific item-drop request emitted after the skeleton collapses.</summary>
+    public CrocomireDropRequest? LastCrocomireDropRequest { get; private set; }
+
+    /// <summary>Literal BG2 scroll owned by Crocomire while its extended tilemap is active.</summary>
+    public ushort CrocomireBg2HorizontalScroll { get; private set; }
+
+    /// <summary>Literal BG2 vertical scroll owned by Crocomire while its extended tilemap is active.</summary>
+    public ushort CrocomireBg2VerticalScroll { get; private set; }
 
     /// <summary>Most recent bank-$A4 library-two sound publication.</summary>
     public ushort? LastCrocomireSoundEffect { get; private set; }
@@ -109,8 +129,14 @@ public sealed partial class RoomEnemySystem
     private void ResetCrocomireRoomState()
     {
         _crocomire = null;
+        _crocomireDeath = null;
+        _crocomirePlmRequests.Clear();
         _crocomireCameraX = 0;
         LastCrocomireSoundEffect = null;
+        LastCrocomireMusicRequest = null;
+        LastCrocomireDropRequest = null;
+        CrocomireBg2HorizontalScroll = 0;
+        CrocomireBg2VerticalScroll = 0;
         CrocomireBridgeCollapseStarted = false;
     }
 
@@ -120,6 +146,8 @@ public sealed partial class RoomEnemySystem
         BossId = 6;
         var state = new CrocomireEnemyState(slot);
         _crocomire = state;
+        _crocomireDeath = new CrocomireDeathState();
+        ClearCrocomireBg2WorkingTilemap();
 
         if (_isAreaMiniBossDefeated?.Invoke() ?? false)
         {
@@ -132,6 +160,14 @@ public sealed partial class RoomEnemySystem
             slot.YPosition = 0x0090;
             slot.XRadius = 0x0028;
             slot.YRadius = 0x001c;
+            _setRoomScrollByte?.Invoke(0, 1);
+            _setRoomScrollByte?.Invoke(1, 1);
+            _setRoomScrollByte?.Invoke(2, 1);
+            _setRoomScrollByte?.Invoke(3, 1);
+            PublishCrocomirePlm(0x20, 0x03, 0xb753);
+            PublishCrocomirePlm(0x1e, 0x03, 0xb753);
+            PublishCrocomirePlm(0x61, 0x0b, 0xb747);
+            TransferCrocomireBg2Words(0, 1024);
             return;
         }
 
@@ -141,6 +177,8 @@ public sealed partial class RoomEnemySystem
         InstallCrocomireInstructionList(slot, CrocomireInitialInstructionList);
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
+        _setRoomScrollByte?.Invoke(0, 0);
+        _setRoomScrollByte?.Invoke(1, 0);
 
         // The initializer copies seventeen words, not sixteen: X starts at $20 and reaches
         // zero inclusively. Preserve that palette-boundary write because later fades compare
@@ -180,11 +218,13 @@ public sealed partial class RoomEnemySystem
         if (state.DeathSequenceIndex == 0)
         {
             HandleCrocomireBridgeThreshold(state);
+            // Main state zero always finishes through $A4:8B5B, including the frame in
+            // which $8D5E changes the death index to two.
+            UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
         }
-        else if (state.DeathSequenceIndex != 0x0054)
+        else
         {
-            throw new NotSupportedException(
-                $"Crocomire death-sequence index ${state.DeathSequenceIndex:X2} is not translated yet.");
+            RunCrocomireDeathSequence(state, samus);
         }
 
         HandleCrocomireInvisibleWall(slot, state, samus, controllerInput);
@@ -199,6 +239,7 @@ public sealed partial class RoomEnemySystem
     private void HandleCrocomireBridgeThreshold(CrocomireEnemyState state)
     {
         RoomEnemySlot body = state.Body;
+        HandleCrocomireBridgeApproach(body);
         if (unchecked((short)(body.XPosition - CrocomireBridgeThreshold)) < 0)
             return;
 
@@ -211,6 +252,12 @@ public sealed partial class RoomEnemySystem
         state.StepCounter = 0x0800;
         body.YRadius = 16;
         LastCrocomireSoundEffect = 0x003b;
+        CrocomireDeathState death = RequireCrocomireDeath();
+        death.BridgeFragmentCursor = 0;
+        death.AcidSmokeTimer = 1;
+        death.AcidSoundTimer = 1;
+
+        PublishCrocomireBridgeCollapsePlms();
 
         if (state.Tongue is { } tongue)
         {
@@ -265,4 +312,8 @@ public sealed partial class RoomEnemySystem
             ? state
             : throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} has no initialized Crocomire body state.");
+
+    private CrocomireDeathState RequireCrocomireDeath() =>
+        _crocomireDeath ?? throw new InvalidOperationException(
+            "Crocomire death extension is not initialized for the current room.");
 }

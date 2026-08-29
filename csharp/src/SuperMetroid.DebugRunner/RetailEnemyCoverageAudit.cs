@@ -49,6 +49,11 @@ internal static class RetailEnemyCoverageAudit
             [0xd3ff] = "GRipper",
             [0xd43f] = "Ripper II",
             [0xd4bf] = "Dragon",
+            [0xd4ff] = "Growing shutter",
+            [0xd53f] = "Shootable vertical shutter",
+            [0xd57f] = "Shootable horizontal shutter",
+            [0xd5bf] = "Destroyable vertical shutter",
+            [0xd5ff] = "Kamer vertical platform",
         };
         var focusedPopulations = focusedDefinitions.Keys.ToDictionary(
             definition => definition,

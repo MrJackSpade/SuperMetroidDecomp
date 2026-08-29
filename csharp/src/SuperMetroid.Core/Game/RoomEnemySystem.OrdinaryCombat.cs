@@ -109,6 +109,14 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == EvirTouchAi;
             bool isYappingMaw = slot.EnemyDefinitionPointer == YappingMawDefinition &&
                 slot.Definition.TouchAiPointer == YappingMawTouchAi;
+            // A handful of utility/terrain enemies intentionally point touch AI at an RTL
+            // in their own bank. Detect the native opcode instead of adding a name-specific
+            // exception for every inert actor. The collision is still reported, but the
+            // callback performs no damage, knockback, or actor reaction.
+            bool isLiteralNoOpTouchAi = slot.Definition.TouchAiPointer != 0 &&
+                _bus!.ReadByte(
+                    (slot.Definition.Bank << 16) |
+                    slot.Definition.TouchAiPointer) == 0x6b;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
@@ -129,6 +137,7 @@ public sealed partial class RoomEnemySystem
                 isZebetite ||
                 isEvir ||
                 isYappingMaw ||
+                isLiteralNoOpTouchAi ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -224,6 +233,12 @@ public sealed partial class RoomEnemySystem
                 // `$A3:9F07` is a literal RTL. Platform solidity and the asymmetric rider
                 // test live in other handlers; ordinary body overlap must neither injure
                 // Samus nor synthesize knockback here.
+            }
+            else if (isLiteralNoOpTouchAi)
+            {
+                // The bank-local callback is literally RTL. Keep this after the platform
+                // branch so platform-specific documentation remains attached to its family,
+                // while all other inert actors share the real dispatcher semantics.
             }
             else if (isVerticalShutter)
             {
@@ -367,6 +382,9 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == BullShotAi;
             bool isSpark = enemy.EnemyDefinitionPointer == SparkDefinition &&
                 enemy.Definition.ShotAiPointer == SparkShotAi;
+            bool isBlueBrinstarFaceBlock =
+                enemy.EnemyDefinitionPointer == BlueBrinstarFaceBlockDefinition &&
+                enemy.Definition.ShotAiPointer == BlueBrinstarFaceBlockShotAi;
             bool isFakeKraid = enemy.EnemyDefinitionPointer == FakeKraidDefinition &&
                 enemy.Definition.ShotAiPointer == FakeKraidShotAi;
             bool isOrdinarySpacePirate =
@@ -430,6 +448,7 @@ public sealed partial class RoomEnemySystem
                 isWorkRobot ||
                 isBull ||
                 isSpark ||
+                isBlueBrinstarFaceBlock ||
                 isFakeKraid ||
                 isOrdinarySpacePirate ||
                 isBabyTurtle ||
@@ -641,7 +660,7 @@ public sealed partial class RoomEnemySystem
                 // beam/missile actor to continue rather than becoming an impact animation.
                 // This must occur before TryStartEnemyImpact, which would irreversibly
                 // rewrite the projectile family to explosion `$0700`.
-                if (isSpark)
+                if (isSpark || isBlueBrinstarFaceBlock)
                 {
                     projectile.Direction = unchecked((ushort)(projectile.Direction & 0xffef));
                     hitCount++;

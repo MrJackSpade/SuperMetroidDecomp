@@ -64,6 +64,12 @@ internal static class RetailEnemyCoverageAudit
             [0xe77f] = "Wrecked Ship ghost",
             [0xe7bf] = "Yapping Maw",
             [0xea7f] = "Blue Brinstar face block",
+            [0xeabf] = "Ki-Hunter body",
+            [0xeaff] = "Ki-Hunter wings",
+            [0xeb3f] = "Red Ki-Hunter body",
+            [0xeb7f] = "Red Ki-Hunter wings",
+            [0xebbf] = "Gold Ki-Hunter body",
+            [0xebff] = "Gold Ki-Hunter wings",
         };
         var focusedPopulations = focusedDefinitions.Keys.ToDictionary(
             definition => definition,

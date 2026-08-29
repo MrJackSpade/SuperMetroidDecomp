@@ -179,6 +179,7 @@ public sealed partial class RoomEnemySystem
         LastKagoBugSoundEffect = null;
         LastKagoBugDropRequest = null;
         ResetMagdolliteRoomState();
+        ResetBlueBrinstarFaceBlockRoomState();
         ResetRinkaRoomState(cameraX, cameraY);
         ResetRioRoomState();
         ResetNorfairLavaJumpingEnemyRoomState();
@@ -545,6 +546,7 @@ public sealed partial class RoomEnemySystem
         _randomEnemyCounter = unchecked((ushort)(_randomEnemyCounter + 1));
         StepWorkRobotPaletteAnimation();
         StepMagdollitePaletteAnimation();
+        StepBlueBrinstarFaceBlockPaletteAnimation();
         if (!timeIsFrozen)
             StepRoomSpriteObjects();
     }
@@ -1062,6 +1064,10 @@ public sealed partial class RoomEnemySystem
             case 0xa8e637 when slot.EnemyDefinitionPointer == SparkDefinition:
                 InitializeSpark(slot);
                 return;
+            case 0xa8e82e when
+                slot.EnemyDefinitionPointer == BlueBrinstarFaceBlockDefinition:
+                InitializeBlueBrinstarFaceBlock(slot, samus);
+                return;
             case 0xa68b2f when slot.EnemyDefinitionPointer == KzanTopDefinition:
                 InitializeKzanTop(slot);
                 return;
@@ -1477,6 +1483,13 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa8e68e when slot.EnemyDefinitionPointer == SparkDefinition:
                 RunSparkMain(slot, RequireSparkState(slot));
+                return;
+            case 0xa8e8ae when
+                slot.EnemyDefinitionPointer == BlueBrinstarFaceBlockDefinition:
+                RunBlueBrinstarFaceBlockMain(
+                    slot,
+                    RequireBlueBrinstarFaceBlockState(slot),
+                    samus);
                 return;
             case 0xa68bad when slot.EnemyDefinitionPointer == KzanTopDefinition:
                 RunKzanTopMain(slot, RequireKzanState(slot), samus);

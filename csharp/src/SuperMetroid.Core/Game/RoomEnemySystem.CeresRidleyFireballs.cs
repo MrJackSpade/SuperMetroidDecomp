@@ -62,8 +62,13 @@ public enum RoomEnemyProjectileKind : ushort
     BombTorizoDeathExplosion = 0xa9af,
     BombTorizoChozoOrb = 0xad5e,
     BombTorizoSonicBoom = 0xaea8,
+    GoldenTorizoChozoOrb = 0xad7a,
+    GoldenTorizoSonicBoom = 0xaeb6,
     BombTorizoRightFootDust = 0xafe5,
     BombTorizoLeftFootDust = 0xaff3,
+    GoldenTorizoEgg = 0xb1c0,
+    GoldenTorizoSuperMissile = 0xb31a,
+    GoldenTorizoEyeBeam = 0xb428,
 }
 
 /// <summary>
@@ -102,9 +107,9 @@ public sealed class RoomEnemyProjectileSlot
     public ushort RemainingAfterburns { get; internal set; }
     public ushort NextAfterburnKind { get; internal set; }
     public ushort DirectionParameter { get; internal set; }
-    /// <summary>Native generic enemy-projectile variable zero at WRAM <c>$1B23,x</c>.</summary>
+    /// <summary>Native generic enemy-projectile variable E at WRAM <c>$1AFF,x</c>.</summary>
     public ushort Variable0 { get; internal set; }
-    /// <summary>Native generic enemy-projectile variable one at WRAM <c>$1B47,x</c>.</summary>
+    /// <summary>Native generic enemy-projectile variable F at WRAM <c>$1B23,x</c>.</summary>
     public ushort Variable1 { get; internal set; }
     public bool CanDamageSamus { get; internal set; }
     /// <summary>Native projectile property $4000: contact does not delete this actor.</summary>
@@ -517,8 +522,24 @@ public sealed partial class RoomEnemySystem
                 RunBombTorizoChozoOrbPreInstruction(projectile, level);
                 return;
 
-            case 0xae6c: // Bomb Torizo sonic boom: accelerating horizontal room shot.
+            case 0xacfa: // Golden Torizo Chozo orb: wall bounce and damped floor bounce.
+                RunGoldenTorizoChozoOrbPreInstruction(projectile, level);
+                return;
+
+            case 0xae6c: // Both Torizos' sonic boom: accelerating horizontal room shot.
                 RunBombTorizoSonicBoomPreInstruction(projectile, level);
+                return;
+
+            case 0xb043: // Golden Torizo egg: timed bounce followed by horizontal launch.
+                RunGoldenTorizoEggPreInstruction(projectile, level);
+                return;
+
+            case 0xb20d: // Held Golden Torizo super missile follows the hand joint.
+                RunGoldenTorizoSuperMissilePreInstruction(projectile);
+                return;
+
+            case 0xb38a: // Golden Torizo eye beam: room collision impact lists.
+                RunGoldenTorizoEyeBeamPreInstruction(projectile, level);
                 return;
 
             case 0xe4fe: // Generic room-coordinate dust/explosion camera cull.

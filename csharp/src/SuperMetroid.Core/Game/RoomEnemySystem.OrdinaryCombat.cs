@@ -802,7 +802,7 @@ public sealed partial class RoomEnemySystem
 
                 if (isBombTorizo)
                 {
-                    BombTorizoEnemyState torizoState = RequireBombTorizoState(enemy);
+                    TorizoEnemyState torizoState = RequireBombTorizoState(enemy);
                     if (torizoState.ShotGuard != 0 || enemy.FlashTimer != 0)
                     {
                         // Torizo_Shot returns before common damage AI in protected/flash

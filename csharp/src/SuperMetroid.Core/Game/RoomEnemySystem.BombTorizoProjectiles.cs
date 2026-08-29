@@ -164,13 +164,28 @@ public sealed partial class RoomEnemySystem
     }
 
     private void SpawnBombTorizoSonicBoom(RoomEnemySlot torizo, ushort parameter)
+        => SpawnTorizoSonicBoom(
+            torizo,
+            parameter,
+            RoomEnemyProjectileKind.BombTorizoSonicBoom);
+
+    private void SpawnGoldenTorizoSonicBoom(RoomEnemySlot torizo, ushort parameter)
+        => SpawnTorizoSonicBoom(
+            torizo,
+            parameter,
+            RoomEnemyProjectileKind.GoldenTorizoSonicBoom);
+
+    private void SpawnTorizoSonicBoom(
+        RoomEnemySlot torizo,
+        ushort parameter,
+        RoomEnemyProjectileKind kind)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
         InitializeEnemyProjectileFromDefinition(
             projectile,
-            RoomEnemyProjectileKind.BombTorizoSonicBoom,
+            kind,
             unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
 
         projectile.DirectionParameter = parameter;
@@ -188,6 +203,107 @@ public sealed partial class RoomEnemySystem
             projectile.XVelocity = unchecked((ushort)-624);
             projectile.InstructionPointer = 0xadbf;
         }
+    }
+
+    private void SpawnGoldenTorizoChozoOrb(RoomEnemySlot torizo)
+    {
+        RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
+        if (projectile is null)
+            return;
+
+        InitializeEnemyProjectileFromDefinition(
+            projectile,
+            RoomEnemyProjectileKind.GoldenTorizoChozoOrb,
+            unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
+        InitializeTorizoRandomizedProjectileTuple(
+            projectile,
+            torizo,
+            (torizo.Parameter1 & 0x8000) != 0 ? 0x86ac99 : 0x86aca3);
+    }
+
+    private void SpawnGoldenTorizoEgg(RoomEnemySlot torizo)
+    {
+        RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
+        if (projectile is null)
+            return;
+
+        InitializeEnemyProjectileFromDefinition(
+            projectile,
+            RoomEnemyProjectileKind.GoldenTorizoEgg,
+            unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
+
+        // $86:B001 contains an authentic bug: it masks the literal opcode byte $E2,
+        // not a random value, producing a fixed 66-frame timer. Preserve that behavior.
+        projectile.Variable1 = (0x00e2 & 0x001f) + 64;
+        projectile.Variable0 = torizo.Parameter1;
+        InitializeTorizoRandomizedProjectileTuple(
+            projectile,
+            torizo,
+            unchecked((short)torizo.Parameter1) < 0 ? 0x86b02f : 0x86b039);
+    }
+
+    private void SpawnGoldenTorizoSuperMissile(RoomEnemySlot torizo)
+    {
+        RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
+        if (projectile is null)
+            return;
+
+        InitializeEnemyProjectileFromDefinition(
+            projectile,
+            RoomEnemyProjectileKind.GoldenTorizoSuperMissile,
+            unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
+        bool facingRight = (torizo.Parameter1 & 0x8000) != 0;
+        projectile.Variable0 = unchecked((ushort)(torizo.SlotIndex * 2));
+        projectile.XPosition = unchecked((ushort)(torizo.XPosition + (facingRight ? 30 : -30)));
+        projectile.YPosition = unchecked((ushort)(torizo.YPosition - 52));
+        projectile.InstructionPointer = ReadWord(_bus!, facingRight ? 0x86b20b : 0x86b209);
+    }
+
+    private void SpawnGoldenTorizoEyeBeam(RoomEnemySlot torizo, ushort parameter)
+    {
+        RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
+        if (projectile is null)
+            return;
+
+        InitializeEnemyProjectileFromDefinition(
+            projectile,
+            RoomEnemyProjectileKind.GoldenTorizoEyeBeam,
+            unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
+        projectile.DirectionParameter = parameter;
+        bool facingRight = (torizo.Parameter1 & 0x8000) != 0;
+        InitializeTorizoRandomizedProjectileTuple(
+            projectile,
+            torizo,
+            facingRight ? 0x86b376 : 0x86b380);
+
+        int angle = ((_nextRandom!() & 0x001e) - 16 + 192 + (facingRight ? 0 : 128)) & 0x01ff;
+        int sineIndex = angle >> 1;
+        projectile.XVelocity = unchecked((ushort)(short)(8 * unchecked((short)ReadWord(
+            _bus!,
+            0xa0b443 + (((sineIndex + 64) & 0xff) * 2)))));
+        projectile.YVelocity = unchecked((ushort)(short)(8 * unchecked((short)ReadWord(
+            _bus!,
+            0xa0b443 + ((sineIndex & 0xff) * 2)))));
+    }
+
+    private void InitializeTorizoRandomizedProjectileTuple(
+        RoomEnemyProjectileSlot projectile,
+        RoomEnemySlot torizo,
+        int tupleAddress)
+    {
+        // Bank $86 stores {list, x offset, x velocity, y offset, y velocity}. Each
+        // velocity receives its own signed random-byte displacement in [-128, 127].
+        projectile.InstructionPointer = ReadWord(_bus!, tupleAddress);
+        projectile.XPosition = unchecked((ushort)(torizo.XPosition +
+            unchecked((short)ReadWord(_bus!, tupleAddress + 2))));
+        projectile.XVelocity = unchecked((ushort)(
+            unchecked((short)ReadWord(_bus!, tupleAddress + 4)) +
+            unchecked((byte)_nextRandom!()) - 128));
+        projectile.YPosition = unchecked((ushort)(torizo.YPosition +
+            unchecked((short)ReadWord(_bus!, tupleAddress + 6))));
+        projectile.YVelocity = unchecked((ushort)(
+            unchecked((short)ReadWord(_bus!, tupleAddress + 8)) +
+            unchecked((byte)_nextRandom!()) - 128));
     }
 
     private void SpawnBombTorizoLandingDust(RoomEnemySlot torizo, bool rightFoot)
@@ -249,5 +365,103 @@ public sealed partial class RoomEnemySystem
             (unchecked((short)projectile.XVelocity) < 0 ? -16 : 16)));
         if ((projectile.XVelocity & 0xf000) == 0x1000)
             projectile.Clear();
+    }
+
+    private void RunGoldenTorizoChozoOrbPreInstruction(
+        RoomEnemyProjectileSlot projectile,
+        RoomLevelData level)
+    {
+        if (MoveProjectileAxis(projectile, level, horizontal: true))
+            projectile.XVelocity = unchecked((ushort)-unchecked((short)projectile.XVelocity));
+
+        bool verticalCollision = MoveProjectileAxis(projectile, level, horizontal: false);
+        if (verticalCollision && unchecked((short)projectile.YVelocity) >= 0)
+        {
+            short xVelocity = unchecked((short)projectile.XVelocity);
+            projectile.XVelocity = unchecked((ushort)(xVelocity >= 0
+                ? xVelocity - 64
+                : xVelocity + 64));
+            projectile.YVelocity = unchecked((ushort)-(projectile.YVelocity >> 1));
+            if ((projectile.YVelocity & 0xff80) == 0xff80)
+            {
+                projectile.YPosition = unchecked((ushort)(
+                    (projectile.YPosition & 0xfff0) + 6));
+                projectile.InstructionPointer = 0xab41;
+                projectile.InstructionTimer = 1;
+                projectile.CanDamageSamus = false;
+                return;
+            }
+        }
+
+        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 24));
+    }
+
+    private void RunGoldenTorizoEggPreInstruction(
+        RoomEnemyProjectileSlot projectile,
+        RoomLevelData level)
+    {
+        projectile.Variable1 = unchecked((ushort)(projectile.Variable1 - 1));
+        if (unchecked((short)projectile.Variable1) < 0)
+        {
+            projectile.InstructionPointer = unchecked((ushort)(projectile.InstructionPointer + 2));
+            projectile.InstructionTimer = 1;
+            projectile.XVelocity = (projectile.Variable0 & 0x8000) != 0
+                ? (ushort)256
+                : unchecked((ushort)-256);
+            return;
+        }
+
+        if (MoveProjectileAxis(projectile, level, horizontal: true))
+        {
+            projectile.XVelocity = unchecked((ushort)-unchecked((short)projectile.XVelocity));
+            projectile.Variable0 ^= 0x8000;
+        }
+
+        if (MoveProjectileAxis(projectile, level, horizontal: false) &&
+            unchecked((short)projectile.YVelocity) >= 0)
+        {
+            short xVelocity = unchecked((short)projectile.XVelocity);
+            projectile.XVelocity = unchecked((ushort)(xVelocity + (xVelocity < 0 ? 32 : -32)));
+            projectile.YVelocity = unchecked((ushort)-unchecked((short)projectile.YVelocity));
+        }
+
+        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 48));
+        if ((projectile.YVelocity & 0xf000) == 0x1000)
+            projectile.Clear();
+    }
+
+    private void RunGoldenTorizoSuperMissilePreInstruction(RoomEnemyProjectileSlot projectile)
+    {
+        TorizoEnemyState? state = GoldenTorizo;
+        if (state is null)
+        {
+            projectile.Clear();
+            return;
+        }
+
+        RoomEnemySlot torizo = state.Slot;
+        projectile.XPosition = unchecked((ushort)(torizo.XPosition +
+            ((torizo.Parameter1 & 0x8000) != 0 ? 32 : -32)));
+        projectile.YPosition = unchecked((ushort)(torizo.YPosition - 52));
+    }
+
+    private void RunGoldenTorizoEyeBeamPreInstruction(
+        RoomEnemyProjectileSlot projectile,
+        RoomLevelData level)
+    {
+        if (MoveProjectileAxis(projectile, level, horizontal: true))
+        {
+            projectile.InstructionPointer = 0xb3cd;
+            projectile.InstructionTimer = 1;
+            return;
+        }
+
+        if (MoveProjectileAxis(projectile, level, horizontal: false))
+        {
+            projectile.YPosition = unchecked((ushort)(
+                (projectile.YPosition & 0xfff0) + 6));
+            projectile.InstructionPointer = 0xb3e5;
+            projectile.InstructionTimer = 1;
+        }
     }
 }

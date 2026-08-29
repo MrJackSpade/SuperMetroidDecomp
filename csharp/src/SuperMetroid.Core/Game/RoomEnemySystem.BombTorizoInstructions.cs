@@ -16,14 +16,16 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level,
         ushort opcode,
         ref ushort cursor,
+        ushort controllerInput,
         byte nmiFrameCounter8,
         out bool pauseInterpreter)
     {
         pauseInterpreter = false;
-        if (torizo.EnemyDefinitionPointer != BombTorizoDefinition)
+        if (torizo.EnemyDefinitionPointer is not (
+                BombTorizoDefinition or GoldenTorizoDefinition))
             return false;
 
-        BombTorizoEnemyState state = RequireBombTorizoState(torizo);
+        TorizoEnemyState state = RequireBombTorizoState(torizo);
         int operandAddress = 0xaa0000 | unchecked((ushort)(cursor + 2));
         ushort operand0 = ReadWord(_bus!, operandAddress);
 
@@ -82,8 +84,8 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xb94d: // Torizo_Instr_5: restore normal Bomb Torizo palette.
-                LoadBombTorizoPalette();
+            case 0xb94d: // Torizo_Instr_5: install the shared late-death body palette.
+                LoadTorizoDeathPalette();
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -112,9 +114,10 @@ public sealed partial class RoomEnemySystem
                     unchecked((ushort)(cursor + 4)));
                 if ((torizo.Parameter2 & 0x4000) != 0)
                     cursor = operand0;
+                else if (state.IsGolden)
+                    cursor = operand1;
                 else
                     cursor = unchecked((ushort)(cursor + 6)); // Bomb variant skips both targets.
-                _ = operand1; // Retained/documented for the shared Golden Torizo list format.
                 return true;
             }
 
@@ -277,6 +280,11 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
+            case 0xc5f2: // Torizo_Instr_44: Golden variant of the accelerating sonic boom.
+                SpawnGoldenTorizoSonicBoom(torizo, operand0);
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+
             case 0xc601: // Torizo_Instr_21: one frame-positioned explosive swipe.
                 SpawnBombTorizoExplosiveSwipe(torizo, operand0);
                 cursor = unchecked((ushort)(cursor + 4));
@@ -292,10 +300,313 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
+            case 0xcace: // Torizo_Instr_39: loop until the statue reaches authored Y=$0177.
+                cursor = torizo.YPosition == 375
+                    ? unchecked((ushort)(cursor + 4))
+                    : operand0;
+                return true;
+
+            case 0xcade: // Torizo_Instr_41: Golden final body-palette pair.
+                LoadGoldenTorizoFinalPalette();
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0xcae2: // Torizo_Instr_42: battle music, live radii, and palette-FX request.
+                LastBombTorizoMusicRequest = new BombTorizoMusicRequest(5, 8);
+                torizo.XRadius = 18;
+                torizo.YRadius = 48;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0xcdd7: // Torizo_Instr_48: release the captured-super state.
+                torizo.Parameter2 = unchecked((ushort)(torizo.Parameter2 & ~0x1000));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0xd0e9: // Torizo_Instr_57: spawn one Golden Torizo egg actor.
+                SpawnGoldenTorizoEgg(torizo);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0xd0f3: // Torizo_Instr_58: wait/branch while any egg actor remains alive.
+                cursor = EnemyProjectiles.Any(projectile =>
+                        projectile.Kind == RoomEnemyProjectileKind.GoldenTorizoEgg)
+                    ? operand0
+                    : unchecked((ushort)(cursor + 4));
+                return true;
+
+            case 0xd17b: // Torizo_Instr_59: clear the egg-direction flag.
+                state.AttackFlags = unchecked((ushort)(state.AttackFlags & ~0x8000));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0xd187: // Torizo_Instr_62: set the egg-direction flag.
+                state.AttackFlags = unchecked((ushort)(state.AttackFlags | 0x8000));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0xd1e7: // Torizo_Instr_63: consume the high-health reaction latch.
+                torizo.Parameter2 = unchecked((ushort)(torizo.Parameter2 & ~0x2000));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0xd38f: // Torizo_Instr_56: Golden attack sound.
+                LastBombTorizoSoundEffect = 0x0034;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0xd397: // Torizo_Instr_60: Golden eye/energy sound.
+                LastBombTorizoSoundEffect = 0x0067;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0xd39f: // Torizo_Instr_46: Golden missile sound.
+                LastBombTorizoSoundEffect = 0x0048;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0xd3e0: // Torizo_Instr_47: held/fired Golden super missile actor.
+                SpawnGoldenTorizoSuperMissile(torizo);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0xd3ea: // Torizo_Instr_49: close-behind Morph/Spring Ball reaction.
+                cursor = SelectGoldenTorizoMorphBallBranch(
+                    torizo,
+                    state,
+                    samus,
+                    cursor,
+                    operand0);
+                return true;
+
+            case 0xd436: // Torizo_Instr_61: spawn one parameterized Golden eye beam.
+                SpawnGoldenTorizoEyeBeam(torizo, operand0);
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+
+            case 0xd445: // Torizo_Instr_53: medium-range randomized front attack.
+                cursor = SelectGoldenTorizoMediumRangeBranch(
+                    torizo,
+                    state,
+                    samus,
+                    cursor,
+                    operand0);
+                return true;
+
+            case 0xd474: // Torizo_Instr_55: low-health randomized attack.
+                if (torizo.Health > 0x0788 || (_nextRandom!() & 0x0102) != 0)
+                    cursor = unchecked((ushort)(cursor + 4));
+                else
+                {
+                    state.DecisionCounter = 0;
+                    state.ReturnInstruction = unchecked((ushort)(cursor + 4));
+                    cursor = operand0;
+                }
+                return true;
+
+            case 0xd49b: // Torizo_Instr_52: high-health reaction to an accepted normal hit.
+                if (torizo.Health <= 0x2a30 || (torizo.Parameter2 & 0x2000) == 0)
+                    cursor = unchecked((ushort)(cursor + 4));
+                else
+                {
+                    state.ReturnInstruction = unchecked((ushort)(cursor + 4));
+                    cursor = operand0;
+                }
+                return true;
+
+            case 0xd4ba: // Torizo_Instr_50: anti-space-jump leap decision.
+                cursor = SelectGoldenTorizoSpaceJumpCounter(
+                    torizo,
+                    state,
+                    samus,
+                    controllerInput,
+                    cursor,
+                    operand0);
+                return true;
+
+            case 0xd4f3: // Torizo_Instr_43: one bouncing Golden Chozo orb.
+                SpawnGoldenTorizoChozoOrb(torizo);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0xd4fd: // Torizo_Instr_51: repetition/distance-controlled jump.
+                cursor = SelectGoldenTorizoRepeatedJump(
+                    torizo,
+                    state,
+                    samus,
+                    cursor,
+                    operand0);
+                return true;
+
+            case 0xd526: // Torizo_Instr_45: missile-count/frame-phase two-way attack.
+            {
+                SamusState activeSamus = RequireGoldenTorizoSamus(samus);
+                ushort operand1 = ReadWord(_bus!, 0xaa0000 |
+                    unchecked((ushort)(cursor + 4)));
+                state.ReturnInstruction = unchecked((ushort)(cursor + 6));
+                bool chooseFirst = activeSamus.Missiles < 0x20 ||
+                    ((nmiFrameCounter8 + (activeSamus.XPosition & 1) +
+                        (activeSamus.XPosition >> 1)) & 8) != 0;
+                cursor = chooseFirst ? operand0 : operand1;
+                return true;
+            }
+
+            case 0xd54d: // Torizo_Instr_54: Golden walking velocity table.
+                cursor = ProcessGoldenTorizoWalkInstruction(
+                    torizo,
+                    state,
+                    samus,
+                    RequireBombTorizoLevel(level),
+                    cursor,
+                    operand0);
+                return true;
+
             default:
                 return false;
         }
     }
+
+    private static ushort SelectGoldenTorizoMorphBallBranch(
+        RoomEnemySlot torizo,
+        TorizoEnemyState state,
+        SamusState? samus,
+        ushort cursor,
+        ushort target)
+    {
+        if (samus is null)
+            return unchecked((ushort)(cursor + 4));
+        int distance = Math.Abs(unchecked((short)(samus.XPosition - torizo.XPosition)));
+        bool isGroundedBall = samus.Pose is
+            0x1d or 0x1e or 0x1f or 0x79 or 0x7a or 0x7b or 0x7c;
+        if (BombTorizoFunction12IsNonNegative(torizo, samus) ||
+            distance < 4 || distance >= 0x28 || !isGroundedBall)
+        {
+            return unchecked((ushort)(cursor + 4));
+        }
+
+        state.DecisionCounter = 0;
+        return target;
+    }
+
+    private ushort SelectGoldenTorizoMediumRangeBranch(
+        RoomEnemySlot torizo,
+        TorizoEnemyState state,
+        SamusState? samus,
+        ushort cursor,
+        ushort target)
+    {
+        if (samus is null)
+            return unchecked((ushort)(cursor + 4));
+        int distance = Math.Abs(unchecked((short)(samus.XPosition - torizo.XPosition)));
+        if (!BombTorizoFunction12IsNonNegative(torizo, samus) ||
+            distance < 0x20 || distance >= 0x60 || (_nextRandom!() & 0x0110) != 0)
+        {
+            return unchecked((ushort)(cursor + 4));
+        }
+
+        state.ReturnInstruction = unchecked((ushort)(cursor + 4));
+        return target;
+    }
+
+    private ushort SelectGoldenTorizoSpaceJumpCounter(
+        RoomEnemySlot torizo,
+        TorizoEnemyState state,
+        SamusState? samus,
+        ushort controllerInput,
+        ushort cursor,
+        ushort target)
+    {
+        if (samus is null)
+            return unchecked((ushort)(cursor + 4));
+        int distance = Math.Abs(unchecked((short)(samus.XPosition - torizo.XPosition)));
+        if (distance < 0x70 || !BombTorizoFunction12IsNonNegative(torizo, samus))
+            return unchecked((ushort)(cursor + 4));
+        if (state.SamusSpaceJumpFrames <= 0x0168 &&
+            ((controllerInput & 0x0300) == 0 || (_nextRandom!() & 0x0101) == 0))
+        {
+            return unchecked((ushort)(cursor + 4));
+        }
+
+        state.DecisionCounter = 0;
+        StartGoldenTorizoForwardJump(torizo, state);
+        return target;
+    }
+
+    private static ushort SelectGoldenTorizoRepeatedJump(
+        RoomEnemySlot torizo,
+        TorizoEnemyState state,
+        SamusState? samus,
+        ushort cursor,
+        ushort target)
+    {
+        if (samus is null)
+            return unchecked((ushort)(cursor + 4));
+        int distance = Math.Abs(unchecked((short)(samus.XPosition - torizo.XPosition)));
+        if (state.DecisionCounter < 8 &&
+            (distance >= 0x20 || !BombTorizoFunction12IsNonNegative(torizo, samus)))
+        {
+            return unchecked((ushort)(cursor + 4));
+        }
+
+        state.DecisionCounter = 0;
+        StartGoldenTorizoBackwardJump(torizo, state);
+        return target;
+    }
+
+    private ushort ProcessGoldenTorizoWalkInstruction(
+        RoomEnemySlot torizo,
+        TorizoEnemyState state,
+        SamusState? samus,
+        RoomLevelData level,
+        ushort cursor,
+        ushort tableOffset)
+    {
+        state.HorizontalVelocity = ReadWord(_bus!, 0xaad59a + tableOffset);
+        int displacement = unchecked((short)state.HorizontalVelocity) << 16;
+        if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
+        {
+            state.AirTransitionTimer = 0;
+            return (torizo.Parameter1 & 0x8000) != 0
+                ? (ushort)0xd203
+                : (ushort)0xd2bf;
+        }
+
+        AlignEnemyYWithNonSquareSlope(level, torizo);
+        if (samus is not null && BombTorizoParameterMatchesSamusDelta(torizo, samus) &&
+            state.AirTransitionTimer == 0)
+        {
+            state.AirTransitionTimer = 16;
+        }
+        return unchecked((ushort)(cursor + 4));
+    }
+
+    private static void StartGoldenTorizoForwardJump(
+        RoomEnemySlot torizo,
+        TorizoEnemyState state)
+    {
+        state.HorizontalVelocity = (torizo.Parameter1 & 0x8000) != 0
+            ? (ushort)512
+            : unchecked((ushort)-512);
+        state.VerticalVelocity = unchecked((ushort)-1472);
+        state.VerticalAcceleration = 40;
+        torizo.InstructionTimer = 1;
+    }
+
+    private static void StartGoldenTorizoBackwardJump(
+        RoomEnemySlot torizo,
+        TorizoEnemyState state)
+    {
+        state.HorizontalVelocity = (torizo.Parameter1 & 0x8000) != 0
+            ? unchecked((ushort)-768)
+            : (ushort)768;
+        state.VerticalVelocity = unchecked((ushort)-1152);
+        state.VerticalAcceleration = 40;
+        torizo.InstructionTimer = 1;
+    }
+
+    private static SamusState RequireGoldenTorizoSamus(SamusState? samus) =>
+        samus ?? throw new InvalidOperationException(
+            "Golden Torizo instruction selection requires the active Samus actor.");
 
     private void ApplyBombTorizoMapOffset(
         RoomEnemySlot torizo,
@@ -312,7 +623,7 @@ public sealed partial class RoomEnemySystem
 
     private ushort ProcessBombTorizoWalkInstruction(
         RoomEnemySlot torizo,
-        BombTorizoEnemyState state,
+        TorizoEnemyState state,
         SamusState? samus,
         RoomLevelData level,
         ushort cursor,
@@ -342,7 +653,7 @@ public sealed partial class RoomEnemySystem
 
     private static ushort SelectBombTorizoCloseBehindBranch(
         RoomEnemySlot torizo,
-        BombTorizoEnemyState state,
+        TorizoEnemyState state,
         SamusState? samus,
         ushort cursor,
         ushort target)
@@ -357,7 +668,7 @@ public sealed partial class RoomEnemySystem
 
     private static ushort SelectBombTorizoCloseFrontJump(
         RoomEnemySlot torizo,
-        BombTorizoEnemyState state,
+        TorizoEnemyState state,
         SamusState? samus,
         ushort cursor,
         ushort target)

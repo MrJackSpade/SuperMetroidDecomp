@@ -474,7 +474,7 @@ public sealed partial class RoomEnemySystem
                 }
                 if (!ranActorAi &&
                     (slot.AiHandlerBits & 0x0002) != 0 &&
-                    slot.EnemyDefinitionPointer == BombTorizoDefinition)
+                    slot.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition)
                 {
                     // Torizo_Hurt owns the actor for the selected hurt frame. The common
                     // instruction interpreter still advances afterward, matching $A0:8FF7.
@@ -537,6 +537,7 @@ public sealed partial class RoomEnemySystem
                             level,
                             cameraX,
                             cameraY,
+                            controllerInput,
                             enemyNmiFrameCounter8);
                 }
             }
@@ -1149,7 +1150,8 @@ public sealed partial class RoomEnemySystem
             case 0xb2f5de when IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 InitializeNinjaSpacePirate(slot);
                 return;
-            case 0xaac87f when slot.EnemyDefinitionPointer == BombTorizoDefinition:
+            case 0xaac87f when slot.EnemyDefinitionPointer is
+                BombTorizoDefinition or GoldenTorizoDefinition:
                 InitializeBombTorizo(slot);
                 return;
             case 0xa2804c:
@@ -1610,7 +1612,14 @@ public sealed partial class RoomEnemySystem
                     samusProjectiles);
                 return;
             case 0xaac6a4 when slot.EnemyDefinitionPointer == BombTorizoDefinition:
-                RunBombTorizoMain(slot, RequireBombTorizoState(slot), level);
+                RunBombTorizoMain(slot, RequireBombTorizoState(slot), samus, level);
+                return;
+            case 0xaad369 when slot.EnemyDefinitionPointer == GoldenTorizoDefinition:
+                RunGoldenTorizoMain(
+                    slot,
+                    RequireBombTorizoState(slot),
+                    samus,
+                    level);
                 return;
             default:
                 throw new NotSupportedException(
@@ -1878,6 +1887,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level,
         ushort cameraX,
         ushort cameraY,
+        ushort controllerInput,
         byte nmiFrameCounter8)
     {
         ushort oldTimer = slot.InstructionTimer;
@@ -2702,6 +2712,7 @@ public sealed partial class RoomEnemySystem
                             level,
                             word,
                             ref cursor,
+                            controllerInput,
                             nmiFrameCounter8,
                             out bool pauseBombTorizoInterpreter))
                     {

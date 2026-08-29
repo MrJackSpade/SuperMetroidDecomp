@@ -290,7 +290,7 @@ internal static class BombTorizoAudit
             isRoomPlmPresent: isRoomPlmPresent);
 
         RoomEnemySlot head = enemies.Slots[0];
-        BombTorizoEnemyState state = enemies.BombTorizo ?? throw new InvalidDataException(
+        TorizoEnemyState state = enemies.BombTorizo ?? throw new InvalidDataException(
             "Bomb Torizo load produced no typed state.");
         return new LoadedBombTorizo(enemies, samus, head, state);
     }
@@ -341,5 +341,5 @@ internal static class BombTorizoAudit
         RoomEnemySystem Enemies,
         SamusState Samus,
         RoomEnemySlot Head,
-        BombTorizoEnemyState State);
+        TorizoEnemyState State);
 }

@@ -246,6 +246,12 @@ if (args.Length >= 2 && args[0] == "--botwoon-audit")
     return BotwoonAudit.Run(botwoonRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--spore-spawn-audit")
+{
+    string sporeSpawnRomPath = string.Join(' ', args[1..]).Trim('"');
+    return SporeSpawnAudit.Run(sporeSpawnRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--bomb-torizo-audit")
 {
     string bombTorizoRomPath = string.Join(' ', args[1..]).Trim('"');

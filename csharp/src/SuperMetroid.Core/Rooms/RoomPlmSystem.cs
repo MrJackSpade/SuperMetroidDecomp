@@ -48,6 +48,13 @@ public sealed class RoomPlmSystem
     private const ushort ClearBotwoonWallInstructionList = 0xab67;
     private const ushort CrumbleBotwoonWallInstructionList = 0xab31;
 
+    // Spore Spawn uses two neighboring hardcoded entries at the literal ceiling origin
+    // (7,30). Both setups are RTS; the header therefore selects only the authored list.
+    private const ushort CrumbleSporeSpawnCeilingHeader = 0xb78f;
+    private const ushort ClearSporeSpawnCeilingHeader = 0xb793;
+    private const ushort CrumbleSporeSpawnCeilingInstructionList = 0xab12;
+    private const ushort ClearSporeSpawnCeilingInstructionList = 0xab21;
+
     // Crocomire's bank-$A4 AI calls SpawnHardcodedPLM with these five entry headers. All
     // five headers use Setup_DeactivatePLM (an RTS for the newly allocated actor), then run
     // a one-frame draw and delete. Keeping the entry IDs at this boundary lets the boss AI
@@ -201,6 +208,45 @@ public sealed class RoomPlmSystem
             slot.InstructionTimer = header == CrumbleBotwoonWallHeader
                 ? (ushort)64
                 : (ushort)1;
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Spawns Spore Spawn's hardcoded 2x2 ceiling mutation at room block (7,30).
+    /// Header $B78F animates three crumble frames and then falls through to $AB21's clear;
+    /// header $B793 starts directly at that clear list for an already-defeated room.
+    /// </summary>
+    /// <returns>False only when all 40 native PLM slots are occupied.</returns>
+    public bool TrySpawnSporeSpawnCeiling(RoomLevelData level, ushort header)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        if (header is not (
+                CrumbleSporeSpawnCeilingHeader or ClearSporeSpawnCeilingHeader))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(header),
+                header,
+                "Spore Spawn ceiling header must be $B78F (crumble) or $B793 (clear).");
+        }
+
+        int blockIndex = level.GetBlockIndex(7, 30);
+        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
+        {
+            PlmSlot slot = _slots[slotIndex];
+            if (slot.Active)
+                continue;
+
+            slot.Active = true;
+            slot.BlockIndex = blockIndex;
+            slot.RestoreLevelWord = 0;
+            slot.LoopTimer = 0;
+            slot.InstructionPointer = header == CrumbleSporeSpawnCeilingHeader
+                ? CrumbleSporeSpawnCeilingInstructionList
+                : ClearSporeSpawnCeilingInstructionList;
+            slot.InstructionTimer = 1;
             return true;
         }
 

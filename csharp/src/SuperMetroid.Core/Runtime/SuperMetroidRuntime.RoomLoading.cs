@@ -221,6 +221,7 @@ public sealed partial class SuperMetroidRuntime
             setSamusControlsEnabled: enabled => GroundedSamusMovementEnabled = enabled,
             setRoomScrollByte: (index, value) => Camera.Scrolls.SetStorage(index, value));
         ApplyPendingBotwoonWallPlm();
+        ApplyPendingSporeSpawnCeilingPlm();
         ApplyPendingCrocomireArenaPlms();
         Enemies.QueueGraphicsUploads(VramWrites);
 
@@ -281,6 +282,31 @@ public sealed partial class SuperMetroidRuntime
             Camera.Scrolls.SetLogicalCell(0, 0, (byte)RoomScrollState.Blue);
             Camera.Scrolls.SetLogicalCell(1, 0, (byte)RoomScrollState.Blue);
         }
+    }
+
+    /// <summary>
+    /// Applies Spore Spawn's bank-$A5 ceiling request through the shared bank-$84 PLM
+    /// owner. Initialization publishes the clear entry for a defeated save; the live death
+    /// reaction publishes the animated crumble entry on the exact collision frame.
+    /// </summary>
+    private void ApplyPendingSporeSpawnCeilingPlm()
+    {
+        if (Enemies.LastSporeSpawnPlm is not SporeSpawnPlmRequest request)
+            return;
+        if (LevelData is null)
+        {
+            throw new InvalidOperationException(
+                "Spore Spawn published a ceiling PLM without active room level data.");
+        }
+        if (request.BlockX != 7 || request.BlockY != 30)
+        {
+            throw new InvalidDataException(
+                $"Spore Spawn published non-cartridge ceiling coordinates " +
+                $"({request.BlockX},{request.BlockY}).");
+        }
+
+        // SpawnHardcodedPLM silently drops the request if all forty native slots are full.
+        Plms.TrySpawnSporeSpawnCeiling(LevelData, request.Header);
     }
 
     /// <summary>

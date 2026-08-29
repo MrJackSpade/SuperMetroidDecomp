@@ -1041,8 +1041,6 @@ public sealed partial class SuperMetroidRuntime
                 Controller1.Current,
                 Projectiles,
                 NmiFrameCounter8);
-            ApplyPendingBotwoonWallPlm();
-            ApplyPendingCrocomireArenaPlms();
             if (Enemies.ElevatorClearedProjectileData)
             {
                 // `$90:ADB7` clears all ten projectile slots and their counters. Ordinary
@@ -2084,6 +2082,14 @@ public sealed partial class SuperMetroidRuntime
             {
                 if (LevelData is null || BackgroundStreamer is null || Camera is null)
                     throw new InvalidOperationException("The PLM handler requires an active room and camera.");
+
+                // Boss AI and its later collision callbacks publish hardcoded bank-$84
+                // entries at different points in this gameplay frame. Consume all of them
+                // at the native PLM-handler seam so a projectile/contact death cannot lose
+                // its request to the enemy system's next frame-publication reset.
+                ApplyPendingBotwoonWallPlm();
+                ApplyPendingSporeSpawnCeilingPlm();
+                ApplyPendingCrocomireArenaPlms();
 
                 IReadOnlyList<PlmTilemapUpdate> plmUpdates = Plms.Step(
                     _addressSpace,

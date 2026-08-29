@@ -80,6 +80,9 @@ public enum RoomEnemyProjectileKind : ushort
     ShaktoolAttackFrontCircle = 0xbe25,
     ShaktoolAttackMiddleCircle = 0xbe33,
     ShaktoolAttackBackCircle = 0xbe41,
+    SporeSpawnStalk = 0xde6c,
+    SporeSpawnSpore = 0xde7a,
+    SporeSpawnSpawner = 0xde88,
 }
 
 /// <summary>
@@ -519,6 +522,15 @@ public sealed partial class RoomEnemySystem
             case 0xa05b: // Pirate laser startup: three muzzle-flash frames do not move.
             case 0xefdf: // Enemy death/pickup subsystem's empty pre-instruction.
             case 0xa919: // Bomb Torizo explosive swipe: stationary authored hit flash.
+            case 0xdd44: // Spore Spawn stalk: position is written by the boss's main AI.
+                return;
+
+            case 0xdcee: // Spore Spawn spore: ROM-authored two-byte movement stream.
+                RunSporeSpawnSporePreInstruction(projectile);
+                return;
+
+            case 0xdd46: // Spore Spawn ceiling spawner: randomized closed-phase cadence.
+                RunSporeSpawnSpawnerPreInstruction(projectile);
                 return;
 
             case 0xea80: // Botwoon body: orientation, hurt palette, and death dispatcher.
@@ -1140,6 +1152,18 @@ public sealed partial class RoomEnemySystem
                     // after $EE8B. Treating that duration as an operand skips two bytes and
                     // interprets the following spritemap pointer as another opcode.
                     // Audio remains an outer seam, but the list cursor must still match ROM.
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xdc5a: // Spore impact: replace packed properties with literal $3000.
+                    SetSporeSpawnImpactProperties(projectile);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xdc61: // Spore impact: request enemy definition $DF3F's drop table.
+                    RequestSporeSpawnSporeDrop(projectile);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xdc77: // Ceiling spawner: allocate one room-graphics spore here.
+                    SpawnSporeSpawnSpore(projectile.XPosition, projectile.YPosition);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xaf92: // Torizo landing-dust instruction: move actor four pixels up.

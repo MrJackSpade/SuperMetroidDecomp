@@ -55,6 +55,10 @@ public sealed partial class RoomEnemySystem
     private const ushort CrocomireMouthShotAi = 0xba05;
     private const ushort CrocomireAlternateDustHitboxShotAi = 0xbab4;
     private const ushort CrocomirePowerBombAi = 0xb992;
+    private const ushort SporeSpawnTouchAi = 0xedec;
+    private const ushort SporeSpawnShotAi = 0xed5a;
+    private const ushort SporeSpawnDudHitboxShotAi = 0x8046;
+    private const ushort SporeSpawnNoOpHitboxTouchAi = 0x804c;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -118,6 +122,8 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == YappingMawTouchAi;
             bool isBotwoon = slot.EnemyDefinitionPointer == BotwoonDefinition &&
                 slot.Definition.TouchAiPointer == BotwoonTouchAi;
+            bool isSporeSpawn = slot.EnemyDefinitionPointer == SporeSpawnDefinition &&
+                slot.Definition.TouchAiPointer == SporeSpawnTouchAi;
             bool isBombTorizo = slot.EnemyDefinitionPointer == BombTorizoDefinition &&
                 slot.Definition.TouchAiPointer == BombTorizoTouchAi;
             bool isGoldenTorizo = slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
@@ -158,6 +164,7 @@ public sealed partial class RoomEnemySystem
                 isEvir ||
                 isYappingMaw ||
                 isBotwoon ||
+                isSporeSpawn ||
                 isTorizo ||
                 isShaktool ||
                 isCrocomire ||
@@ -181,7 +188,7 @@ public sealed partial class RoomEnemySystem
 
             bool usesExtendedHitboxes = (
                     isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo ||
-                    isCrocomire || isCrocomireTongue) &&
+                    isCrocomire || isCrocomireTongue || isSporeSpawn) &&
                 slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
             bool overlapsSamus;
             ushort hitboxTouchAi = slot.Definition.TouchAiPointer;
@@ -229,6 +236,30 @@ public sealed partial class RoomEnemySystem
             {
                 throw new NotSupportedException(
                     $"Torizo hitbox touch AI $AA:{hitboxTouchAi:X4} is not translated.");
+            }
+
+            if (isSporeSpawn)
+            {
+                if (!usesExtendedHitboxes)
+                {
+                    throw new InvalidDataException(
+                        "Spore Spawn requires its authored extended-spritemap hitboxes.");
+                }
+                if (hitboxTouchAi == SporeSpawnNoOpHitboxTouchAi)
+                    return true;
+                if (hitboxTouchAi != SporeSpawnTouchAi)
+                {
+                    throw new NotSupportedException(
+                        $"Spore Spawn hitbox touch AI $A5:{hitboxTouchAi:X4} is not translated.");
+                }
+
+                ResolveNormalEnemyTouch(
+                    slot,
+                    samus,
+                    controllerInput,
+                    skipDeathAnimation: true);
+                ResolveSporeSpawnDeathAfterCommon(slot);
+                return true;
             }
 
             if (isCrocomire || isCrocomireTongue)
@@ -495,6 +526,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == KiHunterShotAi;
             bool isBotwoon = enemy.EnemyDefinitionPointer == BotwoonDefinition &&
                 enemy.Definition.ShotAiPointer == BotwoonShotAi;
+            bool isSporeSpawn = enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
+                enemy.Definition.ShotAiPointer == SporeSpawnShotAi;
             bool isBombTorizo = enemy.EnemyDefinitionPointer == BombTorizoDefinition &&
                 enemy.Definition.ShotAiPointer == BombTorizoShotAi;
             bool isGoldenTorizo = enemy.EnemyDefinitionPointer == GoldenTorizoDefinition &&
@@ -548,6 +581,7 @@ public sealed partial class RoomEnemySystem
                 isYappingMaw ||
                 isKiHunter ||
                 isBotwoon ||
+                isSporeSpawn ||
                 isTorizo ||
                 isShaktool ||
                 isCrocomire ||
@@ -614,7 +648,7 @@ public sealed partial class RoomEnemySystem
 
                 bool usesExtendedHitboxes = (
                         isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo ||
-                        isCrocomire || isCrocomireTongue) &&
+                        isCrocomire || isCrocomireTongue || isSporeSpawn) &&
                     enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
                 bool overlapsProjectile;
                 ushort hitboxShotAi = enemy.Definition.ShotAiPointer;
@@ -688,6 +722,41 @@ public sealed partial class RoomEnemySystem
                         throw new NotSupportedException(
                             $"Maridia Large Snail hitbox shot AI " +
                             $"$A2:{hitboxShotAi:X4} is not translated.");
+                    }
+                }
+
+                if (isSporeSpawn)
+                {
+                    if (!usesExtendedHitboxes)
+                    {
+                        throw new InvalidDataException(
+                            "Spore Spawn requires its authored extended-spritemap hitboxes.");
+                    }
+                    if (hitboxShotAi == SporeSpawnDudHitboxShotAi)
+                    {
+                        projectiles.ApplyExtendedEnemyCollisionPrelude(
+                            projectile.SlotIndex,
+                            (enemy.Properties & 0x1000) != 0 ||
+                                (projectile.Type & 0x0008) == 0);
+                        CreateSporeSpawnDudShot(projectile);
+                        hitCount++;
+                        break;
+                    }
+                    if (hitboxShotAi != SporeSpawnShotAi)
+                    {
+                        throw new NotSupportedException(
+                            $"Spore Spawn hitbox shot AI $A5:{hitboxShotAi:X4} is not translated.");
+                    }
+                    if (!SporeSpawnAcceptsProjectile(projectileType))
+                    {
+                        // The extended collision walker has already selected the vulnerable
+                        // core. $ED5A rejects this projectile family before common damage.
+                        projectiles.ApplyExtendedEnemyCollisionPrelude(
+                            projectile.SlotIndex,
+                            (enemy.Properties & 0x1000) != 0 ||
+                                (projectile.Type & 0x0008) == 0);
+                        hitCount++;
+                        break;
                     }
                 }
 
@@ -1034,6 +1103,8 @@ public sealed partial class RoomEnemySystem
                         RequireBotwoonState(enemy).PreviousHealth = enemyHealthBefore;
                         ResolveBotwoonCombatAfterCommon(enemy);
                     }
+                    if (isSporeSpawn)
+                        ResolveSporeSpawnShotAfterCommon(enemy);
                     if (isTorizo && enemy.Health == 0)
                         BeginBombTorizoDeath(enemy, RequireBombTorizoState(enemy));
                     if (isShaktool)
@@ -1056,7 +1127,7 @@ public sealed partial class RoomEnemySystem
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
                     if (enemy.Health == 0 && !isPowamp && !isRinka && !isHorizontalShutter &&
-                        !isZebetite && !isBotwoon && !isTorizo)
+                        !isZebetite && !isBotwoon && !isSporeSpawn && !isTorizo)
                     {
                         // $A3:C7F5 adds Skree's four debris actors after the shared normal
                         // shot handler reports death, before the common death animation
@@ -1134,6 +1205,8 @@ public sealed partial class RoomEnemySystem
                     RequireBotwoonState(enemy).PreviousHealth = enemyHealthBefore;
                     ResolveBotwoonCombatAfterCommon(enemy);
                 }
+                if (isSporeSpawn)
+                    ResolveSporeSpawnShotAfterCommon(enemy);
                 if (isTorizo && enemy.Health == 0)
                     BeginBombTorizoDeath(enemy, RequireBombTorizoState(enemy));
                 if (isShaktool)

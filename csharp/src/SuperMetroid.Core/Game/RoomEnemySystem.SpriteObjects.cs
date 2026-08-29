@@ -10,10 +10,13 @@ namespace SuperMetroid.Core.Game;
 public enum RoomSpriteObjectKind : ushort
 {
     None = 0xffff,
+    SporeSpawnDyingExplosion = 0x0003,
+    EnemyProjectileDud = 0x0006,
     NinjaPirateLandingDust = 0x000a,
     BotwoonSmallExplosion = 0x0009,
     BotwoonLargeExplosion = 0x001d,
-    CrocomireAcidSmoke = 0x0015,
+    DustCloud = 0x0015,
+    CrocomireAcidSmoke = DustCloud,
     NuclearWaffleBody = 0x002b,
     NuclearWaffleTurnClockwise = 0x002c,
     NuclearWaffleTurnCounterClockwise = 0x002d,

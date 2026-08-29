@@ -56,6 +56,7 @@ internal static class RetailEnemyCoverageAudit
             [0xd5ff] = "Kamer vertical platform",
             [0xddbf] = "Crocomire",
             [0xddff] = "Crocomire tongue",
+            [0xdf3f] = "Spore Spawn",
             [0xdfbf] = "Boulder",
             [0xe27f] = "Zebetites",
             [0xe5bf] = "Etecoon",

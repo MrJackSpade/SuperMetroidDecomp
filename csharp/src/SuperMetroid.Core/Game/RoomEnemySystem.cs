@@ -48,6 +48,8 @@ public sealed partial class RoomEnemySystem
     private SnesVram? _vram;
     private SnesCgram? _cgram;
     private CeresRidleyState? _ceresRidley;
+    private SporeSpawnEnemyState? _sporeSpawn;
+    private bool _processAllEnemies;
 
     public RoomEnemySystem()
     {
@@ -203,6 +205,7 @@ public sealed partial class RoomEnemySystem
         ResetChozoStatueRoomState(setSamusControlsEnabled, setRoomScrollByte);
         ResetEscapeAnimalRoomState();
         ResetCrocomireRoomState();
+        ResetSporeSpawnRoomState();
         ResetRinkaRoomState(cameraX, cameraY);
         ResetRioRoomState();
         ResetNorfairLavaJumpingEnemyRoomState();
@@ -227,6 +230,7 @@ public sealed partial class RoomEnemySystem
         EarthquakeTimer = 0;
         EarthquakeType = 0;
         _ceresRidley = null;
+        _processAllEnemies = false;
         Array.Clear(_boyonStates);
         Array.Clear(_stokeStates);
         Array.Clear(_mamaTurtleStates);
@@ -442,6 +446,7 @@ public sealed partial class RoomEnemySystem
         LastCrocomireMusicRequest = null;
         LastCrocomireDropRequest = null;
         _crocomirePlmRequests.Clear();
+        BeginSporeSpawnFrame();
         LastRioSoundEffect = null;
         LastNorfairLavaJumpingEnemySoundEffect = null;
         LastNorfairRioSoundEffect = null;
@@ -921,6 +926,9 @@ public sealed partial class RoomEnemySystem
             case 0xa48a5a when slot.EnemyDefinitionPointer == CrocomireDefinition:
                 InitializeCrocomire(slot);
                 return;
+            case 0xa5ea2a when slot.EnemyDefinitionPointer == SporeSpawnDefinition:
+                InitializeSporeSpawn(slot);
+                return;
             case 0xa4f67a when slot.EnemyDefinitionPointer == CrocomireTongueDefinition:
                 InitializeCrocomireTongue(slot);
                 return;
@@ -1339,6 +1347,9 @@ public sealed partial class RoomEnemySystem
         {
             case 0xa48c04 when slot.EnemyDefinitionPointer == CrocomireDefinition:
                 RunCrocomireMain(slot, samus, controllerInput, level, cameraX);
+                return;
+            case 0xa5eb13 when slot.EnemyDefinitionPointer == SporeSpawnDefinition:
+                RunSporeSpawnMain(slot, RequireSporeSpawnState(slot), nmiFrameCounter8);
                 return;
             case 0xa4f6bb when slot.EnemyDefinitionPointer == CrocomireTongueDefinition:
                 // $A4:F6BB is a literal RTL. The tongue's bank-$A4 instruction list and
@@ -2753,6 +2764,8 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 default:
+                    if (TryProcessSporeSpawnInstruction(slot, word, ref cursor))
+                        break;
                     if (TryProcessCrocomireInstruction(
                             slot,
                             samus,
@@ -2837,7 +2850,8 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            bool active = slot.Properties.HasAny(EnemyProperties.ProcessOffScreen) ||
+            bool active = _processAllEnemies ||
+                slot.Properties.HasAny(EnemyProperties.ProcessOffScreen) ||
                 EnemyIsWithinProcessingWindow(slot, cameraX, cameraY);
             if (!active)
                 continue;

@@ -430,6 +430,37 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
     }
 
+    private void RunGoldenTorizoEggHorizontalCharge(
+        RoomEnemyProjectileSlot projectile,
+        RoomLevelData level)
+    {
+        if (MoveProjectileAxis(projectile, level, horizontal: true))
+        {
+            projectile.PreInstruction = 0xb0dd;
+            projectile.YVelocity = 0;
+            return;
+        }
+
+        projectile.XVelocity = unchecked((ushort)(projectile.XVelocity +
+            ((projectile.Variable0 & 0x8000) != 0 ? 48 : -48)));
+    }
+
+    private void RunGoldenTorizoEggFall(
+        RoomEnemyProjectileSlot projectile,
+        RoomLevelData level)
+    {
+        if (MoveProjectileAxis(projectile, level, horizontal: false))
+        {
+            projectile.InstructionPointer = (projectile.Variable0 & 0x8000) != 0
+                ? (ushort)0xb1a8
+                : (ushort)0xb190;
+            projectile.InstructionTimer = 1;
+            return;
+        }
+
+        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 48));
+    }
+
     private void RunGoldenTorizoSuperMissilePreInstruction(RoomEnemyProjectileSlot projectile)
     {
         TorizoEnemyState? state = GoldenTorizo;
@@ -443,6 +474,50 @@ public sealed partial class RoomEnemySystem
         projectile.XPosition = unchecked((ushort)(torizo.XPosition +
             ((torizo.Parameter1 & 0x8000) != 0 ? 32 : -32)));
         projectile.YPosition = unchecked((ushort)(torizo.YPosition - 52));
+    }
+
+    private void RunGoldenTorizoSuperMissileFlight(
+        RoomEnemyProjectileSlot projectile,
+        RoomLevelData level)
+    {
+        bool impact = MoveProjectileAxis(projectile, level, horizontal: true);
+        if (!impact)
+        {
+            bool verticalCollision = MoveProjectileAxis(projectile, level, horizontal: false);
+            impact = verticalCollision && unchecked((short)projectile.YVelocity) >= 0;
+        }
+
+        if (impact)
+        {
+            projectile.InstructionPointer = 0xb2ef;
+            projectile.InstructionTimer = 1;
+            return;
+        }
+
+        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 16));
+        if ((projectile.YVelocity & 0xf000) == 0x1000)
+            projectile.Clear();
+    }
+
+    private void SetGoldenTorizoSuperMissileVelocity(
+        RoomEnemyProjectileSlot projectile,
+        SamusState samus,
+        bool awayFromSamus)
+    {
+        byte angle = CalculateCartridgeAngle(
+            unchecked((short)(samus.XPosition - projectile.XPosition)),
+            unchecked((short)(samus.YPosition - projectile.YPosition)));
+        angle = awayFromSamus
+            ? unchecked((byte)(angle | 0x80))
+            : unchecked((byte)(angle & 0x7f));
+
+        // $86:B279 uses the signed 16-bit sine table with a fixed magnitude of four.
+        projectile.XVelocity = unchecked((ushort)(short)(4 * unchecked((short)ReadWord(
+            _bus!,
+            0xa0b443 + (((angle + 64) & 0xff) * 2)))));
+        projectile.YVelocity = unchecked((ushort)(short)(4 * unchecked((short)ReadWord(
+            _bus!,
+            0xa0b443 + ((angle & 0xff) * 2)))));
     }
 
     private void RunGoldenTorizoEyeBeamPreInstruction(

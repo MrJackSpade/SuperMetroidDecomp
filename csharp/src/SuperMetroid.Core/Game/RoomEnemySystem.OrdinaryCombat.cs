@@ -113,6 +113,9 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == BotwoonTouchAi;
             bool isBombTorizo = slot.EnemyDefinitionPointer == BombTorizoDefinition &&
                 slot.Definition.TouchAiPointer == BombTorizoTouchAi;
+            bool isGoldenTorizo = slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+                slot.Definition.TouchAiPointer == BombTorizoTouchAi;
+            bool isTorizo = isBombTorizo || isGoldenTorizo;
             // A handful of utility/terrain enemies intentionally point touch AI at an RTL
             // in their own bank. Detect the native opcode instead of adding a name-specific
             // exception for every inert actor. The collision is still reported, but the
@@ -142,7 +145,7 @@ public sealed partial class RoomEnemySystem
                 isEvir ||
                 isYappingMaw ||
                 isBotwoon ||
-                isBombTorizo ||
+                isTorizo ||
                 isLiteralNoOpTouchAi ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
@@ -161,7 +164,7 @@ public sealed partial class RoomEnemySystem
             }
 
             bool usesExtendedHitboxes = (
-                    isOrdinarySpacePirate || isMaridiaLargeSnail || isBombTorizo) &&
+                    isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo) &&
                 slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
             bool overlapsSamus;
             ushort hitboxTouchAi = slot.Definition.TouchAiPointer;
@@ -205,10 +208,10 @@ public sealed partial class RoomEnemySystem
                     $"Space Pirate hitbox touch AI $B2:{hitboxTouchAi:X4} is not translated.");
             }
 
-            if (isBombTorizo && (!usesExtendedHitboxes || hitboxTouchAi != BombTorizoTouchAi))
+            if (isTorizo && (!usesExtendedHitboxes || hitboxTouchAi != BombTorizoTouchAi))
             {
                 throw new NotSupportedException(
-                    $"Bomb Torizo hitbox touch AI $AA:{hitboxTouchAi:X4} is not translated.");
+                    $"Torizo hitbox touch AI $AA:{hitboxTouchAi:X4} is not translated.");
             }
 
             if (isMaridiaLargeSnail)
@@ -341,7 +344,7 @@ public sealed partial class RoomEnemySystem
                     slot,
                     samus,
                     controllerInput,
-                    skipDeathAnimation: isRinka || isZebetite || isBotwoon || isBombTorizo);
+                    skipDeathAnimation: isRinka || isZebetite || isBotwoon || isTorizo);
                 if (isMagdollite)
                     ResolveMagdolliteCombatAfterCommon(slot);
                 if (isRinka)
@@ -352,7 +355,7 @@ public sealed partial class RoomEnemySystem
                     ResolveEvirCombatAfterCommon(slot);
                 if (isBotwoon)
                     ResolveBotwoonCombatAfterCommon(slot);
-                if (isBombTorizo && slot.Health == 0)
+                if (isTorizo && slot.Health == 0)
                     BeginBombTorizoDeath(slot, RequireBombTorizoState(slot));
                 if (isFakeKraid && healthBefore != 0 && slot.Health == 0)
                     RequestFakeKraidDeathDrop(slot);
@@ -450,6 +453,9 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == BotwoonShotAi;
             bool isBombTorizo = enemy.EnemyDefinitionPointer == BombTorizoDefinition &&
                 enemy.Definition.ShotAiPointer == BombTorizoShotAi;
+            bool isGoldenTorizo = enemy.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+                enemy.Definition.ShotAiPointer == GoldenTorizoShotAi;
+            bool isTorizo = isBombTorizo || isGoldenTorizo;
             // Several retail helper/projectile definitions point their shot callback at a
             // literal RTL in their own enemy bank. The bank-$A0 collision walker still runs
             // its projectile prelude before dispatching that no-op callback: supers request
@@ -491,7 +497,7 @@ public sealed partial class RoomEnemySystem
                 isYappingMaw ||
                 isKiHunter ||
                 isBotwoon ||
-                isBombTorizo ||
+                isTorizo ||
                 isLiteralNoOpShotAi ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
@@ -553,7 +559,7 @@ public sealed partial class RoomEnemySystem
                 }
 
                 bool usesExtendedHitboxes = (
-                        isOrdinarySpacePirate || isMaridiaLargeSnail || isBombTorizo) &&
+                        isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo) &&
                     enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
                 bool overlapsProjectile;
                 ushort hitboxShotAi = enemy.Definition.ShotAiPointer;
@@ -594,11 +600,13 @@ public sealed partial class RoomEnemySystem
                     EarthquakeType = 18;
                 }
 
-                if (isBombTorizo &&
+                // Golden's definition installs $D667, but every authored extended body
+                // hitbox calls shared $C97C; that wrapper dispatches to $D667 by area.
+                if (isTorizo &&
                     (!usesExtendedHitboxes || hitboxShotAi != BombTorizoShotAi))
                 {
                     throw new NotSupportedException(
-                        $"Bomb Torizo hitbox shot AI $AA:{hitboxShotAi:X4} is not translated.");
+                        $"Torizo hitbox shot AI $AA:{hitboxShotAi:X4} is not translated.");
                 }
 
                 if (isMaridiaLargeSnail)
@@ -800,20 +808,72 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
 
-                if (isBombTorizo)
+                if (isTorizo)
                 {
                     TorizoEnemyState torizoState = RequireBombTorizoState(enemy);
-                    if (torizoState.ShotGuard != 0 || enemy.FlashTimer != 0)
+                    if (enemy.FlashTimer != 0 || isBombTorizo && torizoState.ShotGuard != 0)
                     {
-                        // Torizo_Shot returns before common damage AI in protected/flash
-                        // frames. The extended-hitbox prelude has still marked a non-plasma
-                        // projectile collision, but it must not become an impact animation.
+                        // Both callbacks return during a damage flash. Bomb Torizo also
+                        // rejects shots while its awakening guard is set; Golden Torizo's
+                        // nonzero guard instead routes through common damage below.
                         projectiles.ApplyExtendedEnemyCollisionPrelude(
                             projectile.SlotIndex,
                             (enemy.Properties & 0x1000) != 0 ||
                                 (projectile.Type & 0x0008) == 0);
                         hitCount++;
                         break;
+                    }
+
+                    if (isGoldenTorizo && torizoState.ShotGuard == 0 &&
+                        (enemy.Parameter2 & 0x1000) == 0)
+                    {
+                        torizoState.CapturedProjectileFamily = family;
+                        if (family == (ushort)SamusProjectileFamily.Missile)
+                        {
+                            projectiles.ApplyExtendedEnemyCollisionPrelude(
+                                projectile.SlotIndex,
+                                (enemy.Properties & 0x1000) != 0 ||
+                                    (projectile.Type & 0x0008) == 0);
+                            projectile.Direction &= 0xffef;
+                            torizoState.Function = TorizoFunctionIdle;
+                            enemy.InstructionTimer = 1;
+                            enemy.CurrentInstruction = (enemy.Parameter1 & 0x8000) != 0
+                                ? (ushort)0xd2ad
+                                : (ushort)0xd1f1;
+                            hitCount++;
+                            break;
+                        }
+
+                        if (family == (ushort)SamusProjectileFamily.SuperMissile)
+                        {
+                            if (samus is not null &&
+                                BombTorizoFunction12IsNonNegative(enemy, samus))
+                            {
+                                projectiles.ApplyExtendedEnemyCollisionPrelude(
+                                    projectile.SlotIndex,
+                                    (enemy.Properties & 0x1000) != 0 ||
+                                        (projectile.Type & 0x0008) == 0);
+                                enemy.Parameter2 |= 0x1000;
+                                torizoState.Function = TorizoFunctionIdle;
+                                projectile.Direction |= 0x0010;
+                                enemy.InstructionTimer = 1;
+                                enemy.CurrentInstruction = (enemy.Parameter1 & 0x2000) != 0
+                                    ? (enemy.Parameter1 & 0x8000) != 0
+                                        ? (ushort)0xceff
+                                        : (ushort)0xce43
+                                    : (enemy.Parameter1 & 0x8000) != 0
+                                        ? (ushort)0xcea5
+                                        : (ushort)0xcde1;
+                                hitCount++;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            // Beams and other common-damage families arm the high-health
+                            // counterattack branch before entering normal shot AI.
+                            enemy.Parameter2 |= 0x2000;
+                        }
                     }
                 }
 
@@ -897,7 +957,7 @@ public sealed partial class RoomEnemySystem
                         RequireBotwoonState(enemy).PreviousHealth = enemyHealthBefore;
                         ResolveBotwoonCombatAfterCommon(enemy);
                     }
-                    if (isBombTorizo && enemy.Health == 0)
+                    if (isTorizo && enemy.Health == 0)
                         BeginBombTorizoDeath(enemy, RequireBombTorizoState(enemy));
                     if (isDestroyableVerticalShutter)
                         ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
@@ -917,7 +977,7 @@ public sealed partial class RoomEnemySystem
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
                     if (enemy.Health == 0 && !isPowamp && !isRinka && !isHorizontalShutter &&
-                        !isZebetite && !isBotwoon && !isBombTorizo)
+                        !isZebetite && !isBotwoon && !isTorizo)
                     {
                         // $A3:C7F5 adds Skree's four debris actors after the shared normal
                         // shot handler reports death, before the common death animation
@@ -995,7 +1055,7 @@ public sealed partial class RoomEnemySystem
                     RequireBotwoonState(enemy).PreviousHealth = enemyHealthBefore;
                     ResolveBotwoonCombatAfterCommon(enemy);
                 }
-                if (isBombTorizo && enemy.Health == 0)
+                if (isTorizo && enemy.Health == 0)
                     BeginBombTorizoDeath(enemy, RequireBombTorizoState(enemy));
                 if (isDestroyableVerticalShutter)
                     ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);

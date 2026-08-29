@@ -196,6 +196,7 @@ public sealed partial class RoomEnemySystem
         ResetPipeBugRoomState();
         ResetBotwoonRoomState();
         ResetBombTorizoRoomState();
+        ResetTourianEntranceStatueRoomState();
         ResetRinkaRoomState(cameraX, cameraY);
         ResetRioRoomState();
         ResetNorfairLavaJumpingEnemyRoomState();
@@ -1154,6 +1155,9 @@ public sealed partial class RoomEnemySystem
                 BombTorizoDefinition or GoldenTorizoDefinition:
                 InitializeBombTorizo(slot);
                 return;
+            case 0xaad7c8 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
+                InitializeTourianEntranceStatue(slot);
+                return;
             case 0xa2804c:
                 return;
             default:
@@ -1620,6 +1624,10 @@ public sealed partial class RoomEnemySystem
                     RequireBombTorizoState(slot),
                     samus,
                     level);
+                return;
+            case 0xaad7c7 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
+                // $AA:D7C7 is the one-byte RTL immediately before the initializer. The
+                // three enemy records animate exclusively through their ROM lists.
                 return;
             default:
                 throw new NotSupportedException(

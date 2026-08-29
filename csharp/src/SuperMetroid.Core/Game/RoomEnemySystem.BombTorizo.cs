@@ -107,6 +107,7 @@ public sealed partial class RoomEnemySystem
     private const ushort TorizoPreInstructionGravity = 0xc828;
     private const ushort TorizoPreInstructionJump = 0xc82c;
     private const ushort GoldenTorizoPreInstructionAirTransition = 0xd5f1;
+    private const ushort GoldenTorizoPreInstructionGravity = 0xd5ed;
 
     private TorizoEnemyState? _torizoState;
     private Func<ushort, bool>? _isRoomPlmPresent;
@@ -452,6 +453,12 @@ public sealed partial class RoomEnemySystem
                 return;
             case GoldenTorizoPreInstructionAirTransition:
                 RunGoldenTorizoAirTransition(
+                    torizo,
+                    state,
+                    RequireBombTorizoLevel(level));
+                return;
+            case GoldenTorizoPreInstructionGravity:
+                ApplyBombTorizoGravity(
                     torizo,
                     state,
                     RequireBombTorizoLevel(level));

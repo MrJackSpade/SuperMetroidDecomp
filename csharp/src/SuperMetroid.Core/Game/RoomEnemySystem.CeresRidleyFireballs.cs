@@ -69,6 +69,9 @@ public enum RoomEnemyProjectileKind : ushort
     GoldenTorizoEgg = 0xb1c0,
     GoldenTorizoSuperMissile = 0xb31a,
     GoldenTorizoEyeBeam = 0xb428,
+    TourianStatueRidley = 0xbaa2,
+    TourianStatuePhantoon = 0xbab0,
+    TourianStatueBaseDecoration = 0xbabe,
 }
 
 /// <summary>
@@ -292,7 +295,7 @@ public sealed partial class RoomEnemySystem
             if (!projectile.IsActive)
                 continue;
 
-            ProcessEnemyProjectileInstructions(projectile, cameraX, cameraY);
+            ProcessEnemyProjectileInstructions(projectile, samus, cameraX, cameraY);
         }
 
         // Native gameplay runs `$86:868B` for every projectile first, then enters the
@@ -534,12 +537,29 @@ public sealed partial class RoomEnemySystem
                 RunGoldenTorizoEggPreInstruction(projectile, level);
                 return;
 
+            case 0xb0b9: // Golden Torizo egg: accelerate toward a wall.
+                RunGoldenTorizoEggHorizontalCharge(projectile, level);
+                return;
+
+            case 0xb0dd: // Golden Torizo egg: fall to the floor and hatch/impact.
+                RunGoldenTorizoEggFall(projectile, level);
+                return;
+
             case 0xb20d: // Held Golden Torizo super missile follows the hand joint.
                 RunGoldenTorizoSuperMissilePreInstruction(projectile);
                 return;
 
+            case 0xb237: // Thrown Golden Torizo super missile: gravity and room impact.
+                RunGoldenTorizoSuperMissileFlight(projectile, level);
+                return;
+
             case 0xb38a: // Golden Torizo eye beam: room collision impact lists.
                 RunGoldenTorizoEyeBeamPreInstruction(projectile, level);
+                return;
+
+            case 0xba37: // Tourian entrance statue actors follow the HDMA vertical reveal.
+            case 0xba42: // Shared position-only tail used after the finished flag is set.
+                PositionTourianEntranceStatueProjectile(projectile);
                 return;
 
             case 0xe4fe: // Generic room-coordinate dust/explosion camera cull.
@@ -798,6 +818,7 @@ public sealed partial class RoomEnemySystem
 
     private void ProcessEnemyProjectileInstructions(
         RoomEnemyProjectileSlot projectile,
+        SamusState? samus,
         ushort cameraX,
         ushort cameraY)
     {
@@ -996,6 +1017,49 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case 0xa3be: // Restore X/Y saved by the sonic-boom collision pre-instruction.
+                    projectile.XPosition = projectile.Variable0;
+                    projectile.YPosition = projectile.Variable1;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xad92: // Move X, then choose one of two lists from velocity sign.
+                    (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
+                        projectile.XPosition,
+                        projectile.XSubposition,
+                        projectile.XVelocity);
+                    cursor = ReadWord(
+                        _bus!,
+                        0x860000 | unchecked((ushort)(cursor +
+                            (unchecked((short)projectile.XVelocity) < 0 ? 2 : 4))));
+                    break;
+                case 0xb13e: // Golden Torizo egg: select left/right terminal list.
+                    cursor = (projectile.Variable0 & 0x8000) != 0
+                        ? (ushort)0xb166
+                        : (ushort)0xb14b;
+                    break;
+                case 0xb269: // Golden Torizo super missile: velocity toward Samus.
+                case 0xb272: // Golden Torizo super missile: velocity away from Samus.
+                    if (samus is null)
+                    {
+                        throw new InvalidOperationException(
+                            "Golden Torizo super-missile aiming requires the active Samus actor.");
+                    }
+                    SetGoldenTorizoSuperMissileVelocity(
+                        projectile,
+                        samus,
+                        awayFromSamus: word == 0xb272);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xb3b8: // Golden Torizo eye beam: branch while attack flag is clear.
+                {
+                    TorizoEnemyState state = GoldenTorizo ??
+                        throw new InvalidOperationException(
+                            "Golden Torizo eye-beam bytecode has no owning Torizo state.");
+                    cursor = (state.AttackFlags & 0x8000) == 0
+                        ? ReadWord(_bus!, 0x860000 | unchecked((ushort)(cursor + 2)))
+                        : unchecked((ushort)(cursor + 4));
+                    break;
+                }
+                case 0xb436: // Restore X/Y saved in generic projectile variables E/F.
                     projectile.XPosition = projectile.Variable0;
                     projectile.YPosition = projectile.Variable1;
                     cursor = unchecked((ushort)(cursor + 2));

@@ -252,6 +252,18 @@ if (args.Length >= 2 && args[0] == "--bomb-torizo-audit")
     return BombTorizoAudit.Run(bombTorizoRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--golden-torizo-audit")
+{
+    string goldenTorizoRomPath = string.Join(' ', args[1..]).Trim('"');
+    return GoldenTorizoAudit.Run(goldenTorizoRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--tourian-entrance-statue-audit")
+{
+    string statueRomPath = string.Join(' ', args[1..]).Trim('"');
+    return TourianEntranceStatueAudit.Run(statueRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

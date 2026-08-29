@@ -72,6 +72,8 @@ internal static class RetailEnemyCoverageAudit
             [0xebff] = "Gold Ki-Hunter wings",
             [0xeeff] = "Bomb Torizo",
             [0xef7f] = "Golden Torizo",
+            [0xefff] = "Tourian entrance statue",
+            [0xf07f] = "Shaktool",
             [0xf193] = "Brinstar Pipe Bug",
             [0xf1d3] = "strong Brinstar Pipe Bug",
             [0xf213] = "Norfair Pipe Bug",

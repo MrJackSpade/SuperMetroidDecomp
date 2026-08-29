@@ -114,7 +114,11 @@ public sealed partial class SuperMetroidRuntime
     /// one-pixel downward terrain scan. Exposing the word separately prevents the movement
     /// consumer from inventing an elevator platform or conflating actor state with pose.
     /// </summary>
-    public ushort ElevatorStatus { get; set; }
+    public ushort ElevatorStatus
+    {
+        get => (ushort)Enemies.ElevatorStatus;
+        set => Enemies.SetElevatorStatusForDebugging(value);
+    }
 
     /// <summary>
     /// Native power-bomb explosion status at WRAM <c>$0CE2</c>. X-ray setup rejects every
@@ -1011,6 +1015,11 @@ public sealed partial class SuperMetroidRuntime
         // dereference the post-AI slot words, which RoomEnemySystem publishes as bodies.
         if (Camera is not null && Enemies.IsLoaded)
         {
+            // Samus's bank-$94 collision phase follows EnemyMain. A pseudo-door contact
+            // published last frame therefore becomes `$0E16=1` immediately before this
+            // frame's elevator actor dispatcher, preserving the native producer order.
+            if (LevelData?.ConsumeElevatorDoorContact() == true)
+                Enemies.PublishElevatorDoorContact();
             if (Samus is not null)
             {
                 // `$94:9B60-$9B72` clears all four external-displacement words before
@@ -1032,6 +1041,13 @@ public sealed partial class SuperMetroidRuntime
                 Controller1.Current,
                 Projectiles,
                 NmiFrameCounter8);
+            if (Enemies.ElevatorClearedProjectileData)
+            {
+                // `$90:ADB7` clears all ten projectile slots and their counters. Ordinary
+                // beam/missile slots were reset inside the actor call; bombs and the shared
+                // cooldown live in this companion owner and complete that same operation.
+                BombProjectiles.Reset();
+            }
             // `$A6:A2DF` does not install the post-enemy hook until Ridley's animation word
             // becomes nonzero. Before the reveal it branches directly into `$A6:A2E3`
             // during EnemyMain, so emit the Baby/door OBJ now—before queued enemy layers.

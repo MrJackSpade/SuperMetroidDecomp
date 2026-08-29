@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -102,6 +103,13 @@ public sealed class RoomLevelData
     /// </summary>
     public CartridgeDoorHeader? PendingDoorTransition { get; private set; }
 
+    /// <summary>
+    /// Bank-$94 sets WRAM <c>elevator_flags</c> when a type-$9 block resolves to the special
+    /// low-bank pseudo destination. EnemyMain runs before Samus collision, so the runtime
+    /// consumes this publication at the beginning of the following gameplay frame.
+    /// </summary>
+    public bool ElevatorDoorContactPending { get; private set; }
+
     /// <summary>Read-only logical BG1 words, including collision type in bits 12–15.</summary>
     public ReadOnlyMemory<ushort> ForegroundEntries => _foregroundEntries;
 
@@ -158,7 +166,10 @@ public sealed class RoomLevelData
     /// Resolves a type-$9 BTS byte through the active room's door list exactly as bank $94
     /// does, then publishes the normal-door transition request for the top-level dispatcher.
     /// </summary>
-    public CartridgeDoorHeader ResolveDoorCollision(ISnesAddressSpace bus, byte behavior)
+    public CartridgeDoorHeader ResolveDoorCollision(
+        ISnesAddressSpace bus,
+        byte behavior,
+        byte samusPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if (DoorListPointer is not ushort doorListPointer)
@@ -178,6 +189,11 @@ public sealed class RoomLevelData
         CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, doorPointer);
         if ((door.DestinationRoomPointer & 0x8000) != 0)
             PendingDoorTransition ??= door;
+        // `$94:938B/$94:93CE` treat the pseudo destination as solid for every pose, but
+        // publish elevator_flags only while samus_pose is below $09. This prevents running,
+        // aerial, morph, and damage poses that merely brush the block from arming the actor.
+        else if (samusPose < SamusState.MovingRightNormalPose)
+            ElevatorDoorContactPending = true;
         return door;
     }
 
@@ -186,6 +202,14 @@ public sealed class RoomLevelData
     {
         CartridgeDoorHeader? pending = PendingDoorTransition;
         PendingDoorTransition = null;
+        return pending;
+    }
+
+    /// <summary>Consumes the one-frame elevator pseudo-door collision publication.</summary>
+    public bool ConsumeElevatorDoorContact()
+    {
+        bool pending = ElevatorDoorContactPending;
+        ElevatorDoorContactPending = false;
         return pending;
     }
 

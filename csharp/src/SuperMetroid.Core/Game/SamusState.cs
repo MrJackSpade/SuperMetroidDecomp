@@ -23,8 +23,21 @@ public sealed partial class SamusState
     private const int PowerSuitPalette = 0x9b9400;
 
 
+    private byte _pose = FacingRightNormalPose;
+
     /// <summary>Current one-byte pose index, corresponding to WRAM <c>$0A1C</c>.</summary>
-    public byte Pose { get; set; } = FacingRightNormalPose;
+    public byte Pose
+    {
+        get => _pose;
+        set
+        {
+            _pose = value;
+            // Bank $94 reads the global pose word directly while resolving special
+            // elevator doors. Mirror every pose write into the collision snapshot so the
+            // low-level dispatcher can reproduce that test without owning Samus state.
+            Kinematics.CollisionPose = value;
+        }
+    }
 
     /// <summary>Current animation-frame index, corresponding to WRAM <c>$0A96</c>.</summary>
     public ushort AnimationFrame { get; set; }
@@ -327,6 +340,13 @@ public sealed partial class SamusState
     /// <summary>Exact fixed-point position/radius words consumed by bank-$94 collision.</summary>
     public SamusKinematicsState Kinematics { get; } = new();
 
+    public SamusState()
+    {
+        // The backing field supplies the retail standing-right default without invoking
+        // the setter before property initializers have constructed Kinematics.
+        Kinematics.CollisionPose = _pose;
+    }
+
     /// <summary>
     /// Unsigned 16.16 horizontal distance actually accepted during the preceding gameplay
     /// frame. This is the typed equivalent of <c>absolute_moved_last_frame_x</c> and its
@@ -501,6 +521,7 @@ public sealed partial class SamusState
 
     private static SamusKinematicsState CopyKinematics(SamusKinematicsState source) => new()
     {
+        CollisionPose = source.CollisionPose,
         XPosition = source.XPosition,
         XSubposition = source.XSubposition,
         YPosition = source.YPosition,

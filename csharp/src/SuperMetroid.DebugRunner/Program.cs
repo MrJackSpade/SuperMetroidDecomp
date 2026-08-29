@@ -162,6 +162,12 @@ if (args.Length >= 2 && args[0] == "--shutter-audit")
     return ShutterAudit.Run(shutterRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--elevator-audit")
+{
+    string elevatorRomPath = string.Join(' ', args[1..]).Trim('"');
+    return ElevatorAudit.Run(elevatorRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

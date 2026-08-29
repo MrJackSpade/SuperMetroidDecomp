@@ -12,6 +12,15 @@ namespace SuperMetroid.Core.Game;
 public sealed class SamusKinematicsState
 {
     /// <summary>
+    /// Current pose byte sampled by bank-$94 collision. Door collision is mostly geometric,
+    /// but the elevator pseudo-door handlers admit only poses below $09 before publishing
+    /// <c>elevator_flags</c>. Keeping that byte beside the geometry lets every shared block
+    /// mover preserve the native test without guessing which higher-level movement caller
+    /// happened to reach it.
+    /// </summary>
+    public byte CollisionPose { get; internal set; } = byte.MaxValue;
+
+    /// <summary>
     /// Current native-order snapshot of WRAM <c>InteractiveEnemyIndices</c> and the collision
     /// words of the referenced enemy slots.
     /// </summary>

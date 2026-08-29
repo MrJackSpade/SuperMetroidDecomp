@@ -168,6 +168,7 @@ public sealed partial class RoomEnemySystem
         ResetRipperVariantRoomState();
         ResetDragonRoomState();
         ResetShutterRoomState(cameraX, cameraY);
+        ResetElevatorRoomActors();
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
@@ -373,6 +374,7 @@ public sealed partial class RoomEnemySystem
         LastMaridiaLargeSnailSoundEffect = null;
         LastDragonSoundEffect = null;
         BeginShutterFrame(cameraX, cameraY);
+        BeginElevatorFrame();
         SetRinkaCamera(cameraX, cameraY);
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
@@ -856,6 +858,9 @@ public sealed partial class RoomEnemySystem
             case 0xa2f111 when slot.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition:
                 InitializeHorizontalShutter(slot, samus);
                 return;
+            case 0xa394e6 when slot.EnemyDefinitionPointer == ElevatorDefinition:
+                InitializeElevator(slot, samus);
+                return;
             case 0xa896e3 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 InitializeFuneNamihe(slot);
                 return;
@@ -1230,6 +1235,14 @@ public sealed partial class RoomEnemySystem
                     RequireHorizontalShutterState(slot),
                     samus,
                     controllerInput);
+                return;
+            case 0xa3952a when slot.EnemyDefinitionPointer == ElevatorDefinition:
+                RunElevatorMain(
+                    slot,
+                    RequireElevatorState(slot),
+                    samus,
+                    newlyPressedControllerInput,
+                    samusProjectiles);
                 return;
             case 0xa89730 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), samus);

@@ -40,6 +40,7 @@ public static class SamusBlockCollision
         ArgumentNullException.ThrowIfNull(state);
         SamusKinematicsState probe = new()
         {
+            CollisionPose = state.CollisionPose,
             XPosition = state.XPosition,
             XSubposition = state.XSubposition,
             YPosition = state.YPosition,
@@ -193,8 +194,10 @@ public static class SamusBlockCollision
                         // game state $09, and returns carry clear, so this scan must allow
                         // Samus into the doorway. Elevator pseudo-destinations have bit 15
                         // clear and fall through to the ordinary solid clipping routine.
-                        CartridgeDoorHeader horizontalDoor =
-                            level.ResolveDoorCollision(bus, block.Behavior);
+                        CartridgeDoorHeader horizontalDoor = level.ResolveDoorCollision(
+                            bus,
+                            block.Behavior,
+                            state.CollisionPose);
                         if ((horizontalDoor.DestinationRoomPointer & 0x8000) == 0)
                         {
                             acceptedDisplacement = ClipHorizontalToSolid(
@@ -407,8 +410,10 @@ public static class SamusBlockCollision
                         // `$94:93CE` is the vertical twin of the handler above. Preserve
                         // its carry result here; the room-level owner publishes the same
                         // native door pointer for the frontend dispatcher to consume.
-                        CartridgeDoorHeader verticalDoor =
-                            level.ResolveDoorCollision(bus, block.Behavior);
+                        CartridgeDoorHeader verticalDoor = level.ResolveDoorCollision(
+                            bus,
+                            block.Behavior,
+                            state.CollisionPose);
                         if ((verticalDoor.DestinationRoomPointer & 0x8000) == 0)
                         {
                             acceptedDisplacement = ClipVerticalToSolid(

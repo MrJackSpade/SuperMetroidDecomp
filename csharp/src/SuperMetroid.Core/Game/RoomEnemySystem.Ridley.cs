@@ -105,12 +105,15 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         SamusState? samus,
         ushort controllerInput,
-        RoomLevelData? level = null)
+        RoomLevelData? level = null,
+        SamusProjectileSystem? samusProjectiles = null)
     {
         RidleyEnemyState state = RequireNorfairRidley(slot);
         state.HurtMovementClamp = unchecked((ushort)Math.Max(
             0,
             unchecked((short)state.HurtMovementClamp) - 4));
+
+        PrepareNorfairRidleyCombatFrame(slot, state);
 
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);
 
@@ -123,6 +126,8 @@ public sealed partial class RoomEnemySystem
             IntegrateRidleyMovement(slot, state);
             TickRidleyWingAnimation(state);
             TickRidleyTail(slot, state, samus);
+            if (samusProjectiles is not null)
+                ResolveRidleyTailProjectileHits(slot, state, samusProjectiles);
         }
 
         UpdateNorfairRidleyHealthPalette(slot, state);
@@ -324,7 +329,7 @@ public sealed partial class RoomEnemySystem
                 MoveNorfairRidleyToward(slot, state, state.TargetX, 256, 0);
                 if (TickRidleyFunctionTimer(state))
                 {
-                    ReleaseNorfairRidleyGrab(state);
+                    ReleaseNorfairRidleyGrab(state, samus);
                     state.Function = RidleyAiFunction.NorfairCarryRelease;
                     state.FunctionTimer = 64;
                 }
@@ -337,6 +342,34 @@ public sealed partial class RoomEnemySystem
                 MoveNorfairRidleyToward(slot, state, releaseX, 224, 0);
                 if (TickRidleyFunctionTimer(state))
                     state.Function = RidleyAiFunction.NorfairSelectAttack;
+                return;
+
+            case RidleyAiFunction.NorfairReleaseSamus:
+                TickNorfairRidleyMoveToDeathSpot(slot, state);
+                return;
+
+            case RidleyAiFunction.NorfairDeathStart:
+                BeginNorfairRidleyDeathRoar(slot, state);
+                return;
+
+            case RidleyAiFunction.NorfairDeathExplosions:
+                TickNorfairRidleyDeathRoar(slot, state);
+                return;
+
+            case RidleyAiFunction.NorfairDeathFall:
+                TickNorfairRidleyDeathExplosions(slot, state, samus);
+                return;
+
+            case RidleyAiFunction.NorfairDeathImpact:
+                BeginNorfairRidleyBreakup(slot, state);
+                return;
+
+            case RidleyAiFunction.NorfairDeathWait:
+                TickNorfairRidleyBreakupWait(state);
+                return;
+
+            case RidleyAiFunction.NorfairDeathFinish:
+                TickNorfairRidleyDeathFinish(slot, state);
                 return;
 
             default:
@@ -395,7 +428,7 @@ public sealed partial class RoomEnemySystem
         else if (slot.Health == 0)
         {
             tablePointer = 0xb3dc;
-            state.DeathExplosionCount = unchecked((ushort)(state.DeathExplosionCount + 1));
+            state.ZeroHealthLungeCount = unchecked((ushort)(state.ZeroHealthLungeCount + 1));
         }
         else if (slot.Health < 14400)
         {
@@ -698,6 +731,11 @@ public sealed partial class RoomEnemySystem
         state.GrabYOffset = unchecked((ushort)(samus.YPosition - clawY));
         state.GrabState = 1;
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        if (slot.Health == 0)
+        {
+            StartNorfairRidleyDeathSequence(slot, state);
+            return;
+        }
         state.Function = RidleyAiFunction.NorfairCarrySetup;
     }
 
@@ -714,10 +752,15 @@ public sealed partial class RoomEnemySystem
         MoveNorfairRidleyToward(slot, state, state.TargetX, state.TargetY, 0);
     }
 
-    private static void ReleaseNorfairRidleyGrab(RidleyEnemyState state)
+    private void ReleaseNorfairRidleyGrab(RidleyEnemyState state, SamusState? samus)
     {
         state.GrabState = 0;
         state.TailWhipRequest = 1;
+        state.TailFunctionIndex = 1;
+        byte movement = samus?.ReadMovementType(_bus!) ?? 0;
+        bool shortRelease = movement < RidleySamusMovementFlags.Length &&
+            (RidleySamusMovementFlags[movement] & 0x40) != 0;
+        state.IntangibilityTimer = shortRelease ? (ushort)6 : (ushort)10;
     }
 
     private void UpdateNorfairRidleyGrabbedSamus(

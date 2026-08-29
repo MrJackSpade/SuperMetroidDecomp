@@ -415,6 +415,9 @@ public sealed partial class SuperMetroidRuntime
             controllerInput: Controller1.Current,
             isAreaBossDefeated: () => System.HasAnyBossBits(
                 LandingSiteEntry.AreaIndex,
+                BossBits.AreaBoss),
+            setAreaBossDefeated: () => System.SetBossBits(
+                LandingSiteEntry.AreaIndex,
                 BossBits.AreaBoss));
 
         // InitializeHud queued the cartridge's $2E00-byte standard OBJ sheet before this
@@ -1058,7 +1061,7 @@ public sealed partial class SuperMetroidRuntime
                 Camera.YPosition);
             if (Samus is not null && !(Samus.Xray.TimeIsFrozen))
             {
-                Enemies.ResolveCeresRidleySamusContact(
+                Enemies.ResolveRidleySamusContact(
                     Samus,
                     Controller1.Current);
                 Enemies.ResolveOrdinarySamusContact(

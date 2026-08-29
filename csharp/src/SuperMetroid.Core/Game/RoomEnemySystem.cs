@@ -38,6 +38,7 @@ public sealed partial class RoomEnemySystem
     private Func<ushort>? _nextRandom;
     private Func<ushort>? _readRandomNumber;
     private Func<bool>? _isAreaBossDefeated;
+    private Action? _setAreaBossDefeated;
     private Func<bool>? _isAreaMiniBossDefeated;
     private Func<int, bool>? _hasEvent;
     private Action<int>? _setEvent;
@@ -148,7 +149,8 @@ public sealed partial class RoomEnemySystem
         Action? setAreaTorizoDefeated = null,
         Func<ushort, bool>? isRoomPlmPresent = null,
         Action<bool>? setSamusControlsEnabled = null,
-        Action<int, byte>? setRoomScrollByte = null)
+        Action<int, byte>? setRoomScrollByte = null,
+        Action? setAreaBossDefeated = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -163,6 +165,7 @@ public sealed partial class RoomEnemySystem
         _readRandomNumber = readRandomNumber;
         _setRandomNumber = setRandomNumber;
         _isAreaBossDefeated = isAreaBossDefeated;
+        _setAreaBossDefeated = setAreaBossDefeated;
         _isAreaMiniBossDefeated = isAreaMiniBossDefeated;
         _hasEvent = hasEvent;
         _setEvent = setEvent;
@@ -238,6 +241,7 @@ public sealed partial class RoomEnemySystem
         EarthquakeTimer = 0;
         EarthquakeType = 0;
         _ridleyState = null;
+        RidleyDeathDropRequested = false;
         _processAllEnemies = false;
         Array.Clear(_boyonStates);
         Array.Clear(_stokeStates);
@@ -504,6 +508,21 @@ public sealed partial class RoomEnemySystem
                     // Torizo_Hurt owns the actor for the selected hurt frame. The common
                     // instruction interpreter still advances afterward, matching $A0:8FF7.
                     ApplyBombTorizoHurt(slot);
+                    ranActorAi = true;
+                }
+                if (!ranActorAi &&
+                    (slot.AiHandlerBits & 0x0002) != 0 &&
+                    slot.EnemyDefinitionPointer == NorfairRidleyDefinition)
+                {
+                    // $A6:B297 owns hurt frames instead of falling back to ordinary main
+                    // AI. Movement/function work runs only on even actor frames, while tail
+                    // projectile armor and hurt palettes remain live on every frame.
+                    RunNorfairRidleyHurt(
+                        slot,
+                        samus,
+                        controllerInput,
+                        level,
+                        samusProjectiles);
                     ranActorAi = true;
                 }
                 if (!ranActorAi &&
@@ -1034,6 +1053,13 @@ public sealed partial class RoomEnemySystem
             case 0xa6a0f5 when slot.EnemyDefinitionPointer == NorfairRidleyDefinition:
                 InitializeNorfairRidley(slot);
                 return;
+            case 0xa6c696 when slot.EnemyDefinitionPointer == NorfairRidleyExplosionDefinition:
+                InitializeNorfairRidleyExplosion(
+                    slot,
+                    _slots[0],
+                    _ridleyState ?? throw new InvalidOperationException(
+                        "A Ridley breakup actor has no shared Ridley owner."));
+                return;
             case 0xa686f5 when slot.EnemyDefinitionPointer == BoulderDefinition:
                 InitializeBoulder(slot);
                 return;
@@ -1485,7 +1511,15 @@ public sealed partial class RoomEnemySystem
                 RunCeresRidleyMain(slot, samus);
                 return;
             case 0xa6b227 when slot.EnemyDefinitionPointer == NorfairRidleyDefinition:
-                RunNorfairRidleyMain(slot, samus, controllerInput, level);
+                RunNorfairRidleyMain(
+                    slot,
+                    samus,
+                    controllerInput,
+                    level,
+                    samusProjectiles);
+                return;
+            case 0xa6c8d4 when slot.EnemyDefinitionPointer == NorfairRidleyExplosionDefinition:
+                RunNorfairRidleyExplosionMain(slot);
                 return;
             case 0xa68793 when slot.EnemyDefinitionPointer == BoulderDefinition:
                 RunBoulderMain(slot, RequireBoulderState(slot), samus, level);

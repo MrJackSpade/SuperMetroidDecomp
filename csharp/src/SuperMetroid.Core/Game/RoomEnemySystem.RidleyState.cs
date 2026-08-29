@@ -158,6 +158,7 @@ public sealed class RidleyEnemyState
     public ushort GrabbedSamusMovementLagTimer { get; internal set; }
     public ushort GrabbedSamusMovementIndex { get; internal set; }
     public ushort GrabState { get; internal set; }
+    public ushort IntangibilityTimer { get; internal set; }
     public ushort TargetX { get; internal set; }
     public ushort TargetY { get; internal set; }
     public ushort PogoTargetX { get; internal set; }
@@ -170,8 +171,16 @@ public sealed class RidleyEnemyState
     public ushort FireballCooldown { get; internal set; }
     public ushort PowerBombReactionLatched { get; internal set; }
     public ushort HurtMovementClamp { get; internal set; }
+    public ushort ZeroHealthLungeCount { get; internal set; }
     public ushort DeathExplosionTimer { get; internal set; }
     public ushort DeathExplosionCount { get; internal set; }
+    public ushort FxTargetYPosition { get; internal set; }
+    public ushort FxYSubVelocity { get; internal set; }
+    public ushort FxTimer { get; internal set; }
+    public bool DeathBreakupSpawned { get; internal set; }
+    public bool BossDefeatPublished { get; internal set; }
+    public ushort? LastDeathSoundEffect { get; internal set; }
+    public ushort? MusicRequest { get; internal set; }
 
     // Ceres's private Baby actor and Mode-7 getaway reuse Ridley's extended workspaces.
     public ushort BabyInstruction { get; internal set; }

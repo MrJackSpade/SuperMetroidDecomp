@@ -217,6 +217,8 @@ public sealed partial class SuperMetroidRuntime
             controllerInput: Controller1.Current,
             isAreaBossDefeated: () =>
                 System.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
+            setAreaBossDefeated: () =>
+                System.SetBossBits(room.AreaIndex, BossBits.AreaBoss),
             cameraX: Camera.XPosition,
             cameraY: Camera.YPosition,
             hasEvent: System.HasEvent,

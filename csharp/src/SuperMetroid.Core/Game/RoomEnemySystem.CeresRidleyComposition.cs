@@ -608,11 +608,13 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// Replays $A0:9A5A's extended-spritemap Samus collision walk for Ceres Ridley. Every
-    /// rectangle and component offset comes from the active ROM animation frame; only the
-    /// normal-touch side effect is expressed through the runtime's shared knockback seam.
+    /// Replays $A0:9A5A's extended-spritemap Samus collision walk for either Ridley. The
+    /// shared bank-$A6 tail handler tests the solved tip first; only when that misses does
+    /// bank $A0 dispatch the active body's authored $DF59 rectangles. This ordering is
+    /// important because the tail has encounter-specific damage and must produce at most
+    /// one contact reaction in the frame.
     /// </summary>
-    public bool ResolveCeresRidleySamusContact(SamusState samus, ushort controllerInput)
+    public bool ResolveRidleySamusContact(SamusState samus, ushort controllerInput)
     {
         ArgumentNullException.ThrowIfNull(samus);
         EnsureLoaded();
@@ -620,13 +622,16 @@ public sealed partial class RoomEnemySystem
         // Samus's invincibility timer. It does not inspect the bank-$90 knockback-active
         // word. The extra host guard previously made a stale/ongoing aerial knockback
         // suppress every later Ridley overlap even after invincibility had expired.
-        if (_ridleyState is null || CeresStatus != 0 || samus.InvincibilityTimer != 0)
+        RoomEnemySlot slot = _slots[0];
+        if (_ridleyState is null ||
+            !IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
+            slot.EnemyDefinitionPointer == CeresRidleyDefinition && CeresStatus != 0 ||
+            samus.InvincibilityTimer != 0)
         {
             return false;
         }
 
-        RoomEnemySlot slot = _slots[0];
-        if (slot.EnemyDefinitionPointer != CeresRidleyDefinition || slot.SpritemapPointer == 0 ||
+        if (slot.SpritemapPointer == 0 ||
             slot.Properties.HasAny(
                 EnemyProperties.Invisible |
                 EnemyProperties.Deleted |
@@ -640,7 +645,8 @@ public sealed partial class RoomEnemySystem
         {
             // Ridley_Func_127 at $A6:DFD9 checks a radius-14 rectangle centered on the
             // solved tail tip before the common extended-body collision pass. Ceres writes
-            // tail damage $000F during initialization, independently of header damage five.
+            // damage $000F and Lower Norfair writes $0078; neither value comes from the
+            // body's enemy header.
             RidleyTailSegment tip = _ridleyState.TailSegments[6];
             int xDistance = Math.Abs(unchecked((short)(samus.XPosition - tip.XPosition)));
             int yDistance = Math.Abs(unchecked((short)(samus.YPosition - tip.YPosition)));
@@ -656,23 +662,46 @@ public sealed partial class RoomEnemySystem
             }
         }
 
-        if (!ExtendedSpritemapOverlapsRectangle(
+        if (!TryFindExtendedHitboxCallback(
                 slot,
                 samus.XPosition,
                 samus.YPosition,
                 samus.Kinematics.XRadius,
-                samus.Kinematics.YRadius))
+                samus.Kinematics.YRadius,
+                selectShotCallback: false,
+                out ushort touchAi))
         {
             return false;
         }
 
-        ApplyNormalEnemyTouchDamage(
+        if (touchAi != RidleyExtendedTouchAi)
+        {
+            throw new InvalidDataException(
+                $"Ridley extended body selected touch AI $A6:{touchAi:X4}, expected " +
+                $"$A6:{RidleyExtendedTouchAi:X4} from map $A6:{slot.SpritemapPointer:X4}.");
+        }
+
+        // $A6:DF59 enters the common no-death-check handler. That distinction matters for
+        // Screw Attack: a lethal body touch leaves Lower Norfair Ridley alive long enough
+        // to select the forced zero-health lunge and grab Samus for the authored death.
+        ResolveNormalEnemyTouch(
+            slot,
             samus,
             controllerInput,
-            damageBeforeSuit: 5,
-            damageSourceX: slot.XPosition);
+            skipDeathAnimation: true);
+        if (slot.EnemyDefinitionPointer == NorfairRidleyDefinition)
+            ResolveNorfairRidleyShotAfterCommon(slot);
         return true;
     }
+
+    /// <summary>
+    /// Compatibility entry point retained for the focused Ceres debugger. New runtime code
+    /// calls <see cref="ResolveRidleySamusContact"/> so the shared cartridge routine also
+    /// covers the real boss without a second bespoke geometry implementation.
+    /// </summary>
+    public bool ResolveCeresRidleySamusContact(SamusState samus, ushort controllerInput) =>
+        _slots[0].EnemyDefinitionPointer == CeresRidleyDefinition &&
+        ResolveRidleySamusContact(samus, controllerInput);
 
     /// <summary>
     /// Shared port of the rectangle walk used by $A0:9A5A (Samus contact) and $A0:9B7F

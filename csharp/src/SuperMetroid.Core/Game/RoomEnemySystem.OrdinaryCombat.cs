@@ -61,6 +61,9 @@ public sealed partial class RoomEnemySystem
     private const ushort SporeSpawnNoOpHitboxTouchAi = 0x804c;
     private const ushort CeresSteamTouchAi = 0xf03f;
     private const ushort CeresSteamNoOpShotAi = 0x804c;
+    private const ushort RidleyExtendedTouchAi = 0xdf59;
+    private const ushort RidleyShotAi = 0xdf8a;
+    private const ushort RidleyPowerBombAi = 0xdfb2;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -183,7 +186,11 @@ public sealed partial class RoomEnemySystem
             // Native touch collision does not interpret property $0100 as a collision bit;
             // it suppresses rendering only. Hibashi relies on that distinction: its second
             // slot remains invisible while its instruction stream moves a live hitbox.
-            if (slot.EnemyDefinitionPointer == CeresRidleyDefinition ||
+            // Both Ridley definitions use a hand-authored extended body plus a separately
+            // solved tail tip. ResolveRidleySamusContact owns that combined ordering; letting
+            // this ordinary pass see either definition would either flatten the body to the
+            // header's dummy 8x8 radius or apply body damage after an earlier tail hit.
+            if (IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
                 !usesTranslatedTouchAi ||
                 slot.SpritemapPointer == 0 ||
                 slot.Properties.HasAny(EnemyProperties.Deleted))
@@ -556,6 +563,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == SporeSpawnShotAi;
             bool isCeresSteam = enemy.EnemyDefinitionPointer == CeresSteamDefinition &&
                 enemy.Definition.ShotAiPointer == CeresSteamNoOpShotAi;
+            bool isNorfairRidley = enemy.EnemyDefinitionPointer == NorfairRidleyDefinition &&
+                enemy.Definition.ShotAiPointer == RidleyShotAi;
             bool isBombTorizo = enemy.EnemyDefinitionPointer == BombTorizoDefinition &&
                 enemy.Definition.ShotAiPointer == BombTorizoShotAi;
             bool isGoldenTorizo = enemy.EnemyDefinitionPointer == GoldenTorizoDefinition &&
@@ -611,6 +620,7 @@ public sealed partial class RoomEnemySystem
                 isBotwoon ||
                 isSporeSpawn ||
                 isCeresSteam ||
+                isNorfairRidley ||
                 isTorizo ||
                 isShaktool ||
                 isCrocomire ||
@@ -677,7 +687,8 @@ public sealed partial class RoomEnemySystem
 
                 bool usesExtendedHitboxes = (
                         isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo ||
-                        isCrocomire || isCrocomireTongue || isSporeSpawn || isCeresSteam) &&
+                        isCrocomire || isCrocomireTongue || isSporeSpawn || isCeresSteam ||
+                        isNorfairRidley) &&
                     enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
                 bool overlapsProjectile;
                 ushort hitboxShotAi = enemy.Definition.ShotAiPointer;
@@ -708,6 +719,15 @@ public sealed partial class RoomEnemySystem
                 if (!overlapsProjectile)
                 {
                     continue;
+                }
+
+                if (isNorfairRidley &&
+                    (!usesExtendedHitboxes || hitboxShotAi != RidleyShotAi))
+                {
+                    throw new InvalidDataException(
+                        $"Lower Norfair Ridley requires extended shot AI " +
+                        $"$A6:{RidleyShotAi:X4}; extended={usesExtendedHitboxes}, " +
+                        $"selected=$A6:{hitboxShotAi:X4}, map=$A6:{enemy.SpritemapPointer:X4}.");
                 }
 
                 if (usesExtendedHitboxes && family == 0x0200)
@@ -1177,7 +1197,8 @@ public sealed partial class RoomEnemySystem
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
                     if (enemy.Health == 0 && !isPowamp && !isRinka && !isHorizontalShutter &&
-                        !isZebetite && !isBotwoon && !isSporeSpawn && !isTorizo)
+                        !isZebetite && !isBotwoon && !isSporeSpawn && !isTorizo &&
+                        !isNorfairRidley)
                     {
                         // $A3:C7F5 adds Skree's four debris actors after the shared normal
                         // shot handler reports death, before the common death animation
@@ -1265,6 +1286,8 @@ public sealed partial class RoomEnemySystem
                     ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                 if (isHorizontalShutter)
                     ReactHorizontalShutter(enemy);
+                if (isNorfairRidley)
+                    ResolveNorfairRidleyShotAfterCommon(enemy);
 
                 hitCount++;
                 break;
@@ -1442,6 +1465,8 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == SpacePiratePowerBombAi;
             bool isMetroid = enemy.EnemyDefinitionPointer == MetroidDefinition &&
                 reactionPointer == MetroidPowerBombAi;
+            bool isNorfairRidley = enemy.EnemyDefinitionPointer == NorfairRidleyDefinition &&
+                reactionPointer == RidleyPowerBombAi;
             if (isRinka && enemy.Properties.HasAny(EnemyProperties.Invisible))
                 continue;
             if (reactionPointer != 0 && !isFireflea && !isPowamp && !isFakeKraid &&
@@ -1455,7 +1480,8 @@ public sealed partial class RoomEnemySystem
                 !isVerticalShutterReaction &&
                 !isHorizontalShutterReaction &&
                 !isSpacePiratePowerBombReaction &&
-                !isMetroid)
+                !isMetroid &&
+                !isNorfairRidley)
             {
                 throw new NotSupportedException(
                     $"Enemy ${enemy.EnemyDefinitionPointer:X4} power-bomb reaction " +
@@ -1501,7 +1527,7 @@ public sealed partial class RoomEnemySystem
                     enemy.Health = damage >= enemy.Health
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
-                    if (enemy.Health == 0 && !isRinka && !isBotwoon)
+                    if (enemy.Health == 0 && !isRinka && !isBotwoon && !isNorfairRidley)
                     {
                         enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
                         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
@@ -1529,6 +1555,8 @@ public sealed partial class RoomEnemySystem
                 ResolveKiHunterShotAfterCommon(enemy);
             if (isBotwoon)
                 ResolveBotwoonCombatAfterCommon(enemy);
+            if (isNorfairRidley)
+                ResolveNorfairRidleyPowerBombAfterCommon(enemy);
 
             enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
             reactionCount++;

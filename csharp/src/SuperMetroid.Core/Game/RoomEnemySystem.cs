@@ -201,6 +201,7 @@ public sealed partial class RoomEnemySystem
         ResetTourianEntranceStatueRoomState();
         ResetShaktoolRoomState();
         ResetChozoStatueRoomState(setSamusControlsEnabled, setRoomScrollByte);
+        ResetEscapeAnimalRoomState();
         ResetRinkaRoomState(cameraX, cameraY);
         ResetRioRoomState();
         ResetNorfairLavaJumpingEnemyRoomState();
@@ -1131,6 +1132,12 @@ public sealed partial class RoomEnemySystem
             case 0xb39583 when slot.EnemyDefinitionPointer == BotwoonDefinition:
                 InitializeBotwoon(slot);
                 return;
+            case 0xb3e6cb when slot.EnemyDefinitionPointer == EscapeEtecoonDefinition:
+                InitializeEscapeEtecoon(slot);
+                return;
+            case 0xb3eae5 when slot.EnemyDefinitionPointer == EscapeDachoraDefinition:
+                InitializeEscapeDachora(slot);
+                return;
             case 0xa68b2f when slot.EnemyDefinitionPointer == KzanTopDefinition:
                 InitializeKzanTop(slot);
                 return;
@@ -1586,6 +1593,16 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xb39668 when slot.EnemyDefinitionPointer == BotwoonDefinition:
                 RunBotwoonMain(slot, RequireBotwoonState(slot), samus);
+                return;
+            case 0xb3e655 when slot.EnemyDefinitionPointer == EscapeEtecoonDefinition:
+                RunEscapeEtecoonMain(
+                    slot,
+                    RequireEscapeEtecoonState(slot),
+                    level);
+                return;
+            case 0xb3eb1a when slot.EnemyDefinitionPointer == EscapeDachoraDefinition:
+                // $B3:EB1A is a literal RTL. Dachora's complete movement program lives in
+                // its ROM instruction lists and therefore runs later in this same frame.
                 return;
             case 0xa68bad when slot.EnemyDefinitionPointer == KzanTopDefinition:
                 RunKzanTopMain(slot, RequireKzanState(slot), samus);
@@ -2744,6 +2761,8 @@ public sealed partial class RoomEnemySystem
                     {
                         break;
                     }
+                    if (TryProcessEscapeAnimalInstruction(slot, samus, word, ref cursor))
+                        break;
                     if (TryProcessBombTorizoInstruction(
                             slot,
                             samus,

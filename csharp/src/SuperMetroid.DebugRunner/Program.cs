@@ -276,6 +276,12 @@ if (args.Length >= 2 && args[0] == "--chozo-statue-audit")
     return ChozoStatueAudit.Run(chozoStatueRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--escape-animals-audit")
+{
+    string escapeAnimalsRomPath = string.Join(' ', args[1..]).Trim('"');
+    return EscapeAnimalsAudit.Run(escapeAnimalsRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

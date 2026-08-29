@@ -54,6 +54,8 @@ internal static class RetailEnemyCoverageAudit
             [0xd57f] = "Shootable horizontal shutter",
             [0xd5bf] = "Destroyable vertical shutter",
             [0xd5ff] = "Kamer vertical platform",
+            [0xddbf] = "Crocomire",
+            [0xddff] = "Crocomire tongue",
             [0xdfbf] = "Boulder",
             [0xe27f] = "Zebetites",
             [0xe5bf] = "Etecoon",
@@ -80,6 +82,8 @@ internal static class RetailEnemyCoverageAudit
             [0xf1d3] = "strong Brinstar Pipe Bug",
             [0xf213] = "Norfair Pipe Bug",
             [0xf253] = "yellow Brinstar Pipe Bug",
+            [0xf2d3] = "escape Etecoon",
+            [0xf313] = "escape Dachora",
         };
         var focusedPopulations = focusedDefinitions.Keys.ToDictionary(
             definition => definition,

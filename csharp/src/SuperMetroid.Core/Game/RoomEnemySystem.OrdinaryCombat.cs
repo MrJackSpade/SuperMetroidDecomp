@@ -88,6 +88,11 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == MaridiaLargeSnailNonDamagingTouchAi;
             bool isDragon = slot.EnemyDefinitionPointer == DragonDefinition &&
                 slot.Definition.TouchAiPointer == DragonTouchAi;
+            bool isVerticalShutter = IsVerticalShutterDefinition(slot.EnemyDefinitionPointer) &&
+                slot.Definition.TouchAiPointer == VerticalShutterTouchAi;
+            bool isHorizontalShutter =
+                slot.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition &&
+                slot.Definition.TouchAiPointer == HorizontalShutterTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
@@ -102,6 +107,8 @@ public sealed partial class RoomEnemySystem
                 isRinka ||
                 isMaridiaLargeSnail ||
                 isDragon ||
+                isVerticalShutter ||
+                isHorizontalShutter ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -197,6 +204,21 @@ public sealed partial class RoomEnemySystem
                 // `$A3:9F07` is a literal RTL. Platform solidity and the asymmetric rider
                 // test live in other handlers; ordinary body overlap must neither injure
                 // Samus nor synthesize knockback here.
+            }
+            else if (isVerticalShutter)
+            {
+                // $F09D does not enter common contact damage. Body overlap is itself the
+                // trigger, and $F0B6 decides whether this population mode may start moving.
+                ReactVerticalShutter(slot, _shutterCameraX, _shutterCameraY);
+            }
+            else if (isHorizontalShutter)
+            {
+                // $F3D8 provides manual ejection only after a permanently stopped shutter.
+                // The main AI's subsequent nonzero contact-damage-index check reuses the
+                // shot reaction, allowing Screw/Speed contact to trigger modes three/four.
+                TouchHorizontalShutter(slot, samus, controllerInput);
+                if (contactDamageIndex != 0)
+                    ReactHorizontalShutter(slot);
             }
             else if (slot.EnemyDefinitionPointer == MochtroidDefinition)
             {
@@ -336,6 +358,16 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == GRipperRipper2ShotAi;
             bool isDragon = enemy.EnemyDefinitionPointer == DragonDefinition &&
                 enemy.Definition.ShotAiPointer == DragonShotAi;
+            bool isReactionOnlyVerticalShutter =
+                enemy.EnemyDefinitionPointer is
+                    ShootableVerticalShutterDefinition or KamerVerticalPlatformDefinition &&
+                enemy.Definition.ShotAiPointer == ShootableVerticalShutterShotAi;
+            bool isDestroyableVerticalShutter =
+                enemy.EnemyDefinitionPointer == DestroyableVerticalShutterDefinition &&
+                enemy.Definition.ShotAiPointer == DestroyableVerticalShutterShotAi;
+            bool isHorizontalShutter =
+                enemy.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition &&
+                enemy.Definition.ShotAiPointer == HorizontalShutterShotAi;
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
                 enemy.EnemyDefinitionPointer == SkreeDefinition &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
@@ -357,6 +389,9 @@ public sealed partial class RoomEnemySystem
                 isMaridiaLargeSnail ||
                 isGRipperOrRipper2 ||
                 isDragon ||
+                isReactionOnlyVerticalShutter ||
+                isDestroyableVerticalShutter ||
+                isHorizontalShutter ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
@@ -557,6 +592,20 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
 
+                if (isReactionOnlyVerticalShutter)
+                {
+                    // $F0A2 goes directly to the shutter reaction instead of normal shot
+                    // AI. The bank-$A0 collision walker has nevertheless already marked the
+                    // colliding projectile, including Super Missile quake side effects.
+                    projectiles.ApplyEnemyCollisionPrelude(
+                        projectile.SlotIndex,
+                        (enemy.Properties & 0x1000) != 0 ||
+                            (projectile.Type & 0x0008) == 0);
+                    ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
+                    hitCount++;
+                    break;
+                }
+
                 if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
                     continue;
 
@@ -618,6 +667,10 @@ public sealed partial class RoomEnemySystem
                         ResolveGRipperRipper2ShotAfterCommon(enemy);
                     if (isDragon)
                         ResolveDragonCombatAfterCommon(enemy);
+                    if (isDestroyableVerticalShutter)
+                        ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
+                    if (isHorizontalShutter)
+                        ReactHorizontalShutter(enemy);
                     hitCount++;
                     break;
                 }
@@ -631,7 +684,7 @@ public sealed partial class RoomEnemySystem
                     enemy.Health = damage >= enemy.Health
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
-                    if (enemy.Health == 0 && !isPowamp && !isRinka)
+                    if (enemy.Health == 0 && !isPowamp && !isRinka && !isHorizontalShutter)
                     {
                         // $A3:C7F5 adds Skree's four debris actors after the shared normal
                         // shot handler reports death, before the common death animation
@@ -693,6 +746,10 @@ public sealed partial class RoomEnemySystem
                     ResolveGRipperRipper2ShotAfterCommon(enemy);
                 if (isDragon)
                     ResolveDragonCombatAfterCommon(enemy);
+                if (isDestroyableVerticalShutter)
+                    ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
+                if (isHorizontalShutter)
+                    ReactHorizontalShutter(enemy);
 
                 hitCount++;
                 break;
@@ -759,6 +816,15 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == RinkaPowerBombAi;
             bool isDragon = enemy.EnemyDefinitionPointer == DragonDefinition &&
                 reactionPointer == DragonPowerBombAi;
+            bool isGrowingShutterNoOp =
+                enemy.EnemyDefinitionPointer == GrowingShutterDefinition &&
+                reactionPointer == GrowingShutterNoOpAi;
+            bool isVerticalShutterReaction =
+                IsVerticalShutterDefinition(enemy.EnemyDefinitionPointer) &&
+                reactionPointer == VerticalShutterPowerBombAi;
+            bool isHorizontalShutterReaction =
+                enemy.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition &&
+                reactionPointer == HorizontalShutterPowerBombAi;
             bool isSpacePiratePowerBombReaction =
                 IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
                 reactionPointer == SpacePiratePowerBombAi;
@@ -767,11 +833,29 @@ public sealed partial class RoomEnemySystem
             if (reactionPointer != 0 && !isFireflea && !isPowamp && !isFakeKraid &&
                 !isMagdollite && !isRinka &&
                 !isDragon &&
+                !isGrowingShutterNoOp &&
+                !isVerticalShutterReaction &&
+                !isHorizontalShutterReaction &&
                 !isSpacePiratePowerBombReaction)
             {
                 throw new NotSupportedException(
                     $"Enemy ${enemy.EnemyDefinitionPointer:X4} power-bomb reaction " +
                     $"${enemy.Definition.Bank:X2}:{reactionPointer:X4} is not translated.");
+            }
+
+            // These headers install private callbacks instead of falling through common
+            // power-bomb damage. $804C is a literal RTL for the growing shutter; the other
+            // two callbacks only run their trigger state machines. All still receive the
+            // native process-off-screen bit after a qualifying ellipse overlap.
+            if (isGrowingShutterNoOp || isVerticalShutterReaction || isHorizontalShutterReaction)
+            {
+                if (isVerticalShutterReaction)
+                    ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
+                if (isHorizontalShutterReaction)
+                    ReactHorizontalShutter(enemy);
+                enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
+                reactionCount++;
+                continue;
             }
 
             // `$FF` reaches the reaction dispatcher because the outer admission check masks

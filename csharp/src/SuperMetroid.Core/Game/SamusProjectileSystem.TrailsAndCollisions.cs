@@ -11,12 +11,11 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class SamusProjectileSystem
 {
     /// <summary>
-    /// Applies the projectile-owned side effects that `$A0:9CC8-$9CD6` performs before an
-    /// extended enemy hitbox callback. Callers use this only when the callback rejects or
-    /// reflects the shot; accepted hits receive the same state through the ordinary impact
-    /// conversion path.
+    /// Applies the projectile-owned side effects that `$A0:9CC8-$9CD6` performs before any
+    /// enemy callback which returns without entering ordinary impact conversion. This is
+    /// shared by extended hitboxes and radius-based custom reactions such as shutters.
     /// </summary>
-    public void ApplyExtendedEnemyCollisionPrelude(int slotIndex, bool markCollisionState)
+    public void ApplyEnemyCollisionPrelude(int slotIndex, bool markCollisionState)
     {
         if ((uint)slotIndex >= SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
@@ -37,6 +36,13 @@ public sealed partial class SamusProjectileSystem
         if (markCollisionState)
             slot.Direction = unchecked((ushort)(slot.Direction | 0x0010));
     }
+
+    /// <summary>
+    /// Compatibility name retained for callers whose geometry is specifically an extended
+    /// spritemap. The behavior is the same bank-$A0 projectile prelude, not a separate fix.
+    /// </summary>
+    public void ApplyExtendedEnemyCollisionPrelude(int slotIndex, bool markCollisionState) =>
+        ApplyEnemyCollisionPrelude(slotIndex, markCollisionState);
 
     /// <summary>
     /// Ports <c>ProjectileReflection</c> at `$90:BE00` after an enemy callback has replaced

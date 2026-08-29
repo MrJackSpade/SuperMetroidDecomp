@@ -167,6 +167,7 @@ public sealed partial class RoomEnemySystem
         ResetMaridiaLargeSnailRoomState();
         ResetRipperVariantRoomState();
         ResetDragonRoomState();
+        ResetShutterRoomState(cameraX, cameraY);
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
@@ -371,6 +372,7 @@ public sealed partial class RoomEnemySystem
         LastLowerNorfairRioSoundEffect = null;
         LastMaridiaLargeSnailSoundEffect = null;
         LastDragonSoundEffect = null;
+        BeginShutterFrame(cameraX, cameraY);
         SetRinkaCamera(cameraX, cameraY);
         DetermineWhichEnemiesToProcess(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
@@ -843,6 +845,17 @@ public sealed partial class RoomEnemySystem
             case 0xa2e606 when slot.EnemyDefinitionPointer == DragonDefinition:
                 InitializeDragon(slot);
                 return;
+            case 0xa2e9da when slot.EnemyDefinitionPointer == GrowingShutterDefinition:
+                InitializeGrowingShutter(slot);
+                return;
+            case 0xa2ee12 when slot.EnemyDefinitionPointer is
+                ShootableVerticalShutterDefinition or DestroyableVerticalShutterDefinition:
+            case 0xa2ee05 when slot.EnemyDefinitionPointer == KamerVerticalPlatformDefinition:
+                InitializeVerticalShutter(slot);
+                return;
+            case 0xa2f111 when slot.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition:
+                InitializeHorizontalShutter(slot, samus);
+                return;
             case 0xa896e3 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 InitializeFuneNamihe(slot);
                 return;
@@ -1194,6 +1207,29 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa2e64e when slot.EnemyDefinitionPointer == DragonDefinition:
                 RunDragonMain(slot, RequireDragonState(slot), samus);
+                return;
+            case 0xa2eab6 when slot.EnemyDefinitionPointer == GrowingShutterDefinition:
+                RunGrowingShutterMain(
+                    slot,
+                    RequireGrowingShutterState(slot),
+                    samus,
+                    cameraX,
+                    cameraY);
+                return;
+            case 0xa2eed1 when IsVerticalShutterDefinition(slot.EnemyDefinitionPointer):
+                RunVerticalShutterMain(
+                    slot,
+                    RequireVerticalShutterState(slot),
+                    samus,
+                    cameraX,
+                    cameraY);
+                return;
+            case 0xa2f1de when slot.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition:
+                RunHorizontalShutterMain(
+                    slot,
+                    RequireHorizontalShutterState(slot),
+                    samus,
+                    controllerInput);
                 return;
             case 0xa89730 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), samus);

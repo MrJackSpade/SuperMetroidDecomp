@@ -156,6 +156,12 @@ if (args.Length >= 2 && args[0] == "--dragon-audit")
     return DragonAudit.Run(dragonRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--shutter-audit")
+{
+    string shutterRomPath = string.Join(' ', args[1..]).Trim('"');
+    return ShutterAudit.Run(shutterRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

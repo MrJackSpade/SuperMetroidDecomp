@@ -70,6 +70,10 @@ internal static class RetailEnemyCoverageAudit
             [0xeb7f] = "Red Ki-Hunter wings",
             [0xebbf] = "Gold Ki-Hunter body",
             [0xebff] = "Gold Ki-Hunter wings",
+            [0xf193] = "Brinstar Pipe Bug",
+            [0xf1d3] = "strong Brinstar Pipe Bug",
+            [0xf213] = "Norfair Pipe Bug",
+            [0xf253] = "yellow Brinstar Pipe Bug",
         };
         var focusedPopulations = focusedDefinitions.Keys.ToDictionary(
             definition => definition,

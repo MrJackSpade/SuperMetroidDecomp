@@ -181,6 +181,7 @@ public sealed partial class RoomEnemySystem
         ResetMagdolliteRoomState();
         ResetBlueBrinstarFaceBlockRoomState();
         ResetKiHunterRoomState();
+        ResetPipeBugRoomState();
         ResetRinkaRoomState(cameraX, cameraY);
         ResetRioRoomState();
         ResetNorfairLavaJumpingEnemyRoomState();
@@ -1075,6 +1076,15 @@ public sealed partial class RoomEnemySystem
             case 0xa8f214 when IsKiHunterWingDefinition(slot.EnemyDefinitionPointer):
                 InitializeKiHunterWings(slot);
                 return;
+            case 0xb3883b when IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer):
+                InitializeBrinstarPipeBug(slot);
+                return;
+            case 0xb38b61 when slot.EnemyDefinitionPointer == NorfairPipeBugDefinition:
+                InitializeNorfairPipeBug(slot);
+                return;
+            case 0xb38f4c when slot.EnemyDefinitionPointer == YellowPipeBugDefinition:
+                InitializeYellowPipeBug(slot);
+                return;
             case 0xa68b2f when slot.EnemyDefinitionPointer == KzanTopDefinition:
                 InitializeKzanTop(slot);
                 return;
@@ -1501,6 +1511,16 @@ public sealed partial class RoomEnemySystem
             case 0xa8f25c when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
             case 0xa8f262 when IsKiHunterWingDefinition(slot.EnemyDefinitionPointer):
                 RunKiHunterMain(slot, RequireKiHunterState(slot), samus, level);
+                return;
+            case 0xb3887a when IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer):
+            case 0xb38b9e when slot.EnemyDefinitionPointer == NorfairPipeBugDefinition:
+            case 0xb38fae when slot.EnemyDefinitionPointer == YellowPipeBugDefinition:
+                RunPipeBugMain(
+                    slot,
+                    RequirePipeBugState(slot),
+                    samus,
+                    cameraX,
+                    cameraY);
                 return;
             case 0xa68bad when slot.EnemyDefinitionPointer == KzanTopDefinition:
                 RunKzanTopMain(slot, RequireKzanState(slot), samus);

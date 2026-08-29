@@ -234,6 +234,12 @@ if (args.Length >= 2 && args[0] == "--ki-hunter-audit")
     return KiHunterAudit.Run(kiHunterRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--pipe-bug-audit")
+{
+    string pipeBugRomPath = string.Join(' ', args[1..]).Trim('"');
+    return PipeBugAudit.Run(pipeBugRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

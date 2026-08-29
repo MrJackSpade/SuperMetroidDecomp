@@ -44,6 +44,8 @@ public sealed partial class RoomEnemySystem
     private const ushort MamaTurtleTouchAi = 0x9281;
     private const ushort BabyTurtleTouchAi = 0x929f;
     private const ushort BabyTurtleShotAi = 0x930f;
+    private const ushort YappingMawTouchAi = 0xa799;
+    private const ushort YappingMawShotAi = 0xa7bd;
     private const ushort GoldNinjaVulnerableHitboxShotAi = 0x87c8;
     private const ushort GoldNinjaInvincibleHitboxShotAi = 0x883e;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
@@ -105,6 +107,8 @@ public sealed partial class RoomEnemySystem
             bool isEvir = slot.EnemyDefinitionPointer == EvirDefinition &&
                 slot.Parameter1 == 0 &&
                 slot.Definition.TouchAiPointer == EvirTouchAi;
+            bool isYappingMaw = slot.EnemyDefinitionPointer == YappingMawDefinition &&
+                slot.Definition.TouchAiPointer == YappingMawTouchAi;
             bool usesTranslatedTouchAi = slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi ||
                 isPlatform ||
                 isFireflea ||
@@ -124,6 +128,7 @@ public sealed partial class RoomEnemySystem
                 isMetroid ||
                 isZebetite ||
                 isEvir ||
+                isYappingMaw ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
@@ -246,6 +251,12 @@ public sealed partial class RoomEnemySystem
             else if (isMetroid)
             {
                 ResolveMetroidTouch(slot, samus);
+            }
+            else if (isYappingMaw)
+            {
+                // $A8:A799 replaces common contact damage entirely. A qualifying overlap
+                // transfers Samus input/position ownership to the mouth state machine.
+                ResolveYappingMawTouch(RequireYappingMawState(slot), samus);
             }
             else if (slot.EnemyDefinitionPointer == YardDefinition)
             {
@@ -396,6 +407,8 @@ public sealed partial class RoomEnemySystem
             bool isEvir = enemy.EnemyDefinitionPointer == EvirDefinition &&
                 enemy.Parameter1 == 0 &&
                 enemy.Definition.ShotAiPointer == EvirShotAi;
+            bool isYappingMaw = enemy.EnemyDefinitionPointer == YappingMawDefinition &&
+                enemy.Definition.ShotAiPointer == YappingMawShotAi;
             // Several retail helper/projectile definitions point their shot callback at a
             // literal RTL in their own enemy bank. The bank-$A0 collision walker still runs
             // its projectile prelude before dispatching that no-op callback: supers request
@@ -433,6 +446,7 @@ public sealed partial class RoomEnemySystem
                 isMetroid ||
                 isZebetite ||
                 isEvir ||
+                isYappingMaw ||
                 isLiteralNoOpShotAi ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
@@ -801,6 +815,11 @@ public sealed partial class RoomEnemySystem
                     // newly installed frozen timer to its arms and attached (idle) spit.
                     if (isEvir)
                         ResolveEvirCombatAfterCommon(enemy);
+                    if (isYappingMaw)
+                        ResolveYappingMawShotAfterCommon(
+                            enemy,
+                            RequireYappingMawState(enemy),
+                            samus);
                     if (isDestroyableVerticalShutter)
                         ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                     if (isHorizontalShutter)
@@ -885,6 +904,11 @@ public sealed partial class RoomEnemySystem
                     ResolveZebetiteShotAfterCommon(enemy);
                 if (isEvir)
                     ResolveEvirCombatAfterCommon(enemy);
+                if (isYappingMaw)
+                    ResolveYappingMawShotAfterCommon(
+                        enemy,
+                        RequireYappingMawState(enemy),
+                        samus);
                 if (isDestroyableVerticalShutter)
                     ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                 if (isHorizontalShutter)

@@ -62,6 +62,7 @@ internal static class RetailEnemyCoverageAudit
             [0xe67f] = "Evir projectile",
             [0xe6bf] = "Morph-ball eye",
             [0xe77f] = "Wrecked Ship ghost",
+            [0xe7bf] = "Yapping Maw",
         };
         var focusedPopulations = focusedDefinitions.Keys.ToDictionary(
             definition => definition,

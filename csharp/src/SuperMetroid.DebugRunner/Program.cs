@@ -216,6 +216,12 @@ if (args.Length >= 2 && args[0] == "--wrecked-ship-ghost-audit")
     return WreckedShipGhostAudit.Run(ghostRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--yapping-maw-audit")
+{
+    string yappingMawRomPath = string.Join(' ', args[1..]).Trim('"');
+    return YappingMawAudit.Run(yappingMawRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

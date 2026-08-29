@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Game;
 public enum RoomEnemyProjectileKind : ushort
 {
     None = 0,
+    YappingMawBody = 0xec95,
     SkreeParticleDownRight = 0x8bc2,
     SkreeParticleUpRight = 0x8bd0,
     SkreeParticleDownLeft = 0x8bde,
@@ -476,6 +477,7 @@ public sealed partial class RoomEnemySystem
             case 0:
             case 0x8170: // The common cleared-pre-instruction RTS.
             case 0x84fb: // Collision handler's common inert pre-instruction.
+            case 0xec94: // Yapping Maw body links are positioned entirely by bank-$A8 main AI.
             case 0xd0eb: // Kago bug startup/landed no-op.
             case 0x950c: // Center afterburn is stationary while its instruction list blooms.
             case 0xbbc6: // Nuclear Waffle body: position is owned by bank-$A6 main AI.

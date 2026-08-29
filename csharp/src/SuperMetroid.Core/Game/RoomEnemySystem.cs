@@ -168,6 +168,7 @@ public sealed partial class RoomEnemySystem
         LastDachoraSoundEffect = null;
         LastEvirSoundEffect = null;
         LastMorphBallEyeSoundEffect = null;
+        LastYappingMawSoundEffect = null;
         PaletteChangeNumber = 0;
         _metroidDropRequests.Clear();
         LastHopperSoundEffect = null;
@@ -224,6 +225,7 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_evirStates);
         Array.Clear(_morphBallEyeStates);
         Array.Clear(_wreckedShipGhostStates);
+        Array.Clear(_yappingMawStates);
         MorphBallEyeBeam.Reset();
         Array.Clear(_hopperStates);
         Array.Clear(_zoaStates);
@@ -386,6 +388,7 @@ public sealed partial class RoomEnemySystem
         LastDachoraSoundEffect = null;
         LastEvirSoundEffect = null;
         LastMorphBallEyeSoundEffect = null;
+        LastYappingMawSoundEffect = null;
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
@@ -466,6 +469,8 @@ public sealed partial class RoomEnemySystem
                         slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~0x0004));
                     if (slot.EnemyDefinitionPointer == MetroidDefinition)
                         RunMetroidFrozen(slot);
+                    if (slot.EnemyDefinitionPointer == YappingMawDefinition)
+                        RunYappingMawFrozen(slot, RequireYappingMawState(slot));
                 }
                 else if (!ranActorAi)
                 {
@@ -965,6 +970,9 @@ public sealed partial class RoomEnemySystem
             case 0xa89aee when slot.EnemyDefinitionPointer == WreckedShipGhostDefinition:
                 InitializeWreckedShipGhost(slot);
                 return;
+            case 0xa8a148 when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                InitializeYappingMaw(slot);
+                return;
             case 0xa2e49f when slot.EnemyDefinitionPointer == RipperDefinition:
                 InitializeRipper(slot);
                 return;
@@ -1386,6 +1394,14 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa89b3c when slot.EnemyDefinitionPointer == WreckedShipGhostDefinition:
                 RunWreckedShipGhostMain(slot, RequireWreckedShipGhostState(slot), samus);
+                return;
+            case 0xa8a211 when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                RunYappingMawMain(
+                    slot,
+                    RequireYappingMawState(slot),
+                    samus,
+                    cameraX,
+                    cameraY);
                 return;
             case 0xa2e4da when slot.EnemyDefinitionPointer == RipperDefinition:
                 RunRipperMain(slot, level);
@@ -1937,6 +1953,34 @@ public sealed partial class RoomEnemySystem
                     // Beetom's initial drain animation calls a literal RTS stub before it
                     // falls through into the looping blood-spray frames. It consumes no
                     // operand and changes no state beyond advancing the instruction cursor.
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xa0c7 when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                    SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 1);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xa0d9 when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                    SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 7);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xa0eb when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                    SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 3);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xa0fd when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                    SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 5);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xa10f when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                    SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 0);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xa121 when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                    SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 4);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xa133 when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                    PlayYappingMawAttackSound(RequireYappingMawState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xa095 when slot.EnemyDefinitionPointer == CacatacDefinition:

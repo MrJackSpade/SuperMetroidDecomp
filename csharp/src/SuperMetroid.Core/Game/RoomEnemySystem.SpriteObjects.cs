@@ -18,6 +18,8 @@ public enum RoomSpriteObjectKind : ushort
     FallingSparkTrail = 0x0030,
     MetroidOuterBodyA = 0x0032,
     MetroidOuterBodyB = 0x0034,
+    YappingMawRootVariantZero = 0x0038,
+    YappingMawRootVariantOne = 0x0039,
 }
 
 /// <summary>

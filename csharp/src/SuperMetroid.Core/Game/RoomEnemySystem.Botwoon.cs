@@ -835,6 +835,27 @@ public sealed partial class RoomEnemySystem
         state.WallExplosionFrame = unchecked((ushort)(state.WallExplosionFrame + 1));
     }
 
+    /// <summary>
+    /// Runs the private tail shared by <c>Botwoon_Touch</c>, <c>Botwoon_Shot</c>, and
+    /// <c>Botwoon_Powerbomb</c>. All three callbacks deliberately use a common damage helper
+    /// that skips the ordinary death animation: zero health is only a request to finish the
+    /// current traversal. The head and thirteen body actors remain alive until the tail has
+    /// crossed the next hole, exactly as <c>$B3:96C6</c> requires.
+    /// </summary>
+    private void ResolveBotwoonCombatAfterCommon(RoomEnemySlot head)
+    {
+        if (head.Health != 0)
+            return;
+
+        BotwoonEnemyState state = RequireBotwoonState(head);
+        state.PendingDeath = true;
+
+        // `$B3:96F5` sets native property $8000. Despite the disassembly's historical
+        // "intangible" label, the engine uses this bit to admit the actor to solid-enemy
+        // collision. Keeping the raw proven bit avoids assigning a broader enum meaning.
+        head.Properties = unchecked((ushort)(head.Properties | 0x8000));
+    }
+
     private void AddBotwoonAngleVector(
         RoomEnemySlot head,
         byte angle,

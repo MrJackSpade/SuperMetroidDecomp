@@ -109,6 +109,8 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == EvirTouchAi;
             bool isYappingMaw = slot.EnemyDefinitionPointer == YappingMawDefinition &&
                 slot.Definition.TouchAiPointer == YappingMawTouchAi;
+            bool isBotwoon = slot.EnemyDefinitionPointer == BotwoonDefinition &&
+                slot.Definition.TouchAiPointer == BotwoonTouchAi;
             // A handful of utility/terrain enemies intentionally point touch AI at an RTL
             // in their own bank. Detect the native opcode instead of adding a name-specific
             // exception for every inert actor. The collision is still reported, but the
@@ -137,6 +139,7 @@ public sealed partial class RoomEnemySystem
                 isZebetite ||
                 isEvir ||
                 isYappingMaw ||
+                isBotwoon ||
                 isLiteralNoOpTouchAi ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
@@ -328,7 +331,7 @@ public sealed partial class RoomEnemySystem
                     slot,
                     samus,
                     controllerInput,
-                    skipDeathAnimation: isRinka || isZebetite);
+                    skipDeathAnimation: isRinka || isZebetite || isBotwoon);
                 if (isMagdollite)
                     ResolveMagdolliteCombatAfterCommon(slot);
                 if (isRinka)
@@ -337,6 +340,8 @@ public sealed partial class RoomEnemySystem
                     ResolveDragonCombatAfterCommon(slot);
                 if (isEvir)
                     ResolveEvirCombatAfterCommon(slot);
+                if (isBotwoon)
+                    ResolveBotwoonCombatAfterCommon(slot);
                 if (isFakeKraid && healthBefore != 0 && slot.Health == 0)
                     RequestFakeKraidDeathDrop(slot);
             }
@@ -429,6 +434,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == YappingMawShotAi;
             bool isKiHunter = IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
                 enemy.Definition.ShotAiPointer == KiHunterShotAi;
+            bool isBotwoon = enemy.EnemyDefinitionPointer == BotwoonDefinition &&
+                enemy.Definition.ShotAiPointer == BotwoonShotAi;
             // Several retail helper/projectile definitions point their shot callback at a
             // literal RTL in their own enemy bank. The bank-$A0 collision walker still runs
             // its projectile prelude before dispatching that no-op callback: supers request
@@ -469,6 +476,7 @@ public sealed partial class RoomEnemySystem
                 isEvir ||
                 isYappingMaw ||
                 isKiHunter ||
+                isBotwoon ||
                 isLiteralNoOpShotAi ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
@@ -844,6 +852,11 @@ public sealed partial class RoomEnemySystem
                             samus);
                     if (isKiHunter)
                         ResolveKiHunterShotAfterCommon(enemy);
+                    if (isBotwoon)
+                    {
+                        RequireBotwoonState(enemy).PreviousHealth = enemyHealthBefore;
+                        ResolveBotwoonCombatAfterCommon(enemy);
+                    }
                     if (isDestroyableVerticalShutter)
                         ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                     if (isHorizontalShutter)
@@ -862,7 +875,7 @@ public sealed partial class RoomEnemySystem
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
                     if (enemy.Health == 0 && !isPowamp && !isRinka && !isHorizontalShutter &&
-                        !isZebetite)
+                        !isZebetite && !isBotwoon)
                     {
                         // $A3:C7F5 adds Skree's four debris actors after the shared normal
                         // shot handler reports death, before the common death animation
@@ -935,6 +948,11 @@ public sealed partial class RoomEnemySystem
                         samus);
                 if (isKiHunter)
                     ResolveKiHunterShotAfterCommon(enemy);
+                if (isBotwoon)
+                {
+                    RequireBotwoonState(enemy).PreviousHealth = enemyHealthBefore;
+                    ResolveBotwoonCombatAfterCommon(enemy);
+                }
                 if (isDestroyableVerticalShutter)
                     ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                 if (isHorizontalShutter)
@@ -1094,6 +1112,8 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == EvirPowerBombAi;
             bool isKiHunter = IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
                 reactionPointer == KiHunterShotAi;
+            bool isBotwoon = enemy.EnemyDefinitionPointer == BotwoonDefinition &&
+                reactionPointer == BotwoonPowerBombAi;
             // Several banks install a one-byte `RTL` callback when an enemy must receive
             // the native power-bomb collision prelude but deliberately take no damage.
             // Recognize the executable contract itself instead of maintaining a bespoke
@@ -1119,6 +1139,7 @@ public sealed partial class RoomEnemySystem
                 !isDragon &&
                 !isEvir &&
                 !isKiHunter &&
+                !isBotwoon &&
                 !isLiteralNoOpReaction &&
                 !isVerticalShutterReaction &&
                 !isHorizontalShutterReaction &&
@@ -1161,7 +1182,7 @@ public sealed partial class RoomEnemySystem
                     enemy.Health = damage >= enemy.Health
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
-                    if (enemy.Health == 0 && !isRinka)
+                    if (enemy.Health == 0 && !isRinka && !isBotwoon)
                     {
                         enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
                         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
@@ -1187,6 +1208,8 @@ public sealed partial class RoomEnemySystem
                 ResolveEvirCombatAfterCommon(enemy);
             if (isKiHunter)
                 ResolveKiHunterShotAfterCommon(enemy);
+            if (isBotwoon)
+                ResolveBotwoonCombatAfterCommon(enemy);
 
             enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
             reactionCount++;

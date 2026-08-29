@@ -222,6 +222,12 @@ if (args.Length >= 2 && args[0] == "--yapping-maw-audit")
     return YappingMawAudit.Run(yappingMawRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--blue-brinstar-face-block-audit")
+{
+    string faceBlockRomPath = string.Join(' ', args[1..]).Trim('"');
+    return BlueBrinstarFaceBlockAudit.Run(faceBlockRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--butterfly-zoa-audit")
 {
     string zoaRomPath = string.Join(' ', args[1..]).Trim('"');

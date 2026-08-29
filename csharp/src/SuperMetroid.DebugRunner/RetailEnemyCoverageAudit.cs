@@ -63,6 +63,7 @@ internal static class RetailEnemyCoverageAudit
             [0xe6bf] = "Morph-ball eye",
             [0xe77f] = "Wrecked Ship ghost",
             [0xe7bf] = "Yapping Maw",
+            [0xea7f] = "Blue Brinstar face block",
         };
         var focusedPopulations = focusedDefinitions.Keys.ToDictionary(
             definition => definition,

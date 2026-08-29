@@ -11,6 +11,8 @@ public enum RoomSpriteObjectKind : ushort
 {
     None = 0xffff,
     NinjaPirateLandingDust = 0x000a,
+    BotwoonSmallExplosion = 0x0009,
+    BotwoonLargeExplosion = 0x001d,
     NuclearWaffleBody = 0x002b,
     NuclearWaffleTurnClockwise = 0x002c,
     NuclearWaffleTurnCounterClockwise = 0x002d,

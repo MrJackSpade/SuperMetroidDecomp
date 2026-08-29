@@ -53,6 +53,8 @@ public enum RoomEnemyProjectileKind : ushort
     MiscDustExplosion = 0xe509,
     EnemyDeathExplosion = 0xf345,
     KagoBug = 0xd02e,
+    BotwoonBody = 0xeba0,
+    BotwoonSpit = 0xec48,
 }
 
 /// <summary>
@@ -485,6 +487,14 @@ public sealed partial class RoomEnemySystem
             case 0xbbc6: // Nuclear Waffle body: position is owned by bank-$A6 main AI.
             case 0xa05b: // Pirate laser startup: three muzzle-flash frames do not move.
             case 0xefdf: // Enemy death/pickup subsystem's empty pre-instruction.
+                return;
+
+            case 0xea80: // Botwoon body: orientation, hurt palette, and death dispatcher.
+                RunBotwoonBodyPreInstruction(projectile, nmiFrameCounter8);
+                return;
+
+            case 0xec05: // Botwoon spit: full 16.16 vector followed by strict camera cull.
+                RunBotwoonSpitPreInstruction(projectile, cameraX, cameraY);
                 return;
 
             case 0xe4fe: // Generic room-coordinate dust/explosion camera cull.

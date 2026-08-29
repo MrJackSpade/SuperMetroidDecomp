@@ -38,9 +38,11 @@ public sealed partial class RoomEnemySystem
     private Func<ushort>? _nextRandom;
     private Func<ushort>? _readRandomNumber;
     private Func<bool>? _isAreaBossDefeated;
+    private Func<bool>? _isAreaMiniBossDefeated;
     private Func<int, bool>? _hasEvent;
     private Action<int>? _setEvent;
     private Action<int>? _clearEvent;
+    private Action? _setAreaMiniBossDefeated;
     private Action<ushort>? _setRandomNumber;
     private ushort _randomEnemyCounter;
     private SnesVram? _vram;
@@ -129,7 +131,9 @@ public sealed partial class RoomEnemySystem
         ushort cameraY = 0,
         Func<int, bool>? hasEvent = null,
         Action<int>? setEvent = null,
-        Action<int>? clearEvent = null)
+        Action<int>? clearEvent = null,
+        Func<bool>? isAreaMiniBossDefeated = null,
+        Action? setAreaMiniBossDefeated = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -144,9 +148,11 @@ public sealed partial class RoomEnemySystem
         _readRandomNumber = readRandomNumber;
         _setRandomNumber = setRandomNumber;
         _isAreaBossDefeated = isAreaBossDefeated;
+        _isAreaMiniBossDefeated = isAreaMiniBossDefeated;
         _hasEvent = hasEvent;
         _setEvent = setEvent;
         _clearEvent = clearEvent;
+        _setAreaMiniBossDefeated = setAreaMiniBossDefeated;
         _vram = vram;
         _cgram = cgram;
         PopulationPointer = populationPointer;
@@ -182,6 +188,7 @@ public sealed partial class RoomEnemySystem
         ResetBlueBrinstarFaceBlockRoomState();
         ResetKiHunterRoomState();
         ResetPipeBugRoomState();
+        ResetBotwoonRoomState();
         ResetRinkaRoomState(cameraX, cameraY);
         ResetRioRoomState();
         ResetNorfairLavaJumpingEnemyRoomState();
@@ -200,6 +207,8 @@ public sealed partial class RoomEnemySystem
         LastEnemyProjectileDudSoundEffect = null;
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
+        LastBotwoonSoundEffect = null;
+        LastBotwoonDropRequest = null;
         FirefleaDarknessLevel = 0;
         EarthquakeTimer = 0;
         EarthquakeType = 0;
@@ -1085,6 +1094,9 @@ public sealed partial class RoomEnemySystem
             case 0xb38f4c when slot.EnemyDefinitionPointer == YellowPipeBugDefinition:
                 InitializeYellowPipeBug(slot);
                 return;
+            case 0xb39583 when slot.EnemyDefinitionPointer == BotwoonDefinition:
+                InitializeBotwoon(slot);
+                return;
             case 0xa68b2f when slot.EnemyDefinitionPointer == KzanTopDefinition:
                 InitializeKzanTop(slot);
                 return;
@@ -1521,6 +1533,9 @@ public sealed partial class RoomEnemySystem
                     samus,
                     cameraX,
                     cameraY);
+                return;
+            case 0xb39668 when slot.EnemyDefinitionPointer == BotwoonDefinition:
+                RunBotwoonMain(slot, RequireBotwoonState(slot), samus);
                 return;
             case 0xa68bad when slot.EnemyDefinitionPointer == KzanTopDefinition:
                 RunKzanTopMain(slot, RequireKzanState(slot), samus);
@@ -2619,6 +2634,8 @@ public sealed partial class RoomEnemySystem
                     {
                         break;
                     }
+                    if (TryProcessBotwoonInstruction(slot, word, ref cursor))
+                        break;
                     throw new NotSupportedException(
                         $"Enemy ${slot.EnemyDefinitionPointer:X4} instruction " +
                         $"${slot.Definition.Bank:X2}:{cursor:X4} opcode ${word:X4} is not translated.");

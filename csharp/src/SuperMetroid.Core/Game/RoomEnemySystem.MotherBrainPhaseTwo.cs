@@ -126,6 +126,31 @@ public sealed partial class RoomEnemySystem
             case MotherBrainBodyFunction.SecondPhaseFinishSamusOffLoadBabyTiles:
             case MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam:
             case MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding:
+            case MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback:
+            case MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance:
+            case MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam:
+            case MotherBrainBodyFunction.SecondPhaseDrainedByBabyRainbowBeamRunOut:
+            case MotherBrainBodyFunction.SecondPhaseDrainedByBabyMoveToBackOfRoom:
+            case MotherBrainBodyFunction.SecondPhaseDrainedByBabyGoIntoLowPowerMode:
+            case MotherBrainBodyFunction.SecondPhaseDrainedByBabyPrepareTransitionToGrey:
+            case MotherBrainBodyFunction.SecondPhaseDrainedByBabyTransitionToGrey:
+            case MotherBrainBodyFunction.SecondPhaseReviveInanimateGrey:
+            case MotherBrainBodyFunction.SecondPhaseReviveShowSignsOfLife:
+            case MotherBrainBodyFunction.SecondPhaseReviveTransitionFromGrey:
+            case MotherBrainBodyFunction.SecondPhaseReviveWakeUp:
+            case MotherBrainBodyFunction.SecondPhaseReviveWakeUpStretch:
+            case MotherBrainBodyFunction.SecondPhaseReviveWalkUpToBaby:
+            case MotherBrainBodyFunction.SecondPhaseRevivePrepareNeckForBabyDeath:
+            case MotherBrainBodyFunction.SecondPhaseReviveFinishPreparingForBabyDeath:
+            case MotherBrainBodyFunction.SecondPhaseMurderBabyAttack:
+            case MotherBrainBodyFunction.SecondPhaseMurderBabyAttackCooldown:
+            case MotherBrainBodyFunction.SecondPhasePrepareForFinalBabyAttack:
+            case MotherBrainBodyFunction.SecondPhaseExecuteFinalBabyAttack:
+            case MotherBrainBodyFunction.SecondPhaseFinalBabyAttackHolding:
+            case MotherBrainBodyFunction.ThirdPhaseRecoverMakeSomeDistance:
+            case MotherBrainBodyFunction.ThirdPhaseRecoverSetupForFighting:
+            case MotherBrainBodyFunction.ThirdPhaseFightingMain:
+            case MotherBrainBodyFunction.ThirdPhaseFightingAttackCooldown:
                 RunLiveMotherBrainRainbowBeam(
                     state,
                     RequireMotherBrainCombatSamus(samus),

@@ -1325,6 +1325,9 @@ public sealed partial class RoomEnemySystem
             case 0xa98b35 when slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition:
                 InitializeMotherBrainFallingTube(slot);
                 return;
+            case 0xa9c710 when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
+                InitializeMotherBrainBabyMetroid(slot);
+                return;
             case 0xaad7c8 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
                 InitializeTourianEntranceStatue(slot);
                 return;
@@ -1477,6 +1480,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa98b85 when slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition:
                 RunMotherBrainFallingTubeMain(slot);
+                return;
+            case 0xa9c779 when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
+                RunMotherBrainBabyMetroidMain(slot, samus, cameraX, cameraY);
                 return;
             case 0xa48c04 when slot.EnemyDefinitionPointer == CrocomireDefinition:
                 RunCrocomireMain(slot, samus, controllerInput, level, cameraX);
@@ -2174,6 +2180,10 @@ public sealed partial class RoomEnemySystem
                 case 0x817d: // EnemyInstr_DisableOffScreenProcessing.
                     slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
                     cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xcfb4 when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
+                case 0xcfca when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
+                    _ = TryRunMotherBrainBabyInstruction(word, ref cursor);
                     break;
                 case 0x88c5 when slot.EnemyDefinitionPointer == BoyonDefinition:
                     // `$A2:88C5` is an explicit RTL instruction. It consumes only itself;

@@ -430,21 +430,33 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         ushort bodyY,
         MotherBrainBodyPose bodyPose,
         ushort form,
+        ushort bodyProperties,
+        ushort bodyExtraProperties,
         ushort brainX,
         ushort brainY,
+        ushort brainHealth,
+        ushort brainProperties,
+        ushort brainExtraProperties,
         ushort lowerNeckAngle,
         ushort upperNeckAngle,
-        ushort bombCounter)
+        ushort bombCounter,
+        bool hitboxesEnabled)
     {
         Body.XPosition = bodyX;
         Body.YPosition = bodyY;
         Body.Pose = (ushort)bodyPose;
         Body.Form = form;
+        BodyProperties = bodyProperties;
+        BodyProperties2 = bodyExtraProperties;
         BrainXPosition = brainX;
         BrainYPosition = brainY;
+        BrainHealth = brainHealth;
+        BrainProperties = brainProperties;
+        BrainProperties2 = brainExtraProperties;
         LowerNeckAngle = lowerNeckAngle;
         UpperNeckAngle = upperNeckAngle;
         BombCounter = bombCounter;
+        HitboxesEnabled = hitboxesEnabled;
     }
 
     /// <summary>

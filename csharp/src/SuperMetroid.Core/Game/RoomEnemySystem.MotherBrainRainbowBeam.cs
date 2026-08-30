@@ -71,11 +71,17 @@ public sealed partial class RoomEnemySystem
             state.Body.YPosition,
             state.Pose,
             state.Form,
+            state.Body.Properties,
+            state.Body.ExtraProperties,
             head.XPosition,
             head.YPosition,
+            head.Health,
+            head.Properties,
+            head.ExtraProperties,
             state.LowerNeckAngle,
             state.UpperNeckAngle,
-            state.BombCounter);
+            state.BombCounter,
+            state.HitboxesEnabled != 0);
     }
 
     /// <summary>
@@ -122,6 +128,16 @@ public sealed partial class RoomEnemySystem
         state.LowerNeckMovementIndex = sequence.LowerNeckMovementIndex;
         state.UpperNeckMovementIndex = sequence.UpperNeckMovementIndex;
         state.Form = sequence.Body.Form;
+        state.Body.Properties = sequence.BodyProperties;
+        state.Body.ExtraProperties = sequence.BodyProperties2;
+        head.Health = sequence.BrainHealth;
+        head.Properties = sequence.BrainProperties;
+        head.ExtraProperties = sequence.BrainProperties2;
+        // The live word begins at two, while the reusable sequence needs only its Boolean
+        // branch meaning. Preserve every nonzero cartridge value; only a translated clear
+        // is allowed to collapse it to zero.
+        if (!sequence.HitboxesEnabled)
+            state.HitboxesEnabled = 0;
         state.SmallPurpleBreathGenerationEnabled =
             sequence.SmallPurpleBreathGenerationEnabled;
 
@@ -184,6 +200,8 @@ public sealed partial class RoomEnemySystem
 
         if (current.SpriteTileTransfer is { } transfer)
             ApplyMotherBrainRainbowTileTransfer(transfer);
+        if (current.BabySpawnRequested)
+            SpawnMotherBrainBabyMetroid(state);
         if (current.Explosion is { } explosion)
         {
             // `$BC76` runs before `$B9F1/$BA0C/$BA4F` moves Samus. The reusable sequence
@@ -311,6 +329,56 @@ public sealed partial class RoomEnemySystem
                 MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam,
             MotherBrainRainbowBeamAttackPhase.FinalRainbowBeamHolding =>
                 MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding,
+            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTakenAback =>
+                MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback,
+            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRegainBalance =>
+                MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance,
+            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam =>
+                MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam,
+            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRainbowBeamRunOut =>
+                MotherBrainBodyFunction.SecondPhaseDrainedByBabyRainbowBeamRunOut,
+            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidMoveToBackOfRoom =>
+                MotherBrainBodyFunction.SecondPhaseDrainedByBabyMoveToBackOfRoom,
+            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidGoIntoLowPowerMode =>
+                MotherBrainBodyFunction.SecondPhaseDrainedByBabyGoIntoLowPowerMode,
+            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidPrepareTransitionToGrey =>
+                MotherBrainBodyFunction.SecondPhaseDrainedByBabyPrepareTransitionToGrey,
+            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTransitionToGrey =>
+                MotherBrainBodyFunction.SecondPhaseDrainedByBabyTransitionToGrey,
+            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfInanimateGrey =>
+                MotherBrainBodyFunction.SecondPhaseReviveInanimateGrey,
+            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfShowSignsOfLife =>
+                MotherBrainBodyFunction.SecondPhaseReviveShowSignsOfLife,
+            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfTransitionFromGrey =>
+                MotherBrainBodyFunction.SecondPhaseReviveTransitionFromGrey,
+            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWakeUp =>
+                MotherBrainBodyFunction.SecondPhaseReviveWakeUp,
+            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWakeUpStretch =>
+                MotherBrainBodyFunction.SecondPhaseReviveWakeUpStretch,
+            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWalkUpToBabyMetroid =>
+                MotherBrainBodyFunction.SecondPhaseReviveWalkUpToBaby,
+            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfPrepareNeckForBabyMetroidDeath =>
+                MotherBrainBodyFunction.SecondPhaseRevivePrepareNeckForBabyDeath,
+            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfFinishPreparingForBabyMetroidDeath =>
+                MotherBrainBodyFunction.SecondPhaseReviveFinishPreparingForBabyDeath,
+            MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttack =>
+                MotherBrainBodyFunction.SecondPhaseMurderBabyAttack,
+            MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttackCooldown =>
+                MotherBrainBodyFunction.SecondPhaseMurderBabyAttackCooldown,
+            MotherBrainRainbowBeamAttackPhase.PrepareForFinalBabyMetroidAttack =>
+                MotherBrainBodyFunction.SecondPhasePrepareForFinalBabyAttack,
+            MotherBrainRainbowBeamAttackPhase.ExecuteFinalBabyMetroidAttack =>
+                MotherBrainBodyFunction.SecondPhaseExecuteFinalBabyAttack,
+            MotherBrainRainbowBeamAttackPhase.FinalBabyMetroidAttackHolding =>
+                MotherBrainBodyFunction.SecondPhaseFinalBabyAttackHolding,
+            MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneMakeSomeDistance =>
+                MotherBrainBodyFunction.ThirdPhaseRecoverMakeSomeDistance,
+            MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneSetupForFighting =>
+                MotherBrainBodyFunction.ThirdPhaseRecoverSetupForFighting,
+            MotherBrainRainbowBeamAttackPhase.Phase3FightingMain =>
+                MotherBrainBodyFunction.ThirdPhaseFightingMain,
+            MotherBrainRainbowBeamAttackPhase.Phase3FightingAttackCooldown =>
+                MotherBrainBodyFunction.ThirdPhaseFightingAttackCooldown,
             _ => throw new NotSupportedException(
                 $"Live Mother Brain rainbow phase {phase} is not attached to a room function yet."),
         };

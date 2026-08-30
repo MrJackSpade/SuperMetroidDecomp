@@ -67,6 +67,31 @@ public enum MotherBrainBodyFunction : ushort
     SecondPhaseFinishSamusOffLoadBabyTiles = 0xbdd2,
     SecondPhaseFinishSamusOffFireFinalBeam = 0xbded,
     SecondPhaseFinalRainbowBeamHolding = 0xbe1a,
+    SecondPhaseDrainedByBabyTakenAback = 0xbe38,
+    SecondPhaseDrainedByBabyRegainBalance = 0xbe5d,
+    SecondPhaseDrainedByBabyFiringRainbowBeam = 0xbe96,
+    SecondPhaseDrainedByBabyRainbowBeamRunOut = 0xbf0e,
+    SecondPhaseDrainedByBabyMoveToBackOfRoom = 0xbf41,
+    SecondPhaseDrainedByBabyGoIntoLowPowerMode = 0xbf56,
+    SecondPhaseDrainedByBabyPrepareTransitionToGrey = 0xbf7d,
+    SecondPhaseDrainedByBabyTransitionToGrey = 0xbf95,
+    SecondPhaseReviveInanimateGrey = 0xc059,
+    SecondPhaseReviveShowSignsOfLife = 0xc066,
+    SecondPhaseReviveTransitionFromGrey = 0xc08f,
+    SecondPhaseReviveWakeUp = 0xc0ba,
+    SecondPhaseReviveWakeUpStretch = 0xc0e4,
+    SecondPhaseReviveWalkUpToBaby = 0xc0fb,
+    SecondPhaseRevivePrepareNeckForBabyDeath = 0xc11e,
+    SecondPhaseReviveFinishPreparingForBabyDeath = 0xc147,
+    SecondPhaseMurderBabyAttack = 0xc15c,
+    SecondPhaseMurderBabyAttackCooldown = 0xc182,
+    SecondPhasePrepareForFinalBabyAttack = 0xc18e,
+    SecondPhaseExecuteFinalBabyAttack = 0xc19a,
+    SecondPhaseFinalBabyAttackHolding = 0xc1a6,
+    ThirdPhaseRecoverMakeSomeDistance = 0xc1cf,
+    ThirdPhaseRecoverSetupForFighting = 0xc1f0,
+    ThirdPhaseFightingMain = 0xc209,
+    ThirdPhaseFightingAttackCooldown = 0xc24e,
 }
 
 /// <summary>
@@ -366,6 +391,32 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public MotherBrainRainbowBeamAttackSequence? RainbowBeamSequence { get; internal set; }
 
+    /// <summary>
+    /// The dynamically allocated physical <c>$ECBF</c> enemy record created by
+    /// <c>$A9:BE1B</c>. Keeping the slot and its extended cutscene state side by side makes
+    /// the native cross-enemy index observable without pretending the Baby is a draw-only
+    /// effect owned by Mother Brain's body.
+    /// </summary>
+    public RoomEnemySlot? BabyMetroidSlot { get; internal set; }
+    public BabyMetroidCutsceneState? BabyMetroid { get; internal set; }
+
+    /// <summary>Debugger witness from the Baby's most recent physical enemy turn.</summary>
+    public BabyMetroidCutsceneStepResult? LastBabyMetroidStep { get; internal set; }
+
+    /// <summary>
+    /// Last Baby instruction list copied into its physical slot. The ordinary bank-$A9
+    /// interpreter advances the slot pointer independently, so this latch changes only
+    /// when Baby AI explicitly invokes the native set-list helper.
+    /// </summary>
+    internal ushort BabyAppliedInstructionList { get; set; }
+
+    /// <summary>
+    /// Shared cry counter incremented by bank-$86 onion-ring collision and consumed by the
+    /// Baby's later healing/idle functions. It is deliberately a count, not a boolean:
+    /// native <c>INC</c> permits more than one ring to land before the next Baby turn.
+    /// </summary>
+    internal ushort PendingBabyCryCount { get; set; }
+
     /// <summary>Debugger witness from the most recent live rainbow body-function call.</summary>
     public MotherBrainRainbowBeamAttackStepResult? LastRainbowBeamStep { get; internal set; }
 
@@ -425,6 +476,7 @@ public sealed class MotherBrainEnemyState
         LastSoundEffectLibrary3 = null;
         LastBombDropRequest = null;
         LastRainbowBeamStep = null;
+        LastBabyMetroidStep = null;
         RainbowBeamPaletteRequested = false;
         LastRainbowBeamExplosion = null;
     }

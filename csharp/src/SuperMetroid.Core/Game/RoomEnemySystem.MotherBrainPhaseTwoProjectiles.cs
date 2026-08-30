@@ -131,9 +131,8 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// Ports <c>$86:C335-C431</c> for the phase-two target set. The phase-three Baby
-    /// collision branch remains outside this routine until that actor is part of the room
-    /// enemy system; phase two has no Baby index and therefore reaches Samus/room checks.
+    /// Ports <c>$86:C335-C431</c>. A live Baby slot is tested before Samus and the room,
+    /// matching the private projectile's cross-enemy collision order during phase three.
     /// </summary>
     private void RunMotherBrainOnionRingPreInstruction(
         RoomEnemyProjectileSlot ring,
@@ -158,6 +157,28 @@ public sealed partial class RoomEnemySystem
             ring.YPosition,
             ring.YSubposition,
             ring.YVelocity);
+
+        BabyMetroidCutsceneState? baby = state.BabyMetroid;
+        if (baby is { IsDeleted: false })
+        {
+            // `$C3B1-$C3C8` deletes every later ring as soon as the still-registered Baby
+            // reaches zero health. Native clears only the projectile ID on this branch.
+            if (baby.Health == 0)
+            {
+                ring.Kind = RoomEnemyProjectileKind.None;
+                return;
+            }
+
+            if (MotherBrainOnionRingOverlapsBaby(ring, baby))
+            {
+                state.PendingBabyCryCount = unchecked((ushort)(state.PendingBabyCryCount + 1));
+                _ = baby.ApplyMotherBrainOnionRingHit();
+                ushort ringX = ring.XPosition;
+                ushort ringY = ring.YPosition;
+                ExplodeMotherBrainOnionRing(ring, state, ringX, ringY);
+                return;
+            }
+        }
 
         // This private collision path intentionally ignores Samus's current invincibility
         // timer. It writes a fresh $60 only after applying suit-divided damage.
@@ -215,6 +236,14 @@ public sealed partial class RoomEnemySystem
             ring.XRadius + samus.Kinematics.XRadius &&
         WrappedMagnitude(unchecked((ushort)(ring.YPosition - samus.YPosition))) <
             ring.YRadius + samus.Kinematics.YRadius;
+
+    private static bool MotherBrainOnionRingOverlapsBaby(
+        RoomEnemyProjectileSlot ring,
+        BabyMetroidCutsceneState baby) =>
+        WrappedMagnitude(unchecked((ushort)(ring.XPosition - baby.XPosition))) <
+            ring.XRadius + BabyMetroidCutsceneState.XHitboxRadius &&
+        WrappedMagnitude(unchecked((ushort)(ring.YPosition - baby.YPosition))) <
+            ring.YRadius + BabyMetroidCutsceneState.YHitboxRadius;
 
     private void ExplodeMotherBrainOnionRing(
         RoomEnemyProjectileSlot ring,

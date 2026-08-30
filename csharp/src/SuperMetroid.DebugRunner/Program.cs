@@ -270,6 +270,12 @@ if (args.Length >= 2 && args[0] == "--kraid-audit")
     return KraidAudit.Run(kraidRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--phantoon-audit")
+{
+    string phantoonRomPath = string.Join(' ', args[1..]).Trim('"');
+    return PhantoonAudit.Run(phantoonRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--bomb-torizo-audit")
 {
     string bombTorizoRomPath = string.Join(' ', args[1..]).Trim('"');

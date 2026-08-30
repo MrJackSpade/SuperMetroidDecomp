@@ -226,6 +226,7 @@ public sealed partial class RoomEnemySystem
         ResetRipperVariantRoomState();
         ResetDragonRoomState();
         ResetKraidRoomState();
+        ResetPhantoonRoomState();
         ResetShutterRoomState(cameraX, cameraY);
         ResetElevatorRoomActors();
         LastKzanSoundEffect = null;
@@ -1259,6 +1260,13 @@ public sealed partial class RoomEnemySystem
             case 0xa7bd2d when slot.EnemyDefinitionPointer == KraidBadNailDefinition:
                 InitializeKraidNail(slot, expectedSlot: 7);
                 return;
+            case 0xa7cdf3 when slot.EnemyDefinitionPointer == PhantoonBodyDefinition:
+                InitializePhantoonBody(slot);
+                return;
+            case 0xa7ce55 when slot.EnemyDefinitionPointer is
+                PhantoonEyeDefinition or PhantoonTentaclesDefinition or PhantoonMouthDefinition:
+                InitializePhantoonPart(slot);
+                return;
             case 0xaad7c8 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
                 InitializeTourianEntranceStatue(slot);
                 return;
@@ -1528,6 +1536,10 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa2804c:
                 return;
+            case 0xa7804c when slot.EnemyDefinitionPointer == PhantoonEyeDefinition:
+                // Phantoon's eye is positioned by the body and animated by its own list;
+                // the header main is the literal common RTL at the start of bank $A7.
+                return;
             case 0xa6f00d:
                 RunCeresSteamMain(slot, mode7Transform);
                 return;
@@ -1767,6 +1779,14 @@ public sealed partial class RoomEnemySystem
             case 0xa7bd32 when slot.EnemyDefinitionPointer == KraidGoodNailDefinition:
             case 0xa7bd49 when slot.EnemyDefinitionPointer == KraidBadNailDefinition:
                 RunKraidNailMain(slot, level);
+                return;
+            case 0xa7cea6 when slot.EnemyDefinitionPointer == PhantoonBodyDefinition:
+                RunPhantoonMain(slot, samus, cameraX, cameraY, nmiFrameCounter8);
+                return;
+            case 0xa7e011 when slot.EnemyDefinitionPointer is
+                PhantoonTentaclesDefinition or PhantoonMouthDefinition:
+                // $A7:E011 is a literal RTL. These drawing parts animate entirely through
+                // their independent bank-$A7 instruction lists after the shared body main.
                 return;
             case 0xaad7c7 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
                 // $AA:D7C7 is the one-byte RTL immediately before the initializer. The
@@ -2186,6 +2206,20 @@ public sealed partial class RoomEnemySystem
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
+                case 0x808a when IsPhantoonPartDefinition(slot.EnemyDefinitionPointer):
+                {
+                    ushort function = ReadWord(
+                        _bus!,
+                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    bool stop = ProcessPhantoonInstructionFunction(
+                        slot,
+                        function,
+                        nmiFrameCounter8);
+                    if (stop)
+                        return;
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                }
                 case 0x813a: // EnemyInstr_WaitYFrames: delay without changing the map.
                     slot.InstructionTimer = ReadWord(
                         _bus!,

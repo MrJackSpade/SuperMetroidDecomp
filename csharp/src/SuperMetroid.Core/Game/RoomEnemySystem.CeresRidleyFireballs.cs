@@ -27,6 +27,8 @@ public enum RoomEnemyProjectileKind : ushort
     KraidCeilingRock = 0x9c53,
     KraidRisingRockLeft = 0x9c61,
     KraidRisingRockRight = 0x9c6f,
+    PhantoonDestroyableFlame = 0x9c29,
+    PhantoonStartingFlame = 0x9c37,
     CeresRidleyFireball = 0x9642,
     CeresRidleyHorizontalAfterburnCenter = 0x9650,
     CeresRidleyVerticalAfterburnCenter = 0x965e,
@@ -678,6 +680,26 @@ public sealed partial class RoomEnemySystem
 
             case 0x9da5: // Shot Kraid spit rock switches to common explosion palette zero.
                 projectile.GraphicsIndex = 0;
+                return;
+
+            case 0x9b29: // Phantoon intro flame: wait for the body activation word.
+                RunPhantoonStartingFlameWaiting(projectile);
+                return;
+
+            case 0x9b41: // Phantoon intro flame: orbit while its radius contracts.
+                RunPhantoonStartingFlameOrbit(projectile, nmiFrameCounter8);
+                return;
+
+            case 0x9a45: // Phantoon casual flame: expanding circular fall.
+                RunPhantoonCasualFlame(projectile);
+                return;
+
+            case 0x9a94: // Phantoon flame rain: delayed fall and terrain impact.
+                RunPhantoonRainFlame(projectile, level);
+                return;
+
+            case 0x9ada: // Phantoon spiral: rotating expansion around the body.
+                RunPhantoonSpiralFlame(projectile);
                 return;
 
             case 0x92ba: // Crocomire bridge fragment: gravity until room collision.

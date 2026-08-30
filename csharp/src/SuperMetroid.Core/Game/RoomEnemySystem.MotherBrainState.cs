@@ -9,6 +9,47 @@ public enum MotherBrainBodyFunction : ushort
 {
     FirstPhase = 0x87e1,
     FakeDeathDescentInitialPause = 0x881d,
+    FakeDeathDescentPauseBeforeLock = 0x8829,
+    FakeDeathDescentPauseBeforeMusic = 0x884d,
+    FakeDeathDescentPauseBeforeUnlock = 0x886c,
+    FakeDeathDescentPauseBeforeFlash = 0x8884,
+    FakeDeathDescentFadeToGray = 0x88b2,
+    FakeDeathDescentCollapseTubes = 0x88d3,
+    FakeDeathAscentDrawRows2And3 = 0x8c87,
+    FakeDeathAscentDrawRows4And5 = 0x8c9e,
+    FakeDeathAscentDrawRows6And7 = 0x8cb5,
+    FakeDeathAscentDrawRows8And9 = 0x8ccc,
+    FakeDeathAscentDrawRowsAAndB = 0x8ce3,
+    FakeDeathAscentDrawRowsCAndD = 0x8cfa,
+    FakeDeathAscentSetupPhase2Graphics = 0x8d11,
+}
+
+/// <summary>
+/// Native function pointers stored in the head record's secondary Mother Brain dispatcher.
+/// During fake death this independent state machine serializes the physical tube actors,
+/// ceiling projectiles, and one-frame bank-$84 room mutations.
+/// </summary>
+public enum MotherBrainTubeCollapseFunction : ushort
+{
+    WaitForFourFreeProjectileSlots = 0x8949,
+    ClearBottomLeftTube = 0x896e,
+    SpawnTopRightTube = 0x8983,
+    ClearCeilingColumn9 = 0x89a0,
+    SpawnTopLeftTube = 0x89b5,
+    ClearCeilingColumn6 = 0x89d2,
+    SpawnBottomRightTube = 0x89e7,
+    ClearBottomRightTube = 0x89fa,
+    SpawnBottomMiddleLeftTube = 0x8a0f,
+    ClearBottomMiddleLeftTube = 0x8a22,
+    SpawnTopMiddleLeftTube = 0x8a37,
+    ClearCeilingColumn7 = 0x8a54,
+    SpawnTopMiddleRightTube = 0x8a69,
+    ClearCeilingColumn8 = 0x8a86,
+    SpawnBottomMiddleRightTube = 0x8a9b,
+    ClearBottomMiddleRightTube = 0x8aae,
+    SpawnMainTube = 0x8ac3,
+    ClearBottomMiddleTubes = 0x8ad6,
+    Finished = 0x8ae4,
 }
 
 /// <summary>Native function pointers used by Mother Brain's separate brain record.</summary>
@@ -49,6 +90,42 @@ public sealed class MotherBrainEnemyState
     public MotherBrainBodyFunction Function { get; internal set; }
     public MotherBrainBrainFunction BrainFunction { get; internal set; }
 
+    /// <summary>
+    /// Native <c>mbn_var_F</c>. Every fake-death pause decrements this unsigned word and
+    /// branches when bit 15 becomes set; zero therefore expires immediately to $FFFF.
+    /// </summary>
+    public ushort FunctionTimer { get; internal set; }
+
+    /// <summary>Zero-based palette-step count stored in native <c>mbn_var_37</c>.</summary>
+    public ushort GrayFadeIndex { get; internal set; }
+
+    /// <summary>Eight-frame cadence and wrapping coordinate cursor for fake-death dust.</summary>
+    public ushort FakeDeathExplosionTimer { get; internal set; }
+    public ushort FakeDeathExplosionIndex { get; internal set; }
+
+    /// <summary>
+    /// Bank-$A9 room-palette bytecode pointer/timer. The timer counts upward, unlike enemy
+    /// instruction timers, because handler $D192 compares elapsed frames with each duration.
+    /// </summary>
+    public ushort RoomPaletteInstructionPointer { get; internal set; }
+    public ushort RoomPaletteInstructionTimer { get; internal set; }
+
+    /// <summary>Head-record sub-dispatch and its independent underflow timer.</summary>
+    public MotherBrainTubeCollapseFunction TubeCollapseFunction { get; internal set; }
+    public ushort TubeCollapseTimer { get; internal set; }
+
+    /// <summary>Exact delayed music writes made during the most recent enemy frame.</summary>
+    public IReadOnlyList<MotherBrainMusicRequest> MusicRequests => _musicRequests;
+
+    /// <summary>Hardcoded bank-$84 objects requested during the most recent enemy frame.</summary>
+    public IReadOnlyList<MotherBrainPlmRequest> PlmRequests => _plmRequests;
+
+    /// <summary>Last library-two fake-death/tube sound emitted during this enemy frame.</summary>
+    public ushort? LastSoundEffect { get; internal set; }
+
+    /// <summary>Count of dynamically spawned physical falling-tube enemy records.</summary>
+    public int SpawnedFallingTubeCount { get; internal set; }
+
     /// <summary>FX table entry requested by the body initializer.</summary>
     public ushort FxEntry { get; internal set; }
 
@@ -88,10 +165,34 @@ public sealed class MotherBrainEnemyState
     public IReadOnlyList<ushort> InitialTurretParameters => _initialTurretParameters;
 
     private readonly ushort[] _initialTurretParameters = new ushort[12];
+    private readonly List<MotherBrainMusicRequest> _musicRequests = new();
+    private readonly List<MotherBrainPlmRequest> _plmRequests = new();
 
     internal void RecordInitialTurretRequests()
     {
         for (ushort parameter = 0; parameter < _initialTurretParameters.Length; parameter++)
             _initialTurretParameters[parameter] = parameter;
     }
+
+    internal void BeginFrame()
+    {
+        _musicRequests.Clear();
+        _plmRequests.Clear();
+        LastSoundEffect = null;
+    }
+
+    internal void RequestMusic(ushort rawTrack, byte delayFrames) =>
+        _musicRequests.Add(new MotherBrainMusicRequest(rawTrack, delayFrames));
+
+    internal void RequestPlm(byte blockX, byte blockY, ushort header) =>
+        _plmRequests.Add(new MotherBrainPlmRequest(blockX, blockY, header));
 }
+
+/// <summary>
+/// One raw <c>QueueMusic_Delayed8</c> call. Values such as $FF21 are retained whole because
+/// their high byte is a command, not a host track number.
+/// </summary>
+public readonly record struct MotherBrainMusicRequest(ushort RawTrack, byte DelayFrames);
+
+/// <summary>One literal <c>SpawnHardcodedPLM</c> call issued by Mother Brain's bank-$A9 AI.</summary>
+public readonly record struct MotherBrainPlmRequest(byte BlockX, byte BlockY, ushort Header);

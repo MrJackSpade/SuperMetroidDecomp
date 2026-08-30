@@ -581,6 +581,18 @@ public sealed partial class RoomEnemySystem
         state.Head.YPosition = 196;
         state.Body.XPosition = 59;
         state.Body.YPosition = 279;
+
+        // `$A9:903F` is part of the main-tube landing path, not phase-two setup. These
+        // lengths and starting angles must exist before `$87A2` gets installed several
+        // frames later or the first visible neck frame collapses every joint onto zero.
+        state.NeckSegment0Distance = 2;
+        state.NeckSegment1Distance = 10;
+        state.NeckSegment2Distance = 20;
+        state.NeckSegment3Distance = 10;
+        state.NeckSegment4Distance = 20;
+        state.LowerNeckAngle = 0x4800;
+        state.UpperNeckAngle = 0x5000;
+        state.NeckAngleDelta = 0x0100;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3;
         ExplodeMotherBrainTube(tube);
     }

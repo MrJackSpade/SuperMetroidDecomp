@@ -248,7 +248,12 @@ public sealed partial class SuperMetroidRuntime
             setSamusControlsEnabled: enabled => GroundedSamusMovementEnabled = enabled,
             setRoomScrollByte: (index, value) => Camera.Scrolls.SetStorage(index, value),
             incrementMotherBrainGlassRoomArgument: Plms.IncrementMotherBrainGlassRoomArgument,
-            readRoomScrollByte: index => Camera.Scrolls.ReadStorage(index));
+            readRoomScrollByte: index => Camera.Scrolls.ReadStorage(index),
+            setMotherBrainLayerBlendingDefaultConfig:
+                value => LayerBlendingDefaultConfig = value,
+            setMotherBrainBg2Scroll:
+                (horizontal, vertical) =>
+                    BackgroundScroll.SetBg2ScrollRegisters(horizontal, vertical));
         ApplyPendingBotwoonWallPlm();
         ApplyPendingSporeSpawnCeilingPlm();
         ApplyPendingCrocomireArenaPlms();

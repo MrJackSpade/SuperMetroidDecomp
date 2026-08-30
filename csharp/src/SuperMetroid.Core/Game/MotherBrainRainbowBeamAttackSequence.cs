@@ -596,141 +596,32 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         ArgumentNullException.ThrowIfNull(samus);
         if (NeckMovementEnabled != 0)
         {
-            // The lower handler runs first. Its new angle/index is immediately visible to
-            // the upper handler on this same brain-slot call.
-            switch (LowerNeckMovementIndex)
-            {
-                case 0:
-                    break;
-                case 2: // Bob down toward `$2800`, then reverse upward.
-                {
-                    ushort candidate = unchecked((ushort)(LowerNeckAngle - NeckAngleDelta));
-                    if (candidate < 0x2800)
-                    {
-                        candidate = 0x2800;
-                        LowerNeckMovementIndex = 4;
-                    }
-                    LowerNeckAngle = candidate;
-                    break;
-                }
-                case 4: // Bob up toward `$9000`, unless the brain is already high.
-                    if (unchecked((short)(BrainYPosition - 0x003c)) < 0)
-                    {
-                        LowerNeckMovementIndex = 2;
-                    }
-                    else
-                    {
-                        ushort candidate = unchecked((ushort)(LowerNeckAngle + NeckAngleDelta));
-                        if (candidate >= 0x9000)
-                        {
-                            candidate = 0x9000;
-                            LowerNeckMovementIndex = 2;
-                        }
-                        LowerNeckAngle = candidate;
-                    }
-                    break;
-                case 6: // One-way lower used by rainbow-beam setup.
-                {
-                    ushort candidate = unchecked((ushort)(LowerNeckAngle - NeckAngleDelta));
-                    if (candidate < 0x3000)
-                    {
-                        candidate = 0x3000;
-                        LowerNeckMovementIndex = 0;
-                    }
-                    LowerNeckAngle = candidate;
-                    break;
-                }
-                case 8: // One-way raise used by the Baby interruption.
-                {
-                    ushort candidate = unchecked((ushort)(LowerNeckAngle + NeckAngleDelta));
-                    if (candidate >= 0x9000)
-                    {
-                        candidate = 0x9000;
-                        LowerNeckMovementIndex = 0;
-                    }
-                    LowerNeckAngle = candidate;
-                    break;
-                }
-                default:
-                    throw new InvalidOperationException(
-                        $"Unsupported lower-neck movement index ${LowerNeckMovementIndex:X4}.");
-            }
-
-            switch (UpperNeckMovementIndex)
-            {
-                case 0:
-                    break;
-                case 2: // Bob down; Samus below the brain forces both segments upward instead.
-                    if (unchecked((short)(BrainYPosition + 4 - samus.YPosition)) >= 0)
-                    {
-                        LowerNeckMovementIndex = 4;
-                        UpperNeckMovementIndex = 4;
-                    }
-                    else
-                    {
-                        ushort candidate = unchecked((ushort)(UpperNeckAngle - NeckAngleDelta));
-                        if (candidate < 0x2000)
-                        {
-                            candidate = 0x2000;
-                            UpperNeckMovementIndex = 4;
-                        }
-                        UpperNeckAngle = candidate;
-                    }
-                    break;
-                case 4: // Follow eight angle-units above the lower segment, then bob down.
-                {
-                    ushort target = unchecked((ushort)(LowerNeckAngle + 0x0800));
-                    ushort candidate = unchecked((ushort)(UpperNeckAngle + NeckAngleDelta));
-                    if (candidate >= target)
-                    {
-                        candidate = target;
-                        UpperNeckMovementIndex = 2;
-                    }
-                    UpperNeckAngle = candidate;
-                    break;
-                }
-                case 6: // One-way lower to `$2000`.
-                {
-                    ushort candidate = unchecked((ushort)(UpperNeckAngle - NeckAngleDelta));
-                    if (candidate < 0x2000)
-                    {
-                        candidate = 0x2000;
-                        UpperNeckMovementIndex = 0;
-                    }
-                    UpperNeckAngle = candidate;
-                    break;
-                }
-                case 8: // One-way raise to the newly updated lower angle plus `$0800`.
-                {
-                    ushort target = unchecked((ushort)(LowerNeckAngle + 0x0800));
-                    ushort candidate = unchecked((ushort)(UpperNeckAngle + NeckAngleDelta));
-                    if (candidate >= target)
-                    {
-                        candidate = target;
-                        UpperNeckMovementIndex = 0;
-                    }
-                    UpperNeckAngle = candidate;
-                    break;
-                }
-                default:
-                    throw new InvalidOperationException(
-                        $"Unsupported upper-neck movement index ${UpperNeckMovementIndex:X4}.");
-            }
+            ushort lowerAngle = LowerNeckAngle;
+            ushort upperAngle = UpperNeckAngle;
+            ushort lowerIndex = LowerNeckMovementIndex;
+            ushort upperIndex = UpperNeckMovementIndex;
+            MotherBrainNeckKinematics.StepAngles(
+                ref lowerAngle,
+                ref upperAngle,
+                ref lowerIndex,
+                ref upperIndex,
+                NeckAngleDelta,
+                BrainYPosition,
+                samus.YPosition);
+            LowerNeckAngle = lowerAngle;
+            UpperNeckAngle = upperAngle;
+            LowerNeckMovementIndex = lowerIndex;
+            UpperNeckMovementIndex = upperIndex;
         }
 
-        // `$91B8-$92AA` anchors segment two at body+(32,-50), then adds two twenty-pixel
-        // signed sine/cosine vectors. The brain enemy slot is segment four, so every Baby
-        // latch/shake target sees these newly computed whole-pixel coordinates.
-        byte lowerAngle = unchecked((byte)(LowerNeckAngle >> 8));
-        byte upperAngle = unchecked((byte)(UpperNeckAngle >> 8));
-        BrainXPosition = unchecked((ushort)(
-            Body.XPosition + 0x0020 +
-            CalculateSignedNeckComponent(bus, lowerAngle, 0x0014) +
-            CalculateSignedNeckComponent(bus, upperAngle, 0x0014)));
-        BrainYPosition = unchecked((ushort)(
-            Body.YPosition - 0x0032 +
-            CalculateSignedNeckComponent(bus, unchecked((byte)(lowerAngle + 0x40)), 0x0014) +
-            CalculateSignedNeckComponent(bus, unchecked((byte)(upperAngle + 0x40)), 0x0014)));
+        MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(
+            bus,
+            Body.XPosition,
+            Body.YPosition,
+            LowerNeckAngle,
+            UpperNeckAngle);
+        BrainXPosition = geometry.Segment4.X;
+        BrainYPosition = geometry.Segment4.Y;
     }
 
     /// <summary>

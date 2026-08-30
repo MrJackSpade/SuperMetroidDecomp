@@ -68,6 +68,17 @@ public sealed class BackgroundScrollState
     public ushort PreviousLayer2YBlock { get; private set; }
 
     /// <summary>
+    /// Publishes a room actor's direct writes to the PPU BG2 scroll mirrors. Mother Brain
+    /// uses fixed layer-two room modes, so the ordinary scrolling pass intentionally leaves
+    /// these values untouched after the actor supplies them.
+    /// </summary>
+    public void SetBg2ScrollRegisters(ushort horizontal, ushort vertical)
+    {
+        Bg2HorizontalScroll = horizontal;
+        Bg2VerticalScroll = vertical;
+    }
+
+    /// <summary>
     /// Implements the gameplay entry point at <c>$80:A3AB</c>. A frozen frame performs no
     /// register, parallax, previous-block, or streaming-request changes.
     /// </summary>

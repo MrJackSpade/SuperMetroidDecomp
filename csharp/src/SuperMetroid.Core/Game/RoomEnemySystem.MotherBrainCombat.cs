@@ -43,11 +43,22 @@ public sealed partial class RoomEnemySystem
         enabled >>= 1;
         if ((enabled & 1) != 0)
         {
-            // Neck positions are produced by the phase-two neck solver. Refuse to flatten
-            // those three articulated origins onto the head until that producer is present.
-            throw new NotSupportedException(
-                $"Mother Brain neck collision list $A9:{MotherBrainNeckSamusHitboxes:X4} " +
-                "requires the untranslated articulated-neck position state.");
+            // Native tests only middle joints one, two, and three. Joint zero is buried in
+            // the body and joint four is already covered by the separate brain rectangles.
+            MotherBrainNeckPoint[] collisionSegments =
+                [state.NeckSegment1, state.NeckSegment2, state.NeckSegment3];
+            foreach (MotherBrainNeckPoint segment in collisionSegments)
+            {
+                if (ResolveMotherBrainSamusCollisionPart(
+                        state,
+                        samus,
+                        MotherBrainNeckSamusHitboxes,
+                        segment.X,
+                        segment.Y))
+                {
+                    return true;
+                }
+            }
         }
         return false;
     }

@@ -152,7 +152,9 @@ public sealed partial class RoomEnemySystem
         Action<int, byte>? setRoomScrollByte = null,
         Action? setAreaBossDefeated = null,
         Action? incrementMotherBrainGlassRoomArgument = null,
-        Func<int, byte>? readRoomScrollByte = null)
+        Func<int, byte>? readRoomScrollByte = null,
+        Action<ushort>? setMotherBrainLayerBlendingDefaultConfig = null,
+        Action<ushort, ushort>? setMotherBrainBg2Scroll = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -171,6 +173,8 @@ public sealed partial class RoomEnemySystem
         _incrementMotherBrainGlassRoomArgument = incrementMotherBrainGlassRoomArgument;
         _readMotherBrainRoomScrollByte = readRoomScrollByte;
         _setMotherBrainRoomScrollByte = setRoomScrollByte;
+        _setMotherBrainLayerBlendingDefaultConfig = setMotherBrainLayerBlendingDefaultConfig;
+        _setMotherBrainBg2Scroll = setMotherBrainBg2Scroll;
         _isAreaMiniBossDefeated = isAreaMiniBossDefeated;
         _hasEvent = hasEvent;
         _setEvent = setEvent;
@@ -1463,10 +1467,10 @@ public sealed partial class RoomEnemySystem
                 RunDraygonPartMain(slot, samus);
                 return;
             case 0xa9873e when slot.EnemyDefinitionPointer == MotherBrainBodyDefinition:
-                RunMotherBrainBodyMain(slot, samus);
+                RunMotherBrainBodyMain(slot, samus, nmiFrameCounter8);
                 return;
             case 0xa9878b when slot.EnemyDefinitionPointer == MotherBrainHeadDefinition:
-                RunMotherBrainHeadMain(slot);
+                RunMotherBrainHeadMain(slot, samus);
                 return;
             case 0xa98b85 when slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition:
                 RunMotherBrainFallingTubeMain(slot);

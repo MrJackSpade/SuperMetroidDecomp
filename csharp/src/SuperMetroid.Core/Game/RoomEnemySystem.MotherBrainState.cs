@@ -23,6 +23,29 @@ public enum MotherBrainBodyFunction : ushort
     FakeDeathAscentDrawRowsCAndD = 0x8cfa,
     FakeDeathAscentSetupPhase2Graphics = 0x8d11,
     FakeDeathAscentSetupPhase2Brain = 0x8d49,
+    FakeDeathAscentPauseForSuspense = 0x8d79,
+    FakeDeathAscentPrepareForRising = 0x8d8b,
+    FakeDeathAscentLoadLegTiles = 0x8db4,
+    FakeDeathAscentContinuePausing = 0x8dc3,
+    FakeDeathAscentStartMusicAndEarthquake = 0x8dec,
+    FakeDeathAscentRaiseMotherBrain = 0x8e4d,
+    FakeDeathAscentWaitUntilUncrouched = 0x8e95,
+    FakeDeathAscentTransitionFromGray = 0x8eaa,
+    SecondPhaseStretchingShakeHead = 0x8ef5,
+    SecondPhaseStretchingBringHeadUp = 0x8f14,
+    SecondPhaseStretchingFinish = 0x8f33,
+    SecondPhaseThinking = 0xb605,
+}
+
+/// <summary>Values written by Mother Brain's body instruction opcodes at $A9:9700-$972F.</summary>
+public enum MotherBrainBodyPose : ushort
+{
+    Standing = 0,
+    Walking = 1,
+    CrouchingTransition = 2,
+    Crouched = 3,
+    DeathBeam = 4,
+    LeaningDown = 6,
 }
 
 /// <summary>
@@ -97,6 +120,13 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public ushort FunctionTimer { get; internal set; }
 
+    /// <summary>
+    /// Body-animation state written by private instruction opcodes. The body AI reads this
+    /// word independently of the current spritemap, notably while waiting for the slow
+    /// post-ascent uncrouch to publish <see cref="MotherBrainBodyPose.Standing"/>.
+    /// </summary>
+    public MotherBrainBodyPose Pose { get; internal set; }
+
     /// <summary>Zero-based palette-step count stored in native <c>mbn_var_37</c>.</summary>
     public ushort GrayFadeIndex { get; internal set; }
 
@@ -157,6 +187,65 @@ public sealed class MotherBrainEnemyState
     /// ordinary visibility because both physical records carry property bit <c>$0100</c>.
     /// </summary>
     public bool DrawBrain { get; internal set; }
+
+    /// <summary>Whether the active bank-$A9 draw hook appends five articulated neck joints.</summary>
+    public bool DrawNeck { get; internal set; }
+
+    /// <summary>Native fake-ascent neck lengths installed by <c>$A9:903F</c>.</summary>
+    public ushort NeckSegment0Distance { get; internal set; }
+    public ushort NeckSegment1Distance { get; internal set; }
+    public ushort NeckSegment2Distance { get; internal set; }
+    public ushort NeckSegment3Distance { get; internal set; }
+    public ushort NeckSegment4Distance { get; internal set; }
+
+    /// <summary>Five current world-space neck joints; segment four anchors the brain.</summary>
+    public MotherBrainNeckPoint NeckSegment0 { get; internal set; }
+    public MotherBrainNeckPoint NeckSegment1 { get; internal set; }
+    public MotherBrainNeckPoint NeckSegment2 { get; internal set; }
+    public MotherBrainNeckPoint NeckSegment3 { get; internal set; }
+    public MotherBrainNeckPoint NeckSegment4 { get; internal set; }
+
+    /// <summary>8.8-style angle words and dispatch indices used by both neck halves.</summary>
+    public ushort LowerNeckAngle { get; internal set; }
+    public ushort UpperNeckAngle { get; internal set; }
+    public ushort NeckAngleDelta { get; internal set; }
+    public bool NeckMovementEnabled { get; internal set; }
+    public ushort LowerNeckMovementIndex { get; internal set; }
+    public ushort UpperNeckMovementIndex { get; internal set; }
+
+    /// <summary>
+    /// Pointer to the next seven-byte entry in the multi-frame sprite-tile transfer list.
+    /// Zero means no list is active, exactly matching native WRAM <c>$7E:8004</c>.
+    /// </summary>
+    public ushort SpriteTileTransferEntryPointer { get; internal set; }
+
+    /// <summary>True while bank-$88's rising layer-mask object is alive.</summary>
+    public bool RisingHdmaActive { get; internal set; }
+
+    /// <summary>Last verified room layer-blending configuration written by the body AI.</summary>
+    public ushort LayerBlendingDefaultConfig { get; internal set; }
+
+    /// <summary>Direct BG2 scroll-register mirrors owned by the phase-two body art.</summary>
+    public ushort Bg2XScroll { get; internal set; }
+    public ushort Bg2YScroll { get; internal set; }
+    public bool HasBg2ScrollOverride { get; internal set; }
+
+    /// <summary>Visible prefix of the enemy BG2 staging tilemap requested at ascent completion.</summary>
+    public ushort EnemyBg2TilemapSize { get; internal set; }
+    public bool EnemyBg2TilemapTransferRequested { get; internal set; }
+
+    /// <summary>Four-frame cadence cursor for the eight ascent dust positions.</summary>
+    public ushort BodySubFunctionTimer { get; internal set; }
+
+    /// <summary>Zero-based palette pointer-table index used while leaving fake-death grey.</summary>
+    public ushort GrayTransitionCounter { get; internal set; }
+
+    public bool BrainPaletteHandlingEnabled { get; internal set; }
+    public bool DroolGenerationEnabled { get; internal set; }
+    public bool SmallPurpleBreathGenerationEnabled { get; internal set; }
+
+    /// <summary>Native phase-two walking/shot-reaction accumulator.</summary>
+    public ushort WalkCounter { get; internal set; }
 
     /// <summary>
     /// Parameters passed to the twelve <c>$86</c> Mother Brain turret initializers during

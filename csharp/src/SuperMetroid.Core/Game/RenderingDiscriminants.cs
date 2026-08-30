@@ -21,6 +21,7 @@ public enum LayerBlendingConfiguration : ushort
     NormalGameplay = 0x0002,
     VisorBackdrop28 = 0x0028,
     VisorBackdrop2A = 0x002a,
+    MotherBrainPhaseTwo = 0x0034,
 }
 
 /// <summary>Conventionally named values in the native room scroll-zone byte grid.</summary>

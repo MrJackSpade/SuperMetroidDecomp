@@ -20,20 +20,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         FunctionTimer = 0x0100;
     }
 
-    private static short CalculateSignedNeckComponent(
-        ISnesAddressSpace bus,
-        byte angle,
-        byte distance)
-    {
-        // `$A9:C46C` writes the sign-extended sine word to the SNES signed multiplicand,
-        // writes the segment distance to its signed eight-bit multiplier, then reads product
-        // bits 8..23 from `$2135`. All retail distances here fit the positive byte domain.
-        int address = 0xa0b443 + angle * 2;
-        short sine = unchecked((short)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
-        int product = sine * unchecked((sbyte)distance);
-        return unchecked((short)(product >> 8));
-    }
-
     private void SetHeadInstructionList(ushort pointer)
     {
         // `$A9:C447` writes the separate brain-list pointer and timer. Unlike ordinary

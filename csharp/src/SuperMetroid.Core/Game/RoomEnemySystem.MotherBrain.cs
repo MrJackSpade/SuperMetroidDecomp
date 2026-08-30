@@ -114,7 +114,10 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the body main/hurt entry at <c>$A9:873E</c> for phase one.</summary>
-    private void RunMotherBrainBodyMain(RoomEnemySlot body, SamusState? samus)
+    private void RunMotherBrainBodyMain(
+        RoomEnemySlot body,
+        SamusState? samus,
+        byte nmiFrameCounter8)
     {
         MotherBrainEnemyState state = RequireCompleteMotherBrainState(body);
 
@@ -141,8 +144,22 @@ public sealed partial class RoomEnemySystem
             case MotherBrainBodyFunction.FakeDeathAscentDrawRowsAAndB:
             case MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD:
             case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Graphics:
-            case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain:
                 RunMotherBrainFakeDeath(state, samus);
+                return;
+            case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain:
+            case MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense:
+            case MotherBrainBodyFunction.FakeDeathAscentPrepareForRising:
+            case MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles:
+            case MotherBrainBodyFunction.FakeDeathAscentContinuePausing:
+            case MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake:
+            case MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain:
+            case MotherBrainBodyFunction.FakeDeathAscentWaitUntilUncrouched:
+            case MotherBrainBodyFunction.FakeDeathAscentTransitionFromGray:
+            case MotherBrainBodyFunction.SecondPhaseStretchingShakeHead:
+            case MotherBrainBodyFunction.SecondPhaseStretchingBringHeadUp:
+            case MotherBrainBodyFunction.SecondPhaseStretchingFinish:
+            case MotherBrainBodyFunction.SecondPhaseThinking:
+                RunMotherBrainPhaseTwoAscent(state, samus, nmiFrameCounter8);
                 return;
             default:
                 throw new NotSupportedException(
@@ -188,13 +205,14 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the head main/hurt entry and its first-phase draw-hook selector.</summary>
-    private void RunMotherBrainHeadMain(RoomEnemySlot head)
+    private void RunMotherBrainHeadMain(RoomEnemySlot head, SamusState? samus)
     {
         MotherBrainEnemyState state = RequireCompleteMotherBrainState(head);
 
         // `$A9:878B` first restores the global enemy-graphics-drawn hook to RTL. Only an
         // intentionally invisible head dispatches the shared brain function and replaces it.
         state.DrawBrain = false;
+        state.DrawNeck = false;
         if (!head.Properties.HasAny(EnemyProperties.Invisible))
             return;
 
@@ -204,8 +222,15 @@ public sealed partial class RoomEnemySystem
                 state.DrawBrain = true;
                 return;
             case MotherBrainBrainFunction.SetupBrainAndNeckToBeDrawn:
-                throw new NotSupportedException(
-                    "Mother Brain neck draw function $A9:87A2 is not translated yet.");
+                StepMotherBrainNeck(
+                    state,
+                    samus ?? throw new InvalidOperationException(
+                        "Mother Brain's articulated neck requires the live Samus actor."));
+                head.XPosition = state.NeckSegment4.X;
+                head.YPosition = unchecked((ushort)(state.NeckSegment4.Y - 21));
+                state.DrawBrain = true;
+                state.DrawNeck = true;
+                return;
             default:
                 throw new NotSupportedException(
                     $"Mother Brain brain function $A9:{(ushort)state.BrainFunction:X4} is not translated.");
@@ -225,14 +250,135 @@ public sealed partial class RoomEnemySystem
         if (state?.DrawBrain != true || head is null || head.SpritemapPointer == 0)
             return;
 
+        (short brainShakeX, short brainShakeY) = GetMotherBrainBrainShake(state, head);
+        DrawMotherBrainWorldSpritemap(
+            oam,
+            head.SpritemapPointer,
+            unchecked((ushort)(head.XPosition + brainShakeX)),
+            unchecked((ushort)(head.YPosition + brainShakeY)),
+            state.BrainPaletteIndex,
+            head.VramTilesIndex,
+            cameraX,
+            cameraY);
+
+        if (!state.DrawNeck || state.Body.Properties.HasAny(EnemyProperties.Invisible))
+            return;
+
+        // `$A9:930C-$9354` emits the joint nearest the brain first and the body-side joint
+        // last. Equal-priority overlap therefore follows the same low-OAM precedence.
+        int shakeIndex = (head.FlashTimer & 6) >> 1;
+        short neckShakeX = MotherBrainShakeXOffsets[shakeIndex];
+        short neckShakeY = MotherBrainShakeYOffsets[shakeIndex];
+        MotherBrainNeckPoint[] segments =
+        [
+            state.NeckSegment0,
+            state.NeckSegment1,
+            state.NeckSegment2,
+            state.NeckSegment3,
+            state.NeckSegment4,
+        ];
+        for (int index = segments.Length - 1; index >= 0; index--)
+        {
+            MotherBrainNeckPoint segment = segments[index];
+            DrawMotherBrainWorldSpritemap(
+                oam,
+                spritemapPointer: 0xa694,
+                unchecked((ushort)(segment.X + neckShakeX)),
+                unchecked((ushort)(segment.Y + neckShakeY)),
+                state.NeckPaletteIndex,
+                head.VramTilesIndex,
+                cameraX,
+                cameraY);
+        }
+    }
+
+    private static readonly short[] MotherBrainShakeXOffsets = [0, -1, 0, 1];
+    private static readonly short[] MotherBrainShakeYOffsets = [0, 1, -1, 1];
+
+    private void DrawMotherBrainWorldSpritemap(
+        OamBuffer oam,
+        ushort spritemapPointer,
+        ushort worldX,
+        ushort worldY,
+        ushort paletteIndex,
+        ushort vramTilesIndex,
+        ushort cameraX,
+        ushort cameraY)
+    {
+        // Mother Brain's private `$A9:93EE` writer rejects an entire map whose center begins
+        // above the screen. The generic writer intentionally wraps, so preserve that unique
+        // vertical gate here before sharing its byte-exact map decoder.
+        ushort screenY = unchecked((ushort)(worldY - cameraY));
+        if (unchecked((short)screenY) < 0)
+            return;
+
         oam.AddEnemySpritemap(
             _bus!,
-            head.Definition.Bank,
-            head.SpritemapPointer,
-            unchecked((ushort)(head.XPosition - cameraX)),
-            unchecked((ushort)(head.YPosition - cameraY)),
-            state.BrainPaletteIndex,
-            head.VramTilesIndex);
+            bank: 0xa9,
+            spritemapPointer,
+            unchecked((ushort)(worldX - cameraX)),
+            screenY,
+            paletteIndex,
+            vramTilesIndex);
+    }
+
+    private static (short X, short Y) GetMotherBrainBrainShake(
+        MotherBrainEnemyState state,
+        RoomEnemySlot head)
+    {
+        ushort shake;
+        if (state.BrainMainShakeTimer != 0)
+        {
+            state.BrainMainShakeTimer = unchecked((ushort)(state.BrainMainShakeTimer - 1));
+            shake = state.BrainMainShakeTimer;
+        }
+        else
+        {
+            shake = head.FlashTimer != 0 ? head.FlashTimer : head.ShakeTimer;
+        }
+
+        int index = (shake & 6) >> 1;
+        return (MotherBrainShakeXOffsets[index], MotherBrainShakeYOffsets[index]);
+    }
+
+    private void StepMotherBrainNeck(MotherBrainEnemyState state, SamusState samus)
+    {
+        if (state.NeckMovementEnabled)
+        {
+            ushort lowerAngle = state.LowerNeckAngle;
+            ushort upperAngle = state.UpperNeckAngle;
+            ushort lowerIndex = state.LowerNeckMovementIndex;
+            ushort upperIndex = state.UpperNeckMovementIndex;
+            MotherBrainNeckKinematics.StepAngles(
+                ref lowerAngle,
+                ref upperAngle,
+                ref lowerIndex,
+                ref upperIndex,
+                state.NeckAngleDelta,
+                state.Head!.YPosition,
+                samus.YPosition);
+            state.LowerNeckAngle = lowerAngle;
+            state.UpperNeckAngle = upperAngle;
+            state.LowerNeckMovementIndex = lowerIndex;
+            state.UpperNeckMovementIndex = upperIndex;
+        }
+
+        MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(
+            _bus!,
+            state.Body.XPosition,
+            state.Body.YPosition,
+            state.LowerNeckAngle,
+            state.UpperNeckAngle,
+            state.NeckSegment0Distance,
+            state.NeckSegment1Distance,
+            state.NeckSegment2Distance,
+            state.NeckSegment3Distance,
+            state.NeckSegment4Distance);
+        state.NeckSegment0 = geometry.Segment0;
+        state.NeckSegment1 = geometry.Segment1;
+        state.NeckSegment2 = geometry.Segment2;
+        state.NeckSegment3 = geometry.Segment3;
+        state.NeckSegment4 = geometry.Segment4;
     }
 
     /// <summary>Handles Mother Brain's private instruction opcodes used by phase-one art.</summary>

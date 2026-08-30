@@ -194,9 +194,6 @@ public sealed partial class RoomEnemySystem
     // projectiles. Keeping the same capacity exposes saturation and spawn failure honestly.
     private const int RoomEnemyProjectileSlotCount = 18;
     private const ushort FireballGraphicsIndex = 0x0a00;
-    private const ushort FireballRadius = 6;
-    private const ushort FireballDamage = 3;
-    private const ushort FireballInvincibilityFrames = 96;
 
     private readonly RoomEnemyProjectileSlot[] _enemyProjectiles =
         Enumerable.Range(0, RoomEnemyProjectileSlotCount)
@@ -464,22 +461,16 @@ public sealed partial class RoomEnemySystem
             return;
 
         RidleyEnemyState state = RequireRidley(ridley);
-        projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
+        InitializeEnemyProjectileFromDefinition(
+            projectile,
+            RoomEnemyProjectileKind.CeresRidleyFireball,
+            FireballGraphicsIndex);
         projectile.XPosition = unchecked((ushort)(ridley.XPosition +
             (state.FacingDirection == 0 ? -25 : 25)));
         projectile.YPosition = unchecked((ushort)(ridley.YPosition - 43));
         projectile.XVelocity = state.FireballXVelocity;
         projectile.YVelocity = state.FireballYVelocity;
         projectile.RemainingAfterburns = spawnAfterburn ? (ushort)3 : (ushort)0;
-        projectile.InstructionPointer = 0x9552;
-        projectile.InstructionTimer = 1;
-        projectile.PreInstruction = 0x940e;
-        projectile.GraphicsIndex = FireballGraphicsIndex;
-        projectile.XRadius = FireballRadius;
-        projectile.YRadius = FireballRadius;
-        projectile.Damage = FireballDamage;
-        projectile.InvincibilityFrames = FireballInvincibilityFrames;
-        projectile.CanDamageSamus = true;
     }
 
     private RoomEnemyProjectileSlot? AllocateEnemyProjectile()
@@ -642,6 +633,10 @@ public sealed partial class RoomEnemySystem
                 RunBombTorizoSonicBoomPreInstruction(projectile, level);
                 return;
 
+            case 0xa887: // Bomb Torizo drool: drag, gravity, and room-impact lists.
+                RunBombTorizoDroolPreInstruction(projectile, level);
+                return;
+
             case 0xb043: // Golden Torizo egg: timed bounce followed by horizontal launch.
                 RunGoldenTorizoEggPreInstruction(projectile, level);
                 return;
@@ -713,13 +708,23 @@ public sealed partial class RoomEnemySystem
             }
 
             case 0x950d:
-                MoveProjectileAxis(projectile, level, horizontal: true);
+                // $86:950D first uses the raw 8.8 horizontal adder, not the room-collision
+                // helper. Only the perpendicular vertical move may end this afterburn.
+                (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
+                    projectile.XPosition,
+                    projectile.XSubposition,
+                    projectile.XVelocity);
                 if (MoveProjectileAxis(projectile, level, horizontal: false))
                     BeginAfterburnFinalAnimation(projectile);
                 return;
 
             case 0x9522:
-                MoveProjectileAxis(projectile, level, horizontal: false);
+                // $86:9522 is the transposed path: unrestricted vertical travel followed
+                // by a horizontal room-collision test.
+                (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
+                    projectile.YPosition,
+                    projectile.YSubposition,
+                    projectile.YVelocity);
                 if (MoveProjectileAxis(projectile, level, horizontal: true))
                     BeginAfterburnFinalAnimation(projectile);
                 return;
@@ -1445,21 +1450,10 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot? center = AllocateEnemyProjectile();
         if (center is null)
             return;
-        center.Kind = kind;
+        InitializeEnemyProjectileFromDefinition(center, kind, FireballGraphicsIndex);
         center.XPosition = x;
         center.YPosition = y;
         center.RemainingAfterburns = remaining;
-        center.InstructionPointer = kind == RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter
-            ? (ushort)0x95a0
-            : (ushort)0x95d3;
-        center.InstructionTimer = 1;
-        center.PreInstruction = 0x950c;
-        center.GraphicsIndex = FireballGraphicsIndex;
-        center.XRadius = FireballRadius;
-        center.YRadius = FireballRadius;
-        center.Damage = FireballDamage;
-        center.InvincibilityFrames = FireballInvincibilityFrames;
-        center.CanDamageSamus = true;
     }
 
     private void SpawnAfterburnPair(RoomEnemyProjectileSlot center, bool horizontal)
@@ -1485,22 +1479,13 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot? afterburn = AllocateEnemyProjectile();
         if (afterburn is null)
             return;
-        afterburn.Kind = kind;
+        InitializeEnemyProjectileFromDefinition(afterburn, kind, FireballGraphicsIndex);
         afterburn.XPosition = source.XPosition;
         afterburn.YPosition = source.YPosition;
         afterburn.XVelocity = xVelocity;
         afterburn.YVelocity = yVelocity;
         afterburn.RemainingAfterburns = source.RemainingAfterburns;
         afterburn.NextAfterburnKind = (ushort)kind;
-        afterburn.InstructionPointer = 0x9606;
-        afterburn.InstructionTimer = 1;
-        afterburn.PreInstruction = xVelocity != 0 ? (ushort)0x950d : (ushort)0x9522;
-        afterburn.GraphicsIndex = FireballGraphicsIndex;
-        afterburn.XRadius = FireballRadius;
-        afterburn.YRadius = FireballRadius;
-        afterburn.Damage = FireballDamage;
-        afterburn.InvincibilityFrames = FireballInvincibilityFrames;
-        afterburn.CanDamageSamus = true;
     }
 
     private void SpawnNextAfterburn(RoomEnemyProjectileSlot source)

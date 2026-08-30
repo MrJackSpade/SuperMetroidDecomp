@@ -367,6 +367,48 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
     }
 
+    /// <summary>
+    /// Ports <c>$86:A887</c>, shared by Bomb Torizo's six gut-break droplets and its
+    /// low-health initial drool. The peculiar positive-three clamp is authentic: both the
+    /// negative and nonnegative drag branches load <c>$0003</c> when they cross zero.
+    /// </summary>
+    private void RunBombTorizoDroolPreInstruction(
+        RoomEnemyProjectileSlot projectile,
+        RoomLevelData level)
+    {
+        if (MoveProjectileAxis(projectile, level, horizontal: true))
+        {
+            projectile.InstructionPointer = 0xa48a;
+            projectile.InstructionTimer = 1;
+            return;
+        }
+
+        short xVelocity = unchecked((short)projectile.XVelocity);
+        if (xVelocity < 0)
+        {
+            int dragged = xVelocity + 4;
+            projectile.XVelocity = unchecked((ushort)(short)(dragged < 0 ? dragged : 3));
+        }
+        else
+        {
+            int dragged = xVelocity - 4;
+            projectile.XVelocity = unchecked((ushort)(short)(dragged >= 0 ? dragged : 3));
+        }
+
+        bool verticalCollision = MoveProjectileAxis(projectile, level, horizontal: false);
+        if (unchecked((short)projectile.YVelocity) >= 0 && verticalCollision)
+        {
+            projectile.YPosition = unchecked((ushort)(projectile.YPosition - 3));
+            projectile.InstructionPointer = 0xa48e;
+            projectile.InstructionTimer = 1;
+            return;
+        }
+
+        projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 16));
+        if ((projectile.YVelocity & 0xf000) == 0x1000)
+            projectile.Clear();
+    }
+
     private void RunGoldenTorizoChozoOrbPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)

@@ -10,7 +10,7 @@ using SuperMetroid.Core.Runtime;
 /// projectile definitions, and collision layer while supplying deterministic Samus, RNG,
 /// item-trigger removal, and weapon stimuli.
 /// </summary>
-internal static class BombTorizoAudit
+internal static partial class BombTorizoAudit
 {
     private const ushort RoomPointer = 0x9804;
     private const ushort Definition = 0xeeff;
@@ -28,13 +28,15 @@ internal static class BombTorizoAudit
         VerifyRetailStructures(bus, room);
         VerifyEncounter(bus, room, assets);
         VerifyNaturalAttackInteractions(bus, room, assets);
+        VerifyLowHealthAndDeathProjectileLifecycles(bus, room, assets);
         VerifyAlreadyDefeatedLoad(bus, room, assets);
 
         Console.WriteLine(
             "Bomb Torizo audit passed: retail header/population, PLM-gated awakening, " +
             "extended animation maps, collision movement, Chozo-orb/sonic/swipe attacks, " +
             "exact natural attack contact, Chozo-orb shot response, Samus body contact " +
-            "damage, projectile damage/flash, death bytecode, item drop, " +
+            "damage, projectile damage/flash, low-health gut/face breakup, drool and " +
+            "death-explosion lifecycles, death bytecode, item drop, " +
             "delayed music, and area Torizo boss bit all used cartridge data.");
         return 0;
     }

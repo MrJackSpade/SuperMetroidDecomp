@@ -1989,6 +1989,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     // $A6:DFB2 is shared with the power-bomb-immune Norfair boss, but Ceres Ridley's
     // vulnerability byte reaches it. Keep that fresh-load proof out of this already-large
     // battle fixture so its common-damage timers cannot perturb the Mode-7 sequence above.
+    CeresRidleyProjectileAudit.Verify(ridleyBus, ridleyRoom, retailRidleyAssets);
     CeresRidleyPowerBombAudit.Verify(ridleyBus, ridleyRoom, retailRidleyAssets);
 
     Console.WriteLine(
@@ -1998,7 +1999,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         $"enemy ${ridleySlot.EnemyDefinitionPointer:X4}, reveal $A6:A455/$0004, " +
         $"pre-reveal Samus-owned overlap " +
         $"({preRevealOverlapPixel % 256},{preRevealOverlapPixel / 256}), " +
-        $"battle in {battleEntryFrames} frames, fireballs/afterburn/damage in " +
+        $"battle in {battleEntryFrames} frames, all seven fireball/afterburn definitions in " +
         $"{fireballAuditFrames} frames, runtime hurt OAM {liveContactOamCount}/128, " +
         $"100 retail beam hits and shared power-bomb damage, " +
         $"escape handoff in {retreatFrames} frames, Mode 7 restored in {mode7Frames} frames.");

@@ -9,7 +9,7 @@ using SuperMetroid.Core.Runtime;
 /// instruction lists, extended hitboxes, projectiles, collision layer, palettes, and
 /// vulnerability table all come from the user's cartridge image.
 /// </summary>
-internal static class GoldenTorizoAudit
+internal static partial class GoldenTorizoAudit
 {
     private const ushort RoomPointer = 0xb283;
     private const ushort Definition = 0xef7f;
@@ -26,12 +26,14 @@ internal static class GoldenTorizoAudit
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyRetailStructures(bus, room);
         VerifyEncounter(bus, room, assets);
+        VerifyNaturalProjectileInteractions(bus, room, assets);
         VerifyAlreadyDefeatedLoad(bus, room, assets);
 
         Console.WriteLine(
             "Golden Torizo audit passed: retail room/header/population, activation, " +
             "extended animation, walking/jumping, five projectile attacks, missile and " +
-            "Super Missile reactions, contact/projectile damage, Power Bomb immunity, " +
+            "Super Missile reactions, every damage-enabled projectile phase, orb/egg/" +
+            "Super shot responses, contact/projectile damage, Power Bomb immunity, " +
             "death, palette, item " +
             "drop, music, and area boss bit all used cartridge data.");
         return 0;

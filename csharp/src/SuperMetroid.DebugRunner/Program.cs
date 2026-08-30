@@ -282,6 +282,12 @@ if (args.Length >= 2 && args[0] == "--draygon-audit")
     return DraygonAudit.Run(draygonRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--mother-brain-audit")
+{
+    string motherBrainRomPath = string.Join(' ', args[1..]).Trim('"');
+    return MotherBrainAudit.Run(motherBrainRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--bomb-torizo-audit")
 {
     string bombTorizoRomPath = string.Join(' ', args[1..]).Trim('"');

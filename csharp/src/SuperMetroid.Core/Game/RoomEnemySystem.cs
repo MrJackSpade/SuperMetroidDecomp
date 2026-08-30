@@ -228,6 +228,7 @@ public sealed partial class RoomEnemySystem
         ResetKraidRoomState();
         ResetPhantoonRoomState();
         ResetDraygonRoomState();
+        ResetMotherBrainRoomState();
         ResetShutterRoomState(cameraX, cameraY);
         ResetElevatorRoomActors();
         LastKzanSoundEffect = null;
@@ -778,6 +779,13 @@ public sealed partial class RoomEnemySystem
                     componentPointer = unchecked((ushort)(componentPointer + 8));
                 }
             }
+
+            // EnemyGraphicsDrawnHook runs after the complete ordinary enemy queue. Mother
+            // Brain installs it from its hidden head record, but the hook itself belongs to
+            // the record's authored layer-five pass and therefore must not run in both of
+            // the frontend's disjoint low/high-priority layer ranges.
+            if (layer == 5)
+                DrawMotherBrainHook(oam, cameraX, cameraY);
         }
     }
 
@@ -1296,6 +1304,12 @@ public sealed partial class RoomEnemySystem
             case 0xa5c5ad when slot.EnemyDefinitionPointer == DraygonArmsDefinition:
                 InitializeDraygonPart(slot);
                 return;
+            case 0xa98687 when slot.EnemyDefinitionPointer == MotherBrainBodyDefinition:
+                InitializeMotherBrainBody(slot);
+                return;
+            case 0xa98705 when slot.EnemyDefinitionPointer == MotherBrainHeadDefinition:
+                InitializeMotherBrainHead(slot);
+                return;
             case 0xaad7c8 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
                 InitializeTourianEntranceStatue(slot);
                 return;
@@ -1438,6 +1452,12 @@ public sealed partial class RoomEnemySystem
             case 0xa5c5aa when slot.EnemyDefinitionPointer == DraygonTailDefinition:
             case 0xa5c5c4 when slot.EnemyDefinitionPointer == DraygonArmsDefinition:
                 RunDraygonPartMain(slot, samus);
+                return;
+            case 0xa9873e when slot.EnemyDefinitionPointer == MotherBrainBodyDefinition:
+                RunMotherBrainBodyMain(slot, samus);
+                return;
+            case 0xa9878b when slot.EnemyDefinitionPointer == MotherBrainHeadDefinition:
+                RunMotherBrainHeadMain(slot);
                 return;
             case 0xa48c04 when slot.EnemyDefinitionPointer == CrocomireDefinition:
                 RunCrocomireMain(slot, samus, controllerInput, level, cameraX);
@@ -2287,6 +2307,11 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 9));
                     break;
                 }
+                case >= 0x8000 when TryProcessMotherBrainInstruction(
+                    slot,
+                    word,
+                    ref cursor):
+                    break;
                 case >= 0x8000 when TryProcessDraygonInstruction(
                     slot,
                     samus,

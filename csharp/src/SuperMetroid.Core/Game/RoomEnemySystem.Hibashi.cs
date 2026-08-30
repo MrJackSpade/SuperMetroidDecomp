@@ -81,7 +81,7 @@ public sealed partial class RoomEnemySystem
         _hibashiStates[slot.SlotIndex] = state;
 
         // Every part starts with the one-frame hitbox map. Only part zero replaces it with
-        // the 17-frame eruption list and initializes the state-machine words below.
+        // the instruction-driven eruption list and initializes the state-machine words below.
         slot.CurrentInstruction = HibashiHitboxInstructionList;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
@@ -160,16 +160,17 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// Ports activity instructions $A6:8E13-$8F45. The 16 commands differ only by their
+    /// Ports activity instructions $A6:8E13-$8FBD. The 22 commands differ only by their
     /// direct word-table index; frame zero additionally restores the fixed eight-pixel X
     /// radius. Reading both tables from the cartridge keeps their shrinking final radii
     /// inspectable without duplicating ROM data as host constants.
     /// </summary>
     private void ApplyHibashiActivityFrame(RoomEnemySlot graphics, int frameIndex)
     {
-        if ((uint)frameIndex >= 16)
+        if ((uint)frameIndex >= 22)
             throw new ArgumentOutOfRangeException(nameof(frameIndex));
 
+        LastHibashiActivityFrameIndex = frameIndex;
         HibashiEnemyState state = RequireHibashiState(graphics);
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
         int tableOffset = frameIndex * 2;

@@ -100,6 +100,10 @@ public sealed partial class RoomEnemySystem
                 state.RequestedInstructionIndex++;
                 InstallRequestedSkreeInstruction(slot, state);
                 state.Function = SkreeEnemyFunction.Diving;
+                // `$A3:C70F` queues library-two sound $5B on the exact frame the wind-up
+                // instruction releases the dive. Publishing it as a frame event retains
+                // native timing without coupling enemy AI to a particular audio backend.
+                LastSkreeSoundEffect = 0x005b;
                 return;
 
             case SkreeEnemyFunction.Diving:
@@ -133,6 +137,8 @@ public sealed partial class RoomEnemySystem
             slot.InstructionTimer = 1;
             slot.Timer = 0;
             state.Function = SkreeEnemyFunction.Burrowing;
+            // The floor collision has its own distinct impact/burrow request at `$A3:C771`.
+            LastSkreeSoundEffect = 0x005c;
             return;
         }
 

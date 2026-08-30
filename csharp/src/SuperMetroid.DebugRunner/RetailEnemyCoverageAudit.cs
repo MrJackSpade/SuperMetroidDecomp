@@ -48,6 +48,7 @@ internal static class RetailEnemyCoverageAudit
             [0xd37f] = "Maridia Large Snail",
             [0xd3ff] = "GRipper",
             [0xd43f] = "Ripper II",
+            [0xd47f] = "Ripper",
             [0xd4bf] = "Dragon",
             [0xd4ff] = "Growing shutter",
             [0xd53f] = "Shootable vertical shutter",

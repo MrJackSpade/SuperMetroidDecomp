@@ -89,9 +89,17 @@ public sealed partial class RoomEnemySystem
     public ushort? LastHopperSoundEffect { get; private set; }
     public ushort? LastYardSoundEffect { get; private set; }
     public ushort? LastMetareeSoundEffect { get; private set; }
+    public ushort? LastSkreeSoundEffect { get; private set; }
     public ushort? LastAlcoonSoundEffect { get; private set; }
     public ushort? LastKzanSoundEffect { get; private set; }
     public ushort? LastHibashiSoundEffect { get; private set; }
+
+    /// <summary>
+    /// Zero-based index of the bank-$A6 fire-geyser shape command executed this frame.
+    /// This mirrors an instruction-dispatch event rather than inventing persistent enemy
+    /// state; <see langword="null"/> means no shape command ran during the current frame.
+    /// </summary>
+    public int? LastHibashiActivityFrameIndex { get; private set; }
 
     /// <summary>Last library-three sound requested by an attached Beetom this frame.</summary>
     public ushort? LastBeetomSoundEffect { get; private set; }
@@ -248,6 +256,8 @@ public sealed partial class RoomEnemySystem
         ResetElevatorRoomActors();
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
+        LastHibashiActivityFrameIndex = null;
+        LastSkreeSoundEffect = null;
         LastNuclearWaffleSoundEffect = null;
         LastFakeKraidSoundEffect = null;
         LastFakeKraidDropRequest = null;
@@ -466,6 +476,7 @@ public sealed partial class RoomEnemySystem
         LastHopperSoundEffect = null;
         LastYardSoundEffect = null;
         LastMetareeSoundEffect = null;
+        LastSkreeSoundEffect = null;
         LastAlcoonSoundEffect = null;
         LastFuneNamiheSoundEffect = null;
         LastKagoBugSoundEffect = null;
@@ -473,6 +484,7 @@ public sealed partial class RoomEnemySystem
         ResetMagdolliteFrameEvents();
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
+        LastHibashiActivityFrameIndex = null;
         LastNuclearWaffleSoundEffect = null;
         LastFakeKraidSoundEffect = null;
         LastFakeKraidDropRequest = null;
@@ -2673,25 +2685,17 @@ public sealed partial class RoomEnemySystem
                 case 0x8f1d when slot.EnemyDefinitionPointer == HibashiDefinition:
                 case 0x8f31 when slot.EnemyDefinitionPointer == HibashiDefinition:
                 case 0x8f45 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                    ApplyHibashiActivityFrame(slot, word switch
-                    {
-                        0x8e13 => 0,
-                        0x8e2d => 1,
-                        0x8e41 => 2,
-                        0x8e55 => 3,
-                        0x8e69 => 4,
-                        0x8e7d => 5,
-                        0x8e91 => 6,
-                        0x8ea5 => 7,
-                        0x8eb9 => 8,
-                        0x8ecd => 9,
-                        0x8ee1 => 10,
-                        0x8ef5 => 11,
-                        0x8f09 => 12,
-                        0x8f1d => 13,
-                        0x8f31 => 14,
-                        _ => 15,
-                    });
+                case 0x8f59 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8f6d when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8f81 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8f95 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8fa9 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case 0x8fbd when slot.EnemyDefinitionPointer == HibashiDefinition:
+                    // These 22 bank-$A6 routines are laid out at an exact $14-byte stride.
+                    // Each routine selects the correspondingly indexed Y-offset/radius pair;
+                    // deriving that index from the executed ROM address keeps the dispatcher
+                    // visibly tied to native layout and avoids another 22-arm magic mapping.
+                    ApplyHibashiActivityFrame(slot, (word - 0x8e13) / 0x14);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0x8fd1 when slot.EnemyDefinitionPointer == HibashiDefinition:

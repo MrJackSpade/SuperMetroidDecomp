@@ -114,6 +114,12 @@ if (args.Length >= 2 && args[0] == "--retail-enemy-execution-audit")
     return RetailEnemyExecutionAudit.Run(executionRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--retail-enemy-lifecycle-audit")
+{
+    string lifecycleRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailEnemyExecutionAudit.RunLifecycle(lifecycleRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--dead-torizo-audit")
 {
     string deadTorizoRomPath = string.Join(' ', args[1..]).Trim('"');
@@ -124,6 +130,12 @@ if (args.Length >= 2 && args[0] == "--shitroid-audit")
 {
     string shitroidRomPath = string.Join(' ', args[1..]).Trim('"');
     return ShitroidAudit.Run(shitroidRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--hibashi-audit")
+{
+    string hibashiRomPath = string.Join(' ', args[1..]).Trim('"');
+    return HibashiAudit.Run(hibashiRomPath);
 }
 
 if (args.Length >= 2 && args[0] == "--rinka-audit")
@@ -496,89 +508,16 @@ if (args.Length >= 2 && args[0] == "--norfair-ninja-pirate-audit")
     return NinjaSpacePirateAudit.Run(ninjaPirateRomPath);
 }
 
-// Loads the normal, pre-escape Parlor state directly from the retail header. This keeps the
-// first ordinary Zebes enemy family independently auditable without walking the frontend,
-// while still sourcing its population, graphics, level collision, and instruction lists
-// from the user's private cartridge image.
 if (args.Length >= 2 && args[0] == "--parlor-awake-audit")
 {
     string parlorRomPath = string.Join(' ', args[1..]).Trim('"');
-    SuperMetroidAddressSpace parlorBus = SuperMetroidAddressSpace.LoadRetailRom(parlorRomPath);
-    var awakeEvents = new byte[] { 1 }; // Event zero selects room state $8F:932E.
-    CartridgeRoomHeader parlorRoom = CartridgeRoomHeader.Load(
-        parlorBus,
-        0x92fd,
-        new RoomStateSelectionContext(awakeEvents, 0, false, false));
-    CartridgeRoomAssets parlorAssets = CartridgeRoomAssets.Load(parlorBus, parlorRoom);
-    var awakeParlorVram = new SnesVram();
-    var awakeParlorCgram = new SnesCgram();
-    parlorAssets.LoadGraphics(awakeParlorVram, awakeParlorCgram);
-    var awakeParlorEnemies = new RoomEnemySystem();
-    awakeParlorEnemies.Load(
-        parlorBus,
-        parlorRoom.State.EnemyPopulationPointer,
-        parlorRoom.State.EnemyTilesetPointer,
-        awakeParlorVram,
-        awakeParlorCgram,
-        () => 0x1234);
+    return SkreeAudit.Run(parlorRomPath);
+}
 
-    int zoomerCount = awakeParlorEnemies.Slots.Count(slot => slot.EnemyDefinitionPointer == 0xdcff);
-    int skreeCount = awakeParlorEnemies.Slots.Count(slot => slot.EnemyDefinitionPointer == 0xdb7f);
-    int ripperCount = awakeParlorEnemies.Slots.Count(slot => slot.EnemyDefinitionPointer == 0xd47f);
-    if (parlorRoom.State.Pointer != 0x932e || awakeParlorEnemies.EnemyCount != 16 ||
-        zoomerCount != 11 || skreeCount != 3 || ripperCount != 2)
-    {
-        throw new InvalidDataException(
-            $"Awake Parlor selected state ${parlorRoom.State.Pointer:X4} with " +
-            $"{awakeParlorEnemies.EnemyCount} enemies: Zoomer={zoomerCount}, " +
-            $"Skree={skreeCount}, Ripper={ripperCount}.");
-    }
-
-    var parlorSamus = new SamusState
-    {
-        Health = 99,
-        XPosition = 0x02be,
-        YPosition = 0x0080,
-    };
-    ushort firstZoomerStartX = awakeParlorEnemies.Slots[0].XPosition;
-    bool sawSkreeDive = false;
-    bool sawSkreeParticles = false;
-    for (int frame = 0; frame < 180; frame++)
-    {
-        awakeParlorEnemies.StepFrame(
-            cameraX: 0x0200,
-            cameraY: 0,
-            timeIsFrozen: false,
-            parlorSamus,
-            level: parlorAssets.LevelData);
-        awakeParlorEnemies.StepEnemyProjectiles(
-            parlorAssets.LevelData,
-            parlorSamus,
-            cameraX: 0x0200,
-            cameraY: 0);
-        sawSkreeDive |= awakeParlorEnemies.SkreeStates.Any(
-            state => state?.Function is SkreeEnemyFunction.Diving or SkreeEnemyFunction.Burrowing);
-        sawSkreeParticles |= awakeParlorEnemies.EnemyProjectiles.Any(
-            projectile => projectile.Kind is >= RoomEnemyProjectileKind.SkreeParticleDownRight and
-                <= RoomEnemyProjectileKind.SkreeParticleUpLeft);
-    }
-
-    CrawlerEnemyState firstZoomer = awakeParlorEnemies.CrawlerStates[0]
-        ?? throw new InvalidDataException("Awake Parlor slot zero did not create crawler state.");
-    if (firstZoomer.Function == CrawlerEnemyFunction.InstructionPending ||
-        awakeParlorEnemies.Slots[0].XPosition == firstZoomerStartX ||
-        !sawSkreeDive || !sawSkreeParticles)
-    {
-        throw new InvalidDataException(
-            $"Awake Parlor AI did not advance: Zoomer=$A3:{(ushort)firstZoomer.Function:X4} " +
-            $"X=${firstZoomerStartX:X4}->${awakeParlorEnemies.Slots[0].XPosition:X4}, " +
-            $"SkreeDive={sawSkreeDive}, particles={sawSkreeParticles}.");
-    }
-
-    Console.WriteLine(
-        $"Awake Parlor audit passed: 11 Zoomers, three Skrees, and two Rippers loaded; " +
-        $"crawler movement, Skree dive/burrow, and shared bank-$86 debris advanced for 180 frames.");
-    return 0;
+if (args.Length >= 2 && args[0] == "--ripper-audit")
+{
+    string ripperRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RipperAudit.Run(ripperRomPath);
 }
 
 // The next normal traversal room after Parlor contains only the shared fly family. Audit

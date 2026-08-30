@@ -25,8 +25,24 @@ internal static class RetailEnemyExecutionAudit
 {
     private const int RoomBank = 0x8f0000;
     private const int EnemyPopulationBank = 0xa10000;
+    private const int LifecycleFramesPerView = 512;
 
-    public static int Run(string romPath)
+    public static int Run(string romPath) => Run(
+        romPath,
+        framesPerView: 1,
+        freshLoadPerView: false);
+
+    /// <summary>
+    /// Runs every authored camera view from a fresh population for long enough to cross
+    /// ordinary idle, movement, animation, and attack timers. Unlike the one-frame smoke
+    /// gate, one view cannot mutate the starting state observed by the next view.
+    /// </summary>
+    public static int RunLifecycle(string romPath) => Run(
+        romPath,
+        framesPerView: LifecycleFramesPerView,
+        freshLoadPerView: true);
+
+    private static int Run(string romPath, int framesPerView, bool freshLoadPerView)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         string symbolPath = Path.Combine(
@@ -54,9 +70,13 @@ internal static class RetailEnemyExecutionAudit
         var definitions = new HashSet<ushort>();
         int nonEmptyStates = 0;
         int scheduledViews = 0;
+        long scheduledFrames = 0;
 
         foreach (RetailRoomState state in states)
         {
+            ushort? activeCameraX = null;
+            ushort? activeCameraY = null;
+            int activeFrame = -1;
             try
             {
                 CartridgeRoomHeader defaultRoom = CartridgeRoomHeader.Load(bus, state.RoomPointer);
@@ -77,42 +97,63 @@ internal static class RetailEnemyExecutionAudit
                 nonEmptyStates++;
                 definitions.UnionWith(stateDefinitions);
 
-                LoadedRetailState loaded = LoadState(bus, room, assets);
+                LoadedRetailState initialLoad = LoadState(bus, room, assets);
 
                 // A population can span a room several screens wide. One camera origin cannot
                 // admit every actor through $A0's processing-window test, so derive a distinct
                 // clamped view for every live slot. Reusing the loaded state preserves native
                 // multi-part ownership and avoids inventing isolated enemy records.
-                (ushort X, ushort Y)[] views = loaded.Enemies.Slots
+                (ushort X, ushort Y)[] views = initialLoad.Enemies.Slots
                     .Where(slot => slot.EnemyDefinitionPointer is not 0 and not 0xffff)
                     .Select(slot => CameraFor(room, slot))
                     .Distinct()
                     .ToArray();
 
-                foreach ((ushort cameraX, ushort cameraY) in views)
+                for (int viewIndex = 0; viewIndex < views.Length; viewIndex++)
                 {
+                    (ushort cameraX, ushort cameraY) = views[viewIndex];
+                    activeCameraX = cameraX;
+                    activeCameraY = cameraY;
+
+                    // The fast one-frame gate intentionally preserves its historical single
+                    // population load. The lifecycle gate starts each camera view from the
+                    // same cartridge-authored frame zero, retaining companion slot ordering
+                    // without allowing an earlier off-screen view to age or delete actors.
+                    LoadedRetailState loaded = !freshLoadPerView || viewIndex == 0
+                        ? initialLoad
+                        : LoadState(bus, room, assets);
+
                     // Keep Samus in the active view. Many initial state machines branch on her
                     // signed relative position; a null or wrapped far-away actor would exercise
                     // a host-only situation that retail gameplay cannot produce.
                     loaded.Samus.XPosition = unchecked((ushort)(cameraX + 128));
                     loaded.Samus.YPosition = unchecked((ushort)(cameraY + 112));
 
-                    loaded.Enemies.StepFrame(
-                        cameraX,
-                        cameraY,
-                        timeIsFrozen: false,
-                        loaded.Samus,
-                        level: assets.LevelData,
-                        samusProjectiles: loaded.SamusProjectiles,
-                        nmiFrameCounter8: unchecked((byte)scheduledViews),
-                        mode7Transform: loaded.Mode7Transform,
-                        sharedProjectiles: loaded.SharedProjectiles);
+                    for (activeFrame = 0; activeFrame < framesPerView; activeFrame++)
+                    {
+                        loaded.Enemies.StepFrame(
+                            cameraX,
+                            cameraY,
+                            timeIsFrozen: false,
+                            loaded.Samus,
+                            level: assets.LevelData,
+                            samusProjectiles: loaded.SamusProjectiles,
+                            nmiFrameCounter8: unchecked((byte)scheduledFrames),
+                            mode7Transform: loaded.Mode7Transform,
+                            sharedProjectiles: loaded.SharedProjectiles);
+                        scheduledFrames++;
+                    }
                     scheduledViews++;
                 }
             }
             catch (Exception exception)
             {
-                failures.Add(new RetailExecutionFailure(state, exception));
+                failures.Add(new RetailExecutionFailure(
+                    state,
+                    activeCameraX,
+                    activeCameraY,
+                    activeFrame,
+                    exception));
             }
         }
 
@@ -129,7 +170,8 @@ internal static class RetailEnemyExecutionAudit
                 {
                     Console.Error.WriteLine(
                         $"    room/state $8F:{failure.State.RoomPointer:X4}/" +
-                        $"${failure.State.StatePointer:X4} {failure.State.Symbol}");
+                        $"${failure.State.StatePointer:X4} {failure.State.Symbol}" +
+                        FormatFailureLocation(failure));
                 }
                 if (group.Count() > 12)
                     Console.Error.WriteLine($"    ... and {group.Count() - 12} more states");
@@ -137,12 +179,22 @@ internal static class RetailEnemyExecutionAudit
             return 1;
         }
 
+        string completion = framesPerView == 1
+            ? "completed their first scheduled frame"
+            : $"completed {framesPerView} fresh-load frames each ({scheduledFrames} total frames)";
         Console.WriteLine(
             $"Retail enemy execution audit passed: {states.Length} named room states, " +
             $"{nonEmptyStates} non-empty states, {populations.Count} population pointers, " +
             $"{definitions.Count} definitions, and {scheduledViews} authored enemy views " +
-            "loaded and completed their first scheduled frame.");
+            $"loaded and {completion}.");
         return 0;
+    }
+
+    private static string FormatFailureLocation(RetailExecutionFailure failure)
+    {
+        if (failure.CameraX is null || failure.CameraY is null)
+            return string.Empty;
+        return $" view=({failure.CameraX:X4},{failure.CameraY:X4}) frame={failure.Frame}";
     }
 
     private static LoadedRetailState LoadState(
@@ -282,6 +334,9 @@ internal static class RetailEnemyExecutionAudit
 
     private sealed record RetailExecutionFailure(
         RetailRoomState State,
+        ushort? CameraX,
+        ushort? CameraY,
+        int Frame,
         Exception Exception);
 
     private sealed record LoadedRetailState(

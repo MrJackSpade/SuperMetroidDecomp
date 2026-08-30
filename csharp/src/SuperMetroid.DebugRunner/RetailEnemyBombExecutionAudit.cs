@@ -292,6 +292,22 @@ internal static partial class RetailEnemyExecutionAudit
             (0xebbf, 0xa8, 0xf701) => NormalBombAuditBehavior.PrivateCommonDamage,
             (0xe0ff, 0xa6, 0x9c39) => NormalBombAuditBehavior.PrivateCommonDamage,
 
+            // Every non-gold bank-$B2 Pirate component callback ultimately jumps to normal
+            // Pirate shot handling for a family-$0500 bomb. Gold Ninja is the sole identity
+            // check: both of its authored component callbacks return after the collision
+            // mark because normal bombs sort after Power Bomb family $0300.
+            (0xf353, 0xb2, 0x8779) => NormalBombAuditBehavior.PrivateCommonDamage,
+            (0xf413, 0xb2, 0x8779) => NormalBombAuditBehavior.PrivateCommonDamage,
+            (0xf453, 0xb2, 0x8779) => NormalBombAuditBehavior.PrivateCommonDamage,
+            (0xf493, 0xb2, 0x8779) => NormalBombAuditBehavior.PrivateCommonDamage,
+            (0xf613, 0xb2, 0x8779) => NormalBombAuditBehavior.PrivateCommonDamage,
+            (0xf653, 0xb2, 0x8779) => NormalBombAuditBehavior.PrivateCommonDamage,
+            (0xf693, 0xb2, 0x8779) => NormalBombAuditBehavior.PrivateCommonDamage,
+            (0xf6d3, 0xb2, 0x8779) => NormalBombAuditBehavior.PrivateCommonDamage,
+            (0xf713, 0xb2, 0x8779) => NormalBombAuditBehavior.PrivateCommonDamage,
+            (0xf753, 0xb2, 0x8779) => NormalBombAuditBehavior.PrivateCommonDamage,
+            (0xf793, 0xb2, 0x8779) => NormalBombAuditBehavior.PrivateCommonDamage,
+
             // These platform callbacks react without entering vulnerability damage.
             (0xd53f, 0xa2, 0xf0a2) => NormalBombAuditBehavior.PrivateReactionOnly,
             (0xd5ff, 0xa2, 0xf0a2) => NormalBombAuditBehavior.PrivateReactionOnly,
@@ -304,6 +320,7 @@ internal static partial class RetailEnemyExecutionAudit
             (0xedff, 0xa9, 0xdcf8) => NormalBombAuditBehavior.PrivateReactionOnly,
             (0xee3f, 0xa9, 0xdd08) => NormalBombAuditBehavior.PrivateReactionOnly,
             (0xee7f, 0xa9, 0xdd18) => NormalBombAuditBehavior.PrivateReactionOnly,
+            (0xf593, 0xb2, 0x8779) => NormalBombAuditBehavior.PrivateReactionOnly,
 
             // Spark and the Blue Brinstar face block explicitly undo bank $A0's direction
             // bit-$10 collision mark and never enter vulnerability damage.
@@ -320,6 +337,9 @@ internal static partial class RetailEnemyExecutionAudit
             (0xe27f, 0xa6, 0xfdac) => NormalBombAuditBehavior.FocusedOnly,
             (0xde3f, 0xa5, 0x95f0) => NormalBombAuditBehavior.FocusedOnly,
             (0xdf3f, 0xa5, 0xed5a) => NormalBombAuditBehavior.FocusedOnly,
+            (0xddbf, 0xa4, 0x0000) => NormalBombAuditBehavior.FocusedOnly,
+            (0xeebf, 0xa9, 0xf842) => NormalBombAuditBehavior.FocusedOnly,
+            (0xf293, 0xb3, 0xa016) => NormalBombAuditBehavior.FocusedOnly,
             _ => NormalBombAuditBehavior.Unsupported,
         };
     }

@@ -38,7 +38,8 @@ internal static class CrocomireAudit
         Console.WriteLine(
             "Crocomire audit passed: retail body/tongue records, palette/list setup, " +
             "extended-map wake animation, four-pixel instruction movement, nine-shot " +
-            "projectile cadence/vector setup, charged-beam mouth push, and the retail " +
+            "projectile cadence/vector setup, charged-beam and normal-bomb mouth reactions, " +
+            "and the retail " +
             "power-bomb vulnerability gate agreed; bridge collapse, both melting passes, " +
             "skeleton wall break, spike debris, item drop, and boss completion also ran " +
             "end-to-end through the cartridge state graph.");
@@ -219,27 +220,11 @@ internal static class CrocomireAudit
         CartridgeRoomAssets assets)
     {
         LoadedCrocomire mouth = Load(bus, room, assets);
-        Step(mouth);
-        Step(mouth);
         CrocomireEnemyState mouthState = RequireState(mouth);
-        ushort mouthX = 0;
-        ushort mouthY = 0;
-        bool foundMouth = false;
-        for (int frame = 0; frame < 360 && !foundMouth; frame++)
-        {
-            foundMouth = FindHitboxCenter(
-                bus,
-                mouthState.Body,
-                MouthShotCallback,
-                out mouthX,
-                out mouthY);
-            if (!foundMouth)
-                Step(mouth);
-        }
-        if (!foundMouth)
-        {
-            throw new InvalidDataException("Current Crocomire map contains no mouth hitbox.");
-        }
+        (ushort mouthX, ushort mouthY) = AdvanceUntilHitbox(
+            bus,
+            mouth,
+            MouthShotCallback);
 
         var projectiles = new SamusProjectileSystem();
         var shared = new SamusBombProjectileSystem();
@@ -266,6 +251,56 @@ internal static class CrocomireAudit
                 $"Crocomire charged mouth hit failed: hits={hits}, steps=" +
                 $"{mouthState.StepCounter}, flags=${mouthState.FightFlags:X4}, " +
                 $"flash={mouthState.Body.FlashTimer}.");
+        }
+
+        LoadedCrocomire normalBomb = Load(bus, room, assets);
+        CrocomireEnemyState normalBombState = RequireState(normalBomb);
+        (ushort bombX, ushort bombY) = AdvanceUntilHitbox(
+            bus,
+            normalBomb,
+            MouthShotCallback);
+        RoomEnemySlot normalBombBody = normalBombState.Body;
+        ushort healthBeforeBomb = normalBombBody.Health;
+        ushort stepsBeforeBomb = normalBombState.StepCounter;
+        ushort flagsBeforeBomb = normalBombState.FightFlags;
+        ushort timerBeforeBomb = normalBombState.ReactionTimer;
+        ushort flashBeforeBomb = normalBombBody.FlashTimer;
+
+        // `$A4:BA05` treats family $0500 as a zero-step mouth hit. It installs the
+        // fourteen-frame hurt flash, but must not apply vulnerability damage or publish
+        // Crocomire's beam/missile push reaction.
+        var bombProjectiles = new SamusBombProjectileSystem();
+        var ordinaryProjectiles = new SamusProjectileSystem();
+        SamusBombProjectileSlot physicalBomb =
+            EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                bombProjectiles,
+                bombX,
+                bombY,
+                damage: 1000);
+        // Keep the probe inside the selected mouth rectangle. A large explosion radius can
+        // legitimately encounter an earlier component and dispatch that component instead.
+        physicalBomb.XRadius = 1;
+        physicalBomb.YRadius = 1;
+        int bombHits = normalBomb.Enemies.ResolveOrdinaryBombHits(
+            bombProjectiles,
+            ordinaryProjectiles,
+            normalBomb.Samus);
+        if (bombHits != 1 || (physicalBomb.Direction & 0x0010) == 0 ||
+            normalBombBody.Health != healthBeforeBomb ||
+            normalBombState.StepCounter != stepsBeforeBomb ||
+            normalBombState.FightFlags != flagsBeforeBomb ||
+            normalBombState.ReactionTimer != timerBeforeBomb ||
+            normalBombBody.InvincibilityTimer != 0 ||
+            normalBombBody.FlashTimer != unchecked((ushort)(flashBeforeBomb + 14)) ||
+            (normalBombBody.AiHandlerBits & 0x0002) == 0)
+        {
+            throw new InvalidDataException(
+                $"Crocomire normal-bomb mouth reaction failed: hits={bombHits}, " +
+                $"marked={(physicalBomb.Direction & 0x0010) != 0}, health=" +
+                $"{healthBeforeBomb}->{normalBombBody.Health}, steps/flags/timer=" +
+                $"{normalBombState.StepCounter}/${normalBombState.FightFlags:X4}/" +
+                $"{normalBombState.ReactionTimer}, flash/invinc=" +
+                $"{normalBombBody.FlashTimer}/{normalBombBody.InvincibilityTimer}.");
         }
 
         LoadedCrocomire powerBomb = Load(bus, room, assets);
@@ -484,6 +519,35 @@ internal static class CrocomireAudit
     private static CrocomireEnemyState RequireState(LoadedCrocomire loaded) =>
         loaded.Enemies.Crocomire ??
         throw new InvalidDataException("Crocomire body did not publish typed state.");
+
+    private static (ushort X, ushort Y) AdvanceUntilHitbox(
+        ISnesAddressSpace bus,
+        LoadedCrocomire loaded,
+        ushort shotCallback)
+    {
+        // The initial BADE instruction frame is empty. Wake the actor, then follow its real
+        // instruction stream until one of the currently displayed components publishes the
+        // requested callback; this keeps collision probes tied to cartridge-authored maps.
+        Step(loaded);
+        Step(loaded);
+        CrocomireEnemyState state = RequireState(loaded);
+        for (int frame = 0; frame < 360; frame++)
+        {
+            if (FindHitboxCenter(
+                    bus,
+                    state.Body,
+                    shotCallback,
+                    out ushort x,
+                    out ushort y))
+            {
+                return (x, y);
+            }
+            Step(loaded);
+        }
+
+        throw new InvalidDataException(
+            $"Crocomire displayed no hitbox with shot callback $A4:{shotCallback:X4}.");
+    }
 
     private static bool FindHitboxCenter(
         ISnesAddressSpace bus,

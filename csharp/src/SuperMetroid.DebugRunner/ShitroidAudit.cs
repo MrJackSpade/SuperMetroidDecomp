@@ -153,6 +153,37 @@ internal static class ShitroidAudit
                 $"${shitroid.XVelocity:X4}/${shitroid.YVelocity:X4}.");
         }
 
+        // Bomb collision selects physical projectile slots five through nine, but Shitroid's
+        // callback still reads aim from ordinary slot zero. Keep the just-fired missile in
+        // that slot as a known coordinate source and prove that the bomb's own damage drives
+        // another recoil without entering health damage or generic enemy death.
+        ushort healthBeforeBomb = shitroidSlot.Health;
+        ushort xVelocityBeforeBomb = shitroid.XVelocity;
+        ushort yVelocityBeforeBomb = shitroid.YVelocity;
+        SamusBombProjectileSlot normalBomb =
+            EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                loaded.SharedProjectiles,
+                shitroidSlot.XPosition,
+                shitroidSlot.YPosition,
+                damage: 100);
+        int shitroidBombHits = loaded.Enemies.ResolveOrdinaryBombHits(
+            loaded.SharedProjectiles,
+            loaded.Shots,
+            loaded.Samus);
+        if (shitroidBombHits != 1 || (normalBomb.Direction & 0x0010) == 0 ||
+            shitroidSlot.Health != healthBeforeBomb ||
+            shitroidSlot.Properties.HasAny(EnemyProperties.Deleted) ||
+            (shitroid.XVelocity == xVelocityBeforeBomb &&
+             shitroid.YVelocity == yVelocityBeforeBomb))
+        {
+            throw new InvalidDataException(
+                $"Shitroid normal-bomb recoil mismatch: hits={shitroidBombHits}, " +
+                $"direction=${normalBomb.Direction:X4}, health=" +
+                $"{healthBeforeBomb}->{shitroidSlot.Health}, velocity=" +
+                $"${xVelocityBeforeBomb:X4}/${yVelocityBeforeBomb:X4}->" +
+                $"${shitroid.XVelocity:X4}/${shitroid.YVelocity:X4}.");
+        }
+
         // One contact changes hover to pursuit. On the next frame, placing Samus exactly at
         // the latch target makes `$F789`'s authored exact-arrival path begin draining.
         PositionSamusAtShitroidLatchTarget(loaded.Samus, shitroidSlot);
@@ -321,7 +352,8 @@ internal static class ShitroidAudit
         Console.WriteLine(
             $"Shitroid audit passed in {frameCounter} actor frames: the exact eleven-entry " +
             "retail population loaded; live sidehopper damage, Shitroid entrance/feed/" +
-            "palette/chase/latch/drain/release/recoil/power-bomb immunity/exit, both wall " +
+            "palette/chase/latch/drain/release/shot-and-bomb recoil/power-bomb immunity/" +
+            "exit, both wall " +
             "requests, all ten corpse graphics variants, solid contact, touch/shot " +
             "callbacks and retail power-bomb immunity, " +
             "shared row scheduling, dust, VRAM transfers, and terminal states completed.");

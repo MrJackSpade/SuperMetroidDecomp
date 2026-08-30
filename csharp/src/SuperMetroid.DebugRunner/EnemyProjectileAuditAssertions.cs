@@ -10,6 +10,32 @@ using SuperMetroid.Core.Rooms;
 internal static class EnemyProjectileAuditAssertions
 {
     /// <summary>
+    /// Arms one physical slot in the exact timer-zero family-$0500 state consumed by
+    /// <c>EnemyBombCollHandler</c>. Focused audits supply only position and damage; keeping
+    /// the shared collision radii, active sentinel, and explosion state here prevents each
+    /// enemy-family test from inventing a subtly different synthetic bomb fixture.
+    /// </summary>
+    public static SamusBombProjectileSlot ArmExplodingNormalBomb(
+        SamusBombProjectileSystem bombs,
+        ushort x,
+        ushort y,
+        ushort damage = 100)
+    {
+        ArgumentNullException.ThrowIfNull(bombs);
+        SamusBombProjectileSlot bomb = bombs.Slots[0];
+        bomb.Type = SamusBombProjectileSystem.NormalBombType;
+        bomb.Damage = damage;
+        bomb.XPosition = x;
+        bomb.YPosition = y;
+        bomb.XRadius = 24;
+        bomb.YRadius = 24;
+        bomb.InstructionPointer = 0xa06b;
+        bomb.InstructionTimer = 1;
+        bomb.BombTimer = 0;
+        return bomb;
+    }
+
+    /// <summary>
     /// Isolates one naturally initialized projectile and proves the complete common
     /// $A0:A306 Samus-contact tail: literal damage, invincibility, knockback, cartridge
     /// touch-list installation, and property-$4000 persistence/deletion.

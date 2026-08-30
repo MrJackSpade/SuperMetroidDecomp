@@ -940,7 +940,7 @@ public sealed partial class RoomEnemySystem
                         projectile.SlotIndex,
                         (enemy.Properties & 0x1000) != 0 ||
                             (projectile.Type & 0x0008) == 0);
-                    ResolveShitroidShot(enemy, projectile, projectiles.Slots[0]);
+                    ResolveShitroidShot(enemy, projectile.Damage, projectiles.Slots[0]);
                     hitCount++;
                     break;
                 }
@@ -1129,8 +1129,9 @@ public sealed partial class RoomEnemySystem
                         projectile.SlotIndex,
                         markCollision);
                     ResolveCrocomireHitboxShot(
-                        enemy,
-                        projectile,
+                        projectile.Type,
+                        projectile.XPosition,
+                        projectile.YPosition,
                         hitboxShotAi);
                     hitCount++;
                     break;
@@ -1666,8 +1667,10 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer);
             bool usesExtendedHitboxes =
                 enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
+            bool isCrocomire = enemy.EnemyDefinitionPointer == CrocomireDefinition &&
+                enemy.Definition.ShotAiPointer == 0 && usesExtendedHitboxes;
             if ((!isMetroid && !usesCommonShotAi && !usesLiteralNoOpShotAi &&
-                    !usesTranslatedPrivateShotAi) ||
+                    !usesTranslatedPrivateShotAi && !isCrocomire) ||
                 enemy.SpritemapPointer == 0 ||
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Properties.HasAny(EnemyProperties.Deleted))
@@ -1737,7 +1740,37 @@ public sealed partial class RoomEnemySystem
                 // ordinary beam impact, the bomb is already running its explosion program;
                 // common shot AI must not replace it with a bank-$93 impact animation.
                 bomb.Direction = unchecked((ushort)(bomb.Direction | 0x0010));
-                if (enemy.EnemyDefinitionPointer is
+                if (isCrocomire && selectedShotAi != CommonNormalEnemyShotAi)
+                {
+                    // Crocomire has no header shot callback; every live component supplies
+                    // its own bank-$A4 routine. Bomb family $0500 therefore reaches the same
+                    // no-op counter, dust, or mouth reaction selected by the authored map.
+                    ResolveCrocomireHitboxShot(
+                        bomb.Type,
+                        bomb.XPosition,
+                        bomb.YPosition,
+                        selectedShotAi);
+                }
+                else if (enemy.EnemyDefinitionPointer == GoldNinjaSpacePirateDefinition &&
+                    usesExtendedHitboxes)
+                {
+                    PirateHitboxShotAction pirateAction =
+                        SelectPirateNormalBombHitboxShotAction(enemy, selectedShotAi);
+                    if (pirateAction != PirateHitboxShotAction.Ignore)
+                    {
+                        throw new InvalidDataException(
+                            "Gold Ninja normal-bomb callbacks must ignore family $0500.");
+                    }
+
+                    // Both gold-Ninja component callbacks compare family $0500 against
+                    // Power Bomb family $0300 and return immediately. The bank-$A0
+                    // extended collision walker has already marked the bomb, so this is
+                    // an accepted physical overlap without damage, impact replacement,
+                    // reflection, or the Lower-Norfair special-drop death tail.
+                    hitCount++;
+                    break;
+                }
+                else if (enemy.EnemyDefinitionPointer is
                         ShootableVerticalShutterDefinition or KamerVerticalPlatformDefinition &&
                     selectedShotAi == ShootableVerticalShutterShotAi)
                 {
@@ -1761,6 +1794,16 @@ public sealed partial class RoomEnemySystem
                             recoilOrigin.YPosition,
                             samus);
                     }
+                }
+                else if (enemy.EnemyDefinitionPointer == ShitroidDefinition &&
+                    selectedShotAi == ShitroidShotAi)
+                {
+                    // `$A9:F842` reads damage from the selected physical projectile slot,
+                    // but—peculiarly—always reads aim coordinates from ordinary slot zero.
+                    // For a bomb collision that means family-$0500 damage controls recoil
+                    // strength while whatever stale/live shot occupies slot zero controls
+                    // direction. It never enters vulnerability or health damage.
+                    ResolveShitroidShot(enemy, bomb.Damage, ordinaryProjectiles.Slots[0]);
                 }
                 else if (!selectedLiteralNoOp)
                 {
@@ -1824,6 +1867,8 @@ public sealed partial class RoomEnemySystem
                             selectedShotAi == PowampShotAi;
                         bool isZebetite = enemy.EnemyDefinitionPointer == ZebetiteDefinition &&
                             selectedShotAi == ZebetiteShotAi;
+                        bool isBotwoon = enemy.EnemyDefinitionPointer == BotwoonDefinition &&
+                            selectedShotAi == BotwoonShotAi;
 
                         // Owtch's shell accepts common damage only during its vulnerable state
                         // zero. Powered Work Robot likewise returns until Phantoon is dead.
@@ -1839,6 +1884,8 @@ public sealed partial class RoomEnemySystem
                         if (!privateCallbackRejected)
                         {
                             ushort enemyHealthBefore = enemy.Health;
+                            if (isBotwoon)
+                                RequireBotwoonState(enemy).PreviousHealth = enemyHealthBefore;
                             if (isDraygonBody)
                                 AdvanceDraygonShotAcceleration(RequireCompleteDraygonState(enemy));
                             // Rinka, Skree, and Powamp deliberately call the no-death-animation
@@ -1850,7 +1897,7 @@ public sealed partial class RoomEnemySystem
                                 bomb,
                                 runGenericDeath:
                                     !isRinka && !isSkree && !isPowamp && !isZebetite &&
-                                    !isDraygonBody && !isSporeSpawn);
+                                    !isDraygonBody && !isSporeSpawn && !isBotwoon);
 
                             if (enemy.EnemyDefinitionPointer == BabyTurtleDefinition &&
                                 selectedShotAi == BabyTurtleShotAi)
@@ -1925,6 +1972,8 @@ public sealed partial class RoomEnemySystem
                                 ResolveSporeSpawnShotAfterCommon(enemy);
                             if (isDraygonBody)
                                 ResolveDraygonReaction(enemy, samus);
+                            if (isBotwoon)
+                                ResolveBotwoonCombatAfterCommon(enemy);
                             if (enemy.EnemyDefinitionPointer == DestroyableVerticalShutterDefinition &&
                                 selectedShotAi == DestroyableVerticalShutterShotAi)
                             {
@@ -2040,7 +2089,19 @@ public sealed partial class RoomEnemySystem
         enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
             callback is DraygonShotAi or DraygonDudHitboxShotAi ||
         enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
-            callback is SporeSpawnShotAi or SporeSpawnDudHitboxShotAi;
+            callback is SporeSpawnShotAi or SporeSpawnDudHitboxShotAi ||
+        enemy.EnemyDefinitionPointer == ShitroidDefinition && callback == ShitroidShotAi ||
+        enemy.EnemyDefinitionPointer == BotwoonDefinition && callback == BotwoonShotAi ||
+        enemy.EnemyDefinitionPointer is CrocomireDefinition or CrocomireTongueDefinition &&
+            callback is CrocomireNoOpHitboxShotAi or
+                CrocomireDustHitboxShotAi or
+                CrocomireMouthShotAi or
+                CrocomireAlternateDustHitboxShotAi or
+                CrocomireHeaderTouchAi ||
+        IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
+            callback is SpacePirateShotAi or
+                GoldNinjaVulnerableHitboxShotAi or
+                GoldNinjaInvincibleHitboxShotAi;
 
     /// <summary>
     /// Compatibility entry point retained for focused Metroid tooling. Gameplay uses the
@@ -2608,6 +2669,31 @@ public sealed partial class RoomEnemySystem
         return multiplier is not (0 or 15)
             ? PirateHitboxShotAction.Normal
             : PirateHitboxShotAction.Reflect;
+    }
+
+    /// <summary>
+    /// Dispatches a family-$0500 normal bomb through the same three bank-$B2 component
+    /// callbacks as the ordinary projectile path. Non-gold Pirates always jump to normal
+    /// Pirate shot handling. Gold Ninjas return from both `$87C8` and `$883E` because a
+    /// normal bomb sorts after Power Bomb family `$0300`; consequently bombs neither damage
+    /// nor reflect from either authored body region.
+    /// </summary>
+    private static PirateHitboxShotAction SelectPirateNormalBombHitboxShotAction(
+        RoomEnemySlot enemy,
+        ushort hitboxShotAi)
+    {
+        if (hitboxShotAi is not (
+                SpacePirateShotAi or
+                GoldNinjaVulnerableHitboxShotAi or
+                GoldNinjaInvincibleHitboxShotAi))
+        {
+            throw new NotSupportedException(
+                $"Space Pirate normal-bomb hitbox AI $B2:{hitboxShotAi:X4} is not translated.");
+        }
+
+        return enemy.EnemyDefinitionPointer == GoldNinjaSpacePirateDefinition
+            ? PirateHitboxShotAction.Ignore
+            : PirateHitboxShotAction.Normal;
     }
 
     private enum PirateHitboxShotAction : byte

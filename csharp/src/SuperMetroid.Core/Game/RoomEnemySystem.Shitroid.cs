@@ -838,7 +838,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the recoil-only shot callback at <c>$A9:F842</c>.</summary>
     private void ResolveShitroidShot(
         RoomEnemySlot slot,
-        SamusProjectileSlot collisionProjectile,
+        ushort collisionDamage,
         SamusProjectileSlot slotZeroProjectile)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
@@ -849,7 +849,7 @@ public sealed partial class RoomEnemySystem
         byte angle = unchecked((byte)-SamusGrappleMovement.CalculateAngleFromXY(
             unchecked((short)(slotZeroProjectile.XPosition - slot.XPosition)),
             unchecked((short)(slotZeroProjectile.YPosition - slot.YPosition))));
-        ushort magnitude = unchecked((ushort)(8 * collisionProjectile.Damage));
+        ushort magnitude = unchecked((ushort)(8 * collisionDamage));
         if (magnitude >= 0x00f0)
             magnitude = 0x00f0;
         state.XVelocity = unchecked((ushort)(

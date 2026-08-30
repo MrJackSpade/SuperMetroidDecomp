@@ -5,8 +5,9 @@ public sealed partial class RoomEnemySystem
 {
     /// <summary>Dispatches $A4:B951/$B968/$BA05/$BAB4 after multibox collision.</summary>
     private void ResolveCrocomireHitboxShot(
-        RoomEnemySlot hitActor,
-        SamusProjectileSlot projectile,
+        ushort projectileType,
+        ushort projectileX,
+        ushort projectileY,
         ushort callback)
     {
         CrocomireEnemyState state = _crocomire ??
@@ -29,11 +30,16 @@ public sealed partial class RoomEnemySystem
 
             case CrocomireDustHitboxShotAi:
             case CrocomireAlternateDustHitboxShotAi:
-                SpawnCrocomireShotDust(projectile);
+                SpawnCrocomireShotDust(projectileType, projectileX, projectileY);
                 return;
 
             case CrocomireMouthShotAi:
-                ResolveCrocomireMouthShot(state, body, projectile);
+                ResolveCrocomireMouthShot(
+                    state,
+                    body,
+                    projectileType,
+                    projectileX,
+                    projectileY);
                 return;
 
             case CrocomireHeaderTouchAi:
@@ -50,7 +56,9 @@ public sealed partial class RoomEnemySystem
     private void ResolveCrocomireMouthShot(
         CrocomireEnemyState state,
         RoomEnemySlot body,
-        SamusProjectileSlot projectile)
+        ushort projectileType,
+        ushort projectileX,
+        ushort projectileY)
     {
         body.InvincibilityTimer = 0;
 
@@ -60,15 +68,15 @@ public sealed partial class RoomEnemySystem
         bool bodyLeftEdgeIsOnScreen = unchecked((short)(
             body.XPosition - body.XRadius - 256 - _crocomireCameraX)) < 0;
         ushort stepCount = 0;
-        ushort family = unchecked((ushort)(projectile.Type & 0x0f00));
+        ushort family = unchecked((ushort)(projectileType & 0x0f00));
         if (bodyLeftEdgeIsOnScreen)
         {
             if (family == 0)
             {
-                if ((projectile.Type & 0x0010) == 0)
+                if ((projectileType & 0x0010) == 0)
                 {
                     body.InstructionTimer = 8;
-                    SpawnCrocomireShotDust(projectile);
+                    SpawnCrocomireShotDust(projectileType, projectileX, projectileY);
                     return;
                 }
                 stepCount = 2;
@@ -108,14 +116,17 @@ public sealed partial class RoomEnemySystem
         body.AiHandlerBits |= 0x0002;
     }
 
-    private void SpawnCrocomireShotDust(SamusProjectileSlot projectile)
+    private void SpawnCrocomireShotDust(
+        ushort projectileType,
+        ushort projectileX,
+        ushort projectileY)
     {
-        ushort animationIndex = (projectile.Type & 0x0200) == 0
+        ushort animationIndex = (projectileType & 0x0200) == 0
             ? (ushort)6
             : (ushort)29;
         SpawnRoomGraphicsDustExplosion(
-            projectile.XPosition,
-            projectile.YPosition,
+            projectileX,
+            projectileY,
             animationIndex);
     }
 

@@ -42,7 +42,8 @@ internal static class WalkingSpacePirateAudit
             $"laser-map samples, emitted {rightAttack.SpawnedLasers + leftAttack.SpawnedLasers} " +
             "room-graphics lasers through both 2- and 4-px/frame branches with the native " +
             "immediate A050 movement and sound; projectile proximity selected both ROM " +
-            "flinch lists; body/laser contact damaged Samus; beam and power-bomb damage " +
+            "flinch lists; body/laser contact damaged Samus; beam, normal-bomb, and " +
+            "power-bomb damage " +
             "killed the actor; frozen touch was inert; grapple cancelled; and extended " +
             "spritemaps emitted OBJ pieces.");
         return 0;
@@ -565,6 +566,25 @@ internal static class WalkingSpacePirateAudit
             !shot.Pirates[0].Properties.HasAny(EnemyProperties.Deleted))
         {
             throw new InvalidDataException("Walking Pirate lethal projectile damage failed.");
+        }
+
+        LoadedPirates bomb = Load(bus, room, assets, samusX: 0x0080, samusY: 0x0040);
+        Prime(bomb, assets);
+        RoomEnemySlot bombActor = bomb.Pirates[0];
+        SamusBombProjectileSlot normalBomb =
+            EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                bomb.SharedProjectiles,
+                bombActor.XPosition,
+                bombActor.YPosition,
+                damage: 1000);
+        if (bomb.Enemies.ResolveOrdinaryBombHits(
+                bomb.SharedProjectiles, bomb.Projectiles, bomb.Samus) != 1 ||
+            (normalBomb.Direction & 0x0010) == 0 || bombActor.Health != 0 ||
+            !bombActor.Properties.HasAny(EnemyProperties.Deleted))
+        {
+            throw new InvalidDataException(
+                "Walking Pirate normal bomb did not run its selected bank-$B2 hitbox " +
+                "callback through common damage and death.");
         }
 
         LoadedPirates powerBomb = Load(bus, room, assets, samusX: 0x0080, samusY: 0x0040);

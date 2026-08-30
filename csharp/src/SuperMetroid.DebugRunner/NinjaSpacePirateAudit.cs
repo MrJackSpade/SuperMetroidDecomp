@@ -38,7 +38,7 @@ internal static class NinjaSpacePirateAudit
             "divekicks and return walks, landing dust, kick/flinch priority, palette/sound " +
             $"opcodes, {claw.SpawnedCount} left/right returning claws ({claw.MapCount} ROM " +
             $"maps), per-frame extended hitboxes, vulnerable/reflective gold armor, contact " +
-            $"damage, shot/power-bomb/grapple handling, and extended OBJ " +
+            $"damage, shot/normal-bomb/power-bomb/grapple handling, and extended OBJ " +
             $"rendering passed across {leftToRight.FunctionCount + rightToLeft.FunctionCount} " +
             "observed movement functions.");
         return 0;
@@ -449,6 +449,23 @@ internal static class NinjaSpacePirateAudit
                 "Gold ninja armor did not ignore a pre-link Super Missile exactly once.");
         }
 
+        VerifyIgnoredNormalBomb(
+            bus,
+            room,
+            assets,
+            spritemapPointer: 0x89c4,
+            xOffset: -10,
+            yOffset: -10,
+            callbackName: "$87C8 vulnerable");
+        VerifyIgnoredNormalBomb(
+            bus,
+            room,
+            assets,
+            spritemapPointer: 0x8a54,
+            xOffset: 0,
+            yOffset: 0,
+            callbackName: "$883E armored");
+
         LoadedNinjas powerBomb = Load(bus, room, assets);
         RoomEnemySlot powerBombActor = KeepOnly(powerBomb, 0);
         ushort powerBombHealth = powerBombActor.Health;
@@ -506,6 +523,43 @@ internal static class NinjaSpacePirateAudit
         clawContact.Enemies.StepEnemyProjectiles(assets.LevelData, clawContact.Samus, 0, 0, 0);
         if (clawContact.Samus.Health != 979 || claw.IsActive)
             throw new InvalidDataException("Pirate claw contact did not deal 20 damage and delete.");
+    }
+
+    private static void VerifyIgnoredNormalBomb(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets,
+        ushort spritemapPointer,
+        short xOffset,
+        short yOffset,
+        string callbackName)
+    {
+        LoadedNinjas loaded = Load(bus, room, assets);
+        RoomEnemySlot actor = KeepOnly(loaded, 0);
+        PrimeActive(loaded, assets, actor);
+        actor.SpritemapPointer = spritemapPointer;
+        ushort healthBefore = actor.Health;
+        SamusBombProjectileSlot bomb =
+            EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                loaded.SharedProjectiles,
+                unchecked((ushort)(actor.XPosition + xOffset)),
+                unchecked((ushort)(actor.YPosition + yOffset)),
+                damage: 4000);
+
+        int hits = loaded.Enemies.ResolveOrdinaryBombHits(
+            loaded.SharedProjectiles,
+            loaded.Projectiles,
+            loaded.Samus);
+        if (hits != 1 || (bomb.Direction & 0x0010) == 0 || actor.Health != healthBefore ||
+            actor.InvincibilityTimer != 0 || actor.FlashTimer != 0 ||
+            actor.Properties.HasAny(EnemyProperties.Deleted))
+        {
+            throw new InvalidDataException(
+                $"Gold ninja {callbackName} normal-bomb dispatch mismatch: hits={hits}, " +
+                $"direction=${bomb.Direction:X4}, health={healthBefore}->{actor.Health}, " +
+                $"invincibility/flash={actor.InvincibilityTimer}/{actor.FlashTimer}, " +
+                $"deleted={actor.Properties.HasAny(EnemyProperties.Deleted)}.");
+        }
     }
 
     private static LoadedNinjas Load(

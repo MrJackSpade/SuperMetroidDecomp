@@ -51,7 +51,8 @@ internal static class WallSpacePirateAudit
             $"${Math.Max(left.MaximumY, right.MaximumY):X4}; both firing/jump arcs, landing " +
             $"lists, $66/$67 sounds, {slowAttack.SpawnedLasers} lasers, native A050 " +
             "immediate motion, slow 2-px and real Pit-record fast 4-px branches passed; " +
-            "body/laser contact, frozen touch, beam, power-bomb immunity/vulnerability, " +
+            "body/laser contact, frozen touch, beam, normal-bomb callback/immunity, " +
+            "power-bomb damage/vulnerability, " +
             "grapple, and extended " +
             "spritemap rendering passed.");
         return 0;
@@ -393,16 +394,40 @@ internal static class WallSpacePirateAudit
             shotActor.VariableB != 0)
             throw new InvalidDataException("Wall Pirate lethal projectile damage failed.");
 
+        LoadedWallPirates bomb = Load(bus, room, assets, 0, 0);
+        RoomEnemySlot bombActor = KeepOnly(bomb, 0);
+        Prime(bomb, assets, bombActor);
+        SamusBombProjectileSlot normalBomb =
+            EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                bomb.SharedProjectiles,
+                bombActor.XPosition,
+                bombActor.YPosition,
+                damage: 1000);
+        if (bomb.Enemies.ResolveOrdinaryBombHits(
+                bomb.SharedProjectiles, bomb.Projectiles, bomb.Samus) != 1 ||
+            (normalBomb.Direction & 0x0010) == 0 || bombActor.Health != 20 ||
+            bombActor.InvincibilityTimer != 0 || bombActor.FlashTimer != 0 ||
+            bombActor.Properties.HasAny(EnemyProperties.Deleted))
+        {
+            throw new InvalidDataException(
+                "Wall Pirate normal bomb did not run its selected bank-$B2 hitbox " +
+                "callback through the grey variant's zero-vulnerability common path.");
+        }
+
         LoadedWallPirates powerBomb = Load(bus, room, assets, 0, 0);
         RoomEnemySlot powerBombActor = KeepOnly(powerBomb, 0);
-        if (powerBomb.Enemies.ResolveOrdinaryPowerBombHits(
-                bus, powerBombActor.XPosition, powerBombActor.YPosition, 64) != 0 ||
-            powerBombActor.Health != 20 ||
-            powerBombActor.Properties.HasAny(EnemyProperties.Deleted))
+        int powerBombHits = powerBomb.Enemies.ResolveOrdinaryPowerBombHits(
+            bus, powerBombActor.XPosition, powerBombActor.YPosition, 64);
+        if (powerBombHits != 1 || powerBombActor.Health != 0 ||
+            !powerBombActor.Properties.HasAll(
+                EnemyProperties.Deleted | EnemyProperties.ProcessOffScreen))
         {
-            // Grey wall Pirates carry reaction $8767, but their power-bomb vulnerability
-            // byte is zero. The outer collision pass therefore never calls that pointer.
-            throw new InvalidDataException("Grey wall Pirate power-bomb immunity failed.");
+            // The header's `$8767` reaction enters common power-bomb AI. Byte fifteen in
+            // the grey vulnerability record is nonzero, so its 20 health is exhausted and
+            // bank $A0 also leaves the native process-off-screen bit on the deleted actor.
+            throw new InvalidDataException(
+                $"Grey wall Pirate power-bomb damage failed: hits={powerBombHits}, " +
+                $"health={powerBombActor.Health}, properties=${(ushort)powerBombActor.Properties:X4}.");
         }
         VerifyGoldPowerBombDamage(bus);
 

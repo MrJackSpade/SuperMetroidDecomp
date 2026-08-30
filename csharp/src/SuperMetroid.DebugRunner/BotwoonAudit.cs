@@ -36,7 +36,9 @@ internal static partial class BotwoonAudit
         Console.WriteLine(
             "Botwoon audit passed: retail room/header, 13-link body, path movement, aimed " +
             "spit with exact fixed-point movement, five-map animation, off-screen disposal, " +
-            "shot pass-through and contact damage, delayed fatal traversal, staggered body fall, sixteen " +
+            "shot pass-through and contact damage, beam fatal and normal-bomb immune " +
+            "callbacks, delayed " +
+            "fatal traversal, staggered body fall, sixteen " +
             "drop requests, 192-frame death effects, boss bit, delayed music, live nine-row " +
             "crumble PLM, and already-defeated clear-wall PLM all used cartridge data.");
         return 0;
@@ -161,20 +163,39 @@ internal static partial class BotwoonAudit
         var shots = new SamusProjectileSystem();
         var bombs = new SamusBombProjectileSystem();
 
-        // Projectile collision consumes the active-enemy index list selected by EnemyMain,
-        // not the raw population array. Advance through the initial wait until the head has
-        // installed a concrete spritemap and the scheduler has published that live body.
-        for (int frame = 0;
-            frame < 4000 &&
-                (loaded.Head.SpritemapPointer is 0 or 0x8000 or 0x804d ||
-                 !loaded.Enemies.InteractiveEnemyIndexes.Contains(loaded.Head.NativeIndex));
-            frame++)
+        AdvanceUntilShootable(loaded, assets.LevelData);
+
+        // `$B3:A016` saves pre-hit health before invoking common no-death shot damage. A
+        // normal bomb reaches the same callback through physical slots five through nine,
+        // but Botwoon's cartridge vulnerability byte fourteen is zero. Prove both facts on
+        // a separate load: the saved-health write occurs, while health/death state does not.
+        LoadedBotwoon bombLoaded = Load(bus, room, assets, alreadyDefeated: false);
+        AdvanceUntilShootable(bombLoaded, assets.LevelData);
+        var bombShots = new SamusProjectileSystem();
+        var normalBombs = new SamusBombProjectileSystem();
+        bombLoaded.State.PreviousHealth = 0x1234;
+        SamusBombProjectileSlot normalBomb =
+            EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                normalBombs,
+                bombLoaded.Head.XPosition,
+                bombLoaded.Head.YPosition,
+                damage: 6000);
+        int bombHits = bombLoaded.Enemies.ResolveOrdinaryBombHits(
+            normalBombs,
+            bombShots,
+            bombLoaded.Samus);
+        if (bombHits != 1 || (normalBomb.Direction & 0x0010) == 0 ||
+            bombLoaded.State.PreviousHealth != 3000 || bombLoaded.Head.Health != 3000 ||
+            bombLoaded.Head.FlashTimer != 0 || bombLoaded.State.PendingDeath ||
+            bombLoaded.Head.Properties.HasAny(EnemyProperties.Deleted))
         {
-            StepEnemies(loaded, assets.LevelData);
+            throw new InvalidDataException(
+                $"Botwoon normal-bomb immunity mismatch: hits={bombHits}, direction=" +
+                $"${normalBomb.Direction:X4}, previous/health=" +
+                $"{bombLoaded.State.PreviousHealth}/{bombLoaded.Head.Health}, pending=" +
+                $"{bombLoaded.State.PendingDeath}, deleted=" +
+                $"{bombLoaded.Head.Properties.HasAny(EnemyProperties.Deleted)}.");
         }
-        if (loaded.Head.SpritemapPointer is 0 or 0x8000 or 0x804d ||
-            !loaded.Enemies.InteractiveEnemyIndexes.Contains(loaded.Head.NativeIndex))
-            throw new InvalidDataException("Botwoon never exposed a shootable head spritemap.");
 
         // A synthetic 3000-damage super preserves the ordinary projectile dispatcher while
         // reaching the fatal callback in one deterministic frame. Damage magnitude is only
@@ -418,6 +439,26 @@ internal static partial class BotwoonAudit
             loaded.Samus,
             cameraX: CameraX,
             cameraY: CameraY);
+    }
+
+    private static void AdvanceUntilShootable(LoadedBotwoon loaded, RoomLevelData level)
+    {
+        // Projectile and bomb collision consume the active-enemy index list selected by
+        // EnemyMain, not the raw population array. Advance through the initial wait until
+        // the head has both a concrete map and a scheduler-published interactive record.
+        for (int frame = 0;
+            frame < 4000 &&
+                (loaded.Head.SpritemapPointer is 0 or 0x8000 or 0x804d ||
+                 !loaded.Enemies.InteractiveEnemyIndexes.Contains(loaded.Head.NativeIndex));
+            frame++)
+        {
+            StepEnemies(loaded, level);
+        }
+        if (loaded.Head.SpritemapPointer is 0 or 0x8000 or 0x804d ||
+            !loaded.Enemies.InteractiveEnemyIndexes.Contains(loaded.Head.NativeIndex))
+        {
+            throw new InvalidDataException("Botwoon never exposed a shootable head spritemap.");
+        }
     }
 
     private static void ArmProjectile(

@@ -8,7 +8,7 @@ using SuperMetroid.Core.Runtime;
 /// Retail-ROM audit for Shaktool's seven linked enemy records and the three unreachable but
 /// fully-authored bank-$86 attack-circle definitions that remain in the shipped cartridge.
 /// </summary>
-internal static class ShaktoolAudit
+internal static partial class ShaktoolAudit
 {
     private const ushort RoomPointer = 0xd8c5;
     private const ushort StatePointer = 0xd8d7;
@@ -30,11 +30,14 @@ internal static class ShaktoolAudit
 
         VerifyPopulationAndDefinition(bus);
         VerifyLiveEncounter(bus, room, assets);
+        VerifyUnusedAttackCircleLifecycles(bus, room, assets);
         Console.WriteLine(
             "Shaktool audit passed: seven retail records initialized from ROM tables, " +
             "formed the aliased linked chain, moved/oriented/reversed against room terrain, " +
             "ran authored animation callbacks, rendered OBJ, dealt contact damage, deleted " +
-            "as one group on a fatal shot, and exercised all three unused attack circles.");
+            "as one group on a fatal shot, and exercised all three unused attack-circle " +
+            "definitions through exact linkage, delayed motion, animation, interaction, " +
+            "terrain disposal, and dependent teardown.");
         return 0;
     }
 
@@ -141,7 +144,7 @@ internal static class ShaktoolAudit
         if (oam.LastFinalizedSpriteCount == 0)
             throw new InvalidDataException("Shaktool emitted no OBJ pieces after movement.");
 
-        VerifyUnusedAttackListsAndCircles(bus, enemies, assets.LevelData, samus, group);
+        VerifyUnusedAttackLists(enemies, assets.LevelData, samus, group);
         VerifyContactDamage(enemies, samus, group[0]);
         VerifyFatalShot(bus, enemies, samus, group);
     }
@@ -259,8 +262,7 @@ internal static class ShaktoolAudit
         }
     }
 
-    private static void VerifyUnusedAttackListsAndCircles(
-        ISnesAddressSpace bus,
+    private static void VerifyUnusedAttackLists(
         RoomEnemySystem enemies,
         RoomLevelData level,
         SamusState samus,
@@ -289,50 +291,6 @@ internal static class ShaktoolAudit
                 $"Unused Shaktool attack lists did not move/restore the group: " +
                 $"positions={attackPositions.Count}, tail list=${group[6].CurrentInstruction:X4}.");
         }
-
-        enemies.SpawnUnusedShaktoolAttackCircles(group[3]);
-        RoomEnemyProjectileKind[] kinds =
-        [
-            RoomEnemyProjectileKind.ShaktoolAttackFrontCircle,
-            RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle,
-            RoomEnemyProjectileKind.ShaktoolAttackBackCircle,
-        ];
-        foreach (RoomEnemyProjectileKind kind in kinds)
-        {
-            RoomEnemyProjectileSlot? projectile = enemies.EnemyProjectiles
-                .SingleOrDefault(candidate => candidate.Kind == kind);
-            if (projectile is null)
-                throw new InvalidDataException($"Unused Shaktool circle ${kind:X4} did not spawn.");
-
-            byte angle = unchecked((byte)group[3].VariableD);
-            ushort expectedXVelocity = ReadWord(
-                bus,
-                0xa0b443 + angle * 2);
-            ushort expectedYVelocity = ReadWord(
-                bus,
-                0xa0b443 + (((angle - 64) & 0xff) * 2));
-            if (projectile.XVelocity != expectedXVelocity ||
-                projectile.YVelocity != expectedYVelocity)
-            {
-                throw new InvalidDataException(
-                    $"Shaktool circle ${kind:X4} velocity is " +
-                    $"${projectile.XVelocity:X4},${projectile.YVelocity:X4}; expected " +
-                    $"${expectedXVelocity:X4},${expectedYVelocity:X4}.");
-            }
-        }
-
-        var maps = new HashSet<ushort>();
-        for (int frame = 0; frame < 16; frame++)
-        {
-            enemies.StepEnemyProjectiles(level, samus);
-            foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles)
-            {
-                if (projectile.IsActive)
-                    maps.Add(projectile.SpritemapPointer);
-            }
-        }
-        if (maps.Count < 2)
-            throw new InvalidDataException("Unused Shaktool circles did not advance ROM maps.");
     }
 
     private static void VerifyContactDamage(

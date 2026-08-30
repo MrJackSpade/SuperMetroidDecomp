@@ -10,9 +10,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort FallingSparkInstructionList = 0xf353;
     private const ushort FallingSparkFloorInstructionList = 0xf363;
-    private const ushort FallingSparkPreInstruction = 0xf3f0;
     private byte _standaloneEnemyProjectileFrameCounter8;
 
     /// <summary>Allocates and initializes enemy projectile <c>$86:F498</c>.</summary>
@@ -22,7 +20,14 @@ public sealed partial class RoomEnemySystem
         if (projectile is null)
             return;
 
-        projectile.Kind = RoomEnemyProjectileKind.FallingSpark;
+        // The common spawn routine first copies definition $F498, including its blank
+        // startup map, $F3F0 pre-instruction, $F353 list, radii, property flags, damage,
+        // and interaction behavior. Initializer $F391 then owns only the source position,
+        // aliased motion words, and RNG-selected horizontal delta below.
+        InitializeEnemyProjectileFromDefinition(
+            projectile,
+            RoomEnemyProjectileKind.FallingSpark,
+            unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
         projectile.XPosition = source.XPosition;
         projectile.XSubposition = source.XSubposition;
         projectile.YPosition = unchecked((ushort)(source.YPosition + 8));
@@ -39,16 +44,6 @@ public sealed partial class RoomEnemySystem
         projectile.Variable1 = ReadWord(_bus!, 0x86f3d4 + randomTableOffset);
         projectile.Variable0 = ReadWord(_bus!, 0x86f3d6 + randomTableOffset);
 
-        projectile.InstructionPointer = FallingSparkInstructionList;
-        projectile.InstructionTimer = 1;
-        projectile.PreInstruction = FallingSparkPreInstruction;
-        projectile.GraphicsIndex = unchecked((ushort)(
-            source.VramTilesIndex | source.PaletteIndex));
-        projectile.XRadius = 4;
-        projectile.YRadius = 4;
-        projectile.Damage = 5;
-        projectile.InvincibilityFrames = 96;
-        projectile.CanDamageSamus = true;
     }
 
     /// <summary>Ports pre-instruction <c>$86:F3F0</c> without renaming its aliased fields.</summary>

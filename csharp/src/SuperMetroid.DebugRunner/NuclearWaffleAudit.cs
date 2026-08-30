@@ -26,7 +26,8 @@ internal static class NuclearWaffleAudit
 
         Console.WriteLine(
             "Nuclear Waffle audit passed: untouched two-Puromi Norfair population loaded; " +
-            $"head/body/sprite-object animations each covered eight ROM maps, {sweep.WaitFrames} " +
+            $"all eight $BBC7 links loaded exact definition/slot state; head/body/" +
+            $"sprite-object animations each covered eight ROM maps, {sweep.WaitFrames} " +
             $"waiting frames and {sweep.SweepFrames} articulated sweep frames moved all " +
             $"seven alternating links, turn overlays and SFX executed, {sweep.ObjPieces} OBJ " +
             "pieces rendered, head contact dealt 50 damage, four persistent projectile links " +
@@ -116,6 +117,63 @@ internal static class NuclearWaffleAudit
                     $"Nuclear Waffle {actorIndex} did not allocate its four damaging " +
                     "projectile and three sprite-object links from the cartridge definitions.");
             }
+
+            for (int segmentIndex = 0;
+                 segmentIndex < state.ProjectileSegments.Length;
+                 segmentIndex++)
+            {
+                VerifyBodySegmentDefinition(
+                    bus,
+                    actor,
+                    state,
+                    actorIndex,
+                    segmentIndex,
+                    state.ProjectileSegments[segmentIndex]!);
+            }
+        }
+    }
+
+    private static void VerifyBodySegmentDefinition(
+        ISnesAddressSpace bus,
+        RoomEnemySlot owner,
+        NuclearWaffleEnemyState state,
+        int actorIndex,
+        int segmentIndex,
+        RoomEnemyProjectileSlot segment)
+    {
+        int definition = 0x860000 | (ushort)RoomEnemyProjectileKind.NuclearWaffleBody;
+        ushort packedRadii = ReadNuclearWaffleAuditWord(bus, definition + 6);
+        ushort properties = ReadNuclearWaffleAuditWord(bus, definition + 8);
+        int expectedSlot = 17 - actorIndex * 4 - segmentIndex;
+        if (ReadNuclearWaffleAuditWord(bus, definition) != 0xbb92 ||
+            segment.SlotIndex != expectedSlot ||
+            segment.PreInstruction != ReadNuclearWaffleAuditWord(bus, definition + 2) ||
+            segment.PreInstruction != 0xbbc6 ||
+            segment.InstructionPointer != ReadNuclearWaffleAuditWord(bus, definition + 4) ||
+            segment.InstructionPointer != 0xbb5e || segment.InstructionTimer != 1 ||
+            segment.SpritemapPointer != 0x8000 ||
+            segment.XRadius != unchecked((byte)packedRadii) ||
+            segment.YRadius != unchecked((byte)(packedRadii >> 8)) ||
+            segment.Damage != (properties & 0x0fff) || segment.Damage != 64 ||
+            segment.InvincibilityFrames != 96 || !segment.CanDamageSamus ||
+            !segment.PersistsOnSamusContact || !segment.BlocksSamusProjectiles ||
+            segment.CollisionOption != 1 || segment.GraphicsIndex != state.GraphicsIndex ||
+            segment.XPosition != state.InitialHeadX ||
+            segment.XSubposition != owner.XSubposition ||
+            segment.YPosition != state.InitialHeadY ||
+            segment.YSubposition != owner.YSubposition ||
+            segment.Variable0 != 0 || segment.Variable1 != 0)
+        {
+            throw new InvalidDataException(
+                $"Nuclear Waffle {actorIndex} body link {segmentIndex} definition " +
+                $"$86:BBC7 mismatch: slot=${segment.SlotIndex * 2:X2}, position=" +
+                $"(${segment.XPosition:X4}.${segment.XSubposition:X4}," +
+                $"${segment.YPosition:X4}.${segment.YSubposition:X4}), list/pre/map=" +
+                $"${segment.InstructionPointer:X4}/${segment.PreInstruction:X4}/" +
+                $"${segment.SpritemapPointer:X4}, radii={segment.XRadius}/" +
+                $"{segment.YRadius}, damage={segment.Damage}, option=" +
+                $"{segment.CollisionOption}, flags={segment.CanDamageSamus}/" +
+                $"{segment.PersistsOnSamusContact}/{segment.BlocksSamusProjectiles}.");
         }
     }
 
@@ -268,8 +326,23 @@ internal static class NuclearWaffleAudit
             projectiles,
             sharedProjectiles,
             shotLoad.Samus);
-        if (headHits != 0 || !projectiles.Slots[0].IsActive || shotHead.Health != 40)
-            throw new InvalidDataException("Nuclear Waffle no-op head shot AI consumed a beam.");
+        // The bank-$A0 collision walker counts this overlap and performs its universal
+        // projectile prelude before dispatching the head's literal RTL shot callback.
+        // Consequently the beam survives with direction bit $10 set, its animation list
+        // remains untouched, and the indestructible head takes no damage. Treating the
+        // returned hit count as "damage dealt" hid that important native distinction.
+        if (headHits != 1 || !projectiles.Slots[0].IsActive ||
+            projectiles.Slots[0].Direction != 0x0012 ||
+            projectiles.Slots[0].InstructionPointer != 0x9000 ||
+            shotHead.Health != 40)
+        {
+            throw new InvalidDataException(
+                $"Nuclear Waffle no-op head shot AI diverged: hits={headHits}, " +
+                $"beam active={projectiles.Slots[0].IsActive}, type=" +
+                $"${projectiles.Slots[0].Type:X4}, direction=" +
+                $"${projectiles.Slots[0].Direction:X4}, list=" +
+                $"${projectiles.Slots[0].InstructionPointer:X4}, health={shotHead.Health}.");
+        }
 
         RoomEnemyProjectileSlot shotBody = shotState.ProjectileSegments[0]
             ?? throw new InvalidDataException("Nuclear Waffle shot body link is absent.");
@@ -426,6 +499,9 @@ internal static class NuclearWaffleAudit
         int magnitude = sample * (radius & 0xff) >> 8;
         return byteAngle < 0x80 ? magnitude : -magnitude;
     }
+
+    private static ushort ReadNuclearWaffleAuditWord(ISnesAddressSpace bus, int address) =>
+        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 
     private static int ReadEightBitCosineProduct(
         ISnesAddressSpace bus,

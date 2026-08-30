@@ -125,7 +125,7 @@ internal static class AlcoonAudit
                 projectileYVelocities.Add(projectile.YVelocity);
                 sawLeftMovingFireball |= unchecked((short)projectile.XVelocity) < 0;
                 sawRightMovingFireball |= unchecked((short)projectile.XVelocity) > 0;
-                if (projectile.SpritemapPointer != 0)
+                if (projectile.SpritemapPointer is not 0 and not 0x8000)
                     projectileMaps.Add(projectile.SpritemapPointer);
             }
             enemies.StepEnemyProjectiles(
@@ -136,7 +136,7 @@ internal static class AlcoonAudit
             foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles.Where(
                          projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball))
             {
-                if (projectile.SpritemapPointer != 0)
+                if (projectile.SpritemapPointer is not 0 and not 0x8000)
                     projectileMaps.Add(projectile.SpritemapPointer);
             }
         }
@@ -178,8 +178,9 @@ internal static class AlcoonAudit
             $"Alcoon audit passed: unchanged Crateria Power Bombs loaded three actors; " +
             $"the initializer found floors at {string.Join(',', population.Select(slot => $"${RequireState(enemies, slot).LandingYPosition:X4}"))}; " +
             $"all seven AI states, thirteen actor maps, four fireball maps, three velocity " +
-            $"variants in both directions, horizontal drag, wall deletion, production " +
-            $"runtime scheduling, 20-damage fireball contact, " +
+            $"variants in both directions, exact definition loading, horizontal drag, beam " +
+            $"pass-through, wall deletion, production runtime scheduling, 20-damage " +
+            $"fireball contact, " +
             $"50-damage body contact, nonlethal/lethal shot behavior, and " +
             $"{oam.LastFinalizedSpriteCount} OBJ pieces were verified.");
         return 0;
@@ -335,6 +336,32 @@ internal static class AlcoonAudit
         if (shot is null)
             throw new InvalidDataException("A second natural Alcoon cycle spawned no fireball.");
 
+        VerifyFireballDefinition(bus, actor, shot);
+
+        // Definition property $0014 does not set $8000. The dormant delete shot-list word
+        // therefore must not make this actor intercept Samus's beam through a host shortcut.
+        var beamOwner = new SamusProjectileSystem();
+        SamusProjectileSlot beam = beamOwner.Slots[0];
+        beam.Type = 0x0001;
+        beam.Damage = 20;
+        beam.Direction = (ushort)SamusProjectileDirection.Right;
+        beam.XPosition = shot.XPosition;
+        beam.YPosition = shot.YPosition;
+        beam.XRadius = 4;
+        beam.YRadius = 4;
+        beam.InstructionPointer = 0x9000;
+        beam.InstructionTimer = 1;
+        int beamHits = enemies.ResolveEnemyProjectileSamusProjectileHits(
+            bus,
+            beamOwner,
+            new SamusBombProjectileSystem());
+        if (beamHits != 0 || beam.InstructionPointer != 0x9000 || !shot.IsActive)
+        {
+            throw new InvalidDataException(
+                $"Alcoon fireball incorrectly blocked a beam: hits={beamHits}, " +
+                $"beam=${beam.InstructionPointer:X4}, live={shot.IsActive}.");
+        }
+
         ushort initialSpeed = shot.XVelocity;
         ushort initialX = shot.XPosition;
         enemies.StepEnemyProjectiles(assets.LevelData, samus: null, cameraX: 0, cameraY: 0);
@@ -346,15 +373,15 @@ internal static class AlcoonAudit
                 $"speed=${initialSpeed:X4}->${shot.XVelocity:X4}.");
         }
 
-        SamusState target = CreateSamus(bus, shot.XPosition, shot.YPosition);
-        target.Health = 999;
-        enemies.StepEnemyProjectiles(assets.LevelData, target, controllerInput: 0);
-        if (target.Health != 979 || !target.KnockbackActive || shot.IsActive)
-        {
-            throw new InvalidDataException(
-                $"Alcoon fireball contact failed: health={target.Health}, " +
-                $"knockback={target.KnockbackActive}, live={shot.IsActive}.");
-        }
+        EnemyProjectileAuditAssertions.VerifyNaturalSamusContact(
+            bus,
+            enemies,
+            CreateSamus(bus, shot.XPosition, shot.YPosition),
+            new SamusBombProjectileSystem(),
+            assets.LevelData,
+            shot,
+            cameraX: 0,
+            cameraY: 0);
 
         // Let the remaining naturally spawned volley actors run into collision geometry.
         // Definition $9E90 deletes immediately on either vertical or horizontal carry.
@@ -369,6 +396,39 @@ internal static class AlcoonAudit
             throw new InvalidDataException("Alcoon fireball collision did not delete the volley.");
         }
     }
+
+    private static void VerifyFireballDefinition(
+        ISnesAddressSpace bus,
+        RoomEnemySlot owner,
+        RoomEnemyProjectileSlot fireball)
+    {
+        int definition = 0x860000 | (ushort)RoomEnemyProjectileKind.AlcoonFireball;
+        ushort packedRadii = ReadAlcoonAuditWord(bus, definition + 6);
+        ushort properties = ReadAlcoonAuditWord(bus, definition + 8);
+        ushort expectedGraphics = unchecked((ushort)(owner.VramTilesIndex | owner.PaletteIndex));
+        if (fireball.PreInstruction != ReadAlcoonAuditWord(bus, definition + 2) ||
+            fireball.InstructionPointer != ReadAlcoonAuditWord(bus, definition + 4) ||
+            fireball.InstructionTimer != 1 || fireball.SpritemapPointer != 0x8000 ||
+            fireball.XRadius != unchecked((byte)packedRadii) ||
+            fireball.YRadius != unchecked((byte)(packedRadii >> 8)) ||
+            fireball.Damage != (properties & 0x0fff) || fireball.Damage != 20 ||
+            fireball.InvincibilityFrames != 96 || !fireball.CanDamageSamus ||
+            fireball.PersistsOnSamusContact || fireball.BlocksSamusProjectiles ||
+            fireball.CollisionOption != 0 || fireball.GraphicsIndex != expectedGraphics ||
+            fireball.XSubposition != 0 || fireball.YSubposition != 0)
+        {
+            throw new InvalidDataException(
+                $"Alcoon fireball definition $86:9E90 mismatch: list/pre/map=" +
+                $"${fireball.InstructionPointer:X4}/${fireball.PreInstruction:X4}/" +
+                $"${fireball.SpritemapPointer:X4}, radii={fireball.XRadius}/" +
+                $"{fireball.YRadius}, damage={fireball.Damage}, graphics=" +
+                $"${fireball.GraphicsIndex:X4}, flags={fireball.CanDamageSamus}/" +
+                $"{fireball.PersistsOnSamusContact}/{fireball.BlocksSamusProjectiles}.");
+        }
+    }
+
+    private static ushort ReadAlcoonAuditWord(ISnesAddressSpace bus, int address) =>
+        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 
     private static void VerifyOrdinaryCombat(
         SuperMetroidAddressSpace bus,

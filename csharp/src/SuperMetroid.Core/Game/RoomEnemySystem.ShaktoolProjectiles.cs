@@ -19,40 +19,47 @@ public sealed partial class RoomEnemySystem
         if (segment.EnemyDefinitionPointer != ShaktoolDefinition)
             throw new ArgumentException("Attack circles require a Shaktool segment.", nameof(segment));
 
-        SpawnUnusedShaktoolAttackCircle(
+        // The disabled native routine does not pass a made-up owner token. The first JSL
+        // returns the physical bank-$86 slot index in A ($22, $20, ...), then PHA/PLA keeps
+        // that value intact across the middle-circle allocation. Both delayed circles use
+        // the saved front index as eproj_init_param_1, which initializer $BD9C copies into
+        // variable E. Their moving pre-instruction later dereferences that exact slot.
+        RoomEnemyProjectileSlot? front = SpawnUnusedShaktoolAttackCircle(
             segment,
             RoomEnemyProjectileKind.ShaktoolAttackFrontCircle,
-            storesOwnerProjectileIndex: false);
+            linkedFrontNativeIndex: null);
+        if (front is null)
+            return;
+
+        ushort frontNativeIndex = unchecked((ushort)(front.SlotIndex * 2));
         SpawnUnusedShaktoolAttackCircle(
             segment,
             RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle,
-            storesOwnerProjectileIndex: true);
+            frontNativeIndex);
         SpawnUnusedShaktoolAttackCircle(
             segment,
             RoomEnemyProjectileKind.ShaktoolAttackBackCircle,
-            storesOwnerProjectileIndex: true);
+            frontNativeIndex);
     }
 
-    private void SpawnUnusedShaktoolAttackCircle(
+    private RoomEnemyProjectileSlot? SpawnUnusedShaktoolAttackCircle(
         RoomEnemySlot segment,
         RoomEnemyProjectileKind kind,
-        bool storesOwnerProjectileIndex)
+        ushort? linkedFrontNativeIndex)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
-            return;
+            return null;
 
         InitializeEnemyProjectileFromDefinition(
             projectile,
             kind,
             unchecked((ushort)(segment.VramTilesIndex | segment.PaletteIndex)));
 
-        // BD9C stores eproj_init_param_1 in variable E for the middle/back variants. The
-        // only native caller passes literal zero. This looks suspicious with the descending
-        // projectile allocator, but preserving that unreachable-code quirk is preferable to
-        // inventing a link to the newly allocated front circle.
-        if (storesOwnerProjectileIndex)
-            projectile.Variable0 = 0;
+        // Front initializer $BDA2 ignores the spawn parameter. Middle/back initializer
+        // $BD9C stores it before falling through to the same position/velocity setup.
+        if (linkedFrontNativeIndex is ushort ownerNativeIndex)
+            projectile.Variable0 = ownerNativeIndex;
 
         projectile.XPosition = segment.XPosition;
         projectile.YPosition = segment.YPosition;
@@ -65,6 +72,11 @@ public sealed partial class RoomEnemySystem
             projectile.XPosition + ShaktoolCircleXOffsets[offsetIndex]));
         projectile.YPosition = unchecked((ushort)(
             projectile.YPosition + ShaktoolCircleYOffsets[offsetIndex]));
+
+        // SpawnEnemyProjectileY_ParameterA_XGraphics returns this physical actor in A. The
+        // caller converts it to a native index only by virtue of the pool's 2-byte stride;
+        // returning the object keeps that allocation fact explicit in the C# translation.
+        return projectile;
     }
 
     /// <summary>Ports front-circle pre-instruction <c>$86:BE03</c>.</summary>

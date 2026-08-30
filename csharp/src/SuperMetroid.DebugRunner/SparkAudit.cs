@@ -76,8 +76,9 @@ internal static class SparkAudit
             $"retail always-active variant loaded; {animation.MapCount} body maps covered " +
             $"tangible/intangible cycles, falling attack covered {projectile.MapCount} maps " +
             $"and {projectile.TrailMaps} trail maps, floor rebound/deletion, 5 projectile " +
-            "damage, 30 contact damage, indestructible beam/power-bomb behavior, grapple " +
-            "hurt, randomized timers, the table overread, and the literal $7E:0100 OR bug.");
+            "damage, projectile beam pass-through, 30 contact damage, indestructible " +
+            "body beam/power-bomb behavior, grapple hurt, randomized timers, the table " +
+            "overread, and the literal $7E:0100 OR bug.");
         return 0;
     }
 
@@ -298,22 +299,42 @@ internal static class SparkAudit
         StepCentered(loaded, room, assets, emitter);
         RoomEnemyProjectileSlot projectile = loaded.Enemies.EnemyProjectiles.Single(candidate =>
             candidate.Kind == RoomEnemyProjectileKind.FallingSpark);
+        VerifyFallingSparkDefinition(bus, emitter, projectile);
 
-        loaded.Samus.XPosition = projectile.XPosition;
-        loaded.Samus.YPosition = projectile.YPosition;
-        ushort health = loaded.Samus.Health;
-        loaded.Enemies.StepEnemyProjectiles(
-            assets.LevelData,
-            loaded.Samus,
-            nmiFrameCounter8: 0);
-        if (loaded.Samus.Health != health - 5 || !loaded.Samus.KnockbackActive ||
-            loaded.Samus.InvincibilityTimer != 96 || projectile.IsActive)
+        // Property $0005 leaves bit $8000 clear. The definition's defensive delete list is
+        // therefore dormant here: an ordinary power beam in the same native 32-pixel cell
+        // must remain owned by Samus and must not alter the falling actor.
+        var projectileOwner = new SamusProjectileSystem();
+        SamusProjectileSlot beam = projectileOwner.Slots[0];
+        beam.Type = 0x0001;
+        beam.Damage = 20;
+        beam.Direction = (ushort)SamusProjectileDirection.Right;
+        beam.XPosition = projectile.XPosition;
+        beam.YPosition = projectile.YPosition;
+        beam.XRadius = 4;
+        beam.YRadius = 4;
+        beam.InstructionPointer = 0x9000;
+        beam.InstructionTimer = 1;
+        int beamHits = loaded.Enemies.ResolveEnemyProjectileSamusProjectileHits(
+            bus,
+            projectileOwner,
+            new SamusBombProjectileSystem());
+        if (beamHits != 0 || beam.InstructionPointer != 0x9000 || !projectile.IsActive)
         {
             throw new InvalidDataException(
-                $"Falling Spark contact failed: health={health}->{loaded.Samus.Health}, " +
-                $"knockback={loaded.Samus.KnockbackActive}, invincibility=" +
-                $"{loaded.Samus.InvincibilityTimer}, live={projectile.IsActive}.");
+                $"Falling Spark incorrectly blocked a beam: hits={beamHits}, " +
+                $"beam=${beam.InstructionPointer:X4}, live={projectile.IsActive}.");
         }
+
+        EnemyProjectileAuditAssertions.VerifyNaturalSamusContact(
+            bus,
+            loaded.Enemies,
+            loaded.Samus,
+            new SamusBombProjectileSystem(),
+            assets.LevelData,
+            projectile,
+            cameraX: 0,
+            cameraY: 0);
 
         var drawing = Load(bus, room, assets, bossDefeated: true, randomSeed: 0x2468);
         RoomEnemySlot drawingEmitter = drawing.Enemies.Slots[0];
@@ -332,6 +353,45 @@ internal static class SparkAudit
         {
             throw new InvalidDataException(
                 $"Falling Spark projectile/trail emitted only {oam.LastFinalizedSpriteCount} OBJ pieces.");
+        }
+    }
+
+    private static void VerifyFallingSparkDefinition(
+        ISnesAddressSpace bus,
+        RoomEnemySlot owner,
+        RoomEnemyProjectileSlot projectile)
+    {
+        int definition = 0x860000 | (ushort)RoomEnemyProjectileKind.FallingSpark;
+        ushort packedRadii = ReadWord(bus, definition + 6);
+        ushort properties = ReadWord(bus, definition + 8);
+        ushort expectedGraphics = unchecked((ushort)(owner.VramTilesIndex | owner.PaletteIndex));
+        if (ReadWord(bus, definition) != 0xf391 ||
+            projectile.PreInstruction != ReadWord(bus, definition + 2) ||
+            projectile.PreInstruction != 0xf3f0 ||
+            projectile.InstructionPointer != ReadWord(bus, definition + 4) ||
+            projectile.InstructionPointer != 0xf353 ||
+            projectile.InstructionTimer != 1 || projectile.SpritemapPointer != 0x8000 ||
+            projectile.XRadius != unchecked((byte)packedRadii) ||
+            projectile.YRadius != unchecked((byte)(packedRadii >> 8)) ||
+            projectile.Damage != (properties & 0x0fff) || projectile.Damage != 5 ||
+            projectile.InvincibilityFrames != 96 || !projectile.CanDamageSamus ||
+            projectile.PersistsOnSamusContact || projectile.BlocksSamusProjectiles ||
+            projectile.CollisionOption != 0 || projectile.GraphicsIndex != expectedGraphics ||
+            projectile.XPosition != owner.XPosition ||
+            projectile.XSubposition != owner.XSubposition ||
+            projectile.YPosition != unchecked((ushort)(owner.YPosition + 8)) ||
+            projectile.YSubposition != owner.YSubposition ||
+            projectile.XVelocity != 0 || projectile.YVelocity != 0)
+        {
+            throw new InvalidDataException(
+                $"Falling Spark definition $86:F498 mismatch: position=" +
+                $"(${projectile.XPosition:X4}.${projectile.XSubposition:X4}," +
+                $"${projectile.YPosition:X4}.${projectile.YSubposition:X4}), list/pre/map=" +
+                $"${projectile.InstructionPointer:X4}/${projectile.PreInstruction:X4}/" +
+                $"${projectile.SpritemapPointer:X4}, radii={projectile.XRadius}/" +
+                $"{projectile.YRadius}, damage={projectile.Damage}, graphics=" +
+                $"${projectile.GraphicsIndex:X4}, flags={projectile.CanDamageSamus}/" +
+                $"{projectile.PersistsOnSamusContact}/{projectile.BlocksSamusProjectiles}.");
         }
     }
 

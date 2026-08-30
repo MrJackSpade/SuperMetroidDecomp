@@ -9,11 +9,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort AlcoonFireballInstructionList = 0x9e9e;
-    private const ushort AlcoonFireballPreInstruction = 0x9eff;
-    private const ushort AlcoonFireballRadius = 4;
-    private const ushort AlcoonFireballDamage = 0x0014;
-    private const ushort CommonEnemyProjectileInvincibilityFrames = 96;
     private const ushort AlcoonFireballGraphicsHorizontalSpeed = 0x0400;
     private const ushort AlcoonFireballTerminalHorizontalSpeed = 0x0200;
     private const ushort AlcoonFireballHorizontalDeceleration = 0x0040;
@@ -37,7 +32,15 @@ public sealed partial class RoomEnemySystem
 
         AlcoonEnemyState state = RequireAlcoonState(alcoon);
         bool movingLeft = unchecked((short)state.XVelocity) < 0;
-        projectile.Kind = RoomEnemyProjectileKind.AlcoonFireball;
+
+        // SpawnEnemyProjectileY_ParameterA_XGraphics copies the complete seven-word $9E90
+        // definition before initializer $9EB2 touches position, subposition, and velocity.
+        // Keeping that division exact makes radii, damage, persistence, shot blocking,
+        // animation, and pre-instruction cartridge-owned instead of duplicating them here.
+        InitializeEnemyProjectileFromDefinition(
+            projectile,
+            RoomEnemyProjectileKind.AlcoonFireball,
+            unchecked((ushort)(alcoon.VramTilesIndex | alcoon.PaletteIndex)));
         projectile.XPosition = unchecked((ushort)(alcoon.XPosition + (movingLeft ? -16 : 16)));
         projectile.YPosition = unchecked((ushort)(alcoon.YPosition - 12));
         projectile.XSubposition = 0;
@@ -48,15 +51,6 @@ public sealed partial class RoomEnemySystem
         projectile.YVelocity = ReadWord(
             _bus!,
             AlcoonFireballYVelocityTable + yVelocityTableByteOffset);
-        projectile.InstructionPointer = AlcoonFireballInstructionList;
-        projectile.InstructionTimer = 1;
-        projectile.PreInstruction = AlcoonFireballPreInstruction;
-        projectile.GraphicsIndex = unchecked((ushort)(alcoon.VramTilesIndex | alcoon.PaletteIndex));
-        projectile.XRadius = AlcoonFireballRadius;
-        projectile.YRadius = AlcoonFireballRadius;
-        projectile.Damage = AlcoonFireballDamage;
-        projectile.InvincibilityFrames = CommonEnemyProjectileInvincibilityFrames;
-        projectile.CanDamageSamus = true;
     }
 
     /// <summary>Ports Alcoon fireball pre-instruction <c>$86:9EFF-$9F40</c>.</summary>

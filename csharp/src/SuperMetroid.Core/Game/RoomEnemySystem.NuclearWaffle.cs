@@ -91,8 +91,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort NuclearWaffleDefinition = 0xe0bf;
 
     private const ushort NuclearWaffleInstructionList = 0x9490;
-    private const ushort NuclearWaffleBodyInstructionList = 0xbb5e;
-    private const ushort NuclearWaffleBodyPreInstruction = 0xbbc6;
     private const ushort NuclearWaffleTurnSoundEffect = 0x005e;
     private const int NuclearWaffleSweepEndpointTable = 0xa695f6;
     private const int NuclearWaffleSegmentSpacingTable = 0xa695fe;
@@ -164,7 +162,7 @@ public sealed partial class RoomEnemySystem
         state.InitialHeadY = slot.YPosition;
         state.GraphicsIndex = unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex));
 
-        SpawnNuclearWaffleProjectileSegments(state);
+        SpawnNuclearWaffleProjectileSegments(slot, state);
         SpawnNuclearWaffleSpriteSegments(slot, state);
     }
 
@@ -235,7 +233,9 @@ public sealed partial class RoomEnemySystem
         slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
     }
 
-    private void SpawnNuclearWaffleProjectileSegments(NuclearWaffleEnemyState state)
+    private void SpawnNuclearWaffleProjectileSegments(
+        RoomEnemySlot owner,
+        NuclearWaffleEnemyState state)
     {
         // Native init parameters $08,$06,$04,$02 select four extra-RAM association words.
         // Keep array order identical to the later descending update loop.
@@ -245,22 +245,22 @@ public sealed partial class RoomEnemySystem
             if (segment is null)
                 throw new InvalidOperationException("Nuclear Waffle exhausted the enemy-projectile pool during room load.");
 
-            segment.Kind = RoomEnemyProjectileKind.NuclearWaffleBody;
+            // SpawnEnemyProjectileY_ParameterA_XGraphics installs definition $BBC7 before
+            // initializer $BB92 runs. That record owns the twelve-map animation, $BBC6
+            // pre-instruction, 8x8 radii, $C040 interaction flags, and 64 damage. The
+            // initializer below only copies the live owner coordinates, associates this
+            // physical slot with one articulated link, and selects collision option one.
+            InitializeEnemyProjectileFromDefinition(
+                segment,
+                RoomEnemyProjectileKind.NuclearWaffleBody,
+                state.GraphicsIndex);
             segment.XPosition = state.InitialHeadX;
+            segment.XSubposition = owner.XSubposition;
             segment.YPosition = state.InitialHeadY;
-            segment.InstructionPointer = NuclearWaffleBodyInstructionList;
-            segment.InstructionTimer = 1;
-            segment.PreInstruction = NuclearWaffleBodyPreInstruction;
-            segment.GraphicsIndex = state.GraphicsIndex;
-            segment.XRadius = 8;
-            segment.YRadius = 8;
-            segment.Damage = 0x0040;
-            segment.InvincibilityFrames = 96;
-            segment.CanDamageSamus = true;
-            segment.PersistsOnSamusContact = true;
-            segment.BlocksSamusProjectiles = true;
-            // SpawnEprojWithRoomGfx passes initializer flag one for these four links.
-            // Property $8000 admits the overlap; this flag selects the persistent dud path.
+            segment.YSubposition = owner.YSubposition;
+            // Initializer $BB92 writes collision option one for these four links. Property
+            // $8000 admits the beam overlap; this independent flag selects the persistent
+            // dud response rather than the definition's delete-on-shot instruction list.
             segment.CollisionOption = 1;
             state.ProjectileSegments[segmentIndex] = segment;
         }

@@ -156,6 +156,7 @@ internal static class MotherBrainAudit
                 $"draw={state.DrawBrain}, form={state.Form}, function=$A9:{(ushort)state.Function:X4}.");
         }
 
+        AuditHeadSpinTouch(bus, enemies, samus, head);
         AuditTurretRuntime(bus, assets.LevelData, enemies, samus);
         AuditGlassSequence(bus, room);
         AuditFakeDeathSequence(bus, room);
@@ -174,6 +175,77 @@ internal static class MotherBrainAudit
             "live rainbow-beam repeat cycles " +
             "matched the untouched cartridge.");
         return 0;
+    }
+
+    /// <summary>
+    /// Exercises head touch `$A9:B5C6` through the public collision walker. The callback is
+    /// intentionally harmless to standing Samus and uses the previous flash parity—not a
+    /// host animation clock—to select 13 or 14 while spin jumping.
+    /// </summary>
+    private static void AuditHeadSpinTouch(
+        SuperMetroidAddressSpace bus,
+        RoomEnemySystem enemies,
+        SamusState samus,
+        RoomEnemySlot head)
+    {
+        var savedPositions = enemies.Slots
+            .Select(slot => (slot.XPosition, slot.YPosition))
+            .ToArray();
+        for (int index = 0; index < enemies.EnemyCount; index++)
+        {
+            if (index == head.SlotIndex)
+                continue;
+            enemies.Slots[index].XPosition = unchecked((ushort)(head.XPosition + 0x4000));
+            enemies.Slots[index].YPosition = unchecked((ushort)(head.YPosition + 0x4000));
+        }
+
+        samus.XPosition = head.XPosition;
+        samus.YPosition = head.YPosition;
+        samus.InvincibilityTimer = 0;
+        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+        head.FlashTimer = 0;
+        if (!enemies.ResolveOrdinarySamusContact(samus, controllerInput: 0) ||
+            head.FlashTimer != 0)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain standing head touch changed flash to {head.FlashTimer}.");
+        }
+
+        samus.Pose = SamusState.SpinJumpRightPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+        if (!enemies.ResolveOrdinarySamusContact(samus, controllerInput: 0) ||
+            head.FlashTimer != 13)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain spin head touch did not select 13 from zero: {head.FlashTimer}.");
+        }
+        if (!enemies.ResolveOrdinarySamusContact(samus, controllerInput: 0) ||
+            head.FlashTimer != 14)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain spin head touch did not select 14 from odd: {head.FlashTimer}.");
+        }
+        if (!enemies.ResolveOrdinarySamusContact(samus, controllerInput: 0) ||
+            head.FlashTimer != 13)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain spin head touch did not select 13 from even: {head.FlashTimer}.");
+        }
+
+        for (int index = 0; index < enemies.EnemyCount; index++)
+        {
+            enemies.Slots[index].XPosition = savedPositions[index].XPosition;
+            enemies.Slots[index].YPosition = savedPositions[index].YPosition;
+        }
+        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.XPosition = 0x0080;
+        samus.YPosition = 0x00a0;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+        head.FlashTimer = 0;
     }
 
     /// <summary>

@@ -42,6 +42,7 @@ internal static class KiHunterAudit
 
         VerifyFlyingPair(bus, normalRoom, normalAssets);
         VerifyGroundedAttackAndAcid(bus, redRoom, redAssets);
+        VerifyGroundedShotAfterWingDefinitionClear(bus, redRoom, redAssets);
         VerifyDamageFreezeDetachAndDeath(bus, normalRoom, normalAssets);
         VerifyGoldVariantLoad(bus, goldRoom, goldAssets);
 
@@ -49,7 +50,8 @@ internal static class KiHunterAudit
             "Ki-Hunter audit passed: all 38 body/wing records across six populations pair " +
             "correctly; normal/red/gold headers, patrol/swoop, ground fall/jump/wait, ROM " +
             "animation callbacks, acid-spit projectile motion/damage, hurt/freeze mirroring, " +
-            "health-threshold wing detachment, detached-wing orbit, death cleanup, and OBJ " +
+            "deleted-wing physical aliasing, health-threshold wing detachment, detached-wing " +
+            "orbit, death cleanup, and OBJ " +
             "drawing agree with the cartridge path.");
         return 0;
     }
@@ -303,6 +305,42 @@ internal static class KiHunterAudit
                 $"Fatal Ki-Hunter cleanup mismatch: health={killed.Body.Health}, " +
                 $"properties=${killed.Body.Properties:X4}/${killed.Wings.Properties:X4}, " +
                 $"kills={killed.Enemies.EnemiesKilled}.");
+        }
+    }
+
+    /// <summary>
+    /// Proves the retail ground-bound red variant remains shootable after the common enemy
+    /// scheduler consumes its initializer-set deleted property. Native code clears only the
+    /// following wing record's definition word, then $A8:F701 continues to use that record as
+    /// a raw <c>body + $40</c> alias. This exact lifecycle exposed the former typed-adjacency
+    /// exception in the exhaustive projectile audit.
+    /// </summary>
+    private static void VerifyGroundedShotAfterWingDefinitionClear(
+        ISnesAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        LoadedPair loaded = LoadPair(bus, room, assets, room.State.EnemyPopulationPointer);
+
+        // The wing initializer sets property $0200. The first frame's selection pass converts
+        // that tombstone to a free definition word while deliberately preserving parameter 1
+        // and every other native slot field used by KiHunter_Shot.
+        Step(loaded, assets);
+        if (loaded.Wings.EnemyDefinitionPointer != 0)
+        {
+            throw new InvalidDataException(
+                $"Ground Ki-Hunter wing definition remained ${loaded.Wings.EnemyDefinitionPointer:X4} " +
+                "after its deletion-selection frame.");
+        }
+
+        ushort healthBefore = loaded.Body.Health;
+        FireProjectile(bus, loaded, projectileType: 0, damage: 20);
+        if (loaded.Body.Health >= healthBefore || loaded.Body.Health == 0 ||
+            !State(loaded, loaded.Body).HasLostWings)
+        {
+            throw new InvalidDataException(
+                $"Ground Ki-Hunter shot after wing deletion produced health " +
+                $"{healthBefore}->{loaded.Body.Health} or restored its wing-loss state.");
         }
     }
 

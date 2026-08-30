@@ -805,6 +805,16 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>
+    /// Returns the physical <c>enemy + $40</c> alias used by every body-to-wing access in
+    /// bank $A8. The matching definition words are authoritative while the pair is being
+    /// initialized. Afterward, however, <c>DetermineWhichEnemiesToProcess</c> clears only a
+    /// deleted wing's definition word; all other words in its 64-byte record remain resident,
+    /// and the cartridge deliberately continues reading or writing them through this alias.
+    /// A permanently ground-bound red Ki-Hunter therefore has a live body followed by enemy
+    /// definition zero on its second frame. Requiring the definition to remain $EB7F changed
+    /// valid ROM behavior into a host exception whenever that body was shot.
+    /// </summary>
     private RoomEnemySlot GetKiHunterWings(RoomEnemySlot body)
     {
         if (!IsKiHunterBodyDefinition(body.EnemyDefinitionPointer) ||
@@ -822,7 +832,13 @@ public sealed partial class RoomEnemySystem
             GoldKiHunterDefinition => GoldKiHunterWingsDefinition,
             _ => throw new InvalidDataException("Unknown Ki-Hunter body variant."),
         };
-        if (wings.EnemyDefinitionPointer != expected)
+        // During wing initialization its typed state does not exist yet, so insist on the
+        // authored matching definition. Once initialization has established the pair, retain
+        // the native physical alias even if deletion cleared the definition or the slot was
+        // subsequently reused. The latter is intentional: the 65C816 routine would alias and
+        // mutate that replacement record too rather than performing a type check.
+        if (wings.EnemyDefinitionPointer != expected &&
+            _kiHunterStates[wings.SlotIndex] is null)
         {
             throw new InvalidDataException(
                 $"Ki-Hunter body slot {body.SlotIndex} is followed by ${wings.EnemyDefinitionPointer:X4}, " +

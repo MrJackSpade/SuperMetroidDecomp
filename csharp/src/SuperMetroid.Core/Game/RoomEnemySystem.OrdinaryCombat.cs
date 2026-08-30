@@ -66,6 +66,7 @@ public sealed partial class RoomEnemySystem
     private const ushort RidleyPowerBombAi = 0xdfb2;
     private const ushort MotherBrainBodyShotAi = 0xb503;
     private const ushort MotherBrainHeadShotAi = 0xb507;
+    private const ushort MotherBrainHeadTouchAi = 0xb5c6;
     private const ushort DeadTorizoTouchAndShotAi = 0xd433;
     private const ushort DeadTorizoPowerBombAi = 0xd42a;
     private const ushort DeadSidehopperTouchAi = 0xdd44;
@@ -156,6 +157,8 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == PhantoonTouchHitboxCallback;
             bool isDraygonBody = slot.EnemyDefinitionPointer == DraygonBodyDefinition &&
                 slot.Definition.TouchAiPointer == DraygonTouchAi;
+            bool isMotherBrainHead = slot.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
+                slot.Definition.TouchAiPointer == MotherBrainHeadTouchAi;
             bool isDeadTorizo = slot.EnemyDefinitionPointer == DeadTorizoDefinition &&
                 slot.Definition.TouchAiPointer == DeadTorizoTouchAndShotAi;
             bool isDeadSidehopper =
@@ -201,6 +204,7 @@ public sealed partial class RoomEnemySystem
                 isCrocomireTongue ||
                 isPhantoon ||
                 isDraygonBody ||
+                isMotherBrainHead ||
                 isDeadTorizo ||
                 isDeadSidehopper ||
                 isDeadTourianCorpse ||
@@ -226,11 +230,7 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            bool usesExtendedHitboxes = (
-                    isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo ||
-                    isCrocomire || isCrocomireTongue || isSporeSpawn || isCeresSteam ||
-                    isPhantoon || isDraygonBody) &&
-                slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
+            bool usesExtendedHitboxes = UsesExtendedSamusHitboxes(slot);
             bool overlapsSamus;
             ushort hitboxTouchAi = slot.Definition.TouchAiPointer;
             if (usesExtendedHitboxes)
@@ -260,6 +260,18 @@ public sealed partial class RoomEnemySystem
             if (!overlapsSamus)
             {
                 continue;
+            }
+
+            if (isMotherBrainHead)
+            {
+                // `$A9:B5C6` is not ordinary touch damage. A spin-jumping Samus toggles
+                // the head's visible flash length between the cartridge's 13/14-frame
+                // cadence; every other movement type returns without changing either actor.
+                if (samus.ReadMovementType(_bus!) == (byte)SamusMovementType.SpinJumping)
+                    slot.FlashTimer = slot.FlashTimer != 0 && (slot.FlashTimer & 1) != 0
+                        ? (ushort)14
+                        : (ushort)13;
+                return true;
             }
 
             if (isShitroid)
@@ -821,11 +833,7 @@ public sealed partial class RoomEnemySystem
                     continue;
                 }
 
-                bool usesExtendedHitboxes = (
-                        isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo ||
-                        isCrocomire || isCrocomireTongue || isSporeSpawn || isCeresSteam ||
-                        isNorfairRidley || isDraygonBody) &&
-                    enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
+                bool usesExtendedHitboxes = UsesExtendedProjectileHitboxes(enemy);
                 bool overlapsProjectile;
                 ushort hitboxShotAi = enemy.Definition.ShotAiPointer;
                 if (usesExtendedHitboxes)
@@ -2008,6 +2016,49 @@ public sealed partial class RoomEnemySystem
 
         return false;
     }
+
+    /// <summary>
+    /// Identifies actors whose ordinary Samus-contact collision actually enters
+    /// <c>$A0:9A5A</c>'s extended-spritemap walker. This differs deliberately from the shot
+    /// set: Phantoon uses authored component rectangles for touch, while its weapon collision
+    /// is owned by the encounter-specific projectile resolver.
+    /// </summary>
+    internal static bool UsesExtendedSamusHitboxes(RoomEnemySlot enemy) =>
+        enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) &&
+        (IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
+         enemy.EnemyDefinitionPointer is
+            MaridiaLargeSnailDefinition or
+            BombTorizoDefinition or
+            GoldenTorizoDefinition or
+            CrocomireDefinition or
+            CrocomireTongueDefinition or
+            SporeSpawnDefinition or
+            CeresSteamDefinition or
+            PhantoonBodyDefinition or
+            DraygonBodyDefinition);
+
+    /// <summary>
+    /// Identifies actors whose ordinary projectile collision actually enters
+    /// <c>$A0:9B7F</c>'s extended-spritemap walker. Extra-property bit $0004 alone is not
+    /// sufficient: Mother Brain and several custom-drawn actors set it for scheduling or
+    /// rendering while their shot paths use a header radius or encounter-specific geometry.
+    /// Keeping this predicate beside the dispatcher gives ROM-backed probes the same boundary
+    /// as gameplay and prevents them from interpreting unrelated component metadata as a
+    /// bank-local hitbox pointer.
+    /// </summary>
+    internal static bool UsesExtendedProjectileHitboxes(RoomEnemySlot enemy) =>
+        enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) &&
+        (IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
+         enemy.EnemyDefinitionPointer is
+            MaridiaLargeSnailDefinition or
+            BombTorizoDefinition or
+            GoldenTorizoDefinition or
+            CrocomireDefinition or
+            CrocomireTongueDefinition or
+            SporeSpawnDefinition or
+            CeresSteamDefinition or
+            NorfairRidleyDefinition or
+            DraygonBodyDefinition);
 
     /// <summary>
     /// Dispatches the three shot callbacks stored in Space Pirate hitbox records. Only the

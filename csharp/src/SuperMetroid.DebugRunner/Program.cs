@@ -138,6 +138,12 @@ if (args.Length >= 2 && args[0] == "--retail-enemy-power-bomb-audit")
     return RetailEnemyExecutionAudit.RunPowerBombCombat(powerBombAuditRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--retail-enemy-touch-audit")
+{
+    string touchAuditRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailEnemyExecutionAudit.RunTouchCombat(touchAuditRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--retail-enemy-projectile-audit")
 {
     string projectileAuditRomPath = string.Join(' ', args[1..]).Trim('"');

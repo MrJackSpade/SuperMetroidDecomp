@@ -116,8 +116,7 @@ internal static partial class RetailEnemyExecutionAudit
                                 EnemyProperties.IgnoreSamusCollision) ||
                             target.SpritemapPointer is 0 or 0x804d ||
                             !loaded.Enemies.InteractiveEnemyIndexes.Contains(target.NativeIndex) ||
-                            target.ExtraProperties.HasAny(
-                                EnemyExtraProperties.UsesExtendedSpritemap) &&
+                            RoomEnemySystem.UsesExtendedProjectileHitboxes(target) &&
                             RetailExtendedHitboxProbe.ReadShotPoints(bus, target).Count == 0)
                         {
                             throw new InvalidDataException(
@@ -304,8 +303,7 @@ internal static partial class RetailEnemyExecutionAudit
             if (loaded.Enemies.InteractiveEnemyIndexes.Contains(target.NativeIndex) &&
                 !target.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) &&
                 target.SpritemapPointer is not (0 or 0x804d) &&
-                (!target.ExtraProperties.HasAny(
-                    EnemyExtraProperties.UsesExtendedSpritemap) ||
+                (!RoomEnemySystem.UsesExtendedProjectileHitboxes(target) ||
                  RetailExtendedHitboxProbe.ReadShotPoints(bus, target).Count != 0))
             {
                 return frame;

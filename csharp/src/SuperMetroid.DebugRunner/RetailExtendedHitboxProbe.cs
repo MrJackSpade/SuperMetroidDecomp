@@ -10,14 +10,28 @@ internal static class RetailExtendedHitboxProbe
 {
     public static IReadOnlyList<RetailExtendedHitboxShotPoint> ReadShotPoints(
         ISnesAddressSpace bus,
-        RoomEnemySlot enemy)
+        RoomEnemySlot enemy) =>
+        ReadPoints(bus, enemy, selectShotCallback: true);
+
+    public static IReadOnlyList<RetailExtendedHitboxShotPoint> ReadTouchPoints(
+        ISnesAddressSpace bus,
+        RoomEnemySlot enemy) =>
+        ReadPoints(bus, enemy, selectShotCallback: false);
+
+    private static IReadOnlyList<RetailExtendedHitboxShotPoint> ReadPoints(
+        ISnesAddressSpace bus,
+        RoomEnemySlot enemy,
+        bool selectShotCallback)
     {
         ArgumentNullException.ThrowIfNull(bus);
         var points = new List<RetailExtendedHitboxShotPoint>();
 
         // Native extended maps are bank-local negative pointers. `$804F` is a legitimate
         // empty map and naturally returns an empty result through its zero component count.
-        if (!enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) ||
+        bool usesExtendedHitboxes = selectShotCallback
+            ? RoomEnemySystem.UsesExtendedProjectileHitboxes(enemy)
+            : RoomEnemySystem.UsesExtendedSamusHitboxes(enemy);
+        if (!usesExtendedHitboxes ||
             (enemy.SpritemapPointer & 0x8000) == 0)
             return points;
 
@@ -37,7 +51,9 @@ internal static class RetailExtendedHitboxProbe
             for (int hitboxIndex = 0; hitboxIndex < hitboxCount; hitboxIndex++)
             {
                 int hitbox = AddWithinBank(hitboxList, 2 + hitboxIndex * 12);
-                ushort shotCallback = ReadWord(bus, AddWithinBank(hitbox, 10));
+                ushort callback = ReadWord(
+                    bus,
+                    AddWithinBank(hitbox, selectShotCallback ? 10 : 8));
 
                 // Bounds are signed component-relative words. Choosing their arithmetic
                 // midpoint keeps the one-pixel audit projectile away from the native
@@ -49,7 +65,7 @@ internal static class RetailExtendedHitboxProbe
                 points.Add(new RetailExtendedHitboxShotPoint(
                     unchecked((ushort)(componentX + (left + right) / 2)),
                     unchecked((ushort)(componentY + (top + bottom) / 2)),
-                    shotCallback));
+                    callback));
             }
         }
 

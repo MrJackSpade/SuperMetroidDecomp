@@ -23,6 +23,10 @@ public enum RoomEnemyProjectileKind : ushort
     CrocomireProjectile = 0x8f8f,
     CrocomireBridgeCrumbling = 0x8f9d,
     CrocomireSpikeWallPieces = 0x90c1,
+    KraidSpitRock = 0x9c45,
+    KraidCeilingRock = 0x9c53,
+    KraidRisingRockLeft = 0x9c61,
+    KraidRisingRockRight = 0x9c6f,
     CeresRidleyFireball = 0x9642,
     CeresRidleyHorizontalAfterburnCenter = 0x9650,
     CeresRidleyVerticalAfterburnCenter = 0x965e,
@@ -662,6 +666,18 @@ public sealed partial class RoomEnemySystem
 
             case 0x9115: // Crocomire spike wall: slot-specific acceleration and fall.
                 RunCrocomireSpikeWallPiece(projectile);
+                return;
+
+            case 0x9d56: // Kraid spat/floor rocks: X/Y collision, drag, and gravity.
+                RunKraidRockPreInstruction(projectile, level);
+                return;
+
+            case 0x9d89: // Kraid ceiling rocks: vertical collision and masked gravity.
+                RunKraidCeilingRockPreInstruction(projectile, level);
+                return;
+
+            case 0x9da5: // Shot Kraid spit rock switches to common explosion palette zero.
+                projectile.GraphicsIndex = 0;
                 return;
 
             case 0x92ba: // Crocomire bridge fragment: gravity until room collision.

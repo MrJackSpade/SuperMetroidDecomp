@@ -14,6 +14,9 @@ public sealed partial class RoomEnemySystem
     private const ushort KraidInitialFootInstruction = 0x86e7;
     private const ushort KraidNailInstruction = 0x8b0a;
 
+    /// <summary>Most recent Kraid-private sound request in the current enemy frame.</summary>
+    public KraidSoundRequest? LastKraidSoundEffect { get; private set; }
+
     private void InitializeKraidBody(RoomEnemySlot body)
     {
         if (body.SlotIndex != 0)
@@ -154,17 +157,61 @@ public sealed partial class RoomEnemySystem
     private void RunKraidBodyMain(RoomEnemySlot body, SamusState? samus)
     {
         KraidEnemyState state = RequireKraidState(body);
-        RunKraidRiseFunction(body, state, samus);
+        RunKraidPaletteHandling(body, state);
+        KraidAiFunction function = (KraidAiFunction)body.VariableA;
+        if (function is >= KraidAiFunction.RestrictSamusToFirstScreen and
+            <= KraidAiFunction.RaiseBody)
+        {
+            RunKraidRiseFunction(body, state, samus);
+            return;
+        }
+        RunKraidCombatFunction(body, state);
     }
 
-    private void RunKraidPassivePartMain(RoomEnemySlot part)
+    private void RunKraidPaletteHandling(RoomEnemySlot body, KraidEnemyState state)
     {
-        _ = RequireKraidState(part);
-        KraidAiFunction function = (KraidAiFunction)part.VariableA;
-        if (function is KraidAiFunction.NoOperation or KraidAiFunction.LintInactive)
+        if (body.Health == 0)
+        {
+            state.HurtFrame = 0;
+            UpdateKraidHealthPalettes(body, state);
             return;
-        throw new NotSupportedException(
-            $"Kraid part ${part.EnemyDefinitionPointer:X4} function " +
-            $"$A7:{part.VariableA:X4} is not translated.");
+        }
+        if (state.HurtFrame == 0)
+            return;
+        state.HurtFrameTimer = unchecked((ushort)(state.HurtFrameTimer - 1));
+        if (state.HurtFrameTimer == 0)
+        {
+            state.HurtFrameTimer = 2;
+            state.HurtFrame = unchecked((ushort)(state.HurtFrame - 1));
+            UpdateKraidHealthPalettes(body, state);
+        }
+    }
+
+    private void UpdateKraidHealthPalettes(RoomEnemySlot body, KraidEnemyState state)
+    {
+        int thresholdWordOffset = 14;
+        if ((state.HurtFrame & 1) != 0)
+        {
+            thresholdWordOffset = -2;
+        }
+        else
+        {
+            while (thresholdWordOffset != 0 &&
+                unchecked((short)(
+                    body.Health - state.HealthEighthThresholds[thresholdWordOffset / 2])) < 0)
+            {
+                thresholdWordOffset -= 2;
+            }
+        }
+        int sourceColor = 8 * (thresholdWordOffset + 2);
+        for (int color = 0; color < 16; color++)
+        {
+            _cgram!.SetColor(
+                112 + color,
+                ReadWord(_bus!, 0xa7b3d3 + (sourceColor + color) * 2));
+            _cgram.SetColor(
+                240 + color,
+                ReadWord(_bus!, 0xa7b513 + (sourceColor + color) * 2));
+        }
     }
 }

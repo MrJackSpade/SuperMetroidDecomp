@@ -233,6 +233,7 @@ public sealed partial class RoomEnemySystem
         LastNuclearWaffleSoundEffect = null;
         LastFakeKraidSoundEffect = null;
         LastFakeKraidDropRequest = null;
+        LastKraidSoundEffect = null;
         LastEnemyProjectileDudSoundEffect = null;
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
@@ -446,6 +447,7 @@ public sealed partial class RoomEnemySystem
         LastNuclearWaffleSoundEffect = null;
         LastFakeKraidSoundEffect = null;
         LastFakeKraidDropRequest = null;
+        LastKraidSoundEffect = null;
         LastSpacePirateSoundEffect = null;
         LastEnemyProjectileDudSoundEffect = null;
         LastBeetomSoundEffect = null;
@@ -1752,11 +1754,15 @@ public sealed partial class RoomEnemySystem
                 RunKraidBodyMain(slot, samus);
                 return;
             case 0xa7b7bd when slot.EnemyDefinitionPointer == KraidArmDefinition:
+                RunKraidArmMain(slot, cameraY);
+                return;
             case 0xa7b801 when slot.EnemyDefinitionPointer == KraidTopLintDefinition:
             case 0xa7b80d when slot.EnemyDefinitionPointer == KraidMiddleLintDefinition:
             case 0xa7b819 when slot.EnemyDefinitionPointer == KraidBottomLintDefinition:
+                RunKraidLintMain(slot);
+                return;
             case 0xa7b9f6 when slot.EnemyDefinitionPointer == KraidFootDefinition:
-                RunKraidPassivePartMain(slot);
+                RunKraidFootMain(slot, cameraY);
                 return;
             case 0xa7bd32 when slot.EnemyDefinitionPointer == KraidGoodNailDefinition:
             case 0xa7bd49 when slot.EnemyDefinitionPointer == KraidBadNailDefinition:
@@ -2149,6 +2155,20 @@ public sealed partial class RoomEnemySystem
                 case DragonAnimationFinishedInstruction
                     when slot.EnemyDefinitionPointer == DragonDefinition:
                     FinishDragonAttackAnimation(slot);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x8a8f when slot.EnemyDefinitionPointer == KraidArmDefinition:
+                    cursor = SelectKraidArmSpeedInstruction(cursor);
+                    break;
+                case 0xb633 when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case 0xb636 when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case 0xb63c when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case 0xb64e when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case 0xb65a when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case 0xb667 when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case 0xb674 when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case 0xb683 when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                    ProcessKraidFootInstruction(word, level);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0x8108: // EnemyInstr_DecrementTimerAndGoto.

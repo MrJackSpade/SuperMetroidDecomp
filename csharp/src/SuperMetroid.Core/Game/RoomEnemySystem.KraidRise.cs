@@ -45,7 +45,7 @@ public sealed partial class RoomEnemySystem
                 }
                 else if ((body.VariableF & 0x000f) == 0)
                 {
-                    state.RiseRockSpawnRequestCount++;
+                    RequestKraidRisingRock(body, state);
                 }
                 return;
 
@@ -59,36 +59,36 @@ public sealed partial class RoomEnemySystem
                 }
                 else if ((body.VariableF & 7) == 0)
                 {
-                    state.RiseRockSpawnRequestCount++;
+                    RequestKraidRisingRock(body, state);
                 }
                 return;
 
             case KraidAiFunction.RaiseBody:
                 RestrictSamusToKraidFirstScreen(samus);
                 if ((EarthquakeTimer & 5) == 0)
-                    state.RiseRockSpawnRequestCount++;
+                    RequestKraidRisingRock(body, state);
                 body.XPosition = unchecked((ushort)(body.XPosition +
                     ((body.YPosition & 2) == 0 ? -1 : 1)));
                 AddSignedKraidVerticalDisplacement(body, -0x8000);
                 if (unchecked((short)(body.YPosition - 457)) < 0)
                 {
                     body.XPosition = 176;
-                    body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
-                    state.ThinkingTimer = ReadKraidThinkingTimer();
-                    _slots[2].YPosition = unchecked((ushort)(body.YPosition - 20));
-                    _slots[3].YPosition = unchecked((ushort)(body.YPosition + 46));
-                    _slots[4].YPosition = unchecked((ushort)(body.YPosition + 112));
+                    // `$C97B` does not leave execution at setup routine `$ADE9`.
+                    // That JSR immediately installs `$AEA4`, seeds the random thinking
+                    // timer and selects roar list entry `$96DA` for the first attack.
+                    body.VariableB = 0x96da;
+                    SetupKraidFirstPhaseThinking(body, state);
+
+                    // The foot owns first-phase lunges independently of the body thinker.
+                    // Its 300-frame delay starts on the exact rise-completion frame.
+                    RoomEnemySlot foot = _slots[5];
+                    foot.VariableA = (ushort)KraidAiFunction.FootFirstPhaseThinking;
+                    foot.VariableF = 300;
+                    state.Parts[5].NextFunction = KraidAiFunction.FootPrepareFirstPhaseLunge;
                     _slots[1].CurrentInstruction = 0x89f3;
                     _slots[1].InstructionTimer = 1;
                 }
                 return;
-
-            case KraidAiFunction.MainloopThinking:
-                // The next slice translates mouth/body shot handling and the first-phase
-                // thinker. Stop explicitly at the proven combat handoff instead of running
-                // a host-authored idle state that would conceal missing attacks.
-                throw new NotSupportedException(
-                    "Kraid first-phase combat thinker $A7:ADE9 is not translated yet.");
 
             default:
                 throw new NotSupportedException(

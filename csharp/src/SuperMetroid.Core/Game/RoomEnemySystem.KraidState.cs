@@ -9,10 +9,25 @@ public enum KraidAiFunction : ushort
 {
     NoOperation = 0x804b,
     LintInactive = 0xb831,
+    LintProduce = 0xb832,
+    LintCharge = 0xb868,
+    LintFire = 0xb89b,
+    AlignPartToKraid = 0xb923,
     HandleFunctionTimer = 0xb92d,
+    DecrementFunctionTimerAndStartWalk = 0xb93f,
+    FootFirstPhaseThinking = 0xb960,
+    ProcessHeadInstructionAndTimer = 0xb965,
+    FootSecondPhaseThinking = 0xba2e,
+    FootSecondPhaseWalkingRight = 0xbb45,
+    FootSecondPhaseWalkToStart = 0xbb6e,
+    FootSecondPhaseInitialize = 0xbba4,
+    FootSecondPhaseWalkingLeft = 0xbbae,
     FingernailWaitForLint = 0xb907,
     FingernailInitialize = 0xbd60,
     FingernailFire = 0xbe8e,
+    FootPrepareFirstPhaseLunge = 0xbf2d,
+    FootFirstPhaseLunge = 0xbf5d,
+    FootFirstPhaseRetreat = 0xbfab,
 
     RestrictSamusToFirstScreen = 0xc865,
     RaiseKraidThroughFloor = 0xc86b,
@@ -20,8 +35,41 @@ public enum KraidAiFunction : ushort
     RaiseRocksEvery16Frames = 0xc8e0,
     RaiseRocksEvery8Frames = 0xc902,
     RaiseBody = 0xc924,
-    MainloopThinking = 0xade9,
+    MainloopThinking = 0xaea4,
+    MouthOpenReaction = 0xaee4,
+    InitializeEyeGlow = 0xb6bf,
+    GlowEye = 0xb6d7,
+    UnglowEye = 0xb73d,
+    MainAttackWithMouthOpen = 0xbbea,
+    GrowBreakCeilingPlatforms = 0xac4d,
+    GrowSetBg2Priority = 0xad3a,
+    GrowFinishBg2Update = 0xad61,
+    GrowDrawRoomBackground = 0xad8e,
+    GrowFadeInRoomBackground = 0xae23,
+    SecondPhaseThinking = 0xaec4,
+    GrowReleaseCamera = 0xc0a1,
+    DeathInitialize = 0xc360,
+    DeathFadeOut = 0xc3f9,
+    DeathUpdateTopTilemap = 0xc4a4,
+    DeathUpdateBottomTilemap = 0xc4c8,
+    DeathSink = 0xc537,
+    DeathClearTopTilemap = 0xc715,
+    DeathClearBottomTilemap = 0xc751,
+    DeathLoadBg3Quarter1 = 0xc777,
+    DeathLoadBg3Quarter2 = 0xc7a3,
+    DeathLoadBg3Quarter3 = 0xc7c9,
+    DeathLoadBg3Quarter4 = 0xc7ef,
+    DeathFadeInBackground = 0xc815,
+    DeathFinishedWasAlive = 0xc843,
+    DeathFinishedWasDead = 0xc851,
 }
+
+/// <summary>
+/// A sound request emitted by Kraid's private bank-$A7 logic. The library number matters:
+/// the roar uses library two, while spat rocks use library three despite sharing the same
+/// room-enemy scheduler.
+/// </summary>
+public readonly record struct KraidSoundRequest(byte Library, ushort SoundEffect);
 
 /// <summary>
 /// Per-physical-slot projection of Kraid's bank-$7E extended workspace. Native code obtains
@@ -30,7 +78,17 @@ public enum KraidAiFunction : ushort
 /// </summary>
 public sealed class KraidPartState
 {
-    public KraidAiFunction NextFunction { get; internal set; }
+    /// <summary>
+    /// Native `$7E:7800 + slot` aliases a function pointer with the second-phase foot's
+    /// think timer. The raw word remains visible; the typed view is used only on functions.
+    /// </summary>
+    public ushort NextWord { get; internal set; }
+
+    public KraidAiFunction NextFunction
+    {
+        get => (KraidAiFunction)NextWord;
+        internal set => NextWord = (ushort)value;
+    }
 
     /// <summary>
     /// Fingernail side-selection word stored in the otherwise shared health-threshold area.
@@ -60,6 +118,9 @@ public sealed class KraidEnemyState
     public ushort[] HealthQuarterThresholds { get; } = new ushort[4];
     public ushort HurtFrame { get; internal set; }
     public ushort HurtFrameTimer { get; internal set; }
+    public ushort CurrentHeadTilemap { get; internal set; }
+    public ushort VulnerableMouthHitbox { get; internal set; }
+    public ushort InvulnerableMouthHitbox { get; internal set; }
 
     /// <summary>True after `$A7:AAC6` prepared Kraid's two decompressed BG2 tilemaps.</summary>
     public bool BackgroundTilemapsPrepared { get; internal set; }
@@ -71,8 +132,33 @@ public sealed class KraidEnemyState
     /// <summary>Number of `$A7:C995` rock/quake spawn requests made by retail cadence.</summary>
     public int RiseRockSpawnRequestCount { get; internal set; }
 
+    /// <summary>Rise-rock requests that acquired a real bank-$86 projectile slot.</summary>
+    public int SpawnedRiseRockCount { get; internal set; }
+
+    /// <summary>BG2 head entries installed by the private eight-byte instruction stream.</summary>
+    public int HeadTilemapUploadCount { get; internal set; }
+
+    /// <summary>Retail `$BC0A` spat-rock requests issued while head tilemap three is active.</summary>
+    public int SpitRockRequestCount { get; internal set; }
+
+    /// <summary>Spat-rock requests that acquired a real bank-$86 projectile slot.</summary>
+    public int SpawnedSpitRockCount { get; internal set; }
+
+    /// <summary>Number of private `$AF94` roar opcodes consumed from the head stream.</summary>
+    public int RoarRequestCount { get; internal set; }
+
     /// <summary>Last eight-frame-delayed music request made by the rise sequence.</summary>
     public ushort? MusicRequest { get; internal set; }
+    public ushort RoomBackgroundFadeStep { get; internal set; }
+    public int CeilingRockSpawnCount { get; internal set; }
+    public bool Bg2PriorityBitsSet { get; internal set; }
+    public bool CameraReleasedForSecondPhase { get; internal set; }
+    public ushort DeathSoundTimer { get; internal set; }
+    public int SinkTableEventCount { get; internal set; }
+    public int DeathDropRequestCount { get; internal set; }
+    public int DeathBg3TransferCount { get; internal set; }
+    public bool BossDefeatPersisted { get; internal set; }
+    public bool DeathSequenceComplete { get; internal set; }
 }
 
 public sealed partial class RoomEnemySystem

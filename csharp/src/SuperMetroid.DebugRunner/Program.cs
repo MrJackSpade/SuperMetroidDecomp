@@ -120,6 +120,12 @@ if (args.Length >= 2 && args[0] == "--dead-torizo-audit")
     return DeadTorizoAudit.Run(deadTorizoRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--shitroid-audit")
+{
+    string shitroidRomPath = string.Join(' ', args[1..]).Trim('"');
+    return ShitroidAudit.Run(shitroidRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--rinka-audit")
 {
     string rinkaRomPath = string.Join(' ', args[1..]).Trim('"');

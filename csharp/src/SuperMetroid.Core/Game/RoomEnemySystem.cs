@@ -241,6 +241,8 @@ public sealed partial class RoomEnemySystem
         ResetDraygonRoomState();
         ResetMotherBrainRoomState();
         ResetDeadTorizoRoomState();
+        ResetDeadSidehopperRoomState();
+        ResetDeadTourianCorpseRoomState();
         ResetShitroidRoomState();
         ResetShutterRoomState(cameraX, cameraY);
         ResetElevatorRoomActors();
@@ -491,6 +493,8 @@ public sealed partial class RoomEnemySystem
         _crocomirePlmRequests.Clear();
         LastDeadTorizoSoundEffect = null;
         _deadTorizoFrameVramTransfers.Clear();
+        BeginDeadSidehopperFrame();
+        BeginShitroidFrame();
         _motherBrain?.BeginFrame();
         BeginSporeSpawnFrame();
         LastRioSoundEffect = null;
@@ -684,6 +688,7 @@ public sealed partial class RoomEnemySystem
         }
         _randomEnemyCounter = unchecked((ushort)(_randomEnemyCounter + 1));
         QueueDeadTorizoFrameVramTransfers(vramWriteQueue);
+        QueueDeadSidehopperFrameVramTransfers(vramWriteQueue);
         samus?.Kinematics.ClearSolidEnemyCollisionIndexes();
         StepWorkRobotPaletteAnimation();
         StepMagdollitePaletteAnimation();
@@ -1356,6 +1361,14 @@ public sealed partial class RoomEnemySystem
             case 0xa9d308 when slot.EnemyDefinitionPointer == DeadTorizoDefinition:
                 InitializeDeadTorizo(slot);
                 return;
+            case 0xa9d7b6 when slot.EnemyDefinitionPointer == DeadSidehopperDefinition:
+                InitializeDeadSidehopper(slot);
+                return;
+            case 0xa9d849 when slot.EnemyDefinitionPointer == DeadZoomerDefinition:
+            case 0xa9d876 when slot.EnemyDefinitionPointer == DeadRipperDefinition:
+            case 0xa9d89f when slot.EnemyDefinitionPointer == DeadSkreeDefinition:
+                InitializeDeadTourianCorpse(slot);
+                return;
             case 0xa9ef37 when slot.EnemyDefinitionPointer == ShitroidDefinition:
                 InitializeShitroid(slot, cameraX);
                 return;
@@ -1469,6 +1482,12 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa9d368 when slot.EnemyDefinitionPointer == DeadTorizoDefinition:
                 RunDeadTorizoMain(slot, samus);
+                return;
+            case 0xa9d8db when slot.EnemyDefinitionPointer == DeadSidehopperDefinition:
+                RunDeadSidehopperMain(slot, samus, level, cameraX);
+                return;
+            case 0xa9d8db when IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer):
+                RunDeadTourianCorpseMain(slot, samus);
                 return;
             case 0xa9efc5 when slot.EnemyDefinitionPointer == ShitroidDefinition:
                 RunShitroidMain(slot, samus, cameraX, cameraY, sharedProjectiles);
@@ -2946,6 +2965,12 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xf6bd: // Ceres door sound command; audio queue is not yet modeled.
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xecd0 when slot.EnemyDefinitionPointer == DeadSidehopperDefinition:
+                    // `$A9:ECD0` is embedded at the end of the landing animation. It
+                    // hands ownership back to main AI without consuming an operand.
+                    SelectDeadSidehopperPostAnimationState(slot);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xf920 when slot.EnemyDefinitionPointer == ShitroidDefinition:

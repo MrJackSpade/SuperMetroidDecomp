@@ -98,9 +98,9 @@ public sealed class ShitroidEnemyState
     public ushort CryCounter { get; internal set; }
 
     /// <summary>
-    /// Native word 08 belongs to physical slot one, the dead sidehopper actor. Shitroid
-    /// writes it after feeding; preserving the ownership here lets that actor consume the
-    /// signal when its own bank-$A9 translation is installed.
+    /// Diagnostic mirror of native word 08 in physical slot one. Shitroid writes the actual
+    /// dead-sidehopper palette stage through <c>ActivateDeadSidehopperVictim</c>; retaining
+    /// this value on the boss state makes that cross-slot side effect directly auditable.
     /// </summary>
     public ushort VictimActivationFlag { get; internal set; }
 
@@ -311,7 +311,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case ShitroidAiFunction.ActivateSidehopperCorpse:
-                state.VictimActivationFlag = 1;
+                ActivateDeadSidehopperVictim(slot, state);
                 state.Function = ShitroidAiFunction.RiseAfterFeeding;
                 state.StateTimer = 192;
                 goto case ShitroidAiFunction.RiseAfterFeeding;

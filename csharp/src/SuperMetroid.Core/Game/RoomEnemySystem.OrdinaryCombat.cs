@@ -68,6 +68,9 @@ public sealed partial class RoomEnemySystem
     private const ushort MotherBrainHeadShotAi = 0xb507;
     private const ushort DeadTorizoTouchAndShotAi = 0xd433;
     private const ushort DeadTorizoPowerBombAi = 0xd42a;
+    private const ushort DeadSidehopperTouchAi = 0xdd44;
+    private const ushort DeadSidehopperShotAi = 0xdd1d;
+    private const ushort DeadSidehopperPowerBombAi = 0xd8cc;
     private const ushort ShitroidTouchAi = 0xf789;
     private const ushort ShitroidShotAi = 0xf842;
     private const ushort ShitroidPowerBombAi = 0xefba;
@@ -155,6 +158,10 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == DraygonTouchAi;
             bool isDeadTorizo = slot.EnemyDefinitionPointer == DeadTorizoDefinition &&
                 slot.Definition.TouchAiPointer == DeadTorizoTouchAndShotAi;
+            bool isDeadSidehopper =
+                slot.EnemyDefinitionPointer == DeadSidehopperDefinition &&
+                slot.Definition.TouchAiPointer == DeadSidehopperTouchAi;
+            bool isDeadTourianCorpse = HasDeadTourianCorpseTouchOrShotCallback(slot);
             bool isShitroid = slot.EnemyDefinitionPointer == ShitroidDefinition &&
                 slot.Definition.TouchAiPointer == ShitroidTouchAi;
             // A handful of utility/terrain enemies intentionally point touch AI at an RTL
@@ -195,6 +202,8 @@ public sealed partial class RoomEnemySystem
                 isPhantoon ||
                 isDraygonBody ||
                 isDeadTorizo ||
+                isDeadSidehopper ||
+                isDeadTourianCorpse ||
                 isShitroid ||
                 isLiteralNoOpTouchAi ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
@@ -259,6 +268,28 @@ public sealed partial class RoomEnemySystem
                 // current cutscene state, contact either starts pursuit/latching or adds a
                 // spin-jump recoil vector to the actor itself; Samus is never hurt here.
                 ResolveShitroidTouch(slot, samus);
+                return true;
+            }
+
+            if (isDeadSidehopper)
+            {
+                // Before Shitroid finishes feeding, `$A9:DD44` uses normal contact damage
+                // without a death animation. At palette stage eight it instead starts the
+                // corpse decomposition and never enters common touch damage.
+                ResolveDeadSidehopperTouch(
+                    slot,
+                    RequireDeadSidehopperState(slot),
+                    samus,
+                    controllerInput);
+                return true;
+            }
+
+            if (isDeadTourianCorpse)
+            {
+                // Dead Zoomer/Ripper/Skree headers intentionally point touch and shot at
+                // the same private callback. Physical contact begins decomposition; these
+                // already-dead actors never apply ordinary contact damage to Samus.
+                TriggerDeadTourianCorpseRotting(slot);
                 return true;
             }
 
@@ -669,6 +700,10 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == MotherBrainHeadShotAi;
             bool isDeadTorizo = enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
                 enemy.Definition.ShotAiPointer == DeadTorizoTouchAndShotAi;
+            bool isDeadSidehopper =
+                enemy.EnemyDefinitionPointer == DeadSidehopperDefinition &&
+                enemy.Definition.ShotAiPointer == DeadSidehopperShotAi;
+            bool isDeadTourianCorpse = HasDeadTourianCorpseShotCallback(enemy);
             bool isShitroid = enemy.EnemyDefinitionPointer == ShitroidDefinition &&
                 enemy.Definition.ShotAiPointer == ShitroidShotAi;
             // Several retail helper/projectile definitions point their shot callback at a
@@ -723,6 +758,8 @@ public sealed partial class RoomEnemySystem
                 isMotherBrainBody ||
                 isMotherBrainHead ||
                 isDeadTorizo ||
+                isDeadSidehopper ||
+                isDeadTourianCorpse ||
                 isShitroid ||
                 isLiteralNoOpShotAi ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
@@ -830,6 +867,34 @@ public sealed partial class RoomEnemySystem
                         (enemy.Properties & 0x1000) != 0 ||
                             (projectile.Type & 0x0008) == 0);
                     TriggerDeadTorizoRotting(enemy);
+                    hitCount++;
+                    break;
+                }
+
+                if (isDeadSidehopper)
+                {
+                    // The common projectile prelude always marks the shot, but the private
+                    // callback ignores it until the corpse palette has fully transformed.
+                    // Even then it starts rotting without vulnerability damage or impact.
+                    projectiles.ApplyEnemyCollisionPrelude(
+                        projectile.SlotIndex,
+                        (enemy.Properties & 0x1000) != 0 ||
+                            (projectile.Type & 0x0008) == 0);
+                    ResolveDeadSidehopperShot(enemy);
+                    hitCount++;
+                    break;
+                }
+
+                if (isDeadTourianCorpse)
+                {
+                    // `$DCF8/$DD08/$DD18` run after the ordinary projectile prelude, set
+                    // process-offscreen plus $0400, and select their species rot callback.
+                    // No vulnerability, health damage, or projectile impact follows.
+                    projectiles.ApplyEnemyCollisionPrelude(
+                        projectile.SlotIndex,
+                        (enemy.Properties & 0x1000) != 0 ||
+                            (projectile.Type & 0x0008) == 0);
+                    TriggerDeadTourianCorpseRotting(enemy);
                     hitCount++;
                     break;
                 }
@@ -1667,6 +1732,10 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == DraygonPowerBombAi;
             bool isDeadTorizo = enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
                 reactionPointer == DeadTorizoPowerBombAi;
+            bool isDeadSidehopper =
+                enemy.EnemyDefinitionPointer == DeadSidehopperDefinition &&
+                reactionPointer == DeadSidehopperPowerBombAi;
+            bool isDeadTourianCorpse = HasDeadTourianCorpsePowerBombCallback(enemy);
             bool isShitroid = enemy.EnemyDefinitionPointer == ShitroidDefinition &&
                 reactionPointer == ShitroidPowerBombAi;
             if (isRinka && enemy.Properties.HasAny(EnemyProperties.Invisible))
@@ -1686,6 +1755,8 @@ public sealed partial class RoomEnemySystem
                 !isNorfairRidley &&
                 !isDraygonBody &&
                 !isDeadTorizo &&
+                !isDeadSidehopper &&
+                !isDeadTourianCorpse &&
                 !isShitroid)
             {
                 throw new NotSupportedException(
@@ -1719,6 +1790,22 @@ public sealed partial class RoomEnemySystem
             if (isDeadTorizo)
             {
                 TriggerDeadTorizoPowerBomb(enemy);
+                enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
+                reactionCount++;
+                continue;
+            }
+
+            if (isDeadSidehopper)
+            {
+                ResolveDeadSidehopperPowerBomb(enemy, samus);
+                enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
+                reactionCount++;
+                continue;
+            }
+
+            if (isDeadTourianCorpse)
+            {
+                ResolveDeadTourianCorpsePowerBomb(enemy);
                 enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
                 reactionCount++;
                 continue;

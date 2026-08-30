@@ -258,6 +258,10 @@ internal static partial class RetailEnemyExecutionAudit
         CartridgeRoomHeader room,
         CartridgeRoomAssets assets)
     {
+        bool areaBossDefeated = IsBossSelectedRoomState(
+            bus,
+            room.Pointer,
+            room.State.Pointer);
         var samus = new SamusState
         {
             Health = 999,
@@ -283,7 +287,7 @@ internal static partial class RetailEnemyExecutionAudit
             readRandomNumber: () => random.RandomNumber,
             level: assets.LevelData,
             samus: samus,
-            isAreaBossDefeated: () => false,
+            isAreaBossDefeated: () => areaBossDefeated,
             hasEvent: _ => false,
             setEvent: _ => { },
             clearEvent: _ => { },
@@ -311,6 +315,39 @@ internal static partial class RetailEnemyExecutionAudit
             new SamusProjectileSystem(),
             new SamusBombProjectileSystem(),
             new SamusMode7Transform());
+    }
+
+    /// <summary>
+    /// Determines whether an explicitly named room state is selected by one of the retail
+    /// area's eight boss bits. The exhaustive audit replaces the loader's default state with
+    /// every symbolized alternative, so the callbacks supplied to enemy initialization must
+    /// describe that same cartridge branch (powered Work Robots are the first observable
+    /// consumer). Trying the real selector with each one-hot boss mask avoids room/enemy IDs.
+    /// </summary>
+    private static bool IsBossSelectedRoomState(
+        ISnesAddressSpace bus,
+        ushort roomPointer,
+        ushort statePointer)
+    {
+        ushort defaultState = CartridgeRoomHeader.Load(bus, roomPointer).State.Pointer;
+        if (defaultState == statePointer)
+            return false;
+
+        for (int bit = 1; bit <= 0x80; bit <<= 1)
+        {
+            var selection = new RoomStateSelectionContext(
+                Events: ReadOnlyMemory<byte>.Empty,
+                BossBits: unchecked((ushort)bit),
+                HasMorphBallAndMissiles: false,
+                HasPowerBombs: false);
+            if (CartridgeRoomHeader.Load(bus, roomPointer, selection).State.Pointer ==
+                statePointer)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static ushort[] ReadPopulationDefinitions(

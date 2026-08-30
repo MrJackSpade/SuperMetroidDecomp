@@ -16,6 +16,8 @@ internal static class GoldenTorizoAudit
     private const ushort PopulationPointer = 0xb720;
     private const ushort CameraX = 0x0100;
     private const ushort CameraY = 0x0100;
+    private const ushort StandUpSitDownShotCallback = 0xc9c2;
+    private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     public static int Run(string romPath)
     {
@@ -92,6 +94,8 @@ internal static class GoldenTorizoAudit
             assets,
             alreadyDefeated: false,
             () => bossBitSet = true);
+
+        VerifyStandUpSitDownShotCallback(bus, room, assets);
 
         if (loaded.Enemies.EnemyCount != 1 || loaded.Head.Health != 13500 ||
             loaded.Head.XPosition != 0x01a8 || loaded.Head.YPosition != 0x0090 ||
@@ -285,6 +289,133 @@ internal static class GoldenTorizoAudit
             throw new InvalidDataException(
                 "Golden Torizo caught a Super Missile but its ROM list never spawned the held actor.");
         }
+    }
+
+    /// <summary>
+    /// Proves the private `$AA:C9C2` callback selected by transitional stand/sit hitboxes.
+    /// Unlike ordinary `$C97C`, it reaches guarded common damage directly and therefore
+    /// cannot catch missiles, reflect Supers, or arm Golden Torizo's counterattack flags.
+    /// </summary>
+    private static void VerifyStandUpSitDownShotCallback(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        LoadedGoldenTorizo loaded = Load(
+            bus,
+            room,
+            assets,
+            alreadyDefeated: false,
+            () => { });
+        if (!AdvanceToShotCallback(
+                bus,
+                loaded,
+                assets.LevelData,
+                StandUpSitDownShotCallback,
+                out ushort shotX,
+                out ushort shotY))
+        {
+            throw new InvalidDataException(
+                "Golden Torizo never displayed an authored $AA:C9C2 shot hitbox.");
+        }
+
+        RoomEnemyDefinition definition = loaded.Head.Definition;
+        ushort vulnerabilityPointer = definition.VulnerabilityPointer != 0
+            ? definition.VulnerabilityPointer
+            : DefaultEnemyVulnerability;
+        byte superVulnerability = bus.ReadByte(
+            0xb40000 | unchecked((ushort)(vulnerabilityPointer + 13)));
+        int expectedDamage = (300 >> 1) * (superVulnerability & 0x7f);
+        if (superVulnerability == 0xff || expectedDamage == 0)
+        {
+            throw new InvalidDataException(
+                $"Golden Torizo's retail Super vulnerability ${superVulnerability:X2} " +
+                "cannot prove $AA:C9C2 direct damage.");
+        }
+
+        loaded.Head.FlashTimer = 0;
+        loaded.State.ShotGuard = 0;
+        loaded.State.CapturedProjectileFamily = 0x5555;
+        loaded.Head.Parameter2 &= 0xcfff;
+        ushort healthBefore = loaded.Head.Health;
+        var shots = new SamusProjectileSystem();
+        var bombs = new SamusBombProjectileSystem();
+        ArmProjectile(shots.Slots[0], loaded.Head, type: 0x8200, damage: 300);
+        shots.Slots[0].XPosition = shotX;
+        shots.Slots[0].YPosition = shotY;
+        shots.Slots[0].XRadius = 1;
+        shots.Slots[0].YRadius = 1;
+        int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
+            bus,
+            shots,
+            bombs,
+            loaded.Samus);
+        ushort expectedHealth = expectedDamage >= healthBefore
+            ? (ushort)0
+            : unchecked((ushort)(healthBefore - expectedDamage));
+        if (hits != 1 || loaded.Head.Health != expectedHealth ||
+            loaded.State.CapturedProjectileFamily != 0x5555 ||
+            (loaded.Head.Parameter2 & 0x3000) != 0)
+        {
+            throw new InvalidDataException(
+                $"Golden Torizo $C9C2 direct damage mismatch: hits={hits}, " +
+                $"health={healthBefore}->{loaded.Head.Health} expected {expectedHealth}, " +
+                $"captured=${loaded.State.CapturedProjectileFamily:X4}, " +
+                $"parameter2=${loaded.Head.Parameter2:X4}.");
+        }
+
+        // `$D658` rejects the same hit while `toriz_var_04` is nonzero. The extended
+        // collision walker still marks the Super as collided, but no impact or damage AI
+        // may run and the projectile family must remain intact.
+        loaded.Head.FlashTimer = 0;
+        loaded.State.ShotGuard = 1;
+        loaded.Head.Health = healthBefore;
+        shots = new SamusProjectileSystem();
+        ArmProjectile(shots.Slots[0], loaded.Head, type: 0x8200, damage: 300);
+        shots.Slots[0].XPosition = shotX;
+        shots.Slots[0].YPosition = shotY;
+        shots.Slots[0].XRadius = 1;
+        shots.Slots[0].YRadius = 1;
+        hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
+            bus,
+            shots,
+            bombs,
+            loaded.Samus);
+        if (hits != 1 || loaded.Head.Health != healthBefore ||
+            shots.Slots[0].Type != 0x8200 || (shots.Slots[0].Direction & 0x0010) == 0)
+        {
+            throw new InvalidDataException(
+                $"Golden Torizo $C9C2 guard mismatch: hits={hits}, " +
+                $"health={healthBefore}->{loaded.Head.Health}, projectile=" +
+                $"${shots.Slots[0].Type:X4}/${shots.Slots[0].Direction:X4}.");
+        }
+    }
+
+    private static bool AdvanceToShotCallback(
+        ISnesAddressSpace bus,
+        LoadedGoldenTorizo loaded,
+        RoomLevelData level,
+        ushort callback,
+        out ushort shotX,
+        out ushort shotY)
+    {
+        for (int frame = 0; frame < 30000; frame++)
+        {
+            if (RetailExtendedHitboxProbe.TryFindShotPoint(
+                    bus,
+                    loaded.Head,
+                    callback,
+                    out shotX,
+                    out shotY))
+            {
+                return true;
+            }
+            Step(loaded, level);
+        }
+
+        shotX = 0;
+        shotY = 0;
+        return false;
     }
 
     private static void VerifyPowerBombImmunity(

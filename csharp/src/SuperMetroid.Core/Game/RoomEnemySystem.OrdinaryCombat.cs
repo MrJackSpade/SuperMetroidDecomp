@@ -986,10 +986,14 @@ public sealed partial class RoomEnemySystem
                     EarthquakeType = 18;
                 }
 
-                // Golden's definition installs $D667, but every authored extended body
-                // hitbox calls shared $C97C; that wrapper dispatches to $D667 by area.
+                // Golden's definition installs $D667, but its ordinary extended body
+                // hitboxes call shared $C97C; that wrapper dispatches to $D667 by area.
+                // Stand-up/sit-down maps deliberately use $C9C2 instead. That callback is
+                // a no-op for area-zero Bomb Torizo and a guarded direct-damage path for
+                // Golden Torizo, so it must remain distinguishable below.
                 if (isTorizo &&
-                    (!usesExtendedHitboxes || hitboxShotAi != BombTorizoShotAi))
+                    (!usesExtendedHitboxes || hitboxShotAi is not (
+                        BombTorizoShotAi or TorizoStandUpSitDownShotAi)))
                 {
                     throw new NotSupportedException(
                         $"Torizo hitbox shot AI $AA:{hitboxShotAi:X4} is not translated.");
@@ -1275,6 +1279,24 @@ public sealed partial class RoomEnemySystem
                 if (isTorizo)
                 {
                     TorizoEnemyState torizoState = RequireBombTorizoState(enemy);
+                    if (hitboxShotAi == TorizoStandUpSitDownShotAi)
+                    {
+                        // `$AA:C9C2` returns immediately in area zero. In nonzero areas it
+                        // calls `$AA:D658`, which admits common no-death shot damage only
+                        // while both the flash timer and native `toriz_var_04` are zero.
+                        // Crucially it never enters `$AA:D667`, so missiles are not caught,
+                        // Supers are not reflected, and parameter-two counterattack bits are
+                        // not armed through these transitional body rectangles.
+                        if (isBombTorizo || enemy.FlashTimer != 0 || torizoState.ShotGuard != 0)
+                        {
+                            projectiles.ApplyExtendedEnemyCollisionPrelude(
+                                projectile.SlotIndex,
+                                (enemy.Properties & 0x1000) != 0 ||
+                                    (projectile.Type & 0x0008) == 0);
+                            hitCount++;
+                            break;
+                        }
+                    }
                     if (enemy.FlashTimer != 0 || isBombTorizo && torizoState.ShotGuard != 0)
                     {
                         // Both callbacks return during a damage flash. Bomb Torizo also
@@ -1288,7 +1310,8 @@ public sealed partial class RoomEnemySystem
                         break;
                     }
 
-                    if (isGoldenTorizo && torizoState.ShotGuard == 0 &&
+                    if (hitboxShotAi == BombTorizoShotAi &&
+                        isGoldenTorizo && torizoState.ShotGuard == 0 &&
                         (enemy.Parameter2 & 0x1000) == 0)
                     {
                         torizoState.CapturedProjectileFamily = family;

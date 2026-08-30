@@ -81,6 +81,7 @@ public sealed partial class RoomEnemySystem
     internal const ushort GoldenTorizoDefinition = 0xef7f;
     internal const ushort BombTorizoTouchAi = 0xc977;
     internal const ushort BombTorizoShotAi = 0xc97c;
+    internal const ushort TorizoStandUpSitDownShotAi = 0xc9c2;
     internal const ushort GoldenTorizoShotAi = 0xd667;
 
     private const ushort BombTorizoInitialInstruction = 0xb879;

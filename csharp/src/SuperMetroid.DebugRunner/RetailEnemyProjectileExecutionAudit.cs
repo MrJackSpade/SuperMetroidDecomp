@@ -30,7 +30,7 @@ internal static partial class RetailEnemyExecutionAudit
         16, 32, 48, 64, 80, 96, 112, 128,
     ];
 
-    public static int RunProjectileCombat(string romPath)
+    public static int RunProjectileCombat(string romPath, ushort? definitionFilter = null)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         RetailRoomState[] states = LoadNamedRetailStates();
@@ -46,6 +46,14 @@ internal static partial class RetailEnemyExecutionAudit
             {
                 CartridgeRoomHeader defaultRoom = CartridgeRoomHeader.Load(bus, state.RoomPointer);
                 CartridgeRoomState exactState = CartridgeRoomState.Load(bus, state.StatePointer);
+                if (definitionFilter is ushort requestedDefinition &&
+                    !PopulationContainsDefinition(
+                        bus,
+                        exactState.EnemyPopulationPointer,
+                        requestedDefinition))
+                {
+                    continue;
+                }
                 CartridgeRoomHeader room = defaultRoom with { State = exactState };
                 CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
                 LoadedRetailState initial = LoadState(bus, room, assets);
@@ -55,6 +63,11 @@ internal static partial class RetailEnemyExecutionAudit
                     RoomEnemySlot initialTarget = initial.Enemies.Slots[slotIndex];
                     if (initialTarget.EnemyDefinitionPointer is 0 or 0xffff)
                         continue;
+                    if (definitionFilter is ushort targetDefinitionFilter &&
+                        initialTarget.EnemyDefinitionPointer != targetDefinitionFilter)
+                    {
+                        continue;
+                    }
 
                     var variant = new ProjectileVariant(
                         initialTarget.EnemyDefinitionPointer,
@@ -84,11 +97,13 @@ internal static partial class RetailEnemyExecutionAudit
                     }
 
                     int successfulWeapons = 0;
+                    string lastTargetDiagnostic = "no fresh weapon load completed";
                     foreach (ProjectileWeapon weapon in ProjectileWeapons)
                     {
                         LoadedRetailState loaded = LoadState(bus, room, assets);
                         RoomEnemySlot target = loaded.Enemies.Slots[slotIndex];
                         AdvanceToProjectileFrame(
+                            bus,
                             loaded,
                             assets.LevelData,
                             slotIndex,
@@ -99,7 +114,11 @@ internal static partial class RetailEnemyExecutionAudit
                             target.Properties.HasAny(
                                 EnemyProperties.Deleted |
                                 EnemyProperties.IgnoreSamusCollision) ||
-                            target.SpritemapPointer is 0 or 0x804d)
+                            target.SpritemapPointer is 0 or 0x804d ||
+                            !loaded.Enemies.InteractiveEnemyIndexes.Contains(target.NativeIndex) ||
+                            target.ExtraProperties.HasAny(
+                                EnemyExtraProperties.UsesExtendedSpritemap) &&
+                            RetailExtendedHitboxProbe.ReadShotPoints(bus, target).Count == 0)
                         {
                             throw new InvalidDataException(
                                 $"Definition ${variant.Definition:X4} was interactable at " +
@@ -137,6 +156,21 @@ internal static partial class RetailEnemyExecutionAudit
                             successfulWeapons++;
                             weaponDispatches++;
                         }
+                        lastTargetDiagnostic =
+                            $"bank=${target.Definition.Bank:X2}, shot=" +
+                            $"${target.Definition.ShotAiPointer:X4}/opcode " +
+                            $"${bus.ReadByte((target.Definition.Bank << 16) | target.Definition.ShotAiPointer):X2}, " +
+                            $"position=(${target.XPosition:X4},${target.YPosition:X4}), " +
+                            $"radii={target.XRadius}x{target.YRadius}, map=" +
+                            $"${target.SpritemapPointer:X4}, live properties=" +
+                            $"${target.Properties:X4}/${target.ExtraProperties:X4}, " +
+                            $"native=${target.NativeIndex:X4}, active=[" +
+                            $"{string.Join(',', loaded.Enemies.ActiveEnemyIndexes.Select(index => $"{index:X4}"))}], " +
+                            $"interactive=[{string.Join(',', loaded.Enemies.InteractiveEnemyIndexes.Select(index => $"{index:X4}"))}], " +
+                            $"extended hitboxes=[{string.Join(',',
+                                RetailExtendedHitboxProbe.ReadShotPoints(bus, target)
+                                    .Select(point =>
+                                        $"{point.X:X4}/{point.Y:X4}:${point.Callback:X4}"))}]";
                     }
 
                     // Some private callbacks intentionally reject a particular family, but
@@ -149,7 +183,8 @@ internal static partial class RetailEnemyExecutionAudit
                             $"Interactable definition ${variant.Definition:X4} parameters " +
                             $"${variant.Parameter1:X4}/${variant.Parameter2:X4} and properties " +
                             $"${variant.Properties:X4}/${variant.ExtraProperties:X4} did not " +
-                            "dispatch any beam, ice, missile, or super-missile callback.");
+                            "dispatch any beam, ice, missile, or super-missile callback; " +
+                            lastTargetDiagnostic + ".");
                     }
                     reachedDefinitions.Add(variant.Definition);
                 }
@@ -170,6 +205,12 @@ internal static partial class RetailEnemyExecutionAudit
                 .OrderBy(group => group.Key, StringComparer.Ordinal))
             {
                 Console.Error.WriteLine($"  {group.Key}");
+                string? stackTrace = group.First().Exception.StackTrace;
+                if (!string.IsNullOrWhiteSpace(stackTrace))
+                {
+                    foreach (string line in stackTrace.Split(Environment.NewLine))
+                        Console.Error.WriteLine($"      {line.Trim()}");
+                }
                 foreach (ProjectileFailure failure in group.Take(12))
                 {
                     Console.Error.WriteLine(
@@ -191,6 +232,29 @@ internal static partial class RetailEnemyExecutionAudit
         return 0;
     }
 
+    private static bool PopulationContainsDefinition(
+        ISnesAddressSpace bus,
+        ushort populationPointer,
+        ushort requestedDefinition)
+    {
+        int cursor = populationPointer;
+        for (int record = 0; record < RoomEnemySystem.MaximumEnemyCount; record++)
+        {
+            ushort definition = ReadWord(bus, 0xa10000 | unchecked((ushort)cursor));
+            if (definition == 0xffff)
+                return false;
+            if (definition == requestedDefinition)
+                return true;
+            cursor = unchecked((ushort)(cursor + 16));
+        }
+
+        return ReadWord(bus, 0xa10000 | unchecked((ushort)cursor)) == 0xffff
+            ? false
+            : throw new InvalidDataException(
+                $"Enemy population $A1:{populationPointer:X4} has no terminator within " +
+                $"{RoomEnemySystem.MaximumEnemyCount} records.");
+    }
+
     private static int FindProjectileActivationFrame(
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room,
@@ -206,6 +270,18 @@ internal static partial class RetailEnemyExecutionAudit
         {
             loaded.Samus.XPosition = target.XPosition;
             loaded.Samus.YPosition = target.YPosition;
+            // Long boss windups may sweep this deliberately target-relative stimulus with
+            // body parts or enemy projectiles before a shot-bearing map appears. Preserve
+            // the positional trigger while preventing incidental Samus hurt/knockback from
+            // becoming the thing this enemy-projectile audit is measuring.
+            loaded.Samus.InvincibilityTimer = ushort.MaxValue;
+            loaded.Samus.KnockbackActive = false;
+            loaded.Samus.KnockbackDirection = 0;
+            loaded.Samus.KnockbackTimer = 0;
+            loaded.Samus.Health = loaded.Samus.MaxHealth;
+            loaded.Samus.Pose = SamusState.FacingRightNormalPose;
+            loaded.Samus.RefreshCollisionRadii(bus);
+            loaded.Samus.InitializeAnimation(bus);
             loaded.Enemies.StepFrame(
                 cameraX,
                 cameraY,
@@ -221,8 +297,16 @@ internal static partial class RetailEnemyExecutionAudit
             {
                 return -1;
             }
-            if (!target.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) &&
-                target.SpritemapPointer is not (0 or 0x804d))
+            // The collision walker consumes the activity scan's frozen interactive-index
+            // list, not merely the live property word after AI/instruction processing. A
+            // callback may clear `$0400` during this frame but cannot receive a projectile
+            // until the following scan admits its native slot.
+            if (loaded.Enemies.InteractiveEnemyIndexes.Contains(target.NativeIndex) &&
+                !target.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) &&
+                target.SpritemapPointer is not (0 or 0x804d) &&
+                (!target.ExtraProperties.HasAny(
+                    EnemyExtraProperties.UsesExtendedSpritemap) ||
+                 RetailExtendedHitboxProbe.ReadShotPoints(bus, target).Count != 0))
             {
                 return frame;
             }
@@ -231,6 +315,7 @@ internal static partial class RetailEnemyExecutionAudit
     }
 
     private static void AdvanceToProjectileFrame(
+        SuperMetroidAddressSpace bus,
         LoadedRetailState loaded,
         RoomLevelData level,
         int slotIndex,
@@ -245,6 +330,14 @@ internal static partial class RetailEnemyExecutionAudit
             // directional and proximity state cannot diverge between weapon families.
             loaded.Samus.XPosition = target.XPosition;
             loaded.Samus.YPosition = target.YPosition;
+            loaded.Samus.InvincibilityTimer = ushort.MaxValue;
+            loaded.Samus.KnockbackActive = false;
+            loaded.Samus.KnockbackDirection = 0;
+            loaded.Samus.KnockbackTimer = 0;
+            loaded.Samus.Health = loaded.Samus.MaxHealth;
+            loaded.Samus.Pose = SamusState.FacingRightNormalPose;
+            loaded.Samus.RefreshCollisionRadii(bus);
+            loaded.Samus.InitializeAnimation(bus);
             loaded.Enemies.StepFrame(
                 cameraX,
                 cameraY,
@@ -265,6 +358,27 @@ internal static partial class RetailEnemyExecutionAudit
         ProjectileWeapon weapon,
         bool usesWideProbe)
     {
+        if (target.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
+        {
+            // Exercise the cartridge's exact current component rectangles before falling
+            // back to a spatial grid. Crocomire's tongue, long boss limbs, and composited
+            // actors can place a legitimate hitbox far outside the population origin.
+            foreach (RetailExtendedHitboxShotPoint point in
+                RetailExtendedHitboxProbe.ReadShotPoints(bus, target))
+            {
+                if (TryDispatchProjectileAt(
+                        bus,
+                        loaded,
+                        target,
+                        weapon,
+                        point.X,
+                        point.Y))
+                {
+                    return true;
+                }
+            }
+        }
+
         ReadOnlySpan<short> xOffsets = usesWideProbe
             ? ExtendedHitboxProbeOffsets
             : [0];
@@ -275,47 +389,65 @@ internal static partial class RetailEnemyExecutionAudit
         {
             foreach (short xOffset in xOffsets)
             {
-                SamusProjectileSlot projectile = loaded.SamusProjectiles.Slots[0];
-                ArmAuditProjectile(projectile, target, weapon, xOffset, yOffset);
-                target.InvincibilityTimer = 0;
-                int hits = 0;
-                hits += loaded.Enemies.ResolveCeresRidleyProjectileHits(
-                    bus,
-                    loaded.SamusProjectiles,
-                    loaded.SharedProjectiles);
-                hits += loaded.Enemies.ResolveKraidProjectileHits(
-                    bus,
-                    loaded.SamusProjectiles,
-                    loaded.SharedProjectiles);
-                hits += loaded.Enemies.ResolvePhantoonProjectileHits(
-                    bus,
-                    loaded.SamusProjectiles,
-                    loaded.SharedProjectiles);
-                hits += loaded.Enemies.ResolveOrdinaryProjectileHits(
-                    bus,
-                    loaded.SamusProjectiles,
-                    loaded.SharedProjectiles,
-                    loaded.Samus);
-                if (hits != 0)
+                if (TryDispatchProjectileAt(
+                        bus,
+                        loaded,
+                        target,
+                        weapon,
+                        unchecked((ushort)(target.XPosition + xOffset)),
+                        unchecked((ushort)(target.YPosition + yOffset))))
+                {
                     return true;
+                }
             }
         }
         return false;
     }
 
-    private static void ArmAuditProjectile(
-        SamusProjectileSlot projectile,
+    private static bool TryDispatchProjectileAt(
+        ISnesAddressSpace bus,
+        LoadedRetailState loaded,
         RoomEnemySlot target,
         ProjectileWeapon weapon,
-        short xOffset,
-        short yOffset)
+        ushort worldX,
+        ushort worldY)
+    {
+        SamusProjectileSlot projectile = loaded.SamusProjectiles.Slots[0];
+        ArmAuditProjectile(projectile, weapon, worldX, worldY);
+        target.InvincibilityTimer = 0;
+        int hits = 0;
+        hits += loaded.Enemies.ResolveCeresRidleyProjectileHits(
+            bus,
+            loaded.SamusProjectiles,
+            loaded.SharedProjectiles);
+        hits += loaded.Enemies.ResolveKraidProjectileHits(
+            bus,
+            loaded.SamusProjectiles,
+            loaded.SharedProjectiles);
+        hits += loaded.Enemies.ResolvePhantoonProjectileHits(
+            bus,
+            loaded.SamusProjectiles,
+            loaded.SharedProjectiles);
+        hits += loaded.Enemies.ResolveOrdinaryProjectileHits(
+            bus,
+            loaded.SamusProjectiles,
+            loaded.SharedProjectiles,
+            loaded.Samus);
+        return hits != 0;
+    }
+
+    private static void ArmAuditProjectile(
+        SamusProjectileSlot projectile,
+        ProjectileWeapon weapon,
+        ushort worldX,
+        ushort worldY)
     {
         projectile.ClearFields();
         projectile.Type = weapon.Type;
         projectile.Damage = weapon.Damage;
         projectile.Direction = (ushort)SamusProjectileDirection.Right;
-        projectile.XPosition = unchecked((ushort)(target.XPosition + xOffset));
-        projectile.YPosition = unchecked((ushort)(target.YPosition + yOffset));
+        projectile.XPosition = worldX;
+        projectile.YPosition = worldY;
         projectile.XRadius = 4;
         projectile.YRadius = 4;
         projectile.InstructionPointer = 0x9000;

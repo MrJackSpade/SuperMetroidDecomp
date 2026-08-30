@@ -144,6 +144,24 @@ if (args.Length >= 2 && args[0] == "--retail-enemy-projectile-audit")
     return RetailEnemyExecutionAudit.RunProjectileCombat(projectileAuditRomPath);
 }
 
+if (args.Length >= 3 && args[0] == "--retail-enemy-projectile-definition-audit")
+{
+    string definitionText = args[1].TrimStart('$');
+    if (!ushort.TryParse(
+            definitionText,
+            System.Globalization.NumberStyles.AllowHexSpecifier,
+            provider: null,
+            out ushort projectileDefinition))
+    {
+        throw new ArgumentException(
+            $"Projectile audit definition '{args[1]}' is not a four-digit hexadecimal word.");
+    }
+    string projectileAuditRomPath = string.Join(' ', args[2..]).Trim('"');
+    return RetailEnemyExecutionAudit.RunProjectileCombat(
+        projectileAuditRomPath,
+        projectileDefinition);
+}
+
 if (args.Length >= 2 && args[0] == "--dead-torizo-audit")
 {
     string deadTorizoRomPath = string.Join(' ', args[1..]).Trim('"');

@@ -18,6 +18,7 @@ internal static class BombTorizoAudit
     private const ushort TilesetPointer = 0x80b3;
     private const ushort CameraX = 0;
     private const ushort CameraY = 0;
+    private const ushort StandUpSitDownShotCallback = 0xc9c2;
 
     public static int Run(string romPath)
     {
@@ -99,6 +100,8 @@ internal static class BombTorizoAudit
             alreadyDefeated: false,
             header => header == 0xd6ea && handTriggerPresent,
             () => bossBitSet = true);
+
+        VerifyStandUpSitDownNoOp(bus, room, assets);
 
         if (loaded.Enemies.EnemyCount != 1 || loaded.Head.Health != 800 ||
             loaded.Head.XPosition != 0x00db || loaded.Head.YPosition != 0x00b3 ||
@@ -245,6 +248,74 @@ internal static class BombTorizoAudit
             !loaded.State.BossBitSet)
         {
             throw new InvalidDataException("Defeated Bomb Torizo did not delete during init.");
+        }
+    }
+
+    /// <summary>
+    /// Area-zero `$AA:C9C2` is intentionally empty even when the awakening shot guard is
+    /// clear. The bank-$A0 extended collision prelude still marks the projectile, but the
+    /// callback must not create an impact, consult vulnerability, or damage Bomb Torizo.
+    /// </summary>
+    private static void VerifyStandUpSitDownNoOp(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        LoadedBombTorizo loaded = Load(
+            bus,
+            room,
+            assets,
+            alreadyDefeated: false,
+            _ => false,
+            () => { });
+        ushort shotX = 0;
+        ushort shotY = 0;
+        bool found = false;
+        for (int frame = 0; frame < 12000; frame++)
+        {
+            if (RetailExtendedHitboxProbe.TryFindShotPoint(
+                    bus,
+                    loaded.Head,
+                    StandUpSitDownShotCallback,
+                    out shotX,
+                    out shotY))
+            {
+                found = true;
+                break;
+            }
+            Step(loaded, assets.LevelData, stepProjectiles: true);
+        }
+        if (!found)
+        {
+            throw new InvalidDataException(
+                "Bomb Torizo never displayed an authored $AA:C9C2 shot hitbox.");
+        }
+
+        loaded.Head.FlashTimer = 0;
+        loaded.State.ShotGuard = 0;
+        ushort healthBefore = loaded.Head.Health;
+        ushort parameter2Before = loaded.Head.Parameter2;
+        var shots = new SamusProjectileSystem();
+        var bombs = new SamusBombProjectileSystem();
+        ArmProjectile(shots.Slots[0], loaded.Head, type: 0x8200, damage: 300);
+        shots.Slots[0].XPosition = shotX;
+        shots.Slots[0].YPosition = shotY;
+        shots.Slots[0].XRadius = 1;
+        shots.Slots[0].YRadius = 1;
+        int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
+            bus,
+            shots,
+            bombs,
+            loaded.Samus);
+        if (hits != 1 || loaded.Head.Health != healthBefore ||
+            loaded.Head.Parameter2 != parameter2Before || shots.Slots[0].Type != 0x8200 ||
+            (shots.Slots[0].Direction & 0x0010) == 0)
+        {
+            throw new InvalidDataException(
+                $"Bomb Torizo $C9C2 no-op mismatch: hits={hits}, " +
+                $"health={healthBefore}->{loaded.Head.Health}, parameter2=" +
+                $"${parameter2Before:X4}->${loaded.Head.Parameter2:X4}, projectile=" +
+                $"${shots.Slots[0].Type:X4}/${shots.Slots[0].Direction:X4}.");
         }
     }
 

@@ -225,6 +225,7 @@ public sealed partial class RoomEnemySystem
         ResetMaridiaLargeSnailRoomState();
         ResetRipperVariantRoomState();
         ResetDragonRoomState();
+        ResetKraidRoomState();
         ResetShutterRoomState(cameraX, cameraY);
         ResetElevatorRoomActors();
         LastKzanSoundEffect = null;
@@ -1232,6 +1233,30 @@ public sealed partial class RoomEnemySystem
                 BombTorizoDefinition or GoldenTorizoDefinition:
                 InitializeBombTorizo(slot);
                 return;
+            case 0xa7a959 when slot.EnemyDefinitionPointer == KraidDefinition:
+                InitializeKraidBody(slot);
+                return;
+            case 0xa7ab43 when slot.EnemyDefinitionPointer == KraidArmDefinition:
+                InitializeKraidArm(slot);
+                return;
+            case 0xa7ab68 when slot.EnemyDefinitionPointer == KraidTopLintDefinition:
+                InitializeKraidLint(slot, expectedSlot: 2);
+                return;
+            case 0xa7ab9c when slot.EnemyDefinitionPointer == KraidMiddleLintDefinition:
+                InitializeKraidLint(slot, expectedSlot: 3);
+                return;
+            case 0xa7abca when slot.EnemyDefinitionPointer == KraidBottomLintDefinition:
+                InitializeKraidLint(slot, expectedSlot: 4);
+                return;
+            case 0xa7abf8 when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                InitializeKraidFoot(slot);
+                return;
+            case 0xa7bcef when slot.EnemyDefinitionPointer == KraidGoodNailDefinition:
+                InitializeKraidNail(slot, expectedSlot: 6);
+                return;
+            case 0xa7bd2d when slot.EnemyDefinitionPointer == KraidBadNailDefinition:
+                InitializeKraidNail(slot, expectedSlot: 7);
+                return;
             case 0xaad7c8 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
                 InitializeTourianEntranceStatue(slot);
                 return;
@@ -1722,6 +1747,20 @@ public sealed partial class RoomEnemySystem
                     RequireBombTorizoState(slot),
                     samus,
                     level);
+                return;
+            case 0xa7ac21 when slot.EnemyDefinitionPointer == KraidDefinition:
+                RunKraidBodyMain(slot, samus);
+                return;
+            case 0xa7b7bd when slot.EnemyDefinitionPointer == KraidArmDefinition:
+            case 0xa7b801 when slot.EnemyDefinitionPointer == KraidTopLintDefinition:
+            case 0xa7b80d when slot.EnemyDefinitionPointer == KraidMiddleLintDefinition:
+            case 0xa7b819 when slot.EnemyDefinitionPointer == KraidBottomLintDefinition:
+            case 0xa7b9f6 when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                RunKraidPassivePartMain(slot);
+                return;
+            case 0xa7bd32 when slot.EnemyDefinitionPointer == KraidGoodNailDefinition:
+            case 0xa7bd49 when slot.EnemyDefinitionPointer == KraidBadNailDefinition:
+                RunKraidNailMain(slot, level);
                 return;
             case 0xaad7c7 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
                 // $AA:D7C7 is the one-byte RTL immediately before the initializer. The

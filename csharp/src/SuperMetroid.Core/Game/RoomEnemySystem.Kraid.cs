@@ -1,0 +1,170 @@
+namespace SuperMetroid.Core.Game;
+
+/// <summary>
+/// Retail initialization and dispatcher foundation for Kraid's eight physical enemy slots.
+/// Kraid's body uses BG2 while the arm, foot, lints, and nails use ordinary/extended enemy
+/// spritemaps; preserving those independent records is required for native layer and damage
+/// ordering later in the encounter.
+/// </summary>
+public sealed partial class RoomEnemySystem
+{
+    private const ushort KraidInitialArmInstruction = 0x8aa4;
+    private const ushort KraidInitialLintInstruction = 0x8afe;
+    private const ushort KraidInitialLintSpritemap = 0xa5df;
+    private const ushort KraidInitialFootInstruction = 0x86e7;
+    private const ushort KraidNailInstruction = 0x8b0a;
+
+    private void InitializeKraidBody(RoomEnemySlot body)
+    {
+        if (body.SlotIndex != 0)
+        {
+            throw new InvalidDataException(
+                $"Kraid body requires native slot zero, not slot {body.SlotIndex}.");
+        }
+
+        _kraidState = new KraidEnemyState();
+        KraidEnemyState state = _kraidState;
+        if (_isAreaBossDefeated?.Invoke() ?? false)
+        {
+            // `$A7:A959` installs the dead-room BG palette before the shared part initializer
+            // marks every physical actor invisible/deleted/non-interactive.
+            _cgram!.LoadFromBus(_bus!, 0xa786c7, colorCount: 16, destinationIndex: 96);
+            MarkKraidPartDead(body);
+            return;
+        }
+
+        state.MinimumYPositionForEjection = 324;
+        ushort oneEighth = unchecked((ushort)(body.Health >> 3));
+        for (int index = 0; index < state.HealthEighthThresholds.Length; index++)
+        {
+            state.HealthEighthThresholds[index] = unchecked((ushort)(
+                oneEighth * (index + 1)));
+        }
+        ushort oneQuarter = unchecked((ushort)(body.Health >> 2));
+        for (int index = 0; index < state.HealthQuarterThresholds.Length; index++)
+        {
+            state.HealthQuarterThresholds[index] = unchecked((ushort)(
+                oneQuarter * (index + 1)));
+        }
+
+        // `$A7:AAC6` decompresses two cartridge tilemaps and clears priority bits before
+        // the first rise frame. The renderer-facing tilemap transfer will consume this
+        // state in the dedicated BG2 slice; initialization still records the authored seam.
+        state.BackgroundTilemapsPrepared = true;
+        state.HurtFrame = 0;
+        state.HurtFrameTimer = 0;
+
+        body.XPosition = 176;
+        body.YPosition = 592;
+        body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        body.VariableA = (ushort)KraidAiFunction.RestrictSamusToFirstScreen;
+        body.VariableF = 300;
+        body.VariableC = 64;
+        state.Parts[0].NextFunction = KraidAiFunction.RaiseKraidThroughFloor;
+
+        // Background palette three's target colors are written at CGRAM palette eleven in
+        // native target-palette storage. The software renderer exposes that buffer directly.
+        _cgram!.LoadFromBus(_bus!, 0xa7aaa6, colorCount: 16, destinationIndex: 176);
+        EarthquakeType = 5;
+    }
+
+    private void InitializeKraidArm(RoomEnemySlot arm)
+    {
+        KraidEnemyState state = RequireKraidState(arm);
+        if (_isAreaBossDefeated?.Invoke() ?? false)
+        {
+            MarkKraidPartDead(arm);
+            return;
+        }
+        EnsureKraidSlot(arm, 1, "arm");
+        arm.PaletteIndex = _slots[0].PaletteIndex;
+        arm.VariableA = (ushort)KraidAiFunction.NoOperation;
+        arm.CurrentInstruction = KraidInitialArmInstruction;
+        arm.InstructionTimer = 1;
+        arm.VariableB = 0;
+        state.Parts[arm.SlotIndex].NextFunction = KraidAiFunction.NoOperation;
+    }
+
+    private void InitializeKraidLint(RoomEnemySlot lint, int expectedSlot)
+    {
+        _ = RequireKraidState(lint);
+        if (_isAreaBossDefeated?.Invoke() ?? false)
+        {
+            MarkKraidPartDead(lint);
+            return;
+        }
+        EnsureKraidSlot(lint, expectedSlot, "lint");
+        lint.PaletteIndex = _slots[0].PaletteIndex;
+        lint.InstructionTimer = 0x7fff;
+        lint.CurrentInstruction = KraidInitialLintInstruction;
+        lint.SpritemapPointer = KraidInitialLintSpritemap;
+        lint.VariableA = (ushort)KraidAiFunction.LintInactive;
+        lint.VariableC = expectedSlot == 2 ? (ushort)0 : (ushort)0xfff0;
+    }
+
+    private void InitializeKraidFoot(RoomEnemySlot foot)
+    {
+        KraidEnemyState state = RequireKraidState(foot);
+        if (_isAreaBossDefeated?.Invoke() ?? false)
+        {
+            MarkKraidPartDead(foot);
+            return;
+        }
+        EnsureKraidSlot(foot, 5, "foot");
+        foot.PaletteIndex = _slots[0].PaletteIndex;
+        foot.CurrentInstruction = KraidInitialFootInstruction;
+        foot.InstructionTimer = 1;
+        foot.VariableA = (ushort)KraidAiFunction.NoOperation;
+        state.Parts[foot.SlotIndex].NextFunction = 0;
+    }
+
+    private void InitializeKraidNail(RoomEnemySlot nail, int expectedSlot)
+    {
+        KraidEnemyState state = RequireKraidState(nail);
+        if (_isAreaBossDefeated?.Invoke() ?? false)
+        {
+            MarkKraidPartDead(nail);
+            return;
+        }
+        EnsureKraidSlot(nail, expectedSlot, "fingernail");
+        nail.PaletteIndex = _slots[0].PaletteIndex;
+        nail.VariableB = 40;
+        nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
+        nail.InstructionTimer = 0x7fff;
+        nail.CurrentInstruction = KraidNailInstruction;
+        nail.SpritemapPointer = ReadWord(_bus!, 0xa78b0c);
+        state.Parts[nail.SlotIndex].NextFunction = KraidAiFunction.FingernailInitialize;
+        nail.VariableA = (ushort)KraidAiFunction.HandleFunctionTimer;
+        nail.VariableF = 64;
+    }
+
+    private static void EnsureKraidSlot(RoomEnemySlot slot, int expectedSlot, string part)
+    {
+        if (slot.SlotIndex != expectedSlot)
+        {
+            throw new InvalidDataException(
+                $"Kraid {part} requires native slot {expectedSlot}, not {slot.SlotIndex}.");
+        }
+    }
+
+    /// <summary>Ports `$A7:A943`: preserve raw upper flags while installing `$0700`.</summary>
+    private static void MarkKraidPartDead(RoomEnemySlot slot) =>
+        slot.Properties = unchecked((ushort)((slot.Properties & 0x50ff) | 0x0700));
+
+    private void RunKraidBodyMain(RoomEnemySlot body, SamusState? samus)
+    {
+        KraidEnemyState state = RequireKraidState(body);
+        RunKraidRiseFunction(body, state, samus);
+    }
+
+    private void RunKraidPassivePartMain(RoomEnemySlot part)
+    {
+        _ = RequireKraidState(part);
+        KraidAiFunction function = (KraidAiFunction)part.VariableA;
+        if (function is KraidAiFunction.NoOperation or KraidAiFunction.LintInactive)
+            return;
+        throw new NotSupportedException(
+            $"Kraid part ${part.EnemyDefinitionPointer:X4} function " +
+            $"$A7:{part.VariableA:X4} is not translated.");
+    }
+}

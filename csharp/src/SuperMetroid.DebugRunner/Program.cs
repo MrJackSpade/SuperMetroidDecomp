@@ -264,6 +264,12 @@ if (args.Length >= 2 && args[0] == "--norfair-ridley-audit")
     return NorfairRidleyAudit.Run(ridleyRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--kraid-audit")
+{
+    string kraidRomPath = string.Join(' ', args[1..]).Trim('"');
+    return KraidAudit.Run(kraidRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--bomb-torizo-audit")
 {
     string bombTorizoRomPath = string.Join(' ', args[1..]).Trim('"');

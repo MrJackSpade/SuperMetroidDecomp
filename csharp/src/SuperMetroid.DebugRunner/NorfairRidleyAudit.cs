@@ -8,7 +8,7 @@ using SuperMetroid.Core.Runtime;
 /// so reveal bytecode, extended maps, palette tables, and the $E976 combat handoff all come
 /// from the cartridge rather than a synthetic boss fixture.
 /// </summary>
-internal static class NorfairRidleyAudit
+internal static partial class NorfairRidleyAudit
 {
     private const ushort RoomPointer = 0xb32e;
     private const ushort PopulationPointer = 0xa626;
@@ -154,6 +154,12 @@ internal static class NorfairRidleyAudit
                 $"functions={string.Join(',', combatFunctions)}.");
         }
 
+        // The room/reveal pass above proves that cartridge population and main AI reach a
+        // live fight. Damage and death are deliberately exercised on a fresh encounter in
+        // the companion partial file: that prevents 4096 random combat frames (and their
+        // accumulated fireballs) from making collision/death assertions order-dependent.
+        RidleyBattleAuditResult battle = VerifyCombatDamageAndDeath(bus, room, assets);
+
         var defeated = new RoomEnemySystem();
         defeated.Load(
             bus,
@@ -170,10 +176,13 @@ internal static class NorfairRidleyAudit
         }
 
         Console.WriteLine(
-            $"Lower Norfair Ridley audit passed through combat handoff in {frame} frames: " +
+            $"Lower Norfair Ridley audit passed through death in {frame} reveal frames: " +
             $"retail room/header/population, boss-bit deletion, reveal palettes, layer-five " +
             $"entrance, seven-part tail, wing/body bytecode, and {combatFunctions.Count} " +
-            $"live combat states across 4096 frames.");
+            $"live combat states across 4096 frames; body/tail contact, tail armor, retail " +
+            $"beam/PB immunity, missile damage, zero-health grab, " +
+            $"{battle.BreakupActorCount} breakup actors, " +
+            $"and persisted boss defeat across {battle.DeathFrames} death frames.");
         return 0;
     }
 }

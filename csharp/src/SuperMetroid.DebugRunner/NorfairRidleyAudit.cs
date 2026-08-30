@@ -180,7 +180,7 @@ internal static partial class NorfairRidleyAudit
             $"retail room/header/population, boss-bit deletion, reveal palettes, layer-five " +
             $"entrance, seven-part tail, wing/body bytecode, and {combatFunctions.Count} " +
             $"live combat states across 4096 frames; body/tail contact, tail armor, retail " +
-            $"beam/PB immunity, missile damage, zero-health grab, " +
+            $"beam/normal-bomb immunity, missile/Power-Bomb damage, zero-health grab, " +
             $"{battle.BreakupActorCount} breakup actors, " +
             $"and persisted boss defeat across {battle.DeathFrames} death frames.");
         return 0;

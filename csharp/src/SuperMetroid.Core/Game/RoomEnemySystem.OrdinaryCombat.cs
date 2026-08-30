@@ -1805,6 +1805,16 @@ public sealed partial class RoomEnemySystem
                     // direction. It never enters vulnerability or health damage.
                     ResolveShitroidShot(enemy, bomb.Damage, ordinaryProjectiles.Slots[0]);
                 }
+                else if (enemy.EnemyDefinitionPointer == CeresRidleyDefinition &&
+                    selectedShotAi == RidleyShotAi)
+                {
+                    // `$A6:DF8A` branches on area index before it ever reaches common
+                    // vulnerability damage. Ceres therefore treats an exploding normal
+                    // bomb exactly like an ordinary shot for its cinematic counter: the
+                    // bank-$A0 walker has already marked the physical bomb, while Ridley
+                    // alternates hurt timing and advances the 100-hit escape condition.
+                    ResolveCeresRidleyShotAfterCollision(enemy);
+                }
                 else if (!selectedLiteralNoOp)
                 {
                     bool isDeadTorizo = enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
@@ -1816,6 +1826,9 @@ public sealed partial class RoomEnemySystem
                         selectedShotAi == enemy.Definition.ShotAiPointer;
                     bool isDraygonBody = enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
                         selectedShotAi == DraygonShotAi;
+                    bool isNorfairRidley =
+                        enemy.EnemyDefinitionPointer == NorfairRidleyDefinition &&
+                        selectedShotAi == RidleyShotAi;
                     bool isSporeSpawn = enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
                         selectedShotAi == SporeSpawnShotAi;
                     bool isBossDudHitbox =
@@ -1897,7 +1910,8 @@ public sealed partial class RoomEnemySystem
                                 bomb,
                                 runGenericDeath:
                                     !isRinka && !isSkree && !isPowamp && !isZebetite &&
-                                    !isDraygonBody && !isSporeSpawn && !isBotwoon);
+                                    !isDraygonBody && !isSporeSpawn && !isBotwoon &&
+                                    !isNorfairRidley);
 
                             if (enemy.EnemyDefinitionPointer == BabyTurtleDefinition &&
                                 selectedShotAi == BabyTurtleShotAi)
@@ -1972,6 +1986,8 @@ public sealed partial class RoomEnemySystem
                                 ResolveSporeSpawnShotAfterCommon(enemy);
                             if (isDraygonBody)
                                 ResolveDraygonReaction(enemy, samus);
+                            if (isNorfairRidley)
+                                ResolveNorfairRidleyShotAfterCommon(enemy);
                             if (isBotwoon)
                                 ResolveBotwoonCombatAfterCommon(enemy);
                             if (enemy.EnemyDefinitionPointer == DestroyableVerticalShutterDefinition &&
@@ -2090,6 +2106,8 @@ public sealed partial class RoomEnemySystem
             callback is DraygonShotAi or DraygonDudHitboxShotAi ||
         enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
             callback is SporeSpawnShotAi or SporeSpawnDudHitboxShotAi ||
+        enemy.EnemyDefinitionPointer is CeresRidleyDefinition or NorfairRidleyDefinition &&
+            callback == RidleyShotAi ||
         enemy.EnemyDefinitionPointer == ShitroidDefinition && callback == ShitroidShotAi ||
         enemy.EnemyDefinitionPointer == BotwoonDefinition && callback == BotwoonShotAi ||
         enemy.EnemyDefinitionPointer is CrocomireDefinition or CrocomireTongueDefinition &&

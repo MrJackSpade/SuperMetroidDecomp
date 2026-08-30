@@ -341,6 +341,8 @@ internal static partial class RetailEnemyExecutionAudit
             (0xddbf, 0xa4, 0x0000) => NormalBombAuditBehavior.FocusedOnly,
             (0xde7f, 0xa5, 0x804c) => NormalBombAuditBehavior.FocusedOnly,
             (0xdeff, 0xa5, 0x804c) => NormalBombAuditBehavior.FocusedOnly,
+            (0xe13f, 0xa6, 0xdf8a) => NormalBombAuditBehavior.FocusedOnly,
+            (0xe17f, 0xa6, 0xdf8a) => NormalBombAuditBehavior.FocusedOnly,
             (0xe1ff, 0xa6, 0x804c) => NormalBombAuditBehavior.FocusedOnly,
             (0xeebf, 0xa9, 0xf842) => NormalBombAuditBehavior.FocusedOnly,
             (0xf293, 0xb3, 0xa016) => NormalBombAuditBehavior.FocusedOnly,

@@ -1758,10 +1758,11 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     auditSamus.Health = 99;
     auditSamus.InvincibilityTimer = 0;
 
-    // Fire 100 actual power-beam slots through the retail bank-$90/$93 producer, let the
-    // Ceres shot AI convert every one to its retail explosion, and wait for each delete
-    // opcode before reusing the slot. This deliberately avoids assigning HitCounter from
-    // the audit: the real-ROM path must prove the playable trigger itself.
+    // Reach the 100-hit escape condition through both physical projectile owners that call
+    // `$A6:DF8A`: one exploding normal bomb followed by 99 actual power-beam slots. This
+    // deliberately avoids assigning HitCounter from the audit. Bank $A0 must select the
+    // current extended rectangle, mark the bomb, and dispatch the same Ceres callback used
+    // by the ordinary-shot owner before the beam loop proves its independent impact path.
     const int auditRoomWidth = 32;
     const int auditRoomHeight = 16;
     var auditAir = new RoomLevelData(
@@ -1773,7 +1774,38 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         new byte[8]);
     var auditBombs = new SamusBombProjectileSystem();
     var auditProjectiles = new SamusProjectileSystem();
-    for (int hit = 0; hit < 100; hit++)
+    ushort healthBeforeNormalBomb = ridleySlot.Health;
+    ushort hitCounterBeforeNormalBomb = ridleyState.HitCounter;
+    ushort flashBeforeNormalBomb = ridleySlot.FlashTimer;
+    ushort expectedNormalBombFlash =
+        flashBeforeNormalBomb != 0 && (flashBeforeNormalBomb & 1) != 0
+            ? (ushort)14
+            : (ushort)13;
+    SamusBombProjectileSlot normalBomb =
+        EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+            auditBombs,
+            ridleySlot.XPosition,
+            ridleySlot.YPosition);
+    int normalBombHits = ridleyEnemies.ResolveOrdinaryBombHits(
+        auditBombs,
+        auditProjectiles,
+        auditSamus);
+    if (normalBombHits != 1 || (normalBomb.Direction & 0x0010) == 0 ||
+        ridleySlot.Health != healthBeforeNormalBomb ||
+        ridleyState.HitCounter != unchecked((ushort)(hitCounterBeforeNormalBomb + 1)) ||
+        ridleySlot.FlashTimer != expectedNormalBombFlash ||
+        ridleySlot.Properties.HasAny(EnemyProperties.Deleted))
+    {
+        throw new InvalidDataException(
+            $"Ceres Ridley normal-bomb callback mismatch: hits={normalBombHits}, " +
+            $"direction=${normalBomb.Direction:X4}, health=" +
+            $"{healthBeforeNormalBomb}->{ridleySlot.Health}, counter=" +
+            $"{hitCounterBeforeNormalBomb}->{ridleyState.HitCounter}, flash=" +
+            $"{flashBeforeNormalBomb}->{ridleySlot.FlashTimer}/{expectedNormalBombFlash}, " +
+            $"properties=${ridleySlot.Properties:X4}.");
+    }
+
+    for (int hit = 0; hit < 99; hit++)
     {
         auditSamus.XPosition = ridleySlot.XPosition;
         auditSamus.YPosition = ridleySlot.YPosition;
@@ -1915,7 +1947,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         $"({preRevealOverlapPixel % 256},{preRevealOverlapPixel / 256}), " +
         $"battle in {battleEntryFrames} frames, all seven fireball/afterburn definitions in " +
         $"{fireballAuditFrames} frames, runtime hurt OAM {liveContactOamCount}/128, " +
-        $"100 retail beam hits and shared power-bomb damage, " +
+        $"one retail normal-bomb plus 99 beam hits and shared power-bomb damage, " +
         $"escape handoff in {retreatFrames} frames, Mode 7 restored in {mode7Frames} frames.");
     return 0;
 }

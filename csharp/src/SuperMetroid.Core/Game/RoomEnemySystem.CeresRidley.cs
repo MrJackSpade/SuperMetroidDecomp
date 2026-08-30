@@ -48,26 +48,46 @@ public sealed partial class RoomEnemySystem
             if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
                 continue;
 
-            // EnemyShot_Ridley at $A6:DF8A alternates 13/14-frame flashes according to
-            // the carry shifted out of the previous timer: that is bit zero, not bit one.
-            slot.FlashTimer = slot.FlashTimer != 0 && (slot.FlashTimer & 1) != 0
-                ? (ushort)14
-                : (ushort)13;
-            _ridleyState.HitCounter = unchecked((ushort)(_ridleyState.HitCounter + 1));
-
-            // The cartridge's collision walk exits through the selected hitbox's shot AI,
-            // so no second projectile can hit the same enemy during this EnemyMain call.
-            // Our projectile pass occurs after RoomEnemySystem.StepFrame; explicitly latch
-            // the same pre-increment actor frame used by Ridley's native draw routines.
-            UpdateRidleyHurtFlashPalettes(
-                slot,
-                _ridleyState,
-                unchecked((ushort)(slot.FrameCounter - 1)));
-            UpdateCeresRidleyHealthPalette(_ridleyState);
+            ResolveCeresRidleyShotAfterCollision(slot);
             return 1;
         }
 
         return 0;
+    }
+
+    /// <summary>
+    /// Executes the non-area-two half of <c>EnemyShot_Ridley</c> at $A6:DF8A after bank
+    /// $A0 has accepted and marked an overlapping projectile. Both the ordinary-shot and
+    /// physical normal-bomb walkers dispatch this exact callback; keeping the reaction here
+    /// prevents those two collision owners from acquiring subtly different cinematic rules.
+    /// </summary>
+    private void ResolveCeresRidleyShotAfterCollision(RoomEnemySlot slot)
+    {
+        RidleyEnemyState state = RequireRidley(slot);
+        if (slot.EnemyDefinitionPointer != CeresRidleyDefinition)
+        {
+            throw new InvalidOperationException(
+                $"Enemy slot {slot.SlotIndex} entered Ceres Ridley's shot branch as " +
+                $"definition ${slot.EnemyDefinitionPointer:X4}.");
+        }
+
+        // `$DF99-$DFA9` starts with Y=13, shifts the old nonzero timer once, and selects
+        // 14 only when that shift produced carry. In host terms this is precisely old bit
+        // zero; testing bit one (or simply toggling the new value) changes repeated-hit
+        // timing and eventually moves the escape threshold relative to the hurt palette.
+        slot.FlashTimer = slot.FlashTimer != 0 && (slot.FlashTimer & 1) != 0
+            ? (ushort)14
+            : (ushort)13;
+        state.HitCounter = unchecked((ushort)(state.HitCounter + 1));
+
+        // The cartridge draws the hurt palette from the enemy frame that just completed.
+        // Collision runs afterward, so publish that same pre-increment frame immediately
+        // for standalone renderers inspecting CGRAM before the next enemy dispatcher call.
+        UpdateRidleyHurtFlashPalettes(
+            slot,
+            state,
+            unchecked((ushort)(slot.FrameCounter - 1)));
+        UpdateCeresRidleyHealthPalette(state);
     }
 
     /// <summary>

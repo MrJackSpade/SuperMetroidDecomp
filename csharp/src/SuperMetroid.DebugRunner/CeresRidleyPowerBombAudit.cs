@@ -3,9 +3,9 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Focused proof for Ceres Ridley's shared $A6:DFB2 power-bomb callback. Norfair Ridley is
-/// immune at vulnerability byte 15, so his battle audit cannot execute this routine even
-/// though both headers point at it.
+/// Focused proof for Ceres Ridley's shared $A6:DFB2 power-bomb callback. Lower Norfair's
+/// battle audit executes the same common no-death-check route; this fresh Ceres load keeps
+/// its health/timer effects independent of the cinematic's 100-hit escape counter.
 /// </summary>
 internal static class CeresRidleyPowerBombAudit
 {

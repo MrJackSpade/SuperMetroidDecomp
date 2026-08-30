@@ -136,6 +136,44 @@ internal static partial class NorfairRidleyAudit
                 $"AI=${body.AiHandlerBits:X4}, properties=${body.Properties:X4}.");
         }
 
+        // Normal bombs live in physical projectile slots five through nine, so they must
+        // reach `$A6:DF8A` through EnemyBombCollHandler rather than the five-slot ordinary
+        // shot walk above. Ridley's retail bomb byte is `$80`: the callback still accepts
+        // the authored extended body rectangle and marks the explosion, but its low-seven
+        // multiplier is zero and common no-death-check damage leaves every boss word alone.
+        ushort vulnerabilityPointer = body.Definition.VulnerabilityPointer != 0
+            ? body.Definition.VulnerabilityPointer
+            : (ushort)0xec1c;
+        byte normalBombVulnerability = bus.ReadByte(
+            0xb40000 | unchecked((ushort)(vulnerabilityPointer + 14)));
+        SamusBombProjectileSlot normalBomb =
+            EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                sharedProjectiles,
+                unchecked((ushort)(body.XPosition + bodyHitOffsetX)),
+                unchecked((ushort)(body.YPosition + bodyHitOffsetY)));
+        ushort healthBeforeNormalBomb = body.Health;
+        ushort propertiesBeforeNormalBomb = body.Properties;
+        int normalBombHits = enemies.ResolveOrdinaryBombHits(
+            sharedProjectiles,
+            immuneBeam,
+            samus);
+        if (normalBombVulnerability != 0x80 || normalBombHits != 1 ||
+            (normalBomb.Direction & 0x0010) == 0 ||
+            body.Health != healthBeforeNormalBomb || body.FlashTimer != 0 ||
+            body.InvincibilityTimer != 0 || (body.AiHandlerBits & 0x0002) != 0 ||
+            body.Properties != propertiesBeforeNormalBomb)
+        {
+            throw new InvalidDataException(
+                $"Ridley normal-bomb reaction mismatch: vulnerability=" +
+                $"${normalBombVulnerability:X2}, hits={normalBombHits}, " +
+                $"direction=${normalBomb.Direction:X4}, health=" +
+                $"{healthBeforeNormalBomb}->{body.Health}, invincibility/flash=" +
+                $"{body.InvincibilityTimer}/{body.FlashTimer}, " +
+                $"AI=${body.AiHandlerBits:X4}, properties=" +
+                $"${propertiesBeforeNormalBomb:X4}->${body.Properties:X4}.");
+        }
+        normalBomb.ClearFields();
+
         // Recompute the world point because the armor frame moved Ridley. Missile family
         // `$8100` selects vulnerability `$82`, so common no-death-check damage must arm the
         // boss-specific hurt AI and palette flash while leaving the actor alive.
@@ -163,10 +201,14 @@ internal static partial class NorfairRidleyAudit
                 $"AI=${body.AiHandlerBits:X4}, properties=${body.Properties:X4}.");
         }
 
-        // Power-bomb byte `$80` has the same zero multiplier as beams. The all-slot ellipse
-        // must reject it before dispatching `$DFB2`: no HP, flash, invincibility, property,
-        // or lunge-latch mutation is permitted merely because the blast covers the boss.
+        // The table bytes adjacent to the normal-bomb entry are intentionally different:
+        // `$B4:F1C0` is bomb `$80`, while `$B4:F1C1` is Power Bomb `$82`. The all-slot
+        // ellipse therefore applies 200 common no-death-check damage, installs the 48-frame
+        // reaction, dispatches `$A6:DFB2`, and latches the authored next-frame lunge without
+        // deleting Ridley even if a later blast exhausts his health.
         ClearRidleyDamageTimers(body);
+        byte powerBombVulnerability = bus.ReadByte(
+            0xb40000 | unchecked((ushort)(vulnerabilityPointer + 15)));
         ushort healthBeforePowerBomb = body.Health;
         ushort propertiesBeforePowerBomb = body.Properties;
         int powerBombHits = enemies.ResolveOrdinaryPowerBombHits(
@@ -175,13 +217,21 @@ internal static partial class NorfairRidleyAudit
             body.YPosition,
             explosionRadius: 0xff,
             samus);
-        if (powerBombHits != 0 || body.Health != healthBeforePowerBomb ||
-            body.InvincibilityTimer != 0 || body.FlashTimer != 0 ||
-            state.PowerBombReactionLatched != 0 || body.Properties != propertiesBeforePowerBomb)
+        ushort expectedPowerBombHealth = unchecked((ushort)(
+            healthBeforePowerBomb - 100 * (powerBombVulnerability & 0x7f)));
+        ushort expectedPowerBombFlash = unchecked((ushort)(
+            (body.HurtAiTime == 0 ? 4 : body.HurtAiTime) + 8));
+        if (powerBombVulnerability != 0x82 || powerBombHits != 1 ||
+            body.Health != expectedPowerBombHealth ||
+            body.InvincibilityTimer != 48 || body.FlashTimer != expectedPowerBombFlash ||
+            (body.AiHandlerBits & 0x0002) == 0 || state.PowerBombReactionLatched != 2 ||
+            body.Properties.HasAny(EnemyProperties.Deleted) ||
+            !body.Properties.HasAny(EnemyProperties.ProcessOffScreen))
         {
             throw new InvalidDataException(
-                $"Ridley power-bomb reaction mismatch: hits={powerBombHits}, " +
-                $"health={healthBeforePowerBomb}->{body.Health}, " +
+                $"Ridley power-bomb reaction mismatch: vulnerability=" +
+                $"${powerBombVulnerability:X2}, hits={powerBombHits}, " +
+                $"health={healthBeforePowerBomb}->{body.Health}/{expectedPowerBombHealth}, " +
                 $"invincibility/flash={body.InvincibilityTimer}/{body.FlashTimer}, " +
                 $"latch={state.PowerBombReactionLatched}, " +
                 $"properties=${propertiesBeforePowerBomb:X4}->${body.Properties:X4}.");

@@ -91,12 +91,12 @@ public sealed partial class RoomEnemySystem
     private const ushort WalkingPirateWalkingRight = 0xfbe6;
     private const ushort WalkingPirateFireLasersRight = 0xfc0e;
     private const ushort WalkingPirateLookingFacingRight = 0xfc48;
-    private const ushort WalkingPirateLaserSound = 0x0067;
-    private const ushort WalkingPirateLaserListLeft = 0x9f41;
-    private const ushort WalkingPirateLaserListRight = 0x9f7d;
-    private const ushort WalkingPirateLaserNoOperation = 0xa05b;
-    private const ushort WalkingPirateLaserMoveLeft = 0xa05c;
-    private const ushort WalkingPirateLaserMoveRight = 0xa07a;
+    private const ushort PirateMotherBrainLaserSound = 0x0067;
+    private const ushort PirateMotherBrainLaserListLeft = 0x9f41;
+    private const ushort PirateMotherBrainLaserListRight = 0x9f7d;
+    private const ushort PirateMotherBrainLaserNoOperation = 0xa05b;
+    private const ushort PirateMotherBrainLaserMoveLeft = 0xa05c;
+    private const ushort PirateMotherBrainLaserMoveRight = 0xa07a;
     private const int WalkingPirateOnePixelDown = 1 << 16;
     private const int WalkingPirateLeftLedgeProbePixels = 17;
     private const int WalkingPirateRightLedgeProbePixels = 16;
@@ -382,30 +382,54 @@ public sealed partial class RoomEnemySystem
         bool movingRight,
         ushort yOffset)
     {
-        RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
+        RoomEnemyProjectileSlot? projectile = SpawnPirateMotherBrainLaser(
+            source,
+            unchecked((ushort)(
+                source.XPosition +
+                (movingRight ? WalkingPirateLaserMuzzleXOffset : -WalkingPirateLaserMuzzleXOffset))),
+            unchecked((ushort)(source.YPosition - yOffset)),
+            movingRight);
         if (projectile is null)
             return false;
+
+        LastSpacePirateSoundEffect = PirateMotherBrainLaserSound;
+        return true;
+    }
+
+    /// <summary>
+    /// Ports the common projectile initializer <c>$86:A009</c> after the caller has chosen
+    /// its muzzle coordinate. Walking Pirates, wall Pirates, and Mother Brain enter through
+    /// different actor opcodes, but the cartridge deliberately funnels all of them through
+    /// this definition so animation, speed flags, collision damage, and disposal agree.
+    /// </summary>
+    private RoomEnemyProjectileSlot? SpawnPirateMotherBrainLaser(
+        RoomEnemySlot source,
+        ushort xPosition,
+        ushort yPosition,
+        bool movingRight)
+    {
+        RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
+        if (projectile is null)
+            return null;
 
         InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.PirateMotherBrainLaser,
             graphicsIndex: 0);
 
-        projectile.XPosition = unchecked((ushort)(
-            source.XPosition +
-            (movingRight ? WalkingPirateLaserMuzzleXOffset : -WalkingPirateLaserMuzzleXOffset)));
-        projectile.YPosition = unchecked((ushort)(source.YPosition - yOffset));
+        projectile.XPosition = xPosition;
+        projectile.YPosition = yPosition;
         projectile.XSubposition = 0;
         projectile.YSubposition = 0;
         projectile.InstructionPointer = movingRight
-            ? WalkingPirateLaserListRight
-            : WalkingPirateLaserListLeft;
+            ? PirateMotherBrainLaserListRight
+            : PirateMotherBrainLaserListLeft;
         projectile.InstructionTimer = 1;
 
         // Although the definition names A05C as its pre-instruction, initializer A009
         // deliberately replaces it with A05B. The three two-frame muzzle maps are thus
         // stationary until list opcode A050 installs and immediately executes movement.
-        projectile.PreInstruction = WalkingPirateLaserNoOperation;
+        projectile.PreInstruction = PirateMotherBrainLaserNoOperation;
         projectile.Variable0 = source.Parameter1;
 
         // A009 replaces the projectile definition's property word with enemy damage OR
@@ -416,8 +440,7 @@ public sealed partial class RoomEnemySystem
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;
         projectile.DirectionParameter = movingRight ? (ushort)1 : (ushort)0;
-        LastSpacePirateSoundEffect = WalkingPirateLaserSound;
-        return true;
+        return projectile;
     }
 
     /// <summary>Runs pre-instructions $86:A05C/$A07A and exact 256x256 camera deletion.</summary>
@@ -432,8 +455,8 @@ public sealed partial class RoomEnemySystem
             : WalkingPirateSlowLaserPixelsPerFrame;
         projectile.XPosition = projectile.PreInstruction switch
         {
-            WalkingPirateLaserMoveLeft => unchecked((ushort)(projectile.XPosition - pixels)),
-            WalkingPirateLaserMoveRight => unchecked((ushort)(projectile.XPosition + pixels)),
+            PirateMotherBrainLaserMoveLeft => unchecked((ushort)(projectile.XPosition - pixels)),
+            PirateMotherBrainLaserMoveRight => unchecked((ushort)(projectile.XPosition + pixels)),
             _ => throw new InvalidOperationException(
                 $"Projectile {projectile.Kind} entered laser movement with " +
                 $"pre-instruction $86:{projectile.PreInstruction:X4}."),

@@ -1076,7 +1076,8 @@ public sealed partial class SuperMetroidRuntime
                     Controller1.Current,
                     Camera.XPosition,
                     Camera.YPosition,
-                    NmiFrameCounter8);
+                    NmiFrameCounter8,
+                    BombProjectiles);
             if (Samus is not null)
             {
                 Samus.Kinematics.InteractiveEnemies = Enemies.InteractiveCollisionBodies;

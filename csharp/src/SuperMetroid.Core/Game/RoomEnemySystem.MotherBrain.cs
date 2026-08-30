@@ -160,6 +160,15 @@ public sealed partial class RoomEnemySystem
             case MotherBrainBodyFunction.SecondPhaseStretchingFinish:
             case MotherBrainBodyFunction.SecondPhaseThinking:
             case MotherBrainBodyFunction.SecondPhaseTryAttack:
+            case MotherBrainBodyFunction.SecondPhaseBombDecideWalking:
+            case MotherBrainBodyFunction.SecondPhaseBombWalkingBackwards:
+            case MotherBrainBodyFunction.SecondPhaseBombCrouch:
+            case MotherBrainBodyFunction.SecondPhaseBombFired:
+            case MotherBrainBodyFunction.SecondPhaseBombStandUp:
+            case MotherBrainBodyFunction.SecondPhaseLaserPositionHeadQuickly:
+            case MotherBrainBodyFunction.SecondPhaseLaserPositionHeadSlowlyAndFire:
+            case MotherBrainBodyFunction.SecondPhaseLaserFinishAttack:
+            case MotherBrainBodyFunction.SecondPhaseHandBeam:
                 RunMotherBrainPhaseTwoAscent(state, samus, nmiFrameCounter8);
                 return;
             default:
@@ -568,6 +577,46 @@ public sealed partial class RoomEnemySystem
                 RequireCompleteMotherBrainState(slot).BrainMainShakeTimer = 50;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
+            case 0x9ac8: // Spawn one hand-beam charge dust cloud from three word operands.
+            {
+                MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
+                short xOffset = unchecked((short)ReadWord(
+                    _bus!,
+                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2))));
+                short yOffset = unchecked((short)ReadWord(
+                    _bus!,
+                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 4))));
+                ushort animationIndex = ReadWord(
+                    _bus!,
+                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 6)));
+                SpawnRoomGraphicsDustExplosion(
+                    unchecked((ushort)(state.Body.XPosition + xOffset)),
+                    unchecked((ushort)(state.Body.YPosition + yOffset)),
+                    animationIndex);
+                cursor = unchecked((ushort)(cursor + 8));
+                return true;
+            }
+            case 0x9aef: // Queue the charge sound and allocate `$86:CB67` from the body hand.
+            {
+                MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
+                if (samus is null)
+                {
+                    throw new InvalidOperationException(
+                        "Mother Brain hand-beam aiming requires the active Samus actor.");
+                }
+                state.LastSoundEffect = 0x0063;
+                SpawnMotherBrainHandBeamCharging(state, samus);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            }
+            case 0x9b05: // Body bytecode owns the phase-two-to-finish transition.
+            {
+                MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
+                state.HandBeamPhase = unchecked((MotherBrainHandBeamPhase)(
+                    (ushort)state.HandBeamPhase + 1));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            }
             case 0x9cad: // Usually repeat the neutral phase-two hold at $9C9F.
                 cursor = (_readRandomNumber?.Invoke() ?? 0) < 0xf000
                     ? (ushort)0x9c9f
@@ -600,6 +649,38 @@ public sealed partial class RoomEnemySystem
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 SpawnMotherBrainOnionRing(state, unchecked((byte)state.OnionRingsTargetAngle));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            }
+            case 0x9ebd: // Spawn `$86:CB59` with the following afterburn-count operand.
+            {
+                MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
+                ushort afterburnCount = ReadWord(
+                    _bus!,
+                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                SpawnMotherBrainBomb(state, afterburnCount);
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            }
+            case 0x9f46: // Freeze the neck and emit the shared Pirate/Mother Brain laser.
+            {
+                MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
+                RoomEnemySlot head = state.Head!;
+                state.NeckMovementEnabled = false;
+
+                // `$A9:9F4E-$9F66` writes an explicit mouth coordinate into the common
+                // bank-$86 spawn scratch words, selects direction one (right), and invokes
+                // definition `$A17B`. The source header remains the head record, so shared
+                // initializer `$86:A009` obtains Mother Brain's authored contact damage and
+                // her parameter-one speed flag without any encounter-specific substitute.
+                RoomEnemyProjectileSlot? laser = SpawnPirateMotherBrainLaser(
+                    head,
+                    unchecked((ushort)(head.XPosition + 0x0010)),
+                    unchecked((ushort)(head.YPosition + 0x0004)),
+                    movingRight: true);
+                if (laser is not null)
+                    state.LastSoundEffect = PirateMotherBrainLaserSound;
+
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }

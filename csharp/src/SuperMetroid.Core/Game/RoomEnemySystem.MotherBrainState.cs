@@ -36,6 +36,29 @@ public enum MotherBrainBodyFunction : ushort
     SecondPhaseStretchingFinish = 0x8f33,
     SecondPhaseThinking = 0xb605,
     SecondPhaseTryAttack = 0xb64b,
+    SecondPhaseBombDecideWalking = 0xb781,
+    SecondPhaseBombWalkingBackwards = 0xb7ac,
+    SecondPhaseBombCrouch = 0xb7c6,
+    SecondPhaseBombFired = 0xb7e8,
+    SecondPhaseBombStandUp = 0xb7f8,
+    SecondPhaseLaserPositionHeadQuickly = 0xb80e,
+    SecondPhaseLaserPositionHeadSlowlyAndFire = 0xb839,
+    SecondPhaseLaserFinishAttack = 0xb863,
+    SecondPhaseHandBeam = 0xb87d,
+    SecondPhaseRainbowStartCharging = 0xb91a,
+    SecondPhaseRainbowRetractNeck = 0xb92b,
+    SecondPhaseRainbowWaitForCharge = 0xb93f,
+    SecondPhaseRainbowStartFiring = 0xb975,
+    SecondPhaseRainbowMoveSamusTowardWall = 0xb9e5,
+    SecondPhaseRainbowOneFrameDelay = 0xba00,
+    SecondPhaseRainbowStartDrainingSamus = 0xba27,
+    SecondPhaseRainbowDrainingSamus = 0xba3c,
+    SecondPhaseRainbowFinishFiring = 0xba5e,
+    SecondPhaseRainbowLetSamusFall = 0xbac4,
+    SecondPhaseRainbowWaitForSamusToLand = 0xbacb,
+    SecondPhaseRainbowLowerHead = 0xbae3,
+    SecondPhaseRainbowDecideNextAction = 0xbb06,
+    SecondPhaseRainbowRepeatAttack = 0xbb13,
 }
 
 /// <summary>
@@ -47,6 +70,19 @@ public enum MotherBrainAttackPhase : ushort
     ChooseAttack = 0,
     Cooldown = 1,
     EndAttack = 2,
+}
+
+/// <summary>
+/// Index into Mother Brain's four-entry hand-beam dispatcher at <c>$A9:B887</c>. Phase two
+/// is deliberately bytecode-owned: the body list advances it only after its complete
+/// charge/fire/hold animation has elapsed.
+/// </summary>
+public enum MotherBrainHandBeamPhase : ushort
+{
+    BackUp = 0,
+    WaitForBombs = 1,
+    Firing = 2,
+    Finish = 3,
 }
 
 /// <summary>Values written by Mother Brain's body instruction opcodes at $A9:9700-$972F.</summary>
@@ -286,6 +322,50 @@ public sealed class MotherBrainEnemyState
     public ushort BombCounter { get; internal set; }
 
     /// <summary>
+    /// Native <c>bodyTargetXPosition</c> used while the bomb decision walks the body toward
+    /// X=$40 or $60 before entering its posture sequence.
+    /// </summary>
+    public ushort BodyTargetXPosition { get; internal set; }
+
+    /// <summary>
+    /// Native <c>deathBeamAttackPhase</c> consumed by <c>$A9:B87D</c>. Despite the historical
+    /// symbol name, this is the ordinary phase-two red hand-beam attack, not the later HDMA
+    /// rainbow beam used when the head's health reaches zero.
+    /// </summary>
+    public MotherBrainHandBeamPhase HandBeamPhase { get; internal set; }
+
+    /// <summary>
+    /// Shared cursor used by the bank-$86 hand-beam projectile chain. Every fired child
+    /// starts from this exact 16.16 position, advances the cursor by the aimed velocity,
+    /// then receives its own randomized secondary velocity.
+    /// </summary>
+    public ushort HandBeamNextXPosition { get; internal set; }
+    public ushort HandBeamNextXSubposition { get; internal set; }
+    public ushort HandBeamNextYPosition { get; internal set; }
+    public ushort HandBeamNextYSubposition { get; internal set; }
+    public ushort HandBeamNextXVelocity { get; internal set; }
+    public ushort HandBeamNextYVelocity { get; internal set; }
+    public ushort HandBeamNextAngle { get; internal set; }
+
+    /// <summary>
+    /// The already verified rainbow/finish-off/Baby/phase-three state machine, attached to
+    /// the real body/head pair only after phase-two health reaches zero. Physical actor
+    /// coordinates and bytecode remain owned by this room system; this object owns the long
+    /// bank-$A9 function chain and forced-Samus calculations.
+    /// </summary>
+    public MotherBrainRainbowBeamAttackSequence? RainbowBeamSequence { get; internal set; }
+
+    /// <summary>Debugger witness from the most recent live rainbow body-function call.</summary>
+    public MotherBrainRainbowBeamAttackStepResult? LastRainbowBeamStep { get; internal set; }
+
+    /// <summary>
+    /// Last drop request emitted when an exploding Samus bomb destroys Mother Brain's bomb.
+    /// Pickup selection remains owned by the common enemy-drop seam; retaining the head
+    /// definition and exact coordinate makes that request inspectable in the debugger.
+    /// </summary>
+    public MotherBrainBombDropRequest? LastBombDropRequest { get; internal set; }
+
+    /// <summary>
     /// Clamped byte-angle written by head opcode <c>$A9:9E5B</c> and consumed by the next
     /// <c>$A9:9E29</c> onion-ring spawn. It remains a word because native extended WRAM is
     /// word-addressed even though the calculation deliberately operates in 8-bit mode.
@@ -315,6 +395,8 @@ public sealed class MotherBrainEnemyState
         _plmRequests.Clear();
         LastSoundEffect = null;
         LastSoundEffectLibrary3 = null;
+        LastBombDropRequest = null;
+        LastRainbowBeamStep = null;
     }
 
     internal void RequestMusic(ushort rawTrack, byte delayFrames) =>
@@ -332,3 +414,9 @@ public readonly record struct MotherBrainMusicRequest(ushort RawTrack, byte Dela
 
 /// <summary>One literal <c>SpawnHardcodedPLM</c> call issued by Mother Brain's bank-$A9 AI.</summary>
 public readonly record struct MotherBrainPlmRequest(byte BlockX, byte BlockY, ushort Header);
+
+/// <summary>One <c>$86:C5BB</c> enemy-drop request produced by a destroyed Mother Brain bomb.</summary>
+public readonly record struct MotherBrainBombDropRequest(
+    ushort X,
+    ushort Y,
+    ushort EnemyDefinitionPointer);

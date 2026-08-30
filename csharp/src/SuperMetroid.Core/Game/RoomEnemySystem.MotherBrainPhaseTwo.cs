@@ -74,6 +74,35 @@ public sealed partial class RoomEnemySystem
             case MotherBrainBodyFunction.SecondPhaseTryAttack:
                 RunMotherBrainSecondPhaseTryAttack(state, samus);
                 return;
+            case MotherBrainBodyFunction.SecondPhaseBombDecideWalking:
+                DecideMotherBrainBombWalking(state);
+                return;
+            case MotherBrainBodyFunction.SecondPhaseBombWalkingBackwards:
+                ContinueMotherBrainBombWalk(state);
+                return;
+            case MotherBrainBodyFunction.SecondPhaseBombCrouch:
+                CrouchMotherBrainForBomb(state);
+                return;
+            case MotherBrainBodyFunction.SecondPhaseBombFired:
+                WaitAfterMotherBrainBomb(state);
+                return;
+            case MotherBrainBodyFunction.SecondPhaseBombStandUp:
+                StandMotherBrainAfterBomb(state);
+                return;
+            case MotherBrainBodyFunction.SecondPhaseLaserPositionHeadQuickly:
+                PositionMotherBrainHeadQuicklyForLaser(
+                    state,
+                    RequireMotherBrainCombatSamus(samus));
+                return;
+            case MotherBrainBodyFunction.SecondPhaseLaserPositionHeadSlowlyAndFire:
+                PositionMotherBrainHeadSlowlyAndFireLaser(state);
+                return;
+            case MotherBrainBodyFunction.SecondPhaseLaserFinishAttack:
+                FinishMotherBrainLaserAttack(state, samus);
+                return;
+            case MotherBrainBodyFunction.SecondPhaseHandBeam:
+                RunMotherBrainHandBeamAttack(state);
+                return;
             default:
                 throw new NotSupportedException(
                     $"Mother Brain phase-two function $A9:{(ushort)state.Function:X4} is not translated.");
@@ -375,8 +404,10 @@ public sealed partial class RoomEnemySystem
             state.Function = MotherBrainBodyFunction.SecondPhaseTryAttack;
             return;
         }
-        throw new NotSupportedException(
-            "Mother Brain death-beam attack $A9:B8F1 is not translated yet.");
+        // `$B644` installs the ordinary red hand-beam dispatcher. It does not execute phase
+        // zero until the next body AI call; `$B8F1` belongs to the separate rainbow beam
+        // entered only when health reaches zero.
+        state.Function = MotherBrainBodyFunction.SecondPhaseHandBeam;
     }
 
     /// <summary>
@@ -443,16 +474,21 @@ public sealed partial class RoomEnemySystem
                 return;
             }
 
-            throw new NotSupportedException(
-                "Mother Brain phase-two airborne laser state $A9:B7E0 is not translated yet.");
+            // `$B702` discards the strategy helper's return address, then installs and
+            // jumps to `$B80E`. Calling the first body state here reproduces that same-frame
+            // tail call rather than introducing an otherwise visible idle frame.
+            state.Function = MotherBrainBodyFunction.SecondPhaseLaserPositionHeadQuickly;
+            PositionMotherBrainHeadQuicklyForLaser(state, samus);
+            return;
         }
 
         // Grounded movement types attempt a bomb on the upper half of the current random
         // byte. An already-live bomb falls back to the normal threshold table.
         if (randomLow >= 0x80 && state.BombCounter < 1)
         {
-            throw new NotSupportedException(
-                "Mother Brain phase-two bomb body state $A9:B781 is not translated yet.");
+            state.Function = MotherBrainBodyFunction.SecondPhaseBombDecideWalking;
+            DecideMotherBrainBombWalking(state);
+            return;
         }
 
         ushort verticalDistance = WrappedMagnitude(unchecked((ushort)(
@@ -481,17 +517,17 @@ public sealed partial class RoomEnemySystem
                     MotherBrainFourOnionRingsInstruction);
                 return;
             case 2:
-                throw new NotSupportedException(
-                    $"Mother Brain selected head list ${MotherBrainLaserHeadInstruction:X4}, " +
-                    "whose body positioning state $A9:B7E0 is not translated yet.");
+                state.Function = MotherBrainBodyFunction.SecondPhaseLaserPositionHeadQuickly;
+                PositionMotherBrainHeadQuicklyForLaser(state, samus);
+                return;
             case 3 when state.BombCounter >= 1:
                 // `$B6B9` returns without changing the current head list when one bomb is
                 // already alive. The body still spends the full cooldown in phase one.
                 return;
             default:
-                throw new NotSupportedException(
-                    $"Mother Brain selected head list ${MotherBrainBombPhaseTwoHeadInstruction:X4}, " +
-                    "whose body crouch/walk state $A9:B781 is not translated yet.");
+                state.Function = MotherBrainBodyFunction.SecondPhaseBombDecideWalking;
+                DecideMotherBrainBombWalking(state);
+                return;
         }
     }
 
@@ -499,14 +535,213 @@ public sealed partial class RoomEnemySystem
         movementType is 0x02 or 0x03 or 0x06 or 0x08 or 0x09 or 0x0b or 0x0c or
             0x0d or 0x12 or 0x13 or 0x14;
 
+    /// <summary>Ports <c>$A9:B781-B7AB</c>, including its immediate posture decision.</summary>
+    private void DecideMotherBrainBombWalking(MotherBrainEnemyState state)
+    {
+        ushort random = _readRandomNumber?.Invoke() ?? 0;
+        if (random < 0xff80)
+        {
+            ushort targetX = random >= 0x6000 ? (ushort)0x0040 : (ushort)0x0060;
+            ushort targetMinusBody = unchecked((ushort)(targetX - state.Body.XPosition));
+            if ((targetMinusBody & 0x8000) != 0)
+            {
+                state.BodyTargetXPosition = targetX;
+                if (!TryWalkMotherBrainBackwards(state, targetX))
+                {
+                    state.Function = MotherBrainBodyFunction.SecondPhaseBombWalkingBackwards;
+                    return;
+                }
+            }
+        }
+
+        DecideWhetherMotherBrainCrouchesForBomb(state);
+    }
+
+    /// <summary>Ports stored body state <c>$A9:B7AC</c>.</summary>
+    private void ContinueMotherBrainBombWalk(MotherBrainEnemyState state)
+    {
+        if (TryWalkMotherBrainBackwards(state, state.BodyTargetXPosition))
+            DecideWhetherMotherBrainCrouchesForBomb(state);
+    }
+
+    /// <summary>
+    /// Ports the fallthrough at <c>$A9:B7B7</c>. This routine advances the global RNG—unlike
+    /// attack selection—and fires immediately on the lower half; the upper half enters the
+    /// ordinary slow-crouch body list before firing.
+    /// </summary>
+    private void DecideWhetherMotherBrainCrouchesForBomb(MotherBrainEnemyState state)
+    {
+        if ((_nextRandom?.Invoke() ?? 0) < 0x8000)
+        {
+            FireMotherBrainBomb(state);
+            return;
+        }
+
+        state.Function = MotherBrainBodyFunction.SecondPhaseBombCrouch;
+        CrouchMotherBrainForBomb(state);
+    }
+
+    /// <summary>Ports stored body state <c>$A9:B7C6</c>.</summary>
+    private static void CrouchMotherBrainForBomb(MotherBrainEnemyState state)
+    {
+        if (TryMakeMotherBrainCrouch(state))
+            FireMotherBrainBomb(state);
+    }
+
+    /// <summary>Ports the unstored firing tail at <c>$A9:B7CB</c>.</summary>
+    private static void FireMotherBrainBomb(MotherBrainEnemyState state)
+    {
+        SetMotherBrainInstructionList(state.Head!, MotherBrainBombPhaseTwoHeadInstruction);
+        state.Function = MotherBrainBodyFunction.SecondPhaseBombFired;
+        state.FunctionTimer = 0x002c;
+    }
+
+    /// <summary>Ports stored body state <c>$A9:B7E8</c> and its stand-up fallthrough.</summary>
+    private static void WaitAfterMotherBrainBomb(MotherBrainEnemyState state)
+    {
+        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
+        if ((state.FunctionTimer & 0x8000) == 0)
+            return;
+
+        if (TryMakeMotherBrainStand(state))
+        {
+            FinishMotherBrainBombAttack(state);
+            return;
+        }
+
+        state.Function = MotherBrainBodyFunction.SecondPhaseBombStandUp;
+
+        // `$B7F2` falls directly into `$B7F8`, so a crouched body calls the helper twice on
+        // this frame. Reinstalling the same list/timer is observable to a debugger and must
+        // not be collapsed into a host-only transition delay.
+        StandMotherBrainAfterBomb(state);
+    }
+
+    /// <summary>Ports stored body state <c>$A9:B7F8</c>.</summary>
+    private static void StandMotherBrainAfterBomb(MotherBrainEnemyState state)
+    {
+        if (TryMakeMotherBrainStand(state))
+            FinishMotherBrainBombAttack(state);
+    }
+
+    private static void FinishMotherBrainBombAttack(MotherBrainEnemyState state) =>
+        state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
+
+    /// <summary>Literal target/pose/list behavior of <c>$A9:C647</c> at delay-table offset six.</summary>
+    private static bool TryWalkMotherBrainBackwards(
+        MotherBrainEnemyState state,
+        ushort targetX)
+    {
+        ushort targetMinusBody = unchecked((ushort)(targetX - state.Body.XPosition));
+        if ((targetMinusBody & 0x8000) == 0)
+            return true;
+        if (state.Pose != MotherBrainBodyPose.Standing)
+            return false;
+        if (unchecked((short)(state.Body.XPosition - 0x0030)) < 0)
+            return true;
+
+        SetMotherBrainInstructionList(state.Body, 0x9900); // Backwards, medium.
+        return false;
+    }
+
+    /// <summary>Literal pose/list behavior of <c>$A9:C68E</c>.</summary>
+    private static bool TryMakeMotherBrainCrouch(MotherBrainEnemyState state)
+    {
+        if (state.Pose == MotherBrainBodyPose.Crouched)
+            return true;
+        if (state.Pose == MotherBrainBodyPose.Standing)
+            SetMotherBrainInstructionList(state.Body, MotherBrainCrouchedInstruction);
+        return false;
+    }
+
+    /// <summary>Literal pose/list behavior of <c>$A9:C670</c>.</summary>
+    private static bool TryMakeMotherBrainStand(MotherBrainEnemyState state)
+    {
+        switch (state.Pose)
+        {
+            case MotherBrainBodyPose.Standing:
+                return true;
+            case MotherBrainBodyPose.Crouched:
+                SetMotherBrainInstructionList(state.Body, 0x99c6);
+                return false;
+            case MotherBrainBodyPose.LeaningDown:
+                SetMotherBrainInstructionList(state.Body, 0x99e2);
+                return false;
+            default:
+                return false;
+        }
+    }
+
     private static SamusState RequireMotherBrainCombatSamus(SamusState? samus) =>
         samus ?? throw new InvalidOperationException(
             "Mother Brain phase-two attack selection requires the active Samus actor.");
+
+    /// <summary>
+    /// Ports body state <c>$A9:B80E</c>. Both neck joints initially turn by two angle units
+    /// per frame toward one of two authored target indices chosen from the head/Samus Y
+    /// ordering; the head instruction list itself is deliberately left untouched here.
+    /// </summary>
+    private static void PositionMotherBrainHeadQuicklyForLaser(
+        MotherBrainEnemyState state,
+        SamusState samus)
+    {
+        RoomEnemySlot head = state.Head!;
+
+        // CMP/BPL tests the sign bit of the wrapped 16-bit subtraction. Normal arena
+        // coordinates cannot overflow signed range, but expressing the native flag test
+        // explicitly keeps debugger-edited/wrapped coordinates cartridge-faithful too.
+        ushort headMinusSamus = unchecked((ushort)(head.YPosition - samus.YPosition));
+        ushort targetIndex = (headMinusSamus & 0x8000) == 0 ? (ushort)8 : (ushort)6;
+        state.LowerNeckMovementIndex = targetIndex;
+        state.UpperNeckMovementIndex = targetIndex;
+        state.NeckAngleDelta = 0x0200;
+        state.Function = MotherBrainBodyFunction.SecondPhaseLaserPositionHeadSlowlyAndFire;
+        state.FunctionTimer = 0x0004;
+    }
+
+    /// <summary>
+    /// Ports <c>$A9:B839</c>. Its unsigned timer expires only after decrementing through
+    /// zero to <c>$FFFF</c>, at which point neck rotation slows and ordinary head bytecode
+    /// owns the muzzle animation and projectile spawn.
+    /// </summary>
+    private static void PositionMotherBrainHeadSlowlyAndFireLaser(
+        MotherBrainEnemyState state)
+    {
+        if (!DecrementMotherBrainTimerPastZero(state))
+            return;
+
+        state.NeckAngleDelta = (state.NeckAngleDelta & 0x8000) == 0
+            ? (ushort)0x0100
+            : (ushort)0xff00;
+        SetMotherBrainInstructionList(state.Head!, MotherBrainLaserHeadInstruction);
+        state.Function = MotherBrainBodyFunction.SecondPhaseLaserFinishAttack;
+        state.FunctionTimer = 0x0010;
+    }
+
+    /// <summary>
+    /// Ports <c>$A9:B863</c>, including its same-frame jump back into thinking. The attack
+    /// phase/cooldown words intentionally remain as selected: the laser body state replaces
+    /// `$B64B`, so the native chain does not pass through that dispatcher's end phase.
+    /// </summary>
+    private void FinishMotherBrainLaserAttack(
+        MotherBrainEnemyState state,
+        SamusState? samus)
+    {
+        if (!DecrementMotherBrainTimerPastZero(state))
+            return;
+
+        state.LowerNeckMovementIndex = 4;
+        state.UpperNeckMovementIndex = 4;
+        state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
+        RunMotherBrainSecondPhaseThinking(state, samus);
+    }
 
     private static void HandleMotherBrainWalking(MotherBrainEnemyState state)
     {
         // `$A9:C6B8` alters only the walk accumulator and installs a ROM-authored body list;
         // actual displacement remains bytecode-owned, which also keeps BG2 scroll aligned.
+        if (state.Pose != MotherBrainBodyPose.Standing)
+            return;
         if (state.WalkCounter == 0)
         {
             state.WalkCounter = 1;

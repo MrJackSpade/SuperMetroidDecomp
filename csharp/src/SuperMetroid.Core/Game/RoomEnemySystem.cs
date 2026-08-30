@@ -425,7 +425,8 @@ public sealed partial class RoomEnemySystem
         ushort controllerInput = 0,
         SamusProjectileSystem? samusProjectiles = null,
         byte? nmiFrameCounter8 = null,
-        SamusMode7Transform? mode7Transform = null)
+        SamusMode7Transform? mode7Transform = null,
+        SamusBombProjectileSystem? sharedProjectiles = null)
     {
         EnsureLoaded();
         // Standalone audits do not own the runtime NMI clock. In that case the enemy-frame

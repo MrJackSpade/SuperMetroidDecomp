@@ -36,6 +36,9 @@ public enum RoomEnemyProjectileKind : ushort
     MotherBrainGlassShard = 0xcefc,
     MotherBrainGlassSparkle = 0xcf0a,
     MotherBrainOnionRing = 0xcb4b,
+    MotherBrainBomb = 0xcb59,
+    MotherBrainHandBeamCharging = 0xcb67,
+    MotherBrainHandBeamFired = 0xcb75,
     MotherBrainPurpleBreathBig = 0xcb2f,
     MotherBrainDrool = 0xcb91,
     MotherBrainDyingDrool = 0xcb9f,
@@ -301,7 +304,8 @@ public sealed partial class RoomEnemySystem
         ushort controllerInput = 0,
         ushort cameraX = 0,
         ushort cameraY = 0,
-        byte? nmiFrameCounter8 = null)
+        byte? nmiFrameCounter8 = null,
+        SamusBombProjectileSystem? samusBombs = null)
     {
         ArgumentNullException.ThrowIfNull(level);
         EnsureLoaded();
@@ -323,7 +327,8 @@ public sealed partial class RoomEnemySystem
                 samus,
                 cameraX,
                 cameraY,
-                projectileFrame);
+                projectileFrame,
+                samusBombs);
             if (!projectile.IsActive)
                 continue;
 
@@ -530,7 +535,8 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         ushort cameraX,
         ushort cameraY,
-        byte nmiFrameCounter8)
+        byte nmiFrameCounter8,
+        SamusBombProjectileSystem? samusBombs)
     {
         switch (projectile.PreInstruction)
         {
@@ -548,6 +554,7 @@ public sealed partial class RoomEnemySystem
             case 0xa919: // Bomb Torizo explosive swipe: stationary authored hit flash.
             case 0xdd44: // Spore Spawn stalk: position is written by the boss's main AI.
             case 0xcaa3: // Mother Brain's large purple breath is a stationary animation.
+            case 0xc76d: // Mother Brain's charging/fired red hand-beam list owns all motion.
                 return;
 
             case 0xbfdf: // Mother Brain room turret: rotate, fire, or honor deletion flag.
@@ -579,6 +586,10 @@ public sealed partial class RoomEnemySystem
                     projectile,
                     samus,
                     cameraX);
+                return;
+
+            case 0xc4c8: // Mother Brain bomb: Samus-bomb scan, gravity, and staged bounces.
+                RunMotherBrainBombPreInstruction(projectile, samusBombs);
                 return;
 
             case 0x8dca: // Draygon goop: attached to Samus with a 256-frame lifetime.
@@ -1125,6 +1136,25 @@ public sealed partial class RoomEnemySystem
                     projectile.PreInstruction = 0x8170;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
+                case 0x8171: // Call the following 24-bit external function.
+                {
+                    int externalFunction =
+                        _bus!.ReadByte(0x860000 | unchecked((ushort)(cursor + 2))) |
+                        (_bus.ReadByte(0x860000 | unchecked((ushort)(cursor + 3))) << 8) |
+                        (_bus.ReadByte(0x860000 | unchecked((ushort)(cursor + 4))) << 16);
+                    if (externalFunction != 0x86c7fb || projectile.Kind is not (
+                            RoomEnemyProjectileKind.MotherBrainHandBeamCharging or
+                            RoomEnemyProjectileKind.MotherBrainHandBeamFired))
+                    {
+                        throw new NotSupportedException(
+                            $"Enemy projectile external function ${externalFunction:X6} " +
+                            $"from $86:{cursor:X4} is not translated.");
+                    }
+
+                    SpawnMotherBrainHandBeamFired(projectile.Variable0);
+                    cursor = unchecked((ushort)(cursor + 5));
+                    break;
+                }
                 case 0x8cf6 when projectile.Kind == RoomEnemyProjectileKind.DraygonWallTurret:
                     projectile.PreInstruction = 0x8dff;
                     cursor = unchecked((ushort)(cursor + 2));

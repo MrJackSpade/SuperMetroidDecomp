@@ -412,6 +412,42 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
+    /// Imports the physical room actor words before one live scheduler call. The standalone
+    /// verifier may continue to own <see cref="Body"/> directly; gameplay instead lets the
+    /// ordinary enemy bytecode move the real body and feeds those resulting words back here.
+    /// This deliberately does not copy instruction pointers or timers: there must be only
+    /// one visible animation interpreter in a live room.
+    /// </summary>
+    internal void SynchronizeLiveActor(
+        ushort bodyX,
+        ushort bodyY,
+        MotherBrainBodyPose bodyPose,
+        ushort form,
+        ushort brainX,
+        ushort brainY,
+        ushort lowerNeckAngle,
+        ushort upperNeckAngle,
+        ushort bombCounter)
+    {
+        Body.XPosition = bodyX;
+        Body.YPosition = bodyY;
+        Body.Pose = (ushort)bodyPose;
+        Body.Form = form;
+        BrainXPosition = brainX;
+        BrainYPosition = brainY;
+        LowerNeckAngle = lowerNeckAngle;
+        UpperNeckAngle = upperNeckAngle;
+        BombCounter = bombCounter;
+    }
+
+    /// <summary>
+    /// The list most recently requested by the state machine's body helper. Gameplay copies
+    /// this pointer into its physical body slot only when the step result reports a walk or
+    /// posture request; it never advances this private mirror's instruction timer.
+    /// </summary>
+    internal ushort RequestedBodyInstructionList => Body.InstructionPointer;
+
+    /// <summary>
     /// Starts at the low-health handoff in `$A9:BB1A`, including its immediate really-slow
     /// forward-walk request. This is the exact debugger entry point reached after the `$BB06`
     /// decision timer; it does not skip the later `$BD45` health-selection loop.

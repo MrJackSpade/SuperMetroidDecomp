@@ -169,8 +169,9 @@ internal static class MotherBrainAudit
             "gating, threshold bytecode, shard actors, fake-death pauses/palettes, ordered " +
             "tube PLMs, four ceiling tubes, five physical tube actors, phase-two DMA, " +
             "uncrouch movement, neck geometry, stretching projectiles, phase-two attack " +
-            "selection/cooldown, four aimed onion rings, and custom ring damage matched " +
-            "the untouched cartridge.");
+            "selection/cooldown, four aimed onion rings, custom ring damage, and the " +
+            "body/head/shared-projectile laser, bomb, and recursive hand-beam cycles " +
+            "matched the untouched cartridge.");
         return 0;
     }
 
@@ -462,6 +463,27 @@ internal static class MotherBrainAudit
             state,
             samus,
             random);
+        AuditPhaseTwoLaserAttack(
+            bus,
+            assets.LevelData,
+            enemies,
+            state,
+            samus,
+            random);
+        AuditPhaseTwoBombAttack(
+            bus,
+            assets.LevelData,
+            enemies,
+            state,
+            samus,
+            random);
+        AuditPhaseTwoHandBeamAttack(
+            bus,
+            assets.LevelData,
+            enemies,
+            state,
+            samus,
+            random);
     }
 
     /// <summary>
@@ -742,6 +764,905 @@ internal static class MotherBrainAudit
                 $"{observedRingSound}/{observedCollisionSound}, hit={observedSamusHit}, " +
                 $"headList=${head.CurrentInstruction:X4}.");
         }
+    }
+
+    /// <summary>
+    /// Forces the airborne low-random route through <c>$A9:B80E/$B839/$B863</c>, then lets
+    /// the ordinary head interpreter reach opcode <c>$9F46</c> and the shared bank-$86
+    /// projectile interpreter advance laser definition <c>$A17B</c>. This guards the seams
+    /// between three independently scheduled actors rather than validating a host shortcut.
+    /// </summary>
+    private static void AuditPhaseTwoLaserAttack(
+        SuperMetroidAddressSpace bus,
+        RoomLevelData level,
+        RoomEnemySystem enemies,
+        MotherBrainEnemyState state,
+        SamusState samus,
+        Bank80SystemState random)
+    {
+        RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
+            "Mother Brain laser audit lost the linked head record.");
+
+        // Movement type three enters the cartridge's airborne strategy. Low random byte
+        // $50 chooses laser rather than rings, while the full word remains below $1000 so
+        // the preceding thinking state elects to attack on its next ordinary frame.
+        random.SetRandomNumber(0x0050);
+        samus.Pose = SamusState.SpinJumpRightPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.XPosition = 0x0020;
+        samus.YPosition = 0x00dc;
+        samus.Health = 999;
+        samus.InvincibilityTimer = 0;
+        samus.KnockbackTimer = 0;
+
+        enemies.StepFrame(
+            cameraX: 0,
+            cameraY: 0,
+            timeIsFrozen: false,
+            samus,
+            level: level,
+            nmiFrameCounter8: 0);
+        if (state.Function != MotherBrainBodyFunction.SecondPhaseTryAttack)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain airborne laser setup did not enter $B64B: " +
+                $"function=$A9:{(ushort)state.Function:X4}.");
+        }
+
+        // Predict the head slot's same-frame neck update after body state $B80E writes its
+        // two target indices. This prevents a looser test from accepting a correct body
+        // function pointer paired with incorrect articulation or a one-frame scheduling lag.
+        ushort expectedLowerAngle = state.LowerNeckAngle;
+        ushort expectedUpperAngle = state.UpperNeckAngle;
+        ushort headMinusSamus = unchecked((ushort)(head.YPosition - samus.YPosition));
+        ushort expectedTargetIndex = (headMinusSamus & 0x8000) == 0
+            ? (ushort)8
+            : (ushort)6;
+        ushort expectedLowerIndex = expectedTargetIndex;
+        ushort expectedUpperIndex = expectedTargetIndex;
+        MotherBrainNeckKinematics.StepAngles(
+            ref expectedLowerAngle,
+            ref expectedUpperAngle,
+            ref expectedLowerIndex,
+            ref expectedUpperIndex,
+            angleDelta: 0x0200,
+            brainY: head.YPosition,
+            samusY: samus.YPosition);
+
+        enemies.StepFrame(
+            cameraX: 0,
+            cameraY: 0,
+            timeIsFrozen: false,
+            samus,
+            level: level,
+            nmiFrameCounter8: 1);
+        if (state.Function !=
+                MotherBrainBodyFunction.SecondPhaseLaserPositionHeadSlowlyAndFire ||
+            state.FunctionTimer != 4 || state.NeckAngleDelta != 0x0200 ||
+            state.LowerNeckAngle != expectedLowerAngle ||
+            state.UpperNeckAngle != expectedUpperAngle ||
+            state.LowerNeckMovementIndex != expectedLowerIndex ||
+            state.UpperNeckMovementIndex != expectedUpperIndex ||
+            state.AttackPhase != MotherBrainAttackPhase.Cooldown ||
+            state.AttackCooldown != 0x0040)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain quick laser positioning diverged: function/timer=" +
+                $"$A9:{(ushort)state.Function:X4}/{state.FunctionTimer}, delta=" +
+                $"${state.NeckAngleDelta:X4}, angles=({state.LowerNeckAngle:X4}," +
+                $"{state.UpperNeckAngle:X4})/({expectedLowerAngle:X4}," +
+                $"{expectedUpperAngle:X4}), indices=({state.LowerNeckMovementIndex}," +
+                $"{state.UpperNeckMovementIndex})/({expectedLowerIndex}," +
+                $"{expectedUpperIndex}), attack={state.AttackPhase}/{state.AttackCooldown}.");
+        }
+
+        // Once selection has committed, use a non-attack RNG word. `$B863` jumps into
+        // thinking on its expiration frame, and this keeps that exact tail call observable
+        // instead of immediately starting another attack from the retained cooldown phase.
+        random.SetRandomNumber(0x5000);
+        samus.XPosition = 0x0300;
+
+        bool[] laserWasActive = new bool[enemies.EnemyProjectiles.Count];
+        bool observedSlowFireState = false;
+        bool observedBodyFinish = false;
+        bool observedNeckDisabled = false;
+        bool observedNeckReenabled = false;
+        bool observedLaserSound = false;
+        bool observedLaserMovement = false;
+        int spawnCount = 0;
+        int frames = 2;
+
+        for (; frames < 128; frames++)
+        {
+            MotherBrainBodyFunction functionBefore = state.Function;
+            ushort timerBefore = state.FunctionTimer;
+
+            // `$B863` writes movement index four and jumps to thinking before the head slot
+            // runs. Predict that following head update so the audit still checks the native
+            // write even when the index immediately reaches/reverses at an angle boundary.
+            bool finishingBodyThisFrame =
+                functionBefore == MotherBrainBodyFunction.SecondPhaseLaserFinishAttack &&
+                timerBefore == 0;
+            ushort expectedFinishLowerAngle = state.LowerNeckAngle;
+            ushort expectedFinishUpperAngle = state.UpperNeckAngle;
+            ushort expectedFinishLowerIndex = 4;
+            ushort expectedFinishUpperIndex = 4;
+            ushort finishBrainY = head.YPosition;
+            if (finishingBodyThisFrame)
+            {
+                MotherBrainNeckKinematics.StepAngles(
+                    ref expectedFinishLowerAngle,
+                    ref expectedFinishUpperAngle,
+                    ref expectedFinishLowerIndex,
+                    ref expectedFinishUpperIndex,
+                    state.NeckAngleDelta,
+                    finishBrainY,
+                    samus.YPosition);
+            }
+
+            enemies.StepFrame(
+                cameraX: 0,
+                cameraY: 0,
+                timeIsFrozen: false,
+                samus,
+                level: level,
+                nmiFrameCounter8: unchecked((byte)frames));
+
+            if (state.Function == MotherBrainBodyFunction.SecondPhaseLaserFinishAttack)
+            {
+                observedSlowFireState = true;
+                if (state.NeckAngleDelta != 0x0100)
+                {
+                    throw new InvalidDataException(
+                        $"Mother Brain laser slow-position delta was " +
+                        $"${state.NeckAngleDelta:X4}, expected $0100.");
+                }
+            }
+
+            if (finishingBodyThisFrame)
+            {
+                if (state.Function != MotherBrainBodyFunction.SecondPhaseThinking ||
+                    state.LowerNeckAngle != expectedFinishLowerAngle ||
+                    state.UpperNeckAngle != expectedFinishUpperAngle ||
+                    state.LowerNeckMovementIndex != expectedFinishLowerIndex ||
+                    state.UpperNeckMovementIndex != expectedFinishUpperIndex)
+                {
+                    throw new InvalidDataException(
+                        $"Mother Brain laser finish/tail-call diverged: function=" +
+                        $"$A9:{(ushort)state.Function:X4}, angles=({state.LowerNeckAngle:X4}," +
+                        $"{state.UpperNeckAngle:X4})/({expectedFinishLowerAngle:X4}," +
+                        $"{expectedFinishUpperAngle:X4}), indices=" +
+                        $"({state.LowerNeckMovementIndex},{state.UpperNeckMovementIndex})/" +
+                        $"({expectedFinishLowerIndex},{expectedFinishUpperIndex}).");
+                }
+                observedBodyFinish = true;
+            }
+
+            observedLaserSound |= state.LastSoundEffect == 0x0067;
+            RoomEnemyProjectileSlot? movementCandidate = null;
+            ushort movementCandidateX = 0;
+            foreach (RoomEnemyProjectileSlot laser in enemies.EnemyProjectiles.Where(
+                         projectile =>
+                             projectile.Kind == RoomEnemyProjectileKind.PirateMotherBrainLaser))
+            {
+                if (!laserWasActive[laser.SlotIndex])
+                {
+                    spawnCount++;
+                    if (laser.PreInstruction != 0xa05b ||
+                        laser.InstructionPointer != 0x9f7d || laser.InstructionTimer != 1 ||
+                        laser.SpritemapPointer != 0x8000 || laser.GraphicsIndex != 0 ||
+                        laser.XRadius != 16 || laser.YRadius != 4 ||
+                        laser.Damage != head.Definition.Damage ||
+                        laser.Variable0 != head.Parameter1 || laser.DirectionParameter != 1 ||
+                        laser.XPosition != unchecked((ushort)(head.XPosition + 0x0010)) ||
+                        laser.YPosition != unchecked((ushort)(head.YPosition + 0x0004)) ||
+                        !laser.CanDamageSamus || laser.PersistsOnSamusContact ||
+                        laser.BlocksSamusProjectiles)
+                    {
+                        throw new InvalidDataException(
+                            $"Mother Brain laser initialization diverged: slot=" +
+                            $"{laser.SlotIndex}, pre/list/timer=${laser.PreInstruction:X4}/" +
+                            $"${laser.InstructionPointer:X4}/{laser.InstructionTimer}, map/gfx=" +
+                            $"${laser.SpritemapPointer:X4}/${laser.GraphicsIndex:X4}, radii=" +
+                            $"{laser.XRadius}/{laser.YRadius}, damage={laser.Damage}/" +
+                            $"{head.Definition.Damage}, var/dir=${laser.Variable0:X4}/" +
+                            $"${laser.DirectionParameter:X4}, pos=({laser.XPosition:X4}," +
+                            $"{laser.YPosition:X4}), flags={laser.CanDamageSamus}/" +
+                            $"{laser.PersistsOnSamusContact}/{laser.BlocksSamusProjectiles}.");
+                    }
+                    observedNeckDisabled |= !state.NeckMovementEnabled;
+                }
+
+                movementCandidate ??= laser;
+                movementCandidateX = laser.XPosition;
+            }
+
+            enemies.StepEnemyProjectiles(
+                level,
+                samus,
+                cameraX: 0,
+                cameraY: 0,
+                nmiFrameCounter8: unchecked((byte)frames));
+
+            if (movementCandidate?.IsActive == true &&
+                movementCandidate.XPosition != movementCandidateX)
+            {
+                ushort expectedPixels = (movementCandidate.Variable0 & 0x8000) == 0
+                    ? (ushort)4
+                    : (ushort)2;
+                ushort actualPixels = unchecked((ushort)(
+                    movementCandidate.XPosition - movementCandidateX));
+                if (actualPixels != expectedPixels || movementCandidate.PreInstruction != 0xa07a)
+                {
+                    throw new InvalidDataException(
+                        $"Mother Brain laser movement diverged: delta={actualPixels}/" +
+                        $"{expectedPixels}, pre=${movementCandidate.PreInstruction:X4}.");
+                }
+                observedLaserMovement = true;
+            }
+
+            observedNeckReenabled |= observedNeckDisabled && state.NeckMovementEnabled;
+            for (int slotIndex = 0; slotIndex < laserWasActive.Length; slotIndex++)
+            {
+                laserWasActive[slotIndex] = enemies.EnemyProjectiles[slotIndex].Kind ==
+                    RoomEnemyProjectileKind.PirateMotherBrainLaser;
+            }
+
+            if (observedSlowFireState && observedBodyFinish && spawnCount == 1 &&
+                observedNeckDisabled && observedNeckReenabled && observedLaserSound &&
+                observedLaserMovement && head.CurrentInstruction >= 0x9c87 &&
+                head.CurrentInstruction <= 0x9cab)
+            {
+                break;
+            }
+        }
+
+        if (frames == 128 || !observedSlowFireState || !observedBodyFinish ||
+            spawnCount != 1 || !observedNeckDisabled || !observedNeckReenabled ||
+            !observedLaserSound || !observedLaserMovement ||
+            state.Function != MotherBrainBodyFunction.SecondPhaseThinking ||
+            state.AttackPhase != MotherBrainAttackPhase.Cooldown ||
+            state.AttackCooldown != 0x0040)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain phase-two laser cycle diverged: frames={frames}, " +
+                $"function=$A9:{(ushort)state.Function:X4}, attack=" +
+                $"{state.AttackPhase}/{state.AttackCooldown}, slow/finish=" +
+                $"{observedSlowFireState}/{observedBodyFinish}, spawns={spawnCount}, neck=" +
+                $"{observedNeckDisabled}/{observedNeckReenabled}, sound/movement=" +
+                $"{observedLaserSound}/{observedLaserMovement}, headList=" +
+                $"${head.CurrentInstruction:X4}.");
+        }
+    }
+
+    /// <summary>
+    /// Drives the retained attack-phase cooldown back to selection, forces the native bomb
+    /// route, and follows body bytecode plus projectile physics through natural expiry. A
+    /// second real head-opcode spawn then validates the separate Samus-bomb destruction path.
+    /// </summary>
+    private static void AuditPhaseTwoBombAttack(
+        SuperMetroidAddressSpace bus,
+        RoomLevelData level,
+        RoomEnemySystem enemies,
+        MotherBrainEnemyState state,
+        SamusState samus,
+        Bank80SystemState random)
+    {
+        RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
+            "Mother Brain bomb audit lost the linked head record.");
+        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.XPosition = 0x0300;
+        samus.YPosition = 0x0300;
+
+        // The preceding laser correctly leaves `$B64B`'s phase/cooldown at 1/$40. Let the
+        // native dispatcher consume that state rather than resetting test internals. Once
+        // thinking installs `$B64B` with phase zero again, the next frame is selection.
+        random.SetRandomNumber(0x0050);
+        int synchronizationFrames = 0;
+        for (; synchronizationFrames < 96; synchronizationFrames++)
+        {
+            enemies.StepFrame(
+                cameraX: 0,
+                cameraY: 0,
+                timeIsFrozen: false,
+                samus,
+                level: level,
+                nmiFrameCounter8: unchecked((byte)synchronizationFrames));
+            enemies.StepEnemyProjectiles(
+                level,
+                samus,
+                cameraX: 0,
+                cameraY: 0,
+                nmiFrameCounter8: unchecked((byte)synchronizationFrames));
+            if (state.Function == MotherBrainBodyFunction.SecondPhaseTryAttack &&
+                state.AttackPhase == MotherBrainAttackPhase.ChooseAttack)
+            {
+                break;
+            }
+        }
+        if (synchronizationFrames == 96)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain bomb audit could not naturally restore attack phase zero: " +
+                $"function=$A9:{(ushort)state.Function:X4}, phase/cooldown=" +
+                $"{state.AttackPhase}/{state.AttackCooldown}.");
+        }
+
+        // `$8080` has low byte >=$80, selecting the early grounded bomb strategy. The body
+        // starts at X=$80 so full-word RNG chooses target $40 and necessarily exercises the
+        // medium backwards-walk helper. Advancing this exact seed yields an upper-half word,
+        // which then exercises slow crouch rather than the immediate-fire half.
+        state.Body.XPosition = 0x0080;
+        random.SetRandomNumber(0x8080);
+
+        bool[] bombWasActive = new bool[enemies.EnemyProjectiles.Count];
+        bool observedWalk = false;
+        bool observedCrouch = false;
+        bool observedFireWait = false;
+        bool observedStand = false;
+        bool observedBodyFinish = false;
+        bool observedHeadCry = false;
+        bool observedPurpleBreath = false;
+        bool observedNeckDisabled = false;
+        bool observedNeckReenabled = false;
+        bool observedBounce = false;
+        bool observedNaturalExpiry = false;
+        bool observedAfterburn = false;
+        bool observedDust = false;
+        bool observedExpirySound = false;
+        int spawnCount = 0;
+        int frames = 0;
+
+        for (; frames < 2048; frames++)
+        {
+            enemies.StepFrame(
+                cameraX: 0,
+                cameraY: 0,
+                timeIsFrozen: false,
+                samus,
+                level: level,
+                nmiFrameCounter8: unchecked((byte)frames));
+
+            observedWalk |=
+                state.Function == MotherBrainBodyFunction.SecondPhaseBombWalkingBackwards;
+            observedCrouch |=
+                state.Function == MotherBrainBodyFunction.SecondPhaseBombCrouch ||
+                state.Pose == MotherBrainBodyPose.CrouchingTransition ||
+                state.Pose == MotherBrainBodyPose.Crouched;
+            observedFireWait |=
+                state.Function == MotherBrainBodyFunction.SecondPhaseBombFired;
+            observedStand |=
+                state.Function == MotherBrainBodyFunction.SecondPhaseBombStandUp;
+            observedBodyFinish |= observedFireWait &&
+                state.Function == MotherBrainBodyFunction.SecondPhaseThinking &&
+                state.Pose == MotherBrainBodyPose.Standing;
+            observedHeadCry |= state.LastSoundEffect == 0x006f;
+            observedPurpleBreath |= enemies.EnemyProjectiles.Any(
+                projectile =>
+                    projectile.Kind == RoomEnemyProjectileKind.MotherBrainPurpleBreathBig);
+            observedNeckDisabled |= !state.NeckMovementEnabled;
+            observedNeckReenabled |= observedNeckDisabled && state.NeckMovementEnabled;
+
+            foreach (RoomEnemyProjectileSlot bomb in enemies.EnemyProjectiles.Where(
+                         projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainBomb))
+            {
+                if (!bombWasActive[bomb.SlotIndex])
+                {
+                    spawnCount++;
+                    if (bomb.PreInstruction != 0xc4c8 ||
+                        bomb.InstructionPointer != 0xc76e || bomb.InstructionTimer != 1 ||
+                        bomb.SpritemapPointer != 0x8000 || bomb.GraphicsIndex != 0x0400 ||
+                        bomb.XRadius != 6 || bomb.YRadius != 6 || bomb.Damage != 0x00a0 ||
+                        bomb.XSubposition != 7 || bomb.YSubposition != 0 ||
+                        bomb.XVelocity != 0x00e0 || bomb.YVelocity != 0x0100 ||
+                        bomb.Variable0 != 0x0070 || bomb.Variable1 != 0 ||
+                        bomb.DirectionParameter != 7 ||
+                        bomb.XPosition != unchecked((ushort)(head.XPosition + 0x000c)) ||
+                        bomb.YPosition != unchecked((ushort)(head.YPosition + 0x0010)) ||
+                        !bomb.CanDamageSamus || !bomb.PersistsOnSamusContact ||
+                        bomb.BlocksSamusProjectiles || state.BombCounter != 1)
+                    {
+                        throw new InvalidDataException(
+                            $"Mother Brain bomb initialization diverged: slot={bomb.SlotIndex}, " +
+                            $"pre/list/timer=${bomb.PreInstruction:X4}/" +
+                            $"${bomb.InstructionPointer:X4}/{bomb.InstructionTimer}, map/gfx=" +
+                            $"${bomb.SpritemapPointer:X4}/${bomb.GraphicsIndex:X4}, radii/dmg=" +
+                            $"{bomb.XRadius}/{bomb.YRadius}/{bomb.Damage}, sub=" +
+                            $"({bomb.XSubposition:X4},{bomb.YSubposition:X4}), velocity=" +
+                            $"({bomb.XVelocity:X4},{bomb.YVelocity:X4}), vars=" +
+                            $"({bomb.Variable0:X4},{bomb.Variable1:X4}), param=" +
+                            $"{bomb.DirectionParameter}, pos=({bomb.XPosition:X4}," +
+                            $"{bomb.YPosition:X4}), flags={bomb.CanDamageSamus}/" +
+                            $"{bomb.PersistsOnSamusContact}/{bomb.BlocksSamusProjectiles}, " +
+                            $"counter={state.BombCounter}.");
+                    }
+                }
+            }
+
+            ushort[] bounceOffsetsBefore = enemies.EnemyProjectiles
+                .Select(projectile => projectile.Variable1)
+                .ToArray();
+            enemies.StepEnemyProjectiles(
+                level,
+                samus,
+                cameraX: 0,
+                cameraY: 0,
+                nmiFrameCounter8: unchecked((byte)frames));
+
+            foreach (RoomEnemyProjectileSlot bomb in enemies.EnemyProjectiles.Where(
+                         projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainBomb))
+            {
+                if (bomb.Variable1 != bounceOffsetsBefore[bomb.SlotIndex])
+                {
+                    if (bomb.Variable1 !=
+                            unchecked((ushort)(bounceOffsetsBefore[bomb.SlotIndex] + 2)) ||
+                        bomb.YPosition != 0x00d0 || bomb.YVelocity != 0xfe00 ||
+                        WrappedMagnitudeReference(bomb.XVelocity) != 0x0070)
+                    {
+                        throw new InvalidDataException(
+                            $"Mother Brain bomb bounce diverged: offset=" +
+                            $"${bomb.Variable1:X4}/${bounceOffsetsBefore[bomb.SlotIndex] + 2:X4}, " +
+                            $"positionY=${bomb.YPosition:X4}, velocity=" +
+                            $"({bomb.XVelocity:X4},{bomb.YVelocity:X4}).");
+                    }
+                    observedBounce = true;
+                }
+            }
+
+            bool bombIsActive = enemies.EnemyProjectiles.Any(
+                projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainBomb);
+            bool bombWasActiveLastFrame = bombWasActive.Any(active => active);
+            if (bombWasActiveLastFrame && !bombIsActive && state.BombCounter == 0)
+            {
+                observedNaturalExpiry = true;
+                observedAfterburn |= enemies.EnemyProjectiles.Any(
+                    projectile => projectile.Kind ==
+                        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter);
+                observedDust |= enemies.EnemyProjectiles.Any(
+                    projectile => projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion);
+                observedExpirySound |= state.LastSoundEffectLibrary3 == 0x0013;
+            }
+
+            for (int slotIndex = 0; slotIndex < bombWasActive.Length; slotIndex++)
+            {
+                bombWasActive[slotIndex] = enemies.EnemyProjectiles[slotIndex].Kind ==
+                    RoomEnemyProjectileKind.MotherBrainBomb;
+            }
+
+            if (spawnCount == 1 && observedWalk && observedCrouch && observedFireWait &&
+                observedStand && observedBodyFinish && observedHeadCry &&
+                observedPurpleBreath && observedNeckDisabled && observedNeckReenabled &&
+                observedBounce && observedNaturalExpiry && observedAfterburn &&
+                observedDust && observedExpirySound)
+            {
+                break;
+            }
+        }
+
+        if (frames == 2048 || spawnCount != 1 || state.BodyTargetXPosition != 0x0040 ||
+            !observedWalk || !observedCrouch || !observedFireWait || !observedStand ||
+            !observedBodyFinish || !observedHeadCry || !observedPurpleBreath ||
+            !observedNeckDisabled || !observedNeckReenabled || !observedBounce ||
+            !observedNaturalExpiry || !observedAfterburn || !observedDust ||
+            !observedExpirySound || state.BombCounter != 0)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain natural bomb cycle diverged: frames={frames}, spawns=" +
+                $"{spawnCount}, function/pose=$A9:{(ushort)state.Function:X4}/{state.Pose}, " +
+                $"target=${state.BodyTargetXPosition:X4}, walk/crouch/fire/stand/finish=" +
+                $"{observedWalk}/{observedCrouch}/{observedFireWait}/{observedStand}/" +
+                $"{observedBodyFinish}, cry/breath={observedHeadCry}/{observedPurpleBreath}, " +
+                $"neck={observedNeckDisabled}/{observedNeckReenabled}, bounce/expiry/fx=" +
+                $"{observedBounce}/{observedNaturalExpiry}/{observedAfterburn}/" +
+                $"{observedDust}/{observedExpirySound}, counter={state.BombCounter}.");
+        }
+
+        AuditMotherBrainBombDestroyedBySamusBomb(
+            bus,
+            level,
+            enemies,
+            state,
+            samus,
+            random);
+    }
+
+    private static void AuditMotherBrainBombDestroyedBySamusBomb(
+        SuperMetroidAddressSpace bus,
+        RoomLevelData level,
+        RoomEnemySystem enemies,
+        MotherBrainEnemyState state,
+        SamusState samus,
+        Bank80SystemState random)
+    {
+        RoomEnemySlot head = state.Head!;
+        ushort spawnCommandPointer = 0;
+        for (ushort pointer = 0x9ecc; pointer < 0x9f00; pointer += 2)
+        {
+            ushort word = unchecked((ushort)(
+                bus.ReadByte(0xa90000 | pointer) |
+                (bus.ReadByte(0xa90000 | unchecked((ushort)(pointer + 1))) << 8)));
+            if (word == 0x9ebd)
+            {
+                spawnCommandPointer = pointer;
+                break;
+            }
+        }
+        if (spawnCommandPointer == 0)
+            throw new InvalidDataException("Could not locate Mother Brain's $9EBD bomb opcode.");
+
+        // Enter the real opcode at its phase-two list location; this isolates the collision
+        // seam without spending another complete attack/crouch cycle on an identical spawn.
+        random.SetRandomNumber(0x5000);
+        head.CurrentInstruction = spawnCommandPointer;
+        head.InstructionTimer = 1;
+        head.Timer = 0;
+        enemies.StepFrame(
+            cameraX: 0,
+            cameraY: 0,
+            timeIsFrozen: false,
+            samus,
+            level: level,
+            nmiFrameCounter8: 0);
+
+        RoomEnemyProjectileSlot motherBrainBomb = enemies.EnemyProjectiles.Single(
+            projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainBomb);
+        ushort impactX = motherBrainBomb.XPosition;
+        ushort impactY = motherBrainBomb.YPosition;
+
+        // Place a normal bomb through Samus's public producer so aggregate count, type,
+        // definition data, and radii are real. Only the fuse is advanced to its explosion
+        // instant; `$86:C1BF` explicitly keys on timer zero and does not consume the bomb.
+        var samusBombs = new SamusBombProjectileSystem();
+        samus.Pose = SamusState.MorphBallGroundRightPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.XPosition = impactX;
+        samus.YPosition = impactY;
+        samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
+        samus.SelectedHudItem = 0;
+        const ushort shoot = (ushort)SnesButton.X;
+        BombProjectileFrameResult placed = samusBombs.StepFrame(
+            bus,
+            level,
+            samus,
+            controllerInput: shoot,
+            controllerNewInput: shoot);
+        if (placed.PlacedSlot is not int samusBombIndex)
+            throw new InvalidDataException("Could not place Samus bomb for Mother Brain collision audit.");
+        SamusBombProjectileSlot samusBomb = samusBombs.Slots[samusBombIndex];
+        samusBomb.XPosition = impactX;
+        samusBomb.YPosition = impactY;
+        samusBomb.BombTimer = 0;
+
+        // The enemy-projectile collision pass follows all pre-instructions. Move Samus
+        // away while leaving her independent bomb at the impact point so the newborn
+        // zero-damage dust is not immediately consumed by an unrelated contact pass.
+        samus.XPosition = 0x0300;
+        samus.YPosition = 0x0300;
+
+        bool[] dustWasActive = enemies.EnemyProjectiles
+            .Select(projectile => projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion)
+            .ToArray();
+        enemies.StepEnemyProjectiles(
+            level,
+            samus,
+            cameraX: 0,
+            cameraY: 0,
+            nmiFrameCounter8: 1,
+            samusBombs: samusBombs);
+
+        int newDustCount = enemies.EnemyProjectiles.Count(projectile =>
+            projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion &&
+            !dustWasActive[projectile.SlotIndex]);
+        MotherBrainBombDropRequest? drop = state.LastBombDropRequest;
+        if (state.BombCounter != 0 || enemies.EnemyProjectiles.Any(
+                projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainBomb) ||
+            newDustCount != 1 || drop is null || drop.Value.X != impactX ||
+            drop.Value.Y != impactY || drop.Value.EnemyDefinitionPointer !=
+                head.EnemyDefinitionPointer || state.LastSoundEffectLibrary3 is not null)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain bomb/Samus-bomb collision diverged: counter=" +
+                $"{state.BombCounter}, live={enemies.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainBomb)}, " +
+                $"newDust={newDustCount}, drop={drop}, expected=({impactX:X4}," +
+                $"{impactY:X4},${head.EnemyDefinitionPointer:X4}), sound=" +
+                $"{state.LastSoundEffectLibrary3?.ToString("X4") ?? "none"}.");
+        }
+    }
+
+    private static ushort WrappedMagnitudeReference(ushort value) =>
+        unchecked((short)value) < 0 ? unchecked((ushort)-value) : value;
+
+    /// <summary>
+    /// Forces low-health thinking through the real `$B87D` body dispatcher, then observes
+    /// `$9A42` produce its charge actor and `$8171` recursively produce the first fired
+    /// child. The remainder runs naturally through the 240-frame hold and bytecode-owned
+    /// phase increment instead of editing the body timer or instruction cursor.
+    /// </summary>
+    private static void AuditPhaseTwoHandBeamAttack(
+        SuperMetroidAddressSpace bus,
+        RoomLevelData level,
+        RoomEnemySystem enemies,
+        MotherBrainEnemyState state,
+        SamusState samus,
+        Bank80SystemState random)
+    {
+        RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
+            "Mother Brain hand-beam audit lost the linked head record.");
+
+        // `$4000` lies in the low-health hand-beam interval [$2000,$A000). The body is
+        // deliberately left at the position reached by the preceding bomb audit so the
+        // native slow walk and X=$30 safety floor are exercised rather than skipped.
+        random.SetRandomNumber(0x4000);
+        head.Health = 0x1000;
+        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.XPosition = 0x00d0;
+        samus.YPosition = 0x0060;
+        samus.Health = 999;
+        samus.InvincibilityTimer = 0;
+        samus.KnockbackTimer = 0;
+
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus, level: level, nmiFrameCounter8: 0);
+        if (state.Function != MotherBrainBodyFunction.SecondPhaseHandBeam ||
+            state.HandBeamPhase != MotherBrainHandBeamPhase.BackUp)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain low-health thinking did not select $B87D: function=" +
+                $"$A9:{(ushort)state.Function:X4}, phase={state.HandBeamPhase}.");
+        }
+
+        bool observedSlowWalk = false;
+        bool observedWaitForBombs = false;
+        bool observedDeathBeamPose = false;
+        bool observedChargeSound = false;
+        bool observedChargeDust = false;
+        bool observedChargingInitializer = false;
+        bool observedFirstFiredChild = false;
+        bool observedImpact = false;
+        bool observedFinishPhase = false;
+        int frames = 1;
+
+        bool[] dustWasActive = new bool[enemies.EnemyProjectiles.Count];
+        for (; frames < 640; frames++)
+        {
+            for (int slotIndex = 0; slotIndex < dustWasActive.Length; slotIndex++)
+            {
+                dustWasActive[slotIndex] = enemies.EnemyProjectiles[slotIndex].Kind ==
+                    RoomEnemyProjectileKind.MiscDustExplosion;
+            }
+
+            enemies.StepFrame(
+                cameraX: 0,
+                cameraY: 0,
+                timeIsFrozen: false,
+                samus,
+                level: level,
+                nmiFrameCounter8: unchecked((byte)frames));
+
+            observedSlowWalk |= state.Body.CurrentInstruction >= 0x9852 &&
+                state.Body.CurrentInstruction <= 0x988a;
+            observedWaitForBombs |= state.HandBeamPhase ==
+                MotherBrainHandBeamPhase.WaitForBombs;
+            observedDeathBeamPose |= state.Pose == MotherBrainBodyPose.DeathBeam;
+            observedChargeSound |= state.LastSoundEffect == 0x0063;
+
+            foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles)
+            {
+                if (projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion &&
+                    !dustWasActive[projectile.SlotIndex] &&
+                    projectile.XPosition is >= 0x0040 and <= 0x0080 &&
+                    projectile.YPosition < state.Body.YPosition)
+                {
+                    observedChargeDust = true;
+                }
+            }
+
+            RoomEnemyProjectileSlot? charging = enemies.EnemyProjectiles.FirstOrDefault(
+                projectile => projectile.Kind ==
+                    RoomEnemyProjectileKind.MotherBrainHandBeamCharging);
+            if (charging is not null && !observedChargingInitializer)
+            {
+                byte expectedAngle = unchecked((byte)(0x80 -
+                    CalculateMotherBrainCartridgeAngleReference(
+                        unchecked((short)(samus.XPosition - charging.XPosition)),
+                        unchecked((short)(samus.YPosition - charging.YPosition)))));
+                ushort expectedXVelocity = MultiplyMotherBrainSineReference(
+                    bus,
+                    0x0c00,
+                    expectedAngle);
+                ushort expectedYVelocity = MultiplyMotherBrainSineReference(
+                    bus,
+                    0x0c00,
+                    unchecked((byte)(expectedAngle + 0x40)));
+                if (charging.XPosition != unchecked((ushort)(state.Body.XPosition + 0x0040)) ||
+                    charging.YPosition != unchecked((ushort)(state.Body.YPosition - 0x0030)) ||
+                    charging.XSubposition != 0 || charging.YSubposition != 0 ||
+                    charging.XVelocity != 0 || charging.YVelocity != 0 ||
+                    charging.Variable0 != 0 || charging.Variable1 != 0 ||
+                    charging.PreInstruction != 0xc76d ||
+                    charging.InstructionPointer != 0xc796 ||
+                    charging.InstructionTimer != 1 ||
+                    charging.GraphicsIndex != 0x0400 ||
+                    charging.XRadius != 6 || charging.YRadius != 6 ||
+                    charging.Damage != 0x0190 || !charging.CanDamageSamus ||
+                    state.HandBeamNextAngle != expectedAngle ||
+                    state.HandBeamNextXVelocity != expectedXVelocity ||
+                    state.HandBeamNextYVelocity != expectedYVelocity)
+                {
+                    throw new InvalidDataException(
+                        $"Mother Brain hand-beam charge initializer diverged: pos=" +
+                        $"({charging.XPosition:X4},{charging.YPosition:X4}), velocity=" +
+                        $"({state.HandBeamNextXVelocity:X4},{state.HandBeamNextYVelocity:X4})/" +
+                        $"({expectedXVelocity:X4},{expectedYVelocity:X4}), angle=" +
+                        $"${state.HandBeamNextAngle:X2}/${expectedAngle:X2}, list=" +
+                        $"${charging.InstructionPointer:X4}.");
+                }
+                observedChargingInitializer = true;
+
+                // Aiming has already sampled Samus. Move her outside the arena so the
+                // common contact pass cannot consume a red-beam actor during this lifecycle
+                // audit and accidentally turn projectile saturation into an input variable.
+                samus.XPosition = 0x0300;
+                samus.YPosition = 0x0300;
+            }
+
+            ushort sharedXBefore = state.HandBeamNextXPosition;
+            ushort sharedXSubBefore = state.HandBeamNextXSubposition;
+            ushort sharedYBefore = state.HandBeamNextYPosition;
+            ushort sharedYSubBefore = state.HandBeamNextYSubposition;
+            ushort sharedXVelocity = state.HandBeamNextXVelocity;
+            ushort sharedYVelocity = state.HandBeamNextYVelocity;
+            var expectedBeamRandom = new Bank80SystemState(random.RandomNumber);
+            int firedBefore = enemies.EnemyProjectiles.Count(projectile =>
+                projectile.Kind == RoomEnemyProjectileKind.MotherBrainHandBeamFired);
+
+            enemies.StepEnemyProjectiles(
+                level,
+                samus,
+                cameraX: 0,
+                cameraY: 0,
+                nmiFrameCounter8: unchecked((byte)frames));
+
+            int firedAfter = enemies.EnemyProjectiles.Count(projectile =>
+                projectile.Kind == RoomEnemyProjectileKind.MotherBrainHandBeamFired);
+            if (!observedFirstFiredChild && firedAfter > firedBefore)
+            {
+                (ushort expectedSharedX, ushort expectedSharedXSub) =
+                    AddEightBitVelocityReference(
+                        sharedXBefore,
+                        sharedXSubBefore,
+                        sharedXVelocity);
+                (ushort expectedSharedY, ushort expectedSharedYSub) =
+                    AddEightBitVelocityReference(
+                        sharedYBefore,
+                        sharedYSubBefore,
+                        sharedYVelocity);
+                byte expectedScatterAngle = unchecked((byte)(
+                    state.HandBeamNextAngle +
+                    unchecked((byte)expectedBeamRandom.NextRandom())));
+                ushort expectedScatterSpeed = unchecked((ushort)(
+                    expectedBeamRandom.NextRandom() & 0x0700));
+                ushort expectedScatterXVelocity = MultiplyMotherBrainSineReference(
+                    bus,
+                    expectedScatterSpeed,
+                    expectedScatterAngle);
+                ushort expectedScatterYVelocity = MultiplyMotherBrainSineReference(
+                    bus,
+                    expectedScatterSpeed,
+                    unchecked((byte)(expectedScatterAngle + 0x40)));
+                (ushort expectedChildX, ushort expectedChildXSub) =
+                    AddEightBitVelocityReference(
+                        expectedSharedX,
+                        expectedSharedXSub,
+                        expectedScatterXVelocity);
+                (ushort expectedChildY, ushort expectedChildYSub) =
+                    AddEightBitVelocityReference(
+                        expectedSharedY,
+                        expectedSharedYSub,
+                        expectedScatterYVelocity);
+                RoomEnemyProjectileSlot child = enemies.EnemyProjectiles.First(projectile =>
+                    projectile.Kind == RoomEnemyProjectileKind.MotherBrainHandBeamFired);
+                if (state.HandBeamNextXPosition != expectedSharedX ||
+                    state.HandBeamNextXSubposition != expectedSharedXSub ||
+                    state.HandBeamNextYPosition != expectedSharedY ||
+                    state.HandBeamNextYSubposition != expectedSharedYSub ||
+                    child.PreInstruction != 0xc76d ||
+                    child.InstructionPointer != 0xc796 || child.InstructionTimer != 1 ||
+                    child.Variable0 != 1 || child.Variable1 != 0 ||
+                    child.XVelocity != 0 || child.YVelocity != 0 ||
+                    child.XPosition != expectedChildX ||
+                    child.XSubposition != expectedChildXSub ||
+                    child.YPosition != expectedChildY ||
+                    child.YSubposition != expectedChildYSub ||
+                    child.XRadius != 6 || child.YRadius != 6 ||
+                    child.Damage != 0x0190 || !child.CanDamageSamus)
+                {
+                    throw new InvalidDataException(
+                        $"Mother Brain fired hand-beam child diverged: shared=" +
+                        $"({state.HandBeamNextXPosition:X4}." +
+                        $"{state.HandBeamNextXSubposition:X4}," +
+                        $"{state.HandBeamNextYPosition:X4}." +
+                        $"{state.HandBeamNextYSubposition:X4})/" +
+                        $"({expectedSharedX:X4}.{expectedSharedXSub:X4}," +
+                        $"{expectedSharedY:X4}.{expectedSharedYSub:X4}), child=" +
+                        $"({child.XPosition:X4}.{child.XSubposition:X4}," +
+                        $"{child.YPosition:X4}.{child.YSubposition:X4})/" +
+                        $"({expectedChildX:X4}.{expectedChildXSub:X4}," +
+                        $"{expectedChildY:X4}.{expectedChildYSub:X4}), list=" +
+                        $"${child.InstructionPointer:X4}/{child.Variable0}.");
+                }
+                observedFirstFiredChild = true;
+            }
+
+            observedImpact |= state.LastSoundEffectLibrary3 == 0x0013 &&
+                enemies.EarthquakeType == 5 && enemies.EarthquakeTimer == 10;
+            observedFinishPhase |= state.HandBeamPhase == MotherBrainHandBeamPhase.Finish;
+            if (observedFirstFiredChild && observedFinishPhase &&
+                state.Function == MotherBrainBodyFunction.SecondPhaseThinking &&
+                state.HandBeamPhase == MotherBrainHandBeamPhase.BackUp)
+            {
+                break;
+            }
+        }
+
+        if (frames == 640 || !observedSlowWalk || !observedWaitForBombs ||
+            !observedDeathBeamPose || !observedChargeSound || !observedChargeDust ||
+            !observedChargingInitializer || !observedFirstFiredChild || !observedImpact ||
+            !observedFinishPhase || state.Function !=
+                MotherBrainBodyFunction.SecondPhaseThinking ||
+            state.HandBeamPhase != MotherBrainHandBeamPhase.BackUp ||
+            state.Pose != MotherBrainBodyPose.Standing ||
+            state.LowerNeckMovementIndex != 2 || state.UpperNeckMovementIndex != 4 ||
+            head.CurrentInstruction < 0x9c87 || head.CurrentInstruction > 0x9cab)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain hand-beam cycle diverged: frames={frames}, walk=" +
+                $"{observedSlowWalk}, wait={observedWaitForBombs}, pose=" +
+                $"{observedDeathBeamPose}/{state.Pose}, charge=" +
+                $"{observedChargeSound}/{observedChargeDust}/" +
+                $"{observedChargingInitializer}, fired={observedFirstFiredChild}, " +
+                $"impact={observedImpact}, finish={observedFinishPhase}, function=" +
+                $"$A9:{(ushort)state.Function:X4}, phase={state.HandBeamPhase}.");
+        }
+    }
+
+    private static byte CalculateMotherBrainCartridgeAngleReference(short x, short y)
+    {
+        int quadrant = 0;
+        ushort absoluteX = unchecked((ushort)x);
+        ushort absoluteY = unchecked((ushort)y);
+        if (x < 0)
+        {
+            quadrant += 2;
+            absoluteX = unchecked((ushort)-absoluteX);
+        }
+        if (y < 0)
+        {
+            quadrant++;
+            absoluteY = unchecked((ushort)-absoluteY);
+        }
+
+        if (absoluteY < absoluteX)
+        {
+            int divided = absoluteX == 0 ? 0 : (absoluteY << 8) / absoluteX;
+            return quadrant switch
+            {
+                0 => unchecked((byte)((divided >> 3) + 64)),
+                1 => unchecked((byte)(64 - (divided >> 3))),
+                2 => unchecked((byte)(-64 - (divided >> 3))),
+                _ => unchecked((byte)((divided >> 3) - 64)),
+            };
+        }
+
+        int inverseDivided = absoluteY == 0 ? 0 : (absoluteX << 8) / absoluteY;
+        return quadrant switch
+        {
+            0 => unchecked((byte)(128 - (inverseDivided >> 3))),
+            1 => unchecked((byte)(inverseDivided >> 3)),
+            2 => unchecked((byte)((inverseDivided >> 3) + 128)),
+            _ => unchecked((byte)(-(inverseDivided >> 3))),
+        };
     }
 
     private static byte CalculateMotherBrainOnionRingAngleReference(short x, short y)

@@ -71,6 +71,17 @@ public sealed class TorizoEnemyState
 public readonly record struct BombTorizoMusicRequest(byte Track, byte DelayFrames);
 
 /// <summary>
+/// One pickup request emitted after Samus shoots a Bomb/Golden Torizo Chozo orb. Opcode
+/// <c>$86:AB8A</c> selects one of two enemy headers by area; the initialized Torizo variant
+/// is the equivalent concrete authority in this room-scoped runtime.
+/// </summary>
+public readonly record struct TorizoOrbDropRequest(
+    ushort X,
+    ushort Y,
+    ushort EnemyDefinitionPointer,
+    ushort ItemDropChancesPointer);
+
+/// <summary>
 /// Cartridge-faithful translation of enemy definition $EEFF. Animation duration, extended
 /// spritemaps, branches, and attack selection remain in the original bank-$AA instruction
 /// lists; this file translates only the native callbacks those lists invoke.
@@ -111,6 +122,7 @@ public sealed partial class RoomEnemySystem
     private const ushort GoldenTorizoPreInstructionGravity = 0xd5ed;
 
     private TorizoEnemyState? _torizoState;
+    private readonly List<TorizoOrbDropRequest> _torizoOrbDropRequests = new();
     private Func<ushort, bool>? _isRoomPlmPresent;
     private Func<bool>? _isAreaTorizoDefeated;
     private Action? _setAreaTorizoDefeated;
@@ -129,9 +141,14 @@ public sealed partial class RoomEnemySystem
     /// <summary>Last delayed music request emitted by awakening/death bytecode.</summary>
     public BombTorizoMusicRequest? LastBombTorizoMusicRequest { get; private set; }
 
+    /// <summary>Pickup requests emitted by shot Chozo orbs during this room load.</summary>
+    public IReadOnlyList<TorizoOrbDropRequest> TorizoOrbDropRequests =>
+        _torizoOrbDropRequests;
+
     private void ResetBombTorizoRoomState()
     {
         _torizoState = null;
+        _torizoOrbDropRequests.Clear();
         LastBombTorizoSoundEffect = null;
         LastBombTorizoMusicRequest = null;
     }

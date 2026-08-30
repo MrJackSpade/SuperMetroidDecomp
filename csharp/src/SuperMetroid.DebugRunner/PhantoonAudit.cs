@@ -480,6 +480,13 @@ internal static class PhantoonAudit
                 $"${vram.ReadWord(0x49ff):X4}.");
         }
 
+        // Contact and shot tests each consume a flame and would alter the timing of the
+        // long-form fight above. Run them in independent copies of the same retail room so
+        // both common dispatchers receive an actor genuinely produced by Phantoon AI while
+        // the complete no-interference boss route remains authoritative.
+        (int contactProducerFrame, int shotProducerFrame, int shotAnimationMaps) =
+            VerifyDestroyableFlameInteractions(bus, room, assets);
+
         Console.WriteLine(
             $"Phantoon audit passed through combat, rage, and Wrecked Ship activation " +
             $"after {frame + rageFrame + deathFrame} frames: " +
@@ -487,9 +494,192 @@ internal static class PhantoonAudit
             "tentacle/mouth lists, eight physical starting flames, activation/orbit contraction, " +
             "health palette materialization, delayed music, ROM figure-eight/eye timing, fade-out/" +
             "placement/vulnerable phases, eight packed rain columns with staggered motion, authored " +
-            "extended hitboxes/vulnerability damage, eight alternating radial rage waves, ten death " +
+            $"extended hitboxes/vulnerability damage, natural casual-flame contact at frame " +
+            $"{contactProducerFrame}, shot destruction at frame {shotProducerFrame} across " +
+            $"{shotAnimationMaps} response maps, eight alternating radial rage waves, ten death " +
             "fades, 29 explosion requests, wavy mosaic, power palette, boss bit, door, and music.");
         return 0;
+    }
+
+    /// <summary>
+    /// Proves both interactive halves of definition <c>$86:9C29</c>. Casual flames start
+    /// with cartridge properties masked to <c>$2028</c>; only a real floor collision may
+    /// promote them to damage-enabled, shot-blocking actors. Two isolated encounter copies
+    /// let contact consume one actor and a power-beam collision consume another.
+    /// </summary>
+    private static (int ContactProducerFrame, int ShotProducerFrame, int ShotAnimationMaps)
+        VerifyDestroyableFlameInteractions(
+            SuperMetroidAddressSpace bus,
+            CartridgeRoomHeader room,
+            CartridgeRoomAssets assets)
+    {
+        RoomEnemySystem contactEnemies = LoadInteractionProbe(
+            bus,
+            room,
+            assets,
+            randomSeed: 0x1234,
+            out SamusState contactSamus);
+        (RoomEnemyProjectileSlot contactFlame, int contactFrame) =
+            AdvanceToInteractiveCasualFlame(contactEnemies, contactSamus, assets.LevelData);
+        EnemyProjectileAuditAssertions.VerifyNaturalSamusContact(
+            bus,
+            contactEnemies,
+            contactSamus,
+            new SamusBombProjectileSystem(),
+            assets.LevelData,
+            contactFlame,
+            cameraX: 0,
+            cameraY: 0,
+            frame: unchecked((byte)contactFrame));
+
+        RoomEnemySystem shotEnemies = LoadInteractionProbe(
+            bus,
+            room,
+            assets,
+            randomSeed: 0x1234,
+            out SamusState shotSamus);
+        (RoomEnemyProjectileSlot shotFlame, int shotFrame) =
+            AdvanceToInteractiveCasualFlame(shotEnemies, shotSamus, assets.LevelData);
+        ushort shotX = shotFlame.XPosition;
+        ushort shotY = shotFlame.YPosition;
+        ushort shotResponse = EnemyProjectileAuditAssertions.VerifyNaturalDestructibleSamusShot(
+            bus,
+            shotEnemies,
+            new SamusProjectileSystem(),
+            new SamusBombProjectileSystem(),
+            shotFlame);
+
+        // Continue the cartridge response list rather than accepting dispatcher state as a
+        // proxy for behavior. Every non-sentinel map is retained, and the actor must reach
+        // its authored terminal delete command within a deliberately generous bound.
+        var shotMaps = new HashSet<ushort>();
+        for (int responseFrame = 0; responseFrame < 128 && shotFlame.IsActive; responseFrame++)
+        {
+            shotEnemies.StepEnemyProjectiles(
+                assets.LevelData,
+                samus: null,
+                cameraX: 0,
+                cameraY: 0,
+                nmiFrameCounter8: unchecked((byte)(shotFrame + responseFrame + 1)));
+            if (shotFlame.IsActive && shotFlame.SpritemapPointer is not 0 and not 0x8000)
+                shotMaps.Add(shotFlame.SpritemapPointer);
+        }
+
+        PhantoonFlameDropRequest? drop = shotEnemies.PhantoonFlameDropRequests.Count == 1
+            ? shotEnemies.PhantoonFlameDropRequests[0]
+            : null;
+        if (shotFlame.IsActive || shotMaps.Count == 0 || drop is null ||
+            drop.Value.X != shotX || drop.Value.Y != shotY ||
+            drop.Value.EnemyDefinitionPointer != 0xe4ff ||
+            drop.Value.ItemDropChancesPointer != 0xf43a)
+        {
+            throw new InvalidDataException(
+                $"Phantoon destroyable flame shot response $86:{shotResponse:X4} ended with " +
+                $"live={shotFlame.IsActive} after {shotMaps.Count} visible maps; drop=" +
+                (drop is null
+                    ? "none."
+                    : $"(${drop.Value.X},{drop.Value.Y}) header/table=" +
+                      $"${drop.Value.EnemyDefinitionPointer:X4}/" +
+                      $"${drop.Value.ItemDropChancesPointer:X4}."));
+        }
+
+        return (contactFrame, shotFrame, shotMaps.Count);
+    }
+
+    /// <summary>
+    /// Advances an untouched Phantoon encounter until the same physical casual-flame slot
+    /// has first been observed falling under <c>$86:9981</c> and then enabled collision by
+    /// striking real room terrain. This forbids a rain/rage flame from accidentally making
+    /// the focused interaction test pass without covering the conditional property change.
+    /// </summary>
+    private static (RoomEnemyProjectileSlot Flame, int Frame) AdvanceToInteractiveCasualFlame(
+        RoomEnemySystem enemies,
+        SamusState samus,
+        RoomLevelData level)
+    {
+        var observedFallingSlots = new HashSet<int>();
+        for (int frame = 0; frame < 10000; frame++)
+        {
+            byte nmi = unchecked((byte)frame);
+            enemies.StepFrame(
+                cameraX: 0,
+                cameraY: 0,
+                timeIsFrozen: false,
+                samus,
+                level: level,
+                nmiFrameCounter8: nmi);
+
+            foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles)
+            {
+                if (projectile.Kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame &&
+                    projectile.PreInstruction == 0x9981)
+                {
+                    observedFallingSlots.Add(projectile.SlotIndex);
+                }
+            }
+
+            // A null Samus deliberately disables only common projectile contact. Phantoon's
+            // producer still receives the normal Samus state above for targeting and state
+            // selection, while the candidate survives long enough to be audited.
+            enemies.StepEnemyProjectiles(
+                level,
+                samus: null,
+                cameraX: 0,
+                cameraY: 0,
+                nmiFrameCounter8: nmi);
+
+            RoomEnemyProjectileSlot? interactive = enemies.EnemyProjectiles.FirstOrDefault(
+                projectile =>
+                    projectile.Kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame &&
+                    observedFallingSlots.Contains(projectile.SlotIndex) &&
+                    projectile.CanDamageSamus && projectile.BlocksSamusProjectiles &&
+                    projectile.CollisionOption == 0);
+            if (interactive is not null)
+                return (interactive, frame);
+        }
+
+        throw new InvalidDataException(
+            "Phantoon produced no casual flame that transitioned from falling to interactive.");
+    }
+
+    /// <summary>Builds a fresh copy of the retail encounter for a destructive probe.</summary>
+    private static RoomEnemySystem LoadInteractionProbe(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets,
+        ushort randomSeed,
+        out SamusState samus)
+    {
+        var vram = new SnesVram();
+        var cgram = new SnesCgram();
+        assets.LoadGraphics(vram, cgram);
+        var random = new Bank80SystemState(randomSeed);
+        samus = new SamusState
+        {
+            Health = 999,
+            MaxHealth = 999,
+            XPosition = 128,
+            YPosition = 192,
+            Pose = SamusState.FacingRightNormalPose,
+        };
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+
+        var enemies = new RoomEnemySystem();
+        enemies.Load(
+            bus,
+            room.State.EnemyPopulationPointer,
+            room.State.EnemyTilesetPointer,
+            vram,
+            cgram,
+            random.NextRandom,
+            random.SetRandomNumber,
+            readRandomNumber: () => random.RandomNumber,
+            level: assets.LevelData,
+            samus: samus,
+            isAreaBossDefeated: () => false,
+            setAreaBossDefeated: () => { });
+        return enemies;
     }
 
     private static void ArmPhantoonProjectile(

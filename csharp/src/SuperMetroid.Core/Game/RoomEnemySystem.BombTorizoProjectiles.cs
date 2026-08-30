@@ -539,4 +539,42 @@ public sealed partial class RoomEnemySystem
             projectile.InstructionTimer = 1;
         }
     }
+
+    /// <summary>
+    /// Ports instruction <c>$86:AB8A</c>. Its two inline header operands are Bomb Torizo's
+    /// area-zero orb and Golden Torizo's nonzero-area orb. This runtime already identifies
+    /// the concrete loaded variant from definition <c>$EEFF/$EF7F</c>, which is the exact
+    /// room-scoped equivalent of consulting the global area byte.
+    /// </summary>
+    private void RequestTorizoChozoOrbDrop(
+        RoomEnemyProjectileSlot projectile,
+        ushort instructionCursor)
+    {
+        if (projectile.Kind is not (
+                RoomEnemyProjectileKind.BombTorizoChozoOrb or
+                RoomEnemyProjectileKind.GoldenTorizoChozoOrb))
+        {
+            throw new InvalidOperationException(
+                $"Projectile {projectile.Kind} reached Torizo-orb drop opcode $AB8A.");
+        }
+
+        bool golden = GoldenTorizo is not null;
+        ushort header = ReadWord(
+            _bus!,
+            0x860000 | unchecked((ushort)(instructionCursor + (golden ? 4 : 2))));
+        ushort expectedHeader = golden ? (ushort)0xefbf : (ushort)0xef3f;
+        if (header != expectedHeader)
+        {
+            throw new InvalidDataException(
+                $"Torizo-orb drop operand selected header ${header:X4}; expected " +
+                $"${expectedHeader:X4} for golden={golden}.");
+        }
+
+        RoomEnemyDefinition definition = ReadDefinition(_bus!, header);
+        _torizoOrbDropRequests.Add(new TorizoOrbDropRequest(
+            projectile.XPosition,
+            projectile.YPosition,
+            header,
+            definition.ItemDropChancesPointer));
+    }
 }

@@ -1307,6 +1307,10 @@ public sealed partial class RoomEnemySystem
                         ? ReadWord(_bus!, 0x860000 | unchecked((ushort)(cursor + 2)))
                         : unchecked((ushort)(cursor + 4));
                     break;
+                case 0xab8a: // Shot Torizo orb: choose area-specific header/drop table.
+                    RequestTorizoChozoOrbDrop(projectile, cursor);
+                    cursor = unchecked((ushort)(cursor + 6));
+                    break;
                 case 0x95ba: // Spawn horizontal right/left afterburn pair.
                     SpawnAfterburnPair(projectile, horizontal: true);
                     cursor = unchecked((ushort)(cursor + 2));
@@ -1317,6 +1321,10 @@ public sealed partial class RoomEnemySystem
                     break;
                 case 0x9620: // Decrement count and spawn the next actor in this direction.
                     SpawnNextAfterburn(projectile);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x980e: // Shot Phantoon flame: request a drop from eye header $E4FF.
+                    RequestPhantoonFlameDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case KagoBugStartJumpInstruction:

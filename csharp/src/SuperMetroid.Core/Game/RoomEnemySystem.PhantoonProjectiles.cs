@@ -293,4 +293,26 @@ public sealed partial class RoomEnemySystem
             flame.InstructionTimer = 1;
         }
     }
+
+    /// <summary>
+    /// Ports projectile instruction <c>$86:980E</c>. The cartridge forwards the flame's
+    /// exact position and enemy header <c>$A0:E4FF</c> to <c>Spawn_Enemy_Drops</c>; the
+    /// translated pickup owner is still an outer subsystem, so publish the same semantic
+    /// request with the header-derived item table rather than silently discarding the drop.
+    /// </summary>
+    private void RequestPhantoonFlameDrop(RoomEnemyProjectileSlot flame)
+    {
+        if (flame.Kind != RoomEnemyProjectileKind.PhantoonDestroyableFlame)
+        {
+            throw new InvalidOperationException(
+                $"Projectile {flame.Kind} reached Phantoon drop opcode $980E.");
+        }
+
+        RoomEnemyDefinition eye = ReadDefinition(_bus!, PhantoonEyeDefinition);
+        _phantoonFlameDropRequests.Add(new PhantoonFlameDropRequest(
+            flame.XPosition,
+            flame.YPosition,
+            PhantoonEyeDefinition,
+            eye.ItemDropChancesPointer));
+    }
 }

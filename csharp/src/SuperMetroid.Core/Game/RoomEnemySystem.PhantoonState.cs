@@ -106,6 +106,18 @@ public sealed class PhantoonEnemyState
     public ushort? BossDoorPlmRequest { get; internal set; }
 }
 
+/// <summary>
+/// One pickup request emitted by projectile instruction <c>$86:980E</c> after Samus shoots
+/// a destroyable Phantoon flame. Native passes the Phantoon-eye enemy header to the common
+/// drop selector; retaining both that header and its table pointer makes the otherwise
+/// implicit choice explicit to the eventual pickup-system owner.
+/// </summary>
+public readonly record struct PhantoonFlameDropRequest(
+    ushort X,
+    ushort Y,
+    ushort EnemyDefinitionPointer,
+    ushort ItemDropChancesPointer);
+
 public sealed partial class RoomEnemySystem
 {
     internal const ushort PhantoonBodyDefinition = 0xe4bf;
@@ -114,11 +126,20 @@ public sealed partial class RoomEnemySystem
     internal const ushort PhantoonMouthDefinition = 0xe57f;
 
     private PhantoonEnemyState? _phantoonState;
+    private readonly List<PhantoonFlameDropRequest> _phantoonFlameDropRequests = new();
 
     /// <summary>Active four-slot encounter state when retail Phantoon occupies slot zero.</summary>
     public PhantoonEnemyState? Phantoon => _phantoonState;
 
-    private void ResetPhantoonRoomState() => _phantoonState = null;
+    /// <summary>Pickup requests emitted by shot destroyable flames in this room load.</summary>
+    public IReadOnlyList<PhantoonFlameDropRequest> PhantoonFlameDropRequests =>
+        _phantoonFlameDropRequests;
+
+    private void ResetPhantoonRoomState()
+    {
+        _phantoonState = null;
+        _phantoonFlameDropRequests.Clear();
+    }
 
     private PhantoonEnemyState RequirePhantoonState(RoomEnemySlot slot)
     {

@@ -27,12 +27,14 @@ internal static class BombTorizoAudit
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyRetailStructures(bus, room);
         VerifyEncounter(bus, room, assets);
+        VerifyNaturalAttackInteractions(bus, room, assets);
         VerifyAlreadyDefeatedLoad(bus, room, assets);
 
         Console.WriteLine(
             "Bomb Torizo audit passed: retail header/population, PLM-gated awakening, " +
             "extended animation maps, collision movement, Chozo-orb/sonic/swipe attacks, " +
-            "Samus contact damage, projectile damage/flash, death bytecode, item drop, " +
+            "exact natural attack contact, Chozo-orb shot response, Samus body contact " +
+            "damage, projectile damage/flash, death bytecode, item drop, " +
             "delayed music, and area Torizo boss bit all used cartridge data.");
         return 0;
     }
@@ -230,6 +232,160 @@ internal static class BombTorizoAudit
                 $"{loaded.State.BossBitSet}/{bossBitSet}, drop={loaded.State.ItemDropRequested}, " +
                 $"music={sawDeathMusic}.");
         }
+    }
+
+    /// <summary>
+    /// The long encounter route above proves producer cadence and boss choreography. These
+    /// independent copies consume one naturally spawned actor apiece so the three damaging
+    /// normal-health attacks also prove the shared Samus-contact tail without changing the
+    /// authoritative fight timing. A fourth copy executes the orb's shootable response.
+    /// </summary>
+    private static void VerifyNaturalAttackInteractions(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        RoomEnemyProjectileKind[] damagingKinds =
+        [
+            RoomEnemyProjectileKind.BombTorizoChozoOrb,
+            RoomEnemyProjectileKind.BombTorizoSonicBoom,
+            RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
+        ];
+        foreach (RoomEnemyProjectileKind kind in damagingKinds)
+        {
+            (LoadedBombTorizo loaded, RoomEnemyProjectileSlot projectile, int frame) =
+                AdvanceToNaturalAttack(bus, room, assets, kind);
+            ushort definitionProperties = ReadWord(
+                bus,
+                0x860000 | unchecked((ushort)((ushort)kind + 8)));
+            ushort definitionRadii = ReadWord(
+                bus,
+                0x860000 | unchecked((ushort)((ushort)kind + 6)));
+            if (projectile.Damage != (definitionProperties & 0x0fff) ||
+                projectile.XRadius != unchecked((byte)definitionRadii) ||
+                projectile.YRadius != unchecked((byte)(definitionRadii >> 8)) ||
+                !projectile.CanDamageSamus)
+            {
+                throw new InvalidDataException(
+                    $"Natural Bomb Torizo {kind} at frame {frame} disagrees with its ROM " +
+                    $"definition: damage/radii/collision={projectile.Damage}/" +
+                    $"{projectile.XRadius}x{projectile.YRadius}/" +
+                    $"{projectile.CanDamageSamus}, properties/radii=" +
+                    $"${definitionProperties:X4}/${definitionRadii:X4}.");
+            }
+
+            EnemyProjectileAuditAssertions.VerifyNaturalSamusContact(
+                bus,
+                loaded.Enemies,
+                loaded.Samus,
+                new SamusBombProjectileSystem(),
+                assets.LevelData,
+                projectile,
+                CameraX,
+                CameraY,
+                unchecked((byte)frame));
+        }
+
+        (LoadedBombTorizo shotLoaded, RoomEnemyProjectileSlot orb, int shotFrame) =
+            AdvanceToNaturalAttack(
+                bus,
+                room,
+                assets,
+                RoomEnemyProjectileKind.BombTorizoChozoOrb);
+        ushort orbX = orb.XPosition;
+        ushort orbY = orb.YPosition;
+        ushort shotResponse = EnemyProjectileAuditAssertions.VerifyNaturalDestructibleSamusShot(
+            bus,
+            shotLoaded.Enemies,
+            new SamusProjectileSystem(),
+            new SamusBombProjectileSystem(),
+            orb);
+        var responseMaps = new HashSet<ushort>();
+        for (int frame = 0; frame < 128 && orb.IsActive; frame++)
+        {
+            shotLoaded.Enemies.StepEnemyProjectiles(
+                assets.LevelData,
+                samus: null,
+                cameraX: CameraX,
+                cameraY: CameraY,
+                nmiFrameCounter8: unchecked((byte)(shotFrame + frame + 1)));
+            if (orb.IsActive && orb.SpritemapPointer is not 0 and not 0x8000)
+                responseMaps.Add(orb.SpritemapPointer);
+        }
+        TorizoOrbDropRequest? drop = shotLoaded.Enemies.TorizoOrbDropRequests.Count == 1
+            ? shotLoaded.Enemies.TorizoOrbDropRequests[0]
+            : null;
+        if (orb.IsActive || responseMaps.Count == 0 || drop is null ||
+            drop.Value.X != orbX || drop.Value.Y != orbY ||
+            drop.Value.EnemyDefinitionPointer != 0xef3f ||
+            drop.Value.ItemDropChancesPointer != 0xf3fe)
+        {
+            throw new InvalidDataException(
+                $"Bomb Torizo Chozo-orb shot response $86:{shotResponse:X4} ended with " +
+                $"live={orb.IsActive} after {responseMaps.Count} visible maps; drop=" +
+                (drop is null
+                    ? "none."
+                    : $"({drop.Value.X},{drop.Value.Y}) header/table=" +
+                      $"${drop.Value.EnemyDefinitionPointer:X4}/" +
+                      $"${drop.Value.ItemDropChancesPointer:X4}."));
+        }
+    }
+
+    /// <summary>
+    /// Runs the real PLM-unlocked boss until the requested bank-$86 definition is allocated.
+    /// Sonic/swipe searches reproduce the retail selector-phase change already used by the
+    /// main audit after its first orb, but never write the enemy state or projectile pool.
+    /// </summary>
+    private static (LoadedBombTorizo Loaded, RoomEnemyProjectileSlot Projectile, int Frame)
+        AdvanceToNaturalAttack(
+            SuperMetroidAddressSpace bus,
+            CartridgeRoomHeader room,
+            CartridgeRoomAssets assets,
+            RoomEnemyProjectileKind requestedKind)
+    {
+        LoadedBombTorizo loaded = Load(
+            bus,
+            room,
+            assets,
+            alreadyDefeated: false,
+            _ => false,
+            () => { });
+        bool selectorPhaseChanged = false;
+        for (int frame = 0; frame < 12000; frame++)
+        {
+            loaded.Enemies.StepFrame(
+                CameraX,
+                CameraY,
+                timeIsFrozen: false,
+                loaded.Samus,
+                level: assets.LevelData,
+                nmiFrameCounter8: unchecked((byte)frame));
+
+            RoomEnemyProjectileSlot? requested = loaded.Enemies.EnemyProjectiles.FirstOrDefault(
+                projectile => projectile.Kind == requestedKind);
+            if (requested is not null)
+                return (loaded, requested, frame);
+
+            if (!selectorPhaseChanged && loaded.Enemies.EnemyProjectiles.Any(
+                    projectile => projectile.Kind == RoomEnemyProjectileKind.BombTorizoChozoOrb))
+            {
+                loaded.Samus.XPosition = unchecked((ushort)(loaded.Samus.XPosition + 16));
+                selectorPhaseChanged = true;
+            }
+
+            // The finder deliberately disables Samus contact but otherwise advances every
+            // live instruction/pre-instruction so old actors free their physical slots and
+            // producer timing remains identical to ordinary gameplay.
+            loaded.Enemies.StepEnemyProjectiles(
+                assets.LevelData,
+                samus: null,
+                cameraX: CameraX,
+                cameraY: CameraY,
+                nmiFrameCounter8: unchecked((byte)frame));
+        }
+
+        throw new InvalidDataException(
+            $"Bomb Torizo never naturally produced {requestedKind} within 12000 frames.");
     }
 
     private static void VerifyAlreadyDefeatedLoad(

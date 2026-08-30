@@ -131,6 +131,111 @@ internal static class EnemyProjectileAuditAssertions
         }
     }
 
+    /// <summary>
+    /// Isolates one naturally initialized, flag-zero enemy projectile and proves the common
+    /// <c>$A0:996C-$9A30</c> Samus-shot dispatcher. The assertion deliberately creates only
+    /// the incoming power-beam test shot: the target's kind, radii, properties, animation,
+    /// and producer-owned state must all have come from the retail encounter under audit.
+    /// </summary>
+    /// <returns>The cartridge shot-response instruction read from definition word +12.</returns>
+    public static ushort VerifyNaturalDestructibleSamusShot(
+        ISnesAddressSpace bus,
+        RoomEnemySystem enemies,
+        SamusProjectileSystem samusProjectiles,
+        SamusBombProjectileSystem sharedProjectiles,
+        RoomEnemyProjectileSlot target)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(enemies);
+        ArgumentNullException.ThrowIfNull(samusProjectiles);
+        ArgumentNullException.ThrowIfNull(sharedProjectiles);
+        ArgumentNullException.ThrowIfNull(target);
+        if (!target.IsActive || !target.BlocksSamusProjectiles || target.CollisionOption != 0)
+        {
+            throw new InvalidDataException(
+                "Enemy projectile shot assertion requires a live, blocking flag-zero actor.");
+        }
+
+        RoomEnemyProjectileKind kind = target.Kind;
+        int targetSlot = target.SlotIndex;
+        ushort expectedShotInstruction = ReadWord(
+            bus,
+            0x860000 | unchecked((ushort)((ushort)kind + 12)));
+        if (expectedShotInstruction == 0)
+        {
+            throw new InvalidDataException(
+                $"Destructible enemy projectile {kind} ($86:{(ushort)kind:X4}) has no " +
+                "cartridge shot-response instruction.");
+        }
+
+        // The native collision pass scans every blocking bank-$86 slot and every live Samus
+        // shot. Preserve sibling state while masking only their blocking bit, and clear the
+        // ordinary five-shot pool so exactly one physical collision is attributable here.
+        (RoomEnemyProjectileSlot Projectile, bool Blocks)[] siblingCollision =
+            enemies.EnemyProjectiles
+                .Where(projectile => projectile.IsActive && projectile.SlotIndex != targetSlot)
+                .Select(projectile => (projectile, projectile.BlocksSamusProjectiles))
+                .ToArray();
+        foreach ((RoomEnemyProjectileSlot projectile, _) in siblingCollision)
+            projectile.BlocksSamusProjectiles = false;
+        foreach (SamusProjectileSlot projectile in samusProjectiles.Slots.Take(5))
+            projectile.ClearFields();
+
+        // Type $0001 is the ordinary power beam. Its non-bit-3 form also proves that the
+        // Samus projectile owner receives the native enemy-impact transition before the
+        // enemy projectile installs its own definition-derived shot list.
+        SamusProjectileSlot shot = samusProjectiles.Slots[0];
+        shot.Type = 0x0001;
+        shot.Damage = 20;
+        shot.Direction = (ushort)SamusProjectileDirection.Right;
+        shot.XPosition = target.XPosition;
+        shot.YPosition = target.YPosition;
+        shot.XRadius = 4;
+        shot.YRadius = 4;
+        shot.InstructionPointer = 0x9000;
+        shot.InstructionTimer = 1;
+
+        ushort? dudBefore = enemies.LastEnemyProjectileDudSoundEffect;
+        int hitCount;
+        try
+        {
+            hitCount = enemies.ResolveEnemyProjectileSamusProjectileHits(
+                bus,
+                samusProjectiles,
+                sharedProjectiles);
+        }
+        finally
+        {
+            foreach ((RoomEnemyProjectileSlot projectile, bool blocks) in siblingCollision)
+            {
+                if (projectile.IsActive)
+                    projectile.BlocksSamusProjectiles = blocks;
+            }
+        }
+
+        RoomEnemyProjectileSlot physicalTarget = enemies.EnemyProjectiles[targetSlot];
+        if (hitCount != 1 || !physicalTarget.IsActive ||
+            physicalTarget.CollidedProjectileType != 0x0001 ||
+            physicalTarget.InstructionPointer != expectedShotInstruction ||
+            physicalTarget.InstructionTimer != 1 || physicalTarget.PreInstruction != 0x84fb ||
+            physicalTarget.BlocksSamusProjectiles ||
+            physicalTarget.PersistsOnSamusContact || !physicalTarget.CanDamageSamus ||
+            enemies.LastEnemyProjectileDudSoundEffect != dudBefore)
+        {
+            throw new InvalidDataException(
+                $"Natural enemy projectile {kind} ($86:{(ushort)kind:X4}) shot dispatch " +
+                $"produced hits/live/type/list/timer/pre={hitCount}/{physicalTarget.IsActive}/" +
+                $"${physicalTarget.CollidedProjectileType:X4}/" +
+                $"$86:{physicalTarget.InstructionPointer:X4}/{physicalTarget.InstructionTimer}/" +
+                $"$86:{physicalTarget.PreInstruction:X4}, properties damage/persist/block=" +
+                $"{physicalTarget.CanDamageSamus}/{physicalTarget.PersistsOnSamusContact}/" +
+                $"{physicalTarget.BlocksSamusProjectiles}; expected one live $0001 hit, " +
+                $"$86:{expectedShotInstruction:X4}/1/$84FB, true/false/false.");
+        }
+
+        return expectedShotInstruction;
+    }
+
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }

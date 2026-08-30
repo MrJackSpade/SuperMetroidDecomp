@@ -114,6 +114,12 @@ if (args.Length >= 2 && args[0] == "--retail-enemy-execution-audit")
     return RetailEnemyExecutionAudit.Run(executionRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--dead-torizo-audit")
+{
+    string deadTorizoRomPath = string.Join(' ', args[1..]).Trim('"');
+    return DeadTorizoAudit.Run(deadTorizoRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--rinka-audit")
 {
     string rinkaRomPath = string.Join(' ', args[1..]).Trim('"');

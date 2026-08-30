@@ -239,6 +239,7 @@ public sealed partial class RoomEnemySystem
         ResetPhantoonRoomState();
         ResetDraygonRoomState();
         ResetMotherBrainRoomState();
+        ResetDeadTorizoRoomState();
         ResetShutterRoomState(cameraX, cameraY);
         ResetElevatorRoomActors();
         LastKzanSoundEffect = null;
@@ -428,7 +429,8 @@ public sealed partial class RoomEnemySystem
         SamusProjectileSystem? samusProjectiles = null,
         byte? nmiFrameCounter8 = null,
         SamusMode7Transform? mode7Transform = null,
-        SamusBombProjectileSystem? sharedProjectiles = null)
+        SamusBombProjectileSystem? sharedProjectiles = null,
+        VramWriteQueue? vramWriteQueue = null)
     {
         EnsureLoaded();
         // Standalone audits do not own the runtime NMI clock. In that case the enemy-frame
@@ -478,6 +480,8 @@ public sealed partial class RoomEnemySystem
         LastCrocomireMusicRequest = null;
         LastCrocomireDropRequest = null;
         _crocomirePlmRequests.Clear();
+        LastDeadTorizoSoundEffect = null;
+        _deadTorizoFrameVramTransfers.Clear();
         _motherBrain?.BeginFrame();
         BeginSporeSpawnFrame();
         LastRioSoundEffect = null;
@@ -670,6 +674,8 @@ public sealed partial class RoomEnemySystem
                 slot.Properties));
         }
         _randomEnemyCounter = unchecked((ushort)(_randomEnemyCounter + 1));
+        QueueDeadTorizoFrameVramTransfers(vramWriteQueue);
+        samus?.Kinematics.ClearSolidEnemyCollisionIndexes();
         StepWorkRobotPaletteAnimation();
         StepMagdollitePaletteAnimation();
         StepBlueBrinstarFaceBlockPaletteAnimation();
@@ -800,7 +806,10 @@ public sealed partial class RoomEnemySystem
             // the record's authored layer-five pass and therefore must not run in both of
             // the frontend's disjoint low/high-priority layer ranges.
             if (layer == 5)
+            {
                 DrawMotherBrainHook(oam, cameraX, cameraY);
+                DrawDeadTorizoHook(oam, cameraX, cameraY);
+            }
         }
     }
 
@@ -1331,6 +1340,9 @@ public sealed partial class RoomEnemySystem
             case 0xa9c710 when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
                 InitializeMotherBrainBabyMetroid(slot);
                 return;
+            case 0xa9d308 when slot.EnemyDefinitionPointer == DeadTorizoDefinition:
+                InitializeDeadTorizo(slot);
+                return;
             case 0xaad7c8 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
                 InitializeTourianEntranceStatue(slot);
                 return;
@@ -1438,6 +1450,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa9c779 when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
                 RunMotherBrainBabyMetroidMain(slot, samus, cameraX, cameraY);
+                return;
+            case 0xa9d368 when slot.EnemyDefinitionPointer == DeadTorizoDefinition:
+                RunDeadTorizoMain(slot, samus);
                 return;
             case 0xa48c04 when slot.EnemyDefinitionPointer == CrocomireDefinition:
                 RunCrocomireMain(slot, samus, controllerInput, level, cameraX);

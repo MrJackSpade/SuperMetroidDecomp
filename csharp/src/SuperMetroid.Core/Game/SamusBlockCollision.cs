@@ -111,6 +111,7 @@ public static class SamusBlockCollision
                 direction,
                 unchecked((ushort)(magnitude >> 16)),
                 unchecked((ushort)magnitude));
+            state.RecordSolidEnemyCollision(direction, probe.EnemyIndex);
 
             if (probe.Collided)
             {
@@ -318,6 +319,7 @@ public static class SamusBlockCollision
                 direction,
                 unchecked((ushort)(magnitude >> 16)),
                 unchecked((ushort)magnitude));
+            state.RecordSolidEnemyCollision(direction, probe.EnemyIndex);
 
             if (probe.Collided)
             {

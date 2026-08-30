@@ -87,12 +87,7 @@ public sealed class MotherBrainCorpseRottingState
 
         // `$DC40` starts at height-1 and writes four bytes per entry. Y decreases from the
         // corpse's bottom row to its top while the delay grows by two calls per entry.
-        for (int entryIndex = 0; entryIndex < EntryCount; entryIndex++)
-        {
-            int entryAddress = RotTableAddress + entryIndex * 4;
-            WriteWord(bus, entryAddress, unchecked((ushort)(EntryCount - 1 - entryIndex)));
-            WriteWord(bus, entryAddress + 2, unchecked((ushort)(entryIndex * 2)));
-        }
+        CorpseRottingTableProcessor.Initialize(bus, RotTableAddress, EntryCount);
 
         // MVN copies A+1 bytes. The lengths below already include that 65816 convention,
         // so a host loop uses `< Length` without adding another byte.
@@ -118,10 +113,12 @@ public sealed class MotherBrainCorpseRottingState
         if ((uint)entryIndex >= EntryCount)
             throw new ArgumentOutOfRangeException(nameof(entryIndex));
 
-        int entryAddress = RotTableAddress + entryIndex * 4;
-        return new MotherBrainCorpseRotEntry(
-            unchecked((short)ReadWord(bus, entryAddress)),
-            ReadWord(bus, entryAddress + 2));
+        CorpseRottingTableEntry entry = CorpseRottingTableProcessor.ReadEntry(
+            bus,
+            RotTableAddress,
+            EntryCount,
+            entryIndex);
+        return new MotherBrainCorpseRotEntry(entry.YOffset, entry.Timer);
     }
 
     /// <summary>Runs one exact call of <c>ProcessCorpseRotting</c> for Mother Brain.</summary>
@@ -142,71 +139,36 @@ public sealed class MotherBrainCorpseRottingState
         ProcessCallCount++;
         var dustRequests = new List<MotherBrainCorpseDustRequest>(capacity: 1);
 
-        for (int entryIndex = 0; entryIndex < EntryCount; entryIndex++)
+        bool stillRotting = CorpseRottingTableProcessor.Step(
+            bus,
+            RotTableAddress,
+            EntryCount,
+            yLimit: EntryCount - 1,
+            lateMoveEntryIndex: EntryCount - 2,
+            copyOrMovePixelRow: (yOffset, move) => CopyOrMovePixelRow(bus, yOffset, move),
+            entryFinished: entryIndex =>
+            {
+                // `$B223` samples the already-existing global seed; it does not advance
+                // RNG. One dust projectile is emitted for every completed table entry.
+                FinishedEntryCount++;
+                dustRequests.Add(new MotherBrainCorpseDustRequest(
+                    EntryIndex: entryIndex,
+                    XPosition: unchecked((ushort)(
+                        brainXPosition + (randomNumberSeed & 0x001f) - 0x0010)),
+                    YPosition: unchecked((ushort)(brainYPosition + 0x0010)),
+                    ProjectileParameter: 0x000a,
+                    SoundEffectQueued: (mainEnemyExecutionCounter & 7) == 0,
+                    SoundEffect: 0x0010));
+            });
+
+        // The final entry returns carry clear before the enemy-specific VRAM transfer
+        // callback, whereas every still-active call queues the complete six-record list.
+        if (!stillRotting)
         {
-            int entryAddress = RotTableAddress + entryIndex * 4;
-            short yOffset = unchecked((short)ReadWord(bus, entryAddress));
-
-            // `$FFFF` marks a completed non-final entry. BMI skips every negative value,
-            // so preserve the signed 16-bit test rather than inventing a separate active bit.
-            if (yOffset < 0)
-                continue;
-
-            ushort timer = ReadWord(bus, entryAddress + 2);
-            if (timer != 0)
-            {
-                // Delayed entries begin copying only for timer values 3, 2, and 1. Entry
-                // indices 46/47 use move instead, preventing rows below the corpse height
-                // from being populated by those final two delayed passes.
-                timer = unchecked((ushort)(timer - 1));
-                WriteWord(bus, entryAddress + 2, timer);
-                if (timer >= 4)
-                    continue;
-
-                CopyOrMovePixelRow(
-                    bus,
-                    unchecked((ushort)yOffset),
-                    move: entryIndex >= EntryCount - 2);
-                continue;
-            }
-
-            // Once its delay is zero an entry moves, rather than copies, its source row.
-            // The source is cleared after the destination writes, creating the dissolving
-            // downward trail visible in the original effect.
-            CopyOrMovePixelRow(bus, unchecked((ushort)yOffset), move: true);
-
-            ushort nextYOffset = unchecked((ushort)(yOffset + 2));
-            if (nextYOffset < EntryCount - 1)
-            {
-                WriteWord(bus, entryAddress, nextYOffset);
-                continue;
-            }
-
-            // `$B223` samples the already-existing global seed; it does not advance RNG.
-            // One dust projectile is emitted for every completed entry. Sound library two
-            // effect `$10` is requested only on main-enemy execution counts divisible by 8.
-            FinishedEntryCount++;
-            dustRequests.Add(new MotherBrainCorpseDustRequest(
-                EntryIndex: unchecked((ushort)entryIndex),
-                XPosition: unchecked((ushort)(brainXPosition + (randomNumberSeed & 0x001f) - 0x0010)),
-                YPosition: unchecked((ushort)(brainYPosition + 0x0010)),
-                ProjectileParameter: 0x000a,
-                SoundEffectQueued: (mainEnemyExecutionCounter & 7) == 0,
-                SoundEffect: 0x0010));
-
-            // The last table entry returns carry clear immediately. Native `$B1D5` then
-            // skips the VRAM-transfer function on this completion call.
-            if (entryIndex >= EntryCount - 1)
-            {
-                return new MotherBrainCorpseRottingStepResult(
-                    StillRotting: false,
-                    VramTransfers: [],
-                    DustRequests: dustRequests);
-            }
-
-            // Earlier finished rows remain in the table as signed `$FFFF` and are skipped
-            // by every later call while the delayed rows above them continue falling.
-            WriteWord(bus, entryAddress, 0xffff);
+            return new MotherBrainCorpseRottingStepResult(
+                StillRotting: false,
+                VramTransfers: [],
+                DustRequests: dustRequests);
         }
 
         // Carry set from `$DBDF` reaches `$B1DD`, which queues all six records every time.

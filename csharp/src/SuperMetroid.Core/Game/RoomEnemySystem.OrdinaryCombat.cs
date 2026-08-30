@@ -66,6 +66,8 @@ public sealed partial class RoomEnemySystem
     private const ushort RidleyPowerBombAi = 0xdfb2;
     private const ushort MotherBrainBodyShotAi = 0xb503;
     private const ushort MotherBrainHeadShotAi = 0xb507;
+    private const ushort DeadTorizoTouchAndShotAi = 0xd433;
+    private const ushort DeadTorizoPowerBombAi = 0xd42a;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -148,6 +150,8 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == PhantoonTouchHitboxCallback;
             bool isDraygonBody = slot.EnemyDefinitionPointer == DraygonBodyDefinition &&
                 slot.Definition.TouchAiPointer == DraygonTouchAi;
+            bool isDeadTorizo = slot.EnemyDefinitionPointer == DeadTorizoDefinition &&
+                slot.Definition.TouchAiPointer == DeadTorizoTouchAndShotAi;
             // A handful of utility/terrain enemies intentionally point touch AI at an RTL
             // in their own bank. Detect the native opcode instead of adding a name-specific
             // exception for every inert actor. The collision is still reported, but the
@@ -185,6 +189,7 @@ public sealed partial class RoomEnemySystem
                 isCrocomireTongue ||
                 isPhantoon ||
                 isDraygonBody ||
+                isDeadTorizo ||
                 isLiteralNoOpTouchAi ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
@@ -240,6 +245,14 @@ public sealed partial class RoomEnemySystem
             if (!overlapsSamus)
             {
                 continue;
+            }
+
+            // `$A9:D433` is shared by touch and shot. Contact does not enter common damage;
+            // it makes the corpse solid and starts the exact rotting table immediately.
+            if (isDeadTorizo)
+            {
+                TriggerDeadTorizoRotting(slot);
+                return true;
             }
 
             // Space Pirate extended maps currently use the shared `$B2:876C` touch
@@ -639,6 +652,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == MotherBrainBodyShotAi;
             bool isMotherBrainHead = enemy.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
                 enemy.Definition.ShotAiPointer == MotherBrainHeadShotAi;
+            bool isDeadTorizo = enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
+                enemy.Definition.ShotAiPointer == DeadTorizoTouchAndShotAi;
             // Several retail helper/projectile definitions point their shot callback at a
             // literal RTL in their own enemy bank. The bank-$A0 collision walker still runs
             // its projectile prelude before dispatching that no-op callback: supers request
@@ -690,6 +705,7 @@ public sealed partial class RoomEnemySystem
                 isDraygonBody ||
                 isMotherBrainBody ||
                 isMotherBrainHead ||
+                isDeadTorizo ||
                 isLiteralNoOpShotAi ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
@@ -784,6 +800,20 @@ public sealed partial class RoomEnemySystem
                 if (!overlapsProjectile)
                 {
                     continue;
+                }
+
+                if (isDeadTorizo)
+                {
+                    // Its private callback runs after the ordinary collision prelude but
+                    // before common impact/vulnerability code. The shot is marked, not
+                    // converted into an explosion, and the corpse never loses health.
+                    projectiles.ApplyEnemyCollisionPrelude(
+                        projectile.SlotIndex,
+                        (enemy.Properties & 0x1000) != 0 ||
+                            (projectile.Type & 0x0008) == 0);
+                    TriggerDeadTorizoRotting(enemy);
+                    hitCount++;
+                    break;
                 }
 
                 if (isMotherBrainBody)
@@ -1603,6 +1633,8 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == RidleyPowerBombAi;
             bool isDraygonBody = enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
                 reactionPointer == DraygonPowerBombAi;
+            bool isDeadTorizo = enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
+                reactionPointer == DeadTorizoPowerBombAi;
             if (isRinka && enemy.Properties.HasAny(EnemyProperties.Invisible))
                 continue;
             if (reactionPointer != 0 && !isFireflea && !isPowamp && !isFakeKraid &&
@@ -1618,7 +1650,8 @@ public sealed partial class RoomEnemySystem
                 !isSpacePiratePowerBombReaction &&
                 !isMetroid &&
                 !isNorfairRidley &&
-                !isDraygonBody)
+                !isDraygonBody &&
+                !isDeadTorizo)
             {
                 throw new NotSupportedException(
                     $"Enemy ${enemy.EnemyDefinitionPointer:X4} power-bomb reaction " +
@@ -1643,6 +1676,14 @@ public sealed partial class RoomEnemySystem
             if (isCrocomire)
             {
                 ResolveCrocomirePowerBombReaction(enemy);
+                enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
+                reactionCount++;
+                continue;
+            }
+
+            if (isDeadTorizo)
+            {
+                TriggerDeadTorizoPowerBomb(enemy);
                 enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
                 reactionCount++;
                 continue;

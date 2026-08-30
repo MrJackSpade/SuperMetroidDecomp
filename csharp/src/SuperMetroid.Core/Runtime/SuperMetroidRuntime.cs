@@ -1045,7 +1045,8 @@ public sealed partial class SuperMetroidRuntime
                 Projectiles,
                 NmiFrameCounter8,
                 ActiveSamusMode7Transform,
-                BombProjectiles);
+                BombProjectiles,
+                VramWrites);
             if (Enemies.ElevatorClearedProjectileData)
             {
                 // `$90:ADB7` clears all ten projectile slots and their counters. Ordinary

@@ -11,6 +11,12 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusKinematicsState
 {
+    // `$7E:182C-$1833` remembers the solid enemy hit in each movement direction until the
+    // next EnemyMain tail clears all four words. Dead-monster actors inspect this delayed
+    // producer state; a one-call return value alone cannot reproduce that ordering.
+    private readonly ushort[] _solidEnemyCollisionIndexes =
+        [ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue];
+
     /// <summary>
     /// Current pose byte sampled by bank-$94 collision. Door collision is mostly geometric,
     /// but the elevator pseudo-door handlers admit only poses below $09 before publishing
@@ -32,6 +38,12 @@ public sealed class SamusKinematicsState
     /// </remarks>
     public IReadOnlyList<SolidEnemyCollisionBody> InteractiveEnemies { get; set; } =
         Array.Empty<SolidEnemyCollisionBody>();
+
+    /// <summary>
+    /// Native left/right/up/down collision-index words retained for debugger inspection.
+    /// <c>$FFFF</c> means that direction did not encounter a solid enemy.
+    /// </summary>
+    public IReadOnlyList<ushort> SolidEnemyCollisionIndexes => _solidEnemyCollisionIndexes;
 
     /// <summary>Whole-pixel world X at WRAM <c>$0AF6</c>.</summary>
     public ushort XPosition { get; set; }
@@ -127,6 +139,31 @@ public sealed class SamusKinematicsState
     /// The native addition is 16-bit and therefore wraps at the room-coordinate boundary.
     /// </summary>
     public ushort BottomBoundary => unchecked((ushort)(YPosition + YRadius));
+
+    /// <summary>Publishes the result of one directional bank-$A0 solid-enemy probe.</summary>
+    internal void RecordSolidEnemyCollision(
+        SamusCollisionDirection direction,
+        ushort? nativeEnemyIndex)
+    {
+        if ((uint)direction > (uint)SamusCollisionDirection.Down)
+            throw new ArgumentOutOfRangeException(nameof(direction));
+        _solidEnemyCollisionIndexes[(int)direction] = nativeEnemyIndex ?? ushort.MaxValue;
+    }
+
+    /// <summary>Tests the four collision words exactly as dead-monster wait AI does.</summary>
+    internal bool DidCollideWithSolidEnemy(ushort nativeEnemyIndex)
+    {
+        foreach (ushort index in _solidEnemyCollisionIndexes)
+        {
+            if (index == nativeEnemyIndex)
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>Ports EnemyMain's end-of-frame clear of <c>$182C-$1833</c>.</summary>
+    internal void ClearSolidEnemyCollisionIndexes() =>
+        Array.Fill(_solidEnemyCollisionIndexes, ushort.MaxValue);
 
     internal void SetXFixed(uint value)
     {

@@ -64,6 +64,8 @@ public sealed partial class RoomEnemySystem
     private const ushort RidleyExtendedTouchAi = 0xdf59;
     private const ushort RidleyShotAi = 0xdf8a;
     private const ushort RidleyPowerBombAi = 0xdfb2;
+    private const ushort MotherBrainBodyShotAi = 0xb503;
+    private const ushort MotherBrainHeadShotAi = 0xb507;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -633,6 +635,10 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi;
             bool isDraygonBody = enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
                 enemy.Definition.ShotAiPointer == DraygonShotAi;
+            bool isMotherBrainBody = enemy.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
+                enemy.Definition.ShotAiPointer == MotherBrainBodyShotAi;
+            bool isMotherBrainHead = enemy.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
+                enemy.Definition.ShotAiPointer == MotherBrainHeadShotAi;
             // Several retail helper/projectile definitions point their shot callback at a
             // literal RTL in their own enemy bank. The bank-$A0 collision walker still runs
             // its projectile prelude before dispatching that no-op callback: supers request
@@ -682,6 +688,8 @@ public sealed partial class RoomEnemySystem
                 isCrocomire ||
                 isCrocomireTongue ||
                 isDraygonBody ||
+                isMotherBrainBody ||
+                isMotherBrainHead ||
                 isLiteralNoOpShotAi ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
@@ -778,6 +786,36 @@ public sealed partial class RoomEnemySystem
                     continue;
                 }
 
+                if (isMotherBrainBody)
+                {
+                    // Body callback `$A9:B503` is exactly CreateDudShot. The common radius
+                    // collision prelude still owns Super-Missile quake before that callback.
+                    projectiles.ApplyEnemyCollisionPrelude(
+                        projectile.SlotIndex,
+                        (enemy.Properties & 0x1000) != 0 ||
+                            (projectile.Type & 0x0008) == 0);
+                    CreateEnemyProjectileDudShot(projectile);
+                    hitCount++;
+                    break;
+                }
+
+                if (isMotherBrainHead)
+                {
+                    if (!ResolveMotherBrainHeadShot(
+                        bus,
+                        enemy,
+                        projectile,
+                        projectiles,
+                        sharedProjectiles,
+                        projectileType,
+                        projectileDamage))
+                    {
+                        continue;
+                    }
+                    hitCount++;
+                    break;
+                }
+
                 if (isNorfairRidley &&
                     (!usesExtendedHitboxes || hitboxShotAi != RidleyShotAi))
                 {
@@ -802,7 +840,7 @@ public sealed partial class RoomEnemySystem
                             projectile.SlotIndex,
                             (enemy.Properties & 0x1000) != 0 ||
                                 (projectile.Type & 0x0008) == 0);
-                        CreateSporeSpawnDudShot(projectile);
+                        CreateEnemyProjectileDudShot(projectile);
                         hitCount++;
                         break;
                     }
@@ -870,7 +908,7 @@ public sealed partial class RoomEnemySystem
                             projectile.SlotIndex,
                             (enemy.Properties & 0x1000) != 0 ||
                                 (projectile.Type & 0x0008) == 0);
-                        CreateSporeSpawnDudShot(projectile);
+                        CreateEnemyProjectileDudShot(projectile);
                         hitCount++;
                         break;
                     }

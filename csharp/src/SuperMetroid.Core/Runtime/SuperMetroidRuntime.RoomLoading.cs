@@ -203,6 +203,19 @@ public sealed partial class SuperMetroidRuntime
         BombProjectiles.Reset();
         Projectiles.Reset();
 
+        // Load the room-authored glass before enemy initialization. The head's bank-$A9
+        // shot callback hardcodes the highest PLM room-argument word, so slot allocation is
+        // part of the encounter ABI rather than a visual afterthought.
+        Plms.TryLoadMotherBrainGlassPopulation(
+            _addressSpace,
+            LevelData,
+            BackgroundStreamer,
+            room.State.PlmPointer,
+            hasAreaBossBit: mask =>
+                System.HasAnyBossBits(room.AreaIndex, (BossBits)mask),
+            hasEvent: System.HasEvent,
+            setEvent: System.SetEvent);
+
         Enemies.Load(
             _addressSpace,
             room.State.EnemyPopulationPointer,
@@ -233,7 +246,8 @@ public sealed partial class SuperMetroidRuntime
             setAreaTorizoDefeated: () =>
                 System.SetBossBits(room.AreaIndex, BossBits.AreaTorizo),
             setSamusControlsEnabled: enabled => GroundedSamusMovementEnabled = enabled,
-            setRoomScrollByte: (index, value) => Camera.Scrolls.SetStorage(index, value));
+            setRoomScrollByte: (index, value) => Camera.Scrolls.SetStorage(index, value),
+            incrementMotherBrainGlassRoomArgument: Plms.IncrementMotherBrainGlassRoomArgument);
         ApplyPendingBotwoonWallPlm();
         ApplyPendingSporeSpawnCeilingPlm();
         ApplyPendingCrocomireArenaPlms();

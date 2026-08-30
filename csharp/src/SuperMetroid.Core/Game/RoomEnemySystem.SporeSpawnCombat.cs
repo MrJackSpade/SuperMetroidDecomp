@@ -88,7 +88,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports common bank-$A0 <c>CreateADudShot</c> for a protected head hitbox.</summary>
-    private void CreateSporeSpawnDudShot(SamusProjectileSlot projectile)
+    private void CreateEnemyProjectileDudShot(SamusProjectileSlot projectile)
     {
         _ = SpawnRoomSpriteObject(
             projectile.XPosition,

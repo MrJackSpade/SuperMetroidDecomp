@@ -66,7 +66,6 @@ internal static class MotherBrainAudit
         RoomEnemySlot body = state.Body;
         RoomEnemySlot head = state.Head ??
             throw new InvalidDataException("Mother Brain's head record was not linked to its body.");
-
         if (enemies.EnemyCount != 6 || body.EnemyDefinitionPointer != BodyDefinition ||
             head.EnemyDefinitionPointer != HeadDefinition || body.SlotIndex != 0 || head.SlotIndex != 1)
         {

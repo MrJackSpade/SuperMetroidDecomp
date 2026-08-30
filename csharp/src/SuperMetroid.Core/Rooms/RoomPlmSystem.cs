@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Rooms;
 /// other pointer fails instead of silently inventing an effect for a still-untranslated PLM
 /// family.
 /// </remarks>
-public sealed class RoomPlmSystem
+public sealed partial class RoomPlmSystem
 {
     private const int SlotCount = 40;
     private const ushort RespawningInstructionList = 0xcd6a;
@@ -152,14 +152,18 @@ public sealed class RoomPlmSystem
         foreach (PlmSlot slot in _slots)
         {
             slot.Active = false;
+            slot.HeaderPointer = 0;
             slot.BlockIndex = 0;
             slot.RestoreLevelWord = 0;
             slot.InstructionPointer = 0;
             slot.InstructionTimer = 0;
+            slot.PreInstruction = 0;
+            slot.RoomArgument = 0;
             slot.LoopTimer = 0;
         }
         _soundRequests.Clear();
         _tilemapUpdates.Clear();
+        ResetMotherBrainGlassState();
     }
 
     /// <summary>
@@ -841,10 +845,15 @@ public sealed class RoomPlmSystem
         ArgumentNullException.ThrowIfNull(streamer);
         _soundRequests.Clear();
         _tilemapUpdates.Clear();
+        BeginMotherBrainGlassFrame();
 
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
         {
             PlmSlot slot = _slots[slotIndex];
+            if (!slot.Active)
+                continue;
+
+            RunMotherBrainGlassPreInstruction(slot);
             if (!slot.Active)
                 continue;
 
@@ -1019,9 +1028,12 @@ public sealed class RoomPlmSystem
 
                 case DeleteInstruction:
                     slot.Active = false;
+                    OnPlmDeleted(slot);
                     return;
 
                 default:
+                    if (TryExecuteMotherBrainGlassInstruction(bus, slot, instruction))
+                        continue;
                     throw new InvalidDataException(
                         $"Movement-owned PLM reached unsupported bank-$84 instruction ${instruction:X4}.");
             }
@@ -1148,6 +1160,7 @@ public sealed class RoomPlmSystem
     private sealed class PlmSlot
     {
         public bool Active { get; set; }
+        public ushort HeaderPointer { get; set; }
         public int BlockIndex { get; set; }
         /// <summary>
         /// Native <c>PLM_Vars</c>. Grapple setup saves the original word; collision-bomb
@@ -1156,6 +1169,10 @@ public sealed class RoomPlmSystem
         public ushort RestoreLevelWord { get; set; }
         public ushort InstructionPointer { get; set; }
         public ushort InstructionTimer { get; set; }
+        /// <summary>Native bank-$84 pre-instruction pointer run before the timer/list pass.</summary>
+        public ushort PreInstruction { get; set; }
+        /// <summary>Native room argument word owned independently by every physical PLM slot.</summary>
+        public ushort RoomArgument { get; set; }
         /// <summary>Native <c>PLM_Timers</c>, distinct from the instruction countdown.</summary>
         public ushort LoopTimer { get; set; }
     }

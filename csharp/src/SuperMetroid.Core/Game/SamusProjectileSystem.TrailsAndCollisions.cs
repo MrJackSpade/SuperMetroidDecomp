@@ -439,6 +439,13 @@ public sealed partial class SamusProjectileSystem
         RoomCollisionBlock block,
         RoomPlmSystem? roomPlms)
     {
+        // Special-block collision first searches the loaded PLM pool for the object whose
+        // origin matches this block. Mother Brain's type-$8/BTS-$44 glass consumes the live
+        // projectile type through its pre-instruction on the later PLM-handler seam; it does
+        // not allocate a second reaction PLM or mutate the shot-block tables below.
+        if (block.CollisionType == 8 && block.Behavior == 0x44)
+            _ = roomPlms?.TryNotifyProjectileHit(block.Index, slot.Type);
+
         if (block.CollisionType is 4 or 12)
         {
             TrySpawnShootableReaction(level, slot, block, roomPlms);

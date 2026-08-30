@@ -2113,6 +2113,11 @@ public sealed partial class SuperMetroidRuntime
                     Camera.Scrolls);
                 foreach (PlmTilemapUpdate update in plmUpdates)
                     update.ExecuteTo(Vram);
+                foreach (MotherBrainGlassProjectileRequest request in
+                         Plms.MotherBrainGlassProjectileRequests)
+                {
+                    Enemies.SpawnMotherBrainGlassProjectile(request);
+                }
             }
 
             if (GroundedSamusMovementEnabled && !deathOwnsSamus)

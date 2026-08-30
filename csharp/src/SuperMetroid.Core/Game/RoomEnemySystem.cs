@@ -150,7 +150,8 @@ public sealed partial class RoomEnemySystem
         Func<ushort, bool>? isRoomPlmPresent = null,
         Action<bool>? setSamusControlsEnabled = null,
         Action<int, byte>? setRoomScrollByte = null,
-        Action? setAreaBossDefeated = null)
+        Action? setAreaBossDefeated = null,
+        Action? incrementMotherBrainGlassRoomArgument = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -166,6 +167,7 @@ public sealed partial class RoomEnemySystem
         _setRandomNumber = setRandomNumber;
         _isAreaBossDefeated = isAreaBossDefeated;
         _setAreaBossDefeated = setAreaBossDefeated;
+        _incrementMotherBrainGlassRoomArgument = incrementMotherBrainGlassRoomArgument;
         _isAreaMiniBossDefeated = isAreaMiniBossDefeated;
         _hasEvent = hasEvent;
         _setEvent = setEvent;

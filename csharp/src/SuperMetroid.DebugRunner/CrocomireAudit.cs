@@ -181,6 +181,36 @@ internal static class CrocomireAudit
                 $"velocity=(${projectile.XVelocity:X4},${projectile.YVelocity:X4}), " +
                 $"pre=${projectile.PreInstruction:X4}.");
         }
+
+        // The exhaustive ordinary-AI sweep cannot naturally reach Crocomire's explicit
+        // projectile-attack state. Close that residual here with the real actor spawned
+        // above: first prove SpawnEprojInner copied this ROM definition verbatim, then use
+        // the shared domain assertion to exercise common Samus damage and deletion.
+        int definition = 0x860000 | (ushort)RoomEnemyProjectileKind.CrocomireProjectile;
+        ushort radii = ReadWord(bus, definition + 6);
+        ushort properties = ReadWord(bus, definition + 8);
+        if (projectile.XRadius != unchecked((byte)radii) ||
+            projectile.YRadius != unchecked((byte)(radii >> 8)) ||
+            projectile.Damage != (properties & 0x0fff) ||
+            projectile.CanDamageSamus != ((properties & 0x2000) == 0) ||
+            projectile.PersistsOnSamusContact != ((properties & 0x4000) != 0))
+        {
+            throw new InvalidDataException(
+                $"Crocomire projectile definition copy diverged: radius=" +
+                $"{projectile.XRadius}x{projectile.YRadius}/${radii:X4}, damage=" +
+                $"{projectile.Damage}/${properties & 0x0fff}, collision/persistence=" +
+                $"{projectile.CanDamageSamus}/{projectile.PersistsOnSamusContact}.");
+        }
+
+        EnemyProjectileAuditAssertions.VerifyNaturalSamusContact(
+            bus,
+            volley.Enemies,
+            volley.Samus,
+            new SamusBombProjectileSystem(),
+            volley.Level,
+            projectile,
+            cameraX: 0x0400,
+            cameraY: 0);
     }
 
     private static void VerifyMouthAndPowerBombReactions(
@@ -242,24 +272,48 @@ internal static class CrocomireAudit
         Step(powerBomb);
         Step(powerBomb);
         CrocomireEnemyState powerBombState = RequireState(powerBomb);
+        RoomEnemySlot powerBombBody = powerBombState.Body;
+        RoomEnemySlot powerBombTongue = powerBombState.Tongue ??
+            throw new InvalidDataException("Crocomire power-bomb audit lost the tongue record.");
+        ushort bodyHealthBeforePowerBomb = powerBombBody.Health;
+        ushort tongueHealthBeforePowerBomb = powerBombTongue.Health;
         int reactions = powerBomb.Enemies.ResolveOrdinaryPowerBombHits(
             bus,
             powerBombState.Body.XPosition,
             powerBombState.Body.YPosition,
             explosionRadius: byte.MaxValue,
             powerBomb.Samus);
-        // The header contains a real $B992 reaction routine, but retail vulnerability byte
-        // $B4:F110 is $80. Process_Enemy_PowerBomb_Interaction masks bit seven and therefore
-        // skips the callback. Assert that seemingly-surprising cartridge behavior rather
-        // than forcing an otherwise unreachable reaction for test convenience.
-        if (reactions != 0 ||
-            powerBombState.FightFunction != CrocomireFightFunction.WaitingForFirstDamage ||
-            powerBombState.StepCounter != 0 || powerBombState.Body.FlashTimer != 0)
+        // Both definitions point at vulnerability record $F102, whose power-bomb byte at
+        // $F111 is $82. Native $A0:A306 masks bit seven, admits both physical records, and
+        // sets process-off-screen on each. The body dispatches private $A4:B992 without HP
+        // damage; the tongue has a zero callback and therefore receives ordinary 2*100 HP
+        // damage. The prior assertion was based on the adjacent $F101/$F110 bytes.
+        ushort expectedTongueHealth = tongueHealthBeforePowerBomb <= 200
+            ? (ushort)0
+            : unchecked((ushort)(tongueHealthBeforePowerBomb - 200));
+        ushort expectedTongueFlash = unchecked((ushort)(
+            (powerBombTongue.HurtAiTime == 0 ? 4 : powerBombTongue.HurtAiTime) + 8));
+        if (bus.ReadByte(0xb4f111) != 0x82 || reactions != 2 ||
+            powerBombState.FightFunction != CrocomireFightFunction.PowerBombCharge ||
+            powerBombState.StepCounter != 3 || powerBombState.ReactionTimer != 10 ||
+            (powerBombState.FightFlags & 0x8000) == 0 ||
+            powerBombBody.Health != bodyHealthBeforePowerBomb ||
+            powerBombBody.FlashTimer != 4 || powerBombBody.InvincibilityTimer != 0 ||
+            !powerBombBody.Properties.HasAny(EnemyProperties.ProcessOffScreen) ||
+            powerBombTongue.Health != expectedTongueHealth ||
+            powerBombTongue.InvincibilityTimer != 48 ||
+            powerBombTongue.FlashTimer != expectedTongueFlash ||
+            !powerBombTongue.Properties.HasAny(EnemyProperties.ProcessOffScreen))
         {
             throw new InvalidDataException(
                 $"Crocomire power-bomb reaction failed: reactions={reactions}, " +
                 $"fight={powerBombState.FightFunction}, steps={powerBombState.StepCounter}, " +
-                $"flash={powerBombState.Body.FlashTimer}.");
+                $"timer/flags={powerBombState.ReactionTimer}/${powerBombState.FightFlags:X4}, " +
+                $"body health/flash/invinc={bodyHealthBeforePowerBomb}->" +
+                $"{powerBombBody.Health}/{powerBombBody.FlashTimer}/" +
+                $"{powerBombBody.InvincibilityTimer}, tongue={tongueHealthBeforePowerBomb}->" +
+                $"{powerBombTongue.Health}/{powerBombTongue.FlashTimer}/" +
+                $"{powerBombTongue.InvincibilityTimer}.");
         }
     }
 

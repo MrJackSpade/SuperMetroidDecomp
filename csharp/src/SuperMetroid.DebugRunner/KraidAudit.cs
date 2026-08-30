@@ -92,6 +92,8 @@ internal static class KraidAudit
         VerifyArmContact(enemies, samus, assets.LevelData);
 
         var functions = new HashSet<KraidAiFunction>();
+        var observedProjectileKinds = new HashSet<RoomEnemyProjectileKind>();
+        var contactedProjectileKinds = new HashSet<RoomEnemyProjectileKind>();
         ushort nailStartX = enemies.Slots[6].XPosition;
         bool sawNailMovement = false;
         int frame;
@@ -106,6 +108,12 @@ internal static class KraidAudit
                 timeIsFrozen: false,
                 samus,
                 level: assets.LevelData);
+            ProbeFirstUnauditedProjectileContact(
+                bus,
+                enemies,
+                assets.LevelData,
+                observedProjectileKinds,
+                contactedProjectileKinds);
             enemies.StepEnemyProjectiles(
                 assets.LevelData,
                 samus,
@@ -148,6 +156,12 @@ internal static class KraidAudit
                 timeIsFrozen: false,
                 samus,
                 level: assets.LevelData);
+            ProbeFirstUnauditedProjectileContact(
+                bus,
+                enemies,
+                assets.LevelData,
+                observedProjectileKinds,
+                contactedProjectileKinds);
             foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles)
             {
                 if (projectile.Kind != RoomEnemyProjectileKind.KraidSpitRock)
@@ -370,8 +384,37 @@ internal static class KraidAudit
                 timeIsFrozen: false,
                 samus,
                 level: assets.LevelData);
+            ProbeFirstUnauditedProjectileContact(
+                bus,
+                enemies,
+                assets.LevelData,
+                observedProjectileKinds,
+                contactedProjectileKinds);
             enemies.StepEnemyProjectiles(assets.LevelData, samus, cameraX: CameraX, cameraY: CameraY);
         }
+        RoomEnemyProjectileKind[] requiredKraidProjectiles =
+        [
+            RoomEnemyProjectileKind.KraidSpitRock,
+            RoomEnemyProjectileKind.KraidCeilingRock,
+            RoomEnemyProjectileKind.KraidRisingRockLeft,
+            RoomEnemyProjectileKind.KraidRisingRockRight,
+        ];
+        // The main fixture deliberately uses random word $1234, selecting the right-hand
+        // rise definition. A second complete retail load with bit $10 clear proves the
+        // otherwise symmetric left initializer/list/movement path without mutating a live
+        // projectile kind after allocation.
+        observedProjectileKinds.Add(VerifyOppositeRisingRockVariant(bus, room, assets));
+        RoomEnemyProjectileKind[] missingObservedProjectiles = requiredKraidProjectiles
+            .Where(kind => !observedProjectileKinds.Contains(kind))
+            .ToArray();
+        RoomEnemyProjectileKind[] requiredContactedProjectiles = requiredKraidProjectiles
+            .Where(kind => (ReadWord(
+                bus,
+                0x860000 | unchecked((ushort)((ushort)kind + 8))) & 0x2000) == 0)
+            .ToArray();
+        RoomEnemyProjectileKind[] missingContactedProjectiles = requiredContactedProjectiles
+            .Where(kind => !contactedProjectileKinds.Contains(kind))
+            .ToArray();
         bool roomPaletteReachedTarget = Enumerable.Range(0, 16).All(color =>
             cgram.Colors[96 + color] == ReadWord(bus, 0xa786c7 + color * 2));
         if (!growthFunctions.Contains(KraidAiFunction.ProcessHeadInstructionAndTimer) ||
@@ -389,7 +432,9 @@ internal static class KraidAudit
             !secondPhaseFootFunctions.Contains(KraidAiFunction.FootSecondPhaseThinking) ||
             !lintFunctions.Contains(KraidAiFunction.LintProduce) ||
             !lintFunctions.Contains(KraidAiFunction.LintCharge) ||
-            !lintFunctions.Contains(KraidAiFunction.LintFire))
+            !lintFunctions.Contains(KraidAiFunction.LintFire) ||
+            missingObservedProjectiles.Length != 0 ||
+            missingContactedProjectiles.Length != 0)
         {
             throw new InvalidDataException(
                 $"Kraid growth/second phase mismatch: body=" +
@@ -398,7 +443,9 @@ internal static class KraidAudit
                 $"{string.Join(',', lintFunctions)}, phase2 Y={secondPhaseStartY}, " +
                 $"camera/priority={state.CameraReleasedForSecondPhase}/" +
                 $"{state.Bg2PriorityBitsSet}, ceiling={state.CeilingRockSpawnCount}, " +
-                $"palette={roomPaletteReachedTarget}.");
+                $"palette={roomPaletteReachedTarget}, missing projectile contact=" +
+                $"[{string.Join(',', missingContactedProjectiles)}], missing observation=" +
+                $"[{string.Join(',', missingObservedProjectiles)}].");
         }
 
         // Finish through the same vulnerable inner-mouth path. Kraid's no-death-check
@@ -490,7 +537,8 @@ internal static class KraidAudit
             "eight-part population, phase thresholds, Samus lockout, BG2 upload cadence, " +
             "rise rocks/music, private head bytecode, roar/spit cadence, independently timed " +
             "foot lunge/retreat movement, arm-launch/lint-fire contact, fingernail motion, " +
-            "cartridge mouth damage, and " +
+            "cartridge mouth damage, all four rock variants plus every damage-enabled " +
+            "projectile contact lifecycle, and " +
             "charged-body eye glow/unglow, ceiling growth, palette fade, second-phase " +
             $"walking/lint attacks, and {deathFrames}-frame sink/death/persistence.");
         return 0;
@@ -630,6 +678,159 @@ internal static class KraidAudit
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+
+    /// <summary>
+    /// Sends one naturally spawned, previously unseen Kraid projectile through the shared
+    /// contact assertion. A separate initialized Samus record prevents the forced overlap
+    /// from changing the boss fixture's position, pose, health, or knockback state.
+    /// </summary>
+    private static void ProbeFirstUnauditedProjectileContact(
+        ISnesAddressSpace bus,
+        RoomEnemySystem enemies,
+        RoomLevelData level,
+        HashSet<RoomEnemyProjectileKind> observedKinds,
+        HashSet<RoomEnemyProjectileKind> contactedKinds)
+    {
+        foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles)
+        {
+            if (projectile.Kind is RoomEnemyProjectileKind.KraidSpitRock or
+                RoomEnemyProjectileKind.KraidCeilingRock or
+                RoomEnemyProjectileKind.KraidRisingRockLeft or
+                RoomEnemyProjectileKind.KraidRisingRockRight)
+            {
+                observedKinds.Add(projectile.Kind);
+            }
+        }
+
+        RoomEnemyProjectileSlot? target = enemies.EnemyProjectiles.FirstOrDefault(
+            projectile => projectile.IsActive && projectile.CanDamageSamus &&
+                projectile.Kind is (RoomEnemyProjectileKind.KraidSpitRock or
+                    RoomEnemyProjectileKind.KraidCeilingRock or
+                    RoomEnemyProjectileKind.KraidRisingRockLeft or
+                    RoomEnemyProjectileKind.KraidRisingRockRight) &&
+                !contactedKinds.Contains(projectile.Kind));
+        if (target is null)
+            return;
+
+        RoomEnemyProjectileKind kind = target.Kind;
+        var probeSamus = new SamusState
+        {
+            Health = 999,
+            MaxHealth = 999,
+            Pose = SamusState.FacingRightNormalPose,
+        };
+        probeSamus.RefreshCollisionRadii(bus);
+        probeSamus.InitializeAnimation(bus);
+        EnemyProjectileAuditAssertions.VerifyNaturalSamusContact(
+            bus,
+            enemies,
+            probeSamus,
+            new SamusBombProjectileSystem(),
+            level,
+            target,
+            CameraX,
+            CameraY);
+        contactedKinds.Add(kind);
+    }
+
+    /// <summary>
+    /// Executes Kraid's actual rise AI with random bit $10 clear so bank $86 initializes
+    /// and moves the left-hand debris definition. This is a second authored scenario, not
+    /// a post-spawn kind substitution; every field still comes from $86:9C61.
+    /// </summary>
+    private static RoomEnemyProjectileKind VerifyOppositeRisingRockVariant(
+        ISnesAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        var vram = new SnesVram();
+        var cgram = new SnesCgram();
+        assets.LoadGraphics(vram, cgram);
+        var random = new Bank80SystemState(0x1224);
+        var samus = new SamusState
+        {
+            Health = 999,
+            MaxHealth = 999,
+            XPosition = 300,
+            YPosition = 456,
+            Pose = SamusState.FacingRightNormalPose,
+        };
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+
+        var enemies = new RoomEnemySystem();
+        enemies.Load(
+            bus,
+            room.State.EnemyPopulationPointer,
+            room.State.EnemyTilesetPointer,
+            vram,
+            cgram,
+            random.NextRandom,
+            random.SetRandomNumber,
+            readRandomNumber: () => random.RandomNumber,
+            level: assets.LevelData,
+            samus: samus,
+            cameraX: CameraX,
+            cameraY: CameraY);
+
+        for (int frame = 0; frame < 1200; frame++)
+        {
+            enemies.StepFrame(
+                CameraX,
+                CameraY,
+                timeIsFrozen: false,
+                samus,
+                level: assets.LevelData);
+            RoomEnemyProjectileSlot? left = enemies.EnemyProjectiles.FirstOrDefault(
+                projectile => projectile.Kind == RoomEnemyProjectileKind.KraidRisingRockLeft);
+            if (left is null)
+            {
+                enemies.StepEnemyProjectiles(
+                    assets.LevelData,
+                    samus,
+                    cameraX: CameraX,
+                    cameraY: CameraY);
+                continue;
+            }
+
+            int definition = 0x860000 | (ushort)left.Kind;
+            ushort radii = ReadWord(bus, definition + 6);
+            ushort properties = ReadWord(bus, definition + 8);
+            ushort beforeX = left.XPosition;
+            ushort beforeY = left.YPosition;
+            enemies.StepEnemyProjectiles(
+                assets.LevelData,
+                samus,
+                cameraX: CameraX,
+                cameraY: CameraY);
+
+            var oam = new OamBuffer();
+            oam.BeginFrame();
+            enemies.DrawEnemyProjectiles(oam, CameraX, CameraY);
+            oam.FinalizeFrame();
+            if (!left.IsActive ||
+                left.XRadius != unchecked((byte)radii) ||
+                left.YRadius != unchecked((byte)(radii >> 8)) ||
+                left.Damage != (properties & 0x0fff) ||
+                left.CanDamageSamus != ((properties & 0x2000) == 0) ||
+                beforeX == left.XPosition && beforeY == left.YPosition ||
+                left.SpritemapPointer is 0 or 0x8000 ||
+                oam.LastFinalizedSpriteCount == 0)
+            {
+                throw new InvalidDataException(
+                    $"Kraid left rise rock diverged on frame {frame}: active={left.IsActive}, " +
+                    $"position=({beforeX:X4},{beforeY:X4})->" +
+                    $"({left.XPosition:X4},{left.YPosition:X4}), map=" +
+                    $"${left.SpritemapPointer:X4}, radius={left.XRadius}x{left.YRadius}/" +
+                    $"${radii:X4}, damage/collision={left.Damage}/{left.CanDamageSamus}, " +
+                    $"OAM={oam.LastFinalizedSpriteCount}.");
+            }
+            return left.Kind;
+        }
+
+        throw new InvalidDataException(
+            "Kraid bit-$10-clear rise fixture never spawned left-hand debris.");
+    }
 
     private static int StrikeKraidMouth(
         ISnesAddressSpace bus,

@@ -156,6 +156,12 @@ if (args.Length >= 2 && args[0] == "--retail-enemy-projectile-audit")
     return RetailEnemyExecutionAudit.RunProjectileCombat(projectileAuditRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--retail-enemy-attack-audit")
+{
+    string attackAuditRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailEnemyExecutionAudit.RunEnemyAttackCombat(attackAuditRomPath);
+}
+
 if (args.Length >= 3 && args[0] == "--retail-enemy-projectile-definition-audit")
 {
     string definitionText = args[1].TrimStart('$');

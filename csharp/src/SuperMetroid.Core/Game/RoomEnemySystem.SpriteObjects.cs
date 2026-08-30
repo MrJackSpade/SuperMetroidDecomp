@@ -17,6 +17,7 @@ public enum RoomSpriteObjectKind : ushort
     BotwoonLargeExplosion = 0x001d,
     DustCloud = 0x0015,
     CrocomireAcidSmoke = DustCloud,
+    DraygonBreathBubble = 0x0018,
     NuclearWaffleBody = 0x002b,
     NuclearWaffleTurnClockwise = 0x002c,
     NuclearWaffleTurnCounterClockwise = 0x002d,
@@ -26,6 +27,7 @@ public enum RoomSpriteObjectKind : ushort
     MetroidOuterBodyB = 0x0034,
     YappingMawRootVariantZero = 0x0038,
     YappingMawRootVariantOne = 0x0039,
+    DraygonIntroEvir = 0x003b,
 }
 
 /// <summary>

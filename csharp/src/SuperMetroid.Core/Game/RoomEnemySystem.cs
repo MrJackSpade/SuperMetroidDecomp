@@ -227,6 +227,7 @@ public sealed partial class RoomEnemySystem
         ResetDragonRoomState();
         ResetKraidRoomState();
         ResetPhantoonRoomState();
+        ResetDraygonRoomState();
         ResetShutterRoomState(cameraX, cameraY);
         ResetElevatorRoomActors();
         LastKzanSoundEffect = null;
@@ -1277,6 +1278,14 @@ public sealed partial class RoomEnemySystem
                 PhantoonEyeDefinition or PhantoonTentaclesDefinition or PhantoonMouthDefinition:
                 InitializePhantoonPart(slot);
                 return;
+            case 0xa58687 when slot.EnemyDefinitionPointer == DraygonBodyDefinition:
+                InitializeDraygonBody(slot);
+                return;
+            case 0xa5c46b when slot.EnemyDefinitionPointer == DraygonEyeDefinition:
+            case 0xa5c599 when slot.EnemyDefinitionPointer == DraygonTailDefinition:
+            case 0xa5c5ad when slot.EnemyDefinitionPointer == DraygonArmsDefinition:
+                InitializeDraygonPart(slot);
+                return;
             case 0xaad7c8 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
                 InitializeTourianEntranceStatue(slot);
                 return;
@@ -1410,6 +1419,16 @@ public sealed partial class RoomEnemySystem
         int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
         switch (address)
         {
+            case 0xa586fc when slot.EnemyDefinitionPointer == DraygonBodyDefinition:
+                RunDraygonBodyMain(slot, samus, nmiFrameCounter8);
+                return;
+            case 0xa5c486 when slot.EnemyDefinitionPointer == DraygonEyeDefinition:
+                RunDraygonPartMain(slot, samus);
+                return;
+            case 0xa5c5aa when slot.EnemyDefinitionPointer == DraygonTailDefinition:
+            case 0xa5c5c4 when slot.EnemyDefinitionPointer == DraygonArmsDefinition:
+                RunDraygonPartMain(slot, samus);
+                return;
             case 0xa48c04 when slot.EnemyDefinitionPointer == CrocomireDefinition:
                 RunCrocomireMain(slot, samus, controllerInput, level, cameraX);
                 return;
@@ -2258,6 +2277,11 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 9));
                     break;
                 }
+                case >= 0x8000 when TryProcessDraygonInstruction(
+                    slot,
+                    word,
+                    ref cursor):
+                    break;
                 case >= 0x8000 when TryProcessWallSpacePirateInstruction(
                     slot,
                     level,

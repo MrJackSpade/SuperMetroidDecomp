@@ -29,6 +29,8 @@ public enum RoomEnemyProjectileKind : ushort
     KraidRisingRockRight = 0x9c6f,
     PhantoonDestroyableFlame = 0x9c29,
     PhantoonStartingFlame = 0x9c37,
+    DraygonGoop = 0x8e50,
+    DraygonWallTurret = 0x8e5e,
     CeresRidleyFireball = 0x9642,
     CeresRidleyHorizontalAfterburnCenter = 0x9650,
     CeresRidleyVerticalAfterburnCenter = 0x965e,
@@ -306,6 +308,7 @@ public sealed partial class RoomEnemySystem
             RunEnemyProjectilePreInstruction(
                 projectile,
                 level,
+                samus,
                 cameraX,
                 cameraY,
                 projectileFrame);
@@ -512,6 +515,7 @@ public sealed partial class RoomEnemySystem
     private void RunEnemyProjectilePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
+        SamusState? samus,
         ushort cameraX,
         ushort cameraY,
         byte nmiFrameCounter8)
@@ -523,6 +527,7 @@ public sealed partial class RoomEnemySystem
             case 0x84fb: // Collision handler's common inert pre-instruction.
             case 0xec94: // Yapping Maw body links are positioned entirely by bank-$A8 main AI.
             case 0xd0eb: // Kago bug startup/landed no-op.
+            case 0x8d54: // Draygon wall turret charges before its list enables flight.
             case 0x950c: // Center afterburn is stationary while its instruction list blooms.
             case 0x9a44: // Phantoon casual/rain flame resting RTS.
             case 0xbbc6: // Nuclear Waffle body: position is owned by bank-$A6 main AI.
@@ -530,6 +535,18 @@ public sealed partial class RoomEnemySystem
             case 0xefdf: // Enemy death/pickup subsystem's empty pre-instruction.
             case 0xa919: // Bomb Torizo explosive swipe: stationary authored hit flash.
             case 0xdd44: // Spore Spawn stalk: position is written by the boss's main AI.
+                return;
+
+            case 0x8dca: // Draygon goop: attached to Samus with a 256-frame lifetime.
+                RunAttachedDraygonGoop(projectile, samus);
+                return;
+
+            case 0x8dff: // Draygon wall turret: aimed full-precision flight and room cull.
+                RunDraygonProjectileFlight(projectile);
+                return;
+
+            case 0x8e0f: // Draygon goop: flight, proximity-triggered attach list, room cull.
+                RunFlyingDraygonGoop(projectile, samus);
                 return;
 
             case 0xdcee: // Spore Spawn spore: ROM-authored two-byte movement stream.
@@ -1049,6 +1066,14 @@ public sealed partial class RoomEnemySystem
                     break;
                 case 0x816a: // Clear pre-instruction to $8170 RTS.
                     projectile.PreInstruction = 0x8170;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x8cf6 when projectile.Kind == RoomEnemyProjectileKind.DraygonWallTurret:
+                    projectile.PreInstruction = 0x8dff;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0x8d99 when projectile.Kind == RoomEnemyProjectileKind.DraygonGoop:
+                    AttachDraygonGoopToSamus(projectile, samus);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0x81ab: // Same-bank goto.

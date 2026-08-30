@@ -134,21 +134,25 @@ public sealed partial class RoomEnemySystem
         // projectile interactions are separate collision passes and remain outside this
         // body-function dispatcher.
         bool glassDestroyed = _hasEvent?.Invoke((int)EventNumber.MotherBrainGlassDestroyed) ?? false;
-        if (!glassDestroyed)
-            return;
+        if (glassDestroyed)
+        {
+            state.BrainMainShakeTimer = EarthquakeTimer;
+            if (samus is not null && samus.XPosition < 0x00ec && state.Head!.Health == 0)
+            {
+                // This is the exact first-phase exit at `$A9:87FE-$8814`. The following
+                // function remains represented by its native pointer so the next frame
+                // enters the real timed descent rather than jumping to standing form.
+                state.DeleteTurretsAndRinkas = true;
+                state.Form = 1;
+                state.Function = MotherBrainBodyFunction.FakeDeathDescentInitialPause;
+            }
+        }
 
-        state.BrainMainShakeTimer = EarthquakeTimer;
-        if (samus is null || samus.XPosition >= 0x00ec || state.Head!.Health != 0)
-            return;
-
-        // This is the exact first-phase exit at `$A9:87FE-$8814`. The following function is
-        // deliberately represented by its native pointer; its timed descent/tube sequence is
-        // the next encounter slice rather than an invented jump straight to standing form.
-        state.DeleteTurretsAndRinkas = true;
-        state.Form = 1;
-        state.Function = MotherBrainBodyFunction.FakeDeathDescentInitialPause;
-        throw new NotSupportedException(
-            "Mother Brain reached fake-death descent $A9:881D; that phase is not translated yet.");
+        // `$A9:87E1` always falls through to the encounter's custom rectangle walker,
+        // including the frame that arms fake death. This collision is not represented by
+        // either enemy header's ordinary radius and must stay in the body dispatcher.
+        if (samus is not null)
+            ResolveMotherBrainSamusCollision(state, samus);
     }
 
     /// <summary>Ports the head main/hurt entry and its first-phase draw-hook selector.</summary>

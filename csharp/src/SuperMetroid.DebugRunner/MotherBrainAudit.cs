@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 
@@ -156,14 +157,289 @@ internal static class MotherBrainAudit
         }
 
         AuditTurretRuntime(bus, assets.LevelData, enemies, samus);
+        AuditGlassSequence(bus, room);
 
         Console.WriteLine(
             "Mother Brain audit passed: retail room $DD58 loaded six physical records; " +
             "body/head initialization, BG2 clear, two palette slices, corpse-rot seed, " +
             "twelve shared-pool turrets, rotating/firing turret bytecode, bullet movement, " +
-            "terrain/contact behavior, looping head bytecode, and the custom ordinary-" +
-            "spritemap draw hook matched the untouched cartridge.");
+            "terrain/contact behavior, looping head bytecode, the custom ordinary-" +
+            "spritemap draw hook, asymmetric Samus collision, loaded glass PLM, missile " +
+            "gating, threshold bytecode, and shard actors matched the untouched cartridge.");
         return 0;
+    }
+
+    /// <summary>
+    /// Runs the room-authored glass object to completion in a fresh encounter. Keeping this
+    /// separate from the turret audit proves shared-pool contention without allowing forty
+    /// shard requests to perturb that audit's deterministic cooldown and bullet sample.
+    /// </summary>
+    private static void AuditGlassSequence(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room)
+    {
+        const ushort glassHeader = 0xd6de;
+        const ushort shardDefinition = 0xcefc;
+        const int destroyedEvent = 2;
+
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        var vram = new SnesVram();
+        var cgram = new SnesCgram();
+        assets.LoadGraphics(vram, cgram);
+        var random = new Bank80SystemState(0x1234);
+        var samus = new SamusState
+        {
+            Health = 999,
+            MaxHealth = 999,
+            XPosition = 0x0080,
+            YPosition = 0x00a0,
+            Pose = SamusState.FacingRightNormalPose,
+        };
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+
+        int glassBlockIndex = assets.LevelData.GetBlockIndex(9, 5);
+        ushort originalGlassWord = assets.LevelData.GetCollisionBlockByIndex(glassBlockIndex).LevelWord;
+        var events = new HashSet<int>();
+        var plms = new RoomPlmSystem();
+        BackgroundTilemapStreamer streamer =
+            assets.LevelData.CreateBackgroundStreamer(sizeOfBg2: 0x0800);
+        if (!plms.TryLoadMotherBrainGlassPopulation(
+                bus,
+                assets.LevelData,
+                streamer,
+                room.State.PlmPointer,
+                hasAreaBossBit: _ => false,
+                hasEvent: events.Contains,
+                setEvent: eventNumber => events.Add(eventNumber)))
+        {
+            throw new InvalidDataException(
+                $"Mother Brain room did not load PLM ${glassHeader:X4}.");
+        }
+
+        RoomCollisionBlock glass = assets.LevelData.GetCollisionBlockByIndex(glassBlockIndex);
+        if (plms.ActiveCount != 1 || !plms.MotherBrainGlassWasLoaded ||
+            plms.MotherBrainGlassWasDeleted || plms.MotherBrainGlassRoomArgument != 0 ||
+            glass.CollisionType != 8 || glass.Behavior != 0x44 ||
+            (glass.LevelWord & 0x0fff) != (originalGlassWord & 0x0fff))
+        {
+            throw new InvalidDataException(
+                $"Mother Brain glass setup diverged: PLMs={plms.ActiveCount}, " +
+                $"arg={plms.MotherBrainGlassRoomArgument}, block=${glass.LevelWord:X4}/" +
+                $"BTS=${glass.Behavior:X2}.");
+        }
+
+        var enemies = new RoomEnemySystem();
+        enemies.Load(
+            bus,
+            room.State.EnemyPopulationPointer,
+            room.State.EnemyTilesetPointer,
+            vram,
+            cgram,
+            random.NextRandom,
+            random.SetRandomNumber,
+            readRandomNumber: () => random.RandomNumber,
+            level: assets.LevelData,
+            samus: samus,
+            isAreaBossDefeated: () => false,
+            hasEvent: events.Contains,
+            setEvent: eventNumber => events.Add((int)eventNumber),
+            incrementMotherBrainGlassRoomArgument: plms.IncrementMotherBrainGlassRoomArgument);
+
+        MotherBrainEnemyState state = enemies.MotherBrain ?? throw new InvalidDataException(
+            "Mother Brain glass audit lost the typed encounter state.");
+        RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
+            "Mother Brain glass audit did not link the head record.");
+        samus.XPosition = unchecked((ushort)(state.Body.XPosition + 25));
+        samus.YPosition = head.YPosition;
+        samus.Health = 999;
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus, level: assets.LevelData);
+        ushort expectedContactHealth = unchecked((ushort)(999 - state.Body.Definition.Damage));
+        if (samus.Health != expectedContactHealth || samus.InvincibilityTimer != 96 ||
+            samus.KnockbackTimer != 5 || samus.KnockbackXDirection != 1 ||
+            samus.Kinematics.ExtraXDisplacement < 4 ||
+            samus.Kinematics.ExtraYDisplacement != 4 ||
+            samus.Kinematics.ExtraXSubdisplacement != 0 ||
+            samus.Kinematics.ExtraYSubdisplacement != 0 ||
+            samus.Kinematics.YDirection != 2)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain custom Samus collision diverged: health={samus.Health}/" +
+                $"{expectedContactHealth}, timers={samus.InvincibilityTimer}/" +
+                $"{samus.KnockbackTimer}, knockback={samus.KnockbackXDirection}, " +
+                $"extra=({samus.Kinematics.ExtraXDisplacement}." +
+                $"{samus.Kinematics.ExtraXSubdisplacement}," +
+                $"{samus.Kinematics.ExtraYDisplacement}." +
+                $"{samus.Kinematics.ExtraYSubdisplacement}), ydir={samus.Kinematics.YDirection}.");
+        }
+        samus.XPosition = 32;
+        samus.YPosition = 220;
+        samus.Health = 999;
+        samus.InvincibilityTimer = 0;
+        samus.KnockbackTimer = 0;
+        samus.Kinematics.ExtraXDisplacement = 0;
+        samus.Kinematics.ExtraYDisplacement = 0;
+        samus.Kinematics.YDirection = 0;
+
+        // Exercise the real bank-$A0 collision walker, not just the PLM argument seam. The
+        // hidden body has property `$0400`, so only the head enters the interactive list.
+        // Repositioning a normally produced shot removes travel/terrain from this callback
+        // audit while retaining the producer's counter and impact lifecycle state.
+        var projectiles = new SamusProjectileSystem();
+        var sharedProjectiles = new SamusBombProjectileSystem();
+        AuditRejectedBeam();
+        AuditAcceptedMissile(super: false, expectedDamage: 100);
+        AuditAcceptedMissile(super: true, expectedDamage: 300);
+
+        void AuditRejectedBeam()
+        {
+            projectiles.Reset();
+            sharedProjectiles.Reset();
+            samus.SelectedHudItem = 0;
+            samus.EquippedBeams = 0;
+            SamusProjectileSlot shot = ProduceAndPlaceShot(
+                expectedFamily: SamusProjectileFamily.Beam);
+            ushort healthBefore = head.Health;
+            int hits = enemies.ResolveOrdinaryProjectileHits(
+                bus,
+                projectiles,
+                sharedProjectiles,
+                samus);
+            if (hits != 1 || !shot.IsActive || shot.PackedDirection.HasLowByteLifecycleState ||
+                head.Health != healthBefore || plms.MotherBrainGlassRoomArgument != 0)
+            {
+                throw new InvalidDataException(
+                    $"Mother Brain rejected beam diverged: hits={hits}, active={shot.IsActive}, " +
+                    $"direction=${shot.Direction:X4}, health={head.Health}/{healthBefore}, " +
+                    $"glass={plms.MotherBrainGlassRoomArgument}.");
+            }
+        }
+
+        void AuditAcceptedMissile(bool super, ushort expectedDamage)
+        {
+            projectiles.Reset();
+            sharedProjectiles.Reset();
+            samus.SelectedHudItem = super ? (ushort)2 : (ushort)1;
+            if (super)
+                samus.SuperMissiles = 1;
+            else
+                samus.Missiles = 1;
+            SamusProjectileSlot shot = ProduceAndPlaceShot(
+                super ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
+            ushort healthBefore = head.Health;
+            ushort argumentBefore = plms.MotherBrainGlassRoomArgument;
+            int hits = enemies.ResolveOrdinaryProjectileHits(
+                bus,
+                projectiles,
+                sharedProjectiles,
+                samus);
+            ushort expectedFlash = unchecked((ushort)(
+                (head.HurtAiTime == 0 ? 4 : head.HurtAiTime) + 8));
+            if (hits != 1 || shot.PackedType.Family != SamusProjectileFamily.MissileExplosion ||
+                head.Health != healthBefore - expectedDamage ||
+                plms.MotherBrainGlassRoomArgument != argumentBefore + 1 ||
+                head.FlashTimer != expectedFlash)
+            {
+                throw new InvalidDataException(
+                    $"Mother Brain {(super ? "super" : "missile")} hit diverged: hits={hits}, " +
+                    $"family=${shot.PackedType.FamilyValue:X3}, health={head.Health}/" +
+                    $"{healthBefore - expectedDamage}, flash={head.FlashTimer}, " +
+                    $"glass={plms.MotherBrainGlassRoomArgument}/{argumentBefore + 1}.");
+            }
+        }
+
+        SamusProjectileSlot ProduceAndPlaceShot(SamusProjectileFamily expectedFamily)
+        {
+            const ushort shoot = (ushort)SnesButton.X;
+            SamusProjectileFrameResult result = projectiles.StepFrame(
+                bus,
+                assets.LevelData,
+                samus,
+                controllerInput: shoot,
+                controllerNewInput: shoot,
+                layer1X: 0,
+                layer1Y: 0,
+                sharedProjectiles,
+                roomPlms: plms);
+            if (result.FiredSlot is not int slotIndex)
+                throw new InvalidDataException($"Could not produce {expectedFamily} for Mother Brain audit.");
+            SamusProjectileSlot shot = projectiles.Slots[slotIndex];
+            // The gameplay alpha pass follows production immediately and can encounter the
+            // room terrain at Samus's fixture position. Rebuild only the shot words that
+            // existed at the producer return; allocation and the private projectile counter
+            // remain those of the real producer rather than a hand-created test actor.
+            (shot.Type, shot.Damage) = expectedFamily switch
+            {
+                SamusProjectileFamily.Beam => ((ushort)0x8000, (ushort)20),
+                SamusProjectileFamily.Missile => ((ushort)0x8100, (ushort)100),
+                SamusProjectileFamily.SuperMissile => ((ushort)0x8200, (ushort)300),
+                _ => throw new ArgumentOutOfRangeException(nameof(expectedFamily)),
+            };
+            shot.Direction = (ushort)SamusProjectileDirection.Right;
+            if (shot.InstructionPointer == 0)
+                shot.InstructionPointer = 1;
+            shot.XPosition = head.XPosition;
+            shot.YPosition = head.YPosition;
+            shot.XRadius = 1;
+            shot.YRadius = 1;
+            return shot;
+        }
+
+        // The first handler pass executes both conditional branches, installs `$D1E6`, and
+        // reaches the timer-one `$9717` drawing record. Subsequent direct increments model
+        // the exact write performed by accepted head-shot AI while isolating PLM behavior.
+        plms.Step(bus, assets.LevelData, streamer, 0, 0, 0, assets.Scrolls);
+        int shardRequests = 0;
+        int shatterSounds = 0;
+        bool sawLiveShard = false;
+        for (int frame = 0; frame < 512 && !plms.MotherBrainGlassWasDeleted; frame++)
+        {
+            if (plms.MotherBrainGlassRoomArgument < 18)
+                plms.IncrementMotherBrainGlassRoomArgument();
+
+            enemies.StepEnemyProjectiles(
+                assets.LevelData,
+                samus: null,
+                cameraX: 0,
+                cameraY: 0,
+                nmiFrameCounter8: unchecked((byte)frame));
+            plms.Step(bus, assets.LevelData, streamer, 0, 0, 0, assets.Scrolls);
+            if (plms.SoundRequests.Any(request =>
+                    request is { Library: 3, SoundId: 0x2e, MaximumQueued: 15 }))
+            {
+                shatterSounds++;
+            }
+
+            foreach (MotherBrainGlassProjectileRequest request in
+                     plms.MotherBrainGlassProjectileRequests)
+            {
+                if (request.DefinitionPointer != shardDefinition ||
+                    request.Parameter is not (0 or 2 or 4) ||
+                    request.PlmBlockX != 9 || request.PlmBlockY != 5)
+                {
+                    throw new InvalidDataException(
+                        $"Mother Brain glass emitted invalid shard request {request}.");
+                }
+                enemies.SpawnMotherBrainGlassProjectile(request);
+                shardRequests++;
+            }
+
+            sawLiveShard |= enemies.EnemyProjectiles.Any(projectile =>
+                (ushort)projectile.Kind == shardDefinition &&
+                projectile.GraphicsIndex == 0x0640 &&
+                projectile.PreInstruction == 0xce9b);
+        }
+
+        if (!plms.MotherBrainGlassWasDeleted || plms.ActiveCount != 0 ||
+            plms.MotherBrainGlassRoomArgument != 18 || !events.Contains(destroyedEvent) ||
+            shardRequests != 40 || shatterSounds != 10 || !sawLiveShard)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain glass sequence diverged: deleted={plms.MotherBrainGlassWasDeleted}, " +
+                $"PLMs={plms.ActiveCount}, arg={plms.MotherBrainGlassRoomArgument}, " +
+                $"event={events.Contains(destroyedEvent)}, shards={shardRequests}, " +
+                $"sounds={shatterSounds}, liveShard={sawLiveShard}.");
+        }
     }
 
     private static void AuditInitialTurretPool(

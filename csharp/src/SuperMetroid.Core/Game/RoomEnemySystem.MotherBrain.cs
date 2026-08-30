@@ -76,6 +76,7 @@ public sealed partial class RoomEnemySystem
             BackgroundTilemapPrepared = true,
         };
         _motherBrain.RecordInitialTurretRequests();
+        SpawnMotherBrainInitialTurrets();
     }
 
     /// <summary>Ports <c>InitAI_MotherBrainHead</c> at <c>$A9:8705</c>.</summary>

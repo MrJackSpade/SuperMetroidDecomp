@@ -82,8 +82,8 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// Parameters passed to the twelve <c>$86</c> Mother Brain turret initializers during
-    /// body load. These are observable spawn requests, not a claim that their bank-$86
-    /// movement pool has already been translated.
+    /// body load. The matching actors occupy the shared eighteen-slot projectile pool; this
+    /// retained request list makes their native creation order explicit in debugger state.
     /// </summary>
     public IReadOnlyList<ushort> InitialTurretParameters => _initialTurretParameters;
 

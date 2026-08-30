@@ -31,6 +31,8 @@ public enum RoomEnemyProjectileKind : ushort
     PhantoonStartingFlame = 0x9c37,
     DraygonGoop = 0x8e50,
     DraygonWallTurret = 0x8e5e,
+    MotherBrainRoomTurret = 0xc17e,
+    MotherBrainRoomTurretBullet = 0xc18c,
     CeresRidleyFireball = 0x9642,
     CeresRidleyHorizontalAfterburnCenter = 0x9650,
     CeresRidleyVerticalAfterburnCenter = 0x965e,
@@ -537,6 +539,14 @@ public sealed partial class RoomEnemySystem
             case 0xdd44: // Spore Spawn stalk: position is written by the boss's main AI.
                 return;
 
+            case 0xbfdf: // Mother Brain room turret: rotate, fire, or honor deletion flag.
+                RunMotherBrainTurretPreInstruction(projectile, cameraX, cameraY);
+                return;
+
+            case 0xc0e0: // Mother Brain turret bullet: flicker, move, and hit non-air blocks.
+                RunMotherBrainTurretBulletPreInstruction(projectile, level);
+                return;
+
             case 0x8dca: // Draygon goop: attached to Samus with a 256-frame lifetime.
                 RunAttachedDraygonGoop(projectile, samus);
                 return;
@@ -920,6 +930,19 @@ public sealed partial class RoomEnemySystem
             ? (ushort)1
             : (ushort)0;
 
+        // `$A0:9930-$993F` installs the definition's touch list before consulting property
+        // $4000. Mother Brain's turret bullet depends on that ordering: it survives contact
+        // but immediately changes to its smoke list. Keeping this in the common path also
+        // prevents later persistent projectile families from needing bespoke hit effects.
+        ushort touchInstruction = ReadWord(
+            _bus!,
+            0x860000 | unchecked((ushort)((ushort)projectile.Kind + 10)));
+        if (touchInstruction != 0)
+        {
+            projectile.InstructionPointer = touchInstruction;
+            projectile.InstructionTimer = 1;
+        }
+
         // Generic enemy-projectile contact deletes Ridley's fireball. Afterburn is a wall-
         // impact feature from $86:940E, so a Samus contact does not create the wall bloom.
         if (!projectile.PersistsOnSamusContact)
@@ -1182,6 +1205,19 @@ public sealed partial class RoomEnemySystem
                 case 0xb436: // Restore X/Y saved in generic projectile variables E/F.
                     projectile.XPosition = projectile.Variable0;
                     projectile.YPosition = projectile.Variable1;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xc173 when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
+                    // The bullet initializer stores direction * 2 in variable E. The ROM
+                    // opcode adds that byte offset to the eight-pointer table immediately
+                    // following the opcode, then jumps to the selected one-frame map.
+                    cursor = ReadWord(
+                        _bus!,
+                        0x860000 | unchecked((ushort)(cursor + 2 + projectile.Variable0)));
+                    break;
+                case 0xc1b4 when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
+                    // First instruction of the shared touch/shot smoke sequence.
+                    projectile.GraphicsIndex = 0;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xa456: // Take the authored absolute branch with 25-percent probability.

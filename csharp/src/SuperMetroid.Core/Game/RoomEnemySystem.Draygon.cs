@@ -168,8 +168,32 @@ public sealed partial class RoomEnemySystem
                 ExitDraygonGoopPass(state, movingRight: false, samus);
                 break;
             case DraygonAiFunction.TryGrabSamus:
-                throw new NotSupportedException(
-                    "Draygon chase/grab function $A5:8E19 is not translated yet.");
+                ChaseAndTryToGrabSamus(state, samus, nmiFrameCounter8);
+                break;
+            case DraygonAiFunction.GrabbedSamus:
+                RepelDraygonWithGrapple(state, samus);
+                break;
+            case DraygonAiFunction.CarrySamus:
+                CarrySamusToDraygonSpiral(state, samus);
+                break;
+            case DraygonAiFunction.FlailWithSamus:
+                CarrySamusInDraygonSpiral(state, samus);
+                break;
+            case DraygonAiFunction.TailWhipWithSamus:
+                RunDraygonTailWhip(state, samus);
+                break;
+            case DraygonAiFunction.FinalTailWhips:
+                BeginDraygonFinalTailWhips(state, samus);
+                break;
+            case DraygonAiFunction.FinalTailWhipsWait:
+                WaitForDraygonFinalTailWhips(state, samus);
+                break;
+            case DraygonAiFunction.ReleaseSamus:
+                ReleaseSamusFromDraygon(state, samus);
+                break;
+            case DraygonAiFunction.FlyStraightUp:
+                FlyDraygonStraightUp(state, samus, nmiFrameCounter8);
+                break;
             default:
                 throw new NotSupportedException(
                     $"Draygon body function $A5:{(ushort)state.Function:X4} is not translated.");
@@ -773,6 +797,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Handles the bank-$A5 opcodes reached during load and the opening dance.</summary>
     private bool TryProcessDraygonInstruction(
         RoomEnemySlot slot,
+        SamusState? samus,
         ushort instruction,
         ref ushort cursor)
     {
@@ -827,6 +852,18 @@ public sealed partial class RoomEnemySystem
                 state.LastSoundLibrary2 =
                     ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
+                return true;
+
+            case 0x9f57: // Body function = next word, even when the tail owns this list.
+                state.Function = (DraygonAiFunction)ReadWord(
+                    _bus!,
+                    bank | unchecked((ushort)(cursor + 2)));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+
+            case 0x9b9a: // Tail-whip impact uses the body definition's damage word.
+                ApplyDraygonTailWhipHit(state, samus);
+                cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             case 0x9f7c: // Spawn goop leftward from the left-facing mouth.

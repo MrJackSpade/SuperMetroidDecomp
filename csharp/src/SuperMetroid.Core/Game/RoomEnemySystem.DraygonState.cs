@@ -114,6 +114,40 @@ public sealed class DraygonEnemyState
     public int WallTurretsSpawned { get; internal set; }
     public int GoopProjectilesSpawned { get; internal set; }
 
+    /// <summary>
+    /// Native long WRAM <c>$7E:780C/$780E</c>. Draygon expands this 16.16 radius by
+    /// exactly <c>$0000.2000</c> per spiral frame, so keeping both words is necessary to
+    /// reproduce the eight-frame pixel cadence rather than rounding it into host floats.
+    /// </summary>
+    public ushort SpiralXRadius { get; internal set; }
+    public ushort SpiralXSubradius { get; internal set; }
+
+    /// <summary>Native center point <c>$7E:7810/$7812</c> used by the carry spiral.</summary>
+    public ushort SpiralCenterX { get; internal set; }
+    public ushort SpiralCenterY { get; internal set; }
+
+    /// <summary>
+    /// Fractional low word paired with <see cref="SpiralCenterY"/>. Retail subtracts
+    /// <c>$0000.4000</c> each spiral frame, lifting the center by one pixel every four.
+    /// </summary>
+    public ushort SpiralCenterYSubposition { get; internal set; }
+
+    /// <summary>Low-byte polar angle and 8.8 angular delta at <c>$7E:7814/$7816</c>.</summary>
+    public ushort SpiralAngle { get; internal set; }
+    public ushort SpiralAngleDelta { get; internal set; }
+
+    /// <summary>Native <c>$7E:7818</c> countdown for an incidental 64-frame tail whip.</summary>
+    public ushort TailWhipTimer { get; internal set; }
+
+    /// <summary>Debugger-visible proof that the physical chase reached its grab window.</summary>
+    public int SuccessfulGrabs { get; internal set; }
+
+    /// <summary>Number of ROM tail-hit opcodes that actually damaged grabbed Samus.</summary>
+    public int TailWhipHits { get; internal set; }
+
+    /// <summary>Suit-scaled damage dealt by the most recent tail-hit instruction.</summary>
+    public ushort LastTailWhipDamage { get; internal set; }
+
     /// <summary>Most recent library-two SFX requested by Draygon's body instruction list.</summary>
     public ushort? LastSoundLibrary2 { get; internal set; }
 

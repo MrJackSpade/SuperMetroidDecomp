@@ -28,6 +28,7 @@ public enum RoomSpriteObjectKind : ushort
     YappingMawRootVariantZero = 0x0038,
     YappingMawRootVariantOne = 0x0039,
     DraygonIntroEvir = 0x003b,
+    DraygonSpiralFoam = 0x003d,
 }
 
 /// <summary>

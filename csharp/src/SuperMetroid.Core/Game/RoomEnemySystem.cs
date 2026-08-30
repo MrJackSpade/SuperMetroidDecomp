@@ -2279,6 +2279,7 @@ public sealed partial class RoomEnemySystem
                 }
                 case >= 0x8000 when TryProcessDraygonInstruction(
                     slot,
+                    samus,
                     word,
                     ref cursor):
                     break;

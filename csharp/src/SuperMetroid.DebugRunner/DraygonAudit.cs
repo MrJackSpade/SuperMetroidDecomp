@@ -4,14 +4,16 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Untouched-ROM audit of Draygon's retail four-record load and the complete 1,488-frame
-/// opening. It intentionally stops at the first combat swoop seam; later slices extend this
-/// same encounter instead of manufacturing boss records or forcing private function words.
+/// Untouched-ROM audit of Draygon's retail four-record load, opening combat cycles, and
+/// goop-to-grab route. The fixture may place the player in a live projectile's path, but it
+/// never writes a boss function, timer, coordinate, or projectile state: every encounter
+/// transition must still arise from physical actors and cartridge instruction lists.
 /// </summary>
 internal static class DraygonAudit
 {
     private const ushort RoomPointer = 0xda60;
     private const ushort PopulationPointer = 0xd314;
+    private const int FrameLimit = 16000;
     private static readonly ushort[] ExpectedDefinitions = [0xde3f, 0xde7f, 0xdebf, 0xdeff];
 
     public static int Run(string romPath)
@@ -107,16 +109,29 @@ internal static class DraygonAudit
         var goopPreInstructions = new HashSet<ushort>();
         var priorGoopPositions = new Dictionary<int, (ushort X, ushort Y)>();
         var goopYPositions = new HashSet<ushort>();
+        var spiralPositions = new HashSet<(ushort X, ushort Y)>();
+        var spiralFoamSlots = new HashSet<int>();
         bool sawFourLiveEvirs = false;
         bool allPartsStayedAttached = true;
         bool sawRightFacing = false;
         bool sawLeftFacing = false;
         bool sawExactOpeningTurretCadence = false;
+        bool sawGoopSound = false;
+        bool openingCombatPassCompleted = false;
+        bool positionedSamusForPhysicalGoopContact = false;
+        bool sawAttachedGoop = false;
+        bool sawOwnerPlacement = false;
+        int openingCompletionFrame = -1;
         ushort maximumVisibleX = 0;
         ushort maximumVisibleY = 0;
         int frame;
-        for (frame = 0; frame < 8000; frame++)
+        for (frame = 0; frame < FrameLimit; frame++)
         {
+            // Capture functions that cartridge bytecode installed after the prior body's
+            // turn. In particular, the tail's $9F57 release opcode executes later in the
+            // enemy-slot pass than the body and would otherwise be invisible for one frame.
+            functions.Add(state.Function);
+            sawGoopSound |= state.LastSoundLibrary2 == 0x004c;
             enemies.StepFrame(
                 cameraX: 0,
                 cameraY: 0,
@@ -175,6 +190,20 @@ internal static class DraygonAudit
                 }
                 priorGoopPositions[projectile.SlotIndex] =
                     (projectile.XPosition, projectile.YPosition);
+
+                // Once one complete no-hit pass has proven projectile flight/culling, put
+                // the player into the next real goop actor. Collision, attachment, divisor
+                // increment, chase selection, and grab still run through their normal code.
+                if (openingCombatPassCompleted &&
+                    !positionedSamusForPhysicalGoopContact &&
+                    projectile.PreInstruction == 0x8e0f &&
+                    state.Function is DraygonAiFunction.GoopRightTail or
+                        DraygonAiFunction.GoopLeftTail)
+                {
+                    samus.XPosition = projectile.XPosition;
+                    samus.YPosition = projectile.YPosition;
+                    positionedSamusForPhysicalGoopContact = true;
+                }
             }
             if (state.Function is DraygonAiFunction.GoopRight or DraygonAiFunction.GoopRightTail or
                 DraygonAiFunction.GoopRightRecovery or DraygonAiFunction.GoopLeft or
@@ -186,6 +215,8 @@ internal static class DraygonAudit
             int liveEvirs = 0;
             foreach (RoomSpriteObjectSlot sprite in enemies.RoomSpriteObjects)
             {
+                if (sprite.IsActive && sprite.Kind == RoomSpriteObjectKind.DraygonSpiralFoam)
+                    spiralFoamSlots.Add(sprite.SlotIndex);
                 if (!sprite.IsActive || sprite.Kind != RoomSpriteObjectKind.DraygonIntroEvir)
                     continue;
                 liveEvirs++;
@@ -210,6 +241,26 @@ internal static class DraygonAudit
                 cameraY: 0,
                 nmiFrameCounter8: unchecked((byte)frame));
 
+            sawAttachedGoop |= samus.XSpeedDivisor != 0 ||
+                enemies.EnemyProjectiles.Any(projectile =>
+                    projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.DraygonGoop &&
+                    projectile.PreInstruction == 0x8dca);
+            if (samus.DraygonGrabbed.IsActive)
+            {
+                short expectedOffset = state.FacingRight ? (short)8 : (short)-8;
+                sawOwnerPlacement |=
+                    samus.DraygonGrabbed.OwnerXPosition == body.XPosition &&
+                    samus.DraygonGrabbed.OwnerYPosition == body.YPosition &&
+                    samus.XPosition == unchecked((ushort)(body.XPosition + expectedOffset)) &&
+                    samus.YPosition == unchecked((ushort)(body.YPosition + 0x0028));
+            }
+            if (state.Function is DraygonAiFunction.FlailWithSamus or
+                DraygonAiFunction.TailWhipWithSamus or DraygonAiFunction.FinalTailWhips or
+                DraygonAiFunction.FinalTailWhipsWait)
+            {
+                spiralPositions.Add((body.XPosition, body.YPosition));
+            }
+
             if (!sawExactOpeningTurretCadence &&
                 functions.Contains(DraygonAiFunction.SwoopLeftAscending) &&
                 state.Function is DraygonAiFunction.SwoopRightSetup or
@@ -222,12 +273,24 @@ internal static class DraygonAudit
                 functions.Contains(DraygonAiFunction.GoopLeftRecovery);
             if (completedGoopPass &&
                 state.Function is DraygonAiFunction.SwoopRightSetup or DraygonAiFunction.SwoopLeftSetup)
+            {
+                if (!openingCombatPassCompleted)
+                    openingCompletionFrame = frame;
+                openingCombatPassCompleted = true;
+            }
+
+            if (state.SuccessfulGrabs != 0 &&
+                functions.Contains(DraygonAiFunction.FinalTailWhipsWait) &&
+                !samus.DraygonGrabbed.IsActive &&
+                state.Function == DraygonAiFunction.FlyStraightUp)
+            {
                 break;
+            }
         }
 
         int remainingEvirs = enemies.RoomSpriteObjects.Count(
             sprite => sprite.IsActive && sprite.Kind == RoomSpriteObjectKind.DraygonIntroEvir);
-        if (frame >= 8000 || !functions.Contains(DraygonAiFunction.IntroInitialDelay) ||
+        if (frame >= FrameLimit || !functions.Contains(DraygonAiFunction.IntroInitialDelay) ||
             !functions.Contains(DraygonAiFunction.IntroDance) ||
             !functions.Contains(DraygonAiFunction.SwoopRightSetup) ||
             !functions.Contains(DraygonAiFunction.SwoopRightDescending) ||
@@ -245,7 +308,7 @@ internal static class DraygonAudit
                 functions.Contains(DraygonAiFunction.GoopLeftTail)) ||
             !(functions.Contains(DraygonAiFunction.GoopRightRecovery) ||
                 functions.Contains(DraygonAiFunction.GoopLeftRecovery)) ||
-            state.Function is not (DraygonAiFunction.SwoopRightSetup or DraygonAiFunction.SwoopLeftSetup) ||
+            !openingCombatPassCompleted || openingCompletionFrame < 0 ||
             !state.IntroEvirGraphicsLoaded || state.IntroEvirsSpawned != 4 ||
             !sawFourLiveEvirs || movedEvirSlots.Count != 4 || remainingEvirs != 0 ||
             state.IntroDanceFrames != 0x04d0 || !sawExactOpeningTurretCadence ||
@@ -257,7 +320,7 @@ internal static class DraygonAudit
             state.WallTurretsSpawned == 0 || turretSlots.Count == 0 || movedTurretSlots.Count == 0 ||
             state.GoopProjectilesSpawned == 0 || goopSlots.Count == 0 ||
             movedGoopSlots.Count == 0 || !goopPreInstructions.Contains(0x8e0f) ||
-            goopYPositions.Count < 16 || state.LastSoundLibrary2 != 0x004c ||
+            goopYPositions.Count < 16 || !sawGoopSound ||
             !allPartsStayedAttached || bodyMaps.Count < 1 || eyeMaps.Count < 1 ||
             tailMaps.Count < 8 || armMaps.Count < 6 || tailDisplacements.Count < 7)
         {
@@ -276,14 +339,38 @@ internal static class DraygonAudit
                 $"tail displacements={tailDisplacements.Count}, attached={allPartsStayedAttached}.");
         }
 
+        if (!positionedSamusForPhysicalGoopContact || !sawAttachedGoop ||
+            !functions.Contains(DraygonAiFunction.TryGrabSamus) ||
+            !functions.Contains(DraygonAiFunction.CarrySamus) ||
+            !functions.Contains(DraygonAiFunction.FlailWithSamus) ||
+            !functions.Contains(DraygonAiFunction.FinalTailWhips) ||
+            !functions.Contains(DraygonAiFunction.FinalTailWhipsWait) ||
+            !functions.Contains(DraygonAiFunction.ReleaseSamus) ||
+            state.SuccessfulGrabs != 1 || !sawOwnerPlacement ||
+            spiralPositions.Count < 64 || spiralFoamSlots.Count == 0 ||
+            state.TailWhipHits < 4 || state.LastTailWhipDamage != 160 ||
+            samus.Health >= 999 || samus.DraygonGrabbed.IsActive ||
+            state.Function != DraygonAiFunction.FlyStraightUp ||
+            body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision))
+        {
+            throw new InvalidDataException(
+                $"Draygon grab mismatch after {frame} frames: function=$A5:{(ushort)state.Function:X4}, " +
+                $"contact/attach={positionedSamusForPhysicalGoopContact}/{sawAttachedGoop}, " +
+                $"grabs/owner={state.SuccessfulGrabs}/{sawOwnerPlacement}, " +
+                $"spiral positions/foam={spiralPositions.Count}/{spiralFoamSlots.Count}, " +
+                $"tail hits/damage/health={state.TailWhipHits}/{state.LastTailWhipDamage}/{samus.Health}, " +
+                $"grab active={samus.DraygonGrabbed.IsActive}, properties=${body.Properties:X4}.");
+        }
+
         Console.WriteLine(
-            $"Draygon audit completed the opening and first natural goop pass after {frame + 1} frames: retail " +
+            $"Draygon audit completed opening combat and a physical goop-to-grab route after {frame + 1} frames: retail " +
             "2x2 room/four-part population, full BG2 clear, independent body/eye/tail/arms " +
             "animation, Evir tile upload, four physical intro dancers, 1,232 dance ticks, " +
             "eye tracking, tail graphics displacement, exact turret RNG cadence, table-driven " +
             "descent/apex/ascent, physical aimed wall-turret shots, breath bubbles, and attached " +
-            "multipart coordinates, followed by cosine-path goop approach/fire/exit and physical " +
-            "destroyable goop projectiles.");
+            "multipart coordinates, cosine-path goop approach/fire/exit, physical goop contact and " +
+            "attachment, chase, grabbed-pose owner movement, rising spiral, ROM tail-whip damage, " +
+            "finishing animation, release, and upward retreat.");
         return 0;
     }
 }

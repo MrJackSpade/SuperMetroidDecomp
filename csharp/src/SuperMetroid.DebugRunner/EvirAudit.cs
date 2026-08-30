@@ -396,6 +396,41 @@ internal static class EvirAudit
             throw new InvalidDataException(
                 "Evir incorrectly propagated body freeze to an already-flying projectile.");
         }
+
+        // Power bombs ignore property $0400 and can therefore select the arms record even
+        // though ordinary touch/shot lists cannot. $A8:8B16 then applies its physical +$40
+        // and +$80 aliases relative to the arms: the attached projectile and the following
+        // raw slot, not the semantic body composite. Use a lethal health value to make both
+        // writes observable without inventing a second implementation rule for the audit.
+        LoadedEvir armPowerBomb = Load(bus, room, assets);
+        RoomEnemySlot armTarget = armPowerBomb.Enemies.Slots[1];
+        RoomEnemySlot relativeProjectile = armPowerBomb.Enemies.Slots[2];
+        RoomEnemySlot followingRawSlot = armPowerBomb.Enemies.Slots[3];
+        armPowerBomb.Enemies.Slots[0].XPosition = unchecked((ushort)(armTarget.XPosition + 0x4000));
+        armPowerBomb.Enemies.Slots[0].YPosition = unchecked((ushort)(armTarget.YPosition + 0x4000));
+        relativeProjectile.XPosition = unchecked((ushort)(armTarget.XPosition + 0x4000));
+        relativeProjectile.YPosition = unchecked((ushort)(armTarget.YPosition + 0x4000));
+        armTarget.Health = 1;
+        int armPowerBombHits = armPowerBomb.Enemies.ResolveOrdinaryPowerBombHits(
+            bus,
+            armTarget.XPosition,
+            armTarget.YPosition,
+            explosionRadius: 32,
+            armPowerBomb.Samus);
+        if (armPowerBombHits != 1 || armTarget.Health != 0 ||
+            !armTarget.Properties.HasAny(EnemyProperties.Deleted) ||
+            !relativeProjectile.Properties.HasAny(EnemyProperties.Deleted) ||
+            !followingRawSlot.Properties.HasAny(EnemyProperties.Deleted) ||
+            armPowerBomb.Enemies.EnemiesKilled != 1)
+        {
+            throw new InvalidDataException(
+                $"Evir arms power-bomb alias mismatch: hits={armPowerBombHits}, " +
+                $"health={armTarget.Health}, deleted=" +
+                $"{armTarget.Properties.HasAny(EnemyProperties.Deleted)}/" +
+                $"{relativeProjectile.Properties.HasAny(EnemyProperties.Deleted)}/" +
+                $"{followingRawSlot.Properties.HasAny(EnemyProperties.Deleted)}, " +
+                $"kills={armPowerBomb.Enemies.EnemiesKilled}.");
+        }
     }
 
     private static LoadedEvir Load(

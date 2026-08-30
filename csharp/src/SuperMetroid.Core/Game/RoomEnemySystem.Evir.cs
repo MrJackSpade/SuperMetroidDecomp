@@ -479,32 +479,40 @@ public sealed partial class RoomEnemySystem
             $"Enemy slot {slot.SlotIndex} has no initialized Evir state.");
 
     /// <summary>
-    /// Ports $A8:8B16 after common touch/shot/power-bomb damage. Death removes the two
-    /// dependent records; freezing propagates to arms and to a projectile unless it is
-    /// already in flight, matching the native moving-function exception.
+    /// Ports $A8:8B16 after common touch/shot/power-bomb damage. Native applies its +$40
+    /// and +$80 physical-slot aliases relative to whichever $E63F record received the
+    /// callback. Ordinary shots/touch can only reach the body because the arms carry
+    /// property $0400, but the power-bomb walker deliberately ignores that property and can
+    /// invoke the same code on the arms. Preserve that odd relative aliasing instead of
+    /// replacing it with a body-only composite helper.
     /// </summary>
-    private void ResolveEvirCombatAfterCommon(RoomEnemySlot body)
+    private void ResolveEvirCombatAfterCommon(RoomEnemySlot actor)
     {
-        RoomEnemySlot arms = RequireEvirRelativeSlot(body, 1, EvirDefinition, "body arms");
-        RoomEnemySlot projectile = RequireEvirRelativeSlot(
-            body,
-            2,
-            EvirProjectileDefinition,
-            "body projectile");
-        if (body.Health == 0)
+        int firstRelativeIndex = actor.SlotIndex + 1;
+        int secondRelativeIndex = actor.SlotIndex + 2;
+        if ((uint)secondRelativeIndex >= _slots.Length)
         {
-            arms.Properties = arms.Properties.With(EnemyProperties.Deleted);
-            projectile.Properties = projectile.Properties.With(EnemyProperties.Deleted);
+            throw new InvalidDataException(
+                $"Evir callback at slot {actor.SlotIndex} exceeds the native +$80 slot alias.");
+        }
+        RoomEnemySlot firstRelative = _slots[firstRelativeIndex];
+        RoomEnemySlot secondRelative = _slots[secondRelativeIndex];
+
+        if (actor.Health == 0)
+        {
+            firstRelative.Properties = firstRelative.Properties.With(EnemyProperties.Deleted);
+            secondRelative.Properties = secondRelative.Properties.With(EnemyProperties.Deleted);
         }
 
-        if (body.FrozenTimer == 0)
+        if (actor.FrozenTimer == 0)
             return;
-        arms.FrozenTimer = body.FrozenTimer;
-        arms.AiHandlerBits = unchecked((ushort)(arms.AiHandlerBits | 0x0004));
-        if (RequireEvirState(projectile).Function != EvirAiFunction.ProjectileMoving)
+        firstRelative.FrozenTimer = actor.FrozenTimer;
+        firstRelative.AiHandlerBits = unchecked((ushort)(firstRelative.AiHandlerBits | 0x0004));
+        if (secondRelative.VariableC != (ushort)EvirAiFunction.ProjectileMoving)
         {
-            projectile.FrozenTimer = body.FrozenTimer;
-            projectile.AiHandlerBits = unchecked((ushort)(projectile.AiHandlerBits | 0x0004));
+            secondRelative.FrozenTimer = actor.FrozenTimer;
+            secondRelative.AiHandlerBits = unchecked((ushort)(
+                secondRelative.AiHandlerBits | 0x0004));
         }
     }
 }

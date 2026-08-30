@@ -120,6 +120,30 @@ if (args.Length >= 2 && args[0] == "--retail-enemy-lifecycle-audit")
     return RetailEnemyExecutionAudit.RunLifecycle(lifecycleRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--retail-enemy-extended-lifecycle-audit")
+{
+    string extendedLifecycleRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailEnemyExecutionAudit.RunExtendedLifecycle(extendedLifecycleRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--retail-enemy-directional-lifecycle-audit")
+{
+    string directionalLifecycleRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailEnemyExecutionAudit.RunDirectionalLifecycle(directionalLifecycleRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--retail-enemy-power-bomb-audit")
+{
+    string powerBombAuditRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailEnemyExecutionAudit.RunPowerBombCombat(powerBombAuditRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--retail-enemy-projectile-audit")
+{
+    string projectileAuditRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailEnemyExecutionAudit.RunProjectileCombat(projectileAuditRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--dead-torizo-audit")
 {
     string deadTorizoRomPath = string.Join(' ', args[1..]).Trim('"');
@@ -1926,6 +1950,11 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
             $"A=${ridleyState.Mode7MatrixA:X4}, X=${ridleyState.Mode7HorizontalOffset:X4}.");
     }
 
+    // $A6:DFB2 is shared with the power-bomb-immune Norfair boss, but Ceres Ridley's
+    // vulnerability byte reaches it. Keep that fresh-load proof out of this already-large
+    // battle fixture so its common-damage timers cannot perturb the Mode-7 sequence above.
+    CeresRidleyPowerBombAudit.Verify(ridleyBus, ridleyRoom, retailRidleyAssets);
+
     Console.WriteLine(
         $"Ceres Ridley audit passed: room $8F:{ridleyRoom.Pointer:X4}, " +
         $"state $8F:{ridleyRoom.State.Pointer:X4}, " +
@@ -1935,7 +1964,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         $"({preRevealOverlapPixel % 256},{preRevealOverlapPixel / 256}), " +
         $"battle in {battleEntryFrames} frames, fireballs/afterburn/damage in " +
         $"{fireballAuditFrames} frames, runtime hurt OAM {liveContactOamCount}/128, " +
-        $"100 retail beam hits, " +
+        $"100 retail beam hits and shared power-bomb damage, " +
         $"escape handoff in {retreatFrames} frames, Mode 7 restored in {mode7Frames} frames.");
     return 0;
 }

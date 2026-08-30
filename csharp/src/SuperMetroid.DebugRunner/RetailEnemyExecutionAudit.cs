@@ -21,16 +21,35 @@ using SuperMetroid.Core.Rooms;
 /// authority for complete movement, attacks, damage, death, and long animation loops.
 /// </para>
 /// </remarks>
-internal static class RetailEnemyExecutionAudit
+internal static partial class RetailEnemyExecutionAudit
 {
     private const int RoomBank = 0x8f0000;
     private const int EnemyPopulationBank = 0xa10000;
     private const int LifecycleFramesPerView = 512;
+    private const int ExtendedLifecycleFramesPerView = 2048;
+
+    // These are screen-relative placements, not guessed enemy-state overrides. Each camera
+    // view is still derived from an authored actor; moving only Samus across that legal view
+    // exercises the ROM's signed left/right and above/below selectors from a fresh load.
+    private static readonly SamusPlacement[] CenteredSamusPlacement =
+    [
+        new("center", 128, 112),
+    ];
+
+    private static readonly SamusPlacement[] DirectionalSamusPlacements =
+    [
+        new("center", 128, 112),
+        new("left", 32, 112),
+        new("right", 224, 112),
+        new("above", 128, 32),
+        new("below", 128, 192),
+    ];
 
     public static int Run(string romPath) => Run(
         romPath,
         framesPerView: 1,
-        freshLoadPerView: false);
+        freshLoadPerView: false,
+        CenteredSamusPlacement);
 
     /// <summary>
     /// Runs every authored camera view from a fresh population for long enough to cross
@@ -40,42 +59,57 @@ internal static class RetailEnemyExecutionAudit
     public static int RunLifecycle(string romPath) => Run(
         romPath,
         framesPerView: LifecycleFramesPerView,
-        freshLoadPerView: true);
+        freshLoadPerView: true,
+        CenteredSamusPlacement);
 
-    private static int Run(string romPath, int framesPerView, bool freshLoadPerView)
+    /// <summary>
+    /// Extends the ordinary lifecycle gate to 2,048 frames per authored camera view. This
+    /// deliberately remains a separate developer command: it crosses long idle, cooldown,
+    /// and phase timers without making the fast 512-frame regression gate four times slower.
+    /// Every view still starts from frame zero so a previous camera cannot age, damage, or
+    /// delete companion actors before their own long-form execution begins.
+    /// </summary>
+    public static int RunExtendedLifecycle(string romPath) => Run(
+        romPath,
+        framesPerView: ExtendedLifecycleFramesPerView,
+        freshLoadPerView: true,
+        CenteredSamusPlacement);
+
+    /// <summary>
+    /// Runs five legal Samus positions around every authored camera view. Each position gets
+    /// its own fresh population and 512 frames, preventing a center-only run from hiding the
+    /// opposite facing branch, vertical pursuit, retreat, or proximity attack selector.
+    /// </summary>
+    public static int RunDirectionalLifecycle(string romPath) => Run(
+        romPath,
+        framesPerView: LifecycleFramesPerView,
+        freshLoadPerView: true,
+        DirectionalSamusPlacements);
+
+    private static int Run(
+        string romPath,
+        int framesPerView,
+        bool freshLoadPerView,
+        IReadOnlyList<SamusPlacement> samusPlacements)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        string symbolPath = Path.Combine(
-            Directory.GetCurrentDirectory(),
-            "upstream-sm",
-            "assets",
-            "names.txt");
-        if (!File.Exists(symbolPath))
-        {
-            throw new FileNotFoundException(
-                "Retail enemy execution requires upstream-sm/assets/names.txt.",
-                symbolPath);
-        }
-
-        RetailRoomState[] states = File.ReadLines(symbolPath)
-            .Where(line => line.StartsWith("0x8f", StringComparison.OrdinalIgnoreCase) &&
-                line.Contains(" kRoomState_", StringComparison.Ordinal))
-            .Select(ParseRoomState)
-            .DistinctBy(state => state.StatePointer)
-            .OrderBy(state => state.StatePointer)
-            .ToArray();
+        RetailRoomState[] states = LoadNamedRetailStates();
 
         var failures = new List<RetailExecutionFailure>();
         var populations = new HashSet<ushort>();
         var definitions = new HashSet<ushort>();
         int nonEmptyStates = 0;
         int scheduledViews = 0;
+        int scheduledPlacements = 0;
         long scheduledFrames = 0;
 
         foreach (RetailRoomState state in states)
         {
             ushort? activeCameraX = null;
             ushort? activeCameraY = null;
+            ushort? activeSamusX = null;
+            ushort? activeSamusY = null;
+            string? activePlacement = null;
             int activeFrame = -1;
             try
             {
@@ -115,33 +149,45 @@ internal static class RetailEnemyExecutionAudit
                     activeCameraX = cameraX;
                     activeCameraY = cameraY;
 
-                    // The fast one-frame gate intentionally preserves its historical single
-                    // population load. The lifecycle gate starts each camera view from the
-                    // same cartridge-authored frame zero, retaining companion slot ordering
-                    // without allowing an earlier off-screen view to age or delete actors.
-                    LoadedRetailState loaded = !freshLoadPerView || viewIndex == 0
-                        ? initialLoad
-                        : LoadState(bus, room, assets);
-
-                    // Keep Samus in the active view. Many initial state machines branch on her
-                    // signed relative position; a null or wrapped far-away actor would exercise
-                    // a host-only situation that retail gameplay cannot produce.
-                    loaded.Samus.XPosition = unchecked((ushort)(cameraX + 128));
-                    loaded.Samus.YPosition = unchecked((ushort)(cameraY + 112));
-
-                    for (activeFrame = 0; activeFrame < framesPerView; activeFrame++)
+                    for (int placementIndex = 0;
+                        placementIndex < samusPlacements.Count;
+                        placementIndex++)
                     {
-                        loaded.Enemies.StepFrame(
-                            cameraX,
-                            cameraY,
-                            timeIsFrozen: false,
-                            loaded.Samus,
-                            level: assets.LevelData,
-                            samusProjectiles: loaded.SamusProjectiles,
-                            nmiFrameCounter8: unchecked((byte)scheduledFrames),
-                            mode7Transform: loaded.Mode7Transform,
-                            sharedProjectiles: loaded.SharedProjectiles);
-                        scheduledFrames++;
+                        SamusPlacement placement = samusPlacements[placementIndex];
+                        activePlacement = placement.Name;
+
+                        // The fast one-frame gate intentionally preserves its historical
+                        // single population load. Every long-form view/placement starts at
+                        // cartridge-authored frame zero, retaining companion slot ordering
+                        // without allowing an earlier scenario to age or delete actors.
+                        bool useInitialLoad = !freshLoadPerView &&
+                            viewIndex == 0 && placementIndex == 0;
+                        LoadedRetailState loaded = useInitialLoad
+                            ? initialLoad
+                            : LoadState(bus, room, assets);
+
+                        // All five coordinates stay inside the active 256x224 gameplay view.
+                        // A null or wrapped far-away actor would exercise a host-only state.
+                        loaded.Samus.XPosition = unchecked((ushort)(cameraX + placement.X));
+                        loaded.Samus.YPosition = unchecked((ushort)(cameraY + placement.Y));
+                        activeSamusX = loaded.Samus.XPosition;
+                        activeSamusY = loaded.Samus.YPosition;
+
+                        for (activeFrame = 0; activeFrame < framesPerView; activeFrame++)
+                        {
+                            loaded.Enemies.StepFrame(
+                                cameraX,
+                                cameraY,
+                                timeIsFrozen: false,
+                                loaded.Samus,
+                                level: assets.LevelData,
+                                samusProjectiles: loaded.SamusProjectiles,
+                                nmiFrameCounter8: unchecked((byte)scheduledFrames),
+                                mode7Transform: loaded.Mode7Transform,
+                                sharedProjectiles: loaded.SharedProjectiles);
+                            scheduledFrames++;
+                        }
+                        scheduledPlacements++;
                     }
                     scheduledViews++;
                 }
@@ -152,6 +198,9 @@ internal static class RetailEnemyExecutionAudit
                     state,
                     activeCameraX,
                     activeCameraY,
+                    activeSamusX,
+                    activeSamusY,
+                    activePlacement,
                     activeFrame,
                     exception));
             }
@@ -186,6 +235,9 @@ internal static class RetailEnemyExecutionAudit
             $"Retail enemy execution audit passed: {states.Length} named room states, " +
             $"{nonEmptyStates} non-empty states, {populations.Count} population pointers, " +
             $"{definitions.Count} definitions, and {scheduledViews} authored enemy views " +
+            (scheduledPlacements == scheduledViews
+                ? string.Empty
+                : $"across {scheduledPlacements} Samus placements ") +
             $"loaded and {completion}.");
         return 0;
     }
@@ -194,7 +246,11 @@ internal static class RetailEnemyExecutionAudit
     {
         if (failure.CameraX is null || failure.CameraY is null)
             return string.Empty;
-        return $" view=({failure.CameraX:X4},{failure.CameraY:X4}) frame={failure.Frame}";
+        string samus = failure.SamusX is null || failure.SamusY is null
+            ? string.Empty
+            : $" Samus=({failure.SamusX:X4},{failure.SamusY:X4})/{failure.Placement}";
+        return $" view=({failure.CameraX:X4},{failure.CameraY:X4}){samus} " +
+            $"frame={failure.Frame}";
     }
 
     private static LoadedRetailState LoadState(
@@ -324,6 +380,29 @@ internal static class RetailEnemyExecutionAudit
         return new RetailRoomState(roomPointer, unchecked((ushort)stateAddress), symbol);
     }
 
+    private static RetailRoomState[] LoadNamedRetailStates()
+    {
+        string symbolPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "upstream-sm",
+            "assets",
+            "names.txt");
+        if (!File.Exists(symbolPath))
+        {
+            throw new FileNotFoundException(
+                "Retail enemy execution requires upstream-sm/assets/names.txt.",
+                symbolPath);
+        }
+
+        return File.ReadLines(symbolPath)
+            .Where(line => line.StartsWith("0x8f", StringComparison.OrdinalIgnoreCase) &&
+                line.Contains(" kRoomState_", StringComparison.Ordinal))
+            .Select(ParseRoomState)
+            .DistinctBy(state => state.StatePointer)
+            .OrderBy(state => state.StatePointer)
+            .ToArray();
+    }
+
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 
@@ -336,8 +415,13 @@ internal static class RetailEnemyExecutionAudit
         RetailRoomState State,
         ushort? CameraX,
         ushort? CameraY,
+        ushort? SamusX,
+        ushort? SamusY,
+        string? Placement,
         int Frame,
         Exception Exception);
+
+    private readonly record struct SamusPlacement(string Name, ushort X, ushort Y);
 
     private sealed record LoadedRetailState(
         RoomEnemySystem Enemies,

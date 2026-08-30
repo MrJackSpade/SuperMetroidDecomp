@@ -1699,8 +1699,10 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == RinkaPowerBombAi;
             bool isDragon = enemy.EnemyDefinitionPointer == DragonDefinition &&
                 reactionPointer == DragonPowerBombAi;
+            // Touch and shot collision lists exclude the arms through property $0400, but
+            // $A0:A306's power-bomb walker does not. Both body and arms therefore dispatch
+            // $A8:8B0C and its intentionally physical +$40/+80 follow-up aliases.
             bool isEvir = enemy.EnemyDefinitionPointer == EvirDefinition &&
-                enemy.Parameter1 == 0 &&
                 reactionPointer == EvirPowerBombAi;
             bool isKiHunter = IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
                 reactionPointer == KiHunterShotAi;
@@ -1728,6 +1730,9 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == MetroidPowerBombAi;
             bool isNorfairRidley = enemy.EnemyDefinitionPointer == NorfairRidleyDefinition &&
                 reactionPointer == RidleyPowerBombAi;
+            bool isCeresRidley = enemy.EnemyDefinitionPointer == CeresRidleyDefinition &&
+                reactionPointer == RidleyPowerBombAi;
+            bool isRidleyPowerBombReaction = isNorfairRidley || isCeresRidley;
             bool isDraygonBody = enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
                 reactionPointer == DraygonPowerBombAi;
             bool isDeadTorizo = enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
@@ -1752,7 +1757,7 @@ public sealed partial class RoomEnemySystem
                 !isHorizontalShutterReaction &&
                 !isSpacePiratePowerBombReaction &&
                 !isMetroid &&
-                !isNorfairRidley &&
+                !isRidleyPowerBombReaction &&
                 !isDraygonBody &&
                 !isDeadTorizo &&
                 !isDeadSidehopper &&
@@ -1835,7 +1840,8 @@ public sealed partial class RoomEnemySystem
                     enemy.Health = damage >= enemy.Health
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
-                    if (enemy.Health == 0 && !isRinka && !isBotwoon && !isNorfairRidley &&
+                    if (enemy.Health == 0 && !isRinka && !isBotwoon &&
+                        !isRidleyPowerBombReaction &&
                         !isDraygonBody)
                     {
                         enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);

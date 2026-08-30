@@ -4,10 +4,7 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
 {
-    private const ushort WorkRobotLaserPreInstruction = 0xd3bf;
-    private const ushort WorkRobotLaserInstructionList = 0xd2ec;
     private const ushort WorkRobotLaserSound = 0x0067;
-    private const ushort WorkRobotLaserInvincibilityFrames = 96;
 
     /// <summary>
     /// Allocates one of bank $86's five Work Robot laser definitions. Horizontal left/right
@@ -24,7 +21,14 @@ public sealed partial class RoomEnemySystem
         if (projectile is null)
             return;
 
-        projectile.Kind = (RoomEnemyProjectileKind)definition;
+        // SpawnEnemyProjectileY_ParameterA_XGraphics installs the complete seven-word
+        // definition before entering the family initializer. Keeping that division here is
+        // important: the five records do not share radii or damage, and the common helper
+        // also supplies the native $8000 pre-draw map sentinel and all three property bits.
+        InitializeEnemyProjectileFromDefinition(
+            projectile,
+            (RoomEnemyProjectileKind)definition,
+            unchecked((ushort)(robot.VramTilesIndex | robot.PaletteIndex)));
         projectile.XVelocity = state.LaserXVelocity;
         projectile.YVelocity = definition switch
         {
@@ -44,17 +48,11 @@ public sealed partial class RoomEnemySystem
         projectile.YPosition = unchecked((ushort)(robot.YPosition - 16));
         projectile.XSubposition = 0;
         projectile.YSubposition = 0;
-        projectile.InstructionPointer = WorkRobotLaserInstructionList;
-        projectile.InstructionTimer = 1;
-        projectile.PreInstruction = WorkRobotLaserPreInstruction;
-        projectile.GraphicsIndex = unchecked((ushort)(robot.VramTilesIndex | robot.PaletteIndex));
-
-        bool horizontal = definition == WorkRobotLaserHorizontal;
-        projectile.XRadius = horizontal ? (ushort)15 : (ushort)12;
-        projectile.YRadius = horizontal ? (ushort)2 : (ushort)12;
-        projectile.Damage = horizontal ? (ushort)0x0014 : (ushort)0x0004;
-        projectile.InvincibilityFrames = WorkRobotLaserInvincibilityFrames;
-        projectile.CanDamageSamus = true;
+        // $86:D326 clears the graphics word in the down-left/right initializer itself.
+        // Upward and horizontal variants retain the owner's word until common
+        // pre-instruction $D3BF clears it on their first projectile pass.
+        if (definition is WorkRobotLaserDownLeft or WorkRobotLaserDownRight)
+            projectile.GraphicsIndex = 0;
 
         // Preserve the original $86:D35B viewport bug. Its final Y comparison omits
         // `CMP Layer1YPosition`, so lasers only request sound while their owner's absolute

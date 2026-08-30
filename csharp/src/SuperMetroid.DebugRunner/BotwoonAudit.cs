@@ -10,7 +10,7 @@ using SuperMetroid.Core.Runtime;
 /// consumed from the user's cartridge; the audit supplies only deterministic controller,
 /// Samus, boss-bit, and weapon stimuli.
 /// </summary>
-internal static class BotwoonAudit
+internal static partial class BotwoonAudit
 {
     private const ushort RoomPointer = 0xd95e;
     private const ushort Definition = 0xf293;
@@ -28,13 +28,15 @@ internal static class BotwoonAudit
 
         VerifyRetailRoomAndHeader(bus, room);
         VerifyLiveMovementAttackAndDrawing(bus, room, assets);
+        VerifySpitLifecycleAndInteractions(bus, room, assets);
         VerifyCombatDeathDropsWallAndMusic(bus, room, assets);
         VerifyAlreadyDefeatedWall(bus, room);
         VerifyRuntimeAlreadyDefeatedIntegration(bus);
 
         Console.WriteLine(
             "Botwoon audit passed: retail room/header, 13-link body, path movement, aimed " +
-            "spit and contact damage, delayed fatal traversal, staggered body fall, sixteen " +
+            "spit with exact fixed-point movement, five-map animation, off-screen disposal, " +
+            "shot pass-through and contact damage, delayed fatal traversal, staggered body fall, sixteen " +
             "drop requests, 192-frame death effects, boss bit, delayed music, live nine-row " +
             "crumble PLM, and already-defeated clear-wall PLM all used cartridge data.");
         return 0;
@@ -148,28 +150,6 @@ internal static class BotwoonAudit
         if (oam.LastFinalizedSpriteCount == 0)
             throw new InvalidDataException("Botwoon head/body/spit emitted no OBJ pieces.");
 
-        // Isolate one spit slot and place Samus on its live ROM-derived collision box. Body
-        // links deliberately use collision option two with damage disabled while alive.
-        foreach (RoomEnemyProjectileSlot projectile in loaded.Enemies.EnemyProjectiles)
-        {
-            if (!ReferenceEquals(projectile, spit))
-                projectile.Clear();
-        }
-        loaded.Samus.XPosition = spit.XPosition;
-        loaded.Samus.YPosition = spit.YPosition;
-        loaded.Samus.InvincibilityTimer = 0;
-        ushort healthBefore = loaded.Samus.Health;
-        loaded.Enemies.StepEnemyProjectiles(
-            assets.LevelData,
-            loaded.Samus,
-            cameraX: CameraX,
-            cameraY: CameraY);
-        if (loaded.Samus.Health >= healthBefore || !loaded.Samus.KnockbackActive)
-        {
-            throw new InvalidDataException(
-                $"Botwoon spit contact failed: health {healthBefore}->{loaded.Samus.Health}, " +
-                $"knockback={loaded.Samus.KnockbackActive}.");
-        }
     }
 
     private static void VerifyCombatDeathDropsWallAndMusic(

@@ -9,11 +9,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort PowampSpikeInstructionList = 0xd208;
     private const ushort PowampSpikeDeleteInstructionList = 0xd218;
-    private const ushort PowampSpikePreInstruction = 0xd263;
-    private const ushort PowampSpikeRadius = 4;
-    private const ushort PowampSpikeDamage = 0x0014;
     private const short PowampSpikeAcceleration = 0x0020;
 
     private static readonly short[] PowampSpikeXAccelerations =
@@ -34,7 +30,14 @@ public sealed partial class RoomEnemySystem
             if (spike is null)
                 return;
 
-            spike.Kind = RoomEnemyProjectileKind.PowampSpike;
+            // SpawnEnemyProjectileY_ParameterA_XGraphics copies definition $D298 before
+            // initializer $D23A zeros velocities and captures the owner position. Reading
+            // the record through the shared helper preserves its list, map sentinel, radii,
+            // damage, and all property bits instead of maintaining a second hand copy here.
+            InitializeEnemyProjectileFromDefinition(
+                spike,
+                RoomEnemyProjectileKind.PowampSpike,
+                unchecked((ushort)(body.VramTilesIndex | body.PaletteIndex)));
             spike.XPosition = body.XPosition;
             spike.YPosition = body.YPosition;
             spike.XSubposition = 0;
@@ -42,15 +45,6 @@ public sealed partial class RoomEnemySystem
             spike.XVelocity = 0;
             spike.YVelocity = 0;
             spike.DirectionParameter = unchecked((ushort)direction);
-            spike.InstructionPointer = PowampSpikeInstructionList;
-            spike.InstructionTimer = 1;
-            spike.PreInstruction = PowampSpikePreInstruction;
-            spike.GraphicsIndex = unchecked((ushort)(body.VramTilesIndex | body.PaletteIndex));
-            spike.XRadius = PowampSpikeRadius;
-            spike.YRadius = PowampSpikeRadius;
-            spike.Damage = PowampSpikeDamage;
-            spike.InvincibilityFrames = CommonEnemyProjectileInvincibilityFrames;
-            spike.CanDamageSamus = true;
         }
     }
 

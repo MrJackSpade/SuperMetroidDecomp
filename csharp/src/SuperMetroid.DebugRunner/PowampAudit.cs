@@ -10,7 +10,7 @@ using SuperMetroid.Core.Runtime;
 /// keeps the retail population intact, so loading also proves that Powamp coexists with the
 /// room's six shared-crawler Scisers rather than relying on a synthetic one-enemy fixture.
 /// </summary>
-internal static class PowampAudit
+internal static partial class PowampAudit
 {
     private const ushort MountEverestRoom = 0xd0b9;
     private const ushort PowampDefinition = 0xe8bf;
@@ -33,13 +33,15 @@ internal static class PowampAudit
         VerifyLiveFiringPipeline(bus, room, assets);
         VerifyContact(bus, room, assets);
         VerifyShotDeathAndSpikes(bus, room, assets);
+        VerifySpikeInteractions(bus, room, assets);
         VerifyPowerBombPairing(bus, room, assets);
 
         Console.WriteLine(
             "Powamp audit passed: unchanged Mt. Everest loaded three paired Powamps and " +
             $"six Scisers; inflation/rise/wiggle/deflation/sink, {objPieces} OBJ pieces, " +
             "moving grapple attachment, touch damage, paired shot and power-bomb damage, " +
-            "32-frame death, and the eight-direction accelerating spike burst were verified.");
+            "32-frame death, and all eight accelerating spike trajectories, animation, " +
+            "terrain disposal, shot pass-through, and exact contact damage were verified.");
         return 0;
     }
 
@@ -331,7 +333,11 @@ internal static class PowampAudit
             !balloon.Properties.HasAny(EnemyProperties.Deleted) || spikes.Length != 8 ||
             spikes.Select(spike => spike.DirectionParameter).Order().Where((x, i) => x != i).Any() ||
             spikes.Any(spike => spike.Damage != 20 || spike.XRadius != 4 ||
-                spike.YRadius != 4 || !spike.CanDamageSamus))
+                spike.YRadius != 4 || !spike.CanDamageSamus ||
+                spike.PersistsOnSamusContact || spike.BlocksSamusProjectiles ||
+                spike.CollisionOption != 0 || spike.InvincibilityFrames != 96 ||
+                spike.PreInstruction != 0xd263 || spike.InstructionPointer != 0xd208 ||
+                spike.InstructionTimer != 1 || spike.SpritemapPointer != 0x8000))
         {
             throw new InvalidDataException(
                 $"Powamp delayed death/spawn failed: body/balloon deleted=" +
@@ -357,6 +363,68 @@ internal static class PowampAudit
                     $"Powamp spike {direction} first frame failed: active={spike.IsActive}, " +
                     $"velocity={unchecked((short)spike.XVelocity)}/" +
                     $"{unchecked((short)spike.YVelocity)}, map=${spike.SpritemapPointer:X4}.");
+            }
+        }
+
+        // Follow every physical slot until the accelerating burst reaches room terrain.
+        // Velocity is checked on every surviving frame, so an implementation that merely
+        // applies the first table entry—or moves at a constant speed—cannot pass. Retaining
+        // the direction separately is necessary because Clear() correctly zeros the slot.
+        RoomEnemyProjectileSlot[] byDirection = spikes
+            .OrderBy(spike => spike.DirectionParameter)
+            .ToArray();
+        Dictionary<int, HashSet<(ushort X, ushort Y)>> positions = Enumerable.Range(0, 8)
+            .ToDictionary(direction => direction, direction =>
+                new HashSet<(ushort X, ushort Y)>
+                {
+                    (byDirection[direction].XPosition, byDirection[direction].YPosition),
+                });
+        Dictionary<int, HashSet<ushort>> maps = Enumerable.Range(0, 8)
+            .ToDictionary(direction => direction, direction =>
+                new HashSet<ushort> { byDirection[direction].SpritemapPointer });
+        for (int frame = 1; frame < 1024 && byDirection.Any(spike => spike.IsActive); frame++)
+        {
+            (bool Active, short X, short Y)[] before = byDirection
+                .Select(spike => (spike.IsActive,
+                    unchecked((short)spike.XVelocity),
+                    unchecked((short)spike.YVelocity)))
+                .ToArray();
+            loaded.Enemies.StepEnemyProjectiles(
+                assets.LevelData,
+                samus: null,
+                nmiFrameCounter8: unchecked((byte)frame));
+
+            for (int direction = 0; direction < byDirection.Length; direction++)
+            {
+                RoomEnemyProjectileSlot spike = byDirection[direction];
+                if (!spike.IsActive)
+                    continue;
+                short nextX = unchecked((short)(before[direction].X + expectedX[direction]));
+                short nextY = unchecked((short)(before[direction].Y + expectedY[direction]));
+                if (!before[direction].Active ||
+                    unchecked((short)spike.XVelocity) != nextX ||
+                    unchecked((short)spike.YVelocity) != nextY)
+                {
+                    throw new InvalidDataException(
+                        $"Powamp spike {direction} acceleration diverged on frame {frame}: " +
+                        $"velocity={unchecked((short)spike.XVelocity)}/" +
+                        $"{unchecked((short)spike.YVelocity)}, expected {nextX}/{nextY}.");
+                }
+                positions[direction].Add((spike.XPosition, spike.YPosition));
+                if (spike.SpritemapPointer is not 0 and not 0x8000)
+                    maps[direction].Add(spike.SpritemapPointer);
+            }
+        }
+
+        for (int direction = 0; direction < byDirection.Length; direction++)
+        {
+            if (byDirection[direction].IsActive || positions[direction].Count < 2 ||
+                maps[direction].Count != 3)
+            {
+                throw new InvalidDataException(
+                    $"Powamp spike {direction} terminal lifecycle failed: live=" +
+                    $"{byDirection[direction].IsActive}, positions=" +
+                    $"{positions[direction].Count}, maps={maps[direction].Count}.");
             }
         }
     }

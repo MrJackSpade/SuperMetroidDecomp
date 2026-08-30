@@ -10,7 +10,7 @@ using SuperMetroid.Core.Rooms;
 /// final Spark. Robot headers, code, lists, graphics, palette, projectiles, and collision data
 /// remain cartridge sourced.
 /// </summary>
-internal static class WorkRobotAudit
+internal static partial class WorkRobotAudit
 {
     private const ushort BasementRoom = 0xcc6f;
     private const ushort PoweredDefinition = 0xe8ff;
@@ -33,6 +33,7 @@ internal static class WorkRobotAudit
         LoadedRobots powered = Load(bus, poweredRoom, poweredAssets, bossDefeated: true);
         VerifyPoweredInitialization(poweredRoom, powered);
         NaturalResult natural = VerifyNaturalBehavior(powered, poweredRoom, poweredAssets);
+        LaserResult lasers = VerifyLaserLifecycles(bus, poweredRoom, poweredAssets);
         VerifyDrawing(powered, poweredRoom);
         VerifyShotRecoil(bus, poweredRoom, poweredAssets);
         VerifyPreBossShotGate(bus, poweredRoom, poweredAssets);
@@ -41,7 +42,9 @@ internal static class WorkRobotAudit
             "Work Robot audit passed: unchanged Wrecked Ship states loaded dormant and " +
             $"powered robots; ROM animation produced {natural.AnimationMaps} maps, motion, " +
             $"both facings, {natural.LaserDirections} laser vectors, palette cycling, solid " +
-            "contact, post-Phantoon shot recoil, and pre-Phantoon shot pass-through.");
+            $"contact, all {lasers.FiringRoutes} firing routes/{lasers.Definitions} laser " +
+            "definitions with exact damage and terrain disposal, post-Phantoon shot recoil, " +
+            "and pre-Phantoon shot pass-through.");
         return 0;
     }
 

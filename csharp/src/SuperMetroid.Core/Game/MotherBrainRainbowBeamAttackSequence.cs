@@ -202,6 +202,13 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     public bool RainbowBeamSoundPlaying { get; private set; }
 
     /// <summary>
+    /// Current byte angle produced by `$A9:BBA9` for the bank-$88 rainbow HDMA renderer.
+    /// Exposing the translated movement owner's word lets the live room adapter publish the
+    /// real beam geometry without maintaining a second aim calculation.
+    /// </summary>
+    public byte RainbowBeamAngle => _movement.RainbowBeamAngle;
+
+    /// <summary>
     /// Lower neck angle updated by the brain-slot handler at <c>$A9:9072</c>. The final
     /// beam has already lowered it to <c>$3000</c> before the Baby interrupts the body.
     /// </summary>

@@ -170,7 +170,8 @@ internal static class MotherBrainAudit
             "tube PLMs, four ceiling tubes, five physical tube actors, phase-two DMA, " +
             "uncrouch movement, neck geometry, stretching projectiles, phase-two attack " +
             "selection/cooldown, four aimed onion rings, custom ring damage, and the " +
-            "body/head/shared-projectile laser, bomb, and recursive hand-beam cycles " +
+            "body/head/shared-projectile laser, bomb, recursive hand-beam, and complete " +
+            "live rainbow-beam repeat cycles " +
             "matched the untouched cartridge.");
         return 0;
     }
@@ -478,6 +479,13 @@ internal static class MotherBrainAudit
             samus,
             random);
         AuditPhaseTwoHandBeamAttack(
+            bus,
+            assets.LevelData,
+            enemies,
+            state,
+            samus,
+            random);
+        AuditPhaseTwoRainbowBeamAttack(
             bus,
             assets.LevelData,
             enemies,
@@ -1624,6 +1632,294 @@ internal static class MotherBrainAudit
                 $"{observedChargingInitializer}, fired={observedFirstFiredChild}, " +
                 $"impact={observedImpact}, finish={observedFinishPhase}, function=" +
                 $"$A9:{(ushort)state.Function:X4}, phase={state.HandBeamPhase}.");
+        }
+    }
+
+    /// <summary>
+    /// Drives the loaded room's real body slot through the zero-health `$B605 → $B8EB`
+    /// tail call, both 256-count charge waits, ordinary head bytecode, bank-$86 charge
+    /// sprites, pre-fire power-bomb gate, HDMA-state handoff, forced Samus movement, and the
+    /// first drain tick. The standalone sequence verifier already covers every arithmetic
+    /// boundary; this audit proves the gameplay scheduler is attached to that implementation.
+    /// </summary>
+    private static void AuditPhaseTwoRainbowBeamAttack(
+        SuperMetroidAddressSpace bus,
+        RoomLevelData level,
+        RoomEnemySystem enemies,
+        MotherBrainEnemyState state,
+        SamusState samus,
+        Bank80SystemState random)
+    {
+        RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
+            "Mother Brain rainbow audit lost the linked head record.");
+        if (state.Function != MotherBrainBodyFunction.SecondPhaseThinking ||
+            state.Pose != MotherBrainBodyPose.Standing)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain rainbow audit requires standing thinking state, got " +
+                $"$A9:{(ushort)state.Function:X4}/{state.Pose}.");
+        }
+
+        // `$B605` tests only the head's health word. A normal phase-two projectile collision
+        // is what writes zero in gameplay; mutating that terminal word here avoids fabricating
+        // hundreds of extra beam hits while retaining the exact public body scheduler entry.
+        head.Health = 0;
+        samus.Health = 999;
+        samus.MaxHealth = 999;
+        samus.Missiles = 99;
+        samus.SuperMissiles = 20;
+        samus.PowerBombs = 10;
+        samus.EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit;
+        samus.XPosition = 0x00dc;
+        samus.YPosition = 0x007c;
+        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.InputLocked = false;
+        samus.InvincibilityTimer = 0;
+        samus.KnockbackTimer = 0;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+        random.SetRandomNumber(0x1234);
+
+        var sharedProjectiles = new SamusBombProjectileSystem();
+        enemies.StepFrame(
+            cameraX: 0,
+            cameraY: 0,
+            timeIsFrozen: false,
+            samus,
+            level: level,
+            nmiFrameCounter8: 0,
+            sharedProjectiles: sharedProjectiles);
+
+        MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence ??
+            throw new InvalidDataException(
+                "Mother Brain zero health did not allocate the live rainbow sequence.");
+        if (state.Function != MotherBrainBodyFunction.SecondPhaseRainbowStartCharging ||
+            sequence.Phase != MotherBrainRainbowBeamAttackPhase.StartCharging ||
+            state.FunctionTimer != 0x0100 || sequence.FunctionTimer != 0x0100 ||
+            state.RainbowAppliedHeadInstructionList !=
+                MotherBrainRainbowBeamAttackSequence.HeadNeutralPhase2InstructionList ||
+            state.NeckAngleDelta != 0x0040 || !state.NeckMovementEnabled ||
+            state.LowerNeckMovementIndex != 2 || state.UpperNeckMovementIndex != 4)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain live rainbow setup diverged: function/phase=" +
+                $"$A9:{(ushort)state.Function:X4}/{sequence.Phase}, timer=" +
+                $"${state.FunctionTimer:X4}/${sequence.FunctionTimer:X4}, head=" +
+                $"${state.RainbowAppliedHeadInstructionList:X4}, neck=" +
+                $"${state.NeckAngleDelta:X4}/{state.LowerNeckMovementIndex}/" +
+                $"{state.UpperNeckMovementIndex}.");
+        }
+
+        bool observedChargingHeadList = false;
+        bool observedChargeEffects = false;
+        bool observedChargingProjectile = false;
+        bool observedChargingProjectilePin = false;
+        bool observedSecondWait = false;
+        bool observedChargeSound = false;
+        bool observedPrefireCooldown = false;
+        bool observedActiveBeam = false;
+        bool observedBeamSound = false;
+        bool observedRainbowExplosion = false;
+        bool observedDrain = false;
+        bool observedBeamShutdown = false;
+        bool observedFalling = false;
+        bool observedLanding = false;
+        bool observedDecisionDelay = false;
+        bool observedRepeatPointer = false;
+        bool observedRepeatSetup = false;
+        int firstChargeCalls = 0;
+        int secondChargeCalls = 0;
+        int drainCalls = 0;
+        int frames = 1;
+
+        for (; frames < 1400; frames++)
+        {
+            MotherBrainRainbowBeamAttackPhase phaseBefore = sequence.Phase;
+            ushort healthBefore = samus.Health;
+            enemies.StepFrame(
+                cameraX: 0,
+                cameraY: 0,
+                timeIsFrozen: false,
+                samus,
+                level: level,
+                nmiFrameCounter8: unchecked((byte)frames),
+                sharedProjectiles: sharedProjectiles);
+
+            if (phaseBefore == MotherBrainRainbowBeamAttackPhase.StartCharging)
+                firstChargeCalls++;
+            if (phaseBefore == MotherBrainRainbowBeamAttackPhase.WaitForCharge)
+                secondChargeCalls++;
+            if (phaseBefore is MotherBrainRainbowBeamAttackPhase.StartDrainingSamus or
+                MotherBrainRainbowBeamAttackPhase.DrainingSamus)
+            {
+                drainCalls++;
+            }
+
+            observedChargingHeadList |= state.RainbowAppliedHeadInstructionList ==
+                MotherBrainRainbowBeamAttackSequence.HeadChargingRainbowInstructionList;
+            observedChargeEffects |= !state.SmallPurpleBreathGenerationEnabled &&
+                state.BrainPaletteTimer == 0x0202 && state.LastSoundEffect == 0x007f;
+            observedSecondWait |= sequence.Phase ==
+                MotherBrainRainbowBeamAttackPhase.WaitForCharge;
+            observedChargeSound |= state.LastRainbowBeamStep is
+                { ChargeSoundQueued: true } && state.LastSoundEffect == 0x0071;
+            observedPrefireCooldown |= sharedProjectiles.CooldownTimer == 8;
+            observedActiveBeam |= state.RainbowBeamHdmaActive && samus.InputLocked &&
+                sequence.Phase is MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall or
+                    MotherBrainRainbowBeamAttackPhase.OneFrameDelay or
+                    MotherBrainRainbowBeamAttackPhase.StartDrainingSamus or
+                    MotherBrainRainbowBeamAttackPhase.DrainingSamus;
+            observedBeamSound |= state.LastSoundEffectLibrary1 == 0x0040;
+
+            bool matchedCurrentRainbowExplosion = false;
+            foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles)
+            {
+                if (projectile.Kind ==
+                    RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging)
+                {
+                    observedChargingProjectile = true;
+                    if (projectile.PreInstruction != 0xc814 ||
+                        projectile.InstructionPointer < 0xc829 ||
+                        projectile.InstructionPointer > 0xc843 ||
+                        projectile.GraphicsIndex != 0 || projectile.XVelocity != 0 ||
+                        projectile.YVelocity != 0 || projectile.XRadius != 0 ||
+                        projectile.YRadius != 0 || projectile.CanDamageSamus)
+                    {
+                        throw new InvalidDataException(
+                            $"Mother Brain rainbow charge projectile diverged: pre/list=" +
+                            $"${projectile.PreInstruction:X4}/${projectile.InstructionPointer:X4}, " +
+                            $"graphics=${projectile.GraphicsIndex:X4}, velocity=" +
+                            $"({projectile.XVelocity:X4},{projectile.YVelocity:X4}), radius=" +
+                            $"{projectile.XRadius}/{projectile.YRadius}.");
+                    }
+                    observedChargingProjectilePin |=
+                        projectile.XPosition == head.XPosition &&
+                        projectile.YPosition == head.YPosition;
+                }
+                else if (projectile.Kind ==
+                    RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion)
+                {
+                    short offsetX = unchecked((short)projectile.XVelocity);
+                    short offsetY = unchecked((short)projectile.YVelocity);
+                    if (projectile.PreInstruction != 0xc94c ||
+                        projectile.XRadius != 1 || projectile.YRadius != 1 ||
+                        projectile.CanDamageSamus)
+                    {
+                        throw new InvalidDataException(
+                            $"Mother Brain rainbow explosion diverged: pre/list=" +
+                            $"${projectile.PreInstruction:X4}/${projectile.InstructionPointer:X4}, " +
+                            $"position=({projectile.XPosition:X4},{projectile.YPosition:X4}), " +
+                            $"Samus=({samus.XPosition:X4},{samus.YPosition:X4}), offset=" +
+                            $"({offsetX},{offsetY}).");
+                    }
+
+                    // `$BC76` spawns before the same body function moves Samus. Match the
+                    // new actor against the movement witness's pre-move coordinate; older
+                    // explosions remain attached by their own later bank-$86 calls.
+                    if (state.LastRainbowBeamStep is
+                        { Explosion: { } request, Movement: { } movement } &&
+                        projectile.InstructionPointer == ReadWord(bus, 0x86cbb1) &&
+                        projectile.XVelocity == unchecked((ushort)request.XOffset) &&
+                        projectile.YVelocity == unchecked((ushort)request.YOffset) &&
+                        projectile.XPosition == unchecked((ushort)(
+                            movement.Before.XPosition + request.XOffset)) &&
+                        projectile.YPosition == unchecked((ushort)(
+                            movement.Before.YPosition + request.YOffset)))
+                    {
+                        observedRainbowExplosion = true;
+                        matchedCurrentRainbowExplosion = true;
+                    }
+                }
+            }
+
+            if (state.LastRainbowBeamStep is
+                    { Explosion: { } expectedExplosion, Movement: { } expectedMovement } &&
+                !matchedCurrentRainbowExplosion)
+            {
+                string candidates = string.Join(",", enemies.EnemyProjectiles
+                    .Where(projectile => projectile.Kind ==
+                        RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion)
+                    .Select(projectile =>
+                        $"{projectile.SlotIndex}:({projectile.XPosition:X4}," +
+                        $"{projectile.YPosition:X4})/({projectile.XVelocity:X4}," +
+                        $"{projectile.YVelocity:X4})/${projectile.InstructionPointer:X4}"));
+                throw new InvalidDataException(
+                    $"Mother Brain did not publish the current pre-move rainbow explosion: " +
+                    $"before=({expectedMovement.Before.XPosition:X4}," +
+                    $"{expectedMovement.Before.YPosition:X4}), offset=" +
+                    $"({expectedExplosion.XOffset},{expectedExplosion.YOffset}), " +
+                    $"candidates=[{candidates}].");
+            }
+
+            enemies.StepEnemyProjectiles(
+                level,
+                samus,
+                cameraX: 0,
+                cameraY: 0,
+                nmiFrameCounter8: unchecked((byte)frames),
+                samusBombs: sharedProjectiles);
+
+            // Runtime order reaches Samus's bank-$90 alpha after enemy/projectile work.
+            // With no input this call only advances the shared cooldown and dormant bombs.
+            sharedProjectiles.StepFrame(
+                bus,
+                level,
+                samus,
+                controllerInput: 0,
+                controllerNewInput: 0);
+
+            observedDrain |= sequence.Phase ==
+                    MotherBrainRainbowBeamAttackPhase.DrainingSamus &&
+                samus.Health < healthBefore;
+            observedBeamShutdown |= phaseBefore ==
+                    MotherBrainRainbowBeamAttackPhase.FinishFiring &&
+                sequence.Phase == MotherBrainRainbowBeamAttackPhase.LetSamusFall &&
+                !state.RainbowBeamHdmaActive && !samus.InputLocked &&
+                sharedProjectiles.CooldownTimer == 7;
+            observedFalling |= phaseBefore is MotherBrainRainbowBeamAttackPhase.LetSamusFall or
+                MotherBrainRainbowBeamAttackPhase.WaitForSamusToLand;
+            observedLanding |= sequence.Phase == MotherBrainRainbowBeamAttackPhase.LowerHead &&
+                samus.YPosition == 0x00c0 &&
+                samus.Pose == SamusState.DrainedCrouchingLeftPose;
+            observedDecisionDelay |= sequence.Phase ==
+                MotherBrainRainbowBeamAttackPhase.DecideNextAction &&
+                state.Function == MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction;
+            observedRepeatPointer |= sequence.Phase ==
+                MotherBrainRainbowBeamAttackPhase.RepeatAttack &&
+                state.Function == MotherBrainBodyFunction.SecondPhaseRainbowExtendNeck;
+            observedRepeatSetup |= phaseBefore == MotherBrainRainbowBeamAttackPhase.RepeatAttack &&
+                sequence.Phase == MotherBrainRainbowBeamAttackPhase.StartCharging &&
+                state.Function == MotherBrainBodyFunction.SecondPhaseRainbowStartCharging &&
+                state.FunctionTimer == 0x0100;
+            if (observedRepeatSetup)
+                break;
+        }
+
+        if (frames == 1400 || firstChargeCalls != 257 || secondChargeCalls != 256 ||
+            drainCalls != 300 ||
+            !observedChargingHeadList || !observedChargeEffects ||
+            !observedChargingProjectile || !observedChargingProjectilePin ||
+            !observedSecondWait || !observedChargeSound || !observedPrefireCooldown ||
+            !observedActiveBeam || !observedBeamSound || !observedRainbowExplosion ||
+            !observedDrain || !observedBeamShutdown || !observedFalling ||
+            !observedLanding || !observedDecisionDelay || !observedRepeatPointer ||
+            !observedRepeatSetup || state.RainbowBeamHdmaActive || samus.InputLocked ||
+            samus.Health != 699)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain live rainbow cycle diverged: frames={frames}, waits=" +
+                $"{firstChargeCalls}/257,{secondChargeCalls}/256, drain={drainCalls}/300, " +
+                $"head/effects/projectile=" +
+                $"{observedChargingHeadList}/{observedChargeEffects}/" +
+                $"{observedChargingProjectile}/{observedChargingProjectilePin}, " +
+                $"wait/sound/cooldown={observedSecondWait}/{observedChargeSound}/" +
+                $"{observedPrefireCooldown}, active/sfx/explosion/drain=" +
+                $"{observedActiveBeam}/{observedBeamSound}/{observedRainbowExplosion}/" +
+                $"{observedDrain}, shutdown/fall/land/decision/repeat=" +
+                $"{observedBeamShutdown}/{observedFalling}/{observedLanding}/" +
+                $"{observedDecisionDelay}/{observedRepeatPointer}/{observedRepeatSetup}, " +
+                $"phase={sequence.Phase}, function=" +
+                $"$A9:{(ushort)state.Function:X4}, health={samus.Health}.");
         }
     }
 

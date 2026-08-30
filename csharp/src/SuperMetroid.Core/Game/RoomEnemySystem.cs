@@ -599,7 +599,8 @@ public sealed partial class RoomEnemySystem
                         cameraY,
                         samusProjectiles,
                         enemyNmiFrameCounter8,
-                        mode7Transform);
+                        mode7Transform,
+                        sharedProjectiles);
                     ranActorAi = true;
                 }
 
@@ -1452,7 +1453,8 @@ public sealed partial class RoomEnemySystem
         ushort cameraY,
         SamusProjectileSystem? samusProjectiles,
         byte nmiFrameCounter8,
-        SamusMode7Transform? mode7Transform = null)
+        SamusMode7Transform? mode7Transform = null,
+        SamusBombProjectileSystem? sharedProjectiles = null)
     {
         int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
         switch (address)
@@ -1468,7 +1470,7 @@ public sealed partial class RoomEnemySystem
                 RunDraygonPartMain(slot, samus);
                 return;
             case 0xa9873e when slot.EnemyDefinitionPointer == MotherBrainBodyDefinition:
-                RunMotherBrainBodyMain(slot, samus, nmiFrameCounter8);
+                RunMotherBrainBodyMain(slot, samus, nmiFrameCounter8, sharedProjectiles);
                 return;
             case 0xa9878b when slot.EnemyDefinitionPointer == MotherBrainHeadDefinition:
                 RunMotherBrainHeadMain(slot, samus);

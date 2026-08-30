@@ -117,7 +117,8 @@ public sealed partial class RoomEnemySystem
     private void RunMotherBrainBodyMain(
         RoomEnemySlot body,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte nmiFrameCounter8,
+        SamusBombProjectileSystem? sharedProjectiles)
     {
         MotherBrainEnemyState state = RequireCompleteMotherBrainState(body);
 
@@ -169,7 +170,33 @@ public sealed partial class RoomEnemySystem
             case MotherBrainBodyFunction.SecondPhaseLaserPositionHeadSlowlyAndFire:
             case MotherBrainBodyFunction.SecondPhaseLaserFinishAttack:
             case MotherBrainBodyFunction.SecondPhaseHandBeam:
-                RunMotherBrainPhaseTwoAscent(state, samus, nmiFrameCounter8);
+            case MotherBrainBodyFunction.SecondPhaseRainbowExtendNeck:
+            case MotherBrainBodyFunction.SecondPhaseRainbowStartCharging:
+            case MotherBrainBodyFunction.SecondPhaseRainbowRetractNeck:
+            case MotherBrainBodyFunction.SecondPhaseRainbowWaitForCharge:
+            case MotherBrainBodyFunction.SecondPhaseRainbowExtendNeckDown:
+            case MotherBrainBodyFunction.SecondPhaseRainbowStartFiring:
+            case MotherBrainBodyFunction.SecondPhaseRainbowMoveSamusTowardWall:
+            case MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay:
+            case MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus:
+            case MotherBrainBodyFunction.SecondPhaseRainbowDrainingSamus:
+            case MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring:
+            case MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall:
+            case MotherBrainBodyFunction.SecondPhaseRainbowWaitForSamusToLand:
+            case MotherBrainBodyFunction.SecondPhaseRainbowLowerHead:
+            case MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOff:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffStandUp:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffAdmire:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffLoadBabyTiles:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam:
+            case MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding:
+                RunMotherBrainPhaseTwoAscent(
+                    state,
+                    samus,
+                    nmiFrameCounter8,
+                    sharedProjectiles);
                 return;
             default:
                 throw new NotSupportedException(
@@ -681,6 +708,20 @@ public sealed partial class RoomEnemySystem
                 if (laser is not null)
                     state.LastSoundEffect = PirateMotherBrainLaserSound;
 
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            }
+            case 0x9f84: // Allocate the finite `$86:CB83` rainbow-charge animation.
+                SpawnMotherBrainRainbowChargingProjectile(
+                    RequireCompleteMotherBrainState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9f8e: // Disable breath and select the two-frame charging palette set.
+            {
+                MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
+                state.SmallPurpleBreathGenerationEnabled = false;
+                state.BrainPaletteTimer = 0x0202;
+                state.LastSoundEffect = 0x007f;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }

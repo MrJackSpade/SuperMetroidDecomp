@@ -39,9 +39,11 @@ public enum RoomEnemyProjectileKind : ushort
     MotherBrainBomb = 0xcb59,
     MotherBrainHandBeamCharging = 0xcb67,
     MotherBrainHandBeamFired = 0xcb75,
+    MotherBrainRainbowBeamCharging = 0xcb83,
     MotherBrainPurpleBreathBig = 0xcb2f,
     MotherBrainDrool = 0xcb91,
     MotherBrainDyingDrool = 0xcb9f,
+    MotherBrainRainbowBeamExplosion = 0xcbad,
     MotherBrainTopRightTube = 0xcc5b,
     MotherBrainTopLeftTube = 0xcc69,
     MotherBrainTopMiddleLeftTube = 0xcc77,
@@ -590,6 +592,14 @@ public sealed partial class RoomEnemySystem
 
             case 0xc4c8: // Mother Brain bomb: Samus-bomb scan, gravity, and staged bounces.
                 RunMotherBrainBombPreInstruction(projectile, samusBombs);
+                return;
+
+            case 0xc814: // Rainbow charge contracts around the live articulated brain slot.
+                RunMotherBrainRainbowChargingPreInstruction(projectile);
+                return;
+
+            case 0xc94c: // Rainbow impact sprites retain their offset from moving Samus.
+                RunMotherBrainRainbowExplosionPreInstruction(projectile, samus);
                 return;
 
             case 0x8dca: // Draygon goop: attached to Samus with a 256-frame lifetime.

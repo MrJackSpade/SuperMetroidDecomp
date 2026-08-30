@@ -28,7 +28,8 @@ public sealed partial class RoomEnemySystem
     private void RunMotherBrainPhaseTwoAscent(
         MotherBrainEnemyState state,
         SamusState? samus,
-        byte nmiFrameCounter8)
+        byte nmiFrameCounter8,
+        SamusBombProjectileSystem? sharedProjectiles = null)
     {
         switch (state.Function)
         {
@@ -69,7 +70,7 @@ public sealed partial class RoomEnemySystem
                 FinishMotherBrainStretching(state);
                 return;
             case MotherBrainBodyFunction.SecondPhaseThinking:
-                RunMotherBrainSecondPhaseThinking(state, samus);
+                RunMotherBrainSecondPhaseThinking(state, samus, sharedProjectiles);
                 return;
             case MotherBrainBodyFunction.SecondPhaseTryAttack:
                 RunMotherBrainSecondPhaseTryAttack(state, samus);
@@ -102,6 +103,34 @@ public sealed partial class RoomEnemySystem
                 return;
             case MotherBrainBodyFunction.SecondPhaseHandBeam:
                 RunMotherBrainHandBeamAttack(state);
+                return;
+            case MotherBrainBodyFunction.SecondPhaseRainbowExtendNeck:
+            case MotherBrainBodyFunction.SecondPhaseRainbowStartCharging:
+            case MotherBrainBodyFunction.SecondPhaseRainbowRetractNeck:
+            case MotherBrainBodyFunction.SecondPhaseRainbowWaitForCharge:
+            case MotherBrainBodyFunction.SecondPhaseRainbowExtendNeckDown:
+            case MotherBrainBodyFunction.SecondPhaseRainbowStartFiring:
+            case MotherBrainBodyFunction.SecondPhaseRainbowMoveSamusTowardWall:
+            case MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay:
+            case MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus:
+            case MotherBrainBodyFunction.SecondPhaseRainbowDrainingSamus:
+            case MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring:
+            case MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall:
+            case MotherBrainBodyFunction.SecondPhaseRainbowWaitForSamusToLand:
+            case MotherBrainBodyFunction.SecondPhaseRainbowLowerHead:
+            case MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOff:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffStandUp:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffAdmire:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffLoadBabyTiles:
+            case MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam:
+            case MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding:
+                RunLiveMotherBrainRainbowBeam(
+                    state,
+                    RequireMotherBrainCombatSamus(samus),
+                    nmiFrameCounter8,
+                    sharedProjectiles);
                 return;
             default:
                 throw new NotSupportedException(
@@ -370,12 +399,16 @@ public sealed partial class RoomEnemySystem
 
     private void RunMotherBrainSecondPhaseThinking(
         MotherBrainEnemyState state,
-        SamusState? samus)
+        SamusState? samus,
+        SamusBombProjectileSystem? sharedProjectiles = null)
     {
         if (state.Head!.Health == 0)
         {
-            throw new NotSupportedException(
-                "Mother Brain phase-two death/rainbow-beam transition $A9:BB3B is not translated yet.");
+            StartLiveMotherBrainRainbowBeam(
+                state,
+                RequireMotherBrainCombatSamus(samus),
+                sharedProjectiles);
+            return;
         }
         if (state.Pose != MotherBrainBodyPose.Standing)
             return;

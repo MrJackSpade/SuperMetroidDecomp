@@ -45,9 +45,11 @@ public enum MotherBrainBodyFunction : ushort
     SecondPhaseLaserPositionHeadSlowlyAndFire = 0xb839,
     SecondPhaseLaserFinishAttack = 0xb863,
     SecondPhaseHandBeam = 0xb87d,
+    SecondPhaseRainbowExtendNeck = 0xb8eb,
     SecondPhaseRainbowStartCharging = 0xb91a,
     SecondPhaseRainbowRetractNeck = 0xb92b,
     SecondPhaseRainbowWaitForCharge = 0xb93f,
+    SecondPhaseRainbowExtendNeckDown = 0xb951,
     SecondPhaseRainbowStartFiring = 0xb975,
     SecondPhaseRainbowMoveSamusTowardWall = 0xb9e5,
     SecondPhaseRainbowOneFrameDelay = 0xba00,
@@ -55,10 +57,16 @@ public enum MotherBrainBodyFunction : ushort
     SecondPhaseRainbowDrainingSamus = 0xba3c,
     SecondPhaseRainbowFinishFiring = 0xba5e,
     SecondPhaseRainbowLetSamusFall = 0xbac4,
-    SecondPhaseRainbowWaitForSamusToLand = 0xbacb,
-    SecondPhaseRainbowLowerHead = 0xbae3,
+    SecondPhaseRainbowWaitForSamusToLand = 0xbad1,
+    SecondPhaseRainbowLowerHead = 0xbadd,
     SecondPhaseRainbowDecideNextAction = 0xbb06,
-    SecondPhaseRainbowRepeatAttack = 0xbb13,
+    SecondPhaseFinishSamusOff = 0xbd45,
+    SecondPhaseFinishSamusOffStandUp = 0xbd98,
+    SecondPhaseFinishSamusOffAdmire = 0xbda9,
+    SecondPhaseFinishSamusOffChargeFinalBeam = 0xbdc1,
+    SecondPhaseFinishSamusOffLoadBabyTiles = 0xbdd2,
+    SecondPhaseFinishSamusOffFireFinalBeam = 0xbded,
+    SecondPhaseFinalRainbowBeamHolding = 0xbe1a,
 }
 
 /// <summary>
@@ -201,6 +209,9 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>Last library-two fake-death/tube sound emitted during this enemy frame.</summary>
     public ushort? LastSoundEffect { get; internal set; }
+
+    /// <summary>Last library-one rainbow-beam sound emitted during this enemy frame.</summary>
+    public ushort? LastSoundEffectLibrary1 { get; internal set; }
 
     /// <summary>Last library-three sound emitted by a Mother Brain private opcode.</summary>
     public ushort? LastSoundEffectLibrary3 { get; internal set; }
@@ -358,6 +369,22 @@ public sealed class MotherBrainEnemyState
     /// <summary>Debugger witness from the most recent live rainbow body-function call.</summary>
     public MotherBrainRainbowBeamAttackStepResult? LastRainbowBeamStep { get; internal set; }
 
+    /// <summary>Live bank-$88 rainbow-beam presentation state published by body AI.</summary>
+    public bool RainbowBeamHdmaActive { get; internal set; }
+    public byte RainbowBeamAngle { get; internal set; }
+    public ushort RainbowBeamAngularWidth { get; internal set; }
+    public bool RainbowBeamPaletteRequested { get; internal set; }
+    public MotherBrainRainbowExplosionRequest? LastRainbowBeamExplosion { get; internal set; }
+
+    /// <summary>
+    /// Last head list copied from the rainbow state machine into the physical head slot.
+    /// The physical instruction pointer advances away from the list origin, so comparing
+    /// against <c>Head.CurrentInstruction</c> would reinstall the list and reset its timer
+    /// every frame. This separate producer-owned latch mirrors the fact that `$A9:C447`
+    /// runs only when body AI explicitly requests a different head program.
+    /// </summary>
+    internal ushort RainbowAppliedHeadInstructionList { get; set; }
+
     /// <summary>
     /// Last drop request emitted when an exploding Samus bomb destroys Mother Brain's bomb.
     /// Pickup selection remains owned by the common enemy-drop seam; retaining the head
@@ -394,9 +421,12 @@ public sealed class MotherBrainEnemyState
         _musicRequests.Clear();
         _plmRequests.Clear();
         LastSoundEffect = null;
+        LastSoundEffectLibrary1 = null;
         LastSoundEffectLibrary3 = null;
         LastBombDropRequest = null;
         LastRainbowBeamStep = null;
+        RainbowBeamPaletteRequested = false;
+        LastRainbowBeamExplosion = null;
     }
 
     internal void RequestMusic(ushort rawTrack, byte delayFrames) =>

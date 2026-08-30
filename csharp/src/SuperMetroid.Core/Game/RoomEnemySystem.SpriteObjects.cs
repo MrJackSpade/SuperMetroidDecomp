@@ -28,6 +28,7 @@ public enum RoomSpriteObjectKind : ushort
     YappingMawRootVariantZero = 0x0038,
     YappingMawRootVariantOne = 0x0039,
     DraygonIntroEvir = 0x003b,
+    DraygonDeathEvirFacingRight = 0x003c,
     DraygonSpiralFoam = 0x003d,
 }
 
@@ -46,6 +47,13 @@ public sealed class RoomSpriteObjectSlot
     public bool IsActive => InstructionPointer != 0;
     public ushort XPosition { get; internal set; }
     public ushort YPosition { get; internal set; }
+    /// <summary>
+    /// Fractional halves of the native 16.16 world coordinates. Most sprite objects move
+    /// only in whole pixels and leave these zero; Draygon's six burial Evirs consume the
+    /// exact ROM subspeed table, so discarding these words visibly changes their fan-in.
+    /// </summary>
+    public ushort XSubposition { get; internal set; }
+    public ushort YSubposition { get; internal set; }
     public ushort GraphicsIndex { get; internal set; }
     public ushort InstructionPointer { get; internal set; }
     public ushort InstructionTimer { get; internal set; }
@@ -55,7 +63,7 @@ public sealed class RoomSpriteObjectSlot
     internal void Clear()
     {
         Kind = RoomSpriteObjectKind.None;
-        XPosition = YPosition = GraphicsIndex = 0;
+        XPosition = YPosition = XSubposition = YSubposition = GraphicsIndex = 0;
         InstructionPointer = InstructionTimer = SpritemapPointer = DisableFlags = 0;
     }
 }

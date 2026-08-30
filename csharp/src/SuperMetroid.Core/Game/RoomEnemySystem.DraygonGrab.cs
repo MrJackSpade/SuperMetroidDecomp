@@ -380,6 +380,12 @@ public sealed partial class RoomEnemySystem
             ? (ushort)0
             : unchecked((ushort)(samus.Health - damage));
 
+        // `$A5:9B9A` also publishes the same 32-frame, type-seven quake used by the
+        // cartridge's grabbed-tail impact. Keeping it on the shared room-enemy surface lets
+        // the ordinary camera renderer observe the hit instead of reducing it to HP loss.
+        EarthquakeTimer = 32;
+        EarthquakeType = 7;
+
         state.TailWhipHits++;
         state.LastTailWhipDamage = damage;
         SpawnRoomSpriteObject(

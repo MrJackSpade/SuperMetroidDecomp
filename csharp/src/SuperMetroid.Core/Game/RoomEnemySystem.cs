@@ -541,6 +541,16 @@ public sealed partial class RoomEnemySystem
                     ranActorAi = true;
                 }
                 if (!ranActorAi &&
+                    (slot.AiHandlerBits & 0x0002) != 0 &&
+                    slot.EnemyDefinitionPointer == DraygonBodyDefinition)
+                {
+                    // `$A5:954D` owns the entire actor during hurt dispatch. Both the BG2
+                    // body palette and sprite-palette eye/tail pieces flash together, while
+                    // grapple electrocution may subtract another 256 HP every eighth frame.
+                    ApplyDraygonHurt(slot, RequireCompleteDraygonState(slot), samus);
+                    ranActorAi = true;
+                }
+                if (!ranActorAi &&
                     (slot.FrozenTimer != 0 || (slot.AiHandlerBits & 0x0004) != 0))
                 {
                     if (slot.EnemyDefinitionPointer == RinkaDefinition &&

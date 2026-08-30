@@ -148,6 +148,39 @@ public sealed class DraygonEnemyState
     /// <summary>Suit-scaled damage dealt by the most recent tail-hit instruction.</summary>
     public ushort LastTailWhipDamage { get; internal set; }
 
+    /// <summary>
+    /// Native byte offset <c>$7E:781C</c> into the eight health-palette bands. It advances
+    /// 0,2,...,14 because the threshold table is word-addressed even though each palette
+    /// record contains four colors.
+    /// </summary>
+    public ushort HealthPaletteTableByteIndex { get; internal set; }
+
+    /// <summary>
+    /// Native death-vector angle and its deliberately unused 16.16 velocity words. The
+    /// cartridge computes these once in the fatal reaction, then recalculates movement each
+    /// death frame; retaining them documents and exposes that observable WRAM side effect.
+    /// </summary>
+    public ushort DeathMovementAngle { get; internal set; }
+    public ushort UnusedDeathXSpeed { get; internal set; }
+    public ushort UnusedDeathXSubspeed { get; internal set; }
+    public ushort UnusedDeathYSpeed { get; internal set; }
+    public ushort UnusedDeathYSubspeed { get; internal set; }
+
+    /// <summary>Number of random body-list explosions admitted during the fatal animation.</summary>
+    public int DeathAnimationObjectsSpawned { get; internal set; }
+
+    /// <summary>Number of fixed-cadence smoke objects requested below the burial line.</summary>
+    public int DeathSmokeObjectsSpawned { get; internal set; }
+
+    /// <summary>True after the six table-positioned burial Evirs replace the shared pool.</summary>
+    public bool DeathEvirsSpawned { get; internal set; }
+
+    /// <summary>Debugger-visible cartridge requests emitted by the terminal boss path.</summary>
+    public ushort? LastSoundLibrary3 { get; internal set; }
+    public ushort? MusicRequest { get; internal set; }
+    public bool ItemDropRequested { get; internal set; }
+    public bool BossDefeatPersisted { get; internal set; }
+
     /// <summary>Most recent library-two SFX requested by Draygon's body instruction list.</summary>
     public ushort? LastSoundLibrary2 { get; internal set; }
 

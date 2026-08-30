@@ -362,15 +362,20 @@ internal static class DraygonAudit
                 $"grab active={samus.DraygonGrabbed.IsActive}, properties=${body.Properties:X4}.");
         }
 
+        int combatFrames = DraygonCombatAudit.Run(romPath);
+
         Console.WriteLine(
-            $"Draygon audit completed opening combat and a physical goop-to-grab route after {frame + 1} frames: retail " +
+            $"Draygon audit completed opening, grab, combat, and burial after " +
+            $"{frame + 1 + combatFrames} frames: retail " +
             "2x2 room/four-part population, full BG2 clear, independent body/eye/tail/arms " +
             "animation, Evir tile upload, four physical intro dancers, 1,232 dance ticks, " +
             "eye tracking, tail graphics displacement, exact turret RNG cadence, table-driven " +
             "descent/apex/ascent, physical aimed wall-turret shots, breath bubbles, and attached " +
             "multipart coordinates, cosine-path goop approach/fire/exit, physical goop contact and " +
             "attachment, chase, grabbed-pose owner movement, rising spiral, ROM tail-whip damage, " +
-            "finishing animation, release, and upward retreat.");
+            "finishing animation, release, upward retreat, authored eye/body collision callbacks, " +
+            "power-bomb immunity, hurt palettes, fatal reaction, six physical burial Evirs, boss " +
+            "persistence, and item-drop request.");
         return 0;
     }
 }

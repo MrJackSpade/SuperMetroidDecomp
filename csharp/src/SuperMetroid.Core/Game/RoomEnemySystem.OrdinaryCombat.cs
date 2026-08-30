@@ -144,6 +144,8 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi;
             bool isPhantoon = slot.EnemyDefinitionPointer == PhantoonBodyDefinition &&
                 slot.Definition.TouchAiPointer == PhantoonTouchHitboxCallback;
+            bool isDraygonBody = slot.EnemyDefinitionPointer == DraygonBodyDefinition &&
+                slot.Definition.TouchAiPointer == DraygonTouchAi;
             // A handful of utility/terrain enemies intentionally point touch AI at an RTL
             // in their own bank. Detect the native opcode instead of adding a name-specific
             // exception for every inert actor. The collision is still reported, but the
@@ -180,6 +182,7 @@ public sealed partial class RoomEnemySystem
                 isCrocomire ||
                 isCrocomireTongue ||
                 isPhantoon ||
+                isDraygonBody ||
                 isLiteralNoOpTouchAi ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
@@ -204,7 +207,7 @@ public sealed partial class RoomEnemySystem
             bool usesExtendedHitboxes = (
                     isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo ||
                     isCrocomire || isCrocomireTongue || isSporeSpawn || isCeresSteam ||
-                    isPhantoon) &&
+                    isPhantoon || isDraygonBody) &&
                 slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
             bool overlapsSamus;
             ushort hitboxTouchAi = slot.Definition.TouchAiPointer;
@@ -274,6 +277,30 @@ public sealed partial class RoomEnemySystem
                     samus,
                     controllerInput,
                     skipDeathAnimation: true);
+                return true;
+            }
+
+            if (isDraygonBody)
+            {
+                if (!usesExtendedHitboxes)
+                {
+                    throw new InvalidDataException(
+                        "Draygon requires his authored extended touch hitboxes.");
+                }
+                if (hitboxTouchAi == DraygonNoOpHitboxTouchAi)
+                    return true; // The vulnerable eye rectangle is harmless to Samus.
+                if (hitboxTouchAi != DraygonTouchAi)
+                {
+                    throw new NotSupportedException(
+                        $"Draygon hitbox touch AI $A5:{hitboxTouchAi:X4} is not translated.");
+                }
+
+                ResolveNormalEnemyTouch(
+                    slot,
+                    samus,
+                    controllerInput,
+                    skipDeathAnimation: true);
+                ResolveDraygonReaction(slot, samus);
                 return true;
             }
 
@@ -604,6 +631,8 @@ public sealed partial class RoomEnemySystem
             bool isCrocomireTongue =
                 enemy.EnemyDefinitionPointer == CrocomireTongueDefinition &&
                 enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi;
+            bool isDraygonBody = enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
+                enemy.Definition.ShotAiPointer == DraygonShotAi;
             // Several retail helper/projectile definitions point their shot callback at a
             // literal RTL in their own enemy bank. The bank-$A0 collision walker still runs
             // its projectile prelude before dispatching that no-op callback: supers request
@@ -652,6 +681,7 @@ public sealed partial class RoomEnemySystem
                 isShaktool ||
                 isCrocomire ||
                 isCrocomireTongue ||
+                isDraygonBody ||
                 isLiteralNoOpShotAi ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
@@ -715,7 +745,7 @@ public sealed partial class RoomEnemySystem
                 bool usesExtendedHitboxes = (
                         isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo ||
                         isCrocomire || isCrocomireTongue || isSporeSpawn || isCeresSteam ||
-                        isNorfairRidley) &&
+                        isNorfairRidley || isDraygonBody) &&
                     enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
                 bool overlapsProjectile;
                 ushort hitboxShotAi = enemy.Definition.ShotAiPointer;
@@ -755,6 +785,32 @@ public sealed partial class RoomEnemySystem
                         $"Lower Norfair Ridley requires extended shot AI " +
                         $"$A6:{RidleyShotAi:X4}; extended={usesExtendedHitboxes}, " +
                         $"selected=$A6:{hitboxShotAi:X4}, map=$A6:{enemy.SpritemapPointer:X4}.");
+                }
+
+                if (isDraygonBody)
+                {
+                    if (!usesExtendedHitboxes)
+                    {
+                        throw new InvalidDataException(
+                            "Draygon requires his authored extended shot hitboxes.");
+                    }
+                    if (hitboxShotAi == DraygonDudHitboxShotAi)
+                    {
+                        // Body, claws, and shell use shared `$A0:8046`; only the first
+                        // eye rectangle in maps $1A/$2D reaches Draygon's damage callback.
+                        projectiles.ApplyExtendedEnemyCollisionPrelude(
+                            projectile.SlotIndex,
+                            (enemy.Properties & 0x1000) != 0 ||
+                                (projectile.Type & 0x0008) == 0);
+                        CreateSporeSpawnDudShot(projectile);
+                        hitCount++;
+                        break;
+                    }
+                    if (hitboxShotAi != DraygonShotAi)
+                    {
+                        throw new NotSupportedException(
+                            $"Draygon hitbox shot AI $A5:{hitboxShotAi:X4} is not translated.");
+                    }
                 }
 
                 if (usesExtendedHitboxes && family == 0x0200)
@@ -1123,6 +1179,9 @@ public sealed partial class RoomEnemySystem
                 if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
                     continue;
 
+                if (isDraygonBody)
+                    AdvanceDraygonShotAcceleration(RequireCompleteDraygonState(enemy));
+
                 ushort enemyHealthBefore = enemy.Health;
 
                 // Yard's custom shot AI sends super-missile/power-bomb families through
@@ -1210,6 +1269,8 @@ public sealed partial class RoomEnemySystem
                         ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                     if (isHorizontalShutter)
                         ReactHorizontalShutter(enemy);
+                    if (isDraygonBody)
+                        ResolveDraygonReaction(enemy, samus);
                     hitCount++;
                     break;
                 }
@@ -1225,7 +1286,7 @@ public sealed partial class RoomEnemySystem
                         : unchecked((ushort)(enemy.Health - damage));
                     if (enemy.Health == 0 && !isPowamp && !isRinka && !isHorizontalShutter &&
                         !isZebetite && !isBotwoon && !isSporeSpawn && !isTorizo &&
-                        !isNorfairRidley)
+                        !isNorfairRidley && !isDraygonBody)
                     {
                         // $A3:C7F5 adds Skree's four debris actors after the shared normal
                         // shot handler reports death, before the common death animation
@@ -1315,6 +1376,8 @@ public sealed partial class RoomEnemySystem
                     ReactHorizontalShutter(enemy);
                 if (isNorfairRidley)
                     ResolveNorfairRidleyShotAfterCommon(enemy);
+                if (isDraygonBody)
+                    ResolveDraygonReaction(enemy, samus);
 
                 hitCount++;
                 break;
@@ -1443,7 +1506,13 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            byte vulnerability = ReadProjectileVulnerability(bus, enemy, 0x0500);
+            // The radius actor is family `$0300` (power bomb), not the ordinary bomb
+            // family `$0500`. Using `$0500` silently indexed byte 14 and made every enemy
+            // whose bomb and power-bomb vulnerabilities differ behave incorrectly.
+            byte vulnerability = ReadProjectileVulnerability(
+                bus,
+                enemy,
+                (ushort)SamusProjectileFamily.PowerBomb);
             if ((vulnerability & 0x7f) == 0)
                 continue;
 
@@ -1494,6 +1563,8 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == MetroidPowerBombAi;
             bool isNorfairRidley = enemy.EnemyDefinitionPointer == NorfairRidleyDefinition &&
                 reactionPointer == RidleyPowerBombAi;
+            bool isDraygonBody = enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
+                reactionPointer == DraygonPowerBombAi;
             if (isRinka && enemy.Properties.HasAny(EnemyProperties.Invisible))
                 continue;
             if (reactionPointer != 0 && !isFireflea && !isPowamp && !isFakeKraid &&
@@ -1508,7 +1579,8 @@ public sealed partial class RoomEnemySystem
                 !isHorizontalShutterReaction &&
                 !isSpacePiratePowerBombReaction &&
                 !isMetroid &&
-                !isNorfairRidley)
+                !isNorfairRidley &&
+                !isDraygonBody)
             {
                 throw new NotSupportedException(
                     $"Enemy ${enemy.EnemyDefinitionPointer:X4} power-bomb reaction " +
@@ -1554,7 +1626,8 @@ public sealed partial class RoomEnemySystem
                     enemy.Health = damage >= enemy.Health
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
-                    if (enemy.Health == 0 && !isRinka && !isBotwoon && !isNorfairRidley)
+                    if (enemy.Health == 0 && !isRinka && !isBotwoon && !isNorfairRidley &&
+                        !isDraygonBody)
                     {
                         enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
                         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
@@ -1584,6 +1657,8 @@ public sealed partial class RoomEnemySystem
                 ResolveBotwoonCombatAfterCommon(enemy);
             if (isNorfairRidley)
                 ResolveNorfairRidleyPowerBombAfterCommon(enemy);
+            if (isDraygonBody)
+                ResolveDraygonReaction(enemy, samus);
 
             enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
             reactionCount++;

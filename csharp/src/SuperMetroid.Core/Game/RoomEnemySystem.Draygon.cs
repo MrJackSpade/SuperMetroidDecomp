@@ -194,6 +194,15 @@ public sealed partial class RoomEnemySystem
             case DraygonAiFunction.FlyStraightUp:
                 FlyDraygonStraightUp(state, samus, nmiFrameCounter8);
                 break;
+            case DraygonAiFunction.Dying:
+                DriftDyingDraygonToBurialPoint(state);
+                break;
+            case DraygonAiFunction.DyingSink:
+                WaitForDraygonBurialEvirs(state, nmiFrameCounter8);
+                break;
+            case DraygonAiFunction.DyingFinish:
+                SinkDraygonBelowTheRoom(state, nmiFrameCounter8);
+                break;
             default:
                 throw new NotSupportedException(
                     $"Draygon body function $A5:{(ushort)state.Function:X4} is not translated.");
@@ -852,6 +861,44 @@ public sealed partial class RoomEnemySystem
                 state.LastSoundLibrary2 =
                     ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
+                return true;
+
+            case 0x9f6e: // Queue next-word SFX in library three, maximum six.
+                state.LastSoundLibrary3 =
+                    ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+
+            case 0x973f: // Random dying-body big dust cloud (sprite object $15).
+                SpawnRandomDyingDraygonObject(state, RoomSpriteObjectKind.DustCloud);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0x9752: // Random dying-body small explosion (sprite object $03).
+                SpawnRandomDyingDraygonObject(state, RoomSpriteObjectKind.SporeSpawnDyingExplosion);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0x9765: // Random dying-body large explosion (sprite object $1D).
+                SpawnRandomDyingDraygonObject(state, RoomSpriteObjectKind.BotwoonLargeExplosion);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0x9778: // Random dying-body breath bubbles (sprite object $18).
+                SpawnRandomDyingDraygonObject(state, RoomSpriteObjectKind.DraygonBreathBubble);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0x98d3: // Replace the tail and arms lists with the shared sleep list.
+                InstallDraygonInstruction(state.Tail!, 0x97b9);
+                InstallDraygonInstruction(state.Arms!, 0x97b9);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0x98ef: // Body ignores ordinary Samus collision for the remainder of death.
+                state.Body.Properties =
+                    state.Body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             case 0x9f57: // Body function = next word, even when the tail owns this list.

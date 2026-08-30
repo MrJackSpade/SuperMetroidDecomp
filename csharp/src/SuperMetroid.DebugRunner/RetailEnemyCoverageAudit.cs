@@ -40,6 +40,9 @@ internal static class RetailEnemyCoverageAudit
         // being translated makes the audit double as a reproducible room-discovery tool.
         var focusedDefinitions = new Dictionary<ushort, string>
         {
+            [0xd0ff] = "Mellow",
+            [0xd13f] = "Mella",
+            [0xd17f] = "Memu",
             [0xd23f] = "Rinka",
             [0xd27f] = "Rio",
             [0xd2bf] = "Norfair lava-jumping enemy",

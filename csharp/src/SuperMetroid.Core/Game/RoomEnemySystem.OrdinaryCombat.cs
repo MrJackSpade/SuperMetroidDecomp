@@ -1420,13 +1420,12 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
 
-                byte vulnerability = ReadProjectileVulnerability(bus, enemy, projectileType);
+                NormalShotVulnerability shotVulnerability =
+                    ReadNormalShotVulnerability(bus, enemy, projectileType);
 
-                if (vulnerability == 0xff)
+                if (shotVulnerability.FreezeImmediately)
                 {
-                    enemy.FrozenTimer = 400;
-                    enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | 0x0004));
-                    enemy.InvincibilityTimer = 10;
+                    FreezeEnemyFromNormalShot(enemy, samus);
                     if (isTripper)
                     {
                         // Tripper's private tail runs after common shot AI and replaces the
@@ -1495,15 +1494,36 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
 
-                int damage = (projectileDamage >> 1) * (vulnerability & 0x7f);
+                int damage = (projectileDamage >> 1) * shotVulnerability.Multiplier;
                 if (damage != 0)
                 {
                     ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
                     enemy.FlashTimer = unchecked((ushort)(hurtTime + 8));
                     enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | 0x0002));
-                    enemy.Health = damage >= enemy.Health
-                        ? (ushort)0
-                        : unchecked((ushort)(enemy.Health - damage));
+                    // `$A0:A79E` gives every plasma-family hit sixteen invincibility frames.
+                    // The packed beam type uses bit three for Plasma; other families do not
+                    // set that low bit in their ordinary projectile words.
+                    if ((projectileType & 0x0008) != 0)
+                        enemy.InvincibilityTimer = 16;
+
+                    bool lethal = damage >= enemy.Health;
+                    bool freezeInsteadOfKilling = lethal &&
+                        (projectileType & 0x0002) != 0 &&
+                        (shotVulnerability.RawBeamEntry & 0xf0) != 0x80 &&
+                        enemy.FrozenTimer == 0;
+                    if (freezeInsteadOfKilling)
+                    {
+                        // A lethal Ice-bearing beam leaves health unchanged and freezes the
+                        // actor. This is not the same path as an authored `$FF` entry above:
+                        // hurt flash/bit two were already installed before the lethal test.
+                        FreezeEnemyFromNormalShot(enemy, samus);
+                    }
+                    else
+                    {
+                        enemy.Health = lethal
+                            ? (ushort)0
+                            : unchecked((ushort)(enemy.Health - damage));
+                    }
                     if (enemy.Health == 0 && !isPowamp && !isRinka && !isHorizontalShutter &&
                         !isZebetite && !isBotwoon && !isSporeSpawn && !isTorizo &&
                         !isNorfairRidley && !isDraygonBody)
@@ -1607,13 +1627,22 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// Ports the Metroid branch reached through <c>EnemyBombCollHandler</c> at $A0:A236.
-    /// This is deliberately a bomb-slot pass rather than an extension of the ordinary
-    /// projectile loop: the cartridge stores bombs in physical projectile slots five
-    /// through nine, admits them only after their shared variable/fuse word reaches zero,
-    /// and then dispatches the enemy's normal shot callback with that bomb collision index.
+    /// Ports the ordinary-radius half of <c>EnemyBombCollHandler</c> at $A0:A236.
     /// </summary>
-    public int ResolveMetroidBombHits(
+    /// <remarks>
+    /// Normal bombs occupy physical projectile slots five through nine. They are not part
+    /// of the five-slot beam/missile walk above: bank $A0 waits for the shared bomb-variable
+    /// word to reach zero, marks the overlapping bomb with direction bit $10, and dispatches
+    /// the enemy's shot callback with that physical slot selected. The original translation
+    /// implemented only Metroid's private detach/recoil callback, which meant ordinary bombs
+    /// could never damage the many enemies that install common shot AI.
+    ///
+    /// This pass now owns both the common callback and the already-translated Metroid tail.
+    /// Private per-species callbacks remain deliberately outside the common branch; they can
+    /// be added here as their exact bomb-specific post-processing is translated rather than
+    /// silently treating every callback as <c>$A0:802D</c>.
+    /// </remarks>
+    public int ResolveOrdinaryBombHits(
         SamusBombProjectileSystem bombs,
         SamusProjectileSystem ordinaryProjectiles,
         SamusState? samus = null)
@@ -1626,8 +1655,15 @@ public sealed partial class RoomEnemySystem
         foreach (ushort nativeIndex in _interactiveEnemyIndexes)
         {
             RoomEnemySlot enemy = SlotFromNativeIndex(nativeIndex);
-            if (enemy.EnemyDefinitionPointer != MetroidDefinition ||
-                enemy.Definition.ShotAiPointer != MetroidShotAi ||
+            bool isMetroid = enemy.EnemyDefinitionPointer == MetroidDefinition &&
+                enemy.Definition.ShotAiPointer == MetroidShotAi;
+            bool usesCommonShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi;
+            bool usesLiteralNoOpShotAi = IsLiteralNoOpEnemyAi(
+                enemy.Definition.Bank,
+                enemy.Definition.ShotAiPointer);
+            bool usesExtendedHitboxes =
+                enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
+            if ((!isMetroid && !usesCommonShotAi && !usesLiteralNoOpShotAi) ||
                 enemy.SpritemapPointer == 0 ||
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Properties.HasAny(EnemyProperties.Deleted))
@@ -1640,19 +1676,31 @@ public sealed partial class RoomEnemySystem
                 ushort family = unchecked((ushort)(bomb.Type & 0x0f00));
 
                 // `$A0:A24E-$A265` admits an exploding family-$0500 normal bomb. The
-                // high-bit alternative is retained because reflected bomb-like actors use
-                // the same native collision gate, even though retail Metroids normally see
-                // the ordinary family branch. A nonzero BombTimer is still fuse time and
-                // cannot touch an enemy yet.
+                // ordinary-radius handler also retains the high-bit alternative used by
+                // reflected bomb-like actors. `$A0:9D23`'s extended-spritemap handler is
+                // narrower: it requires exactly family $0500 and a nonzero X word.
                 if (bomb.Type == 0 ||
                     bomb.BombTimer != 0 ||
-                    (family != SamusBombProjectileSystem.NormalBombType &&
-                     (bomb.Type & 0x8000) == 0))
+                    (usesExtendedHitboxes
+                        ? family != SamusBombProjectileSystem.NormalBombType ||
+                          bomb.XPosition == 0
+                        : family != SamusBombProjectileSystem.NormalBombType &&
+                          (bomb.Type & 0x8000) == 0))
                 {
                     continue;
                 }
 
-                if (!RadiusBoxesOverlap(
+                ushort selectedShotAi = enemy.Definition.ShotAiPointer;
+                bool overlaps = usesExtendedHitboxes
+                    ? TryFindExtendedHitboxCallback(
+                        enemy,
+                        bomb.XPosition,
+                        bomb.YPosition,
+                        bomb.XRadius,
+                        bomb.YRadius,
+                        selectShotCallback: true,
+                        out selectedShotAi)
+                    : RadiusBoxesOverlap(
                         enemy.XPosition,
                         enemy.YPosition,
                         enemy.XRadius,
@@ -1660,25 +1708,46 @@ public sealed partial class RoomEnemySystem
                         bomb.XPosition,
                         bomb.YPosition,
                         bomb.XRadius,
-                        bomb.YRadius))
+                        bomb.YRadius);
+                if (!overlaps)
                 {
                     continue;
                 }
 
-                // EnemyBombCollHandler marks the colliding bomb before dispatch. Metroid
-                // shot AI then ignores all bombs while frozen, detaches an attached body
-                // for family $0500, or applies its peculiar slot-zero recoil otherwise.
+                // Multibox actors dispatch the callback stored in the selected hitbox,
+                // not necessarily the definition header. Do not turn a protected/private
+                // component into common damage merely because the header uses `$802D`.
+                bool selectedLiteralNoOp = IsLiteralNoOpEnemyAi(
+                    enemy.Definition.Bank,
+                    selectedShotAi);
+                if (!isMetroid &&
+                    selectedShotAi != CommonNormalEnemyShotAi &&
+                    !selectedLiteralNoOp)
+                    continue;
+
+                // EnemyBombCollHandler marks the physical bomb before dispatch. Unlike an
+                // ordinary beam impact, the bomb is already running its explosion program;
+                // common shot AI must not replace it with a bank-$93 impact animation.
                 bomb.Direction = unchecked((ushort)(bomb.Direction | 0x0010));
-                if (enemy.FrozenTimer == 0)
+                if (isMetroid)
                 {
-                    SamusProjectileSlot recoilOrigin = ordinaryProjectiles.Slots[0];
-                    ResolveMetroidNonFrozenShot(
-                        enemy,
-                        bomb.Type,
-                        bomb.Damage,
-                        recoilOrigin.XPosition,
-                        recoilOrigin.YPosition,
-                        samus);
+                    // Metroid shot AI ignores bombs while frozen, detaches an attached body
+                    // for family $0500, or applies its peculiar slot-zero recoil otherwise.
+                    if (enemy.FrozenTimer == 0)
+                    {
+                        SamusProjectileSlot recoilOrigin = ordinaryProjectiles.Slots[0];
+                        ResolveMetroidNonFrozenShot(
+                            enemy,
+                            bomb.Type,
+                            bomb.Damage,
+                            recoilOrigin.XPosition,
+                            recoilOrigin.YPosition,
+                            samus);
+                    }
+                }
+                else if (!selectedLiteralNoOp)
+                {
+                    ApplyCommonNormalBombDamage(enemy, bomb);
                 }
 
                 hitCount++;
@@ -1687,6 +1756,54 @@ public sealed partial class RoomEnemySystem
         }
 
         return hitCount;
+    }
+
+    private bool IsLiteralNoOpEnemyAi(byte bank, ushort pointer) =>
+        pointer != 0 && _bus!.ReadByte((bank << 16) | pointer) == 0x6b;
+
+    /// <summary>
+    /// Compatibility entry point retained for focused Metroid tooling. Gameplay uses the
+    /// complete ordinary-bomb pass above; this wrapper no longer implies that bomb/enemy
+    /// collision belongs exclusively to Metroids.
+    /// </summary>
+    public int ResolveMetroidBombHits(
+        SamusBombProjectileSystem bombs,
+        SamusProjectileSystem ordinaryProjectiles,
+        SamusState? samus = null) =>
+        ResolveOrdinaryBombHits(bombs, ordinaryProjectiles, samus);
+
+    /// <summary>
+    /// Executes the family-$0500 branch of <c>NormalEnemyShotAiSkipDeathAnim</c> at
+    /// $A0:A6DE, followed by <c>NormalEnemyShotAi</c>'s ordinary death tail.
+    /// </summary>
+    private void ApplyCommonNormalBombDamage(
+        RoomEnemySlot enemy,
+        SamusBombProjectileSlot bomb)
+    {
+        ushort vulnerabilityPointer = enemy.Definition.VulnerabilityPointer != 0
+            ? enemy.Definition.VulnerabilityPointer
+            : DefaultEnemyVulnerability;
+        byte vulnerability = _bus!.ReadByte(
+            0xb40000 | unchecked((ushort)(vulnerabilityPointer + 14)));
+        int damage = (bomb.Damage >> 1) * (vulnerability & 0x7f);
+
+        // A zero multiplier still consumes the collision and leaves direction bit $10 on
+        // the bomb. Native emits a dud sprite/sound here; those presentation queues are not
+        // yet shared by the host bomb system, so enemy state correctly remains untouched.
+        if (damage == 0)
+            return;
+
+        ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
+        enemy.FlashTimer = unchecked((ushort)(hurtTime + 8));
+        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | 0x0002));
+        enemy.Health = damage >= enemy.Health
+            ? (ushort)0
+            : unchecked((ushort)(enemy.Health - damage));
+        if (enemy.Health != 0)
+            return;
+
+        enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
+        EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
     }
 
     /// <summary>
@@ -1937,6 +2054,80 @@ public sealed partial class RoomEnemySystem
         return reactionCount;
     }
 
+    /// <summary>
+    /// Selects the exact multiplier used by `$A0:A6DE` for an ordinary shot. Beam entries
+    /// occupy bytes 0..15; charged shots replace their multiplier with byte 19's low nibble.
+    /// Missile, Super Missile, bomb, and Power Bomb families use bytes 12..15 directly.
+    /// </summary>
+    private static NormalShotVulnerability ReadNormalShotVulnerability(
+        ISnesAddressSpace bus,
+        RoomEnemySlot enemy,
+        ushort projectileType)
+    {
+        ushort pointer = enemy.Definition.VulnerabilityPointer != 0
+            ? enemy.Definition.VulnerabilityPointer
+            : DefaultEnemyVulnerability;
+        int family = projectileType & 0x0f00;
+        if (family != 0)
+        {
+            int byteOffset = family switch
+            {
+                0x0100 => 12,
+                0x0200 => 13,
+                0x0500 => 14,
+                0x0300 => 15,
+                _ => throw new NotSupportedException(
+                    $"Projectile family ${family:X3} has no translated vulnerability field."),
+            };
+            byte familyEntry = bus.ReadByte(
+                0xb40000 | unchecked((ushort)(pointer + byteOffset)));
+            return new NormalShotVulnerability(
+                Multiplier: familyEntry & 0x7f,
+                FreezeImmediately: false,
+                RawBeamEntry: 0);
+        }
+
+        byte beamEntry = bus.ReadByte(
+            0xb40000 | unchecked((ushort)(pointer + (projectileType & 0x000f))));
+        if (beamEntry == 0xff)
+        {
+            return new NormalShotVulnerability(
+                Multiplier: 0,
+                FreezeImmediately: true,
+                RawBeamEntry: beamEntry);
+        }
+
+        int multiplier = beamEntry & 0x7f;
+        if ((projectileType & 0x0010) != 0)
+        {
+            // Charged-beam vulnerability is a dedicated byte, not another beam-combination
+            // row. `$FF` and low-nibble zero both take the dud-shot branch; high bits other
+            // than that sentinel do not contribute to the damage multiplier.
+            byte chargedEntry = bus.ReadByte(
+                0xb40000 | unchecked((ushort)(pointer + 19)));
+            multiplier = chargedEntry == 0xff ? 0 : chargedEntry & 0x0f;
+        }
+
+        return new NormalShotVulnerability(
+            multiplier,
+            FreezeImmediately: false,
+            RawBeamEntry: beamEntry);
+    }
+
+    /// <summary>
+    /// Installs the common frozen handler. Maridia (area two) uses 300 frames; every other
+    /// retail area uses 400. The ten-frame invincibility word is shared by direct `$FF`
+    /// freezing and the lethal-Ice substitution path.
+    /// </summary>
+    private static void FreezeEnemyFromNormalShot(RoomEnemySlot enemy, SamusState? samus)
+    {
+        enemy.FrozenTimer = samus?.LiquidPhysics.AreaIndex == 2
+            ? (ushort)300
+            : (ushort)400;
+        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | 0x0004));
+        enemy.InvincibilityTimer = 10;
+    }
+
     private static byte ReadProjectileVulnerability(
         ISnesAddressSpace bus,
         RoomEnemySlot enemy,
@@ -1958,6 +2149,11 @@ public sealed partial class RoomEnemySystem
         };
         return bus.ReadByte(0xb40000 | unchecked((ushort)(pointer + byteOffset)));
     }
+
+    private readonly record struct NormalShotVulnerability(
+        int Multiplier,
+        bool FreezeImmediately,
+        byte RawBeamEntry);
 
     /// <summary>
     /// Walks `$A0:9A5A/$A0:9B7F`'s bank-local extended-spritemap structure and returns the

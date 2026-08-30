@@ -270,6 +270,9 @@ internal static partial class RetailEnemyExecutionAudit
             XPosition = 128,
             YPosition = 112,
         };
+        // Enemy freeze duration reads the same live area word populated by the runtime
+        // room loader. Exhaustive fresh-state probes must not silently behave as Crateria.
+        samus.LiquidPhysics.AreaIndex = room.AreaIndex;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 

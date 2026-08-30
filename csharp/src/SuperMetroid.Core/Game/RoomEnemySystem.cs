@@ -607,11 +607,19 @@ public sealed partial class RoomEnemySystem
                     }
 
                     // Common_NormalEnemyFrozenAI owns the actor while its freeze clock is
-                    // nonzero. Grapple-cancel reactions also select this handler with a
-                    // zero clock; that call clears bit four without running main AI.
+                    // nonzero. After its decrement, native also thaws immediately when Ice
+                    // is no longer equipped; the old host path incorrectly let a synthetic
+                    // freeze survive for its full timer after the equipment-menu bit cleared.
+                    // Grapple-cancel reactions select this handler with a zero clock; that
+                    // call clears bit four without running main AI.
                     slot.FlashTimer = 0;
                     if (slot.FrozenTimer != 0)
                         slot.FrozenTimer = unchecked((ushort)(slot.FrozenTimer - 1));
+                    if (samus is not null &&
+                        (samus.EquippedBeams & (ushort)SamusBeamFlags.Ice) == 0)
+                    {
+                        slot.FrozenTimer = 0;
+                    }
                     if (slot.FrozenTimer == 0)
                         slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~0x0004));
                     if (slot.EnemyDefinitionPointer == MetroidDefinition)

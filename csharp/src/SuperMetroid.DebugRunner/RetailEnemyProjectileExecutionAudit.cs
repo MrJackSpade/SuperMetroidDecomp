@@ -3,7 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Executes beam, ice, missile, and super-missile dispatch against every naturally
+/// Executes uncharged/charged beam, ice, missile, and super-missile dispatch against every naturally
 /// interactable authored enemy variant. This complements passive AI and power-bomb audits:
 /// the five ordinary projectile slots use different admission, hitbox, vulnerability,
 /// freeze, reflection, and private boss paths.
@@ -16,6 +16,8 @@ internal static partial class RetailEnemyExecutionAudit
     [
         new("power beam", 0x8000, 20),
         new("ice beam", 0x8002, 20),
+        new("charged power beam", 0x8010, 20),
+        new("charged ice beam", 0x8012, 20),
         new("missile", 0x8100, 20),
         new("super missile", 0x8200, 300),
     ];
@@ -103,6 +105,12 @@ internal static partial class RetailEnemyExecutionAudit
                     {
                         LoadedRetailState loaded = LoadState(bus, room, assets);
                         RoomEnemySlot target = loaded.Enemies.Slots[slotIndex];
+                        // Common frozen AI consults the live equipment word every frame.
+                        // Synthetic beam types therefore carry their low-nibble loadout into
+                        // the fresh Samus state exactly as the bank-$90 producer would.
+                        loaded.Samus.EquippedBeams = (weapon.Type & 0x0f00) == 0
+                            ? unchecked((ushort)(weapon.Type & 0x000f))
+                            : (ushort)0;
                         AdvanceToProjectileFrame(
                             bus,
                             loaded,

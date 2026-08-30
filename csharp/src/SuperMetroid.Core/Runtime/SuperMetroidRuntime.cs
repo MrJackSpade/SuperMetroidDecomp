@@ -1375,10 +1375,10 @@ public sealed partial class SuperMetroidRuntime
 
                 // `$A0:A236` is not part of the five-slot beam/missile collision walk.
                 // It scans physical bomb slots five through nine after their bank-$90
-                // update and dispatches the enemy's shot AI only once the overlapping
-                // bomb's fuse/variable word is zero. Ordinary Metroids need that exact
-                // route because family $0500 is what releases an attached Metroid.
-                Enemies.ResolveMetroidBombHits(
+                // update and dispatches each overlapping enemy's shot AI only once the
+                // bomb's fuse/variable word is zero. This is the shared normal-bomb damage
+                // route as well as the special family-$0500 Metroid detach path.
+                Enemies.ResolveOrdinaryBombHits(
                     BombProjectiles,
                     Projectiles,
                     Samus);

@@ -85,6 +85,7 @@ internal static class FlyFamilyAudit
             VerifyHeader(bus, profile);
             VerifyNaturalAnimationAndMotion(bus, profile);
             VerifyCommonCombat(bus, profile);
+            VerifyNormalBombDamage(bus, profile);
             VerifyGrappleKill(bus, profile);
         }
 
@@ -92,7 +93,8 @@ internal static class FlyFamilyAudit
             "Fly-family audit passed: retail Flyway/Maridia/pre-Spring-Ball populations " +
             "loaded 12 Mellows, 6 Mellas, and 5 Memus; exact headers, four-map ROM " +
             "animation, both circular directions, aimed attack/retreat motion, OBJ, " +
-            "definition-specific contact/beam damage, and Grapple kills matched cartridge data.");
+            "definition-specific contact/beam/bomb damage, and Grapple kills matched " +
+            "cartridge data.");
         return 0;
     }
 
@@ -442,6 +444,179 @@ internal static class FlyFamilyAudit
                 $"{loaded.Fly.Properties.HasAny(EnemyProperties.Deleted)}/" +
                 $"{expectedDeleted}, vulnerability=${powerBeamVulnerability:X2}.");
         }
+
+        VerifyChargedBeamDamage(bus, profile);
+        VerifyIceBeamFreeze(bus, profile);
+        VerifyPlasmaInvincibility(bus, profile);
+    }
+
+    /// <summary>
+    /// Charged shots use vulnerability byte 19's low nibble, not the selected beam byte.
+    /// Keeping this separate from Power Beam damage detects the historically easy mistake
+    /// of treating charge bit `$10` as merely another beam-combination table index.
+    /// </summary>
+    private static void VerifyChargedBeamDamage(
+        SuperMetroidAddressSpace bus,
+        FlyProfile profile)
+    {
+        LoadedFlyRoom loaded = PrepareIsolatedCombat(bus, profile);
+        var shots = new SamusProjectileSystem();
+        var bombs = new SamusBombProjectileSystem();
+        const ushort damage = 20;
+        ArmShot(shots.Slots[0], loaded.Fly, damage, type: 0x0010);
+
+        byte beamEntry = bus.ReadByte(0xb40000 | profile.VulnerabilityPointer);
+        byte chargedEntry = bus.ReadByte(
+            0xb40000 | unchecked((ushort)(profile.VulnerabilityPointer + 19)));
+        int multiplier = beamEntry == 0xff || chargedEntry == 0xff
+            ? 0
+            : chargedEntry & 0x0f;
+        int expectedDamage = (damage >> 1) * multiplier;
+        ushort expectedHealth = expectedDamage >= profile.Health
+            ? (ushort)0
+            : unchecked((ushort)(profile.Health - expectedDamage));
+        int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
+            bus,
+            shots,
+            bombs,
+            loaded.Samus);
+        if (hits != 1 || loaded.Fly.Health != expectedHealth ||
+            loaded.Fly.Properties.HasAny(EnemyProperties.Deleted) !=
+                (expectedHealth == 0))
+        {
+            throw new InvalidDataException(
+                $"{profile.Name} charged beam diverged: hits={hits}, health=" +
+                $"{loaded.Fly.Health}/{expectedHealth}, beam/charge=" +
+                $"${beamEntry:X2}/${chargedEntry:X2}.");
+        }
+    }
+
+    /// <summary>
+    /// Proves both cartridge freeze routes: an authored `$FF` Ice entry freezes immediately,
+    /// while a normal Ice multiplier freezes instead of killing on a lethal result. It also
+    /// verifies the area-dependent 300/400-frame clock and immediate thaw after Ice is
+    /// unequipped.
+    /// </summary>
+    private static void VerifyIceBeamFreeze(
+        SuperMetroidAddressSpace bus,
+        FlyProfile profile)
+    {
+        LoadedFlyRoom loaded = PrepareIsolatedCombat(bus, profile);
+        loaded.Samus.EquippedBeams = (ushort)SamusBeamFlags.Ice;
+        var shots = new SamusProjectileSystem();
+        var bombs = new SamusBombProjectileSystem();
+        const ushort lethalDamage = 200;
+        ArmShot(shots.Slots[0], loaded.Fly, lethalDamage, type: 0x0002);
+
+        byte iceEntry = bus.ReadByte(
+            0xb40000 | unchecked((ushort)(profile.VulnerabilityPointer + 2)));
+        int multipliedDamage = (lethalDamage >> 1) * (iceEntry & 0x7f);
+        bool immediateFreeze = iceEntry == 0xff;
+        bool lethalFreeze = !immediateFreeze &&
+            multipliedDamage >= profile.Health &&
+            (iceEntry & 0xf0) != 0x80;
+        ushort expectedHealth = immediateFreeze || lethalFreeze
+            ? profile.Health
+            : multipliedDamage >= profile.Health
+                ? (ushort)0
+                : unchecked((ushort)(profile.Health - multipliedDamage));
+        ushort expectedFrozenTimer = immediateFreeze || lethalFreeze
+            ? loaded.Room.AreaIndex == 2 ? (ushort)300 : (ushort)400
+            : (ushort)0;
+
+        int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
+            bus,
+            shots,
+            bombs,
+            loaded.Samus);
+        if (hits != 1 || loaded.Fly.Health != expectedHealth ||
+            loaded.Fly.FrozenTimer != expectedFrozenTimer ||
+            ((loaded.Fly.AiHandlerBits & 0x0004) != 0) !=
+                (expectedFrozenTimer != 0) ||
+            loaded.Fly.Properties.HasAny(EnemyProperties.Deleted) !=
+                (expectedHealth == 0))
+        {
+            throw new InvalidDataException(
+                $"{profile.Name} Ice reaction diverged: hits={hits}, health=" +
+                $"{loaded.Fly.Health}/{expectedHealth}, frozen=" +
+                $"{loaded.Fly.FrozenTimer}/{expectedFrozenTimer}, handler=" +
+                $"${loaded.Fly.AiHandlerBits:X4}, vulnerability=${iceEntry:X2}.");
+        }
+
+        if (expectedFrozenTimer == 0)
+            return;
+
+        loaded.Samus.EquippedBeams = 0;
+        (ushort cameraX, ushort cameraY) = CenterCamera(loaded.Room, loaded.Fly);
+        loaded.Enemies.StepFrame(
+            cameraX,
+            cameraY,
+            false,
+            loaded.Samus,
+            level: loaded.Assets.LevelData);
+        if (loaded.Fly.FrozenTimer != 0 ||
+            (loaded.Fly.AiHandlerBits & 0x0004) != 0)
+        {
+            throw new InvalidDataException(
+                $"{profile.Name} did not thaw after Ice was unequipped: timer=" +
+                $"{loaded.Fly.FrozenTimer}, handler=${loaded.Fly.AiHandlerBits:X4}.");
+        }
+    }
+
+    /// <summary>
+    /// Plasma's low type bit three installs sixteen enemy-invincibility frames after any
+    /// nonzero common damage. A one-point-scale probe avoids killing even Mellow so the
+    /// timer remains directly observable.
+    /// </summary>
+    private static void VerifyPlasmaInvincibility(
+        SuperMetroidAddressSpace bus,
+        FlyProfile profile)
+    {
+        LoadedFlyRoom loaded = PrepareIsolatedCombat(bus, profile);
+        var shots = new SamusProjectileSystem();
+        var bombs = new SamusBombProjectileSystem();
+        const ushort damage = 2;
+        ArmShot(shots.Slots[0], loaded.Fly, damage, type: 0x0008);
+
+        byte plasmaEntry = bus.ReadByte(
+            0xb40000 | unchecked((ushort)(profile.VulnerabilityPointer + 8)));
+        int expectedDamage = (damage >> 1) * (plasmaEntry & 0x7f);
+        ushort expectedHealth = expectedDamage >= profile.Health
+            ? (ushort)0
+            : unchecked((ushort)(profile.Health - expectedDamage));
+        int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
+            bus,
+            shots,
+            bombs,
+            loaded.Samus);
+        ushort expectedInvincibility = expectedDamage == 0 ? (ushort)0 : (ushort)16;
+        if (hits != 1 || loaded.Fly.Health != expectedHealth ||
+            loaded.Fly.InvincibilityTimer != expectedInvincibility)
+        {
+            throw new InvalidDataException(
+                $"{profile.Name} Plasma reaction diverged: hits={hits}, health=" +
+                $"{loaded.Fly.Health}/{expectedHealth}, invincibility=" +
+                $"{loaded.Fly.InvincibilityTimer}/{expectedInvincibility}, " +
+                $"vulnerability=${plasmaEntry:X2}.");
+        }
+    }
+
+    private static LoadedFlyRoom PrepareIsolatedCombat(
+        SuperMetroidAddressSpace bus,
+        FlyProfile profile)
+    {
+        LoadedFlyRoom loaded = Load(bus, profile);
+        Isolate(loaded.Enemies, loaded.Fly);
+        (ushort cameraX, ushort cameraY) = CenterCamera(loaded.Room, loaded.Fly);
+        loaded.Samus.XPosition = unchecked((ushort)(loaded.Fly.XPosition + 0x0100));
+        loaded.Samus.YPosition = loaded.Fly.YPosition;
+        loaded.Enemies.StepFrame(
+            cameraX,
+            cameraY,
+            false,
+            loaded.Samus,
+            level: loaded.Assets.LevelData);
+        return loaded;
     }
 
     private static void VerifyGrappleKill(
@@ -491,6 +666,72 @@ internal static class FlyFamilyAudit
         }
     }
 
+    /// <summary>
+    /// Proves the physical-slot-five-through-nine bomb route separately from ordinary
+    /// beams. The three fly definitions share shot AI but Mella's custom vulnerability
+    /// record gives this family its own byte, so reusing the Power Beam expectation would
+    /// conceal exactly the table-index bug this audit is intended to catch.
+    /// </summary>
+    private static void VerifyNormalBombDamage(
+        SuperMetroidAddressSpace bus,
+        FlyProfile profile)
+    {
+        LoadedFlyRoom loaded = Load(bus, profile);
+        Isolate(loaded.Enemies, loaded.Fly);
+        (ushort cameraX, ushort cameraY) = CenterCamera(loaded.Room, loaded.Fly);
+
+        // Enemy collision consumes the activity scan built by EnemyMain. Run one ordinary
+        // actor frame with Samus outside attack range before introducing the bomb actor.
+        loaded.Samus.XPosition = unchecked((ushort)(loaded.Fly.XPosition + 0x0100));
+        loaded.Samus.YPosition = loaded.Fly.YPosition;
+        loaded.Enemies.StepFrame(
+            cameraX,
+            cameraY,
+            false,
+            loaded.Samus,
+            level: loaded.Assets.LevelData);
+
+        var bombs = new SamusBombProjectileSystem();
+        var ordinaryProjectiles = new SamusProjectileSystem();
+        SamusBombProjectileSlot bomb = bombs.Slots[0];
+        const ushort bombDamage = 20;
+        bomb.Type = SamusBombProjectileSystem.NormalBombType;
+        bomb.Damage = bombDamage;
+        bomb.Direction = (ushort)SamusProjectileDirection.Right;
+        bomb.XPosition = loaded.Fly.XPosition;
+        bomb.YPosition = loaded.Fly.YPosition;
+        bomb.XRadius = 16;
+        bomb.YRadius = 16;
+        bomb.BombTimer = 0;
+        bomb.InstructionPointer = 0xa06b;
+        bomb.InstructionTimer = 1;
+
+        byte vulnerability = bus.ReadByte(
+            0xb40000 | unchecked((ushort)(profile.VulnerabilityPointer + 14)));
+        int expectedDamage = (bombDamage >> 1) * (vulnerability & 0x7f);
+        ushort expectedHealth = expectedDamage >= profile.Health
+            ? (ushort)0
+            : unchecked((ushort)(profile.Health - expectedDamage));
+        int hits = loaded.Enemies.ResolveOrdinaryBombHits(
+            bombs,
+            ordinaryProjectiles,
+            loaded.Samus);
+        bool expectedDeleted = expectedHealth == 0;
+        if (hits != 1 ||
+            (bomb.Direction & 0x0010) == 0 ||
+            loaded.Fly.Health != expectedHealth ||
+            loaded.Fly.Properties.HasAny(EnemyProperties.Deleted) != expectedDeleted ||
+            loaded.Enemies.EnemiesKilled != (expectedDeleted ? 1 : 0))
+        {
+            throw new InvalidDataException(
+                $"{profile.Name} normal-bomb reaction diverged: hits={hits}, direction=" +
+                $"${bomb.Direction:X4}, health={loaded.Fly.Health}/{expectedHealth}, " +
+                $"deleted={loaded.Fly.Properties.HasAny(EnemyProperties.Deleted)}/" +
+                $"{expectedDeleted}, kills={loaded.Enemies.EnemiesKilled}/" +
+                $"{(expectedDeleted ? 1 : 0)}, vulnerability=${vulnerability:X2}.");
+        }
+    }
+
     private static LoadedFlyRoom Load(
         SuperMetroidAddressSpace bus,
         FlyProfile profile)
@@ -506,6 +747,7 @@ internal static class FlyFamilyAudit
             MaxHealth = 999,
             Pose = SamusState.FacingRightNormalPose,
         };
+        samus.LiquidPhysics.AreaIndex = room.AreaIndex;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var random = new Bank80SystemState();
@@ -554,10 +796,11 @@ internal static class FlyFamilyAudit
     private static void ArmShot(
         SamusProjectileSlot shot,
         RoomEnemySlot target,
-        ushort damage)
+        ushort damage,
+        ushort type = 0)
     {
         shot.ClearFields();
-        shot.Type = 0;
+        shot.Type = type;
         shot.Damage = damage;
         shot.Direction = (ushort)SamusProjectileDirection.Right;
         shot.XPosition = target.XPosition;

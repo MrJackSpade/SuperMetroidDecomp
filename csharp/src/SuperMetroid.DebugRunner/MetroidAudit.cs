@@ -271,6 +271,10 @@ internal static class MetroidAudit
         LoadedMetroids loaded = Load(bus, room, assets);
         RoomEnemySlot actor = loaded.Enemies.Slots[0];
         MetroidEnemyState state = RequireState(loaded.Enemies, actor);
+        // Common frozen AI checks the live equipment word after every timer decrement.
+        // This synthetic projectile sequence must retain the Ice bit just as the real
+        // bank-$90 producer does after firing an Ice beam.
+        loaded.Samus.EquippedBeams = (ushort)SamusBeamFlags.Ice;
         StepCentered(loaded.Enemies, assets, room, loaded.Samus, actor);
         var projectiles = new SamusProjectileSystem();
         var shared = new SamusBombProjectileSystem();
@@ -369,7 +373,7 @@ internal static class MetroidAudit
         actor.Health = 1;
         loaded.Samus.SpecialSuperPaletteFlags = 1;
         byte powerBombVulnerability = bus.ReadByte(
-            0xb40000 | unchecked((ushort)(actor.Definition.VulnerabilityPointer + 14)));
+            0xb40000 | unchecked((ushort)(actor.Definition.VulnerabilityPointer + 15)));
         int reactions = loaded.Enemies.ResolveOrdinaryPowerBombHits(
             bus,
             actor.XPosition,

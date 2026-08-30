@@ -68,6 +68,8 @@ public sealed partial class RoomEnemySystem
     private const ushort MotherBrainHeadShotAi = 0xb507;
     private const ushort MotherBrainHeadTouchAi = 0xb5c6;
     private const ushort KraidArmTouchAi = 0x9490;
+    private const ushort KraidNoOpShotAi = 0x94b5;
+    private const ushort KraidArmShotAi = 0x94b6;
     private const ushort DeadTorizoTouchAndShotAi = 0xd433;
     private const ushort DeadTorizoPowerBombAi = 0xd42a;
     private const ushort DeadSidehopperTouchAi = 0xdd44;
@@ -743,11 +745,12 @@ public sealed partial class RoomEnemySystem
             bool isShitroid = enemy.EnemyDefinitionPointer == ShitroidDefinition &&
                 enemy.Definition.ShotAiPointer == ShitroidShotAi;
             // Several retail helper/projectile definitions point their shot callback at a
-            // literal RTL in their own enemy bank. The bank-$A0 collision walker still runs
-            // its projectile prelude before dispatching that no-op callback: supers request
-            // quake and ordinary non-plasma shots receive direction bit $10, but no impact,
-            // vulnerability lookup, damage, freeze, or death follows. Recognize the opcode
-            // from ROM instead of maintaining another speculative list of enemy names.
+            // literal RTL in their own enemy bank. Radius collision still dispatches those
+            // callbacks after its projectile prelude. Multibox collision is subtler: only
+            // the engine's canonical `$804B/$804C` header pointers suppress the rectangle
+            // walk, while a species-local RTL such as Kraid's `$94B5` remains a valid header
+            // whose individual hitboxes may select a different callback. Recognize the
+            // executable opcode for admission, then apply that exact pointer gate below.
             bool isLiteralNoOpShotAi = enemy.Definition.ShotAiPointer != 0 &&
                 bus.ReadByte(
                     (enemy.Definition.Bank << 16) |
@@ -858,6 +861,16 @@ public sealed partial class RoomEnemySystem
                 }
 
                 bool usesExtendedHitboxes = UsesExtendedProjectileHitboxes(enemy);
+                if (usesExtendedHitboxes &&
+                    IsCanonicalMultiboxNoOpAi(enemy.Definition.ShotAiPointer))
+                {
+                    // `EprojCollHandler_Multibox` compares the header callback before
+                    // reading the extended map. Canonical RTS/RTL means no overlap, no
+                    // Super-Missile quake, and no direction mark even when a visible
+                    // authored rectangle would otherwise contain this projectile.
+                    continue;
+                }
+
                 bool overlapsProjectile;
                 ushort hitboxShotAi = enemy.Definition.ShotAiPointer;
                 if (usesExtendedHitboxes)
@@ -888,6 +901,10 @@ public sealed partial class RoomEnemySystem
                 {
                     continue;
                 }
+
+                bool selectedLiteralNoOpShotAi = IsLiteralNoOpEnemyAi(
+                    enemy.Definition.Bank,
+                    hitboxShotAi);
 
                 if (isDeadTorizo)
                 {
@@ -1093,23 +1110,29 @@ public sealed partial class RoomEnemySystem
                     }
                 }
 
-                if (isCeresSteam)
+                if (enemy.EnemyDefinitionPointer is KraidArmDefinition or KraidFootDefinition)
                 {
-                    // All active plume hitboxes use the definition's literal `$804C` RTL.
-                    // The shared extended collision walker still marks the projectile (and
-                    // requests Super-Missile quake) before that callback returns; it does
-                    // not create an impact, consult vulnerability, or damage the steam.
-                    if (!usesExtendedHitboxes || hitboxShotAi != CeresSteamNoOpShotAi)
+                    if (!usesExtendedHitboxes ||
+                        hitboxShotAi is not (KraidNoOpShotAi or KraidArmShotAi) ||
+                        enemy.EnemyDefinitionPointer == KraidFootDefinition &&
+                            hitboxShotAi != KraidNoOpShotAi)
                     {
-                        throw new InvalidDataException(
-                            $"Ceres steam requires extended shot AI " +
-                            $"$A6:{CeresSteamNoOpShotAi:X4}.");
+                        throw new NotSupportedException(
+                            $"Kraid part ${enemy.EnemyDefinitionPointer:X4} selected " +
+                            $"shot AI $A7:{hitboxShotAi:X4}.");
                     }
 
                     projectiles.ApplyExtendedEnemyCollisionPrelude(
                         projectile.SlotIndex,
                         (enemy.Properties & 0x1000) != 0 ||
                             (projectile.Type & 0x0008) == 0);
+                    if (hitboxShotAi == KraidArmShotAi)
+                    {
+                        SpawnKraidArmShotExplosion(
+                            projectileType,
+                            projectile.XPosition,
+                            projectile.YPosition);
+                    }
                     hitCount++;
                     break;
                 }
@@ -1299,7 +1322,7 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
 
-                if (isLiteralNoOpShotAi)
+                if (selectedLiteralNoOpShotAi)
                 {
                     projectiles.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
@@ -1667,13 +1690,18 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer);
             bool usesExtendedHitboxes =
                 enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
+            bool headerSuppressesMultiboxShotCollision = usesExtendedHitboxes &&
+                IsCanonicalMultiboxNoOpAi(enemy.Definition.ShotAiPointer);
             bool isCrocomire = enemy.EnemyDefinitionPointer == CrocomireDefinition &&
                 enemy.Definition.ShotAiPointer == 0 && usesExtendedHitboxes;
             if ((!isMetroid && !usesCommonShotAi && !usesLiteralNoOpShotAi &&
                     !usesTranslatedPrivateShotAi && !isCrocomire) ||
                 enemy.SpritemapPointer == 0 ||
                 enemy.InvincibilityTimer != 0 ||
-                enemy.Properties.HasAny(EnemyProperties.Deleted))
+                enemy.Properties.HasAny(EnemyProperties.Deleted) ||
+                headerSuppressesMultiboxShotCollision ||
+                usesExtendedHitboxes &&
+                    enemy.Properties.HasAny(EnemyProperties.IgnoreSamusCollision))
             {
                 continue;
             }
@@ -1751,6 +1779,30 @@ public sealed partial class RoomEnemySystem
                         bomb.YPosition,
                         selectedShotAi);
                 }
+                else if (enemy.EnemyDefinitionPointer is
+                        KraidArmDefinition or KraidFootDefinition)
+                {
+                    if (selectedShotAi is not (KraidNoOpShotAi or KraidArmShotAi) ||
+                        enemy.EnemyDefinitionPointer == KraidFootDefinition &&
+                            selectedShotAi != KraidNoOpShotAi)
+                    {
+                        throw new NotSupportedException(
+                            $"Kraid part ${enemy.EnemyDefinitionPointer:X4} selected " +
+                            $"normal-bomb shot AI $A7:{selectedShotAi:X4}.");
+                    }
+
+                    // `$A7:94B6` creates a room-graphics dust actor at the selected physical
+                    // projectile coordinates, then returns to the multibox walker that has
+                    // already installed direction bit `$10`. `$94B5` is the adjacent literal
+                    // RTL used by protected arm frames and every foot rectangle.
+                    if (selectedShotAi == KraidArmShotAi)
+                    {
+                        SpawnKraidArmShotExplosion(
+                            bomb.Type,
+                            bomb.XPosition,
+                            bomb.YPosition);
+                    }
+                }
                 else if (enemy.EnemyDefinitionPointer == GoldNinjaSpacePirateDefinition &&
                     usesExtendedHitboxes)
                 {
@@ -1815,6 +1867,23 @@ public sealed partial class RoomEnemySystem
                     // alternates hurt timing and advances the 100-hit escape condition.
                     ResolveCeresRidleyShotAfterCollision(enemy);
                 }
+                else if (enemy.EnemyDefinitionPointer is
+                        BombTorizoDefinition or GoldenTorizoDefinition)
+                {
+                    ResolveTorizoNormalBomb(enemy, bomb, selectedShotAi);
+                }
+                else if (enemy.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
+                    selectedShotAi == MotherBrainBodyShotAi)
+                {
+                    // `$A9:B503` is `CreateDudShot`. The multibox bomb walker has already
+                    // marked the physical explosion, and the body callback performs no
+                    // health, phase, or multipart-state work of its own.
+                }
+                else if (enemy.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
+                    selectedShotAi == MotherBrainHeadShotAi)
+                {
+                    ResolveMotherBrainHeadNormalBomb(enemy, bomb);
+                }
                 else if (!selectedLiteralNoOp)
                 {
                     bool isDeadTorizo = enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
@@ -1829,6 +1898,9 @@ public sealed partial class RoomEnemySystem
                     bool isNorfairRidley =
                         enemy.EnemyDefinitionPointer == NorfairRidleyDefinition &&
                         selectedShotAi == RidleyShotAi;
+                    bool isPhantoonBody =
+                        enemy.EnemyDefinitionPointer == PhantoonBodyDefinition &&
+                        selectedShotAi == PhantoonShotHitboxCallback;
                     bool isSporeSpawn = enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
                         selectedShotAi == SporeSpawnShotAi;
                     bool isBossDudHitbox =
@@ -1882,6 +1954,8 @@ public sealed partial class RoomEnemySystem
                             selectedShotAi == ZebetiteShotAi;
                         bool isBotwoon = enemy.EnemyDefinitionPointer == BotwoonDefinition &&
                             selectedShotAi == BotwoonShotAi;
+                        bool isShaktool = enemy.EnemyDefinitionPointer == ShaktoolDefinition &&
+                            selectedShotAi == ShaktoolShotAi;
 
                         // Owtch's shell accepts common damage only during its vulnerable state
                         // zero. Powered Work Robot likewise returns until Phantoon is dead.
@@ -1911,7 +1985,30 @@ public sealed partial class RoomEnemySystem
                                 runGenericDeath:
                                     !isRinka && !isSkree && !isPowamp && !isZebetite &&
                                     !isDraygonBody && !isSporeSpawn && !isBotwoon &&
-                                    !isNorfairRidley);
+                                    !isNorfairRidley && !isPhantoonBody);
+
+                            if (isPhantoonBody)
+                            {
+                                // Phantoon's `$A7:DD9B` hitbox callback enters the same
+                                // no-death common-damage routine for bombs as it does for
+                                // beams and missiles, then consumes the exact damage delta
+                                // in its encounter reaction state machine. Keep this tail
+                                // shared with the projectile path: a lethal hit begins the
+                                // authored death sequence, while sub-threshold damage feeds
+                                // the eye-close/rage accumulator instead of deleting a slot.
+                                PhantoonEnemyState phantoon = _phantoonState ??
+                                    throw new InvalidOperationException(
+                                        "Phantoon shot callback has no encounter state.");
+                                ushort appliedDamage = unchecked((ushort)(
+                                    enemyHealthBefore - enemy.Health));
+                                phantoon.LastProjectileDamage = appliedDamage;
+                                phantoon.AcceptedProjectileHits++;
+                                ResolvePhantoonShotReaction(
+                                    enemy,
+                                    phantoon,
+                                    bomb.Type,
+                                    appliedDamage);
+                            }
 
                             if (enemy.EnemyDefinitionPointer == BabyTurtleDefinition &&
                                 selectedShotAi == BabyTurtleShotAi)
@@ -1990,6 +2087,8 @@ public sealed partial class RoomEnemySystem
                                 ResolveNorfairRidleyShotAfterCommon(enemy);
                             if (isBotwoon)
                                 ResolveBotwoonCombatAfterCommon(enemy);
+                            if (isShaktool)
+                                ResolveShaktoolShotAfterCommon(enemy);
                             if (enemy.EnemyDefinitionPointer == DestroyableVerticalShutterDefinition &&
                                 selectedShotAi == DestroyableVerticalShutterShotAi)
                             {
@@ -2054,6 +2153,16 @@ public sealed partial class RoomEnemySystem
         pointer != 0 && _bus!.ReadByte((bank << 16) | pointer) == 0x6b;
 
     /// <summary>
+    /// Tests the two engine-owned no-op callback addresses checked directly by
+    /// <c>EprojCollHandler_Multibox</c> and <c>EnemyBombCollHandler_Multibox</c> before either
+    /// routine reads an extended spritemap. A bank-local routine that merely contains the
+    /// same RTS/RTL opcode is deliberately not equivalent: Kraid's `$A7:94B5` proves that
+    /// such a header still scans components and may select `$A7:94B6` from an arm hitbox.
+    /// </summary>
+    private static bool IsCanonicalMultiboxNoOpAi(ushort pointer) =>
+        pointer is 0x804b or 0x804c;
+
+    /// <summary>
     /// Reports the bank-$A2/$A3 private shot callbacks whose family-$0500 path is translated.
     /// Definition and callback are checked together because identical 16-bit addresses in
     /// different enemy banks are unrelated native routines, while an extended hitbox may
@@ -2106,6 +2215,20 @@ public sealed partial class RoomEnemySystem
             callback is DraygonShotAi or DraygonDudHitboxShotAi ||
         enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
             callback is SporeSpawnShotAi or SporeSpawnDudHitboxShotAi ||
+        enemy.EnemyDefinitionPointer == PhantoonBodyDefinition &&
+            callback == PhantoonShotHitboxCallback ||
+        enemy.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
+            callback == MotherBrainBodyShotAi ||
+        enemy.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
+            callback == MotherBrainHeadShotAi ||
+        enemy.EnemyDefinitionPointer == BombTorizoDefinition &&
+            callback is BombTorizoShotAi or TorizoStandUpSitDownShotAi ||
+        enemy.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+            callback is GoldenTorizoShotAi or BombTorizoShotAi or
+                TorizoStandUpSitDownShotAi ||
+        enemy.EnemyDefinitionPointer == ShaktoolDefinition && callback == ShaktoolShotAi ||
+        enemy.EnemyDefinitionPointer == KraidArmDefinition &&
+            callback == KraidArmShotAi ||
         enemy.EnemyDefinitionPointer is CeresRidleyDefinition or NorfairRidleyDefinition &&
             callback == RidleyShotAi ||
         enemy.EnemyDefinitionPointer == ShitroidDefinition && callback == ShitroidShotAi ||
@@ -2638,6 +2761,9 @@ public sealed partial class RoomEnemySystem
             CrocomireTongueDefinition or
             SporeSpawnDefinition or
             CeresSteamDefinition or
+            KraidDefinition or
+            KraidArmDefinition or
+            KraidFootDefinition or
             NorfairRidleyDefinition or
             DraygonBodyDefinition);
 

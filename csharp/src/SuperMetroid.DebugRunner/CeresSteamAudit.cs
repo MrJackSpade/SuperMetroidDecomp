@@ -30,7 +30,8 @@ internal static class CeresSteamAudit
             "Ceres steam audit passed: 68 retail records across five populations cover " +
             "all six variants; ROM bytecode animated the post-Ridley elevator plumes, " +
             "Mode-7 graphical offsets matched the shared signed transform, OBJ rendered, " +
-            "and authored extended touch/shot hitboxes preserved the indestructible vent.");
+            "authored touch rectangles remained live, and canonical-header suppression " +
+            "rejected projectile/bomb multibox scans before collision side effects.");
         return 0;
     }
 
@@ -151,8 +152,8 @@ internal static class CeresSteamAudit
         var animationMaps = new HashSet<ushort>();
         bool sawVisibleFrame = false;
         bool sawContact = false;
-        bool sawShotCollision = false;
-        bool sawNormalBombCollision = false;
+        bool verifiedShotSuppression = false;
+        bool verifiedNormalBombSuppression = false;
 
         // The random activation delay is at most 32 one-frame instruction passes. The full
         // visible burst is seven maps at three frames each followed by a 64-frame hidden
@@ -193,26 +194,32 @@ internal static class CeresSteamAudit
                     sawContact = enemies.ResolveOrdinarySamusContact(samus, 0);
                 }
 
-                if (!sawShotCollision)
+                if (!verifiedShotSuppression)
                 {
                     var shots = new SamusProjectileSystem();
                     var bombs = new SamusBombProjectileSystem();
                     ArmPowerBeam(shots.Slots[0], target);
+                    ushort healthBeforeShot = target.Health;
+                    ushort instructionBeforeShot = target.CurrentInstruction;
                     int hitCount = enemies.ResolveOrdinaryProjectileHits(
                         bus,
                         shots,
                         bombs,
                         samus);
-                    sawShotCollision = hitCount == 1 &&
-                        (shots.Slots[0].Direction & 0x0010) != 0;
+                    verifiedShotSuppression = hitCount == 0 &&
+                        (shots.Slots[0].Direction & 0x0010) == 0 &&
+                        shots.Slots[0].Type == 0 &&
+                        shots.Slots[0].InstructionPointer == 0x9000 &&
+                        target.Health == healthBeforeShot &&
+                        target.CurrentInstruction == instructionBeforeShot;
                 }
 
-                if (!sawNormalBombCollision)
+                if (!verifiedNormalBombSuppression)
                 {
-                    // Steam's visible extended rectangles store the same literal `$804C`
-                    // shot callback as its header. Family $0500 must still receive bank
-                    // $A0's physical collision mark before that RTL returns, without ever
-                    // entering vulnerability damage or disturbing the vent animation.
+                    // Both native multibox handlers compare the definition-header shot AI
+                    // against canonical `$804B/$804C` before walking any components. Steam's
+                    // `$804C` header therefore suppresses the entire scan: even a physical
+                    // family-$0500 explosion centered inside the visible plume is unmarked.
                     var bombProjectiles = new SamusBombProjectileSystem();
                     var ordinaryProjectiles = new SamusProjectileSystem();
                     SamusBombProjectileSlot normalBomb =
@@ -227,8 +234,8 @@ internal static class CeresSteamAudit
                         bombProjectiles,
                         ordinaryProjectiles,
                         samus);
-                    sawNormalBombCollision = bombHits == 1 &&
-                        (normalBomb.Direction & 0x0010) != 0 &&
+                    verifiedNormalBombSuppression = bombHits == 0 &&
+                        (normalBomb.Direction & 0x0010) == 0 &&
                         target.Health == healthBeforeBomb &&
                         target.CurrentInstruction == instructionBeforeBomb &&
                         !target.Properties.HasAny(EnemyProperties.Deleted);
@@ -237,13 +244,13 @@ internal static class CeresSteamAudit
         }
 
         if (!sawVisibleFrame || animationMaps.Count != 7 || !sawContact ||
-            !sawShotCollision || !sawNormalBombCollision ||
+            !verifiedShotSuppression || !verifiedNormalBombSuppression ||
             samus.Health != 999 || target.Health != 0x7fff)
         {
             throw new InvalidDataException(
                 $"Ceres steam cycle/combat failed: visible={sawVisibleFrame}, " +
-                $"maps={animationMaps.Count}, touch/shot/bomb=" +
-                $"{sawContact}/{sawShotCollision}/{sawNormalBombCollision}, " +
+                $"maps={animationMaps.Count}, touch/shot-suppressed/bomb-suppressed=" +
+                $"{sawContact}/{verifiedShotSuppression}/{verifiedNormalBombSuppression}, " +
                 $"Samus/steam HP={samus.Health}/{target.Health}.");
         }
 

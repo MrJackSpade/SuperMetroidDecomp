@@ -286,4 +286,36 @@ public sealed partial class RoomEnemySystem
             : unchecked((ushort)(head.Health - damage));
         return true;
     }
+
+    /// <summary>
+    /// Ports family <c>$0500</c> through Mother Brain brain callback <c>$A9:B507</c>.
+    /// The first form's eight-entry projectile-family table rejects bombs outright. Later
+    /// forms always run <c>$B562</c>: family five selects reaction zero, subtracting
+    /// <c>$0100</c> from the walk/recoil accumulator with a signed-zero clamp. Fake-death
+    /// form one then creates only a dud, while forms two and later enter common no-death
+    /// damage. The bank-$A0 multibox caller already owns the bomb collision mark.
+    /// </summary>
+    private void ResolveMotherBrainHeadNormalBomb(
+        RoomEnemySlot head,
+        SamusBombProjectileSlot bomb)
+    {
+        MotherBrainEnemyState state = _motherBrain ?? throw new InvalidOperationException(
+            "Mother Brain head normal-bomb AI ran without its multipart encounter state.");
+        if (!ReferenceEquals(state.Head, head))
+        {
+            throw new InvalidOperationException(
+                "Mother Brain head normal-bomb AI ran for a slot not linked to the loaded body.");
+        }
+
+        if (state.Form == 0)
+            return;
+
+        state.WalkCounter = state.WalkCounter < 0x0100
+            ? (ushort)0
+            : unchecked((ushort)(state.WalkCounter - 0x0100));
+        if (state.Form == 1)
+            return;
+
+        ApplyCommonNormalBombDamage(head, bomb, runGenericDeath: false);
+    }
 }

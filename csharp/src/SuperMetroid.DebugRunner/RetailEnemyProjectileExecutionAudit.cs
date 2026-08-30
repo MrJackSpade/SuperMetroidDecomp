@@ -39,6 +39,7 @@ internal static partial class RetailEnemyExecutionAudit
         var testedVariants = new HashSet<ProjectileVariant>();
         var reachedDefinitions = new HashSet<ushort>();
         var unavailableDefinitions = new HashSet<ushort>();
+        var canonicalHeaderSuppressedVariants = new HashSet<ProjectileVariant>();
         var failures = new List<ProjectileFailure>();
         int weaponDispatches = 0;
         long postHitFrames = 0;
@@ -148,6 +149,18 @@ internal static partial class RetailEnemyExecutionAudit
                                 EnemyProperties.IgnoreSamusCollision);
                         }
 
+                        bool canonicalHeaderSuppressesOrdinaryMultibox =
+                            RoomEnemySystem.UsesExtendedProjectileHitboxes(target) &&
+                            target.Definition.ShotAiPointer is 0x804b or 0x804c;
+                        if (canonicalHeaderSuppressesOrdinaryMultibox)
+                        {
+                            VerifyCanonicalMultiboxHeaderSuppression(
+                                bus,
+                                loaded,
+                                target,
+                                weapon);
+                        }
+
                         bool usesWideProbe = target.ExtraProperties.HasAny(
                                 EnemyExtraProperties.UsesExtendedSpritemap) ||
                             target.EnemyDefinitionPointer is
@@ -195,6 +208,21 @@ internal static partial class RetailEnemyExecutionAudit
                     // the loader and spritemap as combat coverage.
                     if (successfulWeapons == 0)
                     {
+                        bool canonicalHeaderSuppressesOrdinaryMultibox =
+                            RoomEnemySystem.UsesExtendedProjectileHitboxes(initialTarget) &&
+                            initialTarget.Definition.ShotAiPointer is 0x804b or 0x804c;
+                        if (canonicalHeaderSuppressesOrdinaryMultibox)
+                        {
+                            // The six fresh weapon loads above directly proved that the
+                            // ordinary multibox owner rejected every family without even a
+                            // collision prelude. A separate boss-specific collision owner
+                            // may still have produced successfulWeapons; reaching zero here
+                            // is therefore valid evidence for ordinary helper actors such as
+                            // Ceres Steam, not a missing callback translation.
+                            canonicalHeaderSuppressedVariants.Add(variant);
+                            continue;
+                        }
+
                         throw new InvalidDataException(
                             $"Interactable definition ${variant.Definition:X4} parameters " +
                             $"${variant.Parameter1:X4}/${variant.Parameter2:X4} and properties " +
@@ -244,9 +272,50 @@ internal static partial class RetailEnemyExecutionAudit
             $"definition/parameter/property variants inspected, {weaponDispatches} live " +
             $"weapon callbacks and {postHitFrames} hurt/freeze/death frames executed across " +
             $"{reachedDefinitions.Count} definitions, and " +
+            $"{canonicalHeaderSuppressedVariants.Count} authored variants were rejected by " +
+            "the canonical multibox header gate; " +
             $"{unavailableDefinitions.Count} definitions remained naturally deleted, empty, " +
             $"or intangible through {ProjectileActivationFrameLimit} fresh-load frames.");
         return 0;
+    }
+
+    /// <summary>
+    /// Asserts the header-level early return in <c>EprojCollHandler_Multibox</c> independently
+    /// of encounter-specific projectile owners. Exact header pointer `$804B` or `$804C`
+    /// returns before the first component read, so even a shot centered in a real authored
+    /// rectangle must retain its type, instruction, direction, and Super-Missile quake state.
+    /// </summary>
+    private static void VerifyCanonicalMultiboxHeaderSuppression(
+        ISnesAddressSpace bus,
+        LoadedRetailState loaded,
+        RoomEnemySlot target,
+        ProjectileWeapon weapon)
+    {
+        RetailExtendedHitboxShotPoint point =
+            RetailExtendedHitboxProbe.ReadShotPoints(bus, target).First();
+        SamusProjectileSlot projectile = loaded.SamusProjectiles.Slots[0];
+        ArmAuditProjectile(projectile, weapon, point.X, point.Y);
+        ushort earthquakeTimerBefore = loaded.Enemies.EarthquakeTimer;
+        ushort earthquakeTypeBefore = loaded.Enemies.EarthquakeType;
+        int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
+            bus,
+            loaded.SamusProjectiles,
+            loaded.SharedProjectiles,
+            loaded.Samus);
+        if (hits != 0 || projectile.Type != weapon.Type ||
+            projectile.Direction != (ushort)SamusProjectileDirection.Right ||
+            projectile.InstructionPointer != 0x9000 ||
+            loaded.Enemies.EarthquakeTimer != earthquakeTimerBefore ||
+            loaded.Enemies.EarthquakeType != earthquakeTypeBefore)
+        {
+            throw new InvalidDataException(
+                $"Definition ${target.EnemyDefinitionPointer:X4} canonical multibox header " +
+                $"${target.Definition.ShotAiPointer:X4} accepted {weapon.Name}: hits={hits}, " +
+                $"type/direction/list=${projectile.Type:X4}/${projectile.Direction:X4}/" +
+                $"${projectile.InstructionPointer:X4}, quake=" +
+                $"{earthquakeTimerBefore}/{earthquakeTypeBefore}->" +
+                $"{loaded.Enemies.EarthquakeTimer}/{loaded.Enemies.EarthquakeType}.");
+        }
     }
 
     private static bool PopulationContainsDefinition(

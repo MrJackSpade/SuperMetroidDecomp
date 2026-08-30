@@ -225,11 +225,19 @@ internal static class PhantoonAudit
             throw new InvalidDataException("Phantoon intro unexpectedly persisted boss defeat.");
 
         // Continue the same untouched-ROM encounter until the next visible flame-rain
-        // window. One ordinary Missile first requests the real swoop branch, allowing the
-        // authored full-body touch boxes to damage Samus; a later Super Missile then crosses
-        // the one-shot rage threshold without any audit-only state mutation.
+        // window. A low-strength physical normal bomb first exercises the `$DD9B` component
+        // callback without crossing the 300-damage close threshold. One ordinary Missile
+        // then requests the real swoop branch, allowing the authored full-body touch boxes
+        // to damage Samus; a later Super Missile crosses the one-shot rage threshold without
+        // any audit-only encounter-state mutation.
         var samusShots = new SamusProjectileSystem();
         var sharedProjectiles = new SamusBombProjectileSystem();
+        var normalBombProjectiles = new SamusBombProjectileSystem();
+        bool firedNormalBomb = false;
+        int normalBombHitCount = 0;
+        ushort healthBeforeNormalBomb = 0;
+        ushort healthAfterNormalBomb = 0;
+        ushort expectedNormalBombDamage = 0;
         bool firedSwoopTrigger = false;
         int swoopTriggerHitCount = 0;
         bool sawSwoop = false;
@@ -268,7 +276,51 @@ internal static class PhantoonAudit
                     cgram,
                     body.Health);
             }
-            if (!firedSwoopTrigger &&
+            if (!firedNormalBomb &&
+                function == PhantoonAiFunction.TrackSamusDuringFlameRain &&
+                body.XPosition != 0 &&
+                enemies.InteractiveEnemyIndexes.Contains(body.NativeIndex))
+            {
+                ushort vulnerabilityPointer = body.Definition.VulnerabilityPointer != 0
+                    ? body.Definition.VulnerabilityPointer
+                    : (ushort)0xec1c;
+                byte normalBombVulnerability = bus.ReadByte(
+                    0xb40000 | unchecked((ushort)(vulnerabilityPointer + 14)));
+                expectedNormalBombDamage = unchecked((ushort)(
+                    (2 >> 1) * (normalBombVulnerability & 0x7f)));
+                SamusBombProjectileSlot normalBomb =
+                    EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                        normalBombProjectiles,
+                        body.XPosition,
+                        body.YPosition,
+                        damage: 2);
+                healthBeforeNormalBomb = body.Health;
+                int acceptedBeforeNormalBomb = state.AcceptedProjectileHits;
+                normalBombHitCount = enemies.ResolveOrdinaryBombHits(
+                    normalBombProjectiles,
+                    samusShots,
+                    samus);
+                healthAfterNormalBomb = body.Health;
+                if (normalBombHitCount != 1 || (normalBomb.Direction & 0x0010) == 0 ||
+                    healthBeforeNormalBomb - healthAfterNormalBomb != expectedNormalBombDamage ||
+                    state.AcceptedProjectileHits != acceptedBeforeNormalBomb + 1 ||
+                    state.LastProjectileDamage != expectedNormalBombDamage ||
+                    body.Properties.HasAny(EnemyProperties.Deleted))
+                {
+                    throw new InvalidDataException(
+                        "Phantoon normal-bomb callback mismatch: " +
+                        $"hits={normalBombHitCount}, direction=${normalBomb.Direction:X4}, " +
+                        $"health={healthBeforeNormalBomb}->{healthAfterNormalBomb}, " +
+                        $"expected damage={expectedNormalBombDamage}, " +
+                        $"accepted={acceptedBeforeNormalBomb}->{state.AcceptedProjectileHits}, " +
+                        $"reported damage={state.LastProjectileDamage}, " +
+                        $"body=({body.XPosition},{body.YPosition}), " +
+                        $"map=$A7:{body.SpritemapPointer:X4}, properties=${body.Properties:X4}.");
+                }
+                firedNormalBomb = true;
+                function = (PhantoonAiFunction)body.VariableF;
+            }
+            else if (firedNormalBomb && !firedSwoopTrigger &&
                 function == PhantoonAiFunction.TrackSamusDuringFlameRain)
             {
                 ArmPhantoonProjectile(
@@ -357,18 +409,23 @@ internal static class PhantoonAudit
             }
         }
 
-        if (!firedSwoopTrigger || swoopTriggerHitCount != 1 || !sawSwoop ||
+        if (!firedNormalBomb || normalBombHitCount != 1 ||
+            healthBeforeNormalBomb - healthAfterNormalBomb != expectedNormalBombDamage ||
+            !firedSwoopTrigger || swoopTriggerHitCount != 1 || !sawSwoop ||
             !resolvedSwoopContact || samusHealthBeforeContact - samusHealthAfterContact != 40 ||
             !firedRageTrigger || rageHitCount != 1 ||
             healthBeforeRageShot - body.Health != 600 ||
-            state.LastProjectileDamage != 600 || state.AcceptedProjectileHits != 2 ||
+            state.LastProjectileDamage != 600 || state.AcceptedProjectileHits != 3 ||
             state.LastCombatSoundEffect != 0x0073 ||
             !sawRageFadeOut || !sawRage || !sawPostRageFade || maximumRageRound < 7 ||
             !sawClockwiseRageFlame || !sawCounterclockwiseRageFlame ||
             !sawWhiteDamagePalette || !sawDamagedHealthPalette)
         {
             throw new InvalidDataException(
-                $"Phantoon rage route mismatch after {rageFrame} frames: swoop fired/hits/state/contact=" +
+                $"Phantoon rage route mismatch after {rageFrame} frames: bomb fired/hits/health/damage=" +
+                $"{firedNormalBomb}/{normalBombHitCount}/" +
+                $"{healthBeforeNormalBomb}->{healthAfterNormalBomb}/{expectedNormalBombDamage}, " +
+                "swoop fired/hits/state/contact=" +
                 $"{firedSwoopTrigger}/{swoopTriggerHitCount}/{sawSwoop}/{resolvedSwoopContact}, " +
                 $"Samus={samusHealthBeforeContact}->{samusHealthAfterContact}, rage fired/hits=" +
                 $"{firedRageTrigger}/{rageHitCount}, health={healthBeforeRageShot}->{body.Health}, " +

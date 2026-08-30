@@ -30,6 +30,7 @@ internal static partial class ShaktoolAudit
 
         VerifyPopulationAndDefinition(bus);
         VerifyLiveEncounter(bus, room, assets);
+        VerifyFatalNormalBomb(bus, room, assets);
         VerifyUnusedAttackCircleLifecycles(bus, room, assets);
         Console.WriteLine(
             "Shaktool audit passed: seven retail records initialized from ROM tables, " +
@@ -337,6 +338,52 @@ internal static partial class ShaktoolAudit
         {
             throw new InvalidDataException(
                 $"Shaktool fatal shot mismatch: hits={hits}, killed={enemies.EnemiesKilled}, " +
+                $"properties=[{string.Join(',', group.Select(segment => $"${segment.Properties:X4}"))}].");
+        }
+    }
+
+    /// <summary>
+    /// Sends a real exploding family-<c>$0500</c> actor through Shaktool's private
+    /// <c>$AA:DF34</c> callback. Its common death tail must delete all seven linked physical
+    /// records, exactly like the independently verified beam path above.
+    /// </summary>
+    private static void VerifyFatalNormalBomb(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        RoomEnemySystem enemies = CreateEncounter(bus, room, assets, out SamusState samus);
+        RoomEnemySlot[] group = GetGroup(enemies);
+        enemies.StepFrame(0, 0, false, samus, level: assets.LevelData);
+        var bombs = new SamusBombProjectileSystem();
+        var shots = new SamusProjectileSystem();
+        SamusBombProjectileSlot bomb =
+            EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                bombs,
+                group[0].XPosition,
+                group[0].YPosition,
+                damage: 1000);
+        ushort vulnerabilityPointer = group[0].Definition.VulnerabilityPointer != 0
+            ? group[0].Definition.VulnerabilityPointer
+            : (ushort)0xec1c;
+        byte vulnerability = bus.ReadByte(
+            0xb40000 | unchecked((ushort)(vulnerabilityPointer + 14)));
+        int expectedDamage = (bomb.Damage >> 1) * (vulnerability & 0x7f);
+        if (expectedDamage < group[0].Health)
+        {
+            throw new InvalidDataException(
+                $"Shaktool's retail normal-bomb vulnerability ${vulnerability:X2} " +
+                "cannot prove the linked fatal callback.");
+        }
+
+        int hits = enemies.ResolveOrdinaryBombHits(bombs, shots, samus);
+        if (hits != 1 || (bomb.Direction & 0x0010) == 0 ||
+            group.Any(segment => segment.Properties != 0x0200) ||
+            enemies.EnemiesKilled == 0)
+        {
+            throw new InvalidDataException(
+                $"Shaktool fatal normal bomb mismatch: hits={hits}, " +
+                $"direction=${bomb.Direction:X4}, killed={enemies.EnemiesKilled}, " +
                 $"properties=[{string.Join(',', group.Select(segment => $"${segment.Properties:X4}"))}].");
         }
     }

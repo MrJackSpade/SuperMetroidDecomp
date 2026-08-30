@@ -19,6 +19,7 @@ internal static partial class BombTorizoAudit
     private const ushort CameraX = 0;
     private const ushort CameraY = 0;
     private const ushort StandUpSitDownShotCallback = 0xc9c2;
+    private const ushort MainShotCallback = 0xc97c;
 
     public static int Run(string romPath)
     {
@@ -106,6 +107,7 @@ internal static partial class BombTorizoAudit
             () => bossBitSet = true);
 
         VerifyStandUpSitDownNoOp(bus, room, assets);
+        VerifyNormalBombReaction(bus, room, assets);
 
         if (loaded.Enemies.EnemyCount != 1 || loaded.Head.Health != 800 ||
             loaded.Head.XPosition != 0x00db || loaded.Head.YPosition != 0x00b3 ||
@@ -474,6 +476,76 @@ internal static partial class BombTorizoAudit
                 $"health={healthBefore}->{loaded.Head.Health}, parameter2=" +
                 $"${parameter2Before:X4}->${loaded.Head.Parameter2:X4}, projectile=" +
                 $"${shots.Slots[0].Type:X4}/${shots.Slots[0].Direction:X4}.");
+        }
+    }
+
+    /// <summary>
+    /// Selects a real <c>$AA:C97C</c> body rectangle and sends an exploding normal bomb
+    /// through the public bank-$A0 dispatcher. This covers Bomb Torizo's guard/flash gate,
+    /// common no-death vulnerability tail, and preservation of the staged boss slot.
+    /// </summary>
+    private static void VerifyNormalBombReaction(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        LoadedBombTorizo loaded = Load(
+            bus,
+            room,
+            assets,
+            alreadyDefeated: false,
+            _ => false,
+            () => { });
+        ushort bombX = 0;
+        ushort bombY = 0;
+        bool found = false;
+        for (int frame = 0; frame < 12000; frame++)
+        {
+            if (RetailExtendedHitboxProbe.TryFindShotPoint(
+                    bus,
+                    loaded.Head,
+                    MainShotCallback,
+                    out bombX,
+                    out bombY))
+            {
+                found = true;
+                break;
+            }
+            Step(loaded, assets.LevelData, stepProjectiles: true);
+        }
+        if (!found)
+            throw new InvalidDataException("Bomb Torizo never displayed a $AA:C97C hitbox.");
+
+        loaded.Head.FlashTimer = 0;
+        loaded.State.ShotGuard = 0;
+        var bombs = new SamusBombProjectileSystem();
+        var shots = new SamusProjectileSystem();
+        SamusBombProjectileSlot bomb =
+            EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                bombs,
+                bombX,
+                bombY,
+                damage: 100);
+        bomb.XRadius = 1;
+        bomb.YRadius = 1;
+        ushort healthBefore = loaded.Head.Health;
+        byte vulnerability = bus.ReadByte(
+            0xb40000 | unchecked((ushort)(loaded.Head.Definition.VulnerabilityPointer + 14)));
+        int damage = (bomb.Damage >> 1) * (vulnerability & 0x7f);
+        ushort expectedHealth = damage >= healthBefore
+            ? (ushort)0
+            : unchecked((ushort)(healthBefore - damage));
+        int hits = loaded.Enemies.ResolveOrdinaryBombHits(bombs, shots, loaded.Samus);
+        if (hits != 1 || (bomb.Direction & 0x0010) == 0 ||
+            loaded.Head.Health != expectedHealth ||
+            loaded.Head.Properties.HasAny(EnemyProperties.Deleted) ||
+            loaded.State.DeathStarted != (expectedHealth == 0))
+        {
+            throw new InvalidDataException(
+                $"Bomb Torizo normal-bomb reaction mismatch: hits={hits}, " +
+                $"direction=${bomb.Direction:X4}, health={loaded.Head.Health}/{expectedHealth}, " +
+                $"vulnerability=${vulnerability:X2}, death={loaded.State.DeathStarted}, " +
+                $"deleted={loaded.Head.Properties.HasAny(EnemyProperties.Deleted)}.");
         }
     }
 

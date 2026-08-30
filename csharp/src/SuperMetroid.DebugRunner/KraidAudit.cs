@@ -89,6 +89,7 @@ internal static class KraidAudit
         }
 
         VerifyArmContact(enemies, samus, assets.LevelData);
+        VerifyMultipartShotCallbacks(bus, enemies, samus);
 
         var functions = new HashSet<KraidAiFunction>();
         var observedProjectileKinds = new HashSet<RoomEnemyProjectileKind>();
@@ -447,6 +448,8 @@ internal static class KraidAudit
                 $"[{string.Join(',', missingObservedProjectiles)}].");
         }
 
+        VerifyKraidFootCollisionSuppression(bus, enemies, samus);
+
         // Finish through the same vulnerable inner-mouth path. Kraid's no-death-check
         // header means zero HP must retain the body and enter `$C360`; deletion here would
         // skip the dying head art, 296-pixel sink, drops, room restoration, and boss bit.
@@ -536,6 +539,7 @@ internal static class KraidAudit
             "eight-part population, phase thresholds, Samus lockout, BG2 upload cadence, " +
             "rise rocks/music, private head bytecode, roar/spit cadence, independently timed " +
             "foot lunge/retreat movement, arm-launch/lint-fire contact, fingernail motion, " +
+            "canonical multibox gating, arm beam/bomb dust, foot property suppression, " +
             "cartridge mouth damage, all four rock variants plus every damage-enabled " +
             "projectile contact lifecycle, and " +
             "charged-body eye glow/unglow, ceiling growth, palette fade, second-phase " +
@@ -637,6 +641,284 @@ internal static class KraidAudit
         samus.Kinematics.ExtraXSubdisplacement = savedExtraXSub;
         samus.Kinematics.ExtraYDisplacement = savedExtraY;
         samus.Kinematics.ExtraYSubdisplacement = savedExtraYSub;
+    }
+
+    /// <summary>
+    /// Proves the shared bank-$A0 multibox dispatcher against Kraid's first live retail arm
+    /// and foot maps. Their header callback `$A7:94B5` is a species-local RTL, so it must not
+    /// be confused with the engine's canonical `$804B/$804C` pre-scan gates. An active arm
+    /// rectangle selects `$94B6`, creates `$86:E509` dust, queues sound `$3D`, and marks the
+    /// physical projectile; the foot's `$94B5` rectangle performs only that collision mark.
+    /// </summary>
+    private static void VerifyMultipartShotCallbacks(
+        ISnesAddressSpace bus,
+        RoomEnemySystem enemies,
+        SamusState samus)
+    {
+        const ushort noOpShotAi = 0x94b5;
+        const ushort armShotAi = 0x94b6;
+        RoomEnemySlot body = enemies.Slots[0];
+        RoomEnemySlot arm = enemies.Slots[1];
+        RoomEnemySlot foot = enemies.Slots[5];
+
+        if (body.Definition.ShotAiPointer != 0x804c ||
+            arm.Definition.ShotAiPointer != noOpShotAi ||
+            foot.Definition.ShotAiPointer != noOpShotAi ||
+            !RetailExtendedHitboxProbe.TryFindShotPoint(
+                bus,
+                arm,
+                armShotAi,
+                out ushort armX,
+                out ushort armY))
+        {
+            throw new InvalidDataException(
+                $"Kraid multipart shot maps were unavailable: header body/arm/foot=" +
+                $"$A7:{body.Definition.ShotAiPointer:X4}/" +
+                $"{arm.Definition.ShotAiPointer:X4}/{foot.Definition.ShotAiPointer:X4}, " +
+                $"maps=$A7:{arm.SpritemapPointer:X4}/{foot.SpritemapPointer:X4}.");
+        }
+
+        ushort[] savedProperties = enemies.Slots.Take(enemies.EnemyCount)
+            .Select(slot => slot.Properties)
+            .ToArray();
+        try
+        {
+            // Kraid's BG2 body carries canonical `$804C`. Even though it also advertises
+            // extended-spritemap scheduling, both native multibox handlers return before
+            // examining its current map or touching a projectile.
+            IsolateEnemy(enemies, body.SlotIndex, savedProperties);
+            var bodyShots = new SamusProjectileSystem();
+            SamusProjectileSlot bodyShot = ArmKraidAuditShot(
+                bodyShots,
+                body.XPosition,
+                body.YPosition);
+            int bodyHits = enemies.ResolveOrdinaryProjectileHits(
+                bus,
+                bodyShots,
+                new SamusBombProjectileSystem(),
+                samus);
+            if (bodyHits != 0 || (bodyShot.Direction & 0x0010) != 0 ||
+                bodyShot.InstructionPointer != 0x9000)
+            {
+                throw new InvalidDataException(
+                    $"Kraid canonical-header gate produced hits/direction/list " +
+                    $"{bodyHits}/${bodyShot.Direction:X4}/${bodyShot.InstructionPointer:X4}.");
+            }
+
+            // `$94B6` does not enter common shot AI and therefore leaves both the arm and
+            // Kraid body HP alone. Its only actor-side effect is a room-graphics dust spawn
+            // at the selected projectile coordinates plus library-one sound `$3D`.
+            IsolateEnemy(enemies, arm.SlotIndex, savedProperties);
+            HashSet<int> activeBeforeBeam = ActiveEnemyProjectileSlots(enemies);
+            var armShots = new SamusProjectileSystem();
+            SamusProjectileSlot armShot = ArmKraidAuditShot(armShots, armX, armY);
+            ushort armHealthBefore = arm.Health;
+            ushort bodyHealthBefore = body.Health;
+            int armHits = enemies.ResolveOrdinaryProjectileHits(
+                bus,
+                armShots,
+                new SamusBombProjectileSystem(),
+                samus);
+            VerifyKraidArmDust(
+                bus,
+                enemies,
+                activeBeforeBeam,
+                armX,
+                armY,
+                animationIndex: 6,
+                owner: "beam");
+            if (armHits != 1 || (armShot.Direction & 0x0010) == 0 ||
+                armShot.Type != 0x0001 || armShot.InstructionPointer != 0x9000 ||
+                arm.Health != armHealthBefore || body.Health != bodyHealthBefore)
+            {
+                throw new InvalidDataException(
+                    $"Kraid arm beam callback mismatch: hits={armHits}, " +
+                    $"direction=${armShot.Direction:X4}, type/list=" +
+                    $"${armShot.Type:X4}/${armShot.InstructionPointer:X4}, health " +
+                    $"arm/body={armHealthBefore}->{arm.Health}/" +
+                    $"{bodyHealthBefore}->{body.Health}.");
+            }
+
+            IsolateEnemy(enemies, arm.SlotIndex, savedProperties);
+            HashSet<int> activeBeforeBomb = ActiveEnemyProjectileSlots(enemies);
+            var armBombs = new SamusBombProjectileSystem();
+            SamusBombProjectileSlot armBomb =
+                EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                    armBombs,
+                    armX,
+                    armY);
+            int armBombHits = enemies.ResolveOrdinaryBombHits(
+                armBombs,
+                new SamusProjectileSystem(),
+                samus);
+            VerifyKraidArmDust(
+                bus,
+                enemies,
+                activeBeforeBomb,
+                armX,
+                armY,
+                animationIndex: 6,
+                owner: "normal bomb");
+            if (armBombHits != 1 || (armBomb.Direction & 0x0010) == 0 ||
+                arm.Health != armHealthBefore || body.Health != bodyHealthBefore)
+            {
+                throw new InvalidDataException(
+                    $"Kraid arm normal-bomb callback mismatch: hits={armBombHits}, " +
+                    $"direction=${armBomb.Direction:X4}, health arm/body=" +
+                    $"{armHealthBefore}->{arm.Health}/{bodyHealthBefore}->{body.Health}.");
+            }
+
+        }
+        finally
+        {
+            for (int slotIndex = 0; slotIndex < savedProperties.Length; slotIndex++)
+                enemies.Slots[slotIndex].Properties = savedProperties[slotIndex];
+        }
+    }
+
+    /// <summary>
+    /// Proves that the foot's authored `$A7:94B5` rectangles remain collision-inert even in
+    /// the naturally visible second-phase walk. Its retail property word retains `$0400`,
+    /// keeping the actor out of the interactive list; the extended bomb handler independently
+    /// retests the same bit before scanning. The map is real, but dispatching its callback
+    /// would require manufacturing a property state the cartridge never enters.
+    /// </summary>
+    private static void VerifyKraidFootCollisionSuppression(
+        ISnesAddressSpace bus,
+        RoomEnemySystem enemies,
+        SamusState samus)
+    {
+        const ushort noOpShotAi = 0x94b5;
+        RoomEnemySlot body = enemies.Slots[0];
+        RoomEnemySlot foot = enemies.Slots[5];
+        if (enemies.InteractiveEnemyIndexes.Contains(foot.NativeIndex) ||
+            !foot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) ||
+            !RetailExtendedHitboxProbe.TryFindShotPoint(
+                bus,
+                foot,
+                noOpShotAi,
+                out ushort footX,
+                out ushort footY))
+        {
+            throw new InvalidDataException(
+                $"Kraid foot property gate diverged from retail: interactive=" +
+                $"{enemies.InteractiveEnemyIndexes.Contains(foot.NativeIndex)}, " +
+                $"properties=${foot.Properties:X4}, map=$A7:{foot.SpritemapPointer:X4}.");
+        }
+
+        ushort[] savedProperties = enemies.Slots.Take(enemies.EnemyCount)
+            .Select(slot => slot.Properties)
+            .ToArray();
+        try
+        {
+            IsolateEnemy(enemies, foot.SlotIndex, savedProperties);
+            HashSet<int> activeBefore = ActiveEnemyProjectileSlots(enemies);
+            var bombs = new SamusBombProjectileSystem();
+            SamusBombProjectileSlot bomb =
+                EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                    bombs,
+                    footX,
+                    footY);
+            ushort footHealthBefore = foot.Health;
+            ushort bodyHealthBefore = body.Health;
+            int hits = enemies.ResolveOrdinaryBombHits(
+                bombs,
+                new SamusProjectileSystem(),
+                samus);
+            bool spawnedDust = enemies.EnemyProjectiles.Any(projectile =>
+                projectile.IsActive &&
+                !activeBefore.Contains(projectile.SlotIndex) &&
+                projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion);
+            if (hits != 0 || (bomb.Direction & 0x0010) != 0 ||
+                foot.Health != footHealthBefore || body.Health != bodyHealthBefore ||
+                spawnedDust)
+            {
+                throw new InvalidDataException(
+                    $"Kraid foot property suppression mismatch: hits={hits}, " +
+                    $"direction=${bomb.Direction:X4}, health=" +
+                    $"{footHealthBefore}->{foot.Health}, body=" +
+                    $"{bodyHealthBefore}->{body.Health}, dust={spawnedDust}.");
+            }
+        }
+        finally
+        {
+            for (int slotIndex = 0; slotIndex < savedProperties.Length; slotIndex++)
+                enemies.Slots[slotIndex].Properties = savedProperties[slotIndex];
+        }
+    }
+
+    private static SamusProjectileSlot ArmKraidAuditShot(
+        SamusProjectileSystem projectiles,
+        ushort x,
+        ushort y)
+    {
+        SamusProjectileSlot shot = projectiles.Slots[0];
+        shot.ClearFields();
+        shot.Type = 0x0001;
+        shot.Damage = 20;
+        shot.Direction = (ushort)SamusProjectileDirection.Right;
+        shot.XPosition = x;
+        shot.YPosition = y;
+        shot.XRadius = 1;
+        shot.YRadius = 1;
+        shot.InstructionPointer = 0x9000;
+        shot.InstructionTimer = 1;
+        return shot;
+    }
+
+    private static void IsolateEnemy(
+        RoomEnemySystem enemies,
+        int retainedSlot,
+        IReadOnlyList<ushort> savedProperties)
+    {
+        for (int slotIndex = 0; slotIndex < savedProperties.Count; slotIndex++)
+        {
+            enemies.Slots[slotIndex].Properties = slotIndex == retainedSlot
+                ? savedProperties[slotIndex]
+                : savedProperties[slotIndex].With(EnemyProperties.Deleted);
+        }
+    }
+
+    private static HashSet<int> ActiveEnemyProjectileSlots(RoomEnemySystem enemies) =>
+        enemies.EnemyProjectiles
+            .Where(projectile => projectile.IsActive)
+            .Select(projectile => projectile.SlotIndex)
+            .ToHashSet();
+
+    private static void VerifyKraidArmDust(
+        ISnesAddressSpace bus,
+        RoomEnemySystem enemies,
+        IReadOnlySet<int> activeBefore,
+        ushort expectedX,
+        ushort expectedY,
+        ushort animationIndex,
+        string owner)
+    {
+        RoomEnemyProjectileSlot[] newDust = enemies.EnemyProjectiles
+            .Where(projectile =>
+                projectile.IsActive &&
+                !activeBefore.Contains(projectile.SlotIndex) &&
+                projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion)
+            .ToArray();
+        ushort expectedInstruction = ReadWord(
+            bus,
+            0x86e42c + animationIndex * 2);
+        if (newDust.Length != 1 || newDust[0].XPosition != expectedX ||
+            newDust[0].YPosition != expectedY ||
+            newDust[0].InstructionPointer != expectedInstruction ||
+            newDust[0].InstructionTimer != 1 ||
+            enemies.LastEnemyProjectileDudSoundEffect != 0x003d)
+        {
+            string actual = newDust.Length == 1
+                ? $"({newDust[0].XPosition},{newDust[0].YPosition})/" +
+                  $"$86:{newDust[0].InstructionPointer:X4}/" +
+                  $"{newDust[0].InstructionTimer}"
+                : $"count {newDust.Length}";
+            throw new InvalidDataException(
+                $"Kraid arm {owner} dust mismatch: {actual}, expected " +
+                $"({expectedX},{expectedY})/$86:{expectedInstruction:X4}/1, sound=" +
+                $"{enemies.LastEnemyProjectileDudSoundEffect?.ToString("X4") ?? "none"}.");
+        }
     }
 
     private static void VerifyRetailRoom(CartridgeRoomHeader room)

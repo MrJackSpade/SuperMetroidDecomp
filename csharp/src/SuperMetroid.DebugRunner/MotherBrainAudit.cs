@@ -589,6 +589,45 @@ internal static class MotherBrainAudit
             expectedWalkAfter: 0x0100);
         AuditShot(SamusProjectileFamily.Missile, type: 0x8100, damage: 100, walkBefore: 0x0200,
             expectedWalkAfter: 0);
+        AuditNormalBombMultiboxBoundary();
+
+        void AuditNormalBombMultiboxBoundary()
+        {
+            projectiles.Reset();
+            sharedProjectiles.Reset();
+            SamusBombProjectileSlot bomb =
+                EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                    sharedProjectiles,
+                    head.XPosition,
+                    head.YPosition,
+                    damage: 100);
+            // Mother Brain's live phase-two head publishes an ordinary drawing spritemap at
+            // `$A9:A5F8` while its population still carries extra-property `$0004`. Native
+            // bomb dispatch therefore takes the multibox walker, not the header-radius path.
+            // A bomb at the nominal head origin must not be promoted into a `$B507` callback
+            // merely because the host's ordinary projectile compatibility path uses radii.
+            bomb.XRadius = 1;
+            bomb.YRadius = 1;
+            ushort healthBefore = head.Health;
+            state.WalkCounter = 0x0200;
+
+            int hits = enemies.ResolveOrdinaryBombHits(
+                sharedProjectiles,
+                projectiles,
+                samus);
+            if (hits != 0 || (bomb.Direction & 0x0010) != 0 ||
+                head.Health != healthBefore || state.WalkCounter != 0x0200 ||
+                head.Properties.HasAny(EnemyProperties.Deleted))
+            {
+                throw new InvalidDataException(
+                    $"Mother Brain phase-two normal-bomb boundary diverged: hits={hits}, " +
+                    $"direction=${bomb.Direction:X4}, health={head.Health}/{healthBefore}, " +
+                    $"walk=${state.WalkCounter:X4}/0200, " +
+                    $"map=$A9:{head.SpritemapPointer:X4}, " +
+                    $"extra=${head.ExtraProperties:X4}, " +
+                    $"deleted={head.Properties.HasAny(EnemyProperties.Deleted)}.");
+            }
+        }
 
         void AuditShot(
             SamusProjectileFamily expectedFamily,

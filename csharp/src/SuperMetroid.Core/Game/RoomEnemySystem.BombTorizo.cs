@@ -102,6 +102,69 @@ public sealed partial class RoomEnemySystem
     private const ushort BombTorizoInitialExtendedSpritemap = 0x87d0;
     private const ushort BombTorizoHandTriggerPlm = 0xd6ea;
     private const ushort BombTorizoShotGuardValue = 0x7777;
+
+    /// <summary>
+    /// Dispatches an already-colliding family-<c>$0500</c> bomb through Torizo hitbox
+    /// callbacks <c>$AA:C97C/$C9C2/$D667</c>. The bank-$A0 multibox walker has already set
+    /// direction bit <c>$10</c>; this method owns only the species callback and its common
+    /// no-death damage tail.
+    /// </summary>
+    private void ResolveTorizoNormalBomb(
+        RoomEnemySlot torizo,
+        SamusBombProjectileSlot bomb,
+        ushort selectedShotAi)
+    {
+        bool isBombTorizo = torizo.EnemyDefinitionPointer == BombTorizoDefinition;
+        bool isGoldenTorizo = torizo.EnemyDefinitionPointer == GoldenTorizoDefinition;
+        if (!isBombTorizo && !isGoldenTorizo)
+            throw new ArgumentException("Normal-bomb Torizo dispatch requires a Torizo body.");
+
+        TorizoEnemyState state = RequireBombTorizoState(torizo);
+        if (selectedShotAi == TorizoStandUpSitDownShotAi)
+        {
+            // `$C9C2` is a complete no-op in Bomb Torizo's area. Golden Torizo jumps to
+            // `$D658`, which accepts common damage only outside the active flash and while
+            // `toriz_var_04` is zero. This transitional callback never arms the later
+            // counterattack bits or captures a projectile family.
+            if (isBombTorizo || torizo.FlashTimer != 0 || state.ShotGuard != 0)
+                return;
+
+            ApplyCommonNormalBombDamage(torizo, bomb, runGenericDeath: false);
+            if (torizo.Health == 0)
+                BeginBombTorizoDeath(torizo, state);
+            return;
+        }
+
+        bool validMainCallback = isBombTorizo
+            ? selectedShotAi == BombTorizoShotAi
+            : selectedShotAi is BombTorizoShotAi or GoldenTorizoShotAi;
+        if (!validMainCallback)
+        {
+            throw new NotSupportedException(
+                $"Torizo normal-bomb hitbox AI $AA:{selectedShotAi:X4} is not translated.");
+        }
+
+        // Both normal callbacks return during the hurt flash. Bomb Torizo also uses its
+        // awakening guard as a hard rejection; Golden's nonzero guard deliberately falls
+        // through to common damage instead.
+        if (torizo.FlashTimer != 0 || isBombTorizo && state.ShotGuard != 0)
+            return;
+
+        if (isGoldenTorizo && state.ShotGuard == 0)
+        {
+            // Family `$0500` is neither Missile nor Super Missile. `$D667` records it only
+            // when the Super-catch latch is clear, then takes LABEL_11 and arms bit `$2000`
+            // before common damage. A set `$1000` latch skips the family write but still
+            // reaches that same counterattack bit.
+            if ((torizo.Parameter2 & 0x1000) == 0)
+                state.CapturedProjectileFamily = SamusBombProjectileSystem.NormalBombType;
+            torizo.Parameter2 |= 0x2000;
+        }
+
+        ApplyCommonNormalBombDamage(torizo, bomb, runGenericDeath: false);
+        if (torizo.Health == 0)
+            BeginBombTorizoDeath(torizo, state);
+    }
     private const ushort BombTorizoHeadExplosionHealth = 350;
     private const ushort BombTorizoCoreExplosionHealth = 100;
     private const ushort BombTorizoRawTangibleProperty = 0x8000;

@@ -17,6 +17,7 @@ internal static partial class GoldenTorizoAudit
     private const ushort CameraX = 0x0100;
     private const ushort CameraY = 0x0100;
     private const ushort StandUpSitDownShotCallback = 0xc9c2;
+    private const ushort NormalBodyShotCallback = 0xc97c;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     public static int Run(string romPath)
@@ -27,6 +28,7 @@ internal static partial class GoldenTorizoAudit
         VerifyRetailStructures(bus, room);
         VerifyEncounter(bus, room, assets);
         VerifyNaturalProjectileInteractions(bus, room, assets);
+        VerifyNormalBombReaction(bus, room, assets);
         VerifyAlreadyDefeatedLoad(bus, room, assets);
 
         Console.WriteLine(
@@ -441,6 +443,71 @@ internal static partial class GoldenTorizoAudit
                 $"Golden Torizo Power Bomb immunity mismatch: reactions={reactions}, " +
                 $"health={healthBefore}->{loaded.Head.Health}, flash={loaded.Head.FlashTimer}, " +
                 $"invincibility={loaded.Head.InvincibilityTimer}.");
+        }
+    }
+
+    /// <summary>
+    /// Proves that family <c>$0500</c> reaches shared hitbox callback <c>$AA:C97C</c>, which
+    /// dispatches by area to Golden's header callback <c>$AA:D667</c>. Normal bombs are
+    /// neither caught Missiles nor reflected Supers: they arm counterattack bit <c>$2000</c>
+    /// and then enter common no-death vulnerability damage.
+    /// </summary>
+    private static void VerifyNormalBombReaction(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        LoadedGoldenTorizo loaded = Load(bus, room, assets, false, () => { });
+        if (!AdvanceToShotCallback(
+                bus,
+                loaded,
+                assets.LevelData,
+                NormalBodyShotCallback,
+                out ushort bombX,
+                out ushort bombY))
+        {
+            throw new InvalidDataException(
+                "Golden Torizo never displayed an authored $AA:C97C shot hitbox.");
+        }
+
+        loaded.Head.FlashTimer = 0;
+        loaded.State.ShotGuard = 0;
+        loaded.State.CapturedProjectileFamily = 0x5555;
+        loaded.Head.Parameter2 &= 0xcfff;
+        var bombs = new SamusBombProjectileSystem();
+        var shots = new SamusProjectileSystem();
+        SamusBombProjectileSlot bomb =
+            EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                bombs,
+                bombX,
+                bombY,
+                damage: 100);
+        bomb.XRadius = 1;
+        bomb.YRadius = 1;
+        ushort healthBefore = loaded.Head.Health;
+        ushort vulnerabilityPointer = loaded.Head.Definition.VulnerabilityPointer != 0
+            ? loaded.Head.Definition.VulnerabilityPointer
+            : DefaultEnemyVulnerability;
+        byte vulnerability = bus.ReadByte(
+            0xb40000 | unchecked((ushort)(vulnerabilityPointer + 14)));
+        int damage = (bomb.Damage >> 1) * (vulnerability & 0x7f);
+        ushort expectedHealth = damage >= healthBefore
+            ? (ushort)0
+            : unchecked((ushort)(healthBefore - damage));
+        int hits = loaded.Enemies.ResolveOrdinaryBombHits(bombs, shots, loaded.Samus);
+        if (hits != 1 || (bomb.Direction & 0x0010) == 0 ||
+            loaded.Head.Health != expectedHealth ||
+            loaded.State.CapturedProjectileFamily != SamusBombProjectileSystem.NormalBombType ||
+            (loaded.Head.Parameter2 & 0x2000) == 0 ||
+            loaded.Head.Properties.HasAny(EnemyProperties.Deleted))
+        {
+            throw new InvalidDataException(
+                $"Golden Torizo normal-bomb reaction mismatch: hits={hits}, " +
+                $"direction=${bomb.Direction:X4}, health={loaded.Head.Health}/{expectedHealth}, " +
+                $"vulnerability=${vulnerability:X2}, family=" +
+                $"${loaded.State.CapturedProjectileFamily:X4}, " +
+                $"parameter2=${loaded.Head.Parameter2:X4}, " +
+                $"deleted={loaded.Head.Properties.HasAny(EnemyProperties.Deleted)}.");
         }
     }
 

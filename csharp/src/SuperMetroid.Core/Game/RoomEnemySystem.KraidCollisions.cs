@@ -10,6 +10,24 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     /// <summary>
+    /// Ports Kraid arm helper <c>SpawnExplosionProjectile</c> at `$A7:B0CB`, called by the
+    /// arm hitbox callback at `$A7:94B6`. Super Missiles select native dust animation `$1D`;
+    /// beams, missiles, and family-$0500 normal bombs select `$06`. The effect uses the
+    /// shared room-graphics projectile allocator and queues sound-library-one effect `$3D`.
+    /// </summary>
+    private void SpawnKraidArmShotExplosion(
+        ushort projectileType,
+        ushort xPosition,
+        ushort yPosition)
+    {
+        ushort animationIndex = (projectileType & 0x0200) != 0
+            ? (ushort)0x001d
+            : (ushort)0x0006;
+        SpawnRoomGraphicsDustExplosion(xPosition, yPosition, animationIndex);
+        LastEnemyProjectileDudSoundEffect = 0x003d;
+    }
+
+    /// <summary>
     /// Resolves one enemy-main collision pass. The vulnerable inner mouth is tested first;
     /// remaining shots are absorbed by the outer mouth/body contour without damaging HP.
     /// </summary>

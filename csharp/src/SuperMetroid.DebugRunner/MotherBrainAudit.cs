@@ -1645,12 +1645,22 @@ internal static class MotherBrainAudit
                         expectedScatterYVelocity);
                 RoomEnemyProjectileSlot child = enemies.EnemyProjectiles.First(projectile =>
                     projectile.Kind == RoomEnemyProjectileKind.MotherBrainHandBeamFired);
+
+                // `$8171` allocates the fired child below its charging parent. The native
+                // descending projectile pass therefore reaches the child later in this same
+                // call: its pre-instruction applies the scatter displacement above and its
+                // fresh timer consumes the first timed entry at $C796. The cursor visible at
+                // the frame boundary is $C79A, not the initializer's untouched $C796.
+                ushort expectedChildInstructionTimer = ReadWord(bus, 0x86c796);
+                ushort expectedChildSpritemap = ReadWord(bus, 0x86c798);
                 if (state.HandBeamNextXPosition != expectedSharedX ||
                     state.HandBeamNextXSubposition != expectedSharedXSub ||
                     state.HandBeamNextYPosition != expectedSharedY ||
                     state.HandBeamNextYSubposition != expectedSharedYSub ||
                     child.PreInstruction != 0xc76d ||
-                    child.InstructionPointer != 0xc796 || child.InstructionTimer != 1 ||
+                    child.InstructionPointer != 0xc79a ||
+                    child.InstructionTimer != expectedChildInstructionTimer ||
+                    child.SpritemapPointer != expectedChildSpritemap ||
                     child.Variable0 != 1 || child.Variable1 != 0 ||
                     child.XVelocity != 0 || child.YVelocity != 0 ||
                     child.XPosition != expectedChildX ||
@@ -3233,21 +3243,51 @@ internal static class MotherBrainAudit
 
         ushort direction = bullet.DirectionParameter;
         ushort directionOffset = unchecked((ushort)(direction * 2));
+        ushort expectedXVelocity = ReadWord(bus, 0x86bfbf + directionOffset);
+        ushort expectedYVelocity = ReadWord(bus, 0x86bfcf + directionOffset);
+        ushort selectedInstructionList = ReadWord(bus, 0x86c133 + directionOffset);
+        ushort expectedInstructionTimer = ReadWord(bus, 0x860000 | selectedInstructionList);
+        ushort expectedSpritemap = ReadWord(
+            bus,
+            0x860000 | unchecked((ushort)(selectedInstructionList + 2)));
+
+        // The native bank-$86 scheduler visits physical slots $22,$20,...,$00. A turret
+        // fires from one of the twelve occupied high slots and AllocateEnemyProjectile
+        // chooses the highest free slot below it. Consequently the newborn bullet is still
+        // ahead of the scheduler and executes once in the SAME outer pass. Reconstruct its
+        // post-pass position from the turret muzzle and one exact 8.8 velocity addition;
+        // looking for the untouched spawn position would encode the old ascending-order bug.
         RoomEnemyProjectileSlot? source = enemies.EnemyProjectiles.FirstOrDefault(projectile =>
-            (ushort)projectile.Kind == TurretDefinition &&
-            bullet.XPosition == unchecked((ushort)(projectile.XPosition +
-                ReadWord(bus, 0x86bf9f + directionOffset))) &&
-            bullet.YPosition == unchecked((ushort)(projectile.YPosition +
-                ReadWord(bus, 0x86bfaf + directionOffset))));
+        {
+            if ((ushort)projectile.Kind != TurretDefinition)
+                return false;
+
+            ushort muzzleX = unchecked((ushort)(projectile.XPosition +
+                ReadWord(bus, 0x86bf9f + directionOffset)));
+            ushort muzzleY = unchecked((ushort)(projectile.YPosition +
+                ReadWord(bus, 0x86bfaf + directionOffset)));
+            (ushort postPassX, ushort postPassXSubposition) = AddEightBitVelocityReference(
+                muzzleX,
+                0,
+                expectedXVelocity);
+            (ushort postPassY, ushort postPassYSubposition) = AddEightBitVelocityReference(
+                muzzleY,
+                0,
+                expectedYVelocity);
+            return bullet.XPosition == postPassX &&
+                bullet.XSubposition == postPassXSubposition &&
+                bullet.YPosition == postPassY &&
+                bullet.YSubposition == postPassYSubposition;
+        });
         if (source is null || bullet.PreInstruction != 0xc0e0 ||
-            bullet.InstructionPointer != 0xc131 || bullet.InstructionTimer != 1 ||
-            bullet.SpritemapPointer != 0x8000 || bullet.GraphicsIndex != 0x0400 ||
+            bullet.InstructionPointer != unchecked((ushort)(selectedInstructionList + 4)) ||
+            bullet.InstructionTimer != expectedInstructionTimer ||
+            bullet.SpritemapPointer != expectedSpritemap || bullet.GraphicsIndex != 0x0400 ||
             bullet.XRadius != 3 || bullet.YRadius != 3 || bullet.Damage != 0x0014 ||
-            bullet.XVelocity != ReadWord(bus, 0x86bfbf + directionOffset) ||
-            bullet.YVelocity != ReadWord(bus, 0x86bfcf + directionOffset) ||
+            bullet.XVelocity != expectedXVelocity || bullet.YVelocity != expectedYVelocity ||
             bullet.Variable0 != directionOffset || bullet.Variable1 != 0 ||
             !bullet.CanDamageSamus || !bullet.PersistsOnSamusContact ||
-            bullet.BlocksSamusProjectiles)
+            !bullet.BlocksSamusProjectiles)
         {
             throw new InvalidDataException(
                 $"Mother Brain turret bullet initialization diverged: slot={bullet.SlotIndex}, " +
@@ -3274,7 +3314,7 @@ internal static class MotherBrainAudit
         bullet = enemies.EnemyProjectiles[bulletSlot];
         if (!bullet.IsActive || bullet.XPosition != expectedX ||
             bullet.XSubposition != expectedXSubposition || bullet.YPosition != expectedY ||
-            bullet.YSubposition != expectedYSubposition || !bullet.BlocksSamusProjectiles ||
+            bullet.YSubposition != expectedYSubposition || bullet.BlocksSamusProjectiles ||
             bullet.SpritemapPointer == 0x8000)
         {
             throw new InvalidDataException(

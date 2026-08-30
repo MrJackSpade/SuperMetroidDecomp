@@ -167,10 +167,11 @@ internal static partial class ShaktoolAudit
         if (oam.LastFinalizedSpriteCount == 0)
             throw new InvalidDataException("Shaktool attack circles emitted no OBJ pieces.");
 
-        // Slot iteration is ascending in the translated array, matching native indexes
-        // $00->$22 for this handler. The linked actors occupy $1E/$20 and therefore run
-        // before front slot $22. When $BE03 deletes the front on terrain, both links must
-        // remain for that exact frame, observe the dead owner on the next pass, then clear.
+        // `$86:810D-$8122` scans physical slots `$22->$00`. Front occupies `$22`, so its
+        // `$BE03` terrain collision clears the owner before middle `$20` and rear `$1E`
+        // execute later in the SAME bank-$86 pass. Their shared `$BE12` pre-instruction
+        // must observe that dead physical link immediately; retaining them for one host
+        // frame would prove that the scheduler had reversed the cartridge's slot order.
         bool frontHitTerrain = false;
         for (int frame = 12; frame < 4096 && front.IsActive; frame++)
         {
@@ -182,23 +183,11 @@ internal static partial class ShaktoolAudit
                 nmiFrameCounter8: unchecked((byte)frame));
             frontHitTerrain = !front.IsActive;
         }
-        if (!frontHitTerrain || !middle.IsActive || !back.IsActive)
+        if (!frontHitTerrain || middle.IsActive || back.IsActive)
         {
             throw new InvalidDataException(
                 $"Shaktool front terrain boundary failed: front/middle/rear live=" +
                 $"{front.IsActive}/{middle.IsActive}/{back.IsActive}.");
-        }
-
-        encounter.Enemies.StepEnemyProjectiles(
-            assets.LevelData,
-            samus: null,
-            cameraX: 0,
-            cameraY: 0);
-        if (middle.IsActive || back.IsActive)
-        {
-            throw new InvalidDataException(
-                $"Shaktool linked circles survived their dead front slot: " +
-                $"middle/rear={middle.IsActive}/{back.IsActive}.");
         }
     }
 

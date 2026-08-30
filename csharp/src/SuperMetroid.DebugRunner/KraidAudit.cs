@@ -4,9 +4,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
 /// <summary>
-/// ROM-backed checkpoint for Kraid's translated room lockout and rise. The audit deliberately
-/// ends at the first combat thinker: reaching that pointer proves the current slice, while the
-/// explicit unsupported exception on the following frame keeps unfinished combat visible.
+/// ROM-backed end-to-end checkpoint for Kraid's room lockout, rise, repeating first phase,
+/// growth, second-phase attacks, cartridge collision reactions, and complete death sequence.
 /// </summary>
 internal static class KraidAudit
 {

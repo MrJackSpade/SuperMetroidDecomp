@@ -384,6 +384,12 @@ if (args.Length >= 2 && args[0] == "--mother-brain-audit")
     return MotherBrainAudit.Run(motherBrainRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--mother-brain-glass-projectile-audit")
+{
+    string glassProjectileRomPath = string.Join(' ', args[1..]).Trim('"');
+    return MotherBrainGlassProjectileAudit.Run(glassProjectileRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--bomb-torizo-audit")
 {
     string bombTorizoRomPath = string.Join(' ', args[1..]).Trim('"');

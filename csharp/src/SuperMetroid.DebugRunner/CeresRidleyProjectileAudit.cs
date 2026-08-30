@@ -50,7 +50,12 @@ internal static class CeresRidleyProjectileAudit
             // encounter rather than weakening the lifecycle assertion above.
             (LoadedCeresProjectileProbe contactLoaded,
                 RoomEnemyProjectileSlot contactProjectile,
-                int contactFrame) = FindNaturalProjectile(bus, room, assets, kind);
+                int contactFrame) = FindNaturalProjectile(
+                    bus,
+                    room,
+                    assets,
+                    kind,
+                    requireDamageEnabled: true);
             VerifyDefinition(bus, contactProjectile);
             EnemyProjectileAuditAssertions.VerifyNaturalSamusContact(
                 bus,
@@ -77,7 +82,19 @@ internal static class CeresRidleyProjectileAudit
         ushort originX = projectile.XPosition;
         ushort originY = projectile.YPosition;
         var maps = new HashSet<ushort>();
-        bool moved = false;
+        bool center = kind is
+            RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter or
+            RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter;
+
+        // A center's $95BA/$95ED instruction allocates both directional children below its
+        // physical slot. Bank $86 scans $22 toward $00, so each child receives its first
+        // fourteen-pixel movement tick before FindNaturalProjectile can observe it. In the
+        // compact Ceres collision probes that first tick can already start the stationary
+        // impact list. Seed the movement proof from the exact child/center displacement;
+        // requiring a second movement tick would once again assert the old ascending pass.
+        bool moved = !center && HasCompletedNativeFirstDirectionalStep(
+            loaded.Enemies,
+            projectile);
         for (int lifetimeFrame = 0; lifetimeFrame < 1024 &&
             projectile.IsActive && projectile.Kind == kind; lifetimeFrame++)
         {
@@ -92,9 +109,6 @@ internal static class CeresRidleyProjectileAudit
                 nmiFrameCounter8: unchecked((byte)(frame + lifetimeFrame + 1)));
         }
 
-        bool center = kind is
-            RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter or
-            RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter;
         if (projectile.IsActive && projectile.Kind == kind || maps.Count < 4 ||
             (!center && !moved) || (center && moved))
         {
@@ -107,11 +121,47 @@ internal static class CeresRidleyProjectileAudit
         }
     }
 
+    private static bool HasCompletedNativeFirstDirectionalStep(
+        RoomEnemySystem enemies,
+        RoomEnemyProjectileSlot child)
+    {
+        (RoomEnemyProjectileKind centerKind, int expectedXDelta, int expectedYDelta) =
+            child.Kind switch
+            {
+                RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight =>
+                    (RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter, 14, 0),
+                RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft =>
+                    (RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter, -14, 0),
+                RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp =>
+                    (RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter, 0, -14),
+                RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown =>
+                    (RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter, 0, 14),
+                _ => (RoomEnemyProjectileKind.None, 0, 0),
+            };
+        if (centerKind == RoomEnemyProjectileKind.None)
+            return false;
+
+        RoomEnemyProjectileSlot? center = enemies.EnemyProjectiles.FirstOrDefault(projectile =>
+            projectile.IsActive && projectile.Kind == centerKind &&
+            child.XPosition == unchecked((ushort)(projectile.XPosition + expectedXDelta)) &&
+            child.YPosition == unchecked((ushort)(projectile.YPosition + expectedYDelta)));
+        return center is not null;
+    }
+
     private static void VerifyDefinition(
         ISnesAddressSpace bus,
         RoomEnemyProjectileSlot projectile)
     {
         RoomEnemyProjectileKind kind = projectile.Kind;
+        bool directionalAfterburn = kind is
+            RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight or
+            RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft or
+            RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp or
+            RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown;
+        bool enteredNativeFinalAnimation = directionalAfterburn &&
+            !projectile.CanDamageSamus &&
+            projectile.XVelocity == 0 &&
+            projectile.YVelocity == 0;
         ushort radii = ReadWord(
             bus,
             0x860000 | unchecked((ushort)((ushort)kind + 6)));
@@ -121,7 +171,8 @@ internal static class CeresRidleyProjectileAudit
         if (projectile.Damage != (properties & 0x0fff) ||
             projectile.XRadius != unchecked((byte)radii) ||
             projectile.YRadius != unchecked((byte)(radii >> 8)) ||
-            !projectile.CanDamageSamus || !projectile.PersistsOnSamusContact ||
+            projectile.CanDamageSamus == enteredNativeFinalAnimation ||
+            !projectile.PersistsOnSamusContact ||
             projectile.BlocksSamusProjectiles ||
             projectile.GraphicsIndex != FireballGraphicsIndex)
         {
@@ -141,7 +192,8 @@ internal static class CeresRidleyProjectileAudit
             SuperMetroidAddressSpace bus,
             CartridgeRoomHeader room,
             CartridgeRoomAssets assets,
-            RoomEnemyProjectileKind kind)
+            RoomEnemyProjectileKind kind,
+            bool requireDamageEnabled = false)
     {
         foreach ((ushort samusX, ushort samusY) in SamusTargets)
         {
@@ -162,7 +214,9 @@ internal static class CeresRidleyProjectileAudit
                     level: assets.LevelData,
                     nmiFrameCounter8: nmi);
                 RoomEnemyProjectileSlot? candidate = loaded.Enemies.EnemyProjectiles
-                    .FirstOrDefault(projectile => projectile.IsActive && projectile.Kind == kind);
+                    .FirstOrDefault(projectile => projectile.IsActive &&
+                        projectile.Kind == kind &&
+                        (!requireDamageEnabled || projectile.CanDamageSamus));
                 if (candidate is not null)
                     return (loaded, candidate, frame);
 
@@ -173,7 +227,9 @@ internal static class CeresRidleyProjectileAudit
                     cameraY: CameraY,
                     nmiFrameCounter8: nmi);
                 candidate = loaded.Enemies.EnemyProjectiles.FirstOrDefault(
-                    projectile => projectile.IsActive && projectile.Kind == kind);
+                    projectile => projectile.IsActive &&
+                        projectile.Kind == kind &&
+                        (!requireDamageEnabled || projectile.CanDamageSamus));
                 if (candidate is not null)
                     return (loaded, candidate, frame);
             }

@@ -309,14 +309,25 @@ public sealed partial class RoomEnemySystem
         ArgumentNullException.ThrowIfNull(level);
         EnsureLoaded();
 
-        // Snapshot the active set. Afterburn instruction opcodes may allocate later slots;
-        // native descending-slot iteration does not execute a newly spawned lower-priority
-        // actor twice in the same logical instruction pass.
+        // `$86:810D-$8122` starts X at physical byte index `$22`, executes that slot, reloads
+        // the unchanged outer index from `$1991`, subtracts two, and continues through `$00`.
+        // Array index 17 is native `$22`, so this must be a live descending scan rather than
+        // LINQ's ascending enumeration or a frame-start snapshot.
+        //
+        // The distinction is observable whenever a pre-instruction or instruction opcode
+        // allocates another projectile. `$86:8027` searches `$22 -> $00` without changing
+        // the outer `$1991`. A child allocated below the current physical index is therefore
+        // reached later in THIS pass; a child allocated above it waits until the next pass.
+        // Reusing the current slot also lets the replacement's instruction list run in this
+        // pass after the pre-instruction returns. Reading each array entry at loop time
+        // preserves all three cases and prevents host collection semantics from inventing a
+        // universal one-frame spawn delay.
         byte projectileFrame = nmiFrameCounter8 ?? _standaloneEnemyProjectileFrameCounter8++;
-        RoomEnemyProjectileSlot[] activeAtFrameStart =
-            _enemyProjectiles.Where(projectile => projectile.IsActive).ToArray();
-        foreach (RoomEnemyProjectileSlot projectile in activeAtFrameStart)
+        for (int projectileIndex = _enemyProjectiles.Length - 1;
+             projectileIndex >= 0;
+             projectileIndex--)
         {
+            RoomEnemyProjectileSlot projectile = _enemyProjectiles[projectileIndex];
             if (!projectile.IsActive)
                 continue;
 

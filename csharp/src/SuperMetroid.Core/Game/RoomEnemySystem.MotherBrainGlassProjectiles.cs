@@ -11,7 +11,13 @@ public sealed partial class RoomEnemySystem
 {
     private const ushort MotherBrainGlassShardGraphicsIndex = 0x0640;
     private const ushort MotherBrainGlassShardInstructionTable = 0xce41;
-    private const int SignedEightBitSineTable = 0xa0b443;
+    // `$86:CDD0-$CDE1` indexes the 256-word sine cycle by the already-even angle
+    // offset in X: horizontal motion reads cosine base `$A0:B443`, while vertical
+    // motion reads sine base `$A0:B3C3`. Expressing both through the sine base lets
+    // the X call add the native quarter-turn (`+64` samples) exactly once. Using
+    // `$B443` as this base silently shifted both components and made late angles read
+    // unrelated ROM data beyond the table.
+    private const int SignedEightBitSineTable = 0xa0b3c3;
 
     private static readonly short[] MotherBrainGlassShardXOffsets = [8, -40, -16];
     private static readonly short[] MotherBrainGlassShardYOffsets = [32, 32, 32];

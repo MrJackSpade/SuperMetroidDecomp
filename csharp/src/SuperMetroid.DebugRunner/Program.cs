@@ -108,6 +108,12 @@ if (args.Length >= 2 && args[0] == "--retail-enemy-coverage-audit")
     return RetailEnemyCoverageAudit.Run(coverageRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--retail-enemy-execution-audit")
+{
+    string executionRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailEnemyExecutionAudit.Run(executionRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--rinka-audit")
 {
     string rinkaRomPath = string.Join(' ', args[1..]).Trim('"');

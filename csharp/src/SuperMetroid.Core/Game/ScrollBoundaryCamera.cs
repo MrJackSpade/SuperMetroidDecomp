@@ -52,6 +52,13 @@ public sealed class ScrollBoundaryCamera
         IdealYPosition = YPosition;
     }
 
+    /// <summary>
+    /// Applies the direct <c>layer1_x_pos</c> write used by bank-$A9 Shitroid AI. Unlike
+    /// entry placement, the cartridge does not clear subposition or replace either ideal
+    /// camera coordinate at this point in the gameplay frame.
+    /// </summary>
+    public void SetLayerOneXFromEnemyAi(ushort xPosition) => XPosition = xPosition;
+
     /// <summary>Applies a debug rightward stimulus, then runs <c>$80:A641</c>.</summary>
     public void MoveRight(ushort pixelDistance)
     {

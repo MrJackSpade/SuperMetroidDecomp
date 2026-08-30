@@ -1047,6 +1047,14 @@ public sealed partial class SuperMetroidRuntime
                 ActiveSamusMode7Transform,
                 BombProjectiles,
                 VramWrites);
+            if (Enemies.RequestedShitroidCameraX is ushort shitroidCameraX)
+            {
+                // `$A9:EFE6` writes layer1_x_pos during EnemyMain, before the ordinary
+                // scrolling routine later in this frame. Do not route it through entry
+                // placement, which would clear subposition and ideal-camera state.
+                Camera.SetLayerOneXFromEnemyAi(shitroidCameraX);
+                BackgroundScroll.Layer1XPosition = shitroidCameraX;
+            }
             if (Enemies.ElevatorClearedProjectileData)
             {
                 // `$90:ADB7` clears all ten projectile slots and their counters. Ordinary
@@ -2106,6 +2114,7 @@ public sealed partial class SuperMetroidRuntime
                 ApplyPendingSporeSpawnCeilingPlm();
                 ApplyPendingCrocomireArenaPlms();
                 ApplyPendingMotherBrainPlms();
+                ApplyPendingShitroidWallPlms();
 
                 IReadOnlyList<PlmTilemapUpdate> plmUpdates = Plms.Step(
                     _addressSpace,

@@ -306,6 +306,62 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>
+    /// Spawns Shitroid's hardcoded ten-block vertical wall mutation at `$84:B763/$B767`.
+    /// Setup executes synchronously inside <c>SpawnHardcodedPLM</c>: `$B763` clears the
+    /// collision nibble and `$B767` replaces it with type eight while preserving the low
+    /// twelve bits of every authored level word.
+    /// </summary>
+    /// <returns>False when all forty native PLM slots are occupied; no terrain is changed.</returns>
+    public bool TrySpawnShitroidWallMutation(
+        RoomLevelData level,
+        byte blockX,
+        byte blockY,
+        ushort header)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        if (header is not (0xb763 or 0xb767))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(header),
+                header,
+                "Shitroid wall header must be $B763 or $B767.");
+        }
+
+        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
+        {
+            PlmSlot slot = _slots[slotIndex];
+            if (slot.Active)
+                continue;
+
+            slot.Active = true;
+            slot.HeaderPointer = header;
+            slot.BlockIndex = level.GetBlockIndex(blockX, blockY);
+            slot.RestoreLevelWord = 0;
+            slot.LoopTimer = 0;
+            slot.PreInstruction = 0;
+            slot.RoomArgument = 0;
+            slot.InstructionPointer = DeleteInstructionList;
+            slot.InstructionTimer = 1;
+
+            // Both setup routines walk downward through ten blocks in the same column.
+            // The mutation is part of setup, so it must occur before the PLM handler's
+            // instruction timer is allowed to consume and delete this allocated slot.
+            for (int rowOffset = 0; rowOffset < 10; rowOffset++)
+            {
+                int blockIndex = level.GetBlockIndex(blockX, blockY + rowOffset);
+                ushort current = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
+                ushort replacement = header == 0xb767
+                    ? unchecked((ushort)((current & 0x0fff) | 0x8000))
+                    : unchecked((ushort)(current & 0x0fff));
+                level.SetForegroundEntry(blockIndex, replacement);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Allocates one of Mother Brain's literal fake-death room mutations from
     /// <c>$84:B673-$84:B6C7</c>. Every listed header uses setup $B3D0 (deactivate) and a
     /// one-frame draw/delete list, so the shared PLM interpreter—not boss-specific terrain

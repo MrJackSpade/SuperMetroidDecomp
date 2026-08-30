@@ -191,6 +191,7 @@ public sealed partial class RoomEnemySystem
         EnemiesKilled = 0;
         BossId = 0;
         LastGunshipEvent = GunshipFrameEvent.None;
+        BeginShitroidFrame();
         GunshipSavePromptPending = false;
         GunshipSaveRequested = false;
         LastBoyonSoundEffect = null;
@@ -240,6 +241,7 @@ public sealed partial class RoomEnemySystem
         ResetDraygonRoomState();
         ResetMotherBrainRoomState();
         ResetDeadTorizoRoomState();
+        ResetShitroidRoomState();
         ResetShutterRoomState(cameraX, cameraY);
         ResetElevatorRoomActors();
         LastKzanSoundEffect = null;
@@ -386,7 +388,14 @@ public sealed partial class RoomEnemySystem
         // CGRAM or VRAM merely because its state happens to retain a non-empty set pointer.
         if (ReadWord(bus, EnemyPopulationBank | populationPointer) != 0xffff)
             LoadGraphicsSet(bus, tilesetPointer, vram, cgram);
-        LoadPopulation(bus, populationPointer, level, samus, controllerInput);
+        LoadPopulation(
+            bus,
+            populationPointer,
+            level,
+            samus,
+            controllerInput,
+            cameraX,
+            cameraY);
     }
 
     /// <summary>
@@ -887,7 +896,9 @@ public sealed partial class RoomEnemySystem
         ushort populationPointer,
         RoomLevelData? level,
         SamusState? samus,
-        ushort controllerInput)
+        ushort controllerInput,
+        ushort cameraX,
+        ushort cameraY)
     {
         int cursor = EnemyPopulationBank | populationPointer;
         int slotIndex = 0;
@@ -927,7 +938,7 @@ public sealed partial class RoomEnemySystem
             InitializeSlotFromDefinition(slot, population, definition);
             if (definition.BossId != 0)
                 BossId = definition.BossId;
-            RunInitializationAi(slot, level, samus, controllerInput);
+            RunInitializationAi(slot, level, samus, controllerInput, cameraX, cameraY);
 
             // InitializeEnemies deliberately clears the init routine's immediate map.
             // Disable-Samus-collision actors receive the canonical empty map until their
@@ -1004,7 +1015,9 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         RoomLevelData? level = null,
         SamusState? samus = null,
-        ushort controllerInput = 0)
+        ushort controllerInput = 0,
+        ushort cameraX = 0,
+        ushort cameraY = 0)
     {
         int address = (slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer;
         switch (address)
@@ -1343,6 +1356,9 @@ public sealed partial class RoomEnemySystem
             case 0xa9d308 when slot.EnemyDefinitionPointer == DeadTorizoDefinition:
                 InitializeDeadTorizo(slot);
                 return;
+            case 0xa9ef37 when slot.EnemyDefinitionPointer == ShitroidDefinition:
+                InitializeShitroid(slot, cameraX);
+                return;
             case 0xaad7c8 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
                 InitializeTourianEntranceStatue(slot);
                 return;
@@ -1453,6 +1469,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa9d368 when slot.EnemyDefinitionPointer == DeadTorizoDefinition:
                 RunDeadTorizoMain(slot, samus);
+                return;
+            case 0xa9efc5 when slot.EnemyDefinitionPointer == ShitroidDefinition:
+                RunShitroidMain(slot, samus, cameraX, cameraY, sharedProjectiles);
                 return;
             case 0xa48c04 when slot.EnemyDefinitionPointer == CrocomireDefinition:
                 RunCrocomireMain(slot, samus, controllerInput, level, cameraX);
@@ -2928,6 +2947,36 @@ public sealed partial class RoomEnemySystem
                     break;
                 case 0xf6bd: // Ceres door sound command; audio queue is not yet modeled.
                     cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xf920 when slot.EnemyDefinitionPointer == ShitroidDefinition:
+                    // Instruction 3 returns the calm animation list directly; it does not
+                    // consume an operand from the calling list.
+                    cursor = 0xf90e;
+                    break;
+                case 0xf936 when slot.EnemyDefinitionPointer == ShitroidDefinition:
+                    // Instruction 4 restarts the aggressive/draining loop.
+                    cursor = 0xf924;
+                    break;
+                case 0xf990 when slot.EnemyDefinitionPointer == ShitroidDefinition:
+                    // Instruction 6 restarts the departure loop.
+                    cursor = 0xf93a;
+                    break;
+                case 0xf994 when slot.EnemyDefinitionPointer == ShitroidDefinition:
+                    // Instruction 5 samples the existing RNG word; it does not generate a
+                    // new value. Clear high bit takes the same-bank operand branch. Set high
+                    // bit plays cry $52 and falls through beyond that operand.
+                    if (((_readRandomNumber?.Invoke() ?? 0) & 0x8000) == 0)
+                    {
+                        cursor = ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) |
+                                unchecked((ushort)(cursor + 2)));
+                    }
+                    else
+                    {
+                        LastShitroidSoundEffectLibrary2 = 0x0052;
+                        cursor = unchecked((ushort)(cursor + 4));
+                    }
                     break;
                 default:
                     if (TryProcessSporeSpawnInstruction(slot, word, ref cursor))

@@ -68,6 +68,9 @@ public sealed partial class RoomEnemySystem
     private const ushort MotherBrainHeadShotAi = 0xb507;
     private const ushort DeadTorizoTouchAndShotAi = 0xd433;
     private const ushort DeadTorizoPowerBombAi = 0xd42a;
+    private const ushort ShitroidTouchAi = 0xf789;
+    private const ushort ShitroidShotAi = 0xf842;
+    private const ushort ShitroidPowerBombAi = 0xefba;
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
@@ -152,6 +155,8 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == DraygonTouchAi;
             bool isDeadTorizo = slot.EnemyDefinitionPointer == DeadTorizoDefinition &&
                 slot.Definition.TouchAiPointer == DeadTorizoTouchAndShotAi;
+            bool isShitroid = slot.EnemyDefinitionPointer == ShitroidDefinition &&
+                slot.Definition.TouchAiPointer == ShitroidTouchAi;
             // A handful of utility/terrain enemies intentionally point touch AI at an RTL
             // in their own bank. Detect the native opcode instead of adding a name-specific
             // exception for every inert actor. The collision is still reported, but the
@@ -190,6 +195,7 @@ public sealed partial class RoomEnemySystem
                 isPhantoon ||
                 isDraygonBody ||
                 isDeadTorizo ||
+                isShitroid ||
                 isLiteralNoOpTouchAi ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
@@ -245,6 +251,15 @@ public sealed partial class RoomEnemySystem
             if (!overlapsSamus)
             {
                 continue;
+            }
+
+            if (isShitroid)
+            {
+                // `$A9:F789` replaces normal touch damage entirely. Depending on its
+                // current cutscene state, contact either starts pursuit/latching or adds a
+                // spin-jump recoil vector to the actor itself; Samus is never hurt here.
+                ResolveShitroidTouch(slot, samus);
+                return true;
             }
 
             // `$A9:D433` is shared by touch and shot. Contact does not enter common damage;
@@ -654,6 +669,8 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.ShotAiPointer == MotherBrainHeadShotAi;
             bool isDeadTorizo = enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
                 enemy.Definition.ShotAiPointer == DeadTorizoTouchAndShotAi;
+            bool isShitroid = enemy.EnemyDefinitionPointer == ShitroidDefinition &&
+                enemy.Definition.ShotAiPointer == ShitroidShotAi;
             // Several retail helper/projectile definitions point their shot callback at a
             // literal RTL in their own enemy bank. The bank-$A0 collision walker still runs
             // its projectile prelude before dispatching that no-op callback: supers request
@@ -706,6 +723,7 @@ public sealed partial class RoomEnemySystem
                 isMotherBrainBody ||
                 isMotherBrainHead ||
                 isDeadTorizo ||
+                isShitroid ||
                 isLiteralNoOpShotAi ||
                 enemy.EnemyDefinitionPointer == MochtroidDefinition &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
@@ -812,6 +830,20 @@ public sealed partial class RoomEnemySystem
                         (enemy.Properties & 0x1000) != 0 ||
                             (projectile.Type & 0x0008) == 0);
                     TriggerDeadTorizoRotting(enemy);
+                    hitCount++;
+                    break;
+                }
+
+                if (isShitroid)
+                {
+                    // Like Dead Torizo, Shitroid receives the bank-$A0 projectile prelude
+                    // but never creates an impact or enters vulnerability damage. Its own
+                    // callback converts shot strength and slot-zero aim into recoil.
+                    projectiles.ApplyEnemyCollisionPrelude(
+                        projectile.SlotIndex,
+                        (enemy.Properties & 0x1000) != 0 ||
+                            (projectile.Type & 0x0008) == 0);
+                    ResolveShitroidShot(enemy, projectile, projectiles.Slots[0]);
                     hitCount++;
                     break;
                 }
@@ -1635,6 +1667,8 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == DraygonPowerBombAi;
             bool isDeadTorizo = enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
                 reactionPointer == DeadTorizoPowerBombAi;
+            bool isShitroid = enemy.EnemyDefinitionPointer == ShitroidDefinition &&
+                reactionPointer == ShitroidPowerBombAi;
             if (isRinka && enemy.Properties.HasAny(EnemyProperties.Invisible))
                 continue;
             if (reactionPointer != 0 && !isFireflea && !isPowamp && !isFakeKraid &&
@@ -1651,7 +1685,8 @@ public sealed partial class RoomEnemySystem
                 !isMetroid &&
                 !isNorfairRidley &&
                 !isDraygonBody &&
-                !isDeadTorizo)
+                !isDeadTorizo &&
+                !isShitroid)
             {
                 throw new NotSupportedException(
                     $"Enemy ${enemy.EnemyDefinitionPointer:X4} power-bomb reaction " +
@@ -1684,6 +1719,14 @@ public sealed partial class RoomEnemySystem
             if (isDeadTorizo)
             {
                 TriggerDeadTorizoPowerBomb(enemy);
+                enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
+                reactionCount++;
+                continue;
+            }
+
+            if (isShitroid)
+            {
+                ResolveShitroidPowerBomb(enemy, samus);
                 enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
                 reactionCount++;
                 continue;

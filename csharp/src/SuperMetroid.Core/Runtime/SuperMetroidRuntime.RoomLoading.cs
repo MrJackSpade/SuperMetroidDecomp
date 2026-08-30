@@ -258,6 +258,7 @@ public sealed partial class SuperMetroidRuntime
         ApplyPendingSporeSpawnCeilingPlm();
         ApplyPendingCrocomireArenaPlms();
         ApplyPendingMotherBrainPlms();
+        ApplyPendingShitroidWallPlms();
         Enemies.QueueGraphicsUploads(VramWrites);
 
         // `$90:AC8D` follows the standard-sprite and room-enemy uploads during gameplay
@@ -391,6 +392,30 @@ public sealed partial class SuperMetroidRuntime
         foreach (MotherBrainPlmRequest request in state.PlmRequests)
         {
             Plms.TrySpawnMotherBrainMutation(
+                LevelData,
+                request.BlockX,
+                request.BlockY,
+                request.Header);
+        }
+    }
+
+    /// <summary>
+    /// Transfers Shitroid's bank-$A9 hardcoded wall requests to the shared bank-$84 PLM
+    /// pool at both producer seams: enemy initialization and the gameplay PLM handler.
+    /// </summary>
+    private void ApplyPendingShitroidWallPlms()
+    {
+        if (Enemies.ShitroidPlmRequests.Count == 0)
+            return;
+        if (LevelData is null)
+        {
+            throw new InvalidOperationException(
+                "Shitroid published wall PLMs without active room level data.");
+        }
+
+        foreach (ShitroidPlmRequest request in Enemies.ShitroidPlmRequests)
+        {
+            Plms.TrySpawnShitroidWallMutation(
                 LevelData,
                 request.BlockX,
                 request.BlockY,

@@ -62,6 +62,13 @@ public sealed class SamusBombProjectileSystem
     /// </remarks>
     internal void SetSharedCooldown(ushort value) => CooldownTimer = value;
 
+    /// <summary>
+    /// Replaces WRAM <c>$0CD2</c> from an enemy-owned Samus interaction. Shitroid writes
+    /// five while it drains Samus to suppress projectile allocation, then clears the word
+    /// at the terminal one-energy transition without disturbing the shared cooldown.
+    /// </summary>
+    internal void SetSharedBombCounter(ushort value) => BombCounter = value;
+
     /// <summary>Observable result of the most recent translated alpha/interaction pass.</summary>
     public BombProjectileFrameResult LastFrameResult { get; private set; }
 

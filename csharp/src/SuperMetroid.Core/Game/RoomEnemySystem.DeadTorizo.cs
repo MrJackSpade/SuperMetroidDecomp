@@ -202,7 +202,7 @@ public sealed partial class RoomEnemySystem
         }
 
         slot.VariableC = unchecked((ushort)(slot.VariableC + 1));
-        MoveDeadTorizoWithVelocity(slot);
+        MoveBankA9EnemyWithVelocity(slot);
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
             _bus!,
@@ -375,7 +375,12 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private static void MoveDeadTorizoWithVelocity(RoomEnemySlot slot)
+    /// <summary>
+    /// Applies bank-$A9's shared signed 8.8 enemy velocity pair. Dead Torizo and Shitroid
+    /// both call the same cartridge helper; retaining one implementation also makes its
+    /// unusual use of the high byte of the subposition explicit.
+    /// </summary>
+    private static void MoveBankA9EnemyWithVelocity(RoomEnemySlot slot)
     {
         int xCarry = (slot.XSubposition >> 8) + (byte)slot.VariableB;
         slot.XSubposition = unchecked((ushort)(

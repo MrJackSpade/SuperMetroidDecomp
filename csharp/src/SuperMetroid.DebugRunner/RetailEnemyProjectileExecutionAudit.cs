@@ -39,6 +39,7 @@ internal static partial class RetailEnemyExecutionAudit
         var unavailableDefinitions = new HashSet<ushort>();
         var failures = new List<ProjectileFailure>();
         int weaponDispatches = 0;
+        long postHitFrames = 0;
 
         foreach (RetailRoomState state in states)
         {
@@ -154,6 +155,14 @@ internal static partial class RetailEnemyExecutionAudit
                         {
                             successfulWeapons++;
                             weaponDispatches++;
+                            postHitFrames += AdvancePostProjectileLifecycle(
+                                bus,
+                                loaded,
+                                target,
+                                assets.LevelData,
+                                cameraX,
+                                cameraY,
+                                activationFrame);
                         }
                         lastTargetDiagnostic =
                             $"bank=${target.Definition.Bank:X2}, shot=" +
@@ -225,7 +234,8 @@ internal static partial class RetailEnemyExecutionAudit
         Console.WriteLine(
             $"Retail enemy projectile audit passed: {testedVariants.Count} authored " +
             $"definition/parameter/property variants inspected, {weaponDispatches} live " +
-            $"weapon callbacks executed across {reachedDefinitions.Count} definitions, and " +
+            $"weapon callbacks and {postHitFrames} hurt/freeze/death frames executed across " +
+            $"{reachedDefinitions.Count} definitions, and " +
             $"{unavailableDefinitions.Count} definitions remained naturally deleted, empty, " +
             $"or intangible through {ProjectileActivationFrameLimit} fresh-load frames.");
         return 0;
@@ -432,6 +442,75 @@ internal static partial class RetailEnemyExecutionAudit
             loaded.SharedProjectiles,
             loaded.Samus);
         return hits != 0;
+    }
+
+    /// <summary>
+    /// Follows one accepted weapon callback through the state it actually installed. Normal
+    /// hits need enough frames to clear hurt/invincibility dispatch; Ice needs its entire
+    /// cartridge-authored freeze clock plus two resumed frames. This turns the exhaustive
+    /// collision inventory into evidence for the enemy's resulting animation and movement,
+    /// rather than stopping immediately after health/frozen words were written.
+    /// </summary>
+    private static int AdvancePostProjectileLifecycle(
+        SuperMetroidAddressSpace bus,
+        LoadedRetailState loaded,
+        RoomEnemySlot target,
+        RoomLevelData level,
+        ushort cameraX,
+        ushort cameraY,
+        int activationFrame)
+    {
+        const int MinimumPostHitFrames = 64;
+        const int MaximumExpectedFreezeFrames = 2048;
+        int frozenFrames = target.FrozenTimer;
+        if (frozenFrames > MaximumExpectedFreezeFrames)
+        {
+            throw new InvalidDataException(
+                $"Definition ${target.EnemyDefinitionPointer:X4} installed implausible " +
+                $"{frozenFrames}-frame freeze state after a retail weapon callback.");
+        }
+        int frameCount = Math.Max(MinimumPostHitFrames, frozenFrames + 2);
+
+        for (int postFrame = 0; postFrame < frameCount; postFrame++)
+        {
+            // Keep the same target-relative stimulus used to activate the authored state,
+            // while immunizing Samus from incidental room projectiles. Enemy attacks still
+            // spawn, animate, collide with terrain, and expire through their real systems.
+            loaded.Samus.XPosition = target.XPosition;
+            loaded.Samus.YPosition = target.YPosition;
+            loaded.Samus.InvincibilityTimer = ushort.MaxValue;
+            loaded.Samus.KnockbackActive = false;
+            loaded.Samus.KnockbackDirection = 0;
+            loaded.Samus.KnockbackTimer = 0;
+            loaded.Samus.Health = loaded.Samus.MaxHealth;
+            loaded.Samus.Pose = SamusState.FacingRightNormalPose;
+            loaded.Samus.RefreshCollisionRadii(bus);
+            loaded.Samus.InitializeAnimation(bus);
+            loaded.Enemies.StepFrame(
+                cameraX,
+                cameraY,
+                timeIsFrozen: false,
+                loaded.Samus,
+                level: level,
+                samusProjectiles: loaded.SamusProjectiles,
+                nmiFrameCounter8: unchecked((byte)(activationFrame + postFrame + 1)),
+                mode7Transform: loaded.Mode7Transform,
+                sharedProjectiles: loaded.SharedProjectiles);
+            loaded.Enemies.StepEnemyProjectiles(
+                level,
+                loaded.Samus,
+                cameraX,
+                cameraY);
+        }
+
+        if (frozenFrames != 0 && target.FrozenTimer != 0)
+        {
+            throw new InvalidDataException(
+                $"Definition ${target.EnemyDefinitionPointer:X4} did not leave its " +
+                $"{frozenFrames}-frame frozen state after {frameCount} live enemy frames; " +
+                $"remaining={target.FrozenTimer}, handler=${target.AiHandlerBits:X4}.");
+        }
+        return frameCount;
     }
 
     private static void ArmAuditProjectile(

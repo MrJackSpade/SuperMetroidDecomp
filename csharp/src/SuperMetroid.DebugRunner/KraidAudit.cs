@@ -89,6 +89,8 @@ internal static class KraidAudit
             throw new InvalidDataException("Kraid health phase thresholds do not match retail arithmetic.");
         }
 
+        VerifyArmContact(enemies, samus, assets.LevelData);
+
         var functions = new HashSet<KraidAiFunction>();
         ushort nailStartX = enemies.Slots[6].XPosition;
         bool sawNailMovement = false;
@@ -487,10 +489,107 @@ internal static class KraidAudit
             "retail 2x2 room, " +
             "eight-part population, phase thresholds, Samus lockout, BG2 upload cadence, " +
             "rise rocks/music, private head bytecode, roar/spit cadence, independently timed " +
-            "foot lunge/retreat movement, fingernail motion, cartridge mouth damage, and " +
+            "foot lunge/retreat movement, arm-launch/lint-fire contact, fingernail motion, " +
+            "cartridge mouth damage, and " +
             "charged-body eye glow/unglow, ceiling growth, palette fade, second-phase " +
             $"walking/lint attacks, and {deathFrames}-frame sink/death/persistence.");
         return 0;
+    }
+
+    /// <summary>
+    /// Exercises the real common collision walker against Kraid's physical arm record.
+    /// `$A7:9490` has an encounter-visible side effect beyond ordinary damage: it launches
+    /// Samus by (+4,-8) and writes the lint-fire function directly into physical slot four.
+    /// Every mutated field is restored so this focused contact probe cannot alter the later
+    /// rise, first phase, growth, or death lifecycle checks in this same retail room.
+    /// </summary>
+    private static void VerifyArmContact(
+        RoomEnemySystem enemies,
+        SamusState samus,
+        RoomLevelData level)
+    {
+        // Consume one real arm instruction frame so collision uses the authored spritemap,
+        // rather than manufacturing geometry for the audit. The body remains in its normal
+        // rise state and the enclosing lifecycle loop simply continues from this frame.
+        enemies.StepFrame(CameraX, CameraY, timeIsFrozen: false, samus, level: level);
+        RoomEnemySlot arm = enemies.Slots[1];
+        if (arm.SpritemapPointer == 0)
+        {
+            throw new InvalidDataException(
+                "Kraid arm did not expose an authored spritemap on its first live frame.");
+        }
+
+        ushort[] savedX = enemies.Slots.Take(enemies.EnemyCount)
+            .Select(slot => slot.XPosition)
+            .ToArray();
+        ushort[] savedY = enemies.Slots.Take(enemies.EnemyCount)
+            .Select(slot => slot.YPosition)
+            .ToArray();
+        for (int slotIndex = 0; slotIndex < enemies.EnemyCount; slotIndex++)
+        {
+            if (slotIndex == arm.SlotIndex)
+                continue;
+            enemies.Slots[slotIndex].XPosition = unchecked((ushort)(
+                enemies.Slots[slotIndex].XPosition + 0x4000));
+            enemies.Slots[slotIndex].YPosition = unchecked((ushort)(
+                enemies.Slots[slotIndex].YPosition + 0x4000));
+        }
+
+        ushort savedSamusX = samus.XPosition;
+        ushort savedSamusY = samus.YPosition;
+        ushort savedHealth = samus.Health;
+        ushort savedExtraX = samus.Kinematics.ExtraXDisplacement;
+        ushort savedExtraXSub = samus.Kinematics.ExtraXSubdisplacement;
+        ushort savedExtraY = samus.Kinematics.ExtraYDisplacement;
+        ushort savedExtraYSub = samus.Kinematics.ExtraYSubdisplacement;
+        ushort savedLintFunction = enemies.Slots[4].VariableA;
+
+        samus.XPosition = arm.XPosition;
+        samus.YPosition = arm.YPosition;
+        samus.Health = 999;
+        samus.InvincibilityTimer = 0;
+        samus.KnockbackTimer = 0;
+        samus.KnockbackActive = false;
+        samus.Kinematics.ExtraXDisplacement = 0x1111;
+        samus.Kinematics.ExtraXSubdisplacement = 0x2222;
+        samus.Kinematics.ExtraYDisplacement = 0x3333;
+        samus.Kinematics.ExtraYSubdisplacement = 0x4444;
+
+        bool touched = enemies.ResolveOrdinarySamusContact(samus, controllerInput: 0, level);
+        ushort expectedHealth = unchecked((ushort)(999 - arm.Definition.Damage));
+        if (!touched || samus.Health != expectedHealth ||
+            samus.Kinematics.ExtraXDisplacement != 4 ||
+            samus.Kinematics.ExtraYDisplacement != unchecked((ushort)-8) ||
+            samus.Kinematics.ExtraXSubdisplacement != 0x2222 ||
+            samus.Kinematics.ExtraYSubdisplacement != 0x4444 ||
+            enemies.Slots[4].VariableA != (ushort)KraidAiFunction.LintFire)
+        {
+            throw new InvalidDataException(
+                $"Kraid arm contact mismatch: touched={touched}, health=" +
+                $"999->{samus.Health}/{expectedHealth}, displacement=" +
+                $"({samus.Kinematics.ExtraXDisplacement:X4}." +
+                $"{samus.Kinematics.ExtraXSubdisplacement:X4}," +
+                $"{samus.Kinematics.ExtraYDisplacement:X4}." +
+                $"{samus.Kinematics.ExtraYSubdisplacement:X4}), lint4=" +
+                $"$A7:{enemies.Slots[4].VariableA:X4}.");
+        }
+
+        for (int slotIndex = 0; slotIndex < enemies.EnemyCount; slotIndex++)
+        {
+            enemies.Slots[slotIndex].XPosition = savedX[slotIndex];
+            enemies.Slots[slotIndex].YPosition = savedY[slotIndex];
+        }
+        enemies.Slots[4].VariableA = savedLintFunction;
+        samus.XPosition = savedSamusX;
+        samus.YPosition = savedSamusY;
+        samus.Health = savedHealth;
+        samus.InvincibilityTimer = 0;
+        samus.KnockbackTimer = 0;
+        samus.KnockbackActive = false;
+        samus.Kinematics.ExtraXDisplacement = savedExtraX;
+        samus.Kinematics.ExtraXSubdisplacement = savedExtraXSub;
+        samus.Kinematics.ExtraYDisplacement = savedExtraY;
+        samus.Kinematics.ExtraYSubdisplacement = savedExtraYSub;
     }
 
     private static void VerifyRetailRoom(CartridgeRoomHeader room)

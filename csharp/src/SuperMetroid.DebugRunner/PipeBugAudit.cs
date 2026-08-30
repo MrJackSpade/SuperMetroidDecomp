@@ -73,8 +73,9 @@ internal static class PipeBugAudit
         Console.WriteLine(
             "Pipe Bug audit passed: all 77 records in 23 retail populations and all four " +
             "headers matched; normal/strong emergence and animation, five-member Norfair " +
-            "stagger/flight, both yellow directions and quadratic arcs, OBJ drawing, contact " +
-            "damage, beam damage/death, freeze, and power-bomb damage used cartridge data.");
+            "stagger/flight and post-member-death physical aliasing, both yellow directions " +
+            "and quadratic arcs, OBJ drawing, contact damage, beam damage/death, freeze, " +
+            "and power-bomb damage used cartridge data.");
         return 0;
     }
 
@@ -254,6 +255,83 @@ internal static class PipeBugAudit
             throw new InvalidDataException(
                 $"Norfair formation failed: rise={sawRise}, stagger={sawDistinctStaggers}, " +
                 $"flight={sawHorizontalFlight}, maps={maps.Count}.");
+        }
+
+        VerifyNorfairFormationAfterMemberDeath(loaded, assets);
+    }
+
+    /// <summary>
+    /// Generic death clears an enemy definition on the next processing scan, but the retail
+    /// leader still writes rise instructions/functions through all five physical formation
+    /// records. This is an observable raw-WRAM alias, not a malformed-room case.
+    /// </summary>
+    private static void VerifyNorfairFormationAfterMemberDeath(
+        LoadedPipeBugs source,
+        CartridgeRoomAssets assets)
+    {
+        LoadedPipeBugs loaded = LoadPrefix(
+            source.Bus,
+            source.Room,
+            assets,
+            source.PopulationPointer,
+            retainedRecordCount: 5);
+        RoomEnemySlot leader = loaded.Enemies.Slots[0];
+        RoomEnemySlot victim = loaded.Enemies.Slots[2];
+        ushort cameraX = CenterCameraX(leader);
+        ushort cameraY = CenterCameraY(leader);
+        // DetermineWhichEnemiesToProcess publishes the live collision-index array at the
+        // start of an enemy frame. Keep Samus at the fixture's harmless default while the
+        // leader performs its ordinary all-five dormant check.
+        Step(loaded, assets, cameraX, cameraY);
+        ushort[] savedProperties = loaded.Enemies.Slots.Take(5)
+            .Select(slot => slot.Properties)
+            .ToArray();
+        for (int slotIndex = 0; slotIndex < 5; slotIndex++)
+        {
+            if (slotIndex != victim.SlotIndex)
+            {
+                loaded.Enemies.Slots[slotIndex].Properties =
+                    loaded.Enemies.Slots[slotIndex].Properties.With(
+                        EnemyProperties.IgnoreSamusCollision);
+            }
+        }
+
+        var projectiles = new SamusProjectileSystem();
+        ArmProjectile(projectiles.Slots[0], victim, type: 0, damage: victim.Health);
+        int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
+            source.Bus,
+            projectiles,
+            new SamusBombProjectileSystem(),
+            loaded.Samus);
+        for (int slotIndex = 0; slotIndex < 5; slotIndex++)
+            loaded.Enemies.Slots[slotIndex].Properties = savedProperties[slotIndex];
+        // Restore only the victim's native deletion bit after restoring collision isolation.
+        victim.Properties = victim.Properties.With(EnemyProperties.Deleted);
+        if (hits != 1 || victim.Health != 0 || loaded.Enemies.EnemiesKilled != 1)
+        {
+            throw new InvalidDataException(
+                $"Norfair formation member death setup failed: hits={hits}, " +
+                $"health={victim.Health}, killed={loaded.Enemies.EnemiesKilled}.");
+        }
+
+        loaded.Samus.XPosition = leader.XPosition;
+        loaded.Samus.YPosition = unchecked((ushort)(leader.YPosition - 48));
+        Step(loaded, assets, cameraX, cameraY); // clear victim definition; raw-write all five
+
+        PipeBugEnemyState victimState = RequireState(loaded.Enemies, victim);
+        if (victim.EnemyDefinitionPointer != 0 ||
+            victimState.DefinitionAtInitialization != NorfairDefinition ||
+            victimState.Function != PipeBugEnemyFunction.NorfairRise ||
+            victim.CurrentInstruction != 0x8b21 ||
+            RequireState(loaded.Enemies, leader).Function != PipeBugEnemyFunction.NorfairRise)
+        {
+            throw new InvalidDataException(
+                $"Norfair leader lost its physical alias after member death: victim=" +
+                $"${victim.EnemyDefinitionPointer:X4}/owner " +
+                $"${victimState.DefinitionAtInitialization:X4}, function=" +
+                $"$B3:{(ushort)victimState.Function:X4}, instruction=" +
+                $"$B3:{victim.CurrentInstruction:X4}, leader=" +
+                $"$B3:{(ushort)RequireState(loaded.Enemies, leader).Function:X4}.");
         }
     }
 

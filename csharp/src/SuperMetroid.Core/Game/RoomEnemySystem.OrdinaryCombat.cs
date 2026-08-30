@@ -67,6 +67,7 @@ public sealed partial class RoomEnemySystem
     private const ushort MotherBrainBodyShotAi = 0xb503;
     private const ushort MotherBrainHeadShotAi = 0xb507;
     private const ushort MotherBrainHeadTouchAi = 0xb5c6;
+    private const ushort KraidArmTouchAi = 0x9490;
     private const ushort DeadTorizoTouchAndShotAi = 0xd433;
     private const ushort DeadTorizoPowerBombAi = 0xd42a;
     private const ushort DeadSidehopperTouchAi = 0xdd44;
@@ -159,6 +160,8 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == DraygonTouchAi;
             bool isMotherBrainHead = slot.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
                 slot.Definition.TouchAiPointer == MotherBrainHeadTouchAi;
+            bool isKraidArm = slot.EnemyDefinitionPointer == KraidArmDefinition &&
+                slot.Definition.TouchAiPointer == KraidArmTouchAi;
             bool isDeadTorizo = slot.EnemyDefinitionPointer == DeadTorizoDefinition &&
                 slot.Definition.TouchAiPointer == DeadTorizoTouchAndShotAi;
             bool isDeadSidehopper =
@@ -205,6 +208,7 @@ public sealed partial class RoomEnemySystem
                 isPhantoon ||
                 isDraygonBody ||
                 isMotherBrainHead ||
+                isKraidArm ||
                 isDeadTorizo ||
                 isDeadSidehopper ||
                 isDeadTourianCorpse ||
@@ -260,6 +264,26 @@ public sealed partial class RoomEnemySystem
             if (!overlapsSamus)
             {
                 continue;
+            }
+
+            if (isKraidArm)
+            {
+                // `$A7:9490-$94A4` deliberately addresses physical enemy slot four,
+                // rather than searching for a particular lint definition. The encounter's
+                // eight-record layout makes that the bottom lint; forcing `$B89B` here
+                // causes it to fire immediately after the arm launches Samus up and right.
+                // Native writes only the whole displacement words, so preserve both
+                // fractional words exactly as they were before contact.
+                _ = RequireKraidState(slot);
+                samus.Kinematics.ExtraXDisplacement = 4;
+                samus.Kinematics.ExtraYDisplacement = unchecked((ushort)-8);
+                _slots[4].VariableA = (ushort)KraidAiFunction.LintFire;
+                ResolveNormalEnemyTouch(
+                    slot,
+                    samus,
+                    controllerInput,
+                    skipDeathAnimation: true);
+                return true;
             }
 
             if (isMotherBrainHead)

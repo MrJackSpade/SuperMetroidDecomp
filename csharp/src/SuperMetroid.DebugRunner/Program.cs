@@ -144,6 +144,12 @@ if (args.Length >= 2 && args[0] == "--retail-enemy-touch-audit")
     return RetailEnemyExecutionAudit.RunTouchCombat(touchAuditRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--retail-enemy-grapple-audit")
+{
+    string grappleAuditRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailEnemyExecutionAudit.RunGrappleCombat(grappleAuditRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--retail-enemy-projectile-audit")
 {
     string projectileAuditRomPath = string.Join(' ', args[1..]).Trim('"');

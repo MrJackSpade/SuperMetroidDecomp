@@ -44,7 +44,19 @@ public sealed class PipeBugEnemyState
 {
     private readonly RoomEnemySlot _slot;
 
-    internal PipeBugEnemyState(RoomEnemySlot slot) => _slot = slot;
+    internal PipeBugEnemyState(RoomEnemySlot slot)
+    {
+        _slot = slot;
+        DefinitionAtInitialization = slot.EnemyDefinitionPointer;
+    }
+
+    /// <summary>
+    /// Header which created this physical state projection. Generic death clears the live
+    /// definition word on the following scheduler scan, but native formation code continues
+    /// to address the record's variables through fixed <c>+$40</c> aliases. Species-aware
+    /// typed views must therefore use this immutable owner, not the disposable live word.
+    /// </summary>
+    public ushort DefinitionAtInitialization { get; }
 
     /// <summary>Native variable A for Norfair/yellow bugs, or direction for Brinstar bugs.</summary>
     public ushort VariableA
@@ -67,15 +79,15 @@ public sealed class PipeBugEnemyState
     }
 
     public bool IsBrinstar =>
-        _slot.EnemyDefinitionPointer is
+        DefinitionAtInitialization is
             RoomEnemySystem.BrinstarPipeBugDefinition or
             RoomEnemySystem.StrongBrinstarPipeBugDefinition;
 
     public bool IsNorfair =>
-        _slot.EnemyDefinitionPointer == RoomEnemySystem.NorfairPipeBugDefinition;
+        DefinitionAtInitialization == RoomEnemySystem.NorfairPipeBugDefinition;
 
     public bool IsYellow =>
-        _slot.EnemyDefinitionPointer == RoomEnemySystem.YellowPipeBugDefinition;
+        DefinitionAtInitialization == RoomEnemySystem.YellowPipeBugDefinition;
 
     // The names below follow their role in the currently selected species. They are kept
     // together because the cartridge overlays all of them in one Enemy_PipeBug structure.
@@ -551,12 +563,18 @@ public sealed partial class RoomEnemySystem
         for (int index = 0; index < formation.Length; index++)
         {
             RoomEnemySlot member = _slots[leader.SlotIndex + index];
-            if (member.EnemyDefinitionPointer != NorfairPipeBugDefinition)
+            PipeBugEnemyState? state = _pipeBugStates[member.SlotIndex];
+            if (state?.DefinitionAtInitialization != NorfairPipeBugDefinition)
             {
                 throw new InvalidDataException(
                     $"Norfair Pipe Bug formation slot {leader.SlotIndex + index} is " +
-                    $"enemy ${member.EnemyDefinitionPointer:X4}, expected ${NorfairPipeBugDefinition:X4}.");
+                    $"owned by initialized enemy ${state?.DefinitionAtInitialization ?? 0:X4}, " +
+                    $"expected ${NorfairPipeBugDefinition:X4}.");
             }
+            // `$B3:8BCD/$8BFF/$8C52` never re-check the live definition. They read and
+            // write five consecutive 64-byte records even after generic death has changed
+            // one member's definition to zero. Retaining the initialized typed owner here
+            // preserves that raw alias without accepting an unrelated never-Pipe-Bug slot.
             formation[index] = member;
         }
         return formation;

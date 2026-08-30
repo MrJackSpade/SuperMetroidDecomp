@@ -38,7 +38,8 @@ internal static class ZebetiteAudit
             "Zebetite audit passed: the untouched Mother Brain record selected all four " +
             "event-backed generations; ROM geometry, linked halves, transition gate, health " +
             "regeneration/tier animation, palette cycle, OBJ drawing, touch, mirrored shot " +
-            "damage, death explosions, embedded respawns, and final event state were verified.");
+            "and normal-bomb damage, death explosions, embedded respawns, and final event " +
+            "state were verified.");
         return 0;
     }
 
@@ -232,6 +233,29 @@ internal static class ZebetiteAudit
                 $"{linked.FlashTimer}, sound={loaded.Enemies.LastZebetiteSoundEffect}.");
         }
 
+        // `$A6:FDAC` uses the exact same no-death common-damage prelude for physical bombs,
+        // then mirrors health and flash into the linked half. Force disagreement again so a
+        // successful assertion cannot be inherited from the beam callback above.
+        primary.Health = 500;
+        linked.Health = 733;
+        linked.FlashTimer = 0;
+        bombs = new SamusBombProjectileSystem();
+        ArmNormalBomb(bombs.Slots[0], primary);
+        hits = loaded.Enemies.ResolveOrdinaryBombHits(
+            bombs,
+            new SamusProjectileSystem(),
+            loaded.Samus);
+        if (hits != 1 || (bombs.Slots[0].Direction & 0x0010) == 0 ||
+            linked.Health != primary.Health || linked.FlashTimer != primary.FlashTimer ||
+            loaded.Enemies.LastZebetiteSoundEffect != 9)
+        {
+            throw new InvalidDataException(
+                $"Zebetite linked normal bomb failed: hits={hits}, direction=" +
+                $"${bombs.Slots[0].Direction:X4}, health={primary.Health}/{linked.Health}, " +
+                $"flash={primary.FlashTimer}/{linked.FlashTimer}, sound=" +
+                $"{loaded.Enemies.LastZebetiteSoundEffect}.");
+        }
+
         loaded.Samus.XPosition = primary.XPosition;
         loaded.Samus.YPosition = primary.YPosition;
         ushort samusHealth = loaded.Samus.Health;
@@ -414,6 +438,23 @@ internal static class ZebetiteAudit
         projectile.YRadius = 4;
         projectile.InstructionPointer = 0x9000;
         projectile.InstructionTimer = 1;
+    }
+
+    private static void ArmNormalBomb(
+        SamusBombProjectileSlot bomb,
+        RoomEnemySlot target)
+    {
+        bomb.ClearFields();
+        bomb.Type = SamusBombProjectileSystem.NormalBombType;
+        bomb.Damage = 20;
+        bomb.Direction = (ushort)SamusProjectileDirection.Right;
+        bomb.XPosition = target.XPosition;
+        bomb.YPosition = target.YPosition;
+        bomb.XRadius = 16;
+        bomb.YRadius = 16;
+        bomb.BombTimer = 0;
+        bomb.InstructionPointer = 0xa06b;
+        bomb.InstructionTimer = 1;
     }
 
     private static ZebetiteEnemyState RequireState(RoomEnemySystem enemies, RoomEnemySlot actor) =>

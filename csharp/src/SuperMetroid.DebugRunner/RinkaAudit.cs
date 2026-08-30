@@ -48,10 +48,12 @@ internal static class RinkaAudit
 
         VerifyAnimationFlightAndContact(bus, room, assets);
         VerifyShotDeathAndRespawn(bus, room, assets);
+        VerifyNormalBombDeath(bus, room, assets);
         VerifyPowerBombDeath(bus, room, assets);
         Console.WriteLine(
             "Rinka untouched-room audit passed: four retail actors loaded, animated, " +
-            "aimed, flew, recycled, damaged Samus, accepted beam/power-bomb damage, " +
+            "aimed, flew, recycled, damaged Samus, accepted beam/normal-bomb/power-bomb " +
+            "damage, " +
             "ran variant-zero death frames, and respawned from their population snapshot.");
         return 0;
     }
@@ -202,6 +204,33 @@ internal static class RinkaAudit
         }
     }
 
+    private static void VerifyNormalBombDeath(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        (RoomEnemySystem enemies, SamusState samus) = LoadRoom(bus, room, assets);
+        RoomEnemySlot target = GetRinkas(enemies)[0];
+        StepUntilInteractive(enemies, samus, assets.LevelData, target);
+
+        var bombs = new SamusBombProjectileSystem();
+        var shots = new SamusProjectileSystem();
+        ArmNormalBomb(bombs.Slots[0], target);
+        int hits = enemies.ResolveOrdinaryBombHits(bombs, shots, samus);
+        if (hits != 1 || (bombs.Slots[0].Direction & 0x0010) == 0 ||
+            target.EnemyDefinitionPointer != 0xdaff || target.Health != 0 ||
+            enemies.EnemiesKilled != 0 ||
+            enemies.EnemyProjectiles.Count(projectile =>
+                projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion) != 1)
+        {
+            throw new InvalidDataException(
+                $"Rinka normal-bomb death mismatch: hits={hits}, direction=" +
+                $"${bombs.Slots[0].Direction:X4}, ptr=${target.EnemyDefinitionPointer:X4}, " +
+                $"health={target.Health}, kills={enemies.EnemiesKilled}, projectiles=" +
+                $"{enemies.ActiveEnemyProjectileCount}.");
+        }
+    }
+
     private static (RoomEnemySystem Enemies, SamusState Samus) LoadRoom(
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room,
@@ -272,6 +301,25 @@ internal static class RinkaAudit
         projectile.YRadius = 4;
         projectile.InstructionPointer = 0x9000;
         projectile.InstructionTimer = 1;
+    }
+
+    private static void ArmNormalBomb(
+        SamusBombProjectileSlot bomb,
+        RoomEnemySlot target)
+    {
+        bomb.ClearFields();
+        // Rinka's bomb vulnerability is one. The shared half-damage convention turns this
+        // twenty-point explosion into the exact ten points needed to enter `$A2:B960`.
+        bomb.Type = SamusBombProjectileSystem.NormalBombType;
+        bomb.Damage = 20;
+        bomb.Direction = (ushort)SamusProjectileDirection.Right;
+        bomb.XPosition = target.XPosition;
+        bomb.YPosition = target.YPosition;
+        bomb.XRadius = 16;
+        bomb.YRadius = 16;
+        bomb.BombTimer = 0;
+        bomb.InstructionPointer = 0xa06b;
+        bomb.InstructionTimer = 1;
     }
 
     private static void VerifyHeader(ISnesAddressSpace bus)

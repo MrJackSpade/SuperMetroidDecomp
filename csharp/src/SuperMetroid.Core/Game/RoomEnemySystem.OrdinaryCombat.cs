@@ -1661,9 +1661,13 @@ public sealed partial class RoomEnemySystem
             bool usesLiteralNoOpShotAi = IsLiteralNoOpEnemyAi(
                 enemy.Definition.Bank,
                 enemy.Definition.ShotAiPointer);
+            bool usesTranslatedPrivateShotAi = IsTranslatedPrivateNormalBombShotAi(
+                enemy,
+                enemy.Definition.ShotAiPointer);
             bool usesExtendedHitboxes =
                 enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
-            if ((!isMetroid && !usesCommonShotAi && !usesLiteralNoOpShotAi) ||
+            if ((!isMetroid && !usesCommonShotAi && !usesLiteralNoOpShotAi &&
+                    !usesTranslatedPrivateShotAi) ||
                 enemy.SpritemapPointer == 0 ||
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Properties.HasAny(EnemyProperties.Deleted))
@@ -1720,16 +1724,29 @@ public sealed partial class RoomEnemySystem
                 bool selectedLiteralNoOp = IsLiteralNoOpEnemyAi(
                     enemy.Definition.Bank,
                     selectedShotAi);
+                bool selectedTranslatedPrivate = IsTranslatedPrivateNormalBombShotAi(
+                    enemy,
+                    selectedShotAi);
                 if (!isMetroid &&
                     selectedShotAi != CommonNormalEnemyShotAi &&
-                    !selectedLiteralNoOp)
+                    !selectedLiteralNoOp &&
+                    !selectedTranslatedPrivate)
                     continue;
 
                 // EnemyBombCollHandler marks the physical bomb before dispatch. Unlike an
                 // ordinary beam impact, the bomb is already running its explosion program;
                 // common shot AI must not replace it with a bank-$93 impact animation.
                 bomb.Direction = unchecked((ushort)(bomb.Direction | 0x0010));
-                if (isMetroid)
+                if (enemy.EnemyDefinitionPointer is
+                        ShootableVerticalShutterDefinition or KamerVerticalPlatformDefinition &&
+                    selectedShotAi == ShootableVerticalShutterShotAi)
+                {
+                    // `$A2:F0A2` never calls common shot AI. Bomb collision has already
+                    // marked the physical bomb, then the callback only advances the shutter
+                    // state machine exactly as a beam, missile, touch, or power bomb would.
+                    ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
+                }
+                else if (isMetroid)
                 {
                     // Metroid shot AI ignores bombs while frozen, detaches an attached body
                     // for family $0500, or applies its peculiar slot-zero recoil otherwise.
@@ -1747,7 +1764,217 @@ public sealed partial class RoomEnemySystem
                 }
                 else if (!selectedLiteralNoOp)
                 {
-                    ApplyCommonNormalBombDamage(enemy, bomb);
+                    bool isDeadTorizo = enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
+                        selectedShotAi == DeadTorizoTouchAndShotAi;
+                    bool isDeadSidehopper =
+                        enemy.EnemyDefinitionPointer == DeadSidehopperDefinition &&
+                        selectedShotAi == DeadSidehopperShotAi;
+                    bool isDeadTourianCorpse = HasDeadTourianCorpseShotCallback(enemy) &&
+                        selectedShotAi == enemy.Definition.ShotAiPointer;
+                    bool isDraygonBody = enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
+                        selectedShotAi == DraygonShotAi;
+                    bool isSporeSpawn = enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
+                        selectedShotAi == SporeSpawnShotAi;
+                    bool isBossDudHitbox =
+                        enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
+                            selectedShotAi == DraygonDudHitboxShotAi ||
+                        enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
+                            selectedShotAi == SporeSpawnDudHitboxShotAi;
+                    bool clearsBombCollisionMark =
+                        enemy.EnemyDefinitionPointer == SparkDefinition &&
+                            selectedShotAi == SparkShotAi ||
+                        enemy.EnemyDefinitionPointer == BlueBrinstarFaceBlockDefinition &&
+                            selectedShotAi == BlueBrinstarFaceBlockShotAi;
+                    if (isDeadTorizo)
+                    {
+                        // Corpse shot callbacks run directly after the bank-$A0 collision
+                        // mark. They do not consult bomb vulnerability or health; they only
+                        // hand the actor to its authored rotting state machine.
+                        TriggerDeadTorizoRotting(enemy);
+                    }
+                    else if (isDeadSidehopper)
+                    {
+                        ResolveDeadSidehopperShot(enemy);
+                    }
+                    else if (isDeadTourianCorpse)
+                    {
+                        TriggerDeadTourianCorpseRotting(enemy);
+                    }
+                    else if (isBossDudHitbox)
+                    {
+                        // `$A5:8046` is CreateDudShot. The native extended walker has already
+                        // marked the physical bomb; no vulnerability, health, or boss state
+                        // follows. Bomb-owned dud sprite/sound presentation remains a shared
+                        // projectile-system seam, so the enemy-visible contract ends here.
+                    }
+                    else if (clearsBombCollisionMark)
+                    {
+                        // `$A8:E70E/$E91D` do not call common shot AI. Their entire callback
+                        // clears direction bit $10, undoing the mark installed immediately
+                        // above and allowing the physical bomb actor to remain untouched.
+                        bomb.Direction = unchecked((ushort)(bomb.Direction & 0xffef));
+                    }
+                    else
+                    {
+                        bool isRinka = enemy.EnemyDefinitionPointer == RinkaDefinition &&
+                            selectedShotAi == RinkaShotAi;
+                        bool isSkree = enemy.EnemyDefinitionPointer == SkreeDefinition &&
+                            selectedShotAi == SkreeShotAi;
+                        bool isPowamp = enemy.EnemyDefinitionPointer == PowampDefinition &&
+                            selectedShotAi == PowampShotAi;
+                        bool isZebetite = enemy.EnemyDefinitionPointer == ZebetiteDefinition &&
+                            selectedShotAi == ZebetiteShotAi;
+
+                        // Owtch's shell accepts common damage only during its vulnerable state
+                        // zero. Powered Work Robot likewise returns until Phantoon is dead.
+                        // Bank $A0 has already marked the bomb in either case, so callback
+                        // rejection belongs here rather than in collision admission.
+                        bool privateCallbackRejected =
+                            enemy.EnemyDefinitionPointer == OwtchDefinition &&
+                                selectedShotAi == OwtchShotAi &&
+                                !OwtchAcceptsOrdinaryShot(RequireOwtchState(enemy)) ||
+                            enemy.EnemyDefinitionPointer == WorkRobotDefinition &&
+                                selectedShotAi == WorkRobotShotAi &&
+                                !(_isAreaBossDefeated?.Invoke() ?? false);
+                        if (!privateCallbackRejected)
+                        {
+                            ushort enemyHealthBefore = enemy.Health;
+                            if (isDraygonBody)
+                                AdvanceDraygonShotAcceleration(RequireCompleteDraygonState(enemy));
+                            // Rinka, Skree, and Powamp deliberately call the no-death-animation
+                            // form of common shot AI. Their private callbacks own slot cleanup
+                            // or a staged death below; every other translated callback uses the
+                            // common tail.
+                            ApplyCommonNormalBombDamage(
+                                enemy,
+                                bomb,
+                                runGenericDeath:
+                                    !isRinka && !isSkree && !isPowamp && !isZebetite &&
+                                    !isDraygonBody && !isSporeSpawn);
+
+                            if (enemy.EnemyDefinitionPointer == BabyTurtleDefinition &&
+                                selectedShotAi == BabyTurtleShotAi)
+                            {
+                                ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
+                            }
+                            if (isRinka)
+                                ResolveRinkaCombatAfterCommon(enemy);
+                            if (enemy.EnemyDefinitionPointer == MaridiaLargeSnailDefinition &&
+                                selectedShotAi == MaridiaLargeSnailShotAi)
+                            {
+                                ResolveMaridiaLargeSnailShotAfterCommon();
+                            }
+                            if (enemy.EnemyDefinitionPointer is
+                                    GRipperDefinition or Ripper2Definition &&
+                                selectedShotAi == GRipperRipper2ShotAi)
+                            {
+                                ResolveGRipperRipper2ShotAfterCommon(enemy);
+                            }
+                            if (enemy.EnemyDefinitionPointer == DragonDefinition &&
+                                selectedShotAi == DragonShotAi)
+                            {
+                                ResolveDragonCombatAfterCommon(enemy);
+                            }
+                            if (enemy.EnemyDefinitionPointer == MetareeDefinition &&
+                                selectedShotAi == MetareeShotAi &&
+                                enemy.Health == 0)
+                            {
+                                // `$A3:8B0F` restores the dying actor's graphics long enough to
+                                // seed four debris actors, then clears both words. The host death
+                                // flag does not erase the record, so the exact source remains here.
+                                SpawnMetareeParticleBurst(enemy);
+                                enemy.VramTilesIndex = 0;
+                                enemy.PaletteIndex = 0;
+                            }
+                            if (enemy.EnemyDefinitionPointer == FirefleaDefinition &&
+                                selectedShotAi == FirefleaShotAi &&
+                                enemy.Health == 0)
+                            {
+                                AdvanceFirefleaDarknessLevel();
+                            }
+                            if (enemy.EnemyDefinitionPointer == FakeKraidDefinition &&
+                                selectedShotAi == FakeKraidShotAi &&
+                                enemyHealthBefore != 0 && enemy.Health == 0)
+                            {
+                                // Fake Kraid saves its coordinates before common no-death AI,
+                                // then requests death variant three and the Mini-Kraid drop.
+                                // The host keeps those coordinates in the typed drop request.
+                                RequestFakeKraidDeathDrop(enemy);
+                            }
+                            if (enemy.EnemyDefinitionPointer == TripperDefinition &&
+                                selectedShotAi == TripperShotAi &&
+                                enemy.FrozenTimer != 0)
+                            {
+                                enemy.SpritemapPointer = RequirePlatformState(enemy).XMovement ==
+                                    PlatformHorizontalMovement.Left
+                                        ? TripperFrozenMovingLeftSpritemap
+                                        : TripperFrozenMovingRightSpritemap;
+                            }
+                            if (isSkree && enemy.Health == 0)
+                            {
+                                // Skree's callback owns its four-piece burst and death animation
+                                // because it called `NormalEnemyShotAiSkipDeathAnim`. A normal bomb
+                                // selects death variant zero (only missiles select variant two).
+                                SpawnSkreeParticleBurst(enemy);
+                                enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
+                                EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
+                            }
+                            if (isZebetite)
+                                ResolveZebetiteShotAfterCommon(enemy);
+                            if (isSporeSpawn)
+                                ResolveSporeSpawnShotAfterCommon(enemy);
+                            if (isDraygonBody)
+                                ResolveDraygonReaction(enemy, samus);
+                            if (enemy.EnemyDefinitionPointer == DestroyableVerticalShutterDefinition &&
+                                selectedShotAi == DestroyableVerticalShutterShotAi)
+                            {
+                                ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
+                            }
+
+                            // Bank-$A8 callbacks below reuse the same translated post-common
+                            // routines as beams. Normal bombs cannot freeze, but their damage,
+                            // staged-death, child synchronization, recoil, release, and attack
+                            // side effects are otherwise byte-for-byte the same callback tails.
+                            if (enemy.EnemyDefinitionPointer == EvirDefinition &&
+                                selectedShotAi == EvirShotAi)
+                                ResolveEvirCombatAfterCommon(enemy);
+                            if (enemy.EnemyDefinitionPointer == YappingMawDefinition &&
+                                selectedShotAi == YappingMawShotAi)
+                            {
+                                ResolveYappingMawShotAfterCommon(
+                                    enemy,
+                                    RequireYappingMawState(enemy),
+                                    samus);
+                            }
+                            if (enemy.EnemyDefinitionPointer == KagoDefinition &&
+                                selectedShotAi == KagoShotAi)
+                                ResolveKagoShotAfterCommon(enemy, RequireKagoState(enemy));
+                            if (enemy.EnemyDefinitionPointer == MagdolliteDefinition &&
+                                selectedShotAi == MagdolliteShotAi)
+                                ResolveMagdolliteCombatAfterCommon(enemy);
+                            if (enemy.EnemyDefinitionPointer == BeetomDefinition &&
+                                selectedShotAi == BeetomShotAi)
+                                ResolveBeetomShotAfterCommon(enemy, RequireBeetomState(enemy));
+                            if (isPowamp)
+                                ResolvePowampShotAfterCommon(enemy);
+                            if (IsWorkRobotDefinition(enemy.EnemyDefinitionPointer) &&
+                                selectedShotAi is WorkRobotShotAi or WorkRobotNoPowerShotAi)
+                            {
+                                ResolveWorkRobotShotAfterCommon(enemy, samus);
+                            }
+                            if (enemy.EnemyDefinitionPointer == BullDefinition &&
+                                selectedShotAi == BullShotAi)
+                            {
+                                BullEnemyState bullState = RequireBullState(enemy);
+                                bullState.PreviousHealth = enemyHealthBefore;
+                                if (enemy.Health == enemyHealthBefore)
+                                    ResolveBullImmuneShot(enemy, bullState, bomb.Direction);
+                            }
+                            if (IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
+                                selectedShotAi == KiHunterShotAi)
+                                ResolveKiHunterShotAfterCommon(enemy);
+                        }
+                    }
                 }
 
                 hitCount++;
@@ -1760,6 +1987,60 @@ public sealed partial class RoomEnemySystem
 
     private bool IsLiteralNoOpEnemyAi(byte bank, ushort pointer) =>
         pointer != 0 && _bus!.ReadByte((bank << 16) | pointer) == 0x6b;
+
+    /// <summary>
+    /// Reports the bank-$A2/$A3 private shot callbacks whose family-$0500 path is translated.
+    /// Definition and callback are checked together because identical 16-bit addresses in
+    /// different enemy banks are unrelated native routines, while an extended hitbox may
+    /// deliberately override its definition header with a different callback.
+    /// </summary>
+    private static bool IsTranslatedPrivateNormalBombShotAi(
+        RoomEnemySlot enemy,
+        ushort callback) =>
+        enemy.EnemyDefinitionPointer == BabyTurtleDefinition && callback == BabyTurtleShotAi ||
+        enemy.EnemyDefinitionPointer == OwtchDefinition && callback == OwtchShotAi ||
+        enemy.EnemyDefinitionPointer == RinkaDefinition && callback == RinkaShotAi ||
+        enemy.EnemyDefinitionPointer == MaridiaLargeSnailDefinition &&
+            callback == MaridiaLargeSnailShotAi ||
+        enemy.EnemyDefinitionPointer is GRipperDefinition or Ripper2Definition &&
+            callback == GRipperRipper2ShotAi ||
+        enemy.EnemyDefinitionPointer == DragonDefinition && callback == DragonShotAi ||
+        enemy.EnemyDefinitionPointer is
+                ShootableVerticalShutterDefinition or KamerVerticalPlatformDefinition &&
+            callback == ShootableVerticalShutterShotAi ||
+        enemy.EnemyDefinitionPointer == DestroyableVerticalShutterDefinition &&
+            callback == DestroyableVerticalShutterShotAi ||
+        enemy.EnemyDefinitionPointer == MetareeDefinition && callback == MetareeShotAi ||
+        enemy.EnemyDefinitionPointer == FirefleaDefinition && callback == FirefleaShotAi ||
+        enemy.EnemyDefinitionPointer == TripperDefinition && callback == TripperShotAi ||
+        enemy.EnemyDefinitionPointer == MochtroidDefinition && callback == MochtroidShotAi ||
+        enemy.EnemyDefinitionPointer == SkreeDefinition && callback == SkreeShotAi ||
+        enemy.EnemyDefinitionPointer == YardDefinition && callback == YardShotAi ||
+        enemy.EnemyDefinitionPointer == EvirDefinition && callback == EvirShotAi ||
+        enemy.EnemyDefinitionPointer == YappingMawDefinition && callback == YappingMawShotAi ||
+        enemy.EnemyDefinitionPointer == KagoDefinition && callback == KagoShotAi ||
+        enemy.EnemyDefinitionPointer == MagdolliteDefinition && callback == MagdolliteShotAi ||
+        enemy.EnemyDefinitionPointer == BeetomDefinition && callback == BeetomShotAi ||
+        enemy.EnemyDefinitionPointer == PowampDefinition && callback == PowampShotAi ||
+        IsWorkRobotDefinition(enemy.EnemyDefinitionPointer) &&
+            callback is WorkRobotShotAi or WorkRobotNoPowerShotAi ||
+        enemy.EnemyDefinitionPointer == BullDefinition && callback == BullShotAi ||
+        enemy.EnemyDefinitionPointer == SparkDefinition && callback == SparkShotAi ||
+        enemy.EnemyDefinitionPointer == BlueBrinstarFaceBlockDefinition &&
+            callback == BlueBrinstarFaceBlockShotAi ||
+        IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) && callback == KiHunterShotAi ||
+        enemy.EnemyDefinitionPointer == FakeKraidDefinition && callback == FakeKraidShotAi ||
+        enemy.EnemyDefinitionPointer == ZebetiteDefinition && callback == ZebetiteShotAi ||
+        enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
+            callback == DeadTorizoTouchAndShotAi ||
+        enemy.EnemyDefinitionPointer == DeadSidehopperDefinition &&
+            callback == DeadSidehopperShotAi ||
+        HasDeadTourianCorpseShotCallback(enemy) &&
+            callback == enemy.Definition.ShotAiPointer ||
+        enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
+            callback is DraygonShotAi or DraygonDudHitboxShotAi ||
+        enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
+            callback is SporeSpawnShotAi or SporeSpawnDudHitboxShotAi;
 
     /// <summary>
     /// Compatibility entry point retained for focused Metroid tooling. Gameplay uses the
@@ -1778,7 +2059,8 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void ApplyCommonNormalBombDamage(
         RoomEnemySlot enemy,
-        SamusBombProjectileSlot bomb)
+        SamusBombProjectileSlot bomb,
+        bool runGenericDeath = true)
     {
         ushort vulnerabilityPointer = enemy.Definition.VulnerabilityPointer != 0
             ? enemy.Definition.VulnerabilityPointer
@@ -1799,7 +2081,7 @@ public sealed partial class RoomEnemySystem
         enemy.Health = damage >= enemy.Health
             ? (ushort)0
             : unchecked((ushort)(enemy.Health - damage));
-        if (enemy.Health != 0)
+        if (enemy.Health != 0 || !runGenericDeath)
             return;
 
         enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);

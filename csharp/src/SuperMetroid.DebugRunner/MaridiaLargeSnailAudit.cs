@@ -255,6 +255,45 @@ internal static class MaridiaLargeSnailAudit
                 $"{loaded.Enemies.LastMaridiaLargeSnailSoundEffect?.ToString("X4") ?? "none"}, " +
                 $"health={slot.Health}.");
         }
+
+
+        // Repeat the same irregular multibox search with a physical family-$0500 actor.
+        // Protected rectangles dispatch bank-local RTL and only mark the bomb; a body
+        // rectangle dispatches `$A2:D3B4`, reads the indestructible bomb vulnerability, and
+        // still runs Oum's sound-$57 tail. This proves the extended bomb walker selected the
+        // rectangle callback rather than incorrectly applying the definition header globally.
+        loaded = LoadRoom(retailBus, room, assets);
+        slot = loaded.Enemies.Slots[0];
+        loaded.Enemies.StepFrame(CameraX, CameraY, false, loaded.Samus, level: assets.LevelData);
+        bool handledBomb = false;
+        ushort handledBombDirection = 0;
+        for (int yOffset = -28; yOffset <= 28 && !handledBomb; yOffset += 2)
+        {
+            for (int xOffset = -28; xOffset <= 28 && !handledBomb; xOffset += 2)
+            {
+                bombs = new SamusBombProjectileSystem();
+                ArmNormalBomb(
+                    bombs.Slots[0],
+                    unchecked((ushort)(slot.XPosition + xOffset)),
+                    unchecked((ushort)(slot.YPosition + yOffset)));
+                int bombHits = loaded.Enemies.ResolveOrdinaryBombHits(
+                    bombs,
+                    new SamusProjectileSystem(),
+                    loaded.Samus);
+                handledBomb = bombHits == 1 &&
+                    loaded.Enemies.LastMaridiaLargeSnailSoundEffect == 0x0057;
+                if (handledBomb)
+                    handledBombDirection = bombs.Slots[0].Direction;
+            }
+        }
+        if (!handledBomb || (handledBombDirection & 0x0010) == 0 || slot.Health != 300)
+        {
+            throw new InvalidDataException(
+                $"Oum $D3B4 normal-bomb tail mismatch: handled={handledBomb}, " +
+                $"direction=${handledBombDirection:X4}, sound=" +
+                $"{loaded.Enemies.LastMaridiaLargeSnailSoundEffect?.ToString("X4") ?? "none"}, " +
+                $"health={slot.Health}.");
+        }
     }
 
     private static LoadedRoom LoadRoom(
@@ -379,6 +418,24 @@ internal static class MaridiaLargeSnailAudit
         projectile.YRadius = 1;
         projectile.InstructionPointer = 0x9000;
         projectile.InstructionTimer = 1;
+    }
+
+    private static void ArmNormalBomb(
+        SamusBombProjectileSlot bomb,
+        ushort x,
+        ushort y)
+    {
+        bomb.ClearFields();
+        bomb.Type = SamusBombProjectileSystem.NormalBombType;
+        bomb.Damage = 20;
+        bomb.Direction = (ushort)SamusProjectileDirection.Right;
+        bomb.XPosition = x;
+        bomb.YPosition = y;
+        bomb.XRadius = 1;
+        bomb.YRadius = 1;
+        bomb.BombTimer = 0;
+        bomb.InstructionPointer = 0xa06b;
+        bomb.InstructionTimer = 1;
     }
 
     private readonly record struct LoadedRoom(RoomEnemySystem Enemies, SamusState Samus);

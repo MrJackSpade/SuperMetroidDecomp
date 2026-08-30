@@ -55,8 +55,8 @@ internal static class FakeKraidAudit
             $"and ${left.MinimumX:X4}-${left.MaximumX:X4}, spawned " +
             $"{right.Spikes + left.Spikes} spikes and {right.Spit + left.Spit} spit actors " +
             "from all three ROM projectile definitions, emitted OBJ pieces and both native " +
-            "sounds, damaged Samus through body/spit/spike contact, accepted beam and " +
-            "power-bomb damage, published the Mini-Kraid death-drop request, and cancelled " +
+            "sounds, damaged Samus through body/spit/spike contact, accepted beam, normal-" +
+            "bomb, and power-bomb damage, published the Mini-Kraid death-drop request, and cancelled " +
             "grapple exactly as its header specifies.");
         return 0;
     }
@@ -301,6 +301,27 @@ internal static class FakeKraidAudit
                 $"{shotLoad.Actor.Health}, drop={shotDrop}.");
         }
 
+        LoadedFakeKraid bombLoad = Load(bus, room, assets, samusX: 0x0560);
+        PrimeGameplayFrame(bombLoad, assets);
+        var normalBombs = new SamusBombProjectileSystem();
+        ArmNormalBomb(normalBombs.Slots[0], bombLoad.Actor, damage: 1000);
+        int normalBombHits = bombLoad.Enemies.ResolveOrdinaryBombHits(
+            normalBombs,
+            new SamusProjectileSystem(),
+            bombLoad.Samus);
+        FakeKraidDropRequest? bombDrop = bombLoad.Enemies.LastFakeKraidDropRequest;
+        if (normalBombHits != 1 || (normalBombs.Slots[0].Direction & 0x0010) == 0 ||
+            bombLoad.Actor.Health != 0 ||
+            !bombLoad.Actor.Properties.HasAny(EnemyProperties.Deleted) ||
+            bombDrop is not { X: 0x0530, Y: 0x00a0, ItemDropChancesPointer: 0xf2c0,
+                DeathExplosionVariant: 3 })
+        {
+            throw new InvalidDataException(
+                $"Fake Kraid lethal normal-bomb path failed: hits={normalBombHits}, " +
+                $"direction=${normalBombs.Slots[0].Direction:X4}, health=" +
+                $"{bombLoad.Actor.Health}, drop={bombDrop}.");
+        }
+
         LoadedFakeKraid powerBombLoad = Load(bus, room, assets, samusX: 0x0560);
         int powerBombHits = powerBombLoad.Enemies.ResolveOrdinaryPowerBombHits(
             bus,
@@ -461,6 +482,24 @@ internal static class FakeKraidAudit
         projectile.YRadius = 4;
         projectile.InstructionPointer = 0x9000;
         projectile.InstructionTimer = 1;
+    }
+
+    private static void ArmNormalBomb(
+        SamusBombProjectileSlot bomb,
+        RoomEnemySlot target,
+        ushort damage)
+    {
+        bomb.ClearFields();
+        bomb.Type = SamusBombProjectileSystem.NormalBombType;
+        bomb.Damage = damage;
+        bomb.Direction = (ushort)SamusProjectileDirection.Right;
+        bomb.XPosition = target.XPosition;
+        bomb.YPosition = target.YPosition;
+        bomb.XRadius = 32;
+        bomb.YRadius = 24;
+        bomb.BombTimer = 0;
+        bomb.InstructionPointer = 0xa06b;
+        bomb.InstructionTimer = 1;
     }
 
     private static void VerifyWords(

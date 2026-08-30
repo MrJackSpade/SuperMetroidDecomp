@@ -33,13 +33,15 @@ internal static partial class PowampAudit
         VerifyLiveFiringPipeline(bus, room, assets);
         VerifyContact(bus, room, assets);
         VerifyShotDeathAndSpikes(bus, room, assets);
+        VerifyNormalBombDeathAndSpikes(bus, room, assets);
         VerifySpikeInteractions(bus, room, assets);
         VerifyPowerBombPairing(bus, room, assets);
 
         Console.WriteLine(
             "Powamp audit passed: unchanged Mt. Everest loaded three paired Powamps and " +
             $"six Scisers; inflation/rise/wiggle/deflation/sink, {objPieces} OBJ pieces, " +
-            "moving grapple attachment, touch damage, paired shot and power-bomb damage, " +
+            "moving grapple attachment, touch damage, paired shot/normal-bomb/power-bomb " +
+            "damage, " +
             "32-frame death, and all eight accelerating spike trajectories, animation, " +
             "terrain disposal, shot pass-through, and exact contact damage were verified.");
         return 0;
@@ -452,6 +454,51 @@ internal static partial class PowampAudit
         }
     }
 
+    private static void VerifyNormalBombDeathAndSpikes(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        LoadedPowamps loaded = LoadEnemies(bus, room, assets);
+        RoomEnemySlot balloon = loaded.Enemies.Slots[0];
+        RoomEnemySlot body = loaded.Enemies.Slots[1];
+        PowampEnemyState state = RequireState(loaded.Enemies, body);
+        StepCentered(loaded.Enemies, room, assets, loaded.Samus, body);
+
+        var bombs = new SamusBombProjectileSystem();
+        ArmNormalBomb(bombs.Slots[0], body);
+        int hits = loaded.Enemies.ResolveOrdinaryBombHits(
+            bombs,
+            new SamusProjectileSystem(),
+            loaded.Samus);
+        if (hits != 1 || (bombs.Slots[0].Direction & 0x0010) == 0 ||
+            body.Health != 0 || body.Properties.HasAny(EnemyProperties.Deleted) ||
+            state.Function != PowampEnemyFunction.FatalDamage || body.Parameter2 != 1 ||
+            balloon.FlashTimer != body.FlashTimer ||
+            (balloon.AiHandlerBits & 0x0002) == 0)
+        {
+            throw new InvalidDataException(
+                $"Powamp normal-bomb handoff failed: hits={hits}, direction=" +
+                $"${bombs.Slots[0].Direction:X4}, health={body.Health}, deleted=" +
+                $"{body.Properties.HasAny(EnemyProperties.Deleted)}, function={state.Function}, " +
+                $"guard={body.Parameter2}, flash={body.FlashTimer}/{balloon.FlashTimer}, " +
+                $"balloon AI=${balloon.AiHandlerBits:X4}.");
+        }
+
+        for (int frame = 0; frame < 33; frame++)
+            StepCentered(loaded.Enemies, room, assets, loaded.Samus, body);
+        int spikes = loaded.Enemies.EnemyProjectiles.Count(projectile =>
+            projectile.Kind == RoomEnemyProjectileKind.PowampSpike);
+        if (!body.Properties.HasAny(EnemyProperties.Deleted) ||
+            !balloon.Properties.HasAny(EnemyProperties.Deleted) || spikes != 8)
+        {
+            throw new InvalidDataException(
+                $"Powamp normal-bomb staged death failed: body/balloon deleted=" +
+                $"{body.Properties.HasAny(EnemyProperties.Deleted)}/" +
+                $"{balloon.Properties.HasAny(EnemyProperties.Deleted)}, spikes={spikes}.");
+        }
+    }
+
     private static LoadedPowamps LoadEnemies(
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room,
@@ -475,6 +522,26 @@ internal static partial class PowampAudit
             level: assets.LevelData,
             samus: samus);
         return new LoadedPowamps(enemies, samus);
+    }
+
+    private static void ArmNormalBomb(
+        SamusBombProjectileSlot bomb,
+        RoomEnemySlot target)
+    {
+        bomb.ClearFields();
+        // Powamp's `$82` bomb entry has multiplier two. Twenty raw points therefore deal
+        // twenty health after common half-damage—more than enough for its ten-HP body—and
+        // must still hand death to `$A8:C5EF` rather than deleting the slot immediately.
+        bomb.Type = SamusBombProjectileSystem.NormalBombType;
+        bomb.Damage = 20;
+        bomb.Direction = (ushort)SamusProjectileDirection.Right;
+        bomb.XPosition = target.XPosition;
+        bomb.YPosition = target.YPosition;
+        bomb.XRadius = 16;
+        bomb.YRadius = 16;
+        bomb.BombTimer = 0;
+        bomb.InstructionPointer = 0xa06b;
+        bomb.InstructionTimer = 1;
     }
 
     private static void StepCentered(

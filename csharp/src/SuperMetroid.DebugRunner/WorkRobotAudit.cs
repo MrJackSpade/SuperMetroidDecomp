@@ -37,14 +37,15 @@ internal static partial class WorkRobotAudit
         VerifyDrawing(powered, poweredRoom);
         VerifyShotRecoil(bus, poweredRoom, poweredAssets);
         VerifyPreBossShotGate(bus, poweredRoom, poweredAssets);
+        VerifyNormalBombCallbacks(bus, poweredRoom, poweredAssets);
 
         Console.WriteLine(
             "Work Robot audit passed: unchanged Wrecked Ship states loaded dormant and " +
             $"powered robots; ROM animation produced {natural.AnimationMaps} maps, motion, " +
             $"both facings, {natural.LaserDirections} laser vectors, palette cycling, solid " +
             $"contact, all {lasers.FiringRoutes} firing routes/{lasers.Definitions} laser " +
-            "definitions with exact damage and terrain disposal, post-Phantoon shot recoil, " +
-            "and pre-Phantoon shot pass-through.");
+            "definitions with exact damage and terrain disposal, post-Phantoon shot/bomb " +
+            "recoil, and pre-Phantoon shot pass-through/bomb callback gating.");
         return 0;
     }
 
@@ -284,6 +285,63 @@ internal static partial class WorkRobotAudit
         }
     }
 
+    private static void VerifyNormalBombCallbacks(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        LoadedRobots loaded = Load(bus, room, assets, bossDefeated: true);
+        RoomEnemySlot robot = loaded.Enemies.Slots[0];
+        WorkRobotEnemyState state = RequireState(loaded.Enemies, robot);
+        for (int frame = 0; frame < 16 && robot.SpritemapPointer == 0x804d; frame++)
+            Step(loaded, assets, robot, room);
+        loaded.Samus.XPosition = unchecked((ushort)(robot.XPosition - 32));
+
+        var bombs = new SamusBombProjectileSystem();
+        ArmNormalBomb(bombs.Slots[0], robot);
+        int hits = loaded.Enemies.ResolveOrdinaryBombHits(
+            bombs,
+            new SamusProjectileSystem(),
+            loaded.Samus);
+        if (hits != 1 || (bombs.Slots[0].Direction & 0x0010) == 0 ||
+            robot.Health != 800 || robot.CurrentInstruction != 0xc7bb ||
+            robot.InstructionTimer != 1 || state.LaserCooldown < 0x0040)
+        {
+            throw new InvalidDataException(
+                $"Powered Work Robot normal-bomb recoil failed: hits={hits}, direction=" +
+                $"${bombs.Slots[0].Direction:X4}, health={robot.Health}, list=" +
+                $"${robot.CurrentInstruction:X4}, timer={robot.InstructionTimer}, " +
+                $"cooldown={state.LaserCooldown}.");
+        }
+
+        // Before Phantoon, `$A8:D192` returns after the bank-$A0 bomb collision mark and
+        // before common damage/recoil. Preserve the live list and cooldown to prove that the
+        // callback gate—not invulnerability damage—was what rejected the attack.
+        loaded = Load(bus, room, assets, bossDefeated: false);
+        robot = loaded.Enemies.Slots[0];
+        for (int frame = 0; frame < 16 && robot.SpritemapPointer == 0x804d; frame++)
+            Step(loaded, assets, robot, room);
+        state = RequireState(loaded.Enemies, robot);
+        ushort instructionBefore = robot.CurrentInstruction;
+        ushort cooldownBefore = state.LaserCooldown;
+        bombs = new SamusBombProjectileSystem();
+        ArmNormalBomb(bombs.Slots[0], robot);
+        hits = loaded.Enemies.ResolveOrdinaryBombHits(
+            bombs,
+            new SamusProjectileSystem(),
+            loaded.Samus);
+        if (hits != 1 || (bombs.Slots[0].Direction & 0x0010) == 0 ||
+            robot.Health != 800 || robot.CurrentInstruction != instructionBefore ||
+            state.LaserCooldown != cooldownBefore)
+        {
+            throw new InvalidDataException(
+                $"Pre-Phantoon Work Robot normal-bomb gate failed: hits={hits}, direction=" +
+                $"${bombs.Slots[0].Direction:X4}, health={robot.Health}, list=" +
+                $"${instructionBefore:X4}->${robot.CurrentInstruction:X4}, cooldown=" +
+                $"{cooldownBefore}->{state.LaserCooldown}.");
+        }
+    }
+
     private static LoadedRobots Load(
         ISnesAddressSpace bus,
         CartridgeRoomHeader room,
@@ -319,6 +377,23 @@ internal static partial class WorkRobotAudit
             samus: samus,
             isAreaBossDefeated: () => bossDefeated);
         return new LoadedRobots(enemies, samus, cgram);
+    }
+
+    private static void ArmNormalBomb(
+        SamusBombProjectileSlot bomb,
+        RoomEnemySlot target)
+    {
+        bomb.ClearFields();
+        bomb.Type = SamusBombProjectileSystem.NormalBombType;
+        bomb.Damage = 20;
+        bomb.Direction = (ushort)SamusProjectileDirection.Right;
+        bomb.XPosition = target.XPosition;
+        bomb.YPosition = target.YPosition;
+        bomb.XRadius = 16;
+        bomb.YRadius = 16;
+        bomb.BombTimer = 0;
+        bomb.InstructionPointer = 0xa06b;
+        bomb.InstructionTimer = 1;
     }
 
     private static void Step(

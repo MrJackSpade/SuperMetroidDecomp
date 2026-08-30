@@ -524,6 +524,7 @@ public sealed partial class RoomEnemySystem
             case 0xec94: // Yapping Maw body links are positioned entirely by bank-$A8 main AI.
             case 0xd0eb: // Kago bug startup/landed no-op.
             case 0x950c: // Center afterburn is stationary while its instruction list blooms.
+            case 0x9a44: // Phantoon casual/rain flame resting RTS.
             case 0xbbc6: // Nuclear Waffle body: position is owned by bank-$A6 main AI.
             case 0xa05b: // Pirate laser startup: three muzzle-flash frames do not move.
             case 0xefdf: // Enemy death/pickup subsystem's empty pre-instruction.
@@ -690,8 +691,20 @@ public sealed partial class RoomEnemySystem
                 RunPhantoonStartingFlameOrbit(projectile, nmiFrameCounter8);
                 return;
 
-            case 0x9a45: // Phantoon casual flame: expanding circular fall.
-                RunPhantoonCasualFlame(projectile);
+            case 0x9981: // Phantoon casual flame: fall until the first terrain impact.
+                RunPhantoonCasualFlameFalling(projectile, level);
+                return;
+
+            case 0x99bf: // Phantoon casual flame: eight-frame impact pause.
+                RunPhantoonCasualFlameImpactPause(projectile, nmiFrameCounter8);
+                return;
+
+            case 0x9a01: // Phantoon casual flame: two diminishing terrain bounces.
+                RunPhantoonCasualFlameBouncing(projectile, level);
+                return;
+
+            case 0x9a45: // Phantoon rage flame: expanding orbit around the body.
+                RunPhantoonEnragedFlame(projectile);
                 return;
 
             case 0x9a94: // Phantoon flame rain: delayed fall and terrain impact.

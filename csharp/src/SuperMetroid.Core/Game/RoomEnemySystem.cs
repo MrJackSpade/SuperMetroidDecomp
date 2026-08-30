@@ -530,6 +530,16 @@ public sealed partial class RoomEnemySystem
                     ranActorAi = true;
                 }
                 if (!ranActorAi &&
+                    (slot.AiHandlerBits & 0x0002) != 0 &&
+                    slot.EnemyDefinitionPointer == PhantoonBodyDefinition)
+                {
+                    // $A7:DD3F owns every Phantoon hurt frame. It alternates palette seven
+                    // between white and the new health band; body movement/main AI resumes
+                    // only after common flash timing clears handler bit two.
+                    ApplyPhantoonHurt(slot, RequireCompletePhantoonState(slot));
+                    ranActorAi = true;
+                }
+                if (!ranActorAi &&
                     (slot.FrozenTimer != 0 || (slot.AiHandlerBits & 0x0004) != 0))
                 {
                     if (slot.EnemyDefinitionPointer == RinkaDefinition &&

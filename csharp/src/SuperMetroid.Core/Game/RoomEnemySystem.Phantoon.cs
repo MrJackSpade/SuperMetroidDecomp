@@ -136,6 +136,85 @@ public sealed partial class RoomEnemySystem
             case PhantoonAiFunction.MoveInFigureEightThenOpenEye:
                 RunPhantoonFirstRoundFigureEight(body, state);
                 break;
+            case PhantoonAiFunction.EyeTracksSamus:
+                RunPhantoonEyeTracking(body, state, RequirePhantoonSamus(samus));
+                break;
+            case PhantoonAiFunction.BecomeSolidAndSwoop:
+                BeginPhantoonVulnerableSwoop(body, state, RequirePhantoonSamus(samus));
+                break;
+            case PhantoonAiFunction.Swooping:
+                RunPhantoonSwoop(body, state, RequirePhantoonSamus(samus));
+                break;
+            case PhantoonAiFunction.FadeOutWhileSwooping:
+                RunPhantoonFadeOutWhileSwooping(
+                    body,
+                    state,
+                    RequirePhantoonSamus(samus),
+                    nmiFrameCounter8);
+                break;
+            case PhantoonAiFunction.WaitAfterFadeOut:
+                RunPhantoonHiddenWait(body);
+                break;
+            case PhantoonAiFunction.PickNextAppearance:
+                PlacePhantoonForNextFigureEight(body, state, nmiFrameCounter8);
+                break;
+            case PhantoonAiFunction.FadeInBeforeFigureEight:
+                RunPhantoonFadeInBeforeFigureEight(body, state, nmiFrameCounter8);
+                break;
+            case PhantoonAiFunction.BecomeSolidAfterFlameRain:
+                BeginPhantoonFlameRainVulnerableWindow(body, state);
+                break;
+            case PhantoonAiFunction.FadeInDuringFlameRain:
+                RunPhantoonFlameRainFadeIn(body, state, nmiFrameCounter8);
+                break;
+            case PhantoonAiFunction.TrackSamusDuringFlameRain:
+                RunPhantoonFlameRainVulnerableWindow(body, state);
+                break;
+            case PhantoonAiFunction.FadeOutDuringFlameRain:
+                RunPhantoonFlameRainFadeOut(body, state, nmiFrameCounter8);
+                break;
+            case PhantoonAiFunction.SpawnFlameRain:
+                RunPhantoonHiddenFlameRain(body, state);
+                break;
+            case PhantoonAiFunction.FadeOutBeforeFirstFlameRain:
+                RunPhantoonInitialFlameRain(body, state, nmiFrameCounter8);
+                break;
+            case PhantoonAiFunction.FadeOutBeforeRage:
+                RunPhantoonFadeOutBeforeRage(body, state, nmiFrameCounter8);
+                break;
+            case PhantoonAiFunction.MoveToTopCenterForRage:
+                RunPhantoonRageHiddenWait(body, state);
+                break;
+            case PhantoonAiFunction.FadeInForRage:
+                RunPhantoonRageFadeIn(body, state, nmiFrameCounter8);
+                break;
+            case PhantoonAiFunction.Enraged:
+                RunPhantoonRage(body, state);
+                break;
+            case PhantoonAiFunction.FadeOutAfterRage:
+                RunPhantoonRageFadeOut(body, state, nmiFrameCounter8);
+                break;
+            case PhantoonAiFunction.FinishFatalSwoop:
+                RunPhantoonFatalSwoop(body, state, RequirePhantoonSamus(samus));
+                break;
+            case PhantoonAiFunction.DyingFadeInOut:
+                RunPhantoonDyingFadeCycles(body, state, nmiFrameCounter8);
+                break;
+            case PhantoonAiFunction.DyingExplosions:
+                RunPhantoonDyingExplosions(body, state);
+                break;
+            case PhantoonAiFunction.BeginFinalWavyDeath:
+                BeginPhantoonWavyMosaicDeath(body, state);
+                break;
+            case PhantoonAiFunction.DyingFadeOut:
+                RunPhantoonWavyMosaicDeath(body, state, nmiFrameCounter8);
+                break;
+            case PhantoonAiFunction.AlmostDead:
+                ClearPhantoonDeathGraphics(body, state);
+                break;
+            case PhantoonAiFunction.Dead:
+                ActivateWreckedShipAfterPhantoon(body, state, nmiFrameCounter8);
+                break;
             case PhantoonAiFunction.NoOperation:
                 break;
             default:
@@ -519,6 +598,10 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException("Phantoon's four-part population is incomplete.");
         return state;
     }
+
+    private static SamusState RequirePhantoonSamus(SamusState? samus) =>
+        samus ?? throw new InvalidOperationException(
+            "Phantoon's eye and swoop programs require the active Samus actor.");
 
     // The spiral fireballs are the first ordinary combat attack. Their exact bank-$86
     // translation belongs to the next combat slice; retaining the explicit call boundary

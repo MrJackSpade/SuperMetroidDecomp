@@ -1348,6 +1348,10 @@ public sealed partial class SuperMetroidRuntime
                     _addressSpace,
                     Projectiles,
                     BombProjectiles);
+                Enemies.ResolvePhantoonProjectileHits(
+                    _addressSpace,
+                    Projectiles,
+                    BombProjectiles);
                 Enemies.ResolveEnemyProjectileSamusProjectileHits(
                     _addressSpace,
                     Projectiles,

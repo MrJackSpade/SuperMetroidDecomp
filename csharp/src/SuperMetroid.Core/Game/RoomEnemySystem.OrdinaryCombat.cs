@@ -142,6 +142,8 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == CrocomireHeaderTouchAi;
             bool isCrocomireTongue = slot.EnemyDefinitionPointer == CrocomireTongueDefinition &&
                 slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi;
+            bool isPhantoon = slot.EnemyDefinitionPointer == PhantoonBodyDefinition &&
+                slot.Definition.TouchAiPointer == PhantoonTouchHitboxCallback;
             // A handful of utility/terrain enemies intentionally point touch AI at an RTL
             // in their own bank. Detect the native opcode instead of adding a name-specific
             // exception for every inert actor. The collision is still reported, but the
@@ -177,6 +179,7 @@ public sealed partial class RoomEnemySystem
                 isShaktool ||
                 isCrocomire ||
                 isCrocomireTongue ||
+                isPhantoon ||
                 isLiteralNoOpTouchAi ||
                 slot.EnemyDefinitionPointer == MochtroidDefinition &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
@@ -200,7 +203,8 @@ public sealed partial class RoomEnemySystem
 
             bool usesExtendedHitboxes = (
                     isOrdinarySpacePirate || isMaridiaLargeSnail || isTorizo ||
-                    isCrocomire || isCrocomireTongue || isSporeSpawn || isCeresSteam) &&
+                    isCrocomire || isCrocomireTongue || isSporeSpawn || isCeresSteam ||
+                    isPhantoon) &&
                 slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
             bool overlapsSamus;
             ushort hitboxTouchAi = slot.Definition.TouchAiPointer;
@@ -248,6 +252,29 @@ public sealed partial class RoomEnemySystem
             {
                 throw new NotSupportedException(
                     $"Torizo hitbox touch AI $AA:{hitboxTouchAi:X4} is not translated.");
+            }
+
+            if (isPhantoon)
+            {
+                if (!usesExtendedHitboxes)
+                {
+                    throw new InvalidDataException(
+                        "Phantoon requires his authored extended touch hitboxes.");
+                }
+                if (hitboxTouchAi == PhantoonNoOpHitboxCallback)
+                    return true;
+                if (hitboxTouchAi != PhantoonTouchHitboxCallback)
+                {
+                    throw new NotSupportedException(
+                        $"Phantoon hitbox touch AI $A7:{hitboxTouchAi:X4} is not translated.");
+                }
+
+                ResolveNormalEnemyTouch(
+                    slot,
+                    samus,
+                    controllerInput,
+                    skipDeathAnimation: true);
+                return true;
             }
 
             if (isSporeSpawn)

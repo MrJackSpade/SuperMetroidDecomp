@@ -83,6 +83,22 @@ public sealed class PhantoonEnemyState
     public ushort MaterializationSoundIndex { get; internal set; }
     public ushort? LastMaterializationSound { get; internal set; }
 
+    /// <summary>Last library-two combat sound and exact post-vulnerability damage.</summary>
+    public ushort? LastCombatSoundEffect { get; internal set; }
+    public ushort LastProjectileDamage { get; internal set; }
+    public int AcceptedProjectileHits { get; internal set; }
+
+    /// <summary>Death choreography observability: physical explosions and mosaic register.</summary>
+    public int DeathExplosionRequests { get; internal set; }
+    public int DeathExplosionsSpawned { get; internal set; }
+    public byte MosaicRegister { get; internal set; }
+
+    /// <summary>Final Wrecked Ship activation effects owned outside the enemy record.</summary>
+    public bool MainScreenBg2Enabled { get; internal set; }
+    public bool ItemDropRequested { get; internal set; }
+    public bool BossDefeatPersisted { get; internal set; }
+    public bool WreckedShipPowerPaletteComplete { get; internal set; }
+
     /// <summary>
     /// The room PLM at block (0,6) closes/opens the boss door. The PLM system is an outer
     /// owner, so the enemy publishes the exact authored request rather than editing terrain.

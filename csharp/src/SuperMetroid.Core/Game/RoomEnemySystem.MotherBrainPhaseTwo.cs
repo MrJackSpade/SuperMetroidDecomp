@@ -392,6 +392,53 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>
+    /// Literal body/BG2 movement helper at <c>$A9:9579</c>. The signed Y operand is added
+    /// to the actor and subtracted from the background, keeping the large BG2 body art
+    /// rigidly attached to its small OBJ hitbox record. X movement happens before this call
+    /// in the cartridge, so the derived scroll must sample the already-updated body X.
+    /// </summary>
+    private void MoveMotherBrainBody(short xDisplacement, short yDisplacement)
+    {
+        MotherBrainEnemyState state = _motherBrain ?? throw new InvalidOperationException(
+            "Mother Brain body bytecode ran without its multipart encounter state.");
+        state.Body.XPosition = unchecked((ushort)(state.Body.XPosition + xDisplacement));
+        state.Body.YPosition = unchecked((ushort)(state.Body.YPosition + yDisplacement));
+        PublishMotherBrainBg2Scroll(
+            state,
+            unchecked((ushort)(0x0022 - state.Body.XPosition)),
+            unchecked((ushort)(state.Bg2YScroll - yDisplacement)));
+    }
+
+    /// <summary>
+    /// Posture-transition variant at <c>$A9:9552</c>. Its X register is a scroll bias, not
+    /// actor displacement; only Y changes the physical body coordinate.
+    /// </summary>
+    private void MoveMotherBrainBodyWithScrollBias(
+        short yDisplacement,
+        short horizontalScrollBias)
+    {
+        MotherBrainEnemyState state = _motherBrain ?? throw new InvalidOperationException(
+            "Mother Brain posture bytecode ran without its multipart encounter state.");
+        state.Body.YPosition = unchecked((ushort)(state.Body.YPosition + yDisplacement));
+        PublishMotherBrainBg2Scroll(
+            state,
+            unchecked((ushort)(0x0022 + horizontalScrollBias - state.Body.XPosition)),
+            unchecked((ushort)(state.Bg2YScroll - yDisplacement)));
+    }
+
+    /// <summary>Shared four-frame earthquake produced by each planted walking frame.</summary>
+    private void RunMotherBrainFootstep()
+    {
+        EarthquakeType = 1;
+        EarthquakeTimer = 4;
+
+        // Form three additionally queues library-three sound $16. Phase two normally never
+        // reaches that branch, but retaining it here makes the shared gait opcode complete.
+        if (_motherBrain?.Form == 3)
+            _motherBrain.LastSoundEffectLibrary3 = 0x0016;
+    }
+
     private static void SetMotherBrainInstructionList(RoomEnemySlot slot, ushort pointer)
     {
         slot.CurrentInstruction = pointer;

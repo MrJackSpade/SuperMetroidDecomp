@@ -397,6 +397,159 @@ public sealed partial class RoomEnemySystem
                     _bus!,
                     (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                 return true;
+
+            // `$95B6-$95F2` are the six posture-transition displacements. Each command
+            // moves the body vertically, counter-scrolls BG2 by the opposite amount, and
+            // derives BG2 X from the body's new origin plus its authored horizontal bias.
+            case 0x95b6:
+                MoveMotherBrainBodyWithScrollBias(-10, 4);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x95c0:
+                MoveMotherBrainBodyWithScrollBias(-16, 4);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x95ca:
+                MoveMotherBrainBodyWithScrollBias(-12, -2);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x95de:
+                MoveMotherBrainBodyWithScrollBias(12, 4);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x95e8:
+                MoveMotherBrainBodyWithScrollBias(16, -2);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x95f2:
+                MoveMotherBrainBodyWithScrollBias(10, -2);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            // The walk-cycle comments in the historical disassembly describe visual
+            // motion and are occasionally opposite the literal signed Y operand. These
+            // cases preserve the actual additions performed by `$9579`, not the labels.
+            case 0x95fc:
+                MoveMotherBrainBody(1, -2);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x960c:
+                MoveMotherBrainBody(2, 0);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x961c:
+                MoveMotherBrainBody(0, 1);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9622:
+                RunMotherBrainFootstep();
+                MoveMotherBrainBody(3, 1);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9638:
+                MoveMotherBrainBody(15, -2);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9648:
+                MoveMotherBrainBody(6, -4);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9658:
+                MoveMotherBrainBody(-2, 4);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9668:
+                RunMotherBrainFootstep();
+                MoveMotherBrainBody(-1, 2);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x967e:
+                RunMotherBrainFootstep();
+                MoveMotherBrainBody(-1, 2);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9694:
+                MoveMotherBrainBody(-2, 0);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x96a4:
+                MoveMotherBrainBody(0, -1);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x96aa:
+                MoveMotherBrainBody(-3, -1);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x96ba:
+                RunMotherBrainFootstep();
+                MoveMotherBrainBody(-15, 2);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x96d0:
+                MoveMotherBrainBody(-6, 4);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x96e0:
+                MoveMotherBrainBody(2, -4);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x96f0:
+                MoveMotherBrainBody(1, -2);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            // Pose is shared encounter state, not a property of the displayed map. Body AI
+            // waits on these exact values while the instruction list continues independently.
+            case 0x9700:
+                RequireCompleteMotherBrainState(slot).Pose = MotherBrainBodyPose.Standing;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9708:
+                RequireCompleteMotherBrainState(slot).Pose = MotherBrainBodyPose.Walking;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9710:
+                RequireCompleteMotherBrainState(slot).Pose = MotherBrainBodyPose.Crouched;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9718:
+                RequireCompleteMotherBrainState(slot).Pose = MotherBrainBodyPose.CrouchingTransition;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9720:
+                RequireCompleteMotherBrainState(slot).Pose = MotherBrainBodyPose.DeathBeam;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9728:
+                RequireCompleteMotherBrainState(slot).Pose = MotherBrainBodyPose.LeaningDown;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case 0x9b20: // Disable articulated neck tracking during a committed attack.
+                RequireCompleteMotherBrainState(slot).NeckMovementEnabled = false;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9b28: // Queue library-two sound from the following word.
+            {
+                MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
+                state.LastSoundEffect = ReadWord(
+                    _bus!,
+                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            }
+            case 0x9b3c: // Spawn one cycling attached/falling drool actor.
+                SpawnMotherBrainDrool(RequireCompleteMotherBrainState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9b6d: // Spawn the finite large purple-breath animation at the mouth.
+                SpawnMotherBrainPurpleBreathBig(RequireCompleteMotherBrainState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9b77: // Begin the exact fifty-frame brain-only shake countdown.
+                RequireCompleteMotherBrainState(slot).BrainMainShakeTimer = 50;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
             default:
                 return false;
         }

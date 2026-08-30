@@ -151,13 +151,21 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException(
                 "Mother Brain head shot AI ran for a slot not linked to the loaded body.");
         }
+        SamusProjectileFamily family = (SamusProjectileFamily)(projectileType & 0x0f00);
         if (state.Form != 0)
         {
-            throw new NotSupportedException(
-                $"Mother Brain form ${state.Form:X4} shot behavior is not translated.");
+            return ResolveMotherBrainLaterFormHeadShot(
+                bus,
+                state,
+                head,
+                projectile,
+                projectiles,
+                sharedProjectiles,
+                family,
+                projectileType,
+                projectileDamage);
         }
 
-        SamusProjectileFamily family = (SamusProjectileFamily)(projectileType & 0x0f00);
         if (family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile))
             return true;
 
@@ -173,6 +181,86 @@ public sealed partial class RoomEnemySystem
         head.FlashTimer = head.FlashTimer != 0 && (head.FlashTimer & 1) != 0
             ? (ushort)14
             : (ushort)13;
+
+        byte vulnerability = ReadProjectileVulnerability(bus, head, projectileType);
+        if (vulnerability == 0xff)
+        {
+            head.FrozenTimer = 400;
+            head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | 0x0004));
+            head.InvincibilityTimer = 10;
+            return true;
+        }
+
+        int damage = (projectileDamage >> 1) * (vulnerability & 0x7f);
+        if (damage == 0)
+        {
+            CreateEnemyProjectileDudShot(projectile);
+            return true;
+        }
+
+        ushort hurtTime = head.HurtAiTime == 0 ? (ushort)4 : head.HurtAiTime;
+        head.FlashTimer = unchecked((ushort)(hurtTime + 8));
+        head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | 0x0002));
+        head.Health = damage >= head.Health
+            ? (ushort)0
+            : unchecked((ushort)(head.Health - damage));
+        return true;
+    }
+
+    /// <summary>
+    /// Ports <c>$A9:B54E-B5C4</c> plus the phase-two/three common no-death damage tail.
+    /// Form one (the fake-death interval) still runs the recoil bookkeeping but converts the
+    /// projectile into a dud. Forms two and later apply ordinary vulnerability damage while
+    /// deliberately leaving the multipart boss records alive at zero health for body AI.
+    /// </summary>
+    private bool ResolveMotherBrainLaterFormHeadShot(
+        Hardware.ISnesAddressSpace bus,
+        MotherBrainEnemyState state,
+        RoomEnemySlot head,
+        SamusProjectileSlot projectile,
+        SamusProjectileSystem projectiles,
+        SamusBombProjectileSystem sharedProjectiles,
+        SamusProjectileFamily family,
+        ushort projectileType,
+        ushort projectileDamage)
+    {
+        // DetermineMotherBrainShotReactionType maps beams to two, missiles/supers to one,
+        // and every other projectile family to zero. Phase four's hyper-beam recoil uses a
+        // separate branch; retaining an explicit guard prevents phase-two code from quietly
+        // pretending that later cutscene behavior has already been translated.
+        ushort reactionType = family switch
+        {
+            SamusProjectileFamily.Beam => 2,
+            SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile => 1,
+            _ => 0,
+        };
+        if (state.Form == 4 && reactionType == 2)
+        {
+            throw new NotSupportedException(
+                "Mother Brain phase-four Hyper Beam recoil $A9:B5A9 is not translated yet.");
+        }
+
+        if (reactionType == 1)
+        {
+            state.WalkCounter = 0;
+        }
+        else
+        {
+            // `$B57C-$B589` subtracts $0100 and clamps a negative signed result to zero.
+            // This is an animation-distance accumulator, not health or a frame countdown.
+            state.WalkCounter = state.WalkCounter < 0x0100
+                ? (ushort)0
+                : unchecked((ushort)(state.WalkCounter - 0x0100));
+        }
+
+        if (state.Form == 1)
+        {
+            CreateEnemyProjectileDudShot(projectile);
+            return true;
+        }
+
+        if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
+            return false;
 
         byte vulnerability = ReadProjectileVulnerability(bus, head, projectileType);
         if (vulnerability == 0xff)

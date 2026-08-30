@@ -35,6 +35,9 @@ public enum RoomEnemyProjectileKind : ushort
     MotherBrainRoomTurretBullet = 0xc18c,
     MotherBrainGlassShard = 0xcefc,
     MotherBrainGlassSparkle = 0xcf0a,
+    MotherBrainPurpleBreathBig = 0xcb2f,
+    MotherBrainDrool = 0xcb91,
+    MotherBrainDyingDrool = 0xcb9f,
     MotherBrainTopRightTube = 0xcc5b,
     MotherBrainTopLeftTube = 0xcc69,
     MotherBrainTopMiddleLeftTube = 0xcc77,
@@ -543,6 +546,7 @@ public sealed partial class RoomEnemySystem
             case 0xefdf: // Enemy death/pickup subsystem's empty pre-instruction.
             case 0xa919: // Bomb Torizo explosive swipe: stationary authored hit flash.
             case 0xdd44: // Spore Spawn stalk: position is written by the boss's main AI.
+            case 0xcaa3: // Mother Brain's large purple breath is a stationary animation.
                 return;
 
             case 0xbfdf: // Mother Brain room turret: rotate, fire, or honor deletion flag.
@@ -559,6 +563,14 @@ public sealed partial class RoomEnemySystem
 
             case 0xcbe7: // Mother Brain ceiling tubes: dust once, then accelerate downward.
                 RunMotherBrainTopTubePreInstruction(projectile);
+                return;
+
+            case 0xc84d: // Mother Brain drool remains attached for its first five maps.
+                RunMotherBrainAttachedDroolPreInstruction(projectile);
+                return;
+
+            case 0xc886: // Released drool accelerates down until the fixed arena floor.
+                RunMotherBrainFallingDroolPreInstruction(projectile);
                 return;
 
             case 0x8dca: // Draygon goop: attached to Samus with a 256-frame lifetime.
@@ -1232,6 +1244,14 @@ public sealed partial class RoomEnemySystem
                 case 0xc1b4 when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
                     // First instruction of the shared touch/shot smoke sequence.
                     projectile.GraphicsIndex = 0;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xc8d0 when projectile.Kind is
+                    RoomEnemyProjectileKind.MotherBrainDrool or
+                    RoomEnemyProjectileKind.MotherBrainDyingDrool:
+                    // After changing to the falling pre-instruction, the list lowers the
+                    // released sprite by twelve whole pixels before its first falling map.
+                    projectile.YPosition = unchecked((ushort)(projectile.YPosition + 12));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xa456: // Take the authored absolute branch with 25-percent probability.

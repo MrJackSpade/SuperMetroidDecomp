@@ -167,7 +167,8 @@ internal static class MotherBrainAudit
             "terrain/contact behavior, looping head bytecode, the custom ordinary-" +
             "spritemap draw hook, asymmetric Samus collision, loaded glass PLM, missile " +
             "gating, threshold bytecode, shard actors, fake-death pauses/palettes, ordered " +
-            "tube PLMs, four ceiling tubes, and five physical tube actors matched the " +
+            "tube PLMs, four ceiling tubes, five physical tube actors, phase-two DMA, " +
+            "uncrouch movement, neck geometry, and stretching projectiles matched the " +
             "untouched cartridge.");
         return 0;
     }
@@ -201,6 +202,9 @@ internal static class MotherBrainAudit
         byte[] scrollBytes = new byte[50];
         scrollBytes[0] = 2;
         scrollBytes[1] = 1;
+        ushort observedLayerBlendingConfig = 0;
+        ushort observedBg2X = 0;
+        ushort observedBg2Y = 0;
         var enemies = new RoomEnemySystem();
         enemies.Load(
             bus,
@@ -216,7 +220,14 @@ internal static class MotherBrainAudit
             isAreaBossDefeated: () => false,
             hasEvent: eventNumber => eventNumber == 2,
             setRoomScrollByte: (index, value) => scrollBytes[index] = value,
-            readRoomScrollByte: index => scrollBytes[index]);
+            readRoomScrollByte: index => scrollBytes[index],
+            setMotherBrainLayerBlendingDefaultConfig:
+                value => observedLayerBlendingConfig = value,
+            setMotherBrainBg2Scroll: (x, y) =>
+            {
+                observedBg2X = x;
+                observedBg2Y = y;
+            });
 
         MotherBrainEnemyState state = enemies.MotherBrain ?? throw new InvalidDataException(
             "Mother Brain fake-death audit lost the encounter state.");
@@ -325,6 +336,220 @@ internal static class MotherBrainAudit
                     $"Mother Brain phase-two palette diverged at color {color}: " +
                     $"attack=${cgram.Colors[161 + color]:X4}/${expectedAttack:X4}, " +
                     $"leg=${cgram.Colors[177 + color]:X4}/${expectedBackLeg:X4}.");
+            }
+        }
+
+        // Continue from the public scheduler boundary reached above. This covers every
+        // resurrection state, all twelve one-transfer-per-frame leg/attack DMA entries,
+        // the slow ROM-authored uncrouch list, the from-gray palette table, articulated
+        // neck placement, and the stretching head list's drool/purple-breath opcodes.
+        bool observedRisingHdma = false;
+        bool observedLargePurpleBreath = false;
+        bool observedDrool = false;
+        bool observedNeckOam = false;
+        int phaseTwoFrames = 0;
+        for (; phaseTwoFrames < 2048; phaseTwoFrames++)
+        {
+            byte frameCounter = unchecked((byte)(phaseTwoFrames + 1));
+            enemies.StepFrame(
+                cameraX: 0,
+                cameraY: 0,
+                timeIsFrozen: false,
+                samus,
+                level: assets.LevelData,
+                nmiFrameCounter8: frameCounter);
+
+            foreach (MotherBrainMusicRequest request in state.MusicRequests)
+                observedMusic.Add(request.RawTrack);
+            observedRisingHdma |= state.RisingHdmaActive;
+
+            enemies.StepEnemyProjectiles(
+                assets.LevelData,
+                samus: null,
+                cameraX: 0,
+                cameraY: 0,
+                nmiFrameCounter8: frameCounter);
+            observedLargePurpleBreath |= enemies.EnemyProjectiles.Any(projectile =>
+                projectile.Kind == RoomEnemyProjectileKind.MotherBrainPurpleBreathBig);
+            observedDrool |= enemies.EnemyProjectiles.Any(projectile =>
+                projectile.Kind is RoomEnemyProjectileKind.MotherBrainDrool or
+                    RoomEnemyProjectileKind.MotherBrainDyingDrool);
+
+            if (state.DrawNeck)
+            {
+                var oam = new OamBuffer();
+                oam.BeginFrame();
+                enemies.DrawLayers(oam, 0, 0, firstLayer: 0, lastLayer: 7);
+                observedNeckOam |= oam.NextByteOffset >= 5 * 4;
+            }
+
+            // `$8F33` writes B605 but returns; stopping at that boundary avoids consuming
+            // a random attack/walk choice that belongs to the next focused combat audit.
+            if (state.Function == MotherBrainBodyFunction.SecondPhaseThinking)
+                break;
+        }
+
+        if (phaseTwoFrames == 2048)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain resurrection did not reach phase-two thinking; " +
+                $"function=$A9:{(ushort)state.Function:X4}, pose={state.Pose}.");
+        }
+
+        // Read the transfer descriptors themselves so this test remains tied to the retail
+        // cartridge's source banks and destinations instead of duplicating their constants.
+        int transferEntry = 0xa98f8f;
+        for (int transfer = 0; transfer < 12; transfer++, transferEntry += 7)
+        {
+            ushort byteCount = ReadWord(bus, transferEntry);
+            int source = bus.ReadByte(transferEntry + 2) |
+                (bus.ReadByte(transferEntry + 3) << 8) |
+                (bus.ReadByte(transferEntry + 4) << 16);
+            ushort destinationWord = ReadWord(bus, transferEntry + 5);
+            if (byteCount != 0x0200)
+            {
+                throw new InvalidDataException(
+                    $"Mother Brain transfer {transfer} has unexpected size ${byteCount:X4}.");
+            }
+            for (int byteIndex = 0; byteIndex < byteCount; byteIndex++)
+            {
+                byte expected = bus.ReadByte(source + byteIndex);
+                byte actual = vram.ReadByte(destinationWord * 2 + byteIndex);
+                if (actual != expected)
+                {
+                    throw new InvalidDataException(
+                        $"Mother Brain transfer {transfer} diverged at byte ${byteIndex:X3}: " +
+                        $"VRAM=${actual:X2}, ROM=${expected:X2}.");
+                }
+            }
+        }
+
+        MotherBrainNeckPoint finalHeadJoint = state.NeckSegment4;
+        if (observedLayerBlendingConfig != 0x0034 ||
+            !observedRisingHdma || state.RisingHdmaActive ||
+            state.Body.XPosition != 0x003b || state.Body.YPosition != 0x0096 ||
+            observedBg2X != 0xffe5 || observedBg2Y != 0xffa9 ||
+            state.Bg2XScroll != observedBg2X || state.Bg2YScroll != observedBg2Y ||
+            state.Pose != MotherBrainBodyPose.Standing || state.Form != 2 ||
+            state.Head!.Health != 0x4650 || state.HitboxesEnabled != 7 ||
+            state.Head.XPosition != finalHeadJoint.X ||
+            state.Head.YPosition != unchecked((ushort)(finalHeadJoint.Y - 21)) ||
+            !state.DrawBrain || !state.DrawNeck || !observedNeckOam ||
+            !state.BrainPaletteHandlingEnabled || !state.DroolGenerationEnabled ||
+            !state.SmallPurpleBreathGenerationEnabled ||
+            !state.EnemyBg2TilemapTransferRequested ||
+            state.EnemyBg2TilemapSize != 0x0140 ||
+            !observedLargePurpleBreath || !observedDrool ||
+            !observedMusic.SequenceEqual(new ushort[] { 6, 0, 0xff21, 5 }))
+        {
+            throw new InvalidDataException(
+                $"Mother Brain resurrection diverged: frames={phaseTwoFrames}, " +
+                $"blend=${observedLayerBlendingConfig:X4}, HDMA={observedRisingHdma}/" +
+                $"{state.RisingHdmaActive}, body=({state.Body.XPosition:X4}," +
+                $"{state.Body.YPosition:X4}), BG2=({observedBg2X:X4},{observedBg2Y:X4}), " +
+                $"pose/form={state.Pose}/{state.Form}, head=({state.Head.XPosition:X4}," +
+                $"{state.Head.YPosition:X4}) joint=({finalHeadJoint.X:X4}," +
+                $"{finalHeadJoint.Y:X4}), projectiles={observedDrool}/" +
+                $"{observedLargePurpleBreath}, function=$A9:{(ushort)state.Function:X4}.");
+        }
+
+        AuditPhaseTwoShotReactions(bus, assets.LevelData, enemies, state, samus);
+    }
+
+    /// <summary>
+    /// Exercises the public projectile collision walker against the resurrected head. This
+    /// proves that `$B562`'s beam/missile walk-counter reaction occurs before the ordinary
+    /// no-death damage tail and that zero health remains body-AI-owned.
+    /// </summary>
+    private static void AuditPhaseTwoShotReactions(
+        SuperMetroidAddressSpace bus,
+        RoomLevelData level,
+        RoomEnemySystem enemies,
+        MotherBrainEnemyState state,
+        SamusState samus)
+    {
+        RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
+            "Mother Brain phase-two shot audit lost the linked head record.");
+        var projectiles = new SamusProjectileSystem();
+        var sharedProjectiles = new SamusBombProjectileSystem();
+
+        AuditShot(SamusProjectileFamily.Beam, type: 0x8000, damage: 20, walkBefore: 0x0200,
+            expectedWalkAfter: 0x0100);
+        AuditShot(SamusProjectileFamily.Missile, type: 0x8100, damage: 100, walkBefore: 0x0200,
+            expectedWalkAfter: 0);
+
+        void AuditShot(
+            SamusProjectileFamily expectedFamily,
+            ushort type,
+            ushort damage,
+            ushort walkBefore,
+            ushort expectedWalkAfter)
+        {
+            projectiles.Reset();
+            sharedProjectiles.Reset();
+            samus.SelectedHudItem = expectedFamily == SamusProjectileFamily.Missile
+                ? (ushort)1
+                : (ushort)0;
+            samus.Missiles = 99;
+            samus.EquippedBeams = 0;
+            const ushort shoot = (ushort)SnesButton.X;
+            SamusProjectileFrameResult produced = projectiles.StepFrame(
+                bus,
+                level,
+                samus,
+                controllerInput: shoot,
+                controllerNewInput: shoot,
+                layer1X: 0,
+                layer1Y: 0,
+                sharedProjectiles);
+            if (produced.FiredSlot is not int slotIndex)
+            {
+                throw new InvalidDataException(
+                    $"Could not produce {expectedFamily} for Mother Brain phase-two audit.");
+            }
+
+            SamusProjectileSlot shot = projectiles.Slots[slotIndex];
+            shot.Type = type;
+            shot.Damage = damage;
+            shot.Direction = (ushort)SamusProjectileDirection.Right;
+            if (shot.InstructionPointer == 0)
+                shot.InstructionPointer = 1;
+            shot.XPosition = head.XPosition;
+            shot.YPosition = head.YPosition;
+            shot.XRadius = 1;
+            shot.YRadius = 1;
+
+            ushort healthBefore = head.Health;
+            state.WalkCounter = walkBefore;
+            int hits = enemies.ResolveOrdinaryProjectileHits(
+                bus,
+                projectiles,
+                sharedProjectiles,
+                samus);
+            ushort vulnerabilityPointer = head.Definition.VulnerabilityPointer != 0
+                ? head.Definition.VulnerabilityPointer
+                : (ushort)0xec1c;
+            int vulnerabilityOffset = expectedFamily == SamusProjectileFamily.Beam ? 0 : 12;
+            byte vulnerability = bus.ReadByte(
+                0xb40000 | unchecked((ushort)(vulnerabilityPointer + vulnerabilityOffset)));
+            int expectedDamage = (damage >> 1) * (vulnerability & 0x7f);
+            ushort expectedHealth = expectedDamage >= healthBefore
+                ? (ushort)0
+                : unchecked((ushort)(healthBefore - expectedDamage));
+
+            SamusProjectileFamily expectedImpactFamily =
+                expectedFamily == SamusProjectileFamily.Beam
+                    ? SamusProjectileFamily.BeamExplosion
+                    : SamusProjectileFamily.MissileExplosion;
+            if (hits != 1 || shot.PackedType.Family != expectedImpactFamily ||
+                head.Health != expectedHealth || state.WalkCounter != expectedWalkAfter ||
+                head.Properties.HasAny(EnemyProperties.Deleted))
+            {
+                throw new InvalidDataException(
+                    $"Mother Brain phase-two {expectedFamily} reaction diverged: hits={hits}, " +
+                    $"family=${shot.PackedType.FamilyValue:X3}, health={head.Health}/" +
+                    $"{expectedHealth}, walk=${state.WalkCounter:X4}/${expectedWalkAfter:X4}, " +
+                    $"deleted={head.Properties.HasAny(EnemyProperties.Deleted)}.");
             }
         }
     }

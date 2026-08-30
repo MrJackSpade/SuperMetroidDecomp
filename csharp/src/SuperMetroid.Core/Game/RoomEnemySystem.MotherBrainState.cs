@@ -154,6 +154,9 @@ public sealed class MotherBrainEnemyState
     /// <summary>Last library-two fake-death/tube sound emitted during this enemy frame.</summary>
     public ushort? LastSoundEffect { get; internal set; }
 
+    /// <summary>Last library-three sound emitted by a Mother Brain private opcode.</summary>
+    public ushort? LastSoundEffectLibrary3 { get; internal set; }
+
     /// <summary>Count of dynamically spawned physical falling-tube enemy records.</summary>
     public int SpawnedFallingTubeCount { get; internal set; }
 
@@ -244,6 +247,13 @@ public sealed class MotherBrainEnemyState
     public bool DroolGenerationEnabled { get; internal set; }
     public bool SmallPurpleBreathGenerationEnabled { get; internal set; }
 
+    /// <summary>
+    /// Attached-mouth offset selector used by drool opcode <c>$A9:9B3C</c>. Native
+    /// increments before spawning and wraps at six, so a zero-initialized encounter emits
+    /// parameter one first.
+    /// </summary>
+    public ushort DroolProjectileParameter { get; internal set; }
+
     /// <summary>Native phase-two walking/shot-reaction accumulator.</summary>
     public ushort WalkCounter { get; internal set; }
 
@@ -269,6 +279,7 @@ public sealed class MotherBrainEnemyState
         _musicRequests.Clear();
         _plmRequests.Clear();
         LastSoundEffect = null;
+        LastSoundEffectLibrary3 = null;
     }
 
     internal void RequestMusic(ushort rawTrack, byte delayFrames) =>

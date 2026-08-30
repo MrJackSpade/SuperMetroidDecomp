@@ -3236,6 +3236,13 @@ public sealed partial class SuperMetroidRuntime
                 VramWrites);
         }
 
+        // `$82:8BAF` executes room shaking after room main ASM and game-time handling, but
+        // before the active-enemy lists are cleared. Enemy attacks above may have installed
+        // a new global quake this frame; consuming it here gives that request its first
+        // displacement/decrement immediately and preserves the list used for actor shake.
+        if (Enemies.IsLoaded)
+            Enemies.HandleRoomShaking(Samus?.Xray.TimeIsFrozen ?? false);
+
         // Gameplay state eight calls `$A0:9169` after Samus, enemies, drawing, HUD/BG
         // bookkeeping, room main ASM, the energy-zero check, and room shaking. Keep this
         // shared tail out of individual movement handlers: in particular, grapple spike

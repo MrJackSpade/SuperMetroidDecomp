@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Rendering;
@@ -20,6 +21,20 @@ public static class SuperMetroidRuntimeFrameRenderer
         if (runtime.ActiveDoor is null)
             throw new InvalidOperationException("A cartridge room and door must be loaded before rendering gameplay.");
 
+        RoomShakeFrameResult shake = runtime.Enemies.LastRoomShake;
+        ushort bg1HorizontalScroll = AddShake(
+            runtime.BackgroundScroll.Bg1HorizontalScroll,
+            shake.Bg1X);
+        ushort bg1VerticalScroll = AddShake(
+            runtime.BackgroundScroll.Bg1VerticalScroll,
+            shake.Bg1Y);
+        ushort bg2HorizontalScroll = AddShake(
+            runtime.BackgroundScroll.Bg2HorizontalScroll,
+            shake.Bg2X);
+        ushort bg2VerticalScroll = AddShake(
+            runtime.BackgroundScroll.Bg2VerticalScroll,
+            shake.Bg2Y);
+
         Rgba32[] frame;
         if (runtime.Enemies.CeresRidley is { Mode7Active: true } getaway)
         {
@@ -36,10 +51,10 @@ public static class SuperMetroidRuntimeFrameRenderer
                 matrixD: unchecked((short)getaway.Mode7MatrixD),
                 centerX: unchecked((short)getaway.Mode7CenterX),
                 centerY: unchecked((short)getaway.Mode7CenterY),
-                horizontalOffset: unchecked((short)getaway.Mode7HorizontalOffset),
-                verticalOffset: unchecked((short)getaway.Mode7VerticalOffset),
-                bg2HorizontalScroll: runtime.BackgroundScroll.Bg2HorizontalScroll,
-                bg2VerticalScroll: runtime.BackgroundScroll.Bg2VerticalScroll,
+                horizontalOffset: unchecked((short)(getaway.Mode7HorizontalOffset + shake.Bg1X)),
+                verticalOffset: unchecked((short)(getaway.Mode7VerticalOffset + shake.Bg1Y)),
+                bg2HorizontalScroll: bg2HorizontalScroll,
+                bg2VerticalScroll: bg2VerticalScroll,
                 // Setup ASM $8F:C97B writes BG12NBA=$66; the floor slice returns to
                 // Mode 1 and therefore consumes the same $6000 character base as BG2 did
                 // before the getaway HDMA tables changed BGMODE.
@@ -65,8 +80,8 @@ public static class SuperMetroidRuntimeFrameRenderer
                 // tilemap row/column producers return early while `$0783` is nonzero.
                 // Leaving these at zero pins the shaft art to the window while Samus,
                 // enemies, and projectiles correctly move relative to the camera.
-                horizontalOffset: unchecked((short)runtime.BackgroundScroll.Bg1HorizontalScroll),
-                verticalOffset: unchecked((short)runtime.BackgroundScroll.Bg1VerticalScroll));
+                horizontalOffset: unchecked((short)bg1HorizontalScroll),
+                verticalOffset: unchecked((short)bg1VerticalScroll));
         }
         else
         {
@@ -85,14 +100,14 @@ public static class SuperMetroidRuntimeFrameRenderer
                 runtime.Vram,
                 runtime.Cgram,
                 runtime.DisplayedOam,
-                runtime.BackgroundScroll.Bg1HorizontalScroll,
-                runtime.BackgroundScroll.Bg1VerticalScroll,
+                bg1HorizontalScroll,
+                bg1VerticalScroll,
                 crocomireOwnsBg2
-                    ? runtime.Enemies.CrocomireBg2HorizontalScroll
-                    : runtime.BackgroundScroll.Bg2HorizontalScroll,
+                    ? AddShake(runtime.Enemies.CrocomireBg2HorizontalScroll, shake.Bg2X)
+                    : bg2HorizontalScroll,
                 crocomireOwnsBg2
-                    ? runtime.Enemies.CrocomireBg2VerticalScroll
-                    : runtime.BackgroundScroll.Bg2VerticalScroll,
+                    ? AddShake(runtime.Enemies.CrocomireBg2VerticalScroll, shake.Bg2Y)
+                    : bg2VerticalScroll,
                 bg2VerticalScrollByLine: crocomireOwnsBg2
                     ? runtime.Enemies.CrocomireDeath?.Bg2ScrollByScanline
                     : null,
@@ -108,4 +123,7 @@ public static class SuperMetroidRuntimeFrameRenderer
 
         return frame;
     }
+
+    private static ushort AddShake(ushort scroll, short displacement) =>
+        unchecked((ushort)(scroll + displacement));
 }

@@ -198,6 +198,7 @@ public sealed partial class RoomEnemySystem
         LastMochtroidSoundEffect = null;
         LastMetroidSoundEffectLibrary2 = null;
         LastMetroidSoundEffectLibrary3 = null;
+        LastCeresDoorSoundEffectLibrary2 = null;
         LastBoulderSoundEffect = null;
         LastZebetiteSoundEffect = null;
         LastEtecoonSoundEffect = null;
@@ -254,6 +255,7 @@ public sealed partial class RoomEnemySystem
         FirefleaDarknessLevel = 0;
         EarthquakeTimer = 0;
         EarthquakeType = 0;
+        LastRoomShake = default;
         _ridleyState = null;
         RidleyDeathDropRequested = false;
         _processAllEnemies = false;
@@ -440,6 +442,7 @@ public sealed partial class RoomEnemySystem
         LastMochtroidSoundEffect = null;
         LastMetroidSoundEffectLibrary2 = null;
         LastMetroidSoundEffectLibrary3 = null;
+        LastCeresDoorSoundEffectLibrary2 = null;
         LastBoulderSoundEffect = null;
         LastZebetiteSoundEffect = null;
         LastEtecoonSoundEffect = null;
@@ -1348,54 +1351,6 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    /// <summary>Ports <c>CeresDoor_Init</c> at $A6:F6C5 for the live Ceres room path.</summary>
-    private void InitializeCeresDoor(RoomEnemySlot slot)
-    {
-        // Both ROM tables contain one word per population parameter. Variants five and six
-        // are the left/right OBJ walls spawned at $A6:A9A5 for Ridley's Mode-7 departure;
-        // the old four-entry bound made the native spawned records impossible to create.
-        if (slot.Parameter1 >= 7)
-        {
-            throw new InvalidDataException(
-                $"Ceres door parameter one ${slot.Parameter1:X4} exceeds its seven variants.");
-        }
-
-        slot.SpritemapPointer = 0xfac7;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
-        slot.VramTilesIndex = 0;
-        slot.PaletteIndex = 0x0400;
-        int tableOffset = slot.Parameter1 * 2;
-        slot.VariableA = ReadWord(_bus!, 0xa6f72b + tableOffset);
-        slot.CurrentInstruction = ReadWord(_bus!, 0xa6f52c + tableOffset);
-        slot.VariableB = 0;
-
-        // CeresDoor_Func_1 performs this extra direct transfer only for variant two. The
-        // source/destination are the literal reconstructed DMA record at $A6:F739.
-        if (slot.Parameter1 == 2)
-        {
-            // The source register used bank $B0 with a 16-bit address that increments
-            // independently of the bank byte. Materialize that exact DMA source slice,
-            // then use SnesVram's range-checked consecutive transfer primitive.
-            byte[] tileBytes = new byte[0x0400];
-            for (int byteIndex = 0; byteIndex < tileBytes.Length; byteIndex++)
-                tileBytes[byteIndex] = _bus!.ReadByte(0xb00000 | ((0xc400 + byteIndex) & 0xffff));
-            _vram!.LoadBytes(0xe000, tileBytes);
-        }
-
-        if (CeresStatus == 0 && slot.Parameter1 == 3)
-        {
-            // The native destination $142 is a byte offset into target_palettes: colors
-            // 161..175. This runtime exposes the final fade target directly in CGRAM.
-            _cgram!.LoadFromBus(_bus!, 0xa6f4ee, colorCount: 15, destinationIndex: 0x142 / 2);
-            return;
-        }
-
-        slot.PaletteIndex = 0x0e00;
-        int source = CeresStatus != 0 ? 0xa6f50e : 0xa6f4ee;
-        _cgram!.LoadFromBus(_bus!, source, colorCount: 15, destinationIndex: 0x1e2 / 2);
-    }
-
     private static void InitializeGunshipTop(RoomEnemySlot slot)
     {
         // Normal gameplay takes $A2:A67C: the cutscene game-state/loading-state alternatives
@@ -1886,64 +1841,6 @@ public sealed partial class RoomEnemySystem
                 throw new NotSupportedException(
                     $"Enemy ${slot.EnemyDefinitionPointer:X4} main AI ${address:X6} is not translated.");
         }
-    }
-
-    private void RunCeresDoorMain(RoomEnemySlot slot)
-    {
-        switch (slot.VariableA)
-        {
-            // Functions two/three only produce escape earthquake state when status >= 2.
-            // Earthquake rendering is independent of the door's own initial presentation.
-            case 0xf76b:
-            case 0xf770:
-                return;
-
-            case 0xf7a5:
-                slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-                if ((CeresStatus & 1) != 0)
-                {
-                    slot.PaletteIndex = 0x0e00;
-                    slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
-                }
-                return;
-
-            case 0xf7bd:
-                RunCeresDoorPaletteAnimation();
-                if (CeresStatus >= 2)
-                {
-                    // $A6:F7BD begins a 48-frame destruction sequence. Retaining this as
-                    // an explicit later boundary avoids pretending the escape state exists.
-                    throw new NotSupportedException("Ceres door destruction sequence $A6:F7DC is not translated.");
-                }
-                return;
-
-            case 0xf850:
-                RunCeresDoorPaletteAnimation();
-                return;
-
-            default:
-                throw new NotSupportedException(
-                    $"Ceres door main function $A6:{slot.VariableA:X4} is not translated.");
-        }
-    }
-
-    private void RunCeresDoorPaletteAnimation()
-    {
-        // $A6:F850 selects six colors by NMI counter bits 3..5. Enemy FrameCounter advances
-        // at the same accepted-frame cadence in this runtime, so slot zero is the shared
-        // timebase for the room-owned palette cycle.
-        ushort frame = _slots[0].FrameCounter;
-
-        // AnimateCeresElevatorPlatform at $A6:F8F1 does not belong to either arrival
-        // projectile. It survives their touchdown deletion because the rotating-room door
-        // actor keeps alternating these four Mode-7 tilemap bytes forever. Omitting this
-        // queue made the moving OBJ pad flash correctly, then left the landed tile platform
-        // frozen on whichever frame happened to be present at deletion.
-        ushort transferPointer = ReadWord(_bus!, 0xa6f900 + (frame & 2));
-        ApplyMode7TransferList(transferPointer);
-
-        ushort sourcePointer = unchecked((ushort)(2 * (frame & 0x0038) - 0x078f));
-        _cgram!.LoadFromBus(_bus!, 0xa60000 | sourcePointer, colorCount: 6, destinationIndex: 0x52 / 2);
     }
 
     private void RunGunshipTopMain(

@@ -258,6 +258,12 @@ if (args.Length >= 2 && args[0] == "--ceres-steam-audit")
     return CeresSteamAudit.Run(ceresSteamRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--ceres-door-audit")
+{
+    string ceresDoorRomPath = string.Join(' ', args[1..]).Trim('"');
+    return CeresDoorAudit.Run(ceresDoorRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--norfair-ridley-audit")
 {
     string ridleyRomPath = string.Join(' ', args[1..]).Trim('"');

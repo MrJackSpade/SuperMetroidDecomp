@@ -35,6 +35,7 @@ public enum RoomEnemyProjectileKind : ushort
     MotherBrainRoomTurretBullet = 0xc18c,
     MotherBrainGlassShard = 0xcefc,
     MotherBrainGlassSparkle = 0xcf0a,
+    MotherBrainOnionRing = 0xcb4b,
     MotherBrainPurpleBreathBig = 0xcb2f,
     MotherBrainDrool = 0xcb91,
     MotherBrainDyingDrool = 0xcb9f,
@@ -571,6 +572,13 @@ public sealed partial class RoomEnemySystem
 
             case 0xc886: // Released drool accelerates down until the fixed arena floor.
                 RunMotherBrainFallingDroolPreInstruction(projectile);
+                return;
+
+            case 0xc335: // Delayed mouth pin, flight, custom collision, and arena cull.
+                RunMotherBrainOnionRingPreInstruction(
+                    projectile,
+                    samus,
+                    cameraX);
                 return;
 
             case 0x8dca: // Draygon goop: attached to Samus with a 256-frame lifetime.

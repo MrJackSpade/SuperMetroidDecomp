@@ -13,6 +13,10 @@ public sealed partial class RoomEnemySystem
     private const ushort MotherBrainSlowUncrouchInstruction = 0x99aa;
     private const ushort MotherBrainStretchingHeadInstruction = 0x9b7f;
     private const ushort MotherBrainFromGrayPalettePointerTable = 0xed9c;
+    private const ushort MotherBrainNeutralPhaseTwoHeadInstruction = 0x9c87;
+    private const ushort MotherBrainFourOnionRingsInstruction = 0x9d3d;
+    private const ushort MotherBrainBombPhaseTwoHeadInstruction = 0x9ecc;
+    private const ushort MotherBrainLaserHeadInstruction = 0x9f34;
 
     private Action<ushort>? _setMotherBrainLayerBlendingDefaultConfig;
     private Action<ushort, ushort>? _setMotherBrainBg2Scroll;
@@ -65,7 +69,10 @@ public sealed partial class RoomEnemySystem
                 FinishMotherBrainStretching(state);
                 return;
             case MotherBrainBodyFunction.SecondPhaseThinking:
-                RunMotherBrainSecondPhaseThinking(state);
+                RunMotherBrainSecondPhaseThinking(state, samus);
+                return;
+            case MotherBrainBodyFunction.SecondPhaseTryAttack:
+                RunMotherBrainSecondPhaseTryAttack(state, samus);
                 return;
             default:
                 throw new NotSupportedException(
@@ -332,7 +339,9 @@ public sealed partial class RoomEnemySystem
         state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
     }
 
-    private void RunMotherBrainSecondPhaseThinking(MotherBrainEnemyState state)
+    private void RunMotherBrainSecondPhaseThinking(
+        MotherBrainEnemyState state,
+        SamusState? samus)
     {
         if (state.Head!.Health == 0)
         {
@@ -347,8 +356,10 @@ public sealed partial class RoomEnemySystem
         {
             if (random < 0x1000)
             {
-                throw new NotSupportedException(
-                    "Mother Brain phase-two attack decision $A9:B64B is not translated yet.");
+                // `$B605` installs the attack dispatcher and returns. It does not execute
+                // phase zero until the body's next enemy-AI call.
+                state.Function = MotherBrainBodyFunction.SecondPhaseTryAttack;
+                return;
             }
             HandleMotherBrainWalking(state);
             return;
@@ -359,11 +370,138 @@ public sealed partial class RoomEnemySystem
             HandleMotherBrainWalking(state);
             return;
         }
+        if (random >= 0xa000)
+        {
+            state.Function = MotherBrainBodyFunction.SecondPhaseTryAttack;
+            return;
+        }
         throw new NotSupportedException(
-            random >= 0xa000
-                ? "Mother Brain low-health attack decision $A9:B64B is not translated yet."
-                : "Mother Brain death-beam attack $A9:B8F1 is not translated yet.");
+            "Mother Brain death-beam attack $A9:B8F1 is not translated yet.");
     }
+
+    /// <summary>
+    /// Ports the three-entry body dispatcher at <c>$A9:B64B-B780</c>. The selected head
+    /// list is ordinary enemy bytecode, so attacks remain synchronized with native map
+    /// durations instead of being represented by host timers.
+    /// </summary>
+    private void RunMotherBrainSecondPhaseTryAttack(
+        MotherBrainEnemyState state,
+        SamusState? samus)
+    {
+        switch (state.AttackPhase)
+        {
+            case MotherBrainAttackPhase.ChooseAttack:
+                ChooseMotherBrainSecondPhaseAttack(state, RequireMotherBrainCombatSamus(samus));
+                return;
+
+            case MotherBrainAttackPhase.Cooldown:
+                // `$B764` decrements before testing. The phase-zero initializer always
+                // writes $40, but unchecked arithmetic retains the native zero-underflow
+                // behavior if a debugger edits this word while stopped here.
+                state.AttackCooldown = unchecked((ushort)(state.AttackCooldown - 1));
+                if (state.AttackCooldown == 0)
+                    state.AttackPhase = MotherBrainAttackPhase.EndAttack;
+                return;
+
+            case MotherBrainAttackPhase.EndAttack:
+                state.AttackPhase = MotherBrainAttackPhase.ChooseAttack;
+                state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
+                return;
+
+            default:
+                throw new InvalidDataException(
+                    $"Mother Brain attack phase {(ushort)state.AttackPhase} is outside the " +
+                    "three-entry cartridge dispatcher.");
+        }
+    }
+
+    /// <summary>Ports <c>$A9:B65A-B72B</c>, including its unusual stack-return strategy.</summary>
+    private void ChooseMotherBrainSecondPhaseAttack(
+        MotherBrainEnemyState state,
+        SamusState samus)
+    {
+        state.AttackCooldown = 0x0040;
+        state.AttackPhase = MotherBrainAttackPhase.Cooldown;
+
+        byte randomLow = unchecked((byte)(_readRandomNumber?.Invoke() ?? 0));
+        byte movementType = samus.ReadMovementType(_bus!);
+        if (movementType >= 0x1c)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain attack strategy cannot index Samus movement type ${movementType:X2}.");
+        }
+
+        if (IsMotherBrainAirAttackMovement(movementType))
+        {
+            // The native helper removes its caller's return address: every airborne route
+            // commits immediately and skips the proximity/fallback thresholds entirely.
+            if (randomLow >= 0x80)
+            {
+                SetMotherBrainInstructionList(
+                    state.Head!,
+                    MotherBrainFourOnionRingsInstruction);
+                return;
+            }
+
+            throw new NotSupportedException(
+                "Mother Brain phase-two airborne laser state $A9:B7E0 is not translated yet.");
+        }
+
+        // Grounded movement types attempt a bomb on the upper half of the current random
+        // byte. An already-live bomb falls back to the normal threshold table.
+        if (randomLow >= 0x80 && state.BombCounter < 1)
+        {
+            throw new NotSupportedException(
+                "Mother Brain phase-two bomb body state $A9:B781 is not translated yet.");
+        }
+
+        ushort verticalDistance = WrappedMagnitude(unchecked((ushort)(
+            state.Head!.YPosition + 4 - samus.YPosition)));
+        ReadOnlySpan<byte> thresholds = verticalDistance < 0x20
+            ? [0x10, 0x20, 0xd0]
+            : [0x40, 0x80, 0xc0];
+        int choice = randomLow < thresholds[0]
+            ? 0
+            : randomLow < thresholds[1]
+                ? 1
+                : randomLow < thresholds[2]
+                    ? 2
+                    : 3;
+
+        switch (choice)
+        {
+            case 0:
+                SetMotherBrainInstructionList(
+                    state.Head,
+                    MotherBrainNeutralPhaseTwoHeadInstruction);
+                return;
+            case 1:
+                SetMotherBrainInstructionList(
+                    state.Head,
+                    MotherBrainFourOnionRingsInstruction);
+                return;
+            case 2:
+                throw new NotSupportedException(
+                    $"Mother Brain selected head list ${MotherBrainLaserHeadInstruction:X4}, " +
+                    "whose body positioning state $A9:B7E0 is not translated yet.");
+            case 3 when state.BombCounter >= 1:
+                // `$B6B9` returns without changing the current head list when one bomb is
+                // already alive. The body still spends the full cooldown in phase one.
+                return;
+            default:
+                throw new NotSupportedException(
+                    $"Mother Brain selected head list ${MotherBrainBombPhaseTwoHeadInstruction:X4}, " +
+                    "whose body crouch/walk state $A9:B781 is not translated yet.");
+        }
+    }
+
+    private static bool IsMotherBrainAirAttackMovement(byte movementType) =>
+        movementType is 0x02 or 0x03 or 0x06 or 0x08 or 0x09 or 0x0b or 0x0c or
+            0x0d or 0x12 or 0x13 or 0x14;
+
+    private static SamusState RequireMotherBrainCombatSamus(SamusState? samus) =>
+        samus ?? throw new InvalidOperationException(
+            "Mother Brain phase-two attack selection requires the active Samus actor.");
 
     private static void HandleMotherBrainWalking(MotherBrainEnemyState state)
     {

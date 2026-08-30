@@ -168,8 +168,9 @@ internal static class MotherBrainAudit
             "spritemap draw hook, asymmetric Samus collision, loaded glass PLM, missile " +
             "gating, threshold bytecode, shard actors, fake-death pauses/palettes, ordered " +
             "tube PLMs, four ceiling tubes, five physical tube actors, phase-two DMA, " +
-            "uncrouch movement, neck geometry, and stretching projectiles matched the " +
-            "untouched cartridge.");
+            "uncrouch movement, neck geometry, stretching projectiles, phase-two attack " +
+            "selection/cooldown, four aimed onion rings, and custom ring damage matched " +
+            "the untouched cartridge.");
         return 0;
     }
 
@@ -454,6 +455,13 @@ internal static class MotherBrainAudit
         }
 
         AuditPhaseTwoShotReactions(bus, assets.LevelData, enemies, state, samus);
+        AuditPhaseTwoOnionRingAttack(
+            bus,
+            assets.LevelData,
+            enemies,
+            state,
+            samus,
+            random);
     }
 
     /// <summary>
@@ -552,6 +560,248 @@ internal static class MotherBrainAudit
                     $"deleted={head.Properties.HasAny(EnemyProperties.Deleted)}.");
             }
         }
+    }
+
+    /// <summary>
+    /// Forces the cartridge's grounded/default `$50` random-byte route: thinking installs
+    /// `$B64B`, phase zero selects head list `$9D3D`, and that ordinary list emits four
+    /// independently aimed `$86:CB4B` actors before the 64-frame body cooldown expires.
+    /// </summary>
+    private static void AuditPhaseTwoOnionRingAttack(
+        SuperMetroidAddressSpace bus,
+        RoomLevelData level,
+        RoomEnemySystem enemies,
+        MotherBrainEnemyState state,
+        SamusState samus,
+        Bank80SystemState random)
+    {
+        RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
+            "Mother Brain onion-ring audit lost the linked head record.");
+
+        // Current random is read without advancing by both `$B605` and `$B65A`. Low byte
+        // $50 lies between the default $40/$80 thresholds and therefore selects rings.
+        random.SetRandomNumber(0x0050);
+        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.XPosition = 0x0020;
+        samus.YPosition = 0x00dc;
+        samus.EquippedItems = 0;
+        samus.Health = 999;
+        samus.InvincibilityTimer = 0;
+        samus.KnockbackTimer = 0;
+
+        bool[] ringWasActive = new bool[enemies.EnemyProjectiles.Count];
+        bool observedAttackDispatcher = false;
+        bool observedCooldown = false;
+        bool observedDisabledNeck = false;
+        bool observedReenabledNeck = false;
+        bool observedRingSound = false;
+        bool observedCollisionSound = false;
+        bool observedSamusHit = false;
+        int spawnCount = 0;
+        int frames = 0;
+
+        for (; frames < 160; frames++)
+        {
+            enemies.StepFrame(
+                cameraX: 0,
+                cameraY: 0,
+                timeIsFrozen: false,
+                samus,
+                level: level,
+                nmiFrameCounter8: unchecked((byte)frames));
+
+            observedAttackDispatcher |=
+                state.Function == MotherBrainBodyFunction.SecondPhaseTryAttack;
+            observedCooldown |= state.AttackPhase == MotherBrainAttackPhase.Cooldown &&
+                state.AttackCooldown != 0;
+            observedDisabledNeck |= !state.NeckMovementEnabled;
+            observedReenabledNeck |= observedDisabledNeck && state.NeckMovementEnabled;
+            observedRingSound |= state.LastSoundEffectLibrary3 == 0x0017;
+
+            RoomEnemyProjectileSlot? collisionCandidate = null;
+            ushort expectedKnockbackDirection = 0;
+            foreach (RoomEnemyProjectileSlot ring in enemies.EnemyProjectiles.Where(
+                         projectile =>
+                             projectile.Kind == RoomEnemyProjectileKind.MotherBrainOnionRing))
+            {
+                if (!ringWasActive[ring.SlotIndex])
+                {
+                    spawnCount++;
+                    byte expectedAngle = CalculateMotherBrainOnionRingAngleReference(
+                        unchecked((short)(samus.XPosition - head.XPosition - 0x000a)),
+                        unchecked((short)(samus.YPosition - head.YPosition - 0x0010)));
+                    ushort expectedXVelocity = MultiplyMotherBrainSineReference(
+                        bus,
+                        0x0450,
+                        expectedAngle);
+                    ushort expectedYVelocity = MultiplyMotherBrainSineReference(
+                        bus,
+                        0x0450,
+                        unchecked((byte)(expectedAngle + 0x40)));
+                    if (ring.PreInstruction != 0xc335 ||
+                        ring.InstructionPointer != 0xc432 || ring.InstructionTimer != 1 ||
+                        ring.SpritemapPointer != 0x8000 || ring.GraphicsIndex != 0x0400 ||
+                        ring.XRadius != 6 || ring.YRadius != 6 || ring.Damage != 0x0050 ||
+                        ring.Variable0 != 8 || ring.Variable1 != 0 ||
+                        ring.DirectionParameter != expectedAngle ||
+                        ring.XVelocity != expectedXVelocity || ring.YVelocity != expectedYVelocity ||
+                        ring.XPosition != unchecked((ushort)(head.XPosition + 0x000a)) ||
+                        ring.YPosition != unchecked((ushort)(head.YPosition + 0x0010)) ||
+                        ring.CanDamageSamus || ring.PersistsOnSamusContact ||
+                        ring.BlocksSamusProjectiles)
+                    {
+                        throw new InvalidDataException(
+                            $"Mother Brain onion ring {spawnCount} initialization diverged: " +
+                            $"slot={ring.SlotIndex}, angle=${ring.DirectionParameter:X2}/" +
+                            $"${expectedAngle:X2}, velocity=({ring.XVelocity:X4}," +
+                            $"{ring.YVelocity:X4})/({expectedXVelocity:X4}," +
+                            $"{expectedYVelocity:X4}), pos=({ring.XPosition:X4}," +
+                            $"{ring.YPosition:X4}), list=${ring.InstructionPointer:X4}." );
+                    }
+                }
+
+                // Let the real eight delayed pre-instruction calls expire. On the first
+                // naturally active call, place Samus at the exact next 8.8 coordinate and
+                // retain a nonzero invincibility timer to prove this private path ignores it.
+                if (!observedSamusHit && collisionCandidate is null && ring.Variable0 == 0)
+                {
+                    collisionCandidate = ring;
+                    (ushort targetX, _) = AddEightBitVelocityReference(
+                        ring.XPosition,
+                        ring.XSubposition,
+                        ring.XVelocity);
+                    (ushort targetY, _) = AddEightBitVelocityReference(
+                        ring.YPosition,
+                        ring.YSubposition,
+                        ring.YVelocity);
+                    samus.XPosition = targetX;
+                    samus.YPosition = targetY;
+                    samus.Health = 999;
+                    samus.InvincibilityTimer = 7;
+                    samus.KnockbackTimer = 0;
+                    // Samus and the moved ring share X exactly. `$C373` treats equality as
+                    // the nonnegative/right branch and therefore writes direction one.
+                    expectedKnockbackDirection = 1;
+                }
+            }
+
+            enemies.StepEnemyProjectiles(
+                level,
+                samus,
+                cameraX: 0,
+                cameraY: 0,
+                nmiFrameCounter8: unchecked((byte)frames));
+
+            if (collisionCandidate is not null && !observedSamusHit)
+            {
+                if (samus.Health != 919 || samus.InvincibilityTimer != 0x0060 ||
+                    samus.KnockbackTimer != 5 ||
+                    samus.KnockbackXDirection != expectedKnockbackDirection)
+                {
+                    throw new InvalidDataException(
+                        $"Mother Brain onion-ring Samus collision diverged: health=" +
+                        $"{samus.Health}/919, invincibility={samus.InvincibilityTimer:X4}/" +
+                        $"0060, knockback={samus.KnockbackTimer}/" +
+                        $"{samus.KnockbackXDirection}.");
+                }
+                observedSamusHit = true;
+                observedCollisionSound |= state.LastSoundEffectLibrary3 == 0x0013;
+
+                // Keep later rings alive long enough to prove four distinct spawn opcodes;
+                // the custom ring path ignores invincibility, so distance is the real gate.
+                samus.XPosition = 0x0300;
+                samus.YPosition = 0x0300;
+            }
+
+            for (int slotIndex = 0; slotIndex < ringWasActive.Length; slotIndex++)
+            {
+                ringWasActive[slotIndex] = enemies.EnemyProjectiles[slotIndex].Kind ==
+                    RoomEnemyProjectileKind.MotherBrainOnionRing;
+            }
+
+            if (spawnCount == 4 && observedSamusHit &&
+                state.Function == MotherBrainBodyFunction.SecondPhaseThinking &&
+                state.AttackPhase == MotherBrainAttackPhase.ChooseAttack)
+            {
+                break;
+            }
+        }
+
+        if (frames == 160 || spawnCount != 4 || !observedAttackDispatcher ||
+            !observedCooldown || !observedDisabledNeck || !observedReenabledNeck ||
+            !observedRingSound || !observedCollisionSound || !observedSamusHit ||
+            state.AttackCooldown != 0 || head.CurrentInstruction < 0x9c87 ||
+            head.CurrentInstruction > 0x9cab)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain phase-two onion-ring cycle diverged: frames={frames}, " +
+                $"spawns={spawnCount}, function=$A9:{(ushort)state.Function:X4}, " +
+                $"phase/cooldown={state.AttackPhase}/{state.AttackCooldown}, neck=" +
+                $"{observedDisabledNeck}/{observedReenabledNeck}, sounds=" +
+                $"{observedRingSound}/{observedCollisionSound}, hit={observedSamusHit}, " +
+                $"headList=${head.CurrentInstruction:X4}.");
+        }
+    }
+
+    private static byte CalculateMotherBrainOnionRingAngleReference(short x, short y)
+    {
+        int quadrant = 0;
+        ushort absoluteX = unchecked((ushort)x);
+        ushort absoluteY = unchecked((ushort)y);
+        if (x < 0)
+        {
+            quadrant += 2;
+            absoluteX = unchecked((ushort)-absoluteX);
+        }
+        if (y < 0)
+        {
+            quadrant++;
+            absoluteY = unchecked((ushort)-absoluteY);
+        }
+
+        int divided;
+        byte cartridgeAngle;
+        if (absoluteY < absoluteX)
+        {
+            divided = absoluteX == 0 ? 0 : (absoluteY << 8) / absoluteX;
+            cartridgeAngle = quadrant switch
+            {
+                0 => unchecked((byte)((divided >> 3) + 64)),
+                1 => unchecked((byte)(64 - (divided >> 3))),
+                2 => unchecked((byte)(-64 - (divided >> 3))),
+                _ => unchecked((byte)((divided >> 3) - 64)),
+            };
+        }
+        else
+        {
+            divided = absoluteY == 0 ? 0 : (absoluteX << 8) / absoluteY;
+            cartridgeAngle = quadrant switch
+            {
+                0 => unchecked((byte)(128 - (divided >> 3))),
+                1 => unchecked((byte)(divided >> 3)),
+                2 => unchecked((byte)((divided >> 3) + 128)),
+                _ => unchecked((byte)(-(divided >> 3))),
+            };
+        }
+
+        byte angle = unchecked((byte)(0x80 - cartridgeAngle));
+        return angle switch
+        {
+            >= 0x10 and < 0x48 => angle,
+            >= 0x48 and < 0xc0 => 0x48,
+            _ => 0x10,
+        };
+    }
+
+    private static ushort MultiplyMotherBrainSineReference(
+        ISnesAddressSpace bus,
+        ushort speed,
+        byte angle)
+    {
+        short sample = unchecked((short)ReadWord(bus, 0xa0b443 + angle * 2));
+        int magnitude = speed * Math.Abs((int)sample) >> 8;
+        return unchecked((ushort)(sample < 0 ? -magnitude : magnitude));
     }
 
     /// <summary>

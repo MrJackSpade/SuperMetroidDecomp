@@ -159,6 +159,7 @@ public sealed partial class RoomEnemySystem
             case MotherBrainBodyFunction.SecondPhaseStretchingBringHeadUp:
             case MotherBrainBodyFunction.SecondPhaseStretchingFinish:
             case MotherBrainBodyFunction.SecondPhaseThinking:
+            case MotherBrainBodyFunction.SecondPhaseTryAttack:
                 RunMotherBrainPhaseTwoAscent(state, samus, nmiFrameCounter8);
                 return;
             default:
@@ -384,6 +385,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Handles Mother Brain's private instruction opcodes used by phase-one art.</summary>
     private bool TryProcessMotherBrainInstruction(
         RoomEnemySlot slot,
+        SamusState? samus,
         ushort instruction,
         ref ushort cursor)
     {
@@ -393,6 +395,13 @@ public sealed partial class RoomEnemySystem
         switch (instruction)
         {
             case 0x9b0f: // Instruction_MotherBrain_GotoX: X = next same-bank word.
+                cursor = ReadWord(
+                    _bus!,
+                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                return true;
+
+            case 0x9b14: // Enable articulated neck tracking and branch to the operand.
+                RequireCompleteMotherBrainState(slot).NeckMovementEnabled = true;
                 cursor = ReadWord(
                     _bus!,
                     (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
@@ -538,6 +547,15 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
             }
+            case 0x9b32: // Queue library-three sound from the following word.
+            {
+                MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
+                state.LastSoundEffectLibrary3 = ReadWord(
+                    _bus!,
+                    (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            }
             case 0x9b3c: // Spawn one cycling attached/falling drool actor.
                 SpawnMotherBrainDrool(RequireCompleteMotherBrainState(slot));
                 cursor = unchecked((ushort)(cursor + 2));
@@ -550,6 +568,41 @@ public sealed partial class RoomEnemySystem
                 RequireCompleteMotherBrainState(slot).BrainMainShakeTimer = 50;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
+            case 0x9cad: // Usually repeat the neutral phase-two hold at $9C9F.
+                cursor = (_readRandomNumber?.Invoke() ?? 0) < 0xf000
+                    ? (ushort)0x9c9f
+                    : unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9e5b: // Aim the next phase-two onion ring at Samus.
+            {
+                MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
+                SamusState target = samus ?? throw new InvalidOperationException(
+                    "Mother Brain onion-ring aiming requires the active Samus actor.");
+                RoomEnemySlot head = state.Head!;
+                short deltaX = unchecked((short)(target.XPosition - head.XPosition - 0x000a));
+                short deltaY = unchecked((short)(target.YPosition - head.YPosition - 0x0010));
+                byte angle = unchecked((byte)(
+                    0x80 - CalculateCartridgeAngle(deltaX, deltaY)));
+
+                // `$9E86-$9E98` performs two signed-flag comparisons in 8-bit mode.
+                // The wraparound half maps $C0..FF and $00..0F to $10; the opposite half
+                // maps $48..BF to $48. Only $10..47 survives unchanged.
+                state.OnionRingsTargetAngle = angle switch
+                {
+                    >= 0x10 and < 0x48 => angle,
+                    >= 0x48 and < 0xc0 => 0x0048,
+                    _ => 0x0010,
+                };
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            }
+            case 0x9e29: // Allocate one `$86:CB4B` onion ring at the current mouth.
+            {
+                MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
+                SpawnMotherBrainOnionRing(state, unchecked((byte)state.OnionRingsTargetAngle));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            }
             default:
                 return false;
         }

@@ -2325,6 +2325,7 @@ public sealed partial class RoomEnemySystem
                 }
                 case >= 0x8000 when TryProcessMotherBrainInstruction(
                     slot,
+                    samus,
                     word,
                     ref cursor):
                     break;

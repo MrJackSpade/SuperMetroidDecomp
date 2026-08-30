@@ -35,6 +35,18 @@ public enum MotherBrainBodyFunction : ushort
     SecondPhaseStretchingBringHeadUp = 0x8f14,
     SecondPhaseStretchingFinish = 0x8f33,
     SecondPhaseThinking = 0xb605,
+    SecondPhaseTryAttack = 0xb64b,
+}
+
+/// <summary>
+/// Index into Mother Brain's three-entry phase-two attack dispatcher at
+/// <c>$A9:B654</c>. The values are array indices in the cartridge, not host-only states.
+/// </summary>
+public enum MotherBrainAttackPhase : ushort
+{
+    ChooseAttack = 0,
+    Cooldown = 1,
+    EndAttack = 2,
 }
 
 /// <summary>Values written by Mother Brain's body instruction opcodes at $A9:9700-$972F.</summary>
@@ -256,6 +268,29 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>Native phase-two walking/shot-reaction accumulator.</summary>
     public ushort WalkCounter { get; internal set; }
+
+    /// <summary>
+    /// Native <c>attackPhase</c> dispatch index used by <c>$A9:B64B</c>. Head animation
+    /// runs independently while this advances from selection, through 64 cooldown frames,
+    /// and back to the ordinary thinking function.
+    /// </summary>
+    public MotherBrainAttackPhase AttackPhase { get; internal set; }
+
+    /// <summary>Unsigned 64-frame attack cooldown decremented by <c>$A9:B764</c>.</summary>
+    public ushort AttackCooldown { get; internal set; }
+
+    /// <summary>
+    /// Number of active Mother Brain bombs. Phase two refuses another bomb when this is
+    /// at least one; the future shared bomb translation owns increments and decrements.
+    /// </summary>
+    public ushort BombCounter { get; internal set; }
+
+    /// <summary>
+    /// Clamped byte-angle written by head opcode <c>$A9:9E5B</c> and consumed by the next
+    /// <c>$A9:9E29</c> onion-ring spawn. It remains a word because native extended WRAM is
+    /// word-addressed even though the calculation deliberately operates in 8-bit mode.
+    /// </summary>
+    public ushort OnionRingsTargetAngle { get; internal set; }
 
     /// <summary>
     /// Parameters passed to the twelve <c>$86</c> Mother Brain turret initializers during

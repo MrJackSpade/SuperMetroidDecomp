@@ -306,6 +306,67 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>
+    /// Allocates one of Mother Brain's literal fake-death room mutations from
+    /// <c>$84:B673-$84:B6C7</c>. Every listed header uses setup $B3D0 (deactivate) and a
+    /// one-frame draw/delete list, so the shared PLM interpreter—not boss-specific terrain
+    /// painting—owns the actual room edit and tilemap upload.
+    /// </summary>
+    /// <returns>False only when all forty native PLM slots are occupied.</returns>
+    public bool TrySpawnMotherBrainMutation(
+        RoomLevelData level,
+        byte blockX,
+        byte blockY,
+        ushort header)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        ushort instructionPointer = header switch
+        {
+            0xb673 => 0xac05,
+            0xb67b => 0xac11,
+            0xb67f => 0xac17,
+            0xb683 => 0xac1d,
+            0xb687 => 0xac23,
+            0xb68b => 0xac29,
+            0xb68f => 0xac2f,
+            0xb693 => 0xac35,
+            0xb697 => 0xac3b,
+            0xb69b => 0xac41,
+            0xb69f => 0xac47,
+            0xb6a3 => 0xac4d,
+            0xb6a7 => 0xac53,
+            0xb6b3 => 0xac65,
+            0xb6b7 => 0xac6b,
+            0xb6bb => 0xac71,
+            0xb6bf => 0xac77,
+            0xb6c3 => 0xac7d,
+            0xb6c7 => 0xac83,
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(header),
+                header,
+                "Mother Brain mutation header is outside $B673-$B6C7's authored set."),
+        };
+
+        // SpawnHardcodedPLM probes native slots $4E,$4C,...,$00. Do not reserve a boss
+        // slot or coalesce adjacent row requests: their allocation order is observable.
+        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
+        {
+            PlmSlot slot = _slots[slotIndex];
+            if (slot.Active)
+                continue;
+
+            slot.Active = true;
+            slot.BlockIndex = level.GetBlockIndex(blockX, blockY);
+            slot.RestoreLevelWord = 0;
+            slot.LoopTimer = 0;
+            slot.InstructionPointer = instructionPointer;
+            slot.InstructionTimer = 1;
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Runs setup <c>$84:CFB5</c> for BTS one or two and installs the corresponding PLM.
     /// </summary>
     /// <returns>False only when all 40 native slots are occupied.</returns>

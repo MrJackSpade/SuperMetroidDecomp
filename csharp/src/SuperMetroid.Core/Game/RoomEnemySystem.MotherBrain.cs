@@ -11,6 +11,7 @@ public sealed partial class RoomEnemySystem
 {
     private const ushort MotherBrainBodyDefinition = 0xec7f;
     private const ushort MotherBrainHeadDefinition = 0xec3f;
+    private const ushort MotherBrainFallingTubeDefinition = 0xecff;
     private const ushort MotherBrainBlankBg2Tile = 0x0338;
     private const ushort MotherBrainBg2VramBase = 0x4800;
     private const int MotherBrainBg2WordCount = 0x0800;
@@ -116,10 +117,32 @@ public sealed partial class RoomEnemySystem
     private void RunMotherBrainBodyMain(RoomEnemySlot body, SamusState? samus)
     {
         MotherBrainEnemyState state = RequireCompleteMotherBrainState(body);
+
+        // `$A9:873E` advances the independent room-palette instruction list before it
+        // dispatches the body function. Keeping that order is visible on the exact frame
+        // the fake-death flash begins and later when the main tube stops the loop.
+        RunMotherBrainRoomPalette(state);
         switch (state.Function)
         {
             case MotherBrainBodyFunction.FirstPhase:
                 RunMotherBrainFirstPhase(state, samus);
+                return;
+            case MotherBrainBodyFunction.FakeDeathDescentInitialPause:
+            case MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock:
+            case MotherBrainBodyFunction.FakeDeathDescentPauseBeforeMusic:
+            case MotherBrainBodyFunction.FakeDeathDescentPauseBeforeUnlock:
+            case MotherBrainBodyFunction.FakeDeathDescentPauseBeforeFlash:
+            case MotherBrainBodyFunction.FakeDeathDescentFadeToGray:
+            case MotherBrainBodyFunction.FakeDeathDescentCollapseTubes:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawRows4And5:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawRows6And7:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawRows8And9:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawRowsAAndB:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD:
+            case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Graphics:
+            case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain:
+                RunMotherBrainFakeDeath(state, samus);
                 return;
             default:
                 throw new NotSupportedException(
@@ -144,6 +167,15 @@ public sealed partial class RoomEnemySystem
                 // enters the real timed descent rather than jumping to standing form.
                 state.DeleteTurretsAndRinkas = true;
                 state.Form = 1;
+                state.RequestMusic(rawTrack: 6, delayFrames: 8);
+
+                // MotherBrain_SealWall at `$AD:E396` creates both dust puffs before its
+                // two identical hardcoded PLMs. Requests remain ordered because the bank
+                // $84 allocator searches the same descending pool for each call.
+                SpawnRoomGraphicsDustExplosion(248, 72, animationIndex: 9);
+                SpawnRoomGraphicsDustExplosion(248, 152, animationIndex: 9);
+                state.RequestPlm(blockX: 15, blockY: 4, header: 0xb673);
+                state.RequestPlm(blockX: 15, blockY: 9, header: 0xb673);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentInitialPause;
             }
         }

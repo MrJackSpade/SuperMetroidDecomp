@@ -151,7 +151,8 @@ public sealed partial class RoomEnemySystem
         Action<bool>? setSamusControlsEnabled = null,
         Action<int, byte>? setRoomScrollByte = null,
         Action? setAreaBossDefeated = null,
-        Action? incrementMotherBrainGlassRoomArgument = null)
+        Action? incrementMotherBrainGlassRoomArgument = null,
+        Func<int, byte>? readRoomScrollByte = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -168,6 +169,8 @@ public sealed partial class RoomEnemySystem
         _isAreaBossDefeated = isAreaBossDefeated;
         _setAreaBossDefeated = setAreaBossDefeated;
         _incrementMotherBrainGlassRoomArgument = incrementMotherBrainGlassRoomArgument;
+        _readMotherBrainRoomScrollByte = readRoomScrollByte;
+        _setMotherBrainRoomScrollByte = setRoomScrollByte;
         _isAreaMiniBossDefeated = isAreaMiniBossDefeated;
         _hasEvent = hasEvent;
         _setEvent = setEvent;
@@ -467,6 +470,7 @@ public sealed partial class RoomEnemySystem
         LastCrocomireMusicRequest = null;
         LastCrocomireDropRequest = null;
         _crocomirePlmRequests.Clear();
+        _motherBrain?.BeginFrame();
         BeginSporeSpawnFrame();
         LastRioSoundEffect = null;
         LastNorfairLavaJumpingEnemySoundEffect = null;
@@ -1312,6 +1316,9 @@ public sealed partial class RoomEnemySystem
             case 0xa98705 when slot.EnemyDefinitionPointer == MotherBrainHeadDefinition:
                 InitializeMotherBrainHead(slot);
                 return;
+            case 0xa98b35 when slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition:
+                InitializeMotherBrainFallingTube(slot);
+                return;
             case 0xaad7c8 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
                 InitializeTourianEntranceStatue(slot);
                 return;
@@ -1460,6 +1467,9 @@ public sealed partial class RoomEnemySystem
                 return;
             case 0xa9878b when slot.EnemyDefinitionPointer == MotherBrainHeadDefinition:
                 RunMotherBrainHeadMain(slot);
+                return;
+            case 0xa98b85 when slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition:
+                RunMotherBrainFallingTubeMain(slot);
                 return;
             case 0xa48c04 when slot.EnemyDefinitionPointer == CrocomireDefinition:
                 RunCrocomireMain(slot, samus, controllerInput, level, cameraX);

@@ -2102,6 +2102,7 @@ public sealed partial class SuperMetroidRuntime
                 ApplyPendingBotwoonWallPlm();
                 ApplyPendingSporeSpawnCeilingPlm();
                 ApplyPendingCrocomireArenaPlms();
+                ApplyPendingMotherBrainPlms();
 
                 IReadOnlyList<PlmTilemapUpdate> plmUpdates = Plms.Step(
                     _addressSpace,

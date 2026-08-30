@@ -22,6 +22,7 @@ public enum MotherBrainBodyFunction : ushort
     FakeDeathAscentDrawRowsAAndB = 0x8ce3,
     FakeDeathAscentDrawRowsCAndD = 0x8cfa,
     FakeDeathAscentSetupPhase2Graphics = 0x8d11,
+    FakeDeathAscentSetupPhase2Brain = 0x8d49,
 }
 
 /// <summary>

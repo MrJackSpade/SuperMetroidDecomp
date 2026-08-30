@@ -158,6 +158,7 @@ internal static class MotherBrainAudit
 
         AuditTurretRuntime(bus, assets.LevelData, enemies, samus);
         AuditGlassSequence(bus, room);
+        AuditFakeDeathSequence(bus, room);
 
         Console.WriteLine(
             "Mother Brain audit passed: retail room $DD58 loaded six physical records; " +
@@ -165,8 +166,167 @@ internal static class MotherBrainAudit
             "twelve shared-pool turrets, rotating/firing turret bytecode, bullet movement, " +
             "terrain/contact behavior, looping head bytecode, the custom ordinary-" +
             "spritemap draw hook, asymmetric Samus collision, loaded glass PLM, missile " +
-            "gating, threshold bytecode, and shard actors matched the untouched cartridge.");
+            "gating, threshold bytecode, shard actors, fake-death pauses/palettes, ordered " +
+            "tube PLMs, four ceiling tubes, and five physical tube actors matched the " +
+            "untouched cartridge.");
         return 0;
+    }
+
+    /// <summary>
+    /// Drives the real first-phase exit through phase-two graphics setup. This is an
+    /// encounter audit rather than a direct state mutation: event two and zero head health
+    /// are the cartridge's entry conditions, after which every body/head/projectile/PLM
+    /// frame runs through the same public schedulers used by gameplay.
+    /// </summary>
+    private static void AuditFakeDeathSequence(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room)
+    {
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        var vram = new SnesVram();
+        var cgram = new SnesCgram();
+        assets.LoadGraphics(vram, cgram);
+        var random = new Bank80SystemState(0x1234);
+        var samus = new SamusState
+        {
+            Health = 999,
+            MaxHealth = 999,
+            XPosition = 32,
+            YPosition = 220,
+            Pose = SamusState.FacingRightNormalPose,
+        };
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+
+        byte[] scrollBytes = new byte[50];
+        scrollBytes[0] = 2;
+        scrollBytes[1] = 1;
+        var enemies = new RoomEnemySystem();
+        enemies.Load(
+            bus,
+            room.State.EnemyPopulationPointer,
+            room.State.EnemyTilesetPointer,
+            vram,
+            cgram,
+            random.NextRandom,
+            random.SetRandomNumber,
+            readRandomNumber: () => random.RandomNumber,
+            level: assets.LevelData,
+            samus: samus,
+            isAreaBossDefeated: () => false,
+            hasEvent: eventNumber => eventNumber == 2,
+            setRoomScrollByte: (index, value) => scrollBytes[index] = value,
+            readRoomScrollByte: index => scrollBytes[index]);
+
+        MotherBrainEnemyState state = enemies.MotherBrain ?? throw new InvalidDataException(
+            "Mother Brain fake-death audit lost the encounter state.");
+        state.Head!.Health = 0;
+
+        var plms = new RoomPlmSystem();
+        BackgroundTilemapStreamer streamer =
+            assets.LevelData.CreateBackgroundStreamer(sizeOfBg2: 0x0800);
+        var observedHeaders = new List<ushort>();
+        var observedMusic = new List<ushort>();
+        var observedCeilingTubes = new HashSet<RoomEnemyProjectileKind>();
+        bool observedLockedInput = false;
+        bool observedUnlockAfterLock = false;
+        bool reachedPhaseTwoSetup = false;
+
+        for (int frame = 0; frame < 2048; frame++)
+        {
+            enemies.StepFrame(
+                cameraX: 0,
+                cameraY: 0,
+                timeIsFrozen: false,
+                samus,
+                level: assets.LevelData,
+                nmiFrameCounter8: unchecked((byte)frame));
+
+            observedLockedInput |= samus.InputLocked;
+            observedUnlockAfterLock |= observedLockedInput && !samus.InputLocked;
+            foreach (MotherBrainMusicRequest request in state.MusicRequests)
+                observedMusic.Add(request.RawTrack);
+            foreach (MotherBrainPlmRequest request in state.PlmRequests)
+            {
+                observedHeaders.Add(request.Header);
+                if (!plms.TrySpawnMotherBrainMutation(
+                        assets.LevelData,
+                        request.BlockX,
+                        request.BlockY,
+                        request.Header))
+                {
+                    throw new InvalidDataException(
+                        $"Mother Brain fake-death PLM pool filled on frame {frame}.");
+                }
+            }
+
+            enemies.StepEnemyProjectiles(
+                assets.LevelData,
+                samus: null,
+                cameraX: 0,
+                cameraY: 0,
+                nmiFrameCounter8: unchecked((byte)frame));
+            plms.Step(bus, assets.LevelData, streamer, 0, 0, 0, assets.Scrolls);
+
+            foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles)
+            {
+                if (projectile.Kind is
+                    RoomEnemyProjectileKind.MotherBrainTopRightTube or
+                    RoomEnemyProjectileKind.MotherBrainTopLeftTube or
+                    RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube or
+                    RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube)
+                {
+                    observedCeilingTubes.Add(projectile.Kind);
+                }
+            }
+
+            if (state.Function == MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain)
+            {
+                reachedPhaseTwoSetup = true;
+                break;
+            }
+        }
+
+        ushort[] expectedHeaders =
+        [
+            0xb673, 0xb673, 0xb6b3,
+            0xb6c3, 0xb6b3, 0xb6b3, 0xb6c7, 0xb6bb,
+            0xb6b7, 0xb6b7, 0xb6bb, 0xb6bf,
+            0xb67b, 0xb67f, 0xb683, 0xb687, 0xb68b, 0xb68f,
+            0xb693, 0xb697, 0xb69b, 0xb69f, 0xb6a3, 0xb6a7,
+        ];
+        if (!reachedPhaseTwoSetup || !observedLockedInput || !observedUnlockAfterLock ||
+            scrollBytes[1] != scrollBytes[0] || state.SpawnedFallingTubeCount != 5 ||
+            observedCeilingTubes.Count != 4 || !observedHeaders.SequenceEqual(expectedHeaders) ||
+            !observedMusic.SequenceEqual(new ushort[] { 6, 0, 0xff21 }) ||
+            state.RoomPaletteInstructionPointer != 0 || state.RoomPaletteInstructionTimer != 0 ||
+            !state.EnableUnpauseHook || state.Head.YPosition != 196 ||
+            state.Body.XPosition != 59 || state.Body.YPosition != 279)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain fake-death sequence diverged: reached={reachedPhaseTwoSetup}, " +
+                $"lock/unlock={observedLockedInput}/{observedUnlockAfterLock}, " +
+                $"scroll={scrollBytes[0]}/{scrollBytes[1]}, tubes={state.SpawnedFallingTubeCount}/" +
+                $"{observedCeilingTubes.Count}, PLMs={observedHeaders.Count}, " +
+                $"music={string.Join(',', observedMusic.Select(track => track.ToString("X4")))}, " +
+                $"function=$A9:{(ushort)state.Function:X4}.");
+        }
+
+        // `$A9:8D11` copies colors 1..15 from the two phase-two ROM palettes. Checking all
+        // words catches both the +2 source offset and the byte-to-color destination divide.
+        for (int color = 0; color < 15; color++)
+        {
+            ushort expectedAttack = ReadWord(bus, 0xa994b4 + color * 2);
+            ushort expectedBackLeg = ReadWord(bus, 0xa99494 + color * 2);
+            if (cgram.Colors[161 + color] != expectedAttack ||
+                cgram.Colors[177 + color] != expectedBackLeg)
+            {
+                throw new InvalidDataException(
+                    $"Mother Brain phase-two palette diverged at color {color}: " +
+                    $"attack=${cgram.Colors[161 + color]:X4}/${expectedAttack:X4}, " +
+                    $"leg=${cgram.Colors[177 + color]:X4}/${expectedBackLeg:X4}.");
+            }
+        }
     }
 
     /// <summary>

@@ -35,6 +35,10 @@ public enum RoomEnemyProjectileKind : ushort
     MotherBrainRoomTurretBullet = 0xc18c,
     MotherBrainGlassShard = 0xcefc,
     MotherBrainGlassSparkle = 0xcf0a,
+    MotherBrainTopRightTube = 0xcc5b,
+    MotherBrainTopLeftTube = 0xcc69,
+    MotherBrainTopMiddleLeftTube = 0xcc77,
+    MotherBrainTopMiddleRightTube = 0xcc85,
     CeresRidleyFireball = 0x9642,
     CeresRidleyHorizontalAfterburnCenter = 0x9650,
     CeresRidleyVerticalAfterburnCenter = 0x965e,
@@ -551,6 +555,10 @@ public sealed partial class RoomEnemySystem
 
             case 0xce9b: // Mother Brain glass shard: 8.8 flight, gravity, and sparkles.
                 RunMotherBrainGlassShardPreInstruction(projectile);
+                return;
+
+            case 0xcbe7: // Mother Brain ceiling tubes: dust once, then accelerate downward.
+                RunMotherBrainTopTubePreInstruction(projectile);
                 return;
 
             case 0x8dca: // Draygon goop: attached to Samus with a 256-frame lifetime.

@@ -247,10 +247,12 @@ public sealed partial class SuperMetroidRuntime
                 System.SetBossBits(room.AreaIndex, BossBits.AreaTorizo),
             setSamusControlsEnabled: enabled => GroundedSamusMovementEnabled = enabled,
             setRoomScrollByte: (index, value) => Camera.Scrolls.SetStorage(index, value),
-            incrementMotherBrainGlassRoomArgument: Plms.IncrementMotherBrainGlassRoomArgument);
+            incrementMotherBrainGlassRoomArgument: Plms.IncrementMotherBrainGlassRoomArgument,
+            readRoomScrollByte: index => Camera.Scrolls.ReadStorage(index));
         ApplyPendingBotwoonWallPlm();
         ApplyPendingSporeSpawnCeilingPlm();
         ApplyPendingCrocomireArenaPlms();
+        ApplyPendingMotherBrainPlms();
         Enemies.QueueGraphicsUploads(VramWrites);
 
         // `$90:AC8D` follows the standard-sprite and room-enemy uploads during gameplay
@@ -358,6 +360,32 @@ public sealed partial class SuperMetroidRuntime
             // SpawnHardcodedPLM silently loses a request when all forty native slots are
             // occupied. TrySpawnCrocomireArenaMutation deliberately mirrors that result.
             Plms.TrySpawnCrocomireArenaMutation(
+                LevelData,
+                request.BlockX,
+                request.BlockY,
+                request.Header);
+        }
+    }
+
+    /// <summary>
+    /// Transfers Mother Brain's bank-$A9 hardcoded-PLM requests to the shared bank-$84
+    /// owner. The enemy state publishes requests in cartridge call order; consuming them
+    /// here retains the native descending-slot allocation and one-frame execution seam.
+    /// </summary>
+    private void ApplyPendingMotherBrainPlms()
+    {
+        MotherBrainEnemyState? state = Enemies.MotherBrain;
+        if (state is null || state.PlmRequests.Count == 0)
+            return;
+        if (LevelData is null)
+        {
+            throw new InvalidOperationException(
+                "Mother Brain published a room PLM without active room level data.");
+        }
+
+        foreach (MotherBrainPlmRequest request in state.PlmRequests)
+        {
+            Plms.TrySpawnMotherBrainMutation(
                 LevelData,
                 request.BlockX,
                 request.BlockY,

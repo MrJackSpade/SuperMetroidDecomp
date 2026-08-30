@@ -491,7 +491,9 @@ internal static class MotherBrainAudit
             enemies,
             state,
             samus,
-            random);
+            random,
+            vram,
+            cgram);
     }
 
     /// <summary>
@@ -1648,7 +1650,9 @@ internal static class MotherBrainAudit
         RoomEnemySystem enemies,
         MotherBrainEnemyState state,
         SamusState samus,
-        Bank80SystemState random)
+        Bank80SystemState random,
+        SnesVram vram,
+        SnesCgram cgram)
     {
         RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
             "Mother Brain rainbow audit lost the linked head record.");
@@ -1920,6 +1924,787 @@ internal static class MotherBrainAudit
                 $"{observedDecisionDelay}/{observedRepeatPointer}/{observedRepeatSetup}, " +
                 $"phase={sequence.Phase}, function=" +
                 $"$A9:{(ushort)state.Function:X4}, health={samus.Health}.");
+        }
+
+        AuditLiveBabyMetroidSpawn(
+            bus,
+            level,
+            enemies,
+            state,
+            samus,
+            sequence,
+            random,
+            sharedProjectiles,
+            vram,
+            cgram,
+            frames + 1);
+    }
+
+    /// <summary>
+    /// Continues the already-live final rainbow sequence through the cartridge's low-health
+    /// branch, four sprite-page DMAs, generic enemy allocation, bank-$A9 initializer, and
+    /// the Baby's first independently scheduled AI/instruction turn. This is intentionally
+    /// not a standalone state-machine call: the frozen active-index array must keep the new
+    /// physical enemy dormant on its allocation frame, just as <c>$A0:8FD4</c> does.
+    /// </summary>
+    private static void AuditLiveBabyMetroidSpawn(
+        SuperMetroidAddressSpace bus,
+        RoomLevelData level,
+        RoomEnemySystem enemies,
+        MotherBrainEnemyState state,
+        SamusState samus,
+        MotherBrainRainbowBeamAttackSequence sequence,
+        Bank80SystemState random,
+        SamusBombProjectileSystem sharedProjectiles,
+        SnesVram vram,
+        SnesCgram cgram,
+        int startingFrame)
+    {
+        RoomEnemySlot expectedFreeSlot = enemies.Slots.FirstOrDefault(
+            slot => slot.EnemyDefinitionPointer == 0) ?? throw new InvalidDataException(
+            "Mother Brain Baby audit found no free physical enemy slot.");
+
+        // Earlier focused attack audits deliberately drive the same physical record to both
+        // arena extremes; their composite endpoint is X=$26, below `$C647`'s backward-walk
+        // floor. A real final-beam route does not inherit that synthetic history. Isolate
+        // this cutscene at the cartridge's ordinary X=$60 phase-two attack waypoint, then
+        // import the physical words exactly as the live adapter does before `$BB1A`.
+        int frame = startingFrame;
+        RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
+            "Baby audit lost Mother Brain's physical head record.");
+        state.Body.XPosition = 0x0060;
+        state.Pose = MotherBrainBodyPose.Standing;
+        sequence.SynchronizeLiveActor(
+            state.Body.XPosition,
+            state.Body.YPosition,
+            state.Pose,
+            state.Form,
+            state.Body.Properties,
+            state.Body.ExtraProperties,
+            head.XPosition,
+            head.YPosition,
+            head.Health,
+            head.Properties,
+            head.ExtraProperties,
+            state.LowerNeckAngle,
+            state.UpperNeckAngle,
+            state.NeckMovementEnabled,
+            state.LowerNeckMovementIndex,
+            state.UpperNeckMovementIndex,
+            state.BombCounter,
+            state.HitboxesEnabled != 0);
+
+        // Lower only the word consulted by `$BD45`; all subsequent transitions execute
+        // through the public room scheduler. StartFinishOffSequence represents the `$BB1A`
+        // decision call, whose BodyWalkRequested result would also copy this list into the
+        // physical body. Because this audit deliberately enters at the public debugger seam,
+        // reproduce that single adapter write before returning to ordinary scheduled frames.
+        samus.Health = 100;
+        sequence.StartFinishOffSequence();
+        state.Function = MotherBrainBodyFunction.SecondPhaseFinishSamusOff;
+        state.Body.CurrentInstruction =
+            MotherBrainRainbowBeamAttackSequence.BodyWalkingForwardReallySlowInstructionList;
+        state.Body.InstructionTimer = 1;
+        state.Body.Timer = 0;
+
+        bool observedStandUp = false;
+        bool observedAdmiration = false;
+        bool observedFinalCharge = false;
+        int tileTransferCount = 0;
+        RoomEnemySlot? babySlot = null;
+        int spawnDeadline = frame + 600;
+        for (; frame < spawnDeadline; frame++)
+        {
+            enemies.StepFrame(
+                cameraX: 0,
+                cameraY: 0,
+                timeIsFrozen: false,
+                samus,
+                level: level,
+                nmiFrameCounter8: unchecked((byte)frame),
+                sharedProjectiles: sharedProjectiles);
+
+            observedStandUp |= sequence.Phase ==
+                MotherBrainRainbowBeamAttackPhase.FinishStandUp;
+            observedAdmiration |= sequence.Phase ==
+                MotherBrainRainbowBeamAttackPhase.AdmireJobWellDone;
+            observedFinalCharge |= sequence.Phase ==
+                MotherBrainRainbowBeamAttackPhase.ChargeFinalRainbowBeam;
+            // The charge-expiration call falls straight into `$BDD2` and emits page zero
+            // before the externally visible phase was ever LoadBabyMetroidTiles.
+            if (state.LastRainbowBeamStep?.SpriteTileTransfer is not null)
+            {
+                tileTransferCount++;
+            }
+
+            if (state.BabyMetroidSlot is { } spawned)
+            {
+                babySlot = spawned;
+                break;
+            }
+        }
+
+        if (babySlot is null || frame == spawnDeadline)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain did not physically spawn the Baby within 600 frames: " +
+                $"phase={sequence.Phase}, function=$A9:{(ushort)state.Function:X4}, " +
+                $"transfers={tileTransferCount}.");
+        }
+
+        BabyMetroidCutsceneState baby = state.BabyMetroid ?? throw new InvalidDataException(
+            "Mother Brain allocated a Baby slot without attaching its actor state.");
+        RoomEnemyDefinition definition = babySlot.Definition;
+        if (!ReferenceEquals(babySlot, expectedFreeSlot) ||
+            babySlot.EnemyDefinitionPointer != 0xecbf || definition.Bank != 0xa9 ||
+            definition.InitializationAiPointer != 0xc710 ||
+            definition.MainAiPointer != 0xc779 || definition.Health != 3200 ||
+            definition.Damage != 40 || definition.XRadius != 0x0024 ||
+            definition.YRadius != 0x0024 || definition.Layer != 2 ||
+            babySlot.XRadius != 0x0024 || babySlot.YRadius != 0x0024 ||
+            babySlot.XPosition != 0x0140 || babySlot.YPosition != 0x0060 ||
+            babySlot.XSubposition != 0 || babySlot.YSubposition != 0 ||
+            babySlot.Properties != 0x3800 || babySlot.ExtraProperties != 0 ||
+            babySlot.Health != 3200 || babySlot.PaletteIndex != 0x0e00 ||
+            babySlot.VramTilesIndex != 0x00a0 || babySlot.Layer != 2 ||
+            babySlot.CurrentInstruction != BabyMetroidCutsceneState.InitialInstructionList ||
+            babySlot.InstructionTimer != 1 || babySlot.SpritemapPointer != 0x804d ||
+            babySlot.FrameCounter != 0 || baby.Phase != BabyMetroidCutscenePhase.DashOntoScreen ||
+            baby.FunctionTimer != 0x00f8 ||
+            sequence.Phase != MotherBrainRainbowBeamAttackPhase.FireFinalRainbowBeam ||
+            state.Function != MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam ||
+            sequence.FunctionTimer != 0x0100 || tileTransferCount != 4 ||
+            !observedStandUp || !observedAdmiration || !observedFinalCharge)
+        {
+            throw new InvalidDataException(
+                $"Live Baby allocation diverged: slot={babySlot.SlotIndex}/" +
+                $"{expectedFreeSlot.SlotIndex}, id=${babySlot.EnemyDefinitionPointer:X4}, " +
+                $"AI=${definition.Bank:X2}:{definition.InitializationAiPointer:X4}/" +
+                $"{definition.MainAiPointer:X4}, header={definition.Health}/" +
+                $"{definition.Damage}/{definition.XRadius:X4}/{definition.YRadius:X4}/" +
+                $"{definition.Layer}, pos=({babySlot.XPosition:X4},{babySlot.YPosition:X4}), " +
+                $"props=${babySlot.Properties:X4}/${babySlot.ExtraProperties:X4}, " +
+                $"health/palette/tiles/layer={babySlot.Health:X4}/" +
+                $"{babySlot.PaletteIndex:X4}/{babySlot.VramTilesIndex:X4}/" +
+                $"{babySlot.Layer}, list/timer/map/frame=${babySlot.CurrentInstruction:X4}/" +
+                $"{babySlot.InstructionTimer:X4}/${babySlot.SpritemapPointer:X4}/" +
+                $"{babySlot.FrameCounter}, phase/timer={baby.Phase}/${baby.FunctionTimer:X4}, " +
+                $"brain={sequence.Phase}/$A9:{(ushort)state.Function:X4}/" +
+                $"{sequence.FunctionTimer:X4}, transfers={tileTransferCount}, route=" +
+                $"{observedStandUp}/{observedAdmiration}/{observedFinalCharge}.");
+        }
+
+        // `$A9:8FE5` copies four complete $200-byte OBJ pages before spawning the actor.
+        ReadOnlySpan<int> tileSources = [0xb18400, 0xb18600, 0xb18800, 0xb18a00];
+        ReadOnlySpan<int> tileDestinationWords = [0x7c00, 0x7d00, 0x7e00, 0x7f00];
+        for (int page = 0; page < tileSources.Length; page++)
+        {
+            for (int byteIndex = 0; byteIndex < 0x0200; byteIndex++)
+            {
+                byte expected = bus.ReadByte(tileSources[page] + byteIndex);
+                byte actual = vram.ReadByte(tileDestinationWords[page] * 2 + byteIndex);
+                if (actual != expected)
+                {
+                    throw new InvalidDataException(
+                        $"Baby OBJ page {page} diverged at byte ${byteIndex:X3}: " +
+                        $"${actual:X2}/${expected:X2}.");
+                }
+            }
+        }
+
+        // Initialization copies colors 1..15 from `$A9:94D2`; color zero is preserved.
+        for (int color = 0; color < 15; color++)
+        {
+            ushort expected = ReadWord(bus, 0xa994d4 + color * 2);
+            ushort actual = cgram.Colors[0x00f1 + color];
+            if (actual != expected)
+            {
+                throw new InvalidDataException(
+                    $"Baby initial palette color {color + 1} diverged: " +
+                    $"${actual:X4}/${expected:X4}.");
+            }
+        }
+
+        // The allocation happened after the frame's active enemy indexes were frozen. On
+        // the next frame the Baby receives its first main call and then the ordinary list
+        // interpreter consumes `$CFA2` into its first visible spritemap.
+        frame++;
+        enemies.StepFrame(
+            cameraX: 0,
+            cameraY: 0,
+            timeIsFrozen: false,
+            samus,
+            level: level,
+            nmiFrameCounter8: unchecked((byte)frame),
+            sharedProjectiles: sharedProjectiles);
+        ushort expectedDuration = ReadWord(bus, 0xa9cfa2);
+        ushort expectedSpritemap = ReadWord(bus, 0xa9cfa4);
+        if (babySlot.FrameCounter != 1 || baby.FunctionTimer != 0x00f7 ||
+            babySlot.InstructionTimer != expectedDuration ||
+            babySlot.SpritemapPointer != expectedSpritemap ||
+            babySlot.CurrentInstruction != 0xcfa6 || state.LastBabyMetroidStep is null)
+        {
+            throw new InvalidDataException(
+                $"Baby first scheduled turn diverged: frame={babySlot.FrameCounter}, " +
+                $"functionTimer=${baby.FunctionTimer:X4}, instruction=" +
+                $"${babySlot.InstructionTimer:X4}/${expectedDuration:X4}, map=" +
+                $"${babySlot.SpritemapPointer:X4}/${expectedSpritemap:X4}, cursor=" +
+                $"${babySlot.CurrentInstruction:X4}, witness=" +
+                $"{state.LastBabyMetroidStep is not null}.");
+        }
+
+        bool observedBodyStumble = false;
+        bool observedDrainAnimation = false;
+        int babyCalls = 1;
+        for (; babyCalls < 500; babyCalls++)
+        {
+            frame++;
+            enemies.StepFrame(
+                cameraX: 0,
+                cameraY: 0,
+                timeIsFrozen: false,
+                samus,
+                level: level,
+                nmiFrameCounter8: unchecked((byte)frame),
+                sharedProjectiles: sharedProjectiles);
+
+            BabyMetroidCutsceneStepResult step = state.LastBabyMetroidStep ??
+                throw new InvalidDataException(
+                    $"Physical Baby missed scheduled AI call {babyCalls + 1}.");
+            if (step.BodyStumbleRequested)
+            {
+                observedBodyStumble = true;
+                if (state.Body.CurrentInstruction !=
+                        MotherBrainRainbowBeamAttackSequence.
+                            BodyWalkingBackwardReallyFastInstructionList ||
+                    state.Body.InstructionTimer != 1)
+                {
+                    throw new InvalidDataException(
+                        $"Baby's cross-slot body stumble did not install physical list " +
+                        $"$988C: list=${state.Body.CurrentInstruction:X4}, timer=" +
+                        $"${state.Body.InstructionTimer:X4}.");
+                }
+            }
+
+            observedDrainAnimation |= state.BabyAppliedInstructionList ==
+                BabyMetroidCutsceneState.DrainingMotherBrainInstructionList;
+            if (step.MotherBrainInterrupted)
+            {
+                if (!step.LatchSoundQueued || state.LastSoundEffectLibrary1 != 0x0040 ||
+                    baby.Phase != BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse ||
+                    sequence.Phase !=
+                        MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTakenAback ||
+                    state.Function != MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback ||
+                    baby.XPosition != sequence.BrainXPosition ||
+                    baby.YPosition != unchecked((ushort)(sequence.BrainYPosition - 0x0018)) ||
+                    baby.XVelocity != 0 || baby.YVelocity != 0 ||
+                    state.BabyAppliedInstructionList !=
+                        BabyMetroidCutsceneState.DrainingMotherBrainInstructionList ||
+                    babySlot.CurrentInstruction != 0xcfbc ||
+                    babySlot.InstructionTimer != ReadWord(bus, 0xa9cfb8) ||
+                    babySlot.SpritemapPointer != ReadWord(bus, 0xa9cfba))
+                {
+                    throw new InvalidDataException(
+                        $"Baby drain interrupt diverged on call {babyCalls + 1}: " +
+                        $"sound={step.LatchSoundQueued}/${state.LastSoundEffectLibrary1:X4}, " +
+                        $"phase={baby.Phase}/{sequence.Phase}/" +
+                        $"$A9:{(ushort)state.Function:X4}, pos=({baby.XPosition:X4}," +
+                        $"{baby.YPosition:X4})/brain({sequence.BrainXPosition:X4}," +
+                        $"{sequence.BrainYPosition:X4}), velocity=({baby.XVelocity:X4}," +
+                        $"{baby.YVelocity:X4}), list=${state.BabyAppliedInstructionList:X4}/" +
+                        $"${babySlot.CurrentInstruction:X4}, instruction=" +
+                        $"${babySlot.InstructionTimer:X4}, map=${babySlot.SpritemapPointer:X4}.");
+                }
+                break;
+            }
+        }
+
+        if (babyCalls == 500 || !observedBodyStumble || !observedDrainAnimation)
+        {
+            throw new InvalidDataException(
+                $"Baby did not complete its live entrance/drain handoff: calls={babyCalls}, " +
+                $"stumble={observedBodyStumble}, drainList={observedDrainAnimation}, " +
+                $"phase={baby.Phase}/{sequence.Phase}.");
+        }
+
+        // Mother Brain's body record is earlier than the Baby slot. It cannot run `$BE38`
+        // until the following frame; that call initializes form/neck/timer and falls through
+        // into `$BE5D`, which immediately decrements `$30` to `$2F`.
+        frame++;
+        enemies.StepFrame(
+            cameraX: 0,
+            cameraY: 0,
+            timeIsFrozen: false,
+            samus,
+            level: level,
+            nmiFrameCounter8: unchecked((byte)frame),
+            sharedProjectiles: sharedProjectiles);
+        if (sequence.Phase !=
+                MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRegainBalance ||
+            state.Function != MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance ||
+            state.Form != 3 || state.FunctionTimer != 0x002f ||
+            state.LowerNeckMovementIndex != 8 || state.UpperNeckMovementIndex != 8 ||
+            state.NeckAngleDelta != 0x0700 ||
+            baby.Phase != BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain did not consume the Baby's deferred `$BE38` write: " +
+                $"phase={sequence.Phase}/$A9:{(ushort)state.Function:X4}, form=" +
+                $"{state.Form}, timer=${state.FunctionTimer:X4}, neck=" +
+                $"{state.LowerNeckMovementIndex}/{state.UpperNeckMovementIndex}/" +
+                $"${state.NeckAngleDelta:X4}, Baby={baby.Phase}.");
+        }
+
+        AuditLiveBabyMetroidDrainAndHealing(
+            bus,
+            level,
+            enemies,
+            state,
+            samus,
+            sequence,
+            random,
+            sharedProjectiles,
+            babySlot,
+            baby,
+            vram,
+            cgram,
+            frame);
+    }
+
+    /// <summary>
+    /// Runs the two independently scheduled actors from `$BE5D` until the Baby has reached
+    /// Samus and restored every energy point. The body must perform all eight painful-walk
+    /// stages, retreat, crouch, and nine grey-table probes while the later Baby slot remains
+    /// pinned to the moving head; only the shared corpse word releases it toward Samus.
+    /// </summary>
+    private static void AuditLiveBabyMetroidDrainAndHealing(
+        SuperMetroidAddressSpace bus,
+        RoomLevelData level,
+        RoomEnemySystem enemies,
+        MotherBrainEnemyState state,
+        SamusState samus,
+        MotherBrainRainbowBeamAttackSequence sequence,
+        Bank80SystemState random,
+        SamusBombProjectileSystem sharedProjectiles,
+        RoomEnemySlot babySlot,
+        BabyMetroidCutsceneState baby,
+        SnesVram vram,
+        SnesCgram cgram,
+        int startingFrame)
+    {
+        bool observedPainfulWalk = false;
+        bool observedBeamRunOut = false;
+        bool observedRetreat = false;
+        bool observedLowPower = false;
+        bool observedGreyTransition = false;
+        bool observedCorpseHandoff = false;
+        bool observedInitialAnimationRestored = false;
+        bool observedCeilingRoute = false;
+        bool observedSamusTouch = false;
+        bool observedHealing = false;
+        int releaseDustRequests = 0;
+        int healingCalls = 0;
+        int frame = startingFrame;
+
+        for (int calls = 0; calls < 6000; calls++)
+        {
+            frame++;
+            ushort healthBefore = samus.Health;
+            BabyMetroidCutscenePhase babyPhaseBefore = baby.Phase;
+            enemies.StepFrame(
+                cameraX: 0,
+                cameraY: 0,
+                timeIsFrozen: false,
+                samus,
+                level: level,
+                nmiFrameCounter8: unchecked((byte)frame),
+                sharedProjectiles: sharedProjectiles);
+
+            BabyMetroidCutsceneStepResult step = state.LastBabyMetroidStep ??
+                throw new InvalidDataException(
+                    $"Baby lost its physical scheduler before healing on frame {frame}.");
+            observedPainfulWalk |= sequence.Phase ==
+                MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam;
+            observedBeamRunOut |= sequence.Phase ==
+                MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRainbowBeamRunOut;
+            observedRetreat |= sequence.Phase ==
+                MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidMoveToBackOfRoom;
+            observedRetreat |= state.LastRainbowBeamStep is
+            {
+                PhaseBefore: MotherBrainRainbowBeamAttackPhase.
+                    DrainedByBabyMetroidRainbowBeamRunOut,
+                PhaseAfter: MotherBrainRainbowBeamAttackPhase.
+                    DrainedByBabyMetroidGoIntoLowPowerMode,
+            };
+            observedLowPower |= sequence.Phase ==
+                MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidGoIntoLowPowerMode;
+            observedGreyTransition |= sequence.Phase ==
+                MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTransitionToGrey;
+            observedInitialAnimationRestored |= state.BabyAppliedInstructionList ==
+                BabyMetroidCutsceneState.InitialInstructionList &&
+                babyPhaseBefore == BabyMetroidCutscenePhase.StopDraining;
+            observedCeilingRoute |= step.SamusCrouchingRequested &&
+                baby.MovementTablePointer == BabyMetroidCutsceneState.CeilingToSamusMovementTable;
+            observedSamusTouch |= step.SamusTouchCollision;
+            releaseDustRequests += step.ReleaseDustClouds.Count;
+
+            if (!observedCorpseHandoff && sequence.Phase2CorpseState != 0)
+            {
+                observedCorpseHandoff = true;
+                RoomEnemySlot head = state.Head!;
+                if (sequence.Phase2CorpseState != 1 || head.Health != 0x8ca0 ||
+                    state.Form != 2 || state.SmallPurpleBreathGenerationEnabled ||
+                    baby.Phase != BabyMetroidCutscenePhase.StopDraining ||
+                    baby.FunctionTimer != 0x0040 ||
+                    state.Function != MotherBrainBodyFunction.SecondPhaseReviveInanimateGrey)
+                {
+                    throw new InvalidDataException(
+                        $"Mother Brain corpse/Baby release handoff diverged: corpse=" +
+                        $"{sequence.Phase2CorpseState}, health=${head.Health:X4}, form=" +
+                        $"{state.Form}, breath={state.SmallPurpleBreathGenerationEnabled}, " +
+                        $"Baby={baby.Phase}/${baby.FunctionTimer:X4}, function=" +
+                        $"$A9:{(ushort)state.Function:X4}.");
+                }
+            }
+
+            if (babyPhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth)
+            {
+                healingCalls++;
+                observedHealing = true;
+                ushort expectedHealth = Math.Min(
+                    samus.MaxHealth,
+                    unchecked((ushort)(healthBefore + 1)));
+                if (samus.Health != expectedHealth)
+                {
+                    throw new InvalidDataException(
+                        $"Live Baby healing call {healingCalls} changed Samus energy " +
+                        $"{healthBefore}->{samus.Health}, expected {expectedHealth}.");
+                }
+            }
+
+            // Preserve runtime ordering and allow drool/dust actors to release their shared
+            // pool slots. Their trajectories are spatially separate from the Baby/Samus
+            // latch, so no cutscene collision is bypassed by this maintenance pass.
+            enemies.StepEnemyProjectiles(
+                level,
+                samus,
+                cameraX: 0,
+                cameraY: 0,
+                nmiFrameCounter8: unchecked((byte)frame),
+                samusBombs: sharedProjectiles);
+            sharedProjectiles.StepFrame(
+                bus,
+                level,
+                samus,
+                controllerInput: 0,
+                controllerNewInput: 0);
+
+            if (step.HealingCompleted)
+            {
+                if (baby.Phase != BabyMetroidCutscenePhase.IdleUntilNoHealth ||
+                    samus.Health != samus.MaxHealth ||
+                    samus.ReserveEnergy != samus.MaxReserveEnergy ||
+                    babySlot.Health != baby.Health)
+                {
+                    throw new InvalidDataException(
+                        $"Live Baby healing completion diverged: phase={baby.Phase}, " +
+                        $"health={samus.Health}/{samus.MaxHealth}, reserve=" +
+                        $"{samus.ReserveEnergy}/{samus.MaxReserveEnergy}, Baby health=" +
+                        $"{babySlot.Health}/{baby.Health}.");
+                }
+
+                if (!observedPainfulWalk || !observedBeamRunOut || !observedRetreat ||
+                    !observedLowPower || !observedGreyTransition || !observedCorpseHandoff ||
+                    !observedInitialAnimationRestored || !observedCeilingRoute ||
+                    !observedSamusTouch || !observedHealing || releaseDustRequests != 3 ||
+                    healingCalls != 899)
+                {
+                    throw new InvalidDataException(
+                        $"Live Baby drain/healing route missed a native stage: body=" +
+                        $"{observedPainfulWalk}/{observedBeamRunOut}/{observedRetreat}/" +
+                        $"{observedLowPower}/{observedGreyTransition}, corpse=" +
+                        $"{observedCorpseHandoff}, animation={observedInitialAnimationRestored}, " +
+                        $"ceiling/touch/heal={observedCeilingRoute}/{observedSamusTouch}/" +
+                        $"{observedHealing}, dust={releaseDustRequests}/3, healing=" +
+                        $"{healingCalls}/899.");
+                }
+                AuditLiveBabyMetroidMurderAndPhaseThree(
+                    bus,
+                    level,
+                    enemies,
+                    state,
+                    samus,
+                    sequence,
+                    random,
+                    sharedProjectiles,
+                    babySlot,
+                    baby,
+                    vram,
+                    cgram,
+                    frame);
+                return;
+            }
+        }
+
+        throw new InvalidDataException(
+            $"Live Baby did not finish healing within 6000 frames: Baby={baby.Phase}, " +
+            $"Mother Brain={sequence.Phase}, energy={samus.Health}/{samus.MaxHealth}, " +
+            $"body=({state.Body.XPosition:X4},{state.Body.YPosition:X4})/" +
+            $"{state.Pose}/${state.Body.CurrentInstruction:X4}/" +
+            $"$A9:{(ushort)state.Function:X4}, step=" +
+            $"{state.LastRainbowBeamStep?.PhaseBefore}->" +
+            $"{state.LastRainbowBeamStep?.PhaseAfter}, neck=" +
+            $"{state.NeckMovementEnabled}/{state.LowerNeckMovementIndex}/" +
+            $"{state.UpperNeckMovementIndex}/${state.NeckAngleDelta:X4}, mirror=" +
+            $"{sequence.Body.Pose}/{sequence.LowerNeckMovementIndex}/" +
+            $"{sequence.UpperNeckMovementIndex}.");
+    }
+
+    /// <summary>
+    /// Lets the revived body and its ordinary `$9DB1` head bytecode attack the physical Baby
+    /// through both health pools. Bank-$86 onion rings own collision/damage; the Baby owns
+    /// release, final charge, death art, tile restoration, room-light restoration, Hyper
+    /// Beam grant, deletion, and the later-slot `$C1CF` phase-three function write.
+    /// </summary>
+    private static void AuditLiveBabyMetroidMurderAndPhaseThree(
+        SuperMetroidAddressSpace bus,
+        RoomLevelData level,
+        RoomEnemySystem enemies,
+        MotherBrainEnemyState state,
+        SamusState samus,
+        MotherBrainRainbowBeamAttackSequence sequence,
+        Bank80SystemState random,
+        SamusBombProjectileSystem sharedProjectiles,
+        RoomEnemySlot babySlot,
+        BabyMetroidCutsceneState baby,
+        SnesVram vram,
+        SnesCgram cgram,
+        int startingFrame)
+    {
+        int frame = startingFrame;
+        int ringHits = 0;
+        int initialDrainHits = 0;
+        int finalChargeHits = 0;
+        int babyPaletteTransfers = 0;
+        int attackTileTransfers = 0;
+        int roomPaletteTransfers = 0;
+        int deathExplosions = 0;
+        bool observedCry = false;
+        bool observedRelease = false;
+        bool observedPrepareFinalAttack = false;
+        bool observedExecuteFinalAttack = false;
+        bool observedFatalBlow = false;
+        bool observedSamusRainbow = false;
+        bool observedPhaseThreeHandoff = false;
+
+        for (int calls = 0; calls < 12000; calls++)
+        {
+            frame++;
+
+            // `$C15C` attacks only when random bit 15 is set. The encompassing audit has
+            // already proven RNG arithmetic separately; fixing this input selects the live
+            // combat branch deterministically without bypassing body/head/projectile work.
+            random.SetRandomNumber(0x8000);
+            BabyMetroidCutscenePhase phaseBefore = baby.Phase;
+            enemies.StepFrame(
+                cameraX: 0,
+                cameraY: 0,
+                timeIsFrozen: false,
+                samus,
+                level: level,
+                nmiFrameCounter8: unchecked((byte)frame),
+                sharedProjectiles: sharedProjectiles);
+
+            BabyMetroidCutsceneStepResult? step = state.LastBabyMetroidStep;
+            if (step is { } babyStep)
+            {
+                babyPaletteTransfers += babyStep.BabyPaletteTransfer is null ? 0 : 1;
+                attackTileTransfers += babyStep.AttackTileTransfer is null ? 0 : 1;
+                roomPaletteTransfers += babyStep.BackgroundPaletteTransfer is null ? 0 : 1;
+                deathExplosions += babyStep.DeathExplosion is null ? 0 : 1;
+                observedFatalBlow |= babyStep.SamusAnimationFrozen;
+                observedSamusRainbow |= babyStep.SamusRainbowActivated;
+                observedPhaseThreeHandoff |= babyStep.PhaseThreeHandoff &&
+                    babyStep.HyperBeamEnabled && babyStep.SamusRainbowDisabled;
+            }
+            observedCry |= state.LastSoundEffect == 0x0072;
+            observedRelease |= baby.Phase is BabyMetroidCutscenePhase.ReleaseSamus or
+                BabyMetroidCutscenePhase.StareDownMotherBrain or
+                BabyMetroidCutscenePhase.FlyOffScreen;
+            observedPrepareFinalAttack |= sequence.Phase ==
+                MotherBrainRainbowBeamAttackPhase.PrepareForFinalBabyMetroidAttack;
+            observedExecuteFinalAttack |= sequence.Phase is
+                MotherBrainRainbowBeamAttackPhase.ExecuteFinalBabyMetroidAttack or
+                MotherBrainRainbowBeamAttackPhase.FinalBabyMetroidAttackHolding;
+
+            ushort healthBeforeProjectiles = baby.Health;
+            enemies.StepEnemyProjectiles(
+                level,
+                samus,
+                cameraX: 0,
+                cameraY: 0,
+                nmiFrameCounter8: unchecked((byte)frame),
+                samusBombs: sharedProjectiles);
+            sharedProjectiles.StepFrame(
+                bus,
+                level,
+                samus,
+                controllerInput: 0,
+                controllerNewInput: 0);
+
+            if (baby.Health < healthBeforeProjectiles)
+            {
+                int damage = healthBeforeProjectiles - baby.Health;
+                int hitsThisFrame;
+                if (healthBeforeProjectiles == 0x004f && baby.Health == 0)
+                {
+                    hitsThisFrame = 1;
+                    finalChargeHits++;
+                }
+                else if (damage % 0x0050 == 0)
+                {
+                    hitsThisFrame = damage / 0x0050;
+                    initialDrainHits += hitsThisFrame;
+                }
+                else
+                {
+                    throw new InvalidDataException(
+                        $"Onion-ring Baby damage diverged: {healthBeforeProjectiles}->" +
+                        $"{baby.Health} during {baby.Phase}.");
+                }
+                ringHits += hitsThisFrame;
+
+                if (state.LastSoundEffectLibrary3 != 0x0013 ||
+                    baby.OnionRingHitFlashTimer != 0x0010)
+                {
+                    throw new InvalidDataException(
+                        $"Onion-ring Baby impact omitted explosion/flash state: sound=" +
+                        $"{state.LastSoundEffectLibrary3:X4}, flash=" +
+                        $"${baby.OnionRingHitFlashTimer:X4}.");
+                }
+            }
+
+            if (phaseBefore == BabyMetroidCutscenePhase.IdleUntilNoHealth &&
+                baby.Phase == BabyMetroidCutscenePhase.ReleaseSamus)
+            {
+                if (initialDrainHits != 40 || baby.Health != 0x0140 ||
+                    baby.LowHealthPaletteTimer != 0x000a)
+                {
+                    throw new InvalidDataException(
+                        $"Baby first health-pool exhaustion diverged: hits=" +
+                        $"{initialDrainHits}/40, health=${baby.Health:X4}, low palette=" +
+                        $"${baby.LowHealthPaletteTimer:X4}.");
+                }
+            }
+
+            if (observedPhaseThreeHandoff)
+            {
+                if (!baby.IsDeleted || babySlot.Properties != baby.Properties ||
+                    sequence.Phase !=
+                        MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneMakeSomeDistance ||
+                    state.Function != MotherBrainBodyFunction.ThirdPhaseRecoverMakeSomeDistance ||
+                    samus.HyperBeam == 0)
+                {
+                    throw new InvalidDataException(
+                        $"Baby phase-three handoff diverged: deleted={baby.IsDeleted}/" +
+                        $"${babySlot.Properties:X4}/${baby.Properties:X4}, phase=" +
+                        $"{sequence.Phase}/$A9:{(ushort)state.Function:X4}, Hyper=" +
+                        $"${samus.HyperBeam:X4}.");
+                }
+
+                // The following frame consumes the later-slot `$C1CF` write in the earlier
+                // body record and clears the deleted physical Baby from the active pool.
+                frame++;
+                random.SetRandomNumber(0x8000);
+                enemies.StepFrame(
+                    cameraX: 0,
+                    cameraY: 0,
+                    timeIsFrozen: false,
+                    samus,
+                    level: level,
+                    nmiFrameCounter8: unchecked((byte)frame),
+                    sharedProjectiles: sharedProjectiles);
+                if (sequence.Phase != MotherBrainRainbowBeamAttackPhase.
+                        Phase3RecoverFromCutsceneSetupForFighting ||
+                    state.Function != MotherBrainBodyFunction.ThirdPhaseRecoverSetupForFighting ||
+                    state.Form != 4 || state.FunctionTimer != 0x0020 ||
+                    babySlot.EnemyDefinitionPointer != 0)
+                {
+                    throw new InvalidDataException(
+                        $"Mother Brain did not consume the deferred phase-three handoff: " +
+                        $"phase={sequence.Phase}/$A9:{(ushort)state.Function:X4}, form=" +
+                        $"{state.Form}, timer=${state.FunctionTimer:X4}, Baby ID=" +
+                        $"${babySlot.EnemyDefinitionPointer:X4}.");
+                }
+
+                if (ringHits != 41 || initialDrainHits != 40 || finalChargeHits != 1 ||
+                    !observedCry || !observedRelease || !observedPrepareFinalAttack ||
+                    !observedExecuteFinalAttack || !observedFatalBlow ||
+                    !observedSamusRainbow || babyPaletteTransfers != 6 ||
+                    attackTileTransfers != 4 || roomPaletteTransfers != 7 ||
+                    deathExplosions == 0)
+                {
+                    throw new InvalidDataException(
+                        $"Live Baby murder/death route missed a native stage: hits=" +
+                        $"{ringHits}/41 ({initialDrainHits}/40,{finalChargeHits}/1), " +
+                        $"cry/release/prepare/execute={observedCry}/{observedRelease}/" +
+                        $"{observedPrepareFinalAttack}/{observedExecuteFinalAttack}, fatal/" +
+                        $"rainbow={observedFatalBlow}/{observedSamusRainbow}, transfers=" +
+                        $"{babyPaletteTransfers}/6,{attackTileTransfers}/4," +
+                        $"{roomPaletteTransfers}/7, explosions={deathExplosions}.");
+                }
+
+                AuditRestoredMotherBrainAttackTiles(bus, vram);
+                AuditRestoredMotherBrainRoomLights(bus, cgram);
+                return;
+            }
+        }
+
+        throw new InvalidDataException(
+            $"Live Baby murder did not reach phase three within 12000 frames: Baby=" +
+            $"{baby.Phase}/${baby.Health}, Mother Brain={sequence.Phase}, hits={ringHits}.");
+    }
+
+    private static void AuditRestoredMotherBrainAttackTiles(
+        ISnesAddressSpace bus,
+        SnesVram vram)
+    {
+        ReadOnlySpan<int> sources = [0xb7a000, 0xb7a200, 0xb7a400, 0xb7a600];
+        ReadOnlySpan<int> destinations = [0x7c00, 0x7d00, 0x7e00, 0x7f00];
+        for (int page = 0; page < sources.Length; page++)
+        {
+            for (int byteIndex = 0; byteIndex < 0x0200; byteIndex++)
+            {
+                byte expected = bus.ReadByte(sources[page] + byteIndex);
+                byte actual = vram.ReadByte(destinations[page] * 2 + byteIndex);
+                if (actual != expected)
+                {
+                    throw new InvalidDataException(
+                        $"Restored Mother Brain attack page {page} diverged at " +
+                        $"${byteIndex:X3}: ${actual:X2}/${expected:X2}.");
+                }
+            }
+        }
+    }
+
+    private static void AuditRestoredMotherBrainRoomLights(
+        ISnesAddressSpace bus,
+        SnesCgram cgram)
+    {
+        const int source = 0xadf3d3 - 6 * 0x38;
+        for (int color = 0; color < 14; color++)
+        {
+            ushort expectedFirst = ReadWord(bus, source + color * 2);
+            ushort expectedSecond = ReadWord(bus, source + 0x1c + color * 2);
+            ushort actualFirst = cgram.Colors[0x0031 + color];
+            ushort actualSecond = cgram.Colors[0x0051 + color];
+            if (actualFirst != expectedFirst || actualSecond != expectedSecond)
+            {
+                throw new InvalidDataException(
+                    $"Restored Mother Brain room-light color {color} diverged: first=" +
+                    $"${actualFirst:X4}/${expectedFirst:X4}, second=" +
+                    $"${actualSecond:X4}/${expectedSecond:X4}.");
+            }
         }
     }
 

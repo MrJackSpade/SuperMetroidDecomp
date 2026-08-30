@@ -137,6 +137,21 @@ public sealed partial class RoomEnemySystem
             randomNumber: _readRandomNumber?.Invoke() ?? 0);
         state.LastBabyMetroidStep = step;
 
+        // `$A9:C879` writes the body enemy's instruction words from this later Baby slot.
+        // The reusable sequence retains the requested list, but the physical body already
+        // completed its AI/instruction pass earlier this frame; install the list here so it
+        // begins on the next increasing-slot enemy pass exactly like the cross-WRAM write.
+        if (step.BodyStumbleRequested)
+        {
+            ushort bodyInstruction = sequence.RequestedBodyInstructionList;
+            if (bodyInstruction == 0)
+            {
+                throw new InvalidDataException(
+                    "Baby requested Mother Brain body movement without an instruction list.");
+            }
+            SetMotherBrainInstructionList(state.Body, bodyInstruction);
+        }
+
         // Cross-enemy writes happen during the later Baby slot and become visible in the
         // body record immediately, though body AI cannot execute them until the next frame.
         state.Function = MapLiveMotherBrainRainbowFunction(sequence.Phase);

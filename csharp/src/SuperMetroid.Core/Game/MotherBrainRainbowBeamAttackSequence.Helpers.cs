@@ -27,6 +27,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         HeadInstructionList = pointer;
         HeadInstructionPointer = pointer;
         HeadInstructionTimer = 1;
+        _headInstructionListRequestSerial++;
     }
 
     private void AimOnionRings(short deltaX, short deltaY)

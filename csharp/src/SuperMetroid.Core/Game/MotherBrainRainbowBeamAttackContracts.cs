@@ -212,6 +212,7 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     bool ChargeSoundQueued,
     bool BodyWalkRequested,
     ushort HeadInstructionList,
+    bool HeadInstructionListRequested,
     ushort NeckAngleDelta,
     ushort LowerNeckMovementIndex,
     ushort UpperNeckMovementIndex,

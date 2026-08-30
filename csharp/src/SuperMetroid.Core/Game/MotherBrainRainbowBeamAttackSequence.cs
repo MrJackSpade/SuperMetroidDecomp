@@ -153,6 +153,13 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// <summary>Current brain instruction list installed through `$A9:C447`.</summary>
     public ushort HeadInstructionList { get; private set; }
 
+    /// <summary>
+    /// Monotonic witness for calls to `$A9:C447`. The native body AI may deliberately
+    /// reinstall the same list address, so pointer equality alone cannot identify a new
+    /// request at the live physical head-slot boundary.
+    /// </summary>
+    private uint _headInstructionListRequestSerial;
+
     /// <summary>Brain instruction timer, reset to one whenever the AI changes its list.</summary>
     public ushort HeadInstructionTimer { get; private set; }
 
@@ -439,6 +446,9 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         ushort brainExtraProperties,
         ushort lowerNeckAngle,
         ushort upperNeckAngle,
+        bool neckMovementEnabled,
+        ushort lowerNeckMovementIndex,
+        ushort upperNeckMovementIndex,
         ushort bombCounter,
         bool hitboxesEnabled)
     {
@@ -455,6 +465,9 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         BrainProperties2 = brainExtraProperties;
         LowerNeckAngle = lowerNeckAngle;
         UpperNeckAngle = upperNeckAngle;
+        NeckMovementEnabled = neckMovementEnabled ? (ushort)1 : (ushort)0;
+        LowerNeckMovementIndex = lowerNeckMovementIndex;
+        UpperNeckMovementIndex = upperNeckMovementIndex;
         BombCounter = bombCounter;
         HitboxesEnabled = hitboxesEnabled;
     }
@@ -537,6 +550,19 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public void ExecuteFinalBabyMetroidAttack() =>
         Phase = MotherBrainRainbowBeamAttackPhase.ExecuteFinalBabyMetroidAttack;
+
+    /// <summary>
+    /// Applies physical head opcode <c>$A9:9EA3</c>. Live gameplay advances the ordinary
+    /// room instruction list, while the reusable head verifier advances its private list;
+    /// both must mutate this one native saturating counter.
+    /// </summary>
+    internal void IncrementLiveBabyMetroidAttackCounter() =>
+        BabyMetroidAttackCounter = Math.Min(
+            unchecked((ushort)(BabyMetroidAttackCounter + 1)),
+            (ushort)0x000c);
+
+    /// <summary>Applies physical head opcode <c>$A9:9EB5</c>.</summary>
+    internal void ResetLiveBabyMetroidAttackCounter() => BabyMetroidAttackCounter = 0;
 
     /// <summary>
     /// Ports the Baby's final cross-enemy write at <c>$A9:CD02-$CD05</c>. The body does

@@ -80,6 +80,9 @@ public sealed partial class RoomEnemySystem
             head.ExtraProperties,
             state.LowerNeckAngle,
             state.UpperNeckAngle,
+            state.NeckMovementEnabled,
+            state.LowerNeckMovementIndex,
+            state.UpperNeckMovementIndex,
             state.BombCounter,
             state.HitboxesEnabled != 0);
     }
@@ -103,7 +106,8 @@ public sealed partial class RoomEnemySystem
         // The dedicated latch is essential because CurrentInstruction advances away from
         // the list origin while the request itself remains unchanged.
         if (sequence.HeadInstructionList != 0 &&
-            sequence.HeadInstructionList != state.RainbowAppliedHeadInstructionList)
+            (step is { HeadInstructionListRequested: true } ||
+             sequence.HeadInstructionList != state.RainbowAppliedHeadInstructionList))
         {
             SetMotherBrainInstructionList(head, sequence.HeadInstructionList);
             state.RainbowAppliedHeadInstructionList = sequence.HeadInstructionList;

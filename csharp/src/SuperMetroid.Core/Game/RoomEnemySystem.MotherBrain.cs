@@ -674,29 +674,65 @@ public sealed partial class RoomEnemySystem
                     ? (ushort)0x9c9f
                     : unchecked((ushort)(cursor + 2));
                 return true;
+            case 0x9c65: // Loop dying drool at $9C5F; rarely replay four drool frames at $9C47.
+            {
+                // `$A9:9C65-$9C76` returns its destination in X rather than storing an
+                // operand beside the opcode. The low twelve random bits select `$9C47`
+                // only for `$FE0-$FFF`; every other value returns the one-frame `$9C5F`
+                // loop. Assigning the cursor directly preserves that control convention.
+                ushort random = _readRandomNumber?.Invoke() ?? 0;
+                cursor = (random & 0x0fff) >= 0x0fe0
+                    ? (ushort)0x9c47
+                    : (ushort)0x9c5f;
+                return true;
+            }
+            case 0x9ea3: // Increment/saturate the Baby-attack volley counter at twelve.
+                RequireLiveMotherBrainRainbowSequence(slot).
+                    IncrementLiveBabyMetroidAttackCounter();
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9eb5: // Samus-target fallback clears the Baby-attack volley counter.
+                RequireLiveMotherBrainRainbowSequence(slot).
+                    ResetLiveBabyMetroidAttackCounter();
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case 0x9e37: // Aim the shared onion-ring spawner at the live Baby slot.
+            {
+                MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
+                BabyMetroidCutsceneState baby = state.BabyMetroid ??
+                    throw new InvalidOperationException(
+                        "Mother Brain's Baby-targeting opcode ran without the Baby actor.");
+                AimMotherBrainOnionRingsAt(state, baby.XPosition, baby.YPosition);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            }
             case 0x9e5b: // Aim the next phase-two onion ring at Samus.
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 SamusState target = samus ?? throw new InvalidOperationException(
                     "Mother Brain onion-ring aiming requires the active Samus actor.");
-                RoomEnemySlot head = state.Head!;
-                short deltaX = unchecked((short)(target.XPosition - head.XPosition - 0x000a));
-                short deltaY = unchecked((short)(target.YPosition - head.YPosition - 0x0010));
-                byte angle = unchecked((byte)(
-                    0x80 - CalculateCartridgeAngle(deltaX, deltaY)));
-
-                // `$9E86-$9E98` performs two signed-flag comparisons in 8-bit mode.
-                // The wraparound half maps $C0..FF and $00..0F to $10; the opposite half
-                // maps $48..BF to $48. Only $10..47 survives unchanged.
-                state.OnionRingsTargetAngle = angle switch
-                {
-                    >= 0x10 and < 0x48 => angle,
-                    >= 0x48 and < 0xc0 => 0x0048,
-                    _ => 0x0010,
-                };
+                AimMotherBrainOnionRingsAt(state, target.XPosition, target.YPosition);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }
+            case 0x9df7: // Retail bug always selects cry table entry zero unless count is $B.
+            {
+                MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
+                MotherBrainRainbowBeamAttackSequence sequence =
+                    RequireLiveMotherBrainRainbowSequence(slot);
+                if (sequence.BabyMetroidAttackCounter != 0x000b)
+                    state.LastSoundEffect = 0x006f;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            }
+            case 0x9d0d: // Usually repeat the phase-three neutral hold at `$9CD1`.
+                // Retail contains an unconditional BRA where the adjacent commentary might
+                // suggest a carry branch. Low-twelve values below `$EC0` replace X with the
+                // hold origin; the remaining values simply continue after this opcode.
+                cursor = ((_readRandomNumber?.Invoke() ?? 0) & 0x0fff) < 0x0ec0
+                    ? (ushort)0x9cd1
+                    : unchecked((ushort)(cursor + 2));
+                return true;
             case 0x9e29: // Allocate one `$86:CB4B` onion ring at the current mouth.
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
@@ -754,6 +790,38 @@ public sealed partial class RoomEnemySystem
                 return false;
         }
     }
+
+    /// <summary>
+    /// Shared `$A9:9E37/$9E5B` tail. Both target selectors subtract the same mouth offsets,
+    /// call the cartridge angle routine, rotate by `$80`, and clamp the launch arc to
+    /// `$10..$48`; only the source coordinate differs.
+    /// </summary>
+    private static void AimMotherBrainOnionRingsAt(
+        MotherBrainEnemyState state,
+        ushort targetX,
+        ushort targetY)
+    {
+        RoomEnemySlot head = state.Head!;
+        short deltaX = unchecked((short)(targetX - head.XPosition - 0x000a));
+        short deltaY = unchecked((short)(targetY - head.YPosition - 0x0010));
+        byte angle = unchecked((byte)(0x80 - CalculateCartridgeAngle(deltaX, deltaY)));
+
+        // `$9E86-$9E98` performs two signed-flag comparisons in 8-bit mode. The
+        // wraparound half maps $C0..FF and $00..0F to $10; the opposite half maps
+        // $48..BF to $48. Only $10..47 survives unchanged.
+        state.OnionRingsTargetAngle = angle switch
+        {
+            >= 0x10 and < 0x48 => angle,
+            >= 0x48 and < 0xc0 => 0x0048,
+            _ => 0x0010,
+        };
+    }
+
+    private MotherBrainRainbowBeamAttackSequence RequireLiveMotherBrainRainbowSequence(
+        RoomEnemySlot slot) =>
+        RequireCompleteMotherBrainState(slot).RainbowBeamSequence ??
+        throw new InvalidDataException(
+            "Mother Brain head bytecode requires the live rainbow/Baby sequence.");
 
     private MotherBrainEnemyState RequireCompleteMotherBrainState(RoomEnemySlot slot)
     {

@@ -26,6 +26,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             throw new InvalidOperationException("The active rainbow-beam sequence has not started.");
 
         MotherBrainRainbowBeamAttackPhase phaseBefore = Phase;
+        uint headInstructionListRequestSerialBefore = _headInstructionListRequestSerial;
         MotherBrainForcedSamusMovementResult? movement = null;
         bool soundQueued = false;
         bool paletteRequested = false;
@@ -1100,6 +1101,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             chargeSoundQueued,
             bodyWalkRequested,
             HeadInstructionList,
+            _headInstructionListRequestSerial != headInstructionListRequestSerialBefore,
             NeckAngleDelta,
             LowerNeckMovementIndex,
             UpperNeckMovementIndex,

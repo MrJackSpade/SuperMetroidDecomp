@@ -66,8 +66,9 @@ internal static class DraygonCombatAudit
                 samus,
                 level: assets.LevelData,
                 nmiFrameCounter8: unchecked((byte)readyFrame));
-            if (body.XPosition < 0x0300 && body.YPosition < 0x0300 &&
+            if (body.XPosition is > 0 and < 0x0300 && body.YPosition < 0x0300 &&
                 (body.SpritemapPointer & 0x8000) != 0 &&
+                enemies.InteractiveEnemyIndexes.Contains(body.NativeIndex) &&
                 state.Function is not (
                     DraygonAiFunction.IntroInitialDelay or DraygonAiFunction.IntroDance))
             {
@@ -76,6 +77,49 @@ internal static class DraygonCombatAudit
         }
         if (readyFrame >= CombatReadyFrameLimit)
             throw new InvalidDataException("Draygon never reached a visible combat map.");
+
+        RoomEnemySlot eye = state.Eye ??
+            throw new InvalidDataException("Draygon combat fixture lost the eye record.");
+        RoomEnemySlot arms = state.Arms ??
+            throw new InvalidDataException("Draygon combat fixture lost the arms record.");
+        bool protectedPartsRemainNonInteractive =
+            eye.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) &&
+            arms.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) &&
+            !enemies.InteractiveEnemyIndexes.Contains(eye.NativeIndex) &&
+            !enemies.InteractiveEnemyIndexes.Contains(arms.NativeIndex);
+
+        // Eye and arms are physical enemy records with header shot callback `$A5:804C`, but
+        // population property $0400 deliberately excludes both from bank $A0's collision
+        // index. The body's extended map owns every live weapon rectangle. A normal bomb in
+        // its authored eye rectangle must therefore dispatch body callback $95F0 exactly
+        // once: vulnerability byte $80 deals no HP damage, while the private prelude still
+        // increases future swoop acceleration by eight.
+        var normalBombs = new SamusBombProjectileSystem();
+        var normalBombOrdinaryShots = new SamusProjectileSystem();
+        SamusBombProjectileSlot normalBomb =
+            EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                normalBombs,
+                body.XPosition,
+                body.YPosition,
+                damage: 1000);
+        normalBomb.XRadius = 1;
+        normalBomb.YRadius = 1;
+        ushort healthBeforeNormalBomb = body.Health;
+        ushort accelerationBeforeNormalBomb = state.SwoopYAcceleration;
+        ushort expectedAccelerationAfterNormalBomb = unchecked((ushort)(
+            accelerationBeforeNormalBomb + 8));
+        if (unchecked((short)(expectedAccelerationAfterNormalBomb - 0x00a0)) >= 0)
+            expectedAccelerationAfterNormalBomb = accelerationBeforeNormalBomb;
+        int normalBombHits = enemies.ResolveOrdinaryBombHits(
+            normalBombs,
+            normalBombOrdinaryShots,
+            samus);
+        ushort healthAfterNormalBomb = body.Health;
+        ushort accelerationAfterNormalBomb = state.SwoopYAcceleration;
+        bool normalBombReactionAgreed = normalBombHits == 1 &&
+            (normalBomb.Direction & 0x0010) != 0 &&
+            healthAfterNormalBomb == healthBeforeNormalBomb &&
+            accelerationAfterNormalBomb == expectedAccelerationAfterNormalBomb;
 
         // In maps $1A/$2D the first rectangle is the eye: touch is literal RTL, while shot
         // dispatches $95F0. The upper shell rectangle instead dispatches damaging touch and
@@ -109,8 +153,8 @@ internal static class DraygonCombatAudit
             explosionRadius: 0x7f,
             samus);
         ushort healthAfterPowerBomb = body.Health;
-        bool allPartsIgnoredPowerBomb = state.Eye!.Health == 6000 &&
-            state.Tail!.Health == 6000 && state.Arms!.Health == 6000;
+        bool allPartsIgnoredPowerBomb = eye.Health == 6000 &&
+            state.Tail!.Health == 6000 && arms.Health == 6000;
 
         bool sawWhiteBgPalette = false;
         bool sawWhiteSpritePalette = false;
@@ -204,6 +248,7 @@ internal static class DraygonCombatAudit
 
         if (!eyeContactResolved || healthAfterEyeContact != healthBeforeEyeContact ||
             !shellContactResolved || healthBeforeShellContact - healthAfterShellContact != 160 ||
+            !protectedPartsRemainNonInteractive || !normalBombReactionAgreed ||
             powerBombReactions != 0 || healthAfterPowerBomb != healthBeforePowerBomb ||
             !allPartsIgnoredPowerBomb || !sawWhiteBgPalette || !sawWhiteSpritePalette ||
             dudHits != 1 || healthAfterDud != healthBeforeDud || vulnerableEyeHits != 20 ||
@@ -220,6 +265,10 @@ internal static class DraygonCombatAudit
                 $"Draygon combat/death mismatch: ready={readyFrame}, contacts=" +
                 $"{eyeContactResolved}:{healthBeforeEyeContact}->{healthAfterEyeContact}/" +
                 $"{shellContactResolved}:{healthBeforeShellContact}->{healthAfterShellContact}, " +
+                $"protected parts/normal bomb={protectedPartsRemainNonInteractive}/" +
+                $"{normalBombHits}:${normalBomb.Direction:X4}:" +
+                $"{healthBeforeNormalBomb}->{healthAfterNormalBomb}:" +
+                $"{accelerationBeforeNormalBomb}->{accelerationAfterNormalBomb}, " +
                 $"power bomb={powerBombReactions}:{healthBeforePowerBomb}->{healthAfterPowerBomb}, " +
                 $"parts={allPartsIgnoredPowerBomb}, flashes={sawWhiteBgPalette}/" +
                 $"{sawWhiteSpritePalette}, dud={dudHits}:{healthBeforeDud}->{healthAfterDud}, " +

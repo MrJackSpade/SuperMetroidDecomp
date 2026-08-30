@@ -152,6 +152,7 @@ internal static class CeresSteamAudit
         bool sawVisibleFrame = false;
         bool sawContact = false;
         bool sawShotCollision = false;
+        bool sawNormalBombCollision = false;
 
         // The random activation delay is at most 32 one-frame instruction passes. The full
         // visible burst is seven maps at three frames each followed by a 64-frame hidden
@@ -205,15 +206,44 @@ internal static class CeresSteamAudit
                     sawShotCollision = hitCount == 1 &&
                         (shots.Slots[0].Direction & 0x0010) != 0;
                 }
+
+                if (!sawNormalBombCollision)
+                {
+                    // Steam's visible extended rectangles store the same literal `$804C`
+                    // shot callback as its header. Family $0500 must still receive bank
+                    // $A0's physical collision mark before that RTL returns, without ever
+                    // entering vulnerability damage or disturbing the vent animation.
+                    var bombProjectiles = new SamusBombProjectileSystem();
+                    var ordinaryProjectiles = new SamusProjectileSystem();
+                    SamusBombProjectileSlot normalBomb =
+                        EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                            bombProjectiles,
+                            target.XPosition,
+                            target.YPosition,
+                            damage: 1000);
+                    ushort healthBeforeBomb = target.Health;
+                    ushort instructionBeforeBomb = target.CurrentInstruction;
+                    int bombHits = enemies.ResolveOrdinaryBombHits(
+                        bombProjectiles,
+                        ordinaryProjectiles,
+                        samus);
+                    sawNormalBombCollision = bombHits == 1 &&
+                        (normalBomb.Direction & 0x0010) != 0 &&
+                        target.Health == healthBeforeBomb &&
+                        target.CurrentInstruction == instructionBeforeBomb &&
+                        !target.Properties.HasAny(EnemyProperties.Deleted);
+                }
             }
         }
 
         if (!sawVisibleFrame || animationMaps.Count != 7 || !sawContact ||
-            !sawShotCollision || samus.Health != 999 || target.Health != 0x7fff)
+            !sawShotCollision || !sawNormalBombCollision ||
+            samus.Health != 999 || target.Health != 0x7fff)
         {
             throw new InvalidDataException(
                 $"Ceres steam cycle/combat failed: visible={sawVisibleFrame}, " +
-                $"maps={animationMaps.Count}, touch/shot={sawContact}/{sawShotCollision}, " +
+                $"maps={animationMaps.Count}, touch/shot/bomb=" +
+                $"{sawContact}/{sawShotCollision}/{sawNormalBombCollision}, " +
                 $"Samus/steam HP={samus.Health}/{target.Health}.");
         }
 

@@ -14,6 +14,7 @@ internal static class OwtchAudit
     private const ushort DefinitionPointer = 0xd03f;
     private const ushort CameraX = 0x0100;
     private const ushort CameraY = 0x0200;
+    private const int BombVulnerabilityAddress = 0xb4ee92;
 
     public static int Run(string romPath)
     {
@@ -211,6 +212,7 @@ internal static class OwtchAudit
             throw new InvalidDataException("Owtch's one-piece ROM map did not emit one OBJ.");
 
         VerifyCombat(bus, room, assets);
+        VerifyNormalBombCallbackGate(bus, room, assets);
         VerifyGrappleCancel(bus, room, assets);
 
         Console.WriteLine(
@@ -218,7 +220,8 @@ internal static class OwtchAudit
             "retail neighbors; split 16.16 patrol, native left-table underflow, three ROM " +
             "maps, random sinking, 16-pixel burial/rise, 64-frame wait, non-advancing RNG " +
             "facing, 100-damage contact, right-state shot immunity, left-state plasma " +
-            "death, Grapple cancel, and OBJ output were verified.");
+            "death, state-gated normal-bomb callback, Grapple cancel, and OBJ output were " +
+            "verified.");
         return 0;
     }
 
@@ -282,6 +285,94 @@ internal static class OwtchAudit
         enemies.StepFrame(CameraX, CameraY, false, samus, level: assets.LevelData);
         if ((actor.AiHandlerBits & 4) == 0 || actor.Properties.HasAny(EnemyProperties.Deleted))
             throw new InvalidDataException("Owtch Grapple cancel did not hand off to frozen AI.");
+    }
+
+    private static void VerifyNormalBombCallbackGate(
+        ISnesAddressSpace retailBus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        // Owtch's shipped vulnerability record stores zero for family $0500. Consequently,
+        // an accepted bomb reaches common shot AI but deals no damage, while a rejected bomb
+        // returns before common shot AI; both paths merely retain bank $A0's collision mark.
+        // Assert that cartridge fact before using a one-byte diagnostic overlay to make the
+        // otherwise-unobservable callback branch produce different health outcomes.
+        if (retailBus.ReadByte(BombVulnerabilityAddress) != 0)
+        {
+            throw new InvalidDataException(
+                "Retail Owtch bomb vulnerability byte at $B4:EE92 is not zero.");
+        }
+
+        var diagnosticBus = new OwtchBombVulnerabilityAddressSpace(retailBus);
+        RoomEnemySystem rightEnemies = LoadIsolated(
+            diagnosticBus,
+            room,
+            assets,
+            out RoomEnemySlot rightActor);
+        OwtchEnemyState rightState = State(rightEnemies, rightActor);
+        SamusState rightSamus = CreateSamus(diagnosticBus);
+        rightEnemies.StepFrame(
+            CameraX,
+            CameraY,
+            timeIsFrozen: false,
+            rightSamus,
+            level: assets.LevelData);
+        rightState.Behavior = OwtchBehaviorState.MovingRight;
+        var rightBombs = new SamusBombProjectileSystem();
+        var rightShots = new SamusProjectileSystem();
+        SamusBombProjectileSlot rightBomb =
+            EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                rightBombs,
+                rightActor.XPosition,
+                rightActor.YPosition,
+                damage: 20);
+        if (rightEnemies.ResolveOrdinaryBombHits(rightBombs, rightShots, rightSamus) != 1 ||
+            (rightBomb.Direction & 0x0010) == 0 || rightActor.Health != 20 ||
+            rightActor.Properties.HasAny(EnemyProperties.Deleted) ||
+            rightEnemies.EnemiesKilled != 0)
+        {
+            throw new InvalidDataException(
+                $"Owtch moving-right normal-bomb callback did not return before common " +
+                $"damage: health={rightActor.Health}, deleted=" +
+                $"{rightActor.Properties.HasAny(EnemyProperties.Deleted)}, kills=" +
+                $"{rightEnemies.EnemiesKilled}, direction=${rightBomb.Direction:X4}, " +
+                $"state={rightState.Behavior}.");
+        }
+
+        RoomEnemySystem leftEnemies = LoadIsolated(
+            diagnosticBus,
+            room,
+            assets,
+            out RoomEnemySlot leftActor);
+        OwtchEnemyState leftState = State(leftEnemies, leftActor);
+        SamusState leftSamus = CreateSamus(diagnosticBus);
+        leftEnemies.StepFrame(
+            CameraX,
+            CameraY,
+            timeIsFrozen: false,
+            leftSamus,
+            level: assets.LevelData);
+        leftState.Behavior = OwtchBehaviorState.MovingLeft;
+        var leftBombs = new SamusBombProjectileSystem();
+        var leftShots = new SamusProjectileSystem();
+        SamusBombProjectileSlot leftBomb =
+            EnemyProjectileAuditAssertions.ArmExplodingNormalBomb(
+                leftBombs,
+                leftActor.XPosition,
+                leftActor.YPosition,
+                damage: 20);
+        if (leftEnemies.ResolveOrdinaryBombHits(leftBombs, leftShots, leftSamus) != 1 ||
+            (leftBomb.Direction & 0x0010) == 0 || leftActor.Health != 0 ||
+            !leftActor.Properties.HasAny(EnemyProperties.Deleted) ||
+            leftEnemies.EnemiesKilled != 1)
+        {
+            throw new InvalidDataException(
+                $"Owtch moving-left normal-bomb callback did not enter common damage/death: " +
+                $"health={leftActor.Health}, deleted=" +
+                $"{leftActor.Properties.HasAny(EnemyProperties.Deleted)}, kills=" +
+                $"{leftEnemies.EnemiesKilled}, direction=${leftBomb.Direction:X4}, " +
+                $"state={leftState.Behavior}.");
+        }
     }
 
     private static RoomEnemySystem LoadIsolated(
@@ -369,5 +460,23 @@ internal static class OwtchAudit
         projectile.YRadius = 4;
         projectile.InstructionPointer = 0x9000;
         projectile.InstructionTimer = 1;
+    }
+
+    /// <summary>
+    /// Read-only diagnostic overlay for Owtch's family-$0500 vulnerability byte. Production
+    /// code never sees this wrapper; the focused audit uses multiplier two solely to expose
+    /// whether private callback $A2:A579 did or did not jump to common shot AI.
+    /// </summary>
+    private sealed class OwtchBombVulnerabilityAddressSpace : ISnesAddressSpace
+    {
+        private readonly ISnesAddressSpace _inner;
+
+        public OwtchBombVulnerabilityAddressSpace(ISnesAddressSpace inner) =>
+            _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+
+        public byte ReadByte(int address) =>
+            address == BombVulnerabilityAddress ? (byte)2 : _inner.ReadByte(address);
+
+        public void WriteByte(int address, byte value) => _inner.WriteByte(address, value);
     }
 }

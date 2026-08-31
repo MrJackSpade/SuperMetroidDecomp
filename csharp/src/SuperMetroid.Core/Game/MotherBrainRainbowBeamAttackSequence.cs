@@ -583,7 +583,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// beam/item damage multipliers, invulnerability, projectile deletion, and hit flashing;
     /// this actor owns only the resulting health word and the phase-three zero-health branch.
     /// Keeping that boundary explicit lets a live projectile producer call the real actor
-    /// without embedding a guessed copy of the still-untranslated generic damage routine.
+    /// without duplicating the room enemy system's translated generic damage routine.
     /// </summary>
     public void ApplyCalculatedBrainDamage(ushort damage)
     {
@@ -597,8 +597,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// <summary>
     /// Applies the movement/recoil half of Mother Brain's shared phase-two/three shot
     /// reaction at <c>$A9:B562-$B5C4</c>. The ordinary enemy-shot routine owns damage,
-    /// projectile deletion, and flash time; this method intentionally does not invent any
-    /// of those still-untranslated systems.
+    /// projectile deletion, and flash time; this method intentionally does not duplicate
+    /// any of those separately translated systems.
     /// </summary>
     public void ApplyPhase2Or3ShotReaction(MotherBrainProjectileType projectileType)
     {

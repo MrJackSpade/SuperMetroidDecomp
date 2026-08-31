@@ -127,10 +127,24 @@ public sealed partial class RoomEnemySystem
 
         state.Function = MapLiveMotherBrainRainbowFunction(sequence.Phase);
         state.FunctionTimer = sequence.FunctionTimer;
+        // `$7E:8026` remains one shared native word across phase two and phase three. The
+        // reusable sequence owns phase-three walking/recoil decisions, while the public
+        // encounter state is the debugger-facing WRAM projection used by shot callbacks.
+        // Republish it after every body call so either view observes the exact same counter.
+        state.WalkCounter = sequence.Phase3WalkCounter;
         state.NeckAngleDelta = sequence.NeckAngleDelta;
         state.NeckMovementEnabled = sequence.NeckMovementEnabled != 0;
         state.LowerNeckMovementIndex = sequence.LowerNeckMovementIndex;
         state.UpperNeckMovementIndex = sequence.UpperNeckMovementIndex;
+        if (sequence.Phase3NeckPhase == MotherBrainPhase3NeckPhase.HyperBeamRecoil &&
+            sequence.Phase3NeckFunctionTimer == 0x000a)
+        {
+            // `$C395` loads `$32` during the one-shot setup call, immediately before the
+            // fallthrough decrements neck timer `$0B` to `$0A`. The physical draw hook owns
+            // subsequent shake decrements, so publish this event only on that exact setup
+            // result rather than copying the sequence's retained word every enemy frame.
+            state.BrainMainShakeTimer = 0x0032;
+        }
         state.Form = sequence.Body.Form;
         state.Body.Properties = sequence.BodyProperties;
         state.Body.ExtraProperties = sequence.BodyProperties2;

@@ -216,6 +216,21 @@ internal static partial class RetailEnemyExecutionAudit
                 !observations.ContainsKey(kind))
             .OrderBy(kind => (ushort)kind)
             .ToArray();
+        RoomEnemyProjectileKind[] unclassifiedPhaseOrEventKinds = phaseOrEventKinds
+            .Where(kind => !FocusedProjectileAuditByKind.ContainsKey(kind))
+            .ToArray();
+        if (unclassifiedPhaseOrEventKinds.Length != 0)
+        {
+            // A quiet 512-frame room run cannot distinguish a genuinely untranslated
+            // producer from a correct attack gated behind boss health, cutscene state,
+            // breakable terrain, or a low-probability selector. Requiring an explicit
+            // focused owner turns that ambiguity into a regression failure instead of an
+            // informational line that could be ignored indefinitely.
+            throw new InvalidDataException(
+                "Phase/event-triggered enemy projectiles lack focused lifecycle coverage: " +
+                string.Join(", ", unclassifiedPhaseOrEventKinds.Select(kind =>
+                    $"{kind} ($86:{(ushort)kind:X4})")));
+        }
         Console.WriteLine(
             $"Retail enemy attack execution audit passed: {executedScenarios} fresh retail " +
             $"view/placement scenarios completed {executedFrames} enemy and projectile frames; " +
@@ -223,11 +238,108 @@ internal static partial class RetailEnemyExecutionAudit
             $"in {movedKinds}, animation in {animatedKinds}, and verified exact common Samus " +
             $"damage/knockback/disposal for all {contactTestedKinds.Count} damage-enabled kinds.");
         Console.WriteLine(
-            $"Phase/event-triggered residual inventory ({phaseOrEventKinds.Length}): " +
-            string.Join(", ", phaseOrEventKinds.Select(kind =>
-                $"{kind}=$86:{(ushort)kind:X4}")));
+            $"All {phaseOrEventKinds.Length} phase/event-triggered definitions are assigned " +
+            "to focused lifecycle/contact audits: " +
+            string.Join("; ", phaseOrEventKinds
+                .GroupBy(kind => FocusedProjectileAuditByKind[kind])
+                .OrderBy(group => group.Key, StringComparer.Ordinal)
+                .Select(group => $"{group.Key}=[{string.Join(',', group.Select(kind =>
+                    $"{kind}/$86:{(ushort)kind:X4}"))}]")));
         return 0;
     }
+
+    /// <summary>
+    /// Focused authority for definitions that an undamaged, event-zero room cannot naturally
+    /// produce in 512 frames. Every listed audit drives the real producer or its exact native
+    /// phase entry and checks initialization, instruction animation, movement, disposal, and
+    /// Samus contact where the ROM definition enables damage. This is intentionally keyed by
+    /// the typed bank-$86 definition—not a family range—so adding one translated projectile
+    /// without adding evidence makes the exhaustive attack gate fail immediately.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<RoomEnemyProjectileKind, string>
+        FocusedProjectileAuditByKind =
+            new Dictionary<RoomEnemyProjectileKind, string>
+            {
+                [RoomEnemyProjectileKind.DraygonGoop] = "DraygonAudit",
+
+                [RoomEnemyProjectileKind.CrocomireProjectile] = "CrocomireAudit",
+                [RoomEnemyProjectileKind.CrocomireBridgeCrumbling] = "CrocomireAudit",
+                [RoomEnemyProjectileKind.CrocomireSpikeWallPieces] = "CrocomireAudit",
+
+                [RoomEnemyProjectileKind.CeresRidleyFireball] = "CeresRidleyProjectileAudit",
+                [RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter] =
+                    "CeresRidleyProjectileAudit",
+                [RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter] =
+                    "CeresRidleyProjectileAudit",
+                [RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight] =
+                    "CeresRidleyProjectileAudit",
+                [RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft] =
+                    "CeresRidleyProjectileAudit",
+                [RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp] =
+                    "CeresRidleyProjectileAudit",
+                [RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown] =
+                    "CeresRidleyProjectileAudit",
+
+                [RoomEnemyProjectileKind.PhantoonDestroyableFlame] = "PhantoonAudit",
+                [RoomEnemyProjectileKind.KraidSpitRock] = "KraidAudit",
+                [RoomEnemyProjectileKind.KraidCeilingRock] = "KraidAudit",
+                [RoomEnemyProjectileKind.KraidRisingRockRight] = "KraidAudit",
+
+                [RoomEnemyProjectileKind.BombTorizoLowHealthDrool] =
+                    "BombTorizoPhaseProjectileAudit",
+                [RoomEnemyProjectileKind.BombTorizoInitialDrool] =
+                    "BombTorizoPhaseProjectileAudit",
+                [RoomEnemyProjectileKind.BombTorizoLowHealthExplosion] =
+                    "BombTorizoPhaseProjectileAudit",
+                [RoomEnemyProjectileKind.BombTorizoDeathExplosion] =
+                    "BombTorizoPhaseProjectileAudit",
+                [RoomEnemyProjectileKind.BombTorizoChozoOrb] = "BombTorizoAudit",
+                [RoomEnemyProjectileKind.BombTorizoSonicBoom] = "BombTorizoAudit",
+
+                [RoomEnemyProjectileKind.GoldenTorizoChozoOrb] =
+                    "GoldenTorizoProjectileAudit",
+                [RoomEnemyProjectileKind.GoldenTorizoSonicBoom] =
+                    "GoldenTorizoProjectileAudit",
+                [RoomEnemyProjectileKind.GoldenTorizoEgg] = "GoldenTorizoProjectileAudit",
+                [RoomEnemyProjectileKind.GoldenTorizoSuperMissile] =
+                    "GoldenTorizoProjectileAudit",
+                [RoomEnemyProjectileKind.GoldenTorizoEyeBeam] =
+                    "GoldenTorizoProjectileAudit",
+
+                [RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep] = "ChozoStatueAudit",
+                [RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate] =
+                    "ChozoStatueAudit",
+                [RoomEnemyProjectileKind.ShaktoolAttackFrontCircle] = "ShaktoolProjectileAudit",
+                [RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle] = "ShaktoolProjectileAudit",
+                [RoomEnemyProjectileKind.ShaktoolAttackBackCircle] = "ShaktoolProjectileAudit",
+
+                [RoomEnemyProjectileKind.MotherBrainPurpleBreathBig] = "MotherBrainAudit",
+                [RoomEnemyProjectileKind.MotherBrainOnionRing] = "MotherBrainAudit",
+                [RoomEnemyProjectileKind.MotherBrainBomb] = "MotherBrainAudit",
+                [RoomEnemyProjectileKind.MotherBrainHandBeamCharging] = "MotherBrainAudit",
+                [RoomEnemyProjectileKind.MotherBrainHandBeamFired] = "MotherBrainAudit",
+                [RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging] = "MotherBrainAudit",
+                [RoomEnemyProjectileKind.MotherBrainDrool] = "MotherBrainAudit",
+                [RoomEnemyProjectileKind.MotherBrainDyingDrool] = "MotherBrainAudit",
+                [RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion] = "MotherBrainAudit",
+                [RoomEnemyProjectileKind.MotherBrainTopRightTube] = "MotherBrainAudit",
+                [RoomEnemyProjectileKind.MotherBrainTopLeftTube] = "MotherBrainAudit",
+                [RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube] = "MotherBrainAudit",
+                [RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube] = "MotherBrainAudit",
+                [RoomEnemyProjectileKind.MotherBrainGlassShard] =
+                    "MotherBrainGlassProjectileAudit",
+                [RoomEnemyProjectileKind.MotherBrainGlassSparkle] =
+                    "MotherBrainGlassProjectileAudit",
+
+                [RoomEnemyProjectileKind.KagoBug] = "KagoAudit",
+                [RoomEnemyProjectileKind.PowampSpike] = "PowampSpikeInteractionAudit",
+                [RoomEnemyProjectileKind.WorkRobotLaserUpLeft] = "WorkRobotLaserAudit",
+                [RoomEnemyProjectileKind.WorkRobotLaserUpRight] = "WorkRobotLaserAudit",
+                [RoomEnemyProjectileKind.WorkRobotLaserDownRight] = "WorkRobotLaserAudit",
+                [RoomEnemyProjectileKind.StokeProjectile] = "StokeAudit",
+                [RoomEnemyProjectileKind.BotwoonSpit] = "BotwoonSpitAudit",
+                [RoomEnemyProjectileKind.EnemyDeathExplosion] = "RinkaAudit",
+            };
 
     private static void ObserveLiveProjectiles(
         RoomEnemySystem enemies,

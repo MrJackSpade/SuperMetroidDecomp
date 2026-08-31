@@ -678,9 +678,9 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3FightingMain:
-                // `$C209` tests death before either sub-handler. The death producer itself
-                // is kept as an explicit seam until its explosion/fade sequence is ported;
-                // no phase-two behavior is allowed to leak through here.
+                // `$C209` tests death before either sub-handler. It installs the translated
+                // `$AEE1` explosion/fade sequence without executing that function's property
+                // writes until the following body turn; no phase-two behavior leaks through.
                 if (BrainHealth == 0)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceMoveToBackOfRoom;

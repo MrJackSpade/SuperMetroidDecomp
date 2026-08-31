@@ -225,9 +225,10 @@ public sealed partial class RoomEnemySystem
         ushort projectileDamage)
     {
         // DetermineMotherBrainShotReactionType maps beams to two, missiles/supers to one,
-        // and every other projectile family to zero. Phase four's hyper-beam recoil uses a
-        // separate branch; retaining an explicit guard prevents phase-two code from quietly
-        // pretending that later cutscene behavior has already been translated.
+        // and every other projectile family to zero. Form four's beam branch is the Hyper
+        // Beam recoil routine at `$A9:B5A9`; by then the long rainbow/Baby/phase-three state
+        // machine owns the same native walk counter and neck-function words. Route the hit
+        // through that owner instead of maintaining a second, subtly divergent recoil copy.
         ushort reactionType = family switch
         {
             SamusProjectileFamily.Beam => 2,
@@ -236,11 +237,20 @@ public sealed partial class RoomEnemySystem
         };
         if (state.Form == 4 && reactionType == 2)
         {
-            throw new NotSupportedException(
-                "Mother Brain phase-four Hyper Beam recoil $A9:B5A9 is not translated yet.");
-        }
+            MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence ??
+                throw new InvalidOperationException(
+                    "Mother Brain received a form-four beam without its phase-three state owner.");
+            sequence.ApplyPhase2Or3ShotReaction(MotherBrainProjectileType.Beam);
 
-        if (reactionType == 1)
+            // These are not host-only mirrors. `$B5BA/$B5BD` clears the body function timer
+            // on recoil underflow and `$B5C0` always publishes the post-subtraction walk
+            // counter immediately, before common projectile damage runs. The sequence keeps
+            // the authoritative phase-three copies; expose the same writes on the encounter
+            // state so debugger watches retain their native WRAM meaning between enemy turns.
+            state.FunctionTimer = sequence.FunctionTimer;
+            state.WalkCounter = sequence.Phase3WalkCounter;
+        }
+        else if (reactionType == 1)
         {
             state.WalkCounter = 0;
         }

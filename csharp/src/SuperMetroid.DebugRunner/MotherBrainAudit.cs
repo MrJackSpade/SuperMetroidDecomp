@@ -172,7 +172,7 @@ internal static class MotherBrainAudit
             "uncrouch movement, neck geometry, stretching projectiles, phase-two attack " +
             "selection/cooldown, four aimed onion rings, custom ring damage, and the " +
             "body/head/shared-projectile laser, bomb, recursive hand-beam, and complete " +
-            "live rainbow-beam repeat cycles " +
+            "live rainbow-beam/Baby cycles through a produced Hyper Beam recoil " +
             "matched the untouched cartridge.");
         return 0;
     }
@@ -2777,6 +2777,16 @@ internal static class MotherBrainAudit
 
                 AuditRestoredMotherBrainAttackTiles(bus, vram);
                 AuditRestoredMotherBrainRoomLights(bus, cgram);
+                AuditLivePhaseThreeHyperBeamRecoil(
+                    bus,
+                    level,
+                    enemies,
+                    state,
+                    samus,
+                    sequence,
+                    random,
+                    sharedProjectiles,
+                    frame);
                 return;
             }
         }
@@ -2784,6 +2794,180 @@ internal static class MotherBrainAudit
         throw new InvalidDataException(
             $"Live Baby murder did not reach phase three within 12000 frames: Baby=" +
             $"{baby.Phase}/${baby.Health}, Mother Brain={sequence.Phase}, hits={ringHits}.");
+    }
+
+    /// <summary>
+    /// Continues the physical room encounter past the Baby handoff, fires the real bank-$90
+    /// Hyper Beam producer into the live head record, and proves that shot callback
+    /// <c>$A9:B507</c> reaches recoil routine <c>$A9:B5A9</c>. The reusable sequence already
+    /// verifies every recoil/recovery timer in isolation; this audit guards the cross-owner
+    /// seam that previously threw before any of those translated functions could run.
+    /// </summary>
+    private static void AuditLivePhaseThreeHyperBeamRecoil(
+        SuperMetroidAddressSpace bus,
+        RoomLevelData level,
+        RoomEnemySystem enemies,
+        MotherBrainEnemyState state,
+        SamusState samus,
+        MotherBrainRainbowBeamAttackSequence sequence,
+        Bank80SystemState random,
+        SamusBombProjectileSystem sharedProjectiles,
+        int startingFrame)
+    {
+        int frame = startingFrame;
+
+        // `$C1F0` accepts timer zero and changes state only after DEC produces `$FFFF`.
+        // Keep RNG bit 15 clear so the same-call fallthrough into `$C209` cannot obscure the
+        // recoil proof by installing the independent 64-frame attack-cooldown function.
+        for (int calls = 0;
+            calls < 40 &&
+            sequence.Phase != MotherBrainRainbowBeamAttackPhase.Phase3FightingMain;
+            calls++)
+        {
+            frame++;
+            random.SetRandomNumber(0);
+            enemies.StepFrame(
+                cameraX: 0,
+                cameraY: 0,
+                timeIsFrozen: false,
+                samus,
+                level: level,
+                nmiFrameCounter8: unchecked((byte)frame),
+                sharedProjectiles: sharedProjectiles);
+            enemies.StepEnemyProjectiles(
+                level,
+                samus,
+                cameraX: 0,
+                cameraY: 0,
+                nmiFrameCounter8: unchecked((byte)frame),
+                samusBombs: sharedProjectiles);
+            sharedProjectiles.StepFrame(
+                bus,
+                level,
+                samus,
+                controllerInput: 0,
+                controllerNewInput: 0);
+        }
+
+        RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
+            "Mother Brain phase-three Hyper Beam audit lost the physical head record.");
+        if (sequence.Phase != MotherBrainRainbowBeamAttackPhase.Phase3FightingMain ||
+            state.Function != MotherBrainBodyFunction.ThirdPhaseFightingMain ||
+            state.Form != 4 || sequence.Body.Form != 4 ||
+            sequence.Phase3WalkCounter >= 0x010a)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain did not enter the live Hyper Beam recoil boundary: phase=" +
+                $"{sequence.Phase}/$A9:{(ushort)state.Function:X4}, forms=" +
+                $"{state.Form}/{sequence.Body.Form}, walk=" +
+                $"${sequence.Phase3WalkCounter:X4}.");
+        }
+
+        // Produce, rather than manufacture, the exact `$9018` Hyper Beam actor. Only its
+        // world position is moved to the authored head origin so this callback audit is not
+        // coupled to travel time or room terrain; type, 1000 damage, radii, pre-instruction,
+        // slot accounting, and shared `$0CCC` cooldown all remain bank-$90 output.
+        var projectiles = new SamusProjectileSystem();
+        samus.SelectedHudItem = 0;
+        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+        const ushort shoot = (ushort)SnesButton.X;
+        SamusProjectileFrameResult fired = projectiles.StepFrame(
+            bus,
+            level,
+            samus,
+            controllerInput: shoot,
+            controllerNewInput: shoot,
+            layer1X: 0,
+            layer1Y: 0,
+            sharedProjectiles);
+        if (fired.FiredSlot is not int slotIndex)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain phase-three audit could not produce Hyper Beam: Hyper=" +
+                $"${samus.HyperBeam:X4}, cooldown=${sharedProjectiles.CooldownTimer:X4}, " +
+                $"count={projectiles.ProjectileCounter}.");
+        }
+
+        SamusProjectileSlot shot = projectiles.Slots[slotIndex];
+        if (shot.Type != 0x9018 || shot.Damage != 1000 ||
+            shot.PreInstruction != SamusProjectilePreInstruction.HyperBeam)
+        {
+            throw new InvalidDataException(
+                $"Bank-$90 Hyper Beam producer diverged before Mother Brain collision: " +
+                $"type=${shot.Type:X4}, damage={shot.Damage}, pre={shot.PreInstruction}.");
+        }
+        shot.Direction = (ushort)SamusProjectileDirection.Right;
+        shot.XPosition = head.XPosition;
+        shot.YPosition = head.YPosition;
+
+        ushort healthBefore = head.Health;
+        ushort walkBefore = sequence.Phase3WalkCounter;
+        int hits = enemies.ResolveOrdinaryProjectileHits(
+            bus,
+            projectiles,
+            sharedProjectiles,
+            samus);
+        ushort vulnerabilityPointer = head.Definition.VulnerabilityPointer != 0
+            ? head.Definition.VulnerabilityPointer
+            : (ushort)0xec1c;
+        byte vulnerability = bus.ReadByte(0xb40000 | vulnerabilityPointer);
+        int damage = (1000 >> 1) * (vulnerability & 0x7f);
+        ushort expectedHealth = damage >= healthBefore
+            ? (ushort)0
+            : unchecked((ushort)(healthBefore - damage));
+        if (hits != 1 || shot.PackedType.Family != SamusProjectileFamily.BeamExplosion ||
+            head.Health != expectedHealth || sequence.Phase3WalkCounter != 0 ||
+            state.WalkCounter != 0 || sequence.Phase3NeckPhase !=
+                MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil ||
+            state.FunctionTimer != 0 || head.Properties.HasAny(EnemyProperties.Deleted))
+        {
+            throw new InvalidDataException(
+                $"Live Mother Brain Hyper Beam hit diverged: hits={hits}, family=" +
+                $"${shot.PackedType.FamilyValue:X3}, health={head.Health}/{expectedHealth}, " +
+                $"walk=${walkBefore:X4}->${sequence.Phase3WalkCounter:X4}/" +
+                $"${state.WalkCounter:X4}, neck={sequence.Phase3NeckPhase}, timer=" +
+                $"${state.FunctionTimer:X4}, deleted=" +
+                $"{head.Properties.HasAny(EnemyProperties.Deleted)}.");
+        }
+
+        // Recoil setup is deliberately deferred until the following body turn. Its native
+        // fallthrough immediately consumes one tick, installs `$9BE7`, disables attacks,
+        // requests indices eight/eight, and seeds the draw-owned fifty-frame brain shake.
+        frame++;
+        random.SetRandomNumber(0xffff);
+        enemies.StepFrame(
+            cameraX: 0,
+            cameraY: 0,
+            timeIsFrozen: false,
+            samus,
+            level: level,
+            nmiFrameCounter8: unchecked((byte)frame),
+            sharedProjectiles: sharedProjectiles);
+        if (sequence.Phase3NeckPhase != MotherBrainPhase3NeckPhase.HyperBeamRecoil ||
+            sequence.Phase3NeckFunctionTimer != 0x000a ||
+            sequence.Phase3DisableAttacks != 1 ||
+            sequence.HeadInstructionList !=
+                MotherBrainRainbowBeamAttackSequence.HeadHyperBeamRecoilInstructionList ||
+            // The later physical head slot runs after the body in this same scheduler pass:
+            // opcode `$9BE7` seeds shake, timed frame `$9BE9` is loaded, and the readable
+            // next-instruction pointer is therefore `$9BED` when StepFrame returns.
+            head.CurrentInstruction != unchecked((ushort)(
+                MotherBrainRainbowBeamAttackSequence.HeadHyperBeamRecoilInstructionList + 6)) ||
+            state.NeckAngleDelta != 0x0900 ||
+            state.LowerNeckMovementIndex != 8 || state.UpperNeckMovementIndex != 8 ||
+            state.BrainMainShakeTimer != 0x0032)
+        {
+            throw new InvalidDataException(
+                $"Live Mother Brain Hyper Beam recoil setup diverged: neck=" +
+                $"{sequence.Phase3NeckPhase}/${sequence.Phase3NeckFunctionTimer:X4}, " +
+                $"disable={sequence.Phase3DisableAttacks}, lists=" +
+                $"$A9:{sequence.HeadInstructionList:X4}/${head.CurrentInstruction:X4}, " +
+                $"delta=${state.NeckAngleDelta:X4}, indices=" +
+                $"{state.LowerNeckMovementIndex}/{state.UpperNeckMovementIndex}, shake=" +
+                $"${state.BrainMainShakeTimer:X4}.");
+        }
     }
 
     private static void AuditRestoredMotherBrainAttackTiles(

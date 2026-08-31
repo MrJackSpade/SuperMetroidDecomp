@@ -353,7 +353,7 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// Number of active Mother Brain bombs. Phase two refuses another bomb when this is
-    /// at least one; the future shared bomb translation owns increments and decrements.
+    /// at least one; the shared bank-$86 bomb implementation owns increments and decrements.
     /// </summary>
     public ushort BombCounter { get; internal set; }
 

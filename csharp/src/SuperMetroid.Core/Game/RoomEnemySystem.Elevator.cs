@@ -217,7 +217,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Elevator status {(ushort)ElevatorStatus} is outside $A3:9540's dispatcher.");
         }
     }

@@ -216,7 +216,7 @@ public sealed partial class RoomEnemySystem
                 FinishSkulteraTurn(slot, state, nowMovingLeft: true);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Skultera function $A3:{(ushort)state.Function:X4} is not translated.");
         }
     }

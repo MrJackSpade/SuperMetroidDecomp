@@ -232,7 +232,7 @@ public sealed partial class RoomEnemySystem
                 RunAlcoonHidingFall(slot, state);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Alcoon function $A8:{(ushort)state.Function:X4} is not translated.");
         }
     }

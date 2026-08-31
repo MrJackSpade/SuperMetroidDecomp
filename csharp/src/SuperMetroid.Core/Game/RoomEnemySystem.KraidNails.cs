@@ -48,7 +48,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Kraid fingernail function $A7:{nail.VariableA:X4} is not translated.");
         }
     }

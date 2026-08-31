@@ -175,7 +175,7 @@ public sealed partial class RoomEnemySystem
                 break;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Walking Space Pirate function $B2:{(ushort)state.Function:X4} is not translated.");
         }
 

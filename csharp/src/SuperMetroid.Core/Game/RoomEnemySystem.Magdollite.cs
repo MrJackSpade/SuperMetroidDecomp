@@ -303,7 +303,7 @@ public sealed partial class RoomEnemySystem
                 RunMagdolliteOverlayTrackingFall(slot, state);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Magdollite function $A8:{(ushort)state.Function:X4} is not translated.");
         }
     }

@@ -45,7 +45,7 @@ public sealed partial class RoomEnemySystem
             // This is not a typo: $DB62 reads EnemyProjectile_YVelocity, producing -1 px.
             StokeProjectileMoveLeftFunction => projectile.YVelocity,
             StokeProjectileMoveRightFunction => projectile.XVelocity,
-            _ => throw new NotSupportedException(
+            _ => throw new InvalidDataException(
                 $"Stoke projectile movement pointer $86:{projectile.Variable0:X4} is not translated."),
         };
 

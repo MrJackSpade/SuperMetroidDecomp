@@ -625,7 +625,59 @@ static void VerifySamusKnockbackAndDamageBoost()
     AssertEqual(unchecked((ushort)(humanoidYBeforeCompletion + 2)), expires.YPosition,
         "expired humanoid knockback aligns radius-19 falling body to radius-21 feet");
 
-    Console.WriteLine("  Samus knockback: humanoid/ball starts, timer, 16.16 hurt arc, same-pose animation, cleanup, and damage-boost handoff agree.");
+    // `$90:DDE9` contains carry-clear interrupt entries as real behavior, not missing code.
+    // A grounded turn keeps its current pose and ordinary movement handler while retaining
+    // the producer-owned hurt timer used by Samus flicker.
+    WritePoseDefinition(bus, SamusState.TurningRightToLeftPose,
+        [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+    var suppressedTurnHit = new SamusState
+    {
+        Pose = SamusState.TurningRightToLeftPose,
+        XPosition = 96,
+        YPosition = 96,
+    };
+    bool turnStarted = SamusKnockbackMovement.Start(
+        bus,
+        suppressedTurnHit,
+        controllerInput: 0,
+        knockbackXDirection: 1,
+        knockbackTimer: 7);
+    AssertTrue(!turnStarted, "movement type $0E suppresses knockback transition");
+    AssertTrue(!suppressedTurnHit.KnockbackActive,
+        "suppressed grounded-turn hit leaves normal movement installed");
+    AssertEqual(SamusState.TurningRightToLeftPose, suppressedTurnHit.Pose,
+        "suppressed grounded-turn hit retains pose");
+    AssertEqual(7, suppressedTurnHit.KnockbackTimer,
+        "suppressed grounded-turn hit retains producer hurt timer");
+
+    // The unused movement-type-seven table arm is nevertheless completely defined by the
+    // cartridge. It selects `$33/$34` instead of throwing, then enters the same hurt handler.
+    WritePoseDefinition(bus, SamusState.UnusedKnockbackRightPose,
+        [0x08, 0x07, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusState.UnusedKnockbackLeftPose,
+        [0x04, 0x07, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
+    WriteTestWord(bus, 0x91b010 + SamusState.UnusedKnockbackRightPose * 2, 0xc170);
+    WriteTestWord(bus, 0x91b010 + SamusState.UnusedKnockbackLeftPose * 2, 0xc171);
+    bus.WriteByte(0x91c170, 4);
+    bus.WriteByte(0x91c171, 4);
+    var unusedMovementHit = new SamusState
+    {
+        Pose = SamusState.UnusedKnockbackRightPose,
+        XPosition = 96,
+        YPosition = 96,
+    };
+    bool unusedStarted = SamusKnockbackMovement.Start(
+        bus,
+        unusedMovementHit,
+        controllerInput: 0,
+        knockbackXDirection: 0);
+    AssertTrue(unusedStarted, "movement type $07 installs native unused knockback arm");
+    AssertEqual(SamusState.UnusedKnockbackRightPose, unusedMovementHit.Pose,
+        "movement type $07 selects right-facing pose $33");
+    AssertTrue(unusedMovementHit.KnockbackActive,
+        "movement type $07 installs special hurt movement");
+
+    Console.WriteLine("  Samus knockback: all 28 interrupt entries, humanoid/ball starts, timer, 16.16 hurt arc, cleanup, and damage-boost handoff agree.");
 }
 
 /// <summary>

@@ -229,7 +229,7 @@ public sealed partial class RoomEnemySystem
                 RunMaridiaLargeSnailAttack(slot, state);
                 break;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Maridia Large Snail function $A2:{(ushort)state.Function:X4} is not translated.");
         }
 
@@ -398,7 +398,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Maridia Large Snail bounce function " +
                     $"$A2:{(ushort)state.BounceFunction:X4} is not translated.");
         }

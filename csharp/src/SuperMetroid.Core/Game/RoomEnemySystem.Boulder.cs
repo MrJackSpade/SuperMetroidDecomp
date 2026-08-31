@@ -167,7 +167,7 @@ public sealed partial class RoomEnemySystem
             case BoulderAiFunction.Inert:
                 break;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Boulder function $A6:{(ushort)state.Function:X4} is not translated.");
         }
     }

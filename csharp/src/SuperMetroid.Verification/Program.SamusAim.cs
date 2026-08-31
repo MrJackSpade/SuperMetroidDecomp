@@ -146,7 +146,7 @@ static void VerifySamusStandingAimMovement()
     SamusGroundedMovement.StepStandingLeft(bus, level, leftSamus, nmiFrameCounter: 1);
     AssertEqual(0u, leftSamus.HorizontalSpeed.BaseFixed, "left aimed running-to-standing cleanup");
 
-    AssertThrows<NotSupportedException>(
+    AssertThrows<InvalidOperationException>(
         () => leftSamus.ApplyGroundedAimTransition(
             bus, SamusState.StandingAimUpRightPose),
         "standing aim transition cannot cross facing families");
@@ -287,7 +287,7 @@ static void VerifySamusAimedAerialMovement()
     ushort compactCenterY = samus.YPosition;
     uint compactVelocity = samus.Kinematics.VerticalSpeedFixed;
     ushort compactDirection = samus.Kinematics.YDirection;
-    AssertThrows<NotSupportedException>(
+    AssertThrows<InvalidOperationException>(
         () => samus.ApplyAerialAimTransition(bus, SamusState.NormalJumpAimDownRightPose),
         "compact aim requires room-aware collision route");
     AssertTrue(

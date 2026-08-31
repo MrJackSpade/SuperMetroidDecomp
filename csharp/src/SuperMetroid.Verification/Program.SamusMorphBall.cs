@@ -41,6 +41,8 @@ static void VerifySamusMorphBallMovement()
     WritePose(SamusState.SpringBallFallingLeftPose, [0x04, 0x13, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
     WritePose(SamusState.SpringBallJumpRightPose, [0x08, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
     WritePose(SamusState.SpringBallJumpLeftPose, [0x04, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusState.NormalJumpForwardRightPose, [0x08, 0x02, 0x4d, 0x02, 0x00, 0x00, 0x15, 0x00]);
+    WritePose(SamusState.NormalJumpForwardLeftPose, [0x04, 0x02, 0x4e, 0x07, 0x00, 0x00, 0x15, 0x00]);
 
     // Stable ordinary-ball poses all point to `$91:B378`. Separate synthetic storage keeps
     // the production pointer lookup real while making the expected command stream concise.
@@ -60,6 +62,8 @@ static void VerifySamusMorphBallMovement()
         SamusState.SpringBallFallingLeftPose,
         SamusState.SpringBallJumpRightPose,
         SamusState.SpringBallJumpLeftPose,
+        SamusState.NormalJumpForwardRightPose,
+        SamusState.NormalJumpForwardLeftPose,
     })
     {
         WriteTestWord(bus, 0x91b010 + pose * 2, sharedBallDelay);
@@ -189,6 +193,165 @@ static void VerifySamusMorphBallMovement()
     samus.ApplyMorphBallWalkOff(bus);
     AssertEqual(SamusState.MorphBallFallingLeftPose, samus.Pose, "left ball walk-off endpoint");
     AssertEqual(2, samus.Kinematics.YDirection, "ball walk-off starts falling");
+
+    // None of the four native ball wrappers has a separate Speed-Booster branch. Their
+    // horizontal helpers all end at `$90:E4E6`, which adds the inherited `$0B42.$0B44`
+    // extra-run component to the wrapper's selected base magnitude. These fixtures retain
+    // a deliberately fractional inherited component so a future integer-only shortcut
+    // cannot accidentally pass. The individual wrappers still own their native teardown:
+    // falling clears momentum only when no direction is held and mode is zero; a stable
+    // grounded ball clears it after the no-speed vertical path; the moving and airborne
+    // routes below retain it.
+    var boostedRoll = new SamusState
+    {
+        Pose = SamusState.MorphBallMovingRightPose,
+        XPosition = 32,
+        YPosition = 32,
+    };
+    boostedRoll.RefreshCollisionRadii(bus);
+    boostedRoll.HorizontalSpeed.ExtraRunSpeed = 1;
+    boostedRoll.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
+    SamusMorphBallMovement.StepGrounded(bus, empty, boostedRoll, nmiFrameCounter: 0);
+    AssertEqual(34, boostedRoll.XPosition,
+        "grounded moving ball adds inherited 1.8000 extra speed to 0.8000 base");
+    AssertEqual(0, boostedRoll.Kinematics.XSubposition,
+        "grounded moving ball preserves exact fractional carry from total speed");
+    AssertEqual(1, boostedRoll.HorizontalSpeed.ExtraRunSpeed,
+        "moving ball retains inherited extra-run whole word");
+    AssertEqual(0x8000, boostedRoll.HorizontalSpeed.ExtraRunSubspeed,
+        "moving ball retains inherited extra-run fractional word");
+
+    var boostedFall = new SamusState
+    {
+        Pose = SamusState.MorphBallFallingLeftPose,
+        XPosition = 32,
+        YPosition = 32,
+    };
+    boostedFall.RefreshCollisionRadii(bus);
+    boostedFall.HorizontalSpeed.ExtraRunSpeed = 1;
+    boostedFall.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
+    boostedFall.Kinematics.YDirection = 2;
+    SamusMorphBallMovement.StepFalling(
+        bus,
+        empty,
+        boostedFall,
+        controllerInput: (ushort)SnesButton.Left,
+        nmiFrameCounter: 0);
+    AssertEqual(30, boostedFall.XPosition,
+        "held-left falling ball subtracts inherited 1.8000 extra speed");
+    AssertEqual(0x8000, boostedFall.Kinematics.XSubposition,
+        "falling-left subtraction retains fractional position");
+    AssertEqual(1, boostedFall.HorizontalSpeed.ExtraRunSpeed,
+        "direction-held falling ball retains extra-run momentum");
+
+    var boostedSpring = new SamusState
+    {
+        Pose = SamusState.SpringBallJumpRightPose,
+        XPosition = 32,
+        YPosition = 32,
+    };
+    boostedSpring.RefreshCollisionRadii(bus);
+    boostedSpring.HorizontalSpeed.ExtraRunSpeed = 1;
+    boostedSpring.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
+    boostedSpring.Kinematics.YDirection = 2;
+    SamusMorphBallMovement.StepSpringBallInAir(
+        bus,
+        empty,
+        boostedSpring,
+        controllerInput: (ushort)SnesButton.Right,
+        nmiFrameCounter: 0);
+    AssertEqual(33, boostedSpring.XPosition,
+        "Spring-Ball air handler adds inherited extra-run speed through shared jump movement");
+    AssertEqual(0x8000, boostedSpring.Kinematics.XSubposition,
+        "Spring-Ball air handler retains inherited fractional displacement");
+
+    var boostedTransition = new SamusState
+    {
+        Pose = SamusState.MorphingTransitionRightPose,
+        XPosition = 32,
+        YPosition = 32,
+    };
+    boostedTransition.RefreshCollisionRadii(bus);
+    boostedTransition.HorizontalSpeed.ExtraRunSpeed = 1;
+    boostedTransition.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
+    SamusMorphBallMovement.StepTransition(
+        bus,
+        empty,
+        boostedTransition,
+        nmiFrameCounter: 0);
+    AssertEqual(33, boostedTransition.XPosition,
+        "morph transition moves by inherited extra-run speed with zero base");
+    AssertEqual(0x8000, boostedTransition.Kinematics.XSubposition,
+        "morph transition retains inherited fractional displacement");
+
+    // `$90:DFB5-$DFEB` is a complete movement-type dispatcher, not a morphed-only
+    // convenience. Standing/crouching share the frozen-time gate and otherwise select the
+    // same `$51/$52` forward-jump bodies as running/falling/moonwalk/wall/grapple. Starting
+    // from literal crouch also exercises `$91:FDAE`'s radius expansion and `$91:FC7D`'s
+    // additional ten-pixel stable-crouch adjustment before command three arms the jump.
+    var frozenCrouchBombJump = new SamusState
+    {
+        Pose = SamusState.CrouchingRightPose,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    frozenCrouchBombJump.RefreshCollisionRadii(bus);
+    frozenCrouchBombJump.InitializeAnimation(bus);
+    frozenCrouchBombJump.PublishBombJumpDirection(2);
+    AssertTrue(!frozenCrouchBombJump.TrySetupPublishedBombJump(
+            bus,
+            floor,
+            timeIsFrozen: true,
+            nmiFrameCounter: 0),
+        "frozen standing/crouching setup rejects bomb jump");
+    AssertEqual(0, frozenCrouchBombJump.BombJumpDirection,
+        "frozen setup clears complete published direction word");
+    AssertEqual(SamusState.CrouchingRightPose, frozenCrouchBombJump.Pose,
+        "frozen setup retains crouching pose");
+
+    var crouchBombJump = new SamusState
+    {
+        Pose = SamusState.CrouchingLeftPose,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    crouchBombJump.RefreshCollisionRadii(bus);
+    crouchBombJump.InitializeAnimation(bus);
+    crouchBombJump.PublishBombJumpDirection(1);
+    AssertTrue(crouchBombJump.TrySetupPublishedBombJump(
+            bus,
+            floor,
+            timeIsFrozen: false,
+            nmiFrameCounter: 1),
+        "unfrozen crouch follows humanoid bomb-jump setup");
+    AssertEqual(SamusState.NormalJumpForwardLeftPose, crouchBombJump.Pose,
+        "literal left pose direction selects bomb-jump body $52");
+    AssertEqual(21, crouchBombJump.Kinematics.YRadius,
+        "crouch bomb jump installs forward-jump radius from ROM");
+    AssertEqual(33, crouchBombJump.YPosition,
+        "crouch bomb jump combines floor alignment and native ten-pixel lift");
+    AssertEqual(0x0801, crouchBombJump.BombJumpDirection,
+        "humanoid setup executes command three after pose initialization");
+
+    var airborneBombRejection = new SamusState
+    {
+        Pose = SamusState.NormalJumpForwardRightPose,
+        XPosition = 48,
+        YPosition = 32,
+    };
+    airborneBombRejection.RefreshCollisionRadii(bus);
+    airborneBombRejection.InitializeAnimation(bus);
+    airborneBombRejection.PublishBombJumpDirection(3);
+    AssertTrue(!airborneBombRejection.TrySetupPublishedBombJump(
+            bus,
+            empty,
+            timeIsFrozen: false,
+            nmiFrameCounter: 0),
+        "normal-jump movement type uses native carry-clear setup entry");
+    AssertEqual(0, airborneBombRejection.BombJumpDirection,
+        "carry-clear bomb-jump family consumes and clears published direction");
+    AssertTrue(!airborneBombRejection.BombJumpStarting,
+        "carry-clear bomb-jump family does not install special movement");
 
     // Put the airborne body three pixels above the floor and give it a hard downward
     // magnitude. The collision launches bounce one with the two constants at `$90:9EB5`.
@@ -621,7 +784,11 @@ static void VerifySamusMorphBallMovement()
         bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
     AssertEqual(2, bombProjectileSamus.BombJumpDirection,
         "same-X timer-eight overlap publishes straight direction");
-    AssertTrue(bombProjectileSamus.TrySetupPublishedMorphedBombJump(),
+    AssertTrue(bombProjectileSamus.TrySetupPublishedBombJump(
+            bus,
+            floor,
+            timeIsFrozen: false,
+            nmiFrameCounter: 0),
         "following alpha consumes published morphed bomb jump");
     AssertEqual(0x0802, bombProjectileSamus.BombJumpDirection,
         "morphed setup adds command-three bit on following frame");

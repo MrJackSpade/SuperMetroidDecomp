@@ -151,8 +151,8 @@ internal sealed class IntroRinkaSystem
                 return;
 
             default:
-                throw new NotSupportedException(
-                    $"Intro Rinka pre-instruction $8B:{rinka.PreInstructionPointer:X4} is not translated.");
+                throw new InvalidDataException(
+                    $"Intro Rinka names invalid pre-instruction $8B:{rinka.PreInstructionPointer:X4}.");
         }
     }
 

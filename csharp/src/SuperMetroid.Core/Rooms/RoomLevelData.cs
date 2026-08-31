@@ -143,6 +143,49 @@ public sealed class RoomLevelData
     }
 
     /// <summary>
+    /// Reads the logical room block or reproduces bank <c>$82</c>'s prefilled collision
+    /// allocation when a bank-<c>$94</c> scan crosses the authored room boundary.
+    /// </summary>
+    /// <remarks>
+    /// <c>$82:EA73-$EA90</c> fills the complete <c>$6400</c>-byte level-data allocation
+    /// with <c>$8000</c> before decompressing the smaller logical room plane. Native
+    /// collision code indexes that allocation without a logical-width/height guard, so
+    /// nearby out-of-room probes encounter an unconditional type-eight solid. Rendering
+    /// and streaming remain logical-sized; collision callers share this seam instead of
+    /// independently fabricating wrapping or empty terrain.
+    /// </remarks>
+    internal RoomCollisionBlock GetCollisionBlockOrPrefilledSolid(int blockX, int blockY)
+    {
+        if ((uint)blockX >= (uint)WidthInBlocks ||
+            (uint)blockY >= (uint)HeightInBlocks)
+        {
+            return new RoomCollisionBlock(
+                Index: -1,
+                LevelWord: 0x8000,
+                Behavior: 0);
+        }
+
+        return GetCollisionBlock(blockX, blockY);
+    }
+
+    /// <summary>
+    /// Applies the same prefilled-allocation rule after a collision extension has already
+    /// reduced its target to a native row-major index.
+    /// </summary>
+    internal RoomCollisionBlock GetCollisionBlockByIndexOrPrefilledSolid(int blockIndex)
+    {
+        if ((uint)blockIndex >= (uint)_foregroundEntries.Length)
+        {
+            return new RoomCollisionBlock(
+                Index: -1,
+                LevelWord: 0x8000,
+                Behavior: 0);
+        }
+
+        return GetCollisionBlockByIndex(blockIndex);
+    }
+
+    /// <summary>
     /// Reads a native row-major index after bank-$94 type-$5/$D extension arithmetic.
     /// </summary>
     public RoomCollisionBlock GetCollisionBlockByIndex(int blockIndex)
@@ -174,7 +217,11 @@ public sealed class RoomLevelData
         ArgumentNullException.ThrowIfNull(bus);
         if (DoorListPointer is not ushort doorListPointer)
         {
-            throw new NotSupportedException(
+            // Every cartridge-backed room header supplies this pointer. Its nullable form
+            // exists only so focused synthetic collision fixtures need not fabricate bank-
+            // $8F metadata when they contain no type-$9 blocks. Reaching a door in such a
+            // fixture is therefore an invalid host composition, not missing door behavior.
+            throw new InvalidOperationException(
                 "Door collision requires cartridge room metadata; this level has no door list pointer.");
         }
 

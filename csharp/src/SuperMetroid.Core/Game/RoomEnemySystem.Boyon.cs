@@ -206,7 +206,7 @@ public sealed partial class RoomEnemySystem
                 MoveBoyonRising(slot, state);
                 break;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Boyon movement-table index {(ushort)state.BounceMovement} is not translated.");
         }
     }

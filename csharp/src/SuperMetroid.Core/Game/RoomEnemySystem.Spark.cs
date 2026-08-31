@@ -135,7 +135,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Spark function $A8:{(ushort)state.Function:X4} is not translated.");
         }
     }

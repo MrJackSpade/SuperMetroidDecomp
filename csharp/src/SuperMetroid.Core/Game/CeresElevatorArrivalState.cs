@@ -193,9 +193,14 @@ public sealed class CeresElevatorArrivalState
                     cursor = ReadWord(0x860000 | unchecked((ushort)(cursor + 2)));
                     break;
                 default:
-                    throw new NotSupportedException(
+                    // `$86:A299` contains one timed frame followed by the shared goto
+                    // opcode back to itself. Delete is retained because it is part of the
+                    // common enemy-projectile interpreter, although this list never uses
+                    // it. Any third negative word here is corrupt cartridge/list state,
+                    // not another Ceres-elevator instruction arm.
+                    throw new InvalidDataException(
                         $"Ceres elevator eproj $86:{projectile.DefinitionPointer:X4} " +
-                        $"instruction $86:{cursor:X4} opcode ${word:X4} is not translated.");
+                        $"instruction $86:{cursor:X4} has invalid opcode ${word:X4}.");
             }
         }
 

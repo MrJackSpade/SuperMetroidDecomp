@@ -349,8 +349,11 @@ internal sealed class IntroCinematicObjectSystem
                 CopyRectangleToPortrait(destinationX, destinationY, width, height, source);
                 return;
             default:
-                throw new NotSupportedException(
-                    $"Cinematic tile-data function $8B:{drawFunction:X4} at $8C:{dataPointer:X4} is not translated.");
+                // Every active bank-$8C rectangle names one of the three indirect drawing
+                // functions above. An arbitrary function word would make its payload shape
+                // unknowable and is malformed cartridge data for this object class.
+                throw new InvalidDataException(
+                    $"Cinematic tile-data function $8B:{drawFunction:X4} at $8C:{dataPointer:X4} is invalid.");
         }
     }
 
@@ -445,6 +448,6 @@ internal sealed class IntroCinematicObjectSystem
 
     private static ushort Add(ushort pointer, int byteCount) => unchecked((ushort)(pointer + byteCount));
 
-    private static NotSupportedException Unsupported(string kind, ushort opcode, ushort pointer) =>
-        new($"Cinematic {kind} opcode $8B:{opcode:X4}, read from ${pointer:X4}, is not translated.");
+    private static InvalidDataException Unsupported(string kind, ushort opcode, ushort pointer) =>
+        new($"Cinematic {kind} opcode $8B:{opcode:X4}, read from ${pointer:X4}, is invalid for the active retail stream.");
 }

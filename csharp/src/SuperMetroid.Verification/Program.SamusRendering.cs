@@ -291,6 +291,17 @@ static void VerifySamusRenderingSlice()
         AssertEqual(expectedSprites, oam.LastFinalizedSpriteCount, name);
     }
 
+    // `$90:864E` contains exactly 28 bottom-half handlers, and the complete retail
+    // `$91:B629-$BD0F` pose table never stores a movement byte above `$1B`. A synthetic
+    // larger value is malformed metadata, not an untranslated draw selector.
+    WritePoseDefinition(bus, 0x64, [8, 0x1c, 0xff, 0xff, 0, 0, 16, 0]);
+    samus.Pose = 0x64;
+    samus.AnimationFrame = 0;
+    oam.BeginFrame();
+    AssertThrows<InvalidDataException>(
+        () => samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: samus.YPosition),
+        "movement type beyond complete bottom-half table is rejected as malformed pose data");
+
     // Positioning must consume those same ROM bytes instead of duplicating a convenient
     // host switch. `$37` proves signed -4/-2 values; unused `$39` proves that the native
     // zero record remains admitted and does not fall through to its nonzero pose offset.

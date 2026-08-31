@@ -92,7 +92,7 @@ public sealed partial class MotherBrainEnemyProjectileSystem
                     return true;
 
                 default:
-                    throw new NotSupportedException(
+                    throw new InvalidDataException(
                         $"{definitionName} instruction $86:{durationOrOpcode:X4} at " +
                         $"$86:{pointer:X4} is not translated.");
             }
@@ -308,7 +308,7 @@ public sealed partial class MotherBrainEnemyProjectileSystem
 
             if (durationOrOpcode != GotoInstruction)
             {
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"{projectileName} instruction $86:{durationOrOpcode:X4} at " +
                     $"$86:{pointer:X4} is not translated.");
             }
@@ -391,7 +391,7 @@ public sealed partial class MotherBrainEnemyProjectileSystem
 
             if (durationOrOpcode != GotoInstruction)
             {
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Escape-door particle instruction $86:{durationOrOpcode:X4} at " +
                     $"$86:{pointer:X4} is not translated.");
             }
@@ -566,7 +566,7 @@ public sealed partial class MotherBrainEnemyProjectileSystem
                     return;
 
                 default:
-                    throw new NotSupportedException(
+                    throw new InvalidDataException(
                         $"Mother Brain projectile instruction $86:{durationOrOpcode:X4} at " +
                         $"$86:{pointer:X4} is not translated.");
             }

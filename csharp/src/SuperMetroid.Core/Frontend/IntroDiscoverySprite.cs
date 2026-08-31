@@ -142,8 +142,10 @@ internal sealed class IntroDiscoverySprite
                     ushort? next = specialInstruction?.Invoke(word, Add(cursor, 2));
                     if (next is null)
                     {
-                        throw new NotSupportedException(
-                            $"Baby-discovery sprite opcode $8B:{word:X4} at $8B:{cursor:X4} is not translated.");
+                        // Private opcodes are owned by the containing cinematic object.
+                        // A null callback result means the wrong owner/list were composed.
+                        throw new InvalidOperationException(
+                            $"Baby-discovery sprite opcode $8B:{word:X4} at $8B:{cursor:X4} was not handled by its owner.");
                     }
                     cursor = next.Value;
                     break;

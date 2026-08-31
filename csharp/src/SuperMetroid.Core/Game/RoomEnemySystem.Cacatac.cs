@@ -202,7 +202,7 @@ public sealed partial class RoomEnemySystem
             case CacatacEnemyFunction.Stopped:
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Cacatac function $A2:{(ushort)state.Function:X4} is not translated.");
         }
     }

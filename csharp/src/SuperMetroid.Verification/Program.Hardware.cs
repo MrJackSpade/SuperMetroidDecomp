@@ -213,6 +213,32 @@ static void VerifyVramWriteQueue()
     AssertThrows<ArgumentOutOfRangeException>(() => queue.Enqueue(0, 0x808000, 0), "zero-size VRAM entry rejected");
     AssertThrows<ArgumentOutOfRangeException>(() => queue.Enqueue(1, 0x1000000, 0), "25-bit VRAM source rejected");
 
+    // A direct channel DAS of zero is not the queue's zero-word terminator. Hardware
+    // decrements the sixteen-bit counter through all $10000 values, while A1T and VMADD
+    // wrap independently inside their fixed banks/address widths. Start at xx:FFFE so the
+    // first four bytes prove the A-bus wrap, then mark the final source pair as well.
+    var fullDmaVram = new SnesVram();
+    var dirtyVram = new byte[SnesVram.ByteCount];
+    Array.Fill(dirtyVram, (byte)0x7e);
+    fullDmaVram.LoadBytes(0, dirtyVram);
+    bus.WriteByte(0x80fffe, 0xa0);
+    bus.WriteByte(0x80ffff, 0xa1);
+    bus.WriteByte(0x800000, 0xa2);
+    bus.WriteByte(0x800001, 0xa3);
+    bus.WriteByte(0x80fffc, 0xfe);
+    bus.WriteByte(0x80fffd, 0xff);
+    fullDmaVram.ExecuteHardwareDmaWrite(
+        bus,
+        sourceAddress: 0x80fffe,
+        dmaSize: 0,
+        encodedDestination: 0);
+    AssertEqual(0xa0, fullDmaVram.ReadByte(0), "DAS-zero first source byte");
+    AssertEqual(0xa1, fullDmaVram.ReadByte(1), "DAS-zero second source byte");
+    AssertEqual(0xa2, fullDmaVram.ReadByte(2), "DAS-zero A-bus offset wrap low byte");
+    AssertEqual(0xa3, fullDmaVram.ReadByte(3), "DAS-zero A-bus offset wrap high byte");
+    AssertEqual(0xfe, fullDmaVram.ReadByte(0xfffe), "DAS-zero penultimate source byte");
+    AssertEqual(0xff, fullDmaVram.ReadByte(0xffff), "DAS-zero final source byte");
+
     // Fill a fresh queue to its real table boundary. The next seven-byte record would
     // leave insufficient space for the two-byte terminator and must be rejected.
     var fullQueue = new VramWriteQueue();
@@ -220,7 +246,7 @@ static void VerifyVramWriteQueue()
         fullQueue.Enqueue(1, 0x808000, 0);
     AssertThrows<InvalidOperationException>(() => fullQueue.Enqueue(1, 0x808000, 0), "VRAM queue overflow rejected");
 
-    Console.WriteLine("  VRAM: write queue, VMAIN stepping, wrap, and reset agree.");
+    Console.WriteLine("  VRAM: write queue, VMAIN stepping, bank/VMADD wrap, DAS zero, and reset agree.");
 }
 
 /// <summary>
@@ -424,7 +450,7 @@ static void VerifySuperMetroidAddressSpace()
     AssertEqual(0x77, bus.ReadByte(0xf00123), "8 KiB SRAM bank mirror");
 
     AssertThrows<InvalidOperationException>(() => bus.WriteByte(0x808000, 0), "ROM writes rejected");
-    AssertThrows<NotSupportedException>(() => bus.ReadByte(0x004000), "unimplemented register/expansion read rejected");
+    AssertThrows<InvalidOperationException>(() => bus.ReadByte(0x004000), "unimplemented register/expansion read rejected");
     AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroidAddressSpace.ToRomOffset(0x800000), "lower LoROM offset rejected");
 
     Console.WriteLine("  Bus: LoROM, WRAM, SRAM mirrors and protection agree.");

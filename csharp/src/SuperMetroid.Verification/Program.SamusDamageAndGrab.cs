@@ -683,6 +683,13 @@ static void VerifySamusGrabbedByDraygon()
     AssertEqual(SamusState.DraygonGrabbedNeutralRightPose,
         samus.ReadNoInputFallbackPose(bus), "right grabbed aim fallback is $EC");
     samus.ApplyDraygonGrabbedPoseChange(bus, samus.ReadNoInputFallbackPose(bus));
+    AssertThrows<InvalidOperationException>(
+        () => samus.ApplyDraygonGrabbedPoseChange(
+            bus,
+            SamusState.DraygonGrabbedNeutralLeftPose),
+        "Draygon input table cannot cross owner-controlled facing families");
+    AssertEqual(SamusState.DraygonGrabbedNeutralRightPose, samus.Pose,
+        "rejected cross-family Draygon input retains current pose");
 
     DraygonEscapeResult locked = samus.DraygonGrabbed.StepEscapeHandler(
         bus, samus, newlyPressedInput: 0, grappleLockedInPlace: true);

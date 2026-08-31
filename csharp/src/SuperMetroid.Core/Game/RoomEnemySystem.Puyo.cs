@@ -211,7 +211,7 @@ public sealed partial class RoomEnemySystem
                 RunAirbornePuyo(slot, state, level);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Puyo function $A2:{(ushort)state.Function:X4} is not translated.");
         }
     }
@@ -337,7 +337,7 @@ public sealed partial class RoomEnemySystem
                 RunDroppedPuyo(slot, state, level);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Puyo airborne function $A2:{(ushort)state.AirborneFunction:X4} " +
                     "is not translated.");
         }

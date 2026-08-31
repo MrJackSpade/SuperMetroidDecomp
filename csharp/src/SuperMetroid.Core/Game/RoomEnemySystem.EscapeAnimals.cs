@@ -216,7 +216,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Escape Etecoon pre-instruction $B3:{(ushort)state.PreInstruction:X4} " +
                     "is not translated.");
         }

@@ -95,8 +95,11 @@ public sealed partial class SamusProjectileSystem
         }
         else
         {
-            throw new NotSupportedException(
-                $"Projectile family ${slot.PackedType.FamilyValue:X3} cannot be reflected.");
+            // The native reflection producer only selects beams and the two missile
+            // families. Reaching this method with a bomb/explosion payload is corrupt
+            // scheduler state rather than an unimplemented reflection behavior.
+            throw new InvalidDataException(
+                $"Projectile family ${slot.PackedType.FamilyValue:X3} is not reflectable.");
         }
 
         ushort dataPointer = ReadWord(bus, dataPointerTable + dataPointerIndex * 2);

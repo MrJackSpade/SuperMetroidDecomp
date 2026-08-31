@@ -142,7 +142,7 @@ public sealed partial class RoomEnemySystem
                 SetupMotherBrainPhaseTwoGraphics(state);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Mother Brain fake-death function $A9:{(ushort)state.Function:X4} is not translated.");
         }
     }
@@ -223,7 +223,7 @@ public sealed partial class RoomEnemySystem
             {
                 if (command != MotherBrainPaletteFlashGoto)
                 {
-                    throw new NotSupportedException(
+                    throw new InvalidDataException(
                         $"Mother Brain room-palette opcode $A9:{command:X4} is not translated.");
                 }
 
@@ -390,7 +390,7 @@ public sealed partial class RoomEnemySystem
             case MotherBrainTubeCollapseFunction.Finished:
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Mother Brain tube function $A9:{(ushort)state.TubeCollapseFunction:X4} is not translated.");
         }
     }
@@ -444,7 +444,7 @@ public sealed partial class RoomEnemySystem
         }
         else if (projectile.Variable0 != 0xcc08)
         {
-            throw new NotSupportedException(
+            throw new InvalidDataException(
                 $"Mother Brain ceiling tube function $86:{projectile.Variable0:X4} is not translated.");
         }
 
@@ -536,7 +536,7 @@ public sealed partial class RoomEnemySystem
                 FallMotherBrainTube(tube, mainTube: true);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Mother Brain falling tube function $A9:{tube.VariableA:X4} is not translated.");
         }
     }

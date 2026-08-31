@@ -201,19 +201,16 @@ public static class SamusGroundedMovement
             bus,
             liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
 
-        // $90:8E64 -> $90:9A7E advances the split 16.16 base speed, then $90:8EA9 and
-        // $90:E4AD publish total speed and construct a rightward displacement. Pose $09's
-        // pose-X direction byte is four. Acceleration mode zero accelerates right; mode two
-        // is the native no-button momentum state and decelerates while retaining direction.
-        if (speed.AccelerationMode is not (0 or 2))
-        {
-            throw new NotSupportedException(
-                "Running-right acceleration mode one requires the unported reversal path.");
-        }
+        // `$90:8E64 -> $90:9A7E` advances the split 16.16 base speed. The following
+        // `$90:8EA9` direction selector is shared by every horizontal movement family:
+        // modes zero and two obey the pose's direction byte, while every other nonzero
+        // value reverses it. Mode one is therefore not an invalid running state; it is the
+        // one-frame-old momentum that can survive a pose transition into this body.
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 1);
-        int requestedHorizontal = speed.CalculateRightDisplacement(
-            baseSpeed,
-            samus.Kinematics.ExtraXFixed);
+        bool movesLeft = speed.AccelerationMode is not (0 or 2);
+        int requestedHorizontal = movesLeft
+            ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
+            : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -264,18 +261,14 @@ public static class SamusGroundedMovement
             bus,
             liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
 
-        // Modes zero and two use the pose's normal direction in $90:8EA9. Pose $0A stores
-        // $04, selecting $90:E464's subtraction-based left displacement. Mode one belongs
-        // exclusively to the separately translated grounded-turn handler below.
-        if (speed.AccelerationMode is not (0 or 2))
-        {
-            throw new NotSupportedException(
-                "Running-left acceleration mode one must execute through the grounded-turn pose.");
-        }
+        // Do not special-case mode one here. `$90:8EA9` reverses the literal pose direction
+        // for every nonzero mode except two, even if another input-side transition has
+        // already changed the visible running pose.
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 1);
-        int requestedHorizontal = speed.CalculateLeftDisplacement(
-            baseSpeed,
-            samus.Kinematics.ExtraXFixed);
+        bool movesLeft = speed.AccelerationMode is 0 or 2;
+        int requestedHorizontal = movesLeft
+            ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
+            : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -324,41 +317,38 @@ public static class SamusGroundedMovement
             throw new InvalidOperationException($"Grounded type-$17 admission requires an aimed crouched turn, not ${samus.Pose:X2}.");
         if (movementType == 0x17 && samus.Kinematics.YDirection != 0)
         {
-            throw new NotSupportedException(
-                $"Crouched turn pose ${samus.Pose:X2} became airborne; the type-$17 aerial branch is not translated by this grounded slice.");
+            throw new InvalidOperationException(
+                $"Airborne type-$17 turn pose ${samus.Pose:X2} must execute through SamusAerialMovement.StepTurningInAir.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
+        ushort liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
+        speed.SelectEnvironmentSpeedTable(liquidMedium);
 
-        // `$91:F8D3` consumed the complete extra component when the turn pose was installed.
-        // A nonzero pair here could therefore only have been introduced after that exact
-        // transition seam and is not a valid ordinary grounded-turn state.
-        if (speed.ExtraRunSpeed != 0 || speed.ExtraRunSubspeed != 0)
-        {
-            throw new NotSupportedException(
-                "Grounded turning with newly introduced extra run speed is not translated.");
-        }
-        if (speed.AccelerationMode is not (0 or 1))
-        {
-            throw new NotSupportedException(
-                $"Grounded turn reached unsupported acceleration mode {speed.AccelerationMode}.");
-        }
+        // The native type-$0E/$17 handler calls the complete `$90:8E64` X routine before
+        // cancelling boost. Because this movement type is not running, `$90:973E` cannot
+        // add speed; it either clears an unowned pair or preserves an already established
+        // momentum pair for this final movement frame. The unconditional cancellation and
+        // zero writes below then retire it in the cartridge's original order.
+        speed.HandleExtraRunSpeed(
+            movementType,
+            controllerInput: 0,
+            speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
+            bus,
+            liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
 
         // The pose's literal `$0E` or `$17` twelve-byte speed-table record supplies the
         // deceleration. If subtraction crosses below zero,
         // $90:9B0A clears both speed halves AND mode before $90:8EA9 chooses direction.
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
 
-        // $90:8EA9 inverts the pose direction only while mode is nonzero and not two:
-        //   right-to-left records have direction $04, so mode 1 carries old RIGHTWARD momentum;
-        //   left-to-right records have direction $08, so mode 1 carries old LEFTWARD momentum.
-        // Once CalculateBaseSpeed clears mode at zero, these helpers switch to the new
-        // facing direction, but the zero displacement makes that final switch invisible.
-        bool movesLeft = speed.AccelerationMode == 1 ? turnsRight : turnsLeft;
-        int requestedHorizontal = movesLeft
-            ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
-            : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
+        // `$90:8EA9` reads the pose definition rather than the English-facing name. Keeping
+        // the literal direction byte also preserves the cartridge's behavior for unexpected
+        // nonzero acceleration-mode values instead of manufacturing another unsupported arm.
+        int requestedHorizontal = CalculateDirectedHorizontalDisplacement(
+            bus,
+            samus,
+            baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -385,7 +375,7 @@ public static class SamusGroundedMovement
 
     /// <summary>
     /// Ports <c>SamusMovement_Moonwalking</c> at <c>$90:A694</c> for stable poses
-    /// `$49/$4A/$75-$78` in dry air without run-button extra speed.
+    /// `$49/$4A/$75-$78`, including the complete shared extra-run-speed prepass.
     /// </summary>
     public static GroundedMovementResult StepMoonwalking(
         ISnesAddressSpace bus,
@@ -403,29 +393,28 @@ public static class SamusGroundedMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
+        ushort liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
+        speed.SelectEnvironmentSpeedTable(liquidMedium);
 
-        // `$90:A697` calls the same complete X path as running. The no-run-button slice
-        // cannot erase an extra component written by a future speed-booster implementation.
-        if (speed.ExtraRunSpeed != 0 || speed.ExtraRunSubspeed != 0)
-        {
-            throw new NotSupportedException(
-                "Moonwalking with extra run speed requires the untranslated $90:973E branch.");
-        }
-        if (speed.AccelerationMode is not (0 or 2))
-        {
-            throw new NotSupportedException(
-                $"Stable moonwalking reached unsupported acceleration mode {speed.AccelerationMode}.");
-        }
+        // `$90:A697` calls `Samus_X_Movement`, whose first operation is `$90:973E`.
+        // Movement type `$10` can never enter that routine's Dash-acceleration arm, but an
+        // existing momentum flag deliberately carries the extra pair through moonwalking;
+        // without the flag the pair is cleared before displacement is calculated.
+        speed.HandleExtraRunSpeed(
+            movementType: 0x10,
+            controllerInput: 0,
+            speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
+            bus,
+            liquidImpeded: liquidMedium != SamusLiquidPhysicsState.Air);
 
-        // Type `$10` has its own twelve-byte speed record. The pose-X bytes are intentionally
-        // opposite the visible facing: left-facing `$49/$75/$77` store eight and move right;
-        // right-facing `$4A/$76/$78` store four and move left. Do not derive travel from names.
+        // Type `$10` has its own twelve-byte speed record. Its pose-X bytes intentionally
+        // produce travel opposite the visible facing; mode one reverses that byte just as it
+        // does for every other family. Do not derive either direction from the pose's name.
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 0x10);
-        bool movesLeft = samus.IsFacingLeft(bus);
-        int requestedHorizontal = movesLeft
-            ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
-            : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
+        int requestedHorizontal = CalculateDirectedHorizontalDisplacement(
+            bus,
+            samus,
+            baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
@@ -442,6 +431,32 @@ public static class SamusGroundedMovement
             samus,
             nmiFrameCounter);
         return new GroundedMovementResult(horizontal, vertical);
+    }
+
+    /// <summary>
+    /// Executes the direction half of <c>$90:8EA9</c> after a caller has calculated the
+    /// family-specific base speed. Modes zero and two use the literal pose-X byte; any other
+    /// nonzero value reverses it. The latter is normally mode one, but the 65C816 routine
+    /// performs comparisons rather than validating an enum, so this helper preserves that
+    /// behavior for every possible word value.
+    /// </summary>
+    private static int CalculateDirectedHorizontalDisplacement(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        uint baseSpeed)
+    {
+        byte direction = samus.ReadPoseXDirection(bus);
+        bool reversePoseDirection = samus.HorizontalSpeed.AccelerationMode is not (0 or 2);
+        bool movesLeft = reversePoseDirection
+            ? direction == 8
+            : direction == 4;
+        return movesLeft
+            ? samus.HorizontalSpeed.CalculateLeftDisplacement(
+                baseSpeed,
+                samus.Kinematics.ExtraXFixed)
+            : samus.HorizontalSpeed.CalculateRightDisplacement(
+                baseSpeed,
+                samus.Kinematics.ExtraXFixed);
     }
 
     /// <summary>

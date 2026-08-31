@@ -336,6 +336,8 @@ internal static partial class Program
         sourceSystem.SetRoomChozoBit(0);
         sourceSystem.SetRoomChozoBit(91);
         sourceSystem.SetRoomChozoBit(511);
+        sourceSystem.SetEvent((int)EventNumber.TourianUnlocked);
+        sourceSystem.SetBossBits(2, BossBits.AreaBoss | BossBits.AreaTorizo);
         var sourceSamus = new SamusState
         {
             CollectedBeams = (ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Ice),
@@ -357,6 +359,12 @@ internal static partial class Program
         AssertTrue(restoredSystem.HasRoomChozoBit(0), "first room Chozo bit round-trips");
         AssertTrue(restoredSystem.HasRoomChozoBit(91), "middle room Chozo bit round-trips");
         AssertTrue(restoredSystem.HasRoomChozoBit(511), "last room Chozo bit round-trips");
+        AssertTrue(restoredSystem.HasEvent((int)EventNumber.TourianUnlocked),
+            "event bytes round-trip through SRAM");
+        AssertTrue(restoredSystem.HasAnyBossBits(2, BossBits.AreaBoss),
+            "area boss byte round-trips through SRAM");
+        AssertTrue(restoredSystem.HasAnyBossBits(2, BossBits.AreaTorizo),
+            "area Torizo bit round-trips through SRAM");
         AssertEqual(sourceSamus.CollectedBeams, restoredSamus.CollectedBeams,
             "collected beam word round-trips independently from equipped beams");
         AssertEqual(sourceSamus.EquippedBeams, restoredSamus.EquippedBeams,

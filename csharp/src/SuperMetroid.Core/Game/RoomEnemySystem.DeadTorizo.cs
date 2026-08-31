@@ -180,7 +180,7 @@ public sealed partial class RoomEnemySystem
                 break;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Dead Torizo function $A9:{slot.VariableA:X4} is not translated.");
         }
 

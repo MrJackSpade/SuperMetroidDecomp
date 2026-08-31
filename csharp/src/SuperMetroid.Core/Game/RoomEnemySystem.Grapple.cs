@@ -49,7 +49,7 @@ public sealed partial class RoomEnemySystem
                     GrappleEnemyReaction.AttachWithoutInvincibility,
                 GrappleAttachAndParalyze => GrappleEnemyReaction.AttachAndParalyze,
                 GrappleHurtSamus => GrappleEnemyReaction.HurtSamus,
-                _ => throw new NotSupportedException(
+                _ => throw new InvalidDataException(
                     $"Enemy ${enemy.EnemyDefinitionPointer:X4} grapple AI " +
                     $"${enemy.Definition.Bank:X2}:{enemy.Definition.GrappleAiPointer:X4} " +
                     "is not one of the translated common reactions."),
@@ -146,7 +146,7 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Enemy ${enemy.EnemyDefinitionPointer:X4} grapple AI " +
                     $"${enemy.Definition.Bank:X2}:{enemy.Definition.GrappleAiPointer:X4} is not translated.");
         }

@@ -148,7 +148,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Ceres door main function $A6:{slot.VariableA:X4} is not translated.");
         }
     }

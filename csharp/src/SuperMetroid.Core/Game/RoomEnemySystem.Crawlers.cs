@@ -210,7 +210,7 @@ public sealed partial class RoomEnemySystem
                 RunCrawlerFalling(slot, state, level);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"HZoomer function $A3:{(ushort)state.Function:X4} is not translated.");
         }
     }
@@ -342,7 +342,7 @@ public sealed partial class RoomEnemySystem
                 RunCrawlerHorizontal(slot, state, level);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Crawler function $A3:{(ushort)state.Function:X4} is not translated.");
         }
     }

@@ -336,6 +336,43 @@ static void VerifySamusGrappleSwingAndRelease()
             $"firing spike BTS ${behavior:X2} periodic damage");
     }
 
+    // The remaining four bank-$94 endpoint entries share their projectile/bomb PLM setup
+    // with ordinary weapons, but grapple itself has projectile family zero.  Types four
+    // and seven therefore remain air; their solid twins C and F cancel the live beam.
+    // BTS C selects one of the retail no-op projectile-shot PLMs for types four/C, proving
+    // that the shared reaction side effect is retained independently of collision carry.
+    foreach ((ushort collisionWord, bool expectedCancellation, int expectedPlms) in new[]
+    {
+        // A clear-carry type-four endpoint survives all four fractional probes, so each
+        // probe allocates its own one-handler native no-op slot.  Solid type C stops at
+        // the first carry-set probe and therefore allocates exactly one.
+        ((ushort)0x4000, false, 4),
+        ((ushort)0x7000, false, 0),
+        ((ushort)0xc000, true, 1),
+        ((ushort)0xf000, true, 0),
+    })
+    {
+        var endpointBlocks = new ushort[8 * 8];
+        var endpointBts = new byte[endpointBlocks.Length];
+        endpointBlocks[3 * 8 + 3] = collisionWord;
+        endpointBts[3 * 8 + 3] = 0x0c;
+        RoomLevelData endpointLevel = CreateRoom(8, 8, endpointBlocks, endpointBts);
+        var endpointPlms = new RoomPlmSystem();
+        SamusState endpointSamus = CreateSamus(SamusState.FallingRightPose, 32, 48);
+        SamusGrappleMovement.BeginFiring(bus, endpointSamus);
+        SamusGrappleMovement.StepFiring(
+            bus, endpointLevel, endpointSamus, (ushort)SnesButton.X, endpointPlms);
+        GrappleMovementResult endpointReaction = SamusGrappleMovement.StepFiring(
+            bus, endpointLevel, endpointSamus, (ushort)SnesButton.X, endpointPlms);
+
+        AssertEqual(expectedCancellation, endpointReaction.CancelQueued,
+            $"grapple endpoint type ${(collisionWord >> 12):X1} cancellation topology");
+        AssertEqual(!expectedCancellation, endpointReaction.Fired,
+            $"grapple endpoint type ${(collisionWord >> 12):X1} live-beam topology");
+        AssertEqual(expectedPlms, endpointPlms.ActiveCount,
+            $"grapple endpoint type ${(collisionWord >> 12):X1} shared PLM side effect");
+    }
+
     // Length grows before collision checks. Values 12..120 receive their four probes, but
     // the next addition produces 132 and queues cancellation without moving the endpoint.
     var emptyWideBlocks = new ushort[16 * 8];

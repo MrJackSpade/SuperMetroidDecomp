@@ -58,7 +58,7 @@ public sealed partial class RoomEnemySystem
                 FireKraidLint(lint, part);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Kraid lint slot {lint.SlotIndex} function $A7:{lint.VariableA:X4} " +
                     "is not translated.");
         }
@@ -166,7 +166,7 @@ public sealed partial class RoomEnemySystem
                 RunKraidSecondPhaseWalkingLeft(body, foot);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Kraid foot function $A7:{foot.VariableA:X4} is not translated.");
         }
     }

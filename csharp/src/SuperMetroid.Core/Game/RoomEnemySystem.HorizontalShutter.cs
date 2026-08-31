@@ -122,7 +122,7 @@ public sealed partial class RoomEnemySystem
                 break;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Horizontal shutter function $A2:{(ushort)state.Function:X4} is not translated.");
         }
 

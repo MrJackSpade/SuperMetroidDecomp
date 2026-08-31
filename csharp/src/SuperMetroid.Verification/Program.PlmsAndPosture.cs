@@ -495,7 +495,7 @@ static void VerifySamusPostureMovement()
         crouchAim.ApplyGroundedAimTransition(bus, target);
         AssertEqual(16, crouchAim.Kinematics.YRadius, $"right crouch aim ${target:X2} radius");
     }
-    AssertThrows<NotSupportedException>(
+    AssertThrows<InvalidOperationException>(
         () => crouchAim.ApplyGroundedAimTransition(bus, SamusState.CrouchingAimUpLeftPose),
         "crouch aim cannot cross facing families");
 

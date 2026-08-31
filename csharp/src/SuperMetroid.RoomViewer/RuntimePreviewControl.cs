@@ -685,11 +685,12 @@ internal sealed class RuntimePreviewControl : UserControl
             {
                 runtime.StepFrame(input);
             }
-            catch (NotSupportedException exception)
+            catch (Exception exception) when (
+                exception is InvalidDataException or InvalidOperationException)
             {
-                // Reaching an unported block/pose is expected during an incremental decomp.
-                // Freeze on the exact offending frame and surface the exception text in the
-                // viewer instead of substituting fake physics or terminating WinForms.
+                // A malformed cartridge record or violated translated-state invariant must
+                // freeze on the exact offending frame.  Surface it inside the viewer rather
+                // than letting a WinForms timer callback open a focus-stealing OS dialog.
                 playbackTimer.Stop();
                 playButton.Checked = false;
                 playButton.Text = "Play";

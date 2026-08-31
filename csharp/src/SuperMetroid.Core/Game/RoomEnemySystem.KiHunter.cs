@@ -274,7 +274,7 @@ public sealed partial class RoomEnemySystem
                 RunDetachedKiHunterWing(actor, state, level!);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Ki-Hunter function $A8:{(ushort)state.Function:X4} is not translated.");
         }
     }
@@ -586,7 +586,7 @@ public sealed partial class RoomEnemySystem
                 RunDetachedKiHunterWingCollisionArc(wings, state, level);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Detached Ki-Hunter wing function $A8:{(ushort)state.WingFunction:X4} is not translated.");
         }
     }

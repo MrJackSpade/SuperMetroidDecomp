@@ -346,8 +346,9 @@ public sealed class TitleSequenceState
                     return;
 
                 default:
-                    throw new NotSupportedException(
-                        $"Title sequence instruction $8B:{durationOrCommand:X4} is not translated.");
+                    // The three title-scene lists use the complete command set above.
+                    throw new InvalidDataException(
+                        $"Title sequence instruction $8B:{durationOrCommand:X4} is invalid for the active retail list.");
             }
         }
     }

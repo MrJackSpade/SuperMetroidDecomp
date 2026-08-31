@@ -921,7 +921,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Enemy projectile pre-instruction $86:{projectile.PreInstruction:X4} is not translated.");
         }
     }
@@ -1194,7 +1194,7 @@ public sealed partial class RoomEnemySystem
                             RoomEnemyProjectileKind.MotherBrainHandBeamCharging or
                             RoomEnemyProjectileKind.MotherBrainHandBeamFired))
                     {
-                        throw new NotSupportedException(
+                        throw new InvalidDataException(
                             $"Enemy projectile external function ${externalFunction:X6} " +
                             $"from $86:{cursor:X4} is not translated.");
                     }
@@ -1429,7 +1429,7 @@ public sealed partial class RoomEnemySystem
                 case 0xeeaf: // Random drop selection after an enemy death animation.
                     if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
                     {
-                        throw new NotSupportedException(
+                        throw new InvalidDataException(
                             $"Enemy projectile $86:{(ushort)projectile.Kind:X4} reached death-drop opcode $EEAF.");
                     }
                     ConvertEnemyDeathExplosionToPickup(projectile);
@@ -1444,7 +1444,7 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 default:
-                    throw new NotSupportedException(
+                    throw new InvalidDataException(
                         $"Enemy projectile instruction $86:{word:X4} at $86:{cursor:X4} is not translated.");
             }
         }

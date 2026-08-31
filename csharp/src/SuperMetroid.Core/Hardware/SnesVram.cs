@@ -135,6 +135,48 @@ public sealed class SnesVram
         if (sizeInBytes == 0)
             throw new ArgumentOutOfRangeException(nameof(sizeInBytes), "A zero size is the original queue terminator, not a transfer.");
 
+        ExecuteDmaWrite(bus, sourceAddress, sizeInBytes, encodedDestination);
+    }
+
+    /// <summary>
+    /// Executes a literal DMA channel transfer, including the SNES DAS-zero convention.
+    /// </summary>
+    /// <param name="bus">CPU address space from which the DMA channel reads.</param>
+    /// <param name="sourceAddress">Fixed source bank plus initial 16-bit offset.</param>
+    /// <param name="dmaSize">
+    /// Raw 16-bit DAS register. Values one through <c>$FFFF</c> transfer that many bytes;
+    /// zero transfers <c>$10000</c> bytes because the channel decrements through the full
+    /// sixteen-bit counter before reaching zero again.
+    /// </param>
+    /// <param name="encodedDestination">
+    /// Initial VMADD word plus this model's VMAIN-column marker in bit 15.
+    /// </param>
+    public void ExecuteHardwareDmaWrite(
+        ISnesAddressSpace bus,
+        int sourceAddress,
+        ushort dmaSize,
+        ushort encodedDestination)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if ((uint)sourceAddress > 0x00ff_ffff)
+            throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "DMA source must be a 24-bit CPU address.");
+
+        int effectiveSize = dmaSize == 0 ? 0x10000 : dmaSize;
+        ExecuteDmaWrite(bus, sourceAddress, effectiveSize, encodedDestination);
+    }
+
+    /// <summary>
+    /// Shared mode-$01 transfer loop after a caller has interpreted its own size encoding.
+    /// </summary>
+    private void ExecuteDmaWrite(
+        ISnesAddressSpace bus,
+        int sourceAddress,
+        int sizeInBytes,
+        ushort encodedDestination)
+    {
+        if (sizeInBytes is <= 0 or > 0x10000)
+            throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
+
         // $80:8CAA-$80:8CB2 uses the destination sign bit to choose VMAIN. The bit is
         // harmless when written to VMADD because VRAM contains only 15 address bits.
         int destinationWord = encodedDestination & 0x7fff;

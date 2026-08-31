@@ -235,8 +235,11 @@ public sealed class DemoInputState
                         cursor) ?? DemoInputInstructionResult.NotHandled(cursor);
                     if (!result.Handled)
                     {
-                        throw new NotSupportedException(
-                            $"Demo-input instruction $91:{word:X4} has no translated handler.");
+                        // The reusable interpreter cannot infer an object's private
+                        // operand width. Its owner must supply the matching callback;
+                        // omission is an invalid composition, not an unknown generic opcode.
+                        throw new InvalidOperationException(
+                            $"Demo-input instruction $91:{word:X4} was not handled by the owning object's callback.");
                     }
 
                     cursor = result.NextInstructionPointer;
@@ -254,8 +257,8 @@ public sealed class DemoInputState
         unchecked((ushort)(bus.ReadByte(DemoInputBank | address) |
             (bus.ReadByte(DemoInputBank | unchecked((ushort)(address + 1))) << 8)));
 
-    private static NotSupportedException UnsupportedRoutine(string kind, ushort pointer) =>
-        new($"Demo-input {kind} $91:{pointer:X4} requires an object-specific translation.");
+    private static InvalidOperationException UnsupportedRoutine(string kind, ushort pointer) =>
+        new($"Demo-input {kind} $91:{pointer:X4} was not supplied by the owning object.");
 }
 
 /// <summary>Control-flow result from one explicitly translated demo-list instruction.</summary>

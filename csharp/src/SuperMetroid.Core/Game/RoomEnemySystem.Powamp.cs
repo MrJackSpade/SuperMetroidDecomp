@@ -163,7 +163,7 @@ public sealed partial class RoomEnemySystem
                 RunPowampDeathSequence(slot, state, balloon);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Powamp body function $A8:{(ushort)state.Function:X4} is not translated.");
         }
     }

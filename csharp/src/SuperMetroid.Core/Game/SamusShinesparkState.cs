@@ -160,8 +160,11 @@ public sealed class SamusShinesparkState
             SamusState.ShinesparkVerticalLeftPose => ShinesparkPhase.Vertical,
             SamusState.ShinesparkDiagonalRightPose or
             SamusState.ShinesparkDiagonalLeftPose => ShinesparkPhase.Diagonal,
-            _ => throw new NotSupportedException(
-                $"Pose ${targetPose:X2} is not a directional shinespark pose."),
+            // `$91:F80F` is reached only from the six table-selected `$C9-$CE` records.
+            // Any other byte is a caller contract violation, not another untranslated arm.
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(targetPose),
+                $"Pose ${targetPose:X2} is not one of the six directional shinespark poses."),
         };
 
         samus.Pose = targetPose;

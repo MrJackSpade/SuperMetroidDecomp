@@ -360,25 +360,16 @@ public static partial class SamusGrappleMovement
         int blockX,
         int blockY)
     {
-        if ((uint)blockX >= (uint)level.WidthInBlocks ||
-            (uint)blockY >= (uint)level.HeightInBlocks)
-        {
-            throw new NotSupportedException(
-                $"Grapple body probe left translated room storage at block ({blockX},{blockY}).");
-        }
+        RoomCollisionBlock initialBlock =
+            level.GetCollisionBlockOrPrefilledSolid(blockX, blockY);
+        if (initialBlock.Index < 0)
+            return true;
 
-        int index = blockY * level.WidthInBlocks + blockX;
+        int index = initialBlock.Index;
         for (int extensionDepth = 0; extensionDepth <= 16; extensionDepth++)
         {
-            if ((uint)index >= (uint)(level.WidthInBlocks * level.HeightInBlocks))
-            {
-                throw new NotSupportedException(
-                    $"Grapple swing extension BTS resolved outside room storage at index ${index:X4}.");
-            }
-
-            int resolvedX = index % level.WidthInBlocks;
-            int resolvedY = index / level.WidthInBlocks;
-            RoomCollisionBlock block = level.GetCollisionBlock(resolvedX, resolvedY);
+            RoomCollisionBlock block =
+                level.GetCollisionBlockByIndexOrPrefilledSolid(index);
             switch (block.CollisionType)
             {
                 // The swing dispatcher intentionally treats shootable/bombable air as air;

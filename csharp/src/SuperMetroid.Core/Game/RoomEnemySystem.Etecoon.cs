@@ -245,7 +245,7 @@ public sealed partial class RoomEnemySystem
                 RunEtecoonReturnJump(slot, state, activeSamus, activeLevel);
                 break;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Etecoon function $A7:{(ushort)state.Function:X4} is not translated.");
         }
     }

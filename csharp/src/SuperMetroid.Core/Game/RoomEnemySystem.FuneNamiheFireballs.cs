@@ -79,7 +79,7 @@ public sealed partial class RoomEnemySystem
                 break;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Fune/Namihe fireball function $86:{projectile.Variable0:X4} is not translated.");
         }
 

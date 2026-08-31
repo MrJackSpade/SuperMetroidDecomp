@@ -302,7 +302,106 @@ static void VerifySamusBlockCollision()
     AssertTrue(elevatorDoorLevel.PendingDoorTransition is null,
         "elevator pseudo-door does not publish normal room transition");
 
-    Console.WriteLine("  Samus blocks: spans, air, slopes, solids, and native door dispatch agree.");
+    // The room loader fills all unused level-data allocation words with `$8000` before
+    // decompression. Put Samus one pixel inside the logical right and bottom boundaries;
+    // a two-pixel request samples the first prefilled word and must clip like type-8 solid.
+    var rightEdgeBody = new SamusKinematicsState
+    {
+        XPosition = 58,
+        YPosition = 24,
+        XRadius = 5,
+        YRadius = 5,
+        HorizontalSlopeCollisionEnable = 0,
+    };
+    BlockMoveResult rightEdgeMove = SamusBlockCollision.MoveHorizontal(
+        bus,
+        level,
+        rightEdgeBody,
+        displacement: 0x00020000);
+    AssertTrue(rightEdgeMove.Collided, "prefilled right room edge is solid");
+    AssertEqual(0x00010000, rightEdgeMove.AcceptedDisplacement,
+        "prefilled right room edge clips at logical boundary");
+    AssertEqual(0x8000, rightEdgeMove.CollisionBlock!.Value.LevelWord,
+        "prefilled right room edge exposes native $8000 word");
+
+    var bottomEdgeBody = new SamusKinematicsState
+    {
+        XPosition = 56,
+        YPosition = 58,
+        XRadius = 5,
+        YRadius = 5,
+    };
+    BlockMoveResult bottomEdgeMove = SamusBlockCollision.MoveVertical(
+        bus,
+        level,
+        bottomEdgeBody,
+        displacement: 0x00020000,
+        scanLeftToRight: true);
+    AssertTrue(bottomEdgeMove.Collided, "prefilled bottom room edge is solid");
+    AssertEqual(0x00010000, bottomEdgeMove.AcceptedDisplacement,
+        "prefilled bottom room edge clips at logical boundary");
+    AssertEqual(0x8000, bottomEdgeMove.CollisionBlock!.Value.LevelWord,
+        "prefilled bottom room edge exposes native $8000 word");
+
+    // Grapple endpoint/body collision now consumes this same room-owned seam instead of
+    // maintaining a second interpretation of the native prefill. Check coordinate and
+    // already-linear forms because bank-$94 uses both during extension redispatch.
+    RoomCollisionBlock coordinatePrefill =
+        level.GetCollisionBlockOrPrefilledSolid(level.WidthInBlocks, 0);
+    AssertEqual(-1, coordinatePrefill.Index,
+        "coordinate prefill is outside the logical room plane");
+    AssertEqual(0x8000, coordinatePrefill.LevelWord,
+        "coordinate prefill exposes native solid word");
+    RoomCollisionBlock linearPrefill =
+        level.GetCollisionBlockByIndexOrPrefilledSolid(-1);
+    AssertEqual(0x8000, linearPrefill.LevelWord,
+        "linear extension prefill exposes native solid word");
+
+    // Exercise every formerly open body-dispatch entry through the public movement seam.
+    // Types 2/3/4/6/7 are non-solid for Samus's body.  Spike type A and special type B
+    // retain their independent solid topology. Their authored damage/PLM producer seams do
+    // not alter the clipping result asserted here and are deliberately not claimed by this
+    // kinematics-only fixture.
+    foreach ((ushort collisionWord, bool expectedCollision) in new[]
+    {
+        ((ushort)0x2000, false),
+        ((ushort)0x3000, false),
+        ((ushort)0x4000, false),
+        ((ushort)0x6000, false),
+        ((ushort)0x7000, false),
+        ((ushort)0xa000, true),
+        ((ushort)0xb000, true),
+    })
+    {
+        var dispatcherWords = new ushort[width * height];
+        dispatcherWords[1 * width + 2] = collisionWord;
+        RoomLevelData dispatcherLevel = CreateRoom(
+            width,
+            height,
+            dispatcherWords,
+            new byte[dispatcherWords.Length]);
+        var dispatcherBody = new SamusKinematicsState
+        {
+            XPosition = 26,
+            YPosition = 24,
+            XRadius = 5,
+            YRadius = 5,
+            HorizontalSlopeCollisionEnable = 0,
+        };
+        BlockMoveResult dispatcherMove = SamusBlockCollision.MoveHorizontal(
+            bus,
+            dispatcherLevel,
+            dispatcherBody,
+            displacement: 0x00020000);
+
+        AssertEqual(expectedCollision, dispatcherMove.Collided,
+            $"body dispatcher type ${(collisionWord >> 12):X1} collision topology");
+        AssertEqual(expectedCollision ? 0x00010000 : 0x00020000,
+            dispatcherMove.AcceptedDisplacement,
+            $"body dispatcher type ${(collisionWord >> 12):X1} accepted displacement");
+    }
+
+    Console.WriteLine("  Samus blocks: all sixteen dispatcher types, spans, slopes, prefilled edges, and doors agree.");
 }
 
 /// <summary>
@@ -518,6 +617,40 @@ static void VerifySamusGroundedReversal()
     AssertEqual(63, movingLeft.XPosition, "running-left borrows into whole X");
     AssertEqual(0xd000, movingLeft.Kinematics.XSubposition, "running-left fractional X");
     AssertTrue(leftFrame.Vertical.Collided, "running-left grounding probe collides");
+
+    // `$90:8EA9` does not reserve acceleration mode one for turn poses. If a transition
+    // leaves it installed after the body has already become `$09/$0A`, the visible pose's
+    // literal direction is inverted for that frame. Start above the deceleration quantum so
+    // `$90:9B0A` does not clear the mode before the direction selector observes it.
+    var reversedRunningRight = new SamusState { Pose = SamusState.MovingRightNormalPose };
+    reversedRunningRight.Kinematics.XPosition = 64;
+    reversedRunningRight.Kinematics.YPosition = 11;
+    reversedRunningRight.Kinematics.XRadius = 5;
+    reversedRunningRight.Kinematics.YRadius = 5;
+    reversedRunningRight.HorizontalSpeed.BaseSpeed = 1;
+    reversedRunningRight.HorizontalSpeed.AccelerationMode = 1;
+    GroundedMovementResult reversedRightFrame = SamusGroundedMovement.StepRunningRight(
+        bus,
+        level,
+        reversedRunningRight,
+        nmiFrameCounter: 0);
+    AssertEqual(-0x00008000, reversedRightFrame.Horizontal.AcceptedDisplacement,
+        "mode-one running-right carries leftward momentum");
+
+    var reversedRunningLeft = new SamusState { Pose = SamusState.MovingLeftNormalPose };
+    reversedRunningLeft.Kinematics.XPosition = 64;
+    reversedRunningLeft.Kinematics.YPosition = 11;
+    reversedRunningLeft.Kinematics.XRadius = 5;
+    reversedRunningLeft.Kinematics.YRadius = 5;
+    reversedRunningLeft.HorizontalSpeed.BaseSpeed = 1;
+    reversedRunningLeft.HorizontalSpeed.AccelerationMode = 1;
+    GroundedMovementResult reversedLeftFrame = SamusGroundedMovement.StepRunningLeft(
+        bus,
+        level,
+        reversedRunningLeft,
+        nmiFrameCounter: 0);
+    AssertEqual(0x00008000, reversedLeftFrame.Horizontal.AcceptedDisplacement,
+        "mode-one running-left carries rightward momentum");
 
     // The production movement port now also validates the pose's literal dispatcher byte,
     // so seed the two ordinary turn definitions before isolating their displacement.
@@ -861,6 +994,27 @@ static void VerifySamusGroundedReversal()
             $"crouched turn preserves old momentum direction case {caseIndex}");
         AssertTrue(crouchedMomentum.Vertical.Collided, $"crouched turn grounding branch case {caseIndex}");
 
+        if (caseIndex == 2)
+        {
+            // The same `$97-$A3` pose is allowed to enter `$90:A790`'s simple aerial arm
+            // when an actor or external displacement has made Y direction nonzero. This was
+            // formerly an explicit open-dispatch crash despite requiring no new pose data.
+            var airborneCrouchedTurn = new SamusState { Pose = testCase.SelectedTurn };
+            airborneCrouchedTurn.Kinematics.XPosition = 64;
+            airborneCrouchedTurn.Kinematics.YPosition = 32;
+            airborneCrouchedTurn.Kinematics.XRadius = 5;
+            airborneCrouchedTurn.Kinematics.YRadius = 16;
+            airborneCrouchedTurn.Kinematics.YDirection = 1;
+            airborneCrouchedTurn.Kinematics.YSpeed = 1;
+            AerialMovementResult airborneResult = SamusAerialMovement.StepTurningInAir(
+                bus,
+                aimedLevel,
+                airborneCrouchedTurn,
+                nmiFrameCounter: 0);
+            AssertTrue(airborneResult.Vertical is not null,
+                "airborne crouched type-$17 turn executes simple Y movement");
+        }
+
         for (int tick = 0; tick < 6; tick++)
             crouchedTurn.AnimateNoFx(bus);
         AssertEqual(0xf8, crouchedTurn.LastAnimationDelayCommand!.Value, $"crouched turn reaches $F8 case {caseIndex}");
@@ -1004,6 +1158,46 @@ static void VerifySamusMoonwalking()
             $"moonwalk ${pose:X2} uses literal reversed direction");
         AssertTrue(movement.Vertical.Collided, $"moonwalk ${pose:X2} probes floor");
     }
+
+    // `$90:A697` enters the complete shared X routine. An owned run-speed pair survives
+    // because movement type `$10` cannot accelerate but `$0B3C` is still set; an unowned
+    // pair is cleared at `$90:9808` before displacement is assembled.
+    var momentumMoonwalk = new SamusState
+    {
+        Pose = SamusState.MoonwalkFacingLeftPose,
+        XPosition = 80,
+        YPosition = 11,
+    };
+    momentumMoonwalk.Kinematics.XRadius = 5;
+    momentumMoonwalk.Kinematics.YRadius = 5;
+    momentumMoonwalk.HorizontalSpeed.HasRunningMomentum = true;
+    momentumMoonwalk.HorizontalSpeed.ExtraRunSpeed = 1;
+    GroundedMovementResult momentumMoonwalkFrame = SamusGroundedMovement.StepMoonwalking(
+        bus,
+        floor,
+        momentumMoonwalk,
+        nmiFrameCounter: 0);
+    AssertEqual(0x00014000, momentumMoonwalkFrame.Horizontal.AcceptedDisplacement,
+        "moonwalk preserves owned extra run speed");
+
+    var unownedMoonwalk = new SamusState
+    {
+        Pose = SamusState.MoonwalkFacingLeftPose,
+        XPosition = 80,
+        YPosition = 11,
+    };
+    unownedMoonwalk.Kinematics.XRadius = 5;
+    unownedMoonwalk.Kinematics.YRadius = 5;
+    unownedMoonwalk.HorizontalSpeed.ExtraRunSpeed = 1;
+    GroundedMovementResult unownedMoonwalkFrame = SamusGroundedMovement.StepMoonwalking(
+        bus,
+        floor,
+        unownedMoonwalk,
+        nmiFrameCounter: 0);
+    AssertEqual(0x00004000, unownedMoonwalkFrame.Horizontal.AcceptedDisplacement,
+        "moonwalk clears unowned extra run speed");
+    AssertEqual(0, unownedMoonwalk.HorizontalSpeed.ExtraRunSpeed,
+        "moonwalk publishes native unowned-speed zero write");
 
     // Seed the six literal turn/jump records and delay streams. Each stream contains three
     // two-tick frames followed by `$F8,$1A/$19`, exactly `$91:B45B-$B478` for NTSC.

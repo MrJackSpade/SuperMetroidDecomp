@@ -240,7 +240,7 @@ public sealed partial class RoomEnemySystem
                 RunChootFall(slot, state);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Choot function $A2:{(ushort)state.Function:X4} is not translated.");
         }
     }

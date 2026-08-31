@@ -210,13 +210,54 @@ public static class SamusBlockCollision
                         }
                         break;
 
+                    case 2:
+                    case 4:
+                    case 6:
+                    case 7:
+                        // Horizontal table entries 2/4/6 are literal clear-carry stubs.
+                        // Bombable air (7) also returns clear after a projectile-family
+                        // PLM setup which rejects ordinary Samus body collision.
+                        break;
+
+                    case 3:
+                        // Nonnegative special-air BTS spawns a room PLM but explicitly
+                        // discards its carry. The negative area-table family can publish
+                        // carry from setup; none of the retail movement-owned entries in
+                        // the translated room set do so, so its collision result is air.
+                        break;
+
+                    case 10:
+                        // Spike blocks occupy the solid side of `$94:9515`; preserve that
+                        // exact clipping topology here. Their BTS-selected damage writes
+                        // require the full Samus owner and remain an explicitly documented
+                        // producer seam rather than being guessed from kinematics alone.
+                        acceptedDisplacement = ClipHorizontalToSolid(
+                            state,
+                            acceptedDisplacement,
+                            leadingBoundary);
+                        collided = true;
+                        collisionBlock = block;
+                        break;
+
                     case 11 when block.Behavior == 0x45:
                         // Visible item frames are type-$B/BTS-$45. Bank $94 spawns the
                         // shared $EED3 detector, whose setup triggers the item at this
                         // origin and returns carry clear; Samus therefore passes through
                         // rather than clipping against the item's visual block.
                         if (plms is null || !plms.TryNotifyCollectibleTouch(block.Index))
-                            throw Unsupported(block, "horizontal item-collision");
+                        {
+                            throw new InvalidOperationException(
+                                $"Collectible block {block.Index} has no active item PLM owner.");
+                        }
+                        break;
+
+                    case 11:
+                        acceptedDisplacement = ClipHorizontalToSolid(
+                            state,
+                            acceptedDisplacement,
+                            leadingBoundary);
+                        collided = true;
+                        collisionBlock = block;
                         break;
 
                     case 15:
@@ -236,7 +277,10 @@ public static class SamusBlockCollision
                             break;
                         }
                         if (block.Behavior > 7)
-                            throw Unsupported(block, "horizontal bomb-block table");
+                        {
+                            throw new InvalidDataException(
+                                $"Collision bomb block {block.Index} has invalid BTS ${block.Behavior:X2}.");
+                        }
                         // Production movement supplies the active room PLM owner, matching
                         // `$94:933F`'s immediate long call into Spawn_PLM. Keeping the null
                         // fallback preserves this low-level collision routine as a usable
@@ -250,7 +294,9 @@ public static class SamusBlockCollision
                         break;
 
                     default:
-                        throw Unsupported(block, "horizontal dispatcher");
+                        throw new InvalidDataException(
+                            $"Block {block.Index} type ${block.CollisionType:X1} escaped the " +
+                            "complete horizontal collision dispatcher.");
                 }
 
                 if (collided)
@@ -436,9 +482,39 @@ public static class SamusBlockCollision
                         }
                         break;
 
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 6:
+                    case 7:
+                        // Vertical spike-air, special-air, ordinary-air, and bombable-air
+                        // entries all return clear carry after any independent PLM setup.
+                        break;
+
+                    case 10:
+                        acceptedDisplacement = ClipVerticalToSolid(
+                            state,
+                            acceptedDisplacement,
+                            leadingBoundary);
+                        collided = true;
+                        collisionBlock = block;
+                        break;
+
                     case 11 when block.Behavior == 0x45:
                         if (plms is null || !plms.TryNotifyCollectibleTouch(block.Index))
-                            throw Unsupported(block, "vertical item-collision");
+                        {
+                            throw new InvalidOperationException(
+                                $"Collectible block {block.Index} has no active item PLM owner.");
+                        }
+                        break;
+
+                    case 11:
+                        acceptedDisplacement = ClipVerticalToSolid(
+                            state,
+                            acceptedDisplacement,
+                            leadingBoundary);
+                        collided = true;
+                        collisionBlock = block;
                         break;
 
                     case 15:
@@ -455,7 +531,10 @@ public static class SamusBlockCollision
                             break;
                         }
                         if (block.Behavior > 7)
-                            throw Unsupported(block, "vertical bomb-block table");
+                        {
+                            throw new InvalidDataException(
+                                $"Collision bomb block {block.Index} has invalid BTS ${block.Behavior:X2}.");
+                        }
                         bool spawned = plms is null
                             ? ClearCollisionTypeWithoutLifecycle(level, block.Index)
                             : plms.TrySpawnCollisionBombBlock(level, block.Index, block.Behavior);
@@ -464,7 +543,9 @@ public static class SamusBlockCollision
                         break;
 
                     default:
-                        throw Unsupported(block, "vertical dispatcher");
+                        throw new InvalidDataException(
+                            $"Block {block.Index} type ${block.CollisionType:X1} escaped the " +
+                            "complete vertical collision dispatcher.");
                 }
 
                 if (collided)
@@ -788,16 +869,7 @@ public static class SamusBlockCollision
     }
 
     private static RoomCollisionBlock GetRequiredBlock(RoomLevelData level, int blockX, int blockY)
-    {
-        if ((uint)blockX >= (uint)level.WidthInBlocks ||
-            (uint)blockY >= (uint)level.HeightInBlocks)
-        {
-            throw new NotSupportedException(
-                $"Samus collision reached out-of-room block ({blockX},{blockY}); native cleared-WRAM edge behavior is not translated.");
-        }
-
-        return level.GetCollisionBlock(blockX, blockY);
-    }
+        => level.GetCollisionBlockOrPrefilledSolid(blockX, blockY);
 
     /// <summary>
     /// Follows collision-extension blocks exactly like the `$94:9515/$9535` redispatch
@@ -828,19 +900,17 @@ public static class SamusBlockCollision
             int targetIndex = block.Index + delta;
             if ((uint)targetIndex >= (uint)blockCount)
             {
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Collision extension block {block.Index} type ${block.CollisionType:X1}/" +
                     $"BTS ${block.Behavior:X2} resolves outside room level data.");
             }
             block = level.GetCollisionBlockByIndex(targetIndex);
         }
 
-        throw new NotSupportedException(
+        throw new InvalidDataException(
             $"Collision extension chain beginning at block {block.Index} contains a cycle.");
     }
 
-    private static NotSupportedException Unsupported(RoomCollisionBlock block, string path) =>
-        new($"Block {block.Index} type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} requires untranslated {path} behavior.");
 }
 
 /// <summary>Observable result of one bank-$94 room-block movement scan.</summary>

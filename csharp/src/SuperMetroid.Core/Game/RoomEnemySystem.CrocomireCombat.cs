@@ -47,7 +47,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Crocomire hitbox shot AI $A4:{callback:X4} is not translated.");
         }
     }

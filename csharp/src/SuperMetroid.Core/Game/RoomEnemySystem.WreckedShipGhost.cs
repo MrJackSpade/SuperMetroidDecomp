@@ -222,7 +222,7 @@ public sealed partial class RoomEnemySystem
                 RunWreckedShipGhostTracking(slot, state, activeSamus);
                 break;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Wrecked Ship ghost function $A8:{(ushort)state.Function:X4} is not translated.");
         }
     }

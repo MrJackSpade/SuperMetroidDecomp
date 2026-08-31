@@ -24,7 +24,9 @@ public sealed partial class SamusState
             targetPose == FacingLeftNormalPose;
         if (!rightRoute && !leftRoute)
         {
-            throw new NotSupportedException(
+            // This entry point is the exact `$27/$28 -> $01/$02` direct-exit route.
+            // Animated stand-ups and cross-facing changes have separate initializers.
+            throw new InvalidOperationException(
                 $"Direct crouch exit ${Pose:X2} -> ${targetPose:X2} is not a ROM-table route.");
         }
 
@@ -80,7 +82,9 @@ public sealed partial class SamusState
             targetPose == NeutralJumpTransitionLeftPose;
         if (!rightRoute && !leftRoute)
         {
-            throw new NotSupportedException(
+            // Only the two neutral `$4B/$4C` transition records enter this routine; aimed
+            // crouches deliberately reuse the same facing-selected target.
+            throw new InvalidOperationException(
                 $"Crouch jump ${Pose:X2} -> ${targetPose:X2} is not a ROM-table route.");
         }
 
@@ -164,8 +168,9 @@ public sealed partial class SamusState
         bool startsStanding = startsStandingRight || startsStandingLeft;
         if (!startsCrouching && !startsStanding)
         {
-            throw new NotSupportedException(
-                $"Posture transition ${Pose:X2} -> ${targetPose:X2} is not translated.");
+            // `$91:F7B0/$F7D3` admit exactly the crouch/stand records enumerated above.
+            throw new InvalidOperationException(
+                $"Posture transition ${Pose:X2} -> ${targetPose:X2} is outside the crouch/stand ROM-table family.");
         }
 
         if (startsCrouching)
@@ -251,7 +256,9 @@ public sealed partial class SamusState
         bool startsUnmorphing = startsUnmorphingRight || startsUnmorphingLeft;
         if (!startsMorphing && !startsUnmorphing)
         {
-            throw new NotSupportedException(
+            // Morph and unmorph use a closed, facing-preserving table. Other ball pose
+            // changes are handled by ApplyMorphBallPoseChange and must not enter here.
+            throw new InvalidOperationException(
                 $"Morph transition ${Pose:X2} -> ${targetPose:X2} is not a ROM-table route.");
         }
 
@@ -315,8 +322,8 @@ public sealed partial class SamusState
         bool targetSupported = IsStableBallPose(targetPose);
         if (!sourceSupported || !targetSupported)
         {
-            throw new NotSupportedException(
-                $"Stable Morph-Ball transition ${Pose:X2} -> ${targetPose:X2} is not translated.");
+            throw new InvalidOperationException(
+                $"Stable Morph-Ball transition ${Pose:X2} -> ${targetPose:X2} requires stable ball endpoints.");
         }
 
         byte previousDirection = ReadPoseXDirection(bus);
@@ -459,7 +466,8 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         bool validTarget = targetPose is SpringBallJumpRightPose or SpringBallJumpLeftPose;
         if (!IsGroundedSpringBallPose(Pose) || !validTarget)
-            throw new NotSupportedException($"Spring-Ball jump ${Pose:X2} -> ${targetPose:X2} is not translated.");
+            throw new InvalidOperationException(
+                $"Spring-Ball jump ${Pose:X2} -> ${targetPose:X2} is outside the grounded-to-airborne Spring-Ball route.");
 
         ApplyMorphBallPoseChange(bus, targetPose);
         MorphBallBounceState = 0;
@@ -505,8 +513,10 @@ public sealed partial class SamusState
         byte expectedTarget = SelectFallingPoseForCurrentAim(bus);
         if (!supportedSource || targetPose != expectedTarget)
         {
-            throw new NotSupportedException(
-                $"Walk-off transition ${Pose:X2} -> ${targetPose:X2} is not translated.");
+            // The caller computes the target from this pose's ROM metadata immediately
+            // before invoking us. A mismatch is an inconsistent request, not missing logic.
+            throw new InvalidOperationException(
+                $"Walk-off transition ${Pose:X2} -> ${targetPose:X2} does not match the pose's ROM-selected falling target ${expectedTarget:X2}.");
         }
 
         Kinematics.YSpeed = 0;
@@ -541,8 +551,11 @@ public sealed partial class SamusState
             0xfb or 0xff => IsFacingLeft(bus)
                 ? FallingLeftPose
                 : FallingRightPose,
-            _ => throw new NotSupportedException(
-                $"Walk-off shot direction ${shotDirection:X2} requires compact/downward falling collision handling."),
+            // Stable grounded records publish only the eight admitted aim directions or
+            // `$FB/$FF` sentinels. Compact directions four/five belong exclusively to
+            // already-airborne `$17/$18/$2D/$2E` and cannot originate a walk-off.
+            _ => throw new InvalidDataException(
+                $"Walk-off source pose ${Pose:X2} has invalid grounded shot direction ${shotDirection:X2}."),
         };
     }
 
@@ -585,8 +598,11 @@ public sealed partial class SamusState
                 8 => LandingAimDiagonalUpLeftPose,
                 9 => LandingAimUpLeftPose,
                 0xff => facingLeft ? NormalLandingLeftPose : NormalLandingRightPose,
-                byte shotDirection => throw new NotSupportedException(
-                    $"Landing from shot direction ${shotDirection:X2} requires an untranslated compact/firing route."),
+                // Directions four/five are consumed by TryApplyCompactAerialLanding,
+                // because the 10 -> 21 expansion needs room collision data. Reaching this
+                // roomless routine with either direction is therefore a caller error.
+                byte shotDirection => throw new InvalidOperationException(
+                    $"Landing from shot direction ${shotDirection:X2} requires the collision-aware compact landing operation."),
             };
         }
 
@@ -776,8 +792,11 @@ public sealed partial class SamusState
             (DrainedCrouchingLeftPose or DrainedStandingLeftPose, FacingLeftNormalPose);
         if (!verified)
         {
-            throw new NotSupportedException(
-                $"Animation transition ${Pose:X2} -> ${targetPose:X2} is outside the translated routes.");
+            // The allowlist above is the exhaustive set of `$F8/$FD` operands referenced
+            // by active retail animation streams. Anything else means the caller supplied
+            // a target that was not read from the current pose's animation bytecode.
+            throw new InvalidOperationException(
+                $"Animation transition ${Pose:X2} -> ${targetPose:X2} is not an active retail animation-command route.");
         }
 
         bool startsMoonwalkJump = IsMoonwalkTurnJumpPose(Pose) &&

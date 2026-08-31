@@ -204,7 +204,7 @@ public sealed partial class RoomEnemySystem
                 SinkDraygonBelowTheRoom(state, nmiFrameCounter8);
                 break;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Draygon body function $A5:{(ushort)state.Function:X4} is not translated.");
         }
 
@@ -234,7 +234,7 @@ public sealed partial class RoomEnemySystem
                 TrackSamusWithDraygonEye(part, samus, facingRight: true);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Draygon eye function $A5:{part.VariableA:X4} is not translated.");
         }
     }

@@ -265,8 +265,13 @@ public sealed partial class SamusState
             IsRightFacingDraygonGrabbedPose(targetPose);
         if (!leftFamily && !rightFamily)
         {
-            throw new NotSupportedException(
-                $"Draygon-grabbed transition ${Pose:X2} -> ${targetPose:X2} crosses a native owner seam.");
+            // `$91:AE18` contains only `$BA-$BE`; `$91:AE56` contains only `$EC-$F0`.
+            // Neither controller-input table can cross facing families. Draygon's owner AI
+            // performs facing changes by re-entering its grabbed controller directly, so a
+            // cross-family request to this table-transition API is a caller contract error,
+            // not an omitted input record.
+            throw new InvalidOperationException(
+                $"Draygon-grabbed input transition ${Pose:X2} -> ${targetPose:X2} crosses owner-controlled facing families.");
         }
 
         ushort oldRadius = Kinematics.YRadius;
@@ -508,12 +513,18 @@ public sealed partial class SamusState
     /// bank-$A0 timer-eight overlap direction, then consuming it through $90:DF99 and
     /// special command three $91:EE80. Live runtime code calls those phases on separate
     /// frames through <see cref="PublishBombJumpDirection"/> and
-    /// <see cref="TrySetupPublishedMorphedBombJump"/>.
+    /// <see cref="TrySetupPublishedBombJump"/>.
     /// </summary>
     public void RequestMorphedBombJump(byte direction)
     {
+        if (!IsStableBallPose(Pose))
+        {
+            throw new InvalidOperationException(
+                $"The morphed bomb-jump fixture requires a stable ball pose, not ${Pose:X2}.");
+        }
+
         PublishBombJumpDirection(direction);
-        TrySetupPublishedMorphedBombJump();
+        ArmPublishedBombJump();
     }
 
     /// <summary>
@@ -536,29 +547,131 @@ public sealed partial class SamusState
     }
 
     /// <summary>
-    /// Consumes a direction published by the previous frame's projectile collision using
-    /// the morphed branch at $90:E010 and command-three branch at $91:EE80.
+    /// Consumes a direction published by the previous frame's projectile collision through
+    /// the complete movement-type table at `$90:DFB5-$DFEB` and command three at `$91:EE80`.
     /// </summary>
+    /// <remarks>
+    /// Standing and crouching reject the request only while time is frozen. Running,
+    /// falling, moonwalking, wall-jump, wall-stop, and grapple families first select the
+    /// ordinary forward-jump body `$51/$52`. Ball, unused `$07/$09`, and knockback-family
+    /// entries retain their current pose. Jump/turn/transition/damage-boost and actor-owned
+    /// families clear the published direction exactly like the table's carry-clear routines.
+    /// </remarks>
     /// <returns>True when a pending low-byte direction installed the start handler.</returns>
-    public bool TrySetupPublishedMorphedBombJump()
+    public bool TrySetupPublishedBombJump(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        bool timeIsFrozen,
+        ushort nmiFrameCounter)
     {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
         if (BombJumpDirection == 0 || (BombJumpDirection & 0xff00) != 0)
             return false;
 
-        if (!IsStableBallPose(Pose))
+        byte movementType = ReadMovementType(bus);
+        switch (movementType)
         {
-            // Standing/running/falling bomb jumps deliberately select different poses at
-            // $90:DFAD-$90:E00D. Silently preserving a non-ball pose would invent behavior.
-            throw new NotSupportedException(
-                $"Bomb-jump setup for non-ball pose ${Pose:X2} is not translated yet.");
-        }
+            case 0x00: // Standing.
+            case 0x05: // Crouching.
+                // `$90:DFED` is the only setup branch gated by frozen time. Its clear is a
+                // complete 16-bit STZ, so no high-byte provenance survives rejection.
+                if (timeIsFrozen)
+                {
+                    BombJumpDirection = 0;
+                    return false;
+                }
+                goto case 0x01;
 
-        // Morphed movement types `$04/$08/$11/$12/$13` preserve the current pose in
-        // SpecialProspectivePose. Command three ORs `$0800` and installs start handler.
+            case 0x01: // Running.
+            case 0x06: // Falling.
+            case 0x0b: // Unused.
+            case 0x0c: // Unused.
+            case 0x0d: // Unused.
+            case 0x10: // Moonwalking.
+            case 0x14: // Wall jumping.
+            case 0x15: // Ran into a wall.
+            case 0x16: // Grappling.
+                // `$90:DFF7` tests the pose-definition direction, not the descriptive pose
+                // number. Any value other than literal four follows the right-facing path.
+                byte sourcePose = Pose;
+                byte targetPose = ReadPoseXDirection(bus) == (byte)SamusFacingDirection.Left
+                    ? NormalJumpForwardLeftPose
+                    : NormalJumpForwardRightPose;
+
+                // UpdateSamusPose routes the special target through the same `$91:FDAE`
+                // expansion collision used by controller-selected pose changes. This is
+                // observable for a crouching bomb jump: radius 16 grows to 21 and may be
+                // rejected by a low ceiling instead of clipping Samus into terrain.
+                LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
+                    bus,
+                    level,
+                    targetPose,
+                    nmiFrameCounter,
+                    out int centerAdjustment);
+                if (collision != LargerPoseCollisionOutcome.Allowed)
+                {
+                    if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+                        ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+                    return false;
+                }
+
+                Pose = targetPose;
+                RefreshCollisionRadii(bus);
+                Kinematics.YPosition = unchecked((ushort)(
+                    Kinematics.YPosition + centerAdjustment));
+
+                // HandleJumpTransition_NormalJumping runs before special command three.
+                // Literal stable crouch receives its extra ten-pixel upward adjustment;
+                // aimed crouch deliberately does not. The ordinary jump velocity is then
+                // replaced by `$90:E025` on this same beta pass, but its gravity/pose side
+                // effects still occur and must not be skipped.
+                if (sourcePose is CrouchingRightPose or CrouchingLeftPose)
+                    Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - 10));
+                InitializeAnimation(bus, initialFrame: 0);
+                SamusAerialMovement.InitializeJump(bus, this);
+                ArmPublishedBombJump();
+                return true;
+
+            case 0x04: // Morph ball on ground.
+            case 0x07: // Unused/glitch ball.
+            case 0x08: // Morph ball falling.
+            case 0x09: // Unused/glitch ball.
+            case 0x0a: // Knockback / Crystal Flash ending.
+            case 0x11: // Spring Ball on ground.
+            case 0x12: // Spring Ball in air.
+            case 0x13: // Spring Ball falling.
+                // `$90:E012` copies the current pose into SpecialProspectivePose. Because
+                // that pose already matches, bank $91 immediately executes command three.
+                ArmPublishedBombJump();
+                return true;
+
+            case 0x02: // Normal jumping.
+            case 0x03: // Spin jumping.
+            case 0x0e: // Turning on ground.
+            case 0x0f: // Posture/morph transition.
+            case 0x17: // Turning while jumping.
+            case 0x18: // Turning while falling.
+            case 0x19: // Damage boost.
+            case 0x1a: // Grabbed by Draygon.
+            case 0x1b: // Shinespark / Crystal Flash / drained / Mother Brain.
+                BombJumpDirection = 0;
+                return false;
+
+            default:
+                // The retail pose table never exceeds `$1B`; this is corrupt metadata,
+                // analogous to indexing beyond `$90:DFB5` into unrelated bank words.
+                throw new InvalidDataException(
+                    $"Bomb-jump setup cannot dispatch invalid movement type ${movementType:X2} for pose ${Pose:X2}.");
+        }
+    }
+
+    /// <summary>Executes special prospective-pose command three at `$91:EE80`.</summary>
+    private void ArmPublishedBombJump()
+    {
         BombJumpDirection |= 0x0800;
         BombJumpStarting = true;
         BombJumpActive = false;
-        return true;
     }
 
     /// <summary>True for the admitted right-facing movement-type-two normal-jump poses.</summary>

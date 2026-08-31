@@ -466,8 +466,13 @@ public sealed partial class SamusState
         byte movementType = bus.ReadByte(AddWithinBank(poseDefinition, 1));
         if (movementType > 0x1b)
         {
-            throw new NotSupportedException(
-                $"Samus pose ${Pose:X2} uses movement type ${movementType:X2}; its rendering selector is not translated.");
+            // `$90:864E` is a complete 28-entry pointer table for movement types `$00-$1B`.
+            // Every retail pose definition `$00-$FC`, including the deliberately unused
+            // records, stays inside that range. A larger byte is therefore corrupt pose
+            // metadata (native would jump through words following the table), not another
+            // rendering family waiting to be translated.
+            throw new InvalidDataException(
+                $"Samus pose ${Pose:X2} has invalid movement type ${movementType:X2}; retail rendering supports only $00-$1B.");
         }
 
         // `$90:85E2-$90:85FC` applies invincibility flicker to the body spritemaps, not to

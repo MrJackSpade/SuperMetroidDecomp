@@ -114,7 +114,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Hibashi function $A6:{(ushort)state.Function:X4} is not translated.");
         }
     }

@@ -158,7 +158,7 @@ public sealed partial class RoomEnemySystem
                     sharedProjectiles);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Mother Brain phase-two function $A9:{(ushort)state.Function:X4} is not translated.");
         }
     }

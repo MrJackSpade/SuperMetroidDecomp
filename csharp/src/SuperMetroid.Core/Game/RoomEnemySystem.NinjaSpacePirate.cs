@@ -263,7 +263,7 @@ public sealed partial class RoomEnemySystem
                 StepNinjaPirateWalkToPost(slot, state, movingRight: true);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Ninja Space Pirate function $B2:{(ushort)state.Function:X4} is not translated.");
         }
 

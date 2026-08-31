@@ -385,8 +385,12 @@ public sealed class SamusBombProjectileSystem
         ushort typeFamily = (ushort)(slot.Type & 0x0f00);
         if (typeFamily != NormalBombType && typeFamily != PowerBombType)
         {
-            throw new NotSupportedException(
-                $"Bomb slot {slot.Index} has untranslated projectile family ${typeFamily:X4}.");
+            // This class owns only physical projectile slots five through nine after
+            // $90:BF9D/$C157 have selected normal- or Power-Bomb pre-instructions. No
+            // retail producer installs another family in these semantic slots; seeing
+            // one means the host-side slot model was mutated inconsistently.
+            throw new InvalidDataException(
+                $"Bomb slot {slot.Index} has invalid projectile family ${typeFamily:X4}.");
         }
 
         bool explosionStarted = false;
@@ -509,8 +513,12 @@ public sealed class SamusBombProjectileSystem
         {
             if ((uint)x >= (uint)level.WidthInBlocks || (uint)y >= (uint)level.HeightInBlocks)
             {
-                throw new NotSupportedException(
-                    $"Bomb explosion cross reaches outside translated room storage at block ({x},{y}).");
+                // $94:9CAC first admits the bomb centre through the room's scroll bounds,
+                // and valid rooms surround reachable bomb centres with an edge wall. An
+                // out-of-range cross member therefore identifies malformed room/caller
+                // state rather than another bomb reaction routine.
+                throw new InvalidDataException(
+                    $"Bomb explosion cross reaches outside room storage at block ({x},{y}).");
             }
 
             CollectSingleBombedBlockReaction(
@@ -572,13 +580,19 @@ public sealed class SamusBombProjectileSystem
                 return;
             if (block.Behavior > 15)
             {
-                throw new NotSupportedException(
+                // $94:A012 is a literal sixteen-word table. Retail room data must keep a
+                // nonnegative bombable BTS within that table; a larger value would make
+                // the 65C816 read unrelated following ROM as a PLM header.
+                throw new InvalidDataException(
                     $"Bombable block {block.Index} has BTS ${block.Behavior:X2} outside " +
                     "the native $94:A012 reaction table.");
             }
             if (roomPlms is null)
             {
-                throw new NotSupportedException(
+                // Gameplay always owns the room's PLM pool. Null is supported only for
+                // nonreactive synthetic fixtures, so reaching a producer without it is a
+                // caller-composition error rather than untranslated cartridge behavior.
+                throw new InvalidOperationException(
                     $"Bombed block reaction type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
                     $"at ({x},{y}) requires a room PLM owner.");
             }
@@ -602,19 +616,19 @@ public sealed class SamusBombProjectileSystem
                 return;
             if ((block.Behavior & 0x80) == 0 && block.Behavior > 15)
             {
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Shootable block {block.Index} has BTS ${block.Behavior:X2} outside " +
-                    "the translated normal-bomb table range.");
+                    "the native normal-bomb table range.");
             }
             if ((block.Behavior & 0x80) != 0 && (block.Behavior & 0x7f) > 7)
             {
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Area-dependent shootable block {block.Index} has BTS " +
                     $"${block.Behavior:X2} outside its eight-entry native table.");
             }
             if (roomPlms is null)
             {
-                throw new NotSupportedException(
+                throw new InvalidOperationException(
                     $"Bombed shootable type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
                     $"at ({x},{y}) requires a room PLM owner.");
             }
@@ -631,7 +645,7 @@ public sealed class SamusBombProjectileSystem
         {
             if (roomPlms is null)
             {
-                throw new NotSupportedException(
+                throw new InvalidOperationException(
                     $"Bombed special block BTS ${block.Behavior:X2} at ({x},{y}) " +
                     "requires a room PLM owner.");
             }
@@ -645,9 +659,12 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        throw new NotSupportedException(
-            $"Bombed block reaction type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
-            $"at ({x},{y}) requires the untranslated bank-$84 PLM pipeline.");
+        // Collision types are a four-bit field and every value 0..15 is handled above;
+        // type 5/D either resolves to its parent or returned before this dispatcher. Keep
+        // the guard for corrupted packed words, but do not label it missing behavior.
+        throw new InvalidDataException(
+            $"Bombed block reaction reached impossible type ${block.CollisionType:X1}/" +
+            $"BTS ${block.Behavior:X2} at ({x},{y}).");
     }
 
     private bool RunProjectileInstructionHandler(
@@ -690,8 +707,12 @@ public sealed class SamusBombProjectileSystem
                     break;
 
                 default:
-                    throw new NotSupportedException(
-                        $"Bomb projectile opcode $93:{durationOrOpcode:X4} is not translated.");
+                    // The complete referenced bank-$93 projectile interpreter exposes
+                    // delete ($822F) and goto ($8239); its only third routine ($8240) is
+                    // unreferenced data excluded from the retail build. A different word
+                    // in an active bomb list is consequently corrupt ROM/list state.
+                    throw new InvalidDataException(
+                        $"Bomb projectile list contains invalid opcode $93:{durationOrOpcode:X4}.");
             }
         }
 

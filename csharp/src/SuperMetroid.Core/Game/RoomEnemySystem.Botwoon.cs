@@ -303,7 +303,7 @@ public sealed partial class RoomEnemySystem
                 break;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Botwoon function $B3:{(ushort)state.Function:X4} is not translated.");
         }
 
@@ -426,7 +426,7 @@ public sealed partial class RoomEnemySystem
                 FollowBotwoonPath(head, state);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Botwoon movement $B3:{(ushort)state.MovementFunction:X4} is not translated.");
         }
     }
@@ -666,7 +666,7 @@ public sealed partial class RoomEnemySystem
                 }
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Botwoon head callback $B3:{(ushort)state.HeadFunction:X4} is not translated.");
         }
     }

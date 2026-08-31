@@ -196,8 +196,10 @@ public sealed partial class RoomPlmSystem
             return;
         if (slot.PreInstruction != MotherBrainGlassPreInstruction)
         {
-            throw new NotSupportedException(
-                $"Mother Brain glass pre-instruction $84:{slot.PreInstruction:X4} is not translated.");
+            // Header `$D5F6` installs exactly `$D4BF`; a different live word indicates
+            // corrupted PLM state or an incorrectly reused slot, not another glass route.
+            throw new InvalidDataException(
+                $"Mother Brain glass has invalid pre-instruction $84:{slot.PreInstruction:X4}.");
         }
 
         ushort family = unchecked((ushort)(slot.LoopTimer & 0x0f00));

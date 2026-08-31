@@ -106,9 +106,11 @@ ignored; the loaded path and effective value are also printed at startup.
 The Ceres handoff now performs the cartridge's `$8B:C100 -> $81:8000` automatic save. The
 desktop host writes the complete 8 KiB battery-backed image beside the ROM using the same
 basename and an `.srm` extension, reloads it on restart, and displays valid slots through the
-native redundant checksum, ENERGY, and TIME layout. The current saved-game loader admits the
-translated Ceres area-six/load-station-zero checkpoint; selecting a later emulator save stops
-on its unsupported area/station instead of silently loading the wrong room.
+native redundant checksum, ENERGY, and TIME layout. Existing saves now resolve their native
+area/load-station record, restore inventory, equipped items, events, bosses, Chozo bits, and
+collected-item bits, then construct that cartridge room at its authored Samus/camera position.
+The still-untranslated load-appearance presentation is skipped to its stable standing endpoint;
+malformed area/station records fail before they can silently load the wrong room.
 
 `SuperMetroid.RoomViewer` is the separate room/runtime diagnostics executable. It requires `standalone-assets/raw` in addition to the private ROM and can be launched with `dotnet run --project src/SuperMetroid.RoomViewer`.
 
@@ -158,7 +160,15 @@ the live shine phase/timer, crash subphase/radius, and departing-echo count. Use
 `SamusShinesparkState.Step`, `SamusShinesparkState.StepReleasedCrashEchoProjectiles`, and
 `SamusState.AnimateNoFx`.
 
-The grounded viewer sandbox now explicitly grants only the Morph Ball item bit because save-file inventory loading has not been translated. To use the real input route, tap **Hold Down** to crouch, release it, then tap **Hold Down** again to morph. Left/Right rolls and reverses through `$1E/$1F`; Up performs collision-checked unmorph through `$3D/$3E -> $27/$28`. Check **Spring Ball equipped** before morphing to select `$79/$7A`; Jump then launches `$7F/$80` and can be released early for the native short arc. Useful breakpoints are `SamusMorphBallMovement.StepGrounded`, `SamusMorphBallMovement.StepFalling`, `SamusMorphBallMovement.StepSpringBallInAir`, `SamusMorphBallMovement.StepTransition`, and `SamusState.TryApplyMorphTransition`.
+The grounded viewer sandbox deliberately grants only the Morph Ball item bit; unlike the game
+frontend, this isolated diagnostic does not open an SRAM slot. To use the real input route, tap
+**Hold Down** to crouch, release it, then tap **Hold Down** again to morph. Left/Right rolls and
+reverses through `$1E/$1F`; Up performs collision-checked unmorph through `$3D/$3E -> $27/$28`.
+Check **Spring Ball equipped** before morphing to select `$79/$7A`; Jump then launches `$7F/$80`
+and can be released early for the native short arc. Useful breakpoints are
+`SamusMorphBallMovement.StepGrounded`, `SamusMorphBallMovement.StepFalling`,
+`SamusMorphBallMovement.StepSpringBallInAir`, `SamusMorphBallMovement.StepTransition`, and
+`SamusState.TryApplyMorphTransition`.
 
 To step through the first translated game-support routines, select `SuperMetroid.Verification` as the startup project and place breakpoints in `Bank80SystemState`. From the command line:
 
@@ -415,7 +425,7 @@ bombable, shootable, and special terrain PLMs. Desktop composition replays the l
 `PowerBombFrame.png` captures the expanding yellow phase. The viewer's **Power Bombs selected**
 toggle runs this same producer and lifecycle interactively.
 
-`--grapple-fire-script` selects grapple at the explicit untranslated HUD seam, then presses only Shoot/X. Bank `$9B` supplies the current pose's direction, signed 16.16 velocities, separately refreshed hand/flare origins, twelve-pixel length growth, and 128-pixel cutoff. Bank `$94` performs four fractional endpoint probes per frame and dispatches real BG1/BTS collision; persistent type-`$E` BTS zero/three connects, while ordinary solid collision cancels and unsupported PLM-producing reactions throw. The installed `$90:EB86` display handler runs its own bank-$93 flare bytecode before atmosphere and Samus, suppresses ordinary charge flare and speed/shinespark echoes, uploads endpoint/angle tiles after Samus, then draws the staggered rope and endpoint. Its pending-cancel frame takes the native body/cannon/echo fallback without leaking either flare family or rope. Landing Site contains no type-`$E` blocks, so its real-ROM trace honestly proves firing, presentation, and queued cancellation. `GrappleFlareFrame.png` and its transparent layers freeze the visible extending beam; fourteen frames prove cancellation completion.
+`--grapple-fire-script` selects grapple at the explicit untranslated HUD seam, then presses only Shoot/X. Bank `$9B` supplies the current pose's direction, signed 16.16 velocities, separately refreshed hand/flare origins, twelve-pixel length growth, and 128-pixel cutoff. Bank `$94` performs four fractional endpoint probes per frame and dispatches all sixteen real BG1/BTS collision types, including persistent/breakable type-`$E` blocks and the shared shootable-block PLM side effects. The installed `$90:EB86` display handler runs its own bank-$93 flare bytecode before atmosphere and Samus, suppresses ordinary charge flare and speed/shinespark echoes, uploads endpoint/angle tiles after Samus, then draws the staggered rope and endpoint. Its pending-cancel frame takes the native body/cannon/echo fallback without leaking either flare family or rope. Landing Site contains no type-`$E` blocks, so its real-ROM trace honestly proves firing, presentation, and queued cancellation. `GrappleFlareFrame.png` and its transparent layers freeze the visible extending beam; fourteen frames prove cancellation completion.
 
 `--grapple-script` still supplies one already-accepted world-space anchor because Landing Site has no grapple block and enemies are not translated. Bank `$9B` supplies the pendulum pump, rope-length rules, quadrant gravity, 16-frame collision-kick gate, release products, art lookup, independent flare counter/program, and one-frame `$51/$52` handoff. Bank `$94` walks rope changes one pixel at a time, sweeps six body points for every crossed whole angle byte, restores the last-safe `$xx80` angle, and negates arithmetic half velocity on terrain collision. It also supplies the sixteen staggered segment instruction phases and packed OAM attributes; bank `$9A` supplies the endpoint/rope tile data selected by the live angle. The release-queued frame retains `$90:EB86` but follows its signed pointer-range fallback, so ordinary echoes return while grapple flare and rope disappear before the next call restores the default handler. `GrappleSwingDrawFrame.png` and its three diagnostic layers freeze the active reflected beam, while 100 frames proves terrain reflection, release presentation, and jump-pose handoff.
 
@@ -483,12 +493,17 @@ Dash/Speed Booster/shinespark, Space Jump/Screw Attack, Morph/Spring/Bomb jump, 
 grapple, all twelve ordinary/charged beam combinations plus Hyper Beam production/motion,
 Crystal Flash, X-ray mechanics/window color math, drained/Draygon,
 liquid/atmospheric/landing-impact, and documented
-Mother Brain/Baby routes described above. Unsupported paths throw instead of becoming guessed
-physics. Remaining cross-system work includes earlier Mother Brain attack selection,
+Mother Brain/Baby routes described above. Remaining cross-system work stays visible as named
+producer/presentation seams instead of becoming guessed physics. That work includes earlier
+Mother Brain attack selection,
 Hyper Beam enemy-hit/recoil integration,
 X-ray hidden-block BG2 substitution,
 projectile-triggered door/bombable/special-block PLMs,
+Samus-contact spike/special-block side effects,
 missing actor spritemaps, live enemy damage producers,
 native enemy spawn selection, and the unported enemies/effects/
-actors. Raw files and PNGs contain private ROM-derived material and must not be distributed;
+actors. The translated projects contain no deliberate `NotSupportedException` boundary;
+closed dispatchers reject corrupt ROM/state data, while remaining producer and presentation
+seams are documented explicitly instead of being disguised as completed gameplay. Raw files
+and PNGs contain private ROM-derived material and must not be distributed;
 this private preservation repository intentionally retains them until a future shareable cleanup.

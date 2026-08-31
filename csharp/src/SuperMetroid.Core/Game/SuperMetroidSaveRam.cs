@@ -98,6 +98,12 @@ public sealed class SuperMetroidSaveRam
             GameTimeSeconds: ReadSramWord(slotOffset + GameTimeSecondsOffset),
             GameTimeMinutes: ReadSramWord(slotOffset + GameTimeMinutesOffset),
             GameTimeHours: ReadSramWord(slotOffset + GameTimeHoursOffset),
+            EventBytes: ReadSramBytes(
+                slotOffset + EventsOffset,
+                Bank80SystemState.EventByteCount),
+            BossBytes: ReadSramBytes(
+                slotOffset + BossBitsOffset,
+                Bank80SystemState.AreaCount),
             RoomChozoBytes: ReadSramBytes(
                 slotOffset + RoomChozoBitsOffset,
                 Bank80SystemState.RoomChozoBitByteCount),
@@ -282,6 +288,8 @@ public sealed record SuperMetroidSaveSlot(
     ushort GameTimeSeconds,
     ushort GameTimeMinutes,
     ushort GameTimeHours,
+    byte[] EventBytes,
+    byte[] BossBytes,
     byte[] RoomChozoBytes,
     byte[] CollectedItemBytes,
     ushort SaveStation,
@@ -309,11 +317,13 @@ public sealed record SuperMetroidSaveSlot(
         samus.ReserveEnergy = ReserveEnergy;
     }
 
-    /// <summary>Restores player inventory and the independent physical-pickup table.</summary>
+    /// <summary>Restores player inventory and all progression bytes represented in SRAM.</summary>
     public void ApplyTo(SamusState samus, Bank80SystemState system)
     {
         ApplyTo(samus);
         ArgumentNullException.ThrowIfNull(system);
+        system.LoadEventBytes(EventBytes);
+        system.LoadBossBytes(BossBytes);
         system.LoadRoomChozoBytes(RoomChozoBytes);
         system.LoadCollectedItemBytes(CollectedItemBytes);
     }

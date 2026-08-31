@@ -91,7 +91,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Kraid body function $A7:{body.VariableA:X4} is not translated.");
         }
     }

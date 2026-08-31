@@ -168,8 +168,8 @@ internal sealed class IntroMotherBrainExplosionSystem
                     return;
                 }
 
-                throw new NotSupportedException(
-                    $"Intro Mother Brain explosion opcode $8B:{instructionOrDuration:X4} at $8B:{pointer:X4} is not translated.");
+                throw new InvalidDataException(
+                    $"Intro Mother Brain explosion opcode $8B:{instructionOrDuration:X4} at $8B:{pointer:X4} is invalid.");
             }
         }
 

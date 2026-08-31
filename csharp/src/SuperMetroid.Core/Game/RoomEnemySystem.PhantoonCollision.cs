@@ -93,7 +93,7 @@ public sealed partial class RoomEnemySystem
 
             if (hitboxShotAi != PhantoonShotHitboxCallback)
             {
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Phantoon hitbox shot AI $A7:{hitboxShotAi:X4} is not translated.");
             }
 

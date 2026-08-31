@@ -202,9 +202,13 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.SetUpNewGame:
-                SetupNewCeresGame();
-                GameState = SuperMetroidGameState.MadeItToCeresElevator;
-                lastPixels = CreateBlackFrame();
+                bool usesCeresArrival = SetupSelectedGame();
+                GameState = usesCeresArrival
+                    ? SuperMetroidGameState.MadeItToCeresElevator
+                    : SuperMetroidGameState.MainGameplay;
+                lastPixels = usesCeresArrival
+                    ? CreateBlackFrame()
+                    : SuperMetroidRuntimeFrameRenderer.Render(runtime!);
                 break;
 
             case SuperMetroidGameState.MadeItToCeresElevator:
@@ -251,8 +255,13 @@ public sealed class SuperMetroidGame
                 break;
 
             default:
-                throw new NotSupportedException(
-                    $"Frontend dispatcher state ${((ushort)GameState):X2} ({GameState}) is not translated yet.");
+                // GameState has a private setter and every translated producer writes one
+                // of the explicit states above. Pause/death/ending will gain named cases as
+                // their producers are connected; they cannot currently arise through this
+                // dispatcher. An unexpected value is therefore corrupt internal state.
+                throw new InvalidDataException(
+                    $"Frontend dispatcher received invalid state " +
+                    $"${((ushort)GameState):X2} ({GameState}).");
         }
 
         return CurrentFrame;
@@ -268,21 +277,59 @@ public sealed class SuperMetroidGame
         SuperMetroidGameState.FileSelectMenus => fileSelect!.Phase.ToString(),
         SuperMetroidGameState.GameOptionsMenu => options!.Phase.ToString(),
         SuperMetroidGameState.IntroCinematic => intro!.Phase.ToString(),
-        SuperMetroidGameState.SetUpNewGame => "Loading fresh Ceres game",
+        SuperMetroidGameState.SetUpNewGame =>
+            loadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
         SuperMetroidGameState.MadeItToCeresElevator =>
             runtime?.CeresElevatorArrival is { IsComplete: false }
                 ? "Ceres elevator arrival"
                 : "Ceres controls unlocked",
-        SuperMetroidGameState.MainGameplay => "Ceres gameplay",
+        SuperMetroidGameState.MainGameplay => "Gameplay",
         SuperMetroidGameState.HitDoorBlock => "Door collision",
         SuperMetroidGameState.LoadingNextRoomA => "Loading destination room",
         SuperMetroidGameState.LoadingNextRoomB => "Destination room ready",
         _ => GameState.ToString(),
     };
 
-    private void SetupNewCeresGame()
+    private bool SetupSelectedGame()
     {
         runtime = new SuperMetroidRuntime(bus);
+
+        if (loadingExistingSave)
+        {
+            SuperMetroidSaveSlot slot = saveRam.ReadSlot(selectedSaveSlot)
+                ?? throw new InvalidDataException(
+                    $"Selected save slot {selectedSaveSlot} became invalid during startup.");
+            runtime.InitializeHud(new HudSnapshot(
+                slot.Health,
+                slot.MaxHealth,
+                slot.Missiles,
+                slot.MaxMissiles,
+                slot.SuperMissiles,
+                slot.MaxSuperMissiles,
+                slot.PowerBombs,
+                slot.MaxPowerBombs,
+                slot.EquippedItems,
+                slot.HudItem,
+                slot.ReserveEnergy,
+                slot.ReserveMode));
+            runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+
+            // Preserve the already-translated Ceres elevator entrance for its checkpoint.
+            // Every other station uses the general cartridge-backed loader below.
+            if (slot.Area == 6 && slot.SaveStation == 0)
+            {
+                runtime.InitializeStartingCeresRoom();
+                runtime.InitializeCeresStartSamus();
+                slot.ApplyTo(
+                    runtime.Samus ?? throw new InvalidOperationException(
+                        "Ceres initialization did not create Samus."),
+                    runtime.System);
+                return true;
+            }
+
+            runtime.InitializeSavedGame(slot);
+            return false;
+        }
 
         // Native new-game loading first publishes the standard HUD/OBJ transfer, then
         // loads the area-six station-zero room and finally runs SamusCode_08. This is the
@@ -294,21 +341,6 @@ public sealed class SuperMetroidGame
         runtime.InitializeCeresStartSamus();
         SamusState samus = runtime.Samus
             ?? throw new InvalidOperationException("Ceres initialization did not create Samus.");
-
-        if (loadingExistingSave)
-        {
-            SuperMetroidSaveSlot slot = saveRam.ReadSlot(selectedSaveSlot)
-                ?? throw new InvalidDataException(
-                    $"Selected save slot {selectedSaveSlot} became invalid during startup.");
-            if (slot.Area != 6 || slot.SaveStation != 0)
-            {
-                throw new NotSupportedException(
-                    $"Save slot {selectedSaveSlot} targets untranslated area {slot.Area}, " +
-                    $"station {slot.SaveStation}; the current playable loader supports Ceres 6:0.");
-            }
-            slot.ApplyTo(samus, runtime.System);
-            return;
-        }
 
         // CinematicFunction_Intro_Func73 at `$8B:C100` publishes area six/station zero
         // and calls the ordinary `$81:8000` saver immediately before state $1F. Both the
@@ -322,6 +354,7 @@ public sealed class SuperMetroidGame
                 area: 6,
                 saveStation: 0));
         SaveRamChanged?.Invoke();
+        return true;
     }
 
     private static Rgba32[] CreateBlackFrame()

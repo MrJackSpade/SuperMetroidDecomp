@@ -332,7 +332,7 @@ public sealed partial class RoomEnemySystem
                 RunYellowPipeBugArc(slot, state, cameraX, cameraY, movingLeft: false);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Pipe Bug function $B3:{(ushort)state.Function:X4} is not translated.");
         }
     }

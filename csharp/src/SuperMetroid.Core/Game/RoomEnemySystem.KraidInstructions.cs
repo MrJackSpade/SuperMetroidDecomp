@@ -67,7 +67,7 @@ public sealed partial class RoomEnemySystem
                 }
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Kraid foot instruction $A7:{instruction:X4} is not translated.");
         }
     }

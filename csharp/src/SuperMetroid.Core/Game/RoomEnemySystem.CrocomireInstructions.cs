@@ -370,7 +370,7 @@ public sealed partial class RoomEnemySystem
                 return next;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Crocomire fight function ${((ushort)state.FightFunction):X2} is not translated.");
         }
     }

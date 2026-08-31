@@ -51,6 +51,90 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// Restores an existing slot through the cartridge's area/load-station tables and
+    /// enters the normal playable state at the station-authored Samus coordinates.
+    /// </summary>
+    /// <remarks>
+    /// Native startup displays a short front-facing Samus appearance before settling into
+    /// ordinary standing control. That presentation coroutine is not a room-loading
+    /// responsibility, so this method establishes its deterministic endpoint rather than
+    /// replaying guessed timing. Room selection, coordinates, inventory, progression bits,
+    /// enemies, PLMs, graphics, beam upload, and camera all remain cartridge driven.
+    /// </remarks>
+    public InitialViewportResult InitializeSavedGame(SuperMetroidSaveSlot slot)
+    {
+        ArgumentNullException.ThrowIfNull(slot);
+        if (slot.Area > byte.MaxValue || slot.SaveStation > byte.MaxValue)
+        {
+            throw new InvalidDataException(
+                $"Save slot {slot.Slot} contains an invalid area/station pair " +
+                $"{slot.Area}:{slot.SaveStation}.");
+        }
+
+        byte requestedArea = unchecked((byte)slot.Area);
+        byte stationIndex = unchecked((byte)slot.SaveStation);
+        if (requestedArea >= Bank80SystemState.AreaCount)
+        {
+            throw new InvalidDataException(
+                $"Save slot {slot.Slot} area {requestedArea} is outside the native area table.");
+        }
+
+        LoadStationEntry station = LoadStationEntry.Load(
+            _addressSpace,
+            requestedArea,
+            stationIndex);
+        CartridgeDoorHeader door = CartridgeDoorHeader.Load(_addressSpace, station.DoorPointer);
+        if (door.DestinationRoomPointer != station.RoomPointer)
+        {
+            throw new InvalidDataException(
+                $"Load station {requestedArea}:{stationIndex} room $8F:{station.RoomPointer:X4} " +
+                $"disagrees with door $83:{door.Pointer:X4}'s destination " +
+                $"$8F:{door.DestinationRoomPointer:X4}.");
+        }
+
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+            _addressSpace,
+            door.DestinationRoomPointer);
+        if (room.AreaIndex != requestedArea)
+        {
+            throw new InvalidDataException(
+                $"Load station {requestedArea}:{stationIndex} targets room area " +
+                $"{room.AreaIndex}.");
+        }
+
+        // Apply progression before room construction. Enemy and PLM initialization query
+        // boss/event/item bytes synchronously, while beam graphics depend on equipped beams.
+        Samus = new SamusState
+        {
+            Pose = SamusState.FacingRightNormalPose,
+            AnimationFrame = 0,
+            XPosition = station.SamusX,
+            YPosition = station.SamusY,
+        };
+        slot.ApplyTo(Samus, System);
+        ActiveLoadStation = station;
+        CeresElevatorArrival = null;
+        InitialViewportResult viewport = LoadCartridgeRoom(
+            door,
+            room,
+            station.CameraX,
+            station.CameraY);
+
+        // Samus tiles/palette follow the room graphics upload, exactly as gameplay setup
+        // does. Pose $01 is the translated endpoint of the native load-appearance sequence.
+        Samus.LoadSuitPalette(_addressSpace, Cgram);
+        Samus.RefreshCollisionRadii(_addressSpace);
+        Samus.InitializeAnimation(_addressSpace);
+        Samus.LiquidPhysics.AreaIndex = room.AreaIndex;
+        Samus.LiquidPhysics.RoomIndex = room.RoomIndex;
+        Samus.PrimeGraphics(_addressSpace);
+        Samus.InputLocked = false;
+        PreviousMovementTypeForXray = Samus.ReadMovementType(_addressSpace);
+        GroundedSamusMovementEnabled = true;
+        return viewport;
+    }
+
+    /// <summary>
     /// True after bank-$94's type-$9 handler has selected a normal destination door and
     /// before the frontend's states $09-$0B consume it.
     /// </summary>

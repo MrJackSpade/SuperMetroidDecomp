@@ -139,7 +139,7 @@ public sealed partial class RoomEnemySystem
                 return;
             if ((control & 0xc0) != 0x80)
             {
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Ceres Mode-7 transfer $A6:{cursor & 0xffff:X4} uses unsupported control ${control:X2}.");
             }
 
@@ -151,7 +151,7 @@ public sealed partial class RoomEnemySystem
             byte incrementMode = _bus.ReadByte(AdvanceBankAddress(cursor, 8));
             if (incrementMode != 0)
             {
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Ceres Mode-7 transfer $A6:{cursor & 0xffff:X4} uses VMAIN ${incrementMode:X2}.");
             }
 

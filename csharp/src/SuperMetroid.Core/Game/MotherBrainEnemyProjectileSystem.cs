@@ -440,7 +440,7 @@ public sealed partial class MotherBrainEnemyProjectileSystem
 
             if (slot.ProjectileId != ProjectileDefinition)
             {
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Mother Brain projectile slot {slotIndex} contains untranslated definition " +
                     $"$86:{slot.ProjectileId:X4}.");
             }

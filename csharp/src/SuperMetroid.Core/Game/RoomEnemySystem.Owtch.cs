@@ -222,7 +222,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Owtch state/table index ${(ushort)state.Behavior:X4} is not translated.");
         }
     }

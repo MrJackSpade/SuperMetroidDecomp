@@ -151,8 +151,8 @@ internal sealed class IntroMotherBrainSpriteState
                     ushort preInstruction = ReadWord(bus, Add(pointer, 2));
                     if (preInstruction != 0xb82e)
                     {
-                        throw new NotSupportedException(
-                            $"Intro Mother Brain pre-instruction $8B:{preInstruction:X4} is not translated.");
+                        throw new InvalidDataException(
+                            $"Intro Mother Brain names invalid pre-instruction $8B:{preInstruction:X4}.");
                     }
 
                     crossfadingToPageTwo = true;
@@ -160,8 +160,8 @@ internal sealed class IntroMotherBrainSpriteState
                     continue;
                 }
 
-                throw new NotSupportedException(
-                    $"Intro Mother Brain sprite opcode $8B:{instructionOrDuration:X4} at $8B:{pointer:X4} is not translated.");
+                throw new InvalidDataException(
+                    $"Intro Mother Brain sprite opcode $8B:{instructionOrDuration:X4} at $8B:{pointer:X4} is invalid.");
             }
 
             pointer = ReadWord(bus, Add(pointer, 2));

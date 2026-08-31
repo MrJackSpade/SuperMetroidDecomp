@@ -84,7 +84,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Kraid body function $A7:{body.VariableA:X4} is not translated.");
         }
     }
@@ -180,7 +180,7 @@ public sealed partial class RoomEnemySystem
                 {
                     0xaf94 => new KraidSoundRequest(2, 0x002d),
                     0xaf9f => new KraidSoundRequest(2, 0x002e),
-                    _ => throw new NotSupportedException(
+                    _ => throw new InvalidDataException(
                         $"Kraid head instruction $A7:{word:X4} is not translated."),
                 };
                 if (word == 0xaf94)

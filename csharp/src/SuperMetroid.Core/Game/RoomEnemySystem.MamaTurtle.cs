@@ -254,7 +254,7 @@ public sealed partial class RoomEnemySystem
                 RunMamaTurtleFalling(slot, state, samus, level!, controllerInput);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Mama Turtle main-AI pointer $A2:{(ushort)state.Function:X4} is not translated.");
         }
     }
@@ -652,7 +652,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Baby Turtle main-AI pointer $A2:{(ushort)state.Function:X4} is not translated.");
         }
     }

@@ -39,7 +39,7 @@ public sealed partial class RoomEnemySystem
                 return false;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Phantoon instruction callback $A7:{function:X4} is not translated.");
         }
     }

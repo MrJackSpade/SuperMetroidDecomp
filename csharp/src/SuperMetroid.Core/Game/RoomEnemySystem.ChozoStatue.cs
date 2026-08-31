@@ -286,7 +286,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Chozo statue pre-instruction $AA:{(ushort)state.PreInstruction:X4} is not translated.");
         }
     }

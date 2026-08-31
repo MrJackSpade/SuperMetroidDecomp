@@ -87,7 +87,7 @@ public sealed partial class RoomEnemySystem
                 MoveCacatacSpikeY(projectile, projectile.XVelocity);
                 break;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Cacatac spike direction ${projectile.Variable0:X4} is not translated.");
         }
 

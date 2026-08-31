@@ -201,7 +201,7 @@ public sealed partial class RoomEnemySystem
                 YardMovementFunction.CrawlingUpsideDownMovingLeft or
                 YardMovementFunction.CrawlingUpsideLeftMovingUp))
         {
-            throw new NotSupportedException(
+            throw new InvalidDataException(
                 $"Yard function $A3:{(ushort)state.MovementFunction:X4} is not translated.");
         }
 

@@ -98,7 +98,7 @@ public sealed partial class RoomEnemySystem
             case KagoEnemyFunction.NoOp:
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Kago main function $A8:{(ushort)state.Function:X4} is not translated.");
         }
     }

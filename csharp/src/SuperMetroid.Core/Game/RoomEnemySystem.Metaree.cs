@@ -141,7 +141,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Metaree function $A3:{(ushort)state.Function:X4} is not translated.");
         }
     }

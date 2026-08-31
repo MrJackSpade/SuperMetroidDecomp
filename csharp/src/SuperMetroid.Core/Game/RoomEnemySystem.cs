@@ -1409,7 +1409,7 @@ public sealed partial class RoomEnemySystem
             case 0xa2804c:
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Enemy ${slot.EnemyDefinitionPointer:X4} initialization AI ${address:X6} is not translated.");
         }
     }
@@ -1913,7 +1913,7 @@ public sealed partial class RoomEnemySystem
                 RunChozoStatueMain(slot, RequireChozoStatueState(slot));
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Enemy ${slot.EnemyDefinitionPointer:X4} main AI ${address:X6} is not translated.");
         }
     }
@@ -1981,7 +1981,7 @@ public sealed partial class RoomEnemySystem
                 }
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Gunship function $A2:{top.VariableF:X4} is not translated.");
         }
     }
@@ -3080,7 +3080,7 @@ public sealed partial class RoomEnemySystem
                             return;
                         break;
                     }
-                    throw new NotSupportedException(
+                    throw new InvalidDataException(
                         $"Enemy ${slot.EnemyDefinitionPointer:X4} instruction " +
                         $"${slot.Definition.Bank:X2}:{cursor:X4} opcode ${word:X4} is not translated.");
             }

@@ -32,7 +32,11 @@ public static class SamusKnockbackMovement
     /// <param name="knockbackXDirection">
     /// Bank-$A0's `$0A54`: zero means move left, one means move right.
     /// </param>
-    public static void Start(
+    /// <returns>
+    /// True when the movement-type table installs the special knockback handler. False for
+    /// native interrupt-suppression entries such as turning, grapple, and shinespark.
+    /// </returns>
+    public static bool Start(
         ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerInput,
@@ -52,11 +56,25 @@ public static class SamusKnockbackMovement
         bool morphed = sourceMovementType is 4 or 8 or 9 or 0x11 or 0x12 or 0x13;
         bool humanoid = sourceMovementType is 0 or 1 or 2 or 3 or 5 or 6 or 0x0d or
             0x10 or 0x14 or 0x15;
-        if (!morphed && !humanoid)
+        bool unusedMovementSeven = sourceMovementType == 7;
+        bool suppressesKnockback = sourceMovementType is
+            0x0a or 0x0b or 0x0c or 0x0e or 0x0f or 0x16 or 0x17 or 0x18 or 0x19 or
+            0x1a or 0x1b;
+        if (!morphed && !humanoid && !unusedMovementSeven && !suppressesKnockback)
         {
-            throw new NotSupportedException(
-                $"Knockback start from movement type ${sourceMovementType:X2} is not translated.");
+            // Bank `$90:DDE9` contains exactly 28 entries, indexed by the low movement byte.
+            // A larger value cannot name another native behavior; it means the caller supplied
+            // corrupt pose metadata rather than an untranslated movement family.
+            throw new InvalidDataException(
+                $"Movement type ${sourceMovementType:X2} lies outside the 28-entry knockback table.");
         }
+
+        // Enemy contact has already established `$18AA` before `$90:DDE9` selects a pose.
+        // Turning, grapple, current knockback, damage boost, and special type-$1B bodies all
+        // return carry clear: they retain the timer/flicker but do not install `$90:DF38`.
+        samus.KnockbackTimer = knockbackTimer;
+        if (suppressesKnockback)
+            return false;
 
         // `$90:DEFA` replaces an ordinary body with `$53/$54`. `$90:DF15`, by contrast,
         // republishes the exact Morph/Spring Ball pose. Because UpdateSamusPose sees no
@@ -68,6 +86,18 @@ public static class SamusKnockbackMovement
                 ? SamusState.KnockbackLeftPose
                 : SamusState.KnockbackRightPose;
             samus.RefreshCollisionRadii(bus);
+        }
+        else if (unusedMovementSeven)
+        {
+            // `$90:DF1D-$DF37` is dead in retail play but fully specified: unlike the ball
+            // path it installs `$33/$34`, then continues through the same command-one hurt
+            // initializer. This preserves the actual table instead of turning an unused
+            // native arm into an exception.
+            samus.Pose = facingLeft
+                ? SamusState.UnusedKnockbackLeftPose
+                : SamusState.UnusedKnockbackRightPose;
+            samus.RefreshCollisionRadii(bus);
+            humanoid = true;
         }
 
         // `$91:EE27` deliberately ignores both the damage-source side and controller input
@@ -93,7 +123,6 @@ public static class SamusKnockbackMovement
         // supplied above. The intro Rinka deliberately publishes eleven at `$8B:B918`;
         // accepting the producer-owned value here prevents this shared initializer from
         // shortening that visibly longer scripted reaction to ordinary gameplay timing.
-        samus.KnockbackTimer = knockbackTimer;
         samus.KnockbackActive = true;
 
         // The remainder of `$91:ED4E` runs for both pointer-table families. A pending bomb
@@ -116,6 +145,7 @@ public static class SamusKnockbackMovement
         SamusAerialMovement.ConfigureEnvironmentGravity(bus, samus);
         if (humanoid)
             samus.InitializeAnimation(bus, initialFrame: 0);
+        return true;
     }
 
     /// <summary>Executes one `$90:DF38` special movement-handler frame.</summary>

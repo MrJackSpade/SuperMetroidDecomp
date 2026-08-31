@@ -70,7 +70,7 @@ public sealed partial class RoomEnemySystem
         }
         else if (state.TailFunctionIndex != 0)
         {
-            throw new NotSupportedException(
+            throw new InvalidDataException(
                 $"Ceres Ridley tail function {state.TailFunctionIndex} is not translated.");
         }
 
@@ -541,7 +541,7 @@ public sealed partial class RoomEnemySystem
                     break;
 
                 default:
-                    throw new NotSupportedException(
+                    throw new InvalidDataException(
                         $"Ceres Baby draw instruction $A6:{cursor:X4} opcode ${word:X4} is not translated.");
             }
 

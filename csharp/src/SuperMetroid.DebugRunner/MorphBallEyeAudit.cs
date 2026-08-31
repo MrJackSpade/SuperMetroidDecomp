@@ -223,6 +223,8 @@ internal static class MorphBallEyeAudit
             GameTimeSeconds: 0,
             GameTimeMinutes: 0,
             GameTimeHours: 0,
+            EventBytes: new byte[Bank80SystemState.EventByteCount],
+            BossBytes: new byte[Bank80SystemState.AreaCount],
             RoomChozoBytes: new byte[Bank80SystemState.RoomChozoBitByteCount],
             CollectedItemBytes: new byte[Bank80SystemState.ItemBitByteCount],
             SaveStation: 0,

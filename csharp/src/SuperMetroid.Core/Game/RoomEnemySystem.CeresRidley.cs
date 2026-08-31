@@ -407,7 +407,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Ceres Ridley function $A6:{(ushort)state.Function:X4} is not translated.");
         }
 
@@ -763,7 +763,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Ceres Baby Metroid function $A6:{state.BabyFunction:X4} is not translated.");
         }
     }

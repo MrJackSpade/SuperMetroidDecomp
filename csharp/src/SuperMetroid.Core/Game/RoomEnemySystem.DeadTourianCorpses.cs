@@ -157,7 +157,7 @@ public sealed partial class RoomEnemySystem
             ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer);
         if ((slot.Parameter1 & 1) != 0 || slot.Parameter1 / 2 >= profile.VariantCount)
         {
-            throw new NotSupportedException(
+            throw new InvalidDataException(
                 $"Dead {profile.Species} parameter 1 ${slot.Parameter1:X4} has no retail variant.");
         }
 
@@ -254,7 +254,7 @@ public sealed partial class RoomEnemySystem
 
         if (slot.VariableA != DeadTourianCorpseNoOperationFunction)
         {
-            throw new NotSupportedException(
+            throw new InvalidDataException(
                 $"Dead {profile.Species} function $A9:{slot.VariableA:X4} is not translated.");
         }
     }

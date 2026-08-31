@@ -35,7 +35,10 @@ public sealed partial class SamusState
             targetPose is not (NormalJumpGunExtendedRightPose or NormalJumpGunExtendedLeftPose) ||
             ReadPoseXDirection(bus, sourcePose) != ReadPoseXDirection(bus, targetPose))
         {
-            throw new NotSupportedException(
+            // The six spin/Space/Screw tables emit only same-facing `$13/$14` on a Shoot
+            // match. This specialized entry point is never the dispatcher for another
+            // target family; such a request is a caller contract violation.
+            throw new InvalidOperationException(
                 $"Spin-fire transition ${sourcePose:X2} -> ${targetPose:X2} is not a same-facing retail route.");
         }
 
@@ -318,7 +321,10 @@ public sealed partial class SamusState
             CrouchingAimDiagonalDownRightPose or CrouchingAimDiagonalDownLeftPose;
         if (!supportedSource || !supportedTarget)
         {
-            throw new NotSupportedException(
+            // `$9B:C8C5` chooses from the complete twelve-entry dropped-pose table, whose
+            // outputs are exactly the standing/aim/crouch set above. Other releases use
+            // separate grapple wall-jump or swing-release handlers, not this API.
+            throw new InvalidOperationException(
                 $"Grapple drop transition ${Pose:X2} -> ${targetPose:X2} is not a retail dropped-table route.");
         }
 
@@ -529,8 +535,11 @@ public sealed partial class SamusState
             (NormalLandingLeftPose, NeutralJumpTransitionLeftPose);
         if (!verified)
         {
-            throw new NotSupportedException(
-                $"Ordinary jump transition ${Pose:X2} -> ${targetPose:X2} is not translated.");
+            // The pairs above exhaust the active retail input-table records that invoke
+            // the ordinary jump initializer. Movement-specific launches (damage boost,
+            // grapple, bomb jump, wall jump, and Shinespark) own separate entry points.
+            throw new InvalidOperationException(
+                $"Ordinary jump transition ${Pose:X2} -> ${targetPose:X2} is not an active retail route for this initializer.");
         }
 
         Pose = targetPose is SpinJumpRightPose or SpinJumpLeftPose

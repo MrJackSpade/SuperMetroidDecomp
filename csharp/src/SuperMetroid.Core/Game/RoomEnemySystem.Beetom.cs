@@ -288,7 +288,7 @@ public sealed partial class RoomEnemySystem
                 RunFlungBeetom(slot, state, level!);
                 return;
             default:
-                throw new NotSupportedException($"Beetom function $A8:{(ushort)state.Function:X4} is not translated.");
+                throw new InvalidDataException($"Beetom function $A8:{(ushort)state.Function:X4} is not translated.");
         }
     }
 

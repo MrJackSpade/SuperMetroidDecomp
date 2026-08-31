@@ -218,7 +218,7 @@ public sealed partial class RoomEnemySystem
             case PhantoonAiFunction.NoOperation:
                 break;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Phantoon function $A7:{body.VariableF:X4} is not translated.");
         }
 

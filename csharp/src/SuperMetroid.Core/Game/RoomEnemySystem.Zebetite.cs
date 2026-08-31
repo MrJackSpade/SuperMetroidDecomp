@@ -168,7 +168,7 @@ public sealed partial class RoomEnemySystem
                 RunZebetiteActive(slot, state);
                 break;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Zebetite function $A6:{(ushort)state.Function:X4} is not translated.");
         }
     }

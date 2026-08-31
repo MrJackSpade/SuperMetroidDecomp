@@ -168,7 +168,7 @@ public sealed partial class RoomEnemySystem
     {
         if (state.Function != EvirAiFunction.HandleBodyOrArms)
         {
-            throw new NotSupportedException(
+            throw new InvalidDataException(
                 $"Evir body/arms function $A8:{(ushort)state.Function:X4} is not translated.");
         }
 
@@ -243,7 +243,7 @@ public sealed partial class RoomEnemySystem
                 RunRegeneratingEvirProjectile(slot, state);
                 break;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Evir projectile function $A8:{(ushort)state.Function:X4} is not translated.");
         }
     }

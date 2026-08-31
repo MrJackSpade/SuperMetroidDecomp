@@ -50,33 +50,22 @@ public static partial class SamusGrappleMovement
     {
         int blockX = endpointX >> 4;
         int blockY = endpointY >> 4;
-        if ((uint)blockX >= (uint)level.WidthInBlocks ||
-            (uint)blockY >= (uint)level.HeightInBlocks)
+        RoomCollisionBlock initialBlock =
+            level.GetCollisionBlockOrPrefilledSolid(blockX, blockY);
+        if (initialBlock.Index < 0)
         {
-            // Native code would index the room's contiguous decompression allocation. That
-            // adjacent-WRAM representation does not exist in RoomLevelData, so wrapping to
-            // an unrelated logical block would fabricate collision. Fail at the boundary.
-            throw new NotSupportedException(
-                $"Grapple endpoint (${endpointX:X4},${endpointY:X4}) left translated room storage.");
+            // The prefilled `$8000` word dispatches as an ordinary solid endpoint: carry
+            // set, overflow clear, which queues grapple cancellation rather than connecting.
+            return new GrappleBlockReaction(Carry: true, Overflow: false);
         }
 
-        int index = blockY * level.WidthInBlocks + blockX;
+        int index = initialBlock.Index;
         for (int extensionDepth = 0; extensionDepth <= 16; extensionDepth++)
         {
-            // C# integer division truncates a negative dividend toward zero, so checking
-            // only `index / width` would accidentally make index -1 look like row zero.
-            // Validate the linear address first; the unsigned comparison covers both a
-            // negative extension and one beyond the decompressed level-data allocation.
-            if ((uint)index >= (uint)(level.WidthInBlocks * level.HeightInBlocks))
-            {
-                throw new NotSupportedException(
-                    $"Grapple extension BTS resolved outside translated room storage at index ${index:X4}.");
-            }
-
-            int resolvedX = index % level.WidthInBlocks;
-            int resolvedY = index / level.WidthInBlocks;
-
-            RoomCollisionBlock block = level.GetCollisionBlock(resolvedX, resolvedY);
+            RoomCollisionBlock block =
+                level.GetCollisionBlockByIndexOrPrefilledSolid(index);
+            int resolvedX = block.Index < 0 ? -1 : block.Index % level.WidthInBlocks;
+            int resolvedY = block.Index < 0 ? -1 : block.Index / level.WidthInBlocks;
             switch (block.CollisionType)
             {
                 // These four dispatcher entries return clear carry: the beam remains live.
@@ -162,13 +151,42 @@ public static partial class SamusGrappleMovement
                     throw new InvalidDataException(
                         $"Invalid grapple block BTS ${block.Behavior:X2} at ({resolvedX},{resolvedY}).");
 
+                case 4:
+                case 0x0c:
+                    // `$94:9E55/$9E73` use the same shootable reaction table as ordinary
+                    // projectiles. Grapple owns no projectile family, so weapon-gated
+                    // entries reject it while BTS 0..7 retain their unconditional block
+                    // animation. The collision nibble—not PLM setup—owns carry: type 4 is
+                    // air and type C is solid.
+                    if (plms is null)
+                    {
+                        throw new InvalidOperationException(
+                            "Shootable grapple reaction requires a RoomPlmSystem.");
+                    }
+                    plms.TrySpawnProjectileShotBlock(
+                        level,
+                        block.Index,
+                        block.Behavior,
+                        projectileType: 0,
+                        solidBlock: block.CollisionType == 0x0c);
+                    return new GrappleBlockReaction(
+                        Carry: block.CollisionType == 0x0c,
+                        Overflow: false);
+
+                case 7:
+                    // Bombable-air setup `$84:CEDA` immediately deletes its provisional
+                    // PLM for grapple's zero projectile family. Carry remains clear.
+                    return new GrappleBlockReaction(Carry: false, Overflow: false);
+
+                case 0x0f:
+                    // The solid twin performs the same rejected setup but independently
+                    // returns carry set from `$94:9FF4`.
+                    return new GrappleBlockReaction(Carry: true, Overflow: false);
+
                 default:
-                    // Types 4/7/A/C/F route through PLM setup functions whose returned
-                    // processor flags and room mutation are the collision result. They are
-                    // not equivalent to generic air or solid and cannot be guessed here.
-                    throw new NotSupportedException(
-                        $"Grapple block reaction type ${block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
-                        $"at ({resolvedX},{resolvedY}) requires the untranslated bank-$84 PLM pipeline.");
+                    throw new InvalidDataException(
+                        $"Grapple block type ${block.CollisionType:X1} escaped the complete " +
+                        $"sixteen-entry dispatcher at ({resolvedX},{resolvedY}).");
             }
         }
 
@@ -191,8 +209,8 @@ public static partial class SamusGrappleMovement
         byte sourceMovementType = samus.ReadMovementType(bus);
         if ((SamusMovementType)sourceMovementType == SamusMovementType.DraygonHeld)
         {
-            throw new NotSupportedException(
-                "Draygon-held grapple connection requires the untranslated enemy actor route.");
+            throw new InvalidOperationException(
+                "A room-block grapple connection cannot be installed while Draygon owns Samus.");
         }
 
         bool movingVertically =

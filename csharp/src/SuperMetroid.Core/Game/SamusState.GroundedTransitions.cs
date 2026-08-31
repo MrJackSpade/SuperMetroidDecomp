@@ -20,13 +20,19 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         if (IsCompactAerialPose(Pose) || IsCompactAerialPose(targetPose))
         {
-            throw new NotSupportedException(
+            // Compact poses change Samus's collision height. This overload intentionally
+            // has no room data, so accepting the request would bypass the native expansion
+            // collision probe; callers must select the collision-aware API explicitly.
+            throw new InvalidOperationException(
                 "Radius-ten aerial transitions require TryApplyCompactAerialTransition and active room collision data.");
         }
         if (!IsSameFacingAerialAimFireOrForwardTransition(Pose, targetPose))
         {
-            throw new NotSupportedException(
-                $"Aerial aim/fire/forward transition ${Pose:X2} -> ${targetPose:X2} crosses an untranslated family.");
+            // This helper models one same-facing ROM family, not the general pose dispatcher.
+            // A cross-family request therefore violates the method contract rather than
+            // identifying an untranslated member of the admitted family.
+            throw new InvalidOperationException(
+                $"Aerial aim/fire/forward transition ${Pose:X2} -> ${targetPose:X2} is outside the same-facing family handled by this operation.");
         }
 
         ushort oldRadius = Kinematics.YRadius;
@@ -36,8 +42,10 @@ public sealed partial class SamusState
         {
             // The admitted family deliberately excludes compact straight-down `$17/$18`
             // and `$2D/$2E`; reaching a different radius proves a caller crossed that seam.
-            throw new NotSupportedException(
-                $"Aerial pose ${targetPose:X2} changes radius {oldRadius} -> {Kinematics.YRadius}; pose-change collision is not translated for it.");
+            // Every retail member admitted above has the same collision radius. A mismatch
+            // can only come from inconsistent/corrupt pose metadata, not an omitted route.
+            throw new InvalidDataException(
+                $"Aerial pose ${targetPose:X2} unexpectedly changes radius {oldRadius} -> {Kinematics.YRadius} inside an equal-radius transition family.");
         }
         InitializeAnimation(bus, initialFrame: 0);
     }
@@ -72,7 +80,9 @@ public sealed partial class SamusState
         if ((!rightJump && !leftJump && !rightFall && !leftFall) ||
             (!IsCompactAerialPose(Pose) && !IsCompactAerialPose(targetPose)))
         {
-            throw new NotSupportedException(
+            // This is the exact precondition of the collision-aware compact-pose helper.
+            // Other aerial changes use ApplyAerialAimTransition or a movement-specific API.
+            throw new InvalidOperationException(
                 $"Compact aerial transition ${Pose:X2} -> ${targetPose:X2} is not a same-family ROM route.");
         }
 
@@ -130,8 +140,10 @@ public sealed partial class SamusState
             IsLeftFacingCrouchingPose(targetPose);
         if (!sameRightFamily && !sameLeftFamily && !sameRightCrouch && !sameLeftCrouch)
         {
-            throw new NotSupportedException(
-                $"Grounded aim transition ${Pose:X2} -> ${targetPose:X2} crosses an untranslated pose family.");
+            // The native input tables never feed a facing reversal through this arm-only
+            // transition seam; reversal has its own turn-pose initialization path.
+            throw new InvalidOperationException(
+                $"Grounded aim transition ${Pose:X2} -> ${targetPose:X2} is outside this same-facing pose family.");
         }
         if (!IsGroundedAimPose(Pose) && !IsGroundedAimPose(targetPose) &&
             !IsGunExtendedPose(Pose) && !IsGunExtendedPose(targetPose))
@@ -250,7 +262,9 @@ public sealed partial class SamusState
             (IsLeftFacingRanIntoWallPose(targetPose) || targetPose == StandingAimUpLeftPose);
         if (!rightRoute && !leftRoute)
         {
-            throw new NotSupportedException(
+            // Only block-backed ran-into-wall records call this exact initializer. Treat a
+            // different source/target pair as misuse of the specialized operation.
+            throw new InvalidOperationException(
                 $"Ran-into-wall pose change ${Pose:X2} -> ${targetPose:X2} is not a block-backed retail route.");
         }
 
@@ -267,7 +281,8 @@ public sealed partial class SamusState
             IsLeftFacingRunningPose(targetPose);
         if (!rightRoute && !leftRoute)
         {
-            throw new NotSupportedException(
+            // Running exits are a strict same-facing subset of the ran-into-wall table.
+            throw new InvalidOperationException(
                 $"Ran-into-wall running exit ${Pose:X2} -> ${targetPose:X2} is not a retail route.");
         }
 
@@ -324,7 +339,9 @@ public sealed partial class SamusState
         if ((!entering || !moonwalkEnabled) && !sameVisualFamily &&
             !exitsToForwardRun && !exitsToStandingFallback)
         {
-            throw new NotSupportedException(
+            // The complete stable moonwalk table is represented by the predicates above;
+            // reaching this branch means the caller selected the wrong pose-change API.
+            throw new InvalidOperationException(
                 $"Moonwalk pose change ${Pose:X2} -> ${targetPose:X2} is not a stable retail route.");
         }
 
@@ -348,12 +365,15 @@ public sealed partial class SamusState
             6 => MoonwalkTurnJumpAimDownRightPose,
             7 => MoonwalkTurnJumpRightPose,
             8 => MoonwalkTurnJumpAimUpRightPose,
-            _ => throw new NotSupportedException(
-                $"Moonwalk shot direction ${ReadShotDirection(bus):X2} has no stable turn/jump route."),
+            // Stable moonwalk poses publish only the six directions enumerated above.
+            // Another value means WRAM/pose metadata is inconsistent, not missing logic.
+            _ => throw new InvalidDataException(
+                $"Moonwalk shot direction ${ReadShotDirection(bus):X2} is invalid for a stable moonwalk pose."),
         };
         if (!IsMoonwalkingPose(Pose) || targetPose != expectedTarget)
         {
-            throw new NotSupportedException(
+            // The target is determined completely by the native shot-direction table above.
+            throw new InvalidOperationException(
                 $"Moonwalk turn/jump ${Pose:X2} -> ${targetPose:X2} is not a retail route.");
         }
 
@@ -539,8 +559,10 @@ public sealed partial class SamusState
                     7 => TurningLeftToRightCrouchingPose,
                     8 => TurningLeftToRightCrouchingAimDiagonalUpPose,
                     9 => TurningLeftToRightCrouchingAimUpPose,
-                    _ => throw new NotSupportedException(
-                        $"Crouched turn shot direction ${shotDirection:X2} is not translated."),
+                    // Grounded/crouched pose metadata cannot publish the compact-aerial
+                    // directions 4/5 (or any value outside the native eight-entry set).
+                    _ => throw new InvalidDataException(
+                        $"Crouched turn shot direction ${shotDirection:X2} is invalid."),
                 }
                 : shotDirection switch
                 {
@@ -552,8 +574,8 @@ public sealed partial class SamusState
                     7 => TurningLeftToRightPose,
                     8 => TurningLeftToRightAimDiagonalUpPose,
                     9 => TurningLeftToRightAimUpPose,
-                    _ => throw new NotSupportedException(
-                        $"Grounded turn shot direction ${shotDirection:X2} is not translated."),
+                    _ => throw new InvalidDataException(
+                        $"Grounded turn shot direction ${shotDirection:X2} is invalid."),
                 };
         }
 

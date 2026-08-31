@@ -346,13 +346,13 @@ public sealed partial class RoomEnemySystem
             if (isOrdinarySpacePirate && usesExtendedHitboxes &&
                 hitboxTouchAi != SpacePirateTouchAi)
             {
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Space Pirate hitbox touch AI $B2:{hitboxTouchAi:X4} is not translated.");
             }
 
             if (isTorizo && (!usesExtendedHitboxes || hitboxTouchAi != BombTorizoTouchAi))
             {
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Torizo hitbox touch AI $AA:{hitboxTouchAi:X4} is not translated.");
             }
 
@@ -367,7 +367,7 @@ public sealed partial class RoomEnemySystem
                     return true;
                 if (hitboxTouchAi != PhantoonTouchHitboxCallback)
                 {
-                    throw new NotSupportedException(
+                    throw new InvalidDataException(
                         $"Phantoon hitbox touch AI $A7:{hitboxTouchAi:X4} is not translated.");
                 }
 
@@ -390,7 +390,7 @@ public sealed partial class RoomEnemySystem
                     return true; // The vulnerable eye rectangle is harmless to Samus.
                 if (hitboxTouchAi != DraygonTouchAi)
                 {
-                    throw new NotSupportedException(
+                    throw new InvalidDataException(
                         $"Draygon hitbox touch AI $A5:{hitboxTouchAi:X4} is not translated.");
                 }
 
@@ -414,7 +414,7 @@ public sealed partial class RoomEnemySystem
                     return true;
                 if (hitboxTouchAi != SporeSpawnTouchAi)
                 {
-                    throw new NotSupportedException(
+                    throw new InvalidDataException(
                         $"Spore Spawn hitbox touch AI $A5:{hitboxTouchAi:X4} is not translated.");
                 }
 
@@ -460,7 +460,7 @@ public sealed partial class RoomEnemySystem
                 if (hitboxTouchAi is not (
                         CrocomireClawTouchAi or CommonNormalEnemyTouchAi))
                 {
-                    throw new NotSupportedException(
+                    throw new InvalidDataException(
                         $"Crocomire hitbox touch AI $A4:{hitboxTouchAi:X4} is not translated.");
                 }
 
@@ -486,7 +486,7 @@ public sealed partial class RoomEnemySystem
                         MaridiaLargeSnailDamagingTouchAi or
                         MaridiaLargeSnailNonDamagingTouchAi))
                 {
-                    throw new NotSupportedException(
+                    throw new InvalidDataException(
                         $"Maridia Large Snail hitbox touch AI " +
                         $"$A2:{hitboxTouchAi:X4} is not translated.");
                 }
@@ -1026,7 +1026,7 @@ public sealed partial class RoomEnemySystem
                     }
                     if (hitboxShotAi != DraygonShotAi)
                     {
-                        throw new NotSupportedException(
+                        throw new InvalidDataException(
                             $"Draygon hitbox shot AI $A5:{hitboxShotAi:X4} is not translated.");
                     }
                 }
@@ -1048,7 +1048,7 @@ public sealed partial class RoomEnemySystem
                     (!usesExtendedHitboxes || hitboxShotAi is not (
                         BombTorizoShotAi or TorizoStandUpSitDownShotAi)))
                 {
-                    throw new NotSupportedException(
+                    throw new InvalidDataException(
                         $"Torizo hitbox shot AI $AA:{hitboxShotAi:X4} is not translated.");
                 }
 
@@ -1073,7 +1073,7 @@ public sealed partial class RoomEnemySystem
                     }
                     if (hitboxShotAi != MaridiaLargeSnailShotAi)
                     {
-                        throw new NotSupportedException(
+                        throw new InvalidDataException(
                             $"Maridia Large Snail hitbox shot AI " +
                             $"$A2:{hitboxShotAi:X4} is not translated.");
                     }
@@ -1098,7 +1098,7 @@ public sealed partial class RoomEnemySystem
                     }
                     if (hitboxShotAi != SporeSpawnShotAi)
                     {
-                        throw new NotSupportedException(
+                        throw new InvalidDataException(
                             $"Spore Spawn hitbox shot AI $A5:{hitboxShotAi:X4} is not translated.");
                     }
                     if (!SporeSpawnAcceptsProjectile(projectileType))
@@ -1121,7 +1121,7 @@ public sealed partial class RoomEnemySystem
                         enemy.EnemyDefinitionPointer == KraidFootDefinition &&
                             hitboxShotAi != KraidNoOpShotAi)
                     {
-                        throw new NotSupportedException(
+                        throw new InvalidDataException(
                             $"Kraid part ${enemy.EnemyDefinitionPointer:X4} selected " +
                             $"shot AI $A7:{hitboxShotAi:X4}.");
                     }
@@ -1806,7 +1806,7 @@ public sealed partial class RoomEnemySystem
                         enemy.EnemyDefinitionPointer == KraidFootDefinition &&
                             selectedShotAi != KraidNoOpShotAi)
                     {
-                        throw new NotSupportedException(
+                        throw new InvalidDataException(
                             $"Kraid part ${enemy.EnemyDefinitionPointer:X4} selected " +
                             $"normal-bomb shot AI $A7:{selectedShotAi:X4}.");
                     }
@@ -2442,7 +2442,7 @@ public sealed partial class RoomEnemySystem
                 !isDeadTourianCorpse &&
                 !isShitroid)
             {
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Enemy ${enemy.EnemyDefinitionPointer:X4} power-bomb reaction " +
                     $"${enemy.Definition.Bank:X2}:{reactionPointer:X4} is not translated.");
             }
@@ -2587,7 +2587,7 @@ public sealed partial class RoomEnemySystem
                 0x0200 => 13,
                 0x0500 => 14,
                 0x0300 => 15,
-                _ => throw new NotSupportedException(
+                _ => throw new InvalidDataException(
                     $"Projectile family ${family:X3} has no translated vulnerability field."),
             };
             byte familyEntry = bus.ReadByte(
@@ -2655,7 +2655,7 @@ public sealed partial class RoomEnemySystem
             0x0200 => 13,
             0x0500 => 14,
             0x0300 => 15,
-            _ => throw new NotSupportedException(
+            _ => throw new InvalidDataException(
                 $"Projectile family ${family:X3} has no translated vulnerability field."),
         };
         return bus.ReadByte(0xb40000 | unchecked((ushort)(pointer + byteOffset)));
@@ -2810,7 +2810,7 @@ public sealed partial class RoomEnemySystem
         if (hitboxShotAi is not (
                 GoldNinjaVulnerableHitboxShotAi or GoldNinjaInvincibleHitboxShotAi))
         {
-            throw new NotSupportedException(
+            throw new InvalidDataException(
                 $"Space Pirate hitbox shot AI $B2:{hitboxShotAi:X4} is not translated.");
         }
         if (enemy.EnemyDefinitionPointer != GoldNinjaSpacePirateDefinition)
@@ -2858,7 +2858,7 @@ public sealed partial class RoomEnemySystem
                 GoldNinjaVulnerableHitboxShotAi or
                 GoldNinjaInvincibleHitboxShotAi))
         {
-            throw new NotSupportedException(
+            throw new InvalidDataException(
                 $"Space Pirate normal-bomb hitbox AI $B2:{hitboxShotAi:X4} is not translated.");
         }
 

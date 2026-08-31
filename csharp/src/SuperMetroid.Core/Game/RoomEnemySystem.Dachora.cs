@@ -204,7 +204,7 @@ public sealed partial class RoomEnemySystem
                 RunDachoraFalling(slot, state, activeSamus, activeLevel);
                 break;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Dachora function $A7:{(ushort)state.Function:X4} is not translated.");
         }
     }

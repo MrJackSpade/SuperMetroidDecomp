@@ -397,7 +397,7 @@ public sealed partial class RoomEnemySystem
                 MotherBrainBodyFunction.ThirdPhaseFightingMain,
             MotherBrainRainbowBeamAttackPhase.Phase3FightingAttackCooldown =>
                 MotherBrainBodyFunction.ThirdPhaseFightingAttackCooldown,
-            _ => throw new NotSupportedException(
+            _ => throw new InvalidDataException(
                 $"Live Mother Brain rainbow phase {phase} is not attached to a room function yet."),
         };
 }

@@ -132,8 +132,10 @@ internal sealed class IntroBabyDiscoveryState
                 return;
 
             default:
-                throw new NotSupportedException(
-                    $"Baby-discovery demo pre-instruction $91:{pointer:X4} is not translated.");
+                // The Baby-discovery object references only the four routines above.
+                // Another pointer means the object definition/list pairing is corrupt.
+                throw new InvalidDataException(
+                    $"Baby-discovery demo names invalid pre-instruction $91:{pointer:X4}.");
         }
     }
 
@@ -209,8 +211,8 @@ internal sealed class IntroBabyDiscoveryState
                 return;
 
             default:
-                throw new NotSupportedException(
-                    $"Confused-baby pre-instruction $8B:{confusedBaby.PreInstructionPointer:X4} is not translated.");
+                throw new InvalidDataException(
+                    $"Confused-baby sprite names invalid pre-instruction $8B:{confusedBaby.PreInstructionPointer:X4}.");
         }
     }
 

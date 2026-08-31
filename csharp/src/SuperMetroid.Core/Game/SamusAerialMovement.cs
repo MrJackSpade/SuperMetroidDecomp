@@ -463,7 +463,13 @@ public static class SamusAerialMovement
     {
         ValidateCommon(bus, level, samus);
         byte movementType = samus.ReadMovementType(bus);
-        if (movementType is not (0x17 or 0x18) || !SamusState.IsAerialTurnPose(samus.Pose))
+        // Crouched aimed turns use movement type `$17` even though they normally remain on
+        // the floor. If a producer gives one nonzero Y direction, `$90:A790` immediately
+        // executes the same X/simple-Y path as the ordinary `$2F/$30/$8F-$92/$9E/$9F`
+        // jumping-turn records. The pose name therefore cannot be used as an admission gate.
+        bool isTranslatedTurnPose = SamusState.IsAerialTurnPose(samus.Pose) ||
+            (movementType == 0x17 && SamusState.IsAimedCrouchingTurnPose(samus.Pose));
+        if (movementType is not (0x17 or 0x18) || !isTranslatedTurnPose)
             throw new InvalidOperationException($"Aerial-turn movement requires type $17/$18 pose, not ${samus.Pose:X2}.");
         if (samus.Kinematics.YDirection == 0)
         {

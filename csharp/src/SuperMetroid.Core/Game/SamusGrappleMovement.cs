@@ -112,7 +112,9 @@ public static partial class SamusGrappleMovement
         byte direction = samus.ReadShotDirection(bus);
         if ((direction & 0xf0) != 0 || direction >= 10)
         {
-            throw new NotSupportedException(
+            // Grapple input is normally gated before this initializer. A sentinel or
+            // out-of-range direction means the caller bypassed that pose-level gate.
+            throw new InvalidOperationException(
                 $"Pose ${samus.Pose:X2} has no fireable grapple direction (${direction:X2}).");
         }
 

@@ -251,7 +251,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Rio function $A2:{(ushort)state.Function:X4} is not translated.");
         }
     }

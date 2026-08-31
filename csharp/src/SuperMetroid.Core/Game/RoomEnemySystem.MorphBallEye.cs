@@ -238,7 +238,7 @@ public sealed partial class RoomEnemySystem
                 AdvanceMorphBallEyeDeactivation(state);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Morph-ball eye function $A8:{(ushort)state.Function:X4} is not translated.");
         }
     }

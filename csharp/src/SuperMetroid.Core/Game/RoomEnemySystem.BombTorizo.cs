@@ -140,7 +140,7 @@ public sealed partial class RoomEnemySystem
             : selectedShotAi is BombTorizoShotAi or GoldenTorizoShotAi;
         if (!validMainCallback)
         {
-            throw new NotSupportedException(
+            throw new InvalidDataException(
                 $"Torizo normal-bomb hitbox AI $AA:{selectedShotAi:X4} is not translated.");
         }
 
@@ -456,7 +456,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Torizo main function $AA:{state.Function:X4} is not translated.");
         }
     }
@@ -545,7 +545,7 @@ public sealed partial class RoomEnemySystem
                     RequireBombTorizoLevel(level));
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Bomb Torizo pre-instruction $AA:{state.PreInstruction:X4} is not translated.");
         }
     }

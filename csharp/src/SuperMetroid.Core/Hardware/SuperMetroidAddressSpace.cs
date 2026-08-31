@@ -132,7 +132,11 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace
 
         // This range contains PPU/APU/CPU registers, expansion space, and other mappings.
         // Returning zero would hide every missing hardware implementation behind bad data.
-        throw new NotSupportedException($"CPU read ${bank:X2}:{offset:X4} is not mapped by the current runtime.");
+        // This class is the translated runtime's explicit address contract, not a general
+        // 65816/open-bus emulator. A caller escaping every declared ROM/WRAM/SRAM window
+        // is therefore requesting an invalid mapping.
+        throw new InvalidOperationException(
+            $"CPU read ${bank:X2}:{offset:X4} is outside the runtime address map.");
     }
 
     /// <summary>
@@ -165,7 +169,8 @@ public sealed class SuperMetroidAddressSpace : ISnesAddressSpace
         if (offset >= 0x8000)
             throw new InvalidOperationException($"Cannot write cartridge ROM at ${bank:X2}:{offset:X4}.");
 
-        throw new NotSupportedException($"CPU write ${bank:X2}:{offset:X4} is not mapped by the current runtime.");
+        throw new InvalidOperationException(
+            $"CPU write ${bank:X2}:{offset:X4} is outside the runtime address map.");
     }
 
     /// <summary>

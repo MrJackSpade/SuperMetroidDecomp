@@ -224,7 +224,7 @@ public sealed partial class RoomEnemySystem
                     sharedProjectiles);
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Mother Brain body function $A9:{(ushort)state.Function:X4} is not translated.");
         }
     }
@@ -294,7 +294,7 @@ public sealed partial class RoomEnemySystem
                 state.DrawNeck = true;
                 return;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Mother Brain brain function $A9:{(ushort)state.BrainFunction:X4} is not translated.");
         }
     }

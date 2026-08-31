@@ -172,7 +172,7 @@ static void VerifySamusAerialMovement()
     // Turning input handler `$91:8142` uses the ordinary transition table. The reported
     // retail match `$26 -> $19` is therefore a real spin-jump launch, not an unsupported
     // turning-only side effect. Lock down both mirrors so the runtime cannot regress to a
-    // NotSupportedException when Jump is pressed during either one-frame ground turn.
+    // an open-dispatch crash when Jump is pressed during either one-frame ground turn.
     var turnJumpRight = new SamusState { Pose = SamusState.TurningLeftToRightPose };
     turnJumpRight.ApplyOrdinaryJumpTransition(bus, SamusState.SpinJumpRightPose);
     AssertEqual(SamusState.SpinJumpRightPose, turnJumpRight.Pose,

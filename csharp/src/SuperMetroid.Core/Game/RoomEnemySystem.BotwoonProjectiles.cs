@@ -98,7 +98,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Botwoon body function $86:{segment.XVelocity:X4} is not translated.");
         }
     }

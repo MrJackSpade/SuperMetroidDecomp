@@ -321,6 +321,16 @@ public sealed partial class SamusState
     /// <summary>Pose $32 is the left-facing ordinary morph ball in the air.</summary>
     public const byte MorphBallFallingLeftPose = 0x32;
 
+    /// <summary>
+    /// Pose `$33` is the unused right-facing body selected only by movement type `$07`'s
+    /// otherwise-unused knockback transition at `$90:DF1D`. Naming it keeps the exhaustive
+    /// native pointer table executable without pretending the retail game reaches it.
+    /// </summary>
+    public const byte UnusedKnockbackRightPose = 0x33;
+
+    /// <summary>Left-facing partner of <see cref="UnusedKnockbackRightPose"/> at pose `$34`.</summary>
+    public const byte UnusedKnockbackLeftPose = 0x34;
+
     /// <summary>Pose $37 is the right-facing crouch-to-morph transition.</summary>
     public const byte MorphingTransitionRightPose = 0x37;
 

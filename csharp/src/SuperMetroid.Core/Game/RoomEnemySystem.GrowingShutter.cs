@@ -103,7 +103,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Growing shutter function $A2:{(ushort)state.Function:X4} is not translated.");
         }
     }

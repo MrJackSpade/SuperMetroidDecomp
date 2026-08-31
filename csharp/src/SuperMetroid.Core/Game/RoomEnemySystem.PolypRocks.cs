@@ -54,7 +54,7 @@ public sealed partial class RoomEnemySystem
                 StepFallingPolypRock(projectile);
                 break;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Polyp rock function $86:{projectile.Variable0:X4} is not translated.");
         }
 

@@ -486,6 +486,13 @@ public sealed partial class SamusProjectileSystem
         }
 
         RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+
+        // `$94:9D9F/$9DCA` return the dispatcher to its caller with N set, causing the same
+        // point reaction to run again on the signed horizontal/vertical parent. A zero-BTS
+        // extension is transparent. Reuse the already translated level resolver so missiles
+        // and the broad Samus body scans cannot disagree about chained extensions.
+        if (!SamusBlockCollision.TryResolveExtension(level, ref block))
+            return false;
         if (block.CollisionType == 12 && block.Behavior == 0x45)
         {
             _ = roomPlms?.TryNotifyCollectibleProjectileHit(block.Index, slot.Type);
@@ -497,6 +504,17 @@ public sealed partial class SamusProjectileSystem
             // nibble's normal carry: type four remains pass-through; type C is solid.
             TrySpawnShootableReaction(level, slot, block, roomPlms);
             return block.CollisionType == 12;
+        }
+
+        if (block.CollisionType is 7 or 15)
+        {
+            // `$94:9FD6/$9FF4` always indexes the bomb-block PLM table for nonnegative BTS.
+            // A missile or Super Missile still performs Spawn_PLM, but setup `$84:CEDA`
+            // immediately clears the new slot because its family is neither `$0500` nor
+            // `$0300`; no level word, timer, sound, or persistent PLM survives that call.
+            // The reaction's carry is independent of setup: bombable air passes through,
+            // while bombable solid destroys the missile.
+            return block.CollisionType == 15;
         }
         return block.CollisionType switch
         {
@@ -511,12 +529,11 @@ public sealed partial class SamusProjectileSystem
             // the direction only changes which half of a square definition is sampled.
             1 => MissileSlopePointReaction(bus, block, slot, horizontalMovement),
 
-            // Block families below still have extension walks or weapon-gated PLM effects.
-            // Throwing at the exact contacted block prevents a shootable/bombable tile from
-            // being guessed into plain air or plain solid.
-            _ => throw new NotSupportedException(
-                $"Missile point reaction for collision type ${block.CollisionType:X1}, " +
-                $"BTS ${block.Behavior:X2}, block index {block.Index} is not translated."),
+            // CollisionType is the high nibble of a room word, so the cases above are
+            // exhaustive after extension redispatch. Preserve an explicit corruption guard
+            // in case that representation ever changes without silently inventing carry.
+            _ => throw new InvalidDataException(
+                $"Invalid missile collision type ${block.CollisionType:X2} at block {block.Index}."),
         };
     }
 

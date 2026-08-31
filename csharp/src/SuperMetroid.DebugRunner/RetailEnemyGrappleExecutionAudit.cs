@@ -263,8 +263,11 @@ internal static partial class RetailEnemyExecutionAudit
         GrappleAttachWithoutInvincibility => GrappleEnemyReaction.AttachWithoutInvincibility,
         GrappleAttachAndParalyze => GrappleEnemyReaction.AttachAndParalyze,
         GrappleHurtSamus => GrappleEnemyReaction.HurtSamus,
-        _ => throw new NotSupportedException(
-            $"Definition ${target.EnemyDefinitionPointer:X4} uses untranslated Grapple " +
+        // The retail vulnerability schema has exactly these seven shared bank-$A0
+        // functions.  Anything else is malformed cartridge data, not an open dispatcher
+        // route: every authored retail enemy variant is enumerated by this audit.
+        _ => throw new InvalidDataException(
+            $"Definition ${target.EnemyDefinitionPointer:X4} names invalid Grapple " +
             $"reaction ${target.Definition.Bank:X2}:{pointer:X4}."),
     };
 

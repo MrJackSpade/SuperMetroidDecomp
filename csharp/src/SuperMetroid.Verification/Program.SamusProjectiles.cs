@@ -1450,6 +1450,36 @@ static void VerifySamusPowerBeamProjectiles()
     AssertTrue(FirePointMissile(squareSlope, 104).CollisionStartedExplosion,
         "square-slope bottom half collides");
 
+    // `$94:A1B5` gives bombable air and bombable solid distinct carry results even when
+    // `$84:CEDA` immediately deletes the missile-created PLM. This is easy to miss because
+    // neither terrain nor the PLM pool retains a visible mutation after an ordinary missile.
+    RoomLevelData BuildPointBlockRoom(ushort levelWord, byte behavior = 0)
+    {
+        var words = new ushort[width * height];
+        var behaviors = new byte[words.Length];
+        int muzzleBlock = 6 * width + 4;
+        words[muzzleBlock] = levelWord;
+        behaviors[muzzleBlock] = behavior;
+        return CreateRoom(width, height, words, behaviors);
+    }
+
+    AssertTrue(!FirePointMissile(BuildPointBlockRoom(0x7000), 96).CollisionStartedExplosion,
+        "bombable-air point reaction spawns-and-deletes PLM but returns carry clear");
+    AssertTrue(FirePointMissile(BuildPointBlockRoom(0xf000), 96).CollisionStartedExplosion,
+        "bombable-solid point reaction spawns-and-deletes PLM and returns carry set");
+
+    // Horizontal/vertical extensions return N set and redispatch the signed parent rather
+    // than using the extension's own apparent carry. Resolve both forms into bombable solid.
+    RoomLevelData horizontalExtension = BuildPointBlockRoom(0x5000, behavior: 1);
+    horizontalExtension.SetForegroundEntry(6 * width + 5, 0xf000);
+    AssertTrue(FirePointMissile(horizontalExtension, 96).CollisionStartedExplosion,
+        "horizontal extension redispatches missile against signed parent");
+
+    RoomLevelData verticalExtension = BuildPointBlockRoom(0xd000, behavior: 1);
+    verticalExtension.SetForegroundEntry(7 * width + 4, 0xf000);
+    AssertTrue(FirePointMissile(verticalExtension, 96).CollisionStartedExplosion,
+        "vertical extension redispatches missile against row-relative parent");
+
     // Super Missiles share `$BE62` but differ in every animation-adjacent constant: HUD item
     // two, type `$8200`, sound four, cooldown twenty, `$012C` damage, acceleration `$0100`,
     // two-frame exhaust after the initial delay, an invisible linked slot, and a larger quake-
@@ -1599,7 +1629,7 @@ static void VerifySamusPowerBeamProjectiles()
         "live Super Missile collision runs CF67 and synthesizes $809F");
 
     Console.WriteLine(
-        "  Samus beams/missiles: producers, charge flare, linked supers, trails, shootable-block PLMs, motion, collision, and explosions agree.");
+        "  Samus beams/missiles: producers, charge flare, linked supers, trails, all point-block families, motion, collision, and explosions agree.");
 }
 
 /// <summary>

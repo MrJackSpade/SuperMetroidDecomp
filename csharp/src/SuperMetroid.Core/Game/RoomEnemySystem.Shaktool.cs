@@ -182,7 +182,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Shaktool pre-instruction $AA:{(ushort)state.PreInstruction:X4} " +
                     "is not translated.");
         }

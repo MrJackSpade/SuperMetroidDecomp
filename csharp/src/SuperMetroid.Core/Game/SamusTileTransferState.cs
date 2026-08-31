@@ -122,13 +122,11 @@ public sealed class SamusTileTransferState
         ushort part1Size = ReadWord(bus, AddWithinBank(definitionAddress, 3));
         ushort part2Size = ReadWord(bus, AddWithinBank(definitionAddress, 5));
 
-        // Retail definitions use nonzero part-1 sizes. On real DMA a zero DAS means 65536
-        // bytes; reject it until a known frame needs that edge instead of silently doing no
-        // work through SnesVram's narrower ushort-size API.
-        if (part1Size == 0)
-            throw new NotSupportedException("A zero-size Samus part-1 DMA requires the SNES 65536-byte DAS behavior.");
-
-        vram.ExecuteQueuedWrite(bus, sourceAddress, part1Size, part1Destination);
+        // Unlike the ordinary seven-byte VRAM queue, this is a direct write to DMA channel
+        // one's DAS register. A raw zero therefore means $10000 bytes, not "no transfer".
+        // The hardware helper also retains A-bus offset and VMADD wrapping for that complete
+        // 64-KiB pass; no retail Samus definition needs it, but the routine itself does.
+        vram.ExecuteHardwareDmaWrite(bus, sourceAddress, part1Size, part1Destination);
         if (part2Size != 0)
         {
             // DMA increments only the 16-bit A-bus address. Adding in ushort space retains

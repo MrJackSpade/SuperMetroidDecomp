@@ -201,7 +201,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Sprite-object instruction $B4:{slot.InstructionTimer:X4} at " +
                     $"$B4:{slot.InstructionPointer:X4} is not translated.");
         }

@@ -37,7 +37,6 @@ public static class SamusMorphBallMovement
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
-        EnsureNoExtraRunSpeed(speed);
 
         bool stationaryPose = samus.Pose is
             SamusState.MorphBallGroundRightPose or SamusState.MorphBallGroundLeftPose or
@@ -125,7 +124,6 @@ public static class SamusMorphBallMovement
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
-        EnsureNoExtraRunSpeed(speed);
 
         bool directionHeld = (controllerInput &
             ((ushort)SnesButton.Left | (ushort)SnesButton.Right)) != 0;
@@ -217,7 +215,6 @@ public static class SamusMorphBallMovement
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
-        EnsureNoExtraRunSpeed(speed);
 
         // `$90:8FDC-$90:8FF9` is the normal variable-height jump cutoff. Releasing Jump
         // while rising cancels the remaining magnitude; signed underflow at the apex takes
@@ -286,7 +283,6 @@ public static class SamusMorphBallMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        EnsureNoExtraRunSpeed(speed);
 
         // `$90:A635` deliberately supplies zero base speed but still uses pose direction,
         // collision, and the already-published total-speed words.
@@ -429,16 +425,6 @@ public static class SamusMorphBallMovement
             ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
             : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
     }
-
-    private static void EnsureNoExtraRunSpeed(SamusHorizontalSpeedState speed)
-    {
-        if (speed.ExtraRunSpeed != 0 || speed.ExtraRunSubspeed != 0)
-        {
-            throw new NotSupportedException(
-                "Ordinary Morph-Ball movement with newly introduced extra run speed requires the run-button/speed-booster branch.");
-        }
-    }
-
 
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
 

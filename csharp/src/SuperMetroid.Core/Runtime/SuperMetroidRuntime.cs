@@ -1233,7 +1233,12 @@ public sealed partial class SuperMetroidRuntime
             // Bomb overlap is published by GameState_8 after the preceding frame's alpha.
             // $90:DE78 consumes it during this frame's alpha before beta dispatches motion.
             // This one-frame seam is observable: timer eight does not move Samus yet.
-            Samus.TrySetupPublishedMorphedBombJump();
+            Samus.TrySetupPublishedBombJump(
+                _addressSpace,
+                LevelData ?? throw new InvalidOperationException(
+                    "A published bomb-jump direction requires active room level data."),
+                timeIsFrozen: Samus.Xray.TimeIsFrozen,
+                nmiFrameCounter: NmiFrameCounter);
 
             // With no controller bits, $91:82D9 consults pose-definition byte two. Running
             // poses $09/$0A store fallbacks $01/$02, but Samus_Pose_Func2 first preserves
@@ -1831,11 +1836,26 @@ public sealed partial class SuperMetroidRuntime
                     case SamusState.MoonwalkTurnJumpAimUpRightPose:
                     case SamusState.MoonwalkTurnJumpAimDownLeftPose:
                     case SamusState.MoonwalkTurnJumpAimDownRightPose:
-                        LastGroundedSamusMovement = SamusGroundedMovement.StepTurningOnGround(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter);
+                        // Most type-$17` crouched turns are grounded, but the native
+                        // `$90:A790` dispatcher does not assume that. A live displacement or
+                        // actor can give the same pose nonzero Y direction, in which case it
+                        // executes the ordinary turning-in-air path for this frame.
+                        if (Samus.Kinematics.YDirection == 0)
+                        {
+                            LastGroundedSamusMovement = SamusGroundedMovement.StepTurningOnGround(
+                                _addressSpace,
+                                LevelData,
+                                Samus,
+                                NmiFrameCounter);
+                        }
+                        else
+                        {
+                            LastAerialSamusMovement = SamusAerialMovement.StepTurningInAir(
+                                _addressSpace,
+                                LevelData,
+                                Samus,
+                                NmiFrameCounter);
+                        }
                         break;
                     case SamusState.NormalLandingRightPose:
                     case SamusState.NormalLandingLeftPose:
@@ -2055,8 +2075,13 @@ public sealed partial class SuperMetroidRuntime
                             Samus.DraygonGrabbed.StepMovement(Samus);
                         break;
                     default:
-                        throw new NotSupportedException(
-                            $"Runtime movement is not translated for pose ${Samus.Pose:X2}.");
+                        // Every pose reachable from the translated retail input, animation,
+                        // enemy-grab, death, drained, grapple, Morph Ball, and shinespark
+                        // producers has an explicit branch above. Reaching this point means
+                        // the pose byte no longer agrees with the cartridge-backed producer
+                        // set; it is corrupt state, not a recoverable movement family.
+                        throw new InvalidDataException(
+                            $"Runtime movement dispatcher received invalid pose ${Samus.Pose:X2}.");
                 }
             }
 
@@ -2743,8 +2768,13 @@ public sealed partial class SuperMetroidRuntime
                                     targetPose);
                                 break;
                             default:
-                                throw new NotSupportedException(
-                                    $"Grounded input transition ${poseAtFrameStart:X2} -> ${targetPose:X2} matched ROM data but its side effects are not translated.");
+                                // MOVEMENT_COVERAGE exhaustively audits every active retail
+                                // transition pair entering this dispatcher. A ROM match not
+                                // owned by one of the explicit families above means the pose
+                                // table or state was mixed from an incompatible revision.
+                                throw new InvalidDataException(
+                                    $"Grounded input transition ${poseAtFrameStart:X2} -> " +
+                                    $"${targetPose:X2} escaped the exhaustive retail dispatcher.");
                         }
                     }
                 }

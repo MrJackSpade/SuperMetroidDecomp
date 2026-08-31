@@ -192,7 +192,7 @@ public sealed partial class RoomEnemySystem
                 break;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Atomic vertical function $A8:{(ushort)state.VerticalMovement:X4} is not translated.");
         }
 
@@ -215,7 +215,7 @@ public sealed partial class RoomEnemySystem
                 break;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Atomic horizontal function $A8:{(ushort)state.HorizontalMovement:X4} is not translated.");
         }
     }

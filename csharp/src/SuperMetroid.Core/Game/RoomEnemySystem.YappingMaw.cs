@@ -252,7 +252,7 @@ public sealed partial class RoomEnemySystem
                 WaitAfterYappingMawRetraction(state, samus);
                 break;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Yapping Maw function $A8:{(ushort)state.Function:X4} is not translated.");
         }
 

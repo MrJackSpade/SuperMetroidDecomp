@@ -249,6 +249,19 @@ public sealed class Bank80SystemState
         return _bossBitsByArea[areaIndex];
     }
 
+    /// <summary>Restores all eight native area-boss bytes from a save-slot payload.</summary>
+    public void LoadBossBytes(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.Length != AreaCount)
+        {
+            throw new ArgumentException(
+                "A boss-state snapshot must contain exactly eight bytes.",
+                nameof(bytes));
+        }
+
+        bytes.CopyTo(_bossBitsByArea);
+    }
+
     /// <summary>
     /// Marks an event as having occurred, matching <c>$80:81FA</c>.
     /// </summary>
@@ -285,6 +298,19 @@ public sealed class Bank80SystemState
             throw new ArgumentOutOfRangeException(nameof(byteIndex), byteIndex, "Event byte index must be in the SRAM mirror's eight-byte range.");
 
         return _events[byteIndex];
+    }
+
+    /// <summary>Restores the complete native event-bit allocation from a save slot.</summary>
+    public void LoadEventBytes(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.Length != EventByteCount)
+        {
+            throw new ArgumentException(
+                "An event-state snapshot must contain exactly eight bytes.",
+                nameof(bytes));
+        }
+
+        bytes.CopyTo(_events);
     }
 
     /// <summary>

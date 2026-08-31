@@ -108,7 +108,7 @@ public sealed partial class RoomEnemySystem
                 InitializeAlternateDeadSidehopper(slot);
                 break;
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Dead sidehopper parameter 1 ${slot.Parameter1:X4} is not authored by retail AI.");
         }
     }
@@ -307,7 +307,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             default:
-                throw new NotSupportedException(
+                throw new InvalidDataException(
                     $"Dead sidehopper function $A9:{(ushort)state.Function:X4} is not translated.");
         }
     }

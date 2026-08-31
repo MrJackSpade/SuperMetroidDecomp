@@ -439,6 +439,15 @@ public sealed partial class SamusProjectileSystem
         RoomCollisionBlock block,
         RoomPlmSystem? roomPlms)
     {
+        // Chozo orbs and concealed item blocks are type-$C/BTS-$45. Their special
+        // reaction does not use the ordinary BTS 0..F shot-block table: header $EED3
+        // finds and triggers the already-loaded permanent-item PLM at this origin.
+        if (block.CollisionType == 12 && block.Behavior == 0x45)
+        {
+            _ = roomPlms?.TryNotifyCollectibleProjectileHit(block.Index, slot.Type);
+            return true;
+        }
+
         // Special-block collision first searches the loaded PLM pool for the object whose
         // origin matches this block. Mother Brain's type-$8/BTS-$44 glass consumes the live
         // projectile type through its pre-instruction on the later PLM-handler seam; it does

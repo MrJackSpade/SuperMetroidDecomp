@@ -18,6 +18,7 @@ namespace SuperMetroid.Core.Runtime;
 public sealed partial class SuperMetroidRuntime
 {
     private readonly ISnesAddressSpace _addressSpace;
+    private SamusSuitPickupKind? _pendingSuitPickup;
 
     public SuperMetroidRuntime(ISnesAddressSpace addressSpace)
     {
@@ -283,6 +284,18 @@ public sealed partial class SuperMetroidRuntime
     /// than in Samus state so its delayed disappearance/respawn survives rope release.
     /// </summary>
     public RoomPlmSystem Plms { get; } = new();
+
+    /// <summary>
+    /// Shared bank-$85 gameplay message coroutine. A permanent pickup activates this
+    /// owner and subsequent <see cref="StepFrame"/> calls advance accepted NMIs without
+    /// running gameplay until the ROM-authored box has closed.
+    /// </summary>
+    public GameplayMessageBoxState MessageBox { get; } = new();
+
+    /// <summary>
+    /// Shared post-message Varia/Gravity light-beam transformation from banks $88/$91.
+    /// </summary>
+    public SamusSuitPickupState SuitPickup { get; } = new();
 
     /// <summary>Mutable gameplay HUD tilemap at WRAM <c>$7E:C608</c>.</summary>
     public HudState Hud { get; } = new();
@@ -985,6 +998,48 @@ public sealed partial class SuperMetroidRuntime
     {
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
 
+        // HDMA object pre-instructions run once near the start of each ordinary gameplay
+        // pass. A transformation spawned when the preceding message returned therefore
+        // receives its first stage call on this following accepted frame, while every
+        // normal owner below continues to run around the input-locked, centered Samus.
+        if (SuitPickup.IsActive)
+        {
+            if (Samus is null)
+                throw new InvalidOperationException("A suit transformation has no Samus owner.");
+            SuitPickup.Step(_addressSpace, Samus, Cgram);
+        }
+
+        // DisplayMessageBox waits on NMI while retaining the already-published room OAM,
+        // music, and sound engines. The translated runtime has no audio mixer yet, but it
+        // must still latch controller input and block every gameplay owner during those
+        // waits. This early seam is shared by all permanent-item identities.
+        if (MessageBox.IsActive)
+        {
+            MessageBox.Step(Controller1.Current);
+            if (MessageBox.IsActive)
+                return Snapshot(escapeTimerExpired: false);
+
+            // The final zero-radius close NMI returns directly to the suspended item-PLM
+            // instruction list. Varia/Gravity immediately call their shared setup routine;
+            // all other items simply continue the rest of this gameplay pass.
+            if (_pendingSuitPickup is { } pendingSuit)
+            {
+                if (Samus is null || Camera is null)
+                {
+                    throw new InvalidOperationException(
+                        "A pending suit transformation requires an active Samus and room camera.");
+                }
+                ElevatorStatus = 0;
+                SuitPickup.Begin(
+                    _addressSpace,
+                    Samus,
+                    Camera.XPosition,
+                    Camera.YPosition,
+                    pendingSuit);
+                _pendingSuitPickup = null;
+            }
+        }
+
         // `$0B14/$0B16` retain the unsigned horizontal distance accepted during the prior
         // gameplay frame. Capture the live fixed-point origin before enemies and bank $90
         // run; the tail below publishes the modular absolute delta for next frame's Yard
@@ -1097,7 +1152,7 @@ public sealed partial class SuperMetroidRuntime
                     // ship explicitly clears elevator status after installing locked demo
                     // handlers. The enemy system owns pose/motion; these two global words
                     // remain runtime-owned and are applied on its typed event boundary.
-                    Samus.LoadPowerSuitPalette(_addressSpace, Cgram);
+                    Samus.LoadSuitPalette(_addressSpace, Cgram);
                     ElevatorStatus = 0;
                 }
             }
@@ -2126,6 +2181,50 @@ public sealed partial class SuperMetroidRuntime
                     Camera.Scrolls);
                 foreach (PlmTilemapUpdate update in plmUpdates)
                     update.ExecuteTo(Vram);
+
+                // Item PLMs publish acquisition only after their native trigger and
+                // handler pass. Apply the hardware-facing consequences at that same seam:
+                // beam combinations replace the projectile character/palette staging, and
+                // suit changes defer their visible palette reveal until bank-$88 stage
+                // three after the message. Resource tanks and other equipment bits are
+                // consumed directly by the HUD/movement owners.
+                foreach (CollectiblePickupEvent pickup in Plms.CollectiblePickupEvents)
+                {
+                    if (pickup.Kind is
+                        InWorldCollectibleKind.ChargeBeam or
+                        InWorldCollectibleKind.IceBeam or
+                        InWorldCollectibleKind.WaveBeam or
+                        InWorldCollectibleKind.SpazerBeam or
+                        InWorldCollectibleKind.PlasmaBeam)
+                    {
+                        Projectiles.QueueBeamTilesAndLoadPalette(
+                            _addressSpace,
+                            VramWrites,
+                            Cgram,
+                            Samus.EquippedBeams);
+                    }
+                    else if (pickup.Kind is
+                             InWorldCollectibleKind.VariaSuit or
+                             InWorldCollectibleKind.GravitySuit)
+                    {
+                        if (_pendingSuitPickup is not null || SuitPickup.IsActive)
+                        {
+                            throw new InvalidDataException(
+                                "A second suit pickup attempted to replace an active transformation.");
+                        }
+                        _pendingSuitPickup = pickup.Kind == InWorldCollectibleKind.VariaSuit
+                            ? SamusSuitPickupKind.Varia
+                            : SamusSuitPickupKind.Gravity;
+                    }
+
+                    if (MessageBox.IsActive)
+                    {
+                        throw new InvalidDataException(
+                            "Multiple permanent items attempted to enter the synchronous " +
+                            "bank-$85 message routine during one PLM pass.");
+                    }
+                    MessageBox.Begin(_addressSpace, pickup.MessageBoxIndex);
+                }
                 foreach (MotherBrainGlassProjectileRequest request in
                          Plms.MotherBrainGlassProjectileRequests)
                 {

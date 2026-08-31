@@ -119,6 +119,10 @@ public sealed partial class RoomEnemySystem
                 x,
                 y,
                 state.Head!.EnemyDefinitionPointer);
+            SpawnEnemyDropFromEnemyHeader(
+                x,
+                y,
+                state.Head.EnemyDefinitionPointer);
             return true;
         }
 

@@ -136,5 +136,9 @@ public sealed partial class RoomEnemySystem
         _sporeSpawnDropRequests.Add(new SporeSpawnDropRequest(
             spore.XPosition,
             spore.YPosition));
+        SpawnEnemyDropFromEnemyHeader(
+            spore.XPosition,
+            spore.YPosition,
+            SporeSpawnDefinition);
     }
 }

@@ -715,6 +715,17 @@ public sealed partial class RoomEnemySystem
     {
         _setAreaTorizoDefeated?.Invoke();
         state.BossBitSet = true;
+
+        // The two statues share header $EEFF's chance table but use different native
+        // arena rectangles: Bomb Torizo uses the 128x64 upper room region, while Golden
+        // Torizo uses a 256x64 strip much lower in its room.
+        SpawnEnemyDropScatter(
+            BombTorizoDefinition,
+            count: 16,
+            xBase: state.IsGolden ? (ushort)128 : (ushort)64,
+            xMask: state.IsGolden ? (ushort)0x00ff : (ushort)0x007f,
+            yBase: state.IsGolden ? (ushort)288 : (ushort)96,
+            yMask: 0x3f00);
         state.ItemDropRequested = true;
         LastBombTorizoMusicRequest = new BombTorizoMusicRequest(3, 8);
     }

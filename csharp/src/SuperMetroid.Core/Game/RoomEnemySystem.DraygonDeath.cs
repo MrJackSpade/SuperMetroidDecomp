@@ -86,6 +86,17 @@ public sealed partial class RoomEnemySystem
             return;
 
         InstallDraygonInstruction(body, 0x98ed);
+
+        // $A0:B917 uses Draygon's body header for sixteen independent drops over the
+        // lower half of the arena. Do this before deleting the body so the native event is
+        // represented by real pickup actors rather than only a debugger-visible flag.
+        SpawnEnemyDropScatter(
+            DraygonBodyDefinition,
+            count: 16,
+            xBase: 128,
+            xMask: 0x00ff,
+            yBase: 352,
+            yMask: 0x3f00);
         ushort deletedProperties = body.Properties.With(EnemyProperties.Deleted);
         body.Properties = deletedProperties;
         state.Eye!.Properties = deletedProperties;

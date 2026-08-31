@@ -548,6 +548,15 @@ public sealed class SamusBombProjectileSystem
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return;
 
+        // Item collision BTS $45 routes to the already-loaded item object rather than
+        // indexing the ordinary bomb/special-block tables. Visible type-$B frames need no
+        // additional response; concealed type-$C/orb frames publish the generic trigger.
+        if (block.Behavior == 0x45 && block.CollisionType is 11 or 12)
+        {
+            _ = roomPlms?.TryNotifyCollectibleProjectileHit(block.Index, projectileType);
+            return;
+        }
+
         // $94:A052 dispatches these types to immediate clear/set-carry routines. They
         // spawn no PLM and do not alter the level/BTS arrays, so recording the visit is
         // the complete observable effect for this runtime.

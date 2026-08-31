@@ -270,6 +270,27 @@ public sealed class RoomLevelData
     }
 
     /// <summary>
+    /// Replaces one 16-bit child tilemap word in the combined CRE/area block-definition
+    /// table. Item instruction <c>$84:8764</c> uses this exact mutable range to bind one of
+    /// four rotating item-GFX uploads to visual blocks <c>$08E-$095</c>.
+    /// </summary>
+    /// <remarks>
+    /// This is intentionally indexed in words, matching native <c>TileTable,X</c>. It is
+    /// not a general level-block replacement: the room's level words continue to select
+    /// the same block while its four 8x8 children acquire cartridge-defined tile and
+    /// palette attributes.
+    /// </remarks>
+    public void SetBlockDefinitionWord(int wordIndex, ushort tilemapWord)
+    {
+        int byteOffset = checked(wordIndex * 2);
+        if ((uint)byteOffset >= (uint)(_blockDefinitions.Length - 1))
+            throw new ArgumentOutOfRangeException(nameof(wordIndex));
+
+        _blockDefinitions[byteOffset] = unchecked((byte)tilemapWord);
+        _blockDefinitions[byteOffset + 1] = unchecked((byte)(tilemapWord >> 8));
+    }
+
+    /// <summary>
     /// Constructs bank $80's visual row/column producer over the exact same decompressed
     /// room allocation later consumed by collision.
     /// </summary>

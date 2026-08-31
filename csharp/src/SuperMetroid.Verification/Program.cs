@@ -71,6 +71,8 @@ VerifySamusAerialTurnsAndWallJump();
 VerifySamusKnockbackAndDamageBoost();
 VerifySamusGrappleSwingAndRelease();
 VerifyBreakableGrapplePlms();
+VerifyPermanentCollectibles();
+VerifyEnemyDrops();
 VerifySamusPostureMovement();
 VerifySamusPowerBeamProjectiles();
 VerifySamusMorphBallMovement();

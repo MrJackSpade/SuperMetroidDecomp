@@ -177,6 +177,16 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.MainScreenBg2Enabled = true;
+
+        // $A0:B95D scatters sixteen room-graphics pickups over the visible boss arena.
+        // The coordinates are absolute room coordinates, not offsets from Phantoon's body.
+        SpawnEnemyDropScatter(
+            PhantoonBodyDefinition,
+            count: 16,
+            xBase: 64,
+            xMask: 0x007f,
+            yBase: 96,
+            yMask: 0x3f00);
         state.ItemDropRequested = true;
         ushort deletedProperties = body.Properties.With(EnemyProperties.Deleted);
         body.Properties = deletedProperties;

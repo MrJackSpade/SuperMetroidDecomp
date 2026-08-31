@@ -103,6 +103,21 @@ public sealed class HudState
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before updating gameplay counters.");
 
+        // Permanent pickups can introduce an inventory family after HUD initialization.
+        // The cartridge's item routines patch those blank icon cells immediately; replay
+        // the same guarded writers here before updating their counters. Each writer is
+        // idempotent and preserves an already-installed icon and live minimap state.
+        if ((samus.EquippedItems & (ushort)SamusEquipmentFlags.XrayScope) != 0)
+            AddTwoByTwoIcon(bus, itemIndex: 4, IconTableAddress + 36);
+        if ((samus.EquippedItems & (ushort)SamusEquipmentFlags.GrappleBeam) != 0)
+            AddTwoByTwoIcon(bus, itemIndex: 3, IconTableAddress + 28);
+        if (samus.MaxMissiles != 0)
+            AddMissileIcon(bus);
+        if (samus.MaxSuperMissiles != 0)
+            AddTwoByTwoIcon(bus, itemIndex: 1, IconTableAddress + 12);
+        if (samus.MaxPowerBombs != 0)
+            AddTwoByTwoIcon(bus, itemIndex: 2, IconTableAddress + 20);
+
         DrawHealth(bus, samus.Health, samus.MaxHealth);
         if (samus.MaxMissiles != 0)
             DrawThreeDigits(bus, AmmoDigitsAddress, samus.Missiles, byteOffset: 0x94);

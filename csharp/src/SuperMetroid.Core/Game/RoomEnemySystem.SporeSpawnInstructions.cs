@@ -175,9 +175,10 @@ public sealed partial class RoomEnemySystem
         for (int drop = 0; drop < 16; drop++)
         {
             ushort random = _nextRandom!();
-            _sporeSpawnDropRequests.Add(new SporeSpawnDropRequest(
-                unchecked((ushort)((random & 0x007f) + 64)),
-                unchecked((ushort)(((random & 0x3f00) >> 8) + 528))));
+            ushort x = unchecked((ushort)((random & 0x007f) + 64));
+            ushort y = unchecked((ushort)(((random & 0x3f00) >> 8) + 528));
+            _sporeSpawnDropRequests.Add(new SporeSpawnDropRequest(x, y));
+            SpawnEnemyDropFromEnemyHeader(x, y, SporeSpawnDefinition);
         }
         state.DeathDropRequested = true;
     }

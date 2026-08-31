@@ -486,6 +486,11 @@ public sealed partial class SamusProjectileSystem
         }
 
         RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+        if (block.CollisionType == 12 && block.Behavior == 0x45)
+        {
+            _ = roomPlms?.TryNotifyCollectibleProjectileHit(block.Index, slot.Type);
+            return true;
+        }
         if (block.CollisionType is 4 or 12)
         {
             // `$94:9E55/$9E73` run the bank-$84 spawn before returning the collision

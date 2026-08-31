@@ -306,7 +306,7 @@ public sealed class SuperMetroidGame
                     $"Save slot {selectedSaveSlot} targets untranslated area {slot.Area}, " +
                     $"station {slot.SaveStation}; the current playable loader supports Ceres 6:0.");
             }
-            slot.ApplyTo(samus);
+            slot.ApplyTo(samus, runtime.System);
             return;
         }
 

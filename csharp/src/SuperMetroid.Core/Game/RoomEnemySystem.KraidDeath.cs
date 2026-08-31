@@ -140,6 +140,17 @@ public sealed partial class RoomEnemySystem
         for (int slot = 2; slot <= 5; slot++)
             _slots[slot].Properties = otherProperties;
         body.VariableA = (ushort)KraidAiFunction.DeathClearTopTilemap;
+
+        // $A0:B8EE fills the same sixteen-projectile pool used by ordinary deaths. Each
+        // pickup gets a random position in Kraid's 256x64 floor strip and independently
+        // rolls header $E2BF's six-byte chance table.
+        SpawnEnemyDropScatter(
+            KraidDefinition,
+            count: 16,
+            xBase: 128,
+            xMask: 0x00ff,
+            yBase: 352,
+            yMask: 0x3f00);
         state.DeathDropRequestCount = 16;
         state.RoomBackgroundFadeStep = 0;
     }

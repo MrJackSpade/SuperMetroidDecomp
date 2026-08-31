@@ -131,6 +131,17 @@ public sealed partial class RoomEnemySystem
 
         _setAreaBossDefeated?.Invoke();
         state.BossDefeatPublished = true;
+
+        // $A0:B8AC scatters sixteen pickups through Ridley's authored 128x64 arena
+        // rectangle. The body is deleted immediately afterward, so the drop actors must
+        // retain header $E17F themselves.
+        SpawnEnemyDropScatter(
+            NorfairRidleyDefinition,
+            count: 16,
+            xBase: 64,
+            xMask: 0x007f,
+            yBase: 320,
+            yMask: 0x3f00);
         RidleyDeathDropRequested = true;
         state.MusicRequest = 3;
         body.Properties = body.Properties.With(EnemyProperties.Deleted);

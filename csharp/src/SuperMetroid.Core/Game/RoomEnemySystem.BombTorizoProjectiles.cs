@@ -618,5 +618,9 @@ public sealed partial class RoomEnemySystem
             projectile.YPosition,
             header,
             definition.ItemDropChancesPointer));
+        SpawnEnemyDropFromChanceTable(
+            projectile.XPosition,
+            projectile.YPosition,
+            definition.ItemDropChancesPointer);
     }
 }

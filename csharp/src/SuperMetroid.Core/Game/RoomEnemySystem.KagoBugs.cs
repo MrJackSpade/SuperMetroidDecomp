@@ -248,6 +248,10 @@ public sealed partial class RoomEnemySystem
             projectile.YPosition,
             KagoDefinition,
             checked((ushort)(projectile.SlotIndex * 2)));
+        SpawnEnemyDropFromEnemyHeader(
+            projectile.XPosition,
+            projectile.YPosition,
+            KagoDefinition);
     }
 
     private ushort ReadKagoRandomNumber() =>

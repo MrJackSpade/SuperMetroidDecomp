@@ -332,8 +332,13 @@ static void VerifyRipperEnemy()
             $"Ripper missile hit {hit + 1}");
     }
     AssertEqual(0, ripper.Health, "Ripper missile vulnerability reaches zero health");
-    AssertTrue(ripper.Properties.HasAny(EnemyProperties.Deleted),
-        "Ripper zero health publishes deleted property");
+    AssertEqual((ushort)0, ripper.EnemyDefinitionPointer,
+        "Ripper generic death clears its common enemy record immediately");
+    RoomEnemyProjectileSlot ripperDeath = enemies.EnemyProjectiles[17];
+    AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, ripperDeath.Kind,
+        "Ripper zero health allocates the shared F345 death actor");
+    AssertEqual(definitionPointer, ripperDeath.EnemyHeaderPointer,
+        "Ripper death actor retains its header for EEAF drop selection");
     AssertEqual(1, enemies.EnemiesKilled, "Ripper death increments room kill count");
 
     Console.WriteLine(

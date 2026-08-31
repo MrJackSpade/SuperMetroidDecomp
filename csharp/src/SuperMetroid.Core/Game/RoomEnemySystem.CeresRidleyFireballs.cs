@@ -79,6 +79,7 @@ public enum RoomEnemyProjectileKind : ushort
     LavaThrownByMagdollite = 0xe0e0,
     DragonFireball = 0xb5cb,
     MiscDustExplosion = 0xe509,
+    EnemyDeathPickup = 0xf337,
     EnemyDeathExplosion = 0xf345,
     KagoBug = 0xd02e,
     BotwoonBody = 0xeba0,
@@ -173,6 +174,18 @@ public sealed class RoomEnemyProjectileSlot
     /// their terminal instruction must rebuild this physical enemy slot.
     /// </summary>
     public ushort KilledEnemyNativeIndex { get; internal set; }
+    /// <summary>
+    /// Native bank-$A0 enemy-header pointer retained in the parallel bank-$7E projectile
+    /// metadata. Death explosions use offset $3A of this record to find their six-byte
+    /// bank-$B4 drop table.
+    /// </summary>
+    public ushort EnemyHeaderPointer { get; internal set; }
+    /// <summary>
+    /// Direct bank-$B4 drop-table pointer used by the few boss/projectile instructions
+    /// which already resolved a special drop table before allocating pickup $F337. Zero
+    /// means that <see cref="EnemyHeaderPointer"/> remains authoritative.
+    /// </summary>
+    public ushort ItemDropChancesPointerOverride { get; internal set; }
 
     internal void Clear()
     {
@@ -184,6 +197,7 @@ public sealed class RoomEnemyProjectileSlot
         RemainingAfterburns = NextAfterburnKind = 0;
         DirectionParameter = Variable0 = Variable1 = 0;
         CollisionOption = CollidedProjectileType = KilledEnemyNativeIndex = 0;
+        EnemyHeaderPointer = ItemDropChancesPointerOverride = 0;
         CanDamageSamus = PersistsOnSamusContact = BlocksSamusProjectiles = false;
     }
 }
@@ -308,6 +322,10 @@ public sealed partial class RoomEnemySystem
     {
         ArgumentNullException.ThrowIfNull(level);
         EnsureLoaded();
+        _samusForEnemyDrops = samus;
+        LastEnemyPickupSoundEffect = null;
+        LastCollectedEnemyPickup = null;
+        LastEnemyDeathSoundEffectLibrary2 = null;
 
         // `$86:810D-$8122` starts X at physical byte index `$22`, executes that slot, reloads
         // the unchanged outer index from `$1991`, subtracts two, and continues through `$00`.
@@ -559,6 +577,10 @@ public sealed partial class RoomEnemySystem
             case 0xdd44: // Spore Spawn stalk: position is written by the boss's main AI.
             case 0xcaa3: // Mother Brain's large purple breath is a stationary animation.
             case 0xc76d: // Mother Brain's charging/fired red hand-beam list owns all motion.
+                return;
+
+            case EnemyPickupPreInstruction: // Lifetime, grapple endpoint, then Samus body.
+                RunEnemyPickupPreInstruction(projectile, samus);
                 return;
 
             case 0xbfdf: // Mother Brain room turret: rotate, fire, or honor deletion flag.
@@ -1363,13 +1385,29 @@ public sealed partial class RoomEnemySystem
                     RequestMagdolliteLavaDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
+                case 0xece3: // Random sprite-object position inside a 64x64 square.
+                    SpawnRandomEnemyDeathSprite(projectile, cursor, mask: 0x003f, center: 32);
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case 0xed17: // Random sprite-object position inside a 32x32 square.
+                    SpawnRandomEnemyDeathSprite(projectile, cursor, mask: 0x001f, center: 16);
+                    cursor = unchecked((ushort)(cursor + 4));
+                    break;
                 case 0xee8b: // Queue sound 9 in library two; this opcode has no operand.
                     // The native dispatcher passes a pointer to the first byte after the
                     // opcode into EprojInstr_QueueSfx2_9, and that routine returns the same
                     // pointer unchanged. Therefore the timed duration begins immediately
                     // after $EE8B. Treating that duration as an operand skips two bytes and
                     // interprets the following spritemap pointer as another opcode.
-                    // Audio remains an outer seam, but the list cursor must still match ROM.
+                    LastEnemyDeathSoundEffectLibrary2 = 9;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xee97: // Queue sound $24 in library two; no operand.
+                    LastEnemyDeathSoundEffectLibrary2 = 0x0024;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case 0xeea3: // Queue sound $0B in library two; no operand.
+                    LastEnemyDeathSoundEffectLibrary2 = 0x000b;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xdc5a: // Spore impact: replace packed properties with literal $3000.
@@ -1394,8 +1432,8 @@ public sealed partial class RoomEnemySystem
                         throw new NotSupportedException(
                             $"Enemy projectile $86:{(ushort)projectile.Kind:X4} reached death-drop opcode $EEAF.");
                     }
-                    ContinueRinkaDeathWithoutPickup(projectile);
-                    cursor = EnemyDeathNoDropTail;
+                    ConvertEnemyDeathExplosionToPickup(projectile);
+                    cursor = projectile.InstructionPointer;
                     break;
                 case 0xef10: // Respawn the retained physical enemy slot, when bit $8000 is set.
                     if (unchecked((short)projectile.KilledEnemyNativeIndex) <= -2)
@@ -1413,6 +1451,29 @@ public sealed partial class RoomEnemySystem
 
         throw new InvalidDataException(
             "Enemy projectile list did not reach a timed frame within 24 operations.");
+    }
+
+    /// <summary>
+    /// Ports $86:ECE3/$ED17. Both instructions consume one object-number operand and one
+    /// RNG word; its low and high bytes offset X and Y around the death actor respectively.
+    /// CreateSpriteAtPos owns a separate finite bank-$B4 pool, so these decorations never
+    /// consume one of the eighteen pickup/death projectile slots.
+    /// </summary>
+    private void SpawnRandomEnemyDeathSprite(
+        RoomEnemyProjectileSlot projectile,
+        ushort instructionPointer,
+        ushort mask,
+        int center)
+    {
+        ushort random = _nextRandom!();
+        ushort x = unchecked((ushort)(
+            projectile.XPosition + (random & mask) - center));
+        ushort y = unchecked((ushort)(
+            projectile.YPosition + ((random & (mask << 8)) >> 8) - center));
+        RoomSpriteObjectKind kind = (RoomSpriteObjectKind)ReadWord(
+            _bus!,
+            0x860000 | unchecked((ushort)(instructionPointer + 2)));
+        _ = SpawnRoomSpriteObject(x, y, kind, graphicsIndex: 0);
     }
 
     private void MoveEnemyProjectileRandomlyWithinRadius(

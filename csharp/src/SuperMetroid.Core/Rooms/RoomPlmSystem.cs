@@ -160,10 +160,12 @@ public sealed partial class RoomPlmSystem
             slot.PreInstruction = 0;
             slot.RoomArgument = 0;
             slot.LoopTimer = 0;
+            slot.Item = null;
         }
         _soundRequests.Clear();
         _tilemapUpdates.Clear();
         ResetMotherBrainGlassState();
+        ResetCollectibleState();
     }
 
     /// <summary>
@@ -963,12 +965,25 @@ public sealed partial class RoomPlmSystem
         _soundRequests.Clear();
         _tilemapUpdates.Clear();
         BeginMotherBrainGlassFrame();
+        BeginCollectibleFrame();
 
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
         {
             PlmSlot slot = _slots[slotIndex];
             if (!slot.Active)
                 continue;
+
+            if (TryStepCollectible(
+                    bus,
+                    level,
+                    streamer,
+                    slot,
+                    layer1XPosition,
+                    layer1YPosition,
+                    bg1XOffset))
+            {
+                continue;
+            }
 
             RunMotherBrainGlassPreInstruction(slot);
             if (!slot.Active)
@@ -1292,6 +1307,11 @@ public sealed partial class RoomPlmSystem
         public ushort RoomArgument { get; set; }
         /// <summary>Native <c>PLM_Timers</c>, distinct from the instruction countdown.</summary>
         public ushort LoopTimer { get; set; }
+        /// <summary>
+        /// Semantic state for one of bank $84's 63 permanent-item headers. A null value
+        /// leaves this physical slot under the ordinary instruction interpreter.
+        /// </summary>
+        public CollectiblePlmState? Item { get; set; }
     }
 }
 

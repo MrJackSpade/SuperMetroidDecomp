@@ -121,6 +121,20 @@ public static class SuperMetroidRuntimeFrameRenderer
         if (runtime.ActiveRoom?.State.SetupCodePointer is 0xc96e or 0xc976 or 0xc97b)
             SnesGameplayFrameRenderer.ApplyCeresHaze(frame, ridleyIsDead: false);
 
+        // Bank $85 temporarily owns BG3 and disables gameplay color math while an item
+        // message is active. Its scanline-window result belongs above every room-specific
+        // compositor and haze path, so one shared overlay covers ordinary and Mode-7 rooms.
+        GameplayMessageBoxRenderer.Composite(
+            frame,
+            runtime.MessageBox,
+            runtime.Vram,
+            runtime.Cgram);
+
+        // The suit transformation begins only after its bank-$85 message has completely
+        // closed. Its bank-$88 window then overlays every ordinary/Mode-7 room through the
+        // same PPU fixed-color path, so it belongs after room-specific haze as well.
+        SamusSuitPickupRenderer.Composite(frame, runtime.SuitPickup);
+
         return frame;
     }
 

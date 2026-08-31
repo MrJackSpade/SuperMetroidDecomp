@@ -21,6 +21,8 @@ public sealed partial class SamusState
     private const int TopSpritemapBaseIndexTable = 0x929263;
     private const int BottomSpritemapBaseIndexTable = 0x92945d;
     private const int PowerSuitPalette = 0x9b9400;
+    private const int VariaSuitPalette = 0x9b9520;
+    private const int GravitySuitPalette = 0x9b9800;
 
 
     private byte _pose = FacingRightNormalPose;
@@ -144,6 +146,14 @@ public sealed partial class SamusState
     /// <summary>Maximum missiles at WRAM `$09C8`.</summary>
     public ushort MaxMissiles { get; set; }
 
+    /// <summary>
+    /// Retail WRAM $09D8. Super Metroid never exposes a missile-reserve tank in normal
+    /// play, but its shared restore routine still sends overflow here and caps it at either
+    /// max missiles or 99. Retaining the otherwise-unused word makes enemy drops exact and
+    /// lets a debugger observe the original quirk.
+    /// </summary>
+    public ushort ReserveMissiles { get; set; }
+
     /// <summary>Current super missiles at WRAM `$09CA`.</summary>
     public ushort SuperMissiles { get; set; }
 
@@ -174,6 +184,13 @@ public sealed partial class SamusState
     /// this with `$1009`, the exact charge/wave/plasma plus hyper-beam configuration.
     /// </summary>
     public ushort EquippedBeams { get; set; }
+
+    /// <summary>
+    /// Collected-beam bitfield at WRAM <c>$09A8</c>. Unlike
+    /// <see cref="EquippedBeams"/>, this retains beams disabled from the pause equipment
+    /// screen and is therefore the authoritative ownership word saved to SRAM.
+    /// </summary>
+    public ushort CollectedBeams { get; set; }
 
     /// <summary>
     /// WRAM <c>SamusProjectile_FlareCounter</c>. Values at least $003C mean the charge

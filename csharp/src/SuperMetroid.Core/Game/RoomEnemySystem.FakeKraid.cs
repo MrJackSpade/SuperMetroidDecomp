@@ -368,10 +368,18 @@ public sealed partial class RoomEnemySystem
 
     private void RequestFakeKraidDeathDrop(RoomEnemySlot slot)
     {
+        ushort originX = slot.XPosition;
+        ushort originY = slot.YPosition;
+        ushort chancePointer = slot.Definition.ItemDropChancesPointer;
         LastFakeKraidDropRequest = new FakeKraidDropRequest(
-            slot.XPosition,
-            slot.YPosition,
-            slot.Definition.ItemDropChancesPointer,
+            originX,
+            originY,
+            chancePointer,
             DeathExplosionVariant: 3);
+        SpawnEnemyDropScatterAround(
+            FakeKraidDefinition,
+            count: 4,
+            originX,
+            originY);
     }
 }

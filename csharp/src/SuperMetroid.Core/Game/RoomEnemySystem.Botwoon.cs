@@ -797,8 +797,8 @@ public sealed partial class RoomEnemySystem
 
         // `Enemy_ItemDrop_Botwoon` at `$A0:BA3E` emits sixteen independent pickup
         // requests. Each position uses both bytes of one RNG result: X samples low seven
-        // bits and Y samples bits 8..13. The shared pickup owner will eventually resolve
-        // each retained item-chance pointer into a concrete health/ammo actor.
+        // bits and Y samples bits 8..13. Each request is also materialized immediately as
+        // a real $F337 actor using the retained six-byte item-chance pointer.
         for (int dropIndex = 0; dropIndex < BotwoonSpecialDropCount; dropIndex++)
         {
             ushort random = _nextRandom!();
@@ -808,6 +808,10 @@ public sealed partial class RoomEnemySystem
                 ItemDropChancesPointer: head.Definition.ItemDropChancesPointer);
             _botwoonDropRequests.Add(request);
             LastBotwoonDropRequest = request;
+            SpawnEnemyDropFromChanceTable(
+                request.X,
+                request.Y,
+                request.ItemDropChancesPointer);
         }
         state.DropRequested = true;
         state.WallExplosionFrame = 0;

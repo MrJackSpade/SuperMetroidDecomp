@@ -40,6 +40,23 @@ public sealed partial class SamusState
     }
 
     /// <summary>
+    /// Ports <c>Samus_LoadSuitPalette</c> at <c>$91:DEBA</c>, giving Gravity priority over
+    /// Varia and falling back to Power Suit when neither equipment bit is enabled.
+    /// </summary>
+    public void LoadSuitPalette(ISnesAddressSpace bus, SnesCgram cgram)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(cgram);
+
+        int paletteAddress = EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+            ? GravitySuitPalette
+            : EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
+                ? VariaSuitPalette
+                : PowerSuitPalette;
+        cgram.LoadFromBus(bus, paletteAddress, colorCount: 16, destinationIndex: 192);
+    }
+
+    /// <summary>
     /// Seeds pose/frame-zero graphics before the first NMI, as room/game setup must do
     /// before a visible normal-gameplay Samus can be constructed.
     /// </summary>

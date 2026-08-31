@@ -552,6 +552,17 @@ public sealed partial class RoomEnemySystem
             state.Body.XPosition,
             state.Body.YPosition,
             state.Body.Definition.ItemDropChancesPointer);
+
+        // $A0:B995 emits sixteen independent $F337 projectiles across Crocomire's
+        // authored arena rectangle. These are not a single pickup at the corpse position:
+        // each actor advances RNG again while selecting its own drop from header $DDBF.
+        SpawnEnemyDropScatter(
+            CrocomireDefinition,
+            count: 16,
+            xBase: 576,
+            xMask: 0x007f,
+            yBase: 96,
+            yMask: 0x3f00);
         RequireCrocomireDeath().ItemDropRequested = true;
         state.DeathSequenceIndex += 2;
     }

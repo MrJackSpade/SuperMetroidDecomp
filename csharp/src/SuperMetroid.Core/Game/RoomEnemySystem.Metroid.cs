@@ -471,6 +471,7 @@ public sealed partial class RoomEnemySystem
                 y,
                 MetroidDefinition,
                 state.OuterBodyB.NativeIndex));
+            SpawnEnemyDropFromEnemyHeader(x, y, MetroidDefinition);
         }
     }
 

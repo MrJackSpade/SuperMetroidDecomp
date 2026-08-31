@@ -210,6 +210,15 @@ public static class SamusBlockCollision
                         }
                         break;
 
+                    case 11 when block.Behavior == 0x45:
+                        // Visible item frames are type-$B/BTS-$45. Bank $94 spawns the
+                        // shared $EED3 detector, whose setup triggers the item at this
+                        // origin and returns carry clear; Samus therefore passes through
+                        // rather than clipping against the item's visual block.
+                        if (plms is null || !plms.TryNotifyCollectibleTouch(block.Index))
+                            throw Unsupported(block, "horizontal item-collision");
+                        break;
+
                     case 15:
                         // `$94:932D` indexes the collision-bomb-block PLM table with BTS
                         // 0..7. Its setup at `$84:CE83` returns carry (solid) unless Samus
@@ -425,6 +434,11 @@ public static class SamusBlockCollision
                             collided = true;
                             collisionBlock = block;
                         }
+                        break;
+
+                    case 11 when block.Behavior == 0x45:
+                        if (plms is null || !plms.TryNotifyCollectibleTouch(block.Index))
+                            throw Unsupported(block, "vertical item-collision");
                         break;
 
                     case 15:

@@ -34,11 +34,27 @@ public sealed class Bank80SystemState
     /// </summary>
     public const int AreaCount = 8;
 
+    /// <summary>
+    /// Number of bytes in the persistent opened-Chozo-orb table at
+    /// <c>$7E:D830-$7E:D86F</c>. The same room PLM argument selects a bit here and in
+    /// the item table, but the two events are deliberately independent: an orb can be
+    /// broken without its exposed item having been collected yet.
+    /// </summary>
+    public const int RoomChozoBitByteCount = 0x40;
+
+    /// <summary>
+    /// Number of bytes in the persistent picked-up-item table at
+    /// <c>$7E:D870-$7E:D8AF</c>. Room PLM arguments are bit indices into this table.
+    /// </summary>
+    public const int ItemBitByteCount = 0x40;
+
     // Keep these arrays private. Returning writable arrays would let callers bypass the
     // same masking semantics that the ROM routines enforce and would make watch-window
     // corruption extremely difficult to trace.
     private readonly byte[] _events = new byte[EventByteCount];
     private readonly byte[] _bossBitsByArea = new byte[AreaCount];
+    private readonly byte[] _roomChozoBits = new byte[RoomChozoBitByteCount];
+    private readonly byte[] _collectedItemBits = new byte[ItemBitByteCount];
 
     /// <summary>
     /// Creates the bank-$80 state using the game's power-on RNG seed, <c>$0061</c>.
@@ -272,6 +288,111 @@ public sealed class Bank80SystemState
     }
 
     /// <summary>
+    /// Tests the bit selected by a nonnegative room-PLM argument, matching the shared
+    /// <c>PrepareBitAccess</c> path used by instruction <c>$84:887C</c>.
+    /// </summary>
+    public bool HasCollectedItemBit(int bitIndex)
+    {
+        (int byteIndex, byte bitMask) = ResolveCollectedItemBit(bitIndex);
+        return (_collectedItemBits[byteIndex] & bitMask) != 0;
+    }
+
+    /// <summary>
+    /// Tests whether the Chozo orb at a room argument has already been opened, matching
+    /// PLM instruction <c>$84:8848</c>. Negative PLM arguments are handled by the PLM
+    /// owner before reaching this native 512-bit allocation.
+    /// </summary>
+    public bool HasRoomChozoBit(int bitIndex)
+    {
+        (int byteIndex, byte bitMask) = ResolvePersistentRoomBit(
+            bitIndex,
+            RoomChozoBitByteCount,
+            "Chozo-room bit index must fit the native 64-byte table.");
+        return (_roomChozoBits[byteIndex] & bitMask) != 0;
+    }
+
+    /// <summary>
+    /// Persists a destroyed Chozo orb, matching PLM instruction <c>$84:8865</c>.
+    /// This does not set the corresponding picked-up-item bit.
+    /// </summary>
+    public void SetRoomChozoBit(int bitIndex)
+    {
+        (int byteIndex, byte bitMask) = ResolvePersistentRoomBit(
+            bitIndex,
+            RoomChozoBitByteCount,
+            "Chozo-room bit index must fit the native 64-byte table.");
+        _roomChozoBits[byteIndex] |= bitMask;
+    }
+
+    /// <summary>Returns one raw Chozo-state byte for cartridge-compatible SRAM encoding.</summary>
+    public byte GetRoomChozoByteRaw(int byteIndex)
+    {
+        if ((uint)byteIndex >= RoomChozoBitByteCount)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(byteIndex),
+                byteIndex,
+                "Chozo-state byte index must be in the native 64-byte table.");
+        }
+
+        return _roomChozoBits[byteIndex];
+    }
+
+    /// <summary>Restores all persistent broken-orb bits from the native save payload.</summary>
+    public void LoadRoomChozoBytes(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.Length != RoomChozoBitByteCount)
+        {
+            throw new ArgumentException(
+                "A Chozo-state snapshot must contain exactly 64 bytes.",
+                nameof(bytes));
+        }
+
+        bytes.CopyTo(_roomChozoBits);
+    }
+
+    /// <summary>
+    /// Marks one physical pickup as collected, matching PLM instruction
+    /// <c>$84:8899</c>. This table identifies locations; it is deliberately independent
+    /// from Samus's equipment words, where multiple tanks of one kind share one meaning.
+    /// </summary>
+    public void SetCollectedItemBit(int bitIndex)
+    {
+        (int byteIndex, byte bitMask) = ResolveCollectedItemBit(bitIndex);
+        _collectedItemBits[byteIndex] |= bitMask;
+    }
+
+    /// <summary>Returns one raw byte for cartridge-compatible SRAM encoding.</summary>
+    public byte GetCollectedItemByteRaw(int byteIndex)
+    {
+        if ((uint)byteIndex >= ItemBitByteCount)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(byteIndex),
+                byteIndex,
+                "Collected-item byte index must be in the native 64-byte table.");
+        }
+
+        return _collectedItemBits[byteIndex];
+    }
+
+    /// <summary>
+    /// Restores the native picked-up-item table from a save-slot payload. Keeping the
+    /// whole allocation preserves ROM hacks and otherwise-unused high bit indices too.
+    /// </summary>
+    public void LoadCollectedItemBytes(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.Length != ItemBitByteCount)
+        {
+            throw new ArgumentException(
+                "A collected-item snapshot must contain exactly 64 bytes.",
+                nameof(bytes));
+        }
+
+        bytes.CopyTo(_collectedItemBits);
+    }
+
+    /// <summary>
     /// Unsigned <c>16 x 16 -> 32</c> multiplication from <c>$80:82D6</c>.
     /// The widening casts must happen before multiplication or C# would discard the high
     /// word before returning it.
@@ -292,6 +413,25 @@ public sealed class Bank80SystemState
         int byteIndex = eventNumber >> 3;
         byte bitMask = (byte)(1 << (eventNumber & 7));
         return (byteIndex, bitMask);
+    }
+
+    private static (int ByteIndex, byte BitMask) ResolveCollectedItemBit(int bitIndex)
+    {
+        return ResolvePersistentRoomBit(
+            bitIndex,
+            ItemBitByteCount,
+            "Collected-item bit index must fit the native 64-byte table.");
+    }
+
+    private static (int ByteIndex, byte BitMask) ResolvePersistentRoomBit(
+        int bitIndex,
+        int byteCount,
+        string errorMessage)
+    {
+        if ((uint)bitIndex >= byteCount * 8)
+            throw new ArgumentOutOfRangeException(nameof(bitIndex), bitIndex, errorMessage);
+
+        return (bitIndex >> 3, unchecked((byte)(1 << (bitIndex & 7))));
     }
 
     private static void ValidateAreaIndex(int areaIndex)

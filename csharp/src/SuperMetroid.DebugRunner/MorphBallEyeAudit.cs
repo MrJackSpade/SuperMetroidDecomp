@@ -223,6 +223,8 @@ internal static class MorphBallEyeAudit
             GameTimeSeconds: 0,
             GameTimeMinutes: 0,
             GameTimeHours: 0,
+            RoomChozoBytes: new byte[Bank80SystemState.RoomChozoBitByteCount],
+            CollectedItemBytes: new byte[Bank80SystemState.ItemBitByteCount],
             SaveStation: 0,
             Area: 0);
         slot.ApplyTo(restored);

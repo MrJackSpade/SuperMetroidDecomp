@@ -216,6 +216,19 @@ public sealed partial class SuperMetroidRuntime
             hasEvent: System.HasEvent,
             setEvent: System.SetEvent);
 
+        // Permanent item PLMs occupy the same descending forty-slot pool as every other
+        // room object. Their three contiguous cartridge header tables cover exposed,
+        // Chozo-orb, and shot-block forms; the loader ignores unrelated population records
+        // rather than inventing per-room pickup placements.
+        Plms.LoadCollectiblePopulation(
+            _addressSpace,
+            LevelData,
+            BackgroundStreamer,
+            Vram,
+            room.State.PlmPointer,
+            System,
+            getSamus: () => Samus);
+
         Enemies.Load(
             _addressSpace,
             room.State.EnemyPopulationPointer,

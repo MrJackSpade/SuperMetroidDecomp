@@ -54,18 +54,19 @@ public sealed partial class RoomEnemySystem
         bool respawns = slot.Properties.HasAny(EnemyProperties.RespawnIfKilled);
         RoomEnemySpawnSnapshot survivingSpawnSnapshot = slot.Spawn;
 
-        // SpawnEprojWithGfx copies the dying actor's combined room tile/palette index before
-        // the common enemy record is cleared. Pool exhaustion genuinely loses both the
-        // visual effect and the only future respawn instruction, just as on the cartridge.
+        // The shared spawn helper initially carries the dying enemy's graphics word, but
+        // EprojInit_EnemyDeathExplosion immediately replaces eproj_gfx_idx with zero. Pool
+        // exhaustion genuinely loses both the effect and the only future respawn instruction.
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is not null)
         {
             InitializeEnemyProjectileFromDefinition(
                 projectile,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
-                unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex)));
+                graphicsIndex: 0);
             projectile.XPosition = slot.XPosition;
             projectile.YPosition = slot.YPosition;
+            projectile.EnemyHeaderPointer = slot.EnemyDefinitionPointer;
             projectile.KilledEnemyNativeIndex = respawns
                 ? unchecked((ushort)(slot.NativeIndex | 0x8000))
                 : slot.NativeIndex;
@@ -136,21 +137,4 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    /// <summary>
-    /// Handles $86:EEAF for the translated Rinka death subset. Item-pickup actors are not
-    /// yet owned by RoomEnemySystem; retain the cartridge's no-pickup continuation rather
-    /// than fabricating ammo restoration. The exact death frames, delay, EF10 respawn, and
-    /// shared-slot competition remain real ROM behavior, and this seam can be replaced by
-    /// the generic pickup family without changing Rinka AI.
-    /// </summary>
-    private static void ContinueRinkaDeathWithoutPickup(
-        RoomEnemyProjectileSlot projectile)
-    {
-        projectile.InstructionPointer = EnemyDeathNoDropTail;
-        projectile.InstructionTimer = 1;
-        projectile.PreInstruction = 0xefdf;
-        projectile.CanDamageSamus = false;
-        projectile.PersistsOnSamusContact = false;
-        projectile.BlocksSamusProjectiles = false;
-    }
 }

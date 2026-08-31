@@ -51,6 +51,8 @@ public sealed class SuperMetroidSaveRam
     private const int NewFileMarkerOffset = 0x0046;
     private const int EventsOffset = 0x0060;
     private const int BossBitsOffset = 0x0068;
+    private const int RoomChozoBitsOffset = 0x0070;
+    private const int CollectedItemBitsOffset = 0x00b0;
     private const int SaveStationOffset = 0x0156;
     private const int AreaOffset = 0x0158;
 
@@ -96,6 +98,12 @@ public sealed class SuperMetroidSaveRam
             GameTimeSeconds: ReadSramWord(slotOffset + GameTimeSecondsOffset),
             GameTimeMinutes: ReadSramWord(slotOffset + GameTimeMinutesOffset),
             GameTimeHours: ReadSramWord(slotOffset + GameTimeHoursOffset),
+            RoomChozoBytes: ReadSramBytes(
+                slotOffset + RoomChozoBitsOffset,
+                Bank80SystemState.RoomChozoBitByteCount),
+            CollectedItemBytes: ReadSramBytes(
+                slotOffset + CollectedItemBitsOffset,
+                Bank80SystemState.ItemBitByteCount),
             SaveStation: ReadSramWord(slotOffset + SaveStationOffset),
             Area: ReadSramWord(slotOffset + AreaOffset));
     }
@@ -160,6 +168,18 @@ public sealed class SuperMetroidSaveRam
             throw new InvalidDataException("A save snapshot requires exactly eight area-boss bytes.");
         snapshot.EventBytes.CopyTo(payload, EventsOffset);
         snapshot.BossBytes.CopyTo(payload, BossBitsOffset);
+        if (snapshot.RoomChozoBytes.Length != Bank80SystemState.RoomChozoBitByteCount)
+        {
+            throw new InvalidDataException(
+                "A save snapshot requires exactly 64 room-Chozo bytes.");
+        }
+        snapshot.RoomChozoBytes.CopyTo(payload, RoomChozoBitsOffset);
+        if (snapshot.CollectedItemBytes.Length != Bank80SystemState.ItemBitByteCount)
+        {
+            throw new InvalidDataException(
+                "A save snapshot requires exactly 64 collected-item bytes.");
+        }
+        snapshot.CollectedItemBytes.CopyTo(payload, CollectedItemBitsOffset);
         WriteWord(payload, SaveStationOffset, snapshot.SaveStation);
         WriteWord(payload, AreaOffset, snapshot.Area);
 
@@ -215,6 +235,14 @@ public sealed class SuperMetroidSaveRam
     private ushort ReadSramWord(int offset) => unchecked((ushort)(
         ReadSramByte(offset) | (ReadSramByte(offset + 1) << 8)));
 
+    private byte[] ReadSramBytes(int offset, int count)
+    {
+        var bytes = new byte[count];
+        for (int index = 0; index < count; index++)
+            bytes[index] = ReadSramByte(offset + index);
+        return bytes;
+    }
+
     private void WriteSramByte(int offset, byte value) =>
         bus.WriteByte(0x700000 | (offset & 0x1fff), value);
 
@@ -254,6 +282,8 @@ public sealed record SuperMetroidSaveSlot(
     ushort GameTimeSeconds,
     ushort GameTimeMinutes,
     ushort GameTimeHours,
+    byte[] RoomChozoBytes,
+    byte[] CollectedItemBytes,
     ushort SaveStation,
     ushort Area)
 {
@@ -264,6 +294,7 @@ public sealed record SuperMetroidSaveSlot(
         samus.EquippedItems = EquippedItems;
         samus.CollectedItems = CollectedItems;
         samus.EquippedBeams = EquippedBeams;
+        samus.CollectedBeams = CollectedBeams;
         samus.ReserveTankMode = ReserveMode;
         samus.Health = Health;
         samus.MaxHealth = MaxHealth;
@@ -276,6 +307,15 @@ public sealed record SuperMetroidSaveSlot(
         samus.SelectedHudItem = HudItem;
         samus.MaxReserveEnergy = MaxReserveEnergy;
         samus.ReserveEnergy = ReserveEnergy;
+    }
+
+    /// <summary>Restores player inventory and the independent physical-pickup table.</summary>
+    public void ApplyTo(SamusState samus, Bank80SystemState system)
+    {
+        ApplyTo(samus);
+        ArgumentNullException.ThrowIfNull(system);
+        system.LoadRoomChozoBytes(RoomChozoBytes);
+        system.LoadCollectedItemBytes(CollectedItemBytes);
     }
 }
 
@@ -306,6 +346,10 @@ public sealed record SuperMetroidSaveSnapshot
     public ushort Area { get; init; }
     public byte[] EventBytes { get; init; } = new byte[Bank80SystemState.EventByteCount];
     public byte[] BossBytes { get; init; } = new byte[Bank80SystemState.AreaCount];
+    public byte[] RoomChozoBytes { get; init; } =
+        new byte[Bank80SystemState.RoomChozoBitByteCount];
+    public byte[] CollectedItemBytes { get; init; } =
+        new byte[Bank80SystemState.ItemBitByteCount];
 
     public static SuperMetroidSaveSnapshot Capture(
         SamusState samus,
@@ -317,17 +361,23 @@ public sealed record SuperMetroidSaveSnapshot
         ArgumentNullException.ThrowIfNull(system);
         var events = new byte[Bank80SystemState.EventByteCount];
         var bosses = new byte[Bank80SystemState.AreaCount];
+        var roomChozo = new byte[Bank80SystemState.RoomChozoBitByteCount];
+        var collectedItems = new byte[Bank80SystemState.ItemBitByteCount];
         for (int index = 0; index < events.Length; index++)
             events[index] = system.GetEventByteRaw(index);
         for (int index = 0; index < bosses.Length; index++)
             bosses[index] = system.GetBossBitsRaw(index);
+        for (int index = 0; index < roomChozo.Length; index++)
+            roomChozo[index] = system.GetRoomChozoByteRaw(index);
+        for (int index = 0; index < collectedItems.Length; index++)
+            collectedItems[index] = system.GetCollectedItemByteRaw(index);
 
         return new SuperMetroidSaveSnapshot
         {
             EquippedItems = samus.EquippedItems,
             CollectedItems = samus.CollectedItems,
             EquippedBeams = samus.EquippedBeams,
-            CollectedBeams = samus.EquippedBeams,
+            CollectedBeams = samus.CollectedBeams,
             ReserveMode = samus.ReserveTankMode,
             Health = samus.Health,
             MaxHealth = samus.MaxHealth,
@@ -344,6 +394,8 @@ public sealed record SuperMetroidSaveSnapshot
             Area = area,
             EventBytes = events,
             BossBytes = bosses,
+            RoomChozoBytes = roomChozo,
+            CollectedItemBytes = collectedItems,
         };
     }
 }

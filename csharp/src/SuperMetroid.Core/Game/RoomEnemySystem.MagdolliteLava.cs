@@ -86,5 +86,9 @@ public sealed partial class RoomEnemySystem
             projectile.YPosition,
             MagdolliteDefinition,
             checked((ushort)(projectile.SlotIndex * 2)));
+        SpawnEnemyDropFromEnemyHeader(
+            projectile.XPosition,
+            projectile.YPosition,
+            MagdolliteDefinition);
     }
 }

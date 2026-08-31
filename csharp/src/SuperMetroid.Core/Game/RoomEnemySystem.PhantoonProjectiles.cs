@@ -314,5 +314,9 @@ public sealed partial class RoomEnemySystem
             flame.YPosition,
             PhantoonEyeDefinition,
             eye.ItemDropChancesPointer));
+        SpawnEnemyDropFromChanceTable(
+            flame.XPosition,
+            flame.YPosition,
+            eye.ItemDropChancesPointer);
     }
 }

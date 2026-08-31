@@ -171,6 +171,7 @@ public sealed partial class RoomEnemySystem
 
         _bus = bus;
         _nextRandom = nextRandom;
+        _samusForEnemyDrops = samus;
         // Some enemy routines call GenerateRandomNumber while others, including Alcoon's
         // post-volley bytecode, merely sample the existing WRAM seed. Keep those operations
         // distinct: substituting nextRandom here would silently advance the cartridge RNG.
@@ -454,6 +455,7 @@ public sealed partial class RoomEnemySystem
         VramWriteQueue? vramWriteQueue = null)
     {
         EnsureLoaded();
+        _samusForEnemyDrops = samus;
         // Standalone audits do not own the runtime NMI clock. In that case the enemy-frame
         // counter begins at zero and advances at the same end-of-frame point, which gives
         // Mama Turtle's even-frame shell jitter the same initial phase as retail room load.

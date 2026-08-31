@@ -605,7 +605,8 @@ public sealed partial class RoomEnemySystem
                     slot,
                     samus,
                     controllerInput,
-                    skipDeathAnimation: isRinka || isZebetite || isBotwoon || isTorizo);
+                    skipDeathAnimation:
+                        isRinka || isZebetite || isBotwoon || isTorizo || isFakeKraid);
                 if (isMagdollite)
                     ResolveMagdolliteCombatAfterCommon(slot);
                 if (isRinka)
@@ -619,7 +620,10 @@ public sealed partial class RoomEnemySystem
                 if (isTorizo && slot.Health == 0)
                     BeginBombTorizoDeath(slot, RequireBombTorizoState(slot));
                 if (isFakeKraid && healthBefore != 0 && slot.Health == 0)
+                {
                     RequestFakeKraidDeathDrop(slot);
+                    StartGenericEnemyDeath(slot, deathAnimation: 3);
+                }
             }
             return true;
         }
@@ -1295,9 +1299,8 @@ public sealed partial class RoomEnemySystem
 
                         if (enemy.Health == 0)
                         {
-                            enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
-                            EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
                             FinishMetroidDeath(enemy, samus, requestDrops: true);
+                            StartGenericEnemyDeath(enemy, deathAnimation: 4);
                         }
 
                         hitCount++;
@@ -1575,9 +1578,25 @@ public sealed partial class RoomEnemySystem
                             // requesting death animation variant four. Wall AI uses B only as
                             // a debug jump destination, so its fatal clear is observable too.
                             enemy.VariableB = 0;
+                            if (enemy.EnemyDefinitionPointer == GoldNinjaSpacePirateDefinition)
+                            {
+                                SpawnEnemyDropScatterAround(
+                                    GoldNinjaSpacePirateDefinition,
+                                    count: 5,
+                                    enemy.XPosition,
+                                    enemy.YPosition);
+                            }
                         }
-                        enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
-                        EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
+                        if (isFakeKraid)
+                            RequestFakeKraidDeathDrop(enemy);
+                        StartGenericEnemyDeath(
+                            enemy,
+                            isFakeKraid
+                                ? (ushort)3
+                                : SelectNormalShotDeathAnimation(
+                                    enemy,
+                                    projectileType,
+                                    forcePirateBigExplosion: isOrdinarySpacePirate));
                     }
                 }
 
@@ -1596,7 +1615,8 @@ public sealed partial class RoomEnemySystem
                     if (enemy.Health == enemyHealthBefore)
                         ResolveBullImmuneShot(enemy, bullState, projectileDirection);
                 }
-                if (isFakeKraid && enemyHealthBefore != 0 && enemy.Health == 0)
+                if (isFakeKraid && enemy.EnemyDefinitionPointer != 0 &&
+                    enemyHealthBefore != 0 && enemy.Health == 0)
                     RequestFakeKraidDeathDrop(enemy);
                 if (isBabyTurtle)
                     ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
@@ -1985,7 +2005,8 @@ public sealed partial class RoomEnemySystem
                                 runGenericDeath:
                                     !isRinka && !isSkree && !isPowamp && !isZebetite &&
                                     !isDraygonBody && !isSporeSpawn && !isBotwoon &&
-                                    !isNorfairRidley && !isPhantoonBody);
+                                    !isNorfairRidley && !isPhantoonBody &&
+                                    enemy.EnemyDefinitionPointer != FakeKraidDefinition);
 
                             if (isPhantoonBody)
                             {
@@ -2058,6 +2079,7 @@ public sealed partial class RoomEnemySystem
                                 // then requests death variant three and the Mini-Kraid drop.
                                 // The host keeps those coordinates in the typed drop request.
                                 RequestFakeKraidDeathDrop(enemy);
+                                StartGenericEnemyDeath(enemy, deathAnimation: 3);
                             }
                             if (enemy.EnemyDefinitionPointer == TripperDefinition &&
                                 selectedShotAi == TripperShotAi &&
@@ -2074,8 +2096,7 @@ public sealed partial class RoomEnemySystem
                                 // because it called `NormalEnemyShotAiSkipDeathAnim`. A normal bomb
                                 // selects death variant zero (only missiles select variant two).
                                 SpawnSkreeParticleBurst(enemy);
-                                enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
-                                EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
+                                StartGenericEnemyDeath(enemy, deathAnimation: 0);
                             }
                             if (isZebetite)
                                 ResolveZebetiteShotAfterCommon(enemy);
@@ -2286,8 +2307,9 @@ public sealed partial class RoomEnemySystem
         if (enemy.Health != 0 || !runGenericDeath)
             return;
 
-        enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
-        EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
+        StartGenericEnemyDeath(
+            enemy,
+            SelectNormalShotDeathAnimation(enemy, SamusBombProjectileSystem.NormalBombType));
     }
 
     /// <summary>
@@ -2500,15 +2522,20 @@ public sealed partial class RoomEnemySystem
                         !isRidleyPowerBombReaction &&
                         !isDraygonBody)
                     {
-                        enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
-                        EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
                         if (isFireflea)
                             AdvanceFirefleaDarknessLevel();
                         if (isMetroid)
                             FinishMetroidDeath(enemy, samus, requestDrops: false);
+
+                        // Mini Kraid's private power-bomb callback still owns its four
+                        // direct pickup explosions. Preserve the dying actor's position and
+                        // header before EnemyDeathAnimation clears the common enemy slot.
+                        if (isFakeKraid)
+                            RequestFakeKraidDeathDrop(enemy);
+                        StartGenericEnemyDeath(
+                            enemy,
+                            deathAnimation: isFakeKraid ? (ushort)3 : (ushort)0);
                     }
-                    if (isFakeKraid && healthBefore != 0 && enemy.Health == 0)
-                        RequestFakeKraidDeathDrop(enemy);
                 }
             }
 
@@ -2907,8 +2934,7 @@ public sealed partial class RoomEnemySystem
         if (skipDeathAnimation)
             return;
 
-        enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
-        EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
+        StartGenericEnemyDeath(enemy, deathAnimation: 1);
     }
 
     private static bool RadiusBoxesOverlap(

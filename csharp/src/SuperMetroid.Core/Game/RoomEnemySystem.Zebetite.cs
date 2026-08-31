@@ -317,9 +317,10 @@ public sealed partial class RoomEnemySystem
             InitializeEnemyProjectileFromDefinition(
                 projectile,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
-                unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex)));
+                graphicsIndex: 0);
             projectile.XPosition = slot.XPosition;
             projectile.YPosition = slot.YPosition;
+            projectile.EnemyHeaderPointer = slot.EnemyDefinitionPointer;
             projectile.KilledEnemyNativeIndex = slot.NativeIndex;
             projectile.InstructionPointer = ReadWord(
                 _bus!,

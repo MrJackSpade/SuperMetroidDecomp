@@ -60,10 +60,57 @@ internal static class EarlyControllerRouteAudit
         DriveResult parlor = DriveUntilDoor(runtime, "Parlor", maximumFrames: 3600);
         AssertPendingDoor(runtime, 0x898e, 0x96ba, "Parlor -> Climb");
 
+        runtime.LoadPendingDoorDestination();
+        AssertRoom(runtime, 0x96ba, 0x96d1, "Climb");
+        PrintDoorBlocks(runtime, "Climb");
+        PrintPlmPopulation(bus, runtime.ActiveRoom!.State.PlmPointer);
+        DriveResult climb = DriveUntilDoor(runtime, "Climb", maximumFrames: 6000);
+        AssertPendingDoor(runtime, 0x8b62, 0x975c, "Climb -> Pit");
+
+        runtime.LoadPendingDoorDestination();
+        AssertRoom(runtime, 0x975c, 0x976d, "Pit");
+        PrintDoorBlocks(runtime, "Pit");
+        PrintPlmPopulation(bus, runtime.ActiveRoom!.State.PlmPointer);
+        DriveResult pit = DriveUntilDoor(runtime, "Pit", maximumFrames: 2400);
+        AssertPendingDoor(runtime, 0x8b86, 0x97b5, "Pit -> elevator room");
+
+        runtime.LoadPendingDoorDestination();
+        AssertRoom(runtime, 0x97b5, 0x97c6, "Elevator to Blue Brinstar");
+        PrintDoorBlocks(runtime, "Elevator to Blue Brinstar");
+        PrintPlmPopulation(bus, runtime.ActiveRoom!.State.PlmPointer);
+        DriveResult elevator = DriveUntilDoor(
+            runtime,
+            "Elevator to Blue Brinstar",
+            maximumFrames: 2400);
+        CartridgeDoorHeader elevatorExit = runtime.LevelData?.PendingDoorTransition ??
+            throw new InvalidDataException("Elevator departure ended without its pseudo-door.");
+        Console.WriteLine(
+            $"  Elevator pseudo-door: $83:{elevatorExit.Pointer:X4}, " +
+            $"destination=${elevatorExit.DestinationRoomPointer:X4}, flags=${elevatorExit.BitFlags:X2}, " +
+            $"orientation=${elevatorExit.Orientation:X2}, PLM=({elevatorExit.PlmX:X2},{elevatorExit.PlmY:X2}), " +
+            $"screen=({elevatorExit.DestinationScreenX:X2},{elevatorExit.DestinationScreenY:X2}), " +
+            $"distance=${elevatorExit.SamusDistance:X4}, setup=${elevatorExit.SetupCodePointer:X4}.");
+        AssertPendingDoor(runtime, 0x8b9e, 0x9e9f, "Elevator -> Morph Ball room");
+
+        runtime.LoadPendingDoorDestination();
+        AssertRoom(runtime, 0x9e9f, 0x9eb1, "Morph Ball room");
+        PrintDoorBlocks(runtime, "Morph Ball room");
+        PrintPlmPopulation(bus, runtime.ActiveRoom!.State.PlmPointer);
+        DriveResult morphBall = DriveUntilDoor(runtime, "Morph Ball room", maximumFrames: 5000);
+        if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall) ||
+            !samus.EquippedItems.HasAny(SamusEquipmentFlags.MorphBall))
+        {
+            throw new InvalidDataException(
+                "Morph Ball room exited without the cartridge collectible setting both item words.");
+        }
+        AssertPendingDoor(runtime, 0x8eb6, 0x97b5, "Morph Ball return elevator");
+
         Console.WriteLine(
             $"Controller route: gunship {landingFrames} frames; Landing Site -> Parlor " +
             $"after {landing.Frames} ordinary gameplay frames; Parlor -> Climb after " +
-            $"{parlor.Frames} more frames at Samus " +
+            $"{parlor.Frames} more frames; Climb -> Pit after {climb.Frames} more; Pit exit " +
+            $"after {pit.Frames} more; elevator descent after {elevator.Frames} more; " +
+            $"Morph Ball acquired and return elevator reached after {morphBall.Frames} more at Samus " +
             $"(${samus.XPosition:X4},${samus.YPosition:X4}).");
         return 0;
     }
@@ -83,7 +130,12 @@ internal static class EarlyControllerRouteAudit
         int collisionExplosions = 0;
         int jumpHoldFrames = 0;
         int floorHatchCycle = -1;
-        SnesButton horizontalDirection = SnesButton.Left;
+        // Landing Site, Parlor, and Climb begin by travelling left or descending
+        // from a leftward approach. Pit is entered through its left cap and the
+        // cartridge route continues to the right.
+        SnesButton horizontalDirection = roomName is "Pit" or "Elevator to Blue Brinstar"
+            ? SnesButton.Right
+            : SnesButton.Left;
         var firedByDirection = new int[16];
         var collisionsByDirection = new int[16];
         var floorHatchShotTrace = new List<string>();
@@ -107,7 +159,7 @@ internal static class EarlyControllerRouteAudit
             // horizontal collision code has held X fixed for twenty frames. This is an
             // input policy, not a coordinate/path shortcut; slopes, gravity, and walls are
             // still resolved by the translated game systems on every frame.
-            if (roomName == "Parlor" &&
+            if ((roomName is "Parlor" or "Climb") &&
                 samus.YPosition >= 0x0100 &&
                 horizontallyStationaryFrames == 20)
             {
@@ -118,6 +170,9 @@ internal static class EarlyControllerRouteAudit
 
             bool aboveParlorFloorHatch = roomName == "Parlor" &&
                 samus.YPosition >= 0x0480;
+            bool approachingBlueBrinstarElevator =
+                roomName == "Elevator to Blue Brinstar";
+            bool crossingMorphBallRoom = roomName == "Morph Ball room";
             ushort input;
             if (aboveParlorFloorHatch)
             {
@@ -145,9 +200,125 @@ internal static class EarlyControllerRouteAudit
                         input |= (ushort)SnesButton.X;
                 }
             }
+            else if (approachingBlueBrinstarElevator)
+            {
+                // The elevator actor waits for a newly-pressed direction only after the
+                // floor's type-$9 pseudo-door collision has set $0E16. Walk onto the two
+                // cartridge-authored platform columns, then pulse Down with intervening
+                // released frames so the actor—not this audit—can accept the edge and
+                // begin departure on its native frame-order boundary.
+                input = samus.XPosition switch
+                {
+                    < 0x0074 => (ushort)SnesButton.Right,
+                    > 0x008c => (ushort)SnesButton.Left,
+                    _ => frame % 30 == 0 ? (ushort)SnesButton.Down : (ushort)0,
+                };
+            }
+            else if (crossingMorphBallRoom)
+            {
+                bool hasMorphBall = samus.CollectedItems.HasAny(
+                    SamusEquipmentFlags.MorphBall);
+                if (!hasMorphBall)
+                {
+                    // Static face blocks and the ruined floor form several narrow lips on
+                    // the westbound approach. A thirty-frame held Jump followed by a full
+                    // release produces genuine new-button edges on each attempt and keeps
+                    // Left held throughout; bank-$90 owns the resulting arc and collision.
+                    input = (ushort)SnesButton.Left;
+                    if (frame % 60 < 30)
+                        input |= (ushort)SnesButton.A;
+                }
+                else
+                {
+                    RoomCollisionBlock returnBlock = runtime.LevelData!
+                        .GetCollisionBlock(0x4c, 0x2c);
+                    bool returnBlockStillSolid = returnBlock.CollisionType == 0x0c &&
+                        returnBlock.Behavior == 0x04;
+                    bool isMorphBall = SamusState.IsGroundedMorphBallPose(samus.Pose) ||
+                        SamusState.IsAirborneMorphBallPose(samus.Pose);
+                    bool centeredOnReturnElevator =
+                        samus.XPosition is >= 0x0574 and <= 0x058c;
+                    if (returnBlockStillSolid)
+                    {
+                        // The return tunnel begins with one permanent beam-break block at
+                        // (4C,2C). Clear it before morphing: Right+Down selects the ROM's
+                        // diagonal-down running aim and periodic X edges create ordinary
+                        // projectiles whose block collision owns the terrain mutation.
+                        input = (ushort)(SnesButton.Right | SnesButton.Down);
+                        if (frame % 12 == 0)
+                            input |= (ushort)SnesButton.X;
+                    }
+                    else if (centeredOnReturnElevator)
+                    {
+                        // The west wall is BTS $09, intentionally Power-Bomb-only. The
+                        // new-game route returns east after collecting Morph Ball. Pulse
+                        // Up over the same two-column pseudo-door so the ordinary elevator
+                        // actor owns the return trip to Crateria.
+                        input = frame % 30 == 0
+                            ? (ushort)SnesButton.Up
+                            : (ushort)0;
+                    }
+                    else if (samus.XPosition >= 0x0530 && isMorphBall)
+                    {
+                        // The low tunnel ends at a one-block step. There is full standing
+                        // headroom here, so use a clean release/Up cycle to invoke the ROM
+                        // un-morph transition before attempting the ordinary jump.
+                        input = frame % 60 < 20
+                            ? (ushort)0
+                            : (ushort)SnesButton.Up;
+                    }
+                    else if (samus.XPosition >= 0x0530)
+                    {
+                        input = (ushort)SnesButton.Right;
+                        if (frame % 60 < 30)
+                            input |= (ushort)SnesButton.A;
+                    }
+                    else if (isMorphBall)
+                    {
+                        input = (ushort)SnesButton.Right;
+                    }
+                    else
+                    {
+                        // Left+Down is an aimed-running command, not a morph command. Give
+                        // the pose table a clean release window and then Down by itself so
+                        // it can perform stand -> crouch -> morph. Repeating the cycle is
+                        // necessary because the item-acquisition message temporarily owns
+                        // Samus input; the first edge may legitimately occur during it.
+                        input = frame % 60 < 20
+                            ? (ushort)0
+                            : (ushort)SnesButton.Down;
+                    }
+                }
+            }
             else
             {
-                input = (ushort)horizontalDirection;
+                // Climb's last two screens are a special case for the deliberately tiny
+                // controller driver, not for gameplay. The long shaft alternates shallow
+                // lips on its left and right walls; choosing the direction toward the
+                // shaft centre makes Samus walk off whichever lip caught her. Once the
+                // bottom screen is reached, the cartridge collision map puts the Pit door
+                // at the lower-right edge, so ordinary Right input completes the segment.
+                // Coordinates are inspected only to choose controller buttons: movement,
+                // falling, collision, scrolling, and door publication all remain owned by
+                // the translated runtime.
+                bool descendingLowerClimb = roomName == "Climb" &&
+                    samus.YPosition is >= 0x0700 and < 0x0800;
+                bool approachingPitDoor = roomName == "Climb" &&
+                    samus.YPosition >= 0x0800;
+                if (descendingLowerClimb)
+                {
+                    input = samus.XPosition < 0x0180
+                        ? (ushort)SnesButton.Right
+                        : (ushort)SnesButton.Left;
+                }
+                else if (approachingPitDoor)
+                {
+                    input = (ushort)SnesButton.Right;
+                }
+                else
+                {
+                    input = (ushort)horizontalDirection;
+                }
                 if (frame % 24 == 0)
                     input |= (ushort)SnesButton.X;
                 if ((roomName != "Parlor" || samus.YPosition < 0x0100) &&

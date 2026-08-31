@@ -108,6 +108,15 @@ public sealed partial class SamusState
     public SamusDraygonGrabbedState DraygonGrabbed { get; } = new();
 
     /// <summary>
+    /// Ceres Ridley's dedicated bank-$90 push/fall handler. This is not ordinary damage
+    /// knockback: `$90:E119` replaces the movement and gamma-handler pointers without
+    /// consuming energy, and `$90:E1C8` owns Samus until horizontal room collision.
+    /// Keeping that lifetime separate prevents the five-frame hurt timer from ending the
+    /// scripted ejection early or making normal controller input steer it.
+    /// </summary>
+    public SamusCeresRidleyEjectionState CeresRidleyEjection { get; } = new();
+
+    /// <summary>
     /// Compatibility/debugger view of <c>samus_x_speed_divisor</c> at WRAM <c>$0A66</c>.
     /// The backing word belongs to <see cref="HorizontalSpeed"/>, just as the native word
     /// is both a movement-speed divisor and the no-FX animation delay buffer.

@@ -154,10 +154,23 @@ public sealed class RoomEnemySlot
 public enum GunshipFrameEvent
 {
     None,
+    LandingPadOpened,
+    LandingPadClosed,
+    LandingCompleted,
     EntryStarted,
     EntryPadClosing,
     SavePromptRequested,
     SavePromptAnswered,
     ExitPadClosing,
     ExitCompleted,
+}
+
+/// <summary>
+/// Native <c>loading_game_state</c> branch sampled while the Landing Site gunship is
+/// initialized. These are mutually exclusive loader scenarios, not combinable flags.
+/// </summary>
+public enum GunshipLoadScenario
+{
+    Ordinary,
+    EscapingCeres,
 }

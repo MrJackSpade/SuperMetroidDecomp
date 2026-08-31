@@ -51,6 +51,8 @@ public sealed partial class RoomEnemySystem
     private RidleyEnemyState? _ridleyState;
     private SporeSpawnEnemyState? _sporeSpawn;
     private bool _processAllEnemies;
+    private GunshipLoadScenario _gunshipLoadScenario;
+    private SamusState? _samusAtEnemyInitialization;
 
     public RoomEnemySystem()
     {
@@ -130,6 +132,15 @@ public sealed partial class RoomEnemySystem
     public ushort CeresStatus { get; set; }
 
     /// <summary>
+    /// One-frame publication of $A6:C117. The runtime consumes this after EnemyMain to
+    /// start the global escape timer and set Ceres's boss bit in their native owners.
+    /// </summary>
+    public bool CeresEscapeStartedThisFrame { get; private set; }
+
+    /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins.</summary>
+    public bool JapaneseText { get; set; }
+
+    /// <summary>
     /// Ports the data-producing parts of <c>LoadEnemies</c>,
     /// <c>ProcessEnemyTilesets</c>, and <c>InitializeEnemies</c> at $A0:8A1E-$8C6C.
     /// </summary>
@@ -162,7 +173,8 @@ public sealed partial class RoomEnemySystem
         Action? incrementMotherBrainGlassRoomArgument = null,
         Func<int, byte>? readRoomScrollByte = null,
         Action<ushort>? setMotherBrainLayerBlendingDefaultConfig = null,
-        Action<ushort, ushort>? setMotherBrainBg2Scroll = null)
+        Action<ushort, ushort>? setMotherBrainBg2Scroll = null,
+        GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -170,6 +182,8 @@ public sealed partial class RoomEnemySystem
         ArgumentNullException.ThrowIfNull(nextRandom);
 
         _bus = bus;
+        _gunshipLoadScenario = gunshipLoadScenario;
+        _samusAtEnemyInitialization = samus;
         _nextRandom = nextRandom;
         _samusForEnemyDrops = samus;
         // Some enemy routines call GenerateRandomNumber while others, including Alcoon's
@@ -209,6 +223,7 @@ public sealed partial class RoomEnemySystem
         LastMetroidSoundEffectLibrary2 = null;
         LastMetroidSoundEffectLibrary3 = null;
         LastCeresDoorSoundEffectLibrary2 = null;
+        CeresEscapeStartedThisFrame = false;
         LastBoulderSoundEffect = null;
         LastZebetiteSoundEffect = null;
         LastEtecoonSoundEffect = null;
@@ -468,6 +483,7 @@ public sealed partial class RoomEnemySystem
         LastMetroidSoundEffectLibrary2 = null;
         LastMetroidSoundEffectLibrary3 = null;
         LastCeresDoorSoundEffectLibrary2 = null;
+        CeresEscapeStartedThisFrame = false;
         LastBoulderSoundEffect = null;
         LastZebetiteSoundEffect = null;
         LastEtecoonSoundEffect = null;
@@ -642,7 +658,8 @@ public sealed partial class RoomEnemySystem
                         samusProjectiles,
                         enemyNmiFrameCounter8,
                         mode7Transform,
-                        sharedProjectiles);
+                        sharedProjectiles,
+                        vramWriteQueue);
                     ranActorAi = true;
                 }
 
@@ -1414,19 +1431,30 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private static void InitializeGunshipTop(RoomEnemySlot slot)
+    private void InitializeGunshipTop(RoomEnemySlot slot)
     {
-        // Normal gameplay takes $A2:A67C: the cutscene game-state/loading-state alternatives
-        // are different room-entry scenarios and therefore cannot be inferred here.
         slot.Properties = slot.Properties.With(
             EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.CurrentInstruction = 0xa616;
         slot.PaletteIndex = 0x0e00;
-        slot.YPosition = unchecked((ushort)(slot.YPosition - 25));
-        slot.VariableE = slot.YPosition;
-        slot.VariableF = 0xa9bd;
+        if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
+        {
+            SamusState samus = _samusAtEnemyInitialization
+                ?? throw new InvalidOperationException(
+                    "Post-Ceres gunship initialization requires the loader's Samus actor.");
+            // `$A2:A669-$A678` attaches the top hull seventeen pixels above Samus and
+            // enters function three, the high-altitude descent used only after Ceres.
+            slot.YPosition = unchecked((ushort)(samus.YPosition - 17));
+            slot.VariableF = 0xa80c;
+        }
+        else
+        {
+            slot.YPosition = unchecked((ushort)(slot.YPosition - 25));
+            slot.VariableE = slot.YPosition;
+            slot.VariableF = 0xa9bd;
+        }
         slot.VariableD = 1;
         slot.VariableC = 0;
     }
@@ -1458,8 +1486,18 @@ public sealed partial class RoomEnemySystem
         }
         else
         {
-            slot.YPosition = unchecked((ushort)(slot.YPosition + 15));
-            slot.VariableD = 71;
+            if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
+            {
+                SamusState samus = _samusAtEnemyInitialization
+                    ?? throw new InvalidOperationException(
+                        "Post-Ceres gunship bottom initialization requires Samus.");
+                slot.YPosition = unchecked((ushort)(samus.YPosition + 23));
+            }
+            else
+            {
+                slot.YPosition = unchecked((ushort)(slot.YPosition + 15));
+                slot.VariableD = 71;
+            }
         }
         slot.VariableF = 0x804c;
     }
@@ -1475,7 +1513,8 @@ public sealed partial class RoomEnemySystem
         SamusProjectileSystem? samusProjectiles,
         byte nmiFrameCounter8,
         SamusMode7Transform? mode7Transform = null,
-        SamusBombProjectileSystem? sharedProjectiles = null)
+        SamusBombProjectileSystem? sharedProjectiles = null,
+        VramWriteQueue? vramWriteQueue = null)
     {
         int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
         switch (address)
@@ -1661,7 +1700,7 @@ public sealed partial class RoomEnemySystem
                 RunCeresDoorMain(slot);
                 return;
             case 0xa6a288 when slot.EnemyDefinitionPointer == 0xe13f:
-                RunCeresRidleyMain(slot, samus);
+                RunCeresRidleyMain(slot, samus, vramWriteQueue);
                 return;
             case 0xa6b227 when slot.EnemyDefinitionPointer == NorfairRidleyDefinition:
                 RunNorfairRidleyMain(
@@ -1944,6 +1983,28 @@ public sealed partial class RoomEnemySystem
 
         switch (top.VariableF)
         {
+            case 0xa80c:
+                DescendPostCeresGunship(top, samus);
+                return;
+            case 0xa8d0:
+                BouncePostCeresGunship(top, samus);
+                return;
+            case 0xa942:
+                if (TickGunshipFunctionTimer(top))
+                    top.VariableF = 0xa950;
+                return;
+            case 0xa950:
+                RaisePostCeresSamus(top, samus);
+                return;
+            case 0xa987:
+                if (TickGunshipFunctionTimer(top))
+                {
+                    top.VariableF = 0xa9bd;
+                    if (samus is not null)
+                        samus.InputLocked = false;
+                    LastGunshipEvent = GunshipFrameEvent.LandingCompleted;
+                }
+                return;
             case 0xa9bd:
                 HandleIdleGunshipEntrance(top, samus, newlyPressedControllerInput);
                 return;
@@ -1983,6 +2044,96 @@ public sealed partial class RoomEnemySystem
             default:
                 throw new InvalidDataException(
                     $"Gunship function $A2:{top.VariableF:X4} is not translated.");
+        }
+    }
+
+    private void DescendPostCeresGunship(RoomEnemySlot top, SamusState? samus)
+    {
+        if (samus is null)
+            throw new InvalidOperationException("Post-Ceres gunship descent lost Samus.");
+
+        // Function three carries all four actors as a rigid body. Above Y=$0300 it moves
+        // $4.8000 pixels per call; below that threshold it slows to $2.8000 and clamps the
+        // top hull to $045F before beginning the cartridge's seventeen-entry bounce table.
+        uint delta = top.YPosition < 0x0300 ? 0x0004_8000u : 0x0002_8000u;
+        AddGunshipYFixed(samus, top, delta);
+        if (top.YPosition < 0x045f)
+            return;
+
+        RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
+        RoomEnemySlot pad = _slots[top.SlotIndex + 2];
+        top.YPosition = 0x045f;
+        top.YSubposition = 0;
+        bottom.YPosition = 0x0487;
+        bottom.YSubposition = 0;
+        pad.YPosition = 0x045e;
+        pad.YSubposition = 0;
+        top.VariableF = 0xa8d0;
+        top.VariableE = 0;
+    }
+
+    private void BouncePostCeresGunship(RoomEnemySlot top, SamusState? samus)
+    {
+        if (samus is null)
+            throw new InvalidOperationException("Post-Ceres gunship bounce lost Samus.");
+
+        int tableAddress = 0xa2a622 + top.VariableE * 2;
+        short yDelta = unchecked((short)ReadWord(_bus!, tableAddress));
+        samus.YPosition = unchecked((ushort)(samus.YPosition + yDelta));
+        for (int component = 0; component < 3; component++)
+        {
+            RoomEnemySlot slot = _slots[top.SlotIndex + component];
+            slot.YPosition = unchecked((ushort)(slot.YPosition + yDelta));
+        }
+
+        top.VariableE++;
+        if (top.VariableE < 17)
+            return;
+
+        RoomEnemySlot pad = _slots[top.SlotIndex + 2];
+        top.VariableF = 0xa942;
+        top.VariableE = top.YPosition;
+        top.VariableD = 1;
+        top.VariableC = 0;
+        samus.XPosition = unchecked((ushort)(top.XPosition + 1));
+        pad.InstructionTimer = 1;
+        pad.CurrentInstruction = 0xa5be;
+        top.VariableA = 144;
+        LastGunshipEvent = GunshipFrameEvent.LandingPadOpened;
+    }
+
+    private void RaisePostCeresSamus(RoomEnemySlot top, SamusState? samus)
+    {
+        if (samus is null)
+            throw new InvalidOperationException("Post-Ceres gunship exit lost Samus.");
+
+        samus.YPosition = unchecked((ushort)(samus.YPosition - 1));
+        ushort targetY = unchecked((ushort)(top.VariableE - 30));
+        if (!IsNegative16(samus.YPosition - targetY))
+            return;
+
+        RoomEnemySlot pad = _slots[top.SlotIndex + 2];
+        top.VariableF = 0xa987;
+        pad.InstructionTimer = 1;
+        pad.CurrentInstruction = 0xa5ee;
+        top.VariableA = 144;
+        LastGunshipEvent = GunshipFrameEvent.LandingPadClosed;
+    }
+
+    private void AddGunshipYFixed(SamusState samus, RoomEnemySlot top, uint delta)
+    {
+        uint samusFixed = ((uint)samus.YPosition << 16) | samus.Kinematics.YSubposition;
+        samusFixed = unchecked(samusFixed + delta);
+        samus.YPosition = unchecked((ushort)(samusFixed >> 16));
+        samus.Kinematics.YSubposition = unchecked((ushort)samusFixed);
+
+        for (int component = 0; component < 3; component++)
+        {
+            RoomEnemySlot slot = _slots[top.SlotIndex + component];
+            uint fixedPosition = ((uint)slot.YPosition << 16) | slot.YSubposition;
+            fixedPosition = unchecked(fixedPosition + delta);
+            slot.YPosition = unchecked((ushort)(fixedPosition >> 16));
+            slot.YSubposition = unchecked((ushort)fixedPosition);
         }
     }
 

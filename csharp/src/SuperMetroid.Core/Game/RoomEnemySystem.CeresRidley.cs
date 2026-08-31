@@ -177,7 +177,10 @@ public sealed partial class RoomEnemySystem
     /// palette handoff, and <c>ceres_status = 1</c> publication all retain their ROM addresses.
     /// Ridley's later Mode-7 getaway presentation remains a room-main concern, not enemy AI.
     /// </summary>
-    private void RunCeresRidleyMain(RoomEnemySlot slot, SamusState? samus)
+    private void RunCeresRidleyMain(
+        RoomEnemySlot slot,
+        SamusState? samus,
+        VramWriteQueue? vramWriteQueue)
     {
         RidleyEnemyState state = RequireCeresRidley(slot);
         slot.Health = 0x7fff;
@@ -404,6 +407,14 @@ public sealed partial class RoomEnemySystem
             case RidleyAiFunction.CeresInactive:
                 if (CeresStatus == 1 && state.Mode7Active)
                     TickCeresRidleyMode7Getaway(state, samus, slot.FrameCounter);
+                return;
+
+            case RidleyAiFunction.CeresActivateSelfDestruct:
+                TickCeresRidleySelfDestruct(state, vramWriteQueue);
+                return;
+
+            case RidleyAiFunction.CeresSelfDestructPaletteOnly:
+                UpdateCeresSelfDestructPalette(state, slot.FrameCounter);
                 return;
 
             default:

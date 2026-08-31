@@ -45,15 +45,12 @@ public sealed partial class RoomEnemySystem
         ushort tableByteIndex = state.Mode7TableByteIndex;
         state.Mode7TableByteIndex = unchecked((ushort)(tableByteIndex + 2));
 
-        // At byte index $D0, $90:E119 replaces Samus's movement/hack handlers so the rotating
-        // boss image cannot overlap her. This runtime's input lock is the equivalent public
-        // ownership boundary; ordinary kinematics resume when Mode 7 returns to mode nine.
+        // At byte index $D0, `$90:E119` replaces Samus's movement/hack handlers so the
+        // rotating boss image cannot overlap her. Room main executes after Samus movement
+        // natively; Request retains that one-frame boundary even though this actor currently
+        // advances during the runtime's earlier EnemyMain phase.
         if (tableByteIndex == 0x00d0 && samus is not null)
-        {
-            samus.InputLocked = true;
-            samus.KnockbackTimer = 5;
-            samus.KnockbackXDirection = samus.XPosition >= 0x0080 ? (ushort)1 : (ushort)0;
-        }
+            samus.CeresRidleyEjection.Request();
 
         ushort zoom = ReadWord(_bus!, CeresRidleyMode7ZoomTable + tableByteIndex);
         if (zoom == 0xffff)
@@ -71,8 +68,11 @@ public sealed partial class RoomEnemySystem
             state.Mode7MatrixD = 0;
             state.Mode7CenterX = 0;
             state.Mode7CenterY = 0;
-            if (samus is not null)
-                samus.InputLocked = false;
+            // $A6:AB55 hands the same extended actor workspace to $A6:C04E. Samus's
+            // special push/fall handler remains responsible for restoring normal input;
+            // ending Mode 7 itself does not unlock her in the cartridge.
+            state.Function = RidleyAiFunction.CeresActivateSelfDestruct;
+            state.FunctionTimer = 0;
             return;
         }
 

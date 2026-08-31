@@ -135,6 +135,75 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// Executes loading state <c>$06</c>'s special <c>loading_game_state=$22</c> branch:
+    /// Crateria area zero, load-station eighteen, with the airborne Landing Site gunship.
+    /// </summary>
+    public InitialViewportResult InitializePostCeresZebesRoom()
+    {
+        SamusState samus = Samus
+            ?? throw new InvalidOperationException(
+                "The Ceres escape must retain its live Samus state through the cinematic.");
+
+        // `$82:8038-$8048` assigns these indexes immediately before LoadFromLoadStation.
+        // Station eighteen is a cutscene-only entry high above Landing Site; station zero
+        // is not selected until GunshipTop_7 finishes the landing and performs the save.
+        LoadStationEntry station = LoadStationEntry.Load(
+            _addressSpace,
+            areaIndex: 0,
+            stationIndex: 18);
+        CartridgeDoorHeader door = CartridgeDoorHeader.Load(_addressSpace, station.DoorPointer);
+        if (door.DestinationRoomPointer != station.RoomPointer)
+        {
+            throw new InvalidDataException(
+                $"Post-Ceres station room $8F:{station.RoomPointer:X4} disagrees with " +
+                $"door $83:{door.Pointer:X4}'s destination $8F:{door.DestinationRoomPointer:X4}.");
+        }
+
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+            _addressSpace,
+            door.DestinationRoomPointer);
+        if (room.AreaIndex != 0)
+        {
+            throw new InvalidDataException(
+                $"Post-Ceres station eighteen targets area {room.AreaIndex}, expected Crateria.");
+        }
+
+        // Samus_Initialize clears motion/pose state but deliberately retains inventory and
+        // progression. CADF refilled health on the preceding cinematic frame.
+        samus.Health = samus.MaxHealth;
+        samus.Pose = 0;
+        samus.AnimationFrame = 0;
+        samus.Kinematics.SetXFixed((uint)station.SamusX << 16);
+        samus.Kinematics.SetYFixed((uint)station.SamusY << 16);
+        samus.Kinematics.YSpeed = 0;
+        samus.Kinematics.YSubspeed = 0;
+        samus.InputLocked = true;
+        ActiveLoadStation = station;
+
+        // The special loader still executes the normal room-object teardown before it
+        // constructs Landing Site. CeresElevatorArrival models two bank-$86 projectiles
+        // from the abandoned station room; retaining it here lets its delayed Y=$0048
+        // completion overwrite the Samus position currently carried by the gunship.
+        CeresElevatorArrival = null;
+
+        InitialViewportResult viewport = LoadCartridgeRoom(
+            door,
+            room,
+            station.CameraX,
+            station.CameraY,
+            GunshipLoadScenario.EscapingCeres);
+        samus.LoadSuitPalette(_addressSpace, Cgram);
+        samus.RefreshCollisionRadii(_addressSpace);
+        samus.InitializeAnimation(_addressSpace);
+        samus.LiquidPhysics.AreaIndex = room.AreaIndex;
+        samus.LiquidPhysics.RoomIndex = room.RoomIndex;
+        samus.PrimeGraphics(_addressSpace);
+        PreviousMovementTypeForXray = samus.ReadMovementType(_addressSpace);
+        GroundedSamusMovementEnabled = false;
+        return viewport;
+    }
+
+    /// <summary>
     /// True after bank-$94's type-$9 handler has selected a normal destination door and
     /// before the frontend's states $09-$0B consume it.
     /// </summary>
@@ -234,12 +303,16 @@ public sealed partial class SuperMetroidRuntime
         CartridgeDoorHeader door,
         CartridgeRoomHeader room,
         ushort cameraX,
-        ushort cameraY)
+        ushort cameraY,
+        GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary)
     {
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_addressSpace, room);
         ActiveDoor = door;
         ActiveRoom = room;
         ActiveRoomAssets = assets;
+        CeresElevatorShaft.Reset(
+            active: room.State.MainCodePointer == CeresElevatorShaftRoomMainState.MainCodePointer &&
+                door.UsesCeresElevatorMode7);
         // Door setup `$8F:E4E0` writes these exact five registers before the fresh Ceres
         // elevator room becomes visible. Publishing the immutable transform here gives
         // Samus, her projectiles, and parameter-four/five steam a single authoritative
@@ -350,7 +423,8 @@ public sealed partial class SuperMetroidRuntime
                 value => LayerBlendingDefaultConfig = value,
             setMotherBrainBg2Scroll:
                 (horizontal, vertical) =>
-                    BackgroundScroll.SetBg2ScrollRegisters(horizontal, vertical));
+                    BackgroundScroll.SetBg2ScrollRegisters(horizontal, vertical),
+            gunshipLoadScenario: gunshipLoadScenario);
         ApplyPendingBotwoonWallPlm();
         ApplyPendingSporeSpawnCeilingPlm();
         ApplyPendingCrocomireArenaPlms();

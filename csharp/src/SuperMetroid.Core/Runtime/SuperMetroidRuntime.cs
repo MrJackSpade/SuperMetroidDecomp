@@ -45,6 +45,16 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>Escape timer state machine from <c>$80:9DE7</c>.</summary>
     public EscapeTimer EscapeTimer { get; } = new();
 
+    /// <summary>
+    /// Frontend language bit consumed by room actors whose cartridge script differs
+    /// between English and Japanese. The enemy owner retains the actual native branch.
+    /// </summary>
+    public bool JapaneseText
+    {
+        get => Enemies.JapaneseText;
+        set => Enemies.JapaneseText = value;
+    }
+
     /// <summary>Ordinary seven-byte-record VRAM write table.</summary>
     public VramWriteQueue VramWrites { get; } = new();
 
@@ -157,6 +167,9 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>Most recent special knockback-handler result, exposed for debugger watches.</summary>
     public KnockbackMovementResult? LastKnockbackMovement { get; private set; }
 
+    /// <summary>Most recent Ceres Ridley scripted ejection-handler result.</summary>
+    public CeresRidleyEjectionResult? LastCeresRidleyEjection { get; private set; }
+
     /// <summary>Most recent bank-$9B connected-grapple function result.</summary>
     public GrappleMovementResult? LastGrappleMovement { get; private set; }
 
@@ -252,6 +265,16 @@ public sealed partial class SuperMetroidRuntime
     /// Samus's physical coordinates.
     /// </summary>
     public SamusMode7Transform? ActiveSamusMode7Transform { get; set; }
+
+    /// <summary>
+    /// Exact room-main owner for Ceres elevator shaft <c>$DF45</c>. The object persists so
+    /// debugger watches can inspect its signed rotation phase, but every room load resets
+    /// and explicitly activates or deactivates it from the cartridge room-state pointer.
+    /// </summary>
+    public CeresElevatorShaftRoomMainState CeresElevatorShaft { get; } = new();
+
+    /// <summary>Most recent <c>$89:ACC3</c> room-main call.</summary>
+    public CeresElevatorShaftRoomMainResult LastCeresElevatorShaftRoomMain { get; private set; }
 
     /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; private set; }
@@ -994,9 +1017,17 @@ public sealed partial class SuperMetroidRuntime
     public RuntimeFrameResult StepFrame(
         ushort controller1Input,
         Action<OamBuffer>? drawHighPriorityEnemyProjectiles = null,
-        Action<OamBuffer>? drawLowPriorityEnemyProjectiles = null)
+        Action<OamBuffer>? drawLowPriorityEnemyProjectiles = null,
+        bool allowCeresElevatorDeparture = true)
     {
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
+
+        // Ridley's `$90:E119` request is issued by room main after Samus movement in the
+        // cartridge. The translated Ridley visual currently publishes it during EnemyMain,
+        // so promote that pending request only at the next frame boundary. This preserves
+        // both the first `$90:E12E` gamma call and the prior frame's ordinary pose input.
+        if (Samus is { } frameSamus)
+            frameSamus.CeresRidleyEjection.BeginFrame(frameSamus);
 
         // HDMA object pre-instructions run once near the start of each ordinary gameplay
         // pass. A transformation spawned when the preceding message returned therefore
@@ -1047,6 +1078,21 @@ public sealed partial class SuperMetroidRuntime
         uint samusXAtFrameStart = Samus is null
             ? 0
             : ((uint)Samus.Kinematics.XPosition << 16) | Samus.Kinematics.XSubposition;
+
+        // MainScrollingRoutine compares Samus's final coordinates with the position saved
+        // at the beginning of the gameplay pass, not merely with the position immediately
+        // before bank-$90's beta handler. This distinction is normally invisible because
+        // ordinary Samus movement happens in beta. The post-Ceres gunship, however, moves
+        // locked Samus during EnemyMain. Capturing all four words here lets the same generic
+        // scrolling routine follow that cartridge-authored movement instead of allowing the
+        // descending ship to leave the enemy scheduler's on-screen processing window.
+        SamusCameraPoint? samusCameraPointAtFrameStart = Samus is null
+            ? null
+            : new SamusCameraPoint(
+                Samus.XPosition,
+                Samus.Kinematics.XSubposition,
+                Samus.YPosition,
+                Samus.Kinematics.YSubposition);
 
         // Gameplay state eight calls `$8D:C527` before `$91:8000` dispatches Samus and
         // before `$A0:868F` processes enemies. Controller function three is invoked by the
@@ -1102,6 +1148,16 @@ public sealed partial class SuperMetroidRuntime
                 ActiveSamusMode7Transform,
                 BombProjectiles,
                 VramWrites);
+            if (Enemies.CeresEscapeStartedThisFrame)
+            {
+                // $A6:C117 publishes these global side effects on the same EnemyMain call
+                // that changes ceres_status from one to two. Keep the actor as producer,
+                // but apply timer and boss state in their existing runtime-owned systems.
+                EscapeTimer.RequestCeresStart();
+                if (ActiveRoom is null)
+                    throw new InvalidOperationException("Ceres escape started without an active room.");
+                System.SetBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss);
+            }
             if (Enemies.RequestedShitroidCameraX is ushort shitroidCameraX)
             {
                 // `$A9:EFE6` writes layer1_x_pos during EnemyMain, before the ordinary
@@ -1155,6 +1211,13 @@ public sealed partial class SuperMetroidRuntime
                     Samus.LoadSuitPalette(_addressSpace, Cgram);
                     ElevatorStatus = 0;
                 }
+                else if (Enemies.LastGunshipEvent == GunshipFrameEvent.LandingCompleted)
+                {
+                    // `$A2:A987` restores the ordinary Samus handler pair only after the
+                    // closing-pad hold. Enemy AI has already unlocked Samus.InputLocked;
+                    // publish the runtime's matching movement gate at the same boundary.
+                    GroundedSamusMovementEnabled = true;
+                }
             }
         }
         if (Samus is not null && Camera is not null)
@@ -1179,14 +1242,10 @@ public sealed partial class SuperMetroidRuntime
                     Controller1.Current);
             }
 
-            // MainScrollingRoutine compares the post-movement position with the previous
-            // frame's stored 16.16 words. Capture them before frame-handler movement mutates
-            // Samus, then feed both samples to the translated bank-$90 routines below.
-            var previousCameraPoint = new SamusCameraPoint(
-                Samus.XPosition,
-                Samus.Kinematics.XSubposition,
-                Samus.YPosition,
-                Samus.Kinematics.YSubposition);
+            // The beginning-of-pass sample above precedes both enemy-owned motion and the
+            // bank-$90 frame handler. It therefore serves ordinary motion and scripted
+            // carriers through one native camera path.
+            SamusCameraPoint previousCameraPoint = samusCameraPointAtFrameStart!.Value;
 
             // Retain the dispatch pose because command $F8 can replace Samus.Pose during
             // animation later in this same frame. Native alpha/beta/transition phases all
@@ -1491,6 +1550,7 @@ public sealed partial class SuperMetroidRuntime
                 LastMorphBallMovement = null;
                 LastBombJumpMovement = null;
                 LastKnockbackMovement = null;
+                LastCeresRidleyEjection = null;
                 LastGrappleMovement = null;
                 LastShinesparkMovement = null;
                 LastCrystalFlashMovement = null;
@@ -1631,6 +1691,20 @@ public sealed partial class SuperMetroidRuntime
                     ProspectiveSamusFallbackPose = null;
                     LastXrayAnimationFrame = Samus.Xray.StepMovement(_addressSpace, Samus);
                 }
+                // `$90:E119` installs a separate movement/gamma-handler pair for Ceres
+                // Ridley's retreat. It must precede ordinary damage knockback because pose
+                // `$53/$54` is shared while ownership, duration, and termination are not.
+                else if (Samus.CeresRidleyEjection.IsActive)
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    LastCeresRidleyEjection = Samus.CeresRidleyEjection.Step(
+                        _addressSpace,
+                        LevelData,
+                        Samus,
+                        Camera.XPosition,
+                        NmiFrameCounter);
+                }
                 // Knockback's `$90:DF38` handler takes precedence over the normal movement-
                 // type dispatcher. Unlike bomb jump, normal pose input remains active so
                 // `$53/$54` can still select the retail damage-boost escape chord.
@@ -1730,6 +1804,16 @@ public sealed partial class SuperMetroidRuntime
                         ProspectiveSamusPose = null;
                         ProspectiveSamusFallbackPose = null;
                     }
+                }
+                // SamusCode_00 installs an alpha handler which advances existing
+                // projectiles but a beta handler which performs no movement at all. All
+                // translated special movement owners above take priority; an otherwise
+                // locked standing body must not run generic ground collision or drift while
+                // state $20 waits at the Ceres elevator.
+                else if (Samus.InputLocked)
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
                 }
                 else switch (Samus.Pose)
                 {
@@ -2925,10 +3009,10 @@ public sealed partial class SuperMetroidRuntime
                 }
             }
 
-            if (GroundedSamusMovementEnabled && !deathOwnsSamus)
+            if (!deathOwnsSamus)
             {
                 if (LevelData is null || BackgroundStreamer is null)
-                    throw new InvalidOperationException("Grounded camera tracking requires active room stream data.");
+                    throw new InvalidOperationException("Gameplay camera tracking requires active room stream data.");
 
                 ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
 
@@ -2939,9 +3023,10 @@ public sealed partial class SuperMetroidRuntime
                     Samus.Kinematics.YSubposition);
 
                 // GameState_8 calls MainScrollingRoutine after movement/PLMs and before
-                // DrawSamusEnemiesAndProjectiles. Pose metadata and camera/scroller values
-                // are read from their literal ROM records, while ordinary grounded motion
-                // has no knockback and uses the normal distance slot zero.
+                // DrawSamusEnemiesAndProjectiles regardless of which Samus input handler is
+                // installed. InputLocked suppresses controller transitions; it does not
+                // suppress scrolling. That is why the station-eighteen gunship can carry
+                // Samus down several screens while her ordinary movement handler is absent.
                 Camera.TrackMovedSamusHorizontally(
                     previousCameraPoint,
                     currentCameraPoint,
@@ -3374,6 +3459,18 @@ public sealed partial class SuperMetroidRuntime
                 timeIsFrozen: Samus?.Xray.TimeIsFrozen ?? false,
                 VramWrites);
         }
+
+        // Execute the active room's bank-$8F wrapper at the same seam as Landing Site's
+        // room main above: after gameplay drawing/HUD work and before global shaking. The
+        // Ceres routine publishes a matrix for the following frame's presentation and may
+        // change the outer dispatcher to state $20 only when its caller is state eight.
+        LastCeresElevatorShaftRoomMain = CeresElevatorShaft.Step(
+            _addressSpace,
+            Samus,
+            Enemies.CeresStatus,
+            allowDeparture: allowCeresElevatorDeparture);
+        if (LastCeresElevatorShaftRoomMain.MatrixChanged)
+            ActiveSamusMode7Transform = LastCeresElevatorShaftRoomMain.Transform;
 
         // `$82:8BAF` executes room shaking after room main ASM and game-time handling, but
         // before the active-enemy lists are cleared. Enemy attacks above may have installed

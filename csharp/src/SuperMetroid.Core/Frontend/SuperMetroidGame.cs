@@ -23,10 +23,15 @@ public sealed class SuperMetroidGame
     private FileSelectMenuState? fileSelect;
     private GameOptionsMenuState? options;
     private IntroCinematicState? intro;
+    private CeresDestructionCinematicState? ceresDestruction;
     private SuperMetroidRuntime? runtime;
+    private readonly CeresDepartureState ceresDeparture = new();
     private Rgba32[] lastPixels = CreateBlackFrame();
     private int selectedSaveSlot;
     private bool loadingExistingSave;
+    private int postCeresLoadFramesRemaining = -1;
+    private byte postCeresFadeBrightness;
+    private int postCeresFadeCounter = 1;
 
     public SuperMetroidGame(
         ISnesAddressSpace bus,
@@ -212,9 +217,16 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.MadeItToCeresElevator:
-                runtime!.StepFrame(controllerInput);
+                runtime!.StepFrame(
+                    controllerInput,
+                    allowCeresElevatorDeparture: false);
                 lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-                if (runtime.GroundedSamusMovementEnabled)
+                if (ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator)
+                {
+                    if (ceresDeparture.StepHoldAfterGameplay())
+                        GameState = SuperMetroidGameState.BlackoutFromCeres;
+                }
+                else if (runtime.GroundedSamusMovementEnabled)
                 {
                     // The bank-$86 elevator objects restore Samus's ordinary frame
                     // handler only after the native 60-frame wait and 72-pixel descent.
@@ -225,12 +237,99 @@ public sealed class SuperMetroidGame
             case SuperMetroidGameState.MainGameplay:
                 runtime!.StepFrame(controllerInput);
                 lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-                if (runtime.HasPendingDoorTransition)
+                HandleGunshipLandingSave();
+                if (runtime.LastCeresElevatorShaftRoomMain.DepartureRequestedThisFrame)
+                {
+                    // `$89:ACC3` has already selected standing pose, locked Samus, and
+                    // published game state $20. The following dispatcher call owns the
+                    // 60-frame hold; do not decrement it on this trigger frame.
+                    ceresDeparture.Begin();
+                    GameState = SuperMetroidGameState.MadeItToCeresElevator;
+                }
+                else if (runtime.HasPendingDoorTransition)
                 {
                     // `$94:938B/$93CE` changes WRAM game_state during the gameplay call.
                     // The already-produced gameplay image remains this frame's image; the
                     // following dispatcher call begins state `$09` from that publication.
                     GameState = SuperMetroidGameState.HitDoorBlock;
+                }
+                break;
+
+            case SuperMetroidGameState.BlackoutFromCeres:
+                runtime!.StepFrame(
+                    controllerInput,
+                    allowCeresElevatorDeparture: false);
+                lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+                bool ceresReachedForcedBlank = ceresDeparture.StepFadeAfterGameplay();
+                ceresDeparture.ApplyBrightness(lastPixels);
+                if (ceresReachedForcedBlank)
+                {
+                    // GameState_33 saves the live area-six/station-zero slot only after
+                    // INIDISP reaches forced blank. This is the durable post-Ridley Ceres
+                    // checkpoint the retail loader later replaces with Zebes arrival.
+                    SamusState samus = runtime.Samus
+                        ?? throw new InvalidOperationException(
+                            "Ceres blackout completed without a live Samus state.");
+                    saveRam.SaveSlot(
+                        selectedSaveSlot,
+                        SuperMetroidSaveSnapshot.Capture(
+                            samus,
+                            runtime.System,
+                            area: 6,
+                            saveStation: 0));
+                    SaveRamChanged?.Invoke();
+                    runtime.Enemies.CeresStatus = 0;
+                    runtime.EscapeTimer.Clear();
+                    ceresDestruction = new CeresDestructionCinematicState(bus);
+                    GameState = SuperMetroidGameState.CeresGoesBoom;
+                    lastPixels = CreateBlackFrame();
+                }
+                break;
+
+            case SuperMetroidGameState.CeresGoesBoom:
+                ceresDestruction ??= new CeresDestructionCinematicState(bus);
+                ceresDestruction.Step();
+                lastPixels = ceresDestruction.Render();
+                if (ceresDestruction.Finished)
+                {
+                    // CADF forces blank and publishes state six. The loader's special
+                    // `$22` branch—not cinematic code—selects area zero/station eighteen.
+                    GameState = SuperMetroidGameState.LoadingGameData;
+                    postCeresLoadFramesRemaining = -1;
+                    lastPixels = CreateBlackFrame();
+                }
+                break;
+
+            case SuperMetroidGameState.LoadingGameData:
+                if (postCeresLoadFramesRemaining < 0)
+                {
+                    runtime!.InitializePostCeresZebesRoom();
+                    // `$82:80FB` performs fifteen enemy-tile transfer/NMI waits for this
+                    // branch, versus six for an ordinary saved-game load.
+                    postCeresLoadFramesRemaining = 15;
+                }
+                else if (--postCeresLoadFramesRemaining <= 0)
+                {
+                    postCeresFadeBrightness = 0;
+                    postCeresFadeCounter = 1;
+                    GameState = SuperMetroidGameState.MainGameplayFadeIn;
+                }
+                lastPixels = CreateBlackFrame();
+                break;
+
+            case SuperMetroidGameState.MainGameplayFadeIn:
+                runtime!.StepFrame(controllerInput);
+                lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+                MasterBrightnessFilter.Apply(lastPixels, postCeresFadeBrightness);
+                HandleGunshipLandingSave();
+                if (postCeresFadeCounter-- <= 0)
+                {
+                    postCeresFadeCounter = 1;
+                    postCeresFadeBrightness = (byte)Math.Min(
+                        15,
+                        postCeresFadeBrightness + 1);
+                    if (postCeresFadeBrightness == 15)
+                        GameState = SuperMetroidGameState.MainGameplay;
                 }
                 break;
 
@@ -280,9 +379,19 @@ public sealed class SuperMetroidGame
         SuperMetroidGameState.SetUpNewGame =>
             loadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
         SuperMetroidGameState.MadeItToCeresElevator =>
-            runtime?.CeresElevatorArrival is { IsComplete: false }
+            ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator
+                ? $"Ceres elevator departure ({ceresDeparture.HoldFramesRemaining})"
+                : runtime?.CeresElevatorArrival is { IsComplete: false }
                 ? "Ceres elevator arrival"
                 : "Ceres controls unlocked",
+        SuperMetroidGameState.BlackoutFromCeres =>
+            $"Ceres blackout (brightness {ceresDeparture.Brightness})",
+        SuperMetroidGameState.CeresGoesBoom =>
+            $"Ceres destruction: {ceresDestruction?.Phase}",
+        SuperMetroidGameState.LoadingGameData =>
+            $"Loading Landing Site ({Math.Max(0, postCeresLoadFramesRemaining)} transfers)",
+        SuperMetroidGameState.MainGameplayFadeIn =>
+            $"Landing Site fade-in (brightness {postCeresFadeBrightness})",
         SuperMetroidGameState.MainGameplay => "Gameplay",
         SuperMetroidGameState.HitDoorBlock => "Door collision",
         SuperMetroidGameState.LoadingNextRoomA => "Loading destination room",
@@ -293,6 +402,7 @@ public sealed class SuperMetroidGame
     private bool SetupSelectedGame()
     {
         runtime = new SuperMetroidRuntime(bus);
+        runtime.JapaneseText = options?.JapaneseText ?? false;
 
         if (loadingExistingSave)
         {
@@ -355,6 +465,26 @@ public sealed class SuperMetroidGame
                 saveStation: 0));
         SaveRamChanged?.Invoke();
         return true;
+    }
+
+    private void HandleGunshipLandingSave()
+    {
+        if (runtime?.Enemies.LastGunshipEvent != GunshipFrameEvent.LandingCompleted)
+            return;
+
+        SamusState samus = runtime.Samus
+            ?? throw new InvalidOperationException(
+                "Gunship landing completed without a live Samus actor.");
+        // GunshipTop_7 replaces cutscene-only station eighteen with station zero and saves
+        // immediately after the closing-pad hold restores ordinary player control.
+        saveRam.SaveSlot(
+            selectedSaveSlot,
+            SuperMetroidSaveSnapshot.Capture(
+                samus,
+                runtime.System,
+                area: 0,
+                saveStation: 0));
+        SaveRamChanged?.Invoke();
     }
 
     private static Rgba32[] CreateBlackFrame()

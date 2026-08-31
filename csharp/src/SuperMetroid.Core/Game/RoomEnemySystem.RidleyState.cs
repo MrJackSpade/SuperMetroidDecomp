@@ -31,6 +31,8 @@ public enum RidleyAiFunction : ushort
     CeresRetreatDelay = 0xa9a0,
     CeresPublishEscapeHandoff = 0xaa11,
     CeresInactive = 0xaa1b,
+    CeresActivateSelfDestruct = 0xc04e,
+    CeresSelfDestructPaletteOnly = 0xaa50,
 
     // Lower Norfair Ridley begins at $B2F3 after the shared reveal sequence. These names
     // describe the native movement/attack phases; their values are not host inventions.
@@ -206,4 +208,15 @@ public sealed class RidleyEnemyState
     public ushort Mode7CenterY { get; internal set; }
     public ushort Mode7BabyFrame { get; internal set; }
     public ushort Mode7WingFrame { get; internal set; }
+
+    // Ceres self-destruct presentation ($A6:C04E-$C135). FunctionTimer deliberately
+    // retains the native phase values 0,2,4,6,8,10,12 while these words project the
+    // extended enemy workspaces used by the DMA-list and optional Japanese typewriter.
+    public ushort CeresEscapeTransferListPointer { get; internal set; }
+    public ushort CeresEscapeTextPointer { get; internal set; }
+    public ushort CeresEscapeTextDestination { get; internal set; }
+    public ushort CeresEscapeTextDelayTimer { get; internal set; }
+    public ushort CeresEscapeTextDelay { get; internal set; }
+    public ushort CeresEscapeTextSoundCounter { get; internal set; }
+    public ushort CeresEscapePaletteFrame { get; internal set; }
 }

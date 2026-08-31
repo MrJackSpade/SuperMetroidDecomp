@@ -64,6 +64,24 @@ internal sealed class IntroDiscoverySprite
     }
 
     /// <summary>
+    /// Seeds the private instruction countdown used by the next generic sprite-handler
+    /// call. Cinematic object setup routines write this word directly when several actors
+    /// share one list but must begin on staggered frames.
+    /// </summary>
+    /// <remarks>
+    /// This is deliberately not represented by <see cref="GeneralTimer"/>. The latter is
+    /// the separate <c>CinematicSpriteObject_GotoTimers</c> scratch word consumed by list
+    /// opcodes $94C3/$94D6; conflating the two makes a delayed actor interpret its first
+    /// frame immediately while merely changing an unrelated loop counter.
+    /// </remarks>
+    public void DelayFirstInstruction(ushort frames)
+    {
+        if (frames == 0)
+            throw new ArgumentOutOfRangeException(nameof(frames), "A native instruction delay must be nonzero.");
+        instructionTimer = frames;
+    }
+
+    /// <summary>
     /// Applies a pre-instruction transition owned by this one translated scene. Keeping the
     /// setter named and internal prevents unrelated code from treating the native address as
     /// an arbitrary public state field.

@@ -599,6 +599,39 @@ static void VerifyCeresRidleyRoomEntry()
     for (int color = 0; color < 8; color++)
         WriteWord(bus, 0xa6aa01 + color * 2, unchecked((ushort)(0x6200 + color)));
 
+    // End Mode 7 on its first room-main call, then give each of the two Ceres warning
+    // transfer lists one unmistakable record. ProcessSpriteTilesTransfers is allowed to
+    // fall through between phases, so both records must be queued on the first C04E call.
+    WriteWord(bus, 0xa6ae4d, 0xffff);
+    WriteWord(bus, 0xa6c4cb, 2);
+    WriteWord(bus, 0xa6c4cd, 0x9200);
+    bus.WriteByte(0xa6c4cf, 0xb0);
+    WriteWord(bus, 0xa6c4d0, 0x7800);
+    WriteWord(bus, 0xa6c4d2, 2);
+    WriteWord(bus, 0xa6c4d4, 0x9202);
+    bus.WriteByte(0xa6c4d6, 0xb0);
+    WriteWord(bus, 0xa6c4d7, 0x7801);
+    WriteWord(bus, 0xa6c4d9, 0);
+    WriteWord(bus, 0xa6c4fe, 2);
+    WriteWord(bus, 0xa6c500, 0x9204);
+    bus.WriteByte(0xa6c502, 0xb0);
+    WriteWord(bus, 0xa6c503, 0x7802);
+    WriteWord(bus, 0xa6c505, 2);
+    WriteWord(bus, 0xa6c507, 0x9206);
+    bus.WriteByte(0xa6c509, 0xb0);
+    WriteWord(bus, 0xa6c50a, 0x7803);
+    WriteWord(bus, 0xa6c50c, 0);
+    WriteWord(bus, 0xb09200, 0x1234);
+    WriteWord(bus, 0xb09202, 0x5678);
+    WriteWord(bus, 0xb09204, 0x9abc);
+    WriteWord(bus, 0xb09206, 0xdef0);
+    for (int paletteFrame = 0; paletteFrame < 16; paletteFrame++)
+    {
+        for (int color = 0; color < 3; color++)
+            WriteWord(bus, 0xa6c1df + paletteFrame * 6 + color * 2,
+                unchecked((ushort)(0x4000 + paletteFrame * 0x10 + color)));
+    }
+
     // One minimal power-beam data/list pair lets this regression reach Ridley's shot AI
     // through the public producer and explosion owner, rather than mutating HitCounter.
     WritePoseDefinition(
@@ -821,9 +854,55 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual(0x6200, cgram.Colors[0xf1],
         "Ceres Ridley retreat copies OBJ palette-seven colors");
 
+    var escapeWrites = new VramWriteQueue();
+    enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+    AssertTrue(state.Mode7Finished, "Ceres Ridley consumes the Mode-7 terminator");
+    AssertEqual((ushort)RidleyAiFunction.CeresActivateSelfDestruct, (ushort)state.Function,
+        "Ceres Ridley Mode-7 terminator installs shared self-destruct dispatcher");
+    AssertEqual(0, escapeWrites.Entries.Count,
+        "Mode-7 terminator does not run the new actor function in the same enemy frame");
+
+    enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+    AssertEqual(1, escapeWrites.Entries.Count,
+        "Ceres self-destruct queues only one first-list record per enemy frame");
+    AssertEqual(2, state.FunctionTimer,
+        "Ceres self-destruct remains in first transfer phase while records remain");
+
+    enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+    AssertEqual(3, escapeWrites.Entries.Count,
+        "Ceres self-destruct final first-list record falls through to one second-list record");
+    AssertEqual(0xb09200, escapeWrites.Entries[0].SourceAddress,
+        "Ceres first warning transfer source");
+    AssertEqual(0x7802, escapeWrites.Entries[2].EncodedVramDestination,
+        "Ceres second warning transfer destination");
+    AssertEqual(4, state.FunctionTimer,
+        "Ceres self-destruct remains in second transfer phase while records remain");
+
+    enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+    AssertEqual(4, escapeWrites.Entries.Count,
+        "Ceres self-destruct queues the final second-list record on its own frame");
+    AssertEqual(6, state.FunctionTimer,
+        "Ceres self-destruct reaches the native 128-frame English hold");
+    AssertEqual(128, state.CeresEscapeTextDelayTimer,
+        "Ceres English warning hold starts at 128");
+
+    for (int frame = 0; frame < 127; frame++)
+    {
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+        AssertTrue(!enemies.CeresEscapeStartedThisFrame,
+            $"Ceres escape does not publish early on hold frame {frame}");
+    }
+    enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+    AssertTrue(enemies.CeresEscapeStartedThisFrame,
+        "Ceres escape publishes on the 128th English hold frame");
+    AssertEqual(2, enemies.CeresStatus,
+        "Ceres escape publishes status two for door destruction");
+    AssertEqual((ushort)RidleyAiFunction.CeresSelfDestructPaletteOnly, (ushort)state.Function,
+        "Ceres escape retains the native palette-only actor function");
+
     Console.WriteLine(
         "  Ceres Ridley: reveal, liftoff, real beam impacts, 100-hit battle exit, " +
-        "retreat palettes, and escape handoff agree.");
+        "retreat, Mode 7, warning DMA, and timed escape handoff agree.");
 }
 
 /// <summary>Writes one complete fixture header while keeping pointer-bearing fields valid.</summary>

@@ -109,8 +109,11 @@ VerifyPowerBombColorMathWindow();
 VerifyScrollingSkyState();
 VerifyRoomEnemyLoading();
 VerifyRipperEnemy();
+VerifyPostCeresGunshipLanding();
 VerifyCeresElevatorPlatformAnimation();
 VerifyCeresRidleyRoomEntry();
+VerifyCeresEscapeHandoff();
+VerifyCeresDestructionCinematic();
 
 Console.WriteLine("All bank $80 verification checks passed.");
 return 0;

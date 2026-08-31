@@ -30,6 +30,13 @@ if (args.Length >= 3 && args[0] == "--frontend-skip-intro-capture")
     return FrontendSkipIntroAudit.Run(skipIntroRomPath, skipIntroOutputPath);
 }
 
+if (args.Length >= 3 && args[0] == "--ceres-destruction-audit")
+{
+    string destructionRomPath = string.Join(' ', args[1..^1]).Trim('"');
+    string destructionOutputDirectory = args[^1].Trim('"');
+    return CeresDestructionAudit.Run(destructionRomPath, destructionOutputDirectory);
+}
+
 if (args.Length >= 2 && args[0] == "--blue-hopper-audit")
 {
     string hopperRomPath = string.Join(' ', args[1..]).Trim('"');
@@ -1376,7 +1383,8 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         ridleyVram,
         ridleyCgram,
         // Low nibble zero selects the first literal $A6:A743 fireball route after hover.
-        () => 0x1230);
+        () => 0x1230,
+        readRandomNumber: () => 0x1230);
 
     RoomEnemySlot ridleySlot = ridleyEnemies.Slots[0];
     RidleyEnemyState ridleyState = ridleyEnemies.CeresRidley
@@ -1926,7 +1934,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         ridleyState.Mode7MatrixA != 0 || ridleyState.Mode7HorizontalOffset != 0 ||
         !sawRotatedMatrix || !sawSamusPushOwnership || !sawAnimatedMode7Map ||
         !sawVisibleMode7Getaway || !sawBothMode7WallsDrawn ||
-        auditSamus.InputLocked)
+        !auditSamus.InputLocked)
     {
         throw new InvalidDataException(
             $"Retail Mode-7 getaway failed to restore mode nine after {mode7Frames} frames: " +
@@ -1936,6 +1944,58 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
             $"wallsDrawn={sawBothMode7WallsDrawn}, " +
             $"inputLocked={auditSamus.InputLocked}, " +
             $"A=${ridleyState.Mode7MatrixA:X4}, X=${ridleyState.Mode7HorizontalOffset:X4}.");
+    }
+
+    // The direct enemy audit intentionally does not run bank-$90 Samus movement, so its
+    // push handler remains latched here. Continue the actor-owned $A6:C04E sequence with
+    // the same native queue the runtime supplies and prove all fifteen retail DMA records,
+    // the 128-frame English warning hold, and the status-two publication.
+    var ceresEscapeWrites = new VramWriteQueue();
+    int warningSetupFrames = 0;
+    while (ridleyState.FunctionTimer != 6 && warningSetupFrames < 16)
+    {
+        ridleyEnemies.StepFrame(
+            0,
+            0,
+            timeIsFrozen: false,
+            auditSamus,
+            vramWriteQueue: ceresEscapeWrites);
+        warningSetupFrames++;
+    }
+    if (ceresEscapeWrites.Entries.Count != 15 ||
+        warningSetupFrames != 14 ||
+        ridleyState.FunctionTimer != 6 ||
+        ridleyState.CeresEscapeTextDelayTimer != 128)
+    {
+        throw new InvalidDataException(
+            $"Retail Ceres warning setup queued {ceresEscapeWrites.Entries.Count}/15 records, " +
+            $"frames={warningSetupFrames}/14, phase=${ridleyState.FunctionTimer:X4}, " +
+            $"hold={ridleyState.CeresEscapeTextDelayTimer}/128.");
+    }
+    for (int warningFrame = 0; warningFrame < 127; warningFrame++)
+    {
+        ridleyEnemies.StepFrame(
+            0,
+            0,
+            timeIsFrozen: false,
+            auditSamus,
+            vramWriteQueue: ceresEscapeWrites);
+        if (ridleyEnemies.CeresEscapeStartedThisFrame)
+            throw new InvalidDataException($"Retail Ceres escape started early on warning frame {warningFrame}.");
+    }
+    ridleyEnemies.StepFrame(
+        0,
+        0,
+        timeIsFrozen: false,
+        auditSamus,
+        vramWriteQueue: ceresEscapeWrites);
+    if (!ridleyEnemies.CeresEscapeStartedThisFrame ||
+        ridleyEnemies.CeresStatus != 2 ||
+        ridleyState.Function != RidleyAiFunction.CeresSelfDestructPaletteOnly)
+    {
+        throw new InvalidDataException(
+            $"Retail Ceres escape handoff failed: event={ridleyEnemies.CeresEscapeStartedThisFrame}, " +
+            $"status=${ridleyEnemies.CeresStatus:X4}, function=$A6:{(ushort)ridleyState.Function:X4}.");
     }
 
     // $A6:DFB2 is shared with the power-bomb-immune Norfair boss, but Ceres Ridley's
@@ -1954,7 +2014,8 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         $"battle in {battleEntryFrames} frames, all seven fireball/afterburn definitions in " +
         $"{fireballAuditFrames} frames, runtime hurt OAM {liveContactOamCount}/128, " +
         $"one retail normal-bomb plus 99 beam hits and shared power-bomb damage, " +
-        $"escape handoff in {retreatFrames} frames, Mode 7 restored in {mode7Frames} frames.");
+        $"escape handoff in {retreatFrames} frames, Mode 7 restored in {mode7Frames} frames, " +
+        $"fifteen warning DMAs over {warningSetupFrames} frames and 128-frame self-destruct hold verified.");
     return 0;
 }
 

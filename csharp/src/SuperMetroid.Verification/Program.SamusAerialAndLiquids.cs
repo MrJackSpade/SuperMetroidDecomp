@@ -187,6 +187,27 @@ static void VerifySamusAerialMovement()
     AssertEqual(1, turnJumpLeft.Kinematics.YDirection,
         "right-to-left turn jump launches upward");
 
+    // Releasing horizontal direction before the fresh Jump edge selects the neutral-jump
+    // records `$4B/$4C`, not spin `$19/$1A`. These are the exact mirrors exercised by a
+    // player who turns in place and immediately jumps to aim a diagonal shot.
+    var neutralTurnJumpRight = new SamusState { Pose = SamusState.TurningLeftToRightPose };
+    neutralTurnJumpRight.ApplyOrdinaryJumpTransition(
+        bus,
+        SamusState.NeutralJumpTransitionRightPose);
+    AssertEqual(SamusState.NeutralJumpTransitionRightPose, neutralTurnJumpRight.Pose,
+        "left-to-right ground turn accepts neutral jump");
+    AssertEqual(1, neutralTurnJumpRight.Kinematics.YDirection,
+        "left-to-right neutral turn jump launches upward");
+
+    var neutralTurnJumpLeft = new SamusState { Pose = SamusState.TurningRightToLeftPose };
+    neutralTurnJumpLeft.ApplyOrdinaryJumpTransition(
+        bus,
+        SamusState.NeutralJumpTransitionLeftPose);
+    AssertEqual(SamusState.NeutralJumpTransitionLeftPose, neutralTurnJumpLeft.Pose,
+        "right-to-left ground turn accepts neutral jump");
+    AssertEqual(1, neutralTurnJumpLeft.Kinematics.YDirection,
+        "right-to-left neutral turn jump launches upward");
+
     // Walking off a ledge is the movement-type-six entry point. $91:E8F2 selects pose $2A
     // from the old left-facing direction and command five begins with a stationary falling
     // frame before gravity produces displacement. Landing from type six uses normal $A5.
@@ -246,6 +267,28 @@ static void VerifySamusAerialMovement()
         "left normal landing accepts fresh jump");
     AssertEqual(1, interruptLeftLanding.Kinematics.YDirection,
         "left landing jump starts upward");
+
+    var interruptRightSpinLanding = new SamusState
+    {
+        Pose = SamusState.SpinLandingRightPose,
+    };
+    interruptRightSpinLanding.ApplyOrdinaryJumpTransition(
+        bus, SamusState.NeutralJumpTransitionRightPose);
+    AssertEqual(SamusState.NeutralJumpTransitionRightPose, interruptRightSpinLanding.Pose,
+        "right spin landing accepts fresh neutral jump");
+    AssertEqual(1, interruptRightSpinLanding.Kinematics.YDirection,
+        "right spin-landing jump starts upward");
+
+    var interruptLeftSpinLanding = new SamusState
+    {
+        Pose = SamusState.SpinLandingLeftPose,
+    };
+    interruptLeftSpinLanding.ApplyOrdinaryJumpTransition(
+        bus, SamusState.NeutralJumpTransitionLeftPose);
+    AssertEqual(SamusState.NeutralJumpTransitionLeftPose, interruptLeftSpinLanding.Pose,
+        "left spin landing accepts fresh neutral jump");
+    AssertEqual(1, interruptLeftSpinLanding.Kinematics.YDirection,
+        "left spin-landing jump starts upward");
 
     // The engine alternates $94:959E left-to-right and $94:95F5 right-to-left vertical
     // scans on successive NMIs. Their $1A counters run in opposite numerical directions,

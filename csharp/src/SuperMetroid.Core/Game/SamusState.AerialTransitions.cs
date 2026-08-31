@@ -540,8 +540,14 @@ public sealed partial class SamusState
             // record still enters the ordinary spin-jump initializer. The turn pose has
             // already folded run momentum in `$91:F8D3`; `$91:F624` now owns the same jump
             // speed, radius, equipment substitution, and frame-zero setup as a run jump.
-            (TurningLeftToRightPose, SpinJumpRightPose) or
-            (TurningRightToLeftPose, SpinJumpLeftPose) or
+            // `$91:8142` keeps consulting the turning pose's live input table. A fresh
+            // Jump with no horizontal direction selects neutral-transition `$4B/$4C`;
+            // holding the completed facing selects spin `$19/$1A`. Both pairs enter the
+            // same jump initializer and differ only in their cartridge-authored body.
+            (TurningLeftToRightPose,
+             SpinJumpRightPose or NeutralJumpTransitionRightPose) or
+            (TurningRightToLeftPose,
+             SpinJumpLeftPose or NeutralJumpTransitionLeftPose) or
             // `$91:AF98-$AFFF` can leave the moonwalk turn art early while the backward
             // direction remains held, or select `$4B/$4C` on a fresh Jump edge. Both
             // routes call the same dry-air jump initializer after changing pose.
@@ -559,7 +565,12 @@ public sealed partial class SamusState
             // A fresh Jump edge is therefore allowed to interrupt their five-tick landing
             // art before `$F8` returns to `$01/$02`.
             (NormalLandingRightPose, NeutralJumpTransitionRightPose) or
-            (NormalLandingLeftPose, NeutralJumpTransitionLeftPose);
+            (NormalLandingLeftPose, NeutralJumpTransitionLeftPose) or
+            // Spin landings `$A6/$A7` also expose the neutral-jump record while their short
+            // landing art is active. Despite the spinning source, the selected `$4B/$4C`
+            // target uses the ordinary normal-jump initializer and its transition frame.
+            (SpinLandingRightPose, NeutralJumpTransitionRightPose) or
+            (SpinLandingLeftPose, NeutralJumpTransitionLeftPose);
         if (!verified)
         {
             // The pairs above exhaust the active retail input-table records that invoke

@@ -310,9 +310,11 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(bus);
 
         bool sourceStandingRight = IsRightFacingStandingPose(Pose) ||
-            IsRightFacingRanIntoWallPose(Pose);
+            IsRightFacingRanIntoWallPose(Pose) ||
+            Pose == NormalLandingRightPose;
         bool sourceStandingLeft = IsLeftFacingStandingPose(Pose) ||
-            IsLeftFacingRanIntoWallPose(Pose);
+            IsLeftFacingRanIntoWallPose(Pose) ||
+            Pose == NormalLandingLeftPose;
         bool targetVisualRight = IsMoonwalkingFacingRightPose(targetPose);
         bool targetVisualLeft = IsMoonwalkingFacingLeftPose(targetPose);
         bool entering =
@@ -321,6 +323,11 @@ public sealed partial class SamusState
 
         if (entering && !moonwalkEnabled)
         {
+            // Normal landing `$A4/$A5` points at the same grounded input records as
+            // ordinary standing. Consequently a backward direction can nominate the
+            // corresponding Moonwalk pose before the option gate runs. The initializer
+            // does not special-case the old landing movement type: with Moonwalk off it
+            // substitutes the same ordinary `$25/$26` turn used from `$01/$02`.
             // `$91:F893-$F8A9` tests the candidate pose-X byte. `$4A/$76/$78` store four
             // and become right-to-left `$25`; `$49/$75/$77` store eight and become `$26`.
             ApplyGroundedTurn(

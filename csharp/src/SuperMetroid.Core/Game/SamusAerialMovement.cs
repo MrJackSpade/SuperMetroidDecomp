@@ -345,7 +345,8 @@ public static class SamusAerialMovement
             level,
             samus,
             controllerInput,
-            controllerNewInput);
+            controllerNewInput,
+            plms);
         if (wall.Triggered)
         {
             // Carry set at `$90:90BD` skips `$90:90BF`, so gravity and vertical displacement
@@ -825,7 +826,8 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        ushort controllerNewInput)
+        ushort controllerNewInput,
+        RoomPlmSystem? plms)
     {
         bool heldLeft = (controllerInput & (ushort)SnesButton.Left) != 0;
         bool heldRight = (controllerInput & (ushort)SnesButton.Right) != 0;
@@ -840,7 +842,8 @@ public static class SamusAerialMovement
             bus,
             level,
             samus.Kinematics,
-            requested);
+            requested,
+            plms);
         if (!probe.Collided)
             return default;
 

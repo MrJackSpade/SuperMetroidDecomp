@@ -35,7 +35,8 @@ public static class SamusBlockCollision
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusKinematicsState state,
-        int signedDistance)
+        int signedDistance,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(state);
         SamusKinematicsState probe = new()
@@ -60,8 +61,16 @@ public static class SamusBlockCollision
         };
 
         // Reusing the translated horizontal dispatcher also preserves square-slope and
-        // unsupported-block behavior. Any post-scan slope alignment touches only `probe`.
-        BlockMoveResult result = MoveHorizontal(bus, level, probe, signedDistance);
+        // unsupported-block behavior. Any post-scan slope alignment touches only `probe`,
+        // but bank-$94 collision side effects are not observational: touching a scroll
+        // trigger still wakes its bank-$84 owner. Pass that shared owner through rather
+        // than treating an extension-resolved trigger as an orphan during wall-jump checks.
+        BlockMoveResult result = MoveHorizontal(
+            bus,
+            level,
+            probe,
+            signedDistance,
+            plms: plms);
 
         // The bank-$94 portion is observational, but the bank-$A0 routine it follows has one
         // real side effect: its touching path executes STZ SamusYSubPosition. Copy that single
@@ -347,7 +356,8 @@ public static class SamusBlockCollision
         bool scanLeftToRight,
         bool canBreakBombBlocks = false,
         bool includeSolidEnemies = true,
-        RoomPlmSystem? plms = null)
+        RoomPlmSystem? plms = null,
+        bool publishDoorSideEffects = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -477,7 +487,8 @@ public static class SamusBlockCollision
                         CartridgeDoorHeader verticalDoor = level.ResolveDoorCollision(
                             bus,
                             block.Behavior,
-                            state.CollisionPose);
+                            state.CollisionPose,
+                            publishDoorSideEffects);
                         if ((verticalDoor.DestinationRoomPointer & 0x8000) == 0)
                         {
                             acceptedDisplacement = ClipVerticalToSolid(

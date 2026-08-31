@@ -1510,6 +1510,61 @@ static void VerifySamusPowerBeamProjectiles()
     WriteDoorDrawList(bus, 0x84aa13, [0x8004, 0x840f, 0x042f, 0x0c2f, 0x8c0f, 0x0000]);
     WriteDoorDrawList(bus, 0x84a683, [0x8004, 0x0482, 0x04a2, 0x0ca2, 0x0c82, 0x0000]);
 
+    // Room loading runs the shared `$84:C7B1` setup for every colored-door header before
+    // gameplay projectiles can inspect the decompressed collision map. Exercise all three
+    // colors and four orientations so no uncertain header is silently treated as a blue cap.
+    ushort[] coloredDoorHeaders =
+    [
+        0xc85a, 0xc860, 0xc866, 0xc86c,
+        0xc872, 0xc878, 0xc87e, 0xc884,
+        0xc88a, 0xc890, 0xc896, 0xc89c,
+    ];
+    const ushort coloredDoorPopulation = 0x9000;
+    var coloredDoorWords = new ushort[16 * 16];
+    var coloredDoorBehaviors = new byte[coloredDoorWords.Length];
+    for (int index = 0; index < coloredDoorHeaders.Length; index++)
+    {
+        int blockX = index + 1;
+        int blockY = 3;
+        int blockIndex = blockY * 16 + blockX;
+        coloredDoorWords[blockIndex] = unchecked((ushort)(0x8000 | 0x0120 + index));
+        coloredDoorBehaviors[blockIndex] = unchecked((byte)(0x40 + (index & 3)));
+
+        int recordAddress = 0x8f0000 | unchecked((ushort)(
+            coloredDoorPopulation + index * 6));
+        WriteTestWord(bus, recordAddress, coloredDoorHeaders[index]);
+        bus.WriteByte(recordAddress + 2, unchecked((byte)blockX));
+        bus.WriteByte(recordAddress + 3, unchecked((byte)blockY));
+        WriteTestWord(bus, recordAddress + 4, unchecked((ushort)index));
+    }
+    WriteTestWord(
+        bus,
+        0x8f0000 | unchecked((ushort)(
+            coloredDoorPopulation + coloredDoorHeaders.Length * 6)),
+        0);
+    RoomLevelData coloredDoors = new(
+        16,
+        16,
+        coloredDoorWords,
+        coloredDoorBehaviors,
+        new ushort[coloredDoorWords.Length],
+        new byte[8]);
+    var coloredDoorPlms = new RoomPlmSystem();
+    AssertEqual(
+        coloredDoorHeaders.Length,
+        coloredDoorPlms.ApplyColoredDoorSetups(bus, coloredDoors, coloredDoorPopulation),
+        "colored-door setup scans all yellow, green, and red orientations");
+    for (int index = 0; index < coloredDoorHeaders.Length; index++)
+    {
+        RoomCollisionBlock block = coloredDoors.GetCollisionBlock(index + 1, 3);
+        AssertEqual(0x0c, block.CollisionType,
+            $"colored-door setup installs shootable collision for header {index}");
+        AssertEqual(0x44, block.Behavior,
+            $"colored-door setup installs shared BTS for header {index}");
+        AssertEqual(0x0120 + index, block.LevelWord & 0x0fff,
+            $"colored-door setup preserves tile payload for header {index}");
+    }
+
     var blueDoorWords = new ushort[width * height];
     var blueDoorBehaviors = new byte[blueDoorWords.Length];
     int blueDoorOrigin = 4 * width + 6;

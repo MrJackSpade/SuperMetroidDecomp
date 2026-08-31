@@ -35,7 +35,8 @@ public static class SamusGroundedMovement
         SamusState samus,
         ushort nmiFrameCounter,
         bool elevatorIsMoving = false,
-        RoomPlmSystem? plms = null)
+        RoomPlmSystem? plms = null,
+        bool publishDoorSideEffects = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -60,7 +61,8 @@ public static class SamusGroundedMovement
                 displacement: 1 << 16,
                 scanLeftToRight: (nmiFrameCounter & 1) == 0,
                 includeSolidEnemies: false,
-                plms: plms);
+                plms: plms,
+                publishDoorSideEffects: publishDoorSideEffects);
         }
 
         // `$90:A3A8` is the only write in the ordinary no-elevator path. In particular,

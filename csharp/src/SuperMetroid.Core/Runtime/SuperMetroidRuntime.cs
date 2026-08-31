@@ -121,15 +121,28 @@ public sealed partial class SuperMetroidRuntime
 
     /// <summary>
     /// Native elevator status word at WRAM <c>$0E18</c>. The room's elevator actor owns this
-    /// producer; a nonzero value makes forward-facing `$00/$9B` execute `$90:A392`'s exact
-    /// one-pixel downward terrain scan. Exposing the word separately prevents the movement
-    /// consumer from inventing an elevator platform or conflating actor state with pose.
+    /// producer. Every nonzero status runs forward-facing `$00/$9B` through `$90:A392`'s
+    /// exact one-pixel downward terrain scan. Destination arrival depends on that scan to
+    /// wake cartridge scroll PLMs along the elevator shaft. The host-only collapsed door
+    /// transition suppresses only repeated pseudo-door publication during status two/three;
+    /// every other terrain reaction remains native.
     /// </summary>
     public ushort ElevatorStatus
     {
         get => (ushort)Enemies.ElevatorStatus;
         set => Enemies.SetElevatorStatusForDebugging(value);
     }
+
+    /// <summary>
+    /// Reconstructs the one side effect still owned by the native door-transition caller.
+    /// This host resumes gameplay immediately after loading the destination, so the arriving
+    /// actor can cross its pseudo-door while statuses two/three are visible to state eight.
+    /// Retain `$90:A392`'s complete terrain/PLM scan, but permit its type-$9 handler to
+    /// publish a real transition or elevator flag only for status one; otherwise a
+    /// collapsed transition can immediately depart again.
+    /// </summary>
+    internal static bool ShouldPublishFacingForwardElevatorDoorSideEffects(
+        ElevatorActorStatus status) => status == ElevatorActorStatus.Departing;
 
     /// <summary>
     /// Native power-bomb explosion status at WRAM <c>$0CE2</c>. X-ray setup rejects every
@@ -1815,11 +1828,10 @@ public sealed partial class SuperMetroidRuntime
                     !(SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0))
                 {
                     // Controller-locked commands normally install beta no-op. Ordinary
-                    // elevators are the sole exception: their command also selects a
-                    // forward-facing pose and nonzero `$0E18`, whose `$90:A392` handler
-                    // must continue the one-pixel downward scan while input remains locked.
-                    // Suppressing that scan lets the carrier pass straight through the
-                    // real type-$9 exit blocks and drift forever beyond the room allocation.
+                    // elevators are the sole exception: every nonzero `$0E18` status
+                    // selects the forward-facing `$90:A392` terrain scan. Destination-side
+                    // statuses two/three need it to wake scroll triggers while input remains
+                    // locked; only their duplicate pseudo-door publication is suppressed.
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
                 }
@@ -1836,8 +1848,12 @@ public sealed partial class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             NmiFrameCounter,
-                            elevatorIsMoving: ElevatorStatus != 0,
-                            plms: Plms);
+                            elevatorIsMoving:
+                                Enemies.ElevatorStatus != ElevatorActorStatus.Inactive,
+                            plms: Plms,
+                            publishDoorSideEffects:
+                                ShouldPublishFacingForwardElevatorDoorSideEffects(
+                                    Enemies.ElevatorStatus));
                         break;
                     case SamusState.FacingRightNormalPose:
                     case SamusState.StandingAimUpRightPose:
@@ -2533,10 +2549,12 @@ public sealed partial class SuperMetroidRuntime
                                 break;
                             case var (source, target)
                                 when (((SamusState.IsRightFacingStandingPose(source) ||
-                                        SamusState.IsRightFacingRanIntoWallPose(source)) &&
+                                        SamusState.IsRightFacingRanIntoWallPose(source) ||
+                                        source == SamusState.NormalLandingRightPose) &&
                                        SamusState.IsMoonwalkingFacingRightPose(target)) ||
                                       ((SamusState.IsLeftFacingStandingPose(source) ||
-                                        SamusState.IsLeftFacingRanIntoWallPose(source)) &&
+                                        SamusState.IsLeftFacingRanIntoWallPose(source) ||
+                                        source == SamusState.NormalLandingLeftPose) &&
                                        SamusState.IsMoonwalkingFacingLeftPose(target)) ||
                                       (SamusState.IsMoonwalkingPose(source) &&
                                        (SamusState.IsMoonwalkingPose(target) ||
@@ -2759,10 +2777,14 @@ public sealed partial class SuperMetroidRuntime
                                      (source == SamusState.NormalLandingRightPose &&
                                       target == SamusState.NeutralJumpTransitionRightPose) ||
                                      (source == SamusState.NormalLandingLeftPose &&
+                                      target == SamusState.NeutralJumpTransitionLeftPose) ||
+                                     (source == SamusState.SpinLandingRightPose &&
+                                      target == SamusState.NeutralJumpTransitionRightPose) ||
+                                     (source == SamusState.SpinLandingLeftPose &&
                                       target == SamusState.NeutralJumpTransitionLeftPose):
-                                // `$A4/$A5` use the same left/right transition-table
-                                // records as standing. A fresh Jump edge can interrupt the
-                                // landing stream before its eventual `$F8` fallback.
+                                // `$A4-$A7` expose the same left/right neutral-jump records
+                                // while their brief landing streams are active. A fresh
+                                // Jump edge can therefore interrupt before `$F8` fallback.
                             case (SamusState.MovingRightNormalPose,
                                   SamusState.SpinJumpRightPose):
                             case (SamusState.MovingRightGunExtendedPose,
@@ -2783,7 +2805,18 @@ public sealed partial class SuperMetroidRuntime
                                   SamusState.SpinJumpRightPose):
                             case (SamusState.TurningRightToLeftPose,
                                   SamusState.SpinJumpLeftPose):
-                                Samus.ApplyOrdinaryJumpTransition(_addressSpace, targetPose);
+                            case (SamusState.TurningLeftToRightPose,
+                                  SamusState.NeutralJumpTransitionRightPose):
+                            case (SamusState.TurningRightToLeftPose,
+                                  SamusState.NeutralJumpTransitionLeftPose):
+                                // Turning's `$91:8142` table can launch either the spin or
+                                // neutral body. Preserve newly pressed Shoot as well: the
+                                // normal-jump initializer uses it to bridge a simultaneous
+                                // Jump+Fire edge into the first projectile frame.
+                                Samus.ApplyOrdinaryJumpTransition(
+                                    _addressSpace,
+                                    targetPose,
+                                    Controller1.NewlyPressed);
                                 break;
                             case var (source, target)
                                 when ((SamusState.IsRightFacingCrouchingPose(source) &&

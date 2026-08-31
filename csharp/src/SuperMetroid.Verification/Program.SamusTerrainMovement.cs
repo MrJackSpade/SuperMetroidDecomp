@@ -566,6 +566,26 @@ static void VerifySamusGroundedMovement()
     AssertEqual(0, forward.SolidVerticalCollisionResult,
         "elevator path clears vertical collision result after movement");
 
+    // Every nonzero status executes `$90:A392`'s scan; destination shaft scroll PLMs rely
+    // on that collision pass while the actor pins Samus. The collapsed host transition must
+    // suppress only the redundant pseudo-door publication during statuses two/three.
+    AssertTrue(
+        SuperMetroidRuntime.ShouldPublishFacingForwardElevatorDoorSideEffects(
+            ElevatorActorStatus.Departing),
+        "departing elevator publishes forward pseudo-door contact");
+    AssertTrue(
+        !SuperMetroidRuntime.ShouldPublishFacingForwardElevatorDoorSideEffects(
+            ElevatorActorStatus.Inactive),
+        "inactive elevator suppresses pseudo-door contact");
+    AssertTrue(
+        !SuperMetroidRuntime.ShouldPublishFacingForwardElevatorDoorSideEffects(
+            ElevatorActorStatus.BeginArrivalReturn),
+        "arrival setup suppresses repeated pseudo-door contact");
+    AssertTrue(
+        !SuperMetroidRuntime.ShouldPublishFacingForwardElevatorDoorSideEffects(
+            ElevatorActorStatus.ReturningToRest),
+        "arrival return suppresses repeated pseudo-door contact");
+
     Console.WriteLine("  Samus movement: forward/elevator, standing, and running speed/X/slope/grounding order agree.");
 }
 
@@ -1109,6 +1129,20 @@ static void VerifySamusMoonwalking()
         "disabled Moonwalk substitution folds extra momentum");
     AssertEqual(1, disabled.HorizontalSpeed.AccelerationMode,
         "disabled Moonwalk substitution starts mode one");
+
+    // `$A4/$A5` use the ordinary standing input records. A backward direction during the
+    // short landing animation can therefore nominate `$4A/$49`; the target's native
+    // Moonwalk initializer still performs the option-disabled turn substitution. This is
+    // reachable during consecutive platform jumps, not an invented convenience route.
+    WritePoseDefinition(bus, SamusState.NormalLandingRightPose,
+        [0x08, 0x00, 0x01, 0x02, 0x00, 0x00, 0x15, 0x00]);
+    var landingMoonwalk = new SamusState { Pose = SamusState.NormalLandingRightPose };
+    landingMoonwalk.ApplyMoonwalkPoseChange(
+        bus,
+        SamusState.MoonwalkFacingRightPose,
+        moonwalkEnabled: false);
+    AssertEqual(SamusState.TurningRightToLeftPose, landingMoonwalk.Pose,
+        "landing Moonwalk candidate honors disabled-option turn substitution");
 
     // `$91:F8F3-$F903` is specific to a turn whose PREVIOUS movement type is Moonwalk.
     // It publishes the source pose's shot direction with tag `$0100`; ordinary standing

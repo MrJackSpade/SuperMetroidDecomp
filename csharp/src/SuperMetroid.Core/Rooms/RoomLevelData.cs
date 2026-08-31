@@ -212,7 +212,8 @@ public sealed class RoomLevelData
     public CartridgeDoorHeader ResolveDoorCollision(
         ISnesAddressSpace bus,
         byte behavior,
-        byte samusPose)
+        byte samusPose,
+        bool publishDoorSideEffects = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if (DoorListPointer is not ushort doorListPointer)
@@ -234,12 +235,19 @@ public sealed class RoomLevelData
             bus.ReadByte(pointerAddress) |
             (bus.ReadByte(0x8f0000 | unchecked((ushort)(pointerAddress + 1))) << 8)));
         CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, doorPointer);
-        if ((door.DestinationRoomPointer & 0x8000) != 0)
+        // The native door handler normally publishes either a real transition or the
+        // elevator-contact flag. The desktop runtime collapses the outer transition states
+        // into one room-load call, however, so destination-side elevator return scans must
+        // inspect the same type-$9 block without republishing either side effect. Keep the
+        // door lookup and solid/passable classification intact while gating only the writes.
+        if (publishDoorSideEffects &&
+            (door.DestinationRoomPointer & 0x8000) != 0)
             PendingDoorTransition ??= door;
         // `$94:938B/$94:93CE` treat the pseudo destination as solid for every pose, but
         // publish elevator_flags only while samus_pose is below $09. This prevents running,
         // aerial, morph, and damage poses that merely brush the block from arming the actor.
-        else if (samusPose < SamusState.MovingRightNormalPose)
+        else if (publishDoorSideEffects &&
+                 samusPose < SamusState.MovingRightNormalPose)
             ElevatorDoorContactPending = true;
         return door;
     }

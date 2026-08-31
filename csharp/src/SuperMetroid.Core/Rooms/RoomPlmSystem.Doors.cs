@@ -1,12 +1,82 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Cartridge-authored door-cap reactions owned by bank $84's PLM pool.</summary>
 public sealed partial class RoomPlmSystem
 {
+    private const ushort YellowDoorFacingLeftHeader = 0xc85a;
+    private const ushort YellowDoorFacingRightHeader = 0xc860;
+    private const ushort YellowDoorFacingUpHeader = 0xc866;
+    private const ushort YellowDoorFacingDownHeader = 0xc86c;
+    private const ushort GreenDoorFacingLeftHeader = 0xc872;
+    private const ushort GreenDoorFacingRightHeader = 0xc878;
+    private const ushort GreenDoorFacingUpHeader = 0xc87e;
+    private const ushort GreenDoorFacingDownHeader = 0xc884;
+    private const ushort RedDoorFacingLeftHeader = 0xc88a;
+    private const ushort RedDoorFacingRightHeader = 0xc890;
+    private const ushort RedDoorFacingUpHeader = 0xc896;
+    private const ushort RedDoorFacingDownHeader = 0xc89c;
+
     private const byte BlueDoorFacingLeftBts = 0x40;
     private const byte BlueDoorFacingRightBts = 0x41;
     private const byte BlueDoorFacingUpBts = 0x42;
     private const byte BlueDoorFacingDownBts = 0x43;
+
+    /// <summary>
+    /// Runs setup <c>$84:C7B1</c> for every cartridge-authored yellow, green, and red
+    /// door in a room population.
+    /// </summary>
+    /// <remarks>
+    /// Colored-door art is drawn by a resident PLM, but collision gating begins
+    /// synchronously during room load: the cap origin becomes shootable-solid type $C
+    /// with BTS $44. Leaving the decompressed blue BTS $40..$43 in place would let a
+    /// power-beam collision allocate a blue-door opener before the colored-door actor had
+    /// any chance to check missile family. This method deliberately ports that common
+    /// setup seam first; the resident hit counter and opening animation remain owned by
+    /// the colored-door translation rather than the generic blue-door reaction.
+    /// </remarks>
+    public int ApplyColoredDoorSetups(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        ushort populationPointer)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+
+        int applied = 0;
+        ushort cursor = populationPointer;
+        for (int recordIndex = 0; recordIndex < 256; recordIndex++)
+        {
+            ushort header = ReadBank8fWord(bus, cursor);
+            if (header == 0)
+                return applied;
+
+            byte blockX = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 2)));
+            byte blockY = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 3)));
+            cursor = unchecked((ushort)(cursor + 6));
+
+            if (!IsColoredDoorHeader(header))
+                continue;
+
+            int blockIndex = level.GetBlockIndex(blockX, blockY);
+            ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
+            level.SetForegroundEntry(blockIndex, (ushort)((originalWord & 0x0fff) | 0xc000));
+            level.SetBehavior(blockIndex, 0x44);
+            applied++;
+        }
+
+        throw new InvalidDataException(
+            $"Room PLM population $8F:{populationPointer:X4} has no zero terminator.");
+    }
+
+    private static bool IsColoredDoorHeader(ushort header) => header is
+        YellowDoorFacingLeftHeader or YellowDoorFacingRightHeader or
+        YellowDoorFacingUpHeader or YellowDoorFacingDownHeader or
+        GreenDoorFacingLeftHeader or GreenDoorFacingRightHeader or
+        GreenDoorFacingUpHeader or GreenDoorFacingDownHeader or
+        RedDoorFacingLeftHeader or RedDoorFacingRightHeader or
+        RedDoorFacingUpHeader or RedDoorFacingDownHeader;
 
     /// <summary>
     /// Spawns the blue-door entry selected by shootable BTS <c>$40..$43</c> at

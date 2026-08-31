@@ -43,6 +43,8 @@ static void VerifySamusMorphBallMovement()
     WritePose(SamusState.SpringBallJumpLeftPose, [0x04, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
     WritePose(SamusState.NormalJumpForwardRightPose, [0x08, 0x02, 0x4d, 0x02, 0x00, 0x00, 0x15, 0x00]);
     WritePose(SamusState.NormalJumpForwardLeftPose, [0x04, 0x02, 0x4e, 0x07, 0x00, 0x00, 0x15, 0x00]);
+    WritePose(SamusState.FallingAimDownLeftPose, [0x04, 0x06, 0x2a, 0x05, 0x08, 0x00, 0x0a, 0x00]);
+    WritePose(SamusState.SpinJumpLeftPose, [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x13, 0x00]);
 
     // Stable ordinary-ball poses all point to `$91:B378`. Separate synthetic storage keeps
     // the production pointer lookup real while making the expected command stream concise.
@@ -152,6 +154,48 @@ static void VerifySamusMorphBallMovement()
         "equipped Morph Ball begins entry transition");
     AssertEqual(7, samus.Kinematics.YRadius, "morph transition radius from ROM");
     AssertEqual(57, samus.YPosition, "command seven moves center down nine");
+
+    // The same `$91:F7CE` initializer is selected by aerial input tables. `$2E -> $38`
+    // is the controller route used to aim at Parlor's floor hatch: its radius-ten body
+    // shrinks by only three pixels, retains falling momentum mode, and clears the distinct
+    // bomb-spread timeout without touching beam charge. A spin source additionally forces
+    // acceleration mode two exactly as the initializer's previous-type-three branch does.
+    var fallingMorph = new SamusState
+    {
+        Pose = SamusState.FallingAimDownLeftPose,
+        EquippedItems = 0x0004,
+        XPosition = 48,
+        YPosition = 40,
+        BombSpreadChargeTimeoutCounter = 0x1234,
+        ProjectileFlareCounter = 0x003c,
+    };
+    fallingMorph.RefreshCollisionRadii(bus);
+    fallingMorph.HorizontalSpeed.AccelerationMode = 1;
+    AssertTrue(fallingMorph.TryApplyMorphTransition(
+            bus, floor, SamusState.MorphingTransitionLeftPose, nmiFrameCounter: 1),
+        "compact falling pose begins cartridge morph transition");
+    AssertEqual(43, fallingMorph.YPosition,
+        "compact falling morph preserves bottom with three-pixel center adjustment");
+    AssertEqual(1, fallingMorph.HorizontalSpeed.AccelerationMode,
+        "non-spin aerial morph retains acceleration mode");
+    AssertEqual(0, fallingMorph.BombSpreadChargeTimeoutCounter,
+        "morph initializer clears bomb-spread timeout");
+    AssertEqual(0x003c, fallingMorph.ProjectileFlareCounter,
+        "morph initializer does not clear arm-cannon charge counter");
+
+    var spinMorph = new SamusState
+    {
+        Pose = SamusState.SpinJumpLeftPose,
+        EquippedItems = 0x0004,
+        XPosition = 48,
+        YPosition = 40,
+    };
+    spinMorph.RefreshCollisionRadii(bus);
+    AssertTrue(spinMorph.TryApplyMorphTransition(
+            bus, floor, SamusState.MorphingTransitionLeftPose, nmiFrameCounter: 0),
+        "spin pose begins cartridge morph transition");
+    AssertEqual(2, spinMorph.HorizontalSpeed.AccelerationMode,
+        "spin-source morph forces native aerial deceleration mode two");
 
     // Delay 2 at frame zero, delay 2 at frame one, then command F9 at frame two.
     for (int tick = 0; tick < 4; tick++)

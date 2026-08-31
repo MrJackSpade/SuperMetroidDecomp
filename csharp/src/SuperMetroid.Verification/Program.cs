@@ -89,6 +89,7 @@ VerifyObjRendering();
 VerifyHudStateAndBg3Rendering();
 VerifyDebugRoomCamera();
 VerifyRoomScrollGridAndBoundaryCamera();
+VerifyRoomScrollPlms();
 VerifyMovedSamusCameraTracking();
 VerifyBackgroundScrollState();
 VerifyLevelBlockTilemapExpansion();

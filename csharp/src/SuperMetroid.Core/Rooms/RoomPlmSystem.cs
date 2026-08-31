@@ -31,6 +31,7 @@ public sealed partial class RoomPlmSystem
     private const ushort QueueSoundLibrary2Maximum3Instruction = 0x8c46;
     private const ushort QueueSoundLibrary2Maximum1Instruction = 0x8c79;
     private const ushort QueueSoundLibrary2Maximum1DirectInstruction = 0x8c7c;
+    private const ushort QueueSoundLibrary3Maximum6Instruction = 0x8c19;
     private const ushort GotoInstruction = 0x8724;
     private const ushort DecrementTimerAndGotoInstruction = 0x873f;
     private const ushort SetEightBitTimerInstruction = 0x874e;
@@ -161,6 +162,7 @@ public sealed partial class RoomPlmSystem
             slot.RoomArgument = 0;
             slot.LoopTimer = 0;
             slot.Item = null;
+            slot.Scroll = null;
         }
         _soundRequests.Clear();
         _tilemapUpdates.Clear();
@@ -973,6 +975,9 @@ public sealed partial class RoomPlmSystem
             if (!slot.Active)
                 continue;
 
+            if (TryStepScrollPlm(bus, level, scrolls, slot))
+                continue;
+
             if (TryStepCollectible(
                     bus,
                     level,
@@ -1081,6 +1086,16 @@ public sealed partial class RoomPlmSystem
                     byte cappedSoundId = bus.ReadByte(
                         0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
                     _soundRequests.Add(new PlmSoundRequest(2, cappedSoundId, MaximumQueued: 3));
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
+                    continue;
+
+                case QueueSoundLibrary3Maximum6Instruction:
+                    // Door lists use `$84:8C19` for open/close sounds. Like the adjacent
+                    // library-two opcodes, the 16-bit native load intentionally consumes
+                    // only one argument byte before advancing Y by one.
+                    byte doorSoundId = bus.ReadByte(
+                        0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
+                    _soundRequests.Add(new PlmSoundRequest(3, doorSoundId, MaximumQueued: 6));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
@@ -1312,6 +1327,8 @@ public sealed partial class RoomPlmSystem
         /// leaves this physical slot under the ordinary instruction interpreter.
         /// </summary>
         public CollectiblePlmState? Item { get; set; }
+        /// <summary>Semantic state for resident bank-$84 scroll trigger header $B703.</summary>
+        public ScrollPlmState? Scroll { get; set; }
     }
 }
 

@@ -43,6 +43,12 @@ if (args.Length >= 2 && args[0] == "--early-route-audit")
     return EarlyRouteAudit.Run(earlyRouteRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--early-controller-route-audit")
+{
+    string controllerRouteRomPath = string.Join(' ', args[1..]).Trim('"');
+    return EarlyControllerRouteAudit.Run(controllerRouteRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--blue-hopper-audit")
 {
     string hopperRomPath = string.Join(' ', args[1..]).Trim('"');

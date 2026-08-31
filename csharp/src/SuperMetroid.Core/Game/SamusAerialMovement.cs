@@ -167,7 +167,8 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementKind(bus) != SamusMovementType.NormalJumping)
@@ -198,7 +199,8 @@ public static class SamusAerialMovement
                 bus,
                 level,
                 samus.Kinematics,
-                requested);
+                requested,
+                plms: plms);
             if (horizontal.Collided)
                 samus.HorizontalSpeed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -215,7 +217,8 @@ public static class SamusAerialMovement
                     level,
                     samus.Kinematics,
                     displacement,
-                    scanLeftToRight: (nmiFrameCounter & 1) == 0);
+                    scanLeftToRight: (nmiFrameCounter & 1) == 0,
+                    plms: plms);
             }
             return new AerialMovementResult(
                 horizontal,
@@ -230,8 +233,9 @@ public static class SamusAerialMovement
             level,
             samus,
             controllerInput,
-            movementType: 2);
-        return FinishVerticalMovement(bus, level, samus, horizontalMove, nmiFrameCounter);
+            movementType: 2,
+            plms);
+        return FinishVerticalMovement(bus, level, samus, horizontalMove, nmiFrameCounter, plms: plms);
     }
 
     /// <summary>
@@ -381,7 +385,8 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementKind(bus) != SamusMovementType.WallJumping ||
@@ -409,8 +414,9 @@ public static class SamusAerialMovement
             level,
             samus,
             controllerInput,
-            movementType: 0x14);
-        return FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter);
+            movementType: 0x14,
+            plms);
+        return FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter, plms: plms);
     }
 
     /// <summary>
@@ -423,7 +429,8 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementKind(bus) != SamusMovementType.DamageBoost ||
@@ -446,8 +453,9 @@ public static class SamusAerialMovement
             level,
             samus,
             controllerInput,
-            movementType: 0x19);
-        return FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter);
+            movementType: 0x19,
+            plms);
+        return FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter, plms: plms);
     }
 
     /// <summary>
@@ -459,7 +467,8 @@ public static class SamusAerialMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ValidateCommon(bus, level, samus);
         byte movementType = samus.ReadMovementType(bus);
@@ -485,7 +494,8 @@ public static class SamusAerialMovement
             bus,
             level,
             samus.Kinematics,
-            requested);
+            requested,
+            plms: plms);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -503,7 +513,8 @@ public static class SamusAerialMovement
             level,
             samus,
             horizontal,
-            nmiFrameCounter);
+            nmiFrameCounter,
+            plms: plms);
         if (result.Vertical is { Collided: true })
         {
             // Both upward and downward collision tables for types `$17/$18` select command
@@ -527,7 +538,8 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementKind(bus) != SamusMovementType.Falling)
@@ -545,7 +557,8 @@ public static class SamusAerialMovement
             level,
             samus,
             controllerInput,
-            movementType: 6);
+            movementType: 6,
+            plms);
 
         // $90:90C4 converts an underflowed upward magnitude to a stationary downward state
         // before the common vertical routine can turn the negative word into moonfall-like
@@ -558,7 +571,7 @@ public static class SamusAerialMovement
             samus.Kinematics.YDirection = 2;
         }
 
-        return FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter);
+        return FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter, plms: plms);
     }
 
     /// <summary>
@@ -578,7 +591,8 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ValidateCommon(bus, level, samus);
         if (!samus.Grapple.ReleasedMovementActive)
@@ -621,12 +635,12 @@ public static class SamusAerialMovement
             speed.BaseSpeed = 0;
             speed.BaseSubspeed = 0;
             speed.CalculateTotalSpeed(0);
-            horizontal = SamusBlockCollision.MoveHorizontal(bus, level, state, 0);
+            horizontal = SamusBlockCollision.MoveHorizontal(bus, level, state, 0, plms: plms);
         }
         else
         {
             int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed);
-            horizontal = SamusBlockCollision.MoveHorizontal(bus, level, state, requested);
+            horizontal = SamusBlockCollision.MoveHorizontal(bus, level, state, requested, plms: plms);
             if (horizontal.Collided)
                 speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         }
@@ -636,7 +650,8 @@ public static class SamusAerialMovement
             level,
             samus,
             horizontal,
-            nmiFrameCounter);
+            nmiFrameCounter,
+            plms: plms);
         if (result.Vertical is { Collided: true })
             restoreNormalHandler = true;
 
@@ -649,7 +664,8 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        byte movementType)
+        byte movementType,
+        RoomPlmSystem? plms)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
@@ -664,7 +680,7 @@ public static class SamusAerialMovement
             speed.BaseSpeed = 0;
             speed.BaseSubspeed = 0;
             speed.CalculateTotalSpeed(0);
-            return SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, 0);
+            return SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, 0, plms: plms);
         }
 
         int requested = CalculateDirectedDisplacement(bus, samus, calculation.Speed);
@@ -672,7 +688,8 @@ public static class SamusAerialMovement
             bus,
             level,
             samus.Kinematics,
-            requested);
+            requested,
+            plms: plms);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         return horizontal;

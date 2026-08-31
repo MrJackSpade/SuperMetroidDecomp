@@ -1480,6 +1480,100 @@ static void VerifySamusPowerBeamProjectiles()
     AssertTrue(FirePointMissile(verticalExtension, 96).CollisionStartedExplosion,
         "vertical extension redispatches missile against row-relative parent");
 
+    // Landing Site's first door is the more important inverse case: its power beam hits
+    // one of three type-$D cells whose negative BTS points upward to a type-$C/BTS-$41
+    // origin. Seed the exact retail right-facing blue-door program and draw lists, then
+    // prove the live radius scanner creates the PLM and its timed bank-$84 program clears
+    // the complete four-block cap without a test-owned terrain mutation.
+    WriteTestWord(bus, 0x84c4ba, 0x8c19);
+    bus.WriteByte(0x84c4bc, 0x07);
+    WriteTestWord(bus, 0x84c4bd, 0x0006);
+    WriteTestWord(bus, 0x84c4bf, 0xa9fb);
+    WriteTestWord(bus, 0x84c4c1, 0x0006);
+    WriteTestWord(bus, 0x84c4c3, 0xaa07);
+    WriteTestWord(bus, 0x84c4c5, 0x0006);
+    WriteTestWord(bus, 0x84c4c7, 0xaa13);
+    WriteTestWord(bus, 0x84c4c9, 0x005e);
+    WriteTestWord(bus, 0x84c4cb, 0xa683);
+    WriteTestWord(bus, 0x84c4cd, 0x86bc);
+
+    static void WriteDoorDrawList(TestAddressSpace targetBus, int address, ushort[] words)
+    {
+        foreach (ushort word in words)
+        {
+            WriteTestWord(targetBus, address, word);
+            address += 2;
+        }
+    }
+    WriteDoorDrawList(bus, 0x84a9fb, [0x8004, 0x840d, 0x842d, 0x8c2d, 0x8c0d, 0x0000]);
+    WriteDoorDrawList(bus, 0x84aa07, [0x8004, 0x840e, 0x842e, 0x8c2e, 0x8c0e, 0x0000]);
+    WriteDoorDrawList(bus, 0x84aa13, [0x8004, 0x840f, 0x042f, 0x0c2f, 0x8c0f, 0x0000]);
+    WriteDoorDrawList(bus, 0x84a683, [0x8004, 0x0482, 0x04a2, 0x0ca2, 0x0c82, 0x0000]);
+
+    var blueDoorWords = new ushort[width * height];
+    var blueDoorBehaviors = new byte[blueDoorWords.Length];
+    int blueDoorOrigin = 4 * width + 6;
+    blueDoorWords[blueDoorOrigin] = 0xc000;
+    blueDoorBehaviors[blueDoorOrigin] = 0x41;
+    for (int rowOffset = 1; rowOffset < 4; rowOffset++)
+    {
+        blueDoorWords[blueDoorOrigin + rowOffset * width] = 0xd000;
+        blueDoorBehaviors[blueDoorOrigin + rowOffset * width] =
+            unchecked((byte)-rowOffset);
+    }
+    RoomLevelData blueDoor = new(
+        width,
+        height,
+        blueDoorWords,
+        blueDoorBehaviors,
+        new ushort[blueDoorWords.Length],
+        new byte[8]);
+    var blueDoorSamus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 64,
+        YPosition = 96,
+    };
+    var blueDoorBombs = new SamusBombProjectileSystem();
+    var blueDoorProjectiles = new SamusProjectileSystem();
+    var blueDoorPlms = new RoomPlmSystem();
+    SamusProjectileFrameResult blueDoorImpact = default;
+    for (int frame = 0; frame < 16 && !blueDoorImpact.CollisionStartedExplosion; frame++)
+    {
+        blueDoorBombs.StepFrame(bus, blueDoor, blueDoorSamus, 0, 0);
+        blueDoorImpact = blueDoorProjectiles.StepFrame(
+            bus,
+            blueDoor,
+            blueDoorSamus,
+            frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+            frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+            0,
+            0,
+            blueDoorBombs,
+            roomPlms: blueDoorPlms);
+    }
+    AssertTrue(blueDoorImpact.CollisionStartedExplosion,
+        "power beam collides through negative vertical door extension");
+    AssertEqual(1, blueDoorPlms.ActiveCount,
+        "BTS $41 collision allocates one right-facing blue-door PLM");
+    AssertEqual(8, blueDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
+        "Setup_BlueDoor synchronously changes cap origin to type eight");
+
+    BackgroundTilemapStreamer blueDoorStreamer = blueDoor.CreateBackgroundStreamer();
+    blueDoorPlms.Step(bus, blueDoor, blueDoorStreamer, 0x1000, 0x1000, 0);
+    AssertTrue(blueDoorPlms.SoundRequests.Any(request =>
+            request == new PlmSoundRequest(3, 0x07, 6)),
+        "blue-door list queues library-three opening sound seven");
+    for (int frame = 1; frame < 19; frame++)
+        blueDoorPlms.Step(bus, blueDoor, blueDoorStreamer, 0x1000, 0x1000, 0);
+    for (int rowOffset = 0; rowOffset < 4; rowOffset++)
+    {
+        AssertEqual(0,
+            blueDoor.GetCollisionBlockByIndex(
+                blueDoorOrigin + rowOffset * width).CollisionType,
+            $"blue-door final draw clears cap row {rowOffset}");
+    }
+
     // Super Missiles share `$BE62` but differ in every animation-adjacent constant: HUD item
     // two, type `$8200`, sound four, cooldown twenty, `$012C` damage, acceleration `$0100`,
     // two-frame exhaust after the initial delay, an invisible linked slot, and a larger quake-

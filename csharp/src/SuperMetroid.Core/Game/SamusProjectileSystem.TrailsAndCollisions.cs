@@ -442,6 +442,16 @@ public sealed partial class SamusProjectileSystem
         RoomCollisionBlock block,
         RoomPlmSystem? roomPlms)
     {
+        // `$94:9411/$9447` are shared by shot, bomb, grapple, collision, and inside
+        // dispatch. Door caps deliberately put the shootable origin at one end and type-
+        // `$D` extension words across the other three cells. Resolve those signed BTS
+        // links before selecting a reaction; otherwise a centered horizontal beam merely
+        // explodes against the middle extension and can never reach BTS `$40..$43`.
+        RoomCollisionBlock? resolvedBlock = ResolveShotReactionExtension(level, block);
+        if (resolvedBlock is null)
+            return false;
+        block = resolvedBlock.Value;
+
         // Chozo orbs and concealed item blocks are type-$C/BTS-$45. Their special
         // reaction does not use the ordinary BTS 0..F shot-block table: header $EED3
         // finds and triggers the already-loaded permanent-item PLM at this origin.
@@ -469,6 +479,46 @@ public sealed partial class SamusProjectileSystem
         return block.CollisionType is >= 8 and <= 15;
     }
 
+    private static RoomCollisionBlock? ResolveShotReactionExtension(
+        RoomLevelData level,
+        RoomCollisionBlock initialBlock)
+    {
+        RoomCollisionBlock block = initialBlock;
+        for (int linkCount = 0; linkCount < 16; linkCount++)
+        {
+            int offset = unchecked((sbyte)block.Behavior);
+            int targetIndex;
+            switch (block.CollisionType)
+            {
+                case 5: // Horizontal extension: signed BTS is a direct block offset.
+                    if (offset == 0)
+                        return null;
+                    targetIndex = block.Index + offset;
+                    break;
+
+                case 13: // Vertical extension: signed BTS counts whole room rows.
+                    if (offset == 0)
+                        return null;
+                    targetIndex = block.Index + (offset * level.WidthInBlocks);
+                    break;
+
+                default:
+                    return block;
+            }
+
+            if ((uint)targetIndex >= (uint)level.ForegroundEntries.Length)
+            {
+                throw new InvalidDataException(
+                    $"Projectile extension at block {block.Index} resolved outside the " +
+                    $"{level.ForegroundEntries.Length}-entry room layer.");
+            }
+            block = level.GetCollisionBlockByIndex(targetIndex);
+        }
+
+        throw new InvalidDataException(
+            $"Projectile extension chain from block {initialBlock.Index} did not terminate.");
+    }
+
     private static void TrySpawnShootableReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -477,6 +527,21 @@ public sealed partial class SamusProjectileSystem
     {
         if (roomPlms is null)
             return;
+
+        // `$94:9EA6[40..43]` selects the four blue-door entry PLMs. These are not
+        // ordinary breakable blocks: setup changes the cap origin to type $8 and the
+        // cartridge list opens all four blocks over eighteen frames. Keep this dispatch
+        // beside the general table lookup so every beam/missile/bomb collision reaches the
+        // same bank-$84 owner and power bombs retain Setup_BlueDoor's rejection behavior.
+        if (block.Behavior is >= 0x40 and <= 0x43)
+        {
+            roomPlms.TrySpawnBlueDoorOpening(
+                level,
+                block.Index,
+                block.Behavior,
+                slot.Type);
+            return;
+        }
 
         // Nonnegative BTS 0..F indexes the complete retail `$94:9EA6` table. Negative BTS
         // 0..7 is also admitted so shootable-solid can preserve its native area-table no-op

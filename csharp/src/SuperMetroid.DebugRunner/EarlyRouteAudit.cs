@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
@@ -86,10 +87,116 @@ internal static class EarlyRouteAudit
         Traverse(runtime, bus, 0, 0x8b3e, 0x92fd, 0x932e, "awakened Parlor (return)");
         Traverse(runtime, bus, 1, 0x896a, 0x91f8, 0x9247, "power-bomb Landing Site");
 
+        VerifyLiveElevatorJourney(romPath);
+
         Console.WriteLine(
             "Early route audit: 20 cartridge-authored door loads covered the new-game " +
             "route and all progression selectors used by its rooms.");
         return 0;
+    }
+
+    /// <summary>
+    /// Drives the ordinary bank-$A3 elevator actor across a real room-load boundary.
+    /// </summary>
+    private static void VerifyLiveElevatorJourney(string romPath)
+    {
+        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var runtime = new SuperMetroidRuntime(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.InitializePostCeresZebesRoom();
+        SamusState samus = runtime.Samus ?? throw new InvalidOperationException(
+            "Elevator audit could not initialize Samus.");
+        samus.InputLocked = false;
+        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.InitializeAnimation(bus);
+
+        Traverse(runtime, bus, 0, 0x8916, 0x92fd, 0x9314, "elevator audit Parlor");
+        Traverse(runtime, bus, 4, 0x898e, 0x96ba, 0x96d1, "elevator audit Climb");
+        Traverse(runtime, bus, 3, 0x8b62, 0x975c, 0x976d, "elevator audit Pit");
+        Traverse(runtime, bus, 1, 0x8b86, 0x97b5, 0x97c6, "elevator audit top");
+
+        ElevatorEnemyState elevator = runtime.Enemies.ElevatorStates
+            .FirstOrDefault(state => state is not null)
+            ?? throw new InvalidDataException("Crateria elevator room did not load elevator $D73F.");
+        RoomEnemySlot elevatorSlot = runtime.Enemies.Slots
+            .First(slot => slot.EnemyDefinitionPointer == RoomEnemySystem.ElevatorDefinition);
+
+        // The focused actor audit begins from the exact resting carrier coordinates. The
+        // full route harness will reach this point with ordinary controller motion; this
+        // placement isolates the cross-room elevator contract while that navigation layer
+        // is still under construction.
+        samus.XPosition = elevatorSlot.XPosition;
+        samus.YPosition = unchecked((ushort)(elevatorSlot.YPosition - 26));
+        samus.Kinematics.YSpeed = 0;
+        samus.Kinematics.YSubspeed = 0;
+        _ = elevator;
+
+        // Door-list entry two is the retail pseudo-door word $0000. Its collision sets
+        // elevator_properties without scheduling an ordinary room transition; a fresh Down
+        // edge on the following enemy frame is what starts bank-$A3's actor.
+        CartridgeDoorHeader pseudoDoor = runtime.LevelData!.ResolveDoorCollision(
+            bus,
+            behavior: 2,
+            samus.Pose);
+        if (pseudoDoor.Pointer != 0x88fc || runtime.HasPendingDoorTransition)
+            throw new InvalidDataException("Elevator pseudo-door was treated as an ordinary exit.");
+
+        runtime.StepFrame((ushort)SnesButton.Down);
+        if (runtime.Enemies.ElevatorStatus != ElevatorActorStatus.Departing ||
+            runtime.Enemies.LastElevatorEvent != ElevatorFrameEvent.DepartureStarted)
+        {
+            throw new InvalidDataException(
+                "Down input did not start the cartridge elevator departure.");
+        }
+
+        int departureFrames = 0;
+        while (!runtime.HasPendingDoorTransition && departureFrames < 240)
+        {
+            runtime.StepFrame(0);
+            departureFrames++;
+        }
+        if (!runtime.HasPendingDoorTransition)
+        {
+            throw new InvalidDataException(
+                $"Departing elevator did not reach its real destination door in " +
+                $"{departureFrames} frames (Samus Y=${samus.YPosition:X4}).");
+        }
+
+        runtime.LoadPendingDoorDestination();
+        AssertRoom(runtime, 0x9e9f, 0x9eb1, "Morph Ball elevator arrival");
+        if (runtime.Enemies.ElevatorStatus != ElevatorActorStatus.BeginArrivalReturn)
+        {
+            throw new InvalidDataException(
+                "Destination elevator initializer did not retain arrival status two.");
+        }
+
+        int arrivalFrames = 0;
+        while (runtime.Enemies.LastElevatorEvent != ElevatorFrameEvent.ArrivalCompleted &&
+               arrivalFrames < 520)
+        {
+            runtime.StepFrame(0);
+            arrivalFrames++;
+        }
+        if (runtime.Enemies.LastElevatorEvent != ElevatorFrameEvent.ArrivalCompleted ||
+            runtime.Enemies.ElevatorStatus != ElevatorActorStatus.Inactive ||
+            samus.InputLocked)
+        {
+            RoomEnemySlot arrivalSlot = runtime.Enemies.Slots.First(
+                slot => slot.EnemyDefinitionPointer == RoomEnemySystem.ElevatorDefinition);
+            throw new InvalidDataException(
+                $"Morph Ball elevator arrival did not restore control after {arrivalFrames} frames: " +
+                $"status {runtime.Enemies.ElevatorStatus}, event {runtime.Enemies.LastElevatorEvent}, " +
+                $"actor Y=${arrivalSlot.YPosition:X4}.{arrivalSlot.YSubposition:X4}, " +
+                $"rest=${runtime.Enemies.ElevatorStates[arrivalSlot.SlotIndex]!.RestingYPosition:X4}, " +
+                $"Samus Y=${samus.YPosition:X4}, locked={samus.InputLocked}.");
+        }
+
+        Console.WriteLine(
+            $"  Elevator journey: departure {departureFrames} frames, arrival " +
+            $"{arrivalFrames} frames, controls restored at Samus Y=${samus.YPosition:X4}.");
     }
 
     private static void Traverse(

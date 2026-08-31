@@ -209,6 +209,15 @@ public sealed partial class SamusState
     public ushort ProjectileFlareCounter { get; set; }
 
     /// <summary>
+    /// WRAM <c>$0CD0</c>, the shared bomb-spread charge timeout. The cartridge clears this
+    /// word in <c>InitializeSamusPose_MorphingTransition</c> at <c>$91:F7E7</c> after a
+    /// successful Morph Ball item check, regardless of the humanoid movement family that
+    /// selected the transition. Keeping it separate from the beam flare counter prevents a
+    /// mid-air morph from accidentally cancelling ordinary arm-cannon charge state.
+    /// </summary>
+    public ushort BombSpreadChargeTimeoutCounter { get; set; }
+
+    /// <summary>
     /// WRAM <c>$0B5E</c>, <c>PoseTransitionShotDirection</c>. A pose initializer can
     /// publish one shot direction after the current frame's projectile handler has already
     /// run. The following frame's bank-$90 producer consumes the low byte, then the normal

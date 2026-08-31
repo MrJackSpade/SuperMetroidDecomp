@@ -343,12 +343,16 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         [4, 0, 0xff, 7, 0, 0, 21, 0]);
     WritePoseDefinition(bus, SamusState.NormalJumpGunExtendedRightPose,
         [8, 2, 0xff, 2, 0, 0, 24, 0]);
+    WritePoseDefinition(bus, SamusState.NormalJumpAimDownLeftPose,
+        [4, 2, 0xff, 5, 0, 0, 10, 0]);
     WriteTestWord(bus, 0x91b010 + SamusState.SpinLandingRightPose * 2, 0xc800);
     WriteTestWord(bus, 0x91b010 + SamusState.SpinLandingLeftPose * 2, 0xc810);
     WriteTestWord(bus, 0x91b010 + SamusState.NormalJumpGunExtendedRightPose * 2, 0xc820);
+    WriteTestWord(bus, 0x91b010 + SamusState.NormalJumpAimDownLeftPose * 2, 0xc830);
     bus.WriteByte(0x91c800, 4);
     bus.WriteByte(0x91c810, 4);
     bus.WriteByte(0x91c820, 4);
+    bus.WriteByte(0x91c830, 4);
 
     // Dry-air Samus_InitJump and gravity words. The type-three horizontal record is zeroed
     // intentionally so the assertions isolate the vertical 8.8 gate from X acceleration.
@@ -433,6 +437,43 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         "spin Fire publishes target shot direction");
     AssertTrue(spinFire.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
         "leaving Screw Attack requests normal suit palette");
+
+    // Down during a left spin selects compact normal-jump pose `$18`. It enters the same
+    // `$91:F543` initializer as Fire but shrinks radius 12 -> 10, preserves the running jump
+    // arc, and does not invent the `$8000` projectile bridge without a fresh Shoot edge.
+    var spinAimDown = new SamusState
+    {
+        Pose = SamusState.SpinJumpLeftPose,
+        XPosition = 128,
+        YPosition = 128,
+        Kinematics =
+        {
+            XRadius = 5,
+            YRadius = 12,
+            YDirection = 1,
+            YSpeed = 2,
+            YSubspeed = 0x3456,
+        },
+    };
+    AssertTrue(spinAimDown.TryApplySpinToNormalJumpTransition(
+        bus,
+        empty,
+        SamusState.NormalJumpAimDownLeftPose,
+        nmiFrameCounter: 0,
+        controllerNewInput: 0),
+        "spin Down body contraction fits empty room");
+    AssertEqual(SamusState.NormalJumpAimDownLeftPose, spinAimDown.Pose,
+        "spin Down selects compact left normal jump");
+    AssertEqual(10, spinAimDown.Kinematics.YRadius,
+        "spin Down contracts to straight-down radius");
+    AssertEqual(128, spinAimDown.YPosition,
+        "spin Down contraction does not move the body center");
+    AssertEqual(2, spinAimDown.Kinematics.YSpeed,
+        "spin Down preserves whole vertical speed");
+    AssertEqual(0x3456, spinAimDown.Kinematics.YSubspeed,
+        "spin Down preserves fractional vertical speed");
+    AssertEqual(0, spinAimDown.PoseTransitionShotDirection,
+        "spin Down without Shoot does not publish a projectile bridge");
 
     static SamusState CreateFallingSpin(byte pose, ushort items, ushort speed, ushort subspeed) => new()
     {

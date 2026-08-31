@@ -10,9 +10,10 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class SamusState
 {
     /// <summary>
-    /// Applies the normal-jump body selected when Fire cancels a spin, Space Jump, or
-    /// Screw Attack pose. This is the concrete <c>$19/$1A/$1B/$1C/$81/$82 -&gt; $13/$14</c>
-    /// route through <c>$91:F404</c>, <c>$91:F543</c>, and <c>$91:FC66</c>.
+    /// Applies a normal-jump body selected when aim or Fire cancels a spin, Space Jump,
+    /// or Screw Attack pose. This is the shared
+    /// <c>$19/$1A/$1B/$1C/$81/$82 -&gt; movement-type-$02</c> route through
+    /// <c>$91:F404</c>, <c>$91:F543</c>, and <c>$91:FC66</c>.
     /// </summary>
     /// <remarks>
     /// The transition does not call <c>Make_Samus_Jump</c>: <c>$13/$14</c> are deliberately
@@ -20,7 +21,7 @@ public sealed partial class SamusState
     /// shorter than the resulting normal-jump body, however, so the shared changed-pose
     /// collision pass must still be allowed to reject the expansion under a low ceiling.
     /// </remarks>
-    public bool TryApplySpinToNormalJumpFireTransition(
+    public bool TryApplySpinToNormalJumpTransition(
         ISnesAddressSpace bus,
         RoomLevelData level,
         byte targetPose,
@@ -31,15 +32,17 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(level);
 
         byte sourcePose = Pose;
-        if (!IsSpinJumpPose(sourcePose) ||
-            targetPose is not (NormalJumpGunExtendedRightPose or NormalJumpGunExtendedLeftPose) ||
+        bool normalJumpTarget =
+            IsRightFacingNormalJumpPose(targetPose) ||
+            IsLeftFacingNormalJumpPose(targetPose);
+        if (!IsSpinJumpPose(sourcePose) || !normalJumpTarget ||
             ReadPoseXDirection(bus, sourcePose) != ReadPoseXDirection(bus, targetPose))
         {
-            // The six spin/Space/Screw tables emit only same-facing `$13/$14` on a Shoot
-            // match. This specialized entry point is never the dispatcher for another
-            // target family; such a request is a caller contract violation.
+            // The six spin/Space/Screw input tables emit only same-facing normal-jump
+            // records when aim or Shoot cancels rotation. A different movement family is
+            // owned by the spin-direction or landing initializers instead.
             throw new InvalidOperationException(
-                $"Spin-fire transition ${sourcePose:X2} -> ${targetPose:X2} is not a same-facing retail route.");
+                $"Spin-to-normal-jump transition ${sourcePose:X2} -> ${targetPose:X2} is not a same-facing retail route.");
         }
 
         LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
@@ -75,6 +78,30 @@ public sealed partial class SamusState
 
         InitializeAnimation(bus, initialFrame: 0);
         return true;
+    }
+
+    /// <summary>
+    /// Compatibility name for the `$13/$14` Fire subset. Keeping this narrow wrapper makes
+    /// existing focused tests readable while all input-table exits share one native handler.
+    /// </summary>
+    public bool TryApplySpinToNormalJumpFireTransition(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        byte targetPose,
+        ushort nmiFrameCounter,
+        ushort controllerNewInput)
+    {
+        if (targetPose is not (NormalJumpGunExtendedRightPose or NormalJumpGunExtendedLeftPose))
+        {
+            throw new InvalidOperationException(
+                $"Spin-fire compatibility route requires pose $13/$14, not ${targetPose:X2}.");
+        }
+        return TryApplySpinToNormalJumpTransition(
+            bus,
+            level,
+            targetPose,
+            nmiFrameCounter,
+            controllerNewInput);
     }
 
     public bool TryApplyAerialTurn(

@@ -222,10 +222,11 @@ public sealed partial class SamusState
     /// and the block-only expansion collision used when unmorphing.
     /// </summary>
     /// <remarks>
-    /// `$37/$38` shrink radius 16 to 7 and command seven moves center Y down nine pixels;
-    /// this keeps the old crouching bottom boundary exactly fixed. `$3D/$3E` expand 7 to
-    /// 16 through `$91:FDAE`; floor collision normally moves center up nine. If both sides
-    /// constrain a radius-seven body, `$91:FFA7` rejects the target and keeps Samus morphed.
+    /// `$37/$38` shrink the current humanoid radius to seven and command seven moves center
+    /// Y down by the exact radius difference; crouching therefore moves nine pixels, while
+    /// compact straight-down aerial art moves three. `$3D/$3E` expand 7 to 16 through
+    /// `$91:FDAE`; floor collision normally moves center up nine. If both sides constrain a
+    /// radius-seven body, `$91:FFA7` rejects the target and keeps Samus morphed.
     /// </remarks>
     public bool TryApplyMorphTransition(
         ISnesAddressSpace bus,
@@ -236,9 +237,14 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
 
-        bool startsMorphingRight = IsRightFacingCrouchingPose(Pose) &&
+        // `$91:F7CE` does not require movement type five. Falling straight-down `$2D/$2E`
+        // and spin-jump input tables can select the same `$37/$38` initializer. The literal
+        // previous-movement-type test below even has a dedicated type-three side effect.
+        // Validate only the facing-preserving relationship guaranteed by the ROM table.
+        byte sourceDirection = ReadPoseXDirection(bus);
+        bool startsMorphingRight = sourceDirection == 8 &&
             targetPose == MorphingTransitionRightPose;
-        bool startsMorphingLeft = IsLeftFacingCrouchingPose(Pose) &&
+        bool startsMorphingLeft = sourceDirection == 4 &&
             targetPose == MorphingTransitionLeftPose;
         bool startsMorphing = startsMorphingRight || startsMorphingLeft;
         bool startsUnmorphingRight =
@@ -270,9 +276,26 @@ public sealed partial class SamusState
             if (!EquippedItems.HasAny(SamusEquipmentFlags.MorphBall))
                 return false;
 
+            byte previousMovementType = ReadMovementType(bus);
+            ushort previousRadius = Kinematics.YRadius;
             Pose = targetPose;
             RefreshCollisionRadii(bus);
-            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + 9));
+            if (Kinematics.YRadius > previousRadius)
+            {
+                throw new InvalidDataException(
+                    $"Morph entry ${targetPose:X2} expanded radius {previousRadius} -> {Kinematics.YRadius}.");
+            }
+            Kinematics.YPosition = unchecked((ushort)(
+                Kinematics.YPosition + previousRadius - Kinematics.YRadius));
+
+            // `$91:F7D6-$F7E4` deliberately recognizes a spin-jump source and forces mode
+            // two so the compact body retains decelerating aerial momentum after morphing.
+            if (previousMovementType == 3)
+                HorizontalSpeed.AccelerationMode = 2;
+
+            // This is `$91:F7E7`, not the arm-cannon flare counter. Bomb-spread charging is
+            // invalid once the body has entered either ordinary or Spring Ball form.
+            BombSpreadChargeTimeoutCounter = 0;
 
             // Prospective command seven also cancels an active bounce before starting the
             // transition. Ordinary crouch entry normally sees zero, but retaining the

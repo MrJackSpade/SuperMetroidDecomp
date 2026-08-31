@@ -224,6 +224,13 @@ public static class SamusBlockCollision
                         // discards its carry. The negative area-table family can publish
                         // carry from setup; none of the retail movement-owned entries in
                         // the translated room set do so, so its collision result is air.
+                        if (block.Behavior == 0x46 &&
+                            (plms is null || !plms.TryNotifyScrollTouch(block.Index)))
+                        {
+                            throw new InvalidOperationException(
+                                $"Scroll trigger block {block.Index} has no active $B703 PLM owner; " +
+                                $"live=[{string.Join(',', plms?.ScrollPlms.Select(scroll => scroll.BlockIndex) ?? [])}].");
+                        }
                         break;
 
                     case 10:
@@ -484,6 +491,16 @@ public static class SamusBlockCollision
 
                     case 2:
                     case 3:
+                        if (block.CollisionType == 3 && block.Behavior == 0x46 &&
+                            (plms is null || !plms.TryNotifyScrollTouch(block.Index)))
+                        {
+                            throw new InvalidOperationException(
+                                $"Scroll trigger block {block.Index} has no active $B703 PLM owner; " +
+                                $"live=[{string.Join(',', plms?.ScrollPlms.Select(scroll => scroll.BlockIndex) ?? [])}].");
+                        }
+                        // Every special-air setup on this route returns carry clear, so the
+                        // wake-up side effect never turns the invisible trigger into terrain.
+                        break;
                     case 4:
                     case 6:
                     case 7:

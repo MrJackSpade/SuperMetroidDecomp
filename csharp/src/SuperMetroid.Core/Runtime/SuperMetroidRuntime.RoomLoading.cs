@@ -227,6 +227,15 @@ public sealed partial class SuperMetroidRuntime
         DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, Samus);
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
 
+        // `$82:E8DD/$82:EB93` promotes a departing elevator's global status from one to
+        // two after the destination PLMs, door ASM, and setup ASM have been created. Our
+        // room constructor initializes enemies in one host call, so publish that carried
+        // status immediately before Enemies.Load: the destination elevator initializer
+        // must see two and place itself at parameter 2 instead of clearing the journey.
+        bool arrivingByElevator = Enemies.ElevatorStatus == ElevatorActorStatus.Departing;
+        if (arrivingByElevator)
+            Enemies.PrepareElevatorArrival();
+
         // The load-station record established only the first room. Once bank $94 publishes
         // a door definition, that definition and its destination header become authoritative.
         ActiveLoadStation = null;
@@ -369,6 +378,16 @@ public sealed partial class SuperMetroidRuntime
                 System.HasAnyBossBits(room.AreaIndex, (BossBits)mask),
             hasEvent: System.HasEvent,
             setEvent: System.SetEvent);
+
+        // Scroll PLMs are collision objects, not room-main-ASM heuristics. Their setup
+        // rewrites authored trigger/extension blocks during LoadRoomPLM, and Samus contact
+        // later executes the bank-$8F byte-pair program which opens or closes camera cells.
+        // Loading this family generically is what lets tall rooms such as Parlor reveal
+        // their shaft while keeping unopened branches behind genuine red boundaries.
+        Plms.LoadScrollPopulation(
+            _addressSpace,
+            LevelData,
+            room.State.PlmPointer);
 
         // Permanent item PLMs occupy the same descending forty-slot pool as every other
         // room object. Their three contiguous cartridge header tables cover exposed,

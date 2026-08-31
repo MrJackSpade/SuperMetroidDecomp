@@ -34,7 +34,8 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
-        bool elevatorIsMoving = false)
+        bool elevatorIsMoving = false,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -58,7 +59,8 @@ public static class SamusGroundedMovement
                 samus.Kinematics,
                 displacement: 1 << 16,
                 scanLeftToRight: (nmiFrameCounter & 1) == 0,
-                includeSolidEnemies: false);
+                includeSolidEnemies: false,
+                plms: plms);
         }
 
         // `$90:A3A8` is the only write in the ordinary no-elevator path. In particular,
@@ -76,7 +78,8 @@ public static class SamusGroundedMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -100,7 +103,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal);
+            requestedHorizontal,
+            plms: plms);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -108,7 +112,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus,
-            nmiFrameCounter);
+            nmiFrameCounter,
+            plms);
 
         // $90:A3A7-$90:A3D7 cancels speed boost and clears extra speed, base speed, and
         // acceleration mode after both movement calls. Speed-booster bookkeeping itself is
@@ -125,7 +130,8 @@ public static class SamusGroundedMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -149,7 +155,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal);
+            requestedHorizontal,
+            plms: plms);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -157,7 +164,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus,
-            nmiFrameCounter);
+            nmiFrameCounter,
+            plms);
 
         // Standing's post-movement cleanup is direction-independent.
         speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
@@ -173,7 +181,8 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
-        ushort controllerInput = 0)
+        ushort controllerInput = 0,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -215,7 +224,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal);
+            requestedHorizontal,
+            plms: plms);
 
         // $90:93B1 invokes Samus_ClearXSpeedIfColl immediately after block collision. Total
         // speed deliberately remains published: the following grounding routine reads it
@@ -227,7 +237,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus,
-            nmiFrameCounter);
+            nmiFrameCounter,
+            plms);
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -239,7 +250,8 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
-        ushort controllerInput = 0)
+        ushort controllerInput = 0,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -273,7 +285,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal);
+            requestedHorizontal,
+            plms: plms);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -281,7 +294,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus,
-            nmiFrameCounter);
+            nmiFrameCounter,
+            plms);
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -295,7 +309,8 @@ public static class SamusGroundedMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -353,7 +368,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal);
+            requestedHorizontal,
+            plms: plms);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -361,7 +377,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus,
-            nmiFrameCounter);
+            nmiFrameCounter,
+            plms);
 
         // `$90:A685` calls `Samus_CancelSpeedBoost` on every turn frame. This matters even
         // without the Speed Booster item: `$91:F8D3` folded the numeric extra component but
@@ -381,7 +398,8 @@ public static class SamusGroundedMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -419,7 +437,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal);
+            requestedHorizontal,
+            plms: plms);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -429,7 +448,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus,
-            nmiFrameCounter);
+            nmiFrameCounter,
+            plms);
         return new GroundedMovementResult(horizontal, vertical);
     }
 
@@ -467,7 +487,8 @@ public static class SamusGroundedMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -491,7 +512,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal);
+            requestedHorizontal,
+            plms: plms);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -502,7 +524,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus,
-            nmiFrameCounter);
+            nmiFrameCounter,
+            plms);
 
         // `$90:A766-$A77F` cancels speed boost and clears both run/base components plus
         // acceleration mode on every frame. The speed-booster counters themselves remain
@@ -522,7 +545,8 @@ public static class SamusGroundedMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -547,7 +571,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal);
+            requestedHorizontal,
+            plms: plms);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -555,7 +580,8 @@ public static class SamusGroundedMovement
             bus,
             level,
             samus,
-            nmiFrameCounter);
+            nmiFrameCounter,
+            plms);
         speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
@@ -571,7 +597,8 @@ public static class SamusGroundedMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms)
     {
         int displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
@@ -585,7 +612,8 @@ public static class SamusGroundedMovement
             level,
             samus.Kinematics,
             displacement,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+            scanLeftToRight: (nmiFrameCounter & 1) == 0,
+            plms: plms);
     }
 
 }

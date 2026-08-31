@@ -217,7 +217,8 @@ public sealed partial class SamusState
         RoomLevelData level,
         byte? prospectivePose,
         bool currentXSpeedKilledByBlock,
-        out BlockMoveResult? onePixelProbe)
+        out BlockMoveResult? onePixelProbe,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -237,7 +238,8 @@ public sealed partial class SamusState
             bus,
             level,
             Kinematics,
-            onePixelForward);
+            onePixelForward,
+            plms: plms);
         return onePixelProbe.Value.Collided
             ? SelectRanIntoWallPose(bus, target)
             : null;

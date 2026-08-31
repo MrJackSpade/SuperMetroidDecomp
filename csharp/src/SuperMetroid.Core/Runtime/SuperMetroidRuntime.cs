@@ -1645,7 +1645,8 @@ public sealed partial class SuperMetroidRuntime
                         LevelData,
                         Samus,
                         Controller1.Current,
-                        NmiFrameCounter);
+                        NmiFrameCounter,
+                        Plms);
                     grappleOwnsMovement = true;
                 }
 
@@ -1810,8 +1811,15 @@ public sealed partial class SuperMetroidRuntime
                 // translated special movement owners above take priority; an otherwise
                 // locked standing body must not run generic ground collision or drift while
                 // state $20 waits at the Ceres elevator.
-                else if (Samus.InputLocked)
+                else if (Samus.InputLocked &&
+                    !(SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0))
                 {
+                    // Controller-locked commands normally install beta no-op. Ordinary
+                    // elevators are the sole exception: their command also selects a
+                    // forward-facing pose and nonzero `$0E18`, whose `$90:A392` handler
+                    // must continue the one-pixel downward scan while input remains locked.
+                    // Suppressing that scan lets the carrier pass straight through the
+                    // real type-$9 exit blocks and drift forever beyond the room allocation.
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
                 }
@@ -1828,7 +1836,8 @@ public sealed partial class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             NmiFrameCounter,
-                            elevatorIsMoving: ElevatorStatus != 0);
+                            elevatorIsMoving: ElevatorStatus != 0,
+                            plms: Plms);
                         break;
                     case SamusState.FacingRightNormalPose:
                     case SamusState.StandingAimUpRightPose:
@@ -1838,7 +1847,8 @@ public sealed partial class SuperMetroidRuntime
                         _addressSpace,
                         LevelData,
                         Samus,
-                        NmiFrameCounter);
+                        NmiFrameCounter,
+                        Plms);
                         break;
                     case SamusState.MovingRightNormalPose:
                     case SamusState.MovingRightGunExtendedPose:
@@ -1850,7 +1860,8 @@ public sealed partial class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             NmiFrameCounter,
-                            Controller1.Current);
+                            Controller1.Current,
+                            Plms);
                         break;
                     case SamusState.FacingLeftNormalPose:
                     case SamusState.StandingAimUpLeftPose:
@@ -1860,7 +1871,8 @@ public sealed partial class SuperMetroidRuntime
                         _addressSpace,
                         LevelData,
                         Samus,
-                        NmiFrameCounter);
+                        NmiFrameCounter,
+                        Plms);
                         break;
                     case SamusState.MovingLeftNormalPose:
                     case SamusState.MovingLeftGunExtendedPose:
@@ -1872,7 +1884,8 @@ public sealed partial class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             NmiFrameCounter,
-                            Controller1.Current);
+                            Controller1.Current,
+                            Plms);
                         break;
                     case SamusState.MoonwalkFacingLeftPose:
                     case SamusState.MoonwalkFacingRightPose:
@@ -1884,7 +1897,8 @@ public sealed partial class SuperMetroidRuntime
                             _addressSpace,
                             LevelData,
                             Samus,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                         break;
                     case SamusState.RanIntoWallRightPose:
                     case SamusState.RanIntoWallLeftPose:
@@ -1896,7 +1910,8 @@ public sealed partial class SuperMetroidRuntime
                             _addressSpace,
                             LevelData,
                             Samus,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                         break;
                     case SamusState.TurningRightToLeftPose:
                     case SamusState.TurningLeftToRightPose:
@@ -1930,7 +1945,8 @@ public sealed partial class SuperMetroidRuntime
                                 _addressSpace,
                                 LevelData,
                                 Samus,
-                                NmiFrameCounter);
+                                NmiFrameCounter,
+                                Plms);
                         }
                         else
                         {
@@ -1938,7 +1954,8 @@ public sealed partial class SuperMetroidRuntime
                                 _addressSpace,
                                 LevelData,
                                 Samus,
-                                NmiFrameCounter);
+                                NmiFrameCounter,
+                                Plms);
                         }
                         break;
                     case SamusState.NormalLandingRightPose:
@@ -1957,7 +1974,8 @@ public sealed partial class SuperMetroidRuntime
                             _addressSpace,
                             LevelData,
                             Samus,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                         break;
                     case SamusState.MorphBallGroundRightPose:
                     case SamusState.MorphBallGroundLeftPose:
@@ -2020,7 +2038,8 @@ public sealed partial class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             Controller1.Current,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                         break;
                     case SamusState.SpinJumpRightPose:
                     case SamusState.SpinJumpLeftPose:
@@ -2044,7 +2063,8 @@ public sealed partial class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             Controller1.Current,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                         break;
                     case SamusState.DamageBoostRightPose:
                     case SamusState.DamageBoostLeftPose:
@@ -2053,7 +2073,8 @@ public sealed partial class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             Controller1.Current,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                         break;
                     case SamusState.TurningRightToLeftJumpPose:
                     case SamusState.TurningLeftToRightJumpPose:
@@ -2075,7 +2096,8 @@ public sealed partial class SuperMetroidRuntime
                             _addressSpace,
                             LevelData,
                             Samus,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                         break;
                     case SamusState.FallingRightPose:
                     case SamusState.FallingLeftPose:
@@ -2094,7 +2116,8 @@ public sealed partial class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             Controller1.Current,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                         break;
                     case SamusState.CrouchingRightPose:
                     case SamusState.CrouchingLeftPose:
@@ -2372,7 +2395,8 @@ public sealed partial class SuperMetroidRuntime
                                 "Ran-into-wall probe requires active room level data."),
                             prospectiveRunningPose,
                             currentRunHitWall,
-                            out BlockMoveResult? onePixelProbe);
+                            out BlockMoveResult? onePixelProbe,
+                            Plms);
                     LastRanIntoWallProbe = onePixelProbe;
                 }
 
@@ -2607,9 +2631,9 @@ public sealed partial class SuperMetroidRuntime
                                 Samus.ApplySpringBallJump(_addressSpace, target);
                                 break;
                             case var (source, target)
-                                when ((SamusState.IsRightFacingCrouchingPose(source) &&
+                                when ((SamusState.ReadPoseXDirection(_addressSpace, source) == 8 &&
                                        target == SamusState.MorphingTransitionRightPose) ||
-                                      (SamusState.IsLeftFacingCrouchingPose(source) &&
+                                      (SamusState.ReadPoseXDirection(_addressSpace, source) == 4 &&
                                        target == SamusState.MorphingTransitionLeftPose) ||
                                       (SamusState.IsStableBallPose(source) &&
                                        target is SamusState.UnmorphingTransitionRightPose or
@@ -2778,16 +2802,18 @@ public sealed partial class SuperMetroidRuntime
                                 break;
                             case var (source, target)
                                 when SamusState.IsSpinJumpPose(source) &&
-                                     target is SamusState.NormalJumpGunExtendedRightPose or
-                                         SamusState.NormalJumpGunExtendedLeftPose:
-                                // Fire cancels the compact spinning body through the normal-
-                                // jump initializer without restarting the jump arc. The helper
-                                // also performs $91:F404's required expansion collision; a
-                                // rejected body simply leaves the source spin pose installed.
-                                Samus.TryApplySpinToNormalJumpFireTransition(
+                                     (SamusState.IsRightFacingNormalJumpPose(target) ||
+                                      SamusState.IsLeftFacingNormalJumpPose(target)):
+                                // Aim and Fire cancel the compact spinning body through the
+                                // same normal-jump initializer without restarting the jump
+                                // arc. `$1A -> $18`, for example, is the ordinary left-spin
+                                // Down input used to shoot a floor hatch. The shared helper
+                                // performs changed-pose collision for every radius expansion;
+                                // a rejected body leaves the source spin pose installed.
+                                Samus.TryApplySpinToNormalJumpTransition(
                                     _addressSpace,
                                     LevelData ?? throw new InvalidOperationException(
-                                        "Spin-fire transition requires active room level data."),
+                                        "Spin-to-normal-jump transition requires active room level data."),
                                     targetPose,
                                     NmiFrameCounter,
                                     Controller1.NewlyPressed);

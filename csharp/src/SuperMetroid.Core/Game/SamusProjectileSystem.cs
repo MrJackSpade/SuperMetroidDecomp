@@ -141,6 +141,12 @@ public sealed partial class SamusProjectileSystem
     public SamusProjectileFrameResult LastFrameResult { get; private set; }
 
     /// <summary>
+    /// Newly allocated projectile before its first pre-instruction, or null when this frame
+    /// did not fire. This deliberately survives same-frame collision/window deletion.
+    /// </summary>
+    public SamusProjectileSpawnSnapshot? LastFiredProjectileSnapshot { get; private set; }
+
+    /// <summary>
     /// Executes <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D for the equipped beam.
     /// </summary>
     /// <remarks>
@@ -442,6 +448,16 @@ public sealed partial class SamusProjectileSystem
         bool collisionStartedExplosion = false;
         bool projectileDeleted = false;
 
+        LastFiredProjectileSnapshot = firedSlot is { } newSlot
+            ? new SamusProjectileSpawnSnapshot(
+                newSlot,
+                _slots[newSlot].Direction,
+                _slots[newSlot].XPosition,
+                _slots[newSlot].YPosition,
+                _slots[newSlot].XVelocity,
+                _slots[newSlot].YVelocity)
+            : null;
+
         // `$90:AECE` walks the complete ten-slot arrays from byte index $12 down to zero.
         // Bombs were handled by the companion class first; preserve the ordinary half's
         // descending $08->$00 order here because instruction deletion changes the counter.
@@ -692,6 +708,7 @@ public sealed partial class SamusProjectileSystem
         Array.Clear(_flareFrames);
         Array.Clear(_flareTimers);
         LastFrameResult = default;
+        LastFiredProjectileSnapshot = null;
         LastBeamChargePaletteStep = default;
         LastVisorPaletteStep = default;
         SamusChargePaletteIndex = 0;

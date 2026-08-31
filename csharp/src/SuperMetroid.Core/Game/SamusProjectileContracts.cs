@@ -137,6 +137,19 @@ public readonly record struct SamusProjectileFrameResult(
     bool CollisionStartedExplosion,
     bool ProjectileDeleted);
 
+/// <summary>
+/// Immutable producer-phase evidence captured before the new projectile's first movement.
+/// A beam may collide or leave the native movement window in that same alpha pass, so the
+/// mutable slot can already be clear by the time a debugger inspects the frame result.
+/// </summary>
+public readonly record struct SamusProjectileSpawnSnapshot(
+    int SlotIndex,
+    ushort Direction,
+    ushort XPosition,
+    ushort YPosition,
+    short XVelocity,
+    short YVelocity);
+
 /// <summary>Semantic branch and raw table/timer evidence from one `$91:D743` call.</summary>
 public readonly record struct SamusBeamChargePaletteStepResult(
     SamusBeamChargePaletteAction Action,

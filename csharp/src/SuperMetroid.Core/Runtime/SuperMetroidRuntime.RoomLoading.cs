@@ -369,10 +369,11 @@ public sealed partial class SuperMetroidRuntime
         // Setup_ColoredDoor is synchronous room-load collision state, not a later visual
         // animation. Apply it before any gameplay projectile can inspect the decompressed
         // blue-cap BTS that sits underneath yellow/green/red door PLMs.
-        Plms.ApplyColoredDoorSetups(
+        Plms.LoadColoredDoorPopulation(
             _addressSpace,
             LevelData,
-            room.State.PlmPointer);
+            room.State.PlmPointer,
+            System);
 
         // Load the room-authored glass before enemy initialization. The head's bank-$A9
         // shot callback hardcodes the highest PLM room-argument word, so slot allocation is

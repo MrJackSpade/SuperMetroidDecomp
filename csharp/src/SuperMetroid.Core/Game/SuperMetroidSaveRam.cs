@@ -53,6 +53,7 @@ public sealed class SuperMetroidSaveRam
     private const int BossBitsOffset = 0x0068;
     private const int RoomChozoBitsOffset = 0x0070;
     private const int CollectedItemBitsOffset = 0x00b0;
+    private const int OpenedDoorBitsOffset = 0x00f0;
     private const int SaveStationOffset = 0x0156;
     private const int AreaOffset = 0x0158;
 
@@ -110,6 +111,9 @@ public sealed class SuperMetroidSaveRam
             CollectedItemBytes: ReadSramBytes(
                 slotOffset + CollectedItemBitsOffset,
                 Bank80SystemState.ItemBitByteCount),
+            OpenedDoorBytes: ReadSramBytes(
+                slotOffset + OpenedDoorBitsOffset,
+                Bank80SystemState.DoorBitByteCount),
             SaveStation: ReadSramWord(slotOffset + SaveStationOffset),
             Area: ReadSramWord(slotOffset + AreaOffset));
     }
@@ -186,6 +190,12 @@ public sealed class SuperMetroidSaveRam
                 "A save snapshot requires exactly 64 collected-item bytes.");
         }
         snapshot.CollectedItemBytes.CopyTo(payload, CollectedItemBitsOffset);
+        if (snapshot.OpenedDoorBytes.Length != Bank80SystemState.DoorBitByteCount)
+        {
+            throw new InvalidDataException(
+                "A save snapshot requires exactly 64 opened-door bytes.");
+        }
+        snapshot.OpenedDoorBytes.CopyTo(payload, OpenedDoorBitsOffset);
         WriteWord(payload, SaveStationOffset, snapshot.SaveStation);
         WriteWord(payload, AreaOffset, snapshot.Area);
 
@@ -292,6 +302,7 @@ public sealed record SuperMetroidSaveSlot(
     byte[] BossBytes,
     byte[] RoomChozoBytes,
     byte[] CollectedItemBytes,
+    byte[] OpenedDoorBytes,
     ushort SaveStation,
     ushort Area)
 {
@@ -326,6 +337,7 @@ public sealed record SuperMetroidSaveSlot(
         system.LoadBossBytes(BossBytes);
         system.LoadRoomChozoBytes(RoomChozoBytes);
         system.LoadCollectedItemBytes(CollectedItemBytes);
+        system.LoadOpenedDoorBytes(OpenedDoorBytes);
     }
 }
 
@@ -360,6 +372,8 @@ public sealed record SuperMetroidSaveSnapshot
         new byte[Bank80SystemState.RoomChozoBitByteCount];
     public byte[] CollectedItemBytes { get; init; } =
         new byte[Bank80SystemState.ItemBitByteCount];
+    public byte[] OpenedDoorBytes { get; init; } =
+        new byte[Bank80SystemState.DoorBitByteCount];
 
     public static SuperMetroidSaveSnapshot Capture(
         SamusState samus,
@@ -373,6 +387,7 @@ public sealed record SuperMetroidSaveSnapshot
         var bosses = new byte[Bank80SystemState.AreaCount];
         var roomChozo = new byte[Bank80SystemState.RoomChozoBitByteCount];
         var collectedItems = new byte[Bank80SystemState.ItemBitByteCount];
+        var openedDoors = new byte[Bank80SystemState.DoorBitByteCount];
         for (int index = 0; index < events.Length; index++)
             events[index] = system.GetEventByteRaw(index);
         for (int index = 0; index < bosses.Length; index++)
@@ -381,6 +396,8 @@ public sealed record SuperMetroidSaveSnapshot
             roomChozo[index] = system.GetRoomChozoByteRaw(index);
         for (int index = 0; index < collectedItems.Length; index++)
             collectedItems[index] = system.GetCollectedItemByteRaw(index);
+        for (int index = 0; index < openedDoors.Length; index++)
+            openedDoors[index] = system.GetOpenedDoorByteRaw(index);
 
         return new SuperMetroidSaveSnapshot
         {
@@ -406,6 +423,7 @@ public sealed record SuperMetroidSaveSnapshot
             BossBytes = bosses,
             RoomChozoBytes = roomChozo,
             CollectedItemBytes = collectedItems,
+            OpenedDoorBytes = openedDoors,
         };
     }
 }

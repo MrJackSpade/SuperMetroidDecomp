@@ -336,6 +336,9 @@ internal static partial class Program
         sourceSystem.SetRoomChozoBit(0);
         sourceSystem.SetRoomChozoBit(91);
         sourceSystem.SetRoomChozoBit(511);
+        sourceSystem.SetOpenedDoorBit(0);
+        sourceSystem.SetOpenedDoorBit(91);
+        sourceSystem.SetOpenedDoorBit(511);
         sourceSystem.SetEvent((int)EventNumber.TourianUnlocked);
         sourceSystem.SetBossBits(2, BossBits.AreaBoss | BossBits.AreaTorizo);
         var sourceSamus = new SamusState
@@ -359,6 +362,9 @@ internal static partial class Program
         AssertTrue(restoredSystem.HasRoomChozoBit(0), "first room Chozo bit round-trips");
         AssertTrue(restoredSystem.HasRoomChozoBit(91), "middle room Chozo bit round-trips");
         AssertTrue(restoredSystem.HasRoomChozoBit(511), "last room Chozo bit round-trips");
+        AssertTrue(restoredSystem.HasOpenedDoorBit(0), "first opened-door bit round-trips");
+        AssertTrue(restoredSystem.HasOpenedDoorBit(91), "middle opened-door bit round-trips");
+        AssertTrue(restoredSystem.HasOpenedDoorBit(511), "last opened-door bit round-trips");
         AssertTrue(restoredSystem.HasEvent((int)EventNumber.TourianUnlocked),
             "event bytes round-trip through SRAM");
         AssertTrue(restoredSystem.HasAnyBossBits(2, BossBits.AreaBoss),

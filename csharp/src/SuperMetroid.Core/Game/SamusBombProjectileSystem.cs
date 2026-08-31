@@ -565,6 +565,15 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
+        // Power Bombs reach the same colored-door pre-instruction as beams and missiles.
+        // This is the only accepted yellow-door family; normal bombs are still published
+        // and rejected with the cartridge's dud sound by the resident PLM.
+        if (block.CollisionType == 12 && block.Behavior == 0x44 &&
+            roomPlms?.TryNotifyColoredDoorHit(block.Index, projectileType) == true)
+        {
+            return;
+        }
+
         // $94:A052 dispatches these types to immediate clear/set-carry routines. They
         // spawn no PLM and do not alter the level/BTS arrays, so recording the visit is
         // the complete observable effect for this runtime.

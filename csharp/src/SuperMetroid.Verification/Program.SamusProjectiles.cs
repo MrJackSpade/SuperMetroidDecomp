@@ -1565,6 +1565,115 @@ static void VerifySamusPowerBeamProjectiles()
             $"colored-door setup preserves tile payload for header {index}");
     }
 
+    // Exercise the resident actor rather than setup alone. These pointers reproduce the
+    // header/list graph consumed by the translation: header +2 selects the initial list,
+    // that list links the closed-blue, hit, and colored-closed draw records, and the hit
+    // list embeds its threshold byte plus opening-list pointer at the native odd offsets.
+    const ushort residentDoorPopulation = 0x9100;
+    const ushort residentDoorArgument = 37;
+    const int residentDoorBlock = 3 * 16 + 5;
+    WriteTestWord(bus, 0x84c88c, 0xe000);
+    WriteTestWord(bus, 0x84e002, 0xe100);
+    WriteTestWord(bus, 0x84e006, 0xe200);
+    WriteTestWord(bus, 0x84e00e, 0xe300);
+    bus.WriteByte(0x84e202, 5);
+    WriteTestWord(bus, 0x84e203, 0xe400);
+    WriteTestWord(bus, 0x84e205, 1);
+    WriteTestWord(bus, 0x84e207, 0xe320);
+    WriteTestWord(bus, 0x84e400, 12);
+    WriteTestWord(bus, 0x84e402, 0xe340);
+    WriteTestWord(bus, 0x84e105, 0xe360);
+    WriteDoorDrawList(bus, 0x84e300, [0x0001, 0xc123, 0x0000]);
+    WriteDoorDrawList(bus, 0x84e320, [0x0001, 0xc124, 0x0000]);
+    WriteDoorDrawList(bus, 0x84e340, [0x0001, 0xc125, 0x0000]);
+    WriteDoorDrawList(bus, 0x84e360, [0x0001, 0x8126, 0x0000]);
+    WriteTestWord(bus, 0x8f0000 | residentDoorPopulation, 0xc88a);
+    bus.WriteByte(0x8f0000 | (residentDoorPopulation + 2), 5);
+    bus.WriteByte(0x8f0000 | (residentDoorPopulation + 3), 3);
+    WriteTestWord(bus, 0x8f0000 | (residentDoorPopulation + 4), residentDoorArgument);
+    WriteTestWord(bus, 0x8f0000 | (residentDoorPopulation + 6), 0);
+
+    var residentWords = new ushort[16 * 16];
+    residentWords[residentDoorBlock] = 0x8120;
+    RoomLevelData residentDoorLevel = new(
+        16,
+        16,
+        residentWords,
+        new byte[residentWords.Length],
+        new ushort[residentWords.Length],
+        new byte[8]);
+    var residentDoorSystem = new Bank80SystemState();
+    var residentDoorPlms = new RoomPlmSystem();
+    AssertEqual(1, residentDoorPlms.LoadColoredDoorPopulation(
+            bus,
+            residentDoorLevel,
+            residentDoorPopulation,
+            residentDoorSystem),
+        "resident colored-door loader allocates red door actor");
+    BackgroundTilemapStreamer residentDoorStreamer =
+        residentDoorLevel.CreateBackgroundStreamer();
+    residentDoorPlms.Step(
+        bus, residentDoorLevel, residentDoorStreamer, 0x1000, 0x1000, 0);
+
+    AssertTrue(residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0000),
+        "resident red door receives power-beam family for native rejection");
+    residentDoorPlms.Step(
+        bus, residentDoorLevel, residentDoorStreamer, 0x1000, 0x1000, 0);
+    AssertTrue(residentDoorPlms.SoundRequests.Contains(new PlmSoundRequest(2, 0x57, 6)),
+        "wrong colored-door weapon queues native dud sound");
+    AssertEqual(0, residentDoorPlms.ColoredDoors.Single().HitCounter,
+        "wrong colored-door weapon does not advance threshold counter");
+
+    for (int hit = 1; hit <= 5; hit++)
+    {
+        AssertTrue(residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0100),
+            $"red door accepts missile collision {hit}");
+        residentDoorPlms.Step(
+            bus, residentDoorLevel, residentDoorStreamer, 0x1000, 0x1000, 0);
+    }
+    ColoredDoorPlmSnapshot openingDoor = residentDoorPlms.ColoredDoors.Single();
+    AssertEqual(ColoredDoorPhase.Opening, openingDoor.Phase,
+        "fifth missile selects cartridge opening list");
+    AssertEqual(5, openingDoor.HitCounter,
+        "red door retains exact five-missile threshold");
+    AssertTrue(residentDoorSystem.HasOpenedDoorBit(residentDoorArgument),
+        "opening instruction persists room-argument door bit");
+    AssertTrue(!residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0100),
+        "opening door no longer runs projectile pre-instruction");
+
+    residentDoorPlms.Reset();
+    AssertEqual(0, residentDoorPlms.ColoredDoors.Count,
+        "room reset discards resident colored-door actors");
+    AssertTrue(!residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0100),
+        "room reset cannot leak a hit into the discarded population");
+
+    var reopenedWords = new ushort[16 * 16];
+    reopenedWords[residentDoorBlock] = 0x8120;
+    RoomLevelData reopenedDoorLevel = new(
+        16,
+        16,
+        reopenedWords,
+        new byte[reopenedWords.Length],
+        new ushort[reopenedWords.Length],
+        new byte[8]);
+    var reopenedDoorPlms = new RoomPlmSystem();
+    reopenedDoorPlms.LoadColoredDoorPopulation(
+        bus,
+        reopenedDoorLevel,
+        residentDoorPopulation,
+        residentDoorSystem);
+    reopenedDoorPlms.Step(
+        bus,
+        reopenedDoorLevel,
+        reopenedDoorLevel.CreateBackgroundStreamer(),
+        0x1000,
+        0x1000,
+        0);
+    AssertEqual(0x40, reopenedDoorLevel.GetCollisionBlockByIndex(residentDoorBlock).Behavior,
+        "persisted left-facing red door reloads as ordinary left blue cap");
+    AssertEqual(0, reopenedDoorPlms.ColoredDoors.Count,
+        "persisted colored-door conversion deletes resident actor after draw");
+
     var blueDoorWords = new ushort[width * height];
     var blueDoorBehaviors = new byte[blueDoorWords.Length];
     int blueDoorOrigin = 4 * width + 6;

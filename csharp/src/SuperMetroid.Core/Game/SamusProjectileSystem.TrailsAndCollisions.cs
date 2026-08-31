@@ -528,6 +528,15 @@ public sealed partial class SamusProjectileSystem
         if (roomPlms is null)
             return;
 
+        // Setup_ColoredDoor installs type-$C/BTS-$44 at the cap origin. Its resident
+        // pre-instruction consumes the current projectile family; the ordinary shot-block
+        // table must never see this private door-dispatch value.
+        if (block.Behavior == 0x44 &&
+            roomPlms.TryNotifyColoredDoorHit(block.Index, slot.Type))
+        {
+            return;
+        }
+
         // `$94:9EA6[40..43]` selects the four blue-door entry PLMs. These are not
         // ordinary breakable blocks: setup changes the cap origin to type $8 and the
         // cartridge list opens all four blocks over eighteen frames. Keep this dispatch

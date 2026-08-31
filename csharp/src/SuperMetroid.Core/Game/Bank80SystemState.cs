@@ -48,6 +48,14 @@ public sealed class Bank80SystemState
     /// </summary>
     public const int ItemBitByteCount = 0x40;
 
+    /// <summary>
+    /// Number of bytes in the persistent opened-door table at
+    /// <c>$7E:D8B0-$7E:D8EF</c>. A colored-door PLM's nonnegative room argument is a bit
+    /// index into this table; the bit is set only when the door finishes accepting the
+    /// cartridge-authored number and kind of projectile hits.
+    /// </summary>
+    public const int DoorBitByteCount = 0x40;
+
     // Keep these arrays private. Returning writable arrays would let callers bypass the
     // same masking semantics that the ROM routines enforce and would make watch-window
     // corruption extremely difficult to trace.
@@ -55,6 +63,7 @@ public sealed class Bank80SystemState
     private readonly byte[] _bossBitsByArea = new byte[AreaCount];
     private readonly byte[] _roomChozoBits = new byte[RoomChozoBitByteCount];
     private readonly byte[] _collectedItemBits = new byte[ItemBitByteCount];
+    private readonly byte[] _openedDoorBits = new byte[DoorBitByteCount];
 
     /// <summary>
     /// Creates the bank-$80 state using the game's power-on RNG seed, <c>$0061</c>.
@@ -416,6 +425,61 @@ public sealed class Bank80SystemState
         }
 
         bytes.CopyTo(_collectedItemBits);
+    }
+
+    /// <summary>
+    /// Tests the persistent bit selected by a colored-door PLM argument. Negative room
+    /// arguments are deliberately handled by the PLM owner because the ROM uses bit 15
+    /// as a transient/no-save marker rather than indexing before this allocation.
+    /// </summary>
+    public bool HasOpenedDoorBit(int bitIndex)
+    {
+        (int byteIndex, byte bitMask) = ResolvePersistentRoomBit(
+            bitIndex,
+            DoorBitByteCount,
+            "Opened-door bit index must fit the native 64-byte table.");
+        return (_openedDoorBits[byteIndex] & bitMask) != 0;
+    }
+
+    /// <summary>
+    /// Persists a colored door after its final valid hit, matching the door instruction
+    /// at <c>$84:8A91</c>. Re-entering the room then converts that colored cap into its
+    /// ordinary blue-door counterpart.
+    /// </summary>
+    public void SetOpenedDoorBit(int bitIndex)
+    {
+        (int byteIndex, byte bitMask) = ResolvePersistentRoomBit(
+            bitIndex,
+            DoorBitByteCount,
+            "Opened-door bit index must fit the native 64-byte table.");
+        _openedDoorBits[byteIndex] |= bitMask;
+    }
+
+    /// <summary>Returns one raw opened-door byte for cartridge-compatible SRAM encoding.</summary>
+    public byte GetOpenedDoorByteRaw(int byteIndex)
+    {
+        if ((uint)byteIndex >= DoorBitByteCount)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(byteIndex),
+                byteIndex,
+                "Opened-door byte index must be in the native 64-byte table.");
+        }
+
+        return _openedDoorBits[byteIndex];
+    }
+
+    /// <summary>Restores all persistent opened-door bits from a native save payload.</summary>
+    public void LoadOpenedDoorBytes(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.Length != DoorBitByteCount)
+        {
+            throw new ArgumentException(
+                "An opened-door snapshot must contain exactly 64 bytes.",
+                nameof(bytes));
+        }
+
+        bytes.CopyTo(_openedDoorBits);
     }
 
     /// <summary>

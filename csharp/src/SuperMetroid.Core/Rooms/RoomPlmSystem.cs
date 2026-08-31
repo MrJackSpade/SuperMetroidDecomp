@@ -26,6 +26,7 @@ public sealed partial class RoomPlmSystem
     private const ushort RespawningInstructionList = 0xcd6a;
     private const ushort NonRespawningInstructionList = 0xcda9;
     private const ushort DeleteInstruction = 0x86bc;
+    private const ushort SleepInstruction = 0x86b4;
     private const ushort DrawPlmBlockInstruction = 0x8b17;
     private const ushort QueueSoundLibrary2Maximum6Instruction = 0x8c10;
     private const ushort QueueSoundLibrary2Maximum3Instruction = 0x8c46;
@@ -163,9 +164,14 @@ public sealed partial class RoomPlmSystem
             slot.LoopTimer = 0;
             slot.Item = null;
             slot.Scroll = null;
+            slot.ColoredDoor = null;
         }
         _soundRequests.Clear();
         _tilemapUpdates.Clear();
+        // The progression owner belongs to the room population just discarded. Holding
+        // it past Reset would let an accidentally reused PLM slot persist a hit into the
+        // previous runtime/system-state instance.
+        _coloredDoorSystem = null;
         ResetMotherBrainGlassState();
         ResetCollectibleState();
     }
@@ -990,6 +996,18 @@ public sealed partial class RoomPlmSystem
                 continue;
             }
 
+            if (TryStepColoredDoor(
+                    bus,
+                    level,
+                    streamer,
+                    slot,
+                    layer1XPosition,
+                    layer1YPosition,
+                    bg1XOffset))
+            {
+                continue;
+            }
+
             RunMotherBrainGlassPreInstruction(slot);
             if (!slot.Active)
                 continue;
@@ -1178,6 +1196,15 @@ public sealed partial class RoomPlmSystem
                     OnPlmDeleted(slot);
                     return;
 
+                case SleepInstruction:
+                    // Sleep decrements Y back onto itself and exits. Colored-door hit
+                    // animations use it as the linked idle target, so expose that semantic
+                    // transition while retaining the self-rewinding instruction pointer.
+                    slot.InstructionTimer = 1;
+                    if (slot.ColoredDoor is not null)
+                        slot.ColoredDoor.Phase = ColoredDoorPhase.Waiting;
+                    return;
+
                 default:
                     if (TryExecuteMotherBrainGlassInstruction(bus, slot, instruction))
                         continue;
@@ -1329,7 +1356,33 @@ public sealed partial class RoomPlmSystem
         public CollectiblePlmState? Item { get; set; }
         /// <summary>Semantic state for resident bank-$84 scroll trigger header $B703.</summary>
         public ScrollPlmState? Scroll { get; set; }
+        /// <summary>Semantic state for resident yellow/green/red door-cap PLMs.</summary>
+        public ColoredDoorPlmState? ColoredDoor { get; set; }
     }
+}
+
+internal sealed class ColoredDoorPlmState(
+    ColoredDoorColor color,
+    ColoredDoorOrientation orientation,
+    ushort closedBlueList,
+    ushort hitList,
+    ushort openingList,
+    ushort coloredClosedDraw,
+    byte hitThreshold,
+    ColoredDoorPhase phase)
+{
+    public ColoredDoorColor Color { get; } = color;
+    public ColoredDoorOrientation Orientation { get; } = orientation;
+    public ushort ClosedBlueList { get; } = closedBlueList;
+    public ushort HitList { get; } = hitList;
+    public ushort OpeningList { get; } = openingList;
+    public ushort ColoredClosedDraw { get; } = coloredClosedDraw;
+    public byte HitThreshold { get; } = hitThreshold;
+    public ColoredDoorPhase Phase { get; set; } = phase;
+    public byte HitCounter { get; set; }
+    public bool InitialDrawCompleted { get; set; }
+    public bool HasPendingHit { get; set; }
+    public ushort PendingProjectileType { get; set; }
 }
 
 /// <summary>Observable call to one of the cartridge's three queued-sound libraries.</summary>

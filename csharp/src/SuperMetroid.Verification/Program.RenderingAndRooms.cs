@@ -585,6 +585,75 @@ static void VerifyRoomLevelData()
     Console.WriteLine("  Room level: shared BG1/BTS indexing, collision type, and pixel conversion agree.");
 }
 
+/// <summary>
+/// Exercises bank-$8F's inline room-state selector bytecode without the private cartridge.
+/// </summary>
+static void VerifyCartridgeRoomStateSelection()
+{
+    var bus = new TestAddressSpace();
+    const ushort roomPointer = 0x9000;
+    const int roomAddress = 0x8f0000 | roomPointer;
+
+    // Fixed eleven-byte header. Only area and door-list values are semantically interesting
+    // here; zero dimensions are legal because this test stops before asset construction.
+    bus.WriteBytes(roomAddress,
+    [
+        0x12, 0x03, 0x00, 0x00, 0x00, 0x00, 0x70, 0xa0, 0x00, 0x00, 0x88,
+    ]);
+
+    // Ordered selector program: event, boss bit, Morph Ball+missiles, power bombs, finish.
+    // Finish's following byte is the inline default state header, so its expected pointer is
+    // derived from this exact command layout instead of fabricated by the production code.
+    int selector = roomAddress + 11;
+    WriteTestWord(bus, selector, 0xe612);
+    bus.WriteByte(selector + 2, 0x00);
+    WriteTestWord(bus, selector + 3, 0x9100);
+    WriteTestWord(bus, selector + 5, 0xe629);
+    bus.WriteByte(selector + 7, 0x04);
+    WriteTestWord(bus, selector + 8, 0x9120);
+    WriteTestWord(bus, selector + 10, 0xe652);
+    WriteTestWord(bus, selector + 12, 0x9140);
+    WriteTestWord(bus, selector + 14, 0xe669);
+    WriteTestWord(bus, selector + 16, 0x9160);
+    WriteTestWord(bus, selector + 18, 0xe5e6);
+    const ushort defaultStatePointer = 0x901f;
+
+    // All five state headers may remain zero-filled: State.Pointer alone proves which
+    // branch won, and TestAddressSpace returns zero for every unwritten payload byte.
+    AssertEqual(defaultStatePointer,
+        CartridgeRoomHeader.Load(bus, roomPointer).State.Pointer,
+        "room selector default inline state");
+
+    var eventBytes = new byte[Bank80SystemState.EventByteCount];
+    eventBytes[0] = 1;
+    AssertEqual((ushort)0x9100,
+        CartridgeRoomHeader.Load(bus, roomPointer,
+            new RoomStateSelectionContext(eventBytes, 0, false, false)).State.Pointer,
+        "room selector event branch");
+    AssertEqual((ushort)0x9120,
+        CartridgeRoomHeader.Load(bus, roomPointer,
+            new RoomStateSelectionContext(Array.Empty<byte>(), 0x0004, false, false)).State.Pointer,
+        "room selector boss branch");
+    AssertEqual((ushort)0x9140,
+        CartridgeRoomHeader.Load(bus, roomPointer,
+            new RoomStateSelectionContext(Array.Empty<byte>(), 0, true, false)).State.Pointer,
+        "room selector Morph Ball and missiles branch");
+    AssertEqual((ushort)0x9160,
+        CartridgeRoomHeader.Load(bus, roomPointer,
+            new RoomStateSelectionContext(Array.Empty<byte>(), 0, false, true)).State.Pointer,
+        "room selector power-bomb branch");
+
+    // The interpreter must return at the first successful command; later facts do not
+    // override the event-selected pointer merely because they are also true.
+    AssertEqual((ushort)0x9100,
+        CartridgeRoomHeader.Load(bus, roomPointer,
+            new RoomStateSelectionContext(eventBytes, 0x0004, true, true)).State.Pointer,
+        "room selector preserves cartridge priority");
+
+    Console.WriteLine(
+        "  Room states: event, boss, Morph+missile, power-bomb, default, and priority selectors agree.");
+}
+
 /// <summary>Checks $80:A9DE-$80:AD17 staging geometry and $80:8CD8 NMI destinations.</summary>
 static void VerifyBackgroundTilemapStreamer()
 {

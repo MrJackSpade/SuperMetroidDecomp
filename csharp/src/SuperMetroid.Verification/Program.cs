@@ -93,6 +93,7 @@ VerifyMovedSamusCameraTracking();
 VerifyBackgroundScrollState();
 VerifyLevelBlockTilemapExpansion();
 VerifyRoomLevelData();
+VerifyCartridgeRoomStateSelection();
 VerifyBackgroundTilemapStreamer();
 VerifyFourBitBackgroundRendering();
 VerifyLoRomCrossBankCompressedData();

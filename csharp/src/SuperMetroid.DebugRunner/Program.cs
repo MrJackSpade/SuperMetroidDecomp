@@ -37,6 +37,12 @@ if (args.Length >= 3 && args[0] == "--ceres-destruction-audit")
     return CeresDestructionAudit.Run(destructionRomPath, destructionOutputDirectory);
 }
 
+if (args.Length >= 2 && args[0] == "--early-route-audit")
+{
+    string earlyRouteRomPath = string.Join(' ', args[1..]).Trim('"');
+    return EarlyRouteAudit.Run(earlyRouteRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--blue-hopper-audit")
 {
     string hopperRomPath = string.Join(' ', args[1..]).Trim('"');

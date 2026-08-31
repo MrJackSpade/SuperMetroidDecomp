@@ -39,7 +39,7 @@ public sealed partial class SuperMetroidRuntime
                 $"$83:{door.Pointer:X4}'s destination $8F:{door.DestinationRoomPointer:X4}.");
         }
 
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(_addressSpace, door.DestinationRoomPointer);
+        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
         if (room.AreaIndex != 6)
         {
             throw new InvalidDataException(
@@ -92,18 +92,10 @@ public sealed partial class SuperMetroidRuntime
                 $"$8F:{door.DestinationRoomPointer:X4}.");
         }
 
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
-            _addressSpace,
-            door.DestinationRoomPointer);
-        if (room.AreaIndex != requestedArea)
-        {
-            throw new InvalidDataException(
-                $"Load station {requestedArea}:{stationIndex} targets room area " +
-                $"{room.AreaIndex}.");
-        }
-
         // Apply progression before room construction. Enemy and PLM initialization query
-        // boss/event/item bytes synchronously, while beam graphics depend on equipped beams.
+        // boss/event/item bytes synchronously, while room-state selection and beam graphics
+        // depend on those same words. In particular, loading a post-Morph-Ball save must not
+        // accidentally construct the untouched new-game version of Blue Brinstar.
         Samus = new SamusState
         {
             Pose = SamusState.FacingRightNormalPose,
@@ -112,6 +104,13 @@ public sealed partial class SuperMetroidRuntime
             YPosition = station.SamusY,
         };
         slot.ApplyTo(Samus, System);
+        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
+        if (room.AreaIndex != requestedArea)
+        {
+            throw new InvalidDataException(
+                $"Load station {requestedArea}:{stationIndex} targets room area " +
+                $"{room.AreaIndex}.");
+        }
         ActiveLoadStation = station;
         CeresElevatorArrival = null;
         InitialViewportResult viewport = LoadCartridgeRoom(
@@ -159,9 +158,7 @@ public sealed partial class SuperMetroidRuntime
                 $"door $83:{door.Pointer:X4}'s destination $8F:{door.DestinationRoomPointer:X4}.");
         }
 
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
-            _addressSpace,
-            door.DestinationRoomPointer);
+        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
         if (room.AreaIndex != 0)
         {
             throw new InvalidDataException(
@@ -228,7 +225,7 @@ public sealed partial class SuperMetroidRuntime
         }
 
         DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, Samus);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(_addressSpace, door.DestinationRoomPointer);
+        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
 
         // The load-station record established only the first room. Once bank $94 publishes
         // a door definition, that definition and its destination header become authoritative.
@@ -271,7 +268,7 @@ public sealed partial class SuperMetroidRuntime
         if (Samus is null)
             throw new InvalidOperationException("Direct debug room loading requires initialized Samus state.");
 
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(_addressSpace, roomPointer);
+        CartridgeRoomHeader room = LoadCartridgeRoomHeader(roomPointer);
         // The debug seam intentionally supplies an inert synthetic door. Any room whose
         // correctness depends on setup code must instead be audited through its real door;
         // Ceres Ridley's ordinary mode-nine room has no incoming setup routine dependency.
@@ -459,6 +456,38 @@ public sealed partial class SuperMetroidRuntime
         }
         BackgroundScroll.PrimePreviousBlocks();
         return new InitialViewportResult(requests.Count, segmentCount);
+    }
+
+    /// <summary>
+    /// Resolves a bank-$8F room selector against the live SRAM-mirror and Samus inventory.
+    /// </summary>
+    /// <remarks>
+    /// The fixed eleven-byte header contains the area index needed to choose that area's
+    /// boss byte, but it precedes the selector program in ROM. A first lossless read obtains
+    /// only that fixed metadata; the second read executes the selector with the exact facts
+    /// consumed by $8F:E5FF-$E675. Keeping this at the shared loader boundary prevents a
+    /// door, save station, or debug audit from quietly choosing a different room state.
+    /// </remarks>
+    private CartridgeRoomHeader LoadCartridgeRoomHeader(ushort roomPointer)
+    {
+        CartridgeRoomHeader fixedHeader = CartridgeRoomHeader.Load(_addressSpace, roomPointer);
+
+        // RoomStateSelectionContext owns an immutable snapshot. Copying eight bytes is both
+        // cheaper and safer than exposing Bank80SystemState's writable SRAM-mirror arrays.
+        var events = new byte[Bank80SystemState.EventByteCount];
+        for (int byteIndex = 0; byteIndex < events.Length; byteIndex++)
+            events[byteIndex] = System.GetEventByteRaw(byteIndex);
+
+        SamusState? samus = Samus;
+        var selection = new RoomStateSelectionContext(
+            events,
+            BossBits: System.GetBossBitsRaw(fixedHeader.AreaIndex),
+            HasMorphBallAndMissiles:
+                samus is not null &&
+                samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall) &&
+                samus.MaxMissiles != 0,
+            HasPowerBombs: samus?.MaxPowerBombs != 0);
+        return CartridgeRoomHeader.Load(_addressSpace, roomPointer, selection);
     }
 
     /// <summary>

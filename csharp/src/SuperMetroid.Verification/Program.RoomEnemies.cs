@@ -434,6 +434,105 @@ static void VerifyCeresElevatorPlatformAnimation()
 }
 
 /// <summary>
+/// Verifies the area-boss branch in Ridley's physical door actor. This is separate from the
+/// type-$9 room cap: the enemy is solid during the fight and its ROM instruction stream must
+/// make it intangible after `$A6:C117` sets Ceres's area-boss bit.
+/// </summary>
+static void VerifyCeresDoorBossBranch()
+{
+    const ushort definitionPointer = 0xe23f;
+    const ushort populationPointer = 0x94c0;
+    const ushort tilesetPointer = 0x94c0;
+    var bus = new TestAddressSpace();
+    var vram = new SnesVram();
+    var cgram = new SnesCgram();
+
+    WriteEnemyDefinition(
+        bus,
+        definitionPointer,
+        tileDataSize: 0,
+        palettePointer: 0xf4ec,
+        bank: 0xa6,
+        tileDataAddress: 0xa68000,
+        bossId: 0,
+        namePointer: 0,
+        fieldSeed: 0x4380);
+    WriteWord(bus, 0xa00000 | (definitionPointer + 18), 0xf6c5);
+    WriteWord(bus, 0xa00000 | (definitionPointer + 24), 0xf765);
+    bus.WriteByte(0xa00000 | (definitionPointer + 57), 2);
+
+    int population = 0xa10000 | populationPointer;
+    WriteWord(bus, population, definitionPointer);
+    WriteWord(bus, population + 2, 0x0008);
+    WriteWord(bus, population + 4, 0x007f);
+    WriteWord(bus, population + 6, 0);
+    // Property $8000 makes the focused actor solid, $2000 runs its instruction list,
+    // and $0800 keeps that list processing even when the synthetic actor is offscreen.
+    WriteWord(bus, population + 8, 0xA800);
+    WriteWord(bus, population + 10, 0);
+    WriteWord(bus, population + 12, 3);
+    WriteWord(bus, population + 14, 0);
+    WriteWord(bus, population + 16, 0xffff);
+    bus.WriteByte(population + 18, 0);
+    WriteWord(bus, 0xb40000 | tilesetPointer, 0xffff);
+
+    // Start directly at the retail closed-door loop. `$F66A` either returns to `$F55E`
+    // while the boss lives or falls through `$F6B0/$80ED` into the normal list, whose first
+    // command `$F68B` is the observable collision-side-effect under test.
+    WriteWord(bus, 0xa6f731, 0xf770);
+    WriteWord(bus, 0xa6f532, 0xf55e);
+    WriteWord(bus, 0xa6f55e, 2);
+    WriteWord(bus, 0xa6f560, 0x9000);
+    WriteWord(bus, 0xa6f562, 0xf66a);
+    WriteWord(bus, 0xa6f564, 0xf55e);
+    WriteWord(bus, 0xa6f566, 0xf6b0);
+    WriteWord(bus, 0xa6f568, 0x80ed);
+    WriteWord(bus, 0xa6f56a, 0xf56c);
+    WriteWord(bus, 0xa6f56c, 0xf68b);
+    WriteWord(bus, 0xa6f56e, 0xf6a6);
+    WriteWord(bus, 0xa6f570, 2);
+    WriteWord(bus, 0xa6f572, 0x9000);
+
+    bool areaBossDefeated = false;
+    int areaBossReads = 0;
+    var enemies = new RoomEnemySystem();
+    enemies.Load(
+        bus,
+        populationPointer,
+        tilesetPointer,
+        vram,
+        cgram,
+        () => 0,
+        isAreaBossDefeated: () =>
+        {
+            areaBossReads++;
+            return areaBossDefeated;
+        });
+    RoomEnemySlot door = enemies.Slots[0];
+
+    for (int frame = 0; frame < 4; frame++)
+        enemies.StepFrame(0, 0, timeIsFrozen: false);
+    AssertEqual(0, door.Properties & (ushort)EnemyProperties.IgnoreSamusCollision,
+        "living Ceres boss keeps Ridley-room door tangible");
+
+    areaBossDefeated = true;
+    // The boss bit can change while the two-frame closed map is already sleeping. Allow
+    // that current record to expire, then require the very next `$F66A` visit to leave the
+    // loop; the generous bound is diagnostic and does not alter actor state.
+    for (int frame = 0;
+        frame < 16 && !door.Properties.HasAny(EnemyProperties.IgnoreSamusCollision);
+        frame++)
+    {
+        enemies.StepFrame(0, 0, timeIsFrozen: false);
+    }
+    AssertTrue(door.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
+        $"defeated Ceres boss advances door bytecode to intangible setup " +
+        $"(PC=${door.CurrentInstruction:X4}, timer=${door.InstructionTimer:X4}, " +
+        $"properties=${(ushort)door.Properties:X4}, bossReads={areaBossReads})");
+    Console.WriteLine("  Ceres door: area-boss branch opens the physical Ridley-room actor.");
+}
+
+/// <summary>
 /// Regresses the exact enemy $E13F failure reported when the second normal Ceres door loads
 /// room $E0B5. This fixture uses native $A0/$A1/$A6/$B4 layouts and follows the translated
 /// dispatcher through the complete initial delay, eye fade, and body fade.

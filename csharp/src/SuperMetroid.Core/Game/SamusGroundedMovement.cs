@@ -592,6 +592,37 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
+    /// Executes movement type <c>$0A</c>'s ordinary handler at <c>$90:A5FC</c> after a
+    /// special owner (normal damage knockback or Ceres Ridley's ejection) has restored the
+    /// normal dispatcher while leaving pose <c>$53/$54</c> current. Native clears the
+    /// vertical-collision result and performs only the shared no-speed Y probe; it does not
+    /// invent another knockback arc or silently reinterpret the hurt body as standing.
+    /// </summary>
+    public static BlockMoveResult StepKnockbackOrCrystalFlashEnding(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(samus);
+        if (samus.ReadMovementType(bus) != 0x0a)
+        {
+            throw new InvalidOperationException(
+                $"Knockback-ending movement requires type $0A, not pose ${samus.Pose:X2}.");
+        }
+
+        return RunNoSpeedCalculationGroundingProbe(
+            bus,
+            level,
+            samus,
+            nmiFrameCounter,
+            plms);
+    }
+
+    /// <summary>
     /// Ports <c>Samus_Move_NoSpeedCalc_Y</c> at <c>$90:923F</c>, including the external-Y
     /// replacement path and its asymmetric positive one-pixel bias.
     /// </summary>

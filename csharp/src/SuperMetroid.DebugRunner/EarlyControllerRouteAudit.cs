@@ -29,11 +29,32 @@ internal static class EarlyControllerRouteAudit
         runtime.InitializeCeresStartSamus();
         runtime.InitializePostCeresZebesRoom();
 
+        // Keep the historical fast audit available, but make its execution boundary
+        // explicit. The same route below can now be hosted by the outer frontend without
+        // teaching any room planner about game-state transitions or letting it load a door.
+        var host = new ControllerRouteHost(
+            StepFrame: input => runtime.StepFrame(input),
+            LoadPendingDoor: () => runtime.LoadPendingDoorDestination());
+        return RunLoadedRoute(bus, runtime, host);
+    }
+
+    /// <summary>
+    /// Runs the proven Landing Site-to-Bombs controller policy against an already loaded
+    /// post-Ceres runtime. <paramref name="host"/> is the sole authority allowed to advance
+    /// time or consume a pending door, so callers can use either the compact runtime loop or
+    /// the real outer frontend dispatcher without duplicating route decisions.
+    /// </summary>
+    internal static int RunLoadedRoute(
+        ISnesAddressSpace bus,
+        SuperMetroidRuntime runtime,
+        ControllerRouteHost host)
+    {
+
         int landingFrames = 0;
         while (runtime.Enemies.LastGunshipEvent != GunshipFrameEvent.LandingCompleted &&
                landingFrames < 1200)
         {
-            runtime.StepFrame(0);
+            host.StepFrame(0);
             landingFrames++;
         }
         if (runtime.Enemies.LastGunshipEvent != GunshipFrameEvent.LandingCompleted)
@@ -42,13 +63,13 @@ internal static class EarlyControllerRouteAudit
         PrintDoorBlocks(bus, runtime, "Landing Site");
         SamusState samus = runtime.Samus ?? throw new InvalidOperationException(
             "Gunship landing did not retain Samus.");
-        DriveResult landing = DriveUntilDoor(bus, runtime, "Landing Site", maximumFrames: 2400);
+        DriveResult landing = DriveUntilDoor(bus, runtime, host, "Landing Site", maximumFrames: 2400);
         AssertPendingDoor(runtime, 0x8916, 0x92fd, "Landing Site -> Parlor");
 
         // Loading a collision-published door is the normal outer game-state action. The
         // audit does not identify the destination to the loader and does not edit placement;
         // bank-$83's record supplies both, exactly as the desktop frontend does.
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         AssertRoom(runtime, 0x92fd, 0x9314, "Parlor");
         PrintDoorBlocks(bus, runtime, "Parlor");
         Console.WriteLine(
@@ -60,30 +81,31 @@ internal static class EarlyControllerRouteAudit
         Console.WriteLine(
             $"  Loaded scroll PLMs: {string.Join(' ', runtime.Plms.ScrollPlms.Select(scroll => $"{scroll.BlockIndex}/${scroll.DataPointer:X4}"))}.");
 
-        DriveResult parlor = DriveUntilDoor(bus, runtime, "Parlor", maximumFrames: 3600);
+        DriveResult parlor = DriveUntilDoor(bus, runtime, host, "Parlor", maximumFrames: 3600);
         AssertPendingDoor(runtime, 0x898e, 0x96ba, "Parlor -> Climb");
 
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         AssertRoom(runtime, 0x96ba, 0x96d1, "Climb");
         PrintDoorBlocks(bus, runtime, "Climb");
         PrintPlmPopulation(bus, runtime.ActiveRoom!.State.PlmPointer);
-        DriveResult climb = DriveUntilDoor(bus, runtime, "Climb", maximumFrames: 6000);
+        DriveResult climb = DriveUntilDoor(bus, runtime, host, "Climb", maximumFrames: 6000);
         AssertPendingDoor(runtime, 0x8b62, 0x975c, "Climb -> Pit");
 
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         AssertRoom(runtime, 0x975c, 0x976d, "Pit");
         PrintDoorBlocks(bus, runtime, "Pit");
         PrintPlmPopulation(bus, runtime.ActiveRoom!.State.PlmPointer);
-        DriveResult pit = DriveUntilDoor(bus, runtime, "Pit", maximumFrames: 2400);
+        DriveResult pit = DriveUntilDoor(bus, runtime, host, "Pit", maximumFrames: 2400);
         AssertPendingDoor(runtime, 0x8b86, 0x97b5, "Pit -> elevator room");
 
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         AssertRoom(runtime, 0x97b5, 0x97c6, "Elevator to Blue Brinstar");
         PrintDoorBlocks(bus, runtime, "Elevator to Blue Brinstar");
         PrintPlmPopulation(bus, runtime.ActiveRoom!.State.PlmPointer);
         DriveResult elevator = DriveUntilDoor(
             bus,
             runtime,
+            host,
             "Elevator to Blue Brinstar",
             maximumFrames: 2400);
         CartridgeDoorHeader elevatorExit = runtime.LevelData?.PendingDoorTransition ??
@@ -96,7 +118,7 @@ internal static class EarlyControllerRouteAudit
             $"distance=${elevatorExit.SamusDistance:X4}, setup=${elevatorExit.SetupCodePointer:X4}.");
         AssertPendingDoor(runtime, 0x8b9e, 0x9e9f, "Elevator -> Morph Ball room");
 
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         AssertRoom(runtime, 0x9e9f, 0x9eb1, "Morph Ball room");
         PrintDoorBlocks(bus, runtime, "Morph Ball room");
         PrintPlmPopulation(bus, runtime.ActiveRoom!.State.PlmPointer);
@@ -106,6 +128,7 @@ internal static class EarlyControllerRouteAudit
         DriveResult morphBall = DriveUntilDoor(
             bus,
             runtime,
+            host,
             "Morph Ball room",
             maximumFrames: 5000);
         if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall) ||
@@ -119,7 +142,7 @@ internal static class EarlyControllerRouteAudit
         // cartridge's pre-Missiles room through door-list entry one.
         AssertPendingDoor(runtime, 0x8eaa, 0x9f11, "Morph Ball -> pre-Missiles");
 
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         AssertRoom(runtime, 0x9f11, 0x9f23, "Pre-Missiles room");
         PrintDoorBlocks(bus, runtime, "Pre-Missiles room");
         PrintPlmPopulation(bus, runtime.ActiveRoom!.State.PlmPointer);
@@ -127,11 +150,12 @@ internal static class EarlyControllerRouteAudit
         DriveResult preMissiles = DriveUntilDoor(
             bus,
             runtime,
+            host,
             "Pre-Missiles room",
             maximumFrames: 2400);
         AssertPendingDoor(runtime, 0x8eda, 0xa107, "Pre-Missiles -> first Missile");
 
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         CartridgeRoomHeader firstMissileRoom = runtime.ActiveRoom ??
             throw new InvalidDataException("First Missile door did not publish its room.");
         AssertRoom(runtime, 0xa107, 0xa114, "First Missile room");
@@ -140,6 +164,7 @@ internal static class EarlyControllerRouteAudit
         DriveResult firstMissile = DriveUntilDoor(
             bus,
             runtime,
+            host,
             "First Missile room",
             maximumFrames: 2400);
         if (samus.MaxMissiles != 5 || samus.Missiles != 5)
@@ -150,7 +175,7 @@ internal static class EarlyControllerRouteAudit
         }
         AssertPendingDoor(runtime, 0x8fa6, 0x9f11, "First Missile -> pre-Missiles");
 
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         AssertRoom(runtime, 0x9f11, 0x9f23, "Pre-Missiles return");
         Console.WriteLine(
             $"  Returned to pre-Missiles at Samus (${samus.XPosition:X4},${samus.YPosition:X4}); " +
@@ -158,41 +183,44 @@ internal static class EarlyControllerRouteAudit
         DriveResult constructionZoneReturn = DriveUntilDoor(
             bus,
             runtime,
+            host,
             "Pre-Missiles room",
             maximumFrames: 3600);
         AssertPendingDoor(runtime, 0x8ec2, 0x9e9f, "Pre-Missiles return -> Morph Ball");
 
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         AssertRoom(runtime, 0x9e9f, 0x9eb1, "Morph Ball return");
         DriveResult morphBallReturn = DriveUntilDoor(
             bus,
             runtime,
+            host,
             "Morph Ball return",
             maximumFrames: 6000);
         AssertPendingDoor(runtime, 0x8eb6, 0x97b5, "Morph Ball return -> elevator");
 
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         // The room's event/item state selector deliberately chooses $97E0 on the upward
         // trip after Morph Ball and the first Missile; $97C6 is only the initial descent.
         AssertRoom(runtime, 0x97b5, 0x97e0, "Elevator return");
         DriveResult elevatorReturn = DriveUntilDoor(
             bus,
             runtime,
+            host,
             "Elevator to Blue Brinstar",
             maximumFrames: 2400);
         AssertPendingDoor(runtime, 0x8b92, 0x975c, "Elevator return -> Pit");
 
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         AssertRoom(runtime, 0x975c, 0x9787, "Pit return");
-        DriveResult pitReturn = DriveUntilDoor(bus, runtime, "Pit", maximumFrames: 2400);
+        DriveResult pitReturn = DriveUntilDoor(bus, runtime, host, "Pit", maximumFrames: 2400);
         AssertPendingDoor(runtime, 0x8b7a, 0x96ba, "Pit return -> Climb");
 
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         AssertRoom(runtime, 0x96ba, 0x96d1, "Climb return");
-        DriveResult climbReturn = DriveUntilDoor(bus, runtime, "Climb", maximumFrames: 12000);
+        DriveResult climbReturn = DriveUntilDoor(bus, runtime, host, "Climb", maximumFrames: 12000);
         AssertPendingDoor(runtime, 0x8b3e, 0x92fd, "Climb return -> Parlor");
 
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         AssertRoom(runtime, 0x92fd, 0x9314, "Parlor return");
         Console.WriteLine(
             $"  Reloaded Parlor PLMs: active={runtime.Plms.ActiveCount}, " +
@@ -203,16 +231,17 @@ internal static class EarlyControllerRouteAudit
         DriveResult parlorReturn = DriveUntilDoor(
             bus,
             runtime,
+            host,
             "Parlor return",
             maximumFrames: 6000);
         AssertPendingDoor(runtime, 0x8982, 0x9879, "Parlor return -> Flyway");
 
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         AssertRoom(runtime, 0x9879, 0x9890, "Flyway");
-        DriveResult flyway = DriveUntilDoor(bus, runtime, "Flyway", maximumFrames: 2400);
+        DriveResult flyway = DriveUntilDoor(bus, runtime, host, "Flyway", maximumFrames: 2400);
         AssertPendingDoor(runtime, 0x8bc2, 0x9804, "Flyway -> Bomb Torizo");
 
-        runtime.LoadPendingDoorDestination();
+        host.LoadPendingDoor();
         AssertRoom(runtime, 0x9804, 0x981b, "Bomb Torizo room");
         PrintDoorBlocks(bus, runtime, "Bomb Torizo room");
         PrintPlmPopulation(bus, runtime.ActiveRoom!.State.PlmPointer);
@@ -224,13 +253,15 @@ internal static class EarlyControllerRouteAudit
             $"enemy={runtime.Enemies.BombTorizo}, " +
             $"hand-active={runtime.Plms.HasActiveHeader(0xd6ea)}.");
 
-        int bombPickupFrames = DriveBombTorizoPickup(runtime, maximumFrames: 1800);
+        int bombPickupFrames = DriveBombTorizoPickup(runtime, host, maximumFrames: 1800);
         BombTorizoAwakeningResult awakening = DriveBombTorizoAwakening(
             runtime,
+            host,
             maximumFrames: 1800);
         BombTorizoFightResult fight = DriveBombTorizoFight(
             bus,
             runtime,
+            host,
             maximumFrames: 12000);
         VerifyPauseEquipment(bus, runtime);
 
@@ -255,6 +286,32 @@ internal static class EarlyControllerRouteAudit
             $"{fight.Frames} controller frames and {fight.FireInputs} fire-button edges.");
         return 0;
     }
+
+    /// <summary>
+    /// Creates a route host whose every gameplay tick and door transition passes through
+    /// the production outer dispatcher. The door callback intentionally does not call the
+    /// runtime loader: it advances state $09/$0B until <see cref="SuperMetroidGame"/> has
+    /// consumed the collision-published bank-$83 record and restored normal gameplay.
+    /// </summary>
+    internal static ControllerRouteHost CreateFrontendHost(SuperMetroidGame game) => new(
+        StepFrame: input => game.Step(input),
+        LoadPendingDoor: () =>
+        {
+            const int MaximumDoorDispatcherFrames = 8;
+            for (int frame = 0;
+                frame < MaximumDoorDispatcherFrames &&
+                game.GameState != SuperMetroidGameState.MainGameplay;
+                frame++)
+            {
+                game.Step(0);
+            }
+            if (game.GameState != SuperMetroidGameState.MainGameplay)
+            {
+                throw new InvalidDataException(
+                    $"Frontend door transition stopped in {game.GameState} after " +
+                    $"{MaximumDoorDispatcherFrames} dispatcher frames.");
+            }
+        });
 
     /// <summary>
     /// Opens the cartridge-backed pause object over the completed route's live Samus,
@@ -329,6 +386,7 @@ internal static class EarlyControllerRouteAudit
     /// </summary>
     private static int DriveBombTorizoPickup(
         SuperMetroidRuntime runtime,
+        ControllerRouteHost host,
         int maximumFrames)
     {
         SamusState samus = runtime.Samus ?? throw new InvalidOperationException(
@@ -378,7 +436,7 @@ internal static class EarlyControllerRouteAudit
             if (!itemIsVisible && frame % 120 is >= 72 and < 96)
                 input |= (ushort)SnesButton.A;
 
-            runtime.StepFrame(input);
+            host.StepFrame(input);
             if (frame % 60 == 0)
             {
                 RoomCollisionBlock itemBlock = runtime.LevelData.GetCollisionBlockByIndex(
@@ -427,6 +485,7 @@ internal static class EarlyControllerRouteAudit
     /// </summary>
     private static BombTorizoAwakeningResult DriveBombTorizoAwakening(
         SuperMetroidRuntime runtime,
+        ControllerRouteHost host,
         int maximumFrames)
     {
         TorizoEnemyState torizo = runtime.Enemies.BombTorizo ??
@@ -450,7 +509,7 @@ internal static class EarlyControllerRouteAudit
             // acknowledgement delay expires. Step the complete runtime so this also proves
             // the surrounding early-return path freezes gameplay rather than merely hiding
             // the box in the frontend.
-            runtime.StepFrame((ushort)SnesButton.X);
+            host.StepFrame((ushort)SnesButton.X);
             messageFrames++;
             if (!runtime.Plms.HasActiveHeader(0xd6ea))
             {
@@ -482,7 +541,7 @@ internal static class EarlyControllerRouteAudit
                 ? (ushort)(SnesButton.Left | SnesButton.B |
                     (sequenceFrames < 28 ? SnesButton.A : 0))
                 : (ushort)0;
-            runtime.StepFrame(retreatInput);
+            host.StepFrame(retreatInput);
             sequenceFrames++;
             maximumLiveFragments = Math.Max(
                 maximumLiveFragments,
@@ -510,7 +569,7 @@ internal static class EarlyControllerRouteAudit
         // Enemy main executes before PLM main in a gameplay frame. Consequently the enemy
         // sees the hand's deletion on the following frame, exactly matching the original
         // scheduler rather than gaining a special cross-system notification here.
-        runtime.StepFrame(0);
+        host.StepFrame(0);
         sequenceFrames++;
         if (!torizo.AwakeningReleased)
         {
@@ -537,6 +596,7 @@ internal static class EarlyControllerRouteAudit
     private static BombTorizoFightResult DriveBombTorizoFight(
         ISnesAddressSpace bus,
         SuperMetroidRuntime runtime,
+        ControllerRouteHost host,
         int maximumFrames)
     {
         SamusState samus = runtime.Samus ?? throw new InvalidOperationException(
@@ -797,7 +857,7 @@ internal static class EarlyControllerRouteAudit
 
             }
 
-            runtime.StepFrame(input);
+            host.StepFrame(input);
             if (samus.Health < healthBeforeFrame)
             {
                 // Keep the private-ROM route diagnosable without reaching into collision
@@ -905,6 +965,7 @@ internal static class EarlyControllerRouteAudit
     private static DriveResult DriveUntilDoor(
         ISnesAddressSpace bus,
         SuperMetroidRuntime runtime,
+        ControllerRouteHost host,
         string roomName,
         int maximumFrames)
     {
@@ -2431,7 +2492,7 @@ internal static class EarlyControllerRouteAudit
             ushort yBeforeStep = samus.YPosition;
             try
             {
-                runtime.StepFrame(input);
+                host.StepFrame(input);
             }
             catch (Exception exception)
             {
@@ -4175,6 +4236,15 @@ internal static class EarlyControllerRouteAudit
         }
         Console.WriteLine($"  PLM population $8F:{populationPointer:X4}: {string.Join(' ', records)}");
     }
+
+    /// <summary>
+    /// Supplies the two scheduler operations that differ between the direct runtime audit
+    /// and a production-frontend playthrough. Route code may inspect cartridge-owned state
+    /// to choose buttons, but all mutation must enter through these controller/door calls.
+    /// </summary>
+    internal sealed record ControllerRouteHost(
+        Action<ushort> StepFrame,
+        Action LoadPendingDoor);
 
     private readonly record struct DriveResult(
         int Frames,

@@ -3090,12 +3090,18 @@ public sealed partial class RoomEnemySystem
                         : unchecked((ushort)(cursor + 4));
                     break;
                 case 0xf66a: // Ceres door: branch while area boss bit one is clear.
-                    // Fresh Ceres begins with the boss bit clear. CeresStatus becomes the
-                    // translated owner of that event later; until then, follow the native
-                    // false branch to the same-bank pointer in the next word.
-                    cursor = ReadWord(
-                        _bus!,
-                        (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
+                    // `$A6:F66A-$F676` samples bit zero of the current area's SRAM-mirror
+                    // boss byte. Ceres begins with that bit clear, so the facing-right door
+                    // loops as a tangible actor during Ridley's fight. `$A6:C117` publishes
+                    // the boss bit together with status two; the next instruction pass must
+                    // then skip the branch operand and reach `$F68B`'s intangible setup.
+                    // Hardcoding the early-game branch stranded the invisible 8x32 actor at
+                    // X=$0008 and clipped Samus at X=$001D after the getaway cutscene.
+                    cursor = _isAreaBossDefeated?.Invoke() == true
+                        ? unchecked((ushort)(cursor + 4))
+                        : ReadWord(
+                            _bus!,
+                            (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     break;
                 case 0xf678: // Ceres door: branch while ceres_status is zero.
                     cursor = CeresStatus != 0

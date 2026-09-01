@@ -117,6 +117,7 @@ VerifyRoomEnemyLoading();
 VerifyRipperEnemy();
 VerifyPostCeresGunshipLanding();
 VerifyCeresElevatorPlatformAnimation();
+VerifyCeresDoorBossBranch();
 VerifyCeresRidleyRoomEntry();
 VerifyCeresEscapeHandoff();
 VerifyCeresDestructionCinematic();

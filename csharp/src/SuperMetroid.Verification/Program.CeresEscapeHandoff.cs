@@ -65,6 +65,30 @@ internal static partial class Program
         AssertEqual(1, samus.CeresRidleyEjection.PushDirection, "left-half Samus is pushed left");
         AssertEqual(5, samus.Kinematics.YSpeed, "ejection installs terminal downward speed");
         AssertSamusPosition(100, 100, samus, "first ejection gamma leaves world position unchanged");
+
+        // `$90:E1FD/$90:E21C` restore the ordinary movement dispatcher after the forced
+        // body hits a wall, but they deliberately leave pose $53/$54 (movement type $0A)
+        // current. The next ordinary frame must therefore execute `$90:A5FC`, whose only
+        // movement is the shared no-speed vertical probe. This exact handoff was invisible
+        // to the older isolated ejection fixture and crashed the first controller-driven
+        // playthrough after Ridley escaped.
+        samus.Kinematics.XPosition = 100;
+        samus.Kinematics.XSubposition = 0;
+        samus.Kinematics.YPosition = 100;
+        samus.Kinematics.YSubposition = 0;
+        samus.Kinematics.YSpeed = 0;
+        samus.Kinematics.YSubspeed = 0;
+        samus.Kinematics.YDirection = 0;
+        BlockMoveResult endingProbe = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
+            bus,
+            emptyRoom,
+            samus,
+            nmiFrameCounter: 0);
+        AssertTrue(!endingProbe.Collided, "post-ejection no-speed probe sees empty room");
+        AssertEqual(1 << 16, endingProbe.AcceptedDisplacement,
+            "post-ejection handler applies native positive one-pixel probe");
+        AssertSamusPosition(100, 101, samus,
+            "post-ejection type-$0A frame advances only the grounding probe");
     }
 
     private static void VerifyCeresElevatorShaftRoomMain()

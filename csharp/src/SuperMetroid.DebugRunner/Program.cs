@@ -21,6 +21,18 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length >= 2 && args[0] == "--ceres-controller-route-audit")
+{
+    string ceresControllerRomPath = string.Join(' ', args[1..]).Trim('"');
+    return CeresControllerRouteAudit.Run(ceresControllerRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--ceres-elevator-climb-focus")
+{
+    string ceresElevatorRomPath = string.Join(' ', args[1..]).Trim('"');
+    return CeresControllerRouteAudit.RunElevatorClimbFocus(ceresElevatorRomPath);
+}
+
 // Configuration regression kept as its own small audit rather than adding another branch
 // to the already deep cinematic capture tree below.
 if (args.Length >= 3 && args[0] == "--frontend-skip-intro-capture")

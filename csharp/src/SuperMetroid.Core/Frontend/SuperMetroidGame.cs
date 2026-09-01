@@ -117,6 +117,15 @@ public sealed class SuperMetroidGame
     /// <summary>Current bank-$83 entry door pointer, exposed for door-transition watches.</summary>
     public ushort? GameplayActiveDoorPointer => runtime?.ActiveDoor?.Pointer;
 
+    /// <summary>
+    /// Read-only access point for friend verification assemblies that need to observe the
+    /// complete cartridge-owned room graph while sending input through <see cref="Step"/>.
+    /// Production hosts never use this reference, and route audits must not invoke runtime
+    /// mutators through it; its purpose is to avoid manufacturing hundreds of writable
+    /// frontend proxy properties merely for collision-aware controller planning.
+    /// </summary>
+    internal SuperMetroidRuntime? RuntimeForVerification => runtime;
+
     /// <summary>Live equipped-item word, including Morph Ball and Bomb bits.</summary>
     public ushort GameplayEquippedItems => runtime?.Samus?.EquippedItems ?? 0;
 

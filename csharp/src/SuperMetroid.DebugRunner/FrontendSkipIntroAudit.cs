@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 
 /// <summary>
 /// ROM-backed proof that the host option bypasses only the story cinematic and rejoins the
@@ -202,12 +203,47 @@ internal static class FrontendSkipIntroAudit
         }
 
         PngWriter.WriteRgba(outputPath, FrontendFrame.Width, FrontendFrame.Height, frame.Pixels);
+        SuperMetroidRuntime liveRuntime = game.RuntimeForVerification
+            ?? throw new InvalidOperationException("Skip-intro frontend lost its Ceres runtime.");
+        string doorBlocks = DescribeDoorBlocks(bus, liveRuntime);
         Console.WriteLine(
             $"Skip-opening-cinematic audit reached {frame.GameState} on dispatcher frame " +
             $"{frame.FrameNumber}, Samus=(${game.GameplaySamusX:X4},${game.GameplaySamusY:X4}), " +
-            "slot A loaded through fresh Ceres and general Crateria frontend paths.");
+            $"room=$8F:{game.GameplayActiveRoomPointer.GetValueOrDefault():X4}, " +
+            $"doors=[{doorBlocks}]; slot A loaded through fresh Ceres and general Crateria " +
+            "frontend paths.");
         Console.WriteLine($"Captured skip-intro Ceres frame to {Path.GetFullPath(outputPath)}.");
         return 0;
+    }
+
+    /// <summary>
+    /// Formats the live type-$9 blocks with the bank-$83 records they resolve to. This is
+    /// intentionally observational: publishing side effects is disabled, so diagnostics
+    /// cannot enter a room or alter the controller route they are meant to explain.
+    /// </summary>
+    private static string DescribeDoorBlocks(
+        ISnesAddressSpace bus,
+        SuperMetroidRuntime runtime)
+    {
+        RoomLevelData level = runtime.LevelData ?? throw new InvalidOperationException(
+            "Ceres door diagnostics require a loaded level.");
+        var doors = new List<string>();
+        for (int y = 0; y < level.HeightInBlocks; y++)
+        {
+            for (int x = 0; x < level.WidthInBlocks; x++)
+            {
+                RoomCollisionBlock block = level.GetCollisionBlock(x, y);
+                if (block.CollisionType != 9)
+                    continue;
+                CartridgeDoorHeader door = level.ResolveDoorCollision(
+                    bus,
+                    block.Behavior,
+                    runtime.Samus?.Pose ?? 0,
+                    publishDoorSideEffects: false);
+                doors.Add($"({x:X2},{y:X2})->$83:{door.Pointer:X4}/$8F:{door.DestinationRoomPointer:X4}");
+            }
+        }
+        return string.Join(' ', doors);
     }
 
     private static FrontendFrame StepUntil(

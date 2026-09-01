@@ -2167,6 +2167,19 @@ public sealed partial class SuperMetroidRuntime
                             Samus,
                             NmiFrameCounter);
                         break;
+                    case SamusState.KnockbackRightPose:
+                    case SamusState.KnockbackLeftPose:
+                        // `$90:A5FC` is the normal type-$0A movement-table entry. Active
+                        // knockback and Ceres ejection were intercepted above; this branch
+                        // is their authentic one-frame normal-dispatch tail before bank-$91
+                        // installs the input/no-input target chosen during alpha.
+                        SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            NmiFrameCounter,
+                            Plms);
+                        break;
                     case SamusState.CrouchingTransitionRightPose:
                     case SamusState.CrouchingTransitionLeftPose:
                     case SamusState.StandingTransitionRightPose:

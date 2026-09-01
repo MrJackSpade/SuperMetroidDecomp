@@ -23,7 +23,8 @@ public static class SamusMorphBallMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         Validate(bus, level, samus);
         bool ordinary = SamusState.IsGroundedMorphBallPose(samus.Pose);
@@ -52,7 +53,8 @@ public static class SamusMorphBallMovement
                 bus,
                 level,
                 samus.Kinematics,
-                requested);
+                requested,
+                plms: plms);
             if (horizontal.Collided)
                 speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         }
@@ -66,7 +68,8 @@ public static class SamusMorphBallMovement
                 bus,
                 level,
                 samus.Kinematics,
-                requested);
+                requested,
+                plms: plms);
             if (horizontal.Collided)
                 speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         }
@@ -83,6 +86,7 @@ public static class SamusMorphBallMovement
                 level,
                 samus,
                 nmiFrameCounter,
+                plms,
                 out landed,
                 out hitCeiling);
         }
@@ -92,7 +96,8 @@ public static class SamusMorphBallMovement
                 bus,
                 level,
                 samus,
-                nmiFrameCounter);
+                nmiFrameCounter,
+                plms);
 
             // Only the stable-pose branch performs `$90:A551-$90:A561` cleanup, and only
             // after the no-speed Y path. A moving ball retains its newly calculated speed.
@@ -109,7 +114,8 @@ public static class SamusMorphBallMovement
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         Validate(bus, level, samus);
         bool ordinary = SamusState.IsAirborneMorphBallPose(samus.Pose);
@@ -153,7 +159,8 @@ public static class SamusMorphBallMovement
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal);
+            requestedHorizontal,
+            plms: plms);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -177,7 +184,8 @@ public static class SamusMorphBallMovement
                 level,
                 samus.Kinematics,
                 displacement,
-                scanLeftToRight: (nmiFrameCounter & 1) == 0);
+                scanLeftToRight: (nmiFrameCounter & 1) == 0,
+                plms: plms);
             landed = displacement >= 0 && vertical.Collided;
             hitCeiling = displacement < 0 && vertical.Collided;
         }
@@ -191,6 +199,7 @@ public static class SamusMorphBallMovement
                 level,
                 samus,
                 nmiFrameCounter,
+                plms,
                 out landed,
                 out hitCeiling);
         }
@@ -203,7 +212,8 @@ public static class SamusMorphBallMovement
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         Validate(bus, level, samus);
         if (samus.Pose is not (SamusState.SpringBallJumpRightPose or SamusState.SpringBallJumpLeftPose) ||
@@ -251,7 +261,8 @@ public static class SamusMorphBallMovement
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal);
+            requestedHorizontal,
+            plms: plms);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -260,6 +271,7 @@ public static class SamusMorphBallMovement
             level,
             samus,
             nmiFrameCounter,
+            plms,
             out bool landed,
             out bool hitCeiling);
         return new MorphBallMovementResult(horizontal, vertical, landed, hitCeiling);
@@ -273,7 +285,8 @@ public static class SamusMorphBallMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         Validate(bus, level, samus);
         if (!SamusState.IsMorphTransitionPose(samus.Pose) || samus.ReadMovementType(bus) != 0x0f)
@@ -291,7 +304,8 @@ public static class SamusMorphBallMovement
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal);
+            requestedHorizontal,
+            plms: plms);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -304,7 +318,8 @@ public static class SamusMorphBallMovement
                 bus,
                 level,
                 samus,
-                nmiFrameCounter);
+                nmiFrameCounter,
+                plms);
         }
         else
         {
@@ -313,6 +328,7 @@ public static class SamusMorphBallMovement
                 level,
                 samus,
                 nmiFrameCounter,
+                plms,
                 out landed,
                 out hitCeiling);
             if (landed)
@@ -334,6 +350,7 @@ public static class SamusMorphBallMovement
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
+        RoomPlmSystem? plms,
         out bool landed,
         out bool hitCeiling)
     {
@@ -378,7 +395,8 @@ public static class SamusMorphBallMovement
             level,
             state,
             displacement,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+            scanLeftToRight: (nmiFrameCounter & 1) == 0,
+            plms: plms);
 
         hitCeiling = displacement < 0 && vertical.Collided;
         landed = displacement >= 0 && vertical.Collided;
@@ -395,7 +413,8 @@ public static class SamusMorphBallMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms)
     {
         int displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
@@ -405,7 +424,8 @@ public static class SamusMorphBallMovement
             level,
             samus.Kinematics,
             displacement,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+            scanLeftToRight: (nmiFrameCounter & 1) == 0,
+            plms: plms);
     }
 
     private static int CalculateDirectedDisplacement(

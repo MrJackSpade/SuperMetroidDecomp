@@ -91,7 +91,8 @@ public static class SamusBlockCollision
         SamusKinematicsState state,
         int displacement,
         bool canBreakBombBlocks = false,
-        RoomPlmSystem? plms = null)
+        RoomPlmSystem? plms = null,
+        bool publishDoorSideEffects = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -207,7 +208,8 @@ public static class SamusBlockCollision
                         CartridgeDoorHeader horizontalDoor = level.ResolveDoorCollision(
                             bus,
                             block.Behavior,
-                            state.CollisionPose);
+                            state.CollisionPose,
+                            publishDoorSideEffects);
                         if ((horizontalDoor.DestinationRoomPointer & 0x8000) == 0)
                         {
                             acceptedDisplacement = ClipHorizontalToSolid(

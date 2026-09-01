@@ -106,6 +106,36 @@ internal static partial class Program
         AssertEqual(1, scrolls.ReadStorage(1),
             "extension-triggered contact executes the same scroll program");
 
+        // Repeat the identical contact through the public Morph Ball wrapper. This guards
+        // the composition seam that originally dropped RoomPlmSystem while ordinary Samus
+        // movement passed it correctly: type-five resolves to the resident `$B703` owner,
+        // and the ball remains controller/collision driven throughout the call.
+        scrolls.SetStorage(1, 0);
+        WritePoseDefinition(bus, SamusState.MorphBallGroundRightPose,
+            [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+        var ball = new SamusState
+        {
+            Pose = SamusState.MorphBallGroundRightPose,
+            XPosition = 56,
+            YPosition = 56,
+        };
+        ball.RefreshCollisionRadii(bus);
+        ball.Kinematics.ExtraXDisplacement = 1;
+        ball.Kinematics.ExtraXSubdisplacement = 0;
+        MorphBallMovementResult ballMovement = SamusMorphBallMovement.StepGrounded(
+            bus,
+            level,
+            ball,
+            nmiFrameCounter: 0,
+            plms: plms);
+        AssertTrue(!ballMovement.Horizontal.Collided,
+            "Morph Ball traverses scroll extension as special air");
+        AssertTrue(plms.ScrollPlms[0].Triggered,
+            "Morph Ball wrapper forwards live PLM owner to block collision");
+        plms.Step(bus, level, streamer, 0, 0, 0, scrolls);
+        AssertEqual(1, scrolls.ReadStorage(1),
+            "Morph Ball scroll contact executes resident bank-$8F program");
+
         Console.WriteLine(
             "  Scroll PLMs: population setup, four extensions, collision wakeup, and bank-$8F programs agree.");
     }

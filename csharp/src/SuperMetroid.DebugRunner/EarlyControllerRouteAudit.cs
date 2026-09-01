@@ -16,6 +16,8 @@ using SuperMetroid.Core.Runtime;
 /// </remarks>
 internal static class EarlyControllerRouteAudit
 {
+    private const int LevelBlockSizePixels = 16;
+
     public static int Run(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
@@ -189,6 +191,47 @@ internal static class EarlyControllerRouteAudit
         DriveResult climbReturn = DriveUntilDoor(bus, runtime, "Climb", maximumFrames: 12000);
         AssertPendingDoor(runtime, 0x8b3e, 0x92fd, "Climb return -> Parlor");
 
+        runtime.LoadPendingDoorDestination();
+        AssertRoom(runtime, 0x92fd, 0x9314, "Parlor return");
+        Console.WriteLine(
+            $"  Reloaded Parlor PLMs: active={runtime.Plms.ActiveCount}, " +
+            $"scrolls=[{string.Join(' ', runtime.Plms.ScrollPlms.Select(scroll => $"{scroll.BlockIndex}/{scroll.DataPointer:X4}"))}], " +
+            $"population=$8F:{runtime.ActiveRoom!.State.PlmPointer:X4}.");
+        PrintCollisionFeatureRows(runtime, 0x10, 0x1f, 0x00, 0x4c);
+        PrintCollisionFeatureRows(runtime, 0x20, 0x4f, 0x00, 0x2a);
+        DriveResult parlorReturn = DriveUntilDoor(
+            bus,
+            runtime,
+            "Parlor return",
+            maximumFrames: 6000);
+        AssertPendingDoor(runtime, 0x8982, 0x9879, "Parlor return -> Flyway");
+
+        runtime.LoadPendingDoorDestination();
+        AssertRoom(runtime, 0x9879, 0x9890, "Flyway");
+        DriveResult flyway = DriveUntilDoor(bus, runtime, "Flyway", maximumFrames: 2400);
+        AssertPendingDoor(runtime, 0x8bc2, 0x9804, "Flyway -> Bomb Torizo");
+
+        runtime.LoadPendingDoorDestination();
+        AssertRoom(runtime, 0x9804, 0x981b, "Bomb Torizo room");
+        PrintDoorBlocks(bus, runtime, "Bomb Torizo room");
+        PrintPlmPopulation(bus, runtime.ActiveRoom!.State.PlmPointer);
+        PrintCollisionFeatureRows(runtime, 0, 15, 0, 11);
+        Console.WriteLine(
+            $"  Bomb Torizo entry: Samus=(${samus.XPosition:X4},${samus.YPosition:X4}), " +
+            $"health={samus.Health}, " +
+            $"collectibles=[{string.Join(' ', runtime.Plms.Collectibles)}], " +
+            $"enemy={runtime.Enemies.BombTorizo}, " +
+            $"hand-active={runtime.Plms.HasActiveHeader(0xd6ea)}.");
+
+        int bombPickupFrames = DriveBombTorizoPickup(runtime, maximumFrames: 1800);
+        BombTorizoAwakeningResult awakening = DriveBombTorizoAwakening(
+            runtime,
+            maximumFrames: 1800);
+        BombTorizoFightResult fight = DriveBombTorizoFight(
+            bus,
+            runtime,
+            maximumFrames: 12000);
+
         Console.WriteLine(
             $"Controller route: gunship {landingFrames} frames; Landing Site -> Parlor " +
             $"after {landing.Frames} ordinary gameplay frames; Parlor -> Climb after " +
@@ -201,8 +244,594 @@ internal static class EarlyControllerRouteAudit
             $"Morph Ball door after {constructionZoneReturn.Frames} more at Samus " +
             $"(${samus.XPosition:X4},${samus.YPosition:X4}); returned to the elevator " +
             $"after {morphBallReturn.Frames} more; elevator/Pit/Climb return took " +
-            $"{elevatorReturn.Frames}/{pitReturn.Frames}/{climbReturn.Frames} frames.");
+            $"{elevatorReturn.Frames}/{pitReturn.Frames}/{climbReturn.Frames} frames; " +
+            $"returned through Parlor and Flyway in {parlorReturn.Frames}/" +
+            $"{flyway.Frames} frames; Bombs acquired after {bombPickupFrames} room frames; " +
+            $"the item message closed in {awakening.MessageFrames} frames and the " +
+            $"cartridge hand sequence released Bomb Torizo after " +
+            $"{awakening.SequenceFrames} more frames; Bomb Torizo was defeated after " +
+            $"{fight.Frames} controller frames and {fight.FireInputs} fire-button edges.");
         return 0;
+    }
+
+    /// <summary>
+    /// Uses ordinary rightward movement and beam input to open Bomb Torizo's Chozo orb and
+    /// touch the exposed item. Coordinates are observed only for diagnostics; collision,
+    /// projectile impact, orb animation, and pickup remain owned by live cartridge systems.
+    /// </summary>
+    private static int DriveBombTorizoPickup(
+        SuperMetroidRuntime runtime,
+        int maximumFrames)
+    {
+        SamusState samus = runtime.Samus ?? throw new InvalidOperationException(
+            "Bomb Torizo pickup route began without Samus.");
+        TorizoEnemyState torizo = runtime.Enemies.BombTorizo ??
+            throw new InvalidOperationException("Bomb Torizo room loaded without its enemy.");
+        if (!runtime.Plms.HasActiveHeader(0xd6ea))
+            throw new InvalidDataException("Bomb Torizo hand was absent on undefeated entry.");
+
+        bool descendedFromStatue = false;
+        for (int frame = 0; frame < maximumFrames; frame++)
+        {
+            CollectiblePlmSnapshot collectible = runtime.Plms.Collectibles.Single();
+            // The opening shot can reach the orb while Samus is still crossing the room,
+            // but its nine-frame burst does not expose the type-B pickup immediately. A
+            // human player naturally turns back after overshooting it. Do the same with
+            // ordinary controller input: once the cartridge-owned PLM reports Visible,
+            // steer toward its block centre instead of continuing blindly into the wall.
+            int collectibleX = collectible.BlockIndex % runtime.LevelData!.WidthInBlocks * 16 + 8;
+            int collectibleY = collectible.BlockIndex / runtime.LevelData.WidthInBlocks * 16 + 8;
+            bool itemIsVisible = collectible.Phase == CollectiblePhase.Visible;
+            // The repeated setup jump can place Samus on the dormant statue, above the
+            // pickup block. Walk one native block-radius clear of its left side and wait
+            // for gravity to bring the body down to the item's row before approaching it
+            // again. This remains a pure input script: no pose, position, collision, or PLM
+            // state is written by the audit.
+            if (itemIsVisible && !descendedFromStatue &&
+                samus.YPosition + samus.Kinematics.YRadius >= collectibleY - 8)
+            {
+                descendedFromStatue = true;
+            }
+            int dismountX = collectibleX - 48;
+            SnesButton horizontal = itemIsVisible && !descendedFromStatue
+                ? SnesButton.Left
+                : itemIsVisible && samus.XPosition > collectibleX
+                    ? SnesButton.Left
+                    : SnesButton.Right;
+            if (itemIsVisible && !descendedFromStatue && samus.XPosition <= dismountX)
+                horizontal = 0;
+            ushort input = (ushort)horizontal;
+            // Fire one-frame power-beam edges. Holding X would begin charging after the
+            // first shot and hide whether the ordinary projectile producer can reopen.
+            if (frame % 18 == 0)
+                input |= (ushort)SnesButton.X;
+            // A short jump every two seconds lets the controller route cross authored
+            // pedestal geometry if the horizontal body becomes stationary below the orb.
+            if (!itemIsVisible && frame % 120 is >= 72 and < 96)
+                input |= (ushort)SnesButton.A;
+
+            runtime.StepFrame(input);
+            if (frame % 60 == 0)
+            {
+                RoomCollisionBlock itemBlock = runtime.LevelData.GetCollisionBlockByIndex(
+                    collectible.BlockIndex);
+                Console.WriteLine(
+                    $"  Bomb pickup f{frame + 1}: Samus=(${samus.XPosition:X4}," +
+                    $"${samus.YPosition:X4}) pose=${samus.Pose:X2}, " +
+                    $"radius=({samus.Kinematics.XRadius},{samus.Kinematics.YRadius}), " +
+                    $"item=[{string.Join(' ', runtime.Plms.Collectibles)}], " +
+                    $"collision={itemBlock.CollisionType:X1}/{itemBlock.Behavior:X2}" +
+                    $"@({collectible.BlockIndex % runtime.LevelData.WidthInBlocks:X2}," +
+                    $"{collectible.BlockIndex / runtime.LevelData.WidthInBlocks:X2}), " +
+                    $"hand={runtime.Plms.HasActiveHeader(0xd6ea)}, " +
+                    $"awake={torizo.AwakeningReleased}.");
+            }
+
+            if (samus.CollectedItems.HasAny(SamusEquipmentFlags.Bombs))
+            {
+                if (!runtime.Plms.HasActiveHeader(0xd6ea))
+                {
+                    throw new InvalidDataException(
+                        "Bomb Torizo hand deleted on the pickup frame instead of running " +
+                        "its cartridge-authored post-Bombs sequence.");
+                }
+                return frame + 1;
+            }
+            if (torizo.AwakeningReleased)
+            {
+                throw new InvalidDataException(
+                    "Bomb Torizo awakened while the D6EA hand trigger was still required.");
+            }
+        }
+
+        throw new InvalidDataException(
+            $"Bombs were not acquired after {maximumFrames} controller frames; " +
+            $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}), pose=${samus.Pose:X2}, " +
+            $"item=[{string.Join(' ', runtime.Plms.Collectibles)}].");
+    }
+
+    /// <summary>
+    /// Closes the cartridge item message and waits through PLM $D6EA's complete hand
+    /// sequence. This deliberately observes the native boundaries instead of skipping to
+    /// the fight: the message box must freeze the PLM, the hand must DMA the cracked statue
+    /// graphics and emit all eight $A993 fragments, and only its deletion may release the
+    /// enemy's awakening AI.
+    /// </summary>
+    private static BombTorizoAwakeningResult DriveBombTorizoAwakening(
+        SuperMetroidRuntime runtime,
+        int maximumFrames)
+    {
+        TorizoEnemyState torizo = runtime.Enemies.BombTorizo ??
+            throw new InvalidOperationException(
+                "Bomb Torizo awakening audit began without its enemy.");
+        if (!runtime.MessageBox.IsActive)
+        {
+            throw new InvalidDataException(
+                "Bomb pickup did not open its cartridge-authored item message.");
+        }
+        if (!runtime.Plms.HasActiveHeader(0xd6ea))
+        {
+            throw new InvalidDataException(
+                "Bomb Torizo hand was absent while the item message was open.");
+        }
+
+        int messageFrames = 0;
+        while (runtime.MessageBox.IsActive && messageFrames < maximumFrames)
+        {
+            // The genuine message handler accepts a held face button once its mandatory
+            // acknowledgement delay expires. Step the complete runtime so this also proves
+            // the surrounding early-return path freezes gameplay rather than merely hiding
+            // the box in the frontend.
+            runtime.StepFrame((ushort)SnesButton.X);
+            messageFrames++;
+            if (!runtime.Plms.HasActiveHeader(0xd6ea))
+            {
+                throw new InvalidDataException(
+                    "Bomb Torizo hand advanced or deleted while the item message paused gameplay.");
+            }
+            if (torizo.AwakeningReleased)
+            {
+                throw new InvalidDataException(
+                    "Bomb Torizo awakened while the item message paused gameplay.");
+            }
+        }
+        if (runtime.MessageBox.IsActive)
+        {
+            throw new InvalidDataException(
+                $"Bomb item message remained open after {maximumFrames} acknowledgement frames.");
+        }
+
+        int maximumLiveFragments = 0;
+        int sequenceFrames = 0;
+        SamusState samus = runtime.Samus ?? throw new InvalidOperationException(
+            "Bomb Torizo hand sequence began without Samus.");
+        while (runtime.Plms.HasActiveHeader(0xd6ea) && sequenceFrames < maximumFrames)
+        {
+            // The native debris is dangerous. A player is free to retreat while the hand
+            // runs, so walk to a safe left-side lane without touching the room's door block.
+            // This also proves the PLM sequence does not incorrectly lock ordinary movement.
+            ushort retreatInput = samus.XPosition > 32
+                ? (ushort)(SnesButton.Left | SnesButton.B |
+                    (sequenceFrames < 28 ? SnesButton.A : 0))
+                : (ushort)0;
+            runtime.StepFrame(retreatInput);
+            sequenceFrames++;
+            maximumLiveFragments = Math.Max(
+                maximumLiveFragments,
+                runtime.Enemies.EnemyProjectiles.Count(projectile =>
+                    projectile.IsActive &&
+                    projectile.Kind == RoomEnemyProjectileKind.BombTorizoStatueBreaking));
+            if (torizo.AwakeningReleased)
+            {
+                throw new InvalidDataException(
+                    "Bomb Torizo awakening escaped the cartridge hand-PLM deletion gate.");
+            }
+        }
+        if (runtime.Plms.HasActiveHeader(0xd6ea))
+        {
+            throw new InvalidDataException(
+                $"Bomb Torizo hand remained active after {maximumFrames} sequence frames.");
+        }
+        if (maximumLiveFragments != 8)
+        {
+            throw new InvalidDataException(
+                $"Bomb Torizo hand exposed at most {maximumLiveFragments} statue fragments; " +
+                "the cartridge sequence requires all eight $A993 projectiles.");
+        }
+
+        // Enemy main executes before PLM main in a gameplay frame. Consequently the enemy
+        // sees the hand's deletion on the following frame, exactly matching the original
+        // scheduler rather than gaining a special cross-system notification here.
+        runtime.StepFrame(0);
+        sequenceFrames++;
+        if (!torizo.AwakeningReleased)
+        {
+            throw new InvalidDataException(
+                "Bomb Torizo did not awaken on the enemy frame after hand-PLM deletion.");
+        }
+
+        Console.WriteLine(
+            $"  Bomb Torizo hand: message={messageFrames} frames, " +
+            $"sequence={sequenceFrames} frames, fragments={maximumLiveFragments}, " +
+            $"Samus-health={samus.Health}, enemy={torizo}.");
+        return new BombTorizoAwakeningResult(messageFrames, sequenceFrames);
+    }
+
+    /// <summary>
+    /// Fights Bomb Torizo using only ordinary controller words. Enemy position and health
+    /// are read to make the deterministic test driver behave like a cautious player, but
+    /// the driver never writes actor, projectile, collision, boss-bit, or death state. Every
+    /// point of damage must therefore originate in the live arm cannon and travel through
+    /// ordinary projectile/enemy collision before the ROM-backed death list runs. Bomb
+    /// Torizo's retail vulnerability table assigns normal bombs multiplier zero, so using
+    /// the newly acquired item offensively here would only exercise valid dud collisions.
+    /// </summary>
+    private static BombTorizoFightResult DriveBombTorizoFight(
+        ISnesAddressSpace bus,
+        SuperMetroidRuntime runtime,
+        int maximumFrames)
+    {
+        SamusState samus = runtime.Samus ?? throw new InvalidOperationException(
+            "Bomb Torizo fight began without Samus.");
+        TorizoEnemyState torizo = runtime.Enemies.BombTorizo ??
+            throw new InvalidOperationException("Bomb Torizo fight began without its enemy.");
+        ushort initialEnemyHealth = torizo.Slot.Health;
+        ushort initialSamusHealth = samus.Health;
+        ushort initialMissiles = samus.Missiles;
+        ushort previousEnemyHealth = initialEnemyHealth;
+        int damagingHits = 0;
+        int fireInputs = 0;
+        int fireCooldown = 0;
+        int orbAimHoldFrames = 0;
+        int targetedOrbSlotIndex = -1;
+        int dodgeFramesRemaining = 0;
+        SnesButton dodgeDirection = 0;
+        bool dodgeReady = true;
+        bool sawDeathMusic = false;
+        var naturalAttacks = new HashSet<RoomEnemyProjectileKind>();
+        // A Chozo orb is a deliberate refill opportunity, not merely another hazard. Do
+        // not, however, chase every spread throughout the fight: doing so roughly doubles
+        // encounter length and exposes Samus to more swipes than the drops can repay. Below
+        // forty energy, the same ordinary shoot/collect loop becomes worth that risk.
+        const ushort ResourceHuntHealth = 40;
+
+        for (int frame = 0; frame < maximumFrames; frame++)
+        {
+            ushort healthBeforeFrame = samus.Health;
+            if (fireCooldown != 0)
+                fireCooldown--;
+            ushort input = 0;
+            bool liveOrbNeedsBeam = samus.Health < ResourceHuntHealth &&
+                runtime.Enemies.EnemyProjectiles.Any(projectile =>
+                    projectile.IsActive &&
+                    projectile.Kind == RoomEnemyProjectileKind.BombTorizoChozoOrb);
+            if (liveOrbNeedsBeam && samus.SelectedHudItem != 0)
+            {
+                // Chozo orbs accept the ordinary beam and exist to restore resources. Do
+                // not squander a newly dropped missile on one: with no Supers/Power Bombs
+                // on this early route, another retail Select edge returns directly to Beam.
+                input = (ushort)SnesButton.Select;
+            }
+            else if (!liveOrbNeedsBeam && samus.SelectedHudItem == 0 && samus.Missiles != 0)
+            {
+                // This is the same Select edge a player uses. It selects both the route's
+                // initial five missiles and any ammunition later restored by native enemy
+                // drops after depletion automatically returned the HUD to Beam.
+                input = (ushort)SnesButton.Select;
+            }
+            else if (!torizo.DeathStarted)
+            {
+                int signedDistance = torizo.Slot.XPosition - samus.XPosition;
+                int absoluteDistance = Math.Abs(signedDistance);
+                SnesButton towardBoss = signedDistance >= 0 ? SnesButton.Right : SnesButton.Left;
+                SnesButton awayFromBoss = signedDistance >= 0 ? SnesButton.Left : SnesButton.Right;
+                bool bossAcceptsShots = torizo.Function == 0xc6ff && torizo.ShotGuard == 0;
+                SamusMovementType movement = samus.ReadMovementKind(bus);
+                bool canStartGroundedVault = movement is
+                    SamusMovementType.Standing or
+                    SamusMovementType.Running or
+                    SamusMovementType.Crouching or
+                    SamusMovementType.TurningOnGround or
+                    SamusMovementType.Moonwalking or
+                    SamusMovementType.RanIntoWall;
+                bool samusFacesLeft = SamusState.IsFacingLeft(bus, samus.Pose);
+                bool samusFacesBoss = signedDistance < 0 == samusFacesLeft;
+                RoomEnemyProjectileSlot? safePickup = runtime.Enemies.EnemyProjectiles
+                    .Where(projectile =>
+                        projectile.IsActive &&
+                        projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup)
+                    .OrderBy(projectile => Math.Abs(projectile.XPosition - samus.XPosition))
+                    .FirstOrDefault();
+                // A refill is not "safe" merely because its projectile kind says pickup.
+                // Torizo emits the spread from inside the wider 128-pixel approach range,
+                // though, so forbidding all resource work there made every orb expire
+                // untouched. Eighty pixels leaves a useful diagonal-firing lane while the
+                // inner range remains an unconditional vault zone.
+                bool resourceLaneIsSafe = absoluteDistance >= 80;
+                bool collectingPickup = samus.Health < ResourceHuntHealth &&
+                    safePickup is not null && resourceLaneIsSafe;
+                // Keep aiming at one native enemy-projectile slot until it disappears.
+                // The six-orb spread often puts equally near targets on opposite sides of
+                // Samus; re-sorting every frame made the controller alternate turn poses
+                // and never reach the subsequent shoulder-aim/fire edge. Slot identity is
+                // observation only and remains valid for exactly as long as that live orb.
+                RoomEnemyProjectileSlot? chozoOrb = runtime.Enemies.EnemyProjectiles
+                    .FirstOrDefault(projectile =>
+                        projectile.SlotIndex == targetedOrbSlotIndex &&
+                        projectile.IsActive &&
+                        projectile.Kind == RoomEnemyProjectileKind.BombTorizoChozoOrb);
+                if (chozoOrb is null)
+                {
+                    chozoOrb = runtime.Enemies.EnemyProjectiles
+                        .Where(projectile =>
+                            projectile.IsActive &&
+                            projectile.Kind == RoomEnemyProjectileKind.BombTorizoChozoOrb)
+                        .OrderBy(projectile => Math.Abs(projectile.XPosition - samus.XPosition))
+                        .FirstOrDefault();
+                    targetedOrbSlotIndex = chozoOrb?.SlotIndex ?? -1;
+                    orbAimHoldFrames = 0;
+                }
+                bool huntingOrb = samus.Health < ResourceHuntHealth &&
+                    chozoOrb is not null && resourceLaneIsSafe;
+                // Simply retreating eventually pins Samus against a one-screen room wall.
+                // When the body closes, start a fixed-direction full-height jump over it.
+                // Keeping the direction fixed is important: recomputing "toward" after crossing would
+                // reverse in mid-air and put Samus straight back under Torizo.
+                // During the long stand-up list the dormant body still occupies authored
+                // hitboxes. Do not repeatedly vault through it before combat begins; use
+                // that warning period to return to the left-side firing lane instead.
+                if (collectingPickup)
+                {
+                    // Shot Chozo orbs execute $86:AB8A and create ordinary enemy-drop
+                    // projectiles. Low-energy players should actually collect those drops;
+                    // reading their live coordinates only chooses a D-pad direction and
+                    // never grants health or alters the pickup slot from the audit.
+                    dodgeFramesRemaining = 0;
+                    dodgeReady = true;
+                    orbAimHoldFrames = 0;
+                    int pickupDistance = safePickup!.XPosition - samus.XPosition;
+                    if (Math.Abs(pickupDistance) > 5)
+                    {
+                        input = (ushort)(pickupDistance > 0
+                            ? SnesButton.Right
+                            : SnesButton.Left);
+                    }
+                    if (safePickup.YPosition + 6 < samus.YPosition && frame % 48 < 24)
+                    {
+                        // Enemy drops spend much of their lifetime above standing Samus.
+                        // A released half-cycle preserves real new-button edges on repeated
+                        // attempts; the pickup's own collision decides whether an arc reaches it.
+                        input |= (ushort)SnesButton.A;
+                    }
+                }
+                else if (huntingOrb)
+                {
+                    // Bomb Torizo's thrown orbs are intended resource targets. Face the
+                    // moving object first, then hold the retail shoulder aim for one full
+                    // pose-update frame before adding a Fire edge. As with boss shots, this
+                    // avoids pretending same-frame input can retroactively rotate a beam.
+                    dodgeFramesRemaining = 0;
+                    dodgeReady = true;
+                    int orbXDistance = chozoOrb!.XPosition - samus.XPosition;
+                    int orbYDistance = chozoOrb.YPosition - samus.YPosition;
+                    bool facesOrb = orbXDistance < 0 == samusFacesLeft;
+                    if (!facesOrb)
+                    {
+                        input = (ushort)(orbXDistance < 0
+                            ? SnesButton.Left
+                            : SnesButton.Right);
+                        orbAimHoldFrames = 0;
+                    }
+                    else
+                    {
+                        // Stored projectile/body origins are not muzzle coordinates. An orb
+                        // resting at Y=$C6 is only eleven pixels below standing Samus's
+                        // Y=$BB origin, but it is substantially below her arm cannon. Use the
+                        // native diagonal-down pose for even that small positive body delta.
+                        SnesButton aim = orbYDistance < -18
+                            ? SnesButton.R
+                            : orbYDistance > 6
+                                ? SnesButton.L
+                                : 0;
+                        input = (ushort)aim;
+                        if (orbAimHoldFrames != 0 && fireCooldown == 0)
+                        {
+                            input |= (ushort)SnesButton.X;
+                            fireInputs++;
+                            fireCooldown = 4;
+                        }
+                        orbAimHoldFrames++;
+                    }
+                }
+                else if (!bossAcceptsShots)
+                {
+                    orbAimHoldFrames = 0;
+                    dodgeFramesRemaining = 0;
+                    dodgeReady = true;
+                    if (samus.XPosition > 48)
+                        input = (ushort)SnesButton.Left;
+                }
+                else if (!dodgeReady && absoluteDistance > 96)
+                {
+                    // The room is only one screen wide. Rearm after the bodies have cleared
+                    // the immediate contact range so a fresh A-button edge is available on
+                    // the next approach without requiring either actor to reach a wall.
+                    dodgeReady = true;
+                }
+                else if (dodgeReady && dodgeFramesRemaining == 0 &&
+                         absoluteDistance < 128 && canStartGroundedVault)
+                {
+                    // A held A bit cannot begin another jump during knockback, falling, or
+                    // an existing arc. Consuming the fixed dodge clock in one of those states
+                    // left no new-button edge when Samus finally landed. Arm the complete
+                    // forty-four-frame crossing only from a cartridge pose whose movement handler
+                    // can accept a grounded jump transition.
+                    dodgeFramesRemaining = 44;
+                    dodgeDirection = towardBoss;
+                    dodgeReady = false;
+                }
+                if (!huntingOrb && !collectingPickup &&
+                    bossAcceptsShots && dodgeFramesRemaining != 0)
+                {
+                    input = (ushort)dodgeDirection;
+                    if (dodgeFramesRemaining > 22)
+                        input |= (ushort)SnesButton.A;
+                    dodgeFramesRemaining--;
+                }
+                else if (!huntingOrb && !collectingPickup &&
+                         bossAcceptsShots && absoluteDistance < 80)
+                {
+                    input |= (ushort)awayFromBoss;
+                }
+                else if (!huntingOrb && !collectingPickup &&
+                         bossAcceptsShots && absoluteDistance > 128)
+                {
+                    input |= (ushort)towardBoss;
+                }
+
+                // Power-beam shots are one-frame edges; a held X would charge and would no
+                // longer prove that the regular producer repeatedly allocates and disposes
+                // projectile slots. Fire only while there is room to face the boss safely.
+                if (!huntingOrb && !collectingPickup &&
+                    dodgeFramesRemaining == 0 && bossAcceptsShots &&
+                    absoluteDistance >= 64 && !samusFacesBoss)
+                {
+                    // Input alpha selects a new pose, but the projectile producer still sees
+                    // the old pose until UpdateSamusPose late in the frame. Turn first; never
+                    // pretend a simultaneous direction+X chord can rotate an existing shot.
+                    input = (ushort)towardBoss;
+                }
+                if (!huntingOrb && !collectingPickup && bossAcceptsShots && samusFacesBoss)
+                {
+                    // Horizontal fire intersects the standing actor from Samus's ordinary
+                    // floor poses. During either actor's jump, however, the same muzzle row
+                    // can pass entirely above or below the active extended spritemap. Hold
+                    // the retail shoulder aim from the live relative origins; pose update
+                    // gets at least one frame to establish it before the next four-frame
+                    // Fire edge, and the ROM projectile tables still choose the trajectory.
+                    int bossYDistance = torizo.Slot.YPosition - samus.YPosition;
+                    if (bossYDistance > 32)
+                        input |= (ushort)SnesButton.L;
+                    else if (bossYDistance < -40)
+                        input |= (ushort)SnesButton.R;
+                }
+                if (!huntingOrb && !collectingPickup && bossAcceptsShots &&
+                    absoluteDistance >= 40 && samusFacesBoss && fireCooldown == 0)
+                {
+                    // Firing is independent of locomotion on the controller. Preserve a
+                    // simultaneous run/vault direction and add X only after the cartridge
+                    // pose already faces Torizo; the projectile producer therefore emits in
+                    // the established direction while ordinary movement continues.
+                    input |= (ushort)SnesButton.X;
+                    fireInputs++;
+                    fireCooldown = 4;
+                }
+
+            }
+
+            runtime.StepFrame(input);
+            if (samus.Health < healthBeforeFrame)
+            {
+                // Keep the private-ROM route diagnosable without reaching into collision
+                // state: the frame's controller word, authored actor positions, and live
+                // projectile kinds identify which ordinary interaction caused each loss.
+                string liveProjectileTrace = string.Join(
+                    ' ',
+                    runtime.Enemies.EnemyProjectiles
+                        .Where(projectile => projectile.IsActive)
+                        .Select(projectile =>
+                            $"{projectile.Kind}@{projectile.XPosition:X2}/{projectile.YPosition:X2}"));
+                Console.WriteLine(
+                    $"    damage f{frame + 1}: {healthBeforeFrame}->{samus.Health}, " +
+                    $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4})/p${samus.Pose:X2}/" +
+                    $"inv={samus.InvincibilityTimer}, boss=(${torizo.Slot.XPosition:X4}," +
+                    $"${torizo.Slot.YPosition:X4})/d={Math.Abs(torizo.Slot.XPosition - samus.XPosition)}/" +
+                    $"fn=${torizo.Function:X4}/ins=${torizo.Slot.CurrentInstruction:X4}, " +
+                    $"input=${input:X4}, projectiles=[{liveProjectileTrace}].");
+            }
+            if (frame == 0 && initialMissiles != 0 && samus.SelectedHudItem != 1)
+            {
+                throw new InvalidDataException(
+                    $"Controller Select edge did not choose Missiles for Bomb Torizo; " +
+                    $"HUD selection is {samus.SelectedHudItem}.");
+            }
+            foreach (RoomEnemyProjectileSlot projectile in runtime.Enemies.EnemyProjectiles)
+            {
+                if (projectile.IsActive)
+                    naturalAttacks.Add(projectile.Kind);
+            }
+            sawDeathMusic |= runtime.Enemies.LastBombTorizoMusicRequest is
+                { Track: 3, DelayFrames: 8 };
+
+            if (torizo.Slot.Health < previousEnemyHealth)
+            {
+                damagingHits++;
+                Console.WriteLine(
+                    $"    boss hit f{frame + 1}: {previousEnemyHealth}->{torizo.Slot.Health}, " +
+                    $"Samus=({samus.XPosition:X2}/{samus.YPosition:X2})/p${samus.Pose:X2}, " +
+                    $"boss=({torizo.Slot.XPosition:X2}/{torizo.Slot.YPosition:X2})/" +
+                    $"ext=${torizo.Slot.SpritemapPointer:X4}, input=${input:X4}, " +
+                    $"spawn={FormatSpawn(runtime.Projectiles.LastFiredProjectileSnapshot)}.");
+                previousEnemyHealth = torizo.Slot.Health;
+            }
+            if (samus.Health == 0)
+            {
+                throw new InvalidDataException(
+                    $"Samus died during controller-driven Bomb Torizo combat at frame " +
+                    $"{frame + 1}; boss health={torizo.Slot.Health}, inputs={fireInputs}.");
+            }
+            if (frame % 300 == 299)
+            {
+                Console.WriteLine(
+                    $"  Bomb Torizo fight f{frame + 1}: Samus=(${samus.XPosition:X4}," +
+                    $"${samus.YPosition:X4})/{samus.Health}/p${samus.Pose:X2}, " +
+                    $"bombs={runtime.BombProjectiles.Slots.Count(slot => slot.IsActive)}, " +
+                    $"pickups={runtime.Enemies.EnemyProjectiles.Count(projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup)}, " +
+                    $"orbs={runtime.Enemies.EnemyProjectiles.Count(projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.BombTorizoChozoOrb)}, " +
+                    $"orb-pos=[{string.Join(' ', runtime.Enemies.EnemyProjectiles.Where(projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.BombTorizoChozoOrb).Select(projectile => $"{projectile.XPosition:X2}/{projectile.YPosition:X2}"))}], " +
+                    $"orb-drops={runtime.Enemies.TorizoOrbDropRequests.Count}, " +
+                    $"boss=(${torizo.Slot.XPosition:X4}," +
+                    $"${torizo.Slot.YPosition:X4})/{torizo.Slot.Health}, " +
+                    $"ammo={samus.Missiles}/{samus.SelectedHudItem}, " +
+                    $"function=${torizo.Function:X4}, instruction=${torizo.Slot.CurrentInstruction:X4}, " +
+                    $"hits={damagingHits}, fire={fireInputs}, attacks=[" +
+                    $"{string.Join(',', naturalAttacks)}].");
+            }
+
+            if (!torizo.BossBitSet)
+                continue;
+            if (!torizo.DeathStarted || torizo.Slot.Health != 0 ||
+                !torizo.ItemDropRequested || !sawDeathMusic)
+            {
+                throw new InvalidDataException(
+                    $"Bomb Torizo set its boss bit with incomplete death state: " +
+                    $"health={torizo.Slot.Health}, death={torizo.DeathStarted}, " +
+                    $"drop={torizo.ItemDropRequested}, music={sawDeathMusic}.");
+            }
+            if (!runtime.System.HasAnyBossBits(0, BossBits.AreaTorizo))
+            {
+                throw new InvalidDataException(
+                    "Bomb Torizo death did not persist Crateria's area-Torizo boss bit.");
+            }
+            if (damagingHits == 0 || initialEnemyHealth <= torizo.Slot.Health)
+            {
+                throw new InvalidDataException(
+                    "Bomb Torizo died without any controller-produced beam, missile, or bomb damage.");
+            }
+
+            Console.WriteLine(
+                $"  Bomb Torizo fight: frames={frame + 1}, fire={fireInputs}, " +
+                $"damage-events={damagingHits}, Samus={initialSamusHealth}->{samus.Health}, " +
+                $"missiles={initialMissiles}->{samus.Missiles}, " +
+                $"attacks=[{string.Join(',', naturalAttacks)}], boss-bit persisted.");
+            return new BombTorizoFightResult(frame + 1, fireInputs, damagingHits);
+        }
+
+        throw new InvalidDataException(
+            $"Bomb Torizo remained undefeated after {maximumFrames} controller frames; " +
+            $"health={torizo.Slot.Health}/{initialEnemyHealth}, Samus={samus.Health}, " +
+            $"fire={fireInputs}, damage-events={damagingHits}, function=${torizo.Function:X4}, " +
+            $"instruction=${torizo.Slot.CurrentInstruction:X4}.");
     }
 
     private static DriveResult DriveUntilDoor(
@@ -215,6 +844,7 @@ internal static class EarlyControllerRouteAudit
             $"{roomName} controller drive began without Samus.");
         ushort previousX = samus.XPosition;
         ushort previousY = samus.YPosition;
+        int lastHorizontalDelta = 0;
         int stationaryFrames = 0;
         int horizontallyStationaryFrames = 0;
         int firedShots = 0;
@@ -227,8 +857,10 @@ internal static class EarlyControllerRouteAudit
         int climbSteeringDelayFrames = 0;
         int climbApproachX = 0x0178;
         int climbTargetSurfaceY = 0;
+        int climbPlanningSupportSurfaceY = 0;
         int? climbTargetX = null;
         bool climbTargetIsDoorApproach = false;
+        bool climbTargetIsSolidLedge = false;
         bool climbUsingWallJumps = false;
         bool climbWallTargetIsRight = true;
         SnesButton climbWallContactDirection = 0;
@@ -236,12 +868,38 @@ internal static class EarlyControllerRouteAudit
         bool climbHoldingTriggeredWallJump = false;
         bool climbWallLandingEnabled = false;
         bool climbWaitingAboveWallLanding = false;
+        bool climbWallJumpHasLandingTarget = false;
+        bool climbLaunchAwayFromAdjacentWall = false;
         int climbWallLandingX = 0;
         int climbWallLandingSurfaceY = 0;
         bool climbRequiresGroundApproach = false;
         bool climbLaunchTowardApproach = false;
+        bool climbWaitForSurfaceClearance = false;
+        bool climbNeedsMomentumRunup = false;
+        bool climbRunningTowardLaunch = false;
+        bool climbPreserveTargetwardMomentum = false;
+        bool climbUseLowArc = false;
+        bool climbArcHitCeiling = false;
+        bool climbRequiresOutwardLaunch = false;
+        bool climbWaitingForOutwardMotion = false;
+        int climbRunupStartX = 0;
+        int climbRunupLaunchX = 0;
         bool climbJumpReady = true;
         bool climbWasAirborne = false;
+        bool parlorUpperShaftCleared = false;
+        bool parlorDescentLipCleared = false;
+        int parlorLaneTargetX = -1;
+        int parlorBestLaneDistance = int.MaxValue;
+        int parlorLaneStallFrames = 0;
+        int parlorDeepestY = 0;
+        int parlorDescentStallFrames = 0;
+        bool parlorMorphTunnelActive = false;
+        bool parlorMorphTunnelEnteredBall = false;
+        int parlorMorphTunnelInputFrames = 0;
+        int parlorMorphTunnelExitX = -1;
+        var rejectedClimbTargets = new HashSet<(int X, int SurfaceY)>();
+        var lowArcClimbTargets = new HashSet<(int X, int SurfaceY)>();
+        var failedClimbTargetCounts = new Dictionary<(int X, int SurfaceY), int>();
         // Landing Site, Parlor, and Climb begin by travelling left or descending
         // from a leftward approach. Pit is entered through its left cap and the
         // cartridge route continues to the right.
@@ -250,7 +908,8 @@ internal static class EarlyControllerRouteAudit
         SnesButton horizontalDirection = roomName switch
         {
             "Pit" when returningWithMorphBallAtEntry => SnesButton.Left,
-            "Pit" or "Elevator to Blue Brinstar" or "Pre-Missiles room" => SnesButton.Right,
+            "Pit" or "Elevator to Blue Brinstar" or "Pre-Missiles room" or
+                "Parlor return" or "Flyway" => SnesButton.Right,
             _ => SnesButton.Left,
         };
         var firedByDirection = new int[16];
@@ -608,6 +1267,19 @@ internal static class EarlyControllerRouteAudit
                 // the translated runtime.
                 bool returningUpClimb = roomName == "Climb" &&
                     returningWithMorphBallAtEntry;
+                int currentRouteSurfaceY =
+                    samus.YPosition + samus.Kinematics.YRadius;
+                bool traversingParlorUpperExit = roomName == "Parlor return" &&
+                    !parlorUpperShaftCleared && currentRouteSurfaceY <= 0x00b0;
+                bool returningUpParlorShaft = roomName == "Parlor return" &&
+                    !parlorUpperShaftCleared && !traversingParlorUpperExit;
+                // The screen-boundary wall occupies row $20; the apparent shelf at $0280
+                // is only an intermediate landing. A jump onto the wall's top necessarily
+                // crosses the exit plane before Samus' feet clear its surface. Retain the
+                // ascent owner while a collision-derived target or wall-jump cycle remains
+                // active, then switch to ordinary eastbound input above the wall.
+                bool returningUpVerticalRoute = returningUpClimb ||
+                    returningUpParlorShaft || traversingParlorUpperExit;
                 bool descendingLowerClimb = roomName == "Climb" &&
                     !returningUpClimb &&
                     samus.YPosition is >= 0x0700 and < 0x0800;
@@ -624,7 +1296,24 @@ internal static class EarlyControllerRouteAudit
                 {
                     input = (ushort)SnesButton.Right;
                 }
-                else if (returningUpClimb)
+                else if (traversingParlorUpperExit)
+                {
+                    // The upper-left slope terminates at the east doorway's elevation.
+                    // From here the route is a horizontal gap, not another node in the
+                    // "strictly higher floor" graph. Hold Run+Right and request an ordinary
+                    // spin jump whenever the native landing state rearms it. This phase is
+                    // selected from Samus' collision-resolved foot position; the cartridge
+                    // still owns acceleration, the gap, the opposite lip, and publication
+                    // of the boundary door once the body genuinely reaches screen two.
+                    horizontalDirection = SnesButton.Right;
+                    input = (ushort)(SnesButton.Right | SnesButton.B);
+                    climbTargetX = null;
+                    climbUsingWallJumps = false;
+                    climbAlignedForJump = samus.Kinematics.YDirection == 0 &&
+                        !SamusState.IsRightFacingLandingPose(samus.Pose) &&
+                        !SamusState.IsLeftFacingLandingPose(samus.Pose);
+                }
+                else if (returningUpVerticalRoute)
                 {
                     // Select the nearest authored floor-slope span above the current
                     // support. The driver still supplies buttons only; slope quadrants,
@@ -636,6 +1325,30 @@ internal static class EarlyControllerRouteAudit
                          SamusState.IsLeftFacingLandingPose(samus.Pose));
                     if (!airborne)
                     {
+                        int currentSupportSurfaceY =
+                            samus.YPosition + samus.Kinematics.YRadius;
+                        if (!waitingForLandingAnimation && climbTargetX is not null &&
+                            !climbNeedsMomentumRunup &&
+                            currentSupportSurfaceY > climbPlanningSupportSurfaceY + 4)
+                        {
+                            // Grounded slope movement can step onto a lower authored floor
+                            // without ever publishing an airborne/landing pair. A target
+                            // selected from the old elevation is no longer a valid transfer:
+                            // its approach coordinate may now lie underneath the shelf.
+                            // Invalidate only after a material downward surface change, then
+                            // let the same collision-derived selector plan from the body’s
+                            // new support. A certified momentum runway is exempt because its
+                            // per-pixel probes already proved that a gradual slope belongs to
+                            // the same walkable support. No position or velocity is altered.
+                            climbTargetX = null;
+                            climbGroundedRunupFrames = 0;
+                            climbRequiresGroundApproach = false;
+                            climbLaunchTowardApproach = false;
+                            climbWaitForSurfaceClearance = false;
+                            climbNeedsMomentumRunup = false;
+                            climbRunningTowardLaunch = false;
+                            climbPreserveTargetwardMomentum = false;
+                        }
                         if (!waitingForLandingAnimation && climbTargetX is null &&
                             !climbUsingWallJumps)
                         {
@@ -643,7 +1356,9 @@ internal static class EarlyControllerRouteAudit
                                 bus,
                                 runtime.LevelData!,
                                 runtime.Plms,
-                                samus);
+                                samus,
+                                preferSupportedApproach: returningUpParlorShaft,
+                                rejectedTargets: rejectedClimbTargets);
                             if (nextPlatform is null)
                             {
                                 // The return ascent contains cartridge-authored gaps whose
@@ -652,24 +1367,45 @@ internal static class EarlyControllerRouteAudit
                                 // neither position nor velocity is patched by the audit.
                                 climbUsingWallJumps = true;
                                 climbWallTargetIsRight = samus.XPosition >= 0x0180;
-                                ClimbPlatformTarget landingAfterWallJump =
-                                    FindNextClimbPlatformCenter(
-                                        bus,
-                                        runtime.LevelData!,
-                                        runtime.Plms,
-                                        samus,
-                                        maximumRise: 224) ??
-                                    throw new InvalidDataException(
-                                        "Climb wall-jump gap has no cartridge floor or top-door " +
-                                        "approach within 224 pixels.");
-                                climbWallLandingX = landingAfterWallJump.LandingX;
-                                climbWallLandingSurfaceY = landingAfterWallJump.SurfaceY;
+                                if (!returningUpParlorShaft)
+                                {
+                                    // Climb has one exceptional gap, after which the route
+                                    // deliberately returns to ordinary shelf planning. Save
+                                    // that genuine destination so a successful wall launch
+                                    // can cross over and land on it.
+                                    ClimbPlatformTarget landingAfterWallJump =
+                                        FindNextClimbPlatformCenter(
+                                            bus,
+                                            runtime.LevelData!,
+                                            runtime.Plms,
+                                            samus,
+                                            maximumRise: 224,
+                                            rejectedTargets: rejectedClimbTargets) ??
+                                        throw new InvalidDataException(
+                                            "Climb wall-jump gap has no cartridge floor or top-door " +
+                                            "approach within 224 pixels.");
+                                    climbWallLandingX = landingAfterWallJump.LandingX;
+                                    climbWallLandingSurfaceY = landingAfterWallJump.SurfaceY;
+                                    climbWallJumpHasLandingTarget = true;
+                                }
                             }
                             if (nextPlatform is not { } platform)
                                 goto BuildClimbWallJumpInput;
+                            if (roomName == "Parlor return")
+                            {
+                                Console.WriteLine(
+                                    $"  Selected Parlor climb target " +
+                                    $"(${platform.LandingX:X4},${platform.SurfaceY:X4}) " +
+                                    $"from ${currentSupportSurfaceY:X4} at frame {frame}; " +
+                                    $"rejected={rejectedClimbTargets.Count}.");
+                            }
                             climbTargetX = platform.LandingX;
                             climbTargetSurfaceY = platform.SurfaceY;
+                            climbPlanningSupportSurfaceY = currentSupportSurfaceY;
                             climbTargetIsDoorApproach = platform.IsDoorApproach;
+                            climbTargetIsSolidLedge = platform.IsSolidLedge;
+                            climbRequiresOutwardLaunch = false;
+                            climbWaitingForOutwardMotion = false;
                             int launchDistance = Math.Abs(platform.LandingX - samus.XPosition);
                             // Samus is only ten pixels wide, but a square slope's solid
                             // quadrant can project much farther than the block selected as
@@ -681,6 +1417,14 @@ internal static class EarlyControllerRouteAudit
                                 samus.XPosition >=
                                 targetBlockLeft - samus.Kinematics.XRadius &&
                                 samus.XPosition <= targetBlockRight + samus.Kinematics.XRadius;
+                            // Every ordinary landing surface has a solid underside. Even
+                            // when Samus starts beside rather than directly below it, moving
+                            // toward the landing center before her feet clear the surface
+                            // can clip that underside and erase the horizontal momentum the
+                            // remaining arc needs. Stay in the collision-proven outside lane
+                            // for all non-door targets; the top-door approach has no shelf
+                            // crossing and therefore needs no such gate.
+                            climbWaitForSurfaceClearance = !platform.IsDoorApproach;
                             // A normal jump cannot pass through the selected ledge. The
                             // approach coordinate is the nearest X whose complete body is
                             // just outside its tile shadow. If Samus begins under that
@@ -695,7 +1439,9 @@ internal static class EarlyControllerRouteAudit
                                     runtime.LevelData!,
                                     runtime.Plms,
                                     samus,
-                                    platform);
+                                    platform) ?? throw new InvalidDataException(
+                                        $"Selected climb platform (${platform.LandingX:X4}," +
+                                        $"${platform.SurfaceY:X4}) lost its validated ascent lane.");
                             bool currentLaneIsClear = platform.IsDoorApproach ||
                                 IsClimbAscentLaneClear(
                                     bus,
@@ -716,10 +1462,132 @@ internal static class EarlyControllerRouteAudit
                                 runtime.Plms,
                                 samus,
                                 climbApproachX);
-                            climbLaunchTowardApproach = directlyUnderTarget &&
-                                !canWalkToApproach;
+                            int selectedPlatformRise =
+                                currentSupportSurfaceY - platform.SurfaceY;
+                            int selectedPlatformWidth =
+                                platform.ShadowRightX - platform.ShadowLeftX;
+                            bool narrowTallParlorLedge =
+                                returningUpParlorShaft && platform.IsSolidLedge &&
+                                selectedPlatformRise > 3 * LevelBlockSizePixels &&
+                                selectedPlatformWidth <= 3 * LevelBlockSizePixels;
+                            bool narrowTallLedgeNeedsMomentum =
+                                narrowTallParlorLedge &&
+                                selectedPlatformWidth < 2 * LevelBlockSizePixels;
+                            bool longHorizontalTransfer =
+                                launchDistance > 4 * LevelBlockSizePixels &&
+                                (selectedPlatformRise <= 2 * LevelBlockSizePixels ||
+                                 selectedPlatformRise <= 4 * LevelBlockSizePixels &&
+                                 // Shadow endpoints are inclusive pixel coordinates, so a
+                                 // four-tile authored span measures 63 rather than 64 here.
+                                 selectedPlatformWidth >= 4 * LevelBlockSizePixels - 1);
+                            if (returningUpParlorShaft && platform.SurfaceY <= 0x0160)
+                            {
+                                Console.WriteLine(
+                                    $"    Parlor target geometry: distance={launchDistance}, " +
+                                    $"rise={selectedPlatformRise}, width={selectedPlatformWidth}, " +
+                                    $"approach=${climbApproachX:X4}, walk={canWalkToApproach}, " +
+                                    $"lane={currentLaneIsClear}, long={longHorizontalTransfer}.");
+                            }
+                            climbPreserveTargetwardMomentum = longHorizontalTransfer;
+                            // A previous full-height attempt at this exact ROM-selected
+                            // destination may have contacted authored ceiling geometry. In
+                            // that case retry with native variable-height release; unrelated
+                            // platforms retain the full jump that already works for them.
+                            climbUseLowArc = lowArcClimbTargets.Contains(
+                                (platform.LandingX, platform.SurfaceY));
+                            climbArcHitCeiling = false;
+                            climbRequiresOutwardLaunch = narrowTallParlorLedge;
+                            if (narrowTallParlorLedge && currentLaneIsClear)
+                            {
+                                // The current collision-proven lane is already wholly
+                                // outside the narrow ledge. Walking to its nearest edge and
+                                // only then reversing lets native running inertia carry the
+                                // body underneath before outward motion begins. Launch from
+                                // this existing clear lane instead: no coordinate is changed,
+                                // and the next phase still waits until controller-driven X
+                                // motion has genuinely reversed away from the shelf.
+                                climbApproachX = samus.XPosition;
+                                canWalkToApproach = true;
+                            }
+                            // If native floor probes cannot connect the current support to
+                            // the clear outside lane, a directly-under or genuinely tall
+                            // transfer must launch from the real support instead of walking
+                            // into the authored gap. Shorter side approaches retain their
+                            // already-proven targetward launch; redirecting those toward the
+                            // approach lane can throw away the horizontal range they require.
+                            climbLaunchTowardApproach = !canWalkToApproach &&
+                                (directlyUnderTarget ||
+                                 selectedPlatformRise > 3 * LevelBlockSizePixels);
+                            climbNeedsMomentumRunup = false;
+                            climbRunningTowardLaunch = false;
+                            bool standingOnLevelSupport =
+                                currentSupportSurfaceY % LevelBlockSizePixels == 0;
+                            if (returningUpParlorShaft &&
+                                (standingOnLevelSupport &&
+                                 (!canWalkToApproach && !narrowTallParlorLedge ||
+                                  narrowTallLedgeNeedsMomentum) ||
+                                 longHorizontalTransfer))
+                            {
+                                // Two cartridge-derived cases need horizontal speed before
+                                // takeoff: an approach lane that cannot be reached on foot,
+                                // a one- or two-block ledge more than three blocks above a
+                                // level source, and a destination over four blocks away.
+                                // A long transfer may begin on a slope: the span helper below
+                                // validates every prospective body centre with both native
+                                // horizontal collision and the downward floor dispatcher, so
+                                // requiring a numerically level starting surface would discard
+                                // a perfectly genuine cartridge runway. A broad four-block
+                                // destination can also accept a run-assisted transfer up to
+                                // four blocks high. Narrow shelves retain the conservative
+                                // two-block bound: testing the taller policy there proved that
+                                // native momentum simply carries Samus past their safe span.
+                                // The tall case consumes most of a standing arc merely gaining
+                                // enough height; the long case needs base X speed before its
+                                // descending edge reaches the landing plane. Certify the complete
+                                // runway with repeated bank-$94 floor probes rather than assuming
+                                // the visible tile art is safe to run across.
+                                (int supportLeftX, int supportRightX) =
+                                    FindClimbGroundSupportSpan(
+                                        bus,
+                                        runtime.LevelData!,
+                                        runtime.Plms,
+                                        samus);
+                                if (supportRightX - supportLeftX >= LevelBlockSizePixels)
+                                {
+                                    bool targetIsRight =
+                                        platform.LandingX > samus.XPosition;
+                                    // Keep both endpoints eight pixels inside the certified
+                                    // body-center span. The ordinary flat-shelf transfers use
+                                    // this margin to absorb multi-pixel running frames without
+                                    // walking off either support edge.
+                                    int supportedRunwayWidth = supportRightX - supportLeftX;
+                                    int runningEdgeInset =
+                                        supportedRunwayWidth < 2 * LevelBlockSizePixels
+                                            // A two-tile shelf has too little usable span
+                                            // after the ordinary eight-pixel margins. Three
+                                            // pixels still tolerates one native multi-pixel
+                                            // running step while preserving most of its runway.
+                                            ? 3
+                                            : 8;
+                                    climbRunupStartX = targetIsRight
+                                        ? supportLeftX + runningEdgeInset
+                                        : supportRightX - runningEdgeInset;
+                                    climbRunupLaunchX = targetIsRight
+                                        ? supportRightX - runningEdgeInset
+                                        : supportLeftX + runningEdgeInset;
+                                    climbNeedsMomentumRunup = true;
+                                    climbLaunchTowardApproach = false;
+                                    // A certified target-ward run supplies the horizontal
+                                    // speed this transfer needs. Do not also perform the
+                                    // zero-speed outward launch used when the source is an
+                                    // irregular slope with no safe runway.
+                                    climbRequiresOutwardLaunch = false;
+                                }
+                            }
                             climbRequiresGroundApproach = !climbLaunchTowardApproach &&
-                                (directlyUnderTarget || !currentLaneIsClear);
+                                (directlyUnderTarget || !currentLaneIsClear ||
+                                 (returningUpParlorShaft &&
+                                  (canWalkToApproach || climbNeedsMomentumRunup)));
                             // Long transfers need immediate acceleration. On short transfers
                             // that same input reaches the platform's vertical side before
                             // Samus' feet clear its sloped surface, so defer steering until
@@ -730,6 +1598,52 @@ internal static class EarlyControllerRouteAudit
                                 24);
                             if (directlyUnderTarget)
                                 climbSteeringDelayFrames = 0;
+                        }
+
+                        if (roomName == "Parlor return" && climbTargetX is { } wallLandingX &&
+                            climbUseLowArc &&
+                            failedClimbTargetCounts.GetValueOrDefault(
+                                (wallLandingX, climbTargetSurfaceY)) >= 2)
+                        {
+                            // A full-height arc that hit the ceiling and two subsequent
+                            // variable-height attempts have all landed below this exact
+                            // collision-selected shelf. Preserve that destination and switch
+                            // only the audit's buttons to the game's native wall-jump handshake.
+                            // Wall contact, animation rewind, launch velocity, and the eventual
+                            // landing remain cartridge-owned behavior.
+                            (int LeftCenterLimit, int RightCenterLimit)? shaftLimits =
+                                TryFindContinuousShaftWallLimits(runtime.LevelData!, samus);
+                            int wallJumpApexSampleY = Math.Max(
+                                0,
+                                climbTargetSurfaceY - 4 * LevelBlockSizePixels);
+                            bool shaftWallsSpanTransfer =
+                                TryFindContinuousShaftWallLimits(
+                                    runtime.LevelData!,
+                                    samus,
+                                    wallJumpApexSampleY) is not null;
+                            if (shaftLimits is null || !shaftWallsSpanTransfer)
+                            {
+                                // The top of Parlor opens into a staggered ledge field, not
+                                // a pair of continuous shaft walls. A ceiling-constrained
+                                // target there cannot use the native wall-jump fallback.
+                                // Reject only this collision-observed edge and let the same
+                                // cartridge platform search choose the next reachable floor.
+                                rejectedClimbTargets.Add(
+                                    (wallLandingX, climbTargetSurfaceY));
+                                climbTargetX = null;
+                                climbGroundedRunupFrames = 0;
+                                input = 0;
+                                goto ClimbInputBuilt;
+                            }
+                            (int leftWallLimit, int rightWallLimit) = shaftLimits.Value;
+                            climbWallTargetIsRight = samus.XPosition >=
+                                (leftWallLimit + rightWallLimit) / 2;
+                            climbWallLandingX = wallLandingX;
+                            climbWallLandingSurfaceY = climbTargetSurfaceY;
+                            climbWallJumpHasLandingTarget = true;
+                            climbUsingWallJumps = true;
+                            climbTargetX = null;
+                            climbGroundedRunupFrames = 0;
                         }
 
                     BuildClimbWallJumpInput:
@@ -775,7 +1689,13 @@ internal static class EarlyControllerRouteAudit
                             SnesButton towardWall = climbWallTargetIsRight
                                 ? SnesButton.Right
                                 : SnesButton.Left;
-                            input = (ushort)(towardWall | SnesButton.B);
+                            SnesButton groundedLaunchDirection =
+                                climbLaunchAwayFromAdjacentWall
+                                    ? climbWallTargetIsRight
+                                        ? SnesButton.Left
+                                        : SnesButton.Right
+                                    : towardWall;
+                            input = (ushort)(groundedLaunchDirection | SnesButton.B);
                             climbGroundedRunupFrames++;
                             if (climbGroundedRunupFrames >= 2 && climbJumpReady)
                             {
@@ -791,16 +1711,66 @@ internal static class EarlyControllerRouteAudit
                         }
                         else
                         {
-                        int groundTargetX = climbApproachX;
+                        int groundTargetX = climbNeedsMomentumRunup
+                            ? climbRunningTowardLaunch
+                                ? climbRunupLaunchX
+                                : climbRunupStartX
+                            : climbApproachX;
+                        // A running frame advances several pixels and can skip a single
+                        // exact coordinate. The run-up endpoints are already eight pixels
+                        // inside a bank-$94-certified support span, so accepting a four-
+                        // pixel window preserves that safety margin while allowing native
+                        // inertia to cross the requested turnaround or takeoff coordinate.
+                        int groundTargetTolerance = climbNeedsMomentumRunup ? 4 : 1;
                         bool reachedLaunchX = Math.Abs(
-                            samus.XPosition - groundTargetX) <= 1;
+                            samus.XPosition - groundTargetX) <= groundTargetTolerance;
+                        if (climbNeedsMomentumRunup && reachedLaunchX &&
+                            !climbRunningTowardLaunch)
+                        {
+                            // The first leg only creates room to accelerate. Reverse on
+                            // the next frame and consume the complete cartridge-supported
+                            // span before taking the jump edge at its target-side boundary.
+                            climbRunningTowardLaunch = true;
+                            climbGroundedRunupFrames = 0;
+                            groundTargetX = climbRunupLaunchX;
+                            reachedLaunchX = Math.Abs(
+                                samus.XPosition - groundTargetX) <= groundTargetTolerance;
+                        }
                         int launchTargetX = climbLaunchTowardApproach
                             ? climbApproachX
                             : climbTargetX ?? 0x0178;
-                        SnesButton launchDirection = samus.XPosition < launchTargetX
-                            ? SnesButton.Right
-                            : SnesButton.Left;
-                        horizontalDirection = reachedLaunchX
+                        bool launchAwayFromParlorLedge =
+                            climbWaitingForOutwardMotion ||
+                            roomName == "Parlor return" &&
+                            climbWaitForSurfaceClearance && reachedLaunchX &&
+                            climbTargetX is not null &&
+                            !climbNeedsMomentumRunup;
+                        SnesButton launchDirection = launchAwayFromParlorLedge
+                            // The certified approach is one body radius outside a solid
+                            // vertical face. Spending the mandatory pre-jump running frame
+                            // toward that face selects native ran-into-wall art, after which
+                            // A can only produce a neutral jump. Face outward for that one
+                            // grounded frame; releasing direction in the air clears its base
+                            // speed, and the normal clearance gate crosses back afterward.
+                            ? climbApproachX < climbTargetX
+                                ? SnesButton.Left
+                                : SnesButton.Right
+                            : samus.XPosition < launchTargetX
+                                ? SnesButton.Right
+                                : SnesButton.Left;
+                        if (climbRequiresOutwardLaunch && reachedLaunchX)
+                            climbWaitingForOutwardMotion = true;
+                        // `previousX` is deliberately synchronized to Samus after every
+                        // runtime step for the stationary counters below. Consequently it
+                        // cannot reveal the preceding frame's movement while this frame's
+                        // controller word is being assembled. Use the displacement captured
+                        // immediately after the last step so A is added only after the ROM
+                        // has really accelerated Samus away from the adjoining wall.
+                        bool movingOutward = climbWaitingForOutwardMotion &&
+                            (launchDirection == SnesButton.Right
+                                ? lastHorizontalDelta > 0
+                                : lastHorizontalDelta < 0);
+                        horizontalDirection = climbWaitingForOutwardMotion || reachedLaunchX
                             ? launchDirection
                             : samus.XPosition < groundTargetX
                                 ? SnesButton.Right
@@ -809,13 +1779,25 @@ internal static class EarlyControllerRouteAudit
                         // Jump during `$A4/$A5/$A6/$A7` legitimately selects a landing-
                         // interrupt target. Let that animation settle before issuing the
                         // fresh directional edge that selects spin-jump art.
+                        bool walkingToRunupStart = climbNeedsMomentumRunup &&
+                            !climbRunningTowardLaunch;
                         input = waitingForLandingAnimation
                             ? (ushort)0
-                            : (ushort)(horizontalDirection | SnesButton.B);
+                            : walkingToRunupStart
+                                // The setup leg only creates runway. Holding Dash here
+                                // builds velocity away from the eventual jump and requires
+                                // enough braking distance to overrun a narrow shelf. Walk
+                                // to the inset turnaround, then enable Dash on the target-
+                                // ward leg whose momentum the jump is meant to preserve.
+                                ? (ushort)horizontalDirection
+                                : (ushort)(horizontalDirection | SnesButton.B);
                         if (!waitingForLandingAnimation)
                             climbGroundedRunupFrames++;
                         climbAlignedForJump = !waitingForLandingAnimation &&
-                            (!climbRequiresGroundApproach || reachedLaunchX) &&
+                            (!climbRequiresGroundApproach || reachedLaunchX ||
+                             movingOutward) &&
+                            (!climbNeedsMomentumRunup || climbRunningTowardLaunch) &&
+                            (!climbWaitingForOutwardMotion || movingOutward) &&
                             // One direction-only frame establishes running state before
                             // the new Jump edge. Pressing both on the first supported frame
                             // selects normal-jump `$4B/$4D`; the authored Climb gaps rely on
@@ -835,23 +1817,108 @@ internal static class EarlyControllerRouteAudit
                             SnesButton awayFromWall = climbWallTargetIsRight
                                 ? SnesButton.Left
                                 : SnesButton.Right;
-                            // These are the body-centre limits produced by the shaft walls,
-                            // including the asymmetric four-pixel square-slope stop on the
-                            // left. Releasing A only at contact preserves jump height; the
-                            // real bank-$94 probe below remains the authority on whether a
-                            // wall contact and subsequent wall jump actually exist.
-                            bool nearWall = climbWallTargetIsRight
-                                ? samus.XPosition >= 0x01cf
-                                : samus.XPosition <= 0x012e;
+                            // Ask the exact observational bank-$94 wall probe used by native
+                            // spin movement. This adapts to Parlor's wider shaft and to
+                            // asymmetric square slopes without embedding either room's wall
+                            // coordinates. A result below eight pixels is precisely the
+                            // cartridge wall-jump eligibility distance.
+                            int wallProbeDisplacement = climbWallTargetIsRight
+                                ? 8 << 16
+                                : -(8 << 16);
+                            BlockMoveResult wallProbe = SamusBlockCollision.ProbeWallHorizontal(
+                                bus,
+                                runtime.LevelData!,
+                                samus.Kinematics,
+                                wallProbeDisplacement,
+                                runtime.Plms);
+                            (int LeftCenterLimit, int RightCenterLimit)? liveShaftLimits =
+                                TryFindContinuousShaftWallLimits(
+                                    runtime.LevelData!,
+                                    samus);
+                            if (liveShaftLimits is null)
+                            {
+                                // Crossing above the last continuous wall column is a
+                                // geometry transition, not a route failure. Retire wall-jump
+                                // mode and steer the already-native airborne arc toward its
+                                // saved landing. The next collision-resolved landing will
+                                // either complete that edge or feed it back to the ordinary
+                                // failure/rejection logic.
+                                climbUsingWallJumps = false;
+                                climbWaitingAboveWallLanding = false;
+                                climbWallLandingEnabled = false;
+                                climbHoldingTriggeredWallJump = false;
+                                climbTargetX = climbWallJumpHasLandingTarget
+                                    ? climbWallLandingX
+                                    : null;
+                                input = (ushort)SnesButton.B;
+                                if (climbTargetX is { } resumedLandingX)
+                                {
+                                    input |= (ushort)(samus.XPosition < resumedLandingX
+                                        ? SnesButton.Right
+                                        : SnesButton.Left);
+                                }
+                                if (samus.Kinematics.YDirection == 1 &&
+                                    climbWallJumpButtonHoldFrames > 0)
+                                {
+                                    input |= (ushort)SnesButton.A;
+                                    climbWallJumpButtonHoldFrames--;
+                                }
+                                goto ClimbInputBuilt;
+                            }
+                            (int leftWallCenterLimit, int rightWallCenterLimit) =
+                                liveShaftLimits.Value;
+                            bool reachedIntendedWall = climbWallTargetIsRight
+                                ? samus.XPosition >= rightWallCenterLimit - 7
+                                : samus.XPosition <= leftWallCenterLimit + 7;
+                            bool movedIntoSelectedWallLastFrame =
+                                runtime.LastAerialSamusMovement?.Horizontal.Collided == true &&
+                                (runtime.Controller1.Current & (ushort)towardWall) != 0;
+                            bool nearWall =
+                                reachedIntendedWall && wallProbe.Collided &&
+                                    Math.Abs(wallProbe.AcceptedDisplacement >> 16) < 8 ||
+                                movedIntoSelectedWallLastFrame;
                             bool contactedLastFrame = runtime.LastAerialSamusMovement is
                                 { WallContact: true, WallJumpTriggered: false };
 
+                            if (climbLaunchAwayFromAdjacentWall)
+                            {
+                                if (contactedLastFrame)
+                                {
+                                    // The outbound direction itself probes the wall behind
+                                    // the newly-facing spin pose. If that native probe has
+                                    // already rewound the animation, it is authoritative:
+                                    // stop the launch-away setup and let the ordinary
+                                    // release/new-A handshake below finish the wall jump.
+                                    climbLaunchAwayFromAdjacentWall = false;
+                                }
+                                bool movedAwayFromWall = climbWallTargetIsRight
+                                    ? samus.XPosition < rightWallCenterLimit
+                                    : samus.XPosition > leftWallCenterLimit;
+                                if (climbLaunchAwayFromAdjacentWall && !movedAwayFromWall)
+                                {
+                                    // Pose selection alone does not move Samus. Keep the
+                                    // outbound direction until native acceleration changes
+                                    // her world X by at least one pixel. Reverse immediately
+                                    // after that real movement: waiting for her whole body to
+                                    // leave the probe window makes the return happen after the
+                                    // jump apex, too late for the native wall-contact handshake.
+                                    input = (ushort)(awayFromWall | SnesButton.A | SnesButton.B);
+                                    if (climbWallJumpButtonHoldFrames > 0)
+                                        climbWallJumpButtonHoldFrames--;
+                                    goto ClimbInputBuilt;
+                                }
+                                climbLaunchAwayFromAdjacentWall = false;
+                            }
+
                             if (climbWaitingAboveWallLanding)
                             {
-                                // The target shelf projects leftward from the right wall.
-                                // Cancel horizontal base motion and rise outside its shadow;
-                                // crossing toward its center any earlier hits the underside
-                                // and drops Samus back onto the lower slope.
+                                // Preserve the launch's outbound direction while Samus rises
+                                // beside the selected shelf. Spin/wall-jump movement clears
+                                // base X speed whenever forward is released, so a neutral
+                                // wait strands her over the source wall before the landing
+                                // phase can accelerate across the gap. The authored shelf's
+                                // underside still owns early contact; this supplies only the
+                                // same held direction a player uses after the wall-jump edge.
                                 bool feetAboveLanding = samus.YPosition +
                                     samus.Kinematics.YRadius < climbWallLandingSurfaceY;
                                 if (feetAboveLanding)
@@ -861,7 +1928,7 @@ internal static class EarlyControllerRouteAudit
                                 }
                                 else
                                 {
-                                    input = (ushort)SnesButton.B;
+                                    input = (ushort)(towardWall | SnesButton.B);
                                     if (climbWallJumpButtonHoldFrames > 0)
                                     {
                                         input |= (ushort)SnesButton.A;
@@ -896,23 +1963,45 @@ internal static class EarlyControllerRouteAudit
                             // the following frame add A to create the edge required by
                             // `$90:9E7F`. After a successful launch, keep A held for native
                             // variable-height physics while travelling to the opposite wall.
-                            if (climbWallJumpButtonHoldFrames > 0 &&
-                                (climbHoldingTriggeredWallJump || !nearWall))
-                            {
-                                input = (ushort)(towardWall | SnesButton.A | SnesButton.B);
-                                climbWallJumpButtonHoldFrames--;
-                                if (climbWallJumpButtonHoldFrames == 0)
-                                    climbHoldingTriggeredWallJump = false;
-                            }
-                            else if (contactedLastFrame)
+                            if (contactedLastFrame)
                             {
                                 // Repeat the exact directional probe that made contact.
                                 // The direction names the wall *behind* the facing pose
                                 // (Right probes left, Left probes right); recomputing it
                                 // from the intended travel wall can reverse the pose and
                                 // discard ApplyWallContactAnimationRewind's eligible frame.
-                                input = (ushort)(climbWallContactDirection |
-                                    SnesButton.A | SnesButton.B);
+                                input = (ushort)(climbWallContactDirection | SnesButton.B);
+
+                                // Early contact rewinds ordinary spin art to frame $0A;
+                                // the wall-jump test does not accept Jump until frame $0B.
+                                // Animation advances after movement, so the A edge which
+                                // first made contact can be one frame too early even though
+                                // the post-step debugger already displays $0B. If that edge
+                                // is still held, spend one contact frame releasing it. The
+                                // following iteration sees both an eligible animation frame
+                                // and a genuinely released controller latch, then supplies
+                                // the new A edge consumed by `$90:9E7F`.
+                                ushort firstEligibleWallFrame =
+                                    SamusState.IsScrewAttackPose(samus.Pose) ? (ushort)0x1b : (ushort)0x0b;
+                                bool jumpWasHeldLastFrame =
+                                    (runtime.Controller1.Current & (ushort)SnesButton.A) != 0;
+                                if (samus.AnimationFrame >= firstEligibleWallFrame &&
+                                    !jumpWasHeldLastFrame)
+                                {
+                                    input |= (ushort)SnesButton.A;
+                                }
+                            }
+                            else if (climbWallJumpButtonHoldFrames > 0 &&
+                                (climbHoldingTriggeredWallJump || !nearWall))
+                            {
+                                // A real `$90:9D35` contact above takes priority over this
+                                // coarse approach estimate. In particular, Parlor's square
+                                // slopes can be probe-eligible while their derived center
+                                // limit still says Samus is one pixel outside the margin.
+                                input = (ushort)(towardWall | SnesButton.A | SnesButton.B);
+                                climbWallJumpButtonHoldFrames--;
+                                if (climbWallJumpButtonHoldFrames == 0)
+                                    climbHoldingTriggeredWallJump = false;
                             }
                             else
                             {
@@ -930,8 +2019,31 @@ internal static class EarlyControllerRouteAudit
                         // too little horizontal travel before the landing row.
                         bool feetAboveTargetSurface =
                             samus.YPosition + samus.Kinematics.YRadius < climbTargetSurfaceY;
-                        int steeringTargetX = samus.Kinematics.YDirection == 1 &&
-                            !feetAboveTargetSurface
+                        int plannedSurfaceRise =
+                            climbPlanningSupportSurfaceY - climbTargetSurfaceY;
+                        if (roomName == "Parlor return" &&
+                            climbWaitForSurfaceClearance && feetAboveTargetSurface &&
+                            plannedSurfaceRise <= 2 * LevelBlockSizePixels &&
+                            (!climbPreserveTargetwardMomentum || climbUseLowArc))
+                        {
+                            // Stop extending the jump at the first frame Samus' complete
+                            // body clears the selected cartridge surface. Holding Jump for
+                            // a fixed maximum arc is wrong for a short step: it can carry
+                            // her into the side or underside of a different shelf several
+                            // rows above the destination. A long transfer still preserves
+                            // its targetward directional input and running inertia; Jump is
+                            // solely the native variable-height control. For a long transfer,
+                            // use the cutoff only after the collision dispatcher reported a
+                            // ceiling hit on a prior attempt at this exact destination. That
+                            // keeps Samus beneath the intervening shelf without imposing one
+                            // room-coordinate rule on every shallow jump. Climb's ledges retain
+                            // the proven full-height controller policy.
+                            climbJumpHoldFrames = 0;
+                        }
+                        int steeringTargetX = climbWaitForSurfaceClearance &&
+                            samus.Kinematics.YDirection == 1 &&
+                            !feetAboveTargetSurface &&
+                            !climbPreserveTargetwardMomentum
                             ? climbApproachX
                             : targetX;
                         bool horizontallyAligned = Math.Abs(
@@ -948,7 +2060,8 @@ internal static class EarlyControllerRouteAudit
                         // only after the distance-derived delay so a nearby ledge is reached
                         // around the apex rather than struck from underneath.
                         input = (ushort)SnesButton.B;
-                        if (climbAirborneFrames > climbSteeringDelayFrames &&
+                        if (((roomName == "Parlor return" && feetAboveTargetSurface) ||
+                             climbAirborneFrames > climbSteeringDelayFrames) &&
                             !horizontallyAligned)
                         {
                             input |= (ushort)horizontalDirection;
@@ -958,14 +2071,256 @@ internal static class EarlyControllerRouteAudit
                 }
                 else
                 {
+                    if (roomName == "Parlor return" && parlorUpperShaftCleared)
+                    {
+                        // Flyway is not the far-right door in Parlor's top corridor. Its
+                        // door is two screens lower, at the foot of the narrow winding
+                        // passage beginning near column $34. Walk to that opening without
+                        // Run (a running Samus can clear the two-tile gap), then steer each
+                        // fall using the widest cartridge-air span immediately below her.
+                        // Once the feet reach the destination door band, ordinary Right
+                        // input and the shared Fire pulse open/publish the authored door.
+                        int supportSurfaceY =
+                            samus.YPosition + samus.Kinematics.YRadius;
+                        int horizontalTargetX;
+                        int selectedWaypointRow = -1;
+                        int selectedRouteDistance = -1;
+                        string selectedRoutePreview = "-";
+                        if (!parlorDescentLipCleared)
+                        {
+                            horizontalTargetX = 0x0340;
+                        }
+                        else if (supportSurfaceY < 0x0240)
+                        {
+                            // Do not let the sampled row travel through the collision map
+                            // during one airborne arc. Adjacent rows can legitimately expose
+                            // opposite sides of this winding passage; recomputing after the
+                            // apex (or an underside collision) reversed Samus before she could
+                            // land on the platform selected from her last support. The lane is
+                            // therefore chosen while grounded and held until the next landing.
+                            horizontalTargetX = samus.Kinematics.YDirection != 0 &&
+                                parlorLaneTargetX >= 0
+                                    ? parlorLaneTargetX
+                                    : FindParlorDescentLaneCenter(
+                                        runtime.LevelData!,
+                                        samus,
+                                        out selectedWaypointRow,
+                                        out selectedRouteDistance,
+                                        out selectedRoutePreview);
+                        }
+                        else
+                        {
+                            horizontalTargetX = 0x0400;
+                        }
+
+                        if (horizontalTargetX != parlorLaneTargetX)
+                        {
+                            // Emit only state changes: this ties a steering reversal to the
+                            // exact collision row selected by the destination-connectivity
+                            // search without flooding a six-thousand-frame private-ROM run.
+                            int sampledLaneRow = Math.Clamp(
+                                (samus.YPosition + samus.Kinematics.YRadius + 8) >> 4,
+                                0,
+                                runtime.LevelData!.HeightInBlocks - 1);
+                            Console.WriteLine(
+                                $"  Parlor descent target ${horizontalTargetX:X4} at frame {frame}; " +
+                                $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}), " +
+                                $"row=${sampledLaneRow:X2}, waypoint=" +
+                                (selectedWaypointRow >= 0
+                                    ? $"({horizontalTargetX >> 4:X2},{selectedWaypointRow:X2})/d{selectedRouteDistance}/" +
+                                      selectedRoutePreview
+                                    : "-") +
+                                $", lip={parlorDescentLipCleared}.");
+                            parlorLaneTargetX = horizontalTargetX;
+                            parlorBestLaneDistance = int.MaxValue;
+                            parlorLaneStallFrames = 0;
+                        }
+                        int laneDistance = Math.Abs(
+                            horizontalTargetX - samus.XPosition);
+                        if (laneDistance < parlorBestLaneDistance)
+                        {
+                            parlorBestLaneDistance = laneDistance;
+                            parlorLaneStallFrames = 0;
+                        }
+                        else
+                        {
+                            parlorLaneStallFrames++;
+                        }
+                        if (samus.YPosition > parlorDeepestY)
+                        {
+                            parlorDeepestY = samus.YPosition;
+                            parlorDescentStallFrames = 0;
+                        }
+                        else
+                        {
+                            parlorDescentStallFrames++;
+                        }
+
+                        horizontalDirection = samus.XPosition < horizontalTargetX - 2
+                            ? SnesButton.Right
+                            : samus.XPosition > horizontalTargetX + 2
+                                ? SnesButton.Left
+                                : 0;
+
+                        SamusMovementType parlorMovement = samus.ReadMovementKind(bus);
+                        bool parlorIsMorphed = parlorMovement is
+                            SamusMovementType.MorphBallGround or
+                            SamusMovementType.MorphBallFalling;
+                        if (!parlorMorphTunnelActive &&
+                            horizontalDirection != 0 &&
+                            HorizontalPassageRequiresMorphBall(
+                                runtime.LevelData!,
+                                samus,
+                                horizontalDirection))
+                        {
+                            // The destination-connected path can contain a one-block-high
+                            // horizontal run. Detect that from the collision map rather than
+                            // naming Parlor coordinates: compare the rows occupied by the
+                            // current humanoid body with the radius-seven ball at the same
+                            // feet position. The audit then supplies only the normal Down
+                            // inputs; the ROM pose table, equipment bit, animation, radius
+                            // change, and collision code remain authoritative.
+                            parlorMorphTunnelActive = true;
+                            parlorMorphTunnelEnteredBall = false;
+                            parlorMorphTunnelInputFrames = 0;
+                            parlorMorphTunnelExitX = horizontalTargetX;
+                        }
+
+                        if (parlorMorphTunnelActive)
+                        {
+                            parlorMorphTunnelEnteredBall |= parlorIsMorphed;
+                            if (!parlorIsMorphed)
+                            {
+                                // Down is edge-sensitive across stand -> crouch -> morph.
+                                // Begin with a deterministic release window so arriving at
+                                // the obstruction while another direction is held cannot
+                                // turn the intended morph into an aimed-running transition.
+                                int morphInputPhase = parlorMorphTunnelInputFrames % 60;
+                                horizontalDirection = morphInputPhase < 20
+                                    ? 0
+                                    : SnesButton.Down;
+                                parlorMorphTunnelInputFrames++;
+                                jumpHoldFrames = 0;
+                            }
+                            else if (Math.Abs(samus.XPosition - parlorMorphTunnelExitX) <= 4)
+                            {
+                                // Crossing the first path segment proves that the ball has
+                                // traversed the low channel. It does *not* prove there is
+                                // humanoid headroom at that edge: Parlor immediately drops
+                                // into the next shaft. Retain the legitimate ball pose and
+                                // hand steering back to the destination-distance field.
+                                horizontalDirection = 0;
+                                parlorMorphTunnelActive = false;
+                                parlorMorphTunnelEnteredBall = false;
+                                parlorMorphTunnelExitX = -1;
+                                if (!parlorDescentLipCleared)
+                                {
+                                    parlorDescentLipCleared = true;
+                                    parlorDeepestY = samus.YPosition;
+                                    parlorDescentStallFrames = 0;
+                                }
+                            }
+                            else
+                            {
+                                horizontalDirection = samus.XPosition < parlorMorphTunnelExitX
+                                    ? SnesButton.Right
+                                    : SnesButton.Left;
+                            }
+
+                            if (parlorMorphTunnelEnteredBall &&
+                                !parlorIsMorphed &&
+                                parlorMovement != SamusMovementType.PostureTransition &&
+                                parlorMorphTunnelInputFrames > 12)
+                            {
+                                // A completed Up transition leaves both ball and posture
+                                // movement types. Resume destination-derived steering; a
+                                // later low run will independently retrigger this detector.
+                                parlorMorphTunnelActive = false;
+                                parlorMorphTunnelEnteredBall = false;
+                                parlorMorphTunnelExitX = -1;
+                            }
+                        }
+
+                        if (!parlorMorphTunnelActive &&
+                            supportSurfaceY >= 0x0240 &&
+                            (parlorIsMorphed ||
+                             parlorMovement == SamusMovementType.PostureTransition))
+                        {
+                            // Flyway's cap needs the arm cannon. Only request Up once the
+                            // destination door band has full-height room; the translated
+                            // expansion probe still has final authority over the unmorph.
+                            horizontalDirection = SnesButton.Up;
+                        }
+                        if (parlorDescentLipCleared &&
+                            !parlorMorphTunnelActive &&
+                            samus.Kinematics.YDirection == 0 &&
+                            horizontalDirection != 0 &&
+                            (parlorLaneStallFrames >= 30 ||
+                             parlorDescentStallFrames >= 45) &&
+                            jumpHoldFrames == 0)
+                        {
+                            // A square-slope staircase can alternate one-pixel movement and
+                            // collision forever, which never satisfies the room-wide stationary
+                            // heuristic. Request the same ordinary jump only after thirty frames
+                            // without reducing distance to the destination-connected lane.
+                            jumpHoldFrames = 24;
+                            parlorBestLaneDistance = laneDistance;
+                            parlorLaneStallFrames = 0;
+                            parlorDescentStallFrames = 0;
+                        }
+                    }
                     input = (ushort)horizontalDirection;
                 }
+                if (roomName == "Flyway" && samus.XPosition >= 0x02b0)
+                {
+                    // The red cap occupies rows six through nine while the cartridge's
+                    // small step at columns `$2C-$2D` blocks a floor-height or diagonal-up
+                    // shot. Jump onto/over that step with ordinary input, then fire only
+                    // while the arm cannon is horizontally level with the cap. The finite
+                    // first Missile pack is therefore spent on the door rather than terrain.
+                    input = (ushort)SnesButton.Right;
+                    if (samus.Kinematics.YDirection == 0 && jumpHoldFrames == 0)
+                        jumpHoldFrames = 24;
+                }
+                if (roomName == "Flyway" && samus.XPosition >= 0x02b0 &&
+                    samus.SelectedHudItem != 1 && frame % 2 == 0)
+                {
+                    // Flyway's `$44` cap is the first red door on the controller route.
+                    // Select is deliberately supplied as alternating pressed/released
+                    // samples: bank `$90:C4E7` consumes a new edge, skips unavailable HUD
+                    // entries, and chooses the Missile collected in Blue Brinstar. Nothing
+                    // here edits the item index or the door; the runtime's translated HUD
+                    // selector and the resident PLM must perform both state changes.
+                    input |= (ushort)SnesButton.Select;
+                }
                 // Fire cancels spin into normal-jump gun art, which cannot execute the
-                // block wall-jump check. Climb's upward exit is an exposed type-$9 trigger,
-                // so the ascent deliberately preserves spin instead of firing at it.
-                if (frame % 24 == 0 && !returningUpClimb)
+                // block wall-jump check. Suppress opportunistic shots during a planned
+                // vertical transfer; the explicit top-cap phase fires only while grounded.
+                if (frame % 24 == 0 && !returningUpVerticalRoute &&
+                    !parlorMorphTunnelActive &&
+                    roomName != "Flyway")
                     input |= (ushort)SnesButton.X;
-                if (returningUpClimb && samus.Kinematics.YDirection == 0 &&
+                if (roomName == "Flyway" && samus.XPosition < 0x02b0)
+                {
+                    // The corridor population is live on the return trip and approaches
+                    // from above. Use the configured diagonal-up shoulder with ordinary
+                    // power-beam edges so the audit does not deliberately absorb those
+                    // contacts before selecting Missiles at the red cap. The X pulses stop
+                    // before the door phase, preserving all five rounds.
+                    input |= (ushort)SnesButton.R;
+                    if (frame % 8 == 0)
+                        input |= (ushort)SnesButton.X;
+                }
+                if (roomName == "Flyway" && samus.SelectedHudItem == 1 &&
+                    samus.XPosition >= 0x02d0 && samus.YPosition is >= 0x0068 and <= 0x0098 &&
+                    frame % 2 == 0)
+                {
+                    // Alternating input supplies genuine Shoot edges. Missile cooldown still
+                    // limits allocation to the cartridge cadence, and the altitude band is
+                    // derived from the live four-block door cap rather than forcing a hit.
+                    input |= (ushort)SnesButton.X;
+                }
+                if (returningUpVerticalRoute && samus.Kinematics.YDirection == 0 &&
                     climbAlignedForJump && climbJumpReady)
                 {
                     // A room-global modulo pulse made later jumps arbitrarily short: a
@@ -976,7 +2331,7 @@ internal static class EarlyControllerRouteAudit
                     climbJumpReady = false;
                     climbStartingJump = true;
                 }
-                if (returningUpClimb && climbJumpHoldFrames > 0)
+                if (returningUpVerticalRoute && climbJumpHoldFrames > 0)
                 {
                     // The directional chord is needed only on the new Jump edge to select
                     // spin-jump art and seed its horizontal motion. On later frames the
@@ -989,8 +2344,10 @@ internal static class EarlyControllerRouteAudit
                     climbJumpHoldFrames--;
                 }
             ClimbInputBuilt:
-                if ((roomName != "Parlor" || samus.YPosition < 0x0100) &&
-                    !returningUpClimb &&
+                if (roomName != "Flyway" &&
+                    (roomName != "Parlor" || samus.YPosition < 0x0100) &&
+                    !returningUpVerticalRoute &&
+                    !parlorMorphTunnelActive &&
                     stationaryFrames == 30 && jumpHoldFrames == 0)
                 {
                     jumpHoldFrames = 24;
@@ -1004,8 +2361,110 @@ internal static class EarlyControllerRouteAudit
 
             byte poseBeforeStep = samus.Pose;
             ushort yBeforeStep = samus.YPosition;
-            runtime.StepFrame(input);
+            try
+            {
+                runtime.StepFrame(input);
+            }
+            catch (Exception exception)
+            {
+                // A translated-dispatch failure is itself route evidence. Emit the bounded
+                // controller history before rethrowing so private-ROM audits preserve the
+                // lead-up instead of reporting only the final pose pair. This does not
+                // recover or modify runtime state; the original exception remains fatal.
+                Console.WriteLine(
+                    $"  {roomName} failed while stepping frame {frame + 1} with " +
+                    $"input ${input:X4}: {exception.Message}");
+                foreach (string sample in routeTrace.TakeLast(240))
+                    Console.WriteLine($"    {sample}");
+                throw;
+            }
             frame++;
+
+            if (roomName == "Parlor return" && climbTargetX is not null &&
+                runtime.LastAerialSamusMovement is { HitCeiling: true })
+            {
+                // Contact alone is not failure: several valid full-height transfers brush
+                // an authored ceiling and still land correctly. Defer the policy change
+                // until the collision system later reports a landing below this target.
+                climbArcHitCeiling = true;
+            }
+
+            if (roomName == "Parlor return" && samus.XPosition >= 0x0200)
+            {
+                // Returned Parlor's shaft wall continues far above the row-$20 shelf. A
+                // landing height therefore cannot prove that Samus reached the eastbound
+                // passage: several perfectly valid upper ledges remain on the shaft side
+                // of the same solid screen-boundary column. End vertical-route ownership
+                // only after native horizontal collision has allowed her body centre into
+                // screen 2. This observes the cartridge-authored opening itself and cannot
+                // mistake a nearby slope or landing animation for completion.
+                parlorUpperShaftCleared = true;
+            }
+
+            if (roomName == "Parlor return" && parlorUpperShaftCleared &&
+                !parlorDescentLipCleared &&
+                runtime.LastAerialSamusMovement is { Landed: true } &&
+                samus.XPosition >= 0x0330 &&
+                samus.YPosition + samus.Kinematics.YRadius < 0x00a0)
+            {
+                // The one required obstacle jump has landed beyond the raised column-$32
+                // lip. From this lower authored shelf onward the intended route descends;
+                // suppressing the audit's generic "stuck" jump prevents it from undoing
+                // that progress while normal walking and gravity follow the passage.
+                parlorDescentLipCleared = true;
+                // The earlier shaft ascent naturally visited much larger world Y values.
+                // Those are not a descent-progress baseline: retaining them would make the
+                // first lower platform appear stalled immediately and launch Samus back up.
+                parlorDeepestY = samus.YPosition;
+                parlorDescentStallFrames = 0;
+            }
+
+            if (roomName == "Parlor return" && !climbUsingWallJumps &&
+                runtime.LastAerialSamusMovement is { Landed: true } &&
+                climbTargetX is { } attemptedTargetX)
+            {
+                int landedSupportSurfaceY =
+                    samus.YPosition + samus.Kinematics.YRadius;
+                var failedTarget = (attemptedTargetX, climbTargetSurfaceY);
+                int failureCount = failedClimbTargetCounts.GetValueOrDefault(
+                    failedTarget);
+                if (landedSupportSurfaceY > climbTargetSurfaceY + 4)
+                {
+                    failureCount++;
+                    failedClimbTargetCounts[failedTarget] = failureCount;
+                    // A ceiling-constrained miss is remembered for this exact target. A
+                    // shallow transfer will first retry with variable-height release; a
+                    // taller or repeatedly missed transfer can use the native wall-jump
+                    // fallback. No unrelated graph edge inherits either adaptation.
+                    if (climbArcHitCeiling)
+                        lowArcClimbTargets.Add(failedTarget);
+                }
+                if (landedSupportSurfaceY > climbTargetSurfaceY + 4 &&
+                    IsCoveredClimbTarget(
+                        runtime.LevelData!,
+                        attemptedTargetX,
+                        climbTargetSurfaceY,
+                        samus.Kinematics.XRadius))
+                {
+                    // Observe the collision system's authoritative landing event before
+                    // any grounded planner state can clear the attempted target. A miss is
+                    // inferred from pose and Y direction alone can miss the relevant frame.
+                    // Restrict adaptive rejection to a cartridge-covered target: an ordinary
+                    // open ledge may remain valid after a mistimed controller arc and should
+                    // not be silently removed from the route graph.
+                    const int failuresBeforeRejectingClimbTarget = 4;
+                    if (failureCount >= failuresBeforeRejectingClimbTarget &&
+                        rejectedClimbTargets.Add(failedTarget))
+                    {
+                        Console.WriteLine(
+                            $"  Rejected repeatedly failed Parlor climb target " +
+                            $"(${attemptedTargetX:X4},${climbTargetSurfaceY:X4}) " +
+                            $"from ${climbPlanningSupportSurfaceY:X4}; " +
+                            $"landed on ${landedSupportSurfaceY:X4} at frame {frame} " +
+                            $"after {failureCount} failed arcs.");
+                    }
+                }
+            }
             if (runtime.LastAerialSamusMovement is
                 { WallContact: true, WallJumpTriggered: false })
             {
@@ -1013,7 +2472,8 @@ internal static class EarlyControllerRouteAudit
                     ? SnesButton.Left
                     : SnesButton.Right;
             }
-            if (roomName == "Climb" && returningWithMorphBallAtEntry)
+            if ((roomName == "Climb" || roomName == "Parlor return") &&
+                returningWithMorphBallAtEntry)
             {
                 if (runtime.LastAerialSamusMovement is { WallJumpTriggered: true })
                 {
@@ -1028,7 +2488,12 @@ internal static class EarlyControllerRouteAudit
                         climbWallTargetIsRight = climbWallContactDirection == SnesButton.Right;
                         climbWallJumpButtonHoldFrames = 48;
                         climbHoldingTriggeredWallJump = true;
-                        if (samus.YPosition <= climbWallLandingSurfaceY + 0x30)
+                        // An oversized-gap plan records a collision-selected landing shelf.
+                        // Do not enter the centering phase for an unbounded wall-jump climb:
+                        // removing horizontal input there would leave Samus sliding down
+                        // the wall she had just escaped.
+                        if (climbWallJumpHasLandingTarget &&
+                            samus.YPosition <= climbWallLandingSurfaceY + 0x30)
                             climbWaitingAboveWallLanding = true;
                     }
                     else
@@ -1037,23 +2502,93 @@ internal static class EarlyControllerRouteAudit
                     }
                 }
                 bool climbIsAirborne = samus.Kinematics.YDirection != 0;
+                if (climbIsAirborne)
+                    climbWaitingForOutwardMotion = false;
                 if (climbWasAirborne && !climbIsAirborne)
                 {
+                    int landedSupportSurfaceY =
+                        samus.YPosition + samus.Kinematics.YRadius;
                     if (climbUsingWallJumps)
                     {
                         // A wall-jump arc may terminate on one of the narrow side lips.
                         // Launch across the shaft from whichever half caught Samus; aiming
                         // back into that adjacent wall produces only a one-frame hop.
-                        climbWallTargetIsRight = samus.XPosition < 0x0180;
+                        if (roomName == "Parlor return")
+                        {
+                            // In Parlor the ledges sit well inside the outer shaft walls.
+                            // An ordinary jump that catches one must continue outward until
+                            // it reaches a real boundary. A completed wall jump, however,
+                            // has already selected the *opposite* boundary; if a middle ledge
+                            // interrupts that arc, preserve the selection across the new
+                            // grounded launch. Recomputing from the ledge's half would send
+                            // Samus straight back to the wall she just left.
+                            (int LeftCenterLimit, int RightCenterLimit)? shaftLimits =
+                                TryFindContinuousShaftWallLimits(runtime.LevelData!, samus);
+                            if (shaftLimits is null)
+                            {
+                                // Above Parlor's continuous shaft, authored side ledges replace
+                                // the two uninterrupted wall columns. Landing there completes
+                                // the wall-jump fallback; retire its contact handshake and let
+                                // the collision-derived upper-room planner choose the next arc.
+                                climbUsingWallJumps = false;
+                                climbLaunchAwayFromAdjacentWall = false;
+                                climbWaitingAboveWallLanding = false;
+                                climbWallLandingEnabled = false;
+                                climbWallJumpHasLandingTarget = false;
+                            }
+                            else
+                            {
+                                (int leftLimit, int rightLimit) = shaftLimits.Value;
+                                const int nativeWallJumpProbeDistance = 8;
+                                bool landedAtIntendedWall = climbWallTargetIsRight
+                                    ? samus.XPosition >=
+                                        rightLimit - nativeWallJumpProbeDistance + 1
+                                    : samus.XPosition <=
+                                        leftLimit + nativeWallJumpProbeDistance - 1;
+                                if (landedAtIntendedWall)
+                                {
+                                    // A shelf flush with the selected boundary needs the native
+                                    // wall-jump setup: launch a spin away from the wall, then let
+                                    // the airborne branch turn back into this *same* wall before
+                                    // supplying the released/newly-pressed Jump handshake. Simply
+                                    // pressing into the wall from the ground selects neutral art;
+                                    // changing the target wall here creates an ordinary away arc.
+                                    climbLaunchAwayFromAdjacentWall = true;
+                                    // A collision-resolved landing ends the previous airborne
+                                    // shelf-centering phase even when it missed that shelf. If
+                                    // these latches survive, they intercept the next wall-contact
+                                    // handshake and hold Jump continuously, so `$90:9E7F` can
+                                    // never observe the required new A edge.
+                                    climbWaitingAboveWallLanding = false;
+                                    climbWallLandingEnabled = false;
+                                }
+                                else if (!climbHoldingTriggeredWallJump)
+                                {
+                                    int shaftCenter = (leftLimit + rightLimit) / 2;
+                                    climbWallTargetIsRight = samus.XPosition >= shaftCenter;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            climbWallTargetIsRight = samus.XPosition < 0x0180;
+                        }
                         if (climbWallLandingEnabled)
                         {
-                            // Landing may be either the requested floor or an intermediate
-                            // authored slope below it. In both cases the oversized gap is
-                            // finished; resume the ordinary platform selector from this
-                            // genuine support rather than chaining synthetic wall logic.
-                            climbUsingWallJumps = false;
+                            bool reachedSelectedLanding =
+                                landedSupportSurfaceY <= climbWallLandingSurfaceY + 4;
+
+                            // Only the saved bank-$94 elevation completes this transfer.
+                            // A short wall arc can legitimately catch the lower source slope
+                            // again; treating that collision as success discards the selected
+                            // shelf and sends the ordinary planner downhill. Instead clear the
+                            // centering phase and let the next grounded input begin another
+                            // native wall-jump cycle from the real collision-resolved support.
+                            climbUsingWallJumps = !reachedSelectedLanding;
                             climbWallLandingEnabled = false;
                             climbWaitingAboveWallLanding = false;
+                            if (reachedSelectedLanding)
+                                climbWallJumpHasLandingTarget = false;
                         }
                     }
                     // A variable-height hold belongs only to the arc that created it. If
@@ -1066,6 +2601,11 @@ internal static class EarlyControllerRouteAudit
                     climbTargetX = null;
                     climbWallJumpButtonHoldFrames = 0;
                     climbHoldingTriggeredWallJump = false;
+                    climbNeedsMomentumRunup = false;
+                    climbRunningTowardLaunch = false;
+                    climbPreserveTargetwardMomentum = false;
+                    climbRequiresOutwardLaunch = false;
+                    climbWaitingForOutwardMotion = false;
                 }
                 climbWasAirborne = climbIsAirborne;
             }
@@ -1113,24 +2653,35 @@ internal static class EarlyControllerRouteAudit
             // enough to bury the actual exception in CI output.
             int screenX = samus.XPosition >> 8;
             int screenY = samus.YPosition >> 8;
-            bool detailedReturnedClimbSample = roomName == "Climb" &&
+            bool detailedReturnedClimbSample =
+                roomName is "Climb" or "Parlor return" &&
                 returningWithMorphBallAtEntry &&
-                frame <= 260 && frame % 10 == 0;
+                ((frame <= 260 && frame % 10 == 0) ||
+                 (roomName == "Parlor return" &&
+                  (frame is >= 3880 and <= 4040)));
             bool detailedPreMissilesReturnSample = descendingPreMissiles &&
                 samus.MaxMissiles != 0 &&
                 frame <= 420 && frame % 10 == 0;
             if (screenX != previousScreenX || screenY != previousScreenY ||
-                frame % 60 == 0 || detailedReturnedClimbSample ||
+                (frame % 60 == 0 && frame <= 700) || detailedReturnedClimbSample ||
                 detailedPreMissilesReturnSample)
             {
                 routeTrace.Add(
                     $"f{frame}:(${samus.XPosition:X4},${samus.YPosition:X4})/" +
                     $"p${samus.Pose:X2}/s({screenX},{screenY})" +
-                    (roomName == "Climb" && returningWithMorphBallAtEntry
+                    (roomName == "Flyway"
+                        ? $"/hud={samus.SelectedHudItem}/missiles={samus.Missiles}/" +
+                          $"doors=[{string.Join(' ', runtime.Plms.ColoredDoors)}]/" +
+                          $"shots=[{string.Join(' ', runtime.Projectiles.Slots.Where(slot => slot.IsActive).Select(slot => $"{slot.Type:X4}@{slot.XPosition:X4},{slot.YPosition:X4}"))}]"
+                        : "") +
+                    (roomName is "Climb" or "Parlor return" &&
+                     returningWithMorphBallAtEntry
                         ? $"/lock={samus.InputLocked}/" +
                           $"target={climbTargetX?.ToString("X4") ?? "-"}/" +
                           $"surface={climbTargetSurfaceY:X4}/r={samus.Kinematics.YRadius}/" +
                           $"approach={climbApproachX:X4}/dir={horizontalDirection}/in=${input:X4}/" +
+                          $"runup={climbRunupStartX:X4}->{climbRunupLaunchX:X4}/" +
+                          $"active={climbNeedsMomentumRunup}/{climbRunningTowardLaunch}/" +
                           $"vcol={runtime.LastAerialSamusMovement?.Vertical?.Collided}/" +
                           $"vdisp={runtime.LastAerialSamusMovement?.Vertical?.AcceptedDisplacement}/" +
                           $"land={runtime.LastAerialSamusMovement?.Landed}"
@@ -1144,9 +2695,15 @@ internal static class EarlyControllerRouteAudit
                         ? $"/af{samus.AnimationFrame}/in${input:X4}/" +
                           $"wall={runtime.LastAerialSamusMovement?.WallContact}/" +
                           $"hcol={runtime.LastAerialSamusMovement?.Horizontal.Collided}/" +
+                          $"ceil={runtime.LastAerialSamusMovement?.HitCeiling}/" +
+                          $"hold={climbJumpHoldFrames}/wallMode={climbUsingWallJumps}/" +
+                          $"wallRight={climbWallTargetIsRight}/wallHold={climbWallJumpButtonHoldFrames}/" +
+                          $"launchAway={climbLaunchAwayFromAdjacentWall}/contactDir={climbWallContactDirection}/" +
                           $"yd={samus.Kinematics.YDirection}/" +
                           $"ys=${samus.Kinematics.YSpeed:X4}.${samus.Kinematics.YSubspeed:X4}"
                         : ""));
+                if (detailedReturnedClimbSample)
+                    Console.WriteLine($"  TRACE {routeTrace[^1]}");
                 previousScreenX = screenX;
                 previousScreenY = screenY;
             }
@@ -1196,6 +2753,10 @@ internal static class EarlyControllerRouteAudit
 
             bool moved = samus.XPosition != previousX || samus.YPosition != previousY;
             stationaryFrames = moved ? 0 : stationaryFrames + 1;
+            // Preserve the actual post-step horizontal displacement before updating the
+            // position snapshot. The next controller decision uses this to distinguish a
+            // held direction from genuine movement produced by bank-$90 acceleration.
+            lastHorizontalDelta = samus.XPosition - previousX;
             horizontallyStationaryFrames = samus.XPosition != previousX
                 ? 0
                 : horizontallyStationaryFrames + 1;
@@ -1205,7 +2766,9 @@ internal static class EarlyControllerRouteAudit
 
         if (!runtime.HasPendingDoorTransition)
         {
-            Console.WriteLine($"  {roomName} route trace: {string.Join(' ', routeTrace)}");
+            Console.WriteLine($"  {roomName} route trace:");
+            foreach (string sample in routeTrace)
+                Console.WriteLine($"    {sample}");
             if (floorHatchShotTrace.Count != 0)
                 Console.WriteLine($"  Floor-hatch shots: {string.Join(' ', floorHatchShotTrace)}");
             if (morphBallShotTrace.Count != 0)
@@ -1229,7 +2792,263 @@ internal static class EarlyControllerRouteAudit
                     .Select(slot => $"d{slot.Direction}:(${slot.XPosition:X4},${slot.YPosition:X4})/t${slot.Type:X4}"))}].");
         }
 
+        Console.WriteLine(
+            $"  {roomName} controller exit: frames={frame}, health={samus.Health}, " +
+            $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}).");
         return new DriveResult(frame, firedShots, collisionExplosions);
+    }
+
+    private static int FindParlorDescentLaneCenter(
+        RoomLevelData level,
+        SamusState samus,
+        out int waypointRow,
+        out int routeDistance,
+        out string routePreview)
+    {
+        const int firstPassageColumn = 0x28;
+        const int lastPassageColumn = 0x3d;
+        const int flywayDoorInteriorColumn = 0x3d;
+        const int flywayDoorInteriorRow = 0x27;
+        const int pathLookAheadCells = 32;
+        const int maximumStartSnapCells = 8;
+
+        // A single row contains several genuine-looking pits that terminate on solid
+        // terrain one or two blocks later. Build a distance field backwards from the air
+        // cell immediately inside Flyway's cartridge door. Unlike merely choosing an open
+        // run on Samus' current row, following decreasing distance distinguishes the route
+        // ahead from destination-connected air that happens to lie behind her.
+        var distanceToFlyway = new int[level.WidthInBlocks, level.HeightInBlocks];
+        var frontier = new Queue<(int X, int Y)>();
+        if (level.GetCollisionBlock(
+                flywayDoorInteriorColumn,
+                flywayDoorInteriorRow).CollisionType != 0)
+        {
+            throw new InvalidDataException(
+                "Flyway door interior is not cartridge air in the active Parlor state.");
+        }
+        // Zero means unreachable. Storing the destination as one avoids a separate visited
+        // bitmap and leaves every predecessor's value equal to its edge distance plus one.
+        distanceToFlyway[flywayDoorInteriorColumn, flywayDoorInteriorRow] = 1;
+        frontier.Enqueue((flywayDoorInteriorColumn, flywayDoorInteriorRow));
+        ReadOnlySpan<(int X, int Y)> neighborOffsets =
+            [(1, 0), (-1, 0), (0, 1), (0, -1)];
+        while (frontier.TryDequeue(out (int X, int Y) cell))
+        {
+            foreach ((int offsetX, int offsetY) in neighborOffsets)
+            {
+                int neighborX = cell.X + offsetX;
+                int neighborY = cell.Y + offsetY;
+                if ((uint)neighborX >= (uint)level.WidthInBlocks ||
+                    (uint)neighborY >= (uint)level.HeightInBlocks ||
+                    distanceToFlyway[neighborX, neighborY] != 0 ||
+                    level.GetCollisionBlock(neighborX, neighborY).CollisionType is not
+                        (0 or 1 or 3 or 5))
+                {
+                    continue;
+                }
+                distanceToFlyway[neighborX, neighborY] =
+                    distanceToFlyway[cell.X, cell.Y] + 1;
+                frontier.Enqueue((neighborX, neighborY));
+            }
+        }
+
+        int routeX = Math.Clamp(
+            samus.XPosition >> 4,
+            firstPassageColumn,
+            lastPassageColumn);
+        int routeY = Math.Clamp(
+            samus.YPosition >> 4,
+            0,
+            level.HeightInBlocks - 1);
+        if (distanceToFlyway[routeX, routeY] == 0)
+        {
+            // Samus' centre can briefly occupy a pixel column whose containing block is a
+            // slope even though her physical body is in the open quadrant. Snap only to the
+            // nearest destination-connected cell; a broad global search could jump across
+            // an authored wall and manufacture a route that collision cannot traverse.
+            int bestSnapDistance = int.MaxValue;
+            int snappedX = -1;
+            int snappedY = -1;
+            for (int radius = 1; radius <= maximumStartSnapCells; radius++)
+            {
+                for (int candidateY = Math.Max(0, routeY - radius);
+                     candidateY <= Math.Min(level.HeightInBlocks - 1, routeY + radius);
+                     candidateY++)
+                {
+                    for (int candidateX = Math.Max(firstPassageColumn, routeX - radius);
+                         candidateX <= Math.Min(lastPassageColumn, routeX + radius);
+                         candidateX++)
+                    {
+                        int snapDistance = Math.Abs(candidateX - routeX) +
+                            Math.Abs(candidateY - routeY);
+                        if (snapDistance > radius || snapDistance >= bestSnapDistance ||
+                            distanceToFlyway[candidateX, candidateY] == 0)
+                        {
+                            continue;
+                        }
+                        bestSnapDistance = snapDistance;
+                        snappedX = candidateX;
+                        snappedY = candidateY;
+                    }
+                }
+                if (snappedX >= 0)
+                    break;
+            }
+            if (snappedX < 0)
+            {
+                throw new InvalidDataException(
+                    $"Parlor position (${samus.XPosition:X4},${samus.YPosition:X4}) " +
+                    "has no nearby cartridge-connected route cell to Flyway.");
+            }
+            routeX = snappedX;
+            routeY = snappedY;
+        }
+
+        int waypointX = routeX;
+        int waypointY = routeY;
+        routeDistance = distanceToFlyway[routeX, routeY] - 1;
+        var previewCells = new List<string> { $"{routeX:X2},{routeY:X2}" };
+        int horizontalSegmentDirection = 0;
+        for (int step = 0; step < pathLookAheadCells; step++)
+        {
+            int currentDistance = distanceToFlyway[routeX, routeY];
+            int nextX = routeX;
+            int nextY = routeY;
+            foreach ((int offsetX, int offsetY) in neighborOffsets)
+            {
+                int candidateX = routeX + offsetX;
+                int candidateY = routeY + offsetY;
+                if ((uint)candidateX >= (uint)level.WidthInBlocks ||
+                    (uint)candidateY >= (uint)level.HeightInBlocks ||
+                    candidateX < firstPassageColumn || candidateX > lastPassageColumn)
+                {
+                    continue;
+                }
+                int candidateDistance = distanceToFlyway[candidateX, candidateY];
+                if (candidateDistance != 0 && candidateDistance < currentDistance)
+                {
+                    nextX = candidateX;
+                    nextY = candidateY;
+                    break;
+                }
+            }
+            if (nextX == routeX && nextY == routeY)
+                break;
+
+            int nextHorizontalDirection = Math.Sign(nextX - routeX);
+            if (nextHorizontalDirection != 0)
+            {
+                if (horizontalSegmentDirection != 0 &&
+                    nextHorizontalDirection != horizontalSegmentDirection)
+                {
+                    // A reversal begins a later corridor segment. Stop at the bend rather
+                    // than steering through intervening geometry toward a distant endpoint.
+                    break;
+                }
+                horizontalSegmentDirection = nextHorizontalDirection;
+            }
+            else if (horizontalSegmentDirection != 0)
+            {
+                // The first vertical edge after horizontal travel is the platform opening
+                // this controller must reach. Gravity owns the descent from that point and
+                // the next supported frame will compute the following path segment.
+                break;
+            }
+
+            routeX = nextX;
+            routeY = nextY;
+            previewCells.Add($"{routeX:X2},{routeY:X2}");
+            // Slopes/extensions are admitted only to preserve topological connectivity.
+            // The steering point itself remains in cartridge air so the controller never
+            // deliberately aims Samus' centre into a solid quadrant or PLM carrier block.
+            if (level.GetCollisionBlock(routeX, routeY).CollisionType == 0)
+            {
+                waypointX = routeX;
+                waypointY = routeY;
+            }
+        }
+
+        waypointRow = waypointY;
+        routePreview = string.Join('>', previewCells);
+        int targetX = waypointX * LevelBlockSizePixels + LevelBlockSizePixels / 2;
+        return Math.Clamp(
+            targetX,
+            firstPassageColumn * LevelBlockSizePixels + samus.Kinematics.XRadius,
+            (lastPassageColumn + 1) * LevelBlockSizePixels - samus.Kinematics.XRadius - 1);
+    }
+
+    private static (int LeftCenterLimit, int RightCenterLimit)
+        FindContinuousShaftWallLimits(RoomLevelData level, SamusState samus) =>
+        TryFindContinuousShaftWallLimits(level, samus) ??
+            throw new InvalidDataException(
+                $"No continuous cartridge shaft walls bracket Samus at " +
+                $"(${samus.XPosition:X4},${samus.YPosition:X4}).");
+
+    private static (int LeftCenterLimit, int RightCenterLimit)?
+        TryFindContinuousShaftWallLimits(
+            RoomLevelData level,
+            SamusState samus,
+            int? sampleCenterY = null)
+    {
+        const int verticalSampleRadius = 4;
+        const int requiredSolidSamples = 7;
+        int centerBlockX = samus.XPosition >> 4;
+        int centerBlockY = (sampleCenterY ?? samus.YPosition) >> 4;
+        int top = Math.Max(0, centerBlockY - verticalSampleRadius);
+        int bottom = Math.Min(
+            level.HeightInBlocks - 1,
+            centerBlockY + verticalSampleRadius);
+
+        static bool IsContinuousWallColumn(
+            RoomLevelData room,
+            int blockX,
+            int firstRow,
+            int lastRow)
+        {
+            int solidSamples = 0;
+            for (int blockY = firstRow; blockY <= lastRow; blockY++)
+            {
+                // Long shaft boundaries are ordinary type-$8 blocks. Counting only that
+                // family deliberately excludes one-row ledges and their type-$1 slopes,
+                // which are valid wall-jump collision but not the controller's intended
+                // opposite boundary.
+                if (room.GetCollisionBlock(blockX, blockY).CollisionType == 8)
+                    solidSamples++;
+            }
+            return solidSamples >= Math.Min(
+                requiredSolidSamples,
+                lastRow - firstRow + 1);
+        }
+
+        int leftWallBlock = -1;
+        for (int blockX = centerBlockX - 1; blockX >= 0; blockX--)
+        {
+            if (!IsContinuousWallColumn(level, blockX, top, bottom))
+                continue;
+            leftWallBlock = blockX;
+            break;
+        }
+
+        int rightWallBlock = -1;
+        for (int blockX = centerBlockX + 1;
+             blockX < level.WidthInBlocks;
+             blockX++)
+        {
+            if (!IsContinuousWallColumn(level, blockX, top, bottom))
+                continue;
+            rightWallBlock = blockX;
+            break;
+        }
+
+        if (leftWallBlock < 0 || rightWallBlock < 0)
+            return null;
+
+        // For an ordinary solid, bank $94 clips the body center exactly one radius away
+        // from the wall's inner tile edge. Keep those derived limits separate from the
+        // eight-pixel native wall-jump probe window used by the caller.
+        int leftCenterLimit = (leftWallBlock + 1) * 16 + samus.Kinematics.XRadius;
+        int rightCenterLimit = rightWallBlock * 16 - samus.Kinematics.XRadius;
+        return (leftCenterLimit, rightCenterLimit);
     }
 
     private static ClimbPlatformTarget? FindNextClimbPlatformCenter(
@@ -1237,10 +3056,14 @@ internal static class EarlyControllerRouteAudit
         RoomLevelData level,
         RoomPlmSystem plms,
         SamusState samus,
-        int maximumRise = 112)
+        int maximumRise = 112,
+        bool preferSupportedApproach = false,
+        IReadOnlySet<(int X, int SurfaceY)>? rejectedTargets = null)
     {
         const int shaftLeftBlock = 0x12;
         const int shaftRightBlock = 0x1d;
+        const int upperBoundaryTopBlock = 0x1e;
+        const int upperBoundaryTopRow = 0x20;
         const int topDoorCapRow = 0x02;
         const int upwardSearchRows = 12;
         const int topDoorCenterX = 0x0178;
@@ -1277,13 +3100,26 @@ internal static class EarlyControllerRouteAudit
         int bestShadowRightX = 0;
         int bestRise = int.MaxValue;
         int bestHorizontalDistance = int.MaxValue;
+        bool bestIsSolidLedge = false;
+        bool bestHasSupportedApproach = false;
+        (int connectedSupportLeftX, int connectedSupportRightX) =
+            preferSupportedApproach
+                ? FindClimbGroundSupportSpan(bus, level, plms, samus)
+                : (samus.XPosition, samus.XPosition);
         int firstRow = supportRow - 1;
         int lastRow = Math.Max(0, supportRow - upwardSearchRows);
         for (int blockY = firstRow; blockY >= lastRow; blockY--)
         {
             var rowSamples = new List<ClimbLandingSample>();
             int firstCenterX = shaftLeftBlock * 16 + samus.Kinematics.XRadius;
-            int lastCenterX = (shaftRightBlock + 1) * 16 - samus.Kinematics.XRadius - 1;
+            // Column $1E is the shaft's vertical right wall below row $20 and must not be
+            // sampled as a landing. At and above row $20 its exposed top is the genuine
+            // eastbound transfer that crosses into Parlor's next screen.
+            int rowRightBlock = blockY <= upperBoundaryTopRow
+                ? upperBoundaryTopBlock
+                : shaftRightBlock;
+            int lastCenterX = (rowRightBlock + 1) * 16 -
+                samus.Kinematics.XRadius - 1;
             for (int centerX = firstCenterX; centerX <= lastCenterX; centerX++)
             {
                 RoomCollisionBlock candidate = level.GetCollisionBlock(centerX >> 4, blockY);
@@ -1346,6 +3182,9 @@ internal static class EarlyControllerRouteAudit
             // surface Y across the run. Comparing individual pixels chooses the lowest
             // extreme of that slope. Collapse consecutive accepted body centers into one
             // authored platform and aim at its middle, where both feet have useful margin.
+            // The outside approach lane is already chosen separately; aiming at the first
+            // legal pixel of a wide solid shelf made Samus reach its edge too late during
+            // descent and intermittently miss a physically straightforward landing.
             for (int runStart = 0; runStart < rowSamples.Count;)
             {
                 int runEnd = runStart;
@@ -1356,18 +3195,77 @@ internal static class EarlyControllerRouteAudit
                 }
 
                 ClimbLandingSample middle = rowSamples[(runStart + runEnd) / 2];
+                if (preferSupportedApproach &&
+                    middle.X >= connectedSupportLeftX &&
+                    middle.X <= connectedSupportRightX)
+                {
+                    // A collision-continuous floor run containing Samus is her current
+                    // support even when a multi-record square slope presents a higher
+                    // surface in the row above. It is not a jump destination. Skipping it
+                    // lets the selector consider the next disconnected cartridge ledge;
+                    // the eventual run-up may still walk across this entire certified span.
+                    runStart = runEnd + 1;
+                    continue;
+                }
+                if (rejectedTargets?.Contains((middle.X, middle.SurfaceY)) == true)
+                {
+                    // This exact target has already produced a controller-driven fall below
+                    // its source support. Preserve the authored run and all collision data;
+                    // merely omit it from this audit's next input choice.
+                    runStart = runEnd + 1;
+                    continue;
+                }
+                bool runIsSolidLedge =
+                    level.GetCollisionBlock(middle.X >> 4, blockY).CollisionType == 8;
                 int middleRise = currentSurfaceY - middle.SurfaceY;
                 int horizontalDistance = Math.Abs(middle.X - samus.XPosition);
+                int shadowLeftX = (rowSamples[runStart].X >> 4) * 16;
+                int shadowRightX = (rowSamples[runEnd].X >> 4) * 16 + 15;
+                bool hasSupportedApproach = false;
+                if (preferSupportedApproach)
+                {
+                    var candidatePlatform = new ClimbPlatformTarget(
+                        middle.X,
+                        middle.SurfaceY,
+                        shadowLeftX,
+                        shadowRightX,
+                        IsSolidLedge: runIsSolidLedge);
+                    int? candidateApproachX = FindClearClimbAscentX(
+                        bus,
+                        level,
+                        plms,
+                        samus,
+                        candidatePlatform);
+                    if (candidateApproachX is null)
+                    {
+                        // A downward probe can identify a real floor whose underside or an
+                        // intervening shelf blocks every full-body ascent lane. That is not
+                        // corrupt room data; it is simply not an edge in the controller
+                        // route graph from this support, so continue evaluating the row.
+                        runStart = runEnd + 1;
+                        continue;
+                    }
+                    hasSupportedApproach = HasClimbGroundSupportToApproach(
+                        bus,
+                        level,
+                        plms,
+                        samus,
+                        candidateApproachX.Value);
+                }
                 if (middleRise < bestRise ||
                     (middleRise == bestRise &&
-                     horizontalDistance < bestHorizontalDistance))
+                     (hasSupportedApproach && !bestHasSupportedApproach ||
+                      hasSupportedApproach == bestHasSupportedApproach &&
+                      horizontalDistance < bestHorizontalDistance)))
                 {
                     bestCenter = middle.X;
                     bestSurfaceY = middle.SurfaceY;
-                    bestShadowLeftX = (rowSamples[runStart].X >> 4) * 16;
-                    bestShadowRightX = (rowSamples[runEnd].X >> 4) * 16 + 15;
+                    bestShadowLeftX = shadowLeftX;
+                    bestShadowRightX = shadowRightX;
                     bestRise = middleRise;
                     bestHorizontalDistance = horizontalDistance;
+                    bestIsSolidLedge = runIsSolidLedge;
+                    bestHasSupportedApproach = hasSupportedApproach;
                 }
 
                 runStart = runEnd + 1;
@@ -1380,10 +3278,42 @@ internal static class EarlyControllerRouteAudit
                 bestCenter,
                 bestSurfaceY,
                 bestShadowLeftX,
-                bestShadowRightX);
+                bestShadowRightX,
+                IsSolidLedge: bestIsSolidLedge);
         }
 
         return null;
+    }
+
+    private static bool IsCoveredClimbTarget(
+        RoomLevelData level,
+        int targetX,
+        int targetSurfaceY,
+        int horizontalRadius)
+    {
+        const int spinJumpVerticalRadius = 12;
+        int firstBodyRow = (targetSurfaceY - 2 * spinJumpVerticalRadius) >> 4;
+        int candidateRow = targetSurfaceY >> 4;
+        int firstBodyColumn = (targetX - horizontalRadius) >> 4;
+        int lastBodyColumn = (targetX + horizontalRadius - 1) >> 4;
+
+        // A downward bank-$94 probe can expose a square-slope floor face inside a larger
+        // solid mass because it samples only the feet's destination row. For failure
+        // recovery, inspect the prospective spin body's rows above that face. The support
+        // row itself is excluded so a legitimate slope quadrant is never mistaken for a
+        // ceiling; only collision families that are unconditionally solid to Samus count.
+        for (int blockY = firstBodyRow; blockY < candidateRow; blockY++)
+        {
+            for (int blockX = firstBodyColumn; blockX <= lastBodyColumn; blockX++)
+            {
+                if (level.GetCollisionBlock(blockX, blockY).CollisionType is
+                    8 or 10 or 12 or 14 or 15)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static bool IsClimbTopDoorCapClosed(RoomLevelData level)
@@ -1482,7 +3412,112 @@ internal static class EarlyControllerRouteAudit
         return true;
     }
 
-    private static int FindClearClimbAscentX(
+    private static (int LeftX, int RightX) FindClimbGroundSupportSpan(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        RoomPlmSystem plms,
+        SamusState samus)
+    {
+        const int shaftLeftBlock = 0x12;
+        const int shaftRightBlock = 0x1d;
+        int firstCenterX = shaftLeftBlock * LevelBlockSizePixels +
+            samus.Kinematics.XRadius;
+        int lastCenterX = (shaftRightBlock + 1) * LevelBlockSizePixels -
+            samus.Kinematics.XRadius - 1;
+        int leftX = samus.XPosition;
+        int rightX = samus.XPosition;
+        SamusKinematicsState leftProbe = CreateClimbHorizontalProbe(samus.Kinematics);
+        SamusKinematicsState rightProbe = CreateClimbHorizontalProbe(samus.Kinematics);
+
+        // A high Parlor shelf can require more horizontal travel than a standing jump
+        // supplies. Find the complete collision-supported span containing Samus so the
+        // audit can run to the far edge, reverse, and carry native running momentum into
+        // the jump. Each candidate is certified by HasClimbGroundSupportToApproach, which
+        // uses the translated bank-$94 downward dispatcher and therefore respects square
+        // slopes, body radii, PLM mutations, and genuine gaps in the cartridge-authored
+        // floor. A second, cumulative bank-$94 horizontal probe is essential: floor-only
+        // samples on opposite sides of a vertical wall can both report valid support even
+        // though Samus cannot walk between them. These fixed columns are the continuous
+        // Parlor shaft bounds, not guessed platform coordinates; the helper stops at the
+        // first unsupported or horizontally obstructed body position.
+        for (int candidateX = samus.XPosition - 1;
+             candidateX >= firstCenterX;
+             candidateX--)
+        {
+            BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
+                bus,
+                level,
+                leftProbe,
+                displacement: -1 << 16,
+                plms: plms,
+                // Planning must observe the same door collision result without publishing
+                // a transition before the controller-driven body actually reaches it.
+                publishDoorSideEffects: false);
+            if (horizontal.Collided || leftProbe.XPosition != candidateX)
+                break;
+            if (!HasClimbGroundSupportToApproach(
+                    bus,
+                    level,
+                    plms,
+                    samus,
+                    candidateX))
+            {
+                break;
+            }
+            leftX = candidateX;
+        }
+
+        for (int candidateX = samus.XPosition + 1;
+             candidateX <= lastCenterX;
+             candidateX++)
+        {
+            BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
+                bus,
+                level,
+                rightProbe,
+                displacement: 1 << 16,
+                plms: plms,
+                publishDoorSideEffects: false);
+            if (horizontal.Collided || rightProbe.XPosition != candidateX)
+                break;
+            if (!HasClimbGroundSupportToApproach(
+                    bus,
+                    level,
+                    plms,
+                    samus,
+                    candidateX))
+            {
+                break;
+            }
+            rightX = candidateX;
+        }
+
+        return (leftX, rightX);
+    }
+
+    private static SamusKinematicsState CreateClimbHorizontalProbe(
+        SamusKinematicsState source) => new()
+    {
+        // Only geometry and the immutable current enemy snapshot participate in this
+        // prospective walk. Native fixed-point halves are retained because a wall clip can
+        // distinguish `$0000` from `$FFFF`, and slope alignment consumes vertical speed.
+        XPosition = source.XPosition,
+        XSubposition = source.XSubposition,
+        YPosition = source.YPosition,
+        YSubposition = source.YSubposition,
+        XRadius = source.XRadius,
+        YRadius = source.YRadius,
+        YSpeed = source.YSpeed,
+        YSubspeed = source.YSubspeed,
+        YDirection = source.YDirection,
+        YAcceleration = source.YAcceleration,
+        YSubacceleration = source.YSubacceleration,
+        HorizontalSlopeCollisionEnable = source.HorizontalSlopeCollisionEnable,
+        PositionAdjustedBySlope = source.PositionAdjustedBySlope,
+        InteractiveEnemies = source.InteractiveEnemies,
+    };
+
+    private static int? FindClearClimbAscentX(
         ISnesAddressSpace bus,
         RoomLevelData level,
         RoomPlmSystem plms,
@@ -1493,8 +3528,7 @@ internal static class EarlyControllerRouteAudit
         const int shaftRightBlock = 0x1d;
         int firstCenterX = shaftLeftBlock * 16 + samus.Kinematics.XRadius;
         int lastCenterX = (shaftRightBlock + 1) * 16 - samus.Kinematics.XRadius - 1;
-        int bestX = 0;
-        int bestDistance = int.MaxValue;
+        var clearCenters = new List<int>();
         for (int centerX = firstCenterX; centerX <= lastCenterX; centerX++)
         {
             // Stay wholly outside the destination platform until Samus' feet rise above
@@ -1503,7 +3537,7 @@ internal static class EarlyControllerRouteAudit
             bool outsideDestinationShadow =
                 centerX + samus.Kinematics.XRadius < platform.ShadowLeftX ||
                 centerX - samus.Kinematics.XRadius > platform.ShadowRightX;
-            if (!outsideDestinationShadow || !IsClimbAscentLaneClear(
+            if (outsideDestinationShadow && IsClimbAscentLaneClear(
                     bus,
                     level,
                     plms,
@@ -1511,23 +3545,59 @@ internal static class EarlyControllerRouteAudit
                     platform,
                     centerX))
             {
-                continue;
+                clearCenters.Add(centerX);
+            }
+        }
+
+        int bestX = 0;
+        int bestDistance = int.MaxValue;
+        for (int runStart = 0; runStart < clearCenters.Count;)
+        {
+            int runEnd = runStart;
+            while (runEnd + 1 < clearCenters.Count &&
+                clearCenters[runEnd + 1] == clearCenters[runEnd] + 1)
+            {
+                runEnd++;
             }
 
+            int runLeft = clearCenters[runStart];
+            int runRight = clearCenters[runEnd];
+            // Square slopes have a forgiving hollow quadrant and the proven Climb route
+            // needs the nearest legal edge so it has enough time to cross onto the top.
+            // A flat type-$8 ledge has an abrupt full-width underside instead; use the
+            // middle of its clear approach lane so native inertia cannot carry Samus one
+            // pixel back into a neighboring ceiling during the ascent.
+            int centerX;
+            if (platform.IsSolidLedge)
+            {
+                // Every coordinate in this run has already moved Samus' complete spin body
+                // to the destination height in both native scan orders. Use the proven edge
+                // nearest the ledge. An extra fractional inset looked conservative, but it
+                // increased the post-clearance crossing beyond the cartridge jump arc and
+                // made otherwise reachable flat shelves impossible to land on.
+                bool laneIsLeftOfLedge = runRight < platform.ShadowLeftX;
+                centerX = laneIsLeftOfLedge
+                    ? runRight
+                    : runLeft;
+            }
+            else
+            {
+                centerX = Math.Clamp(samus.XPosition, runLeft, runRight);
+            }
             int distance = Math.Abs(centerX - samus.XPosition);
             if (distance < bestDistance)
             {
                 bestX = centerX;
                 bestDistance = distance;
             }
+
+            runStart = runEnd + 1;
         }
 
         if (bestDistance != int.MaxValue)
             return bestX;
 
-        throw new InvalidDataException(
-            $"Climb found platform at (${platform.LandingX:X4}," +
-            $"${platform.SurfaceY:X4}) but no collision-clear ascent lane.");
+        return null;
     }
 
     private static bool IsClimbAscentLaneClear(
@@ -1544,36 +3614,113 @@ internal static class EarlyControllerRouteAudit
         if (pixelDisplacement >= 0)
             return true;
 
-        var probe = new SamusKinematicsState
+        // Native alternates the order in which the two body-edge columns are inspected by
+        // NMI-frame parity. Square slopes are deliberately asymmetric, so a route lane is
+        // safe only if *both* orders can traverse it; checking one order let the Parlor
+        // planner choose the hollow half of a mirrored ceiling and then collide on the
+        // first opposite-parity gameplay frame.
+        foreach (bool scanLeftToRight in new[] { true, false })
         {
-            XPosition = unchecked((ushort)centerX),
-            YPosition = samus.YPosition,
-            XRadius = samus.Kinematics.XRadius,
-            YRadius = spinJumpVerticalRadius,
-            YDirection = 1,
-            HorizontalSlopeCollisionEnable = samus.Kinematics.HorizontalSlopeCollisionEnable,
-        };
-        // MoveVertical intentionally mirrors bank $94 and samples the destination row; it
-        // is not a swept-volume API. A single 112-pixel diagnostic request could jump over
-        // an intervening ceiling that real five-pixel-per-frame motion must hit. Walk the
-        // disposable body upward in four-pixel slices so every crossed block row is tested.
-        while (probe.YPosition > destinationCenterY)
-        {
-            int stepPixels = Math.Min(4, probe.YPosition - destinationCenterY);
-            BlockMoveResult result = SamusBlockCollision.MoveVertical(
-                bus,
-                level,
-                probe,
-                displacement: -(stepPixels << 16),
-                scanLeftToRight: true,
-                includeSolidEnemies: false,
-                plms: plms,
-                publishDoorSideEffects: false);
-            if (result.Collided)
-                return false;
+            var probe = new SamusKinematicsState
+            {
+                XPosition = unchecked((ushort)centerX),
+                YPosition = samus.YPosition,
+                XRadius = samus.Kinematics.XRadius,
+                YRadius = spinJumpVerticalRadius,
+                YDirection = 1,
+                HorizontalSlopeCollisionEnable =
+                    samus.Kinematics.HorizontalSlopeCollisionEnable,
+            };
+            // MoveVertical intentionally mirrors bank $94 and samples the destination row;
+            // it is not a swept-volume API. Even a four-pixel diagnostic request can step
+            // across the one-pixel contact boundary of a square slope. Walk the disposable
+            // body upward one pixel at a time so every authored surface and both native
+            // scan orders are tested.
+            while (probe.YPosition > destinationCenterY)
+            {
+                BlockMoveResult result = SamusBlockCollision.MoveVertical(
+                    bus,
+                    level,
+                    probe,
+                    displacement: -(1 << 16),
+                    scanLeftToRight,
+                    includeSolidEnemies: false,
+                    plms: plms,
+                    publishDoorSideEffects: false);
+                if (result.Collided)
+                    return false;
+            }
         }
         return true;
     }
+
+    /// <summary>
+    /// Returns true when the next horizontal collision column contains a clear ball-height
+    /// channel but an unconditionally solid block in the extra rows occupied by Samus's
+    /// current humanoid body.
+    /// </summary>
+    private static bool HorizontalPassageRequiresMorphBall(
+        RoomLevelData level,
+        SamusState samus,
+        SnesButton direction)
+    {
+        if (direction is not (SnesButton.Left or SnesButton.Right))
+            return false;
+
+        // Morph entry preserves the feet position while changing the vertical radius to
+        // seven. Deriving the prospective rows this way makes the detector independent of
+        // pose IDs and avoids asking gameplay code to perform a speculative pose mutation.
+        const int morphBallRadius = 7;
+        int feetY = samus.YPosition + samus.Kinematics.YRadius;
+        int ballTopRow = (feetY - 2 * morphBallRadius) >> 4;
+        int ballBottomRow = (feetY - 1) >> 4;
+        int humanoidTopRow =
+            (samus.YPosition - samus.Kinematics.YRadius) >> 4;
+        int humanoidBottomRow = (feetY - 1) >> 4;
+
+        // Match MoveHorizontal's destination-leading-boundary convention for a one-pixel
+        // request. On the right that is centre + radius; on the left it is centre-radius-1.
+        int leadingPixelX = direction == SnesButton.Right
+            ? samus.XPosition + samus.Kinematics.XRadius
+            : samus.XPosition - samus.Kinematics.XRadius - 1;
+        int blockX = leadingPixelX >> 4;
+        if (blockX < 0 || blockX >= level.WidthInBlocks ||
+            ballTopRow < 0 || humanoidBottomRow >= level.HeightInBlocks)
+        {
+            return false;
+        }
+
+        // Every ball row must be body-passable. Special-air scroll triggers and ordinary
+        // air therefore count as clearance, while the same solid families handled by the
+        // horizontal bank-$94 dispatcher reject the candidate. Square slopes are left to
+        // normal collision: this helper recognizes only the unambiguous solid-wall case.
+        for (int row = ballTopRow; row <= ballBottomRow; row++)
+        {
+            if (IsUnconditionallyBodySolid(level.GetCollisionBlock(blockX, row)))
+                return false;
+        }
+
+        for (int row = humanoidTopRow; row <= humanoidBottomRow; row++)
+        {
+            bool outsideBallBody = row < ballTopRow || row > ballBottomRow;
+            if (outsideBallBody &&
+                IsUnconditionallyBodySolid(level.GetCollisionBlock(blockX, row)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Mirrors only collision families whose horizontal bank-$94 handlers always return
+    /// carry set for Samus's body. Contextual slopes, doors, items, and special air are
+    /// deliberately excluded so the route audit cannot invent clearance semantics.
+    /// </summary>
+    private static bool IsUnconditionallyBodySolid(RoomCollisionBlock block) =>
+        block.CollisionType is 8 or 10 or 12 or 14 or 15 ||
+        block.CollisionType == 11 && block.Behavior != 0x45;
 
     private static string FormatCounts(IReadOnlyList<int> counts) => string.Join(
         ", ",
@@ -1966,12 +4113,22 @@ internal static class EarlyControllerRouteAudit
         int FiredShots,
         int CollisionExplosions);
 
+    private readonly record struct BombTorizoAwakeningResult(
+        int MessageFrames,
+        int SequenceFrames);
+
+    private readonly record struct BombTorizoFightResult(
+        int Frames,
+        int FireInputs,
+        int DamagingHits);
+
     private readonly record struct ClimbPlatformTarget(
         int LandingX,
         int SurfaceY,
         int ShadowLeftX,
         int ShadowRightX,
-        bool IsDoorApproach = false);
+        bool IsDoorApproach = false,
+        bool IsSolidLedge = false);
 
     private readonly record struct ClimbLandingSample(
         int X,

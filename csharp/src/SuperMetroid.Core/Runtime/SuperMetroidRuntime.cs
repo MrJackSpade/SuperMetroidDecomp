@@ -1452,6 +1452,18 @@ public sealed partial class SuperMetroidRuntime
                 // selects its first bank-$93 art record in the placement frame itself.
                 if (!Samus.Xray.TimeIsFrozen && !deathOwnsSamus)
                 {
+                    // `$90:C4E7` runs before the movement-type HUD projectile producer.
+                    // Consequently a Select edge can choose missiles and an X edge can
+                    // fire one during this same alpha pass. Input-locked message/elevator
+                    // handlers do not execute the normal selection owner.
+                    if (!Samus.InputLocked && Samus.HandleHudSelection(
+                            Controller1.Current,
+                            Controller1.NewlyPressed))
+                    {
+                        Projectiles.CancelChargeForHudSelection();
+                        Samus.ProjectileFlareCounter = 0;
+                    }
+
                     // `$91:E231-$E23D` disables enemy projectiles, PLMs, animated tiles,
                     // and palette FX while time is frozen. Normal bombs cannot be placed or
                     // advanced through this translated producer during the X-ray interval.
@@ -2005,7 +2017,8 @@ public sealed partial class SuperMetroidRuntime
                             _addressSpace,
                             LevelData,
                             Samus,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                         break;
                     case SamusState.MorphBallFallingRightPose:
                     case SamusState.MorphBallFallingLeftPose:
@@ -2016,7 +2029,8 @@ public sealed partial class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             Controller1.Current,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                         break;
                     case SamusState.SpringBallJumpRightPose:
                     case SamusState.SpringBallJumpLeftPose:
@@ -2025,7 +2039,8 @@ public sealed partial class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             Controller1.Current,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                         break;
                     case SamusState.NeutralJumpTransitionRightPose:
                     case SamusState.NeutralJumpTransitionLeftPose:
@@ -2179,7 +2194,8 @@ public sealed partial class SuperMetroidRuntime
                             _addressSpace,
                             LevelData,
                             Samus,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                         break;
                     case SamusState.DraygonGrabbedNeutralLeftPose:
                     case SamusState.DraygonGrabbedAimUpLeftPose:
@@ -2330,6 +2346,17 @@ public sealed partial class SuperMetroidRuntime
                 foreach (PlmTilemapUpdate update in plmUpdates)
                     update.ExecuteTo(Vram);
 
+                // PLM opcode $87E5 appends a normal seven-byte VRAM record. It must share
+                // the runtime queue so the next accepted NMI performs the transfer in the
+                // same order as HUD, beam, and room-main uploads.
+                foreach (PlmVramWriteRequest request in Plms.VramWriteRequests)
+                {
+                    VramWrites.Enqueue(
+                        request.SizeInBytes,
+                        request.SourceAddress,
+                        request.EncodedVramDestination);
+                }
+
                 // Item PLMs publish acquisition only after their native trigger and
                 // handler pass. Apply the hardware-facing consequences at that same seam:
                 // beam combinations replace the projectile character/palette staging, and
@@ -2377,6 +2404,11 @@ public sealed partial class SuperMetroidRuntime
                          Plms.MotherBrainGlassProjectileRequests)
                 {
                     Enemies.SpawnMotherBrainGlassProjectile(request);
+                }
+                foreach (BombTorizoStatueProjectileRequest request in
+                         Plms.BombTorizoStatueProjectileRequests)
+                {
+                    Enemies.SpawnBombTorizoStatueBreakingProjectile(request);
                 }
             }
 
@@ -2594,6 +2626,7 @@ public sealed partial class SuperMetroidRuntime
                                 SamusKnockbackMovement.ApplyDamageBoostTransition(
                                     _addressSpace,
                                     Samus,
+                                    poseAtFrameStart,
                                     targetPose);
                                 break;
                             case (SamusState.DamageBoostRightPose,
@@ -2774,17 +2807,12 @@ public sealed partial class SuperMetroidRuntime
                                           SamusState.NormalJumpTransitionAimUpLeftPose or
                                           SamusState.NormalJumpTransitionAimDiagonalUpLeftPose or
                                           SamusState.NormalJumpTransitionAimDiagonalDownLeftPose) ||
-                                     (source == SamusState.NormalLandingRightPose &&
-                                      target == SamusState.NeutralJumpTransitionRightPose) ||
-                                     (source == SamusState.NormalLandingLeftPose &&
-                                      target == SamusState.NeutralJumpTransitionLeftPose) ||
-                                     (source == SamusState.SpinLandingRightPose &&
-                                      target == SamusState.NeutralJumpTransitionRightPose) ||
-                                     (source == SamusState.SpinLandingLeftPose &&
-                                      target == SamusState.NeutralJumpTransitionLeftPose):
-                                // `$A4-$A7` expose the same left/right neutral-jump records
-                                // while their brief landing streams are active. A fresh
-                                // Jump edge can therefore interrupt before `$F8` fallback.
+                                     SamusState.IsLandingToNormalJumpTransition(source, target):
+                                // All `$A4-$A7/$E0-$E7` landing records expose the same
+                                // standing input table while their brief streams are active.
+                                // A fresh Jump edge can therefore preserve any authored
+                                // normal-jump aim target, even from horizontal-fire `$E6/$E7`
+                                // before `$F8` fallback.
                             case (SamusState.MovingRightNormalPose,
                                   SamusState.SpinJumpRightPose):
                             case (SamusState.MovingRightGunExtendedPose,

@@ -504,8 +504,8 @@ public sealed partial class SamusState
     /// Applies the verified ordinary-input jump transitions selected from the cartridge's
     /// bank-$91 table, including <c>HandleJumpTransition</c>'s call to
     /// <c>Make_Samus_Jump</c>. Only explicitly verified no-equipment/no-aim routes admitted
-    /// by the current runtime are accepted, including interrupting ordinary `$A4/$A5`
-    /// landing art with a fresh Jump edge.
+    /// by the current runtime are accepted, including interrupting any same-facing landing
+    /// stream `$A4-$A7/$E0-$E7` with a fresh Jump edge.
     /// </summary>
     public void ApplyOrdinaryJumpTransition(
         ISnesAddressSpace bus,
@@ -560,17 +560,11 @@ public sealed partial class SamusState
             (RanIntoWallRightPose or RanIntoWallAimUpRightPose or RanIntoWallAimDownRightPose,
              NeutralJumpTransitionRightPose) or
             (RanIntoWallLeftPose or RanIntoWallAimUpLeftPose or RanIntoWallAimDownLeftPose,
-             NeutralJumpTransitionLeftPose) or
-            // `$A4/$A5` share the ordinary standing transition table in the cartridge.
-            // A fresh Jump edge is therefore allowed to interrupt their five-tick landing
-            // art before `$F8` returns to `$01/$02`.
-            (NormalLandingRightPose, NeutralJumpTransitionRightPose) or
-            (NormalLandingLeftPose, NeutralJumpTransitionLeftPose) or
-            // Spin landings `$A6/$A7` also expose the neutral-jump record while their short
-            // landing art is active. Despite the spinning source, the selected `$4B/$4C`
-            // target uses the ordinary normal-jump initializer and its transition frame.
-            (SpinLandingRightPose, NeutralJumpTransitionRightPose) or
-            (SpinLandingLeftPose, NeutralJumpTransitionLeftPose);
+             NeutralJumpTransitionLeftPose) ||
+            // Every landing body shares its facing's ordinary standing input table. The
+            // centralized predicate deliberately covers normal, spin, aimed, and firing
+            // landings, while still rejecting a corrupt cross-facing `$4B/$4C` target.
+            IsLandingToNormalJumpTransition(Pose, targetPose);
         if (!verified)
         {
             // The pairs above exhaust the active retail input-table records that invoke

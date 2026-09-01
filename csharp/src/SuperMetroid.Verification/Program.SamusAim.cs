@@ -489,6 +489,8 @@ static void VerifySamusGunExtendedMovement()
         (0x0c, [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]),
         (0x13, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
         (0x14, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
+        (0x4b, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
+        (0x4c, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
         (0x4d, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
         (0x4e, [0x04, 0x02, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]),
         (0x51, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]),
@@ -517,6 +519,8 @@ static void VerifySamusGunExtendedMovement()
         (0x0c, 0xd020, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]),
         (0x13, 0xd040, [0x02, 0x10, 0xfe, 0x01]),
         (0x14, 0xd040, [0x02, 0x10, 0xfe, 0x01]),
+        (0x4b, 0xd048, [0x02, 0xfd, 0x4d]),
+        (0x4c, 0xd04c, [0x02, 0xfd, 0x4e]),
         (0x4d, 0xd050, [0x02, 0x03, 0xfe, 0x01]),
         (0x4e, 0xd050, [0x02, 0x03, 0xfe, 0x01]),
         (0x51, 0xd058, [0x02, 0x03, 0xfe, 0x01]),
@@ -672,6 +676,95 @@ static void VerifySamusGunExtendedMovement()
     AssertTrue(SamusState.IsRightFacingFallingPose(0x67), "$67 is admitted by falling dispatcher");
     AssertTrue(SamusState.IsRightFacingLandingPose(0xe6), "$E6 is admitted by landing dispatcher");
     AssertTrue(SamusState.IsLeftFacingLandingPose(0xe7), "$E7 is admitted by mirrored landing dispatcher");
+
+    // All right/left landing pairs use the ordinary standing input table. Exercise every
+    // same-facing neutral/aimed jump target so adding landing art can never again leave a
+    // syntactically valid ROM transition outside the runtime switch. The private-ROM fight
+    // exposed `$E2 -> $57`; it is one member of this complete table product, not a bespoke
+    // exception for Bomb Torizo.
+    byte[] rightLandingFamily = [0xa4, 0xa6, 0xe0, 0xe2, 0xe4, 0xe6];
+    byte[] leftLandingFamily = [0xa5, 0xa7, 0xe1, 0xe3, 0xe5, 0xe7];
+    byte[] rightLandingJumpTargets =
+    [
+        SamusState.NeutralJumpTransitionRightPose,
+        SamusState.NormalJumpTransitionAimUpRightPose,
+        SamusState.NormalJumpTransitionAimDiagonalUpRightPose,
+        SamusState.NormalJumpTransitionAimDiagonalDownRightPose,
+    ];
+    byte[] leftLandingJumpTargets =
+    [
+        SamusState.NeutralJumpTransitionLeftPose,
+        SamusState.NormalJumpTransitionAimUpLeftPose,
+        SamusState.NormalJumpTransitionAimDiagonalUpLeftPose,
+        SamusState.NormalJumpTransitionAimDiagonalDownLeftPose,
+    ];
+    foreach (byte sourcePose in rightLandingFamily)
+    {
+        foreach (byte targetPose in rightLandingJumpTargets)
+        {
+            AssertTrue(
+                SamusState.IsLandingToNormalJumpTransition(sourcePose, targetPose),
+                $"right landing ${sourcePose:X2} admits jump ${targetPose:X2}");
+        }
+        foreach (byte targetPose in leftLandingJumpTargets)
+        {
+            AssertTrue(
+                !SamusState.IsLandingToNormalJumpTransition(sourcePose, targetPose),
+                $"right landing ${sourcePose:X2} rejects mirrored jump ${targetPose:X2}");
+        }
+    }
+    foreach (byte sourcePose in leftLandingFamily)
+    {
+        foreach (byte targetPose in leftLandingJumpTargets)
+        {
+            AssertTrue(
+                SamusState.IsLandingToNormalJumpTransition(sourcePose, targetPose),
+                $"left landing ${sourcePose:X2} admits jump ${targetPose:X2}");
+        }
+        foreach (byte targetPose in rightLandingJumpTargets)
+        {
+            AssertTrue(
+                !SamusState.IsLandingToNormalJumpTransition(sourcePose, targetPose),
+                $"left landing ${sourcePose:X2} rejects mirrored jump ${targetPose:X2}");
+        }
+    }
+
+    // The private-ROM controller audit first exposed `$E6 -> $4B`: Shoot remained held
+    // through landing, then a fresh Jump edge arrived before `$F8`. Run both mirrors through
+    // the real initializer so this verifies radius, animation, and vertical launch state in
+    // addition to the family predicate used by the runtime switch.
+    var firingLandingJumpRight = new SamusState { Pose = SamusState.FiringLandingRightPose };
+    firingLandingJumpRight.ApplyOrdinaryJumpTransition(
+        bus, SamusState.NeutralJumpTransitionRightPose);
+    AssertEqual(SamusState.NeutralJumpTransitionRightPose, firingLandingJumpRight.Pose,
+        "right firing landing installs neutral jump $4B");
+    AssertEqual(19, firingLandingJumpRight.Kinematics.YRadius,
+        "right firing-landing jump installs normal-jump radius");
+    AssertEqual(1, firingLandingJumpRight.Kinematics.YDirection,
+        "right firing-landing jump launches upward");
+
+    var firingLandingJumpLeft = new SamusState { Pose = SamusState.FiringLandingLeftPose };
+    firingLandingJumpLeft.ApplyOrdinaryJumpTransition(
+        bus, SamusState.NeutralJumpTransitionLeftPose);
+    AssertEqual(SamusState.NeutralJumpTransitionLeftPose, firingLandingJumpLeft.Pose,
+        "left firing landing installs neutral jump $4C");
+    AssertEqual(19, firingLandingJumpLeft.Kinematics.YRadius,
+        "left firing-landing jump installs normal-jump radius");
+    AssertEqual(1, firingLandingJumpLeft.Kinematics.YDirection,
+        "left firing-landing jump launches upward");
+
+    var aimedLandingJumpRight = new SamusState
+    {
+        Pose = SamusState.LandingAimDiagonalUpRightPose,
+    };
+    aimedLandingJumpRight.ApplyOrdinaryJumpTransition(
+        bus,
+        SamusState.NormalJumpTransitionAimDiagonalUpRightPose);
+    AssertEqual(SamusState.NormalJumpTransitionAimDiagonalUpRightPose,
+        aimedLandingJumpRight.Pose,
+        "right diagonal-up landing installs aimed jump $57");
+    AssertEqual(1, aimedLandingJumpRight.Kinematics.YDirection,
+        "right diagonal-up landing jump launches upward");
 
     Console.WriteLine("  Samus horizontal fire: ROM selection, six extended bodies, forward-jump release, run-phase preservation, and firing landings agree.");
 }

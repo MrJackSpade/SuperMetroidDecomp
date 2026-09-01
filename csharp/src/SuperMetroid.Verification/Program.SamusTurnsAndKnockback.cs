@@ -452,6 +452,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     SamusKnockbackMovement.ApplyDamageBoostTransition(
         bus,
         samus,
+        SamusState.KnockbackRightPose,
         SamusState.DamageBoostRightPose);
     AssertEqual(SamusState.DamageBoostRightPose, samus.Pose, "damage-boost entry pose");
     AssertEqual(0x19, samus.ReadMovementType(bus), "damage-boost movement type");
@@ -460,6 +461,26 @@ static void VerifySamusKnockbackAndDamageBoost()
     AssertEqual(0, samus.KnockbackTimer, "damage boost clears hurt timer");
     AssertEqual(4, samus.Kinematics.YSpeed, "damage boost fresh jump whole speed");
     AssertEqual(0xe000, samus.Kinematics.YSubspeed, "damage boost fresh jump subspeed");
+
+    // Alpha may select `$54 -> $4F` on the final hurt frame, after which beta's zero-timer
+    // cleanup installs `$2A` before UpdateSamusPose consumes the saved input record. The
+    // captured `$54` remains the transition authority and must still launch a normal boost.
+    var finalHurtFrameBoost = new SamusState
+    {
+        Pose = SamusState.FallingLeftPose,
+        XPosition = 96,
+        YPosition = 96,
+    };
+    finalHurtFrameBoost.RefreshCollisionRadii(bus);
+    SamusKnockbackMovement.ApplyDamageBoostTransition(
+        bus,
+        finalHurtFrameBoost,
+        SamusState.KnockbackLeftPose,
+        SamusState.DamageBoostLeftPose);
+    AssertEqual(SamusState.DamageBoostLeftPose, finalHurtFrameBoost.Pose,
+        "final hurt-frame damage boost uses captured source pose");
+    AssertEqual(4, finalHurtFrameBoost.Kinematics.YSpeed,
+        "final hurt-frame damage boost launches fresh jump");
 
     AerialMovementResult boostFrame = SamusAerialMovement.StepDamageBoost(
         bus,

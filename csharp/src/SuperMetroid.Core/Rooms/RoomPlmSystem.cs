@@ -174,6 +174,7 @@ public sealed partial class RoomPlmSystem
         _coloredDoorSystem = null;
         ResetMotherBrainGlassState();
         ResetCollectibleState();
+        ResetBombTorizoHandState();
     }
 
     /// <summary>
@@ -974,6 +975,7 @@ public sealed partial class RoomPlmSystem
         _tilemapUpdates.Clear();
         BeginMotherBrainGlassFrame();
         BeginCollectibleFrame();
+        BeginBombTorizoHandFrame();
 
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
         {
@@ -1008,6 +1010,7 @@ public sealed partial class RoomPlmSystem
                 continue;
             }
 
+            RunBombTorizoHandPreInstruction(slot);
             RunMotherBrainGlassPreInstruction(slot);
             if (!slot.Active)
                 continue;
@@ -1067,6 +1070,17 @@ public sealed partial class RoomPlmSystem
 
             switch (instruction)
             {
+                case InstallPreInstruction:
+                    // `$84:86C1` is shared infrastructure, not a Mother Brain special.
+                    // The operand is the bank-$84 pre-instruction run before this slot's
+                    // timer on subsequent handler passes. Both glass and Bomb Torizo's
+                    // sleeping hand use this exact four-byte form.
+                    slot.PreInstruction = ReadBank84Word(
+                        bus,
+                        unchecked((ushort)(slot.InstructionPointer + 2)));
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
+                    continue;
+
                 case QueueSoundLibrary2Maximum1Instruction:
                     // `$84:8C79` is the shot-block queue form. It has the same odd-byte
                     // operand layout as `$8C10/$8C46`, but permits only one pending sound.
@@ -1193,6 +1207,7 @@ public sealed partial class RoomPlmSystem
 
                 case DeleteInstruction:
                     slot.Active = false;
+                    MarkBombTorizoHandDeleted(slot);
                     OnPlmDeleted(slot);
                     return;
 
@@ -1206,6 +1221,8 @@ public sealed partial class RoomPlmSystem
                     return;
 
                 default:
+                    if (TryExecuteBombTorizoHandInstruction(bus, slot, instruction))
+                        continue;
                     if (TryExecuteMotherBrainGlassInstruction(bus, slot, instruction))
                         continue;
                     throw new InvalidDataException(

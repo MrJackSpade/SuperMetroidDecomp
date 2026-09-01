@@ -364,6 +364,31 @@ public sealed partial class SamusState
         IsLeftFacingAimedLandingPose(pose);
 
     /// <summary>
+    /// True when the ordinary grounded input dispatcher may interrupt a landing stream
+    /// with any same-facing normal-jump transition `$4B/$4C/$55-$5A`.
+    /// </summary>
+    /// <remarks>
+    /// Every landing pose above points at the ordinary standing input table. That includes
+    /// the aimed `$E0-$E5` and firing `$E6/$E7` records, not merely the older `$A4-$A7`
+    /// normal/spin subset. That standing table can preserve Up, diagonal-up, or
+    /// diagonal-down shoulder input on the fresh Jump edge, so restricting the target to
+    /// neutral `$4B/$4C` incorrectly rejects routes such as `$E2 -> $57`. Keeping this
+    /// relation beside the complete landing classifiers prevents individual runtime switch
+    /// sites from accidentally admitting only part of the ROM-authored family.
+    /// </remarks>
+    public static bool IsLandingToNormalJumpTransition(byte sourcePose, byte targetPose) =>
+        IsRightFacingLandingPose(sourcePose) && targetPose is
+            NeutralJumpTransitionRightPose or
+            NormalJumpTransitionAimUpRightPose or
+            NormalJumpTransitionAimDiagonalUpRightPose or
+            NormalJumpTransitionAimDiagonalDownRightPose ||
+        IsLeftFacingLandingPose(sourcePose) && targetPose is
+            NeutralJumpTransitionLeftPose or
+            NormalJumpTransitionAimUpLeftPose or
+            NormalJumpTransitionAimDiagonalUpLeftPose or
+            NormalJumpTransitionAimDiagonalDownLeftPose;
+
+    /// <summary>
     /// True for the complete right-facing movement-type-five crouch family. All four
     /// records use radius 16 and the shared transition table at <c>$91:A66C</c>.
     /// </summary>

@@ -411,6 +411,18 @@ public sealed partial class SuperMetroidRuntime
             System,
             getSamus: () => Samus);
 
+        // Header $D6EA is the cartridge's handshake between the Bombs item and Bomb
+        // Torizo's bank-$AA initialization. Load it after the preceding population owners
+        // have consumed their records, but still before Enemies.Load performs its first
+        // forty-header scan. Setup $D606 deletes it immediately on an already-defeated save.
+        Plms.TryLoadBombTorizoHandPopulation(
+            _addressSpace,
+            LevelData,
+            room.State.PlmPointer,
+            isAreaTorizoDefeated: () =>
+                System.HasAnyBossBits(room.AreaIndex, BossBits.AreaTorizo),
+            getSamus: () => Samus);
+
         Enemies.Load(
             _addressSpace,
             room.State.EnemyPopulationPointer,
@@ -449,6 +461,7 @@ public sealed partial class SuperMetroidRuntime
             setMotherBrainBg2Scroll:
                 (horizontal, vertical) =>
                     BackgroundScroll.SetBg2ScrollRegisters(horizontal, vertical),
+            isRoomPlmPresent: Plms.HasActiveHeader,
             gunshipLoadScenario: gunshipLoadScenario);
         ApplyPendingBotwoonWallPlm();
         ApplyPendingSporeSpawnCeilingPlm();

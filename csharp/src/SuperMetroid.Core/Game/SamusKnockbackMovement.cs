@@ -228,17 +228,23 @@ public static class SamusKnockbackMovement
     public static void ApplyDamageBoostTransition(
         ISnesAddressSpace bus,
         SamusState samus,
+        byte sourcePose,
         byte targetPose)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        bool valid = (samus.Pose, targetPose) is
+        // Alpha chooses the input record from the pose present at frame start. Beta then
+        // runs before UpdateSamusPose and can exhaust the hurt timer, replacing `$53/$54`
+        // with falling `$29/$2A` on that same frame. Validate the captured dispatch pose,
+        // not the now-mutable Samus.Pose, or a completely genuine last-frame damage boost
+        // is incorrectly rejected as `$29/$2A -> $50/$4F`.
+        bool valid = (sourcePose, targetPose) is
             (SamusState.KnockbackRightPose, SamusState.DamageBoostRightPose) or
             (SamusState.KnockbackLeftPose, SamusState.DamageBoostLeftPose);
         if (!valid)
         {
             throw new InvalidOperationException(
-                $"Damage boost ${samus.Pose:X2} -> ${targetPose:X2} is not a retail transition.");
+                $"Damage boost ${sourcePose:X2} -> ${targetPose:X2} is not a retail transition.");
         }
 
         // Normal pose input `$91:8113` notices movement type changed away from `$0A`, calls

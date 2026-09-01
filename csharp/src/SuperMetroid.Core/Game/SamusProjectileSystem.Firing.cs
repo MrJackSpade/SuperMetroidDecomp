@@ -9,6 +9,18 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class SamusProjectileSystem
 {
+    /// <summary>
+    /// Applies the shared side effect of all six <c>SwitchToHudHandler_*</c> routines:
+    /// cancel beam charge and remove every live flare-animation layer before the newly
+    /// selected weapon producer runs.
+    /// </summary>
+    public void CancelChargeForHudSelection()
+    {
+        FlareCounter = 0;
+        PreviousBeamChargeCounter = 0;
+        ClearFlareAnimationState();
+    }
+
     private (int? Slot, ushort Sound) HandleBeamInput(
         ISnesAddressSpace bus,
         SamusState samus,

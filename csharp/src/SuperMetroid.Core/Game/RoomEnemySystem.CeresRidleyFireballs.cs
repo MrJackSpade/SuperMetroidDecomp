@@ -89,6 +89,7 @@ public enum RoomEnemyProjectileKind : ushort
     BombTorizoExplosiveSwipe = 0xa985,
     BombTorizoLowHealthExplosion = 0xa9a1,
     BombTorizoDeathExplosion = 0xa9af,
+    BombTorizoStatueBreaking = 0xa993,
     BombTorizoChozoOrb = 0xad5e,
     BombTorizoSonicBoom = 0xaea8,
     GoldenTorizoChozoOrb = 0xad7a,
@@ -574,9 +575,14 @@ public sealed partial class RoomEnemySystem
             case 0xa05b: // Pirate laser startup: three muzzle-flash frames do not move.
             case 0xefdf: // Enemy death/pickup subsystem's empty pre-instruction.
             case 0xa919: // Bomb Torizo explosive swipe: stationary authored hit flash.
+            case 0xa918: // Bomb Torizo statue fragment stopped after floor collision.
             case 0xdd44: // Spore Spawn stalk: position is written by the boss's main AI.
             case 0xcaa3: // Mother Brain's large purple breath is a stationary animation.
             case 0xc76d: // Mother Brain's charging/fired red hand-beam list owns all motion.
+                return;
+
+            case 0xa8ef: // Bomb Torizo hand fragment: fall until room collision.
+                RunBombTorizoStatueBreakingPreInstruction(projectile, level);
                 return;
 
             case EnemyPickupPreInstruction: // Lifetime, grapple endpoint, then Samus body.

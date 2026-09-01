@@ -104,6 +104,11 @@ public sealed partial class SuperMetroidRuntime
             YPosition = station.SamusY,
         };
         slot.ApplyTo(Samus, System);
+        GameTime.Load(
+            slot.GameTimeFrames,
+            slot.GameTimeSeconds,
+            slot.GameTimeMinutes,
+            slot.GameTimeHours);
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
         if (room.AreaIndex != requestedArea)
         {

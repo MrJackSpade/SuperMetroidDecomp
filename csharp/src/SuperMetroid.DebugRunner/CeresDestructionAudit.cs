@@ -108,6 +108,46 @@ internal static class CeresDestructionAudit
         if (!runtime.GroundedSamusMovementEnabled || runtime.Samus?.InputLocked != false)
             throw new InvalidDataException("Landing completed without restoring ordinary Samus control.");
 
+        // Feed the naturally produced GunshipTop_7 event into the same automatic-checkpoint
+        // coordinator used by SuperMetroidGame, then restart the entire frontend and select
+        // that slot through controller input. This closes the loop from gameplay event to
+        // physical SRAM to cartridge load-station resolution—no seeded snapshot participates.
+        if (!AutomaticCheckpointSaver.TrySaveGunshipLanding(bus, runtime, selectedSaveSlot: 0))
+            throw new InvalidDataException("Natural gunship completion did not request its automatic save.");
+        SuperMetroidSaveSlot landingSave = new SuperMetroidSaveRam(bus).ReadSlot(0)
+            ?? throw new InvalidDataException("Gunship checkpoint failed SRAM checksum validation.");
+        if (landingSave.Area != 0 || landingSave.SaveStation != 0 ||
+            (landingSave.UsedSaveStationBytes[0] & 1) == 0 ||
+            landingSave.GameTimeFrames != runtime.GameTime.Frames ||
+            landingSave.GameTimeSeconds != runtime.GameTime.Seconds)
+        {
+            throw new InvalidDataException(
+                $"Gunship checkpoint decoded as {landingSave.Area}:{landingSave.SaveStation}, " +
+                $"stationBits=${landingSave.UsedSaveStationBytes[0]:X2}, " +
+                $"time={landingSave.GameTimeSeconds:D2}.{landingSave.GameTimeFrames:D2}, " +
+                $"runtime={runtime.GameTime.Seconds:D2}.{runtime.GameTime.Frames:D2}.");
+        }
+
+        var restarted = new SuperMetroidGame(
+            bus,
+            new SuperMetroidGameOptions { SkipOpeningCinematic = true });
+        FrontendFrame restartedFrame = FrontendAuditDriver.EnterSelectedSlot(restarted);
+        if (restartedFrame.GameState != SuperMetroidGameState.MainGameplay ||
+            restarted.GameplayActiveRoomPointer != runtime.ActiveRoom?.Pointer ||
+            restarted.GameplayHealth != landingSave.Health ||
+            restarted.GameplayTimeSeconds != landingSave.GameTimeSeconds ||
+            restarted.GameplayTimeFrames != landingSave.GameTimeFrames ||
+            !restarted.GameplayMovementEnabled)
+        {
+            throw new InvalidDataException(
+                $"Fresh frontend did not resume the natural gunship save: " +
+                $"state={restartedFrame.GameState}, " +
+                $"room=${restarted.GameplayActiveRoomPointer.GetValueOrDefault():X4}/" +
+                $"${runtime.ActiveRoom?.Pointer:X4}, energy={restarted.GameplayHealth}, " +
+                $"time={restarted.GameplayTimeSeconds:D2}.{restarted.GameplayTimeFrames:D2}, " +
+                $"movement={restarted.GameplayMovementEnabled}.");
+        }
+
         WriteOpaque(
             Path.Combine(outputDirectory, "LandingComplete.png"),
             SuperMetroidRuntimeFrameRenderer.Render(runtime),
@@ -115,7 +155,9 @@ internal static class CeresDestructionAudit
         Console.WriteLine(
             $"Ceres/Zebes audit: cinematic {cinematicFrames} calls; station 0:18 gunship " +
             $"landing {landingFrames} gameplay frames from Y=${stationSamusY:X4}; Samus " +
-            $"(${runtime.Samus!.XPosition:X4},${runtime.Samus.YPosition:X4}).");
+            $"(${runtime.Samus!.XPosition:X4},${runtime.Samus.YPosition:X4}); automatic " +
+            $"checkpoint resumed at {landingSave.GameTimeSeconds:D2}." +
+            $"{landingSave.GameTimeFrames:D2}.");
         return 0;
     }
 

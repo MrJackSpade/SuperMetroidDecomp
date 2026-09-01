@@ -123,6 +123,32 @@ public sealed class SuperMetroidGame
     /// <summary>Live collected-item word displayed by the pause equipment screen.</summary>
     public ushort GameplayCollectedItems => runtime?.Samus?.CollectedItems ?? 0;
 
+    /// <summary>Live energy restored from SRAM and consumed by gameplay damage.</summary>
+    public ushort GameplayHealth => runtime?.Samus?.Health ?? 0;
+
+    /// <summary>Saved maximum-energy word restored alongside current energy.</summary>
+    public ushort GameplayMaxHealth => runtime?.Samus?.MaxHealth ?? 0;
+
+    /// <summary>Saved gameplay minutes, exposed for frontend reload regression watches.</summary>
+    public ushort GameplayTimeMinutes => runtime?.GameTime.Minutes ?? 0;
+
+    /// <summary>Saved gameplay hours, exposed for frontend reload regression watches.</summary>
+    public ushort GameplayTimeHours => runtime?.GameTime.Hours ?? 0;
+
+    /// <summary>Saved gameplay seconds, exposed for frontend reload regression watches.</summary>
+    public ushort GameplayTimeSeconds => runtime?.GameTime.Seconds ?? 0;
+
+    /// <summary>Saved subsecond gameplay frame word.</summary>
+    public ushort GameplayTimeFrames => runtime?.GameTime.Frames ?? 0;
+
+    /// <summary>Queries one live area-boss mask without exposing writable system arrays.</summary>
+    public bool GameplayHasBossBits(int areaIndex, BossBits bits) =>
+        runtime?.System.HasAnyBossBits(areaIndex, bits) ?? false;
+
+    /// <summary>Queries a restored explored-map cell through the native 64-by-32 layout.</summary>
+    public bool GameplayIsMapTileExplored(int areaIndex, int mapX, int mapY) =>
+        runtime?.System.IsMapTileExplored(areaIndex, mapX, mapY) ?? false;
+
     /// <summary>Current pause page: zero for map, one for equipment, or -1 outside pause.</summary>
     public int PauseScreenMode => pauseMenu?.ScreenMode ?? -1;
 
@@ -386,7 +412,8 @@ public sealed class SuperMetroidGame
                             samus,
                             runtime.System,
                             area: 6,
-                            saveStation: 0));
+                            saveStation: 0,
+                            gameTime: runtime.GameTime));
                     SaveRamChanged?.Invoke();
                     runtime.Enemies.CeresStatus = 0;
                     runtime.EscapeTimer.Clear();
@@ -556,6 +583,11 @@ public sealed class SuperMetroidGame
                 slot.HudItem,
                 slot.ReserveEnergy,
                 slot.ReserveMode));
+            runtime.GameTime.Load(
+                slot.GameTimeFrames,
+                slot.GameTimeSeconds,
+                slot.GameTimeMinutes,
+                slot.GameTimeHours);
             runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
 
             // Preserve the already-translated Ceres elevator entrance for its checkpoint.
@@ -596,32 +628,17 @@ public sealed class SuperMetroidGame
                 samus,
                 runtime.System,
                 area: 6,
-                saveStation: 0));
+                saveStation: 0,
+                gameTime: runtime.GameTime));
         SaveRamChanged?.Invoke();
         return true;
     }
 
     private void HandleGunshipLandingSave()
     {
-        if (runtime?.Enemies.LastGunshipEvent != GunshipFrameEvent.LandingCompleted)
+        if (runtime is null ||
+            !AutomaticCheckpointSaver.TrySaveGunshipLanding(bus, runtime, selectedSaveSlot))
             return;
-
-        SamusState samus = runtime.Samus
-            ?? throw new InvalidOperationException(
-                "Gunship landing completed without a live Samus actor.");
-        // GunshipTop_7 replaces cutscene-only station eighteen with station zero and saves
-        // immediately after the closing-pad hold restores ordinary player control. Its
-        // `ORA #$0001` also marks Crateria save point zero in the persistent station table
-        // before SaveToSram packs the mirror; omitting that bit hides the ship from maps
-        // after a perfectly valid reload.
-        runtime.System.MarkSaveStationUsed(areaIndex: 0, stationBitIndex: 0);
-        saveRam.SaveSlot(
-            selectedSaveSlot,
-            SuperMetroidSaveSnapshot.Capture(
-                samus,
-                runtime.System,
-                area: 0,
-                saveStation: 0));
         SaveRamChanged?.Invoke();
     }
 

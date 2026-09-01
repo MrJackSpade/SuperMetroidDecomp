@@ -38,6 +38,7 @@ VerifyEscapeTimerStateMachine();
 VerifyControllerInputLatch();
 VerifyDemoInputObject();
 VerifyFrameRuntime();
+VerifyGameTimeState();
 VerifySuperMetroidAddressSpace();
 VerifyTypedNativeWords();
 VerifyOamSpritemapPacking();

@@ -480,7 +480,8 @@ public sealed record SuperMetroidSaveSnapshot
         SamusState samus,
         Bank80SystemState system,
         ushort area,
-        ushort saveStation)
+        ushort saveStation,
+        GameTimeState? gameTime = null)
     {
         ArgumentNullException.ThrowIfNull(samus);
         ArgumentNullException.ThrowIfNull(system);
@@ -536,6 +537,10 @@ public sealed record SuperMetroidSaveSnapshot
             HudItem = samus.SelectedHudItem,
             MaxReserveEnergy = samus.MaxReserveEnergy,
             ReserveEnergy = samus.ReserveEnergy,
+            GameTimeFrames = gameTime?.Frames ?? 0,
+            GameTimeSeconds = gameTime?.Seconds ?? 0,
+            GameTimeMinutes = gameTime?.Minutes ?? 0,
+            GameTimeHours = gameTime?.Hours ?? 0,
             SaveStation = saveStation,
             Area = area,
             EventBytes = events,

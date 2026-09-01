@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// ROM-backed proof that the host option bypasses only the story cinematic and rejoins the
@@ -109,7 +110,7 @@ internal static class FrontendSkipIntroAudit
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         int restartedSaveRamChangeCount = 0;
         restartedGame.SaveRamChanged += () => restartedSaveRamChangeCount++;
-        FrontendFrame restartedFrame = EnterSelectedSlot(restartedGame);
+        FrontendFrame restartedFrame = FrontendAuditDriver.EnterSelectedSlot(restartedGame);
         if (restartedFrame.GameState != SuperMetroidGameState.MadeItToCeresElevator ||
             restartedGame.GameplayActiveRoomPointer != game.GameplayActiveRoomPointer)
         {
@@ -138,6 +139,59 @@ internal static class FrontendSkipIntroAudit
                 "Fresh frontend did not restore Ceres control and saved inventory words.");
         }
 
+        // Ceres 6:0 intentionally uses a special elevator loader. Seed one ordinary
+        // Crateria 0:0 payload through the real SRAM encoder as a separate proof that a
+        // fresh dispatcher follows the ROM's area/load-station/door tables and restores
+        // player, boss, map, and clock state before constructing the room.
+        var crateriaSystem = new Bank80SystemState();
+        crateriaSystem.SetBossBits(0, BossBits.AreaTorizo);
+        crateriaSystem.MarkSaveStationUsed(areaIndex: 0, stationBitIndex: 0);
+        crateriaSystem.MarkExploredMapTile(areaIndex: 0, mapX: 27, mapY: 5);
+        var crateriaSamus = new SamusState
+        {
+            Health = 87,
+            MaxHealth = 199,
+            Missiles = 3,
+            MaxMissiles = 5,
+            EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+        };
+        var crateriaTime = new GameTimeState();
+        crateriaTime.Load(frames: 12, seconds: 56, minutes: 34, hours: 12);
+        new SuperMetroidSaveRam(bus).SaveSlot(
+            0,
+            SuperMetroidSaveSnapshot.Capture(
+                crateriaSamus,
+                crateriaSystem,
+                area: 0,
+                saveStation: 0,
+                gameTime: crateriaTime));
+
+        var crateriaReload = new SuperMetroidGame(
+            bus,
+            new SuperMetroidGameOptions { SkipOpeningCinematic = true });
+        FrontendFrame crateriaFrame = FrontendAuditDriver.EnterSelectedSlot(crateriaReload);
+        LoadStationEntry crateriaStation = LoadStationEntry.Load(bus, areaIndex: 0, stationIndex: 0);
+        if (crateriaFrame.GameState != SuperMetroidGameState.MainGameplay ||
+            crateriaReload.GameplayActiveRoomPointer != crateriaStation.RoomPointer ||
+            crateriaReload.GameplayHealth != 87 ||
+            crateriaReload.GameplayMaxHealth != 199 ||
+            crateriaReload.GameplayEquippedItems != crateriaSamus.EquippedItems ||
+            !crateriaReload.GameplayHasBossBits(0, BossBits.AreaTorizo) ||
+            !crateriaReload.GameplayIsMapTileExplored(0, 27, 5) ||
+            crateriaReload.GameplayTimeHours != 12 ||
+            crateriaReload.GameplayTimeMinutes != 34)
+        {
+            throw new InvalidDataException(
+                $"General saved-game startup disagreed: state={crateriaFrame.GameState}, " +
+                $"room=${crateriaReload.GameplayActiveRoomPointer.GetValueOrDefault():X4}/" +
+                $"${crateriaStation.RoomPointer:X4}, energy={crateriaReload.GameplayHealth}/" +
+                $"{crateriaReload.GameplayMaxHealth}, items=${crateriaReload.GameplayEquippedItems:X4}, " +
+                $"boss={crateriaReload.GameplayHasBossBits(0, BossBits.AreaTorizo)}, " +
+                $"map={crateriaReload.GameplayIsMapTileExplored(0, 27, 5)}, " +
+                $"time={crateriaReload.GameplayTimeHours:D2}:{crateriaReload.GameplayTimeMinutes:D2}.");
+        }
+
         for (int pixelIndex = 0; pixelIndex < frame.Pixels.Length; pixelIndex++)
         {
             if (frame.Pixels[pixelIndex].A != byte.MaxValue)
@@ -151,55 +205,9 @@ internal static class FrontendSkipIntroAudit
         Console.WriteLine(
             $"Skip-opening-cinematic audit reached {frame.GameState} on dispatcher frame " +
             $"{frame.FrameNumber}, Samus=(${game.GameplaySamusX:X4},${game.GameplaySamusY:X4}), " +
-            "slot A saved as Ceres 6:0 and loaded through a fresh frontend instance.");
+            "slot A loaded through fresh Ceres and general Crateria frontend paths.");
         Console.WriteLine($"Captured skip-intro Ceres frame to {Path.GetFullPath(outputPath)}.");
         return 0;
-    }
-
-    /// <summary>
-    /// Drives a fresh outer dispatcher into its currently selected, existing save slot.
-    /// Keeping every transition controller-authored catches stale menu flags and button-edge
-    /// mistakes that a direct call to the runtime's saved-game initializer would conceal.
-    /// </summary>
-    private static FrontendFrame EnterSelectedSlot(SuperMetroidGame game)
-    {
-        FrontendFrame frame = game.Step(0);
-        frame = game.Step((ushort)SnesButton.Start);
-        frame = StepUntil(
-            game,
-            frame,
-            candidate => candidate.Phase == nameof(TitleSequencePhase.TitleScreen),
-            maximumFrames: 120,
-            "restarted title montage skip did not reach the title screen");
-
-        frame = game.Step((ushort)SnesButton.Start);
-        frame = StepUntil(
-            game,
-            frame,
-            candidate => candidate.GameState == SuperMetroidGameState.FileSelectMenus,
-            maximumFrames: 120,
-            "restarted title screen did not reach file select");
-        for (int frameIndex = 0; frameIndex < 16; frameIndex++)
-            frame = game.Step(0);
-
-        frame = game.Step((ushort)SnesButton.A);
-        frame = StepUntil(
-            game,
-            frame,
-            candidate => candidate.GameState == SuperMetroidGameState.GameOptionsMenu,
-            maximumFrames: 180,
-            "restarted existing slot did not reach game options");
-        for (int frameIndex = 0; frameIndex < 16; frameIndex++)
-            frame = game.Step(0);
-
-        frame = game.Step((ushort)SnesButton.A);
-        frame = StepUntil(
-            game,
-            frame,
-            candidate => candidate.GameState == SuperMetroidGameState.SetUpNewGame,
-            maximumFrames: 180,
-            "restarted options did not request saved-game setup");
-        return game.Step(0);
     }
 
     private static FrontendFrame StepUntil(

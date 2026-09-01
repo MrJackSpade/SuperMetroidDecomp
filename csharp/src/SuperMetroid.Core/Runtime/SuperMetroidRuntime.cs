@@ -39,6 +39,9 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>Bank-$80 shared random/event/input-filter state.</summary>
     public Bank80SystemState System { get; } = new();
 
+    /// <summary>Gameplay clock mirrored at WRAM $09DA-$09E1 and in each SRAM slot.</summary>
+    public GameTimeState GameTime { get; } = new();
+
     /// <summary>Controller-1 NMI latch from <c>$80:9459</c>.</summary>
     public ControllerInputState Controller1 { get; } = new();
 
@@ -3558,6 +3561,11 @@ public sealed partial class SuperMetroidRuntime
             allowDeparture: allowCeresElevatorDeparture);
         if (LastCeresElevatorShaftRoomMain.MatrixChanged)
             ActiveSamusMode7Transform = LastCeresElevatorShaftRoomMain.Transform;
+
+        // HandleSamusOutOfHealthAndGameTile advances the four-word gameplay clock after
+        // room main and before shaking. Message-box frames returned above, exactly as the
+        // suspended native coroutine does, so item fanfare time is not counted here.
+        GameTime.Step();
 
         // `$82:8BAF` executes room shaking after room main ASM and game-time handling, but
         // before the active-enemy lists are cleared. Enemy attacks above may have installed

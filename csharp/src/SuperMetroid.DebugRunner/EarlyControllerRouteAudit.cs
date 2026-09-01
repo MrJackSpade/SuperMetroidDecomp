@@ -15,9 +15,15 @@ using SuperMetroid.Core.Runtime;
 /// surface exit; each subsequently proven segment will be appended until the complete
 /// Bomb Torizo route runs from ordinary controller samples alone.
 /// </remarks>
-internal static class EarlyControllerRouteAudit
+internal static partial class EarlyControllerRouteAudit
 {
     private const int LevelBlockSizePixels = 16;
+
+    // Successful route audits default to concise milestone output. Set SM_ROUTE_TRACE=1
+    // when diagnosing a planner regression; failure paths always retain their full trace,
+    // collision image, and local block dump regardless of this presentation switch.
+    private static bool VerboseDiagnostics { get; } =
+        Environment.GetEnvironmentVariable("SM_ROUTE_TRACE") == "1";
 
     public static int Run(string romPath)
     {
@@ -263,7 +269,7 @@ internal static class EarlyControllerRouteAudit
             runtime,
             host,
             maximumFrames: 12000);
-        VerifyPauseEquipment(bus, runtime);
+        VerifyPauseEquipment(bus, runtime, host);
 
         Console.WriteLine(
             $"Controller route: gunship {landingFrames} frames; Landing Site -> Parlor " +
@@ -311,73 +317,8 @@ internal static class EarlyControllerRouteAudit
                     $"Frontend door transition stopped in {game.GameState} after " +
                     $"{MaximumDoorDispatcherFrames} dispatcher frames.");
             }
-        });
-
-    /// <summary>
-    /// Opens the cartridge-backed pause object over the completed route's live Samus,
-    /// switches from map to equipment with the native page fades, and toggles Bombs off
-    /// and back on through ordinary equipment-screen input. This is deliberately after the
-    /// fight so the audit proves the item acquired by the PLM is the item displayed and
-    /// mutated by pause; no inventory word is seeded by this verifier.
-    /// </summary>
-    private static void VerifyPauseEquipment(
-        ISnesAddressSpace bus,
-        SuperMetroidRuntime runtime)
-    {
-        SamusState samus = runtime.Samus ?? throw new InvalidOperationException(
-            "Pause route verification requires live Samus.");
-        CartridgeRoomHeader room = runtime.ActiveRoom ?? throw new InvalidOperationException(
-            "Pause route verification requires an active room.");
-        if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs))
-            throw new InvalidDataException("Pause route began without the acquired Bombs equipped.");
-
-        var pause = new PauseMenuState(
-            bus,
-            samus,
-            runtime.System,
-            room.AreaIndex,
-            room.MapX,
-            room.MapY);
-        Rgba32[] mapFrame = pause.Render();
-        if (mapFrame.Length != 256 * 224 || mapFrame.All(pixel => pixel.R == 0 && pixel.G == 0 && pixel.B == 0))
-            throw new InvalidDataException("Cartridge pause map rendered an empty frame.");
-        if (pause.LastRenderedSpriteCount == 0 || pause.LastIndicatorSpritemapId is < 0x5f or > 0x61)
-        {
-            throw new InvalidDataException(
-                $"Cartridge pause map emitted {pause.LastRenderedSpriteCount} sprites with " +
-                $"indicator ID ${pause.LastIndicatorSpritemapId:X2}.");
-        }
-
-        pause.Step((ushort)SnesButton.R, 0);
-        for (int frame = 0; frame < 32; frame++)
-            pause.Step(0, 0);
-        if (pause.ScreenMode != 1 || pause.SelectedCategory != 2 || pause.SelectedItem != 2)
-        {
-            throw new InvalidDataException(
-                $"Pause equipment opened at mode/category/item " +
-                $"{pause.ScreenMode}/{pause.SelectedCategory}/{pause.SelectedItem}; " +
-                "the first collected early-game item must be Morph Ball (2/2).");
-        }
-
-        pause.Step(0, (ushort)SnesButton.Down);
-        if (pause.SelectedItem != 3)
-            throw new InvalidDataException("Pause selector did not move from Morph Ball to collected Bombs.");
-        pause.Step(0, (ushort)SnesButton.A);
-        if (samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs))
-            throw new InvalidDataException("Pause A input did not unequip Bombs.");
-        pause.Step(0, 0);
-        pause.Step(0, (ushort)SnesButton.A);
-        if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs))
-            throw new InvalidDataException("Pause A input did not re-equip Bombs.");
-
-        Rgba32[] equipmentFrame = pause.Render();
-        if (equipmentFrame.All(pixel => pixel.R == 0 && pixel.G == 0 && pixel.B == 0))
-            throw new InvalidDataException("Cartridge pause equipment page rendered an empty frame.");
-        if (pause.LastRenderedSpriteCount == 0)
-            throw new InvalidDataException("Cartridge pause equipment selector emitted no OAM records.");
-        Console.WriteLine(
-            "  Pause route: centered map marker, ROM selector OAM, page fades, and Morph/Bombs live inventory toggles agree.");
-    }
+        },
+        Frontend: game);
 
     /// <summary>
     /// Uses ordinary rightward movement and beam input to open Bomb Torizo's Chozo orb and
@@ -858,7 +799,7 @@ internal static class EarlyControllerRouteAudit
             }
 
             host.StepFrame(input);
-            if (samus.Health < healthBeforeFrame)
+            if (VerboseDiagnostics && samus.Health < healthBeforeFrame)
             {
                 // Keep the private-ROM route diagnosable without reaching into collision
                 // state: the frame's controller word, authored actor positions, and live
@@ -894,12 +835,15 @@ internal static class EarlyControllerRouteAudit
             if (torizo.Slot.Health < previousEnemyHealth)
             {
                 damagingHits++;
-                Console.WriteLine(
-                    $"    boss hit f{frame + 1}: {previousEnemyHealth}->{torizo.Slot.Health}, " +
-                    $"Samus=({samus.XPosition:X2}/{samus.YPosition:X2})/p${samus.Pose:X2}, " +
-                    $"boss=({torizo.Slot.XPosition:X2}/{torizo.Slot.YPosition:X2})/" +
-                    $"ext=${torizo.Slot.SpritemapPointer:X4}, input=${input:X4}, " +
-                    $"spawn={FormatSpawn(runtime.Projectiles.LastFiredProjectileSnapshot)}.");
+                if (VerboseDiagnostics)
+                {
+                    Console.WriteLine(
+                        $"    boss hit f{frame + 1}: {previousEnemyHealth}->{torizo.Slot.Health}, " +
+                        $"Samus=({samus.XPosition:X2}/{samus.YPosition:X2})/p${samus.Pose:X2}, " +
+                        $"boss=({torizo.Slot.XPosition:X2}/{torizo.Slot.YPosition:X2})/" +
+                        $"ext=${torizo.Slot.SpritemapPointer:X4}, input=${input:X4}, " +
+                        $"spawn={FormatSpawn(runtime.Projectiles.LastFiredProjectileSnapshot)}.");
+                }
                 previousEnemyHealth = torizo.Slot.Health;
             }
             if (samus.Health == 0)
@@ -908,7 +852,7 @@ internal static class EarlyControllerRouteAudit
                     $"Samus died during controller-driven Bomb Torizo combat at frame " +
                     $"{frame + 1}; boss health={torizo.Slot.Health}, inputs={fireInputs}.");
             }
-            if (frame % 300 == 299)
+            if (VerboseDiagnostics && frame % 300 == 299)
             {
                 Console.WriteLine(
                     $"  Bomb Torizo fight f{frame + 1}: Samus=(${samus.XPosition:X4}," +
@@ -1520,7 +1464,7 @@ internal static class EarlyControllerRouteAudit
                             }
                             if (nextPlatform is not { } platform)
                                 goto BuildClimbWallJumpInput;
-                            if (roomName == "Parlor return")
+                            if (roomName == "Parlor return" && VerboseDiagnostics)
                             {
                                 Console.WriteLine(
                                     $"  Selected Parlor climb target " +
@@ -1609,7 +1553,9 @@ internal static class EarlyControllerRouteAudit
                                  // Shadow endpoints are inclusive pixel coordinates, so a
                                  // four-tile authored span measures 63 rather than 64 here.
                                  selectedPlatformWidth >= 4 * LevelBlockSizePixels - 1);
-                            if (returningUpParlorShaft && platform.SurfaceY <= 0x0160)
+                            if (VerboseDiagnostics &&
+                                returningUpParlorShaft &&
+                                platform.SurfaceY <= 0x0160)
                             {
                                 Console.WriteLine(
                                     $"    Parlor target geometry: distance={launchDistance}, " +
@@ -2251,15 +2197,18 @@ internal static class EarlyControllerRouteAudit
                                 (samus.YPosition + samus.Kinematics.YRadius + 8) >> 4,
                                 0,
                                 runtime.LevelData!.HeightInBlocks - 1);
-                            Console.WriteLine(
-                                $"  Parlor descent target ${horizontalTargetX:X4} at frame {frame}; " +
-                                $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}), " +
-                                $"row=${sampledLaneRow:X2}, waypoint=" +
-                                (selectedWaypointRow >= 0
-                                    ? $"({horizontalTargetX >> 4:X2},{selectedWaypointRow:X2})/d{selectedRouteDistance}/" +
-                                      selectedRoutePreview
-                                    : "-") +
-                                $", lip={parlorDescentLipCleared}.");
+                            if (VerboseDiagnostics)
+                            {
+                                Console.WriteLine(
+                                    $"  Parlor descent target ${horizontalTargetX:X4} at frame {frame}; " +
+                                    $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}), " +
+                                    $"row=${sampledLaneRow:X2}, waypoint=" +
+                                    (selectedWaypointRow >= 0
+                                        ? $"({horizontalTargetX >> 4:X2},{selectedWaypointRow:X2})/d{selectedRouteDistance}/" +
+                                          selectedRoutePreview
+                                        : "-") +
+                                    $", lip={parlorDescentLipCleared}.");
+                            }
                             parlorLaneTargetX = horizontalTargetX;
                             parlorBestLaneDistance = int.MaxValue;
                             parlorLaneStallFrames = 0;
@@ -2585,12 +2534,15 @@ internal static class EarlyControllerRouteAudit
                     if (failureCount >= failuresBeforeRejectingClimbTarget &&
                         rejectedClimbTargets.Add(failedTarget))
                     {
-                        Console.WriteLine(
-                            $"  Rejected repeatedly failed Parlor climb target " +
-                            $"(${attemptedTargetX:X4},${climbTargetSurfaceY:X4}) " +
-                            $"from ${climbPlanningSupportSurfaceY:X4}; " +
-                            $"landed on ${landedSupportSurfaceY:X4} at frame {frame} " +
-                            $"after {failureCount} failed arcs.");
+                        if (VerboseDiagnostics)
+                        {
+                            Console.WriteLine(
+                                $"  Rejected repeatedly failed Parlor climb target " +
+                                $"(${attemptedTargetX:X4},${climbTargetSurfaceY:X4}) " +
+                                $"from ${climbPlanningSupportSurfaceY:X4}; " +
+                                $"landed on ${landedSupportSurfaceY:X4} at frame {frame} " +
+                                $"after {failureCount} failed arcs.");
+                        }
                     }
                 }
             }
@@ -2743,20 +2695,26 @@ internal static class EarlyControllerRouteAudit
                  runtime.Enemies.LastElevatorEvent != ElevatorFrameEvent.None ||
                  runtime.HasPendingDoorTransition))
             {
-                Console.WriteLine(
-                    $"  Elevator f{frame}: status={previousElevatorStatus}->" +
-                    $"{runtime.Enemies.ElevatorStatus}, flags=${runtime.Enemies.ElevatorFlags:X4}, " +
-                    $"event={runtime.Enemies.LastElevatorEvent}, input=${input:X4}, " +
-                    $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}), " +
-                    $"pending={runtime.LevelData?.PendingDoorTransition?.Pointer.ToString("X4") ?? "-"}.");
+                if (VerboseDiagnostics)
+                {
+                    Console.WriteLine(
+                        $"  Elevator f{frame}: status={previousElevatorStatus}->" +
+                        $"{runtime.Enemies.ElevatorStatus}, flags=${runtime.Enemies.ElevatorFlags:X4}, " +
+                        $"event={runtime.Enemies.LastElevatorEvent}, input=${input:X4}, " +
+                        $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}), " +
+                        $"pending={runtime.LevelData?.PendingDoorTransition?.Pointer.ToString("X4") ?? "-"}.");
+                }
                 previousElevatorStatus = runtime.Enemies.ElevatorStatus;
             }
             int currentScrollPlmCount = runtime.Plms.ScrollPlms.Count;
             if (currentScrollPlmCount != previousScrollPlmCount)
             {
-                Console.WriteLine(
-                    $"  {roomName} scroll PLMs changed {previousScrollPlmCount}->{currentScrollPlmCount} " +
-                    $"at frame {frame}, Samus=(${samus.XPosition:X4},${samus.YPosition:X4}).");
+                if (VerboseDiagnostics)
+                {
+                    Console.WriteLine(
+                        $"  {roomName} scroll PLMs changed {previousScrollPlmCount}->{currentScrollPlmCount} " +
+                        $"at frame {frame}, Samus=(${samus.XPosition:X4},${samus.YPosition:X4}).");
+                }
                 previousScrollPlmCount = currentScrollPlmCount;
             }
 
@@ -2831,7 +2789,7 @@ internal static class EarlyControllerRouteAudit
                           $"yd={samus.Kinematics.YDirection}/" +
                           $"ys=${samus.Kinematics.YSpeed:X4}.${samus.Kinematics.YSubspeed:X4}"
                         : ""));
-                if (detailedReturnedClimbSample)
+                if (VerboseDiagnostics && detailedReturnedClimbSample)
                     Console.WriteLine($"  TRACE {routeTrace[^1]}");
                 previousScreenX = screenX;
                 previousScreenY = screenY;
@@ -4097,6 +4055,8 @@ internal static class EarlyControllerRouteAudit
         int top,
         int bottom)
     {
+        if (!VerboseDiagnostics)
+            return;
         RoomLevelData level = runtime.LevelData ?? throw new InvalidOperationException(
             "Collision-region diagnostic requires active room data.");
         Console.WriteLine(
@@ -4117,6 +4077,8 @@ internal static class EarlyControllerRouteAudit
         int top,
         int bottom)
     {
+        if (!VerboseDiagnostics)
+            return;
         RoomLevelData level = runtime.LevelData ?? throw new InvalidOperationException(
             "Collision-feature diagnostic requires active room data.");
         Console.WriteLine(
@@ -4195,6 +4157,8 @@ internal static class EarlyControllerRouteAudit
         SuperMetroidRuntime runtime,
         string roomName)
     {
+        if (!VerboseDiagnostics)
+            return;
         RoomLevelData level = runtime.LevelData ?? throw new InvalidOperationException(
             $"{roomName} has no level data.");
         var doors = new List<string>();
@@ -4221,6 +4185,8 @@ internal static class EarlyControllerRouteAudit
 
     private static void PrintPlmPopulation(ISnesAddressSpace bus, ushort populationPointer)
     {
+        if (!VerboseDiagnostics)
+            return;
         var records = new List<string>();
         ushort cursor = populationPointer;
         for (int index = 0; index < 64; index++, cursor = unchecked((ushort)(cursor + 6)))
@@ -4244,7 +4210,8 @@ internal static class EarlyControllerRouteAudit
     /// </summary>
     internal sealed record ControllerRouteHost(
         Action<ushort> StepFrame,
-        Action LoadPendingDoor);
+        Action LoadPendingDoor,
+        SuperMetroidGame? Frontend = null);
 
     private readonly record struct DriveResult(
         int Frames,

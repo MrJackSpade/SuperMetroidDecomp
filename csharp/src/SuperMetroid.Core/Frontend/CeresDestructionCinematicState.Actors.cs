@@ -62,6 +62,14 @@ internal sealed partial class CeresDestructionCinematicState
         ushort x = unchecked((ushort)(52 - unchecked((short)backgroundX)));
         ushort y = unchecked((ushort)(48 - unchecked((short)backgroundY)));
         actors.Add(new IntroDiscoverySprite(x, y, 0x0a00, 0xce1b));
+
+        // `$8B:C345` queues these two Mode-7 transfers on the same dispatcher call that
+        // creates the final explosion. The upper 24 rows become the gunship viewed from
+        // the front; the lower 24 rows are explicitly cleared. Leaving the original Ceres
+        // screens in either half makes the station itself flee the explosion and later
+        // attaches those stale tiles to the rear view used on the Zebes approach.
+        vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(0x0000, 0x0300), destinationWord: 0x0000);
+        vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(0x0c00, 0x0300), destinationWord: 0x0300);
     }
 
     private void SpawnCeresExplosion(short xOffset, short yOffset, ushort list, int delay)
@@ -96,17 +104,31 @@ internal sealed partial class CeresDestructionCinematicState
         for (int index = actors.Count - 1; index >= 0; index--)
         {
             IntroDiscoverySprite actor = actors[index];
-            if (slidingAway && index < 5)
+            if (slidingAway)
             {
                 // Zebes accelerates by $40 in 8.8; all four star sheets use $20. Star
-                // sheet five is the native completion owner at C8F2.
-                ushort acceleration = index == 0 ? (ushort)0x0040 : (ushort)0x0020;
+                // sheet five is the native completion owner at C8F2. Identify the actors
+                // by ownership, not their mutable list index: native actors delete as they
+                // cross -$80, so indexes necessarily shift during this loop.
+                ushort acceleration = ReferenceEquals(actor, zebesPlanetActor)
+                    ? (ushort)0x0040
+                    : (ushort)0x0020;
                 actor.GeneralTimer = unchecked((ushort)(actor.GeneralTimer + acceleration));
                 SubtractEightEightY(actor, actor.GeneralTimer);
-                if (index == 4 && unchecked((short)actor.YPosition) < -128)
+                if (unchecked((short)actor.YPosition) < -128)
                 {
-                    Phase = CeresDestructionPhase.Finished;
-                    return;
+                    // `$8B:C885/$C8F2/$C95D/$C987` delete each object before its 8-bit
+                    // OAM Y coordinate can wrap below the screen. Only star sheet five
+                    // additionally installs CADF, handing the cinematic back to game load.
+                    if (ReferenceEquals(actor, zebesCompletionStarActor))
+                    {
+                        Phase = CeresDestructionPhase.Finished;
+                        return;
+                    }
+
+                    actor.Delete();
+                    actors.RemoveAt(index);
+                    continue;
                 }
             }
 

@@ -47,8 +47,8 @@ public sealed partial class RoomEnemySystem
                 if (QueueNextCeresEscapeTransfer(state, vramWriteQueue))
                 {
                     // $A6:C09F also queues music track seven after installing the final
-                    // static warning tilemap page. Audio remains a typed observable until
-                    // the APU port exists; the visual/timing side effects continue now.
+                    // static warning tilemap page. The frontend consumes this typed request
+                    // through the same bank-$80 queue used by every other music producer.
                     state.MusicRequest = 7;
                     state.FunctionTimer = 6;
                     state.CeresEscapeTextDelayTimer = 128;
@@ -200,6 +200,11 @@ public sealed partial class RoomEnemySystem
             state.CeresEscapeTextDestination++;
             state.CeresEscapeTextSoundCounter = unchecked((ushort)(
                 (state.CeresEscapeTextSoundCounter + 1) % 2));
+            // Ridley_Func_61 emits one key click for every second visible character.
+            // Ceres is area six, selecting QueueSfx2_Max3($45); the alternate library-three
+            // call belongs to the non-Ceres reuse of this shared native routine.
+            if (state.CeresEscapeTextSoundCounter == 0)
+                QueueEnemySound(library: 2, soundId: 0x0045, maximumQueued: 3);
             return false;
         }
     }

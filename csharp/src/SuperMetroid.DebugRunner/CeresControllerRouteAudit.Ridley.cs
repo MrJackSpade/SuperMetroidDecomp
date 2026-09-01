@@ -122,8 +122,8 @@ internal static partial class CeresControllerRouteAudit
     /// <summary>
     /// Advances the cartridge-owned Baby retrieval, rotating getaway, warning transfer,
     /// and self-destruct handoff without pressing a controller shortcut. Completion requires
-    /// both status two and restored Samus input, so the subsequent escape policy cannot move
-    /// during Mode-7 ownership or a partially installed warning screen.
+    /// both status two and completion of Samus's dedicated push handler, so the subsequent
+    /// escape policy cannot move during Mode-7 ownership or a partially installed warning.
     /// </summary>
     private static int DriveRidleyEscapePresentation(
         SuperMetroidRuntime runtime,
@@ -142,7 +142,7 @@ internal static partial class CeresControllerRouteAudit
             if (runtime.Enemies.CeresStatus == 2 &&
                 ridley.Mode7Finished &&
                 !ridley.Mode7Active &&
-                !samus.InputLocked)
+                !samus.CeresRidleyEjection.IsActive)
             {
                 if (!sawMode7 || runtime.EscapeTimer.State == EscapeTimerState.Inactive)
                 {
@@ -152,9 +152,9 @@ internal static partial class CeresControllerRouteAudit
                 }
                 // The wall-collision call restores the normal handler but deliberately
                 // leaves `$53/$54` current. Native `$91:A8E4/$A8EC` exits that family only
-                // on a fresh Jump plus the direction opposite the hurt pose. Send that real
-                // damage-boost chord once; subsequent route frames release Jump and allow
-                // its normal arc/gravity to return Samus to the left-hand door row.
+                // while Jump plus the direction opposite the hurt pose are held. Both table
+                // records have required-new word zero, so this is not a synthetic edge or
+                // timing shortcut. Its normal arc/gravity returns Samus to the door row.
                 ushort ejectionExitInput = samus.Pose == SamusState.KnockbackLeftPose
                     ? (ushort)(SnesButton.Right | SnesButton.A)
                     : (ushort)(SnesButton.Left | SnesButton.A);

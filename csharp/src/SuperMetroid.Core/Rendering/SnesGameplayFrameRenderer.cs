@@ -201,7 +201,10 @@ public static class SnesGameplayFrameRenderer
         ushort bg1VerticalScroll,
         ushort bg2HorizontalScroll,
         ushort bg2VerticalScroll,
+        IReadOnlyList<ushort>? bg2HorizontalScrollByLine = null,
         IReadOnlyList<ushort>? bg2VerticalScrollByLine = null,
+        int bg2TilemapWidthInTiles = 64,
+        int bg2TilemapHeightInTiles = 32,
         ushort bg1CharacterBaseWord = 0,
         ushort bg2CharacterBaseWord = 0,
         byte obsel = 0x03)
@@ -232,7 +235,10 @@ public static class SnesGameplayFrameRenderer
             bg1VerticalScroll,
             bg2HorizontalScroll,
             bg2VerticalScroll,
-            bg2VerticalScrollByLine);
+            bg2HorizontalScrollByLine,
+            bg2VerticalScrollByLine,
+            bg2TilemapWidthInTiles,
+            bg2TilemapHeightInTiles);
         DrawHud(output, vram, cgram);
         return output;
     }
@@ -248,7 +254,10 @@ public static class SnesGameplayFrameRenderer
         ushort bg1VerticalScroll,
         ushort bg2HorizontalScroll,
         ushort bg2VerticalScroll,
-        IReadOnlyList<ushort>? bg2VerticalScrollByLine)
+        IReadOnlyList<ushort>? bg2HorizontalScrollByLine,
+        IReadOnlyList<ushort>? bg2VerticalScrollByLine,
+        int bg2TilemapWidthInTiles,
+        int bg2TilemapHeightInTiles)
     {
         if (objects.Width != Width || objects.Height != Height ||
             objects.Pixels.Length != output.Length ||
@@ -258,6 +267,13 @@ public static class SnesGameplayFrameRenderer
                 "A resolved gameplay OBJ raster must contain exactly 256x224 pixels.",
                 nameof(objects));
         }
+        if (bg2HorizontalScrollByLine is not null &&
+            bg2HorizontalScrollByLine.Count < Height - HudHeight)
+        {
+            throw new ArgumentException(
+                "BG2 horizontal HDMA scrolls must cover all 192 gameplay lines.",
+                nameof(bg2HorizontalScrollByLine));
+        }
         if (bg2VerticalScrollByLine is not null &&
             bg2VerticalScrollByLine.Count < Height - HudHeight)
         {
@@ -265,19 +281,33 @@ public static class SnesGameplayFrameRenderer
                 "BG2 vertical HDMA scrolls must cover all 192 gameplay lines.",
                 nameof(bg2VerticalScrollByLine));
         }
+        if (bg2TilemapWidthInTiles is not (32 or 64) ||
+            bg2TilemapHeightInTiles is not (32 or 64) ||
+            bg2TilemapWidthInTiles * bg2TilemapHeightInTiles != 2048)
+        {
+            throw new ArgumentException(
+                "BG2 gameplay tilemaps must be either 64x32 or 32x64 tiles.",
+                nameof(bg2TilemapWidthInTiles));
+        }
 
         // Resolve the complete Mode-1 ladder in a single destination scan. The previous
         // implementation walked the 256x192 viewport eight times (four BG insertions and
         // four OBJ insertions), repeating tilemap address arithmetic and moving temporary
         // RGBA planes through memory. Each candidate below receives its literal back-to-
         // front rank from BGMODE=$09; the largest opaque rank owns the final pixel.
+        int bg2XMask = bg2TilemapWidthInTiles * 8 - 1;
+        int bg2YMask = bg2TilemapHeightInTiles * 8 - 1;
+        int bg2ScreensPerRow = bg2TilemapWidthInTiles >> 5;
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
             int bg1ScrolledY = unchecked(bg1VerticalScroll + screenY) & 0xff;
+            ushort activeBg2HorizontalScroll = bg2HorizontalScrollByLine is null
+                ? bg2HorizontalScroll
+                : bg2HorizontalScrollByLine[screenY - HudHeight];
             ushort activeBg2VerticalScroll = bg2VerticalScrollByLine is null
                 ? bg2VerticalScroll
                 : bg2VerticalScrollByLine[screenY - HudHeight];
-            int bg2ScrolledY = unchecked(activeBg2VerticalScroll + screenY) & 0xff;
+            int bg2ScrolledY = unchecked(activeBg2VerticalScroll + screenY) & bg2YMask;
             int bg1TileY = bg1ScrolledY >> 3;
             int bg2TileY = bg2ScrolledY >> 3;
             int bg1PixelY = bg1ScrolledY & 7;
@@ -297,14 +327,21 @@ public static class SnesGameplayFrameRenderer
                 // output pixels. Cache each BGSC word across that run; rereading the same
                 // two VRAM bytes for every pixel was pure interpreter overhead, especially
                 // in Debug builds where these tiny accessors are not reliably inlined.
-                int bg2ScrolledX = unchecked(bg2HorizontalScroll + screenX) & 0x01ff;
+                int bg2ScrolledX = unchecked(activeBg2HorizontalScroll + screenX) & bg2XMask;
                 int bg2TileX = bg2ScrolledX >> 3;
                 if (bg2TileX != previousBg2TileX)
                 {
+                    // BGSC's two size bits select either two horizontal 32x32 screens
+                    // (ordinary rooms) or two vertical screens (Landing Site's sky).
+                    // Both contain 2,048 words, but putting the screen index on the wrong
+                    // axis makes the sky go black and then decode unrelated VRAM as the
+                    // camera crosses the first 256-pixel boundary.
+                    int bg2ScreenColumn = bg2TileX >> 5;
+                    int bg2ScreenRow = bg2TileY >> 5;
                     int bg2MapWord = (
                         0x4800 +
-                        (bg2TileX >> 5) * 0x0400 +
-                        bg2TileY * 32 +
+                        (bg2ScreenRow * bg2ScreensPerRow + bg2ScreenColumn) * 0x0400 +
+                        (bg2TileY & 31) * 32 +
                         (bg2TileX & 31)) & 0x7fff;
                     bg2Entry = vram.ReadWord(bg2MapWord);
                     previousBg2TileX = bg2TileX;

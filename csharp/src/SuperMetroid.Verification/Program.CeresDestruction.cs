@@ -12,7 +12,7 @@ static void VerifyCeresDestructionCinematic()
     // fixture. Long command-one runs encode $4000 bytes in only 49 stored bytes, while the
     // distinct output lengths still exercise every minimum-size assertion and map slice.
     WriteRepeatedCompressedStream(rom, 0x95a82f, 0x4000, 0);
-    WriteRepeatedCompressedStream(rom, 0x96fe69, 0x1000, 0);
+    WriteRepeatedCompressedChunks(rom, 0x96fe69, [0x11, 0x22, 0x33, 0x44]);
     WriteRepeatedCompressedStream(rom, 0x96d10a, 0x4000, 0);
     WriteRepeatedCompressedStream(rom, 0x978adb, 0x0800, 0);
     WriteRepeatedCompressedStream(rom, 0x96ec76, 0x4000, 0);
@@ -74,14 +74,36 @@ static void VerifyCeresDestructionCinematic()
     var state = new CeresDestructionCinematicState(new SuperMetroidAddressSpace(rom));
     AssertEqual(CeresDestructionPhase.WaitForMusicQueue, state.Phase,
         "Ceres destruction initial music-queue phase");
+    AssertEqual((byte)0x22, state.ReadMode7MapByte(0x0000),
+        "Ceres initial map begins at decompressed +$600");
+    AssertEqual((byte)0x33, state.ReadMode7MapByte(0x0200),
+        "Ceres initial map crosses into decompressed +$800 block");
 
     int frame = 0;
     var firstFrameByPhase = new Dictionary<CeresDestructionPhase, int>();
+    bool checkedGunshipTransfer = false;
+    bool observedZebesActorDeletionBeforeHandoff = false;
     while (!state.Finished && frame < 5000)
     {
         state.Step();
         frame++;
         firstFrameByPhase.TryAdd(state.Phase, frame);
+        observedZebesActorDeletionBeforeHandoff |=
+            state.Phase == CeresDestructionPhase.SlideZebesSceneAway &&
+            state.ActiveActorCount < 5;
+        if (!checkedGunshipTransfer &&
+            state.Phase == CeresDestructionPhase.FlyingAwayFromExplosion)
+        {
+            AssertEqual((byte)0x11, state.ReadMode7MapByte(0x0000),
+                "$8B:C345 installs front-gunship map in upper half");
+            AssertEqual((byte)0x11, state.ReadMode7MapByte(0x02ff),
+                "front-gunship transfer covers exactly $300 map bytes");
+            AssertEqual((byte)0x44, state.ReadMode7MapByte(0x0300),
+                "$8B:C345 clears lower Mode-7 half from +$C00 source");
+            AssertEqual((byte)0x44, state.ReadMode7MapByte(0x05ff),
+                "clear transfer covers exactly $300 map bytes");
+            checkedGunshipTransfer = true;
+        }
     }
 
     AssertTrue(state.Finished, "Ceres destruction reaches the state-six handoff");
@@ -95,9 +117,33 @@ static void VerifyCeresDestructionCinematic()
         "PLANET ZEBES instruction C9C7 starts camera flight");
     AssertTrue(firstFrameByPhase.ContainsKey(CeresDestructionPhase.SlideZebesSceneAway),
         "close-Zebes hold hands motion to actor pre-instructions");
+    AssertTrue(checkedGunshipTransfer,
+        "Ceres explosion performed the native gunship/clear transfers");
+    AssertTrue(observedZebesActorDeletionBeforeHandoff,
+        "Zebes actors delete at signed Y=-$80 instead of wrapping through OAM");
 
     Console.WriteLine(
         $"  Ceres destruction: ROM phases, C9C7 flight, and state-six handoff agree ({frame} calls).");
+}
+
+static void WriteRepeatedCompressedChunks(
+    byte[] rom,
+    int snesAddress,
+    ReadOnlySpan<byte> chunkValues)
+{
+    if (chunkValues.IsEmpty)
+        throw new ArgumentException("At least one compressed chunk is required.", nameof(chunkValues));
+
+    int address = snesAddress;
+    foreach (byte value in chunkValues)
+    {
+        // Long command one encodes one repeated $400-byte block. Distinct values make
+        // native work-RAM slices observable without embedding any retail asset bytes.
+        WriteSequentialRomByte(rom, ref address, 0xe7);
+        WriteSequentialRomByte(rom, ref address, 0xff);
+        WriteSequentialRomByte(rom, ref address, value);
+    }
+    WriteSequentialRomByte(rom, ref address, 0xff);
 }
 
 static void WriteRepeatedCompressedStream(

@@ -11,8 +11,8 @@ public sealed partial class SamusState
 {
     /// <summary>
     /// Applies a normal-jump body selected when aim or Fire cancels a spin, Space Jump,
-    /// or Screw Attack pose. This is the shared
-    /// <c>$19/$1A/$1B/$1C/$81/$82 -&gt; movement-type-$02</c> route through
+    /// Screw Attack, or wall-jump pose. This is the shared
+    /// <c>$19/$1A/$1B/$1C/$81-$84 -&gt; movement-type-$02</c> route through
     /// <c>$91:F404</c>, <c>$91:F543</c>, and <c>$91:FC66</c>.
     /// </summary>
     /// <remarks>
@@ -20,8 +20,10 @@ public sealed partial class SamusState
     /// excluded by <c>$91:FC66</c>, so the live vertical velocity survives. Spin bodies are
     /// shorter than the resulting normal-jump body, however, so the shared changed-pose
     /// collision pass must still be allowed to reject the expansion under a low ceiling.
+    /// Wall-jump tables `$91:A9EC/$AA12` use this very same route for their `$69-$6C` aim
+    /// records and `$13/$14` Shot records; they do not have a separate wall-fire handler.
     /// </remarks>
-    public bool TryApplySpinToNormalJumpTransition(
+    public bool TryApplySpinOrWallJumpToNormalJumpTransition(
         ISnesAddressSpace bus,
         RoomLevelData level,
         byte targetPose,
@@ -35,14 +37,16 @@ public sealed partial class SamusState
         bool normalJumpTarget =
             IsRightFacingNormalJumpPose(targetPose) ||
             IsLeftFacingNormalJumpPose(targetPose);
-        if (!IsSpinJumpPose(sourcePose) || !normalJumpTarget ||
+        bool compactJumpSource = IsSpinJumpPose(sourcePose) || IsWallJumpPose(sourcePose);
+        if (!compactJumpSource || !normalJumpTarget ||
             ReadPoseXDirection(bus, sourcePose) != ReadPoseXDirection(bus, targetPose))
         {
-            // The six spin/Space/Screw input tables emit only same-facing normal-jump
-            // records when aim or Shoot cancels rotation. A different movement family is
-            // owned by the spin-direction or landing initializers instead.
+            // The six spin/Space/Screw tables and two wall-jump tables emit only same-facing
+            // normal-jump records when aim or Shoot cancels rotation. A different movement
+            // family is owned by the spin-direction or landing initializers instead.
             throw new InvalidOperationException(
-                $"Spin-to-normal-jump transition ${sourcePose:X2} -> ${targetPose:X2} is not a same-facing retail route.");
+                $"Compact-jump-to-normal-jump transition ${sourcePose:X2} -> " +
+                $"${targetPose:X2} is not a same-facing retail route.");
         }
 
         LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
@@ -96,7 +100,7 @@ public sealed partial class SamusState
             throw new InvalidOperationException(
                 $"Spin-fire compatibility route requires pose $13/$14, not ${targetPose:X2}.");
         }
-        return TryApplySpinToNormalJumpTransition(
+        return TryApplySpinOrWallJumpToNormalJumpTransition(
             bus,
             level,
             targetPose,

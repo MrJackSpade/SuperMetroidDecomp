@@ -524,6 +524,11 @@ public sealed partial class SamusProjectileSystem
         LastFrameResult = new SamusProjectileFrameResult(
             firedSlot,
             queuedSound,
+            queuedSound == 0
+                ? (byte)0
+                : samus.SelectedHudItem is 0 or 3
+                    ? (byte)15 // QueueSfx1_Max15 in the power-beam producer.
+                    : (byte)6, // QueueSfx1_Max6 in the missile/super-missile producer.
             collisionStartedExplosion,
             projectileDeleted);
         return LastFrameResult;

@@ -1,4 +1,6 @@
 using SuperMetroid.Game;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Desktop;
 using System.Runtime.InteropServices;
 
 // Suppress native operating-system fault dialogs while retaining full exception text on
@@ -30,13 +32,56 @@ ApplicationConfiguration.Initialize();
 
 try
 {
-    string romPath = PrivateRomPath.Resolve(args);
-    GameConfigurationFile configuration = GameConfigurationFile.LoadOrCreate(romPath);
-    Console.WriteLine(
-        $"Loaded {GameConfigurationFile.FileName}: " +
-        $"SkipOpeningCinematic={configuration.Options.SkipOpeningCinematic} " +
-        $"({configuration.Path})");
-    Application.Run(new GameForm(romPath, configuration.Options));
+    if (args.Length != 0 && args[0].Equals("--audio-audit", StringComparison.OrdinalIgnoreCase))
+    {
+        string[] audioRomArguments = args.Length == 2 ? [args[1]] : [];
+        if (args.Length > 2)
+            throw new ArgumentException("--audio-audit accepts one optional private ROM path.");
+        string audioRomPath = PrivateRomPath.Resolve(audioRomArguments);
+        CartridgeAudioSmokeTestResult result = CartridgeAudioSmokeTest.Run(audioRomPath);
+        Console.WriteLine(
+            $"Cartridge audio passed: {result.FramesGenerated} frames, " +
+            $"{result.NonZeroSamples} nonzero samples, peak {result.PeakAmplitude}.");
+        return 0;
+    }
+
+    ControllerInputRecording? replay = null;
+    string[] romArguments = args;
+    if (args.Length != 0 && args[0].Equals("--replay", StringComparison.OrdinalIgnoreCase))
+    {
+        if (args.Length is < 2 or > 3)
+        {
+            throw new ArgumentException(
+                "--replay requires a .smrec path and accepts one optional private ROM path.");
+        }
+        replay = ControllerInputRecording.Read(args[1]);
+        romArguments = args.Length == 3 ? [args[2]] : [];
+    }
+
+    string romPath = PrivateRomPath.Resolve(romArguments);
+    SuperMetroidGameOptions gameOptions;
+    if (replay is null)
+    {
+        GameConfigurationFile configuration = GameConfigurationFile.LoadOrCreate(romPath);
+        gameOptions = configuration.Options;
+        Console.WriteLine(
+            $"Loaded {GameConfigurationFile.FileName}: " +
+            $"SkipOpeningCinematic={configuration.Options.SkipOpeningCinematic}, " +
+            $"AudioEnabled={configuration.Options.AudioEnabled}, " +
+            $"MasterVolumePercent={configuration.Options.MasterVolumePercent} " +
+            $"({configuration.Path})");
+    }
+    else
+    {
+        // A replay must not inherit today's INI. Its startup option and SRAM image are part
+        // of the deterministic seed, while PlayableGameControl verifies ROM identity.
+        gameOptions = replay.GameOptions;
+        Console.WriteLine(
+            $"Replaying {Path.GetFullPath(args[1])}: {replay.ControllerInputs.Length} frames, " +
+            $"SkipOpeningCinematic={gameOptions.SkipOpeningCinematic}, " +
+            $"started {replay.StartedUtc:O}");
+    }
+    Application.Run(new GameForm(romPath, gameOptions, replay));
 }
 catch (Exception exception)
 {

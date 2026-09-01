@@ -52,10 +52,12 @@ public sealed class SamusCeresRidleyEjectionState
         IsActive = true;
         InitializationPending = true;
 
-        // `$90:E119` installs a null ordinary movement handler. Input matching can still
-        // execute natively, but `$90:E1C8` clears its result before transitions consume it;
-        // the host lock represents that complete externally observable contract.
-        samus.InputLocked = true;
+        // `$90:E119` replaces only MovementHandler. The ordinary pose-input handler stays
+        // installed: held controller chords are still matched, projectile/HUD input still
+        // runs, and `$90:E1C8` specifically discards a prospective `$4F/$50` damage boost
+        // while the shove remains active. Runtime owns that narrow prospective-pose clear.
+        // Do not use the broader host InputLocked flag here; doing so changes controller
+        // semantics and made this cutscene indistinguishable from an elevator/message lock.
     }
 
     /// <summary>Executes one `$90:E12E` or `$90:E1C8` handler call.</summary>
@@ -127,17 +129,21 @@ public sealed class SamusCeresRidleyEjectionState
         if (horizontal.Collided)
         {
             // `$90:E1FD/$E21C` restore the ordinary handler, then Samus_ClearMoveVars sees
-            // the still-set collision flag and clears every movement word. It does not
-            // replace the knockback pose; normal input may select its authored exit next.
+            // the still-set collision flag and clears every movement word. The subsequent
+            // `$90:DDE9` hit-interruption pass observes a completed type-$0A reaction and
+            // routes through `$90:DE20-$DE73` / `$91:F31D`: `$53/$54` becomes ordinary
+            // falling `$29/$2A`, with its shorter radius aligned to the same feet. Calling
+            // that shared owner here is the host equivalent of the native same-frame tail;
+            // selecting standing directly would skip real fall/ground collision behavior.
             IsActive = false;
             PushDirection = 0;
-            samus.InputLocked = false;
             samus.HorizontalSpeed.BaseSpeed = 0;
             samus.HorizontalSpeed.BaseSubspeed = 0;
             samus.HorizontalSpeed.AccelerationMode = 0;
             samus.Kinematics.YSpeed = 0;
             samus.Kinematics.YSubspeed = 0;
             samus.Kinematics.YDirection = 0;
+            SamusKnockbackMovement.FinishHumanoidToFalling(bus, samus);
             return new CeresRidleyEjectionResult(
                 Initialized: false,
                 Horizontal: horizontal,

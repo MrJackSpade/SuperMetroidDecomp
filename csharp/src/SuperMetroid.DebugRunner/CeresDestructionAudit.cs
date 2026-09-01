@@ -17,6 +17,8 @@ internal static class CeresDestructionAudit
         bool capturedZebes = false;
         int cinematicFrames = 0;
         int explosionFlightFrames = 0;
+        var approachPhaseFrames = new Dictionary<CeresDestructionPhase, int>();
+        int zebesSlideFrames = 0;
 
         while (!cinematic.Finished && cinematicFrames < 5000)
         {
@@ -24,6 +26,31 @@ internal static class CeresDestructionAudit
             cinematicFrames++;
             if (cinematic.Phase == CeresDestructionPhase.FlyingAwayFromExplosion)
                 explosionFlightFrames++;
+            if (cinematic.Phase is CeresDestructionPhase.FlyingTowardZebesA or
+                CeresDestructionPhase.FlyingTowardZebesB or
+                CeresDestructionPhase.FlyingTowardZebesC)
+            {
+                int phaseFrame = approachPhaseFrames.GetValueOrDefault(cinematic.Phase) + 1;
+                approachPhaseFrames[cinematic.Phase] = phaseFrame;
+                if (phaseFrame is 1 or 48 or 80 or 96 or 140 or 160 or 280)
+                {
+                    WriteOpaque(
+                        Path.Combine(outputDirectory, $"{cinematic.Phase}.{phaseFrame:D3}.png"),
+                        cinematic.Render(),
+                        $"{cinematic.Phase} frame {phaseFrame}");
+                }
+            }
+            if (cinematic.Phase == CeresDestructionPhase.SlideZebesSceneAway)
+            {
+                zebesSlideFrames++;
+                if (zebesSlideFrames is 1 or 32 or 48 or 64)
+                {
+                    WriteOpaque(
+                        Path.Combine(outputDirectory, $"ZebesSlide.{zebesSlideFrames:D3}.png"),
+                        cinematic.Render(),
+                        $"Zebes slide frame {zebesSlideFrames}");
+                }
+            }
             if (!capturedExplosion && explosionFlightFrames == 24)
             {
                 // The phase boundary creates the terminal blast on its brightest first
@@ -81,6 +108,13 @@ internal static class CeresDestructionAudit
         {
             runtime.StepFrame(0);
             landingFrames++;
+            if (landingFrames is 160 or 320 or 480)
+            {
+                WriteOpaque(
+                    Path.Combine(outputDirectory, $"GunshipLanding.{landingFrames:D3}.png"),
+                    SuperMetroidRuntimeFrameRenderer.Render(runtime),
+                    $"gunship landing frame {landingFrames}");
+            }
 
             // Native function three translates the top, bottom, pad, and Samus by the
             // same fixed-point delta. Fail at the first broken frame so a later scheduler
@@ -152,6 +186,21 @@ internal static class CeresDestructionAudit
             Path.Combine(outputDirectory, "LandingComplete.png"),
             SuperMetroidRuntimeFrameRenderer.Render(runtime),
             "Landing complete");
+
+        // Stay inside Landing Site while exercising the exact camera range where a stale
+        // horizontal BG layout used to run into empty/foreign VRAM. This is intentionally
+        // a practical single-room input slice, not a scripted attempt to traverse Crateria.
+        for (int frame = 1; frame <= 360; frame++)
+        {
+            runtime.StepFrame(controller1Input: 0x0200); // SNES Left
+            if (frame % 120 == 0)
+            {
+                WriteOpaque(
+                    Path.Combine(outputDirectory, $"LandingTravelLeft.{frame:D3}.png"),
+                    SuperMetroidRuntimeFrameRenderer.Render(runtime),
+                    $"Landing Site left travel frame {frame}");
+            }
+        }
         Console.WriteLine(
             $"Ceres/Zebes audit: cinematic {cinematicFrames} calls; station 0:18 gunship " +
             $"landing {landingFrames} gameplay frames from Y=${stationSamusY:X4}; Samus " +

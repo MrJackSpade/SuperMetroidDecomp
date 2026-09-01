@@ -424,15 +424,19 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         [4, 0, 0xff, 7, 0, 0, 21, 0]);
     WritePoseDefinition(bus, SamusState.NormalJumpGunExtendedRightPose,
         [8, 2, 0xff, 2, 0, 0, 24, 0]);
+    WritePoseDefinition(bus, SamusState.WallJumpRightPose,
+        [8, 0x14, SamusState.SpinJumpRightPose, 0xff, 8, 0, 19, 0]);
     WritePoseDefinition(bus, SamusState.NormalJumpAimDownLeftPose,
         [4, 2, 0xff, 5, 0, 0, 10, 0]);
     WriteTestWord(bus, 0x91b010 + SamusState.SpinLandingRightPose * 2, 0xc800);
     WriteTestWord(bus, 0x91b010 + SamusState.SpinLandingLeftPose * 2, 0xc810);
     WriteTestWord(bus, 0x91b010 + SamusState.NormalJumpGunExtendedRightPose * 2, 0xc820);
+    WriteTestWord(bus, 0x91b010 + SamusState.WallJumpRightPose * 2, 0xc828);
     WriteTestWord(bus, 0x91b010 + SamusState.NormalJumpAimDownLeftPose * 2, 0xc830);
     bus.WriteByte(0x91c800, 4);
     bus.WriteByte(0x91c810, 4);
     bus.WriteByte(0x91c820, 4);
+    bus.WriteByte(0x91c828, 4);
     bus.WriteByte(0x91c830, 4);
 
     // Dry-air Samus_InitJump and gravity words. The type-three horizontal record is zeroed
@@ -519,6 +523,45 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     AssertTrue(spinFire.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
         "leaving Screw Attack requests normal suit palette");
 
+    // `$91:A9EC` is the retail `$83` wall-jump input table. Its Shot record is literally
+    // `$0000,$0040,$0013`; `$91:F404` then sends that target through the same changed-pose,
+    // type-two initializer used by a spinning source. Prove the wall route independently so
+    // the exhaustive runtime dispatcher cannot silently regress to spin-only admission.
+    var wallFire = new SamusState
+    {
+        Pose = SamusState.WallJumpRightPose,
+        EquippedItems = SamusEquipmentFlags.ScrewAttack.ToNativeWord(),
+        XPosition = 128,
+        YPosition = 128,
+        Kinematics =
+        {
+            XRadius = 5,
+            YRadius = 19,
+            YDirection = 1,
+            YSpeed = 4,
+            YSubspeed = 0x2345,
+        },
+    };
+    AssertTrue(wallFire.TryApplySpinOrWallJumpToNormalJumpTransition(
+        bus,
+        empty,
+        SamusState.NormalJumpGunExtendedRightPose,
+        nmiFrameCounter: 0,
+        controllerNewInput: (ushort)SnesButton.X),
+        "wall-jump Shot body expansion fits empty room");
+    AssertEqual(SamusState.NormalJumpGunExtendedRightPose, wallFire.Pose,
+        "wall-jump Shot selects cartridge target $13");
+    AssertEqual(24, wallFire.Kinematics.YRadius,
+        "wall-jump Shot expands to normal-jump radius");
+    AssertEqual(4, wallFire.Kinematics.YSpeed,
+        "wall-jump Shot preserves whole vertical speed");
+    AssertEqual(0x2345, wallFire.Kinematics.YSubspeed,
+        "wall-jump Shot preserves fractional vertical speed");
+    AssertEqual(0x8002, wallFire.PoseTransitionShotDirection,
+        "wall-jump Shot publishes target shot direction");
+    AssertTrue(wallFire.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
+        "leaving Screw wall-jump requests normal suit palette");
+
     // Down during a left spin selects compact normal-jump pose `$18`. It enters the same
     // `$91:F543` initializer as Fire but shrinks radius 12 -> 10, preserves the running jump
     // arc, and does not invent the `$8000` projectile bridge without a fresh Shoot edge.
@@ -536,7 +579,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
             YSubspeed = 0x3456,
         },
     };
-    AssertTrue(spinAimDown.TryApplySpinToNormalJumpTransition(
+    AssertTrue(spinAimDown.TryApplySpinOrWallJumpToNormalJumpTransition(
         bus,
         empty,
         SamusState.NormalJumpAimDownLeftPose,
@@ -719,7 +762,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         "Screw Attack landing requests normal palette restore");
 
     Console.WriteLine(
-        "  Space Jump/Screw Attack: pose priority, repeat window, collision PLMs, charged/Screw damage, underwater sound, palette cycle, and landing agree.");
+        "  Space Jump/Screw Attack: pose priority, wall-jump Shot exit, repeat window, collision PLMs, charged/Screw damage, underwater sound, palette cycle, and landing agree.");
 }
 
 /// <summary>

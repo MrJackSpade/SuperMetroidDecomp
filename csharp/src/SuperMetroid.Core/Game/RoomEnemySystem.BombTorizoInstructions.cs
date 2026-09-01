@@ -292,11 +292,13 @@ public sealed partial class RoomEnemySystem
 
             case 0xc610: // Torizo_Instr_17: attack sound.
                 LastBombTorizoSoundEffect = 0x0027;
+                QueueEnemySound(library: 2, soundId: 0x0027, maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             case 0xc618: // Torizo_Instr_13: heavy movement/impact sound.
                 LastBombTorizoSoundEffect = 0x004b;
+                QueueEnemySound(library: 2, soundId: 0x004b, maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -352,16 +354,19 @@ public sealed partial class RoomEnemySystem
 
             case 0xd38f: // Torizo_Instr_56: Golden attack sound.
                 LastBombTorizoSoundEffect = 0x0034;
+                QueueEnemySound(library: 2, soundId: 0x0034, maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             case 0xd397: // Torizo_Instr_60: Golden eye/energy sound.
                 LastBombTorizoSoundEffect = 0x0067;
+                QueueEnemySound(library: 2, soundId: 0x0067, maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             case 0xd39f: // Torizo_Instr_46: Golden missile sound.
                 LastBombTorizoSoundEffect = 0x0048;
+                QueueEnemySound(library: 2, soundId: 0x0048, maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 

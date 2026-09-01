@@ -2,25 +2,32 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace SuperMetroid.Desktop;
 
 /// <summary>
-/// Thin keyboard/debugger host for the cartridge-backed top-level game dispatcher.
+/// Thin keyboard/gamepad/debugger host for the cartridge-backed top-level game dispatcher.
 /// </summary>
 public sealed class PlayableGameControl : UserControl
 {
     private readonly string romPath;
     private readonly string saveRamPath;
     private readonly SuperMetroidGameOptions gameOptions;
+    private readonly ControllerInputRecording? replay;
     private readonly RuntimeCanvas canvas = new() { Dock = DockStyle.Fill, TabStop = true };
     private readonly ToolStripLabel statusLabel = new();
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 8 };
     private readonly Stopwatch playbackClock = new();
     private readonly HashSet<Keys> heldKeys = [];
+    private readonly WindowsGamepadInput gamepad = new();
     private double pendingPlaybackFrames;
     private SuperMetroidAddressSpace addressSpace = null!;
     private SuperMetroidGame game = null!;
+    private SpcAudioEngine? audioEngine;
+    private WaveOutAudioDevice? audioDevice;
+    private ControllerInputRecorder? inputRecorder;
+    private int replayFrameIndex;
 
     // The host's wall clock is intentionally separate from the translated frame counter.
     // A WinForms timer has millisecond granularity and does not promise an exact callback
@@ -29,11 +36,15 @@ public sealed class PlayableGameControl : UserControl
     private const double TargetFramesPerSecond = 60.0;
     private const int MaximumCatchUpFrames = 4;
 
-    public PlayableGameControl(string romPath, SuperMetroidGameOptions gameOptions)
+    public PlayableGameControl(
+        string romPath,
+        SuperMetroidGameOptions gameOptions,
+        ControllerInputRecording? replay = null)
     {
         this.romPath = romPath;
         saveRamPath = Path.ChangeExtension(Path.GetFullPath(romPath), ".srm");
         this.gameOptions = gameOptions ?? throw new ArgumentNullException(nameof(gameOptions));
+        this.replay = replay;
         Dock = DockStyle.Fill;
 
         var toolStrip = new ToolStrip { GripStyle = ToolStripGripStyle.Hidden };
@@ -52,9 +63,10 @@ public sealed class PlayableGameControl : UserControl
         {
             Dock = DockStyle.Bottom,
             AutoSize = false,
-            Height = 40,
+            Height = 58,
             TextAlign = ContentAlignment.MiddleCenter,
-            Text = "Arrows: move/aim  |  Space or X: jump (SNES A)  |  Z: dash (B)  |  " +
+            Text = "Gamepad: D-pad/stick move; south dash; east jump; west cancel; north fire; shoulders aim\r\n" +
+                   "Keyboard: arrows move  |  Space/X jump  |  Z dash  |  " +
                    "S: fire (X)  |  A: item cancel (Y)\r\n" +
                    "Q: aim up (L)  |  W: aim down (R)  |  Enter: Start  |  Shift: Select",
         };
@@ -107,16 +119,71 @@ public sealed class PlayableGameControl : UserControl
     private void Restart()
     {
         heldKeys.Clear();
+        // waveOut may still own several queued buffers when Restart is clicked. Dispose the
+        // device before its pinned storage and dispose the SPC player before replacing the
+        // ROM whose upload addresses it consumes.
+        audioDevice?.Dispose();
+        audioDevice = null;
+        audioEngine?.Dispose();
+        audioEngine = null;
+        inputRecorder?.Dispose();
+        inputRecorder = null;
+        replayFrameIndex = 0;
         // Restart must retain host configuration. Re-reading the INI here would make an
         // ordinary in-window reset depend on a mid-session disk edit and would obscure the
         // exact options with which the debugger-visible session was constructed.
         addressSpace = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        LoadSaveRamFromDisk();
+        if (gameOptions.AudioEnabled)
+        {
+            audioEngine = new SpcAudioEngine(addressSpace);
+            audioDevice = new WaveOutAudioDevice(
+                SpcAudioEngine.SampleRate,
+                SpcAudioEngine.ChannelCount,
+                SpcAudioEngine.StereoFramesPerVideoFrame * SpcAudioEngine.ChannelCount,
+                gameOptions.MasterVolumePercent);
+        }
+        if (replay is null)
+            LoadSaveRamFromDisk();
+        else
+            LoadReplaySaveRam();
         game = new SuperMetroidGame(addressSpace, gameOptions);
-        game.SaveRamChanged += PersistSaveRamToDisk;
+        if (replay is null)
+        {
+            game.SaveRamChanged += PersistSaveRamToDisk;
+            // The reset seed is captured after disk SRAM has been validated/copied but
+            // before the first dispatcher call. A crash in state zero is therefore just as
+            // reproducible as a gameplay failure hours later.
+            inputRecorder = ControllerInputRecorder.Start(
+                romPath,
+                addressSpace.SaveRam,
+                gameOptions);
+            Console.WriteLine($"Recording controller input to {inputRecorder.Path}");
+        }
         // Execute reset once so the first visible debugger frame is state one's native setup.
-        RefreshFrame(game.Step(0));
+        FrontendFrame resetFrame = AdvanceOneFrame(forcedInput: replay is null ? (ushort)0 : null)
+            ?? throw new InvalidDataException("Replay contains no reset frame.");
+        RefreshFrame(resetFrame);
         canvas.Focus();
+    }
+
+    /// <summary>
+    /// Seeds replay from its cartridge-compatible SRAM image and rejects a different ROM
+    /// revision before the first input can produce a misleading divergence.
+    /// </summary>
+    private void LoadReplaySaveRam()
+    {
+        if (replay is null)
+            throw new InvalidOperationException("Replay SRAM requested without a replay.");
+
+        byte[] actualDigest;
+        using (FileStream rom = File.OpenRead(romPath))
+            actualDigest = SHA256.HashData(rom);
+        if (!CryptographicOperations.FixedTimeEquals(actualDigest, replay.RomSha256))
+        {
+            throw new InvalidDataException(
+                "The replay was recorded from a different ROM image (SHA-256 mismatch).");
+        }
+        replay.InitialSaveRam.CopyTo(addressSpace.SaveRam);
     }
 
     /// <summary>
@@ -149,8 +216,56 @@ public sealed class PlayableGameControl : UserControl
 
     private void StepFrame(ushort? forcedInput = null)
     {
-        ushort input = forcedInput ?? BuildControllerWord();
-        RefreshFrame(game.Step(input));
+        FrontendFrame? frame = AdvanceOneFrame(forcedInput);
+        if (frame is not null)
+            RefreshFrame(frame.Value);
+    }
+
+    /// <summary>
+    /// Selects exactly one live or replay word, records it before execution, and advances
+    /// the translated dispatcher. Null means an exhausted replay and never means input zero.
+    /// </summary>
+    private FrontendFrame? AdvanceOneFrame(ushort? forcedInput = null)
+    {
+        ushort input;
+        if (replay is not null)
+        {
+            if (replayFrameIndex >= replay.ControllerInputs.Length)
+            {
+                SetPlaying(playing: false);
+                return null;
+            }
+            input = replay.ControllerInputs[replayFrameIndex++];
+        }
+        else
+        {
+            input = forcedInput ?? BuildControllerWord();
+            inputRecorder?.RecordFrame(input);
+        }
+        try
+        {
+            FrontendFrame frame = game.Step(input);
+
+            // Apply every bank upload/port write before generating this NMI's samples.
+            // Acknowledgements are fed back for bank $82's next-frame SFX handshake; they
+            // never influence controller recording or gameplay state.
+            if (audioEngine is not null && audioDevice is not null)
+            {
+                ReadOnlySpan<short> samples = audioEngine.RenderFrame(frame.AudioCommands);
+                audioDevice.Submit(samples);
+                game.SetAudioAcknowledgements(audioEngine.ReadAcknowledgements());
+            }
+            return frame;
+        }
+        catch
+        {
+            // RecordFrame runs before Step specifically so the throwing controller word is
+            // already present. Force that snapshot to disk now: a debugger can leave the
+            // process paused indefinitely, so ProcessExit/Dispose and the next periodic
+            // flush are not reliable ways to preserve the reproducing frame.
+            inputRecorder?.FlushAfterFrameFailure();
+            throw;
+        }
     }
 
     /// <summary>
@@ -173,13 +288,21 @@ public sealed class PlayableGameControl : UserControl
         if (framesToRun == 0)
             return;
 
-        ushort input = BuildControllerWord();
         FrontendFrame frame = default;
+        int framesActuallyRun = 0;
+        ushort liveInput = BuildControllerWord();
         for (int frameIndex = 0; frameIndex < framesToRun; frameIndex++)
-            frame = game.Step(input);
+        {
+            FrontendFrame? next = AdvanceOneFrame(liveInput);
+            if (next is null)
+                break;
+            frame = next.Value;
+            framesActuallyRun++;
+        }
 
-        pendingPlaybackFrames -= framesToRun;
-        RefreshFrame(frame);
+        pendingPlaybackFrames -= framesActuallyRun;
+        if (framesActuallyRun != 0)
+            RefreshFrame(frame);
     }
 
     /// <summary>Starts or pauses wall-clock playback without changing translated state.</summary>
@@ -188,18 +311,27 @@ public sealed class PlayableGameControl : UserControl
         pendingPlaybackFrames = 0;
         playbackClock.Restart();
         playbackTimer.Enabled = playing;
+        if (!playing && audioDevice is not null)
+            audioDevice.Reset();
     }
 
     private void RefreshFrame(FrontendFrame frame)
     {
         canvas.ReplaceFrame(RgbaBitmap.Create(FrontendFrame.Width, FrontendFrame.Height, frame.Pixels));
         statusLabel.Text =
-            $"state ${((ushort)frame.GameState):X2} {frame.GameState}  |  {frame.Phase}  |  frame {frame.FrameNumber}";
+            $"state ${((ushort)frame.GameState):X2} {frame.GameState}  |  {frame.Phase}  |  frame {frame.FrameNumber}" +
+            (gamepad.DeviceName is null ? string.Empty : $"  |  pad: {gamepad.DeviceName}") +
+            (replay is null
+                ? string.Empty
+                : $"  |  replay {replayFrameIndex}/{replay.ControllerInputs.Length}");
     }
 
     private ushort BuildControllerWord()
     {
-        SnesButton input = SnesButton.None;
+        // Keyboard and gamepad are two host producers for the same physical SNES port.
+        // Merge them before recording so replay sees one exact cartridge-format word and
+        // never depends on which Windows device generated a particular held bit.
+        SnesButton input = gamepad.Poll();
         if (heldKeys.Contains(Keys.Left)) input |= SnesButton.Left;
         if (heldKeys.Contains(Keys.Right)) input |= SnesButton.Right;
         if (heldKeys.Contains(Keys.Up)) input |= SnesButton.Up;
@@ -238,6 +370,12 @@ public sealed class PlayableGameControl : UserControl
         {
             playbackTimer.Dispose();
             playbackClock.Stop();
+            audioDevice?.Dispose();
+            audioDevice = null;
+            audioEngine?.Dispose();
+            audioEngine = null;
+            inputRecorder?.Dispose();
+            inputRecorder = null;
         }
         base.Dispose(disposing);
     }

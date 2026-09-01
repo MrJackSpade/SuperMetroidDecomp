@@ -396,6 +396,11 @@ static void VerifyFrameRuntime()
     runtime.VramWrites.Enqueue(2, 0x7e1234, 0x0020);
     runtime.EscapeTimer.RequestCeresStart();
 
+    // `$89:ACC3` writes Mode 7 shadow registers during room main. They must become visible
+    // only when an accepted NMI reaches `$80:95A7`, at the same boundary as displayed OAM.
+    var firstMode7 = new SamusMode7Transform(0x00f0, 0x0010, 0xfff0, 0x0080, 0x03f0);
+    runtime.ActiveSamusMode7Transform = firstMode7;
+
     RuntimeFrameResult first = runtime.StepFrame((ushort)SnesButton.Start);
     AssertEqual(1, first.FrameNumber, "first accepted runtime frame");
     AssertEqual((ushort)SnesButton.Start, first.ControllerNewInput, "runtime latches controller before logic");
@@ -403,18 +408,28 @@ static void VerifyFrameRuntime()
     AssertEqual(0xca, runtime.Vram.ReadByte(0x40), "runtime NMI drains VRAM low byte");
     AssertEqual(0xfe, runtime.Vram.ReadByte(0x41), "runtime NMI drains VRAM high byte");
     AssertEqual(0, runtime.VramWrites.TailInBytes, "runtime NMI clears VRAM queue");
+    AssertEqual(firstMode7, runtime.DisplayedSamusMode7Transform,
+        "accepted NMI publishes Mode 7 shadow registers");
 
+    var secondMode7 = new SamusMode7Transform(0x00e0, 0x0020, 0xffe0, 0x0080, 0x03f0);
+    runtime.ActiveSamusMode7Transform = secondMode7;
     RuntimeFrameResult second = runtime.StepFrame((ushort)SnesButton.Start);
     AssertEqual(0, second.ControllerNewInput, "second runtime frame sees stable hold");
     AssertEqual(2, runtime.NmiFrameCounter, "accepted NMI counter advances twice");
+    AssertEqual(secondMode7, runtime.DisplayedSamusMode7Transform,
+        "following accepted NMI publishes the changed Mode 7 matrix");
 
     // A lag NMI must not sample the changed input or advance accepted-frame state.
+    var laggedMode7 = new SamusMode7Transform(0x00d0, 0x0030, 0xffd0, 0x0080, 0x03f0);
+    runtime.ActiveSamusMode7Transform = laggedMode7;
     runtime.RunNmi((ushort)SnesButton.A, mainLoopRequestedNmi: false);
     AssertEqual((ushort)SnesButton.Start, runtime.Controller1.Current, "lag NMI skips controller read");
     AssertEqual(2, runtime.NmiFrameCounter, "lag NMI skips accepted frame counter");
     AssertEqual(1, runtime.NmiLagCounter, "lag NMI increments consecutive lag");
     AssertEqual(1, runtime.MaximumNmiLag, "lag NMI records maximum lag");
     AssertEqual(3, runtime.NmiCounterIncludingLag, "all-NMI counter includes lag");
+    AssertEqual(secondMode7, runtime.DisplayedSamusMode7Transform,
+        "lag NMI leaves displayed Mode 7 registers untouched");
 
     Console.WriteLine("  Runtime: frame seam, NMI order, and lag accounting agree.");
 }

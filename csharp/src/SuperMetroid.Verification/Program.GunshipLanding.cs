@@ -111,6 +111,7 @@ internal static partial class Program
         bool observedSlowDescent = false;
         bool observedPadOpen = false;
         bool observedPadClose = false;
+        bool observedEngineSound = false;
         while (enemies.LastGunshipEvent != GunshipFrameEvent.LandingCompleted && frames < 800)
         {
             ushort previousTopY = top.YPosition;
@@ -120,6 +121,8 @@ internal static partial class Program
                 : (ushort)0;
             enemies.StepFrame(cameraX: 0x0400, cameraY, timeIsFrozen: false, samus);
             frames++;
+            observedEngineSound |= enemies.SoundRequests.Contains(
+                new EnemySoundRequest(Library: 2, SoundId: 0x4d, MaximumQueued: 6));
 
             if (top.VariableF == 0xa80c)
             {
@@ -158,6 +161,8 @@ internal static partial class Program
         AssertTrue(observedSlowDescent, "gunship crosses native slow-descent threshold");
         AssertTrue(observedPadOpen, "gunship publishes pad-open boundary");
         AssertTrue(observedPadClose, "gunship publishes pad-close boundary");
+        AssertTrue(observedEngineSound,
+            "gunship bottom timer publishes QueueSfx2_Max6($4D)");
         AssertEqual(GunshipFrameEvent.LandingCompleted, enemies.LastGunshipEvent,
             "gunship completes post-Ceres landing");
         AssertEqual(641, frames, "gunship full landing frame count");

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -27,6 +28,7 @@ public sealed class TitleSequenceState
     private const ushort NintendoCopyrightSpritemap = 0x8103;
 
     private readonly ISnesAddressSpace bus;
+    private readonly CartridgeAudioState? audio;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
     private readonly OamBuffer oam = new();
@@ -52,9 +54,12 @@ public sealed class TitleSequenceState
     private bool mode7BackgroundEnabled;
 
     /// <summary>Creates the native initial title setup performed by <c>$8B:9B68</c>.</summary>
-    public TitleSequenceState(ISnesAddressSpace bus)
+    public TitleSequenceState(ISnesAddressSpace bus, CartridgeAudioState? audio = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.audio = audio;
+        audio?.QueueMusicDelayed8(0xff03);
+        audio?.QueueMusicDelayed8(5);
 
         // `$8B:9B87` expands these four independent streams to bank-$7F. Recreate the
         // subsequent DMA destinations rather than keeping an invented host texture format.
@@ -175,6 +180,9 @@ public sealed class TitleSequenceState
                 brightness = Math.Max(0, brightness - 2);
                 if (brightness == 0)
                 {
+                    // HandleCinematicsTransitions_1 at $8B:9A83 queues track six before
+                    // rebuilding the immediate title objects.
+                    audio?.QueueMusicDelayed8(6);
                     EnterImmediateTitleObjects();
                     phase = TitleSequencePhase.TitleScreenFadeIn;
                 }

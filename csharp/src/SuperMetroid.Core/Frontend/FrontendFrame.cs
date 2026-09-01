@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -7,7 +8,8 @@ public readonly record struct FrontendFrame(
     SuperMetroidGameState GameState,
     string Phase,
     ushort FrameNumber,
-    Rgba32[] Pixels)
+    Rgba32[] Pixels,
+    IReadOnlyList<CartridgeAudioCommand> AudioCommands)
 {
     public const int Width = 256;
     public const int Height = 224;

@@ -12,6 +12,16 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class ScrollingSkyState
 {
+    /// <summary>
+    /// Bank-$8F room-main wrapper which calls bank-$88's land-sky HDMA/tilemap routine.
+    /// </summary>
+    public const ushort LandRoomMainCodePointer = 0xc116;
+
+    /// <summary>
+    /// Bank-$8F escape wrapper which runs the same land-sky routine before its quake work.
+    /// </summary>
+    public const ushort ShakingLandRoomMainCodePointer = 0xc120;
+
     private const ushort Bg2TilemapBaseWord = 0x4800;
     private const int LandChunkPointerTableAddress = 0x88ad9c;
 
@@ -62,6 +72,14 @@ public sealed class ScrollingSkyState
     {
         _addressSpace = addressSpace;
     }
+
+    /// <summary>
+    /// Returns whether a room-state main pointer dispatches to the translated land-sky
+    /// implementation. This is the same bank-$8F dispatch decision made by the cartridge;
+    /// callers must not infer it from a room number, area, door, or camera position.
+    /// </summary>
+    public static bool IsLandRoomMain(ushort mainCodePointer) =>
+        mainCodePointer is LandRoomMainCodePointer or ShakingLandRoomMainCodePointer;
 
     /// <summary>BG2VOFS mirror written from layer-1 Y by <c>$88:AFB2</c>.</summary>
     public ushort VerticalScroll { get; private set; }

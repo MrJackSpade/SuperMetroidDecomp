@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Frontend;
@@ -20,6 +22,7 @@ public sealed class SuperMetroidGame
     private readonly ISnesAddressSpace bus;
     private readonly SuperMetroidGameOptions gameOptions;
     private readonly SuperMetroidSaveRam saveRam;
+    private readonly CartridgeAudioState audio = new();
     private TitleSequenceState? title;
     private FileSelectMenuState? fileSelect;
     private GameOptionsMenuState? options;
@@ -35,6 +38,11 @@ public sealed class SuperMetroidGame
     private byte postCeresFadeBrightness;
     private int postCeresFadeCounter = 1;
     private byte pauseBrightness = 15;
+    private IReadOnlyList<CartridgeAudioCommand> lastAudioCommands =
+        Array.Empty<CartridgeAudioCommand>();
+    private CartridgeAudioAcknowledgements audioAcknowledgements;
+    private ushort? lastAudioRuntimeNmiFrame;
+    private ushort? lastAudioRoomStatePointer;
 
     public SuperMetroidGame(
         ISnesAddressSpace bus,
@@ -51,6 +59,17 @@ public sealed class SuperMetroidGame
     /// bytes; a desktop/console host owns the choice of durable storage medium.
     /// </summary>
     public event Action? SaveRamChanged;
+
+    /// <summary>
+    /// Publishes the APU output-port bytes observed after the preceding audio frame.
+    /// </summary>
+    /// <remarks>
+    /// Retail bank $82 waits for the SPC to echo each SFX request and its following zero
+    /// before reusing that library port. A headless host may leave these at zero; music is
+    /// independent, while SFX will safely remain in its acknowledgement state.
+    /// </remarks>
+    public void SetAudioAcknowledgements(CartridgeAudioAcknowledgements acknowledgements) =>
+        audioAcknowledgements = acknowledgements;
 
     /// <summary>Current value of the native game-state word at WRAM $0998.</summary>
     public SuperMetroidGameState GameState { get; private set; } = SuperMetroidGameState.Reset;
@@ -176,7 +195,10 @@ public sealed class SuperMetroidGame
             case SuperMetroidGameState.Reset:
                 // `Vector_RESET_Async` ultimately stores state one and initializes
                 // `cinematic_function` to `CinematicFunctionOpening` at $8B:9B68.
-                title = new TitleSequenceState(bus);
+                audio.Reset();
+                title = new TitleSequenceState(bus, audio);
+                lastAudioRuntimeNmiFrame = null;
+                lastAudioRoomStatePointer = null;
                 fileSelect = null;
                 GameState = SuperMetroidGameState.OpeningCinematic;
                 lastPixels = title.Render();
@@ -238,7 +260,7 @@ public sealed class SuperMetroidGame
                     }
                     else
                     {
-                        intro = new IntroCinematicState(bus);
+                        intro = new IntroCinematicState(bus, audio);
                         GameState = SuperMetroidGameState.IntroCinematic;
                         lastPixels = intro.Render();
                     }
@@ -430,14 +452,14 @@ public sealed class SuperMetroidGame
                     SaveRamChanged?.Invoke();
                     runtime.Enemies.CeresStatus = 0;
                     runtime.EscapeTimer.Clear();
-                    ceresDestruction = new CeresDestructionCinematicState(bus);
+                    ceresDestruction = new CeresDestructionCinematicState(bus, audio);
                     GameState = SuperMetroidGameState.CeresGoesBoom;
                     lastPixels = CreateBlackFrame();
                 }
                 break;
 
             case SuperMetroidGameState.CeresGoesBoom:
-                ceresDestruction ??= new CeresDestructionCinematicState(bus);
+                ceresDestruction ??= new CeresDestructionCinematicState(bus, audio);
                 ceresDestruction.Step();
                 lastPixels = ceresDestruction.Render();
                 if (ceresDestruction.Finished)
@@ -490,6 +512,28 @@ public sealed class SuperMetroidGame
                 // state boundaries explicit while loading only the cartridge destination.
                 GameState = SuperMetroidGameState.LoadingNextRoomA;
                 runtime!.LoadPendingDoorDestination();
+
+                // The native state-$0B endpoint at `$82:E737` does not expose the newly
+                // loaded room immediately. During every fade-in pass it first runs enemy
+                // and enemy-projectile logic, calls DrawSamusEnemiesAndProjectiles, and only
+                // then lets the following NMI upload that completed OAM image. Our collapsed
+                // transition previously rendered here directly after LoadPendingDoorDestination.
+                // The background/VRAM had therefore changed rooms while DisplayedOam still
+                // contained the SOURCE room's final sprite table. In particular, Samus kept
+                // her old screen-space OBJ origin for one or more destination-room images,
+                // even though her world coordinates had already been relocated correctly.
+                //
+                // Run one neutral destination pass to build the same shared gameplay OAM
+                // composition used everywhere else, then accept its NMI before the software
+                // PPU is allowed to see the destination. The first NMI inside StepFrame is
+                // intentionally not rendered: it drains the room-load/Samus graphics work
+                // while still carrying the old OAM, matching the cartridge's forced-blank
+                // loading interval. The explicit following NMI atomically publishes the new
+                // room's sprites, graphics, scroll registers, and Mode-7 shadow state. This
+                // is a general transition publication seam, not a room- or pose-specific
+                // coordinate correction.
+                runtime.StepFrame(controller1Input: 0);
+                runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
                 lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 GameState = SuperMetroidGameState.LoadingNextRoomB;
                 break;
@@ -513,11 +557,80 @@ public sealed class SuperMetroidGame
                     $"${((ushort)GameState):X2} ({GameState}).");
         }
 
+        CollectTranslatedAudioRequests();
+        lastAudioCommands = audio.AdvanceFrame(bus, audioAcknowledgements);
         return CurrentFrame;
     }
 
     /// <summary>Last completed frame, useful for repainting without advancing emulation.</summary>
-    public FrontendFrame CurrentFrame => new(GameState, PhaseName, FrameNumber, lastPixels);
+    public FrontendFrame CurrentFrame =>
+        new(GameState, PhaseName, FrameNumber, lastPixels, lastAudioCommands);
+
+    /// <summary>
+    /// Moves already-translated per-frame publishers into the single cartridge queue.
+    /// </summary>
+    /// <remarks>
+    /// This is intentionally a collection seam, not sound policy. Samus, projectiles, and
+    /// PLMs retain ownership of the exact library/ID/cap chosen by their ROM routines; the
+    /// frontend merely performs the global QueueSfx call those producers requested.
+    /// </remarks>
+    private void CollectTranslatedAudioRequests()
+    {
+        if (runtime?.ActiveRoom?.State is { } roomState &&
+            roomState.Pointer != lastAudioRoomStatePointer)
+        {
+            audio.QueueRoomMusic(roomState.MusicDataIndex, roomState.MusicTrackIndex);
+            lastAudioRoomStatePointer = roomState.Pointer;
+        }
+
+        // Frontend states sometimes render several frames without calling runtime.StepFrame.
+        // Consume publishers only when the runtime's NMI count changes, or their most recent
+        // one-frame request list would be incorrectly enqueued again by a transition frame.
+        if (runtime is null || runtime.NmiFrameCounter == lastAudioRuntimeNmiFrame)
+            return;
+        lastAudioRuntimeNmiFrame = runtime.NmiFrameCounter;
+
+        if (runtime.Samus is { } samus)
+        {
+            foreach (SamusSoundRequest request in samus.LiquidPhysics.SoundRequests)
+                audio.QueueSound(request.Library, request.SoundId, request.MaximumQueued);
+        }
+
+        ushort projectileSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect;
+        if (projectileSound != 0)
+        {
+            audio.QueueSound(
+                library: 1,
+                unchecked((byte)projectileSound),
+                runtime.Projectiles.LastFrameResult.QueuedSoundMaximum);
+        }
+
+        foreach (PlmSoundRequest request in runtime.Plms.SoundRequests)
+            audio.QueueSound(request.Library, request.SoundId, request.MaximumQueued);
+        foreach (PlmMusicRequest request in runtime.Plms.MusicRequests)
+            audio.QueueMusicDelayed(request.Track, request.DelayFrames);
+
+        foreach (EnemySoundRequest request in runtime.Enemies.SoundRequests)
+            audio.QueueSound(request.Library, request.SoundId, request.MaximumQueued);
+
+        // The early playable slice's enemy actors already publish the exact queue calls
+        // selected by their bank-$86/$A6 routines. Route those one-frame values through the
+        // same global rings instead of synthesizing actor-specific host sounds.
+        // Ceres-door sounds now use SoundRequests above. These compatibility properties
+        // remain for old verification callers but must not be queued a second time here.
+        if (runtime.Enemies.LastEnemyProjectileDudSoundEffect is ushort dudSound)
+            audio.QueueSound(library: 1, unchecked((byte)dudSound), maximumQueued: 3);
+        if (runtime.Enemies.LastEnemyPickupSoundEffect is ushort pickupSound)
+            audio.QueueSound(library: 2, unchecked((byte)pickupSound), maximumQueued: 1);
+        if (runtime.Enemies.LastEnemyDeathSoundEffectLibrary2 is ushort enemyDeathSound)
+            audio.QueueSound(library: 2, unchecked((byte)enemyDeathSound), maximumQueued: 1);
+        if (runtime.Enemies.Ridley?.LastDeathSoundEffect is ushort ridleyDeathSound)
+            audio.QueueSound(library: 2, unchecked((byte)ridleyDeathSound), maximumQueued: 3);
+        if (runtime.Enemies.Ridley?.MusicRequest is ushort ridleyMusic)
+            audio.QueueMusicDelayed8(ridleyMusic);
+        if (runtime.Enemies.LastBombTorizoMusicRequest is { } torizoMusic)
+            audio.QueueMusicDelayed(torizoMusic.Track, torizoMusic.DelayFrames);
+    }
 
     private string PhaseName => GameState switch
     {

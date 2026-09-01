@@ -270,6 +270,32 @@ static void VerifyRipperEnemy()
     AssertEqual(0xffff, ripper.VariableD, "Ripper reversal signed whole X velocity");
     AssertEqual(0xe527, ripper.SpritemapPointer, "Ripper reversal selects left-facing frame");
 
+    // WriteEnemyOAM `$A0:947B` applies enemy shake to the shared ordinary-spritemap
+    // origin. One synthetic one-entry map makes both signs and the timer consumption
+    // observable without borrowing the production displacement calculation.
+    WriteWord(bus, 0xa2e527, 1);
+    WriteWord(bus, 0xa2e529, 0);
+    bus.WriteByte(0xa2e52b, 0);
+    WriteWord(bus, 0xa2e52c, 0);
+    var shakenOam = new OamBuffer();
+    ripper.FrameCounter = 0;
+    ripper.ShakeTimer = 2;
+    shakenOam.BeginFrame();
+    enemies.DrawLayers(shakenOam, 0, 0, 0, 7);
+    shakenOam.FinalizeFrame();
+    AssertEqual(89, shakenOam.GetEntry(0).X,
+        "enemy shake frame-counter bit one clear adds one X pixel");
+    AssertEqual(1, ripper.ShakeTimer, "enemy draw consumes one shake tick");
+
+    ripper.FrameCounter = 2;
+    ripper.ShakeTimer = 2;
+    shakenOam.BeginFrame();
+    enemies.DrawLayers(shakenOam, 0, 0, 0, 7);
+    shakenOam.FinalizeFrame();
+    AssertEqual(87, shakenOam.GetEntry(0).X,
+        "enemy shake frame-counter bit one set subtracts one X pixel");
+    AssertEqual(1, ripper.ShakeTimer, "negative enemy draw consumes one shake tick");
+
     var samus = new SamusState
     {
         Health = 99,
@@ -661,12 +687,15 @@ static void VerifyCeresRidleyRoomEntry()
     }
 
     // The two later animation lists are the actual dispatcher seams that make reveal-only
-    // implementations fail. A compact timed map stands in for the long roar presentation;
-    // the liftoff list retains its real $E969 instruction so AI control changes exactly as
-    // it does in the cartridge. Movement divisors are the literal $10..$01 D712 table.
-    WriteWord(bus, 0xa6e690, 1);
-    WriteWord(bus, 0xa6e692, 0x9000);
-    WriteWord(bus, 0xa6e694, 0x812f);
+    // implementations fail. The compact roar list keeps its real $E4BE opcode before a
+    // single timed map, so both the roaring flag and QueueSfx2_Max6($59) cross the actual
+    // instruction dispatcher. The liftoff list retains its real $E969 instruction so AI
+    // control changes exactly as it does in the cartridge. Movement divisors are the
+    // literal $10..$01 D712 table.
+    WriteWord(bus, 0xa6e690, 0xe4be);
+    WriteWord(bus, 0xa6e692, 1);
+    WriteWord(bus, 0xa6e694, 0x9000);
+    WriteWord(bus, 0xa6e696, 0x812f);
     WriteWord(bus, 0xa6e548, 1);
     WriteWord(bus, 0xa6e54a, 0x9000);
     WriteWord(bus, 0xa6e54c, 0x812f);
@@ -776,6 +805,34 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual(0, cgram.Colors[0xf1], "Ceres Ridley hidden body palette starts black");
     AssertEqual(0, cgram.Colors[0xff], "Ceres Ridley hidden body palette ends black");
 
+    // Ridley's private `$A6:A2F2` door overlay bypasses WriteEnemyOAM and reproduces the
+    // retail byte-index bug in its word table. Earthquake timer two therefore reads byte
+    // $FC and displaces the door four pixels left.
+    WriteWord(bus, 0xa6a329, 1);
+    WriteWord(bus, 0xa6a32b, 0);
+    bus.WriteByte(0xa6a32d, 0);
+    WriteWord(bus, 0xa6a32e, 0);
+    bus.WriteByte(0xa6a321, 0x00);
+    bus.WriteByte(0xa6a322, 0x00);
+    bus.WriteByte(0xa6a323, 0xfc);
+    bus.WriteByte(0xa6a324, 0xff);
+    RoomEnemySlot overlayDoor = enemies.Slots[1];
+    overlayDoor.EnemyDefinitionPointer = ceresDoorDefinitionPointer;
+    overlayDoor.VariableB = 1;
+    overlayDoor.XPosition = 100;
+    overlayDoor.YPosition = 80;
+    enemies.CeresStatus = 1; // Skip the unrelated private Baby list in this draw fixture.
+    enemies.EarthquakeTimer = 2;
+    var doorOam = new OamBuffer();
+    doorOam.BeginFrame();
+    enemies.DrawCeresRidleyImmediateBabyAndDoor(doorOam, 0, 0);
+    doorOam.FinalizeFrame();
+    AssertEqual(96, doorOam.GetEntry(0).X,
+        "Ceres private door hook consumes byte-indexed -4 quake offset");
+    overlayDoor.EnemyDefinitionPointer = 0;
+    enemies.CeresStatus = 0;
+    enemies.EarthquakeTimer = 0;
+
     enemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);
     AssertEqual((ushort)RidleyAiFunction.InitialDelay, (ushort)state.Function,
         "Ceres Ridley door-clear transition");
@@ -822,9 +879,12 @@ static void VerifyCeresRidleyRoomEntry()
         Health = 99,
     };
     int battleEntryFrames = 0;
+    bool observedRoarSound = false;
     while (state.Function != RidleyAiFunction.CeresHovering && battleEntryFrames < 1024)
     {
         enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
+        observedRoarSound |= enemies.SoundRequests.Contains(
+            new EnemySoundRequest(Library: 2, SoundId: 0x59, MaximumQueued: 6));
         battleEntryFrames++;
     }
     AssertEqual((ushort)RidleyAiFunction.CeresHovering, (ushort)state.Function,
@@ -832,6 +892,8 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual(1, state.FightMode, "Ceres Ridley liftoff enables battle mode");
     AssertTrue(ridley.YPosition < 80,
         "Ceres Ridley crosses the cartridge's Y=$50 battle threshold");
+    AssertTrue(observedRoarSound,
+        "Ridley instruction $E4BE publishes QueueSfx2_Max6($59)");
 
     // Ceres lunge retains neutral-tail AI. Once Ridley closes within 128 pixels,
     // `$A6:CC9A-$CCB9` aims a real seven-segment whip at Samus instead of merely moving
@@ -955,6 +1017,9 @@ static void VerifyCeresRidleyRoomEntry()
 
     var escapeWrites = new VramWriteQueue();
     enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+    AssertTrue(enemies.SoundRequests.Contains(
+            new EnemySoundRequest(Library: 2, SoundId: 0x4e, MaximumQueued: 6)),
+        "first Mode-7 getaway entry publishes QueueSfx2_Max6($4E)");
     AssertTrue(state.Mode7Finished, "Ceres Ridley consumes the Mode-7 terminator");
     AssertEqual((ushort)RidleyAiFunction.CeresActivateSelfDestruct, (ushort)state.Function,
         "Ceres Ridley Mode-7 terminator installs shared self-destruct dispatcher");

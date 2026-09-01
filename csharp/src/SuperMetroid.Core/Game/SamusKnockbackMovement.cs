@@ -172,7 +172,7 @@ public static class SamusKnockbackMovement
             // `$29/$2A` pose. A ball retains whatever Morph/Spring pose is current and goes
             // directly to the shared command-one cleanup at `$91:F31D`.
             return samus.ReadMovementType(bus) == 0x0a
-                ? EndHumanoidToFalling(bus, samus)
+                ? FinishHumanoidToFalling(bus, samus)
                 : EndWithoutPoseChange(samus);
         }
 
@@ -288,10 +288,30 @@ public static class SamusKnockbackMovement
         samus.InitializeAnimation(bus, initialFrame: 0);
     }
 
-    private static KnockbackMovementResult EndHumanoidToFalling(
+    /// <summary>
+    /// Consumes the humanoid arm of `$90:DE20-$DE73` and `$91:F31D`: select the
+    /// facing-preserving falling pose, align its shorter body to the old feet, and restore
+    /// the normal movement handler's state.
+    /// </summary>
+    /// <remarks>
+    /// Ordinary damage reaches this through <see cref="Step"/> when `$18AA` expires. Ceres
+    /// Ridley's `$90:E1FD/$E21C` wall-collision handoff reaches the same cartridge cleanup
+    /// after restoring the normal handler. Keeping that second caller here is important:
+    /// Ceres does not invent a standing pose, and the optional `$53/$54` damage-boost input
+    /// table is not the only way a neutral player can regain control after the shove.
+    /// </remarks>
+    public static KnockbackMovementResult FinishHumanoidToFalling(
         ISnesAddressSpace bus,
         SamusState samus)
     {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+        if (samus.Pose is not (SamusState.KnockbackRightPose or SamusState.KnockbackLeftPose))
+        {
+            throw new InvalidOperationException(
+                $"Humanoid knockback completion requires pose $53/$54, not ${samus.Pose:X2}.");
+        }
+
         // `$90:DE57` chooses `$29/$2A`. After the ordinary pose-change initializer has
         // installed radius 19, command one `$91:F31D` aligns the new body bottom to the old
         // radius-21 hurt body. Thus the center moves down two pixels before velocity clears.

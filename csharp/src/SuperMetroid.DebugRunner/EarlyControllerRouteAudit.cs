@@ -343,18 +343,51 @@ internal static partial class EarlyControllerRouteAudit
         LoadPendingDoor: () =>
         {
             const int MaximumDoorDispatcherFrames = 8;
+            SuperMetroidRuntime runtime = game.RuntimeForVerification
+                ?? throw new InvalidOperationException(
+                    "Frontend door transition began without a live runtime.");
+            ushort sourceRoomPointer = runtime.ActiveRoom?.Pointer
+                ?? throw new InvalidOperationException(
+                    "Frontend door transition began without a source room.");
+            bool observedDestinationPublication = false;
             for (int frame = 0;
                 frame < MaximumDoorDispatcherFrames &&
                 game.GameState != SuperMetroidGameState.MainGameplay;
                 frame++)
             {
                 game.Step(0);
+                if (!observedDestinationPublication &&
+                    runtime.ActiveRoom?.Pointer is ushort activeRoomPointer &&
+                    activeRoomPointer != sourceRoomPointer)
+                {
+                    observedDestinationPublication = true;
+
+                    // The host renderer reads DisplayedOam, never the main-loop staging
+                    // buffer. At the exact dispatcher call that makes a different room
+                    // visible, both byte planes must already be the destination draw pass.
+                    // A mismatch is the one-frame source-Samus/destination-background tear
+                    // this end-to-end route is intended to prevent.
+                    if (!runtime.DisplayedOam.LowTable.SequenceEqual(runtime.Oam.LowTable) ||
+                        !runtime.DisplayedOam.HighTable.SequenceEqual(runtime.Oam.HighTable))
+                    {
+                        throw new InvalidDataException(
+                            $"Door transition $8F:{sourceRoomPointer:X4} -> " +
+                            $"$8F:{activeRoomPointer:X4} exposed destination VRAM before " +
+                            "publishing its completed destination OAM image.");
+                    }
+                }
             }
             if (game.GameState != SuperMetroidGameState.MainGameplay)
             {
                 throw new InvalidDataException(
                     $"Frontend door transition stopped in {game.GameState} after " +
                     $"{MaximumDoorDispatcherFrames} dispatcher frames.");
+            }
+            if (!observedDestinationPublication)
+            {
+                throw new InvalidDataException(
+                    $"Frontend door dispatcher returned to gameplay without replacing " +
+                    $"source room $8F:{sourceRoomPointer:X4}.");
             }
         },
         Frontend: game);

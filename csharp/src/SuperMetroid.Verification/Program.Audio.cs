@@ -1,0 +1,89 @@
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Hardware;
+
+internal static partial class Program
+{
+    /// <summary>
+    /// Exercises bank $80's delayed music queue, LoROM upload stream traversal, and bank
+    /// $82's real request/acknowledge/clear SFX handshake independently of an audio device.
+    /// </summary>
+    private static void VerifyCartridgeAudioQueues()
+    {
+        byte[] rom = new byte[0x10_0000];
+
+        // Music data command $FF03 indexes the 24-bit table by its low byte, not by a
+        // multiplied host index. Point that exact odd-byte table entry at $90:8000.
+        WriteAudioRomByte(rom, 0x8fe7e4, 0x00);
+        WriteAudioRomByte(rom, 0x8fe7e5, 0x80);
+        WriteAudioRomByte(rom, 0x8fe7e6, 0x90);
+
+        // Prepare a second fixture before constructing the mapper, which intentionally
+        // takes ownership of a stable ROM copy.
+        WriteAudioRomByte(rom, 0x90fffb, 0x02); // record length = 2
+        WriteAudioRomByte(rom, 0x90fffc, 0x00);
+        WriteAudioRomByte(rom, 0x90fffd, 0x00); // SPC target = $2000
+        WriteAudioRomByte(rom, 0x90fffe, 0x20);
+        WriteAudioRomByte(rom, 0x90ffff, 0xaa);
+        WriteAudioRomByte(rom, 0x918000, 0xbb);
+        WriteAudioRomByte(rom, 0x918001, 0x00); // terminator
+        WriteAudioRomByte(rom, 0x918002, 0x00);
+        var bus = new SuperMetroidAddressSpace(rom);
+
+        var audio = new CartridgeAudioState();
+        audio.QueueMusicDelayed8(0xff03);
+        audio.QueueMusicDelayed8(5);
+
+        IReadOnlyList<CartridgeAudioCommand> reset =
+            audio.AdvanceFrame(bus, default);
+        AssertEqual(3, reset.Count, "audio reset command count");
+        AssertEqual(CartridgeAudioCommand.Upload(0xcf8000), reset[0], "initial SPC bank upload");
+        AssertEqual(CartridgeAudioCommand.WritePort(0, 0), reset[1], "reset music port");
+        AssertEqual(CartridgeAudioCommand.WritePort(2, 0), reset[2], "reset SFX2 port");
+
+        for (int delayFrame = 0; delayFrame < 7; delayFrame++)
+            AssertEqual(0, audio.AdvanceFrame(bus, default).Count, $"music upload delay {delayFrame}");
+        IReadOnlyList<CartridgeAudioCommand> upload = audio.AdvanceFrame(bus, default);
+        AssertEqual(4, upload.Count, "music upload plus SFX-downtime command count");
+        AssertEqual(CartridgeAudioCommand.Upload(0x908000), upload[0], "music data table lookup");
+
+        // Each music operation starts eight SFX-downtime frames. Those frames deliberately
+        // write zero to all three ports, so filter port-zero music commands separately.
+        CartridgeAudioCommand? track = null;
+        for (int frame = 0; frame < 8; frame++)
+        {
+            foreach (CartridgeAudioCommand command in audio.AdvanceFrame(bus, default))
+            {
+                if (command == CartridgeAudioCommand.WritePort(0, 5))
+                    track = command;
+            }
+        }
+        AssertEqual(CartridgeAudioCommand.WritePort(0, 5), track!.Value, "delayed track write");
+
+        var sfx = new CartridgeAudioState();
+        sfx.AdvanceFrame(bus, default); // consume reset upload/port writes
+        sfx.QueueSound(library: 2, soundId: 0x57, maximumQueued: 6);
+        IReadOnlyList<CartridgeAudioCommand> request = sfx.AdvanceFrame(bus, default);
+        AssertEqual(CartridgeAudioCommand.WritePort(2, 0x57), request.Single(), "SFX request write");
+        AssertEqual(
+            0,
+            sfx.AdvanceFrame(bus, new CartridgeAudioAcknowledgements(0, 0, 0x57, 0)).Count,
+            "SFX acknowledgement enters two-frame clear delay");
+        AssertEqual(0, sfx.AdvanceFrame(bus, default).Count, "SFX clear delay frame one");
+        AssertEqual(
+            CartridgeAudioCommand.WritePort(2, 0),
+            sfx.AdvanceFrame(bus, default).Single(),
+            "SFX request clear");
+
+        // Verify the upload reader follows contiguous ROM pointer arithmetic across a
+        // physical LoROM bank boundary: $90:FFFF continues at $91:8000, not $91:0000.
+        AssertSequenceEqual(
+            new byte[] { 2, 0, 0, 0x20, 0xaa, 0xbb, 0, 0 },
+            SpcUploadStreamReader.Read(bus, 0x90fffb),
+            "cross-bank SPC upload stream");
+
+        Console.WriteLine("  Audio: music delays, upload lookup, SFX handshake, and LoROM stream agree.");
+    }
+
+    private static void WriteAudioRomByte(byte[] rom, int snesAddress, byte value) =>
+        rom[SuperMetroidAddressSpace.ToRomOffset(snesAddress)] = value;
+}

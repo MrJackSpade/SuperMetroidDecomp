@@ -35,6 +35,19 @@ internal static partial class Program
             0xc000);
         bus.WriteByte(0x91c000, 4);
 
+        // `$90:DE57` selects this ordinary falling record when the shove reaches a wall.
+        // Its radius is two pixels shorter than `$53`, making bottom-edge alignment an
+        // observable part of the shared knockback-finish path rather than just a pose ID.
+        WritePoseDefinition(
+            bus,
+            SamusState.FallingRightPose,
+            [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]);
+        WriteTestWord(
+            bus,
+            0x91b010 + SamusState.FallingRightPose * sizeof(ushort),
+            0xc010);
+        bus.WriteBytes(0x91c010, [0x01, 0xff]);
+
         SamusState samus = CreateSamus(
             SamusState.FacingRightNormalPose,
             xPosition: 100,
@@ -46,11 +59,11 @@ internal static partial class Program
         samus.CeresRidleyEjection.Request();
         AssertTrue(samus.CeresRidleyEjection.IsPending, "Ridley ejection request is pending");
         AssertTrue(!samus.CeresRidleyEjection.IsActive, "request does not execute gamma early");
-        AssertTrue(!samus.InputLocked, "request frame retains prior Samus input handler");
+        AssertTrue(!samus.InputLocked, "request frame retains ordinary Samus input handler");
 
         samus.CeresRidleyEjection.BeginFrame(samus);
         AssertTrue(samus.CeresRidleyEjection.IsActive, "next frame promotes Ridley ejection");
-        AssertTrue(samus.InputLocked, "promoted ejection installs locked input");
+        AssertTrue(!samus.InputLocked, "promoted ejection replaces movement but not pose input");
 
         CeresRidleyEjectionResult initialized = samus.CeresRidleyEjection.Step(
             bus,
@@ -66,29 +79,34 @@ internal static partial class Program
         AssertEqual(5, samus.Kinematics.YSpeed, "ejection installs terminal downward speed");
         AssertSamusPosition(100, 100, samus, "first ejection gamma leaves world position unchanged");
 
-        // `$90:E1FD/$90:E21C` restore the ordinary movement dispatcher after the forced
-        // body hits a wall, but they deliberately leave pose $53/$54 (movement type $0A)
-        // current. The next ordinary frame must therefore execute `$90:A5FC`, whose only
-        // movement is the shared no-speed vertical probe. This exact handoff was invisible
-        // to the older isolated ejection fixture and crashed the first controller-driven
-        // playthrough after Ridley escaped.
-        samus.Kinematics.XPosition = 100;
-        samus.Kinematics.XSubposition = 0;
-        samus.Kinematics.YPosition = 100;
-        samus.Kinematics.YSubposition = 0;
-        samus.Kinematics.YSpeed = 0;
-        samus.Kinematics.YSubspeed = 0;
-        samus.Kinematics.YDirection = 0;
-        BlockMoveResult endingProbe = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
+        // The type-$0A air record supplies one pixel/frame after the first acceleration.
+        // Put the radius-eight body flush against the room's left boundary so the very next
+        // translated `$90:E1FD` call takes its real horizontal-collision termination path.
+        WriteTestWords(
+            bus,
+            0x900000 | (SamusHorizontalSpeedState.NormalAirSpeedTableBaseAddress +
+                0x0a * SpeedTableEntry.ByteCount),
+            1, 0, 1, 0, 0, 0);
+        samus.Kinematics.XPosition = samus.Kinematics.XRadius;
+        CeresRidleyEjectionResult wallCollision = samus.CeresRidleyEjection.Step(
             bus,
             emptyRoom,
             samus,
-            nmiFrameCounter: 0);
-        AssertTrue(!endingProbe.Collided, "post-ejection no-speed probe sees empty room");
-        AssertEqual(1 << 16, endingProbe.AcceptedDisplacement,
-            "post-ejection handler applies native positive one-pixel probe");
-        AssertSamusPosition(100, 101, samus,
-            "post-ejection type-$0A frame advances only the grounding probe");
+            layer1X: 0,
+            nmiFrameCounter: 1);
+        AssertTrue(wallCollision.Ended, "room-wall contact terminates Ceres ejection");
+        AssertTrue(!samus.CeresRidleyEjection.IsActive, "wall contact restores normal movement");
+        AssertTrue(!samus.InputLocked, "wall contact leaves ordinary pose input available");
+        AssertEqual(SamusState.FallingRightPose, samus.Pose,
+            "neutral wall handoff consumes ordinary knockback-finished pose");
+        AssertEqual(0, samus.KnockbackDirection,
+            "shared knockback finish clears direction");
+        AssertTrue(!samus.KnockbackActive,
+            "shared knockback finish leaves no special movement owner");
+        AssertEqual(2, samus.Kinematics.YDirection,
+            "shared knockback finish publishes downward falling direction");
+        AssertEqual(102, samus.Kinematics.YPosition,
+            "falling radius keeps the scripted body's feet aligned");
     }
 
     private static void VerifyCeresElevatorShaftRoomMain()

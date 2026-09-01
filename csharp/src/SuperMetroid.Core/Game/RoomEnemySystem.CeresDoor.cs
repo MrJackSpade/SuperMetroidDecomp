@@ -38,8 +38,8 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>
     /// Most recent library-two sound queued by Ceres-door destruction during this enemy frame.
-    /// The frontend does not yet synthesize SPC audio, so exposing the native queue request keeps
-    /// its exact cadence observable to the debugger and ROM-backed audits.
+    /// The compatibility view keeps its exact cadence observable to older debugger and
+    /// ROM-backed audits; active playback consumes the lossless <see cref="SoundRequests"/> list.
     /// </summary>
     public ushort? LastCeresDoorSoundEffectLibrary2 { get; private set; }
 
@@ -216,6 +216,9 @@ public sealed partial class RoomEnemySystem
         // QueueSound_Lib2_Max6 runs even if the finite enemy-projectile pool was full and
         // could not allocate the visual effect, so publish the request unconditionally.
         LastCeresDoorSoundEffectLibrary2 = CeresDoorRumbleSoundEffect;
+        // New audio consumers use the lossless list; retain LastCeresDoorSoundEffectLibrary2
+        // as a debugger/test compatibility view until the older per-enemy seams are migrated.
+        QueueEnemySound(library: 2, soundId: CeresDoorRumbleSoundEffect, maximumQueued: 6);
     }
 
     private void RunCeresDoorPaletteAnimation()

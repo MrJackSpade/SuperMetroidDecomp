@@ -21,6 +21,13 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--input-replay-audit")
+{
+    return InputReplayAudit.Run(
+        args[1].Trim('"'),
+        args[2].Trim('"'));
+}
+
 if (args.Length >= 2 && args[0] == "--ceres-controller-route-audit")
 {
     string ceresControllerRomPath = string.Join(' ', args[1..]).Trim('"');

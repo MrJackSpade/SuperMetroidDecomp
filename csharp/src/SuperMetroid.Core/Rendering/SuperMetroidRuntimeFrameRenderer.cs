@@ -62,19 +62,25 @@ public static class SuperMetroidRuntimeFrameRenderer
         }
         else if (runtime.ActiveDoor.UsesCeresElevatorMode7)
         {
-            // DoorCode_CeresElevatorShaft at `$8F:E4E0` installs these literal Mode 7
-            // registers below the HUD IRQ split. They are door behavior, not a visual
-            // approximation inferred from the room's area or name.
+            // DoorCode_CeresElevatorShaft `$8F:E4E0` installs the identity transform, but
+            // room main `$89:ACC3` then replaces A/B/C/D from its rotation table throughout
+            // the escape. NMI `$80:95A7` publishes those shadow words to $211B..$2120.
+            // Samus's OAM origin is calculated through the paired inverse transform in
+            // `$8B:8A52`; feeding identity to BG1 here made the visible platforms diverge
+            // from both her sprite and the deliberately unrotated physical collision map.
+            SamusMode7Transform mode7 = runtime.DisplayedSamusMode7Transform
+                ?? throw new InvalidOperationException(
+                    "The Ceres elevator shaft has no NMI-published Mode 7 matrix.");
             frame = SnesGameplayFrameRenderer.RenderHudMode7AndObjs(
                 runtime.Vram,
                 runtime.Cgram,
                 runtime.DisplayedOam,
-                matrixA: 0x0100,
-                matrixB: 0,
-                matrixC: 0,
-                matrixD: 0x0100,
-                centerX: 0x0080,
-                centerY: 0x03f0,
+                matrixA: unchecked((short)mode7.MatrixA),
+                matrixB: unchecked((short)mode7.MatrixB),
+                matrixC: unchecked((short)mode7.MatrixC),
+                matrixD: unchecked((short)mode7.MatrixA),
+                centerX: unchecked((short)mode7.CenterX),
+                centerY: unchecked((short)mode7.CenterY),
                 // Mode 7 reuses BG1HOFS/BG1VOFS as M7HOFS/M7VOFS. MainScrollingRoutine
                 // continues publishing those live camera words even though its ordinary
                 // tilemap row/column producers return early while `$0783` is nonzero.
@@ -96,6 +102,18 @@ public static class SuperMetroidRuntimeFrameRenderer
                 ? (ushort)0x6000
                 : (ushort)0;
             bool crocomireOwnsBg2 = runtime.Enemies.Crocomire is not null;
+            ScrollingSkyState? scrollingSky = runtime.ScrollingSky;
+            ushort[]? skyHorizontalScrolls = scrollingSky?.BuildGameplayHorizontalScrolls(
+                runtime.Camera?.YPosition
+                    ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera."));
+            if (skyHorizontalScrolls is not null && shake.Bg2X != 0)
+            {
+                // Room shake is added to the live BG2HOFS register after HDMA supplies
+                // each band value. Apply it to every resolved scanline for the same final
+                // PPU coordinates instead of inventing a second sky-motion accumulator.
+                for (int line = 0; line < skyHorizontalScrolls.Length; line++)
+                    skyHorizontalScrolls[line] = AddShake(skyHorizontalScrolls[line], shake.Bg2X);
+            }
             frame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
                 runtime.Vram,
                 runtime.Cgram,
@@ -107,10 +125,15 @@ public static class SuperMetroidRuntimeFrameRenderer
                     : bg2HorizontalScroll,
                 crocomireOwnsBg2
                     ? AddShake(runtime.Enemies.CrocomireBg2VerticalScroll, shake.Bg2Y)
-                    : bg2VerticalScroll,
+                    : scrollingSky is not null
+                        ? AddShake(scrollingSky.VerticalScroll, shake.Bg2Y)
+                        : bg2VerticalScroll,
+                bg2HorizontalScrollByLine: skyHorizontalScrolls,
                 bg2VerticalScrollByLine: crocomireOwnsBg2
                     ? runtime.Enemies.CrocomireDeath?.Bg2ScrollByScanline
                     : null,
+                bg2TilemapWidthInTiles: scrollingSky is null ? 64 : 32,
+                bg2TilemapHeightInTiles: scrollingSky is null ? 32 : 64,
                 bg1CharacterBaseWord: bgCharacterBaseWord,
                 bg2CharacterBaseWord: bgCharacterBaseWord);
         }

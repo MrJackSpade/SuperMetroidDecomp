@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -29,6 +30,7 @@ public sealed class IntroCinematicState
     internal const ushort GameplayFlashbackBg1VerticalScroll = 8;
 
     private readonly ISnesAddressSpace bus;
+    private readonly CartridgeAudioState? audio;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
     private readonly ControllerInputState controller = new();
@@ -55,10 +57,13 @@ public sealed class IntroCinematicState
     private int timer = 8;
     private int fadeDelay;
 
-    public IntroCinematicState(ISnesAddressSpace bus)
+    public IntroCinematicState(ISnesAddressSpace bus, CartridgeAudioState? audio = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         this.bus = bus;
+        this.audio = audio;
+        audio?.QueueMusicDelayed8(0);
+        audio?.QueueMusicDelayed8(0xff3f);
         cgram.LoadFromBus(bus, 0x8ce3e9);
         cgram.Colors.CopyTo(introPalette);
 
@@ -183,7 +188,7 @@ public sealed class IntroCinematicState
         {
             case IntroCinematicPhase.WaitForInitialMusicQueue:
                 // QueueMusic_Delayed8 owns an eight-frame delay before HasQueuedMusic clears.
-                if (--timer <= 0)
+                if (MusicQueueFinished())
                 {
                     Phase = IntroCinematicPhase.FadeInFirstNarration;
                     fadeDelay = 0;
@@ -201,6 +206,7 @@ public sealed class IntroCinematicState
             case IntroCinematicPhase.LastMetroidIsInCaptivity:
                 if (--timer <= 0)
                 {
+                    audio?.QueueMusicDelayed8(5);
                     Phase = IntroCinematicPhase.GalaxyIsAtPeace;
                     timer = 200;
                 }
@@ -211,13 +217,16 @@ public sealed class IntroCinematicState
                 {
                     // The next music commands wait for APU acknowledgement before the
                     // documented four-second hold. Eight frames models their delayed slot.
+                    audio?.QueueMusicDelayed8(0);
+                    audio?.QueueMusicDelayed8(0xff42);
+                    audio?.QueueMusicDelayed(5, 0x0e);
                     Phase = IntroCinematicPhase.WaitForSecondMusicQueue;
                     timer = 8;
                 }
                 break;
 
             case IntroCinematicPhase.WaitForSecondMusicQueue:
-                if (--timer <= 0)
+                if (MusicQueueFinished())
                 {
                     Phase = IntroCinematicPhase.FourSecondHold;
                     timer = 240;
@@ -240,7 +249,7 @@ public sealed class IntroCinematicState
             case IntroCinematicPhase.WaitForPageOneMusicQueue:
                 // QueueMusic_DelayedY(track 5, $0E) is the longest command issued by
                 // $8B:A66F, so HasQueuedMusic becomes clear after fourteen update slots.
-                if (--timer <= 0)
+                if (MusicQueueFinished())
                 {
                     objects!.StartEnglishPageOne();
                     Phase = IntroCinematicPhase.FadeInPageOne;
@@ -1228,9 +1237,18 @@ public sealed class IntroCinematicState
 
         vram.ExecuteWordTransfer(textTilemap, 0x4c00, 1);
         objects = new IntroCinematicObjectSystem(bus, vram, textTilemap);
+        audio?.QueueMusicDelayed8(0);
+        audio?.QueueMusicDelayed8(0xff36);
+        audio?.QueueMusicDelayed(5, 0x0e);
         timer = 0x0e;
         Phase = IntroCinematicPhase.WaitForPageOneMusicQueue;
     }
+
+    /// <summary>
+    /// Production follows bank $80's real HasQueuedMusic result. Standalone actor tests do
+    /// not own an APU queue, so they retain the previously explicit local countdown.
+    /// </summary>
+    private bool MusicQueueFinished() => audio is null ? --timer <= 0 : !audio.HasQueuedMusic;
 
     private void ApplyMasterBrightness(Span<Rgba32> pixels)
     {

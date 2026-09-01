@@ -134,6 +134,7 @@ public sealed class SamusProjectileTrailSide
 public readonly record struct SamusProjectileFrameResult(
     int? FiredSlot,
     ushort QueuedSoundEffect,
+    byte QueuedSoundMaximum,
     bool CollisionStartedExplosion,
     bool ProjectileDeleted);
 

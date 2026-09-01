@@ -214,6 +214,7 @@ public sealed partial class RoomEnemySystem
         EnemiesKilled = 0;
         BossId = 0;
         LastGunshipEvent = GunshipFrameEvent.None;
+        BeginEnemySoundRequestFrame();
         BeginShitroidFrame();
         GunshipSavePromptPending = false;
         GunshipSaveRequested = false;
@@ -476,6 +477,7 @@ public sealed partial class RoomEnemySystem
         // Mama Turtle's even-frame shell jitter the same initial phase as retail room load.
         byte enemyNmiFrameCounter8 = nmiFrameCounter8 ?? unchecked((byte)_randomEnemyCounter);
         LastGunshipEvent = GunshipFrameEvent.None;
+        BeginEnemySoundRequestFrame();
         LastBoyonSoundEffect = null;
         LastMamaTurtleSoundEffect = null;
         LastCacatacSoundEffect = null;
@@ -509,6 +511,14 @@ public sealed partial class RoomEnemySystem
         LastKraidSoundEffect = null;
         LastSpacePirateSoundEffect = null;
         LastEnemyProjectileDudSoundEffect = null;
+        if (_ridleyState is not null)
+        {
+            // These are one-shot publications made by Ridley's current AI call, matching
+            // the global QueueMusic/QueueSfx calls in bank $A6. Clear them at the same
+            // enemy-frame boundary as every other Last* request above.
+            _ridleyState.LastDeathSoundEffect = null;
+            _ridleyState.MusicRequest = null;
+        }
         LastBeetomSoundEffect = null;
         LastWorkRobotSoundEffect = null;
         LastBotwoonSoundEffect = null;
@@ -784,6 +794,19 @@ public sealed partial class RoomEnemySystem
                 // layer-1 position, so preserve modular 16-bit arithmetic here.
                 ushort originX = unchecked((ushort)(slot.SpawnXOffset + slot.XPosition - cameraX));
                 ushort originY = unchecked((ushort)(slot.SpawnYOffset + slot.YPosition - cameraY));
+
+                // `WriteEnemyOAM` `$A0:947B-$9494` consumes one shake tick while forming
+                // the shared origin for both ordinary and extended spritemaps. Bit one of
+                // the enemy's frame counter chooses -1 or +1; this is deliberately not the
+                // room's BG displacement. Ceres quake types >=$12 reload ShakeTimer for
+                // every active enemy, which is why its ordinary door sprites visibly move
+                // with the station instead of remaining pinned to host screen space.
+                if (slot.ShakeTimer != 0)
+                {
+                    originX = unchecked((ushort)(originX +
+                        ((slot.FrameCounter & 2) != 0 ? -1 : 1)));
+                    slot.ShakeTimer--;
+                }
                 ushort drawPaletteIndex = IsRidleyDefinition(slot.EnemyDefinitionPointer) &&
                     _ridleyState is not null
                         ? _ridleyState.CommonDrawPaletteIndex
@@ -1967,13 +1990,16 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
 
-        // $A2:A75C decrements the solid bottom's sound timer and reloads 70 on one/underflow.
-        // Audio queue two is not yet represented by the runtime, but the actor-owned timer
-        // is observable state and must still advance at the original point.
+        // $A2:A75C decrements the solid bottom's engine-sound timer and reloads 70 on
+        // one/underflow. QueueSfx2_Max6($4D) occurs before the reload, exactly as it does in
+        // GunshipTop_Main; this periodic producer continues while the ship is idling/bobbing.
         ushort oldBottomTimer = bottom.VariableD;
         bottom.VariableD = unchecked((ushort)(bottom.VariableD - 1));
         if (oldBottomTimer == 1 || (short)bottom.VariableD < 0)
+        {
+            QueueEnemySound(library: 2, soundId: 0x004d, maximumQueued: 6);
             bottom.VariableD = 70;
+        }
 
         // The native address-range test admits functions $A942-$AC1A. Idle function $A9BD
         // is inside that interval, so the landed ship continuously performs its four-phase
@@ -2810,8 +2836,9 @@ public sealed partial class RoomEnemySystem
                     SpawnKiHunterAcidFromInstruction(slot, movingRight: true);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xe4be: // Ridley: begin roar; audio playback is outside this subsystem.
+                case 0xe4be: // Ridley_Instr_5: set roaring flag and QueueSfx2_Max6($59).
                     RequireRidley(slot).Roaring = true;
+                    QueueEnemySound(library: 2, soundId: 0x0059, maximumQueued: 6);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xe61d when slot.EnemyDefinitionPointer == SparkDefinition:
@@ -3135,7 +3162,8 @@ public sealed partial class RoomEnemySystem
                     slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xf6bd: // Ceres door sound command; audio queue is not yet modeled.
+                case 0xf6bd: // CeresDoor_Instr_7: QueueSfx3_Max6($2C).
+                    QueueEnemySound(library: 3, soundId: 0x002c, maximumQueued: 6);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case 0xecd0 when slot.EnemyDefinitionPointer == DeadSidehopperDefinition:

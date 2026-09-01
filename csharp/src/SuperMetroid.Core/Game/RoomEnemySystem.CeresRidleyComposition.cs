@@ -468,11 +468,18 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot door = _slots[1];
         if (door.EnemyDefinitionPointer == CeresDoorDefinition && door.VariableB != 0)
         {
+            // The private Ceres hook does not call WriteEnemyOAM and therefore owns a
+            // second, cartridge-authored quake adjustment at `$A6:A2F2-$A314`. Its `Y`
+            // index is the low two bits of the earthquake timer, but the table contains
+            // words and the assembly omits an ASL. Preserve that retail byte-index read:
+            // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
+            int quakeTableByte = 0xa6a321 + (EarthquakeTimer & 3);
+            int quakeXOffset = unchecked((sbyte)_bus!.ReadByte(quakeTableByte));
             oam.AddEnemySpritemap(
                 _bus!,
                 bank: 0xa6,
                 spritemapPointer: 0xa329,
-                unchecked((ushort)(door.XPosition - cameraX)),
+                unchecked((ushort)(door.XPosition - cameraX + quakeXOffset)),
                 unchecked((ushort)(door.YPosition - cameraY)),
                 paletteBits: 0x0400,
                 baseTileIndex: 0);
@@ -510,6 +517,11 @@ public sealed partial class RoomEnemySystem
             switch (word)
             {
                 case 0xbfc9:
+                    // BabyMetroid_Instr_2 calls QueueSfx3_Max6($24) on every execution,
+                    // including the random branch that immediately jumps to another list.
+                    // Publish before reproducing that branch so its control flow cannot
+                    // accidentally suppress the chirp.
+                    QueueEnemySound(library: 3, soundId: 0x0024, maximumQueued: 6);
                     // The native “moving” word is the same $8808 velocity accumulator
                     // advanced by TickCeresBaby. While stationary, the cartridge RNG may
                     // branch to the expressive palette-animation list with 50% probability.

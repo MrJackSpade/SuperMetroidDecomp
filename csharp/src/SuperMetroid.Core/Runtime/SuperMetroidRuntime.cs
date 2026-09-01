@@ -275,12 +275,19 @@ public sealed partial class SuperMetroidRuntime
     public bool LastGrappleFlareDrawn { get; private set; }
 
     /// <summary>
-    /// Optional Ceres-owned Mode 7 matrix used only to calculate Samus's rendered body
-    /// origin. Null is ordinary gameplay. A future Ceres cinematic actor should publish
-    /// and clear this value with its status high bit; the translated consumer never moves
-    /// Samus's physical coordinates.
+    /// Ceres's current shadow Mode 7 matrix. The shaft room main publishes it after the
+    /// drawing pass, and sprite producers use it only while calculating their temporary
+    /// rendered origins. The translated consumer never moves physical coordinates.
     /// </summary>
     public SamusMode7Transform? ActiveSamusMode7Transform { get; set; }
+
+    /// <summary>
+    /// Ceres Mode 7 matrix made PPU-visible by the most recent accepted NMI. This is the
+    /// register-phase companion to <see cref="DisplayedOam"/>: software rendering must use
+    /// both displayed values together rather than mixing current main-loop shadow words
+    /// with the preceding NMI's sprites.
+    /// </summary>
+    public SamusMode7Transform? DisplayedSamusMode7Transform { get; private set; }
 
     /// <summary>
     /// Exact room-main owner for Ceres elevator shaft <c>$DF45</c>. The object persists so
@@ -1057,9 +1064,9 @@ public sealed partial class SuperMetroidRuntime
         }
 
         // DisplayMessageBox waits on NMI while retaining the already-published room OAM,
-        // music, and sound engines. The translated runtime has no audio mixer yet, but it
-        // must still latch controller input and block every gameplay owner during those
-        // waits. This early seam is shared by all permanent-item identities.
+        // music, and sound engines. Audio mixing lives in the frontend, but this translated
+        // runtime must still latch controller input and block every gameplay owner during
+        // those waits. This early seam is shared by all permanent-item identities.
         if (MessageBox.IsActive)
         {
             MessageBox.Step(Controller1.Current);
@@ -1725,6 +1732,11 @@ public sealed partial class SuperMetroidRuntime
                 // `$53/$54` is shared while ownership, duration, and termination are not.
                 else if (Samus.CeresRidleyEjection.IsActive)
                 {
+                    // `$90:E1C8` suppresses only the damage-boost result `$4F/$50` selected
+                    // from pose `$53/$54`; it does not replace the complete input handler.
+                    // Those are the only records in the two retail transition tables, so
+                    // clearing the sampled prospective value is the literal gamma-handler
+                    // side effect without abusing Samus.InputLocked.
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
                     LastCeresRidleyEjection = Samus.CeresRidleyEjection.Step(
@@ -2878,16 +2890,17 @@ public sealed partial class SuperMetroidRuntime
                                     NmiFrameCounter);
                                 break;
                             case var (source, target)
-                                when SamusState.IsSpinJumpPose(source) &&
+                                when (SamusState.IsSpinJumpPose(source) ||
+                                      SamusState.IsWallJumpPose(source)) &&
                                      (SamusState.IsRightFacingNormalJumpPose(target) ||
                                       SamusState.IsLeftFacingNormalJumpPose(target)):
-                                // Aim and Fire cancel the compact spinning body through the
-                                // same normal-jump initializer without restarting the jump
-                                // arc. `$1A -> $18`, for example, is the ordinary left-spin
-                                // Down input used to shoot a floor hatch. The shared helper
-                                // performs changed-pose collision for every radius expansion;
-                                // a rejected body leaves the source spin pose installed.
-                                Samus.TryApplySpinToNormalJumpTransition(
+                                // Aim and Fire cancel both compact spin and `$83/$84` wall-
+                                // jump bodies through the same normal-jump initializer without
+                                // restarting the jump arc. `$91:A9EC`, for example, maps Shot
+                                // directly from `$83` to `$13`. The shared helper performs
+                                // changed-pose collision for every radius expansion; a rejected
+                                // body leaves the compact source pose installed.
+                                Samus.TryApplySpinOrWallJumpToNormalJumpTransition(
                                     _addressSpace,
                                     LevelData ?? throw new InvalidOperationException(
                                         "Spin-to-normal-jump transition requires active room level data."),
@@ -3644,8 +3657,11 @@ public sealed partial class SuperMetroidRuntime
             // Preserve $80:95A1 -> $80:95D0 -> $80:95E1 order: dedicated Samus graphics
             // DMA precedes the general video queue, and both precede controller latching.
             // $80:959E uploads the finalized main-loop OAM image immediately before that
-            // Samus DMA; retain a second buffer so software rendering sees the same phase.
+            // Samus DMA. `$80:95A7` subsequently copies the Mode 7 shadow words to
+            // $211B..$2120. Retain both displayed values so software rendering sees one
+            // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
             DisplayedOam.CopyFinalizedFrom(Oam);
+            DisplayedSamusMode7Transform = ActiveSamusMode7Transform;
             Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);
             VramWrites.DrainTo(Vram, _addressSpace);
             Controller1.Latch(controller1Input);

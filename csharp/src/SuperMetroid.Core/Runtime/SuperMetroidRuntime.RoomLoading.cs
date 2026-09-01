@@ -328,7 +328,7 @@ public sealed partial class SuperMetroidRuntime
         // elevator room becomes visible. Publishing the immutable transform here gives
         // Samus, her projectiles, and parameter-four/five steam a single authoritative
         // producer. Ordinary doors clear it so stale Mode-7 math cannot leak across rooms.
-        ActiveSamusMode7Transform = door.UsesCeresElevatorMode7
+        SamusMode7Transform? initialMode7Transform = door.UsesCeresElevatorMode7
             ? new SamusMode7Transform(
                 MatrixA: 0x0100,
                 MatrixB: 0,
@@ -336,6 +336,11 @@ public sealed partial class SuperMetroidRuntime
                 CenterX: 0x0080,
                 CenterY: 0x03f0)
             : null;
+        ActiveSamusMode7Transform = initialMode7Transform;
+        // `$8F:E4E0` writes the initial matrix as part of door setup before the shaft is
+        // exposed. Initialize the displayed copy as well; subsequent room-main changes
+        // reach it only through RunNmi, matching the normal shadow-register path.
+        DisplayedSamusMode7Transform = initialMode7Transform;
         LevelData = assets.LevelData;
         Camera = new ScrollBoundaryCamera(assets.Scrolls);
         Camera.SetPosition(cameraX, cameraY);
@@ -343,10 +348,24 @@ public sealed partial class SuperMetroidRuntime
         BackgroundScroll.Layer2ScrollY = room.State.Layer2ScrollY;
         BackgroundScroll.PrimePreviousBlocks();
 
-        // Gameplay initializes BG1SC=$51 and BG2SC=$49. DisplayViewablePartOfRoom stores
-        // their $0800-word separation so the same streamer can address both circular maps.
-        BackgroundStreamer = LevelData.CreateBackgroundStreamer(sizeOfBg2: 0x0800);
-        ScrollingSky = null;
+        // The selected room-state main pointer, rather than the room or entry door, owns
+        // the BG2 producer. `$8F:C116` calls the land-sky routine at `$88:AF8D`; `$8F:C120`
+        // calls that same routine before its escape-quake work. Both set BG2SC=$4A and use
+        // a 32x64 circular map at $4800. Ordinary gameplay instead uses BG2SC=$49 and keeps
+        // its second 32x32 screen horizontally adjacent at $4C00.
+        //
+        // This distinction must be established in the shared loader. The older dedicated
+        // Landing Site cinematic path already did so, but loading station 0 from SRAM came
+        // through this method and therefore interpreted the vertical sky page at $4C00 as
+        // the right half of a 64x32 map. Depending on BG2HOFS, that stale neighboring page
+        // appeared as a broad vertical band of repeating purple tiles.
+        bool usesLandScrollingSky =
+            ScrollingSkyState.IsLandRoomMain(room.State.MainCodePointer);
+        BackgroundStreamer = LevelData.CreateBackgroundStreamer(
+            sizeOfBg2: usesLandScrollingSky ? (ushort)0 : (ushort)0x0800);
+        ScrollingSky = usesLandScrollingSky
+            ? new ScrollingSkyState(_addressSpace)
+            : null;
         LandingSiteEntry = null;
         assets.LoadGraphics(Vram, Cgram);
 

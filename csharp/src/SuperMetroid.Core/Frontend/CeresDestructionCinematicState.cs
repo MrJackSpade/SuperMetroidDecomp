@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
@@ -26,10 +27,13 @@ internal sealed partial class CeresDestructionCinematicState
     private const int SignedSineTableAddress = 0xa0b443;
 
     private readonly ISnesAddressSpace bus;
+    private readonly CartridgeAudioState? audio;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
     private readonly byte[] ceresTilemaps;
     private readonly List<IntroDiscoverySprite> actors = [];
+    private IntroDiscoverySprite? zebesPlanetActor;
+    private IntroDiscoverySprite? zebesCompletionStarActor;
 
     private ushort backgroundX = unchecked((ushort)-44);
     private ushort backgroundXSubPosition;
@@ -46,9 +50,16 @@ internal sealed partial class CeresDestructionCinematicState
     private int explosionOffsetIndex;
     private bool usesMode7 = true;
 
-    public CeresDestructionCinematicState(ISnesAddressSpace bus)
+    public CeresDestructionCinematicState(
+        ISnesAddressSpace bus,
+        CartridgeAudioState? audio = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.audio = audio;
+        // State $25 selects the common cinematic bank and destruction track eight.
+        audio?.QueueMusicDelayed8(0);
+        audio?.QueueMusicDelayed8(0xff2d);
+        audio?.QueueMusicDelayed(8, 0x0e);
         ceresTilemaps = RomDataReader.Decompress(bus, CeresTilemapAddress, maximumOutputBytes: 0x1000);
         SetupCeresDestruction();
     }
@@ -65,14 +76,31 @@ internal sealed partial class CeresDestructionCinematicState
 
     public ushort BackgroundY => backgroundY;
 
+    internal int ActiveActorCount => actors.Count;
+
+    /// <summary>
+    /// Reads the low-byte Mode-7 map selected by the cinematic's current native transfers.
+    /// </summary>
+    internal byte ReadMode7MapByte(int mapByteIndex)
+    {
+        if ((uint)mapByteIndex >= 0x4000)
+            throw new ArgumentOutOfRangeException(nameof(mapByteIndex));
+        return vram.ReadByte(mapByteIndex * 2);
+    }
+
     /// <summary>Executes one call through the native state-$22 cinematic dispatcher.</summary>
     public void Step()
     {
         switch (Phase)
         {
             case CeresDestructionPhase.WaitForMusicQueue:
-                if (--musicQueueTimer <= 0)
+                if (MusicQueueFinished())
                     Phase = CeresDestructionPhase.FadeInAndDrift;
+                break;
+
+            case CeresDestructionPhase.WaitForZebesMusicQueue:
+                if (MusicQueueFinished())
+                    Phase = CeresDestructionPhase.FadeInZebes;
                 break;
 
             case CeresDestructionPhase.FadeInAndDrift:
@@ -206,7 +234,10 @@ internal sealed partial class CeresDestructionCinematicState
         byte[] characters = RomDataReader.Decompress(bus, Mode7CharacterAddress, maximumOutputBytes: 0x4000);
         byte[] objectCharacters = RomDataReader.Decompress(bus, CeresObjectCharacterAddress, maximumOutputBytes: 0x4000);
         RequireMinimum(characters, 0x4000, "Ceres destruction Mode-7 characters");
-        RequireMinimum(ceresTilemaps, 0x0c00, "Ceres cinematic tilemaps");
+        // The stream is four adjacent native work-RAM regions, not merely the two Ceres
+        // screens used by this setup call. `$8B:C345` later consumes the front-gunship
+        // screen at +$000 and the clear screen at +$C00 without decompressing again.
+        RequireMinimum(ceresTilemaps, 0x0f00, "Ceres cinematic tilemaps");
         RequireMinimum(objectCharacters, 0x4000, "Ceres cinematic OBJ characters");
 
         // C11B selects bytes $600-$BFF: the third/fourth 24-row Ceres map pair. The
@@ -254,7 +285,13 @@ internal sealed partial class CeresDestructionCinematicState
         fadeCounter = 1;
         phaseTimer = 0x81; // The complete MOSAIC register, including BG-enable bit zero.
         usesMode7 = false;
-        Phase = CeresDestructionPhase.FadeInZebes;
+        // The Ceres/Zebes interstitial at $8B:D6D7 has its own bank-$33 data set and
+        // waits for all three commands before beginning the mosaic fade.
+        audio?.QueueMusicDelayed8(0);
+        audio?.QueueMusicDelayed8(0xff33);
+        audio?.QueueMusicDelayed(5, 0x0e);
+        musicQueueTimer = 14;
+        Phase = CeresDestructionPhase.WaitForZebesMusicQueue;
     }
 
     private void SetupZebesMode7Actors()
@@ -265,11 +302,13 @@ internal sealed partial class CeresDestructionCinematicState
         angle = 0x20;
         zoom = 0x0100;
         actors.Clear();
-        actors.Add(new IntroDiscoverySprite(0x0088, 0x006f, 0x0e00, 0xccab));
+        zebesPlanetActor = new IntroDiscoverySprite(0x0088, 0x006f, 0x0e00, 0xccab);
+        actors.Add(zebesPlanetActor);
         actors.Add(new IntroDiscoverySprite(0x0030, 0x002f, 0x0800, 0xcd83));
         actors.Add(new IntroDiscoverySprite(0x00d0, 0x002f, 0x0800, 0xcd8b));
         actors.Add(new IntroDiscoverySprite(0x0030, 0x00cf, 0x0800, 0xcd93));
-        actors.Add(new IntroDiscoverySprite(0x00d0, 0x00cf, 0x0800, 0xcd9b));
+        zebesCompletionStarActor = new IntroDiscoverySprite(0x00d0, 0x00cf, 0x0800, 0xcd9b);
+        actors.Add(zebesCompletionStarActor);
         actors.Add(new IntroDiscoverySprite(0x0080, 0x00ba, 0x0000, 0xccbb));
         Phase = CeresDestructionPhase.PlanetZebesTitle;
     }
@@ -305,6 +344,9 @@ internal sealed partial class CeresDestructionCinematicState
         phaseTimer = unchecked((byte)(phaseTimer - 0x10));
         return (phaseTimer & 0xf0) == 0;
     }
+
+    private bool MusicQueueFinished() =>
+        audio is null ? --musicQueueTimer <= 0 : !audio.HasQueuedMusic;
 
     private byte[] ReadBusBytes(int address, int count)
     {
@@ -344,6 +386,7 @@ internal enum CeresDestructionPhase
     FlyingAwayFromExplosion,
     HoldAfterExplosion,
     FadeOutCeres,
+    WaitForZebesMusicQueue,
     FadeInZebes,
     RemoveZebesMosaic,
     PlanetZebesTitle,

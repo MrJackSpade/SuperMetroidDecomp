@@ -761,6 +761,40 @@ static void VerifyFourBitBackgroundRendering()
         tilemapWidthInTiles: 32, tilemapHeightInTiles: 64);
     AssertEqual(new Rgba32(255, 0, 0), pixels[0], "4-bpp BGSC vertical second screen");
 
+    // Exercise that same BGSC geometry through the production priority compositor. Its
+    // first gameplay scanline is physical Y=32, so VOFS=$E0 selects source Y=$100. A
+    // per-line HOFS of eight must then select tile one from the lower vertical screen.
+    var gameplayVram = new SnesVram();
+    var gameplayCgram = new SnesCgram();
+    var gameplayOam = new OamBuffer();
+    var redCharacter = new byte[32];
+    var blueCharacter = new byte[32];
+    redCharacter[0] = 0x80;
+    blueCharacter[0] = 0x80;
+    // Leave character zero transparent because empty BG1 map words select it above BG2.
+    gameplayVram.LoadBytes(0x0020, redCharacter);
+    gameplayVram.LoadBytes(0x0040, blueCharacter);
+    gameplayCgram.SetColor(2 * 16 + 1, 0x001f);
+    gameplayCgram.SetColor(3 * 16 + 1, 0x7c00);
+    gameplayVram.ExecuteWordTransfer([0x0801], destinationWord: 0x4800, wordIncrement: 1);
+    gameplayVram.ExecuteWordTransfer([0x0801, 0x0c02], destinationWord: 0x4c00, wordIncrement: 1);
+    var horizontalByLine = new ushort[SnesGameplayFrameRenderer.Height - SnesGameplayFrameRenderer.HudHeight];
+    horizontalByLine[0] = 8;
+    Rgba32[] gameplayFrame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
+        gameplayVram,
+        gameplayCgram,
+        gameplayOam,
+        bg1HorizontalScroll: 0,
+        bg1VerticalScroll: 0,
+        bg2HorizontalScroll: 0,
+        bg2VerticalScroll: 0x00e0,
+        bg2HorizontalScrollByLine: horizontalByLine,
+        bg2TilemapWidthInTiles: 32,
+        bg2TilemapHeightInTiles: 64);
+    AssertEqual(new Rgba32(0, 0, 255),
+        gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
+        "ordinary compositor consumes sky HOFS and vertical BGSC screen");
+
     // The force-blank room fill is exactly 17 level columns when layer-2 X mode is odd.
     var scroll = new BackgroundScrollState
     {
@@ -923,6 +957,16 @@ static Rgba32[] CreateOpaqueBlackGameplayFrame()
 /// <summary>Checks bank-$88 sky fixed-point bands and four queued circular-map rows.</summary>
 static void VerifyScrollingSkyState()
 {
+    AssertTrue(
+        ScrollingSkyState.IsLandRoomMain(ScrollingSkyState.LandRoomMainCodePointer),
+        "$8F:C116 selects land scrolling sky");
+    AssertTrue(
+        ScrollingSkyState.IsLandRoomMain(ScrollingSkyState.ShakingLandRoomMainCodePointer),
+        "$8F:C120 selects land scrolling sky before quake work");
+    AssertTrue(
+        !ScrollingSkyState.IsLandRoomMain(0xc11b),
+        "$8F:C11B ocean wrapper is not silently treated as land sky");
+
     var sky = new ScrollingSkyState();
     var writes = new VramWriteQueue();
     sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: false, writes);

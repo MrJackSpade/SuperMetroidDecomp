@@ -6,7 +6,10 @@ namespace SuperMetroid.Game;
 /// <summary>The normal reset-to-gameplay desktop shell for the translated game.</summary>
 internal sealed class GameForm : Form
 {
-    public GameForm(string romPath, SuperMetroidGameOptions gameOptions)
+    public GameForm(
+        string romPath,
+        SuperMetroidGameOptions gameOptions,
+        ControllerInputRecording? replay = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
         ArgumentNullException.ThrowIfNull(gameOptions);
@@ -17,6 +20,6 @@ internal sealed class GameForm : Form
         // ordinary 1080p desktop. RuntimeCanvas automatically chooses a smaller integer
         // scale if the user resizes the window.
         ClientSize = new Size(900, 760);
-        Controls.Add(new PlayableGameControl(romPath, gameOptions));
+        Controls.Add(new PlayableGameControl(romPath, gameOptions, replay));
     }
 }

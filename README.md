@@ -1,10 +1,80 @@
-# Super Metroid decompilation notebook
+# Super Metroid C# decompilation workspace
 
-This private workspace is for studying and translating the original Super Metroid program into heavily commented, breakpoint-friendly C#. The checked-out native C decompilation remains a working behavioral reference. At the owner's explicit request, the private repository includes the verified ROM and generated ROM-derived assets so one checkout is runnable without an extraction step. It must remain private and is not intended for redistribution.
+This private workspace translates the original Super Metroid program into heavily commented,
+breakpoint-friendly C#. The cartridge remains the behavioral authority; the annotated
+disassembly and native C reconstruction are cross-checks, not substitutes for observed ROM
+behavior.
+
+The repository intentionally contains a private ROM and ROM-derived assets at the owner's
+request so one checkout remains runnable. It must remain private and is not suitable for
+redistribution in its current form.
+
+## Current status
+
+The C# port is a working but incomplete game, not merely an asset viewer. Its continuously
+playable path currently runs from power-on through the title, file select, options, opening
+cinematic, Ceres, Zebes landing, Morph Ball, the first Missile, Bomb Torizo, Bomb acquisition,
+and the return to awakened Parlor. The checked-in private-ROM regression completes that route
+using controller input and native game state; it does not write debug values to win the fight,
+open its doors, create drops, or acquire Bombs.
+
+The following large subsystem passes are implemented:
+
+- normal Samus movement, poses, animation, collision, liquids, grapple, Speed Booster,
+  shinespark, Space Jump, Screw Attack, Crystal Flash, X-ray mechanics, knockback, and the
+  translated death/body-special routes;
+- beams, Charge Beam, Hyper Beam production and motion, Missiles, Super Missiles, normal
+  Bombs, Power Bombs, trails, explosions, terrain reactions, and projectile animation;
+- every retail enemy definition referenced by the named room populations, including its
+  initialization/main dispatch, instruction execution, ordinary combat dispatch, touch/shot/
+  bomb/Power-Bomb/grapple reactions, enemy projectiles, death, drops, and focused boss logic;
+- cartridge room headers and state selection, level/graphics/background loading, scrolling,
+  camera tracking, ordinary door transitions, colored doors, grey doors, item PLMs, scroll
+  PLMs, the translated breakable-block families, and the encounter-specific PLMs currently
+  used by translated bosses;
+- HUD, minimap exploration, pause map/equipment screens, SRAM encoding/checksums, file-select
+  save metadata, Ceres automatic save, gunship save/reload, and restoration of inventory and
+  world-state bits; and
+- software rendering of the translated BG/OAM/CGRAM/Mode-7/color-math paths used by the
+  implemented frontend and playable route; and
+- cartridge-derived audio: the translated SPC sequencer and SNES DSP/BRR mixer, retail
+  bank-$80 music/SFX queues and acknowledgements, and buffered Windows PCM playback.
+
+Enemy translation is not the current blocker. The exhaustive enemy audits load all named
+retail room-state populations and separately exercise lifecycle, direction, touch, weapon,
+grapple, projectile, death, and drop behavior. A focused enemy or boss audit is not proof that
+its entire retail room and surrounding game-state sequence are integrated, however.
+
+## Known incomplete systems
+
+These are implementation gaps, not merely missing tests:
+
+- Bank `$84` PLMs do not yet have one complete general room-population loader/interpreter.
+  Existing room loading scans for supported families individually. Save, map, energy-recharge,
+  and missile-recharge station PLMs are not implemented.
+- Arbitrary room setup code, room-main code, FX records, and X-ray room data are not generally
+  dispatched. Ceres and several encounter-specific paths have explicit translated owners.
+- Audio playback is connected for title/intro/room music and the translated sound publishers
+  used by the continuous playable slice. Later translated enemies still have older debugger-only
+  sound publications to migrate into the shared audio-request list as their rooms are connected.
+  The native core translates this game's SPC driver; it is not a general SPC700 CPU emulator.
+- Rendering is CPU-based and slow. It covers the paths already used by the playable slice and
+  focused audits, but it is not a complete cycle-accurate SNES PPU and does not yet reproduce
+  every room's HDMA, window, mosaic, priority, or special background behavior.
+- The top-level game dispatcher does not yet integrate reserve-tank recovery, the complete
+  fatal-damage/game-over/continue flow, time-up, demos, the final escape, ending, or credits.
+- Existing-save loading deliberately skips the untranslated native load-appearance presentation
+  and enters its stable standing endpoint.
+- Bosses and late-game systems with focused translations still need their surrounding rooms,
+  PLMs, room code, frontend states, and progression connected into continuous gameplay.
+
+Detailed Samus dispatcher routing and focused verification evidence are maintained in
+[`csharp/MOVEMENT_COVERAGE.md`](csharp/MOVEMENT_COVERAGE.md). Runnable-project details and the
+testing policy are in [`csharp/README.md`](csharp/README.md).
 
 ## Verified input
 
-`Super Metroid.smc` has been identified as the unheadered 3 MiB Japan/USA NTSC v1.0 ROM:
+`Super Metroid.smc` is the unheadered 3 MiB Japan/USA NTSC v1.0 ROM:
 
 | Digest | Value |
 | --- | --- |
@@ -12,40 +82,42 @@ This private workspace is for studying and translating the original Super Metroi
 | SHA-1 | `da957f0d63d14cb441d215462904c4fa8519c613` |
 | SHA-256 | `12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72` |
 
-It is a FastROM LoROM image. The reset vector is `$841C`; after reset the CPU begins at `$00:841C`, whose ROM mirror is conventionally written `$80:841C`.
+It is a FastROM LoROM image. The reset vector is `$841C`; execution begins at `$00:841C`,
+whose ROM mirror is conventionally written `$80:841C`.
 
-## Runnable workspaces
+## Workspaces
 
-- `standalone-native/` is the compiled native C port with its private ROM and SDL runtime. It has passed a headless game-loop smoke test.
-- `standalone-assets/raw/` contains 1,130 named ROM chunks; `standalone-assets/png/` contains 724 generated PNG/manifest files; `standalone-assets/rooms/LandingSite.png` is the composed 2304x1280 room; and `standalone-assets/runtime/` contains composed and transparent-layer frames rendered from the live C# VRAM/OAM/CGRAM model.
-- `csharp/SuperMetroid.slnx` contains the C# core, asset extractor, room viewer, translated-frame debug runner, and dependency-free verification executable. See `csharp/README.md` for launch instructions.
+- `csharp/` contains the actively developed C# game, core library, desktop controls, asset
+  extractor, room viewer, verification runner, and private-ROM debug runner.
+- `standalone-assets/raw/` contains named ROM chunks; `standalone-assets/png/` and
+  `standalone-assets/runtime/` contain inspectable PNG assets and rendered diagnostic layers.
+- `standalone-native/` contains the compiled native C reference and SDL runtime.
+- `upstream-disassembly/` and `upstream-sm/` are pinned source references used during
+  translation and differential inspection.
 
-The C# room viewer and translated subsystem runner work now: the frame tab combines recognizable ROM-composed Landing Site terrain with live cartridge-backed BG1/BG2/BG3, HUD, OAM, Samus animation, collision, camera, and minimap state. The movement runtime covers grounded, aimed, aerial, liquid, Morph/Spring Ball, wall-jump, grapple, knockback, Speed Booster, shinespark, Space Jump, Screw Attack, Crystal Flash, X-ray, death, Draygon, and the documented Mother Brain/Baby routes. Beams, charge, Hyper Beam, missiles, Super Missiles, normal bombs, and Power Bombs use ROM-authored producers, animation lists, damage, collision, trails or HDMA windows, terrain reactions, and cleanup. The Power Bomb path includes its sixty-frame fuse, expanding 4:3 block-border scan, five bank-$88 color phases, literal curve/shape tables, afterglow, and Crystal Flash handoff; Crystal Flash continues with its own short bank-$88 bubble/afterglow and split bank-$91 body/bubble palette cycles. The generic enemy loader now follows terminated `$A1/$B4/$A0` data, parses complete 64-byte definitions, stages both ordinary and encoded-address graphics, preserves native spawn snapshots/boss bookkeeping/empty-room behavior, and exposes unsupported definitions for honest inspection without dispatching their AI. Landing Site's three-part gunship additionally executes its real initialization/instruction lists and ROM-timed idle bob and renders through enemy layer two; Parlor's nineteen steam actors provide the second live population. Remaining work is tracked explicitly rather than replaced with guessed behavior: other room actor AI/instruction commands, enemy damage producers, projectile door/bombable/special branches, additional actors/effects, and remaining actor presentation seams. See [`csharp/MOVEMENT_COVERAGE.md`](csharp/MOVEMENT_COVERAGE.md) for the exact dispatcher matrix. The native C build remains the complete playable desktop reference.
+The game now builds a small x64 native audio DLL. Install the Visual Studio C++ x64 build tools
+(the `v145` toolset used by this workspace) in addition to the .NET 10 SDK. Then open
+`csharp/SuperMetroid.slnx` in Visual Studio, or run the game from `csharp/`:
 
-The complete type-`$4/$C` shootable-block dispatcher is connected to live beams, Wave,
-missiles, the Super Missile's linked collision slot, normal bombs, and the expanding Power
-Bomb border. It executes the cartridge's ordinary, power-bomb-gated, and Super-Missile-gated
-permanent/respawning bank-$84 programs, including their synthesized level words and exact
-sound/timer behavior. The remaining projectile block work is the door, bombable, and special
-families outside the translated bomb paths.
+```powershell
+dotnet run --project src/SuperMetroid.Game
+```
 
-The latest projectile checkpoint also translates the endgame Hyper Beam producer: the viewer's
-**Hyper Beam enabled** toggle and `--hyper-beam-script` exercise its literal `$9018` type,
-`$03E8` damage, sound `$1F`, native three-part flare, bank-$93 art, and trail-free Wave motion.
-The grant also spawns the real `$8D:E1F0` projectile-palette object: all ten eight-color
-records run at their cartridge-authored two-call cadence in CGRAM `$E1-$E8`. Enemy-hit/recoil
-integration remains a separate cross-system seam.
+The host locates the private ROM automatically, accepts one explicit ROM path, or honors the
+`SUPERMETROID_ROM` environment variable. Normal play continuously writes replayable controller
+sessions under `input-recordings/` beside the ROM; each recording includes the reset-time SRAM
+seed and ROM digest, and `csharp/README.md` documents the `--replay` command.
 
-## Pinned upstream references
+## Verification
 
-The large reference worktrees are deliberately not embedded as nested Git repositories. The local workspace used these exact revisions:
+```powershell
+dotnet build csharp/SuperMetroid.slnx
+dotnet run --project csharp/src/SuperMetroid.Verification
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-coverage-audit "Super Metroid.smc"
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-execution-audit "Super Metroid.smc"
+```
 
-- Annotated disassembly: `https://github.com/InsaneFirebat/sm_disassembly.git` at `362be646929cf8e483f692b73a6561cfc2dc1d0d`
-- Native C reconstruction: `https://github.com/snesrev/sm.git` at `578f90b3cc49557bb70060ad033bb90b8cf8ac50`
-
-## ROM-analysis tools
-
-The analyzer has no third-party dependencies and never modifies the ROM.
+The Python ROM analyzer remains dependency-free and never modifies the ROM:
 
 ```powershell
 python tools/rom_analyze.py "Super Metroid.smc" info
@@ -53,14 +125,23 @@ python tools/rom_analyze.py "Super Metroid.smc" disasm --address 00:841C --count
 python -m unittest discover -s tests -v
 ```
 
-The disassembler tracks the accumulator/index-width flags changed by `REP` and `SEP`. That matters on the 65C816: the same immediate instruction is two or three bytes long depending on processor state.
+## Pinned references
 
-## Translation strategy
+- Annotated disassembly: `https://github.com/InsaneFirebat/sm_disassembly.git` at
+  `362be646929cf8e483f692b73a6561cfc2dc1d0d`
+- Native C reconstruction: `https://github.com/snesrev/sm.git` at
+  `578f90b3cc49557bb70060ad033bb90b8cf8ac50`
 
-1. Establish ROM identity, address mapping, vectors, and reproducible extraction.
-2. Recover control flow and distinguish code from embedded tables.
-3. Name RAM, registers, routines, and data structures using observed behavior and existing annotated disassemblies as cross-checks.
-4. Translate one subsystem at a time into C# while retaining the SNES memory model at the boundary.
-5. Differentially test C# routines against the original 65C816 behavior, then replace hardware-facing layers deliberately.
+## Translation policy
 
-The sensible unit of progress is a bank or subsystem, not a whole-ROM machine-generated dump. A syntactic translation is easy to produce but hard to understand; the goal here is aggressively documented code with original ROM addresses, memory layouts, arithmetic-width behavior, and verification evidence beside the implementation.
+1. Identify the ROM and preserve 65C816 arithmetic widths and address mapping.
+2. Recover control flow and distinguish executable code from embedded data.
+3. Name state using the ROM, annotated disassembly, and native reconstruction as evidence.
+4. Translate a bounded subsystem while retaining original addresses, tables, and side effects.
+5. Verify routines with synthetic boundary checks and private-ROM execution audits.
+6. Connect proven subsystems into gameplay without replacing missing behavior with bespoke
+   room fixes.
+
+The sensible unit of implementation is a subsystem or native dispatcher family. Controller
+tests are reserved for practical room-local slices and a small number of retained integration
+routes; they are not the primary coverage mechanism for every room in the game.

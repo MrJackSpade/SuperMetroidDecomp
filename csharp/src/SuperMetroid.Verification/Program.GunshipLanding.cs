@@ -18,6 +18,7 @@ internal static partial class Program
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
         var cgram = new SnesCgram();
+        bool zebesTimebombSet = false;
 
         WriteEnemyDefinition(
             bus,
@@ -66,6 +67,13 @@ internal static partial class Program
         for (int index = 0; index < bounce.Length; index++)
             WriteWord(bus, 0xa2a622 + index * 2, unchecked((ushort)bounce[index]));
 
+        // Function 17 uploads five consecutive $400-byte dust-cloud chunks from bank $94.
+        for (int index = 0; index < 5; index++)
+        {
+            WriteWord(bus, 0xa2ac07 + index * 2, unchecked((ushort)(0x8000 + index * 0x0400)));
+            WriteWord(bus, 0xa2ac11 + index * 2, unchecked((ushort)(0x7600 + index * 0x0200)));
+        }
+
         // Bobbing begins only after the bounce. Durations and signed deltas are interleaved
         // bytes at the native odd address, so seed all four records explicitly.
         byte[] bob = [2, 1, 2, 0xff, 2, 1, 2, 0xff];
@@ -98,6 +106,8 @@ internal static partial class Program
             cgram,
             () => 0,
             samus: samus,
+            hasEvent: eventNumber =>
+                zebesTimebombSet && eventNumber == (int)EventNumber.ZebesTimebombSet,
             gunshipLoadScenario: GunshipLoadScenario.EscapingCeres);
 
         RoomEnemySlot top = enemies.Slots[0];
@@ -170,9 +180,51 @@ internal static partial class Program
         AssertTrue(!samus.InputLocked, "gunship completion restores Samus input handler");
         AssertEqual(0x0440, samus.YPosition, "gunship raises Samus to deck standing Y");
 
+        // Re-entering after Mother Brain's event takes the native function-17 branch at
+        // RestoreSamusInGunship: there is no refill wait, save prompt, or ordinary exit.
+        zebesTimebombSet = true;
+        var takeoffWrites = new VramWriteQueue();
+        enemies.StepFrame(
+            cameraX: 0x0400,
+            cameraY: 0x0400,
+            timeIsFrozen: false,
+            samus,
+            newlyPressedControllerInput: 0x0400,
+            vramWriteQueue: takeoffWrites);
+        AssertEqual(GunshipFrameEvent.EntryStarted, enemies.LastGunshipEvent,
+            "endgame Down input begins ordinary gunship entry");
+
+        int takeoffFrames = 0;
+        bool observedTakeoffStart = false;
+        while (enemies.LastGunshipEvent != GunshipFrameEvent.EscapeTakeoffCompleted &&
+               takeoffFrames < 900)
+        {
+            ushort takeoffCameraY = samus.YPosition > 120
+                ? unchecked((ushort)(samus.YPosition - 120))
+                : (ushort)0;
+            enemies.StepFrame(
+                cameraX: 0x0400,
+                cameraY: takeoffCameraY,
+                timeIsFrozen: false,
+                samus,
+                vramWriteQueue: takeoffWrites);
+            observedTakeoffStart |=
+                enemies.LastGunshipEvent == GunshipFrameEvent.EscapeTakeoffStarted;
+            takeoffFrames++;
+        }
+
+        AssertTrue(observedTakeoffStart,
+            "event $0E bypasses restoration and publishes takeoff start");
+        AssertEqual(GunshipFrameEvent.EscapeTakeoffCompleted, enemies.LastGunshipEvent,
+            "accelerating gunship publishes frontend state-$26 boundary");
+        AssertEqual(5, takeoffWrites.Entries.Count,
+            "takeoff queues all five cartridge dust-cloud tile chunks");
+        AssertTrue(top.YPosition < 0x0100,
+            "state-$26 boundary occurs after top hull passes Y=$0100");
+
         Console.WriteLine(
             "  Gunship landing: station-18 descent, rigid camera carrier, bounce, pad, " +
-            "Samus lift, and control handoff agree.");
+            "Samus lift, event-$0E takeoff, and state-$26 handoff agree.");
     }
 
     private static void WriteGunshipPopulationRecord(

@@ -163,6 +163,8 @@ public enum GunshipFrameEvent
     SavePromptAnswered,
     ExitPadClosing,
     ExitCompleted,
+    EscapeTakeoffStarted,
+    EscapeTakeoffCompleted,
 }
 
 /// <summary>

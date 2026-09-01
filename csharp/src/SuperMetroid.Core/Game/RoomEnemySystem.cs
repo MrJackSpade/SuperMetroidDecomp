@@ -1591,7 +1591,11 @@ public sealed partial class RoomEnemySystem
                 RunMagdolliteMain(slot, RequireMagdolliteState(slot), samus);
                 return;
             case 0xa2a759:
-                RunGunshipTopMain(slot, samus, newlyPressedControllerInput);
+                RunGunshipTopMain(
+                    slot,
+                    samus,
+                    newlyPressedControllerInput,
+                    vramWriteQueue);
                 return;
             case 0xa2879c when slot.EnemyDefinitionPointer == BoyonDefinition:
                 RunBoyonMain(slot, RequireBoyonState(slot), samus);
@@ -1984,7 +1988,8 @@ public sealed partial class RoomEnemySystem
     private void RunGunshipTopMain(
         RoomEnemySlot top,
         SamusState? samus,
-        ushort newlyPressedControllerInput)
+        ushort newlyPressedControllerInput,
+        VramWriteQueue? vramWriteQueue)
     {
         if (top.SlotIndex + 2 >= EnemyCount)
             throw new InvalidDataException("Gunship top is missing its two following component slots.");
@@ -2067,6 +2072,21 @@ public sealed partial class RoomEnemySystem
                         samus.InputLocked = false;
                     LastGunshipEvent = GunshipFrameEvent.ExitCompleted;
                 }
+                return;
+            case 0xabc7:
+                QueueGunshipTakeoffTiles(top, vramWriteQueue);
+                return;
+            case 0xac1b:
+                FireUpGunshipEngines(top, samus);
+                return;
+            case 0xacd7:
+                LiftGunshipAtConstantSpeed(top, samus);
+                return;
+            case 0xad0e:
+                AccelerateEscapingGunship(top, samus);
+                return;
+            case 0xad2d:
+                MoveEscapingGunship(top, samus);
                 return;
             default:
                 throw new InvalidDataException(
@@ -2239,6 +2259,21 @@ public sealed partial class RoomEnemySystem
     {
         if (samus is null)
             throw new InvalidOperationException("Gunship restoration lost its Samus actor.");
+
+        // Event $0E is set by Mother Brain's death sequence. Native bypasses every refill
+        // and save-prompt branch here, installs the takeoff tile uploader, and keeps the
+        // already hidden/input-locked Samus rigidly attached to the ship.
+        if (_hasEvent?.Invoke((int)EventNumber.ZebesTimebombSet) == true)
+        {
+            RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
+            top.VariableF = 0xabc7;
+            top.VariableB = 0;
+            bottom.VariableF = 0;
+            bottom.VariableE = 0;
+            LastGunshipEvent = GunshipFrameEvent.EscapeTakeoffStarted;
+            return;
+        }
+
         samus.Health = RestoreTwo(samus.Health, samus.MaxHealth);
         samus.Missiles = RestoreTwo(samus.Missiles, samus.MaxMissiles);
         samus.SuperMissiles = RestoreTwo(samus.SuperMissiles, samus.MaxSuperMissiles);
@@ -2269,6 +2304,109 @@ public sealed partial class RoomEnemySystem
         pad.CurrentInstruction = 0xa5ee;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.ExitPadClosing;
+    }
+
+    /// <summary>Ports gunship function 17 at <c>$A2:ABC7</c>.</summary>
+    private void QueueGunshipTakeoffTiles(
+        RoomEnemySlot top,
+        VramWriteQueue? vramWriteQueue)
+    {
+        if (vramWriteQueue is null)
+            throw new InvalidOperationException("Gunship takeoff requires the runtime VRAM queue.");
+
+        int transferIndex = top.VariableB;
+        if ((uint)transferIndex >= 5)
+            throw new InvalidDataException("Gunship takeoff tile index escaped its five-entry table.");
+        ushort source = ReadWord(_bus!, 0xa2ac07 + transferIndex * 2);
+        ushort destination = ReadWord(_bus!, 0xa2ac11 + transferIndex * 2);
+        vramWriteQueue.Enqueue(
+            sizeInBytes: 0x0400,
+            sourceAddress: 0x940000 | source,
+            encodedVramDestination: destination);
+
+        top.VariableB++;
+        if (top.VariableB >= 5)
+        {
+            top.VariableF = 0xac1b;
+            top.VariableB = 0;
+        }
+    }
+
+    /// <summary>Ports the 128-frame engine-rumble function at <c>$A2:AC1B</c>.</summary>
+    private void FireUpGunshipEngines(RoomEnemySlot top, SamusState? samus)
+    {
+        if (samus is null)
+            throw new InvalidOperationException("Gunship takeoff lost Samus.");
+        RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
+        RoomEnemySlot pad = _slots[top.SlotIndex + 2];
+        ushort rumbleFrame = bottom.VariableE;
+        int shake = (rumbleFrame & 1) != 0
+            ? (rumbleFrame < 64 ? 1 : 2)
+            : (rumbleFrame < 64 ? -1 : -2);
+        samus.YPosition = unchecked((ushort)(samus.YPosition + shake));
+        top.YPosition = unchecked((ushort)(samus.YPosition - 17));
+        pad.YPosition = unchecked((ushort)(top.YPosition - 1));
+        bottom.YPosition = unchecked((ushort)(samus.YPosition + 23));
+
+        bottom.VariableE++;
+        if (bottom.VariableE >= 128)
+        {
+            top.VariableF = 0xacd7;
+            top.VariableA = 0;
+        }
+    }
+
+    /// <summary>Ports constant two-pixel liftoff at <c>$A2:ACD7</c>.</summary>
+    private void LiftGunshipAtConstantSpeed(RoomEnemySlot top, SamusState? samus)
+    {
+        if (samus is null)
+            throw new InvalidOperationException("Gunship liftoff lost Samus.");
+        MoveGunshipAndSamusToY(top, samus, unchecked((ushort)(samus.YPosition - 2)));
+        if (IsNegative16(top.YPosition - 896))
+        {
+            top.VariableF = 0xad0e;
+            _slots[top.SlotIndex + 1].VariableF = 0x0200;
+        }
+    }
+
+    /// <summary>Ports the accelerating takeoff function at <c>$A2:AD0E</c>.</summary>
+    private void AccelerateEscapingGunship(RoomEnemySlot top, SamusState? samus)
+    {
+        MoveEscapingGunship(top, samus);
+        if (IsNegative16(top.YPosition - 256))
+        {
+            top.VariableF = 0xad2d;
+            LastGunshipEvent = GunshipFrameEvent.EscapeTakeoffCompleted;
+        }
+    }
+
+    /// <summary>Ports the shared 8.8 velocity integrator at <c>$A2:AD2D</c>.</summary>
+    private void MoveEscapingGunship(RoomEnemySlot top, SamusState? samus)
+    {
+        if (samus is null)
+            throw new InvalidOperationException("Escaping gunship lost Samus.");
+        RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
+        bottom.VariableF = unchecked((ushort)(bottom.VariableF + 0x0040));
+        if ((bottom.VariableF & 0xff00) >= 0x0a00)
+            bottom.VariableF = 0x0900;
+
+        uint samusY = samus.Kinematics.YFixed;
+        samusY = unchecked(samusY - ((uint)bottom.VariableF << 8));
+        samus.Kinematics.SetYFixed(samusY);
+        MoveGunshipAndSamusToY(top, samus, samus.YPosition);
+    }
+
+    private void MoveGunshipAndSamusToY(
+        RoomEnemySlot top,
+        SamusState samus,
+        ushort samusY)
+    {
+        samus.YPosition = samusY;
+        RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
+        RoomEnemySlot pad = _slots[top.SlotIndex + 2];
+        top.YPosition = unchecked((ushort)(samusY - 17));
+        pad.YPosition = unchecked((ushort)(top.YPosition - 1));
+        bottom.YPosition = unchecked((ushort)(samusY + 23));
     }
 
     private static ushort RestoreTwo(ushort current, ushort maximum)

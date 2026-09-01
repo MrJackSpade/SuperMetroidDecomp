@@ -6,6 +6,10 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>Cartridge-driven room loading kept separate from the gameplay-frame monolith.</summary>
 public sealed partial class SuperMetroidRuntime
 {
+    // The IRQ owns these coordinates while state $0B waits inside LoadMoreThings. Keep
+    // that ownership explicit instead of reducing the native scroll to a frontend timer.
+    private DoorOpeningScrollState? _doorOpeningScroll;
+
     /// <summary>The load-station record that most recently established this runtime.</summary>
     public LoadStationEntry? ActiveLoadStation { get; private set; }
 
@@ -253,15 +257,89 @@ public sealed partial class SuperMetroidRuntime
         return false;
     }
 
-    /// <summary>Native door-opening scroll duration for this runtime's translated endpoint.</summary>
-    public int PendingDoorOpeningFrameCount => PendingDoorTransition is { } door
-        ? ((door.Orientation & 2) != 0 ? 64 : 56)
-        : throw new InvalidOperationException("No pending door exists to scroll.");
-
     /// <summary>CRE bitset selected from the pending door's destination room header.</summary>
     public byte PendingDoorDestinationCreBitset => PendingDoorTransition is { } door
         ? LoadCartridgeRoomHeader(door.DestinationRoomPointer).CreBitset
         : throw new InvalidOperationException("No pending door destination exists.");
+
+    /// <summary>
+    /// Rewinds an atomically loaded destination to the position established by
+    /// <c>DoorTransitionScrollingSetup</c> and <c>PlaceSamusLoadTiles</c>.
+    /// </summary>
+    /// <remarks>
+    /// The room constructor necessarily loads tiles, PLMs, FX, and enemies in one host
+    /// operation. Native code performs those operations while the door-opening IRQ is
+    /// already active. Capturing the source fixed coordinates before that constructor and
+    /// rewinding only the four IRQ-owned coordinate pairs preserves the same observable
+    /// trajectory without pretending the loader itself is incremental.
+    /// </remarks>
+    internal void BeginDoorOpeningScroll(
+        CartridgeDoorHeader door,
+        uint sourceSamusXFixed,
+        uint sourceSamusYFixed)
+    {
+        if (Camera is null || Samus is null)
+            throw new InvalidOperationException("A loaded destination and Samus are required.");
+        if (_doorOpeningScroll is not null)
+            throw new InvalidOperationException("A door-opening scroll is already active.");
+
+        _doorOpeningScroll = DoorOpeningScrollState.Create(
+            door,
+            sourceSamusXFixed,
+            sourceSamusYFixed,
+            Camera.XPosition,
+            Camera.YPosition,
+            BackgroundScroll.Layer2XPosition,
+            BackgroundScroll.Layer2YPosition,
+            Samus.Kinematics.XFixed,
+            Samus.Kinematics.YFixed);
+        Camera.SetPosition(_doorOpeningScroll.CameraX, _doorOpeningScroll.CameraY);
+        BackgroundScroll.Layer1XPosition = _doorOpeningScroll.CameraX;
+        BackgroundScroll.Layer1YPosition = _doorOpeningScroll.CameraY;
+        BackgroundScroll.Layer2XPosition = _doorOpeningScroll.Layer2X;
+        BackgroundScroll.Layer2YPosition = _doorOpeningScroll.Layer2Y;
+        _ = BackgroundScroll.CalculateScrollsAndUpdates();
+        Samus.Kinematics.SetXFixed(_doorOpeningScroll.SamusXFixed);
+        Samus.Kinematics.SetYFixed(_doorOpeningScroll.SamusYFixed);
+    }
+
+    /// <summary>
+    /// Runs one <c>Irq_FollowDoorTransition</c> coordinate update. True means the IRQ set
+    /// bit $8000 in <c>door_transition_flag</c> on this call.
+    /// </summary>
+    internal bool StepDoorOpeningScroll()
+    {
+        DoorOpeningScrollState state = _doorOpeningScroll
+            ?? throw new InvalidOperationException("No door-opening scroll is active.");
+        if (Camera is null || Samus is null)
+            throw new InvalidOperationException("Door-opening scroll lost its room actors.");
+        bool completed = state.Advance();
+        Camera.SetPosition(state.CameraX, state.CameraY);
+        BackgroundScroll.Layer1XPosition = state.CameraX;
+        BackgroundScroll.Layer1YPosition = state.CameraY;
+        BackgroundScroll.Layer2XPosition = state.Layer2X;
+        BackgroundScroll.Layer2YPosition = state.Layer2Y;
+        _ = BackgroundScroll.CalculateScrollsAndUpdates();
+        Samus.Kinematics.SetXFixed(state.SamusXFixed);
+        Samus.Kinematics.SetYFixed(state.SamusYFixed);
+        return completed;
+    }
+
+    /// <summary>
+    /// Applies <c>$82:E6A2</c>'s doorway alignment after music has drained, then releases
+    /// the temporary IRQ-owned trajectory. This is deliberately later than the scroll.
+    /// </summary>
+    internal void FinishDoorOpeningScroll()
+    {
+        DoorOpeningScrollState state = _doorOpeningScroll
+            ?? throw new InvalidOperationException("No door-opening scroll is active.");
+        if (state.RemainingFrames != 0 || Samus is null)
+            throw new InvalidOperationException("Door-opening scroll has not reached its endpoint.");
+
+        Samus.Kinematics.SetXFixed(state.FinalSamusXFixed);
+        Samus.Kinematics.SetYFixed(state.FinalSamusYFixed);
+        _doorOpeningScroll = null;
+    }
 
     /// <summary>
     /// Loads the destination selected by the live room's type-$9 collision. This is the

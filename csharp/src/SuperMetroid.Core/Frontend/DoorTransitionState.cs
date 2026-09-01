@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Frontend;
@@ -18,7 +19,9 @@ public sealed class DoorTransitionState
 {
     private CartridgePaletteTransition? paletteTransition;
     private ushort[]? fadedSourcePalette;
-    private int openingFramesRemaining;
+    private CartridgeDoorHeader? door;
+    private uint sourceSamusXFixed;
+    private uint sourceSamusYFixed;
 
     public DoorTransitionPhase Phase { get; private set; } = DoorTransitionPhase.Inactive;
 
@@ -33,11 +36,13 @@ public sealed class DoorTransitionState
             throw new InvalidOperationException("A door transition is already active.");
 
         runtime.Samus.InputLocked = true;
+        door = runtime.PendingDoorTransition;
+        sourceSamusXFixed = runtime.Samus.Kinematics.XFixed;
+        sourceSamusYFixed = runtime.Samus.Kinematics.YFixed;
         paletteTransition = new CartridgePaletteTransition(
             BuildSourceFadeTarget(runtime),
             denominator: 12);
         fadedSourcePalette = null;
-        openingFramesRemaining = 0;
         Phase = DoorTransitionPhase.WaitForSoundQueues;
     }
 
@@ -63,20 +68,54 @@ public sealed class DoorTransitionState
             case DoorTransitionPhase.FadeOutSourcePalette:
                 runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 if (paletteTransition!.Step(runtime.Cgram))
-                    Phase = DoorTransitionPhase.AlignSourceCamera;
+                    Phase = DoorTransitionPhase.LoadDoorHeader;
+                break;
+
+            case DoorTransitionPhase.LoadDoorHeader:
+                // `$82:E2F7` parses the already selected bank-$83 header, disables HDMA,
+                // and points the IRQ dispatcher at the door-scrolling handler. The typed
+                // header was captured by Begin; retaining this separate call preserves the
+                // coroutine boundary and its one accepted NMI.
+                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                Phase = DoorTransitionPhase.AlignSourceCamera;
                 break;
 
             case DoorTransitionPhase.AlignSourceCamera:
                 runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 if (runtime.AlignPendingDoorCameraOnePixel())
-                    Phase = DoorTransitionPhase.LoadDestination;
+                    Phase = DoorTransitionPhase.FixDoorsMovingUp;
                 break;
 
-            case DoorTransitionPhase.LoadDestination:
-                // SetupScrolling fixes this count before PlaceSamusLoadTiles consumes the
-                // pending header. Preserve it now, then let the existing cartridge loader
-                // perform room/state/FX/PLM/enemy/background setup atomically under black.
-                openingFramesRemaining = runtime.PendingDoorOpeningFrameCount;
+            case DoorTransitionPhase.FixDoorsMovingUp:
+                // The upward-only staging correction changes previous block coordinates,
+                // not the final host framebuffer. Its coordinate consequence is included
+                // by BeginDoorOpeningScroll's +$FF origin.
+                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                Phase = DoorTransitionPhase.SetupNewRoom;
+                break;
+
+            case DoorTransitionPhase.SetupNewRoom:
+                // Room/state/FX/level setup is atomic in LoadPendingDoorDestination, but
+                // native exposes this function separately from scrolling and tile upload.
+                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                Phase = DoorTransitionPhase.SetupScrolling;
+                break;
+
+            case DoorTransitionPhase.SetupScrolling:
+                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                Phase = DoorTransitionPhase.PlaceSamusAndLoadTiles;
+                break;
+
+            case DoorTransitionPhase.PlaceSamusAndLoadTiles:
+                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                Phase = DoorTransitionPhase.LoadMoreThingsAndOpenDoor;
+                break;
+
+            case DoorTransitionPhase.LoadMoreThingsAndOpenDoor:
+                // LoadMoreThings initializes enemy graphics/music/projectiles/animtiles,
+                // PLMs, FX, backgrounds, and then yields once per NMI until the IRQ raises
+                // door_transition_flag bit $8000. The host room constructor performs that
+                // setup atomically; its following calls now run the real coordinate path.
                 fadedSourcePalette = runtime.Cgram.Colors.ToArray();
                 runtime.LoadPendingDoorDestination();
 
@@ -87,6 +126,10 @@ public sealed class DoorTransitionState
                 runtime.StepFrame(controller1Input: 0, advanceGameTime: false);
                 ushort[] destinationTarget = runtime.Cgram.Colors.ToArray();
                 RestorePalette(runtime.Cgram, fadedSourcePalette);
+                runtime.BeginDoorOpeningScroll(
+                    door ?? throw new InvalidOperationException("Door header was not captured."),
+                    sourceSamusXFixed,
+                    sourceSamusYFixed);
                 if (runtime.IconCancelEnabled && runtime.Samus is { } samus)
                 {
                     // ResetProjectileData checks `$09EA` after clearing all projectile
@@ -97,12 +140,12 @@ public sealed class DoorTransitionState
                 paletteTransition = new CartridgePaletteTransition(
                     destinationTarget,
                     denominator: 12);
-                Phase = DoorTransitionPhase.OpenDoorAndScroll;
+                Phase = DoorTransitionPhase.WaitForDoorOpeningScroll;
                 break;
 
-            case DoorTransitionPhase.OpenDoorAndScroll:
+            case DoorTransitionPhase.WaitForDoorOpeningScroll:
                 runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-                if (--openingFramesRemaining <= 0)
+                if (runtime.StepDoorOpeningScroll())
                     Phase = DoorTransitionPhase.HandleAnimatedTiles;
                 break;
 
@@ -116,7 +159,16 @@ public sealed class DoorTransitionState
             case DoorTransitionPhase.WaitForMusicQueue:
                 runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 if (!audio.HasQueuedMusic)
-                    Phase = DoorTransitionPhase.FadeInDestinationPalette;
+                    Phase = DoorTransitionPhase.HandleTransition;
+                break;
+
+            case DoorTransitionPhase.HandleTransition:
+                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                // `$82:E6A2` applies the narrow-door X/Y nudges only after the opening IRQ
+                // and music queue are both complete. The atomic loader computed that exact
+                // endpoint, which is restored here rather than during the visible scroll.
+                runtime.FinishDoorOpeningScroll();
+                Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 break;
 
             case DoorTransitionPhase.FadeInDestinationPalette:
@@ -174,11 +226,17 @@ public enum DoorTransitionPhase
     Inactive,
     WaitForSoundQueues,
     FadeOutSourcePalette,
+    LoadDoorHeader,
     AlignSourceCamera,
-    LoadDestination,
-    OpenDoorAndScroll,
+    FixDoorsMovingUp,
+    SetupNewRoom,
+    SetupScrolling,
+    PlaceSamusAndLoadTiles,
+    LoadMoreThingsAndOpenDoor,
+    WaitForDoorOpeningScroll,
     HandleAnimatedTiles,
     WaitForMusicQueue,
+    HandleTransition,
     FadeInDestinationPalette,
     Complete,
 }

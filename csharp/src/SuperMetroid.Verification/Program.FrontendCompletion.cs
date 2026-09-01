@@ -3,6 +3,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
@@ -122,6 +124,137 @@ static void VerifyReserveAutoRecovery()
     AssertTrue(clamped.Completed, "maximum-energy branch completes state $1B");
 
     Console.WriteLine("  Reserve tanks: lock, one-point transfer, sound cadence, exhaustion, and clamp agree.");
+}
+
+static void VerifyDoorOpeningTrajectories()
+{
+    // Door destination screens are multiplied by $100. Up is the only direction whose
+    // IRQ endpoint is destination+$20; the other three finish on the header coordinate.
+    const ushort destinationX = 0x0300;
+    const ushort destinationY = 0x0200;
+    const uint sourceX = 0x00a5_4000;
+    const uint sourceY = 0x0073_8000;
+    const uint postNudgeX = 0x0318_4000;
+    const uint postNudgeY = 0x0218_8000;
+
+    for (int direction = 0; direction < 4; direction++)
+    {
+        var door = new CartridgeDoorHeader(
+            Pointer: 0x8000,
+            DestinationRoomPointer: 0x9000,
+            BitFlags: 0,
+            Orientation: (byte)direction,
+            PlmX: 0,
+            PlmY: 0,
+            DestinationScreenX: 3,
+            DestinationScreenY: 2,
+            SamusDistance: 0x0100,
+            SetupCodePointer: 0);
+        ushort finalCameraY = direction == 3
+            ? (ushort)(destinationY + 0x20)
+            : destinationY;
+        var trajectory = DoorOpeningScrollState.Create(
+            door,
+            sourceX,
+            sourceY,
+            destinationX,
+            finalCameraY,
+            finalLayer2X: 0x0180,
+            finalLayer2Y: 0x0140,
+            finalSamusXFixed: postNudgeX,
+            finalSamusYFixed: postNudgeY);
+
+        int expectedFrames = direction < 2 ? 63 : 56;
+        AssertEqual(expectedFrames, trajectory.RemainingFrames,
+            $"door direction {direction} remaining IRQ calls after setup");
+        AssertEqual(direction switch
+        {
+            0 => (ushort)(destinationX - 252),
+            1 => (ushort)(destinationX + 252),
+            _ => destinationX,
+        }, trajectory.CameraX, $"door direction {direction} initial camera X");
+        AssertEqual(direction switch
+        {
+            2 => (ushort)(destinationY - 224),
+            3 => (ushort)(destinationY + 255),
+            _ => destinationY,
+        }, trajectory.CameraY, $"door direction {direction} initial camera Y");
+
+        ushort previousCamera = direction < 2 ? trajectory.CameraX : trajectory.CameraY;
+        for (int frame = 0; frame < expectedFrames; frame++)
+        {
+            bool completed = trajectory.Advance();
+            AssertEqual(frame == expectedFrames - 1, completed,
+                $"door direction {direction} completion call");
+            ushort currentCamera = direction < 2 ? trajectory.CameraX : trajectory.CameraY;
+            if (frame != expectedFrames - 1)
+            {
+                short delta = unchecked((short)(currentCamera - previousCamera));
+                AssertEqual(direction is 0 or 2 ? (short)4 : (short)-4, delta,
+                    $"door direction {direction} per-IRQ camera delta");
+            }
+            previousCamera = currentCamera;
+        }
+
+        AssertEqual(destinationX, trajectory.CameraX,
+            $"door direction {direction} final camera X");
+        AssertEqual(finalCameraY, trajectory.CameraY,
+            $"door direction {direction} final camera Y");
+        AssertEqual(0, trajectory.RemainingFrames,
+            $"door direction {direction} exhausts IRQ frame count");
+        AssertTrue(
+            trajectory.SamusXFixed != trajectory.FinalSamusXFixed ||
+            trajectory.SamusYFixed != trajectory.FinalSamusYFixed,
+            $"door direction {direction} leaves $82:E6A2 nudge for its later phase");
+    }
+
+    Console.WriteLine(
+        "  Doors: all four IRQ trajectories, frame counts, endpoints, and delayed nudge agree.");
+}
+
+static void VerifyCreditsObjectInterpreter()
+{
+    var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
+    WriteRepeatedCompressedStream(rom, 0x97eeff, 0x2000, 0);
+
+    // A compact stream exercises all production control-flow opcodes: timer assignment,
+    // a looping row, timer exhaustion/fallthrough, another row, and the end-credits seam.
+    WriteRomWord(rom, 0x8cd91b, 0x9a17);
+    WriteRomWord(rom, 0x8cd91d, 0x0002);
+    WriteRomWord(rom, 0x8cd91f, 0x0000);
+    WriteRomWord(rom, 0x8cd921, 0x0000);
+    WriteRomWord(rom, 0x8cd923, 0x9a0d);
+    WriteRomWord(rom, 0x8cd925, 0xd91f);
+    WriteRomWord(rom, 0x8cd927, 0x0000);
+    WriteRomWord(rom, 0x8cd929, 0x0040);
+    WriteRomWord(rom, 0x8cd92b, 0xf6fe);
+
+    var credits = new CreditsObjectState(new SuperMetroidAddressSpace(rom));
+    for (int frame = 0; frame < 15; frame++)
+        AssertTrue(!credits.Step().CopiedRow, "credits waits sixteen half-pixel frames");
+    CreditsObjectStepResult first = credits.Step();
+    AssertTrue(first.CopiedRow, "credits copies first row at eight-pixel boundary");
+    AssertEqual(1, credits.DestinationRow, "credits advances circular destination row");
+    AssertEqual((ushort)2, credits.InstructionTimer, "credits timer is assigned before first row");
+
+    for (int frame = 0; frame < 16; frame++)
+        credits.Step();
+    AssertEqual(2, credits.DestinationRow, "credits loop copies the repeated source row");
+    AssertEqual((ushort)1, credits.InstructionTimer, "first decrement retains loop");
+
+    for (int frame = 0; frame < 16; frame++)
+        credits.Step();
+    AssertEqual(3, credits.DestinationRow, "expired timer falls through to next row");
+    AssertEqual((ushort)0, credits.InstructionTimer, "credits loop timer exhausts exactly");
+
+    CreditsObjectStepResult ending = default;
+    for (int frame = 0; frame < 16; frame++)
+        ending = credits.Step();
+    AssertTrue(ending.Finished && !credits.Enabled,
+        "end-credits opcode disables the row object at its next boundary");
+
+    Console.WriteLine(
+        "  Credits: half-pixel scroll, circular rows, timer loop, fallthrough, and end opcode agree.");
 }
 
 private static void PressOptions(GameOptionsMenuState options, SnesButton button)

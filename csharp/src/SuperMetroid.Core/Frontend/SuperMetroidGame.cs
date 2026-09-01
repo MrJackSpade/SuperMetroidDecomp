@@ -29,6 +29,7 @@ public sealed class SuperMetroidGame
     private GameOverMenuState? gameOver;
     private IntroCinematicState? intro;
     private CeresDestructionCinematicState? ceresDestruction;
+    private EndingCreditsState? endingCredits;
     private PauseMenuState? pauseMenu;
     private SuperMetroidRuntime? runtime;
     private readonly CeresDepartureState ceresDeparture = new();
@@ -44,6 +45,8 @@ public sealed class SuperMetroidGame
     private CartridgePaletteTransition? deathPaletteFade;
     private byte deathFadeBrightness = 15;
     private int deathFadeCounter;
+    private byte endingFadeBrightness = 15;
+    private int endingFadeCounter;
     private IReadOnlyList<CartridgeAudioCommand> lastAudioCommands =
         Array.Empty<CartridgeAudioCommand>();
     private CartridgeAudioAcknowledgements audioAcknowledgements;
@@ -336,6 +339,16 @@ public sealed class SuperMetroidGame
                     // `$82:DB69` publishes the next outer state at the end of this already-
                     // completed gameplay call. Nothing else may replace it on the trigger
                     // frame—not pause, an elevator handoff, or a pending ordinary door.
+                }
+                else if (runtime.Enemies.LastGunshipEvent == GunshipFrameEvent.EscapeTakeoffCompleted)
+                {
+                    // Gunship function $A2:AD0E writes game state $26 only after the top
+                    // hull has crossed Y=$0100. State eight has already completed on this
+                    // publication frame; the following call owns the gameplay fade.
+                    endingFadeBrightness = 15;
+                    endingFadeCounter = 0;
+                    runtime.GameplayTimeFrozen = true;
+                    GameState = SuperMetroidGameState.SamusEscapesFromZebes;
                 }
                 else if (CanEnterPause())
                 {
@@ -715,6 +728,51 @@ public sealed class SuperMetroidGame
                     GameState = SuperMetroidGameState.MainGameplay;
                 break;
 
+            case SuperMetroidGameState.SamusEscapesFromZebes:
+                // State $26 calls the complete state-eight gameplay coroutine before
+                // HandleFadeOut. The fleeing gunship, room animations, and APU publishers
+                // therefore continue behind every darkening frame.
+                runtime!.StepFrame(controllerInput, advanceGameTime: false);
+                lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+                if (endingFadeCounter-- <= 0)
+                {
+                    endingFadeCounter = 1;
+                    endingFadeBrightness = (byte)Math.Max(0, endingFadeBrightness - 1);
+                }
+                MasterBrightnessFilter.Apply(lastPixels, endingFadeBrightness);
+                if (endingFadeBrightness == 0)
+                {
+                    // $82:84D3-$8527 resets PPU ownership, stops the escape timer/music,
+                    // cancels all three SFX libraries, and publishes state $27. The new
+                    // state performs its own cartridge-backed setup on the following call.
+                    audio.QueueMusicDelayed8(0);
+                    audio.QueueSound(library: 1, soundId: 0x02, maximumQueued: 15);
+                    audio.QueueSound(library: 2, soundId: 0x71, maximumQueued: 15);
+                    audio.QueueSound(library: 3, soundId: 0x01, maximumQueued: 15);
+                    endingCredits = new EndingCreditsState(
+                        bus,
+                        audio,
+                        runtime.GameTime.Hours,
+                        runtime.GameTime.Minutes,
+                        new EndingInventorySnapshot(
+                            runtime.Samus?.MaxHealth ?? 0,
+                            runtime.Samus?.MaxReserveEnergy ?? 0,
+                            runtime.Samus?.MaxMissiles ?? 0,
+                            runtime.Samus?.MaxSuperMissiles ?? 0,
+                            runtime.Samus?.MaxPowerBombs ?? 0,
+                            runtime.Samus?.CollectedItems ?? 0,
+                            runtime.Samus?.CollectedBeams ?? 0),
+                        runtime.JapaneseText);
+                    GameState = SuperMetroidGameState.EndingAndCredits;
+                    lastPixels = CreateBlackFrame();
+                }
+                break;
+
+            case SuperMetroidGameState.EndingAndCredits:
+                endingCredits!.Step();
+                lastPixels = endingCredits.Render();
+                break;
+
             default:
                 // GameState has a private setter and every translated producer writes one
                 // of the explicit states above. Pause/death/ending will gain named cases as
@@ -833,6 +891,10 @@ public sealed class SuperMetroidGame
         SuperMetroidGameState.HitDoorBlock => "Door collision",
         SuperMetroidGameState.LoadingNextRoomA => "Loading destination room",
         SuperMetroidGameState.LoadingNextRoomB => "Destination room ready",
+        SuperMetroidGameState.SamusEscapesFromZebes =>
+            $"Zebes escape fade-out ({endingFadeBrightness})",
+        SuperMetroidGameState.EndingAndCredits =>
+            $"Ending: {endingCredits?.Phase}",
         SuperMetroidGameState.PausingDarkening =>
             $"Pausing: gameplay darken ({pauseBrightness})",
         SuperMetroidGameState.Pausing => "Pausing: load pause assets",

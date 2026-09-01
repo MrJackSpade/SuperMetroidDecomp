@@ -38,7 +38,11 @@ The following large subsystem passes are implemented:
 - software rendering of the translated BG/OAM/CGRAM/Mode-7/color-math paths used by the
   implemented frontend and playable route; and
 - cartridge-derived audio: the translated SPC sequencer and SNES DSP/BRR mixer, retail
-  bank-$80 music/SFX queues and acknowledgements, and buffered Windows PCM playback.
+  bank-$80 music/SFX queues and acknowledgements, and buffered Windows PCM playback; and
+- the outer frontend paths for options submenus, reserve-tank recovery, fatal damage,
+  game-over/continue, the full four-direction door-opening scroll, successful Zebes escape,
+  the bank-$8B ending, ROM-row credits, time-selected post-credit reward, item percentage,
+  and final message.
 
 Enemy translation is not the current blocker. The exhaustive enemy audits load all named
 retail room-state populations and separately exercise lifecycle, direction, touch, weapon,
@@ -61,15 +65,16 @@ These are implementation gaps, not merely missing tests:
   frontend fixes; they retain only the final same-family call if several overwrite the field in
   one frame. New/direct publishers use a lossless per-frame request list. The native core
   translates this game's SPC driver; it is not a general SPC700 CPU emulator.
-- Audio owned by untranslated outer systems cannot run yet: reserve-tank auto-refill,
-  game-over/continue, ending/credits, the unimplemented options submenus, and the remainder of
-  the retail door-transition coroutine. Their absence is an owner/dispatcher gap, not an audio
-  mixer or queue gap.
+- Audio calls owned by the translated outer frontend states now use the same cartridge queue as
+  gameplay. Remaining absent calls belong to still-untranslated time-up/demo paths, not to a
+  separate mixer or host-sample fallback.
 - Rendering is CPU-based and slow. It covers the paths already used by the playable slice and
   focused audits, but it is not a complete cycle-accurate SNES PPU and does not yet reproduce
   every room's HDMA, window, mosaic, priority, or special background behavior.
-- The top-level game dispatcher does not yet integrate reserve-tank recovery, the complete
-  fatal-damage/game-over/continue flow, time-up, demos, the final escape, ending, or credits.
+- The top-level game dispatcher still lacks the time-up and attract-mode demo families. Reserve
+  recovery, fatal damage/game-over/continue, final escape, ending, credits, and post-credits are
+  integrated; reaching the final escape through every intervening room still depends on the
+  general room/PLM/setup gaps listed above.
 - Existing-save loading deliberately skips the untranslated native load-appearance presentation
   and enters its stable standing endpoint.
 - Bosses and late-game systems with focused translations still need their surrounding rooms,

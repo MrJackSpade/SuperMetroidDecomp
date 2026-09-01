@@ -41,6 +41,7 @@ VerifyControllerBindingsAndOptionsSubmenus();
 VerifyReserveAutoRecovery();
 VerifyDoorOpeningTrajectories();
 VerifyCreditsObjectInterpreter();
+VerifyEndingCreditsState();
 VerifyGenericGamepadInput();
 VerifyDemoInputObject();
 VerifyFrameRuntime();

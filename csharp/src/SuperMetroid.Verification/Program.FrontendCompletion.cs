@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -255,6 +256,93 @@ static void VerifyCreditsObjectInterpreter()
 
     Console.WriteLine(
         "  Credits: half-pixel scroll, circular rows, timer loop, fallthrough, and end opcode agree.");
+}
+
+static void VerifyEndingCreditsState()
+{
+    string romPath = Path.GetFullPath("Super Metroid.smc");
+    if (!File.Exists(romPath))
+    {
+        Console.WriteLine("  Ending: retail-ROM state-$27 smoke test skipped (ROM not present).");
+        return;
+    }
+
+    byte[] rom = File.ReadAllBytes(romPath);
+    if (rom.Length != SuperMetroidAddressSpace.RetailRomByteCount)
+    {
+        throw new InvalidDataException(
+            $"Ending smoke-test ROM is ${rom.Length:X} bytes; expected headerless retail size " +
+            $"${SuperMetroidAddressSpace.RetailRomByteCount:X}.");
+    }
+
+    var bus = new SuperMetroidAddressSpace(rom);
+    var audio = new SuperMetroid.Core.Audio.CartridgeAudioState();
+    var ending = new EndingCreditsState(bus, audio, gameTimeHours: 2, gameTimeMinutes: 59);
+    EndingCreditsPhase previous = ending.Phase;
+    var reached = new HashSet<EndingCreditsPhase> { previous };
+    int renderedTransitions = 0;
+
+    for (int frame = 0; frame < 60_000 && ending.Phase != EndingCreditsPhase.SeeYouNextMission; frame++)
+    {
+        ending.Step();
+        audio.AdvanceFrame(bus, default);
+        if (ending.Phase != previous)
+        {
+            previous = ending.Phase;
+            reached.Add(previous);
+            Rgba32[] pixels = ending.Render();
+            AssertEqual(FrontendFrame.Width * FrontendFrame.Height, pixels.Length,
+                $"ending {previous} frame size");
+            renderedTransitions++;
+        }
+    }
+
+    AssertEqual(EndingCreditsPhase.SeeYouNextMission, ending.Phase,
+        "ending reaches the retail final hold state");
+    AssertTrue(reached.Contains(EndingCreditsPhase.ZebesExplosionAnimation),
+        "ending executes the sprite-opcode-driven Zebes explosion");
+    AssertTrue(reached.Contains(EndingCreditsPhase.OperationSuccessfulText),
+        "ending executes the cartridge clear-time text chain");
+    AssertTrue(reached.Contains(EndingCreditsPhase.Credits),
+        "ending executes the ROM credits row stream");
+    AssertTrue(reached.Contains(EndingCreditsPhase.PostCreditsReward),
+        "ending executes the time-selected reward screen");
+    AssertTrue(renderedTransitions >= 20,
+        "ending renders each materially different cartridge phase");
+
+    var middle = new EndingCreditsState(bus, audio, gameTimeHours: 3, gameTimeMinutes: 0);
+    var slow = new EndingCreditsState(bus, audio, gameTimeHours: 10, gameTimeMinutes: 0);
+    AssertEqual(EndingReward.Suitless, ending.EndingReward, "under-three-hour ending branch");
+    AssertEqual(EndingReward.Helmetless, middle.EndingReward, "three-to-ten-hour ending branch");
+    AssertEqual(EndingReward.Armored, slow.EndingReward, "ten-hour ending branch");
+
+    var percentageTilemap = new ushort[0x400];
+    Array.Fill(percentageTilemap, (ushort)0x007f);
+    var percentage = new EndingBackgroundTextState(
+        bus,
+        percentageTilemap,
+        instructionPointer: 0xdfdb,
+        new EndingInventorySnapshot(
+            MaxHealth: 1499,
+            MaxReserveEnergy: 400,
+            MaxMissiles: 230,
+            MaxSuperMissiles: 50,
+            MaxPowerBombs: 50,
+            CollectedItems: 0xf32f,
+            CollectedBeams: 0x100f),
+        japaneseText: false);
+    var percentageVram = new SnesVram();
+    for (int frame = 0; frame < 4_000 && !percentage.Completed; frame++)
+        percentage.Step(percentageVram);
+    AssertTrue(percentage.Completed && percentage.RequestedItemPercentageScroll,
+        "item-percentage object reaches its native scroll handoff");
+    AssertEqual((ushort)0x3861, percentageTilemap[462], "100% hundreds top tile");
+    AssertEqual((ushort)0x3860, percentageTilemap[463], "100% tens top tile");
+    AssertEqual((ushort)0x3860, percentageTilemap[464], "100% units top tile");
+    AssertEqual((ushort)0x386a, percentageTilemap[465], "100% percent-sign top tile");
+
+    Console.WriteLine(
+        "  Ending: escape, explosion, clear time, credits, rewards, 100% count, and final hold agree.");
 }
 
 private static void PressOptions(GameOptionsMenuState options, SnesButton button)

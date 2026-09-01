@@ -184,12 +184,14 @@ not general yet.
 
 The connected top-level states cover reset/title, file select, options, opening cinematic,
 new-game setup, Ceres handoff/destruction, load-station entry, gameplay fade-in, main gameplay,
-door loading, and the pause/equipment/map transition cycle.
+all four native door-opening scrolls, the pause/equipment/map transition cycle, reserve-tank
+automatic recovery, fatal damage, game-over/continue, successful Zebes escape, the ending,
+credits, time-selected reward, item percentage, and final message.
 
-The following top-level paths are not integrated: reserve-tank automatic recovery, the full
-fatal-damage acquisition/music-wait and game-over/continue flow, time-up, demos, final escape,
-ending, and credits. Focused translations of Samus death or Mother Brain do not replace those
-outer dispatcher states.
+The remaining top-level dispatcher gaps are time-up and the attract-mode demo family. Continuous
+play from the current early-game route to the final escape still depends on general room setup,
+room-main, PLM, station, and progression work; that is distinct from the now-integrated ending
+state family itself.
 
 ### Rendering and audio
 
@@ -218,11 +220,10 @@ legacy nullable debugger fields can retain only the final same-family call when 
 one another in a frame; migrating their individual call sites remains a fidelity cleanup, not a
 prerequisite for hearing those systems.
 
-This does not claim sound for untranslated game states. Reserve-tank auto-refill,
-game-over/continue, ending/credits, the controller/special-settings options submenus, and the
-remainder of the retail door-transition fade/scroll/wait coroutine do not yet have integrated
-owners capable of publishing their audio calls. The native implementation translates Super
-Metroid's SPC program; it is intentionally not a general-purpose SPC700 instruction emulator.
+Reserve-tank auto-refill, game-over/continue, ending/credits, both options submenus, and the full
+door-transition fade/scroll/wait owner now publish through the shared retail queue. Time-up and
+demo-only calls remain absent with those untranslated states. The native implementation translates
+Super Metroid's SPC program; it is intentionally not a general-purpose SPC700 instruction emulator.
 
 For a non-device smoke test that loads the private ROM, runs the real initial upload/music
 sequence, and proves the mixer produced nonzero PCM:

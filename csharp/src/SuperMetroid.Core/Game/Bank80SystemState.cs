@@ -56,6 +56,26 @@ public sealed class Bank80SystemState
     /// </summary>
     public const int DoorBitByteCount = 0x40;
 
+    /// <summary>
+    /// Number of 256-byte explored-map planes retained by WRAM
+    /// <c>$7E:CD52-$7E:D451</c>. Areas zero through five are packed into SRAM; area six is
+    /// Ceres and remains a live-only seventh plane.
+    /// </summary>
+    public const int ExploredMapAreaCount = 7;
+
+    /// <summary>Bytes in one native 64-by-32 one-bit explored-map plane.</summary>
+    public const int ExploredMapBytesPerArea = 0x100;
+
+    /// <summary>Bytes at <c>$7E:D8F8-$7E:D907</c> for used save/elevator markers.</summary>
+    public const int UsedSaveStationByteCount = 0x10;
+
+    /// <summary>
+    /// Bytes at <c>$7E:D908-$7E:D913</c>. Only the area-indexed leading bytes are currently
+    /// consumed, but preserving the complete SRAM allocation avoids destroying adjacent
+    /// cartridge state written by hacks or untranslated routines.
+    /// </summary>
+    public const int MapStationByteCount = 0x0c;
+
     // Keep these arrays private. Returning writable arrays would let callers bypass the
     // same masking semantics that the ROM routines enforce and would make watch-window
     // corruption extremely difficult to trace.
@@ -64,6 +84,10 @@ public sealed class Bank80SystemState
     private readonly byte[] _roomChozoBits = new byte[RoomChozoBitByteCount];
     private readonly byte[] _collectedItemBits = new byte[ItemBitByteCount];
     private readonly byte[] _openedDoorBits = new byte[DoorBitByteCount];
+    private readonly byte[] _exploredMapTiles =
+        new byte[ExploredMapAreaCount * ExploredMapBytesPerArea];
+    private readonly byte[] _usedSaveStationsAndElevators = new byte[UsedSaveStationByteCount];
+    private readonly byte[] _mapStations = new byte[MapStationByteCount];
 
     /// <summary>
     /// Creates the bank-$80 state using the game's power-on RNG seed, <c>$0061</c>.
@@ -483,6 +507,106 @@ public sealed class Bank80SystemState
     }
 
     /// <summary>
+    /// Marks the area-map cell containing Samus, matching <c>$90:A8A6/$90:A91B</c>.
+    /// The 64-column map is stored as two 32-by-32 bit planes, each row occupying four
+    /// bytes; it is not a conventional eight-byte-wide linear bitmap.
+    /// </summary>
+    public void MarkExploredMapTile(int areaIndex, int mapX, int mapY)
+    {
+        ValidateExploredMapCoordinate(areaIndex, mapX, mapY);
+        int byteIndex = ResolveExploredMapByteIndex(areaIndex, mapX, mapY);
+        _exploredMapTiles[byteIndex] |= unchecked((byte)(0x80 >> (mapX & 7)));
+    }
+
+    /// <summary>Returns whether a 64-by-32 area-map cell has been visited.</summary>
+    public bool IsMapTileExplored(int areaIndex, int mapX, int mapY)
+    {
+        ValidateExploredMapCoordinate(areaIndex, mapX, mapY);
+        int byteIndex = ResolveExploredMapByteIndex(areaIndex, mapX, mapY);
+        return (_exploredMapTiles[byteIndex] & (0x80 >> (mapX & 7))) != 0;
+    }
+
+    /// <summary>Returns one byte from an area's native explored-map plane for SRAM packing.</summary>
+    public byte GetExploredMapByteRaw(int areaIndex, int byteIndex)
+    {
+        if ((uint)areaIndex >= ExploredMapAreaCount)
+            throw new ArgumentOutOfRangeException(nameof(areaIndex));
+        if ((uint)byteIndex >= ExploredMapBytesPerArea)
+            throw new ArgumentOutOfRangeException(nameof(byteIndex));
+        return _exploredMapTiles[areaIndex * ExploredMapBytesPerArea + byteIndex];
+    }
+
+    /// <summary>Restores all seven unpacked WRAM explored-map planes from a save snapshot.</summary>
+    public void LoadExploredMapBytes(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.Length != _exploredMapTiles.Length)
+        {
+            throw new ArgumentException(
+                $"An explored-map snapshot must contain exactly {_exploredMapTiles.Length} bytes.",
+                nameof(bytes));
+        }
+        bytes.CopyTo(_exploredMapTiles);
+    }
+
+    /// <summary>Marks a save point in the low byte of an area's native two-byte marker.</summary>
+    public void MarkSaveStationUsed(int areaIndex, int stationBitIndex)
+    {
+        ValidateAreaIndex(areaIndex);
+        if ((uint)stationBitIndex >= 8)
+            throw new ArgumentOutOfRangeException(nameof(stationBitIndex));
+        _usedSaveStationsAndElevators[areaIndex * 2] |=
+            unchecked((byte)(1 << stationBitIndex));
+    }
+
+    /// <summary>Returns one raw save/elevator marker byte for cartridge-compatible SRAM.</summary>
+    public byte GetUsedSaveStationByteRaw(int byteIndex)
+    {
+        if ((uint)byteIndex >= UsedSaveStationByteCount)
+            throw new ArgumentOutOfRangeException(nameof(byteIndex));
+        return _usedSaveStationsAndElevators[byteIndex];
+    }
+
+    /// <summary>Restores the complete native save/elevator marker allocation.</summary>
+    public void LoadUsedSaveStationBytes(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.Length != UsedSaveStationByteCount)
+            throw new ArgumentException("A save/elevator snapshot must contain exactly 16 bytes.", nameof(bytes));
+        bytes.CopyTo(_usedSaveStationsAndElevators);
+    }
+
+    /// <summary>Returns whether the area has downloaded its map-station data.</summary>
+    public bool HasAreaMap(int areaIndex)
+    {
+        if ((uint)areaIndex >= ExploredMapAreaCount)
+            throw new ArgumentOutOfRangeException(nameof(areaIndex));
+        return _mapStations[areaIndex] != 0;
+    }
+
+    /// <summary>Marks an area's map station as acquired, matching the native $FF byte write.</summary>
+    public void SetAreaMapAcquired(int areaIndex)
+    {
+        if ((uint)areaIndex >= ExploredMapAreaCount)
+            throw new ArgumentOutOfRangeException(nameof(areaIndex));
+        _mapStations[areaIndex] = 0xff;
+    }
+
+    /// <summary>Returns one raw map-station byte for cartridge-compatible SRAM.</summary>
+    public byte GetMapStationByteRaw(int byteIndex)
+    {
+        if ((uint)byteIndex >= MapStationByteCount)
+            throw new ArgumentOutOfRangeException(nameof(byteIndex));
+        return _mapStations[byteIndex];
+    }
+
+    /// <summary>Restores the complete native map-station allocation.</summary>
+    public void LoadMapStationBytes(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.Length != MapStationByteCount)
+            throw new ArgumentException("A map-station snapshot must contain exactly 12 bytes.", nameof(bytes));
+        bytes.CopyTo(_mapStations);
+    }
+
+    /// <summary>
     /// Unsigned <c>16 x 16 -> 32</c> multiplication from <c>$80:82D6</c>.
     /// The widening casts must happen before multiplication or C# would discard the high
     /// word before returning it.
@@ -528,6 +652,24 @@ public sealed class Bank80SystemState
     {
         if ((uint)areaIndex >= AreaCount)
             throw new ArgumentOutOfRangeException(nameof(areaIndex), areaIndex, "Area index must be in the allocated 0-7 range.");
+    }
+
+    private static int ResolveExploredMapByteIndex(int areaIndex, int mapX, int mapY)
+    {
+        int areaOffset = areaIndex * ExploredMapBytesPerArea;
+        int horizontalPageOffset = (mapX & 0x20) != 0 ? 0x80 : 0;
+        int byteColumn = (mapX & 0x1f) >> 3;
+        return areaOffset + horizontalPageOffset + mapY * 4 + byteColumn;
+    }
+
+    private static void ValidateExploredMapCoordinate(int areaIndex, int mapX, int mapY)
+    {
+        if ((uint)areaIndex >= ExploredMapAreaCount)
+            throw new ArgumentOutOfRangeException(nameof(areaIndex));
+        if ((uint)mapX >= 64)
+            throw new ArgumentOutOfRangeException(nameof(mapX));
+        if ((uint)mapY >= 32)
+            throw new ArgumentOutOfRangeException(nameof(mapY));
     }
 }
 

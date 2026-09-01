@@ -228,6 +228,11 @@ internal static class MorphBallEyeAudit
             RoomChozoBytes: new byte[Bank80SystemState.RoomChozoBitByteCount],
             CollectedItemBytes: new byte[Bank80SystemState.ItemBitByteCount],
             OpenedDoorBytes: new byte[Bank80SystemState.DoorBitByteCount],
+            UsedSaveStationBytes: new byte[Bank80SystemState.UsedSaveStationByteCount],
+            MapStationBytes: new byte[Bank80SystemState.MapStationByteCount],
+            ExploredMapBytes: new byte[
+                Bank80SystemState.ExploredMapAreaCount *
+                Bank80SystemState.ExploredMapBytesPerArea],
             SaveStation: 0,
             Area: 0);
         slot.ApplyTo(restored);

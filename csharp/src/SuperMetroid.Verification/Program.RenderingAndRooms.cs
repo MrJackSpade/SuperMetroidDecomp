@@ -117,8 +117,11 @@ static void VerifyHudStateAndBg3Rendering()
     for (int index = 0; index < 0x800; index++)
         WriteTestWord(bus, 0xb58000 + index * 2, (ushort)(index & 0x03ff));
 
+    var mapSystem = new Bank80SystemState();
+    mapSystem.SetAreaMapAcquired(0);
     hud.UpdateMinimap(
         bus,
+        mapSystem,
         areaIndex: 0,
         roomMapX: 0x17,
         roomMapY: 0,
@@ -126,15 +129,16 @@ static void VerifyHudStateAndBg3Rendering()
         roomHeightInBlocks: 5 * 16,
         samusX: 0x0440,
         samusY: 0x04bb,
-        nmiFrameCounter: 8,
-        hasAreaMap: true);
+        nmiFrameCounter: 8);
     AssertEqual(27, hud.MinimapCenterX, "minimap Landing Site absolute X");
     AssertEqual(5, hud.MinimapCenterY, "minimap Landing Site absolute Y");
     AssertEqual(0x2c99, hud.Tiles[26], "minimap top-left unvisited map-station tile");
     AssertEqual(0x28bb, hud.Tiles[60], "minimap explored center tile");
 
+    var noMapSystem = new Bank80SystemState();
     hud.UpdateMinimap(
         bus,
+        noMapSystem,
         areaIndex: 0,
         roomMapX: 0x17,
         roomMapY: 0,
@@ -142,8 +146,7 @@ static void VerifyHudStateAndBg3Rendering()
         roomHeightInBlocks: 5 * 16,
         samusX: 0x0440,
         samusY: 0x04bb,
-        nmiFrameCounter: 0,
-        hasAreaMap: false);
+        nmiFrameCounter: 0);
     AssertEqual(0x3cbb, hud.Tiles[60], "minimap blinking center palette");
     AssertEqual(0x2c1f, hud.Tiles[26], "minimap hides unvisited tile without map station");
 

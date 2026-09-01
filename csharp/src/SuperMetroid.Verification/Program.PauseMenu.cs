@@ -63,7 +63,7 @@ internal static partial class Program
             CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         };
-        var pause = new PauseMenuState(bus, samus, areaIndex: 0);
+        var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), areaIndex: 0);
 
         AssertEqual(0, pause.ScreenMode, "pause begins on map page");
         pause.Step((ushort)SnesButton.R, 0);

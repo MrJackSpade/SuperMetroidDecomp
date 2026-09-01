@@ -38,6 +38,7 @@ internal sealed class PauseMenuState
 
     private readonly ISnesAddressSpace bus;
     private readonly SamusState samus;
+    private readonly Bank80SystemState system;
     private readonly byte areaIndex;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
@@ -47,10 +48,15 @@ internal sealed class PauseMenuState
     private int selectedCategory;
     private int selectedItem;
 
-    public PauseMenuState(ISnesAddressSpace bus, SamusState samus, byte areaIndex)
+    public PauseMenuState(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        Bank80SystemState system,
+        byte areaIndex)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.samus = samus ?? throw new ArgumentNullException(nameof(samus));
+        this.system = system ?? throw new ArgumentNullException(nameof(system));
         this.areaIndex = areaIndex < 7 ? areaIndex : (byte)0;
 
         // GameState_13 copies exactly these three cartridge ranges. VMADD is a word
@@ -327,13 +333,49 @@ internal sealed class PauseMenuState
         // visibility; it does not call the decompressor. Treating $B5:9000 as compressed
         // therefore walks unrelated data looking for an impossible command terminator.
         int mapPointer = RomDataReader.ReadLongFixedBank(bus, 0x82964a + areaIndex * 3);
-        vram.LoadBytes(
-            Bg1TilemapWord * 2,
-            RomDataReader.ReadFixedBank(bus, mapPointer, 0x1000));
+        byte[] mapTilemap = RomDataReader.ReadFixedBank(bus, mapPointer, 0x1000);
+        ushort mapDataPointer = RomDataReader.ReadWordFixedBank(
+            bus,
+            0x829717 + areaIndex * 2);
+        int mapDataAddress = 0x820000 | mapDataPointer;
+        bool hasAreaMap = system.HasAreaMap(areaIndex);
+
+        // `$82:943D` combines three independent cartridge structures: the literal 64x32
+        // tilemap, the one-bit "a room exists here" map, and the persistent one-bit
+        // exploration plane. A downloaded map reveals existing-but-unvisited rooms with
+        // palette $0400; without one, only visited cells survive. Applying this when the
+        // page is loaded also means a save/reload cannot turn the pause screen into the
+        // fully revealed debug map used by the first implementation.
+        for (int tilemapIndex = 0; tilemapIndex < 0x800; tilemapIndex++)
+        {
+            int pageIndex = tilemapIndex & 0x3ff;
+            int mapX = pageIndex % 32 + (tilemapIndex >= 0x400 ? 32 : 0);
+            int mapY = pageIndex / 32;
+            bool explored = system.IsMapTileExplored(areaIndex, mapX, mapY);
+            bool exists = ReadMapBit(mapDataAddress, mapX, mapY);
+            int byteOffset = tilemapIndex * 2;
+            ushort word = unchecked((ushort)(
+                mapTilemap[byteOffset] | (mapTilemap[byteOffset + 1] << 8)));
+            if (explored)
+                word &= 0xfbff;
+            else if (!hasAreaMap || !exists)
+                word = 0x001f;
+            mapTilemap[byteOffset] = unchecked((byte)word);
+            mapTilemap[byteOffset + 1] = unchecked((byte)(word >> 8));
+        }
+        vram.LoadBytes(Bg1TilemapWord * 2, mapTilemap);
 
         // The area name is a 24-byte bank-$82 tilemap fragment copied to VMADD $38AA.
         ushort labelPointer = RomDataReader.ReadWordFixedBank(bus, 0x82965f + areaIndex * 2);
         vram.LoadBytes(0x38aa * 2, RomDataReader.ReadFixedBank(bus, 0x820000 | labelPointer, 0x18));
+    }
+
+    private bool ReadMapBit(int mapDataAddress, int mapX, int mapY)
+    {
+        int horizontalPageOffset = (mapX & 0x20) != 0 ? 0x80 : 0;
+        int byteColumn = (mapX & 0x1f) >> 3;
+        int byteIndex = horizontalPageOffset + mapY * 4 + byteColumn;
+        return (bus.ReadByte(mapDataAddress + byteIndex) & (0x80 >> (mapX & 7))) != 0;
     }
 
     private void UploadEquipmentTilemap() =>

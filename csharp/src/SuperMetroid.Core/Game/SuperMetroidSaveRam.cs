@@ -54,8 +54,19 @@ public sealed class SuperMetroidSaveRam
     private const int RoomChozoBitsOffset = 0x0070;
     private const int CollectedItemBitsOffset = 0x00b0;
     private const int OpenedDoorBitsOffset = 0x00f0;
+    private const int UsedSaveStationsOffset = 0x0138;
+    private const int MapStationsOffset = 0x0148;
     private const int SaveStationOffset = 0x0156;
     private const int AreaOffset = 0x0158;
+    private const int CompressedMapDataOffset = 0x015c;
+    private const int CompressedMapDataByteCount = 0x0500;
+
+    // Bank-$81 table addresses consumed by PackMapToSave/UnpackMapFromSave. The count and
+    // packed-offset tables describe six SRAM-backed areas; each unpacked-offset pointer
+    // selects a cartridge list of byte indexes within that area's 256-byte bit plane.
+    private const int PackedMapByteCountTable = 0x818131;
+    private const int PackedMapDestinationOffsetTable = 0x818138;
+    private const int PackedMapSourceIndexPointerTable = 0x8182d6;
 
     private readonly ISnesAddressSpace bus;
 
@@ -114,6 +125,15 @@ public sealed class SuperMetroidSaveRam
             OpenedDoorBytes: ReadSramBytes(
                 slotOffset + OpenedDoorBitsOffset,
                 Bank80SystemState.DoorBitByteCount),
+            UsedSaveStationBytes: ReadSramBytes(
+                slotOffset + UsedSaveStationsOffset,
+                Bank80SystemState.UsedSaveStationByteCount),
+            MapStationBytes: ReadSramBytes(
+                slotOffset + MapStationsOffset,
+                Bank80SystemState.MapStationByteCount),
+            ExploredMapBytes: UnpackExploredMap(ReadSramBytes(
+                slotOffset + CompressedMapDataOffset,
+                CompressedMapDataByteCount)),
             SaveStation: ReadSramWord(slotOffset + SaveStationOffset),
             Area: ReadSramWord(slotOffset + AreaOffset));
     }
@@ -196,8 +216,19 @@ public sealed class SuperMetroidSaveRam
                 "A save snapshot requires exactly 64 opened-door bytes.");
         }
         snapshot.OpenedDoorBytes.CopyTo(payload, OpenedDoorBitsOffset);
+        if (snapshot.UsedSaveStationBytes.Length != Bank80SystemState.UsedSaveStationByteCount)
+        {
+            throw new InvalidDataException(
+                "A save snapshot requires exactly 16 used save/elevator bytes.");
+        }
+        snapshot.UsedSaveStationBytes.CopyTo(payload, UsedSaveStationsOffset);
+        if (snapshot.MapStationBytes.Length != Bank80SystemState.MapStationByteCount)
+            throw new InvalidDataException("A save snapshot requires exactly 12 map-station bytes.");
+        snapshot.MapStationBytes.CopyTo(payload, MapStationsOffset);
         WriteWord(payload, SaveStationOffset, snapshot.SaveStation);
         WriteWord(payload, AreaOffset, snapshot.Area);
+        byte[] compressedMap = PackExploredMap(snapshot.ExploredMapBytes);
+        compressedMap.CopyTo(payload, CompressedMapDataOffset);
 
         for (int index = 0; index < payload.Length; index++)
             WriteSramByte(slotOffset + index, payload[index]);
@@ -268,6 +299,64 @@ public sealed class SuperMetroidSaveRam
         WriteSramByte(offset + 1, unchecked((byte)(value >> 8)));
     }
 
+    private byte[] PackExploredMap(ReadOnlySpan<byte> exploredMap)
+    {
+        int expectedByteCount =
+            Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea;
+        if (exploredMap.Length != expectedByteCount)
+        {
+            throw new InvalidDataException(
+                $"A save snapshot requires exactly {expectedByteCount} unpacked explored-map bytes.");
+        }
+
+        var compressed = new byte[CompressedMapDataByteCount];
+        for (int area = 0; area < 6; area++)
+        {
+            int count = bus.ReadByte(PackedMapByteCountTable + area);
+            int destination = ReadBusWord(PackedMapDestinationOffsetTable + area * 2);
+            ushort sourceIndexPointer = ReadBusWord(PackedMapSourceIndexPointerTable + area * 2);
+            for (int index = 0; index < count; index++)
+            {
+                int compressedIndex = destination + index;
+                if ((uint)compressedIndex >= compressed.Length)
+                    throw new InvalidDataException("ROM packed-map table escapes the $500-byte SRAM field.");
+                int areaByteIndex = bus.ReadByte(0x810000 | ((sourceIndexPointer + index) & 0xffff));
+                compressed[compressedIndex] = exploredMap[
+                    area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndex];
+            }
+        }
+        return compressed;
+    }
+
+    private byte[] UnpackExploredMap(ReadOnlySpan<byte> compressed)
+    {
+        if (compressed.Length != CompressedMapDataByteCount)
+            throw new ArgumentException("Compressed map payload must contain exactly $500 bytes.", nameof(compressed));
+
+        var explored = new byte[
+            Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea];
+        for (int area = 0; area < 6; area++)
+        {
+            int count = bus.ReadByte(PackedMapByteCountTable + area);
+            int source = ReadBusWord(PackedMapDestinationOffsetTable + area * 2);
+            ushort destinationIndexPointer = ReadBusWord(PackedMapSourceIndexPointerTable + area * 2);
+            for (int index = 0; index < count; index++)
+            {
+                int compressedIndex = source + index;
+                if ((uint)compressedIndex >= compressed.Length)
+                    throw new InvalidDataException("ROM packed-map table escapes the $500-byte SRAM field.");
+                int areaByteIndex = bus.ReadByte(
+                    0x810000 | ((destinationIndexPointer + index) & 0xffff));
+                explored[area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndex] =
+                    compressed[compressedIndex];
+            }
+        }
+        return explored;
+    }
+
+    private ushort ReadBusWord(int address) => unchecked((ushort)(
+        bus.ReadByte(address) | (bus.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8)));
+
     private static void WriteWord(Span<byte> destination, int offset, ushort value)
     {
         destination[offset] = unchecked((byte)value);
@@ -303,6 +392,9 @@ public sealed record SuperMetroidSaveSlot(
     byte[] RoomChozoBytes,
     byte[] CollectedItemBytes,
     byte[] OpenedDoorBytes,
+    byte[] UsedSaveStationBytes,
+    byte[] MapStationBytes,
+    byte[] ExploredMapBytes,
     ushort SaveStation,
     ushort Area)
 {
@@ -338,6 +430,9 @@ public sealed record SuperMetroidSaveSlot(
         system.LoadRoomChozoBytes(RoomChozoBytes);
         system.LoadCollectedItemBytes(CollectedItemBytes);
         system.LoadOpenedDoorBytes(OpenedDoorBytes);
+        system.LoadUsedSaveStationBytes(UsedSaveStationBytes);
+        system.LoadMapStationBytes(MapStationBytes);
+        system.LoadExploredMapBytes(ExploredMapBytes);
     }
 }
 
@@ -374,6 +469,12 @@ public sealed record SuperMetroidSaveSnapshot
         new byte[Bank80SystemState.ItemBitByteCount];
     public byte[] OpenedDoorBytes { get; init; } =
         new byte[Bank80SystemState.DoorBitByteCount];
+    public byte[] UsedSaveStationBytes { get; init; } =
+        new byte[Bank80SystemState.UsedSaveStationByteCount];
+    public byte[] MapStationBytes { get; init; } =
+        new byte[Bank80SystemState.MapStationByteCount];
+    public byte[] ExploredMapBytes { get; init; } = new byte[
+        Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea];
 
     public static SuperMetroidSaveSnapshot Capture(
         SamusState samus,
@@ -388,6 +489,10 @@ public sealed record SuperMetroidSaveSnapshot
         var roomChozo = new byte[Bank80SystemState.RoomChozoBitByteCount];
         var collectedItems = new byte[Bank80SystemState.ItemBitByteCount];
         var openedDoors = new byte[Bank80SystemState.DoorBitByteCount];
+        var usedSaveStations = new byte[Bank80SystemState.UsedSaveStationByteCount];
+        var mapStations = new byte[Bank80SystemState.MapStationByteCount];
+        var exploredMap = new byte[
+            Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea];
         for (int index = 0; index < events.Length; index++)
             events[index] = system.GetEventByteRaw(index);
         for (int index = 0; index < bosses.Length; index++)
@@ -398,6 +503,20 @@ public sealed record SuperMetroidSaveSnapshot
             collectedItems[index] = system.GetCollectedItemByteRaw(index);
         for (int index = 0; index < openedDoors.Length; index++)
             openedDoors[index] = system.GetOpenedDoorByteRaw(index);
+        for (int index = 0; index < usedSaveStations.Length; index++)
+            usedSaveStations[index] = system.GetUsedSaveStationByteRaw(index);
+        for (int index = 0; index < mapStations.Length; index++)
+            mapStations[index] = system.GetMapStationByteRaw(index);
+        for (int areaIndex = 0; areaIndex < Bank80SystemState.ExploredMapAreaCount; areaIndex++)
+        {
+            for (int byteIndex = 0;
+                byteIndex < Bank80SystemState.ExploredMapBytesPerArea;
+                byteIndex++)
+            {
+                exploredMap[areaIndex * Bank80SystemState.ExploredMapBytesPerArea + byteIndex] =
+                    system.GetExploredMapByteRaw(areaIndex, byteIndex);
+            }
+        }
 
         return new SuperMetroidSaveSnapshot
         {
@@ -424,6 +543,9 @@ public sealed record SuperMetroidSaveSnapshot
             RoomChozoBytes = roomChozo,
             CollectedItemBytes = collectedItems,
             OpenedDoorBytes = openedDoors,
+            UsedSaveStationBytes = usedSaveStations,
+            MapStationBytes = mapStations,
+            ExploredMapBytes = exploredMap,
         };
     }
 }

@@ -3148,6 +3148,7 @@ public sealed partial class SuperMetroidRuntime
                 // map, so only tiles actually visited by this runtime are revealed.
                 Hud.UpdateMinimap(
                     _addressSpace,
+                    System,
                     roomGeometry.AreaIndex,
                     roomGeometry.MapX,
                     roomGeometry.MapY,
@@ -3155,8 +3156,7 @@ public sealed partial class SuperMetroidRuntime
                     LevelData.HeightInBlocks,
                     Samus.XPosition,
                     Samus.YPosition,
-                    NmiFrameCounter8,
-                    hasAreaMap: false);
+                    NmiFrameCounter8);
             }
 
             if (!deathOwnsSamus)

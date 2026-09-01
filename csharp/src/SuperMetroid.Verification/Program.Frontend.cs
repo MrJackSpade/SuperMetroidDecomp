@@ -228,6 +228,26 @@ static void VerifyFileSelectFreshSaveTilemap()
     for (int index = 0; index < noDataWords.Length; index++)
         WriteRomWord(rom, 0x81b4ac + index * 2, noDataWords[index]);
 
+    // Give PackMapToSave a minimal but nontrivial native table: two Crateria bytes at
+    // sparse unpacked offsets become compressed bytes $10/$11. Areas one through five
+    // retain zero counts in this focused fixture. This proves SRAM persists the packed
+    // representation and ReadSlot reconstructs the seven-plane domain representation.
+    rom[SuperMetroidAddressSpace.ToRomOffset(0x818131)] = 2;
+    WriteRomWord(rom, 0x818138, 0x0010);
+    WriteRomWord(rom, 0x8182d6, 0x8400);
+    rom[SuperMetroidAddressSpace.ToRomOffset(0x818400)] = 0x00;
+    rom[SuperMetroidAddressSpace.ToRomOffset(0x818401)] = 0x84;
+
+    var exploredMap = new byte[
+        Bank80SystemState.ExploredMapAreaCount *
+        Bank80SystemState.ExploredMapBytesPerArea];
+    exploredMap[0x00] = 0x80;
+    exploredMap[0x84] = 0x04;
+    var usedSaveStations = new byte[Bank80SystemState.UsedSaveStationByteCount];
+    usedSaveStations[0] = 0x01;
+    var mapStations = new byte[Bank80SystemState.MapStationByteCount];
+    mapStations[0] = 0xff;
+
     var addressSpace = new SuperMetroidAddressSpace(rom);
     var menu = new FileSelectMenuState(addressSpace);
     ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap;
@@ -271,6 +291,9 @@ static void VerifyFileSelectFreshSaveTilemap()
         MaxHealth = 99,
         GameTimeMinutes = 34,
         GameTimeHours = 12,
+        UsedSaveStationBytes = usedSaveStations,
+        MapStationBytes = mapStations,
+        ExploredMapBytes = exploredMap,
         Area = 6,
         SaveStation = 0,
     });
@@ -280,6 +303,10 @@ static void VerifyFileSelectFreshSaveTilemap()
     AssertEqual(99, saved.MaxHealth, "Ceres checkpoint saved maximum health");
     AssertEqual(6, saved.Area, "Ceres checkpoint saved area");
     AssertEqual(0, saved.SaveStation, "Ceres checkpoint saved load station");
+    AssertEqual(0x01, saved.UsedSaveStationBytes[0], "used Crateria save-station bit");
+    AssertEqual(0xff, saved.MapStationBytes[0], "Crateria map-station byte");
+    AssertEqual(0x80, saved.ExploredMapBytes[0x00], "unpacked explored-map byte zero");
+    AssertEqual(0x04, saved.ExploredMapBytes[0x84], "unpacked explored-map sparse byte");
 
     var savedMenu = new FileSelectMenuState(addressSpace);
     ReadOnlySpan<ushort> savedTilemap = savedMenu.BackgroundTilemap;

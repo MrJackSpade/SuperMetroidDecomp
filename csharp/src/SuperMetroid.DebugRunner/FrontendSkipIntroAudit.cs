@@ -99,6 +99,45 @@ internal static class FrontendSkipIntroAudit
         if (!game.GameplayMovementEnabled)
             throw new InvalidOperationException("Ceres gameplay was reached with movement disabled.");
 
+        // A reconstructed menu reading ENERGY/TIME is not a save-load test. Build a wholly
+        // new outer dispatcher over the same cartridge/SRAM image, enter slot A through the
+        // same title, file-select, and options calls as the desktop host, and require the
+        // existing-save branch to reconstruct the cartridge-authored Ceres station. This
+        // deliberately does not call SaveSlot or a runtime initializer from the audit.
+        var restartedGame = new SuperMetroidGame(
+            bus,
+            new SuperMetroidGameOptions { SkipOpeningCinematic = true });
+        int restartedSaveRamChangeCount = 0;
+        restartedGame.SaveRamChanged += () => restartedSaveRamChangeCount++;
+        FrontendFrame restartedFrame = EnterSelectedSlot(restartedGame);
+        if (restartedFrame.GameState != SuperMetroidGameState.MadeItToCeresElevator ||
+            restartedGame.GameplayActiveRoomPointer != game.GameplayActiveRoomPointer)
+        {
+            throw new InvalidDataException(
+                $"Fresh frontend loaded state {restartedFrame.GameState}/room " +
+                $"${restartedGame.GameplayActiveRoomPointer.GetValueOrDefault():X4}, not " +
+                $"the saved Ceres room ${game.GameplayActiveRoomPointer.GetValueOrDefault():X4}.");
+        }
+        if (restartedSaveRamChangeCount != 1)
+        {
+            throw new InvalidOperationException(
+                $"Existing-save startup published {restartedSaveRamChangeCount} SRAM changes; " +
+                "only the selected-slot word should be rewritten.");
+        }
+        restartedFrame = StepUntil(
+            restartedGame,
+            restartedFrame,
+            candidate => candidate.GameState == SuperMetroidGameState.MainGameplay,
+            maximumFrames: 180,
+            "fresh frontend did not unlock the loaded Ceres checkpoint");
+        if (!restartedGame.GameplayMovementEnabled ||
+            restartedGame.GameplayCollectedItems != saved.CollectedItems ||
+            restartedGame.GameplayEquippedItems != saved.EquippedItems)
+        {
+            throw new InvalidDataException(
+                "Fresh frontend did not restore Ceres control and saved inventory words.");
+        }
+
         for (int pixelIndex = 0; pixelIndex < frame.Pixels.Length; pixelIndex++)
         {
             if (frame.Pixels[pixelIndex].A != byte.MaxValue)
@@ -112,9 +151,55 @@ internal static class FrontendSkipIntroAudit
         Console.WriteLine(
             $"Skip-opening-cinematic audit reached {frame.GameState} on dispatcher frame " +
             $"{frame.FrameNumber}, Samus=(${game.GameplaySamusX:X4},${game.GameplaySamusY:X4}), " +
-            "slot A saved as Ceres 6:0 and recognized after menu reconstruction.");
+            "slot A saved as Ceres 6:0 and loaded through a fresh frontend instance.");
         Console.WriteLine($"Captured skip-intro Ceres frame to {Path.GetFullPath(outputPath)}.");
         return 0;
+    }
+
+    /// <summary>
+    /// Drives a fresh outer dispatcher into its currently selected, existing save slot.
+    /// Keeping every transition controller-authored catches stale menu flags and button-edge
+    /// mistakes that a direct call to the runtime's saved-game initializer would conceal.
+    /// </summary>
+    private static FrontendFrame EnterSelectedSlot(SuperMetroidGame game)
+    {
+        FrontendFrame frame = game.Step(0);
+        frame = game.Step((ushort)SnesButton.Start);
+        frame = StepUntil(
+            game,
+            frame,
+            candidate => candidate.Phase == nameof(TitleSequencePhase.TitleScreen),
+            maximumFrames: 120,
+            "restarted title montage skip did not reach the title screen");
+
+        frame = game.Step((ushort)SnesButton.Start);
+        frame = StepUntil(
+            game,
+            frame,
+            candidate => candidate.GameState == SuperMetroidGameState.FileSelectMenus,
+            maximumFrames: 120,
+            "restarted title screen did not reach file select");
+        for (int frameIndex = 0; frameIndex < 16; frameIndex++)
+            frame = game.Step(0);
+
+        frame = game.Step((ushort)SnesButton.A);
+        frame = StepUntil(
+            game,
+            frame,
+            candidate => candidate.GameState == SuperMetroidGameState.GameOptionsMenu,
+            maximumFrames: 180,
+            "restarted existing slot did not reach game options");
+        for (int frameIndex = 0; frameIndex < 16; frameIndex++)
+            frame = game.Step(0);
+
+        frame = game.Step((ushort)SnesButton.A);
+        frame = StepUntil(
+            game,
+            frame,
+            candidate => candidate.GameState == SuperMetroidGameState.SetUpNewGame,
+            maximumFrames: 180,
+            "restarted options did not request saved-game setup");
+        return game.Step(0);
     }
 
     private static FrontendFrame StepUntil(

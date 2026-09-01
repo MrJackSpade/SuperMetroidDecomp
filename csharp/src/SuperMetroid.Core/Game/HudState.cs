@@ -38,7 +38,6 @@ public sealed class HudState
     private static readonly ushort[] ItemByteOffsets = [0x14, 0x1c, 0x22, 0x28, 0x2e];
 
     private readonly ushort[] _tiles = new ushort[MutableTileCount];
-    private readonly byte[] _exploredMapTiles = new byte[0x100];
 
     /// <summary>Native SNES tilemap words for debugger inspection.</summary>
     public ReadOnlySpan<ushort> Tiles => _tiles;
@@ -135,6 +134,7 @@ public sealed class HudState
     /// </summary>
     public void UpdateMinimap(
         ISnesAddressSpace bus,
+        Bank80SystemState system,
         byte areaIndex,
         byte roomMapX,
         byte roomMapY,
@@ -142,10 +142,10 @@ public sealed class HudState
         int roomHeightInBlocks,
         ushort samusX,
         ushort samusY,
-        byte nmiFrameCounter,
-        bool hasAreaMap = false)
+        byte nmiFrameCounter)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(system);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before updating its minimap.");
         if (areaIndex >= 7)
@@ -168,7 +168,11 @@ public sealed class HudState
         MinimapCenterX = (byte)centerX;
         MinimapCenterY = (byte)centerY;
 
-        MarkExplored(centerX, centerY);
+        // Exploration is persistent game state, not HUD-local rendering state. Earlier
+        // builds kept this bit in HudState, which made the minimap look correct until a
+        // save/load or HUD reconstruction silently erased the visited route.
+        system.MarkExploredMapTile(areaIndex, centerX, centerY);
+        bool hasAreaMap = system.HasAreaMap(areaIndex);
 
         int areaMapPointerAddress = AreaMapPointerTable + areaIndex * 3;
         int areaMapAddress =
@@ -192,7 +196,7 @@ public sealed class HudState
                 }
 
                 bool exists = ReadMapBit(bus, mapDataAddress, mapX, mapY);
-                bool explored = ReadExplored(mapX, mapY);
+                bool explored = system.IsMapTileExplored(areaIndex, mapX, mapY);
                 if (!explored && (!exists || !hasAreaMap))
                 {
                     _tiles[destination] = BlankMapTile;
@@ -337,18 +341,6 @@ public sealed class HudState
         int bank = address & 0xff0000;
         int offset = address & 0xffff;
         return (ushort)(bus.ReadByte(bank | offset) | (bus.ReadByte(bank | ((offset + 1) & 0xffff)) << 8));
-    }
-
-    private void MarkExplored(int mapX, int mapY)
-    {
-        int byteIndex = (mapX >> 3) + 4 * ((mapX & 0x20) + mapY);
-        _exploredMapTiles[byteIndex] |= (byte)(0x80 >> (mapX & 7));
-    }
-
-    private bool ReadExplored(int mapX, int mapY)
-    {
-        int byteIndex = (mapX >> 3) + 4 * ((mapX & 0x20) + mapY);
-        return (_exploredMapTiles[byteIndex] & (0x80 >> (mapX & 7))) != 0;
     }
 
     private static bool ReadMapBit(ISnesAddressSpace bus, int mapDataAddress, int mapX, int mapY)

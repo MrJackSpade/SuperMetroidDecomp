@@ -303,6 +303,7 @@ public sealed class SuperMetroidGame
                     bus,
                     runtime.Samus ?? throw new InvalidOperationException(
                         "Pause setup requires a live Samus state."),
+                    runtime.System,
                     runtime.ActiveRoom?.AreaIndex ?? 0);
                 pauseBrightness = 0;
                 lastPixels = pauseMenu.Render();
@@ -609,7 +610,11 @@ public sealed class SuperMetroidGame
             ?? throw new InvalidOperationException(
                 "Gunship landing completed without a live Samus actor.");
         // GunshipTop_7 replaces cutscene-only station eighteen with station zero and saves
-        // immediately after the closing-pad hold restores ordinary player control.
+        // immediately after the closing-pad hold restores ordinary player control. Its
+        // `ORA #$0001` also marks Crateria save point zero in the persistent station table
+        // before SaveToSram packs the mirror; omitting that bit hides the ship from maps
+        // after a perfectly valid reload.
+        runtime.System.MarkSaveStationUsed(areaIndex: 0, stationBitIndex: 0);
         saveRam.SaveSlot(
             selectedSaveSlot,
             SuperMetroidSaveSnapshot.Capture(

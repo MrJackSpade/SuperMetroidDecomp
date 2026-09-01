@@ -274,7 +274,7 @@ internal static class EarlyControllerRouteAudit
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs))
             throw new InvalidDataException("Pause route began without the acquired Bombs equipped.");
 
-        var pause = new PauseMenuState(bus, samus, room.AreaIndex);
+        var pause = new PauseMenuState(bus, samus, runtime.System, room.AreaIndex);
         Rgba32[] mapFrame = pause.Render();
         if (mapFrame.Length != 256 * 224 || mapFrame.All(pixel => pixel.R == 0 && pixel.G == 0 && pixel.B == 0))
             throw new InvalidDataException("Cartridge pause map rendered an empty frame.");

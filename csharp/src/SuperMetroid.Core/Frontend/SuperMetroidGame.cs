@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 
@@ -24,6 +25,7 @@ public sealed class SuperMetroidGame
     private GameOptionsMenuState? options;
     private IntroCinematicState? intro;
     private CeresDestructionCinematicState? ceresDestruction;
+    private PauseMenuState? pauseMenu;
     private SuperMetroidRuntime? runtime;
     private readonly CeresDepartureState ceresDeparture = new();
     private Rgba32[] lastPixels = CreateBlackFrame();
@@ -32,6 +34,7 @@ public sealed class SuperMetroidGame
     private int postCeresLoadFramesRemaining = -1;
     private byte postCeresFadeBrightness;
     private int postCeresFadeCounter = 1;
+    private byte pauseBrightness = 15;
 
     public SuperMetroidGame(
         ISnesAddressSpace bus,
@@ -113,6 +116,21 @@ public sealed class SuperMetroidGame
 
     /// <summary>Current bank-$83 entry door pointer, exposed for door-transition watches.</summary>
     public ushort? GameplayActiveDoorPointer => runtime?.ActiveDoor?.Pointer;
+
+    /// <summary>Live equipped-item word, including Morph Ball and Bomb bits.</summary>
+    public ushort GameplayEquippedItems => runtime?.Samus?.EquippedItems ?? 0;
+
+    /// <summary>Live collected-item word displayed by the pause equipment screen.</summary>
+    public ushort GameplayCollectedItems => runtime?.Samus?.CollectedItems ?? 0;
+
+    /// <summary>Current pause page: zero for map, one for equipment, or -1 outside pause.</summary>
+    public int PauseScreenMode => pauseMenu?.ScreenMode ?? -1;
+
+    /// <summary>Equipment selector category, matching the low byte of native word $0754.</summary>
+    public int PauseSelectedEquipmentCategory => pauseMenu?.SelectedCategory ?? -1;
+
+    /// <summary>Equipment selector item, matching the high byte of native word $0754.</summary>
+    public int PauseSelectedEquipmentItem => pauseMenu?.SelectedItem ?? -1;
 
     /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>
     public FrontendFrame Step(ushort controllerInput)
@@ -238,7 +256,16 @@ public sealed class SuperMetroidGame
                 runtime!.StepFrame(controllerInput);
                 lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 HandleGunshipLandingSave();
-                if (runtime.LastCeresElevatorShaftRoomMain.DepartureRequestedThisFrame)
+                if (CanEnterPause())
+                {
+                    // Samus_PauseCheck at `$90:EA45` executes during the already-completed
+                    // state-eight frame. It initializes both fade counters and publishes
+                    // state $0C; the following dispatcher call performs the first darken.
+                    pauseBrightness = 15;
+                    pauseMenu = null;
+                    GameState = SuperMetroidGameState.PausingDarkening;
+                }
+                else if (runtime.LastCeresElevatorShaftRoomMain.DepartureRequestedThisFrame)
                 {
                     // `$89:ACC3` has already selected standing pose, locked Samus, and
                     // published game state $20. The following dispatcher call owns the
@@ -253,6 +280,88 @@ public sealed class SuperMetroidGame
                     // following dispatcher call begins state `$09` from that publication.
                     GameState = SuperMetroidGameState.HitDoorBlock;
                 }
+                break;
+
+            case SuperMetroidGameState.PausingDarkening:
+                // State $0C continues running ordinary gameplay while INIDISP darkens.
+                // This matters for moving enemies/projectiles and is why pause cannot be
+                // represented as a desktop-only frozen bitmap.
+                runtime!.StepFrame(controllerInput);
+                lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+                pauseBrightness = (byte)Math.Max(0, pauseBrightness - 1);
+                MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
+                if (pauseBrightness == 0)
+                    GameState = SuperMetroidGameState.Pausing;
+                break;
+
+            case SuperMetroidGameState.Pausing:
+                // `$82:8CEF` owns the force-blank setup frame: pause tiles, base maps,
+                // palette, inventory labels, and PPU bases are installed before state $0E.
+                // Keep accepting NMI so the controller's previous sample remains truthful.
+                runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                pauseMenu = new PauseMenuState(
+                    bus,
+                    runtime.Samus ?? throw new InvalidOperationException(
+                        "Pause setup requires a live Samus state."),
+                    runtime.ActiveRoom?.AreaIndex ?? 0);
+                pauseBrightness = 0;
+                lastPixels = pauseMenu.Render();
+                MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
+                GameState = SuperMetroidGameState.PausedA;
+                break;
+
+            case SuperMetroidGameState.PausedA:
+                runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                pauseBrightness = (byte)Math.Min(15, pauseBrightness + 1);
+                lastPixels = pauseMenu!.Render();
+                MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
+                if (pauseBrightness == 15)
+                    GameState = SuperMetroidGameState.PausedB;
+                break;
+
+            case SuperMetroidGameState.PausedB:
+                runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.UpdatePauseHeldInput();
+                bool unpauseRequested = pauseMenu!.Step(
+                    runtime.System.TimedHeldInput,
+                    runtime.Controller1.NewlyPressed);
+                lastPixels = pauseMenu.Render();
+                if (unpauseRequested)
+                {
+                    pauseBrightness = 15;
+                    GameState = SuperMetroidGameState.UnpausingA;
+                }
+                break;
+
+            case SuperMetroidGameState.UnpausingA:
+                runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                lastPixels = pauseMenu!.Render();
+                pauseBrightness = (byte)Math.Max(0, pauseBrightness - 1);
+                MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
+                if (pauseBrightness == 0)
+                    GameState = SuperMetroidGameState.UnpausingB;
+                break;
+
+            case SuperMetroidGameState.UnpausingB:
+                // Native state $11 restores gameplay PPU state, BG2, beam tiles, palette,
+                // hooks, HDMA, and animtiles under forced blank. Pause graphics live in a
+                // separate PPU image here, so discarding it restores the untouched runtime
+                // image without a host-authored reconstruction.
+                runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                pauseMenu = null;
+                pauseBrightness = 0;
+                lastPixels = CreateBlackFrame();
+                GameState = SuperMetroidGameState.Unpausing;
+                break;
+
+            case SuperMetroidGameState.Unpausing:
+                // State $12 resumes the full state-eight loop behind an INIDISP fade.
+                runtime!.StepFrame(controllerInput);
+                lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+                pauseBrightness = (byte)Math.Min(15, pauseBrightness + 1);
+                MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
+                if (pauseBrightness == 15)
+                    GameState = SuperMetroidGameState.MainGameplay;
                 break;
 
             case SuperMetroidGameState.BlackoutFromCeres:
@@ -396,8 +505,32 @@ public sealed class SuperMetroidGame
         SuperMetroidGameState.HitDoorBlock => "Door collision",
         SuperMetroidGameState.LoadingNextRoomA => "Loading destination room",
         SuperMetroidGameState.LoadingNextRoomB => "Destination room ready",
+        SuperMetroidGameState.PausingDarkening =>
+            $"Pausing: gameplay darken ({pauseBrightness})",
+        SuperMetroidGameState.Pausing => "Pausing: load pause assets",
+        SuperMetroidGameState.PausedA => $"Paused: fade in ({pauseBrightness})",
+        SuperMetroidGameState.PausedB =>
+            pauseMenu?.ScreenMode == 1 ? "Paused: equipment" : "Paused: map",
+        SuperMetroidGameState.UnpausingA => $"Unpausing: fade out ({pauseBrightness})",
+        SuperMetroidGameState.UnpausingB => "Unpausing: restore gameplay",
+        SuperMetroidGameState.Unpausing => $"Unpausing: gameplay brighten ({pauseBrightness})",
         _ => GameState.ToString(),
     };
+
+    private bool CanEnterPause()
+    {
+        if (runtime?.Samus is not SamusState samus || runtime.ActiveRoom is null)
+            return false;
+
+        // This is the complete retail predicate at `$90:EA45` for the translated owners.
+        // HasPendingDoorTransition represents the enemies/door transition flag, X-ray owns
+        // time freeze, and the power-bomb system owns $0CE2. Area six (Ceres) is excluded.
+        return runtime.PowerBombExplosionStatus == 0 &&
+               !samus.Xray.TimeIsFrozen &&
+               !runtime.HasPendingDoorTransition &&
+               runtime.ActiveRoom.AreaIndex != 6 &&
+               (runtime.Controller1.NewlyPressed & (ushort)SnesButton.Start) != 0;
+    }
 
     private bool SetupSelectedGame()
     {

@@ -92,6 +92,7 @@ VerifyDebugRoomCamera();
 VerifyRoomScrollGridAndBoundaryCamera();
 VerifyRoomScrollPlms();
 VerifyBombTorizoHandPlm();
+VerifyPauseMenuEquipmentInteraction();
 VerifyMovedSamusCameraTracking();
 VerifyBackgroundScrollState();
 VerifyLevelBlockTilemapExpansion();

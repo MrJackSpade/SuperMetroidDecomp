@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -231,6 +232,7 @@ internal static class EarlyControllerRouteAudit
             bus,
             runtime,
             maximumFrames: 12000);
+        VerifyPauseEquipment(bus, runtime);
 
         Console.WriteLine(
             $"Controller route: gunship {landingFrames} frames; Landing Site -> Parlor " +
@@ -252,6 +254,58 @@ internal static class EarlyControllerRouteAudit
             $"{awakening.SequenceFrames} more frames; Bomb Torizo was defeated after " +
             $"{fight.Frames} controller frames and {fight.FireInputs} fire-button edges.");
         return 0;
+    }
+
+    /// <summary>
+    /// Opens the cartridge-backed pause object over the completed route's live Samus,
+    /// switches from map to equipment with the native page fades, and toggles Bombs off
+    /// and back on through ordinary equipment-screen input. This is deliberately after the
+    /// fight so the audit proves the item acquired by the PLM is the item displayed and
+    /// mutated by pause; no inventory word is seeded by this verifier.
+    /// </summary>
+    private static void VerifyPauseEquipment(
+        ISnesAddressSpace bus,
+        SuperMetroidRuntime runtime)
+    {
+        SamusState samus = runtime.Samus ?? throw new InvalidOperationException(
+            "Pause route verification requires live Samus.");
+        CartridgeRoomHeader room = runtime.ActiveRoom ?? throw new InvalidOperationException(
+            "Pause route verification requires an active room.");
+        if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs))
+            throw new InvalidDataException("Pause route began without the acquired Bombs equipped.");
+
+        var pause = new PauseMenuState(bus, samus, room.AreaIndex);
+        Rgba32[] mapFrame = pause.Render();
+        if (mapFrame.Length != 256 * 224 || mapFrame.All(pixel => pixel.R == 0 && pixel.G == 0 && pixel.B == 0))
+            throw new InvalidDataException("Cartridge pause map rendered an empty frame.");
+
+        pause.Step((ushort)SnesButton.R, 0);
+        for (int frame = 0; frame < 32; frame++)
+            pause.Step(0, 0);
+        if (pause.ScreenMode != 1 || pause.SelectedCategory != 2 || pause.SelectedItem != 2)
+        {
+            throw new InvalidDataException(
+                $"Pause equipment opened at mode/category/item " +
+                $"{pause.ScreenMode}/{pause.SelectedCategory}/{pause.SelectedItem}; " +
+                "the first collected early-game item must be Morph Ball (2/2).");
+        }
+
+        pause.Step(0, (ushort)SnesButton.Down);
+        if (pause.SelectedItem != 3)
+            throw new InvalidDataException("Pause selector did not move from Morph Ball to collected Bombs.");
+        pause.Step(0, (ushort)SnesButton.A);
+        if (samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs))
+            throw new InvalidDataException("Pause A input did not unequip Bombs.");
+        pause.Step(0, 0);
+        pause.Step(0, (ushort)SnesButton.A);
+        if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs))
+            throw new InvalidDataException("Pause A input did not re-equip Bombs.");
+
+        Rgba32[] equipmentFrame = pause.Render();
+        if (equipmentFrame.All(pixel => pixel.R == 0 && pixel.G == 0 && pixel.B == 0))
+            throw new InvalidDataException("Cartridge pause equipment page rendered an empty frame.");
+        Console.WriteLine(
+            "  Pause route: map/equipment page fades and Morph/Bombs live inventory toggles agree.");
     }
 
     /// <summary>

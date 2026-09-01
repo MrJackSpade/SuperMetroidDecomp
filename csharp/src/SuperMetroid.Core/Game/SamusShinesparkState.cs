@@ -47,6 +47,33 @@ public sealed class SamusShinesparkState
     /// <summary>Set when energy or collision installs the crash handler.</summary>
     public bool CrashSoundRequested { get; set; }
 
+    /// <summary>Consumes the stored-shine warning's <c>QueueSfx3_Max9($0C)</c> call.</summary>
+    public bool ConsumeStoredShineWarningSoundRequest()
+    {
+        bool requested = StoredShineWarningSoundRequested;
+        StoredShineWarningSoundRequested = false;
+        return requested;
+    }
+
+    /// <summary>Consumes directional launch's <c>QueueSfx3_Max9($0F)</c> call.</summary>
+    public bool ConsumeLaunchSoundRequest()
+    {
+        bool requested = LaunchSoundRequested;
+        LaunchSoundRequested = false;
+        return requested;
+    }
+
+    /// <summary>
+    /// Consumes crash setup. Retail publishes two calls at this point:
+    /// <c>QueueSfx1_Max6($35)</c> and <c>QueueSfx3_Max6($10)</c>.
+    /// </summary>
+    public bool ConsumeCrashSoundRequest()
+    {
+        bool requested = CrashSoundRequested;
+        CrashSoundRequested = false;
+        return requested;
+    }
+
     /// <summary>High byte of native `$0AAE` while the two crash echoes orbit Samus.</summary>
     public byte CrashSubphase { get; private set; }
 

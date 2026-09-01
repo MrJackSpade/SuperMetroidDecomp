@@ -81,6 +81,14 @@ public sealed class SamusDeathSequenceState
     /// <summary>Set only when the source movement type was spin jumping and SFX `$32` is queued.</summary>
     public bool SpinJumpSoundRequested { get; private set; }
 
+    /// <summary>Consumes death setup's native <c>QueueSfx1_Max6($32)</c> publication.</summary>
+    public bool ConsumeSpinJumpSoundRequest()
+    {
+        bool requested = SpinJumpSoundRequested;
+        SpinJumpSoundRequested = false;
+        return requested;
+    }
+
     /// <summary>Most recently queued zero-based `$400` graphics segment, or null.</summary>
     public byte? LastQueuedSegment { get; private set; }
 

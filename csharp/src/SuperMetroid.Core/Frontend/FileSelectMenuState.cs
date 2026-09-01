@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -25,6 +26,7 @@ public sealed class FileSelectMenuState
     private static readonly ushort[] MissileSpritemapIds = [0x37, 0x36, 0x35, 0x34];
 
     private readonly ISnesAddressSpace bus;
+    private readonly CartridgeAudioState? audio;
     private readonly MenuPpuState ppu;
     private readonly OamBuffer oam = new();
     private readonly ControllerInputState controller = new();
@@ -37,9 +39,10 @@ public sealed class FileSelectMenuState
     private int brightness;
 
     /// <summary>Performs menu indices zero through two, including every native ROM transfer.</summary>
-    public FileSelectMenuState(ISnesAddressSpace bus)
+    public FileSelectMenuState(ISnesAddressSpace bus, CartridgeAudioState? audio = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.audio = audio;
         ppu = new MenuPpuState(bus);
 
         var saveRam = new SuperMetroidSaveRam(bus);
@@ -103,18 +106,27 @@ public sealed class FileSelectMenuState
                 // Copy/Clear remain outside the current playable slice. Up and Down retain
                 // the native no-submenu cycle through A, B, C, and Exit.
                 if ((pressed & SnesButton.Up) != 0)
+                {
                     SelectedItem = SelectedItem switch { 0 => 5, 5 => 2, _ => SelectedItem - 1 };
+                    audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
+                }
                 else if ((pressed & SnesButton.Down) != 0)
+                {
                     SelectedItem = SelectedItem switch { 2 => 5, 5 => 0, _ => SelectedItem + 1 };
+                    audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
+                }
 
                 if ((pressed & SnesButton.B) != 0)
                 {
+                    audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
+                    audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
                     Phase = FileSelectPhase.FadeOutToTitle;
                 }
                 else if ((pressed & (SnesButton.Start | SnesButton.A)) != 0)
                 {
                     if (SelectedItem < 3)
                     {
+                        audio?.QueueSound(library: 1, soundId: 0x2a, maximumQueued: 6);
                         // `menu_index += 27` enters index 31 and enables only the selected
                         // helmet timer. A newly created save initializes to 99 energy later.
                         helmetAnimationFrame = 0;
@@ -123,6 +135,7 @@ public sealed class FileSelectMenuState
                     }
                     else if (SelectedItem == 5)
                     {
+                        audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
                         Phase = FileSelectPhase.FadeOutToTitle;
                     }
                 }

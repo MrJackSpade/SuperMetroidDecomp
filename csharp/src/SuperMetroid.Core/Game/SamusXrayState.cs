@@ -78,6 +78,22 @@ public sealed class SamusXrayState
     /// <summary>Set by state five when sound-library-one effect ten would be queued.</summary>
     public bool DeactivationSoundRequested { get; private set; }
 
+    /// <summary>Consumes visor startup's native <c>QueueSfx1_Max6($09)</c> call.</summary>
+    public bool ConsumeActivationSoundRequest()
+    {
+        bool requested = ActivationSoundRequested;
+        ActivationSoundRequested = false;
+        return requested;
+    }
+
+    /// <summary>Consumes HDMA teardown's native <c>QueueSfx1_Max6($0A)</c> call.</summary>
+    public bool ConsumeDeactivationSoundRequest()
+    {
+        bool requested = DeactivationSoundRequested;
+        DeactivationSoundRequested = false;
+        return requested;
+    }
+
     /// <summary>
     /// Ports the admission tests and pose selection in <c>XraySetup</c> at `$91:E16D`.
     /// The caller represents the already selected/equipped HUD item; item ownership is

@@ -624,7 +624,7 @@ public sealed class IntroCinematicState
         // $8B:AF7B selects BG1SC=$54 (the second cartridge-authored room page), declares a
         // 32x16 collision room, creates Samus/egg/baby/demo owners, and reuses the same
         // text-to-gameplay palette crossfade as the Mother Brain scene.
-        babyDiscovery = new IntroBabyDiscoveryState(bus);
+        babyDiscovery = new IntroBabyDiscoveryState(bus, audio);
         babyDiscovery.Samus.TileTransfers.TransferToVram(bus, vram);
 
         // The old gameplay objects have reached their delete lists. Releasing the scoped
@@ -704,7 +704,7 @@ public sealed class IntroCinematicState
         // $B0F2 selects BG1SC=$58, starts it 32 pixels right with vertical scroll eight,
         // seeds IntroCrossFadeTimer, and spawns definition $CE61 before configuring the
         // scientist palette transition. Its tilemap is already in the $96:FF14 payload.
-        scientistCutscene = IntroScientistCutsceneState.CreateDelivery();
+        scientistCutscene = IntroScientistCutsceneState.CreateDelivery(audio);
         babyDiscovery = null;
 
         paletteFader = new CinematicPaletteFader(introPalette);
@@ -792,7 +792,7 @@ public sealed class IntroCinematicState
 
         // $B123 selects BG1SC=$5C, starts the page at Y=-24, and spawns definition $CE67.
         // Its setup is otherwise the same two-counter scientist crossfade as delivery.
-        scientistCutscene = IntroScientistCutsceneState.CreateExamination();
+        scientistCutscene = IntroScientistCutsceneState.CreateExamination(audio);
         paletteFader = new CinematicPaletteFader(introPalette);
         paletteFader.Clear(0x0040, 0x0010);
         paletteFader.Clear(0x01c0, 0x0009);
@@ -853,6 +853,14 @@ public sealed class IntroCinematicState
             layer1Y: 0,
             flashbackBombProjectiles,
             controllerPreviousNewInput: flashbackDemoInput.PublishedPreviousNewlyPressed);
+        ushort soundId = flashbackProjectiles.LastFrameResult.QueuedSoundEffect;
+        if (soundId != 0)
+        {
+            audio?.QueueSound(
+                library: 1,
+                unchecked((byte)soundId),
+                flashbackProjectiles.LastFrameResult.QueuedSoundMaximum);
+        }
     }
 
     /// <summary>
@@ -1236,7 +1244,7 @@ public sealed class IntroCinematicState
         textTilemap[912] = 0x1c29;
 
         vram.ExecuteWordTransfer(textTilemap, 0x4c00, 1);
-        objects = new IntroCinematicObjectSystem(bus, vram, textTilemap);
+        objects = new IntroCinematicObjectSystem(bus, vram, textTilemap, audio);
         audio?.QueueMusicDelayed8(0);
         audio?.QueueMusicDelayed8(0xff36);
         audio?.QueueMusicDelayed(5, 0x0e);

@@ -210,7 +210,7 @@ public sealed class SuperMetroidGame
                 if (title.FileSelectRequested)
                 {
                     // `$8B:9F52` sets game_state=4 only after the slow fade reaches black.
-                    fileSelect = new FileSelectMenuState(bus);
+                    fileSelect = new FileSelectMenuState(bus, audio);
                     GameState = SuperMetroidGameState.FileSelectMenus;
                     lastPixels = fileSelect.Render();
                 }
@@ -231,7 +231,7 @@ public sealed class SuperMetroidGame
                     loadingExistingSave = fileSelect.SelectedSlotContainsSave;
                     saveRam.SelectSlot(selectedSaveSlot);
                     SaveRamChanged?.Invoke();
-                    options = new GameOptionsMenuState(bus);
+                    options = new GameOptionsMenuState(bus, audio);
                     GameState = SuperMetroidGameState.GameOptionsMenu;
                     lastPixels = options.Render();
                 }
@@ -242,7 +242,7 @@ public sealed class SuperMetroidGame
                 lastPixels = options.Render();
                 if (options.FileSelectRequested)
                 {
-                    fileSelect = new FileSelectMenuState(bus);
+                    fileSelect = new FileSelectMenuState(bus, audio);
                     GameState = SuperMetroidGameState.FileSelectMenus;
                     lastPixels = fileSelect.Render();
                 }
@@ -363,7 +363,8 @@ public sealed class SuperMetroidGame
                     runtime.System,
                     runtime.ActiveRoom?.AreaIndex ?? 0,
                     runtime.ActiveRoom?.MapX ?? 0,
-                    runtime.ActiveRoom?.MapY ?? 0);
+                    runtime.ActiveRoom?.MapY ?? 0,
+                    audio);
                 pauseBrightness = 0;
                 lastPixels = pauseMenu.Render();
                 MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
@@ -507,11 +508,28 @@ public sealed class SuperMetroidGame
 
             case SuperMetroidGameState.HitDoorBlock:
                 // A non-elevator type-$9 door enters `$82:E17D`, which immediately advances
-                // through state $0A into the state-$0B transition coroutine. Audio draining,
-                // palette fade, and scrolling are not translated yet, so keep those native
-                // state boundaries explicit while loading only the cartridge destination.
+                // through state $0A into the state-$0B transition coroutine. Before that
+                // transition, $84:8250 calls Samus code $1D and queues library-two $71 so
+                // movement/charge loops terminate rather than leaking into the next room.
+                SamusState doorSamus = runtime!.Samus
+                    ?? throw new InvalidOperationException("Door transition requires live Samus state.");
+                byte doorMovementType = doorSamus.ReadMovementType(bus);
+                if (doorMovementType is 3 or 20)
+                {
+                    audio.QueueSound(library: 1, soundId: 0x32, maximumQueued: 15);
+                }
+                else if ((controllerInput & (ushort)SnesButton.X) == 0 &&
+                    runtime.Projectiles.FlareCounter < 16)
+                {
+                    audio.QueueSound(library: 1, soundId: 0x02, maximumQueued: 15);
+                }
+                audio.QueueSound(library: 2, soundId: 0x71, maximumQueued: 15);
+
+                // Palette fade, scroll interpolation, and the native wait-for-empty-queues
+                // coroutine are not translated yet, so keep those state boundaries explicit
+                // while loading only the cartridge destination.
                 GameState = SuperMetroidGameState.LoadingNextRoomA;
-                runtime!.LoadPendingDoorDestination();
+                runtime.LoadPendingDoorDestination();
 
                 // The native state-$0B endpoint at `$82:E737` does not expose the newly
                 // loaded room immediately. During every fade-in pass it first runs enemy
@@ -594,6 +612,28 @@ public sealed class SuperMetroidGame
         {
             foreach (SamusSoundRequest request in samus.LiquidPhysics.SoundRequests)
                 audio.QueueSound(request.Library, request.SoundId, request.MaximumQueued);
+
+            // These state machines predate the shared SamusSoundRequest list. Consume their
+            // one-shot publications here, retaining the exact native library and MaxN entry.
+            if (samus.HorizontalSpeed.ConsumeEchoSoundRequest())
+                audio.QueueSound(library: 3, soundId: 0x03, maximumQueued: 6);
+            if (samus.Shinespark.ConsumeStoredShineWarningSoundRequest())
+                audio.QueueSound(library: 3, soundId: 0x0c, maximumQueued: 9);
+            if (samus.Shinespark.ConsumeLaunchSoundRequest())
+                audio.QueueSound(library: 3, soundId: 0x0f, maximumQueued: 9);
+            if (samus.Shinespark.ConsumeCrashSoundRequest())
+            {
+                audio.QueueSound(library: 1, soundId: 0x35, maximumQueued: 6);
+                audio.QueueSound(library: 3, soundId: 0x10, maximumQueued: 6);
+            }
+            if (samus.CrystalFlash.ConsumeActivationSoundRequest())
+                audio.QueueSound(library: 3, soundId: 0x01, maximumQueued: 15);
+            if (samus.Xray.ConsumeActivationSoundRequest())
+                audio.QueueSound(library: 1, soundId: 0x09, maximumQueued: 6);
+            if (samus.Xray.ConsumeDeactivationSoundRequest())
+                audio.QueueSound(library: 1, soundId: 0x0a, maximumQueued: 6);
+            if (samus.DeathSequence.ConsumeSpinJumpSoundRequest())
+                audio.QueueSound(library: 1, soundId: 0x32, maximumQueued: 6);
         }
 
         ushort projectileSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect;
@@ -612,24 +652,8 @@ public sealed class SuperMetroidGame
 
         foreach (EnemySoundRequest request in runtime.Enemies.SoundRequests)
             audio.QueueSound(request.Library, request.SoundId, request.MaximumQueued);
-
-        // The early playable slice's enemy actors already publish the exact queue calls
-        // selected by their bank-$86/$A6 routines. Route those one-frame values through the
-        // same global rings instead of synthesizing actor-specific host sounds.
-        // Ceres-door sounds now use SoundRequests above. These compatibility properties
-        // remain for old verification callers but must not be queued a second time here.
-        if (runtime.Enemies.LastEnemyProjectileDudSoundEffect is ushort dudSound)
-            audio.QueueSound(library: 1, unchecked((byte)dudSound), maximumQueued: 3);
-        if (runtime.Enemies.LastEnemyPickupSoundEffect is ushort pickupSound)
-            audio.QueueSound(library: 2, unchecked((byte)pickupSound), maximumQueued: 1);
-        if (runtime.Enemies.LastEnemyDeathSoundEffectLibrary2 is ushort enemyDeathSound)
-            audio.QueueSound(library: 2, unchecked((byte)enemyDeathSound), maximumQueued: 1);
-        if (runtime.Enemies.Ridley?.LastDeathSoundEffect is ushort ridleyDeathSound)
-            audio.QueueSound(library: 2, unchecked((byte)ridleyDeathSound), maximumQueued: 3);
-        if (runtime.Enemies.Ridley?.MusicRequest is ushort ridleyMusic)
-            audio.QueueMusicDelayed8(ridleyMusic);
-        if (runtime.Enemies.LastBombTorizoMusicRequest is { } torizoMusic)
-            audio.QueueMusicDelayed(torizoMusic.Track, torizoMusic.DelayFrames);
+        foreach (EnemyMusicRequest request in runtime.Enemies.MusicRequests)
+            audio.QueueMusicDelayed(request.Entry, request.DelayFrames);
     }
 
     private string PhaseName => GameState switch

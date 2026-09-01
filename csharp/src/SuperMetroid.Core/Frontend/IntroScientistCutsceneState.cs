@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
@@ -6,11 +7,13 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class IntroScientistCutsceneState
 {
     private readonly IntroDiscoverySprite baby;
+    private readonly CartridgeAudioState? audio;
     private readonly ScientistSceneKind kind;
 
-    private IntroScientistCutsceneState(ScientistSceneKind kind)
+    private IntroScientistCutsceneState(ScientistSceneKind kind, CartridgeAudioState? audio)
     {
         this.kind = kind;
+        this.audio = audio;
         bool delivery = kind == ScientistSceneKind.Delivery;
 
         // Definitions $CE61/$CE67 use separate laboratory pages and mirrored pan axes.
@@ -34,11 +37,11 @@ internal sealed class IntroScientistCutsceneState
 
     public bool PageFiveRequested { get; private set; }
 
-    public static IntroScientistCutsceneState CreateDelivery() =>
-        new(ScientistSceneKind.Delivery);
+    public static IntroScientistCutsceneState CreateDelivery(CartridgeAudioState? audio = null) =>
+        new(ScientistSceneKind.Delivery, audio);
 
-    public static IntroScientistCutsceneState CreateExamination() =>
-        new(ScientistSceneKind.Examination);
+    public static IntroScientistCutsceneState CreateExamination(CartridgeAudioState? audio = null) =>
+        new(ScientistSceneKind.Examination, audio);
 
     public void Step(
         ISnesAddressSpace bus,
@@ -83,6 +86,15 @@ internal sealed class IntroScientistCutsceneState
     {
         switch (opcode)
         {
+            case 0xa25b:
+                audio?.QueueSound(library: 3, soundId: 0x23, maximumQueued: 6);
+                return argumentPointer;
+            case 0xa263:
+                audio?.QueueSound(library: 3, soundId: 0x26, maximumQueued: 6);
+                return argumentPointer;
+            case 0xa26b:
+                audio?.QueueSound(library: 3, soundId: 0x27, maximumQueued: 6);
+                return argumentPointer;
             case 0xb346:
                 // The delivery loop ends by selecting page four.
                 PageFourRequested = true;

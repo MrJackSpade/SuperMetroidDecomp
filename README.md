@@ -54,10 +54,17 @@ These are implementation gaps, not merely missing tests:
   and missile-recharge station PLMs are not implemented.
 - Arbitrary room setup code, room-main code, FX records, and X-ray room data are not generally
   dispatched. Ceres and several encounter-specific paths have explicit translated owners.
-- Audio playback is connected for title/intro/room music and the translated sound publishers
-  used by the continuous playable slice. Later translated enemies still have older debugger-only
-  sound publications to migrate into the shared audio-request list as their rooms are connected.
-  The native core translates this game's SPC driver; it is not a general SPC700 CPU emulator.
+- Audio playback is connected to every currently translated publisher: title/intro/room and
+  boss music; menu and pause feedback; Samus movement, damage, weapon, visor, Crystal Flash,
+  and shinespark effects; PLMs; ordinary enemies; and translated bosses. Older one-value enemy
+  debugger fields are normalized through one central adapter so they do not require room-specific
+  frontend fixes; they retain only the final same-family call if several overwrite the field in
+  one frame. New/direct publishers use a lossless per-frame request list. The native core
+  translates this game's SPC driver; it is not a general SPC700 CPU emulator.
+- Audio owned by untranslated outer systems cannot run yet: reserve-tank auto-refill,
+  game-over/continue, ending/credits, the unimplemented options submenus, and the remainder of
+  the retail door-transition coroutine. Their absence is an owner/dispatcher gap, not an audio
+  mixer or queue gap.
 - Rendering is CPU-based and slow. It covers the paths already used by the playable slice and
   focused audits, but it is not a complete cycle-accurate SNES PPU and does not yet reproduce
   every room's HDMA, window, mosaic, priority, or special background behavior.

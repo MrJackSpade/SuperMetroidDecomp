@@ -206,6 +206,10 @@ static void VerifySamusHorizontalSpeed()
     }
     AssertEqual(0x0402, booster.SpeedBoostCounter, "Speed Booster reaches stage four countdown");
     AssertTrue(booster.EchoSoundRequested, "stage four publishes speed-echo sound event");
+    AssertTrue(booster.ConsumeEchoSoundRequest(),
+        "frontend can consume the speed-echo publication exactly once");
+    AssertTrue(!booster.ConsumeEchoSoundRequest(),
+        "consumed speed-echo publication cannot replay on a later frame");
     AssertEqual(1, booster.ContactDamageIndex, "stage four enables contact damage");
 
     // `$91:DAA9` is a pointer to the active suit's four-entry palette-pointer list, not a

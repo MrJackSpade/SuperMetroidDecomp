@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -45,6 +46,7 @@ internal sealed class PauseMenuState
     ];
 
     private readonly ISnesAddressSpace bus;
+    private readonly CartridgeAudioState? audio;
     private readonly SamusState samus;
     private readonly Bank80SystemState system;
     private readonly byte areaIndex;
@@ -74,11 +76,13 @@ internal sealed class PauseMenuState
         Bank80SystemState system,
         byte areaIndex,
         byte roomMapX,
-        byte roomMapY)
+        byte roomMapY,
+        CartridgeAudioState? audio = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.samus = samus ?? throw new ArgumentNullException(nameof(samus));
         this.system = system ?? throw new ArgumentNullException(nameof(system));
+        this.audio = audio;
         this.areaIndex = areaIndex < 7 ? areaIndex : (byte)0;
         this.roomMapX = roomMapX;
         this.roomMapY = roomMapY;
@@ -149,12 +153,16 @@ internal sealed class PauseMenuState
         // after the delayed-held filter rather than from the raw NMI edge: a fresh press is
         // excluded for three frames by $80:8146 before becoming menu input.
         if ((delayedPressed & SnesButton.Start) != 0)
+        {
+            audio?.QueueSound(library: 1, soundId: 0x38, maximumQueued: 6);
             return true;
+        }
 
         if (ScreenMode == 0)
         {
             if ((delayedPressed & SnesButton.R) != 0)
             {
+                audio?.QueueSound(library: 1, soundId: 0x38, maximumQueued: 6);
                 transition = PauseMenuTransition.MapToEquipmentFadeOut;
                 transitionBrightness = 15;
             }
@@ -163,6 +171,7 @@ internal sealed class PauseMenuState
 
         if ((delayedPressed & SnesButton.L) != 0)
         {
+            audio?.QueueSound(library: 1, soundId: 0x38, maximumQueued: 6);
             transition = PauseMenuTransition.EquipmentToMapFadeOut;
             transitionBrightness = 15;
             return false;
@@ -288,6 +297,7 @@ internal sealed class PauseMenuState
                 if ((collected & ReadCategoryMask(category, item)) == 0)
                     continue;
                 selectedItem = item;
+                audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
                 return;
             }
         }
@@ -298,6 +308,7 @@ internal sealed class PauseMenuState
                 if ((collected & ReadCategoryMask(category, item)) == 0)
                     continue;
                 selectedItem = item;
+                audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
                 return;
             }
         }
@@ -306,6 +317,8 @@ internal sealed class PauseMenuState
             ushort mask = ReadCategoryMask(category, selectedItem);
             if ((collected & mask) == 0)
                 return;
+
+            audio?.QueueSound(library: 1, soundId: 0x38, maximumQueued: 6);
 
             // EquipmentScreenCategory_ButtonResponse toggles the live equipped word, then
             // recolors exactly this label. Rebuilding all labels is equivalent and avoids

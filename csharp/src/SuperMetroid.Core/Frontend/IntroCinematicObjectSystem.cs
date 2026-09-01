@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -40,6 +41,7 @@ internal sealed class IntroCinematicObjectSystem
     private const ushort DrawToPortraitTilemap = 0x88fd;
 
     private readonly ISnesAddressSpace bus;
+    private readonly CartridgeAudioState? audio;
     private readonly SnesVram vram;
     private readonly ushort[] textTilemap;
     private ushort eyeInstructionPointer = 0xd5df;
@@ -51,15 +53,18 @@ internal sealed class IntroCinematicObjectSystem
     private ushort spriteMapPointer;
     private ushort caretX = 8;
     private ushort caretY = 24;
+    private bool typewriterSoundToggle;
 
     public IntroCinematicObjectSystem(
         ISnesAddressSpace bus,
         SnesVram vram,
-        ushort[] textTilemap)
+        ushort[] textTilemap,
+        CartridgeAudioState? audio = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.vram = vram ?? throw new ArgumentNullException(nameof(vram));
         this.textTilemap = textTilemap ?? throw new ArgumentNullException(nameof(textTilemap));
+        this.audio = audio;
         if (textTilemap.Length != 0x400)
             throw new ArgumentException("The cinematic tilemap staging buffer must contain $400 words.", nameof(textTilemap));
     }
@@ -340,6 +345,11 @@ internal sealed class IntroCinematicObjectSystem
                 // the next text row. This is why the object's own pre-instruction can be an
                 // RTS while the visible typewriter block still walks across every line.
                 UpdateCaretAfterCharacter(instructionRecordPointer, packedPosition);
+                // ProcessCinematicBgObject_DrawChar toggles $1991 for every glyph. The
+                // $D67D blank/marker record is silent even on an audible half-cycle.
+                typewriterSoundToggle = !typewriterSoundToggle;
+                if (dataPointer != 0xd67d && typewriterSoundToggle)
+                    audio?.QueueSound(library: 3, soundId: 0x0d, maximumQueued: 6);
                 CopyRectangleToText(destinationX, destinationY, width, height, source);
                 return;
             case DrawToTextTilemap:

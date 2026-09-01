@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -13,6 +14,7 @@ public sealed class GameOptionsMenuState
     private static readonly ushort[] MissileSpritemapIds = [0x37, 0x36, 0x35, 0x34];
 
     private readonly ISnesAddressSpace bus;
+    private readonly CartridgeAudioState? audio;
     private readonly MenuPpuState ppu;
     private readonly OamBuffer oam = new();
     private readonly ControllerInputState controller = new();
@@ -21,9 +23,10 @@ public sealed class GameOptionsMenuState
     private int missileTimer = 1;
     private int missileFrame;
 
-    public GameOptionsMenuState(ISnesAddressSpace bus)
+    public GameOptionsMenuState(ISnesAddressSpace bus, CartridgeAudioState? audio = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.audio = audio;
         ppu = new MenuPpuState(bus);
 
         // `$82:EC77` expands five screens into adjacent WRAM pages. The primary options
@@ -64,9 +67,15 @@ public sealed class GameOptionsMenuState
 
             case GameOptionsPhase.Main:
                 if ((pressed & SnesButton.Up) != 0)
+                {
                     SelectedItem = SelectedItem == 0 ? 4 : SelectedItem - 1;
+                    audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
+                }
                 else if ((pressed & SnesButton.Down) != 0)
+                {
                     SelectedItem = SelectedItem == 4 ? 0 : SelectedItem + 1;
+                    audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
+                }
 
                 if ((pressed & SnesButton.B) != 0)
                 {
@@ -74,6 +83,7 @@ public sealed class GameOptionsMenuState
                 }
                 else if ((pressed & (SnesButton.Start | SnesButton.A)) != 0)
                 {
+                    audio?.QueueSound(library: 1, soundId: 0x38, maximumQueued: 6);
                     switch (SelectedItem)
                     {
                         case 0:

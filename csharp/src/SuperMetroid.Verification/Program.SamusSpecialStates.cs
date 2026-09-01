@@ -146,6 +146,10 @@ static void VerifySamusCrystalFlash()
     AssertEqual(6, samus.AnimationFrame, "raise transition forces animation frame six");
     AssertTrue(samus.CrystalFlash.BubbleHdmaRequested,
         "raise transition publishes Crystal Flash HDMA spawn seam");
+    AssertTrue(samus.CrystalFlash.ConsumeActivationSoundRequest(),
+        "Crystal Flash activation sound is consumable exactly once");
+    AssertTrue(!samus.CrystalFlash.ConsumeActivationSoundRequest(),
+        "consumed Crystal Flash sound cannot replay while ammo drains");
 
     var crystalWindow = new SamusPowerBombExplosionState();
     crystalWindow.Arm();
@@ -331,6 +335,10 @@ static void VerifySamusXray()
     AssertEqual(1, standing.Xray.SetupStage, "X-ray starts setup stage one");
     AssertTrue(standing.Xray.TimeIsFrozen, "X-ray freezes time");
     AssertTrue(standing.Xray.ActivationSoundRequested, "X-ray activation sound requested");
+    AssertTrue(standing.Xray.ConsumeActivationSoundRequest(),
+        "X-ray startup sound is consumable exactly once");
+    AssertTrue(!standing.Xray.ConsumeActivationSoundRequest(),
+        "consumed X-ray startup sound cannot replay");
 
     AssertEqual(2, standing.Xray.StepMovement(bus, standing)!.Value,
         "angle 40 selects forward X-ray frame");
@@ -452,6 +460,10 @@ static void VerifySamusXray()
     AssertEqual(0xffff, standing.Xray.BeamSizeFlag,
         "X-ray teardown requests palette restoration");
     AssertTrue(standing.Xray.DeactivationSoundRequested, "X-ray deactivation sound requested");
+    AssertTrue(standing.Xray.ConsumeDeactivationSoundRequest(),
+        "X-ray teardown sound is consumable exactly once");
+    AssertTrue(!standing.Xray.ConsumeDeactivationSoundRequest(),
+        "consumed X-ray teardown sound cannot replay");
     AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems),
         "X-ray teardown restores normal suit palette");
     AssertEqual(0x0104, cgram.Colors[196], "normal palette replaces visor color");
@@ -703,6 +715,10 @@ static void VerifySamusDeathSequence()
     SamusDeathSequenceStartResult spinStart = spinning.DeathSequence.Begin(
         bus, spinning, layer1X: 0, layer1Y: 0);
     AssertTrue(spinStart.SpinJumpSoundRequested, "spin death requests sound $32");
+    AssertTrue(spinning.DeathSequence.ConsumeSpinJumpSoundRequest(),
+        "spin-death sound is consumable exactly once");
+    AssertTrue(!spinning.DeathSequence.ConsumeSpinJumpSoundRequest(),
+        "consumed spin-death sound cannot replay during death animation");
     AssertEqual(5, spinStart.InitialFrame, "spin death begins unmorphed frame five");
 
     Console.WriteLine(

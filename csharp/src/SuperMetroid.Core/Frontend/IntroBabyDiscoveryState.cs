@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -12,6 +13,7 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class IntroBabyDiscoveryState
 {
     private readonly ISnesAddressSpace bus;
+    private readonly CartridgeAudioState? audio;
     private readonly DemoInputState demo = new();
     private readonly List<IntroEggParticle> eggParticles = [];
     private readonly List<IntroEggSlimeDrop> slimeDrops = [];
@@ -26,9 +28,10 @@ internal sealed class IntroBabyDiscoveryState
         paletteBits: 0x0e00,
         instructionPointer: 0xcc2b);
 
-    public IntroBabyDiscoveryState(ISnesAddressSpace bus)
+    public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.audio = audio;
 
         Samus = new SamusState
         {
@@ -93,7 +96,7 @@ internal sealed class IntroBabyDiscoveryState
         // The baby slot follows the egg slot in the native descending actor traversal, so
         // it observes the egg's freshly advanced list pointer in this same frame.
         StepConfusedBaby(introCrossfadeTimer);
-        confusedBaby.Step(bus);
+        confusedBaby.Step(bus, HandleConfusedBabyInstruction);
 
         foreach (IntroEggParticle particle in eggParticles)
             particle.Step(bus);
@@ -163,6 +166,7 @@ internal sealed class IntroBabyDiscoveryState
                 // and init parameters zero through five, in this exact order.
                 for (byte index = 0; index < 6; index++)
                     eggParticles.Add(new IntroEggParticle(bus, index));
+                audio?.QueueSound(library: 2, soundId: 0x0b, maximumQueued: 6);
                 return argumentPointer;
 
             case 0xb33e:
@@ -175,6 +179,22 @@ internal sealed class IntroBabyDiscoveryState
             default:
                 return null;
         }
+    }
+
+    private ushort? HandleConfusedBabyInstruction(ushort opcode, ushort argumentPointer)
+    {
+        byte soundId = opcode switch
+        {
+            0xa25b => 0x23,
+            0xa263 => 0x26,
+            0xa26b => 0x27,
+            _ => 0,
+        };
+        if (soundId == 0)
+            return null;
+
+        audio?.QueueSound(library: 3, soundId, maximumQueued: 6);
+        return argumentPointer;
     }
 
     private void StepConfusedBaby(ushort introCrossfadeTimer)
@@ -235,6 +255,9 @@ internal sealed class IntroBabyDiscoveryState
                     confusedBaby.YPosition,
                     index));
             }
+            // `$8B:BA73` publishes the first confused cry at the same equality edge
+            // that creates the four egg-slime drops.
+            audio?.QueueSound(library: 3, soundId: 0x23, maximumQueued: 6);
         }
 
         // $BA73 accelerates toward 32 pixels above Samus, clamping to +/-$220 in 8.8.
@@ -265,7 +288,12 @@ internal sealed class IntroBabyDiscoveryState
         }
 
         if (confusedBaby.GeneralTimer < 0x0080)
+        {
             confusedBaby.GeneralTimer++;
+            // `$8B:BB24` cries when the post-increment timer reaches $40 and $80.
+            if ((confusedBaby.GeneralTimer & 0x003f) == 0)
+                audio?.QueueSound(library: 3, soundId: 0x23, maximumQueued: 6);
+        }
 
         BabyXVelocity = AccelerateToward(
             confusedBaby.XPosition,

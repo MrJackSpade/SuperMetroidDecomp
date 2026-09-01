@@ -208,12 +208,21 @@ only buffered delivery of the resulting 48 kHz stereo PCM. That separation keeps
 and each translated producer inspectable in the managed debugger while avoiding host-authored
 replacement samples.
 
-Title, intro, Ceres, room music, Samus movement/damage/liquid sounds, ordinary weapons, PLMs,
-pickups/deaths, elevators, early enemies, Ridley, and Bomb Torizo are connected. Later enemy
-translations still contain some older `Last*SoundEffect` debugger publications which must be
-migrated to the lossless per-frame request list when their gameplay slices are connected. The
-native implementation translates Super Metroid's SPC program; it is intentionally not a
-general-purpose SPC700 instruction emulator.
+Every currently translated audio publisher is connected: title, intro, Ceres, room and boss
+music; file-select/options/pause feedback; Samus movement, damage, liquid, X-ray, Crystal Flash,
+shinespark, death, and weapon effects; PLMs; pickups/deaths; elevators; ordinary enemies; and all
+translated bosses. New enemy code publishes lossless per-frame requests directly. Older verified
+enemy translations are normalized by one central adapter that preserves the retained call's native
+library and `QueueSfxN_MaxM` admission limit without introducing room-specific playback code. Those
+legacy nullable debugger fields can retain only the final same-family call when several overwrite
+one another in a frame; migrating their individual call sites remains a fidelity cleanup, not a
+prerequisite for hearing those systems.
+
+This does not claim sound for untranslated game states. Reserve-tank auto-refill,
+game-over/continue, ending/credits, the controller/special-settings options submenus, and the
+remainder of the retail door-transition fade/scroll/wait coroutine do not yet have integrated
+owners capable of publishing their audio calls. The native implementation translates Super
+Metroid's SPC program; it is intentionally not a general-purpose SPC700 instruction emulator.
 
 For a non-device smoke test that loads the private ROM, runs the real initial upload/music
 sequence, and proves the mixer produced nonzero PCM:

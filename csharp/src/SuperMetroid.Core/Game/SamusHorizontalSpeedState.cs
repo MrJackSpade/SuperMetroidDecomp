@@ -63,6 +63,14 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public bool EchoSoundRequested { get; set; }
 
+    /// <summary>Consumes speed stage four's native <c>QueueSfx3_Max6($03)</c> call.</summary>
+    public bool ConsumeEchoSoundRequest()
+    {
+        bool requested = EchoSoundRequested;
+        EchoSoundRequested = false;
+        return requested;
+    }
+
     /// <summary>Contact-damage selector published when the counter reaches stage four.</summary>
     public ushort ContactDamageIndex { get; set; }
 

@@ -86,6 +86,10 @@ static void VerifySamusStoredShineAndShinespark()
         shine.Shinespark.UpdatePalette(bus, cgram, equippedItems: 0);
     AssertTrue(shine.Shinespark.StoredShineWarningSoundRequested,
         "stored timer 170 requests warning sound");
+    AssertTrue(shine.Shinespark.ConsumeStoredShineWarningSoundRequest(),
+        "frontend can consume the stored-shine warning exactly once");
+    AssertTrue(!shine.Shinespark.ConsumeStoredShineWarningSoundRequest(),
+        "consumed stored-shine warning cannot replay");
     AssertEqual(169, shine.Shinespark.ShineTimer,
         "warning frame still decrements timer");
 
@@ -156,6 +160,10 @@ static void VerifySamusStoredShineAndShinespark()
         directional.Shinespark.TryStoreFromSpeedBooster(0x0400);
         directional.Shinespark.BeginWindup(directional);
         directional.Shinespark.BeginDirectionalLaunch(bus, directional, targetPose);
+        AssertTrue(directional.Shinespark.ConsumeLaunchSoundRequest(),
+            $"pose ${targetPose:X2} publishes one launch sound");
+        AssertTrue(!directional.Shinespark.ConsumeLaunchSoundRequest(),
+            $"pose ${targetPose:X2} launch sound is one-shot");
         directional.Kinematics.YAcceleration = 0;
         directional.Kinematics.YSubacceleration = 0x2800;
         ShinesparkMovementResult directionalStep = directional.Shinespark.Step(
@@ -270,6 +278,10 @@ static void VerifySamusStoredShineAndShinespark()
         "29-energy frame moves then enters crash without another drain");
     AssertEqual(ShinesparkPhase.Crash, horizontal.Shinespark.Phase,
         "low energy installs crash handler");
+    AssertTrue(horizontal.Shinespark.ConsumeCrashSoundRequest(),
+        "crash setup publishes its paired library-one/library-three event once");
+    AssertTrue(!horizontal.Shinespark.ConsumeCrashSoundRequest(),
+        "consumed crash sound event cannot replay during the crash orbit");
     AssertEqual(0, horizontal.HorizontalSpeed.ExtraRunSpeed,
         "crash clears horizontal spark velocity");
 

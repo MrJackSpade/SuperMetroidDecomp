@@ -744,6 +744,7 @@ public sealed partial class RoomEnemySystem
         StepBlueBrinstarFaceBlockPaletteAnimation();
         if (!timeIsFrozen)
             StepRoomSpriteObjects();
+        CollectLegacyEnemyAudioRequests();
     }
 
     /// <summary>

@@ -257,13 +257,26 @@ public sealed class PlayableGameControl : UserControl
             }
             return frame;
         }
-        catch
+        catch (Exception frameException)
         {
             // RecordFrame runs before Step specifically so the throwing controller word is
             // already present. Force that snapshot to disk now: a debugger can leave the
             // process paused indefinitely, so ProcessExit/Dispose and the next periodic
             // flush are not reliable ways to preserve the reproducing frame.
-            inputRecorder?.FlushAfterFrameFailure();
+            try
+            {
+                inputRecorder?.FlushAfterFrameFailure();
+            }
+            catch (Exception recorderException)
+            {
+                // Preserve both failures. Replacing a cartridge/runtime exception with a
+                // secondary diagnostic-write exception would be another silent loss of the
+                // information needed to reproduce the frame.
+                throw new AggregateException(
+                    "The emulated frame and its emergency input-recording flush both failed.",
+                    frameException,
+                    recorderException);
+            }
             throw;
         }
     }

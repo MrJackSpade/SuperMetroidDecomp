@@ -58,87 +58,36 @@ public sealed partial class RoomPlmSystem
         ? slot!.InstructionTimer
         : (ushort)0;
 
-    /// <summary>
-    /// Scans one bank-$8F room population for the sole translated loaded PLM family. The
-    /// Mother Brain room contains exactly one record, <c>$D6DE</c> at block (9,5), followed
-    /// by the zero header terminator. Its setup clears the record argument and changes only
-    /// the collision nibble/BTS; the existing twelve-bit visual block remains untouched.
-    /// </summary>
-    public bool TryLoadMotherBrainGlassPopulation(
-        ISnesAddressSpace bus,
+    /// <summary>Runs setup $D5F6 against the already allocated highest room slot.</summary>
+    private void SetupMotherBrainGlassSlot(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
-        ushort populationPointer,
-        Func<byte, bool> hasAreaBossBit,
-        Func<int, bool> hasEvent,
-        Action<int> setEvent)
+        RoomPlmPopulationRecord record,
+        PlmSlot slot)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(streamer);
-        ArgumentNullException.ThrowIfNull(hasAreaBossBit);
-        ArgumentNullException.ThrowIfNull(hasEvent);
-        ArgumentNullException.ThrowIfNull(setEvent);
-
-        ushort cursor = populationPointer;
-        for (int recordIndex = 0; recordIndex < 256; recordIndex++)
+        int physicalSlot = Array.IndexOf(_slots, slot);
+        if (record.RecordIndex != 0 || physicalSlot != _slots.Length - 1 ||
+            record.BlockX != 9 || record.BlockY != 5 || record.RoomArgument != 0x8000)
         {
-            ushort header = ReadBank8fWord(bus, cursor);
-            if (header == 0)
-                return false;
-
-            byte blockX = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 2)));
-            byte blockY = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 3)));
-            ushort roomArgument = ReadBank8fWord(bus, unchecked((ushort)(cursor + 4)));
-            cursor = unchecked((ushort)(cursor + 6));
-            if (header != MotherBrainGlassHeader)
-                continue;
-
-            // The head callback writes PLM room-argument slot $4E directly. That hardcoded
-            // address is valid only because this is the first room record and therefore
-            // receives the highest free physical slot. Reject altered ordering instead of
-            // quietly attaching the callback to a different host object.
-            if (recordIndex != 0 || blockX != 9 || blockY != 5 || roomArgument != 0x8000 ||
-                ReadBank8fWord(bus, cursor) != 0)
-            {
-                throw new InvalidDataException(
-                    $"Mother Brain glass population diverged: record={recordIndex}, " +
-                    $"block=({blockX},{blockY}), argument=${roomArgument:X4}.");
-            }
-
-            PlmSlot slot = _slots[^1];
-            if (slot.Active)
-                return false; // Native descending allocator silently drops a full-pool spawn.
-
-            slot.Active = true;
-            slot.HeaderPointer = MotherBrainGlassHeader;
-            slot.BlockIndex = level.GetBlockIndex(blockX, blockY);
-            slot.RestoreLevelWord = 0;
-            slot.InstructionPointer = MotherBrainGlassInitialInstruction;
-            slot.InstructionTimer = 1;
-            slot.PreInstruction = 0;
-            slot.RoomArgument = 0; // Setup `$84:D5F6` overwrites population argument $8000.
-            slot.LoopTimer = 0;
-
-            RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
-            ushort glassLevelWord = unchecked((ushort)((original.LevelWord & 0x0fff) | 0x8000));
-            level.SetForegroundEntry(slot.BlockIndex, glassLevelWord);
-            level.SetBehavior(slot.BlockIndex, 0x44);
-            streamer.SetLevelEntry(slot.BlockIndex, glassLevelWord);
-
-            _motherBrainGlassSlotIndex = _slots.Length - 1;
-            _motherBrainGlassRoomWidth = level.WidthInBlocks;
-            _motherBrainGlassWasLoaded = true;
-            _motherBrainGlassWasDeleted = false;
-            _motherBrainGlassLastRoomArgument = 0;
-            _motherBrainHasAreaBossBit = hasAreaBossBit;
-            _motherBrainHasEvent = hasEvent;
-            _motherBrainSetEvent = setEvent;
-            return true;
+            throw new InvalidDataException(
+                $"Mother Brain glass population diverged: record={record.RecordIndex}, " +
+                $"slot={physicalSlot}, block=({record.BlockX},{record.BlockY}), " +
+                $"argument=${record.RoomArgument:X4}.");
         }
 
-        throw new InvalidDataException(
-            $"Room PLM population $8F:{populationPointer:X4} has no zero terminator.");
+        slot.InstructionPointer = MotherBrainGlassInitialInstruction;
+        slot.RoomArgument = 0;
+        RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
+        ushort glassLevelWord = unchecked((ushort)((original.LevelWord & 0x0fff) | 0x8000));
+        level.SetForegroundEntry(slot.BlockIndex, glassLevelWord);
+        level.SetBehavior(slot.BlockIndex, 0x44);
+        streamer.SetLevelEntry(slot.BlockIndex, glassLevelWord);
+
+        _motherBrainGlassSlotIndex = physicalSlot;
+        _motherBrainGlassRoomWidth = level.WidthInBlocks;
+        _motherBrainGlassWasLoaded = true;
+        _motherBrainGlassWasDeleted = false;
+        _motherBrainGlassLastRoomArgument = 0;
     }
 
     /// <summary>

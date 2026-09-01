@@ -332,6 +332,7 @@ public sealed class SuperMetroidGame
 
             case SuperMetroidGameState.MainGameplay:
                 runtime!.StepFrame(controllerInput);
+                HandleSaveStationPersistence();
                 lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 HandleGunshipLandingSave();
                 if (RouteOutOfHealth())
@@ -543,14 +544,17 @@ public sealed class SuperMetroidGame
                 // palette, inventory labels, and PPU bases are installed before state $0E.
                 // Keep accepting NMI so the controller's previous sample remains truthful.
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                CartridgeRoomHeader pauseRoom = runtime.ActiveRoom ??
+                    throw new InvalidOperationException(
+                        "Pause setup requires an active cartridge room header.");
                 pauseMenu = new PauseMenuState(
                     bus,
                     runtime.Samus ?? throw new InvalidOperationException(
                         "Pause setup requires a live Samus state."),
                     runtime.System,
-                    runtime.ActiveRoom?.AreaIndex ?? 0,
-                    runtime.ActiveRoom?.MapX ?? 0,
-                    runtime.ActiveRoom?.MapY ?? 0,
+                    pauseRoom.AreaIndex,
+                    pauseRoom.MapX,
+                    pauseRoom.MapY,
                     audio);
                 pauseBrightness = 0;
                 lastPixels = pauseMenu.Render();
@@ -749,19 +753,22 @@ public sealed class SuperMetroidGame
                     audio.QueueSound(library: 1, soundId: 0x02, maximumQueued: 15);
                     audio.QueueSound(library: 2, soundId: 0x71, maximumQueued: 15);
                     audio.QueueSound(library: 3, soundId: 0x01, maximumQueued: 15);
+                    SamusState endingSamus = runtime.Samus ??
+                        throw new InvalidOperationException(
+                            "Ending inventory calculation requires the live Samus state.");
                     endingCredits = new EndingCreditsState(
                         bus,
                         audio,
                         runtime.GameTime.Hours,
                         runtime.GameTime.Minutes,
                         new EndingInventorySnapshot(
-                            runtime.Samus?.MaxHealth ?? 0,
-                            runtime.Samus?.MaxReserveEnergy ?? 0,
-                            runtime.Samus?.MaxMissiles ?? 0,
-                            runtime.Samus?.MaxSuperMissiles ?? 0,
-                            runtime.Samus?.MaxPowerBombs ?? 0,
-                            runtime.Samus?.CollectedItems ?? 0,
-                            runtime.Samus?.CollectedBeams ?? 0),
+                            endingSamus.MaxHealth,
+                            endingSamus.MaxReserveEnergy,
+                            endingSamus.MaxMissiles,
+                            endingSamus.MaxSuperMissiles,
+                            endingSamus.MaxPowerBombs,
+                            endingSamus.CollectedItems,
+                            endingSamus.CollectedBeams),
                         runtime.JapaneseText);
                     GameState = SuperMetroidGameState.EndingAndCredits;
                     lastPixels = CreateBlackFrame();
@@ -1063,6 +1070,27 @@ public sealed class SuperMetroidGame
         if (runtime is null ||
             !AutomaticCheckpointSaver.TrySaveGunshipLanding(bus, runtime, selectedSaveSlot))
             return;
+        SaveRamChanged?.Invoke();
+    }
+
+    private void HandleSaveStationPersistence()
+    {
+        if (runtime?.ConsumeSaveStationPersistenceRequest() is not { } request)
+            return;
+        SamusState samus = runtime.Samus
+            ?? throw new InvalidOperationException(
+                "A confirmed save station has no live Samus state.");
+        saveRam.SaveSlot(
+            selectedSaveSlot,
+            SuperMetroidSaveSnapshot.Capture(
+                samus,
+                runtime.System,
+                area: request.AreaIndex,
+                saveStation: request.StationIndex,
+                gameTime: runtime.GameTime,
+                controllerBindings: runtime.ControllerBindings,
+                moonwalkEnabled: runtime.MoonwalkEnabled,
+                iconCancelEnabled: runtime.IconCancelEnabled));
         SaveRamChanged?.Invoke();
     }
 

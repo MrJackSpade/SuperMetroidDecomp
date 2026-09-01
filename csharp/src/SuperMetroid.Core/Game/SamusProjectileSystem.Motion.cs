@@ -54,7 +54,8 @@ public sealed partial class SamusProjectileSystem
             SamusProjectileDirection.UpLeft =>
                 MoveHorizontally(level, slot, roomPlms) ||
                 MoveVertically(level, slot, roomPlms),
-            _ => false,
+            _ => throw new InvalidDataException(
+                $"Beam slot contains invalid direction ${slot.PackedDirection.DirectionIndex:X2}."),
         };
 
         if (collided)
@@ -215,7 +216,8 @@ public sealed partial class SamusProjectileSystem
             1 or 3 or 6 or 8 =>
                 MoveMissileHorizontally(bus, level, slot, roomPlms) ||
                 MoveMissileVertically(bus, level, slot, roomPlms),
-            _ => false,
+            _ => throw new InvalidDataException(
+                $"Missile slot contains invalid direction ${direction:X2}."),
         };
         if (collided)
         {

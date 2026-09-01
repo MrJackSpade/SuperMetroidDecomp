@@ -827,7 +827,7 @@ public sealed partial class RoomEnemySystem
             // Phantoon's area-boss bit is clear. The projectile therefore does not begin an
             // impact, and the deactivated-looking body does not enter its recoil sequence.
             if (enemy.EnemyDefinitionPointer == WorkRobotDefinition &&
-                !(_isAreaBossDefeated?.Invoke() ?? false))
+                !RequireAreaBossDefeated())
             {
                 continue;
             }
@@ -1987,7 +1987,7 @@ public sealed partial class RoomEnemySystem
                                 !OwtchAcceptsOrdinaryShot(RequireOwtchState(enemy)) ||
                             enemy.EnemyDefinitionPointer == WorkRobotDefinition &&
                                 selectedShotAi == WorkRobotShotAi &&
-                                !(_isAreaBossDefeated?.Invoke() ?? false);
+                                !RequireAreaBossDefeated();
                         if (!privateCallbackRejected)
                         {
                             ushort enemyHealthBefore = enemy.Health;

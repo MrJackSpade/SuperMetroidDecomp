@@ -164,10 +164,10 @@ public sealed partial class RoomEnemySystem
         state.HandBeamNextYPosition = beam.YPosition;
         state.HandBeamNextYSubposition = beam.YSubposition;
 
-        ushort angleRandom = _nextRandom?.Invoke() ?? 0;
+        ushort angleRandom = _nextRandom!();
         byte scatterAngle = unchecked((byte)(
             state.HandBeamNextAngle + unchecked((byte)angleRandom)));
-        ushort speedRandom = _nextRandom?.Invoke() ?? 0;
+        ushort speedRandom = _nextRandom!();
         ushort scatterSpeed = unchecked((ushort)(speedRandom & 0x0700));
         beam.XVelocity = MultiplyCartridgeSinCos(scatterSpeed, scatterAngle);
         beam.YVelocity = MultiplyCartridgeSinCos(

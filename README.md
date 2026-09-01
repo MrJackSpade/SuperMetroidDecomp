@@ -29,9 +29,9 @@ The following large subsystem passes are implemented:
   initialization/main dispatch, instruction execution, ordinary combat dispatch, touch/shot/
   bomb/Power-Bomb/grapple reactions, enemy projectiles, death, drops, and focused boss logic;
 - cartridge room headers and state selection, level/graphics/background loading, scrolling,
-  camera tracking, ordinary door transitions, colored doors, grey doors, item PLMs, scroll
-  PLMs, the translated breakable-block families, and the encounter-specific PLMs currently
-  used by translated bosses;
+  camera tracking, ordinary door transitions, the sequential bank-`$84` room-PLM loader,
+  colored/grey doors, items, scrolls, elevator platforms, save/map/energy/missile stations,
+  translated breakable blocks, and encounter PLMs currently used by translated bosses;
 - HUD, minimap exploration, pause map/equipment screens, SRAM encoding/checksums, file-select
   save metadata, Ceres automatic save, gunship save/reload, and restoration of inventory and
   world-state bits; and
@@ -53,9 +53,12 @@ its entire retail room and surrounding game-state sequence are integrated, howev
 
 These are implementation gaps, not merely missing tests:
 
-- Bank `$84` PLMs do not yet have one complete general room-population loader/interpreter.
-  Existing room loading scans for supported families individually. Save, map, energy-recharge,
-  and missile-recharge station PLMs are not implemented.
+- Bank `$84` room populations now parse once in ROM order and retain the native descending
+  forty-slot allocation/reuse rules. The current dispatcher translates 882 of 941 retail
+  records across 54 of 70 headers, including elevators and save/map/energy/missile stations.
+  The remaining gate, eye-door, escape/progression, Draygon-cannon, and other special headers
+  fail at room load with exact population/header/coordinate context; their setup and instruction
+  families remain implementation work.
 - Arbitrary room setup code, room-main code, FX records, and X-ray room data are not generally
   dispatched. Ceres and several encounter-specific paths have explicit translated owners.
 - Audio playback is connected to every currently translated publisher: title/intro/room and

@@ -128,8 +128,28 @@ public readonly record struct ControllerBindings(
         }
     }
 
-    /// <summary>Uses retail defaults when a checksum-valid but corrupt slot has bad bindings.</summary>
-    public ControllerBindings OrDefault() => IsRetailPermutation ? this : Default;
+    /// <summary>
+    /// Returns this binding set only when it is a complete retail permutation.
+    /// </summary>
+    /// <remarks>
+    /// A valid SRAM checksum proves only that the payload was written consistently; it does
+    /// not make malformed button words safe. Replacing a corrupt permutation with defaults
+    /// used to hide both bad save data and translation bugs. The caller now gets the exact
+    /// seven words in the exception and can decide whether to delete or repair the save.
+    /// </remarks>
+    public ControllerBindings RequireRetailPermutation()
+    {
+        if (!IsRetailPermutation)
+        {
+            throw new InvalidDataException(
+                "Controller bindings are not a unique permutation of the seven retail " +
+                $"buttons: shoot=${Shoot:X4}, jump=${Jump:X4}, dash=${Dash:X4}, " +
+                $"select=${ItemSelect:X4}, cancel=${ItemCancel:X4}, " +
+                $"aim-up=${AimUp:X4}, aim-down=${AimDown:X4}.");
+        }
+
+        return this;
+    }
 
     private ControllerBindings WithAction(int action, ushort value) => action switch
     {

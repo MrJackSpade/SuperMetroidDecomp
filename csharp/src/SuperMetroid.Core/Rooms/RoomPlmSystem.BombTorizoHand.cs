@@ -57,74 +57,23 @@ public sealed partial class RoomPlmSystem
     public bool HasActiveHeader(ushort header) =>
         _slots.Any(slot => slot.Active && slot.HeaderPointer == header);
 
-    /// <summary>
-    /// Loads population header <c>$D6EA</c> and runs setup <c>$84:D606</c> synchronously.
-    /// </summary>
-    /// <returns>True when an undefeated trigger occupied a physical PLM slot.</returns>
-    public bool TryLoadBombTorizoHandPopulation(
-        ISnesAddressSpace bus,
+    /// <summary>Runs setup $D606 after the generic room allocator has installed the header.</summary>
+    private void SetupBombTorizoHandSlot(
         RoomLevelData level,
-        ushort populationPointer,
-        Func<bool> isAreaTorizoDefeated,
-        Func<SamusState?> getSamus)
+        PlmSlot slot,
+        Func<bool> isAreaTorizoDefeated)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(isAreaTorizoDefeated);
-        ArgumentNullException.ThrowIfNull(getSamus);
-
-        ushort cursor = populationPointer;
-        for (int recordIndex = 0; recordIndex < 256; recordIndex++)
+        if (isAreaTorizoDefeated())
         {
-            ushort header = ReadBank8fWord(bus, cursor);
-            if (header == 0)
-                return false;
-
-            byte blockX = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 2)));
-            byte blockY = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 3)));
-            ushort roomArgument = ReadBank8fWord(bus, unchecked((ushort)(cursor + 4)));
-            cursor = unchecked((ushort)(cursor + 6));
-            if (header != BombTorizoHandHeader)
-                continue;
-
-            // SpawnRoomPLM allocates before setup runs. Setup D606 clears the native header
-            // immediately when area boss bit 4 is set; no later PLM or enemy scan can see it.
-            if (isAreaTorizoDefeated())
-                return false;
-
-            PlmSlot? slot = AllocateBombTorizoHandSlot();
-            if (slot is null)
-                return false; // The descending native allocator silently drops a full pool.
-
-            slot.Active = true;
-            slot.HeaderPointer = BombTorizoHandHeader;
-            slot.BlockIndex = level.GetBlockIndex(blockX, blockY);
-            slot.RestoreLevelWord = 0;
-            slot.InstructionPointer = BombTorizoHandInitialInstruction;
-            slot.InstructionTimer = 1;
-            slot.PreInstruction = 0;
-            slot.RoomArgument = roomArgument;
-            slot.LoopTimer = 0;
-
-            _bombTorizoHandRoomWidth = level.WidthInBlocks;
-            _bombTorizoSamus = getSamus;
-            _bombTorizoHandWasLoaded = true;
-            _bombTorizoHandWasDeleted = false;
-            return true;
+            // Setup deletes synchronously, so the next population record may reuse this ID.
+            ClearSlot(slot);
+            return;
         }
 
-        throw new InvalidDataException(
-            $"Room PLM population $8F:{populationPointer:X4} has no zero terminator.");
-    }
-
-    private PlmSlot? AllocateBombTorizoHandSlot()
-    {
-        for (int index = _slots.Length - 1; index >= 0; index--)
-        {
-            if (!_slots[index].Active)
-                return _slots[index];
-        }
-        return null;
+        slot.InstructionPointer = BombTorizoHandInitialInstruction;
+        _bombTorizoHandRoomWidth = level.WidthInBlocks;
+        _bombTorizoHandWasLoaded = true;
+        _bombTorizoHandWasDeleted = false;
     }
 
     private void BeginBombTorizoHandFrame()

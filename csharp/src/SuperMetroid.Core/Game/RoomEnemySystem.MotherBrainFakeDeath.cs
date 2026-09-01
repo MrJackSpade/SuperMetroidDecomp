@@ -154,12 +154,10 @@ public sealed partial class RoomEnemySystem
 
         // Samus command zero at `$90:F084` locks input. The room scroll assignment is a
         // literal byte copy from index zero to index one, not a guessed red/green value.
-        if (samus is not null)
-            samus.InputLocked = true;
-        if (_readMotherBrainRoomScrollByte is not null && _setMotherBrainRoomScrollByte is not null)
-        {
-            _setMotherBrainRoomScrollByte(1, _readMotherBrainRoomScrollByte(0));
-        }
+        SamusState requiredSamus = samus ?? throw new InvalidOperationException(
+            "Mother Brain's fake-death input lock requires the active Samus state.");
+        requiredSamus.InputLocked = true;
+        RequireSetRoomScrollByte(1, RequireReadRoomScrollByte(0));
 
         state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeMusic;
         state.FunctionTimer = 32;
@@ -301,7 +299,7 @@ public sealed partial class RoomEnemySystem
 
         // `$A9:8904` samples the existing RNG word and never advances it. A host random
         // call here would desynchronize every later Rinka and phase-two attack decision.
-        ushort sampledRandom = _readRandomNumber?.Invoke() ?? 0;
+        ushort sampledRandom = RequireRandomNumber();
         ushort animation = sampledRandom < 0x4000 ? (ushort)12 : (ushort)3;
         SpawnRoomGraphicsDustExplosion(x, y, animation);
         state.LastSoundEffect = 0x24;

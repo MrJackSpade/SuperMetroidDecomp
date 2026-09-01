@@ -477,7 +477,7 @@ public sealed partial class RoomEnemySystem
     {
         state.Function = KiHunterEnemyFunction.NoOp;
         state.VerticalSubvelocity = 0;
-        ushort random = _readRandomNumber?.Invoke() ?? _nextRandom!();
+        ushort random = RequireRandomNumber();
         state.VerticalVelocity = unchecked((ushort)((random & 1) - 8));
         bool jumpLeft = unchecked((short)(body.XPosition - samus.XPosition)) >= 0;
         state.HorizontalSubvelocity = 0;

@@ -406,13 +406,17 @@ public sealed partial class SamusProjectileSystem
         {
             1 or 2 or 3 => baseSpeed,
             6 or 7 or 8 => unchecked((short)-baseSpeed),
-            _ => 0,
+            0 or 4 or 5 or 9 => 0,
+            _ => throw new InvalidDataException(
+                $"Projectile velocity initialization received invalid direction ${direction:X2}."),
         };
         slot.YVelocity = direction switch
         {
             0 or 1 or 8 or 9 => unchecked((short)-baseSpeed),
             3 or 4 or 5 or 6 => baseSpeed,
-            _ => 0,
+            2 or 7 => 0,
+            _ => throw new InvalidDataException(
+                $"Projectile velocity initialization received invalid direction ${direction:X2}."),
         };
     }
 

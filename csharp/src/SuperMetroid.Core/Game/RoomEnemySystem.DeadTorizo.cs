@@ -342,7 +342,7 @@ public sealed partial class RoomEnemySystem
     {
         state.FinishedEntryCount++;
         state.LastFinishedEntryIndex = entryIndex;
-        ushort random = _readRandomNumber?.Invoke() ?? 0;
+        ushort random = RequireRandomNumber();
         SpawnRoomGraphicsDustExplosion(
             unchecked((ushort)((random & 0x001f) + 272)),
             188,

@@ -1552,7 +1552,16 @@ static void VerifySamusPowerBeamProjectiles()
     var coloredDoorPlms = new RoomPlmSystem();
     AssertEqual(
         coloredDoorHeaders.Length,
-        coloredDoorPlms.ApplyColoredDoorSetups(bus, coloredDoors, coloredDoorPopulation),
+        coloredDoorPlms.LoadRoomPopulation(
+            bus,
+            coloredDoors,
+            coloredDoors.CreateBackgroundStreamer(),
+            new SnesVram(),
+            coloredDoorPopulation,
+            new Bank80SystemState(),
+            0,
+            () => new SamusState(),
+            () => false),
         "colored-door setup scans all yellow, green, and red orientations");
     for (int index = 0; index < coloredDoorHeaders.Length; index++)
     {
@@ -1604,11 +1613,16 @@ static void VerifySamusPowerBeamProjectiles()
         new byte[8]);
     var residentDoorSystem = new Bank80SystemState();
     var residentDoorPlms = new RoomPlmSystem();
-    AssertEqual(1, residentDoorPlms.LoadColoredDoorPopulation(
+    AssertEqual(1, residentDoorPlms.LoadRoomPopulation(
             bus,
             residentDoorLevel,
+            residentDoorLevel.CreateBackgroundStreamer(),
+            new SnesVram(),
             residentDoorPopulation,
-            residentDoorSystem),
+            residentDoorSystem,
+            0,
+            () => new SamusState(),
+            () => false),
         "resident colored-door loader allocates red door actor");
     BackgroundTilemapStreamer residentDoorStreamer =
         residentDoorLevel.CreateBackgroundStreamer();
@@ -1657,11 +1671,16 @@ static void VerifySamusPowerBeamProjectiles()
         new ushort[reopenedWords.Length],
         new byte[8]);
     var reopenedDoorPlms = new RoomPlmSystem();
-    reopenedDoorPlms.LoadColoredDoorPopulation(
+    reopenedDoorPlms.LoadRoomPopulation(
         bus,
         reopenedDoorLevel,
+        reopenedDoorLevel.CreateBackgroundStreamer(),
+        new SnesVram(),
         residentDoorPopulation,
-        residentDoorSystem);
+        residentDoorSystem,
+        0,
+        () => new SamusState(),
+        () => false);
     reopenedDoorPlms.Step(
         bus,
         reopenedDoorLevel,
@@ -1741,12 +1760,16 @@ static void VerifySamusPowerBeamProjectiles()
         new byte[8]);
     var greyDoorSystem = new Bank80SystemState();
     var greyDoorPlms = new RoomPlmSystem();
-    AssertEqual(1, greyDoorPlms.LoadGreyDoorPopulation(
+    AssertEqual(1, greyDoorPlms.LoadRoomPopulation(
             bus,
             greyDoorLevel,
+            greyDoorLevel.CreateBackgroundStreamer(),
+            new SnesVram(),
             greyDoorPopulation,
             greyDoorSystem,
-            areaIndex: 0),
+            areaIndex: 0,
+            getSamus: () => new SamusState(),
+            isAreaTorizoDefeated: () => false),
         "grey-door loader allocates enemy-quota actor from population");
     AssertEqual(0x0c, greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).CollisionType,
         "grey-door setup installs shootable-solid collision");
@@ -1808,12 +1831,16 @@ static void VerifySamusPowerBeamProjectiles()
         new ushort[reloadedGreyWords.Length],
         new byte[8]);
     var reloadedGreyPlms = new RoomPlmSystem();
-    reloadedGreyPlms.LoadGreyDoorPopulation(
+    reloadedGreyPlms.LoadRoomPopulation(
         bus,
         reloadedGreyLevel,
+        reloadedGreyLevel.CreateBackgroundStreamer(),
+        new SnesVram(),
         greyDoorPopulation,
         greyDoorSystem,
-        areaIndex: 0);
+        areaIndex: 0,
+        getSamus: () => new SamusState(),
+        isAreaTorizoDefeated: () => false);
     reloadedGreyPlms.Step(
         bus,
         reloadedGreyLevel,

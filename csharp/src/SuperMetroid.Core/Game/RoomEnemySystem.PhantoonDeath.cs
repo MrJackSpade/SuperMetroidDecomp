@@ -195,7 +195,7 @@ public sealed partial class RoomEnemySystem
         state.Mouth!.Properties = deletedProperties;
         if (!state.BossDefeatPersisted)
         {
-            _setAreaBossDefeated?.Invoke();
+            RequireSetAreaBossDefeated();
             state.BossDefeatPersisted = true;
         }
         state.BossDoorPlmRequest = 0xb78b;

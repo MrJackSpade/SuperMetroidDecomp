@@ -27,7 +27,7 @@ public sealed partial class RoomEnemySystem
 
         _kraidState = new KraidEnemyState();
         KraidEnemyState state = _kraidState;
-        if (_isAreaBossDefeated?.Invoke() ?? false)
+        if (RequireAreaBossDefeated())
         {
             // `$A7:A959` installs the dead-room BG palette before the shared part initializer
             // marks every physical actor invisible/deleted/non-interactive.
@@ -74,7 +74,7 @@ public sealed partial class RoomEnemySystem
     private void InitializeKraidArm(RoomEnemySlot arm)
     {
         KraidEnemyState state = RequireKraidState(arm);
-        if (_isAreaBossDefeated?.Invoke() ?? false)
+        if (RequireAreaBossDefeated())
         {
             MarkKraidPartDead(arm);
             return;
@@ -91,7 +91,7 @@ public sealed partial class RoomEnemySystem
     private void InitializeKraidLint(RoomEnemySlot lint, int expectedSlot)
     {
         _ = RequireKraidState(lint);
-        if (_isAreaBossDefeated?.Invoke() ?? false)
+        if (RequireAreaBossDefeated())
         {
             MarkKraidPartDead(lint);
             return;
@@ -108,7 +108,7 @@ public sealed partial class RoomEnemySystem
     private void InitializeKraidFoot(RoomEnemySlot foot)
     {
         KraidEnemyState state = RequireKraidState(foot);
-        if (_isAreaBossDefeated?.Invoke() ?? false)
+        if (RequireAreaBossDefeated())
         {
             MarkKraidPartDead(foot);
             return;
@@ -124,7 +124,7 @@ public sealed partial class RoomEnemySystem
     private void InitializeKraidNail(RoomEnemySlot nail, int expectedSlot)
     {
         KraidEnemyState state = RequireKraidState(nail);
-        if (_isAreaBossDefeated?.Invoke() ?? false)
+        if (RequireAreaBossDefeated())
         {
             MarkKraidPartDead(nail);
             return;

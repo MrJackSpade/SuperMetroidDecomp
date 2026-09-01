@@ -579,7 +579,7 @@ public sealed partial class RoomEnemySystem
     {
         state.FinishedEntryCount++;
         state.LastFinishedEntryIndex = entryIndex;
-        ushort random = _readRandomNumber?.Invoke() ?? 0;
+        ushort random = RequireRandomNumber();
         SpawnRoomGraphicsDustExplosion(
             unchecked((ushort)(slot.XPosition + (random & 0x001a) - 14)),
             unchecked((ushort)(slot.YPosition + 16)),

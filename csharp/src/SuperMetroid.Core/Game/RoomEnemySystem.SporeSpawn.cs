@@ -142,7 +142,7 @@ public sealed partial class RoomEnemySystem
         for (ushort argument = 0; argument < 4; argument++)
             SpawnSporeSpawnStalk(body, argument);
 
-        state.LoadedAsDefeated = _isAreaMiniBossDefeated?.Invoke() ?? false;
+        state.LoadedAsDefeated = RequireAreaMiniBossDefeated();
         if (state.LoadedAsDefeated)
         {
             body.CurrentInstruction = SporeSpawnInitialDeadInstruction;

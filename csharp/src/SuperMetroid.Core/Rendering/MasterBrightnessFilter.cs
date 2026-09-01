@@ -8,8 +8,12 @@ public static class MasterBrightnessFilter
     /// <summary>Scales every opaque color by a native brightness level from zero to 15.</summary>
     public static void Apply(Span<Rgba32> pixels, int level)
     {
-        int clampedLevel = Math.Clamp(level, 0, 15);
-        if (clampedLevel == 15)
+        if (level is < 0 or > 15)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(level), level, "SNES master brightness must be between 0 and 15.");
+        }
+        if (level == 15)
             return;
 
         for (int index = 0; index < pixels.Length; index++)
@@ -18,12 +22,12 @@ public static class MasterBrightnessFilter
             if (color.A == 0)
                 continue;
 
-            pixels[index] = clampedLevel == 0
+            pixels[index] = level == 0
                 ? new Rgba32(0, 0, 0, color.A)
                 : new Rgba32(
-                    (byte)(color.R * clampedLevel / 15),
-                    (byte)(color.G * clampedLevel / 15),
-                    (byte)(color.B * clampedLevel / 15),
+                    (byte)(color.R * level / 15),
+                    (byte)(color.G * level / 15),
+                    (byte)(color.B * level / 15),
                     color.A);
         }
     }

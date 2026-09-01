@@ -335,7 +335,7 @@ public sealed partial class RoomEnemySystem
         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
     }
 
-    private bool HasZebetiteEvent(int eventNumber) => _hasEvent?.Invoke(eventNumber) ?? false;
+    private bool HasZebetiteEvent(int eventNumber) => RequireEvent(eventNumber);
 
     private void PublishZebetiteGenerationEvents(ushort generation)
     {
@@ -347,9 +347,9 @@ public sealed partial class RoomEnemySystem
     private void PublishZebetiteEvent(int eventNumber, bool set)
     {
         if (set)
-            _setEvent?.Invoke(eventNumber);
+            RequireSetEvent(eventNumber);
         else
-            _clearEvent?.Invoke(eventNumber);
+            RequireClearEvent(eventNumber);
     }
 
     private ZebetiteEnemyState RequireZebetiteState(RoomEnemySlot slot) =>

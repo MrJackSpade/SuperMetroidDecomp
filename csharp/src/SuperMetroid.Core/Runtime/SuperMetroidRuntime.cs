@@ -19,6 +19,8 @@ public sealed partial class SuperMetroidRuntime
 {
     private readonly ISnesAddressSpace _addressSpace;
     private SamusSuitPickupKind? _pendingSuitPickup;
+    private StationActivationEvent? _pendingSaveStation;
+    private SaveStationPersistenceRequest? _completedSaveStation;
 
     public SuperMetroidRuntime(ISnesAddressSpace addressSpace)
     {
@@ -361,6 +363,18 @@ public sealed partial class SuperMetroidRuntime
     /// running gameplay until the ROM-authored box has closed.
     /// </summary>
     public GameplayMessageBoxState MessageBox { get; } = new();
+
+    /// <summary>
+    /// Returns and clears a confirmed save-station request. SRAM encoding remains owned by
+    /// the frontend because it owns the selected file slot; the runtime supplies only the
+    /// cartridge area/station identity and already-mutated gameplay state.
+    /// </summary>
+    public SaveStationPersistenceRequest? ConsumeSaveStationPersistenceRequest()
+    {
+        SaveStationPersistenceRequest? request = _completedSaveStation;
+        _completedSaveStation = null;
+        return request;
+    }
 
     /// <summary>
     /// Shared post-message Varia/Gravity light-beam transformation from banks $88/$91.
@@ -1167,6 +1181,29 @@ public sealed partial class SuperMetroidRuntime
             MessageBox.Step(Controller1.Current);
             if (MessageBox.IsActive)
                 return Snapshot(escapeTimerExpired: false);
+
+            if (_pendingSaveStation is { } saveStation)
+            {
+                bool? accepted = MessageBox.ConsumeConfirmationResult();
+                if (accepted is null)
+                {
+                    throw new InvalidDataException(
+                        "Save-station message $17 closed without publishing a selection.");
+                }
+                _pendingSaveStation = null;
+                if (accepted.Value)
+                {
+                    System.MarkSaveStationUsed(
+                        saveStation.AreaIndex,
+                        saveStation.StationIndex & 7);
+                    _completedSaveStation = new SaveStationPersistenceRequest(
+                        saveStation.AreaIndex,
+                        saveStation.StationIndex);
+                    // Native save completion immediately enters ordinary message $18.
+                    MessageBox.Begin(_addressSpace, 0x18);
+                    return Snapshot(escapeTimerExpired: false);
+                }
+            }
 
             // The final zero-radius close NMI returns directly to the suspended item-PLM
             // instruction list. Varia/Gravity immediately call their shared setup routine;
@@ -2525,6 +2562,27 @@ public sealed partial class SuperMetroidRuntime
                     }
                     MessageBox.Begin(_addressSpace, pickup.MessageBoxIndex);
                 }
+                foreach (StationActivationEvent station in Plms.StationActivationEvents)
+                {
+                    if (station.Kind == StationKind.Save)
+                    {
+                        if (_pendingSaveStation is not null || MessageBox.IsActive)
+                        {
+                            throw new InvalidDataException(
+                                "A save station attempted to replace an active PLM message owner.");
+                        }
+                        _pendingSaveStation = station;
+                        MessageBox.Begin(_addressSpace, 0x17);
+                        continue;
+                    }
+                    if (MessageBox.IsActive)
+                    {
+                        throw new InvalidDataException(
+                            "Multiple PLMs attempted to enter the synchronous bank-$85 " +
+                            "message routine during one handler pass.");
+                    }
+                    MessageBox.Begin(_addressSpace, unchecked((byte)station.MessageBoxIndex));
+                }
                 foreach (MotherBrainGlassProjectileRequest request in
                          Plms.MotherBrainGlassProjectileRequests)
                 {
@@ -3798,6 +3856,11 @@ public sealed partial class SuperMetroidRuntime
         EscapeTimer.State,
         escapeTimerExpired);
 }
+
+/// <summary>Confirmed native save-point identity handed to the selected-slot SRAM owner.</summary>
+public readonly record struct SaveStationPersistenceRequest(
+    byte AreaIndex,
+    ushort StationIndex);
 
 /// <summary>
 /// Small immutable return value for loggers and debugger watches after a frame step.

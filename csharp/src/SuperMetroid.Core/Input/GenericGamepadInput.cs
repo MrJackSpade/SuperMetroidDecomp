@@ -16,6 +16,25 @@ public readonly record struct GenericGamepadSnapshot(
     uint PointOfView,
     uint Buttons);
 
+/// <summary>
+/// Identifies how a host driver numbers the four physical face buttons before they are
+/// converted to the SNES controller word.
+/// </summary>
+/// <remarks>
+/// This is deliberately a host-input concern, not an in-game control binding. Super
+/// Metroid still receives literal SNES X/A/B/Y bits and applies its configurable action
+/// bindings afterward. Some generic SNES USB adapters enumerate buttons by their printed
+/// labels instead of by the conventional DirectInput diamond positions.
+/// </remarks>
+public enum GenericGamepadFaceButtonLayout
+{
+    /// <summary>WinMM buttons 1-4 are south, east, west, north: SNES B, A, Y, X.</summary>
+    Positional,
+
+    /// <summary>WinMM buttons 1-4 are printed X, A, B, Y on VID 0079 / PID 0011 pads.</summary>
+    SnesUsbAdapter0079_0011,
+}
+
 /// <summary>Converts a conventional physical gamepad layout into one SNES controller word.</summary>
 public static class GenericGamepadInput
 {
@@ -45,7 +64,9 @@ public static class GenericGamepadInput
     /// </remarks>
     public static SnesButton Map(
         GenericGamepadSnapshot snapshot,
-        int axisDeadZone = DefaultAxisDeadZone)
+        int axisDeadZone = DefaultAxisDeadZone,
+        GenericGamepadFaceButtonLayout faceButtonLayout =
+            GenericGamepadFaceButtonLayout.Positional)
     {
         if (axisDeadZone is < 0 or > short.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(axisDeadZone));
@@ -85,12 +106,24 @@ public static class GenericGamepadInput
         if (up) result |= SnesButton.Up;
         if (down) result |= SnesButton.Down;
 
-        // WinMM button one occupies bit zero. The first six positions are the conventional
-        // four-face/two-shoulder ordering used by this controller class.
-        if (IsPressed(snapshot.Buttons, 0)) result |= SnesButton.B;
-        if (IsPressed(snapshot.Buttons, 1)) result |= SnesButton.A;
-        if (IsPressed(snapshot.Buttons, 2)) result |= SnesButton.Y;
-        if (IsPressed(snapshot.Buttons, 3)) result |= SnesButton.X;
+        // WinMM button one occupies bit zero. Standard DirectInput pads number the diamond
+        // by position (south/east/west/north), but the explicitly supported 0079:0011 SNES
+        // adapter reports the printed labels X/A/B/Y. Keeping the two translations here
+        // ensures the core receives the same authentic SNES word from either device; the
+        // cartridge's separate options bindings still decide what those SNES buttons do.
+        (SnesButton button0, SnesButton button1, SnesButton button2, SnesButton button3) =
+            faceButtonLayout switch
+            {
+                GenericGamepadFaceButtonLayout.Positional =>
+                    (SnesButton.B, SnesButton.A, SnesButton.Y, SnesButton.X),
+                GenericGamepadFaceButtonLayout.SnesUsbAdapter0079_0011 =>
+                    (SnesButton.X, SnesButton.A, SnesButton.B, SnesButton.Y),
+                _ => throw new ArgumentOutOfRangeException(nameof(faceButtonLayout)),
+            };
+        if (IsPressed(snapshot.Buttons, 0)) result |= button0;
+        if (IsPressed(snapshot.Buttons, 1)) result |= button1;
+        if (IsPressed(snapshot.Buttons, 2)) result |= button2;
+        if (IsPressed(snapshot.Buttons, 3)) result |= button3;
         if (IsPressed(snapshot.Buttons, 4)) result |= SnesButton.L;
         if (IsPressed(snapshot.Buttons, 5)) result |= SnesButton.R;
 

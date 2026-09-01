@@ -134,7 +134,7 @@ public sealed partial class RoomEnemySystem
 
         // The current RNG word is sampled without advancing it. Turret cadence and other
         // actors are the producers; a low byte of zero inserts one 64-frame tail whip.
-        if (((_readRandomNumber?.Invoke() ?? 0) & 0x00ff) == 0)
+        if ((RequireRandomNumber() & 0x00ff) == 0)
         {
             state.TailWhipTimer = DraygonTailWhipDuration;
             state.Function = DraygonAiFunction.TailWhipWithSamus;

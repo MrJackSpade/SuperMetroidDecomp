@@ -134,7 +134,7 @@ public sealed partial class RoomEnemySystem
             layer1X: cameraX,
             layer1Y: cameraY,
             enemyFrameCounter: slot.FrameCounter,
-            randomNumber: _readRandomNumber?.Invoke() ?? 0);
+            randomNumber: RequireRandomNumber());
         state.LastBabyMetroidStep = step;
 
         // `$A9:C879` writes the body enemy's instruction words from this later Baby slot.

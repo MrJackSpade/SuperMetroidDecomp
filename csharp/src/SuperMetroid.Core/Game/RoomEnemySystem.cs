@@ -2263,7 +2263,7 @@ public sealed partial class RoomEnemySystem
         // Event $0E is set by Mother Brain's death sequence. Native bypasses every refill
         // and save-prompt branch here, installs the takeoff tile uploader, and keeps the
         // already hidden/input-locked Samus rigidly attached to the ship.
-        if (_hasEvent?.Invoke((int)EventNumber.ZebesTimebombSet) == true)
+        if (RequireEvent((int)EventNumber.ZebesTimebombSet))
         {
             RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
             top.VariableF = 0xabc7;
@@ -3263,7 +3263,7 @@ public sealed partial class RoomEnemySystem
                     // then skip the branch operand and reach `$F68B`'s intangible setup.
                     // Hardcoding the early-game branch stranded the invisible 8x32 actor at
                     // X=$0008 and clipped Samus at X=$001D after the getaway cutscene.
-                    cursor = _isAreaBossDefeated?.Invoke() == true
+                    cursor = RequireAreaBossDefeated()
                         ? unchecked((ushort)(cursor + 4))
                         : ReadWord(
                             _bus!,
@@ -3328,7 +3328,7 @@ public sealed partial class RoomEnemySystem
                     // Instruction 5 samples the existing RNG word; it does not generate a
                     // new value. Clear high bit takes the same-bank operand branch. Set high
                     // bit plays cry $52 and falls through beyond that operand.
-                    if (((_readRandomNumber?.Invoke() ?? 0) & 0x8000) == 0)
+                    if ((RequireRandomNumber() & 0x8000) == 0)
                     {
                         cursor = ReadWord(
                             _bus!,

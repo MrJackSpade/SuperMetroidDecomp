@@ -351,7 +351,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private ushort ReadFakeKraidRandomNumber() =>
-        _readRandomNumber?.Invoke() ?? _nextRandom!();
+        RequireRandomNumber();
 
     private static bool FakeKraidOriginIsOnScreen(
         RoomEnemySlot slot,

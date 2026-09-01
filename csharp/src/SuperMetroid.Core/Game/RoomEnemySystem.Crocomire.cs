@@ -149,7 +149,7 @@ public sealed partial class RoomEnemySystem
         _crocomireDeath = new CrocomireDeathState();
         ClearCrocomireBg2WorkingTilemap();
 
-        if (_isAreaMiniBossDefeated?.Invoke() ?? false)
+        if (RequireAreaMiniBossDefeated())
         {
             // The dead-room state keeps only Crocomire's skeleton display actor. Property
             // mask $7BFF and these radii/coordinates are literal writes at $A4:8AEA-$8B35.
@@ -160,10 +160,10 @@ public sealed partial class RoomEnemySystem
             slot.YPosition = 0x0090;
             slot.XRadius = 0x0028;
             slot.YRadius = 0x001c;
-            _setRoomScrollByte?.Invoke(0, 1);
-            _setRoomScrollByte?.Invoke(1, 1);
-            _setRoomScrollByte?.Invoke(2, 1);
-            _setRoomScrollByte?.Invoke(3, 1);
+            RequireSetRoomScrollByte(0, 1);
+            RequireSetRoomScrollByte(1, 1);
+            RequireSetRoomScrollByte(2, 1);
+            RequireSetRoomScrollByte(3, 1);
             PublishCrocomirePlm(0x20, 0x03, 0xb753);
             PublishCrocomirePlm(0x1e, 0x03, 0xb753);
             PublishCrocomirePlm(0x61, 0x0b, 0xb747);
@@ -177,8 +177,8 @@ public sealed partial class RoomEnemySystem
         InstallCrocomireInstructionList(slot, CrocomireInitialInstructionList);
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
-        _setRoomScrollByte?.Invoke(0, 0);
-        _setRoomScrollByte?.Invoke(1, 0);
+        RequireSetRoomScrollByte(0, 0);
+        RequireSetRoomScrollByte(1, 0);
 
         // The initializer copies seventeen words, not sixteen: X starts at $20 and reaches
         // zero inclusively. Preserve that palette-boundary write because later fades compare
@@ -190,7 +190,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>InitAI_CrocomireTongue</c> at $A4:F67A.</summary>
     private void InitializeCrocomireTongue(RoomEnemySlot slot)
     {
-        if (_isAreaMiniBossDefeated?.Invoke() ?? false)
+        if (RequireAreaMiniBossDefeated())
         {
             slot.Properties = unchecked((ushort)((slot.Properties & 0xdcff) | 0x0300));
             return;

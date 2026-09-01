@@ -255,5 +255,5 @@ public sealed partial class RoomEnemySystem
     }
 
     private ushort ReadKagoRandomNumber() =>
-        _readRandomNumber?.Invoke() ?? _nextRandom!();
+        RequireRandomNumber();
 }

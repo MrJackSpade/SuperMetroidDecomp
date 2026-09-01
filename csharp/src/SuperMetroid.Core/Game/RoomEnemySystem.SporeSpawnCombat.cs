@@ -82,7 +82,7 @@ public sealed partial class RoomEnemySystem
 
         body.CurrentInstruction = SporeSpawnDeathInstruction;
         body.InstructionTimer = 1;
-        _setAreaMiniBossDefeated?.Invoke();
+        RequireSetAreaMiniBossDefeated();
         state.ScrollClampHookActive = false;
         PublishSporeSpawnPlm(header: 0xb78f);
     }

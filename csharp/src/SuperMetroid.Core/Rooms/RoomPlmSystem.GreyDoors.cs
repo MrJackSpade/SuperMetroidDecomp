@@ -31,125 +31,6 @@ public sealed partial class RoomPlmSystem
             slot.GreyDoor.OpeningList))
         .ToArray();
 
-    /// <summary>
-    /// Runs setup <c>$84:C794</c> and allocates every generic or Bomb-Torizo grey door in
-    /// one room's bank-$8F PLM population.
-    /// </summary>
-    /// <remarks>
-    /// Nothing in this loader identifies a particular room. The condition comes from the
-    /// high bits of the cartridge room argument, and every visual/list pointer is followed
-    /// from the selected bank-$84 header. That distinction matters for Old Mother Brain:
-    /// its enemy-quota door is the native producer of event zero (Zebes awake), so setting
-    /// that event in Bomb Torizo's death code would both bypass the door and incorrectly
-    /// make Golden Torizo publish Crateria progression.
-    /// </remarks>
-    public int LoadGreyDoorPopulation(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        ushort populationPointer,
-        Bank80SystemState system,
-        byte areaIndex,
-        Func<bool>? isTourianStatueFinished = null)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(system);
-
-        _greyDoorSystem = system;
-        _greyDoorAreaIndex = areaIndex;
-        _isTourianStatueFinished = isTourianStatueFinished;
-
-        int loaded = 0;
-        ushort cursor = populationPointer;
-        for (int recordIndex = 0; recordIndex < 256; recordIndex++)
-        {
-            ushort header = ReadBank8fWord(bus, cursor);
-            if (header == 0)
-                return loaded;
-
-            byte blockX = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 2)));
-            byte blockY = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 3)));
-            ushort rawRoomArgument = ReadBank8fWord(
-                bus,
-                unchecked((ushort)(cursor + 4)));
-            cursor = unchecked((ushort)(cursor + 6));
-
-            if (!TryIdentifyGreyDoor(header, out ColoredDoorOrientation orientation))
-                continue;
-
-            // Setup_GreyDoor reads the high argument byte, masks bits 2..6, and shifts
-            // once. Expressing the result as a typed table index prevents the low ten
-            // persistence bits from being mistaken for flags belonging to the condition.
-            int conditionOffset = ((rawRoomArgument >> 8) & 0x7c) >> 1;
-            if ((conditionOffset & 1) != 0 || conditionOffset > 12)
-            {
-                throw new InvalidDataException(
-                    $"Grey-door header ${header:X4} selected invalid condition offset " +
-                    $"${conditionOffset:X2} from room argument ${rawRoomArgument:X4}.");
-            }
-            GreyDoorCondition condition = (GreyDoorCondition)(conditionOffset >> 1);
-
-            // `$84:C79E-$C7A4` removes the condition selector while retaining bit 15's
-            // negative/no-persistence sentinel and the ten-bit opened-door bit index.
-            ushort roomArgument = unchecked((ushort)(rawRoomArgument & 0x83ff));
-            int blockIndex = level.GetBlockIndex(blockX, blockY);
-            ApplyGreyDoorSetup(level, blockIndex);
-
-            PlmSlot? slot = AllocateGreyDoorSlot();
-            if (slot is null)
-                continue;
-
-            // The four orientations and the special Bomb Torizo header share the same
-            // graph shape. Following its operands keeps alternate compatible ROM data
-            // authoritative without replacing animation pointers with host constants.
-            ushort initialList = ReadBank84Word(bus, unchecked((ushort)(header + 2)));
-            ushort closedBlueList = ReadBank84Word(
-                bus,
-                unchecked((ushort)(initialList + 2)));
-            ushort activationList = ReadBank84Word(
-                bus,
-                unchecked((ushort)(initialList + 6)));
-            ushort closedGreyDraw = ReadBank84Word(
-                bus,
-                unchecked((ushort)(initialList + 12)));
-            ushort openTriggerList = ReadBank84Word(
-                bus,
-                unchecked((ushort)(activationList + 2)));
-            ushort flashList = unchecked((ushort)(activationList + 8));
-            ushort openingList = ReadBank84Word(
-                bus,
-                unchecked((ushort)(openTriggerList + 3)));
-
-            bool wasOpened = unchecked((short)roomArgument) >= 0 &&
-                system.HasOpenedDoorBit(roomArgument);
-            slot.Active = true;
-            slot.HeaderPointer = header;
-            slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = 0;
-            slot.InstructionPointer = initialList;
-            slot.InstructionTimer = 1;
-            slot.PreInstruction = 0;
-            slot.RoomArgument = roomArgument;
-            slot.LoopTimer = 0;
-            slot.Item = null;
-            slot.Scroll = null;
-            slot.ColoredDoor = null;
-            slot.GreyDoor = new GreyDoorPlmState(
-                orientation,
-                condition,
-                initialList,
-                closedBlueList,
-                closedGreyDraw,
-                flashList,
-                openingList,
-                wasOpened ? GreyDoorPhase.ConvertToBlue : GreyDoorPhase.Locked);
-            loaded++;
-        }
-
-        throw new InvalidDataException(
-            $"Room PLM population $8F:{populationPointer:X4} has no zero terminator.");
-    }
-
     /// <summary>Publishes the native projectile word to a resident grey-door actor.</summary>
     private bool TryNotifyGreyDoorHit(int blockIndex, ushort projectileType)
     {
@@ -317,14 +198,46 @@ public sealed partial class RoomPlmSystem
         level.SetBehavior(blockIndex, 0x44);
     }
 
-    private PlmSlot? AllocateGreyDoorSlot()
+    /// <summary>Runs Setup_GreyDoor on a slot allocated in native record order.</summary>
+    private void SetupGreyDoorSlot(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        Bank80SystemState system,
+        PlmSlot slot,
+        ColoredDoorOrientation orientation)
     {
-        for (int index = _slots.Length - 1; index >= 0; index--)
+        ushort rawRoomArgument = slot.RoomArgument;
+        int conditionOffset = ((rawRoomArgument >> 8) & 0x7c) >> 1;
+        if ((conditionOffset & 1) != 0 || conditionOffset > 12)
         {
-            if (!_slots[index].Active)
-                return _slots[index];
+            throw new InvalidDataException(
+                $"Grey-door header ${slot.HeaderPointer:X4} selected invalid condition " +
+                $"offset ${conditionOffset:X2} from room argument ${rawRoomArgument:X4}.");
         }
-        return null;
+
+        GreyDoorCondition condition = (GreyDoorCondition)(conditionOffset >> 1);
+        slot.RoomArgument = unchecked((ushort)(rawRoomArgument & 0x83ff));
+        ApplyGreyDoorSetup(level, slot.BlockIndex);
+
+        ushort initialList = slot.InstructionPointer;
+        ushort closedBlueList = ReadBank84Word(bus, unchecked((ushort)(initialList + 2)));
+        ushort activationList = ReadBank84Word(bus, unchecked((ushort)(initialList + 6)));
+        ushort closedGreyDraw = ReadBank84Word(bus, unchecked((ushort)(initialList + 12)));
+        ushort openTriggerList = ReadBank84Word(bus, unchecked((ushort)(activationList + 2)));
+        ushort flashList = unchecked((ushort)(activationList + 8));
+        ushort openingList = ReadBank84Word(bus, unchecked((ushort)(openTriggerList + 3)));
+        bool wasOpened = unchecked((short)slot.RoomArgument) >= 0 &&
+            system.HasOpenedDoorBit(slot.RoomArgument);
+
+        slot.GreyDoor = new GreyDoorPlmState(
+            orientation,
+            condition,
+            initialList,
+            closedBlueList,
+            closedGreyDraw,
+            flashList,
+            openingList,
+            wasOpened ? GreyDoorPhase.ConvertToBlue : GreyDoorPhase.Locked);
     }
 
     private static bool TryIdentifyGreyDoor(

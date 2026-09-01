@@ -54,7 +54,7 @@ public sealed partial class RoomEnemySystem
             enemyFrameCounter,
             _randomEnemyCounter,
             powerBombActive: sharedProjectiles?.PowerBombExplosion.Status != 0,
-            randomNumberSeed: _readRandomNumber?.Invoke() ?? 0,
+            randomNumberSeed: RequireRandomNumber(),
             nextRandomNumber: _nextRandom);
         state.LastRainbowBeamStep = step;
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);

@@ -125,7 +125,7 @@ public sealed partial class RoomEnemySystem
 
     private ushort ReadKraidThinkingTimer()
     {
-        ushort random = _readRandomNumber?.Invoke() ?? 0;
+        ushort random = RequireRandomNumber();
         int value = random & 7;
         if (value == 0)
             value = 2;

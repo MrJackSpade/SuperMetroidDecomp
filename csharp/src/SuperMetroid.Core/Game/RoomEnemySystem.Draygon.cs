@@ -445,7 +445,7 @@ public sealed partial class RoomEnemySystem
         if (body.VariableB == body.VariableC)
         {
             body.VariableB = 0;
-            ushort random = _readRandomNumber?.Invoke() ?? 0;
+            ushort random = RequireRandomNumber();
             state.Function = (random & 1) != 0
                 ? DraygonAiFunction.SwoopLeftSetup
                 : DraygonAiFunction.GoopLeftSetup;
@@ -547,7 +547,7 @@ public sealed partial class RoomEnemySystem
         body.VariableB = unchecked((ushort)(body.VariableB + 4));
         if (body.VariableB == body.VariableC)
         {
-            ushort random = _readRandomNumber?.Invoke() ?? 0;
+            ushort random = RequireRandomNumber();
             body.XPosition = state.LeftSideResetXPosition;
             if ((random & 1) != 0)
             {
@@ -649,7 +649,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        ushort random = _readRandomNumber?.Invoke() ?? 0;
+        ushort random = RequireRandomNumber();
         if ((random & 0x000f) == 0)
         {
             state.GoopCounter = unchecked((ushort)(state.GoopCounter - 1));

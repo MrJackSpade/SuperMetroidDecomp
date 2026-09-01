@@ -171,7 +171,7 @@ public sealed partial class RoomEnemySystem
         // `$34` is the room's verified Mother Brain phase-two color-math configuration.
         state.LayerBlendingDefaultConfig =
             (ushort)LayerBlendingConfiguration.MotherBrainPhaseTwo;
-        _setMotherBrainLayerBlendingDefaultConfig?.Invoke(state.LayerBlendingDefaultConfig);
+        RequireSetLayerBlendingDefaultConfig(state.LayerBlendingDefaultConfig);
         state.BrainFunction = MotherBrainBrainFunction.SetupBrainAndNeckToBeDrawn;
 
         // Both records become tangible before the suspense pause, but remain invisible for
@@ -336,7 +336,7 @@ public sealed partial class RoomEnemySystem
             state.BodySubFunctionTimer = 7;
 
         ushort x = MotherBrainAscentDustXPositions[state.BodySubFunctionTimer];
-        ushort random = _readRandomNumber?.Invoke() ?? 0;
+        ushort random = RequireRandomNumber();
         ushort animation = (random & 0x0100) == 0 ? (ushort)9 : (ushort)0x12;
         SpawnRoomGraphicsDustExplosion(x, 0x00d4, animation);
         state.LastSoundEffect = 0x0029;
@@ -438,7 +438,7 @@ public sealed partial class RoomEnemySystem
         if (state.Pose != MotherBrainBodyPose.Standing)
             return;
 
-        ushort random = _readRandomNumber?.Invoke() ?? 0;
+        ushort random = RequireRandomNumber();
         if (state.Head.Health >= 0x1194)
         {
             if (random < 0x1000)
@@ -512,7 +512,7 @@ public sealed partial class RoomEnemySystem
         state.AttackCooldown = 0x0040;
         state.AttackPhase = MotherBrainAttackPhase.Cooldown;
 
-        byte randomLow = unchecked((byte)(_readRandomNumber?.Invoke() ?? 0));
+        byte randomLow = unchecked((byte)RequireRandomNumber());
         byte movementType = samus.ReadMovementType(_bus!);
         if (movementType >= 0x1c)
         {
@@ -596,7 +596,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>$A9:B781-B7AB</c>, including its immediate posture decision.</summary>
     private void DecideMotherBrainBombWalking(MotherBrainEnemyState state)
     {
-        ushort random = _readRandomNumber?.Invoke() ?? 0;
+        ushort random = RequireRandomNumber();
         if (random < 0xff80)
         {
             ushort targetX = random >= 0x6000 ? (ushort)0x0040 : (ushort)0x0060;
@@ -629,7 +629,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void DecideWhetherMotherBrainCrouchesForBomb(MotherBrainEnemyState state)
     {
-        if ((_nextRandom?.Invoke() ?? 0) < 0x8000)
+        if (_nextRandom!() < 0x8000)
         {
             FireMotherBrainBomb(state);
             return;
@@ -885,6 +885,6 @@ public sealed partial class RoomEnemySystem
         state.Bg2XScroll = x;
         state.Bg2YScroll = y;
         state.HasBg2ScrollOverride = true;
-        _setMotherBrainBg2Scroll?.Invoke(x, y);
+        RequireSetMotherBrainBg2Scroll(x, y);
     }
 }

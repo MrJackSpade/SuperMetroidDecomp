@@ -231,7 +231,7 @@ public sealed partial class RoomEnemySystem
         // Boss bit four is shared by the Bomb and Golden Torizo encounters, but it is stored
         // per area. The room loader supplies the current area's accessor, keeping the actor
         // independent from save-memory layout and avoiding a room-number special case.
-        if (_isAreaTorizoDefeated?.Invoke() == true)
+        if (RequireAreaTorizoDefeated())
         {
             torizo.Properties = torizo.Properties.With(EnemyProperties.Deleted);
             state.BossBitSet = true;
@@ -420,7 +420,7 @@ public sealed partial class RoomEnemySystem
                 // already-collected item/removed hand trigger.
                 torizo.Properties = unchecked((ushort)(
                     torizo.Properties | BombTorizoRawTangibleProperty));
-                if (_isRoomPlmPresent?.Invoke(BombTorizoHandTriggerPlm) == true)
+                if (RequireRoomPlmPresent(BombTorizoHandTriggerPlm))
                     return;
 
                 LastBombTorizoMusicRequest = new BombTorizoMusicRequest(6, 8);
@@ -670,7 +670,7 @@ public sealed partial class RoomEnemySystem
     {
         if (torizo.Health == 0 || torizo.Health >= BombTorizoHeadExplosionHealth)
             return;
-        if ((_readRandomNumber?.Invoke() ?? _nextRandom!()) is ushort random &&
+        if (RequireRandomNumber() is ushort random &&
             (random & 0x8142) == 0)
         {
             SpawnBombTorizoInitialDrool(torizo);
@@ -713,7 +713,7 @@ public sealed partial class RoomEnemySystem
 
     private void FinishBombTorizoDeath(TorizoEnemyState state)
     {
-        _setAreaTorizoDefeated?.Invoke();
+        RequireSetAreaTorizoDefeated();
         state.BossBitSet = true;
 
         // The two statues share header $EEFF's chance table but use different native

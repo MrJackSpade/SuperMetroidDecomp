@@ -55,7 +55,7 @@ public sealed partial class RoomEnemySystem
 
     private void InitializeKraidNailFlight(RoomEnemySlot nail, KraidPartState part)
     {
-        ushort random = _readRandomNumber?.Invoke() ?? 0;
+        ushort random = RequireRandomNumber();
         int pointerTable = unchecked((short)nail.VariableE) < 0 ? 0xa7be3e : 0xa7be46;
         ushort velocityPointer = ReadWord(_bus!, pointerTable + ((random & 6) >> 1) * 2);
         nail.VariableB = ReadWord(_bus!, 0xa70000 | velocityPointer);

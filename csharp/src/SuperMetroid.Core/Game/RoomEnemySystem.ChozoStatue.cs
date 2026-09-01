@@ -236,7 +236,7 @@ public sealed partial class RoomEnemySystem
         if (statue.Parameter2 != 0)
         {
             // Lower Norfair's $84:D18F trigger records event $0C before waking the actor.
-            _setEvent?.Invoke(LowerNorfairEvent);
+            RequireSetEvent(LowerNorfairEvent);
             PublishHardcodedChozoPlm(
                 ChozoSpikeFootstepTerrainPlm,
                 blockX: 0x0c,
@@ -247,10 +247,10 @@ public sealed partial class RoomEnemySystem
             // $84:D620 performs two little-endian word stores before handing the statue to
             // $E7AE: scroll bytes 7/8 become green and 13/14 become blue. PLM $D6F8 then
             // queues the authored music/terrain transition in bank $84.
-            _setRoomScrollByte?.Invoke(7, 2);
-            _setRoomScrollByte?.Invoke(8, 2);
-            _setRoomScrollByte?.Invoke(13, 1);
-            _setRoomScrollByte?.Invoke(14, 1);
+            RequireSetRoomScrollByte(7, 2);
+            RequireSetRoomScrollByte(8, 2);
+            RequireSetRoomScrollByte(13, 1);
+            RequireSetRoomScrollByte(14, 1);
             PublishHardcodedChozoPlm(
                 WreckedShipWakePlm,
                 blockX: 0x17,
@@ -276,7 +276,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case ChozoStatuePreInstruction.WaitForWreckedShipHandTrigger:
-                if ((_isAreaBossDefeated?.Invoke() ?? false) && statue.Parameter1 != 0)
+                if (RequireAreaBossDefeated() && statue.Parameter1 != 0)
                 {
                     statue.CurrentInstruction = WreckedShipChozoActiveInstructionList;
                     statue.InstructionTimer = 1;
@@ -453,9 +453,9 @@ public sealed partial class RoomEnemySystem
         // The assembly performs overlapping 16-bit stores at raw scroll indexes 6, 8, 9,
         // and 13. Publish the resulting bytes (6..10 = 0, 13 = 1, 14 = 0) exactly.
         for (int index = 6; index <= 10; index++)
-            _setRoomScrollByte?.Invoke(index, 0);
-        _setRoomScrollByte?.Invoke(13, 1);
-        _setRoomScrollByte?.Invoke(14, 0);
+            RequireSetRoomScrollByte(index, 0);
+        RequireSetRoomScrollByte(13, 1);
+        RequireSetRoomScrollByte(14, 0);
 
         PublishHardcodedChozoPlm(
             WreckedShipSpikeTerrainPlm,
@@ -466,7 +466,7 @@ public sealed partial class RoomEnemySystem
     private void SetChozoStatueSamusControls(bool enabled)
     {
         ChozoStatueSamusControlsEnabled = enabled;
-        _setSamusControlsEnabled?.Invoke(enabled);
+        RequireSetSamusControlsEnabled(enabled);
     }
 
     private void PublishHardcodedChozoPlm(ushort header, int blockX, int blockY) =>

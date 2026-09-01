@@ -197,7 +197,10 @@ public sealed class DoorTransitionState
         foreach (int color in alwaysPreserved)
             target[color] = current[color];
 
-        byte sourceCre = runtime.ActiveRoom?.CreBitset ?? 0;
+        CartridgeRoomHeader sourceRoom = runtime.ActiveRoom ??
+            throw new InvalidOperationException(
+                "Door palette fade started without an active source room header.");
+        byte sourceCre = sourceRoom.CreBitset;
         byte destinationCre = runtime.PendingDoorDestinationCreBitset;
         if (((sourceCre | destinationCre) & 1) == 0)
         {

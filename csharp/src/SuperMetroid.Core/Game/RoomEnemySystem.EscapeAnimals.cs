@@ -323,7 +323,7 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
-    private bool HasCrittersEscaped() => _hasEvent?.Invoke(CrittersEscapedEvent) ?? false;
+    private bool HasCrittersEscaped() => RequireEvent(CrittersEscapedEvent);
 
     private static ushort EscapeAnimalLavaY(SamusState? samus) =>
         samus?.LiquidPhysics.LavaAcidYPosition ?? ushort.MaxValue;

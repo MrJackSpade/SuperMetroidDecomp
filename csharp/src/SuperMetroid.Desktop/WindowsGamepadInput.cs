@@ -15,6 +15,12 @@ namespace SuperMetroid.Desktop;
 /// </remarks>
 internal sealed class WindowsGamepadInput
 {
+    // This is the inexpensive SNES-style USB adapter which motivated the WinMM backend.
+    // Its HID/WinMM driver enumerates the face buttons by printed label X/A/B/Y rather than
+    // DirectInput's usual positional B/A/Y/X order. Apply that quirk only to this exact
+    // device so Xbox-style and other conventional controllers retain positional mapping.
+    private const ushort SnesUsbAdapterManufacturerId = 0x0079;
+    private const ushort SnesUsbAdapterProductId = 0x0011;
     private const uint NoDevice = uint.MaxValue;
     private const uint JoyReturnAll = 0x000000ff;
     private const uint JoyCapabilitiesHasPointOfView = 0x00000010;
@@ -83,7 +89,8 @@ internal sealed class WindowsGamepadInput
                 $"raw X/Y={initialPosition.X}/{initialPosition.Y} in " +
                 $"{capabilities.XMinimum}..{capabilities.XMaximum}/" +
                 $"{capabilities.YMinimum}..{capabilities.YMaximum}, " +
-                $"normalized X/Y={LastSnapshot.HorizontalAxis}/{LastSnapshot.VerticalAxis}.");
+                $"normalized X/Y={LastSnapshot.HorizontalAxis}/{LastSnapshot.VerticalAxis}, " +
+                $"face layout={ResolveFaceButtonLayout(capabilities)}.");
             return;
         }
     }
@@ -112,8 +119,17 @@ internal sealed class WindowsGamepadInput
     private SnesButton MapAndRemember(JoystickPosition position)
     {
         LastSnapshot = CreateSnapshot(position, activeCapabilities);
-        return GenericGamepadInput.Map(LastSnapshot);
+        return GenericGamepadInput.Map(
+            LastSnapshot,
+            faceButtonLayout: ResolveFaceButtonLayout(activeCapabilities));
     }
+
+    private static GenericGamepadFaceButtonLayout ResolveFaceButtonLayout(
+        JoystickCapabilities capabilities) =>
+        capabilities.ManufacturerId == SnesUsbAdapterManufacturerId &&
+        capabilities.ProductId == SnesUsbAdapterProductId
+            ? GenericGamepadFaceButtonLayout.SnesUsbAdapter0079_0011
+            : GenericGamepadFaceButtonLayout.Positional;
 
     private static GenericGamepadSnapshot CreateSnapshot(
         JoystickPosition position,
@@ -139,11 +155,20 @@ internal sealed class WindowsGamepadInput
     private static short NormalizeAxis(uint value, uint minimum, uint maximum)
     {
         if (maximum <= minimum)
-            return 0;
+        {
+            throw new InvalidDataException(
+                $"Gamepad driver reported invalid axis range {minimum}..{maximum}.");
+        }
+        if (value < minimum || value > maximum)
+        {
+            throw new InvalidDataException(
+                $"Gamepad driver reported axis value {value} outside its advertised " +
+                $"range {minimum}..{maximum}.");
+        }
 
-        long clamped = Math.Clamp((long)value, minimum, maximum) - minimum;
-        long normalized = (clamped * ushort.MaxValue) / (maximum - minimum) + short.MinValue;
-        return (short)Math.Clamp(normalized, short.MinValue, short.MaxValue);
+        long offset = (long)value - minimum;
+        long normalized = (offset * ushort.MaxValue) / (maximum - minimum) + short.MinValue;
+        return checked((short)normalized);
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]

@@ -35,7 +35,7 @@ public sealed partial class RoomEnemySystem
                 $"Lower Norfair Ridley requires native enemy slot zero, not slot {slot.SlotIndex}.");
         }
 
-        if (_isAreaBossDefeated?.Invoke() ?? false)
+        if (RequireAreaBossDefeated())
         {
             slot.Properties = slot.Properties.With(
                 EnemyProperties.IgnoreSamusCollision |

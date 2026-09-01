@@ -152,6 +152,12 @@ if (args.Length >= 2 && args[0] == "--retail-collectible-audit")
     return RetailCollectibleAudit.Run(collectibleRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--retail-plm-population-audit")
+{
+    string plmRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailPlmPopulationAudit.Run(plmRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--retail-enemy-execution-audit")
 {
     string executionRomPath = string.Join(' ', args[1..]).Trim('"');

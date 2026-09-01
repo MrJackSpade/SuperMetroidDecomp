@@ -85,20 +85,32 @@ internal sealed class ControllerInputRecorder : IDisposable
     public void RecordFrame(ushort controllerInput)
     {
         ushort[]? snapshot = null;
+        Task? completedFlush = null;
         lock (gate)
         {
             ObjectDisposedException.ThrowIf(disposed, this);
             inputs.Add(controllerInput);
+            if (flushTask.IsCompleted)
+                completedFlush = flushTask;
             if (inputs.Count - frameCountAtLastScheduledFlush >= FlushIntervalFrames &&
                 flushTask.IsCompleted)
             {
+                // Observe the completed worker before replacing it. Without this call a
+                // faulted Task looked just as schedulable as a successful one, so every
+                // later periodic write could fail while gameplay continued unaware.
                 snapshot = inputs.ToArray();
                 frameCountAtLastScheduledFlush = inputs.Count;
             }
         }
 
+        // Poll the worker on every emulated frame, not merely at the next two-second flush
+        // boundary. This is the earliest safe point at which its exception can be moved
+        // back onto the UI thread and made visible to the developer.
+        completedFlush?.GetAwaiter().GetResult();
         if (snapshot is not null)
+        {
             ScheduleFlush(snapshot);
+        }
     }
 
     private void ScheduleFlush(ushort[] snapshot)
@@ -107,8 +119,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         // observing Completed between the decision above and assignment of the new task.
         lock (gate)
         {
-            if (disposed)
-                return;
+            ObjectDisposedException.ThrowIf(disposed, this);
             flushTask = Task.Run(() => WriteAtomically(CreateRecording(snapshot)));
         }
     }
@@ -134,49 +145,33 @@ internal sealed class ControllerInputRecorder : IDisposable
         ushort[] snapshot;
         lock (gate)
         {
-            if (disposed)
-                return;
+            ObjectDisposedException.ThrowIf(disposed, this);
             pendingFlush = flushTask;
             snapshot = inputs.ToArray();
         }
 
-        try
-        {
-            // An older asynchronous snapshot may still own the temporary path. Let it finish
-            // first, then atomically replace the destination with the failure-inclusive copy.
-            pendingFlush.GetAwaiter().GetResult();
-        }
-        catch (Exception exception)
-        {
-            Console.Error.WriteLine($"Asynchronous input recording flush failed: {exception}");
-        }
+        // An older asynchronous snapshot may still own the temporary path. Let it finish
+        // first, then atomically replace the destination with the failure-inclusive copy.
+        // GetResult deliberately rethrows a worker failure on the UI thread.
+        pendingFlush.GetAwaiter().GetResult();
         WriteAtomically(CreateRecording(snapshot));
     }
 
     private void WriteAtomically(ControllerInputRecording recording)
     {
         string temporaryPath = Path + ".tmp";
-        try
+        using (var destination = new FileStream(
+            temporaryPath,
+            FileMode.Create,
+            FileAccess.Write,
+            FileShare.None,
+            bufferSize: 64 * 1024,
+            FileOptions.SequentialScan))
         {
-            using (var destination = new FileStream(
-                temporaryPath,
-                FileMode.Create,
-                FileAccess.Write,
-                FileShare.None,
-                bufferSize: 64 * 1024,
-                FileOptions.SequentialScan))
-            {
-                recording.Write(destination);
-                destination.Flush(flushToDisk: true);
-            }
-            File.Move(temporaryPath, Path, overwrite: true);
+            recording.Write(destination);
+            destination.Flush(flushToDisk: true);
         }
-        catch (Exception exception)
-        {
-            // Losing diagnostics must remain visible, but an unavailable recording folder
-            // must not alter translated gameplay or replace its original exception.
-            Console.Error.WriteLine($"Input recording flush failed for '{Path}': {exception}");
-        }
+        File.Move(temporaryPath, Path, overwrite: true);
     }
 
     private void FlushFinal()
@@ -192,16 +187,7 @@ internal sealed class ControllerInputRecorder : IDisposable
             snapshot = inputs.ToArray();
         }
 
-        try
-        {
-            pendingFlush.GetAwaiter().GetResult();
-        }
-        catch (Exception exception)
-        {
-            // ScheduleFlush's worker catches write errors, but retain this guard if task
-            // creation/serialization changes later. Final replacement is still attempted.
-            Console.Error.WriteLine($"Asynchronous input recording flush failed: {exception}");
-        }
+        pendingFlush.GetAwaiter().GetResult();
         WriteAtomically(CreateRecording(snapshot));
     }
 

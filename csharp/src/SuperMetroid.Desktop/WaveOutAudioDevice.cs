@@ -5,8 +5,8 @@ namespace SuperMetroid.Desktop;
 /// <summary>Small nonblocking PCM queue over Windows' built-in waveOut device.</summary>
 /// <remarks>
 /// Six pinned one-frame buffers provide roughly 100 ms of scheduler/debugger tolerance.
-/// When all are still owned by the device, the newest block is dropped rather than blocking
-/// the UI/emulation thread or allowing audio latency to grow without bound.
+/// Exhausting all six is an observable host scheduling/audio failure. It throws instead of
+/// silently dropping a cartridge audio frame and allowing A/V state to appear healthy.
 /// </remarks>
 internal sealed class WaveOutAudioDevice : IDisposable
 {
@@ -54,10 +54,17 @@ internal sealed class WaveOutAudioDevice : IDisposable
                 .Select(_ => new BufferSlot(samplesPerBuffer))
                 .ToArray();
         }
-        catch
+        catch (Exception allocationException)
         {
-            NativeMethods.Close(device);
+            uint closeResult = NativeMethods.Close(device);
             device = 0;
+            if (closeResult != MultimediaSuccess)
+            {
+                throw new AggregateException(
+                    "PCM buffer allocation and waveOut cleanup both failed.",
+                    allocationException,
+                    CreateError(closeResult, "waveOutClose after allocation failure"));
+            }
             throw;
         }
     }
@@ -78,7 +85,11 @@ internal sealed class WaveOutAudioDevice : IDisposable
         }
 
         if (available is null)
-            return;
+        {
+            throw new InvalidOperationException(
+                $"waveOut still owns all {slots.Length} PCM buffers; refusing to drop " +
+                "the newest emulated audio frame silently.");
+        }
         if (samples.Length != available.Samples.Length)
             throw new ArgumentException("PCM block does not match the device buffer size.", nameof(samples));
 
@@ -130,22 +141,53 @@ internal sealed class WaveOutAudioDevice : IDisposable
         disposed = true;
         if (device != 0)
         {
-            NativeMethods.Reset(device);
+            var failures = new List<Exception>();
+            RecordFailure(
+                failures,
+                NativeMethods.Reset(device),
+                "waveOutReset during disposal");
             foreach (BufferSlot slot in slots)
             {
                 if (slot.Prepared)
-                    NativeMethods.UnprepareHeader(device, slot.Header, WaveHeader.Size);
-                slot.Dispose();
+                {
+                    RecordFailure(
+                        failures,
+                        NativeMethods.UnprepareHeader(device, slot.Header, WaveHeader.Size),
+                        "waveOutUnprepareHeader during disposal");
+                }
+                try
+                {
+                    slot.Dispose();
+                }
+                catch (Exception exception)
+                {
+                    failures.Add(exception);
+                }
             }
-            NativeMethods.Close(device);
+            RecordFailure(failures, NativeMethods.Close(device), "waveOutClose");
             device = 0;
+            if (failures.Count != 0)
+            {
+                throw new AggregateException(
+                    "One or more waveOut disposal operations failed.",
+                    failures);
+            }
         }
     }
 
     private static void ThrowOnError(uint result, string operation)
     {
         if (result != MultimediaSuccess)
-            throw new InvalidOperationException($"{operation} failed with multimedia error {result}.");
+            throw CreateError(result, operation);
+    }
+
+    private static InvalidOperationException CreateError(uint result, string operation) =>
+        new($"{operation} failed with multimedia error {result}.");
+
+    private static void RecordFailure(List<Exception> failures, uint result, string operation)
+    {
+        if (result != MultimediaSuccess)
+            failures.Add(CreateError(result, operation));
     }
 
     private sealed class BufferSlot : IDisposable

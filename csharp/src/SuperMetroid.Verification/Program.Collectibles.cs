@@ -187,14 +187,16 @@ internal static partial class Program
             MaxHealth = 99,
         };
         var plms = new RoomPlmSystem();
-        int loaded = plms.LoadCollectiblePopulation(
+        int loaded = plms.LoadRoomPopulation(
             bus,
             level,
             streamer,
             new SnesVram(),
             population,
             system,
-            () => samus);
+            areaIndex: 0,
+            getSamus: () => samus,
+            isAreaTorizoDefeated: () => false);
         AssertEqual(1, loaded, "one-item room population load count");
         return new CollectibleFixture(plms, level, streamer, system, samus, blockIndex);
     }

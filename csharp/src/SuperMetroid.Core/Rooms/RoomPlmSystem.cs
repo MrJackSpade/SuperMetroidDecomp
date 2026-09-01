@@ -166,9 +166,12 @@ public sealed partial class RoomPlmSystem
             slot.Scroll = null;
             slot.ColoredDoor = null;
             slot.GreyDoor = null;
+            slot.Station = null;
+            slot.IsElevatorPlatform = false;
         }
         _soundRequests.Clear();
         _tilemapUpdates.Clear();
+        _stationActivationEvents.Clear();
         // The progression owner belongs to the room population just discarded. Holding
         // it past Reset would let an accidentally reused PLM slot persist a hit into the
         // previous runtime/system-state instance.
@@ -979,6 +982,7 @@ public sealed partial class RoomPlmSystem
         ArgumentNullException.ThrowIfNull(streamer);
         _soundRequests.Clear();
         _tilemapUpdates.Clear();
+        _stationActivationEvents.Clear();
         BeginMotherBrainGlassFrame();
         BeginCollectibleFrame();
         BeginBombTorizoHandFrame();
@@ -991,6 +995,18 @@ public sealed partial class RoomPlmSystem
 
             if (TryStepScrollPlm(bus, level, scrolls, slot))
                 continue;
+
+            if (TryStepStation(
+                    bus,
+                    level,
+                    streamer,
+                    slot,
+                    layer1XPosition,
+                    layer1YPosition,
+                    bg1XOffset))
+            {
+                continue;
+            }
 
             if (TryStepCollectible(
                     bus,
@@ -1402,6 +1418,10 @@ public sealed partial class RoomPlmSystem
         public ColoredDoorPlmState? ColoredDoor { get; set; }
         /// <summary>Semantic state for condition-gated grey door-cap PLMs.</summary>
         public GreyDoorPlmState? GreyDoor { get; set; }
+        /// <summary>Semantic owner for map/resource/save station instruction families.</summary>
+        public StationPlmState? Station { get; set; }
+        /// <summary>Marks header $B70B while its animation remains generic list execution.</summary>
+        public bool IsElevatorPlatform { get; set; }
     }
 }
 

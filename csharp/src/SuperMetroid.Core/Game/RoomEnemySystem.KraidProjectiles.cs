@@ -107,5 +107,5 @@ public sealed partial class RoomEnemySystem
     }
 
     private ushort ReadKraidRandomNumber() =>
-        _readRandomNumber?.Invoke() ?? _nextRandom!();
+        RequireRandomNumber();
 }

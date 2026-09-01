@@ -89,7 +89,7 @@ public sealed partial class RoomEnemySystem
             SparkInstructionListTable + selectorOffset);
         slot.Timer = 0;
 
-        if (_isAreaBossDefeated?.Invoke() ?? false)
+        if (RequireAreaBossDefeated())
             return;
 
         // This is intentionally *not* `ORA #$0100`. The retail instruction is the odd

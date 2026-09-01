@@ -207,7 +207,7 @@ public sealed partial class RoomEnemySystem
                     // $A2:A549 samples RandomNumberSeed+1 without advancing the RNG. The
                     // gameplay runtime supplies that read seam; isolated callers without it
                     // retain the established advancing fallback used by other translated AI.
-                    ushort random = _readRandomNumber?.Invoke() ?? _nextRandom!();
+                    ushort random = RequireRandomNumber();
                     state.Behavior = (random & 0x0100) == 0
                         ? OwtchBehaviorState.MovingLeft
                         : OwtchBehaviorState.MovingRight;

@@ -129,7 +129,7 @@ public sealed partial class RoomEnemySystem
         if (!TickRidleyFunctionTimer(state))
             return;
 
-        _setAreaBossDefeated?.Invoke();
+        RequireSetAreaBossDefeated();
         state.BossDefeatPublished = true;
 
         // $A0:B8AC scatters sixteen pickups through Ridley's authored 128x64 arena

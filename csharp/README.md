@@ -95,8 +95,8 @@ out-of-range volume values fail with a file and line number.
 
 Battery-backed data is stored as an 8 KiB `.srm` beside the ROM. The implementation includes
 the redundant cartridge checksums, file-select ENERGY/TIME metadata, inventory and equipment,
-events, boss bits, Chozo/item bits, explored map data, Ceres automatic checkpoint, and natural
-gunship save/reload. Existing saves resolve the native area/load-station record. Their native
+events, boss bits, Chozo/item bits, explored map data, Ceres automatic checkpoint, natural
+gunship save/reload, and room save-station confirmation/persistence. Existing saves resolve the native area/load-station record. Their native
 load-appearance presentation remains untranslated and is skipped to its stable standing state.
 
 ### Automatic input recordings and replay
@@ -162,17 +162,22 @@ Implemented room infrastructure includes:
 - blue door traversal plus persistent yellow, green, red, and condition-gated grey door PLMs;
 - permanent exposed/Chozo/shot-block collectible PLMs and suit/item message presentation;
 - scroll-trigger PLMs;
+- the six room elevator-platform PLMs and save, map-download, energy-recharge, and
+  missile-recharge station families, including collision blocks, animations, messages,
+  resource/world-state mutation, and selected-slot SRAM persistence;
 - collision-bomb, projectile-bombable, shootable, special-bomb, and breakable-grapple block
   PLMs, including permanent and respawning variants; and
 - translated encounter mutations for Bomb Torizo, Spore Spawn, Botwoon, Crocomire, Shitroid,
   and Mother Brain.
 
-The room PLM owner is not yet a complete generic bank-$84 implementation. Room loading scans
-the population separately for the supported families above instead of allocating and
-dispatching every record through one `LoadRoomPLM` path. Save stations, map stations, energy
-recharge stations, and missile recharge stations are not implemented. Their activation,
-message/animation flow, resource or SRAM mutation, and persistence are the next major
-room-mechanics slice.
+Room loading now parses every six-byte population record exactly once in ROM order. It allocates
+the native forty-slot pool from highest ID downward before dispatching reusable setup handlers;
+synchronous-delete setups free their physical slot for the next record just as `$84:846A` does.
+Unsupported headers throw with population pointer, record index, header/setup/list pointers,
+coordinates, and room argument. The private-ROM exhaustive audit currently measures 882 of 941
+retail records (54 of 70 headers) as translated. The remaining 59 records are gates, eye doors,
+escape/progression actors, Draygon cannons, Noob Tube, and related special families—not silent
+skips or station/elevator gaps.
 
 Room headers expose FX, X-ray, room-main, PLM, background, and setup pointers, but only the
 translated consumers are executed. Arbitrary room setup code and room-main code are not
@@ -190,7 +195,7 @@ credits, time-selected reward, item percentage, and final message.
 
 The remaining top-level dispatcher gaps are time-up and the attract-mode demo family. Continuous
 play from the current early-game route to the final escape still depends on general room setup,
-room-main, PLM, station, and progression work; that is distinct from the now-integrated ending
+room-main, remaining special-PLM, and progression work; that is distinct from the now-integrated ending
 state family itself.
 
 ### Rendering and audio
@@ -260,6 +265,7 @@ dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-execu
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-lifecycle-audit "Super Metroid.smc"
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-touch-audit "Super Metroid.smc"
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-attack-audit "Super Metroid.smc"
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-plm-population-audit "Super Metroid.smc"
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --early-controller-route-audit "Super Metroid.smc"
 ```
 

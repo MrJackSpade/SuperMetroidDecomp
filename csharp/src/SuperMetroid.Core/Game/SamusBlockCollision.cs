@@ -270,6 +270,19 @@ public static class SamusBlockCollision
                         break;
 
                     case 11:
+                        if (block.Behavior is >= 0x47 and <= 0x4d &&
+                            (plms is null ||
+                             !plms.TryNotifyStationCollision(
+                                 block.Index,
+                                 block.Behavior,
+                                 state.CollisionPose,
+                                 horizontal: true,
+                                 movingPositive: acceptedDisplacement > 0)))
+                        {
+                            throw new InvalidOperationException(
+                                $"Station access block {block.Index} BTS ${block.Behavior:X2} " +
+                                "has no active map/resource/save-station PLM owner.");
+                        }
                         acceptedDisplacement = ClipHorizontalToSolid(
                             state,
                             acceptedDisplacement,
@@ -539,6 +552,19 @@ public static class SamusBlockCollision
                         break;
 
                     case 11:
+                        if (block.Behavior is >= 0x47 and <= 0x4d &&
+                            (plms is null ||
+                             !plms.TryNotifyStationCollision(
+                                 block.Index,
+                                 block.Behavior,
+                                 state.CollisionPose,
+                                 horizontal: false,
+                                 movingPositive: acceptedDisplacement > 0)))
+                        {
+                            throw new InvalidOperationException(
+                                $"Station access block {block.Index} BTS ${block.Behavior:X2} " +
+                                "has no active map/resource/save-station PLM owner.");
+                        }
                         acceptedDisplacement = ClipVerticalToSolid(
                             state,
                             acceptedDisplacement,

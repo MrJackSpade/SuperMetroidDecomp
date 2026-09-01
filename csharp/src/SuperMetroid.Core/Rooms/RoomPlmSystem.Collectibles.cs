@@ -66,108 +66,6 @@ public sealed partial class RoomPlmSystem
         .ToArray();
 
     /// <summary>
-    /// Scans a room's six-byte bank-$8F PLM records and installs every retail permanent
-    /// item header. Unrelated records are left to their own translated owners.
-    /// </summary>
-    /// <returns>The number of collectible records successfully allocated.</returns>
-    public int LoadCollectiblePopulation(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
-        SnesVram vram,
-        ushort populationPointer,
-        Bank80SystemState system,
-        Func<SamusState?> getSamus)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(streamer);
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(system);
-        ArgumentNullException.ThrowIfNull(getSamus);
-
-        _collectibleSystem = system;
-        _collectibleSamus = getSamus;
-        int loaded = 0;
-        ushort cursor = populationPointer;
-
-        // A room population is zero-header terminated. Retail populations are tiny, but
-        // the structural guard prevents a malformed ROM from walking around bank $8F.
-        for (int recordIndex = 0; recordIndex < 256; recordIndex++)
-        {
-            ushort header = ReadBank8fWord(bus, cursor);
-            if (header == 0)
-                return loaded;
-
-            byte blockX = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 2)));
-            byte blockY = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 3)));
-            ushort roomArgument = ReadBank8fWord(bus, unchecked((ushort)(cursor + 4)));
-            cursor = unchecked((ushort)(cursor + 6));
-
-            if (!TryIdentifyPermanentCollectible(header, out InWorldCollectibleKind kind,
-                    out CollectiblePresentation presentation))
-            {
-                continue;
-            }
-
-            PlmSlot? slot = AllocateCollectibleSlot();
-            if (slot is null)
-                continue; // SpawnRoomPLM silently drops records after all forty slots fill.
-
-            int blockIndex = level.GetBlockIndex(blockX, blockY);
-            RoomCollisionBlock original = level.GetCollisionBlockByIndex(blockIndex);
-            bool collected = unchecked((short)roomArgument) >= 0 &&
-                system.HasCollectedItemBit(roomArgument);
-            bool chozoOrbOpened = presentation == CollectiblePresentation.ChozoOrb &&
-                unchecked((short)roomArgument) >= 0 &&
-                system.HasRoomChozoBit(roomArgument);
-            int graphicsSlot = kind >= InWorldCollectibleKind.Bombs
-                ? LoadDynamicCollectibleGraphics(bus, level, vram, header)
-                : -1;
-
-            slot.Active = true;
-            slot.HeaderPointer = header;
-            slot.BlockIndex = blockIndex;
-            slot.RoomArgument = roomArgument;
-            slot.InstructionPointer = ReadBank84Word(
-                bus,
-                unchecked((ushort)(header + 2)));
-            slot.InstructionTimer = 1;
-            slot.PreInstruction = 0;
-            slot.LoopTimer = 0;
-
-            // Exposed/orb setup writes type $0/BTS $45. Shot-item setup instead writes
-            // type $C/BTS $45 and saves that complete post-setup word for reconcealing.
-            ushort setupWord = unchecked((ushort)(original.LevelWord & 0x0fff));
-            if (presentation == CollectiblePresentation.ShotBlock)
-                setupWord |= 0xc000;
-            level.SetForegroundEntry(blockIndex, setupWord);
-            level.SetBehavior(blockIndex, 0x45);
-            streamer.SetLevelEntry(blockIndex, setupWord);
-            slot.RestoreLevelWord = setupWord;
-
-            CollectiblePhase phase = collected
-                ? presentation == CollectiblePresentation.ShotBlock
-                    ? CollectiblePhase.CollectedShotBlock
-                    : CollectiblePhase.CollectedEmpty
-                : presentation switch
-                {
-                    CollectiblePresentation.Exposed => CollectiblePhase.Visible,
-                    CollectiblePresentation.ChozoOrb => chozoOrbOpened
-                        ? CollectiblePhase.Visible
-                        : CollectiblePhase.ChozoOrb,
-                    CollectiblePresentation.ShotBlock => CollectiblePhase.ShotBlock,
-                    _ => throw new ArgumentOutOfRangeException(nameof(presentation)),
-                };
-            slot.Item = new CollectiblePlmState(kind, presentation, graphicsSlot, phase);
-            loaded++;
-        }
-
-        throw new InvalidDataException(
-            $"Room PLM population $8F:{populationPointer:X4} has no zero terminator.");
-    }
-
-    /// <summary>
     /// Publishes Samus contact with a visible type-$B/BTS-$45 item. Native setup
     /// <c>$84:EEAB</c> finds the item PLM sharing this block and writes <c>$00FF</c> to its
     /// trigger timer; acquisition remains owned by the following PLM handler pass.
@@ -223,14 +121,52 @@ public sealed partial class RoomPlmSystem
         _lastCollectiblePickup = null;
     }
 
-    private PlmSlot? AllocateCollectibleSlot()
+    /// <summary>
+    /// Runs one permanent-item setup on the physical slot selected by the shared room
+    /// loader. The setup remains table-driven by the cartridge header and presentation.
+    /// </summary>
+    private void SetupCollectibleSlot(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        BackgroundTilemapStreamer streamer,
+        SnesVram vram,
+        Bank80SystemState system,
+        PlmSlot slot,
+        InWorldCollectibleKind kind,
+        CollectiblePresentation presentation)
     {
-        for (int index = _slots.Length - 1; index >= 0; index--)
-        {
-            if (!_slots[index].Active)
-                return _slots[index];
-        }
-        return null;
+        RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
+        bool collected = unchecked((short)slot.RoomArgument) >= 0 &&
+            system.HasCollectedItemBit(slot.RoomArgument);
+        bool chozoOrbOpened = presentation == CollectiblePresentation.ChozoOrb &&
+            unchecked((short)slot.RoomArgument) >= 0 &&
+            system.HasRoomChozoBit(slot.RoomArgument);
+        int graphicsSlot = kind >= InWorldCollectibleKind.Bombs
+            ? LoadDynamicCollectibleGraphics(bus, level, vram, slot.HeaderPointer)
+            : -1;
+
+        ushort setupWord = unchecked((ushort)(original.LevelWord & 0x0fff));
+        if (presentation == CollectiblePresentation.ShotBlock)
+            setupWord |= 0xc000;
+        level.SetForegroundEntry(slot.BlockIndex, setupWord);
+        level.SetBehavior(slot.BlockIndex, 0x45);
+        streamer.SetLevelEntry(slot.BlockIndex, setupWord);
+        slot.RestoreLevelWord = setupWord;
+
+        CollectiblePhase phase = collected
+            ? presentation == CollectiblePresentation.ShotBlock
+                ? CollectiblePhase.CollectedShotBlock
+                : CollectiblePhase.CollectedEmpty
+            : presentation switch
+            {
+                CollectiblePresentation.Exposed => CollectiblePhase.Visible,
+                CollectiblePresentation.ChozoOrb => chozoOrbOpened
+                    ? CollectiblePhase.Visible
+                    : CollectiblePhase.ChozoOrb,
+                CollectiblePresentation.ShotBlock => CollectiblePhase.ShotBlock,
+                _ => throw new ArgumentOutOfRangeException(nameof(presentation)),
+            };
+        slot.Item = new CollectiblePlmState(kind, presentation, graphicsSlot, phase);
     }
 
     /// <summary>
@@ -708,7 +644,12 @@ public sealed partial class RoomPlmSystem
         InWorldCollectibleKind.SpaceJump => (ushort)SamusEquipmentFlags.SpaceJump,
         InWorldCollectibleKind.ScrewAttack => (ushort)SamusEquipmentFlags.ScrewAttack,
         InWorldCollectibleKind.MorphBall => (ushort)SamusEquipmentFlags.MorphBall,
-        _ => 0,
+        InWorldCollectibleKind.EnergyTank or InWorldCollectibleKind.ReserveTank or
+        InWorldCollectibleKind.MissileTank or InWorldCollectibleKind.SuperMissileTank or
+        InWorldCollectibleKind.PowerBombTank or InWorldCollectibleKind.ChargeBeam or
+        InWorldCollectibleKind.IceBeam or InWorldCollectibleKind.WaveBeam or
+        InWorldCollectibleKind.SpazerBeam or InWorldCollectibleKind.PlasmaBeam => 0,
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
     };
 
     private static ushort GetBeamMask(InWorldCollectibleKind kind) => kind switch
@@ -718,7 +659,7 @@ public sealed partial class RoomPlmSystem
         InWorldCollectibleKind.WaveBeam => (ushort)SamusBeamFlags.Wave,
         InWorldCollectibleKind.SpazerBeam => (ushort)SamusBeamFlags.Spazer,
         InWorldCollectibleKind.PlasmaBeam => (ushort)SamusBeamFlags.Plasma,
-        _ => 0,
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
     };
 
     private static byte GetMessageBoxIndex(InWorldCollectibleKind kind) => kind switch

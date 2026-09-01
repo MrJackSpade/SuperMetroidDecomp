@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Game;
 /// returned while its lag-frame loops were running.
 /// </para>
 /// <para>
-/// This type handles ordinary item messages (IDs 1-19, 25, and 26). Save confirmation
+/// This type handles ordinary messages (IDs 1-22 and 24-26). Save confirmation
 /// IDs 23/28 have a separate selection loop and are intentionally not accepted here.
 /// </para>
 /// </remarks>
@@ -49,6 +49,7 @@ public sealed class GameplayMessageBoxState
     private ushort[] _tilemap = [];
     private int _nextOpeningRadiusPixels;
     private int _nextClosingRadiusPixels;
+    private bool? _closingConfirmationResult;
 
     /// <summary>Whether bank-$85 currently owns the gameplay main loop and BG3 window.</summary>
     public bool IsActive => Phase != GameplayMessageBoxPhase.Inactive;
@@ -74,6 +75,15 @@ public sealed class GameplayMessageBoxState
     /// <summary>Read-only final tilemap after border and configured-button substitution.</summary>
     public ReadOnlySpan<ushort> Tilemap => _tilemap;
 
+    /// <summary>Current yes/no choice for save confirmation message $17.</summary>
+    public bool ConfirmationSelectionYes { get; private set; } = true;
+
+    /// <summary>
+    /// Result published after confirmation $17 has completely closed. Consumers clear it
+    /// through <see cref="ConsumeConfirmationResult"/> at the suspended PLM return seam.
+    /// </summary>
+    public bool? CompletedConfirmationResult { get; private set; }
+
     /// <summary>
     /// Starts one ordinary gameplay message using its native config and tilemap records.
     /// Bindings are parameters because the options menu may remap them; their defaults are
@@ -86,12 +96,12 @@ public sealed class GameplayMessageBoxState
         ushort runBinding = (ushort)SnesButton.B)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if (!(messageId is >= 1 and <= 19 or 25 or 26))
+        if (!(messageId is >= 1 and <= 26))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(messageId),
                 messageId,
-                "Permanent-item message IDs are 1-19, 25, or 26.");
+                "Gameplay message IDs are 1-26; later IDs use separate ending code.");
         }
         if (IsActive)
             throw new InvalidOperationException("A gameplay message box is already active.");
@@ -165,7 +175,18 @@ public sealed class GameplayMessageBoxState
         MinimumDisplayFramesRemaining = 0;
         _nextOpeningRadiusPixels = 0;
         _nextClosingRadiusPixels = MaximumRadiusPixels;
+        _closingConfirmationResult = null;
+        CompletedConfirmationResult = null;
+        ConfirmationSelectionYes = true;
         Phase = GameplayMessageBoxPhase.Opening;
+    }
+
+    /// <summary>Consumes the completed result of save confirmation message $17.</summary>
+    public bool? ConsumeConfirmationResult()
+    {
+        bool? result = CompletedConfirmationResult;
+        CompletedConfirmationResult = null;
+        return result;
     }
 
     /// <summary>Advances one accepted NMI while gameplay remains blocked.</summary>
@@ -183,8 +204,16 @@ public sealed class GameplayMessageBoxState
                 RadiusPixels = _nextOpeningRadiusPixels;
                 if (RadiusPixels == MaximumRadiusPixels)
                 {
-                    MinimumDisplayFramesRemaining = ItemMinimumDisplayFrames;
-                    Phase = GameplayMessageBoxPhase.MinimumDisplay;
+                    if (MessageId == 0x17)
+                    {
+                        MinimumDisplayFramesRemaining = 0;
+                        Phase = GameplayMessageBoxPhase.AwaitingInput;
+                    }
+                    else
+                    {
+                        MinimumDisplayFramesRemaining = ItemMinimumDisplayFrames;
+                        Phase = GameplayMessageBoxPhase.MinimumDisplay;
+                    }
                 }
                 else
                     _nextOpeningRadiusPixels += RadiusStepPixels;
@@ -196,6 +225,29 @@ public sealed class GameplayMessageBoxState
                 return;
 
             case GameplayMessageBoxPhase.AwaitingInput:
+                if (MessageId == 0x17)
+                {
+                    // Bank $85's save selector owns the same synchronous window as item
+                    // boxes. Horizontal input changes the two-choice cursor; A confirms the
+                    // highlighted choice and B is the retail cancellation shortcut.
+                    ushort horizontal = unchecked((ushort)(
+                        controllerInput & ((ushort)SnesButton.Left | (ushort)SnesButton.Right)));
+                    if (horizontal != 0)
+                        ConfirmationSelectionYes = !ConfirmationSelectionYes;
+                    if ((controllerInput & (ushort)SnesButton.B) != 0)
+                    {
+                        _closingConfirmationResult = false;
+                        _nextClosingRadiusPixels = MaximumRadiusPixels;
+                        Phase = GameplayMessageBoxPhase.Closing;
+                    }
+                    else if ((controllerInput & (ushort)SnesButton.A) != 0)
+                    {
+                        _closingConfirmationResult = ConfirmationSelectionYes;
+                        _nextClosingRadiusPixels = MaximumRadiusPixels;
+                        Phase = GameplayMessageBoxPhase.Closing;
+                    }
+                    return;
+                }
                 // Retail's enabled bug-fix path checks held keys, not only new edges.
                 // This is observable when a player begins holding a button during the
                 // mandatory 360-frame item fanfare.
@@ -214,6 +266,8 @@ public sealed class GameplayMessageBoxState
                     // Radius zero has no visible pixels, so restoring gameplay state at
                     // this point preserves the final native wait without losing artwork.
                     Phase = GameplayMessageBoxPhase.Inactive;
+                    CompletedConfirmationResult = _closingConfirmationResult;
+                    _closingConfirmationResult = null;
                     MessageId = 0;
                     MinimumDisplayFramesRemaining = 0;
                     _tilemap = [];

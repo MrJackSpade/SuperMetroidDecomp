@@ -3146,14 +3146,19 @@ internal static class MotherBrainAudit
         var plms = new RoomPlmSystem();
         BackgroundTilemapStreamer streamer =
             assets.LevelData.CreateBackgroundStreamer(sizeOfBg2: 0x0800);
-        if (!plms.TryLoadMotherBrainGlassPopulation(
+        if (plms.LoadRoomPopulation(
                 bus,
                 assets.LevelData,
                 streamer,
+                vram,
                 room.State.PlmPointer,
+                random,
+                room.AreaIndex,
+                getSamus: () => samus,
+                isAreaTorizoDefeated: () => false,
                 hasAreaBossBit: _ => false,
                 hasEvent: events.Contains,
-                setEvent: eventNumber => events.Add(eventNumber)))
+                setEvent: eventNumber => events.Add(eventNumber)) == 0)
         {
             throw new InvalidDataException(
                 $"Mother Brain room did not load PLM ${glassHeader:X4}.");

@@ -235,7 +235,7 @@ public sealed partial class RoomEnemySystem
         // event two is clear and `$A9:87E1` performs no phase mutation. Head-vs-Samus and
         // projectile interactions are separate collision passes and remain outside this
         // body-function dispatcher.
-        bool glassDestroyed = _hasEvent?.Invoke((int)EventNumber.MotherBrainGlassDestroyed) ?? false;
+        bool glassDestroyed = RequireEvent((int)EventNumber.MotherBrainGlassDestroyed);
         if (glassDestroyed)
         {
             state.BrainMainShakeTimer = EarthquakeTimer;
@@ -670,7 +670,7 @@ public sealed partial class RoomEnemySystem
                 return true;
             }
             case 0x9cad: // Usually repeat the neutral phase-two hold at $9C9F.
-                cursor = (_readRandomNumber?.Invoke() ?? 0) < 0xf000
+                cursor = RequireRandomNumber() < 0xf000
                     ? (ushort)0x9c9f
                     : unchecked((ushort)(cursor + 2));
                 return true;
@@ -680,7 +680,7 @@ public sealed partial class RoomEnemySystem
                 // operand beside the opcode. The low twelve random bits select `$9C47`
                 // only for `$FE0-$FFF`; every other value returns the one-frame `$9C5F`
                 // loop. Assigning the cursor directly preserves that control convention.
-                ushort random = _readRandomNumber?.Invoke() ?? 0;
+                ushort random = RequireRandomNumber();
                 cursor = (random & 0x0fff) >= 0x0fe0
                     ? (ushort)0x9c47
                     : (ushort)0x9c5f;
@@ -729,7 +729,7 @@ public sealed partial class RoomEnemySystem
                 // Retail contains an unconditional BRA where the adjacent commentary might
                 // suggest a carry branch. Low-twelve values below `$EC0` replace X with the
                 // hold origin; the remaining values simply continue after this opcode.
-                cursor = ((_readRandomNumber?.Invoke() ?? 0) & 0x0fff) < 0x0ec0
+                cursor = (RequireRandomNumber() & 0x0fff) < 0x0ec0
                     ? (ushort)0x9cd1
                     : unchecked((ushort)(cursor + 2));
                 return true;

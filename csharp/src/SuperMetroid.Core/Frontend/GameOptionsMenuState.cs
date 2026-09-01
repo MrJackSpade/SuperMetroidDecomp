@@ -69,7 +69,8 @@ public sealed class GameOptionsMenuState
         specialEnglishTilemap = DecompressOptionsPage(0x97938d, "English special-settings");
         specialJapaneseTilemap = DecompressOptionsPage(0x97953a, "Japanese special-settings");
 
-        ControllerBindings = (controllerBindings ?? Input.ControllerBindings.Default).OrDefault();
+        ControllerBindings = (controllerBindings ?? Input.ControllerBindings.Default)
+            .RequireRetailPermutation();
         IconCancelEnabled = iconCancelEnabled;
         MoonwalkEnabled = moonwalkEnabled;
         JapaneseText = japaneseText;

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
@@ -65,12 +66,17 @@ internal static partial class Program
         var samus = new SamusState();
         var plms = new RoomPlmSystem();
 
-        AssertTrue(plms.TryLoadBombTorizoHandPopulation(
+        AssertEqual(1, plms.LoadRoomPopulation(
                 bus,
                 level,
+                streamer,
+                new SnesVram(),
                 population,
+                new Bank80SystemState(),
+                areaIndex: 0,
+                getSamus: () => samus,
                 isAreaTorizoDefeated: () => false,
-                getSamus: () => samus),
+                isTourianStatueFinished: null),
             "undefeated Bomb Torizo hand occupies PLM slot");
         AssertTrue(plms.HasActiveHeader(0xd6ea),
             "enemy header scan sees live Bomb Torizo hand");
@@ -126,13 +132,17 @@ internal static partial class Program
             "terminal hand music request");
 
         var defeated = new RoomPlmSystem();
-        AssertTrue(!defeated.TryLoadBombTorizoHandPopulation(
+        AssertEqual(1, defeated.LoadRoomPopulation(
                 bus,
                 level,
+                streamer,
+                new SnesVram(),
                 population,
-                isAreaTorizoDefeated: () => true,
-                getSamus: () => samus),
-            "setup D606 deletes hand for defeated save");
+                new Bank80SystemState(),
+                areaIndex: 0,
+                getSamus: () => samus,
+                isAreaTorizoDefeated: () => true),
+            "single loader still parses defeated hand record before setup deletes it");
         AssertTrue(!defeated.HasActiveHeader(0xd6ea),
             "defeated setup exposes no transient hand header");
 

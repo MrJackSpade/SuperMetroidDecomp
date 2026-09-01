@@ -397,7 +397,7 @@ public sealed partial class RoomEnemySystem
         slot.EnemyDefinitionPointer == CrocomireDefinition &&
         MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, pixels << 16);
 
-    private ushort ReadCrocomireRandom() => _readRandomNumber?.Invoke() ?? _nextRandom!();
+    private ushort ReadCrocomireRandom() => RequireRandomNumber();
 
     private void SpawnCrocomireRandomFootDust(CrocomireEnemyState state)
     {

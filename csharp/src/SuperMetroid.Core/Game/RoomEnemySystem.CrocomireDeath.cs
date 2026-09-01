@@ -358,8 +358,8 @@ public sealed partial class RoomEnemySystem
         LastCrocomireMusicRequest = new CrocomireMusicRequest(Track: 6, DelayFrames: 8);
         state.DeathSequenceIndex = 0x58;
         InstallCrocomireInstructionList(state.Body, CrocomireSkeletonRiverList);
-        _setRoomScrollByte?.Invoke(4, 1);
-        _setRoomScrollByte?.Invoke(5, 1);
+        RequireSetRoomScrollByte(4, 1);
+        RequireSetRoomScrollByte(5, 1);
         if (state.Tongue is { } tongue)
             tongue.Properties |= 0x0200;
         PublishCrocomirePlm(0x4e, 0x03, 0xb753);
@@ -388,8 +388,8 @@ public sealed partial class RoomEnemySystem
             return;
 
         LastCrocomireMusicRequest = new CrocomireMusicRequest(Track: 5, DelayFrames: 8);
-        _setRoomScrollByte?.Invoke(3, 0);
-        _setRoomScrollByte?.Invoke(4, 1);
+        RequireSetRoomScrollByte(3, 0);
+        RequireSetRoomScrollByte(4, 1);
         PublishCrocomirePlm(0x30, 0x03, 0xb757);
         RoomEnemySlot body = state.Body;
         body.Properties = unchecked((ushort)((body.Properties & 0x7bff) | 0x0400));
@@ -570,7 +570,7 @@ public sealed partial class RoomEnemySystem
     private void FinishCrocomireArenaScrolls(CrocomireEnemyState state)
     {
         for (int index = 0; index < 4; index++)
-            _setRoomScrollByte?.Invoke(index, 1);
+            RequireSetRoomScrollByte(index, 1);
         PublishCrocomirePlm(0x1e, 0x03, 0xb753);
         state.DeathSequenceIndex += 2;
     }
@@ -578,7 +578,7 @@ public sealed partial class RoomEnemySystem
     private void CompleteCrocomireBoss(CrocomireEnemyState state)
     {
         LastCrocomireMusicRequest = new CrocomireMusicRequest(Track: 6, DelayFrames: 8);
-        _setAreaMiniBossDefeated?.Invoke();
+        RequireSetAreaMiniBossDefeated();
         RequireCrocomireDeath().BossBitSet = true;
         SpawnCrocomireDust(state, -16);
         SpawnCrocomireDust(state, 16);

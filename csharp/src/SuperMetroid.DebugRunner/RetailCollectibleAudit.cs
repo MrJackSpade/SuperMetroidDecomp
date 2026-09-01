@@ -121,44 +121,6 @@ internal static class RetailCollectibleAudit
 
         RetailEnemyDropAuditResult enemyDrops = AuditRetailEnemyDrops(bus, symbolPath);
 
-        // Execute every distinct item-bearing population against cartridge bytes. A full
-        // 256x256 synthetic room accepts the population's native byte coordinates without
-        // inventing room metadata; item headers, instruction pointers, graphics sources,
-        // palettes, draw lists, dynamic tile bindings, and PLM allocation all remain real.
-        foreach (IGrouping<ushort, RetailCollectibleRecord> populationGroup in
-                 records.GroupBy(record => record.Population))
-        {
-            const int width = 0xff;
-            const int height = 0x100;
-            int blockCount = width * height;
-            var level = new RoomLevelData(
-                width,
-                height,
-                new ushort[blockCount],
-                new byte[blockCount],
-                new ushort[blockCount],
-                new byte[0x400 * 8]);
-            BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-            var plms = new RoomPlmSystem();
-            var system = new Bank80SystemState();
-            var samus = new SamusState { Health = 99, MaxHealth = 99 };
-            int loaded = plms.LoadCollectiblePopulation(
-                bus,
-                level,
-                streamer,
-                new SnesVram(),
-                populationGroup.Key,
-                system,
-                () => samus);
-            if (loaded != populationGroup.Count())
-            {
-                throw new InvalidDataException(
-                    $"Population $8F:{populationGroup.Key:X4} loaded {loaded} items, " +
-                    $"inventory found {populationGroup.Count()}.");
-            }
-            plms.Step(bus, level, streamer, 0, 0, 0);
-        }
-
         foreach (InWorldCollectibleKind kind in Enum.GetValues<InWorldCollectibleKind>())
         {
             RetailCollectibleRecord[] kindRecords = records
@@ -174,7 +136,8 @@ internal static class RetailCollectibleAudit
             $"Retail collectible inventory: {records.Count} physical items, " +
             $"{uniqueArguments} unique SRAM bits, {records.Select(record => record.Population).Distinct().Count()} " +
             $"item-bearing populations, {permanentItemMessageIds.Length} item messages; " +
-            "every real population loaded and drew once.");
+            "every cartridge item header and persistence bit inventoried. " +
+            "Whole-population execution is covered by the retail PLM audit.");
         Console.WriteLine(
             $"Retail enemy drops: {enemyDrops.PopulationCount} named populations, " +
             $"{enemyDrops.EnemyHeaderCount} enemy headers, {enemyDrops.DropTableCount} " +

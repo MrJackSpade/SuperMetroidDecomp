@@ -123,7 +123,7 @@ public sealed partial class RoomEnemySystem
         var state = new WorkRobotEnemyState(slot);
         _workRobotStates[slot.SlotIndex] = state;
 
-        bool areaBossDefeated = _isAreaBossDefeated?.Invoke() ?? false;
+        bool areaBossDefeated = RequireAreaBossDefeated();
         if (slot.EnemyDefinitionPointer != WorkRobotDefinition || !areaBossDefeated)
         {
             InitializeWorkRobotNoPower(slot, state);
@@ -452,7 +452,7 @@ public sealed partial class RoomEnemySystem
     {
         if (robot.EnemyDefinitionPointer != WorkRobotDefinition || robot.Health == 0)
             return;
-        if (!(_isAreaBossDefeated?.Invoke() ?? false))
+        if (!RequireAreaBossDefeated())
             return;
         if (samus is null)
             throw new InvalidOperationException("Work Robot shot recoil requires the active Samus actor.");

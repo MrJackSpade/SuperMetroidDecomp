@@ -38,8 +38,17 @@ internal static partial class Program
             new ushort[width * height],
             new byte[8]);
         var plms = new RoomPlmSystem();
-        AssertEqual(1, plms.LoadScrollPopulation(bus, level, population),
-            "one resident B703 scroll trigger loads");
+        AssertEqual(5, plms.LoadRoomPopulation(
+                bus,
+                level,
+                level.CreateBackgroundStreamer(),
+                new SnesVram(),
+                population,
+                new Bank80SystemState(),
+                0,
+                () => new SamusState(),
+                () => false),
+            "single loader parses the trigger and four synchronous extensions");
         AssertEqual(1, plms.ScrollPlms.Count,
             "extension setup consumes no persistent PLM slot");
 

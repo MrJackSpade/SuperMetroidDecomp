@@ -149,7 +149,8 @@ public sealed class SuperMetroidSaveRam
                 ItemSelect: ReadSramWord(slotOffset + ButtonConfigOffset + 16),
                 ItemCancel: ReadSramWord(slotOffset + ButtonConfigOffset + 14),
                 AimUp: ReadSramWord(slotOffset + ButtonConfigOffset + 20),
-                AimDown: ReadSramWord(slotOffset + ButtonConfigOffset + 18)).OrDefault(),
+                AimDown: ReadSramWord(slotOffset + ButtonConfigOffset + 18))
+                .RequireRetailPermutation(),
             MoonwalkEnabled = ReadSramWord(slotOffset + MoonwalkOffset) != 0,
             IconCancelEnabled = ReadSramWord(slotOffset + IconCancelOffset) != 0,
         };
@@ -173,7 +174,7 @@ public sealed class SuperMetroidSaveRam
         // NewSaveFile at $81:B2CB installs these eleven literal SNES controller words.
         // Later saves copy the live configurable action words, so do not silently restore
         // defaults every time the player reaches a save station.
-        ControllerBindings bindings = snapshot.ControllerBindings.OrDefault();
+        ControllerBindings bindings = snapshot.ControllerBindings.RequireRetailPermutation();
         ushort[] buttons =
         [
             (ushort)SnesButton.Up,
@@ -558,7 +559,8 @@ public sealed record SuperMetroidSaveSnapshot
 
         return new SuperMetroidSaveSnapshot
         {
-            ControllerBindings = (controllerBindings ?? ControllerBindings.Default).OrDefault(),
+            ControllerBindings = (controllerBindings ?? ControllerBindings.Default)
+                .RequireRetailPermutation(),
             MoonwalkEnabled = moonwalkEnabled,
             IconCancelEnabled = iconCancelEnabled,
             EquippedItems = samus.EquippedItems,

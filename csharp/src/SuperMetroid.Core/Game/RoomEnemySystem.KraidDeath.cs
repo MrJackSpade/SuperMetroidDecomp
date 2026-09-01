@@ -81,13 +81,13 @@ public sealed partial class RoomEnemySystem
                 if (!AdvanceKraidRoomBackgroundFade(state, fadeToBlack: false))
                     return;
                 state.MusicRequest = 3;
-                if (_isAreaBossDefeated?.Invoke() ?? false)
+                if (RequireAreaBossDefeated())
                 {
                     body.VariableA = (ushort)KraidAiFunction.DeathFinishedWasDead;
                 }
                 else
                 {
-                    _setAreaBossDefeated?.Invoke();
+                    RequireSetAreaBossDefeated();
                     state.BossDefeatPersisted = true;
                     body.VariableA = (ushort)KraidAiFunction.DeathFinishedWasAlive;
                 }
@@ -166,7 +166,7 @@ public sealed partial class RoomEnemySystem
                 continue;
             state.SinkTableEventCount++;
             ushort function = ReadWord(_bus!, 0xa7c5eb + offset);
-            ushort? rockX = function switch
+            ushort rockX = function switch
             {
                 0xc691 => 0x0070,
                 0xc6a7 => 0x00f0,
@@ -174,10 +174,10 @@ public sealed partial class RoomEnemySystem
                 0xc6d3 => 0x0090,
                 0xc6e9 => 0x0080,
                 0xc6ff => 0x0100,
-                _ => null,
+                _ => throw new InvalidDataException(
+                    $"Kraid sink table Y=${y:X4} names unknown function $A7:{function:X4}."),
             };
-            if (rockX.HasValue)
-                _ = SpawnKraidCeilingRock(rockX.Value);
+            _ = SpawnKraidCeilingRock(rockX);
             return;
         }
     }

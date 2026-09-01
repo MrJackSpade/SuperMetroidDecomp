@@ -21,93 +21,6 @@ public sealed partial class RoomPlmSystem
         .ToArray();
 
     /// <summary>
-    /// Loads bank-$84's scroll-trigger family from a room's ordinary six-byte PLM population.
-    /// </summary>
-    /// <remarks>
-    /// This is the reusable subset needed by every room that partitions its camera with red
-    /// scroll cells. Header <c>$B703</c> installs type-$3/BTS-$46 special air. The four
-    /// extension headers immediately rewrite their own blocks to type $5/$D and delete,
-    /// exactly like setup routines <c>$84:B33A-$B364</c>; they therefore consume no live
-    /// slot after room loading. The trigger's room argument remains a bank-$8F byte-pair
-    /// program and is deliberately interpreted only after Samus touches the authored block.
-    /// </remarks>
-    public int LoadScrollPopulation(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        ushort populationPointer)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-
-        int loaded = 0;
-        ushort cursor = populationPointer;
-        for (int recordIndex = 0; recordIndex < 256; recordIndex++)
-        {
-            ushort header = ReadBank8fWord(bus, cursor);
-            if (header == 0)
-                return loaded;
-
-            byte blockX = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 2)));
-            byte blockY = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 3)));
-            ushort roomArgument = ReadBank8fWord(bus, unchecked((ushort)(cursor + 4)));
-            cursor = unchecked((ushort)(cursor + 6));
-
-            if (header is not (ScrollPlmHeader or RightwardsExtensionHeader or
-                    LeftwardsExtensionHeader or DownwardsExtensionHeader or
-                    UpwardsExtensionHeader))
-            {
-                continue;
-            }
-
-            int blockIndex = level.GetBlockIndex(blockX, blockY);
-            if (header != ScrollPlmHeader)
-            {
-                // Extension setup writes both the collision nibble and BTS synchronously.
-                // Signed BTS then walks back to the $B703 origin in bank-$94 collision.
-                (int collisionType, int behavior) = header switch
-                {
-                    RightwardsExtensionHeader => (5, 0xff),
-                    LeftwardsExtensionHeader => (5, 0x01),
-                    DownwardsExtensionHeader => (13, 0xff),
-                    UpwardsExtensionHeader => (13, 0x01),
-                    _ => throw new InvalidOperationException(
-                        "Validated scroll extension escaped its setup table."),
-                };
-                ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
-                level.SetForegroundEntry(
-                    blockIndex,
-                    (ushort)((originalWord & 0x0fff) | (collisionType << 12)));
-                level.SetBehavior(blockIndex, unchecked((byte)behavior));
-                continue;
-            }
-
-            PlmSlot? slot = AllocateScrollSlot();
-            if (slot is null)
-                continue; // SpawnRoomPLM silently drops records once all forty slots fill.
-
-            slot.Active = true;
-            slot.HeaderPointer = header;
-            slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = 0; // PLM_Vars begins clear: the trigger is not touched.
-            slot.InstructionPointer = 0xaf8a; // Setup skips the debug timer/draw pair.
-            slot.InstructionTimer = 1;
-            slot.PreInstruction = 0;
-            slot.RoomArgument = roomArgument;
-            slot.LoopTimer = 0;
-            slot.Item = null;
-            slot.Scroll = new ScrollPlmState();
-
-            ushort triggerWord = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
-            level.SetForegroundEntry(blockIndex, (ushort)((triggerWord & 0x0fff) | 0x3000));
-            level.SetBehavior(blockIndex, 0x46);
-            loaded++;
-        }
-
-        throw new InvalidDataException(
-            $"Room PLM population $8F:{populationPointer:X4} has no zero terminator.");
-    }
-
-    /// <summary>
     /// Applies setup <c>$84:B393</c> to the already-resolved origin of special-air BTS $46.
     /// </summary>
     public bool TryNotifyScrollTouch(int blockIndex)
@@ -172,14 +85,39 @@ public sealed partial class RoomPlmSystem
             $"Scroll PLM data $8F:{slot.RoomArgument:X4} has no negative terminator.");
     }
 
-    private PlmSlot? AllocateScrollSlot()
+    /// <summary>Runs one scroll/extension setup after the shared allocator chose its ID.</summary>
+    private static void SetupScrollSlot(RoomLevelData level, PlmSlot slot, ushort header)
     {
-        for (int index = _slots.Length - 1; index >= 0; index--)
+        if (header != ScrollPlmHeader)
         {
-            if (!_slots[index].Active)
-                return _slots[index];
+            (int collisionType, int behavior) = header switch
+            {
+                RightwardsExtensionHeader => (5, 0xff),
+                LeftwardsExtensionHeader => (5, 0x01),
+                DownwardsExtensionHeader => (13, 0xff),
+                UpwardsExtensionHeader => (13, 0x01),
+                _ => throw new InvalidOperationException(
+                    "Validated scroll extension escaped its setup table."),
+            };
+            ushort originalWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
+            level.SetForegroundEntry(
+                slot.BlockIndex,
+                unchecked((ushort)((originalWord & 0x0fff) | (collisionType << 12))));
+            level.SetBehavior(slot.BlockIndex, unchecked((byte)behavior));
+
+            // Every extension setup ends in DeletePLM. Clearing this preallocated slot is
+            // what permits the following ROM record to reuse the same highest native ID.
+            ClearSlot(slot);
+            return;
         }
-        return null;
+
+        slot.InstructionPointer = 0xaf8a;
+        slot.Scroll = new ScrollPlmState();
+        ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
+        level.SetForegroundEntry(
+            slot.BlockIndex,
+            unchecked((ushort)((triggerWord & 0x0fff) | 0x3000)));
+        level.SetBehavior(slot.BlockIndex, 0x46);
     }
 
     private sealed class ScrollPlmState

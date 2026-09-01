@@ -203,7 +203,7 @@ public sealed partial class RoomEnemySystem
 
         // A previously defeated Botwoon does not allocate body actors. The room loader
         // installs the permanent open wall and makes both one-screen scroll entries blue.
-        if (_isAreaMiniBossDefeated?.Invoke() == true)
+        if (RequireAreaMiniBossDefeated())
         {
             LastBotwoonWallPlm = 0xb797;
             head.Properties = head.Properties.With(EnemyProperties.Deleted);
@@ -825,7 +825,7 @@ public sealed partial class RoomEnemySystem
         {
             head.Properties = head.Properties.With(EnemyProperties.Deleted);
             state.BossBitSet = true;
-            _setAreaMiniBossDefeated?.Invoke();
+            RequireSetAreaMiniBossDefeated();
             // `$B3:9B32` invokes QueueMusic_Delayed8(3) only after the complete 192-frame
             // wall-explosion phase, not when health first reaches zero.
             LastBotwoonMusicRequest = new BotwoonMusicRequest(Track: 3, DelayFrames: 8);

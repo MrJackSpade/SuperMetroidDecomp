@@ -40,140 +40,6 @@ public sealed partial class RoomPlmSystem
         .ToArray();
 
     /// <summary>
-    /// Runs setup <c>$84:C7B1</c> for every cartridge-authored yellow, green, and red
-    /// door in a room population.
-    /// </summary>
-    /// <remarks>
-    /// Colored-door art is drawn by a resident PLM, but collision gating begins
-    /// synchronously during room load: the cap origin becomes shootable-solid type $C
-    /// with BTS $44. Leaving the decompressed blue BTS $40..$43 in place would let a
-    /// power-beam collision allocate a blue-door opener before the colored-door actor had
-    /// any chance to check missile family. This method deliberately ports that common
-    /// setup seam first; the resident hit counter and opening animation remain owned by
-    /// the colored-door translation rather than the generic blue-door reaction.
-    /// </remarks>
-    public int ApplyColoredDoorSetups(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        ushort populationPointer)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-
-        int applied = 0;
-        ushort cursor = populationPointer;
-        for (int recordIndex = 0; recordIndex < 256; recordIndex++)
-        {
-            ushort header = ReadBank8fWord(bus, cursor);
-            if (header == 0)
-                return applied;
-
-            byte blockX = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 2)));
-            byte blockY = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 3)));
-            cursor = unchecked((ushort)(cursor + 6));
-
-            if (!IsColoredDoorHeader(header))
-                continue;
-
-            int blockIndex = level.GetBlockIndex(blockX, blockY);
-            ApplyColoredDoorSetup(level, blockIndex);
-            applied++;
-        }
-
-        throw new InvalidDataException(
-            $"Room PLM population $8F:{populationPointer:X4} has no zero terminator.");
-    }
-
-    /// <summary>
-    /// Loads yellow, green, and red door records as resident bank-$84 PLMs. The setup,
-    /// instruction pointers, hit threshold, opening list, and blue-door conversion list
-    /// all come from the cartridge header/list graph; only the 65C816 dispatch itself is
-    /// expressed as typed C# state.
-    /// </summary>
-    public int LoadColoredDoorPopulation(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        ushort populationPointer,
-        Bank80SystemState system)
-    {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(system);
-
-        _coloredDoorSystem = system;
-        int loaded = 0;
-        ushort cursor = populationPointer;
-        for (int recordIndex = 0; recordIndex < 256; recordIndex++)
-        {
-            ushort header = ReadBank8fWord(bus, cursor);
-            if (header == 0)
-                return loaded;
-
-            byte blockX = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 2)));
-            byte blockY = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 3)));
-            ushort roomArgument = ReadBank8fWord(bus, unchecked((ushort)(cursor + 4)));
-            cursor = unchecked((ushort)(cursor + 6));
-            if (!TryIdentifyColoredDoor(
-                    header,
-                    out ColoredDoorColor color,
-                    out ColoredDoorOrientation orientation))
-            {
-                continue;
-            }
-
-            int blockIndex = level.GetBlockIndex(blockX, blockY);
-            ApplyColoredDoorSetup(level, blockIndex);
-
-            PlmSlot? slot = AllocateColoredDoorSlot();
-            if (slot is null)
-                continue;
-
-            ushort initialList = ReadBank84Word(bus, unchecked((ushort)(header + 2)));
-            ushort closedBlueList = ReadBank84Word(
-                bus,
-                unchecked((ushort)(initialList + 2)));
-            ushort hitList = ReadBank84Word(
-                bus,
-                unchecked((ushort)(initialList + 6)));
-            byte hitThreshold = bus.ReadByte(
-                0x840000 | unchecked((ushort)(hitList + 2)));
-            ushort openingList = ReadBank84Word(
-                bus,
-                unchecked((ushort)(hitList + 3)));
-            ushort coloredClosedDraw = ReadBank84Word(
-                bus,
-                unchecked((ushort)(initialList + 14)));
-
-            bool wasOpened = unchecked((short)roomArgument) >= 0 &&
-                system.HasOpenedDoorBit(roomArgument);
-            slot.Active = true;
-            slot.HeaderPointer = header;
-            slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = 0;
-            slot.InstructionPointer = initialList;
-            slot.InstructionTimer = 1;
-            slot.PreInstruction = 0;
-            slot.RoomArgument = roomArgument;
-            slot.LoopTimer = 0;
-            slot.Item = null;
-            slot.Scroll = null;
-            slot.ColoredDoor = new ColoredDoorPlmState(
-                color,
-                orientation,
-                closedBlueList,
-                hitList,
-                openingList,
-                coloredClosedDraw,
-                hitThreshold,
-                wasOpened ? ColoredDoorPhase.ConvertToBlue : ColoredDoorPhase.Waiting);
-            loaded++;
-        }
-
-        throw new InvalidDataException(
-            $"Room PLM population $8F:{populationPointer:X4} has no zero terminator.");
-    }
-
-    /// <summary>
     /// Publishes the projectile word observed by a resident type-$C/BTS-$44 door. The
     /// resident actor, not the collision table, decides whether that family is accepted.
     /// </summary>
@@ -209,14 +75,39 @@ public sealed partial class RoomPlmSystem
         level.SetBehavior(blockIndex, 0x44);
     }
 
-    private PlmSlot? AllocateColoredDoorSlot()
+    /// <summary>
+    /// Executes the colored-door header setup against the slot already allocated by the
+    /// sequential room-population loader. Allocation deliberately does not live here:
+    /// native <c>Spawn_Room_PLM</c> chooses the physical ID before calling this routine.
+    /// </summary>
+    private void SetupColoredDoorSlot(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        Bank80SystemState system,
+        PlmSlot slot,
+        ColoredDoorColor color,
+        ColoredDoorOrientation orientation)
     {
-        for (int index = _slots.Length - 1; index >= 0; index--)
-        {
-            if (!_slots[index].Active)
-                return _slots[index];
-        }
-        return null;
+        ApplyColoredDoorSetup(level, slot.BlockIndex);
+
+        ushort initialList = slot.InstructionPointer;
+        ushort closedBlueList = ReadBank84Word(bus, unchecked((ushort)(initialList + 2)));
+        ushort hitList = ReadBank84Word(bus, unchecked((ushort)(initialList + 6)));
+        byte hitThreshold = bus.ReadByte(0x840000 | unchecked((ushort)(hitList + 2)));
+        ushort openingList = ReadBank84Word(bus, unchecked((ushort)(hitList + 3)));
+        ushort coloredClosedDraw = ReadBank84Word(bus, unchecked((ushort)(initialList + 14)));
+        bool wasOpened = unchecked((short)slot.RoomArgument) >= 0 &&
+            system.HasOpenedDoorBit(slot.RoomArgument);
+
+        slot.ColoredDoor = new ColoredDoorPlmState(
+            color,
+            orientation,
+            closedBlueList,
+            hitList,
+            openingList,
+            coloredClosedDraw,
+            hitThreshold,
+            wasOpened ? ColoredDoorPhase.ConvertToBlue : ColoredDoorPhase.Waiting);
     }
 
     private bool TryStepColoredDoor(

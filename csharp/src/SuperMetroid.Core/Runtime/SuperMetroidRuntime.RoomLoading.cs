@@ -448,6 +448,7 @@ public sealed partial class SuperMetroidRuntime
         GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary)
     {
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_addressSpace, room);
+
         ActiveDoor = door;
         ActiveRoom = room;
         ActiveRoomAssets = assets;
@@ -520,74 +521,28 @@ public sealed partial class SuperMetroidRuntime
         BombProjectiles.Reset();
         Projectiles.Reset();
 
-        // Setup_ColoredDoor is synchronous room-load collision state, not a later visual
-        // animation. Apply it before any gameplay projectile can inspect the decompressed
-        // blue-cap BTS that sits underneath yellow/green/red door PLMs.
-        Plms.LoadColoredDoorPopulation(
-            _addressSpace,
-            LevelData,
-            room.State.PlmPointer,
-            System);
-
-        // Grey doors use the same synchronous type-$C/BTS-$44 cap setup, but their bank-
-        // $84 pre-instruction chooses one of seven cartridge-encoded progression gates.
-        // Load them before enemies so projectile collision is correct on frame one; the
-        // callbacks capture live enemy/system state and are evaluated by later PLM passes.
-        Plms.LoadGreyDoorPopulation(
-            _addressSpace,
-            LevelData,
-            room.State.PlmPointer,
-            System,
-            room.AreaIndex,
-            isTourianStatueFinished: () => Enemies.TourianEntranceStatueFinished);
-
-        // Load the room-authored glass before enemy initialization. The head's bank-$A9
-        // shot callback hardcodes the highest PLM room-argument word, so slot allocation is
-        // part of the encounter ABI rather than a visual afterthought.
-        Plms.TryLoadMotherBrainGlassPopulation(
-            _addressSpace,
-            LevelData,
-            BackgroundStreamer,
-            room.State.PlmPointer,
-            hasAreaBossBit: mask =>
-                System.HasAnyBossBits(room.AreaIndex, (BossBits)mask),
-            hasEvent: System.HasEvent,
-            setEvent: System.SetEvent);
-
-        // Scroll PLMs are collision objects, not room-main-ASM heuristics. Their setup
-        // rewrites authored trigger/extension blocks during LoadRoomPLM, and Samus contact
-        // later executes the bank-$8F byte-pair program which opens or closes camera cells.
-        // Loading this family generically is what lets tall rooms such as Parlor reveal
-        // their shaft while keeping unopened branches behind genuine red boundaries.
-        Plms.LoadScrollPopulation(
-            _addressSpace,
-            LevelData,
-            room.State.PlmPointer);
-
-        // Permanent item PLMs occupy the same descending forty-slot pool as every other
-        // room object. Their three contiguous cartridge header tables cover exposed,
-        // Chozo-orb, and shot-block forms; the loader ignores unrelated population records
-        // rather than inventing per-room pickup placements.
-        Plms.LoadCollectiblePopulation(
+        // `$82:EB6C` walks this zero-terminated list once. Each six-byte record allocates
+        // the highest free one of forty IDs before its bank-$84 setup executes. Immediate
+        // deletion can therefore free that same ID for the next ROM record, and enemy code
+        // can observe the resulting physical header/argument ordering. All room families
+        // enter through this one parser; an unsupported header throws with complete record
+        // context instead of being skipped by a collection of sibling scans.
+        Plms.LoadRoomPopulation(
             _addressSpace,
             LevelData,
             BackgroundStreamer,
             Vram,
             room.State.PlmPointer,
             System,
-            getSamus: () => Samus);
-
-        // Header $D6EA is the cartridge's handshake between the Bombs item and Bomb
-        // Torizo's bank-$AA initialization. Load it after the preceding population owners
-        // have consumed their records, but still before Enemies.Load performs its first
-        // forty-header scan. Setup $D606 deletes it immediately on an already-defeated save.
-        Plms.TryLoadBombTorizoHandPopulation(
-            _addressSpace,
-            LevelData,
-            room.State.PlmPointer,
+            room.AreaIndex,
+            getSamus: () => Samus,
             isAreaTorizoDefeated: () =>
                 System.HasAnyBossBits(room.AreaIndex, BossBits.AreaTorizo),
-            getSamus: () => Samus);
+            isTourianStatueFinished: () => Enemies.TourianEntranceStatueFinished,
+            hasAreaBossBit: mask =>
+                System.HasAnyBossBits(room.AreaIndex, (BossBits)mask),
+            hasEvent: System.HasEvent,
+            setEvent: System.SetEvent);
 
         Enemies.Load(
             _addressSpace,

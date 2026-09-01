@@ -487,14 +487,12 @@ public sealed partial class RoomEnemySystem
 
     private void SetShitroidScrollPair(byte highByte)
     {
-        if (_setMotherBrainRoomScrollByte is null || _readMotherBrainRoomScrollByte is null)
-            return;
-        byte scroll0 = _readMotherBrainRoomScrollByte(0);
-        byte scroll2 = _readMotherBrainRoomScrollByte(2);
-        _setMotherBrainRoomScrollByte(0, scroll0);
-        _setMotherBrainRoomScrollByte(1, highByte);
-        _setMotherBrainRoomScrollByte(2, scroll2);
-        _setMotherBrainRoomScrollByte(3, highByte);
+        byte scroll0 = RequireReadRoomScrollByte(0);
+        byte scroll2 = RequireReadRoomScrollByte(2);
+        RequireSetRoomScrollByte(0, scroll0);
+        RequireSetRoomScrollByte(1, highByte);
+        RequireSetRoomScrollByte(2, scroll2);
+        RequireSetRoomScrollByte(3, highByte);
     }
 
     private void QueueShitroidWallPlms(ushort header)
@@ -573,7 +571,7 @@ public sealed partial class RoomEnemySystem
             state.HoverTimer = unchecked((ushort)(state.HoverTimer - 1));
             return followedY;
         }
-        if (((_readRandomNumber?.Invoke() ?? 0) & 0x0fff) >= 0x0fe0)
+        if ((RequireRandomNumber() & 0x0fff) >= 0x0fe0)
             state.HoverTimer = 32;
         return 80;
     }

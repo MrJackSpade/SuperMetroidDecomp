@@ -431,6 +431,28 @@ public sealed partial class SamusState
         TurningLeftToRightCrouchingAimDiagonalDownPose;
 
     /// <summary>
+    /// True for a cartridge-authored standing turn interrupted by an ordinary Jump edge.
+    /// </summary>
+    /// <remarks>
+    /// All eight movement-type-$0E standing turn records consult the same `$91:8142`
+    /// transition table while their art is active. Holding the completed facing selects
+    /// `$19/$1A`; releasing it on the Jump edge selects `$4B/$4C`. Crouched turns are
+    /// deliberately excluded because their radius expansion requires the room-aware
+    /// crouch-jump collision path rather than the direct ordinary initializer.
+    /// </remarks>
+    public static bool IsStandingGroundTurnToJumpTransition(
+        byte sourcePose,
+        byte targetPose) =>
+        (sourcePose is
+            TurningLeftToRightPose or TurningLeftToRightAimUpPose or
+            TurningLeftToRightAimDiagonalUpPose or TurningLeftToRightAimDiagonalDownPose &&
+         targetPose is SpinJumpRightPose or NeutralJumpTransitionRightPose) ||
+        (sourcePose is
+            TurningRightToLeftPose or TurningRightToLeftAimUpPose or
+            TurningRightToLeftAimDiagonalUpPose or TurningRightToLeftAimDiagonalDownPose &&
+         targetPose is SpinJumpLeftPose or NeutralJumpTransitionLeftPose);
+
+    /// <summary>
     /// True for the six aimed crouched-turn records dispatched through movement type `$17`.
     /// `$43/$44` are intentionally absent because the retail pose definitions assign those
     /// otherwise similar-looking unaimed crouch turns to grounded movement type `$0E`.

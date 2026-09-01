@@ -311,10 +311,10 @@ public sealed partial class SamusState
 
         bool sourceStandingRight = IsRightFacingStandingPose(Pose) ||
             IsRightFacingRanIntoWallPose(Pose) ||
-            Pose == NormalLandingRightPose;
+            IsRightFacingLandingPose(Pose);
         bool sourceStandingLeft = IsLeftFacingStandingPose(Pose) ||
             IsLeftFacingRanIntoWallPose(Pose) ||
-            Pose == NormalLandingLeftPose;
+            IsLeftFacingLandingPose(Pose);
         bool targetVisualRight = IsMoonwalkingFacingRightPose(targetPose);
         bool targetVisualLeft = IsMoonwalkingFacingLeftPose(targetPose);
         bool entering =

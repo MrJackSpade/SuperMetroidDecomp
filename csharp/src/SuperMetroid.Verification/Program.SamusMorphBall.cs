@@ -43,6 +43,8 @@ static void VerifySamusMorphBallMovement()
     WritePose(SamusState.SpringBallJumpLeftPose, [0x04, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
     WritePose(SamusState.NormalJumpForwardRightPose, [0x08, 0x02, 0x4d, 0x02, 0x00, 0x00, 0x15, 0x00]);
     WritePose(SamusState.NormalJumpForwardLeftPose, [0x04, 0x02, 0x4e, 0x07, 0x00, 0x00, 0x15, 0x00]);
+    WritePose(SamusState.FallingAimUpRightPose, [0x08, 0x06, 0x29, 0x00, 0x00, 0x00, 0x13, 0x00]);
+    WritePose(SamusState.FallingAimUpLeftPose, [0x04, 0x06, 0x2a, 0x05, 0x00, 0x00, 0x13, 0x00]);
     WritePose(SamusState.FallingAimDownLeftPose, [0x04, 0x06, 0x2a, 0x05, 0x08, 0x00, 0x0a, 0x00]);
     WritePose(SamusState.SpinJumpLeftPose, [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x13, 0x00]);
 
@@ -66,6 +68,8 @@ static void VerifySamusMorphBallMovement()
         SamusState.SpringBallJumpLeftPose,
         SamusState.NormalJumpForwardRightPose,
         SamusState.NormalJumpForwardLeftPose,
+        SamusState.FallingAimUpRightPose,
+        SamusState.FallingAimUpLeftPose,
     })
     {
         WriteTestWord(bus, 0x91b010 + pose * 2, sharedBallDelay);
@@ -467,6 +471,50 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(SamusState.MorphBallGroundRightPose, boxedBall.Pose, "boxed unmorph retains ball pose");
     AssertEqual(7, boxedBall.Kinematics.YRadius, "boxed unmorph retains ball radius");
     AssertEqual(57, boxedBall.YPosition, "boxed unmorph retains center");
+
+    // `$3D/$3E` do not become inert after unmorph entry. Their input tables can select a
+    // type-six pose before `$FD` supplies the ordinary crouch endpoint. Exercise both
+    // facings against an empty room and retain distinctive 16.16 speed words so this test
+    // detects an accidental call to a fresh-jump or grounded initializer.
+    foreach ((byte sourcePose, byte targetPose) in new[]
+    {
+        (SamusState.UnmorphingTransitionRightPose, SamusState.FallingAimUpRightPose),
+        (SamusState.UnmorphingTransitionLeftPose, SamusState.FallingAimUpLeftPose),
+    })
+    {
+        var fallingUnmorph = new SamusState
+        {
+            Pose = sourcePose,
+            XPosition = 48,
+            YPosition = 48,
+        };
+        fallingUnmorph.RefreshCollisionRadii(bus);
+        fallingUnmorph.InitializeAnimation(bus);
+        fallingUnmorph.HorizontalSpeed.BaseSpeed = 2;
+        fallingUnmorph.HorizontalSpeed.BaseSubspeed = 0x3456;
+        fallingUnmorph.Kinematics.YDirection = 2;
+        fallingUnmorph.Kinematics.YSpeed = 2;
+        fallingUnmorph.Kinematics.YSubspeed = 0x8000;
+
+        AssertTrue(
+            fallingUnmorph.TryApplyUnmorphToFallingTransition(
+                bus, empty, targetPose, nmiFrameCounter: 3),
+            $"unmorph ${sourcePose:X2} accepts same-facing falling input");
+        AssertEqual(targetPose, fallingUnmorph.Pose,
+            $"unmorph ${sourcePose:X2} installs falling target");
+        AssertEqual(19, fallingUnmorph.Kinematics.YRadius,
+            $"unmorph ${sourcePose:X2} reads falling radius from ROM");
+        AssertEqual(2, fallingUnmorph.HorizontalSpeed.BaseSpeed,
+            $"unmorph ${sourcePose:X2} preserves horizontal whole speed");
+        AssertEqual(0x3456, fallingUnmorph.HorizontalSpeed.BaseSubspeed,
+            $"unmorph ${sourcePose:X2} preserves horizontal subspeed");
+        AssertEqual(2, fallingUnmorph.Kinematics.YDirection,
+            $"unmorph ${sourcePose:X2} preserves falling direction");
+        AssertEqual(2, fallingUnmorph.Kinematics.YSpeed,
+            $"unmorph ${sourcePose:X2} preserves falling whole speed");
+        AssertEqual(0x8000, fallingUnmorph.Kinematics.YSubspeed,
+            $"unmorph ${sourcePose:X2} preserves falling subspeed");
+    }
 
     // Re-run entry with a nonzero vertical word to prove F9 uses its airborne operand, not
     // current collision radius or pose name. Spring Ball remains unequipped, selecting $31.

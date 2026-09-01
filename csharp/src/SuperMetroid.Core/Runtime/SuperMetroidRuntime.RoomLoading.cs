@@ -380,6 +380,18 @@ public sealed partial class SuperMetroidRuntime
             room.State.PlmPointer,
             System);
 
+        // Grey doors use the same synchronous type-$C/BTS-$44 cap setup, but their bank-
+        // $84 pre-instruction chooses one of seven cartridge-encoded progression gates.
+        // Load them before enemies so projectile collision is correct on frame one; the
+        // callbacks capture live enemy/system state and are evaluated by later PLM passes.
+        Plms.LoadGreyDoorPopulation(
+            _addressSpace,
+            LevelData,
+            room.State.PlmPointer,
+            System,
+            room.AreaIndex,
+            isTourianStatueFinished: () => Enemies.TourianEntranceStatueFinished);
+
         // Load the room-authored glass before enemy initialization. The head's bank-$A9
         // shot callback hardcodes the highest PLM room-argument word, so slot allocation is
         // part of the encounter ABI rather than a visual afterthought.

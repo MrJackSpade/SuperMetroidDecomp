@@ -1674,6 +1674,158 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0, reopenedDoorPlms.ColoredDoors.Count,
         "persisted colored-door conversion deletes resident actor after draw");
 
+    // Reproduce the generic grey-door graph with relocatable fixture pointers. This is
+    // intentionally not a direct call to an event setter: the regression starts at a
+    // bank-$8F population record, follows the header/list operands, publishes hits through
+    // BTS $44's shared collision seam, and lets the ordinary PLM interpreter execute the
+    // flashing/opening streams. It therefore guards the real cartridge ownership boundary
+    // that wakes Zebes after Old Mother Brain room's enemy quota is satisfied.
+    const ushort greyDoorPopulation = 0x9180;
+    const ushort greyDoorInitialList = 0xe500;
+    const ushort greyDoorClosedBlueList = 0xe600;
+    const ushort greyDoorActivationList = 0xe700;
+    const ushort greyDoorFlashList = greyDoorActivationList + 8;
+    const ushort greyDoorOpenTriggerList = 0xe900;
+    const ushort greyDoorOpeningList = 0xea00;
+    const ushort greyDoorRawArgument = 0x0c2a;
+    const ushort greyDoorPersistedArgument = 0x002a;
+    const int greyDoorBlock = 6 * 16 + 2;
+
+    // Header $C842 selects the synthetic initial list. The graph offsets below mirror
+    // $BE70: opened-door target at +2, activation link at +6, and closed draw at +12.
+    WriteTestWord(bus, 0x84c844, greyDoorInitialList);
+    WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 2), greyDoorClosedBlueList);
+    WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 6), greyDoorActivationList);
+    WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 12), 0xeb00);
+
+    // The activation list links a later shot to the one-hit trigger. Its eight-byte setup
+    // falls through to a compact flash loop composed only of a timed draw and shared Goto.
+    WriteTestWord(bus, 0x840000 | (greyDoorActivationList + 2), greyDoorOpenTriggerList);
+    WriteTestWord(bus, 0x840000 | greyDoorFlashList, 1);
+    WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 2), 0xeb20);
+    WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 4), 0x8724);
+    WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 6), greyDoorFlashList);
+
+    // Instruction $8A91 has a one-byte threshold followed by the successful target at
+    // offset three. The target uses the real shared sound-seven and Delete opcodes so the
+    // semantic door pre-pass and generic instruction interpreter are tested together.
+    bus.WriteByte(0x840000 | (greyDoorOpenTriggerList + 2), 1);
+    WriteTestWord(bus, 0x840000 | (greyDoorOpenTriggerList + 3), greyDoorOpeningList);
+    WriteTestWord(bus, 0x840000 | greyDoorOpeningList, 0x8c19);
+    bus.WriteByte(0x840000 | (greyDoorOpeningList + 2), 7);
+    WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 3), 1);
+    WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 5), 0xeb40);
+    WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 7), 0x86bc);
+
+    // Persisted grey doors execute the same closed-blue list layout already exercised by
+    // colored doors: PLM_BTS_Y precedes a one-byte timer and draw pointer at offset five.
+    WriteTestWord(bus, 0x840000 | (greyDoorClosedBlueList + 5), 0xeb60);
+    WriteDoorDrawList(bus, 0x84eb00, [0x0001, 0xc220, 0x0000]);
+    WriteDoorDrawList(bus, 0x84eb20, [0x0001, 0xc221, 0x0000]);
+    WriteDoorDrawList(bus, 0x84eb40, [0x0001, 0x0222, 0x0000]);
+    WriteDoorDrawList(bus, 0x84eb60, [0x0001, 0x8223, 0x0000]);
+    WriteTestWord(bus, 0x8f0000 | greyDoorPopulation, 0xc842);
+    bus.WriteByte(0x8f0000 | (greyDoorPopulation + 2), 2);
+    bus.WriteByte(0x8f0000 | (greyDoorPopulation + 3), 6);
+    WriteTestWord(bus, 0x8f0000 | (greyDoorPopulation + 4), greyDoorRawArgument);
+    WriteTestWord(bus, 0x8f0000 | (greyDoorPopulation + 6), 0);
+
+    var greyDoorWords = new ushort[16 * 16];
+    greyDoorWords[greyDoorBlock] = 0x8220;
+    RoomLevelData greyDoorLevel = new(
+        16,
+        16,
+        greyDoorWords,
+        new byte[greyDoorWords.Length],
+        new ushort[greyDoorWords.Length],
+        new byte[8]);
+    var greyDoorSystem = new Bank80SystemState();
+    var greyDoorPlms = new RoomPlmSystem();
+    AssertEqual(1, greyDoorPlms.LoadGreyDoorPopulation(
+            bus,
+            greyDoorLevel,
+            greyDoorPopulation,
+            greyDoorSystem,
+            areaIndex: 0),
+        "grey-door loader allocates enemy-quota actor from population");
+    AssertEqual(0x0c, greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).CollisionType,
+        "grey-door setup installs shootable-solid collision");
+    AssertEqual(0x44, greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).Behavior,
+        "grey-door setup installs generic resident-PLM BTS");
+    GreyDoorPlmSnapshot lockedGreyDoor = greyDoorPlms.GreyDoors.Single();
+    AssertEqual(GreyDoorCondition.EnemyDeathQuota, lockedGreyDoor.Condition,
+        "room argument high bits select cartridge enemy-quota condition");
+    AssertEqual(greyDoorPersistedArgument, lockedGreyDoor.RoomArgument,
+        "grey-door setup removes condition selector before persistence checks");
+
+    BackgroundTilemapStreamer greyDoorStreamer = greyDoorLevel.CreateBackgroundStreamer();
+    greyDoorPlms.Step(
+        bus, greyDoorLevel, greyDoorStreamer, 0x1000, 0x1000, 0,
+        enemyDeaths: 1, enemyDeathQuota: 2);
+    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, 0x0000),
+        "shared BTS $44 collision publishes power-beam hit to grey door");
+    greyDoorPlms.Step(
+        bus, greyDoorLevel, greyDoorStreamer, 0x1000, 0x1000, 0,
+        enemyDeaths: 1, enemyDeathQuota: 2);
+    AssertTrue(greyDoorPlms.SoundRequests.Contains(new PlmSoundRequest(2, 0x57, 6)),
+        "locked enemy-quota grey door consumes shot with native dud sound");
+    AssertTrue(!greyDoorSystem.HasEvent((int)EventNumber.ZebesAwake),
+        "below-quota grey door does not publish Zebes-awake event");
+
+    // Publish a second hit on the exact quota-completion frame. BE01 clears the PLM shot
+    // timer while selecting its activation link, so this impact must not persist/open it.
+    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, 0x0000),
+        "quota-completion frame can observe a colliding shot");
+    greyDoorPlms.Step(
+        bus, greyDoorLevel, greyDoorStreamer, 0x1000, 0x1000, 0,
+        enemyDeaths: 2, enemyDeathQuota: 2);
+    AssertTrue(greyDoorSystem.HasEvent((int)EventNumber.ZebesAwake),
+        "enemy-quota grey door is native producer of Zebes-awake event");
+    AssertEqual(GreyDoorPhase.Flashing, greyDoorPlms.GreyDoors.Single().Phase,
+        "quota completion enters cartridge flash loop");
+    AssertTrue(!greyDoorSystem.HasOpenedDoorBit(greyDoorPersistedArgument),
+        "quota-completion hit is cleared rather than opening grey door");
+
+    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, 0x0000),
+        "later shot reaches flashing grey door's installed shot pre-instruction");
+    greyDoorPlms.Step(
+        bus, greyDoorLevel, greyDoorStreamer, 0x1000, 0x1000, 0,
+        enemyDeaths: 2, enemyDeathQuota: 2);
+    AssertEqual(GreyDoorPhase.Opening, greyDoorPlms.GreyDoors.Single().Phase,
+        "post-unlock shot selects cartridge opening list");
+    AssertTrue(greyDoorSystem.HasOpenedDoorBit(greyDoorPersistedArgument),
+        "grey-door one-hit instruction persists sanitized room argument");
+    AssertTrue(greyDoorPlms.SoundRequests.Contains(new PlmSoundRequest(3, 0x07, 6)),
+        "grey-door opening stream queues native library-three sound seven");
+
+    var reloadedGreyWords = new ushort[16 * 16];
+    reloadedGreyWords[greyDoorBlock] = 0x8220;
+    RoomLevelData reloadedGreyLevel = new(
+        16,
+        16,
+        reloadedGreyWords,
+        new byte[reloadedGreyWords.Length],
+        new ushort[reloadedGreyWords.Length],
+        new byte[8]);
+    var reloadedGreyPlms = new RoomPlmSystem();
+    reloadedGreyPlms.LoadGreyDoorPopulation(
+        bus,
+        reloadedGreyLevel,
+        greyDoorPopulation,
+        greyDoorSystem,
+        areaIndex: 0);
+    reloadedGreyPlms.Step(
+        bus,
+        reloadedGreyLevel,
+        reloadedGreyLevel.CreateBackgroundStreamer(),
+        0x1000,
+        0x1000,
+        0);
+    AssertEqual(0x40, reloadedGreyLevel.GetCollisionBlockByIndex(greyDoorBlock).Behavior,
+        "persisted left grey door reloads as ordinary left blue cap");
+    AssertEqual(0, reloadedGreyPlms.GreyDoors.Count,
+        "persisted grey-door conversion releases resident actor");
+
     var blueDoorWords = new ushort[width * height];
     var blueDoorBehaviors = new byte[blueDoorWords.Length];
     int blueDoorOrigin = 4 * width + 6;

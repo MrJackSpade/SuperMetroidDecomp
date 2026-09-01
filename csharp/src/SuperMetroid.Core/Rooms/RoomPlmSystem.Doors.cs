@@ -174,7 +174,7 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>
-    /// Publishes the projectile word observed by the colored-door pre-instruction. The
+    /// Publishes the projectile word observed by a resident type-$C/BTS-$44 door. The
     /// resident actor, not the collision table, decides whether that family is accepted.
     /// </summary>
     public bool TryNotifyColoredDoorHit(int blockIndex, ushort projectileType)
@@ -194,7 +194,10 @@ public sealed partial class RoomPlmSystem
             slot.ColoredDoor.HasPendingHit = true;
             return true;
         }
-        return false;
+        // Keep the established public name for projectile/bomb callers, but route the
+        // same generic shot-trigger collision to grey doors. In native code BTS $44 finds
+        // the resident PLM by block index; it does not distinguish the door's color here.
+        return TryNotifyGreyDoorHit(blockIndex, projectileType);
     }
 
     private static void ApplyColoredDoorSetup(RoomLevelData level, int blockIndex)

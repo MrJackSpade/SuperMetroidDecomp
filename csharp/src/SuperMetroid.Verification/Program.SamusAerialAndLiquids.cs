@@ -208,6 +208,44 @@ static void VerifySamusAerialMovement()
     AssertEqual(1, neutralTurnJumpLeft.Kinematics.YDirection,
         "right-to-left neutral turn jump launches upward");
 
+    // Aimed standing turns do not become inert until their three-frame stream reaches
+    // `$F8`. They keep using `$91:8142`, so Jump may interrupt every one of the six records
+    // with the same spin/neutral pair as `$25/$26`. Exercise both outputs for both facings;
+    // `$8D -> $1A` is the live Climb route which first exposed this omitted family.
+    (byte Source, byte SpinTarget, byte NeutralTarget)[] aimedTurnJumps =
+    [
+        (SamusState.TurningRightToLeftAimUpPose,
+            SamusState.SpinJumpLeftPose, SamusState.NeutralJumpTransitionLeftPose),
+        (SamusState.TurningLeftToRightAimUpPose,
+            SamusState.SpinJumpRightPose, SamusState.NeutralJumpTransitionRightPose),
+        (SamusState.TurningRightToLeftAimDiagonalDownPose,
+            SamusState.SpinJumpLeftPose, SamusState.NeutralJumpTransitionLeftPose),
+        (SamusState.TurningLeftToRightAimDiagonalDownPose,
+            SamusState.SpinJumpRightPose, SamusState.NeutralJumpTransitionRightPose),
+        (SamusState.TurningRightToLeftAimDiagonalUpPose,
+            SamusState.SpinJumpLeftPose, SamusState.NeutralJumpTransitionLeftPose),
+        (SamusState.TurningLeftToRightAimDiagonalUpPose,
+            SamusState.SpinJumpRightPose, SamusState.NeutralJumpTransitionRightPose),
+    ];
+    foreach ((byte source, byte spinTarget, byte neutralTarget) in aimedTurnJumps)
+    {
+        var spin = new SamusState { Pose = source };
+        spin.ApplyOrdinaryJumpTransition(bus, spinTarget);
+        AssertEqual(spinTarget, spin.Pose,
+            $"aimed standing turn ${source:X2} accepts facing spin jump");
+        AssertEqual(1, spin.Kinematics.YDirection,
+            $"aimed standing turn ${source:X2} spin launches upward");
+
+        var neutral = new SamusState { Pose = source };
+        neutral.ApplyOrdinaryJumpTransition(bus, neutralTarget);
+        AssertEqual(neutralTarget, neutral.Pose,
+            $"aimed standing turn ${source:X2} accepts facing neutral jump");
+    }
+    AssertThrows<InvalidOperationException>(
+        () => new SamusState { Pose = SamusState.TurningRightToLeftCrouchingPose }
+            .ApplyOrdinaryJumpTransition(bus, SamusState.SpinJumpLeftPose),
+        "crouched turn remains outside direct ordinary-jump initializer");
+
     // Walking off a ledge is the movement-type-six entry point. $91:E8F2 selects pose $2A
     // from the old left-facing direction and command five begins with a stationary falling
     // frame before gravity produces displacement. Landing from type six uses normal $A5.

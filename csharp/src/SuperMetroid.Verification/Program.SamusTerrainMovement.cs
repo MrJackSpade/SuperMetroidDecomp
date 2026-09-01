@@ -1130,19 +1130,54 @@ static void VerifySamusMoonwalking()
     AssertEqual(1, disabled.HorizontalSpeed.AccelerationMode,
         "disabled Moonwalk substitution starts mode one");
 
-    // `$A4/$A5` use the ordinary standing input records. A backward direction during the
-    // short landing animation can therefore nominate `$4A/$49`; the target's native
-    // Moonwalk initializer still performs the option-disabled turn substitution. This is
-    // reachable during consecutive platform jumps, not an invented convenience route.
-    WritePoseDefinition(bus, SamusState.NormalLandingRightPose,
-        [0x08, 0x00, 0x01, 0x02, 0x00, 0x00, 0x15, 0x00]);
-    var landingMoonwalk = new SamusState { Pose = SamusState.NormalLandingRightPose };
-    landingMoonwalk.ApplyMoonwalkPoseChange(
-        bus,
-        SamusState.MoonwalkFacingRightPose,
-        moonwalkEnabled: false);
-    AssertEqual(SamusState.TurningRightToLeftPose, landingMoonwalk.Pose,
-        "landing Moonwalk candidate honors disabled-option turn substitution");
+    // `$A4-$A7/$E0-$E7` all use the ordinary standing input records. A backward direction
+    // during any short landing animation can therefore nominate `$4A/$49`; the target's
+    // native Moonwalk initializer still performs the option-disabled turn substitution.
+    // Exercise the whole named family so spin/aim/fire landing coverage cannot regress to
+    // the original `$A4/$A5`-only approximation.
+    byte[] rightLandingPoses =
+    [
+        SamusState.NormalLandingRightPose,
+        SamusState.SpinLandingRightPose,
+        SamusState.LandingAimUpRightPose,
+        SamusState.LandingAimDiagonalUpRightPose,
+        SamusState.LandingAimDiagonalDownRightPose,
+        SamusState.FiringLandingRightPose,
+    ];
+    foreach (byte landingPose in rightLandingPoses)
+    {
+        WritePoseDefinition(bus, landingPose,
+            [0x08, 0x00, 0x01, 0x02, 0x00, 0x00, 0x15, 0x00]);
+        var landingMoonwalk = new SamusState { Pose = landingPose };
+        landingMoonwalk.ApplyMoonwalkPoseChange(
+            bus,
+            SamusState.MoonwalkFacingRightPose,
+            moonwalkEnabled: false);
+        AssertEqual(SamusState.TurningRightToLeftPose, landingMoonwalk.Pose,
+            $"right landing ${landingPose:X2} honors disabled Moonwalk substitution");
+    }
+
+    byte[] leftLandingPoses =
+    [
+        SamusState.NormalLandingLeftPose,
+        SamusState.SpinLandingLeftPose,
+        SamusState.LandingAimUpLeftPose,
+        SamusState.LandingAimDiagonalUpLeftPose,
+        SamusState.LandingAimDiagonalDownLeftPose,
+        SamusState.FiringLandingLeftPose,
+    ];
+    foreach (byte landingPose in leftLandingPoses)
+    {
+        WritePoseDefinition(bus, landingPose,
+            [0x04, 0x00, 0x02, 0x07, 0x00, 0x00, 0x15, 0x00]);
+        var landingMoonwalk = new SamusState { Pose = landingPose };
+        landingMoonwalk.ApplyMoonwalkPoseChange(
+            bus,
+            SamusState.MoonwalkFacingLeftPose,
+            moonwalkEnabled: false);
+        AssertEqual(SamusState.TurningLeftToRightPose, landingMoonwalk.Pose,
+            $"left landing ${landingPose:X2} honors disabled Moonwalk substitution");
+    }
 
     // `$91:F8F3-$F903` is specific to a turn whose PREVIOUS movement type is Moonwalk.
     // It publishes the source pose's shot direction with tag `$0100`; ordinary standing

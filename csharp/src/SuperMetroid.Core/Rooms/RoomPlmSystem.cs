@@ -165,6 +165,7 @@ public sealed partial class RoomPlmSystem
             slot.Item = null;
             slot.Scroll = null;
             slot.ColoredDoor = null;
+            slot.GreyDoor = null;
         }
         _soundRequests.Clear();
         _tilemapUpdates.Clear();
@@ -172,6 +173,9 @@ public sealed partial class RoomPlmSystem
         // it past Reset would let an accidentally reused PLM slot persist a hit into the
         // previous runtime/system-state instance.
         _coloredDoorSystem = null;
+        _greyDoorSystem = null;
+        _greyDoorAreaIndex = 0;
+        _isTourianStatueFinished = null;
         ResetMotherBrainGlassState();
         ResetCollectibleState();
         ResetBombTorizoHandState();
@@ -966,7 +970,9 @@ public sealed partial class RoomPlmSystem
         ushort layer1XPosition,
         ushort layer1YPosition,
         ushort bg1XOffset,
-        RoomScrollGrid? scrolls = null)
+        RoomScrollGrid? scrolls = null,
+        ushort enemyDeaths = 0,
+        byte enemyDeathQuota = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -1006,6 +1012,20 @@ public sealed partial class RoomPlmSystem
                     layer1XPosition,
                     layer1YPosition,
                     bg1XOffset))
+            {
+                continue;
+            }
+
+            if (TryStepGreyDoor(
+                    bus,
+                    level,
+                    streamer,
+                    slot,
+                    layer1XPosition,
+                    layer1YPosition,
+                    bg1XOffset,
+                    enemyDeaths,
+                    enemyDeathQuota))
             {
                 continue;
             }
@@ -1209,6 +1229,11 @@ public sealed partial class RoomPlmSystem
                     slot.Active = false;
                     MarkBombTorizoHandDeleted(slot);
                     OnPlmDeleted(slot);
+                    // Semantic family references are discriminators, not retained debug
+                    // history. A later allocation can reuse this physical native slot and
+                    // must never inherit door-only pre-handler behavior.
+                    slot.ColoredDoor = null;
+                    slot.GreyDoor = null;
                     return;
 
                 case SleepInstruction:
@@ -1375,6 +1400,8 @@ public sealed partial class RoomPlmSystem
         public ScrollPlmState? Scroll { get; set; }
         /// <summary>Semantic state for resident yellow/green/red door-cap PLMs.</summary>
         public ColoredDoorPlmState? ColoredDoor { get; set; }
+        /// <summary>Semantic state for condition-gated grey door-cap PLMs.</summary>
+        public GreyDoorPlmState? GreyDoor { get; set; }
     }
 }
 

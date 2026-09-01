@@ -513,7 +513,9 @@ public sealed partial class SamusState
         ushort controllerNewInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        bool verified = (Pose, targetPose) is
+        bool verified =
+            SamusState.IsStandingGroundTurnToJumpTransition(Pose, targetPose) ||
+            (Pose, targetPose) is
             (FacingRightNormalPose or StandingAimUpRightPose or
                 StandingAimDiagonalUpRightPose or StandingAimDiagonalDownRightPose,
              NeutralJumpTransitionRightPose) or
@@ -544,10 +546,6 @@ public sealed partial class SamusState
             // Jump with no horizontal direction selects neutral-transition `$4B/$4C`;
             // holding the completed facing selects spin `$19/$1A`. Both pairs enter the
             // same jump initializer and differ only in their cartridge-authored body.
-            (TurningLeftToRightPose,
-             SpinJumpRightPose or NeutralJumpTransitionRightPose) or
-            (TurningRightToLeftPose,
-             SpinJumpLeftPose or NeutralJumpTransitionLeftPose) or
             // `$91:AF98-$AFFF` can leave the moonwalk turn art early while the backward
             // direction remains held, or select `$4B/$4C` on a fresh Jump edge. Both
             // routes call the same dry-air jump initializer after changing pose.

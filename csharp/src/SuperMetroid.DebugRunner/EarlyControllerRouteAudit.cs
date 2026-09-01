@@ -222,12 +222,23 @@ internal static partial class EarlyControllerRouteAudit
         AssertPendingDoor(runtime, 0x8b7a, 0x96ba, "Pit return -> Climb");
 
         host.LoadPendingDoor();
-        AssertRoom(runtime, 0x96ba, 0x96d1, "Climb return");
-        DriveResult climbReturn = DriveUntilDoor(bus, runtime, host, "Climb", maximumFrames: 12000);
+        // Satisfying Old Mother Brain room's five-Pirate quota runs native PLM
+        // pre-instruction $84:BE01, which publishes event zero ("Zebes is awake") before
+        // either grey cap can open. Climb therefore selects its event-zero state $96EB;
+        // $96D1 is correct only for the outbound, sleeping-world traversal above.
+        AssertRoom(runtime, 0x96ba, 0x96eb, "Climb return");
+        // The awakened state fills the nine-screen shaft with eleven active Pirates. The
+        // deterministic platform finder still performs only legal run/jump/wall-jump input,
+        // but enemy contacts make it substantially slower than the empty outbound state.
+        // Keep the watchdog finite while allowing that cartridge-authored interference.
+        DriveResult climbReturn = DriveUntilDoor(bus, runtime, host, "Climb", maximumFrames: 30000);
         AssertPendingDoor(runtime, 0x8b3e, 0x92fd, "Climb return -> Parlor");
 
         host.LoadPendingDoor();
-        AssertRoom(runtime, 0x92fd, 0x9314, "Parlor return");
+        // The same cartridge event also selects Parlor's awakened state. This assertion is
+        // intentionally independent of Bomb Torizo's later area-boss bit: merely passing
+        // through the quota gate must already have changed the global room-state branch.
+        AssertRoom(runtime, 0x92fd, 0x932e, "Parlor return");
         Console.WriteLine(
             $"  Reloaded Parlor PLMs: active={runtime.Plms.ActiveCount}, " +
             $"scrolls=[{string.Join(' ', runtime.Plms.ScrollPlms.Select(scroll => $"{scroll.BlockIndex}/{scroll.DataPointer:X4}"))}], " +
@@ -239,7 +250,9 @@ internal static partial class EarlyControllerRouteAudit
             runtime,
             host,
             "Parlor return",
-            maximumFrames: 6000);
+            // The awakened state's enemies interrupt long traversal arcs and make the
+            // collision-derived route deliberately less deterministic than empty Parlor.
+            maximumFrames: 12000);
         AssertPendingDoor(runtime, 0x8982, 0x9879, "Parlor return -> Flyway");
 
         host.LoadPendingDoor();
@@ -271,6 +284,30 @@ internal static partial class EarlyControllerRouteAudit
             maximumFrames: 12000);
         VerifyPauseEquipment(bus, runtime, host);
 
+        // A defeated boss is not a playable endpoint unless its ordinary door/room-state
+        // consequences work. Leave the arena and Flyway through physical collision after
+        // the pause round-trip; this proves the area-Torizo bit opens the cap, selects
+        // Flyway's $98AA state, publishes event zero, and selects awakened Parlor $932E.
+        DriveResult bombTorizoReturn = DriveUntilDoor(
+            bus,
+            runtime,
+            host,
+            "Bomb Torizo return",
+            maximumFrames: 2400);
+        AssertPendingDoor(runtime, 0x8baa, 0x9879, "Bomb Torizo return -> Flyway");
+        host.LoadPendingDoor();
+        AssertRoom(runtime, 0x9879, 0x98aa, "Defeated Bomb Torizo Flyway");
+
+        DriveResult flywayReturn = DriveUntilDoor(
+            bus,
+            runtime,
+            host,
+            "Flyway return",
+            maximumFrames: 2400);
+        AssertPendingDoor(runtime, 0x8bb6, 0x92fd, "Flyway return -> awakened Parlor");
+        host.LoadPendingDoor();
+        AssertRoom(runtime, 0x92fd, 0x932e, "Awakened Parlor after Bomb Torizo");
+
         Console.WriteLine(
             $"Controller route: gunship {landingFrames} frames; Landing Site -> Parlor " +
             $"after {landing.Frames} ordinary gameplay frames; Parlor -> Climb after " +
@@ -289,7 +326,9 @@ internal static partial class EarlyControllerRouteAudit
             $"the item message closed in {awakening.MessageFrames} frames and the " +
             $"cartridge hand sequence released Bomb Torizo after " +
             $"{awakening.SequenceFrames} more frames; Bomb Torizo was defeated after " +
-            $"{fight.Frames} controller frames and {fight.FireInputs} fire-button edges.");
+            $"{fight.Frames} controller frames and {fight.FireInputs} fire-button edges; " +
+            $"the unlocked arena/Flyway return reached awakened Parlor in " +
+            $"{bombTorizoReturn.Frames}/{flywayReturn.Frames} frames.");
         return 0;
     }
 
@@ -348,6 +387,9 @@ internal static partial class EarlyControllerRouteAudit
         ushort initialSamusHealth = samus.Health;
         ushort initialMissiles = samus.Missiles;
         ushort previousEnemyHealth = initialEnemyHealth;
+        ushort previousBossFunction = torizo.Function;
+        ushort previousBossPreInstruction = torizo.PreInstruction;
+        ushort previousShotGuard = torizo.ShotGuard;
         int damagingHits = 0;
         int fireInputs = 0;
         int fireCooldown = 0;
@@ -408,15 +450,21 @@ internal static partial class EarlyControllerRouteAudit
                 RoomEnemyProjectileSlot? safePickup = runtime.Enemies.EnemyProjectiles
                     .Where(projectile =>
                         projectile.IsActive &&
-                        projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup)
+                        projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup &&
+                        IsOnSafeSideOfSamus(projectile.XPosition, samus.XPosition, signedDistance))
                     .OrderBy(projectile => Math.Abs(projectile.XPosition - samus.XPosition))
                     .FirstOrDefault();
                 // A refill is not "safe" merely because its projectile kind says pickup.
-                // Torizo emits the spread from inside the wider 128-pixel approach range,
-                // though, so forbidding all resource work there made every orb expire
-                // untouched. Eighty pixels leaves a useful diagonal-firing lane while the
-                // inner range remains an unconditional vault zone.
-                bool resourceLaneIsSafe = absoluteDistance >= 80;
+                // Torizo emits the spread from inside the approach range. A pickup or orb
+                // between Samus and the boss is bait, not a safe refill: walking toward it
+                // was responsible for two deterministic deaths in the private-ROM route.
+                // Only collect from nearly opposite sides of the arena and from drops
+                // already behind Samus relative to Torizo. Incoming Chozo orbs are handled
+                // separately below: shooting a threat in front is safe much sooner than
+                // walking forward to touch its eventual refill. The actual collisions still
+                // decide whether either controller-driven attempt succeeds.
+                bool resourceLaneIsSafe = absoluteDistance >= 144;
+                bool orbDefenseLaneIsSafe = absoluteDistance >= 80;
                 bool collectingPickup = samus.Health < ResourceHuntHealth &&
                     safePickup is not null && resourceLaneIsSafe;
                 // Keep aiming at one native enemy-projectile slot until it disappears.
@@ -441,14 +489,10 @@ internal static partial class EarlyControllerRouteAudit
                     orbAimHoldFrames = 0;
                 }
                 bool huntingOrb = samus.Health < ResourceHuntHealth &&
-                    chozoOrb is not null && resourceLaneIsSafe;
+                    chozoOrb is not null && orbDefenseLaneIsSafe;
                 // Simply retreating eventually pins Samus against a one-screen room wall.
-                // When the body closes, start a fixed-direction full-height jump over it.
-                // Keeping the direction fixed is important: recomputing "toward" after crossing would
-                // reverse in mid-air and put Samus straight back under Torizo.
-                // During the long stand-up list the dormant body still occupies authored
-                // hitboxes. Do not repeatedly vault through it before combat begins; use
-                // that warning period to return to the left-side firing lane instead.
+                // The bounded controller vault keeps one direction after the actors cross;
+                // recalculating toward/away in mid-air would reverse back into Torizo.
                 if (collectingPickup)
                 {
                     // Shot Chozo orbs execute $86:AB8A and create ordinary enemy-drop
@@ -517,45 +561,51 @@ internal static partial class EarlyControllerRouteAudit
                     orbAimHoldFrames = 0;
                     dodgeFramesRemaining = 0;
                     dodgeReady = true;
-                    if (samus.XPosition > 48)
+                    if (torizo.Function == 0xc6ab)
+                    {
+                        // `$C6AB` owns the low-health interruption and death wind-up. The
+                        // old generic "return left" behavior walked Samus straight into a
+                        // temporarily idle boss at one energy. Retreat from the live origin
+                        // while the cartridge list, palette breakup, and shot guard proceed.
+                        input = (ushort)(awayFromBoss | SnesButton.B);
+                    }
+                    else if (torizo.ShotGuard == 0)
+                    {
+                        // The stand-up list clears $0FAA sixteen frames before active
+                        // `$C6FF`, providing a cartridge-authored running-jump run-up.
+                        input = (ushort)(towardBoss | SnesButton.B);
+                    }
+                    else if (samus.XPosition > 48)
                         input = (ushort)SnesButton.Left;
                 }
                 else if (!dodgeReady && absoluteDistance > 96)
                 {
-                    // The room is only one screen wide. Rearm after the bodies have cleared
-                    // the immediate contact range so a fresh A-button edge is available on
-                    // the next approach without requiring either actor to reach a wall.
                     dodgeReady = true;
                 }
                 else if (dodgeReady && dodgeFramesRemaining == 0 &&
-                         absoluteDistance < 128 && canStartGroundedVault)
+                         absoluteDistance < 144 && canStartGroundedVault)
                 {
-                    // A held A bit cannot begin another jump during knockback, falling, or
-                    // an existing arc. Consuming the fixed dodge clock in one of those states
-                    // left no new-button edge when Samus finally landed. Arm the complete
-                    // forty-four-frame crossing only from a cartridge pose whose movement handler
-                    // can accept a grounded jump transition.
-                    dodgeFramesRemaining = 44;
+                    dodgeFramesRemaining = 64;
                     dodgeDirection = towardBoss;
                     dodgeReady = false;
                 }
                 if (!huntingOrb && !collectingPickup &&
                     bossAcceptsShots && dodgeFramesRemaining != 0)
                 {
-                    input = (ushort)dodgeDirection;
-                    if (dodgeFramesRemaining > 22)
+                    input = (ushort)(dodgeDirection | SnesButton.B);
+                    if (dodgeFramesRemaining > 32)
                         input |= (ushort)SnesButton.A;
                     dodgeFramesRemaining--;
                 }
                 else if (!huntingOrb && !collectingPickup &&
                          bossAcceptsShots && absoluteDistance < 80)
                 {
-                    input |= (ushort)awayFromBoss;
+                    input |= (ushort)(awayFromBoss | SnesButton.B);
                 }
                 else if (!huntingOrb && !collectingPickup &&
                          bossAcceptsShots && absoluteDistance > 128)
                 {
-                    input |= (ushort)towardBoss;
+                    input |= (ushort)(towardBoss | SnesButton.B);
                 }
 
                 // Power-beam shots are one-frame edges; a held X would charge and would no
@@ -599,6 +649,23 @@ internal static partial class EarlyControllerRouteAudit
             }
 
             host.StepFrame(input);
+            if (VerboseDiagnostics &&
+                (torizo.Function != previousBossFunction ||
+                 torizo.PreInstruction != previousBossPreInstruction ||
+                 torizo.ShotGuard != previousShotGuard))
+            {
+                Console.WriteLine(
+                    $"    boss state f{frame + 1}: function " +
+                    $"${previousBossFunction:X4}->${torizo.Function:X4}, guard " +
+                    $"${previousShotGuard:X4}->${torizo.ShotGuard:X4}, " +
+                    $"pre=${previousBossPreInstruction:X4}->${torizo.PreInstruction:X4}, " +
+                    $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4})/p${samus.Pose:X2}, " +
+                    $"boss=(${torizo.Slot.XPosition:X4},${torizo.Slot.YPosition:X4}), " +
+                    $"instruction=${torizo.Slot.CurrentInstruction:X4}.");
+                previousBossFunction = torizo.Function;
+                previousBossPreInstruction = torizo.PreInstruction;
+                previousShotGuard = torizo.ShotGuard;
+            }
             if (VerboseDiagnostics && samus.Health < healthBeforeFrame)
             {
                 // Keep the private-ROM route diagnosable without reaching into collision
@@ -706,6 +773,19 @@ internal static partial class EarlyControllerRouteAudit
             $"instruction=${torizo.Slot.CurrentInstruction:X4}.");
     }
 
+    /// <summary>
+    /// Returns whether a resource projectile lies on the side of Samus opposite Torizo.
+    /// This is deliberately a controller-policy predicate, not collision authority: it
+    /// prevents the route driver from walking through the boss to chase a tempting drop,
+    /// while the runtime still owns projectile motion, collection, and health changes.
+    /// </summary>
+    private static bool IsOnSafeSideOfSamus(
+        ushort projectileX,
+        ushort samusX,
+        int signedBossDistance) => signedBossDistance >= 0
+            ? projectileX <= samusX
+            : projectileX >= samusX;
+
     private static DriveResult DriveUntilDoor(
         ISnesAddressSpace bus,
         SuperMetroidRuntime runtime,
@@ -722,6 +802,10 @@ internal static partial class EarlyControllerRouteAudit
         int horizontallyStationaryFrames = 0;
         int firedShots = 0;
         int collisionExplosions = 0;
+        ushort healthBeforeFrame = samus.Health;
+        var damageTrace = new List<string>();
+        var climbCombatTrace = new List<string>();
+        int climbThreatWaitFrames = 0;
         int jumpHoldFrames = 0;
         int floorHatchCycle = -1;
         int climbJumpHoldFrames = 0;
@@ -1126,6 +1210,19 @@ internal static partial class EarlyControllerRouteAudit
                     input |= (ushort)SnesButton.X;
                 else if (samus.MaxMissiles != 0 && frame % 24 == 0)
                     input |= (ushort)SnesButton.X;
+            }
+            else if (roomName == "Pit" && returningWithMorphBallAtEntry &&
+                runtime.Enemies.EnemiesKilled < runtime.Enemies.DeathQuota)
+            {
+                // State $9787 closes both exits behind a five-enemy death quota. Four
+                // walking Pirates naturally cross a horizontal beam fired while travelling
+                // west, but the fifth actor begins on the east wall above the entry cannon
+                // line. Treat the population as a real encounter: select a live cartridge
+                // actor, face/approach it with controller input, and use the configured
+                // aim-up shoulder only when its complete hitbox sits above Samus' muzzle.
+                // Projectile hitboxes, health, death animation, quota increment, BE01's
+                // event publication, and the grey-door opening remain runtime-owned.
+                input = BuildPitEnemyQuotaInput(bus, runtime, samus, frame);
             }
             else
             {
@@ -1985,7 +2082,23 @@ internal static partial class EarlyControllerRouteAudit
                         }
                         else
                         {
-                            horizontalTargetX = 0x0400;
+                            // The destination's left-facing blue cap begins at block X $3E.
+                            // Walking Samus all the way to her collision stop at $03DB puts
+                            // the arm-cannon muzzle beyond that cap: the beam's first leading-
+                            // edge sample then sees the type-$9 door block at X $3F and
+                            // explodes without ever invoking the cap's type-$C/BTS-$40 shot
+                            // reaction. Stop two blocks back while the authored cap remains
+                            // shootable. Once its ordinary PLM list converts the origin away
+                            // from type $C, resume walking into the now-exposed door trigger.
+                            // This is controller policy only; collision, projectile placement,
+                            // the blue-door PLM, and the door transition all remain runtime-
+                            // owned and are exercised exactly as they are during live play.
+                            RoomCollisionBlock flywayCap =
+                                runtime.LevelData!.GetCollisionBlock(0x3e, 0x26);
+                            horizontalTargetX = flywayCap is
+                                { CollisionType: 12, Behavior: 0x40 }
+                                    ? 0x03c0
+                                    : 0x0400;
                         }
 
                         if (horizontalTargetX != parlorLaneTargetX)
@@ -2045,6 +2158,8 @@ internal static partial class EarlyControllerRouteAudit
                             SamusMovementType.MorphBallGround or
                             SamusMovementType.MorphBallFalling;
                         if (!parlorMorphTunnelActive &&
+                            !parlorIsMorphed &&
+                            parlorMovement != SamusMovementType.PostureTransition &&
                             horizontalDirection != 0 &&
                             HorizontalPassageRequiresMorphBall(
                                 runtime.LevelData!,
@@ -2055,9 +2170,19 @@ internal static partial class EarlyControllerRouteAudit
                             // horizontal run. Detect that from the collision map rather than
                             // naming Parlor coordinates: compare the rows occupied by the
                             // current humanoid body with the radius-seven ball at the same
-                            // feet position. The audit then supplies only the normal Down
-                            // inputs; the ROM pose table, equipment bit, animation, radius
-                            // change, and collision code remain authoritative.
+                            // feet position. Activation is meaningful only for a stable humanoid:
+                            // when Samus is already a ball, the lower half of a vertical door
+                            // cap has exactly this silhouette and previously started a bogus
+                            // second tunnel whose unreachable target sat beyond the cap. The
+                            // intermediate `$3D/$3E` unmorph bodies must also finish before
+                            // geometry may request another Down edge; their radius sixteen can
+                            // otherwise misclassify that same cap while Up is legitimately
+                            // expanding Samus at the tunnel exit. Existing ball motion can
+                            // simply continue, and the expansion collision pass below decides
+                            // when there is room to unmorph.
+                            // The audit supplies only normal Down/Up inputs; the ROM pose
+                            // table, equipment bit, animation, radius change, and collision
+                            // code remain authoritative.
                             parlorMorphTunnelActive = true;
                             parlorMorphTunnelEnteredBall = false;
                             parlorMorphTunnelInputFrames = 0;
@@ -2174,10 +2299,20 @@ internal static partial class EarlyControllerRouteAudit
                 // Fire cancels spin into normal-jump gun art, which cannot execute the
                 // block wall-jump check. Suppress opportunistic shots during a planned
                 // vertical transfer; the explicit top-cap phase fires only while grounded.
-                if (frame % 24 == 0 && !returningUpVerticalRoute &&
+                int routeFireCadence = roomName == "Bomb Torizo return" ? 8 : 24;
+                if (frame % routeFireCadence == 0 && !returningUpVerticalRoute &&
                     !parlorMorphTunnelActive &&
                     roomName != "Flyway")
                     input |= (ushort)SnesButton.X;
+                if (roomName == "Bomb Torizo return")
+                {
+                    // The arena's west cap occupies rows $06-$09 while its floor is row
+                    // $0D. A horizontal floor shot correctly explodes against the masonry
+                    // below the door. Hold the configured diagonal-up shoulder so ordinary
+                    // jump/fall poses send fresh beam edges through the flashing cap; the
+                    // type-$C/BTS-$44 collision and grey-door PLM remain sole gate owners.
+                    input |= (ushort)SnesButton.R;
+                }
                 if (roomName == "Flyway" && samus.XPosition < 0x02b0)
                 {
                     // The corridor population is live on the return trip and approaches
@@ -2237,6 +2372,54 @@ internal static partial class EarlyControllerRouteAudit
                 }
             }
 
+            if (roomName == "Climb" && returningWithMorphBallAtEntry &&
+                samus.Kinematics.YDirection == 0)
+            {
+                ushort? combatInput = BuildNearbyRouteEnemyCombatInput(
+                    bus,
+                    runtime,
+                    samus,
+                    frame,
+                    maximumTargetHealth: 20,
+                    out bool nearbyInteractiveThreat);
+                if (combatInput is { } pirateInput)
+                {
+                    // Combat takes ownership before a newly planned jump leaves the shelf.
+                    // Re-arm the controller planner because its provisional A hold was not
+                    // delivered to the game; when no interactive target remains, the next
+                    // supported frame must be able to create a genuine new Jump edge.
+                    climbJumpHoldFrames = 0;
+                    climbJumpReady = true;
+                    climbStartingJump = false;
+                    climbThreatWaitFrames = 0;
+                    input = pirateInput;
+                }
+                else if (nearbyInteractiveThreat && climbThreatWaitFrames < 420)
+                {
+                    // A wall Pirate can be active and close while temporarily sitting
+                    // between the three Power-Beam axes. Do not launch directly through it:
+                    // wait up to seven seconds for its cartridge AI to enter a legal lane.
+                    // The bound prevents a stationary actor behind terrain from owning the
+                    // controller forever; expiry restores the unmodified platform route.
+                    climbJumpHoldFrames = 0;
+                    climbJumpReady = true;
+                    climbStartingJump = false;
+                    climbThreatWaitFrames++;
+                    input = 0;
+                }
+                else if (!nearbyInteractiveThreat)
+                {
+                    climbThreatWaitFrames = 0;
+                }
+                else if (frame % 12 == 0)
+                {
+                    // Keep a sparse forward beam for enemies just outside the local combat
+                    // window. Never add Fire to an airborne arc: the cartridge correctly
+                    // cancels spin into gun art, changing collision radii and invalidating
+                    // the platform transfer that the controller planner is performing.
+                    input |= (ushort)SnesButton.X;
+                }
+            }
             byte poseBeforeStep = samus.Pose;
             ushort yBeforeStep = samus.YPosition;
             try
@@ -2257,6 +2440,54 @@ internal static partial class EarlyControllerRouteAudit
                 throw;
             }
             frame++;
+
+            if (roomName == "Climb" && returningWithMorphBallAtEntry &&
+                (input & (ushort)SnesButton.X) != 0 && climbCombatTrace.Count < 16)
+            {
+                // Record only genuine controller Fire edges from the first combat window.
+                // This is read-only route telemetry: it lets a failed private-ROM audit
+                // distinguish a bad firing lane from projectile allocation or enemy-hitbox
+                // faults without changing cooldowns, projectile positions, or enemy state.
+                RoomEnemySlot? nearestEnemy = runtime.Enemies.Slots
+                    .Where(slot => slot.EnemyDefinitionPointer is not (0 or 0xdaff))
+                    .OrderBy(slot =>
+                        Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition))) +
+                        Math.Abs(unchecked((short)(slot.YPosition - samus.YPosition))))
+                    .FirstOrDefault();
+                climbCombatTrace.Add(
+                    $"f{frame}/i${input:X4}/Samus=(${samus.XPosition:X4},${samus.YPosition:X4})/" +
+                    $"p${samus.Pose:X2}/target=" +
+                    (nearestEnemy is null
+                        ? "-"
+                        : $"${nearestEnemy.EnemyDefinitionPointer:X4}@" +
+                          $"(${nearestEnemy.XPosition:X4},${nearestEnemy.YPosition:X4})/" +
+                          $"hp{nearestEnemy.Health}") +
+                    $"/shots=[{string.Join(',', runtime.Projectiles.Slots
+                        .Where(slot => slot.InstructionPointer != 0)
+                        .Select(slot =>
+                            $"d{slot.Direction}@(${slot.XPosition:X4},${slot.YPosition:X4})/" +
+                            $"t${slot.Type:X4}"))}]");
+            }
+
+            if (samus.Health < healthBeforeFrame && damageTrace.Count < 32)
+            {
+                // Keep route damage attributable to live cartridge actors. The controller
+                // audit must never refill energy or suppress contact, so a failed survival
+                // run needs a small, durable record of where ordinary collision consumed
+                // it. Nearest-enemy data is diagnostic only; enemy AI and the shared Samus
+                // damage routine remain the sole writers of health and knockback state.
+                RoomEnemySlot? nearestEnemy = runtime.Enemies.Slots
+                    .Where(slot => slot.EnemyDefinitionPointer is not (0 or 0xdaff))
+                    .OrderBy(slot =>
+                        Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition))) +
+                        Math.Abs(unchecked((short)(slot.YPosition - samus.YPosition))))
+                    .FirstOrDefault();
+                damageTrace.Add(
+                    $"f{frame}:{healthBeforeFrame}->{samus.Health}/" +
+                    $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4})/p${samus.Pose:X2}/" +
+                    $"enemy={(nearestEnemy is null ? "-" : $"${nearestEnemy.EnemyDefinitionPointer:X4}@(${nearestEnemy.XPosition:X4},${nearestEnemy.YPosition:X4})/hp{nearestEnemy.Health}")}");
+            }
+            healthBeforeFrame = samus.Health;
 
             if (roomName == "Parlor return" && climbTargetX is not null &&
                 runtime.LastAerialSamusMovement is { HitCeiling: true })
@@ -2545,7 +2776,7 @@ internal static partial class EarlyControllerRouteAudit
                 returningWithMorphBallAtEntry &&
                 ((frame <= 260 && frame % 10 == 0) ||
                  (roomName == "Parlor return" &&
-                  (frame is >= 3880 and <= 4040)));
+                  (frame is >= 3880 and <= 4040 or >= 6050 and <= 6250)));
             bool detailedPreMissilesReturnSample = descendingPreMissiles &&
                 samus.MaxMissiles != 0 &&
                 frame <= 420 && frame % 10 == 0;
@@ -2664,6 +2895,19 @@ internal static partial class EarlyControllerRouteAudit
                 Console.WriteLine($"  Morph-Ball impacts: {string.Join(' ', morphBallCollisionTrace)}");
             WriteCollisionMap(runtime, samus, roomName);
             PrintCollisionNeighborhood(runtime, samus);
+            Console.WriteLine(
+                $"  Enemy quota: {runtime.Enemies.EnemiesKilled}/" +
+                $"{runtime.Enemies.DeathQuota}; grey doors: " +
+                $"[{string.Join(", ", runtime.Plms.GreyDoors)}]; interactive native slots: " +
+                $"[{string.Join(',', runtime.Enemies.InteractiveEnemyIndexes.Select(index =>
+                    $"${index:X4}"))}].");
+            Console.WriteLine(
+                $"  Live enemies: [{string.Join(", ", runtime.Enemies.Slots
+                    .Where(slot => slot.EnemyDefinitionPointer is not (0 or 0xdaff))
+                    .Select(slot =>
+                        $"{slot.SlotIndex}:${slot.EnemyDefinitionPointer:X4}/" +
+                        $"hp{slot.Health}@(${slot.XPosition:X4},${slot.YPosition:X4})/" +
+                        $"map${slot.SpritemapPointer:X4}"))}].");
             throw new InvalidDataException(
                 $"Controller route did not leave {roomName} in {frame} frames; " +
                 $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}), pose=${samus.Pose:X2}, " +
@@ -2672,6 +2916,9 @@ internal static partial class EarlyControllerRouteAudit
                 $"${samus.Kinematics.YSpeed:X4}.${samus.Kinematics.YSubspeed:X4}, " +
                 $"stationary={stationaryFrames}, shots={firedShots}, " +
                 $"collision explosions={collisionExplosions}, PLMs={runtime.Plms.ActiveCount}, " +
+                $"direction={horizontalDirection}, morphTunnel=" +
+                $"{parlorMorphTunnelActive}/{parlorMorphTunnelEnteredBall}/" +
+                $"exit={parlorMorphTunnelExitX:X4}/phase={parlorMorphTunnelInputFrames}, " +
                 $"shot directions=[{FormatCounts(firedByDirection)}], " +
                 $"collision directions=[{FormatCounts(collisionsByDirection)}], " +
                 $"projectiles=[{string.Join(", ", runtime.Projectiles.Slots
@@ -2682,6 +2929,10 @@ internal static partial class EarlyControllerRouteAudit
         Console.WriteLine(
             $"  {roomName} controller exit: frames={frame}, health={samus.Health}, " +
             $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}).");
+        if (damageTrace.Count != 0)
+            Console.WriteLine($"  {roomName} damage: {string.Join(' ', damageTrace)}");
+        if (climbCombatTrace.Count != 0)
+            Console.WriteLine($"  {roomName} combat: {string.Join(' ', climbCombatTrace)}");
         return new DriveResult(frame, firedShots, collisionExplosions);
     }
 
@@ -3614,6 +3865,171 @@ internal static partial class EarlyControllerRouteAudit
         counts.Select((count, direction) => (count, direction))
             .Where(entry => entry.count != 0)
             .Select(entry => $"{entry.direction}:{entry.count}"));
+
+    /// <summary>
+    /// Chooses ordinary controller input for Old Mother Brain room's five-Pirate quota.
+    /// This is deterministic test-player policy, not encounter mutation: the selected slot
+    /// is observed only to decide facing, aim, and whether to walk closer.
+    /// </summary>
+    private static ushort BuildPitEnemyQuotaInput(
+        ISnesAddressSpace bus,
+        SuperMetroidRuntime runtime,
+        SamusState samus,
+        int frame)
+    {
+        RoomEnemySlot? target = runtime.Enemies.Slots
+            .Where(slot => slot.EnemyDefinitionPointer is not (0 or 0xdaff))
+            .OrderBy(slot =>
+                Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition))) +
+                Math.Abs(unchecked((short)(slot.YPosition - samus.YPosition))))
+            .FirstOrDefault();
+        if (target is null)
+            return 0;
+
+        int horizontalDistance = unchecked((short)(target.XPosition - samus.XPosition));
+        bool targetIsLeft = horizontalDistance < 0;
+        bool facingLeft = samus.IsFacingLeft(bus);
+        SnesButton towardTarget = targetIsLeft ? SnesButton.Left : SnesButton.Right;
+        if (targetIsLeft != facingLeft)
+        {
+            // Facing is pose-table state. Give the turn one complete frame before adding
+            // an aim shoulder or Fire edge; same-frame input cannot retroactively rotate a
+            // projectile which the native producer has already placed at the old muzzle.
+            return (ushort)towardTarget;
+        }
+
+        int targetBottom = target.YPosition + target.YRadius;
+        int approximateMuzzleY = samus.YPosition - 14;
+        bool targetIsEntirelyAboveMuzzle = targetBottom < approximateMuzzleY;
+        // Close horizontal distance before aiming. A diagonal shot launched from the east
+        // entry can intersect the room's broken floor/ceiling scenery long before reaching
+        // an otherwise valid target two screens away; walking within the visible combat
+        // lane is the normal controller solution and leaves collision fully authoritative.
+        bool needsTraversal = Math.Abs(horizontalDistance) > 88;
+        ushort input = needsTraversal
+            ? (ushort)(towardTarget | SnesButton.B)
+            : targetIsEntirelyAboveMuzzle
+                ? (ushort)SnesButton.R
+                : (ushort)0;
+
+        if (needsTraversal && frame % 60 < 30)
+        {
+            // Old Mother Brain room is divided by full standing-height ruined bulkheads.
+            // A held direction alone legitimately stops at their collision columns, so use
+            // the same pressed/released spin-jump cadence as a player crossing the room.
+            // Bank $90 still owns launch speed and gravity and bank $94 still decides
+            // whether each wall, ceiling, platform, and landing can be crossed.
+            input |= (ushort)SnesButton.A;
+        }
+
+        // Eight-frame pressed/released spacing is frequent enough to retry immediately
+        // after the beam cooldown, while every non-pulse frame provides a genuine new X
+        // edge. The projectile allocator—not this driver—still decides whether it fires.
+        if (frame % 8 == 0)
+            input |= (ushort)SnesButton.X;
+        return input;
+    }
+
+    /// <summary>
+    /// Produces ordinary controller input for a nearby route enemy on a valid beam lane.
+    /// </summary>
+    /// <remarks>
+    /// Event zero replaces Climb's sleepers with eleven live `$F353` actors. A
+    /// horizontal-only route shot passes under wall-bound actors and lets repeated contacts
+    /// kill new-game Samus. This helper does not identify a ROM enemy by coordinates or
+    /// write combat state: it selects the nearest sufficiently fragile actor in the native
+    /// interactive-enemy list, faces it through the pose table, chooses the configured aim
+    /// shoulder, and supplies fresh Fire edges. The caller's health ceiling prevents this
+    /// traversal audit from stopping to duel durable optional actors. Restricting the list is
+    /// equally essential because bank $A0 excludes allocated off-screen actors from
+    /// projectile collision. Collision, health, drops, and Samus damage remain runtime-owned.
+    /// </remarks>
+    private static ushort? BuildNearbyRouteEnemyCombatInput(
+        ISnesAddressSpace bus,
+        SuperMetroidRuntime runtime,
+        SamusState samus,
+        int frame,
+        int maximumTargetHealth,
+        out bool nearbyInteractiveThreat)
+    {
+        const int maximumHorizontalEngagementDistance = 192;
+        const int maximumVerticalEngagementDistance = 160;
+        const int verticalAimDeadZone = 12;
+        const int straightUpLaneHalfWidth = 16;
+        const int diagonalLaneTolerance = 24;
+
+        RoomEnemySlot[] nearbyTargets = runtime.Enemies.Slots
+            .Where(slot =>
+                slot.EnemyDefinitionPointer is not (0 or 0xdaff) &&
+                slot.Health <= maximumTargetHealth &&
+                runtime.Enemies.InteractiveEnemyIndexes.Contains(slot.NativeIndex) &&
+                Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition))) <=
+                    maximumHorizontalEngagementDistance &&
+                Math.Abs(unchecked((short)(slot.YPosition - samus.YPosition))) <=
+                    maximumVerticalEngagementDistance)
+            .ToArray();
+        nearbyInteractiveThreat = nearbyTargets.Length != 0;
+
+        RoomEnemySlot? target = nearbyTargets
+            .Where(slot =>
+                IsInsideRouteBeamLane(
+                    unchecked((short)(slot.XPosition - samus.XPosition)),
+                    unchecked((short)(slot.YPosition - samus.YPosition)),
+                    verticalAimDeadZone,
+                    straightUpLaneHalfWidth,
+                    diagonalLaneTolerance))
+            .OrderBy(slot =>
+                Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition))) +
+                Math.Abs(unchecked((short)(slot.YPosition - samus.YPosition))))
+            .FirstOrDefault();
+        if (target is null)
+            return null;
+
+        int horizontalDistance = unchecked((short)(target.XPosition - samus.XPosition));
+        bool targetIsLeft = horizontalDistance < 0;
+        SnesButton towardTarget = targetIsLeft ? SnesButton.Left : SnesButton.Right;
+        if (targetIsLeft != samus.IsFacingLeft(bus))
+        {
+            // The projectile producer samples the established pose, so spend one complete
+            // frame turning before asking it to allocate a beam from the old-facing muzzle.
+            return (ushort)towardTarget;
+        }
+
+        int verticalDistance = unchecked((short)(target.YPosition - samus.YPosition));
+        ushort input = verticalDistance < -verticalAimDeadZone &&
+            Math.Abs(horizontalDistance) <= straightUpLaneHalfWidth
+            ? (ushort)SnesButton.Up
+            : verticalDistance < -verticalAimDeadZone
+                ? (ushort)SnesButton.R
+            : verticalDistance > verticalAimDeadZone
+                ? (ushort)SnesButton.L
+                : (ushort)0;
+        if (frame % 8 == 0)
+            input |= (ushort)SnesButton.X;
+        return input;
+    }
+
+    private static bool IsInsideRouteBeamLane(
+        int horizontalDistance,
+        int verticalDistance,
+        int horizontalLaneHalfHeight,
+        int straightUpLaneHalfWidth,
+        int diagonalLaneTolerance)
+    {
+        int absoluteX = Math.Abs(horizontalDistance);
+        int absoluteY = Math.Abs(verticalDistance);
+        if (absoluteY <= horizontalLaneHalfHeight)
+            return true;
+        if (verticalDistance < 0 && absoluteX <= straightUpLaneHalfWidth)
+            return true;
+
+        // The unmodified Power Beam has only horizontal, vertical-up, and 45-degree
+        // diagonal controller lanes. Selecting merely by screen distance can lock onto an
+        // actor underneath a solid shelf and spend every shot against the floor. Admit a
+        // diagonal target only when its two deltas agree within the combined actor/beam
+        // width; terrain collision still has final authority over the actual projectile.
+        return Math.Abs(absoluteX - absoluteY) <= diagonalLaneTolerance;
+    }
 
     private static ushort BuildPreMissilesReturnInput(
         ISnesAddressSpace bus,

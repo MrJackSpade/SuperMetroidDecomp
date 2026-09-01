@@ -335,6 +335,69 @@ public sealed partial class SamusState
     }
 
     /// <summary>
+    /// Applies a same-facing falling pose selected while the `$3D/$3E` unmorph animation
+    /// is still active, without replacing the live aerial velocity.
+    /// </summary>
+    /// <remarks>
+    /// The cartridge's unmorph input table remains active before animation command `$FD`
+    /// reaches its normal `$27/$28` crouch endpoint. Up, aim, and Fire input can therefore
+    /// interrupt the transition with an ordinary movement-type-six falling record. This is
+    /// not a fresh jump or an animation-completion shortcut: it enters the shared bank-$91
+    /// changed-pose initializer, makes room for the target body's potentially larger radius,
+    /// and preserves the existing X/Y speed words that describe Samus's current fall.
+    /// </remarks>
+    public bool TryApplyUnmorphToFallingTransition(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        byte targetPose,
+        ushort nmiFrameCounter)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+
+        byte sourcePose = Pose;
+        bool rightFacingRoute = sourcePose == UnmorphingTransitionRightPose &&
+            IsRightFacingFallingPose(targetPose);
+        bool leftFacingRoute = sourcePose == UnmorphingTransitionLeftPose &&
+            IsLeftFacingFallingPose(targetPose);
+        if (!rightFacingRoute && !leftFacingRoute)
+        {
+            // `$91:A3F6/$91:A476` expose only the falling family matching the active
+            // unmorph body's direction. Rejecting every other pairing keeps this helper
+            // from silently becoming a catch-all for unrelated movement initializers.
+            throw new InvalidOperationException(
+                $"Unmorph-to-falling transition ${sourcePose:X2} -> ${targetPose:X2} is not a same-facing retail route.");
+        }
+
+        LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
+            bus,
+            level,
+            targetPose,
+            nmiFrameCounter,
+            out int centerAdjustment);
+        if (collision != LargerPoseCollisionOutcome.Allowed)
+        {
+            // Radius sixteen is already non-ball geometry. If both sides constrain an
+            // attempted full-height falling body, `$91:FFA7` selects stable crouch just as
+            // it does for aimed crouch and compact-aerial expansion. A failed compensating
+            // probe instead retains the visible unmorph frame and all live speed words.
+            if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+                ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            return false;
+        }
+
+        Pose = targetPose;
+        RefreshCollisionRadii(bus);
+        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+
+        // InitializeAnimation resets only the target art stream. In particular, do not call
+        // Make_Samus_Jump or clear YDirection/YSpeed/YSubspeed: the input record can occur
+        // halfway through an actual fall, as it does when leaving Parlor's Morph Ball tunnel.
+        InitializeAnimation(bus, initialFrame: 0);
+        return true;
+    }
+
+    /// <summary>
     /// Installs a stable ordinary Morph-Ball pose while preserving the shared eight-frame
     /// rolling animation exactly as <c>InitializeSamusPose_MorphBall</c> requests.
     /// </summary>

@@ -2358,7 +2358,9 @@ public sealed partial class SuperMetroidRuntime
                     Camera.XPosition,
                     Camera.YPosition,
                     BackgroundScroll.Bg1XOffset,
-                    Camera.Scrolls);
+                    Camera.Scrolls,
+                    Enemies.EnemiesKilled,
+                    Enemies.DeathQuota);
                 foreach (PlmTilemapUpdate update in plmUpdates)
                     update.ExecuteTo(Vram);
 
@@ -2598,11 +2600,11 @@ public sealed partial class SuperMetroidRuntime
                             case var (source, target)
                                 when (((SamusState.IsRightFacingStandingPose(source) ||
                                         SamusState.IsRightFacingRanIntoWallPose(source) ||
-                                        source == SamusState.NormalLandingRightPose) &&
+                                        SamusState.IsRightFacingLandingPose(source)) &&
                                        SamusState.IsMoonwalkingFacingRightPose(target)) ||
                                       ((SamusState.IsLeftFacingStandingPose(source) ||
                                         SamusState.IsLeftFacingRanIntoWallPose(source) ||
-                                        source == SamusState.NormalLandingLeftPose) &&
+                                        SamusState.IsLeftFacingLandingPose(source)) &&
                                        SamusState.IsMoonwalkingFacingLeftPose(target)) ||
                                       (SamusState.IsMoonwalkingPose(source) &&
                                        (SamusState.IsMoonwalkingPose(target) ||
@@ -2845,18 +2847,16 @@ public sealed partial class SuperMetroidRuntime
                                   SamusState.RunningAimDiagonalUpLeftPose or
                                   SamusState.RunningAimDiagonalDownLeftPose,
                                   SamusState.SpinJumpLeftPose):
-                            case (SamusState.TurningLeftToRightPose,
-                                  SamusState.SpinJumpRightPose):
-                            case (SamusState.TurningRightToLeftPose,
-                                  SamusState.SpinJumpLeftPose):
-                            case (SamusState.TurningLeftToRightPose,
-                                  SamusState.NeutralJumpTransitionRightPose):
-                            case (SamusState.TurningRightToLeftPose,
-                                  SamusState.NeutralJumpTransitionLeftPose):
-                                // Turning's `$91:8142` table can launch either the spin or
-                                // neutral body. Preserve newly pressed Shoot as well: the
-                                // normal-jump initializer uses it to bridge a simultaneous
-                                // Jump+Fire edge into the first projectile frame.
+                            case var (turnSourcePose, turnTargetPose)
+                                when SamusState.IsStandingGroundTurnToJumpTransition(
+                                    turnSourcePose,
+                                    turnTargetPose):
+                                // Every standing `$0E` turn—including the aimed `$8B-$8E`
+                                // and `$9C/$9D` records—continues consulting `$91:8142`.
+                                // That table can interrupt the art with either same-facing
+                                // spin or neutral jump. Preserve newly pressed Shoot as well:
+                                // the normal-jump initializer owns the simultaneous
+                                // Jump+Fire bridge when the selected body is type two.
                                 Samus.ApplyOrdinaryJumpTransition(
                                     _addressSpace,
                                     targetPose,
@@ -2894,6 +2894,24 @@ public sealed partial class SuperMetroidRuntime
                                     targetPose,
                                     NmiFrameCounter,
                                     Controller1.NewlyPressed);
+                                break;
+                            case var (source, target)
+                                when (source == SamusState.UnmorphingTransitionRightPose &&
+                                      SamusState.IsRightFacingFallingPose(target)) ||
+                                     (source == SamusState.UnmorphingTransitionLeftPose &&
+                                      SamusState.IsLeftFacingFallingPose(target)):
+                                // `$3D/$3E` still process controller table records until
+                                // animation command `$FD` chooses stable crouch. Falling out
+                                // of a tunnel can therefore interrupt the visible unmorph
+                                // with any same-facing type-six body. Route that complete
+                                // family through the ordinary expansion collision pass while
+                                // preserving the fall already in progress.
+                                Samus.TryApplyUnmorphToFallingTransition(
+                                    _addressSpace,
+                                    LevelData ?? throw new InvalidOperationException(
+                                        "Unmorph-to-falling transition requires active room level data."),
+                                    targetPose,
+                                    NmiFrameCounter);
                                 break;
                             case var (source, target)
                                 when ((SamusState.IsRightFacingCrouchingPose(source) &&

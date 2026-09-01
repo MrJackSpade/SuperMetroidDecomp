@@ -21,6 +21,34 @@ internal static partial class Program
         WriteRomLong(rom, 0x82964a, 0xb59000);
         WriteRomWord(rom, 0x82965f, 0x8000);
 
+        // Both pause indicators are ordinary bank-$82 menu spritemaps. One harmless
+        // single-entry record lets this synthetic test inspect OAM placement without
+        // embedding any retail graphics. The private-ROM route below exercises the real
+        // records and pixels.
+        WriteRomWord(rom, 0x82c569 + 0x5f * 2, 0x8100);
+        WriteRomWord(rom, 0x82c569 + 0x10 * 2, 0x8100);
+        WriteRomWord(rom, 0x828100, 1);
+        WriteRomWord(rom, 0x82c100, 0x0e00);
+
+        // DrawPauseScreenSpriteAnim(3) reads an eight-bit category from WRAM $0755,
+        // then uses the category to select the base ID at $82:C202. Populate several
+        // identical animation records because the 32-frame page fade advances the timer.
+        WriteRomWord(rom, 0x82c0da, 0x0755);
+        WriteRomWord(rom, 0x82c0ec, 0x8200);
+        for (int frame = 0; frame < 8; frame++)
+        {
+            WriteRomByte(rom, 0x828200 + frame * 3, 8);
+            WriteRomByte(rom, 0x828202 + frame * 3, 0);
+        }
+        WriteRomByte(rom, 0x828200 + 8 * 3, 0xff);
+        WriteRomWord(rom, 0x82c1e8, 0xc300);
+        WriteRomWord(rom, 0x82c300 + 2 * 2, 0x0010);
+        WriteRomWord(rom, 0x82c18e + 2 * 2, 0xc400);
+        WriteRomWord(rom, 0x82c400 + 2 * 4, 0x0091);
+        WriteRomWord(rom, 0x82c402 + 2 * 4, 0x0071);
+        WriteRomWord(rom, 0x82c400 + 3 * 4, 0x00a1);
+        WriteRomWord(rom, 0x82c402 + 3 * 4, 0x0081);
+
         // Four wireframe comparison entries cover no suit, Varia, Gravity, and both.
         ushort[] wireframeComparisons = [0x0000, 0x0001, 0x0100, 0x0101];
         for (int index = 0; index < wireframeComparisons.Length; index++)
@@ -62,20 +90,45 @@ internal static partial class Program
         {
             CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            XPosition = 0x0200,
+            YPosition = 0x0300,
         };
-        var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), areaIndex: 0);
+        var system = new Bank80SystemState();
+        system.MarkExploredMapTile(0, mapX: 30, mapY: 5);
+        var pause = new PauseMenuState(
+            bus,
+            samus,
+            system,
+            areaIndex: 0,
+            roomMapX: 28,
+            roomMapY: 1);
 
         AssertEqual(0, pause.ScreenMode, "pause begins on map page");
+        pause.Render();
+        AssertEqual(112, pause.MapHorizontalScroll, "pause map horizontal centering");
+        AssertEqual(unchecked((ushort)-72), pause.MapVerticalScroll, "pause map vertical centering");
+        AssertEqual(128, pause.LastIndicatorOriginX, "pause map marker X origin");
+        AssertEqual(112, pause.LastIndicatorOriginY, "pause map marker Y origin");
+        AssertEqual(0x5f, pause.LastIndicatorSpritemapId, "pause map marker initial frame");
+        AssertEqual(1, pause.LastRenderedSpriteCount, "pause map marker OAM count");
         pause.Step((ushort)SnesButton.R, 0);
         for (int frame = 0; frame < 32; frame++)
             pause.Step(0, 0);
         AssertEqual(1, pause.ScreenMode, "pause R transition reaches equipment page");
         AssertEqual(2, pause.SelectedCategory, "pause selects suits/misc category");
         AssertEqual(2, pause.SelectedItem, "pause selects first collected Morph Ball item");
+        pause.Render();
+        AssertEqual(0x10, pause.LastIndicatorSpritemapId, "pause selector category base ID");
+        AssertEqual(0x90, pause.LastIndicatorOriginX, "pause Morph selector X origin");
+        AssertEqual(0x70, pause.LastIndicatorOriginY, "pause Morph selector Y origin");
+        AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
 
         // D-pad and A use joypad1_newkeys, not the delayed-held word used by L/R/Start.
         pause.Step(0, (ushort)SnesButton.Down);
         AssertEqual(3, pause.SelectedItem, "pause Down selects collected Bombs");
+        pause.Render();
+        AssertEqual(0xa0, pause.LastIndicatorOriginX, "pause Bombs selector X origin");
+        AssertEqual(0x80, pause.LastIndicatorOriginY, "pause Bombs selector Y origin");
         pause.Step(0, (ushort)SnesButton.A);
         AssertTrue(!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs),
             "pause A unequips live Bombs bit");
@@ -87,7 +140,7 @@ internal static partial class Program
             "pause delayed Start requests outer unpause state");
 
         Console.WriteLine(
-            "  Pause menu: ROM tables, page transition, selector, Bomb toggle, and Start agree.");
+            "  Pause menu: ROM tables, native map centering, OAM indicators, page transition, Bomb toggle, and Start agree.");
     }
 
     private static void PopulateEquipmentCategory(
@@ -115,4 +168,7 @@ internal static partial class Program
         rom[offset + 1] = unchecked((byte)(value >> 8));
         rom[offset + 2] = unchecked((byte)(value >> 16));
     }
+
+    private static void WriteRomByte(byte[] rom, int snesAddress, byte value) =>
+        rom[SuperMetroidAddressSpace.ToRomOffset(snesAddress)] = value;
 }

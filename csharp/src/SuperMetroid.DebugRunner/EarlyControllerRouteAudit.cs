@@ -274,10 +274,22 @@ internal static class EarlyControllerRouteAudit
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs))
             throw new InvalidDataException("Pause route began without the acquired Bombs equipped.");
 
-        var pause = new PauseMenuState(bus, samus, runtime.System, room.AreaIndex);
+        var pause = new PauseMenuState(
+            bus,
+            samus,
+            runtime.System,
+            room.AreaIndex,
+            room.MapX,
+            room.MapY);
         Rgba32[] mapFrame = pause.Render();
         if (mapFrame.Length != 256 * 224 || mapFrame.All(pixel => pixel.R == 0 && pixel.G == 0 && pixel.B == 0))
             throw new InvalidDataException("Cartridge pause map rendered an empty frame.");
+        if (pause.LastRenderedSpriteCount == 0 || pause.LastIndicatorSpritemapId is < 0x5f or > 0x61)
+        {
+            throw new InvalidDataException(
+                $"Cartridge pause map emitted {pause.LastRenderedSpriteCount} sprites with " +
+                $"indicator ID ${pause.LastIndicatorSpritemapId:X2}.");
+        }
 
         pause.Step((ushort)SnesButton.R, 0);
         for (int frame = 0; frame < 32; frame++)
@@ -304,8 +316,10 @@ internal static class EarlyControllerRouteAudit
         Rgba32[] equipmentFrame = pause.Render();
         if (equipmentFrame.All(pixel => pixel.R == 0 && pixel.G == 0 && pixel.B == 0))
             throw new InvalidDataException("Cartridge pause equipment page rendered an empty frame.");
+        if (pause.LastRenderedSpriteCount == 0)
+            throw new InvalidDataException("Cartridge pause equipment selector emitted no OAM records.");
         Console.WriteLine(
-            "  Pause route: map/equipment page fades and Morph/Bombs live inventory toggles agree.");
+            "  Pause route: centered map marker, ROM selector OAM, page fades, and Morph/Bombs live inventory toggles agree.");
     }
 
     /// <summary>

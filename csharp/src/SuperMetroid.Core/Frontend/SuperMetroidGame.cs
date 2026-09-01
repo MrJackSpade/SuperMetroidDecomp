@@ -330,7 +330,9 @@ public sealed class SuperMetroidGame
                     runtime.Samus ?? throw new InvalidOperationException(
                         "Pause setup requires a live Samus state."),
                     runtime.System,
-                    runtime.ActiveRoom?.AreaIndex ?? 0);
+                    runtime.ActiveRoom?.AreaIndex ?? 0,
+                    runtime.ActiveRoom?.MapX ?? 0,
+                    runtime.ActiveRoom?.MapY ?? 0);
                 pauseBrightness = 0;
                 lastPixels = pauseMenu.Render();
                 MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
@@ -340,6 +342,7 @@ public sealed class SuperMetroidGame
             case SuperMetroidGameState.PausedA:
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseBrightness = (byte)Math.Min(15, pauseBrightness + 1);
+                pauseMenu!.AdvanceAnimations();
                 lastPixels = pauseMenu!.Render();
                 MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
                 if (pauseBrightness == 15)
@@ -362,6 +365,7 @@ public sealed class SuperMetroidGame
 
             case SuperMetroidGameState.UnpausingA:
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                pauseMenu!.AdvanceAnimations();
                 lastPixels = pauseMenu!.Render();
                 pauseBrightness = (byte)Math.Max(0, pauseBrightness - 1);
                 MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);

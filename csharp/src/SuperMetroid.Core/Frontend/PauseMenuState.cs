@@ -25,6 +25,14 @@ internal sealed class PauseMenuState
     private const ushort BlankEquipmentTilemapPointer = 0xc01a;
     private const ushort DisabledEquipmentPaletteBits = 0x0c00;
     private const ushort TilePaletteMask = 0x1c00;
+    private const int MenuSpritemapPointerTableAddress = 0x82c569;
+    private const byte PauseObjectSelection = 0x01;
+
+    // UpdateSamusPositionIndicatorAnimation at $82:B9FC uses these four literal frames.
+    // Keeping the uneven 8/4/8/4 cadence matters: the two narrow middle frames are the
+    // transition between the left- and right-facing halves of the map marker.
+    private static readonly ushort[] MapIndicatorSpritemapIds = [0x5f, 0x60, 0x61, 0x60];
+    private static readonly int[] MapIndicatorFrameDelays = [8, 4, 8, 4];
 
     private static readonly EquipmentCategoryDefinition[] EquipmentCategories =
     [
@@ -40,24 +48,40 @@ internal sealed class PauseMenuState
     private readonly SamusState samus;
     private readonly Bank80SystemState system;
     private readonly byte areaIndex;
+    private readonly byte roomMapX;
+    private readonly byte roomMapY;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
+    private readonly OamBuffer oam = new();
     private readonly byte[] equipmentTilemap;
     private PauseMenuTransition transition;
     private int transitionBrightness = 15;
     private int selectedCategory;
     private int selectedItem;
+    private ushort mapHorizontalScroll;
+    private ushort mapVerticalScroll;
+    private int mapIndicatorAnimationFrame;
+    private int mapIndicatorAnimationTimer;
+    private int itemSelectorAnimationFrame;
+    private int itemSelectorAnimationTimer;
+    private ushort lastIndicatorOriginX;
+    private ushort lastIndicatorOriginY;
+    private ushort lastIndicatorSpritemapId;
 
     public PauseMenuState(
         ISnesAddressSpace bus,
         SamusState samus,
         Bank80SystemState system,
-        byte areaIndex)
+        byte areaIndex,
+        byte roomMapX,
+        byte roomMapY)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.samus = samus ?? throw new ArgumentNullException(nameof(samus));
         this.system = system ?? throw new ArgumentNullException(nameof(system));
         this.areaIndex = areaIndex < 7 ? areaIndex : (byte)0;
+        this.roomMapX = roomMapX;
+        this.roomMapY = roomMapY;
 
         // GameState_13 copies exactly these three cartridge ranges. VMADD is a word
         // address, hence the doubled byte destinations below.
@@ -74,6 +98,7 @@ internal sealed class PauseMenuState
         RebuildEquipmentTilemap();
         LoadPauseMapTilemap();
         SelectFirstCollectedEquipment();
+        SetupMapScrolling();
     }
 
     /// <summary>Zero for the map and one for the equipment page, matching WRAM $0753.</summary>
@@ -85,12 +110,33 @@ internal sealed class PauseMenuState
     /// <summary>High byte of the native category/item selector word.</summary>
     public int SelectedItem => selectedItem;
 
+    /// <summary>Number of cartridge OBJ records emitted by the most recent render.</summary>
+    public int LastRenderedSpriteCount => oam.LastFinalizedSpriteCount;
+
+    /// <summary>Native BG1 horizontal scroll selected while centering the pause map.</summary>
+    public ushort MapHorizontalScroll => mapHorizontalScroll;
+
+    /// <summary>Native BG1 vertical scroll selected while centering the pause map.</summary>
+    public ushort MapVerticalScroll => mapVerticalScroll;
+
+    /// <summary>Last screen-space origin passed to the cartridge menu-spritemap loader.</summary>
+    public ushort LastIndicatorOriginX => lastIndicatorOriginX;
+
+    /// <summary>Last screen-space Y origin passed to the cartridge menu-spritemap loader.</summary>
+    public ushort LastIndicatorOriginY => lastIndicatorOriginY;
+
+    /// <summary>Last bank-$82 menu spritemap ID selected by a pause draw routine.</summary>
+    public ushort LastIndicatorSpritemapId => lastIndicatorSpritemapId;
+
     /// <summary>
     /// Runs state-$0F menu input after the caller has latched NMI input and invoked the
     /// bank-$80 delayed-held filter. Returns true when Start requests game state $10.
     /// </summary>
     public bool Step(ushort delayedHeldInput, ushort newlyPressedInput)
     {
+        // Stable pause states draw and therefore advance one page-specific sprite animation
+        // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
+        AdvanceAnimations();
         SnesButton delayedPressed = (SnesButton)delayedHeldInput;
         SnesButton newlyPressed = (SnesButton)newlyPressedInput;
         if (transition != PauseMenuTransition.None)
@@ -128,6 +174,23 @@ internal sealed class PauseMenuState
         return false;
     }
 
+    /// <summary>
+    /// Advances the sprite animation drawn by the current native pause-menu substate.
+    /// </summary>
+    /// <remarks>
+    /// Rendering itself is intentionally pure. Bank $82 advances these counters from its
+    /// draw routines, but the desktop may render a framebuffer more than once while paused
+    /// (for example, a debugger watch or PNG capture). The dispatcher calls this exactly
+    /// once per emulated frame so inspection cannot change cartridge-visible timing.
+    /// </remarks>
+    public void AdvanceAnimations()
+    {
+        if (ScreenMode == 0)
+            StepMapIndicatorAnimation();
+        else
+            StepItemSelectorAnimation();
+    }
+
     /// <summary>Composes the cartridge's BG2 frame and current BG1 page at 256x224.</summary>
     public Rgba32[] Render()
     {
@@ -135,9 +198,31 @@ internal sealed class PauseMenuState
         Rgba32[] bg2 = SnesBgTilemapRenderer.Render4BppViewport(
             vram, cgram, Bg2TilemapWord, 0, 0, 0, 256, 224, 32, 32);
         Rgba32[] bg1 = SnesBgTilemapRenderer.Render4BppViewport(
-            vram, cgram, Bg1TilemapWord, 0, 0, 0, 256, 224, 64, 32);
+            vram,
+            cgram,
+            Bg1TilemapWord,
+            0,
+            ScreenMode == 0 ? mapHorizontalScroll : (ushort)0,
+            ScreenMode == 0 ? mapVerticalScroll : (ushort)0,
+            256,
+            224,
+            64,
+            32);
         SnesLayerCompositor.Composite(output, bg2);
         SnesLayerCompositor.Composite(output, bg1);
+
+        // SetupPpuForPauseMenu writes OBSEL=$01. Pause indicators use the same bank-$82
+        // spritemap table as file select, but the different object base points at the
+        // $B6:8000 pause characters loaded into VRAM word $0000/$2000 above.
+        oam.BeginFrame();
+        if (ScreenMode == 0)
+            DrawMapPositionIndicator();
+        else
+            DrawEquipmentItemSelector();
+        oam.FinalizeFrame();
+        SnesLayerCompositor.Composite(
+            output,
+            SnesObjRenderer.Render(oam, vram, cgram, PauseObjectSelection));
 
         // Menu subindexes 2/4/5/7 fade the current page during an L/R transition. The
         // outer game-state fades are applied by SuperMetroidGame because they also cover
@@ -161,6 +246,7 @@ internal sealed class PauseMenuState
                 {
                     ScreenMode = 1;
                     UploadEquipmentTilemap();
+                    ResetItemSelectorAnimation();
                     transition = PauseMenuTransition.MapToEquipmentFadeIn;
                 }
                 else
@@ -368,6 +454,210 @@ internal sealed class PauseMenuState
         // The area name is a 24-byte bank-$82 tilemap fragment copied to VMADD $38AA.
         ushort labelPointer = RomDataReader.ReadWordFixedBank(bus, 0x82965f + areaIndex * 2);
         vram.LoadBytes(0x38aa * 2, RomDataReader.ReadFixedBank(bus, 0x820000 | labelPointer, 0x18));
+    }
+
+    private void SetupMapScrolling()
+    {
+        // DetermineMapScrollLimits at $82:9EC4 scans either the downloaded cartridge map
+        // or the persistent explored plane. Expressing the scan in coordinates is exactly
+        // equivalent to its byte/bit loops and makes the two-page 64x32 layout explicit.
+        bool useCartridgeMap = system.HasAreaMap(areaIndex);
+        ushort mapDataPointer = RomDataReader.ReadWordFixedBank(bus, 0x829717 + areaIndex * 2);
+        int mapDataAddress = 0x820000 | mapDataPointer;
+        bool IsVisible(int x, int y) => useCartridgeMap
+            ? ReadMapBit(mapDataAddress, x, y)
+            : system.IsMapTileExplored(areaIndex, x, y);
+
+        int left = 26;
+        int right = 28;
+        int top = 1;
+        int bottom = 11;
+        for (int x = 0; x < 64; x++)
+        {
+            if (!Enumerable.Range(0, 32).Any(y => IsVisible(x, y)))
+                continue;
+            left = x;
+            break;
+        }
+        for (int x = 63; x >= 0; x--)
+        {
+            if (!Enumerable.Range(0, 32).Any(y => IsVisible(x, y)))
+                continue;
+            right = x;
+            break;
+        }
+        for (int y = 0; y < 32; y++)
+        {
+            if (!Enumerable.Range(0, 64).Any(x => IsVisible(x, y)))
+                continue;
+            top = y;
+            break;
+        }
+        for (int y = 31; y >= 0; y--)
+        {
+            if (!Enumerable.Range(0, 64).Any(x => IsVisible(x, y)))
+                continue;
+            bottom = y;
+            break;
+        }
+
+        ushort minimumX = unchecked((ushort)(left * 8 - (areaIndex == 4 ? 24 : 0)));
+        ushort maximumX = unchecked((ushort)(right * 8));
+        ushort minimumY = unchecked((ushort)(top * 8));
+        ushort maximumY = unchecked((ushort)(bottom * 8));
+
+        // SetupMapScrollingForPauseMenu($80) uses 16-bit ADC/SBC throughout. These local
+        // helpers retain wrapping before every signed branch so an edge-of-map position
+        // behaves like the 65C816 rather than like unbounded host integer arithmetic.
+        mapHorizontalScroll = unchecked((ushort)(
+            minimumX + unchecked((ushort)(maximumX - minimumX)) / 2 - 128));
+        ushort playerMapX = unchecked((ushort)(8 * (roomMapX + (samus.XPosition >> 8))));
+        ushort horizontalScreenPosition = unchecked((ushort)(playerMapX - mapHorizontalScroll));
+        short distanceFromRightClamp = unchecked((short)(224 - horizontalScreenPosition));
+        if (distanceFromRightClamp >= 0)
+        {
+            ushort distanceFromLeftClamp = unchecked((ushort)(32 - horizontalScreenPosition));
+            if (unchecked((short)distanceFromLeftClamp) >= 0)
+                mapHorizontalScroll = unchecked((ushort)(mapHorizontalScroll - distanceFromLeftClamp));
+        }
+        else
+        {
+            mapHorizontalScroll = unchecked((ushort)(mapHorizontalScroll - distanceFromRightClamp));
+        }
+
+        ushort verticalMiddle = unchecked((ushort)(
+            minimumY + unchecked((ushort)(maximumY - minimumY)) / 2 + 16));
+        ushort verticalCenterOffset = unchecked((ushort)((0x80 - verticalMiddle) & 0xfff8));
+        mapVerticalScroll = unchecked((ushort)-verticalCenterOffset);
+        ushort playerMapY = unchecked((ushort)(
+            8 * (roomMapY + (samus.YPosition >> 8) + 1) + verticalCenterOffset));
+        short distanceFromTopClamp = unchecked((short)(64 - playerMapY));
+        if (distanceFromTopClamp >= 0)
+        {
+            mapVerticalScroll = unchecked((ushort)(mapVerticalScroll - distanceFromTopClamp));
+            if (unchecked((short)(mapVerticalScroll + 40)) < 0)
+                mapVerticalScroll = unchecked((ushort)-40);
+        }
+    }
+
+    private void DrawMapPositionIndicator()
+    {
+        ushort x = unchecked((ushort)(
+            8 * (roomMapX + (samus.XPosition >> 8)) - mapHorizontalScroll));
+        ushort y = unchecked((ushort)(
+            8 * (roomMapY + (samus.YPosition >> 8) + 1) - mapVerticalScroll));
+        lastIndicatorOriginX = x;
+        lastIndicatorOriginY = y;
+        lastIndicatorSpritemapId = MapIndicatorSpritemapIds[mapIndicatorAnimationFrame];
+        DrawMenuSpritemap(
+            lastIndicatorSpritemapId,
+            x,
+            y,
+            ReadPauseSpritePaletteBits());
+    }
+
+    private void StepMapIndicatorAnimation()
+    {
+        // The native timer starts at zero, advances to frame one on the first draw, then
+        // decrements after reloading. This order is intentionally not a conventional
+        // "draw frame zero for N ticks" animation helper.
+        if (mapIndicatorAnimationTimer == 0)
+        {
+            mapIndicatorAnimationFrame = (mapIndicatorAnimationFrame + 1) & 3;
+            mapIndicatorAnimationTimer = MapIndicatorFrameDelays[mapIndicatorAnimationFrame];
+        }
+        mapIndicatorAnimationTimer--;
+    }
+
+    private void ResetItemSelectorAnimation()
+    {
+        itemSelectorAnimationFrame = 0;
+        itemSelectorAnimationTimer = bus.ReadByte(0x82c10c);
+    }
+
+    private void StepItemSelectorAnimation()
+    {
+        if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == 0 && samus.CollectedBeams == 0)
+            return;
+
+        // DrawPauseScreenSpriteAnim(3) selects the third timer/frame pair. Its animation
+        // list is a cartridge pointer, with three-byte entries (delay, unused, ID offset).
+        itemSelectorAnimationTimer--;
+        if (itemSelectorAnimationTimer > 0)
+            return;
+
+        ushort animationPointer = RomDataReader.ReadWordFixedBank(bus, 0x82c0ec);
+        itemSelectorAnimationFrame++;
+        byte duration = bus.ReadByte(
+            0x820000 | ((animationPointer + itemSelectorAnimationFrame * 3) & 0xffff));
+        if (duration == 0xff)
+        {
+            itemSelectorAnimationFrame = 0;
+            duration = bus.ReadByte(0x820000 | animationPointer);
+        }
+        itemSelectorAnimationTimer = duration;
+    }
+
+    private void DrawEquipmentItemSelector()
+    {
+        if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == 0 && samus.CollectedBeams == 0)
+            return;
+
+        ushort positionListPointer = RomDataReader.ReadWordFixedBank(
+            bus,
+            0x82c18e + selectedCategory * 2);
+        int positionAddress = 0x820000 | ((positionListPointer + selectedItem * 4) & 0xffff);
+        ushort x = unchecked((ushort)(RomDataReader.ReadWordFixedBank(bus, positionAddress) - 1));
+        ushort y = unchecked((ushort)(RomDataReader.ReadWordFixedBank(bus, positionAddress + 2) - 1));
+
+        ushort animationPointer = RomDataReader.ReadWordFixedBank(bus, 0x82c0ec);
+        int animationEntry = 0x820000 | ((animationPointer + itemSelectorAnimationFrame * 3) & 0xffff);
+        byte spritemapOffset = bus.ReadByte(animationEntry + 2);
+
+        // The third variable pointer used by DrawPauseScreenSpriteAnim is WRAM $0755, the
+        // packed equipment selector. The important 65C816 detail is operand width: unlike
+        // the timer/frame dereferences above, the source dereference is an eight-bit load.
+        // It therefore selects by the low-byte category only; using the whole $0302 Bombs
+        // selector walks into the following map-icon data and invents spritemap ID $00CA.
+        ushort animationVariantPointer = RomDataReader.ReadWordFixedBank(bus, 0x82c0da);
+        if (animationVariantPointer != 0x0755)
+        {
+            throw new InvalidDataException(
+                $"Pause item-selector animation variable is ${animationVariantPointer:X4}, " +
+                "expected native WRAM $0755.");
+        }
+        ushort baseTablePointer = RomDataReader.ReadWordFixedBank(bus, 0x82c1e8);
+        ushort baseSpritemapId = RomDataReader.ReadWordFixedBank(
+            bus,
+            0x820000 | ((baseTablePointer + selectedCategory * 2) & 0xffff));
+        ushort spritemapId = unchecked((ushort)(baseSpritemapId + spritemapOffset));
+        if (spritemapId > 0x0064)
+        {
+            throw new InvalidDataException(
+                $"Pause selector category/item ${selectedItem:X2}{selectedCategory:X2} resolved animation " +
+                $"${animationPointer:X4}/frame {itemSelectorAnimationFrame}/offset " +
+                $"${spritemapOffset:X2} and base table ${baseTablePointer:X4} to " +
+                $"invalid menu spritemap ${spritemapId:X4}.");
+        }
+        lastIndicatorOriginX = x;
+        lastIndicatorOriginY = y;
+        lastIndicatorSpritemapId = spritemapId;
+        DrawMenuSpritemap(
+            spritemapId,
+            x,
+            y,
+            ReadPauseSpritePaletteBits());
+    }
+
+    private ushort ReadPauseSpritePaletteBits() =>
+        RomDataReader.ReadWordFixedBank(bus, 0x82c100);
+
+    private void DrawMenuSpritemap(ushort id, ushort x, ushort y, ushort paletteBits)
+    {
+        ushort pointer = RomDataReader.ReadWordFixedBank(
+            bus,
+            MenuSpritemapPointerTableAddress + id * 2);
+        oam.AddOnScreenSpritemap(bus, 0x820000 | pointer, x, y, paletteBits);
     }
 
     private bool ReadMapBit(int mapDataAddress, int mapX, int mapY)

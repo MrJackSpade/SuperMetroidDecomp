@@ -46,6 +46,27 @@ public sealed class CartridgeAudioState
     /// <summary>Exact <c>HasQueuedMusic</c> result: any occupied delayed-command slot.</summary>
     public bool HasQueuedMusic => _musicDelays.Any(delay => delay != 0);
 
+    /// <summary>
+    /// Exact door-transition predicate at <c>$82:E2B5-$82:E2D7</c>: true while any of the
+    /// three sixteen-entry SFX rings has an unread request. An already-dequeued request that
+    /// is merely waiting for SPC acknowledgement does not keep the native door wait alive.
+    /// </summary>
+    public bool HasQueuedSounds
+    {
+        get
+        {
+            for (int library = 0; library < 3; library++)
+            {
+                if (((_soundWritePositions[library] - _soundReadPositions[library]) &
+                     SoundQueueMask) != 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
     /// <summary>Restores the same audio queue state initialized by <c>Vector_RESET</c>.</summary>
     public void Reset()
     {

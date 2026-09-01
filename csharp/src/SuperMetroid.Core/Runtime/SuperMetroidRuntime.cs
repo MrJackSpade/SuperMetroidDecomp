@@ -123,6 +123,30 @@ public sealed partial class SuperMetroidRuntime
     public bool MoonwalkEnabled { get; set; }
 
     /// <summary>
+    /// WRAM <c>$09EA</c>. Native projectile-data teardown clears the selected HUD icon
+    /// when this word is nonzero; retaining it beside Moonwalk keeps both special-options
+    /// words available to their actual gameplay owners.
+    /// </summary>
+    public bool IconCancelEnabled { get; set; }
+
+    /// <summary>
+    /// Global WRAM <c>$09E2</c> ownership outside X-ray. Reserve auto-refill and fatal-
+    /// damage states set this while still calling portions of state-eight gameplay; every
+    /// enemy/projectile/scroll consumer must observe the same word.
+    /// </summary>
+    public bool GameplayTimeFrozen { get; set; }
+
+    /// <summary>The effective global freeze word, including X-ray's translated owner.</summary>
+    public bool TimeIsFrozen => GameplayTimeFrozen || (Samus?.Xray.TimeIsFrozen ?? false);
+
+    /// <summary>
+    /// Live copies of WRAM <c>$09B2-$09BE</c>. The host supplies physical controller bits;
+    /// accepted gameplay NMIs translate them once at the same conceptual seam where native
+    /// routines compare input with these configurable action words.
+    /// </summary>
+    public ControllerBindings ControllerBindings { get; set; } = ControllerBindings.Default;
+
+    /// <summary>
     /// Native elevator status word at WRAM <c>$0E18</c>. The room's elevator actor owns this
     /// producer. Every nonzero status runs forward-facing `$00/$9B` through `$90:A392`'s
     /// exact one-pixel downward terrain scan. Destination arrival depends on that scan to
@@ -945,6 +969,74 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// Runs one state-$15 fatal-display frame without advancing enemies, PLMs, scrolling,
+    /// room main, or the gameplay clock. This is <c>Samus_DrawWhenNotAnimatingOrDying</c>,
+    /// not a shortened state-eight call.
+    /// </summary>
+    public void DrawFatalSamusFrame(ushort controllerInput)
+    {
+        if (Samus is null || Camera is null)
+            throw new InvalidOperationException("Fatal Samus drawing requires an active room.");
+
+        RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        Oam.BeginFrame();
+        LastSamusBodyDrawn = Samus.Draw(
+            _addressSpace,
+            Oam,
+            Camera.XPosition,
+            Camera.YPosition,
+            mode7Transform: ActiveSamusMode7Transform);
+        Oam.FinalizeFrame();
+    }
+
+    /// <summary>
+    /// Runs one isolated bank-$9B death-animation frame for game states <c>$16-$18</c>.
+    /// The resulting OAM and queued graphics become visible through the ordinary accepted-
+    /// NMI pipeline, while every state-eight actor remains stopped as on the cartridge.
+    /// </summary>
+    public SamusDeathSequenceStepResult StepDeathSequenceFrame(ushort controllerInput)
+    {
+        if (Samus is null || Camera is null || !Samus.DeathSequence.IsActive)
+            throw new InvalidOperationException("The bank-$9B death sequence is not active.");
+
+        RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        Oam.BeginFrame();
+        LastSamusBodyDrawn = false;
+        LastDeathSequenceStep = Samus.DeathSequence.Step(
+            _addressSpace,
+            Samus,
+            Cgram,
+            VramWrites);
+        if (LastDeathSequenceStep.Value.DrawPose)
+        {
+            LastSamusBodyDrawn = Samus.Draw(
+                _addressSpace,
+                Oam,
+                Camera.XPosition,
+                Camera.YPosition,
+                mode7Transform: ActiveSamusMode7Transform);
+        }
+        else if (LastDeathSequenceStep.Value.DrawExplosion)
+        {
+            Samus.DeathSequence.DrawExplosion(_addressSpace, Oam);
+        }
+        Oam.FinalizeFrame();
+        return LastDeathSequenceStep.Value;
+    }
+
+    /// <summary>
+    /// Accepts one NMI and publishes an empty OAM build for outer states that run no draw
+    /// handlers. The just-accepted NMI still displays the preceding build for this frame,
+    /// matching the cartridge's main-thread/NMI double-buffer boundary.
+    /// </summary>
+    public void RunBlankGameplayFrame(ushort controllerInput)
+    {
+        RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        Oam.BeginFrame();
+        Oam.FinalizeFrame();
+    }
+
+    /// <summary>
     /// Publishes the exact bank-$88 power-bomb-cleanup attempt to Crystal Flash's native
     /// initiation routine.
     /// </summary>
@@ -1041,9 +1133,12 @@ public sealed partial class SuperMetroidRuntime
         ushort controller1Input,
         Action<OamBuffer>? drawHighPriorityEnemyProjectiles = null,
         Action<OamBuffer>? drawLowPriorityEnemyProjectiles = null,
-        bool allowCeresElevatorDeparture = true)
+        bool allowCeresElevatorDeparture = true,
+        Action? afterAcceptedNmi = null,
+        bool advanceGameTime = true)
     {
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
+        afterAcceptedNmi?.Invoke();
 
         // Ridley's `$90:E119` request is issued by room main after Samus movement in the
         // cartridge. The translated Ridley visual currently publishes it during EnemyMain,
@@ -1161,7 +1256,7 @@ public sealed partial class SuperMetroidRuntime
             Enemies.StepFrame(
                 Camera.XPosition,
                 Camera.YPosition,
-                Samus?.Xray.TimeIsFrozen ?? false,
+                TimeIsFrozen,
                 Samus,
                 Controller1.NewlyPressed,
                 LevelData,
@@ -1203,7 +1298,7 @@ public sealed partial class SuperMetroidRuntime
                 Oam,
                 Camera.XPosition,
                 Camera.YPosition);
-            if (Samus is not null && !(Samus.Xray.TimeIsFrozen))
+            if (Samus is not null && !TimeIsFrozen)
             {
                 Enemies.ResolveRidleySamusContact(
                     Samus,
@@ -1213,7 +1308,7 @@ public sealed partial class SuperMetroidRuntime
                     Controller1.Current,
                     LevelData);
             }
-            if (LevelData is not null && !(Samus?.Xray.TimeIsFrozen ?? false))
+            if (LevelData is not null && !TimeIsFrozen)
                 Enemies.StepEnemyProjectiles(
                     LevelData,
                     Samus,
@@ -1319,7 +1414,7 @@ public sealed partial class SuperMetroidRuntime
                 _addressSpace,
                 LevelData ?? throw new InvalidOperationException(
                     "A published bomb-jump direction requires active room level data."),
-                timeIsFrozen: Samus.Xray.TimeIsFrozen,
+                timeIsFrozen: TimeIsFrozen,
                 nmiFrameCounter: NmiFrameCounter);
 
             // With no controller bits, $91:82D9 consults pose-definition byte two. Running
@@ -1460,7 +1555,7 @@ public sealed partial class SuperMetroidRuntime
                 // HandleProjectile. The outer gameplay loop then runs bank-$A0 overlap
                 // before beta movement. A newly placed bomb therefore counts 60 -> 59 and
                 // selects its first bank-$93 art record in the placement frame itself.
-                if (!Samus.Xray.TimeIsFrozen && !deathOwnsSamus)
+                if (!TimeIsFrozen && !deathOwnsSamus)
                 {
                     // `$90:C4E7` runs before the movement-type HUD projectile producer.
                     // Consequently a Select edge can choose missiles and an X edge can
@@ -2348,7 +2443,7 @@ public sealed partial class SuperMetroidRuntime
             // acquired above therefore consumes its initial timer and draws $E0B7 in this
             // same frame; when it later becomes air, anchor validation has already run and
             // sees that mutation on the following Samus frame.
-            if (!deathOwnsSamus && !Samus.Xray.TimeIsFrozen)
+            if (!deathOwnsSamus && !TimeIsFrozen)
             {
                 if (LevelData is null || BackgroundStreamer is null || Camera is null)
                     throw new InvalidOperationException("The PLM handler requires an active room and camera.");
@@ -3213,7 +3308,7 @@ public sealed partial class SuperMetroidRuntime
                 // damage; fatal zero-energy game-state acquisition remains the outer seam.
                 Samus.LiquidPhysics.ApplyPeriodicDamage(
                     Samus,
-                    timeIsFrozen: Samus.Xray.TimeIsFrozen);
+                    timeIsFrozen: TimeIsFrozen);
             }
 
             // $A0:884D draws bomb/projectile explosions before reaching the enemy-layer
@@ -3529,7 +3624,7 @@ public sealed partial class SuperMetroidRuntime
                     Oam,
                     Camera.XPosition,
                     Camera.YPosition,
-                    Samus.Xray.TimeIsFrozen);
+                    TimeIsFrozen);
 
                 // `$90:F576` follows DrawSamusAndProjectiles. A counter-forty hurt update
                 // may have armed this latch above; consuming it here preserves both the
@@ -3590,7 +3685,7 @@ public sealed partial class SuperMetroidRuntime
         {
             ScrollingSky.ProcessFrame(
                 Camera.YPosition,
-                timeIsFrozen: Samus?.Xray.TimeIsFrozen ?? false,
+                timeIsFrozen: TimeIsFrozen,
                 VramWrites);
         }
 
@@ -3609,14 +3704,15 @@ public sealed partial class SuperMetroidRuntime
         // HandleSamusOutOfHealthAndGameTile advances the four-word gameplay clock after
         // room main and before shaking. Message-box frames returned above, exactly as the
         // suspended native coroutine does, so item fanfare time is not counted here.
-        GameTime.Step();
+        if (advanceGameTime)
+            GameTime.Step();
 
         // `$82:8BAF` executes room shaking after room main ASM and game-time handling, but
         // before the active-enemy lists are cleared. Enemy attacks above may have installed
         // a new global quake this frame; consuming it here gives that request its first
         // displacement/decrement immediately and preserves the list used for actor shake.
         if (Enemies.IsLoaded)
-            Enemies.HandleRoomShaking(Samus?.Xray.TimeIsFrozen ?? false);
+            Enemies.HandleRoomShaking(TimeIsFrozen);
 
         // Gameplay state eight calls `$A0:9169` after Samus, enemies, drawing, HUD/BG
         // bookkeeping, room main ASM, the energy-zero check, and room shaking. Keep this
@@ -3664,7 +3760,12 @@ public sealed partial class SuperMetroidRuntime
             DisplayedSamusMode7Transform = ActiveSamusMode7Transform;
             Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);
             VramWrites.DrainTo(Vram, _addressSpace);
-            Controller1.Latch(controller1Input);
+            // Menu code consumes raw physical buttons before a runtime exists. Once room
+            // gameplay owns the controller, all bank-$90/$91 action checks use the seven
+            // configurable WRAM masks. Canonicalizing here preserves one shared rising-edge
+            // latch and prevents different movement subsystems from interpreting a remap on
+            // different frames.
+            Controller1.Latch(ControllerBindings.Normalize(controller1Input));
 
             NmiLagCounter = 0;
             NmiFrameCounter8 = unchecked((byte)(NmiFrameCounter8 + 1));

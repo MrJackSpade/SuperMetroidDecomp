@@ -37,6 +37,8 @@ VerifyVramWriteQueue();
 VerifyEscapeTimerBcd();
 VerifyEscapeTimerStateMachine();
 VerifyControllerInputLatch();
+VerifyControllerBindingsAndOptionsSubmenus();
+VerifyReserveAutoRecovery();
 VerifyGenericGamepadInput();
 VerifyDemoInputObject();
 VerifyFrameRuntime();

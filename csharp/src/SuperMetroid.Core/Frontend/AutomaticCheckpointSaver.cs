@@ -40,7 +40,10 @@ internal static class AutomaticCheckpointSaver
                 runtime.System,
                 area: 0,
                 saveStation: 0,
-                gameTime: runtime.GameTime));
+                gameTime: runtime.GameTime,
+                controllerBindings: runtime.ControllerBindings,
+                moonwalkEnabled: runtime.MoonwalkEnabled,
+                iconCancelEnabled: runtime.IconCancelEnabled));
         return true;
     }
 }

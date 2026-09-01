@@ -104,6 +104,9 @@ public sealed partial class SuperMetroidRuntime
             YPosition = station.SamusY,
         };
         slot.ApplyTo(Samus, System);
+        ControllerBindings = slot.ControllerBindings;
+        MoonwalkEnabled = slot.MoonwalkEnabled;
+        IconCancelEnabled = slot.IconCancelEnabled;
         GameTime.Load(
             slot.GameTimeFrames,
             slot.GameTimeSeconds,
@@ -210,6 +213,55 @@ public sealed partial class SuperMetroidRuntime
     /// before the frontend's states $09-$0B consume it.
     /// </summary>
     public bool HasPendingDoorTransition => LevelData?.PendingDoorTransition is not null;
+
+    /// <summary>The unconsumed bank-$83 door selected by the type-$9 collision handler.</summary>
+    public CartridgeDoorHeader? PendingDoorTransition => LevelData?.PendingDoorTransition;
+
+    /// <summary>
+    /// Runs one <c>$82:E310</c> source-room alignment call. Horizontal doors converge the
+    /// camera X low byte; vertical doors converge Y. Signed low-byte motion deliberately
+    /// takes <c>$FF -> $00</c> and <c>$01 -> $00</c> in one-pixel steps.
+    /// </summary>
+    /// <returns>True only when the relevant low byte was already zero on entry.</returns>
+    public bool AlignPendingDoorCameraOnePixel()
+    {
+        CartridgeDoorHeader door = PendingDoorTransition
+            ?? throw new InvalidOperationException("No pending door exists to align.");
+        if (Camera is null)
+            throw new InvalidOperationException("Door alignment requires an active camera.");
+
+        bool horizontal = (door.Orientation & 2) != 0;
+        ushort coordinate = horizontal ? Camera.XPosition : Camera.YPosition;
+        byte low = unchecked((byte)coordinate);
+        if (low == 0)
+            return true;
+
+        coordinate = (low & 0x80) != 0
+            ? unchecked((ushort)(coordinate + 1))
+            : unchecked((ushort)(coordinate - 1));
+        Camera.SetPosition(
+            horizontal ? coordinate : Camera.XPosition,
+            horizontal ? Camera.YPosition : coordinate);
+
+        // CalculateLayer2PosAndScrollsWhenScrolling updates the PPU mirrors on every
+        // convergence step. The gameplay scroll owner performs the same parallax math;
+        // its generated block requests are intentionally discarded because native door
+        // alignment does not enter the row/column streaming dispatcher here.
+        BackgroundScroll.Layer1XPosition = Camera.XPosition;
+        BackgroundScroll.Layer1YPosition = Camera.YPosition;
+        _ = BackgroundScroll.StepScrolling();
+        return false;
+    }
+
+    /// <summary>Native door-opening scroll duration for this runtime's translated endpoint.</summary>
+    public int PendingDoorOpeningFrameCount => PendingDoorTransition is { } door
+        ? ((door.Orientation & 2) != 0 ? 64 : 56)
+        : throw new InvalidOperationException("No pending door exists to scroll.");
+
+    /// <summary>CRE bitset selected from the pending door's destination room header.</summary>
+    public byte PendingDoorDestinationCreBitset => PendingDoorTransition is { } door
+        ? LoadCartridgeRoomHeader(door.DestinationRoomPointer).CreBitset
+        : throw new InvalidOperationException("No pending door destination exists.");
 
     /// <summary>
     /// Loads the destination selected by the live room's type-$9 collision. This is the

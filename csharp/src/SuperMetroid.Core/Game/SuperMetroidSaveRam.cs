@@ -47,8 +47,10 @@ public sealed class SuperMetroidSaveRam
     private const int GameTimeSecondsOffset = 0x003a;
     private const int GameTimeMinutesOffset = 0x003c;
     private const int GameTimeHoursOffset = 0x003e;
+    private const int MoonwalkOffset = 0x0042;
     private const int DebugFlagOffset = 0x0044;
     private const int NewFileMarkerOffset = 0x0046;
+    private const int IconCancelOffset = 0x0048;
     private const int EventsOffset = 0x0060;
     private const int BossBitsOffset = 0x0068;
     private const int RoomChozoBitsOffset = 0x0070;
@@ -135,7 +137,22 @@ public sealed class SuperMetroidSaveRam
                 slotOffset + CompressedMapDataOffset,
                 CompressedMapDataByteCount)),
             SaveStation: ReadSramWord(slotOffset + SaveStationOffset),
-            Area: ReadSramWord(slotOffset + AreaOffset));
+            Area: ReadSramWord(slotOffset + AreaOffset))
+        {
+            // The first four words are the immutable D-pad directions. The remaining
+            // seven are laid out by WRAM address rather than by the options-screen row
+            // order: cancel precedes select and aim-down precedes aim-up in the save mirror.
+            ControllerBindings = new ControllerBindings(
+                Shoot: ReadSramWord(slotOffset + ButtonConfigOffset + 8),
+                Jump: ReadSramWord(slotOffset + ButtonConfigOffset + 10),
+                Dash: ReadSramWord(slotOffset + ButtonConfigOffset + 12),
+                ItemSelect: ReadSramWord(slotOffset + ButtonConfigOffset + 16),
+                ItemCancel: ReadSramWord(slotOffset + ButtonConfigOffset + 14),
+                AimUp: ReadSramWord(slotOffset + ButtonConfigOffset + 20),
+                AimDown: ReadSramWord(slotOffset + ButtonConfigOffset + 18)).OrDefault(),
+            MoonwalkEnabled = ReadSramWord(slotOffset + MoonwalkOffset) != 0,
+            IconCancelEnabled = ReadSramWord(slotOffset + IconCancelOffset) != 0,
+        };
     }
 
     /// <summary>
@@ -154,19 +171,22 @@ public sealed class SuperMetroidSaveRam
         WriteWord(payload, CollectedBeamsOffset, snapshot.CollectedBeams);
 
         // NewSaveFile at $81:B2CB installs these eleven literal SNES controller words.
+        // Later saves copy the live configurable action words, so do not silently restore
+        // defaults every time the player reaches a save station.
+        ControllerBindings bindings = snapshot.ControllerBindings.OrDefault();
         ushort[] buttons =
         [
             (ushort)SnesButton.Up,
             (ushort)SnesButton.Down,
             (ushort)SnesButton.Left,
             (ushort)SnesButton.Right,
-            (ushort)SnesButton.X,
-            (ushort)SnesButton.A,
-            (ushort)SnesButton.B,
-            (ushort)SnesButton.Y,
-            (ushort)SnesButton.Select,
-            (ushort)SnesButton.L,
-            (ushort)SnesButton.R,
+            bindings.Shoot,
+            bindings.Jump,
+            bindings.Dash,
+            bindings.ItemCancel,
+            bindings.ItemSelect,
+            bindings.AimDown,
+            bindings.AimUp,
         ];
         for (int index = 0; index < buttons.Length; index++)
             WriteWord(payload, ButtonConfigOffset + index * 2, buttons[index]);
@@ -187,10 +207,12 @@ public sealed class SuperMetroidSaveRam
         WriteWord(payload, GameTimeSecondsOffset, snapshot.GameTimeSeconds);
         WriteWord(payload, GameTimeMinutesOffset, snapshot.GameTimeMinutes);
         WriteWord(payload, GameTimeHoursOffset, snapshot.GameTimeHours);
+        WriteWord(payload, MoonwalkOffset, snapshot.MoonwalkEnabled ? (ushort)1 : (ushort)0);
         // NewSaveFile deliberately initializes both of these otherwise obscure words to
         // one before the intro's first save. They are part of the checksummed 96-byte copy.
         WriteWord(payload, DebugFlagOffset, 1);
         WriteWord(payload, NewFileMarkerOffset, 1);
+        WriteWord(payload, IconCancelOffset, snapshot.IconCancelEnabled ? (ushort)1 : (ushort)0);
 
         if (snapshot.EventBytes.Length != Bank80SystemState.EventByteCount)
             throw new InvalidDataException("A save snapshot requires exactly eight event bytes.");
@@ -398,6 +420,15 @@ public sealed record SuperMetroidSaveSlot(
     ushort SaveStation,
     ushort Area)
 {
+    /// <summary>The checksum-backed seven-action controller permutation.</summary>
+    public ControllerBindings ControllerBindings { get; init; } = ControllerBindings.Default;
+
+    /// <summary>Saved nonzero WRAM word <c>$09E4</c>.</summary>
+    public bool MoonwalkEnabled { get; init; }
+
+    /// <summary>Saved nonzero WRAM word <c>$09EA</c>.</summary>
+    public bool IconCancelEnabled { get; init; }
+
     /// <summary>Restores the subset already represented by the translated Samus owner.</summary>
     public void ApplyTo(SamusState samus)
     {
@@ -439,6 +470,9 @@ public sealed record SuperMetroidSaveSlot(
 /// <summary>Domain snapshot supplied to the native SRAM encoder.</summary>
 public sealed record SuperMetroidSaveSnapshot
 {
+    public ControllerBindings ControllerBindings { get; init; } = ControllerBindings.Default;
+    public bool MoonwalkEnabled { get; init; }
+    public bool IconCancelEnabled { get; init; }
     public ushort EquippedItems { get; init; }
     public ushort CollectedItems { get; init; }
     public ushort EquippedBeams { get; init; }
@@ -481,7 +515,10 @@ public sealed record SuperMetroidSaveSnapshot
         Bank80SystemState system,
         ushort area,
         ushort saveStation,
-        GameTimeState? gameTime = null)
+        GameTimeState? gameTime = null,
+        ControllerBindings? controllerBindings = null,
+        bool moonwalkEnabled = false,
+        bool iconCancelEnabled = false)
     {
         ArgumentNullException.ThrowIfNull(samus);
         ArgumentNullException.ThrowIfNull(system);
@@ -521,6 +558,9 @@ public sealed record SuperMetroidSaveSnapshot
 
         return new SuperMetroidSaveSnapshot
         {
+            ControllerBindings = (controllerBindings ?? ControllerBindings.Default).OrDefault(),
+            MoonwalkEnabled = moonwalkEnabled,
+            IconCancelEnabled = iconCancelEnabled,
             EquippedItems = samus.EquippedItems,
             CollectedItems = samus.CollectedItems,
             EquippedBeams = samus.EquippedBeams,

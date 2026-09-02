@@ -95,6 +95,27 @@ internal static partial class Program
         AssertEqual((byte)7, inheritedRoomMusic.MusicTrackIndex,
             "zero room track does not silence escape music");
 
+        // The Zebes approach interstitial and Landing Site both call their song "track
+        // five", but use different SPC data banks. `$82:E0E6-$E104` compares the packed
+        // bank/track pair, so the latter track must be resent after bank six uploads.
+        var postCeresLandingMusic = new CartridgeAudioState();
+        postCeresLandingMusic.AdvanceFrame(bus, default);
+        postCeresLandingMusic.QueueMusicDelayed8(5);
+        for (int frame = 0; frame < 9; frame++)
+            postCeresLandingMusic.AdvanceFrame(bus, default);
+        postCeresLandingMusic.QueueRoomMusic(dataIndex: 6, trackIndex: 5);
+        var postCeresMusicCommands = new List<CartridgeAudioCommand>();
+        for (int frame = 0; frame < 40; frame++)
+            postCeresMusicCommands.AddRange(postCeresLandingMusic.AdvanceFrame(bus, default));
+        AssertTrue(
+            postCeresMusicCommands.Any(command =>
+                command.Kind == CartridgeAudioCommandKind.Upload),
+            "Landing Site changes the post-Ceres SPC data bank");
+        AssertTrue(
+            postCeresMusicCommands.Any(command =>
+                command == CartridgeAudioCommand.WritePort(0, 5)),
+            "Landing Site restarts same-numbered track after SPC data-bank change");
+
         var sfx = new CartridgeAudioState();
         sfx.AdvanceFrame(bus, default); // consume reset upload/port writes
         sfx.QueueSound(library: 2, soundId: 0x57, maximumQueued: 6);
@@ -117,7 +138,7 @@ internal static partial class Program
             SpcUploadStreamReader.Read(bus, 0x90fffb),
             "cross-bank SPC upload stream");
 
-        Console.WriteLine("  Audio: music delays, inherited Ceres track, item fanfare, upload lookup, SFX handshake, and LoROM stream agree.");
+        Console.WriteLine("  Audio: music delays, inherited Ceres track, post-Ceres bank/track restart, item fanfare, upload lookup, SFX handshake, and LoROM stream agree.");
     }
 
     private static void WriteAudioRomByte(byte[] rom, int snesAddress, byte value) =>

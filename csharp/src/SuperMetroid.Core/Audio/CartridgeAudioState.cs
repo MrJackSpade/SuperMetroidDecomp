@@ -106,7 +106,8 @@ public sealed class CartridgeAudioState
     {
         // LoadRoomMusic first silences the current track and uploads a changed nonzero
         // room data set. LoadNewMusicTrackIfChanged then queues the room's selected track.
-        if (dataIndex != 0 && dataIndex != MusicDataIndex)
+        bool changesMusicData = dataIndex != 0 && dataIndex != MusicDataIndex;
+        if (changesMusicData)
         {
             QueueMusicDelayed8(0);
             QueueMusicDelayed8(unchecked((ushort)(0xff00 | dataIndex)));
@@ -115,7 +116,12 @@ public sealed class CartridgeAudioState
         // states deliberately contain music `(0, 0)` so track seven and its alarm bed
         // continue through every door. Treating zero as a request to stop replaced that
         // live escape track at the first transition.
-        if (trackIndex != 0 && trackIndex != MusicTrackIndex)
+        // `$82:E0E6-$E104` compares the requested data/track pair, not the track byte
+        // alone. A changed data bank resets the SPC track even when both banks happen to
+        // use the same numeric track. The Ceres interstitial ends on bank $33/track 5;
+        // Landing Site requests bank $06/track 5 and therefore must queue track 5 again
+        // after the upload instead of leaving only the periodic gunship-engine SFX audible.
+        if (trackIndex != 0 && (changesMusicData || trackIndex != MusicTrackIndex))
             QueueMusicDelayed(trackIndex, 6);
     }
 

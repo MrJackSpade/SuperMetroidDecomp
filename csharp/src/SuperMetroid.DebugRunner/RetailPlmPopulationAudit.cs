@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class RetailPlmPopulationAudit
 {
+    private const ushort ScrollPlmHeader = 0xb703;
     private const int ExpectedRecordCount = 941;
     private const int ExpectedDistinctHeaderCount = 70;
     private const int ExpectedSupportedRecordCount = 882;
@@ -101,6 +102,76 @@ internal static class RetailPlmPopulationAudit
             $"Retail PLM inventory: {populations.Length} populations, {records.Count} records, " +
             $"{distinctHeaders} headers; {supportedRecords} records/{supportedHeaders} headers supported, " +
             $"{unsupported.Length} fail loudly with population context.");
+        return 0;
+    }
+
+    /// <summary>
+    /// Resolves native level block indices back to every cartridge room state that owns a
+    /// resident <c>$B703</c> scroll PLM. This deliberately derives the room width and PLM
+    /// coordinates from the ROM, because a bare block index is ambiguous across rooms.
+    /// </summary>
+    public static int LocateScrollOwners(string romPath, params int[] targetBlockIndices)
+    {
+        ArgumentNullException.ThrowIfNull(targetBlockIndices);
+        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        string symbolPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "upstream-sm",
+            "assets",
+            "names.txt");
+        if (!File.Exists(symbolPath))
+            throw new FileNotFoundException("Retail scroll-owner audit requires names.txt.", symbolPath);
+
+        var remaining = targetBlockIndices.ToHashSet();
+        foreach (string line in File.ReadLines(symbolPath))
+        {
+            const string stateMarker = " kRoomState_";
+            int marker = line.IndexOf(stateMarker, StringComparison.Ordinal);
+            if (!line.StartsWith("0x8f", StringComparison.OrdinalIgnoreCase) || marker < 0)
+                continue;
+
+            ushort statePointer = ParseBank8fPointer(line);
+            ReadOnlySpan<char> stateName = line.AsSpan(marker + stateMarker.Length);
+            int separator = stateName.IndexOf('_');
+            if (separator != 4 || !ushort.TryParse(
+                    stateName[..separator],
+                    NumberStyles.AllowHexSpecifier,
+                    CultureInfo.InvariantCulture,
+                    out ushort roomPointer))
+            {
+                throw new InvalidDataException($"Malformed room-state symbol line: {line}");
+            }
+
+            int roomWidthInBlocks = bus.ReadByte(0x8f0000 | unchecked((ushort)(roomPointer + 4))) * 16;
+            ushort population = ReadWord(bus, 0x8f0000 | unchecked((ushort)(statePointer + 20)));
+            ushort cursor = population;
+            for (int recordIndex = 0; recordIndex < 256; recordIndex++, cursor += 6)
+            {
+                ushort header = ReadWord(bus, 0x8f0000 | cursor);
+                if (header == 0)
+                    break;
+                if (header != ScrollPlmHeader)
+                    continue;
+
+                byte x = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 2)));
+                byte y = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 3)));
+                int blockIndex = y * roomWidthInBlocks + x;
+                if (!remaining.Contains(blockIndex))
+                    continue;
+
+                Console.WriteLine(
+                    $"block {blockIndex}: room $8F:{roomPointer:X4}, state $8F:{statePointer:X4}, " +
+                    $"population $8F:{population:X4}, record {recordIndex}, coordinates ({x:X2},{y:X2}), " +
+                    $"width {roomWidthInBlocks} blocks");
+                remaining.Remove(blockIndex);
+            }
+        }
+
+        if (remaining.Count != 0)
+        {
+            throw new InvalidDataException(
+                $"No retail $B703 owner was found for block indices [{string.Join(',', remaining)}].");
+        }
         return 0;
     }
 

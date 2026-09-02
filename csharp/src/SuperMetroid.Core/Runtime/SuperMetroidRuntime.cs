@@ -1595,7 +1595,8 @@ public sealed partial class SuperMetroidRuntime
                 LevelData ?? throw new InvalidOperationException(
                     "A published bomb-jump direction requires active room level data."),
                 timeIsFrozen: TimeIsFrozen,
-                nmiFrameCounter: NmiFrameCounter);
+                nmiFrameCounter: NmiFrameCounter,
+                plms: Plms);
 
             // Zero input and an unmatched nonzero table chord both reach `$91:82D9` and
             // consult pose-definition byte two. A matched same-pose record does not. Running
@@ -1919,7 +1920,8 @@ public sealed partial class SuperMetroidRuntime
                         Controller1.Current,
                         Controller1.NewlyPressed,
                         NmiFrameCounter,
-                        Enemies.ResolveGrappleEndpoint);
+                        Enemies.ResolveGrappleEndpoint,
+                        Plms);
                     grappleOwnsMovement = true;
                 }
                 else if (DebugGrappleItemSelected &&
@@ -2878,7 +2880,8 @@ public sealed partial class SuperMetroidRuntime
                             _addressSpace,
                             LevelData ?? throw new InvalidOperationException(
                                 "Compact landing requires active room level data."),
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                     }
                     else
                     {
@@ -3023,7 +3026,8 @@ public sealed partial class SuperMetroidRuntime
                                     LevelData ?? throw new InvalidOperationException(
                                         "Aerial turn requires active room level data."),
                                     target,
-                                    NmiFrameCounter);
+                                    NmiFrameCounter,
+                                    Plms);
                                 break;
                             case var (source, target)
                                 when (SamusState.IsSpinJumpPose(source) ||
@@ -3061,7 +3065,8 @@ public sealed partial class SuperMetroidRuntime
                                     LevelData ?? throw new InvalidOperationException(
                                         "Morph transition requires active room level data."),
                                     targetPose,
-                                    NmiFrameCounter);
+                                    NmiFrameCounter,
+                                    Plms);
                                 break;
                             case var (source, target)
                                 when (SamusState.IsCompactAerialPose(source) ||
@@ -3079,7 +3084,8 @@ public sealed partial class SuperMetroidRuntime
                                     LevelData ?? throw new InvalidOperationException(
                                         "Compact aerial transition requires active room level data."),
                                     targetPose,
-                                    NmiFrameCounter);
+                                    NmiFrameCounter,
+                                    Plms);
                                 break;
                             case var (source, target)
                                 when (SamusState.IsGroundedAimPose(source) ||
@@ -3224,7 +3230,8 @@ public sealed partial class SuperMetroidRuntime
                                     LevelData ?? throw new InvalidOperationException(
                                         "Crouch jump requires active room level data."),
                                     targetPose,
-                                    NmiFrameCounter);
+                                    NmiFrameCounter,
+                                    Plms);
                                 break;
                             case var (source, target)
                                 when (SamusState.IsSpinJumpPose(source) ||
@@ -3243,7 +3250,8 @@ public sealed partial class SuperMetroidRuntime
                                         "Spin-to-normal-jump transition requires active room level data."),
                                     targetPose,
                                     NmiFrameCounter,
-                                    Controller1.NewlyPressed);
+                                    Controller1.NewlyPressed,
+                                    Plms);
                                 break;
                             case var (source, target)
                                 when (source == SamusState.UnmorphingTransitionRightPose &&
@@ -3261,7 +3269,8 @@ public sealed partial class SuperMetroidRuntime
                                     LevelData ?? throw new InvalidOperationException(
                                         "Unmorph-to-falling transition requires active room level data."),
                                     targetPose,
-                                    NmiFrameCounter);
+                                    NmiFrameCounter,
+                                    Plms);
                                 break;
                             case var (source, target)
                                 when ((SamusState.IsRightFacingCrouchingPose(source) &&
@@ -3276,7 +3285,8 @@ public sealed partial class SuperMetroidRuntime
                                     LevelData ?? throw new InvalidOperationException(
                                         "Direct crouch exit requires active room level data."),
                                     targetPose,
-                                    NmiFrameCounter);
+                                    NmiFrameCounter,
+                                    Plms);
                                 break;
                             case var (landingSource, landingTarget)
                                 when (landingTarget == SamusState.MovingRightNormalPose &&
@@ -3302,7 +3312,8 @@ public sealed partial class SuperMetroidRuntime
                                     LevelData ?? throw new InvalidOperationException(
                                         "Posture transition requires active room level data."),
                                     targetPose,
-                                    NmiFrameCounter);
+                                    NmiFrameCounter,
+                                    Plms);
                                 break;
                             case var (source, sparkTarget)
                                 when source is

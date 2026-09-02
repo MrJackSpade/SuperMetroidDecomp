@@ -28,7 +28,8 @@ public sealed partial class SamusState
         RoomLevelData level,
         byte targetPose,
         ushort nmiFrameCounter,
-        ushort controllerNewInput)
+        ushort controllerNewInput,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -54,6 +55,7 @@ public sealed partial class SamusState
             level,
             targetPose,
             nmiFrameCounter,
+            plms,
             out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
             return false;
@@ -93,7 +95,8 @@ public sealed partial class SamusState
         RoomLevelData level,
         byte targetPose,
         ushort nmiFrameCounter,
-        ushort controllerNewInput)
+        ushort controllerNewInput,
+        RoomPlmSystem? plms = null)
     {
         if (targetPose is not (NormalJumpGunExtendedRightPose or NormalJumpGunExtendedLeftPose))
         {
@@ -105,14 +108,16 @@ public sealed partial class SamusState
             level,
             targetPose,
             nmiFrameCounter,
-            controllerNewInput);
+            controllerNewInput,
+            plms);
     }
 
     public bool TryApplyAerialTurn(
         ISnesAddressSpace bus,
         RoomLevelData level,
         byte genericTargetPose,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -180,6 +185,7 @@ public sealed partial class SamusState
             level,
             selectedTurnPose,
             nmiFrameCounter,
+            plms,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.RetainSource)
             return false;
@@ -329,7 +335,8 @@ public sealed partial class SamusState
         ISnesAddressSpace bus,
         RoomLevelData level,
         byte targetPose,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -365,6 +372,7 @@ public sealed partial class SamusState
             level,
             targetPose,
             nmiFrameCounter,
+            plms,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.Allowed)
         {

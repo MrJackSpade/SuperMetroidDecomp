@@ -460,6 +460,7 @@ public sealed partial class SamusState
         RoomLevelData level,
         byte targetPose,
         ushort nmiFrameCounter,
+        RoomPlmSystem? plms,
         out int centerAdjustment)
     {
         int targetDefinition = AddWithinBank(PoseDefinitions, targetPose * 8);
@@ -478,12 +479,14 @@ public sealed partial class SamusState
             bus,
             level,
             displacement: unchecked(-radiusDifference << 16),
-            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+            scanLeftToRight: (nmiFrameCounter & 1) == 0,
+            plms);
         BlockMoveResult downward = ProbeChangedPoseVertical(
             bus,
             level,
             displacement: radiusDifference << 16,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+            scanLeftToRight: (nmiFrameCounter & 1) == 0,
+            plms);
 
         if (upward.Collided && downward.Collided)
         {
@@ -513,7 +516,8 @@ public sealed partial class SamusState
                 level,
                 oppositeProbe,
                 displacement: centerAdjustment << 16,
-                scanLeftToRight: (nmiFrameCounter & 1) == 0);
+                scanLeftToRight: (nmiFrameCounter & 1) == 0,
+                plms: plms);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;
         }
@@ -532,7 +536,8 @@ public sealed partial class SamusState
                 level,
                 oppositeProbe,
                 displacement: centerAdjustment << 16,
-                scanLeftToRight: (nmiFrameCounter & 1) == 0);
+                scanLeftToRight: (nmiFrameCounter & 1) == 0,
+                plms: plms);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;
         }
@@ -559,7 +564,8 @@ public sealed partial class SamusState
         ISnesAddressSpace bus,
         RoomLevelData level,
         int displacement,
-        bool scanLeftToRight)
+        bool scanLeftToRight,
+        RoomPlmSystem? plms)
     {
         short wholePixels = unchecked((short)(displacement >> 16));
         if ((Math.Abs(wholePixels) & 0xfff8) != 0)
@@ -573,7 +579,8 @@ public sealed partial class SamusState
                 level,
                 CopyKinematics(Kinematics),
                 displacement: intermediateWhole << 16,
-                scanLeftToRight: scanLeftToRight);
+                scanLeftToRight: scanLeftToRight,
+                plms: plms);
             if (intermediate.Collided)
                 return intermediate;
         }
@@ -583,7 +590,8 @@ public sealed partial class SamusState
             level,
             CopyKinematics(Kinematics),
             displacement,
-            scanLeftToRight);
+            scanLeftToRight,
+            plms: plms);
     }
 
     /// <summary>

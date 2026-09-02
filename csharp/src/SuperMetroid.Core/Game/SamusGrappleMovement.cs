@@ -484,7 +484,8 @@ public static partial class SamusGrappleMovement
         ushort controllerInput,
         ushort newlyPressedInput,
         ushort nmiFrameCounter = 0,
-        Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision = null)
+        Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision = null,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -510,7 +511,7 @@ public static partial class SamusGrappleMovement
         if (grapple.Phase == GrapplePhase.WallJumping)
             return CompleteGrappleWallJump(bus, samus, grapple);
         if (grapple.Phase == GrapplePhase.Dropped)
-            return CompleteDropped(bus, level, samus, grapple, nmiFrameCounter);
+            return CompleteDropped(bus, level, samus, grapple, nmiFrameCounter, plms);
 
         if (grapple.Phase != GrapplePhase.ConnectedSwinging)
             throw new InvalidOperationException("Connected grapple movement is not active.");
@@ -840,10 +841,11 @@ public static partial class SamusGrappleMovement
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms)
     {
         byte targetPose = SelectDroppedPose(bus, samus);
-        samus.ApplyGrappleDropTransition(bus, level, targetPose, nmiFrameCounter);
+        samus.ApplyGrappleDropTransition(bus, level, targetPose, nmiFrameCounter, plms);
         ClearConnectedGrapple(grapple);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,

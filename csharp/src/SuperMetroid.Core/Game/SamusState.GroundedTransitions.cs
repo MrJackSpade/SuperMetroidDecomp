@@ -64,7 +64,8 @@ public sealed partial class SamusState
         ISnesAddressSpace bus,
         RoomLevelData level,
         byte targetPose,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -92,6 +93,7 @@ public sealed partial class SamusState
                 level,
                 targetPose,
                 nmiFrameCounter,
+                plms,
                 out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {

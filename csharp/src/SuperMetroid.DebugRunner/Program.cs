@@ -121,6 +121,12 @@ if (args.Length >= 2 && args[0] == "--vertical-room-entry-audit")
     return EarlyControllerRouteAudit.RunVerticalRoomEntryAudit(verticalEntryRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--parlor-scroll-pose-probe-audit")
+{
+    string scrollPoseRomPath = string.Join(' ', args[1..]).Trim('"');
+    return EarlyControllerRouteAudit.RunParlorScrollPoseProbeAudit(scrollPoseRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--blue-hopper-audit")
 {
     string hopperRomPath = string.Join(' ', args[1..]).Trim('"');
@@ -209,6 +215,12 @@ if (args.Length >= 2 && args[0] == "--retail-plm-population-audit")
 {
     string plmRomPath = string.Join(' ', args[1..]).Trim('"');
     return RetailPlmPopulationAudit.Run(plmRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--retail-scroll-owner-audit")
+{
+    string scrollOwnerRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailPlmPopulationAudit.LocateScrollOwners(scrollOwnerRomPath, 1172, 1062);
 }
 
 if (args.Length >= 2 && args[0] == "--retail-enemy-execution-audit")

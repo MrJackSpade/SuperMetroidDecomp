@@ -558,6 +558,18 @@ static void VerifySamusGunExtendedMovement()
     WriteTestWord(bus, 0x919f86, 0xd140); // pose $52 pointer
     bus.WriteBytes(0x91d140, [0x00, 0x00, 0x80, 0x00, 0x4e, 0x00, 0xff, 0xff]);
 
+    // Preserve the decisive tail of retail pose `$0B`'s table at `$91:AE94`. Right+Shot
+    // and Right both select `$0B` itself and therefore return directly; Shot without Right
+    // reaches `$FFFF` and enters `$91:82D9`, whose pose-definition byte above is `$01`.
+    // Collapsing those two null-transition paths is what made one tapped Right input remain
+    // latched for as long as Shoot stayed down in the playable frontend.
+    WriteTestWord(bus, 0x919ef8, 0xd150); // pose $0B pointer
+    bus.WriteBytes(0x91d150, [
+        0x00, 0x00, 0x40, 0x01, 0x0b, 0x00,
+        0x00, 0x00, 0x00, 0x01, 0x0b, 0x00,
+        0xff, 0xff,
+    ]);
+
     AssertEqual(0x0b,
         SamusPoseTransitionTable.Find(bus, 0x09, 0x0140, 0)!.Value.ProspectivePose,
         "Shot+Right selects running gun extension");
@@ -567,6 +579,21 @@ static void VerifySamusGunExtendedMovement()
     AssertEqual(0x67,
         SamusPoseTransitionTable.Find(bus, 0x29, 0x0040, 0)!.Value.ProspectivePose,
         "Shot selects falling gun extension");
+
+    SamusPoseTransitionLookup heldRightAndShot = SamusPoseTransitionTable.Lookup(
+        bus,
+        SamusState.MovingRightGunExtendedPose,
+        (ushort)(SnesButton.Right | SnesButton.X),
+        canonicalNewInput: 0);
+    SamusPoseTransitionLookup releasedRightHoldingShot = SamusPoseTransitionTable.Lookup(
+        bus,
+        SamusState.MovingRightGunExtendedPose,
+        (ushort)SnesButton.X,
+        canonicalNewInput: 0);
+    AssertTrue(!heldRightAndShot.UsesPoseDefinitionFallback,
+        "running-gun Right+Shot same-pose record suppresses fallback");
+    AssertTrue(releasedRightHoldingShot.UsesPoseDefinitionFallback,
+        "running-gun Shot-only terminator requests fallback");
 
     SamusPoseTransition forwardRightRelease =
         SamusPoseTransitionTable.Find(bus, 0x51, (ushort)SnesButton.A, 0)!.Value;
@@ -623,6 +650,9 @@ static void VerifySamusGunExtendedMovement()
     AssertEqual(runningFrame, running.AnimationFrame, "running gun extension preserves frame");
     AssertEqual(runningTimer, running.AnimationFrameTimer, "running gun extension preserves timer");
     AssertEqual(runningDelayList, running.AnimationDelayListAddress, "running gun extension retains shared delay list");
+    running.ApplyGroundedAimTransition(bus, running.ReadNoInputFallbackPose(bus));
+    AssertEqual(SamusState.FacingRightNormalPose, running.Pose,
+        "releasing Right while holding Shot leaves running-gun pose");
 
     // Same-radius airborne arm changes must not perturb the live 16.16 velocity or direction.
     var jumping = new SamusState { Pose = SamusState.NeutralJumpRightPose };

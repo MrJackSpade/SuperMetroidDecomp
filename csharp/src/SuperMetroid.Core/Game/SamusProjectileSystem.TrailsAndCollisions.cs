@@ -362,6 +362,73 @@ public sealed partial class SamusProjectileSystem
         return ScanHorizontalShotReactions(level, slot, roomPlms);
     }
 
+    /// <summary>
+    /// Runs the producer-owned collision call made before a new beam receives its speed.
+    /// </summary>
+    private static bool RunInitialBeamCollision(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusProjectileSlot slot,
+        RoomPlmSystem? roomPlms,
+        bool waveBeam)
+    {
+        // The producer explicitly stores zero in both 8.8 speed words. Direction seven is
+        // the sole exception: `$90:BDA4/$BDF2` writes -1 before the horizontal scan so the
+        // amount-sign branch samples the left radius. Diagonal-left directions retain zero,
+        // including the cartridge's counterintuitive right-edge initial horizontal probe.
+        slot.XVelocity = slot.PackedDirection.Direction == SamusProjectileDirection.Left
+            ? (short)-1
+            : (short)0;
+        slot.YVelocity = 0;
+
+        SamusProjectileDirection direction = slot.PackedDirection.Direction;
+        bool collided = false;
+        if (direction is
+            SamusProjectileDirection.UpRight or
+            SamusProjectileDirection.Right or
+            SamusProjectileDirection.DownRight or
+            SamusProjectileDirection.DownLeft or
+            SamusProjectileDirection.Left or
+            SamusProjectileDirection.UpLeft)
+        {
+            bool horizontalReaction = MoveHorizontally(level, slot, roomPlms);
+
+            // The Wave-beam dispatcher deliberately clears carry after publishing a block
+            // reaction. Preserve that contract here instead of allowing our shared scanner's
+            // Boolean return to suppress the diagonal vertical probe. Ordinary beams retain
+            // the reaction result because their producer aborts immediately on carry set.
+            collided = !waveBeam && horizontalReaction;
+        }
+
+        // Diagonals call vertical collision only when the no-Wave horizontal call returned
+        // carry clear. Wave's native horizontal routine always returns clear even when it
+        // publishes a block reaction, so it necessarily reaches this second axis as well.
+        bool diagonal = direction is
+            SamusProjectileDirection.UpRight or
+            SamusProjectileDirection.DownRight or
+            SamusProjectileDirection.DownLeft or
+            SamusProjectileDirection.UpLeft;
+        if (!collided && (diagonal || direction is
+            SamusProjectileDirection.UpFacingRight or
+            SamusProjectileDirection.DownFacingRight or
+            SamusProjectileDirection.DownFacingLeft or
+            SamusProjectileDirection.UpFacingLeft))
+        {
+            bool verticalReaction = MoveVertically(level, slot, roomPlms);
+            collided = !waveBeam && verticalReaction;
+        }
+
+        if (!waveBeam && collided)
+        {
+            KillBeam(bus, slot);
+            return true;
+        }
+
+        // Wave collision deliberately discards carry after retaining every block/PLM side
+        // effect. Its caller will overwrite the temporary zero/-1 speeds immediately.
+        return false;
+    }
+
     private static bool MoveVertically(
         RoomLevelData level,
         SamusProjectileSlot slot,

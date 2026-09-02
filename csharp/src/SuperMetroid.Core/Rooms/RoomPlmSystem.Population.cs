@@ -183,6 +183,11 @@ public sealed partial class RoomPlmSystem
 
     private static void ClearSlot(PlmSlot slot)
     {
+        // Native PLM arrays contain only scalar words, so allocating an inactive ID
+        // inherently replaces every prior family discriminator. The C# translation adds
+        // semantic references for debugger clarity; every population and runtime spawn
+        // must pass through this reset or a recycled bomb/door block can execute the old
+        // item's handler before its own instruction stream.
         slot.Active = false;
         slot.HeaderPointer = 0;
         slot.BlockIndex = 0;

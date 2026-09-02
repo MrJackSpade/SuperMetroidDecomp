@@ -42,9 +42,9 @@ internal static class WalkingSpacePirateAudit
             $"laser-map samples, emitted {rightAttack.SpawnedLasers + leftAttack.SpawnedLasers} " +
             "room-graphics lasers through both 2- and 4-px/frame branches with the native " +
             "immediate A050 movement and sound; projectile proximity selected both ROM " +
-            "flinch lists; body/laser contact damaged Samus; beam, normal-bomb, and " +
-            "power-bomb damage " +
-            "killed the actor; frozen touch was inert; grapple cancelled; and extended " +
+            "flinch lists; body/laser contact damaged Samus; the green variant rejected " +
+            "Power Beam but accepted lethal missile, normal-bomb, and power-bomb damage; " +
+            "frozen touch was inert; grapple cancelled; and extended " +
             "spritemaps emitted OBJ pieces.");
         return 0;
     }
@@ -549,23 +549,56 @@ internal static class WalkingSpacePirateAudit
         if (laser.Samus.Health != 979 || laserActor.IsActive)
             throw new InvalidDataException("Walking Pirate laser did not deal header damage and delete.");
 
-        LoadedPirates shot = Load(bus, room, assets, samusX: 0x0080, samusY: 0x0040);
-        Prime(shot, assets);
+        // Mini-Kraid Hallway's three actors are the green `$F693` walking definition, not
+        // the grey `$F653` definition which happens to occupy the first family-table row.
+        // Its header stores 90 HP and points at vulnerability `$B4:ED0E`; byte zero there is
+        // literally zero. Common `$A0:A6DE` must therefore accept the overlap and create a
+        // dud without subtracting the projectile's stored 20-power word. This cartridge-
+        // backed check prevents either a stale missile family or a generic "all Pirates are
+        // grey" shortcut from turning the first Power Beam shot into a kill.
+        LoadedPirates immuneBeam = Load(
+            bus, room, assets, samusX: 0x0080, samusY: 0x0040);
+        Prime(immuneBeam, assets);
+        RoomEnemySlot immuneActor = immuneBeam.Pirates[0];
         ArmProjectile(
-            shot.Projectiles.Slots[0],
-            shot.Pirates[0].XPosition,
-            shot.Pirates[0].YPosition,
+            immuneBeam.Projectiles.Slots[0],
+            immuneActor.XPosition,
+            immuneActor.YPosition,
+            type: 0x0000,
+            damage: 20);
+        if (immuneBeam.Enemies.ResolveOrdinaryProjectileHits(
+                bus,
+                immuneBeam.Projectiles,
+                immuneBeam.SharedProjectiles,
+                immuneBeam.Samus) != 1 ||
+            immuneActor.EnemyDefinitionPointer != 0xf693 ||
+            immuneActor.Health != 90)
+        {
+            throw new InvalidDataException(
+                "Green walking Pirate did not preserve its ROM-authored Power Beam immunity.");
+        }
+
+        // Family `$0200` is Super Missile, whose `$ED0E` vulnerability entry is nonzero.
+        // Keep this as a separate fresh load so the lethal result cannot be satisfied by
+        // damage, collision flags, or invincibility state left behind by the immune beam.
+        LoadedPirates missileShot = Load(
+            bus, room, assets, samusX: 0x0080, samusY: 0x0040);
+        Prime(missileShot, assets);
+        ArmProjectile(
+            missileShot.Projectiles.Slots[0],
+            missileShot.Pirates[0].XPosition,
+            missileShot.Pirates[0].YPosition,
             type: 0x0200,
             damage: 300);
-        if (shot.Enemies.ResolveOrdinaryProjectileHits(
+        if (missileShot.Enemies.ResolveOrdinaryProjectileHits(
                 bus,
-                shot.Projectiles,
-                shot.SharedProjectiles,
-                shot.Samus) != 1 ||
-            shot.Pirates[0].Health != 0 ||
-            !shot.Pirates[0].Properties.HasAny(EnemyProperties.Deleted))
+                missileShot.Projectiles,
+                missileShot.SharedProjectiles,
+                missileShot.Samus) != 1 ||
+            missileShot.Pirates[0].EnemyDefinitionPointer != 0 ||
+            missileShot.Pirates[0].Health != 0)
         {
-            throw new InvalidDataException("Walking Pirate lethal projectile damage failed.");
+            throw new InvalidDataException("Walking Pirate lethal Super Missile damage failed.");
         }
 
         LoadedPirates bomb = Load(bus, room, assets, samusX: 0x0080, samusY: 0x0040);
@@ -580,7 +613,7 @@ internal static class WalkingSpacePirateAudit
         if (bomb.Enemies.ResolveOrdinaryBombHits(
                 bomb.SharedProjectiles, bomb.Projectiles, bomb.Samus) != 1 ||
             (normalBomb.Direction & 0x0010) == 0 || bombActor.Health != 0 ||
-            !bombActor.Properties.HasAny(EnemyProperties.Deleted))
+            bombActor.EnemyDefinitionPointer != 0)
         {
             throw new InvalidDataException(
                 "Walking Pirate normal bomb did not run its selected bank-$B2 hitbox " +
@@ -593,8 +626,8 @@ internal static class WalkingSpacePirateAudit
                 powerBomb.Pirates[0].XPosition,
                 powerBomb.Pirates[0].YPosition,
                 explosionRadius: 64) != 1 ||
-            powerBomb.Pirates[0].Health != 0 ||
-            !powerBomb.Pirates[0].Properties.HasAny(EnemyProperties.Deleted))
+            powerBomb.Pirates[0].EnemyDefinitionPointer != 0 ||
+            powerBomb.Pirates[0].Health != 0)
         {
             throw new InvalidDataException("Walking Pirate power-bomb reaction failed.");
         }

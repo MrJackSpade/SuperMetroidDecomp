@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>Cartridge-driven room loading kept separate from the gameplay-frame monolith.</summary>
 public sealed partial class SuperMetroidRuntime
 {
+    private const int CommonGameplaySpritePaletteAddress = 0x9afc00;
+    private const int CommonGameplaySpritePaletteCgramIndex = 128;
+
     // The IRQ owns these coordinates while state $0B waits inside LoadMoreThings. Keep
     // that ownership explicit instead of reducing the native scroll to a frontend timer.
     private DoorOpeningScrollState? _doorOpeningScroll;
@@ -234,8 +237,8 @@ public sealed partial class SuperMetroidRuntime
         if (Camera is null)
             throw new InvalidOperationException("Door alignment requires an active camera.");
 
-        bool horizontal = (door.Orientation & 2) != 0;
-        ushort coordinate = horizontal ? Camera.XPosition : Camera.YPosition;
+        bool alignsX = DoorTransitionAlignsX(door.Orientation);
+        ushort coordinate = alignsX ? Camera.XPosition : Camera.YPosition;
         byte low = unchecked((byte)coordinate);
         if (low == 0)
             return true;
@@ -244,8 +247,8 @@ public sealed partial class SuperMetroidRuntime
             ? unchecked((ushort)(coordinate + 1))
             : unchecked((ushort)(coordinate - 1));
         Camera.SetPosition(
-            horizontal ? coordinate : Camera.XPosition,
-            horizontal ? Camera.YPosition : coordinate);
+            alignsX ? coordinate : Camera.XPosition,
+            alignsX ? Camera.YPosition : coordinate);
 
         // CalculateLayer2PosAndScrollsWhenScrolling updates the PPU mirrors on every
         // convergence step. The gameplay scroll owner performs the same parallax math;
@@ -256,6 +259,15 @@ public sealed partial class SuperMetroidRuntime
         _ = BackgroundScroll.StepScrolling();
         return false;
     }
+
+    /// <summary>
+    /// Decodes bank-$83's two-bit door direction into the axis aligned by $82:E310.
+    /// Right/left are values zero/one and therefore align camera X; down/up are values
+    /// two/three and align camera Y. Keeping this decode named and directly testable avoids
+    /// the dangerously plausible inverse check that shifts a horizontal doorway vertically.
+    /// </summary>
+    internal static bool DoorTransitionAlignsX(byte orientation) =>
+        (orientation & 2) == 0;
 
     /// <summary>CRE bitset selected from the pending door's destination room header.</summary>
     public byte PendingDoorDestinationCreBitset => PendingDoorTransition is { } door
@@ -381,6 +393,13 @@ public sealed partial class SuperMetroidRuntime
             placement.CameraX,
             placement.CameraY);
 
+        // `$82:E4B6` calls Samus_LoadSuitTargetPalette after room/enemy palettes have been
+        // loaded and before state $0B captures the destination fade target. The source fade
+        // has already driven OBJ palette four to black at this point. Omitting this shared
+        // reload therefore retained valid OAM and tile data but rendered Samus as a solid
+        // black silhouette after every ordinary desktop door transition.
+        Samus.LoadSuitPalette(_addressSpace, Cgram);
+
         Samus.Kinematics.SetXFixed(placement.SamusXFixed);
         Samus.Kinematics.SetYFixed(placement.SamusYFixed);
         Samus.Kinematics.YSpeed = 0;
@@ -499,6 +518,26 @@ public sealed partial class SuperMetroidRuntime
             : null;
         LandingSiteEntry = null;
         assets.LoadGraphics(Vram, Cgram);
+
+        // `$82:E139` is part of every retail room-load/door-transition pipeline. It
+        // replaces OBJ palette zero with `kCommonSpritesPalette1` before enemy setup;
+        // bank-$86 actors created with SpawnEprojWithRoomGfx (graphics index zero) depend
+        // on this row for lasers, death debris, and pickups. The old host loader restored
+        // enemy, beam, and Samus palettes but left this row at a stale fade/menu value,
+        // turning otherwise valid common projectiles solid black after a door.
+        LoadCommonGameplaySpritePalette();
+
+        // `$82:E4A9` calls LoadFXHeader after room setup and before enemies. Its selected
+        // sixteen-byte record owns two independent object bitsets. The bank-$8D half must
+        // be created on every shared room-load path; Landing Site bit zero replaces CGRAM
+        // colors used by the scrolling-sky horizon on the first gameplay handler call.
+        RoomPaletteFx.LoadRoom(
+            _addressSpace,
+            room.State.FxPointer,
+            door.Pointer,
+            room.AreaIndex,
+            Samus?.EquippedItems ?? 0,
+            System.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
 
         // A negative background-data pointer names bank-$82's command interpreter. Rooms
         // whose layer-2 scroll mode is fixed/odd rely on this list as their only BG2 source;
@@ -619,6 +658,17 @@ public sealed partial class SuperMetroidRuntime
         BackgroundScroll.PrimePreviousBlocks();
         return new InitialViewportResult(requests.Count, segmentCount);
     }
+
+    /// <summary>
+    /// Applies the immediately visible common-OBJ half of
+    /// <c>LoadColorsForSpritesBeamsAndEnemies</c> at <c>$82:E139</c>.
+    /// </summary>
+    private void LoadCommonGameplaySpritePalette() =>
+        Cgram.LoadFromBus(
+            _addressSpace,
+            CommonGameplaySpritePaletteAddress,
+            colorCount: 16,
+            destinationIndex: CommonGameplaySpritePaletteCgramIndex);
 
     /// <summary>
     /// Resolves a bank-$8F room selector against the live SRAM-mirror and Samus inventory.

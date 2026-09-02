@@ -23,10 +23,12 @@ public sealed partial class SamusProjectileSystem
 
     private (int? Slot, ushort Sound) HandleBeamInput(
         ISnesAddressSpace bus,
+        RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
         ushort controllerNewInput,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles,
+        RoomPlmSystem? roomPlms)
     {
         const ushort shoot = (ushort)SnesButton.X;
         PreviousBeamChargeCounter = FlareCounter;
@@ -36,7 +38,7 @@ public sealed partial class SamusProjectileSystem
         // desktop-held button from allocating more frequently than the cartridge.
         if (samus.HyperBeam != 0)
             return (controllerInput & shoot) != 0
-                ? TryFireHyperBeam(bus, samus, sharedProjectiles)
+                ? TryFireHyperBeam(bus, level, samus, sharedProjectiles, roomPlms)
                 : (null, 0);
 
         // Retail owns twelve low-nibble beam combinations: power through ice+wave+plasma.
@@ -54,7 +56,14 @@ public sealed partial class SamusProjectileSystem
             FlareCounter = 0;
             ClearFlareAnimationState();
             return held
-                ? TryFireBeam(bus, samus, controllerNewInput, sharedProjectiles, charged: false)
+                ? TryFireBeam(
+                    bus,
+                    level,
+                    samus,
+                    controllerNewInput,
+                    sharedProjectiles,
+                    roomPlms,
+                    charged: false)
                 : (null, 0);
         }
 
@@ -69,9 +78,11 @@ public sealed partial class SamusProjectileSystem
             ClearFlareAnimationState();
             return TryFireBeam(
                 bus,
+                level,
                 samus,
                 controllerNewInput,
                 sharedProjectiles,
+                roomPlms,
                 charged: forcedChargedRelease);
         }
 
@@ -88,9 +99,11 @@ public sealed partial class SamusProjectileSystem
                     ClearFlareAnimationState();
                     return TryFireBeam(
                         bus,
+                        level,
                         samus,
                         controllerNewInput,
                         sharedProjectiles,
+                        roomPlms,
                         charged: false);
                 }
             }
@@ -105,17 +118,21 @@ public sealed partial class SamusProjectileSystem
         ClearFlareAnimationState();
         return TryFireBeam(
             bus,
+            level,
             samus,
             controllerNewInput,
             sharedProjectiles,
+            roomPlms,
             charged: releaseCharged);
     }
 
     private (int? Slot, ushort Sound) TryFireBeam(
         ISnesAddressSpace bus,
+        RoomLevelData level,
         SamusState samus,
         ushort controllerNewInput,
         SamusBombProjectileSystem sharedProjectiles,
+        RoomPlmSystem? roomPlms,
         bool charged)
     {
         const ushort shoot = (ushort)SnesButton.X;
@@ -192,8 +209,6 @@ public sealed partial class SamusProjectileSystem
                 ? SamusProjectilePreInstruction.WaveBeamThreeFrameTrail
                 : SamusProjectilePreInstruction.WaveBeamFourFrameTrail;
 
-        InitializePowerBeamVelocity(bus, slot);
-
         // A fresh press takes the ordinary table path. Held auto-fire without a new edge
         // uses $19 instead, preserving the native distinction even though both read ROM.
         byte cooldown = charged
@@ -208,13 +223,28 @@ public sealed partial class SamusProjectileSystem
             (charged ? ChargedSounds : UnchargedSounds) + beamType * 2);
         if (charged)
             ChargedShotGlowTimer = 4;
+
+        // FireUnchargedBeam and FireChargedBeam explicitly zero both speed words and call
+        // CheckBeamCollByDir/WaveBeam_CheckColl before installing the pre-instruction and
+        // initial speed. This is what lets a muzzle already overlapping a door cap trigger
+        // its bank-$94 shot reaction instead of moving its leading edge beyond the cap.
+        bool initialImpact = RunInitialBeamCollision(
+            bus,
+            level,
+            slot,
+            roomPlms,
+            waveBeam: (beamType & 1) != 0);
+        if (!initialImpact)
+            InitializePowerBeamVelocity(bus, slot);
         return (slotIndex, sound);
     }
 
     private (int? Slot, ushort Sound) TryFireHyperBeam(
         ISnesAddressSpace bus,
+        RoomLevelData level,
         SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles,
+        RoomPlmSystem? roomPlms)
     {
         // `$90:AC39` is shared with normal beams: five counted ordinary slots and a nonzero
         // low cooldown byte reject firing before any slot fields are touched.
@@ -261,6 +291,16 @@ public sealed partial class SamusProjectileSystem
         slot.YRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 5)));
         slot.InstructionTimer = 1;
         slot.Damage = 1000;
+
+        // Hyper uses WaveBeam_CheckColl at this same producer seam. It publishes door and
+        // shootable-block reactions but, like every Wave family, ignores solid carry and
+        // survives to receive its normal movement state.
+        _ = RunInitialBeamCollision(
+            bus,
+            level,
+            slot,
+            roomPlms,
+            waveBeam: true);
         slot.PreInstruction = SamusProjectilePreInstruction.HyperBeam;
         InitializePowerBeamVelocity(bus, slot);
 

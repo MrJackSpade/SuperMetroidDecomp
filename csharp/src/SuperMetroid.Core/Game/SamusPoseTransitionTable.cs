@@ -32,6 +32,25 @@ public static class SamusPoseTransitionTable
         ISnesAddressSpace bus,
         byte currentPose,
         ushort canonicalHeldInput,
+        ushort canonicalNewInput) =>
+        Lookup(bus, currentPose, canonicalHeldInput, canonicalNewInput).Transition;
+
+    /// <summary>
+    /// Runs the complete native lookup and preserves whether failure enters
+    /// <c>Samus_Pose_Func2</c>'s pose-definition fallback.
+    /// </summary>
+    /// <remarks>
+    /// There are two observably different ways to return without a prospective pose.
+    /// Zero input or reaching the <c>$FFFF</c> table terminator calls <c>$91:82D9</c>;
+    /// matching a record whose target is the current pose returns directly. A nullable
+    /// transition alone cannot represent that distinction. In particular, running-gun
+    /// pose <c>$0B</c> matches itself while Right+Shoot is held, but Shoot alone reaches
+    /// the terminator and must fall back to standing pose <c>$01</c>.
+    /// </remarks>
+    public static SamusPoseTransitionLookup Lookup(
+        ISnesAddressSpace bus,
+        byte currentPose,
+        ushort canonicalHeldInput,
         ushort canonicalNewInput)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -39,7 +58,7 @@ public static class SamusPoseTransitionTable
         // $91:81A9 branches directly to lookup-failure handling when the raw controller
         // word is zero, before it reads this table at all.
         if (canonicalHeldInput == 0)
-            return null;
+            return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: true);
 
         // Start and Select never participate in pose chords. $91:81F4 initializes its two
         // complement masks from only bits $0F00, then adds canonical action bits explicitly.
@@ -56,7 +75,11 @@ public static class SamusPoseTransitionTable
         {
             ushort requiredNew = ReadWord(bus, entryAddress);
             if (requiredNew == 0xffff)
-                return null;
+            {
+                return new SamusPoseTransitionLookup(
+                    null,
+                    UsesPoseDefinitionFallback: true);
+            }
 
             ushort requiredHeld = ReadWord(bus, AddWithinBank(entryAddress, 2));
             ushort prospectivePose = ReadWord(bus, AddWithinBank(entryAddress, 4));
@@ -71,14 +94,20 @@ public static class SamusPoseTransitionTable
             {
                 // $91:81E7 treats a transition back to the current pose as not found.
                 if (prospectivePose == currentPose)
-                    return null;
+                {
+                    return new SamusPoseTransitionLookup(
+                        null,
+                        UsesPoseDefinitionFallback: false);
+                }
 
-                return new SamusPoseTransition(
-                    CurrentPose: currentPose,
-                    ProspectivePose: prospectivePose,
-                    RequiredNewInput: requiredNew,
-                    RequiredHeldInput: requiredHeld,
-                    EntryAddress: entryAddress);
+                return new SamusPoseTransitionLookup(
+                    new SamusPoseTransition(
+                        CurrentPose: currentPose,
+                        ProspectivePose: prospectivePose,
+                        RequiredNewInput: requiredNew,
+                        RequiredHeldInput: requiredHeld,
+                        EntryAddress: entryAddress),
+                    UsesPoseDefinitionFallback: false);
             }
 
             entryAddress = AddWithinBank(entryAddress, 6);
@@ -100,3 +129,11 @@ public readonly record struct SamusPoseTransition(
     ushort RequiredNewInput,
     ushort RequiredHeldInput,
     int EntryAddress);
+
+/// <summary>
+/// Full control-flow result from <c>$91:81A9</c>, including its otherwise invisible
+/// branch into pose-definition fallback at <c>$91:82D9</c>.
+/// </summary>
+public readonly record struct SamusPoseTransitionLookup(
+    SamusPoseTransition? Transition,
+    bool UsesPoseDefinitionFallback);

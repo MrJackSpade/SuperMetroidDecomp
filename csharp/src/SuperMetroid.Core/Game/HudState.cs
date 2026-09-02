@@ -38,12 +38,19 @@ public sealed class HudState
     private static readonly ushort[] ItemByteOffsets = [0x14, 0x1c, 0x22, 0x28, 0x2e];
 
     private readonly ushort[] _tiles = new ushort[MutableTileCount];
+    private ushort _previousSelectedItem;
 
     /// <summary>Native SNES tilemap words for debugger inspection.</summary>
     public ReadOnlySpan<ushort> Tiles => _tiles;
 
     /// <summary>Whether a ROM template has been copied into this state.</summary>
     public bool IsInitialized { get; private set; }
+
+    /// <summary>
+    /// One-frame publication of <c>QueueSfx1_Max6($39)</c> from <c>$80:9B44</c>.
+    /// The frontend consumes it after the runtime frame has completed.
+    /// </summary>
+    public bool SelectionSoundRequestedThisFrame { get; private set; }
 
     /// <summary>Absolute 0-63 area-map X tile selected by the latest minimap update.</summary>
     public byte MinimapCenterX { get; private set; }
@@ -86,6 +93,10 @@ public sealed class HudState
             DrawTwoDigits(bus, AmmoDigitsAddress, snapshot.PowerBombs, byteOffset: 0xa2);
 
         ToggleItemHighlight(snapshot.SelectedItem, paletteBits: 0x1000);
+        // `$80:9AC9` initializes samus_prev_hud_item_index to zero. HandleHudTilemap
+        // performs the first live comparison on the next gameplay pass.
+        _previousSelectedItem = 0;
+        SelectionSoundRequestedThisFrame = false;
         IsInitialized = true;
     }
 
@@ -95,12 +106,17 @@ public sealed class HudState
     /// of the energy digits. Keeping this update beside <see cref="QueueUpload"/> prevents
     /// enemy damage from changing physics state while the visible HUD remains frozen at 99.
     /// </summary>
-    public void UpdateGameplayCounters(ISnesAddressSpace bus, SamusState samus)
+    public void UpdateGameplayCounters(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        bool timeIsFrozen = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before updating gameplay counters.");
+
+        SelectionSoundRequestedThisFrame = false;
 
         // Permanent pickups can introduce an inventory family after HUD initialization.
         // The cartridge's item routines patch those blank icon cells immediately; replay
@@ -126,6 +142,23 @@ public sealed class HudState
             DrawTwoDigits(bus, AmmoDigitsAddress, samus.PowerBombs, byteOffset: 0xa2);
         if (samus.ReserveTankMode == 1)
             DrawAutoReserve(bus, samus.ReserveEnergy != 0);
+
+        // `$80:9BD3-$9C20` changes the newly selected icon to palette four, restores the
+        // old icon to palette five, then publishes sound $39. This belongs in the live HUD
+        // update rather than the input handler: native suppresses the sound (but not the
+        // visual change) while spinning, wall-jumping, grappling, or time is frozen.
+        if (samus.SelectedHudItem != _previousSelectedItem)
+        {
+            ToggleItemHighlight(samus.SelectedHudItem, paletteBits: 0x1000);
+            ToggleItemHighlight(_previousSelectedItem, paletteBits: 0x1400);
+            _previousSelectedItem = samus.SelectedHudItem;
+
+            byte movementType = samus.ReadMovementType(bus);
+            SelectionSoundRequestedThisFrame =
+                movementType is not (3 or 20) &&
+                samus.Grapple.Phase == GrapplePhase.Inactive &&
+                !timeIsFrozen;
+        }
     }
 
     /// <summary>

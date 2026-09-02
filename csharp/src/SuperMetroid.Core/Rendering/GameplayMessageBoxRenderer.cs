@@ -34,7 +34,11 @@ public static class GameplayMessageBoxRenderer
 
         ReadOnlySpan<ushort> tilemap = messageBox.Tilemap;
         int rowCount = messageBox.TilemapRowCount;
-        if (rowCount is not (3 or 6) || tilemap.Length != rowCount * TilemapWidth)
+        // The ROM builder accepts a variable number of content rows. In particular,
+        // message $14 uses three content rows plus two small-border rows (five total),
+        // so validating only the common 3-row and 6-row shapes rejects retail data.
+        // The fixed 24-pixel half-window can expose at most six 8-pixel rows.
+        if (rowCount is < 3 or > 6 || tilemap.Length != rowCount * TilemapWidth)
         {
             throw new InvalidDataException(
                 $"Active message box has invalid {rowCount}x{TilemapWidth} tilemap.");

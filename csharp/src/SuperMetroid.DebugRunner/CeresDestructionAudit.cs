@@ -108,6 +108,8 @@ internal static class CeresDestructionAudit
         {
             runtime.StepFrame(0);
             landingFrames++;
+            if (landingFrames == 1)
+                AssertLandingPaletteFxFirstFrame(runtime);
             if (landingFrames is 160 or 320 or 480)
             {
                 WriteOpaque(
@@ -141,6 +143,8 @@ internal static class CeresDestructionAudit
         }
         if (!runtime.GroundedSamusMovementEnabled || runtime.Samus?.InputLocked != false)
             throw new InvalidDataException("Landing completed without restoring ordinary Samus control.");
+
+        AssertVisibleLandingSkyRowsMatchRom(runtime, bus);
 
         // Feed the naturally produced GunshipTop_7 event into the same automatic-checkpoint
         // coordinator used by SuperMetroidGame, then restart the entire frontend and select
@@ -208,6 +212,77 @@ internal static class CeresDestructionAudit
             $"checkpoint resumed at {landingSave.GameTimeSeconds:D2}." +
             $"{landingSave.GameTimeFrames:D2}.");
         return 0;
+    }
+
+    /// <summary>
+    /// Requires every currently visible circular BG2 row to equal its bank-$8A land chunk.
+    /// </summary>
+    private static void AssertVisibleLandingSkyRowsMatchRom(
+        SuperMetroidRuntime runtime,
+        ISnesAddressSpace bus)
+    {
+        const int landChunkPointerTable = 0x88ad9c;
+        const int bg2TilemapBaseWord = 0x4800;
+        ushort cameraY = runtime.Camera?.YPosition
+            ?? throw new InvalidDataException("Landing Site sky has no camera.");
+
+        // Gameplay begins on physical scanline 32 and ends at 223. BG2VOFS is not reset by
+        // the HUD IRQ, so these are the exact world rows sampled by the software PPU and the
+        // cartridge. Comparing complete 32-word rows is independent of per-band BG2HOFS.
+        int firstWorldY = (cameraY + SnesGameplayFrameRenderer.HudHeight) & ~7;
+        int finalWorldY = (cameraY + FrontendFrame.Height - 1) & ~7;
+        for (int worldY = firstWorldY; worldY <= finalWorldY; worldY += 8)
+        {
+            int chunk = (worldY >> 8) & 0xff;
+            ushort chunkPointer = unchecked((ushort)(
+                bus.ReadByte(landChunkPointerTable + chunk * 2) |
+                (bus.ReadByte(landChunkPointerTable + chunk * 2 + 1) << 8)));
+            int source = 0x8a0000 |
+                unchecked((ushort)(chunkPointer + (worldY & 0xf8) * 8));
+            int destination = bg2TilemapBaseWord + ((worldY >> 3) & 0x3f) * 32;
+            for (int column = 0; column < 32; column++)
+            {
+                ushort expected = unchecked((ushort)(
+                    bus.ReadByte(source + column * 2) |
+                    (bus.ReadByte(source + column * 2 + 1) << 8)));
+                ushort actual = runtime.Vram.ReadWord(destination + column);
+                if (actual != expected)
+                {
+                    throw new InvalidDataException(
+                        $"Landing Site visible sky row ${worldY:X4}, column {column} " +
+                        $"contains ${actual:X4} at VRAM ${destination + column:X4}; " +
+                        $"bank-$8A source ${source + column * 2:X6} contains ${expected:X4}.");
+                }
+            }
+        }
+    }
+
+    /// <summary>Proves Landing Site spawns Crateria's cartridge palette program.</summary>
+    private static void AssertLandingPaletteFxFirstFrame(SuperMetroidRuntime runtime)
+    {
+        // Object $8D:F765 begins at list $EB3B. Its first handler call executes SetPreInstr,
+        // SetColorIndex($00A8), then the eight literal colors in the $00F0-frame record at
+        // $EB43. These are the palette-five colors used by the scrolling-sky horizon.
+        ushort[] expected =
+        [
+            0x2d6c, 0x294b, 0x252a, 0x2109,
+            0x1ce8, 0x18c7, 0x14a6, 0x1085,
+        ];
+        for (int index = 0; index < expected.Length; index++)
+        {
+            ushort actual = runtime.Cgram.Colors[84 + index];
+            if (actual != expected[index])
+            {
+                throw new InvalidDataException(
+                    $"Landing palette-FX color {84 + index} is ${actual:X4}; " +
+                    $"$8D:EB43 requires ${expected[index]:X4} on its first handler call.");
+            }
+        }
+        if (runtime.RoomPaletteFx.ActiveCount != 1)
+        {
+            throw new InvalidDataException(
+                $"Landing Site has {runtime.RoomPaletteFx.ActiveCount} room palette-FX objects; expected one.");
+        }
     }
 
     private static void WriteOpaque(string path, Rgba32[] pixels, string description)

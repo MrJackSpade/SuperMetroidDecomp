@@ -120,29 +120,27 @@ public sealed class GameplayMessageBoxState
         }
 
         int borderAddress;
-        int expectedContentRows;
         switch (drawFunction)
         {
             case DrawSmallTilemapFunction:
                 borderAddress = SmallBorderAddress;
-                expectedContentRows = 1;
                 break;
             case DrawLargeTilemapFunction:
                 borderAddress = LargeBorderAddress;
-                expectedContentRows = 4;
                 break;
             default:
                 throw new InvalidDataException(
                     $"Message {messageId} names unsupported draw routine $85:{drawFunction:X4}.");
         }
 
+        // `$85:8289` and `$85:825A` select the small and large *border artwork*.
+        // Neither routine fixes the content height. Both tail-call `$85:82C1`, whose
+        // copy length is the difference between this definition's content pointer and
+        // the following definition's pointer. Message $14 (the map-station message) is
+        // the important retail counterexample: it deliberately uses the small border
+        // routine around three content rows. Treating "small" as "one row" made valid
+        // cartridge data fail as soon as the first map station opened.
         int contentRows = contentByteCount / (TilemapWidth * 2);
-        if (contentRows != expectedContentRows)
-        {
-            throw new InvalidDataException(
-                $"Message {messageId} draw routine $85:{drawFunction:X4} expects " +
-                $"{expectedContentRows} content rows, ROM range provides {contentRows}.");
-        }
 
         _tilemap = new ushort[(contentRows + 2) * TilemapWidth];
         for (int column = 0; column < TilemapWidth; column++)

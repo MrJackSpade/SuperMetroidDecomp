@@ -115,6 +115,31 @@ public sealed class CartridgeAudioState
             QueueMusicDelayed(trackIndex, 6);
     }
 
+    /// <summary>
+    /// Executes the shared permanent-item music sequence from bank <c>$84</c>.
+    /// </summary>
+    /// <remarks>
+    /// Every exposed, Chozo, and shot-block item list reaches <c>$84:8BDD</c> with track
+    /// two before its pickup instruction calls <c>PlayRoomMusicTrackAfterAFrames($0168)</c>.
+    /// The latter snapshots the currently playing room track, queues silence after 360
+    /// frames, then restores that snapshot eight frames later. Queue clearing is part of
+    /// the first opcode: retaining an older delayed room command can pre-empt the fanfare.
+    /// </remarks>
+    public void QueuePermanentItemFanfare()
+    {
+        byte roomTrack = MusicTrackIndex;
+
+        Array.Clear(_musicEntries);
+        Array.Clear(_musicDelays);
+        _musicReadPosition = _musicWritePosition;
+        _musicTimer = 0;
+        _musicEntry = 0;
+
+        QueueMusicDelayed8(2);
+        QueueMusicDelayed(0, 0x0168);
+        QueueMusicDelayed8(roomTrack);
+    }
+
     /// <summary>Queues one request through retail SFX library one, two, or three.</summary>
     public void QueueSound(byte library, byte soundId, byte maximumQueued)
     {

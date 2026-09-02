@@ -144,6 +144,27 @@ public static class SuperMetroidRuntimeFrameRenderer
         if (runtime.ActiveRoom?.State.SetupCodePointer is 0xc96e or 0xc976 or 0xc97b)
             SnesGameplayFrameRenderer.ApplyCeresHaze(frame, ridleyIsDead: false);
 
+        MorphBallEyeBeamState eyeBeam = runtime.Enemies.MorphBallEyeBeam;
+        if (eyeBeam.Phase != MorphBallEyeBeamPhase.Inactive)
+        {
+            int bodyIndex = eyeBeam.BodySlotIndex;
+            if ((uint)bodyIndex >= runtime.Enemies.Slots.Count ||
+                (uint)bodyIndex >= runtime.Enemies.MorphBallEyeStates.Count ||
+                runtime.Enemies.MorphBallEyeStates[bodyIndex] is not { } eyeState)
+            {
+                throw new InvalidDataException(
+                    $"Active Morph Ball eye beam names invalid body slot {bodyIndex}.");
+            }
+            SnesGameplayFrameRenderer.ApplyMorphBallEyeBeamColorMath(
+                frame,
+                runtime.AddressSpace,
+                eyeBeam,
+                runtime.Enemies.Slots[bodyIndex],
+                eyeState,
+                bg1HorizontalScroll,
+                bg1VerticalScroll);
+        }
+
         // Bank $85 temporarily owns BG3 and disables gameplay color math while an item
         // message is active. Its scanline-window result belongs above every room-specific
         // compositor and haze path, so one shared overlay covers ordinary and Mode-7 rooms.

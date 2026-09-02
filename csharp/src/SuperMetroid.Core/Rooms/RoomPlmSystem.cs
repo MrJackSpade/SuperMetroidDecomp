@@ -216,6 +216,7 @@ public sealed partial class RoomPlmSystem
             if (slot.Active)
                 continue;
 
+            ClearSlot(slot);
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
@@ -261,6 +262,7 @@ public sealed partial class RoomPlmSystem
             if (slot.Active)
                 continue;
 
+            ClearSlot(slot);
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
@@ -311,6 +313,7 @@ public sealed partial class RoomPlmSystem
             if (slot.Active)
                 continue;
 
+            ClearSlot(slot);
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
@@ -351,6 +354,7 @@ public sealed partial class RoomPlmSystem
             if (slot.Active)
                 continue;
 
+            ClearSlot(slot);
             slot.Active = true;
             slot.HeaderPointer = header;
             slot.BlockIndex = level.GetBlockIndex(blockX, blockY);
@@ -428,6 +432,7 @@ public sealed partial class RoomPlmSystem
             if (slot.Active)
                 continue;
 
+            ClearSlot(slot);
             slot.Active = true;
             slot.BlockIndex = level.GetBlockIndex(blockX, blockY);
             slot.RestoreLevelWord = 0;
@@ -462,6 +467,7 @@ public sealed partial class RoomPlmSystem
                 continue;
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+            ClearSlot(slot);
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = block.LevelWord;
@@ -518,6 +524,7 @@ public sealed partial class RoomPlmSystem
                 continue;
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+            ClearSlot(slot);
             slot.Active = true;
             slot.BlockIndex = blockIndex;
 
@@ -584,6 +591,7 @@ public sealed partial class RoomPlmSystem
                 continue;
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+            ClearSlot(slot);
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.InstructionTimer = 1;
@@ -667,6 +675,7 @@ public sealed partial class RoomPlmSystem
                 continue;
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+            ClearSlot(slot);
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.InstructionTimer = 1;
@@ -791,6 +800,7 @@ public sealed partial class RoomPlmSystem
                 continue;
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+            ClearSlot(slot);
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.InstructionTimer = 1;
@@ -946,6 +956,7 @@ public sealed partial class RoomPlmSystem
             if (slot.Active)
                 continue;
 
+            ClearSlot(slot);
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;

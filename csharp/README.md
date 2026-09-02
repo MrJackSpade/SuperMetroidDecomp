@@ -180,10 +180,12 @@ escape/progression actors, Draygon cannons, Noob Tube, and related special famil
 skips or station/elevator gaps.
 
 Room headers expose FX, X-ray, room-main, PLM, background, and setup pointers, but only the
-translated consumers are executed. Arbitrary room setup code and room-main code are not
-generally dispatched; the Ceres elevator shaft and encounter-specific owners are explicit
-specialized translations. FX records and X-ray room-data-driven BG2 substitution are likewise
-not general yet.
+translated consumers are executed. Room loading now selects the door-matched sixteen-byte FX
+record and runs its bank-$8D palette-object bitset through a shared ROM interpreter; unsupported
+setup/pre-instruction/audio side effects fail with their native pointers. FX types, liquid/tide
+state, palette blending, bank-$87 animated tiles, and X-ray room-data-driven BG2 substitution are
+not general yet. Arbitrary room setup code and room-main code are also not generally dispatched;
+the Ceres elevator shaft and encounter-specific owners remain explicit specialized translations.
 
 ### Frontend and persistent state
 
@@ -235,6 +237,22 @@ sequence, and proves the mixer produced nonzero PCM:
 
 ```powershell
 dotnet run --project src/SuperMetroid.Game -- --audio-audit "..\Super Metroid.smc"
+```
+
+To exercise the Windows `waveOut` queue beyond its six-buffer capacity without a ROM or an
+audible test tone, run:
+
+```powershell
+dotnet run --project src/SuperMetroid.Game -- --waveout-audit
+```
+
+To replay an always-on controller journal through the native SPC without opening the window
+or an audio endpoint (useful when an SFX handshake appears to block a door transition):
+
+```powershell
+dotnet run --project src/SuperMetroid.Game -- --audio-input-replay-audit `
+  "..\input-recordings\SuperMetroid-input-YYYYMMDD-HHMMSS-fff.smrec" `
+  "..\Super Metroid.smc"
 ```
 
 ## Other runnable projects

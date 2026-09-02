@@ -104,6 +104,25 @@ static void VerifyHudStateAndBg3Rendering()
     AssertEqual(0x2d09, hud.Tiles[0x8c / 2], "live HUD damage tens digit");
     AssertEqual(0x2d04, hud.Tiles[0x8e / 2], "live HUD damage ones digit");
 
+    // HandleHudTilemap owns selection presentation independently of the input handler.
+    // Installing missiles after initialization mirrors a live pickup, then selecting them
+    // proves both palette directions and the one-frame QueueSfx publication.
+    damagedSamus.MaxMissiles = 5;
+    damagedSamus.Missiles = 5;
+    damagedSamus.SelectedHudItem = 1;
+    hud.UpdateGameplayCounters(bus, damagedSamus);
+    AssertEqual(0x1000, hud.Tiles[0x14 / 2] & 0x1c00,
+        "live HUD selects missile icon with palette four");
+    AssertTrue(hud.SelectionSoundRequestedThisFrame,
+        "live HUD publishes cartridge selection sound on change");
+    hud.UpdateGameplayCounters(bus, damagedSamus);
+    AssertTrue(!hud.SelectionSoundRequestedThisFrame,
+        "stable HUD selection does not repeat the selection sound");
+    damagedSamus.SelectedHudItem = 0;
+    hud.UpdateGameplayCounters(bus, damagedSamus);
+    AssertEqual(0x1400, hud.Tiles[0x14 / 2] & 0x1c00,
+        "live HUD restores deselected missile icon to palette five");
+
     // Area zero points to a synthetic two-screen-wide Crateria map. Give every map tile a
     // character equal to its SNES-layout index and mark every coordinate as existing; the
     // expected HUD words then prove room origin + Samus screen coordinates, 5x3 centering,

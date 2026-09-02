@@ -22,6 +22,13 @@ public sealed partial class SuperMetroidRuntime
     private StationActivationEvent? _pendingSaveStation;
     private SaveStationPersistenceRequest? _completedSaveStation;
 
+    /// <summary>
+    /// Cartridge bus used by render-time ROM tables such as the shared angular tangent
+    /// table. This remains assembly-internal so frontend callers cannot bypass runtime
+    /// ownership to mutate emulated state.
+    /// </summary>
+    internal ISnesAddressSpace AddressSpace => _addressSpace;
+
     public SuperMetroidRuntime(ISnesAddressSpace addressSpace)
     {
         _addressSpace = addressSpace ?? throw new ArgumentNullException(nameof(addressSpace));
@@ -68,6 +75,9 @@ public sealed partial class SuperMetroidRuntime
 
     /// <summary>PPU color RAM initialized from <c>kInitialPalette</c> at ROM <c>$9A:8000</c>.</summary>
     public SnesCgram Cgram { get; } = new();
+
+    /// <summary>Bank-$8D palette objects selected by the active room's bank-$83 FX record.</summary>
+    public RoomPaletteFxSystem RoomPaletteFx { get; } = new();
 
     /// <summary>Current 544-byte sprite table prepared for the next PPU OAM upload.</summary>
     public OamBuffer Oam { get; } = new();
@@ -498,6 +508,7 @@ public sealed partial class SuperMetroidRuntime
         // The selected room-state record owns both of these pointers. This call parses the
         // terminated $A1 population and $B4 graphics set, loads palettes/tiles, constructs
         // native $40-byte slots, and dispatches each definition's initialization AI.
+        LoadCommonGameplaySpritePalette();
         Enemies.Load(
             _addressSpace,
             LandingSiteEntry.EnemyPopulationPointer,
@@ -1254,6 +1265,18 @@ public sealed partial class SuperMetroidRuntime
         // Baby during that later enemy phase, so a newly spawned `$E1F0` object naturally
         // begins on the following frame. Debug scripts that grant Hyper Beam before their
         // first StepFrame get the same handler-first behavior immediately.
+        // Native has one descending bank-$8D object pool. Room FX is spawned first and
+        // therefore occupies its highest slots; Hyper Beam later takes the next free slot.
+        // Running the room owner before the specialized Hyper Beam owner preserves that
+        // ordering until both are consolidated behind one allocator.
+        RoomPaletteFx.Step(
+            _addressSpace,
+            Cgram,
+            Samus?.YPosition ?? 0,
+            Samus?.EquippedItems ?? 0,
+            enemyZeroIsDead: Enemies.Slots.Count == 0 || Enemies.Slots[0].Health == 0,
+            areaMiniBossDefeated: ActiveRoom is { } paletteRoom &&
+                System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss));
         LastHyperBeamPaletteFxStep = Samus?.Drained.HyperBeamPaletteFx.Step(
             _addressSpace,
             Cgram);
@@ -1433,13 +1456,16 @@ public sealed partial class SuperMetroidRuntime
 
             bool actorLocksPoseInput = Samus.InputLocked ||
                 (SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0);
-            ProspectiveSamusPose = deathOwnsSamus || xrayOwnsPoseInput || actorLocksPoseInput
-                ? null
-                : SamusPoseTransitionTable.Find(
+            SamusPoseTransitionLookup poseLookup =
+                deathOwnsSamus || xrayOwnsPoseInput || actorLocksPoseInput
+                ? default
+                : SamusPoseTransitionTable.Lookup(
                     _addressSpace,
                     Samus.Pose,
                     Controller1.Current,
                     Controller1.NewlyPressed);
+            ProspectiveSamusPose = poseLookup.Transition;
+            bool usePoseDefinitionFallback = poseLookup.UsesPoseDefinitionFallback;
             ProspectiveSamusFallbackPose = null;
             ProspectiveSamusWallCollisionPose = null;
             LastRanIntoWallProbe = null;
@@ -1454,14 +1480,16 @@ public sealed partial class SuperMetroidRuntime
                 timeIsFrozen: TimeIsFrozen,
                 nmiFrameCounter: NmiFrameCounter);
 
-            // With no controller bits, $91:82D9 consults pose-definition byte two. Running
-            // poses $09/$0A store fallbacks $01/$02, but Samus_Pose_Func2 first preserves
-            // the running pose while base speed is nonzero and selects momentum routine
-            // one (deceleration). Capture this before movement, where native alpha does.
+            // Zero input and an unmatched nonzero table chord both reach `$91:82D9` and
+            // consult pose-definition byte two. A matched same-pose record does not. Running
+            // poses `$09-$12` store fallbacks `$01/$02`, but Samus_Pose_Func2 first preserves
+            // the running pose while base speed is nonzero and selects momentum routine one
+            // (deceleration). Capture this before movement, where native alpha does. The
+            // unmatched-input branch is essential for `$0B` + held Shot after Right release.
             if (GroundedSamusMovementEnabled &&
                 (SamusState.IsRightFacingRunningPose(Samus.Pose) ||
                  SamusState.IsLeftFacingRunningPose(Samus.Pose)) &&
-                Controller1.Current == 0 &&
+                usePoseDefinitionFallback &&
                 ProspectiveSamusPose is null)
             {
                 ProspectiveSamusFallbackPose = Samus.HorizontalSpeed.BaseFixed != 0
@@ -1477,7 +1505,7 @@ public sealed partial class SuperMetroidRuntime
                     SamusState.MorphBallMovingLeftPose or
                     SamusState.SpringBallMovingRightPose or
                     SamusState.SpringBallMovingLeftPose) &&
-                Controller1.Current == 0 &&
+                usePoseDefinitionFallback &&
                 ProspectiveSamusPose is null)
             {
                 ProspectiveSamusFallbackPose = Samus.HorizontalSpeed.BaseFixed != 0
@@ -1485,7 +1513,7 @@ public sealed partial class SuperMetroidRuntime
                     : Samus.ReadNoInputFallbackPose(_addressSpace);
             }
 
-            // Pose-definition byte two returns standing aim `$03-$08` to `$01/$02` and
+            // On the shared fallback branch, pose-definition byte two returns standing aim `$03-$08` to `$01/$02` and
             // crouched aim `$71-$74/$85/$86` to `$27/$28`. This path is separate from the
             // transition table: `$91:81A9` exits before reading a record when the entire
             // controller word is zero, then `$91:82D9` installs the definition fallback.
@@ -1498,7 +1526,7 @@ public sealed partial class SuperMetroidRuntime
                       SamusState.StandingAimDiagonalDownRightPose or
                       SamusState.StandingAimDiagonalDownLeftPose) ||
                  SamusState.IsAimedCrouchingPose(Samus.Pose)) &&
-                Controller1.Current == 0 &&
+                usePoseDefinitionFallback &&
                 ProspectiveSamusPose is null)
             {
                 ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
@@ -1511,7 +1539,7 @@ public sealed partial class SuperMetroidRuntime
             // the following standing movement frame clears them exactly as native does.
             if (GroundedSamusMovementEnabled &&
                 SamusState.IsMoonwalkingPose(Samus.Pose) &&
-                Controller1.Current == 0 &&
+                usePoseDefinitionFallback &&
                 ProspectiveSamusPose is null)
             {
                 ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
@@ -1522,13 +1550,13 @@ public sealed partial class SuperMetroidRuntime
             // and therefore never publish a fallback here.
             if (GroundedSamusMovementEnabled &&
                 SamusState.IsAimedRanIntoWallPose(Samus.Pose) &&
-                Controller1.Current == 0 &&
+                usePoseDefinitionFallback &&
                 ProspectiveSamusPose is null)
             {
                 ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
             }
 
-            // Active aimed jump/fall poses use the same no-controller pose-definition
+            // Active aimed jump/fall poses use the same pose-definition fallback
             // fallback seam: `$15/$69/$6B -> $51`, mirrored left to `$52`, and aimed
             // falling to `$29/$2A`. Transition poses `$55-$5A` store `$FF` and are left
             // to their `$FD` animation command instead.
@@ -1541,7 +1569,7 @@ public sealed partial class SuperMetroidRuntime
                     SamusState.NormalJumpTransitionAimDiagonalUpLeftPose or
                     SamusState.NormalJumpTransitionAimDiagonalDownRightPose or
                     SamusState.NormalJumpTransitionAimDiagonalDownLeftPose) &&
-                Controller1.Current == 0 &&
+                usePoseDefinitionFallback &&
                 ProspectiveSamusPose is null)
             {
                 byte fallback = Samus.ReadNoInputFallbackPose(_addressSpace);
@@ -1557,7 +1585,7 @@ public sealed partial class SuperMetroidRuntime
             // in alpha and committed only after beta movement and animation below.
             if (GroundedSamusMovementEnabled &&
                 SamusState.IsWallJumpPose(Samus.Pose) &&
-                Controller1.Current == 0 &&
+                usePoseDefinitionFallback &&
                 ProspectiveSamusPose is null)
             {
                 ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
@@ -1569,7 +1597,7 @@ public sealed partial class SuperMetroidRuntime
             // RTS and the enemy actor owns world position later in the gameplay frame.
             if (GroundedSamusMovementEnabled &&
                 SamusState.IsDraygonGrabbedPose(Samus.Pose) &&
-                Controller1.Current == 0 &&
+                usePoseDefinitionFallback &&
                 ProspectiveSamusPose is null)
             {
                 byte fallback = Samus.ReadNoInputFallbackPose(_addressSpace);
@@ -3260,9 +3288,9 @@ public sealed partial class SuperMetroidRuntime
                           SamusState.IsAimedCrouchingPose(poseAtFrameStart)) &&
                          ProspectiveSamusFallbackPose is { } aimFallback)
                 {
-                    // Only the zero-controller path above populates this value. Validate
-                    // and apply it through the same radius/animation seam as held-input
-                    // aim changes; never assign the ROM byte directly to Pose.
+                    // Only `$91:82D9`'s explicit fallback path above populates this value.
+                    // Validate and apply it through the same radius/animation seam as
+                    // held-input aim changes; never assign the ROM byte directly to Pose.
                     Samus.ApplyGroundedAimTransition(
                         _addressSpace,
                         unchecked((byte)aimFallback));
@@ -3516,7 +3544,7 @@ public sealed partial class SuperMetroidRuntime
                     ElevatorStatus != 0 && SamusState.IsForwardFacingPose(Samus.Pose);
                 if (elevatorOwnsSamusDrawing)
                 {
-                    if ((NmiFrameCounter & 1) == 0)
+                    if (ShouldDrawSamusOnElevator(NmiFrameCounter))
                     {
                         // Omitting the live counter intentionally selects `Draw`'s default
                         // even value. Native `$90:EB86` calls `$90:85D2`, below `$85E2`'s
@@ -3733,7 +3761,7 @@ public sealed partial class SuperMetroidRuntime
             // Initialization alone is insufficient: Ridley contact and fireballs mutate
             // Samus during this frame, and those values must enter the next accepted NMI.
             if (Samus is not null)
-                Hud.UpdateGameplayCounters(_addressSpace, Samus);
+                Hud.UpdateGameplayCounters(_addressSpace, Samus, TimeIsFrozen);
             Hud.QueueUpload(_addressSpace, VramWrites);
         }
 
@@ -3848,6 +3876,16 @@ public sealed partial class SuperMetroidRuntime
     {
         System.UpdateHeldInput(timerReset, Controller1.Current, Controller1.NewlyPressed);
     }
+
+    /// <summary>
+    /// Implements the complete visibility test in <c>SamusDisplayHandler_UsingElevator</c>
+    /// at <c>$90:EC14</c>. The retail handler returns on odd NMIs and calls the fatal/no-
+    /// animation body renderer on even NMIs, producing the deliberate 30 Hz elevator
+    /// flicker. Keeping the predicate named prevents host display cadence (including RDP)
+    /// from being mistaken for the cartridge-authored effect.
+    /// </summary>
+    internal static bool ShouldDrawSamusOnElevator(ushort nmiFrameCounter) =>
+        (nmiFrameCounter & 1) == 0;
 
     private RuntimeFrameResult Snapshot(bool escapeTimerExpired) => new(
         NmiFrameCounter,

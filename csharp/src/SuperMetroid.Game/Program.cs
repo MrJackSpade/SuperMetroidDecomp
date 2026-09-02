@@ -32,6 +32,36 @@ ApplicationConfiguration.Initialize();
 
 try
 {
+    if (args.Length != 0 &&
+        args[0].Equals("--audio-input-replay-audit", StringComparison.OrdinalIgnoreCase))
+    {
+        if (args.Length is < 3 or > 4)
+        {
+            throw new ArgumentException(
+                "--audio-input-replay-audit requires a .smrec path and private ROM path, " +
+                "then accepts one optional capture directory.");
+        }
+        AudioInputReplaySmokeTestResult result = AudioInputReplaySmokeTest.Run(
+            args[1],
+            args[2],
+            args.Length == 4 ? args[3] : null);
+        Console.WriteLine(
+            $"Audio replay passed in {result.FramesExecuted} frames: projectile/SFX acknowledged; " +
+            $"first door ${result.SourceRoom:X4} -> ${result.DestinationRoom:X4} completed.");
+        return 0;
+    }
+
+    if (args.Length != 0 && args[0].Equals("--waveout-audit", StringComparison.OrdinalIgnoreCase))
+    {
+        if (args.Length != 1)
+            throw new ArgumentException("--waveout-audit does not accept additional arguments.");
+        WaveOutAudioSmokeTestResult result = WaveOutAudioSmokeTest.Run();
+        Console.WriteLine(
+            $"waveOut backpressure passed: {result.BuffersSubmitted} one-frame buffers " +
+            $"submitted without loss in {result.SubmissionTime.TotalMilliseconds:F0} ms.");
+        return 0;
+    }
+
     if (args.Length != 0 && args[0].Equals("--audio-audit", StringComparison.OrdinalIgnoreCase))
     {
         string[] audioRomArguments = args.Length == 2 ? [args[1]] : [];
@@ -41,7 +71,9 @@ try
         CartridgeAudioSmokeTestResult result = CartridgeAudioSmokeTest.Run(audioRomPath);
         Console.WriteLine(
             $"Cartridge audio passed: {result.FramesGenerated} frames, " +
-            $"{result.NonZeroSamples} nonzero samples, peak {result.PeakAmplitude}.");
+            $"{result.NonZeroSamples} music samples, peak {result.PeakAmplitude}; " +
+            $"power-beam SFX produced {result.PowerBeamNonZeroSamples} samples " +
+            "and completed its request/clear handshake.");
         return 0;
     }
 

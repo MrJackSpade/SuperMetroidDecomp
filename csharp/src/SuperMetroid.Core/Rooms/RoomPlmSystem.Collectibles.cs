@@ -44,6 +44,7 @@ public sealed partial class RoomPlmSystem
     private Func<SamusState?>? _collectibleSamus;
     private int _nextCollectibleGraphicsSlot;
     private CollectiblePickupEvent? _lastCollectiblePickup;
+    private bool _collectibleFanfareRequested;
 
     /// <summary>Pickup publications produced during the most recent PLM handler pass.</summary>
     public IReadOnlyList<CollectiblePickupEvent> CollectiblePickupEvents =>
@@ -51,6 +52,21 @@ public sealed partial class RoomPlmSystem
 
     /// <summary>Most recent pickup retained for debugger watches after its frame ends.</summary>
     public CollectiblePickupEvent? LastCollectiblePickup => _lastCollectiblePickup;
+
+    /// <summary>
+    /// Consumes the one-shot music request published by a permanent-item instruction.
+    /// </summary>
+    /// <remarks>
+    /// The synchronous bank-$85 message pauses PLM_Handler, so the diagnostic pickup list
+    /// intentionally remains visible during many accepted NMIs. Audio must not infer an
+    /// edge from that retained list or it will clear/requeue the fanfare every frame.
+    /// </remarks>
+    public bool ConsumeCollectibleFanfareRequest()
+    {
+        bool requested = _collectibleFanfareRequested;
+        _collectibleFanfareRequested = false;
+        return requested;
+    }
 
     /// <summary>Every currently allocated permanent-item PLM in native slot order.</summary>
     public IReadOnlyList<CollectiblePlmSnapshot> Collectibles => _slots
@@ -119,6 +135,7 @@ public sealed partial class RoomPlmSystem
         _collectibleSamus = null;
         _nextCollectibleGraphicsSlot = 0;
         _lastCollectiblePickup = null;
+        _collectibleFanfareRequested = false;
     }
 
     /// <summary>
@@ -142,7 +159,8 @@ public sealed partial class RoomPlmSystem
             unchecked((short)slot.RoomArgument) >= 0 &&
             system.HasRoomChozoBit(slot.RoomArgument);
         int graphicsSlot = kind >= InWorldCollectibleKind.Bombs
-            ? LoadDynamicCollectibleGraphics(bus, level, vram, slot.HeaderPointer)
+            ? LoadDynamicCollectibleGraphics(
+                bus, level, streamer, vram, slot.HeaderPointer)
             : -1;
 
         ushort setupWord = unchecked((ushort)(original.LevelWord & 0x0fff));
@@ -222,6 +240,7 @@ public sealed partial class RoomPlmSystem
     private int LoadDynamicCollectibleGraphics(
         ISnesAddressSpace bus,
         RoomLevelData level,
+        BackgroundTilemapStreamer streamer,
         SnesVram vram,
         ushort header)
     {
@@ -259,6 +278,11 @@ public sealed partial class RoomPlmSystem
             ushort tilemapWord = unchecked((ushort)(
                 startingTileNumber + child + (palette << 10)));
             level.SetBlockDefinitionWord(firstDefinitionWord + child, tilemapWord);
+            // BackgroundTilemapStreamer owns the native staging source used by both the
+            // immediate PLM draw and future camera rows/columns. It was constructed before
+            // room PLM setup, so the cartridge's live TileTable write must reach that copy
+            // in the same instruction—not merely RoomLevelData's debugger-facing array.
+            streamer.SetBlockDefinitionWord(firstDefinitionWord + child, tilemapWord);
         }
         return graphicsSlot;
     }
@@ -555,6 +579,7 @@ public sealed partial class RoomPlmSystem
             item.LastTriggerProjectileType);
         _collectiblePickupEvents.Add(pickup);
         _lastCollectiblePickup = pickup;
+        _collectibleFanfareRequested = true;
 
         if (item.Presentation == CollectiblePresentation.ShotBlock)
         {

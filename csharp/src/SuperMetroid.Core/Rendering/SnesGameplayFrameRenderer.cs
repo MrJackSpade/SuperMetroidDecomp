@@ -831,6 +831,83 @@ public static class SnesGameplayFrameRenderer
         }
     }
 
+    /// <summary>
+    /// Applies the Morph Ball security eye's bank-$88 window-two fixed-color beam.
+    /// </summary>
+    /// <remarks>
+    /// <c>$88:E987</c> feeds the eye body's screen position, tracked angle, and HDMA
+    /// object's widening word through the same <c>CalculateXrayHdmaTableInner</c> geometry
+    /// used by X-ray. Layer-blending selector <c>$10</c> then windows BG3 off the subscreen,
+    /// exposing COLDATA as additive color inside the cone. Replaying that final scanout
+    /// result here keeps the translated actor and renderer connected without inventing a
+    /// second room-specific animation.
+    /// </remarks>
+    public static void ApplyMorphBallEyeBeamColorMath(
+        Span<Rgba32> frame,
+        ISnesAddressSpace bus,
+        MorphBallEyeBeamState beam,
+        RoomEnemySlot eyeBody,
+        MorphBallEyeEnemyState eyeState,
+        ushort layer1X,
+        ushort layer1Y)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(beam);
+        ArgumentNullException.ThrowIfNull(eyeBody);
+        ArgumentNullException.ThrowIfNull(eyeState);
+        if (frame.Length != Width * Height)
+            throw new ArgumentException("Morph Ball eye compositor requires one complete 256x224 frame.", nameof(frame));
+        if (beam.Phase is MorphBallEyeBeamPhase.Inactive or
+            MorphBallEyeBeamPhase.PendingInitialization)
+        {
+            return;
+        }
+
+        int originX = unchecked((short)(eyeBody.XPosition - layer1X));
+        int originY = unchecked((short)(eyeBody.YPosition - layer1Y));
+        int centerAngle = eyeState.Angle & 0x00ff;
+        int angularWidth = beam.AngularWidth & 0x00ff;
+        XrayDirection leftEdge = ReadXrayDirection(bus, centerAngle - angularWidth);
+        XrayDirection rightEdge = ReadXrayDirection(bus, centerAngle + angularWidth);
+        bool horizontalLine = angularWidth == 0 && centerAngle is 0x40 or 0xc0;
+
+        byte addRed = ExpandFiveBit((byte)(beam.Red & 0x1f));
+        byte addGreen = ExpandFiveBit((byte)(beam.Green & 0x1f));
+        byte addBlue = ExpandFiveBit((byte)(beam.Blue & 0x1f));
+        for (int screenY = HudHeight; screenY < Height; screenY++)
+        {
+            int fromOriginY = screenY - originY;
+            int row = screenY * Width;
+            for (int screenX = 0; screenX < Width; screenX++)
+            {
+                int fromOriginX = screenX - originX;
+                bool inside;
+                if (horizontalLine)
+                {
+                    inside = fromOriginY == 0 &&
+                        (centerAngle == 0x40 ? fromOriginX >= 0 : fromOriginX <= 0);
+                }
+                else
+                {
+                    long leftCross = (long)leftEdge.X * fromOriginY -
+                        (long)leftEdge.Y * fromOriginX;
+                    long rightCross = (long)rightEdge.X * fromOriginY -
+                        (long)rightEdge.Y * fromOriginX;
+                    inside = leftCross >= -0x00ff && rightCross <= 0x00ff;
+                }
+
+                if (!inside)
+                    continue;
+                Rgba32 source = frame[row + screenX];
+                frame[row + screenX] = new Rgba32(
+                    SaturatingAdd(source.R, addRed),
+                    SaturatingAdd(source.G, addGreen),
+                    SaturatingAdd(source.B, addBlue),
+                    source.A);
+            }
+        }
+    }
+
     private static int ReadPowerBombHalfWidth(
         ISnesAddressSpace bus,
         SamusPowerBombExplosionState explosion,

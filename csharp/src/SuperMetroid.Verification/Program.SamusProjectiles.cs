@@ -1391,6 +1391,36 @@ static void VerifySamusPowerBeamProjectiles()
         "missile explosion delete decrements ordinary counter");
     AssertTrue(!missile.IsActive, "missile explosion delete clears its slot");
 
+    // Reuse the exact producer instance after the missile has completed, cycle the HUD with
+    // Select exactly as a player does, and fire again. With no later selectable item owned,
+    // `$90:C4E7` wraps item one back to zero. This guards the playthrough report that missile
+    // damage might survive deselection: a new beam must rebuild both packed family and damage
+    // from `$93:83C1`, never inherit slot history from the missile which occupied slot zero.
+    AssertTrue(missileSamus.HandleHudSelection(
+            (ushort)SnesButton.Select,
+            (ushort)SnesButton.Select),
+        "Select cycles the live HUD selection from missiles to beams");
+    AssertEqual(0, missileSamus.SelectedHudItem,
+        "Select wrap chooses the ordinary beam producer");
+    missileBombs.Reset();
+    SamusProjectileFrameResult postMissileBeamResult = missileProjectiles.StepFrame(
+        bus,
+        wall,
+        missileSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X,
+        0,
+        0,
+        missileBombs);
+    AssertTrue(postMissileBeamResult.FiredSlot.HasValue,
+        "Shoot after missile deselection allocates a new beam");
+    SamusProjectileSlot postMissileBeam =
+        missileProjectiles.Slots[postMissileBeamResult.FiredSlot!.Value];
+    AssertEqual(0x8000, postMissileBeam.Type,
+        "post-missile shot rebuilds active packed type as uncharged Power Beam");
+    AssertEqual(0x0014, postMissileBeam.Damage,
+        "post-missile shot reloads Power Beam damage instead of retaining missile damage");
+
     // Point missiles use a deliberately different slope route from radius-spanning beams.
     // Put the muzzle directly inside one synthetic type-one block and compare points above
     // and inside the exact cartridge height. This locks `$94:A58F`'s shape-row indexing and
@@ -1871,6 +1901,52 @@ static void VerifySamusPowerBeamProjectiles()
         blueDoorBehaviors,
         new ushort[blueDoorWords.Length],
         new byte[8]);
+
+    // Reproduce the in-game contact case rather than merely waiting for a distant beam to
+    // reach the cap. Right-facing power fire uses ROM muzzle offset +11: Samus center $5A
+    // therefore creates the beam at $65, already inside the $60-$6F door block. Native
+    // FireUnchargedBeam runs a zero-speed collision probe before its first four-pixel move;
+    // omitting that probe advances the leading edge to block $70 and skips the cap entirely.
+    var contactDoorWords = blueDoorWords.ToArray();
+    var contactDoorBehaviors = blueDoorBehaviors.ToArray();
+    RoomLevelData contactDoor = new(
+        width,
+        height,
+        contactDoorWords,
+        contactDoorBehaviors,
+        new ushort[contactDoorWords.Length],
+        new byte[8]);
+    var contactDoorSamus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 0x005a,
+        YPosition = 0x0060,
+    };
+    var contactDoorBombs = new SamusBombProjectileSystem();
+    var contactDoorProjectiles = new SamusProjectileSystem();
+    var contactDoorPlms = new RoomPlmSystem();
+    WriteTestWord(bus, 0x90c204 + 2 * 2, 0x000b);
+    contactDoorBombs.StepFrame(bus, contactDoor, contactDoorSamus, 0, 0);
+    SamusProjectileFrameResult contactDoorImpact = contactDoorProjectiles.StepFrame(
+        bus,
+        contactDoor,
+        contactDoorSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X,
+        0,
+        0,
+        contactDoorBombs,
+        roomPlms: contactDoorPlms);
+    WriteTestWord(bus, 0x90c204 + 2 * 2, 0x0000);
+    AssertTrue(contactDoorImpact.CollisionStartedExplosion,
+        "beam born inside a blue cap collides before first-frame movement");
+    AssertEqual(1, contactDoorPlms.ActiveCount,
+        "contact-distance shot allocates the blue-door opening PLM");
+    AssertEqual(8, contactDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
+        "contact-distance shot synchronously opens the cap origin");
+    AssertEqual(0x006d, contactDoorProjectiles.Slots[0].XPosition,
+        "fire-time impact anchors its explosion at the native leading edge");
+
     var blueDoorSamus = new SamusState
     {
         Pose = rightPose,

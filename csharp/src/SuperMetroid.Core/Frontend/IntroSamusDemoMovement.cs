@@ -23,14 +23,15 @@ internal static class IntroSamusDemoMovement
         ushort newlyPressedInput,
         ushort nmiFrameCounter)
     {
-        SamusPoseTransition? prospective = SamusPoseTransitionTable.Find(
+        SamusPoseTransitionLookup lookup = SamusPoseTransitionTable.Lookup(
             bus,
             samus.Pose,
             heldInput,
             newlyPressedInput);
+        SamusPoseTransition? prospective = lookup.Transition;
 
         ushort? fallback = null;
-        if (heldInput == 0)
+        if (lookup.UsesPoseDefinitionFallback)
         {
             if (SamusState.IsLeftFacingRunningPose(samus.Pose))
             {

@@ -37,6 +37,20 @@ internal static partial class Program
 
             fixture.Plms.Step(
                 bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+            if (kind >= InWorldCollectibleKind.Bombs)
+            {
+                // LoadItemPLMGfx mutates the live block-definition table before the first
+                // item draw. Verify the camera/DrawPLM staging source—not only LevelData's
+                // parallel debugger copy—expands the assigned dynamic character names.
+                PlmTilemapUpdate visibleUpdate = fixture.Streamer.BuildPlmLevelBlockUpdate(
+                    fixture.BlockIndex,
+                    bg1XOffset: 0);
+                int expectedFirstCharacter = 0x03e0 + loaded.GraphicsSlot * 8;
+                AssertEqual(
+                    expectedFirstCharacter,
+                    visibleUpdate.TopRow[0] & 0x03ff,
+                    $"{kind} live streamer uses its dynamic PLM character definition");
+            }
             AssertTrue(fixture.Plms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 $"{kind} visible block accepts Samus contact");
             fixture.Plms.Step(
@@ -48,7 +62,31 @@ internal static partial class Program
                 $"{kind} publishes exactly one acquisition");
             AssertEqual(kind, fixture.Plms.CollectiblePickupEvents[0].Kind,
                 $"{kind} acquisition identity");
+            AssertTrue(
+                fixture.Plms.ConsumeCollectibleFanfareRequest(),
+                $"{kind} publishes one shared permanent-item fanfare edge");
+            AssertTrue(
+                !fixture.Plms.ConsumeCollectibleFanfareRequest(),
+                $"{kind} fanfare edge cannot repeat during its synchronous message");
             AssertPermanentCollectibleEffect(kind, fixture.Samus);
+
+            // Acquisition frees the native physical ID. Reuse that same highest slot for
+            // a destructible special block, exactly as the block beside Morph Ball does.
+            // The new actor must not inherit Item/Triggered and publish the old message.
+            AssertTrue(
+                fixture.Plms.TrySpawnBombedSpecialBlock(
+                    fixture.Level,
+                    fixture.BlockIndex,
+                    behavior: 8,
+                    areaIndex: 0,
+                    projectileType: 0x0500),
+                $"{kind} freed PLM slot can be reused by a bomb-special actor");
+            AssertEqual(0, fixture.Plms.Collectibles.Count,
+                $"{kind} semantic owner does not survive physical slot reuse");
+            fixture.Plms.Step(
+                bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+            AssertEqual(0, fixture.Plms.CollectiblePickupEvents.Count,
+                $"{kind} reused slot cannot republish its pickup message");
             if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
             {
                 AssertEqual((ushort)0, fixture.Samus.ProjectileFlareCounter,
@@ -204,6 +242,10 @@ internal static partial class Program
     private static void SeedCollectibleRom(TestAddressSpace bus)
     {
         const ushort sharedDynamicList = 0xf100;
+        // Bomb-special BTS 8 reuses the freed item ID with the retail one-word delete
+        // list. Seed that generic instruction because this synthetic item ROM otherwise
+        // contains only collectible draw lists.
+        bus.WriteBytes(0x84aae3, [0xbc, 0x86]);
         for (int presentation = 0; presentation < 3; presentation++)
         {
             ushort firstHeader = presentation switch
@@ -455,6 +497,23 @@ internal static partial class Program
             SuperMetroid.Core.Assets.SnesGraphics.DecodeBgr555Color(0x0bb1),
             frame[122 * 256],
             "message renderer applies temporary CGRAM color 25 inside clip");
+
+        // Retail message $14 is the map-station message. Its definition chooses the
+        // small-border drawing routine but delimits three complete content rows. This
+        // verifies the native variable-length copy instead of inferring height from the
+        // border routine's name, and exercises that shape through the compositor too.
+        message = new GameplayMessageBoxState();
+        message.Begin(bus, messageId: 20);
+        AssertEqual(5, message.TilemapRowCount,
+            "map-station message accepts three rows inside the small border");
+        AssertEqual((ushort)0x3820, message.Tilemap[32],
+            "map-station message copies the first variable-height content row");
+        AssertEqual((ushort)0x3822, message.Tilemap[96],
+            "map-station message copies the third variable-height content row");
+        message.Step(0);
+        message.Step(0);
+        Array.Clear(frame);
+        GameplayMessageBoxRenderer.Composite(frame, message, vram, cgram);
     }
 
     private static void VerifySuitPickupTransformation()
@@ -556,6 +615,14 @@ internal static partial class Program
         // Only ID 3's content pointer is needed to delimit ID 2.
         WriteWord(bus, definitions + 16, 0x9140);
 
+        // ID $14: retail map-station layout -- small border, three content rows.
+        int message20 = definitions + 19 * 6;
+        WriteWord(bus, message20 + 0, 0x8436);
+        WriteWord(bus, message20 + 2, 0x8289);
+        WriteWord(bus, message20 + 4, 0x9200);
+        // ID $15's content pointer delimits message $14 at three rows ($C0 bytes).
+        WriteWord(bus, message20 + 10, 0x92c0);
+
         for (int word = 0; word < 32; word++)
         {
             WriteWord(bus, 0x858000 + word * 2, 0x3801);
@@ -564,6 +631,11 @@ internal static partial class Program
         }
         for (int word = 0; word < 128; word++)
             WriteWord(bus, 0x859040 + word * 2, 0x3801);
+        for (int row = 0; row < 3; row++)
+        {
+            for (int word = 0; word < 32; word++)
+                WriteWord(bus, 0x859200 + (row * 32 + word) * 2, (ushort)(0x3820 + row));
+        }
     }
 
     private readonly record struct CollectibleFixture(

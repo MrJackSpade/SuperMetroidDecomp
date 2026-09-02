@@ -309,6 +309,7 @@ public sealed partial class RoomPlmSystem
             if (slot.Active)
                 continue;
 
+            ClearSlot(slot);
             slot.Active = true;
             slot.HeaderPointer = headerPointer;
             slot.BlockIndex = blockIndex;

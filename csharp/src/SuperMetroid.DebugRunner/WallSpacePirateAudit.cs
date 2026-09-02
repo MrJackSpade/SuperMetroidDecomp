@@ -2,6 +2,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rom;
 
 /// <summary>
 /// ROM-backed end-to-end audit for all six wall Space Pirate headers, the Climb's untouched
@@ -253,7 +255,7 @@ internal static class WallSpacePirateAudit
 
             loaded.Enemies.StepEnemyProjectiles(
                 assets.LevelData,
-                samus: null,
+                loaded.Samus,
                 cameraX: 0x0100,
                 cameraY: 0x0050);
             foreach (RoomEnemyProjectileSlot projectile in loaded.Enemies.EnemyProjectiles)
@@ -387,12 +389,17 @@ internal static class WallSpacePirateAudit
         LoadedWallPirates shot = Load(bus, room, assets, 0, 0);
         RoomEnemySlot shotActor = KeepOnly(shot, 0);
         Prime(shot, assets, shotActor);
-        ArmProjectile(shot.Projectiles.Slots[0], shotActor.XPosition, shotActor.YPosition);
+        // Grey wall Pirates have exactly 20 HP and the retail uncharged Power Beam deals
+        // exactly 20 damage. Use those literal cartridge values here: the old audit called
+        // a synthetic 300-damage missile a “beam”, masking both the legitimate one-shot
+        // result and any stale HUD-family bug in the real producer.
+        ArmPowerBeam(shot.Projectiles.Slots[0], shotActor.XPosition, shotActor.YPosition);
         if (shot.Enemies.ResolveOrdinaryProjectileHits(
                 bus, shot.Projectiles, shot.SharedProjectiles, shot.Samus) != 1 ||
-            shotActor.Health != 0 || !shotActor.Properties.HasAny(EnemyProperties.Deleted) ||
+            shotActor.EnemyDefinitionPointer != 0 || shotActor.Health != 0 ||
             shotActor.VariableB != 0)
             throw new InvalidDataException("Wall Pirate lethal projectile damage failed.");
+        VerifyDeathExplosionPickupAndSound(shot, assets);
 
         LoadedWallPirates bomb = Load(bus, room, assets, 0, 0);
         RoomEnemySlot bombActor = KeepOnly(bomb, 0);
@@ -418,9 +425,9 @@ internal static class WallSpacePirateAudit
         RoomEnemySlot powerBombActor = KeepOnly(powerBomb, 0);
         int powerBombHits = powerBomb.Enemies.ResolveOrdinaryPowerBombHits(
             bus, powerBombActor.XPosition, powerBombActor.YPosition, 64);
-        if (powerBombHits != 1 || powerBombActor.Health != 0 ||
-            !powerBombActor.Properties.HasAll(
-                EnemyProperties.Deleted | EnemyProperties.ProcessOffScreen))
+        if (powerBombHits != 1 || powerBombActor.EnemyDefinitionPointer != 0 ||
+            powerBombActor.Health != 0 ||
+            !powerBombActor.Properties.HasAny(EnemyProperties.ProcessOffScreen))
         {
             // The header's `$8767` reaction enters common power-bomb AI. Byte fifteen in
             // the grey vulnerability record is nonzero, so its 20 health is exhausted and
@@ -462,6 +469,21 @@ internal static class WallSpacePirateAudit
         laser.Samus.XPosition = laserActor.XPosition;
         laser.Samus.YPosition = laserActor.YPosition;
         laser.Samus.InvincibilityTimer = 0;
+
+        // Advance the ROM list to a real map and prove the complete room-gfx-zero path
+        // resolves to non-black pixels through standard OBJ VRAM and the authored palette.
+        for (int frame = 0;
+             frame < 8 && laserActor.SpritemapPointer is 0 or 0x8000;
+             frame++)
+        {
+            laser.Enemies.StepEnemyProjectiles(
+                assets.LevelData, samus: null, cameraX: 0x0100, cameraY: 0x0050);
+        }
+        AssertProjectileRendersVisibleColor(
+            laser,
+            RoomEnemyProjectileKind.PirateMotherBrainLaser,
+            "Wall Pirate laser");
+
         laser.Enemies.StepEnemyProjectiles(
             assets.LevelData, laser.Samus, cameraX: 0x0100, cameraY: 0x0050);
         if (laser.Samus.Health != 984 || laserActor.IsActive)
@@ -492,6 +514,47 @@ internal static class WallSpacePirateAudit
         {
             throw new InvalidDataException("Gold wall Pirate power-bomb damage failed.");
         }
+
+        // WriteEnemyOams chooses temporary OBJ palette zero on the shared counter's
+        // `& 2` phase, then restores the graphics-set palette on the other phase. Exercise
+        // that common draw path with a surviving Pirate so a black/deleted explosion cannot
+        // masquerade as a successful hurt flash.
+        ushort cameraX = actor.XPosition > 0x0080
+            ? unchecked((ushort)(actor.XPosition - 0x0080))
+            : (ushort)0;
+        ushort cameraY = actor.YPosition > 0x0070
+            ? unchecked((ushort)(actor.YPosition - 0x0070))
+            : (ushort)0;
+        bool sawPaletteZeroFlash = false;
+        bool sawNormalPalette = false;
+        for (int frame = 0; frame < 6; frame++)
+        {
+            loaded.Samus.XPosition = unchecked((ushort)(actor.XPosition + 0x0100));
+            loaded.Samus.YPosition = actor.YPosition;
+            loaded.Enemies.StepFrame(
+                cameraX,
+                cameraY,
+                timeIsFrozen: false,
+                loaded.Samus,
+                level: assets.LevelData,
+                samusProjectiles: loaded.Projectiles);
+            var oam = new OamBuffer();
+            oam.BeginFrame();
+            loaded.Enemies.DrawLayers(oam, cameraX, cameraY, 0, 7);
+            oam.FinalizeFrame();
+            for (int sprite = 0; sprite < oam.LastFinalizedSpriteCount; sprite++)
+            {
+                byte palette = unchecked((byte)oam.GetEntry(sprite).Palette);
+                sawPaletteZeroFlash |= palette == 0;
+                sawNormalPalette |= palette == unchecked((byte)(actor.PaletteIndex >> 9));
+            }
+        }
+        if (!sawPaletteZeroFlash || !sawNormalPalette)
+        {
+            throw new InvalidDataException(
+                $"Gold wall Pirate did not alternate common hurt palettes: " +
+                $"zero/normal={sawPaletteZeroFlash}/{sawNormalPalette}.");
+        }
     }
 
     private static LoadedWallPirates Load(
@@ -503,6 +566,17 @@ internal static class WallSpacePirateAudit
     {
         var vram = new SnesVram();
         var cgram = new SnesCgram();
+
+        // RoomEnemySystem intentionally owns only the room-selected enemy sheets. The
+        // laser, common death explosion, and eventual pickup use graphics index zero and
+        // therefore address the standard OBJ sheet installed by gameplay setup. Seed both
+        // immutable gameplay resources before loading the room so visual assertions below
+        // exercise the same complete PPU state as the desktop runtime.
+        cgram.LoadFromBus(bus, 0x9a8000);
+        cgram.LoadFromBus(bus, 0x9afc00, colorCount: 16, destinationIndex: 128);
+        vram.LoadBytes(
+            destinationByteOffset: 0xc000,
+            RomDataReader.ReadFixedBank(bus, 0x9ad200, 0x2e00));
         assets.LoadGraphics(vram, cgram);
         var samus = new SamusState
         {
@@ -535,7 +609,9 @@ internal static class WallSpacePirateAudit
             samus,
             pirates,
             new SamusProjectileSystem(),
-            new SamusBombProjectileSystem());
+            new SamusBombProjectileSystem(),
+            vram,
+            cgram);
     }
 
     private static RoomEnemySlot KeepOnly(LoadedWallPirates loaded, int actorIndex)
@@ -569,14 +645,14 @@ internal static class WallSpacePirateAudit
         throw new InvalidDataException(
             $"Wall Pirate slot {actor.SlotIndex} did not initialize typed state.");
 
-    private static void ArmProjectile(
+    private static void ArmPowerBeam(
         SamusProjectileSlot projectile,
         ushort x,
         ushort y)
     {
         projectile.ClearFields();
-        projectile.Type = 0x0200;
-        projectile.Damage = 300;
+        projectile.Type = 0x0000;
+        projectile.Damage = 20;
         projectile.Direction = 2;
         projectile.XPosition = x;
         projectile.YPosition = y;
@@ -584,6 +660,152 @@ internal static class WallSpacePirateAudit
         projectile.YRadius = 4;
         projectile.InstructionPointer = 0x9000;
         projectile.InstructionTimer = 1;
+    }
+
+    private static void VerifyDeathExplosionPickupAndSound(
+        LoadedWallPirates loaded,
+        CartridgeRoomAssets assets)
+    {
+        bool renderedExplosion = false;
+        bool sawDeathSoundOpcode = false;
+        bool sawPublishedDeathSound = false;
+        var maps = new HashSet<ushort>();
+        var preInstructions = new HashSet<ushort>();
+
+        for (int frame = 0; frame < 180; frame++)
+        {
+            loaded.Enemies.StepEnemyProjectiles(
+                assets.LevelData,
+                loaded.Samus,
+                cameraX: 0x0100,
+                cameraY: 0x0050);
+            sawDeathSoundOpcode |= loaded.Enemies.LastEnemyDeathSoundEffectLibrary2.HasValue;
+
+            // Big Pirate death variant four is composed primarily from the separate
+            // bank-$B4 sprite-object pool. DrawEnemyProjectiles deliberately emits that
+            // pool first, so test the resulting pixels rather than assuming the carrier
+            // eproj itself must expose a timed spritemap on every frame.
+            renderedExplosion |= ProjectileLayerHasVisibleColor(loaded);
+
+            RoomEnemyProjectileSlot? actor = loaded.Enemies.EnemyProjectiles.FirstOrDefault(
+                projectile => projectile.IsActive &&
+                    projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
+            if (actor is not null && actor.SpritemapPointer is not 0 and not 0x8000)
+            {
+                maps.Add(actor.SpritemapPointer);
+                preInstructions.Add(actor.PreInstruction);
+                AssertProjectileRendersVisibleColor(
+                    loaded,
+                    RoomEnemyProjectileKind.EnemyDeathExplosion,
+                    "Wall Pirate death explosion/pickup");
+                renderedExplosion = true;
+            }
+
+            // EnemyMain publishes bank-$86's preceding-frame death opcode through the
+            // same append-only queue consumed by the desktop audio bridge.
+            loaded.Enemies.StepFrame(
+                0x0100,
+                0x0050,
+                timeIsFrozen: false,
+                loaded.Samus,
+                level: assets.LevelData,
+                samusProjectiles: loaded.Projectiles);
+            sawPublishedDeathSound |= loaded.Enemies.SoundRequests.Any(request =>
+                request.Library == 2 && request.MaximumQueued == 1 &&
+                request.SoundId is 9 or 0x24 or 0x0b);
+
+            if (!loaded.Enemies.EnemyProjectiles.Any(projectile => projectile.IsActive))
+                break;
+        }
+
+        bool renderedPickup = VerifyDirectPickupRendering(loaded, assets);
+        if (!renderedExplosion || !renderedPickup ||
+            !sawDeathSoundOpcode || !sawPublishedDeathSound)
+        {
+            throw new InvalidDataException(
+                $"Wall Pirate death integration failed: visible explosion/pickup=" +
+                $"{renderedExplosion}/{renderedPickup}, death sound opcode/published=" +
+                $"{sawDeathSoundOpcode}/{sawPublishedDeathSound}, maps=" +
+                $"[{string.Join(',', maps.Select(value => $"${value:X4}"))}], pre=" +
+                $"[{string.Join(',', preInstructions.Select(value => $"${value:X4}"))}].");
+        }
+    }
+
+    private static bool VerifyDirectPickupRendering(
+        LoadedWallPirates loaded,
+        CartridgeRoomAssets assets)
+    {
+        // Force the cartridge's low-energy branch so the grey Pirate's real chance table
+        // has an enabled pickup family. A fully stocked Samus can legitimately renormalize
+        // the same random samples into NoDrop, which is not a rendering failure.
+        loaded.Samus.Health = 1;
+        for (int attempt = 0; attempt < 18; attempt++)
+        {
+            RoomEnemyProjectileSlot? pickup = loaded.Enemies.SpawnEnemyDropFromEnemyHeader(
+                x: 0x0130,
+                y: 0x00d8,
+                enemyHeaderPointer: Definitions[0]);
+            if (pickup is null)
+                break;
+            if (pickup.PreInstruction != 0xefe0)
+                continue;
+
+            for (int frame = 0;
+                 frame < 8 && pickup.SpritemapPointer is 0 or 0x8000;
+                 frame++)
+            {
+                loaded.Enemies.StepEnemyProjectiles(
+                    assets.LevelData,
+                    loaded.Samus,
+                    cameraX: 0x0100,
+                    cameraY: 0x0050);
+            }
+            AssertProjectileRendersVisibleColor(
+                loaded,
+                RoomEnemyProjectileKind.EnemyDeathPickup,
+                "Wall Pirate pickup");
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool ProjectileLayerHasVisibleColor(LoadedWallPirates loaded)
+    {
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        loaded.Enemies.DrawEnemyProjectiles(oam, cameraX: 0x0100, cameraY: 0x0050);
+        oam.FinalizeFrame();
+        return SnesObjRenderer.Render(oam, loaded.Vram, loaded.Cgram, obsel: 0x03)
+            .Any(pixel => pixel.A != 0 && (pixel.R != 0 || pixel.G != 0 || pixel.B != 0));
+    }
+
+    private static void AssertProjectileRendersVisibleColor(
+        LoadedWallPirates loaded,
+        RoomEnemyProjectileKind kind,
+        string description)
+    {
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        loaded.Enemies.DrawEnemyProjectiles(oam, cameraX: 0x0100, cameraY: 0x0050);
+        oam.FinalizeFrame();
+        Rgba32[] pixels = SnesObjRenderer.Render(
+            oam,
+            loaded.Vram,
+            loaded.Cgram,
+            obsel: 0x03);
+        int opaque = pixels.Count(pixel => pixel.A != 0);
+        int colored = pixels.Count(pixel =>
+            pixel.A != 0 && (pixel.R != 0 || pixel.G != 0 || pixel.B != 0));
+        if (opaque == 0 || colored == 0)
+        {
+            RoomEnemyProjectileSlot? projectile = loaded.Enemies.EnemyProjectiles.FirstOrDefault(
+                candidate => candidate.IsActive && candidate.Kind == kind);
+            throw new InvalidDataException(
+                $"{description} rendered {opaque} opaque/{colored} colored pixels " +
+                $"(map=${projectile?.SpritemapPointer ?? 0:X4}, " +
+                $"gfx=${projectile?.GraphicsIndex ?? 0:X4}, OAM={oam.LastFinalizedSpriteCount}).");
+        }
     }
 
     private static HashSet<ushort> ReadMapPointers(
@@ -616,7 +838,9 @@ internal static class WallSpacePirateAudit
         SamusState Samus,
         IReadOnlyList<RoomEnemySlot> Pirates,
         SamusProjectileSystem Projectiles,
-        SamusBombProjectileSystem SharedProjectiles);
+        SamusBombProjectileSystem SharedProjectiles,
+        SnesVram Vram,
+        SnesCgram Cgram);
 
     private readonly record struct ClimbResult(
         ushort MinimumY,

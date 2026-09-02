@@ -59,6 +59,25 @@ internal static partial class Program
         }
         AssertEqual(CartridgeAudioCommand.WritePort(0, 5), track!.Value, "delayed track write");
 
+        // Every permanent item uses the same $84:8BDD -> $82:E118 sequence. Seed a stale
+        // request to prove queue clearing, then observe track two, the 360-frame fanfare
+        // hold/silence, and restoration of the room track that was live at acquisition.
+        audio.QueueMusicDelayed8(7);
+        audio.QueuePermanentItemFanfare();
+        var permanentItemPortWrites = new List<byte>();
+        for (int frame = 0; frame < 384; frame++)
+        {
+            foreach (CartridgeAudioCommand command in audio.AdvanceFrame(bus, default))
+            {
+                if (command.Kind == CartridgeAudioCommandKind.WritePort && command.Port == 0)
+                    permanentItemPortWrites.Add(command.Value);
+            }
+        }
+        AssertSequenceEqual(
+            new byte[] { 2, 0, 5 },
+            permanentItemPortWrites,
+            "permanent-item fanfare and room-track restoration");
+
         var sfx = new CartridgeAudioState();
         sfx.AdvanceFrame(bus, default); // consume reset upload/port writes
         sfx.QueueSound(library: 2, soundId: 0x57, maximumQueued: 6);
@@ -81,7 +100,7 @@ internal static partial class Program
             SpcUploadStreamReader.Read(bus, 0x90fffb),
             "cross-bank SPC upload stream");
 
-        Console.WriteLine("  Audio: music delays, upload lookup, SFX handshake, and LoROM stream agree.");
+        Console.WriteLine("  Audio: music delays, item fanfare, upload lookup, SFX handshake, and LoROM stream agree.");
     }
 
     private static void WriteAudioRomByte(byte[] rom, int snesAddress, byte value) =>

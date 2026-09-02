@@ -7,7 +7,8 @@ namespace SuperMetroid.Desktop;
 public readonly record struct CartridgeAudioSmokeTestResult(
     int FramesGenerated,
     int NonZeroSamples,
-    int PeakAmplitude);
+    int PeakAmplitude,
+    int PowerBeamNonZeroSamples);
 
 /// <summary>Runs the real title music path without opening an audio device or game window.</summary>
 public static class CartridgeAudioSmokeTest
@@ -45,6 +46,57 @@ public static class CartridgeAudioSmokeTest
             throw new InvalidDataException(
                 "The translated SPC/DSP engine generated silence for the title music sequence.");
         }
-        return new CartridgeAudioSmokeTestResult(frames, nonZeroSamples, peakAmplitude);
+
+        int powerBeamNonZeroSamples = VerifyPowerBeamSoundAndHandshake(bus);
+        return new CartridgeAudioSmokeTestResult(
+            frames,
+            nonZeroSamples,
+            peakAmplitude,
+            powerBeamNonZeroSamples);
+    }
+
+    /// <summary>
+    /// Proves library one's real request/clear protocol using the ROM-selected power-beam ID.
+    /// </summary>
+    private static int VerifyPowerBeamSoundAndHandshake(ISnesAddressSpace bus)
+    {
+        const byte powerBeamSound = 0x0b;
+        const int auditFrames = 30;
+
+        // A fresh player receives only reset's common driver/sample upload.  Keeping title
+        // music out of this pass means any nonzero output belongs to the cartridge's actual
+        // library-one power-beam program instead of merely proving that the mixer is alive.
+        var soundQueue = new CartridgeAudioState();
+        soundQueue.QueueSound(library: 1, powerBeamSound, maximumQueued: 15);
+        CartridgeAudioAcknowledgements acknowledgements = default;
+        bool requestAcknowledged = false;
+        bool clearAcknowledgedAfterRequest = false;
+        int nonZeroSamples = 0;
+        using var soundEngine = new SpcAudioEngine(bus);
+
+        for (int frame = 0; frame < auditFrames; frame++)
+        {
+            IReadOnlyList<CartridgeAudioCommand> commands =
+                soundQueue.AdvanceFrame(bus, acknowledgements);
+            foreach (short sample in soundEngine.RenderFrame(commands))
+            {
+                if (sample != 0)
+                    nonZeroSamples++;
+            }
+
+            acknowledgements = soundEngine.ReadAcknowledgements();
+            if (acknowledgements[1] == powerBeamSound)
+                requestAcknowledged = true;
+            else if (requestAcknowledged && acknowledgements[1] == 0)
+                clearAcknowledgedAfterRequest = true;
+        }
+
+        if (!requestAcknowledged)
+            throw new InvalidDataException("The SPC did not acknowledge power-beam SFX $0B.");
+        if (!clearAcknowledgedAfterRequest)
+            throw new InvalidDataException("The SPC did not acknowledge the power-beam SFX clear.");
+        if (nonZeroSamples == 0)
+            throw new InvalidDataException("The cartridge power-beam SFX program generated silence.");
+        return nonZeroSamples;
     }
 }

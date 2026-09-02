@@ -808,10 +808,7 @@ public sealed partial class RoomEnemySystem
                         ((slot.FrameCounter & 2) != 0 ? -1 : 1)));
                     slot.ShakeTimer--;
                 }
-                ushort drawPaletteIndex = IsRidleyDefinition(slot.EnemyDefinitionPointer) &&
-                    _ridleyState is not null
-                        ? _ridleyState.CommonDrawPaletteIndex
-                        : slot.PaletteIndex;
+                ushort drawPaletteIndex = SelectCommonEnemyDrawPalette(slot);
                 if (IsRidleyDefinition(slot.EnemyDefinitionPointer))
                 {
                     // Both Ridley mains call DrawRidleyTail/DrawRidleyWings before the
@@ -888,6 +885,37 @@ public sealed partial class RoomEnemySystem
                 DrawDeadTorizoHook(oam, cameraX, cameraY);
             }
         }
+    }
+
+    /// <summary>
+    /// Ports the palette selection at <c>$A0:9473-$A0:949A</c>, immediately before
+    /// <c>WriteEnemyOams</c> emits either an ordinary or extended enemy spritemap.
+    /// </summary>
+    /// <remarks>
+    /// A hit does not replace an enemy's stored graphics-set palette. On alternating
+    /// phases of the shared enemy frame counter, the writer temporarily supplies OBJ
+    /// palette zero; the following draw restores the actor's assigned palette. Frozen
+    /// flashing similarly selects OBJ palette six. Keeping this at the common writer is
+    /// important: Space Pirates are merely the first ordinary enemies whose missing flash
+    /// was obvious, and a family-specific palette mutation would corrupt every later draw.
+    /// Ridley's translated AI already publishes the exact common-writer palette because
+    /// its body, wings, and tail must share one latched phase.
+    /// </remarks>
+    private ushort SelectCommonEnemyDrawPalette(RoomEnemySlot slot)
+    {
+        if (IsRidleyDefinition(slot.EnemyDefinitionPointer) && _ridleyState is not null)
+            return _ridleyState.CommonDrawPaletteIndex;
+
+        if (slot.FlashTimer != 0 && (_randomEnemyCounter & 2) != 0)
+            return 0;
+
+        if (slot.FrozenTimer != 0 &&
+            (slot.FrozenTimer >= 0x005a || (slot.FrozenTimer & 2) != 0))
+        {
+            return 0x0c00;
+        }
+
+        return slot.PaletteIndex;
     }
 
     private void LoadGraphicsSet(

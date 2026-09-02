@@ -25,6 +25,7 @@ internal static class ElevatorAudit
         }
 
         VerifyDefinition(retailBus);
+        VerifySamusDisplayCadence(retailBus);
         VerifyEveryRetailInitialization(retailBus, records);
 
         RoomEnemyPopulationRecord down = records.First(record => record.Parameter1 == 0);
@@ -68,6 +69,39 @@ internal static class ElevatorAudit
         {
             throw new InvalidDataException(
                 $"Elevator input table is ${downInput:X4}/${upInput:X4}, expected Down/Up.");
+        }
+    }
+
+    /// <summary>
+    /// Pins the translated predicate to the two machine-code decisions at $90:EC14:
+    /// load the NMI counter, test bit zero, and return when it is set. This is the visible
+    /// half-rate flicker reported over RDP; it is authored behavior, not dropped host frames.
+    /// </summary>
+    private static void VerifySamusDisplayCadence(ISnesAddressSpace bus)
+    {
+        // LDA $05B6; BIT #$0001; BEQ +1; RTS. The following byte begins the fatal/no-
+        // animation renderer that the even branch deliberately falls through into.
+        byte[] expected = [0xad, 0xb6, 0x05, 0x89, 0x01, 0x00, 0xf0, 0x01, 0x60];
+        for (int index = 0; index < expected.Length; index++)
+        {
+            byte actual = bus.ReadByte(0x90ec14 + index);
+            if (actual != expected[index])
+            {
+                throw new InvalidDataException(
+                    $"Elevator Samus display opcode {index} is ${actual:X2}; " +
+                    $"retail $90:EC14 requires ${expected[index]:X2}.");
+            }
+        }
+
+        for (ushort frame = 0; frame < 16; frame++)
+        {
+            bool expectedDraw = (frame & 1) == 0;
+            if (SuperMetroid.Core.Runtime.SuperMetroidRuntime.ShouldDrawSamusOnElevator(frame) !=
+                expectedDraw)
+            {
+                throw new InvalidDataException(
+                    $"Elevator Samus draw cadence disagreed with $90:EC14 at NMI {frame}.");
+            }
         }
     }
 

@@ -60,7 +60,21 @@ static void VerifySamusPoseTransitionMatching()
         SamusPoseTransitionTable.Find(bus, 1, canonicalHeldInput: 0x0400, canonicalNewInput: 0),
         "Samus transition terminator returns no match");
 
-    Console.WriteLine("  Samus input: ROM transition masks, priority, and terminator agree.");
+    SamusPoseTransitionLookup zeroInput = SamusPoseTransitionTable.Lookup(
+        bus, 1, canonicalHeldInput: 0, canonicalNewInput: 0);
+    SamusPoseTransitionLookup samePose = SamusPoseTransitionTable.Lookup(
+        bus, 1, canonicalHeldInput: 0x0200, canonicalNewInput: 0);
+    SamusPoseTransitionLookup terminator = SamusPoseTransitionTable.Lookup(
+        bus, 1, canonicalHeldInput: 0x0400, canonicalNewInput: 0);
+    AssertTrue(zeroInput.UsesPoseDefinitionFallback,
+        "Samus zero input enters pose-definition fallback");
+    AssertTrue(!samePose.UsesPoseDefinitionFallback,
+        "Samus same-pose record returns without fallback");
+    AssertTrue(terminator.UsesPoseDefinitionFallback,
+        "Samus unmatched nonzero input enters pose-definition fallback");
+
+    Console.WriteLine(
+        "  Samus input: ROM transition masks, priority, same-pose return, and fallback agree.");
 }
 
 /// <summary>

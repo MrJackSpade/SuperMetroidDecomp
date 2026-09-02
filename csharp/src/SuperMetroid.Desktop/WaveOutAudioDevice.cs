@@ -1,12 +1,14 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace SuperMetroid.Desktop;
 
-/// <summary>Small nonblocking PCM queue over Windows' built-in waveOut device.</summary>
+/// <summary>Small bounded PCM queue over Windows' built-in waveOut device.</summary>
 /// <remarks>
 /// Six pinned one-frame buffers provide roughly 100 ms of scheduler/debugger tolerance.
-/// Exhausting all six is an observable host scheduling/audio failure. It throws instead of
-/// silently dropping a cartridge audio frame and allowing A/V state to appear healthy.
+/// Filling all six is normal producer/consumer backpressure: the emulator waits for Windows
+/// to finish one buffer instead of dropping samples. Failure remains loud if the driver does
+/// not return any buffer within the bounded stall interval.
 /// </remarks>
 internal sealed class WaveOutAudioDevice : IDisposable
 {
@@ -14,6 +16,11 @@ internal sealed class WaveOutAudioDevice : IDisposable
     private const uint HeaderDone = 0x0000_0001;
     private const uint MultimediaSuccess = 0;
     private const int BufferCount = 6;
+    // Six buffers contain only 100 ms of audio. If none is returned for two full seconds,
+    // this is no longer ordinary pacing jitter: the selected Windows audio endpoint or its
+    // waveOut driver has stalled. Keep the timeout finite so "never drop audio" cannot turn
+    // a device failure into an unexplained permanent UI hang.
+    private const int BufferReturnTimeoutMilliseconds = 2_000;
 
     private readonly BufferSlot[] slots;
     private readonly int volumePercent;
@@ -72,26 +79,10 @@ internal sealed class WaveOutAudioDevice : IDisposable
     public void Submit(ReadOnlySpan<short> samples)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
-        BufferSlot? available = null;
-        for (int checkedSlots = 0; checkedSlots < slots.Length; checkedSlots++)
-        {
-            BufferSlot slot = slots[nextSlot];
-            nextSlot = (nextSlot + 1) % slots.Length;
-            if (!slot.Prepared || slot.IsDone)
-            {
-                available = slot;
-                break;
-            }
-        }
-
-        if (available is null)
-        {
-            throw new InvalidOperationException(
-                $"waveOut still owns all {slots.Length} PCM buffers; refusing to drop " +
-                "the newest emulated audio frame silently.");
-        }
-        if (samples.Length != available.Samples.Length)
+        if (samples.Length != slots[0].Samples.Length)
             throw new ArgumentException("PCM block does not match the device buffer size.", nameof(samples));
+
+        BufferSlot available = TakeAvailableSlot();
 
         if (available.Prepared)
         {
@@ -116,6 +107,55 @@ internal sealed class WaveOutAudioDevice : IDisposable
             "waveOutPrepareHeader");
         available.Prepared = true;
         ThrowOnError(NativeMethods.Write(device, available.Header, WaveHeader.Size), "waveOutWrite");
+    }
+
+    /// <summary>
+    /// Returns the next free ring slot, applying host-audio pacing when every slot is queued.
+    /// </summary>
+    private BufferSlot TakeAvailableSlot()
+    {
+        BufferSlot? available = TryTakeAvailableSlot();
+        if (available is not null)
+            return available;
+
+        // The translated game can produce several frames during one WinForms catch-up tick.
+        // Once the roughly 100-ms queue is full, waveOut becomes the authoritative real-time
+        // clock. Polling is deliberate here: WHDR_DONE is the ownership bit documented by
+        // waveOut, and a one-millisecond sleep avoids burning the UI thread while retaining
+        // much finer resolution than one 60-Hz emulated frame.
+        Stopwatch timeout = Stopwatch.StartNew();
+        do
+        {
+            Thread.Sleep(1);
+            available = TryTakeAvailableSlot();
+            if (available is not null)
+                return available;
+        }
+        while (timeout.ElapsedMilliseconds < BufferReturnTimeoutMilliseconds);
+
+        string headerFlags = string.Join(
+            ", ",
+            slots.Select((slot, index) => $"{index}:${slot.Flags:X8}"));
+        throw new TimeoutException(
+            $"waveOut did not return any of its {slots.Length} PCM buffers within " +
+            $"{BufferReturnTimeoutMilliseconds} ms (header flags: {headerFlags}).");
+    }
+
+    /// <summary>
+    /// Scans one complete ring rotation and advances the cursor past every examined slot.
+    /// A slot was never submitted when it is unprepared; otherwise WHDR_DONE transfers its
+    /// storage back from Windows and makes it safe to unprepare and overwrite.
+    /// </summary>
+    private BufferSlot? TryTakeAvailableSlot()
+    {
+        for (int checkedSlots = 0; checkedSlots < slots.Length; checkedSlots++)
+        {
+            BufferSlot slot = slots[nextSlot];
+            nextSlot = (nextSlot + 1) % slots.Length;
+            if (!slot.Prepared || slot.IsDone)
+                return slot;
+        }
+        return null;
     }
 
     public void Reset()
@@ -205,8 +245,9 @@ internal sealed class WaveOutAudioDevice : IDisposable
         public short[] Samples { get; }
         public nint Header { get; }
         public bool Prepared { get; set; }
+        public uint Flags => Marshal.PtrToStructure<WaveHeader>(Header).Flags;
         public bool IsDone =>
-            (Marshal.PtrToStructure<WaveHeader>(Header).Flags & HeaderDone) != 0;
+            (Flags & HeaderDone) != 0;
 
         public void ResetHeader()
         {

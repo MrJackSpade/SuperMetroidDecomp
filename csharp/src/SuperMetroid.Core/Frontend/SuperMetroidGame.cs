@@ -825,6 +825,9 @@ public sealed class SuperMetroidGame
 
         if (runtime.Samus is { } samus)
         {
+            if (runtime.Hud.SelectionSoundRequestedThisFrame)
+                audio.QueueSound(library: 1, soundId: 0x39, maximumQueued: 6);
+
             foreach (SamusSoundRequest request in samus.LiquidPhysics.SoundRequests)
                 audio.QueueSound(request.Library, request.SoundId, request.MaximumQueued);
 
@@ -864,6 +867,8 @@ public sealed class SuperMetroidGame
             audio.QueueSound(request.Library, request.SoundId, request.MaximumQueued);
         foreach (PlmMusicRequest request in runtime.Plms.MusicRequests)
             audio.QueueMusicDelayed(request.Track, request.DelayFrames);
+        if (runtime.Plms.ConsumeCollectibleFanfareRequest())
+            audio.QueuePermanentItemFanfare();
 
         foreach (EnemySoundRequest request in runtime.Enemies.SoundRequests)
             audio.QueueSound(request.Library, request.SoundId, request.MaximumQueued);

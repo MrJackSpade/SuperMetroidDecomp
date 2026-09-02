@@ -371,6 +371,31 @@ internal static class MorphBallEyeAudit
             throw new InvalidDataException("Eye full-beam color cycle did not begin at ROM entry zero.");
         }
 
+        // The actor/HDMA state is only half of the feature: selector $10 must expose its
+        // yellow COLDATA inside the generated window during final frame composition.
+        var beamFrame = new Rgba32[256 * 224];
+        Array.Fill(beamFrame, new Rgba32(32, 32, 32, 255));
+        ushort cameraX = CameraX(room, body);
+        ushort cameraY = CameraY(room, body);
+        int bodyScreenX = unchecked((short)(body.XPosition - cameraX));
+        int bodyScreenY = unchecked((short)(body.YPosition - cameraY));
+        SnesGameplayFrameRenderer.ApplyMorphBallEyeBeamColorMath(
+            beamFrame,
+            bus,
+            loaded.Enemies.MorphBallEyeBeam,
+            body,
+            state,
+            cameraX,
+            cameraY);
+        Rgba32 insideBeam = beamFrame[bodyScreenY * 256 + bodyScreenX + 32];
+        Rgba32 outsideBeam = beamFrame[(bodyScreenY - 32) * 256 + bodyScreenX];
+        if (insideBeam.R <= 32 || insideBeam.G <= 32 || insideBeam.B != 32 ||
+            outsideBeam != new Rgba32(32, 32, 32, 255))
+        {
+            throw new InvalidDataException(
+                $"Eye window did not expose yellow additive color: inside={insideBeam}, outside={outsideBeam}.");
+        }
+
         // Exact deactivation X equality is outside. The HDMA pass runs first and therefore
         // remains Full during the frame in which body AI clears ActivatedFlag.
         loaded.Samus.XPosition = unchecked((ushort)(body.XPosition + 0x00b0));

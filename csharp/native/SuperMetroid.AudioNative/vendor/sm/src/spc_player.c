@@ -1117,6 +1117,13 @@ static const uint8 kSfx1Conf[] = {
 void Sfx1_HandleCmdFromSnes(SpcPlayer *p) {
   uint8 a = p->input_ports[1];
   p->input_ports[1] = 255;
+  // The retail SPC handler acknowledges every newly observed CPU-port value by
+  // mirroring it to the corresponding SPC-to-SNES port.  The translated handler
+  // already consumed the input but omitted this externally observable store, so
+  // bank $82 waited forever after its first library-one request.  A zero is also
+  // meaningful: it completes the second half of the request/clear handshake.
+  if (a != 255)
+    p->port_to_snes[1] = a;
   if (a == 255 || a == 0 || a != 1 && a != 2 && p->sfx1.priority) {
     if (p->sfx1.cur_sound)
       Sfx1_Process(p);
@@ -1197,6 +1204,11 @@ static const uint8 kSfx2Conf[] = {
 void Sfx2_HandleCmdFromSnes(SpcPlayer *p) {
   uint8 a = p->input_ports[2];
   p->input_ports[2] = 255;
+  // Keep the output-port echo shared by the whole SFX library.  Door transition
+  // cancellation uses $71 here, but it follows the same cartridge protocol as all
+  // ordinary library-two actors and must not receive a door-specific shortcut.
+  if (a != 255)
+    p->port_to_snes[2] = a;
   if (a == 255 || a == 0 || a != 0x71 && a != 0x7e && p->sfx2.priority) {
     if (p->sfx2.cur_sound)
       Sfx2_Process(p);
@@ -1250,6 +1262,10 @@ static const uint8 kSfx3Conf[] = {
 void Sfx3_HandleCmdFromSnes(SpcPlayer *p) {
   uint8 a = p->input_ports[3];
   p->input_ports[3] = 255;
+  // Library three uses the identical bidirectional port contract.  Preserve the
+  // input sentinel ($FF means no new CPU write) rather than echoing it as a command.
+  if (a != 255)
+    p->port_to_snes[3] = a;
   if (a == 255 || a == 0 || a != 1 && (p->sfx3.some_value == 2 || a != 2 && p->sfx3.priority)) {
     if (p->sfx3.cur_sound)
       Sfx3_Process(p);

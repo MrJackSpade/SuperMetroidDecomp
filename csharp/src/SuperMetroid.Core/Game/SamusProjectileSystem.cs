@@ -429,10 +429,12 @@ public sealed partial class SamusProjectileSystem
             {
                 (firedSlot, queuedSound) = HandleBeamInput(
                     bus,
+                    level,
                     samus,
                     controllerInput,
                     controllerNewInput,
-                    sharedProjectiles);
+                    sharedProjectiles,
+                    roomPlms);
             }
             else if (samus.SelectedHudItem is 1 or 2)
             {
@@ -445,7 +447,12 @@ public sealed partial class SamusProjectileSystem
             }
         }
 
-        bool collisionStartedExplosion = false;
+        // FireUnchargedBeam/FireChargedBeam perform one zero-speed block dispatch before
+        // installing ordinary movement. A muzzle born against a solid door can therefore
+        // already be an explosion before the descending alpha-pass loop begins below.
+        bool collisionStartedExplosion = firedSlot is { } initialCollisionSlot &&
+            _slots[initialCollisionSlot].PackedType.IsFamily(
+                SamusProjectileFamily.BeamExplosion);
         bool projectileDeleted = false;
 
         LastFiredProjectileSnapshot = firedSlot is { } newSlot

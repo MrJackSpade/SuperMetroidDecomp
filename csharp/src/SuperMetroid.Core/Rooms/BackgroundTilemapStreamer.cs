@@ -56,6 +56,27 @@ public sealed class BackgroundTilemapStreamer
     }
 
     /// <summary>
+    /// Mirrors a bank-$84 mutation of the shared 16x16 block-definition table into this
+    /// streamer's retained copy.
+    /// </summary>
+    /// <remarks>
+    /// <c>LoadItemPLMGfx</c> writes eight words into <c>TileTable</c> before its item draw
+    /// list selects block <c>$08E-$095</c>. The room and camera streamer are deliberately
+    /// backed by separate arrays, so updating only <see cref="RoomLevelData"/> leaves both
+    /// immediate DrawPLM expansion and later camera-column streaming on the pre-load room
+    /// definition. Keep the two WRAM views coherent at the mutation point instead of
+    /// teaching individual items or rooms how to redraw themselves.
+    /// </remarks>
+    public void SetBlockDefinitionWord(int wordIndex, ushort tilemapWord)
+    {
+        int byteIndex = checked(wordIndex * 2);
+        if ((uint)(byteIndex + 1) >= (uint)_blockDefinitions.Length)
+            throw new ArgumentOutOfRangeException(nameof(wordIndex));
+        _blockDefinitions[byteIndex] = unchecked((byte)tilemapWord);
+        _blockDefinitions[byteIndex + 1] = unchecked((byte)(tilemapWord >> 8));
+    }
+
+    /// <summary>
     /// Expands one mutated BG1 block into the two two-word VRAM rows used by
     /// <c>DrawPLM</c> at <c>$84:8DBB</c>.
     /// </summary>

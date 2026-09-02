@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
@@ -75,7 +76,12 @@ internal static partial class EarlyControllerRouteAudit
         // Loading a collision-published door is the normal outer game-state action. The
         // audit does not identify the destination to the loader and does not edit placement;
         // bank-$83's record supplies both, exactly as the desktop frontend does.
+        // Model state $0B's completed source fade: the shared destination loader must run
+        // Samus_LoadSuitTargetPalette instead of inheriting this black OBJ palette row.
+        for (int color = 192; color < 208; color++)
+            runtime.Cgram.SetColor(color, 0);
         host.LoadPendingDoor();
+        AssertSuitPaletteReloaded(bus, runtime, samus);
         AssertRoom(runtime, 0x92fd, 0x9314, "Parlor");
         PrintDoorBlocks(bus, runtime, "Parlor");
         Console.WriteLine(
@@ -214,6 +220,7 @@ internal static partial class EarlyControllerRouteAudit
             host,
             "Elevator to Blue Brinstar",
             maximumFrames: 2400);
+        AssertAscendingElevatorCameraIsSynchronized(runtime);
         AssertPendingDoor(runtime, 0x8b92, 0x975c, "Elevator return -> Pit");
 
         host.LoadPendingDoor();
@@ -895,6 +902,7 @@ internal static partial class EarlyControllerRouteAudit
         // cartridge route continues to the right.
         bool returningWithMorphBallAtEntry = samus.CollectedItems.HasAny(
             SamusEquipmentFlags.MorphBall);
+        bool verifiedOutboundElevatorArtwork = false;
         SnesButton horizontalDirection = roomName switch
         {
             "Pit" when returningWithMorphBallAtEntry => SnesButton.Left,
@@ -915,6 +923,7 @@ internal static partial class EarlyControllerRouteAudit
         ElevatorActorStatus previousElevatorStatus = runtime.Enemies.ElevatorStatus;
         int preMissilesAscentStage = 0;
         int preMissilesStageEnteredFrame = 0;
+        bool verifiedMorphBallBeforePickup = false;
 
         while (!runtime.HasPendingDoorTransition && frame < maximumFrames)
         {
@@ -2474,6 +2483,82 @@ internal static partial class EarlyControllerRouteAudit
             }
             frame++;
 
+            if (!returningWithMorphBallAtEntry &&
+                !verifiedOutboundElevatorArtwork &&
+                roomName == "Elevator to Blue Brinstar" &&
+                frame >= 20)
+            {
+                AssertElevatorPlatformSurvivesGameplayCompositor(runtime);
+                verifiedOutboundElevatorArtwork = true;
+            }
+
+            CollectiblePlmSnapshot? visibleMorphBall = crossingMorphBallRoom
+                ? runtime.Plms.Collectibles.FirstOrDefault(item =>
+                    item.Kind == InWorldCollectibleKind.MorphBall &&
+                    item.Phase == CollectiblePhase.Visible)
+                : null;
+            RoomLevelData? morphRoomLevel = runtime.LevelData;
+            bool morphBallIsInsideViewport = visibleMorphBall is { } morphBall &&
+                morphRoomLevel is not null &&
+                runtime.Camera is { } morphCamera &&
+                morphBall.BlockIndex % morphRoomLevel.WidthInBlocks * LevelBlockSizePixels >=
+                    morphCamera.XPosition + 32 &&
+                morphBall.BlockIndex % morphRoomLevel.WidthInBlocks * LevelBlockSizePixels <
+                    morphCamera.XPosition + 224 &&
+                morphBall.BlockIndex / morphRoomLevel.WidthInBlocks * LevelBlockSizePixels >=
+                    morphCamera.YPosition + 32 &&
+                morphBall.BlockIndex / morphRoomLevel.WidthInBlocks * LevelBlockSizePixels <
+                    morphCamera.YPosition + 224;
+            if (!verifiedMorphBallBeforePickup && morphBallIsInsideViewport)
+            {
+                // Verify the first comfortably visible frame after the cartridge PLM has
+                // drawn Morph Ball. Room load runs setup only; the following PLM_Handler
+                // mutates the level word, expands the newly installed dynamic definitions,
+                // and publishes those four character names into BG1's circular tilemap.
+                // Reading the actual VRAM destination catches stale streamer definitions:
+                // inventory acquisition alone would pass even while the pickup is invisible.
+                RoomCollisionBlock visibleBlock = morphRoomLevel!.GetCollisionBlockByIndex(
+                    visibleMorphBall!.Value.BlockIndex);
+                int visibleBlockDefinition = visibleBlock.LevelWord & 0x03ff;
+                ReadOnlySpan<byte> definitionBytes = morphRoomLevel.BlockDefinitions.Span;
+                var definitionWords = new ushort[4];
+                for (int child = 0; child < definitionWords.Length; child++)
+                {
+                    int byteIndex = (visibleBlockDefinition * 4 + child) * 2;
+                    definitionWords[child] = unchecked((ushort)(
+                        definitionBytes[byteIndex] |
+                        (definitionBytes[byteIndex + 1] << 8)));
+                }
+                int blockX = visibleMorphBall.Value.BlockIndex % morphRoomLevel.WidthInBlocks;
+                int blockY = visibleMorphBall.Value.BlockIndex / morphRoomLevel.WidthInBlocks;
+                int ringX = blockX & 0x1f;
+                ushort tilemapDestination = unchecked((ushort)(
+                    (ringX < 0x10 ? 0x5000 : 0x53e0) +
+                    (blockY & 0x0f) * 0x40 + ringX * 2));
+                if ((runtime.BackgroundScroll.Bg1XOffset & 0x0100) != 0)
+                {
+                    tilemapDestination = ringX < 0x10
+                        ? unchecked((ushort)(tilemapDestination + 0x0400))
+                        : unchecked((ushort)(tilemapDestination - 0x0400));
+                }
+                ushort[] displayedWords =
+                {
+                    runtime.Vram.ReadWord(tilemapDestination),
+                    runtime.Vram.ReadWord(tilemapDestination + 1),
+                    runtime.Vram.ReadWord(tilemapDestination + 0x20),
+                    runtime.Vram.ReadWord(tilemapDestination + 0x21),
+                };
+                if (!displayedWords.SequenceEqual(definitionWords))
+                {
+                    throw new InvalidDataException(
+                        "Morph Ball became visible in level data without its dynamic " +
+                        $"definition reaching BG1: expected [{string.Join(',', definitionWords.Select(word => word.ToString("X4")))}], " +
+                        $"found [{string.Join(',', displayedWords.Select(word => word.ToString("X4")))}] " +
+                        $"at VRAM ${tilemapDestination:X4}.");
+                }
+                verifiedMorphBallBeforePickup = true;
+            }
+
             if (roomName == "Climb" && returningWithMorphBallAtEntry &&
                 (input & (ushort)SnesButton.X) != 0 && climbCombatTrace.Count < 16)
             {
@@ -2966,6 +3051,12 @@ internal static partial class EarlyControllerRouteAudit
             Console.WriteLine($"  {roomName} damage: {string.Join(' ', damageTrace)}");
         if (climbCombatTrace.Count != 0)
             Console.WriteLine($"  {roomName} combat: {string.Join(' ', climbCombatTrace)}");
+        if (roomName == "Morph Ball room" && !verifiedMorphBallBeforePickup)
+        {
+            throw new InvalidDataException(
+                "Controller route collected Morph Ball without observing its cartridge " +
+                "dynamic block at a fully visible BG1 location before acquisition.");
+        }
         return new DriveResult(frame, firedShots, collisionExplosions);
     }
 
@@ -4265,6 +4356,26 @@ internal static partial class EarlyControllerRouteAudit
         }
     }
 
+    private static void AssertSuitPaletteReloaded(
+        ISnesAddressSpace bus,
+        SuperMetroidRuntime runtime,
+        SamusState samus)
+    {
+        var expected = new SnesCgram();
+        samus.LoadSuitPalette(bus, expected);
+        for (int color = 192; color < 208; color++)
+        {
+            ushort actualColor = runtime.Cgram.Colors[color];
+            ushort expectedColor = expected.Colors[color];
+            if (actualColor != expectedColor)
+            {
+                throw new InvalidDataException(
+                    $"First door left suit color {color} at ${actualColor:X4}; " +
+                    $"Samus_LoadSuitTargetPalette requires ${expectedColor:X4}.");
+            }
+        }
+    }
+
     private static void PrintCollisionNeighborhood(
         SuperMetroidRuntime runtime,
         SamusState samus)
@@ -4430,6 +4541,142 @@ internal static partial class EarlyControllerRouteAudit
             }
         }
         Console.WriteLine($"  {roomName} door blocks: {string.Join(' ', doors)}");
+    }
+
+    /// <summary>
+    /// Proves that the Blue Brinstar elevator is not merely present in cartridge enemy
+    /// state or isolated OBJ output: at least one opaque pixel from its retail sprite must
+    /// survive the same BG/OBJ priority compositor used by the desktop frontend.
+    /// </summary>
+    /// <remarks>
+    /// The elevator is enemy definition $D73F. Its two live spritemaps use character names
+    /// $06C-$06E, OBJ palette 5, and priority 2. Restricting the scan to those finalized OAM
+    /// records prevents Samus or an unrelated enemy with a coincidentally similar palette
+    /// color from satisfying the assertion. A black platform caused by missing OBJ tiles,
+    /// a missing palette, an incorrect priority rank, or a stale displayed-OAM page will
+    /// therefore fail at the production-render boundary instead of passing a state-only
+    /// test while remaining visibly broken.
+    /// </remarks>
+    private static void AssertElevatorPlatformSurvivesGameplayCompositor(
+        SuperMetroidRuntime runtime)
+    {
+        RoomEnemySlot elevator = runtime.Enemies.Slots.FirstOrDefault(slot =>
+            slot.EnemyDefinitionPointer == RoomEnemySystem.ElevatorDefinition)
+            ?? throw new InvalidDataException(
+                "Blue Brinstar elevator room reached the visual audit without enemy $D73F.");
+        if (elevator.SpritemapPointer is not 0x962f and not 0x9645)
+        {
+            throw new InvalidDataException(
+                $"Elevator $D73F selected non-retail spritemap " +
+                $"$A2:{elevator.SpritemapPointer:X4}.");
+        }
+
+        ResolvedObjFrame objects = SnesObjRenderer.RenderResolved(
+            runtime.DisplayedOam,
+            runtime.Vram,
+            runtime.Cgram,
+            obsel: 0x03);
+        Rgba32[] composed = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+        int opaqueElevatorPixels = 0;
+        int visibleElevatorPixels = 0;
+
+        for (int spriteIndex = 0;
+            spriteIndex < runtime.DisplayedOam.LastFinalizedSpriteCount;
+            spriteIndex++)
+        {
+            OamEntry entry = runtime.DisplayedOam.GetEntry(spriteIndex);
+            if (entry.TileNumber is < 0x006c or > 0x006e ||
+                entry.Palette != 5 ||
+                entry.Priority != 2 ||
+                entry.IsLarge)
+            {
+                continue;
+            }
+
+            // Gameplay OBSEL $03 selects the 8x8/16x16 size mode. These elevator pieces
+            // are explicitly small, so each finalized OAM record contributes one 8x8
+            // character. Convert the modular SNES coordinates exactly as the OBJ renderer
+            // does before clipping to the 256x224 visible field.
+            int objectX = entry.X >= 0x100 ? entry.X - 0x200 : entry.X;
+            int objectY = entry.Y >= 0xe0 ? entry.Y - 0x100 : entry.Y;
+            for (int localY = 0; localY < 8; localY++)
+            {
+                int screenY = objectY + localY;
+                if ((uint)screenY >= 224)
+                    continue;
+                for (int localX = 0; localX < 8; localX++)
+                {
+                    int screenX = objectX + localX;
+                    if ((uint)screenX >= 256)
+                        continue;
+                    int pixelIndex = screenY * 256 + screenX;
+                    if (objects.Priorities[pixelIndex] != 2 ||
+                        objects.Pixels[pixelIndex].A == 0)
+                    {
+                        continue;
+                    }
+
+                    opaqueElevatorPixels++;
+                    if (composed[pixelIndex] == objects.Pixels[pixelIndex])
+                        visibleElevatorPixels++;
+                }
+            }
+        }
+
+        if (opaqueElevatorPixels == 0)
+        {
+            throw new InvalidDataException(
+                "Elevator $D73F produced no opaque $06C-$06E pixels in finalized OAM.");
+        }
+        if (visibleElevatorPixels == 0)
+        {
+            throw new InvalidDataException(
+                $"All {opaqueElevatorPixels} opaque elevator pixels were lost behind the " +
+                "ordinary gameplay compositor; the platform would appear black/invisible.");
+        }
+    }
+
+    /// <summary>
+    /// Verifies the production camera, BG1 world position, and PPU scroll mirror after the
+    /// first upward elevator journey. This is deliberately checked after the platform has
+    /// landed and ordinary control has opened the Pit door, not at an invented intermediate
+    /// coordinate where the cartridge is still applying green-scroll alignment.
+    /// </summary>
+    private static void AssertAscendingElevatorCameraIsSynchronized(
+        SuperMetroidRuntime runtime)
+    {
+        ScrollBoundaryCamera camera = runtime.Camera ?? throw new InvalidDataException(
+            "Ascending elevator completed without an active camera.");
+        SamusState samus = runtime.Samus ?? throw new InvalidDataException(
+            "Ascending elevator completed without Samus.");
+        CartridgeRoomHeader room = runtime.ActiveRoom ?? throw new InvalidDataException(
+            "Ascending elevator completed without its room header.");
+
+        // Front-facing elevator setup clears Y direction to zero. `$90:964F` therefore
+        // selects the room's up-scroller byte, and the stationary frames after landing let
+        // camera Y converge exactly to SamusY-upScroller. For room `$97B5`, that legitimate
+        // native endpoint is `$008B-$0070=$001B`; forcing zero would itself be a host-only
+        // “one row fix” and would disagree with the cartridge's green-scroll alignment.
+        ushort expectedCameraY = unchecked((ushort)(samus.YPosition - room.UpScroller));
+        if (camera.YPosition != expectedCameraY ||
+            camera.IdealYPosition != expectedCameraY)
+        {
+            throw new InvalidDataException(
+                $"Ascending elevator camera did not converge to the cartridge target: " +
+                $"SamusY=${samus.YPosition:X4}, up-scroller=${room.UpScroller:X2}, " +
+                $"camera=${camera.YPosition:X4}, ideal=${camera.IdealYPosition:X4}, " +
+                $"expected=${expectedCameraY:X4}.");
+        }
+        if (runtime.BackgroundScroll.Layer1YPosition != camera.YPosition ||
+            runtime.BackgroundScroll.Bg1VerticalScroll != unchecked((ushort)(
+                camera.YPosition + runtime.BackgroundScroll.Bg1YOffset)))
+        {
+            throw new InvalidDataException(
+                $"Ascending elevator split camera/BG1 state: camera=${camera.YPosition:X4}, " +
+                $"layer1=${runtime.BackgroundScroll.Layer1YPosition:X4}, " +
+                $"BG1VOFS=${runtime.BackgroundScroll.Bg1VerticalScroll:X4}, " +
+                $"offset=${runtime.BackgroundScroll.Bg1YOffset:X4}.");
+        }
     }
 
     private static void PrintPlmPopulation(ISnesAddressSpace bus, ushort populationPointer)

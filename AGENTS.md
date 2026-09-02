@@ -22,6 +22,17 @@
 - Clearly distinguish fixes that were reproduced and verified from first-pass fixes that did not require reproduction, and identify anything still awaiting player confirmation.
 - Also summarize relevant tests, commits, pushes, and remaining open or deferred work once for the batch.
 
+## Commit and push discipline
+
+- Commit and push every completed change as soon as it has passed its proportionate
+  verification. Do not leave recoverable work only in the local working tree between
+  handoffs.
+- Keep commits logically sized and scoped. A focused fix and its regression test belong
+  together; independent fixes should use separate commits when doing so does not strand
+  the tree in a broken intermediate state.
+- Never rewrite or discard the user's history to accomplish this. A committed regression
+  can be reverted, while uncommitted lost work cannot be recovered.
+
 ## Cartridge constants and definition data
 
 - Put ROM addresses, native dispatcher identifiers, instruction-list pointers, phase IDs,

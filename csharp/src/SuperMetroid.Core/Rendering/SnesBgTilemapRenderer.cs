@@ -150,6 +150,35 @@ public static class SnesBgTilemapRenderer
         bool transparentColorZero = false,
         bool? priority = null)
     {
+        const int width = 32 * 8;
+        int height = rowCount * 8;
+        var output = new Rgba32[width * height];
+        Render2Bpp(
+            output,
+            vram,
+            cgram,
+            tilemapBaseWord,
+            characterBaseWord,
+            rowCount,
+            transparentColorZero,
+            priority);
+        return output;
+    }
+
+    /// <summary>
+    /// Renders BG3 directly into caller-owned storage. Gameplay uses the first 32 scanlines
+    /// of its final frame, avoiding a temporary 32 KiB HUD raster and subsequent copy.
+    /// </summary>
+    public static void Render2Bpp(
+        Span<Rgba32> output,
+        SnesVram vram,
+        SnesCgram cgram,
+        ushort tilemapBaseWord,
+        ushort characterBaseWord,
+        int rowCount,
+        bool transparentColorZero = false,
+        bool? priority = null)
+    {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
         if (rowCount <= 0 || rowCount > 32)
@@ -157,7 +186,12 @@ public static class SnesBgTilemapRenderer
 
         const int width = 32 * 8;
         int height = rowCount * 8;
-        var output = new Rgba32[width * height];
+        if (output.Length != checked(width * height))
+        {
+            throw new ArgumentException(
+                "A 2-bpp destination must contain exactly 256*rowCount*8 pixels.",
+                nameof(output));
+        }
 
         for (int tileY = 0; tileY < rowCount; tileY++)
         {
@@ -199,6 +233,5 @@ public static class SnesBgTilemapRenderer
             }
         }
 
-        return output;
     }
 }

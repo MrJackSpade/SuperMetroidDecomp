@@ -20,6 +20,7 @@ public sealed class PlayableGameControl : UserControl
     private readonly ToolStripLabel statusLabel = HostToolbarLayout.CreateStatusLabel();
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 8 };
     private readonly Stopwatch playbackClock = new();
+    private readonly FrameTimingCounter frameTimings = new();
     private readonly HostKeyboardInputState keyboard = new();
     private readonly WindowsGamepadInput gamepad = new();
     private double pendingPlaybackFrames;
@@ -31,6 +32,7 @@ public sealed class PlayableGameControl : UserControl
     private DebuggerSaveStateStore stateStore = null!;
     private int replayFrameIndex;
     private ushort? displayedRoomPointer;
+    private FrameTimingSnapshot? latestFrameTiming;
 
     // The host's wall clock is intentionally separate from the translated frame counter.
     // A WinForms timer has millisecond granularity and does not promise an exact callback
@@ -132,6 +134,7 @@ public sealed class PlayableGameControl : UserControl
             canvas.Focus();
         };
         playbackTimer.Tick += (_, _) => AdvancePlaybackClock();
+        canvas.FramePainted += frameTimings.RecordPaint;
 
         // Keyboard messages are captured by ProcessKeyPreview below, above every child.
         // Keep the clear tied to the whole gameplay host rather than the canvas: moving
@@ -139,6 +142,9 @@ public sealed class PlayableGameControl : UserControl
         // a release, while Alt-Tab still cannot leave a direction latched indefinitely.
         Leave += (_, _) => keyboard.Clear();
 
+        // Establish a valid timestamp before Restart's reset frame can contribute a timing
+        // observation. Restart clears it again after that intentionally synchronous work.
+        ResetFrameTimings();
         Restart();
         SetPlaying(playing: true);
     }
@@ -191,6 +197,7 @@ public sealed class PlayableGameControl : UserControl
         FrontendFrame resetFrame = AdvanceOneFrame(forcedInput: replay is null ? (ushort)0 : null)
             ?? throw new InvalidDataException("Replay contains no reset frame.");
         RefreshFrame(resetFrame);
+        ResetFrameTimings();
         canvas.Focus();
     }
 
@@ -338,6 +345,7 @@ public sealed class PlayableGameControl : UserControl
         }
         try
         {
+            long frameStarted = Stopwatch.GetTimestamp();
             FrontendFrame frame = game.Step(input);
 
             // Apply every bank upload/port write before generating this NMI's samples.
@@ -349,6 +357,7 @@ public sealed class PlayableGameControl : UserControl
                 audioDevice.Submit(samples);
                 game.SetAudioAcknowledgements(audioEngine.ReadAcknowledgements());
             }
+            frameTimings.RecordEmulatedFrame(Stopwatch.GetTimestamp() - frameStarted);
             return frame;
         }
         catch (Exception frameException)
@@ -383,12 +392,16 @@ public sealed class PlayableGameControl : UserControl
         double elapsedSeconds = playbackClock.Elapsed.TotalSeconds;
         playbackClock.Restart();
 
+        double maximumCatchUpSeconds = MaximumCatchUpFrames / TargetFramesPerSecond;
+        frameTimings.RecordLateFrames(
+            Math.Max(0, elapsedSeconds - maximumCatchUpSeconds) * TargetFramesPerSecond);
+
         // A breakpoint, window drag, or suspended workstation must not cause hundreds of
         // invisible catch-up frames on resume. Four frames retain modest scheduler jitter
         // without making a debug pause alter several seconds of game state.
         elapsedSeconds = Math.Min(
             elapsedSeconds,
-            MaximumCatchUpFrames / TargetFramesPerSecond);
+            maximumCatchUpSeconds);
         pendingPlaybackFrames += elapsedSeconds * TargetFramesPerSecond;
 
         int framesToRun = Math.Min((int)pendingPlaybackFrames, MaximumCatchUpFrames);
@@ -417,6 +430,7 @@ public sealed class PlayableGameControl : UserControl
     {
         pendingPlaybackFrames = 0;
         playbackClock.Restart();
+        ResetFrameTimings();
         playbackTimer.Enabled = playing;
         if (!playing && audioDevice is not null)
             audioDevice.Reset();
@@ -424,15 +438,33 @@ public sealed class PlayableGameControl : UserControl
 
     private void RefreshFrame(FrontendFrame frame)
     {
-        canvas.ReplaceFrame(RgbaBitmap.Create(FrontendFrame.Width, FrontendFrame.Height, frame.Pixels));
+        canvas.ReplaceFrame(FrontendFrame.Width, FrontendFrame.Height, frame.Pixels);
         RefreshRoomIdentity();
-        statusLabel.Text =
+        if (frameTimings.TryTakeSnapshot(Stopwatch.GetTimestamp(), out FrameTimingSnapshot timing))
+            latestFrameTiming = timing;
+
+        string gameStatus =
             $"state ${((ushort)frame.GameState):X2} {frame.GameState}  |  {frame.Phase}  |  frame {frame.FrameNumber}" +
             (gamepad.DeviceName is null ? string.Empty : $"  |  pad: {gamepad.DeviceName}") +
             (replay is null
                 ? string.Empty
                 : $"  |  replay {replayFrameIndex}/{replay.ControllerInputs.Length}");
-        statusLabel.ToolTipText = statusLabel.Text;
+        string timingStatus = latestFrameTiming?.ToToolbarText() ??
+            "emu --.- | paint --.- | step --.-/--.- ms | late --.-";
+        statusLabel.Text = timingStatus;
+        statusLabel.ToolTipText = latestFrameTiming is FrameTimingSnapshot snapshot
+            ? $"{snapshot.ToDiagnosticText()}{Environment.NewLine}{gameStatus}"
+            : gameStatus;
+    }
+
+    /// <summary>
+    /// Discards statistics from startup, a debugger pause, or a state restore so the next
+    /// one-second sample describes continuous playback rather than time spent intentionally stopped.
+    /// </summary>
+    private void ResetFrameTimings()
+    {
+        latestFrameTiming = null;
+        frameTimings.Reset(Stopwatch.GetTimestamp());
     }
 
     /// <summary>

@@ -9,7 +9,10 @@ internal static class HostToolbarLayout
     // table-layout column and visibly shove the entire presented SNES picture to the right.
     // Reserve one stable status region instead. The complete diagnostic remains available
     // as the item's tooltip and on stdout; display text is clipped when it exceeds the box.
-    private const int StatusLabelWidth = 300;
+    // The timing string is deliberately complete at the default 900-pixel host width. It
+    // still has a fixed width, so neither changing rates nor a longer worst-frame value can
+    // recenter the canvas as the old auto-sized diagnostic label did.
+    private const int StatusLabelWidth = 390;
 
     public static ToolStripLabel CreateStatusLabel() => new()
     {

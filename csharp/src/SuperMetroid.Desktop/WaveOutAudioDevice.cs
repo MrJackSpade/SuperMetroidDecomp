@@ -1,31 +1,34 @@
+using System.Buffers;
+using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 
 namespace SuperMetroid.Desktop;
 
 /// <summary>Small bounded PCM queue over Windows' built-in waveOut device.</summary>
 /// <remarks>
-/// Six pinned one-frame buffers provide roughly 100 ms of scheduler/debugger tolerance.
-/// Filling all six is normal producer/consumer backpressure: the emulator waits for Windows
-/// to finish one buffer instead of dropping samples. Failure remains loud if the driver does
-/// not return any buffer within the bounded stall interval.
+/// Six pinned one-frame buffers provide roughly 100 ms of device tolerance. A bounded
+/// managed queue transfers pacing to one background worker so waveOut cannot block WinForms
+/// painting. Queue exhaustion and worker/device failure remain loud on the submitting thread.
 /// </remarks>
 internal sealed class WaveOutAudioDevice : IDisposable
 {
     private const uint WaveMapper = uint.MaxValue;
     private const uint HeaderDone = 0x0000_0001;
     private const uint MultimediaSuccess = 0;
-    private const int BufferCount = 6;
-    // Six buffers contain only 100 ms of audio. If none is returned for two full seconds,
-    // this is no longer ordinary pacing jitter: the selected Windows audio endpoint or its
-    // waveOut driver has stalled. Keep the timeout finite so "never drop audio" cannot turn
-    // a device failure into an unexplained permanent UI hang.
-    private const int BufferReturnTimeoutMilliseconds = 2_000;
-
-    private readonly BufferSlot[] slots;
+    private readonly BufferSlot[] slots = [];
     private readonly int volumePercent;
+    private readonly BlockingCollection<QueuedPcmFrame> pendingFrames = new(
+        WaveOutAudioPolicy.ManagedQueueCapacityFrames);
+    private readonly object deviceGate = new();
+    private readonly Thread submissionWorker = null!;
     private nint device;
     private int nextSlot;
+    private long queueGeneration;
+    private long enqueuedFrames;
+    private long completedFrames;
+    private ExceptionDispatchInfo? workerFailure;
     private bool disposed;
 
     public WaveOutAudioDevice(
@@ -57,9 +60,15 @@ internal sealed class WaveOutAudioDevice : IDisposable
 
         try
         {
-            slots = Enumerable.Range(0, BufferCount)
+            slots = Enumerable.Range(0, WaveOutAudioPolicy.HardwareBufferCount)
                 .Select(_ => new BufferSlot(samplesPerBuffer))
                 .ToArray();
+            submissionWorker = new Thread(ProcessPendingFrames)
+            {
+                IsBackground = true,
+                Name = "Super Metroid waveOut submission",
+            };
+            submissionWorker.Start();
         }
         catch (Exception allocationException)
         {
@@ -79,9 +88,71 @@ internal sealed class WaveOutAudioDevice : IDisposable
     public void Submit(ReadOnlySpan<short> samples)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
+        ThrowWorkerFailure();
         if (samples.Length != slots[0].Samples.Length)
             throw new ArgumentException("PCM block does not match the device buffer size.", nameof(samples));
 
+        short[] copy = ArrayPool<short>.Shared.Rent(samples.Length);
+        samples.CopyTo(copy);
+        var queued = new QueuedPcmFrame(
+            copy,
+            samples.Length,
+            Volatile.Read(ref queueGeneration));
+        if (pendingFrames.TryAdd(queued))
+        {
+            Interlocked.Increment(ref enqueuedFrames);
+            return;
+        }
+
+        ArrayPool<short>.Shared.Return(copy, clearArray: false);
+        ThrowWorkerFailure();
+        throw new InvalidOperationException(
+            $"waveOut worker queue still owns all " +
+            $"{WaveOutAudioPolicy.ManagedQueueCapacityFrames} managed PCM frames; " +
+            "refusing to drop the newest emulated audio frame silently.");
+    }
+
+    /// <summary>
+    /// Owns all normally paced waveOut calls. Any failure is captured with its original
+    /// stack and rethrown by the next UI-thread Submit, Reset, or Dispose operation.
+    /// </summary>
+    private void ProcessPendingFrames()
+    {
+        try
+        {
+            foreach (QueuedPcmFrame queued in pendingFrames.GetConsumingEnumerable())
+            {
+                try
+                {
+                    lock (deviceGate)
+                    {
+                        // Reset increments the generation before discarding queued audio.
+                        // A frame already removed by the worker must receive the same test
+                        // after acquiring the device gate or it could sound after Pause.
+                        if (queued.Generation == queueGeneration)
+                            SubmitToDevice(queued.Samples.AsSpan(0, queued.SampleCount));
+                    }
+                    Interlocked.Increment(ref completedFrames);
+                }
+                finally
+                {
+                    ArrayPool<short>.Shared.Return(queued.Samples, clearArray: false);
+                }
+            }
+        }
+        catch (Exception exception)
+        {
+            Volatile.Write(ref workerFailure, ExceptionDispatchInfo.Capture(exception));
+        }
+        finally
+        {
+            ReturnPendingFramesToPool();
+        }
+    }
+
+    /// <summary>Copies one queued block into the next native buffer and transfers ownership.</summary>
+    private void SubmitToDevice(ReadOnlySpan<short> samples)
+    {
         BufferSlot available = TakeAvailableSlot();
 
         if (available.Prepared)
@@ -119,10 +190,11 @@ internal sealed class WaveOutAudioDevice : IDisposable
             return available;
 
         // The translated game can produce several frames during one WinForms catch-up tick.
-        // Once the roughly 100-ms queue is full, waveOut becomes the authoritative real-time
-        // clock. Polling is deliberate here: WHDR_DONE is the ownership bit documented by
-        // waveOut, and a one-millisecond sleep avoids burning the UI thread while retaining
-        // much finer resolution than one 60-Hz emulated frame.
+        // Once the roughly 100-ms native queue is full, waveOut paces this worker alone;
+        // the WinForms producer continues through the bounded managed queue above. Polling
+        // is deliberate here: WHDR_DONE is the ownership bit documented by waveOut, and a
+        // one-millisecond sleep avoids burning a core while retaining much finer resolution
+        // than one 60-Hz emulated frame.
         Stopwatch timeout = Stopwatch.StartNew();
         do
         {
@@ -131,14 +203,15 @@ internal sealed class WaveOutAudioDevice : IDisposable
             if (available is not null)
                 return available;
         }
-        while (timeout.ElapsedMilliseconds < BufferReturnTimeoutMilliseconds);
+        while (timeout.ElapsedMilliseconds < WaveOutAudioPolicy.BufferReturnTimeoutMilliseconds);
 
         string headerFlags = string.Join(
             ", ",
             slots.Select((slot, index) => $"{index}:${slot.Flags:X8}"));
         throw new TimeoutException(
             $"waveOut did not return any of its {slots.Length} PCM buffers within " +
-            $"{BufferReturnTimeoutMilliseconds} ms (header flags: {headerFlags}).");
+            $"{WaveOutAudioPolicy.BufferReturnTimeoutMilliseconds} ms " +
+            $"(header flags: {headerFlags}).");
     }
 
     /// <summary>
@@ -161,6 +234,17 @@ internal sealed class WaveOutAudioDevice : IDisposable
     public void Reset()
     {
         ObjectDisposedException.ThrowIf(disposed, this);
+        ThrowWorkerFailure();
+        Interlocked.Increment(ref queueGeneration);
+        ReturnPendingFramesToPool();
+        lock (deviceGate)
+            ResetDeviceBuffers();
+        ThrowWorkerFailure();
+    }
+
+    /// <summary>Resets only native ownership; callers serialize this against the worker.</summary>
+    private void ResetDeviceBuffers()
+    {
         ThrowOnError(NativeMethods.Reset(device), "waveOutReset");
         foreach (BufferSlot slot in slots)
         {
@@ -182,30 +266,41 @@ internal sealed class WaveOutAudioDevice : IDisposable
         if (device != 0)
         {
             var failures = new List<Exception>();
-            RecordFailure(
-                failures,
-                NativeMethods.Reset(device),
-                "waveOutReset during disposal");
-            foreach (BufferSlot slot in slots)
+            Interlocked.Increment(ref queueGeneration);
+            ReturnPendingFramesToPool();
+            pendingFrames.CompleteAdding();
+            submissionWorker.Join();
+            if (Volatile.Read(ref workerFailure) is { } failure)
+                failures.Add(failure.SourceException);
+
+            lock (deviceGate)
             {
-                if (slot.Prepared)
+                RecordFailure(
+                    failures,
+                    NativeMethods.Reset(device),
+                    "waveOutReset during disposal");
+                foreach (BufferSlot slot in slots)
                 {
-                    RecordFailure(
-                        failures,
-                        NativeMethods.UnprepareHeader(device, slot.Header, WaveHeader.Size),
-                        "waveOutUnprepareHeader during disposal");
+                    if (slot.Prepared)
+                    {
+                        RecordFailure(
+                            failures,
+                            NativeMethods.UnprepareHeader(device, slot.Header, WaveHeader.Size),
+                            "waveOutUnprepareHeader during disposal");
+                    }
+                    try
+                    {
+                        slot.Dispose();
+                    }
+                    catch (Exception exception)
+                    {
+                        failures.Add(exception);
+                    }
                 }
-                try
-                {
-                    slot.Dispose();
-                }
-                catch (Exception exception)
-                {
-                    failures.Add(exception);
-                }
+                RecordFailure(failures, NativeMethods.Close(device), "waveOutClose");
+                device = 0;
             }
-            RecordFailure(failures, NativeMethods.Close(device), "waveOutClose");
-            device = 0;
+            pendingFrames.Dispose();
             if (failures.Count != 0)
             {
                 throw new AggregateException(
@@ -214,6 +309,39 @@ internal sealed class WaveOutAudioDevice : IDisposable
             }
         }
     }
+
+    /// <summary>
+    /// Test-only synchronization boundary proving that every accepted managed block reached
+    /// the waveOut worker. Normal gameplay never waits here; doing so would restore the UI
+    /// pacing defect this queue exists to remove.
+    /// </summary>
+    internal void WaitForPendingSubmissions()
+    {
+        long target = Volatile.Read(ref enqueuedFrames);
+        Stopwatch timeout = Stopwatch.StartNew();
+        while (Volatile.Read(ref completedFrames) < target)
+        {
+            ThrowWorkerFailure();
+            if (timeout.ElapsedMilliseconds >= WaveOutAudioPolicy.BufferReturnTimeoutMilliseconds)
+            {
+                throw new TimeoutException(
+                    $"waveOut worker completed {Volatile.Read(ref completedFrames)} of " +
+                    $"{target} accepted PCM frames within the bounded audit interval.");
+            }
+            Thread.Sleep(1);
+        }
+        ThrowWorkerFailure();
+    }
+
+    /// <summary>Returns queued pool arrays when Reset, failure, or disposal abandons them.</summary>
+    private void ReturnPendingFramesToPool()
+    {
+        while (pendingFrames.TryTake(out QueuedPcmFrame queued))
+            ArrayPool<short>.Shared.Return(queued.Samples, clearArray: false);
+    }
+
+    private void ThrowWorkerFailure() =>
+        Volatile.Read(ref workerFailure)?.Throw();
 
     private static void ThrowOnError(uint result, string operation)
     {
@@ -266,6 +394,11 @@ internal sealed class WaveOutAudioDevice : IDisposable
                 samplesHandle.Free();
         }
     }
+
+    private readonly record struct QueuedPcmFrame(
+        short[] Samples,
+        int SampleCount,
+        long Generation);
 
     [StructLayout(LayoutKind.Sequential)]
     private struct WaveFormat

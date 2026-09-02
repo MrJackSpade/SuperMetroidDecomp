@@ -15,10 +15,10 @@ public enum SnesTileFlipFlags : ushort
 /// <summary>A lossless view over one standard SNES background tilemap entry.</summary>
 public readonly record struct SnesBgTilemapWord(ushort Raw)
 {
-    private const ushort CharacterMask = 0x03ff;
-    private const int PaletteShift = 10;
-    private const ushort PaletteMask = 0x0007;
-    private const ushort PriorityMask = 0x2000;
+    internal const ushort CharacterMask = 0x03ff;
+    internal const int PaletteShift = 10;
+    internal const ushort PaletteMask = 0x0007;
+    internal const ushort PriorityMask = 0x2000;
     private const ushort FlipMask = 0xc000;
 
     public int CharacterIndex => Raw & CharacterMask;

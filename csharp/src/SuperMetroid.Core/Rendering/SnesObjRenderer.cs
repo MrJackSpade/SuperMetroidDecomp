@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using System.Runtime.CompilerServices;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -84,6 +85,7 @@ public static class SnesObjRenderer
     /// and lets the PPU compositor place that winner at the appropriate point in its BG
     /// ladder. Empty pixels retain <see cref="TransparentPriority"/>.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static ResolvedObjFrame RenderResolved(
         OamBuffer oam,
         SnesVram vram,
@@ -102,7 +104,50 @@ public static class SnesObjRenderer
 
         var pixels = new Rgba32[checked(width * height)];
         var priorities = new byte[pixels.Length];
-        Array.Fill(priorities, TransparentPriority);
+        RenderResolved(
+            oam,
+            vram,
+            cgram,
+            obsel,
+            pixels,
+            priorities,
+            width,
+            height);
+
+        return new ResolvedObjFrame(pixels, priorities, width, height);
+    }
+
+    /// <summary>
+    /// Resolves OAM into caller-owned scratch buffers. The gameplay compositor rents these
+    /// buffers because their contents live only until BG priority composition completes;
+    /// the allocating overload remains available to diagnostics which retain the raster.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public static void RenderResolved(
+        OamBuffer oam,
+        SnesVram vram,
+        SnesCgram cgram,
+        byte obsel,
+        Span<Rgba32> pixels,
+        Span<byte> priorities,
+        int width = 256,
+        int height = 224)
+    {
+        ArgumentNullException.ThrowIfNull(oam);
+        ArgumentNullException.ThrowIfNull(vram);
+        ArgumentNullException.ThrowIfNull(cgram);
+        if (width <= 0)
+            throw new ArgumentOutOfRangeException(nameof(width));
+        if (height <= 0)
+            throw new ArgumentOutOfRangeException(nameof(height));
+        int pixelCount = checked(width * height);
+        if (pixels.Length != pixelCount)
+            throw new ArgumentException("OBJ color scratch buffer has the wrong size.", nameof(pixels));
+        if (priorities.Length != pixelCount)
+            throw new ArgumentException("OBJ priority scratch buffer has the wrong size.", nameof(priorities));
+
+        pixels.Clear();
+        priorities.Fill(TransparentPriority);
 
         // As in Render, walking backwards makes each successively lower OAM number replace
         // the previous winner. Unlike a priority-filtered plane, the resolved buffer keeps
@@ -123,9 +168,9 @@ public static class SnesObjRenderer
                 priorities);
         }
 
-        return new ResolvedObjFrame(pixels, priorities, width, height);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void DrawSprite(
         Span<Rgba32> output,
         int frameWidth,

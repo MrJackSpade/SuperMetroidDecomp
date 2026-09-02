@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using System.Runtime.CompilerServices;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -49,6 +50,68 @@ public static class SnesMode7Renderer
             throw new ArgumentOutOfRangeException(nameof(height));
 
         var output = new Rgba32[checked(width * height)];
+        CompositeViewport(
+            output,
+            vram,
+            cgram,
+            matrixA,
+            matrixB,
+            matrixC,
+            matrixD,
+            centerX,
+            centerY,
+            horizontalOffset,
+            verticalOffset,
+            width,
+            height,
+            fillOutsideWithCharacterZero);
+        return output;
+    }
+
+    /// <summary>
+    /// Projects Mode 7 directly over caller-owned storage. Transparent samples leave the
+    /// existing destination intact, allowing the gameplay compositor to begin with its
+    /// backdrop and avoid a second full-frame raster plus copy.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public static void CompositeViewport(
+        Span<Rgba32> output,
+        SnesVram vram,
+        SnesCgram cgram,
+        short matrixA,
+        short matrixB,
+        short matrixC,
+        short matrixD,
+        short centerX,
+        short centerY,
+        short horizontalOffset,
+        short verticalOffset,
+        int width = 256,
+        int height = 224,
+        bool fillOutsideWithCharacterZero = false)
+    {
+        ArgumentNullException.ThrowIfNull(vram);
+        ArgumentNullException.ThrowIfNull(cgram);
+        if (width <= 0)
+            throw new ArgumentOutOfRangeException(nameof(width));
+        if (height <= 0)
+            throw new ArgumentOutOfRangeException(nameof(height));
+        if (output.Length != checked(width * height))
+        {
+            throw new ArgumentException(
+                "A Mode 7 destination must contain exactly width*height pixels.",
+                nameof(output));
+        }
+
+        // VRAM and CGRAM cannot change during a software scanout. Reading their backing
+        // spans once removes two bounds-checking method calls and one BGR555 conversion
+        // from every visible Mode 7 pixel, which is especially expensive under Debug JIT.
+        ReadOnlySpan<byte> vramBytes = vram.Bytes;
+        ReadOnlySpan<ushort> cgramWords = cgram.Colors;
+        Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
+        for (int color = 0; color < palette.Length; color++)
+            palette[color] = SnesGraphics.DecodeBgr555Color(cgramWords[color]);
+
         for (int screenY = 0; screenY < height; screenY++)
         {
             // The hardware transforms `(screen + scroll - center)`, then adds the center
@@ -75,18 +138,16 @@ public static class SnesMode7Renderer
                 int pixelY = wrappedY & 7;
                 int character = outside
                     ? 0
-                    : vram.ReadByte((((wrappedY >> 3) * MapWidthInTiles + (wrappedX >> 3)) * 2));
+                    : vramBytes[((wrappedY >> 3) * MapWidthInTiles + (wrappedX >> 3)) * 2];
 
                 // Each 8-bpp Mode 7 character consumes 64 VRAM words. Its color indexes
                 // occupy only their high bytes; low bytes at the same word addresses are
                 // part of the tile-number map and must never be interpreted as pixels.
                 int characterWord = character * CharacterWidth * CharacterWidth + pixelY * CharacterWidth + pixelX;
-                int colorIndex = vram.ReadByte(characterWord * 2 + 1);
+                int colorIndex = vramBytes[characterWord * 2 + 1];
                 if (colorIndex != 0)
-                    output[screenY * width + screenX] = cgram.GetRgba(colorIndex);
+                    output[screenY * width + screenX] = palette[colorIndex];
             }
         }
-
-        return output;
     }
 }

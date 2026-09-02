@@ -822,7 +822,7 @@ internal sealed class RuntimePreviewControl : UserControl
             runtime.Samus,
             camera.XPosition,
             camera.YPosition);
-        canvas.ReplaceFrame(RgbaBitmap.Create(FrameWidth, FrameHeight, pixels));
+        canvas.ReplaceFrame(FrameWidth, FrameHeight, pixels);
 
         EscapeTimer timer = runtime.EscapeTimer;
         string prospectivePose = runtime.ProspectiveSamusPose is SamusPoseTransition transition

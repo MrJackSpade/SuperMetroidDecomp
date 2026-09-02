@@ -1236,6 +1236,48 @@ if (args.Length >= 2 && args[0] == "--obj-render-benchmark")
     TimeSpan frameElapsed = System.Diagnostics.Stopwatch.GetElapsedTime(frameStarted);
     long frameAllocated = GC.GetAllocatedBytesForCurrentThread() - frameAllocatedBefore;
 
+    // Ceres' elevator shaft uses the separate Mode-7-plus-HUD/OBJ path. Measure it beside
+    // ordinary Mode 1 so a fast Ridley-room benchmark cannot conceal the exact slowdown a
+    // player sees immediately after leaving the frontend menus.
+    const short identityScale = 0x0100;
+    const short ceresShaftCenterX = 0x0080;
+    const short ceresShaftCenterY = 0x03f0;
+    SnesGameplayFrameRenderer.RenderHudMode7AndObjs(
+        benchmarkRuntime.Vram,
+        benchmarkRuntime.Cgram,
+        benchmarkRuntime.Oam,
+        identityScale,
+        matrixB: 0,
+        matrixC: 0,
+        matrixD: identityScale,
+        ceresShaftCenterX,
+        ceresShaftCenterY,
+        horizontalOffset: 0,
+        verticalOffset: 0);
+    GC.Collect();
+    GC.WaitForPendingFinalizers();
+    GC.Collect();
+    long mode7AllocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+    long mode7Started = System.Diagnostics.Stopwatch.GetTimestamp();
+    for (int iteration = 0; iteration < benchmarkIterations; iteration++)
+    {
+        Rgba32[] frame = SnesGameplayFrameRenderer.RenderHudMode7AndObjs(
+            benchmarkRuntime.Vram,
+            benchmarkRuntime.Cgram,
+            benchmarkRuntime.Oam,
+            identityScale,
+            matrixB: 0,
+            matrixC: 0,
+            matrixD: identityScale,
+            ceresShaftCenterX,
+            ceresShaftCenterY,
+            horizontalOffset: 0,
+            verticalOffset: 0);
+        benchmarkChecksum ^= frame[(iteration * 257) % frame.Length].A;
+    }
+    TimeSpan mode7Elapsed = System.Diagnostics.Stopwatch.GetElapsedTime(mode7Started);
+    long mode7Allocated = GC.GetAllocatedBytesForCurrentThread() - mode7AllocatedBefore;
+
     Console.WriteLine(
         $"OBJ raster benchmark ({benchmarkIterations} Ceres frames, " +
         $"{benchmarkRuntime.Oam.LastFinalizedSpriteCount} finalized sprites, " +
@@ -1253,6 +1295,10 @@ if (args.Length >= 2 && args[0] == "--obj-render-benchmark")
         $"  complete PPU frame: {frameElapsed.TotalMilliseconds / benchmarkIterations:F2} ms/frame, " +
         $"{benchmarkIterations / frameElapsed.TotalSeconds:F1} fps, " +
         $"{frameAllocated / 1024.0 / benchmarkIterations:F1} KiB/frame allocated.");
+    Console.WriteLine(
+        $"  Ceres Mode 7 frame: {mode7Elapsed.TotalMilliseconds / benchmarkIterations:F2} ms/frame, " +
+        $"{benchmarkIterations / mode7Elapsed.TotalSeconds:F1} fps, " +
+        $"{mode7Allocated / 1024.0 / benchmarkIterations:F1} KiB/frame allocated.");
     return 0;
 }
 

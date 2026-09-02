@@ -28,7 +28,7 @@ public static class WaveOutAudioSmokeTest
     public static WaveOutAudioSmokeTestResult Run(
         int buffersToSubmit = DefaultBuffersToSubmit)
     {
-        if (buffersToSubmit <= 6)
+        if (buffersToSubmit <= WaveOutAudioPolicy.HardwareBufferCount)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(buffersToSubmit),
@@ -45,6 +45,13 @@ public static class WaveOutAudioSmokeTest
         for (int index = 0; index < buffersToSubmit; index++)
             device.Submit(silence);
         elapsed.Stop();
+        if (elapsed.ElapsedMilliseconds >= 100)
+        {
+            throw new InvalidDataException(
+                $"Submitting {buffersToSubmit} PCM frames blocked the caller for " +
+                $"{elapsed.ElapsedMilliseconds} ms; waveOut pacing escaped its worker.");
+        }
+        device.WaitForPendingSubmissions();
 
         return new WaveOutAudioSmokeTestResult(buffersToSubmit, elapsed.Elapsed);
     }

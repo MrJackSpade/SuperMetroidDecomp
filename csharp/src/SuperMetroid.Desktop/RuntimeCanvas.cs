@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Drawing.Drawing2D;
 
 namespace SuperMetroid.Desktop;
@@ -6,6 +7,12 @@ namespace SuperMetroid.Desktop;
 public sealed class RuntimeCanvas : Control
 {
     private Bitmap? frame;
+
+    /// <summary>
+    /// Reports the local cost of a completed canvas paint. This measures WinForms scaling
+    /// and presentation separately from the translated game frame that produced the bitmap.
+    /// </summary>
+    public event Action<long>? FramePainted;
 
     public RuntimeCanvas()
     {
@@ -41,11 +48,31 @@ public sealed class RuntimeCanvas : Control
         Invalidate();
     }
 
+    /// <summary>
+    /// Copies a core raster into a persistent GDI surface. Gameplay frames never change
+    /// dimensions, so this avoids sixty Bitmap allocations and native disposals per second.
+    /// </summary>
+    public void ReplaceFrame(
+        int width,
+        int height,
+        ReadOnlySpan<SuperMetroid.Core.Assets.Rgba32> pixels)
+    {
+        if (frame is null || frame.Width != width || frame.Height != height)
+        {
+            frame?.Dispose();
+            frame = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        }
+        RgbaBitmap.CopyTo(frame, width, height, pixels);
+        Invalidate();
+    }
+
     protected override void OnPaint(PaintEventArgs e)
     {
         base.OnPaint(e);
         if (frame is null)
             return;
+
+        long paintStarted = Stopwatch.GetTimestamp();
 
         // The PPU framebuffer is 256x224, but the consumer display presents the complete
         // picture at 4:3. Treating those samples as square host pixels produces the visibly
@@ -73,6 +100,7 @@ public sealed class RuntimeCanvas : Control
             new Rectangle(drawX, drawY, drawWidth, drawHeight),
             new Rectangle(0, 0, frame.Width, frame.Height),
             GraphicsUnit.Pixel);
+        FramePainted?.Invoke(Stopwatch.GetTimestamp() - paintStarted);
     }
 
     /// <summary>

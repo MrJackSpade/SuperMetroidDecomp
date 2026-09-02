@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using System.Buffers;
+using System.Runtime.CompilerServices;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -217,37 +219,63 @@ public static class SnesGameplayFrameRenderer
         // Resolve OAM ownership once. Priority planes are a BG-compositor concern only;
         // decoding all 128 sprite records independently for each of the four planes was
         // both slower and easier to get subtly wrong at cross-priority overlaps.
-        ResolvedObjFrame objects = SnesObjRenderer.RenderResolved(
-            oam,
-            vram,
-            cgram,
-            obsel,
-            Width,
-            Height);
-        CompositeOrdinaryGameplayViewport(
-            output,
-            vram,
-            cgram,
-            objects,
-            bg1CharacterBaseWord,
-            bg2CharacterBaseWord,
-            bg1HorizontalScroll,
-            bg1VerticalScroll,
-            bg2HorizontalScroll,
-            bg2VerticalScroll,
-            bg2HorizontalScrollByLine,
-            bg2VerticalScrollByLine,
-            bg2TilemapWidthInTiles,
-            bg2TilemapHeightInTiles);
+        int pixelCount = Width * Height;
+        Rgba32[] rentedObjectPixels = ArrayPool<Rgba32>.Shared.Rent(pixelCount);
+        byte[] rentedObjectPriorities = ArrayPool<byte>.Shared.Rent(pixelCount);
+        try
+        {
+            Span<Rgba32> objectPixels = rentedObjectPixels.AsSpan(0, pixelCount);
+            Span<byte> objectPriorities = rentedObjectPriorities.AsSpan(0, pixelCount);
+            SnesObjRenderer.RenderResolved(
+                oam,
+                vram,
+                cgram,
+                obsel,
+                objectPixels,
+                objectPriorities,
+                Width,
+                Height);
+            CompositeOrdinaryGameplayViewport(
+                output,
+                vram,
+                cgram,
+                objectPixels,
+                objectPriorities,
+                bg1CharacterBaseWord,
+                bg2CharacterBaseWord,
+                bg1HorizontalScroll,
+                bg1VerticalScroll,
+                bg2HorizontalScroll,
+                bg2VerticalScroll,
+                bg2HorizontalScrollByLine,
+                bg2VerticalScrollByLine,
+                bg2TilemapWidthInTiles,
+                bg2TilemapHeightInTiles);
+        }
+        finally
+        {
+            // Every opaque object pixel is overwritten before use and transparency is
+            // governed by the parallel priority sentinel, so clearing these private render
+            // buffers during return would spend frame time without changing observability.
+            ArrayPool<Rgba32>.Shared.Return(rentedObjectPixels, clearArray: false);
+            ArrayPool<byte>.Shared.Return(rentedObjectPriorities, clearArray: false);
+        }
         DrawHud(output, vram, cgram);
         return output;
     }
 
+    // This pixel loop is deliberately optimized even in a Debug host. It is pure PPU
+    // projection rather than translated game logic, runs roughly 50,000 times per frame,
+    // and is not a useful breakpoint surface for ordinary gameplay debugging. Without the
+    // attribute, Debug JIT call/range-check overhead alone consumes most of the 16.67 ms
+    // video-frame budget.
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CompositeOrdinaryGameplayViewport(
         Span<Rgba32> output,
         SnesVram vram,
         SnesCgram cgram,
-        ResolvedObjFrame objects,
+        ReadOnlySpan<Rgba32> objectPixels,
+        ReadOnlySpan<byte> objectPriorities,
         ushort bg1CharacterBaseWord,
         ushort bg2CharacterBaseWord,
         ushort bg1HorizontalScroll,
@@ -259,13 +287,12 @@ public static class SnesGameplayFrameRenderer
         int bg2TilemapWidthInTiles,
         int bg2TilemapHeightInTiles)
     {
-        if (objects.Width != Width || objects.Height != Height ||
-            objects.Pixels.Length != output.Length ||
-            objects.Priorities.Length != output.Length)
+        if (objectPixels.Length != output.Length ||
+            objectPriorities.Length != output.Length)
         {
             throw new ArgumentException(
                 "A resolved gameplay OBJ raster must contain exactly 256x224 pixels.",
-                nameof(objects));
+                nameof(objectPixels));
         }
         if (bg2HorizontalScrollByLine is not null &&
             bg2HorizontalScrollByLine.Count < Height - HudHeight)
@@ -295,6 +322,14 @@ public static class SnesGameplayFrameRenderer
         // four OBJ insertions), repeating tilemap address arithmetic and moving temporary
         // RGBA planes through memory. Each candidate below receives its literal back-to-
         // front rank from BGMODE=$09; the largest opaque rank owns the final pixel.
+        // Snapshot the hardware arrays once and expand the tiny 256-color CGRAM table once
+        // per frame. Going through bounds-checking object methods and decoding BGR555 for
+        // both background candidates at every pixel dominated Debug-host frame time while
+        // producing the same immutable values throughout this render pass.
+        ReadOnlySpan<byte> vramBytes = vram.Bytes;
+        Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
+        ExpandCgram(cgram, palette);
+
         int bg2XMask = bg2TilemapWidthInTiles * 8 - 1;
         int bg2YMask = bg2TilemapHeightInTiles * 8 - 1;
         int bg2ScreensPerRow = bg2TilemapWidthInTiles >> 5;
@@ -343,13 +378,16 @@ public static class SnesGameplayFrameRenderer
                         (bg2ScreenRow * bg2ScreensPerRow + bg2ScreenColumn) * 0x0400 +
                         (bg2TileY & 31) * 32 +
                         (bg2TileX & 31)) & 0x7fff;
-                    bg2Entry = vram.ReadWord(bg2MapWord);
+                    int bg2MapByte = bg2MapWord * 2;
+                    bg2Entry = (ushort)(
+                        vramBytes[bg2MapByte] |
+                        (vramBytes[bg2MapByte + 1] << 8));
                     previousBg2TileX = bg2TileX;
                 }
 
                 if (TryDecodeOrdinaryGameplayBgPixel(
-                        vram,
-                        cgram,
+                        vramBytes,
+                        palette,
                         bg2Entry,
                         bg2CharacterBaseWord,
                         bg2ScrolledX & 7,
@@ -370,13 +408,16 @@ public static class SnesGameplayFrameRenderer
                         (bg1TileX >> 5) * 0x0400 +
                         bg1TileY * 32 +
                         (bg1TileX & 31)) & 0x7fff;
-                    bg1Entry = vram.ReadWord(bg1MapWord);
+                    int bg1MapByte = bg1MapWord * 2;
+                    bg1Entry = (ushort)(
+                        vramBytes[bg1MapByte] |
+                        (vramBytes[bg1MapByte + 1] << 8));
                     previousBg1TileX = bg1TileX;
                 }
 
                 if (TryDecodeOrdinaryGameplayBgPixel(
-                        vram,
-                        cgram,
+                        vramBytes,
+                        palette,
                         bg1Entry,
                         bg1CharacterBaseWord,
                         bg1ScrolledX & 7,
@@ -392,7 +433,7 @@ public static class SnesGameplayFrameRenderer
                     }
                 }
 
-                byte objPriority = objects.Priorities[destination];
+                byte objPriority = objectPriorities[destination];
                 if (objPriority != SnesObjRenderer.TransparentPriority)
                 {
                     int objRank = objPriority switch
@@ -405,7 +446,7 @@ public static class SnesGameplayFrameRenderer
                             $"Resolved OBJ priority {objPriority} is outside zero through three."),
                     };
                     if (objRank > winnerRank)
-                        winner = objects.Pixels[destination];
+                        winner = objectPixels[destination];
                 }
 
                 output[destination] = winner;
@@ -416,8 +457,8 @@ public static class SnesGameplayFrameRenderer
     [System.Runtime.CompilerServices.MethodImpl(
         System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
     private static bool TryDecodeOrdinaryGameplayBgPixel(
-        SnesVram vram,
-        SnesCgram cgram,
+        ReadOnlySpan<byte> vram,
+        ReadOnlySpan<Rgba32> palette,
         SnesBgTilemapWord entry,
         ushort characterBaseWord,
         int pixelX,
@@ -425,37 +466,59 @@ public static class SnesGameplayFrameRenderer
         out Rgba32 color,
         out bool highPriority)
     {
-        highPriority = entry.HasPriority;
+        ushort raw = entry.Raw;
+        highPriority = (raw & SnesBgTilemapWord.PriorityMask) != 0;
 
-        int sourceX = entry.FlipHorizontally ? 7 - pixelX : pixelX;
-        int sourceY = entry.FlipVertically ? 7 - pixelY : pixelY;
+        int sourceX = (raw & (ushort)SnesTileFlipFlags.Horizontal) != 0
+            ? 7 - pixelX
+            : pixelX;
+        int sourceY = (raw & (ushort)SnesTileFlipFlags.Vertical) != 0
+            ? 7 - pixelY
+            : pixelY;
         int characterByteAddress =
-            ((characterBaseWord + entry.CharacterIndex * 16) & 0x7fff) * 2;
+            ((characterBaseWord + (raw & SnesBgTilemapWord.CharacterMask) * 16) & 0x7fff) * 2;
         int mask = 1 << (7 - sourceX);
         int rowAddress = characterByteAddress + sourceY * 2;
-        int colorIndex = ((vram.ReadByte(rowAddress) & mask) != 0 ? 1 : 0)
-                       | ((vram.ReadByte(rowAddress + 1) & mask) != 0 ? 2 : 0)
-                       | ((vram.ReadByte(rowAddress + 16) & mask) != 0 ? 4 : 0)
-                       | ((vram.ReadByte(rowAddress + 17) & mask) != 0 ? 8 : 0);
+        int colorIndex = ((vram[rowAddress] & mask) != 0 ? 1 : 0)
+                       | ((vram[rowAddress + 1] & mask) != 0 ? 2 : 0)
+                       | ((vram[rowAddress + 16] & mask) != 0 ? 4 : 0)
+                       | ((vram[rowAddress + 17] & mask) != 0 ? 8 : 0);
         if (colorIndex == 0)
         {
             color = default;
             return false;
         }
 
-        color = cgram.GetRgba(entry.PaletteIndex * 16 + colorIndex);
+        int paletteIndex = (raw >> SnesBgTilemapWord.PaletteShift) &
+            SnesBgTilemapWord.PaletteMask;
+        color = palette[paletteIndex * 16 + colorIndex];
         return true;
+    }
+
+    /// <summary>
+    /// Expands one frame-stable CGRAM snapshot into directly indexable host colors. The
+    /// 256-entry conversion is substantially cheaper than decoding the same palette word
+    /// independently for tens of thousands of background pixels.
+    /// </summary>
+    private static void ExpandCgram(SnesCgram cgram, Span<Rgba32> destination)
+    {
+        if (destination.Length != SnesCgram.ColorCount)
+            throw new ArgumentException("Expanded CGRAM requires exactly 256 colors.", nameof(destination));
+
+        ReadOnlySpan<ushort> source = cgram.Colors;
+        for (int color = 0; color < destination.Length; color++)
+            destination[color] = SnesGraphics.DecodeBgr555Color(source[color]);
     }
 
     private static void DrawHud(Span<Rgba32> output, SnesVram vram, SnesCgram cgram)
     {
-        Rgba32[] hud = SnesBgTilemapRenderer.Render2Bpp(
+        SnesBgTilemapRenderer.Render2Bpp(
+            output[..(HudHeight * Width)],
             vram,
             cgram,
             tilemapBaseWord: 0x5800,
             characterBaseWord: 0x4000,
             rowCount: 4);
-        hud.CopyTo(output);
     }
 
     /// <summary>
@@ -483,7 +546,8 @@ public static class SnesGameplayFrameRenderer
         byte obsel = 0x03)
     {
         Rgba32[] output = CreateBackdrop(cgram);
-        Rgba32[] mode7 = SnesMode7Renderer.RenderViewport(
+        SnesMode7Renderer.CompositeViewport(
+            output,
             vram,
             cgram,
             matrixA,
@@ -498,13 +562,9 @@ public static class SnesGameplayFrameRenderer
             Height);
 
         // IRQ command four gives the upper 32 physical scanlines exclusively to BG3.
-        // Mode 7 continues to use physical screen coordinates below the split; cropping a
-        // separately rendered 192-line image would incorrectly restart its Y coordinate.
-        for (int pixel = HudHeight * Width; pixel < output.Length; pixel++)
-        {
-            if (mode7[pixel].A != 0)
-                output[pixel] = mode7[pixel];
-        }
+        // Mode 7 is projected at physical screen coordinates across the destination first;
+        // DrawHudAndObjects replaces its upper band with BG3 rather than cropping a separate
+        // 192-line transform whose Y coordinate would incorrectly restart at zero.
 
         DrawHudAndObjects(output, vram, cgram, oam, obsel);
         return output;
@@ -581,6 +641,9 @@ public static class SnesGameplayFrameRenderer
         // sixteen lines and TM=$12: BG2 plus sprites, with BG1 deliberately absent. Reuse
         // the ordinary Mode-1 pixel decoder but resolve only the surviving two layer types.
         // Their native back-to-front ranks are OBJ0, OBJ1, BG2-low, OBJ2, BG2-high, OBJ3.
+        ReadOnlySpan<byte> vramBytes = vram.Bytes;
+        Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
+        ExpandCgram(cgram, palette);
         for (int screenY = floorFirstScanline; screenY < Height; screenY++)
         {
             int scrolledY = unchecked(bg2VerticalScroll + screenY) & 0xff;
@@ -603,13 +666,14 @@ public static class SnesGameplayFrameRenderer
                         (tileX >> 5) * 0x0400 +
                         tileY * 32 +
                         (tileX & 31)) & 0x7fff;
-                    bg2Entry = vram.ReadWord(mapWord);
+                    int mapByte = mapWord * 2;
+                    bg2Entry = (ushort)(vramBytes[mapByte] | (vramBytes[mapByte + 1] << 8));
                     previousTileX = tileX;
                 }
 
                 if (TryDecodeOrdinaryGameplayBgPixel(
-                        vram,
-                        cgram,
+                        vramBytes,
+                        palette,
                         bg2Entry,
                         bg2CharacterBaseWord,
                         scrolledX & 7,
@@ -1144,23 +1208,36 @@ public static class SnesGameplayFrameRenderer
 
         // IRQ command 4 writes BG3SC=$5A and TM=$04 for scanlines 0-31. That exposes the
         // four HUD rows at tilemap word $5800 while disabling OBJ in the HUD band.
-        Rgba32[] hud = SnesBgTilemapRenderer.Render2Bpp(
-            vram,
-            cgram,
-            tilemapBaseWord: 0x5800,
-            characterBaseWord: 0x4000,
-            rowCount: 4);
-        hud.CopyTo(output, 0);
+        DrawHud(output, vram, cgram);
 
-        Rgba32[] objects = SnesObjRenderer.Render(oam, vram, cgram, obsel, Width, Height);
-        for (int pixel = HudHeight * Width; pixel < output.Length; pixel++)
+        int pixelCount = Width * Height;
+        Rgba32[] rentedObjectPixels = ArrayPool<Rgba32>.Shared.Rent(pixelCount);
+        byte[] rentedObjectPriorities = ArrayPool<byte>.Shared.Rent(pixelCount);
+        try
         {
-            // OBJ palette index zero was emitted as alpha zero. In the modeled gameplay
-            // region, any nonzero OBJ pixel sits above the not-yet-integrated room layers.
-            if (objects[pixel].A != 0)
-                output[pixel] = objects[pixel];
+            Span<Rgba32> objectPixels = rentedObjectPixels.AsSpan(0, pixelCount);
+            Span<byte> objectPriorities = rentedObjectPriorities.AsSpan(0, pixelCount);
+            SnesObjRenderer.RenderResolved(
+                oam,
+                vram,
+                cgram,
+                obsel,
+                objectPixels,
+                objectPriorities,
+                Width,
+                Height);
+            for (int pixel = HudHeight * Width; pixel < output.Length; pixel++)
+            {
+                // Every resolved OBJ priority is above Mode 7 in this PPU configuration.
+                if (objectPriorities[pixel] != SnesObjRenderer.TransparentPriority)
+                    output[pixel] = objectPixels[pixel];
+            }
         }
-
+        finally
+        {
+            ArrayPool<Rgba32>.Shared.Return(rentedObjectPixels, clearArray: false);
+            ArrayPool<byte>.Shared.Return(rentedObjectPriorities, clearArray: false);
+        }
     }
 
     /// <summary>One signed 8.8 direction vector reconstructed from `$91:C9D4`.</summary>

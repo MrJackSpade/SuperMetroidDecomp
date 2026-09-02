@@ -55,6 +55,22 @@ try
         return 0;
     }
 
+    if (args.Length != 0 &&
+        args[0].Equals("--frame-timing-audit", StringComparison.OrdinalIgnoreCase))
+    {
+        if (args.Length != 1)
+            throw new ArgumentException("--frame-timing-audit does not accept additional arguments.");
+        FrameTimingCounterSmokeTestResult result = FrameTimingCounterSmokeTest.Run();
+        RgbaBitmapSmokeTestResult bitmap = RgbaBitmapSmokeTest.Run();
+        Console.WriteLine(
+            $"Frame timing passed: emulation {result.EmulatedFramesPerSecond:F1} fps, " +
+            $"paint {result.PaintedFramesPerSecond:F1} fps, " +
+            $"step {result.AverageEmulationMilliseconds:F2}/{result.WorstEmulationMilliseconds:F2} ms, " +
+            $"late {result.LateFrames:F1}; persistent {bitmap.Width}x{bitmap.Height} " +
+            $"bitmap replacement preserved RGBA.");
+        return 0;
+    }
+
     if (args.Length != 0 && args[0].Equals("--state-audit", StringComparison.OrdinalIgnoreCase))
     {
         string[] stateRomArguments = args.Length == 2 ? [args[1]] : [];

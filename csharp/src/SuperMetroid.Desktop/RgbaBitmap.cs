@@ -1,4 +1,5 @@
 using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Desktop;
@@ -20,6 +21,44 @@ public static class RgbaBitmap
             throw new ArgumentException("Pixel count does not match dimensions.", nameof(pixels));
 
         var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+        try
+        {
+            CopyTo(bitmap, width, height, pixels);
+            return bitmap;
+        }
+        catch
+        {
+            bitmap.Dispose();
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Updates an existing GDI bitmap in place. The playable canvas owns one bitmap for its
+    /// lifetime instead of allocating and disposing a native GDI object on every video frame.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public static unsafe void CopyTo(
+        Bitmap bitmap,
+        int width,
+        int height,
+        ReadOnlySpan<Rgba32> pixels)
+    {
+        ArgumentNullException.ThrowIfNull(bitmap);
+        if (width <= 0)
+            throw new ArgumentOutOfRangeException(nameof(width));
+        if (height <= 0)
+            throw new ArgumentOutOfRangeException(nameof(height));
+        if (bitmap.Width != width || bitmap.Height != height ||
+            bitmap.PixelFormat != PixelFormat.Format32bppArgb)
+        {
+            throw new ArgumentException(
+                "Destination bitmap must be a matching 32-bpp ARGB raster.",
+                nameof(bitmap));
+        }
+        if (pixels.Length != checked(width * height))
+            throw new ArgumentException("Pixel count does not match dimensions.", nameof(pixels));
+
         var bounds = new Rectangle(0, 0, width, height);
         BitmapData data = bitmap.LockBits(bounds, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
         try
@@ -48,6 +87,5 @@ public static class RgbaBitmap
             bitmap.UnlockBits(data);
         }
 
-        return bitmap;
     }
 }

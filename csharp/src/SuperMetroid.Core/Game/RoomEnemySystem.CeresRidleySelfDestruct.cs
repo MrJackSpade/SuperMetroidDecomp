@@ -16,9 +16,9 @@ public sealed partial class RoomEnemySystem
     /// <summary>
     /// Ports the shared Ridley function at $A6:C04E for the Ceres branch. The phase word
     /// is the actor's native variable F: even values select the exact C062/C08E/C09F/C0BB/
-    /// C0F5/C104/C117 entries. English deliberately skips phases eight and ten because its
-    /// complete warning is already present in the transferred BG graphics; Japanese types
-    /// the cartridge byte stream into the room tilemap.
+    /// C0F5/C104/C117 entries. English skips only the language-specific phase eight and
+    /// enters phase ten to type the cartridge's three-line English warning. Japanese enters
+    /// phase eight first, installs its subtitle tilemap, and then uses the same typewriter.
     /// </summary>
     private void TickCeresRidleySelfDestruct(
         RidleyEnemyState state,
@@ -76,11 +76,13 @@ public sealed partial class RoomEnemySystem
                 state.CeresEscapeTextDelay = 0;
                 state.CeresEscapeTextSoundCounter = 0;
 
-                // Native English adds four and then two to phase six, landing directly
-                // on C117. Japanese adds only the final two and enters C0F5 instead.
-                state.FunctionTimer = JapaneseText ? (ushort)8 : (ushort)12;
-                if (!JapaneseText)
-                    goto case 12;
+                // `$A6:C0E3-$A6:C0F1` advances the even-byte dispatch index twice for
+                // English before executing the common final increment: 6 -> 8 -> 10.
+                // Japanese skips the first increment and reaches phase 8. The previous
+                // translation incorrectly counted the two INC instructions as four phase
+                // entries and jumped English directly to phase 12, suppressing every
+                // character below "EMERGENCY".
+                state.FunctionTimer = JapaneseText ? (ushort)8 : (ushort)10;
                 return;
 
             case 8:
@@ -92,13 +94,13 @@ public sealed partial class RoomEnemySystem
                     state.FunctionTimer = 10;
                     QueueCeresTransferList(CeresJapaneseTextTransferList, vramWriteQueue);
                 }
-                if (StepCeresJapaneseTypewriter(state))
+                if (StepCeresEscapeTypewriter(state))
                     state.FunctionTimer = unchecked((ushort)(state.FunctionTimer + 2));
                 return;
 
             case 10:
                 UpdateCeresSelfDestructPalette(state, _slots[0].FrameCounter);
-                if (StepCeresJapaneseTypewriter(state))
+                if (StepCeresEscapeTypewriter(state))
                     state.FunctionTimer = 12;
                 return;
 
@@ -174,7 +176,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the byte-oriented command stream consumed by $A6:C2A7.</summary>
-    private bool StepCeresJapaneseTypewriter(RidleyEnemyState state)
+    private bool StepCeresEscapeTypewriter(RidleyEnemyState state)
     {
         if (state.CeresEscapeTextDelayTimer != 0)
         {

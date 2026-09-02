@@ -117,20 +117,7 @@ public sealed class DoorTransitionState
                 // door_transition_flag bit $8000. The host room constructor performs that
                 // setup atomically; its following calls now run the real coordinate path.
                 fadedSourcePalette = runtime.Cgram.Colors.ToArray();
-                runtime.LoadPendingDoorDestination();
-
-                // `$82:E737` will later animate enemies while fading in. Build one coherent
-                // destination OAM/VRAM publication now; it remains hidden by the fully dark
-                // palette during the opening-scroll wait and prevents source-room OAM from
-                // appearing against destination graphics on the first visible frame.
-                runtime.StepFrame(controller1Input: 0, advanceGameTime: false);
-
-                // StepFrame accepts the NMI that displayed the previous build and then
-                // finalizes the destination build. Accept the cartridge coroutine's next
-                // NMI here so OAM, scroll registers, Mode 7, and room FX cross the PPU seam
-                // together before ActiveRoom is observable to the renderer. Omitting this
-                // publication exposed one stale source-room Samus frame over the new room.
-                runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+                runtime.LoadPendingDoorDestinationForTransition();
                 ushort[] destinationTarget = runtime.Cgram.Colors.ToArray();
                 RestorePalette(runtime.Cgram, fadedSourcePalette);
                 runtime.BeginDoorOpeningScroll(
@@ -175,6 +162,16 @@ public sealed class DoorTransitionState
                 // and music queue are both complete. The atomic loader computed that exact
                 // endpoint, which is restored here rather than during the visible scroll.
                 runtime.FinishDoorOpeningScroll();
+
+                // `$82:E737` begins running enemy/draw owners only after the incremental
+                // door IRQ has replaced the complete viewport. The previous implementation
+                // called the full gameplay frame immediately after room construction; its
+                // ordinary camera streamer wrote extra destination columns before the first
+                // IRQ step and visibly corrupted both horizontal door directions. Build and
+                // publish the destination OAM now, while the palette is still black, so the
+                // first fade-in frame cannot expose stale source-room objects.
+                runtime.StepFrame(controller1Input: 0, advanceGameTime: false);
+                runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
                 Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 break;
 

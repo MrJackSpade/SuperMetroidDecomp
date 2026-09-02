@@ -1290,6 +1290,11 @@ public sealed partial class SuperMetroidRuntime
                     accepted.Value);
                 if (saving)
                 {
+                    RoomLevelData level = LevelData ?? throw new InvalidOperationException(
+                        "Accepted save station has no active room level data.");
+                    Enemies.SpawnSaveStationElectricity(
+                        saveStation.BlockIndex,
+                        level.WidthInBlocks);
                     System.MarkSaveStationUsed(
                         saveStation.AreaIndex,
                         saveStation.StationIndex & 7);
@@ -2020,7 +2025,8 @@ public sealed partial class SuperMetroidRuntime
                         _addressSpace,
                         LevelData,
                         Samus,
-                        NmiFrameCounter);
+                        NmiFrameCounter,
+                        Plms);
                 }
                 // Special command three replaces both movement and pose-input handlers.
                 // Preserve the current ball pose/animation and ignore any transition that
@@ -2242,11 +2248,16 @@ public sealed partial class SuperMetroidRuntime
                     case SamusState.MoonwalkTurnJumpAimUpRightPose:
                     case SamusState.MoonwalkTurnJumpAimDownLeftPose:
                     case SamusState.MoonwalkTurnJumpAimDownRightPose:
-                        // Most type-$17` crouched turns are grounded, but the native
-                        // `$90:A790` dispatcher does not assume that. A live displacement or
-                        // actor can give the same pose nonzero Y direction, in which case it
-                        // executes the ordinary turning-in-air path for this frame.
-                        if (Samus.Kinematics.YDirection == 0)
+                        // `$90:A337` dispatches strictly through the pose definition's
+                        // movement-type byte. Y direction is data consumed by the selected
+                        // handler, never a replacement dispatcher. In particular, crouched
+                        // turn `$44` can retain downward direction while its type remains
+                        // `$0E`; treating that word as type `$17` sent it into A790 and
+                        // produced the live replay crash from issue 58.
+                        SamusMovementType turnMovementType = Samus.ReadMovementKind(_addressSpace);
+                        if (turnMovementType == SamusMovementType.TurningOnGround ||
+                            (turnMovementType == SamusMovementType.TurningWhileJumping &&
+                             Samus.Kinematics.YDirection == 0))
                         {
                             LastGroundedSamusMovement = SamusGroundedMovement.StepTurningOnGround(
                                 _addressSpace,
@@ -2255,7 +2266,9 @@ public sealed partial class SuperMetroidRuntime
                                 NmiFrameCounter,
                                 Plms);
                         }
-                        else
+                        else if (turnMovementType is
+                            SamusMovementType.TurningWhileJumping or
+                            SamusMovementType.TurningWhileFalling)
                         {
                             LastAerialSamusMovement = SamusAerialMovement.StepTurningInAir(
                                 _addressSpace,
@@ -2263,6 +2276,12 @@ public sealed partial class SuperMetroidRuntime
                                 Samus,
                                 NmiFrameCounter,
                                 Plms);
+                        }
+                        else
+                        {
+                            throw new InvalidDataException(
+                                $"Turn pose ${Samus.Pose:X2} has unsupported movement type " +
+                                $"${(byte)turnMovementType:X2}.");
                         }
                         break;
                     case SamusState.NormalLandingRightPose:
@@ -2441,7 +2460,8 @@ public sealed partial class SuperMetroidRuntime
                             _addressSpace,
                             LevelData,
                             Samus,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                         break;
                     case SamusState.KnockbackRightPose:
                     case SamusState.KnockbackLeftPose:
@@ -2476,7 +2496,8 @@ public sealed partial class SuperMetroidRuntime
                             _addressSpace,
                             LevelData,
                             Samus,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                         break;
                     case SamusState.MorphingTransitionRightPose:
                     case SamusState.MorphingTransitionLeftPose:
@@ -2699,7 +2720,7 @@ public sealed partial class SuperMetroidRuntime
                 {
                     if (station.Kind == StationKind.Save)
                     {
-                        if (station.MessageBoxIndex == 0x17)
+                        if (station.MessageBoxIndex == GameplayMessageIds.SaveConfirmation)
                         {
                             if (_pendingSaveStation is not null ||
                                 _pendingSaveStationCompletion is not null ||
@@ -2709,10 +2730,12 @@ public sealed partial class SuperMetroidRuntime
                                     "A save station attempted to replace an active PLM message owner.");
                             }
                             _pendingSaveStation = station;
-                            MessageBox.Begin(_addressSpace, 0x17);
+                            MessageBox.Begin(
+                                _addressSpace,
+                                GameplayMessageIds.SaveConfirmation);
                             continue;
                         }
-                        if (station.MessageBoxIndex == 0x18)
+                        if (station.MessageBoxIndex == GameplayMessageIds.SaveCompleted)
                         {
                             if (_pendingSaveStation is not null ||
                                 _pendingSaveStationCompletion is not null ||
@@ -2722,7 +2745,7 @@ public sealed partial class SuperMetroidRuntime
                                     "A completed save station attempted to replace an active message owner.");
                             }
                             _pendingSaveStationCompletion = station;
-                            MessageBox.Begin(_addressSpace, 0x18);
+                            MessageBox.Begin(_addressSpace, GameplayMessageIds.SaveCompleted);
                             continue;
                         }
                         throw new InvalidDataException(
@@ -3967,6 +3990,8 @@ public sealed partial class SuperMetroidRuntime
             DisplayedOam.CopyFinalizedFrom(Oam);
             DisplayedSamusMode7Transform = ActiveSamusMode7Transform;
             DisplayedGameplayPpu = new GameplayPpuRenderSnapshot(
+                BackgroundScroll.Layer1XPosition,
+                BackgroundScroll.Layer1YPosition,
                 BackgroundScroll.Bg1HorizontalScroll,
                 BackgroundScroll.Bg1VerticalScroll,
                 BackgroundScroll.Bg2HorizontalScroll,
@@ -4115,6 +4140,8 @@ public sealed partial class SuperMetroidRuntime
 /// PPU register values that were made visible together by one accepted gameplay NMI.
 /// </summary>
 public readonly record struct GameplayPpuRenderSnapshot(
+    ushort Layer1XPosition,
+    ushort Layer1YPosition,
     ushort Bg1HorizontalScroll,
     ushort Bg1VerticalScroll,
     ushort Bg2HorizontalScroll,

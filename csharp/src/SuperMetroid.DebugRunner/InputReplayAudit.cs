@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using Audio = SuperMetroid.Core.Audio;
 
 /// <summary>
 /// Headless consumer for desktop <c>.smrec</c> files. It drives the same public frontend
@@ -20,7 +21,10 @@ internal static class InputReplayAudit
     // input and every movement-state field involved in a lock.
     private const int RetainedTailFrames = 60;
 
-    public static int Run(string recordingPath, string romPath)
+    public static int Run(
+        string recordingPath,
+        string romPath,
+        bool enforcePlatformCrossingInvariant = false)
     {
         ControllerInputRecording recording = ControllerInputRecording.Read(recordingPath);
         PrintInputRuns(recording.ControllerInputs, startFrame: 5400);
@@ -34,10 +38,13 @@ internal static class InputReplayAudit
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
+        var apuPortEchoes = new byte[4];
         var tail = new Queue<ReplayFrameState>(RetainedTailFrames);
         ushort? previousRoom = null;
         ushort previousCeresStatus = ushort.MaxValue;
         bool previousEjection = false;
+        int previousPlmCount = -1;
+        int previousScrollPlmCount = -1;
         SuperMetroidRuntime? lastRuntime = null;
 
         for (int index = 0; index < recording.ControllerInputs.Length; index++)
@@ -51,7 +58,35 @@ internal static class InputReplayAudit
             ushort xRadiusBeforeStep = samusBeforeStep?.Kinematics.XRadius ?? 0;
             ushort yRadiusBeforeStep = samusBeforeStep?.Kinematics.YRadius ?? 0;
             byte? poseBeforeStep = samusBeforeStep?.Pose;
-            FrontendFrame frontend = game.Step(input);
+            FrontendFrame frontend;
+            try
+            {
+                frontend = game.Step(input);
+            }
+            catch (Exception exception)
+            {
+                throw new InvalidDataException(
+                    $"Replay failed on exact recorded frame {index}: state=" +
+                    $"${(ushort)game.GameState:X2}, room=$8F:{roomBeforeStep.GetValueOrDefault():X4}, " +
+                    $"input=${input:X4}, latched=${runtimeBeforeStep?.Controller1.Current ?? 0:X4}/" +
+                    $"${runtimeBeforeStep?.Controller1.NewlyPressed ?? 0:X4}, pose=" +
+                    $"${poseBeforeStep.GetValueOrDefault():X2}, movement=" +
+                    $"${samusBeforeStep?.ReadMovementType(bus) ?? 0:X2}, " +
+                    $"xy=(${xBeforeStep:X4},${yBeforeStep:X4}), " +
+                    $"y-direction=${samusBeforeStep?.Kinematics.YDirection ?? 0:X4}, " +
+                    $"y-speed=${samusBeforeStep?.Kinematics.YSpeed ?? 0:X4}. ",
+                    exception);
+            }
+            foreach (Audio.CartridgeAudioCommand command in frontend.AudioCommands)
+            {
+                if (command.Kind == Audio.CartridgeAudioCommandKind.WritePort)
+                    apuPortEchoes[command.Port] = command.Value;
+            }
+            game.SetAudioAcknowledgements(new Audio.CartridgeAudioAcknowledgements(
+                apuPortEchoes[0],
+                apuPortEchoes[1],
+                apuPortEchoes[2],
+                apuPortEchoes[3]));
             SuperMetroidRuntime? runtime = game.RuntimeForVerification;
             lastRuntime = runtime;
             SamusState? samus = runtime?.Samus;
@@ -59,6 +94,8 @@ internal static class InputReplayAudit
             ushort? room = runtime?.ActiveRoom?.Pointer;
             ushort ceresStatus = runtime?.Enemies.CeresStatus ?? 0;
             bool ejection = samus?.CeresRidleyEjection.IsActive ?? false;
+            int plmCount = runtime?.Plms.ActiveCount ?? 0;
+            int scrollPlmCount = runtime?.Plms.ScrollPlms.Count ?? 0;
 
             // A repeated player report says a downward jump/fall can cross a platform in
             // live Zebes gameplay even though the earlier scripted Climb route landed.
@@ -66,7 +103,8 @@ internal static class InputReplayAudit
             // screen-space wrapping can disguise it. Types $8/$C/$E all enter the solid
             // vertical branch in `$94:959E/$95F5`; crossing their top edge without a room
             // transition is therefore never a legal cartridge result.
-            if (runtimeBeforeStep is not null && ReferenceEquals(runtimeBeforeStep, runtime) &&
+            if (enforcePlatformCrossingInvariant &&
+                runtimeBeforeStep is not null && ReferenceEquals(runtimeBeforeStep, runtime) &&
                 samusBeforeStep is not null && samus is not null &&
                 roomBeforeStep == room && runtime?.LevelData is RoomLevelData level &&
                 samus.YPosition > yBeforeStep)
@@ -133,9 +171,17 @@ internal static class InputReplayAudit
 
             if (room != previousRoom || ceresStatus != previousCeresStatus || ejection != previousEjection)
                 Console.WriteLine(state.Format());
+            if (plmCount != previousPlmCount || scrollPlmCount != previousScrollPlmCount)
+            {
+                Console.WriteLine(
+                    $"rec={index,6} PLMs active={plmCount}, scroll={scrollPlmCount}, " +
+                    $"origins=[{string.Join(',', runtime?.Plms.ScrollPlms.Select(x => x.BlockIndex) ?? [])}]");
+            }
             previousRoom = room;
             previousCeresStatus = ceresStatus;
             previousEjection = ejection;
+            previousPlmCount = plmCount;
+            previousScrollPlmCount = scrollPlmCount;
         }
 
         Console.WriteLine($"Replay completed {recording.ControllerInputs.Length} recorded calls. Tail:");

@@ -22,7 +22,8 @@ public static class SamusPostureMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         Validate(bus, level, samus);
         if (!SamusState.IsRightFacingCrouchingPose(samus.Pose) &&
@@ -36,7 +37,8 @@ public static class SamusPostureMovement
             bus,
             level,
             samus,
-            nmiFrameCounter);
+            nmiFrameCounter,
+            plms);
 
         // $90:A57C-$90:A588 performs this cleanup after both collision passes. It is not
         // inferred from being stationary; these are literal observable WRAM writes.
@@ -52,7 +54,8 @@ public static class SamusPostureMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         Validate(bus, level, samus);
         if (!SamusState.IsCrouchStandTransitionPose(samus.Pose))
@@ -64,14 +67,15 @@ public static class SamusPostureMovement
         // All four corresponding entries in $90:A659 are RTS. Unlike movement type five,
         // the wrapper does not clear stored base momentum after moving. That distinction is
         // retained even though ordinary stand/crouch input reaches this code at zero speed.
-        return MoveWithZeroBaseSpeed(bus, level, samus, nmiFrameCounter);
+        return MoveWithZeroBaseSpeed(bus, level, samus, nmiFrameCounter, plms);
     }
 
     private static GroundedMovementResult MoveWithZeroBaseSpeed(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
@@ -90,7 +94,8 @@ public static class SamusPostureMovement
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal);
+            requestedHorizontal,
+            plms: plms);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -104,7 +109,8 @@ public static class SamusPostureMovement
             level,
             samus.Kinematics,
             displacement: verticalDisplacement,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+            scanLeftToRight: (nmiFrameCounter & 1) == 0,
+            plms: plms);
         return new GroundedMovementResult(horizontal, vertical);
     }
 

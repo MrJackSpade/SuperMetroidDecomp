@@ -566,9 +566,10 @@ public sealed partial class RoomPlmSystem
                 station.SavePhase = SaveStationPhase.AwaitingCompletionMessageClose;
                 _stationActivationEvents.Add(new StationActivationEvent(
                     StationKind.Save,
-                    0x18,
+                    GameplayMessageIds.SaveCompleted,
                     station.AreaIndex,
-                    slot.RoomArgument));
+                    slot.RoomArgument,
+                    slot.BlockIndex));
             }
         }
         return true;
@@ -581,10 +582,10 @@ public sealed partial class RoomPlmSystem
     {
         int message = station.Kind switch
         {
-            StationKind.Map => 0x14,
-            StationKind.Energy => 0x15,
-            StationKind.Missile => 0x16,
-            StationKind.Save => 0x17,
+            StationKind.Map => GameplayMessageIds.MapDataAccessCompleted,
+            StationKind.Energy => GameplayMessageIds.EnergyRechargeCompleted,
+            StationKind.Missile => GameplayMessageIds.MissileRechargeCompleted,
+            StationKind.Save => GameplayMessageIds.SaveConfirmation,
             _ => throw new InvalidDataException($"Unknown station kind {station.Kind}."),
         };
 
@@ -614,7 +615,8 @@ public sealed partial class RoomPlmSystem
             station.Kind,
             message,
             station.AreaIndex,
-            slot.RoomArgument));
+            slot.RoomArgument,
+            slot.BlockIndex));
     }
 
     private void DrawStationAccess(
@@ -705,7 +707,8 @@ public readonly record struct StationActivationEvent(
     StationKind Kind,
     int MessageBoxIndex,
     byte AreaIndex,
-    ushort StationIndex);
+    ushort StationIndex,
+    int BlockIndex);
 
 public readonly record struct StationPlmSnapshot(
     int NativeSlotIndex,

@@ -9,11 +9,17 @@ public static class RoomHeaderPointers
     /// <summary>Parlor and Alcatraz at $8F:92FD.</summary>
     public const ushort ParlorAndAlcatraz = 0x92fd;
 
+    /// <summary>Crateria save station at $8F:93D5.</summary>
+    public const ushort CrateriaSaveStation = 0x93d5;
+
     /// <summary>Climb at $8F:96BA.</summary>
     public const ushort Climb = 0x96ba;
 
     /// <summary>Pit Room at $8F:975C.</summary>
     public const ushort PitRoom = 0x975c;
+
+    /// <summary>Blue Brinstar elevator room at $8F:97B5.</summary>
+    public const ushort BlueBrinstarElevatorRoom = 0x97b5;
 
     /// <summary>Bomb Torizo Room at $8F:9804.</summary>
     public const ushort BombTorizoRoom = 0x9804;
@@ -26,6 +32,9 @@ public static class RoomHeaderPointers
 
     /// <summary>Construction Zone at $8F:9F11.</summary>
     public const ushort ConstructionZone = 0x9f11;
+
+    /// <summary>First Missile Room at $8F:A107.</summary>
+    public const ushort FirstMissileRoom = 0xa107;
 
     /// <summary>Blue Brinstar Energy Tank Room at $8F:9F64.</summary>
     public const ushort BlueBrinstarEnergyTankRoom = 0x9f64;

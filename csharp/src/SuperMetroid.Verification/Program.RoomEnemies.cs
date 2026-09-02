@@ -753,6 +753,7 @@ static void VerifyCeresRidleyRoomEntry()
     WriteWord(bus, 0xb09202, 0x5678);
     WriteWord(bus, 0xb09204, 0x9abc);
     WriteWord(bus, 0xb09206, 0xdef0);
+    WriteCeresEnglishEscapeWarning(bus);
     for (int paletteFrame = 0; paletteFrame < 16; paletteFrame++)
     {
         for (int color = 0; color < 3; color++)
@@ -1063,8 +1064,27 @@ static void VerifyCeresRidleyRoomEntry()
             $"Ceres escape does not publish early on hold frame {frame}");
     }
     enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+    AssertTrue(!enemies.CeresEscapeStartedThisFrame,
+        "Ceres escape does not skip the English warning after its 128-frame title hold");
+    AssertEqual(10, state.FunctionTimer,
+        "Ceres English warning enters the native typewriter phase");
+
+    int typewriterFrames = 0;
+    while (!enemies.CeresEscapeStartedThisFrame && typewriterFrames < 512)
+    {
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+        typewriterFrames++;
+    }
     AssertTrue(enemies.CeresEscapeStartedThisFrame,
-        "Ceres escape publishes on the 128th English hold frame");
+        "Ceres escape starts only after the complete English warning is typed");
+    AssertTrue(typewriterFrames > 128,
+        "Ceres English warning remains visible long enough to type all three lines");
+    AssertEqual(0x3594, vram.ReadWord(0x5105),
+        "Ceres warning renders the S in SELF from the cartridge typewriter alphabet");
+    AssertEqual(0x3582, vram.ReadWord(0x5145),
+        "Ceres warning renders the A in ACTIVATED on its second line");
+    AssertEqual(0x3584, vram.ReadWord(0x5185),
+        "Ceres warning renders the C in COLONY on its third line");
     AssertEqual(2, enemies.CeresStatus,
         "Ceres escape publishes status two for door destruction");
     AssertEqual((ushort)RidleyAiFunction.CeresSelfDestructPaletteOnly, (ushort)state.Function,
@@ -1073,6 +1093,41 @@ static void VerifyCeresRidleyRoomEntry()
     Console.WriteLine(
         "  Ceres Ridley: reveal, liftoff, real beam impacts, 100-hit battle exit, " +
         "retreat, Mode 7, warning DMA, and timed escape handoff agree.");
+}
+
+/// <summary>
+/// Installs the exact USA/Japan-English typewriter program from <c>$A6:C450</c>. Keeping
+/// all three destination commands in the fixture catches the former phase-six-to-twelve
+/// jump, which rendered only EMERGENCY and never touched any of these tilemap rows.
+/// </summary>
+static void WriteCeresEnglishEscapeWarning(TestAddressSpace bus)
+{
+    int cursor = 0xa6c450;
+
+    void Word(ushort value)
+    {
+        WriteWord(bus, cursor, value);
+        cursor += 2;
+    }
+
+    void Text(string value)
+    {
+        foreach (char character in value)
+            bus.WriteByte(cursor++, checked((byte)character));
+    }
+
+    Word(1);
+    Word(2);
+    Word(13);
+    Word(0x5105);
+    Text("SELF DESTRUCT SEQUENCE");
+    Word(13);
+    Word(0x5145);
+    Text("ACTIVATED EVACUATE");
+    Word(13);
+    Word(0x5185);
+    Text("COLONY IMMEDIATELY");
+    Word(0);
 }
 
 /// <summary>Writes one complete fixture header while keeping pointer-bearing fields valid.</summary>

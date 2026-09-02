@@ -227,6 +227,7 @@ internal static partial class EarlyControllerRouteAudit
         // The room's event/item state selector deliberately chooses $97E0 on the upward
         // trip after Morph Ball and the first Missile; $97C6 is only the initial descent.
         AssertRoom(runtime, 0x97b5, 0x97e0, "Elevator return");
+        AssertAscendingElevatorArrivalStartsAttached(runtime);
         DriveResult elevatorReturn = DriveUntilDoor(
             bus,
             runtime,
@@ -259,6 +260,7 @@ internal static partial class EarlyControllerRouteAudit
         // intentionally independent of Bomb Torizo's later area-boss bit: merely passing
         // through the quota gate must already have changed the global room-state branch.
         AssertRoom(runtime, 0x92fd, 0x932e, "Parlor return");
+        AssertSouthParlorEntryAcceptsHorizontalMovement(runtime, host);
         Console.WriteLine(
             $"  Reloaded Parlor PLMs: active={runtime.Plms.ActiveCount}, " +
             $"scrolls=[{string.Join(' ', runtime.Plms.ScrollPlms.Select(scroll => $"{scroll.BlockIndex}/{scroll.DataPointer:X4}"))}], " +
@@ -5019,6 +5021,64 @@ internal static partial class EarlyControllerRouteAudit
                 $"layer1=${runtime.BackgroundScroll.Layer1YPosition:X4}, " +
                 $"BG1VOFS=${runtime.BackgroundScroll.Bg1VerticalScroll:X4}, " +
                 $"offset=${runtime.BackgroundScroll.Bg1YOffset:X4}.");
+        }
+    }
+
+    /// <summary>
+    /// Reproduces the first loaded frame of the upward Blue Brinstar elevator journey.
+    /// The destination actor's native initializer moves itself to parameter 2 and attaches
+    /// Samus before the room becomes visible. A later generic door-placement write must not
+    /// separate them; doing so produces the repeatedly reported one-row-low arrival/camera.
+    /// </summary>
+    private static void AssertAscendingElevatorArrivalStartsAttached(
+        SuperMetroidRuntime runtime)
+    {
+        SamusState samus = runtime.Samus ?? throw new InvalidDataException(
+            "Ascending elevator destination loaded without Samus.");
+        RoomEnemySlot elevator = runtime.Enemies.Slots.FirstOrDefault(slot =>
+            slot.EnemyDefinitionPointer == RoomEnemySystem.ElevatorDefinition)
+            ?? throw new InvalidDataException(
+                "Ascending elevator destination loaded without enemy $D73F.");
+        ushort expectedSamusY = unchecked((ushort)(elevator.YPosition - 26));
+        if (samus.XPosition != elevator.XPosition || samus.YPosition != expectedSamusY)
+        {
+            throw new InvalidDataException(
+                $"Ascending elevator first loaded frame detached Samus from the cartridge actor: " +
+                $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}), " +
+                $"elevator=(${elevator.XPosition:X4},${elevator.YPosition:X4}), " +
+                $"expected SamusY=${expectedSamusY:X4}.");
+        }
+    }
+
+    /// <summary>
+    /// Reproduces issue #53 at the exact Climb-to-Parlor south door. The completed door
+    /// transition must leave ordinary standing/running input usable; requiring Jump to
+    /// escape the door mouth indicates that final vertical placement intersects terrain.
+    /// </summary>
+    private static void AssertSouthParlorEntryAcceptsHorizontalMovement(
+        SuperMetroidRuntime runtime,
+        ControllerRouteHost host)
+    {
+        SamusState samus = runtime.Samus ?? throw new InvalidDataException(
+            "South Parlor entry completed without Samus.");
+        ushort startingX = samus.XPosition;
+        ushort startingY = samus.YPosition;
+        byte startingPose = samus.Pose;
+
+        // Parlor's southern entrance opens into horizontal floor space. Twelve rightward
+        // controller frames are enough to produce visible subpixel/whole-pixel movement
+        // from a legal standing spawn and deliberately contain no Jump input.
+        for (int frame = 0; frame < 12; frame++)
+            host.StepFrame((ushort)SnesButton.Right);
+
+        int horizontalDelta = unchecked((short)(samus.XPosition - startingX));
+        if (horizontalDelta <= 0 || runtime.HasPendingDoorTransition)
+        {
+            throw new InvalidDataException(
+                $"South Parlor entry remained trapped without Jump: " +
+                $"start=(${startingX:X4},${startingY:X4}) pose=${startingPose:X2}, " +
+                $"after=(${samus.XPosition:X4},${samus.YPosition:X4}) pose=${samus.Pose:X2}, " +
+                $"deltaX={horizontalDelta}, pendingDoor={runtime.HasPendingDoorTransition}.");
         }
     }
 

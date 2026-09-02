@@ -153,7 +153,8 @@ public static class SamusKnockbackMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -186,11 +187,12 @@ public static class SamusKnockbackMovement
             bus,
             level,
             samus.Kinematics,
-            requestedX);
+            requestedX,
+            plms: plms);
 
         BlockMoveResult vertical = samus.KnockbackDirection is 1 or 2
-            ? MoveWithSharedVerticalSpeedCalculation(bus, level, samus, nmiFrameCounter)
-            : MoveDownWithoutSpeedCalculation(bus, level, samus, nmiFrameCounter);
+            ? MoveWithSharedVerticalSpeedCalculation(bus, level, samus, nmiFrameCounter, plms)
+            : MoveDownWithoutSpeedCalculation(bus, level, samus, nmiFrameCounter, plms);
 
         // `$91:F010` observes these words inside downward collision, before `$90:DF6E`
         // clears them. Preserve the impact snapshot in the typed result so the runtime can
@@ -352,7 +354,8 @@ public static class SamusKnockbackMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms)
     {
         // `$90:DF53` calls the exact same `$90:90E2` vertical routine as ordinary aerial
         // movement, so reuse that translated owner instead of maintaining a subtly narrower
@@ -366,14 +369,16 @@ public static class SamusKnockbackMovement
             samus,
             nmiFrameCounter,
             out _,
-            out _);
+            out _,
+            plms: plms);
     }
 
     private static BlockMoveResult MoveDownWithoutSpeedCalculation(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms)
     {
         // `$90:923F` gives nonzero external Y priority over its normal total-X-plus-one
         // slope-following probe. This down-knockback path consumes the exact same helper.
@@ -385,7 +390,8 @@ public static class SamusKnockbackMovement
             level,
             samus.Kinematics,
             requested,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+            scanLeftToRight: (nmiFrameCounter & 1) == 0,
+            plms: plms);
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>

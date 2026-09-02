@@ -341,7 +341,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     grid.SetStorage(6, (byte)RoomScrollState.RedBoundary);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
         DoorCodes.DoorCode_Scroll6_Green,
-        DoorPointers.EarlyRouteScrollSix,
+        DoorPointers.ParlorFromClimb,
         grid);
     AssertEqual((byte)RoomScrollState.Green, grid.ReadStorage(6),
         "$8F:B981 writes early-route screen six green");
@@ -563,16 +563,37 @@ static void VerifyBackgroundScrollState()
     AssertEqual(frozenBg1X, state.Bg1HorizontalScroll, "$80:A3AB frozen scroll registers");
     AssertEqual(0, requests.Count, "$80:A3AB frozen update list");
 
-    // The directional setup routines bias their previous-X blocks before making the first
-    // built-in four-pixel IRQ step. Reconstructing that state from the atomic +/-$FC host
-    // coordinate must select an in-room boundary column, never wrapped $FFF0 data.
+    var destinationParallax = new BackgroundScrollState
+    {
+        Layer2ScrollX = 0x80,
+        Layer2ScrollY = 0x40,
+    };
+    destinationParallax.PrepareDoorOpeningDestination(0x0400, 0x0200);
+    AssertEqual((ushort)0x0200, destinationParallax.Layer2XPosition,
+        "door setup calculates destination half-speed BG2 X");
+    AssertEqual((ushort)0x0080, destinationParallax.Layer2YPosition,
+        "door setup calculates destination quarter-speed BG2 Y");
+
+    // `$80:AE29` first derives four offsets from the retained source BG1 registers, the
+    // cleared BG2 registers, and the destination's staged +/-$100 coordinate. The first
+    // built-in four-pixel IRQ step must therefore move BG1 by exactly four pixels from the
+    // source image while BG2 starts four pixels from its cleared origin.
     var rightDoor = new BackgroundScrollState
     {
         Layer1XPosition = 0xff04, // destination $0000 - $00FC
         Layer2XPosition = 0xff04,
     };
+    rightDoor.ConfigureDoorOpeningOffsets(
+        retainedBg1Horizontal: 0x0120,
+        retainedBg1Vertical: 0x0340,
+        stagedLayer1X: 0xff00,
+        stagedLayer1Y: 0x0000);
     rightDoor.PrimeHorizontalDoorOpeningBlocks(orientation: 0);
     requests = rightDoor.CalculateScrollsAndUpdates();
+    AssertEqual((ushort)0x0124, rightDoor.Bg1HorizontalScroll,
+        "$80:AE29 right-door BG1 retains source plus first step");
+    AssertEqual((ushort)0x0004, rightDoor.Bg2HorizontalScroll,
+        "$80:AE29 right-door BG2 advances from cleared register");
     AssertEqual(2, requests.Count, "$80:AD4A right-door initial BG1/BG2 streams");
     AssertEqual((ushort)0x0000, requests[0].SourceXBlock,
         "$80:AD4A right-door initial level column");
@@ -582,8 +603,17 @@ static void VerifyBackgroundScrollState()
         Layer1XPosition = 0x00fc, // destination $0000 + $00FC
         Layer2XPosition = 0x00fc,
     };
+    leftDoor.ConfigureDoorOpeningOffsets(
+        retainedBg1Horizontal: 0x0120,
+        retainedBg1Vertical: 0x0340,
+        stagedLayer1X: 0x0100,
+        stagedLayer1Y: 0x0000);
     leftDoor.PrimeHorizontalDoorOpeningBlocks(orientation: 1);
     requests = leftDoor.CalculateScrollsAndUpdates();
+    AssertEqual((ushort)0x011c, leftDoor.Bg1HorizontalScroll,
+        "$80:AE29 left-door BG1 retains source minus first step");
+    AssertEqual((ushort)0xfffc, leftDoor.Bg2HorizontalScroll,
+        "$80:AE29 left-door BG2 retreats from cleared register");
     AssertEqual(2, requests.Count, "$80:AD74 left-door initial BG1/BG2 streams");
     AssertEqual((ushort)0x000f, requests[0].SourceXBlock,
         "$80:AD74 left-door initial level column");
@@ -798,6 +828,31 @@ static void VerifyBackgroundTilemapStreamer()
     AssertEqual(0x0001, streamedVram.ReadWord(0x518a), "row DMA top-left word");
     AssertEqual(0x0002, streamedVram.ReadWord(0x518b), "row DMA top-right word");
     AssertEqual(0x0003, streamedVram.ReadWord(0x51aa), "row DMA bottom-left word");
+
+    // Ceres door $83:AB7C enters a 2x1-screen room with BG2 starting at block ($0C,$04).
+    // The native sixteen-block column therefore continues four rows beyond the logical
+    // 512-word plane into custom_background's retained allocation. This was the real-route
+    // failure found while expanding the horizontal door regression beyond two rooms.
+    var shortRoomAllocation = new ushort[RoomLevelMemoryLayout.PrefilledStreamingWordCount];
+    Array.Fill(shortRoomAllocation, RoomLevelMemoryLayout.PrefilledLevelWord);
+    var shortRoomStreamer = new BackgroundTilemapStreamer(
+        width,
+        shortRoomAllocation,
+        shortRoomAllocation,
+        definitions);
+    TilemapStreamUpdate ceresDoorColumn = shortRoomStreamer.Build(
+        new BackgroundUpdateRequest(
+            BackgroundLayer.Background,
+            BackgroundUpdateAxis.Column,
+            SourceXBlock: 0x000c,
+            SourceYBlock: 0x0004,
+            VramXBlock: 0,
+            VramYBlock: 0))
+        ?? throw new InvalidOperationException("Ceres door BG2 column was incorrectly skipped.");
+    AssertEqual(32, ceresDoorColumn.FirstHalves.Length,
+        "$83:AB7C complete off-room BG2 column allocation");
+    AssertEqual((ushort)0x0001, ceresDoorColumn.FirstHalves[^2],
+        "$83:AB7C bottom overread retains prefilled block definition");
 
     AssertEqual<TilemapStreamUpdate?>(null, streamer.Build(rowRequest, mode7Enabled: true), "$80:AB78 Mode 7 return");
     Console.WriteLine("  BG stream: row/column staging splits and NMI destinations agree.");

@@ -348,6 +348,13 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.MainGameplay:
+                // DisplayMessageBox is a nested NMI-waiting coroutine inside gameplay
+                // state eight. Its final acknowledgement returns below the normal bank-$90
+                // pause-check call site, so Start may neither enter pause while the box is
+                // visible nor on the exact frame it closes. Preserve entry state before
+                // StepFrame consumes the acknowledgement; checking IsActive afterward alone
+                // misses that final suspended frame.
+                bool messageBoxOwnedFrame = runtime!.MessageBox.IsActive;
                 runtime!.StepFrame(controllerInput);
                 HandleSaveStationPersistence();
                 lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
@@ -368,7 +375,7 @@ public sealed class SuperMetroidGame
                     runtime.GameplayTimeFrozen = true;
                     GameState = SuperMetroidGameState.SamusEscapesFromZebes;
                 }
-                else if (CanEnterPause())
+                else if (CanEnterPause(messageBoxOwnedFrame))
                 {
                     // Samus_PauseCheck at `$90:EA45` executes during the already-completed
                     // state-eight frame. It initializes both fade counters and publishes
@@ -940,7 +947,7 @@ public sealed class SuperMetroidGame
         _ => GameState.ToString(),
     };
 
-    private bool CanEnterPause()
+    private bool CanEnterPause(bool messageBoxOwnedFrame)
     {
         if (runtime?.Samus is not SamusState samus || runtime.ActiveRoom is null)
             return false;
@@ -948,7 +955,9 @@ public sealed class SuperMetroidGame
         // This is the complete retail predicate at `$90:EA45` for the translated owners.
         // HasPendingDoorTransition represents the enemies/door transition flag, X-ray owns
         // time freeze, and the power-bomb system owns $0CE2. Area six (Ceres) is excluded.
-        return runtime.PowerBombExplosionStatus == 0 &&
+        return !messageBoxOwnedFrame &&
+               !runtime.MessageBox.IsActive &&
+               runtime.PowerBombExplosionStatus == 0 &&
                !samus.Xray.TimeIsFrozen &&
                !runtime.HasPendingDoorTransition &&
                runtime.ActiveRoom.AreaIndex != 6 &&

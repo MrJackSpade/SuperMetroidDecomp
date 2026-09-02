@@ -9,6 +9,7 @@ public sealed partial class SuperMetroidRuntime
     // The IRQ owns these coordinates while state $0B waits inside LoadMoreThings. Keep
     // that ownership explicit instead of reducing the native scroll to a frontend timer.
     private DoorOpeningScrollState? _doorOpeningScroll;
+    private DoorOpeningPpuScroll? _pendingDoorOpeningPpuScroll;
 
     /// <summary>The load-station record that most recently established this runtime.</summary>
     public LoadStationEntry? ActiveLoadStation { get; private set; }
@@ -51,7 +52,12 @@ public sealed partial class SuperMetroidRuntime
         }
 
         ActiveLoadStation = station;
-        return LoadCartridgeRoom(door, room, station.CameraX, station.CameraY);
+        return LoadCartridgeRoom(
+            door,
+            room,
+            station.CameraX,
+            station.CameraY,
+            RoomViewportLoadMode.DisplayInitialViewport);
     }
 
     /// <summary>
@@ -129,7 +135,8 @@ public sealed partial class SuperMetroidRuntime
             door,
             room,
             station.CameraX,
-            station.CameraY);
+            station.CameraY,
+            RoomViewportLoadMode.DisplayInitialViewport);
         // LoadFromLoadStation writes `$1E75 = 1`. Without this room-entry lockout, the
         // first standing floor probe after loading directly on a save pod immediately
         // reopens its confirmation message.
@@ -217,6 +224,7 @@ public sealed partial class SuperMetroidRuntime
             room,
             station.CameraX,
             station.CameraY,
+            RoomViewportLoadMode.DisplayInitialViewport,
             GunshipLoadScenario.EscapingCeres);
         samus.LoadSuitPalette(_addressSpace, Cgram);
         samus.RefreshCollisionRadii(_addressSpace);
@@ -320,6 +328,22 @@ public sealed partial class SuperMetroidRuntime
             BackgroundScroll.Layer2YPosition,
             Samus.Kinematics.XFixed,
             Samus.Kinematics.YFixed);
+        int direction = door.Orientation & 3;
+        if ((direction & 2) == 0)
+        {
+            DoorOpeningPpuScroll sourceScroll = _pendingDoorOpeningPpuScroll
+                ?? throw new InvalidOperationException(
+                    "Horizontal door-opening scroll lost the source-room PPU scroll snapshot.");
+            ushort stagedLayer1X = direction == 0
+                ? unchecked((ushort)(_doorOpeningScroll.CameraX - 4))
+                : unchecked((ushort)(_doorOpeningScroll.CameraX + 4));
+            BackgroundScroll.ConfigureDoorOpeningOffsets(
+                sourceScroll.Bg1Horizontal,
+                sourceScroll.Bg1Vertical,
+                stagedLayer1X,
+                _doorOpeningScroll.CameraY);
+        }
+        _pendingDoorOpeningPpuScroll = null;
         Camera.SetPosition(_doorOpeningScroll.CameraX, _doorOpeningScroll.CameraY);
         BackgroundScroll.Layer1XPosition = _doorOpeningScroll.CameraX;
         BackgroundScroll.Layer1YPosition = _doorOpeningScroll.CameraY;
@@ -397,11 +421,28 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Loads the destination selected by the live room's type-$9 collision. This is the
-    /// cartridge-data portion of states $0A/$0B; the scrolling/fade presentation remains a
-    /// separately visible frontend phase rather than being disguised as ordinary gameplay.
+    /// Immediately loads and displays the destination selected by a live type-$9 collision.
+    /// This compatibility seam is reserved for headless room/mechanics diagnostics that do
+    /// not execute frontend state $0B; playable code must use the incremental transition.
     /// </summary>
-    public InitialViewportResult LoadPendingDoorDestination()
+    public InitialViewportResult LoadPendingDoorDestination() =>
+        LoadPendingDoorDestination(RoomViewportLoadMode.DisplayInitialViewport);
+
+    /// <summary>
+    /// Loads state $0B's destination without destroying the source-room VRAM ring. The
+    /// following door IRQ replaces that ring incrementally while the screen slides.
+    /// </summary>
+    internal InitialViewportResult LoadPendingDoorDestinationForTransition()
+    {
+        CartridgeDoorHeader door = PendingDoorTransition
+            ?? throw new InvalidOperationException("No pending door destination exists.");
+        return LoadPendingDoorDestination(
+            (door.Orientation & 2) == 0
+                ? RoomViewportLoadMode.StreamThroughHorizontalDoor
+                : RoomViewportLoadMode.DisplayInitialViewport);
+    }
+
+    private InitialViewportResult LoadPendingDoorDestination(RoomViewportLoadMode viewportLoadMode)
     {
         if (LevelData is null || Samus is null)
             throw new InvalidOperationException("A live room and Samus are required for a door transition.");
@@ -430,19 +471,12 @@ public sealed partial class SuperMetroidRuntime
         // a door definition, that definition and its destination header become authoritative.
         ActiveLoadStation = null;
         CeresElevatorArrival = null;
-        InitialViewportResult viewport = LoadCartridgeRoom(
-            door,
-            room,
-            placement.CameraX,
-            placement.CameraY);
 
-        // `$82:E4B6` calls Samus_LoadSuitTargetPalette after room/enemy palettes have been
-        // loaded and before state $0B captures the destination fade target. The source fade
-        // has already driven OBJ palette four to black at this point. Omitting this shared
-        // reload therefore retained valid OAM and tile data but rendered Samus as a solid
-        // black silhouette after every ordinary desktop door transition.
-        Samus.LoadSuitPalette(_addressSpace, Cgram);
-
+        // State $0B's door IRQ has already placed Samus before LoadMoreThings constructs
+        // the destination room. This ordering is observable for elevator arrivals:
+        // Elevator_Init sees status two, moves the platform to parameter 2, and then pins
+        // Samus to it. Applying the generic placement after Enemies.Load used to overwrite
+        // that native attachment and exposed the upward arrival one row too low.
         Samus.Kinematics.SetXFixed(placement.SamusXFixed);
         Samus.Kinematics.SetYFixed(placement.SamusYFixed);
         Samus.Kinematics.YSpeed = 0;
@@ -451,6 +485,21 @@ public sealed partial class SuperMetroidRuntime
         Samus.Kinematics.ExtraXSubdisplacement = 0;
         Samus.Kinematics.ExtraYDisplacement = 0;
         Samus.Kinematics.ExtraYSubdisplacement = 0;
+
+        InitialViewportResult viewport = LoadCartridgeRoom(
+            door,
+            room,
+            placement.CameraX,
+            placement.CameraY,
+            viewportLoadMode);
+
+        // `$82:E4B6` calls Samus_LoadSuitTargetPalette after room/enemy palettes have been
+        // loaded and before state $0B captures the destination fade target. The source fade
+        // has already driven OBJ palette four to black at this point. Omitting this shared
+        // reload therefore retained valid OAM and tile data but rendered Samus as a solid
+        // black silhouette after every ordinary desktop door transition.
+        Samus.LoadSuitPalette(_addressSpace, Cgram);
+
         Samus.LiquidPhysics.AreaIndex = room.AreaIndex;
         Samus.LiquidPhysics.RoomIndex = room.RoomIndex;
         Samus.RefreshCollisionRadii(_addressSpace);
@@ -492,7 +541,12 @@ public sealed partial class SuperMetroidRuntime
 
         ActiveLoadStation = null;
         CeresElevatorArrival = null;
-        InitialViewportResult viewport = LoadCartridgeRoom(door, room, cameraX, cameraY);
+        InitialViewportResult viewport = LoadCartridgeRoom(
+            door,
+            room,
+            cameraX,
+            cameraY,
+            RoomViewportLoadMode.DisplayInitialViewport);
         Samus.LiquidPhysics.AreaIndex = room.AreaIndex;
         Samus.LiquidPhysics.RoomIndex = room.RoomIndex;
         Samus.RefreshCollisionRadii(_addressSpace);
@@ -507,8 +561,18 @@ public sealed partial class SuperMetroidRuntime
         CartridgeRoomHeader room,
         ushort cameraX,
         ushort cameraY,
+        RoomViewportLoadMode viewportLoadMode,
         GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary)
     {
+        DoorOpeningPpuScroll? doorOpeningPpuScroll = viewportLoadMode switch
+        {
+            RoomViewportLoadMode.DisplayInitialViewport => null,
+            RoomViewportLoadMode.StreamThroughHorizontalDoor => new DoorOpeningPpuScroll(
+                BackgroundScroll.Bg1HorizontalScroll,
+                BackgroundScroll.Bg1VerticalScroll),
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
+        };
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_addressSpace, room);
 
         ActiveDoor = door;
@@ -540,7 +604,10 @@ public sealed partial class SuperMetroidRuntime
         Camera.SetPosition(cameraX, cameraY);
         BackgroundScroll.Layer2ScrollX = room.State.Layer2ScrollX;
         BackgroundScroll.Layer2ScrollY = room.State.Layer2ScrollY;
-        BackgroundScroll.PrimePreviousBlocks();
+        if (viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport)
+            BackgroundScroll.PrimePreviousBlocks();
+        else
+            BackgroundScroll.PrepareDoorOpeningDestination(cameraX, cameraY);
 
         // The selected room-state main pointer, rather than the room or entry door, owns
         // the BG2 producer. `$8F:C116` calls the land-sky routine at `$88:AF8D`; `$8F:C120`
@@ -705,6 +772,19 @@ public sealed partial class SuperMetroidRuntime
             Cgram,
             Samus?.EquippedBeams ?? 0);
 
+        if (viewportLoadMode == RoomViewportLoadMode.StreamThroughHorizontalDoor)
+        {
+            // Horizontal state-$0B never calls DisplayViewablePartOfRoom. The source-room
+            // tilemap must remain in VRAM until each four-pixel IRQ crossing replaces one
+            // boundary row/column. The old shared loader unconditionally performed the
+            // seventeen-column startup fill here, destroying 700+ source words before the
+            // opening scroll and producing the repeatedly reported raised/squat door caps.
+            _pendingDoorOpeningPpuScroll = doorOpeningPpuScroll;
+            LastBackgroundUpdateCount = 0;
+            return new InitialViewportResult(0, 0);
+        }
+
+        _pendingDoorOpeningPpuScroll = null;
         BackgroundScroll.Layer1XPosition = Camera.XPosition;
         BackgroundScroll.Layer1YPosition = Camera.YPosition;
         IReadOnlyList<BackgroundUpdateRequest> requests = BackgroundScroll.BuildInitialViewportRequests();
@@ -713,7 +793,7 @@ public sealed partial class SuperMetroidRuntime
         foreach (BackgroundUpdateRequest request in requests)
         {
             TilemapStreamUpdate update = BackgroundStreamer.Build(request)
-                ?? throw new InvalidOperationException("Starting Ceres room unexpectedly requested Mode 7 streaming.");
+                ?? throw new InvalidOperationException("Initial room display unexpectedly requested Mode 7 streaming.");
             update.ExecuteTo(Vram);
             segmentCount += update.Segments.Count;
         }

@@ -179,6 +179,9 @@ internal static partial class Program
         AssertTrue(SamusState.IsForwardFacingPose(samus.Pose),
             "save animation applies shared MakeSamusFaceForward setup");
         AssertTrue(samus.InputLocked, "save animation owns Samus input");
+        AssertEqual(level.GetBlockIndex(18, 6), saveRequest.BlockIndex,
+            "save activation retains the executing PLM block for bank-$86 electricity");
+        VerifySaveStationElectricity(bus, level, saveRequest.BlockIndex);
 
         StationActivationEvent completion = default;
         bool completionPublished = false;
@@ -210,6 +213,71 @@ internal static partial class Program
         plms.Step(bus, level, streamer, 0, 0, 0);
         AssertEqual(0, plms.StationActivationEvents.Count,
             "locked save station cannot reopen until room re-entry");
+    }
+
+    private static void VerifySaveStationElectricity(
+        TestAddressSpace bus,
+        RoomLevelData level,
+        int saveBlockIndex)
+    {
+        // Empty room population plus the retail-shaped seven-word $86:E6D2 definition.
+        // The frame list is shortened to one visible map followed by the shared delete
+        // opcode; spawn coordinates and shared interpreter ownership remain unchanged.
+        bus.WriteBytes(0xa19600, [0xff, 0xff]);
+        bus.WriteBytes(0x86e6d2,
+        [
+            0xad, 0xe6,
+            0xd1, 0xe6,
+            0x83, 0xe6,
+            0x00, 0x00,
+            0x00, 0x30,
+            0x00, 0x00,
+            0xfc, 0x84,
+        ]);
+        bus.WriteBytes(0x86e683,
+        [
+            0xd5, 0x81, 0x14, 0x00,
+            0x01, 0x00, 0x62, 0xb5,
+            0x54, 0x81,
+        ]);
+        // Enemy-projectile animation lists live in bank $86, but their frame maps are
+        // consumed by the shared bank-$8D spritemap writer.
+        bus.WriteBytes(0x8db562,
+        [
+            0x01, 0x00,
+            0x00, 0x00, 0x00, 0x01, 0x20,
+        ]);
+
+        var enemies = new RoomEnemySystem();
+        enemies.Load(
+            bus,
+            populationPointer: 0x9600,
+            tilesetPointer: 0,
+            new SnesVram(),
+            new SnesCgram(),
+            nextRandom: () => 0x4040,
+            level: level,
+            samus: new SamusState());
+        enemies.SpawnSaveStationElectricity(saveBlockIndex, level.WidthInBlocks);
+
+        RoomEnemyProjectileSlot electricity = enemies.EnemyProjectiles.Single(
+            projectile => projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
+        AssertEqual(0x0130, electricity.XPosition,
+            "save electricity starts one block right of the station PLM");
+        AssertEqual(0x0040, electricity.YPosition,
+            "save electricity starts two blocks above the station PLM");
+
+        enemies.StepEnemyProjectiles(level, samus: null);
+        AssertEqual(0xb562, electricity.SpritemapPointer,
+            "save electricity runs through the shared bank-$86 frame-list interpreter");
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        enemies.DrawEnemyProjectiles(oam, cameraX: 0x0100, cameraY: 0);
+        oam.FinalizeFrame();
+        AssertTrue(Enumerable.Range(0, oam.LastFinalizedSpriteCount)
+            .Select(oam.GetEntry)
+            .Any(entry => entry.X == 0x0030 && entry.Y == 0x40),
+            "save electricity reaches the ordinary room enemy-projectile draw path");
     }
 
     private static void VerifyUnsupportedPopulationContext(TestAddressSpace bus)

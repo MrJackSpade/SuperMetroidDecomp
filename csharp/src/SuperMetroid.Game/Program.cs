@@ -130,6 +130,21 @@ try
         return 0;
     }
 
+    if (args.Length != 0 && args[0].Equals("--pause-audio-audit", StringComparison.OrdinalIgnoreCase))
+    {
+        string[] pauseAudioRomArguments = args.Length == 2 ? [args[1]] : [];
+        if (args.Length > 2)
+            throw new ArgumentException("--pause-audio-audit accepts one optional private ROM path.");
+        string pauseAudioRomPath = PrivateRomPath.Resolve(pauseAudioRomArguments);
+        PauseAudioSmokeTestResult result = PauseAudioSmokeTest.Run(pauseAudioRomPath);
+        Console.WriteLine(
+            $"Pause audio passed: {result.FramesGenerated} PCM frames, " +
+            $"{result.PauseFrames} pause-owned frames, {result.AudioCommandCount} APU commands; " +
+            $"max adjacent delta {result.MaximumAdjacentSampleDelta}, " +
+            $"max frame-boundary delta {result.MaximumFrameBoundaryDelta}.");
+        return 0;
+    }
+
     ControllerInputRecording? replay = null;
     string[] romArguments = args;
     if (args.Length != 0 && args[0].Equals("--replay", StringComparison.OrdinalIgnoreCase))

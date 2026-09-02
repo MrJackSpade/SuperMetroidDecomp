@@ -21,11 +21,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
-if (args.Length == 3 && args[0] == "--input-replay-audit")
+if (args.Length >= 3 && args[0] == "--input-replay-audit")
 {
     return InputReplayAudit.Run(
         args[1].Trim('"'),
-        args[2].Trim('"'));
+        string.Join(' ', args[2..]).Trim('"'));
 }
 
 if (args.Length == 4 && args[0] == "--start-input-visual-audit")
@@ -84,10 +84,35 @@ if (args.Length >= 3 && args[0] == "--pause-map-audit")
     return PauseMapAudit.Run(pauseMapRomPath, pauseMapOutputPath);
 }
 
+if (args.Length >= 2 && args[0] == "--pause-message-gate-audit")
+{
+    string pauseMessageRomPath = string.Join(' ', args[1..]).Trim('"');
+    return PauseMessageGateAudit.Run(pauseMessageRomPath);
+}
+
+if (args.Length >= 3 && args[0] == "--save-station-audit")
+{
+    string saveStationRomPath = string.Join(' ', args[1..^1]).Trim('"');
+    string saveStationOutputDirectory = args[^1].Trim('"');
+    return SaveStationAudit.Run(saveStationRomPath, saveStationOutputDirectory);
+}
+
 if (args.Length >= 2 && args[0] == "--early-controller-route-audit")
 {
     string controllerRouteRomPath = string.Join(' ', args[1..]).Trim('"');
     return EarlyControllerRouteAudit.Run(controllerRouteRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--door-transition-visual-audit")
+{
+    string doorTransitionRomPath = string.Join(' ', args[1..]).Trim('"');
+    return EarlyControllerRouteAudit.RunDoorTransitionVisualAudit(doorTransitionRomPath);
+}
+
+if (args.Length >= 2 && args[0] == "--vertical-room-entry-audit")
+{
+    string verticalEntryRomPath = string.Join(' ', args[1..]).Trim('"');
+    return EarlyControllerRouteAudit.RunVerticalRoomEntryAudit(verticalEntryRomPath);
 }
 
 if (args.Length >= 2 && args[0] == "--blue-hopper-audit")

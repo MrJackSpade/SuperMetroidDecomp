@@ -19,6 +19,9 @@ internal static class CeresDestructionAudit
         int explosionFlightFrames = 0;
         var approachPhaseFrames = new Dictionary<CeresDestructionPhase, int>();
         int zebesSlideFrames = 0;
+        bool sawVisibleZebesDuringSlide = false;
+        bool zebesLeftSlideViewport = false;
+        int maximumZebesPalettePixels = 0;
 
         while (!cinematic.Finished && cinematicFrames < 5000)
         {
@@ -43,11 +46,28 @@ internal static class CeresDestructionAudit
             if (cinematic.Phase == CeresDestructionPhase.SlideZebesSceneAway)
             {
                 zebesSlideFrames++;
+                Rgba32[] slideFrame = cinematic.Render();
+                int zebesComponentPixels = FindLargestNonBlackComponent(slideFrame);
+                maximumZebesPalettePixels = Math.Max(maximumZebesPalettePixels, zebesComponentPixels);
+                if (zebesComponentPixels >= 128)
+                {
+                    if (zebesLeftSlideViewport)
+                    {
+                        throw new InvalidDataException(
+                            $"Planet Zebes re-entered the visible slide after leaving it: " +
+                            $"frame {zebesSlideFrames}, connected pixels {zebesComponentPixels}.");
+                    }
+                    sawVisibleZebesDuringSlide = true;
+                }
+                else if (sawVisibleZebesDuringSlide)
+                {
+                    zebesLeftSlideViewport = true;
+                }
                 if (zebesSlideFrames is 1 or 32 or 48 or 64)
                 {
                     WriteOpaque(
                         Path.Combine(outputDirectory, $"ZebesSlide.{zebesSlideFrames:D3}.png"),
-                        cinematic.Render(),
+                        slideFrame,
                         $"Zebes slide frame {zebesSlideFrames}");
                 }
             }
@@ -77,11 +97,14 @@ internal static class CeresDestructionAudit
             }
         }
 
-        if (!cinematic.Finished || !capturedExplosion || !capturedZebes)
+        if (!cinematic.Finished || !capturedExplosion || !capturedZebes ||
+            !sawVisibleZebesDuringSlide || !zebesLeftSlideViewport)
         {
             throw new InvalidDataException(
                 $"Ceres cinematic audit ended in {cinematic.Phase} after {cinematicFrames} calls; " +
-                $"explosion capture={capturedExplosion}, Zebes capture={capturedZebes}.");
+                $"explosion capture={capturedExplosion}, Zebes capture={capturedZebes}, " +
+                $"slide visible={sawVisibleZebesDuringSlide}, left={zebesLeftSlideViewport}, " +
+                $"maximum planet-component pixels={maximumZebesPalettePixels}.");
         }
 
         // Retain a genuine fresh-game Samus/system owner, then execute the exact special
@@ -222,6 +245,53 @@ internal static class CeresDestructionAudit
             $"checkpoint resumed at {landingSave.GameTimeSeconds:D2}." +
             $"{landingSave.GameTimeFrames:D2}.");
         return 0;
+    }
+
+    /// <summary>
+    /// Finds the largest four-connected, non-black shape in the final slide composite.
+    /// Zebes is thousands of connected pixels while each surrounding star is only a small
+    /// isolated shape. A wrapped OAM Y coordinate that makes the planet pass the screen
+    /// repeatedly necessarily makes the large component return after it first disappears.
+    /// </summary>
+    private static int FindLargestNonBlackComponent(Rgba32[] pixels)
+    {
+        var visited = new bool[pixels.Length];
+        var queue = new Queue<int>();
+        int largest = 0;
+        for (int origin = 0; origin < pixels.Length; origin++)
+        {
+            if (visited[origin] || IsBlack(pixels[origin]))
+                continue;
+            visited[origin] = true;
+            queue.Enqueue(origin);
+            int size = 0;
+            while (queue.Count != 0)
+            {
+                int current = queue.Dequeue();
+                size++;
+                int x = current % FrontendFrame.Width;
+                int y = current / FrontendFrame.Width;
+                Visit(x - 1, y);
+                Visit(x + 1, y);
+                Visit(x, y - 1);
+                Visit(x, y + 1);
+            }
+            largest = Math.Max(largest, size);
+        }
+        return largest;
+
+        void Visit(int x, int y)
+        {
+            if ((uint)x >= FrontendFrame.Width || (uint)y >= FrontendFrame.Height)
+                return;
+            int index = y * FrontendFrame.Width + x;
+            if (visited[index] || IsBlack(pixels[index]))
+                return;
+            visited[index] = true;
+            queue.Enqueue(index);
+        }
+
+        static bool IsBlack(Rgba32 pixel) => pixel.R == 0 && pixel.G == 0 && pixel.B == 0;
     }
 
     /// <summary>

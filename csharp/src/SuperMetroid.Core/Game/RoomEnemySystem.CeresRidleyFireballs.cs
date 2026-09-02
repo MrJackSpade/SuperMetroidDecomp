@@ -113,6 +113,7 @@ public enum RoomEnemyProjectileKind : ushort
     SporeSpawnStalk = 0xde6c,
     SporeSpawnSpore = 0xde7a,
     SporeSpawnSpawner = 0xde88,
+    SaveStationElectricity = 0xe6d2,
 }
 
 /// <summary>
@@ -253,6 +254,37 @@ public sealed partial class RoomEnemySystem
         projectile.YVelocity = 0x0010;
         projectile.Variable0 = 0;
         projectile.Variable1 = 0;
+    }
+
+    /// <summary>
+    /// Ports <c>SpawnEprojWithRoomGfx($E6D2, 0)</c> and initializer $86:E6AD.
+    /// The cartridge derives the actor origin from the currently executing save-station
+    /// PLM: one block right and two blocks above its trigger block.
+    /// </summary>
+    public void SpawnSaveStationElectricity(int plmBlockIndex, int roomWidthInBlocks)
+    {
+        EnsureLoaded();
+        if (roomWidthInBlocks <= 0)
+            throw new ArgumentOutOfRangeException(nameof(roomWidthInBlocks));
+        if (plmBlockIndex < 0)
+            throw new ArgumentOutOfRangeException(nameof(plmBlockIndex));
+
+        RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
+        if (projectile is null)
+        {
+            // SpawnEprojInner deliberately drops a spawn when all eighteen physical slots
+            // are occupied. This is the cartridge's finite-pool behavior, not a host error.
+            return;
+        }
+
+        InitializeEnemyProjectileFromDefinition(
+            projectile,
+            RoomEnemyProjectileKind.SaveStationElectricity,
+            graphicsIndex: 0);
+        int blockX = plmBlockIndex % roomWidthInBlocks;
+        int blockY = plmBlockIndex / roomWidthInBlocks;
+        projectile.XPosition = unchecked((ushort)(16 * (blockX + 1)));
+        projectile.YPosition = unchecked((ushort)(16 * (blockY - 2)));
     }
 
     /// <summary>
@@ -638,6 +670,7 @@ public sealed partial class RoomEnemySystem
             case EnemyProjectileCodePointers.RTS_86DD44:
             case EnemyProjectileCodePointers.RTS_86CAA3:
             case EnemyProjectileCodePointers.RTS_86C76D:
+            case EnemyProjectileCodePointers.RTS_86E6D1:
                 return;
 
             case EnemyProjectileCodePointers.PreInst_EnemyProjectile_BombTorizoChozoBreaking_Falling:

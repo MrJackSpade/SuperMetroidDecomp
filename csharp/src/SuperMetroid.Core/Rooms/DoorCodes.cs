@@ -31,11 +31,29 @@ internal static class DoorCodes
 /// <summary>Bank-$83 cartridge door-header pointers referenced by translated logic.</summary>
 internal static class DoorPointers
 {
-    /// <summary>Early-route door that executes <see cref="DoorCodes.DoorCode_Scroll6_Green"/>.</summary>
-    public const ushort EarlyRouteScrollSix = 0x8b3e;
+    /// <summary>Door leaving Landing Site for Parlor and Alcatraz.</summary>
+    public const ushort ParlorFromLandingSite = 0x8916;
+
+    /// <summary>Door leaving Parlor and Alcatraz for Landing Site.</summary>
+    public const ushort LandingSiteFromParlor = 0x896a;
+
+    /// <summary>Upward door leaving Climb for Parlor after Zebes wakes.</summary>
+    public const ushort ParlorFromClimb = 0x8b3e;
+
+    /// <summary>Left door leaving the Morph Ball room for the Blue Brinstar elevator.</summary>
+    public const ushort BlueBrinstarElevatorFromMorphBall = 0x8eb6;
 
     /// <summary>Door returning from First Missile to Construction Zone.</summary>
     public const ushort ConstructionZoneFromFirstMissile = 0x8fa6;
+
+    /// <summary>Right-hand door from the Ceres magnet-stairs room into the dead-scientist room.</summary>
+    public const ushort CeresDeadScientistFromMagnetStairs = 0xab7c;
+
+    /// <summary>Right-hand door from the Ceres dead-scientist room into the final hallway.</summary>
+    public const ushort CeresFinalHallwayFromDeadScientist = 0xab94;
+
+    /// <summary>Left-hand door from the Ceres final hallway into the dead-scientist room.</summary>
+    public const ushort CeresDeadScientistFromFinalHallway = 0xaba0;
 
     /// <summary>Door leaving the Ceres elevator shaft for the falling-tile room.</summary>
     public const ushort FromCeresElevatorShaft = 0xab4c;

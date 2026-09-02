@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 
 /// <summary>
 /// ROM-backed audit for the paired morph-ball eye mount/body and its room-global HDMA beam.
@@ -68,6 +70,7 @@ internal static class MorphBallEyeAudit
         VerifyInitializationAndOwnershipGate(bus, room, assets);
         VerifyActivationTrackingBeamAndDeactivation(bus, room, assets);
         VerifyMorphBallRoomBeamApex(bus);
+        VerifyMorphBallRoomProductionViewport(bus);
         VerifyIntentionalNoCombat(bus, room, assets);
 
         Console.WriteLine(
@@ -516,6 +519,77 @@ internal static class MorphBallEyeAudit
                 $"Morph Ball eye horizontal apex disagrees with $91:C998: " +
                 $"Y-1={nativeApexLine}, Y={incorrectBodyLine}.");
         }
+    }
+
+    /// <summary>
+    /// Repeats the reported area-$01/room-$10 case through the production runtime and its
+    /// accepted-NMI snapshots. This specifically guards the old compositor bug that used
+    /// BG1's shake/offset-adjusted PPU scroll as a world coordinate and briefly anchored
+    /// the cone to the top of the screen.
+    /// </summary>
+    private static void VerifyMorphBallRoomProductionViewport(SuperMetroidAddressSpace bus)
+    {
+        var runtime = new SuperMetroidRuntime(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(MorphBallRoom, cameraX: 0x0380, cameraY: 0x01c0);
+
+        RoomEnemySlot body = runtime.Enemies.Slots[1];
+        MorphBallEyeEnemyState state = RequireState(runtime.Enemies, body);
+        SamusState samus = runtime.Samus ?? throw new InvalidDataException(
+            "Production Morph Ball room load omitted Samus.");
+        samus.CollectedItems = 0x0004;
+        samus.XPosition = unchecked((ushort)(body.XPosition + 0x0040));
+        samus.YPosition = body.YPosition;
+        samus.InputLocked = true;
+
+        int frames = 0;
+        while (runtime.DisplayedMorphBallEyeBeam is not
+                   { Phase: MorphBallEyeBeamPhase.Widening, AngularWidth: 0 } displayed &&
+               frames < 48)
+        {
+            runtime.StepFrame(0);
+            frames++;
+        }
+        if (runtime.DisplayedMorphBallEyeBeam is not
+            { Phase: MorphBallEyeBeamPhase.Widening, AngularWidth: 0 } beam)
+        {
+            throw new InvalidDataException(
+                $"Production Morph Ball eye did not publish its first beam NMI in {frames} frames.");
+        }
+
+        GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;
+        int originX = unchecked((short)(beam.WorldX - ppu.Layer1XPosition));
+        int originY = unchecked((short)(beam.WorldY - ppu.Layer1YPosition)) - 1;
+        if ((uint)originX >= FrontendFrame.Width ||
+            originY < SnesGameplayFrameRenderer.HudHeight || originY >= FrontendFrame.Height)
+        {
+            throw new InvalidDataException(
+                $"Production eye apex resolved off viewport at ({originX},{originY}); " +
+                $"world=(${beam.WorldX:X4},${beam.WorldY:X4}), " +
+                $"layer1=(${ppu.Layer1XPosition:X4},${ppu.Layer1YPosition:X4}).");
+        }
+
+        var probe = new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
+        Rgba32 untouched = new(32, 32, 32, 255);
+        Array.Fill(probe, untouched);
+        SnesGameplayFrameRenderer.ApplyMorphBallEyeBeamColorMath(
+            probe,
+            bus,
+            beam,
+            ppu.Layer1XPosition,
+            ppu.Layer1YPosition);
+        if (probe[originY * FrontendFrame.Width + originX + 1] == untouched ||
+            probe[SnesGameplayFrameRenderer.HudHeight * FrontendFrame.Width + originX] != untouched)
+        {
+            throw new InvalidDataException(
+                "Production area-$01/room-$10 eye snapshot did not anchor its first cone " +
+                "to the rendered eye while leaving the top gameplay scanline untouched.");
+        }
+
+        _ = SuperMetroidRuntimeFrameRenderer.Render(runtime);
     }
 
     private static LoadedEye Load(

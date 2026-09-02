@@ -163,8 +163,8 @@ public static class SuperMetroidRuntimeFrameRenderer
                 frame,
                 runtime.AddressSpace,
                 eyeBeam,
-                bg1HorizontalScroll,
-                bg1VerticalScroll);
+                displayedPpu.Layer1XPosition,
+                displayedPpu.Layer1YPosition);
         }
 
         // Bank $85 temporarily owns BG3 and disables gameplay color math while an item

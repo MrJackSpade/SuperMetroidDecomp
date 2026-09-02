@@ -166,7 +166,13 @@ public sealed class CartridgeRoomAssets
                 $"Room $8F:{header.Pointer:X4} level stream is missing its complete BG1/BTS allocation.");
         }
 
-        ushort[] streamingAllocation = ReadWords(levelStream.AsSpan(foregroundOffset));
+        // `$82:E7D3` clears the complete $6400-byte level_data allocation before the
+        // decompressor writes this room's shorter BG1/BTS/BG2 payload over its beginning.
+        // Door scrolling legally reads a complete 16-block column beyond a short room's
+        // authored bottom edge. Preserve the allocation, including the $8000 tail, rather
+        // than sizing this source to however many compressed bytes happened to follow BG1.
+        ushort[] streamingAllocation = BuildPrefilledStreamingAllocation(
+            levelStream.AsSpan(foregroundOffset));
         ushort[] foreground = ReadWords(levelStream.AsSpan(foregroundOffset, layerByteCount));
         byte[] behavior = levelStream.AsSpan(behaviorOffset, blockCount).ToArray();
 
@@ -190,14 +196,13 @@ public sealed class CartridgeRoomAssets
             levelStream.AsSpan(backgroundOffset, availableBackgroundBytes));
         authoredBackground.CopyTo(background, 0);
 
-        // DisplayViewablePartOfRoom always asks for seventeen columns even though the SNES
-        // viewport is only sixteen blocks wide. At a room's right/bottom edge that request
-        // legally crosses the logical BG2 plane into the remainder of the level-data WRAM
-        // allocation, which LoadLevelDataAndOtherThings prefilled with $8000. Seventeen
-        // extra words cover the widest possible row overread; a one-screen Ridley room
-        // specifically consumes the first word at logical index 256.
-        ushort[] streamingBackground = new ushort[blockCount + 17];
-        Array.Fill(streamingBackground, (ushort)0x8000);
+        // The bank-$80 column producer performs the same full-height native overread from
+        // custom_background. A 17-word suffix covers a row request but not a bottom-aligned
+        // column: Ceres door $83:AB7C, for example, reaches index 556 in a 512-word plane.
+        // Give the copied BG2 plane the same maximum room allocation so those defined WRAM
+        // reads remain visible while genuinely impossible indices still fail loudly.
+        ushort[] streamingBackground = new ushort[RoomLevelMemoryLayout.PrefilledStreamingWordCount];
+        Array.Fill(streamingBackground, RoomLevelMemoryLayout.PrefilledLevelWord);
         background.CopyTo(streamingBackground, 0);
         return new RoomLevelData(
             widthInBlocks,
@@ -233,6 +238,29 @@ public sealed class CartridgeRoomAssets
         for (int index = 0; index < words.Length; index++)
             words[index] = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(index * 2)..]);
         return words;
+    }
+
+    /// <summary>
+    /// Reconstructs the word-addressable $7F level_data allocation after its native $8000
+    /// clear and the room decompressor's byte-exact overwrite.
+    /// </summary>
+    private static ushort[] BuildPrefilledStreamingAllocation(ReadOnlySpan<byte> payload)
+    {
+        // Large rooms legitimately decompress BG1+BTS+BG2 beyond the region cleared by the
+        // $6400-byte loop: `level_data` is merely the first view into the remainder of bank
+        // $7F. Retain every decompressed byte and add a filled tail only when the payload is
+        // shorter than the cleared region.
+        int prefilledBytes = checked(RoomLevelMemoryLayout.PrefilledStreamingWordCount * 2);
+        int allocationBytes = Math.Max(prefilledBytes, checked((payload.Length + 1) & ~1));
+
+        var bytes = new byte[allocationBytes];
+        for (int index = 0; index < bytes.Length; index += 2)
+        {
+            bytes[index] = unchecked((byte)RoomLevelMemoryLayout.PrefilledLevelWord);
+            bytes[index + 1] = unchecked((byte)(RoomLevelMemoryLayout.PrefilledLevelWord >> 8));
+        }
+        payload.CopyTo(bytes);
+        return ReadWords(bytes);
     }
 }
 

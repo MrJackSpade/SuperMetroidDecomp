@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -125,6 +126,27 @@ internal static partial class EarlyControllerRouteAudit
         {
             throw new InvalidDataException(
                 "Bomb Torizo hand was absent while the item message was open.");
+        }
+
+        // Reproduce issue #50 at the real Bomb acquisition boundary. Start is sampled by
+        // the outer state-eight dispatcher on this frame, while bank $85 still owns the
+        // nested message/fanfare coroutine. Retail must leave the frontend in gameplay;
+        // entering $0C here lets the pause fade steal the item presentation.
+        if (host.Frontend is SuperMetroidGame frontend)
+        {
+            host.StepFrame((ushort)SnesButton.Start);
+            if (frontend.GameState != SuperMetroidGameState.MainGameplay ||
+                !runtime.MessageBox.IsActive)
+            {
+                throw new InvalidDataException(
+                    $"Start during the Bomb item presentation entered {frontend.GameState} " +
+                    $"with message-active={runtime.MessageBox.IsActive}.");
+            }
+            if (!runtime.Plms.HasActiveHeader(0xd6ea) || torizo.AwakeningReleased)
+            {
+                throw new InvalidDataException(
+                    "Start during the Bomb item presentation advanced its frozen PLM/enemy owners.");
+            }
         }
 
         int messageFrames = 0;

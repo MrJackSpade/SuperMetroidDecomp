@@ -79,6 +79,38 @@ public sealed class BackgroundScrollState
     }
 
     /// <summary>
+    /// Implements <c>$80:AE29</c> after a directional door setup has staged its off-screen
+    /// layer-one coordinate. BG1 retains the source-room PPU scroll while state $0B clears
+    /// both BG2 registers; all four offsets then remain active throughout the opening IRQ.
+    /// </summary>
+    public void ConfigureDoorOpeningOffsets(
+        ushort retainedBg1Horizontal,
+        ushort retainedBg1Vertical,
+        ushort stagedLayer1X,
+        ushort stagedLayer1Y)
+    {
+        Bg1XOffset = unchecked((ushort)(retainedBg1Horizontal - stagedLayer1X));
+        Bg1YOffset = unchecked((ushort)(retainedBg1Vertical - stagedLayer1Y));
+        Bg2XOffset = unchecked((ushort)(0 - stagedLayer1X));
+        Bg2YOffset = unchecked((ushort)(0 - stagedLayer1Y));
+    }
+
+    /// <summary>
+    /// Implements the two <c>CalculateLayer2*pos</c> calls made by each directional door
+    /// setup after bank $82 installs the destination layer-one coordinates. Fixed mode one
+    /// deliberately retains its old layer-two word, exactly like the native early return.
+    /// </summary>
+    public void PrepareDoorOpeningDestination(ushort layer1X, ushort layer1Y)
+    {
+        Layer1XPosition = layer1X;
+        Layer1YPosition = layer1Y;
+        if (TryCalculateLayer2Position(layer1X, Layer2ScrollX, out ushort layer2X))
+            Layer2XPosition = layer2X;
+        if (TryCalculateLayer2Position(layer1Y, Layer2ScrollY, out ushort layer2Y))
+            Layer2YPosition = layer2Y;
+    }
+
+    /// <summary>
     /// Implements the gameplay entry point at <c>$80:A3AB</c>. A frozen frame performs no
     /// register, parallax, previous-block, or streaming-request changes.
     /// </summary>

@@ -225,7 +225,7 @@ public sealed class GameplayMessageBoxState
                 RadiusPixels = _nextOpeningRadiusPixels;
                 if (RadiusPixels == MaximumRadiusPixels)
                 {
-                    if (MessageId == 0x17)
+                    if (MessageId == GameplayMessageIds.SaveConfirmation)
                     {
                         MinimumDisplayFramesRemaining = 0;
                         Phase = GameplayMessageBoxPhase.AwaitingInput;
@@ -236,7 +236,11 @@ public sealed class GameplayMessageBoxState
                         // lag frames. Equipment descriptions use $0168 (360). Treating
                         // every ordinary message as equipment left Samus locked in a map
                         // station while its access-loop sound continued for six seconds.
-                        MinimumDisplayFramesRemaining = MessageId is 0x14 or 0x15 or 0x16 or 0x18
+                        MinimumDisplayFramesRemaining = MessageId is
+                            GameplayMessageIds.MapDataAccessCompleted or
+                            GameplayMessageIds.EnergyRechargeCompleted or
+                            GameplayMessageIds.MissileRechargeCompleted or
+                            GameplayMessageIds.SaveCompleted
                             ? StationMinimumDisplayFrames
                             : ItemMinimumDisplayFrames;
                         Phase = GameplayMessageBoxPhase.MinimumDisplay;
@@ -252,7 +256,7 @@ public sealed class GameplayMessageBoxState
                 return;
 
             case GameplayMessageBoxPhase.AwaitingInput:
-                if (MessageId == 0x17)
+                if (MessageId == GameplayMessageIds.SaveConfirmation)
                 {
                     // Bank $85's save selector owns the same synchronous window as item
                     // boxes. Horizontal input changes the two-choice cursor; A confirms the
@@ -320,7 +324,7 @@ public sealed class GameplayMessageBoxState
     /// </summary>
     private void DrawSaveConfirmationSelection()
     {
-        if (MessageId != 0x17 && MessageId != 0)
+        if (MessageId != GameplayMessageIds.SaveConfirmation && MessageId != 0)
             return;
         ISnesAddressSpace source = _activeBus
             ?? throw new InvalidOperationException(

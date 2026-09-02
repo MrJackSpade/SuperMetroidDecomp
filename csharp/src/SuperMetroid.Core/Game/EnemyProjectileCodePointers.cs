@@ -45,6 +45,9 @@ internal static class EnemyProjectileCodePointers
     /// <summary><c>RTS_86C76D</c> at $86:C76D. Mother Brain's charging/fired red hand-beam list owns all motion.</summary>
     public const ushort RTS_86C76D = 0xc76d;
 
+    /// <summary><c>RTS_86E6D1</c> at $86:E6D1. Save-station electricity is stationary after its PLM-relative initializer.</summary>
+    public const ushort RTS_86E6D1 = 0xe6d1;
+
     /// <summary><c>PreInst_EnemyProjectile_BombTorizoChozoBreaking_Falling</c> at $86:A8EF. Bomb Torizo hand fragment: fall until room collision.</summary>
     public const ushort PreInst_EnemyProjectile_BombTorizoChozoBreaking_Falling = 0xa8ef;
 

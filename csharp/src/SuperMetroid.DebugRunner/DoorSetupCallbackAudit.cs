@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 
 /// <summary>
 /// Executes every translated pure-scroll door callback against the bytes in the private
@@ -10,7 +11,12 @@ internal static class DoorSetupCallbackAudit
 {
     private const int ScratchScrollSource = 0x7e2000;
     private const int ExpectedPureScrollCallbackCount = 74;
+    private const int ExpectedRetailCallbackCount = 82;
     private const byte UnwrittenSentinel = 0x7f;
+    private const ushort WreckedShipEntranceRoom = 0xca08;
+    private const ushort MaridiaElevatubeRoom = 0xd408;
+    private const ushort OasisRoom = 0xd48e;
+    private const ushort PlasmaSparkRoom = 0xd340;
 
     public static int Run(string romPath)
     {
@@ -26,10 +32,312 @@ internal static class DoorSetupCallbackAudit
         foreach (ushort pointer in pointers)
             VerifyProgram(bus, pointer);
 
+        VerifyWreckedShipTreadmillCallbacks(bus);
+        VerifyMaridiaElevatubeCallbacks(bus);
+
         Console.WriteLine(
-            $"Door setup callback audit passed {pointers.Length} pure scroll programs " +
-            "against their cartridge instructions.");
+            $"Door setup callback audit passed all {ExpectedRetailCallbackCount} retail " +
+            $"callbacks: {pointers.Length} pure scroll, 2 Ceres Mode-7, " +
+            "2 Wrecked Ship treadmill, and 4 Maridia elevatube programs.");
         return 0;
+    }
+
+    private static void VerifyWreckedShipTreadmillCallbacks(SuperMetroidAddressSpace bus)
+    {
+        VerifyWreckedShipTreadmill(
+            bus,
+            DoorPointers.WreckedShipEntranceFromWestOcean,
+            WreckedShipTreadmillDirection.Rightwards,
+            RoomPlmHeaders.WreckedShipEntranceTreadmillFromWest,
+            WreckedShipTreadmillPlmRomData.RightwardsBehavior,
+            [
+                WreckedShipTreadmillRomData.Frame0Source,
+                WreckedShipTreadmillRomData.Frame1Source,
+                WreckedShipTreadmillRomData.Frame2Source,
+                WreckedShipTreadmillRomData.Frame3Source,
+            ]);
+        VerifyWreckedShipTreadmill(
+            bus,
+            DoorPointers.WreckedShipEntranceFromMainShaft,
+            WreckedShipTreadmillDirection.Leftwards,
+            RoomPlmHeaders.WreckedShipEntranceTreadmillFromEast,
+            WreckedShipTreadmillPlmRomData.LeftwardsBehavior,
+            [
+                WreckedShipTreadmillRomData.Frame3Source,
+                WreckedShipTreadmillRomData.Frame2Source,
+                WreckedShipTreadmillRomData.Frame1Source,
+                WreckedShipTreadmillRomData.Frame0Source,
+            ]);
+    }
+
+    private static void VerifyWreckedShipTreadmill(
+        SuperMetroidAddressSpace bus,
+        ushort doorPointer,
+        WreckedShipTreadmillDirection direction,
+        ushort expectedPlmHeader,
+        byte expectedBts,
+        ReadOnlySpan<int> expectedSources)
+    {
+        CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, doorPointer);
+        if (door.DestinationRoomPointer != WreckedShipEntranceRoom)
+        {
+            throw new InvalidDataException(
+                $"Treadmill door $83:{doorPointer:X4} targets ${door.DestinationRoomPointer:X4}, " +
+                $"not Wrecked Ship entrance ${WreckedShipEntranceRoom:X4}.");
+        }
+
+        // First prove the pre-Phantoon branch: setup always clears all 56 entries, while
+        // the first PLM handler pass deletes without installing type-three treadmill BTS.
+        SuperMetroidRuntime inactiveRuntime = CreateRuntime(bus);
+        inactiveRuntime.LoadCartridgeRoomForDebug(WreckedShipEntranceRoom);
+        inactiveRuntime.RunDoorSetupForVerification(door);
+        AssertTreadmillWords(
+            inactiveRuntime,
+            WreckedShipTreadmillPlmRomData.BlankAirWord,
+            expectedBts: null);
+        AssertResidentHeader(inactiveRuntime.Plms, expectedPlmHeader);
+        StepPlms(inactiveRuntime);
+        if (inactiveRuntime.Plms.PopulationSlots.Any(slot => slot.HeaderPointer == expectedPlmHeader))
+            throw new InvalidDataException($"Treadmill PLM ${expectedPlmHeader:X4} did not delete.");
+        AssertTreadmillWords(
+            inactiveRuntime,
+            WreckedShipTreadmillPlmRomData.BlankAirWord,
+            expectedBts: null);
+
+        // Then select the powered Wrecked Ship state before room load and prove both the
+        // collision row and the bank-$87 source order produced by the same door callback.
+        SuperMetroidRuntime poweredRuntime = CreateRuntime(bus);
+        poweredRuntime.System.SetBossBits(areaIndex: 3, BossBits.AreaBoss);
+        poweredRuntime.LoadCartridgeRoomForDebug(WreckedShipEntranceRoom);
+        poweredRuntime.RunDoorSetupForVerification(door);
+        if (!poweredRuntime.WreckedShipTreadmill.IsActive ||
+            poweredRuntime.WreckedShipTreadmill.Direction != direction)
+        {
+            throw new InvalidDataException(
+                $"Door $83:{doorPointer:X4} did not spawn {direction} animated tiles.");
+        }
+        AssertTreadmillWords(
+            poweredRuntime,
+            WreckedShipTreadmillPlmRomData.BlankAirWord,
+            expectedBts: null);
+        StepPlms(poweredRuntime);
+        AssertTreadmillWords(
+            poweredRuntime,
+            WreckedShipTreadmillPlmRomData.ActiveTreadmillWord,
+            expectedBts);
+
+        for (int frame = 0; frame < expectedSources.Length; frame++)
+        {
+            poweredRuntime.WreckedShipTreadmill.Step(
+                areaBossDefeated: true,
+                poweredRuntime.VramWrites);
+            if (poweredRuntime.WreckedShipTreadmill.LastSourceAddress != expectedSources[frame])
+            {
+                throw new InvalidDataException(
+                    $"Door $83:{doorPointer:X4} treadmill frame {frame} selected " +
+                    $"${poweredRuntime.WreckedShipTreadmill.LastSourceAddress:X6}, expected " +
+                    $"${expectedSources[frame]:X6}.");
+            }
+            VramWriteEntry transfer = poweredRuntime.VramWrites.Entries[^1];
+            if (transfer.SizeInBytes != WreckedShipTreadmillRomData.TransferByteCount ||
+                transfer.EncodedVramDestination !=
+                    WreckedShipTreadmillRomData.EncodedVramDestination)
+            {
+                throw new InvalidDataException(
+                    $"Door $83:{doorPointer:X4} published a malformed treadmill VRAM transfer.");
+            }
+        }
+    }
+
+    private static void VerifyMaridiaElevatubeCallbacks(SuperMetroidAddressSpace bus)
+    {
+        VerifyMaridiaElevatubeEntry(
+            bus,
+            DoorPointers.MaridiaElevatubeFromSouth,
+            fromSouth: true,
+            expectedPosition: MaridiaElevatubeRomData.SouthStartingPosition,
+            expectedVelocity: MaridiaElevatubeRomData.SouthStartingVelocity,
+            expectedAcceleration: MaridiaElevatubeRomData.SouthAcceleration,
+            expectedPositionAfterStep: 0x09bf,
+            expectedVelocityAfterStep: 0xfee0);
+        VerifyMaridiaElevatubeEntry(
+            bus,
+            DoorPointers.MaridiaElevatubeFromNorth,
+            fromSouth: false,
+            expectedPosition: MaridiaElevatubeRomData.NorthStartingPosition,
+            expectedVelocity: MaridiaElevatubeRomData.NorthStartingVelocity,
+            expectedAcceleration: MaridiaElevatubeRomData.NorthAcceleration,
+            expectedPositionAfterStep: 0x0041,
+            expectedVelocityAfterStep: 0x0120);
+
+        VerifyMaridiaElevatubeExit(
+            bus,
+            DoorPointers.MaridiaElevatubeSouthExit,
+            OasisRoom,
+            expectsGreenLeadingScrolls: true);
+        VerifyMaridiaElevatubeExit(
+            bus,
+            DoorPointers.MaridiaElevatubeNorthExit,
+            PlasmaSparkRoom,
+            expectsGreenLeadingScrolls: false);
+    }
+
+    private static void VerifyMaridiaElevatubeEntry(
+        SuperMetroidAddressSpace bus,
+        ushort doorPointer,
+        bool fromSouth,
+        ushort expectedPosition,
+        ushort expectedVelocity,
+        ushort expectedAcceleration,
+        ushort expectedPositionAfterStep,
+        ushort expectedVelocityAfterStep)
+    {
+        CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, doorPointer);
+        if (door.DestinationRoomPointer != MaridiaElevatubeRoom)
+        {
+            throw new InvalidDataException(
+                $"Elevatube entry $83:{doorPointer:X4} targets " +
+                $"${door.DestinationRoomPointer:X4}, not ${MaridiaElevatubeRoom:X4}.");
+        }
+
+        SuperMetroidRuntime runtime = CreateRuntime(bus);
+        runtime.LoadCartridgeRoomForDebug(MaridiaElevatubeRoom);
+        runtime.RunDoorSetupForVerification(door);
+        SamusState samus = runtime.Samus ?? throw new InvalidDataException(
+            "Elevatube entry lost Samus.");
+        MaridiaElevatubeRoomMainState state = runtime.MaridiaElevatube;
+        if (!state.IsActive || !samus.InputLocked || state.PositionSubposition != 0 ||
+            state.Position != expectedPosition || state.Velocity != expectedVelocity ||
+            state.Acceleration != expectedAcceleration)
+        {
+            throw new InvalidDataException(
+                $"Elevatube {(fromSouth ? "south" : "north")} setup words do not match ROM.");
+        }
+        AssertResidentHeader(runtime.Plms, RoomPlmHeaders.MaridiaElevatube);
+
+        // Place Samus in open tube space so this assertion isolates $E2B6's arithmetic
+        // rather than a doorway boundary inherited from direct debug loading.
+        samus.XPosition = 0x0040;
+        samus.Kinematics.XSubposition = 0xffff;
+        samus.YPosition = 0x0500;
+        samus.Kinematics.YSubposition = 0;
+        RoomLevelData level = runtime.LevelData ?? throw new InvalidDataException(
+            "Elevatube room has no level data.");
+        _ = state.Step(bus, level, samus, nmiFrameCounter: 0, runtime.Plms);
+        if (samus.XPosition != MaridiaElevatubeRomData.SamusCenterX ||
+            samus.Kinematics.XSubposition != 0 || state.Position != expectedPositionAfterStep ||
+            state.PositionSubposition != 0 || state.Velocity != expectedVelocityAfterStep)
+        {
+            throw new InvalidDataException(
+                $"Elevatube {(fromSouth ? "south" : "north")} first room-main step diverged.");
+        }
+
+        bool soundObserved = false;
+        for (int frame = 0; frame < 17; frame++)
+        {
+            StepPlms(runtime);
+            soundObserved |= runtime.Plms.SoundRequests.Any(
+                sound => sound is { Library: 2, SoundId: 0x15, MaximumQueued: 6 });
+        }
+        if (!soundObserved || runtime.Plms.PopulationSlots.Any(
+                slot => slot.HeaderPointer == RoomPlmHeaders.MaridiaElevatube))
+        {
+            throw new InvalidDataException(
+                "Elevatube PLM did not queue library-two sound $15 and delete after 16 frames.");
+        }
+    }
+
+    private static void VerifyMaridiaElevatubeExit(
+        SuperMetroidAddressSpace bus,
+        ushort doorPointer,
+        ushort destinationRoom,
+        bool expectsGreenLeadingScrolls)
+    {
+        CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, doorPointer);
+        if (door.DestinationRoomPointer != destinationRoom)
+        {
+            throw new InvalidDataException(
+                $"Elevatube exit $83:{doorPointer:X4} targets ${door.DestinationRoomPointer:X4}, " +
+                $"expected ${destinationRoom:X4}.");
+        }
+
+        SuperMetroidRuntime runtime = CreateRuntime(bus);
+        runtime.LoadCartridgeRoomForDebug(destinationRoom);
+        SamusState samus = runtime.Samus ?? throw new InvalidDataException(
+            "Elevatube exit lost Samus.");
+        samus.InputLocked = true;
+        runtime.RunDoorSetupForVerification(door);
+        if (samus.InputLocked || runtime.MaridiaElevatube.IsActive)
+            throw new InvalidDataException($"Elevatube exit $83:{doorPointer:X4} did not unlock Samus.");
+        if (expectsGreenLeadingScrolls)
+        {
+            RoomScrollGrid scrolls = runtime.Camera?.Scrolls ?? throw new InvalidDataException(
+                "Elevatube south exit has no scroll grid.");
+            if (scrolls.ReadStorage(0) != (byte)RoomScrollState.Green ||
+                scrolls.ReadStorage(1) != (byte)RoomScrollState.Green)
+            {
+                throw new InvalidDataException(
+                    "Elevatube south exit did not reproduce the cartridge's $0202 scroll write.");
+            }
+        }
+    }
+
+    private static SuperMetroidRuntime CreateRuntime(SuperMetroidAddressSpace bus)
+    {
+        var runtime = new SuperMetroidRuntime(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        return runtime;
+    }
+
+    private static void StepPlms(SuperMetroidRuntime runtime)
+    {
+        RoomLevelData level = runtime.LevelData ?? throw new InvalidDataException(
+            "Door callback audit has no active level.");
+        BackgroundTilemapStreamer streamer = runtime.BackgroundStreamer ??
+            throw new InvalidDataException("Door callback audit has no background streamer.");
+        ScrollBoundaryCamera camera = runtime.Camera ?? throw new InvalidDataException(
+            "Door callback audit has no camera.");
+        _ = runtime.Plms.Step(
+            runtime.AddressSpace,
+            level,
+            streamer,
+            camera.XPosition,
+            camera.YPosition,
+            runtime.BackgroundScroll.Bg1XOffset,
+            camera.Scrolls);
+    }
+
+    private static void AssertResidentHeader(RoomPlmSystem plms, ushort header)
+    {
+        if (!plms.PopulationSlots.Any(slot => slot.HeaderPointer == header))
+            throw new InvalidDataException($"Door callback did not spawn PLM header $84:{header:X4}.");
+    }
+
+    private static void AssertTreadmillWords(
+        SuperMetroidRuntime runtime,
+        ushort expectedLevelWord,
+        byte? expectedBts)
+    {
+        RoomLevelData level = runtime.LevelData ?? throw new InvalidDataException(
+            "Treadmill callback has no active level.");
+        int origin = level.GetBlockIndex(
+            WreckedShipTreadmillPlmRomData.BlockX,
+            WreckedShipTreadmillPlmRomData.BlockY);
+        for (int offset = 0; offset < WreckedShipTreadmillPlmRomData.BlockCount; offset++)
+        {
+            RoomCollisionBlock block = level.GetCollisionBlockByIndex(origin + offset);
+            if (block.LevelWord != expectedLevelWord ||
+                (expectedBts is byte bts && block.Behavior != bts))
+            {
+                throw new InvalidDataException(
+                    $"Treadmill block {offset} is word ${block.LevelWord:X4}/BTS " +
+                    $"${block.Behavior:X2}; expected ${expectedLevelWord:X4}/" +
+                    (expectedBts is byte value ? $"${value:X2}." : "unchanged."));
+            }
+        }
     }
 
     private static void VerifyProgram(SuperMetroidAddressSpace bus, ushort pointer)

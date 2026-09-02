@@ -353,6 +353,14 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     public CeresElevatorShaftRoomMainState CeresElevatorShaft { get; } = new();
 
+    /// <summary>
+    /// Door-spawned bank-$87 animated-tile object for the Wrecked Ship entrance treadmill.
+    /// </summary>
+    public WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; } = new();
+
+    /// <summary>Room-main owner for Maridia elevatube routine $8F:E2B6.</summary>
+    public MaridiaElevatubeRoomMainState MaridiaElevatube { get; } = new();
+
     /// <summary>Most recent <c>$89:ACC3</c> room-main call.</summary>
     public CeresElevatorShaftRoomMainResult LastCeresElevatorShaftRoomMain { get; private set; }
 
@@ -3916,6 +3924,32 @@ public sealed partial class SuperMetroidRuntime
                 Camera.YPosition,
                 timeIsFrozen: TimeIsFrozen,
                 VramWrites);
+        }
+
+        // Door ASM $B971/$E1D8 creates an ordinary bank-$87 animated-tile object. Its
+        // handler publishes one 32-byte source per frame only after Phantoon's area-boss
+        // bit is set; NMI consumes the queued transfer on the following accepted frame.
+        if (WreckedShipTreadmill.IsActive)
+        {
+            byte areaIndex = ActiveRoom?.AreaIndex ?? throw new InvalidOperationException(
+                "A live Wrecked Ship treadmill animation has no active cartridge room.");
+            WreckedShipTreadmill.Step(
+                System.HasAnyBossBits(areaIndex, BossBits.AreaBoss),
+                VramWrites);
+        }
+
+        // Room main $8F:E2B6 is selected by the room state rather than by coordinates.
+        // It runs at the common room-main seam after gameplay drawing and before shaking.
+        if (MaridiaElevatube.IsActive)
+        {
+            if (LevelData is null)
+                throw new InvalidOperationException("Maridia elevatube has no active room level.");
+            _ = MaridiaElevatube.Step(
+                _addressSpace,
+                LevelData,
+                Samus,
+                NmiFrameCounter,
+                Plms);
         }
 
         // Execute the active room's bank-$8F wrapper at the same seam as Landing Site's

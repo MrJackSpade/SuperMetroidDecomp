@@ -268,6 +268,24 @@ internal static class DoorCodes
 /// <summary>Bank-$83 cartridge door-header pointers referenced by translated logic.</summary>
 internal static class DoorPointers
 {
+    /// <summary>West Ocean door entering the Wrecked Ship entrance from the west.</summary>
+    public const ushort WreckedShipEntranceFromWestOcean = 0x89d6;
+
+    /// <summary>Wrecked Ship main-shaft door entering its entrance from the east.</summary>
+    public const ushort WreckedShipEntranceFromMainShaft = 0xa1f8;
+
+    /// <summary>Oasis south door entering the Maridia elevatube.</summary>
+    public const ushort MaridiaElevatubeFromSouth = 0xa678;
+
+    /// <summary>Plasma Spark north door entering the Maridia elevatube.</summary>
+    public const ushort MaridiaElevatubeFromNorth = 0xa5ac;
+
+    /// <summary>Maridia elevatube south exit into Oasis.</summary>
+    public const ushort MaridiaElevatubeSouthExit = 0xa600;
+
+    /// <summary>Maridia elevatube north exit into Plasma Spark.</summary>
+    public const ushort MaridiaElevatubeNorthExit = 0xa60c;
+
     /// <summary>Door leaving Landing Site for Parlor and Alcatraz.</summary>
     public const ushort ParlorFromLandingSite = 0x8916;
 

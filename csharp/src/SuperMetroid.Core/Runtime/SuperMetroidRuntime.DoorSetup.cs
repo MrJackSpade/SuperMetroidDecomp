@@ -58,6 +58,28 @@ public sealed partial class SuperMetroidRuntime
                 CeresElevatorShaft.Reset(active: false);
                 return;
 
+            case DoorCodes.DoorASM_StartWreckedShipTreadmillWestEntrance:
+                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards);
+                return;
+
+            case DoorCodes.DoorASM_StartWreckedShipTreadmillEastEntrance:
+                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards);
+                return;
+
+            case DoorCodes.DoorASM_SetupElevatubeFromSouth:
+                SetUpMaridiaElevatube(fromSouth: true);
+                return;
+
+            case DoorCodes.DoorASM_SetupElevatubeFromNorth:
+                SetUpMaridiaElevatube(fromSouth: false);
+                return;
+
+            case DoorCodes.DoorASM_ResetElevatubeOnNorthExit:
+            case DoorCodes.DoorASM_ResetElevatubeOnSouthExit:
+                MaridiaElevatube.ResetOnExit(Samus ?? throw new InvalidOperationException(
+                    "Maridia elevatube exit setup requires an active Samus state."));
+                return;
+
             default:
                 if (DoorScrollPrograms.Contains(door.SetupCodePointer))
                     return;
@@ -76,6 +98,49 @@ public sealed partial class SuperMetroidRuntime
             ?? throw new InvalidOperationException("No active door exists in the captured state.");
         RunDoorSetupCode(door);
     }
+
+    /// <summary>
+    /// Test seam for invoking a real cartridge header after directly loading its destination
+    /// room. Production reaches the identical private dispatcher through door transition.
+    /// </summary>
+    internal void RunDoorSetupForVerification(CartridgeDoorHeader door) =>
+        RunDoorSetupCode(door);
+
+    private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction)
+    {
+        if (LevelData is null || BackgroundStreamer is null || ActiveRoom is null)
+        {
+            throw new InvalidOperationException(
+                "Wrecked Ship treadmill door setup requires an active destination room.");
+        }
+
+        WreckedShipTreadmill.Start(direction);
+        // Both native spawn helpers return carry set when their fixed arrays are full, and
+        // the door routine deliberately ignores that result. The dedicated animated owner
+        // above cannot exhaust; preserve the PLM allocator's native false result here.
+        _ = Plms.TrySpawnWreckedShipEntranceTreadmill(
+            LevelData,
+            BackgroundStreamer,
+            direction,
+            System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss));
+    }
+
+    private void SetUpMaridiaElevatube(bool fromSouth)
+    {
+        if (LevelData is null)
+            throw new InvalidOperationException("Maridia elevatube setup requires active level data.");
+        SamusState samus = Samus ?? throw new InvalidOperationException(
+            "Maridia elevatube setup requires an active Samus state.");
+
+        if (fromSouth)
+            MaridiaElevatube.SetUpFromSouth(samus);
+        else
+            MaridiaElevatube.SetUpFromNorth(samus);
+
+        // The door routine ignores SpawnHardcodedPLM's carry result when all forty IDs are
+        // occupied. Retaining the bool-returning allocator preserves that cartridge edge.
+        _ = Plms.TrySpawnMaridiaElevatube(LevelData);
+    }
 }
 
 /// <summary>Pure scroll-byte portion of translated bank-$8F door setup programs.</summary>
@@ -92,8 +157,21 @@ internal static class DoorSetupCodeInterpreter
             case 0:
             case DoorCodes.DoorASM_ToCeresElevatorShaft:
             case DoorCodes.DoorASM_FromCeresElevatorShaft:
+            case DoorCodes.DoorASM_StartWreckedShipTreadmillWestEntrance:
+            case DoorCodes.DoorASM_StartWreckedShipTreadmillEastEntrance:
+            case DoorCodes.DoorASM_SetupElevatubeFromSouth:
+            case DoorCodes.DoorASM_SetupElevatubeFromNorth:
+            case DoorCodes.DoorASM_ResetElevatubeOnNorthExit:
                 // The two Ceres routines change PPU/Mode-7 state, not room scroll bytes.
-                // Their non-scroll effects are applied by SuperMetroidRuntime above.
+                // The treadmill and first three elevatube routines likewise own only
+                // object/Samus state. Their non-scroll effects are applied by the runtime.
+                return;
+
+            case DoorCodes.DoorASM_ResetElevatubeOnSouthExit:
+                // $8F:E309 performs one 16-bit $0202 store at $7E:CD20. The typed grid
+                // expresses the same two green storage bytes before Samus is unlocked.
+                scrolls.SetStorage(0, (byte)RoomScrollState.Green);
+                scrolls.SetStorage(1, (byte)RoomScrollState.Green);
                 return;
 
             default:

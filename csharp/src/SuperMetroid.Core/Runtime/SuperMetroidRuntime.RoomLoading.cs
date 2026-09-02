@@ -579,6 +579,9 @@ public sealed partial class SuperMetroidRuntime
         ActiveRoom = room;
         ActiveRoomAssets = assets;
         _ceresFallingDebrisTimer = 0;
+        WreckedShipTreadmill.Reset();
+        MaridiaElevatube.Reset(
+            active: room.State.MainCodePointer == MaridiaElevatubeRomData.MainCodePointer);
         CeresElevatorShaft.Reset(
             active: room.State.MainCodePointer == CeresElevatorShaftRoomMainState.MainCodePointer &&
                 door.UsesCeresElevatorMode7);

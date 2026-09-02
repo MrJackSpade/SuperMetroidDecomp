@@ -3,6 +3,12 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Named bank-$84 PLM header pointers consumed by room integration code.</summary>
 internal static class RoomPlmHeaders
 {
+    /// <summary>Wrecked Ship entrance treadmill entered from the west at $84:B64B.</summary>
+    public const ushort WreckedShipEntranceTreadmillFromWest = 0xb64b;
+
+    /// <summary>Wrecked Ship entrance treadmill entered from the east at $84:B64F.</summary>
+    public const ushort WreckedShipEntranceTreadmillFromEast = 0xb64f;
+
     /// <summary>Clear Crocomire bridge PLM at $84:B747.</summary>
     public const ushort ClearCrocomireBridge = 0xb747;
 
@@ -29,11 +35,20 @@ internal static class RoomPlmHeaders
 
     /// <summary>Crumble Botwoon's wall PLM at $84:B79B.</summary>
     public const ushort CrumbleBotwoonWall = 0xb79b;
+
+    /// <summary>Maridia elevatube delay/sound PLM at $84:B8F9.</summary>
+    public const ushort MaridiaElevatube = 0xb8f9;
 }
 
 /// <summary>Named bank-$84 PLM instruction-list pointers shared across room systems.</summary>
 internal static class RoomPlmInstructionLists
 {
+    /// <summary>Wrecked Ship west-entry treadmill instruction list at $84:AD38.</summary>
+    public const ushort WreckedShipEntranceTreadmillFromWest = 0xad38;
+
+    /// <summary>Wrecked Ship east-entry treadmill instruction list at $84:AD4D.</summary>
+    public const ushort WreckedShipEntranceTreadmillFromEast = 0xad4d;
+
     /// <summary>Clear Crocomire bridge instruction list at $84:AFCA.</summary>
     public const ushort ClearCrocomireBridge = 0xafca;
 
@@ -48,4 +63,7 @@ internal static class RoomPlmInstructionLists
 
     /// <summary>Create Crocomire invisible wall instruction list at $84:AFE2.</summary>
     public const ushort CreateCrocomireInvisibleWall = 0xafe2;
+
+    /// <summary>Maridia elevatube's sixteen-frame delay and sound list at $84:B8F0.</summary>
+    public const ushort MaridiaElevatube = 0xb8f0;
 }

@@ -159,6 +159,7 @@ public sealed partial class RoomPlmSystem
             slot.GreyDoor = null;
             slot.Station = null;
             slot.IsElevatorPlatform = false;
+            slot.Treadmill = null;
         }
         _soundRequests.Clear();
         _tilemapUpdates.Clear();
@@ -1002,6 +1003,9 @@ public sealed partial class RoomPlmSystem
             if (TryStepScrollPlm(bus, level, scrolls, slot))
                 continue;
 
+            if (TryStepWreckedShipTreadmill(level, streamer, slot))
+                continue;
+
             if (TryStepStation(
                     bus,
                     level,
@@ -1428,6 +1432,8 @@ public sealed partial class RoomPlmSystem
         public StationPlmState? Station { get; set; }
         /// <summary>Marks header $B70B while its animation remains generic list execution.</summary>
         public bool IsElevatorPlatform { get; set; }
+        /// <summary>Semantic owner for door-spawned Wrecked Ship treadmill PLMs.</summary>
+        public WreckedShipTreadmillPlmState? Treadmill { get; set; }
     }
 }
 

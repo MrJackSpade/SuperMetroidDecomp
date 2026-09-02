@@ -203,6 +203,7 @@ public sealed partial class RoomPlmSystem
         slot.GreyDoor = null;
         slot.Station = null;
         slot.IsElevatorPlatform = false;
+        slot.Treadmill = null;
     }
 
     private bool TryRunRoomPopulationSetup(

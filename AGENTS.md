@@ -28,8 +28,10 @@
   verification. Do not leave recoverable work only in the local working tree between
   handoffs.
 - Keep commits logically sized and scoped. A focused fix and its regression test belong
-  together; independent fixes should use separate commits when doing so does not strand
-  the tree in a broken intermediate state.
+  together. Prefer one commit per reported ticket, containing that ticket's production fix
+  and regression test. Use a shared commit only when multiple tickets have the same root
+  cause or cannot be separated without leaving a broken intermediate state, and identify
+  every covered ticket in the commit message or body.
 - Never rewrite or discard the user's history to accomplish this. A committed regression
   can be reverted, while uncommitted lost work cannot be recovered.
 

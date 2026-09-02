@@ -33,10 +33,6 @@ public sealed partial class SuperMetroidRuntime
             case 0:
                 return;
 
-            case DoorCodes.DoorASM_Scroll_0_Green_1_Blue:
-            case DoorCodes.DoorCode_Scroll6_Green:
-                return;
-
             case DoorCodes.DoorASM_ToCeresElevatorShaft:
                 // `$8F:E4E0` owns the Ceres Mode-7 matrix and center registers. Those
                 // values must exist before room graphics/actors initialize, so the shared
@@ -63,6 +59,8 @@ public sealed partial class SuperMetroidRuntime
                 return;
 
             default:
+                if (DoorScrollPrograms.Contains(door.SetupCodePointer))
+                    return;
                 throw new NotSupportedException(
                     $"Door $83:{door.Pointer:X4} setup AI $8F:{door.SetupCodePointer:X4} is not translated.");
         }
@@ -98,24 +96,9 @@ internal static class DoorSetupCodeInterpreter
                 // Their non-scroll effects are applied by SuperMetroidRuntime above.
                 return;
 
-            case DoorCodes.DoorASM_Scroll_0_Green_1_Blue:
-                // `$8F:BE25-$BE31` is `DoorASM_Scroll_0_Green_1_Blue`. The first byte
-                // allows downward camera tracking through screen zero; the second retains
-                // normal tracking in screen one. Leaving the room header's initial
-                // `[blue, red]` pair intact makes a jump in lower Construction Zone drive
-                // the camera upward until Samus exits the viewport and wraps around it.
-                scrolls.SetStorage(0, (byte)RoomScrollState.Green);
-                scrolls.SetStorage(1, (byte)RoomScrollState.Blue);
-                return;
-
-            case DoorCodes.DoorCode_Scroll6_Green:
-                // `DoorCode_Scroll6_Green` is the complete `$8F:B981` routine. The early
-                // return route reaches it through door $83:8B3E; retaining a red boundary
-                // at storage cell six would stop the same generic camera tracker there.
-                scrolls.SetStorage(6, (byte)RoomScrollState.Green);
-                return;
-
             default:
+                if (DoorScrollPrograms.TryApply(setupCodePointer, scrolls))
+                    return;
                 throw new NotSupportedException(
                     $"Door $83:{doorPointer:X4} setup AI $8F:{setupCodePointer:X4} is not translated.");
         }

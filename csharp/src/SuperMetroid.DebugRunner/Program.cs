@@ -21,6 +21,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length >= 2 && args[0] == "--door-setup-callback-audit")
+{
+    string doorSetupRomPath = string.Join(' ', args[1..]).Trim('"');
+    return DoorSetupCallbackAudit.Run(doorSetupRomPath);
+}
+
 if (args.Length >= 3 && args[0] == "--input-replay-audit")
 {
     return InputReplayAudit.Run(

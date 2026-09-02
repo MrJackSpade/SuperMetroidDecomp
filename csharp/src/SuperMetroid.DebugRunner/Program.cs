@@ -117,8 +117,13 @@ if (args.Length >= 2 && args[0] == "--door-transition-visual-audit")
 
 if (args.Length >= 2 && args[0] == "--vertical-room-entry-audit")
 {
-    string verticalEntryRomPath = string.Join(' ', args[1..]).Trim('"');
-    return EarlyControllerRouteAudit.RunVerticalRoomEntryAudit(verticalEntryRomPath);
+    string verticalEntryRomPath = args.Length == 2
+        ? args[1].Trim('"')
+        : string.Join(' ', args[1..^1]).Trim('"');
+    string? captureDirectory = args.Length == 2 ? null : args[^1].Trim('"');
+    return EarlyControllerRouteAudit.RunVerticalRoomEntryAudit(
+        verticalEntryRomPath,
+        captureDirectory);
 }
 
 if (args.Length >= 2 && args[0] == "--parlor-scroll-pose-probe-audit")

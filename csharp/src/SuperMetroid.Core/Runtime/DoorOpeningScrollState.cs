@@ -61,6 +61,7 @@ internal sealed class DoorOpeningScrollState
     public ushort FinalLayer2Y { get; }
     public uint FinalSamusXFixed { get; }
     public uint FinalSamusYFixed { get; }
+    public bool ShouldStreamAfterAdvance { get; private set; } = true;
 
     public static DoorOpeningScrollState Create(
         CartridgeDoorHeader door,
@@ -120,13 +121,14 @@ internal sealed class DoorOpeningScrollState
                 remainingFrames = 56;
                 break;
 
-            case 3: // Up starts at destination+$FF; its IRQ later snaps to +$20.
-                cameraY = unchecked((ushort)(destinationY + 255));
-                layer2Y = unchecked((ushort)(finalLayer2Y + 224));
+            case 3: // FixDoorsMovingUp leaves counter one for setup's first moving call.
+                sourceSamusYFixed = unchecked(sourceSamusYFixed - samusStep);
+                cameraY = unchecked((ushort)(destinationY + 251));
+                layer2Y = unchecked((ushort)(finalLayer2Y + 220));
                 samusY = ReplaceWholePosition(
                     unchecked((ushort)(cameraY + (byte)(sourceSamusYFixed >> 16))),
                     sourceSamusYFixed);
-                remainingFrames = 56;
+                remainingFrames = 55;
                 break;
 
             default:
@@ -157,6 +159,7 @@ internal sealed class DoorOpeningScrollState
         if (RemainingFrames <= 0)
             return true;
 
+        int frameCounter = Direction == 3 ? 57 - RemainingFrames : 0;
         int cameraDelta = Direction switch
         {
             0 or 2 => 4,
@@ -181,6 +184,7 @@ internal sealed class DoorOpeningScrollState
         }
 
         RemainingFrames--;
+        ShouldStreamAfterAdvance = Direction != 3 || frameCounter >= 5;
         if (RemainingFrames != 0)
             return false;
 

@@ -87,10 +87,8 @@ public sealed class DoorTransitionState
                 break;
 
             case DoorTransitionPhase.FixDoorsMovingUp:
-                // The upward-only staging correction changes previous block coordinates,
-                // not the final host framebuffer. Its coordinate consequence is included
-                // by BeginDoorOpeningScroll's +$FF origin.
                 runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.FixPendingDoorTilesMovingUp();
                 Phase = DoorTransitionPhase.SetupNewRoom;
                 break;
 

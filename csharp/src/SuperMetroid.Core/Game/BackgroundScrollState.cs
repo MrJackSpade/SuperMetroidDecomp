@@ -188,6 +188,94 @@ public sealed class BackgroundScrollState
     }
 
     /// <summary>
+    /// Executes <c>$80:AD1D</c>'s source-room row repair before an upward door replaces
+    /// the active level data. The routine deliberately restores its layer positions and
+    /// PPU mirrors but retains the row written by its temporary 16-pixel probe.
+    /// </summary>
+    public IReadOnlyList<BackgroundUpdateRequest> FixDoorsMovingUp()
+    {
+        ushort savedLayer1Y = Layer1YPosition;
+        ushort savedLayer2Y = Layer2YPosition;
+        ushort savedBg1Horizontal = Bg1HorizontalScroll;
+        ushort savedBg1Vertical = Bg1VerticalScroll;
+        ushort savedBg2Horizontal = Bg2HorizontalScroll;
+        ushort savedBg2Vertical = Bg2VerticalScroll;
+
+        Layer1YPosition = unchecked((ushort)(Layer1YPosition - 16));
+        Layer2YPosition = unchecked((ushort)(Layer2YPosition - 16));
+        CalculateScrollRegisters();
+        CalculateBlockCoordinates();
+        CopyCurrentBlocksToPrevious();
+        PreviousLayer1YBlock = unchecked((ushort)(PreviousLayer1YBlock + 1));
+        PreviousLayer2YBlock = unchecked((ushort)(PreviousLayer2YBlock + 1));
+        IReadOnlyList<BackgroundUpdateRequest> requests = CalculateBlocksAndUpdates();
+
+        Layer1YPosition = savedLayer1Y;
+        Layer2YPosition = savedLayer2Y;
+        Bg1HorizontalScroll = savedBg1Horizontal;
+        Bg1VerticalScroll = savedBg1Vertical;
+        Bg2HorizontalScroll = savedBg2Horizontal;
+        Bg2VerticalScroll = savedBg2Vertical;
+        return requests;
+    }
+
+    /// <summary>
+    /// Reconstructs the previous-block words left by the two vertical setup routines.
+    /// Down also returns frame zero's hidden row transfer; up carries frame counter one
+    /// from <c>FixDoorsMovingUp</c> and therefore performs no destination transfer yet.
+    /// </summary>
+    public IReadOnlyList<BackgroundUpdateRequest> PrimeVerticalDoorOpeningBlocks(
+        byte orientation,
+        ushort stagedLayer1Y,
+        ushort stagedLayer2Y)
+    {
+        int direction = orientation & 3;
+        if (direction is not 2 and not 3)
+            throw new ArgumentOutOfRangeException(
+                nameof(orientation), orientation, "Vertical door orientation must be 2 or 3.");
+
+        ushort actualLayer1Y = Layer1YPosition;
+        ushort actualLayer2Y = Layer2YPosition;
+        Layer1YPosition = stagedLayer1Y;
+        Layer2YPosition = stagedLayer2Y;
+        CalculateScrollRegisters();
+        CalculateBlockCoordinates();
+        CopyCurrentBlocksToPrevious();
+
+        if (direction == 3)
+        {
+            PreviousLayer1YBlock = unchecked((ushort)(PreviousLayer1YBlock + 1));
+            PreviousLayer2YBlock = unchecked((ushort)(PreviousLayer2YBlock + 1));
+            Layer1YPosition = actualLayer1Y;
+            Layer2YPosition = actualLayer2Y;
+            CalculateScrollRegisters();
+            return Array.Empty<BackgroundUpdateRequest>();
+        }
+
+        // DoorTransition_Down frame zero probes fifteen pixels above the staged viewport,
+        // publishes its newly exposed bottom row, and then restores the visible registers.
+        ushort savedBg1Horizontal = Bg1HorizontalScroll;
+        ushort savedBg1Vertical = Bg1VerticalScroll;
+        ushort savedBg2Horizontal = Bg2HorizontalScroll;
+        ushort savedBg2Vertical = Bg2VerticalScroll;
+        Layer1YPosition = unchecked((ushort)(stagedLayer1Y - 15));
+        Layer2YPosition = unchecked((ushort)(stagedLayer2Y - 15));
+        CalculateScrollRegisters();
+        CalculateBlockCoordinates();
+        CopyCurrentBlocksToPrevious();
+        PreviousLayer1YBlock = unchecked((ushort)(PreviousLayer1YBlock - 1));
+        PreviousLayer2YBlock = unchecked((ushort)(PreviousLayer2YBlock - 1));
+        IReadOnlyList<BackgroundUpdateRequest> requests = CalculateBlocksAndUpdates();
+        Layer1YPosition = actualLayer1Y;
+        Layer2YPosition = actualLayer2Y;
+        Bg1HorizontalScroll = savedBg1Horizontal;
+        Bg1VerticalScroll = savedBg1Vertical;
+        Bg2HorizontalScroll = savedBg2Horizontal;
+        Bg2VerticalScroll = savedBg2Vertical;
+        return requests;
+    }
+
+    /// <summary>
     /// Ports the 17-column force-blank fill at <c>$80:A176-$80:A210</c>.
     /// </summary>
     public IReadOnlyList<BackgroundUpdateRequest> BuildInitialViewportRequests()
@@ -248,6 +336,22 @@ public sealed class BackgroundScrollState
             Layer2YPosition = layer2Y;
             Bg2VerticalScroll = unchecked((ushort)(Layer2YPosition + Bg2YOffset));
         }
+    }
+
+    private void CalculateScrollRegisters()
+    {
+        Bg1HorizontalScroll = unchecked((ushort)(Layer1XPosition + Bg1XOffset));
+        Bg1VerticalScroll = unchecked((ushort)(Layer1YPosition + Bg1YOffset));
+        Bg2HorizontalScroll = unchecked((ushort)(Layer2XPosition + Bg2XOffset));
+        Bg2VerticalScroll = unchecked((ushort)(Layer2YPosition + Bg2YOffset));
+    }
+
+    private void CopyCurrentBlocksToPrevious()
+    {
+        PreviousLayer1XBlock = Layer1XBlock;
+        PreviousLayer1YBlock = Layer1YBlock;
+        PreviousLayer2XBlock = Layer2XBlock;
+        PreviousLayer2YBlock = Layer2YBlock;
     }
 
     private IReadOnlyList<BackgroundUpdateRequest> CalculateBlocksAndUpdates()

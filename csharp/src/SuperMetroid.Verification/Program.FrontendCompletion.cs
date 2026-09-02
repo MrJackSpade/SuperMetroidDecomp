@@ -169,7 +169,13 @@ static void VerifyDoorOpeningTrajectories()
             finalSamusXFixed: postNudgeX,
             finalSamusYFixed: postNudgeY);
 
-        int expectedFrames = direction < 2 ? 63 : 56;
+        int expectedFrames = direction switch
+        {
+            0 or 1 => 63,
+            2 => 56,
+            3 => 55,
+            _ => throw new InvalidOperationException(),
+        };
         AssertEqual(expectedFrames, trajectory.RemainingFrames,
             $"door direction {direction} remaining IRQ calls after setup");
         AssertEqual(direction switch
@@ -181,7 +187,7 @@ static void VerifyDoorOpeningTrajectories()
         AssertEqual(direction switch
         {
             2 => (ushort)(destinationY - 224),
-            3 => (ushort)(destinationY + 255),
+            3 => (ushort)(destinationY + 251),
             _ => destinationY,
         }, trajectory.CameraY, $"door direction {direction} initial camera Y");
 
@@ -189,6 +195,11 @@ static void VerifyDoorOpeningTrajectories()
         for (int frame = 0; frame < expectedFrames; frame++)
         {
             bool completed = trajectory.Advance();
+            if (direction == 3)
+            {
+                AssertEqual(frame >= 3, trajectory.ShouldStreamAfterAdvance,
+                    $"up-door counter {frame + 2} streaming gate");
+            }
             AssertEqual(frame == expectedFrames - 1, completed,
                 $"door direction {direction} completion call");
             ushort currentCamera = direction < 2 ? trajectory.CameraX : trajectory.CameraY;

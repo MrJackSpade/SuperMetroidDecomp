@@ -618,6 +618,50 @@ static void VerifyBackgroundScrollState()
     AssertEqual((ushort)0x000f, requests[0].SourceXBlock,
         "$80:AD74 left-door initial level column");
 
+    // `$80:AD1D` runs against the source room before an upward destination replaces its
+    // level-data pointer. Its temporary -16-pixel probe writes the current top row for
+    // both scrolling layers, then restores every visible coordinate/register word.
+    var upwardSource = new BackgroundScrollState
+    {
+        Layer1YPosition = 0x0200,
+        Layer2YPosition = 0x0200,
+    };
+    upwardSource.PrimePreviousBlocks();
+    ushort sourceBg1Vertical = upwardSource.Bg1VerticalScroll;
+    requests = upwardSource.FixDoorsMovingUp();
+    AssertEqual(2, requests.Count, "$80:AD1D upward source row count");
+    AssertEqual(BackgroundUpdateAxis.Row, requests[0].Axis,
+        "$80:AD1D emits a BG1 row");
+    AssertEqual((ushort)0x0020, requests[0].SourceYBlock,
+        "$80:AD1D repairs the source viewport's current top row");
+    AssertEqual((ushort)0x0200, upwardSource.Layer1YPosition,
+        "$80:AD1D restores source layer-one Y");
+    AssertEqual(sourceBg1Vertical, upwardSource.Bg1VerticalScroll,
+        "$80:AD1D restores source BG1VOFS");
+
+    // Upward setup carries frame counter one from that repair. It primes previous rows at
+    // destination+$100, presents destination+$FB after the built-in first moving call,
+    // and intentionally emits no destination row until counter five.
+    var upwardDestination = new BackgroundScrollState
+    {
+        Layer1YPosition = 0x02fb,
+        Layer2YPosition = 0x01dc,
+    };
+    upwardDestination.ConfigureDoorOpeningOffsets(
+        retainedBg1Horizontal: 0x0120,
+        retainedBg1Vertical: 0x0340,
+        stagedLayer1X: 0,
+        stagedLayer1Y: 0x0300);
+    requests = upwardDestination.PrimeVerticalDoorOpeningBlocks(
+        orientation: 3,
+        stagedLayer1Y: 0x0300,
+        stagedLayer2Y: 0x01e0);
+    AssertEqual(0, requests.Count, "$80:ADC8 upward setup defers destination rows");
+    AssertEqual((ushort)0x0031, upwardDestination.PreviousLayer1YBlock,
+        "$80:ADC8 upward previous-row bias");
+    AssertEqual((ushort)0x033b, upwardDestination.Bg1VerticalScroll,
+        "$80:AF89 upward setup preserves source BG1 minus five pixels");
+
     Console.WriteLine("  BG scroll: parallax, signed blocks, row/column dispatch, and door setup agree.");
 }
 

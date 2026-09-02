@@ -1,5 +1,9 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
@@ -11,7 +15,7 @@ internal static partial class EarlyControllerRouteAudit
     /// south-door floor clearance. Both use real bank-$83 headers and the production room
     /// loader; only the walk to each already-known doorway is replaced by staging.
     /// </summary>
-    public static int RunVerticalRoomEntryAudit(string romPath)
+    public static int RunVerticalRoomEntryAudit(string romPath, string? captureDirectory = null)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         SuperMetroidRuntime runtime = CreateInitializedRuntime(bus);
@@ -35,6 +39,15 @@ internal static partial class EarlyControllerRouteAudit
             RoomStatePointers.BlueBrinstarElevatorAfterItems,
             "focused upward elevator entry");
         AssertAscendingElevatorArrivalStartsAttached(runtime);
+        if (captureDirectory is not null)
+        {
+            Directory.CreateDirectory(captureDirectory);
+            PngWriter.WriteRgba(
+                Path.Combine(captureDirectory, "issue-52-first-loaded.png"),
+                256,
+                224,
+                SuperMetroidRuntimeFrameRenderer.Render(runtime));
+        }
 
         // The upward elevator actor owns movement after the door load. Wait only for its
         // own native return-to-rest handoff; walking to the Pit door would give an incorrect
@@ -50,6 +63,32 @@ internal static partial class EarlyControllerRouteAudit
             throw new InvalidDataException("Focused upward elevator never completed its return.");
         AssertAscendingElevatorCameraIsSynchronized(runtime);
         AssertElevatorPlatformSurvivesGameplayCompositor(runtime);
+        if (captureDirectory is not null)
+        {
+            PngWriter.WriteRgba(
+                Path.Combine(captureDirectory, "issue-52-settled.png"),
+                256,
+                224,
+                SuperMetroidRuntimeFrameRenderer.Render(runtime));
+        }
+
+        // The direct loader above isolates enemy/camera mechanics, but issue 52 was reported
+        // after the playable state's complete vertical-door coroutine. Re-run the same bank-
+        // $83 route through SuperMetroidGame so destination publication, the first visible
+        // frame, the returning actor, and the final settled frame are observed together.
+        ElevatorFrontendCapture frontendCapture = ReproduceAscendingElevatorThroughFrontend(
+            bus,
+            captureDirectory);
+        ScrollBoundaryCamera directCamera = runtime.Camera
+            ?? throw new InvalidOperationException("Focused elevator audit lost its camera.");
+        if (frontendCapture.CameraY != directCamera.YPosition ||
+            frontendCapture.SamusY != samus.YPosition)
+        {
+            throw new InvalidDataException(
+                $"Playable elevator arrival diverged from the isolated cartridge path: " +
+                $"frontend Samus/camera=${frontendCapture.SamusY:X4}/${frontendCapture.CameraY:X4}, " +
+                $"direct=${samus.YPosition:X4}/${directCamera.YPosition:X4}.");
+        }
 
         runtime.System.SetEvent((int)EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Climb);
@@ -76,6 +115,160 @@ internal static partial class EarlyControllerRouteAudit
             $"Vertical room-entry audit passed: upward elevator attached and synchronized " +
             $"in {elevatorFrames} frames; south Parlor entry accepted right-only movement.");
         return 0;
+    }
+
+    /// <summary>
+    /// Drives the production outer dispatcher over the Morph Ball-room elevator door and
+    /// returns the actual settled world/camera words. No unrelated room boundary is crossed;
+    /// the source room is staged only to avoid replaying Ceres and the whole outbound route.
+    /// </summary>
+    private static ElevatorFrontendCapture ReproduceAscendingElevatorThroughFrontend(
+        SuperMetroidAddressSpace bus,
+        string? captureDirectory)
+    {
+        var game = new SuperMetroidGame(
+            bus,
+            new SuperMetroidGameOptions { SkipOpeningCinematic = true });
+        FrontendFrame frame = FrontendAuditDriver.EnterSelectedSlot(game);
+        var acknowledgements = new byte[4];
+
+        FrontendFrame StepAndAcknowledge(ushort input)
+        {
+            FrontendFrame next = game.Step(input);
+            foreach (CartridgeAudioCommand command in next.AudioCommands)
+            {
+                if (command.Kind == CartridgeAudioCommandKind.WritePort)
+                    acknowledgements[command.Port] = command.Value;
+            }
+            game.SetAudioAcknowledgements(new CartridgeAudioAcknowledgements(
+                acknowledgements[0],
+                acknowledgements[1],
+                acknowledgements[2],
+                acknowledgements[3]));
+            return next;
+        }
+
+        for (int setupFrame = 0;
+             setupFrame < 300 && frame.GameState != SuperMetroidGameState.MainGameplay;
+             setupFrame++)
+        {
+            frame = StepAndAcknowledge(0);
+        }
+        if (frame.GameState != SuperMetroidGameState.MainGameplay)
+        {
+            throw new InvalidDataException(
+                $"Elevator frontend setup stopped in {frame.GameState}.");
+        }
+
+        SuperMetroidRuntime runtime = game.RuntimeForVerification
+            ?? throw new InvalidOperationException("Elevator frontend setup lost its runtime.");
+        SamusState samus = runtime.Samus
+            ?? throw new InvalidOperationException("Elevator frontend setup lost Samus.");
+        samus.CollectedItems |= (ushort)SamusEquipmentFlags.MorphBall;
+        samus.EquippedItems |= (ushort)SamusEquipmentFlags.MorphBall;
+        samus.MaxMissiles = 5;
+        samus.Missiles = 5;
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.MorphBallRoom);
+        runtime.ElevatorStatus = (ushort)ElevatorActorStatus.Departing;
+        PublishRetailDoor(runtime, bus, DoorPointers.BlueBrinstarElevatorFromMorphBall);
+
+        ushort sourceRoom = runtime.ActiveRoom?.Pointer
+            ?? throw new InvalidOperationException("Elevator frontend has no source room.");
+        frame = StepAndAcknowledge(0);
+        if (game.GameState != SuperMetroidGameState.HitDoorBlock)
+        {
+            throw new InvalidDataException(
+                $"Elevator collision did not enter the production door state; got {game.GameState}.");
+        }
+
+        bool observedDestinationPublication = false;
+        bool observedSourceRowRepair = false;
+        bool observedSuppressedInitialFill = false;
+        int destinationRowStreamFrames = 0;
+        for (int doorFrame = 0;
+             doorFrame < 512 && game.GameState != SuperMetroidGameState.MainGameplay;
+             doorFrame++)
+        {
+            DoorTransitionPhase phaseBeforeStep = game.DoorTransitionPhaseForVerification;
+            frame = StepAndAcknowledge(0);
+            DoorTransitionPhase phaseAfterStep = game.DoorTransitionPhaseForVerification;
+            if (phaseBeforeStep == DoorTransitionPhase.FixDoorsMovingUp)
+                observedSourceRowRepair = runtime.LastBackgroundUpdateCount > 0;
+            if (phaseBeforeStep == DoorTransitionPhase.LoadMoreThingsAndOpenDoor &&
+                phaseAfterStep == DoorTransitionPhase.WaitForDoorOpeningScroll)
+            {
+                observedSuppressedInitialFill = runtime.LastBackgroundUpdateCount == 0;
+            }
+            if (phaseBeforeStep == DoorTransitionPhase.WaitForDoorOpeningScroll &&
+                runtime.LastBackgroundUpdateCount > 0)
+            {
+                destinationRowStreamFrames++;
+            }
+            if (!observedDestinationPublication && runtime.ActiveRoom?.Pointer != sourceRoom)
+            {
+                observedDestinationPublication = true;
+            }
+        }
+        if (game.GameState != SuperMetroidGameState.MainGameplay ||
+            !observedDestinationPublication)
+        {
+            throw new InvalidDataException(
+                $"Elevator frontend transition did not publish and enter the destination; " +
+                $"state={game.GameState}, published={observedDestinationPublication}.");
+        }
+        if (!observedSourceRowRepair || !observedSuppressedInitialFill ||
+            destinationRowStreamFrames < 12)
+        {
+            throw new InvalidDataException(
+                $"Upward door omitted its cartridge tilemap-ring work: source repair=" +
+                $"{observedSourceRowRepair}, initial fill suppressed=" +
+                $"{observedSuppressedInitialFill}, destination row frames=" +
+                $"{destinationRowStreamFrames}.");
+        }
+        frame = StepAndAcknowledge(0);
+        if (captureDirectory is not null)
+        {
+            PngWriter.WriteRgba(
+                Path.Combine(captureDirectory, "issue-52-frontend-first-visible.png"),
+                FrontendFrame.Width,
+                FrontendFrame.Height,
+                frame.Pixels);
+        }
+        AssertRoom(
+            runtime,
+            RoomHeaderPointers.BlueBrinstarElevatorRoom,
+            RoomStatePointers.BlueBrinstarElevatorAfterItems,
+            "frontend upward elevator entry");
+        AssertAscendingElevatorArrivalStartsAttached(runtime);
+
+        int elevatorFrames = 0;
+        while (runtime.Enemies.ElevatorStatus != ElevatorActorStatus.Inactive &&
+               elevatorFrames < 1200)
+        {
+            frame = StepAndAcknowledge(0);
+            elevatorFrames++;
+        }
+        if (runtime.Enemies.ElevatorStatus != ElevatorActorStatus.Inactive)
+            throw new InvalidDataException("Frontend upward elevator never completed its return.");
+        AssertAscendingElevatorCameraIsSynchronized(runtime);
+        AssertElevatorPlatformSurvivesGameplayCompositor(runtime);
+        frame = StepAndAcknowledge(0);
+        if (captureDirectory is not null)
+        {
+            PngWriter.WriteRgba(
+                Path.Combine(captureDirectory, "issue-52-frontend-settled.png"),
+                FrontendFrame.Width,
+                FrontendFrame.Height,
+                frame.Pixels);
+        }
+
+        ScrollBoundaryCamera camera = runtime.Camera
+            ?? throw new InvalidOperationException("Frontend elevator arrival lost its camera.");
+        return new ElevatorFrontendCapture(
+            samus.YPosition,
+            camera.YPosition,
+            camera.IdealYPosition,
+            elevatorFrames);
     }
 
     /// <summary>
@@ -150,4 +343,10 @@ internal static partial class EarlyControllerRouteAudit
         runtime.InitializeCeresStartSamus();
         return runtime;
     }
+
+    private readonly record struct ElevatorFrontendCapture(
+        ushort SamusY,
+        ushort CameraY,
+        ushort IdealCameraY,
+        int ElevatorFrames);
 }

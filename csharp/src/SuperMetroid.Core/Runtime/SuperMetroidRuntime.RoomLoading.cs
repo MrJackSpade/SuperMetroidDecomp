@@ -292,6 +292,20 @@ public sealed partial class SuperMetroidRuntime
     internal static bool DoorTransitionAlignsX(byte orientation) =>
         (orientation & 2) != 0;
 
+    /// <summary>
+    /// Runs the upward-only source-room tilemap correction at <c>$80:AD1D</c> before the
+    /// destination loader replaces the active level-data producer.
+    /// </summary>
+    internal void FixPendingDoorTilesMovingUp()
+    {
+        CartridgeDoorHeader door = PendingDoorTransition
+            ?? throw new InvalidOperationException("No pending door destination exists.");
+        if ((door.Orientation & 3) != 3)
+            return;
+        IReadOnlyList<BackgroundUpdateRequest> requests = BackgroundScroll.FixDoorsMovingUp();
+        ExecuteBackgroundStreamRequests(requests, "upward source-door repair");
+    }
+
     /// <summary>CRE bitset selected from the pending door's destination room header.</summary>
     public byte PendingDoorDestinationCreBitset => PendingDoorTransition is { } door
         ? LoadCartridgeRoomHeader(door.DestinationRoomPointer).CreBitset
@@ -329,20 +343,26 @@ public sealed partial class SuperMetroidRuntime
             Samus.Kinematics.XFixed,
             Samus.Kinematics.YFixed);
         int direction = door.Orientation & 3;
-        if ((direction & 2) == 0)
+        DoorOpeningPpuScroll sourceScroll = _pendingDoorOpeningPpuScroll
+            ?? throw new InvalidOperationException(
+                "Door-opening scroll lost the source-room PPU scroll snapshot.");
+        ushort stagedLayer1X = direction switch
         {
-            DoorOpeningPpuScroll sourceScroll = _pendingDoorOpeningPpuScroll
-                ?? throw new InvalidOperationException(
-                    "Horizontal door-opening scroll lost the source-room PPU scroll snapshot.");
-            ushort stagedLayer1X = direction == 0
-                ? unchecked((ushort)(_doorOpeningScroll.CameraX - 4))
-                : unchecked((ushort)(_doorOpeningScroll.CameraX + 4));
-            BackgroundScroll.ConfigureDoorOpeningOffsets(
-                sourceScroll.Bg1Horizontal,
-                sourceScroll.Bg1Vertical,
-                stagedLayer1X,
-                _doorOpeningScroll.CameraY);
-        }
+            0 => unchecked((ushort)(_doorOpeningScroll.CameraX - 4)),
+            1 => unchecked((ushort)(_doorOpeningScroll.CameraX + 4)),
+            _ => _doorOpeningScroll.CameraX,
+        };
+        ushort stagedLayer1Y = direction switch
+        {
+            2 => _doorOpeningScroll.CameraY,
+            3 => unchecked((ushort)(_doorOpeningScroll.CameraY + 5)),
+            _ => _doorOpeningScroll.CameraY,
+        };
+        BackgroundScroll.ConfigureDoorOpeningOffsets(
+            sourceScroll.Bg1Horizontal,
+            sourceScroll.Bg1Vertical,
+            stagedLayer1X,
+            stagedLayer1Y);
         _pendingDoorOpeningPpuScroll = null;
         Camera.SetPosition(_doorOpeningScroll.CameraX, _doorOpeningScroll.CameraY);
         BackgroundScroll.Layer1XPosition = _doorOpeningScroll.CameraX;
@@ -366,10 +386,15 @@ public sealed partial class SuperMetroidRuntime
         }
         else
         {
-            // The vertical setup routines have different 224/15/31-pixel staging quirks.
-            // Their existing pure trajectory verifier owns those paths; consume the atomic
-            // loader's coordinate delta here without claiming horizontal previous-X rules.
-            _ = BackgroundScroll.CalculateScrollsAndUpdates();
+            ushort stagedLayer2Y = direction == 2
+                ? _doorOpeningScroll.Layer2Y
+                : unchecked((ushort)(_doorOpeningScroll.Layer2Y + 4));
+            IReadOnlyList<BackgroundUpdateRequest> initialRequests =
+                BackgroundScroll.PrimeVerticalDoorOpeningBlocks(
+                    door.Orientation,
+                    stagedLayer1Y,
+                    stagedLayer2Y);
+            ExecuteBackgroundStreamRequests(initialRequests, "vertical door-opening setup");
         }
         Samus.Kinematics.SetXFixed(_doorOpeningScroll.SamusXFixed);
         Samus.Kinematics.SetYFixed(_doorOpeningScroll.SamusYFixed);
@@ -396,8 +421,9 @@ public sealed partial class SuperMetroidRuntime
         // those requests left one stale ring-buffer column on horizontal transitions; on
         // a left door that stale source-door column was interpreted with the destination
         // row origin and appeared to jump upward by one 16x16 block.
-        IReadOnlyList<BackgroundUpdateRequest> requests =
-            BackgroundScroll.CalculateScrollsAndUpdates();
+        IReadOnlyList<BackgroundUpdateRequest> requests = state.ShouldStreamAfterAdvance
+            ? BackgroundScroll.CalculateScrollsAndUpdates()
+            : Array.Empty<BackgroundUpdateRequest>();
         ExecuteBackgroundStreamRequests(requests, "door-opening scroll");
         Samus.Kinematics.SetXFixed(state.SamusXFixed);
         Samus.Kinematics.SetYFixed(state.SamusYFixed);
@@ -436,10 +462,7 @@ public sealed partial class SuperMetroidRuntime
     {
         CartridgeDoorHeader door = PendingDoorTransition
             ?? throw new InvalidOperationException("No pending door destination exists.");
-        return LoadPendingDoorDestination(
-            (door.Orientation & 2) == 0
-                ? RoomViewportLoadMode.StreamThroughHorizontalDoor
-                : RoomViewportLoadMode.DisplayInitialViewport);
+        return LoadPendingDoorDestination(RoomViewportLoadMode.StreamThroughDoor);
     }
 
     private InitialViewportResult LoadPendingDoorDestination(RoomViewportLoadMode viewportLoadMode)
@@ -567,7 +590,7 @@ public sealed partial class SuperMetroidRuntime
         DoorOpeningPpuScroll? doorOpeningPpuScroll = viewportLoadMode switch
         {
             RoomViewportLoadMode.DisplayInitialViewport => null,
-            RoomViewportLoadMode.StreamThroughHorizontalDoor => new DoorOpeningPpuScroll(
+            RoomViewportLoadMode.StreamThroughDoor => new DoorOpeningPpuScroll(
                 BackgroundScroll.Bg1HorizontalScroll,
                 BackgroundScroll.Bg1VerticalScroll),
             _ => throw new ArgumentOutOfRangeException(
@@ -610,7 +633,16 @@ public sealed partial class SuperMetroidRuntime
         if (viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport)
             BackgroundScroll.PrimePreviousBlocks();
         else
-            BackgroundScroll.PrepareDoorOpeningDestination(cameraX, cameraY);
+        {
+            // Up calculates BG2 from destination+$1F before changing the IRQ's layer-one
+            // endpoint to destination+$20. Keeping those adjacent words distinct prevents
+            // a parallax room from accumulating a one-pixel layer mismatch at the snap.
+            ushort layer2CalculationY = (door.Orientation & 3) == 3
+                ? unchecked((ushort)(cameraY - 1))
+                : cameraY;
+            BackgroundScroll.PrepareDoorOpeningDestination(cameraX, layer2CalculationY);
+            BackgroundScroll.Layer1YPosition = cameraY;
+        }
 
         // The selected room-state main pointer, rather than the room or entry door, owns
         // the BG2 producer. `$8F:C116` calls the land-sky routine at `$88:AF8D`; `$8F:C120`
@@ -775,13 +807,12 @@ public sealed partial class SuperMetroidRuntime
             Cgram,
             Samus?.EquippedBeams ?? 0);
 
-        if (viewportLoadMode == RoomViewportLoadMode.StreamThroughHorizontalDoor)
+        if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
         {
-            // Horizontal state-$0B never calls DisplayViewablePartOfRoom. The source-room
-            // tilemap must remain in VRAM until each four-pixel IRQ crossing replaces one
-            // boundary row/column. The old shared loader unconditionally performed the
-            // seventeen-column startup fill here, destroying 700+ source words before the
-            // opening scroll and producing the repeatedly reported raised/squat door caps.
+            // State-$0B never calls DisplayViewablePartOfRoom. The source-room tilemap must
+            // remain in VRAM until each four-pixel IRQ crossing replaces one boundary row
+            // or column. An eager destination fill destroys the circular-map seam before
+            // the opening IRQ and visibly offsets door/elevator arrivals.
             _pendingDoorOpeningPpuScroll = doorOpeningPpuScroll;
             LastBackgroundUpdateCount = 0;
             return new InitialViewportResult(0, 0);
@@ -1044,11 +1075,12 @@ public sealed partial class SuperMetroidRuntime
                     yFixed = unchecked(yFixed + step);
                 break;
 
-            case 3: // Up starts one pixel below destination+screen after its setup fixup.
+            case 3: // FixDoorsMovingUp carries counter one into setup's first moving call.
+                yFixed = unchecked(yFixed - step);
                 yFixed = ReplaceWholePosition(
-                    unchecked((ushort)(destinationY + 255 + (byte)(yFixed >> 16))),
+                    unchecked((ushort)(destinationY + 251 + (byte)(yFixed >> 16))),
                     yFixed);
-                for (int frame = 1; frame <= 56; frame++)
+                for (int frame = 2; frame <= 56; frame++)
                     yFixed = unchecked(yFixed - step);
                 break;
         }

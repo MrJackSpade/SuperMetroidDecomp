@@ -360,6 +360,42 @@ static void VerifySamusAimedAerialMovement()
     AssertEqual(0, compactFall.Kinematics.YDirection, "compact landing clears vertical direction");
     AssertEqual(0u, compactFall.HorizontalSpeed.BaseFixed, "compact landing clears horizontal speed");
 
+    // Issue #27's slot-zero capture lands radius-ten `$2D` exactly on the boundary between
+    // the solid and air quadrants of two square half-blocks, then expands to radius 21.
+    // A final-boundary-only eleven-pixel probe sees the air quadrant and grows downward
+    // through the platform. `$94:96AB` first probes eight pixels, detects the solid lower
+    // quadrant, and makes `$91:FF49` preserve the already-landed bottom boundary.
+    var halfPlatformWords = new ushort[width * height];
+    var halfPlatformBts = new byte[halfPlatformWords.Length];
+    halfPlatformWords[12 * width + 2] = 0x1000;
+    halfPlatformWords[12 * width + 3] = 0x1000;
+    halfPlatformBts[12 * width + 2] = 0x02;
+    halfPlatformBts[12 * width + 3] = 0x00;
+    RoomLevelData halfPlatform = CreateRoom(
+        width,
+        height,
+        halfPlatformWords,
+        halfPlatformBts,
+        blockDefinitions: new byte[24]);
+    var capturedCompactLanding = new SamusState
+    {
+        Pose = SamusState.FallingAimDownRightPose,
+        XPosition = 0x002e,
+        YPosition = 0x00be,
+    };
+    capturedCompactLanding.RefreshCollisionRadii(bus);
+    capturedCompactLanding.InitializeAnimation(bus);
+    AssertEqual(0x00c8, capturedCompactLanding.Kinematics.BottomBoundary,
+        "captured compact body begins on half-platform surface");
+    AssertTrue(
+        capturedCompactLanding.TryApplyCompactAerialLanding(
+            bus, halfPlatform, nmiFrameCounter: 1),
+        "captured half-platform compact landing expands");
+    AssertEqual(0x00b3, capturedCompactLanding.YPosition,
+        "captured half-platform landing shifts center up eleven pixels");
+    AssertEqual(0x00c8, capturedCompactLanding.Kinematics.BottomBoundary,
+        "captured half-platform landing retains feet on surface");
+
     // The mirrored definitions carry direction four and shot direction five. Exercise the
     // same family guard in open air so a future right-only shortcut cannot silently pass.
     var compactLeft = new SamusState

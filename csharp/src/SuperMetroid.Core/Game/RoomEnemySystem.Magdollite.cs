@@ -660,7 +660,7 @@ public sealed partial class RoomEnemySystem
         MagdolliteEnemyState state = RequireMagdolliteState(slot);
         switch (opcode)
         {
-            case 0xae12:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_QueueSFXInY_Lib2_Max6_IfOnScreen:
             {
                 bool offScreen = IsNegative16(slot.XPosition - cameraX) ||
                     IsNegative16(cameraX + 256 - slot.XPosition) ||
@@ -675,33 +675,33 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
             }
-            case 0xae26:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_MoveDown2Pixels:
                 slot.YPosition = unchecked((ushort)(slot.YPosition + 2));
                 break;
-            case 0xae30:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_MoveUp2Pixels:
                 slot.YPosition = unchecked((ushort)(slot.YPosition - 2));
                 break;
-            case 0xae3a:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_SetWaitingFlag:
                 state.AnimationBusy = true;
                 break;
-            case 0xae45:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_ResetWaitingFlag:
                 state.AnimationBusy = false;
                 break;
-            case 0xae50:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_MoveBaseAndPillarUp1Pixel:
             {
                 RoomEnemySlot next = NextMagdolliteSlot(slot);
                 slot.YPosition = unchecked((ushort)(slot.YPosition - 1));
                 next.YPosition = unchecked((ushort)(next.YPosition - 1));
                 break;
             }
-            case 0xae5a:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_MoveBaseAndPillarDown1Pixel:
             {
                 RoomEnemySlot next = NextMagdolliteSlot(slot);
                 slot.YPosition = unchecked((ushort)(slot.YPosition + 1));
                 next.YPosition = unchecked((ushort)(next.YPosition + 1));
                 break;
             }
-            case 0xae64:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_MoveDownBy18Pixels_SetSlavesAsVisible:
             {
                 (_, RoomEnemySlot body, RoomEnemySlot overlay) = RequireMagdolliteComposite(slot);
                 ushort y = unchecked((ushort)(state.OriginY + 24));
@@ -711,14 +711,14 @@ public sealed partial class RoomEnemySystem
                 overlay.Properties = overlay.Properties.Without(EnemyProperties.Invisible);
                 break;
             }
-            case 0xae88:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_RestoreInitialYPositions:
             {
                 (_, RoomEnemySlot body, _) = RequireMagdolliteComposite(slot);
                 slot.YPosition = state.OriginY;
                 body.YPosition = state.OriginY;
                 break;
             }
-            case 0xae96:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_MoveDown4Pixels_SetSlavesAsInvisible:
             {
                 (_, RoomEnemySlot body, RoomEnemySlot overlay) = RequireMagdolliteComposite(slot);
                 ushort y = unchecked((ushort)(state.OriginY + 4));
@@ -728,26 +728,26 @@ public sealed partial class RoomEnemySystem
                 overlay.Properties = overlay.Properties.With(EnemyProperties.Invisible);
                 break;
             }
-            case 0xaeba:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_SpawnLavaProjectile:
                 SpawnMagdolliteLava(slot, state.BodyPhaseOffset);
                 break;
-            case 0xaeca:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_ShiftRight8Pixels_Up4Pixels_FaceRight:
                 slot.XPosition = unchecked((ushort)(state.ThrowOriginX + 8));
                 slot.YPosition = unchecked((ushort)(state.ThrowOriginY - 4));
                 break;
-            case 0xaee4:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_ShiftLeft8Pixels_Up4Pixels_FacingLeft:
                 slot.XPosition = unchecked((ushort)(state.ThrowOriginX - 8));
                 slot.YPosition = unchecked((ushort)(state.ThrowOriginY - 4));
                 break;
-            case 0xaefe:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_ShiftRight8Pixels_Up4Pixels_Right_dup:
                 slot.XPosition = unchecked((ushort)(state.ThrowOriginX + 8));
                 slot.YPosition = unchecked((ushort)(state.ThrowOriginY - 8));
                 break;
-            case 0xaf18:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_ShiftLeft8Pixels_Up4Pixels_Left_dup:
                 slot.XPosition = unchecked((ushort)(state.ThrowOriginX - 8));
                 slot.YPosition = unchecked((ushort)(state.ThrowOriginY - 4));
                 break;
-            case 0xaf44:
+            case MagdolliteInstructionCodes.Instruction_Magdollite_SetCooldownTimerTo100:
                 state.AttackTimer = 256;
                 break;
             default:

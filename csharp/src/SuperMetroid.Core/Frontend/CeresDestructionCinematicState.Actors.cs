@@ -142,12 +142,12 @@ internal sealed partial class CeresDestructionCinematicState
     {
         switch (opcode)
         {
-            case 0xc9a5: // Spawn palette FX E1B0: text fade-in.
-            case 0xc9af: // Optionally spawn the Japanese subtitle.
-            case 0xc9bd: // Spawn palette FX E1B4: text fade-out.
+            case CinematicCodePointers.Instruction_FadeInPlanetZebesText:
+            case CinematicCodePointers.Instruction_SpawnPlanetZebesJapanTextIfNeeded:
+            case CinematicCodePointers.Instruction_FadeOutPlanetZebesText:
                 return cursor;
 
-            case 0xc9c7:
+            case CinematicCodePointers.Instruction_StartFlyingToZebes:
                 // The title actor, not a host timer, publishes the camera flight exactly
                 // where its cartridge instruction list reaches C9C7.
                 backgroundX = 0x003e;

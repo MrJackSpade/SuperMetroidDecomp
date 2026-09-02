@@ -32,6 +32,29 @@ ApplicationConfiguration.Initialize();
 
 try
 {
+    if (args.Length != 0 &&
+        args[0].Equals("--keyboard-input-audit", StringComparison.OrdinalIgnoreCase))
+    {
+        if (args.Length != 1)
+            throw new ArgumentException("--keyboard-input-audit does not accept additional arguments.");
+        HostKeyboardInputSmokeTestResult result = HostKeyboardInputSmokeTest.Run();
+        Console.WriteLine(
+            $"Keyboard input passed: Enter=${result.EnterControllerWord:X4}, " +
+            $"released=${result.ReleasedControllerWord:X4}; no Right bit was emitted.");
+        return 0;
+    }
+
+    if (args.Length != 0 &&
+        args[0].Equals("--viewport-layout-audit", StringComparison.OrdinalIgnoreCase))
+    {
+        if (args.Length != 1)
+            throw new ArgumentException("--viewport-layout-audit does not accept additional arguments.");
+        HostViewportLayoutSmokeTestResult result = HostViewportLayoutSmokeTest.Run();
+        Console.WriteLine(
+            $"Viewport layout passed: canvas remained {result.BeforeCanvasBounds}.");
+        return 0;
+    }
+
     if (args.Length != 0 && args[0].Equals("--state-audit", StringComparison.OrdinalIgnoreCase))
     {
         string[] stateRomArguments = args.Length == 2 ? [args[1]] : [];

@@ -463,7 +463,7 @@ public sealed partial class SuperMetroidRuntime
     /// and library-background state.
     /// </summary>
     public void InitializeLandingSiteCamera(
-        ushort doorPointer = LandingSiteEntryState.LandingCutsceneDoorPointer)
+        ushort doorPointer = LandingSiteRomData.LandingCutsceneDoorPointer)
     {
         // A runtime may be reused by diagnostics that visit Ceres before Crateria. The
         // elevator pair belongs exclusively to the fresh-Ceres setup and must not survive

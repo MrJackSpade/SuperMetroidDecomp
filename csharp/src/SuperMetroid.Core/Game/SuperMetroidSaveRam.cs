@@ -272,6 +272,44 @@ public sealed class SuperMetroidSaveRam
         WriteSramWord(SelectedSlotOffset + 2, unchecked((ushort)~slot));
     }
 
+    /// <summary>
+    /// Copies the cartridge's complete checksummed payload and both redundant directory
+    /// pairs, matching file-copy menu index 13 at <c>$81:9A2C</c> byte for byte.
+    /// </summary>
+    public void CopySlot(int sourceSlot, int destinationSlot)
+    {
+        int sourceOffset = GetSlotOffset(sourceSlot);
+        int destinationOffset = GetSlotOffset(destinationSlot);
+        if (sourceSlot == destinationSlot)
+            throw new ArgumentException("File copy requires two different SRAM slots.");
+        if (ReadSlot(sourceSlot) is null)
+            throw new InvalidOperationException($"Cannot copy empty save slot {sourceSlot}.");
+
+        // Do not decode and re-encode here. The native menu copies all $65C bytes,
+        // including untranslated/reserved fields which a domain snapshot cannot preserve.
+        for (int index = 0; index < SlotByteCount; index++)
+            WriteSramByte(destinationOffset + index, ReadSramByte(sourceOffset + index));
+        CopyDirectoryWord(PrimaryChecksumOffset, sourceSlot, destinationSlot);
+        CopyDirectoryWord(PrimaryComplementOffset, sourceSlot, destinationSlot);
+        CopyDirectoryWord(BackupChecksumOffset, sourceSlot, destinationSlot);
+        CopyDirectoryWord(BackupComplementOffset, sourceSlot, destinationSlot);
+    }
+
+    /// <summary>
+    /// Clears one complete native slot and its four checksum-directory words, matching
+    /// file-clear menu index 25 at <c>$81:9C9E</c>.
+    /// </summary>
+    public void ClearSlot(int slot)
+    {
+        int slotOffset = GetSlotOffset(slot);
+        for (int index = 0; index < SlotByteCount; index++)
+            WriteSramByte(slotOffset + index, 0);
+        WriteSramWord(PrimaryChecksumOffset + slot * 2, 0);
+        WriteSramWord(PrimaryComplementOffset + slot * 2, 0);
+        WriteSramWord(BackupChecksumOffset + slot * 2, 0);
+        WriteSramWord(BackupComplementOffset + slot * 2, 0);
+    }
+
     /// <summary>Reads the persistent menu selection, falling back to slot A if corrupt.</summary>
     public int ReadSelectedSlot()
     {
@@ -287,6 +325,11 @@ public sealed class SuperMetroidSaveRam
             checksum = unchecked((ushort)(checksum + ReadSramWord(slotOffset + offset)));
         return checksum;
     }
+
+    private void CopyDirectoryWord(int directoryOffset, int sourceSlot, int destinationSlot) =>
+        WriteSramWord(
+            directoryOffset + destinationSlot * 2,
+            ReadSramWord(directoryOffset + sourceSlot * 2));
 
     private static int GetSlotOffset(int slot)
     {

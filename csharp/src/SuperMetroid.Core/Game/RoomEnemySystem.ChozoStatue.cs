@@ -305,43 +305,43 @@ public sealed partial class RoomEnemySystem
         ChozoStatueState state = RequireChozoStatueState(statue);
         switch (opcode)
         {
-            case 0x806b: // Enemy_SetAiPreInstr_AA: one same-bank pointer operand.
+            case ChozoStatueInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY:
                 state.PreInstruction = (ChozoStatuePreInstruction)ReadChozoInstructionOperand(cursor);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0x8074: // Enemy_ClearAiPreInstr_AA: install bank-common RTL $AA:807B.
+            case ChozoStatueInstructionCodes.Instruction_CommonAA3_SetEnemy0FB2ToRTS:
                 state.PreInstruction = ChozoStatuePreInstruction.Cleared;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xe429: // Begin Lower Norfair's FX movement.
+            case ChozoStatueInstructionCodes.Instruction_Chozo_StartLoweringAcid:
                 ChozoStatueFxTimer = 32;
                 ChozoStatueFxYVelocity = 64;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xe436: // Clamp the final FX base Y to $02D2.
+            case ChozoStatueInstructionCodes.Instruction_Chozo_SetLoweredAcidPosition:
                 ChozoStatueFxBaseYPosition = 722;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xe43d: // CallSomeSamusCode(1): restore normal player input.
+            case ChozoStatueInstructionCodes.Instruction_Chozo_UnlockSamus:
                 SetChozoStatueSamusControls(enabled: true);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xe57f: // QueueSfx2_Max6($1C).
+            case ChozoStatueInstructionCodes.Instruction_Chozo_PlayChozoGrabsSamusSFX:
                 LastChozoStatueSoundEffect = 0x001c;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xe587: // QueueSfx2_Max6($4B).
+            case ChozoStatueInstructionCodes.Instruction_Chozo_PlayChozoFootstepsSFX:
                 LastChozoStatueSoundEffect = 0x004b;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xe58f: // Probe spike below one foot, remove its terrain, and emit dust.
+            case ChozoStatueInstructionCodes.Instruction_Chozo_SpawnChozoSpikeClearingFootstepProjectile:
                 ProcessChozoStatueFootstep(
                     statue,
                     RequireChozoLevel(level),
@@ -349,7 +349,7 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0xe5d8: // Move one authored step and pin Samus to the corresponding joint.
+            case ChozoStatueInstructionCodes.Instruction_Chozo_Movement_IndexInY:
                 ProcessChozoStatueMovement(
                     statue,
                     state,
@@ -359,7 +359,7 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0xe6f0: // Final Wrecked Ship handoff: input, scrolls, and spike terrain PLM.
+            case ChozoStatueInstructionCodes.Instruction_Chozo_ReleaseSamus_BlockSlopeAccess:
                 FinishWreckedShipChozoSequence();
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;

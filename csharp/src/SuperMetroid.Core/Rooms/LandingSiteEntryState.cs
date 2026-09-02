@@ -29,16 +29,6 @@ public sealed record LandingSiteEntryState(
     ushort EnemyPopulationPointer,
     ushort EnemyTilesetPointer)
 {
-    // Door headers contain 16-bit bank-$83 pointers. $88FE is the synthetic entry used by
-    // the intro landing cutscene and is also one of the command-E comparisons at $8F:B76A.
-    public const ushort LandingCutsceneDoorPointer = 0x88fe;
-
-    private const int DoorBank = 0x830000;
-    private const int LandingSiteRoomHeaderPointer = 0x91f8;
-    private const int LandingSiteRoomHeaderAddress = 0x8f91f8;
-    private const int LandingSiteDefaultStateAddress = 0x8f9213;
-    private const int LibraryBackgroundListAddress = 0x8fb76a;
-
     /// <summary>Initial layer-1 X position encoded by the door's screen-X byte.</summary>
     public ushort CameraX => (ushort)(ScreenX << 8);
 
@@ -47,7 +37,7 @@ public sealed record LandingSiteEntryState(
 
     /// <summary>Parses the intro landing-cutscene door and its matching command-E record.</summary>
     public static LandingSiteEntryState LoadLandingCutscene(ISnesAddressSpace bus) =>
-        Load(bus, LandingCutsceneDoorPointer);
+        Load(bus, LandingSiteRomData.LandingCutsceneDoorPointer);
 
     /// <summary>
     /// Parses a bank-$83 door header and selects its transfer from
@@ -56,13 +46,13 @@ public sealed record LandingSiteEntryState(
     public static LandingSiteEntryState Load(ISnesAddressSpace bus, ushort doorPointer)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        int doorAddress = DoorBank | doorPointer;
+        int doorAddress = LandingSiteRomData.DoorBank | doorPointer;
 
         // The first word is a bank-$8F destination-room pointer. Rejecting any other room
         // is important: the library-background list below is specific to Landing Site and
         // silently applying it to an arbitrary door would manufacture a plausible image.
         ushort destinationRoom = ReadWord(bus, doorAddress);
-        if (destinationRoom != LandingSiteRoomHeaderPointer)
+        if (destinationRoom != RoomHeaderPointers.LandingSite)
         {
             throw new InvalidDataException(
                 $"Door $83:{doorPointer:X4} targets room ${destinationRoom:X4}, not Landing Site $91F8.");
@@ -85,27 +75,27 @@ public sealed record LandingSiteEntryState(
             // then the upward/downward camera-scroller distances. Reading these bytes here
             // keeps minimap and camera integration tied to the selected ROM room instead of
             // duplicating visually plausible host constants in the runtime.
-            AreaIndex: bus.ReadByte(LandingSiteRoomHeaderAddress + 1),
-            RoomMapX: bus.ReadByte(LandingSiteRoomHeaderAddress + 2),
-            RoomMapY: bus.ReadByte(LandingSiteRoomHeaderAddress + 3),
-            RoomWidthInScreens: bus.ReadByte(LandingSiteRoomHeaderAddress + 4),
-            RoomHeightInScreens: bus.ReadByte(LandingSiteRoomHeaderAddress + 5),
-            UpScroller: bus.ReadByte(LandingSiteRoomHeaderAddress + 6),
-            DownScroller: bus.ReadByte(LandingSiteRoomHeaderAddress + 7),
+            AreaIndex: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 1),
+            RoomMapX: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 2),
+            RoomMapY: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 3),
+            RoomWidthInScreens: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 4),
+            RoomHeightInScreens: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 5),
+            UpScroller: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 6),
+            DownScroller: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 7),
             // The room header's unconditional/default selector resolves to $8F:9213.
             // Its 26-byte state record owns both enemy pointers: six leading bytes of
             // level/graphics/music data, the FX word, then population and graphics-set
             // words. Keeping the resolved state beside the door data makes it impossible
             // for a caller to accidentally pair normal Landing Site terrain with the
             // separate post-Ceres cutscene population at $A1:8C0D.
-            RoomStatePointer: (ushort)(LandingSiteDefaultStateAddress & 0xffff),
-            EnemyPopulationPointer: ReadWord(bus, LandingSiteDefaultStateAddress + 8),
-            EnemyTilesetPointer: ReadWord(bus, LandingSiteDefaultStateAddress + 10));
+            RoomStatePointer: (ushort)(LandingSiteRomData.DefaultStateAddress & 0xffff),
+            EnemyPopulationPointer: ReadWord(bus, LandingSiteRomData.DefaultStateAddress + 8),
+            EnemyTilesetPointer: ReadWord(bus, LandingSiteRomData.DefaultStateAddress + 10));
     }
 
     private static SkyTransfer FindSkyTransfer(ISnesAddressSpace bus, ushort doorPointer)
     {
-        int cursor = LibraryBackgroundListAddress;
+        int cursor = LandingSiteRomData.LibraryBackgroundListAddress;
         while (true)
         {
             ushort command = ReadWord(bus, cursor);

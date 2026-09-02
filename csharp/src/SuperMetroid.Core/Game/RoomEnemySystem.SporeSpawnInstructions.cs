@@ -24,70 +24,70 @@ public sealed partial class RoomEnemySystem
         ushort next = unchecked((ushort)(cursor + 2));
         switch (opcode)
         {
-            case 0xe75f: // Increase maximum horizontal radius, capped below $30.
+            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_IncreaseMaxXRadius:
                 if (unchecked((short)(state.MaximumXRadius - 40)) < 0)
                     state.MaximumXRadius = unchecked((ushort)(state.MaximumXRadius + 8));
                 cursor = next;
                 return true;
 
-            case 0xe771: // The next qualifying shot may reverse movement again.
+            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_ClearDamagedFlag:
                 state.DamagedFlag = 0;
                 cursor = next;
                 return true;
 
-            case 0xe82d: // Maximum radius and signed angular delta are inline operands.
+            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_SetMaxXRadiusAndAngleDelta:
                 state.MaximumXRadius = ReadWord(_bus!, 0xa50000 | next);
                 state.AngleDelta = ReadWord(_bus!, 0xa50000 | unchecked((ushort)(next + 2)));
                 cursor = unchecked((ushort)(next + 4));
                 return true;
 
-            case 0xe872: // Zero enables the four ceiling emitters; one pauses them.
+            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_SporeGenerationFlagInY:
                 state.SporeGenerationFlag = ReadWord(_bus!, 0xa50000 | next);
                 cursor = unchecked((ushort)(next + 2));
                 return true;
 
-            case 0xe87c: // Harden the corpse at the fixed center and remove collision.
+            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_Harden:
                 body.XPosition = SporeSpawnDeathCenterX;
                 body.YPosition = SporeSpawnDeathCenterY;
                 body.Properties = unchecked((ushort)((body.Properties | 0xa000) & 0xfbff));
                 cursor = next;
                 return true;
 
-            case 0xe895: // Queue one library-two sound stored inline.
+            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_QueueSFXInY_Lib2_Max6:
                 LastSporeSpawnSoundEffectLibrary2 = ReadWord(_bus!, 0xa50000 | next);
                 cursor = unchecked((ushort)(next + 2));
                 return true;
 
-            case 0xe8b1: // Sixteen boss-death drops use definition $DF3F's chance table.
+            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_CallSporeSpawnDeathItemDropRoutine:
                 RequestSporeSpawnDeathDrops(state);
                 cursor = next;
                 return true;
 
-            case 0xe8ba: // Switch the once-per-frame function stored in native variable A.
+            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_FunctionInY:
                 state.Function = (SporeSpawnFunction)ReadWord(_bus!, 0xa50000 | next);
                 cursor = unchecked((ushort)(next + 2));
                 return true;
 
-            case 0xe8ca: // Install one authored phase in the three live CGRAM rows.
+            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_LoadDeathSequencePalette:
                 LoadSporeSpawnDeathPalette(
                     ReadWord(_bus!, 0xa50000 | next),
                     targetOnly: false);
                 cursor = unchecked((ushort)(next + 2));
                 return true;
 
-            case 0xe91c: // Install the same three rows in the fade target buffer.
+            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_LoadDeathSequenceTargetPalette:
                 LoadSporeSpawnDeathPalette(
                     ReadWord(_bus!, 0xa50000 | next),
                     targetOnly: true);
                 cursor = unchecked((ushort)(next + 2));
                 return true;
 
-            case 0xe96e: // Random hardening dust cloud around the body.
+            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_SpawnHardeningDustCloud:
                 SpawnSporeSpawnHardeningDust(state);
                 cursor = next;
                 return true;
 
-            case 0xe9b1: // Random dying explosion around the moving body.
+            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_SpawnDyingExplosion:
                 SpawnSporeSpawnDyingExplosion(state);
                 cursor = next;
                 return true;

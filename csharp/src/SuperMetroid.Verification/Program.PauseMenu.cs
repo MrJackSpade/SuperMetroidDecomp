@@ -105,6 +105,11 @@ internal static partial class Program
         // Pause keeps the existing BG3 HUD tilemap but replaces its character sheet with
         // $9A:B200. Give character one one visible pixel and palette color one a white
         // value, then publish that character in the retained gameplay VRAM image.
+        // Character zero is deliberately visible. Before the native FX-tilemap clear was
+        // ported, zero-filled BG3 words below the retained HUD selected this character and
+        // tiled it over empty pause-map space (the retail character is the orange `1`).
+        // Character one remains the retained HUD sentinel used by the assertion below.
+        WriteRomByte(rom, 0x9ab200, 0x80);
         WriteRomByte(rom, 0x9ab210, 0x80);
         WriteRomWord(rom, 0xb6f002, 0x7fff);
         WriteRomWord(rom, 0xb6f004, 0x03e0);
@@ -181,6 +186,22 @@ internal static partial class Program
             "pause delayed Start requests outer unpause state");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(812) & 0x1c00,
             "pause Start label switches to the native unpause palette");
+
+        // Use a second page with no map acquisition or explored cells so BG1 is blank at
+        // the sampled point. BG2 is also transparent there. The pixel must therefore be
+        // backdrop black, proving that `$80:A211`'s $184E fill prevented visible BG3
+        // character zero from leaking below the four-row HUD.
+        var blankMapPause = new PauseMenuState(
+            bus,
+            samus,
+            new Bank80SystemState(),
+            areaIndex: 0,
+            roomMapX: 28,
+            roomMapY: 1,
+            gameplayVram: gameplayVram);
+        Rgba32[] blankMapFrame = blankMapPause.Render();
+        AssertEqual(new Rgba32(0, 0, 0, 255), blankMapFrame[40 * 256],
+            "pause clears unused BG3 rows instead of tiling character zero over empty map space");
 
         Console.WriteLine(
             "  Pause menu: ROM tables, native map centering, OAM indicators, page transition, Bomb toggle, and Start agree.");

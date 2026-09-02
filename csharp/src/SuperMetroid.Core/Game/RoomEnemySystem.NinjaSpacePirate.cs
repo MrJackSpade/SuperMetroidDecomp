@@ -661,19 +661,19 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)(cursor + 2));
         switch (opcode)
         {
-            case 0xef83: // Shared Pirate instruction: function = following bank-$B2 pointer.
+            case SpacePirateInstructionCodes.Instruction_PirateWall_FunctionInY:
                 state.Function = (NinjaSpacePirateFunction)ReadWord(_bus!, operandAddress);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
-            case 0xf536: // Palette index = operand.
+            case SpacePirateInstructionCodes.Instruction_PirateNinja_PaletteIndexInY:
                 slot.PaletteIndex = ReadWord(_bus!, operandAddress);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
-            case 0xf546: // Queue operand in sound library two, maximum six requests.
+            case SpacePirateInstructionCodes.Instruction_PirateNinja_QueueSoundInY_Lib2_Max6:
                 LastSpacePirateSoundEffect = ReadWord(_bus!, operandAddress);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
-            case 0xf564: // Spawn claw(direction, signed X offset, signed Y offset).
+            case SpacePirateInstructionCodes.Instruction_PirateNinja_SpawnClawProjWithThrowDirSpawnOffset:
                 SpawnNinjaPirateClaw(
                     slot,
                     state,
@@ -682,7 +682,7 @@ public sealed partial class RoomEnemySystem
                     ReadWord(_bus!, operandAddress + 4));
                 cursor = unchecked((ushort)(cursor + 8));
                 return true;
-            case 0xf590: // Retain whichever active-facing list points toward Samus.
+            case SpacePirateInstructionCodes.Instruction_PirateNinja_SetFunction0FAC_Active:
                 if (samus is null)
                 {
                     throw new InvalidOperationException(
@@ -694,15 +694,15 @@ public sealed partial class RoomEnemySystem
                 slot.InstructionTimer = 1;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case 0xf5d6: // Reset the extra-RAM speed word before a spin jump.
+            case SpacePirateInstructionCodes.Instruction_PirateNinja_ResetSpeed:
                 state.Speed = 0;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case 0xf969: // Initialize the leftward divekick's vertical launch.
+            case SpacePirateInstructionCodes.Instruction_PirateNinja_SetLeftDivekickJumpInitialYSpeed:
                 InitializeNinjaPirateDive(state, movingRight: false);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
-            case 0xfa3d: // Initialize the rightward divekick's vertical launch.
+            case SpacePirateInstructionCodes.Instruction_PirateNinja_SetRightDivekickJumpInitialYSpeed:
                 InitializeNinjaPirateDive(state, movingRight: true);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;

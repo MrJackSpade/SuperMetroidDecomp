@@ -75,7 +75,9 @@ public sealed partial class RoomEnemySystem
         fragment.Timer = 0;
         fragment.VramTilesIndex = 0;
         fragment.PaletteIndex = 0x0e00;
-        fragment.VariableF = ReadWord(_bus!, 0xa6c6ce + fragment.Parameter1);
+        fragment.VariableF = ReadWord(
+            _bus!,
+            RidleyExplosionRomData.TailVelocityTable + fragment.Parameter1);
 
         ushort random = _nextRandom!();
         ushort horizontalMagnitude = unchecked((ushort)(random & 0x0130));
@@ -93,15 +95,15 @@ public sealed partial class RoomEnemySystem
             fragment.YPosition = tail.YPosition;
             fragment.CurrentInstruction = parameter switch
             {
-                0x0000 => 0xc70f,
-                0x0002 => 0xc727,
-                0x0004 => 0xc73f,
-                0x0006 => 0xc757,
-                0x0008 => 0xc76f,
-                0x000a => 0xc787,
+                RidleyExplosionParts.Tail0 => RidleyExplosionRomData.Tail0InstructionList,
+                RidleyExplosionParts.Tail1 => RidleyExplosionRomData.Tail1InstructionList,
+                RidleyExplosionParts.Tail2 => RidleyExplosionRomData.Tail2InstructionList,
+                RidleyExplosionParts.Tail3 => RidleyExplosionRomData.Tail3InstructionList,
+                RidleyExplosionParts.Tail4 => RidleyExplosionRomData.Tail4InstructionList,
+                RidleyExplosionParts.Tail5 => RidleyExplosionRomData.Tail5InstructionList,
                 _ => ReadWord(
                     _bus!,
-                    0xa6c7ba +
+                    RidleyExplosionRomData.TailAngleInstructionListTable +
                     ((((tail.Angle & 0x00ff) +
                         (state.TailSegments[5].Angle & 0x00ff) + 8) & 0x00f0) >> 4) * 2),
             };
@@ -111,46 +113,56 @@ public sealed partial class RoomEnemySystem
         int facingIndex = state.FacingDirection == 0 ? 0 : 1;
         switch (parameter)
         {
-            case 0x000e: // Wings
+            case RidleyExplosionParts.Wings:
                 fragment.XPosition = body.XPosition;
                 fragment.YPosition = body.YPosition;
-                fragment.CurrentInstruction = ReadWord(_bus!, 0xa6c808 + facingIndex * 2);
+                fragment.CurrentInstruction = ReadWord(
+                    _bus!,
+                    RidleyExplosionRomData.WingInstructionListTable + facingIndex * 2);
                 return;
 
-            case 0x0010: // Legs
+            case RidleyExplosionParts.Legs:
                 fragment.XPosition = AddRidleyExplosionOffset(
                     body.XPosition,
-                    0xa6c836,
+                    RidleyExplosionRomData.LegXOffsetTable,
                     facingIndex);
                 fragment.YPosition = unchecked((ushort)(body.YPosition + 22));
-                fragment.CurrentInstruction = ReadWord(_bus!, 0xa6c83a + facingIndex * 2);
+                fragment.CurrentInstruction = ReadWord(
+                    _bus!,
+                    RidleyExplosionRomData.LegInstructionListTable + facingIndex * 2);
                 return;
 
-            case 0x0012: // Open head/neck
+            case RidleyExplosionParts.OpenHeadAndNeck:
                 fragment.XPosition = AddRidleyExplosionOffset(
                     body.XPosition,
-                    0xa6c868,
+                    RidleyExplosionRomData.OpenHeadXOffsetTable,
                     facingIndex);
                 fragment.YPosition = unchecked((ushort)(body.YPosition - 24));
-                fragment.CurrentInstruction = ReadWord(_bus!, 0xa6c86c + facingIndex * 2);
+                fragment.CurrentInstruction = ReadWord(
+                    _bus!,
+                    RidleyExplosionRomData.OpenHeadInstructionListTable + facingIndex * 2);
                 return;
 
-            case 0x0014: // Torso
+            case RidleyExplosionParts.Torso:
                 fragment.XPosition = AddRidleyExplosionOffset(
                     body.XPosition,
-                    0xa6c89a,
+                    RidleyExplosionRomData.TorsoXOffsetTable,
                     facingIndex);
                 fragment.YPosition = body.YPosition;
-                fragment.CurrentInstruction = ReadWord(_bus!, 0xa6c89e + facingIndex * 2);
+                fragment.CurrentInstruction = ReadWord(
+                    _bus!,
+                    RidleyExplosionRomData.TorsoInstructionListTable + facingIndex * 2);
                 return;
 
-            case 0x0016: // Claw
+            case RidleyExplosionParts.Claw:
                 fragment.XPosition = AddRidleyExplosionOffset(
                     body.XPosition,
-                    0xa6c8cc,
+                    RidleyExplosionRomData.ClawXOffsetTable,
                     facingIndex);
                 fragment.YPosition = unchecked((ushort)(body.YPosition + 7));
-                fragment.CurrentInstruction = ReadWord(_bus!, 0xa6c8d0 + facingIndex * 2);
+                fragment.CurrentInstruction = ReadWord(
+                    _bus!,
+                    RidleyExplosionRomData.ClawInstructionListTable + facingIndex * 2);
                 return;
         }
     }

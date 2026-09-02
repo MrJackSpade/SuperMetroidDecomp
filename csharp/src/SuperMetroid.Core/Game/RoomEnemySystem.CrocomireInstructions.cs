@@ -37,11 +37,11 @@ public sealed partial class RoomEnemySystem
         ushort next = unchecked((ushort)(cursor + 2));
         switch (opcode)
         {
-            case 0x86a6: // Dispatch the 21-entry fight-function table.
+            case CrocomireCodePointers.Instruction_Crocomire_FightAI:
                 cursor = RunCrocomireFightInstruction(state, samus, next);
                 return true;
 
-            case 0x8752: // Randomly begin the projectile volley.
+            case CrocomireCodePointers.Instruction_Crocomire_MaybeStartProjectileAttack:
                 if (ReadCrocomireRandom() is ushort attackRandom &&
                     unchecked((short)((attackRandom & 0x0fff) - 0x0400)) < 0)
                 {
@@ -52,40 +52,40 @@ public sealed partial class RoomEnemySystem
                 cursor = next;
                 return true;
 
-            case 0x8cfb: // Cry.
+            case CrocomireCodePointers.Instruction_Crocomire_QueueCrySFX:
                 LastCrocomireSoundEffect = 0x0074;
                 cursor = next;
                 return true;
-            case 0x8d07: // Footstep.
+            case CrocomireCodePointers.Instruction_Crocomire_QueueBigExplosionSFX:
                 LastCrocomireSoundEffect = 0x0025;
                 cursor = next;
                 return true;
-            case 0x8d13: // Alternate cry.
+            case CrocomireCodePointers.Instruction_Crocomire_QueueSkeletonCollapseSFX:
                 LastCrocomireSoundEffect = 0x0075;
                 cursor = next;
                 return true;
-            case 0x8fc7: // Bridge/footstep quake.
+            case CrocomireCodePointers.Instruction_Crocomire_ShakeScreen:
                 EarthquakeType = 4;
                 EarthquakeTimer = 5;
                 LastCrocomireSoundEffect = 0x0076;
                 cursor = next;
                 return true;
 
-            case 0x8fdf: // Move left four pixels unless a mouth hit is pending.
+            case CrocomireCodePointers.Instruction_Crocomire_MoveLeft4Pixels:
                 RequireCrocomireLevel(level);
                 if ((state.FightFlags & 0x0800) == 0)
                     MoveCrocomire(slot, level!, -4);
                 cursor = next;
                 return true;
-            case 0x8ffa:
-            case 0x8fff:
+            case CrocomireCodePointers.Instruction_Crocomire_MoveLeft4Pixels_SpawnBigDustCloud:
+            case CrocomireCodePointers.Instruction_Crocomire_MoveLeft4Pixels_SpawnBigDustCloud_dup:
                 SpawnCrocomireRandomFootDust(state);
                 RequireCrocomireLevel(level);
                 if ((state.FightFlags & 0x0800) == 0)
                     MoveCrocomire(slot, level!, -4);
                 cursor = next;
                 return true;
-            case 0x901d: // Charge left; collision selects the authored backing-off list.
+            case CrocomireCodePointers.Instruction_Crocomire_MoveLeft_SpawnCloud_HandleSpikeWall:
                 RequireCrocomireLevel(level);
                 if (MoveCrocomire(slot, level!, -4))
                 {
@@ -100,7 +100,7 @@ public sealed partial class RoomEnemySystem
                 }
                 cursor = next;
                 return true;
-            case 0x905b: // Step right only while the left edge is inside camera+260.
+            case CrocomireCodePointers.Instruction_Crocomire_MoveRight4PixelsIfOnScreen:
                 RequireCrocomireLevel(level);
                 if (unchecked((short)(
                         slot.XPosition - slot.XRadius - 260 - cameraX)) < 0)
@@ -109,12 +109,12 @@ public sealed partial class RoomEnemySystem
                 }
                 cursor = next;
                 return true;
-            case 0x907f:
+            case CrocomireCodePointers.Instruction_Crocomire_MoveRight4Pixels:
                 RequireCrocomireLevel(level);
                 MoveCrocomire(slot, level!, 4);
                 cursor = next;
                 return true;
-            case 0x908f:
+            case CrocomireCodePointers.Instruction_Crocomire_MoveRight4PixelsIfOnScreen_SpawnCloud:
                 SpawnCrocomireRandomFootDust(state);
                 RequireCrocomireLevel(level);
                 if (unchecked((short)(
@@ -124,7 +124,7 @@ public sealed partial class RoomEnemySystem
                 }
                 cursor = next;
                 return true;
-            case 0x9094:
+            case CrocomireCodePointers.Instruction_Crocomire_MoveRight4Pixels_SpawnBigDustCloud:
                 SpawnCrocomireRandomFootDust(state);
                 RequireCrocomireLevel(level);
                 MoveCrocomire(slot, level!, 4);

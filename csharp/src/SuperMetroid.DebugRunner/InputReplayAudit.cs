@@ -4,6 +4,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
 /// <summary>
@@ -42,6 +43,14 @@ internal static class InputReplayAudit
         for (int index = 0; index < recording.ControllerInputs.Length; index++)
         {
             ushort input = recording.ControllerInputs[index];
+            SuperMetroidRuntime? runtimeBeforeStep = game.RuntimeForVerification;
+            SamusState? samusBeforeStep = runtimeBeforeStep?.Samus;
+            ushort? roomBeforeStep = runtimeBeforeStep?.ActiveRoom?.Pointer;
+            ushort yBeforeStep = samusBeforeStep?.YPosition ?? 0;
+            ushort xBeforeStep = samusBeforeStep?.XPosition ?? 0;
+            ushort xRadiusBeforeStep = samusBeforeStep?.Kinematics.XRadius ?? 0;
+            ushort yRadiusBeforeStep = samusBeforeStep?.Kinematics.YRadius ?? 0;
+            byte? poseBeforeStep = samusBeforeStep?.Pose;
             FrontendFrame frontend = game.Step(input);
             SuperMetroidRuntime? runtime = game.RuntimeForVerification;
             lastRuntime = runtime;
@@ -50,6 +59,53 @@ internal static class InputReplayAudit
             ushort? room = runtime?.ActiveRoom?.Pointer;
             ushort ceresStatus = runtime?.Enemies.CeresStatus ?? 0;
             bool ejection = samus?.CeresRidleyEjection.IsActive ?? false;
+
+            // A repeated player report says a downward jump/fall can cross a platform in
+            // live Zebes gameplay even though the earlier scripted Climb route landed.
+            // Audit the actual recorded trajectory at the geometric boundary, before any
+            // screen-space wrapping can disguise it. Types $8/$C/$E all enter the solid
+            // vertical branch in `$94:959E/$95F5`; crossing their top edge without a room
+            // transition is therefore never a legal cartridge result.
+            if (runtimeBeforeStep is not null && ReferenceEquals(runtimeBeforeStep, runtime) &&
+                samusBeforeStep is not null && samus is not null &&
+                roomBeforeStep == room && runtime?.LevelData is RoomLevelData level &&
+                samus.YPosition > yBeforeStep)
+            {
+                int bottomBefore = yBeforeStep + yRadiusBeforeStep - 1;
+                int bottomAfter = samus.YPosition + samus.Kinematics.YRadius - 1;
+                if (bottomAfter > bottomBefore)
+                {
+                    int left = Math.Max(0,
+                        (Math.Min(xBeforeStep, samus.XPosition) -
+                            Math.Max(xRadiusBeforeStep, samus.Kinematics.XRadius)) >> 4);
+                    int right = Math.Min(level.WidthInBlocks - 1,
+                        (Math.Max(xBeforeStep, samus.XPosition) +
+                            Math.Max(xRadiusBeforeStep, samus.Kinematics.XRadius) - 1) >> 4);
+                    int firstRow = Math.Max(0, (bottomBefore + 1) >> 4);
+                    int lastRow = Math.Min(level.HeightInBlocks - 1, bottomAfter >> 4);
+                    for (int blockY = firstRow; blockY <= lastRow; blockY++)
+                    {
+                        int surfaceY = blockY << 4;
+                        if (surfaceY <= bottomBefore || surfaceY > bottomAfter)
+                            continue;
+                        for (int blockX = left; blockX <= right; blockX++)
+                        {
+                            RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+                            if (block.CollisionType is not (8 or 12 or 14))
+                                continue;
+                            throw new InvalidDataException(
+                                $"Replay frame {index} crossed solid platform " +
+                                $"room $8F:{room.GetValueOrDefault():X4} block " +
+                                $"({blockX:X2},{blockY:X2}) type ${block.CollisionType:X1}/" +
+                                $"BTS ${block.Behavior:X2}: bottom {bottomBefore:X4}->" +
+                                $"{bottomAfter:X4}, Samus (${xBeforeStep:X4},${yBeforeStep:X4})" +
+                                $"->(${samus.XPosition:X4},${samus.YPosition:X4}), pose " +
+                                $"${poseBeforeStep.GetValueOrDefault():X2}->${samus.Pose:X2}, " +
+                                $"input=${input:X4}.");
+                        }
+                    }
+                }
+            }
             var state = new ReplayFrameState(
                 index,
                 frontend.GameState,

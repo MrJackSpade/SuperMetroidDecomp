@@ -522,8 +522,8 @@ public sealed partial class RoomEnemySystem
         ShaktoolSegmentState state = RequireShaktoolState(slot);
         switch (opcode)
         {
-            case 0xd931:
-            case 0xd93f:
+            case ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931:
+            case ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F:
             {
                 IReadOnlyList<RoomEnemySlot> group = GetShaktoolGroup(slot);
                 byte centerDirection = unchecked((byte)RequireShaktoolState(group[3])
@@ -536,8 +536,8 @@ public sealed partial class RoomEnemySystem
                 break;
             }
 
-            case 0xd94a:
-            case 0xd953:
+            case ShaktoolInstructionCodes.Instruction_Shaktool_Lower1Pixel:
+            case ShaktoolInstructionCodes.Instruction_Shaktool_Raise1Pixel:
             {
                 byte targetDirection = unchecked((byte)(state.TargetAngle >> 8));
                 MoveShaktoolSegmentForAnimation(
@@ -548,11 +548,11 @@ public sealed partial class RoomEnemySystem
                 break;
             }
 
-            case 0xd99f:
+            case ShaktoolInstructionCodes.RTL_AAD99F:
                 // Explicit RTL stub used between the two long attack pauses.
                 break;
 
-            case 0xd9ba:
+            case ShaktoolInstructionCodes.Instruction_Shaktool_ResetShaktoolFunctions:
             {
                 IReadOnlyList<RoomEnemySlot> group = GetShaktoolGroup(slot);
                 for (int index = 0; index < ShaktoolSegmentCount; index++)

@@ -374,14 +374,14 @@ public static partial class SamusGrappleMovement
             {
                 // The swing dispatcher intentionally treats shootable/bombable air as air;
                 // unlike a firing endpoint, body contact does not spawn their PLMs.
-                case 0:
-                case 3:
-                case 4:
-                case 6:
-                case 7:
+                case GrappleEndpointBlockTypes.Air:
+                case GrappleEndpointBlockTypes.PassThroughSpecialAir:
+                case GrappleEndpointBlockTypes.ShootableAir:
+                case GrappleEndpointBlockTypes.PassThroughTypeSix:
+                case GrappleEndpointBlockTypes.BombableAir:
                     return false;
 
-                case 2:
+                case GrappleEndpointBlockTypes.SpikeAir:
                     // `$94:AA9E` has a mostly-zero BTS table: only spike-air BTS two queues
                     // `$0010` damage. It never collides, but it still starts the common
                     // 60-frame invulnerability and 10-frame knockback timers. The timer
@@ -391,29 +391,29 @@ public static partial class SamusGrappleMovement
                     return false;
 
                 // Slopes are unconditional collision in this grapple-specific dispatcher.
-                case 1:
-                case 8:
-                case 9:
-                case 0x0b:
-                case 0x0c:
-                case 0x0e:
-                case 0x0f:
+                case GrappleEndpointBlockTypes.Slope:
+                case GrappleEndpointBlockTypes.Solid:
+                case GrappleEndpointBlockTypes.SolidTypeNine:
+                case GrappleEndpointBlockTypes.SolidTypeB:
+                case GrappleEndpointBlockTypes.ShootableSolid:
+                case GrappleEndpointBlockTypes.Grapple:
+                case GrappleEndpointBlockTypes.BombableSolid:
                     return true;
 
-                case 0x0a:
+                case GrappleEndpointBlockTypes.SpikeSolid:
                     // `$94:AB17` always reports collision. Before setting carry it applies
                     // `$003C` for BTS zero or `$0010` for BTS one; every other entry is
                     // literally zero. A negative BTS skips the table entirely.
                     ApplySwingSpikeDamage(samus, block.Behavior, solidSpike: true);
                     return true;
 
-                case 5:
+                case GrappleEndpointBlockTypes.HorizontalExtension:
                     if (block.Behavior == 0)
                         return false;
                     index += unchecked((sbyte)block.Behavior);
                     continue;
 
-                case 0x0d:
+                case GrappleEndpointBlockTypes.VerticalExtension:
                     if (block.Behavior == 0)
                         return false;
                     index += unchecked((sbyte)block.Behavior) * level.WidthInBlocks;

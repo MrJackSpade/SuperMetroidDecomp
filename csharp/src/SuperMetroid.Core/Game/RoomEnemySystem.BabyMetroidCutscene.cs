@@ -235,10 +235,10 @@ public sealed partial class RoomEnemySystem
     {
         switch (opcode)
         {
-            case 0xcfb4:
+            case MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoInitial:
                 cursor = BabyMetroidCutsceneState.InitialInstructionList;
                 return true;
-            case 0xcfca:
+            case MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoDrainingMotherBrain:
                 cursor = BabyMetroidCutsceneState.DrainingMotherBrainInstructionList;
                 return true;
             default:

@@ -120,18 +120,22 @@ internal sealed class IntroBabyDiscoveryState
     {
         switch (pointer)
         {
-            case 0x864f:
+            case IntroBabyDiscoveryRomData.RunningLeftPreInstruction:
                 if (Samus.XPosition < 0x00b2)
-                    demo.Redirect(0x866a, 0x8623);
+                    demo.Redirect(
+                        IntroBabyDiscoveryRomData.StopAndLookPreInstruction,
+                        IntroBabyDiscoveryRomData.StopAndLookInputList);
                 return;
 
-            case 0x866a:
+            case IntroBabyDiscoveryRomData.StopAndLookPreInstruction:
                 if (introCrossfadeTimer == 0)
-                    demo.Redirect(0x83bf, 0x864b);
+                    demo.Redirect(
+                        IntroBabyDiscoveryRomData.InertPreInstruction,
+                        IntroBabyDiscoveryRomData.EndInputList);
                 return;
 
-            case 0x83bf:
-            case 0x8447:
+            case IntroBabyDiscoveryRomData.InertPreInstruction:
+            case IntroBabyDiscoveryRomData.InertPreInstructionAlternate:
                 return;
 
             default:
@@ -147,7 +151,7 @@ internal sealed class IntroBabyDiscoveryState
         ushort pointer,
         ushort argumentPointer)
     {
-        if (pointer != 0x8682)
+        if (pointer != IntroBabyDiscoveryRomData.EndDemoInputInstruction)
             return DemoInputInstructionResult.NotHandled(argumentPointer);
 
         // $91:8682 replaces both Samus handlers with the locked cinematic RTS, disables
@@ -161,7 +165,7 @@ internal sealed class IntroBabyDiscoveryState
     {
         switch (opcode)
         {
-            case 0xa918:
+            case CinematicCodePointers.Instruction_SpawnMetroidEggParticles:
                 // The six JSR Spawn calls at $A918..A94C use definitions CECD through CEEB
                 // and init parameters zero through five, in this exact order.
                 for (byte index = 0; index < 6; index++)
@@ -169,7 +173,7 @@ internal sealed class IntroBabyDiscoveryState
                 audio?.QueueSound(library: 2, soundId: 0x0b, maximumQueued: 6);
                 return argumentPointer;
 
-            case 0xb33e:
+            case CinematicCodePointers.Instruction_StartIntroPage3:
                 // This opcode switches the outer cinematic function to page three and then
                 // returns without consuming operands. The state owner performs the palette
                 // transition; the actor interpreter merely reports the native request.
@@ -211,11 +215,11 @@ internal sealed class IntroBabyDiscoveryState
                 }
                 return;
 
-            case 0xba73:
+            case CinematicCodePointers.PreInstruction_ConfusedBabyMetroid_Hatched:
                 StepHatchedBaby();
                 return;
 
-            case 0xbb0d:
+            case CinematicCodePointers.PreInstruction_ConfusedBabyMetroid_Idling:
                 BabyIdleTimer = unchecked((ushort)(BabyIdleTimer - 1));
                 if (unchecked((short)BabyIdleTimer) <= 0)
                 {
@@ -226,7 +230,7 @@ internal sealed class IntroBabyDiscoveryState
                 }
                 return;
 
-            case 0xbb24:
+            case CinematicCodePointers.PreInstruction_ConfusedBabyMetroid_Dancing:
                 StepDancingBaby(introCrossfadeTimer);
                 return;
 

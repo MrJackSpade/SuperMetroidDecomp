@@ -28,6 +28,21 @@ if (args.Length == 3 && args[0] == "--input-replay-audit")
         args[2].Trim('"'));
 }
 
+if (args.Length == 4 && args[0] == "--start-input-visual-audit")
+{
+    return StartInputVisualAudit.Run(
+        args[1].Trim('"'),
+        args[2].Trim('"'),
+        args[3].Trim('"'));
+}
+
+if (args.Length == 3 && args[0] == "--file-select-data-audit")
+{
+    return FileSelectDataManagementAudit.Run(
+        args[1].Trim('"'),
+        args[2].Trim('"'));
+}
+
 if (args.Length >= 2 && args[0] == "--ceres-controller-route-audit")
 {
     string ceresControllerRomPath = string.Join(' ', args[1..]).Trim('"');
@@ -60,6 +75,13 @@ if (args.Length >= 2 && args[0] == "--early-route-audit")
 {
     string earlyRouteRomPath = string.Join(' ', args[1..]).Trim('"');
     return EarlyRouteAudit.Run(earlyRouteRomPath);
+}
+
+if (args.Length >= 3 && args[0] == "--pause-map-audit")
+{
+    string pauseMapRomPath = string.Join(' ', args[1..^1]).Trim('"');
+    string pauseMapOutputPath = args[^1].Trim('"');
+    return PauseMapAudit.Run(pauseMapRomPath, pauseMapOutputPath);
 }
 
 if (args.Length >= 2 && args[0] == "--early-controller-route-audit")
@@ -3267,7 +3289,7 @@ if (!options.GunshipScript)
 // debug routes can choose non-door camera coordinates after this call, so keep their prior
 // cutscene page until their entry-page selection is modeled rather than guessing by script.
 runtime.InitializeLandingSiteCamera(
-    options.GunshipScript ? (ushort)0x896a : LandingSiteEntryState.LandingCutsceneDoorPointer);
+    options.GunshipScript ? (ushort)0x896a : LandingSiteRomData.LandingCutsceneDoorPointer);
 ScrollBoundaryCamera camera = runtime.Camera!;
 
 // The optional grounded scenario must choose its camera before the native initial viewport

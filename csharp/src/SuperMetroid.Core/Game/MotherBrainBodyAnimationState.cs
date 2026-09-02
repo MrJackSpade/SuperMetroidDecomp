@@ -115,118 +115,118 @@ public sealed class MotherBrainBodyAnimationState
             InstructionPointer = unchecked((ushort)(InstructionPointer + 2));
             switch (word)
             {
-                case 0x812f: // Common enemy instruction: sleep.
+                case MotherBrainInstructionCodes.Instruction_CommonA9_Sleep:
                     // EnemyInstr_Sleep writes the address of the command itself back to the
                     // current-instruction word and returns null to stop this processing call.
                     InstructionPointer = commandAddress;
                     Sleeping = true;
                     return CreateResult();
 
-                case 0x95fc: // X + 1, Y - 2.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_ScrollRightBy1:
                     MoveBody(1, -2);
                     break;
 
-                case 0x95b6: // Y - 10, BG2 X scroll left by four.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy10_ScrollLeftBy4:
                     MoveBodyVerticallyAndScrollHorizontally(-10, 4);
                     break;
 
-                case 0x95c0: // Y - 16, BG2 X scroll left by four.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy16_ScrollLeftBy4:
                     MoveBodyVerticallyAndScrollHorizontally(-16, 4);
                     break;
 
-                case 0x95ca: // Y - 12, BG2 X scroll right by two.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy12_ScrollRightBy2:
                     MoveBodyVerticallyAndScrollHorizontally(-12, -2);
                     break;
 
-                case 0x95de: // Y + 12, BG2 X scroll left by four.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy12_ScrollLeftBy4:
                     MoveBodyVerticallyAndScrollHorizontally(12, 4);
                     break;
 
-                case 0x95e8: // Y + 16, BG2 X scroll right by two.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy16_ScrollRightBy2:
                     MoveBodyVerticallyAndScrollHorizontally(16, -2);
                     break;
 
-                case 0x95f2: // Y + 10, BG2 X scroll right by two.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy10_ScrollRightBy2:
                     MoveBodyVerticallyAndScrollHorizontally(10, -2);
                     break;
 
-                case 0x960c: // X + 2.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyRightBy2:
                     MoveBody(2, 0);
                     break;
 
-                case 0x961c: // Literal A=+1 into `$A9:9579`.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1:
                     MoveBody(0, 1);
                     break;
 
-                case 0x9622: // X + 3, Y + 1, footstep.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1_RightBy3_Footstep:
                     ApplyFootstep();
                     MoveBody(3, 1);
                     break;
 
-                case 0x9638: // X + 15, Y - 2.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy15:
                     MoveBody(15, -2);
                     break;
 
-                case 0x9648: // X + 6, Y - 4.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy6:
                     MoveBody(6, -4);
                     break;
 
-                case 0x9658: // X - 2, Y + 4.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy2:
                     MoveBody(-2, 4);
                     break;
 
-                case 0x9668: // X - 1, Y + 2, footstep.
-                case 0x967e: // Duplicate opcode with a different discarded incoming A.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep:
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep_d:
                     ApplyFootstep();
                     MoveBody(-1, 2);
                     break;
 
-                case 0x9694: // X - 2.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyLeftBy2:
                     MoveBody(-2, 0);
                     break;
 
-                case 0x96a4: // Literal A=$FFFF into `$A9:9579`.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1:
                     MoveBody(0, -1);
                     break;
 
-                case 0x96aa: // X - 3, Y - 1.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1_LeftBy3:
                     MoveBody(-3, -1);
                     break;
 
-                case 0x96ba: // X - 15, Y + 2, footstep.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy15_Footstep:
                     ApplyFootstep();
                     MoveBody(-15, 2);
                     break;
 
-                case 0x96d0: // X - 6, Y + 4.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy6:
                     MoveBody(-6, 4);
                     break;
 
-                case 0x96e0: // X + 2, Y - 4.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy2:
                     MoveBody(2, -4);
                     break;
 
-                case 0x96f0: // X + 1, Y - 2.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy1:
                     MoveBody(1, -2);
                     break;
 
-                case 0x9700:
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding:
                     Pose = 0; // Standing.
                     break;
 
-                case 0x9708:
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking:
                     Pose = 1; // Walking.
                     break;
 
-                case 0x9710:
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouching:
                     Pose = 3; // Fully crouched.
                     break;
 
-                case 0x9718:
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition:
                     Pose = 2; // Crouching/standing transition.
                     break;
 
-                case 0x9728:
+                case MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToLeaningDown:
                     Pose = 6; // Leaning down.
                     break;
 

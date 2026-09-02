@@ -312,7 +312,7 @@ public sealed class TitleSequenceState
             sequenceEntry = AddWithinBank(entryAddress, 2);
             switch (durationOrCommand)
             {
-                case 0x9ce1: // Trigger title scene zero.
+                case CinematicCodePointers.Instruction_TriggerTitleSequenceScene0:
                     phase = TitleSequencePhase.SceneZeroPan;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9CE3-$9CE5`.
                     zoom = 0x48;
@@ -321,7 +321,7 @@ public sealed class TitleSequenceState
                     activeSpritemap = BlankSpritemap;
                     return;
 
-                case 0x9d5d: // Trigger title scene one.
+                case CinematicCodePointers.Instruction_TriggerTitleSequenceScene1:
                     phase = TitleSequencePhase.SceneOnePan;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9D5D-$9D61`.
                     zoom = 0x60;
@@ -330,7 +330,7 @@ public sealed class TitleSequenceState
                     activeSpritemap = BlankSpritemap;
                     return;
 
-                case 0x9dd6: // Trigger title scene two.
+                case CinematicCodePointers.Instruction_TriggerTitleSequenceScene2:
                     phase = TitleSequencePhase.SceneTwoPan;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9DD6-$9DDA`.
                     zoom = 0x60;
@@ -339,7 +339,7 @@ public sealed class TitleSequenceState
                     activeSpritemap = BlankSpritemap;
                     return;
 
-                case 0x9e58: // Trigger title scene three.
+                case CinematicCodePointers.Instruction_TriggerTitleSequenceScene3:
                     phase = TitleSequencePhase.SceneThreeZoom;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9E58-$9E5C`.
                     phaseTimer = 0;
@@ -349,7 +349,7 @@ public sealed class TitleSequenceState
                     activeSpritemap = BlankSpritemap;
                     return;
 
-                case 0x9438: // Cinematic sprite delete.
+                case CinematicCodePointers.CinematicSpriteObject_Instruction_Delete:
                     activeSpritemap = BlankSpritemap;
                     return;
 

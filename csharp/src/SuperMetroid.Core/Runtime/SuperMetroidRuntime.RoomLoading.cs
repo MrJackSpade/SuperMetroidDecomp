@@ -6,11 +6,6 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>Cartridge-driven room loading kept separate from the gameplay-frame monolith.</summary>
 public sealed partial class SuperMetroidRuntime
 {
-    private const int CommonGameplaySpritePaletteAddress = 0x9afc00;
-    private const int CommonGameplaySpritePaletteCgramIndex = 128;
-    private const int InitialEnemyProjectilePaletteAddress = 0x9a81a0;
-    private const int InitialEnemyProjectilePaletteCgramIndex = 208;
-
     // The IRQ owns these coordinates while state $0B waits inside LoadMoreThings. Keep
     // that ownership explicit instead of reducing the native scroll to a frontend timer.
     private DoorOpeningScrollState? _doorOpeningScroll;
@@ -151,16 +146,16 @@ public sealed partial class SuperMetroidRuntime
         Samus.PrimeGraphics(_addressSpace);
         _samusLoadAppearancePaletteFxDefinition =
             Samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-                ? (ushort)0xe1fc
+                ? RoomLoadingRomData.GravitySuitLoadPaletteFx
                 : Samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                    ? (ushort)0xe1f8
-                    : (ushort)0xe1f4;
+                    ? RoomLoadingRomData.VariaSuitLoadPaletteFx
+                    : RoomLoadingRomData.PowerSuitLoadPaletteFx;
         RoomPaletteFx.SpawnDefinition(
             _addressSpace,
             _samusLoadAppearancePaletteFxDefinition,
             Samus.EquippedItems,
             System.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
-        _samusLoadAppearanceFramesRemaining = 0x0168;
+        _samusLoadAppearanceFramesRemaining = RoomLoadingRomData.SavedGameAppearanceFrameCount;
         Samus.InputLocked = true;
         PreviousMovementTypeForXray = Samus.ReadMovementType(_addressSpace);
         GroundedSamusMovementEnabled = false;
@@ -643,6 +638,13 @@ public sealed partial class SuperMetroidRuntime
             hasEvent: System.HasEvent,
             setEvent: System.SetEvent);
 
+        // `$82:E8DD/$82:EB93` runs the bank-$8F door program only after destination PLMs
+        // exist and before enemy initialization/initial viewport construction. Several of
+        // those programs rewrite the room scroll array, so postponing this call until the
+        // first gameplay frame would already have streamed a viewport with wrong camera
+        // limits.
+        RunDoorSetupCode(door);
+
         Enemies.Load(
             _addressSpace,
             room.State.EnemyPopulationPointer,
@@ -737,14 +739,14 @@ public sealed partial class SuperMetroidRuntime
     {
         Cgram.LoadFromBus(
             _addressSpace,
-            CommonGameplaySpritePaletteAddress,
+            RoomLoadingRomData.CommonGameplaySpritePalette,
             colorCount: 16,
-            destinationIndex: CommonGameplaySpritePaletteCgramIndex);
+            destinationIndex: RoomLoadingRomData.CommonGameplaySpritePaletteCgramIndex);
         Cgram.LoadFromBus(
             _addressSpace,
-            InitialEnemyProjectilePaletteAddress,
+            RoomLoadingRomData.InitialEnemyProjectilePalette,
             colorCount: 16,
-            destinationIndex: InitialEnemyProjectilePaletteCgramIndex);
+            destinationIndex: RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex);
     }
 
     /// <summary>
@@ -799,7 +801,7 @@ public sealed partial class SuperMetroidRuntime
         // artificial full-pool audit must not gain a host-only exception or terrain edit.
         Plms.TrySpawnBotwoonWall(LevelData, header);
 
-        if (header == 0xb797)
+        if (header == RoomPlmHeaders.ClearBotwoonWall)
         {
             // The already-defeated branch performs this 16-bit `$0101` store directly in
             // `$B3:959E`; unlike the live crumble PLM, it does not wait for instruction

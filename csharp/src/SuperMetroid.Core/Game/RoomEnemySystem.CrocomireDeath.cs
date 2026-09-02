@@ -25,152 +25,152 @@ public sealed partial class RoomEnemySystem
     {
         switch (state.DeathSequenceIndex)
         {
-            case 0x02: // Bridge crumbles while Crocomire sinks into the acid.
+            case CrocomireDeathPhases.CrumbleBridgeAndSink:
                 SpawnNextCrocomireBridgeFragment(state);
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: true);
                 return;
-            case 0x04: // First submerged pause.
+            case CrocomireDeathPhases.FirstSubmergedPause:
                 RunCrocomireAcidSoundTimer();
                 UpdateCrocomireBg2Scroll(state, includeVerticalPosition: false);
                 RunCrocomireSubmergedPause(state);
                 return;
-            case 0x06: // Hop one: rise.
+            case CrocomireDeathPhases.FirstHopRise:
                 RunCrocomireRisingComposite(state, samus, tickAcidSound: true);
                 return;
-            case 0x08: // Hop one: sink.
+            case CrocomireDeathPhases.FirstHopSink:
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: true);
                 return;
-            case 0x0a: // Second submerged pause.
+            case CrocomireDeathPhases.SecondSubmergedPause:
                 RunCrocomireAcidSoundTimer();
                 UpdateCrocomireBg2Scroll(state, includeVerticalPosition: false);
                 RunCrocomireSubmergedPause(state);
                 return;
-            case 0x0c: // Hop two: rise.
+            case CrocomireDeathPhases.SecondHopRise:
                 RunCrocomireRisingComposite(state, samus, tickAcidSound: true);
                 return;
-            case 0x0e: // Hop two: sink.
+            case CrocomireDeathPhases.SecondHopSink:
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: true);
                 return;
-            case 0x10: // Install first melting tilemap and tongue/arm actor.
+            case CrocomireDeathPhases.InstallFirstMeltImage:
                 InitializeCrocomireMeltingTilemap(
                     state,
                     CrocomireFirstMeltingTilemap,
                     CrocomireSinkingHighList);
                 return;
-            case 0x12: // Copy first melting graphics into the native scratch image.
+            case CrocomireDeathPhases.CopyFirstMeltGraphics:
                 InitializeCrocomireMeltingGraphics(state);
                 return;
-            case 0x14: // Upload one first-melt graphics slice per frame.
+            case CrocomireDeathPhases.UploadFirstMeltGraphics:
                 UploadNextCrocomireMeltingGraphicsSlice(state);
                 return;
-            case 0x16: // Hop three: rise.
+            case CrocomireDeathPhases.ThirdHopRise:
                 RunCrocomireRisingComposite(state, samus, tickAcidSound: false);
                 return;
-            case 0x18: // Start first column dissolve and its vertical-scroll HDMA table.
+            case CrocomireDeathPhases.StartFirstDissolve:
                 LastCrocomireSoundEffect = 0x0077;
                 BeginCrocomireMelting(state);
                 return;
-            case 0x1a: // Dissolve first body image.
+            case CrocomireDeathPhases.DissolveFirstImage:
                 RunCrocomireMelting(state, samus);
                 return;
-            case 0x1c: // Clear BG2 after first body is gone.
+            case CrocomireDeathPhases.ClearFirstMeltImage:
                 FinishCrocomireMeltingPass(state);
                 return;
-            case 0x1e: // Hop four: sink.
+            case CrocomireDeathPhases.FourthHopSink:
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: false);
                 return;
-            case 0x20: // Third submerged pause.
+            case CrocomireDeathPhases.ThirdSubmergedPause:
                 RunCrocomireSubmergedPause(state);
                 return;
-            case 0x22: // Hop four: rise.
+            case CrocomireDeathPhases.FourthHopRise:
                 RunCrocomireRisingComposite(state, samus, tickAcidSound: false);
                 return;
-            case 0x24: // Hop five: sink.
+            case CrocomireDeathPhases.FifthHopSink:
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: false);
                 return;
-            case 0x26: // Fourth submerged pause.
+            case CrocomireDeathPhases.FourthSubmergedPause:
                 RunCrocomireSubmergedPause(state);
                 return;
-            case 0x28: // Hop five: rise.
+            case CrocomireDeathPhases.FifthHopRise:
                 RunCrocomireRisingComposite(state, samus, tickAcidSound: false);
                 return;
-            case 0x2a: // Hop six: sink.
+            case CrocomireDeathPhases.SixthHopSink:
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: false);
                 return;
-            case 0x2c: // Install second melting tilemap.
+            case CrocomireDeathPhases.InstallSecondMeltImage:
                 InitializeCrocomireMeltingTilemap(
                     state,
                     CrocomireSecondMeltingTilemap,
                     CrocomireRisingHighList);
                 return;
-            case 0x2e: // Copy second melting graphics.
+            case CrocomireDeathPhases.CopySecondMeltGraphics:
                 InitializeCrocomireMeltingGraphics(state);
                 return;
-            case 0x30: // Upload one second-melt graphics slice per frame.
+            case CrocomireDeathPhases.UploadSecondMeltGraphics:
                 UploadNextCrocomireMeltingGraphicsSlice(state);
                 return;
-            case 0x32: // Shipped index-only spacer.
+            case CrocomireDeathPhases.ShippedSpacer:
                 state.DeathSequenceIndex += 2;
                 return;
-            case 0x34: // Hop six: rise.
+            case CrocomireDeathPhases.SixthHopRise:
                 SelectCrocomireRisingInstruction(state.Body);
                 SpawnCrocomireAcidSmoke(state, samus);
                 RunCrocomireRise(state);
                 return;
-            case 0x36: // Start second dissolve.
+            case CrocomireDeathPhases.StartSecondDissolve:
                 LastCrocomireSoundEffect = 0x002d;
                 BeginCrocomireMelting(state);
                 return;
-            case 0x38: // Dissolve second body image.
+            case CrocomireDeathPhases.DissolveSecondImage:
                 RunCrocomireMelting(state, samus);
                 return;
-            case 0x3a: // Clear BG2 after second body is gone.
+            case CrocomireDeathPhases.ClearSecondMeltImage:
                 FinishCrocomireMeltingPass(state);
                 return;
-            case 0x3c: // Final sink, then select the river-skeleton detour at index $58.
+            case CrocomireDeathPhases.FinalSink:
                 RunCrocomireFinalSink(state, samus);
                 return;
-            case 0x3e: // Skeleton behind the wall waits for Samus to return left.
+            case CrocomireDeathPhases.WaitForSamusAtWall:
                 RunCrocomireWaitBehindWall(state, samus);
                 return;
-            case 0x40: // Rumble the hidden wall using the ROM's signed table.
+            case CrocomireDeathPhases.RumbleHiddenWall:
                 RunCrocomireWallRumble(state);
                 return;
-            case 0x42: // Load skeleton OBJ tiles, then break the spike wall.
+            case CrocomireDeathPhases.BreakSpikeWall:
                 RunCrocomireSkeletonTileLoadAndWallBreak(state);
                 return;
-            case 0x44: // Eighty-frame delay before the skeleton starts falling.
+            case CrocomireDeathPhases.DelaySkeletonFall:
                 RunCrocomireWallBreakDelay(state);
                 return;
-            case 0x46: // Skeleton arcs back into the arena.
+            case CrocomireDeathPhases.ArcSkeletonIntoArena:
                 RunCrocomireSkeletonArc(state);
                 return;
-            case 0x48: // Wait for falls-apart instruction list to reach its terminal image.
+            case CrocomireDeathPhases.WaitForSkeletonTerminalImage:
                 RunCrocomireSkeletonCollapse(state);
                 return;
-            case 0x4a: // Reopen the four left-hand scroll cells and clear the wall.
+            case CrocomireDeathPhases.ClearWallAndOpenScrolls:
                 FinishCrocomireArenaScrolls(state);
                 return;
-            case 0x4c: // Wait for the stable skeleton frame.
+            case CrocomireDeathPhases.WaitForStableSkeleton:
                 if (unchecked((short)(state.Body.CurrentInstruction - CrocomireSkeletonStableList)) >= 0)
                     state.DeathSequenceIndex += 2;
                 return;
-            case 0x4e: // Native one-frame index-only state.
+            case CrocomireDeathPhases.NativeOneFrameSpacer:
                 state.DeathSequenceIndex += 2;
                 return;
-            case 0x50: // Publish the miniboss bit and restore boss music.
+            case CrocomireDeathPhases.PublishDefeatAndRestoreMusic:
                 CompleteCrocomireBoss(state);
                 return;
-            case 0x52: // Final live-room corpse state is intentionally inert.
+            case CrocomireDeathPhases.InertCorpse:
                 return;
-            case 0x54: // Already-defeated room initializer's one-frame advance.
+            case CrocomireDeathPhases.DefeatedRoomAdvance:
                 state.DeathSequenceIndex += 2;
                 return;
-            case 0x56: // Already-defeated room pins BG2 scrolls at zero.
+            case CrocomireDeathPhases.PinDefeatedRoomBg2Scroll:
                 CrocomireBg2HorizontalScroll = 0;
                 CrocomireBg2VerticalScroll = 0;
                 return;
-            case 0x58: // River detour sequenced between indexes $3C and $3E.
+            case CrocomireDeathPhases.RiverSkeletonDetour:
                 RunCrocomireSkeletonRiver(state);
                 return;
             default:

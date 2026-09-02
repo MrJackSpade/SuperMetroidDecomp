@@ -193,26 +193,45 @@ static void VerifyFileSelectFreshSaveTilemap()
     // terminator so the cartridge-backed loader cannot wander into zero-filled ROM.
     int[] unusedLabelAddresses =
     [
-        0x81b40a, // SAMUS DATA
-        0x81b436, // SAMUS A
-        0x81b456, // SAMUS B
-        0x81b476, // SAMUS C
-        0x81b4ee, // EXIT
+        0x810000 | FileSelectTilemaps.SamusData,
+        0x810000 | FileSelectTilemaps.SamusA,
+        0x810000 | FileSelectTilemaps.SamusB,
+        0x810000 | FileSelectTilemaps.SamusC,
+        0x810000 | FileSelectTilemaps.Exit,
+        0x810000 | FileSelectTilemaps.DataCopyMode,
+        0x810000 | FileSelectTilemaps.DataClearMode,
+        0x810000 | FileSelectTilemaps.CopyWhichData,
+        0x810000 | FileSelectTilemaps.CopySamusToWhere,
+        0x810000 | FileSelectTilemaps.CopySamusToSamus,
+        0x810000 | FileSelectTilemaps.IsThisOkay,
+        0x810000 | FileSelectTilemaps.Yes,
+        0x810000 | FileSelectTilemaps.No,
+        0x810000 | FileSelectTilemaps.CopyCompleted,
+        0x810000 | FileSelectTilemaps.ClearWhichData,
+        0x810000 | FileSelectTilemaps.ClearSamus,
+        0x810000 | FileSelectTilemaps.DataCleared,
     ];
     foreach (int address in unusedLabelAddresses)
         WriteRomWord(rom, address, 0xffff);
+    // These two visible main-menu entries were the reported omission. Give each stream a
+    // unique first tile so the fixture asserts ROM-authored rendering rather than merely
+    // checking that selection index three/four became reachable.
+    WriteRomWord(rom, 0x810000 | FileSelectTilemaps.DataCopy, 0x20c0);
+    WriteRomWord(rom, 0x810000 | (FileSelectTilemaps.DataCopy + 2), 0xffff);
+    WriteRomWord(rom, 0x810000 | FileSelectTilemaps.DataClear, 0x20c1);
+    WriteRomWord(rom, 0x810000 | (FileSelectTilemaps.DataClear + 2), 0xffff);
 
     // The retail menu always loads the static TIME caption for each slot. Only the adjacent
     // HH:MM digits are conditional on a valid save. Reproduce the exact `$81:B4A0` stream so
     // an empty-slot fixture verifies that important distinction instead of hiding it.
     ushort[] timeWords = [0x20ad, 0x20ae, 0x20af, 0xffff];
     for (int index = 0; index < timeWords.Length; index++)
-        WriteRomWord(rom, 0x81b4a0 + index * 2, timeWords[index]);
+        WriteRomWord(rom, 0x810000 | (FileSelectTilemaps.Time + index * 2), timeWords[index]);
     ushort[] energyWords = [0x209d, 0x209e, 0x209f, 0x20cc, 0xffff];
     for (int index = 0; index < energyWords.Length; index++)
-        WriteRomWord(rom, 0x81b496 + index * 2, energyWords[index]);
-    WriteRomWord(rom, 0x81b4a8, 0x208c);
-    WriteRomWord(rom, 0x81b4aa, 0xffff);
+        WriteRomWord(rom, 0x810000 | (FileSelectTilemaps.Energy + index * 2), energyWords[index]);
+    WriteRomWord(rom, 0x810000 | FileSelectTilemaps.TimeColon, 0x208c);
+    WriteRomWord(rom, 0x810000 | (FileSelectTilemaps.TimeColon + 2), 0xffff);
 
     // This is the literal retail structure at $81:B4AC: one leading blank, "NO DATA",
     // and three trailing blanks. Keeping the exact words makes the test cover both the
@@ -228,7 +247,7 @@ static void VerifyFileSelectFreshSaveTilemap()
         0xffff,
     ];
     for (int index = 0; index < noDataWords.Length; index++)
-        WriteRomWord(rom, 0x81b4ac + index * 2, noDataWords[index]);
+        WriteRomWord(rom, 0x810000 | (FileSelectTilemaps.NoData + index * 2), noDataWords[index]);
 
     // Give PackMapToSave a minimal but nontrivial native table: two Crateria bytes at
     // sparse unpacked offsets become compressed bytes $10/$11. Areas one through five
@@ -320,6 +339,54 @@ static void VerifyFileSelectFreshSaveTilemap()
     AssertEqual(0x208c, savedTilemap[(0x1b4 + 4) / 2], "saved slot time colon");
     AssertEqual(0x2063, savedTilemap[(0x1b4 + 6) / 2], "saved slot minute tens");
     AssertEqual(0x2064, savedTilemap[(0x1b4 + 8) / 2], "saved slot minute ones");
+    AssertEqual(0x20c0, savedTilemap[0x508 / 2], "file-select DATA COPY menu entry");
+    AssertEqual(0x20c1, savedTilemap[0x5c8 / 2], "file-select DATA CLEAR menu entry");
+
+    // Drive the real newly-pressed latch and fade states into COPY. Slot zero is the only
+    // nonempty source, destination one is the first native choice, and YES is the default.
+    var copyMenu = new FileSelectMenuState(addressSpace);
+    AdvanceFileSelectToMain(copyMenu);
+    PulseFileSelect(copyMenu, SnesButton.Down);
+    PulseFileSelect(copyMenu, SnesButton.Down);
+    PulseFileSelect(copyMenu, SnesButton.Down);
+    AssertEqual(3, copyMenu.SelectedItem, "file-select reaches DATA COPY");
+    PulseFileSelect(copyMenu, SnesButton.A);
+    AdvanceFileSelectFade(copyMenu, FileSelectPhase.CopySelectSource);
+    PulseFileSelect(copyMenu, SnesButton.A);
+    AssertEqual(FileSelectPhase.CopySelectDestination, copyMenu.Phase,
+        "copy chooses nonempty source slot");
+    PulseFileSelect(copyMenu, SnesButton.A);
+    AssertEqual(FileSelectPhase.CopyConfirm, copyMenu.Phase,
+        "copy chooses distinct destination slot");
+    copyMenu.Step(0);
+    copyMenu.Step((ushort)SnesButton.A);
+    AssertTrue(copyMenu.SaveRamChangedThisFrame, "copy publishes SRAM mutation frame");
+    AssertEqual(FileSelectPhase.CopyCompleted, copyMenu.Phase, "copy reaches completion screen");
+    SuperMetroidSaveSlot copied = saveRam.ReadSlot(1)
+        ?? throw new InvalidOperationException("File-select COPY did not create slot B.");
+    AssertEqual(saved.Health, copied.Health, "file-select COPY preserves health");
+    AssertEqual(saved.GameTimeMinutes, copied.GameTimeMinutes, "file-select COPY preserves time");
+
+    // Re-enter the main screen from the copied SRAM image and clear slot A. This exercises
+    // the actual confirmation default and the native four-directory invalidation, not a
+    // host-only hidden flag.
+    var clearMenu = new FileSelectMenuState(addressSpace);
+    AdvanceFileSelectToMain(clearMenu);
+    for (int move = 0; move < 4; move++)
+        PulseFileSelect(clearMenu, SnesButton.Down);
+    AssertEqual(4, clearMenu.SelectedItem, "file-select reaches DATA CLEAR");
+    PulseFileSelect(clearMenu, SnesButton.A);
+    AdvanceFileSelectFade(clearMenu, FileSelectPhase.ClearSelectSlot);
+    PulseFileSelect(clearMenu, SnesButton.A);
+    AssertEqual(FileSelectPhase.ClearConfirm, clearMenu.Phase,
+        "clear chooses first nonempty slot");
+    clearMenu.Step(0);
+    clearMenu.Step((ushort)SnesButton.A);
+    AssertTrue(clearMenu.SaveRamChangedThisFrame, "clear publishes SRAM mutation frame");
+    AssertEqual(FileSelectPhase.ClearCompleted, clearMenu.Phase,
+        "clear reaches DATA CLEARED screen");
+    AssertTrue(saveRam.ReadSlot(0) is null, "file-select CLEAR invalidates slot A checksums");
+    AssertTrue(saveRam.ReadSlot(1) is not null, "file-select CLEAR preserves other slots");
 
     for (int frame = 0; frame < 15; frame++)
         savedMenu.Step(0);
@@ -344,7 +411,27 @@ static void VerifyFileSelectFreshSaveTilemap()
     addressSpace.SaveRam[0x0010 + 0x20] ^= 1;
     AssertTrue(saveRam.ReadSlot(0) is null, "SRAM payload corruption invalidates both directories");
 
-    Console.WriteLine("  SRAM/file select: Ceres checkpoint, redundant checksums, NO DATA, ENERGY, and TIME agree.");
+    Console.WriteLine("  SRAM/file select: slots, COPY/CLEAR, checksums, NO DATA, ENERGY, and TIME agree.");
+}
+
+static void AdvanceFileSelectToMain(FileSelectMenuState menu)
+{
+    for (int frame = 0; frame < 15; frame++)
+        menu.Step(0);
+    AssertEqual(FileSelectPhase.Main, menu.Phase, "file-select fade reaches main menu");
+}
+
+static void AdvanceFileSelectFade(FileSelectMenuState menu, FileSelectPhase expected)
+{
+    for (int guard = 0; menu.Phase != expected && guard < 40; guard++)
+        menu.Step(0);
+    AssertEqual(expected, menu.Phase, "file-select data-management fade completes");
+}
+
+static void PulseFileSelect(FileSelectMenuState menu, SnesButton button)
+{
+    menu.Step((ushort)button);
+    menu.Step(0);
 }
 
 static void VerifySavedGameLoadAppearance()

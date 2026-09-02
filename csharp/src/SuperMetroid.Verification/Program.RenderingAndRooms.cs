@@ -325,6 +325,39 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     camera.MoveRight(16);
     AssertEqual(0x0200, camera.XPosition, "scroll camera physical room maximum");
 
+    // Issue #12's slot-one capture is Construction Zone immediately after returning from
+    // First Missile. Its room header starts `[blue, red]`; the incoming door points at
+    // `$8F:BE25`, which must replace that pair with `[green, blue]` before camera tracking.
+    grid.SetLogicalCell(0, 0, (byte)RoomScrollState.Blue);
+    grid.SetLogicalCell(0, 1, (byte)RoomScrollState.RedBoundary);
+    DoorSetupCodeInterpreter.ApplyScrollWrites(
+        DoorCodes.DoorASM_Scroll_0_Green_1_Blue,
+        DoorPointers.ConstructionZoneFromFirstMissile,
+        grid);
+    AssertEqual((byte)RoomScrollState.Green, grid.ReadStorage(0),
+        "$8F:BE25 writes Construction Zone screen zero green");
+    AssertEqual((byte)RoomScrollState.Blue, grid.ReadStorage(1),
+        "$8F:BE25 writes Construction Zone screen one blue");
+    grid.SetStorage(6, (byte)RoomScrollState.RedBoundary);
+    DoorSetupCodeInterpreter.ApplyScrollWrites(
+        DoorCodes.DoorCode_Scroll6_Green,
+        DoorPointers.EarlyRouteScrollSix,
+        grid);
+    AssertEqual((byte)RoomScrollState.Green, grid.ReadStorage(6),
+        "$8F:B981 writes early-route screen six green");
+
+    // Door $83:AB4C leaves the Ceres Mode-7 shaft through `$8F:E513`. That routine
+    // restores ordinary PPU state but performs no writes to the destination scroll array.
+    // The scroll interpreter must accept it without corrupting an otherwise valid grid;
+    // runtime-owned Mode-7 state is cleared by the paired door dispatcher.
+    grid.SetStorage(7, (byte)RoomScrollState.Blue);
+    DoorSetupCodeInterpreter.ApplyScrollWrites(
+        DoorCodes.DoorASM_FromCeresElevatorShaft,
+        DoorPointers.FromCeresElevatorShaft,
+        grid);
+    AssertEqual((byte)RoomScrollState.Blue, grid.ReadStorage(7),
+        "$8F:E513 preserves destination scroll storage");
+
     Console.WriteLine("  Scrolls: 50-byte load and four directional boundary handlers agree.");
 }
 

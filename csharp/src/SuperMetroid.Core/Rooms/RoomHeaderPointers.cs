@@ -1,0 +1,50 @@
+namespace SuperMetroid.Core.Rooms;
+
+/// <summary>Named 16-bit room-header pointers within cartridge bank $8F.</summary>
+public static class RoomHeaderPointers
+{
+    /// <summary>Landing Site at $8F:91F8.</summary>
+    public const ushort LandingSite = 0x91f8;
+
+    /// <summary>Parlor and Alcatraz at $8F:92FD.</summary>
+    public const ushort ParlorAndAlcatraz = 0x92fd;
+
+    /// <summary>Climb at $8F:96BA.</summary>
+    public const ushort Climb = 0x96ba;
+
+    /// <summary>Pit Room at $8F:975C.</summary>
+    public const ushort PitRoom = 0x975c;
+
+    /// <summary>Bomb Torizo Room at $8F:9804.</summary>
+    public const ushort BombTorizoRoom = 0x9804;
+
+    /// <summary>Flyway at $8F:9879.</summary>
+    public const ushort Flyway = 0x9879;
+
+    /// <summary>Morph Ball Room at $8F:9E9F.</summary>
+    public const ushort MorphBallRoom = 0x9e9f;
+
+    /// <summary>Construction Zone at $8F:9F11.</summary>
+    public const ushort ConstructionZone = 0x9f11;
+
+    /// <summary>Blue Brinstar Energy Tank Room at $8F:9F64.</summary>
+    public const ushort BlueBrinstarEnergyTankRoom = 0x9f64;
+
+    /// <summary>Ceres elevator shaft at $8F:DF45.</summary>
+    public const ushort CeresElevatorShaft = 0xdf45;
+
+    /// <summary>Ceres falling-tile room at $8F:DF8D.</summary>
+    public const ushort CeresFallingTileRoom = 0xdf8d;
+
+    /// <summary>Ceres magnet stairs at $8F:DFD7.</summary>
+    public const ushort CeresMagnetStairs = 0xdfd7;
+
+    /// <summary>Ceres dead-scientist room at $8F:E021.</summary>
+    public const ushort CeresDeadScientistRoom = 0xe021;
+
+    /// <summary>Ceres final hallway at $8F:E06B.</summary>
+    public const ushort CeresFinalHallway = 0xe06b;
+
+    /// <summary>Ceres Ridley room at $8F:E0B5.</summary>
+    public const ushort CeresRidleyRoom = 0xe0b5;
+}

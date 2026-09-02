@@ -352,7 +352,7 @@ public sealed partial class RoomEnemySystem
 
         switch (opcode)
         {
-            case 0xb9a2:
+            case RinkaInstructionCodes.UNUSED_Instruction_Rinka_GotoYIfCounterGreaterThan2_A2B9A2:
                 // The routine receives a pointer to its two-byte operand. Below three live
                 // actors it skips that operand; otherwise it returns the operand as a direct
                 // same-bank destination. This opcode is retained even though the retail
@@ -362,13 +362,13 @@ public sealed partial class RoomEnemySystem
                     : ReadWord(_bus!, 0xa20000 | unchecked((ushort)(cursor + 2)));
                 return true;
 
-            case 0xb9b3:
+            case RinkaInstructionCodes.Instruction_Rinka_SetAsIntangibleAndInvisible:
                 slot.Properties = slot.Properties.With(
                     EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xb9bd:
+            case RinkaInstructionCodes.Instruction_Rinka_SetAsIntangibleInvisibleAndActiveOffScreen:
                 slot.Properties = slot.Properties.With(
                     EnemyProperties.ProcessOffScreen |
                     EnemyProperties.IgnoreSamusCollision |
@@ -376,7 +376,7 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xb9c7:
+            case RinkaInstructionCodes.Instruction_Rinka_FireRinka:
                 slot.Properties = slot.Properties.Without(
                     EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
                 RequireRinkaState(slot).Function = RinkaEnemyFunction.AimDelay;

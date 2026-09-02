@@ -21,3 +21,18 @@
 - Include one entry for every fix in the batch. For each entry, state the reported problem, the diagnosed root cause, the implemented solution, and how the result was verified.
 - Clearly distinguish fixes that were reproduced and verified from first-pass fixes that did not require reproduction, and identify anything still awaiting player confirmation.
 - Also summarize relevant tests, commits, pushes, and remaining open or deferred work once for the batch.
+
+## Cartridge constants and definition data
+
+- Put ROM addresses, native dispatcher identifiers, instruction-list pointers, phase IDs,
+  table offsets, and similar definition sets in dedicated, domain-named catalog types. Do
+  not park them as constants at the top of a functional runtime, renderer, or state class.
+- Call sites should read as named domain operations, for example
+  `DoorCodes.DoorCode_Scroll6_Green`, rather than raw hexadecimal values with explanatory
+  comments beside the behavior.
+- Put the address, native symbol, and identity explanation on the catalog member's XML
+  summary. Keep comments in functional code for behavior, ordering, and non-obvious side
+  effects instead of repeating what a numeric value denotes.
+- Use an enum only when values are a proven mutually exclusive domain. Use `[Flags]` only
+  when the cartridge demonstrably treats the values as composable bits; do not infer flag
+  semantics from suggestive values alone.

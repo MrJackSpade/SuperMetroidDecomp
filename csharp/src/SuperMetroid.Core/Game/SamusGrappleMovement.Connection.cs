@@ -69,21 +69,21 @@ public static partial class SamusGrappleMovement
             switch (block.CollisionType)
             {
                 // These four dispatcher entries return clear carry: the beam remains live.
-                case 0:
-                case 2:
-                case 3:
-                case 6:
+                case GrappleEndpointBlockTypes.Air:
+                case GrappleEndpointBlockTypes.SpikeAir:
+                case GrappleEndpointBlockTypes.PassThroughSpecialAir:
+                case GrappleEndpointBlockTypes.PassThroughTypeSix:
                     return new GrappleBlockReaction(Carry: false, Overflow: false);
 
                 // Slopes and these solid-family entries return carry with overflow clear,
                 // which makes $9B:C703 queue cancellation rather than establish a rope.
-                case 1:
-                case 8:
-                case 9:
-                case 0x0b:
+                case GrappleEndpointBlockTypes.Slope:
+                case GrappleEndpointBlockTypes.Solid:
+                case GrappleEndpointBlockTypes.SolidTypeNine:
+                case GrappleEndpointBlockTypes.SolidTypeB:
                     return new GrappleBlockReaction(Carry: true, Overflow: false);
 
-                case 0x0a:
+                case GrappleEndpointBlockTypes.SpikeSolid:
                     // `$94:A7FD` selects a bank-$84 grapple-reaction PLM by the low seven
                     // BTS bits. A negative BTS rejects the beam. Every ordinary entry uses
                     // `$84:CFD1` (carry set, overflow clear) and immediately deletes; BTS
@@ -101,7 +101,7 @@ public static partial class SamusGrappleMovement
 
                     return new GrappleBlockReaction(Carry: true, Overflow: false);
 
-                case 5:
+                case GrappleEndpointBlockTypes.HorizontalExtension:
                     // Horizontal extensions interpret BTS as a signed block-index delta.
                     // BTS zero is the native terminator and behaves as air.
                     if (block.Behavior == 0)
@@ -109,14 +109,14 @@ public static partial class SamusGrappleMovement
                     index += unchecked((sbyte)block.Behavior);
                     continue;
 
-                case 0x0d:
+                case GrappleEndpointBlockTypes.VerticalExtension:
                     // Vertical extension uses the same signed BTS but scales by room width.
                     if (block.Behavior == 0)
                         return new GrappleBlockReaction(Carry: false, Overflow: false);
                     index += unchecked((sbyte)block.Behavior) * level.WidthInBlocks;
                     continue;
 
-                case 0x0e:
+                case GrappleEndpointBlockTypes.Grapple:
                     // $94:A7D1 rejects bit-seven BTS. Values zero and three spawn persistent
                     // grapple PLM $D0D8, whose setup returns processor flags $41 (C=1,V=1).
                     // The persistent PLM has no level mutation, so this result is complete.
@@ -151,8 +151,8 @@ public static partial class SamusGrappleMovement
                     throw new InvalidDataException(
                         $"Invalid grapple block BTS ${block.Behavior:X2} at ({resolvedX},{resolvedY}).");
 
-                case 4:
-                case 0x0c:
+                case GrappleEndpointBlockTypes.ShootableAir:
+                case GrappleEndpointBlockTypes.ShootableSolid:
                     // `$94:9E55/$9E73` use the same shootable reaction table as ordinary
                     // projectiles. Grapple owns no projectile family, so weapon-gated
                     // entries reject it while BTS 0..7 retain their unconditional block
@@ -168,17 +168,17 @@ public static partial class SamusGrappleMovement
                         block.Index,
                         block.Behavior,
                         projectileType: 0,
-                        solidBlock: block.CollisionType == 0x0c);
+                        solidBlock: block.CollisionType == GrappleEndpointBlockTypes.ShootableSolid);
                     return new GrappleBlockReaction(
-                        Carry: block.CollisionType == 0x0c,
+                        Carry: block.CollisionType == GrappleEndpointBlockTypes.ShootableSolid,
                         Overflow: false);
 
-                case 7:
+                case GrappleEndpointBlockTypes.BombableAir:
                     // Bombable-air setup `$84:CEDA` immediately deletes its provisional
                     // PLM for grapple's zero projectile family. Carry remains clear.
                     return new GrappleBlockReaction(Carry: false, Overflow: false);
 
-                case 0x0f:
+                case GrappleEndpointBlockTypes.BombableSolid:
                     // The solid twin performs the same rejected setup but independently
                     // returns carry set from `$94:9FF4`.
                     return new GrappleBlockReaction(Carry: true, Overflow: false);

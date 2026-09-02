@@ -118,9 +118,9 @@ public static class SmCompression
                 continue;
             }
 
-            switch (command)
+            switch ((SmCompressionCommand)command)
             {
-                case 0x00: // Literal bytes.
+                case SmCompressionCommand.Literal:
                     for (int i = 0; i < length; i++)
                     {
                         if (!Next(out byte value) || !Append(value))
@@ -128,21 +128,21 @@ public static class SmCompression
                     }
                     break;
 
-                case 0x20: // One repeated byte.
+                case SmCompressionCommand.RepeatByte:
                     if (!Next(out byte repeated))
                         goto Invalid;
                     for (int i = 0; i < length; i++)
                         if (!Append(repeated)) goto Invalid;
                     break;
 
-                case 0x40: // Alternating pair.
+                case SmCompressionCommand.AlternatePair:
                     if (!Next(out byte first) || !Next(out byte second))
                         goto Invalid;
                     for (int i = 0; i < length; i++)
                         if (!Append((i & 1) == 0 ? first : second)) goto Invalid;
                     break;
 
-                case 0x60: // Incrementing byte sequence.
+                case SmCompressionCommand.IncrementingSequence:
                     if (!Next(out byte initial))
                         goto Invalid;
                     for (int i = 0; i < length; i++)

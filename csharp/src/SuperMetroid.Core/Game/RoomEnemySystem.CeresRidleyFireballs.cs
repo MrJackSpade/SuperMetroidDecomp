@@ -622,25 +622,25 @@ public sealed partial class RoomEnemySystem
         switch (projectile.PreInstruction)
         {
             case 0:
-            case 0x8170: // The common cleared-pre-instruction RTS.
-            case 0xa327: // Gunship liftoff dust clouds move only through their frame lists.
-            case 0x84fb: // Collision handler's common inert pre-instruction.
-            case 0xec94: // Yapping Maw body links are positioned entirely by bank-$A8 main AI.
-            case 0xd0eb: // Kago bug startup/landed no-op.
-            case 0x8d54: // Draygon wall turret charges before its list enables flight.
-            case 0x950c: // Center afterburn is stationary while its instruction list blooms.
-            case 0x9a44: // Phantoon casual/rain flame resting RTS.
-            case 0xbbc6: // Nuclear Waffle body: position is owned by bank-$A6 main AI.
-            case 0xa05b: // Pirate laser startup: three muzzle-flash frames do not move.
-            case 0xefdf: // Enemy death/pickup subsystem's empty pre-instruction.
-            case 0xa919: // Bomb Torizo explosive swipe: stationary authored hit flash.
-            case 0xa918: // Bomb Torizo statue fragment stopped after floor collision.
-            case 0xdd44: // Spore Spawn stalk: position is written by the boss's main AI.
-            case 0xcaa3: // Mother Brain's large purple breath is a stationary animation.
-            case 0xc76d: // Mother Brain's charging/fired red hand-beam list owns all motion.
+            case EnemyProjectileCodePointers.RTS_868170:
+            case EnemyProjectileCodePointers.RTS_86A327:
+            case EnemyProjectileCodePointers.RTS_8684FB:
+            case EnemyProjectileCodePointers.RTS_86EC94:
+            case EnemyProjectileCodePointers.RTS_86D0EB:
+            case EnemyProjectileCodePointers.RTS_868D54:
+            case EnemyProjectileCodePointers.RTS_86950C:
+            case EnemyProjectileCodePointers.RTS_869A44:
+            case EnemyProjectileCodePointers.RTS_86BBC6:
+            case EnemyProjectileCodePointers.RTS_86A05B:
+            case EnemyProjectileCodePointers.RTS_86EFDF:
+            case EnemyProjectileCodePointers.RTS_86A919:
+            case EnemyProjectileCodePointers.PreInstruction_BombTorizoStatueFragment_Stopped:
+            case EnemyProjectileCodePointers.RTS_86DD44:
+            case EnemyProjectileCodePointers.RTS_86CAA3:
+            case EnemyProjectileCodePointers.RTS_86C76D:
                 return;
 
-            case 0xa8ef: // Bomb Torizo hand fragment: fall until room collision.
+            case EnemyProjectileCodePointers.PreInst_EnemyProjectile_BombTorizoChozoBreaking_Falling:
                 RunBombTorizoStatueBreakingPreInstruction(projectile, level);
                 return;
 
@@ -648,139 +648,139 @@ public sealed partial class RoomEnemySystem
                 RunEnemyPickupPreInstruction(projectile, samus);
                 return;
 
-            case 0xbfdf: // Mother Brain room turret: rotate, fire, or honor deletion flag.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsTurrets:
                 RunMotherBrainTurretPreInstruction(projectile, cameraX, cameraY);
                 return;
 
-            case 0xc0e0: // Mother Brain turret bullet: flicker, move, and hit non-air blocks.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsTurretBullets:
                 RunMotherBrainTurretBulletPreInstruction(projectile, level);
                 return;
 
-            case 0xce9b: // Mother Brain glass shard: 8.8 flight, gravity, and sparkles.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProj_MotherBrainGlassShattering_Shard:
                 RunMotherBrainGlassShardPreInstruction(projectile);
                 return;
 
-            case 0xcbe7: // Mother Brain ceiling tubes: dust once, then accelerate downward.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsTubeFalling:
                 RunMotherBrainTopTubePreInstruction(projectile);
                 return;
 
-            case 0xc84d: // Mother Brain drool remains attached for its first five maps.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsDrool:
                 RunMotherBrainAttachedDroolPreInstruction(projectile);
                 return;
 
-            case 0xc886: // Released drool accelerates down until the fixed arena floor.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsDrool_Falling:
                 RunMotherBrainFallingDroolPreInstruction(projectile);
                 return;
 
-            case 0xc335: // Delayed mouth pin, flight, custom collision, and arena cull.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsOnionRings:
                 RunMotherBrainOnionRingPreInstruction(
                     projectile,
                     samus,
                     cameraX);
                 return;
 
-            case 0xc4c8: // Mother Brain bomb: Samus-bomb scan, gravity, and staged bounces.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsBomb:
                 RunMotherBrainBombPreInstruction(projectile, samusBombs);
                 return;
 
-            case 0xc814: // Rainbow charge contracts around the live articulated brain slot.
+            case EnemyProjectileCodePointers.PreInst_EnemyProjectile_MotherBrainRainbowBeam_Charging:
                 RunMotherBrainRainbowChargingPreInstruction(projectile);
                 return;
 
-            case 0xc94c: // Rainbow impact sprites retain their offset from moving Samus.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProj_MotherBrainsRainbowBeamExplosion:
                 RunMotherBrainRainbowExplosionPreInstruction(projectile, samus);
                 return;
 
-            case 0x8dca: // Draygon goop: attached to Samus with a 256-frame lifetime.
+            case EnemyProjectileCodePointers.PreInstruction_DraygonGoop_StuckToSamus:
                 RunAttachedDraygonGoop(projectile, samus);
                 return;
 
-            case 0x8dff: // Draygon wall turret: aimed full-precision flight and room cull.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProj_DraygonsWallTurretProjectile_Fired:
                 RunDraygonProjectileFlight(projectile);
                 return;
 
-            case 0x8e0f: // Draygon goop: flight, proximity-triggered attach list, room cull.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_DraygonGoop:
                 RunFlyingDraygonGoop(projectile, samus);
                 return;
 
-            case 0xdcee: // Spore Spawn spore: ROM-authored two-byte movement stream.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Spores:
                 RunSporeSpawnSporePreInstruction(projectile);
                 return;
 
-            case 0xdd46: // Spore Spawn ceiling spawner: randomized closed-phase cadence.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_SporeSpawner:
                 RunSporeSpawnSpawnerPreInstruction(projectile);
                 return;
 
-            case 0xea80: // Botwoon body: orientation, hurt palette, and death dispatcher.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_BotwoonsBody:
                 RunBotwoonBodyPreInstruction(projectile, nmiFrameCounter8);
                 return;
 
-            case 0xec05: // Botwoon spit: full 16.16 vector followed by strict camera cull.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_BotwoonsSpit:
                 RunBotwoonSpitPreInstruction(projectile, cameraX, cameraY);
                 return;
 
-            case 0xacad: // Bomb Torizo Chozo orb: room collision followed by gravity.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_BombTorizosChozoOrbs:
                 RunBombTorizoChozoOrbPreInstruction(projectile, level);
                 return;
 
-            case 0xacfa: // Golden Torizo Chozo orb: wall bounce and damped floor bounce.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizosChozoOrbs:
                 RunGoldenTorizoChozoOrbPreInstruction(projectile, level);
                 return;
 
-            case 0xae6c: // Both Torizos' sonic boom: accelerating horizontal room shot.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_TorizoSonicBoom:
                 RunBombTorizoSonicBoomPreInstruction(projectile, level);
                 return;
 
-            case 0xa887: // Bomb Torizo drool: drag, gravity, and room-impact lists.
+            case EnemyProjectileCodePointers.PreInst_EnemyProjectile_BombTorizoLowHealthDrool_Falling:
                 RunBombTorizoDroolPreInstruction(projectile, level);
                 return;
 
-            case 0xb043: // Golden Torizo egg: timed bounce followed by horizontal launch.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_Bouncing:
                 RunGoldenTorizoEggPreInstruction(projectile, level);
                 return;
 
-            case 0xb0b9: // Golden Torizo egg: accelerate toward a wall.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_Hatched:
                 RunGoldenTorizoEggHorizontalCharge(projectile, level);
                 return;
 
-            case 0xb0dd: // Golden Torizo egg: fall to the floor and hatch/impact.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_HitWall:
                 RunGoldenTorizoEggFall(projectile, level);
                 return;
 
-            case 0xb20d: // Held Golden Torizo super missile follows the hand joint.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoSuperMissile_Held:
                 RunGoldenTorizoSuperMissilePreInstruction(projectile);
                 return;
 
-            case 0xb237: // Thrown Golden Torizo super missile: gravity and room impact.
+            case EnemyProjectileCodePointers.PreInst_EnemyProjectile_GoldenTorizoSuperMissile_Thrown:
                 RunGoldenTorizoSuperMissileFlight(projectile, level);
                 return;
 
-            case 0xb38a: // Golden Torizo eye beam: room collision impact lists.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEyeBeam:
                 RunGoldenTorizoEyeBeamPreInstruction(projectile, level);
                 return;
 
-            case 0xba37: // Tourian entrance statue actors follow the HDMA vertical reveal.
-            case 0xba42: // Shared position-only tail used after the finished flag is set.
+            case EnemyProjectileCodePointers.PreInst_EnemyProj_TourianStatueBaseDecoration_AllowProcess:
+            case EnemyProjectileCodePointers.PreInst_EnemyProj_TourianStatue_Ridley_Phantoon_BaseDecor:
                 PositionTourianEntranceStatueProjectile(projectile);
                 return;
 
-            case 0xbe03: // Unused Shaktool front circle: independent X/Y room collision.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_ShaktoolsAttack_Front:
                 RunShaktoolFrontCirclePreInstruction(projectile, level);
                 return;
 
-            case 0xbe12: // Unused middle/back circles live only while their owner slot does.
+            case EnemyProjectileCodePointers.PreInst_EnemyProjectile_ShaktoolsAttack_MiddleBack_Moving:
                 RunShaktoolLinkedCirclePreInstruction(projectile, level);
                 return;
 
-            case 0xe4fe: // Generic room-coordinate dust/explosion camera cull.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MiscDust:
                 CullMiscDustOutsideCamera(projectile, cameraX, cameraY);
                 return;
 
-            case 0xb535: // Dragon fireball: signed 8.8 arc, gravity, and bottom-only cull.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_DragonFireball:
                 RunDragonFireballPreInstruction(projectile, cameraY);
                 return;
 
-            case 0x940e:
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_RidleyFireball:
             {
                 bool horizontalCollision = MoveProjectileAxis(projectile, level, horizontal: true);
                 bool verticalCollision = !horizontalCollision &&
@@ -805,7 +805,7 @@ public sealed partial class RoomEnemySystem
                 return;
             }
 
-            case 0x950d:
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_HorizontalAfterburn:
                 // $86:950D first uses the raw 8.8 horizontal adder, not the room-collision
                 // helper. Only the perpendicular vertical move may end this afterburn.
                 (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
@@ -816,7 +816,7 @@ public sealed partial class RoomEnemySystem
                     BeginAfterburnFinalAnimation(projectile);
                 return;
 
-            case 0x9522:
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_VerticalAfterburn:
                 // $86:9522 is the transposed path: unrestricted vertical travel followed
                 // by a horizontal room-collision test.
                 (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
@@ -827,7 +827,7 @@ public sealed partial class RoomEnemySystem
                     BeginAfterburnFinalAnimation(projectile);
                 return;
 
-            case 0x8b5d: // Skree particle: signed 8.8 movement, gravity, camera deletion.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MetalSkreeParticle:
                 (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
                     projectile.XPosition,
                     projectile.XSubposition,
@@ -844,67 +844,67 @@ public sealed partial class RoomEnemySystem
                 }
                 return;
 
-            case 0x906b: // Crocomire projectile: derive the fired vector after one setup move.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CrocomiresProjectile_Setup:
                 StartCrocomireProjectileFlight(projectile, level);
                 return;
 
-            case 0x90b3: // Crocomire projectile: X then Y collision deletes the actor.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CrocomiresProjectile_Fired:
                 RunCrocomireProjectileFlight(projectile, level);
                 return;
 
-            case 0x9115: // Crocomire spike wall: slot-specific acceleration and fall.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CrocomireSpikeWallPieces:
                 RunCrocomireSpikeWallPiece(projectile);
                 return;
 
-            case 0x9d56: // Kraid spat/floor rocks: X/Y collision, drag, and gravity.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KraidRocks:
                 RunKraidRockPreInstruction(projectile, level);
                 return;
 
-            case 0x9d89: // Kraid ceiling rocks: vertical collision and masked gravity.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KraidCeilingRocks:
                 RunKraidCeilingRockPreInstruction(projectile, level);
                 return;
 
-            case 0x9da5: // Shot Kraid spit rock switches to common explosion palette zero.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KraidRockSpit_UsePalette0:
                 projectile.GraphicsIndex = 0;
                 return;
 
-            case 0x9b29: // Phantoon intro flame: wait for the body activation word.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PhantoonStartingFlames:
                 RunPhantoonStartingFlameWaiting(projectile);
                 return;
 
-            case 0x9b41: // Phantoon intro flame: orbit while its radius contracts.
+            case EnemyProjectileCodePointers.PreInst_EnemyProjectile_PhantoonStartingFlames_Activated:
                 RunPhantoonStartingFlameOrbit(projectile, nmiFrameCounter8);
                 return;
 
-            case 0x9981: // Phantoon casual flame: fall until the first terrain impact.
+            case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_Falling:
                 RunPhantoonCasualFlameFalling(projectile, level);
                 return;
 
-            case 0x99bf: // Phantoon casual flame: eight-frame impact pause.
+            case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_HitGround:
                 RunPhantoonCasualFlameImpactPause(projectile, nmiFrameCounter8);
                 return;
 
-            case 0x9a01: // Phantoon casual flame: two diminishing terrain bounces.
+            case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_Bouncing:
                 RunPhantoonCasualFlameBouncing(projectile, level);
                 return;
 
-            case 0x9a45: // Phantoon rage flame: expanding orbit around the body.
+            case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Enraged:
                 RunPhantoonEnragedFlame(projectile);
                 return;
 
-            case 0x9a94: // Phantoon flame rain: delayed fall and terrain impact.
+            case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Rain:
                 RunPhantoonRainFlame(projectile, level);
                 return;
 
-            case 0x9ada: // Phantoon spiral: rotating expansion around the body.
+            case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Spiral:
                 RunPhantoonSpiralFlame(projectile);
                 return;
 
-            case 0x92ba: // Crocomire bridge fragment: gravity until room collision.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CrocomireBridgeCrumbling:
                 RunCrocomireBridgeFragment(projectile, level);
                 return;
 
-            case 0x9eff: // Alcoon fireball: Y then X collision, followed by horizontal drag.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_AlcoonFireball:
                 RunAlcoonFireballPreInstruction(projectile, level);
                 return;
 
@@ -920,11 +920,11 @@ public sealed partial class RoomEnemySystem
                 StartKiHunterAcidMovement(projectile, movingRight: true);
                 return;
 
-            case 0xd263: // Powamp spike: radial acceleration and X-then-Y room collision.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PowampSpike:
                 RunPowampSpikePreInstruction(projectile, level);
                 return;
 
-            case 0xd3bf: // Work Robot laser: clear graphics index, then X/Y room collision.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_WreckedShipRobotLaser:
                 RunWorkRobotLaserPreInstruction(projectile, level);
                 return;
 
@@ -960,11 +960,11 @@ public sealed partial class RoomEnemySystem
                 RunKagoBugFalling(projectile, level);
                 return;
 
-            case 0xf3f0: // Spark projectile: 16.16 gravity, floor bounce, and trail objects.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_FallingSpark:
                 RunFallingSparkPreInstruction(projectile, level, nmiFrameCounter8);
                 return;
 
-            case 0x9701: // Ceres falling tile: accelerating descent and impact cloud.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CeresFallingTile:
                 projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 0x0010));
                 if (MoveProjectileAxis(projectile, level, horizontal: false))
                 {
@@ -976,24 +976,24 @@ public sealed partial class RoomEnemySystem
                 }
                 return;
 
-            case 0x9e1e: // Fake Kraid spit: X/Y room collision, then capped gravity.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MiniKraidSpit:
                 RunFakeKraidSpitPreInstruction(projectile, level);
                 return;
 
-            case 0x9e83: // Fake Kraid spike: horizontal motion until wall contact.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MiniKraidSpikes:
                 RunFakeKraidSpikePreInstruction(projectile, level);
                 return;
 
-            case 0xa05c: // Space Pirate/Mother Brain laser: move left, then camera cull.
-            case 0xa07a: // Space Pirate/Mother Brain laser: move right, then camera cull.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pirate_MotherBrain_Laser_Left:
+            case EnemyProjectileCodePointers.PreInst_EnemyProjectile_Pirate_MotherBrain_Laser_Right:
                 RunPirateMotherBrainLaserPreInstruction(
                     projectile,
                     cameraX,
                     cameraY);
                 return;
 
-            case 0xa0d1: // Ninja Space Pirate claw: thrown left, then returns right.
-            case 0xa124: // Ninja Space Pirate claw: thrown right, then returns left.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PirateClaw_Left:
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PirateClaw_Right:
                 RunNinjaPirateClawPreInstruction(projectile, cameraX, cameraY);
                 return;
 
@@ -1150,10 +1150,10 @@ public sealed partial class RoomEnemySystem
 
             switch (word)
             {
-                case 0x8154: // Delete.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete:
                     projectile.Clear();
                     return;
-                case 0x8230: // OR packed projectile properties with one literal word.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY:
                 {
                     ushort mask = ReadWord(_bus!, 0x860000 |
                         unchecked((ushort)(cursor + 2)));
@@ -1167,7 +1167,7 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }
-                case 0x823c: // AND packed projectile properties with one literal word.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY:
                 {
                     ushort mask = ReadWord(_bus!, 0x860000 |
                         unchecked((ushort)(cursor + 2)));
@@ -1181,35 +1181,35 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }
-                case 0x8248: // Enable collision with Samus projectiles.
+                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProj_EnableCollisionWithSamusProj_868248:
                     projectile.BlocksSamusProjectiles = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x8252: // Disable collision with Samus projectiles.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_DisableCollisionWIthSamusProj:
                     projectile.BlocksSamusProjectiles = false;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x825c: // Disable collision with Samus.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_DisableCollisionWithSamus:
                     projectile.CanDamageSamus = false;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x8266: // Enable collision with Samus.
+                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_EnableCollisionWithSamus_868266:
                     projectile.CanDamageSamus = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x8270: // Retain actor after Samus contact.
+                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_SetToNotDieOnContact_868270:
                     projectile.PersistsOnSamusContact = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x827a: // Delete actor after Samus contact.
+                case EnemyProjectileCodePointers.UNUSED_Instruction_EnemyProjectile_SetToDieOnContact_86827A:
                     projectile.PersistsOnSamusContact = false;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x8284: // Set low OAM priority; draw queue priority is not split yet.
-                case 0x828e: // Set high OAM priority.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_SetHighPriority:
+                case EnemyProjectileCodePointers.UNUSED_Instruction_EnemyProjectile_SetLowPriority_86828E:
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x8298: // Set packed {X,Y} collision radii.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_XYRadiusInY:
                 {
                     ushort radii = ReadWord(_bus!, 0x860000 |
                         unchecked((ushort)(cursor + 2)));
@@ -1218,50 +1218,50 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }
-                case 0x82a1: // Clear both collision radii.
+                case EnemyProjectileCodePointers.UNUSED_Instruction_EnemyProjectile_XYRadius_0:
                     projectile.XRadius = 0;
                     projectile.YRadius = 0;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x82fd: // Queue music with eight-frame delay; one-byte operand.
-                case 0x8309: // Queue SFX library 1, maximum 6.
-                case 0x8312: // Queue SFX library 2, maximum 6.
-                case 0x831b: // Queue SFX library 3, maximum 6.
-                case 0x8324: // Queue SFX library 1, maximum 15.
-                case 0x832d: // Queue SFX library 2, maximum 15.
-                case 0x8336: // Queue SFX library 3, maximum 15.
-                case 0x833f: // Queue SFX library 1, maximum 3.
-                case 0x8348: // Queue SFX library 2, maximum 3.
-                case 0x8351: // Queue SFX library 3, maximum 3.
-                case 0x835a: // Queue SFX library 1, maximum 9.
-                case 0x8363: // Queue SFX library 2, maximum 9.
-                case 0x836c: // Queue SFX library 3, maximum 9.
-                case 0x8375: // Queue SFX library 1, maximum 1.
-                case 0x837e: // Queue SFX library 2, maximum 1.
-                case 0x8387: // Queue SFX library 3, maximum 1.
+                case EnemyProjectileCodePointers.UNUSED_Instruction_EnemyProjectile_QueueMusicTrackInY:
+                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max6_868309:
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6:
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib3_Max6:
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib1_Max15:
+                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max15_86832D:
+                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib3_Max15_868336:
+                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max3_86833F:
+                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max3_868348:
+                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib3_Max3_868351:
+                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max9_86835A:
+                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max9_868363:
+                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max9_86836C:
+                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max1_868375:
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max1:
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib3_Max1:
                     // Audio is an outer-runtime seam, but these commands are byte-packed.
                     // Advancing by three (two-byte opcode plus one-byte ID) is essential:
                     // rounding to a word would desynchronize every following frame.
                     cursor = unchecked((ushort)(cursor + 3));
                     break;
-                case 0x8159: // Sleep forever while pre-instruction movement remains active.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep:
                     // The native command rewinds Y to its own opcode, stores that pointer,
                     // pops the instruction-handler return address, and leaves timer zero.
                     // Subsequent frames wrap zero to FFFF and therefore never parse again.
                     projectile.InstructionPointer = cursor;
                     projectile.InstructionTimer = 0;
                     return;
-                case 0x8161: // Install the operand as pre-instruction.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY:
                     projectile.PreInstruction = ReadWord(
                         _bus!,
                         0x860000 | unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0x816a: // Clear pre-instruction to $8170 RTS.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction:
                     projectile.PreInstruction = 0x8170;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x8171: // Call the following 24-bit external function.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_CallExternalFunctionInY:
                 {
                     int externalFunction =
                         _bus!.ReadByte(0x860000 | unchecked((ushort)(cursor + 2))) |
@@ -1280,22 +1280,22 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 5));
                     break;
                 }
-                case 0x8cf6 when projectile.Kind == RoomEnemyProjectileKind.DraygonWallTurret:
+                case EnemyProjectileCodePointers.Instruction_SetPreInst_DraygonsWallTurretProjectile_Fired when projectile.Kind == RoomEnemyProjectileKind.DraygonWallTurret:
                     projectile.PreInstruction = 0x8dff;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x8d99 when projectile.Kind == RoomEnemyProjectileKind.DraygonGoop:
+                case EnemyProjectileCodePointers.Instruction_DraygonGoop_SamusCollision when projectile.Kind == RoomEnemyProjectileKind.DraygonGoop:
                     AttachDraygonGoopToSamus(projectile, samus);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x81ab: // Same-bank goto.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY:
                     cursor = ReadWord(_bus!, 0x860000 | unchecked((ushort)(cursor + 2)));
                     break;
-                case 0x81b0: // Signed-byte same-bank relative goto.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY_Y:
                     cursor = unchecked((ushort)(cursor + 2 + unchecked((sbyte)_bus!.ReadByte(
                         0x860000 | unchecked((ushort)(cursor + 2))))));
                     break;
-                case 0x81c6: // Decrement general timer and take an absolute branch while nonzero.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero:
                 {
                     ushort before = projectile.GeneralTimer;
                     projectile.GeneralTimer = unchecked((ushort)(before - 1));
@@ -1304,7 +1304,7 @@ public sealed partial class RoomEnemySystem
                         : ReadWord(_bus!, 0x860000 | unchecked((ushort)(cursor + 2)));
                     break;
                 }
-                case 0x81ce: // Decrement general timer and take a signed relative branch while nonzero.
+                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProj_DecrementTimer_GotoY_YIfNonZero_8681CE:
                 {
                     ushort before = projectile.GeneralTimer;
                     projectile.GeneralTimer = unchecked((ushort)(before - 1));
@@ -1314,23 +1314,23 @@ public sealed partial class RoomEnemySystem
                             0x860000 | unchecked((ushort)(cursor + 2))))));
                     break;
                 }
-                case 0x81d5: // Initialize the independent general-purpose loop timer.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY:
                     projectile.GeneralTimer = ReadWord(
                         _bus!,
                         0x860000 | unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0x81de: // Deliberate entry at the RTS immediately before $81DF.
+                case EnemyProjectileCodePointers.RTS_8681DE:
                     // Bomb Torizo's impact list uses this address as a compact no-op before
                     // its counted branch. It is a real callable ROM entry, not a typo for
                     // MoveRandomlyWithinRadius at the following byte.
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x81df: // Randomly offset the actor inside authored X/Y radii.
+                case EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius:
                     MoveEnemyProjectileRandomlyWithinRadius(projectile, cursor);
                     cursor = unchecked((ushort)(cursor + 6));
                     break;
-                case 0xa050: // Pirate laser: install operand as pre-instruction and run it.
+                case EnemyProjectileCodePointers.Instruction_PreInstructionInY_ExecuteY:
                     projectile.PreInstruction = ReadWord(
                         _bus!,
                         0x860000 | unchecked((ushort)(cursor + 2)));
@@ -1348,12 +1348,12 @@ public sealed partial class RoomEnemySystem
                         return;
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0xa3be: // Restore X/Y saved by the sonic-boom collision pre-instruction.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Torizo_ResetPosition:
                     projectile.XPosition = projectile.Variable0;
                     projectile.YPosition = projectile.Variable1;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xad92: // Move X, then choose one of two lists from velocity sign.
+                case EnemyProjectileCodePointers.UNUSED_Instruction_EnemyProj_MoveHorizontally_GotoY_86AD92:
                     (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
                         projectile.XPosition,
                         projectile.XSubposition,
@@ -1363,13 +1363,13 @@ public sealed partial class RoomEnemySystem
                         0x860000 | unchecked((ushort)(cursor +
                             (unchecked((short)projectile.XVelocity) < 0 ? 2 : 4))));
                     break;
-                case 0xb13e: // Golden Torizo egg: select left/right terminal list.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GoldenTorizoEgg_GoToHatched:
                     cursor = (projectile.Variable0 & 0x8000) != 0
                         ? (ushort)0xb166
                         : (ushort)0xb14b;
                     break;
-                case 0xb269: // Golden Torizo super missile: velocity toward Samus.
-                case 0xb272: // Golden Torizo super missile: velocity away from Samus.
+                case EnemyProjectileCodePointers.Instruction_AimSuperMissile_Rightwards:
+                case EnemyProjectileCodePointers.Instruction_AimSuperMissile_Leftwards:
                     if (samus is null)
                     {
                         throw new InvalidOperationException(
@@ -1381,7 +1381,7 @@ public sealed partial class RoomEnemySystem
                         awayFromSamus: word == 0xb272);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xb3b8: // Golden Torizo eye beam: branch while attack flag is clear.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoYIfEyeBeamExplosionsDisabled:
                 {
                     TorizoEnemyState state = GoldenTorizo ??
                         throw new InvalidOperationException(
@@ -1391,12 +1391,12 @@ public sealed partial class RoomEnemySystem
                         : unchecked((ushort)(cursor + 4));
                     break;
                 }
-                case 0xb436: // Restore X/Y saved in generic projectile variables E/F.
+                case EnemyProjectileCodePointers.UNUSED_Instruction_ResetPosition_86B436:
                     projectile.XPosition = projectile.Variable0;
                     projectile.YPosition = projectile.Variable1;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xc173 when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_MotherBrainsTurretBullets_GotoY when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
                     // The bullet initializer stores direction * 2 in variable E. The ROM
                     // opcode adds that byte offset to the eight-pointer table immediately
                     // following the opcode, then jumps to the selected one-frame map.
@@ -1404,12 +1404,13 @@ public sealed partial class RoomEnemySystem
                         _bus!,
                         0x860000 | unchecked((ushort)(cursor + 2 + projectile.Variable0)));
                     break;
-                case 0xc1b4 when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_UsePalette0 when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
                     // First instruction of the shared touch/shot smoke sequence.
                     projectile.GraphicsIndex = 0;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xc8d0 when projectile.Kind is
+                case EnemyProjectileCodePointers.Instruction_EnemyProj_MotherBrainsDrool_MoveDownCPixels
+                    when projectile.Kind is
                     RoomEnemyProjectileKind.MotherBrainDrool or
                     RoomEnemyProjectileKind.MotherBrainDyingDrool:
                     // After changing to the falling pre-instruction, the list lowers the
@@ -1417,28 +1418,28 @@ public sealed partial class RoomEnemySystem
                     projectile.YPosition = unchecked((ushort)(projectile.YPosition + 12));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xa456: // Take the authored absolute branch with 25-percent probability.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY_Probability_1_4:
                     cursor = (_nextRandom!() & 0xc000) == 0xc000
                         ? ReadWord(_bus!, 0x860000 | unchecked((ushort)(cursor + 2)))
                         : unchecked((ushort)(cursor + 4));
                     break;
-                case 0xab8a: // Shot Torizo orb: choose area-specific header/drop table.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_SpawnEnemyDropsWIthYDropChances:
                     RequestTorizoChozoOrbDrop(projectile, cursor);
                     cursor = unchecked((ushort)(cursor + 6));
                     break;
-                case 0x95ba: // Spawn horizontal right/left afterburn pair.
+                case EnemyProjectileCodePointers.Instruction_Spawn_HorizontalAfterburn_EnemyProjectiles:
                     SpawnAfterburnPair(projectile, horizontal: true);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x95ed: // Spawn vertical up/down afterburn pair.
+                case EnemyProjectileCodePointers.Instruction_Spawn_VerticalAfterburn_EnemyProjectiles:
                     SpawnAfterburnPair(projectile, horizontal: false);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9620: // Decrement count and spawn the next actor in this direction.
+                case EnemyProjectileCodePointers.Instruction_SpawnNext_Afterburn_EnemyProjectile:
                     SpawnNextAfterburn(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x980e: // Shot Phantoon flame: request a drop from eye header $E4FF.
+                case EnemyProjectileCodePointers.Instruction_SpawnPhantoonDrop:
                     RequestPhantoonFlameDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
@@ -1462,15 +1463,15 @@ public sealed partial class RoomEnemySystem
                     RequestMagdolliteLavaDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xece3: // Random sprite-object position inside a 64x64 square.
+                case EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_20:
                     SpawnRandomEnemyDeathSprite(projectile, cursor, mask: 0x003f, center: 32);
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0xed17: // Random sprite-object position inside a 32x32 square.
+                case EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_10:
                     SpawnRandomEnemyDeathSprite(projectile, cursor, mask: 0x001f, center: 16);
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0xee8b: // Queue sound 9 in library two; this opcode has no operand.
+                case EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_QueueEnemyKilledSoundFX:
                     // The native dispatcher passes a pointer to the first byte after the
                     // opcode into EprojInstr_QueueSfx2_9, and that routine returns the same
                     // pointer unchanged. Therefore the timed duration begins immediately
@@ -1479,31 +1480,31 @@ public sealed partial class RoomEnemySystem
                     LastEnemyDeathSoundEffectLibrary2 = 9;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xee97: // Queue sound $24 in library two; no operand.
+                case EnemyProjectileCodePointers.Instruction_EnemyProj_EDeathExplo_QueueSmallExplosionSoundFX:
                     LastEnemyDeathSoundEffectLibrary2 = 0x0024;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xeea3: // Queue sound $0B in library two; no operand.
+                case EnemyProjectileCodePointers.Instruction_EnemyProj_EDeathExplo_QueueContactKilledSoundFX:
                     LastEnemyDeathSoundEffectLibrary2 = 0x000b;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xdc5a: // Spore impact: replace packed properties with literal $3000.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Spores_SetProperties3000:
                     SetSporeSpawnImpactProperties(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xdc61: // Spore impact: request enemy definition $DF3F's drop table.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Spores_SpawnEnemyDrops:
                     RequestSporeSpawnSporeDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xdc77: // Ceiling spawner: allocate one room-graphics spore here.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_SporeSpawner_SpawnSpore:
                     SpawnSporeSpawnSpore(projectile.XPosition, projectile.YPosition);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xaf92: // Torizo landing-dust instruction: move actor four pixels up.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_TorizoLandingDustClouds:
                     projectile.YPosition = unchecked((ushort)(projectile.YPosition - 4));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xeeaf: // Random drop selection after an enemy death animation.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_EnemyDeathExplosion_BecomePickup:
                     if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
                     {
                         throw new InvalidDataException(
@@ -1512,7 +1513,7 @@ public sealed partial class RoomEnemySystem
                     ConvertEnemyDeathExplosionToPickup(projectile);
                     cursor = projectile.InstructionPointer;
                     break;
-                case 0xef10: // Respawn the retained physical enemy slot, when bit $8000 is set.
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Pickup_HandleRespawningEnemy:
                     if (unchecked((short)projectile.KilledEnemyNativeIndex) <= -2)
                     {
                         RespawnEnemyFromSnapshot(unchecked((ushort)(

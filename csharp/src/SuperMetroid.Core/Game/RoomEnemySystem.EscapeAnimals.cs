@@ -267,12 +267,12 @@ public sealed partial class RoomEnemySystem
             EscapeEtecoonEnemyState state = RequireEscapeEtecoonState(slot);
             switch (opcode)
             {
-                case 0x806b: // Enemy_SetAiPreInstr_B3: one same-bank pointer operand.
+                case EscapeAnimalInstructionCodes.Instruction_CommonB3_Enemy0FB2_InY:
                     state.PreInstruction = (EscapeEtecoonPreInstruction)ReadEscapeAnimalOperand(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     return true;
 
-                case 0x8074: // Enemy_ClearAiPreInstr_B3: install bank-common RTL $807B.
+                case EscapeAnimalInstructionCodes.Instruction_CommonB3_SetEnemy0FB2ToRTS:
                     state.PreInstruction = EscapeEtecoonPreInstruction.Cleared;
                     cursor = unchecked((ushort)(cursor + 2));
                     return true;

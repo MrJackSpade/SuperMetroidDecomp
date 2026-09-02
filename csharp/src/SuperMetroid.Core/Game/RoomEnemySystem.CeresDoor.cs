@@ -106,14 +106,14 @@ public sealed partial class RoomEnemySystem
     {
         switch (slot.VariableA)
         {
-            case 0xf76b:
+            case CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscape:
                 RunCeresDoorEarthquake(baseEarthquakeType: 0x0014);
                 return;
-            case 0xf770:
+            case CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscapeInRidleysRoom:
                 RunCeresDoorEarthquake(baseEarthquakeType: 0x001d);
                 return;
 
-            case 0xf7a5:
+            case CeresEnemyCodePointers.Function_CeresDoor_RidleyEscapeMode7Wall:
                 // Ridley's room overlay begins hidden. Odd status values reveal it and swap
                 // to enemy palette seven; the actor remains present so later Mode-7 drawing
                 // can retain the native priority relationship with Samus and Ridley.

@@ -21,33 +21,6 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class PauseMenuState
 {
-    private const ushort Bg1TilemapWord = 0x3000;
-    private const ushort Bg2TilemapWord = 0x3800;
-    private const ushort PauseButtonRowsDestinationWord = 0x3b20;
-    private const int PauseButtonRowsSourceOffset = 0x0240;
-    private const int PauseButtonRowsByteCount = 0x0080;
-    private const ushort BlankEquipmentTilemapPointer = 0xc01a;
-    private const ushort DisabledEquipmentPaletteBits = 0x0c00;
-    private const ushort TilePaletteMask = 0x1c00;
-    private const int MenuSpritemapPointerTableAddress = 0x82c569;
-    private const byte PauseObjectSelection = 0x01;
-
-    // UpdateSamusPositionIndicatorAnimation at $82:B9FC uses these four literal frames.
-    // Keeping the uneven 8/4/8/4 cadence matters: the two narrow middle frames are the
-    // transition between the left- and right-facing halves of the map marker.
-    private static readonly ushort[] MapIndicatorSpritemapIds = [0x5f, 0x60, 0x61, 0x60];
-    private static readonly int[] MapIndicatorFrameDelays = [8, 4, 8, 4];
-
-    private static readonly EquipmentCategoryDefinition[] EquipmentCategories =
-    [
-        // Category zero is reserve tanks. Its two special controls do not exist on the
-        // early-game route because maximum reserve energy is zero.
-        new(0, 0, 0, 0, 0),
-        new(0x82c06c, 0x82c08c, 0x82c04c, 5, 5), // Beams.
-        new(0x82c076, 0x82c096, 0x82c056, 6, 9), // Suits/misc, including Morph and Bombs.
-        new(0x82c082, 0x82c0a2, 0x82c062, 3, 9), // Boots.
-    ];
-
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
     private readonly SamusState samus;
@@ -94,10 +67,12 @@ internal sealed class PauseMenuState
 
         // GameState_13 copies exactly these three cartridge ranges. VMADD is a word
         // address, hence the doubled byte destinations below.
-        vram.LoadBytes(0x0000, RomDataReader.ReadFixedBank(bus, 0xb68000, 0x4000));
-        vram.LoadBytes(0x4000, RomDataReader.ReadFixedBank(bus, 0xb6c000, 0x2000));
-        vram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(bus, 0x9ab200, 0x2000));
-        vram.LoadBytes(Bg2TilemapWord * 2, RomDataReader.ReadFixedBank(bus, 0xb6e000, 0x0800));
+        vram.LoadBytes(0x0000, RomDataReader.ReadFixedBank(bus, PauseMenuRomData.BackgroundTiles, 0x4000));
+        vram.LoadBytes(0x4000, RomDataReader.ReadFixedBank(bus, PauseMenuRomData.ObjectTiles, 0x2000));
+        vram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(bus, PauseMenuRomData.SamusObjectTiles, 0x2000));
+        vram.LoadBytes(
+            PauseMenuLayout.Bg2TilemapWord * 2,
+            RomDataReader.ReadFixedBank(bus, PauseMenuRomData.BackgroundTilemap, 0x0800));
         if (gameplayVram is not null)
         {
             // SetupPPUForPauseMenu changes BG3SC to $58 but never uploads a replacement
@@ -110,7 +85,21 @@ internal sealed class PauseMenuState
                 retainedHudTilemap[index] = gameplayVram.ReadByte(0xb000 + index);
             vram.LoadBytes(0xb000, retainedHudTilemap);
         }
-        cgram.LoadFromBus(bus, 0xb6f000);
+
+        // GameState_13 finishes pause setup by calling QueueClearingOfFxTilemap at
+        // `$80:A211`. The accepted NMI fills VRAM words $5880-$5FFF with $184E, preserving
+        // the first four HUD rows at $5800-$587F while blanking every row beneath them.
+        // This clear is essential because pause replaces BG3's character sheet: an
+        // untouched zero tilemap word selects pause character zero, which is the visible
+        // orange `1` glyph. Copying only the live HUD without replaying this queued DMA
+        // consequently tiled `1` through every otherwise-empty map cell.
+        var clearedFxTilemap = new ushort[PauseMenuLayout.Bg3FxClearWordCount];
+        Array.Fill(clearedFxTilemap, PauseMenuLayout.Bg3FxClearTile);
+        vram.ExecuteWordTransfer(
+            clearedFxTilemap,
+            PauseMenuLayout.Bg3FxClearDestinationWord,
+            wordIncrement: 1);
+        cgram.LoadFromBus(bus, PauseMenuRomData.Palette);
 
         // LoadPauseScreenBaseTilemaps does *not* leave the bottom two button-label rows
         // solely in the $B6:E000 BG2 image. It keeps a mutable $B6:E400 copy at WRAM
@@ -118,13 +107,13 @@ internal sealed class PauseMenuState
         // BG2 word $3B20. Omitting this second source is why the pause-screen chrome looked
         // like missing HUD. Keep the complete mutable source so every native word index
         // below remains directly comparable with bank $82.
-        pauseButtonTilemap = RomDataReader.ReadFixedBank(bus, 0xb6e400, 0x0400);
+        pauseButtonTilemap = RomDataReader.ReadFixedBank(bus, PauseMenuRomData.ButtonTilemap, 0x0400);
         SetPauseButtonLabelMode(0);
 
         // $B6:E800 is the mutable equipment template normally copied to $7E:3800.
         // Preserve it as a byte array because the cartridge's offset tables contain WRAM
         // byte addresses rather than tilemap word indexes.
-        equipmentTilemap = RomDataReader.ReadFixedBank(bus, 0xb6e800, 0x0800);
+        equipmentTilemap = RomDataReader.ReadFixedBank(bus, PauseMenuRomData.EquipmentTilemap, 0x0800);
         RebuildEquipmentTilemap();
         LoadPauseMapTilemap();
         SelectFirstCollectedEquipment();
@@ -167,9 +156,9 @@ internal sealed class PauseMenuState
     {
         const int firstUploadedNativeWordIndex = 0x0320;
         int uploadedWordOffset = nativeWordIndex - firstUploadedNativeWordIndex;
-        if ((uint)uploadedWordOffset >= PauseButtonRowsByteCount / 2)
+        if ((uint)uploadedWordOffset >= PauseMenuLayout.ButtonRowsByteCount / 2)
             throw new ArgumentOutOfRangeException(nameof(nativeWordIndex));
-        int byteAddress = (PauseButtonRowsDestinationWord + uploadedWordOffset) * 2;
+        int byteAddress = (PauseMenuLayout.ButtonRowsDestinationWord + uploadedWordOffset) * 2;
         return unchecked((ushort)(
             vram.ReadByte(byteAddress) | (vram.ReadByte(byteAddress + 1) << 8)));
     }
@@ -260,7 +249,7 @@ internal sealed class PauseMenuState
             DrawEquipmentItemSelector();
         oam.FinalizeFrame();
         ResolvedObjFrame objects = SnesObjRenderer.RenderResolved(
-            oam, vram, cgram, PauseObjectSelection, 256, 224);
+            oam, vram, cgram, PauseMenuLayout.ObjectSelection, 256, 224);
 
         // Back to front for BGMODE=$09:
         // OBJ0, BG3-low, OBJ1, BG2-low, BG1-low, OBJ2, BG2-high, BG1-high,
@@ -268,11 +257,11 @@ internal sealed class PauseMenuState
         CompositeResolvedObjPriority(output, objects, priority: 0);
         CompositePauseBg3(output, priority: false);
         CompositeResolvedObjPriority(output, objects, priority: 1);
-        CompositePauseBg(output, Bg2TilemapWord, 32, priority: false);
-        CompositePauseBg(output, Bg1TilemapWord, 64, priority: false);
+        CompositePauseBg(output, PauseMenuLayout.Bg2TilemapWord, 32, priority: false);
+        CompositePauseBg(output, PauseMenuLayout.Bg1TilemapWord, 64, priority: false);
         CompositeResolvedObjPriority(output, objects, priority: 2);
-        CompositePauseBg(output, Bg2TilemapWord, 32, priority: true);
-        CompositePauseBg(output, Bg1TilemapWord, 64, priority: true);
+        CompositePauseBg(output, PauseMenuLayout.Bg2TilemapWord, 32, priority: true);
+        CompositePauseBg(output, PauseMenuLayout.Bg1TilemapWord, 64, priority: true);
         CompositeResolvedObjPriority(output, objects, priority: 3);
         CompositePauseBg3(output, priority: true);
 
@@ -290,7 +279,7 @@ internal sealed class PauseMenuState
         int tilemapWidthInTiles,
         bool priority)
     {
-        bool isMapLayer = tilemapBaseWord == Bg1TilemapWord;
+        bool isMapLayer = tilemapBaseWord == PauseMenuLayout.Bg1TilemapWord;
         SnesBgTilemapRenderer.Composite4BppViewport(
             output,
             vram,
@@ -377,7 +366,7 @@ internal sealed class PauseMenuState
         if (selectedCategory is < 1 or > 3)
             return;
 
-        EquipmentCategoryDefinition category = EquipmentCategories[selectedCategory];
+        PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Definitions[selectedCategory];
         ushort collected = GetCollectedBits(selectedCategory);
 
         if ((pressed & SnesButton.Up) != 0)
@@ -426,7 +415,7 @@ internal sealed class PauseMenuState
     {
         for (int categoryIndex = 1; categoryIndex <= 3; categoryIndex++)
         {
-            EquipmentCategoryDefinition category = EquipmentCategories[categoryIndex];
+            PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Definitions[categoryIndex];
             ushort collected = GetCollectedBits(categoryIndex);
             for (int item = 0; item < category.ItemCount; item++)
             {
@@ -452,12 +441,12 @@ internal sealed class PauseMenuState
     {
         // Restore the literal base before applying inventory-dependent labels. This makes
         // repeated A toggles idempotent and mirrors re-entering LoadEquipmentScreen...
-        RomDataReader.ReadFixedBank(bus, 0xb6e800, equipmentTilemap.Length)
+        RomDataReader.ReadFixedBank(bus, PauseMenuRomData.EquipmentTilemap, equipmentTilemap.Length)
             .CopyTo(equipmentTilemap, 0);
 
         for (int categoryIndex = 1; categoryIndex <= 3; categoryIndex++)
         {
-            EquipmentCategoryDefinition category = EquipmentCategories[categoryIndex];
+            PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Definitions[categoryIndex];
             ushort collected = GetCollectedBits(categoryIndex);
             ushort equipped = GetEquippedBits(categoryIndex);
             for (int item = 0; item < category.ItemCount; item++)
@@ -476,7 +465,7 @@ internal sealed class PauseMenuState
                 ushort mask = ReadCategoryMask(category, item);
                 ushort source = (collected & mask) != 0
                     ? RomDataReader.ReadWordFixedBank(bus, category.TilemapPointerTableAddress + item * 2)
-                    : BlankEquipmentTilemapPointer;
+                    : PauseMenuRomData.BlankEquipmentTilemap;
                 CopyBank82Words(source, equipmentTilemap.AsSpan(destinationOffset, byteCount));
                 if ((collected & mask) != 0 && (equipped & mask) == 0)
                     RecolorLabel(equipmentTilemap.AsSpan(destinationOffset, byteCount));
@@ -492,9 +481,11 @@ internal sealed class PauseMenuState
         ushort sourcePointer = 0;
         for (int index = 0; index < 4; index++)
         {
-            if (RomDataReader.ReadWordFixedBank(bus, 0x82b257 + index * 2) != desired)
+            if (RomDataReader.ReadWordFixedBank(bus, PauseMenuRomData.EquipmentSetTable + index * 2) != desired)
                 continue;
-            sourcePointer = RomDataReader.ReadWordFixedBank(bus, 0x82b25f + index * 2);
+            sourcePointer = RomDataReader.ReadWordFixedBank(
+                bus,
+                PauseMenuRomData.EquipmentTilemapPatchPointerTable + index * 2);
             break;
         }
         if (sourcePointer == 0)
@@ -521,11 +512,13 @@ internal sealed class PauseMenuState
         // `$82:943D` dereferences words from that ROM image while applying explored-map
         // visibility; it does not call the decompressor. Treating $B5:9000 as compressed
         // therefore walks unrelated data looking for an impossible command terminator.
-        int mapPointer = RomDataReader.ReadLongFixedBank(bus, 0x82964a + areaIndex * 3);
+        int mapPointer = RomDataReader.ReadLongFixedBank(
+            bus,
+            PauseMenuRomData.AreaMapTilemapPointerTable + areaIndex * 3);
         byte[] mapTilemap = RomDataReader.ReadFixedBank(bus, mapPointer, 0x1000);
         ushort mapDataPointer = RomDataReader.ReadWordFixedBank(
             bus,
-            0x829717 + areaIndex * 2);
+            PauseMenuRomData.AreaMapDataPointerTable + areaIndex * 2);
         int mapDataAddress = 0x820000 | mapDataPointer;
         bool hasAreaMap = system.HasAreaMap(areaIndex);
 
@@ -552,10 +545,12 @@ internal sealed class PauseMenuState
             mapTilemap[byteOffset] = unchecked((byte)word);
             mapTilemap[byteOffset + 1] = unchecked((byte)(word >> 8));
         }
-        vram.LoadBytes(Bg1TilemapWord * 2, mapTilemap);
+        vram.LoadBytes(PauseMenuLayout.Bg1TilemapWord * 2, mapTilemap);
 
         // The area name is a 24-byte bank-$82 tilemap fragment copied to VMADD $38AA.
-        ushort labelPointer = RomDataReader.ReadWordFixedBank(bus, 0x82965f + areaIndex * 2);
+        ushort labelPointer = RomDataReader.ReadWordFixedBank(
+            bus,
+            PauseMenuRomData.AreaMapLabelPointerTable + areaIndex * 2);
         vram.LoadBytes(0x38aa * 2, RomDataReader.ReadFixedBank(bus, 0x820000 | labelPointer, 0x18));
     }
 
@@ -565,7 +560,9 @@ internal sealed class PauseMenuState
         // or the persistent explored plane. Expressing the scan in coordinates is exactly
         // equivalent to its byte/bit loops and makes the two-page 64x32 layout explicit.
         bool useCartridgeMap = system.HasAreaMap(areaIndex);
-        ushort mapDataPointer = RomDataReader.ReadWordFixedBank(bus, 0x829717 + areaIndex * 2);
+        ushort mapDataPointer = RomDataReader.ReadWordFixedBank(
+            bus,
+            PauseMenuRomData.AreaMapDataPointerTable + areaIndex * 2);
         int mapDataAddress = 0x820000 | mapDataPointer;
         bool IsVisible(int x, int y) => useCartridgeMap
             ? ReadMapBit(mapDataAddress, x, y)
@@ -651,7 +648,7 @@ internal sealed class PauseMenuState
             8 * (roomMapY + (samus.YPosition >> 8) + 1) - mapVerticalScroll));
         lastIndicatorOriginX = x;
         lastIndicatorOriginY = y;
-        lastIndicatorSpritemapId = MapIndicatorSpritemapIds[mapIndicatorAnimationFrame];
+        lastIndicatorSpritemapId = PauseMapIndicatorAnimation.SpritemapIds[mapIndicatorAnimationFrame];
         DrawMenuSpritemap(
             lastIndicatorSpritemapId,
             x,
@@ -667,7 +664,7 @@ internal sealed class PauseMenuState
         if (mapIndicatorAnimationTimer == 0)
         {
             mapIndicatorAnimationFrame = (mapIndicatorAnimationFrame + 1) & 3;
-            mapIndicatorAnimationTimer = MapIndicatorFrameDelays[mapIndicatorAnimationFrame];
+            mapIndicatorAnimationTimer = PauseMapIndicatorAnimation.FrameDelays[mapIndicatorAnimationFrame];
         }
         mapIndicatorAnimationTimer--;
     }
@@ -675,7 +672,7 @@ internal sealed class PauseMenuState
     private void ResetItemSelectorAnimation()
     {
         itemSelectorAnimationFrame = 0;
-        itemSelectorAnimationTimer = bus.ReadByte(0x82c10c);
+        itemSelectorAnimationTimer = bus.ReadByte(PauseMenuRomData.ItemSelectorAnimationTimer);
     }
 
     private void StepItemSelectorAnimation()
@@ -689,7 +686,9 @@ internal sealed class PauseMenuState
         if (itemSelectorAnimationTimer > 0)
             return;
 
-        ushort animationPointer = RomDataReader.ReadWordFixedBank(bus, 0x82c0ec);
+        ushort animationPointer = RomDataReader.ReadWordFixedBank(
+            bus,
+            PauseMenuRomData.ItemSelectorAnimationPointer);
         itemSelectorAnimationFrame++;
         byte duration = bus.ReadByte(
             0x820000 | ((animationPointer + itemSelectorAnimationFrame * 3) & 0xffff));
@@ -708,12 +707,14 @@ internal sealed class PauseMenuState
 
         ushort positionListPointer = RomDataReader.ReadWordFixedBank(
             bus,
-            0x82c18e + selectedCategory * 2);
+            PauseMenuRomData.EquipmentSelectorPositionPointerTable + selectedCategory * 2);
         int positionAddress = 0x820000 | ((positionListPointer + selectedItem * 4) & 0xffff);
         ushort x = unchecked((ushort)(RomDataReader.ReadWordFixedBank(bus, positionAddress) - 1));
         ushort y = unchecked((ushort)(RomDataReader.ReadWordFixedBank(bus, positionAddress + 2) - 1));
 
-        ushort animationPointer = RomDataReader.ReadWordFixedBank(bus, 0x82c0ec);
+        ushort animationPointer = RomDataReader.ReadWordFixedBank(
+            bus,
+            PauseMenuRomData.ItemSelectorAnimationPointer);
         int animationEntry = 0x820000 | ((animationPointer + itemSelectorAnimationFrame * 3) & 0xffff);
         byte spritemapOffset = bus.ReadByte(animationEntry + 2);
 
@@ -722,14 +723,18 @@ internal sealed class PauseMenuState
         // the timer/frame dereferences above, the source dereference is an eight-bit load.
         // It therefore selects by the low-byte category only; using the whole $0302 Bombs
         // selector walks into the following map-icon data and invents spritemap ID $00CA.
-        ushort animationVariantPointer = RomDataReader.ReadWordFixedBank(bus, 0x82c0da);
+        ushort animationVariantPointer = RomDataReader.ReadWordFixedBank(
+            bus,
+            PauseMenuRomData.ItemSelectorAnimationVariantPointer);
         if (animationVariantPointer != 0x0755)
         {
             throw new InvalidDataException(
                 $"Pause item-selector animation variable is ${animationVariantPointer:X4}, " +
                 "expected native WRAM $0755.");
         }
-        ushort baseTablePointer = RomDataReader.ReadWordFixedBank(bus, 0x82c1e8);
+        ushort baseTablePointer = RomDataReader.ReadWordFixedBank(
+            bus,
+            PauseMenuRomData.EquipmentSelectorBaseTablePointer);
         ushort baseSpritemapId = RomDataReader.ReadWordFixedBank(
             bus,
             0x820000 | ((baseTablePointer + selectedCategory * 2) & 0xffff));
@@ -753,7 +758,7 @@ internal sealed class PauseMenuState
     }
 
     private ushort ReadPauseSpritePaletteBits() =>
-        RomDataReader.ReadWordFixedBank(bus, 0x82c100);
+        RomDataReader.ReadWordFixedBank(bus, PauseMenuRomData.SelectedItemSpritemapPointer);
 
     /// <summary>
     /// Ports the three SetPauseScreenButtonLabelPalettes variants at $82:A628-$A84C and
@@ -814,15 +819,17 @@ internal sealed class PauseMenuState
         }
 
         vram.LoadBytes(
-            PauseButtonRowsDestinationWord * 2,
-            pauseButtonTilemap.AsSpan(PauseButtonRowsSourceOffset, PauseButtonRowsByteCount));
+            PauseMenuLayout.ButtonRowsDestinationWord * 2,
+            pauseButtonTilemap.AsSpan(
+                PauseMenuLayout.ButtonRowsSourceOffset,
+                PauseMenuLayout.ButtonRowsByteCount));
     }
 
     private void DrawMenuSpritemap(ushort id, ushort x, ushort y, ushort paletteBits)
     {
         ushort pointer = RomDataReader.ReadWordFixedBank(
             bus,
-            MenuSpritemapPointerTableAddress + id * 2);
+            PauseMenuRomData.SpritemapPointerTable + id * 2);
         oam.AddOnScreenSpritemap(bus, 0x820000 | pointer, x, y, paletteBits);
     }
 
@@ -835,9 +842,9 @@ internal sealed class PauseMenuState
     }
 
     private void UploadEquipmentTilemap() =>
-        vram.LoadBytes(Bg1TilemapWord * 2, equipmentTilemap);
+        vram.LoadBytes(PauseMenuLayout.Bg1TilemapWord * 2, equipmentTilemap);
 
-    private ushort ReadCategoryMask(EquipmentCategoryDefinition category, int item) =>
+    private ushort ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
         RomDataReader.ReadWordFixedBank(bus, category.BitmaskTableAddress + item * 2);
 
     private void CopyBank82Words(ushort sourcePointer, Span<byte> destination)
@@ -852,18 +859,13 @@ internal sealed class PauseMenuState
         for (int offset = 0; offset < bytes.Length; offset += 2)
         {
             ushort word = (ushort)(bytes[offset] | (bytes[offset + 1] << 8));
-            word = (ushort)((word & ~TilePaletteMask) | DisabledEquipmentPaletteBits);
+            word = (ushort)((word & ~PauseMenuLayout.TilePaletteMask) |
+                PauseMenuLayout.DisabledEquipmentPaletteBits);
             bytes[offset] = unchecked((byte)word);
             bytes[offset + 1] = unchecked((byte)(word >> 8));
         }
     }
 
-    private readonly record struct EquipmentCategoryDefinition(
-        int OffsetTableAddress,
-        int TilemapPointerTableAddress,
-        int BitmaskTableAddress,
-        int ItemCount,
-        int LabelWordCount);
 }
 
 internal enum PauseMenuTransition

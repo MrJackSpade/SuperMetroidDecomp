@@ -16,7 +16,7 @@ public sealed partial class RoomEnemySystem
         PhantoonEnemyState state = RequireCompletePhantoonStateForPart(part);
         switch (function)
         {
-            case 0xceed: // PlayPhantoonMaterializationSFX.
+            case PhantoonInstructionCodes.PlayPhantoonMaterializationSFX:
                 state.LastMaterializationSound = ReadWord(
                     _bus!,
                     0xa7cded + state.MaterializationSoundIndex * 2);
@@ -25,15 +25,15 @@ public sealed partial class RoomEnemySystem
                     state.MaterializationSoundIndex = 0;
                 return false;
 
-            case 0xd03f: // SetupEyeOpenPhantoonState.
+            case PhantoonInstructionCodes.SetupEyeOpenPhantoonState:
                 BeginPhantoonEyeTracking(state);
                 return true;
 
-            case 0xd076: // PickNewPhantoonPattern.
+            case PhantoonInstructionCodes.PickNewPhantoonPattern:
                 PickPhantoonSecondRoundPattern(state, nmiFrameCounter8);
                 return false;
 
-            case 0xcf5e: // SpawnCasualFlame.
+            case PhantoonInstructionCodes.SpawnCasualFlame:
                 SpawnPhantoonDestroyableFlame(state.Body, parameter: 0);
                 state.LastMaterializationSound = 0x001d;
                 return false;

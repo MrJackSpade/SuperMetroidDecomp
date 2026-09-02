@@ -251,28 +251,28 @@ public sealed partial class RoomEnemySystem
             case NorfairRioAnimationSignalInstruction:
                 state.AnimationSignal = true;
                 break;
-            case 0xc1d4:
-            case 0xc1df:
+            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8:
+            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8_duplicate:
                 state.FollowerYOffset = 8;
                 break;
-            case 0xc1ea:
-            case 0xc237:
+            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_C:
+            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_C_duplicate:
                 state.FollowerYOffset = 12;
                 break;
-            case 0xc1f5:
-            case 0xc221:
+            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negativeC:
+            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negativeC_duplicate:
                 state.FollowerYOffset = unchecked((ushort)-12);
                 break;
-            case 0xc200:
+            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_4:
                 state.FollowerYOffset = 4;
                 break;
-            case 0xc20b:
+            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_0:
                 state.FollowerYOffset = 0;
                 break;
-            case 0xc216:
+            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative4:
                 state.FollowerYOffset = unchecked((ushort)-4);
                 break;
-            case 0xc22c:
+            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative10:
                 state.FollowerYOffset = unchecked((ushort)-16);
                 break;
             default:

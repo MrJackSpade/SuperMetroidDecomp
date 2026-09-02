@@ -736,7 +736,7 @@ public sealed partial class RoomEnemySystem
     {
         switch (state.BabyFunction)
         {
-            case 0xbe9c:
+            case CeresEnemyCodePointers.UpdateBabyMetroidPosition_CarriedInArms:
                 // Before the fake retreat, the Baby remains at Ridley's original left-hand
                 // anchor. This function is also why the retrieval target begins coherent
                 // even though the Baby is not a separate RoomEnemySlot.
@@ -744,13 +744,13 @@ public sealed partial class RoomEnemySystem
                 state.BabyYPosition = unchecked((ushort)(slot.YPosition + 22));
                 return;
 
-            case 0xbeca:
+            case CeresEnemyCodePointers.DropBabyMetroid:
                 state.BabyYSubposition = 0;
                 state.BabyVerticalVelocity = 0;
                 state.BabyFunction = 0xbedc;
-                goto case 0xbedc;
+                goto case CeresEnemyCodePointers.BabyMetroidDropped;
 
-            case 0xbedc:
+            case CeresEnemyCodePointers.BabyMetroidDropped:
                 state.BabyVerticalVelocity = unchecked((ushort)(state.BabyVerticalVelocity + 8));
                 (state.BabyYPosition, state.BabyYSubposition) = IntegrateUnclampedAxis(
                     state.BabyYPosition,
@@ -759,18 +759,18 @@ public sealed partial class RoomEnemySystem
                 if (unchecked((short)(state.BabyYPosition - 192)) >= 0)
                 {
                     state.BabyYPosition = 192;
-                    state.BabyFunction = 0xbf19;
+                    state.BabyFunction = CeresEnemyCodePointers.RTS_A6BF19;
                 }
                 return;
 
-            case 0xbeb3:
+            case CeresEnemyCodePointers.UpdateBabyMetroidPosition_CarriedInFeet:
                 // Once the hand rectangles overlap, the Baby follows the grasp point for
                 // the real retreat and disappears with Ridley at the status-one handoff.
                 state.BabyXPosition = unchecked((ushort)(slot.XPosition + 14));
                 state.BabyYPosition = unchecked((ushort)(slot.YPosition + 66));
                 return;
 
-            case 0xbf19:
+            case CeresEnemyCodePointers.RTS_A6BF19:
                 return;
 
             default:

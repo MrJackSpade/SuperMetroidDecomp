@@ -45,15 +45,11 @@ public sealed partial class RoomPlmSystem
     // headers. Keeping the headers at the API boundary and the lists inside the interpreter
     // mirrors SpawnHardcodedPLM: callers identify a cartridge object, while setup selects
     // the executable stream and its initial timer.
-    private const ushort ClearBotwoonWallHeader = 0xb797;
-    private const ushort CrumbleBotwoonWallHeader = 0xb79b;
     private const ushort ClearBotwoonWallInstructionList = 0xab67;
     private const ushort CrumbleBotwoonWallInstructionList = 0xab31;
 
     // Spore Spawn uses two neighboring hardcoded entries at the literal ceiling origin
     // (7,30). Both setups are RTS; the header therefore selects only the authored list.
-    private const ushort CrumbleSporeSpawnCeilingHeader = 0xb78f;
-    private const ushort ClearSporeSpawnCeilingHeader = 0xb793;
     private const ushort CrumbleSporeSpawnCeilingInstructionList = 0xab12;
     private const ushort ClearSporeSpawnCeilingInstructionList = 0xab21;
 
@@ -61,11 +57,6 @@ public sealed partial class RoomPlmSystem
     // five headers use Setup_DeactivatePLM (an RTS for the newly allocated actor), then run
     // a one-frame draw and delete. Keeping the entry IDs at this boundary lets the boss AI
     // remain a literal producer while this bank-$84 owner performs the terrain mutation.
-    private const ushort ClearCrocomireBridgeHeader = 0xb747;
-    private const ushort CrumbleCrocomireBridgeBlockHeader = 0xb74b;
-    private const ushort ClearCrocomireBridgeBlockHeader = 0xb74f;
-    private const ushort ClearCrocomireInvisibleWallHeader = 0xb753;
-    private const ushort CreateCrocomireInvisibleWallHeader = 0xb757;
 
     // `$94:936B` selects these eight entry IDs from BTS 0..7. Their setup pointer is common,
     // so storing the post-setup instruction-list pointer is sufficient after we reproduce
@@ -199,7 +190,9 @@ public sealed partial class RoomPlmSystem
     public bool TrySpawnBotwoonWall(RoomLevelData level, ushort header)
     {
         ArgumentNullException.ThrowIfNull(level);
-        if (header is not (ClearBotwoonWallHeader or CrumbleBotwoonWallHeader))
+        if (header is not (
+            RoomPlmHeaders.ClearBotwoonWall or
+            RoomPlmHeaders.CrumbleBotwoonWall))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(header),
@@ -222,14 +215,14 @@ public sealed partial class RoomPlmSystem
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
             slot.LoopTimer = 0;
-            slot.InstructionPointer = header == ClearBotwoonWallHeader
+            slot.InstructionPointer = header == RoomPlmHeaders.ClearBotwoonWall
                 ? ClearBotwoonWallInstructionList
                 : CrumbleBotwoonWallInstructionList;
 
             // SpawnHardcodedPLM initializes a new slot's instruction timer to one. Only the
             // live crumble header replaces it: setup `$84:AB28` writes $0040 to the separate
             // PLM instruction-timer allocation before returning to the enemy initializer.
-            slot.InstructionTimer = header == CrumbleBotwoonWallHeader
+            slot.InstructionTimer = header == RoomPlmHeaders.CrumbleBotwoonWall
                 ? (ushort)64
                 : (ushort)1;
             return true;
@@ -248,7 +241,8 @@ public sealed partial class RoomPlmSystem
     {
         ArgumentNullException.ThrowIfNull(level);
         if (header is not (
-                CrumbleSporeSpawnCeilingHeader or ClearSporeSpawnCeilingHeader))
+                RoomPlmHeaders.CrumbleSporeSpawnCeiling or
+                RoomPlmHeaders.ClearSporeSpawnCeiling))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(header),
@@ -268,7 +262,7 @@ public sealed partial class RoomPlmSystem
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
             slot.LoopTimer = 0;
-            slot.InstructionPointer = header == CrumbleSporeSpawnCeilingHeader
+            slot.InstructionPointer = header == RoomPlmHeaders.CrumbleSporeSpawnCeiling
                 ? CrumbleSporeSpawnCeilingInstructionList
                 : ClearSporeSpawnCeilingInstructionList;
             slot.InstructionTimer = 1;
@@ -296,11 +290,11 @@ public sealed partial class RoomPlmSystem
         ArgumentNullException.ThrowIfNull(level);
         ushort instructionPointer = header switch
         {
-            ClearCrocomireBridgeHeader => 0xafca,
-            CrumbleCrocomireBridgeBlockHeader => 0xafd0,
-            ClearCrocomireBridgeBlockHeader => 0xafd6,
-            ClearCrocomireInvisibleWallHeader => 0xafdc,
-            CreateCrocomireInvisibleWallHeader => 0xafe2,
+            RoomPlmHeaders.ClearCrocomireBridge => RoomPlmInstructionLists.ClearCrocomireBridge,
+            RoomPlmHeaders.CrumbleCrocomireBridgeBlock => RoomPlmInstructionLists.CrumbleCrocomireBridgeBlock,
+            RoomPlmHeaders.ClearCrocomireBridgeBlock => RoomPlmInstructionLists.ClearCrocomireBridgeBlock,
+            RoomPlmHeaders.ClearCrocomireInvisibleWall => RoomPlmInstructionLists.ClearCrocomireInvisibleWall,
+            RoomPlmHeaders.CreateCrocomireInvisibleWall => RoomPlmInstructionLists.CreateCrocomireInvisibleWall,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,

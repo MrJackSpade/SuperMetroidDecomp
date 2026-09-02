@@ -381,7 +381,7 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)(cursor + 2));
         switch (opcode)
         {
-            case 0xee40: // Move signed Y pixels on a left wall; reverse on collision.
+            case SpacePirateInstructionCodes.Inst_PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Left:
                 MoveWallSpacePirateAndReverseOnCollision(
                     slot,
                     state,
@@ -391,7 +391,7 @@ public sealed partial class RoomEnemySystem
                     ref cursor);
                 return true;
 
-            case 0xee72: // The equivalent right-wall collision/reversal opcode.
+            case SpacePirateInstructionCodes.Inst_PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Right:
                 MoveWallSpacePirateAndReverseOnCollision(
                     slot,
                     state,
@@ -401,40 +401,40 @@ public sealed partial class RoomEnemySystem
                     ref cursor);
                 return true;
 
-            case 0xeea4: // End of a four-cycle left-wall climb: choose up or down anew.
+            case SpacePirateInstructionCodes.Instruction_PirateWall_RandomlyChooseADirection_LeftWall:
                 RandomizeWallSpacePirateClimbDirection(state, onRightWall: false, ref cursor);
                 return true;
 
-            case 0xeebc: // End of a four-cycle right-wall climb: choose up or down anew.
+            case SpacePirateInstructionCodes.Instruction_PirateWall_RandomlyChooseADirection_RightWall:
                 RandomizeWallSpacePirateClimbDirection(state, onRightWall: true, ref cursor);
                 return true;
 
-            case 0xeed4: // Capture the rightward arc center and its starting angle.
+            case SpacePirateInstructionCodes.Instruction_PirateWall_PrepareWallJumpToRight:
                 PrepareWallSpacePirateJump(slot, state, jumpingRight: true);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xeefd: // Capture the leftward arc center and its starting angle.
+            case SpacePirateInstructionCodes.Instruction_PirateWall_PrepareWallJumpToLeft:
                 PrepareWallSpacePirateJump(slot, state, jumpingRight: false);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xef2a: // Emit the shared projectile from the left-facing muzzle.
+            case SpacePirateInstructionCodes.Instruction_PirateWall_FireLaserLeft:
                 FireWallSpacePirateLaser(slot, state, movingRight: false);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xef5d: // Emit the shared projectile from the right-facing muzzle.
+            case SpacePirateInstructionCodes.Instruction_PirateWall_FireLaserRight:
                 FireWallSpacePirateLaser(slot, state, movingRight: true);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xef83: // Store the following bank-$B2 function pointer in variable A.
+            case SpacePirateInstructionCodes.Instruction_PirateWall_FunctionInY:
                 state.Function = (WallSpacePirateFunction)ReadWord(_bus!, operandAddress);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0xef93: // The jump grunt is separate from initializer A009's laser sound.
+            case SpacePirateInstructionCodes.Instruction_PirateWall_QueueSpacePirateAttackSFX:
                 LastSpacePirateSoundEffect = WallPirateJumpSound;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;

@@ -765,23 +765,23 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
             switch (word)
             {
-                case 0x9ea3: // Increment and saturate Baby attack counter at twelve.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_IncBabyMetroidAttackCounter:
                     BabyMetroidAttackCounter = Math.Min(
                         unchecked((ushort)(BabyMetroidAttackCounter + 1)),
                         (ushort)0x000c);
                     attackCounterIncremented = true;
                     break;
 
-                case 0x9eb5: // Samus-target list explicitly resets the Baby counter.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_ResetBabyMetroidAttackCounter:
                     BabyMetroidAttackCounter = 0;
                     attackCounterReset = true;
                     break;
 
-                case 0x9b20: // Disable neck movement.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_DisableNeckMovement:
                     NeckMovementEnabled = 0;
                     break;
 
-                case 0x9e37: // Aim rings at the Baby's live enemy position.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_AimOnionRingsAtBabyMetroid:
                     if (baby is null)
                     {
                         throw new InvalidOperationException(
@@ -792,51 +792,51 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                         unchecked((short)(baby.YPosition - BrainYPosition - 0x0010)));
                     break;
 
-                case 0x9e5b: // Fallback list aims the identical program at Samus.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_AimOnionRingsAtSamus:
                     AimOnionRings(
                         unchecked((short)(samus.XPosition - BrainXPosition - 0x000a)),
                         unchecked((short)(samus.YPosition - BrainYPosition - 0x0010)));
                     break;
 
-                case 0x9b0f: // Unconditional go-to operand.
+                case MotherBrainInstructionCodes.Instruction_MotherBrain_GotoX:
                     HeadInstructionPointer = ReadBankA9Word(bus, HeadInstructionPointer);
                     break;
 
-                case 0x9b14: // Enable neck movement and go to operand.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_EnableNeckMovement_GotoX:
                     NeckMovementEnabled = 1;
                     HeadInstructionPointer = ReadBankA9Word(bus, HeadInstructionPointer);
                     break;
 
-                case 0x9df7: // Intended counter-indexed cry; retail bug always reads entry 0.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_QueueBabyMetroidAttackSFX:
                     if (BabyMetroidAttackCounter != 0x000b)
                         queuedSoundLibraryTwo = 0x006f;
                     break;
 
-                case 0x9e29: // Spawn one `$86:CB4B` blue-ring enemy projectile.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SpawnOnionRingsProjectile:
                     onionRing = new MotherBrainOnionRingSpawnRequest(OnionRingTargetAngle);
                     break;
 
-                case 0x9b32: // Queue sound [[X]], library three; consume its operand.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_QueueSoundX_Lib3_Max6:
                     queuedSoundLibraryThree = ReadBankA9Word(bus, HeadInstructionPointer);
                     HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
                     break;
 
-                case 0x9b28: // Queue sound [[X]], library two; consume its operand.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_QueueSoundX_Lib2_Max6:
                     queuedSoundLibraryTwo = ReadBankA9Word(bus, HeadInstructionPointer);
                     HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
                     break;
 
-                case 0x9ebd: // Spawn `$86:CB59`; operand is the later afterburn count.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SpawnBombProjectileWithParamX:
                     bomb = new MotherBrainBombSpawnRequest(
                         ReadBankA9Word(bus, HeadInstructionPointer));
                     HeadInstructionPointer = unchecked((ushort)(HeadInstructionPointer + 2));
                     break;
 
-                case 0x9b6d: // Spawn the large purple-breath accompaniment.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_SpawnPurpleBreathBigProjectile:
                     purpleBreathBigSpawnRequested = true;
                     break;
 
-                case 0x9d0d: // Retail's unconditional BRA skips its tempting cry branch.
+                case MotherBrainInstructionCodes.Instruction_MotherBrainHead_MaybeGotoNeutralPhase3:
                     // The processor has already advanced X past the opcode to `$9CDB`.
                     // Only low-twelve-bit values below `$EC0` replace X with `$9CD1`.
                     if ((randomNumberSeed & 0x0fff) < 0x0ec0)

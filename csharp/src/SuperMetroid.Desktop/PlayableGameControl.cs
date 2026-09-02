@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
 using System.Diagnostics;
 using System.Security.Cryptography;
 
@@ -16,10 +17,10 @@ public sealed class PlayableGameControl : UserControl
     private readonly SuperMetroidGameOptions gameOptions;
     private readonly ControllerInputRecording? replay;
     private readonly RuntimeCanvas canvas = new() { Dock = DockStyle.Fill, TabStop = true };
-    private readonly ToolStripLabel statusLabel = new();
+    private readonly ToolStripLabel statusLabel = HostToolbarLayout.CreateStatusLabel();
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 8 };
     private readonly Stopwatch playbackClock = new();
-    private readonly HashSet<Keys> heldKeys = [];
+    private readonly HostKeyboardInputState keyboard = new();
     private readonly WindowsGamepadInput gamepad = new();
     private double pendingPlaybackFrames;
     private SuperMetroidAddressSpace addressSpace = null!;
@@ -49,7 +50,11 @@ public sealed class PlayableGameControl : UserControl
         this.replay = replay;
         Dock = DockStyle.Fill;
 
-        var toolStrip = new ToolStrip { GripStyle = ToolStripGripStyle.Hidden };
+        var toolStrip = new ToolStrip
+        {
+            GripStyle = ToolStripGripStyle.Hidden,
+            Dock = DockStyle.Fill,
+        };
         var restartButton = new ToolStripButton("Restart");
         var playButton = new ToolStripButton("Pause") { CheckOnClick = true, Checked = true };
         var stepButton = new ToolStripButton("Step");
@@ -99,6 +104,7 @@ public sealed class PlayableGameControl : UserControl
         };
 
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
+        HostToolbarLayout.ConfigureGameplayColumn(layout);
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         layout.Controls.Add(toolStrip, 0, 0);
@@ -127,27 +133,11 @@ public sealed class PlayableGameControl : UserControl
         };
         playbackTimer.Tick += (_, _) => AdvancePlaybackClock();
 
-        // Track held keys on the canvas rather than creating gameplay buttons. The raw word
-        // goes straight into ControllerInputState, so newly-pressed and held semantics remain
-        // part of the translated core and are easy to inspect at a breakpoint.
-        canvas.KeyDown += (_, eventArguments) =>
-        {
-            heldKeys.Add(eventArguments.KeyCode);
-            bool gameplayKey = IsGameplayKey(eventArguments.KeyCode);
-            eventArguments.Handled = gameplayKey;
-            eventArguments.SuppressKeyPress = gameplayKey;
-        };
-        canvas.KeyUp += (_, eventArguments) =>
-        {
-            heldKeys.Remove(eventArguments.KeyCode);
-            bool gameplayKey = IsGameplayKey(eventArguments.KeyCode);
-            eventArguments.Handled = gameplayKey;
-            eventArguments.SuppressKeyPress = gameplayKey;
-        };
-        // Windows cannot deliver KeyUp to a control after Alt-Tab, a toolbar click, or a
-        // debugger focus change. Clearing the host set prevents a direction/button from
-        // remaining latched indefinitely when focus later returns to the canvas.
-        canvas.LostFocus += (_, _) => heldKeys.Clear();
+        // Keyboard messages are captured by ProcessKeyPreview below, above every child.
+        // Keep the clear tied to the whole gameplay host rather than the canvas: moving
+        // focus between the canvas and state controls is no longer allowed to manufacture
+        // a release, while Alt-Tab still cannot leave a direction latched indefinitely.
+        Leave += (_, _) => keyboard.Clear();
 
         Restart();
         SetPlaying(playing: true);
@@ -155,7 +145,7 @@ public sealed class PlayableGameControl : UserControl
 
     private void Restart()
     {
-        heldKeys.Clear();
+        keyboard.Clear();
         // waveOut may still own several queued buffers when Restart is clicked. Dispose the
         // device before its pinned storage and dispose the SPC player before replacing the
         // ROM whose upload addresses it consumes.
@@ -222,7 +212,7 @@ public sealed class PlayableGameControl : UserControl
 
         bool resumePlayback = playbackTimer.Enabled;
         SetPlaying(playing: false);
-        heldKeys.Clear();
+        keyboard.Clear();
         inputRecorder?.Dispose();
         inputRecorder = null;
         audioDevice?.Dispose();
@@ -442,6 +432,7 @@ public sealed class PlayableGameControl : UserControl
             (replay is null
                 ? string.Empty
                 : $"  |  replay {replayFrameIndex}/{replay.ControllerInputs.Length}");
+        statusLabel.ToolTipText = statusLabel.Text;
     }
 
     /// <summary>
@@ -484,21 +475,21 @@ public sealed class PlayableGameControl : UserControl
     /// </summary>
     private static string GetKnownRoomName(ushort roomPointer) => roomPointer switch
     {
-        0x91f8 => "Landing Site",
-        0x92fd => "Parlor and Alcatraz",
-        0x96ba => "Climb",
-        0x975c => "Pit Room",
-        0x9804 => "Bomb Torizo Room",
-        0x9879 => "Flyway",
-        0x9e9f => "Morph Ball Room",
-        0x9f11 => "Construction Zone",
-        0x9f64 => "Blue Brinstar Energy Tank Room",
-        0xdf45 => "Ceres Elevator Shaft",
-        0xdf8d => "Ceres Falling Tile Room",
-        0xdfd7 => "Ceres Magnet Stairs",
-        0xe021 => "Ceres Dead Scientist Room",
-        0xe06b => "Ceres Final Hallway",
-        0xe0b5 => "Ceres Ridley Room",
+        RoomHeaderPointers.LandingSite => "Landing Site",
+        RoomHeaderPointers.ParlorAndAlcatraz => "Parlor and Alcatraz",
+        RoomHeaderPointers.Climb => "Climb",
+        RoomHeaderPointers.PitRoom => "Pit Room",
+        RoomHeaderPointers.BombTorizoRoom => "Bomb Torizo Room",
+        RoomHeaderPointers.Flyway => "Flyway",
+        RoomHeaderPointers.MorphBallRoom => "Morph Ball Room",
+        RoomHeaderPointers.ConstructionZone => "Construction Zone",
+        RoomHeaderPointers.BlueBrinstarEnergyTankRoom => "Blue Brinstar Energy Tank Room",
+        RoomHeaderPointers.CeresElevatorShaft => "Ceres Elevator Shaft",
+        RoomHeaderPointers.CeresFallingTileRoom => "Ceres Falling Tile Room",
+        RoomHeaderPointers.CeresMagnetStairs => "Ceres Magnet Stairs",
+        RoomHeaderPointers.CeresDeadScientistRoom => "Ceres Dead Scientist Room",
+        RoomHeaderPointers.CeresFinalHallway => "Ceres Final Hallway",
+        RoomHeaderPointers.CeresRidleyRoom => "Ceres Ridley Room",
         _ => "Room",
     };
 
@@ -507,29 +498,20 @@ public sealed class PlayableGameControl : UserControl
         // Keyboard and gamepad are two host producers for the same physical SNES port.
         // Merge them before recording so replay sees one exact cartridge-format word and
         // never depends on which Windows device generated a particular held bit.
-        SnesButton input = gamepad.Poll();
-        if (heldKeys.Contains(Keys.Left)) input |= SnesButton.Left;
-        if (heldKeys.Contains(Keys.Right)) input |= SnesButton.Right;
-        if (heldKeys.Contains(Keys.Up)) input |= SnesButton.Up;
-        if (heldKeys.Contains(Keys.Down)) input |= SnesButton.Down;
-        if (heldKeys.Contains(Keys.Z)) input |= SnesButton.B;
-        // Space is a discoverable desktop jump alias; X retains the compact four-face-
-        // button layout printed below the viewport. Both become the same retail SNES A bit,
-        // so menus and gameplay still observe one authentic controller word.
-        if (heldKeys.Contains(Keys.X) || heldKeys.Contains(Keys.Space)) input |= SnesButton.A;
-        if (heldKeys.Contains(Keys.A)) input |= SnesButton.Y;
-        if (heldKeys.Contains(Keys.S)) input |= SnesButton.X;
-        if (heldKeys.Contains(Keys.Q)) input |= SnesButton.L;
-        if (heldKeys.Contains(Keys.W)) input |= SnesButton.R;
-        if (heldKeys.Contains(Keys.Enter)) input |= SnesButton.Start;
-        if (heldKeys.Contains(Keys.ShiftKey)) input |= SnesButton.Select;
-        return (ushort)input;
+        return keyboard.BuildControllerWord(gamepad.Poll());
     }
 
-    private static bool IsGameplayKey(Keys key) => key is
-        Keys.Left or Keys.Right or Keys.Up or Keys.Down or
-        Keys.Z or Keys.X or Keys.Space or Keys.A or Keys.S or Keys.Q or Keys.W or
-        Keys.Enter or Keys.ShiftKey;
+    protected override bool ProcessKeyPreview(ref Message message)
+    {
+        // ProcessKeyPreview is called while WinForms walks a focused child's parent chain.
+        // Consuming the message here means Enter is Start whether focus is on the canvas,
+        // a ToolStrip button, or the state-slot ComboBox; it can never invoke dialog/UI
+        // behavior that scrolls or relocates the host viewport.
+        Keys key = unchecked((Keys)(long)message.WParam);
+        if (keyboard.ApplyWindowMessage(message.Msg, key))
+            return true;
+        return base.ProcessKeyPreview(ref message);
+    }
 
     protected override void OnHandleCreated(EventArgs e)
     {

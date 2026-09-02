@@ -43,42 +43,42 @@ public static class LibraryBackgroundLoader
             cursor = unchecked((ushort)(cursor + 2));
             executedCommands++;
 
-            switch (command)
+            switch ((LibraryBackgroundCommand)command)
             {
-                case 0x0000:
+                case LibraryBackgroundCommand.End:
                     return executedCommands;
 
-                case 0x0002:
+                case LibraryBackgroundCommand.TransferToVram:
                     cursor = TransferToVram(bus, vram, cursor);
                     break;
 
-                case 0x0004:
+                case LibraryBackgroundCommand.DecompressToWorkRam:
                     cursor = DecompressToWorkRam(bus, cursor);
                     break;
 
-                case 0x0006:
+                case LibraryBackgroundCommand.ClearFxTilemap:
                     // The retail command is unused, but its implementation is fully named:
                     // fill the shared $7E:4000 buffer and transfer $F00 bytes to VRAM $5880.
                     FillWords(bus, Bg2TilemapBuffer, byteCount: 0x0f00, value: 0x184e);
                     vram.ExecuteQueuedWrite(bus, 0x7e4000, 0x0f00, 0x5880);
                     break;
 
-                case 0x0008:
+                case LibraryBackgroundCommand.TransferToVramForKraid:
                     // Kraid also changes BG3's character base after this ordinary transfer.
                     // That PPU-register side effect has no owner in the current room runtime;
                     // the VRAM behavior remains exact and the missing register is explicit.
                     cursor = TransferToVram(bus, vram, cursor);
                     break;
 
-                case 0x000a:
+                case LibraryBackgroundCommand.ClearBg2:
                     ClearBg2(bus, vram, includeKraidPage: false);
                     break;
 
-                case 0x000c:
+                case LibraryBackgroundCommand.ClearBg2ForKraid:
                     ClearBg2(bus, vram, includeKraidPage: true);
                     break;
 
-                case 0x000e:
+                case LibraryBackgroundCommand.TransferForDoor:
                 {
                     ushort candidateDoor = ReadWord(bus, cursor);
                     cursor = unchecked((ushort)(cursor + 2));

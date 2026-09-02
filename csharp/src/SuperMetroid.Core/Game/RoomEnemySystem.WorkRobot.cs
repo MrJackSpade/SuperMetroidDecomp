@@ -217,100 +217,100 @@ public sealed partial class RoomEnemySystem
         ushort next = unchecked((ushort)(cursor + 2));
         switch (opcode)
         {
-            case 0xcd09: // Facing left, forward: wall and left-edge ledge checks.
+            case WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveForward_HandleWallOrFall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, -WorkRobotStepPixels,
                     WorkRobotFacingLeftVelocity, WorkRobotLeftHitWall,
                     checkLedge: true, ledgeProbeDirection: -1,
                     WorkRobotApproachFallLeft, WorkRobotFacingRightVelocity);
                 return true;
-            case 0xcda4: // Facing left, forward recoil: wall check only.
+            case WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveForward_HandleHittingWall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, -WorkRobotStepPixels,
                     WorkRobotFacingLeftVelocity, WorkRobotLeftHitWall,
                     checkLedge: false, 0, 0, 0);
                 return true;
-            case 0xcdea: // Facing left, walking backward toward the right edge.
+            case WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveBackward_HandleWallOrFall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, WorkRobotStepPixels,
                     WorkRobotFacingLeftVelocity, WorkRobotWalkLeft,
                     checkLedge: true, ledgeProbeDirection: 1,
                     WorkRobotApproachFallRight, WorkRobotFacingLeftVelocity);
                 return true;
-            case 0xce85: // Facing left, backward recoil: wall check only.
+            case WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveBackward_HandleHittingWall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, WorkRobotStepPixels,
                     WorkRobotFacingLeftVelocity, WorkRobotWalkLeft,
                     checkLedge: false, 0, 0, 0);
                 return true;
-            case 0xcecb: // Turn completed: begin right-facing forward walk.
+            case WorkRobotInstructionCodes.Instruction_Robot_SetInstListTo_FacingRight_WalkingForwards:
                 cursor = WorkRobotWalkRight;
                 return true;
-            case 0xcecf: // Facing right, forward: wall and right-edge ledge checks.
+            case WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveForward_HandleWallOrFall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, WorkRobotStepPixels,
                     WorkRobotFacingRightVelocity, WorkRobotRightHitWall,
                     checkLedge: true, ledgeProbeDirection: 1,
                     WorkRobotApproachFallRight, WorkRobotFacingLeftVelocity);
                 return true;
-            case 0xcf6a: // Facing right, forward recoil: wall check only.
+            case WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveForward_HandleHittingWall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, WorkRobotStepPixels,
                     WorkRobotFacingRightVelocity, WorkRobotRightHitWall,
                     checkLedge: false, 0, 0, 0);
                 return true;
-            case 0xcfb0: // Facing right, walking backward toward the left edge.
+            case WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveBackward_HandleWallOrFall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, -WorkRobotStepPixels,
                     WorkRobotFacingRightVelocity, WorkRobotWalkLeft,
                     checkLedge: true, ledgeProbeDirection: -1,
                     WorkRobotApproachFallLeft, WorkRobotFacingRightVelocity);
                 return true;
-            case 0xd04b: // Facing right, backward recoil: wall check only.
+            case WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveBackward_HandleHittingWall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, -WorkRobotStepPixels,
                     WorkRobotFacingRightVelocity, WorkRobotWalkLeft,
                     checkLedge: false, 0, 0, 0);
                 return true;
-            case 0xd091: // Queue the mechanical step only while strictly inside viewport.
+            case WorkRobotInstructionCodes.Instruction_Robot_PlaySFXIfOnScreen:
                 if (IsWorkRobotOriginStrictlyOnScreen(slot, cameraX, cameraY))
                     LastWorkRobotSoundEffect = WorkRobotFootstepSound;
                 cursor = next;
                 return true;
-            case 0xd0c2: // Turn completed: begin left-facing forward walk.
+            case WorkRobotInstructionCodes.Instruction_Robot_Goto_FacingLeft_WalkingForwards:
                 cursor = WorkRobotWalkLeft;
                 return true;
-            case 0xd0c6:
+            case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserUpRight:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaserUpRight,
                     WorkRobotLaserUpRightAnimation, cameraX, cameraY);
                 return true;
-            case 0xd0d2:
+            case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserUpLeft:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaserUpLeft,
                     WorkRobotLaserUpLeftAnimation, cameraX, cameraY);
                 return true;
-            case 0xd100:
+            case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserRight:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaserHorizontal,
                     WorkRobotLaserRightAnimation, cameraX, cameraY);
                 return true;
-            case 0xd107:
+            case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserLeft:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaserHorizontal,
                     WorkRobotLaserLeftAnimation, cameraX, cameraY);
                 return true;
-            case 0xd131:
+            case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownRight:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaserDownRight,
                     WorkRobotLaserDownRightAnimation, cameraX, cameraY);
                 return true;
-            case 0xd13d:
+            case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownLeft:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaserDownLeft,
                     WorkRobotLaserDownLeftAnimation, cameraX, cameraY);
                 return true;
-            case 0xd16b:
+            case WorkRobotInstructionCodes.Instruction_Robot_DecrementLaserCooldown:
                 DecrementWorkRobotLaserCooldown(state);
                 cursor = next;
                 return true;

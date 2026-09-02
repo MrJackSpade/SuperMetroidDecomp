@@ -926,29 +926,29 @@ public sealed partial class RoomEnemySystem
         BotwoonEnemyState state = RequireBotwoonState(head);
         switch (opcode)
         {
-            case 0x94c7:
-            case 0x9507:
-            case 0x9517:
-            case 0x9557:
+            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10:
+            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate:
+            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again:
+            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again2:
                 head.XRadius = 8;
                 head.YRadius = 16;
                 break;
-            case 0x94d7:
-            case 0x94f7:
-            case 0x9527:
-            case 0x9547:
+            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC:
+            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate:
+            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again:
+            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again2:
                 head.XRadius = 12;
                 head.YRadius = 12;
                 break;
-            case 0x94e7:
-            case 0x9537:
+            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8:
+            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8_duplicate:
                 head.XRadius = 16;
                 head.YRadius = 8;
                 break;
-            case 0x9567:
+            case BotwoonCodePointers.Instruction_Botwoon_SetSpittingFlag:
                 state.SpitFrameReached = true;
                 break;
-            case 0x9572:
+            case BotwoonCodePointers.Instruction_Botwoon_QueueSpitSFX:
                 LastBotwoonSoundEffect = 0x007c;
                 break;
             default:

@@ -86,20 +86,20 @@ internal sealed class IntroScientistCutsceneState
     {
         switch (opcode)
         {
-            case 0xa25b:
+            case CinematicCodePointers.Instruction_PlayBabyMetroid_Cry1:
                 audio?.QueueSound(library: 3, soundId: 0x23, maximumQueued: 6);
                 return argumentPointer;
-            case 0xa263:
+            case CinematicCodePointers.Instruction_PlayBabyMetroid_Cry2:
                 audio?.QueueSound(library: 3, soundId: 0x26, maximumQueued: 6);
                 return argumentPointer;
-            case 0xa26b:
+            case CinematicCodePointers.Instruction_PlayBabyMetroid_Cry3:
                 audio?.QueueSound(library: 3, soundId: 0x27, maximumQueued: 6);
                 return argumentPointer;
-            case 0xb346:
+            case CinematicCodePointers.Instruction_StartIntroPage4:
                 // The delivery loop ends by selecting page four.
                 PageFourRequested = true;
                 return argumentPointer;
-            case 0xb34e:
+            case CinematicCodePointers.Instruction_StartIntroPage5:
                 // The examination loop ends by selecting page five.
                 PageFiveRequested = true;
                 return argumentPointer;

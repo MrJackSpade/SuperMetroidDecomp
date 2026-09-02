@@ -21,12 +21,6 @@ public sealed partial class RoomEnemySystem
     public const int NativeSlotSize = 0x40;
     public const int MaximumGraphicsSetCount = 4;
 
-    private const int EnemyDefinitionBank = 0xa00000;
-    private const int EnemyPopulationBank = 0xa10000;
-    private const int EnemyTilesetBank = 0xb40000;
-    private const int EnemyVramByteBase = 0xd800;
-    private const int OrdinaryEnemyStagingOffset = 0x0800;
-
     private readonly RoomEnemySlot[] _slots = new RoomEnemySlot[MaximumEnemyCount];
     private readonly List<ushort>[] _drawQueues =
         Enumerable.Range(0, 8).Select(_ => new List<ushort>()).ToArray();
@@ -415,7 +409,7 @@ public sealed partial class RoomEnemySystem
         // $A0:8A6D does not even inspect the room's enemy set when the first population
         // word is the terminator. This is observable: an empty room must not overwrite
         // CGRAM or VRAM merely because its state happens to retain a non-empty set pointer.
-        if (ReadWord(bus, EnemyPopulationBank | populationPointer) != 0xffff)
+        if (ReadWord(bus, RoomEnemyRomLayout.PopulationBank | populationPointer) != 0xffff)
             LoadGraphicsSet(bus, tilesetPointer, vram, cgram);
         LoadPopulation(
             bus,
@@ -442,7 +436,7 @@ public sealed partial class RoomEnemySystem
         EnsureLoaded();
         foreach (RoomEnemyGraphicsSetEntry entry in _graphicsSet)
         {
-            int destinationByteOffset = EnemyVramByteBase + entry.StagingOffset;
+            int destinationByteOffset = RoomEnemyRomLayout.VramByteBase + entry.StagingOffset;
             if ((destinationByteOffset & 1) != 0 || entry.TileByteCount > ushort.MaxValue)
                 throw new InvalidDataException("Enemy tile DMA is not word-aligned or exceeds one native transfer.");
             queue.Enqueue(
@@ -762,9 +756,9 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot pad = _slots[2];
         GunshipSavePromptPending = false;
         GunshipSaveRequested = save;
-        top.VariableF = 0xab60;
+        top.VariableF = GunshipCodePointers.WaitForExitPadToOpen;
         pad.InstructionTimer = 1;
-        pad.CurrentInstruction = 0xa5be;
+        pad.CurrentInstruction = GunshipInstructionLists.EntrancePadOpening;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.SavePromptAnswered;
     }
@@ -924,9 +918,9 @@ public sealed partial class RoomEnemySystem
         SnesVram vram,
         SnesCgram cgram)
     {
-        int cursor = EnemyTilesetBank | tilesetPointer;
+        int cursor = RoomEnemyRomLayout.TilesetBank | tilesetPointer;
         int nextEnemyTileIndex = 0;
-        int nextStagingOffset = OrdinaryEnemyStagingOffset;
+        int nextStagingOffset = RoomEnemyRomLayout.OrdinaryStagingOffset;
 
         while (true)
         {
@@ -957,7 +951,7 @@ public sealed partial class RoomEnemySystem
             int stagingOffset = (definition.TileDataSize & 0x8000) != 0
                 ? (vramDestination & 0x3000) >> 3
                 : nextStagingOffset;
-            int vramByteOffset = EnemyVramByteBase + stagingOffset;
+            int vramByteOffset = RoomEnemyRomLayout.VramByteBase + stagingOffset;
             if (vramByteOffset < 0 || vramByteOffset + byteCount > SnesVram.ByteCount)
             {
                 throw new InvalidDataException(
@@ -996,7 +990,7 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
-        int cursor = EnemyPopulationBank | populationPointer;
+        int cursor = RoomEnemyRomLayout.PopulationBank | populationPointer;
         int slotIndex = 0;
         while (true)
         {
@@ -1118,364 +1112,368 @@ public sealed partial class RoomEnemySystem
         int address = (slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer;
         switch (address)
         {
-            case 0xa48a5a when slot.EnemyDefinitionPointer == CrocomireDefinition:
+            case EnemyAiCodePointers.InitAI_Crocomire when slot.EnemyDefinitionPointer == CrocomireDefinition:
                 InitializeCrocomire(slot);
                 return;
-            case 0xa5ea2a when slot.EnemyDefinitionPointer == SporeSpawnDefinition:
+            case EnemyAiCodePointers.InitAI_SporeSpawn when slot.EnemyDefinitionPointer == SporeSpawnDefinition:
                 InitializeSporeSpawn(slot);
                 return;
-            case 0xa4f67a when slot.EnemyDefinitionPointer == CrocomireTongueDefinition:
+            case EnemyAiCodePointers.InitAI_CrocomireTongue when slot.EnemyDefinitionPointer == CrocomireTongueDefinition:
                 InitializeCrocomireTongue(slot);
                 return;
-            case 0xa8af8b when slot.EnemyDefinitionPointer == MagdolliteDefinition:
+            case EnemyAiCodePointers.InitAI_Magdollite when slot.EnemyDefinitionPointer == MagdolliteDefinition:
                 InitializeMagdollite(slot, samus);
                 return;
-            case 0xa2a644:
+            case EnemyAiCodePointers.InitAI_ShipTop:
                 InitializeGunshipTop(slot);
                 return;
-            case 0xa2871c when slot.EnemyDefinitionPointer == BoyonDefinition:
+            case EnemyAiCodePointers.InitAI_Boyon when slot.EnemyDefinitionPointer == BoyonDefinition:
                 InitializeBoyon(slot);
                 return;
-            case 0xa289ad when slot.EnemyDefinitionPointer == StokeDefinition:
+            case EnemyAiCodePointers.InitAI_Stoke when slot.EnemyDefinitionPointer == StokeDefinition:
                 InitializeStoke(slot);
                 return;
-            case 0xa28d6c when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+            case EnemyAiCodePointers.InitAI_MamaTurtle when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
                 InitializeMamaTurtle(slot);
                 return;
-            case 0xa28d9d when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+            case EnemyAiCodePointers.InitAI_BabyTurtle when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
                 InitializeBabyTurtle(slot);
                 return;
-            case 0xa29a3f when slot.EnemyDefinitionPointer == PuyoDefinition:
+            case EnemyAiCodePointers.InitAI_Puyo when slot.EnemyDefinitionPointer == PuyoDefinition:
                 InitializePuyo(slot);
                 return;
-            case 0xa29f48 when slot.EnemyDefinitionPointer == CacatacDefinition:
+            case EnemyAiCodePointers.InitAI_Cacatac when slot.EnemyDefinitionPointer == CacatacDefinition:
                 InitializeCacatac(slot);
                 return;
-            case 0xa2a3f9 when slot.EnemyDefinitionPointer == OwtchDefinition:
+            case EnemyAiCodePointers.InitAI_Owtch when slot.EnemyDefinitionPointer == OwtchDefinition:
                 InitializeOwtch(slot);
                 return;
-            case 0xa2b3e0 when slot.EnemyDefinitionPointer == MultiviolaDefinition:
+            case EnemyAiCodePointers.InitAI_Multiviola when slot.EnemyDefinitionPointer == MultiviolaDefinition:
                 InitializeMultiviola(slot);
                 return;
-            case 0xa2b570 when slot.EnemyDefinitionPointer == PolypDefinition:
+            case EnemyAiCodePointers.InitAI_Polyp when slot.EnemyDefinitionPointer == PolypDefinition:
                 InitializePolyp(slot);
                 return;
-            case 0xa2b602 when slot.EnemyDefinitionPointer == RinkaDefinition:
+            case EnemyAiCodePointers.InitAI_Rinka when slot.EnemyDefinitionPointer == RinkaDefinition:
                 InitializeRinka(slot);
                 return;
-            case 0xa2bbcd when slot.EnemyDefinitionPointer == RioDefinition:
+            case EnemyAiCodePointers.InitAI_Rio when slot.EnemyDefinitionPointer == RioDefinition:
                 InitializeRio(slot);
                 return;
-            case 0xa2be99 when slot.EnemyDefinitionPointer == NorfairLavaJumpingEnemyDefinition:
+            case EnemyAiCodePointers.InitAI_Squeept when slot.EnemyDefinitionPointer == NorfairLavaJumpingEnemyDefinition:
                 InitializeNorfairLavaJumpingEnemy(slot);
                 return;
-            case 0xa2c242 when slot.EnemyDefinitionPointer == NorfairRioDefinition:
+            case EnemyAiCodePointers.InitAI_Geruta when slot.EnemyDefinitionPointer == NorfairRioDefinition:
                 InitializeNorfairRio(slot);
                 return;
-            case 0xa2c6f3 when slot.EnemyDefinitionPointer == LowerNorfairRioDefinition:
+            case EnemyAiCodePointers.InitAI_Holtz when slot.EnemyDefinitionPointer == LowerNorfairRioDefinition:
                 InitializeLowerNorfairRio(slot);
                 return;
-            case 0xa2ccd4 when slot.EnemyDefinitionPointer == MaridiaLargeSnailDefinition:
+            case EnemyAiCodePointers.InitAI_Oum when slot.EnemyDefinitionPointer == MaridiaLargeSnailDefinition:
                 InitializeMaridiaLargeSnail(slot);
                 return;
-            case 0xa2e1d3 when slot.EnemyDefinitionPointer == GRipperDefinition:
+            case EnemyAiCodePointers.InitAI_GRipper when slot.EnemyDefinitionPointer == GRipperDefinition:
                 InitializeGRipper(slot);
                 return;
-            case 0xa2e318 when slot.EnemyDefinitionPointer == Ripper2Definition:
+            case EnemyAiCodePointers.InitAI_Ripper2 when slot.EnemyDefinitionPointer == Ripper2Definition:
                 InitializeRipper2(slot);
                 return;
-            case 0xa2e606 when slot.EnemyDefinitionPointer == DragonDefinition:
+            case EnemyAiCodePointers.InitAI_Dragon when slot.EnemyDefinitionPointer == DragonDefinition:
                 InitializeDragon(slot);
                 return;
-            case 0xa2e9da when slot.EnemyDefinitionPointer == GrowingShutterDefinition:
+            case EnemyAiCodePointers.InitAI_ShutterGrowing when slot.EnemyDefinitionPointer == GrowingShutterDefinition:
                 InitializeGrowingShutter(slot);
                 return;
-            case 0xa2ee12 when slot.EnemyDefinitionPointer is
+            case EnemyAiCodePointers.InitAI_ShutterShootable_ShutterDestroyable
+                when slot.EnemyDefinitionPointer is
                 ShootableVerticalShutterDefinition or DestroyableVerticalShutterDefinition:
-            case 0xa2ee05 when slot.EnemyDefinitionPointer == KamerVerticalPlatformDefinition:
+            case EnemyAiCodePointers.InitAI_Kamer when slot.EnemyDefinitionPointer == KamerVerticalPlatformDefinition:
                 InitializeVerticalShutter(slot);
                 return;
-            case 0xa2f111 when slot.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition:
+            case EnemyAiCodePointers.InitAI_ShutterHorizShootable when slot.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition:
                 InitializeHorizontalShutter(slot, samus);
                 return;
-            case 0xa394e6 when slot.EnemyDefinitionPointer == ElevatorDefinition:
+            case EnemyAiCodePointers.InitAI_Elevator when slot.EnemyDefinitionPointer == ElevatorDefinition:
                 InitializeElevator(slot, samus);
                 return;
-            case 0xa896e3 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.InitAI_Fune_Namihe when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 InitializeFuneNamihe(slot);
                 return;
-            case 0xa2a6d2:
+            case EnemyAiCodePointers.InitAI_ShipBottomEntrance:
                 InitializeGunshipBottom(slot);
                 return;
-            case 0xa6efb1:
+            case EnemyAiCodePointers.InitAI_CeresSteam:
                 InitializeCeresSteam(slot);
                 return;
-            case 0xa6f6c5:
+            case EnemyAiCodePointers.InitAI_CeresDoor:
                 InitializeCeresDoor(slot);
                 return;
-            case 0xa6a0f5 when slot.EnemyDefinitionPointer == CeresRidleyDefinition:
+            case EnemyAiCodePointers.InitAI_Ridley when slot.EnemyDefinitionPointer == CeresRidleyDefinition:
                 InitializeCeresRidley(slot);
                 return;
-            case 0xa6a0f5 when slot.EnemyDefinitionPointer == NorfairRidleyDefinition:
+            case EnemyAiCodePointers.InitAI_Ridley when slot.EnemyDefinitionPointer == NorfairRidleyDefinition:
                 InitializeNorfairRidley(slot);
                 return;
-            case 0xa6c696 when slot.EnemyDefinitionPointer == NorfairRidleyExplosionDefinition:
+            case EnemyAiCodePointers.InitAI_RidleyExplosion when slot.EnemyDefinitionPointer == NorfairRidleyExplosionDefinition:
                 InitializeNorfairRidleyExplosion(
                     slot,
                     _slots[0],
                     _ridleyState ?? throw new InvalidOperationException(
                         "A Ridley breakup actor has no shared Ridley owner."));
                 return;
-            case 0xa686f5 when slot.EnemyDefinitionPointer == BoulderDefinition:
+            case EnemyAiCodePointers.InitAI_Boulder when slot.EnemyDefinitionPointer == BoulderDefinition:
                 InitializeBoulder(slot);
                 return;
-            case 0xa6fb72 when slot.EnemyDefinitionPointer == ZebetiteDefinition:
+            case EnemyAiCodePointers.InitAI_Zebetite when slot.EnemyDefinitionPointer == ZebetiteDefinition:
                 InitializeZebetite(slot);
                 return;
-            case 0xa7e912 when slot.EnemyDefinitionPointer == EtecoonDefinition:
+            case EnemyAiCodePointers.InitAI_Etecoon when slot.EnemyDefinitionPointer == EtecoonDefinition:
                 InitializeEtecoon(slot);
                 return;
-            case 0xa7f4dd when slot.EnemyDefinitionPointer == DachoraDefinition:
+            case EnemyAiCodePointers.InitAI_Dachora when slot.EnemyDefinitionPointer == DachoraDefinition:
                 InitializeDachora(slot);
                 return;
-            case 0xa887e0 when slot.EnemyDefinitionPointer == EvirDefinition:
+            case EnemyAiCodePointers.InitAI_Evir when slot.EnemyDefinitionPointer == EvirDefinition:
                 InitializeEvir(slot, samus);
                 return;
-            case 0xa888b0 when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
+            case EnemyAiCodePointers.InitAI_EvirProjectile when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
                 InitializeEvirProjectile(slot);
                 return;
-            case 0xa89058 when slot.EnemyDefinitionPointer == MorphBallEyeDefinition:
+            case EnemyAiCodePointers.InitAI_Eye when slot.EnemyDefinitionPointer == MorphBallEyeDefinition:
                 InitializeMorphBallEye(slot);
                 return;
-            case 0xa89aee when slot.EnemyDefinitionPointer == WreckedShipGhostDefinition:
+            case EnemyAiCodePointers.InitAI_Coven when slot.EnemyDefinitionPointer == WreckedShipGhostDefinition:
                 InitializeWreckedShipGhost(slot);
                 return;
-            case 0xa8a148 when slot.EnemyDefinitionPointer == YappingMawDefinition:
+            case EnemyAiCodePointers.InitAI_YappingMaw when slot.EnemyDefinitionPointer == YappingMawDefinition:
                 InitializeYappingMaw(slot);
                 return;
-            case 0xa2e49f when slot.EnemyDefinitionPointer == RipperDefinition:
+            case EnemyAiCodePointers.InitAI_Ripper when slot.EnemyDefinitionPointer == RipperDefinition:
                 InitializeRipper(slot);
                 return;
-            case 0xa2df76 when slot.EnemyDefinitionPointer == ChootDefinition:
+            case EnemyAiCodePointers.InitAI_Choot when slot.EnemyDefinitionPointer == ChootDefinition:
                 InitializeChoot(slot);
                 return;
-            case 0xa396e3 when slot.EnemyDefinitionPointer == SciserDefinition:
+            case EnemyAiCodePointers.InitAI_Sciser when slot.EnemyDefinitionPointer == SciserDefinition:
                 InitializeCrawler(slot, SciserInitialInstructionTable, speciesInstructionOffset: 8);
                 return;
-            case 0xa3993b when slot.EnemyDefinitionPointer == ZeroDefinition:
+            case EnemyAiCodePointers.InitAI_Zero when slot.EnemyDefinitionPointer == ZeroDefinition:
                 InitializeCrawler(slot, ZeroInitialInstructionTable, speciesInstructionOffset: 10);
                 return;
-            case 0xa3b66f when slot.EnemyDefinitionPointer == ViolaDefinition:
+            case EnemyAiCodePointers.InitAI_Viola when slot.EnemyDefinitionPointer == ViolaDefinition:
                 InitializeCrawler(slot, ViolaInitialInstructionTable, speciesInstructionOffset: 6);
                 return;
-            case 0xa3e2d4 when slot.EnemyDefinitionPointer == ZeelaDefinition:
-            case 0xa3e59c when slot.EnemyDefinitionPointer == SovaDefinition:
-            case 0xa3e669 when slot.EnemyDefinitionPointer is ZoomerDefinition or StoneZoomerDefinition:
+            case EnemyAiCodePointers.InitAI_Zeela when slot.EnemyDefinitionPointer == ZeelaDefinition:
+            case EnemyAiCodePointers.InitAI_Sova when slot.EnemyDefinitionPointer == SovaDefinition:
+            case EnemyAiCodePointers.InitAI_Zoomer_MZoomer when slot.EnemyDefinitionPointer is ZoomerDefinition or StoneZoomerDefinition:
                 InitializeCrawler(slot, SharedCrawlerInitialInstructionTable);
                 return;
-            case 0xa3e043 when slot.EnemyDefinitionPointer == HZoomerDefinition:
+            case EnemyAiCodePointers.InitAI_HZoomer when slot.EnemyDefinitionPointer == HZoomerDefinition:
                 InitializeHZoomer(slot);
                 return;
-            case 0xa3c6ae when slot.EnemyDefinitionPointer == SkreeDefinition:
+            case EnemyAiCodePointers.InitAI_Skree when slot.EnemyDefinitionPointer == SkreeDefinition:
                 InitializeSkree(slot);
                 return;
-            case 0xa2b06b when slot.EnemyDefinitionPointer is
+            case EnemyAiCodePointers.InitAI_Mellow_Mella_Menu
+                when slot.EnemyDefinitionPointer is
                 MellowDefinition or MellaDefinition or MemuDefinition:
                 InitializeFly(slot);
                 return;
-            case 0xa3a14d when slot.EnemyDefinitionPointer is SbugDefinition or Sbug2Definition:
+            case EnemyAiCodePointers.InitAI_Sbug when slot.EnemyDefinitionPointer is SbugDefinition or Sbug2Definition:
                 InitializeSbug(slot);
                 return;
-            case 0xa3a77d when slot.EnemyDefinitionPointer == MochtroidDefinition:
+            case EnemyAiCodePointers.InitAI_Mochtroid when slot.EnemyDefinitionPointer == MochtroidDefinition:
                 InitializeMochtroid(slot);
                 return;
-            case 0xa3ea4f when slot.EnemyDefinitionPointer == MetroidDefinition:
+            case EnemyAiCodePointers.InitAI_Metroid when slot.EnemyDefinitionPointer == MetroidDefinition:
                 InitializeMetroid(slot);
                 return;
-            case 0xa3ab09 when IsHopperDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.InitAI_Hopper when IsHopperDefinition(slot.EnemyDefinitionPointer):
                 InitializeHopper(slot);
                 return;
-            case 0xa3b44a when slot.EnemyDefinitionPointer == ZoaDefinition:
+            case EnemyAiCodePointers.InitAI_Zoa when slot.EnemyDefinitionPointer == ZoaDefinition:
                 InitializeZoa(slot);
                 return;
-            case 0xa3cde2 when slot.EnemyDefinitionPointer == YardDefinition:
+            case EnemyAiCodePointers.InitAI_Yard when slot.EnemyDefinitionPointer == YardDefinition:
                 InitializeYard(slot);
                 return;
-            case 0xa386ed when slot.EnemyDefinitionPointer == WaverDefinition:
+            case EnemyAiCodePointers.InitAI_Waver when slot.EnemyDefinitionPointer == WaverDefinition:
                 InitializeWaver(slot);
                 return;
-            case 0xa38960 when slot.EnemyDefinitionPointer == MetareeDefinition:
+            case EnemyAiCodePointers.InitAI_Metaree when slot.EnemyDefinitionPointer == MetareeDefinition:
                 InitializeMetaree(slot);
                 return;
-            case 0xa38d2d when slot.EnemyDefinitionPointer == FirefleaDefinition:
+            case EnemyAiCodePointers.InitAI_Fireflea when slot.EnemyDefinitionPointer == FirefleaDefinition:
                 InitializeFireflea(slot);
                 return;
-            case 0xa390b5 when slot.EnemyDefinitionPointer == SkulteraDefinition:
+            case EnemyAiCodePointers.InitAI_Skultera when slot.EnemyDefinitionPointer == SkulteraDefinition:
                 InitializeSkultera(slot);
                 return;
-            case 0xa39c9f when slot.EnemyDefinitionPointer == KamerDefinition:
-            case 0xa39cba when slot.EnemyDefinitionPointer == TripperDefinition:
+            case EnemyAiCodePointers.InitAI_Kamer2 when slot.EnemyDefinitionPointer == KamerDefinition:
+            case EnemyAiCodePointers.InitAI_Tripper when slot.EnemyDefinitionPointer == TripperDefinition:
                 InitializePlatform(slot);
                 return;
-            case 0xa8dccd when slot.EnemyDefinitionPointer == AlcoonDefinition:
+            case EnemyAiCodePointers.InitAI_Alcoon when slot.EnemyDefinitionPointer == AlcoonDefinition:
                 InitializeAlcoon(slot, level);
                 return;
-            case 0xa8ab46 when slot.EnemyDefinitionPointer == KagoDefinition:
+            case EnemyAiCodePointers.InitAI_Kago when slot.EnemyDefinitionPointer == KagoDefinition:
                 InitializeKago(slot);
                 return;
-            case 0xa8b776 when slot.EnemyDefinitionPointer == BeetomDefinition:
+            case EnemyAiCodePointers.InitAI_Beetom when slot.EnemyDefinitionPointer == BeetomDefinition:
                 InitializeBeetom(slot, samus, controllerInput);
                 return;
-            case 0xa8c1c9 when slot.EnemyDefinitionPointer == PowampDefinition:
+            case EnemyAiCodePointers.InitAI_Powamp when slot.EnemyDefinitionPointer == PowampDefinition:
                 InitializePowamp(slot);
                 return;
-            case 0xa8cb77 when slot.EnemyDefinitionPointer == WorkRobotDefinition:
-            case 0xa8cbcc when slot.EnemyDefinitionPointer == WorkRobotNoPowerDefinition:
+            case EnemyAiCodePointers.InitAI_Robot when slot.EnemyDefinitionPointer == WorkRobotDefinition:
+            case EnemyAiCodePointers.InitAI_RobotNoPower when slot.EnemyDefinitionPointer == WorkRobotNoPowerDefinition:
                 InitializeWorkRobot(slot);
                 return;
-            case 0xa8d8c9 when slot.EnemyDefinitionPointer == BullDefinition:
+            case EnemyAiCodePointers.InitAI_Bull when slot.EnemyDefinitionPointer == BullDefinition:
                 InitializeBull(slot);
                 return;
-            case 0xa8e388 when slot.EnemyDefinitionPointer == AtomicDefinition:
+            case EnemyAiCodePointers.InitAI_Atomic when slot.EnemyDefinitionPointer == AtomicDefinition:
                 InitializeAtomic(slot);
                 return;
-            case 0xa8e637 when slot.EnemyDefinitionPointer == SparkDefinition:
+            case EnemyAiCodePointers.InitAI_Spark when slot.EnemyDefinitionPointer == SparkDefinition:
                 InitializeSpark(slot);
                 return;
-            case 0xa8e82e when
+            case EnemyAiCodePointers.InitAI_FaceBlock when
                 slot.EnemyDefinitionPointer == BlueBrinstarFaceBlockDefinition:
                 InitializeBlueBrinstarFaceBlock(slot, samus);
                 return;
-            case 0xa8f188 when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.InitAI_Kihunter when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
                 InitializeKiHunter(slot);
                 return;
-            case 0xa8f214 when IsKiHunterWingDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.InitAI_KihunterWings when IsKiHunterWingDefinition(slot.EnemyDefinitionPointer):
                 InitializeKiHunterWings(slot);
                 return;
-            case 0xb3883b when IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.InitAI_Zeb_Zebbo when IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer):
                 InitializeBrinstarPipeBug(slot);
                 return;
-            case 0xb38b61 when slot.EnemyDefinitionPointer == NorfairPipeBugDefinition:
+            case EnemyAiCodePointers.InitAI_Gamet when slot.EnemyDefinitionPointer == NorfairPipeBugDefinition:
                 InitializeNorfairPipeBug(slot);
                 return;
-            case 0xb38f4c when slot.EnemyDefinitionPointer == YellowPipeBugDefinition:
+            case EnemyAiCodePointers.InitAI_Geega when slot.EnemyDefinitionPointer == YellowPipeBugDefinition:
                 InitializeYellowPipeBug(slot);
                 return;
-            case 0xb39583 when slot.EnemyDefinitionPointer == BotwoonDefinition:
+            case EnemyAiCodePointers.InitAI_Botwoon when slot.EnemyDefinitionPointer == BotwoonDefinition:
                 InitializeBotwoon(slot);
                 return;
-            case 0xb3e6cb when slot.EnemyDefinitionPointer == EscapeEtecoonDefinition:
+            case EnemyAiCodePointers.InitAI_EtecoonEscape when slot.EnemyDefinitionPointer == EscapeEtecoonDefinition:
                 InitializeEscapeEtecoon(slot);
                 return;
-            case 0xb3eae5 when slot.EnemyDefinitionPointer == EscapeDachoraDefinition:
+            case EnemyAiCodePointers.InitAI_DachoraEscape when slot.EnemyDefinitionPointer == EscapeDachoraDefinition:
                 InitializeEscapeDachora(slot);
                 return;
-            case 0xa68b2f when slot.EnemyDefinitionPointer == KzanTopDefinition:
+            case EnemyAiCodePointers.InitAI_KzanTop when slot.EnemyDefinitionPointer == KzanTopDefinition:
                 InitializeKzanTop(slot);
                 return;
-            case 0xa68b85 when slot.EnemyDefinitionPointer == KzanBottomDefinition:
+            case EnemyAiCodePointers.InitAI_KzanBottom when slot.EnemyDefinitionPointer == KzanBottomDefinition:
                 InitializeKzanBottom(slot);
                 return;
-            case 0xa68ffc when slot.EnemyDefinitionPointer == HibashiDefinition:
+            case EnemyAiCodePointers.InitAI_Hibashi when slot.EnemyDefinitionPointer == HibashiDefinition:
                 InitializeHibashi(slot);
                 return;
-            case 0xa694c4 when slot.EnemyDefinitionPointer == NuclearWaffleDefinition:
+            case EnemyAiCodePointers.InitAI_Puromi when slot.EnemyDefinitionPointer == NuclearWaffleDefinition:
                 InitializeNuclearWaffle(slot);
                 return;
-            case 0xa69a58 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
+            case EnemyAiCodePointers.InitAI_MiniKraid when slot.EnemyDefinitionPointer == FakeKraidDefinition:
                 InitializeFakeKraid(slot, samus);
                 return;
-            case 0xb2fd02 when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.InitAI_PirateWalking when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 InitializeWalkingSpacePirate(slot);
                 return;
-            case 0xb2ef9f when IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.InitAI_PirateWall when IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 InitializeWallSpacePirate(slot);
                 return;
-            case 0xb2f5de when IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.InitAI_PirateNinja when IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 InitializeNinjaSpacePirate(slot);
                 return;
-            case 0xaac87f when slot.EnemyDefinitionPointer is
+            case EnemyAiCodePointers.InitAI_Torizo
+                when slot.EnemyDefinitionPointer is
                 BombTorizoDefinition or GoldenTorizoDefinition:
                 InitializeBombTorizo(slot);
                 return;
-            case 0xa7a959 when slot.EnemyDefinitionPointer == KraidDefinition:
+            case EnemyAiCodePointers.InitAI_Kraid when slot.EnemyDefinitionPointer == KraidDefinition:
                 InitializeKraidBody(slot);
                 return;
-            case 0xa7ab43 when slot.EnemyDefinitionPointer == KraidArmDefinition:
+            case EnemyAiCodePointers.InitAI_KraidArm when slot.EnemyDefinitionPointer == KraidArmDefinition:
                 InitializeKraidArm(slot);
                 return;
-            case 0xa7ab68 when slot.EnemyDefinitionPointer == KraidTopLintDefinition:
+            case EnemyAiCodePointers.InitAI_KraidLintTop when slot.EnemyDefinitionPointer == KraidTopLintDefinition:
                 InitializeKraidLint(slot, expectedSlot: 2);
                 return;
-            case 0xa7ab9c when slot.EnemyDefinitionPointer == KraidMiddleLintDefinition:
+            case EnemyAiCodePointers.InitAI_KraidLintMiddle when slot.EnemyDefinitionPointer == KraidMiddleLintDefinition:
                 InitializeKraidLint(slot, expectedSlot: 3);
                 return;
-            case 0xa7abca when slot.EnemyDefinitionPointer == KraidBottomLintDefinition:
+            case EnemyAiCodePointers.InitAI_KraidLintBottom when slot.EnemyDefinitionPointer == KraidBottomLintDefinition:
                 InitializeKraidLint(slot, expectedSlot: 4);
                 return;
-            case 0xa7abf8 when slot.EnemyDefinitionPointer == KraidFootDefinition:
+            case EnemyAiCodePointers.InitAI_KraidFoot when slot.EnemyDefinitionPointer == KraidFootDefinition:
                 InitializeKraidFoot(slot);
                 return;
-            case 0xa7bcef when slot.EnemyDefinitionPointer == KraidGoodNailDefinition:
+            case EnemyAiCodePointers.InitAI_KraidNail when slot.EnemyDefinitionPointer == KraidGoodNailDefinition:
                 InitializeKraidNail(slot, expectedSlot: 6);
                 return;
-            case 0xa7bd2d when slot.EnemyDefinitionPointer == KraidBadNailDefinition:
+            case EnemyAiCodePointers.InitAI_KraidNailBad when slot.EnemyDefinitionPointer == KraidBadNailDefinition:
                 InitializeKraidNail(slot, expectedSlot: 7);
                 return;
-            case 0xa7cdf3 when slot.EnemyDefinitionPointer == PhantoonBodyDefinition:
+            case EnemyAiCodePointers.InitAI_PhantoonBody when slot.EnemyDefinitionPointer == PhantoonBodyDefinition:
                 InitializePhantoonBody(slot);
                 return;
-            case 0xa7ce55 when slot.EnemyDefinitionPointer is
+            case EnemyAiCodePointers.InitAI_Phantoon_Eye_Tentacles_Mouth
+                when slot.EnemyDefinitionPointer is
                 PhantoonEyeDefinition or PhantoonTentaclesDefinition or PhantoonMouthDefinition:
                 InitializePhantoonPart(slot);
                 return;
-            case 0xa58687 when slot.EnemyDefinitionPointer == DraygonBodyDefinition:
+            case EnemyAiCodePointers.InitAI_DraygonBody when slot.EnemyDefinitionPointer == DraygonBodyDefinition:
                 InitializeDraygonBody(slot);
                 return;
-            case 0xa5c46b when slot.EnemyDefinitionPointer == DraygonEyeDefinition:
-            case 0xa5c599 when slot.EnemyDefinitionPointer == DraygonTailDefinition:
-            case 0xa5c5ad when slot.EnemyDefinitionPointer == DraygonArmsDefinition:
+            case EnemyAiCodePointers.InitAI_DraygonEye when slot.EnemyDefinitionPointer == DraygonEyeDefinition:
+            case EnemyAiCodePointers.InitAI_DraygonTail when slot.EnemyDefinitionPointer == DraygonTailDefinition:
+            case EnemyAiCodePointers.InitAI_DraygonArms when slot.EnemyDefinitionPointer == DraygonArmsDefinition:
                 InitializeDraygonPart(slot);
                 return;
-            case 0xa98687 when slot.EnemyDefinitionPointer == MotherBrainBodyDefinition:
+            case EnemyAiCodePointers.InitAI_MotherBrainBody when slot.EnemyDefinitionPointer == MotherBrainBodyDefinition:
                 InitializeMotherBrainBody(slot);
                 return;
-            case 0xa98705 when slot.EnemyDefinitionPointer == MotherBrainHeadDefinition:
+            case EnemyAiCodePointers.InitAI_MotherBrainHead when slot.EnemyDefinitionPointer == MotherBrainHeadDefinition:
                 InitializeMotherBrainHead(slot);
                 return;
-            case 0xa98b35 when slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition:
+            case EnemyAiCodePointers.InitAI_MotherBrainTubes when slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition:
                 InitializeMotherBrainFallingTube(slot);
                 return;
-            case 0xa9c710 when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
+            case EnemyAiCodePointers.InitAI_BabyMetroidCutscene when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
                 InitializeMotherBrainBabyMetroid(slot);
                 return;
-            case 0xa9d308 when slot.EnemyDefinitionPointer == DeadTorizoDefinition:
+            case EnemyAiCodePointers.InitAI_CorpseTorizo when slot.EnemyDefinitionPointer == DeadTorizoDefinition:
                 InitializeDeadTorizo(slot);
                 return;
-            case 0xa9d7b6 when slot.EnemyDefinitionPointer == DeadSidehopperDefinition:
+            case EnemyAiCodePointers.InitAI_CorpseSidehopper when slot.EnemyDefinitionPointer == DeadSidehopperDefinition:
                 InitializeDeadSidehopper(slot);
                 return;
-            case 0xa9d849 when slot.EnemyDefinitionPointer == DeadZoomerDefinition:
-            case 0xa9d876 when slot.EnemyDefinitionPointer == DeadRipperDefinition:
-            case 0xa9d89f when slot.EnemyDefinitionPointer == DeadSkreeDefinition:
+            case EnemyAiCodePointers.InitAI_CorpseZoomer when slot.EnemyDefinitionPointer == DeadZoomerDefinition:
+            case EnemyAiCodePointers.InitAI_CorpseRipper when slot.EnemyDefinitionPointer == DeadRipperDefinition:
+            case EnemyAiCodePointers.InitAI_CorpseSkree when slot.EnemyDefinitionPointer == DeadSkreeDefinition:
                 InitializeDeadTourianCorpse(slot);
                 return;
-            case 0xa9ef37 when slot.EnemyDefinitionPointer == ShitroidDefinition:
+            case EnemyAiCodePointers.InitAI_BabyMetroid when slot.EnemyDefinitionPointer == ShitroidDefinition:
                 InitializeShitroid(slot, cameraX);
                 return;
-            case 0xaad7c8 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
+            case EnemyAiCodePointers.InitAI_TourianStatue when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
                 InitializeTourianEntranceStatue(slot);
                 return;
-            case 0xaade43 when slot.EnemyDefinitionPointer == ShaktoolDefinition:
+            case EnemyAiCodePointers.InitAI_Shaktool when slot.EnemyDefinitionPointer == ShaktoolDefinition:
                 InitializeShaktool(slot);
                 return;
-            case 0xaae716 when slot.EnemyDefinitionPointer == N00bTubeCracksDefinition:
+            case EnemyAiCodePointers.InitAI_NoobTubeCrack when slot.EnemyDefinitionPointer == N00bTubeCracksDefinition:
                 InitializeN00bTubeCracks();
                 return;
-            case 0xaae725 when slot.EnemyDefinitionPointer == ChozoStatueDefinition:
+            case EnemyAiCodePointers.InitAI_Chozo when slot.EnemyDefinitionPointer == ChozoStatueDefinition:
                 InitializeChozoStatue(slot);
                 return;
-            case 0xa2804c:
+            case EnemyAiCodePointers.RTL_A2804C:
                 return;
             default:
                 throw new InvalidDataException(
@@ -1489,7 +1487,7 @@ public sealed partial class RoomEnemySystem
             EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        slot.CurrentInstruction = 0xa616;
+        slot.CurrentInstruction = GunshipInstructionLists.TopHull;
         slot.PaletteIndex = 0x0e00;
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
@@ -1499,13 +1497,13 @@ public sealed partial class RoomEnemySystem
             // `$A2:A669-$A678` attaches the top hull seventeen pixels above Samus and
             // enters function three, the high-altitude descent used only after Ceres.
             slot.YPosition = unchecked((ushort)(samus.YPosition - 17));
-            slot.VariableF = 0xa80c;
+            slot.VariableF = GunshipCodePointers.DescendAfterCeres;
         }
         else
         {
             slot.YPosition = unchecked((ushort)(slot.YPosition - 25));
             slot.VariableE = slot.YPosition;
-            slot.VariableF = 0xa9bd;
+            slot.VariableF = GunshipCodePointers.Idle;
         }
         slot.VariableD = 1;
         slot.VariableC = 0;
@@ -1551,7 +1549,7 @@ public sealed partial class RoomEnemySystem
                 slot.VariableD = 71;
             }
         }
-        slot.VariableF = 0x804c;
+        slot.VariableF = GunshipCodePointers.NoOperation;
     }
 
     private void RunMainAi(
@@ -1571,67 +1569,67 @@ public sealed partial class RoomEnemySystem
         int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
         switch (address)
         {
-            case 0xa586fc when slot.EnemyDefinitionPointer == DraygonBodyDefinition:
+            case EnemyAiCodePointers.MainAI_DraygonBody when slot.EnemyDefinitionPointer == DraygonBodyDefinition:
                 RunDraygonBodyMain(slot, samus, nmiFrameCounter8);
                 return;
-            case 0xa5c486 when slot.EnemyDefinitionPointer == DraygonEyeDefinition:
+            case EnemyAiCodePointers.MainAI_DraygonEye when slot.EnemyDefinitionPointer == DraygonEyeDefinition:
                 RunDraygonPartMain(slot, samus);
                 return;
-            case 0xa5c5aa when slot.EnemyDefinitionPointer == DraygonTailDefinition:
-            case 0xa5c5c4 when slot.EnemyDefinitionPointer == DraygonArmsDefinition:
+            case EnemyAiCodePointers.RTL_A5C5AA when slot.EnemyDefinitionPointer == DraygonTailDefinition:
+            case EnemyAiCodePointers.RTL_A5C5C4 when slot.EnemyDefinitionPointer == DraygonArmsDefinition:
                 RunDraygonPartMain(slot, samus);
                 return;
-            case 0xa9873e when slot.EnemyDefinitionPointer == MotherBrainBodyDefinition:
+            case EnemyAiCodePointers.MainAI_HurtAI_MotherBrainBody when slot.EnemyDefinitionPointer == MotherBrainBodyDefinition:
                 RunMotherBrainBodyMain(slot, samus, nmiFrameCounter8, sharedProjectiles);
                 return;
-            case 0xa9878b when slot.EnemyDefinitionPointer == MotherBrainHeadDefinition:
+            case EnemyAiCodePointers.MainAI_HurtAI_MotherBrainHead when slot.EnemyDefinitionPointer == MotherBrainHeadDefinition:
                 RunMotherBrainHeadMain(slot, samus);
                 return;
-            case 0xa98b85 when slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition:
+            case EnemyAiCodePointers.MainAI_MotherBrainTubes when slot.EnemyDefinitionPointer == MotherBrainFallingTubeDefinition:
                 RunMotherBrainFallingTubeMain(slot);
                 return;
-            case 0xa9c779 when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
+            case EnemyAiCodePointers.MainAI_BabyMetroidCutscene when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
                 RunMotherBrainBabyMetroidMain(slot, samus, cameraX, cameraY);
                 return;
-            case 0xa9d368 when slot.EnemyDefinitionPointer == DeadTorizoDefinition:
+            case EnemyAiCodePointers.MainAI_CorpseTorizo when slot.EnemyDefinitionPointer == DeadTorizoDefinition:
                 RunDeadTorizoMain(slot, samus);
                 return;
-            case 0xa9d8db when slot.EnemyDefinitionPointer == DeadSidehopperDefinition:
+            case EnemyAiCodePointers.MainAI_HurtAI_CorpseEnemies when slot.EnemyDefinitionPointer == DeadSidehopperDefinition:
                 RunDeadSidehopperMain(slot, samus, level, cameraX);
                 return;
-            case 0xa9d8db when IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.MainAI_HurtAI_CorpseEnemies when IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer):
                 RunDeadTourianCorpseMain(slot, samus);
                 return;
-            case 0xa9efc5 when slot.EnemyDefinitionPointer == ShitroidDefinition:
+            case EnemyAiCodePointers.MainAI_BabyMetroid when slot.EnemyDefinitionPointer == ShitroidDefinition:
                 RunShitroidMain(slot, samus, cameraX, cameraY, sharedProjectiles);
                 return;
-            case 0xa48c04 when slot.EnemyDefinitionPointer == CrocomireDefinition:
+            case EnemyAiCodePointers.MainAI_Crocomire when slot.EnemyDefinitionPointer == CrocomireDefinition:
                 RunCrocomireMain(slot, samus, controllerInput, level, cameraX);
                 return;
-            case 0xa5eb13 when slot.EnemyDefinitionPointer == SporeSpawnDefinition:
+            case EnemyAiCodePointers.MainAI_SporeSpawn when slot.EnemyDefinitionPointer == SporeSpawnDefinition:
                 RunSporeSpawnMain(slot, RequireSporeSpawnState(slot), nmiFrameCounter8);
                 return;
-            case 0xa4f6bb when slot.EnemyDefinitionPointer == CrocomireTongueDefinition:
+            case EnemyAiCodePointers.MainAI_CrocomireTongue when slot.EnemyDefinitionPointer == CrocomireTongueDefinition:
                 // $A4:F6BB is a literal RTL. The tongue's bank-$A4 instruction list and
                 // extended map position the component relative to Crocomire's body.
                 return;
-            case 0xa8b10a when slot.EnemyDefinitionPointer == MagdolliteDefinition:
+            case EnemyAiCodePointers.MainAI_Magdollite when slot.EnemyDefinitionPointer == MagdolliteDefinition:
                 RunMagdolliteMain(slot, RequireMagdolliteState(slot), samus);
                 return;
-            case 0xa2a759:
+            case EnemyAiCodePointers.MainAI_ShipTop:
                 RunGunshipTopMain(
                     slot,
                     samus,
                     newlyPressedControllerInput,
                     vramWriteQueue);
                 return;
-            case 0xa2879c when slot.EnemyDefinitionPointer == BoyonDefinition:
+            case EnemyAiCodePointers.MainAI_Boyon when slot.EnemyDefinitionPointer == BoyonDefinition:
                 RunBoyonMain(slot, RequireBoyonState(slot), samus);
                 return;
-            case 0xa289f0 when slot.EnemyDefinitionPointer == StokeDefinition:
+            case EnemyAiCodePointers.MainAI_Stoke when slot.EnemyDefinitionPointer == StokeDefinition:
                 RunStokeMain(slot, RequireStokeState(slot), level);
                 return;
-            case 0xa28dd2 when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+            case EnemyAiCodePointers.MainAI_MamaTurtle when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
                 RunMamaTurtleMain(
                     slot,
                     RequireMamaTurtleState(slot),
@@ -1640,28 +1638,28 @@ public sealed partial class RoomEnemySystem
                     controllerInput,
                     nmiFrameCounter8);
                 return;
-            case 0xa2912e when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+            case EnemyAiCodePointers.MainAI_BabyTurtle when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
                 RunBabyTurtleMain(slot, RequireBabyTurtleState(slot), samus, level);
                 return;
-            case 0xa29a7d when slot.EnemyDefinitionPointer == PuyoDefinition:
+            case EnemyAiCodePointers.MainAI_Puyo when slot.EnemyDefinitionPointer == PuyoDefinition:
                 RunPuyoMain(slot, RequirePuyoState(slot), samus, level);
                 return;
-            case 0xa29fb3 when slot.EnemyDefinitionPointer == CacatacDefinition:
+            case EnemyAiCodePointers.MainAI_Cacatac when slot.EnemyDefinitionPointer == CacatacDefinition:
                 RunCacatacMain(slot, RequireCacatacState(slot));
                 return;
-            case 0xa2a47e when slot.EnemyDefinitionPointer == OwtchDefinition:
+            case EnemyAiCodePointers.MainAI_Owtch when slot.EnemyDefinitionPointer == OwtchDefinition:
                 RunOwtchMain(slot, RequireOwtchState(slot));
                 return;
-            case 0xa2b40f when slot.EnemyDefinitionPointer == MultiviolaDefinition:
+            case EnemyAiCodePointers.MainAI_Multiviola when slot.EnemyDefinitionPointer == MultiviolaDefinition:
                 RunMultiviolaMain(slot, RequireMultiviolaState(slot), level);
                 return;
-            case 0xa2b58f when slot.EnemyDefinitionPointer == PolypDefinition:
+            case EnemyAiCodePointers.MainAI_Polyp when slot.EnemyDefinitionPointer == PolypDefinition:
                 RunPolypMain(slot, RequirePolypState(slot), samus);
                 return;
-            case 0xa2b7c4 when slot.EnemyDefinitionPointer == RinkaDefinition:
+            case EnemyAiCodePointers.MainAI_Rinka when slot.EnemyDefinitionPointer == RinkaDefinition:
                 RunRinkaMain(slot, RequireRinkaState(slot), samus);
                 return;
-            case 0xa2bbe3 when slot.EnemyDefinitionPointer == RioDefinition:
+            case EnemyAiCodePointers.MainAI_Rio when slot.EnemyDefinitionPointer == RioDefinition:
                 RunRioMain(
                     slot,
                     RequireRioState(slot),
@@ -1670,26 +1668,26 @@ public sealed partial class RoomEnemySystem
                     cameraX,
                     cameraY);
                 return;
-            case 0xa2bed2 when slot.EnemyDefinitionPointer == NorfairLavaJumpingEnemyDefinition:
+            case EnemyAiCodePointers.MainAI_Squeept when slot.EnemyDefinitionPointer == NorfairLavaJumpingEnemyDefinition:
                 RunNorfairLavaJumpingEnemyMain(
                     slot,
                     RequireNorfairLavaJumpingEnemyState(slot));
                 return;
-            case 0xa2c277 when slot.EnemyDefinitionPointer == NorfairRioDefinition:
+            case EnemyAiCodePointers.MainAI_Geruta when slot.EnemyDefinitionPointer == NorfairRioDefinition:
                 RunNorfairRioMain(
                     slot,
                     RequireNorfairRioState(slot),
                     samus,
                     level);
                 return;
-            case 0xa2c724 when slot.EnemyDefinitionPointer == LowerNorfairRioDefinition:
+            case EnemyAiCodePointers.MainAI_Holtz when slot.EnemyDefinitionPointer == LowerNorfairRioDefinition:
                 RunLowerNorfairRioMain(
                     slot,
                     RequireLowerNorfairRioState(slot),
                     samus,
                     level);
                 return;
-            case 0xa2cd13 when slot.EnemyDefinitionPointer == MaridiaLargeSnailDefinition:
+            case EnemyAiCodePointers.MainAI_Oum when slot.EnemyDefinitionPointer == MaridiaLargeSnailDefinition:
                 RunMaridiaLargeSnailMain(
                     slot,
                     RequireMaridiaLargeSnailState(slot),
@@ -1697,16 +1695,16 @@ public sealed partial class RoomEnemySystem
                     level,
                     controllerInput);
                 return;
-            case 0xa2e221 when slot.EnemyDefinitionPointer == GRipperDefinition:
+            case EnemyAiCodePointers.MainAI_GRipper when slot.EnemyDefinitionPointer == GRipperDefinition:
                 RunGRipperMain(slot, RequireRipperVariantState(slot), level);
                 return;
-            case 0xa2e353 when slot.EnemyDefinitionPointer == Ripper2Definition:
+            case EnemyAiCodePointers.MainAI_Ripper2 when slot.EnemyDefinitionPointer == Ripper2Definition:
                 RunRipper2Main(slot, level);
                 return;
-            case 0xa2e64e when slot.EnemyDefinitionPointer == DragonDefinition:
+            case EnemyAiCodePointers.MainAI_Dragon when slot.EnemyDefinitionPointer == DragonDefinition:
                 RunDragonMain(slot, RequireDragonState(slot), samus);
                 return;
-            case 0xa2eab6 when slot.EnemyDefinitionPointer == GrowingShutterDefinition:
+            case EnemyAiCodePointers.MainAI_ShutterGrowing when slot.EnemyDefinitionPointer == GrowingShutterDefinition:
                 RunGrowingShutterMain(
                     slot,
                     RequireGrowingShutterState(slot),
@@ -1714,7 +1712,7 @@ public sealed partial class RoomEnemySystem
                     cameraX,
                     cameraY);
                 return;
-            case 0xa2eed1 when IsVerticalShutterDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.MainAI_ShutterShootable_ShutterDestroyable_Kamer when IsVerticalShutterDefinition(slot.EnemyDefinitionPointer):
                 RunVerticalShutterMain(
                     slot,
                     RequireVerticalShutterState(slot),
@@ -1722,14 +1720,14 @@ public sealed partial class RoomEnemySystem
                     cameraX,
                     cameraY);
                 return;
-            case 0xa2f1de when slot.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition:
+            case EnemyAiCodePointers.MainAI_ShutterHorizShootable when slot.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition:
                 RunHorizontalShutterMain(
                     slot,
                     RequireHorizontalShutterState(slot),
                     samus,
                     controllerInput);
                 return;
-            case 0xa3952a when slot.EnemyDefinitionPointer == ElevatorDefinition:
+            case EnemyAiCodePointers.MainAI_GrappleAI_FrozenAI_Elevator when slot.EnemyDefinitionPointer == ElevatorDefinition:
                 RunElevatorMain(
                     slot,
                     RequireElevatorState(slot),
@@ -1737,28 +1735,29 @@ public sealed partial class RoomEnemySystem
                     newlyPressedControllerInput,
                     samusProjectiles);
                 return;
-            case 0xa89730 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.MainAI_Fune_Namihe when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), samus);
                 return;
-            case 0xa8ab75 when slot.EnemyDefinitionPointer == KagoDefinition:
+            case EnemyAiCodePointers.MainAI_Kago when slot.EnemyDefinitionPointer == KagoDefinition:
                 RunKagoMain(RequireKagoState(slot));
                 return;
-            case 0xa2804c:
+            case EnemyAiCodePointers.RTL_A2804C:
                 return;
-            case 0xa7804c when slot.EnemyDefinitionPointer == PhantoonEyeDefinition:
+            case EnemyAiCodePointers.RTL_A7804C when slot.EnemyDefinitionPointer == PhantoonEyeDefinition:
                 // Phantoon's eye is positioned by the body and animated by its own list;
                 // the header main is the literal common RTL at the start of bank $A7.
                 return;
-            case 0xa6f00d:
+            case EnemyAiCodePointers.MainAI_CeresSteam:
                 RunCeresSteamMain(slot, mode7Transform);
                 return;
-            case 0xa6f765:
+            case EnemyAiCodePointers.MainAI_CeresDoor:
                 RunCeresDoorMain(slot);
                 return;
-            case 0xa6a288 when slot.EnemyDefinitionPointer == 0xe13f:
+            case EnemyAiCodePointers.MainAI_RidleyCeres
+                when slot.EnemyDefinitionPointer == CeresRidleyDefinition:
                 RunCeresRidleyMain(slot, samus, vramWriteQueue);
                 return;
-            case 0xa6b227 when slot.EnemyDefinitionPointer == NorfairRidleyDefinition:
+            case EnemyAiCodePointers.MainAI_Ridley when slot.EnemyDefinitionPointer == NorfairRidleyDefinition:
                 RunNorfairRidleyMain(
                     slot,
                     samus,
@@ -1766,19 +1765,19 @@ public sealed partial class RoomEnemySystem
                     level,
                     samusProjectiles);
                 return;
-            case 0xa6c8d4 when slot.EnemyDefinitionPointer == NorfairRidleyExplosionDefinition:
+            case EnemyAiCodePointers.MainAI_RidleyExplosion when slot.EnemyDefinitionPointer == NorfairRidleyExplosionDefinition:
                 RunNorfairRidleyExplosionMain(slot);
                 return;
-            case 0xa68793 when slot.EnemyDefinitionPointer == BoulderDefinition:
+            case EnemyAiCodePointers.MainAI_Boulder when slot.EnemyDefinitionPointer == BoulderDefinition:
                 RunBoulderMain(slot, RequireBoulderState(slot), samus, level);
                 return;
-            case 0xa6fc33 when slot.EnemyDefinitionPointer == ZebetiteDefinition:
+            case EnemyAiCodePointers.MainAI_Zebetite when slot.EnemyDefinitionPointer == ZebetiteDefinition:
                 RunZebetiteMain(slot, RequireZebetiteState(slot));
                 return;
-            case 0xa7e940 when slot.EnemyDefinitionPointer == EtecoonDefinition:
+            case EnemyAiCodePointers.MainAI_Etecoon when slot.EnemyDefinitionPointer == EtecoonDefinition:
                 RunEtecoonMain(slot, RequireEtecoonState(slot), samus, level);
                 return;
-            case 0xa7f52e when slot.EnemyDefinitionPointer == DachoraDefinition:
+            case EnemyAiCodePointers.MainAI_Dachora when slot.EnemyDefinitionPointer == DachoraDefinition:
                 RunDachoraMain(
                     slot,
                     RequireDachoraState(slot),
@@ -1786,10 +1785,10 @@ public sealed partial class RoomEnemySystem
                     level,
                     nmiFrameCounter8);
                 return;
-            case 0xa8891b when slot.EnemyDefinitionPointer == EvirDefinition:
+            case EnemyAiCodePointers.MainAI_Evir when slot.EnemyDefinitionPointer == EvirDefinition:
                 RunEvirMain(slot, RequireEvirState(slot), samus);
                 return;
-            case 0xa8899e when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
+            case EnemyAiCodePointers.MainAI_EvirProjectile when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
                 RunEvirProjectileMain(
                     slot,
                     RequireEvirState(slot),
@@ -1797,13 +1796,13 @@ public sealed partial class RoomEnemySystem
                     cameraX,
                     cameraY);
                 return;
-            case 0xa890e2 when slot.EnemyDefinitionPointer == MorphBallEyeDefinition:
+            case EnemyAiCodePointers.MainAI_Eye when slot.EnemyDefinitionPointer == MorphBallEyeDefinition:
                 RunMorphBallEyeMain(slot, RequireMorphBallEyeState(slot), samus);
                 return;
-            case 0xa89b3c when slot.EnemyDefinitionPointer == WreckedShipGhostDefinition:
+            case EnemyAiCodePointers.MainAI_Coven when slot.EnemyDefinitionPointer == WreckedShipGhostDefinition:
                 RunWreckedShipGhostMain(slot, RequireWreckedShipGhostState(slot), samus);
                 return;
-            case 0xa8a211 when slot.EnemyDefinitionPointer == YappingMawDefinition:
+            case EnemyAiCodePointers.MainAI_YappingMaw when slot.EnemyDefinitionPointer == YappingMawDefinition:
                 RunYappingMawMain(
                     slot,
                     RequireYappingMawState(slot),
@@ -1811,95 +1810,96 @@ public sealed partial class RoomEnemySystem
                     cameraX,
                     cameraY);
                 return;
-            case 0xa2e4da when slot.EnemyDefinitionPointer == RipperDefinition:
+            case EnemyAiCodePointers.MainAI_Ripper when slot.EnemyDefinitionPointer == RipperDefinition:
                 RunRipperMain(slot, level);
                 return;
-            case 0xa2e02e when slot.EnemyDefinitionPointer == ChootDefinition:
+            case EnemyAiCodePointers.MainAI_Choot when slot.EnemyDefinitionPointer == ChootDefinition:
                 RunChootMain(slot, RequireChootState(slot), samus);
                 return;
-            case 0xa3e6c2 when IsSharedCrawlerDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.MainAI_Crawlers when IsSharedCrawlerDefinition(slot.EnemyDefinitionPointer):
                 RunCrawlerMain(slot, level);
                 return;
-            case 0xa3e08b when slot.EnemyDefinitionPointer == HZoomerDefinition:
+            case EnemyAiCodePointers.MainAI_HZoomer when slot.EnemyDefinitionPointer == HZoomerDefinition:
                 RunHZoomerMain(slot, samus, level);
                 return;
-            case 0xa3c6c7 when slot.EnemyDefinitionPointer == SkreeDefinition:
+            case EnemyAiCodePointers.MainAI_Skree when slot.EnemyDefinitionPointer == SkreeDefinition:
                 RunSkreeMain(slot, samus, level);
                 return;
-            case 0xa2b11f when slot.EnemyDefinitionPointer is
+            case EnemyAiCodePointers.MainAI_Mellow_Mella_Menu
+                when slot.EnemyDefinitionPointer is
                 MellowDefinition or MellaDefinition or MemuDefinition:
                 RunFlyMain(slot, samus);
                 return;
-            case 0xa3a2d0 when slot.EnemyDefinitionPointer is SbugDefinition or Sbug2Definition:
+            case EnemyAiCodePointers.MainAI_Sbug when slot.EnemyDefinitionPointer is SbugDefinition or Sbug2Definition:
                 RunSbugMain(slot, samus, level);
                 return;
-            case 0xa3a790 when slot.EnemyDefinitionPointer == MochtroidDefinition:
+            case EnemyAiCodePointers.MainAI_Mochtroid when slot.EnemyDefinitionPointer == MochtroidDefinition:
                 RunMochtroidMain(slot, samus, level);
                 return;
-            case 0xa3eb98 when slot.EnemyDefinitionPointer == MetroidDefinition:
+            case EnemyAiCodePointers.MainAI_Metroid when slot.EnemyDefinitionPointer == MetroidDefinition:
                 RunMetroidMain(slot, samus, level);
                 return;
-            case 0xa3abcf when IsHopperDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.MainAI_Hopper when IsHopperDefinition(slot.EnemyDefinitionPointer):
                 RunHopperMain(slot, samus, level);
                 return;
-            case 0xa3b47c when slot.EnemyDefinitionPointer == ZoaDefinition:
+            case EnemyAiCodePointers.MainAI_Zoa when slot.EnemyDefinitionPointer == ZoaDefinition:
                 RunZoaMain(slot, RequireZoaState(slot), samus, cameraX, cameraY);
                 return;
-            case 0xa3ce64 when slot.EnemyDefinitionPointer == YardDefinition:
+            case EnemyAiCodePointers.MainAI_Yard when slot.EnemyDefinitionPointer == YardDefinition:
                 RunYardMain(slot, samus, level);
                 return;
-            case 0xa3874c when slot.EnemyDefinitionPointer == WaverDefinition:
+            case EnemyAiCodePointers.MainAI_Waver when slot.EnemyDefinitionPointer == WaverDefinition:
                 RunWaverMain(slot, RequireWaverState(slot), level);
                 return;
-            case 0xa38979 when slot.EnemyDefinitionPointer == MetareeDefinition:
+            case EnemyAiCodePointers.MainAI_Metaree when slot.EnemyDefinitionPointer == MetareeDefinition:
                 RunMetareeMain(slot, RequireMetareeState(slot), samus, level);
                 return;
-            case 0xa38dee when slot.EnemyDefinitionPointer == FirefleaDefinition:
+            case EnemyAiCodePointers.MainAI_Fireflea when slot.EnemyDefinitionPointer == FirefleaDefinition:
                 RunFirefleaMain(slot, RequireFirefleaState(slot));
                 return;
-            case 0xa3912b when slot.EnemyDefinitionPointer == SkulteraDefinition:
+            case EnemyAiCodePointers.MainAI_Skultera when slot.EnemyDefinitionPointer == SkulteraDefinition:
                 RunSkulteraMain(slot, RequireSkulteraState(slot), level);
                 return;
-            case 0xa39d16 when IsPlatformDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.MainAI_Tripper_Kamer2 when IsPlatformDefinition(slot.EnemyDefinitionPointer):
                 RunPlatformMain(slot, RequirePlatformState(slot), samus, level);
                 return;
-            case 0xa8dd6b when slot.EnemyDefinitionPointer == AlcoonDefinition:
+            case EnemyAiCodePointers.MainAI_Alcoon when slot.EnemyDefinitionPointer == AlcoonDefinition:
                 RunAlcoonMain(slot, RequireAlcoonState(slot), samus, level);
                 return;
-            case 0xa8b80d when slot.EnemyDefinitionPointer == BeetomDefinition:
+            case EnemyAiCodePointers.MainAI_Beetom when slot.EnemyDefinitionPointer == BeetomDefinition:
                 RunBeetomMain(slot, RequireBeetomState(slot), samus, level, controllerInput);
                 return;
-            case 0xa8c21c when slot.EnemyDefinitionPointer == PowampDefinition:
+            case EnemyAiCodePointers.MainAI_Powamp when slot.EnemyDefinitionPointer == PowampDefinition:
                 RunPowampMain(slot, RequirePowampState(slot), level);
                 return;
-            case 0xa8cc36 when slot.EnemyDefinitionPointer == WorkRobotDefinition:
+            case EnemyAiCodePointers.MainAI_Robot when slot.EnemyDefinitionPointer == WorkRobotDefinition:
                 RunWorkRobotMain(slot, RequireWorkRobotState(slot), level);
                 return;
-            case 0xa8cc66 when slot.EnemyDefinitionPointer == WorkRobotNoPowerDefinition:
+            case EnemyAiCodePointers.RTL_A8CC66 when slot.EnemyDefinitionPointer == WorkRobotNoPowerDefinition:
                 return;
-            case 0xa8d90b when slot.EnemyDefinitionPointer == BullDefinition:
+            case EnemyAiCodePointers.MainAI_Bull when slot.EnemyDefinitionPointer == BullDefinition:
                 RunBullMain(slot, RequireBullState(slot), samus);
                 return;
-            case 0xa8e3c3 when slot.EnemyDefinitionPointer == AtomicDefinition:
+            case EnemyAiCodePointers.MainAI_Atomic when slot.EnemyDefinitionPointer == AtomicDefinition:
                 RunAtomicMain(slot, RequireAtomicState(slot), samus);
                 return;
-            case 0xa8e68e when slot.EnemyDefinitionPointer == SparkDefinition:
+            case EnemyAiCodePointers.MainAI_Spark when slot.EnemyDefinitionPointer == SparkDefinition:
                 RunSparkMain(slot, RequireSparkState(slot));
                 return;
-            case 0xa8e8ae when
+            case EnemyAiCodePointers.MainAI_FaceBlock when
                 slot.EnemyDefinitionPointer == BlueBrinstarFaceBlockDefinition:
                 RunBlueBrinstarFaceBlockMain(
                     slot,
                     RequireBlueBrinstarFaceBlockState(slot),
                     samus);
                 return;
-            case 0xa8f25c when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
-            case 0xa8f262 when IsKiHunterWingDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.MainAI_Kihunter when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.MainAI_KihunterWings when IsKiHunterWingDefinition(slot.EnemyDefinitionPointer):
                 RunKiHunterMain(slot, RequireKiHunterState(slot), samus, level);
                 return;
-            case 0xb3887a when IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer):
-            case 0xb38b9e when slot.EnemyDefinitionPointer == NorfairPipeBugDefinition:
-            case 0xb38fae when slot.EnemyDefinitionPointer == YellowPipeBugDefinition:
+            case EnemyAiCodePointers.MainAI_Zeb_Zebbo when IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.MainAI_Gamet when slot.EnemyDefinitionPointer == NorfairPipeBugDefinition:
+            case EnemyAiCodePointers.MainAI_Geega when slot.EnemyDefinitionPointer == YellowPipeBugDefinition:
                 RunPipeBugMain(
                     slot,
                     RequirePipeBugState(slot),
@@ -1907,39 +1907,39 @@ public sealed partial class RoomEnemySystem
                     cameraX,
                     cameraY);
                 return;
-            case 0xb39668 when slot.EnemyDefinitionPointer == BotwoonDefinition:
+            case EnemyAiCodePointers.MainAI_Botwoon when slot.EnemyDefinitionPointer == BotwoonDefinition:
                 RunBotwoonMain(slot, RequireBotwoonState(slot), samus);
                 return;
-            case 0xb3e655 when slot.EnemyDefinitionPointer == EscapeEtecoonDefinition:
+            case EnemyAiCodePointers.MainAI_EtecoonEscape when slot.EnemyDefinitionPointer == EscapeEtecoonDefinition:
                 RunEscapeEtecoonMain(
                     slot,
                     RequireEscapeEtecoonState(slot),
                     level);
                 return;
-            case 0xb3eb1a when slot.EnemyDefinitionPointer == EscapeDachoraDefinition:
+            case EnemyAiCodePointers.RTL_B3EB1A when slot.EnemyDefinitionPointer == EscapeDachoraDefinition:
                 // $B3:EB1A is a literal RTL. Dachora's complete movement program lives in
                 // its ROM instruction lists and therefore runs later in this same frame.
                 return;
-            case 0xa68bad when slot.EnemyDefinitionPointer == KzanTopDefinition:
+            case EnemyAiCodePointers.MainAI_KzanTop when slot.EnemyDefinitionPointer == KzanTopDefinition:
                 RunKzanTopMain(slot, RequireKzanState(slot), samus);
                 return;
-            case 0xa68b99 when slot.EnemyDefinitionPointer == KzanBottomDefinition:
+            case EnemyAiCodePointers.MainAI_KzanBottom when slot.EnemyDefinitionPointer == KzanBottomDefinition:
                 RunKzanBottomMain(slot);
                 return;
-            case 0xa69023 when slot.EnemyDefinitionPointer == HibashiDefinition:
+            case EnemyAiCodePointers.MainAI_Hibashi when slot.EnemyDefinitionPointer == HibashiDefinition:
                 RunHibashiMain(slot, RequireHibashiState(slot));
                 return;
-            case 0xa6960e when slot.EnemyDefinitionPointer == NuclearWaffleDefinition:
+            case EnemyAiCodePointers.MainAI_Puromi when slot.EnemyDefinitionPointer == NuclearWaffleDefinition:
                 RunNuclearWaffleMain(slot, RequireNuclearWaffleState(slot));
                 return;
-            case 0xa69ac2 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
+            case EnemyAiCodePointers.MainAI_MiniKraid when slot.EnemyDefinitionPointer == FakeKraidDefinition:
                 RunFakeKraidMain(
                     slot,
                     RequireFakeKraidState(slot),
                     cameraX,
                     cameraY);
                 return;
-            case 0xb2fd32 when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.MainAI_PirateWalking when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 RunWalkingSpacePirateMain(
                     slot,
                     RequireWalkingSpacePirateState(slot),
@@ -1947,13 +1947,13 @@ public sealed partial class RoomEnemySystem
                     level,
                     samusProjectiles);
                 return;
-            case 0xb2f02d when IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.MainAI_PirateWall when IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 RunWallSpacePirateMain(
                     slot,
                     RequireWallSpacePirateState(slot),
                     samus);
                 return;
-            case 0xb2f6a2 when IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiCodePointers.MainAI_PirateNinja when IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 RunNinjaSpacePirateMain(
                     slot,
                     RequireNinjaSpacePirateState(slot),
@@ -1961,50 +1961,51 @@ public sealed partial class RoomEnemySystem
                     level,
                     samusProjectiles);
                 return;
-            case 0xaac6a4 when slot.EnemyDefinitionPointer == BombTorizoDefinition:
+            case EnemyAiCodePointers.MainAI_BombTorizo when slot.EnemyDefinitionPointer == BombTorizoDefinition:
                 RunBombTorizoMain(slot, RequireBombTorizoState(slot), samus, level);
                 return;
-            case 0xaad369 when slot.EnemyDefinitionPointer == GoldenTorizoDefinition:
+            case EnemyAiCodePointers.MainAI_GoldenTorizo when slot.EnemyDefinitionPointer == GoldenTorizoDefinition:
                 RunGoldenTorizoMain(
                     slot,
                     RequireBombTorizoState(slot),
                     samus,
                     level);
                 return;
-            case 0xa7ac21 when slot.EnemyDefinitionPointer == KraidDefinition:
+            case EnemyAiCodePointers.MainAI_Kraid when slot.EnemyDefinitionPointer == KraidDefinition:
                 RunKraidBodyMain(slot, samus);
                 return;
-            case 0xa7b7bd when slot.EnemyDefinitionPointer == KraidArmDefinition:
+            case EnemyAiCodePointers.MainAI_KraidArm when slot.EnemyDefinitionPointer == KraidArmDefinition:
                 RunKraidArmMain(slot, cameraY);
                 return;
-            case 0xa7b801 when slot.EnemyDefinitionPointer == KraidTopLintDefinition:
-            case 0xa7b80d when slot.EnemyDefinitionPointer == KraidMiddleLintDefinition:
-            case 0xa7b819 when slot.EnemyDefinitionPointer == KraidBottomLintDefinition:
+            case EnemyAiCodePointers.MainAI_KraidLintTop when slot.EnemyDefinitionPointer == KraidTopLintDefinition:
+            case EnemyAiCodePointers.MainAI_KraidLintMiddle when slot.EnemyDefinitionPointer == KraidMiddleLintDefinition:
+            case EnemyAiCodePointers.MainAI_KraidLintBottom when slot.EnemyDefinitionPointer == KraidBottomLintDefinition:
                 RunKraidLintMain(slot);
                 return;
-            case 0xa7b9f6 when slot.EnemyDefinitionPointer == KraidFootDefinition:
+            case EnemyAiCodePointers.MainAI_KraidFoot when slot.EnemyDefinitionPointer == KraidFootDefinition:
                 RunKraidFootMain(slot, cameraY);
                 return;
-            case 0xa7bd32 when slot.EnemyDefinitionPointer == KraidGoodNailDefinition:
-            case 0xa7bd49 when slot.EnemyDefinitionPointer == KraidBadNailDefinition:
+            case EnemyAiCodePointers.MainAI_KraidNail when slot.EnemyDefinitionPointer == KraidGoodNailDefinition:
+            case EnemyAiCodePointers.MainAI_KraidNailBad when slot.EnemyDefinitionPointer == KraidBadNailDefinition:
                 RunKraidNailMain(slot, level);
                 return;
-            case 0xa7cea6 when slot.EnemyDefinitionPointer == PhantoonBodyDefinition:
+            case EnemyAiCodePointers.MainAI_Phantoon when slot.EnemyDefinitionPointer == PhantoonBodyDefinition:
                 RunPhantoonMain(slot, samus, cameraX, cameraY, nmiFrameCounter8);
                 return;
-            case 0xa7e011 when slot.EnemyDefinitionPointer is
+            case EnemyAiCodePointers.RTL_A7E011
+                when slot.EnemyDefinitionPointer is
                 PhantoonTentaclesDefinition or PhantoonMouthDefinition:
                 // $A7:E011 is a literal RTL. These drawing parts animate entirely through
                 // their independent bank-$A7 instruction lists after the shared body main.
                 return;
-            case 0xaad7c7 when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
+            case EnemyAiCodePointers.MainAI_TourianStatue when slot.EnemyDefinitionPointer == TourianEntranceStatueDefinition:
                 // $AA:D7C7 is the one-byte RTL immediately before the initializer. The
                 // three enemy records animate exclusively through their ROM lists.
                 return;
-            case 0xaadca3 when slot.EnemyDefinitionPointer == ShaktoolDefinition:
+            case EnemyAiCodePointers.MainAI_HurtAI_Shaktool when slot.EnemyDefinitionPointer == ShaktoolDefinition:
                 RunShaktoolMain(slot, RequireShaktoolState(slot), level);
                 return;
-            case 0xaae7a7 when slot.EnemyDefinitionPointer == ChozoStatueDefinition:
+            case EnemyAiCodePointers.MainAI_Chozo when slot.EnemyDefinitionPointer == ChozoStatueDefinition:
                 RunChozoStatueMain(slot, RequireChozoStatueState(slot));
                 return;
             default:
@@ -2043,77 +2044,77 @@ public sealed partial class RoomEnemySystem
 
         switch (top.VariableF)
         {
-            case 0xa80c:
+            case GunshipCodePointers.DescendAfterCeres:
                 DescendPostCeresGunship(top, samus);
                 return;
-            case 0xa8d0:
+            case GunshipCodePointers.ApplyLandingBrakes:
                 BouncePostCeresGunship(top, samus);
                 return;
-            case 0xa942:
+            case GunshipCodePointers.WaitForLandingEntranceToOpen:
                 if (TickGunshipFunctionTimer(top))
-                    top.VariableF = 0xa950;
+                    top.VariableF = GunshipCodePointers.EjectSamus;
                 return;
-            case 0xa950:
+            case GunshipCodePointers.EjectSamus:
                 RaisePostCeresSamus(top, samus);
                 return;
-            case 0xa987:
+            case GunshipCodePointers.FinishLanding:
                 if (TickGunshipFunctionTimer(top))
                 {
-                    top.VariableF = 0xa9bd;
+                    top.VariableF = GunshipCodePointers.Idle;
                     if (samus is not null)
                         samus.InputLocked = false;
                     LastGunshipEvent = GunshipFrameEvent.LandingCompleted;
                 }
                 return;
-            case 0xa9bd:
+            case GunshipCodePointers.Idle:
                 HandleIdleGunshipEntrance(top, samus, newlyPressedControllerInput);
                 return;
-            case 0xaa4f:
+            case GunshipCodePointers.WaitForEntranceToOpen:
                 if (TickGunshipFunctionTimer(top))
-                    top.VariableF = 0xaa5d;
+                    top.VariableF = GunshipCodePointers.LowerSamus;
                 return;
-            case 0xaa5d:
+            case GunshipCodePointers.LowerSamus:
                 LowerSamusIntoGunship(top, samus);
                 return;
-            case 0xaa94:
+            case GunshipCodePointers.WaitForEntranceToClose:
                 if (TickGunshipFunctionTimer(top))
-                    top.VariableF = 0xaaa2;
+                    top.VariableF = GunshipCodePointers.BeginLiftoffOrRestoreSamus;
                 return;
-            case 0xaaa2:
+            case GunshipCodePointers.BeginLiftoffOrRestoreSamus:
                 RestoreSamusInGunship(top, samus);
                 return;
-            case 0xab1f:
+            case GunshipCodePointers.HandleSaveConfirmation:
                 GunshipSavePromptPending = true;
                 return;
-            case 0xab60:
+            case GunshipCodePointers.WaitForExitPadToOpen:
                 if (TickGunshipFunctionTimer(top))
-                    top.VariableF = 0xab6e;
+                    top.VariableF = GunshipCodePointers.RaiseSamus;
                 return;
-            case 0xab6e:
+            case GunshipCodePointers.RaiseSamus:
                 RaiseSamusOutOfGunship(top, samus);
                 return;
-            case 0xaba5:
+            case GunshipCodePointers.FinishSamusExit:
                 if (TickGunshipFunctionTimer(top))
                 {
-                    top.VariableF = 0xa9bd;
+                    top.VariableF = GunshipCodePointers.Idle;
                     if (samus is not null)
                         samus.InputLocked = false;
                     LastGunshipEvent = GunshipFrameEvent.ExitCompleted;
                 }
                 return;
-            case 0xabc7:
+            case GunshipCodePointers.LoadLiftoffDustTiles:
                 QueueGunshipTakeoffTiles(top, vramWriteQueue);
                 return;
-            case 0xac1b:
+            case GunshipCodePointers.FireUpEngines:
                 FireUpGunshipEngines(top, samus);
                 return;
-            case 0xacd7:
+            case GunshipCodePointers.SteadyLiftoff:
                 LiftGunshipAtConstantSpeed(top, samus);
                 return;
-            case 0xad0e:
+            case GunshipCodePointers.AcceleratingLiftoff:
                 AccelerateEscapingGunship(top, samus);
                 return;
-            case 0xad2d:
+            case GunshipCodePointers.MoveAccelerating:
                 MoveEscapingGunship(top, samus);
                 return;
             default:
@@ -2143,7 +2144,7 @@ public sealed partial class RoomEnemySystem
         bottom.YSubposition = 0;
         pad.YPosition = 0x045e;
         pad.YSubposition = 0;
-        top.VariableF = 0xa8d0;
+        top.VariableF = GunshipCodePointers.ApplyLandingBrakes;
         top.VariableE = 0;
     }
 
@@ -2152,7 +2153,7 @@ public sealed partial class RoomEnemySystem
         if (samus is null)
             throw new InvalidOperationException("Post-Ceres gunship bounce lost Samus.");
 
-        int tableAddress = 0xa2a622 + top.VariableE * 2;
+        int tableAddress = GunshipRomData.LandingBrakeMovementTable + top.VariableE * 2;
         short yDelta = unchecked((short)ReadWord(_bus!, tableAddress));
         samus.YPosition = unchecked((ushort)(samus.YPosition + yDelta));
         for (int component = 0; component < 3; component++)
@@ -2166,13 +2167,13 @@ public sealed partial class RoomEnemySystem
             return;
 
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
-        top.VariableF = 0xa942;
+        top.VariableF = GunshipCodePointers.WaitForLandingEntranceToOpen;
         top.VariableE = top.YPosition;
         top.VariableD = 1;
         top.VariableC = 0;
         samus.XPosition = unchecked((ushort)(top.XPosition + 1));
         pad.InstructionTimer = 1;
-        pad.CurrentInstruction = 0xa5be;
+        pad.CurrentInstruction = GunshipInstructionLists.EntrancePadOpening;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.LandingPadOpened;
     }
@@ -2188,9 +2189,9 @@ public sealed partial class RoomEnemySystem
             return;
 
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
-        top.VariableF = 0xa987;
+        top.VariableF = GunshipCodePointers.FinishLanding;
         pad.InstructionTimer = 1;
-        pad.CurrentInstruction = 0xa5ee;
+        pad.CurrentInstruction = GunshipInstructionLists.EntrancePadClosing;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.LandingPadClosed;
     }
@@ -2219,7 +2220,7 @@ public sealed partial class RoomEnemySystem
         if (oldTimer != 1 && (short)top.VariableD >= 0)
             return;
 
-        int tableAddress = 0xa2a7cf + (top.VariableC & 3) * 2;
+        int tableAddress = GunshipRomData.IdleBobTable + (top.VariableC & 3) * 2;
         top.VariableD = _bus!.ReadByte(tableAddress);
         sbyte yDelta = unchecked((sbyte)_bus.ReadByte(tableAddress + 1));
         for (int component = 0; component < 3; component++)
@@ -2246,7 +2247,7 @@ public sealed partial class RoomEnemySystem
         if (insideEntrance && samus.ReadMovementKind(_bus!) == SamusMovementType.Standing)
         {
             RoomEnemySlot pad = _slots[top.SlotIndex + 2];
-            top.VariableF = 0xaa4f;
+            top.VariableF = GunshipCodePointers.WaitForEntranceToOpen;
             if (samus.XPosition != 0x0480)
                 samus.XPosition = top.XPosition;
             samus.ApplyForwardFacingPoseSetup(_bus!);
@@ -2254,7 +2255,7 @@ public sealed partial class RoomEnemySystem
             samus.PrimeGraphics(_bus!);
             pad.YPosition = unchecked((ushort)(top.YPosition - 1));
             pad.InstructionTimer = 1;
-            pad.CurrentInstruction = 0xa5be;
+            pad.CurrentInstruction = GunshipInstructionLists.EntrancePadOpening;
             top.VariableA = 144;
             LastGunshipEvent = GunshipFrameEvent.EntryStarted;
         }
@@ -2276,9 +2277,9 @@ public sealed partial class RoomEnemySystem
             return;
 
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
-        top.VariableF = 0xaa94;
+        top.VariableF = GunshipCodePointers.WaitForEntranceToClose;
         pad.InstructionTimer = 1;
-        pad.CurrentInstruction = 0xa5ee;
+        pad.CurrentInstruction = GunshipInstructionLists.EntrancePadClosing;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.EntryPadClosing;
     }
@@ -2294,7 +2295,7 @@ public sealed partial class RoomEnemySystem
         if (RequireEvent((int)EventNumber.ZebesTimebombSet))
         {
             RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
-            top.VariableF = 0xabc7;
+            top.VariableF = GunshipCodePointers.LoadLiftoffDustTiles;
             top.VariableB = 0;
             bottom.VariableF = 0;
             bottom.VariableE = 0;
@@ -2313,7 +2314,7 @@ public sealed partial class RoomEnemySystem
             (short)(samus.PowerBombs - samus.MaxPowerBombs) < 0)
             return;
 
-        top.VariableF = 0xab1f;
+        top.VariableF = GunshipCodePointers.HandleSaveConfirmation;
         GunshipSavePromptPending = true;
         LastGunshipEvent = GunshipFrameEvent.SavePromptRequested;
     }
@@ -2327,9 +2328,9 @@ public sealed partial class RoomEnemySystem
             return;
 
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
-        top.VariableF = 0xaba5;
+        top.VariableF = GunshipCodePointers.FinishSamusExit;
         pad.InstructionTimer = 1;
-        pad.CurrentInstruction = 0xa5ee;
+        pad.CurrentInstruction = GunshipInstructionLists.EntrancePadClosing;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.ExitPadClosing;
     }
@@ -2355,7 +2356,7 @@ public sealed partial class RoomEnemySystem
         top.VariableB++;
         if (top.VariableB >= 5)
         {
-            top.VariableF = 0xac1b;
+            top.VariableF = GunshipCodePointers.FireUpEngines;
             top.VariableB = 0;
         }
     }
@@ -2387,7 +2388,7 @@ public sealed partial class RoomEnemySystem
         }
         if (bottom.VariableE >= 128)
         {
-            top.VariableF = 0xacd7;
+            top.VariableF = GunshipCodePointers.SteadyLiftoff;
             top.VariableA = 0;
         }
     }
@@ -2400,7 +2401,7 @@ public sealed partial class RoomEnemySystem
         MoveGunshipAndSamusToY(top, samus, unchecked((ushort)(samus.YPosition - 2)));
         if (IsNegative16(top.YPosition - 896))
         {
-            top.VariableF = 0xad0e;
+            top.VariableF = GunshipCodePointers.AcceleratingLiftoff;
             _slots[top.SlotIndex + 1].VariableF = 0x0200;
         }
     }
@@ -2411,7 +2412,7 @@ public sealed partial class RoomEnemySystem
         MoveEscapingGunship(top, samus);
         if (IsNegative16(top.YPosition - 256))
         {
-            top.VariableF = 0xad2d;
+            top.VariableF = GunshipCodePointers.MoveAccelerating;
             LastGunshipEvent = GunshipFrameEvent.EscapeTakeoffCompleted;
         }
     }
@@ -2486,39 +2487,41 @@ public sealed partial class RoomEnemySystem
 
             switch (word)
             {
-                case 0x807c: // EnemyInstr_StopScript: delete the actor and abort interpretation.
+                case CommonEnemyInstructionCodes.StopScript:
                     slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
                     return;
-                case 0x80ed: // EnemyInstr_Goto: next word is a same-bank instruction pointer.
+                case CommonEnemyInstructionCodes.Goto:
                     cursor = ReadWord(
                         _bus!,
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     break;
-                case 0x812f: // EnemyInstr_Sleep: pin the PC on this command and stop forever.
+                case CommonEnemyInstructionCodes.Sleep:
                     slot.CurrentInstruction = cursor;
                     return;
-                case 0x8173: // EnemyInstr_EnableOffScreenProcessing.
+                case CommonEnemyInstructionCodes.EnableOffScreenProcessing:
                     slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x817d: // EnemyInstr_DisableOffScreenProcessing.
+                case CommonEnemyInstructionCodes.DisableOffScreenProcessing:
                     slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xcfb4 when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
-                case 0xcfca when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
+                case MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoInitial
+                    when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
+                case MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoDrainingMotherBrain
+                    when slot.EnemyDefinitionPointer == MotherBrainBabyMetroidDefinition:
                     _ = TryRunMotherBrainBabyInstruction(word, ref cursor);
                     break;
-                case 0x88c5 when slot.EnemyDefinitionPointer == BoyonDefinition:
+                case EnemyInstructionCodePointers.RTL_A288C5 when slot.EnemyDefinitionPointer == BoyonDefinition:
                     // `$A2:88C5` is an explicit RTL instruction. It consumes only itself;
                     // keeping it distinct documents the idle-list seam in the ROM.
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x88c6 when slot.EnemyDefinitionPointer == BoyonDefinition:
+                case EnemyInstructionCodePointers.Instruction_Boyon_88C6 when slot.EnemyDefinitionPointer == BoyonDefinition:
                     StartBoyonBounce(RequireBoyonState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x897e when slot.EnemyDefinitionPointer == StokeDefinition:
+                case EnemyInstructionCodePointers.Instruction_Stoke_SpawnFireball when slot.EnemyDefinitionPointer == StokeDefinition:
                     SpawnStokeProjectile(
                         slot,
                         ReadWord(
@@ -2526,15 +2529,15 @@ public sealed partial class RoomEnemySystem
                             (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0x8990 when slot.EnemyDefinitionPointer == StokeDefinition:
+                case EnemyInstructionCodePointers.Instruction_Stoke_SetMovingLeft when slot.EnemyDefinitionPointer == StokeDefinition:
                     SetStokeMovingLeft(RequireStokeState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x899d when slot.EnemyDefinitionPointer == StokeDefinition:
+                case EnemyInstructionCodePointers.Instruction_Stoke_SetMovingRight when slot.EnemyDefinitionPointer == StokeDefinition:
                     SetStokeMovingRight(RequireStokeState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9381 when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_BabyTurtle_Crawl when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
                     ProcessBabyTurtleCrawlInstruction(
                         slot,
                         RequireBabyTurtleState(slot),
@@ -2542,44 +2545,44 @@ public sealed partial class RoomEnemySystem
                         level);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9412 when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_BabyTurtle_LoopOrTurnAroundIfMovedTooFar when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
                     cursor = SelectBabyTurtleCrawlLoop(slot, RequireBabyTurtleState(slot));
                     break;
-                case 0x9447 when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_MamaTurtle_EnterShell when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
                     StartMamaTurtleEnteringShell(RequireMamaTurtleState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9451 when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_MamaTurtle_RiseToHoverRightwards when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
                     StartMamaTurtleRisingToHover(
                         RequireMamaTurtleState(slot),
                         rightward: true);
                     cursor = MamaTurtleSpinningInstruction;
                     break;
-                case 0x946b when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_MamaTurtle_RiseToHoverLeftwards when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
                     StartMamaTurtleRisingToHover(
                         RequireMamaTurtleState(slot),
                         rightward: false);
                     cursor = MamaTurtleSpinningInstruction;
                     break;
-                case 0x9485 when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_BabyTurtle_LeaveShell when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
                     cursor = SelectBabyTurtleLeaveShell(
                         slot,
                         RequireBabyTurtleState(slot),
                         samus,
                         unchecked((ushort)(cursor + 2)));
                     break;
-                case 0x94a1 when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_BabyTurtle_LeftShell when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
                     cursor = FinishBabyTurtleLeavingShell(
                         slot,
                         RequireBabyTurtleState(slot),
                         samus);
                     break;
-                case 0x94c7 when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_BabyTurtle_Set_Spinning_Stoppable when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
                     RequireBabyTurtleState(slot).Function =
                         BabyTurtleAiFunction.SpinningStoppable;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x94d1 when slot.EnemyDefinitionPointer is
+                case EnemyInstructionCodePointers.Instruction_MamaTurtle_PlaySpinningSFX when slot.EnemyDefinitionPointer is
                     MamaTurtleDefinition or BabyTurtleDefinition:
                     LastMamaTurtleSoundEffect = MamaTurtleSpinSound;
                     cursor = unchecked((ushort)(cursor + 2));
@@ -2589,22 +2592,22 @@ public sealed partial class RoomEnemySystem
                     FinishDragonAttackAnimation(slot);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x8a8f when slot.EnemyDefinitionPointer == KraidArmDefinition:
+                case EnemyInstructionCodePointers.Instruction_KraidArm_SlowArmIfLessThanHalfHealth when slot.EnemyDefinitionPointer == KraidArmDefinition:
                     cursor = SelectKraidArmSpeedInstruction(cursor);
                     break;
-                case 0xb633 when slot.EnemyDefinitionPointer == KraidFootDefinition:
-                case 0xb636 when slot.EnemyDefinitionPointer == KraidFootDefinition:
-                case 0xb63c when slot.EnemyDefinitionPointer == KraidFootDefinition:
-                case 0xb64e when slot.EnemyDefinitionPointer == KraidFootDefinition:
-                case 0xb65a when slot.EnemyDefinitionPointer == KraidFootDefinition:
-                case 0xb667 when slot.EnemyDefinitionPointer == KraidFootDefinition:
-                case 0xb674 when slot.EnemyDefinitionPointer == KraidFootDefinition:
-                case 0xb683 when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case EnemyInstructionCodePointers.Instruction_Kraid_NOP_A7B633 when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case EnemyInstructionCodePointers.Instruction_Kraid_DecrementYPosition when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case EnemyInstructionCodePointers.Instruction_Kraid_IncrementYPosition_SetScreenShaking when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case EnemyInstructionCodePointers.Instruction_Kraid_QueueSFX76_Lib2_Max6 when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case EnemyInstructionCodePointers.Instruction_Kraid_XPositionMinus3 when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case EnemyInstructionCodePointers.Instruction_Kraid_XPositionMinus3_duplicate when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case EnemyInstructionCodePointers.Instruction_Kraid_XPositionPlus3 when slot.EnemyDefinitionPointer == KraidFootDefinition:
+                case EnemyInstructionCodePointers.UNUSED_Instruction_Kraid_MoveRight_A7B683 when slot.EnemyDefinitionPointer == KraidFootDefinition:
                     ProcessKraidFootInstruction(word, level);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x8108: // EnemyInstr_DecrementTimerAndGoto.
-                case 0x8110: // Byte-for-byte duplicate used by Bull's shot animation.
+                case CommonEnemyInstructionCodes.DecrementTimerAndGoto:
+                case CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate:
                     slot.Timer = unchecked((ushort)(slot.Timer - 1));
                     cursor = slot.Timer != 0
                         ? ReadWord(
@@ -2612,13 +2615,13 @@ public sealed partial class RoomEnemySystem
                             (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))
                         : unchecked((ushort)(cursor + 4));
                     break;
-                case 0x8123: // EnemyInstr_SetTimer: operand is a literal loop count.
+                case CommonEnemyInstructionCodes.SetTimer:
                     slot.Timer = ReadWord(
                         _bus!,
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0x808a when IsPhantoonPartDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY when IsPhantoonPartDefinition(slot.EnemyDefinitionPointer):
                 {
                     ushort function = ReadWord(
                         _bus!,
@@ -2632,13 +2635,13 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }
-                case 0x813a: // EnemyInstr_WaitYFrames: delay without changing the map.
+                case CommonEnemyInstructionCodes.WaitFrames:
                     slot.InstructionTimer = ReadWord(
                         _bus!,
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     slot.CurrentInstruction = unchecked((ushort)(cursor + 4));
                     return;
-                case 0x814b: // EnemyInstr_CopyToVram: packed seven-byte DMA descriptor.
+                case CommonEnemyInstructionCodes.CopyToVram:
                 {
                     int descriptor = (slot.Definition.Bank << 16) |
                         unchecked((ushort)(cursor + 2));
@@ -2693,49 +2696,49 @@ public sealed partial class RoomEnemySystem
                     cameraX,
                     cameraY):
                     break;
-                case 0xb75e when slot.EnemyDefinitionPointer == BeetomDefinition:
+                case EnemyInstructionCodePointers.Instruction_Beetom_Nothing when slot.EnemyDefinitionPointer == BeetomDefinition:
                     // Beetom's initial drain animation calls a literal RTS stub before it
                     // falls through into the looping blood-spray frames. It consumes no
                     // operand and changes no state beyond advancing the instruction cursor.
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xa0c7 when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                case EnemyInstructionCodePointers.Instruction_YappingMaw_OffsetSamusUpRight when slot.EnemyDefinitionPointer == YappingMawDefinition:
                     SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 1);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xa0d9 when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                case EnemyInstructionCodePointers.Instruction_YappingMaw_OffsetSamusUpLeft when slot.EnemyDefinitionPointer == YappingMawDefinition:
                     SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 7);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xa0eb when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                case EnemyInstructionCodePointers.Instruction_YappingMaw_OffsetSamusDownRight when slot.EnemyDefinitionPointer == YappingMawDefinition:
                     SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 3);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xa0fd when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                case EnemyInstructionCodePointers.Instruction_YappingMaw_OffsetSamusDownLeft when slot.EnemyDefinitionPointer == YappingMawDefinition:
                     SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 5);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xa10f when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                case EnemyInstructionCodePointers.Instruction_YappingMaw_OffsetSamusUp when slot.EnemyDefinitionPointer == YappingMawDefinition:
                     SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 0);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xa121 when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                case EnemyInstructionCodePointers.Instruction_YappingMaw_OffsetSamusDown when slot.EnemyDefinitionPointer == YappingMawDefinition:
                     SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 4);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xa133 when slot.EnemyDefinitionPointer == YappingMawDefinition:
+                case EnemyInstructionCodePointers.Instruction_YappingMaw_QueueSFXIfOnScreen when slot.EnemyDefinitionPointer == YappingMawDefinition:
                     PlayYappingMawAttackSound(RequireYappingMawState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xa095 when slot.EnemyDefinitionPointer == CacatacDefinition:
+                case EnemyInstructionCodePointers.Instruction_Cacatac_SetFunction_MovingLeftRight when slot.EnemyDefinitionPointer == CacatacDefinition:
                     RestoreCacatacPatrol(RequireCacatacState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9f2a when slot.EnemyDefinitionPointer == CacatacDefinition:
+                case EnemyInstructionCodePointers.Instruction_Cacatac_PlaySpikesSFX when slot.EnemyDefinitionPointer == CacatacDefinition:
                     PlayCacatacSpikeSound();
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xa0a7 when slot.EnemyDefinitionPointer == CacatacDefinition:
+                case EnemyInstructionCodePointers.Instruction_Cacatac_SpawnSpikeProjectileWithParameterInY when slot.EnemyDefinitionPointer == CacatacDefinition:
                     SpawnCacatacSpike(
                         slot,
                         ReadWord(
@@ -2744,70 +2747,70 @@ public sealed partial class RoomEnemySystem
                             unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0xa56d when slot.EnemyDefinitionPointer == OwtchDefinition:
+                case EnemyInstructionCodePointers.Instruction_Owtch_0 when slot.EnemyDefinitionPointer == OwtchDefinition:
                     SetOwtchMovingLeft(RequireOwtchState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xa571 when slot.EnemyDefinitionPointer == OwtchDefinition:
+                case EnemyInstructionCodePointers.Instruction_Owtch_1 when slot.EnemyDefinitionPointer == OwtchDefinition:
                     SetOwtchMovingRight(RequireOwtchState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9625 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_FuneNamihe_QueueSpitSFX when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                     // Shared mouth animation queues library-two sound $1F.
                     QueueFuneNamiheSpitSound();
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x878f when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
+                case EnemyInstructionCodePointers.Instruction_Evir_PlaySpitSFX when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
                     QueueEvirSpitSound();
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x879b when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
+                case EnemyInstructionCodePointers.Instruction_Evir_SetInitialRegenerationXOffset when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
                     SetInitialEvirRegenerationOffset(slot, RequireEvirState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x87b6 when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
+                case EnemyInstructionCodePointers.Instruction_Evir_AdvanceRegenerationXOffset when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
                     AdvanceEvirRegenerationOffset(slot, RequireEvirState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x87cb when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
+                case EnemyInstructionCodePointers.Instruction_Evir_FinishRegeneration when slot.EnemyDefinitionPointer == EvirProjectileDefinition:
                     FinishEvirRegeneration(RequireEvirState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9631 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Namihe_SpawnFireball_FacingLeft when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                     SpawnFuneNamiheFireball(
                         slot,
                         movingRight: false,
                         RoomEnemyProjectileKind.NamiheFireball);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x964a when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Namihe_SpawnFireball_FacingRight when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                     SpawnFuneNamiheFireball(
                         slot,
                         movingRight: true,
                         RoomEnemyProjectileKind.NamiheFireball);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9663 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Fune_SpawnFireball_FacingLeft when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                     SpawnFuneNamiheFireball(
                         slot,
                         movingRight: false,
                         RoomEnemyProjectileKind.FuneFireball);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x967c when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Fune_SpawnFireball_FacingRight when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                     SpawnFuneNamiheFireball(
                         slot,
                         movingRight: true,
                         RoomEnemyProjectileKind.FuneFireball);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9695 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
-                case 0x96b4 when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_FuneNamihe_FinishActivity when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_FuneNamihe_FinishActivity_duplicate when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                     // Left/right lists use duplicate opcodes with byte-for-byte state effects.
                     FinishFuneNamiheActivity(RequireFuneNamiheState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xcc36 when slot.EnemyDefinitionPointer == YardDefinition:
+                case EnemyInstructionCodePointers.Instruction_Yard_MovementFunctionInY when slot.EnemyDefinitionPointer == YardDefinition:
                     // Yard animation bytecode owns movement dispatch. The word after the
                     // opcode is a same-bank function pointer, not a branch destination.
                     RequireYardState(slot).MovementFunction = (YardMovementFunction)ReadWord(
@@ -2815,13 +2818,13 @@ public sealed partial class RoomEnemySystem
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0xcc3f when slot.EnemyDefinitionPointer == YardDefinition:
+                case EnemyInstructionCodePointers.Instruction_Yard_HidingInstListInY when slot.EnemyDefinitionPointer == YardDefinition:
                     RequireYardState(slot).HidingInstructionList = ReadWord(
                         _bus!,
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0xcc48 when slot.EnemyDefinitionPointer == YardDefinition:
+                case EnemyInstructionCodePointers.Instruction_Yard_DirectionInY when slot.EnemyDefinitionPointer == YardDefinition:
                 {
                     YardEnemyState yard = RequireYardState(slot);
                     yard.Direction = ReadWord(
@@ -2838,7 +2841,7 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }
-                case 0xcc5f when slot.EnemyDefinitionPointer == YardDefinition:
+                case EnemyInstructionCodePointers.Instruction_Yard_MoveByPixelsInY when slot.EnemyDefinitionPointer == YardDefinition:
                     slot.XPosition = unchecked((ushort)(slot.XPosition + ReadWord(
                         _bus!,
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))));
@@ -2847,14 +2850,14 @@ public sealed partial class RoomEnemySystem
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 4)))));
                     cursor = unchecked((ushort)(cursor + 6));
                     break;
-                case 0xcc78 when slot.EnemyDefinitionPointer == YardDefinition:
+                case EnemyInstructionCodePointers.Instruction_Yard_GoBack4BytesIfHidingOr50PercentChance when slot.EnemyDefinitionPointer == YardDefinition:
                     // The native instruction receives Y already advanced past the opcode.
                     // Subtracting six therefore resumes four bytes before the opcode.
                     cursor = RequireYardState(slot).Behavior == 2 || (_nextRandom!() & 1) != 0
                         ? unchecked((ushort)(cursor - 4))
                         : unchecked((ushort)(cursor + 2));
                     break;
-                case 0xaa68 when IsHopperDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Sidehopper_QueueSoundInY_Lib2_Max3 when IsHopperDefinition(slot.EnemyDefinitionPointer):
                     // Sidehopper's list passes a library-two sound operand, then the native
                     // instruction returns the cursor after that operand. Audio playback is
                     // an outer concern; publishing the exact word keeps the event observable.
@@ -2863,29 +2866,29 @@ public sealed partial class RoomEnemySystem
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0xaafe when IsHopperDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Hopper_ReadyToHop when IsHopperDefinition(slot.EnemyDefinitionPointer):
                     RequireHopperState(slot).ReadyToHop = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xb429 when slot.EnemyDefinitionPointer == ZoaDefinition:
+                case EnemyInstructionCodePointers.Instruction_Zoa_SetXSpeedTableIndexTo4 when slot.EnemyDefinitionPointer == ZoaDefinition:
                     RequireZoaState(slot).XSpeedTableIndex = 4;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xb434 when slot.EnemyDefinitionPointer == ZoaDefinition:
+                case EnemyInstructionCodePointers.Instruction_Zoa_SetXSpeedTableIndexTo8 when slot.EnemyDefinitionPointer == ZoaDefinition:
                     RequireZoaState(slot).XSpeedTableIndex = 8;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xb43f when slot.EnemyDefinitionPointer == ZoaDefinition:
+                case EnemyInstructionCodePointers.Instruction_Zoa_SetXSpeedTableIndexToC when slot.EnemyDefinitionPointer == ZoaDefinition:
                     RequireZoaState(slot).XSpeedTableIndex = 12;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xeaa5 when slot.EnemyDefinitionPointer == MetroidDefinition:
+                case EnemyInstructionCodePointers.Instruction_Metroid_PlayDrainingSamusSFX when slot.EnemyDefinitionPointer == MetroidDefinition:
                     // The attached loop emits library-two sound $50 without consuming
                     // an operand; animation parsing resumes at the following word.
                     LastMetroidSoundEffectLibrary2 = MetroidAnimationSoundEffect;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xeab1 when slot.EnemyDefinitionPointer == MetroidDefinition:
+                case EnemyInstructionCodePointers.Instruction_Metroid_PlayRandomMetroidSFX when slot.EnemyDefinitionPointer == MetroidDefinition:
                     // Eight ROM words supply the idle cry. GenerateRandomNumber advances
                     // exactly once and the low three result bits choose the table entry.
                     int soundIndex = _nextRandom!() & 7;
@@ -2894,54 +2897,54 @@ public sealed partial class RoomEnemySystem
                         MetroidRandomSoundTable + soundIndex * 2);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xe660: // Shared crawler: install the function pointer operand.
+                case EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY:
                     RequireCrawlerState(slot).Function = (CrawlerEnemyFunction)ReadWord(
                         _bus!,
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0xdfc2 when slot.EnemyDefinitionPointer == HZoomerDefinition:
+                case EnemyInstructionCodePointers.Instruction_HZoomer_FunctionInY when slot.EnemyDefinitionPointer == HZoomerDefinition:
                     RequireCrawlerState(slot).Function = (CrawlerEnemyFunction)ReadWord(
                         _bus!,
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0xc6a4: // Skree: the preparation animation releases the dive AI.
+                case EnemyInstructionCodePointers.Instruction_Skree_SetAttackReadyFlag:
                     RequireSkreeState(slot).AttackReady = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x86e3 when slot.EnemyDefinitionPointer == WaverDefinition:
+                case EnemyInstructionCodePointers.Instruction_Waver_SetSpinFinishedFlag when slot.EnemyDefinitionPointer == WaverDefinition:
                     // The four-frame spin list hands its completion back to main AI rather
                     // than branching directly to steady art.
                     RequireWaverState(slot).SpinFinished = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x8956 when slot.EnemyDefinitionPointer == MetareeDefinition:
+                case EnemyInstructionCodePointers.Instruction_Metaree_SetAttackReadyFlag when slot.EnemyDefinitionPointer == MetareeDefinition:
                     // The preparation list sleeps immediately after publishing this flag.
                     // Main AI consumes it on the following enemy frame and installs the
                     // launched list, exactly matching the native instruction/AI hand-off.
                     RequireMetareeState(slot).AttackReady = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9096 when slot.EnemyDefinitionPointer == SkulteraDefinition:
+                case EnemyInstructionCodePointers.Instruction_Skultera_SetLayerTo6 when slot.EnemyDefinitionPointer == SkulteraDefinition:
                     // The right-facing steady list promotes the fish above foreground
                     // scenery only after its first instruction tick, exactly like the ROM.
                     slot.Layer = 6;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x90a0 when slot.EnemyDefinitionPointer == SkulteraDefinition:
+                case EnemyInstructionCodePointers.Instruction_Skultera_SetLayerTo2 when slot.EnemyDefinitionPointer == SkulteraDefinition:
                     // The left-facing steady list draws below the matching scenery layer.
                     slot.Layer = 2;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x90aa when slot.EnemyDefinitionPointer == SkulteraDefinition:
+                case EnemyInstructionCodePointers.Instruction_Skultera_SetTurnFinishedFlag when slot.EnemyDefinitionPointer == SkulteraDefinition:
                     // Turning lists sleep immediately after publishing this flag. Main AI
                     // consumes it on the following frame and installs steady facing art.
                     RequireSkulteraState(slot).TurnFinished = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9c6b when IsPlatformDefinition(slot.EnemyDefinitionPointer):
-                case 0x9c81 when IsPlatformDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingLeftXMovement when IsPlatformDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingLeftXMovement_duplicate when IsPlatformDefinition(slot.EnemyDefinitionPointer):
                     // The "ordinary" and duplicate commands are byte-for-byte equivalent:
                     // both publish horizontal dispatcher index zero before the next frame.
                     SetPlatformHorizontalMovementFromInstruction(
@@ -2949,32 +2952,32 @@ public sealed partial class RoomEnemySystem
                         PlatformHorizontalMovement.Left);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9c76 when IsPlatformDefinition(slot.EnemyDefinitionPointer):
-                case 0x9c8c when IsPlatformDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingRightXMovement when IsPlatformDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingRightXMovement_duplicate when IsPlatformDefinition(slot.EnemyDefinitionPointer):
                     SetPlatformHorizontalMovementFromInstruction(
                         slot,
                         PlatformHorizontalMovement.Right);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xdf1c when slot.EnemyDefinitionPointer == AlcoonDefinition:
+                case EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballUpward when slot.EnemyDefinitionPointer == AlcoonDefinition:
                     SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 0);
                     LastAlcoonSoundEffect = AlcoonFireSound;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xdf33 when slot.EnemyDefinitionPointer == AlcoonDefinition:
+                case EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballHorizontally when slot.EnemyDefinitionPointer == AlcoonDefinition:
                     SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 2);
                     LastAlcoonSoundEffect = AlcoonFireSound;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xdf39 when slot.EnemyDefinitionPointer == AlcoonDefinition:
+                case EnemyInstructionCodePointers.Instruction_Alcoon_SpawnAlcoonFireballDownward when slot.EnemyDefinitionPointer == AlcoonDefinition:
                     SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 4);
                     LastAlcoonSoundEffect = AlcoonFireSound;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xdf3f when slot.EnemyDefinitionPointer == AlcoonDefinition:
+                case EnemyInstructionCodePointers.Instruction_Alcoon_StartWalking when slot.EnemyDefinitionPointer == AlcoonDefinition:
                     cursor = StartAlcoonWalking(slot, RequireAlcoonState(slot));
                     break;
-                case 0xdf63 when slot.EnemyDefinitionPointer == AlcoonDefinition:
+                case EnemyInstructionCodePointers.Instruction_Alcoon_DecrementStepCounter_MoveHorizontally when slot.EnemyDefinitionPointer == AlcoonDefinition:
                     cursor = MoveAlcoonHorizontally(
                         slot,
                         RequireAlcoonState(slot),
@@ -2982,7 +2985,7 @@ public sealed partial class RoomEnemySystem
                         unchecked((ushort)(cursor + 2)),
                         decrementStepCounter: true);
                     break;
-                case 0xdf71 when slot.EnemyDefinitionPointer == AlcoonDefinition:
+                case EnemyInstructionCodePointers.Instruction_Alcoon_MoveHorizontally_TurnIfWallCollision when slot.EnemyDefinitionPointer == AlcoonDefinition:
                     cursor = MoveAlcoonHorizontally(
                         slot,
                         RequireAlcoonState(slot),
@@ -2990,70 +2993,70 @@ public sealed partial class RoomEnemySystem
                         unchecked((ushort)(cursor + 2)),
                         decrementStepCounter: false);
                     break;
-                case 0xf526 when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Kihunter_SetIdlingInstListsFacingForwards when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
                     // The callback returns a direct body-list pointer while separately
                     // restarting the following attached wing list.
                     cursor = ReturnKiHunterToSteadyInstruction(slot);
                     break;
-                case 0xf5e4 when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Kihunter_SetFunctionToHop when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
                     StartKiHunterGroundJumpFromInstruction(RequireKiHunterState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xf67f when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Kihunter_SetFunctionTo_Wingless_Thinking when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
                     StartKiHunterGroundWaitFromInstruction(RequireKiHunterState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xf6d2 when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Kihunter_FireAcidSpitLeft when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
                     SpawnKiHunterAcidFromInstruction(slot, movingRight: false);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xf6d8 when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_Kihunter_FireAcidSpitRight when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
                     SpawnKiHunterAcidFromInstruction(slot, movingRight: true);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xe4be: // Ridley_Instr_5: set roaring flag and QueueSfx2_Max6($59).
+                case EnemyInstructionCodePointers.Instruction_Ridley_QueueRoarSFX:
                     RequireRidley(slot).Roaring = true;
                     QueueEnemySound(library: 2, soundId: 0x0059, maximumQueued: 6);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xe61d when slot.EnemyDefinitionPointer == SparkDefinition:
+                case EnemyInstructionCodePointers.Instruction_Spark_SetAsIntangible when slot.EnemyDefinitionPointer == SparkDefinition:
                     // Spark flicker-out command: property bit $0400 removes the actor from
                     // every ordinary Samus, beam, and grapple collision pass.
                     slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xe62a when slot.EnemyDefinitionPointer == SparkDefinition:
+                case EnemyInstructionCodePointers.Instruction_Spark_SetAsTangible when slot.EnemyDefinitionPointer == SparkDefinition:
                     // Spark flicker-on command executes before the first visible activation
                     // frame, so collision and art become live together.
                     slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x8daf when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_PlaySFX when slot.EnemyDefinitionPointer == HibashiDefinition:
                     PlayHibashiEruptionSound();
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x8e13 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8e2d when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8e41 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8e55 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8e69 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8e7d when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8e91 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8ea5 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8eb9 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8ecd when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8ee1 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8ef5 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8f09 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8f1d when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8f31 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8f45 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8f59 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8f6d when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8f81 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8f95 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8fa9 when slot.EnemyDefinitionPointer == HibashiDefinition:
-                case 0x8fbd when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame0 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame1 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame2 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame3 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame4 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame5 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame6 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame7 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame8 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame9 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameA when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameB when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameC when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameD when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameE when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrameF when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame10 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame11 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame12 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame13 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame14 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_ActivityFrame15 when slot.EnemyDefinitionPointer == HibashiDefinition:
                     // These 22 bank-$A6 routines are laid out at an exact $14-byte stride.
                     // Each routine selects the correspondingly indexed Y-offset/radius pair;
                     // deriving that index from the executed ROM address keeps the dispatcher
@@ -3061,11 +3064,11 @@ public sealed partial class RoomEnemySystem
                     ApplyHibashiActivityFrame(slot, (word - 0x8e13) / 0x14);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x8fd1 when slot.EnemyDefinitionPointer == HibashiDefinition:
+                case EnemyInstructionCodePointers.Instruction_Hibashi_FinishActivity when slot.EnemyDefinitionPointer == HibashiDefinition:
                     FinishHibashiActivity(slot);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9b26 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
+                case EnemyInstructionCodePointers.Instruction_MiniKraid_Move when slot.EnemyDefinitionPointer == FakeKraidDefinition:
                     // Walk opcode: advance one four-pixel step unless its random reversal
                     // clock expires, then refresh the live facing marker from Samus.
                     ProcessFakeKraidWalkInstruction(
@@ -3075,33 +3078,33 @@ public sealed partial class RoomEnemySystem
                         level);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9b74 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
+                case EnemyInstructionCodePointers.Instruction_MiniKraid_ChooseAction when slot.EnemyDefinitionPointer == FakeKraidDefinition:
                     // Decision opcode returns a direct same-bank address. Several targets
                     // deliberately begin two bytes inside a named list to skip this opcode.
                     cursor = SelectFakeKraidInstruction(RequireFakeKraidState(slot));
                     break;
-                case 0x9bb2 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
+                case EnemyInstructionCodePointers.Instruction_MiniKraid_PlayCrySFX when slot.EnemyDefinitionPointer == FakeKraidDefinition:
                     // `$A6:9BB2` queues sound $16 only while the actor origin is inside the
                     // inclusive 256x256 native screen rectangle.
                     if (FakeKraidOriginIsOnScreen(slot, cameraX, cameraY))
                         LastFakeKraidSoundEffect = FakeKraidSpitSound;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9bc4 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
+                case EnemyInstructionCodePointers.Instruction_MiniKraid_FireSpitLeft when slot.EnemyDefinitionPointer == FakeKraidDefinition:
                     SpawnFakeKraidSpitPair(
                         slot,
                         RequireFakeKraidState(slot),
                         movingRight: false);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0x9c02 when slot.EnemyDefinitionPointer == FakeKraidDefinition:
+                case EnemyInstructionCodePointers.Instruction_MiniKraid_FireSpitRight when slot.EnemyDefinitionPointer == FakeKraidDefinition:
                     SpawnFakeKraidSpitPair(
                         slot,
                         RequireFakeKraidState(slot),
                         movingRight: true);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xfcb8 when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_PirateWalking_FunctionInY when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
                     // Pirate bytecode does not jump to the operand. It stores that bank-$B2
                     // function address in native variable A for main AI to dispatch next
                     // frame, then resumes immediately after the two-byte operand.
@@ -3112,7 +3115,7 @@ public sealed partial class RoomEnemySystem
                             unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0xfc68 when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_PirateWalking_FireLaserLeftWithYOffsetInY when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
                     SpawnWalkingSpacePirateLaser(
                         slot,
                         RequireWalkingSpacePirateState(slot),
@@ -3123,7 +3126,7 @@ public sealed partial class RoomEnemySystem
                             unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0xfc90 when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_PirateWalking_FireLaserRightWithYOffsetInY when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
                     SpawnWalkingSpacePirateLaser(
                         slot,
                         RequireWalkingSpacePirateState(slot),
@@ -3134,16 +3137,16 @@ public sealed partial class RoomEnemySystem
                             unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0xfcc8 when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
+                case EnemyInstructionCodePointers.Instruction_PirateWalking_ChooseAMovement when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
                     // Unlike common goto, this opcode returns a direct instruction-list
                     // pointer chosen from Samus's current side and vertical proximity.
                     cursor = SelectWalkingSpacePirateMovement(slot, samus);
                     break;
-                case 0xe4ca: // Ridley: close mouth / clear the roaring presentation flag.
+                case EnemyInstructionCodePointers.Instruction_Ridley_ResetRoarFlag:
                     RequireRidley(slot).Roaring = false;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xe4d2: // Ridley: Ceres low-energy branch; area two always skips its operand.
+                case EnemyInstructionCodePointers.Inst_Ridley_GotoYAndSetTimerTo8IfNotNorfairOrSamusLowEnergy:
                     if (slot.EnemyDefinitionPointer == NorfairRidleyDefinition)
                     {
                         cursor = unchecked((ushort)(cursor + 4));
@@ -3160,7 +3163,7 @@ public sealed partial class RoomEnemySystem
                             (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))
                         : unchecked((ushort)(cursor + 4));
                     break;
-                case 0xe4ee: // Ridley: choose one of two lists according to grabbed-Samus state.
+                case CeresEnemyCodePointers.RidleyGotoIfNotHoldingBaby:
                     RidleyEnemyState grabbedBranch = RequireRidley(slot);
                     ushort branchOperand = grabbedBranch.GrabState != 0
                         ? (ushort)2
@@ -3169,7 +3172,7 @@ public sealed partial class RoomEnemySystem
                         _bus!,
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + branchOperand)));
                     break;
-                case 0xe4f8: // Ridley: skip an operand while carrying Samus, otherwise branch.
+                case CeresEnemyCodePointers.RidleyGotoIfHoldingBaby:
                     RidleyEnemyState carryBranch = RequireRidley(slot);
                     cursor = carryBranch.GrabState != 0
                         ? unchecked((ushort)(cursor + 4))
@@ -3177,13 +3180,13 @@ public sealed partial class RoomEnemySystem
                             _bus!,
                             (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     break;
-                case 0xe501: // Ridley: select feet/hand-distance animation index operand.
+                case EnemyInstructionCodePointers.Inst_RidleyCeres_UpdateSamusPrevPosition_HeldYDisplacement:
                     RequireRidley(slot).FeetDistanceIndex = ReadWord(
                         _bus!,
                         (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case 0xe517: // Ridley: branch to operand when he is not facing left.
+                case CeresEnemyCodePointers.RidleyGotoIfNotFacingLeft:
                     RidleyEnemyState ridley = RequireRidley(slot);
                     cursor = ridley.FacingDirection != 0
                         ? ReadWord(
@@ -3191,7 +3194,7 @@ public sealed partial class RoomEnemySystem
                             (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))
                         : unchecked((ushort)(cursor + 4));
                     break;
-                case 0xe51f: // Ridley: add the two signed pixel operands to his origin.
+                case CeresEnemyCodePointers.MoveRidley:
                     slot.XPosition = unchecked((ushort)(
                         slot.XPosition +
                         ReadWord(_bus!, (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))));
@@ -3200,21 +3203,21 @@ public sealed partial class RoomEnemySystem
                         ReadWord(_bus!, (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 4)))));
                     cursor = unchecked((ushort)(cursor + 6));
                     break;
-                case 0xe71c: // Ridley: face left and mirror the shared tail workspace.
+                case CeresEnemyCodePointers.FaceRidleyLeft:
                     MirrorRidleyTail(RequireRidley(slot));
                     RequireRidley(slot).FacingDirection = 0;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xe727: // Ridley: use the front-facing transition frame.
+                case CeresEnemyCodePointers.FaceRidleyForward:
                     RequireRidley(slot).FacingDirection = 1;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xe72f: // Ridley: face right and mirror the shared tail workspace.
+                case CeresEnemyCodePointers.FaceRidleyRight:
                     MirrorRidleyTail(RequireRidley(slot));
                     RequireRidley(slot).FacingDirection = 2;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xe84d: // Ridley: aim the next fireball from the facing-dependent mouth.
+                case EnemyInstructionCodePointers.Instruction_Ridley_CalculateFireballAngleAndXYSpeeds:
                     if (samus is null)
                     {
                         throw new InvalidOperationException(
@@ -3223,21 +3226,21 @@ public sealed partial class RoomEnemySystem
                     CalculateRidleyFireballVelocity(slot, samus);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xe904: // Ridley: spawn the leading fireball with a wall afterburn.
+                case CeresEnemyCodePointers.FireLeadingRidleyFireball:
                     SpawnRidleyFireball(slot, spawnAfterburn: true);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xe909: // Ridley: spawn a following fireball without an afterburn.
+                case EnemyInstructionCodePointers.FireTrailsFireball:
                     SpawnRidleyFireball(slot, spawnAfterburn: false);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xe969: // Ceres Ridley: animation hands control to accelerating liftoff.
+                case EnemyInstructionCodePointers.Instruction_RidleyCeres_SetRidleyMainAI_SetVerticalSpeed:
                     RidleyEnemyState liftoff = RequireCeresRidley(slot);
                     liftoff.Function = RidleyAiFunction.CeresLiftoffAccelerating;
                     liftoff.VerticalVelocity = unchecked((ushort)-352);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xe976 when slot.EnemyDefinitionPointer == NorfairRidleyDefinition:
+                case EnemyInstructionCodePointers.Instruction_Ridley_SetRidleyMainAI_SetVerticalSpeed when slot.EnemyDefinitionPointer == NorfairRidleyDefinition:
                     // The shared roar/liftoff list hands control to the real fight at
                     // $B2F3 and supplies the initial upward 8.8 velocity in the same tick.
                     RidleyEnemyState norfairLiftoff = RequireNorfairRidley(slot);
@@ -3245,12 +3248,12 @@ public sealed partial class RoomEnemySystem
                     norfairLiftoff.VerticalVelocity = unchecked((ushort)-352);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xf11d: // Ceres steam: hide and exclude from interaction.
+                case CeresEnemyCodePointers.HideCeresSteam:
                     slot.Properties = slot.Properties.With(
                         EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xf127: // Ceres steam: randomized dormant-loop branch.
+                case CeresEnemyCodePointers.StepCeresSteamActivationTimer:
                     slot.VariableD = unchecked((ushort)(slot.VariableD - 1));
                     if (slot.VariableD != 0)
                     {
@@ -3267,12 +3270,12 @@ public sealed partial class RoomEnemySystem
                             EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
                     }
                     break;
-                case 0xf135: // Ceres steam: show and admit interaction.
+                case EnemyInstructionCodePointers.Instruction_CeresSteam_SetToTangibleAndVisible:
                     slot.Properties = slot.Properties.Without(
                         EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xf63e: // Ceres door: loop until Samus is within a 48x48-pixel box.
+                case CeresEnemyCodePointers.CeresDoorGotoIfSamusIsDistant:
                     if (samus is null)
                     {
                         throw new InvalidOperationException(
@@ -3291,7 +3294,7 @@ public sealed partial class RoomEnemySystem
                             (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)))
                         : unchecked((ushort)(cursor + 4));
                     break;
-                case 0xf66a: // Ceres door: branch while area boss bit one is clear.
+                case EnemyInstructionCodePointers.Instruction_CeresDoor_GotoYIfAreaBossIsAlive:
                     // `$A6:F66A-$F676` samples bit zero of the current area's SRAM-mirror
                     // boss byte. Ceres begins with that bit clear, so the facing-right door
                     // loops as a tangible actor during Ridley's fight. `$A6:C117` publishes
@@ -3305,62 +3308,62 @@ public sealed partial class RoomEnemySystem
                             _bus!,
                             (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     break;
-                case 0xf678: // Ceres door: branch while ceres_status is zero.
+                case EnemyInstructionCodePointers.Instruction_CeresDoor_GotoYIfCeresRidleyHasNotEscaped:
                     cursor = CeresStatus != 0
                         ? unchecked((ushort)(cursor + 4))
                         : ReadWord(
                             _bus!,
                             (slot.Definition.Bank << 16) | unchecked((ushort)(cursor + 2)));
                     break;
-                case 0xf68b: // Ceres steam/door: set native property bit $0400.
+                case CeresEnemyCodePointers.MakeCeresDoorIntangible:
                     slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xf695: // Ceres door: clear native property bit $0400.
+                case CeresEnemyCodePointers.MakeCeresDoorTangible:
                     slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xf69f: // Ceres door: publish animation-state word B=1.
+                case EnemyInstructionCodePointers.Instruction_CeresDoor_SetDrawnByRidleyFlag:
                     slot.VariableB = 1;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xf6a6: // Ceres door/steam: hide the actor.
+                case EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible:
                     slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xf6b0: // Ceres door: state B=0, then show the actor.
+                case EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsVisible_ClearDrawnByRidleyFlag:
                     slot.VariableB = 0;
                     slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xf6b3: // Ceres door: show the actor.
+                case CeresEnemyCodePointers.ShowCeresDoor:
                     slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xf6bd: // CeresDoor_Instr_7: QueueSfx3_Max6($2C).
+                case EnemyInstructionCodePointers.Instruction_CeresDoor_QueueOpeningSFX:
                     QueueEnemySound(library: 3, soundId: 0x002c, maximumQueued: 6);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xecd0 when slot.EnemyDefinitionPointer == DeadSidehopperDefinition:
+                case EnemyInstructionCodePointers.Instruction_SidehopperCorpse_EndHop when slot.EnemyDefinitionPointer == DeadSidehopperDefinition:
                     // `$A9:ECD0` is embedded at the end of the landing animation. It
                     // hands ownership back to main AI without consuming an operand.
                     SelectDeadSidehopperPostAnimationState(slot);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case 0xf920 when slot.EnemyDefinitionPointer == ShitroidDefinition:
+                case EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoNormal when slot.EnemyDefinitionPointer == ShitroidDefinition:
                     // Instruction 3 returns the calm animation list directly; it does not
                     // consume an operand from the calling list.
-                    cursor = 0xf90e;
+                    cursor = ShitroidInstructionLists.Normal;
                     break;
-                case 0xf936 when slot.EnemyDefinitionPointer == ShitroidDefinition:
+                case EnemyInstructionCodePointers.Instruction_GotoLatchedOn when slot.EnemyDefinitionPointer == ShitroidDefinition:
                     // Instruction 4 restarts the aggressive/draining loop.
-                    cursor = 0xf924;
+                    cursor = ShitroidInstructionLists.LatchedOn;
                     break;
-                case 0xf990 when slot.EnemyDefinitionPointer == ShitroidDefinition:
+                case EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoRemorse when slot.EnemyDefinitionPointer == ShitroidDefinition:
                     // Instruction 6 restarts the departure loop.
-                    cursor = 0xf93a;
+                    cursor = ShitroidInstructionLists.Remorse;
                     break;
-                case 0xf994 when slot.EnemyDefinitionPointer == ShitroidDefinition:
+                case EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoY_OrPlayRemorseSFX when slot.EnemyDefinitionPointer == ShitroidDefinition:
                     // Instruction 5 samples the existing RNG word; it does not generate a
                     // new value. Clear high bit takes the same-bank operand branch. Set high
                     // bit plays cry $52 and falls through beyond that operand.
@@ -3515,7 +3518,7 @@ public sealed partial class RoomEnemySystem
     public static RoomEnemyDefinition ReadDefinition(ISnesAddressSpace bus, ushort pointer)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        int address = EnemyDefinitionBank | pointer;
+        int address = RoomEnemyRomLayout.DefinitionBank | pointer;
         return new RoomEnemyDefinition(
             TileDataSize: ReadWord(bus, address),
             PalettePointer: ReadWord(bus, AddWithinBank(address, 2)),
@@ -3557,7 +3560,7 @@ public sealed partial class RoomEnemySystem
         if (definition.NamePointer == 0)
             return default;
 
-        int address = 0xb40000 | definition.NamePointer;
+        int address = RoomEnemyRomLayout.TilesetBank | definition.NamePointer;
         return new RoomEnemySpawnNameWords(
             ReadWord(_bus!, address),
             ReadWord(_bus!, AddWithinBank(address, 2)),

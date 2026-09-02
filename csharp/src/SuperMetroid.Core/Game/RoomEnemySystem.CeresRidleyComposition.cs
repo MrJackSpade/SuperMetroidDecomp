@@ -516,7 +516,7 @@ public sealed partial class RoomEnemySystem
             ushort argument = unchecked((ushort)(cursor + 2));
             switch (word)
             {
-                case 0xbfc9:
+                case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_PlayCrySFXOrGotoX:
                     // BabyMetroid_Instr_2 calls QueueSfx3_Max6($24) on every execution,
                     // including the random branch that immediately jumps to another list.
                     // Publish before reproducing that branch so its control flow cannot
@@ -532,7 +532,7 @@ public sealed partial class RoomEnemySystem
                             : unchecked((ushort)(argument + 2));
                     break;
 
-                case 0xbfe1:
+                case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_UpdateColors:
                     ushort palettePointer = ReadWord(_bus!, 0xa60000 | argument);
                     _cgram!.LoadFromBus(
                         _bus!,
@@ -542,13 +542,13 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(argument + 2));
                     break;
 
-                case 0xbff2:
+                case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoXIfNotFalling:
                     cursor = state.BabyVerticalVelocity != 0
                         ? ReadWord(_bus!, 0xa60000 | argument)
                         : unchecked((ushort)(argument + 2));
                     break;
 
-                case 0xbff8:
+                case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoX:
                     cursor = ReadWord(_bus!, 0xa60000 | argument);
                     break;
 

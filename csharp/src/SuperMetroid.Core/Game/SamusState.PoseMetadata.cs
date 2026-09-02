@@ -616,11 +616,11 @@ public sealed partial class SamusState
         if (BombJumpDirection == 0 || (BombJumpDirection & 0xff00) != 0)
             return false;
 
-        byte movementType = ReadMovementType(bus);
+        SamusMovementType movementType = ReadMovementKind(bus);
         switch (movementType)
         {
-            case 0x00: // Standing.
-            case 0x05: // Crouching.
+            case SamusMovementType.Standing:
+            case SamusMovementType.Crouching:
                 // `$90:DFED` is the only setup branch gated by frozen time. Its clear is a
                 // complete 16-bit STZ, so no high-byte provenance survives rejection.
                 if (timeIsFrozen)
@@ -628,17 +628,17 @@ public sealed partial class SamusState
                     BombJumpDirection = 0;
                     return false;
                 }
-                goto case 0x01;
+                goto case SamusMovementType.Running;
 
-            case 0x01: // Running.
-            case 0x06: // Falling.
-            case 0x0b: // Unused.
-            case 0x0c: // Unused.
-            case 0x0d: // Unused.
-            case 0x10: // Moonwalking.
-            case 0x14: // Wall jumping.
-            case 0x15: // Ran into a wall.
-            case 0x16: // Grappling.
+            case SamusMovementType.Running:
+            case SamusMovementType.Falling:
+            case SamusMovementType.Unused0B:
+            case SamusMovementType.Unused0C:
+            case SamusMovementType.Unused0D:
+            case SamusMovementType.Moonwalking:
+            case SamusMovementType.WallJumping:
+            case SamusMovementType.RanIntoWall:
+            case SamusMovementType.Grappling:
                 // `$90:DFF7` tests the pose-definition direction, not the descriptive pose
                 // number. Any value other than literal four follows the right-facing path.
                 byte sourcePose = Pose;
@@ -680,28 +680,28 @@ public sealed partial class SamusState
                 ArmPublishedBombJump();
                 return true;
 
-            case 0x04: // Morph ball on ground.
-            case 0x07: // Unused/glitch ball.
-            case 0x08: // Morph ball falling.
-            case 0x09: // Unused/glitch ball.
-            case 0x0a: // Knockback / Crystal Flash ending.
-            case 0x11: // Spring Ball on ground.
-            case 0x12: // Spring Ball in air.
-            case 0x13: // Spring Ball falling.
+            case SamusMovementType.MorphBallGround:
+            case SamusMovementType.UnusedGlitchBall:
+            case SamusMovementType.MorphBallFalling:
+            case SamusMovementType.UnusedGlitchBallAlternate:
+            case SamusMovementType.Knockback:
+            case SamusMovementType.SpringBallGround:
+            case SamusMovementType.SpringBallInAir:
+            case SamusMovementType.SpringBallFalling:
                 // `$90:E012` copies the current pose into SpecialProspectivePose. Because
                 // that pose already matches, bank $91 immediately executes command three.
                 ArmPublishedBombJump();
                 return true;
 
-            case 0x02: // Normal jumping.
-            case 0x03: // Spin jumping.
-            case 0x0e: // Turning on ground.
-            case 0x0f: // Posture/morph transition.
-            case 0x17: // Turning while jumping.
-            case 0x18: // Turning while falling.
-            case 0x19: // Damage boost.
-            case 0x1a: // Grabbed by Draygon.
-            case 0x1b: // Shinespark / Crystal Flash / drained / Mother Brain.
+            case SamusMovementType.NormalJumping:
+            case SamusMovementType.SpinJumping:
+            case SamusMovementType.TurningOnGround:
+            case SamusMovementType.PostureTransition:
+            case SamusMovementType.TurningWhileJumping:
+            case SamusMovementType.TurningWhileFalling:
+            case SamusMovementType.DamageBoost:
+            case SamusMovementType.DraygonHeld:
+            case SamusMovementType.Special:
                 BombJumpDirection = 0;
                 return false;
 
@@ -709,7 +709,7 @@ public sealed partial class SamusState
                 // The retail pose table never exceeds `$1B`; this is corrupt metadata,
                 // analogous to indexing beyond `$90:DFB5` into unrelated bank words.
                 throw new InvalidDataException(
-                    $"Bomb-jump setup cannot dispatch invalid movement type ${movementType:X2} for pose ${Pose:X2}.");
+                    $"Bomb-jump setup cannot dispatch invalid movement type ${(byte)movementType:X2} for pose ${Pose:X2}.");
         }
     }
 

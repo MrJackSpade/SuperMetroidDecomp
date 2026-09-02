@@ -520,17 +520,17 @@ public sealed partial class RoomEnemySystem
     {
         switch (tube.VariableA)
         {
-            case 0x8b88:
+            case MotherBrainInstructionCodes.Function_MotherBrainTubes_NonMainTube:
                 FallMotherBrainTube(tube, mainTube: false);
                 return;
-            case 0x8bcb:
+            case MotherBrainInstructionCodes.Function_MotherBrainTubes_MainTube_WaitingToFall:
                 tube.Parameter2 = unchecked((ushort)(tube.Parameter2 - 1));
                 if (unchecked((short)tube.Parameter2) >= 0)
                     return;
                 tube.VariableA = 0x8bd6;
                 FallMotherBrainTube(tube, mainTube: true);
                 return;
-            case 0x8bd6:
+            case MotherBrainInstructionCodes.Function_MotherBrainTubes_MainTube_Falling:
                 FallMotherBrainTube(tube, mainTube: true);
                 return;
             default:

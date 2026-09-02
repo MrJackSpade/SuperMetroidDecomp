@@ -225,12 +225,12 @@ public sealed partial class RoomEnemySystem
 
         switch (part.VariableA)
         {
-            case 0x804b: // RTS stub installed before the body instruction runs.
+            case DraygonCodePointers.RTS_A5804B:
                 return;
-            case 0xc48d:
+            case DraygonCodePointers.Function_DraygonEye_FacingLeft:
                 TrackSamusWithDraygonEye(part, samus, facingRight: false);
                 return;
-            case 0xc513:
+            case DraygonCodePointers.Function_DraygonEye_FacingRight:
                 TrackSamusWithDraygonEye(part, samus, facingRight: true);
                 return;
             default:
@@ -818,7 +818,7 @@ public sealed partial class RoomEnemySystem
         int bank = slot.Definition.Bank << 16;
         switch (instruction)
         {
-            case 0x94dd: // Body/eye/tail/arms instruction lists = next four words.
+            case DraygonCodePointers.Instruction_Draygon_SetInstList_Body_Eye_Tail_Arms:
                 state.Body.CurrentInstruction =
                     ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
                 state.Eye!.CurrentInstruction =
@@ -832,24 +832,24 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 10));
                 return true;
 
-            case 0x9895: // Room loading IRQ command = Draygon begin-HUD handler.
+            case DraygonCodePointers.Instruction_Draygon_RoomLoadingInterruptCmd_BeginHUDDraw:
                 state.RoomLoadingIrqCommand = 0x000c;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xc47b: // Eye function = next word.
+            case DraygonCodePointers.Instruction_Draygon_EyeFunctionInY:
                 if (state.Eye is null)
                     throw new InvalidDataException("Draygon eye-function opcode ran before eye load.");
                 state.Eye.VariableA = ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0x9736: // Current record function = next word.
+            case DraygonCodePointers.Instruction_Draygon_FunctionInY:
                 slot.VariableA = ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0x9e0a: // Tail list displaces the composited body graphics.
+            case DraygonCodePointers.Instruction_DraygonBody_DisplaceGraphics:
                 state.BodyGraphicsXDisplacement =
                     ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
                 state.BodyGraphicsYDisplacement =
@@ -857,68 +857,68 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 6));
                 return true;
 
-            case 0x9f60: // Queue next-word SFX in library two, maximum six.
+            case DraygonCodePointers.Instruction_Draygon_QueueSFXInY_Lib2_Max6:
                 state.LastSoundLibrary2 =
                     ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0x9f6e: // Queue next-word SFX in library three, maximum six.
+            case DraygonCodePointers.Instruction_Draygon_QueueSFXInY_Lib3_Max6:
                 state.LastSoundLibrary3 =
                     ReadWord(_bus!, bank | unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0x973f: // Random dying-body big dust cloud (sprite object $15).
+            case DraygonCodePointers.Inst_Draygon_SpawnDyingDraygonSpriteObject_BigDustCloud:
                 SpawnRandomDyingDraygonObject(state, RoomSpriteObjectKind.DustCloud);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0x9752: // Random dying-body small explosion (sprite object $03).
+            case DraygonCodePointers.Inst_Draygon_SpawnDyingDraygonSpriteObject_SmallExplosion:
                 SpawnRandomDyingDraygonObject(state, RoomSpriteObjectKind.SporeSpawnDyingExplosion);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0x9765: // Random dying-body large explosion (sprite object $1D).
+            case DraygonCodePointers.Inst_Draygon_SpawnDyingDraygonSpriteObject_BigExplosion:
                 SpawnRandomDyingDraygonObject(state, RoomSpriteObjectKind.BotwoonLargeExplosion);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0x9778: // Random dying-body breath bubbles (sprite object $18).
+            case DraygonCodePointers.Inst_Draygon_SpawnDyingDraygonSpriteObject_BreathBubbles:
                 SpawnRandomDyingDraygonObject(state, RoomSpriteObjectKind.DraygonBreathBubble);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0x98d3: // Replace the tail and arms lists with the shared sleep list.
+            case DraygonCodePointers.Instruction_Draygon_ParalyseDraygonTailAndArms:
                 InstallDraygonInstruction(state.Tail!, 0x97b9);
                 InstallDraygonInstruction(state.Arms!, 0x97b9);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0x98ef: // Body ignores ordinary Samus collision for the remainder of death.
+            case DraygonCodePointers.Instruction_DraygonBody_SetAsIntangible:
                 state.Body.Properties =
                     state.Body.Properties.With(EnemyProperties.IgnoreSamusCollision);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0x9f57: // Body function = next word, even when the tail owns this list.
+            case DraygonCodePointers.Instruction_Draygon_BodyFunctionInY:
                 state.Function = (DraygonAiFunction)ReadWord(
                     _bus!,
                     bank | unchecked((ushort)(cursor + 2)));
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0x9b9a: // Tail-whip impact uses the body definition's damage word.
+            case DraygonCodePointers.Instruction_DraygonTail_TailWhipHit:
                 ApplyDraygonTailWhipHit(state, samus);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0x9f7c: // Spawn goop leftward from the left-facing mouth.
+            case DraygonCodePointers.Instruction_Draygon_SpawnGoop_Leftwards:
                 SpawnDraygonGoop(state, movingRight: false);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0x9fae: // Spawn goop rightward from the right-facing mouth.
+            case DraygonCodePointers.Instruction_Draygon_SpawnGoop_Rightwards:
                 SpawnDraygonGoop(state, movingRight: true);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;

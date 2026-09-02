@@ -19,14 +19,11 @@ namespace SuperMetroid.Core.Frontend;
 /// validity and displayed energy/time are decoded from the cartridge's redundant SRAM
 /// checksum layout rather than from host-authored metadata.
 /// </remarks>
-public sealed class FileSelectMenuState
+public sealed partial class FileSelectMenuState
 {
-    private static readonly ushort[] SelectionY = [48, 88, 128, 163, 187, 211];
-    private static readonly ushort[] HelmetY = [47, 87, 127];
-    private static readonly ushort[] MissileSpritemapIds = [0x37, 0x36, 0x35, 0x34];
-
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
+    private readonly SuperMetroidSaveRam saveRam;
     private readonly MenuPpuState ppu;
     private readonly OamBuffer oam = new();
     private readonly ControllerInputState controller = new();
@@ -45,7 +42,7 @@ public sealed class FileSelectMenuState
         this.audio = audio;
         ppu = new MenuPpuState(bus);
 
-        var saveRam = new SuperMetroidSaveRam(bus);
+        saveRam = new SuperMetroidSaveRam(bus);
         for (int slot = 0; slot < saveSlots.Length; slot++)
             saveSlots[slot] = saveRam.ReadSlot(slot);
         SelectedItem = saveRam.ReadSelectedSlot();
@@ -78,6 +75,9 @@ public sealed class FileSelectMenuState
     /// <summary>True when Exit/B completes the native fade back toward reset.</summary>
     public bool TitleRequested { get; private set; }
 
+    /// <summary>True only on the frame in which Copy or Clear mutated cartridge SRAM.</summary>
+    public bool SaveRamChangedThisFrame { get; private set; }
+
     /// <summary>Current INIDISP brightness nibble.</summary>
     public byte Brightness => (byte)brightness;
 
@@ -93,6 +93,7 @@ public sealed class FileSelectMenuState
     /// <summary>Advances one native menu frame from a raw SNES controller word.</summary>
     public void Step(ushort controllerInput)
     {
+        SaveRamChangedThisFrame = false;
         controller.Latch(controllerInput);
         SnesButton pressed = (SnesButton)controller.NewlyPressed;
 
@@ -106,42 +107,23 @@ public sealed class FileSelectMenuState
                 break;
 
             case FileSelectPhase.Main:
-                // Copy/Clear remain outside the current playable slice. Up and Down retain
-                // the native no-submenu cycle through A, B, C, and Exit.
-                if ((pressed & SnesButton.Up) != 0)
-                {
-                    SelectedItem = SelectedItem switch { 0 => 5, 5 => 2, _ => SelectedItem - 1 };
-                    audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
-                }
-                else if ((pressed & SnesButton.Down) != 0)
-                {
-                    SelectedItem = SelectedItem switch { 2 => 5, 5 => 0, _ => SelectedItem + 1 };
-                    audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
-                }
+                StepMainMenu(pressed);
+                break;
 
-                if ((pressed & SnesButton.B) != 0)
-                {
-                    audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
-                    audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
-                    Phase = FileSelectPhase.FadeOutToTitle;
-                }
-                else if ((pressed & (SnesButton.Start | SnesButton.A)) != 0)
-                {
-                    if (SelectedItem < 3)
-                    {
-                        audio?.QueueSound(library: 1, soundId: 0x2a, maximumQueued: 6);
-                        // `menu_index += 27` enters index 31 and enables only the selected
-                        // helmet timer. A newly created save initializes to 99 energy later.
-                        helmetAnimationFrame = 0;
-                        helmetAnimationTimer = 1;
-                        Phase = FileSelectPhase.TurnSelectedHelmet;
-                    }
-                    else if (SelectedItem == 5)
-                    {
-                        audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
-                        Phase = FileSelectPhase.FadeOutToTitle;
-                    }
-                }
+            case FileSelectPhase.FadeOutToDataManagement:
+            case FileSelectPhase.FadeOutToMain:
+            case FileSelectPhase.FadeInFromDataManagement:
+                StepDataManagementFade();
+                break;
+
+            case FileSelectPhase.CopySelectSource:
+            case FileSelectPhase.CopySelectDestination:
+            case FileSelectPhase.CopyConfirm:
+            case FileSelectPhase.CopyCompleted:
+            case FileSelectPhase.ClearSelectSlot:
+            case FileSelectPhase.ClearConfirm:
+            case FileSelectPhase.ClearCompleted:
+                StepDataManagement(pressed);
                 break;
 
             case FileSelectPhase.TurnSelectedHelmet:
@@ -183,9 +165,23 @@ public sealed class FileSelectMenuState
         SnesLayerCompositor.Composite(background, foreground);
 
         oam.BeginFrame();
-        DrawMenuSpritemap(0x48, 128, 16); // Samus Data border.
-        DrawMenuSpritemap(MissileSpritemapIds[missileAnimationFrame], 14, SelectionY[SelectedItem]);
-        for (int slot = 0; slot < 3; slot++)
+        bool mainScreen = IsMainScreenPhase;
+        ushort border = IsCopyPhase
+            ? FileSelectLayout.CopyBorderSpritemap
+            : IsClearPhase
+                ? FileSelectLayout.ClearBorderSpritemap
+                : FileSelectLayout.NormalBorderSpritemap;
+        ushort borderX = IsClearPhase ? (ushort)124 : (ushort)128;
+        DrawMenuSpritemap(border, borderX, 16);
+        if (ShouldDrawSelectionMissile)
+        {
+            (ushort missileX, ushort missileY) = GetSelectionMissilePosition();
+            DrawMenuSpritemap(
+                FileSelectLayout.MissileSpritemapIds[missileAnimationFrame],
+                missileX,
+                missileY);
+        }
+        for (int slot = 0; mainScreen && slot < 3; slot++)
         {
             // Menu index 32 fades with the completed (or Start-shortened) helmet turn
             // still resident in OAM. Resetting to spritemap $2C during the fade produces
@@ -194,7 +190,10 @@ public sealed class FileSelectMenuState
                     FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
                 ? helmetAnimationFrame
                 : 0;
-            DrawMenuSpritemap((ushort)(0x2c + Math.Min(frame, 7)), 100, HelmetY[slot]);
+            DrawMenuSpritemap(
+                (ushort)(0x2c + Math.Min(frame, 7)),
+                100,
+                FileSelectLayout.HelmetY[slot]);
         }
         oam.FinalizeFrame();
 
@@ -207,28 +206,44 @@ public sealed class FileSelectMenuState
     private void BuildSaveTilemap()
     {
         // Native `ClearMenuTilemap` fills every word with character $00F (blank).
-        Array.Fill(bg1Tilemap, (ushort)0x000f);
-        LoadMenuTilemap(destinationByteOffset: 0x056, sourcePointer: 0xb40a); // SAMUS DATA
-        LoadMenuTilemap(destinationByteOffset: 0x146, sourcePointer: 0xb436); // SAMUS A
+        Array.Fill(bg1Tilemap, FileSelectLayout.BlankTile);
+        LoadMenuTilemap(FileSelectLayout.SamusDataDestination, FileSelectTilemaps.SamusData);
+        LoadMenuTilemap(FileSelectLayout.SlotALabelDestination, FileSelectTilemaps.SamusA);
         // `$81:A08E-$81:A096` adds one complete $40-byte tilemap row to the slot's
         // energy-field origin before loading NO DATA. The leading blank word in the ROM
         // string then places N at column 15. Using $01BC here would instead begin at column
         // 30, putting N in column 31 and wrapping O DATA onto the following scanline.
-        DrawFileSlot(saveSlots[0], energyOrigin: 0x15c, timeOrigin: 0x1b4);
+        DrawFileSlot(
+            saveSlots[0],
+            FileSelectLayout.SlotAEnergyDestination,
+            FileSelectLayout.SlotATimeValueDestination);
         // `$81:9F3A` conditionally draws only the numeric HH:MM value. The following
         // `$81:9F3D-$81:9F43` tilemap load is unconditional, so the static TIME caption
         // remains visible even when slot A is empty and its numeric fields are omitted.
-        LoadMenuTilemap(destinationByteOffset: 0x176, sourcePointer: 0xb4a0); // TIME
-        LoadMenuTilemap(destinationByteOffset: 0x286, sourcePointer: 0xb456); // SAMUS B
-        DrawFileSlot(saveSlots[1], energyOrigin: 0x29c, timeOrigin: 0x2f4);
+        LoadMenuTilemap(FileSelectLayout.SlotATimeLabelDestination, FileSelectTilemaps.Time);
+        LoadMenuTilemap(FileSelectLayout.SlotBLabelDestination, FileSelectTilemaps.SamusB);
+        DrawFileSlot(
+            saveSlots[1],
+            FileSelectLayout.SlotBEnergyDestination,
+            FileSelectLayout.SlotBTimeValueDestination);
         // Slot B repeats the same native split between conditional digits and an
         // unconditional ROM-authored caption (`$81:9F70-$81:9F79`).
-        LoadMenuTilemap(destinationByteOffset: 0x2b6, sourcePointer: 0xb4a0); // TIME
-        LoadMenuTilemap(destinationByteOffset: 0x3c6, sourcePointer: 0xb476); // SAMUS C
-        DrawFileSlot(saveSlots[2], energyOrigin: 0x3dc, timeOrigin: 0x434);
+        LoadMenuTilemap(FileSelectLayout.SlotBTimeLabelDestination, FileSelectTilemaps.Time);
+        LoadMenuTilemap(FileSelectLayout.SlotCLabelDestination, FileSelectTilemaps.SamusC);
+        DrawFileSlot(
+            saveSlots[2],
+            FileSelectLayout.SlotCEnergyDestination,
+            FileSelectLayout.SlotCTimeValueDestination);
         // Slot C's caption is likewise loaded unconditionally at `$81:9FA9-$81:9FAF`.
-        LoadMenuTilemap(destinationByteOffset: 0x3f6, sourcePointer: 0xb4a0); // TIME
-        LoadMenuTilemap(destinationByteOffset: 0x688, sourcePointer: 0xb4ee); // EXIT
+        LoadMenuTilemap(FileSelectLayout.SlotCTimeLabelDestination, FileSelectTilemaps.Time);
+        if (saveSlots.Any(slot => slot is not null))
+        {
+            // Native index 16 exposes both data-management entries only when at least one
+            // checksummed slot exists; an all-empty SRAM image skips directly from C to Exit.
+            LoadMenuTilemap(FileSelectLayout.DataCopyDestination, FileSelectTilemaps.DataCopy);
+            LoadMenuTilemap(FileSelectLayout.DataClearDestination, FileSelectTilemaps.DataClear);
+        }
+        LoadMenuTilemap(FileSelectLayout.ExitDestination, FileSelectTilemaps.Exit);
     }
 
     /// <summary>Ports <c>Draw_FileSelection_Energy/Time</c> at $81:A087/$A14E.</summary>
@@ -241,11 +256,13 @@ public sealed class FileSelectMenuState
         {
             // The native empty path advances one complete tilemap row before writing the
             // leading blank and NO DATA text. The tilemap is already blank everywhere else.
-            LoadMenuTilemap(energyOrigin + 0x40, 0xb4ac);
+            LoadMenuTilemap(
+                energyOrigin + FileSelectLayout.NextTilemapRowByteOffset,
+                FileSelectTilemaps.NoData);
             return;
         }
 
-        LoadMenuTilemap(energyOrigin, 0xb496); // ENERGY
+        LoadMenuTilemap(energyOrigin, FileSelectTilemaps.Energy);
         int healthRemainder = slot.Health % 100;
         WriteMenuDigit(energyOrigin + 0x42, healthRemainder / 10);
         WriteMenuDigit(energyOrigin + 0x44, healthRemainder % 10);
@@ -254,7 +271,7 @@ public sealed class FileSelectMenuState
         int minutes = Math.Min(slot.GameTimeMinutes, (ushort)99);
         WriteMenuDigit(timeOrigin, hours / 10);
         WriteMenuDigit(timeOrigin + 2, hours % 10);
-        LoadMenuTilemap(timeOrigin + 4, 0xb4a8); // Colon.
+        LoadMenuTilemap(timeOrigin + 4, FileSelectTilemaps.TimeColon);
         WriteMenuDigit(timeOrigin + 6, minutes / 10);
         WriteMenuDigit(timeOrigin + 8, minutes % 10);
     }
@@ -264,22 +281,22 @@ public sealed class FileSelectMenuState
         int wordIndex = destinationByteOffset >> 1;
         if ((uint)wordIndex >= bg1Tilemap.Length)
             throw new InvalidDataException("A file-select digit escaped the 32x32 BG1 buffer.");
-        bg1Tilemap[wordIndex] = unchecked((ushort)(0x2060 + digit));
+        bg1Tilemap[wordIndex] = unchecked((ushort)(FileSelectLayout.DigitTileBase + digit));
     }
 
     private void LoadMenuTilemap(int destinationByteOffset, ushort sourcePointer)
     {
         int initialColumn = destinationByteOffset;
-        int sourceAddress = 0x810000 | sourcePointer;
+        int sourceAddress = FileSelectTilemapFormat.Bank | sourcePointer;
         while (true)
         {
             ushort word = RomDataReader.ReadWordFixedBank(bus, sourceAddress);
-            sourceAddress = 0x810000 | ((sourceAddress + 2) & 0xffff);
-            if (word == 0xffff)
+            sourceAddress = FileSelectTilemapFormat.Bank | ((sourceAddress + 2) & 0xffff);
+            if (word == FileSelectTilemapFormat.End)
                 return;
-            if (word == 0xfffe)
+            if (word == FileSelectTilemapFormat.NextRow)
             {
-                initialColumn += 64;
+                initialColumn += FileSelectTilemapFormat.RowByteCount;
                 destinationByteOffset = initialColumn;
                 continue;
             }
@@ -334,6 +351,16 @@ public enum FileSelectPhase
 {
     FadeIn,
     Main,
+    FadeOutToDataManagement,
+    FadeInFromDataManagement,
+    CopySelectSource,
+    CopySelectDestination,
+    CopyConfirm,
+    CopyCompleted,
+    ClearSelectSlot,
+    ClearConfirm,
+    ClearCompleted,
+    FadeOutToMain,
     TurnSelectedHelmet,
     FadeOutToOptions,
     FadeOutToTitle,

@@ -31,84 +31,84 @@ public sealed partial class RoomEnemySystem
 
         switch (opcode)
         {
-            case 0x806b: // Enemy_SetAiPreInstr_AA
+            case TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY:
                 state.PreInstruction = operand0;
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0x8074: // Enemy_ClearAiPreInstr_AA
+            case TorizoInstructionCodes.Instruction_CommonAA3_SetEnemy0FB2ToRTS:
                 state.PreInstruction = TorizoPreInstructionIdle;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xb09c: // Torizo_Instr_3: install main function.
+            case TorizoInstructionCodes.Instruction_Torizo_FunctionInY:
                 state.Function = operand0;
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0xb11d: // Torizo_Instr_31: begin six-piece body breakup.
+            case TorizoInstructionCodes.Instruction_Torizo_MarkBTGutBlownUp_Spawn6BTDroolProjectiles:
                 torizo.Parameter2 = unchecked((ushort)(torizo.Parameter2 | 0x8000));
                 for (int piece = 0; piece < 6; piece++)
                     SpawnBombTorizoLowHealthDrool(torizo);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xb1be: // Torizo_Instr_33: latch the second death phase.
+            case TorizoInstructionCodes.Instruction_Torizo_MarkBombTorizoFaceBlownUp:
                 torizo.Parameter2 = unchecked((ushort)(torizo.Parameter2 | 0x4000));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xb224: // Torizo_Instr_36: show body.
+            case TorizoInstructionCodes.Instruction_Torizo_SetAsVisible:
                 torizo.Properties = torizo.Properties.Without(EnemyProperties.Invisible);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xb22e: // Torizo_Instr_37: hide body.
+            case TorizoInstructionCodes.Instruction_Torizo_SetAsInvisible:
                 torizo.Properties = torizo.Properties.With(EnemyProperties.Invisible);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xb238: // Torizo_Instr_35: clear both body palette rows.
+            case TorizoInstructionCodes.Instruction_Torizo_SetupPaletteTransitionToBlack:
                 BlackOutBombTorizoPalette();
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xb24d: // Torizo_Instr_38: boss bit, music, and item drop.
+            case TorizoInstructionCodes.Instruction_Torizo_SetBossBit_QueueElevatorMusic_SpawnDrops:
                 FinishBombTorizoDeath(state);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xb271: // Torizo_Instr_6: native screen-shake helper call.
+            case TorizoInstructionCodes.Instruction_Torizo_AdvanceGradualColorChange:
                 EarthquakeType = 4;
                 EarthquakeTimer = 32;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xb94d: // Torizo_Instr_5: install the shared late-death body palette.
+            case TorizoInstructionCodes.Instruction_Torizo_SetupPaletteTransitionToNormalTorizo:
                 LoadTorizoDeathPalette();
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xb951: // Torizo_Instr_9: post-awakening music/palette-FX request.
+            case TorizoInstructionCodes.Instruction_Torizo_StartFightMusic_BombTorizoBellyPaletteFX:
                 LastBombTorizoMusicRequest = new BombTorizoMusicRequest(5, 8);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xc2c8: // Torizo_Instr_7: explicit RTL/no-op.
+            case TorizoInstructionCodes.RTL_AAC2C8:
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xc2c9: // Torizo_Instr_2: protect statue/transition frames from shots.
+            case TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock:
                 state.ShotGuard = BombTorizoShotGuardValue;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xc2d1: // Torizo_Instr_8: re-enable shot damage.
+            case TorizoInstructionCodes.Instruction_Torizo_ClearAnimationLock:
                 state.ShotGuard = 0;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xc2d9: // Torizo_Instr_25: two-target variant/death branch.
+            case TorizoInstructionCodes.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden:
             {
                 ushort operand1 = ReadWord(_bus!, 0xaa0000 |
                     unchecked((ushort)(cursor + 4)));
@@ -121,20 +121,20 @@ public sealed partial class RoomEnemySystem
                 return true;
             }
 
-            case 0xc2ed: // Torizo_Instr_22: save a later landing/list return target.
+            case TorizoInstructionCodes.Instruction_Torizo_LinkInstructionInY:
                 state.ReturnInstruction = operand0;
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0xc2f7: // Torizo_Instr_19: return to saved target.
+            case TorizoInstructionCodes.Instruction_Torizo_Return:
                 cursor = state.ReturnInstruction;
                 return true;
 
-            case 0xc2fd: // Torizo_Instr_32: restore list interrupted at 350 health.
+            case TorizoInstructionCodes.Instruction_Torizo_GotoGutExplosionLinkInstruction:
                 cursor = state.InterruptedInstruction;
                 return true;
 
-            case 0xc303: // Torizo_Instr_30: six low-health core explosions, wait 40.
+            case TorizoInstructionCodes.Instruction_Torizo_Spawn5LowHealthExplosion_SleepFor28Frames:
                 for (int explosion = 0; explosion < 6; explosion++)
                     SpawnBombTorizoLowHealthExplosion(torizo, operand0);
                 torizo.CurrentInstruction = unchecked((ushort)(cursor + 4));
@@ -143,7 +143,7 @@ public sealed partial class RoomEnemySystem
                 pauseInterpreter = true;
                 return true;
 
-            case 0xc32f: // Torizo_Instr_34: one death explosion, resume next frame.
+            case TorizoInstructionCodes.Instruction_Torizo_SpawnTorizoDeathExplosion_SleepFor1IFrame:
                 SpawnBombTorizoDeathExplosion(torizo);
                 torizo.CurrentInstruction = unchecked((ushort)(cursor + 2));
                 torizo.FlashTimer = 1;
@@ -151,61 +151,61 @@ public sealed partial class RoomEnemySystem
                 pauseInterpreter = true;
                 return true;
 
-            case 0xc34a: // Torizo_Instr_24: two authored landing dust actors.
+            case TorizoInstructionCodes.Instruction_Torizo_SpawnTorizoLandingDustClouds:
                 SpawnBombTorizoLandingDust(torizo, rightFoot: true);
                 SpawnBombTorizoLandingDust(torizo, rightFoot: false);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xc35b: // Torizo_Instr_12: one initial drool below 350 health.
+            case TorizoInstructionCodes.Instruction_Torizo_SpawnLowHealthInitialDroolIfHealthIsLow:
                 if (torizo.Health < BombTorizoHeadExplosionHealth)
                     SpawnBombTorizoInitialDrool(torizo);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xc36d: // Torizo_Instr_10: set centered-drool/facing override.
+            case TorizoInstructionCodes.Instruction_Torizo_SetTorizoTurningAroundFlag:
                 torizo.Parameter1 = unchecked((ushort)(torizo.Parameter1 | 0x4000));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xc377: // Torizo_Instr_11: facing/pose bits = 0.
+            case TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithLeftFootState:
                 torizo.Parameter1 = unchecked((ushort)(torizo.Parameter1 & 0x1fff));
                 state.DecisionCounter = unchecked((ushort)(state.DecisionCounter + 1));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xc38a: // Torizo_Instr_29: facing/pose bits = $8000.
+            case TorizoInstructionCodes.Instruction_Torizo_SetSteppedRightWithRightFootState:
                 torizo.Parameter1 = unchecked((ushort)(
                     (torizo.Parameter1 & 0x1fff) | 0x8000));
                 state.DecisionCounter = unchecked((ushort)(state.DecisionCounter + 1));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xc3a0: // Torizo_Instr_1: facing/pose bits = $2000.
+            case TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithRightFootState:
                 torizo.Parameter1 = unchecked((ushort)(
                     (torizo.Parameter1 & 0x1fff) | 0x2000));
                 state.DecisionCounter = unchecked((ushort)(state.DecisionCounter + 1));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xc3b6: // Torizo_Instr_28: facing/pose bits = $A000.
+            case TorizoInstructionCodes.Instruction_Torizo_SetSteppedRightWithLeftFootState:
                 torizo.Parameter1 = unchecked((ushort)(
                     (torizo.Parameter1 & 0x1fff) | 0xa000));
                 state.DecisionCounter = unchecked((ushort)(state.DecisionCounter + 1));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xc3cc: // Torizo_Instr_4: authored positive body-map correction.
+            case TorizoInstructionCodes.Instruction_Torizo_StandingUpMovement_IndexInY:
                 ApplyBombTorizoMapOffset(torizo, operand0, subtract: false);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0xc41e: // Torizo_Instr_40: authored inverse body-map correction.
+            case TorizoInstructionCodes.Instruction_Torizo_SittingDownMovement_IndexInY:
                 ApplyBombTorizoMapOffset(torizo, operand0, subtract: true);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0xc470: // Torizo_Instr_16: first walking table.
+            case TorizoInstructionCodes.Instruction_Torizo_BombTorizoWalkingMovement_Normal_IndexInY:
                 cursor = ProcessBombTorizoWalkInstruction(
                     torizo,
                     state,
@@ -218,7 +218,7 @@ public sealed partial class RoomEnemySystem
                     collisionFacingLeft: 0xbdd8);
                 return true;
 
-            case 0xc4e5: // Torizo_Instr_27: second walking table.
+            case TorizoInstructionCodes.Instruction_Torizo_BTWalkingMovement_Faceless_IndexInY:
                 cursor = ProcessBombTorizoWalkInstruction(
                     torizo,
                     state,
@@ -231,13 +231,13 @@ public sealed partial class RoomEnemySystem
                     collisionFacingLeft: 0xc188);
                 return true;
 
-            case 0xc55a: // Torizo_Instr_23: branch while vertical velocity is negative.
+            case TorizoInstructionCodes.Instruction_Torizo_GotoY_IfRising:
                 cursor = unchecked((short)state.VerticalVelocity) < 0
                     ? operand0
                     : unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0xc567: // Torizo_Instr_14: close-behind branch.
+            case TorizoInstructionCodes.Instruction_Torizo_CallYIfSamusIsLessThan38PixelsInFront:
                 cursor = SelectBombTorizoCloseBehindBranch(
                     torizo,
                     state,
@@ -246,7 +246,7 @@ public sealed partial class RoomEnemySystem
                     operand0);
                 return true;
 
-            case 0xc58b: // Torizo_Instr_15: close-front jump branch.
+            case TorizoInstructionCodes.Instruction_Torizo_GotoYAndJumpBackwardsIfLessThan20Pixels:
                 cursor = SelectBombTorizoCloseFrontJump(
                     torizo,
                     state,
@@ -255,7 +255,7 @@ public sealed partial class RoomEnemySystem
                     operand0);
                 return true;
 
-            case 0xc5a4: // Torizo_Instr_26: missile-count/randomized two-way branch.
+            case TorizoInstructionCodes.Instruction_Torizo_CallY_OrY2_ForBombTorizoAttack:
             {
                 if (samus is null)
                     throw new InvalidOperationException("Bomb Torizo attack selection requires Samus state.");
@@ -268,114 +268,114 @@ public sealed partial class RoomEnemySystem
                 return true;
             }
 
-            case 0xc5cb: // Torizo_Instr_18: three Chozo orbs.
+            case TorizoInstructionCodes.Instruction_Torizo_SpawnBombTorizosChozoOrbs:
                 SpawnBombTorizoChozoOrb(torizo);
                 SpawnBombTorizoChozoOrb(torizo);
                 SpawnBombTorizoChozoOrb(torizo);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xc5e3: // Torizo_Instr_20: one sonic boom; operand is retained init data.
+            case TorizoInstructionCodes.Instruction_Torizo_SpawnBombTorizoSonicBoomWithParameterY:
                 SpawnBombTorizoSonicBoom(torizo, operand0);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0xc5f2: // Torizo_Instr_44: Golden variant of the accelerating sonic boom.
+            case TorizoInstructionCodes.Instruction_Torizo_SpawnGoldenTorizoSonicBoomWithParameterY:
                 SpawnGoldenTorizoSonicBoom(torizo, operand0);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0xc601: // Torizo_Instr_21: one frame-positioned explosive swipe.
+            case TorizoInstructionCodes.Instruction_Torizo_SpawnBombTorizoExplosiveSwipeWithParamY:
                 SpawnBombTorizoExplosiveSwipe(torizo, operand0);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0xc610: // Torizo_Instr_17: attack sound.
+            case TorizoInstructionCodes.Instruction_Torizo_PlayShotTorizoSFX:
                 LastBombTorizoSoundEffect = 0x0027;
                 QueueEnemySound(library: 2, soundId: 0x0027, maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xc618: // Torizo_Instr_13: heavy movement/impact sound.
+            case TorizoInstructionCodes.Instruction_Torizo_PlayTorizoFootstepsSFX:
                 LastBombTorizoSoundEffect = 0x004b;
                 QueueEnemySound(library: 2, soundId: 0x004b, maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xcace: // Torizo_Instr_39: loop until the statue reaches authored Y=$0177.
+            case TorizoInstructionCodes.Instruction_Torizo_GotoY_IfNotHitGround:
                 cursor = torizo.YPosition == 375
                     ? unchecked((ushort)(cursor + 4))
                     : operand0;
                 return true;
 
-            case 0xcade: // Torizo_Instr_41: Golden final body-palette pair.
+            case TorizoInstructionCodes.Instruction_Torizo_LoadGoldenTorizoPalettes:
                 LoadGoldenTorizoFinalPalette();
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xcae2: // Torizo_Instr_42: battle music, live radii, and palette-FX request.
+            case TorizoInstructionCodes.Inst_Torizo_StartFightMusic_GoldenTorizoBellyPaletteFX:
                 LastBombTorizoMusicRequest = new BombTorizoMusicRequest(5, 8);
                 torizo.XRadius = 18;
                 torizo.YRadius = 48;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xcdd7: // Torizo_Instr_48: release the captured-super state.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_ClearCaughtSuperMissileFlag:
                 torizo.Parameter2 = unchecked((ushort)(torizo.Parameter2 & ~0x1000));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xd0e9: // Torizo_Instr_57: spawn one Golden Torizo egg actor.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_SpawnGoldenTorizoEgg:
                 SpawnGoldenTorizoEgg(torizo);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xd0f3: // Torizo_Instr_58: wait/branch while any egg actor remains alive.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_EyeBeamAttack_0:
                 cursor = EnemyProjectiles.Any(projectile =>
                         projectile.Kind == RoomEnemyProjectileKind.GoldenTorizoEgg)
                     ? operand0
                     : unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0xd17b: // Torizo_Instr_59: clear the egg-direction flag.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_DisableEyeBeamExplosions:
                 state.AttackFlags = unchecked((ushort)(state.AttackFlags & ~0x8000));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xd187: // Torizo_Instr_62: set the egg-direction flag.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_EnableEyeBeamExplosions:
                 state.AttackFlags = unchecked((ushort)(state.AttackFlags | 0x8000));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xd1e7: // Torizo_Instr_63: consume the high-health reaction latch.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_UnmarkStunned:
                 torizo.Parameter2 = unchecked((ushort)(torizo.Parameter2 & ~0x2000));
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xd38f: // Torizo_Instr_56: Golden attack sound.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_QueueEggReleasedSFX:
                 LastBombTorizoSoundEffect = 0x0034;
                 QueueEnemySound(library: 2, soundId: 0x0034, maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xd397: // Torizo_Instr_60: Golden eye/energy sound.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_QueueLaserSFX:
                 LastBombTorizoSoundEffect = 0x0067;
                 QueueEnemySound(library: 2, soundId: 0x0067, maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xd39f: // Torizo_Instr_46: Golden missile sound.
+            case TorizoInstructionCodes.Instruction_Torizo_QueueSonicBoomSFX:
                 LastBombTorizoSoundEffect = 0x0048;
                 QueueEnemySound(library: 2, soundId: 0x0048, maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xd3e0: // Torizo_Instr_47: held/fired Golden super missile actor.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_SpawnSuperMissile:
                 SpawnGoldenTorizoSuperMissile(torizo);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xd3ea: // Torizo_Instr_49: close-behind Morph/Spring Ball reaction.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_IfSamusIsMorphedBehindTorizo:
                 cursor = SelectGoldenTorizoMorphBallBranch(
                     torizo,
                     state,
@@ -384,12 +384,12 @@ public sealed partial class RoomEnemySystem
                     operand0);
                 return true;
 
-            case 0xd436: // Torizo_Instr_61: spawn one parameterized Golden eye beam.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_SpawnEyeBeam:
                 SpawnGoldenTorizoEyeBeam(torizo, operand0);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case 0xd445: // Torizo_Instr_53: medium-range randomized front attack.
+            case TorizoInstructionCodes.Instruction_GT_CallY_25Chance_IfSamusMorphedInFrontOfTorizo:
                 cursor = SelectGoldenTorizoMediumRangeBranch(
                     torizo,
                     state,
@@ -398,7 +398,7 @@ public sealed partial class RoomEnemySystem
                     operand0);
                 return true;
 
-            case 0xd474: // Torizo_Instr_55: low-health randomized attack.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_25Chance_IfHealthLessThan789:
                 if (torizo.Health > 0x0788 || (_nextRandom!() & 0x0102) != 0)
                     cursor = unchecked((ushort)(cursor + 4));
                 else
@@ -409,7 +409,7 @@ public sealed partial class RoomEnemySystem
                 }
                 return true;
 
-            case 0xd49b: // Torizo_Instr_52: high-health reaction to an accepted normal hit.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_IfStunHealthGreaterThan2A31:
                 if (torizo.Health <= 0x2a30 || (torizo.Parameter2 & 0x2000) == 0)
                     cursor = unchecked((ushort)(cursor + 4));
                 else
@@ -419,7 +419,7 @@ public sealed partial class RoomEnemySystem
                 }
                 return true;
 
-            case 0xd4ba: // Torizo_Instr_50: anti-space-jump leap decision.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_JumpForwards_IfAtLeast70Pixel:
                 cursor = SelectGoldenTorizoSpaceJumpCounter(
                     torizo,
                     state,
@@ -429,12 +429,12 @@ public sealed partial class RoomEnemySystem
                     operand0);
                 return true;
 
-            case 0xd4f3: // Torizo_Instr_43: one bouncing Golden Chozo orb.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_SpawnChozoOrbs:
                 SpawnGoldenTorizoChozoOrb(torizo);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case 0xd4fd: // Torizo_Instr_51: repetition/distance-controlled jump.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_JumpBack_IfLessThan20Pixels:
                 cursor = SelectGoldenTorizoRepeatedJump(
                     torizo,
                     state,
@@ -443,7 +443,7 @@ public sealed partial class RoomEnemySystem
                     operand0);
                 return true;
 
-            case 0xd526: // Torizo_Instr_45: missile-count/frame-phase two-way attack.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_OrY2_ForAttack:
             {
                 SamusState activeSamus = RequireGoldenTorizoSamus(samus);
                 ushort operand1 = ReadWord(_bus!, 0xaa0000 |
@@ -456,7 +456,7 @@ public sealed partial class RoomEnemySystem
                 return true;
             }
 
-            case 0xd54d: // Torizo_Instr_54: Golden walking velocity table.
+            case TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY:
                 cursor = ProcessGoldenTorizoWalkInstruction(
                     torizo,
                     state,

@@ -243,6 +243,8 @@ public sealed class SuperMetroidGame
 
             case SuperMetroidGameState.FileSelectMenus:
                 fileSelect!.Step(controllerInput);
+                if (fileSelect.SaveRamChangedThisFrame)
+                    SaveRamChanged?.Invoke();
                 lastPixels = fileSelect.Render();
                 if (fileSelect.TitleRequested)
                 {

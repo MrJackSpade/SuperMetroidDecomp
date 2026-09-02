@@ -474,18 +474,14 @@ public sealed partial class SamusState
 
         // The probes run against independent copies. Native stores both available-distance
         // results before choosing a branch, so neither probe may move the live body early.
-        SamusKinematicsState upwardProbe = CopyKinematics(Kinematics);
-        BlockMoveResult upward = SamusBlockCollision.MoveVertical(
+        BlockMoveResult upward = ProbeChangedPoseVertical(
             bus,
             level,
-            upwardProbe,
             displacement: unchecked(-radiusDifference << 16),
             scanLeftToRight: (nmiFrameCounter & 1) == 0);
-        SamusKinematicsState downwardProbe = CopyKinematics(Kinematics);
-        BlockMoveResult downward = SamusBlockCollision.MoveVertical(
+        BlockMoveResult downward = ProbeChangedPoseVertical(
             bus,
             level,
-            downwardProbe,
             displacement: radiusDifference << 16,
             scanLeftToRight: (nmiFrameCounter & 1) == 0);
 
@@ -542,6 +538,52 @@ public sealed partial class SamusState
         }
 
         return LargerPoseCollisionOutcome.Allowed;
+    }
+
+    /// <summary>
+    /// Executes the unusual two-pass distance probe in
+    /// <c>Samus_CollDetectChangedPose</c> at <c>$94:96AB</c>.
+    /// </summary>
+    /// <remarks>
+    /// A pose expansion of eight pixels or more is not tested only at its final leading
+    /// boundary. Native first tests the signed displacement rounded to the intermediate
+    /// eight-pixel boundary and returns immediately if that scan collides, then tests the
+    /// complete displacement only when the intermediate scan was clear. That first scan is
+    /// observable on square half-blocks: an eleven-pixel compact-to-standing expansion can
+    /// cross from the solid lower quadrant into an air upper quadrant at its final boundary.
+    /// A single final-boundary scan therefore misses the floor, expands Samus downward, and
+    /// lets her fall through the platform. Each probe uses a separate kinematics copy because
+    /// the cartridge collision routine publishes a distance without moving live Samus.
+    /// </remarks>
+    private BlockMoveResult ProbeChangedPoseVertical(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        int displacement,
+        bool scanLeftToRight)
+    {
+        short wholePixels = unchecked((short)(displacement >> 16));
+        if ((Math.Abs(wholePixels) & 0xfff8) != 0)
+        {
+            // `$94:96C0` computes `(signedWhole & $FFF0) | 8`. Retain the literal
+            // two's-complement expression rather than replacing it with a magnitude
+            // shortcut; negative probes deliberately produce -8 for the known pose radii.
+            short intermediateWhole = unchecked((short)((wholePixels & 0xfff0) | 8));
+            BlockMoveResult intermediate = SamusBlockCollision.MoveVertical(
+                bus,
+                level,
+                CopyKinematics(Kinematics),
+                displacement: intermediateWhole << 16,
+                scanLeftToRight: scanLeftToRight);
+            if (intermediate.Collided)
+                return intermediate;
+        }
+
+        return SamusBlockCollision.MoveVertical(
+            bus,
+            level,
+            CopyKinematics(Kinematics),
+            displacement,
+            scanLeftToRight);
     }
 
     /// <summary>

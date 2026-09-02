@@ -24,9 +24,6 @@ public sealed record CartridgeDoorHeader(
 {
     private const int DoorBank = 0x830000;
 
-    /// <summary>Door setup at $8F:E4E0, which selects Ceres elevator Mode 7.</summary>
-    public const ushort CeresElevatorShaftSetup = 0xe4e0;
-
     /// <summary>Reads the packed door record named by a load station or room door list.</summary>
     public static CartridgeDoorHeader Load(ISnesAddressSpace bus, ushort pointer)
     {
@@ -49,5 +46,6 @@ public sealed record CartridgeDoorHeader(
     /// True only for the verified setup routine that writes BGMODE=7, A=D=$0100,
     /// B=C=0, M7X=$0080, and M7Y=$03F0 at $8F:E4E0.
     /// </summary>
-    public bool UsesCeresElevatorMode7 => SetupCodePointer == CeresElevatorShaftSetup;
+    public bool UsesCeresElevatorMode7 =>
+        SetupCodePointer == DoorCodes.DoorASM_ToCeresElevatorShaft;
 }

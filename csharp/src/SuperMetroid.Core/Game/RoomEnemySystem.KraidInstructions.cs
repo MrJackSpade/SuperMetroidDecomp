@@ -27,27 +27,27 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body = _slots[0];
         switch (instruction)
         {
-            case 0xb633: // Deliberate no-op padding used at gait phase boundaries.
+            case KraidInstructionCodes.Instruction_Kraid_NOP_A7B633:
                 return;
-            case 0xb636:
+            case KraidInstructionCodes.Instruction_Kraid_DecrementYPosition:
                 body.YPosition = unchecked((ushort)(body.YPosition - 1));
                 return;
-            case 0xb63c:
+            case KraidInstructionCodes.Instruction_Kraid_IncrementYPosition_SetScreenShaking:
                 body.YPosition = unchecked((ushort)(body.YPosition + 1));
                 EarthquakeType = 1;
                 EarthquakeTimer = 10;
                 return;
-            case 0xb64e:
+            case KraidInstructionCodes.Instruction_Kraid_QueueSFX76_Lib2_Max6:
                 LastKraidSoundEffect = new KraidSoundRequest(2, 0x0076);
                 return;
-            case 0xb65a:
-            case 0xb667:
+            case KraidInstructionCodes.Instruction_Kraid_XPositionMinus3:
+            case KraidInstructionCodes.Instruction_Kraid_XPositionMinus3_duplicate:
                 body.XPosition = unchecked((ushort)(body.XPosition - 3));
                 return;
-            case 0xb674:
+            case KraidInstructionCodes.Instruction_Kraid_XPositionPlus3:
                 body.XPosition = unchecked((ushort)(body.XPosition + 3));
                 return;
-            case 0xb683:
+            case KraidInstructionCodes.UNUSED_Instruction_Kraid_MoveRight_A7B683:
                 if (level is null)
                     throw new InvalidOperationException(
                         "Kraid's move-right foot instruction requires room collision data.");

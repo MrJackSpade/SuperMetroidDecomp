@@ -135,18 +135,35 @@ public sealed partial class SuperMetroidRuntime
             room,
             station.CameraX,
             station.CameraY);
+        // LoadFromLoadStation writes `$1E75 = 1`. Without this room-entry lockout, the
+        // first standing floor probe after loading directly on a save pod immediately
+        // reopens its confirmation message.
+        Plms.LockSaveStationForCurrentRoomEntry();
 
-        // Samus tiles/palette follow the room graphics upload, exactly as gameplay setup
-        // does. Pose $01 is the translated endpoint of the native load-appearance sequence.
+        // Command nine does not begin at its endpoint. It selects a front-facing pose,
+        // frame two/timer three, a suit-specific bank-$8D palette object, and the 360-call
+        // appearance handler before restoring ordinary input.
         Samus.LoadSuitPalette(_addressSpace, Cgram);
-        Samus.RefreshCollisionRadii(_addressSpace);
-        Samus.InitializeAnimation(_addressSpace);
+        Samus.ApplyForwardFacingPoseSetup(_addressSpace);
+        Samus.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 3);
         Samus.LiquidPhysics.AreaIndex = room.AreaIndex;
         Samus.LiquidPhysics.RoomIndex = room.RoomIndex;
         Samus.PrimeGraphics(_addressSpace);
-        Samus.InputLocked = false;
+        _samusLoadAppearancePaletteFxDefinition =
+            Samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+                ? (ushort)0xe1fc
+                : Samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
+                    ? (ushort)0xe1f8
+                    : (ushort)0xe1f4;
+        RoomPaletteFx.SpawnDefinition(
+            _addressSpace,
+            _samusLoadAppearancePaletteFxDefinition,
+            Samus.EquippedItems,
+            System.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
+        _samusLoadAppearanceFramesRemaining = 0x0168;
+        Samus.InputLocked = true;
         PreviousMovementTypeForXray = Samus.ReadMovementType(_addressSpace);
-        GroundedSamusMovementEnabled = true;
+        GroundedSamusMovementEnabled = false;
         return viewport;
     }
 
@@ -313,7 +330,28 @@ public sealed partial class SuperMetroidRuntime
         BackgroundScroll.Layer1YPosition = _doorOpeningScroll.CameraY;
         BackgroundScroll.Layer2XPosition = _doorOpeningScroll.Layer2X;
         BackgroundScroll.Layer2YPosition = _doorOpeningScroll.Layer2Y;
-        _ = BackgroundScroll.CalculateScrollsAndUpdates();
+        // Each native directional setup immediately invokes its first DoorTransition_*
+        // step. That call both advances from +/-$100 to +/-$FC and streams the boundary
+        // row/column exposed by the off-screen starting viewport. DoorOpeningScrollState
+        // already incorporates that first four-pixel coordinate step, so execute the
+        // matching producer request here as well. Merely calculating and discarding it
+        // updated the previous-block words but left the corresponding VRAM ring-buffer
+        // column stale—the source-side column visible on a left transition then appeared
+        // one block too high when interpreted using the destination room's row origin.
+        if ((door.Orientation & 2) == 0)
+        {
+            BackgroundScroll.PrimeHorizontalDoorOpeningBlocks(door.Orientation);
+            IReadOnlyList<BackgroundUpdateRequest> initialRequests =
+                BackgroundScroll.CalculateScrollsAndUpdates();
+            ExecuteBackgroundStreamRequests(initialRequests, "horizontal door-opening setup");
+        }
+        else
+        {
+            // The vertical setup routines have different 224/15/31-pixel staging quirks.
+            // Their existing pure trajectory verifier owns those paths; consume the atomic
+            // loader's coordinate delta here without claiming horizontal previous-X rules.
+            _ = BackgroundScroll.CalculateScrollsAndUpdates();
+        }
         Samus.Kinematics.SetXFixed(_doorOpeningScroll.SamusXFixed);
         Samus.Kinematics.SetYFixed(_doorOpeningScroll.SamusYFixed);
     }
@@ -334,7 +372,14 @@ public sealed partial class SuperMetroidRuntime
         BackgroundScroll.Layer1YPosition = state.CameraY;
         BackgroundScroll.Layer2XPosition = state.Layer2X;
         BackgroundScroll.Layer2YPosition = state.Layer2Y;
-        _ = BackgroundScroll.CalculateScrollsAndUpdates();
+        // The IRQ moves four pixels per call. Every fourth call crosses a 16-pixel block
+        // boundary and `$80:A3E4` produces the newly exposed row/column DMA. Discarding
+        // those requests left one stale ring-buffer column on horizontal transitions; on
+        // a left door that stale source-door column was interpreted with the destination
+        // row origin and appeared to jump upward by one 16x16 block.
+        IReadOnlyList<BackgroundUpdateRequest> requests =
+            BackgroundScroll.CalculateScrollsAndUpdates();
+        ExecuteBackgroundStreamRequests(requests, "door-opening scroll");
         Samus.Kinematics.SetXFixed(state.SamusXFixed);
         Samus.Kinematics.SetYFixed(state.SamusYFixed);
         return completed;

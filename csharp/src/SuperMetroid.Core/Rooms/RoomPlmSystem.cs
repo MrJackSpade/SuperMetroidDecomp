@@ -172,6 +172,7 @@ public sealed partial class RoomPlmSystem
         _soundRequests.Clear();
         _tilemapUpdates.Clear();
         _stationActivationEvents.Clear();
+        _saveStationLockedOut = false;
         // The progression owner belongs to the room population just discarded. Holding
         // it past Reset would let an accidentally reused PLM slot persist a hit into the
         // previous runtime/system-state instance.

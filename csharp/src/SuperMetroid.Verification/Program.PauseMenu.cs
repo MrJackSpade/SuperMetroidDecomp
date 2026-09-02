@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -20,6 +21,22 @@ internal static partial class Program
         // this state/bit test; the private audit verifies nonempty retail rendering.
         WriteRomLong(rom, 0x82964a, 0xb59000);
         WriteRomWord(rom, 0x82965f, 0x8000);
+
+        // Make every cartridge map cell exist and use low-priority character one. Put a
+        // high-priority BG2 holder tile at screen tile (10,10). The pause PPU must leave
+        // that green holder pixel above the red map even after the area-map upgrade makes
+        // the complete BG1 map visible.
+        WriteRomWord(rom, 0x829717, 0x8500);
+        for (int mapByte = 0; mapByte < 0x0100; mapByte++)
+            WriteRomByte(rom, 0x828500 + mapByte, 0xff);
+        for (int mapWord = 0; mapWord < 0x0800; mapWord++)
+            WriteRomWord(rom, 0xb59000 + mapWord * 2, 0x0001);
+        WriteRomWord(rom, 0xb6e000 + (10 * 32 + 10) * 2, 0x2002);
+        for (int row = 0; row < 8; row++)
+        {
+            WriteRomByte(rom, 0xb68000 + 1 * 32 + row * 2, 0xff);
+            WriteRomByte(rom, 0xb68000 + 2 * 32 + row * 2 + 1, 0xff);
+        }
 
         // Both pause indicators are ordinary bank-$82 menu spritemaps. One harmless
         // single-entry record lets this synthetic test inspect OAM placement without
@@ -85,6 +102,14 @@ internal static partial class Program
             masks: [0x0100, 0x0200, 0x2000],
             labelWords: 9);
 
+        // Pause keeps the existing BG3 HUD tilemap but replaces its character sheet with
+        // $9A:B200. Give character one one visible pixel and palette color one a white
+        // value, then publish that character in the retained gameplay VRAM image.
+        WriteRomByte(rom, 0x9ab210, 0x80);
+        WriteRomWord(rom, 0xb6f002, 0x7fff);
+        WriteRomWord(rom, 0xb6f004, 0x03e0);
+        var gameplayVram = new SnesVram();
+        gameplayVram.ExecuteWordTransfer([0x0001], 0x5800, 1);
         var bus = new SuperMetroidAddressSpace(rom);
         var samus = new SamusState
         {
@@ -94,6 +119,7 @@ internal static partial class Program
             YPosition = 0x0300,
         };
         var system = new Bank80SystemState();
+        system.SetAreaMapAcquired(0);
         system.MarkExploredMapTile(0, mapX: 30, mapY: 5);
         var pause = new PauseMenuState(
             bus,
@@ -101,14 +127,21 @@ internal static partial class Program
             system,
             areaIndex: 0,
             roomMapX: 28,
-            roomMapY: 1);
+            roomMapY: 1,
+            gameplayVram: gameplayVram);
 
         AssertEqual(0, pause.ScreenMode, "pause begins on map page");
-        pause.Render();
-        AssertEqual(112, pause.MapHorizontalScroll, "pause map horizontal centering");
-        AssertEqual(unchecked((ushort)-72), pause.MapVerticalScroll, "pause map vertical centering");
-        AssertEqual(128, pause.LastIndicatorOriginX, "pause map marker X origin");
-        AssertEqual(112, pause.LastIndicatorOriginY, "pause map marker Y origin");
+        Rgba32[] firstPauseFrame = pause.Render();
+        AssertEqual(new Rgba32(255, 255, 255, 255), firstPauseFrame[0],
+            "pause retains and draws gameplay BG3 HUD tilemap");
+        AssertEqual(new Rgba32(0, 255, 0, 255), firstPauseFrame[80 * 256 + 80],
+            "high-priority pause holder clips the fully revealed low-priority map");
+        AssertEqual(124, pause.MapHorizontalScroll,
+            "downloaded pause map horizontal centering");
+        AssertEqual(unchecked((ushort)-24), pause.MapVerticalScroll,
+            "downloaded pause map vertical centering");
+        AssertEqual(116, pause.LastIndicatorOriginX, "pause map marker X origin");
+        AssertEqual(64, pause.LastIndicatorOriginY, "pause map marker Y origin");
         AssertEqual(0x5f, pause.LastIndicatorSpritemapId, "pause map marker initial frame");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause map marker OAM count");
         AssertEqual(0x1400, pause.ReadPauseButtonLabelWord(805) & 0x1c00,

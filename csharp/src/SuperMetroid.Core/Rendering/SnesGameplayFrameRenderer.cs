@@ -942,7 +942,12 @@ public static class SnesGameplayFrameRenderer
         }
 
         int originX = unchecked((short)(beam.WorldX - layer1X));
-        int originY = unchecked((short)(beam.WorldY - layer1Y));
+        // Every on-screen branch of CalculateXrayHdmaTableInner writes its apex to
+        // `2 * (r24 - 1)` ($91:C5FF/$C660/$C6C1/$C822/$C998). The body coordinate passed
+        // by $88:E987 is therefore the scanline immediately below the apex, not the apex
+        // itself. Anchoring at WorldY directly made the cone appear to leave the top/back
+        // of the camera-eye art and was especially conspicuous on its first visible frame.
+        int originY = unchecked((short)(beam.WorldY - layer1Y)) - 1;
         int centerAngle = beam.Angle & 0x00ff;
         int angularWidth = beam.AngularWidth & 0x00ff;
         XrayDirection leftEdge = ReadXrayDirection(bus, centerAngle - angularWidth);

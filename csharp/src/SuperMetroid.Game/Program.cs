@@ -32,6 +32,20 @@ ApplicationConfiguration.Initialize();
 
 try
 {
+    if (args.Length != 0 && args[0].Equals("--state-audit", StringComparison.OrdinalIgnoreCase))
+    {
+        string[] stateRomArguments = args.Length == 2 ? [args[1]] : [];
+        if (args.Length > 2)
+            throw new ArgumentException("--state-audit accepts one optional private ROM path.");
+        string stateRomPath = PrivateRomPath.Resolve(stateRomArguments);
+        DebuggerSaveStateSmokeTestResult result = DebuggerSaveStateSmokeTest.Run(stateRomPath);
+        Console.WriteLine(
+            $"Debugger state passed: frame {result.SavedFrame}, " +
+            $"{result.ContinuationFrames} deterministic continuation frames, " +
+            $"{result.StateFileBytes} bytes, wrong-ROM rejection={result.WrongRomRejected}.");
+        return 0;
+    }
+
     if (args.Length != 0 &&
         args[0].Equals("--audio-input-replay-audit", StringComparison.OrdinalIgnoreCase))
     {

@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
@@ -319,12 +321,94 @@ static void VerifyFileSelectFreshSaveTilemap()
     AssertEqual(0x2063, savedTilemap[(0x1b4 + 6) / 2], "saved slot minute tens");
     AssertEqual(0x2064, savedTilemap[(0x1b4 + 8) / 2], "saved slot minute ones");
 
+    for (int frame = 0; frame < 15; frame++)
+        savedMenu.Step(0);
+    savedMenu.Step((ushort)SnesButton.A);
+    for (int guard = 0;
+         savedMenu.Phase != FileSelectPhase.FadeOutToOptions && guard < 80;
+         guard++)
+    {
+        savedMenu.Step(0);
+    }
+    AssertEqual(FileSelectPhase.FadeOutToOptions, savedMenu.Phase,
+        "selected save completes helmet turn before load fade");
+    int selectedHelmetFrame = savedMenu.SelectedHelmetFrame;
+    AssertEqual(7, selectedHelmetFrame,
+        "selected save reaches final turned-head frame");
+    savedMenu.Step(0);
+    AssertEqual(selectedHelmetFrame, savedMenu.SelectedHelmetFrame,
+        "file-select fade retains turned Samus head instead of resetting before load");
+
     saveRam.SelectSlot(2);
     AssertEqual(2, saveRam.ReadSelectedSlot(), "SRAM selected-slot word and complement");
     addressSpace.SaveRam[0x0010 + 0x20] ^= 1;
     AssertTrue(saveRam.ReadSlot(0) is null, "SRAM payload corruption invalidates both directories");
 
     Console.WriteLine("  SRAM/file select: Ceres checkpoint, redundant checksums, NO DATA, ENERGY, and TIME agree.");
+}
+
+static void VerifySavedGameLoadAppearance()
+{
+    string romPath = Path.GetFullPath("Super Metroid.smc");
+    if (!File.Exists(romPath))
+    {
+        Console.WriteLine("  Saved-game appearance: retail-ROM test skipped (ROM not present).");
+        return;
+    }
+
+    var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+    var saveRam = new SuperMetroidSaveRam(bus);
+    saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
+    {
+        Health = 99,
+        MaxHealth = 99,
+        Area = 0,
+        SaveStation = 1,
+    });
+    SuperMetroidSaveSlot slot = saveRam.ReadSlot(0)
+        ?? throw new InvalidOperationException("Synthetic Crateria save did not validate.");
+
+    var runtime = new SuperMetroidRuntime(bus);
+    runtime.InitializeHud(new HudSnapshot(
+        slot.Health,
+        slot.MaxHealth,
+        slot.Missiles,
+        slot.MaxMissiles,
+        slot.SuperMissiles,
+        slot.MaxSuperMissiles,
+        slot.PowerBombs,
+        slot.MaxPowerBombs,
+        slot.EquippedItems,
+        slot.HudItem,
+        slot.ReserveEnergy,
+        slot.ReserveMode));
+    runtime.RunNmi(0, mainLoopRequestedNmi: true);
+    runtime.InitializeSavedGame(slot);
+
+    AssertTrue(runtime.SamusLoadAppearanceActive,
+        "saved-game load enters command-nine appearance handler");
+    AssertEqual(0x0168, runtime.SamusLoadAppearanceFramesRemaining,
+        "saved-game appearance uses native 360-frame fanfare lifetime");
+    AssertTrue(runtime.Samus is { InputLocked: true } &&
+        SamusState.IsForwardFacingPose(runtime.Samus.Pose),
+        "saved-game appearance begins locked and front-facing");
+    AssertTrue(runtime.Plms.Stations.Where(station => station.Kind == StationKind.Save)
+        .All(station => station.SaveStationLockedOut),
+        "loading onto a save room sets the native room-entry lockout");
+
+    for (int frame = 0; frame < 0x0167; frame++)
+        runtime.StepFrame(0);
+    AssertTrue(runtime.SamusLoadAppearanceActive,
+        "saved-game appearance remains active through frame 359");
+    runtime.StepFrame(0);
+    AssertTrue(!runtime.SamusLoadAppearanceActive &&
+        runtime.Samus is { InputLocked: false },
+        "saved-game appearance restores ordinary input on call 360");
+    AssertTrue(!runtime.MessageBox.IsActive,
+        "save pod cannot immediately reopen after a load in the same room entry");
+
+    Console.WriteLine(
+        "  Saved-game appearance: front pose, ROM palette FX, 360-frame lifetime, and save lockout agree.");
 }
 
 static void VerifyIntroGameplayFlashbackVerticalScroll()

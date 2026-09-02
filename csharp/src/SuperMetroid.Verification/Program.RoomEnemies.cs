@@ -1045,8 +1045,12 @@ static void VerifyCeresRidleyRoomEntry()
         "Ceres self-destruct remains in second transfer phase while records remain");
 
     enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
-    AssertEqual(4, escapeWrites.Entries.Count,
-        "Ceres self-destruct queues the final second-list record on its own frame");
+    AssertEqual(5, escapeWrites.Entries.Count,
+        "Ceres self-destruct queues the final second-list record and emergency tilemap");
+    AssertEqual(0xa6c164, escapeWrites.Entries[4].SourceAddress,
+        "Ceres EMERGENCY text uses the cartridge tilemap words");
+    AssertEqual(0x50cb, escapeWrites.Entries[4].EncodedVramDestination,
+        "Ceres EMERGENCY text targets BG1 row six");
     AssertEqual(6, state.FunctionTimer,
         "Ceres self-destruct reaches the native 128-frame English hold");
     AssertEqual(128, state.CeresEscapeTextDelayTimer,

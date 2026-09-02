@@ -169,6 +169,47 @@ internal static partial class Program
             "save trigger publishes typed confirmation request");
         AssertEqual(3, plms.StationActivationEvents.Single().StationIndex,
             "save request preserves native room argument/station index");
+
+        StationActivationEvent saveRequest = plms.StationActivationEvents.Single();
+        samus.XPosition = 0x0127;
+        AssertTrue(plms.ResolveSaveStationConfirmation(bus, saveRequest, accepted: true),
+            "accepted save resumes the sleeping cartridge PLM");
+        AssertEqual(0x0120, samus.XPosition,
+            "save animation centers Samus on the station's 16-pixel boundary");
+        AssertTrue(SamusState.IsForwardFacingPose(samus.Pose),
+            "save animation applies shared MakeSamusFaceForward setup");
+        AssertTrue(samus.InputLocked, "save animation owns Samus input");
+
+        StationActivationEvent completion = default;
+        bool completionPublished = false;
+        for (int frame = 0; frame < 32 && !completionPublished; frame++)
+        {
+            plms.Step(bus, level, streamer, 0, 0, 0);
+            if (frame == 0)
+            {
+                AssertTrue(plms.SoundRequests.Contains(new PlmSoundRequest(1, 0x2e, 6)),
+                    "save animation queues cartridge library-one sound $2E");
+            }
+            if (plms.StationActivationEvents.Count != 0)
+            {
+                completion = plms.StationActivationEvents.Single();
+                completionPublished = true;
+            }
+        }
+        AssertTrue(completionPublished, "save animation reaches completion message");
+        AssertEqual(0x18, completion.MessageBoxIndex,
+            "save animation publishes game-saved message only after its draw loop");
+        plms.CompleteSaveStation(completion);
+        AssertTrue(!samus.InputLocked, "game-saved message return unlocks Samus");
+        AssertTrue(plms.Stations.Single(station => station.Kind == StationKind.Save)
+            .SaveStationLockedOut,
+            "save completion installs once-per-room-entry lockout");
+
+        AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(18, 6), 0x4d),
+            "locked save trigger remains a solid station block");
+        plms.Step(bus, level, streamer, 0, 0, 0);
+        AssertEqual(0, plms.StationActivationEvents.Count,
+            "locked save station cannot reopen until room re-entry");
     }
 
     private static void VerifyUnsupportedPopulationContext(TestAddressSpace bus)
@@ -221,19 +262,25 @@ internal static partial class Program
         int message23 = definitions + (0x17 - 1) * 6;
         WriteWord(bus, message23, 0x8436);
         WriteWord(bus, message23 + 2, 0x8289);
-        WriteWord(bus, message23 + 4, 0x9600);
+        WriteWord(bus, message23 + 4, 0x9800);
         WriteWord(bus, message23 + 6, 0x8436);
         WriteWord(bus, message23 + 8, 0x8289);
-        WriteWord(bus, message23 + 10, 0x9640);
+        WriteWord(bus, message23 + 10, 0x9900);
         WriteWord(bus, message23 + 12, 0x8436);
         WriteWord(bus, message23 + 14, 0x8289);
-        WriteWord(bus, message23 + 16, 0x9680);
+        WriteWord(bus, message23 + 16, 0x9940);
         for (int word = 0; word < 32; word++)
         {
             WriteWord(bus, 0x858040 + word * 2, 0x3801);
-            WriteWord(bus, 0x859600 + word * 2, unchecked((ushort)(0x2800 + word)));
-            WriteWord(bus, 0x859640 + word * 2, unchecked((ushort)(0x2840 + word)));
+            WriteWord(bus, 0x859581 + (32 + word) * 2,
+                unchecked((ushort)(0x5100 + word)));
+            WriteWord(bus, 0x859581 + (64 + word) * 2,
+                unchecked((ushort)(0x5200 + word)));
         }
+        for (int word = 0; word < 128; word++)
+            WriteWord(bus, 0x859800 + word * 2, unchecked((ushort)(0x2800 + word)));
+        for (int word = 0; word < 32; word++)
+            WriteWord(bus, 0x859900 + word * 2, unchecked((ushort)(0x2a00 + word)));
 
         var message = new GameplayMessageBoxState();
         message.Begin(bus, 0x17);
@@ -245,9 +292,16 @@ internal static partial class Program
         }
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase,
             "save message enters shared yes/no selection phase");
+        AssertEqual(0x5100, message.Tilemap[128],
+            "save message begins with native selected-YES row");
         message.Step((ushort)SuperMetroid.Core.Input.SnesButton.Left);
         AssertTrue(!message.ConfirmationSelectionYes,
             "save cursor changes the shared confirmation selection");
+        AssertEqual(0x5200, message.Tilemap[128],
+            "save cursor redraws the native selected-NO row");
+        message.Step((ushort)SuperMetroid.Core.Input.SnesButton.Left);
+        AssertTrue(!message.ConfirmationSelectionYes,
+            "holding a direction does not toggle the newly-pressed save cursor repeatedly");
         message.Step((ushort)SuperMetroid.Core.Input.SnesButton.A);
         for (int guard = 0; message.IsActive && guard < 32; guard++)
             message.Step(0);
@@ -270,6 +324,7 @@ internal static partial class Program
 
     private static void SeedRoomPlmPopulationRom(TestAddressSpace bus)
     {
+        SeedPoseOneSamusData(bus);
         // Header instruction-list fields consumed by the generic allocator.
         WriteWord(bus, 0x84b705, 0xaf86);
         WriteWord(bus, 0x84b63d, 0xafa4);
@@ -302,6 +357,16 @@ internal static partial class Program
         WriteWord(bus, 0x84afe8, 1);
         WriteWord(bus, 0x84afea, 0xa1c0);
         WriteOneBlockDraw(bus, 0xa1c0, 0xb180);
+
+        // Save list `$AFF7-$B006`: the fixture uses two alternating loops rather than the
+        // retail region's $10/$15 so the complete coroutine remains a small unit test.
+        bus.WriteBytes(0x84aff9, [0x02]);
+        WriteWord(bus, 0x84affa, 4);
+        WriteWord(bus, 0x84affc, 0xa1c6);
+        WriteWord(bus, 0x84affe, 4);
+        WriteWord(bus, 0x84b000, 0xa1cc);
+        WriteOneBlockDraw(bus, 0xa1c6, 0xb181);
+        WriteOneBlockDraw(bus, 0xa1cc, 0xb182);
     }
 
     private static void SeedTimedDrawLoop(

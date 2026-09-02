@@ -15,8 +15,12 @@ public sealed partial class RoomPlmSystem
     private const int MapStationAcquiredAnimationOffset = 20;
     private const ushort StationAccessMovementFrames = 6;
     private const ushort StationAccessExtendedHoldFrames = 0x60;
+    private const ushort SaveAnimationFirstFrameList = 0xaffa;
+    private const ushort SaveAnimationSecondFrameList = 0xaffe;
+    private const int SaveAnimationLoopCountAddress = 0x84aff9;
 
     private readonly List<StationActivationEvent> _stationActivationEvents = [];
+    private bool _saveStationLockedOut;
 
     /// <summary>Station messages/actions emitted by the most recent PLM handler pass.</summary>
     public IReadOnlyList<StationActivationEvent> StationActivationEvents =>
@@ -32,8 +36,98 @@ public sealed partial class RoomPlmSystem
             entry.slot.BlockIndex,
             entry.slot.RoomArgument,
             entry.slot.Station!.Kind,
-            entry.slot.Station.Triggered))
+            entry.slot.Station.Triggered,
+            entry.slot.Station.SavePhase,
+            _saveStationLockedOut))
         .ToArray();
+
+    /// <summary>
+    /// Sets WRAM <c>$1E75</c>'s room-entry lockout used when loading directly onto a save
+    /// station. Ordinary destination-room construction clears it by creating a fresh PLM
+    /// owner; an SRAM load explicitly sets it after the station population is installed.
+    /// </summary>
+    public void LockSaveStationForCurrentRoomEntry() => _saveStationLockedOut = true;
+
+    /// <summary>
+    /// Resumes the sleeping save-station PLM after bank $85 returns its YES/NO result.
+    /// The accepted route executes `$84:8CF1` and enters `$AFF2`; the declined route jumps
+    /// to `$B008`, which still installs the once-per-room-entry lockout.
+    /// </summary>
+    public bool ResolveSaveStationConfirmation(
+        ISnesAddressSpace bus,
+        StationActivationEvent activation,
+        bool accepted)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        StationPlmState station = FindSaveStation(activation);
+        if (station.SavePhase != SaveStationPhase.AwaitingConfirmation)
+        {
+            throw new InvalidOperationException(
+                $"Save station {activation.AreaIndex}:{activation.StationIndex} returned " +
+                $"confirmation while in {station.SavePhase}.");
+        }
+
+        if (!accepted)
+        {
+            station.SavePhase = SaveStationPhase.Idle;
+            _saveStationLockedOut = true;
+            return false;
+        }
+
+        SamusState samus = _collectibleSamus?.Invoke()
+            ?? throw new InvalidOperationException("Confirmed save station has no live Samus owner.");
+        samus.XPosition = unchecked((ushort)((samus.XPosition + 8) & 0xfff0));
+        samus.ApplyForwardFacingPoseSetup(bus);
+        samus.InputLocked = true;
+
+        station.SavePhase = SaveStationPhase.Animating;
+        station.AnimationFrame = 0;
+        station.AnimationTimer = 1;
+        station.SaveAnimationLoopsRemaining = bus.ReadByte(SaveAnimationLoopCountAddress);
+        if (station.SaveAnimationLoopsRemaining == 0)
+        {
+            throw new InvalidDataException(
+                "Save-station animation loop count at $84:AFF9 is zero.");
+        }
+        station.SaveStartSoundPending = true;
+        return true;
+    }
+
+    /// <summary>Completes `$84:B030` after message $18 has closed.</summary>
+    public void CompleteSaveStation(StationActivationEvent activation)
+    {
+        StationPlmState station = FindSaveStation(activation);
+        if (station.SavePhase != SaveStationPhase.AwaitingCompletionMessageClose)
+        {
+            throw new InvalidOperationException(
+                $"Save station {activation.AreaIndex}:{activation.StationIndex} completed " +
+                $"message $18 while in {station.SavePhase}.");
+        }
+
+        SamusState samus = _collectibleSamus?.Invoke()
+            ?? throw new InvalidOperationException("Completed save station has no live Samus owner.");
+        samus.InputLocked = false;
+        station.SavePhase = SaveStationPhase.Idle;
+        _saveStationLockedOut = true;
+    }
+
+    private StationPlmState FindSaveStation(StationActivationEvent activation)
+    {
+        StationPlmState[] matches = _slots
+            .Where(slot => slot.Active && slot.RoomArgument == activation.StationIndex &&
+                slot.Station is { Kind: StationKind.Save } station &&
+                station.AreaIndex == activation.AreaIndex)
+            .Select(slot => slot.Station!)
+            .ToArray();
+        return matches.Length switch
+        {
+            1 => matches[0],
+            0 => throw new InvalidOperationException(
+                $"Save station {activation.AreaIndex}:{activation.StationIndex} is no longer resident."),
+            _ => throw new InvalidDataException(
+                $"Multiple resident save stations share {activation.AreaIndex}:{activation.StationIndex}."),
+        };
+    }
 
     /// <summary>Every live elevator-platform PLM in native physical-slot order.</summary>
     public IReadOnlyList<RoomPlmSlotSnapshot> ElevatorPlatforms => PopulationSlots
@@ -236,7 +330,9 @@ public sealed partial class RoomPlmSystem
                         SamusState.FacingLeftNormalPose,
                 _ => false,
             };
-            if (setupAccepted && slot.Station.OperationPhase == StationOperationPhase.Idle)
+            if (setupAccepted && slot.Station.OperationPhase == StationOperationPhase.Idle &&
+                (slot.Station.Kind != StationKind.Save ||
+                    (slot.Station.SavePhase == SaveStationPhase.Idle && !_saveStationLockedOut)))
             {
                 slot.Station.Triggered = true;
                 slot.Station.AccessBlockIndex = accessBlockIndex;
@@ -278,6 +374,7 @@ public sealed partial class RoomPlmSystem
             };
             if (canActivate && station.Kind == StationKind.Save)
             {
+                station.SavePhase = SaveStationPhase.AwaitingConfirmation;
                 PublishStationActivation(station, slot, samus);
             }
             else if (canActivate)
@@ -299,6 +396,19 @@ public sealed partial class RoomPlmSystem
                     layer1YPosition,
                     bg1XOffset);
             }
+        }
+
+        if (station.Kind == StationKind.Save && StepSaveStationAnimation(
+                bus,
+                level,
+                streamer,
+                slot,
+                station,
+                layer1XPosition,
+                layer1YPosition,
+                bg1XOffset))
+        {
+            return true;
         }
 
         if (station.OperationPhase != StationOperationPhase.Idle)
@@ -390,6 +500,77 @@ public sealed partial class RoomPlmSystem
         station.AnimationTimer = timer;
         station.InitialDrawCompleted = true;
         station.AnimationFrame = (station.AnimationFrame + 1) % station.AnimationFrameCount;
+        return true;
+    }
+
+    private bool StepSaveStationAnimation(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        BackgroundTilemapStreamer streamer,
+        PlmSlot slot,
+        StationPlmState station,
+        ushort layer1XPosition,
+        ushort layer1YPosition,
+        ushort bg1XOffset)
+    {
+        if (station.SavePhase is SaveStationPhase.Idle or
+            SaveStationPhase.AwaitingConfirmation)
+        {
+            return false;
+        }
+        if (station.SavePhase == SaveStationPhase.AwaitingCompletionMessageClose)
+            return true;
+        if (station.SavePhase != SaveStationPhase.Animating)
+        {
+            throw new InvalidDataException(
+                $"Save station has unknown phase {station.SavePhase}.");
+        }
+
+        if (station.SaveStartSoundPending)
+        {
+            // `$84:AFF4` queues sound $2E in library one immediately after centering Samus.
+            _soundRequests.Add(new PlmSoundRequest(1, 0x2e, MaximumQueued: 6));
+            station.SaveStartSoundPending = false;
+        }
+
+        station.AnimationTimer--;
+        if (station.AnimationTimer != 0)
+            return true;
+
+        ushort list = station.AnimationFrame == 0
+            ? SaveAnimationFirstFrameList
+            : SaveAnimationSecondFrameList;
+        ushort timer = ReadBank84Word(bus, list);
+        ushort draw = ReadBank84Word(bus, unchecked((ushort)(list + 2)));
+        if (timer != 4)
+        {
+            throw new InvalidDataException(
+                $"Save-station animation list $84:{list:X4} has timer {timer}, expected 4.");
+        }
+        DrawRomInstruction(
+            bus,
+            level,
+            streamer,
+            slot.BlockIndex,
+            draw,
+            layer1XPosition,
+            layer1YPosition,
+            bg1XOffset);
+        station.AnimationTimer = timer;
+        station.AnimationFrame ^= 1;
+        if (station.AnimationFrame == 0)
+        {
+            station.SaveAnimationLoopsRemaining--;
+            if (station.SaveAnimationLoopsRemaining == 0)
+            {
+                station.SavePhase = SaveStationPhase.AwaitingCompletionMessageClose;
+                _stationActivationEvents.Add(new StationActivationEvent(
+                    StationKind.Save,
+                    0x18,
+                    station.AreaIndex,
+                    slot.RoomArgument));
+            }
+        }
         return true;
     }
 
@@ -496,6 +677,9 @@ public sealed partial class RoomPlmSystem
         public ushort OperationTimer { get; set; }
         public int AccessBlockIndex { get; set; } = -1;
         public byte AccessBehavior { get; set; }
+        public SaveStationPhase SavePhase { get; set; }
+        public ushort SaveAnimationLoopsRemaining { get; set; }
+        public bool SaveStartSoundPending { get; set; }
     }
 
     private enum StationOperationPhase : byte
@@ -528,4 +712,14 @@ public readonly record struct StationPlmSnapshot(
     int BlockIndex,
     ushort RoomArgument,
     StationKind Kind,
-    bool Triggered);
+    bool Triggered,
+    SaveStationPhase SavePhase,
+    bool SaveStationLockedOut);
+
+public enum SaveStationPhase : byte
+{
+    Idle,
+    AwaitingConfirmation,
+    Animating,
+    AwaitingCompletionMessageClose,
+}

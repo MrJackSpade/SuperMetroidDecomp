@@ -111,7 +111,11 @@ public sealed class CartridgeAudioState
             QueueMusicDelayed8(0);
             QueueMusicDelayed8(unchecked((ushort)(0xff00 | dataIndex)));
         }
-        if (trackIndex != MusicTrackIndex)
+        // `$82:E0E1` returns immediately for a zero room track. Most post-Ridley Ceres
+        // states deliberately contain music `(0, 0)` so track seven and its alarm bed
+        // continue through every door. Treating zero as a request to stop replaced that
+        // live escape track at the first transition.
+        if (trackIndex != 0 && trackIndex != MusicTrackIndex)
             QueueMusicDelayed(trackIndex, 6);
     }
 

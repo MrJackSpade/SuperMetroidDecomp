@@ -27,6 +27,7 @@ public sealed class PlayableGameControl : UserControl
     private SpcAudioEngine? audioEngine;
     private WaveOutAudioDevice? audioDevice;
     private ControllerInputRecorder? inputRecorder;
+    private DebuggerSaveStateStore stateStore = null!;
     private int replayFrameIndex;
     private ushort? displayedRoomPointer;
 
@@ -53,10 +54,35 @@ public sealed class PlayableGameControl : UserControl
         var playButton = new ToolStripButton("Pause") { CheckOnClick = true, Checked = true };
         var stepButton = new ToolStripButton("Step");
         var skipButton = new ToolStripButton("Press Start");
+        var stateSlot = new ToolStripComboBox
+        {
+            AutoSize = false,
+            Width = 48,
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            ToolTipText = "Debugger save-state slot (0-9)",
+        };
+        for (int slot = 0; slot < 10; slot++)
+            stateSlot.Items.Add(slot.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        stateSlot.SelectedIndex = 0;
+        var saveStateButton = new ToolStripButton("Save State")
+        {
+            Enabled = replay is null,
+            ToolTipText = "Persist the complete emulated state in the selected slot",
+        };
+        var loadStateButton = new ToolStripButton("Load State")
+        {
+            Enabled = replay is null,
+            ToolTipText = "Restore the selected exact-build debugger state",
+        };
         toolStrip.Items.Add(restartButton);
         toolStrip.Items.Add(playButton);
         toolStrip.Items.Add(stepButton);
         toolStrip.Items.Add(skipButton);
+        toolStrip.Items.Add(new ToolStripSeparator());
+        toolStrip.Items.Add(new ToolStripLabel("State slot"));
+        toolStrip.Items.Add(stateSlot);
+        toolStrip.Items.Add(saveStateButton);
+        toolStrip.Items.Add(loadStateButton);
         toolStrip.Items.Add(new ToolStripSeparator());
         toolStrip.Items.Add(statusLabel);
 
@@ -89,6 +115,16 @@ public sealed class PlayableGameControl : UserControl
         };
         stepButton.Click += (_, _) => { StepFrame(); canvas.Focus(); };
         skipButton.Click += (_, _) => { StepFrame((ushort)SnesButton.Start); StepFrame(); canvas.Focus(); };
+        saveStateButton.Click += (_, _) =>
+        {
+            SaveDebuggerState(stateSlot.SelectedIndex);
+            canvas.Focus();
+        };
+        loadStateButton.Click += (_, _) =>
+        {
+            LoadDebuggerState(stateSlot.SelectedIndex);
+            canvas.Focus();
+        };
         playbackTimer.Tick += (_, _) => AdvancePlaybackClock();
 
         // Track held keys on the canvas rather than creating gameplay buttons. The raw word
@@ -134,6 +170,7 @@ public sealed class PlayableGameControl : UserControl
         // ordinary in-window reset depend on a mid-session disk edit and would obscure the
         // exact options with which the debugger-visible session was constructed.
         addressSpace = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        stateStore = new DebuggerSaveStateStore(romPath, addressSpace.Rom);
         if (gameOptions.AudioEnabled)
         {
             audioEngine = new SpcAudioEngine(addressSpace);
@@ -166,6 +203,72 @@ public sealed class PlayableGameControl : UserControl
         RefreshFrame(resetFrame);
         canvas.Focus();
     }
+
+    private void SaveDebuggerState(int slot)
+    {
+        if (replay is not null)
+            throw new InvalidOperationException("Debugger states are disabled during an input replay.");
+        DebuggerSaveStateMetadata metadata = stateStore.Save(slot, addressSpace, game);
+        statusLabel.Text =
+            $"saved state {slot} | frame {metadata.FrameNumber} | " +
+            FormatStateRoom(metadata.RoomPointer, metadata.RoomStatePointer);
+        Console.WriteLine($"Saved debugger state slot {slot}: {metadata.Path}");
+    }
+
+    private void LoadDebuggerState(int slot)
+    {
+        if (replay is not null)
+            throw new InvalidOperationException("Debugger states are disabled during an input replay.");
+
+        bool resumePlayback = playbackTimer.Enabled;
+        SetPlaying(playing: false);
+        heldKeys.Clear();
+        inputRecorder?.Dispose();
+        inputRecorder = null;
+        audioDevice?.Dispose();
+        audioDevice = null;
+        audioEngine?.Dispose();
+        audioEngine = null;
+
+        DebuggerSaveStateLoadResult loaded = stateStore.Load(slot);
+        addressSpace = loaded.AddressSpace;
+        game = loaded.Game;
+        game.SaveRamChanged += PersistSaveRamToDisk;
+        displayedRoomPointer = null;
+        pendingPlaybackFrames = 0;
+
+        if (gameOptions.AudioEnabled)
+        {
+            audioEngine = new SpcAudioEngine(addressSpace);
+            audioDevice = new WaveOutAudioDevice(
+                SpcAudioEngine.SampleRate,
+                SpcAudioEngine.ChannelCount,
+                SpcAudioEngine.StereoFramesPerVideoFrame * SpcAudioEngine.ChannelCount,
+                gameOptions.MasterVolumePercent);
+        }
+
+        // Begin a new crash recorder at the restored boundary. The debugger state itself
+        // is the deterministic seed for this continuation and is printed beside the new
+        // recording path so both files can be attached to a report.
+        inputRecorder = ControllerInputRecorder.Start(
+            romPath,
+            addressSpace.SaveRam,
+            gameOptions);
+        Console.WriteLine(
+            $"Loaded debugger state slot {slot}: {loaded.Metadata.Path}{Environment.NewLine}" +
+            $"Recording post-state controller input to {inputRecorder.Path}");
+
+        RefreshFrame(game.CurrentFrame);
+        statusLabel.Text =
+            $"loaded state {slot} | frame {loaded.Metadata.FrameNumber} | " +
+            FormatStateRoom(loaded.Metadata.RoomPointer, loaded.Metadata.RoomStatePointer);
+        SetPlaying(resumePlayback);
+    }
+
+    private static string FormatStateRoom(ushort? room, ushort? state) =>
+        room is ushort roomPointer && state is ushort statePointer
+            ? $"room $8F:{roomPointer:X4}/state $8F:{statePointer:X4}"
+            : "frontend/no active room";
 
     /// <summary>
     /// Seeds replay from its cartridge-compatible SRAM image and rejects a different ROM

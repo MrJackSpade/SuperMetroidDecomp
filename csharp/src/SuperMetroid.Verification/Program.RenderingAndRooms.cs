@@ -530,7 +530,32 @@ static void VerifyBackgroundScrollState()
     AssertEqual(frozenBg1X, state.Bg1HorizontalScroll, "$80:A3AB frozen scroll registers");
     AssertEqual(0, requests.Count, "$80:A3AB frozen update list");
 
-    Console.WriteLine("  BG scroll: parallax, signed blocks, and row/column dispatch agree.");
+    // The directional setup routines bias their previous-X blocks before making the first
+    // built-in four-pixel IRQ step. Reconstructing that state from the atomic +/-$FC host
+    // coordinate must select an in-room boundary column, never wrapped $FFF0 data.
+    var rightDoor = new BackgroundScrollState
+    {
+        Layer1XPosition = 0xff04, // destination $0000 - $00FC
+        Layer2XPosition = 0xff04,
+    };
+    rightDoor.PrimeHorizontalDoorOpeningBlocks(orientation: 0);
+    requests = rightDoor.CalculateScrollsAndUpdates();
+    AssertEqual(2, requests.Count, "$80:AD4A right-door initial BG1/BG2 streams");
+    AssertEqual((ushort)0x0000, requests[0].SourceXBlock,
+        "$80:AD4A right-door initial level column");
+
+    var leftDoor = new BackgroundScrollState
+    {
+        Layer1XPosition = 0x00fc, // destination $0000 + $00FC
+        Layer2XPosition = 0x00fc,
+    };
+    leftDoor.PrimeHorizontalDoorOpeningBlocks(orientation: 1);
+    requests = leftDoor.CalculateScrollsAndUpdates();
+    AssertEqual(2, requests.Count, "$80:AD74 left-door initial BG1/BG2 streams");
+    AssertEqual((ushort)0x000f, requests[0].SourceXBlock,
+        "$80:AD74 left-door initial level column");
+
+    Console.WriteLine("  BG scroll: parallax, signed blocks, row/column dispatch, and door setup agree.");
 }
 
 /// <summary>Checks all four branches shared by $80:AA95 and $80:AC57.</summary>

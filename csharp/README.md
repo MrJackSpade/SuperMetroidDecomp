@@ -97,7 +97,8 @@ Battery-backed data is stored as an 8 KiB `.srm` beside the ROM. The implementat
 the redundant cartridge checksums, file-select ENERGY/TIME metadata, inventory and equipment,
 events, boss bits, Chozo/item bits, explored map data, Ceres automatic checkpoint, natural
 gunship save/reload, and room save-station confirmation/persistence. Existing saves resolve the native area/load-station record. Their native
-load-appearance presentation remains untranslated and is skipped to its stable standing state.
+load-appearance presentation now runs its ROM palette effect and complete 360-frame locked
+front-facing sequence before restoring ordinary movement.
 
 ### Automatic input recordings and replay
 
@@ -118,6 +119,28 @@ dotnet run --project src/SuperMetroid.Game -- --replay "C:\path\to\input-recordi
 An explicit ROM path may follow the recording path. Replay rejects a SHA-256 mismatch, uses
 the recording's SRAM/INI seed, ignores live keyboard/gamepad input, and never writes replay mutations
 back to the user's `.srm`.
+
+### Debugger save states
+
+The playable window has a **State slot** selector and **Save State** / **Load State** buttons
+for ten persistent debugger slots, numbered 0-9. Slot files are written to `debug-states`
+beside the private ROM as `SuperMetroid-debug-slot-N.smstate`; that is the file to attach to
+an issue when a failure depends on exact timing or late-game state. Loading replaces the
+complete managed frontend/runtime/address-space graph at the captured frame, refreshes the
+visible frame immediately, resets host audio buffers, and begins a new controller recording
+from the restored boundary.
+
+The state header records the slot, UTC timestamp, frame, game state, active room/state
+pointers, exact core/desktop build IDs, and ROM SHA-256. Missing, malformed, different-ROM,
+different-schema, and different-build states throw instead of falling back. These are private
+debug artifacts: the compressed payload contains the full emulated address space, including
+ROM and SRAM bytes, and is therefore not suitable for distribution.
+
+The headless deterministic round-trip audit is:
+
+```powershell
+dotnet run --project src/SuperMetroid.Game -- --state-audit "..\Super Metroid.smc"
+```
 
 ## Implementation coverage
 

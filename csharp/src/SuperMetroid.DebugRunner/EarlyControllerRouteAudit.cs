@@ -100,6 +100,10 @@ internal static partial class EarlyControllerRouteAudit
 
         host.LoadPendingDoor();
         AssertRoom(runtime, 0x96ba, 0x96d1, "Climb");
+        // A direct-runtime host loads the room between accepted NMIs, whereas the real
+        // frontend completes the load inside its door state machine. Publish the first
+        // loaded-room PPU snapshot before asserting what the player actually sees.
+        host.StepFrame(0);
         AssertRoomLayer3FxIsVisible(runtime, RoomFxType.Fog, "Climb red fog");
         AssertCommonEnemyProjectilePalette(bus, runtime, "Climb");
         PrintDoorBlocks(bus, runtime, "Climb");
@@ -196,6 +200,10 @@ internal static partial class EarlyControllerRouteAudit
         AssertSamusWithinDisplayedCamera(runtime, "first Missile return");
         Console.WriteLine(
             $"  Returned to pre-Missiles at Samus (${samus.XPosition:X4},${samus.YPosition:X4}); " +
+            $"camera=(${runtime.Camera!.XPosition:X4},${runtime.Camera.YPosition:X4}), " +
+            $"scrollers=(${runtime.ActiveRoom!.UpScroller:X2},${runtime.ActiveRoom.DownScroller:X2}), " +
+            $"scrolls={string.Join(',', runtime.Camera.Scrolls.Storage.ToArray().Take(runtime.Camera.Scrolls.LogicalCellCount).Select(value => value.ToString("X2")))}, " +
+            $"scroll PLMs=[{string.Join(' ', runtime.Plms.ScrollPlms.Select(scroll => $"{scroll.BlockIndex}/{scroll.DataPointer:X4}"))}], " +
             $"colored doors: {string.Join(' ', runtime.Plms.ColoredDoors)}.");
         DriveResult constructionZoneReturn = DriveUntilDoor(
             bus,
@@ -391,13 +399,31 @@ internal static partial class EarlyControllerRouteAudit
             ushort sourceRoomPointer = runtime.ActiveRoom?.Pointer
                 ?? throw new InvalidOperationException(
                     "Frontend door transition began without a source room.");
+            CartridgeDoorHeader openingDoor = runtime.PendingDoorTransition
+                ?? throw new InvalidOperationException(
+                    "Frontend door transition began without its bank-$83 header.");
+            byte doorOrientation = openingDoor.Orientation;
             bool observedDestinationPublication = false;
+            bool observedOpeningSetupStream = false;
+            int openingScrollStreamFrames = 0;
             for (int frame = 0;
                 frame < MaximumDoorDispatcherFrames &&
                 game.GameState != SuperMetroidGameState.MainGameplay;
                 frame++)
             {
+                DoorTransitionPhase phaseBeforeStep = game.DoorTransitionPhaseForVerification;
                 StepAndAcknowledge(0);
+                DoorTransitionPhase phaseAfterStep = game.DoorTransitionPhaseForVerification;
+                if (phaseBeforeStep == DoorTransitionPhase.LoadMoreThingsAndOpenDoor &&
+                    phaseAfterStep == DoorTransitionPhase.WaitForDoorOpeningScroll)
+                {
+                    observedOpeningSetupStream = runtime.LastBackgroundUpdateCount > 0;
+                }
+                if (phaseBeforeStep == DoorTransitionPhase.WaitForDoorOpeningScroll &&
+                    runtime.LastBackgroundUpdateCount > 0)
+                {
+                    openingScrollStreamFrames++;
+                }
                 if (!observedDestinationPublication &&
                     runtime.ActiveRoom?.Pointer is ushort activeRoomPointer &&
                     activeRoomPointer != sourceRoomPointer)
@@ -431,6 +457,19 @@ internal static partial class EarlyControllerRouteAudit
                 throw new InvalidDataException(
                     $"Frontend door dispatcher returned to gameplay without replacing " +
                     $"source room $8F:{sourceRoomPointer:X4}.");
+            }
+            // `$0783` suppresses normal BG1/BG2 streaming while the Ceres elevator door's
+            // Mode-7 IRQ owns the PPU. It is horizontal in the header but deliberately has
+            // no ordinary boundary-column traffic, so it is not a valid specimen for the
+            // left/right tilemap-ring regression.
+            if ((doorOrientation & 2) == 0 && !openingDoor.UsesCeresElevatorMode7 &&
+                (!observedOpeningSetupStream || openingScrollStreamFrames < 15))
+            {
+                throw new InvalidDataException(
+                    $"Horizontal door $8F:{sourceRoomPointer:X4} orientation " +
+                    $"{doorOrientation & 3} streamed setup={observedOpeningSetupStream} and " +
+                    $"only {openingScrollStreamFrames}/15 subsequent boundary columns. " +
+                    "A missing request leaves a stale source-door column in the VRAM ring buffer.");
             }
         },
         Frontend: game);
@@ -2525,6 +2564,9 @@ internal static partial class EarlyControllerRouteAudit
             }
             byte poseBeforeStep = samus.Pose;
             ushort yBeforeStep = samus.YPosition;
+            ushort yDirectionBeforeStep = samus.Kinematics.YDirection;
+            int topBeforeStep = samus.YPosition - samus.Kinematics.YRadius;
+            int bottomBeforeStep = samus.YPosition + samus.Kinematics.YRadius - 1;
             try
             {
                 host.StepFrame(input);
@@ -2543,6 +2585,116 @@ internal static partial class EarlyControllerRouteAudit
                 throw;
             }
             frame++;
+
+            if (roomName == "Pre-Missiles room" && yDirectionBeforeStep == 1)
+            {
+                int topAfterStep = samus.YPosition - samus.Kinematics.YRadius;
+                if (topAfterStep < topBeforeStep)
+                {
+                    int leftBlock = Math.Max(0,
+                        (samus.XPosition - samus.Kinematics.XRadius) >> 4);
+                    int rightBlock = Math.Min(runtime.LevelData!.WidthInBlocks - 1,
+                        (samus.XPosition + samus.Kinematics.XRadius - 1) >> 4);
+                    int firstCrossedRow = Math.Max(0, topAfterStep >> 4);
+                    int lastCrossedRow = Math.Min(runtime.LevelData.HeightInBlocks - 1,
+                        (topBeforeStep - 1) >> 4);
+                    for (int blockY = firstCrossedRow; blockY <= lastCrossedRow; blockY++)
+                    {
+                        int surfaceBottom = blockY * 16 + 15;
+                        if (surfaceBottom < topAfterStep || surfaceBottom >= topBeforeStep)
+                            continue;
+                        for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
+                        {
+                            RoomCollisionBlock block = runtime.LevelData.GetCollisionBlock(blockX, blockY);
+                            if (block.CollisionType is 8 or 12 or 14)
+                            {
+                                throw new InvalidDataException(
+                                    $"Pre-Missiles frame {frame} crossed solid ceiling block " +
+                                    $"({blockX:X2},{blockY:X2}) while rising: top " +
+                                    $"{topBeforeStep:X4}->{topAfterStep:X4}, " +
+                                    $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}), " +
+                                    $"pose ${poseBeforeStep:X2}->${samus.Pose:X2}, input=${input:X4}.");
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (roomName == "Climb" && !returningWithMorphBallAtEntry &&
+                yDirectionBeforeStep == 2)
+            {
+                int bottomAfterStep = samus.YPosition + samus.Kinematics.YRadius - 1;
+                if (bottomAfterStep > bottomBeforeStep)
+                {
+                    int leftBlock = Math.Max(0,
+                        (samus.XPosition - samus.Kinematics.XRadius) >> 4);
+                    int rightBlock = Math.Min(runtime.LevelData!.WidthInBlocks - 1,
+                        (samus.XPosition + samus.Kinematics.XRadius - 1) >> 4);
+                    int firstCrossedRow = Math.Max(0, (bottomBeforeStep + 1) >> 4);
+                    int lastCrossedRow = Math.Min(runtime.LevelData.HeightInBlocks - 1,
+                        bottomAfterStep >> 4);
+                    for (int blockY = firstCrossedRow; blockY <= lastCrossedRow; blockY++)
+                    {
+                        int surfaceY = blockY * 16;
+                        if (surfaceY <= bottomBeforeStep || surfaceY > bottomAfterStep)
+                            continue;
+                        for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
+                        {
+                            RoomCollisionBlock block = runtime.LevelData.GetCollisionBlock(blockX, blockY);
+                            if (block.CollisionType is 8 or 12 or 14)
+                            {
+                                throw new InvalidDataException(
+                                    $"Climb frame {frame} crossed solid platform block " +
+                                    $"({blockX:X2},{blockY:X2}) while falling/down-firing: " +
+                                    $"bottom {bottomBeforeStep:X4}->{bottomAfterStep:X4}, " +
+                                    $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}), " +
+                                    $"pose ${poseBeforeStep:X2}->${samus.Pose:X2}, input=${input:X4}.");
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (roomName == "Pre-Missiles room")
+            {
+                CartridgeRoomHeader activeRoom = runtime.ActiveRoom ??
+                    throw new InvalidOperationException("Camera regression audit lost its active room.");
+                int roomHeightPixels = activeRoom.HeightInScreens * 256;
+                if (samus.YPosition >= roomHeightPixels)
+                {
+                    foreach (string sample in routeTrace.TakeLast(80))
+                        Console.WriteLine($"    {sample}");
+                    throw new InvalidDataException(
+                        $"{roomName} frame {frame} wrapped Samus Y to ${samus.YPosition:X4} " +
+                        $"outside the {roomHeightPixels:X4}-pixel room after input ${input:X4}; " +
+                        $"pose=${samus.Pose:X2}, priorY=${yBeforeStep:X4}.");
+                }
+                if (!runtime.HasPendingDoorTransition && runtime.Camera is { } activeCamera)
+                {
+                    int maximumCameraY = Math.Max(0, roomHeightPixels - 224);
+                    if (activeCamera.YPosition > maximumCameraY)
+                    {
+                        throw new InvalidDataException(
+                            $"{roomName} frame {frame} moved camera Y to " +
+                            $"${activeCamera.YPosition:X4}, beyond ${maximumCameraY:X4}; " +
+                            $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}), input=${input:X4}.");
+                    }
+                    int samusScreenY = samus.YPosition - activeCamera.YPosition;
+                    if (samusScreenY is < -32 or > 256)
+                    {
+                        foreach (string sample in routeTrace.TakeLast(80))
+                            Console.WriteLine($"    {sample}");
+                        throw new InvalidDataException(
+                            $"{roomName} frame {frame} desynchronized Samus and camera by " +
+                            $"{samusScreenY} pixels; camera=${activeCamera.YPosition:X4}, " +
+                            $"ideal=${activeCamera.IdealYPosition:X4}, speed=${activeCamera.CameraYSpeed:X4}, " +
+                            $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}), priorY=${yBeforeStep:X4}, " +
+                            $"direction=${samus.Kinematics.YDirection:X4}, " +
+                            $"scrolls={string.Join(',', activeCamera.Scrolls.Storage.ToArray().Take(activeCamera.Scrolls.LogicalCellCount).Select(value => value.ToString("X2")))}, " +
+                            $"input=${input:X4}.");
+                    }
+                }
+            }
 
             if (roomName == "Climb" && !returningWithMorphBallAtEntry &&
                 runtime.LastAerialSamusMovement is { Landed: true } &&

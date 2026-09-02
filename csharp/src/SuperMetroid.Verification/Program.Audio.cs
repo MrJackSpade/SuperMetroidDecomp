@@ -78,6 +78,23 @@ internal static partial class Program
             permanentItemPortWrites,
             "permanent-item fanfare and room-track restoration");
 
+        // Ceres post-battle rooms use `(0, 0)` specifically to retain track seven.
+        // `$82:E071/$E0D5` return on each zero field; zero is not a stop command.
+        var inheritedRoomMusic = new CartridgeAudioState();
+        inheritedRoomMusic.AdvanceFrame(bus, default);
+        inheritedRoomMusic.QueueMusicDelayed8(7);
+        // The first handler call copies the newly queued entry into the active timer;
+        // the following eight calls count down the native delay and emit the port write.
+        for (int frame = 0; frame < 9; frame++)
+            inheritedRoomMusic.AdvanceFrame(bus, default);
+        AssertEqual((byte)7, inheritedRoomMusic.MusicTrackIndex,
+            "escape track is live before zero-music room transition");
+        inheritedRoomMusic.QueueRoomMusic(dataIndex: 0, trackIndex: 0);
+        AssertTrue(!inheritedRoomMusic.HasQueuedMusic,
+            "zero room-music fields preserve the inherited Ceres escape track");
+        AssertEqual((byte)7, inheritedRoomMusic.MusicTrackIndex,
+            "zero room track does not silence escape music");
+
         var sfx = new CartridgeAudioState();
         sfx.AdvanceFrame(bus, default); // consume reset upload/port writes
         sfx.QueueSound(library: 2, soundId: 0x57, maximumQueued: 6);
@@ -100,7 +117,7 @@ internal static partial class Program
             SpcUploadStreamReader.Read(bus, 0x90fffb),
             "cross-bank SPC upload stream");
 
-        Console.WriteLine("  Audio: music delays, item fanfare, upload lookup, SFX handshake, and LoROM stream agree.");
+        Console.WriteLine("  Audio: music delays, inherited Ceres track, item fanfare, upload lookup, SFX handshake, and LoROM stream agree.");
     }
 
     private static void WriteAudioRomByte(byte[] rom, int snesAddress, byte value) =>

@@ -174,8 +174,7 @@ internal static class CeresDestructionAudit
             restarted.GameplayActiveRoomPointer != runtime.ActiveRoom?.Pointer ||
             restarted.GameplayHealth != landingSave.Health ||
             restarted.GameplayTimeSeconds != landingSave.GameTimeSeconds ||
-            restarted.GameplayTimeFrames != landingSave.GameTimeFrames ||
-            !restarted.GameplayMovementEnabled)
+            restarted.GameplayTimeFrames != landingSave.GameTimeFrames)
         {
             throw new InvalidDataException(
                 $"Fresh frontend did not resume the natural gunship save: " +
@@ -185,6 +184,17 @@ internal static class CeresDestructionAudit
                 $"time={restarted.GameplayTimeSeconds:D2}.{restarted.GameplayTimeFrames:D2}, " +
                 $"movement={restarted.GameplayMovementEnabled}.");
         }
+
+        // `$82:E4B6` deliberately enters main gameplay while the 360-frame load-station
+        // appearance handler still owns Samus. Requiring movement on the first state-eight
+        // frame would reject the real load animation added for issue #43. Advance through
+        // that cartridge-owned sequence and require its ordinary-handler handoff instead.
+        restartedFrame = FrontendAuditDriver.StepUntil(
+            restarted,
+            restartedFrame,
+            _ => restarted.GameplayMovementEnabled,
+            maximumFrames: 361,
+            "saved-game load appearance did not restore ordinary movement");
 
         WriteOpaque(
             Path.Combine(outputDirectory, "LandingComplete.png"),

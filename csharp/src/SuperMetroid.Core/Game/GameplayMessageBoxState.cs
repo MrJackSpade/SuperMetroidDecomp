@@ -36,6 +36,11 @@ public sealed class GameplayMessageBoxState
     private const int RadiusStepPixels = 2;
     private const int ItemMinimumDisplayFrames = 360;
     private const int StationMinimumDisplayFrames = 10;
+    private const int SaveSelectionTilemapAddress = 0x859581;
+    private const int SaveSelectionDestinationWord = 128;
+    private const int SaveSelectionRowWordCount = 32;
+    private const int SaveSelectionYesSourceWord = 32;
+    private const int SaveSelectionNoSourceWord = 64;
 
     // Byte offsets inside MessageBoxTilemap for the configurable glyph in definitions
     // 1-27. These are the literal words at $85:8749, named by the upstream disassembly.
@@ -48,6 +53,8 @@ public sealed class GameplayMessageBoxState
     ];
 
     private ushort[] _tilemap = [];
+    private readonly ControllerInputState _controller = new();
+    private ISnesAddressSpace? _activeBus;
     private int _nextOpeningRadiusPixels;
     private int _nextClosingRadiusPixels;
     private bool? _closingConfirmationResult;
@@ -84,6 +91,13 @@ public sealed class GameplayMessageBoxState
     /// through <see cref="ConsumeConfirmationResult"/> at the suspended PLM return seam.
     /// </summary>
     public bool? CompletedConfirmationResult { get; private set; }
+
+    /// <summary>
+    /// True only on the accepted NMI where bank $85 toggled the save cursor. The runtime
+    /// consumes this to queue the cartridge's menu-move sound through the ordinary audio
+    /// owner instead of giving the message renderer an unrelated sound dependency.
+    /// </summary>
+    public bool ConfirmationSelectionChangedThisFrame { get; private set; }
 
     /// <summary>
     /// Starts one ordinary gameplay message using its native config and tilemap records.
@@ -170,6 +184,7 @@ public sealed class GameplayMessageBoxState
         }
 
         MessageId = messageId;
+        _activeBus = bus;
         RadiusPixels = 0;
         MinimumDisplayFramesRemaining = 0;
         _nextOpeningRadiusPixels = 0;
@@ -177,6 +192,7 @@ public sealed class GameplayMessageBoxState
         _closingConfirmationResult = null;
         CompletedConfirmationResult = null;
         ConfirmationSelectionYes = true;
+        DrawSaveConfirmationSelection();
         Phase = GameplayMessageBoxPhase.Opening;
     }
 
@@ -191,6 +207,12 @@ public sealed class GameplayMessageBoxState
     /// <summary>Advances one accepted NMI while gameplay remains blocked.</summary>
     public void Step(ushort controllerInput)
     {
+        // The save selector calls ReadControllerInput and then consumes Controller1New.
+        // Latch on every opening/closing NMI as well as the selection loop so a direction
+        // held before the box finishes opening is not manufactured into a new edge.
+        _controller.Latch(controllerInput);
+        ConfirmationSelectionChangedThisFrame = false;
+
         switch (Phase)
         {
             case GameplayMessageBoxPhase.Inactive:
@@ -235,17 +257,23 @@ public sealed class GameplayMessageBoxState
                     // Bank $85's save selector owns the same synchronous window as item
                     // boxes. Horizontal input changes the two-choice cursor; A confirms the
                     // highlighted choice and B is the retail cancellation shortcut.
+                    ushort newlyPressed = _controller.NewlyPressed;
                     ushort horizontal = unchecked((ushort)(
-                        controllerInput & ((ushort)SnesButton.Left | (ushort)SnesButton.Right)));
+                        newlyPressed & ((ushort)SnesButton.Left | (ushort)SnesButton.Right |
+                            (ushort)SnesButton.Select)));
                     if (horizontal != 0)
+                    {
                         ConfirmationSelectionYes = !ConfirmationSelectionYes;
-                    if ((controllerInput & (ushort)SnesButton.B) != 0)
+                        DrawSaveConfirmationSelection();
+                        ConfirmationSelectionChangedThisFrame = true;
+                    }
+                    if ((newlyPressed & (ushort)SnesButton.B) != 0)
                     {
                         _closingConfirmationResult = false;
                         _nextClosingRadiusPixels = MaximumRadiusPixels;
                         Phase = GameplayMessageBoxPhase.Closing;
                     }
-                    else if ((controllerInput & (ushort)SnesButton.A) != 0)
+                    else if ((newlyPressed & (ushort)SnesButton.A) != 0)
                     {
                         _closingConfirmationResult = ConfirmationSelectionYes;
                         _nextClosingRadiusPixels = MaximumRadiusPixels;
@@ -276,11 +304,41 @@ public sealed class GameplayMessageBoxState
                     MessageId = 0;
                     MinimumDisplayFramesRemaining = 0;
                     _tilemap = [];
+                    _activeBus = null;
                 }
                 return;
 
             default:
                 throw new InvalidDataException($"Unknown gameplay message phase {Phase}.");
+        }
+    }
+
+    /// <summary>
+    /// Copies the native selected YES/NO row into the already-built message tilemap.
+    /// `$85:8507` uses byte offsets $40/$80 into the three-row table at $85:9581 and
+    /// writes 32 words at native message-buffer word $180 (local word $80).
+    /// </summary>
+    private void DrawSaveConfirmationSelection()
+    {
+        if (MessageId != 0x17 && MessageId != 0)
+            return;
+        ISnesAddressSpace source = _activeBus
+            ?? throw new InvalidOperationException(
+                "Save confirmation cursor changed without its cartridge address space.");
+        if (_tilemap.Length < SaveSelectionDestinationWord + SaveSelectionRowWordCount)
+        {
+            throw new InvalidDataException(
+                "Save confirmation tilemap is too short for the native selected YES/NO row.");
+        }
+
+        int sourceWord = ConfirmationSelectionYes
+            ? SaveSelectionYesSourceWord
+            : SaveSelectionNoSourceWord;
+        for (int word = 0; word < SaveSelectionRowWordCount; word++)
+        {
+            _tilemap[SaveSelectionDestinationWord + word] = ReadWord(
+                source,
+                SaveSelectionTilemapAddress + (sourceWord + word) * 2);
         }
     }
 

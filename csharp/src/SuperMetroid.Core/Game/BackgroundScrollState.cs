@@ -122,6 +122,40 @@ public sealed class BackgroundScrollState
     }
 
     /// <summary>
+    /// Recreates the horizontal previous-block words left by
+    /// <c>DoorTransitionScrollingSetup_Right/Left</c> after their built-in first
+    /// four-pixel transition call.
+    /// </summary>
+    /// <remarks>
+    /// The runtime stores the already-advanced +/-$FC coordinate atomically. Native first
+    /// primes the +/-$100 coordinate, biases its previous-X word, and only then advances.
+    /// Reconstructing those previous words is what makes the first streaming request select
+    /// room column zero/last instead of wrapping to an unrelated word before level data.
+    /// </remarks>
+    public void PrimeHorizontalDoorOpeningBlocks(byte orientation)
+    {
+        int direction = orientation & 3;
+        if (direction is not 0 and not 1)
+            throw new ArgumentOutOfRangeException(
+                nameof(orientation), orientation, "Horizontal door orientation must be 0 or 1.");
+
+        Bg1HorizontalScroll = unchecked((ushort)(Layer1XPosition + Bg1XOffset));
+        Bg1VerticalScroll = unchecked((ushort)(Layer1YPosition + Bg1YOffset));
+        Bg2HorizontalScroll = unchecked((ushort)(Layer2XPosition + Bg2XOffset));
+        Bg2VerticalScroll = unchecked((ushort)(Layer2YPosition + Bg2YOffset));
+        CalculateBlockCoordinates();
+
+        PreviousLayer1XBlock = direction == 0
+            ? unchecked((ushort)(Layer1XBlock - 1))
+            : unchecked((ushort)(Layer1XBlock + 2));
+        PreviousLayer2XBlock = direction == 0
+            ? unchecked((ushort)(Layer2XBlock - 1))
+            : unchecked((ushort)(Layer2XBlock + 2));
+        PreviousLayer1YBlock = Layer1YBlock;
+        PreviousLayer2YBlock = Layer2YBlock;
+    }
+
+    /// <summary>
     /// Ports the 17-column force-blank fill at <c>$80:A176-$80:A210</c>.
     /// </summary>
     public IReadOnlyList<BackgroundUpdateRequest> BuildInitialViewportRequests()

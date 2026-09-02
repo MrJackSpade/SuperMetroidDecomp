@@ -81,7 +81,8 @@ internal sealed class PauseMenuState
         byte areaIndex,
         byte roomMapX,
         byte roomMapY,
-        CartridgeAudioState? audio = null)
+        CartridgeAudioState? audio = null,
+        SnesVram? gameplayVram = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.samus = samus ?? throw new ArgumentNullException(nameof(samus));
@@ -97,6 +98,18 @@ internal sealed class PauseMenuState
         vram.LoadBytes(0x4000, RomDataReader.ReadFixedBank(bus, 0xb6c000, 0x2000));
         vram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(bus, 0x9ab200, 0x2000));
         vram.LoadBytes(Bg2TilemapWord * 2, RomDataReader.ReadFixedBank(bus, 0xb6e000, 0x0800));
+        if (gameplayVram is not null)
+        {
+            // SetupPPUForPauseMenu changes BG3SC to $58 but never uploads a replacement
+            // tilemap. The four-row gameplay HUD already resident at VRAM word $5800 is
+            // intentionally retained. A fresh host-side VRAM object used to discard that
+            // state, removing the entire energy/ammo HUD from pause and exposing map BG1
+            // pixels in the area that its BG3 plane normally covers.
+            var retainedHudTilemap = new byte[0x0800];
+            for (int index = 0; index < retainedHudTilemap.Length; index++)
+                retainedHudTilemap[index] = gameplayVram.ReadByte(0xb000 + index);
+            vram.LoadBytes(0xb000, retainedHudTilemap);
+        }
         cgram.LoadFromBus(bus, 0xb6f000);
 
         // LoadPauseScreenBaseTilemaps does *not* leave the bottom two button-label rows
@@ -236,34 +249,32 @@ internal sealed class PauseMenuState
     public Rgba32[] Render()
     {
         Rgba32[] output = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
-        Rgba32[] bg2 = SnesBgTilemapRenderer.Render4BppViewport(
-            vram, cgram, Bg2TilemapWord, 0, 0, 0, 256, 224, 32, 32);
-        Rgba32[] bg1 = SnesBgTilemapRenderer.Render4BppViewport(
-            vram,
-            cgram,
-            Bg1TilemapWord,
-            0,
-            ScreenMode == 0 ? mapHorizontalScroll : (ushort)0,
-            ScreenMode == 0 ? mapVerticalScroll : (ushort)0,
-            256,
-            224,
-            64,
-            32);
-        SnesLayerCompositor.Composite(output, bg2);
-        SnesLayerCompositor.Composite(output, bg1);
-
-        // SetupPpuForPauseMenu writes OBSEL=$01. Pause indicators use the same bank-$82
-        // spritemap table as file select, but the different object base points at the
-        // $B6:8000 pause characters loaded into VRAM word $0000/$2000 above.
+        // SetupPpuForPauseMenu writes BGMODE=$09 and TM=$17. The old host compositor drew
+        // complete BG2 followed by complete BG1, which ignored tile priority and allowed
+        // the low-priority full-area map to paint over BG2's high-priority holder/chrome.
+        // Build OAM first and then follow the literal Mode-1-with-BG3-priority ladder.
         oam.BeginFrame();
         if (ScreenMode == 0)
             DrawMapPositionIndicator();
         else
             DrawEquipmentItemSelector();
         oam.FinalizeFrame();
-        SnesLayerCompositor.Composite(
-            output,
-            SnesObjRenderer.Render(oam, vram, cgram, PauseObjectSelection));
+        ResolvedObjFrame objects = SnesObjRenderer.RenderResolved(
+            oam, vram, cgram, PauseObjectSelection, 256, 224);
+
+        // Back to front for BGMODE=$09:
+        // OBJ0, BG3-low, OBJ1, BG2-low, BG1-low, OBJ2, BG2-high, BG1-high,
+        // OBJ3, BG3-high. BG3's retained gameplay tilemap supplies the pause HUD.
+        CompositeResolvedObjPriority(output, objects, priority: 0);
+        CompositePauseBg3(output, priority: false);
+        CompositeResolvedObjPriority(output, objects, priority: 1);
+        CompositePauseBg(output, Bg2TilemapWord, 32, priority: false);
+        CompositePauseBg(output, Bg1TilemapWord, 64, priority: false);
+        CompositeResolvedObjPriority(output, objects, priority: 2);
+        CompositePauseBg(output, Bg2TilemapWord, 32, priority: true);
+        CompositePauseBg(output, Bg1TilemapWord, 64, priority: true);
+        CompositeResolvedObjPriority(output, objects, priority: 3);
+        CompositePauseBg3(output, priority: true);
 
         // Menu subindexes 2/4/5/7 fade the current page during an L/R transition. The
         // outer game-state fades are applied by SuperMetroidGame because they also cover
@@ -271,6 +282,53 @@ internal sealed class PauseMenuState
         if (transition != PauseMenuTransition.None)
             MasterBrightnessFilter.Apply(output, transitionBrightness);
         return output;
+    }
+
+    private void CompositePauseBg(
+        Span<Rgba32> output,
+        ushort tilemapBaseWord,
+        int tilemapWidthInTiles,
+        bool priority)
+    {
+        bool isMapLayer = tilemapBaseWord == Bg1TilemapWord;
+        SnesBgTilemapRenderer.Composite4BppViewport(
+            output,
+            vram,
+            cgram,
+            tilemapBaseWord,
+            characterBaseWord: 0,
+            horizontalScroll: isMapLayer && ScreenMode == 0 ? mapHorizontalScroll : (ushort)0,
+            verticalScroll: isMapLayer && ScreenMode == 0 ? mapVerticalScroll : (ushort)0,
+            width: 256,
+            height: 224,
+            tilemapWidthInTiles: tilemapWidthInTiles,
+            tilemapHeightInTiles: 32,
+            priority: priority);
+    }
+
+    private void CompositePauseBg3(Span<Rgba32> output, bool priority)
+    {
+        Rgba32[] plane = SnesBgTilemapRenderer.Render2Bpp(
+            vram,
+            cgram,
+            tilemapBaseWord: 0x5800,
+            characterBaseWord: 0x4000,
+            rowCount: 28,
+            transparentColorZero: true,
+            priority: priority);
+        SnesLayerCompositor.Composite(output, plane);
+    }
+
+    private static void CompositeResolvedObjPriority(
+        Span<Rgba32> output,
+        ResolvedObjFrame objects,
+        byte priority)
+    {
+        for (int pixel = 0; pixel < output.Length; pixel++)
+        {
+            if (objects.Priorities[pixel] == priority)
+                output[pixel] = objects.Pixels[pixel];
+        }
     }
 
     private void StepPageTransition()

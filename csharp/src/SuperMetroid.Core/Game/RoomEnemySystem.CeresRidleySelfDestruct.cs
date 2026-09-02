@@ -9,6 +9,9 @@ public sealed partial class RoomEnemySystem
     private const ushort CeresJapaneseText = 0xc450;
     private const ushort CeresJapaneseTextTransferList = 0xc3b8;
     private const ushort CeresTypewriterTileBase = 0x3582;
+    private const int CeresEmergencyTextTilemapAddress = 0xa6c164;
+    private const ushort CeresEmergencyTextTilemapBytes = 0x0012;
+    private const ushort CeresEmergencyTextVramDestination = 0x50cb;
 
     /// <summary>
     /// Ports the shared Ridley function at $A6:C04E for the Ceres branch. The phase word
@@ -46,6 +49,11 @@ public sealed partial class RoomEnemySystem
             case 4:
                 if (QueueNextCeresEscapeTransfer(state, vramWriteQueue))
                 {
+                    // `$A6:C0AA` calls DrawEmergencyText immediately after the final
+                    // BG1/BG2 graphics record. The word was missing from the earlier
+                    // translation, so the newly uploaded letter tiles existed but no
+                    // tilemap entries ever referenced them on screen.
+                    QueueCeresEmergencyText(vramWriteQueue);
                     // $A6:C09F also queues music track seven after installing the final
                     // static warning tilemap page. The frontend consumes this typed request
                     // through the same bank-$80 queue used by every other music producer.
@@ -108,6 +116,17 @@ public sealed partial class RoomEnemySystem
                 throw new InvalidDataException(
                     $"Ceres self-destruct phase ${state.FunctionTimer:X4} is not a native even dispatcher value.");
         }
+    }
+
+    /// <summary>Ports DrawEmergencyText at $A6:C136 exactly.</summary>
+    private static void QueueCeresEmergencyText(VramWriteQueue? vramWriteQueue)
+    {
+        if (vramWriteQueue is null)
+            throw new InvalidOperationException("Ceres emergency text requires a VRAM write queue.");
+        vramWriteQueue.Enqueue(
+            CeresEmergencyTextTilemapBytes,
+            CeresEmergencyTextTilemapAddress,
+            CeresEmergencyTextVramDestination);
     }
 
     /// <summary>Ports ProcessSpriteTilesTransfers at $A6:C26E one record per actor call.</summary>

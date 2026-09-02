@@ -121,7 +121,9 @@ dotnet run --project src/SuperMetroid.Game
 The host locates the private ROM automatically, accepts one explicit ROM path, or honors the
 `SUPERMETROID_ROM` environment variable. Normal play continuously writes replayable controller
 sessions under `input-recordings/` beside the ROM; each recording includes the reset-time SRAM
-seed and ROM digest, and `csharp/README.md` documents the `--replay` command.
+seed and ROM digest. Ten exact-frame debugger slots are available from the playable toolbar;
+their attachable files live under `debug-states/` beside the ROM. `csharp/README.md` documents
+both the `--replay` command and debugger-state compatibility rules.
 
 ## Verification
 

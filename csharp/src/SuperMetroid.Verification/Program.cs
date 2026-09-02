@@ -119,6 +119,7 @@ VerifyLibraryBackgroundLoader();
 VerifyGameConfigurationIni();
 VerifyControllerInputRecording();
 VerifyFileSelectFreshSaveTilemap();
+VerifySavedGameLoadAppearance();
 VerifyIntroGameplayFlashbackVerticalScroll();
 VerifyCinematicPaletteFader();
 VerifyHostRoomViewportAlignment();

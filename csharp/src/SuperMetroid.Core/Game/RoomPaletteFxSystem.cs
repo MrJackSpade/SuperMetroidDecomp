@@ -66,6 +66,30 @@ public sealed class RoomPaletteFxSystem
     /// <summary>Number of bank-$8D objects currently occupying native slots.</summary>
     public int ActiveCount => slots.Count(slot => slot.Id != 0);
 
+    /// <summary>Whether a particular cartridge definition currently owns a native slot.</summary>
+    public bool IsDefinitionActive(ushort definition) =>
+        slots.Any(slot => slot.Id == definition);
+
+    /// <summary>
+    /// Spawns a non-room palette object through the same native allocator/interpreter used
+    /// by room FX. Samus's load appearance uses definitions $E1F4/$E1F8/$E1FC and must not
+    /// be reimplemented as a host-side tint.
+    /// </summary>
+    public void SpawnDefinition(
+        ISnesAddressSpace bus,
+        ushort definition,
+        ushort equippedItems,
+        bool areaMiniBossDefeated = false)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        Spawn(bus, definition, equippedItems, areaMiniBossDefeated);
+        if (!IsDefinitionActive(definition))
+        {
+            throw new InvalidOperationException(
+                $"Palette-FX definition $8D:{definition:X4} could not acquire a native slot.");
+        }
+    }
+
     /// <summary>
     /// Clears the old room's objects and spawns exactly the bits selected by the matching
     /// sixteen-byte bank-$83 FX record.

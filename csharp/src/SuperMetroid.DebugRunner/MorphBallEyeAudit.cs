@@ -67,13 +67,15 @@ internal static class MorphBallEyeAudit
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyInitializationAndOwnershipGate(bus, room, assets);
         VerifyActivationTrackingBeamAndDeactivation(bus, room, assets);
+        VerifyMorphBallRoomBeamApex(bus);
         VerifyIntentionalNoCombat(bus, room, assets);
 
         Console.WriteLine(
             "Morph-ball eye audit passed: all three retail mount/body populations, all 22 " +
             "ROM spritemaps, collected-item gating, strict proximity boundaries, activation/" +
             "tracking/deactivation animation, bank-$88 widening/color/fade lifetime, OBJ " +
-            "drawing, and intentional indestructible/no-damage behavior were verified.");
+            "drawing, exact $91:C998 apex scanline, and intentional indestructible/no-damage " +
+            "behavior were verified.");
         return 0;
     }
 
@@ -468,13 +470,62 @@ internal static class MorphBallEyeAudit
         }
     }
 
+    private static void VerifyMorphBallRoomBeamApex(SuperMetroidAddressSpace bus)
+    {
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, MorphBallRoom);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        LoadedEye loaded = Load(bus, room, assets, MorphBallPopulation);
+        RoomEnemySlot body = loaded.Enemies.Slots[1];
+        MorphBallEyeEnemyState state = RequireState(loaded.Enemies, body);
+        loaded.Samus.CollectedItems = 0x0004;
+        loaded.Samus.XPosition = unchecked((ushort)(body.XPosition + 0x0040));
+        loaded.Samus.YPosition = body.YPosition;
+
+        Step(loaded, room, assets, frame: 0);
+        for (int frame = 1; frame <= 33; frame++)
+            Step(loaded, room, assets, frame);
+        if (state.Angle != 0x0040 ||
+            loaded.Enemies.MorphBallEyeBeam.Phase != MorphBallEyeBeamPhase.Widening ||
+            loaded.Enemies.MorphBallEyeBeam.AngularWidth != 0)
+        {
+            throw new InvalidDataException(
+                "Morph Ball room did not reach its first zero-width right-facing beam frame.");
+        }
+
+        var framePixels = new Rgba32[256 * 224];
+        Rgba32 untouched = new(32, 32, 32, 255);
+        Array.Fill(framePixels, untouched);
+        ushort cameraX = CameraX(room, body);
+        ushort cameraY = CameraY(room, body);
+        int bodyScreenX = unchecked((short)(body.XPosition - cameraX));
+        int bodyScreenY = unchecked((short)(body.YPosition - cameraY));
+        SnesGameplayFrameRenderer.ApplyMorphBallEyeBeamColorMath(
+            framePixels,
+            bus,
+            loaded.Enemies.MorphBallEyeBeam,
+            body,
+            state,
+            cameraX,
+            cameraY);
+
+        Rgba32 nativeApexLine = framePixels[(bodyScreenY - 1) * 256 + bodyScreenX + 1];
+        Rgba32 incorrectBodyLine = framePixels[bodyScreenY * 256 + bodyScreenX + 1];
+        if (nativeApexLine == untouched || incorrectBodyLine != untouched)
+        {
+            throw new InvalidDataException(
+                $"Morph Ball eye horizontal apex disagrees with $91:C998: " +
+                $"Y-1={nativeApexLine}, Y={incorrectBodyLine}.");
+        }
+    }
+
     private static LoadedEye Load(
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room,
-        CartridgeRoomAssets assets)
+        CartridgeRoomAssets assets,
+        ushort populationPointer = FinalMissilePopulation)
     {
         var pairBus = new PopulationPrefixAddressSpace(
-            bus, FinalMissilePopulation, retainedRecordCount: 2, deathQuota: 0);
+            bus, populationPointer, retainedRecordCount: 2, deathQuota: 0);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -491,7 +542,7 @@ internal static class MorphBallEyeAudit
         var enemies = new RoomEnemySystem();
         enemies.Load(
             pairBus,
-            FinalMissilePopulation,
+            populationPointer,
             room.State.EnemyTilesetPointer,
             vram,
             cgram,

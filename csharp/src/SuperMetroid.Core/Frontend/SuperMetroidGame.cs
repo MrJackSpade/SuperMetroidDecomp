@@ -570,7 +570,8 @@ public sealed class SuperMetroidGame
                     pauseRoom.AreaIndex,
                     pauseRoom.MapX,
                     pauseRoom.MapY,
-                    audio);
+                    audio,
+                    runtime.Vram);
                 pauseBrightness = 0;
                 lastPixels = pauseMenu.Render();
                 MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
@@ -840,6 +841,9 @@ public sealed class SuperMetroidGame
 
         if (runtime.Samus is { } samus)
         {
+            if (runtime.MessageBoxSelectionSoundRequestedThisFrame)
+                audio.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
+
             if (runtime.Hud.SelectionSoundRequestedThisFrame)
                 audio.QueueSound(library: 1, soundId: 0x39, maximumQueued: 6);
 
@@ -1052,6 +1056,16 @@ public sealed class SuperMetroidGame
             }
 
             runtime.InitializeSavedGame(slot);
+            CartridgeRoomState loadedState = runtime.ActiveRoom?.State
+                ?? throw new InvalidOperationException(
+                    "Saved-game appearance started without an active room state.");
+            // `$92:ED24` starts appearance track one after 14 frames and, on its fifth
+            // call, schedules the room track 360 frames later. Mark this room state as
+            // already handled so the generic room-change collector cannot overwrite the
+            // fanfare with an immediate track request.
+            audio.QueueMusicDelayed(1, 0x000e);
+            audio.QueueMusicDelayed(loadedState.MusicTrackIndex, 0x0168 + 5);
+            lastAudioRoomStatePointer = loadedState.Pointer;
             return false;
         }
 

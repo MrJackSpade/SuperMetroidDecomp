@@ -180,21 +180,63 @@ internal static partial class CeresControllerRouteAudit
         host.LoadPendingDoor();
         DescribeRoom(bus, runtime, "Ceres escape room $DF8D");
 
-        bool observedFallingDebris = false;
+        var fallingDebrisSpawns = new List<(int Frame, ushort X, RoomEnemyProjectileKind Kind)>();
+        var debrisSlotWasActive = new bool[runtime.Enemies.EnemyProjectiles.Count];
+        for (int slotIndex = 0; slotIndex < runtime.Enemies.EnemyProjectiles.Count; slotIndex++)
+        {
+            RoomEnemyProjectileSlot projectile = runtime.Enemies.EnemyProjectiles[slotIndex];
+            debrisSlotWasActive[slotIndex] = projectile.IsActive &&
+                projectile.Kind is RoomEnemyProjectileKind.CeresFallingDebrisLight or
+                    RoomEnemyProjectileKind.CeresFallingDebrisDark;
+        }
         int finalReturnHallFrames = DriveHorizontalUntilDoor(
             runtime,
             host,
             SnesButton.Left,
             maximumFrames: 2400,
             "Ceres escape room $DF8D -> elevator shaft",
-            afterFrame: _ => observedFallingDebris |= runtime.Enemies.EnemyProjectiles.Any(
-                projectile => projectile.IsActive && projectile.Kind is
-                    RoomEnemyProjectileKind.CeresFallingDebrisLight or
-                    RoomEnemyProjectileKind.CeresFallingDebrisDark));
-        if (!observedFallingDebris)
+            afterFrame: frame =>
+            {
+                for (int slotIndex = 0;
+                    slotIndex < runtime.Enemies.EnemyProjectiles.Count;
+                    slotIndex++)
+                {
+                    RoomEnemyProjectileSlot projectile =
+                        runtime.Enemies.EnemyProjectiles[slotIndex];
+                    bool isDebris = projectile.IsActive &&
+                        projectile.Kind is RoomEnemyProjectileKind.CeresFallingDebrisLight or
+                            RoomEnemyProjectileKind.CeresFallingDebrisDark;
+                    if (isDebris && !debrisSlotWasActive[slotIndex])
+                    {
+                        fallingDebrisSpawns.Add((frame, projectile.XPosition, projectile.Kind));
+                    }
+                    debrisSlotWasActive[slotIndex] = isDebris;
+                }
+            });
+        if (fallingDebrisSpawns.Count < 3)
         {
             throw new InvalidDataException(
-                "Ceres falling-tile room main spawned no bank-$86 falling debris during escape.");
+                $"Ceres falling-tile room main exposed only {fallingDebrisSpawns.Count} " +
+                "bank-$86 debris spawns during escape.");
+        }
+        if (fallingDebrisSpawns.Select(spawn => spawn.X).Distinct().Count() < 2)
+        {
+            throw new InvalidDataException(
+                $"All {fallingDebrisSpawns.Count} Ceres debris actors spawned from " +
+                $"the same ceiling X=${fallingDebrisSpawns[0].X:X4}.");
+        }
+        for (int index = 1; index < fallingDebrisSpawns.Count; index++)
+        {
+            int gap = fallingDebrisSpawns[index].Frame - fallingDebrisSpawns[index - 1].Frame;
+            // A full projectile pool may reject a native allocation, but every observed
+            // allocation must still land on the room-main timer's exact nine-call cadence.
+            if (gap <= 0 || gap % 9 != 0)
+            {
+                throw new InvalidDataException(
+                    $"Ceres debris spawn frames {fallingDebrisSpawns[index - 1].Frame} and " +
+                    $"{fallingDebrisSpawns[index].Frame} are {gap} calls apart, not a " +
+                    "multiple of `$8F:E525`'s nine-call cadence.");
+            }
         }
         AssertPendingDoor(runtime, expectedDoorPointer: 0xab58, expectedRoomPointer: 0xdf45);
         host.LoadPendingDoor();

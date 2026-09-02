@@ -20,7 +20,10 @@ public sealed partial class SuperMetroidRuntime
     private readonly ISnesAddressSpace _addressSpace;
     private SamusSuitPickupKind? _pendingSuitPickup;
     private StationActivationEvent? _pendingSaveStation;
+    private StationActivationEvent? _pendingSaveStationCompletion;
     private SaveStationPersistenceRequest? _completedSaveStation;
+    private ushort _samusLoadAppearanceFramesRemaining;
+    private ushort _samusLoadAppearancePaletteFxDefinition;
 
     /// <summary>
     /// Cartridge bus used by render-time ROM tables such as the shared angular tangent
@@ -396,6 +399,15 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     public GameplayMessageBoxState MessageBox { get; } = new();
 
+    /// <summary>One-frame bank-$85 request for the save selector's library-one sound $37.</summary>
+    public bool MessageBoxSelectionSoundRequestedThisFrame { get; private set; }
+
+    /// <summary>True while command nine's 360-frame saved-game appearance owns Samus.</summary>
+    public bool SamusLoadAppearanceActive => _samusLoadAppearanceFramesRemaining != 0;
+
+    /// <summary>Unelapsed calls to `$92:ED24` before ordinary Samus handlers are restored.</summary>
+    public ushort SamusLoadAppearanceFramesRemaining => _samusLoadAppearanceFramesRemaining;
+
     /// <summary>
     /// Returns and clears a confirmed save-station request. SRAM encoding remains owned by
     /// the frontend because it owns the selected file slot; the runtime supplies only the
@@ -511,6 +523,40 @@ public sealed partial class SuperMetroidRuntime
 
         LastBackgroundUpdateCount = requests.Count;
         return requests;
+    }
+
+    /// <summary>
+    /// Expands and commits one ordered set of bank-$80 scrolling requests to the live
+    /// tilemap ring buffer. Gameplay camera tracking and the door IRQ are separate native
+    /// callers of the same row/column producers; keeping their consumer shared prevents a
+    /// transition from updating only the scroll registers while silently dropping its DMA.
+    /// </summary>
+    internal void ExecuteBackgroundStreamRequests(
+        IReadOnlyList<BackgroundUpdateRequest> requests,
+        string owner)
+    {
+        ArgumentNullException.ThrowIfNull(requests);
+        ArgumentException.ThrowIfNullOrWhiteSpace(owner);
+        if (BackgroundStreamer is null)
+            throw new InvalidOperationException($"{owner} has no active background streamer.");
+
+        // Ceres's elevator door keeps the ordinary block-coordinate mirrors moving while
+        // its IRQ owns Mode 7. Native `$0783` suppresses the corresponding BG1/BG2 DMA;
+        // preserve that gate for both gameplay and door-transition callers.
+        if (ActiveDoor?.UsesCeresElevatorMode7 == true)
+        {
+            LastBackgroundUpdateCount = 0;
+            return;
+        }
+
+        LastBackgroundUpdateCount = requests.Count;
+        foreach (BackgroundUpdateRequest request in requests)
+        {
+            TilemapStreamUpdate update = BackgroundStreamer.Build(request)
+                ?? throw new InvalidOperationException(
+                    $"{owner} unexpectedly requested ordinary streaming while Mode 7 is active.");
+            update.ExecuteTo(Vram);
+        }
     }
 
     /// <summary>
@@ -1187,7 +1233,19 @@ public sealed partial class SuperMetroidRuntime
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
         afterAcceptedNmi?.Invoke();
 
+        // The bank-$82 main loop calls GenerateRandomNumber at $82:894F on every accepted
+        // main-loop pass, immediately after the bank-$88 HDMA-object handler and before it
+        // dispatches the current game state. Several room/enemy routines deliberately only
+        // sample $05E5 instead of advancing it themselves. Falling Tile room main $8F:E525
+        // is the first visibly obvious example: without this global call, every ceiling
+        // fragment selects the same X table entry forever. Keep this unconditional and in
+        // the frame prologue; advancing only at a consumer would change the shared sequence
+        // and would be a bespoke behavioral patch rather than the cartridge call order.
+        System.NextRandom();
+
         // Ridley's `$90:E119` request is issued by room main after Samus movement in the
+        MessageBoxSelectionSoundRequestedThisFrame = false;
+
         // cartridge. The translated Ridley visual currently publishes it during EnemyMain,
         // so promote that pending request only at the next frame boundary. This preserves
         // both the first `$90:E12E` gamma call and the prior frame's ordinary pose input.
@@ -1212,6 +1270,8 @@ public sealed partial class SuperMetroidRuntime
         if (MessageBox.IsActive)
         {
             MessageBox.Step(Controller1.Current);
+            if (MessageBox.ConfirmationSelectionChangedThisFrame)
+                MessageBoxSelectionSoundRequestedThisFrame = true;
             if (MessageBox.IsActive)
                 return Snapshot(escapeTimerExpired: false);
 
@@ -1224,7 +1284,11 @@ public sealed partial class SuperMetroidRuntime
                         "Save-station message $17 closed without publishing a selection.");
                 }
                 _pendingSaveStation = null;
-                if (accepted.Value)
+                bool saving = Plms.ResolveSaveStationConfirmation(
+                    _addressSpace,
+                    saveStation,
+                    accepted.Value);
+                if (saving)
                 {
                     System.MarkSaveStationUsed(
                         saveStation.AreaIndex,
@@ -1232,10 +1296,14 @@ public sealed partial class SuperMetroidRuntime
                     _completedSaveStation = new SaveStationPersistenceRequest(
                         saveStation.AreaIndex,
                         saveStation.StationIndex);
-                    // Native save completion immediately enters ordinary message $18.
-                    MessageBox.Begin(_addressSpace, 0x18);
-                    return Snapshot(escapeTimerExpired: false);
                 }
+                return Snapshot(escapeTimerExpired: false);
+            }
+
+            if (_pendingSaveStationCompletion is { } completedStation)
+            {
+                Plms.CompleteSaveStation(completedStation);
+                _pendingSaveStationCompletion = null;
             }
 
             // The final zero-radius close NMI returns directly to the suspended item-PLM
@@ -2537,6 +2605,7 @@ public sealed partial class SuperMetroidRuntime
                     NmiFrameCounter,
                     System,
                     beginLiquidSoundRequestFrame: false);
+                StepSamusLoadAppearance();
             }
 
             // Native gameplay state eight reaches PLM_Handler after Samus's new-state and
@@ -2630,14 +2699,34 @@ public sealed partial class SuperMetroidRuntime
                 {
                     if (station.Kind == StationKind.Save)
                     {
-                        if (_pendingSaveStation is not null || MessageBox.IsActive)
+                        if (station.MessageBoxIndex == 0x17)
                         {
-                            throw new InvalidDataException(
-                                "A save station attempted to replace an active PLM message owner.");
+                            if (_pendingSaveStation is not null ||
+                                _pendingSaveStationCompletion is not null ||
+                                MessageBox.IsActive)
+                            {
+                                throw new InvalidDataException(
+                                    "A save station attempted to replace an active PLM message owner.");
+                            }
+                            _pendingSaveStation = station;
+                            MessageBox.Begin(_addressSpace, 0x17);
+                            continue;
                         }
-                        _pendingSaveStation = station;
-                        MessageBox.Begin(_addressSpace, 0x17);
-                        continue;
+                        if (station.MessageBoxIndex == 0x18)
+                        {
+                            if (_pendingSaveStation is not null ||
+                                _pendingSaveStationCompletion is not null ||
+                                MessageBox.IsActive)
+                            {
+                                throw new InvalidDataException(
+                                    "A completed save station attempted to replace an active message owner.");
+                            }
+                            _pendingSaveStationCompletion = station;
+                            MessageBox.Begin(_addressSpace, 0x18);
+                            continue;
+                        }
+                        throw new InvalidDataException(
+                            $"Save station published unexpected message ${station.MessageBoxIndex:X2}.");
                     }
                     if (MessageBox.IsActive)
                     {
@@ -3400,12 +3489,7 @@ public sealed partial class SuperMetroidRuntime
                 // live PPU diagnostic and the following frame see the newly exposed edge.
                 IReadOnlyList<BackgroundUpdateRequest> backgroundRequests =
                     UpdateBackgroundScrollingFromCamera();
-                foreach (BackgroundUpdateRequest request in backgroundRequests)
-                {
-                    TilemapStreamUpdate update = BackgroundStreamer.Build(request)
-                        ?? throw new InvalidOperationException("Active room unexpectedly entered Mode 7 streaming.");
-                    update.ExecuteTo(Vram);
-                }
+                ExecuteBackgroundStreamRequests(backgroundRequests, "active room camera");
 
                 // UpdateMinimap belongs to Samus's normal frame-handler beta; it uses world
                 // position, not camera position. Fresh debug sessions begin without an area
@@ -3990,6 +4074,33 @@ public sealed partial class SuperMetroidRuntime
         Enemies.SpawnCeresFallingDebris(
             xPositions[random & 0x000f],
             dark: (random & 0x8000) != 0);
+    }
+
+    /// <summary>
+    /// Advances `$90:E86A/$92:ED24`'s saved-game appearance owner. The ordinary Samus
+    /// animation and bank-$8D palette interpreter have already run earlier in this frame;
+    /// this tail owns only the exact 360-call fanfare lifetime and handler restoration.
+    /// </summary>
+    private void StepSamusLoadAppearance()
+    {
+        if (_samusLoadAppearanceFramesRemaining == 0)
+            return;
+        SamusState samus = Samus
+            ?? throw new InvalidOperationException("Samus load appearance lost its actor.");
+
+        _samusLoadAppearanceFramesRemaining--;
+        if (_samusLoadAppearanceFramesRemaining != 0)
+            return;
+        if (RoomPaletteFx.IsDefinitionActive(_samusLoadAppearancePaletteFxDefinition))
+        {
+            throw new InvalidDataException(
+                $"Samus load palette FX $8D:{_samusLoadAppearancePaletteFxDefinition:X4} " +
+                "outlived the cartridge's 360-frame appearance handler.");
+        }
+
+        samus.InputLocked = false;
+        GroundedSamusMovementEnabled = true;
+        _samusLoadAppearancePaletteFxDefinition = 0;
     }
 
     private RuntimeFrameResult Snapshot(bool escapeTimerExpired) => new(

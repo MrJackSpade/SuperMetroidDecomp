@@ -87,6 +87,9 @@ public sealed class FileSelectMenuState
     /// </summary>
     internal ReadOnlySpan<ushort> BackgroundTilemap => bg1Tilemap;
 
+    /// <summary>Selected helmet frame retained through the fade into loading/options.</summary>
+    internal int SelectedHelmetFrame => helmetAnimationFrame;
+
     /// <summary>Advances one native menu frame from a raw SNES controller word.</summary>
     public void Step(ushort controllerInput)
     {
@@ -184,7 +187,11 @@ public sealed class FileSelectMenuState
         DrawMenuSpritemap(MissileSpritemapIds[missileAnimationFrame], 14, SelectionY[SelectedItem]);
         for (int slot = 0; slot < 3; slot++)
         {
-            int frame = slot == SelectedItem && Phase == FileSelectPhase.TurnSelectedHelmet
+            // Menu index 32 fades with the completed (or Start-shortened) helmet turn
+            // still resident in OAM. Resetting to spritemap $2C during the fade produces
+            // a one-frame-visible head snap immediately before loading.
+            int frame = slot == SelectedItem && Phase is
+                    FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
                 ? helmetAnimationFrame
                 : 0;
             DrawMenuSpritemap((ushort)(0x2c + Math.Min(frame, 7)), 100, HelmetY[slot]);

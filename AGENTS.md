@@ -14,6 +14,10 @@
 - Treat each repeated report as evidence that the earlier test or diagnosis was insufficient. Expand the reproduction to cover the user's exact trigger, trajectory, timing, or visual property rather than rerunning a nearby test.
 - Do not make the user report the same defect a third time because the second attempt was not tested against the actual failure.
 - Do not close a reported issue solely because a synthetic test passes. After reproducing as required, add an appropriate regression test, verify the fix against that reproduction, and leave the issue open for player confirmation unless explicitly instructed otherwise.
+- As soon as an implemented fix is ready for player confirmation, add the
+  `awaiting-player-validation` label to its GitHub issue. Remove that label if
+  player validation fails, and close the issue when the player confirms the fix.
+  An open issue without this label must not be assumed to be awaiting validation.
 
 ## Batch handoff summaries
 

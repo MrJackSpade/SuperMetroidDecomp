@@ -24,6 +24,14 @@ csharp/**/altbin/
 csharp/**/.*-build/
 csharp/**/.*-obj/
 
+# Repeatable visual-audit output. Curated regression fixtures live under test-fixtures;
+# these captures are regenerated on demand and must not dirty every verified commit.
+csharp/test-temp/ceres-destruction-repro*/
+csharp/test-temp/ceres-destruction-ticket*/
+csharp/test-temp/door-transition-visual/
+csharp/test-temp/input-replays/*.last.png
+csharp/test-temp/save-station-ticket*/
+
 # Separate reference checkouts/builds. Their reproducible origins and pinned revisions are
 # documented in README.md; embedding their nested .git directories would create accidental
 # gitlinks instead of a useful self-contained snapshot.

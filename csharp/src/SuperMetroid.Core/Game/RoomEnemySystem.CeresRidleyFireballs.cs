@@ -55,6 +55,9 @@ public enum RoomEnemyProjectileKind : ushort
     CeresRidleyHorizontalAfterburnLeft = 0x967a,
     CeresRidleyVerticalAfterburnUp = 0x9688,
     CeresRidleyVerticalAfterburnDown = 0x9696,
+    CeresFallingDebrisLight = 0x9734,
+    CeresFallingDebrisDark = 0x9742,
+    GunshipLiftoffDustCloud = 0xa379,
     AlcoonFireball = 0x9e90,
     PowampSpike = 0xd298,
     WorkRobotLaserUpLeft = 0xd2a6,
@@ -227,6 +230,61 @@ public sealed partial class RoomEnemySystem
     /// <summary>Number of live actors in the shared bank-$86 enemy-projectile pool.</summary>
     public int ActiveEnemyProjectileCount =>
         _enemyProjectiles.Count(projectile => projectile.IsActive);
+
+    /// <summary>
+    /// Allocates the light or dark Ceres falling-tile actor requested by room main
+    /// <c>$8F:E525</c>. The X coordinate and palette variant come directly from the room's
+    /// current RNG word; this initializer owns only bank-$86's projectile fields.
+    /// </summary>
+    public void SpawnCeresFallingDebris(ushort xPosition, bool dark)
+    {
+        EnsureLoaded();
+        RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
+        if (projectile is null)
+            return;
+
+        RoomEnemyProjectileKind kind = dark
+            ? RoomEnemyProjectileKind.CeresFallingDebrisDark
+            : RoomEnemyProjectileKind.CeresFallingDebrisLight;
+        InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: 0x0e00);
+        projectile.XPosition = xPosition;
+        projectile.YPosition = 0x002a;
+        projectile.XVelocity = 0;
+        projectile.YVelocity = 0x0010;
+        projectile.Variable0 = 0;
+        projectile.Variable1 = 0;
+    }
+
+    /// <summary>
+    /// Allocates one of gunship function <c>$A2:AC1B</c>'s six room-graphics dust actors.
+    /// Parameter values are even byte offsets <c>0..A</c> into the native X/list tables.
+    /// </summary>
+    private void SpawnGunshipLiftoffDustCloud(ushort parameter, SamusState samus)
+    {
+        if (parameter > 0x000a || (parameter & 1) != 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(parameter), parameter, "Gunship dust parameter must be 0,2,4,6,8,A.");
+        }
+
+        RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
+        if (projectile is null)
+            return;
+
+        InitializeEnemyProjectileFromDefinition(
+            projectile,
+            RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
+            graphicsIndex: 0);
+        int tableIndex = parameter >> 1;
+        projectile.XPosition = unchecked((ushort)(samus.XPosition +
+            unchecked((short)ReadWord(_bus!, 0x86a2d6 + tableIndex * 2))));
+        projectile.YPosition = unchecked((ushort)(samus.YPosition + 0x0050));
+        projectile.XVelocity = 0;
+        projectile.YVelocity = 0;
+        projectile.Variable0 = parameter;
+        projectile.InstructionPointer = ReadWord(_bus!, 0x86a2e2 + tableIndex * 2);
+        projectile.InstructionTimer = 1;
+    }
 
     /// <summary>
     /// Ports <c>EprojProjCollDet</c> and <c>HandleEprojCollWithProj</c> at
@@ -565,6 +623,7 @@ public sealed partial class RoomEnemySystem
         {
             case 0:
             case 0x8170: // The common cleared-pre-instruction RTS.
+            case 0xa327: // Gunship liftoff dust clouds move only through their frame lists.
             case 0x84fb: // Collision handler's common inert pre-instruction.
             case 0xec94: // Yapping Maw body links are positioned entirely by bank-$A8 main AI.
             case 0xd0eb: // Kago bug startup/landed no-op.
@@ -903,6 +962,18 @@ public sealed partial class RoomEnemySystem
 
             case 0xf3f0: // Spark projectile: 16.16 gravity, floor bounce, and trail objects.
                 RunFallingSparkPreInstruction(projectile, level, nmiFrameCounter8);
+                return;
+
+            case 0x9701: // Ceres falling tile: accelerating descent and impact cloud.
+                projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 0x0010));
+                if (MoveProjectileAxis(projectile, level, horizontal: false))
+                {
+                    ushort impactX = projectile.XPosition;
+                    ushort impactY = projectile.YPosition;
+                    projectile.Clear();
+                    SpawnRoomGraphicsDustExplosion(impactX, impactY, animationIndex: 9);
+                    QueueEnemySound(library: 2, soundId: 0x006d, maximumQueued: 6);
+                }
                 return;
 
             case 0x9e1e: // Fake Kraid spit: X/Y room collision, then capped gravity.

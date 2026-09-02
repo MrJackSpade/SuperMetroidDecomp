@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -67,6 +68,7 @@ internal static partial class EarlyControllerRouteAudit
         if (runtime.Enemies.LastGunshipEvent != GunshipFrameEvent.LandingCompleted)
             throw new InvalidDataException("Controller route did not reach gunship control handoff.");
 
+        AssertRoomLayer3FxIsVisible(runtime, RoomFxType.Rain, "Landing Site rain");
         PrintDoorBlocks(bus, runtime, "Landing Site");
         SamusState samus = runtime.Samus ?? throw new InvalidOperationException(
             "Gunship landing did not retain Samus.");
@@ -98,6 +100,8 @@ internal static partial class EarlyControllerRouteAudit
 
         host.LoadPendingDoor();
         AssertRoom(runtime, 0x96ba, 0x96d1, "Climb");
+        AssertRoomLayer3FxIsVisible(runtime, RoomFxType.Fog, "Climb red fog");
+        AssertCommonEnemyProjectilePalette(bus, runtime, "Climb");
         PrintDoorBlocks(bus, runtime, "Climb");
         PrintPlmPopulation(bus, runtime.ActiveRoom!.State.PlmPointer);
         DriveResult climb = DriveUntilDoor(bus, runtime, host, "Climb", maximumFrames: 6000);
@@ -189,6 +193,7 @@ internal static partial class EarlyControllerRouteAudit
 
         host.LoadPendingDoor();
         AssertRoom(runtime, 0x9f11, 0x9f23, "Pre-Missiles return");
+        AssertSamusWithinDisplayedCamera(runtime, "first Missile return");
         Console.WriteLine(
             $"  Returned to pre-Missiles at Samus (${samus.XPosition:X4},${samus.YPosition:X4}); " +
             $"colored doors: {string.Join(' ', runtime.Plms.ColoredDoors)}.");
@@ -345,11 +350,41 @@ internal static partial class EarlyControllerRouteAudit
     /// runtime loader: it advances state $09/$0B until <see cref="SuperMetroidGame"/> has
     /// consumed the collision-published bank-$83 record and restored normal gameplay.
     /// </summary>
-    internal static ControllerRouteHost CreateFrontendHost(SuperMetroidGame game) => new(
-        StepFrame: input => game.Step(input),
+    internal static ControllerRouteHost CreateFrontendHost(SuperMetroidGame game)
+    {
+        var acknowledgements = new byte[4];
+
+        // This controller audit intentionally has no SPC/DSP process. Emulate only the
+        // hardware port handshake by echoing every main-CPU write on the following frame;
+        // uploads and PCM synthesis remain covered by the desktop audio smoke tests. The
+        // queue therefore drains with the same request/acknowledge/clear sequence instead
+        // of deadlocking a door on an acknowledgement a headless runner cannot produce.
+        void StepAndAcknowledge(ushort input)
+        {
+            FrontendFrame frame = game.Step(input);
+            foreach (CartridgeAudioCommand command in frame.AudioCommands)
+            {
+                if (command.Kind == CartridgeAudioCommandKind.WritePort)
+                    acknowledgements[command.Port] = command.Value;
+            }
+            game.SetAudioAcknowledgements(new CartridgeAudioAcknowledgements(
+                acknowledgements[0],
+                acknowledgements[1],
+                acknowledgements[2],
+                acknowledgements[3]));
+        }
+
+        return new ControllerRouteHost(
+        StepFrame: StepAndAcknowledge,
         LoadPendingDoor: () =>
         {
-            const int MaximumDoorDispatcherFrames = 8;
+            // `$82:E310` aligns the low byte of the camera coordinate perpendicular to
+            // travel one pixel per accepted NMI before any destination-room setup begins.
+            // The worst legal starting byte is therefore 128 alignment frames, followed
+            // by the explicit setup/load/scroll/nudge phases. Keep a finite, deliberately
+            // generous cartridge-derived ceiling so a stalled transition still fails
+            // loudly without assuming every source room happens to start tile-aligned.
+            const int MaximumDoorDispatcherFrames = 256;
             SuperMetroidRuntime runtime = game.RuntimeForVerification
                 ?? throw new InvalidOperationException(
                     "Frontend door transition began without a live runtime.");
@@ -362,7 +397,7 @@ internal static partial class EarlyControllerRouteAudit
                 game.GameState != SuperMetroidGameState.MainGameplay;
                 frame++)
             {
-                game.Step(0);
+                StepAndAcknowledge(0);
                 if (!observedDestinationPublication &&
                     runtime.ActiveRoom?.Pointer is ushort activeRoomPointer &&
                     activeRoomPointer != sourceRoomPointer)
@@ -388,7 +423,8 @@ internal static partial class EarlyControllerRouteAudit
             {
                 throw new InvalidDataException(
                     $"Frontend door transition stopped in {game.GameState} after " +
-                    $"{MaximumDoorDispatcherFrames} dispatcher frames.");
+                    $"{MaximumDoorDispatcherFrames} dispatcher frames; coroutine phase " +
+                    $"is {game.DoorTransitionPhaseForVerification}.");
             }
             if (!observedDestinationPublication)
             {
@@ -398,6 +434,7 @@ internal static partial class EarlyControllerRouteAudit
             }
         },
         Frontend: game);
+    }
 
     /// <summary>
     /// Uses ordinary rightward movement and beam input to open Bomb Torizo's Chozo orb and
@@ -842,6 +879,10 @@ internal static partial class EarlyControllerRouteAudit
         int horizontallyStationaryFrames = 0;
         int firedShots = 0;
         int collisionExplosions = 0;
+        int outboundClimbDownAimFrames = 0;
+        int outboundClimbDownShotPulses = 0;
+        int outboundClimbPostShotLandings = 0;
+        int lastOutboundClimbDownShotFrame = int.MinValue;
         ushort healthBeforeFrame = samus.Health;
         var damageTrace = new List<string>();
         var climbCombatTrace = new List<string>();
@@ -2462,6 +2503,26 @@ internal static partial class EarlyControllerRouteAudit
                     input |= (ushort)SnesButton.X;
                 }
             }
+
+            // The reported outbound Climb failure happened while falling down the right
+            // half of the shaft and repeatedly firing downward. Exercise that exact input
+            // family during the existing one-room descent: Down selects the cartridge's
+            // compact `$2D/$2E` falling body and alternating X samples create real shot
+            // edges. This deliberately does not move Samus or choose a platform in host
+            // code; the ordinary pose-change resolver, projectile producer, gravity, and
+            // bottom-boundary block scan remain the only owners of the result.
+            if (roomName == "Climb" && !returningWithMorphBallAtEntry &&
+                samus.Kinematics.YDirection == 2 && samus.XPosition >= 0x0180)
+            {
+                outboundClimbDownAimFrames++;
+                input |= (ushort)SnesButton.Down;
+                if (frame % 6 == 0)
+                {
+                    outboundClimbDownShotPulses++;
+                    lastOutboundClimbDownShotFrame = frame;
+                    input |= (ushort)SnesButton.X;
+                }
+            }
             byte poseBeforeStep = samus.Pose;
             ushort yBeforeStep = samus.YPosition;
             try
@@ -2482,6 +2543,13 @@ internal static partial class EarlyControllerRouteAudit
                 throw;
             }
             frame++;
+
+            if (roomName == "Climb" && !returningWithMorphBallAtEntry &&
+                runtime.LastAerialSamusMovement is { Landed: true } &&
+                frame - lastOutboundClimbDownShotFrame <= 30)
+            {
+                outboundClimbPostShotLandings++;
+            }
 
             if (!returningWithMorphBallAtEntry &&
                 !verifiedOutboundElevatorArtwork &&
@@ -3051,6 +3119,23 @@ internal static partial class EarlyControllerRouteAudit
             Console.WriteLine($"  {roomName} damage: {string.Join(' ', damageTrace)}");
         if (climbCombatTrace.Count != 0)
             Console.WriteLine($"  {roomName} combat: {string.Join(' ', climbCombatTrace)}");
+        if (roomName == "Climb" && !returningWithMorphBallAtEntry)
+        {
+            if (outboundClimbDownAimFrames == 0 ||
+                outboundClimbDownShotPulses == 0 ||
+                outboundClimbPostShotLandings == 0)
+            {
+                throw new InvalidDataException(
+                    "Outbound Climb route did not exercise and survive the reported " +
+                    $"downward-fire fall: aim={outboundClimbDownAimFrames}, " +
+                    $"shots={outboundClimbDownShotPulses}, " +
+                    $"landings={outboundClimbPostShotLandings}.");
+            }
+            Console.WriteLine(
+                $"  Climb downward-fire fall: aim={outboundClimbDownAimFrames}, " +
+                $"shots={outboundClimbDownShotPulses}, " +
+                $"post-shot landings={outboundClimbPostShotLandings}.");
+        }
         if (roomName == "Morph Ball room" && !verifiedMorphBallBeforePickup)
         {
             throw new InvalidDataException(
@@ -4578,7 +4663,9 @@ internal static partial class EarlyControllerRouteAudit
             obsel: 0x03);
         Rgba32[] composed = SuperMetroidRuntimeFrameRenderer.Render(runtime);
         int opaqueElevatorPixels = 0;
+        int coloredElevatorPixels = 0;
         int visibleElevatorPixels = 0;
+        int visibleColoredElevatorPixels = 0;
 
         for (int spriteIndex = 0;
             spriteIndex < runtime.DisplayedOam.LastFinalizedSpriteCount;
@@ -4617,8 +4704,17 @@ internal static partial class EarlyControllerRouteAudit
                     }
 
                     opaqueElevatorPixels++;
+                    bool isColored = objects.Pixels[pixelIndex].R != 0 ||
+                        objects.Pixels[pixelIndex].G != 0 ||
+                        objects.Pixels[pixelIndex].B != 0;
+                    if (isColored)
+                        coloredElevatorPixels++;
                     if (composed[pixelIndex] == objects.Pixels[pixelIndex])
+                    {
                         visibleElevatorPixels++;
+                        if (isColored)
+                            visibleColoredElevatorPixels++;
+                    }
                 }
             }
         }
@@ -4628,11 +4724,106 @@ internal static partial class EarlyControllerRouteAudit
             throw new InvalidDataException(
                 "Elevator $D73F produced no opaque $06C-$06E pixels in finalized OAM.");
         }
+        if (coloredElevatorPixels == 0)
+        {
+            throw new InvalidDataException(
+                $"All {opaqueElevatorPixels} opaque elevator pixels resolved to RGB black; " +
+                "the platform OBJ palette or character data is not visibly initialized.");
+        }
         if (visibleElevatorPixels == 0)
         {
             throw new InvalidDataException(
                 $"All {opaqueElevatorPixels} opaque elevator pixels were lost behind the " +
                 "ordinary gameplay compositor; the platform would appear black/invisible.");
+        }
+        if (visibleColoredElevatorPixels == 0)
+        {
+            throw new InvalidDataException(
+                $"All {coloredElevatorPixels} colored elevator pixels were hidden by the " +
+                "ordinary gameplay compositor; only black platform pixels remain visible.");
+        }
+    }
+
+    /// <summary>
+    /// Proves that the door-selected bank-$83 FX record reached the NMI-visible snapshot,
+    /// uploaded nonempty BG3 art, and changes actual production pixels below the HUD.
+    /// </summary>
+    private static void AssertRoomLayer3FxIsVisible(
+        SuperMetroidRuntime runtime,
+        RoomFxType expectedType,
+        string description)
+    {
+        RoomLayer3FxRenderSnapshot fx = runtime.DisplayedRoomLayer3Fx
+            ?? throw new InvalidDataException($"{description} has no displayed BG3 FX snapshot.");
+        if (fx.Type != expectedType)
+        {
+            throw new InvalidDataException(
+                $"{description} selected FX ${(byte)fx.Type:X2}, expected ${(byte)expectedType:X2}.");
+        }
+
+        var overlayOnly = new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
+        SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+            overlayOnly,
+            runtime.Vram,
+            runtime.Cgram,
+            fx);
+        int coloredPixels = overlayOnly.Count(pixel => pixel.R != 0 || pixel.G != 0 || pixel.B != 0);
+        if (coloredPixels == 0)
+        {
+            throw new InvalidDataException(
+                $"{description} reached the compositor but produced no colored gameplay pixels.");
+        }
+    }
+
+    /// <summary>
+    /// Verifies the cartridge's globally shared bank-$86 OBJ palette after a real door
+    /// transition. Enemy death effects, drops, Pirate lasers, Ceres timer/steam, and the
+    /// Ceres elevator all consume this same row, so a stale black row is a systemic fault.
+    /// </summary>
+    internal static void AssertCommonEnemyProjectilePalette(
+        ISnesAddressSpace bus,
+        SuperMetroidRuntime runtime,
+        string description)
+    {
+        const int sourceAddress = 0x9a81a0;
+        const int destinationColor = 208;
+        int nonBlackColors = 0;
+        for (int color = 0; color < 16; color++)
+        {
+            int address = sourceAddress + color * 2;
+            ushort expected = unchecked((ushort)(
+                bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+            ushort actual = runtime.Cgram.Colors[destinationColor + color];
+            if (actual != expected)
+            {
+                throw new InvalidDataException(
+                    $"{description} common OBJ palette color {color} is ${actual:X4}; " +
+                    $"cartridge $9A:{0x81a0 + color * 2:X4} is ${expected:X4}.");
+            }
+            if ((actual & 0x7fff) != 0)
+                nonBlackColors++;
+        }
+        if (nonBlackColors == 0)
+            throw new InvalidDataException($"{description} common OBJ palette is entirely black.");
+    }
+
+    private static void AssertSamusWithinDisplayedCamera(
+        SuperMetroidRuntime runtime,
+        string description)
+    {
+        SamusState samus = runtime.Samus ?? throw new InvalidDataException(
+            $"{description} has no Samus state.");
+        ScrollBoundaryCamera camera = runtime.Camera ?? throw new InvalidDataException(
+            $"{description} has no camera state.");
+        int screenX = unchecked((short)(samus.XPosition - camera.XPosition));
+        int screenY = unchecked((short)(samus.YPosition - camera.YPosition));
+        if (screenX is < -32 or > 288 || screenY is < -32 or > 256)
+        {
+            throw new InvalidDataException(
+                $"{description} placed Samus outside the displayed viewport: " +
+                $"Samus=(${samus.XPosition:X4},${samus.YPosition:X4}), " +
+                $"camera=(${camera.XPosition:X4},${camera.YPosition:X4}), " +
+                $"screen=({screenX},{screenY}).");
         }
     }
 

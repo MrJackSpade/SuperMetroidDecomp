@@ -196,6 +196,7 @@ internal static partial class Program
 
         int takeoffFrames = 0;
         bool observedTakeoffStart = false;
+        int maximumLiftoffDustActors = 0;
         while (enemies.LastGunshipEvent != GunshipFrameEvent.EscapeTakeoffCompleted &&
                takeoffFrames < 900)
         {
@@ -210,6 +211,11 @@ internal static partial class Program
                 vramWriteQueue: takeoffWrites);
             observedTakeoffStart |=
                 enemies.LastGunshipEvent == GunshipFrameEvent.EscapeTakeoffStarted;
+            maximumLiftoffDustActors = Math.Max(
+                maximumLiftoffDustActors,
+                enemies.EnemyProjectiles.Count(projectile =>
+                    projectile.IsActive &&
+                    projectile.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud));
             takeoffFrames++;
         }
 
@@ -219,6 +225,8 @@ internal static partial class Program
             "accelerating gunship publishes frontend state-$26 boundary");
         AssertEqual(5, takeoffWrites.Entries.Count,
             "takeoff queues all five cartridge dust-cloud tile chunks");
+        AssertEqual(6, maximumLiftoffDustActors,
+            "takeoff frame 64 spawns all six room-graphics dust actors");
         AssertTrue(top.YPosition < 0x0100,
             "state-$26 boundary occurs after top hull passes Y=$0100");
 

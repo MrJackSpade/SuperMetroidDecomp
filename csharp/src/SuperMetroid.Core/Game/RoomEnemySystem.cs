@@ -2377,6 +2377,14 @@ public sealed partial class RoomEnemySystem
         bottom.YPosition = unchecked((ushort)(samus.YPosition + 23));
 
         bottom.VariableE++;
+        if (bottom.VariableE == 64)
+        {
+            // The six calls at `$A2:AC9B-$ACCA` happen after the frame counter reaches
+            // exactly 64. Descending projectile allocation means parameter A occupies the
+            // highest surviving slot, matching the ordinary bank-$86 scheduler.
+            for (ushort parameter = 0; parameter <= 0x000a; parameter += 2)
+                SpawnGunshipLiftoffDustCloud(parameter, samus);
+        }
         if (bottom.VariableE >= 128)
         {
             top.VariableF = 0xacd7;

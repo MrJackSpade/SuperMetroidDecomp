@@ -514,6 +514,28 @@ internal static partial class Program
         message.Step(0);
         Array.Clear(frame);
         GameplayMessageBoxRenderer.Composite(frame, message, vram, cgram);
+
+        // Completion notices $14/$15/$16/$18 use the short `$000A` wait at
+        // `$85:847A`; item descriptions use `$0168`. Prove the map-station path reaches
+        // held-input dismissal and completely restores the suspended gameplay owner in
+        // tens of frames rather than appearing softlocked for six seconds.
+        for (int openingFrame = 2; openingFrame < 13; openingFrame++)
+            message.Step(0);
+        AssertEqual(GameplayMessageBoxPhase.MinimumDisplay, message.Phase,
+            "map-station message reaches its mandatory display interval");
+        AssertEqual(10, message.MinimumDisplayFramesRemaining,
+            "map-station message uses native ten-frame completion wait");
+        for (int waitFrame = 0; waitFrame < 10; waitFrame++)
+            message.Step((ushort)SnesButton.X);
+        AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase,
+            "map-station message waits one NMI boundary before held input");
+        message.Step((ushort)SnesButton.X);
+        AssertEqual(GameplayMessageBoxPhase.Closing, message.Phase,
+            "map-station message accepts held input after ten frames");
+        for (int closingFrame = 0; closingFrame < 13; closingFrame++)
+            message.Step(0);
+        AssertTrue(!message.IsActive,
+            "map-station message returns to its suspended station PLM");
     }
 
     private static void VerifySuitPickupTransformation()

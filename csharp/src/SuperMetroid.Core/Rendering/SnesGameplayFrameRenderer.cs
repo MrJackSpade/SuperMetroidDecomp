@@ -851,10 +851,88 @@ public static class SnesGameplayFrameRenderer
         ushort layer1X,
         ushort layer1Y)
     {
-        ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(beam);
         ArgumentNullException.ThrowIfNull(eyeBody);
         ArgumentNullException.ThrowIfNull(eyeState);
+        ApplyMorphBallEyeBeamColorMath(
+            frame,
+            bus,
+            new MorphBallEyeBeamRenderSnapshot(
+                beam.Phase,
+                eyeBody.XPosition,
+                eyeBody.YPosition,
+                eyeState.Angle,
+                beam.AngularWidth,
+                beam.Red,
+                beam.Green,
+                beam.Blue),
+            layer1X,
+            layer1Y);
+    }
+
+    /// <summary>
+    /// Adds the room-FX BG3 plane to the already resolved BG1/BG2/OBJ gameplay raster.
+    /// </summary>
+    public static void ApplyRoomLayer3FxColorMath(
+        Span<Rgba32> frame,
+        SnesVram vram,
+        SnesCgram cgram,
+        RoomLayer3FxRenderSnapshot fx)
+    {
+        ArgumentNullException.ThrowIfNull(vram);
+        ArgumentNullException.ThrowIfNull(cgram);
+        if (frame.Length != Width * Height)
+            throw new ArgumentException("Room FX compositor requires one complete 256x224 frame.", nameof(frame));
+        if (fx.Type is not RoomFxType.Rain and not RoomFxType.Fog)
+            throw new NotSupportedException($"Room FX type {(ushort)fx.Type:X2} has no BG3 compositor.");
+
+        // Rain ($0E) keeps BG1/BG2/OBJ on main and BG3 on sub; fog ($30) reverses those
+        // screens. Both configurations enable additive math for the BG3 result, so the
+        // final visible equation is identical even though the hardware ownership differs.
+        for (int screenY = HudHeight; screenY < Height; screenY++)
+        {
+            int scrolledY = unchecked(fx.VerticalScroll + screenY) & 0xff;
+            int tileY = scrolledY >> 3;
+            int pixelY = scrolledY & 7;
+            for (int screenX = 0; screenX < Width; screenX++)
+            {
+                int scrolledX = unchecked(fx.HorizontalScroll + screenX) & 0xff;
+                int tileX = scrolledX >> 3;
+                int pixelX = scrolledX & 7;
+                SnesBgTilemapWord entry = vram.ReadWord(0x5c00 + tileY * 32 + tileX);
+                int sourceX = entry.FlipHorizontally ? 7 - pixelX : pixelX;
+                int sourceY = entry.FlipVertically ? 7 - pixelY : pixelY;
+                int characterByte = ((0x4000 + entry.CharacterIndex * 8) & 0x7fff) * 2;
+                int planes = characterByte + sourceY * 2;
+                int mask = 1 << (7 - sourceX);
+                int color = ((vram.ReadByte(planes) & mask) != 0 ? 1 : 0) |
+                    ((vram.ReadByte(planes + 1) & mask) != 0 ? 2 : 0);
+                if (color == 0)
+                    continue;
+
+                Rgba32 overlay = cgram.GetRgba(entry.PaletteIndex * 4 + color);
+                int destination = screenY * Width + screenX;
+                Rgba32 source = frame[destination];
+                frame[destination] = new Rgba32(
+                    SaturatingAdd(source.R, overlay.R),
+                    SaturatingAdd(source.G, overlay.G),
+                    SaturatingAdd(source.B, overlay.B),
+                    source.A);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Applies a frame-coherent Morph Ball eye snapshot captured at the OAM-upload NMI.
+    /// </summary>
+    public static void ApplyMorphBallEyeBeamColorMath(
+        Span<Rgba32> frame,
+        ISnesAddressSpace bus,
+        MorphBallEyeBeamRenderSnapshot beam,
+        ushort layer1X,
+        ushort layer1Y)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
         if (frame.Length != Width * Height)
             throw new ArgumentException("Morph Ball eye compositor requires one complete 256x224 frame.", nameof(frame));
         if (beam.Phase is MorphBallEyeBeamPhase.Inactive or
@@ -863,9 +941,9 @@ public static class SnesGameplayFrameRenderer
             return;
         }
 
-        int originX = unchecked((short)(eyeBody.XPosition - layer1X));
-        int originY = unchecked((short)(eyeBody.YPosition - layer1Y));
-        int centerAngle = eyeState.Angle & 0x00ff;
+        int originX = unchecked((short)(beam.WorldX - layer1X));
+        int originY = unchecked((short)(beam.WorldY - layer1Y));
+        int centerAngle = beam.Angle & 0x00ff;
         int angularWidth = beam.AngularWidth & 0x00ff;
         XrayDirection leftEdge = ReadXrayDirection(bus, centerAngle - angularWidth);
         XrayDirection rightEdge = ReadXrayDirection(bus, centerAngle + angularWidth);

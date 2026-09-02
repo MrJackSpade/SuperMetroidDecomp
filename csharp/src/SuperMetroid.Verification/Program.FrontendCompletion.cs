@@ -141,7 +141,7 @@ static void VerifyDoorOpeningTrajectories()
     for (int direction = 0; direction < 4; direction++)
     {
         AssertEqual(
-            direction < 2,
+            direction >= 2,
             SuperMetroidRuntime.DoorTransitionAlignsX((byte)direction),
             $"door direction {direction} alignment axis");
         var door = new CartridgeDoorHeader(

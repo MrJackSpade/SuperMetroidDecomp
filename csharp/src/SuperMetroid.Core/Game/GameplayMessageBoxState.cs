@@ -35,6 +35,7 @@ public sealed class GameplayMessageBoxState
     private const int MaximumRadiusPixels = 24;
     private const int RadiusStepPixels = 2;
     private const int ItemMinimumDisplayFrames = 360;
+    private const int StationMinimumDisplayFrames = 10;
 
     // Byte offsets inside MessageBoxTilemap for the configurable glyph in definitions
     // 1-27. These are the literal words at $85:8749, named by the upstream disassembly.
@@ -209,7 +210,13 @@ public sealed class GameplayMessageBoxState
                     }
                     else
                     {
-                        MinimumDisplayFramesRemaining = ItemMinimumDisplayFrames;
+                        // `$85:847A-$8490` gives the four completion notices only ten
+                        // lag frames. Equipment descriptions use $0168 (360). Treating
+                        // every ordinary message as equipment left Samus locked in a map
+                        // station while its access-loop sound continued for six seconds.
+                        MinimumDisplayFramesRemaining = MessageId is 0x14 or 0x15 or 0x16 or 0x18
+                            ? StationMinimumDisplayFrames
+                            : ItemMinimumDisplayFrames;
                         Phase = GameplayMessageBoxPhase.MinimumDisplay;
                     }
                 }

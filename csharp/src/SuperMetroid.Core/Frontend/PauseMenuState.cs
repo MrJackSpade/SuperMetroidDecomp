@@ -23,6 +23,9 @@ internal sealed class PauseMenuState
 {
     private const ushort Bg1TilemapWord = 0x3000;
     private const ushort Bg2TilemapWord = 0x3800;
+    private const ushort PauseButtonRowsDestinationWord = 0x3b20;
+    private const int PauseButtonRowsSourceOffset = 0x0240;
+    private const int PauseButtonRowsByteCount = 0x0080;
     private const ushort BlankEquipmentTilemapPointer = 0xc01a;
     private const ushort DisabledEquipmentPaletteBits = 0x0c00;
     private const ushort TilePaletteMask = 0x1c00;
@@ -56,6 +59,7 @@ internal sealed class PauseMenuState
     private readonly SnesCgram cgram = new();
     private readonly OamBuffer oam = new();
     private readonly byte[] equipmentTilemap;
+    private readonly byte[] pauseButtonTilemap;
     private PauseMenuTransition transition;
     private int transitionBrightness = 15;
     private int selectedCategory;
@@ -95,6 +99,15 @@ internal sealed class PauseMenuState
         vram.LoadBytes(Bg2TilemapWord * 2, RomDataReader.ReadFixedBank(bus, 0xb6e000, 0x0800));
         cgram.LoadFromBus(bus, 0xb6f000);
 
+        // LoadPauseScreenBaseTilemaps does *not* leave the bottom two button-label rows
+        // solely in the $B6:E000 BG2 image. It keeps a mutable $B6:E400 copy at WRAM
+        // $3400, recolors MAP/EQUIPMENT/START there, and queues $80 bytes from $3640 to
+        // BG2 word $3B20. Omitting this second source is why the pause-screen chrome looked
+        // like missing HUD. Keep the complete mutable source so every native word index
+        // below remains directly comparable with bank $82.
+        pauseButtonTilemap = RomDataReader.ReadFixedBank(bus, 0xb6e400, 0x0400);
+        SetPauseButtonLabelMode(0);
+
         // $B6:E800 is the mutable equipment template normally copied to $7E:3800.
         // Preserve it as a byte array because the cartridge's offset tables contain WRAM
         // byte addresses rather than tilemap word indexes.
@@ -133,6 +146,22 @@ internal sealed class PauseMenuState
     public ushort LastIndicatorSpritemapId => lastIndicatorSpritemapId;
 
     /// <summary>
+    /// Reads one native $7E:3000-relative button-label word after its queued-equivalent
+    /// upload. This narrow friend-test seam proves the bottom pause chrome reached VRAM;
+    /// callers cannot mutate the private menu PPU.
+    /// </summary>
+    internal ushort ReadPauseButtonLabelWord(int nativeWordIndex)
+    {
+        const int firstUploadedNativeWordIndex = 0x0320;
+        int uploadedWordOffset = nativeWordIndex - firstUploadedNativeWordIndex;
+        if ((uint)uploadedWordOffset >= PauseButtonRowsByteCount / 2)
+            throw new ArgumentOutOfRangeException(nameof(nativeWordIndex));
+        int byteAddress = (PauseButtonRowsDestinationWord + uploadedWordOffset) * 2;
+        return unchecked((ushort)(
+            vram.ReadByte(byteAddress) | (vram.ReadByte(byteAddress + 1) << 8)));
+    }
+
+    /// <summary>
     /// Runs state-$0F menu input after the caller has latched NMI input and invoked the
     /// bank-$80 delayed-held filter. Returns true when Start requests game state $10.
     /// </summary>
@@ -155,6 +184,7 @@ internal sealed class PauseMenuState
         if ((delayedPressed & SnesButton.Start) != 0)
         {
             audio?.QueueSound(library: 1, soundId: 0x38, maximumQueued: 6);
+            SetPauseButtonLabelMode(1);
             return true;
         }
 
@@ -163,6 +193,7 @@ internal sealed class PauseMenuState
             if ((delayedPressed & SnesButton.R) != 0)
             {
                 audio?.QueueSound(library: 1, soundId: 0x38, maximumQueued: 6);
+                SetPauseButtonLabelMode(2);
                 transition = PauseMenuTransition.MapToEquipmentFadeOut;
                 transitionBrightness = 15;
             }
@@ -172,6 +203,7 @@ internal sealed class PauseMenuState
         if ((delayedPressed & SnesButton.L) != 0)
         {
             audio?.QueueSound(library: 1, soundId: 0x38, maximumQueued: 6);
+            SetPauseButtonLabelMode(0);
             transition = PauseMenuTransition.EquipmentToMapFadeOut;
             transitionBrightness = 15;
             return false;
@@ -664,6 +696,69 @@ internal sealed class PauseMenuState
 
     private ushort ReadPauseSpritePaletteBits() =>
         RomDataReader.ReadWordFixedBank(bus, 0x82c100);
+
+    /// <summary>
+    /// Ports the three SetPauseScreenButtonLabelPalettes variants at $82:A628-$A84C and
+    /// immediately performs UpdatePauseMenuLRStartVramTilemap's $80-byte upload.
+    /// </summary>
+    private void SetPauseButtonLabelMode(int mode)
+    {
+        // These indexes are words relative to native WRAM $3000. The mutable cartridge
+        // template begins at $3400, or word index $200; subtract that origin before
+        // indexing the local byte array.
+        const int sourceWordOrigin = 0x0200;
+        void SetPalette(int nativeWordIndex, int wordCount, ushort paletteBits)
+        {
+            int localWordIndex = nativeWordIndex - sourceWordOrigin;
+            for (int word = 0; word < wordCount; word++)
+            {
+                int byteOffset = (localWordIndex + word) * 2;
+                ushort tile = unchecked((ushort)(
+                    pauseButtonTilemap[byteOffset] |
+                    (pauseButtonTilemap[byteOffset + 1] << 8)));
+                tile = unchecked((ushort)((tile & 0xe3ff) | paletteBits));
+                pauseButtonTilemap[byteOffset] = unchecked((byte)tile);
+                pauseButtonTilemap[byteOffset + 1] = unchecked((byte)(tile >> 8));
+            }
+        }
+
+        switch (mode)
+        {
+            case 0: // Stable map page: MAP bright, EQUIPMENT/START dim.
+                SetPalette(822, 5, 0x0800);
+                SetPalette(854, 5, 0x0800);
+                SetPalette(812, 4, 0x0800);
+                SetPalette(844, 4, 0x0800);
+                SetPalette(805, 5, 0x1400);
+                SetPalette(837, 5, 0x1400);
+                break;
+
+            case 1: // Start/unpause highlight.
+                SetPalette(812, 4, 0x0800);
+                SetPalette(844, 4, 0x0800);
+                SetPalette(805, 5, 0x1400);
+                SetPalette(837, 5, 0x1400);
+                SetPalette(822, 5, 0x1400);
+                SetPalette(854, 5, 0x1400);
+                break;
+
+            case 2: // Stable equipment page: EQUIPMENT bright, MAP/START dim.
+                SetPalette(805, 5, 0x0800);
+                SetPalette(837, 5, 0x0800);
+                SetPalette(812, 4, 0x0800);
+                SetPalette(844, 4, 0x0800);
+                SetPalette(822, 5, 0x1400);
+                SetPalette(854, 5, 0x1400);
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(mode), mode, "Pause label mode must be 0..2.");
+        }
+
+        vram.LoadBytes(
+            PauseButtonRowsDestinationWord * 2,
+            pauseButtonTilemap.AsSpan(PauseButtonRowsSourceOffset, PauseButtonRowsByteCount));
+    }
 
     private void DrawMenuSpritemap(ushort id, ushort x, ushort y, ushort paletteBits)
     {

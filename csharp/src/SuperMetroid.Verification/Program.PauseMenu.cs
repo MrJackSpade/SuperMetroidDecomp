@@ -111,6 +111,10 @@ internal static partial class Program
         AssertEqual(112, pause.LastIndicatorOriginY, "pause map marker Y origin");
         AssertEqual(0x5f, pause.LastIndicatorSpritemapId, "pause map marker initial frame");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause map marker OAM count");
+        AssertEqual(0x1400, pause.ReadPauseButtonLabelWord(805) & 0x1c00,
+            "pause map label bright palette reached BG2");
+        AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(822) & 0x1c00,
+            "pause equipment label dim palette reached BG2");
         pause.Step((ushort)SnesButton.R, 0);
         for (int frame = 0; frame < 32; frame++)
             pause.Step(0, 0);
@@ -122,6 +126,10 @@ internal static partial class Program
         AssertEqual(0x90, pause.LastIndicatorOriginX, "pause Morph selector X origin");
         AssertEqual(0x70, pause.LastIndicatorOriginY, "pause Morph selector Y origin");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
+        AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(805) & 0x1c00,
+            "pause map label dims on equipment page");
+        AssertEqual(0x1400, pause.ReadPauseButtonLabelWord(822) & 0x1c00,
+            "pause equipment label brightens on equipment page");
 
         // D-pad and A use joypad1_newkeys, not the delayed-held word used by L/R/Start.
         pause.Step(0, (ushort)SnesButton.Down);
@@ -138,6 +146,8 @@ internal static partial class Program
             "pause A re-equips live Bombs bit");
         AssertTrue(pause.Step((ushort)SnesButton.Start, 0),
             "pause delayed Start requests outer unpause state");
+        AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(812) & 0x1c00,
+            "pause Start label switches to the native unpause palette");
 
         Console.WriteLine(
             "  Pause menu: ROM tables, native map centering, OAM indicators, page transition, Bomb toggle, and Start agree.");

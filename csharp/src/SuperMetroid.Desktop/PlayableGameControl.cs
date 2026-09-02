@@ -28,6 +28,7 @@ public sealed class PlayableGameControl : UserControl
     private WaveOutAudioDevice? audioDevice;
     private ControllerInputRecorder? inputRecorder;
     private int replayFrameIndex;
+    private ushort? displayedRoomPointer;
 
     // The host's wall clock is intentionally separate from the translated frame counter.
     // A WinForms timer has millisecond granularity and does not promise an exact callback
@@ -331,6 +332,7 @@ public sealed class PlayableGameControl : UserControl
     private void RefreshFrame(FrontendFrame frame)
     {
         canvas.ReplaceFrame(RgbaBitmap.Create(FrontendFrame.Width, FrontendFrame.Height, frame.Pixels));
+        RefreshRoomIdentity();
         statusLabel.Text =
             $"state ${((ushort)frame.GameState):X2} {frame.GameState}  |  {frame.Phase}  |  frame {frame.FrameNumber}" +
             (gamepad.DeviceName is null ? string.Empty : $"  |  pad: {gamepad.DeviceName}") +
@@ -338,6 +340,64 @@ public sealed class PlayableGameControl : UserControl
                 ? string.Empty
                 : $"  |  replay {replayFrameIndex}/{replay.ControllerInputs.Length}");
     }
+
+    /// <summary>
+    /// Publishes both a human label and the cartridge's exact room/state addresses in the
+    /// window caption. The pointer is the durable identifier: labels are debugger sugar and
+    /// deliberately fall back to "Room" instead of pretending every bank-$8F record has
+    /// already been named by the translation.
+    /// </summary>
+    private void RefreshRoomIdentity()
+    {
+        ushort? roomPointer = game.GameplayActiveRoomPointer;
+        if (roomPointer == displayedRoomPointer)
+            return;
+        displayedRoomPointer = roomPointer;
+
+        Form? host = FindForm();
+        if (host is null)
+            return;
+        if (roomPointer is not ushort pointer)
+        {
+            host.Text = "Super Metroid C#";
+            return;
+        }
+
+        string name = GetKnownRoomName(pointer);
+        ushort state = game.GameplayActiveRoomStatePointer
+            ?? throw new InvalidOperationException(
+                $"Room $8F:{pointer:X4} has no selected room-state pointer.");
+        byte area = game.GameplayActiveAreaIndex
+            ?? throw new InvalidOperationException($"Room $8F:{pointer:X4} has no area index.");
+        byte room = game.GameplayActiveRoomIndex
+            ?? throw new InvalidOperationException($"Room $8F:{pointer:X4} has no room index.");
+        host.Text =
+            $"Super Metroid C# — {name} [$8F:{pointer:X4}, state $8F:{state:X4}, area ${area:X2}/room ${room:X2}]";
+    }
+
+    /// <summary>
+    /// Names the practical Ceres-to-Bombs playthrough slice. Unknown rooms remain fully
+    /// reportable by address in the caption, so extending this table never gates gameplay.
+    /// </summary>
+    private static string GetKnownRoomName(ushort roomPointer) => roomPointer switch
+    {
+        0x91f8 => "Landing Site",
+        0x92fd => "Parlor and Alcatraz",
+        0x96ba => "Climb",
+        0x975c => "Pit Room",
+        0x9804 => "Bomb Torizo Room",
+        0x9879 => "Flyway",
+        0x9e9f => "Morph Ball Room",
+        0x9f11 => "Construction Zone",
+        0x9f64 => "Blue Brinstar Energy Tank Room",
+        0xdf45 => "Ceres Elevator Shaft",
+        0xdf8d => "Ceres Falling Tile Room",
+        0xdfd7 => "Ceres Magnet Stairs",
+        0xe021 => "Ceres Dead Scientist Room",
+        0xe06b => "Ceres Final Hallway",
+        0xe0b5 => "Ceres Ridley Room",
+        _ => "Room",
+    };
 
     private ushort BuildControllerWord()
     {

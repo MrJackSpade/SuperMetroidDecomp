@@ -120,6 +120,25 @@ public sealed class MorphBallEyeBeamState
 }
 
 /// <summary>
+/// Immutable eye-beam inputs published with the OAM image by an accepted NMI.
+/// </summary>
+/// <remarks>
+/// The eye body, its bank-$88 HDMA object, and layer-one scroll all advance during the
+/// main loop. The PPU does not see any of those shadow values until NMI. Keeping this
+/// compact presentation record prevents the software compositor from pairing yesterday's
+/// OAM with today's cone angle or camera position.
+/// </remarks>
+public readonly record struct MorphBallEyeBeamRenderSnapshot(
+    MorphBallEyeBeamPhase Phase,
+    ushort WorldX,
+    ushort WorldY,
+    ushort Angle,
+    ushort AngularWidth,
+    byte Red,
+    byte Green,
+    byte Blue);
+
+/// <summary>
 /// Literal translation of morph-ball eye enemy <c>$E6BF</c> from $A8:8FAC-$91DC and its
 /// dedicated bank-$88 beam object at $88:E8D9-$EB57. The two retail records are deliberately
 /// kept separate: the first is a fixed decorative mount and the second is the tracking eye.

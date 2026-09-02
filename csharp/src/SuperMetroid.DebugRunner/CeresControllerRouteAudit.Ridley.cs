@@ -33,10 +33,13 @@ internal static partial class CeresControllerRouteAudit
                 $"Ceres Ridley slot selected enemy ${ridleySlot.EnemyDefinitionPointer:X4}.");
         }
         int revealFrames = 0;
+        bool observedEscapeMusic = false;
         while (ridley.Function != RidleyAiFunction.CeresHovering &&
             revealFrames < 2400)
         {
             host.StepFrame(0);
+            observedEscapeMusic |= runtime.Enemies.MusicRequests.Contains(
+                new EnemyMusicRequest(Entry: 5, DelayFrames: 8));
             revealFrames++;
         }
         if (ridley.Function != RidleyAiFunction.CeresHovering)
@@ -44,6 +47,11 @@ internal static partial class CeresControllerRouteAudit
             throw new InvalidDataException(
                 $"Ridley reveal stopped at $A6:{(ushort)ridley.Function:X4} after " +
                 $"{revealFrames} frames.");
+        }
+        if (!observedEscapeMusic)
+        {
+            throw new InvalidDataException(
+                "Ridley's final body-fade frame did not queue Ceres battle/escape track five.");
         }
 
         int fireEdges = 0;

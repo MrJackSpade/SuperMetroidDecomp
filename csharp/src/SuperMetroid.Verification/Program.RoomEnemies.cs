@@ -869,6 +869,8 @@ static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley final body-fade row reaches OBJ palette one");
     AssertEqual(0, ridley.Properties & (ushort)EnemyProperties.IgnoreSamusCollision,
         "Ceres Ridley becomes tangible after body fade");
+    AssertTrue(enemies.MusicRequests.Contains(new EnemyMusicRequest(5, 8)),
+        "Ceres Ridley final body fade queues battle/escape track five");
 
     // Finish the 5-frame pre-roar and 253-frame pre-liftoff countdowns, then let the real
     // E969 instruction arm A6AF. Movement uses the translated common 8.8 integrator until

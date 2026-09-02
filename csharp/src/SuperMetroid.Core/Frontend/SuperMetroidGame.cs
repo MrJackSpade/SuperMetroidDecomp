@@ -142,6 +142,15 @@ public sealed class SuperMetroidGame
     /// <summary>Current bank-$8F room header pointer, exposed for door-transition watches.</summary>
     public ushort? GameplayActiveRoomPointer => runtime?.ActiveRoom?.Pointer;
 
+    /// <summary>Selected bank-$8F room-state pointer, exposed beside the room identity.</summary>
+    public ushort? GameplayActiveRoomStatePointer => runtime?.ActiveRoom?.State.Pointer;
+
+    /// <summary>Native area byte in the active room header, or null before gameplay.</summary>
+    public byte? GameplayActiveAreaIndex => runtime?.ActiveRoom?.AreaIndex;
+
+    /// <summary>Native room index within the active area, or null before gameplay.</summary>
+    public byte? GameplayActiveRoomIndex => runtime?.ActiveRoom?.RoomIndex;
+
     /// <summary>Current bank-$83 entry door pointer, exposed for door-transition watches.</summary>
     public ushort? GameplayActiveDoorPointer => runtime?.ActiveDoor?.Pointer;
 
@@ -153,6 +162,12 @@ public sealed class SuperMetroidGame
     /// frontend proxy properties merely for collision-aware controller planning.
     /// </summary>
     internal SuperMetroidRuntime? RuntimeForVerification => runtime;
+
+    /// <summary>
+    /// Exposes the cartridge coroutine phase only to the friend verification/debug hosts.
+    /// Production UI code continues to consume the coarser public game state.
+    /// </summary>
+    internal DoorTransitionPhase DoorTransitionPhaseForVerification => doorTransition.Phase;
 
     /// <summary>Live equipped-item word, including Morph Ball and Bomb bits.</summary>
     public ushort GameplayEquippedItems => runtime?.Samus?.EquippedItems ?? 0;

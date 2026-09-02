@@ -150,6 +150,17 @@ internal static partial class Program
         AssertEqual(10, samus.Missiles, "missile station restores missiles");
         AssertEqual(2, plms.StationActivationEvents.Count,
             "two station parents publish two explicit activations");
+        AssertTrue(samus.InputLocked,
+            "station access remains locked while bank-$85 owns the completion message");
+
+        // The runtime freezes this PLM while the message is open. Once bank $85 returns,
+        // the original instruction lists execute three six-frame phases: post-message
+        // hold, retract, and final hold. Both simultaneously active fixtures must release
+        // their shared Samus owner at the native endpoint instead of looping access sound.
+        for (int frame = 0; frame < 18; frame++)
+            plms.Step(bus, level, streamer, 0, 0, 0);
+        AssertTrue(!samus.InputLocked,
+            "map/resource stations unlock Samus after post-message retraction");
 
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(18, 6), 0x4d),
             "save trigger resolves its same-block parent");

@@ -61,4 +61,7 @@ public enum RoomFxType : ushort
     Lava = 0x2,
     Acid = 0x4,
     Water = 0x6,
+    Spores = 0x8,
+    Rain = 0x0a,
+    Fog = 0x0c,
 }

@@ -8,6 +8,8 @@ public sealed partial class SuperMetroidRuntime
 {
     private const int CommonGameplaySpritePaletteAddress = 0x9afc00;
     private const int CommonGameplaySpritePaletteCgramIndex = 128;
+    private const int InitialEnemyProjectilePaletteAddress = 0x9a81a0;
+    private const int InitialEnemyProjectilePaletteCgramIndex = 208;
 
     // The IRQ owns these coordinates while state $0B waits inside LoadMoreThings. Keep
     // that ownership explicit instead of reducing the native scroll to a frontend timer.
@@ -226,7 +228,7 @@ public sealed partial class SuperMetroidRuntime
 
     /// <summary>
     /// Runs one <c>$82:E310</c> source-room alignment call. Horizontal doors converge the
-    /// camera X low byte; vertical doors converge Y. Signed low-byte motion deliberately
+    /// camera Y low byte; vertical doors converge X. Signed low-byte motion deliberately
     /// takes <c>$FF -> $00</c> and <c>$01 -> $00</c> in one-pixel steps.
     /// </summary>
     /// <returns>True only when the relevant low byte was already zero on entry.</returns>
@@ -262,12 +264,13 @@ public sealed partial class SuperMetroidRuntime
 
     /// <summary>
     /// Decodes bank-$83's two-bit door direction into the axis aligned by $82:E310.
-    /// Right/left are values zero/one and therefore align camera X; down/up are values
-    /// two/three and align camera Y. Keeping this decode named and directly testable avoids
-    /// the dangerously plausible inverse check that shifts a horizontal doorway vertically.
+    /// The alignment is perpendicular to travel: right/left (zero/one) converge camera Y,
+    /// while down/up (two/three) converge camera X. This literal branch matters because
+    /// aligning the travel axis instead moves a horizontal door frame by a tile row while
+    /// its room scroll is being staged.
     /// </summary>
     internal static bool DoorTransitionAlignsX(byte orientation) =>
-        (orientation & 2) == 0;
+        (orientation & 2) != 0;
 
     /// <summary>CRE bitset selected from the pending door's destination room header.</summary>
     public byte PendingDoorDestinationCreBitset => PendingDoorTransition is { } door
@@ -471,6 +474,7 @@ public sealed partial class SuperMetroidRuntime
         ActiveDoor = door;
         ActiveRoom = room;
         ActiveRoomAssets = assets;
+        _ceresFallingDebrisTimer = 0;
         CeresElevatorShaft.Reset(
             active: room.State.MainCodePointer == CeresElevatorShaftRoomMainState.MainCodePointer &&
                 door.UsesCeresElevatorMode7);
@@ -525,7 +529,18 @@ public sealed partial class SuperMetroidRuntime
         // on this row for lasers, death debris, and pickups. The old host loader restored
         // enemy, beam, and Samus palettes but left this row at a stale fade/menu value,
         // turning otherwise valid common projectiles solid black after a door.
-        LoadCommonGameplaySpritePalette();
+        LoadGameplaySpritePalettes();
+
+        // LoadFXHeader selects the door-specific sixteen-byte record, applies its palette
+        // blend, uploads the common $8A BG3 tilemap, and creates the type-owned HDMA/
+        // animtile state before palette-FX objects and enemies begin running.
+        RoomLayer3Fx.Load(
+            _addressSpace,
+            Vram,
+            Cgram,
+            room.State.FxPointer,
+            door.Pointer,
+            System.RandomNumber);
 
         // `$82:E4A9` calls LoadFXHeader after room setup and before enemies. Its selected
         // sixteen-byte record owns two independent object bitsets. The bank-$8D half must
@@ -660,15 +675,32 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Applies the immediately visible common-OBJ half of
+    /// Applies the two ROM-owned OBJ rows written by
     /// <c>LoadColorsForSpritesBeamsAndEnemies</c> at <c>$82:E139</c>.
     /// </summary>
-    private void LoadCommonGameplaySpritePalette() =>
+    /// <remarks>
+    /// OBJ palette five is not an enemy-specific palette. The cartridge restores it from
+    /// <c>kInitialPalette</c> on every room load and uses it for the common bank-$86 sheet:
+    /// enemy death explosions and drops, Pirate lasers, Ceres steam/timer sprites, and the
+    /// Ceres elevator projectiles. A door fade blackens the live CGRAM row, so omitting this
+    /// copy makes every one of those otherwise-correct objects render solid black after a
+    /// transition. OBJ palette six is deliberately not copied here: native <c>$82:E139</c>
+    /// preserves that row from the current palette buffer before Samus installs her suit
+    /// target palette later in the load sequence.
+    /// </remarks>
+    private void LoadGameplaySpritePalettes()
+    {
         Cgram.LoadFromBus(
             _addressSpace,
             CommonGameplaySpritePaletteAddress,
             colorCount: 16,
             destinationIndex: CommonGameplaySpritePaletteCgramIndex);
+        Cgram.LoadFromBus(
+            _addressSpace,
+            InitialEnemyProjectilePaletteAddress,
+            colorCount: 16,
+            destinationIndex: InitialEnemyProjectilePaletteCgramIndex);
+    }
 
     /// <summary>
     /// Resolves a bank-$8F room selector against the live SRAM-mirror and Samus inventory.
@@ -953,6 +985,17 @@ public sealed partial class SuperMetroidRuntime
             YPosition = 0,
         };
         Samus.LoadPowerSuitPalette(_addressSpace, Cgram);
+
+        // Fresh-game loading has one deliberately non-general palette write after copying
+        // every target color into the live palette: `$82:8190` clears color $DF (CGRAM
+        // color 223) immediately before Samus command $08 spawns the two Ceres elevator
+        // projectiles. The stationary level-data concealer is four solid pixels of common
+        // OBJ tile $20, whose opaque pixel selects precisely color $DF. Leaving the normal
+        // blue value from `Initial_Palette_spritePalette5` in that one entry makes the
+        // elevator landing recess appear pre-filled; the cartridge's zero makes it black
+        // until the moving pad reaches it and both projectiles delete themselves.
+        Cgram.SetColor(223, 0);
+
         Samus.RefreshCollisionRadii(_addressSpace);
         Samus.InitializeAnimation(_addressSpace);
         Samus.LiquidPhysics.AreaIndex = ActiveRoom.AreaIndex;

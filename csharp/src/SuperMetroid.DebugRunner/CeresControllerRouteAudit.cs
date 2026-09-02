@@ -133,6 +133,15 @@ internal static partial class CeresControllerRouteAudit
             runtime,
             host,
             maximumFrames: 3600);
+        EarlyControllerRouteAudit.AssertCommonEnemyProjectilePalette(
+            bus,
+            runtime,
+            "Ceres escape timer/steam");
+        if (!runtime.System.HasAnyBossBits(runtime.ActiveRoom!.AreaIndex, BossBits.AreaBoss))
+        {
+            throw new InvalidDataException(
+                "Ceres escape presentation did not set the area-boss bit used by red haze.");
+        }
         int ridleyExitFrames = DriveLeftDoorFromWall(
             runtime,
             host,
@@ -171,12 +180,22 @@ internal static partial class CeresControllerRouteAudit
         host.LoadPendingDoor();
         DescribeRoom(bus, runtime, "Ceres escape room $DF8D");
 
+        bool observedFallingDebris = false;
         int finalReturnHallFrames = DriveHorizontalUntilDoor(
             runtime,
             host,
             SnesButton.Left,
             maximumFrames: 2400,
-            "Ceres escape room $DF8D -> elevator shaft");
+            "Ceres escape room $DF8D -> elevator shaft",
+            afterFrame: _ => observedFallingDebris |= runtime.Enemies.EnemyProjectiles.Any(
+                projectile => projectile.IsActive && projectile.Kind is
+                    RoomEnemyProjectileKind.CeresFallingDebrisLight or
+                    RoomEnemyProjectileKind.CeresFallingDebrisDark));
+        if (!observedFallingDebris)
+        {
+            throw new InvalidDataException(
+                "Ceres falling-tile room main spawned no bank-$86 falling debris during escape.");
+        }
         AssertPendingDoor(runtime, expectedDoorPointer: 0xab58, expectedRoomPointer: 0xdf45);
         host.LoadPendingDoor();
         DescribeRoom(bus, runtime, "Ceres escape elevator shaft $DF45");
@@ -270,7 +289,8 @@ internal static partial class CeresControllerRouteAudit
         SnesButton direction,
         int maximumFrames,
         string segment,
-        bool allowObstacleJump = true)
+        bool allowObstacleJump = true,
+        Action<int>? afterFrame = null)
     {
         SamusState samus = runtime.Samus ?? throw new InvalidOperationException(
             $"{segment} began without Samus.");
@@ -291,6 +311,7 @@ internal static partial class CeresControllerRouteAudit
                 jumpHoldFrames--;
             }
             host.StepFrame(input);
+            afterFrame?.Invoke(frame);
             if (runtime.HasPendingDoorTransition)
                 return frame + 1;
 

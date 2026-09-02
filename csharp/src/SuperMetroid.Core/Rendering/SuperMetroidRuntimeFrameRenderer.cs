@@ -21,18 +21,19 @@ public static class SuperMetroidRuntimeFrameRenderer
         if (runtime.ActiveDoor is null)
             throw new InvalidOperationException("A cartridge room and door must be loaded before rendering gameplay.");
 
-        RoomShakeFrameResult shake = runtime.Enemies.LastRoomShake;
+        GameplayPpuRenderSnapshot displayedPpu = runtime.DisplayedGameplayPpu;
+        RoomShakeFrameResult shake = displayedPpu.RoomShake;
         ushort bg1HorizontalScroll = AddShake(
-            runtime.BackgroundScroll.Bg1HorizontalScroll,
+            displayedPpu.Bg1HorizontalScroll,
             shake.Bg1X);
         ushort bg1VerticalScroll = AddShake(
-            runtime.BackgroundScroll.Bg1VerticalScroll,
+            displayedPpu.Bg1VerticalScroll,
             shake.Bg1Y);
         ushort bg2HorizontalScroll = AddShake(
-            runtime.BackgroundScroll.Bg2HorizontalScroll,
+            displayedPpu.Bg2HorizontalScroll,
             shake.Bg2X);
         ushort bg2VerticalScroll = AddShake(
-            runtime.BackgroundScroll.Bg2VerticalScroll,
+            displayedPpu.Bg2VerticalScroll,
             shake.Bg2Y);
 
         Rgba32[] frame;
@@ -138,29 +139,30 @@ public static class SuperMetroidRuntimeFrameRenderer
                 bg2CharacterBaseWord: bgCharacterBaseWord);
         }
 
+        if (runtime.DisplayedRoomLayer3Fx is { } layer3Fx)
+            SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(frame, runtime.Vram, runtime.Cgram, layer3Fx);
+
         // These are the three setup routines that explicitly call FXType_2C_CeresHaze.
         // Keying the effect from cartridge state avoids applying a guessed “Ceres tint” to
         // scenes that do not spawn the HDMA object.
         if (runtime.ActiveRoom?.State.SetupCodePointer is 0xc96e or 0xc976 or 0xc97b)
-            SnesGameplayFrameRenderer.ApplyCeresHaze(frame, ridleyIsDead: false);
-
-        MorphBallEyeBeamState eyeBeam = runtime.Enemies.MorphBallEyeBeam;
-        if (eyeBeam.Phase != MorphBallEyeBeamPhase.Inactive)
         {
-            int bodyIndex = eyeBeam.BodySlotIndex;
-            if ((uint)bodyIndex >= runtime.Enemies.Slots.Count ||
-                (uint)bodyIndex >= runtime.Enemies.MorphBallEyeStates.Count ||
-                runtime.Enemies.MorphBallEyeStates[bodyIndex] is not { } eyeState)
-            {
-                throw new InvalidDataException(
-                    $"Active Morph Ball eye beam names invalid body slot {bodyIndex}.");
-            }
+            // FX type $2C selects one of two bank-$88 HDMA definitions from the area's
+            // native boss bit. Ridley's retreat sets that bit on the same enemy-main call
+            // which starts the escape timer, and it remains set throughout the return
+            // route. Hard-coding the alive branch kept the lower-screen haze blue even
+            // though every other Ceres system had entered evacuation state.
+            bool ridleyIsDead = runtime.ActiveRoom is { } hazeRoom &&
+                runtime.System.HasAnyBossBits(hazeRoom.AreaIndex, BossBits.AreaBoss);
+            SnesGameplayFrameRenderer.ApplyCeresHaze(frame, ridleyIsDead);
+        }
+
+        if (runtime.DisplayedMorphBallEyeBeam is { } eyeBeam)
+        {
             SnesGameplayFrameRenderer.ApplyMorphBallEyeBeamColorMath(
                 frame,
                 runtime.AddressSpace,
                 eyeBeam,
-                runtime.Enemies.Slots[bodyIndex],
-                eyeState,
                 bg1HorizontalScroll,
                 bg1VerticalScroll);
         }

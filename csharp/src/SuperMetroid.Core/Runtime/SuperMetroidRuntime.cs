@@ -326,6 +326,24 @@ public sealed partial class SuperMetroidRuntime
     public SamusMode7Transform? DisplayedSamusMode7Transform { get; private set; }
 
     /// <summary>
+    /// Ordinary BG scroll registers and room-shake deltas published by the most recent
+    /// accepted NMI. These belong to the same PPU-visible frame as <see cref="DisplayedOam"/>.
+    /// </summary>
+    public GameplayPpuRenderSnapshot DisplayedGameplayPpu { get; private set; }
+
+    /// <summary>Room-FX BG3 state published by the most recent accepted NMI.</summary>
+    public RoomLayer3FxRenderSnapshot? DisplayedRoomLayer3Fx { get; private set; }
+
+    /// <summary>
+    /// Morph-ball eye beam geometry published with <see cref="DisplayedOam"/>. A nullable
+    /// record distinguishes a genuinely inactive beam from a malformed active slot.
+    /// </summary>
+    public MorphBallEyeBeamRenderSnapshot? DisplayedMorphBallEyeBeam { get; private set; }
+
+    /// <summary>Door-selected bank-$83/$88 gameplay BG3 effect.</summary>
+    public RoomLayer3FxState RoomLayer3Fx { get; } = new();
+
+    /// <summary>
     /// Exact room-main owner for Ceres elevator shaft <c>$DF45</c>. The object persists so
     /// debugger watches can inspect its signed rotation phase, but every room load resets
     /// and explicitly activates or deactivates it from the cartridge room-state pointer.
@@ -334,6 +352,10 @@ public sealed partial class SuperMetroidRuntime
 
     /// <summary>Most recent <c>$89:ACC3</c> room-main call.</summary>
     public CeresElevatorShaftRoomMainResult LastCeresElevatorShaftRoomMain { get; private set; }
+
+    // Native RoomMainASMVar1 for `$8F:E525`. Room load clears the shared scratch word;
+    // the debris routine then reloads eight after each signed underflow.
+    private ushort _ceresFallingDebrisTimer;
 
     /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; private set; }
@@ -508,7 +530,7 @@ public sealed partial class SuperMetroidRuntime
         // The selected room-state record owns both of these pointers. This call parses the
         // terminated $A1 population and $B4 graphics set, loads palettes/tiles, constructs
         // native $40-byte slots, and dispatches each definition's initialization AI.
-        LoadCommonGameplaySpritePalette();
+        LoadGameplaySpritePalettes();
         Enemies.Load(
             _addressSpace,
             LandingSiteEntry.EnemyPopulationPointer,
@@ -1235,6 +1257,20 @@ public sealed partial class SuperMetroidRuntime
                     pendingSuit);
                 _pendingSuitPickup = null;
             }
+        }
+
+        // Room FX objects run in the ordinary gameplay owner list. In particular, they
+        // must not scroll or animate during DisplayMessageBox's NMI-only wait loop above.
+        // Keeping this after that early-return seam reproduces that native suspension and
+        // prevents rain/fog from advancing behind a station or item message.
+        if (Camera is not null)
+        {
+            RoomLayer3Fx.Step(
+                _addressSpace,
+                Vram,
+                Camera.XPosition,
+                Camera.YPosition,
+                TimeIsFrozen);
         }
 
         // `$0B14/$0B16` retain the unsigned horizontal distance accepted during the prior
@@ -3787,6 +3823,8 @@ public sealed partial class SuperMetroidRuntime
         if (LastCeresElevatorShaftRoomMain.MatrixChanged)
             ActiveSamusMode7Transform = LastCeresElevatorShaftRoomMain.Transform;
 
+        RunCeresFallingDebrisRoomMain();
+
         // HandleSamusOutOfHealthAndGameTile advances the four-word gameplay clock after
         // room main and before shaking. Message-box frames returned above, exactly as the
         // suspended native coroutine does, so item fanfare time is not counted here.
@@ -3844,6 +3882,14 @@ public sealed partial class SuperMetroidRuntime
             // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
             DisplayedOam.CopyFinalizedFrom(Oam);
             DisplayedSamusMode7Transform = ActiveSamusMode7Transform;
+            DisplayedGameplayPpu = new GameplayPpuRenderSnapshot(
+                BackgroundScroll.Bg1HorizontalScroll,
+                BackgroundScroll.Bg1VerticalScroll,
+                BackgroundScroll.Bg2HorizontalScroll,
+                BackgroundScroll.Bg2VerticalScroll,
+                Enemies.LastRoomShake);
+            DisplayedRoomLayer3Fx = RoomLayer3Fx.CaptureForDisplay();
+            DisplayedMorphBallEyeBeam = CaptureMorphBallEyeBeamForDisplay();
             Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);
             VramWrites.DrainTo(Vram, _addressSpace);
             // Menu code consumes raw physical buttons before a runtime exists. Once room
@@ -3869,6 +3915,38 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// Captures the exact eye-body and HDMA-object values that become visible alongside
+    /// this NMI's OAM upload. Retail hard-codes body slot one; retaining the translated
+    /// slot reference here also makes corrupt actor ownership fail at publication time.
+    /// </summary>
+    private MorphBallEyeBeamRenderSnapshot? CaptureMorphBallEyeBeamForDisplay()
+    {
+        MorphBallEyeBeamState beam = Enemies.MorphBallEyeBeam;
+        if (beam.Phase == MorphBallEyeBeamPhase.Inactive)
+            return null;
+
+        int bodyIndex = beam.BodySlotIndex;
+        if ((uint)bodyIndex >= Enemies.Slots.Count ||
+            (uint)bodyIndex >= Enemies.MorphBallEyeStates.Count ||
+            Enemies.MorphBallEyeStates[bodyIndex] is not { } eyeState)
+        {
+            throw new InvalidDataException(
+                $"Active Morph Ball eye beam names invalid body slot {bodyIndex}.");
+        }
+
+        RoomEnemySlot body = Enemies.Slots[bodyIndex];
+        return new MorphBallEyeBeamRenderSnapshot(
+            beam.Phase,
+            body.XPosition,
+            body.YPosition,
+            eyeState.Angle,
+            beam.AngularWidth,
+            beam.Red,
+            beam.Green,
+            beam.Blue);
+    }
+
+    /// <summary>
     /// Invokes the pause-menu held-input filter with the controller sample latched by the
     /// most recent accepted NMI. The retail caller passes reset value three.
     /// </summary>
@@ -3887,6 +3965,33 @@ public sealed partial class SuperMetroidRuntime
     internal static bool ShouldDrawSamusOnElevator(ushort nmiFrameCounter) =>
         (nmiFrameCounter & 1) == 0;
 
+    /// <summary>
+    /// Executes Falling Tile room main <c>$8F:E525-$E550</c>. It samples the existing RNG
+    /// word rather than generating a new one, preserving subsequent random consumers.
+    /// </summary>
+    private void RunCeresFallingDebrisRoomMain()
+    {
+        if (ActiveRoom?.State.MainCodePointer != 0xe525 || Enemies.CeresStatus == 0)
+            return;
+
+        _ceresFallingDebrisTimer = unchecked((ushort)(_ceresFallingDebrisTimer - 1));
+        if ((short)_ceresFallingDebrisTimer >= 0)
+            return;
+
+        _ceresFallingDebrisTimer = 8;
+        ushort random = System.RandomNumber;
+        ReadOnlySpan<ushort> xPositions =
+        [
+            0x0050, 0x0060, 0x0070, 0x0080,
+            0x0090, 0x00a0, 0x00b0, 0x00c0,
+            0x00d0, 0x00e0, 0x00f0, 0x0110,
+            0x0130, 0x0150, 0x0170, 0x0190,
+        ];
+        Enemies.SpawnCeresFallingDebris(
+            xPositions[random & 0x000f],
+            dark: (random & 0x8000) != 0);
+    }
+
     private RuntimeFrameResult Snapshot(bool escapeTimerExpired) => new(
         NmiFrameCounter,
         Controller1.Current,
@@ -3894,6 +3999,16 @@ public sealed partial class SuperMetroidRuntime
         EscapeTimer.State,
         escapeTimerExpired);
 }
+
+/// <summary>
+/// PPU register values that were made visible together by one accepted gameplay NMI.
+/// </summary>
+public readonly record struct GameplayPpuRenderSnapshot(
+    ushort Bg1HorizontalScroll,
+    ushort Bg1VerticalScroll,
+    ushort Bg2HorizontalScroll,
+    ushort Bg2VerticalScroll,
+    RoomShakeFrameResult RoomShake);
 
 /// <summary>Confirmed native save-point identity handed to the selected-slot SRAM owner.</summary>
 public readonly record struct SaveStationPersistenceRequest(

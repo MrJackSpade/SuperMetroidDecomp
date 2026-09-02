@@ -124,6 +124,13 @@ public sealed class DoorTransitionState
                 // palette during the opening-scroll wait and prevents source-room OAM from
                 // appearing against destination graphics on the first visible frame.
                 runtime.StepFrame(controller1Input: 0, advanceGameTime: false);
+
+                // StepFrame accepts the NMI that displayed the previous build and then
+                // finalizes the destination build. Accept the cartridge coroutine's next
+                // NMI here so OAM, scroll registers, Mode 7, and room FX cross the PPU seam
+                // together before ActiveRoom is observable to the renderer. Omitting this
+                // publication exposed one stale source-room Samus frame over the new room.
+                runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
                 ushort[] destinationTarget = runtime.Cgram.Colors.ToArray();
                 RestorePalette(runtime.Cgram, fadedSourcePalette);
                 runtime.BeginDoorOpeningScroll(

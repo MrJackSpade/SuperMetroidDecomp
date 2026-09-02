@@ -975,6 +975,10 @@ public sealed partial class RoomEnemySystem
         state.FadePaletteOffset = 0;
         state.Function = RidleyAiFunction.WaitBeforeRoar;
         state.FunctionTimer = 4;
+        // `$A6:A449` queues track five immediately after the final body-palette row.
+        // This is the Ceres battle/escape track; it intentionally continues after Ridley
+        // retreats, so omitting this single publication silences both scenes.
+        state.MusicRequest = 5;
     }
 
     private static void SetRidleyInstruction(RoomEnemySlot slot, ushort instruction)

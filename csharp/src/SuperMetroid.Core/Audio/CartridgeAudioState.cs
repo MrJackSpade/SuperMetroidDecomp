@@ -144,6 +144,17 @@ public sealed class CartridgeAudioState
         QueueMusicDelayed8(roomTrack);
     }
 
+    /// <summary>
+    /// Queues <c>Cancel_Sound_Effects</c> at <c>$82:BE17</c> through all three native
+    /// SFX rings, in the cartridge's exact library order.
+    /// </summary>
+    public void QueueCancelSoundEffects()
+    {
+        QueueSound(library: 1, soundId: AudioCancellationCommands.Library1, maximumQueued: 6);
+        QueueSound(library: 2, soundId: AudioCancellationCommands.Library2, maximumQueued: 6);
+        QueueSound(library: 3, soundId: AudioCancellationCommands.Library3, maximumQueued: 6);
+    }
+
     /// <summary>Queues one request through retail SFX library one, two, or three.</summary>
     public void QueueSound(byte library, byte soundId, byte maximumQueued)
     {

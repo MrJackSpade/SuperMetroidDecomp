@@ -568,6 +568,11 @@ public sealed class SuperMetroidGame
                 // palette, inventory labels, and PPU bases are installed before state $0E.
                 // Keep accepting NMI so the controller's previous sample remains truthful.
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                // The pause hook returns directly into `$82:8D16`, which sends the three
+                // cartridge stop sequences before any pause graphics are initialized.
+                // Letting gameplay SFX continue under frozen gameplay causes stale echo,
+                // charge, beam, or environmental voices to pulse throughout the menu.
+                audio.QueueCancelSoundEffects();
                 CartridgeRoomHeader pauseRoom = runtime.ActiveRoom ??
                     throw new InvalidOperationException(
                         "Pause setup requires an active cartridge room header.");

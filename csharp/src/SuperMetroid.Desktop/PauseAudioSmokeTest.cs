@@ -30,6 +30,7 @@ public static class PauseAudioSmokeTest
         int commandCount = 0;
         int maximumAdjacentDelta = 0;
         int maximumBoundaryDelta = 0;
+        var pauseSetupPortWrites = new List<(byte Port, byte Value)>();
         short? precedingSample = null;
 
         FrontendFrame Step(ushort input)
@@ -48,6 +49,12 @@ public static class PauseAudioSmokeTest
                 <= SuperMetroidGameState.Unpausing)
             {
                 pauseFrames++;
+                if (next.GameState == SuperMetroidGameState.PausedA)
+                {
+                    pauseSetupPortWrites.AddRange(next.AudioCommands
+                        .Where(command => command.Kind == CartridgeAudioCommandKind.WritePort)
+                        .Select(command => (command.Port, command.Value)));
+                }
                 if (next.AudioCommands.Any(command =>
                         command.Kind == CartridgeAudioCommandKind.Upload))
                 {
@@ -88,6 +95,28 @@ public static class PauseAudioSmokeTest
 
         if (pauseFrames == 0 || commandCount == 0)
             throw new InvalidDataException("Pause PCM audit did not exercise audio or pause states.");
+        (byte Port, byte Value)[] expectedCancellationWrites =
+        [
+            (1, AudioCancellationCommands.Library1),
+            (2, AudioCancellationCommands.Library2),
+            (3, AudioCancellationCommands.Library3),
+        ];
+        int cancellationCursor = 0;
+        foreach ((byte port, byte value) in pauseSetupPortWrites)
+        {
+            if (cancellationCursor < expectedCancellationWrites.Length &&
+                (port, value) == expectedCancellationWrites[cancellationCursor])
+            {
+                cancellationCursor++;
+            }
+        }
+        if (cancellationCursor != expectedCancellationWrites.Length)
+        {
+            throw new InvalidDataException(
+                "Pause setup did not send $82:BE17's library 1/2/3 cancellation commands " +
+                $"in order; writes=[{string.Join(',', pauseSetupPortWrites.Select(write =>
+                    $"{write.Port}:{write.Value:X2}"))}].");
+        }
         if (maximumBoundaryDelta > maximumAdjacentDelta)
         {
             throw new InvalidDataException(

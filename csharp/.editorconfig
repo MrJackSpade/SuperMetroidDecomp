@@ -1,0 +1,29 @@
+﻿[*.cs]
+
+# IDE0058: Expression value is never used
+dotnet_diagnostic.IDE0058.severity = silent
+
+# IDE0160: Convert to block scoped namespace
+dotnet_diagnostic.IDE0160.severity = silent
+
+# IDE2001: Embedded statements must be on their own line
+dotnet_diagnostic.IDE2001.severity = silent
+
+# IDE2003: Blank line required between block and subsequent statement
+dotnet_diagnostic.IDE2003.severity = silent
+
+# Project quality gates
+#
+# These diagnostics describe code shapes the project intentionally treats as
+# build-breaking defects. Keeping the policy in this named data file makes the
+# rule apply uniformly to every C# project without duplicating MSBuild lists.
+dotnet_diagnostic.IDE0211.severity = error
+dotnet_diagnostic.CA1512.severity = error
+dotnet_diagnostic.CA1822.severity = error
+dotnet_diagnostic.CA1859.severity = error
+dotnet_diagnostic.CA1826.severity = error
+dotnet_diagnostic.IDE0032.severity = error
+dotnet_diagnostic.IDE0060.severity = error
+dotnet_diagnostic.IDE0078.severity = error
+dotnet_diagnostic.SYSLIB1054.severity = error
+dotnet_diagnostic.IDE0330.severity = error

@@ -178,11 +178,11 @@ public static class EndingCreditsRomData
 
     public static class Sprites
     {
-        public static readonly SnesObjAttributeWord TextPalette = new(0x0400);
-        public static readonly SnesObjAttributeWord TimeLabelPalette = new(0x0200);
-        public static readonly SnesObjAttributeWord ScenePalette = new(0x0a00);
-        public static readonly SnesObjAttributeWord AlternatePalette = new(0x0c00);
-        public static readonly SnesObjAttributeWord PlanetPalette = new(0x0e00);
+        public static readonly SnesObjAttributeWord TextPalette = SnesObjPalettes.Index2;
+        public static readonly SnesObjAttributeWord TimeLabelPalette = SnesObjPalettes.Index1;
+        public static readonly SnesObjAttributeWord ScenePalette = SnesObjPalettes.Index5;
+        public static readonly SnesObjAttributeWord AlternatePalette = SnesObjPalettes.Index6;
+        public static readonly SnesObjAttributeWord PlanetPalette = SnesObjPalettes.Index7;
         public static readonly EndingSpriteDefinition EscapeACloudRightTop =
             new(0x0140, 0x00c0, ScenePalette, 0xed0d);
         public static readonly EndingSpriteDefinition EscapeACloudLeftTop =

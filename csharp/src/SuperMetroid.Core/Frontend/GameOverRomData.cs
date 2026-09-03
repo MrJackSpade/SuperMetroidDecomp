@@ -83,9 +83,9 @@ public static class GameOverRomData
 
         public const ushort BabyX = 0x7c;
         public const ushort BabyY = 0x50;
-        public static readonly SnesObjAttributeWord BabyPalette = new(0x0800);
+        public static readonly SnesObjAttributeWord BabyPalette = SnesObjPalettes.Index4;
         public const ushort EggSpritemap = 0x64;
-        public static readonly SnesObjAttributeWord EggPalette = new(0x0a00);
+        public static readonly SnesObjAttributeWord EggPalette = SnesObjPalettes.Index5;
         public const ushort MissileX = 40;
         public const ushort YesMissileY = 160;
         public const ushort NoMissileY = 192;

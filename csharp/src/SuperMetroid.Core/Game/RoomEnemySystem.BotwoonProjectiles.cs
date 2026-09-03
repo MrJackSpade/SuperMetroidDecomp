@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -122,10 +124,12 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot segment,
         byte randomEnemyCounter)
     {
-        segment.GraphicsIndex = unchecked((ushort)(segment.GraphicsIndex | 0x0e00));
+        segment.GraphicsIndex = new SnesObjAttributeWord(segment.GraphicsIndex)
+            .WithPaletteBits(SnesObjPalettes.Index7.PaletteBits);
         RoomEnemySlot head = _slots[0];
         if (head.FlashTimer != 0 && (randomEnemyCounter & 2) != 0)
-            segment.GraphicsIndex = unchecked((ushort)(segment.GraphicsIndex & 0xf1ff));
+            segment.GraphicsIndex = new SnesObjAttributeWord(segment.GraphicsIndex)
+                .WithPaletteIndex(0);
     }
 
     private void RunBotwoonBodyFall(
@@ -152,7 +156,7 @@ public sealed partial class RoomEnemySystem
         segment.XVelocity = BotwoonBodyLandedFunction;
         segment.InstructionPointer = BotwoonBodyLandedInstruction;
         segment.InstructionTimer = 1;
-        segment.GraphicsIndex = 0x0a00;
+        segment.GraphicsIndex = EnemyPaletteBits.Palette5;
         segment.CanDamageSamus = false;
         segment.CollisionOption = 2;
         LastBotwoonSoundEffect = 0x0024;

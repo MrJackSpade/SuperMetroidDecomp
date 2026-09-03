@@ -187,7 +187,7 @@ public sealed partial class RoomEnemySystem
         // the translated property enum retains the directly observed scheduler meaning.
         slot.Properties = slot.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.ProcessInstructions);
-        slot.PaletteIndex = 0x0400;
+        slot.PaletteIndex = EnemyPaletteBits.Palette2;
         SetShitroidInstruction(slot, ShitroidInitialInstruction);
 
         var state = new ShitroidEnemyState(slot)

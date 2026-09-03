@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -312,15 +313,19 @@ public sealed partial class RoomEnemySystem
         MetroidEnemyState state = RequireMetroidState(slot);
         if ((slot.FlashTimer & 2) != 0)
         {
-            state.OuterBodyA.GraphicsIndex = unchecked((ushort)(
-                slot.PaletteIndex | (state.OuterBodyA.GraphicsIndex & 0xf1ff)));
-            state.OuterBodyB.GraphicsIndex = unchecked((ushort)(
-                slot.PaletteIndex | (state.OuterBodyB.GraphicsIndex & 0xf1ff)));
+            state.OuterBodyA.GraphicsIndex =
+                new SnesObjAttributeWord(state.OuterBodyA.GraphicsIndex)
+                    .WithPaletteBits(new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits);
+            state.OuterBodyB.GraphicsIndex =
+                new SnesObjAttributeWord(state.OuterBodyB.GraphicsIndex)
+                    .WithPaletteBits(new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits);
             return;
         }
 
-        state.OuterBodyA.GraphicsIndex &= 0xf1ff;
-        state.OuterBodyB.GraphicsIndex &= 0xf1ff;
+        state.OuterBodyA.GraphicsIndex =
+            new SnesObjAttributeWord(state.OuterBodyA.GraphicsIndex).WithPaletteIndex(0);
+        state.OuterBodyB.GraphicsIndex =
+            new SnesObjAttributeWord(state.OuterBodyB.GraphicsIndex).WithPaletteIndex(0);
     }
 
     /// <summary>Ports ordinary/contact-damage branches of <c>Metroid_Touch</c>.</summary>

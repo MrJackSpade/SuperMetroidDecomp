@@ -127,7 +127,7 @@ public sealed partial class RoomEnemySystem
 
         slot.XPosition = 488;
         slot.YPosition = 184;
-        slot.PaletteIndex = 0x0200;
+        slot.PaletteIndex = EnemyPaletteBits.Palette1;
         slot.YRadius = 21;
         SetDeadSidehopperInstruction(slot, DeadSidehopperInitialInstruction);
 
@@ -147,7 +147,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the already-dead Tourian layout at <c>$A9:D825</c>.</summary>
     private void InitializeAlternateDeadSidehopper(RoomEnemySlot slot)
     {
-        slot.PaletteIndex = 0x0e00;
+        slot.PaletteIndex = EnemyPaletteBits.Palette7;
         SetDeadSidehopperInstruction(slot, DeadSidehopperAlternateInstruction);
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(

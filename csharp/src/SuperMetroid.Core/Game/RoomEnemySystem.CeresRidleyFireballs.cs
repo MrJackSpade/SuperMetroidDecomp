@@ -212,7 +212,7 @@ public sealed partial class RoomEnemySystem
     // Super Metroid reserves native indexes $00..$22, in steps of two, for eighteen enemy
     // projectiles. Keeping the same capacity exposes saturation and spawn failure honestly.
     private const int RoomEnemyProjectileSlotCount = 18;
-    private const ushort FireballGraphicsIndex = 0x0a00;
+    private static readonly ushort FireballGraphicsIndex = EnemyPaletteBits.Palette5;
 
     private readonly RoomEnemyProjectileSlot[] _enemyProjectiles =
         Enumerable.Range(0, RoomEnemyProjectileSlotCount)
@@ -247,7 +247,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileKind kind = dark
             ? RoomEnemyProjectileKind.CeresFallingDebrisDark
             : RoomEnemyProjectileKind.CeresFallingDebrisLight;
-        InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: 0x0e00);
+        InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: EnemyPaletteBits.Palette7);
         projectile.XPosition = xPosition;
         projectile.YPosition = 0x002a;
         projectile.XVelocity = 0;

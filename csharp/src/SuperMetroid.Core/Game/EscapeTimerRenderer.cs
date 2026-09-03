@@ -10,7 +10,7 @@ public static class EscapeTimerRenderer
 {
     private const int TimerDigitPointerTable = 0x809fd4;
     private const int TimerLabelSpritemap = 0x80a060;
-    private const ushort TimerPaletteBits = 0x0a00;
+    private static readonly ushort TimerPaletteBits = EnemyPaletteBits.Palette5;
 
     /// <summary>Draws "TIME mm:ss:cc" using the timer's current fixed-point position.</summary>
     public static void Draw(EscapeTimer timer, OamBuffer oam, ISnesAddressSpace bus)

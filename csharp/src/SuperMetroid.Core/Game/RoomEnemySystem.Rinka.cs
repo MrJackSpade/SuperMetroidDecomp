@@ -76,7 +76,7 @@ public sealed partial class RoomEnemySystem
     private const ushort RinkaSpecialInstructionList = 0xba0c;
     private const ushort RinkaInitialDelay = 26;
     private const ushort RinkaHealth = 10;
-    private const ushort RinkaPaletteIndex = 0x0400;
+    private static readonly ushort RinkaPaletteIndex = EnemyPaletteBits.Palette2;
     private const ushort RinkaSpeed = 0x0120;
     private const ushort RinkaMaximumSpecialActors = 3;
 

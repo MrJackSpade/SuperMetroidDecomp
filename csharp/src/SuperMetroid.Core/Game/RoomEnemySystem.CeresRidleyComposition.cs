@@ -483,7 +483,7 @@ public sealed partial class RoomEnemySystem
                 spritemapPointer: 0xa329,
                 unchecked((ushort)(door.XPosition - cameraX + quakeXOffset)),
                 unchecked((ushort)(door.YPosition - cameraY)),
-                paletteBits: 0x0400,
+                paletteBits: EnemyPaletteBits.Palette2,
                 baseTileIndex: 0);
         }
     }

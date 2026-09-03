@@ -27,7 +27,7 @@ internal sealed class IntroEggParticle
         sprite = new IntroDiscoverySprite(
             x,
             y,
-            paletteBits: 0x0e00,
+            paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
             instructionPointer: unchecked((ushort)(0xcd39 + index * 8)))
         {
             GeneralTimer = index,

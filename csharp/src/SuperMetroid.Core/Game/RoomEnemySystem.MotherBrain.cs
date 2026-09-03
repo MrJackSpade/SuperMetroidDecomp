@@ -108,10 +108,10 @@ public sealed partial class RoomEnemySystem
         head.VramTilesIndex = 0;
         head.Properties = head.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.Invisible);
-        head.PaletteIndex = 0x0200;
+        head.PaletteIndex = EnemyPaletteBits.Palette1;
         state.Head = head;
-        state.NeckPaletteIndex = 0x0200;
-        state.BrainPaletteIndex = 0x0200;
+        state.NeckPaletteIndex = EnemyPaletteBits.Palette1;
+        state.BrainPaletteIndex = EnemyPaletteBits.Palette1;
 
         // SetupMotherBrainHeadNormalPalette installs a ten-frame timer. Palette table
         // interpolation belongs to the later damage/phase slice, but the state producer is

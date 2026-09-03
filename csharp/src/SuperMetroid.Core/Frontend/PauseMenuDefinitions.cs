@@ -19,10 +19,8 @@ internal static class PauseMenuLayout
     public const int ButtonRowsSourceOffset = 0x0240;
     /// <summary>Combined byte length of the two mutable button rows.</summary>
     public const int ButtonRowsByteCount = 0x0080;
-    /// <summary>Palette bits applied to equipment labels which cannot be selected.</summary>
-    public const ushort DisabledEquipmentPaletteBits = 0x0c00;
-    /// <summary>Palette field in one SNES BG tilemap word.</summary>
-    public const ushort TilePaletteMask = 0x1c00;
+    /// <summary>Three-bit BG palette index applied to unavailable equipment labels.</summary>
+    public const int DisabledEquipmentPaletteIndex = 3;
     /// <summary>OBSEL value installed by the pause-screen PPU setup.</summary>
     public const byte ObjectSelection = 0x01;
 }

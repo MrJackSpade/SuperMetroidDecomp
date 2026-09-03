@@ -40,7 +40,7 @@ public sealed partial class RoomEnemySystem
         InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.CrocomireProjectile,
-            graphicsIndex: 0x0a00);
+            graphicsIndex: EnemyPaletteBits.Palette5);
         projectile.XVelocity = 0xfe00;
         projectile.YVelocity = 1;
         projectile.XPosition = unchecked((ushort)(body.XPosition - 32));
@@ -60,7 +60,7 @@ public sealed partial class RoomEnemySystem
         // carry. It also writes the graphics word of physical projectile slot zero rather
         // than the current slot; retain that shipped indexing bug for debugger parity.
         MoveProjectileAxis(projectile, level, horizontal: true);
-        _enemyProjectiles[0].GraphicsIndex = 0x0a00;
+        _enemyProjectiles[0].GraphicsIndex = EnemyPaletteBits.Palette5;
         projectile.GeneralTimer = unchecked((ushort)(
             projectile.GeneralTimer + projectile.XVelocity));
 

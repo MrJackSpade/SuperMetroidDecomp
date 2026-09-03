@@ -448,7 +448,7 @@ public sealed partial class RoomEnemySystem
         if (projectile is null)
             return;
 
-        InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: 0x0e00);
+        InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: EnemyPaletteBits.Palette7);
         projectile.XPosition = xPosition;
         projectile.YPosition = yPosition;
         projectile.XVelocity = 0;

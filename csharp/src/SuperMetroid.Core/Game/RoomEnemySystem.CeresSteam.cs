@@ -17,7 +17,7 @@ public sealed partial class RoomEnemySystem
     private const int CeresSteamFunctionTable = 0xa6f001;
     private const ushort CeresSteamNullFunction = 0xeff4;
     private const ushort CeresSteamMode7Function = 0xf019;
-    private const ushort CeresSteamPaletteIndex = 0x0a00;
+    private static readonly ushort CeresSteamPaletteIndex = EnemyPaletteBits.Palette5;
     private const ushort CeresSteamIndestructibleHealth = 0x7fff;
     private const ushort CeresSteamVariantCount = 6;
 

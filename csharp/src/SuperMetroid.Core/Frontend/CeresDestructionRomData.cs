@@ -92,9 +92,9 @@ public static class CeresDestructionRomData
 
     public static class Sprites
     {
-        public static readonly SnesObjAttributeWord ScenePalette = new(0x0800);
-        public static readonly SnesObjAttributeWord ExplosionPalette = new(0x0a00);
-        public static readonly SnesObjAttributeWord PlanetPalette = new(0x0e00);
+        public static readonly SnesObjAttributeWord ScenePalette = SnesObjPalettes.Index4;
+        public static readonly SnesObjAttributeWord ExplosionPalette = SnesObjPalettes.Index5;
+        public static readonly SnesObjAttributeWord PlanetPalette = SnesObjPalettes.Index7;
         public const ushort InitialExplosionList = 0xccdb;
         public const ushort SecondaryExplosionList = 0xccf5;
         public const ushort FinalExplosionList = 0xcd1b;

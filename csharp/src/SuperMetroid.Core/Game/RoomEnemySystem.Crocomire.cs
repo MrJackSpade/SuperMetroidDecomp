@@ -210,7 +210,7 @@ public sealed partial class RoomEnemySystem
                 EnemyExtraPropertyRawBits.CrocomireInitializerBit0400,
                 "Crocomire initializer");
         slot.VariableA = 23;
-        slot.PaletteIndex = 0x0e00;
+        slot.PaletteIndex = EnemyPaletteBits.Palette7;
         if (_crocomire is not null)
             _crocomire.Tongue = slot;
     }

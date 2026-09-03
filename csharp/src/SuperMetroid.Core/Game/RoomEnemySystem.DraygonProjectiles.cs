@@ -35,7 +35,7 @@ public sealed partial class RoomEnemySystem
         InitializeEnemyProjectileFromDefinition(
             turret,
             RoomEnemyProjectileKind.DraygonWallTurret,
-            graphicsIndex: 0x0a00);
+            graphicsIndex: EnemyPaletteBits.Palette5);
         (turret.XPosition, turret.YPosition) = DraygonTurretPositions[selection];
         turret.XSubposition = 0;
         turret.YSubposition = 0;

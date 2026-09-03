@@ -862,11 +862,11 @@ internal sealed class PauseMenuState
     {
         for (int offset = 0; offset < bytes.Length; offset += 2)
         {
-            ushort word = (ushort)(bytes[offset] | (bytes[offset + 1] << 8));
-            word = (ushort)((word & ~PauseMenuLayout.TilePaletteMask) |
-                PauseMenuLayout.DisabledEquipmentPaletteBits);
-            bytes[offset] = unchecked((byte)word);
-            bytes[offset + 1] = unchecked((byte)(word >> 8));
+            var word = new SnesBgTilemapWord(unchecked((ushort)(
+                bytes[offset] | (bytes[offset + 1] << 8))))
+                .WithPaletteIndex(PauseMenuLayout.DisabledEquipmentPaletteIndex);
+            bytes[offset] = unchecked((byte)word.Raw);
+            bytes[offset + 1] = unchecked((byte)(word.Raw >> 8));
         }
     }
 

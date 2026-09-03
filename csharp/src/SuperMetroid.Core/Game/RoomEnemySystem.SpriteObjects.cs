@@ -251,8 +251,9 @@ public sealed partial class RoomEnemySystem
                 slot.SpritemapPointer,
                 screenX,
                 screenY,
-                paletteBits: unchecked((ushort)(slot.GraphicsIndex & 0x0e00)),
-                baseTileIndex: unchecked((ushort)(slot.GraphicsIndex & 0x01ff)));
+                paletteBits: new SnesObjAttributeWord(slot.GraphicsIndex).PaletteBits,
+                baseTileIndex: unchecked((ushort)
+                    new SnesObjAttributeWord(slot.GraphicsIndex).TileNumber));
         }
     }
 }

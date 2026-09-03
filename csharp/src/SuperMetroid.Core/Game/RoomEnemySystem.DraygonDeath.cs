@@ -164,7 +164,7 @@ public sealed partial class RoomEnemySystem
             ReadWord(_bus!, source),
             ReadWord(_bus!, source + 2),
             kind,
-            graphicsIndex: 0x0e00);
+            graphicsIndex: EnemyPaletteBits.Palette7);
         if (sprite is null)
         {
             throw new InvalidOperationException(

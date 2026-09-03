@@ -201,7 +201,7 @@ public sealed partial class BabyMetroidCutsceneState
         Properties = populationProperties.With(
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.ProcessInstructions);
-        Palette = 0x0e00;
+        Palette = EnemyPaletteBits.Palette7;
         GraphicsOffset = 0x00a0;
         SetInstructionList(InitialInstructionList);
         CrySoundEnabled = true;
@@ -877,11 +877,11 @@ public sealed partial class BabyMetroidCutsceneState
         if (OnionRingHitFlashTimer != 0)
         {
             OnionRingHitFlashTimer = unchecked((ushort)(OnionRingHitFlashTimer - 1));
-            Palette = (OnionRingHitFlashTimer & 2) != 0 ? (ushort)0 : (ushort)0x0e00;
+            Palette = (OnionRingHitFlashTimer & 2) != 0 ? (ushort)0 : EnemyPaletteBits.Palette7;
         }
         else
         {
-            Palette = 0x0e00;
+            Palette = EnemyPaletteBits.Palette7;
         }
 
         return new BabyMetroidCutsceneStepResult(

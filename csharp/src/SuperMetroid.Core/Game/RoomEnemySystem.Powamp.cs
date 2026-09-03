@@ -390,7 +390,7 @@ public sealed partial class RoomEnemySystem
         balloon.Properties = balloon.Properties.With(EnemyProperties.Deleted);
         body.PaletteIndex = originalPalette;
         SpawnPowampSpikeBurst(body);
-        body.PaletteIndex = 0x0a00;
+        body.PaletteIndex = EnemyPaletteBits.Palette5;
     }
 
     /// <summary>Copies common shot/freeze presentation from the body to its balloon.</summary>

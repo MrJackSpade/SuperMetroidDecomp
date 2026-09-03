@@ -72,8 +72,8 @@ public static class TitleSequenceRomData
         public const ushort LogoY = 48;
         public const ushort CopyrightX = 128;
         public const ushort CopyrightY = 196;
-        public static readonly SnesObjAttributeWord TitleCharacterOffset = new(0x0400);
-        public static readonly SnesObjAttributeWord CopyrightPalette = new(0x0800);
+        public static readonly SnesObjAttributeWord TitleCharacterOffset = SnesObjPalettes.Index2;
+        public static readonly SnesObjAttributeWord CopyrightPalette = SnesObjPalettes.Index4;
         public const byte ObjectSizeAndBaseSelector = 0x03;
     }
 

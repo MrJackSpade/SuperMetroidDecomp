@@ -24,7 +24,7 @@ internal sealed class IntroEggSlimeDrop
         sprite = new IntroDiscoverySprite(
             babyX,
             babyY,
-            paletteBits: 0x0e00,
+            paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
             instructionPointer: 0xcd69)
         {
             GeneralTimer = index,

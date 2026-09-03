@@ -47,7 +47,7 @@ public sealed partial class RoomEnemySystem
         slot.Parameter1 = 0;
         slot.Parameter2 = 0;
         SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E538);
-        slot.PaletteIndex = 0x0e00;
+        slot.PaletteIndex = EnemyPaletteBits.Palette7;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
         // Native property $1000 blocks Plasma Beam penetration. Its meaning is established
@@ -62,8 +62,8 @@ public sealed partial class RoomEnemySystem
         {
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = 0,
-            SpritemapPaletteIndex = 0x0e00,
-            CommonDrawPaletteIndex = 0x0e00,
+            SpritemapPaletteIndex = EnemyPaletteBits.Palette7,
+            CommonDrawPaletteIndex = EnemyPaletteBits.Palette7,
             MovementAnimationEnabled = 1,
             FacingDirection = 2,
             IdleTailWhipEnabled = 0,

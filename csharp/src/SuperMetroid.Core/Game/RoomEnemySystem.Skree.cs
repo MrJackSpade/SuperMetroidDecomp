@@ -154,7 +154,7 @@ public sealed partial class RoomEnemySystem
         state.BurrowTimer = unchecked((ushort)(state.BurrowTimer - 1));
         if (state.BurrowTimer == 0)
         {
-            slot.PaletteIndex = 0x0a00;
+            slot.PaletteIndex = EnemyPaletteBits.Palette5;
             slot.VramTilesIndex = 0;
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
             return;

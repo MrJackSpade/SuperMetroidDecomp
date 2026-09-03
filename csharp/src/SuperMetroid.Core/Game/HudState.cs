@@ -91,7 +91,7 @@ public sealed class HudState
         if (snapshot.MaxPowerBombs != 0)
             DrawTwoDigits(bus, AmmoDigitsAddress, snapshot.PowerBombs, byteOffset: 0xa2);
 
-        ToggleItemHighlight(snapshot.SelectedItem, paletteBits: 0x1000);
+        ToggleItemHighlight(snapshot.SelectedItem, paletteIndex: 4);
         // `$80:9AC9` initializes samus_prev_hud_item_index to zero. HandleHudTilemap
         // performs the first live comparison on the next gameplay pass.
         _previousSelectedItem = 0;
@@ -148,8 +148,8 @@ public sealed class HudState
         // visual change) while spinning, wall-jumping, grappling, or time is frozen.
         if (samus.SelectedHudItem != _previousSelectedItem)
         {
-            ToggleItemHighlight(samus.SelectedHudItem, paletteBits: 0x1000);
-            ToggleItemHighlight(_previousSelectedItem, paletteBits: 0x1400);
+            ToggleItemHighlight(samus.SelectedHudItem, paletteIndex: 4);
+            ToggleItemHighlight(_previousSelectedItem, paletteIndex: 5);
             _previousSelectedItem = samus.SelectedHudItem;
 
             SamusMovementType movementType = samus.ReadMovementType(bus);
@@ -298,7 +298,8 @@ public sealed class HudState
         // Unlike the other equipment icons, missiles are 3x2 tiles and occupy table words
         // 0-5 at $80:99A3. Only replace a blank slot, exactly like $80:99CF's guard.
         int destination = 0x14 / 2;
-        if ((_tiles[destination] & 0x03ff) != (BlankTile & 0x03ff))
+        if (new SnesBgTilemapWord(_tiles[destination]).CharacterIndex !=
+            new SnesBgTilemapWord(BlankTile).CharacterIndex)
             return;
 
         _tiles[destination] = ReadRomWord(bus, IconTableAddress);
@@ -312,7 +313,8 @@ public sealed class HudState
     private void AddTwoByTwoIcon(ISnesAddressSpace bus, int itemIndex, int source)
     {
         int destination = ItemByteOffsets[itemIndex] / 2;
-        if ((_tiles[destination] & 0x03ff) != (BlankTile & 0x03ff))
+        if (new SnesBgTilemapWord(_tiles[destination]).CharacterIndex !=
+            new SnesBgTilemapWord(BlankTile).CharacterIndex)
             return;
 
         _tiles[destination] = ReadRomWord(bus, source);
@@ -321,33 +323,32 @@ public sealed class HudState
         _tiles[destination + WidthInTiles + 1] = ReadRomWord(bus, source + 6);
     }
 
-    private void ToggleItemHighlight(ushort selectedItem, ushort paletteBits)
+    private void ToggleItemHighlight(ushort selectedItem, int paletteIndex)
     {
         int itemIndex = selectedItem - 1;
         if ((uint)itemIndex >= ItemByteOffsets.Length)
             return;
 
         int destination = ItemByteOffsets[itemIndex] / 2;
-        ApplyPaletteBitsUnlessBlank(destination, paletteBits);
-        ApplyPaletteBitsUnlessBlank(destination + 1, paletteBits);
-        ApplyPaletteBitsUnlessBlank(destination + WidthInTiles, paletteBits);
-        ApplyPaletteBitsUnlessBlank(destination + WidthInTiles + 1, paletteBits);
+        ApplyPaletteUnlessBlank(destination, paletteIndex);
+        ApplyPaletteUnlessBlank(destination + 1, paletteIndex);
+        ApplyPaletteUnlessBlank(destination + WidthInTiles, paletteIndex);
+        ApplyPaletteUnlessBlank(destination + WidthInTiles + 1, paletteIndex);
 
         if (itemIndex == 0)
         {
             // The missile selector spans the icon's third column.
-            ApplyPaletteBitsUnlessBlank(destination + 2, paletteBits);
-            ApplyPaletteBitsUnlessBlank(destination + WidthInTiles + 2, paletteBits);
+            ApplyPaletteUnlessBlank(destination + 2, paletteIndex);
+            ApplyPaletteUnlessBlank(destination + WidthInTiles + 2, paletteIndex);
         }
     }
 
-    private void ApplyPaletteBitsUnlessBlank(int tileIndex, ushort paletteBits)
+    private void ApplyPaletteUnlessBlank(int tileIndex, int paletteIndex)
     {
         if (_tiles[tileIndex] != BlankTile)
         {
-            // Mask $E3FF clears palette bits 10-12 and retains character, priority, and
-            // flips. The caller supplies the desired already-shifted palette selection.
-            _tiles[tileIndex] = (ushort)((_tiles[tileIndex] & 0xe3ff) | paletteBits);
+            _tiles[tileIndex] = new SnesBgTilemapWord(_tiles[tileIndex])
+                .WithPaletteIndex(paletteIndex);
         }
     }
 

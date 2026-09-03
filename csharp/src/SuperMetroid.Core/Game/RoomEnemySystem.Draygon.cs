@@ -49,7 +49,7 @@ public sealed partial class RoomEnemySystem
         }
         _vram!.LoadBytes(0x9000, bg2Bytes); // VRAM word $4800 expressed as a byte address.
 
-        body.PaletteIndex = 0x0e00;
+        body.PaletteIndex = EnemyPaletteBits.Palette7;
         body.CurrentInstruction = DraygonInstructionLists.Ilist_9889;
         body.InstructionTimer = 1;
 
@@ -86,7 +86,7 @@ public sealed partial class RoomEnemySystem
                 if (part.SlotIndex != 2)
                     throw new InvalidDataException("Draygon's tail must own native slot $0080.");
                 part.CurrentInstruction = DraygonInstructionLists.Ilist_99FC;
-                part.PaletteIndex = 0x0e00;
+                part.PaletteIndex = EnemyPaletteBits.Palette7;
                 state.Tail = part;
                 return;
 
@@ -96,7 +96,7 @@ public sealed partial class RoomEnemySystem
                 // Body init briefly writes $9813 before this record exists. Retail part init
                 // clears that lost write and installs the ordinary idle loop at $97E7.
                 part.CurrentInstruction = DraygonInstructionLists.Ilist_97E7;
-                part.PaletteIndex = 0x0e00;
+                part.PaletteIndex = EnemyPaletteBits.Palette7;
                 part.Layer = 2;
                 state.Arms = part;
                 return;

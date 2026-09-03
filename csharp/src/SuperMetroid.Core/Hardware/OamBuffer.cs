@@ -69,23 +69,21 @@ public sealed class OamBuffer
     {
         ArgumentNullException.ThrowIfNull(bus);
         ValidateAddress(spritemapAddress);
-        if ((paletteBits & ~0x0e00) != 0)
-            throw new ArgumentOutOfRangeException(nameof(paletteBits), paletteBits, "OBJ palette bits must fit mask $0E00.");
+        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
 
         ushort entryCount = ReadWordInFixedBank(bus, spritemapAddress);
         int entryAddress = AddWithinBank(spritemapAddress, 2);
 
         for (int entryIndex = 0; entryIndex < entryCount && NextByteOffset < LowTableByteCount; entryIndex++)
         {
-            ushort encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
+            SnesSpritemapXWord encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
             byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
             ushort sourceAttributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
 
             // The low nine bits form a signed/modular X offset. Bit 15 is simultaneously
             // the large-sprite flag, and bits 9-14 are zero in valid records. Adding the
             // complete word looks odd but exactly reproduces the 16-bit ADC in $81:87B8.
-            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset));
-            bool isLarge = (encodedXOffset & 0x8000) != 0;
+            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
 
             int calculatedY = (byte)originY + encodedYOffset;
             bool yOffsetIsNegative = (encodedYOffset & 0x80) != 0;
@@ -106,10 +104,12 @@ public sealed class OamBuffer
 
             // Mask $F1FF preserves tile number, priority, and flips while clearing the
             // spritemap's palette bits. The caller-provided palette then replaces them.
-            ushort finalAttributes = (ushort)((sourceAttributes & 0xf1ff) | paletteBits);
-            _lowTable[lowOffset + 2] = (byte)finalAttributes;
-            _lowTable[lowOffset + 3] = (byte)(finalAttributes >> 8);
-            SetHighTablePair(spriteIndex, (calculatedX & 0x0100) != 0, isLarge);
+            SnesObjAttributeWord finalAttributes =
+                new SnesObjAttributeWord(sourceAttributes).WithPaletteBits(paletteBits);
+            WriteAttributes(lowOffset, finalAttributes);
+            SetHighTablePair(
+                spriteIndex,
+                SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
 
             NextByteOffset += 4;
             entryAddress = AddWithinBank(entryAddress, 5);
@@ -157,17 +157,15 @@ public sealed class OamBuffer
         int entryAddress = AddWithinBank(spritemapAddress, 2);
         for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
         {
-            ushort encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
+            SnesSpritemapXWord encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
             byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
             ushort attributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
 
             // The 65C816 adds the complete encoded X word, including the size bit and any
             // irrelevant high bits produced by old art tools. Only X bit 8 reaches high
             // OAM; bit 15 of the original offset independently chooses the large OBJ size.
-            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset));
+            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
             byte calculatedY = unchecked((byte)(originY + encodedYOffset));
-            bool xHigh = (calculatedX & 0x0100) != 0;
-            bool isLarge = (encodedXOffset & 0x8000) != 0;
 
             int spriteIndex = NextByteOffset >> 2;
             int lowOffset = NextByteOffset;
@@ -176,9 +174,10 @@ public sealed class OamBuffer
 
             // Unlike $81:879F, $81:8A1A performs no $F1FF mask and no caller palette OR.
             // Pose spritemaps carry their complete tile/palette/priority/flip attributes.
-            _lowTable[lowOffset + 2] = (byte)attributes;
-            _lowTable[lowOffset + 3] = (byte)(attributes >> 8);
-            SetHighTablePair(spriteIndex, xHigh, isLarge);
+            WriteAttributes(lowOffset, new SnesObjAttributeWord(attributes));
+            SetHighTablePair(
+                spriteIndex,
+                SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
 
             // Native OAMStack is a nine-bit byte offset and therefore wraps after $1FC.
             // Normal gameplay stays below that limit, but retaining the mask makes the
@@ -214,22 +213,21 @@ public sealed class OamBuffer
         int entryAddress = AddWithinBank(spritemapAddress, 2);
         for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
         {
-            ushort encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
+            SnesSpritemapXWord encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
             byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
             ushort attributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
 
-            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset));
+            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
             byte calculatedY = unchecked((byte)(originY + encodedYOffset));
-            bool xHigh = (calculatedX & 0x0100) != 0;
-            bool isLarge = (encodedXOffset & 0x8000) != 0;
 
             int spriteIndex = NextByteOffset >> 2;
             int lowOffset = NextByteOffset;
             _lowTable[lowOffset] = (byte)calculatedX;
             _lowTable[lowOffset + 1] = calculatedY;
-            _lowTable[lowOffset + 2] = (byte)attributes;
-            _lowTable[lowOffset + 3] = (byte)(attributes >> 8);
-            SetHighTablePair(spriteIndex, xHigh, isLarge);
+            WriteAttributes(lowOffset, new SnesObjAttributeWord(attributes));
+            SetHighTablePair(
+                spriteIndex,
+                SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
 
             // $81:8A2B masks the byte-address stack to nine bits after each entry.
             NextByteOffset = (NextByteOffset + 4) & 0x01ff;
@@ -290,11 +288,11 @@ public sealed class OamBuffer
         int entryAddress = AddWithinBank(spritemapAddress, 2);
         for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
         {
-            ushort encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
+            SnesSpritemapXWord encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
             byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
             ushort sourceAttributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
 
-            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset));
+            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
             int unsignedYSum = unchecked((byte)originY) + encodedYOffset;
             bool yOffsetIsNegative = (encodedYOffset & 0x80) != 0;
             bool hideForVerticalWrap = originYIsOnScreen
@@ -309,14 +307,13 @@ public sealed class OamBuffer
 
             // `$81:8C60` uses ADC, not OR, for the base tile. Carry is explicitly clear at
             // this point, but an overflowing tile number may carry into attribute bits.
-            ushort finalAttributes = unchecked((ushort)(sourceAttributes + baseTileNumber));
-            finalAttributes |= paletteBits;
-            _lowTable[lowOffset + 2] = unchecked((byte)finalAttributes);
-            _lowTable[lowOffset + 3] = unchecked((byte)(finalAttributes >> 8));
+            SnesObjAttributeWord finalAttributes = new SnesObjAttributeWord(sourceAttributes)
+                .AddPackedTileBase(baseTileNumber)
+            .Or(SnesObjAttributeWord.FromPaletteBits(paletteBits));
+            WriteAttributes(lowOffset, finalAttributes);
             SetHighTablePair(
                 spriteIndex,
-                (calculatedX & 0x0100) != 0,
-                (encodedXOffset & 0x8000) != 0);
+                SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
 
             // The native OAM stack is a wrapping nine-bit byte index, including within a
             // single large spritemap. Preserve that diagnostic edge rather than truncating.
@@ -349,19 +346,18 @@ public sealed class OamBuffer
         bool originYIsOnScreen = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if ((paletteBits & ~0x0e00) != 0)
-            throw new ArgumentOutOfRangeException(nameof(paletteBits), paletteBits, "OBJ palette bits must fit mask $0E00.");
+        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
 
         int spritemapAddress = (bank << 16) | spritemapPointer;
         ushort entryCount = ReadWordInFixedBank(bus, spritemapAddress);
         int entryAddress = AddWithinBank(spritemapAddress, 2);
         for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
         {
-            ushort encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
+            SnesSpritemapXWord encodedXOffset = ReadWordInFixedBank(bus, entryAddress);
             byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
             ushort sourceAttributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
 
-            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset));
+            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
             int unsignedYSum = unchecked((byte)originY) + encodedYOffset;
             byte calculatedY;
             if (!clipVerticalWrap)
@@ -379,19 +375,18 @@ public sealed class OamBuffer
                     : yOffsetIsNegative ? unsignedYSum >= 0x100 : unsignedYSum < 0x100;
                 calculatedY = hideForVerticalWrap ? (byte)0xf0 : unchecked((byte)unsignedYSum);
             }
-            ushort finalAttributes = unchecked((ushort)(sourceAttributes + baseTileIndex));
-            finalAttributes |= paletteBits;
+            SnesObjAttributeWord finalAttributes = new SnesObjAttributeWord(sourceAttributes)
+                .AddPackedTileBase(baseTileIndex)
+            .Or(SnesObjAttributeWord.FromPaletteBits(paletteBits));
 
             int spriteIndex = NextByteOffset >> 2;
             int lowOffset = NextByteOffset;
             _lowTable[lowOffset] = unchecked((byte)calculatedX);
             _lowTable[lowOffset + 1] = calculatedY;
-            _lowTable[lowOffset + 2] = unchecked((byte)finalAttributes);
-            _lowTable[lowOffset + 3] = unchecked((byte)(finalAttributes >> 8));
+            WriteAttributes(lowOffset, finalAttributes);
             SetHighTablePair(
                 spriteIndex,
-                (calculatedX & 0x0100) != 0,
-                (encodedXOffset & 0x8000) != 0);
+                SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
 
             NextByteOffset = (NextByteOffset + 4) & 0x01ff;
             entryAddress = AddWithinBank(entryAddress, 5);
@@ -413,9 +408,8 @@ public sealed class OamBuffer
         int lowOffset = NextByteOffset;
         _lowTable[lowOffset] = unchecked((byte)x);
         _lowTable[lowOffset + 1] = unchecked((byte)y);
-        _lowTable[lowOffset + 2] = unchecked((byte)attributes);
-        _lowTable[lowOffset + 3] = unchecked((byte)(attributes >> 8));
-        SetHighTablePair(spriteIndex, (x & 0x0100) != 0, isLarge: false);
+        WriteAttributes(lowOffset, new SnesObjAttributeWord(attributes));
+        SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(x, isLarge: false));
         NextByteOffset = (NextByteOffset + 4) & 0x01ff;
     }
 
@@ -438,8 +432,7 @@ public sealed class OamBuffer
         int lowOffset = NextByteOffset;
         _lowTable[lowOffset] = x;
         _lowTable[lowOffset + 1] = y;
-        _lowTable[lowOffset + 2] = unchecked((byte)attributes);
-        _lowTable[lowOffset + 3] = unchecked((byte)(attributes >> 8));
+        WriteAttributes(lowOffset, new SnesObjAttributeWord(attributes));
         NextByteOffset += 4;
     }
 
@@ -469,20 +462,21 @@ public sealed class OamBuffer
 
         int lowOffset = spriteIndex * 4;
         int highShift = (spriteIndex & 3) * 2;
-        int highPair = (_highTable[spriteIndex >> 2] >> highShift) & 3;
+        var highPair = new SnesOamHighTablePair(unchecked((byte)(
+            (_highTable[spriteIndex >> 2] >> highShift) & 3)));
         SnesObjAttributeWord attributes = (ushort)(
             _lowTable[lowOffset + 2] |
             (_lowTable[lowOffset + 3] << 8));
 
         return new OamEntry(
-            X: _lowTable[lowOffset] | ((highPair & 1) << 8),
+            X: _lowTable[lowOffset] | (highPair.XHigh ? 0x0100 : 0),
             Y: _lowTable[lowOffset + 1],
             TileNumber: attributes.TileNumber,
             Palette: attributes.PaletteIndex,
             Priority: attributes.Priority,
             FlipX: attributes.FlipHorizontally,
             FlipY: attributes.FlipVertically,
-            IsLarge: (highPair & 2) != 0);
+            IsLarge: highPair.IsLarge);
     }
 
     /// <summary>Copies the exact contiguous 544-byte payload sent to PPU OAM.</summary>
@@ -517,16 +511,23 @@ public sealed class OamBuffer
         NextByteOffset = 0;
     }
 
-    private void SetHighTablePair(int spriteIndex, bool xHigh, bool isLarge)
+    private void SetHighTablePair(int spriteIndex, SnesOamHighTablePair pair)
     {
         int byteIndex = spriteIndex >> 2;
         int shift = (spriteIndex & 3) * 2;
         int pairMask = 3 << shift;
-        int pairValue = ((xHigh ? 1 : 0) | (isLarge ? 2 : 0)) << shift;
+        int pairValue = pair.Raw << shift;
 
         // The ROM only ORs these bits because ClearHighOAM ran earlier. Clear-and-replace
         // is equivalent for a fresh frame and prevents stale debugger edits from leaking.
         _highTable[byteIndex] = (byte)((_highTable[byteIndex] & ~pairMask) | pairValue);
+    }
+
+    /// <summary>Stores one typed packed attribute word in the low-OAM record.</summary>
+    private void WriteAttributes(int lowOffset, SnesObjAttributeWord attributes)
+    {
+        _lowTable[lowOffset + 2] = unchecked((byte)attributes.Raw);
+        _lowTable[lowOffset + 3] = unchecked((byte)(attributes.Raw >> 8));
     }
 
     private static bool ShouldHideForOnScreenOrigin(int unsignedYSum, bool offsetIsNegative)

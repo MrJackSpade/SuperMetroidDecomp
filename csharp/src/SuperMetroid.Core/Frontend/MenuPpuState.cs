@@ -15,7 +15,7 @@ internal sealed class MenuPpuState
 {
     public const ushort Bg1TilemapWord = SnesPpuLayout.MenuBg1TilemapWord;
     public const ushort Bg2TilemapWord = SnesPpuLayout.MenuBg2TilemapWord;
-    public const ushort ObjectPaletteBits = 0x0e00;
+    public static ushort ObjectPaletteBits => SnesObjPalettes.Index7.PaletteBits;
     public const int SpritemapPointerTableAddress = 0x82c569;
 
     public MenuPpuState(ISnesAddressSpace bus)

@@ -28,7 +28,7 @@ internal sealed class IntroMotherBrainSpriteState
 
     public static ushort YPosition => 0x006f;
 
-    public static ushort PaletteBits => 0x0e00;
+    public static ushort PaletteBits => IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
 
     public ushort SpriteMapPointer { get; private set; }
 

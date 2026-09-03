@@ -77,7 +77,7 @@ public sealed partial class RoomEnemySystem
         fragment.InstructionTimer = 1;
         fragment.Timer = 0;
         fragment.VramTilesIndex = 0;
-        fragment.PaletteIndex = 0x0e00;
+        fragment.PaletteIndex = EnemyPaletteBits.Palette7;
         fragment.VariableF = ReadWord(
             _bus!,
             RidleyExplosionRomData.TailVelocityTable + fragment.Parameter1);

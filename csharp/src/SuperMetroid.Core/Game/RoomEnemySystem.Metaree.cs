@@ -235,7 +235,7 @@ public sealed partial class RoomEnemySystem
             {
                 VramTilesIndex = unchecked((ushort)(slot.PaletteIndex | slot.VramTilesIndex)),
             };
-            slot.PaletteIndex = 0x0a00;
+            slot.PaletteIndex = EnemyPaletteBits.Palette5;
             slot.VramTilesIndex = 0;
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
             return;

@@ -42,7 +42,7 @@ internal sealed class IntroCeresFlightState
     private readonly IntroDiscoverySprite stars = new(
         xPosition: 0x0070,
         yPosition: 0x0057,
-        paletteBits: 0x0800,
+        paletteBits: SnesObjPalettes.Index4.PaletteBits,
         instructionPointer: 0xcda3)
     {
         GeneralTimer = 0xfc00,
@@ -223,11 +223,11 @@ internal sealed class IntroCeresFlightState
         // each as the shared bank-$8B interpreter preserves its ROM spritemap selection.
         rearViewActors =
         [
-            CreateRearActor(0x0050, 0x009f, 0x0800, 0xce4b), // Large asteroids.
-            CreateRearActor(0x0074, 0x00a0, 0x0c00, 0xcc47), // Ceres under attack.
-            CreateRearActor(0x0080, 0x0060, 0x0800, 0xcc4f), // Small asteroids.
-            CreateRearActor(0x00e0, 0x0057, 0x0800, 0xcc57), // Purple vortex.
-            CreateRearActor(0xffe0, 0x0057, 0x0800, 0xcda3), // Stars, parameter one.
+            CreateRearActor(0x0050, 0x009f, SnesObjPalettes.Index4, 0xce4b), // Large asteroids.
+            CreateRearActor(0x0074, 0x00a0, SnesObjPalettes.Index6, 0xcc47), // Ceres under attack.
+            CreateRearActor(0x0080, 0x0060, SnesObjPalettes.Index4, 0xcc4f), // Small asteroids.
+            CreateRearActor(0x00e0, 0x0057, SnesObjPalettes.Index4, 0xcc57), // Purple vortex.
+            CreateRearActor(0xffe0, 0x0057, SnesObjPalettes.Index4, 0xcda3), // Stars, parameter one.
         ];
 
         // CGADSUB=$31 adds the fixed colour to BG1, OBJ, and backdrop. $BE09 begins at
@@ -241,7 +241,7 @@ internal sealed class IntroCeresFlightState
     private static IntroDiscoverySprite CreateRearActor(
         ushort x,
         ushort y,
-        ushort palette,
+        SnesObjAttributeWord palette,
         ushort instructionPointer) => new(x, y, palette, instructionPointer);
 
     private void StepFlyingTowardCeres()

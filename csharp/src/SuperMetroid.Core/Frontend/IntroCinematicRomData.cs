@@ -144,9 +144,9 @@ public static class IntroCinematicRomData
     /// <summary>Common object palette and sound definitions used by intro actors.</summary>
     public static class Objects
     {
-        public static readonly SnesObjAttributeWord DiscoveryPalette = new(0x0e00);
-        public static readonly SnesObjAttributeWord ScientistPalette = new(0x0c00);
-        public static readonly SnesObjAttributeWord ExplosionPalette = new(0x0a00);
+        public static readonly SnesObjAttributeWord DiscoveryPalette = SnesObjPalettes.Index7;
+        public static readonly SnesObjAttributeWord ScientistPalette = SnesObjPalettes.Index6;
+        public static readonly SnesObjAttributeWord ExplosionPalette = SnesObjPalettes.Index5;
         public const byte MaximumQueuedSounds = 6;
         public static readonly SoundEffectId BabyCry1 =
             new(SoundEffectLibrary.Library3, 0x23);

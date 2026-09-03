@@ -215,7 +215,7 @@ public sealed partial class RoomEnemySystem
             variant);
         _deadTourianCorpseStates[slot.SlotIndex] = state;
 
-        slot.PaletteIndex = 0x0e00;
+        slot.PaletteIndex = EnemyPaletteBits.Palette7;
         slot.VariableA = profile.WaitFunction;
         SetDeadSidehopperInstruction(slot, instructionPointer);
         CorpseRottingTableProcessor.Initialize(_bus!, 0x7e0000 | tablePointer, entryCount);

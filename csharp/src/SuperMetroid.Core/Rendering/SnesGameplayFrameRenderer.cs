@@ -461,17 +461,16 @@ public static class SnesGameplayFrameRenderer
         out Rgba32 color,
         out bool highPriority)
     {
-        ushort raw = entry.Raw;
-        highPriority = (raw & SnesBgTilemapWord.PriorityMask) != 0;
+        highPriority = entry.HasPriority;
 
-        int sourceX = (raw & (ushort)SnesTileFlipFlags.Horizontal) != 0
+        int sourceX = entry.FlipHorizontally
             ? 7 - pixelX
             : pixelX;
-        int sourceY = (raw & (ushort)SnesTileFlipFlags.Vertical) != 0
+        int sourceY = entry.FlipVertically
             ? 7 - pixelY
             : pixelY;
         int characterByteAddress =
-            ((characterBaseWord + (raw & SnesBgTilemapWord.CharacterMask) * 16) & 0x7fff) * 2;
+            ((characterBaseWord + entry.CharacterIndex * 16) & 0x7fff) * 2;
         int mask = 1 << (7 - sourceX);
         int rowAddress = characterByteAddress + sourceY * 2;
         int colorIndex = ((vram[rowAddress] & mask) != 0 ? 1 : 0)
@@ -484,9 +483,7 @@ public static class SnesGameplayFrameRenderer
             return false;
         }
 
-        int paletteIndex = (raw >> SnesBgTilemapWord.PaletteShift) &
-            SnesBgTilemapWord.PaletteMask;
-        color = palette[paletteIndex * 16 + colorIndex];
+        color = palette[entry.PaletteIndex * 16 + colorIndex];
         return true;
     }
 

@@ -65,7 +65,7 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.VramTilesIndex = 0;
-        slot.PaletteIndex = 0x0400;
+        slot.PaletteIndex = EnemyPaletteBits.Palette2;
         int tableOffset = variant * 2;
         slot.VariableA = ReadWord(
             _bus!,
@@ -97,7 +97,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        slot.PaletteIndex = 0x0e00;
+        slot.PaletteIndex = EnemyPaletteBits.Palette7;
         int source = CeresStatus != 0 ? 0xa6f50e : 0xa6f4ee;
         _cgram!.LoadFromBus(_bus!, source, colorCount: 15, destinationIndex: 0x1e2 / 2);
     }
@@ -121,7 +121,7 @@ public sealed partial class RoomEnemySystem
                 slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
                 if ((CeresStatus & 1) != 0)
                 {
-                    slot.PaletteIndex = 0x0e00;
+                    slot.PaletteIndex = EnemyPaletteBits.Palette7;
                     slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
                 }
                 return;

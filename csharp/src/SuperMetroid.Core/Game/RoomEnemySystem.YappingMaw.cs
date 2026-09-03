@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -168,7 +170,7 @@ public sealed partial class RoomEnemySystem
             OriginY = slot.YPosition,
             ActivationDistance = slot.Parameter1,
             RetractedDelayTimer = YappingMawRetractedDelayFrames,
-            OriginalPaletteBits = unchecked((ushort)(slot.PaletteIndex & 0x0e00)),
+            OriginalPaletteBits = new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits,
         };
         _yappingMawStates[slot.SlotIndex] = state;
 
@@ -562,15 +564,16 @@ public sealed partial class RoomEnemySystem
         {
             if (body is not null)
             {
-                body.GraphicsIndex = unchecked((ushort)(
-                    (body.GraphicsIndex & 0xf1ff) | paletteBits));
+                body.GraphicsIndex = new SnesObjAttributeWord(body.GraphicsIndex)
+                    .WithPaletteBits(paletteBits);
             }
         }
 
         if (state.RootSpriteObject is not null)
         {
-            state.RootSpriteObject.GraphicsIndex = unchecked((ushort)(
-                (state.RootSpriteObject.GraphicsIndex & 0xf1ff) | paletteBits));
+            state.RootSpriteObject.GraphicsIndex =
+                new SnesObjAttributeWord(state.RootSpriteObject.GraphicsIndex)
+                    .WithPaletteBits(paletteBits);
         }
     }
 

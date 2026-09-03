@@ -1491,7 +1491,7 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.CurrentInstruction = GunshipInstructionLists.TopHull;
-        slot.PaletteIndex = 0x0e00;
+        slot.PaletteIndex = EnemyPaletteBits.Palette7;
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
             SamusState samus = _samusAtEnemyInitialization
@@ -1529,7 +1529,7 @@ public sealed partial class RoomEnemySystem
         if (slot.SlotIndex == 0)
             throw new InvalidDataException("Gunship bottom cannot occupy enemy slot zero.");
         slot.VramTilesIndex = _slots[slot.SlotIndex - 1].VramTilesIndex;
-        slot.PaletteIndex = 0x0e00;
+        slot.PaletteIndex = EnemyPaletteBits.Palette7;
 
         if (slot.Parameter2 != 0)
         {

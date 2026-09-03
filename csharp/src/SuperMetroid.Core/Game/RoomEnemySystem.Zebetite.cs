@@ -111,7 +111,7 @@ public sealed partial class RoomEnemySystem
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        slot.PaletteIndex = 0x0400;
+        slot.PaletteIndex = EnemyPaletteBits.Palette2;
         slot.VramTilesIndex = 0x0080;
         state.PaletteCycle = 0;
         state.Function = state.IsSecondaryHalf

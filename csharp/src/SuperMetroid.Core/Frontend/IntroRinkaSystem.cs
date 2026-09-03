@@ -101,7 +101,7 @@ internal sealed class IntroRinkaSystem
         var rinka = new IntroDiscoverySprite(
             InitialX[parameter],
             InitialY[parameter],
-            paletteBits: 0x0e00,
+            paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
             instructionPointer: 0xcdeb)
         {
             GeneralTimer = (ushort)parameter,

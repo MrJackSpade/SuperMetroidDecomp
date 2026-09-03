@@ -199,8 +199,10 @@ public sealed partial class RoomEnemySystem
         // Retail's last Magdollite record therefore resets this clock to eight and selects
         // its OBJ palette. Model the resulting singleton hook, not nine independent cycles.
         _magdollitePaletteAnimationInstalled = true;
+        int paletteNumber = new SuperMetroid.Core.Hardware.SnesObjAttributeWord(
+            slot.PaletteIndex).PaletteIndex;
         _magdollitePaletteBaseByteOffset = unchecked((ushort)(
-            ((slot.PaletteIndex & 0x0e00) >> 4) + 0x0100));
+            paletteNumber * 0x20 + 0x0100));
         _magdollitePaletteAnimationTimer = 8;
         _magdollitePaletteAnimationIndex = 0;
     }

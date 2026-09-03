@@ -109,7 +109,7 @@ public sealed partial class RoomEnemySystem
         slot.Parameter1 = 0;
         slot.Parameter2 = 0;
         SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E538);
-        slot.PaletteIndex = 0x0e00;
+        slot.PaletteIndex = EnemyPaletteBits.Palette7;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
         // Native bits $1000 and $0400 are proven by the initializer, but $1000 has not yet
@@ -126,8 +126,8 @@ public sealed partial class RoomEnemySystem
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = 0,
             HitCounter = 0,
-            SpritemapPaletteIndex = 0x0e00,
-            CommonDrawPaletteIndex = 0x0e00,
+            SpritemapPaletteIndex = EnemyPaletteBits.Palette7,
+            CommonDrawPaletteIndex = EnemyPaletteBits.Palette7,
             MovementAnimationEnabled = 0,
             FacingDirection = 0,
             IdleTailWhipEnabled = 1,
@@ -455,7 +455,7 @@ public sealed partial class RoomEnemySystem
         state.SpritemapPaletteIndex = slot.FlashTimer > 1 &&
             (unchecked((ushort)(enemyMainExecutionCounter + 1)) & 2) != 0
                 ? (ushort)0
-                : (ushort)0x0e00;
+                : EnemyPaletteBits.Palette7;
     }
 
     /// <summary>

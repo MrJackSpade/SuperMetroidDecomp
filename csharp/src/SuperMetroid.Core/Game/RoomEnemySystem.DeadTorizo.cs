@@ -89,7 +89,7 @@ public sealed partial class RoomEnemySystem
         slot.CurrentInstruction = DeadTorizoInitialInstruction;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        slot.PaletteIndex = 0x0200;
+        slot.PaletteIndex = EnemyPaletteBits.Palette1;
         slot.VariableB = 0;
         slot.VariableC = 8;
 

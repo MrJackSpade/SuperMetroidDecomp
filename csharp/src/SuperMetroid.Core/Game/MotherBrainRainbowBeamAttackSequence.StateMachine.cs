@@ -781,7 +781,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     SmallPurpleBreathGenerationEnabled = false;
                     BrainPaletteHandlingEnabled = false;
                     HealthBasedPaletteHandlingEnabled = false;
-                    BrainPaletteIndex = 0x0e00;
+                    BrainPaletteIndex = EnemyPaletteBits.Palette7;
                     paletteRequested = true;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut;
                     goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut;

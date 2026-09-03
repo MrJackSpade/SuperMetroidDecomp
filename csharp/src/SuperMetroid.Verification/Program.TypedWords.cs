@@ -397,6 +397,14 @@ static void VerifyTypedNativeWords()
         bgEntry.FlipFlags, "BG tile flip flags");
     AssertEqual(0x7555, bgEntry.ToggleFlips(SnesTileFlipFlags.Vertical),
         "BG tile toggles only vertical flip");
+    SnesBgTilemapWord encodedBg = SnesBgTilemapWord.Create(
+        characterIndex: 0x155,
+        paletteIndex: 5,
+        priority: true,
+        SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical);
+    AssertEqual(bgEntry, encodedBg, "BG tile encode/decode round trip");
+    AssertEqual(0xd955, encodedBg.WithPaletteIndex(6).WithPriority(false),
+        "BG tile field replacement preserves character and flips");
 
     var objEntry = new SnesObjAttributeWord(0x6dab);
     AssertEqual(0x1ab, objEntry.TileNumber, "OBJ tile-number field");
@@ -404,6 +412,25 @@ static void VerifyTypedNativeWords()
     AssertEqual(2, objEntry.Priority, "OBJ priority field");
     AssertTrue(objEntry.FlipHorizontally && !objEntry.FlipVertically,
         "OBJ independent flip fields");
+    SnesObjAttributeWord encodedObj = SnesObjAttributeWord.Create(
+        tileNumber: 0x1ab,
+        paletteIndex: 6,
+        priority: 2,
+        SnesTileFlipFlags.Horizontal);
+    AssertEqual(objEntry, encodedObj, "OBJ attribute encode/decode round trip");
+    AssertEqual(0x63ab, encodedObj.WithPaletteIndex(1),
+        "OBJ palette replacement preserves tile, priority, and flips");
+    AssertEqual(0x6e00, SnesObjPalettes.Index7.Or(
+            SnesObjAttributeWord.Create(0, 0, 2, SnesTileFlipFlags.Horizontal)),
+        "typed OBJ palette fragment composes with priority and flip fields");
+    SnesOamHighTablePair highPair = SnesOamHighTablePair.FromSprite(
+        screenX: 0x0100,
+        isLarge: true);
+    AssertTrue(highPair.XHigh && highPair.IsLarge && highPair.Raw == 3,
+        "OAM high-table pair encodes X-high and size independently");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => SnesObjAttributeWord.FromPaletteBits(0x1000),
+        "OBJ palette fragment rejects priority bits");
 
     // The $1000 high bit is deliberately outside every named projectile field here. Family
     // replacement changes only bits 8-11 and must therefore retain that unknown state.

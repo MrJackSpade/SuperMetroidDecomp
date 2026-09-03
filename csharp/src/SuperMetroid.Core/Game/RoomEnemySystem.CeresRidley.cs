@@ -978,7 +978,7 @@ public sealed partial class RoomEnemySystem
         // `$A6:A449` queues track five immediately after the final body-palette row.
         // This is the Ceres battle/escape track; it intentionally continues after Ridley
         // retreats, so omitting this single publication silences both scenes.
-        state.MusicRequest = 5;
+        state.MusicRequest = MusicCommand.SelectTrack(5);
     }
 
     private static void SetRidleyInstruction(RoomEnemySlot slot, ushort instruction)

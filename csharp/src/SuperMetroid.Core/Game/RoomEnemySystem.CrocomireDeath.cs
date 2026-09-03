@@ -355,7 +355,9 @@ public sealed partial class RoomEnemySystem
         if (state.DeathSequenceIndex != 0x3e)
             return;
 
-        LastCrocomireMusicRequest = new CrocomireMusicRequest(Track: 6, DelayFrames: 8);
+        LastCrocomireMusicRequest = new CrocomireMusicRequest(
+            MusicCommand.SelectTrack(6),
+            MusicCommandDelay.EightFrames);
         state.DeathSequenceIndex = 0x58;
         InstallCrocomireInstructionList(state.Body, CrocomireSkeletonRiverList);
         RequireSetRoomScrollByte(4, 1);
@@ -387,7 +389,9 @@ public sealed partial class RoomEnemySystem
         if (samus is null || unchecked((short)(samus.XPosition - 640)) >= 0)
             return;
 
-        LastCrocomireMusicRequest = new CrocomireMusicRequest(Track: 5, DelayFrames: 8);
+        LastCrocomireMusicRequest = new CrocomireMusicRequest(
+            MusicCommand.SelectTrack(5),
+            MusicCommandDelay.EightFrames);
         RequireSetRoomScrollByte(3, 0);
         RequireSetRoomScrollByte(4, 1);
         PublishCrocomirePlm(0x30, 0x03, 0xb757);
@@ -577,7 +581,9 @@ public sealed partial class RoomEnemySystem
 
     private void CompleteCrocomireBoss(CrocomireEnemyState state)
     {
-        LastCrocomireMusicRequest = new CrocomireMusicRequest(Track: 6, DelayFrames: 8);
+        LastCrocomireMusicRequest = new CrocomireMusicRequest(
+            MusicCommand.SelectTrack(6),
+            MusicCommandDelay.EightFrames);
         RequireSetAreaMiniBossDefeated();
         RequireCrocomireDeath().BossBitSet = true;
         SpawnCrocomireDust(state, -16);

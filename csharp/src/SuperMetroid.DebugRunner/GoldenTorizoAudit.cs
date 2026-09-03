@@ -214,7 +214,7 @@ internal static partial class GoldenTorizoAudit
         {
             Step(loaded, assets.LevelData);
             sawDeathMusic |= loaded.Enemies.LastBombTorizoMusicRequest is
-                { Track: 3, DelayFrames: 8 };
+                { Command.RawValue: 3, Delay.Frames: 8 };
         }
         if (!loaded.State.BossBitSet || !bossBitSet || !loaded.State.ItemDropRequested ||
             !sawDeathMusic)

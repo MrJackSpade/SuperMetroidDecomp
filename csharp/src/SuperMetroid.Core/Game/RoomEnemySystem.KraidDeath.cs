@@ -80,7 +80,7 @@ public sealed partial class RoomEnemySystem
             case KraidAiFunction.DeathFadeInBackground:
                 if (!AdvanceKraidRoomBackgroundFade(state, fadeToBlack: false))
                     return;
-                state.MusicRequest = 3;
+                state.MusicRequest = MusicCommand.SelectTrack(3);
                 if (RequireAreaBossDefeated())
                 {
                     body.VariableA = (ushort)KraidAiFunction.DeathFinishedWasDead;

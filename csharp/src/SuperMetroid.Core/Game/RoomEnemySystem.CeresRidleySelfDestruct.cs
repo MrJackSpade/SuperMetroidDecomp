@@ -57,7 +57,7 @@ public sealed partial class RoomEnemySystem
                     // $A6:C09F also queues music track seven after installing the final
                     // static warning tilemap page. The frontend consumes this typed request
                     // through the same bank-$80 queue used by every other music producer.
-                    state.MusicRequest = 7;
+                    state.MusicRequest = MusicCommand.SelectTrack(7);
                     state.FunctionTimer = 6;
                     state.CeresEscapeTextDelayTimer = 128;
                 }

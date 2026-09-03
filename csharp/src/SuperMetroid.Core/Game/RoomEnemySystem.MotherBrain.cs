@@ -246,7 +246,7 @@ public sealed partial class RoomEnemySystem
                 // enters the real timed descent rather than jumping to standing form.
                 state.DeleteTurretsAndRinkas = true;
                 state.Form = 1;
-                state.RequestMusic(rawTrack: 6, delayFrames: 8);
+                state.RequestMusic(MusicCommand.SelectTrack(6), MusicCommandDelay.EightFrames);
 
                 // MotherBrain_SealWall at `$AD:E396` creates both dust puffs before its
                 // two identical hardcoded PLMs. Requests remain ordered because the bank

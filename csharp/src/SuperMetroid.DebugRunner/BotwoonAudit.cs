@@ -276,7 +276,8 @@ internal static partial class BotwoonAudit
             }
 
             bossBitSet |= loaded.State.BossBitSet;
-            sawMusic |= loaded.Enemies.LastBotwoonMusicRequest is { Track: 3, DelayFrames: 8 };
+            sawMusic |= loaded.Enemies.LastBotwoonMusicRequest is
+                { Command.RawValue: 3, Delay.Frames: 8 };
             if (loaded.Head.Properties.HasAny(EnemyProperties.Deleted) && plms.ActiveCount == 0)
                 break;
         }

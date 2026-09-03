@@ -143,7 +143,7 @@ public sealed partial class RoomEnemySystem
             yBase: 320,
             yMask: 0x3f00);
         RidleyDeathDropRequested = true;
-        state.MusicRequest = 3;
+        state.MusicRequest = MusicCommand.SelectTrack(3);
         body.Properties = body.Properties.With(EnemyProperties.Deleted);
     }
 

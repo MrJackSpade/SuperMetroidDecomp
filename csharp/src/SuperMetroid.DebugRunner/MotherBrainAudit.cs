@@ -332,7 +332,7 @@ internal static class MotherBrainAudit
             observedLockedInput |= samus.InputLocked;
             observedUnlockAfterLock |= observedLockedInput && !samus.InputLocked;
             foreach (MotherBrainMusicRequest request in state.MusicRequests)
-                observedMusic.Add(request.RawTrack);
+                observedMusic.Add(request.Command.RawValue);
             foreach (MotherBrainPlmRequest request in state.PlmRequests)
             {
                 observedHeaders.Add(request.Header);
@@ -436,7 +436,7 @@ internal static class MotherBrainAudit
                 nmiFrameCounter8: frameCounter);
 
             foreach (MotherBrainMusicRequest request in state.MusicRequests)
-                observedMusic.Add(request.RawTrack);
+                observedMusic.Add(request.Command.RawValue);
             observedRisingHdma |= state.RisingHdmaActive;
 
             enemies.StepEnemyProjectiles(

@@ -161,7 +161,9 @@ public sealed partial class RoomPlmSystem
             case QueueSongOneMusicTrackInstruction:
                 // Despite its name, this routine always queues literal gameplay track six
                 // with the shared eight-frame delay and consumes no inline operand.
-                _musicRequests.Add(new PlmMusicRequest(Track: 6, DelayFrames: 8));
+                _musicRequests.Add(new PlmMusicRequest(
+                    MusicCommand.SelectTrack(6),
+                    MusicCommandDelay.EightFrames));
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -196,4 +198,6 @@ public readonly record struct BombTorizoStatueProjectileRequest(
     byte PlmBlockY);
 
 /// <summary>One delayed music request made by a room PLM instruction.</summary>
-public readonly record struct PlmMusicRequest(byte Track, byte DelayFrames);
+public readonly record struct PlmMusicRequest(
+    MusicCommand Command,
+    MusicCommandDelay Delay);

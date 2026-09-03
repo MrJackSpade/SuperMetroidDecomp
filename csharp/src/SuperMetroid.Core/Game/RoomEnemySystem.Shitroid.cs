@@ -35,7 +35,7 @@ public enum ShitroidAiFunction : ushort
 public readonly record struct ShitroidPlmRequest(byte BlockX, byte BlockY, ushort Header);
 
 /// <summary>One delayed music command emitted by the Shitroid encounter.</summary>
-public readonly record struct ShitroidMusicRequest(byte Track, byte DelayFrames);
+public readonly record struct ShitroidMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
 
 /// <summary>Typed projection of Shitroid's common and extended enemy WRAM.</summary>
 public sealed class ShitroidEnemyState
@@ -275,7 +275,9 @@ public sealed partial class RoomEnemySystem
             case ShitroidAiFunction.EntranceDelay:
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
-                    LastShitroidMusicRequest = new ShitroidMusicRequest(5, 8);
+                    LastShitroidMusicRequest = new ShitroidMusicRequest(
+                        MusicCommand.SelectTrack(5),
+                        MusicCommandDelay.EightFrames);
                     state.Function = ShitroidAiFunction.FlyToSidehopper;
                     goto case ShitroidAiFunction.FlyToSidehopper;
                 }
@@ -594,7 +596,9 @@ public sealed partial class RoomEnemySystem
             samus.SpecialSuperPaletteFlags = 0;
             samus.Drained.LetFall(_bus!, samus);
             state.CryEnabled = 0;
-            LastShitroidMusicRequest = new ShitroidMusicRequest(7, 8);
+            LastShitroidMusicRequest = new ShitroidMusicRequest(
+                MusicCommand.SelectTrack(7),
+                MusicCommandDelay.EightFrames);
             return;
         }
 

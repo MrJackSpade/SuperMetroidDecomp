@@ -62,8 +62,8 @@ public sealed class IntroCinematicState
         ArgumentNullException.ThrowIfNull(bus);
         this.bus = bus;
         this.audio = audio;
-        audio?.QueueMusicDelayed8(0);
-        audio?.QueueMusicDelayed8(0xff3f);
+        audio?.QueueMusicDelayed8(MusicCommand.Stop);
+        audio?.QueueMusicDelayed8(MusicCommand.LoadData(0x3f));
         cgram.LoadFromBus(bus, 0x8ce3e9);
         cgram.Colors.CopyTo(introPalette);
 
@@ -206,7 +206,7 @@ public sealed class IntroCinematicState
             case IntroCinematicPhase.LastMetroidIsInCaptivity:
                 if (--timer <= 0)
                 {
-                    audio?.QueueMusicDelayed8(5);
+                    audio?.QueueMusicDelayed8(MusicCommand.SelectTrack(5));
                     Phase = IntroCinematicPhase.GalaxyIsAtPeace;
                     timer = 200;
                 }
@@ -217,9 +217,9 @@ public sealed class IntroCinematicState
                 {
                     // The next music commands wait for APU acknowledgement before the
                     // documented four-second hold. Eight frames models their delayed slot.
-                    audio?.QueueMusicDelayed8(0);
-                    audio?.QueueMusicDelayed8(0xff42);
-                    audio?.QueueMusicDelayed(5, 0x0e);
+                    audio?.QueueMusicDelayed8(MusicCommand.Stop);
+                    audio?.QueueMusicDelayed8(MusicCommand.LoadData(0x42));
+                    audio?.QueueMusicDelayed(MusicCommand.SelectTrack(5), MusicCommandDelay.FromDelayedYArgument(0x0e));
                     Phase = IntroCinematicPhase.WaitForSecondMusicQueue;
                     timer = 8;
                 }
@@ -1243,9 +1243,9 @@ public sealed class IntroCinematicState
 
         vram.ExecuteWordTransfer(textTilemap, 0x4c00, 1);
         objects = new IntroCinematicObjectSystem(bus, vram, textTilemap, audio);
-        audio?.QueueMusicDelayed8(0);
-        audio?.QueueMusicDelayed8(0xff36);
-        audio?.QueueMusicDelayed(5, 0x0e);
+        audio?.QueueMusicDelayed8(MusicCommand.Stop);
+        audio?.QueueMusicDelayed8(MusicCommand.LoadData(0x36));
+        audio?.QueueMusicDelayed(MusicCommand.SelectTrack(5), MusicCommandDelay.FromDelayedYArgument(0x0e));
         timer = 0x0e;
         Phase = IntroCinematicPhase.WaitForPageOneMusicQueue;
     }

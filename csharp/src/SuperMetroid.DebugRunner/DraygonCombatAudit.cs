@@ -258,7 +258,7 @@ internal static class DraygonCombatAudit
             state.DeathAnimationObjectsSpawned == 0 || state.DeathSmokeObjectsSpawned == 0 ||
             !state.DeathEvirsSpawned || maximumBurialEvirs != 6 || movedEvirSlots.Count != 6 ||
             !state.ItemDropRequested || !state.BossDefeatPersisted || !bossBitSet ||
-            state.MusicRequest != 3 || !allPartsDeleted || !spritePoolCleared ||
+            state.MusicRequest?.RawValue != 3 || !allPartsDeleted || !spritePoolCleared ||
             deathFrame >= DeathFrameLimit)
         {
             throw new InvalidDataException(

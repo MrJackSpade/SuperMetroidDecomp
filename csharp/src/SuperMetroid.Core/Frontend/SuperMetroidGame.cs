@@ -460,9 +460,9 @@ public sealed class SuperMetroidGame
                     audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 15);
                     audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
                     audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
-                    audio.QueueMusicDelayed8(0);
-                    audio.QueueMusicDelayed8(0xff39);
-                    audio.QueueMusicDelayed(5, 0x000e);
+                    audio.QueueMusicDelayed8(MusicCommand.Stop);
+                    audio.QueueMusicDelayed8(MusicCommand.LoadData(0x39));
+                    audio.QueueMusicDelayed(MusicCommand.SelectTrack(5), MusicCommandDelay.FromDelayedYArgument(0x000e));
                     GameState = SuperMetroidGameState.DeathWaitForMusic;
                 }
                 break;
@@ -789,7 +789,7 @@ public sealed class SuperMetroidGame
                     // $82:84D3-$8527 resets PPU ownership, stops the escape timer/music,
                     // cancels all three SFX libraries, and publishes state $27. The new
                     // state performs its own cartridge-backed setup on the following call.
-                    audio.QueueMusicDelayed8(0);
+                    audio.QueueMusicDelayed8(MusicCommand.Stop);
                     audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 15);
                     audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
                     audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
@@ -907,14 +907,14 @@ public sealed class SuperMetroidGame
         foreach (PlmSoundRequest request in runtime.Plms.SoundRequests)
             audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         foreach (PlmMusicRequest request in runtime.Plms.MusicRequests)
-            audio.QueueMusicDelayed(request.Track, request.DelayFrames);
+            audio.QueueMusicDelayed(request.Command, request.Delay);
         if (runtime.Plms.ConsumeCollectibleFanfareRequest())
             audio.QueuePermanentItemFanfare();
 
         foreach (EnemySoundRequest request in runtime.Enemies.SoundRequests)
             audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         foreach (EnemyMusicRequest request in runtime.Enemies.MusicRequests)
-            audio.QueueMusicDelayed(request.Entry, request.DelayFrames);
+            audio.QueueMusicDelayed(request.Command, request.Delay);
     }
 
     private string PhaseName => GameState switch
@@ -1092,8 +1092,10 @@ public sealed class SuperMetroidGame
             // call, schedules the room track 360 frames later. Mark this room state as
             // already handled so the generic room-change collector cannot overwrite the
             // fanfare with an immediate track request.
-            audio.QueueMusicDelayed(1, 0x000e);
-            audio.QueueMusicDelayed(loadedState.MusicTrackIndex, 0x0168 + 5);
+            audio.QueueMusicDelayed(MusicCommand.SelectTrack(1), MusicCommandDelay.FromDelayedYArgument(0x000e));
+            audio.QueueMusicDelayed(
+                MusicCommand.SelectTrackOrStop(loadedState.MusicTrackIndex),
+                MusicCommandDelay.FromDelayedYArgument(0x0168 + 5));
             lastAudioRoomStatePointer = loadedState.Pointer;
             return false;
         }

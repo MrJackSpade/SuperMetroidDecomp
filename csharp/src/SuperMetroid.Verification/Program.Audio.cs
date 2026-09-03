@@ -9,6 +9,41 @@ internal static partial class Program
     /// </summary>
     private static void VerifyCartridgeAudioQueues()
     {
+        MusicCommand dataLoad = MusicCommand.LoadData(0x21);
+        AssertEqual((ushort)0xff21, dataLoad.RawValue, "music data-load word");
+        AssertEqual(MusicCommandKind.LoadData, dataLoad.Kind, "music data-load classification");
+        AssertTrue(dataLoad.UsesDataUploadPath, "music data-load takes native upload branch");
+        AssertEqual((byte)0x21, dataLoad.DataIndex, "music data-load table index");
+
+        MusicCommand trackSelection = MusicCommand.SelectTrack(5);
+        AssertEqual((ushort)5, trackSelection.RawValue, "music track-selection word");
+        AssertEqual(MusicCommandKind.SelectTrack, trackSelection.Kind, "music track classification");
+        AssertEqual(MusicCommandKind.Stop, MusicCommand.Stop.Kind, "music stop classification");
+
+        MusicCommand unknownCommand = MusicCommand.FromCartridge(0x1234);
+        AssertEqual(MusicCommandKind.Unknown, unknownCommand.Kind, "unknown music command classification");
+        AssertEqual((ushort)0x1234, unknownCommand.RawValue, "unknown music command round trip");
+        AssertEqual((ushort)8, MusicCommandDelay.FromDelayedYArgument(0).Frames,
+            "music delay applies native minimum");
+        AssertEqual((ushort)0x0168, MusicCommandDelay.FromDelayedYArgument(0x0168).Frames,
+            "music delay preserves longer countdown");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => MusicCommand.SelectTrack(0),
+            "zero track must use explicit stop command");
+        AssertThrows<InvalidDataException>(
+            () => MusicCommandDelay.FromEffectiveFrames(7),
+            "invalid effective music delay fails loudly");
+        AssertTrue(
+            typeof(CartridgeAudioState).GetMethod(
+                nameof(CartridgeAudioState.QueueMusicDelayed8),
+                [typeof(MusicCommand)]) is not null,
+            "music queue accepts typed commands");
+        AssertTrue(
+            typeof(CartridgeAudioState).GetMethod(
+                nameof(CartridgeAudioState.QueueMusicDelayed8),
+                [typeof(ushort)]) is null,
+            "music queue exposes no raw-word overload");
+
         byte[] rom = new byte[0x10_0000];
 
         // Music data command $FF03 indexes the 24-bit table by its low byte, not by a
@@ -30,8 +65,8 @@ internal static partial class Program
         var bus = new SuperMetroidAddressSpace(rom);
 
         var audio = new CartridgeAudioState();
-        audio.QueueMusicDelayed8(0xff03);
-        audio.QueueMusicDelayed8(5);
+        audio.QueueMusicDelayed8(MusicCommand.LoadData(0x03));
+        audio.QueueMusicDelayed8(MusicCommand.SelectTrack(5));
 
         IReadOnlyList<CartridgeAudioCommand> reset =
             audio.AdvanceFrame(bus, default);
@@ -62,7 +97,7 @@ internal static partial class Program
         // Every permanent item uses the same $84:8BDD -> $82:E118 sequence. Seed a stale
         // request to prove queue clearing, then observe track two, the 360-frame fanfare
         // hold/silence, and restoration of the room track that was live at acquisition.
-        audio.QueueMusicDelayed8(7);
+        audio.QueueMusicDelayed8(MusicCommand.SelectTrack(7));
         audio.QueuePermanentItemFanfare();
         var permanentItemPortWrites = new List<byte>();
         for (int frame = 0; frame < 384; frame++)
@@ -82,7 +117,7 @@ internal static partial class Program
         // `$82:E071/$E0D5` return on each zero field; zero is not a stop command.
         var inheritedRoomMusic = new CartridgeAudioState();
         inheritedRoomMusic.AdvanceFrame(bus, default);
-        inheritedRoomMusic.QueueMusicDelayed8(7);
+        inheritedRoomMusic.QueueMusicDelayed8(MusicCommand.SelectTrack(7));
         // The first handler call copies the newly queued entry into the active timer;
         // the following eight calls count down the native delay and emit the port write.
         for (int frame = 0; frame < 9; frame++)
@@ -100,7 +135,7 @@ internal static partial class Program
         // bank/track pair, so the latter track must be resent after bank six uploads.
         var postCeresLandingMusic = new CartridgeAudioState();
         postCeresLandingMusic.AdvanceFrame(bus, default);
-        postCeresLandingMusic.QueueMusicDelayed8(5);
+        postCeresLandingMusic.QueueMusicDelayed8(MusicCommand.SelectTrack(5));
         for (int frame = 0; frame < 9; frame++)
             postCeresLandingMusic.AdvanceFrame(bus, default);
         postCeresLandingMusic.QueueRoomMusic(dataIndex: 6, trackIndex: 5);
@@ -188,7 +223,7 @@ internal static partial class Program
             SpcUploadStreamReader.Read(bus, 0x90fffb),
             "cross-bank SPC upload stream");
 
-        Console.WriteLine("  Audio: music delays, inherited Ceres track, post-Ceres bank/track restart, item fanfare, upload lookup, paired SFX identities/catalogs, handshake, and LoROM stream agree.");
+        Console.WriteLine("  Audio: typed/lossless music commands and delays, inherited Ceres track, post-Ceres bank/track restart, item fanfare, upload lookup, paired SFX identities/catalogs, handshake, and LoROM stream agree.");
     }
 
     private static void WriteAudioRomByte(byte[] rom, int snesAddress, byte value) =>

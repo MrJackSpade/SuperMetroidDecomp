@@ -815,7 +815,7 @@ internal static partial class EarlyControllerRouteAudit
                     naturalAttacks.Add(projectile.Kind);
             }
             sawDeathMusic |= runtime.Enemies.LastBombTorizoMusicRequest is
-                { Track: 3, DelayFrames: 8 };
+                { Command.RawValue: 3, Delay.Frames: 8 };
 
             if (torizo.Slot.Health < previousEnemyHealth)
             {

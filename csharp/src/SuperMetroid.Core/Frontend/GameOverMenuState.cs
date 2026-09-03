@@ -61,8 +61,8 @@ public sealed class GameOverMenuState
         switch (Phase)
         {
             case GameOverMenuPhase.Initialize:
-                audio.QueueMusicDelayed8(0);
-                audio.QueueMusicDelayed8(0xff03);
+                audio.QueueMusicDelayed8(MusicCommand.Stop);
+                audio.QueueMusicDelayed8(MusicCommand.LoadData(0x03));
                 babyInstructionPointer = 0;
                 babyInstructionTimer = 0;
                 StepBabyMetroid();
@@ -75,7 +75,7 @@ public sealed class GameOverMenuState
                 StepBabyMetroid();
                 if (!audio.HasQueuedMusic)
                 {
-                    audio.QueueMusicDelayed8(4);
+                    audio.QueueMusicDelayed8(MusicCommand.SelectTrack(4));
                     Phase = GameOverMenuPhase.FadeIn;
                 }
                 break;

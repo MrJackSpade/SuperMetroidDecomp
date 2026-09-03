@@ -125,7 +125,7 @@ internal static class KraidAudit
         if (body.VariableA != (ushort)KraidAiFunction.MainloopThinking ||
             samus.XPosition != 256 || body.XPosition != 176 || body.YPosition >= 457 ||
             state.TopTilemapUploadCount != 1 || state.BottomTilemapUploadCount != 1 ||
-            state.MusicRequest != 5 || state.RiseRockSpawnRequestCount == 0 ||
+            state.MusicRequest?.RawValue != 5 || state.RiseRockSpawnRequestCount == 0 ||
             state.SpawnedRiseRockCount == 0 || !sawNailMovement || functions.Count < 6)
         {
             throw new InvalidDataException(
@@ -521,7 +521,7 @@ internal static class KraidAudit
         if (!state.DeathSequenceComplete || !state.BossDefeatPersisted || !bossDefeated ||
             body.YPosition < 608 || state.SinkTableEventCount < 20 ||
             state.DeathDropRequestCount != 16 || state.DeathBg3TransferCount != 4 ||
-            state.MusicRequest != 3 ||
+            state.MusicRequest?.RawValue != 3 ||
             !deathFunctions.Contains(KraidAiFunction.DeathFadeOut) ||
             !deathFunctions.Contains(KraidAiFunction.DeathSink) ||
             !deathFunctions.Contains(KraidAiFunction.DeathFadeInBackground))

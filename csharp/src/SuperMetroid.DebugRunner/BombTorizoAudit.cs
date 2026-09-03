@@ -139,7 +139,7 @@ internal static partial class BombTorizoAudit
             Step(loaded, assets.LevelData, stepProjectiles: true);
             maps.Add(loaded.Head.SpritemapPointer);
             sawAwakeningMusic |= loaded.Enemies.LastBombTorizoMusicRequest is
-                { Track: 6, DelayFrames: 8 };
+                { Command.RawValue: 6, Delay.Frames: 8 };
             foreach (RoomEnemyProjectileSlot projectile in loaded.Enemies.EnemyProjectiles)
             {
                 if (projectile.IsActive)
@@ -226,7 +226,7 @@ internal static partial class BombTorizoAudit
         {
             Step(loaded, assets.LevelData, stepProjectiles: true);
             sawDeathMusic |= loaded.Enemies.LastBombTorizoMusicRequest is
-                { Track: 3, DelayFrames: 8 };
+                { Command.RawValue: 3, Delay.Frames: 8 };
         }
         if (!loaded.State.BossBitSet || !bossBitSet || !loaded.State.ItemDropRequested ||
             !sawDeathMusic)

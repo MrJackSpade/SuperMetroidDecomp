@@ -53,8 +53,8 @@ public sealed partial class RoomEnemySystem
             case MotherBrainBodyFunction.FakeDeathDescentPauseBeforeMusic:
                 if (!DecrementMotherBrainTimerPastZero(state))
                     return;
-                state.RequestMusic(rawTrack: 0, delayFrames: 8);
-                state.RequestMusic(rawTrack: 0xff21, delayFrames: 8);
+                state.RequestMusic(MusicCommand.Stop, MusicCommandDelay.EightFrames);
+                state.RequestMusic(MusicCommand.LoadData(0x21), MusicCommandDelay.EightFrames);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeUnlock;
                 state.FunctionTimer = 12;
                 RunMotherBrainFakeDeath(state, samus);

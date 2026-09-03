@@ -19,8 +19,8 @@ public static class CartridgeAudioSmokeTest
 
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var queue = new CartridgeAudioState();
-        queue.QueueMusicDelayed8(0xff03);
-        queue.QueueMusicDelayed8(5);
+        queue.QueueMusicDelayed8(MusicCommand.LoadData(0x03));
+        queue.QueueMusicDelayed8(MusicCommand.SelectTrack(5));
 
         int nonZeroSamples = 0;
         int peakAmplitude = 0;

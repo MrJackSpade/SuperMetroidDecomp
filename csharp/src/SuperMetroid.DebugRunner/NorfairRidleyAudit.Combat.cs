@@ -488,7 +488,7 @@ internal static partial class NorfairRidleyAudit
         RidleyAiFunction[] missing = requiredFunctions.Where(function =>
             !functions.Contains(function)).ToArray();
         if (deathFrames >= 4000 || !bossDefeated() || !state.BossDefeatPublished ||
-            !enemies.RidleyDeathDropRequested || state.MusicRequest != 3 ||
+            !enemies.RidleyDeathDropRequested || state.MusicRequest?.RawValue != 3 ||
             !body.Properties.HasAny(EnemyProperties.Deleted) || state.GrabState != 0 ||
             breakupActorCount != 12 || !state.DeathBreakupSpawned ||
             !sawSmallExplosion || !sawHiddenBody || !sawBreakupMotion ||

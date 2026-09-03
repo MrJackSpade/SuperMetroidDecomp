@@ -47,7 +47,7 @@ public sealed partial class RoomEnemySystem
 
         SpawnDraygonDeathEvirs(state);
         state.Function = DraygonAiFunction.DyingSink;
-        state.MusicRequest = 3;
+        state.MusicRequest = MusicCommand.SelectTrack(3);
         state.FunctionTimer = DraygonDeathWaitFramesUs;
         InstallDraygonInstruction(body, 0x97b9);
 

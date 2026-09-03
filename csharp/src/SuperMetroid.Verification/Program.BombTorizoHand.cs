@@ -128,7 +128,9 @@ internal static partial class Program
             "hand deletion remains debugger-visible");
         AssertEqual(1, plms.MusicRequests.Count,
             "terminal hand pass queues one music command");
-        AssertEqual(new PlmMusicRequest(6, 8), plms.MusicRequests[0],
+        AssertEqual(
+            new PlmMusicRequest(MusicCommand.SelectTrack(6), MusicCommandDelay.EightFrames),
+            plms.MusicRequests[0],
             "terminal hand music request");
 
         var defeated = new RoomPlmSystem();

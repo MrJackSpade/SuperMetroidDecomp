@@ -68,7 +68,7 @@ public sealed class TorizoEnemyState
 }
 
 /// <summary>Music request produced by Bomb Torizo's ROM instruction stream.</summary>
-public readonly record struct BombTorizoMusicRequest(byte Track, byte DelayFrames);
+public readonly record struct BombTorizoMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
 
 /// <summary>
 /// One pickup request emitted after Samus shoots a Bomb/Golden Torizo Chozo orb. Opcode
@@ -423,7 +423,9 @@ public sealed partial class RoomEnemySystem
                 if (RequireRoomPlmPresent(BombTorizoHandTriggerPlm))
                     return;
 
-                LastBombTorizoMusicRequest = new BombTorizoMusicRequest(6, 8);
+                LastBombTorizoMusicRequest = new BombTorizoMusicRequest(
+                    MusicCommand.SelectTrack(6),
+                    MusicCommandDelay.EightFrames);
                 torizo.Properties = unchecked((ushort)(
                     torizo.Properties & ~BombTorizoRawTangibleProperty));
                 torizo.CurrentInstruction = unchecked((ushort)(torizo.CurrentInstruction + 2));
@@ -727,7 +729,9 @@ public sealed partial class RoomEnemySystem
             yBase: state.IsGolden ? (ushort)288 : (ushort)96,
             yMask: 0x3f00);
         state.ItemDropRequested = true;
-        LastBombTorizoMusicRequest = new BombTorizoMusicRequest(3, 8);
+        LastBombTorizoMusicRequest = new BombTorizoMusicRequest(
+            MusicCommand.SelectTrack(3),
+            MusicCommandDelay.EightFrames);
     }
 
     private static RoomLevelData RequireBombTorizoLevel(RoomLevelData? level) =>

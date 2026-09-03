@@ -90,7 +90,9 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_StartFightMusic_BombTorizoBellyPaletteFX:
-                LastBombTorizoMusicRequest = new BombTorizoMusicRequest(5, 8);
+                LastBombTorizoMusicRequest = new BombTorizoMusicRequest(
+                    MusicCommand.SelectTrack(5),
+                    MusicCommandDelay.EightFrames);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -314,7 +316,9 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstructionCodes.Inst_Torizo_StartFightMusic_GoldenTorizoBellyPaletteFX:
-                LastBombTorizoMusicRequest = new BombTorizoMusicRequest(5, 8);
+                LastBombTorizoMusicRequest = new BombTorizoMusicRequest(
+                    MusicCommand.SelectTrack(5),
+                    MusicCommandDelay.EightFrames);
                 torizo.XRadius = 18;
                 torizo.YRadius = 48;
                 cursor = unchecked((ushort)(cursor + 2));

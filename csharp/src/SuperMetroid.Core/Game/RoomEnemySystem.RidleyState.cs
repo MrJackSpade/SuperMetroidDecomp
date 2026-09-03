@@ -182,7 +182,7 @@ public sealed class RidleyEnemyState
     public bool DeathBreakupSpawned { get; internal set; }
     public bool BossDefeatPublished { get; internal set; }
     public ushort? LastDeathSoundEffect { get; internal set; }
-    public ushort? MusicRequest { get; internal set; }
+    public MusicCommand? MusicRequest { get; internal set; }
 
     // Ceres's private Baby actor and Mode-7 getaway reuse Ridley's extended workspaces.
     public ushort BabyInstruction { get; internal set; }

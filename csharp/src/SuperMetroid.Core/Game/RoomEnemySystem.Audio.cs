@@ -12,14 +12,11 @@ public readonly record struct EnemySoundRequest(
     byte MaximumQueued);
 
 /// <summary>One native enemy-owned <c>QueueMusic_Delayed*</c> publication.</summary>
-/// <param name="Entry">
-/// Raw bank-$80 music entry. The high byte is deliberately retained because values such
-/// as <c>$FFxx</c> are data-upload commands rather than ordinary track numbers.
-/// </param>
-/// <param name="DelayFrames">The caller-selected delay before bank $80 handles the entry.</param>
+/// <param name="Command">The lossless bank-$80 command published by the original caller.</param>
+/// <param name="Delay">The validated delay before bank $80 handles the command.</param>
 public readonly record struct EnemyMusicRequest(
-    ushort Entry,
-    ushort DelayFrames);
+    MusicCommand Command,
+    MusicCommandDelay Delay);
 
 public sealed partial class RoomEnemySystem
 {
@@ -171,18 +168,20 @@ public sealed partial class RoomEnemySystem
             QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, motherBrainLibrary3), maximumQueued);
         }
 
-        QueueLegacyMusic(LastBotwoonMusicRequest?.Track, LastBotwoonMusicRequest?.DelayFrames);
-        QueueLegacyMusic(LastBombTorizoMusicRequest?.Track, LastBombTorizoMusicRequest?.DelayFrames);
-        QueueLegacyMusic(LastCrocomireMusicRequest?.Track, LastCrocomireMusicRequest?.DelayFrames);
-        QueueLegacyMusic(_kraidState?.MusicRequest, delayFrames: 8);
-        QueueLegacyMusic(_draygon?.MusicRequest, delayFrames: 8);
-        QueueLegacyMusic(_phantoonState?.MusicRequest, delayFrames: 8);
-        QueueLegacyMusic(_ridleyState?.MusicRequest, delayFrames: 8);
-        QueueLegacyMusic(LastShitroidMusicRequest?.Track, LastShitroidMusicRequest?.DelayFrames);
+        QueueLegacyMusic(LastBotwoonMusicRequest?.Command, LastBotwoonMusicRequest?.Delay);
+        QueueLegacyMusic(LastBombTorizoMusicRequest?.Command, LastBombTorizoMusicRequest?.Delay);
+        QueueLegacyMusic(LastCrocomireMusicRequest?.Command, LastCrocomireMusicRequest?.Delay);
+        QueueLegacyMusic(_kraidState?.MusicRequest, MusicCommandDelay.EightFrames);
+        QueueLegacyMusic(_draygon?.MusicRequest, MusicCommandDelay.EightFrames);
+        QueueLegacyMusic(_phantoonState?.MusicRequest, MusicCommandDelay.EightFrames);
+        QueueLegacyMusic(_ridleyState?.MusicRequest, MusicCommandDelay.EightFrames);
+        QueueLegacyMusic(LastShitroidMusicRequest?.Command, LastShitroidMusicRequest?.Delay);
         if (_motherBrain is not null)
         {
             foreach (MotherBrainMusicRequest request in _motherBrain.MusicRequests)
-                _musicRequests.Add(new EnemyMusicRequest(request.RawTrack, request.DelayFrames));
+            {
+                _musicRequests.Add(new EnemyMusicRequest(request.Command, request.Delay));
+            }
         }
     }
 
@@ -195,9 +194,9 @@ public sealed partial class RoomEnemySystem
             QueueEnemySound(SoundEffectId.FromCartridge(library, value), maximumQueued);
     }
 
-    private void QueueLegacyMusic(ushort? entry, ushort? delayFrames)
+    private void QueueLegacyMusic(MusicCommand? command, MusicCommandDelay? delay)
     {
-        if (entry is ushort value && delayFrames is ushort delay)
-            _musicRequests.Add(new EnemyMusicRequest(value, delay));
+        if (command is MusicCommand value && delay is MusicCommandDelay wait)
+            _musicRequests.Add(new EnemyMusicRequest(value, wait));
     }
 }

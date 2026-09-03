@@ -39,7 +39,9 @@ internal static partial class CeresControllerRouteAudit
         {
             host.StepFrame(0);
             observedEscapeMusic |= runtime.Enemies.MusicRequests.Contains(
-                new EnemyMusicRequest(Entry: 5, DelayFrames: 8));
+                new EnemyMusicRequest(
+                    MusicCommand.SelectTrack(5),
+                    MusicCommandDelay.EightFrames));
             revealFrames++;
         }
         if (ridley.Function != RidleyAiFunction.CeresHovering)

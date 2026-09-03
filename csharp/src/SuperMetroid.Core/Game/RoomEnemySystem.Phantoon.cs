@@ -281,7 +281,7 @@ public sealed partial class RoomEnemySystem
         state.Mouth.VariableD = PhantoonIntroMaximumAmplitude;
         state.Mouth.VariableE = 0;
         state.Eye!.VariableF = 0;
-        state.MusicRequest = 5;
+        state.MusicRequest = MusicCommand.SelectTrack(5);
         state.Mouth.VariableF = PhantoonWavyPhaseDelta;
     }
 

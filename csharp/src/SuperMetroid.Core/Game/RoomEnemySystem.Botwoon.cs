@@ -132,7 +132,7 @@ public readonly record struct BotwoonDropRequest(
     ushort ItemDropChancesPointer);
 
 /// <summary>Delayed music queue request emitted by Botwoon's completed death sequence.</summary>
-public readonly record struct BotwoonMusicRequest(byte Track, byte DelayFrames);
+public readonly record struct BotwoonMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
 
 /// <summary>
 /// Cartridge-faithful translation of Botwoon definition <c>$F293</c>. Movement remains
@@ -828,7 +828,9 @@ public sealed partial class RoomEnemySystem
             RequireSetAreaMiniBossDefeated();
             // `$B3:9B32` invokes QueueMusic_Delayed8(3) only after the complete 192-frame
             // wall-explosion phase, not when health first reaches zero.
-            LastBotwoonMusicRequest = new BotwoonMusicRequest(Track: 3, DelayFrames: 8);
+            LastBotwoonMusicRequest = new BotwoonMusicRequest(
+                MusicCommand.SelectTrack(3),
+                MusicCommandDelay.EightFrames);
             return;
         }
 

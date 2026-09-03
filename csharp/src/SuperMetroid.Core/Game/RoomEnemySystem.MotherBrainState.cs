@@ -481,18 +481,18 @@ public sealed class MotherBrainEnemyState
         LastRainbowBeamExplosion = null;
     }
 
-    internal void RequestMusic(ushort rawTrack, byte delayFrames) =>
-        _musicRequests.Add(new MotherBrainMusicRequest(rawTrack, delayFrames));
+    internal void RequestMusic(MusicCommand command, MusicCommandDelay delay) =>
+        _musicRequests.Add(new MotherBrainMusicRequest(command, delay));
 
     internal void RequestPlm(byte blockX, byte blockY, ushort header) =>
         _plmRequests.Add(new MotherBrainPlmRequest(blockX, blockY, header));
 }
 
 /// <summary>
-/// One raw <c>QueueMusic_Delayed8</c> call. Values such as $FF21 are retained whole because
-/// their high byte is a command, not a host track number.
+/// One typed <c>QueueMusic_Delayed*</c> call. The command retains its complete cartridge
+/// word, including unknown commands, without conflating data uploads with track indices.
 /// </summary>
-public readonly record struct MotherBrainMusicRequest(ushort RawTrack, byte DelayFrames);
+public readonly record struct MotherBrainMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
 
 /// <summary>One literal <c>SpawnHardcodedPLM</c> call issued by Mother Brain's bank-$A9 AI.</summary>
 public readonly record struct MotherBrainPlmRequest(byte BlockX, byte BlockY, ushort Header);

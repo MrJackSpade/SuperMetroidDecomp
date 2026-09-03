@@ -729,7 +729,8 @@ internal static class ShitroidAudit
         visited.Add(state.Function);
         sawCloseWall |= loaded.Enemies.ShitroidPlmRequests.Any(request => request.Header == 0xb767);
         sawOpenWall |= loaded.Enemies.ShitroidPlmRequests.Any(request => request.Header == 0xb763);
-        sawEntranceMusic |= loaded.Enemies.LastShitroidMusicRequest is { Track: 5, DelayFrames: 8 };
+        sawEntranceMusic |= loaded.Enemies.LastShitroidMusicRequest is
+            { Command.RawValue: 5, Delay.Frames: 8 };
     }
 
     private static bool RunUntil(

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 public readonly record struct CrocomirePlmRequest(byte BlockX, byte BlockY, ushort Header);
 
 /// <summary>One delayed music request emitted by Crocomire's death graph.</summary>
-public readonly record struct CrocomireMusicRequest(byte Track, byte DelayFrames);
+public readonly record struct CrocomireMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
 
 /// <summary>Boss-specific pickup request emitted by <c>Enemy_ItemDrop_Crocomire</c>.</summary>
 public readonly record struct CrocomireDropRequest(

@@ -201,7 +201,7 @@ internal static class PhantoonAudit
             state.StartingFlameRequests != 8 || state.StartingFlamesSpawned != 8 ||
             startingFlameSlots.Count != 8 || movedStartingFlames.Count != 8 ||
             liveStartingFlames != 0 || state.BossDoorPlmRequest != 0xb781 ||
-            state.MusicRequest != 5 || state.Mouth.Parameter1 != 1 ||
+            state.MusicRequest?.RawValue != 5 || state.Mouth.Parameter1 != 1 ||
             !sawFullHealthPalette || tentacleMaps.Count != 3 ||
             (body.XPosition == initialBodyX && body.YPosition == initialBodyY) ||
             !sawEyeTracking || !sawInitialFlameRain || !sawFlameRainVulnerability ||
@@ -522,7 +522,7 @@ internal static class PhantoonAudit
             !state.ItemDropRequested || !state.BossDefeatPersisted || !bossBitSet ||
             !state.WreckedShipPowerPaletteComplete || !powerPaletteMatches ||
             !allPartsDeleted || state.BossDoorPlmRequest != 0xb78b ||
-            state.MusicRequest != 3 || vram.ReadWord(0x4800) != 0x0338 ||
+            state.MusicRequest?.RawValue != 3 || vram.ReadWord(0x4800) != 0x0338 ||
             vram.ReadWord(0x49ff) != 0x0338)
         {
             throw new InvalidDataException(

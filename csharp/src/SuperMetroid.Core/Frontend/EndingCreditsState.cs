@@ -209,9 +209,9 @@ internal sealed partial class EndingCreditsState
                 StepSprites();
                 if (--phaseTimer <= 0)
                 {
-                    audio.QueueMusicDelayed8(0);
-                    audio.QueueMusicDelayed8(0xff3c);
-                    audio.QueueMusicDelayed(5, 0x000e);
+                    audio.QueueMusicDelayed8(MusicCommand.Stop);
+                    audio.QueueMusicDelayed8(MusicCommand.LoadData(0x3c));
+                    audio.QueueMusicDelayed(MusicCommand.SelectTrack(5), MusicCommandDelay.FromDelayedYArgument(0x000e));
                     Phase = EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;
                 }
                 break;
@@ -362,9 +362,9 @@ internal sealed partial class EndingCreditsState
         mode7Angle = 0;
         brightness = 0;
         postCreditsVerticalScroll = 0;
-        audio.QueueMusicDelayed8(0);
-        audio.QueueMusicDelayed8(0xff33);
-        audio.QueueMusicDelayed(5, 0x000e);
+        audio.QueueMusicDelayed8(MusicCommand.Stop);
+        audio.QueueMusicDelayed8(MusicCommand.LoadData(0x33));
+        audio.QueueMusicDelayed(MusicCommand.SelectTrack(5), MusicCommandDelay.FromDelayedYArgument(0x000e));
         Phase = EndingCreditsPhase.WaitForEscapeMusic;
     }
 

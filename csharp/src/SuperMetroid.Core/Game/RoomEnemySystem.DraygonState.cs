@@ -177,7 +177,7 @@ public sealed class DraygonEnemyState
 
     /// <summary>Debugger-visible cartridge requests emitted by the terminal boss path.</summary>
     public ushort? LastSoundLibrary3 { get; internal set; }
-    public ushort? MusicRequest { get; internal set; }
+    public MusicCommand? MusicRequest { get; internal set; }
     public bool ItemDropRequested { get; internal set; }
     public bool BossDefeatPersisted { get; internal set; }
 

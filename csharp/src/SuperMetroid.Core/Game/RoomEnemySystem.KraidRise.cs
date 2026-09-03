@@ -31,7 +31,7 @@ public sealed partial class RoomEnemySystem
                 body.VariableA = (ushort)KraidAiFunction.RaiseRocksEvery16Frames;
                 body.VariableF = 120;
                 EarthquakeTimer = 496;
-                state.MusicRequest = 5;
+                state.MusicRequest = MusicCommand.SelectTrack(5);
                 state.BottomTilemapUploadCount++;
                 return;
 

@@ -298,7 +298,7 @@ public sealed partial class RoomEnemySystem
         state.Body.XPosition = 0x003b;
         state.Body.YPosition = 0x0117;
         PublishMotherBrainBg2Scroll(state, 0xffe5, 0xff27);
-        state.RequestMusic(rawTrack: 5, delayFrames: 8);
+        state.RequestMusic(MusicCommand.SelectTrack(5), MusicCommandDelay.EightFrames);
         EarthquakeType = 2;
         EarthquakeTimer = 0x0100;
         state.NeckAngleDelta = 0x0050;

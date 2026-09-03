@@ -57,9 +57,9 @@ internal sealed partial class CeresDestructionCinematicState
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
         // State $25 selects the common cinematic bank and destruction track eight.
-        audio?.QueueMusicDelayed8(0);
-        audio?.QueueMusicDelayed8(0xff2d);
-        audio?.QueueMusicDelayed(8, 0x0e);
+        audio?.QueueMusicDelayed8(MusicCommand.Stop);
+        audio?.QueueMusicDelayed8(MusicCommand.LoadData(0x2d));
+        audio?.QueueMusicDelayed(MusicCommand.SelectTrack(8), MusicCommandDelay.FromDelayedYArgument(0x0e));
         ceresTilemaps = RomDataReader.Decompress(bus, CeresTilemapAddress, maximumOutputBytes: 0x1000);
         SetupCeresDestruction();
     }
@@ -287,9 +287,9 @@ internal sealed partial class CeresDestructionCinematicState
         usesMode7 = false;
         // The Ceres/Zebes interstitial at $8B:D6D7 has its own bank-$33 data set and
         // waits for all three commands before beginning the mosaic fade.
-        audio?.QueueMusicDelayed8(0);
-        audio?.QueueMusicDelayed8(0xff33);
-        audio?.QueueMusicDelayed(5, 0x0e);
+        audio?.QueueMusicDelayed8(MusicCommand.Stop);
+        audio?.QueueMusicDelayed8(MusicCommand.LoadData(0x33));
+        audio?.QueueMusicDelayed(MusicCommand.SelectTrack(5), MusicCommandDelay.FromDelayedYArgument(0x0e));
         musicQueueTimer = 14;
         Phase = CeresDestructionPhase.WaitForZebesMusicQueue;
     }

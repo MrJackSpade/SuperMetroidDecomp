@@ -199,7 +199,7 @@ public sealed partial class RoomEnemySystem
             state.BossDefeatPersisted = true;
         }
         state.BossDoorPlmRequest = 0xb78b;
-        state.MusicRequest = 3;
+        state.MusicRequest = MusicCommand.SelectTrack(3);
         state.WreckedShipPowerPaletteComplete = true;
     }
 

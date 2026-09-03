@@ -19,8 +19,8 @@ public sealed class CartridgeAudioState
     private const int SoundQueueMask = 0x0f;
     private const int MusicAndSfxDowntimeFrames = 8;
 
-    private readonly ushort[] _musicEntries = new ushort[8];
-    private readonly ushort[] _musicDelays = new ushort[8];
+    private readonly MusicCommand[] _musicEntries = new MusicCommand[8];
+    private readonly MusicCommandDelay[] _musicDelays = new MusicCommandDelay[8];
     private readonly byte[,] _soundQueues = new byte[3, 16];
     private readonly byte[] _soundReadPositions = new byte[3];
     private readonly byte[] _soundWritePositions = new byte[3];
@@ -32,7 +32,7 @@ public sealed class CartridgeAudioState
     private byte _musicReadPosition;
     private byte _musicWritePosition;
     private ushort _musicTimer;
-    private ushort _musicEntry;
+    private MusicCommand _musicEntry;
     private byte _soundHandlerDowntime;
 
     public CartridgeAudioState() => Reset();
@@ -44,7 +44,7 @@ public sealed class CartridgeAudioState
     public byte MusicTrackIndex { get; private set; }
 
     /// <summary>Exact <c>HasQueuedMusic</c> result: any occupied delayed-command slot.</summary>
-    public bool HasQueuedMusic => _musicDelays.Any(delay => delay != 0);
+    public bool HasQueuedMusic => _musicDelays.Any(delay => delay.Frames != 0);
 
     /// <summary>
     /// Exact door-transition predicate at <c>$82:E2B5-$82:E2D7</c>: true while any of the
@@ -81,7 +81,7 @@ public sealed class CartridgeAudioState
         _musicReadPosition = 0;
         _musicWritePosition = 0;
         _musicTimer = 0;
-        _musicEntry = 0;
+        _musicEntry = default;
         _soundHandlerDowntime = 0;
         MusicDataIndex = 0;
         MusicTrackIndex = 0;
@@ -95,11 +95,12 @@ public sealed class CartridgeAudioState
     }
 
     /// <summary>Implements <c>QueueMusic_Delayed8</c> at $80:8FC1.</summary>
-    public void QueueMusicDelayed8(ushort entry) => QueueMusic(entry, 8, requireFreeSlot: true);
+    public void QueueMusicDelayed8(MusicCommand command) =>
+        QueueMusic(command, MusicCommandDelay.EightFrames, requireFreeSlot: true);
 
     /// <summary>Implements <c>QueueMusic_DelayedY</c>, including its minimum delay of eight.</summary>
-    public void QueueMusicDelayed(ushort entry, ushort delay) =>
-        QueueMusic(entry, Math.Max(delay, (ushort)8), requireFreeSlot: false);
+    public void QueueMusicDelayed(MusicCommand command, MusicCommandDelay delay) =>
+        QueueMusic(command, delay, requireFreeSlot: false);
 
     /// <summary>Queues the data-bank and track operations performed by ordinary room loading.</summary>
     public void QueueRoomMusic(byte dataIndex, byte trackIndex)
@@ -109,8 +110,8 @@ public sealed class CartridgeAudioState
         bool changesMusicData = dataIndex != 0 && dataIndex != MusicDataIndex;
         if (changesMusicData)
         {
-            QueueMusicDelayed8(0);
-            QueueMusicDelayed8(unchecked((ushort)(0xff00 | dataIndex)));
+            QueueMusicDelayed8(MusicCommand.Stop);
+            QueueMusicDelayed8(MusicCommand.LoadData(dataIndex));
         }
         // `$82:E0E1` returns immediately for a zero room track. Most post-Ridley Ceres
         // states deliberately contain music `(0, 0)` so track seven and its alarm bed
@@ -122,7 +123,9 @@ public sealed class CartridgeAudioState
         // Landing Site requests bank $06/track 5 and therefore must queue track 5 again
         // after the upload instead of leaving only the periodic gunship-engine SFX audible.
         if (trackIndex != 0 && (changesMusicData || trackIndex != MusicTrackIndex))
-            QueueMusicDelayed(trackIndex, 6);
+            QueueMusicDelayed(
+                MusicCommand.SelectTrack(trackIndex),
+                MusicCommandDelay.FromDelayedYArgument(6));
     }
 
     /// <summary>
@@ -143,11 +146,13 @@ public sealed class CartridgeAudioState
         Array.Clear(_musicDelays);
         _musicReadPosition = _musicWritePosition;
         _musicTimer = 0;
-        _musicEntry = 0;
+        _musicEntry = default;
 
-        QueueMusicDelayed8(2);
-        QueueMusicDelayed(0, 0x0168);
-        QueueMusicDelayed8(roomTrack);
+        QueueMusicDelayed8(MusicCommand.SelectTrack(2));
+        QueueMusicDelayed(
+            MusicCommand.Stop,
+            MusicCommandDelay.FromDelayedYArgument(0x0168));
+        QueueMusicDelayed8(MusicCommand.SelectTrackOrStop(roomTrack));
     }
 
     /// <summary>
@@ -203,13 +208,22 @@ public sealed class CartridgeAudioState
         return commands.Count == 0 ? Array.Empty<CartridgeAudioCommand>() : commands.ToArray();
     }
 
-    private void QueueMusic(ushort entry, ushort delay, bool requireFreeSlot)
+    private void QueueMusic(
+        MusicCommand command,
+        MusicCommandDelay delay,
+        bool requireFreeSlot)
     {
+        if (delay.Frames < 8)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(delay), delay, "Effective music queue delay must be at least eight frames.");
+        }
+
         byte next = unchecked((byte)((_musicWritePosition + 1) & MusicQueueMask));
         if (requireFreeSlot && next == _musicReadPosition)
             return;
 
-        _musicEntries[_musicWritePosition] = entry;
+        _musicEntries[_musicWritePosition] = command;
         _musicDelays[_musicWritePosition] = delay;
         _musicWritePosition = next;
     }
@@ -222,18 +236,18 @@ public sealed class CartridgeAudioState
             if (!timerExpired)
                 return;
 
-            if ((_musicEntry & 0x8000) != 0)
+            if (_musicEntry.UsesDataUploadPath)
             {
-                MusicDataIndex = unchecked((byte)_musicEntry);
+                MusicDataIndex = _musicEntry.DataIndex;
                 MusicTrackIndex = byte.MaxValue;
-                int tableEntry = MusicPointerTable + unchecked((byte)_musicEntry);
+                int tableEntry = MusicPointerTable + _musicEntry.DataIndex;
                 int uploadAddress = ReadLong(bus, tableEntry);
                 commands.Add(CartridgeAudioCommand.Upload(uploadAddress));
                 MusicTrackIndex = 0;
             }
             else
             {
-                MusicTrackIndex = unchecked((byte)(_musicEntry & 0x7f));
+                MusicTrackIndex = _musicEntry.TrackIndex;
                 commands.Add(CartridgeAudioCommand.WritePort(0, MusicTrackIndex));
             }
 
@@ -248,13 +262,13 @@ public sealed class CartridgeAudioState
         }
 
         _musicEntry = _musicEntries[_musicReadPosition];
-        _musicTimer = _musicDelays[_musicReadPosition];
+        _musicTimer = _musicDelays[_musicReadPosition].Frames;
     }
 
     private void ClearAndAdvanceMusicEntry()
     {
-        _musicEntries[_musicReadPosition] = 0;
-        _musicDelays[_musicReadPosition] = 0;
+        _musicEntries[_musicReadPosition] = default;
+        _musicDelays[_musicReadPosition] = default;
         _musicReadPosition = unchecked((byte)((_musicReadPosition + 1) & MusicQueueMask));
     }
 

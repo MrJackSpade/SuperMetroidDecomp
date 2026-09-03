@@ -149,7 +149,7 @@ public sealed class KraidEnemyState
     public int RoarRequestCount { get; internal set; }
 
     /// <summary>Last eight-frame-delayed music request made by the rise sequence.</summary>
-    public ushort? MusicRequest { get; internal set; }
+    public MusicCommand? MusicRequest { get; internal set; }
     public ushort RoomBackgroundFadeStep { get; internal set; }
     public int CeilingRockSpawnCount { get; internal set; }
     public bool Bg2PriorityBitsSet { get; internal set; }

@@ -9,6 +9,64 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+static void VerifyGameOptionsRomDataCatalog()
+{
+    GameOptionsPageResource[] pages =
+    [
+        GameOptionsRomData.Pages.Primary,
+        GameOptionsRomData.Pages.ControllerEnglish,
+        GameOptionsRomData.Pages.ControllerJapanese,
+        GameOptionsRomData.Pages.SpecialEnglish,
+        GameOptionsRomData.Pages.SpecialJapanese,
+    ];
+    AssertEqual(5, pages.Length, "options compressed page count");
+    AssertEqual(pages.Length, pages.Select(page => page.Address).Distinct().Count(),
+        "options compressed page addresses are unique");
+    foreach (GameOptionsPageResource page in pages)
+    {
+        AssertTrue(page.Address is >= 0x808000 and <= 0xffffff,
+            $"{page.Description} options resource is mapped ROM");
+        AssertTrue(!string.IsNullOrWhiteSpace(page.Description),
+            $"options resource ${page.Address:X6} has a diagnostic name");
+    }
+
+    AssertEqual(GameOptionsRomData.Rows.PrimaryCount,
+        GameOptionsRomData.Cursors.PrimaryY.Length,
+        "primary cursor rows match navigation rows");
+    AssertEqual(GameOptionsRomData.Rows.ControllerCount,
+        GameOptionsRomData.Cursors.ControllerY.Length,
+        "controller cursor rows match navigation rows");
+    AssertEqual(GameOptionsRomData.Rows.SpecialCount,
+        GameOptionsRomData.Cursors.SpecialY.Length,
+        "special cursor rows match navigation rows");
+    AssertEqual(GameOptionsRomData.Rows.ControllerActionCount,
+        GameOptionsRomData.ControllerLabels.Sources.Length,
+        "controller label source count matches assignable actions");
+    AssertEqual(GameOptionsRomData.Rows.ControllerActionCount,
+        GameOptionsRomData.ControllerLabels.Destinations.Length,
+        "controller label destination count matches assignable actions");
+
+    const ushort packedTile = 0xe155;
+    SnesBgTilemapWord selected = new SnesBgTilemapWord(packedTile)
+        .WithPaletteIndex(GameOptionsRomData.TilePalettes.Selected);
+    SnesBgTilemapWord unselected = selected
+        .WithPaletteIndex(GameOptionsRomData.TilePalettes.Unselected);
+    AssertEqual(GameOptionsRomData.TilePalettes.Selected, selected.PaletteIndex,
+        "selected option uses typed tile palette");
+    AssertEqual(GameOptionsRomData.TilePalettes.Unselected, unselected.PaletteIndex,
+        "unselected option uses typed tile palette");
+    AssertEqual(new SnesBgTilemapWord(packedTile).CharacterIndex, unselected.CharacterIndex,
+        "options palette replacement preserves character index");
+    AssertEqual(new SnesBgTilemapWord(packedTile).FlipFlags, unselected.FlipFlags,
+        "options palette replacement preserves tile flips");
+    AssertEqual(new SnesBgTilemapWord(packedTile).HasPriority, unselected.HasPriority,
+        "options palette replacement preserves priority");
+
+    Console.WriteLine(
+        "  Options ROM data: pages, cursors, labels, toggles, spritemaps, and typed " +
+        "palette replacement agree.");
+}
+
 static void VerifyControllerBindingsAndOptionsSubmenus()
 {
     ControllerBindings swapped = ControllerBindings.Default.AssignAndSwap(
@@ -30,11 +88,31 @@ static void VerifyControllerBindingsAndOptionsSubmenus()
     // Five independent all-blank pages are enough to exercise the state machine. The
     // decompressor and page addresses remain real; visual asset fidelity is covered by the
     // production-ROM capture audits rather than embedding copyrighted menu data here.
-    WriteRepeatedCompressedStream(rom, 0x978df4, 0x0800, 0);
-    WriteRepeatedCompressedStream(rom, 0x978fcd, 0x0800, 0);
-    WriteRepeatedCompressedStream(rom, 0x9791c4, 0x0800, 0);
-    WriteRepeatedCompressedStream(rom, 0x97938d, 0x0800, 0);
-    WriteRepeatedCompressedStream(rom, 0x97953a, 0x0800, 0);
+    WriteRepeatedCompressedStream(
+        rom,
+        GameOptionsRomData.Pages.Primary.Address,
+        GameOptionsRomData.TilemapByteCount,
+        0);
+    WriteRepeatedCompressedStream(
+        rom,
+        GameOptionsRomData.Pages.ControllerEnglish.Address,
+        GameOptionsRomData.TilemapByteCount,
+        0);
+    WriteRepeatedCompressedStream(
+        rom,
+        GameOptionsRomData.Pages.ControllerJapanese.Address,
+        GameOptionsRomData.TilemapByteCount,
+        0);
+    WriteRepeatedCompressedStream(
+        rom,
+        GameOptionsRomData.Pages.SpecialEnglish.Address,
+        GameOptionsRomData.TilemapByteCount,
+        0);
+    WriteRepeatedCompressedStream(
+        rom,
+        GameOptionsRomData.Pages.SpecialJapanese.Address,
+        GameOptionsRomData.TilemapByteCount,
+        0);
     var bus = new SuperMetroidAddressSpace(rom);
     var options = new GameOptionsMenuState(bus);
     StepOptionsUntil(options, GameOptionsPhase.Main);

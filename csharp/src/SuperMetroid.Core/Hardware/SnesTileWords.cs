@@ -34,6 +34,20 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
     /// </summary>
     public ushort ToggleFlips(SnesTileFlipFlags flags) => (ushort)(Raw ^ (ushort)flags);
 
+    /// <summary>
+    /// Replaces only the PPU's three-bit palette field while preserving character,
+    /// priority, and flip fields in the packed word.
+    /// </summary>
+    public SnesBgTilemapWord WithPaletteIndex(int paletteIndex)
+    {
+        if ((uint)paletteIndex > PaletteMask)
+            throw new ArgumentOutOfRangeException(nameof(paletteIndex));
+
+        ushort paletteBits = unchecked((ushort)(paletteIndex << PaletteShift));
+        ushort fieldMask = unchecked((ushort)(PaletteMask << PaletteShift));
+        return new SnesBgTilemapWord(unchecked((ushort)((Raw & ~fieldMask) | paletteBits)));
+    }
+
     public static implicit operator SnesBgTilemapWord(ushort raw) => new(raw);
 }
 

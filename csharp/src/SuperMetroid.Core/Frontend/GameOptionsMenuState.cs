@@ -10,26 +10,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Complete game-state-$02 options owner, including both secondary pages.</summary>
 public sealed class GameOptionsMenuState
 {
-    private const int TilemapByteCount = 0x0800;
-    private const int MaximumBrightness = 15;
-    private const int ControllerScrollLimit = 32;
-
-    // `$82:F307`, `$82:F31B`, and `$82:F33F` are the three cursor-coordinate tables used
-    // by OptionsPreInstr_F2A9. Coordinates are screen pixels before BG1's controller-page
-    // scroll is applied.
-    private static readonly ushort[] PrimarySelectionY = [0x38, 0x58, 0x70, 0x90, 0xb0];
-    private static readonly ushort[] ControllerSelectionY =
-        [0x30, 0x48, 0x60, 0x78, 0x90, 0xa8, 0xc0, 0xb8, 0xd0];
-    private static readonly ushort[] SpecialSelectionY = [0x40, 0x70, 0xa0];
-    private static readonly ushort[] MissileSpritemapIds = [0x37, 0x36, 0x35, 0x34];
-
-    // OptionsMenuFunc6 copies each selected physical-button label into one 3x2-tile box.
-    // These are literal byte offsets and bank-$82 pointers from `$82:F639/$82:F647`.
-    private static readonly ushort[] ControllerLabelOffsets =
-        [0x016e, 0x022e, 0x02ee, 0x03ae, 0x046e, 0x052e, 0x05ee];
-    private static readonly ushort[] ControllerLabelPointers =
-        [0xf659, 0xf665, 0xf671, 0xf67d, 0xf689, 0xf695, 0xf6a1];
-
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
     private readonly MenuPpuState ppu;
@@ -63,11 +43,11 @@ public sealed class GameOptionsMenuState
         // `$82:EC77-$ECA3` expands these five consecutive one-screen resources. Keeping
         // each decompressed page independent mirrors their WRAM allocation and prevents a
         // language toggle from mutating the other language's source page.
-        primaryTilemap = DecompressOptionsPage(0x978df4, "primary");
-        controllerEnglishTilemap = DecompressOptionsPage(0x978fcd, "English controller");
-        controllerJapaneseTilemap = DecompressOptionsPage(0x9791c4, "Japanese controller");
-        specialEnglishTilemap = DecompressOptionsPage(0x97938d, "English special-settings");
-        specialJapaneseTilemap = DecompressOptionsPage(0x97953a, "Japanese special-settings");
+        primaryTilemap = DecompressOptionsPage(GameOptionsRomData.Pages.Primary);
+        controllerEnglishTilemap = DecompressOptionsPage(GameOptionsRomData.Pages.ControllerEnglish);
+        controllerJapaneseTilemap = DecompressOptionsPage(GameOptionsRomData.Pages.ControllerJapanese);
+        specialEnglishTilemap = DecompressOptionsPage(GameOptionsRomData.Pages.SpecialEnglish);
+        specialJapaneseTilemap = DecompressOptionsPage(GameOptionsRomData.Pages.SpecialJapanese);
 
         ControllerBindings = (controllerBindings ?? Input.ControllerBindings.Default)
             .RequireRetailPermutation();
@@ -109,8 +89,8 @@ public sealed class GameOptionsMenuState
         switch (Phase)
         {
             case GameOptionsPhase.FadeIn:
-                brightness = Math.Min(MaximumBrightness, brightness + 1);
-                if (brightness == MaximumBrightness)
+                brightness = Math.Min(GameOptionsRomData.MaximumBrightness, brightness + 1);
+                if (brightness == GameOptionsRomData.MaximumBrightness)
                     Phase = GameOptionsPhase.Main;
                 break;
 
@@ -131,8 +111,8 @@ public sealed class GameOptionsMenuState
                 break;
 
             case GameOptionsPhase.DissolveIn:
-                brightness = Math.Min(MaximumBrightness, brightness + 1);
-                if (brightness == MaximumBrightness)
+                brightness = Math.Min(GameOptionsRomData.MaximumBrightness, brightness + 1);
+                if (brightness == GameOptionsRomData.MaximumBrightness)
                 {
                     Phase = page switch
                     {
@@ -153,13 +133,13 @@ public sealed class GameOptionsMenuState
                 break;
 
             case GameOptionsPhase.ScrollControllerDown:
-                bg1VerticalScroll += 2;
-                if (bg1VerticalScroll == ControllerScrollLimit)
+                bg1VerticalScroll += GameOptionsRomData.ControllerScrollPixelsPerFrame;
+                if (bg1VerticalScroll == GameOptionsRomData.ControllerScrollLimit)
                     Phase = GameOptionsPhase.ControllerSettings;
                 break;
 
             case GameOptionsPhase.ScrollControllerUp:
-                bg1VerticalScroll -= 2;
+                bg1VerticalScroll -= GameOptionsRomData.ControllerScrollPixelsPerFrame;
                 if (bg1VerticalScroll == 0)
                     Phase = GameOptionsPhase.ControllerSettings;
                 break;
@@ -183,9 +163,13 @@ public sealed class GameOptionsMenuState
 
     public Rgba32[] Render()
     {
-        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224);
+        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(
+            ppu.Cgram,
+            FrontendFrame.Width * FrontendFrame.Height);
         Rgba32[] backgroundLayer = SnesBgTilemapRenderer.Render4BppViewport(
-            ppu.Vram, ppu.Cgram, MenuPpuState.Bg2TilemapWord, 0, 0, 0, 256, 224, 32, 32);
+            ppu.Vram, ppu.Cgram, MenuPpuState.Bg2TilemapWord, 0, 0, 0,
+            FrontendFrame.Width, FrontendFrame.Height,
+            GameOptionsRomData.MenuTilemapWidth, GameOptionsRomData.MenuTilemapHeight);
         Rgba32[] foreground = SnesBgTilemapRenderer.Render4BppViewport(
             ppu.Vram,
             ppu.Cgram,
@@ -193,17 +177,20 @@ public sealed class GameOptionsMenuState
             0,
             0,
             unchecked((ushort)bg1VerticalScroll),
-            256,
-            224,
-            32,
-            32);
+            FrontendFrame.Width,
+            FrontendFrame.Height,
+            GameOptionsRomData.MenuTilemapWidth,
+            GameOptionsRomData.MenuTilemapHeight);
         SnesLayerCompositor.Composite(background, backgroundLayer);
         SnesLayerCompositor.Composite(background, foreground);
 
         oam.BeginFrame();
-        DrawMenuSpritemap(0x4b, 0x7c, 0x10); // OPTION MODE border at `$82:F34B`.
+        DrawMenuSpritemap(
+            GameOptionsRomData.Spritemaps.OptionModeBorder,
+            GameOptionsRomData.Spritemaps.OptionModeBorderX,
+            GameOptionsRomData.Spritemaps.OptionModeBorderY);
         (ushort cursorX, ushort cursorY) = CursorPosition();
-        DrawMenuSpritemap(MissileSpritemapIds[missileFrame], cursorX, cursorY);
+        DrawMenuSpritemap(GameOptionsRomData.Spritemaps.MissileFrameIds[missileFrame], cursorX, cursorY);
         oam.FinalizeFrame();
         SnesLayerCompositor.Composite(
             background,
@@ -216,12 +203,16 @@ public sealed class GameOptionsMenuState
     {
         if ((pressed & SnesButton.Up) != 0)
         {
-            SelectedItem = SelectedItem == 0 ? 4 : SelectedItem - 1;
+            SelectedItem = SelectedItem == 0
+                ? GameOptionsRomData.Rows.PrimaryCount - 1
+                : SelectedItem - 1;
             QueueMoveSound();
         }
         else if ((pressed & SnesButton.Down) != 0)
         {
-            SelectedItem = SelectedItem == 4 ? 0 : SelectedItem + 1;
+            SelectedItem = SelectedItem == GameOptionsRomData.Rows.PrimaryCount - 1
+                ? 0
+                : SelectedItem + 1;
             QueueMoveSound();
         }
 
@@ -236,7 +227,7 @@ public sealed class GameOptionsMenuState
         QueueSelectSound();
         switch (SelectedItem)
         {
-            case 0:
+            case GameOptionsRomData.Rows.PrimaryStartGame:
                 Phase = GameOptionsPhase.FadeOutToIntro;
                 break;
             case 1:
@@ -246,10 +237,10 @@ public sealed class GameOptionsMenuState
                 ApplyLanguagePaletteBits();
                 LoadVisiblePage();
                 break;
-            case 3:
+            case GameOptionsRomData.Rows.PrimaryControllerSettings:
                 BeginDissolveTo(GameOptionsPage.Controller);
                 break;
-            case 4:
+            case GameOptionsRomData.Rows.PrimarySpecialSettings:
                 BeginDissolveTo(GameOptionsPage.Special);
                 break;
         }
@@ -263,10 +254,10 @@ public sealed class GameOptionsMenuState
             SelectedItem--;
             if (SelectedItem < 0)
             {
-                SelectedItem = 8;
+                SelectedItem = GameOptionsRomData.Rows.ControllerReset;
                 Phase = GameOptionsPhase.ScrollControllerDown;
             }
-            else if (SelectedItem == 6)
+            else if (SelectedItem == GameOptionsRomData.Rows.ControllerActionCount - 1)
             {
                 Phase = GameOptionsPhase.ScrollControllerUp;
             }
@@ -276,11 +267,11 @@ public sealed class GameOptionsMenuState
         {
             QueueMoveSound();
             SelectedItem++;
-            if (SelectedItem == 7)
+            if (SelectedItem == GameOptionsRomData.Rows.ControllerExit)
             {
                 Phase = GameOptionsPhase.ScrollControllerDown;
             }
-            else if (SelectedItem == 9)
+            else if (SelectedItem == GameOptionsRomData.Rows.ControllerCount)
             {
                 SelectedItem = 0;
                 Phase = GameOptionsPhase.ScrollControllerUp;
@@ -293,7 +284,7 @@ public sealed class GameOptionsMenuState
         // Native queues the confirmation sound for any newly pressed word on this page,
         // even when an action row cannot find an assignable button in that word.
         QueueSelectSound();
-        if (SelectedItem < 7)
+        if (SelectedItem < GameOptionsRomData.Rows.ControllerActionCount)
         {
             ReadOnlySpan<ushort> allowed = Input.ControllerBindings.AssignableButtons;
             for (int button = allowed.Length - 1; button >= 0; button--)
@@ -310,7 +301,7 @@ public sealed class GameOptionsMenuState
 
         if ((pressed & (SnesButton.Start | SnesButton.A)) == 0)
             return;
-        if (SelectedItem == 7)
+        if (SelectedItem == GameOptionsRomData.Rows.ControllerExit)
         {
             BeginDissolveTo(GameOptionsPage.Primary);
         }
@@ -326,12 +317,16 @@ public sealed class GameOptionsMenuState
     {
         if ((pressed & SnesButton.Up) != 0)
         {
-            SelectedItem = SelectedItem == 0 ? 2 : SelectedItem - 1;
+            SelectedItem = SelectedItem == 0
+                ? GameOptionsRomData.Rows.SpecialCount - 1
+                : SelectedItem - 1;
             QueueMoveSound();
         }
         else if ((pressed & SnesButton.Down) != 0)
         {
-            SelectedItem = SelectedItem == 2 ? 0 : SelectedItem + 1;
+            SelectedItem = SelectedItem == GameOptionsRomData.Rows.SpecialCount - 1
+                ? 0
+                : SelectedItem + 1;
             QueueMoveSound();
         }
 
@@ -345,9 +340,9 @@ public sealed class GameOptionsMenuState
             return;
 
         QueueSelectSound();
-        if (SelectedItem == 0)
+        if (SelectedItem == GameOptionsRomData.Rows.SpecialIconCancel)
             IconCancelEnabled = !IconCancelEnabled;
-        else if (SelectedItem == 1)
+        else if (SelectedItem == GameOptionsRomData.Rows.SpecialMoonwalk)
             MoonwalkEnabled = !MoonwalkEnabled;
         else
         {
@@ -387,52 +382,73 @@ public sealed class GameOptionsMenuState
 
     private void ApplyLanguagePaletteBits()
     {
-        ReplacePaletteBits(primaryTilemap, 0x288, 0x18, JapaneseText ? (ushort)0x0400 : (ushort)0);
-        ReplacePaletteBits(primaryTilemap, 0x2c8, 0x18, JapaneseText ? (ushort)0x0400 : (ushort)0);
-        ReplacePaletteBits(primaryTilemap, 0x348, 0x32, JapaneseText ? (ushort)0 : (ushort)0x0400);
-        ReplacePaletteBits(primaryTilemap, 0x388, 0x32, JapaneseText ? (ushort)0 : (ushort)0x0400);
+        foreach (GameOptionsLanguagePaletteRegion region in GameOptionsRomData.LanguagePaletteRegions)
+        {
+            bool selected = JapaneseText == region.HighlightWhenJapanese;
+            ReplacePaletteIndex(
+                primaryTilemap,
+                region.ByteOffset,
+                region.ByteCount,
+                selected
+                    ? GameOptionsRomData.TilePalettes.Selected
+                    : GameOptionsRomData.TilePalettes.Unselected);
+        }
     }
 
     private void ApplySpecialPaletteBits()
     {
-        ApplySpecialToggle(visibleTilemap, 0x1e0, 0x220, 0x1ee, 0x22e, IconCancelEnabled);
-        ApplySpecialToggle(visibleTilemap, 0x360, 0x3a0, 0x36e, 0x3ae, MoonwalkEnabled);
+        ApplySpecialToggle(visibleTilemap, GameOptionsRomData.SpecialToggles.IconCancel, IconCancelEnabled);
+        ApplySpecialToggle(visibleTilemap, GameOptionsRomData.SpecialToggles.Moonwalk, MoonwalkEnabled);
     }
 
     private static void ApplySpecialToggle(
         byte[] tilemap,
-        int enabledTop,
-        int enabledBottom,
-        int disabledTop,
-        int disabledBottom,
+        GameOptionsToggleLayout layout,
         bool enabled)
     {
-        ReplacePaletteBits(tilemap, enabledTop, 0x0c, enabled ? (ushort)0 : (ushort)0x0400);
-        ReplacePaletteBits(tilemap, enabledBottom, 0x0c, enabled ? (ushort)0 : (ushort)0x0400);
-        ReplacePaletteBits(tilemap, disabledTop, 0x0c, enabled ? (ushort)0x0400 : (ushort)0);
-        ReplacePaletteBits(tilemap, disabledBottom, 0x0c, enabled ? (ushort)0x0400 : (ushort)0);
+        int enabledPalette = enabled
+            ? GameOptionsRomData.TilePalettes.Selected
+            : GameOptionsRomData.TilePalettes.Unselected;
+        int disabledPalette = enabled
+            ? GameOptionsRomData.TilePalettes.Unselected
+            : GameOptionsRomData.TilePalettes.Selected;
+        ReplacePaletteIndex(tilemap, layout.EnabledTop,
+            GameOptionsRomData.SpecialToggles.PaletteRegionByteCount, enabledPalette);
+        ReplacePaletteIndex(tilemap, layout.EnabledBottom,
+            GameOptionsRomData.SpecialToggles.PaletteRegionByteCount, enabledPalette);
+        ReplacePaletteIndex(tilemap, layout.DisabledTop,
+            GameOptionsRomData.SpecialToggles.PaletteRegionByteCount, disabledPalette);
+        ReplacePaletteIndex(tilemap, layout.DisabledBottom,
+            GameOptionsRomData.SpecialToggles.PaletteRegionByteCount, disabledPalette);
     }
 
     private void ApplyControllerLabels()
     {
-        for (int action = 0; action < 7; action++)
+        ReadOnlySpan<ushort> sourcePointers = GameOptionsRomData.ControllerLabels.Sources;
+        ReadOnlySpan<ushort> destinationOffsets = GameOptionsRomData.ControllerLabels.Destinations;
+        for (int action = 0; action < GameOptionsRomData.Rows.ControllerActionCount; action++)
         {
             int button = Input.ControllerBindings.AssignableButtons.IndexOf(ControllerBindings[action]);
             if (button < 0)
                 button = 0; // Matches LoadControllerOptionsFromControllerBindings' X fallback.
-            int source = 0x820000 | ControllerLabelPointers[button];
-            int destination = ControllerLabelOffsets[action];
+            int source = GameOptionsRomData.MenuBank | sourcePointers[button];
+            int destination = destinationOffsets[action];
 
             // Each ROM label is a 3x2 tile rectangle. OptionsMenuFunc6 writes its two rows
             // 32 tilemap words apart, not as one contiguous six-word run.
-            for (int row = 0; row < 2; row++)
+            for (int row = 0; row < GameOptionsRomData.ControllerLabels.HeightInTiles; row++)
             {
-                for (int column = 0; column < 3; column++)
+                for (int column = 0; column < GameOptionsRomData.ControllerLabels.WidthInTiles; column++)
                 {
                     ushort tile = RomDataReader.ReadWordFixedBank(
                         bus,
-                        source + (row * 3 + column) * 2);
-                    WriteWord(visibleTilemap, destination + (row * 32 + column) * 2, tile);
+                        source +
+                        (row * GameOptionsRomData.ControllerLabels.WidthInTiles + column) * 2);
+                    WriteWord(
+                        visibleTilemap,
+                        destination +
+                        (row * GameOptionsRomData.MenuTilemapWidth + column) * 2,
+                        tile);
                 }
             }
         }
@@ -442,35 +458,45 @@ public sealed class GameOptionsMenuState
     {
         return page switch
         {
-            GameOptionsPage.Primary => (0x18, PrimarySelectionY[SelectedItem]),
+            GameOptionsPage.Primary =>
+                (GameOptionsRomData.Cursors.PrimaryX,
+                    GameOptionsRomData.Cursors.PrimaryY[SelectedItem]),
             GameOptionsPage.Controller =>
-                (0x28, unchecked((ushort)(ControllerSelectionY[SelectedItem] - bg1VerticalScroll))),
-            GameOptionsPage.Special => (0x10, SpecialSelectionY[SelectedItem]),
+                (GameOptionsRomData.Cursors.ControllerX,
+                    unchecked((ushort)(
+                        GameOptionsRomData.Cursors.ControllerY[SelectedItem] - bg1VerticalScroll))),
+            GameOptionsPage.Special =>
+                (GameOptionsRomData.Cursors.SpecialX,
+                    GameOptionsRomData.Cursors.SpecialY[SelectedItem]),
             _ => throw new InvalidOperationException($"Unknown options page {page}."),
         };
     }
 
-    private byte[] DecompressOptionsPage(int address, string name)
+    private byte[] DecompressOptionsPage(GameOptionsPageResource resource)
     {
-        byte[] tilemap = RomDataReader.Decompress(bus, address, maximumOutputBytes: TilemapByteCount);
-        if (tilemap.Length != TilemapByteCount)
+        byte[] tilemap = RomDataReader.Decompress(
+            bus,
+            resource.Address,
+            maximumOutputBytes: GameOptionsRomData.TilemapByteCount);
+        if (tilemap.Length != GameOptionsRomData.TilemapByteCount)
         {
             throw new InvalidDataException(
-                $"The {name} options screen expanded to ${tilemap.Length:X} bytes, expected $800.");
+                $"The {resource.Description} options screen expanded to " +
+                $"${tilemap.Length:X} bytes, expected ${GameOptionsRomData.TilemapByteCount:X}.");
         }
         return tilemap;
     }
 
-    private static void ReplacePaletteBits(
+    private static void ReplacePaletteIndex(
         byte[] tilemap,
         int byteOffset,
         int byteCount,
-        ushort paletteBits)
+        int paletteIndex)
     {
         for (int offset = byteOffset; offset < byteOffset + byteCount; offset += 2)
         {
-            ushort word = ReadWord(tilemap, offset);
-            WriteWord(tilemap, offset, unchecked((ushort)(paletteBits | (word & 0xe3ff))));
+            SnesBgTilemapWord word = ReadWord(tilemap, offset);
+            WriteWord(tilemap, offset, word.WithPaletteIndex(paletteIndex).Raw);
         }
     }
 
@@ -479,22 +505,31 @@ public sealed class GameOptionsMenuState
         ushort pointer = RomDataReader.ReadWordFixedBank(
             bus,
             MenuPpuState.SpritemapPointerTableAddress + id * 2);
-        oam.AddOnScreenSpritemap(bus, 0x820000 | pointer, x, y, MenuPpuState.ObjectPaletteBits);
+        oam.AddOnScreenSpritemap(
+            bus,
+            GameOptionsRomData.MenuBank | pointer,
+            x,
+            y,
+            MenuPpuState.ObjectPaletteBits);
     }
 
     private void StepMissile()
     {
         if (--missileTimer != 0)
             return;
-        missileFrame = (missileFrame + 1) & 3;
-        missileTimer = 8;
+        missileFrame = (missileFrame + 1) % GameOptionsRomData.Spritemaps.MissileFrameIds.Length;
+        missileTimer = GameOptionsRomData.Spritemaps.MissileFrameDuration;
     }
 
     private void QueueMoveSound() =>
-        audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+        audio?.QueueSound(
+            SoundEffectLibrary1Sounds.MenuCursor,
+            maximumQueued: GameOptionsRomData.MaximumQueuedMenuSounds);
 
     private void QueueSelectSound() =>
-        audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
+        audio?.QueueSound(
+            SoundEffectLibrary1Sounds.MenuConfirm,
+            maximumQueued: GameOptionsRomData.MaximumQueuedMenuSounds);
 
     private void ApplyBrightness(Span<Rgba32> pixels)
     {
@@ -503,12 +538,12 @@ public sealed class GameOptionsMenuState
             Rgba32 color = pixels[pixel];
             if (brightness <= 0)
                 pixels[pixel] = new Rgba32(0, 0, 0, color.A);
-            else if (brightness < MaximumBrightness)
+            else if (brightness < GameOptionsRomData.MaximumBrightness)
             {
                 pixels[pixel] = new Rgba32(
-                    (byte)(color.R * brightness / MaximumBrightness),
-                    (byte)(color.G * brightness / MaximumBrightness),
-                    (byte)(color.B * brightness / MaximumBrightness),
+                    (byte)(color.R * brightness / GameOptionsRomData.MaximumBrightness),
+                    (byte)(color.G * brightness / GameOptionsRomData.MaximumBrightness),
+                    (byte)(color.B * brightness / GameOptionsRomData.MaximumBrightness),
                     color.A);
             }
         }

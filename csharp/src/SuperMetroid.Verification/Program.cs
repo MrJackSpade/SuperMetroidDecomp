@@ -37,6 +37,7 @@ VerifyVramWriteQueue();
 VerifyEscapeTimerBcd();
 VerifyEscapeTimerStateMachine();
 VerifyControllerInputLatch();
+VerifyGameOptionsRomDataCatalog();
 VerifyControllerBindingsAndOptionsSubmenus();
 VerifyStrictFailureBoundaries();
 VerifyReserveAutoRecovery();

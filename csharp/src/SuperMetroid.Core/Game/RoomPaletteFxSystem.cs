@@ -21,44 +21,6 @@ public sealed class RoomPaletteFxSystem
     private const int SlotCount = 8;
     private const int FxRecordByteCount = 16;
 
-    // Bank-$8D instruction words. These are executable pointers in the retail stream, not
-    // an invented host opcode enum; retaining their native values makes debugger state line
-    // up with disassembly and causes an unsupported program to identify itself precisely.
-    private const ushort WaitInstruction = 0xc595;
-    private const ushort ColorPlus2Instruction = 0xc599;
-    private const ushort ColorPlus3Instruction = 0xc5a2;
-    private const ushort ColorPlus4Instruction = 0xc5ab;
-    private const ushort ColorPlus8Instruction = 0xc5b4;
-    private const ushort ColorPlus9Instruction = 0xc5bd;
-    private const ushort ColorPlus15Instruction = 0xc5c6;
-    private const ushort DeleteInstruction = 0xc5cf;
-    private const ushort SetPreInstruction = 0xc5d4;
-    private const ushort ClearPreInstruction = 0xc5dd;
-    private const ushort GotoInstruction = 0xc61e;
-    private const ushort DecrementTimerAndGotoInstruction = 0xc639;
-    private const ushort SetTimerInstruction = 0xc648;
-    private const ushort SetColorIndexInstruction = 0xc655;
-    private const ushort QueueMusicInstruction = 0xc65e;
-    private const ushort QueueSfx1Instruction = 0xc66a;
-    private const ushort QueueSfx2Instruction = 0xc673;
-    private const ushort QueueSfx3Instruction = 0xc67c;
-    private const ushort SetPaletteFxIndexInstruction = 0xf1c6;
-
-    private const ushort NullSetup = 0xc685;
-    private const ushort IntroSetup = 0xe204;
-    private const ushort NorfairSetup = 0xe440;
-    private const ushort BrinstarSetup = 0xf730;
-
-    private const ushort NullPreInstruction = 0xc526;
-    private const ushort ClearedPreInstruction = 0xc5e3;
-    private const ushort IntroPreInstruction = 0xe20b;
-    private const ushort EnemyZeroHealthPreInstruction = 0xe2e0;
-    private const ushort HeatPreInstruction = 0xe379;
-    private const ushort SwitchAboveY380PreInstruction = 0xec59;
-    private const ushort SwitchAboveY380SecondPreInstruction = 0xed84;
-    private const ushort MiniBossPreInstruction = 0xeec5;
-    private const ushort CrossSlotPreInstruction = 0xf621;
-
     private readonly PaletteFxSlot[] slots = Enumerable.Range(0, SlotCount)
         .Select(_ => new PaletteFxSlot())
         .ToArray();
@@ -191,7 +153,7 @@ public sealed class RoomPaletteFxSystem
 
         slot.Id = definition;
         slot.ColorByteIndex = 0;
-        slot.PreInstruction = NullPreInstruction;
+        slot.PreInstruction = PaletteFxPreInstructionCodes.Null;
         slot.InstructionPointer = ReadBank8dWord(bus, unchecked((ushort)(definition + 2)));
         slot.InstructionTimer = 1;
         slot.Timer = 0;
@@ -199,24 +161,24 @@ public sealed class RoomPaletteFxSystem
         ushort setup = ReadBank8dWord(bus, definition);
         switch (setup)
         {
-            case NullSetup:
+            case PaletteFxSetupCodes.Null:
                 return;
 
-            case IntroSetup:
-                slot.PreInstruction = IntroPreInstruction;
+            case PaletteFxSetupCodes.Intro:
+                slot.PreInstruction = PaletteFxPreInstructionCodes.Intro;
                 return;
 
-            case NorfairSetup:
+            case PaletteFxSetupCodes.Norfair:
                 // `$8D:E440` chooses the complete program from the same live suit bits
                 // used by Samus. Gravity has priority when both bits are present.
                 slot.InstructionPointer = equippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-                    ? (ushort)0xe8b6
+                    ? PaletteFxInstructionListPointers.NorfairGravitySuit
                     : equippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                        ? (ushort)0xe68a
-                        : (ushort)0xe45e;
+                        ? PaletteFxInstructionListPointers.NorfairVariaSuit
+                        : PaletteFxInstructionListPointers.NorfairPowerSuit;
                 return;
 
-            case BrinstarSetup:
+            case PaletteFxSetupCodes.Brinstar:
                 if (areaMiniBossDefeated)
                     slot.Clear();
                 return;
@@ -256,42 +218,42 @@ public sealed class RoomPaletteFxSystem
     {
         switch (slot.PreInstruction)
         {
-            case NullPreInstruction:
-            case ClearedPreInstruction:
-            case IntroPreInstruction:
+            case PaletteFxPreInstructionCodes.Null:
+            case PaletteFxPreInstructionCodes.Cleared:
+            case PaletteFxPreInstructionCodes.Intro:
                 return;
 
-            case EnemyZeroHealthPreInstruction:
+            case PaletteFxPreInstructionCodes.DeleteWhenEnemyZeroDies:
                 if (enemyZeroIsDead)
                     slot.Clear();
                 return;
 
-            case SwitchAboveY380PreInstruction:
+            case PaletteFxPreInstructionCodes.SwitchAboveY380:
                 if (samusY < 0x0380)
                 {
                     slot.InstructionTimer = 1;
-                    slot.InstructionPointer = 0xeb43;
+                    slot.InstructionPointer = PaletteFxInstructionListPointers.AboveY380;
                 }
                 return;
 
-            case SwitchAboveY380SecondPreInstruction:
+            case PaletteFxPreInstructionCodes.SwitchAboveY380Second:
                 if (samusY < 0x0380)
                 {
                     slot.InstructionTimer = 1;
-                    slot.InstructionPointer = 0xec76;
+                    slot.InstructionPointer = PaletteFxInstructionListPointers.AboveY380Second;
                 }
                 return;
 
-            case MiniBossPreInstruction:
+            case PaletteFxPreInstructionCodes.DeleteWhenAreaMiniBossDies:
                 if (areaMiniBossDefeated)
                     slot.Clear();
                 return;
 
-            case HeatPreInstruction:
+            case PaletteFxPreInstructionCodes.Heat:
                 throw new NotSupportedException(
                     "Room palette-FX heat pre-instruction $8D:E379 requires untranslated periodic-damage side effects.");
 
-            case CrossSlotPreInstruction:
+            case PaletteFxPreInstructionCodes.InspectAdjacentSlot:
                 throw new NotSupportedException(
                     "Room palette-FX cross-slot pre-instruction $8D:F621 requires untranslated adjacent-WRAM inspection.");
 
@@ -320,32 +282,32 @@ public sealed class RoomPaletteFxSystem
 
             switch (word)
             {
-                case DeleteInstruction:
+                case PaletteFxInstructionCodes.Delete:
                     slot.Clear();
                     return;
 
-                case SetPreInstruction:
+                case PaletteFxInstructionCodes.SetPreInstruction:
                     slot.PreInstruction = ReadBank8dWord(bus, unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
 
-                case ClearPreInstruction:
-                    slot.PreInstruction = ClearedPreInstruction;
+                case PaletteFxInstructionCodes.ClearPreInstruction:
+                    slot.PreInstruction = PaletteFxPreInstructionCodes.Cleared;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
 
-                case GotoInstruction:
+                case PaletteFxInstructionCodes.Goto:
                     cursor = ReadBank8dWord(bus, unchecked((ushort)(cursor + 2)));
                     break;
 
-                case DecrementTimerAndGotoInstruction:
+                case PaletteFxInstructionCodes.DecrementTimerAndGoto:
                     slot.Timer = unchecked((ushort)(slot.Timer - 1));
                     cursor = slot.Timer == 0
                         ? unchecked((ushort)(cursor + 4))
                         : ReadBank8dWord(bus, unchecked((ushort)(cursor + 2)));
                     break;
 
-                case SetTimerInstruction:
+                case PaletteFxInstructionCodes.SetTimer:
                     // The assembly writes only the low byte addressed by the physical
                     // object index. The high byte was cleared at spawn and remains intact.
                     slot.Timer = (ushort)((slot.Timer & 0xff00) |
@@ -353,20 +315,20 @@ public sealed class RoomPaletteFxSystem
                     cursor = unchecked((ushort)(cursor + 3));
                     break;
 
-                case SetColorIndexInstruction:
+                case PaletteFxInstructionCodes.SetColorIndex:
                     slot.ColorByteIndex = ReadBank8dWord(bus, unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
 
-                case QueueMusicInstruction:
-                case QueueSfx1Instruction:
-                case QueueSfx2Instruction:
-                case QueueSfx3Instruction:
+                case PaletteFxInstructionCodes.QueueMusic:
+                case PaletteFxInstructionCodes.QueueSfx1:
+                case PaletteFxInstructionCodes.QueueSfx2:
+                case PaletteFxInstructionCodes.QueueSfx3:
                     throw new NotSupportedException(
                         $"Room palette-FX object $8D:{slot.Id:X4} requested audio command " +
                         $"$8D:{word:X4} at $8D:{cursor:X4}; its queue handoff is not translated.");
 
-                case SetPaletteFxIndexInstruction:
+                case PaletteFxInstructionCodes.SetPaletteFxIndex:
                     throw new NotSupportedException(
                         $"Room palette-FX object $8D:{slot.Id:X4} selected the heat-palette index at " +
                         $"$8D:{cursor:X4}; the shared heat owner is not translated.");
@@ -408,32 +370,32 @@ public sealed class RoomPaletteFxSystem
 
             switch (word)
             {
-                case WaitInstruction:
+                case PaletteFxInstructionCodes.Wait:
                     // Native receives the cursor two bytes before this opcode and saves
                     // j+4. In direct terms that is simply the word following `$C595`.
                     slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                     return;
-                case ColorPlus2Instruction:
+                case PaletteFxInstructionCodes.ColorPlus2:
                     colorByteIndex = unchecked((ushort)(colorByteIndex + 4));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case ColorPlus3Instruction:
+                case PaletteFxInstructionCodes.ColorPlus3:
                     colorByteIndex = unchecked((ushort)(colorByteIndex + 6));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case ColorPlus4Instruction:
+                case PaletteFxInstructionCodes.ColorPlus4:
                     colorByteIndex = unchecked((ushort)(colorByteIndex + 8));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case ColorPlus8Instruction:
+                case PaletteFxInstructionCodes.ColorPlus8:
                     colorByteIndex = unchecked((ushort)(colorByteIndex + 16));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case ColorPlus9Instruction:
+                case PaletteFxInstructionCodes.ColorPlus9:
                     colorByteIndex = unchecked((ushort)(colorByteIndex + 18));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case ColorPlus15Instruction:
+                case PaletteFxInstructionCodes.ColorPlus15:
                     colorByteIndex = unchecked((ushort)(colorByteIndex + 30));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;

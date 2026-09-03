@@ -141,6 +141,7 @@ VerifyScrollingSkyState();
 VerifyEnemyAiCodePointerCatalog();
 VerifyEnemyInstructionCodePointerCatalogs();
 VerifyEnemyRomTablePointerCatalog();
+VerifyPaletteFxInstructionCodeCatalogs();
 VerifyEnemyProjectileCodePointerCatalog();
 VerifyRoomEnemyLoading();
 VerifyRipperEnemy();

@@ -83,7 +83,7 @@ public static class SamusPaletteRomData
         /// <summary><c>$8D:E1F0</c>, two-word Hyper Beam palette-FX definition.</summary>
         public const int ObjectDefinition = 0x8de1f0;
         /// <summary>Expected no-op setup callback in the object definition.</summary>
-        public const ushort SetupCallback = 0xc685;
+        public const ushort SetupCallback = PaletteFxSetupCodes.Null;
         /// <summary>Initial instruction list stored by the object definition.</summary>
         public const ushort InitialList = 0xd900;
         /// <summary>First timed color record after the destination-selection command.</summary>
@@ -91,11 +91,11 @@ public static class SamusPaletteRomData
         /// <summary>Palette-buffer byte index selecting OBJ palette six, color one.</summary>
         public const ushort DestinationByteIndex = 0x01c2;
         /// <summary>Instruction <c>$C655</c>: select palette-buffer byte index from Y.</summary>
-        public const ushort SetColorIndex = 0xc655;
+        public const ushort SetColorIndex = PaletteFxInstructionCodes.SetColorIndex;
         /// <summary>Instruction <c>$C595</c>: finish the current timed palette record.</summary>
-        public const ushort Done = 0xc595;
+        public const ushort Done = PaletteFxInstructionCodes.Wait;
         /// <summary>Instruction <c>$C61E</c>: jump to the instruction pointer in Y.</summary>
-        public const ushort Goto = 0xc61e;
+        public const ushort Goto = PaletteFxInstructionCodes.Goto;
         /// <summary>Number of timed color records in the loop.</summary>
         public const int FrameCount = 10;
         /// <summary>Number of colors written by each record.</summary>

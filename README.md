@@ -65,8 +65,8 @@ These are implementation gaps, not merely missing tests:
   and shinespark effects; PLMs; ordinary enemies; and translated bosses. Older one-value enemy
   debugger fields are normalized through one central adapter so they do not require room-specific
   frontend fixes; they retain only the final same-family call if several overwrite the field in
-  one frame. New/direct publishers use a lossless per-frame request list. The native core
-  translates this game's SPC driver; it is not a general SPC700 CPU emulator.
+  one frame. New/direct publishers use a lossless per-frame request list. The managed C# core
+  translates this game's SPC driver and S-DSP behavior; it is not a general SPC700 CPU emulator.
 - Audio calls owned by the translated outer frontend states now use the same cartridge queue as
   gameplay. Remaining absent calls belong to still-untranslated time-up/demo paths, not to a
   separate mixer or host-sample fallback.
@@ -105,13 +105,14 @@ whose ROM mirror is conventionally written `$80:841C`.
   extractor, room viewer, verification runner, and private-ROM debug runner.
 - `standalone-assets/raw/` contains named ROM chunks; `standalone-assets/png/` and
   `standalone-assets/runtime/` contain inspectable PNG assets and rendered diagnostic layers.
+- `standalone-assets/audio/` contains exact SPC upload streams, a SHA-verified metadata
+  catalog, and per-bank lossless BRR-to-WAV inspection assets used by managed audio playback.
 - `standalone-native/` contains the compiled native C reference and SDL runtime.
 - `upstream-disassembly/` and `upstream-sm/` are pinned source references used during
   translation and differential inspection.
 
-The game now builds a small x64 native audio DLL. Install the Visual Studio C++ x64 build tools
-(the `v145` toolset used by this workspace) in addition to the .NET 10 SDK. Then open
-`csharp/SuperMetroid.slnx` in Visual Studio, or run the game from `csharp/`:
+Install the .NET 10 SDK, then open `csharp/SuperMetroid.slnx` in Visual Studio or run the game
+from `csharp/`. No C++ workload or native runtime DLL is required:
 
 ```powershell
 dotnet run --project src/SuperMetroid.Game

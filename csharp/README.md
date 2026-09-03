@@ -2,9 +2,8 @@
 
 This directory contains the actively developed, cartridge-backed C# translation. It targets
 `.NET 10` on Windows and treats warnings as errors. Open `SuperMetroid.slnx` in Visual Studio
-or use the commands below from this directory. The desktop build also requires Visual Studio's
-`Desktop development with C++` workload and the x64 `v145` toolset: it compiles the translated
-SPC sequencer/DSP bridge automatically and copies the native DLL beside the managed executable.
+or use the commands below from this directory. The playable build is fully managed and requires
+the .NET 10 SDK; it no longer builds or deploys a native audio DLL or requires the C++ workload.
 
 This file is the authoritative high-level status summary. Detailed Samus movement coverage,
 original routine addresses, and focused verification evidence live in
@@ -133,8 +132,8 @@ for ten persistent debugger slots, numbered 0-9. Slot files are written to `debu
 beside the private ROM as `SuperMetroid-debug-slot-N.smstate`; that is the file to attach to
 an issue when a failure depends on exact timing or late-game state. Loading replaces the
 complete managed frontend/runtime/address-space graph at the captured frame, refreshes the
-visible frame immediately, resets host audio buffers, and begins a new controller recording
-from the restored boundary.
+visible frame immediately, restores the managed SPC sequencer/DSP state, resets only the host
+audio buffers, and begins a new controller recording from the restored boundary.
 
 The state header records the slot, UTC timestamp, frame, game state, active room/state
 pointers, exact core/desktop build IDs, and ROM SHA-256. Missing, malformed, different-ROM,
@@ -237,13 +236,18 @@ cycle-accurate SNES PPU. Arbitrary room FX/HDMA, mosaic, window, priority, and s
 combinations remain to be implemented as they are encountered. A GPU-backed compositor is a
 separate performance task.
 
-Audio uses verbatim, pinned copies of the cartridge-derived sequencer and SNES DSP/BRR mixer
-under `native/SuperMetroid.AudioNative/vendor/sm`, reached through the narrow x64 bridge in
-that project. C# owns the retail bank-$80 music ring, three bank-$82 SFX
-handshakes, acknowledgement timing, and ROM upload-stream resolution; Windows `waveOut` owns
-only buffered delivery of the resulting 48 kHz stereo PCM. That separation keeps queue state
-and each translated producer inspectable in the managed debugger while avoiding host-authored
-replacement samples.
+Audio is a C# translation of Super Metroid's SPC sequencer and eight-voice S-DSP mixer. It
+implements pitch, pan/volume, ADSR and gain envelopes, Gaussian interpolation, noise, pitch
+modulation, voice borrowing, and the shared FIR echo buffer. C# also owns the retail bank-$80
+music ring, three bank-$82 SFX handshakes, and acknowledgement timing; Windows `waveOut` owns
+only buffered delivery of the resulting 48 kHz stereo PCM.
+
+Runtime upload commands resolve against the SHA-verified catalog in
+`../standalone-assets/audio`, not against the ROM or a native DLL. Its exact `.spcu` streams
+remain the playback source of truth. The accompanying JSON exposes track pointers, six-byte
+instrument/envelope records, BRR loop metadata, and all SFX routing tables, while per-bank WAV
+files provide lossless decoded views of the BRR samples for inspection. Unknown commands,
+malformed streams, missing assets, address misses, and digest mismatches throw explicitly.
 
 Every currently translated audio publisher is connected: title, intro, Ceres, room and boss
 music; file-select/options/pause feedback; Samus movement, damage, liquid, X-ray, Crystal Flash,
@@ -257,8 +261,17 @@ prerequisite for hearing those systems.
 
 Reserve-tank auto-refill, game-over/continue, ending/credits, both options submenus, and the full
 door-transition fade/scroll/wait owner now publish through the shared retail queue. Time-up and
-demo-only calls remain absent with those untranslated states. The native implementation translates
-Super Metroid's SPC program; it is intentionally not a general-purpose SPC700 instruction emulator.
+demo-only calls remain absent with those untranslated states. The managed implementation translates
+Super Metroid's sound driver; it is intentionally not a general-purpose SPC700 CPU emulator.
+
+The permanent ROM-free audio regression covers every music bank, all three SFX libraries,
+simultaneous SFX and cancellation, bank changes, stop, pause/resume, and track restoration. Its
+PCM and port-acknowledgement hashes were captured only after 6,336,000 samples and 13,440 port
+bytes matched the pinned native oracle exactly:
+
+```powershell
+dotnet run --project src/SuperMetroid.Game -- --managed-audio-audit
+```
 
 For a non-device smoke test that loads the private ROM, runs the real initial upload/music
 sequence, and proves the mixer produced nonzero PCM:
@@ -274,7 +287,7 @@ audible test tone, run:
 dotnet run --project src/SuperMetroid.Game -- --waveout-audit
 ```
 
-To replay an always-on controller journal through the native SPC without opening the window
+To replay an always-on controller journal through the managed SPC without opening the window
 or an audio endpoint (useful when an SFX handshake appears to block a door transition):
 
 ```powershell
@@ -344,12 +357,14 @@ inspection. Its optional diagnostic composition modes should not be confused wit
 
 ```powershell
 dotnet run --project src/SuperMetroid.AssetExtractor -- ../standalone-assets/raw ../standalone-assets/png
+dotnet run --project src/SuperMetroid.AssetExtractor -- audio ../standalone-assets/raw ../standalone-assets/audio
 dotnet run --project src/SuperMetroid.AssetExtractor -- room ../standalone-assets/raw ../standalone-assets/rooms/LandingSite.png
 ```
 
-The extractor produces named raw chunks, PNGs, manifests, and composed-room diagnostics. The
-game itself reads cartridge code/data directly; PNGs are inspectable artifacts rather than a
-replacement source of gameplay truth.
+The extractor produces named raw chunks, PNGs, manifests, composed-room diagnostics, exact SPC
+upload streams, audio metadata, and decoded BRR WAVs. Gameplay still reads general cartridge
+code/data directly; audio alone uses its extracted catalog at runtime. PNGs and WAVs are
+inspectable derivatives rather than replacement sources of gameplay truth.
 
 ## Testing policy
 

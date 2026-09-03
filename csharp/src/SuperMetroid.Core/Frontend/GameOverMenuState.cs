@@ -10,35 +10,31 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Retail game-over prompt at <c>$81:90AE-$81:93F7</c>.</summary>
 public sealed class GameOverMenuState
 {
-    private static readonly ushort[] MissileSpritemapIds = [0x37, 0x36, 0x35, 0x34];
-
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState audio;
     private readonly MenuPpuState ppu;
     private readonly OamBuffer oam = new();
     private readonly ControllerInputState controller = new();
-    private readonly ushort[] tilemap = new ushort[32 * 32];
+    private readonly ushort[] tilemap =
+        new ushort[GameOverRomData.TilemapWidth * GameOverRomData.TilemapHeight];
     private int brightness;
     private int missileTimer = 1;
     private int missileFrame;
     private ushort babyInstructionPointer;
     private ushort babyInstructionTimer;
-    private ushort babySpritemap = 0x65;
+    private ushort babySpritemap = GameOverRomData.BabyAnimation.InitialSpritemap;
 
     public GameOverMenuState(ISnesAddressSpace bus, CartridgeAudioState audio)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio ?? throw new ArgumentNullException(nameof(audio));
         ppu = new MenuPpuState(bus);
-        Array.Fill(tilemap, (ushort)0x000f);
+        Array.Fill(tilemap, GameOverRomData.BlankTile.Raw);
 
         // GameOverMenu_1_Init uses the general bank-$81 command-stream loader. These five
         // pointers are the cartridge's localized text and line breaks, not host strings.
-        LoadMenuTilemap(0x0156, 0x92dc); // GAME OVER.
-        LoadMenuTilemap(0x038a, 0x9304); // FIND THE METROID LARVA.
-        LoadMenuTilemap(0x0414, 0x9334); // TRY AGAIN?
-        LoadMenuTilemap(0x04ce, 0x934c); // YES - RETURN TO GAME.
-        LoadMenuTilemap(0x05ce, 0x93a0); // NO - GO TO TITLE.
+        foreach (GameOverTextStream stream in GameOverRomData.Text.All)
+            LoadMenuTilemap(stream);
         ppu.Vram.ExecuteWordTransfer(tilemap, MenuPpuState.Bg1TilemapWord, 1);
         Phase = GameOverMenuPhase.Initialize;
     }
@@ -52,6 +48,12 @@ public sealed class GameOverMenuState
 
     public bool TitleRequested { get; private set; }
 
+    /// <summary>Currently displayed Baby Metroid frame, exposed for deterministic replay.</summary>
+    public ushort BabySpritemap => babySpritemap;
+
+    /// <summary>Current bank-$82 Baby instruction pointer, exposed for debugger inspection.</summary>
+    public ushort BabyInstructionPointer => babyInstructionPointer;
+
     public void Step(ushort controllerInput)
     {
         controller.Latch(controllerInput);
@@ -62,7 +64,7 @@ public sealed class GameOverMenuState
         {
             case GameOverMenuPhase.Initialize:
                 audio.QueueMusicDelayed8(MusicCommand.Stop);
-                audio.QueueMusicDelayed8(MusicCommand.LoadData(0x03));
+                audio.QueueMusicDelayed8(MusicCommand.LoadData(GameOverRomData.Music.DataIndex));
                 babyInstructionPointer = 0;
                 babyInstructionTimer = 0;
                 StepBabyMetroid();
@@ -75,15 +77,16 @@ public sealed class GameOverMenuState
                 StepBabyMetroid();
                 if (!audio.HasQueuedMusic)
                 {
-                    audio.QueueMusicDelayed8(MusicCommand.SelectTrack(4));
+                    audio.QueueMusicDelayed8(
+                        MusicCommand.SelectTrack(GameOverRomData.Music.TrackIndex));
                     Phase = GameOverMenuPhase.FadeIn;
                 }
                 break;
 
             case GameOverMenuPhase.FadeIn:
                 StepBabyMetroid();
-                brightness = Math.Min(15, brightness + 1);
-                if (brightness == 15)
+                brightness = Math.Min(GameOverRomData.MaximumBrightness, brightness + 1);
+                if (brightness == GameOverRomData.MaximumBrightness)
                     Phase = GameOverMenuPhase.Main;
                 break;
 
@@ -91,14 +94,17 @@ public sealed class GameOverMenuState
                 StepBabyMetroid();
                 if ((pressed & (SnesButton.Select | SnesButton.Up | SnesButton.Down)) != 0)
                 {
-                    audio.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+                    audio.QueueSound(
+                        SoundEffectLibrary1Sounds.MenuCursor,
+                        maximumQueued: GameOverRomData.MaximumQueuedSounds);
                     SelectedItem ^= 1;
                 }
                 else if ((pressed & SnesButton.A) != 0)
                 {
                     // `$81:914B` holds the current Baby frame for 180 ticks once either
                     // answer is accepted, while the selected fade owner continues drawing.
-                    babyInstructionTimer = 180;
+                    babyInstructionTimer =
+                        GameOverRomData.BabyAnimation.AcceptedAnswerHoldDuration;
                     Phase = SelectedItem == 0
                         ? GameOverMenuPhase.FadeOutToContinue
                         : GameOverMenuPhase.FadeOutToTitle;
@@ -127,16 +133,34 @@ public sealed class GameOverMenuState
     public Rgba32[] Render()
     {
         // `TM=$11` enables BG1 and OBJ only. Game-over does not retain the menu starfield.
-        Rgba32[] output = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224);
+        Rgba32[] output = SnesLayerCompositor.CreateBackdrop(
+            ppu.Cgram,
+            FrontendFrame.Width * FrontendFrame.Height);
         Rgba32[] foreground = SnesBgTilemapRenderer.Render4BppViewport(
-            ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, 0, 0, 256, 224, 32, 32);
+            ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, 0, 0,
+            FrontendFrame.Width, FrontendFrame.Height,
+            GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight);
         SnesLayerCompositor.Composite(output, foreground);
 
         oam.BeginFrame();
-        DrawMenuSpritemap(babySpritemap, 0x7c, 0x50, paletteBits: 0x0800);
-        DrawMenuSpritemap(0x64, 0x7c, 0x50, paletteBits: 0x0a00);
-        ushort missileY = SelectedItem == 0 ? (ushort)160 : (ushort)192;
-        DrawMenuSpritemap(MissileSpritemapIds[missileFrame], 40, missileY, MenuPpuState.ObjectPaletteBits);
+        DrawMenuSpritemap(
+            babySpritemap,
+            GameOverRomData.Sprites.BabyX,
+            GameOverRomData.Sprites.BabyY,
+            GameOverRomData.Sprites.BabyPalette.Raw);
+        DrawMenuSpritemap(
+            GameOverRomData.Sprites.EggSpritemap,
+            GameOverRomData.Sprites.BabyX,
+            GameOverRomData.Sprites.BabyY,
+            GameOverRomData.Sprites.EggPalette.Raw);
+        ushort missileY = SelectedItem == 0
+            ? GameOverRomData.Sprites.YesMissileY
+            : GameOverRomData.Sprites.NoMissileY;
+        DrawMenuSpritemap(
+            GameOverRomData.Sprites.MissileFrameIds[missileFrame],
+            GameOverRomData.Sprites.MissileX,
+            missileY,
+            MenuPpuState.ObjectPaletteBits);
         oam.FinalizeFrame();
         SnesLayerCompositor.Composite(
             output,
@@ -150,8 +174,8 @@ public sealed class GameOverMenuState
     {
         if (babyInstructionTimer == 0)
         {
-            babyInstructionPointer = 0xbc27;
-            babyInstructionTimer = 10;
+            babyInstructionPointer = GameOverRomData.BabyAnimation.FirstInstruction;
+            babyInstructionTimer = GameOverRomData.BabyAnimation.InitialFrameDuration;
         }
 
         babyInstructionTimer = unchecked((ushort)(babyInstructionTimer - 1));
@@ -162,60 +186,60 @@ public sealed class GameOverMenuState
 
     private void AdvanceBabyInstruction()
     {
-        ushort next = ReadBank82Word(unchecked((ushort)(babyInstructionPointer + 6)));
-        if (next == 0xffff)
+        ushort next = ReadBank82Word(unchecked((ushort)(
+            babyInstructionPointer + GameOverRomData.BabyAnimation.NextInstructionOffset)));
+        if (next == GameOverRomData.BabyAnimation.End)
         {
-            babyInstructionPointer = 0xbc27;
-            babyInstructionTimer = 10;
+            babyInstructionPointer = GameOverRomData.BabyAnimation.FirstInstruction;
+            babyInstructionTimer = GameOverRomData.BabyAnimation.InitialFrameDuration;
             return;
         }
 
         if ((next & 0x8000) != 0)
         {
-            byte cry = next switch
-            {
-                0xbc0c => 0x23,
-                0xbc15 => 0x26,
-                0xbc1e => 0x27,
-                _ => throw new InvalidDataException(
-                    $"Unknown game-over Baby instruction $82:{next:X4}."),
-            };
-            audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, cry), maximumQueued: 6);
-            babyInstructionPointer = unchecked((ushort)(babyInstructionPointer + 8));
+            audio.QueueSound(
+                GameOverRomData.BabyAnimation.ResolveCry(next),
+                maximumQueued: GameOverRomData.MaximumQueuedSounds);
+            babyInstructionPointer = unchecked((ushort)(
+                babyInstructionPointer + GameOverRomData.BabyAnimation.SoundInstructionByteCount));
             babyInstructionTimer = ReadBank82Word(babyInstructionPointer);
         }
         else
         {
-            babyInstructionPointer = unchecked((ushort)(babyInstructionPointer + 6));
+            babyInstructionPointer = unchecked((ushort)(
+                babyInstructionPointer + GameOverRomData.BabyAnimation.FrameByteCount));
             babyInstructionTimer = next;
         }
     }
 
     private void LoadCurrentBabyFrame()
     {
-        babySpritemap = ReadBank82Word(unchecked((ushort)(babyInstructionPointer + 2)));
-        ushort palettePointer = ReadBank82Word(unchecked((ushort)(babyInstructionPointer + 4)));
-        for (int color = 0; color < 16; color++)
+        babySpritemap = ReadBank82Word(unchecked((ushort)(
+            babyInstructionPointer + GameOverRomData.BabyAnimation.SpritemapOffset)));
+        ushort palettePointer = ReadBank82Word(unchecked((ushort)(
+            babyInstructionPointer + GameOverRomData.BabyAnimation.PalettePointerOffset)));
+        for (int color = 0; color < GameOverRomData.BabyAnimation.PaletteColorCount; color++)
         {
             ppu.Cgram.SetColor(
-                0xc0 + color,
+                GameOverRomData.BabyAnimation.PaletteDestinationIndex + color,
                 ReadBank82Word(unchecked((ushort)(palettePointer + color * 2))));
         }
     }
 
-    private void LoadMenuTilemap(int destinationByteOffset, ushort sourcePointer)
+    private void LoadMenuTilemap(GameOverTextStream stream)
     {
+        int destinationByteOffset = stream.DestinationByteOffset;
         int initialColumn = destinationByteOffset;
-        int sourceAddress = 0x810000 | sourcePointer;
+        int sourceAddress = GameOverRomData.TextBank | stream.SourcePointer;
         while (true)
         {
             ushort word = RomDataReader.ReadWordFixedBank(bus, sourceAddress);
-            sourceAddress = 0x810000 | ((sourceAddress + 2) & 0xffff);
-            if (word == 0xffff)
+            sourceAddress = GameOverRomData.TextBank | ((sourceAddress + 2) & 0xffff);
+            if (word == GameOverRomData.TextEnd)
                 return;
-            if (word == 0xfffe)
+            if (word == GameOverRomData.TextNextLine)
             {
-                initialColumn += 64;
+                initialColumn += GameOverRomData.TilemapRowByteCount;
                 destinationByteOffset = initialColumn;
                 continue;
             }
@@ -237,18 +261,18 @@ public sealed class GameOverMenuState
         ushort pointer = RomDataReader.ReadWordFixedBank(
             bus,
             MenuPpuState.SpritemapPointerTableAddress + spritemapId * 2);
-        oam.AddOnScreenSpritemap(bus, 0x820000 | pointer, x, y, paletteBits);
+        oam.AddOnScreenSpritemap(bus, GameOverRomData.SpriteBank | pointer, x, y, paletteBits);
     }
 
     private ushort ReadBank82Word(ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(bus, 0x820000 | pointer);
+        RomDataReader.ReadWordFixedBank(bus, GameOverRomData.SpriteBank | pointer);
 
     private void StepMissileAnimation()
     {
         if (--missileTimer != 0)
             return;
-        missileFrame = (missileFrame + 1) & 3;
-        missileTimer = 8;
+        missileFrame = (missileFrame + 1) % GameOverRomData.Sprites.MissileFrameIds.Length;
+        missileTimer = GameOverRomData.Sprites.MissileFrameDuration;
     }
 }
 

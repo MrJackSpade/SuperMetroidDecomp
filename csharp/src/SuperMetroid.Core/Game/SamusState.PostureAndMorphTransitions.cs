@@ -283,7 +283,7 @@ public sealed partial class SamusState
             if (!EquippedItems.HasAny(SamusEquipmentFlags.MorphBall))
                 return false;
 
-            byte previousMovementType = ReadMovementType(bus);
+            SamusMovementType previousMovementType = ReadMovementType(bus);
             ushort previousRadius = Kinematics.YRadius;
             Pose = targetPose;
             RefreshCollisionRadii(bus);
@@ -297,7 +297,7 @@ public sealed partial class SamusState
 
             // `$91:F7D6-$F7E4` deliberately recognizes a spin-jump source and forces mode
             // two so the compact body retains decelerating aerial momentum after morphing.
-            if (previousMovementType == 3)
+            if (previousMovementType == SamusMovementType.SpinJumping)
                 HorizontalSpeed.AccelerationMode = 2;
 
             // This is `$91:F7E7`, not the arm-cannon flare counter. Bomb-spread charging is
@@ -900,7 +900,7 @@ public sealed partial class SamusState
         bool startsMoonwalkJump = IsMoonwalkTurnJumpPose(Pose) &&
             targetPose is SamusPoseIds.SpinJumpRightPose or SamusPoseIds.SpinJumpLeftPose;
         byte sourcePose = Pose;
-        byte previousMovementType = ReadMovementType(bus, sourcePose);
+        SamusMovementType previousMovementType = ReadMovementType(bus, sourcePose);
 
         // `$91:F404` runs movement-type initialization after the animation command has
         // selected the new normal-jump pose but before it initializes that pose's frame.

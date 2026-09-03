@@ -421,7 +421,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level)
     {
         ushort tablePointer;
-        if (samus?.ReadMovementType(_bus!) == 3)
+        if (samus?.ReadMovementType(_bus!) == SamusMovementType.SpinJumping)
         {
             tablePointer = 0xb3cc;
         }
@@ -532,7 +532,7 @@ public sealed partial class RoomEnemySystem
             ReadRidleyHealthMovementDivisorIndex(state));
         state.TailWhipRequest = 1;
 
-        if (samus?.ReadMovementType(_bus!) != 3)
+        if (samus?.ReadMovementType(_bus!) != SamusMovementType.SpinJumping)
         {
             BeginNorfairRidleyGroundAttack(state);
             return;
@@ -757,9 +757,9 @@ public sealed partial class RoomEnemySystem
         state.GrabState = 0;
         state.TailWhipRequest = 1;
         state.TailFunctionIndex = 1;
-        byte movement = samus?.ReadMovementType(_bus!) ?? 0;
-        bool shortRelease = movement < RidleySamusMovementFlags.Length &&
-            (RidleySamusMovementFlags[movement] & 0x40) != 0;
+        SamusMovementType movement = samus?.ReadMovementType(_bus!) ?? SamusMovementType.Standing;
+        bool shortRelease = (byte)movement < RidleySamusMovementFlags.Length &&
+            (RidleySamusMovementFlags[(byte)movement] & 0x40) != 0;
         state.IntangibilityTimer = shortRelease ? (ushort)6 : (ushort)10;
     }
 
@@ -845,9 +845,9 @@ public sealed partial class RoomEnemySystem
     {
         if (samus is null)
             return false;
-        byte movement = samus.ReadMovementType(_bus!);
-        return movement < RidleySamusMovementFlags.Length &&
-            (RidleySamusMovementFlags[movement] & 0x80) != 0;
+        SamusMovementType movement = samus.ReadMovementType(_bus!);
+        return (byte)movement < RidleySamusMovementFlags.Length &&
+            (RidleySamusMovementFlags[(byte)movement] & 0x80) != 0;
     }
 
     private void MoveNorfairRidleyToward(

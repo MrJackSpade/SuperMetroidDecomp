@@ -325,7 +325,7 @@ static void VerifySamusXray()
     standing.InitializeAnimation(bus);
 
     AssertTrue(
-        standing.Xray.TryBegin(bus, standing, previousMovementType: 0),
+        standing.Xray.TryBegin(bus, standing, previousMovementType: SamusMovementType.Standing),
         "standing X-ray setup accepted");
     AssertEqual(0xd5, standing.Pose, "right standing X-ray pose");
     AssertEqual(21, standing.Kinematics.YRadius, "standing X-ray radius");
@@ -480,7 +480,10 @@ static void VerifySamusXray()
     };
     crouched.RefreshCollisionRadii(bus);
     crouched.InitializeAnimation(bus);
-    AssertTrue(crouched.Xray.TryBegin(bus, crouched, previousMovementType: 5),
+    AssertTrue(crouched.Xray.TryBegin(
+        bus,
+        crouched,
+        previousMovementType: SamusMovementType.Crouching),
         "crouched X-ray setup accepted");
     AssertEqual(0xd9, crouched.Pose, "right crouched X-ray pose");
     AssertEqual(16, crouched.Kinematics.YRadius, "crouched X-ray radius");
@@ -520,20 +523,23 @@ static void VerifySamusXray()
     bus.WriteBytes(0x91c700, [0x01, 0xff]);
     bus.WriteBytes(0x91c710, [0x01, 0xff]);
     var landing = Rejected(SamusPoseIds.NormalLandingRightPose);
-    AssertTrue(!landing.Xray.TryBegin(bus, landing, previousMovementType: 0),
+    AssertTrue(!landing.Xray.TryBegin(bus, landing, previousMovementType: SamusMovementType.Standing),
         "X-ray rejects landing pose");
     var movingVertically = Rejected(SamusPoseIds.FacingRightNormalPose, ySubspeed: 1);
-    AssertTrue(!movingVertically.Xray.TryBegin(bus, movingVertically, previousMovementType: 0),
+    AssertTrue(!movingVertically.Xray.TryBegin(
+        bus,
+        movingVertically,
+        previousMovementType: SamusMovementType.Standing),
         "X-ray rejects fractional Y velocity");
     var badPrevious = Rejected(SamusPoseIds.FacingRightNormalPose);
-    AssertTrue(!badPrevious.Xray.TryBegin(bus, badPrevious, previousMovementType: 6),
+    AssertTrue(!badPrevious.Xray.TryBegin(bus, badPrevious, previousMovementType: SamusMovementType.Falling),
         "X-ray rejects unsupported previous movement type");
     var fiveBombQuirk = Rejected(SamusPoseIds.FacingRightNormalPose);
     fiveBombQuirk.XSpeedDivisor = 2;
     AssertTrue(!fiveBombQuirk.Xray.TryBegin(
         bus,
         fiveBombQuirk,
-        previousMovementType: 0,
+        previousMovementType: SamusMovementType.Standing,
         projectileCooldownTimer: 7,
         bombCounter: 5),
         "X-ray preserves five-bomb cooldown/divisor rejection");
@@ -618,7 +624,7 @@ static void VerifySamusDeathSequence()
         samus,
         layer1X: 0x03e0,
         layer1Y: 0x0400);
-    AssertEqual(0, start.SourceMovementType, "death source standing type");
+    AssertEqual(SamusMovementType.Standing, start.SourceMovementType, "death source standing type");
     AssertEqual(0xd7, start.DeathPose, "death selects right pose");
     AssertEqual(5, start.InitialFrame, "ordinary death starts unmorphed frame five");
     AssertEqual(0x00a0, start.ScreenX, "death captures screen X");

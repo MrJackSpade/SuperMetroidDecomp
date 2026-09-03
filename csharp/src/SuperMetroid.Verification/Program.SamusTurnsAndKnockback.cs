@@ -88,7 +88,7 @@ static void VerifySamusAerialTurnsAndWallJump()
     WriteTestWord(bus, 0x91b010 + 0x6a * 2, 0xc110);
     bus.WriteBytes(0x91c100, [2, 2, 2, 0xf8, 0x6a]);
     bus.WriteBytes(0x91c110, [3]);
-    WriteSpeedRecord(bus, movementType: 0x17, accelerationSub: 0, maximumSpeed: 2, decelerationSub: 0x1000);
+    WriteSpeedRecord(bus, movementType: SamusMovementType.TurningWhileJumping, accelerationSub: 0, maximumSpeed: 2, decelerationSub: 0x1000);
     WriteTestWord(bus, 0x909ea1, 0x2800);
     WriteTestWord(bus, 0x909ea7, 0);
     var turn = new SamusState { Pose = 0x69, XPosition = 32, YPosition = 48 };
@@ -115,8 +115,8 @@ static void VerifySamusAerialTurnsAndWallJump()
     WriteTestWord(bus, 0x91b010 + 0x83 * 2, 0xc220);
     bus.WriteBytes(0x91c200, [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0xff]);
     bus.WriteBytes(0x91c220, [4, 4, 0xfb, 2, 2, 2, 2, 2, 2, 2, 2, 0xfe, 8]);
-    WriteSpeedRecord(bus, movementType: 3, accelerationSub: 0x2000, maximumSpeed: 1, decelerationSub: 0x1000);
-    WriteSpeedRecord(bus, movementType: 0x14, accelerationSub: 0x1000, maximumSpeed: 1, decelerationSub: 0x1000);
+    WriteSpeedRecord(bus, movementType: SamusMovementType.SpinJumping, accelerationSub: 0x2000, maximumSpeed: 1, decelerationSub: 0x1000);
+    WriteSpeedRecord(bus, movementType: SamusMovementType.WallJumping, accelerationSub: 0x1000, maximumSpeed: 1, decelerationSub: 0x1000);
     WriteTestWord(bus, 0x909ed1, 4);
     WriteTestWord(bus, 0x909ed7, 0xa000);
 
@@ -243,12 +243,12 @@ static void VerifySamusAerialTurnsAndWallJump()
 
     void WriteSpeedRecord(
         TestAddressSpace addressSpace,
-        byte movementType,
+        SamusMovementType movementType,
         ushort accelerationSub,
         ushort maximumSpeed,
         ushort decelerationSub)
     {
-        int address = 0x909f55 + movementType * 12;
+        int address = 0x909f55 + (byte)movementType * 12;
         WriteTestWord(addressSpace, address + 0, 0);
         WriteTestWord(addressSpace, address + 2, accelerationSub);
         WriteTestWord(addressSpace, address + 4, maximumSpeed);
@@ -455,7 +455,10 @@ static void VerifySamusKnockbackAndDamageBoost()
         SamusPoseIds.KnockbackRightPose,
         SamusPoseIds.DamageBoostRightPose);
     AssertEqual(SamusPoseIds.DamageBoostRightPose, samus.Pose, "damage-boost entry pose");
-    AssertEqual(0x19, samus.ReadMovementType(bus), "damage-boost movement type");
+    AssertEqual(
+        SamusMovementType.DamageBoost,
+        samus.ReadMovementType(bus),
+        "damage-boost movement type");
     AssertTrue(!samus.KnockbackActive, "damage boost restores normal handler");
     AssertEqual(0, samus.KnockbackDirection, "damage boost clears knockback direction");
     AssertEqual(0, samus.KnockbackTimer, "damage boost clears hurt timer");
@@ -575,7 +578,10 @@ static void VerifySamusKnockbackAndDamageBoost()
             ball,
             controllerInput: (ushort)(SnesButton.Left | SnesButton.Right),
             knockbackXDirection: hitSide);
-        AssertEqual(pose, ball.Pose, $"morphed type ${ball.ReadMovementType(bus):X2} retains pose");
+        AssertEqual(
+            pose,
+            ball.Pose,
+            $"morphed type ${(byte)ball.ReadMovementType(bus):X2} retains pose");
         AssertEqual(expectedDirection, ball.KnockbackDirection,
             $"morphed pose ${pose:X2} chooses direction from facing only");
         AssertEqual(preservedFrame, ball.AnimationFrame,

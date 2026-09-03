@@ -206,7 +206,7 @@ public static class SamusGroundedMovement
         // Booster, B establishes momentum, adds exactly 0.1000 per frame, and caps the
         // extra component at 2.0000. The flag retains that component after B is released.
         speed.HandleExtraRunSpeed(
-            movementType: 1,
+            movementType: SamusMovementType.Running,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
@@ -217,7 +217,7 @@ public static class SamusGroundedMovement
         // modes zero and two obey the pose's direction byte, while every other nonzero
         // value reverses it. Mode one is therefore not an invalid running state; it is the
         // one-frame-old momentum that can survive a pose transition into this body.
-        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 1);
+        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: SamusMovementType.Running);
         bool movesLeft = speed.AccelerationMode is not (0 or 2);
         int requestedHorizontal = movesLeft
             ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
@@ -269,7 +269,7 @@ public static class SamusGroundedMovement
         speed.SelectEnvironmentSpeedTable(liquidMedium);
 
         speed.HandleExtraRunSpeed(
-            movementType: 1,
+            movementType: SamusMovementType.Running,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
@@ -278,7 +278,7 @@ public static class SamusGroundedMovement
         // Do not special-case mode one here. `$90:8EA9` reverses the literal pose direction
         // for every nonzero mode except two, even if another input-side transition has
         // already changed the visible running pose.
-        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 1);
+        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: SamusMovementType.Running);
         bool movesLeft = speed.AccelerationMode is 0 or 2;
         int requestedHorizontal = movesLeft
             ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
@@ -327,12 +327,13 @@ public static class SamusGroundedMovement
                 $"Grounded-turn movement requires a verified standing, crouched, or moonwalk turn pose, not ${samus.Pose:X2}.");
         }
 
-        byte movementType = samus.ReadMovementType(bus);
-        if (movementType is not (0x0e or 0x17))
-            throw new InvalidOperationException($"Grounded turn pose ${samus.Pose:X2} has movement type ${movementType:X2}.");
-        if (movementType == 0x17 && !SamusState.IsAimedCrouchingTurnPose(samus.Pose))
+        SamusMovementType movementType = samus.ReadMovementType(bus);
+        if (movementType is not (SamusMovementType.TurningOnGround or SamusMovementType.TurningWhileJumping))
+            throw new InvalidOperationException(
+                $"Grounded turn pose ${samus.Pose:X2} has movement type ${(byte)movementType:X2}.");
+        if (movementType == SamusMovementType.TurningWhileJumping && !SamusState.IsAimedCrouchingTurnPose(samus.Pose))
             throw new InvalidOperationException($"Grounded type-$17 admission requires an aimed crouched turn, not ${samus.Pose:X2}.");
-        if (movementType == 0x17 && samus.Kinematics.YDirection != 0)
+        if (movementType == SamusMovementType.TurningWhileJumping && samus.Kinematics.YDirection != 0)
         {
             throw new InvalidOperationException(
                 $"Airborne type-$17 turn pose ${samus.Pose:X2} must execute through SamusAerialMovement.StepTurningInAir.");
@@ -406,7 +407,8 @@ public static class SamusGroundedMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
-        if (!SamusState.IsMoonwalkingPose(samus.Pose) || samus.ReadMovementType(bus) != 0x10)
+        if (!SamusState.IsMoonwalkingPose(samus.Pose) ||
+            samus.ReadMovementType(bus) != SamusMovementType.Moonwalking)
         {
             throw new InvalidOperationException(
                 $"Moonwalking movement requires pose $49/$4A/$75-$78, not ${samus.Pose:X2}.");
@@ -421,7 +423,7 @@ public static class SamusGroundedMovement
         // existing momentum flag deliberately carries the extra pair through moonwalking;
         // without the flag the pair is cleared before displacement is calculated.
         speed.HandleExtraRunSpeed(
-            movementType: 0x10,
+            movementType: SamusMovementType.Moonwalking,
             controllerInput: 0,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
@@ -430,7 +432,7 @@ public static class SamusGroundedMovement
         // Type `$10` has its own twelve-byte speed record. Its pose-X bytes intentionally
         // produce travel opposite the visible facing; mode one reverses that byte just as it
         // does for every other family. Do not derive either direction from the pose's name.
-        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 0x10);
+        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: SamusMovementType.Moonwalking);
         int requestedHorizontal = CalculateDirectedHorizontalDisplacement(
             bus,
             samus,
@@ -495,7 +497,8 @@ public static class SamusGroundedMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
-        if (!SamusState.IsRanIntoWallPose(samus.Pose) || samus.ReadMovementType(bus) != 0x15)
+        if (!SamusState.IsRanIntoWallPose(samus.Pose) ||
+            samus.ReadMovementType(bus) != SamusMovementType.RanIntoWall)
         {
             throw new InvalidOperationException(
                 $"Ran-into-wall movement requires pose $89/$8A/$CF-$D2, not ${samus.Pose:X2}.");
@@ -608,7 +611,7 @@ public static class SamusGroundedMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
-        if (samus.ReadMovementType(bus) != 0x0a)
+        if (samus.ReadMovementType(bus) != SamusMovementType.Knockback)
         {
             throw new InvalidOperationException(
                 $"Knockback-ending movement requires type $0A, not pose ${samus.Pose:X2}.");

@@ -153,9 +153,9 @@ public sealed class HudState
             ToggleItemHighlight(_previousSelectedItem, paletteBits: 0x1400);
             _previousSelectedItem = samus.SelectedHudItem;
 
-            byte movementType = samus.ReadMovementType(bus);
+            SamusMovementType movementType = samus.ReadMovementType(bus);
             SelectionSoundRequestedThisFrame =
-                movementType is not (3 or 20) &&
+                movementType is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
                 !timeIsFrozen;
         }

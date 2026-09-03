@@ -97,9 +97,9 @@ static void VerifySamusHorizontalSpeed()
 
     var speed = new SamusHorizontalSpeedState();
     speed.SelectNormalAirSpeedTable();
-    AssertEqual(0x909f61, speed.ResolveEntryAddress(movementType: 1), "running speed entry pointer chain");
+    AssertEqual(0x909f61, speed.ResolveEntryAddress(movementType: SamusMovementType.Running), "running speed entry pointer chain");
 
-    SpeedTableEntry entry = speed.ReadEntry(bus, movementType: 1);
+    SpeedTableEntry entry = speed.ReadEntry(bus, movementType: SamusMovementType.Running);
     AssertEqual(0x0000, entry.Acceleration, "running acceleration whole word");
     AssertEqual(0x3000, entry.AccelerationSubspeed, "running acceleration fraction");
     AssertEqual(0x0002, entry.MaximumSpeed, "running maximum whole word");
@@ -108,15 +108,15 @@ static void VerifySamusHorizontalSpeed()
 
     // Four acceleration calls produce 0.C000 exactly. Fifteen calls would reach 2.D000,
     // so the native quirked comparison clamps that result down to the table's 2.C000 cap.
-    StepFrames(4, _ => speed.CalculateBaseSpeed(bus, movementType: 1));
+    StepFrames(4, _ => speed.CalculateBaseSpeed(bus, movementType: SamusMovementType.Running));
     AssertEqual(0x0000c000u, speed.BaseFixed, "running acceleration after four calls");
-    StepFrames(11, _ => speed.CalculateBaseSpeed(bus, movementType: 1));
+    StepFrames(11, _ => speed.CalculateBaseSpeed(bus, movementType: SamusMovementType.Running));
     AssertEqual(0x0002c000u, speed.BaseFixed, "running acceleration clamps at 2.C000");
 
     // Deceleration subtracts 0.8000 per call. Crossing below zero makes the signed high
     // word negative, clearing both halves and restoring acceleration mode zero.
     speed.AccelerationMode = 2;
-    StepFrames(6, _ => speed.CalculateBaseSpeed(bus, movementType: 1));
+    StepFrames(6, _ => speed.CalculateBaseSpeed(bus, movementType: SamusMovementType.Running));
     AssertEqual(0u, speed.BaseFixed, "running deceleration underflow clears speed");
     AssertEqual(0, speed.AccelerationMode, "running deceleration restores acceleration mode");
 
@@ -125,25 +125,25 @@ static void VerifySamusHorizontalSpeed()
     // performs the visible clamp write without changing the pair.
     StepFrames(32, _ =>
         speed.HandleExtraRunSpeed(
-            movementType: 1,
+            movementType: SamusMovementType.Running,
             controllerInput: (ushort)SnesButton.B,
             speedBoosterEquipped: false));
     AssertTrue(speed.HasRunningMomentum, "ordinary Dash establishes native momentum flag");
     AssertEqual(0, speed.SpeedBoostCounter, "ordinary Dash leaves booster stage zero");
     AssertEqual(2, speed.ExtraRunSpeed, "ordinary Dash whole-speed cap");
     AssertEqual(0, speed.ExtraRunSubspeed, "ordinary Dash fractional-speed cap");
-    speed.HandleExtraRunSpeed(1, (ushort)SnesButton.B, speedBoosterEquipped: false);
+    speed.HandleExtraRunSpeed(SamusMovementType.Running, (ushort)SnesButton.B, speedBoosterEquipped: false);
     AssertEqual(2, speed.ExtraRunSpeed, "ordinary Dash remains clamped on next call");
 
     // B release and an airborne movement type both take `$90:9808`; a set momentum flag
     // bypasses the numeric clear. Only the separately invoked cancel routine clears the
     // flag/counter, after which another non-running call clears the retained pair.
-    speed.HandleExtraRunSpeed(1, controllerInput: 0, speedBoosterEquipped: false);
-    speed.HandleExtraRunSpeed(3, controllerInput: 0, speedBoosterEquipped: false);
+    speed.HandleExtraRunSpeed(SamusMovementType.Running, controllerInput: 0, speedBoosterEquipped: false);
+    speed.HandleExtraRunSpeed(SamusMovementType.SpinJumping, controllerInput: 0, speedBoosterEquipped: false);
     AssertEqual(2, speed.ExtraRunSpeed, "Dash release and spin jump retain extra speed");
     speed.CancelRunningMomentum(poseXDirection: 8);
     AssertTrue(!speed.HasRunningMomentum, "CancelSpeedBoost clears ordinary momentum flag");
-    speed.HandleExtraRunSpeed(3, controllerInput: 0, speedBoosterEquipped: false);
+    speed.HandleExtraRunSpeed(SamusMovementType.SpinJumping, controllerInput: 0, speedBoosterEquipped: false);
     AssertEqual(0, speed.ExtraRunSpeed, "post-cancel airborne handler clears extra speed");
 
     // The animation side reads its ordinary-Dash cadence through the live pointer at
@@ -157,7 +157,7 @@ static void VerifySamusHorizontalSpeed()
     var dashAnimation = new SamusState { Pose = SamusPoseIds.MovingRightNormalPose };
     dashAnimation.InitializeAnimation(bus);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
-        movementType: 1,
+        movementType: SamusMovementType.Running,
         controllerInput: (ushort)SnesButton.B,
         speedBoosterEquipped: false);
     for (int tick = 0; tick < 9; tick++)
@@ -181,7 +181,7 @@ static void VerifySamusHorizontalSpeed()
 
     var booster = new SamusHorizontalSpeedState();
     booster.HandleExtraRunSpeed(
-        movementType: 1,
+        movementType: SamusMovementType.Running,
         controllerInput: (ushort)SnesButton.B,
         speedBoosterEquipped: true,
         bus);
@@ -193,7 +193,7 @@ static void VerifySamusHorizontalSpeed()
     for (int frame = 1; frame < 112; frame++)
     {
         booster.HandleExtraRunSpeed(
-            movementType: 1,
+            movementType: SamusMovementType.Running,
             controllerInput: (ushort)SnesButton.B,
             speedBoosterEquipped: true,
             bus);
@@ -206,7 +206,7 @@ static void VerifySamusHorizontalSpeed()
     {
         bool intercepted = booster.TryAdvanceSpeedBoosterAnimationStage(
             bus,
-            movementType: 1,
+            movementType: SamusMovementType.Running,
             controllerInput: (ushort)SnesButton.B,
             animationFrameBuffer: 0,
             ref boostFrame,
@@ -241,7 +241,7 @@ static void VerifySamusHorizontalSpeed()
 
     var boostCgram = new SnesCgram();
     AssertTrue(booster.UpdateSpeedBoosterPalette(
-        bus, boostCgram, movementType: 1, animationFrame: 0, equippedItems: 0x2000),
+        bus, boostCgram, movementType: SamusMovementType.Running, animationFrame: 0, equippedItems: 0x2000),
         "stage-four palette timer one copies immediately");
     AssertEqual(0x1234, boostCgram.Colors[192], "first Speed Booster palette comes from bank $9B");
     AssertEqual(2, booster.SpecialPaletteFrame, "Speed Booster palette advances to pointer offset two");
@@ -249,11 +249,11 @@ static void VerifySamusHorizontalSpeed()
     for (int paletteTick = 0; paletteTick < 3; paletteTick++)
     {
         AssertTrue(!booster.UpdateSpeedBoosterPalette(
-            bus, boostCgram, movementType: 1, animationFrame: 0, equippedItems: 0x2000),
+            bus, boostCgram, movementType: SamusMovementType.Running, animationFrame: 0, equippedItems: 0x2000),
             "Speed Booster palette waits during positive timer");
     }
     AssertTrue(booster.UpdateSpeedBoosterPalette(
-        bus, boostCgram, movementType: 1, animationFrame: 0, equippedItems: 0x2000),
+        bus, boostCgram, movementType: SamusMovementType.Running, animationFrame: 0, equippedItems: 0x2000),
         "fourth Speed Booster palette tick copies next frame");
     AssertEqual(0x4567, boostCgram.Colors[192], "second Speed Booster palette pointer");
 
@@ -271,7 +271,7 @@ static void VerifySamusHorizontalSpeed()
     AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(
         bus,
         submergedBoostCgram,
-        movementType: 1,
+        movementType: SamusMovementType.Running,
         animationFrame: 0,
         equippedItems: 0x2000,
         bottomBoundarySubmerged: true),
@@ -279,7 +279,7 @@ static void VerifySamusHorizontalSpeed()
     AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(
         bus,
         submergedBoostCgram,
-        movementType: 1,
+        movementType: SamusMovementType.Running,
         animationFrame: 0,
         equippedItems: 0x2001,
         bottomBoundarySubmerged: true),
@@ -293,7 +293,7 @@ static void VerifySamusHorizontalSpeed()
     AssertTrue(submergedBoost.UpdateSpeedBoosterPalette(
         bus,
         submergedBoostCgram,
-        movementType: 1,
+        movementType: SamusMovementType.Running,
         animationFrame: 0,
         equippedItems: (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.SpeedBooster).ToNativeWord(),
         bottomBoundarySubmerged: true),
@@ -313,7 +313,7 @@ static void VerifySamusHorizontalSpeed()
     AssertTrue(!submergedScrew.UpdateSpeedBoosterPalette(
         bus,
         submergedScrewCgram,
-        movementType: 3,
+        movementType: SamusMovementType.SpinJumping,
         animationFrame: 27,
         equippedItems: 0x0008,
         bottomBoundarySubmerged: true),
@@ -325,7 +325,7 @@ static void VerifySamusHorizontalSpeed()
     AssertTrue(submergedScrew.UpdateSpeedBoosterPalette(
         bus,
         submergedScrewCgram,
-        movementType: 3,
+        movementType: SamusMovementType.SpinJumping,
         animationFrame: 27,
         equippedItems: (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack).ToNativeWord(),
         bottomBoundarySubmerged: true),
@@ -427,7 +427,7 @@ static void VerifySamusHorizontalSpeed()
         "left departure clears shared index after both slots cross");
 
     AssertTrue(booster.UpdateSpeedBoosterPalette(
-        bus, boostCgram, movementType: 0, animationFrame: 0, equippedItems: 0x2000),
+        bus, boostCgram, movementType: SamusMovementType.Standing, animationFrame: 0, equippedItems: 0x2000),
         "cancel copies normal suit palette through runtime seam");
     AssertEqual(0x0321, boostCgram.Colors[192], "cancel restores ROM-authored Power Suit palette");
     AssertTrue(!booster.NormalSuitPaletteRestoreRequested, "normal-suit palette request is one-shot");

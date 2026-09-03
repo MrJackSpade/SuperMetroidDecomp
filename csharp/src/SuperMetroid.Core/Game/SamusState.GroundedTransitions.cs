@@ -509,9 +509,9 @@ public sealed partial class SamusState
         // Crouching transition tables publish `$43/$44` directly, whereas every admitted
         // standing/running/landing table publishes `$25/$26`. The initializer still uses
         // previous movement type five to choose the full crouched aim-preserving table.
-        byte sourceMovementType = ReadMovementType(bus);
-        bool wasCrouching = sourceMovementType == 5;
-        bool wasMoonwalking = sourceMovementType == 0x10;
+        SamusMovementType sourceMovementType = ReadMovementType(bus);
+        bool wasCrouching = sourceMovementType == SamusMovementType.Crouching;
+        bool wasMoonwalking = sourceMovementType == SamusMovementType.Moonwalking;
 
         // `$91:F8F3-$F903` reads the PREVIOUS moonwalk pose, not the selected turn pose.
         // Preserve the complete source byte now so the low-nibble projectile direction is

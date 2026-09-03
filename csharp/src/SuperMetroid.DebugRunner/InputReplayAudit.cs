@@ -71,7 +71,7 @@ internal static class InputReplayAudit
                     $"input=${input:X4}, latched=${runtimeBeforeStep?.Controller1.Current ?? 0:X4}/" +
                     $"${runtimeBeforeStep?.Controller1.NewlyPressed ?? 0:X4}, pose=" +
                     $"${poseBeforeStep.GetValueOrDefault():X2}, movement=" +
-                    $"${samusBeforeStep?.ReadMovementType(bus) ?? 0:X2}, " +
+                    $"${(byte)(samusBeforeStep?.ReadMovementType(bus) ?? SamusMovementType.Standing):X2}, " +
                     $"xy=(${xBeforeStep:X4},${yBeforeStep:X4}), " +
                     $"y-direction=${samusBeforeStep?.Kinematics.YDirection ?? 0:X4}, " +
                     $"y-speed=${samusBeforeStep?.Kinematics.YSpeed ?? 0:X4}. ",

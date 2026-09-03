@@ -29,11 +29,12 @@ public static class SamusMorphBallMovement
         Validate(bus, level, samus);
         bool ordinary = SamusState.IsGroundedMorphBallPose(samus.Pose);
         bool spring = SamusState.IsGroundedSpringBallPose(samus.Pose);
-        byte movementType = samus.ReadMovementType(bus);
-        if ((!ordinary || movementType != 4) && (!spring || movementType != 0x11))
+        SamusMovementType movementType = samus.ReadMovementType(bus);
+        if ((!ordinary || movementType != SamusMovementType.MorphBallGround) &&
+            (!spring || movementType != SamusMovementType.SpringBallGround))
         {
             throw new InvalidOperationException(
-                $"Grounded ball movement requires type-$04 or type-$11 pose, not ${samus.Pose:X2}/type ${movementType:X2}.");
+                $"Grounded ball movement requires type-$04 or type-$11 pose, not ${samus.Pose:X2}/type ${(byte)movementType:X2}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -121,11 +122,12 @@ public static class SamusMorphBallMovement
         bool ordinary = SamusState.IsAirborneMorphBallPose(samus.Pose);
         bool spring = samus.Pose is SamusPoseIds.SpringBallFallingRightPose or
             SamusPoseIds.SpringBallFallingLeftPose;
-        byte movementType = samus.ReadMovementType(bus);
-        if ((!ordinary || movementType != 8) && (!spring || movementType != 0x13))
+        SamusMovementType movementType = samus.ReadMovementType(bus);
+        if ((!ordinary || movementType != SamusMovementType.MorphBallFalling) &&
+            (!spring || movementType != SamusMovementType.SpringBallFalling))
         {
             throw new InvalidOperationException(
-                $"Falling ball movement requires type-$08 or type-$13 pose, not ${samus.Pose:X2}/type ${movementType:X2}.");
+                $"Falling ball movement requires type-$08 or type-$13 pose, not ${samus.Pose:X2}/type ${(byte)movementType:X2}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -217,7 +219,7 @@ public static class SamusMorphBallMovement
     {
         Validate(bus, level, samus);
         if (samus.Pose is not (SamusPoseIds.SpringBallJumpRightPose or SamusPoseIds.SpringBallJumpLeftPose) ||
-            samus.ReadMovementType(bus) != 0x12)
+            samus.ReadMovementType(bus) != SamusMovementType.SpringBallInAir)
         {
             throw new InvalidOperationException(
                 $"Spring-Ball powered jump requires type-$12 pose $7F/$80, not ${samus.Pose:X2}.");
@@ -239,7 +241,9 @@ public static class SamusMorphBallMovement
         }
 
         AerialBaseSpeedResult calculation =
-            speed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType: 0x12);
+            speed.CalculateBaseSpeedDecelerationDisallowed(
+                bus,
+                movementType: SamusMovementType.SpringBallInAir);
         bool directionHeld = (controllerInput &
             ((ushort)SnesButton.Left | (ushort)SnesButton.Right)) != 0;
         int requestedHorizontal;
@@ -289,7 +293,8 @@ public static class SamusMorphBallMovement
         RoomPlmSystem? plms = null)
     {
         Validate(bus, level, samus);
-        if (!SamusState.IsMorphTransitionPose(samus.Pose) || samus.ReadMovementType(bus) != 0x0f)
+        if (!SamusState.IsMorphTransitionPose(samus.Pose) ||
+            samus.ReadMovementType(bus) != SamusMovementType.PostureTransition)
         {
             throw new InvalidOperationException(
                 $"Morph transition movement requires type-$0F pose $37/$38/$3D/$3E, not ${samus.Pose:X2}.");

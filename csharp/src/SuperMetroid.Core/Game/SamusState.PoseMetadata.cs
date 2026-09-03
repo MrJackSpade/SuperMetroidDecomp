@@ -64,30 +64,44 @@ public sealed partial class SamusState
     public bool IsFacingRight(ISnesAddressSpace bus) =>
         ReadFacingDirection(bus) == SamusFacingDirection.Right;
 
-    /// <summary>Reads pose-definition byte one, the movement-type dispatcher index.</summary>
-    public byte ReadMovementType(ISnesAddressSpace bus)
+    /// <summary>
+    /// Reads and validates pose-definition byte one, the exclusive movement dispatcher.
+    /// </summary>
+    public SamusMovementType ReadMovementType(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
         return ReadMovementType(bus, Pose);
     }
 
     /// <summary>
-    /// Typed view of pose-definition byte one. The raw reader remains available for exact
-    /// ROM diagnostics and for as-yet-unnamed dispatcher entries.
+    /// Compatibility spelling retained for callers that describe the value as a movement
+    /// kind. Both APIs now return the same validated discriminator.
     /// </summary>
     public SamusMovementType ReadMovementKind(ISnesAddressSpace bus) =>
-        (SamusMovementType)ReadMovementType(bus);
+        ReadMovementType(bus);
 
-    /// <summary>Reads pose-definition byte one for a prospective pose without mutating Samus.</summary>
-    public static byte ReadMovementType(ISnesAddressSpace bus, byte pose)
+    /// <summary>
+    /// Reads pose-definition byte one for a prospective pose without mutating Samus.
+    /// Values beyond the complete retail dispatcher are corrupt cartridge metadata and
+    /// fail here, before they can be mistaken for a valid gameplay state downstream.
+    /// </summary>
+    public static SamusMovementType ReadMovementType(ISnesAddressSpace bus, byte pose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return bus.ReadByte(AddWithinBank(PoseDefinitions, pose * 8 + 1));
+        byte rawMovementType = bus.ReadByte(AddWithinBank(PoseDefinitions, pose * 8 + 1));
+        if (rawMovementType > (byte)SamusMovementType.Special)
+        {
+            throw new InvalidDataException(
+                $"Pose ${pose:X2} has invalid movement type ${rawMovementType:X2}; " +
+                $"the retail dispatcher ends at ${(byte)SamusMovementType.Special:X2}.");
+        }
+
+        return (SamusMovementType)rawMovementType;
     }
 
-    /// <summary>Typed movement view for an arbitrary prospective pose.</summary>
+    /// <summary>Compatibility spelling for an arbitrary prospective pose.</summary>
     public static SamusMovementType ReadMovementKind(ISnesAddressSpace bus, byte pose) =>
-        (SamusMovementType)ReadMovementType(bus, pose);
+        ReadMovementType(bus, pose);
 
     /// <summary>
     /// Reads pose-definition byte two, the pose selected by <c>$91:82D9</c> when no

@@ -743,8 +743,9 @@ public sealed class SuperMetroidGame
                 // movement/charge loops terminate rather than leaking into the next room.
                 SamusState doorSamus = runtime!.Samus
                     ?? throw new InvalidOperationException("Door transition requires live Samus state.");
-                byte doorMovementType = doorSamus.ReadMovementType(bus);
-                if (doorMovementType is 3 or 20)
+                SamusMovementType doorMovementType = doorSamus.ReadMovementType(bus);
+                if (doorMovementType is
+                    SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
                 {
                     audio.QueueSound(library: 1, soundId: 0x32, maximumQueued: 15);
                 }

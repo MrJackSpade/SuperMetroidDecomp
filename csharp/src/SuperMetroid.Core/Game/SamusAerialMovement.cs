@@ -172,9 +172,10 @@ public static class SamusAerialMovement
     {
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementKind(bus) != SamusMovementType.NormalJumping)
-            throw new InvalidOperationException($"Normal-jump movement requires type 2, not ${samus.ReadMovementType(bus):X2}.");
+            throw new InvalidOperationException(
+                $"Normal-jump movement requires type 2, not ${(byte)samus.ReadMovementType(bus):X2}.");
         samus.HorizontalSpeed.HandleExtraRunSpeed(
-            movementType: 2,
+            movementType: SamusMovementType.NormalJumping,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
@@ -233,7 +234,7 @@ public static class SamusAerialMovement
             level,
             samus,
             controllerInput,
-            movementType: 2,
+            movementType: SamusMovementType.NormalJumping,
             plms);
         return FinishVerticalMovement(bus, level, samus, horizontalMove, nmiFrameCounter, plms: plms);
     }
@@ -253,7 +254,8 @@ public static class SamusAerialMovement
     {
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementKind(bus) != SamusMovementType.SpinJumping)
-            throw new InvalidOperationException($"Spin-jump movement requires type 3, not ${samus.ReadMovementType(bus):X2}.");
+            throw new InvalidOperationException(
+                $"Spin-jump movement requires type 3, not ${(byte)samus.ReadMovementType(bus):X2}.");
 
         // `$90:A436-$90:A4CB` runs this before ordinary spin movement. Space Jump is not a
         // host-side double-jump: it only accepts a fresh Jump edge while descending and
@@ -295,7 +297,7 @@ public static class SamusAerialMovement
             SamusState.IsScrewAttackPose(samus.Pose);
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
-            movementType: 3,
+            movementType: SamusMovementType.SpinJumping,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
@@ -306,7 +308,7 @@ public static class SamusAerialMovement
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         AerialBaseSpeedResult calculation =
-            speed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType: 3);
+            speed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType: SamusMovementType.SpinJumping);
 
         // If acceleration did not overshoot the cap, spin jump retains motion only while
         // turning (mode 1) or while the input matching the pose's facing direction is held.
@@ -403,7 +405,7 @@ public static class SamusAerialMovement
             samus.HorizontalSpeed.ContactDamageIndex = 4;
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
-            movementType: 0x14,
+            movementType: SamusMovementType.WallJumping,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
@@ -415,7 +417,7 @@ public static class SamusAerialMovement
             level,
             samus,
             controllerInput,
-            movementType: 0x14,
+            movementType: SamusMovementType.WallJumping,
             plms);
         return FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter, plms: plms);
     }
@@ -442,7 +444,7 @@ public static class SamusAerialMovement
         }
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
-            movementType: 0x19,
+            movementType: SamusMovementType.DamageBoost,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
@@ -454,7 +456,7 @@ public static class SamusAerialMovement
             level,
             samus,
             controllerInput,
-            movementType: 0x19,
+            movementType: SamusMovementType.DamageBoost,
             plms);
         return FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter, plms: plms);
     }
@@ -472,14 +474,16 @@ public static class SamusAerialMovement
         RoomPlmSystem? plms = null)
     {
         ValidateCommon(bus, level, samus);
-        byte movementType = samus.ReadMovementType(bus);
+        SamusMovementType movementType = samus.ReadMovementType(bus);
         // Crouched aimed turns use movement type `$17` even though they normally remain on
         // the floor. If a producer gives one nonzero Y direction, `$90:A790` immediately
         // executes the same X/simple-Y path as the ordinary `$2F/$30/$8F-$92/$9E/$9F`
         // jumping-turn records. The pose name therefore cannot be used as an admission gate.
         bool isTranslatedTurnPose = SamusState.IsAerialTurnPose(samus.Pose) ||
-            (movementType == 0x17 && SamusState.IsAimedCrouchingTurnPose(samus.Pose));
-        if (movementType is not (0x17 or 0x18) || !isTranslatedTurnPose)
+            (movementType == SamusMovementType.TurningWhileJumping &&
+             SamusState.IsAimedCrouchingTurnPose(samus.Pose));
+        if (movementType is not (SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling) ||
+            !isTranslatedTurnPose)
             throw new InvalidOperationException($"Aerial-turn movement requires type $17/$18 pose, not ${samus.Pose:X2}.");
         if (samus.Kinematics.YDirection == 0)
         {
@@ -544,9 +548,10 @@ public static class SamusAerialMovement
     {
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementKind(bus) != SamusMovementType.Falling)
-            throw new InvalidOperationException($"Falling movement requires type 6, not ${samus.ReadMovementType(bus):X2}.");
+            throw new InvalidOperationException(
+                $"Falling movement requires type 6, not ${(byte)samus.ReadMovementType(bus):X2}.");
         samus.HorizontalSpeed.HandleExtraRunSpeed(
-            movementType: 6,
+            movementType: SamusMovementType.Falling,
             controllerInput,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             bus,
@@ -558,7 +563,7 @@ public static class SamusAerialMovement
             level,
             samus,
             controllerInput,
-            movementType: 6,
+            movementType: SamusMovementType.Falling,
             plms);
 
         // $90:90C4 converts an underflowed upward magnitude to a stationary downward state
@@ -665,7 +670,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
-        byte movementType,
+        SamusMovementType movementType,
         RoomPlmSystem? plms)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;

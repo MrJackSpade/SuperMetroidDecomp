@@ -513,11 +513,11 @@ public sealed partial class RoomEnemySystem
         state.AttackPhase = MotherBrainAttackPhase.Cooldown;
 
         byte randomLow = unchecked((byte)RequireRandomNumber());
-        byte movementType = samus.ReadMovementType(_bus!);
-        if (movementType >= 0x1c)
+        SamusMovementType movementType = samus.ReadMovementType(_bus!);
+        if ((byte)movementType >= 0x1c)
         {
             throw new InvalidDataException(
-                $"Mother Brain attack strategy cannot index Samus movement type ${movementType:X2}.");
+                $"Mother Brain attack strategy cannot index Samus movement type ${(byte)movementType:X2}.");
         }
 
         if (IsMotherBrainAirAttackMovement(movementType))
@@ -589,9 +589,19 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private static bool IsMotherBrainAirAttackMovement(byte movementType) =>
-        movementType is 0x02 or 0x03 or 0x06 or 0x08 or 0x09 or 0x0b or 0x0c or
-            0x0d or 0x12 or 0x13 or 0x14;
+    private static bool IsMotherBrainAirAttackMovement(SamusMovementType movementType) =>
+        movementType is
+            SamusMovementType.NormalJumping or
+            SamusMovementType.SpinJumping or
+            SamusMovementType.Falling or
+            SamusMovementType.MorphBallFalling or
+            SamusMovementType.UnusedGlitchBallAlternate or
+            SamusMovementType.Unused0B or
+            SamusMovementType.Unused0C or
+            SamusMovementType.Unused0D or
+            SamusMovementType.SpringBallInAir or
+            SamusMovementType.SpringBallFalling or
+            SamusMovementType.WallJumping;
 
     /// <summary>Ports <c>$A9:B781-B7AB</c>, including its immediate posture decision.</summary>
     private void DecideMotherBrainBombWalking(MotherBrainEnemyState state)

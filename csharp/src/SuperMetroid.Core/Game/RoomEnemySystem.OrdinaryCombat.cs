@@ -293,7 +293,7 @@ public sealed partial class RoomEnemySystem
                 // `$A9:B5C6` is not ordinary touch damage. A spin-jumping Samus toggles
                 // the head's visible flash length between the cartridge's 13/14-frame
                 // cadence; every other movement type returns without changing either actor.
-                if (samus.ReadMovementType(_bus!) == (byte)SamusMovementType.SpinJumping)
+                if (samus.ReadMovementType(_bus!) == SamusMovementType.SpinJumping)
                     slot.FlashTimer = slot.FlashTimer != 0 && (slot.FlashTimer & 1) != 0
                         ? (ushort)14
                         : (ushort)13;

@@ -297,6 +297,9 @@ static void VerifySamusRenderingSlice()
     WritePoseDefinition(bus, 0x64, [8, 0x1c, 0xff, 0xff, 0, 0, 16, 0]);
     samus.Pose = 0x64;
     samus.AnimationFrame = 0;
+    AssertThrows<InvalidDataException>(
+        () => samus.ReadMovementType(bus),
+        "movement-type API rejects a discriminator outside the complete retail domain");
     oam.BeginFrame();
     AssertThrows<InvalidDataException>(
         () => samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: samus.YPosition),

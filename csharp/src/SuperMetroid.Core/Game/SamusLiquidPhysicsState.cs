@@ -270,7 +270,7 @@ public sealed class SamusLiquidPhysicsState
         if (beginSoundRequestFrame)
             BeginFrameSoundRequests();
 
-        byte movementType = samus.ReadMovementType(bus);
+        SamusMovementType movementType = samus.ReadMovementType(bus);
         TrySpawnRunningFootsteps(bus, samus, movementType);
 
         ushort bottom = samus.Kinematics.BottomBoundary;
@@ -355,7 +355,8 @@ public sealed class SamusLiquidPhysicsState
         if (exitedWater)
         {
             QueueSound(library: 2, soundId: 0x0e, maximumQueued: 6);
-            if (!gravitySuit && movementType is 3 or 0x14)
+            if (!gravitySuit && movementType is
+                SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
                 QueueSound(library: 1, soundId: 0x30, maximumQueued: 6);
             SpawnWaterSplash(bus, samus, movementType, bottom);
             TrySpawnAirBubbles(
@@ -374,7 +375,7 @@ public sealed class SamusLiquidPhysicsState
     public void HandleLandingSoundEffectsAndGraphics(
         ISnesAddressSpace bus,
         SamusState samus,
-        byte previousMovementType,
+        SamusMovementType previousMovementType,
         byte previousPose,
         ushort impactYSpeed,
         ushort impactYSubspeed)
@@ -385,7 +386,8 @@ public sealed class SamusLiquidPhysicsState
         // `$91:F046-$F074` ends the spin-loop sound separately from the impact. The test is
         // on PREVIOUS movement type and pose because landing selection has not run yet.
         // Cinematics suppress both the ordinary-spin `$32` and Screw Attack `$34` requests.
-        if (!CinematicFunctionActive && previousMovementType is 3 or 0x14)
+        if (!CinematicFunctionActive && previousMovementType is
+            SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
             QueueSound(
                 library: 1,
@@ -625,11 +627,10 @@ public sealed class SamusLiquidPhysicsState
     private void SpawnWaterSplash(
         ISnesAddressSpace bus,
         SamusState samus,
-        byte movementType,
+        SamusMovementType movementType,
         ushort bottom)
     {
-        bool groundedSplash = movementType <= 0x1b &&
-            bus.ReadByte(WaterSplashTypeTable + movementType) != 0;
+        bool groundedSplash = bus.ReadByte(WaterSplashTypeTable + (byte)movementType) != 0;
         if (!groundedSplash)
         {
             AtmosphericEffects.SetSlot(
@@ -703,9 +704,9 @@ public sealed class SamusLiquidPhysicsState
     private void TrySpawnRunningFootsteps(
         ISnesAddressSpace bus,
         SamusState samus,
-        byte movementType)
+        SamusMovementType movementType)
     {
-        if (movementType != 1 ||
+        if (movementType != SamusMovementType.Running ||
             samus.AnimationFrameTimer != 1 ||
             bus.ReadByte(RunningFootstepFrameTable + samus.AnimationFrame) == 0)
         {

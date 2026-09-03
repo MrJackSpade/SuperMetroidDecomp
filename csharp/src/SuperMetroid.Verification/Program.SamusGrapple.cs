@@ -582,7 +582,10 @@ static void VerifySamusGrappleSwingAndRelease()
         faceRight: true);
 
     AssertEqual(SamusPoseIds.GrappleSwingRightPose, samus.Pose, "grapple connection pose");
-    AssertEqual(0x16, samus.ReadMovementType(bus), "grapple movement type from pose record");
+    AssertEqual(
+        SamusMovementType.Grappling,
+        samus.ReadMovementType(bus),
+        "grapple movement type from pose record");
     AssertEqual(149, samus.Grapple.BeamStartX, "initial grapple beam-start X");
     AssertEqual(104, samus.Grapple.BeamStartY, "initial grapple beam-start Y");
     AssertEqual(151, samus.XPosition, "initial grapple art-corrected X");

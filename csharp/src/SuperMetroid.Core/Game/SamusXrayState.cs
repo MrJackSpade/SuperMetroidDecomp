@@ -102,7 +102,7 @@ public sealed class SamusXrayState
     public bool TryBegin(
         ISnesAddressSpace bus,
         SamusState samus,
-        byte previousMovementType,
+        SamusMovementType previousMovementType,
         ushort gameState = 8,
         ushort powerBombExplosionStatus = 0,
         ushort projectileCooldownTimer = 0,
@@ -133,7 +133,7 @@ public sealed class SamusXrayState
             return false;
         }
 
-        byte currentMovementType = samus.ReadMovementType(bus);
+        SamusMovementType currentMovementType = samus.ReadMovementType(bus);
         if (ClassifyAllowedMovement(previousMovementType) == XrayPosture.Disallowed)
             return false;
 
@@ -183,8 +183,8 @@ public sealed class SamusXrayState
         ArgumentNullException.ThrowIfNull(samus);
         EnsureActive();
 
-        byte movementType = samus.ReadMovementType(bus);
-        if (movementType != 0x0e)
+        SamusMovementType movementType = samus.ReadMovementType(bus);
+        if (movementType != SamusMovementType.TurningOnGround)
         {
             bool facingLeft = samus.IsFacingLeft(bus);
             ushort turnBinding = facingLeft
@@ -196,7 +196,7 @@ public sealed class SamusXrayState
             // Mirroring through `$0100 - angle` turns right-space `$00-$7F` into its exact
             // left-space counterpart and vice versa. This happens before selecting turn art.
             Angle = unchecked((ushort)(0x0100 - Angle));
-            bool crouching = movementType == 5;
+            bool crouching = movementType == SamusMovementType.Crouching;
             byte targetPose = (facingLeft, crouching) switch
             {
                 (false, false) => SamusPoseIds.TurningRightToLeftPose,
@@ -236,7 +236,7 @@ public sealed class SamusXrayState
         ArgumentNullException.ThrowIfNull(samus);
         EnsureActive();
 
-        if (samus.ReadMovementType(bus) == 0x0e)
+        if (samus.ReadMovementType(bus) == SamusMovementType.TurningOnGround)
             return null;
 
         bool facingLeft = samus.IsFacingLeft(bus);
@@ -496,8 +496,8 @@ public sealed class SamusXrayState
         // `$91:E2AD` intentionally classifies turning type `$0E` as standing. Releasing
         // X-ray during a crouched turn therefore stands Samus up—the documented retail
         // X-ray stand-up glitch—and the radius difference moves her center upward.
-        byte movementType = samus.ReadMovementType(bus);
-        bool crouching = movementType == 5;
+        SamusMovementType movementType = samus.ReadMovementType(bus);
+        bool crouching = movementType == SamusMovementType.Crouching;
         bool facingLeft = samus.IsFacingLeft(bus);
         ushort oldRadius = samus.Kinematics.YRadius;
         byte targetPose = crouching
@@ -534,10 +534,12 @@ public sealed class SamusXrayState
         samus.InitializeAnimation(bus, initialFrame: 0);
     }
 
-    private static XrayPosture ClassifyAllowedMovement(byte movementType) => movementType switch
+    private static XrayPosture ClassifyAllowedMovement(SamusMovementType movementType) => movementType switch
     {
-        0 or 1 or 0x15 => XrayPosture.Standing,
-        5 => XrayPosture.Crouching,
+        SamusMovementType.Standing or
+            SamusMovementType.Running or
+            SamusMovementType.RanIntoWall => XrayPosture.Standing,
+        SamusMovementType.Crouching => XrayPosture.Crouching,
         _ => XrayPosture.Disallowed,
     };
 

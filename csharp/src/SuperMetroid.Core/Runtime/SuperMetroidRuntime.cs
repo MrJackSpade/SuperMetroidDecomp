@@ -228,7 +228,7 @@ public sealed partial class SuperMetroidRuntime
     /// Low-byte snapshot at WRAM <c>$0A11</c> used only by X-ray's one-frame stability gate.
     /// The runtime updates it after each completed gameplay frame.
     /// </summary>
-    public byte PreviousMovementTypeForXray { get; private set; }
+    public SamusMovementType PreviousMovementTypeForXray { get; private set; }
 
     /// <summary>
     /// Horizontal and vertical collision results from the most recent translated grounded
@@ -1577,7 +1577,7 @@ public sealed partial class SuperMetroidRuntime
             // agree on that order; using the mutable value afterward would apply an input
             // match selected for the old pose to the newly installed one.
             byte poseAtFrameStart = Samus.Pose;
-            byte movementTypeAtFrameStart = Samus.ReadMovementType(_addressSpace);
+            SamusMovementType movementTypeAtFrameStart = Samus.ReadMovementType(_addressSpace);
 
             // Direction bits already use the transition table's canonical layout. Input
             // matching belongs to frame-handler alpha, before beta moves the CURRENT pose;

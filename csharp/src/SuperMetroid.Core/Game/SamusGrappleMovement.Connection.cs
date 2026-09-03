@@ -206,8 +206,8 @@ public static partial class SamusGrappleMovement
         // three direction tables and depends on untranslated enemy ownership/positioning.
         // A room-block connection should never normally arrive here in that pose, but an
         // explicit boundary is safer than fabricating either of the ordinary routes.
-        byte sourceMovementType = samus.ReadMovementType(bus);
-        if ((SamusMovementType)sourceMovementType == SamusMovementType.DraygonHeld)
+        SamusMovementType sourceMovementType = samus.ReadMovementType(bus);
+        if (sourceMovementType == SamusMovementType.DraygonHeld)
         {
             throw new InvalidOperationException(
                 "A room-block grapple connection cannot be installed while Draygon owns Samus.");
@@ -217,7 +217,7 @@ public static partial class SamusGrappleMovement
             samus.Kinematics.YSpeed != 0 || samus.Kinematics.YSubspeed != 0;
         int connectionTable = movingVertically
             ? MovingVerticallyConnectionTable
-            : sourceMovementType == 5
+            : sourceMovementType == SamusMovementType.Crouching
                 ? CrouchingConnectionTable
                 : DefaultConnectionTable;
         int recordAddress = connectionTable + grapple.FireDirection * 4;

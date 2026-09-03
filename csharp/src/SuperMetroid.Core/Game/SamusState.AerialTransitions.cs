@@ -123,9 +123,9 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(level);
 
         byte sourcePose = Pose;
-        byte sourceMovementType = ReadMovementType(bus);
-        bool jumping = sourceMovementType == 2;
-        bool falling = sourceMovementType == 6;
+        SamusMovementType sourceMovementType = ReadMovementType(bus);
+        bool jumping = sourceMovementType == SamusMovementType.NormalJumping;
+        bool falling = sourceMovementType == SamusMovementType.Falling;
         bool turnsLeft = genericTargetPose == (jumping
             ? SamusPoseIds.TurningRightToLeftJumpPose
             : SamusPoseIds.TurningRightToLeftFallingPose);
@@ -467,7 +467,7 @@ public sealed partial class SamusState
     private bool TryBeginShinesparkWindup(
         ISnesAddressSpace bus,
         byte targetPose,
-        byte previousMovementType)
+        SamusMovementType previousMovementType)
     {
         bool right = targetPose is
             SamusPoseIds.NeutralJumpRightPose or SamusPoseIds.NormalJumpAimUpRightPose or
@@ -489,7 +489,7 @@ public sealed partial class SamusState
         // previous Y words by one. The host camera captures its previous point outside this
         // object, so only the live word is written here; the same-frame camera delta remains
         // one pixel and the following frame starts from the corrected coordinate.
-        if (previousMovementType == 2)
+        if (previousMovementType == SamusMovementType.NormalJumping)
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - 1));
 
         InitializeAnimation(bus, initialFrame: 0);
@@ -591,7 +591,7 @@ public sealed partial class SamusState
         InitializeAnimation(bus, initialFrame: 0);
         SamusAerialMovement.InitializeJump(bus, this);
 
-        if (ReadMovementType(bus) == 2 &&
+        if (ReadMovementType(bus) == SamusMovementType.NormalJumping &&
             (controllerNewInput & (ushort)SnesButton.X) != 0)
         {
             // `$91:F5CF-$F5E6` runs only in the normal-jumping initializer. It reads the

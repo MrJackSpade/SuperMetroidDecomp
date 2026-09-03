@@ -117,18 +117,18 @@ public sealed class SamusDeathSequenceState
         if (IsActive)
             throw new InvalidOperationException("Samus death sequence is already owned by bank $9B.");
 
-        byte sourceMovementType = samus.ReadMovementType(bus);
-        if (sourceMovementType >= InitialFramesByMovementType.Length)
+        SamusMovementType sourceMovementType = samus.ReadMovementType(bus);
+        if ((byte)sourceMovementType >= InitialFramesByMovementType.Length)
         {
             throw new InvalidDataException(
-                $"Death-pose frame table has no movement type ${sourceMovementType:X2}.");
+                $"Death-pose frame table has no movement type ${(byte)sourceMovementType:X2}.");
         }
 
         FacingLeft = samus.IsFacingLeft(bus);
         byte deathPose = FacingLeft
             ? SamusPoseIds.DeathSequenceLeftPose
             : SamusPoseIds.DeathSequenceRightPose;
-        ushort initialFrame = InitialFramesByMovementType[sourceMovementType];
+        ushort initialFrame = InitialFramesByMovementType[(byte)sourceMovementType];
 
         // Native initializes pose `$D7/$D8` normally, then overwrites only the visible frame
         // with the movement-type table result. All six delays are two, so the timer produced
@@ -149,7 +149,7 @@ public sealed class SamusDeathSequenceState
         AnimationTimer = 3;
         AnimationIndex = 0;
         AnimationCounter = 0;
-        SpinJumpSoundRequested = sourceMovementType == 3;
+        SpinJumpSoundRequested = sourceMovementType == SamusMovementType.SpinJumping;
         LastQueuedSegment = null;
         Phase = SamusDeathSequencePhase.PreFlashing;
 
@@ -407,7 +407,7 @@ public enum SamusDeathSequencePhase
 
 /// <summary>Inspectable output from `$9B:B3A7`'s pose-selection boundary.</summary>
 public readonly record struct SamusDeathSequenceStartResult(
-    byte SourceMovementType,
+    SamusMovementType SourceMovementType,
     byte DeathPose,
     ushort InitialFrame,
     ushort ScreenX,

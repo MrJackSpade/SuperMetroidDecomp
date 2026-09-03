@@ -146,13 +146,13 @@ public static class SamusHurtFlashPalette
     {
         if (samus.Grapple.Phase == GrapplePhase.Inactive)
         {
-            byte movementType = samus.ReadMovementType(bus);
-            if (movementType is 3 or 0x14)
+            SamusMovementType movementType = samus.ReadMovementType(bus);
+            if (movementType is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
             {
                 // Command `$1C` chooses from current pose for a normal spin, but from
                 // animation-frame ranges for wall jumping. Those are literal `$90:F41E`
                 // thresholds, including frame 23 as the first Screw Attack frame.
-                byte sound = movementType == 0x14
+                byte sound = movementType == SamusMovementType.WallJumping
                     ? samus.AnimationFrame >= 23 ? (byte)0x33 :
                       samus.AnimationFrame >= 13 ? (byte)0x3e : (byte)0x31
                     : samus.Pose is SamusPoseIds.ScrewAttackRightPose or SamusPoseIds.ScrewAttackLeftPose

@@ -402,11 +402,11 @@ public sealed partial class SamusProjectileSystem
     {
         int directionOffset = (slot.Direction & 0x0f) * 2;
         byte poseYOffset = ReadPoseByte(bus, samus.Pose, PoseYOffsetOffset);
-        byte movementType = samus.ReadMovementType(bus);
+        SamusMovementType movementType = samus.ReadMovementType(bus);
 
         // `$90:BA94` uses the running/moonwalk origin table for movement type one and for
         // the two diagonally-up moonwalk poses $75/$76. Every other pose uses the default.
-        bool runningOrigin = movementType == 1 ||
+        bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseIds.MoonwalkAimUpLeftPose or SamusPoseIds.MoonwalkAimUpRightPose;
         int xTable = runningOrigin ? ProjectileXRunning : ProjectileXDefault;
         int yTable = runningOrigin ? ProjectileYRunning : ProjectileYDefault;

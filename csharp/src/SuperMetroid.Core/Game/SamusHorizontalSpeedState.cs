@@ -169,7 +169,7 @@ public sealed class SamusHorizontalSpeedState
     /// counter through `$91:B61F`. Their shared momentum flag survives release and jumps.
     /// </summary>
     public void HandleExtraRunSpeed(
-        byte movementType,
+        SamusMovementType movementType,
         ushort controllerInput,
         bool speedBoosterEquipped,
         ISnesAddressSpace? bus = null,
@@ -180,7 +180,7 @@ public sealed class SamusHorizontalSpeedState
         // branch as releasing Dash. Existing momentum retains its numeric extra component;
         // without momentum, both words are cleared. This is not a multiplier or hard reset.
         bool activelyDashing = !liquidImpeded &&
-            movementType == 1 &&
+            movementType == SamusMovementType.Running &&
             (controllerInput & dashButton) != 0;
         if (!activelyDashing)
         {
@@ -250,7 +250,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public bool TryAdvanceSpeedBoosterAnimationStage(
         ISnesAddressSpace bus,
-        byte movementType,
+        SamusMovementType movementType,
         ushort controllerInput,
         ushort animationFrameBuffer,
         ref ushort animationFrame,
@@ -259,7 +259,7 @@ public sealed class SamusHorizontalSpeedState
         ArgumentNullException.ThrowIfNull(bus);
         animationFrameTimer = 0;
         const ushort dashButton = 0x8000;
-        if (!HasRunningMomentum || movementType != 1 || (controllerInput & dashButton) == 0)
+        if (!HasRunningMomentum || movementType != SamusMovementType.Running || (controllerInput & dashButton) == 0)
             return false;
 
         // DEC is 16-bit, but native then changes A to eight-bit before BNE. A stage advances
@@ -307,7 +307,7 @@ public sealed class SamusHorizontalSpeedState
     public bool UpdateSpeedBoosterPalette(
         ISnesAddressSpace bus,
         SnesCgram cgram,
-        byte movementType,
+        SamusMovementType movementType,
         ushort animationFrame,
         ushort equippedItems,
         bool suppressActiveSpeedBoosterPalette = false,
@@ -348,7 +348,7 @@ public sealed class SamusHorizontalSpeedState
             return paletteCopied;
 
         bool screwAttackEquipped = (equippedItems & 0x0008) != 0;
-        if (movementType == 3 && screwAttackEquipped)
+        if (movementType == SamusMovementType.SpinJumping && screwAttackEquipped)
         {
             if (animationFrame == 0)
             {
@@ -371,7 +371,7 @@ public sealed class SamusHorizontalSpeedState
             return true;
         }
 
-        if (movementType == 0x14)
+        if (movementType == SamusMovementType.WallJumping)
         {
             if (!screwAttackEquipped)
                 return paletteCopied;
@@ -670,10 +670,10 @@ public sealed class SamusHorizontalSpeedState
     /// Resolves the exact 12-byte entry selected by <c>Samus_DetermineSpeedTableEntryPtr_X</c>
     /// at <c>$90:9BD1</c>, assuming the already-modeled inside-block reaction chose the base.
     /// </summary>
-    public int ResolveEntryAddress(byte movementType)
+    public int ResolveEntryAddress(SamusMovementType movementType)
     {
         ushort bankOffset = unchecked((ushort)(
-            ActiveSpeedTableBaseAddress + SpeedTableEntry.ByteCount * movementType));
+            ActiveSpeedTableBaseAddress + SpeedTableEntry.ByteCount * (byte)movementType));
         return 0x900000 | bankOffset;
     }
 
@@ -681,7 +681,7 @@ public sealed class SamusHorizontalSpeedState
     /// Reads a speed entry directly from cartridge bank $90. Fields remain split into the
     /// same high/low words as the original table instead of becoming floating-point values.
     /// </summary>
-    public SpeedTableEntry ReadEntry(ISnesAddressSpace bus, byte movementType)
+    public SpeedTableEntry ReadEntry(ISnesAddressSpace bus, SamusMovementType movementType)
     {
         ArgumentNullException.ThrowIfNull(bus);
         int address = ResolveEntryAddress(movementType);
@@ -698,7 +698,7 @@ public sealed class SamusHorizontalSpeedState
     /// Ports <c>Samus_CalcBaseSpeed_X</c> at <c>$90:9A7E</c> and returns its unsigned
     /// 16.16 result. It mutates the modeled WRAM speed words exactly once.
     /// </summary>
-    public uint CalculateBaseSpeed(ISnesAddressSpace bus, byte movementType)
+    public uint CalculateBaseSpeed(ISnesAddressSpace bus, SamusMovementType movementType)
     {
         SpeedTableEntry entry = ReadEntry(bus, movementType);
         return CalculateBaseSpeed(entry);
@@ -786,7 +786,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public AerialBaseSpeedResult CalculateBaseSpeedDecelerationDisallowed(
         ISnesAddressSpace bus,
-        byte movementType)
+        SamusMovementType movementType)
     {
         SpeedTableEntry entry = ReadEntry(bus, movementType);
 

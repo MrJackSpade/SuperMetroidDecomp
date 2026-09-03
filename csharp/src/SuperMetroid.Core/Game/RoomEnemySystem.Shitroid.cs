@@ -794,7 +794,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         BreakReleasedShitroidFollow(state);
-        if (samus.ReadMovementType(_bus!) == 3 &&
+        if (samus.ReadMovementType(_bus!) == SamusMovementType.SpinJumping &&
             unchecked((short)(samus.XPosition - 512)) >= 0)
         {
             // The native expression `$80-angle+$80`, truncated to a byte, is simply the

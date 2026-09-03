@@ -131,7 +131,7 @@ static void VerifySamusAerialMovement()
     var aerialSpeed = new SamusHorizontalSpeedState { AccelerationMode = 2 };
     aerialSpeed.SelectNormalAirSpeedTable();
     AerialBaseSpeedResult accelerated =
-        aerialSpeed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType: 2);
+        aerialSpeed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType: SamusMovementType.NormalJumping);
     AssertEqual(0x00001000u, accelerated.Speed, "aerial mode two accelerates");
     AssertTrue(!accelerated.ReachedMaximum, "aerial sub-cap call clears carry");
 
@@ -742,13 +742,13 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     var palettes = new SamusHorizontalSpeedState();
     var cgram = new SnesCgram();
     AssertTrue(palettes.UpdateSpeedBoosterPalette(
-        bus, cgram, movementType: 3, animationFrame: 1, equippedItems: 0x0008),
+        bus, cgram, movementType: SamusMovementType.SpinJumping, animationFrame: 1, equippedItems: 0x0008),
         "early Screw frame copies normal suit palette");
     AssertEqual(0x0111, cgram.Colors[192], "early Screw frame normal palette");
     for (int frame = 0; frame < 6; frame++)
     {
         AssertTrue(palettes.UpdateSpeedBoosterPalette(
-            bus, cgram, movementType: 3, animationFrame: 0x1b, equippedItems: 0x0008),
+            bus, cgram, movementType: SamusMovementType.SpinJumping, animationFrame: 0x1b, equippedItems: 0x0008),
             $"Screw palette frame {frame} copies");
         AssertEqual(unchecked((ushort)(0x1200 + frame)), cgram.Colors[192],
             $"Screw palette frame {frame} ROM color");
@@ -869,16 +869,16 @@ static void VerifySamusLiquidPhysics()
     // momentum, but a pre-existing momentum flag preserves the accumulated pair exactly.
     var submergedDash = new SamusHorizontalSpeedState();
     submergedDash.HandleExtraRunSpeed(
-        movementType: 1,
+        movementType: SamusMovementType.Running,
         controllerInput: (ushort)SnesButton.B,
         speedBoosterEquipped: false,
         liquidImpeded: true);
     AssertTrue(!submergedDash.HasRunningMomentum, "submerged Dash cannot establish momentum");
     AssertEqual(0, submergedDash.ExtraRunSubspeed, "submerged no-momentum Dash stays zero");
-    submergedDash.HandleExtraRunSpeed(1, (ushort)SnesButton.B, false);
+    submergedDash.HandleExtraRunSpeed(SamusMovementType.Running, (ushort)SnesButton.B, false);
     ushort carriedFraction = submergedDash.ExtraRunSubspeed;
     submergedDash.HandleExtraRunSpeed(
-        movementType: 1,
+        movementType: SamusMovementType.Running,
         controllerInput: (ushort)SnesButton.B,
         speedBoosterEquipped: false,
         liquidImpeded: true);
@@ -908,7 +908,7 @@ static void VerifySamusLiquidPhysics()
     // Gravity Suit; acid enters the shared delay/damage tail without touching momentum.
     sample.EquippedItems = SamusEquipmentFlags.GravitySuit.ToNativeWord();
     sample.HorizontalSpeed.HandleExtraRunSpeed(
-        movementType: 1,
+        movementType: SamusMovementType.Running,
         controllerInput: (ushort)SnesButton.B,
         speedBoosterEquipped: false);
     sample.HorizontalSpeed.SpeedBoostCounter = 0x0401;
@@ -927,7 +927,7 @@ static void VerifySamusLiquidPhysics()
 
     sample.EquippedItems = 0;
     sample.HorizontalSpeed.HandleExtraRunSpeed(
-        movementType: 1,
+        movementType: SamusMovementType.Running,
         controllerInput: (ushort)SnesButton.B,
         speedBoosterEquipped: false);
     sample.HorizontalSpeed.SpeedBoostCounter = 0x0201;
@@ -1243,7 +1243,7 @@ static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.AreaIndex = 2;
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        bus, landing, previousMovementType: 3, previousPose: 0x19,
+        bus, landing, previousMovementType: SamusMovementType.SpinJumping, previousPose: 0x19,
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
     AssertEqual(2, landing.LiquidPhysics.SoundRequests.Count,
         "spin landing publishes termination and impact sounds");
@@ -1269,7 +1269,7 @@ static void VerifySamusAtmosphericEffects()
     landing.Kinematics.YSpeed = 5;
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        bus, landing, previousMovementType: 0x14, previousPose: 0x81,
+        bus, landing, previousMovementType: SamusMovementType.WallJumping, previousPose: 0x81,
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
     AssertEqual(new SamusSoundRequest(1, 0x34, 6),
         landing.LiquidPhysics.SoundRequests[0], "Screw Attack termination sound");
@@ -1278,7 +1278,7 @@ static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.CinematicFunctionActive = true;
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        bus, landing, previousMovementType: 3, previousPose: 0x19,
+        bus, landing, previousMovementType: SamusMovementType.SpinJumping, previousPose: 0x19,
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
     AssertEqual(0, landing.LiquidPhysics.SoundRequests.Count,
         "cinematic landing suppresses both sound libraries");
@@ -1293,7 +1293,7 @@ static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.ConfigureWater(surfaceY: 111);
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        bus, landing, previousMovementType: 6, previousPose: 0x29,
+        bus, landing, previousMovementType: SamusMovementType.Falling, previousPose: 0x29,
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
     AssertEqual(7, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "submerged landing leaves prior atmospheric slot untouched");
@@ -1306,7 +1306,7 @@ static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.FxYPosition = ushort.MaxValue;
     landing.Kinematics.YSpeed = 1;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        bus, landing, previousMovementType: 6, previousPose: 0x29,
+        bus, landing, previousMovementType: SamusMovementType.Falling, previousPose: 0x29,
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
     AssertEqual(0, landing.LiquidPhysics.AtmosphericEffects.Slots[2].FrameAndType,
         "Ceres deletes landing packed word");
@@ -1319,7 +1319,7 @@ static void VerifySamusAtmosphericEffects()
     landing.Kinematics.YSpeed = 0;
     landing.Kinematics.YSubspeed = 0;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        bus, landing, previousMovementType: 6, previousPose: 0x29,
+        bus, landing, previousMovementType: SamusMovementType.Falling, previousPose: 0x29,
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
     AssertEqual(7, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "zero-speed grounding returns before graphics dispatch");
@@ -1333,7 +1333,7 @@ static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.FxYPosition = ushort.MaxValue;
     landing.Kinematics.YSubspeed = 1;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-        bus, landing, previousMovementType: 6, previousPose: 0x29,
+        bus, landing, previousMovementType: SamusMovementType.Falling, previousPose: 0x29,
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
     AssertEqual(1, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "Landing Site type-A FX selects splash");

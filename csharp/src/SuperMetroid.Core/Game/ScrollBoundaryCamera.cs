@@ -136,7 +136,7 @@ public sealed class ScrollBoundaryCamera
         // moonwalk movement type $10, or acceleration mode one reverses which facing table
         // applies; pose X direction four is the ROM's right-facing value.
         bool backwards = context.KnockbackDirection != 0
-            || context.MovementType == 0x10
+            || context.MovementType == SamusMovementType.Moonwalking
             || context.XAccelerationMode == 1;
         bool useFacingRightTable = backwards ^ (context.PoseXDirection != 4);
         int distanceSlot = context.CameraDistanceIndex >> 1;
@@ -557,7 +557,7 @@ public readonly record struct SamusCameraPoint(
 /// <summary>State branches used by horizontal camera target selection at <c>$90:95B7</c>.</summary>
 public readonly record struct HorizontalCameraContext(
     ushort KnockbackDirection,
-    byte MovementType,
+    SamusMovementType MovementType,
     ushort XAccelerationMode,
     byte PoseXDirection,
     ushort CameraDistanceIndex);

@@ -3833,7 +3833,7 @@ else if (options.DeathScript)
     // reads the live pose movement type/direction and owns every subsequent art/timer word.
     SamusDeathSequenceStartResult deathStart = runtime.BeginDeathSequenceAfterMusicWait();
     Console.WriteLine(
-        $"Death setup: source type=${deathStart.SourceMovementType:X2}, " +
+        $"Death setup: source type=${(byte)deathStart.SourceMovementType:X2}, " +
         $"pose=${deathStart.DeathPose:X2}, frame={deathStart.InitialFrame}, " +
         $"screen=({deathStart.ScreenX},{deathStart.ScreenY}), " +
         $"spinSfx={deathStart.SpinJumpSoundRequested}.");
@@ -4037,8 +4037,8 @@ if (options.GrappleScript || options.GrappleFireScript)
 SamusHorizontalSpeedState horizontalSpeed = runtime.Samus.HorizontalSpeed;
 horizontalSpeed.SelectEnvironmentSpeedTable(
     runtime.Samus.LiquidPhysics.DetermineMovementMedium(runtime.Samus));
-int runningSpeedAddress = horizontalSpeed.ResolveEntryAddress(movementType: 1);
-SpeedTableEntry runningSpeed = horizontalSpeed.ReadEntry(bus, movementType: 1);
+int runningSpeedAddress = horizontalSpeed.ResolveEntryAddress(movementType: SamusMovementType.Running);
+SpeedTableEntry runningSpeed = horizontalSpeed.ReadEntry(bus, movementType: SamusMovementType.Running);
 Console.WriteLine(
     $"Running speed table ${runningSpeedAddress >> 16:X2}:{runningSpeedAddress & 0xffff:X4}: " +
     $"accel {runningSpeed.Acceleration:X4}.{runningSpeed.AccelerationSubspeed:X4}, " +
@@ -6110,7 +6110,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         runtime.Samus.Kinematics.ExtraYFixed == 0;
     observedKnockbackMovement |= runtime.LastKnockbackMovement is not null;
     observedDamageBoostMovement |= runtime.LastAerialSamusMovement is not null &&
-        runtime.Samus.ReadMovementType(bus) == 0x19;
+        runtime.Samus.ReadMovementType(bus) == SamusMovementType.DamageBoost;
     observedMorphedKnockbackCompletion |= options.MorphKnockbackScript &&
         runtime.LastKnockbackMovement is { Ended: true } &&
         runtime.Samus.Pose == SamusPoseIds.MorphBallGroundRightPose &&
@@ -6330,7 +6330,10 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     observedDashMomentum |= runtime.Samus.HorizontalSpeed.HasRunningMomentum;
     observedDashAerialCarry |= runtime.Samus.HorizontalSpeed.HasRunningMomentum &&
         currentExtraRunSpeed != 0 &&
-        runtime.Samus.ReadMovementType(bus) is 2 or 3 or 6;
+        runtime.Samus.ReadMovementType(bus) is
+            SamusMovementType.NormalJumping or
+            SamusMovementType.SpinJumping or
+            SamusMovementType.Falling;
 
     // Put a breakpoint here to inspect the complete runtime after any chosen frame. The
     // NoInlining attribute below keeps this method as a reliable stack frame in Debug and

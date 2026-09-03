@@ -52,21 +52,45 @@ public static class SamusKnockbackMovement
         if (samus.KnockbackActive || samus.KnockbackDirection != 0)
             throw new InvalidOperationException("Normal knockback is already active or pending.");
 
-        byte sourceMovementType = samus.ReadMovementType(bus);
-        bool morphed = sourceMovementType is 4 or 8 or 9 or 0x11 or 0x12 or 0x13;
-        bool humanoid = sourceMovementType is 0 or 1 or 2 or 3 or 5 or 6 or 0x0d or
-            0x10 or 0x14 or 0x15;
-        bool unusedMovementSeven = sourceMovementType == 7;
+        SamusMovementType sourceMovementType = samus.ReadMovementType(bus);
+        bool morphed = sourceMovementType is
+            SamusMovementType.MorphBallGround or
+            SamusMovementType.MorphBallFalling or
+            SamusMovementType.UnusedGlitchBallAlternate or
+            SamusMovementType.SpringBallGround or
+            SamusMovementType.SpringBallInAir or
+            SamusMovementType.SpringBallFalling;
+        bool humanoid = sourceMovementType is
+            SamusMovementType.Standing or
+            SamusMovementType.Running or
+            SamusMovementType.NormalJumping or
+            SamusMovementType.SpinJumping or
+            SamusMovementType.Crouching or
+            SamusMovementType.Falling or
+            SamusMovementType.Unused0D or
+            SamusMovementType.Moonwalking or
+            SamusMovementType.WallJumping or
+            SamusMovementType.RanIntoWall;
+        bool unusedMovementSeven = sourceMovementType == SamusMovementType.UnusedGlitchBall;
         bool suppressesKnockback = sourceMovementType is
-            0x0a or 0x0b or 0x0c or 0x0e or 0x0f or 0x16 or 0x17 or 0x18 or 0x19 or
-            0x1a or 0x1b;
+            SamusMovementType.Knockback or
+            SamusMovementType.Unused0B or
+            SamusMovementType.Unused0C or
+            SamusMovementType.TurningOnGround or
+            SamusMovementType.PostureTransition or
+            SamusMovementType.Grappling or
+            SamusMovementType.TurningWhileJumping or
+            SamusMovementType.TurningWhileFalling or
+            SamusMovementType.DamageBoost or
+            SamusMovementType.DraygonHeld or
+            SamusMovementType.Special;
         if (!morphed && !humanoid && !unusedMovementSeven && !suppressesKnockback)
         {
             // Bank `$90:DDE9` contains exactly 28 entries, indexed by the low movement byte.
             // A larger value cannot name another native behavior; it means the caller supplied
             // corrupt pose metadata rather than an untranslated movement family.
             throw new InvalidDataException(
-                $"Movement type ${sourceMovementType:X2} lies outside the 28-entry knockback table.");
+                $"Movement type ${(byte)sourceMovementType:X2} lies outside the 28-entry knockback table.");
         }
 
         // Enemy contact has already established `$18AA` before `$90:DDE9` selects a pose.
@@ -172,14 +196,14 @@ public static class SamusKnockbackMovement
             // Only `$53/$54` are movement type `$0A`; `$90:DE20` gives that family a new
             // `$29/$2A` pose. A ball retains whatever Morph/Spring pose is current and goes
             // directly to the shared command-one cleanup at `$91:F31D`.
-            return samus.ReadMovementType(bus) == 0x0a
+            return samus.ReadMovementType(bus) == SamusMovementType.Knockback
                 ? FinishHumanoidToFalling(bus, samus)
                 : EndWithoutPoseChange(samus);
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
-        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: 0x0a);
+        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: SamusMovementType.Knockback);
         int requestedX = samus.KnockbackXDirection == 0
             ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
             : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);

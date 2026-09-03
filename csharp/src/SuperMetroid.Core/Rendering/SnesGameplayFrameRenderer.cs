@@ -14,9 +14,9 @@ public static class SnesGameplayFrameRenderer
     // with zero pointing up; every table word is |dx/dy| in 8.8 fixed point.
     private const int XrayAbsoluteTangentTableAddress = 0x91c9d4;
 
-    public const int Width = 256;
-    public const int Height = 224;
-    public const int HudHeight = 32;
+    public const int Width = SnesPpuLayout.ScreenWidthPixels;
+    public const int Height = SnesPpuLayout.ScreenHeightPixels;
+    public const int HudHeight = SnesPpuLayout.GameplayHudHeightPixels;
 
     /// <summary>
     /// Combines the scanline-switched BG3 HUD and OBJ table. Room BG1/BG2 pixels will be
@@ -114,7 +114,7 @@ public static class SnesGameplayFrameRenderer
         Rgba32[] bg1 = SnesBgTilemapRenderer.Render4BppViewport(
             vram,
             cgram,
-            tilemapBaseWord: 0x5000,
+            tilemapBaseWord: SnesPpuLayout.GameplayBg1TilemapWord,
             characterBaseWord: 0,
             bg1HorizontalScroll,
             bg1VerticalScroll,
@@ -152,7 +152,7 @@ public static class SnesGameplayFrameRenderer
         Rgba32[] bg2 = SnesBgTilemapRenderer.Render4BppViewport(
             vram,
             cgram,
-            tilemapBaseWord: 0x4800,
+            tilemapBaseWord: SnesPpuLayout.GameplayBg2TilemapWord,
             characterBaseWord: 0,
             horizontalScroll: 0,
             // IRQ command 4 reserves physical scanlines 0-31 for BG3. The PPU does not
@@ -374,8 +374,8 @@ public static class SnesGameplayFrameRenderer
                     int bg2ScreenColumn = bg2TileX >> 5;
                     int bg2ScreenRow = bg2TileY >> 5;
                     int bg2MapWord = (
-                        0x4800 +
-                        (bg2ScreenRow * bg2ScreensPerRow + bg2ScreenColumn) * 0x0400 +
+                        SnesPpuLayout.GameplayBg2TilemapWord +
+                        (bg2ScreenRow * bg2ScreensPerRow + bg2ScreenColumn) * SnesPpuLayout.TilemapPageWordCount +
                         (bg2TileY & 31) * 32 +
                         (bg2TileX & 31)) & 0x7fff;
                     int bg2MapByte = bg2MapWord * 2;
@@ -404,8 +404,8 @@ public static class SnesGameplayFrameRenderer
                 if (bg1TileX != previousBg1TileX)
                 {
                     int bg1MapWord = (
-                        0x5000 +
-                        (bg1TileX >> 5) * 0x0400 +
+                        SnesPpuLayout.GameplayBg1TilemapWord +
+                        (bg1TileX >> 5) * SnesPpuLayout.TilemapPageWordCount +
                         bg1TileY * 32 +
                         (bg1TileX & 31)) & 0x7fff;
                     int bg1MapByte = bg1MapWord * 2;
@@ -516,7 +516,7 @@ public static class SnesGameplayFrameRenderer
             output[..(HudHeight * Width)],
             vram,
             cgram,
-            tilemapBaseWord: 0x5800,
+            tilemapBaseWord: SnesPpuLayout.GameplayHudTilemapWord,
             characterBaseWord: 0x4000,
             rowCount: 4);
     }
@@ -968,7 +968,9 @@ public static class SnesGameplayFrameRenderer
                 int scrolledX = unchecked(fx.HorizontalScroll + screenX) & 0xff;
                 int tileX = scrolledX >> 3;
                 int pixelX = scrolledX & 7;
-                SnesBgTilemapWord entry = vram.ReadWord(0x5c00 + tileY * 32 + tileX);
+                SnesBgTilemapWord entry = vram.ReadWord(
+                    SnesPpuLayout.RoomFxTilemapWord +
+                    tileY * SnesPpuLayout.TilemapPageWidthInTiles + tileX);
                 int sourceX = entry.FlipHorizontally ? 7 - pixelX : pixelX;
                 int sourceY = entry.FlipVertically ? 7 - pixelY : pixelY;
                 int characterByte = ((0x4000 + entry.CharacterIndex * 8) & 0x7fff) * 2;

@@ -38,8 +38,8 @@ public static class SnesMode7Renderer
         short centerY,
         short horizontalOffset,
         short verticalOffset,
-        int width = 256,
-        int height = 224,
+        int width = SnesPpuLayout.ScreenWidthPixels,
+        int height = SnesPpuLayout.ScreenHeightPixels,
         bool fillOutsideWithCharacterZero = false)
     {
         ArgumentNullException.ThrowIfNull(vram);
@@ -84,8 +84,8 @@ public static class SnesMode7Renderer
         short centerY,
         short horizontalOffset,
         short verticalOffset,
-        int width = 256,
-        int height = 224,
+        int width = SnesPpuLayout.ScreenWidthPixels,
+        int height = SnesPpuLayout.ScreenHeightPixels,
         bool fillOutsideWithCharacterZero = false)
     {
         ArgumentNullException.ThrowIfNull(vram);

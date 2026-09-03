@@ -80,6 +80,18 @@ static void VerifyTypedNativeWords()
     AssertEqual(0x940000, (int)new SnesAddress(0x94, 0xffff).AddWithinBank(1),
         "typed fixed-bank step remains distinct from linear LoROM step");
 
+    AssertEqual(256, SnesPpuLayout.ScreenWidthPixels, "PPU low-resolution screen width");
+    AssertEqual(224, SnesPpuLayout.ScreenHeightPixels, "PPU visible screen height");
+    AssertEqual(192, SnesPpuLayout.GameplayViewportHeightPixels,
+        "gameplay viewport excludes the 32-line HUD");
+    AssertEqual(0x10000, SnesPpuLayout.VramByteCount, "PPU VRAM byte capacity");
+    AssertEqual(512, SnesPpuLayout.CgramByteCount, "PPU CGRAM byte capacity");
+    AssertEqual(544, SnesPpuLayout.OamUploadByteCount, "PPU OAM upload size");
+    AssertEqual(0x0400, SnesPpuLayout.TilemapPageWordCount,
+        "PPU 32-by-32 tilemap page size");
+    AssertEqual((ushort)0x5000, SnesPpuLayout.GameplayBg1TilemapWord,
+        "engine gameplay BG1 tilemap placement");
+
     // A cartridge turn is a 16-bit wrapping domain whose high byte indexes the shared
     // 256-entry sine tables. Verify named axes, full-turn normalization, fractional
     // preservation, and the signed modular subtraction used near the wrap seam.

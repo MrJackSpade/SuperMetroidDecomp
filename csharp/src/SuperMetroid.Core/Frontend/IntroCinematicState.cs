@@ -19,8 +19,8 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class IntroCinematicState
 {
-    private const int ScreenWidth = 256;
-    private const int ScreenHeight = 224;
+    private const int ScreenWidth = SnesPpuLayout.ScreenWidthPixels;
+    private const int ScreenHeight = SnesPpuLayout.ScreenHeightPixels;
 
     // `$8B:A66F` writes cinematic_var10/BG1VOFS=8 when it creates the first illustrated
     // page. Neither `$8B:AEB8` (Mother Brain) nor `$8B:AF6C` (SR388 discovery) resets that

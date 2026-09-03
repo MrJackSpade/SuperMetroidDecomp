@@ -39,8 +39,8 @@ public static class SnesObjRenderer
         SnesVram vram,
         SnesCgram cgram,
         byte obsel,
-        int width = 256,
-        int height = 224,
+        int width = SnesPpuLayout.ScreenWidthPixels,
+        int height = SnesPpuLayout.ScreenHeightPixels,
         int? priority = null)
     {
         ArgumentNullException.ThrowIfNull(oam);
@@ -89,8 +89,8 @@ public static class SnesObjRenderer
         SnesVram vram,
         SnesCgram cgram,
         byte obsel,
-        int width = 256,
-        int height = 224)
+        int width = SnesPpuLayout.ScreenWidthPixels,
+        int height = SnesPpuLayout.ScreenHeightPixels)
     {
         ArgumentNullException.ThrowIfNull(oam);
         ArgumentNullException.ThrowIfNull(vram);
@@ -126,8 +126,8 @@ public static class SnesObjRenderer
         byte obsel,
         Span<Rgba32> pixels,
         Span<byte> priorities,
-        int width = 256,
-        int height = 224)
+        int width = SnesPpuLayout.ScreenWidthPixels,
+        int height = SnesPpuLayout.ScreenHeightPixels)
     {
         ArgumentNullException.ThrowIfNull(oam);
         ArgumentNullException.ThrowIfNull(vram);

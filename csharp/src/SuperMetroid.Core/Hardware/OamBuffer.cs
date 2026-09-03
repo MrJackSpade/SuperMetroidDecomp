@@ -14,10 +14,10 @@ namespace SuperMetroid.Core.Hardware;
 /// </remarks>
 public sealed class OamBuffer
 {
-    public const int SpriteCount = 128;
-    public const int LowTableByteCount = SpriteCount * 4;
-    public const int HighTableByteCount = SpriteCount / 4;
-    public const int UploadByteCount = LowTableByteCount + HighTableByteCount;
+    public const int SpriteCount = SnesPpuLayout.OamSpriteCount;
+    public const int LowTableByteCount = SnesPpuLayout.OamLowTableByteCount;
+    public const int HighTableByteCount = SnesPpuLayout.OamHighTableByteCount;
+    public const int UploadByteCount = SnesPpuLayout.OamUploadByteCount;
 
     private readonly byte[] _lowTable = new byte[LowTableByteCount];
     private readonly byte[] _highTable = new byte[HighTableByteCount];

@@ -11,6 +11,6 @@ public readonly record struct FrontendFrame(
     Rgba32[] Pixels,
     IReadOnlyList<CartridgeAudioCommand> AudioCommands)
 {
-    public const int Width = 256;
-    public const int Height = 224;
+    public const int Width = SnesPpuLayout.ScreenWidthPixels;
+    public const int Height = SnesPpuLayout.ScreenHeightPixels;
 }

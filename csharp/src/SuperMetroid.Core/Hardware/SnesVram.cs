@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Hardware;
 public sealed class SnesVram
 {
     /// <summary>The PPU contains 32,768 16-bit VRAM words.</summary>
-    public const int WordCount = 0x8000;
+    public const int WordCount = SnesPpuLayout.VramWordCount;
 
     /// <summary>Two bytes per word gives the physical 64 KiB storage size.</summary>
-    public const int ByteCount = WordCount * 2;
+    public const int ByteCount = SnesPpuLayout.VramByteCount;
 
     private readonly byte[] _bytes = new byte[ByteCount];
 

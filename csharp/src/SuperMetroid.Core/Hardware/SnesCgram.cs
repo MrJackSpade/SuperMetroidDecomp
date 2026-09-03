@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Hardware;
 /// </remarks>
 public sealed class SnesCgram
 {
-    public const int ColorCount = 256;
-    public const int ByteCount = ColorCount * 2;
+    public const int ColorCount = SnesPpuLayout.CgramColorCount;
+    public const int ByteCount = SnesPpuLayout.CgramByteCount;
 
     private readonly ushort[] _colors = new ushort[ColorCount];
 

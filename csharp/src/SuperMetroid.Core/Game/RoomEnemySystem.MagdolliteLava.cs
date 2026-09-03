@@ -13,7 +13,8 @@ public readonly record struct MagdolliteLavaDropRequest(
 
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort MagdolliteLavaPreInstruction = 0xe049;
+    internal const ushort MagdolliteLavaPreInstruction =
+        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MagdolliteLava;
     internal const ushort MagdolliteLavaDropInstruction = 0xdfea;
 
     private const ushort MagdolliteLavaLeftInstructionList = 0xdfd8;

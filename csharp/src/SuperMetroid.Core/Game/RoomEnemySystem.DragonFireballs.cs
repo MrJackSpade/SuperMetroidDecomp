@@ -7,7 +7,8 @@ public sealed partial class RoomEnemySystem
     private const ushort DragonFireballRisingRightInstruction = 0xb4cb;
     private const ushort DragonFireballFallingLeftInstruction = 0xb4d7;
     private const ushort DragonFireballFallingRightInstruction = 0xb4e3;
-    private const ushort DragonFireballPreInstruction = 0xb535;
+    private const ushort DragonFireballPreInstruction =
+        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_DragonFireball;
     private const ushort DragonFireballInitialYVelocity = 0xfc3f;
     private const ushort DragonFireballLeftXVelocity = 0xfd40;
     private const ushort DragonFireballRightXVelocity = 0x02c0;

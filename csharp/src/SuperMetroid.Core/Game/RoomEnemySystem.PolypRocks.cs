@@ -3,7 +3,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$86 projectile half of Polyp's lava-rock attack.</summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort PolypRockPreInstruction = 0xbc0f;
+    private const ushort PolypRockPreInstruction =
+        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PolypRock;
     private const ushort PolypRockInstructionList = 0xbbd5;
     private const ushort PolypRockRisingFunction = 0xbc16;
     private const ushort PolypRockFallingFunction = 0xbc8f;

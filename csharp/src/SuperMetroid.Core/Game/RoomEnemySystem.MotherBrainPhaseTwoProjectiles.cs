@@ -126,7 +126,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         drool.YPosition = unchecked((ushort)(drool.YPosition - 4));
-        drool.InstructionPointer = 0xc8e1;
+        drool.InstructionPointer = EnemyProjectileInstructionLists.MotherBrainDroolFalling;
         drool.InstructionTimer = 1;
     }
 

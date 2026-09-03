@@ -606,9 +606,11 @@ public sealed partial class RoomEnemySystem
         projectile.XSubposition = 0;
         projectile.YSubposition = 0;
         projectile.DirectionParameter = direction;
-        projectile.InstructionPointer = direction == 0 ? (ushort)0x9fb9 : (ushort)0x9fe1;
+        projectile.InstructionPointer = direction == 0
+            ? EnemyProjectileInstructionLists.PirateLaserLeft
+            : EnemyProjectileInstructionLists.PirateLaserRight;
         projectile.InstructionTimer = 1;
-        projectile.PreInstruction = 0xa05b;
+        projectile.PreInstruction = EnemyProjectileCodePointers.RTS_86A05B;
         projectile.Variable0 = 0x0800;
         projectile.Variable1 = 1;
         state.SpawnedClawCount++;
@@ -622,7 +624,8 @@ public sealed partial class RoomEnemySystem
     {
         int pixels = projectile.Variable0 >> 8;
         bool outbound = projectile.Variable1 != 0;
-        bool thrownRight = projectile.PreInstruction == 0xa124;
+        bool thrownRight = projectile.PreInstruction ==
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PirateClaw_Right;
         int direction = thrownRight ? 1 : -1;
 
         // Outbound motion follows the throw direction while decelerating to zero; inbound

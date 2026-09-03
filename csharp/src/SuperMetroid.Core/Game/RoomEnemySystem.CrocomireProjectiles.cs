@@ -74,7 +74,8 @@ public sealed partial class RoomEnemySystem
         projectile.XVelocity = ReadCrocomireProjectileVelocity(
             unchecked((byte)(angle + 64)));
         projectile.YVelocity = ReadCrocomireProjectileVelocity(angle);
-        projectile.PreInstruction = 0x90b3;
+        projectile.PreInstruction =
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CrocomiresProjectile_Fired;
     }
 
     /// <summary>Ports <c>sub_8690B3</c>: delete on the first horizontal/vertical wall hit.</summary>

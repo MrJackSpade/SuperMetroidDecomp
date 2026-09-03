@@ -195,13 +195,15 @@ public sealed partial class RoomEnemySystem
         {
             projectile.XPosition = unchecked((ushort)(torizo.XPosition + 32));
             projectile.XVelocity = 624;
-            projectile.InstructionPointer = 0xadd2;
+            projectile.InstructionPointer =
+                EnemyProjectileInstructionLists.BombTorizoSonicBoomRight;
         }
         else
         {
             projectile.XPosition = unchecked((ushort)(torizo.XPosition - 32));
             projectile.XVelocity = unchecked((ushort)-624);
-            projectile.InstructionPointer = 0xadbf;
+            projectile.InstructionPointer =
+                EnemyProjectileInstructionLists.BombTorizoSonicBoomLeft;
         }
     }
 
@@ -325,7 +327,8 @@ public sealed partial class RoomEnemySystem
     {
         if (MoveProjectileAxis(projectile, level, horizontal: true))
         {
-            projectile.InstructionPointer = 0xab25;
+            projectile.InstructionPointer =
+                EnemyProjectileInstructionLists.BombTorizoOrbWallImpact;
             projectile.InstructionTimer = 1;
             projectile.CanDamageSamus = false;
             return;
@@ -336,7 +339,7 @@ public sealed partial class RoomEnemySystem
         {
             projectile.YPosition = unchecked((ushort)(
                 (projectile.YPosition & 0xfff0) + 6));
-            projectile.InstructionPointer = 0xab41;
+            projectile.InstructionPointer = EnemyProjectileInstructionLists.TorizoOrbFloorImpact;
             projectile.InstructionTimer = 1;
             projectile.CanDamageSamus = false;
             return;
@@ -353,7 +356,8 @@ public sealed partial class RoomEnemySystem
     {
         if (MoveProjectileAxis(projectile, level, horizontal: true))
         {
-            projectile.InstructionPointer = 0xade5;
+            projectile.InstructionPointer =
+                EnemyProjectileInstructionLists.BombTorizoSonicBoomImpact;
             projectile.InstructionTimer = 1;
             projectile.Variable0 = projectile.XPosition;
             projectile.Variable1 = projectile.YPosition;
@@ -378,7 +382,8 @@ public sealed partial class RoomEnemySystem
     {
         if (MoveProjectileAxis(projectile, level, horizontal: true))
         {
-            projectile.InstructionPointer = 0xa48a;
+            projectile.InstructionPointer =
+                EnemyProjectileInstructionLists.BombTorizoDroolWallImpact;
             projectile.InstructionTimer = 1;
             return;
         }
@@ -399,7 +404,8 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)projectile.YVelocity) >= 0 && verticalCollision)
         {
             projectile.YPosition = unchecked((ushort)(projectile.YPosition - 3));
-            projectile.InstructionPointer = 0xa48e;
+            projectile.InstructionPointer =
+                EnemyProjectileInstructionLists.BombTorizoDroolFloorImpact;
             projectile.InstructionTimer = 1;
             return;
         }
@@ -428,7 +434,8 @@ public sealed partial class RoomEnemySystem
             {
                 projectile.YPosition = unchecked((ushort)(
                     (projectile.YPosition & 0xfff0) + 6));
-                projectile.InstructionPointer = 0xab41;
+                projectile.InstructionPointer =
+                    EnemyProjectileInstructionLists.TorizoOrbFloorImpact;
                 projectile.InstructionTimer = 1;
                 projectile.CanDamageSamus = false;
                 return;
@@ -478,7 +485,8 @@ public sealed partial class RoomEnemySystem
     {
         if (MoveProjectileAxis(projectile, level, horizontal: true))
         {
-            projectile.PreInstruction = 0xb0dd;
+            projectile.PreInstruction =
+                EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_HitWall;
             projectile.YVelocity = 0;
             return;
         }
@@ -494,8 +502,8 @@ public sealed partial class RoomEnemySystem
         if (MoveProjectileAxis(projectile, level, horizontal: false))
         {
             projectile.InstructionPointer = (projectile.Variable0 & 0x8000) != 0
-                ? (ushort)0xb1a8
-                : (ushort)0xb190;
+                ? EnemyProjectileInstructionLists.GoldenTorizoEggHatchedRight
+                : EnemyProjectileInstructionLists.GoldenTorizoEggHatchedLeft;
             projectile.InstructionTimer = 1;
             return;
         }
@@ -531,7 +539,8 @@ public sealed partial class RoomEnemySystem
 
         if (impact)
         {
-            projectile.InstructionPointer = 0xb2ef;
+            projectile.InstructionPointer =
+                EnemyProjectileInstructionLists.GoldenTorizoSuperMissileImpact;
             projectile.InstructionTimer = 1;
             return;
         }
@@ -568,7 +577,8 @@ public sealed partial class RoomEnemySystem
     {
         if (MoveProjectileAxis(projectile, level, horizontal: true))
         {
-            projectile.InstructionPointer = 0xb3cd;
+            projectile.InstructionPointer =
+                EnemyProjectileInstructionLists.GoldenTorizoEyeBeamWallImpact;
             projectile.InstructionTimer = 1;
             return;
         }
@@ -577,7 +587,8 @@ public sealed partial class RoomEnemySystem
         {
             projectile.YPosition = unchecked((ushort)(
                 (projectile.YPosition & 0xfff0) + 6));
-            projectile.InstructionPointer = 0xb3e5;
+            projectile.InstructionPointer =
+                EnemyProjectileInstructionLists.GoldenTorizoEyeBeamFloorImpact;
             projectile.InstructionTimer = 1;
         }
     }

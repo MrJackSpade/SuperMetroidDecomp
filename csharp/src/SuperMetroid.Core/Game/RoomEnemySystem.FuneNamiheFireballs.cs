@@ -5,7 +5,8 @@ public sealed partial class RoomEnemySystem
 {
     private const ushort NamiFuneFireballLeftInstructionList = 0xde96;
     private const ushort NamiFuneFireballRightInstructionList = 0xdea6;
-    private const ushort NamiFuneFireballPreInstruction = 0xdf39;
+    private const ushort NamiFuneFireballPreInstruction =
+        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_NamiFuneFireball;
     private const ushort NamiFuneFireballMovingLeft = 0xdf40;
     private const ushort NamiFuneFireballMovingRight = 0xdf6a;
     private const int NamiFuneFireballVelocityTable = 0x86deb6;

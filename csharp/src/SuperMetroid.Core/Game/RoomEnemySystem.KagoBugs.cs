@@ -41,9 +41,12 @@ public readonly record struct KagoBugDropRequest(
 
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort KagoBugIdlePreInstruction = 0xd0ca;
-    internal const ushort KagoBugJumpingPreInstruction = 0xd0ec;
-    internal const ushort KagoBugFallingPreInstruction = 0xd128;
+    internal const ushort KagoBugIdlePreInstruction =
+        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Idle;
+    internal const ushort KagoBugJumpingPreInstruction =
+        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Jumping;
+    internal const ushort KagoBugFallingPreInstruction =
+        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Falling;
     internal const ushort KagoBugStartJumpInstruction = 0xd15c;
     internal const ushort KagoBugStartIdleInstruction = 0xd1b6;
     internal const ushort KagoBugUsePaletteZeroInstruction = 0xd1c7;
@@ -139,7 +142,7 @@ public sealed partial class RoomEnemySystem
 
         projectile.InstructionPointer = KagoBugJumpStartInstructionList;
         projectile.InstructionTimer = 1;
-        projectile.PreInstruction = 0xd0eb; // Native one-byte RTS/no-op used during startup art.
+        projectile.PreInstruction = EnemyProjectileCodePointers.RTS_86D0EB;
     }
 
     /// <summary>Ports airborne rising pre-instruction <c>$86:D0EC</c>.</summary>
@@ -186,7 +189,7 @@ public sealed partial class RoomEnemySystem
 
         if (MoveProjectileAxis(projectile, level, horizontal: false))
         {
-            projectile.PreInstruction = 0xd0eb;
+            projectile.PreInstruction = EnemyProjectileCodePointers.RTS_86D0EB;
             projectile.InstructionPointer = KagoBugLandedInstructionList;
             projectile.InstructionTimer = 1;
             return;

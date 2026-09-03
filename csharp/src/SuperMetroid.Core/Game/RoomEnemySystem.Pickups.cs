@@ -18,7 +18,8 @@ public enum EnemyPickupKind : ushort
 
 public sealed partial class RoomEnemySystem
 {
-    private const ushort EnemyPickupPreInstruction = 0xefe0;
+    private const ushort EnemyPickupPreInstruction =
+        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pickup;
     private const ushort EnemyPickupLifetime = 400;
     private const ushort EnemyPickupGrappleDelay = 16;
     private const int EnemyPickupInstructionPointerTable = 0x86ef04;
@@ -266,7 +267,7 @@ public sealed partial class RoomEnemySystem
         // and $8154 deletes the actor. Collection and natural expiry use this same tail.
         projectile.InstructionPointer = EnemyDeathNoDropTail;
         projectile.InstructionTimer = 1;
-        projectile.PreInstruction = 0xefdf;
+        projectile.PreInstruction = EnemyProjectileCodePointers.RTS_86EFDF;
         projectile.CanDamageSamus = false;
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;

@@ -380,7 +380,7 @@ public sealed partial class RoomEnemySystem
                         bus,
                         0x860000 | unchecked((ushort)((ushort)enemyProjectile.Kind + 12)));
                     enemyProjectile.InstructionTimer = 1;
-                    enemyProjectile.PreInstruction = 0x84fb;
+                    enemyProjectile.PreInstruction = EnemyProjectileCodePointers.RTS_8684FB;
 
                     // Native masks properties with $0FFF. The typed fields below are the
                     // three high property bits represented by this runtime, so clearing
@@ -676,7 +676,8 @@ public sealed partial class RoomEnemySystem
                 RunBombTorizoStatueBreakingPreInstruction(projectile, level);
                 return;
 
-            case EnemyPickupPreInstruction: // Lifetime, grapple endpoint, then Samus body.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pickup:
+                // Lifetime, grapple endpoint, then Samus body.
                 RunEnemyPickupPreInstruction(projectile, samus);
                 return;
 
@@ -940,15 +941,15 @@ public sealed partial class RoomEnemySystem
                 RunAlcoonFireballPreInstruction(projectile, level);
                 return;
 
-            case KiHunterAcidMovingPreInstruction:
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Moving:
                 RunKiHunterAcidMovement(projectile, level);
                 return;
 
-            case KiHunterAcidInitialLeftPreInstruction:
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Left:
                 StartKiHunterAcidMovement(projectile, movingRight: false);
                 return;
 
-            case KiHunterAcidInitialRightPreInstruction:
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Right:
                 StartKiHunterAcidMovement(projectile, movingRight: true);
                 return;
 
@@ -960,35 +961,39 @@ public sealed partial class RoomEnemySystem
                 RunWorkRobotLaserPreInstruction(projectile, level);
                 return;
 
-            case StokeProjectilePreInstruction: // Stoke shot: horizontal motion and viewport cull.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_StokeFireball:
+                // Stoke shot: horizontal motion and viewport cull.
                 RunStokeProjectilePreInstruction(projectile, cameraX, cameraY);
                 return;
 
-            case CacatacSpikePreInstruction: // Cacatac spike: ten direction-table movers.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CacatacSpike:
+                // Cacatac spike: ten direction-table movers.
                 RunCacatacSpikePreInstruction(projectile, cameraX, cameraY);
                 return;
 
-            case PolypRockPreInstruction: // Polyp rock: quadratic rise/fall and viewport cull.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PolypRock:
+                // Polyp rock: quadratic rise/fall and viewport cull.
                 RunPolypRockPreInstruction(projectile, cameraX, cameraY);
                 return;
 
-            case NamiFuneFireballPreInstruction: // Fune/Namihe: directional 8.8 flight and cull.
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_NamiFuneFireball:
+                // Fune/Namihe: directional 8.8 flight and cull.
                 RunFuneNamiheFireballPreInstruction(projectile, cameraX, cameraY);
                 return;
 
-            case MagdolliteLavaPreInstruction:
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MagdolliteLava:
                 RunMagdolliteLavaPreInstruction(projectile, cameraX, cameraY);
                 return;
 
-            case KagoBugIdlePreInstruction:
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Idle:
                 RunKagoBugIdle(projectile);
                 return;
 
-            case KagoBugJumpingPreInstruction:
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Jumping:
                 RunKagoBugJumping(projectile, level);
                 return;
 
-            case KagoBugFallingPreInstruction:
+            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Falling:
                 RunKagoBugFalling(projectile, level);
                 return;
 
@@ -1299,7 +1304,7 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction:
-                    projectile.PreInstruction = 0x8170;
+                    projectile.PreInstruction = EnemyProjectileCodePointers.RTS_868170;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_CallExternalFunctionInY:
@@ -1325,7 +1330,8 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
                 case EnemyProjectileCodePointers.Instruction_SetPreInst_DraygonsWallTurretProjectile_Fired when projectile.Kind == RoomEnemyProjectileKind.DraygonWallTurret:
-                    projectile.PreInstruction = 0x8dff;
+                    projectile.PreInstruction =
+                        EnemyProjectileCodePointers.PreInstruction_EnemyProj_DraygonsWallTurretProjectile_Fired;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileCodePointers.Instruction_DraygonGoop_SamusCollision when projectile.Kind == RoomEnemyProjectileKind.DraygonGoop:
@@ -1409,8 +1415,8 @@ public sealed partial class RoomEnemySystem
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GoldenTorizoEgg_GoToHatched:
                     cursor = (projectile.Variable0 & 0x8000) != 0
-                        ? (ushort)0xb166
-                        : (ushort)0xb14b;
+                        ? EnemyProjectileInstructionLists.GoldenTorizoEggHatchTargetRight
+                        : EnemyProjectileInstructionLists.GoldenTorizoEggHatchTargetLeft;
                     break;
                 case EnemyProjectileCodePointers.Instruction_AimSuperMissile_Rightwards:
                 case EnemyProjectileCodePointers.Instruction_AimSuperMissile_Leftwards:
@@ -1422,7 +1428,8 @@ public sealed partial class RoomEnemySystem
                     SetGoldenTorizoSuperMissileVelocity(
                         projectile,
                         samus,
-                        awayFromSamus: word == 0xb272);
+                        awayFromSamus:
+                            word == EnemyProjectileCodePointers.Instruction_AimSuperMissile_Leftwards);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoYIfEyeBeamExplosionsDisabled:
@@ -1697,7 +1704,7 @@ public sealed partial class RoomEnemySystem
 
     private static void BeginAfterburnFinalAnimation(RoomEnemyProjectileSlot projectile)
     {
-        projectile.InstructionPointer = 0x9574;
+        projectile.InstructionPointer = EnemyProjectileInstructionLists.RidleyCenterAfterburn;
         projectile.InstructionTimer = 1;
         projectile.XVelocity = 0;
         projectile.YVelocity = 0;
@@ -1713,28 +1720,28 @@ public sealed partial class RoomEnemySystem
             6,
             0x0140,
             0xfcff,
-            instructionPointer: 0x8abd);
+            instructionPointer: EnemyProjectileInstructionLists.SkreeParticle);
         SpawnSkreeOrMetareeParticle(
             skree,
             RoomEnemyProjectileKind.SkreeParticleUpRight,
             6,
             0x0060,
             0xfbff,
-            instructionPointer: 0x8abd);
+            instructionPointer: EnemyProjectileInstructionLists.SkreeParticle);
         SpawnSkreeOrMetareeParticle(
             skree,
             RoomEnemyProjectileKind.SkreeParticleDownLeft,
             -6,
             0xfec0,
             0xfcff,
-            instructionPointer: 0x8abd);
+            instructionPointer: EnemyProjectileInstructionLists.SkreeParticle);
         SpawnSkreeOrMetareeParticle(
             skree,
             RoomEnemyProjectileKind.SkreeParticleUpLeft,
             -6,
             0xffa0,
             0xfbff,
-            instructionPointer: 0x8abd);
+            instructionPointer: EnemyProjectileInstructionLists.SkreeParticle);
     }
 
     /// <summary>
@@ -1750,28 +1757,28 @@ public sealed partial class RoomEnemySystem
             6,
             0x0140,
             0xfcff,
-            instructionPointer: 0x8ac5);
+            instructionPointer: EnemyProjectileInstructionLists.MetareeParticle);
         SpawnSkreeOrMetareeParticle(
             metaree,
             RoomEnemyProjectileKind.MetareeParticleUpRight,
             6,
             0x0060,
             0xfbff,
-            instructionPointer: 0x8ac5);
+            instructionPointer: EnemyProjectileInstructionLists.MetareeParticle);
         SpawnSkreeOrMetareeParticle(
             metaree,
             RoomEnemyProjectileKind.MetareeParticleDownLeft,
             -6,
             0xfec0,
             0xfcff,
-            instructionPointer: 0x8ac5);
+            instructionPointer: EnemyProjectileInstructionLists.MetareeParticle);
         SpawnSkreeOrMetareeParticle(
             metaree,
             RoomEnemyProjectileKind.MetareeParticleUpLeft,
             -6,
             0xffa0,
             0xfbff,
-            instructionPointer: 0x8ac5);
+            instructionPointer: EnemyProjectileInstructionLists.MetareeParticle);
     }
 
     private void SpawnSkreeOrMetareeParticle(
@@ -1793,7 +1800,8 @@ public sealed partial class RoomEnemySystem
         particle.YVelocity = yVelocity;
         particle.InstructionPointer = instructionPointer;
         particle.InstructionTimer = 1;
-        particle.PreInstruction = 0x8b5d;
+        particle.PreInstruction =
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MetalSkreeParticle;
         particle.GraphicsIndex = unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex));
         particle.XRadius = 2;
         particle.YRadius = 2;

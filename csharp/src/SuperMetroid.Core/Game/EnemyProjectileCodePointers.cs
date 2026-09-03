@@ -3,6 +3,30 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Named bank-$86 instruction and pre-instruction entry points for enemy projectiles.</summary>
 internal static class EnemyProjectileCodePointers
 {
+    /// <summary><c>PreInstruction_EnemyProjectile_KagoBug_Idle</c> at $86:D0CA.</summary>
+    public const ushort PreInstruction_EnemyProjectile_KagoBug_Idle = 0xd0ca;
+    /// <summary><c>PreInstruction_EnemyProjectile_KagoBug_Jumping</c> at $86:D0EC.</summary>
+    public const ushort PreInstruction_EnemyProjectile_KagoBug_Jumping = 0xd0ec;
+    /// <summary><c>PreInstruction_EnemyProjectile_KagoBug_Falling</c> at $86:D128.</summary>
+    public const ushort PreInstruction_EnemyProjectile_KagoBug_Falling = 0xd128;
+    /// <summary><c>PreInstruction_EnemyProjectile_CacatacSpike</c> at $86:D9DB.</summary>
+    public const ushort PreInstruction_EnemyProjectile_CacatacSpike = 0xd9db;
+    /// <summary><c>PreInstruction_EnemyProjectile_StokeFireball</c> at $86:DB5B.</summary>
+    public const ushort PreInstruction_EnemyProjectile_StokeFireball = 0xdb5b;
+    /// <summary><c>PreInstruction_EnemyProjectile_NamiFuneFireball</c> at $86:DF39.</summary>
+    public const ushort PreInstruction_EnemyProjectile_NamiFuneFireball = 0xdf39;
+    /// <summary><c>PreInstruction_EnemyProjectile_MagdolliteLava</c> at $86:E049.</summary>
+    public const ushort PreInstruction_EnemyProjectile_MagdolliteLava = 0xe049;
+    /// <summary><c>PreInstruction_EnemyProjectile_KiHunterAcid_Left</c> at $86:CFD5.</summary>
+    public const ushort PreInstruction_EnemyProjectile_KiHunterAcid_Left = 0xcfd5;
+    /// <summary><c>PreInstruction_EnemyProjectile_KiHunterAcid_Right</c> at $86:CFE6.</summary>
+    public const ushort PreInstruction_EnemyProjectile_KiHunterAcid_Right = 0xcfe6;
+    /// <summary><c>PreInstruction_EnemyProjectile_KiHunterAcid_Moving</c> at $86:CFF7.</summary>
+    public const ushort PreInstruction_EnemyProjectile_KiHunterAcid_Moving = 0xcff7;
+    /// <summary><c>PreInstruction_EnemyProjectile_PolypRock</c> at $86:BC0F.</summary>
+    public const ushort PreInstruction_EnemyProjectile_PolypRock = 0xbc0f;
+    /// <summary><c>PreInstruction_EnemyProjectile_Pickup</c> at $86:EFE0.</summary>
+    public const ushort PreInstruction_EnemyProjectile_Pickup = 0xefe0;
     /// <summary><c>RTS_86A327</c> at $86:A327. Gunship liftoff dust clouds move only through their frame lists.</summary>
     public const ushort RTS_86A327 = 0xa327;
 

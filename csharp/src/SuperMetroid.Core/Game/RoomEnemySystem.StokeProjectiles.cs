@@ -3,7 +3,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$86 projectile support coupled to Stoke's attack animation.</summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort StokeProjectilePreInstruction = 0xdb5b;
+    private const ushort StokeProjectilePreInstruction =
+        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_StokeFireball;
     private const ushort StokeProjectileMoveLeftFunction = 0xdb62;
     private const ushort StokeProjectileMoveRightFunction = 0xdb8c;
 

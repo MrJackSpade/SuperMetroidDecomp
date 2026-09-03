@@ -93,6 +93,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        projectile.PreInstruction = 0xa918;
+        projectile.PreInstruction =
+            EnemyProjectileCodePointers.PreInstruction_BombTorizoStatueFragment_Stopped;
     }
 }

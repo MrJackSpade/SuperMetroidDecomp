@@ -395,6 +395,27 @@ static void VerifyControllerInputLatch()
     AssertEqual(0, input.NewlyPressed, "release is not a rising edge");
     AssertEqual(2, input.RepeatTimer, "release reloads initial repeat delay");
 
+    // Direction-sensitive enemy AI masks only the horizontal pair, so unrelated face
+    // buttons must not prevent an exact-Right decision while Left+Right must.
+    var directional = new ControllerInputState();
+    directional.Latch((ushort)(SnesButton.Right | SnesButton.A));
+    AssertEqual(
+        SnesButton.Right | SnesButton.A,
+        directional.NewlyPressedButtons,
+        "typed newly-pressed view preserves every rising edge in a chord");
+    AssertTrue(
+        (directional.CurrentButtons & SnesButtons.HorizontalDirections) == SnesButton.Right,
+        "exact-Right comparison ignores unrelated action buttons");
+    directional.Latch((ushort)(SnesButton.Right | SnesButton.Left | SnesButton.A));
+    AssertTrue(
+        (directional.CurrentButtons & SnesButtons.HorizontalDirections) != SnesButton.Right,
+        "exact-Right comparison rejects opposed horizontal input");
+    AssertEqual(SnesButton.Left, directional.NewlyPressedButtons,
+        "typed newly-pressed view reports only the added direction");
+    AssertThrows<InvalidDataException>(
+        () => directional.Latch(0x0001),
+        "controller latch rejects non-controller low bits");
+
     Console.WriteLine("  Input: NMI latch, rising edges, and repeat countdown agree.");
 }
 

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Game;
 
@@ -163,13 +164,13 @@ public sealed class SamusHorizontalSpeedState
         ISnesAddressSpace? bus = null,
         bool liquidImpeded = false)
     {
-        const ushort dashButton = 0x8000; // Retail default B/Dash binding.
+        const SnesButton dashButton = SnesButton.B;
         // `$90:9746-$9763` diverts a non-Gravity submerged body to the same no-acceleration
         // branch as releasing Dash. Existing momentum retains its numeric extra component;
         // without momentum, both words are cleared. This is not a multiplier or hard reset.
         bool activelyDashing = !liquidImpeded &&
             movementType == SamusMovementType.Running &&
-            (controllerInput & dashButton) != 0;
+            SnesButtons.FromRaw(controllerInput, "extra run-speed input").HasAny(dashButton);
         if (!activelyDashing)
         {
             // `$90:9808` clears the extra pair only before momentum has been established.
@@ -248,8 +249,9 @@ public sealed class SamusHorizontalSpeedState
     {
         ArgumentNullException.ThrowIfNull(bus);
         animationFrameTimer = 0;
-        const ushort dashButton = 0x8000;
-        if (!HasRunningMomentum || movementType != SamusMovementType.Running || (controllerInput & dashButton) == 0)
+        const SnesButton dashButton = SnesButton.B;
+        SnesButton heldButtons = SnesButtons.FromRaw(controllerInput, "speed-boost animation input");
+        if (!HasRunningMomentum || movementType != SamusMovementType.Running || !heldButtons.HasAny(dashButton))
             return false;
 
         // DEC is 16-bit, but native then changes A to eight-bit before BNE. A stage advances

@@ -40,8 +40,14 @@ public sealed class DemoInputState
     /// <summary>Controller word currently replacing player-held input.</summary>
     public ushort Held { get; private set; }
 
+    /// <summary>Typed view of the cartridge-authored held-input word.</summary>
+    public SnesButton HeldButtons => (SnesButton)Held;
+
     /// <summary>Controller edge word currently replacing newly pressed input.</summary>
     public ushort NewlyPressed { get; private set; }
+
+    /// <summary>Typed view of the cartridge-authored rising-edge word.</summary>
+    public SnesButton NewlyPressedButtons => (SnesButton)NewlyPressed;
 
     /// <summary>Previous demo-held word retained by <c>$91:83D3</c>'s publication seam.</summary>
     public ushort PreviousHeld { get; private set; }
@@ -173,8 +179,12 @@ public sealed class DemoInputState
             if ((word & DemoInputRomData.Instructions.OpcodeBit) == 0)
             {
                 InstructionTimer = word;
-                Held = ReadWord(bus, unchecked((ushort)(cursor + 2)));
-                NewlyPressed = ReadWord(bus, unchecked((ushort)(cursor + 4)));
+                ushort rawHeld = ReadWord(bus, unchecked((ushort)(cursor + 2)));
+                ushort rawNewlyPressed = ReadWord(bus, unchecked((ushort)(cursor + 4)));
+                Held = (ushort)SnesButtons.FromRaw(rawHeld, "demo held-input record");
+                NewlyPressed = (ushort)SnesButtons.FromRaw(
+                    rawNewlyPressed,
+                    "demo newly-pressed record");
                 InstructionPointer = unchecked((ushort)(
                     cursor + DemoInputRomData.Instructions.InputRecordBytes));
                 return;

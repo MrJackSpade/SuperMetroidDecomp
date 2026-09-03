@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Game;
 
@@ -85,7 +86,10 @@ public sealed class SamusDrainedState
     public bool StepGetUpHandler(SamusState samus, ushort newlyPressedInput)
     {
         ArgumentNullException.ThrowIfNull(samus);
-        if ((newlyPressedInput & 0x0800) == 0)
+        SnesButton newlyPressed = SnesButtons.FromRaw(
+            newlyPressedInput,
+            "drained-Samus get-up input");
+        if (!newlyPressed.HasAny(SnesButton.Up))
             return false;
 
         if (GetUpHandler == DrainedGetUpHandler.AbleToStand &&

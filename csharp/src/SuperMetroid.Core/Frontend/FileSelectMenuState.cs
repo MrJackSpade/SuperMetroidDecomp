@@ -95,7 +95,7 @@ public sealed partial class FileSelectMenuState
     {
         SaveRamChangedThisFrame = false;
         controller.Latch(controllerInput);
-        SnesButton pressed = (SnesButton)controller.NewlyPressed;
+        SnesButton pressed = controller.NewlyPressedButtons;
 
         StepMissileAnimation();
         switch (Phase)

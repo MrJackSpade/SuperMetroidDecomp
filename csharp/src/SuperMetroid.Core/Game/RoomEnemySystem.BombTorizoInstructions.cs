@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -530,8 +531,12 @@ public sealed partial class RoomEnemySystem
         int distance = Math.Abs(unchecked((short)(samus.XPosition - torizo.XPosition)));
         if (distance < 0x70 || !BombTorizoFunction12IsNonNegative(torizo, samus))
             return unchecked((ushort)(cursor + 4));
+        SnesButton heldButtons = SnesButtons.FromRaw(
+            controllerInput,
+            "Golden Torizo jump decision");
         if (state.SamusSpaceJumpFrames <= 0x0168 &&
-            ((controllerInput & 0x0300) == 0 || (_nextRandom!() & 0x0101) == 0))
+            (!heldButtons.HasAny(SnesButtons.HorizontalDirections) ||
+                (_nextRandom!() & 0x0101) == 0))
         {
             return unchecked((ushort)(cursor + 4));
         }

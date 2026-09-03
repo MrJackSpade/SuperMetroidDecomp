@@ -115,7 +115,7 @@ public sealed class TitleSequenceState
         // fast fade-in. Do not jump straight to a host menu: those intermediate frames and
         // their INIDISP values are observable in native traces.
         bool confirmPressed =
-            ((SnesButton)controller.NewlyPressed & TitleSequenceRomData.Timing.ConfirmButtons) != 0;
+            controller.NewlyPressedButtons.HasAny(TitleSequenceRomData.Timing.ConfirmButtons);
         if (confirmPressed && phase < TitleSequencePhase.TitleScreenFadeIn)
         {
             phase = TitleSequencePhase.SkipFadeOut;

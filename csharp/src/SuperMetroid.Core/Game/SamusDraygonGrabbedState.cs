@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Game;
 
@@ -135,7 +136,10 @@ public sealed class SamusDraygonGrabbedState
         ArgumentNullException.ThrowIfNull(samus);
         EnsureActiveGrabbedPose(samus);
 
-        ushort dpad = (ushort)(newlyPressedInput & 0x0f00);
+        SnesButton newlyPressed = SnesButtons.FromRaw(
+            newlyPressedInput,
+            "Draygon-grab escape input");
+        ushort dpad = (ushort)(newlyPressed & SnesButtons.DirectionalPad);
         bool counted = false;
         if (dpad != 0 && dpad != PreviousDpadInput)
         {

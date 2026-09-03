@@ -83,7 +83,7 @@ public sealed class GameOptionsMenuState
     public void Step(ushort controllerInput)
     {
         controller.Latch(controllerInput);
-        SnesButton pressed = (SnesButton)controller.NewlyPressed;
+        SnesButton pressed = controller.NewlyPressedButtons;
         StepMissile();
 
         switch (Phase)

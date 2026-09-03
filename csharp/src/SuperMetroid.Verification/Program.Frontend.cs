@@ -642,10 +642,12 @@ static void VerifyDemoInputObject()
     // Exercise the generic control instructions separately: set a loop count, consume the
     // decrement/goto twice, then delete. This verifies that the reusable interpreter is not
     // accidentally hard-coded to the intro's all-record list.
+    ushort fixtureHeld = (ushort)(
+        SnesButton.Start | SnesButton.Right | SnesButton.L | SnesButton.R);
     WriteRomWord(rom, 0x918700, DemoInputRomData.Instructions.SetTimer);
     WriteRomWord(rom, 0x918702, 0x0002);
     WriteRomWord(rom, 0x918704, 0x0001);
-    WriteRomWord(rom, 0x918706, 0x1234);
+    WriteRomWord(rom, 0x918706, fixtureHeld);
     WriteRomWord(rom, 0x918708, 0x0020);
     WriteRomWord(rom, 0x91870a, DemoInputRomData.Instructions.DecrementTimerAndGoto);
     WriteRomWord(rom, 0x91870c, 0x8704);
@@ -659,11 +661,11 @@ static void VerifyDemoInputObject()
     demo.Enable();
     demo.LoadObject(bus, 0x8720);
     demo.Step(bus);
-    AssertEqual(0x1234, demo.Held, "demo opcode fixture first held word");
+    AssertEqual(fixtureHeld, demo.Held, "demo opcode fixture first held word");
     AssertEqual(2, demo.Timer, "demo set-timer opcode");
     demo.Step(bus);
     AssertEqual(1, demo.Timer, "demo decrement/goto loops while nonzero");
-    AssertEqual(0x1234, demo.Held, "demo loop replays input record");
+    AssertEqual(fixtureHeld, demo.Held, "demo loop replays input record");
     demo.Step(bus);
     AssertEqual(0, demo.Timer, "demo decrement/goto falls through at zero");
     AssertEqual(0, demo.InstructionPointer, "demo delete clears list pointer");

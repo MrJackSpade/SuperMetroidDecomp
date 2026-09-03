@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -17,7 +18,7 @@ namespace SuperMetroid.Core.Game;
 public sealed class SamusCrystalFlashState
 {
     /// <summary>The exact normal-game controller chord: Down + L + R + the Shot binding.</summary>
-    public const ushort RequiredInputWithoutShot = 0x0430;
+    public const SnesButton RequiredInputWithoutShot = SnesButtons.CrystalFlashWithoutShot;
 
     /// <summary>Debugger-readable equivalent of the active bank-$90 movement-handler pointer.</summary>
     public CrystalFlashPhase Phase { get; private set; }
@@ -86,7 +87,7 @@ public sealed class SamusCrystalFlashState
         ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerInput,
-        ushort shotBinding = 0x0040,
+        ushort shotBinding = (ushort)SnesButton.X,
         bool skipInputCheck = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -94,8 +95,10 @@ public sealed class SamusCrystalFlashState
 
         // `$90:D5AD-$D5B9` uses CMP, not a bit test. This deliberately rejects any extra
         // held button, including Jump, Dash, Select, or the opposite D-pad directions.
-        ushort requiredInput = unchecked((ushort)(RequiredInputWithoutShot | shotBinding));
-        if (!skipInputCheck && controllerInput != requiredInput)
+        SnesButton heldButtons = SnesButtons.FromRaw(controllerInput, "Crystal Flash input");
+        SnesButton shotButton = SnesButtons.FromRaw(shotBinding, "Crystal Flash Shot binding");
+        SnesButton requiredInput = RequiredInputWithoutShot | shotButton;
+        if (!skipInputCheck && heldButtons != requiredInput)
             return false;
 
         // The remaining preconditions are literal WRAM comparisons. Reserve energy must

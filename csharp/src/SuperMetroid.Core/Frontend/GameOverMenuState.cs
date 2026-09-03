@@ -57,7 +57,7 @@ public sealed class GameOverMenuState
     public void Step(ushort controllerInput)
     {
         controller.Latch(controllerInput);
-        SnesButton pressed = (SnesButton)controller.NewlyPressed;
+        SnesButton pressed = controller.NewlyPressedButtons;
         StepMissileAnimation();
 
         switch (Phase)

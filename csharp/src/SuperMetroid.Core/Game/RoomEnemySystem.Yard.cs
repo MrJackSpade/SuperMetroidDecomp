@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -663,7 +664,9 @@ public sealed partial class RoomEnemySystem
         YardEnemyState state,
         ushort controllerInput)
     {
-        bool pressingExactlyRight = ((controllerInput & 0x0300) >> 8) == 1;
+        SnesButton heldButtons = SnesButtons.FromRaw(controllerInput, "Yard touch AI");
+        bool pressingExactlyRight =
+            (heldButtons & SnesButtons.HorizontalDirections) == SnesButton.Right;
         bool yardFacesRight = (state.AirborneFacingDirection & 1) != 0;
         return pressingExactlyRight ? !yardFacesRight : yardFacesRight;
     }

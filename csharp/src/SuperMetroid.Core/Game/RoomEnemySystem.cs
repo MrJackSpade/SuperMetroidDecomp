@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Rooms;
 
@@ -2240,7 +2241,10 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         ushort newlyPressedControllerInput)
     {
-        if (samus is null || (newlyPressedControllerInput & 0x0400) == 0)
+        SnesButton newlyPressed = SnesButtons.FromRaw(
+            newlyPressedControllerInput,
+            "gunship entrance AI");
+        if (samus is null || !newlyPressed.HasAny(SnesButton.Down))
             return;
 
         bool insideEntrance =

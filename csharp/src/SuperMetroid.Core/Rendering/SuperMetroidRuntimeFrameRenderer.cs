@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Rendering;
@@ -98,7 +99,8 @@ public static class SuperMetroidRuntimeFrameRenderer
             // the compositor: it is the literal PPU register value selected by the room.
             // Other translated ordinary-room setup routines retain power-on base zero.
             bool usesCeresRidleyCharacterBase =
-                runtime.ActiveRoom?.State.SetupCodePointer == 0xc97b;
+                runtime.ActiveRoom?.State.SetupCodePointer ==
+                    RoomSetupCodePointers.SetCeresRidleyBgCharacterBaseAndSpawnHaze;
             ushort bgCharacterBaseWord = usesCeresRidleyCharacterBase
                 ? (ushort)0x6000
                 : (ushort)0;
@@ -145,15 +147,16 @@ public static class SuperMetroidRuntimeFrameRenderer
         // These are the three setup routines that explicitly call FXType_2C_CeresHaze.
         // Keying the effect from cartridge state avoids applying a guessed “Ceres tint” to
         // scenes that do not spawn the HDMA object.
-        if (runtime.ActiveRoom?.State.SetupCodePointer is 0xc96e or 0xc976 or 0xc97b)
+        if (runtime.ActiveRoom is { } activeRoom &&
+            RoomSetupCodePointers.SpawnsCeresHaze(activeRoom.State.SetupCodePointer))
         {
             // FX type $2C selects one of two bank-$88 HDMA definitions from the area's
             // native boss bit. Ridley's retreat sets that bit on the same enemy-main call
             // which starts the escape timer, and it remains set throughout the return
             // route. Hard-coding the alive branch kept the lower-screen haze blue even
             // though every other Ceres system had entered evacuation state.
-            bool ridleyIsDead = runtime.ActiveRoom is { } hazeRoom &&
-                runtime.System.HasAnyBossBits(hazeRoom.AreaIndex, BossBits.AreaBoss);
+            bool ridleyIsDead =
+                runtime.System.HasAnyBossBits(activeRoom.AreaIndex, BossBits.AreaBoss);
             SnesGameplayFrameRenderer.ApplyCeresHaze(frame, ridleyIsDead);
         }
 

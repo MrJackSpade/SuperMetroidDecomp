@@ -112,6 +112,7 @@ VerifyLevelBlockTilemapExpansion();
 VerifyRoomLevelData();
 VerifyCartridgeRoomStateSelection();
 VerifyRoomMainCodeCatalog();
+VerifyRoomSetupCodeCatalog();
 VerifyBackgroundTilemapStreamer();
 VerifyFourBitBackgroundRendering();
 VerifyLoRomCrossBankCompressedData();

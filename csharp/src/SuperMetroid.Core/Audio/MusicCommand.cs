@@ -31,31 +31,34 @@ public readonly record struct MusicCommand
     public MusicCommandKind Kind => RawValue switch
     {
         0 => MusicCommandKind.Stop,
-        _ when (RawValue & 0xff00) == 0xff00 => MusicCommandKind.LoadData,
-        <= 0x007f => MusicCommandKind.SelectTrack,
+        _ when (RawValue & AudioRomData.MusicWireFormat.DataCommandKindMask) ==
+            AudioRomData.MusicWireFormat.DataCommandPrefix => MusicCommandKind.LoadData,
+        <= AudioRomData.MusicWireFormat.MaximumTrack => MusicCommandKind.SelectTrack,
         _ => MusicCommandKind.Unknown,
     };
 
     /// <summary>Native high-bit branch used even for noncanonical cartridge words.</summary>
-    public bool UsesDataUploadPath => (RawValue & 0x8000) != 0;
+    public bool UsesDataUploadPath =>
+        (RawValue & AudioRomData.MusicWireFormat.UploadPathBit) != 0;
 
     /// <summary>Low byte used to index the 24-bit SPC-data pointer table.</summary>
     public byte DataIndex => unchecked((byte)RawValue);
 
     /// <summary>Low seven bits ultimately written to APU port zero.</summary>
-    public byte TrackIndex => unchecked((byte)(RawValue & 0x007f));
+    public byte TrackIndex => unchecked((byte)(
+        RawValue & AudioRomData.MusicWireFormat.TrackMask));
 
     /// <summary>The canonical music-stop command.</summary>
     public static MusicCommand Stop { get; } = new(0);
 
     /// <summary>Creates canonical <c>$FFxx</c> music-data upload command.</summary>
     public static MusicCommand LoadData(byte dataIndex) =>
-        new(unchecked((ushort)(0xff00 | dataIndex)));
+        new(unchecked((ushort)(AudioRomData.MusicWireFormat.DataCommandPrefix | dataIndex)));
 
     /// <summary>Creates a canonical nonzero track-selection command.</summary>
     public static MusicCommand SelectTrack(byte trackIndex)
     {
-        if (trackIndex is 0 or > 0x7f)
+        if (trackIndex is 0 or > AudioRomData.MusicWireFormat.MaximumTrack)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(trackIndex),
@@ -92,21 +95,22 @@ public readonly record struct MusicCommandDelay
     public ushort Frames { get; }
 
     /// <summary>The fixed delay installed by <c>QueueMusic_Delayed8</c>.</summary>
-    public static MusicCommandDelay EightFrames { get; } = new(8);
+    public static MusicCommandDelay EightFrames { get; } =
+        new(AudioRomData.Queues.MinimumMusicDelayFrames);
 
     /// <summary>
     /// Converts a <c>QueueMusic_DelayedY</c> argument to the effective native countdown,
     /// clamping values below eight exactly as bank $80 does.
     /// </summary>
     public static MusicCommandDelay FromDelayedYArgument(ushort requestedFrames) =>
-        new(Math.Max(requestedFrames, (ushort)8));
+        new(Math.Max(requestedFrames, AudioRomData.Queues.MinimumMusicDelayFrames));
 
     /// <summary>
     /// Rehydrates an already-effective delay published by a translated subsystem.
     /// </summary>
     public static MusicCommandDelay FromEffectiveFrames(ushort frames)
     {
-        if (frames < 8)
+        if (frames < AudioRomData.Queues.MinimumMusicDelayFrames)
         {
             throw new InvalidDataException(
                 $"Effective music delay {frames} is below bank $80's minimum of eight frames.");

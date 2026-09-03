@@ -48,9 +48,10 @@ internal static partial class Program
 
         // Music data command $FF03 indexes the 24-bit table by its low byte, not by a
         // multiplied host index. Point that exact odd-byte table entry at $90:8000.
-        WriteAudioRomByte(rom, 0x8fe7e4, 0x00);
-        WriteAudioRomByte(rom, 0x8fe7e5, 0x80);
-        WriteAudioRomByte(rom, 0x8fe7e6, 0x90);
+        int musicPointer = AudioRomData.Assets.MusicPointerTable + 3;
+        WriteAudioRomByte(rom, musicPointer, 0x00);
+        WriteAudioRomByte(rom, musicPointer + 1, 0x80);
+        WriteAudioRomByte(rom, musicPointer + 2, 0x90);
 
         // Prepare a second fixture before constructing the mapper, which intentionally
         // takes ownership of a stable ROM copy.
@@ -71,7 +72,10 @@ internal static partial class Program
         IReadOnlyList<CartridgeAudioCommand> reset =
             audio.AdvanceFrame(bus, default);
         AssertEqual(3, reset.Count, "audio reset command count");
-        AssertEqual(CartridgeAudioCommand.Upload(0xcf8000), reset[0], "initial SPC bank upload");
+        AssertEqual(
+            CartridgeAudioCommand.Upload(AudioRomData.Assets.InitialAudioBank),
+            reset[0],
+            "initial SPC bank upload");
         AssertEqual(CartridgeAudioCommand.WritePort(0, 0), reset[1], "reset music port");
         AssertEqual(CartridgeAudioCommand.WritePort(2, 0), reset[2], "reset SFX2 port");
 
@@ -166,6 +170,18 @@ internal static partial class Program
             sfx.AdvanceFrame(bus, default).Single(),
             "SFX request clear");
 
+        var cancellation = new CartridgeAudioState();
+        cancellation.AdvanceFrame(bus, default);
+        cancellation.QueueCancelSoundEffects();
+        IReadOnlyList<CartridgeAudioCommand> cancelWrites =
+            cancellation.AdvanceFrame(bus, default);
+        AssertEqual(AudioRomData.Queues.SoundLibraryCount, cancelWrites.Count,
+            "sound cancellation writes every native SFX library");
+        AssertTrue(cancelWrites.Contains(CartridgeAudioCommand.WritePort(
+                AudioRomData.Apu.FirstSoundPort,
+                SoundEffectLibrary1Sounds.CancelAll.Value)),
+            "sound cancellation queues library one sentinel");
+
         // Library numbers are an exclusive cartridge domain: only queues one through
         // three exist. A forged enum value must fail at the public queue boundary rather
         // than indexing some unrelated host collection or silently selecting a queue.
@@ -222,6 +238,13 @@ internal static partial class Program
             new byte[] { 2, 0, 0, 0x20, 0xaa, 0xbb, 0, 0 },
             SpcUploadStreamReader.Read(bus, 0x90fffb),
             "cross-bank SPC upload stream");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => SpcUploadStreamReader.Read(bus, 0x907fff),
+            "SPC upload rejects the unmapped LoROM lower window");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => SpcUploadStreamReader.Read(
+                bus, AudioRomData.SpcUpload.MaximumSnesAddress + 1),
+            "SPC upload rejects addresses wider than 24 bits");
 
         Console.WriteLine("  Audio: typed/lossless music commands and delays, inherited Ceres track, post-Ceres bank/track restart, item fanfare, upload lookup, paired SFX identities/catalogs, handshake, and LoROM stream agree.");
     }

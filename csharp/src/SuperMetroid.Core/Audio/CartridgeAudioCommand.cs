@@ -40,10 +40,10 @@ public readonly record struct CartridgeAudioAcknowledgements(
 {
     public byte this[int port] => port switch
     {
-        0 => Port0,
-        1 => Port1,
-        2 => Port2,
-        3 => Port3,
+        AudioRomData.Apu.MusicPort => Port0,
+        AudioRomData.Apu.FirstSoundPort => Port1,
+        AudioRomData.Apu.LibraryTwoPort => Port2,
+        AudioRomData.Apu.PortCount - 1 => Port3,
         _ => throw new ArgumentOutOfRangeException(nameof(port), port, "APU port must be 0..3."),
     };
 }

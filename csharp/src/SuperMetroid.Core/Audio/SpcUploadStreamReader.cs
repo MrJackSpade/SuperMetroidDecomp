@@ -5,16 +5,12 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>Reads the length/target/data stream consumed by native <c>APU_UploadBank</c>.</summary>
 public static class SpcUploadStreamReader
 {
-    // An SPC upload cannot meaningfully exceed the complete 64 KiB destination RAM plus
-    // record headers. This ceiling also turns a corrupt missing terminator into a useful
-    // cartridge-address exception instead of an unbounded host allocation.
-    private const int MaximumStreamLength = 0x1_1000;
-
     /// <summary>Copies one terminated upload stream from contiguous LoROM file order.</summary>
     public static byte[] Read(ISnesAddressSpace bus, int sourceAddress)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if ((uint)sourceAddress > 0x00ff_ffff || (sourceAddress & 0x8000) == 0)
+        if ((uint)sourceAddress > AudioRomData.SpcUpload.MaximumSnesAddress ||
+            (sourceAddress & AudioRomData.SpcUpload.LoRomUpperWindowBit) == 0)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(sourceAddress),
@@ -24,7 +20,7 @@ public static class SpcUploadStreamReader
 
         List<byte> bytes = [];
         int cursor = sourceAddress;
-        while (bytes.Count < MaximumStreamLength)
+        while (bytes.Count < AudioRomData.SpcUpload.MaximumStreamBytes)
         {
             ushort byteCount = ReadWord(bus, ref cursor, bytes);
             if (byteCount == 0)
@@ -40,7 +36,7 @@ public static class SpcUploadStreamReader
 
         throw new InvalidDataException(
             $"SPC upload at ${sourceAddress >> 16:X2}:{sourceAddress & 0xffff:X4} " +
-            $"did not terminate within ${MaximumStreamLength:X} bytes.");
+            $"did not terminate within ${AudioRomData.SpcUpload.MaximumStreamBytes:X} bytes.");
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ref int cursor, List<byte> bytes)
@@ -65,10 +61,11 @@ public static class SpcUploadStreamReader
     /// </summary>
     private static int AdvanceLoRom(int address)
     {
-        int bank = (address >> 16) & 0xff;
-        int offset = address & 0xffff;
-        return offset == 0xffff
-            ? (((bank + 1) & 0xff) << 16) | 0x8000
+        int bank = (address >> 16) & AudioRomData.SpcUpload.AddressBankMask;
+        int offset = address & AudioRomData.SpcUpload.AddressOffsetMask;
+        return offset == AudioRomData.SpcUpload.LastBankOffset
+            ? (((bank + 1) & AudioRomData.SpcUpload.AddressBankMask) << 16) |
+                AudioRomData.SpcUpload.FirstMappedBankOffset
             : address + 1;
     }
 }

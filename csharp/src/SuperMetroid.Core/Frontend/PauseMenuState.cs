@@ -538,14 +538,14 @@ internal sealed class PauseMenuState
             bool explored = system.IsMapTileExplored(areaIndex, mapX, mapY);
             bool exists = ReadMapBit(mapDataAddress, mapX, mapY);
             int byteOffset = tilemapIndex * 2;
-            ushort word = unchecked((ushort)(
+            MapTileWord word = unchecked((ushort)(
                 mapTilemap[byteOffset] | (mapTilemap[byteOffset + 1] << 8)));
             if (explored)
-                word &= 0xfbff;
+                word = word.AsExplored();
             else if (!hasAreaMap || !exists)
-                word = 0x001f;
-            mapTilemap[byteOffset] = unchecked((byte)word);
-            mapTilemap[byteOffset + 1] = unchecked((byte)(word >> 8));
+                word = MapTileWords.PauseBlank;
+            mapTilemap[byteOffset] = unchecked((byte)word.Raw);
+            mapTilemap[byteOffset + 1] = unchecked((byte)(word.Raw >> 8));
         }
         vram.LoadBytes(PauseMenuLayout.Bg1TilemapWord * 2, mapTilemap);
 

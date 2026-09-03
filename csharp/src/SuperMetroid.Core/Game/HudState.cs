@@ -23,7 +23,6 @@ public sealed class HudState
     private const int AreaMapPointerTable = 0x82964a;
     private const int MapDataPointerTable = 0x829717;
     private const ushort BlankTile = 0x2c0f;
-    private const ushort BlankMapTile = 0x2c1f;
 
     // Byte offsets from $7E:C608, preserved from $80:9BCF. Seven tanks occupy row two;
     // the next seven wrap to row one, matching the retail HUD's two-line layout.
@@ -223,7 +222,7 @@ public sealed class HudState
                 int mapX = (centerX + outputX - 2) & 0x3f;
                 if ((uint)mapY >= 32)
                 {
-                    _tiles[destination] = BlankMapTile;
+                    _tiles[destination] = (ushort)MapTileWords.HudBlank;
                     continue;
                 }
 
@@ -231,7 +230,7 @@ public sealed class HudState
                 bool explored = system.IsMapTileExplored(areaIndex, mapX, mapY);
                 if (!explored && (!exists || !hasAreaMap))
                 {
-                    _tiles[destination] = BlankMapTile;
+                    _tiles[destination] = (ushort)MapTileWords.HudBlank;
                     continue;
                 }
 
@@ -239,9 +238,8 @@ public sealed class HudState
                 // linear 64-word row. Preserve that page split when reading bank-$B5 data.
                 int tilemapIndex =
                     (mapX & 31) + mapY * 32 + (mapX >= 32 ? 0x400 : 0);
-                ushort mapTile = ReadRomWord(bus, areaMapAddress + tilemapIndex * 2);
-                ushort palette = explored ? (ushort)0x2800 : (ushort)0x2c00;
-                _tiles[destination] = (ushort)((mapTile & 0xc3ff) | palette);
+                MapTileWord mapTile = ReadRomWord(bus, areaMapAddress + tilemapIndex * 2);
+                _tiles[destination] = (ushort)mapTile.ForHud(explored);
             }
         }
 
@@ -249,7 +247,7 @@ public sealed class HudState
         // tile. The other half-cycle leaves its explored palette intact, producing the
         // familiar blinking Samus location without a separate sprite.
         if ((nmiFrameCounter & 8) == 0)
-            _tiles[60] |= 0x1c00;
+            _tiles[60] = (ushort)new MapTileWord(_tiles[60]).WithLocationBlink();
     }
 
     /// <summary>

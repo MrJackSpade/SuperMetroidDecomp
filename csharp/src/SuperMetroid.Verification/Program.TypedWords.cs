@@ -103,6 +103,36 @@ static void VerifyTypedNativeWords()
     AssertEqual((ushort)0x1233, NativeWordCounter.DecrementSaturating(0x1234),
         "saturating native counter decrements ordinary positive value");
 
+    // Map cells are all ordinary SNES tile words; elevator, item-dot, and station meanings do
+    // not occupy a separate packed field. Give those constructed fixture categories distinct
+    // character/attribute combinations to prove the typed boundary never normalizes them.
+    // The explored/unexplored operations then prove the two renderer-specific mutations touch
+    // only their documented attributes.
+    (string Name, ushort Raw)[] mapCellRoundTrips =
+    [
+        ("blank", 0x001f),
+        ("explored room", 0x2812),
+        ("unexplored room", 0x2c12),
+        ("elevator", 0x6c0e),
+        ("item", 0xac05),
+        ("station", 0x2c1a),
+    ];
+    foreach ((string name, ushort raw) in mapCellRoundTrips)
+    {
+        MapTileWord cell = raw;
+        AssertEqual(raw, (ushort)cell, $"{name} map cell raw round trip");
+    }
+    AssertTrue(MapTileWords.PauseBlank.IsBlank && MapTileWords.HudBlank.IsBlank,
+        "pause and HUD blank sentinels share the empty character");
+    AssertEqual((ushort)0xa812, (ushort)new MapTileWord(0xac12).AsExplored(),
+        "explored map cell clears only cartridge palette bit $0400");
+    AssertEqual((ushort)0xebff, (ushort)new MapTileWord(0xffff).ForHud(explored: true),
+        "HUD explored cell preserves character and flips while replacing attributes");
+    AssertEqual((ushort)0xec12, (ushort)new MapTileWord(0xe012).ForHud(explored: false),
+        "HUD unexplored cell preserves character and flips while replacing attributes");
+    AssertEqual((ushort)0x3c12, (ushort)new MapTileWord(0x2812).WithLocationBlink(),
+        "HUD location blink applies native palette bits");
+
     ushort enemyProperties = 0x1000;
     enemyProperties = enemyProperties.With(
         EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);

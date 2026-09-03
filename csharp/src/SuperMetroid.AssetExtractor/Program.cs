@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 
 // The tool intentionally exposes two narrow commands instead of performing work implicitly.
@@ -13,6 +14,17 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0].Equals("audio", StringComparison.OrdinalIgnoreCase))
+{
+    string rawDirectory = ResolveWorkspacePath(args[1], mustAlreadyExist: true);
+    string audioDirectory = ResolveWorkspacePath(args[2], mustAlreadyExist: false);
+    AudioAssetManifest manifest = SpcAudioAssetExtractor.Extract(rawDirectory, audioDirectory);
+    Console.WriteLine(
+        $"Extracted {manifest.Uploads.Count} SPC streams, {manifest.Banks.Sum(bank => bank.Samples.Count)} " +
+        $"decoded BRR WAV files, and managed-driver metadata to {audioDirectory}");
+    return 0;
+}
+
 if (args.Length == 3 && args[0].Equals("room", StringComparison.OrdinalIgnoreCase))
 {
     string rawDirectory = ResolveWorkspacePath(args[1], mustAlreadyExist: true);
@@ -28,6 +40,7 @@ if (args.Length != 2)
 {
     Console.Error.WriteLine("Usage:");
     Console.Error.WriteLine("  SuperMetroid.AssetExtractor <raw-assets-directory> <png-output-directory>");
+    Console.Error.WriteLine("  SuperMetroid.AssetExtractor audio <raw-assets-directory> <audio-output-directory>");
     Console.Error.WriteLine("  SuperMetroid.AssetExtractor room <raw-assets-directory> <room.png>");
     return 2;
 }

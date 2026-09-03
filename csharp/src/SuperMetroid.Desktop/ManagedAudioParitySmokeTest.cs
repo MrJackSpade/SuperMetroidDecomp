@@ -36,7 +36,7 @@ public static class ManagedAudioParitySmokeTest
         var queue = new CartridgeAudioState();
         queue.QueueMusicDelayed8(MusicCommand.LoadData(AudioRomData.MusicBanks.Title));
         queue.QueueMusicDelayed8(MusicCommand.SelectTrack(AudioRomData.MusicTracks.Title));
-        using var managed = new SpcAudioEngine(bus);
+        using var managed = new SpcAudioEngine();
         using var native = new NativeSpcAudioOracle(bus);
         CartridgeAudioAcknowledgements acknowledgements = default;
         int compared = 0;
@@ -58,7 +58,7 @@ public static class ManagedAudioParitySmokeTest
         queue.QueueSound(
             SoundEffectLibrary1Sounds.PowerBeam,
             maximumQueued: 15);
-        using var managed = new SpcAudioEngine(bus);
+        using var managed = new SpcAudioEngine();
         using var native = new NativeSpcAudioOracle(bus);
         CartridgeAudioAcknowledgements acknowledgements = default;
         int comparedAcknowledgements = 0;

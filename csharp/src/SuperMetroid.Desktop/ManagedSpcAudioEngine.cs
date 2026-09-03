@@ -1,11 +1,10 @@
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Desktop;
 
 /// <summary>
 /// Desktop adapter for the fully managed Super Metroid SPC driver and S-DSP mixer.
-/// The adapter only resolves cartridge upload commands and owns the reusable host PCM buffer;
+/// The adapter resolves upload commands through extracted assets and owns the reusable host PCM buffer;
 /// all sequencer, voice, echo, pitch, and envelope behavior lives in debuggable Core code.
 /// </summary>
 internal sealed class SpcAudioEngine : IDisposable
@@ -14,13 +13,18 @@ internal sealed class SpcAudioEngine : IDisposable
     public const int StereoFramesPerVideoFrame = SampleRate / 60;
     public const int ChannelCount = 2;
 
-    private readonly ISnesAddressSpace bus;
+    private readonly ExtractedAudioAssetCatalog assets;
     private readonly ManagedSpcPlayer player = new();
     private readonly short[] sampleBuffer = new short[StereoFramesPerVideoFrame * ChannelCount];
     private bool disposed;
 
-    public SpcAudioEngine(ISnesAddressSpace bus) =>
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+    public SpcAudioEngine() : this(ExtractedAudioAssetCatalog.Load(
+        ExtractedAudioAssetLocator.FindAudioDirectory()))
+    {
+    }
+
+    internal SpcAudioEngine(ExtractedAudioAssetCatalog assets) =>
+        this.assets = assets ?? throw new ArgumentNullException(nameof(assets));
 
     /// <summary>Applies this NMI's APU operations, then renders one complete audio frame.</summary>
     public ReadOnlySpan<short> RenderFrame(IReadOnlyList<CartridgeAudioCommand> commands)
@@ -32,7 +36,7 @@ internal sealed class SpcAudioEngine : IDisposable
             switch (command.Kind)
             {
                 case CartridgeAudioCommandKind.Upload:
-                    player.Upload(SpcUploadStreamReader.Read(bus, command.UploadAddress));
+                    player.Upload(assets.GetUpload(command.UploadAddress).Span);
                     break;
                 case CartridgeAudioCommandKind.WritePort:
                     player.WritePort(command.Port, command.Value);

@@ -170,7 +170,7 @@ public sealed class PlayableGameControl : UserControl
         stateStore = new DebuggerSaveStateStore(romPath, addressSpace.Rom);
         if (gameOptions.AudioEnabled)
         {
-            audioEngine = new SpcAudioEngine(addressSpace);
+            audioEngine = new SpcAudioEngine();
             audioDevice = new WaveOutAudioDevice(
                 SpcAudioEngine.SampleRate,
                 SpcAudioEngine.ChannelCount,
@@ -237,7 +237,7 @@ public sealed class PlayableGameControl : UserControl
 
         if (gameOptions.AudioEnabled)
         {
-            audioEngine = new SpcAudioEngine(addressSpace);
+            audioEngine = new SpcAudioEngine();
             audioDevice = new WaveOutAudioDevice(
                 SpcAudioEngine.SampleRate,
                 SpcAudioEngine.ChannelCount,

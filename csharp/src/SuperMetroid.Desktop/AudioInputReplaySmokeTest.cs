@@ -40,7 +40,7 @@ public static class AudioInputReplaySmokeTest
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
-        using var audio = new SpcAudioEngine(bus);
+        using var audio = new SpcAudioEngine();
 
         int framesExecuted = 0;
         bool projectileFired = false;

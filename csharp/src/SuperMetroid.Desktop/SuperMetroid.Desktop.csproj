@@ -6,6 +6,11 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
+    <Content Include="../../../standalone-assets/audio/**/*">
+      <Link>audio/%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <None
       Include="../../native/SuperMetroid.AudioNative/bin/x64/$(Configuration)/SuperMetroid.AudioNative.dll"
       Link="SuperMetroid.AudioNative.dll"

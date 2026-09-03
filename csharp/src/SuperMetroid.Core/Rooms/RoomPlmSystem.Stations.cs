@@ -613,7 +613,7 @@ public sealed partial class RoomPlmSystem
         PlmSlot slot,
         SamusState samus)
     {
-        int message = station.Kind switch
+        GameplayMessageId message = station.Kind switch
         {
             StationKind.Map => GameplayMessageIds.MapDataAccessCompleted,
             StationKind.Energy => GameplayMessageIds.EnergyRechargeCompleted,
@@ -738,7 +738,7 @@ public enum StationKind : byte
 
 public readonly record struct StationActivationEvent(
     StationKind Kind,
-    int MessageBoxIndex,
+    GameplayMessageId MessageBoxIndex,
     AreaId AreaIndex,
     ushort StationIndex,
     int BlockIndex);

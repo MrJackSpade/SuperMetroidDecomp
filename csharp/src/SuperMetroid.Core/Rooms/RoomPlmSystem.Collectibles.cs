@@ -684,7 +684,7 @@ public sealed partial class RoomPlmSystem
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
     };
 
-    private static byte GetMessageBoxIndex(InWorldCollectibleKind kind) => kind switch
+    private static GameplayMessageId GetMessageBoxIndex(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.EnergyTank => GameplayMessageIds.EnergyTank,
         InWorldCollectibleKind.MissileTank => GameplayMessageIds.MissileTank,
@@ -794,6 +794,6 @@ public readonly record struct CollectiblePickupEvent(
     InWorldCollectibleKind Kind,
     CollectiblePresentation Presentation,
     ushort RoomArgument,
-    byte MessageBoxIndex,
+    GameplayMessageId MessageBoxIndex,
     int BlockIndex,
     SamusProjectileTypeWord TriggerProjectileType);

@@ -115,16 +115,16 @@ internal static class VerificationAssert
     internal static void AssertEqual(int expected, ushort? actual, string context) =>
         AssertEqual<ushort?>(checked((ushort)expected), actual, context);
 
-    internal static void AssertThrows<TException>(Action action, string context)
+    internal static TException AssertThrows<TException>(Action action, string context)
         where TException : Exception
     {
         try
         {
             action();
         }
-        catch (TException)
+        catch (TException exception)
         {
-            return;
+            return exception;
         }
 
         throw new InvalidOperationException(

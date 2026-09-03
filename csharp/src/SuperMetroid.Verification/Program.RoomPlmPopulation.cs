@@ -87,7 +87,8 @@ internal static partial class Program
         AssertEqual(199, samus.Health, "energy station restores health to cartridge maximum");
         AssertEqual(1, plms.StationActivationEvents.Count,
             "energy station publishes one shared message request");
-        AssertEqual(0x15, plms.StationActivationEvents[0].MessageBoxIndex,
+        AssertEqual(GameplayMessageIds.EnergyRechargeCompleted,
+            plms.StationActivationEvents[0].MessageBoxIndex,
             "energy station uses cartridge message $15");
 
         VerifyOtherStationFamilies(bus);
@@ -200,7 +201,7 @@ internal static partial class Program
             }
         }
         AssertTrue(completionPublished, "save animation reaches completion message");
-        AssertEqual(0x18, completion.MessageBoxIndex,
+        AssertEqual(GameplayMessageIds.SaveCompleted, completion.MessageBoxIndex,
             "save animation publishes game-saved message only after its draw loop");
         plms.CompleteSaveStation(completion);
         AssertTrue(!samus.InputLocked, "game-saved message return unlocks Samus");
@@ -351,7 +352,7 @@ internal static partial class Program
             WriteWord(bus, 0x859900 + word * 2, unchecked((ushort)(0x2a00 + word)));
 
         var message = new GameplayMessageBoxState();
-        message.Begin(bus, 0x17);
+        message.Begin(bus, GameplayMessageIds.SaveConfirmation);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
              guard++)
@@ -376,7 +377,7 @@ internal static partial class Program
         AssertEqual(false, message.ConsumeConfirmationResult(),
             "save confirmation publishes selected no result after close");
 
-        message.Begin(bus, 0x17);
+        message.Begin(bus, GameplayMessageIds.SaveConfirmation);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
              guard++)

@@ -427,7 +427,7 @@ internal static partial class Program
         SeedPermanentItemMessageBoxRom(bus);
         var message = new GameplayMessageBoxState();
 
-        message.Begin(bus, messageId: 1);
+        message.Begin(bus, GameplayMessageIds.EnergyTank);
         AssertEqual(GameplayMessageBoxPhase.Opening, message.Phase,
             "item message enters shared opening coroutine");
         AssertEqual(3, message.TilemapRowCount, "small item message has border/content/border");
@@ -473,7 +473,7 @@ internal static partial class Program
 
         // Message two is the first large box and patches its shoot-button placeholder.
         // Supplying B proves the glyph is selected from the binding word, not hard-coded X.
-        message.Begin(bus, messageId: 2, shootBinding: (ushort)SnesButton.B);
+        message.Begin(bus, GameplayMessageIds.MissileTank, shootBinding: (ushort)SnesButton.B);
         AssertEqual(6, message.TilemapRowCount, "large item message has four content rows");
         AssertEqual((ushort)0x3ce1, message.Tilemap[0x12a / 2],
             "large item message patches configured shoot-button glyph");
@@ -503,7 +503,7 @@ internal static partial class Program
         // verifies the native variable-length copy instead of inferring height from the
         // border routine's name, and exercises that shape through the compositor too.
         message = new GameplayMessageBoxState();
-        message.Begin(bus, messageId: 20);
+        message.Begin(bus, GameplayMessageIds.MapDataAccessCompleted);
         AssertEqual(5, message.TilemapRowCount,
             "map-station message accepts three rows inside the small border");
         AssertEqual((ushort)0x3820, message.Tilemap[32],
@@ -547,7 +547,9 @@ internal static partial class Program
             for (byte messageId = 1; messageId <= 26; messageId++)
             {
                 var retailMessage = new GameplayMessageBoxState();
-                retailMessage.Begin(retailBus, messageId);
+                retailMessage.Begin(
+                    retailBus,
+                    GameplayMessageIds.FromCartridge(messageId, "retail definition-table audit"));
                 AssertTrue(
                     retailMessage.TilemapRowCount is >=
                         GameplayMessageRomData.Layout.MinimumRows and <=
@@ -555,6 +557,15 @@ internal static partial class Program
                     $"retail gameplay message {messageId} has a supported layout");
             }
         }
+
+        AssertEqual((byte)0x1a, (byte)GameplayMessageIds.GravitySuit,
+            "Gravity Suit uses retail message $1A rather than map-station message $14");
+        NotSupportedException unsupported = AssertThrows<NotSupportedException>(
+            () => GameplayMessageIds.FromCartridge(0x1b, "constructed PLM"),
+            "message terminator is not exposed as a gameplay message");
+        AssertTrue(unsupported.Message.Contains("$1B", StringComparison.Ordinal) &&
+            unsupported.Message.Contains("constructed PLM", StringComparison.Ordinal),
+            "unsupported message identifies numeric ID and source context");
     }
 
     private static void VerifySuitPickupTransformation()

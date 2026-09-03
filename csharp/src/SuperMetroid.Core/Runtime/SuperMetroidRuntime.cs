@@ -2796,7 +2796,7 @@ public sealed partial class SuperMetroidRuntime
                             "Multiple PLMs attempted to enter the synchronous bank-$85 " +
                             "message routine during one handler pass.");
                     }
-                    MessageBox.Begin(_addressSpace, unchecked((byte)station.MessageBoxIndex));
+                    MessageBox.Begin(_addressSpace, station.MessageBoxIndex);
                 }
                 foreach (MotherBrainGlassProjectileRequest request in
                          Plms.MotherBrainGlassProjectileRequests)

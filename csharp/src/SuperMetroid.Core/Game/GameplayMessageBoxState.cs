@@ -16,8 +16,9 @@ namespace SuperMetroid.Core.Game;
 /// returned while its lag-frame loops were running.
 /// </para>
 /// <para>
-/// This type handles ordinary messages (IDs 1-22 and 24-26). Save confirmation
-/// IDs 23/28 have a separate selection loop and are intentionally not accepted here.
+/// This type handles the complete translated definition range (IDs 1-26), including the
+/// save-station confirmation loop at ID 23. The gunship's distinct ID-28 polling contract
+/// remains outside this owner until that cartridge coroutine is translated.
 /// </para>
 /// </remarks>
 public sealed class GameplayMessageBoxState
@@ -33,7 +34,7 @@ public sealed class GameplayMessageBoxState
     public bool IsActive => Phase != GameplayMessageBoxPhase.Inactive;
 
     /// <summary>One-based index into <c>$85:869B</c>, matching WRAM <c>$1C1F</c>.</summary>
-    public byte MessageId { get; private set; }
+    public GameplayMessageId MessageId { get; private set; }
 
     /// <summary>Current coroutine segment, exposed so frame-by-frame debugging is useful.</summary>
     public GameplayMessageBoxPhase Phase { get; private set; }
@@ -76,23 +77,25 @@ public sealed class GameplayMessageBoxState
     /// </summary>
     public void Begin(
         ISnesAddressSpace bus,
-        byte messageId,
+        GameplayMessageId messageId,
         ushort shootBinding = (ushort)SnesButton.X,
-        ushort runBinding = (ushort)SnesButton.B)
+        ushort runBinding = (ushort)SnesButton.B,
+        string sourceContext = nameof(GameplayMessageBoxState))
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if (!(messageId is >= 1 and <= 26))
+        byte rawMessageId = (byte)messageId;
+        if (messageId is < GameplayMessageId.EnergyTank or > GameplayMessageId.GravitySuit)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(messageId),
                 messageId,
-                "Gameplay message IDs are 1-26; later IDs use separate ending code.");
+                $"Gameplay message ${rawMessageId:X2} from {sourceContext} is not translated by the ordinary coroutine.");
         }
         if (IsActive)
             throw new InvalidOperationException("A gameplay message box is already active.");
 
         int definition = GameplayMessageRomData.Assets.DefinitionTable +
-            (messageId - 1) * GameplayMessageRomData.Layout.DefinitionBytes;
+            (rawMessageId - 1) * GameplayMessageRomData.Layout.DefinitionBytes;
         ushort modifyFunction = ReadWord(bus, definition);
         ushort drawFunction = ReadWord(bus, definition + 2);
         ushort contentPointer = ReadWord(bus, definition + 4);
@@ -285,7 +288,7 @@ public sealed class GameplayMessageBoxState
                     Phase = GameplayMessageBoxPhase.Inactive;
                     CompletedConfirmationResult = _closingConfirmationResult;
                     _closingConfirmationResult = null;
-                    MessageId = 0;
+                    MessageId = GameplayMessageId.None;
                     MinimumDisplayFramesRemaining = 0;
                     _tilemap = [];
                     _activeBus = null;
@@ -304,7 +307,7 @@ public sealed class GameplayMessageBoxState
     /// </summary>
     private void DrawSaveConfirmationSelection()
     {
-        if (MessageId != GameplayMessageIds.SaveConfirmation && MessageId != 0)
+        if (MessageId != GameplayMessageIds.SaveConfirmation && MessageId != GameplayMessageId.None)
             return;
         ISnesAddressSpace source = _activeBus
             ?? throw new InvalidOperationException(
@@ -328,9 +331,9 @@ public sealed class GameplayMessageBoxState
         }
     }
 
-    private void PatchConfiguredButton(byte messageId, ushort binding)
+    private void PatchConfiguredButton(GameplayMessageId messageId, ushort binding)
     {
-        int byteOffset = GameplayMessageRomData.Buttons.SpecialGlyphByteOffsets[messageId - 1];
+        int byteOffset = GameplayMessageRomData.Buttons.SpecialGlyphByteOffsets[(byte)messageId - 1];
         if ((byteOffset & 1) != 0 || byteOffset + 1 >= _tilemap.Length * 2)
         {
             throw new InvalidDataException(

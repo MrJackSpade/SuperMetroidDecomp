@@ -13,13 +13,6 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroDiscoverySprite
 {
-    private const ushort DeleteInstruction = 0x9438;
-    private const ushort SleepInstruction = 0x9442;
-    private const ushort SetPreInstruction = 0x944c;
-    private const ushort GotoInstruction = 0x94bc;
-    private const ushort DecrementTimerAndGoto = 0x94c3;
-    private const ushort SetGeneralTimer = 0x94d6;
-
     private ushort instructionTimer = 1;
 
     public IntroDiscoverySprite(
@@ -115,7 +108,7 @@ internal sealed class IntroDiscoverySprite
         while (true)
         {
             ushort word = ReadWord(bus, cursor);
-            if ((word & 0x8000) == 0)
+            if ((word & CinematicCodePointers.InstructionCommandBit) == 0)
             {
                 instructionTimer = word;
                 SpriteMapPointer = ReadWord(bus, Add(cursor, 2));
@@ -125,33 +118,33 @@ internal sealed class IntroDiscoverySprite
 
             switch (word)
             {
-                case DeleteInstruction:
+                case CinematicCodePointers.CinematicSpriteObject_Instruction_Delete:
                     Delete();
                     return;
 
-                case SleepInstruction:
+                case CinematicCodePointers.CinematicSpriteObject_Instruction_Sleep:
                     // Sleep returns the opcode's own address so it is encountered again
                     // after an external owner primes the instruction timer/list pointer.
                     InstructionPointer = cursor;
                     return;
 
-                case SetPreInstruction:
+                case CinematicCodePointers.CinematicSpriteObject_Instruction_SetPreInstruction:
                     PreInstructionPointer = ReadWord(bus, Add(cursor, 2));
                     cursor = Add(cursor, 4);
                     break;
 
-                case GotoInstruction:
+                case CinematicCodePointers.CinematicSpriteObject_Instruction_Goto:
                     cursor = ReadWord(bus, Add(cursor, 2));
                     break;
 
-                case DecrementTimerAndGoto:
+                case CinematicCodePointers.CinematicSpriteObject_Instruction_DecrementTimerAndGoto:
                     GeneralTimer = unchecked((ushort)(GeneralTimer - 1));
                     cursor = GeneralTimer != 0
                         ? ReadWord(bus, Add(cursor, 2))
                         : Add(cursor, 4);
                     break;
 
-                case SetGeneralTimer:
+                case CinematicCodePointers.CinematicSpriteObject_Instruction_SetTimer:
                     GeneralTimer = ReadWord(bus, Add(cursor, 2));
                     cursor = Add(cursor, 4);
                     break;

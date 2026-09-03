@@ -43,7 +43,7 @@ internal sealed class IntroCeresFlightState
         xPosition: 0x0070,
         yPosition: 0x0057,
         paletteBits: SnesObjPalettes.Index4.PaletteBits,
-        instructionPointer: 0xcda3)
+        instructionPointer: CinematicCodePointers.Lists.CeresStars)
     {
         GeneralTimer = 0xfc00,
     };
@@ -223,11 +223,16 @@ internal sealed class IntroCeresFlightState
         // each as the shared bank-$8B interpreter preserves its ROM spritemap selection.
         rearViewActors =
         [
-            CreateRearActor(0x0050, 0x009f, SnesObjPalettes.Index4, 0xce4b), // Large asteroids.
-            CreateRearActor(0x0074, 0x00a0, SnesObjPalettes.Index6, 0xcc47), // Ceres under attack.
-            CreateRearActor(0x0080, 0x0060, SnesObjPalettes.Index4, 0xcc4f), // Small asteroids.
-            CreateRearActor(0x00e0, 0x0057, SnesObjPalettes.Index4, 0xcc57), // Purple vortex.
-            CreateRearActor(0xffe0, 0x0057, SnesObjPalettes.Index4, 0xcda3), // Stars, parameter one.
+            CreateRearActor(0x0050, 0x009f, SnesObjPalettes.Index4,
+                CinematicCodePointers.Lists.CeresExplosionLargeAsteroids),
+            CreateRearActor(0x0074, 0x00a0, SnesObjPalettes.Index6,
+                CinematicCodePointers.Lists.CeresUnderAttack),
+            CreateRearActor(0x0080, 0x0060, SnesObjPalettes.Index4,
+                CinematicCodePointers.Lists.CeresSmallAsteroids),
+            CreateRearActor(0x00e0, 0x0057, SnesObjPalettes.Index4,
+                CinematicCodePointers.Lists.CeresPurpleSpaceVortex),
+            CreateRearActor(0xffe0, 0x0057, SnesObjPalettes.Index4,
+                CinematicCodePointers.Lists.CeresStars),
         ];
 
         // CGADSUB=$31 adds the fixed colour to BG1, OBJ, and backdrop. $BE09 begins at

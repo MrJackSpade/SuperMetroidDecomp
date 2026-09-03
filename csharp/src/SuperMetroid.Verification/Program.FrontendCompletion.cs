@@ -321,7 +321,7 @@ static void VerifyCreditsObjectInterpreter()
         rom,
         (int)EndingCreditsRomData.Instructions.Bank.AddWithinBank(
             EndingCreditsRomData.Instructions.CreditsInitial),
-        EndingCreditsRomData.Instructions.CreditsSetTimer);
+        CinematicCodePointers.CreditsObject_Instruction_SetTimer);
     WriteRomWord(rom, 0x8cd91d, 0x0002);
     WriteRomWord(rom, 0x8cd91f, 0x0000);
     WriteRomWord(rom, 0x8cd921, 0x0000);

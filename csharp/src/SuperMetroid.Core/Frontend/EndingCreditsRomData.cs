@@ -38,36 +38,11 @@ public static class EndingCreditsRomData
     {
         public static readonly SnesAddress Bank = new(0x8c, 0);
         public const ushort CreditsInitial = 0xd91b;
-        public const ushort CreditsDelete = 0x99fe;
-        public const ushort CreditsDecrementTimerAndGoto = 0x9a0d;
-        public const ushort CreditsSetTimer = 0x9a17;
-        public const ushort CreditsEnd = 0xf6fe;
-        public const ushort BackgroundDelete = 0x9698;
-        public const ushort BackgroundGoto = 0x971e;
-        public const ushort DrawItemPercentage = 0xe627;
-        public const ushort DrawItemPercentageSubtitle = 0xe769;
-        public const ushort ClearItemPercentageSubtitle = 0xe780;
-        public const ushort DrawNothing = 0x8849;
-        public const ushort DrawTextToTilemap = 0x88b7;
-        public const ushort ExplosionFadePalette = 0xf284;
-        public const ushort SpawnExplosionSilhouette = 0xf295;
-        public const ushort StartZebesExplosion = 0xf2b7;
-        public const ushort ExplosionFinale = 0xf2fa;
-        public const ushort EndZebesExplosion = 0xf32b;
-        public const ushort SpawnCompletedText = 0xf3b0;
-        public const ushort SpawnClearTime = 0xf3ce;
-        public const ushort SpawnHoursTens = 0xf41b;
-        public const ushort SpawnHoursUnits = 0xf424;
-        public const ushort SpawnColon = 0xf42d;
-        public const ushort SpawnMinutesTens = 0xf436;
-        public const ushort SpawnMinutesUnits = 0xf43f;
-        public const ushort TransitionToCredits = 0xf448;
         public const ushort ResultPanel = 0xdc9b;
         public const ushort ItemPercentagePanel = 0xdedb;
         public const ushort ItemPercentageText = 0xdfdb;
         public const ushort SeeYouNextMissionText = 0xe0af;
         public const ushort JapaneseItemPercentageSubtitle = 0xdf5b;
-        public const ushort OpcodeBit = 0x8000;
     }
 
     public static class Rendering

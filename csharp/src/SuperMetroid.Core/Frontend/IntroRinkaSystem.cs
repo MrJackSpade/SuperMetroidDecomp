@@ -14,19 +14,14 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroRinkaSystem
 {
-    private const ushort StartMovingInstruction = 0xb8c5;
-    private const ushort SpawnFirstPairInstruction = 0xba21;
-    private const ushort SpawnSecondPairInstruction = 0xba36;
-    private const ushort MovingHitsSamus = 0xb8d8;
-    private const ushort MovingMissesSamus = 0xb93b;
-
     private static readonly ushort[] InitialX = [0x0070, 0x00c0, 0x0080, 0x00e8];
     private static readonly ushort[] InitialY = [0x0048, 0x0038, 0x0030, 0x0050];
 
     // The spawner itself is an invisible ordinary cinematic sprite. Reusing the focused
     // ROM-list interpreter preserves the exact $4A then $80 frame waits and avoids a host
     // countdown that would be subtly off by one generic-handler invocation.
-    private readonly IntroDiscoverySprite spawner = new(0, 0, 0, 0xce0d);
+    private readonly IntroDiscoverySprite spawner = new(
+        0, 0, 0, CinematicCodePointers.Lists.IntroRinkaSpawner);
     private readonly List<IntroDiscoverySprite> rinkas = [];
 
     public int ActiveCount => rinkas.Count(static rinka => rinka.IsActive);
@@ -66,12 +61,12 @@ internal sealed class IntroRinkaSystem
     {
         switch (opcode)
         {
-            case SpawnFirstPairInstruction:
+            case CinematicCodePointers.Instruction_Spawn_IntroRinkas_0_1:
                 Spawn(0);
                 Spawn(1);
                 return next;
 
-            case SpawnSecondPairInstruction:
+            case CinematicCodePointers.Instruction_Spawn_IntroRinkas_2_3:
                 Spawn(2);
                 Spawn(3);
                 return next;
@@ -86,13 +81,15 @@ internal sealed class IntroRinkaSystem
         ushort opcode,
         ushort next)
     {
-        if (opcode != StartMovingInstruction)
+        if (opcode != CinematicCodePointers.Instruction_StartMoving_IntroRinka)
             return null;
 
         // Init parameter zero is the sole “hits Samus” route. Parameters one through three
         // select the miss routine and remain in GeneralTimer for its velocity table lookup.
         rinka.PreInstructionPointerForDiscovery(
-            rinka.GeneralTimer == 0 ? MovingHitsSamus : MovingMissesSamus);
+            rinka.GeneralTimer == 0
+                ? CinematicCodePointers.PreInstruction_IntroRinka_Moving_HitsSamus
+                : CinematicCodePointers.PreInstruction_IntroRinka_Moving_MissesSamus);
         return next;
     }
 
@@ -102,7 +99,7 @@ internal sealed class IntroRinkaSystem
             InitialX[parameter],
             InitialY[parameter],
             paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
-            instructionPointer: 0xcdeb)
+            instructionPointer: CinematicCodePointers.Lists.IntroRinka)
         {
             GeneralTimer = (ushort)parameter,
         };
@@ -119,7 +116,7 @@ internal sealed class IntroRinkaSystem
             case 0:
                 return;
 
-            case MovingHitsSamus:
+            case CinematicCodePointers.PreInstruction_IntroRinka_Moving_HitsSamus:
                 MoveHalfPixelX(rinka, wholeDelta: 0);
                 MoveHalfPixelY(rinka);
 
@@ -139,7 +136,7 @@ internal sealed class IntroRinkaSystem
                 rinka.Delete();
                 return;
 
-            case MovingMissesSamus:
+            case CinematicCodePointers.PreInstruction_IntroRinka_Moving_MissesSamus:
                 // Carry from adding $8000 to the subposition combines with the signed
                 // whole-pixel table [0,-1,0,-1], producing +0.5,-0.5,+0.5,-0.5 px/frame.
                 int xWholeDelta = (rinka.GeneralTimer & 1) == 0 ? 0 : -1;

@@ -160,46 +160,12 @@ public static class IntroCinematicRomData
             new(SoundEffectLibrary.Library2, 0x0b);
     }
 
-    /// <summary>Instruction pointers and layout consumed by intro text/object streams.</summary>
+    /// <summary>Record layout consumed by intro text/object streams.</summary>
     public static class ObjectSystem
     {
-        public const ushort SpriteGoto = 0x94bc;
-        public const ushort SpriteDelete = 0x9438;
-        public const ushort SpriteSleep = 0x9442;
-        public const ushort BackgroundDelete = 0x9698;
-        public const ushort BackgroundGoto = 0x971e;
-        public const ushort BeginEnglishPageOne = 0xae43;
-        public const ushort FinishEnglishPageOne = 0xae5b;
-        public const ushort BeginEnglishPageTwo = 0xae79;
-        public const ushort FinishEnglishPageTwo = 0xae91;
-        public const ushort BeginEnglishPageThree = 0xb074;
-        public const ushort FinishEnglishPageThree = 0xb08c;
-        public const ushort BeginEnglishPageFour = 0xb0b3;
-        public const ushort FinishEnglishPageFour = 0xb0cb;
-        public const ushort BeginEnglishPageFive = 0xb19b;
-        public const ushort FinishEnglishPageFive = 0xb1b3;
-        public const ushort BeginEnglishPageSix = 0xb228;
-        public const ushort FinishIntro = 0xb240;
-        public const ushort SetCaretBlinkingInstruction = 0xadd4;
-        public const ushort DrawNothing = 0x8849;
-        public const ushort DrawCharacter = 0x884d;
-        public const ushort DrawToTextTilemap = 0x88b7;
-        public const ushort DrawToPortraitTilemap = 0x88fd;
-        public const ushort InitialEyeInstruction = 0xd5df;
-        public const ushort InitialSpriteInstruction = 0xcbfb;
-        public const ushort OpenEyeInstruction = 0xcc03;
-        public const ushort PageOneText = 0xc383;
-        public const ushort PageTwoText = 0xc797;
-        public const ushort PageThreeText = 0xcb45;
-        public const ushort PageFourText = 0xce33;
-        public const ushort PageFiveText = 0xd15d;
-        public const ushort PageSixText = 0xd511;
-        public const ushort ActiveEyeInstruction = 0xd613;
-        public const ushort SilentTypewriterDataPointer = 0xd67d;
         public const ushort CaretInitialY = 0x00f8;
         public const ushort CaretLeftX = 8;
         public const ushort CaretFirstTextY = 24;
-        public const ushort CommandBit = 0x8000;
         public const int PackedPositionXMask = 0x00ff;
         public const int CharacterPixelSize = 8;
         public const int CharacterBaselineOffset = 8;

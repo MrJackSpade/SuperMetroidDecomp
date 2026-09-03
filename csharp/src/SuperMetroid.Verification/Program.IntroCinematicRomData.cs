@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using System.Reflection;
 
 internal static partial class Program
 {
@@ -49,9 +50,57 @@ internal static partial class Program
         AssertEqual(0x23, IntroCinematicRomData.Objects.BabyCry1.Value,
             "Baby cry one sequence");
 
+        VerifyCinematicCodePointerCatalog();
+
         Console.WriteLine(
             "  Intro ROM data: resources, VRAM ranges, tilemaps, palette spans, text " +
             "objects, demo pointers, and typed actor audio agree.");
+    }
+
+    /// <summary>
+    /// Checks every translated bank-$8B callback and every named bank-$8B/$8C list cursor.
+    /// When the private cartridge is present, touching each address also catches an
+    /// accidentally transcribed bank or an out-of-ROM pointer before a cinematic reaches it.
+    /// </summary>
+    private static void VerifyCinematicCodePointerCatalog()
+    {
+        ushort[] bank8BCodePointers = GetUshortConstants(typeof(CinematicCodePointers))
+            .Where(field => field.Name != nameof(CinematicCodePointers.InstructionCommandBit))
+            .Select(field => (ushort)field.GetRawConstantValue()!)
+            .ToArray();
+        ushort[] bank8BLists = GetUshortConstants(typeof(CinematicCodePointers.Lists))
+            .Where(field => field.Name != nameof(CinematicCodePointers.Lists.MetroidEggParticleStride))
+            .Select(field => (ushort)field.GetRawConstantValue()!)
+            .ToArray();
+        ushort[] bank8CLists = GetUshortConstants(typeof(CinematicCodePointers.BackgroundLists))
+            .Concat(GetUshortConstants(typeof(CinematicCodePointers.IndirectData)))
+            .Select(field => (ushort)field.GetRawConstantValue()!)
+            .ToArray();
+
+        AssertTrue(bank8BCodePointers.Length >= 50,
+            "cinematic callback catalog covers translated bank-$8B code");
+        AssertTrue(bank8BLists.Length >= 20,
+            "cinematic list catalog covers translated bank-$8B streams");
+        AssertTrue(bank8CLists.Length >= 9,
+            "cinematic background catalog covers translated bank-$8C streams");
+        AssertEqual(bank8BCodePointers.Length, bank8BCodePointers.Distinct().Count(),
+            "cinematic callback pointers are unique");
+        AssertEqual(bank8BLists.Length, bank8BLists.Distinct().Count(),
+            "cinematic bank-$8B list pointers are unique");
+        AssertEqual(bank8CLists.Length, bank8CLists.Distinct().Count(),
+            "cinematic bank-$8C list pointers are unique");
+        foreach (ushort pointer in bank8BCodePointers.Concat(bank8BLists).Concat(bank8CLists))
+            AssertTrue(pointer >= 0x8000, $"cinematic pointer ${pointer:X4} is mapped");
+
+        string romPath = Path.GetFullPath("Super Metroid.smc");
+        if (!File.Exists(romPath))
+            return;
+
+        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        foreach (ushort pointer in bank8BCodePointers.Concat(bank8BLists))
+            _ = bus.ReadByte(IntroCinematicRomData.Banks.CinematicCode | pointer);
+        foreach (ushort pointer in bank8CLists)
+            _ = bus.ReadByte((int)new SnesAddress(0x8c, pointer));
     }
 
     private static void AssertIntroPaletteSpans(

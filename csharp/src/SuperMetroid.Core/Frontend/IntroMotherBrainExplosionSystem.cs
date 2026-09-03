@@ -68,10 +68,6 @@ internal sealed class IntroMotherBrainExplosionSystem
 
     private sealed class ExplosionActor
     {
-        private const ushort DeleteInstruction = 0x9438;
-        private const ushort GotoInstruction = 0x94bc;
-        private const ushort DeleteInstructionList = 0xce53;
-
         private ushort instructionPointer;
         private ushort instructionTimer;
 
@@ -107,7 +103,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             return new ExplosionActor(
                 AddSigned(0x0038, xOffsets[parameter]),
                 AddSigned(0x006f, yOffsets[parameter]),
-                instructionPointer: 0xcdab,
+                instructionPointer: CinematicCodePointers.Lists.IntroMotherBrainExplosionBig,
                 instructionTimer: startTimers[parameter]);
         }
 
@@ -122,7 +118,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             return new ExplosionActor(
                 AddSigned(0x0038, xOffsets[parameter]),
                 AddSigned(0x006f, yOffsets[parameter]),
-                instructionPointer: 0xcdcb,
+                instructionPointer: CinematicCodePointers.Lists.IntroMotherBrainExplosionSmall,
                 instructionTimer: startTimers[parameter]);
         }
 
@@ -137,7 +133,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             if (introCrossfadeTimer == 0)
             {
                 instructionTimer = 1;
-                instructionPointer = DeleteInstructionList;
+                instructionPointer = CinematicCodePointers.Lists.Delete;
             }
 
             instructionTimer = unchecked((ushort)(instructionTimer - 1));
@@ -148,7 +144,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             while (true)
             {
                 ushort instructionOrDuration = ReadWord(bus, pointer);
-                if ((instructionOrDuration & 0x8000) == 0)
+                if ((instructionOrDuration & CinematicCodePointers.InstructionCommandBit) == 0)
                 {
                     instructionTimer = instructionOrDuration;
                     SpriteMapPointer = ReadWord(bus, Add(pointer, 2));
@@ -156,13 +152,13 @@ internal sealed class IntroMotherBrainExplosionSystem
                     return;
                 }
 
-                if (instructionOrDuration == GotoInstruction)
+                if (instructionOrDuration == CinematicCodePointers.CinematicSpriteObject_Instruction_Goto)
                 {
                     pointer = ReadWord(bus, Add(pointer, 2));
                     continue;
                 }
 
-                if (instructionOrDuration == DeleteInstruction)
+                if (instructionOrDuration == CinematicCodePointers.CinematicSpriteObject_Instruction_Delete)
                 {
                     IsActive = false;
                     SpriteMapPointer = 0;
@@ -176,7 +172,9 @@ internal sealed class IntroMotherBrainExplosionSystem
         }
 
         private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-            RomDataReader.ReadWordFixedBank(bus, 0x8b0000 | pointer);
+            RomDataReader.ReadWordFixedBank(
+                bus,
+                IntroCinematicRomData.Banks.CinematicCode | pointer);
 
         private static ushort Add(ushort pointer, int byteCount) =>
             unchecked((ushort)(pointer + byteCount));

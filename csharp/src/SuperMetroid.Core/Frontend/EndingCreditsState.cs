@@ -641,19 +641,19 @@ internal sealed partial class EndingCreditsState
     {
         switch (opcode)
         {
-            case EndingCreditsRomData.Instructions.ExplosionFadePalette:
+            case CinematicCodePointers.Ending_Instruction_FadeExplosionPalette:
                 // F284 starts a palette-FX object. The palette interpreter remains a
                 // separate subsystem; the actor's list cursor still advances immediately.
                 return cursor;
 
-            case EndingCreditsRomData.Instructions.SpawnExplosionSilhouette:
+            case CinematicCodePointers.Ending_Instruction_SpawnExplosionSilhouette:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ExplosionSilhouette,
                     EndingSpriteRole.ExplosionSilhouette);
                 cgram.SetColor(0, EndingCreditsRomData.Rendering.WhiteColor);
                 return cursor;
 
-            case EndingCreditsRomData.Instructions.StartZebesExplosion:
+            case CinematicCodePointers.Ending_Instruction_StartZebesExplosion:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ExplosionStarsRight,
                     EndingSpriteRole.ExplosionStarsRight);
@@ -662,52 +662,52 @@ internal sealed partial class EndingCreditsState
                     EndingSpriteRole.ExplosionStarsLeft);
                 return cursor;
 
-            case EndingCreditsRomData.Instructions.ExplosionFinale:
+            case CinematicCodePointers.Ending_Instruction_ExplosionFinale:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ExplosionAfterglow,
                     EndingSpriteRole.ExplosionAfterglow);
                 return cursor;
 
-            case EndingCreditsRomData.Instructions.EndZebesExplosion:
+            case CinematicCodePointers.Ending_Instruction_EndZebesExplosion:
                 phaseTimer = 120;
                 Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return cursor;
 
-            case EndingCreditsRomData.Instructions.SpawnCompletedText:
+            case CinematicCodePointers.Ending_Instruction_SpawnCompletedText:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.CompletedSuccessfullyText,
                     EndingSpriteRole.CompletedSuccessfullyText);
                 return cursor;
 
-            case EndingCreditsRomData.Instructions.SpawnClearTime:
+            case CinematicCodePointers.Ending_Instruction_SpawnClearTime:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ClearTimeText,
                     EndingSpriteRole.ClearTimeText);
                 return cursor;
 
-            case EndingCreditsRomData.Instructions.SpawnHoursTens:
+            case CinematicCodePointers.Ending_Instruction_SpawnHoursTens:
                 SpawnDigit(gameTimeHours / 10, EndingCreditsRomData.Text.HoursTensX);
                 return cursor;
 
-            case EndingCreditsRomData.Instructions.SpawnHoursUnits:
+            case CinematicCodePointers.Ending_Instruction_SpawnHoursUnits:
                 SpawnDigit(gameTimeHours % 10, EndingCreditsRomData.Text.HoursUnitsX);
                 return cursor;
 
-            case EndingCreditsRomData.Instructions.SpawnColon:
+            case CinematicCodePointers.Ending_Instruction_SpawnColon:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ClearTimeColon,
                     EndingSpriteRole.ClearTimeDigit);
                 return cursor;
 
-            case EndingCreditsRomData.Instructions.SpawnMinutesTens:
+            case CinematicCodePointers.Ending_Instruction_SpawnMinutesTens:
                 SpawnDigit(gameTimeMinutes / 10, EndingCreditsRomData.Text.MinutesTensX);
                 return cursor;
 
-            case EndingCreditsRomData.Instructions.SpawnMinutesUnits:
+            case CinematicCodePointers.Ending_Instruction_SpawnMinutesUnits:
                 SpawnDigit(gameTimeMinutes % 10, EndingCreditsRomData.Text.MinutesUnitsX);
                 return cursor;
 
-            case EndingCreditsRomData.Instructions.TransitionToCredits:
+            case CinematicCodePointers.Ending_Instruction_TransitionToCredits:
                 fadeCounter = 1;
                 Phase = EndingCreditsPhase.FadeOutToCredits;
                 return cursor;

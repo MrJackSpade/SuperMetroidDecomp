@@ -21,12 +21,12 @@ internal sealed class IntroBabyDiscoveryState
         xPosition: 0x0070,
         yPosition: 0x009b,
         paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
-        instructionPointer: 0xcb33);
+        instructionPointer: CinematicCodePointers.Lists.MetroidEgg);
     private readonly IntroDiscoverySprite confusedBaby = new(
         xPosition: 0x0070,
         yPosition: 0x009b,
         paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
-        instructionPointer: 0xcc2b);
+        instructionPointer: CinematicCodePointers.Lists.ConfusedBabyMetroid);
 
     public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null)
     {
@@ -83,14 +83,18 @@ internal sealed class IntroBabyDiscoveryState
         // cinematic-sprite pass. It permanently redirects the list once X is below $A9.
         if (!EggHatchingStarted && unchecked((short)(Samus.XPosition - 0x00a9)) < 0)
         {
-            egg.Redirect(0xcb3b);
+            egg.Redirect(CinematicCodePointers.Lists.MetroidEggHatching);
             EggHatchingStarted = true;
         }
 
         // $A903 replaces the egg with the shared delete list only when page three's reverse
         // crossfade reaches zero. It is installed by list opcode $944C after $B33E.
-        if (egg.PreInstructionPointer == 0xa903 && introCrossfadeTimer == 0)
-            egg.Redirect(0xce53);
+        if (egg.PreInstructionPointer ==
+                CinematicCodePointers.PreInstruction_MetroidEgg_DeleteAfterCrossFade &&
+            introCrossfadeTimer == 0)
+        {
+            egg.Redirect(CinematicCodePointers.Lists.Delete);
+        }
         egg.Step(bus, HandleEggInstruction);
 
         // The baby slot follows the egg slot in the native descending actor traversal, so
@@ -215,7 +219,7 @@ internal sealed class IntroBabyDiscoveryState
             case 0:
                 // $BA5E watches the egg's *next* instruction pointer. CB79 is the first
                 // fully-hatched frame list, so the baby starts moving on that exact handoff.
-                if (egg.InstructionPointer >= 0xcb79)
+                if (egg.InstructionPointer >= CinematicCodePointers.Lists.MetroidEggHatchedFrame2)
                 {
                     confusedBaby.PreInstructionPointerForDiscovery(
                         CinematicCodePointers.PreInstruction_ConfusedBabyMetroid_Hatched);

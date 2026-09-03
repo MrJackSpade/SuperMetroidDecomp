@@ -89,7 +89,7 @@ internal sealed class CreditsObjectState
         for (int operation = 0; operation < 32; operation++)
         {
             ushort word = ReadInstructionWord(instructionPointer);
-            if ((word & EndingCreditsRomData.Instructions.OpcodeBit) == 0)
+            if ((word & CinematicCodePointers.InstructionCommandBit) == 0)
             {
                 ushort sourceOffset = ReadInstructionWord(
                     unchecked((ushort)(instructionPointer + 2)));
@@ -102,20 +102,20 @@ internal sealed class CreditsObjectState
 
             switch (word)
             {
-                case EndingCreditsRomData.Instructions.CreditsSetTimer:
+                case CinematicCodePointers.CreditsObject_Instruction_SetTimer:
                     instructionTimer = ReadInstructionWord(
                         unchecked((ushort)(instructionPointer + 2)));
                     instructionPointer = unchecked((ushort)(instructionPointer + 4));
                     break;
 
-                case EndingCreditsRomData.Instructions.CreditsDecrementTimerAndGoto:
+                case CinematicCodePointers.CreditsObject_Instruction_DecrementTimerAndGoto:
                     instructionTimer = unchecked((ushort)(instructionTimer - 1));
                     instructionPointer = instructionTimer != 0
                         ? ReadInstructionWord(unchecked((ushort)(instructionPointer + 2)))
                         : unchecked((ushort)(instructionPointer + 4));
                     break;
 
-                case EndingCreditsRomData.Instructions.CreditsEnd:
+                case CinematicCodePointers.CreditsObject_Instruction_EndCredits:
                     // $8B:F6FE disables the object, forces blank, installs the post-credit
                     // palette, and arms the following cinematic. The outer ending owner
                     // performs those cross-system effects; this interpreter publishes the
@@ -124,7 +124,7 @@ internal sealed class CreditsObjectState
                     instructionPointer = 0;
                     return false;
 
-                case EndingCreditsRomData.Instructions.CreditsDelete:
+                case CinematicCodePointers.CreditsObject_Instruction_Delete:
                     instructionPointer = 0;
                     return false;
 

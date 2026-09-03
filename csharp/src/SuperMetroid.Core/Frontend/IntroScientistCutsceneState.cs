@@ -21,7 +21,9 @@ internal sealed class IntroScientistCutsceneState
             xPosition: delivery ? (ushort)0x0054 : (ushort)0x0070,
             yPosition: delivery ? (ushort)0x008b : (ushort)0x006f,
             paletteBits: IntroCinematicRomData.Objects.ScientistPalette.Raw,
-            instructionPointer: delivery ? (ushort)0xcb9f : (ushort)0xcbcd);
+            instructionPointer: delivery
+                ? CinematicCodePointers.Lists.BabyMetroidBeingDelivered
+                : CinematicCodePointers.Lists.BabyMetroidBeingExamined);
         TilemapBaseWord = delivery ? (ushort)0x5800 : (ushort)0x5c00;
         BackgroundX = delivery ? (ushort)0x0020 : (ushort)0;
         BackgroundY = delivery ? (ushort)0x0008 : unchecked((ushort)0xffe8);
@@ -56,7 +58,7 @@ internal sealed class IntroScientistCutsceneState
         // cinematic-function counter while IntroCrossFadeTimer remains $007F.
         if (introCrossfadeTimer == 0)
         {
-            baby.Redirect(0xce53);
+            baby.Redirect(CinematicCodePointers.Lists.Delete);
         }
         else if ((cinematicFunctionTimer & 3) == 0)
         {

@@ -50,7 +50,7 @@ internal sealed class EndingBackgroundTextState
         while (true)
         {
             ushort word = ReadWord(cursor);
-            if ((word & EndingCreditsRomData.Instructions.OpcodeBit) == 0)
+            if ((word & CinematicCodePointers.InstructionCommandBit) == 0)
             {
                 instructionTimer = word;
                 ushort packedPosition = ReadWord(Add(cursor, 2));
@@ -63,18 +63,18 @@ internal sealed class EndingBackgroundTextState
 
             switch (word)
             {
-                case EndingCreditsRomData.Instructions.BackgroundDelete:
+                case CinematicCodePointers.CinematicBackgroundObject_Instruction_Delete:
                     instructionPointer = 0;
                     Upload(vram);
                     return;
-                case EndingCreditsRomData.Instructions.BackgroundGoto:
+                case CinematicCodePointers.CinematicBackgroundObject_Instruction_Goto:
                     cursor = ReadWord(Add(cursor, 2));
                     break;
-                case EndingCreditsRomData.Instructions.DrawItemPercentage:
+                case CinematicCodePointers.Ending_Instruction_DrawItemPercentage:
                     DrawItemPercentage();
                     cursor = Add(cursor, 2);
                     break;
-                case EndingCreditsRomData.Instructions.DrawItemPercentageSubtitle:
+                case CinematicCodePointers.Ending_Instruction_DrawItemPercentageSubtitle:
                     if (japaneseText)
                         CopyWords(
                             EndingCreditsRomData.Instructions.JapaneseItemPercentageSubtitle,
@@ -82,7 +82,7 @@ internal sealed class EndingBackgroundTextState
                             EndingCreditsRomData.Text.JapaneseSubtitleWords);
                     cursor = Add(cursor, 2);
                     break;
-                case EndingCreditsRomData.Instructions.ClearItemPercentageSubtitle:
+                case CinematicCodePointers.Ending_Instruction_ClearItemPercentageSubtitle:
                     Array.Fill(
                         tilemap,
                         EndingCreditsRomData.Rendering.BlankTile,
@@ -101,9 +101,9 @@ internal sealed class EndingBackgroundTextState
     private void DrawRecord(ushort packedPosition, ushort dataPointer)
     {
         ushort drawFunction = ReadWord(dataPointer);
-        if (drawFunction == EndingCreditsRomData.Instructions.DrawNothing)
+        if (drawFunction == CinematicCodePointers.IndirectInstruction_DoNothing)
             return;
-        if (drawFunction != EndingCreditsRomData.Instructions.DrawTextToTilemap)
+        if (drawFunction != CinematicCodePointers.IndirectInstruction_DrawToBackgroundTilemap)
         {
             throw new InvalidDataException(
                 $"Ending BG indirect function $8B:{drawFunction:X4} at $8C:{dataPointer:X4} is invalid.");

@@ -9,8 +9,6 @@ internal sealed class IntroEggSlimeDrop
     private const int XVelocityTable = 0x8bab35;
     private const int OddYVelocityTable = 0x8bab49;
     private const int EvenYVelocityTable = 0x8bac41;
-    private const ushort HitGroundList = 0xcd71;
-
     private readonly IntroDiscoverySprite sprite;
     private bool motionEnabled = true;
 
@@ -25,7 +23,7 @@ internal sealed class IntroEggSlimeDrop
             babyX,
             babyY,
             paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
-            instructionPointer: 0xcd69)
+            instructionPointer: CinematicCodePointers.Lists.MetroidEggSlimeDrops)
         {
             GeneralTimer = index,
         };
@@ -55,7 +53,7 @@ internal sealed class IntroEggSlimeDrop
             {
                 // $AAB3 changes both list and pre-instruction, freezing the impact point
                 // while CD71 plays four ten-frame puddle frames and deletes the actor.
-                sprite.Redirect(HitGroundList);
+                sprite.Redirect(CinematicCodePointers.Lists.MetroidEggParticleHitGround);
                 motionEnabled = false;
             }
             else

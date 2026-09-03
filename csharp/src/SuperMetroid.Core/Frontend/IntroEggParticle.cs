@@ -9,8 +9,6 @@ internal sealed class IntroEggParticle
     private const int InitialPositionTable = 0x8ba97c;
     private const int XVelocityTable = 0x8ba9ea;
     private const int YVelocityTable = 0x8baa02;
-    private const ushort DeleteList = 0xce53;
-
     private readonly IntroDiscoverySprite sprite;
 
     public IntroEggParticle(ISnesAddressSpace bus, byte index)
@@ -28,7 +26,9 @@ internal sealed class IntroEggParticle
             x,
             y,
             paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
-            instructionPointer: unchecked((ushort)(0xcd39 + index * 8)))
+            instructionPointer: unchecked((ushort)(
+                CinematicCodePointers.Lists.MetroidEggParticle1 +
+                index * CinematicCodePointers.Lists.MetroidEggParticleStride)))
         {
             GeneralTimer = index,
         };
@@ -53,7 +53,7 @@ internal sealed class IntroEggParticle
         {
             // Native code primes the shared one-word delete list, which the generic handler
             // consumes later in this same object call.
-            sprite.Redirect(DeleteList);
+            sprite.Redirect(CinematicCodePointers.Lists.Delete);
         }
         else
         {

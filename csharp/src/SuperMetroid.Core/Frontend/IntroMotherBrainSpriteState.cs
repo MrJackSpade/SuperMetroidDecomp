@@ -14,10 +14,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroMotherBrainSpriteState
 {
-    private const ushort GotoInstruction = 0x94bc;
-    private const ushort SetPreInstruction = 0x944c;
-    private const ushort StartIntroPageTwo = 0xb336;
-    private ushort instructionPointer = 0xcb05;
+    private ushort instructionPointer = CinematicCodePointers.Lists.IntroMotherBrain;
     private ushort instructionTimer = 1;
     private ushort hurtFlashTimer;
     private ushort explodingTimer;
@@ -79,7 +76,7 @@ internal sealed class IntroMotherBrainSpriteState
             // $B80F primes list $CB19. The generic handler below executes its two control
             // instructions during this same cinematic-object call.
             instructionTimer = 1;
-            instructionPointer = 0xcb19;
+            instructionPointer = CinematicCodePointers.Lists.IntroMotherBrainStartPage2;
             pageTwoInstructionStarted = true;
         }
     }
@@ -129,7 +126,7 @@ internal sealed class IntroMotherBrainSpriteState
         while (true)
         {
             ushort instructionOrDuration = ReadWord(bus, pointer);
-            if ((instructionOrDuration & 0x8000) == 0)
+            if ((instructionOrDuration & CinematicCodePointers.InstructionCommandBit) == 0)
             {
                 instructionTimer = instructionOrDuration;
                 SpriteMapPointer = ReadWord(bus, Add(pointer, 2));
@@ -137,19 +134,19 @@ internal sealed class IntroMotherBrainSpriteState
                 return;
             }
 
-            if (instructionOrDuration != GotoInstruction)
+            if (instructionOrDuration != CinematicCodePointers.CinematicSpriteObject_Instruction_Goto)
             {
-                if (instructionOrDuration == StartIntroPageTwo)
+                if (instructionOrDuration == CinematicCodePointers.Instruction_StartIntroPage2)
                 {
                     PageTwoRequested = true;
                     pointer = Add(pointer, 2);
                     continue;
                 }
 
-                if (instructionOrDuration == SetPreInstruction)
+                if (instructionOrDuration == CinematicCodePointers.CinematicSpriteObject_Instruction_SetPreInstruction)
                 {
                     ushort preInstruction = ReadWord(bus, Add(pointer, 2));
-                    if (preInstruction != 0xb82e)
+                    if (preInstruction != CinematicCodePointers.PreInstruction_IntroMotherBrain_CrossFading)
                     {
                         throw new InvalidDataException(
                             $"Intro Mother Brain names invalid pre-instruction $8B:{preInstruction:X4}.");
@@ -169,7 +166,9 @@ internal sealed class IntroMotherBrainSpriteState
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(bus, 0x8b0000 | pointer);
+        RomDataReader.ReadWordFixedBank(
+            bus,
+            IntroCinematicRomData.Banks.CinematicCode | pointer);
 
     private static ushort Add(ushort pointer, int byteCount) =>
         unchecked((ushort)(pointer + byteCount));

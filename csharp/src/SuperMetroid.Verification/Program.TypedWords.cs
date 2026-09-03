@@ -289,6 +289,23 @@ static void VerifyTypedNativeWords()
         levelWord.VisualFlipFlags, "level parent flip flags");
     AssertEqual(0xec2a, (ushort)levelWord, "level word raw round trip");
 
+    RoomLevelWord encodedLevelWord = RoomLevelWord.Create(
+        visualBlockIndex: 0x002a,
+        LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical,
+        RoomCollisionType.GrappleBlock);
+    AssertEqual(0xec2a, encodedLevelWord.Raw, "level word typed encode");
+    AssertEqual(0x5c2a,
+        encodedLevelWord.WithCollisionType(RoomCollisionType.HorizontalExtension).Raw,
+        "level collision replacement preserves visual flips");
+    AssertEqual(0xe82a,
+        encodedLevelWord.WithVisualFlipFlags(LevelBlockFlipFlags.Vertical).Raw,
+        "level flip replacement preserves collision and index");
+    AssertEqual(0xec55, encodedLevelWord.WithVisualBlockIndex(0x0055).Raw,
+        "level block replacement preserves collision and flips");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => encodedLevelWord.WithVisualFlipFlags((LevelBlockFlipFlags)0x1000),
+        "level flip replacement rejects collision bits");
+
     RoomCollisionType[] retailCollisionTypes =
     [
         RoomCollisionType.Air,

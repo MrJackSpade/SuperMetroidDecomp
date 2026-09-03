@@ -38,6 +38,7 @@ public readonly record struct RoomLevelWord(ushort Raw)
 {
     private const ushort VisualBlockIndexMask = 0x03ff;
     private const ushort VisualFlipMask = 0x0c00;
+    private const ushort CollisionTypeMask = 0xf000;
     private const int CollisionTypeShift = 12;
 
     /// <summary>Low ten bits selecting a visual 16×16 block definition.</summary>
@@ -58,6 +59,64 @@ public readonly record struct RoomLevelWord(ushort Raw)
     /// this property can never discard or rewrite cartridge data.
     /// </summary>
     public RoomCollisionType CollisionType => (RoomCollisionType)CollisionTypeValue;
+
+    /// <summary>Builds a complete native level word from its three independent fields.</summary>
+    public static RoomLevelWord Create(
+        ushort visualBlockIndex,
+        LevelBlockFlipFlags visualFlipFlags,
+        RoomCollisionType collisionType)
+    {
+        ValidateVisualBlockIndex(visualBlockIndex);
+        ValidateVisualFlipFlags(visualFlipFlags);
+        ValidateCollisionType(collisionType);
+        return new RoomLevelWord(unchecked((ushort)(
+            visualBlockIndex |
+            (ushort)visualFlipFlags |
+            ((ushort)collisionType << CollisionTypeShift))));
+    }
+
+    /// <summary>Replaces only the visual block index and preserves both flips and collision.</summary>
+    public RoomLevelWord WithVisualBlockIndex(ushort visualBlockIndex)
+    {
+        ValidateVisualBlockIndex(visualBlockIndex);
+        return new RoomLevelWord(unchecked((ushort)((Raw & ~VisualBlockIndexMask) | visualBlockIndex)));
+    }
+
+    /// <summary>Replaces only the parent-block visual transforms.</summary>
+    public RoomLevelWord WithVisualFlipFlags(LevelBlockFlipFlags visualFlipFlags)
+    {
+        ValidateVisualFlipFlags(visualFlipFlags);
+        return new RoomLevelWord(unchecked((ushort)(
+            (Raw & ~VisualFlipMask) | (ushort)visualFlipFlags)));
+    }
+
+    /// <summary>Replaces only the four-bit collision dispatcher value.</summary>
+    public RoomLevelWord WithCollisionType(RoomCollisionType collisionType)
+    {
+        ValidateCollisionType(collisionType);
+        return new RoomLevelWord(unchecked((ushort)(
+            (Raw & ~CollisionTypeMask) | ((ushort)collisionType << CollisionTypeShift))));
+    }
+
+    private static void ValidateVisualBlockIndex(ushort visualBlockIndex)
+    {
+        if ((visualBlockIndex & ~VisualBlockIndexMask) != 0)
+            throw new ArgumentOutOfRangeException(nameof(visualBlockIndex));
+    }
+
+    private static void ValidateVisualFlipFlags(LevelBlockFlipFlags visualFlipFlags)
+    {
+        const LevelBlockFlipFlags All =
+            LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical;
+        if ((visualFlipFlags & ~All) != 0)
+            throw new ArgumentOutOfRangeException(nameof(visualFlipFlags));
+    }
+
+    private static void ValidateCollisionType(RoomCollisionType collisionType)
+    {
+        if ((byte)collisionType > 0x0f)
+            throw new ArgumentOutOfRangeException(nameof(collisionType));
+    }
 
     public static implicit operator RoomLevelWord(ushort raw) => new(raw);
 

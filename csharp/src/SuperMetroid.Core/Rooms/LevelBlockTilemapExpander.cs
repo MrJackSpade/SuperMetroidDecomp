@@ -17,11 +17,10 @@ public static class LevelBlockTilemapExpander
     /// Reads the indexed eight-byte definition from the combined CRE/area block table and
     /// applies the parent level entry's horizontal and vertical flips.
     /// </summary>
-    public static ExpandedBlockTiles Expand(ushort levelEntry, ReadOnlySpan<byte> blockDefinitions)
+    public static ExpandedBlockTiles Expand(RoomLevelWord levelEntry, ReadOnlySpan<byte> blockDefinitions)
     {
-        // Bits 0-9 select a block definition. Bits 10-11 flip the entire 16x16 block.
-        // Higher collision/type bits are intentionally irrelevant to visual expansion.
-        int blockIndex = levelEntry & 0x03ff;
+        // The typed word keeps the collision nibble explicitly out of visual expansion.
+        int blockIndex = levelEntry.VisualBlockIndex;
         int definitionOffset = blockIndex * 8;
         if (definitionOffset + 8 > blockDefinitions.Length)
         {
@@ -36,21 +35,22 @@ public static class LevelBlockTilemapExpander
 
         // The XORs do two jobs at once: the four children move to their mirrored quadrants,
         // and each 8x8 child's own PPU flip flag toggles so pixels mirror inside that child.
-        // The case order mirrors the native comparisons against $0400 and $0800.
-        return (levelEntry & 0x0c00) switch
+        // The case order mirrors the native horizontal/vertical flag comparisons.
+        return levelEntry.VisualFlipFlags switch
         {
-            0x0000 => new ExpandedBlockTiles(topLeft, topRight, bottomLeft, bottomRight),
-            0x0400 => new ExpandedBlockTiles(
+            LevelBlockFlipFlags.None =>
+                new ExpandedBlockTiles(topLeft, topRight, bottomLeft, bottomRight),
+            LevelBlockFlipFlags.Horizontal => new ExpandedBlockTiles(
                 new SnesBgTilemapWord(topRight).ToggleFlips(SnesTileFlipFlags.Horizontal),
                 new SnesBgTilemapWord(topLeft).ToggleFlips(SnesTileFlipFlags.Horizontal),
                 new SnesBgTilemapWord(bottomRight).ToggleFlips(SnesTileFlipFlags.Horizontal),
                 new SnesBgTilemapWord(bottomLeft).ToggleFlips(SnesTileFlipFlags.Horizontal)),
-            0x0800 => new ExpandedBlockTiles(
-                (ushort)(bottomLeft ^ 0x8000),
-                (ushort)(bottomRight ^ 0x8000),
-                (ushort)(topLeft ^ 0x8000),
-                (ushort)(topRight ^ 0x8000)),
-            _ => new ExpandedBlockTiles(
+            LevelBlockFlipFlags.Vertical => new ExpandedBlockTiles(
+                new SnesBgTilemapWord(bottomLeft).ToggleFlips(SnesTileFlipFlags.Vertical),
+                new SnesBgTilemapWord(bottomRight).ToggleFlips(SnesTileFlipFlags.Vertical),
+                new SnesBgTilemapWord(topLeft).ToggleFlips(SnesTileFlipFlags.Vertical),
+                new SnesBgTilemapWord(topRight).ToggleFlips(SnesTileFlipFlags.Vertical)),
+            LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical => new ExpandedBlockTiles(
                 new SnesBgTilemapWord(bottomRight).ToggleFlips(
                     SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical),
                 new SnesBgTilemapWord(bottomLeft).ToggleFlips(
@@ -59,6 +59,8 @@ public static class LevelBlockTilemapExpander
                     SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical),
                 new SnesBgTilemapWord(topLeft).ToggleFlips(
                     SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical)),
+            _ => throw new InvalidDataException(
+                $"Level word ${levelEntry.Raw:X4} contains unsupported visual flip flags."),
         };
     }
 }

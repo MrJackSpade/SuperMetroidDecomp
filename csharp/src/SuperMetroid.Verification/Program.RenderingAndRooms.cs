@@ -689,22 +689,33 @@ static void VerifyLevelBlockTilemapExpansion()
     BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(12), 0x89ab);
     BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(14), 0xcdef);
 
+    RoomLevelWord unflipped = RoomLevelWord.Create(
+        1, LevelBlockFlipFlags.None, RoomCollisionType.Air);
+    RoomLevelWord horizontalSlope = RoomLevelWord.Create(
+        1, LevelBlockFlipFlags.Horizontal, RoomCollisionType.Slope);
+    RoomLevelWord verticalExtension = RoomLevelWord.Create(
+        1, LevelBlockFlipFlags.Vertical, RoomCollisionType.VerticalExtension);
+    RoomLevelWord doubleFlipHorizontalExtension = RoomLevelWord.Create(
+        1,
+        LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical,
+        RoomCollisionType.HorizontalExtension);
+
     AssertEqual(
         new ExpandedBlockTiles(0x0123, 0x4567, 0x89ab, 0xcdef),
-        LevelBlockTilemapExpander.Expand(0x0001, definitions),
+        LevelBlockTilemapExpander.Expand(unflipped, definitions),
         "unflipped block expansion");
     AssertEqual(
         new ExpandedBlockTiles(0x0567, 0x4123, 0x8def, 0xc9ab),
-        LevelBlockTilemapExpander.Expand(0x0401, definitions),
-        "horizontally flipped block expansion");
+        LevelBlockTilemapExpander.Expand(horizontalSlope, definitions),
+        "horizontally flipped slope expansion ignores collision nibble");
     AssertEqual(
         new ExpandedBlockTiles(0x09ab, 0x4def, 0x8123, 0xc567),
-        LevelBlockTilemapExpander.Expand(0x0801, definitions),
-        "vertically flipped block expansion");
+        LevelBlockTilemapExpander.Expand(verticalExtension, definitions),
+        "vertically flipped extension expansion ignores collision nibble");
     AssertEqual(
         new ExpandedBlockTiles(0x0def, 0x49ab, 0x8567, 0xc123),
-        LevelBlockTilemapExpander.Expand(0x0c01, definitions),
-        "doubly flipped block expansion");
+        LevelBlockTilemapExpander.Expand(doubleFlipHorizontalExtension, definitions),
+        "doubly flipped horizontal extension expansion ignores collision nibble");
 
     AssertThrows<InvalidDataException>(
         () => LevelBlockTilemapExpander.Expand(0x0002, definitions),

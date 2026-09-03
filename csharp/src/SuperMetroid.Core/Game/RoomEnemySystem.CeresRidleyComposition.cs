@@ -588,7 +588,9 @@ public sealed partial class RoomEnemySystem
             xPosition,
             YPosition: 0x007f,
             InitializationParameter: 0,
-            Properties: 0x2800,
+            Properties: (ushort)(
+                EnemyProperties.ProcessInstructions |
+                EnemyProperties.ProcessOffScreen),
             ExtraProperties: 0,
             Parameter1: parameter1,
             Parameter2: 0);

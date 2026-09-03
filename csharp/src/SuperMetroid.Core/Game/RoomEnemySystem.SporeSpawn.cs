@@ -148,7 +148,7 @@ public sealed partial class RoomEnemySystem
         if (state.LoadedAsDefeated)
         {
             body.CurrentInstruction = SporeSpawnInitialDeadInstruction;
-            body.Properties = unchecked((ushort)(body.Properties | 0x8000));
+            body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
             UpdateSporeSpawnStalks(state);
             PublishSporeSpawnPlm(header: RoomPlmHeaders.ClearSporeSpawnCeiling);
             return;

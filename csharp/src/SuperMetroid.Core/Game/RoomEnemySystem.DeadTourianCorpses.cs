@@ -264,7 +264,8 @@ public sealed partial class RoomEnemySystem
     {
         DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
         slot.VariableA = state.Profile.RottingFunction;
-        slot.Properties = unchecked((ushort)(slot.Properties | 0x0c00));
+        slot.Properties = slot.Properties.With(
+            EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision);
     }
 
     /// <summary>Power-bomb callbacks reject actors whose decomposition already set $0400.</summary>

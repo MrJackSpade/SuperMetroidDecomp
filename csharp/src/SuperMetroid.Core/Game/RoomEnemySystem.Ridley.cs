@@ -52,7 +52,7 @@ public sealed partial class RoomEnemySystem
 
         // Native property $1000 blocks Plasma Beam penetration. Its meaning is established
         // only for this boss, so preserve the raw bit instead of widening the shared enum.
-        slot.Properties = unchecked((ushort)(slot.Properties | 0x1000));
+        slot.Properties = slot.Properties.With(EnemyProperties.BlocksPlasmaBeam);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
         slot.XPosition = 96;
         slot.YPosition = 394;

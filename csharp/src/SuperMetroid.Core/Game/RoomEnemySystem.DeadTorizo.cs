@@ -84,7 +84,8 @@ public sealed partial class RoomEnemySystem
             _bus!.WriteByte(DeadTorizoWorkBufferAddress + offset, 0);
 
         slot.VariableA = DeadTorizoWaitFunction;
-        slot.Properties = unchecked((ushort)(slot.Properties | 0xa000));
+        slot.Properties = slot.Properties.With(
+            EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions);
         slot.CurrentInstruction = DeadTorizoInitialInstruction;
         slot.InstructionTimer = 1;
         slot.Timer = 0;

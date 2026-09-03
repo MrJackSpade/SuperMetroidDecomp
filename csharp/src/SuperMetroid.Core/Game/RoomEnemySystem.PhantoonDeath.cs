@@ -99,7 +99,9 @@ public sealed partial class RoomEnemySystem
 
         // The body remains the BG2 producer. Eye/tentacle/mouth become invisible and ignore
         // Samus while preserving every unrelated raw property bit exactly as $DA6C does.
-        ushort hiddenPartProperties = unchecked((ushort)((body.Properties & 0xdfff) | 0x0500));
+        ushort hiddenPartProperties = body.Properties.Replace(
+            EnemyProperties.ProcessInstructions,
+            EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
         state.Eye.Properties = hiddenPartProperties;
         state.Tentacles!.Properties = hiddenPartProperties;
         mouth.Properties = hiddenPartProperties;

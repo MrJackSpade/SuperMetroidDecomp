@@ -115,7 +115,7 @@ public sealed partial class RoomEnemySystem
         // Native bits $1000 and $0400 are proven by the initializer, but $1000 has not yet
         // been given a cross-enemy semantic name. Preserve it raw; $0400 already has the
         // verified IgnoreSamusCollision identity used by the scheduler.
-        slot.Properties = unchecked((ushort)(slot.Properties | 0x1000));
+        slot.Properties = slot.Properties.With(EnemyProperties.BlocksPlasmaBeam);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
         slot.XPosition = 0x00ba;
         slot.YPosition = 0x00a9;

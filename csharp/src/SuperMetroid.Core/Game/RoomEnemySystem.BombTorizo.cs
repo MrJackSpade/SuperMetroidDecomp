@@ -167,8 +167,6 @@ public sealed partial class RoomEnemySystem
     }
     private const ushort BombTorizoHeadExplosionHealth = 350;
     private const ushort BombTorizoCoreExplosionHealth = 100;
-    private const ushort BombTorizoRawTangibleProperty = 0x8000;
-
     private const ushort TorizoFunctionIdle = 0xc6ab;
     private const ushort TorizoFunctionFalling = 0xc6bf;
     private const ushort TorizoFunctionWaitForHandTrigger = 0xc6c6;
@@ -434,16 +432,14 @@ public sealed partial class RoomEnemySystem
                 // $AA:C6C6 scans all forty PLM headers for $D6EA. A supplied PLM owner is
                 // authoritative; standalone enemy audits omit it and therefore model the
                 // already-collected item/removed hand trigger.
-                torizo.Properties = unchecked((ushort)(
-                    torizo.Properties | BombTorizoRawTangibleProperty));
+                torizo.Properties = torizo.Properties.With(EnemyProperties.SolidToSamus);
                 if (RequireRoomPlmPresent(BombTorizoHandTriggerPlm))
                     return;
 
                 LastBombTorizoMusicRequest = new BombTorizoMusicRequest(
                     MusicCommand.SelectTrack(6),
                     MusicCommandDelay.EightFrames);
-                torizo.Properties = unchecked((ushort)(
-                    torizo.Properties & ~BombTorizoRawTangibleProperty));
+                torizo.Properties = torizo.Properties.Without(EnemyProperties.SolidToSamus);
                 torizo.CurrentInstruction = unchecked((ushort)(torizo.CurrentInstruction + 2));
                 torizo.InstructionTimer = 1;
                 state.AwakeningReleased = true;
@@ -729,8 +725,7 @@ public sealed partial class RoomEnemySystem
         torizo.CurrentInstruction = BombTorizoDeathInstruction;
         torizo.InstructionTimer = 1;
         torizo.Parameter2 = unchecked((ushort)(torizo.Parameter2 | 0xc000));
-        torizo.Properties = unchecked((ushort)(
-            torizo.Properties | BombTorizoRawTangibleProperty));
+        torizo.Properties = torizo.Properties.With(EnemyProperties.SolidToSamus);
     }
 
     private void FinishBombTorizoDeath(TorizoEnemyState state)

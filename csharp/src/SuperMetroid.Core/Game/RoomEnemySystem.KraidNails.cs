@@ -34,7 +34,8 @@ public sealed partial class RoomEnemySystem
                 if (unchecked((short)(_slots[2].XPosition - 256)) >= 0)
                 {
                     nail.VariableA = (ushort)part.NextFunction;
-                    nail.Properties = unchecked((ushort)(nail.Properties & 0xfaff));
+                    nail.Properties = nail.Properties.Without(
+                        EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
                 }
                 return;
 

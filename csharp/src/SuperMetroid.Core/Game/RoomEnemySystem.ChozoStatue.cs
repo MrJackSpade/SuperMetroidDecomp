@@ -164,7 +164,10 @@ public sealed partial class RoomEnemySystem
 
         // The original ORs $2000, $0800, and the otherwise unnamed high bit. Keep $8000 raw:
         // no translated caller has proved a stable semantic name for that property yet.
-        statue.Properties = unchecked((ushort)(statue.Properties | 0xa800));
+        statue.Properties = statue.Properties.With(
+            EnemyProperties.SolidToSamus |
+            EnemyProperties.ProcessInstructions |
+            EnemyProperties.ProcessOffScreen);
         statue.SpritemapPointer = EmptyBankAaSpritemap;
         statue.InstructionTimer = 1;
         statue.Timer = 0;

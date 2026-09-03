@@ -226,11 +226,58 @@ static void VerifyTypedNativeWords()
     AssertEqual((ushort)0x3c12, (ushort)new MapTileWord(0x2812).WithLocationBlink(),
         "HUD location blink applies native palette bits");
 
-    ushort enemyProperties = 0x1000;
+    // The low byte belongs to individual enemy families; the shared helpers must leave it
+    // untouched while making every independently composable high-byte property explicit.
+    ushort enemyProperties = 0x005a;
     enemyProperties = enemyProperties.With(
-        EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
-    enemyProperties = enemyProperties.Without(EnemyProperties.Invisible);
-    AssertEqual(0x1400, enemyProperties, "enemy flags preserve unnamed property bits");
+        EnemyProperties.Invisible |
+        EnemyProperties.IgnoreSamusCollision |
+        EnemyProperties.BlocksPlasmaBeam |
+        EnemyProperties.SolidToSamus);
+    AssertTrue(enemyProperties.HasAll(
+            EnemyProperties.Invisible |
+            EnemyProperties.IgnoreSamusCollision |
+            EnemyProperties.BlocksPlasmaBeam |
+            EnemyProperties.SolidToSamus),
+        "enemy visibility, collision, plasma, and platform flags round trip");
+    enemyProperties = enemyProperties.With(
+        EnemyProperties.Deleted |
+        EnemyProperties.ProcessOffScreen |
+        EnemyProperties.ProcessInstructions);
+    AssertTrue(enemyProperties.HasAll(
+            EnemyProperties.Deleted |
+            EnemyProperties.ProcessOffScreen |
+            EnemyProperties.ProcessInstructions),
+        "enemy deletion and processing flags round trip");
+    enemyProperties = enemyProperties.Without(
+        EnemyProperties.Invisible |
+        EnemyProperties.Deleted |
+        EnemyProperties.ProcessOffScreen |
+        EnemyProperties.ProcessInstructions);
+    AssertEqual(0x945a, enemyProperties,
+        "enemy flag helpers preserve the family-specific low byte");
+    AssertEqual(
+        EnemyProperties.IgnoreSamusCollision |
+        EnemyProperties.BlocksPlasmaBeam |
+        EnemyProperties.SolidToSamus,
+        enemyProperties.ReadFlagsChecked(),
+        "enemy property word exposes only its typed high-byte flags");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => ((ushort)0).With((EnemyProperties)0x0001),
+        "enemy property helper rejects family data disguised as a shared flag");
+
+    ushort enemyExtraProperties = ((ushort)0).With(
+        EnemyExtraProperties.UsesExtendedSpritemap);
+    enemyExtraProperties = enemyExtraProperties.WithUntranslatedExtraBits(
+        EnemyExtraPropertyRawBits.CrocomireInitializerBit0400,
+        "typed-word verification");
+    AssertEqual(0x0404, enemyExtraProperties,
+        "enemy extra-property escape hatch preserves explicitly owned untranslated data");
+    AssertThrows<ArgumentException>(
+        () => ((ushort)0).WithUntranslatedExtraBits(
+            (ushort)EnemyExtraProperties.UsesExtendedSpritemap,
+            "typed-word verification"),
+        "enemy extra-property escape hatch rejects known flags");
 
     // $E selects the verified grapple collision handler, $C supplies both parent flips,
     // and $02A is the visual block. All three packed fields share this exact raw word.

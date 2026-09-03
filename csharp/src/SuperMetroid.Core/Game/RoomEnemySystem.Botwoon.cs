@@ -237,7 +237,7 @@ public sealed partial class RoomEnemySystem
         state.PaletteDestinationByteOffset =
             unchecked((ushort)((head.PaletteIndex >> 4) + 256));
         state.InstalledHeadInstruction = BotwoonInitialInstruction;
-        head.Properties = unchecked((ushort)(head.Properties | 0x8000));
+        head.Properties = head.Properties.With(EnemyProperties.SolidToSamus);
 
         for (int history = 0; history < 4; history++)
         {
@@ -342,7 +342,7 @@ public sealed partial class RoomEnemySystem
             state.Function = BotwoonEnemyFunction.SpitWhileHidden;
             state.HeadFunction = BotwoonHeadFunction.AimAtSamus;
             state.AttackTimer = 48;
-            head.Properties = unchecked((ushort)(head.Properties & ~0x8000));
+            head.Properties = head.Properties.Without(EnemyProperties.SolidToSamus);
         }
     }
 
@@ -684,13 +684,13 @@ public sealed partial class RoomEnemySystem
             if (state.InsideHole)
             {
                 head.Layer = 7;
-                head.Properties = unchecked((ushort)(head.Properties | 0x8000));
+                head.Properties = head.Properties.With(EnemyProperties.SolidToSamus);
                 instruction = BotwoonInitialInstruction;
             }
             else
             {
                 head.Layer = 2;
-                head.Properties = unchecked((ushort)(head.Properties & ~0x8000));
+                head.Properties = head.Properties.Without(EnemyProperties.SolidToSamus);
                 byte angle = CalculateCartridgeAngle(dx, dy);
                 instruction = ReadWord(
                     _bus!, BotwoonMovementInstructionTable + (angle >> 5) * 2);
@@ -789,7 +789,8 @@ public sealed partial class RoomEnemySystem
         state.Function = BotwoonEnemyFunction.WaitForBody;
         SpawnRoomGraphicsDustExplosion(head.XPosition, head.YPosition, animationIndex: 0x001d);
         LastBotwoonSoundEffect = 0x0024;
-        head.Properties = unchecked((ushort)(head.Properties | 0x0500));
+        head.Properties = head.Properties.With(
+            EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
     }
 
     private void BeginBotwoonWallExplosions(RoomEnemySlot head, BotwoonEnemyState state)
@@ -890,7 +891,7 @@ public sealed partial class RoomEnemySystem
         // `$B3:96F5` sets native property $8000. Despite the disassembly's historical
         // "intangible" label, the engine uses this bit to admit the actor to solid-enemy
         // collision. Keeping the raw proven bit avoids assigning a broader enum meaning.
-        head.Properties = unchecked((ushort)(head.Properties | 0x8000));
+        head.Properties = head.Properties.With(EnemyProperties.SolidToSamus);
     }
 
     private void AddBotwoonAngleVector(

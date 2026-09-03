@@ -919,7 +919,7 @@ public sealed partial class RoomEnemySystem
                     // converted into an explosion, and the corpse never loses health.
                     projectiles.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
-                        (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                             (projectile.Type & 0x0008) == 0);
                     TriggerDeadTorizoRotting(enemy);
                     hitCount++;
@@ -933,7 +933,7 @@ public sealed partial class RoomEnemySystem
                     // Even then it starts rotting without vulnerability damage or impact.
                     projectiles.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
-                        (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                             (projectile.Type & 0x0008) == 0);
                     ResolveDeadSidehopperShot(enemy);
                     hitCount++;
@@ -947,7 +947,7 @@ public sealed partial class RoomEnemySystem
                     // No vulnerability, health damage, or projectile impact follows.
                     projectiles.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
-                        (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                             (projectile.Type & 0x0008) == 0);
                     TriggerDeadTourianCorpseRotting(enemy);
                     hitCount++;
@@ -961,7 +961,7 @@ public sealed partial class RoomEnemySystem
                     // callback converts shot strength and slot-zero aim into recoil.
                     projectiles.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
-                        (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                             (projectile.Type & 0x0008) == 0);
                     ResolveShitroidShot(enemy, projectile.Damage, projectiles.Slots[0]);
                     hitCount++;
@@ -974,7 +974,7 @@ public sealed partial class RoomEnemySystem
                     // collision prelude still owns Super-Missile quake before that callback.
                     projectiles.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
-                        (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                             (projectile.Type & 0x0008) == 0);
                     CreateEnemyProjectileDudShot(projectile);
                     hitCount++;
@@ -1020,7 +1020,7 @@ public sealed partial class RoomEnemySystem
                         // eye rectangle in maps $1A/$2D reaches Draygon's damage callback.
                         projectiles.ApplyExtendedEnemyCollisionPrelude(
                             projectile.SlotIndex,
-                            (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                                 (projectile.Type & 0x0008) == 0);
                         CreateEnemyProjectileDudShot(projectile);
                         hitCount++;
@@ -1068,7 +1068,7 @@ public sealed partial class RoomEnemySystem
                         // or consult vulnerability for this protected shell component.
                         projectiles.ApplyExtendedEnemyCollisionPrelude(
                             projectile.SlotIndex,
-                            (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                                 (projectile.Type & 0x0008) == 0);
                         hitCount++;
                         break;
@@ -1092,7 +1092,7 @@ public sealed partial class RoomEnemySystem
                     {
                         projectiles.ApplyExtendedEnemyCollisionPrelude(
                             projectile.SlotIndex,
-                            (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                                 (projectile.Type & 0x0008) == 0);
                         CreateEnemyProjectileDudShot(projectile);
                         hitCount++;
@@ -1109,7 +1109,7 @@ public sealed partial class RoomEnemySystem
                         // core. $ED5A rejects this projectile family before common damage.
                         projectiles.ApplyExtendedEnemyCollisionPrelude(
                             projectile.SlotIndex,
-                            (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                                 (projectile.Type & 0x0008) == 0);
                         hitCount++;
                         break;
@@ -1130,7 +1130,7 @@ public sealed partial class RoomEnemySystem
 
                     projectiles.ApplyExtendedEnemyCollisionPrelude(
                         projectile.SlotIndex,
-                        (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                             (projectile.Type & 0x0008) == 0);
                     if (hitboxShotAi == KraidArmShotAi)
                     {
@@ -1152,7 +1152,7 @@ public sealed partial class RoomEnemySystem
                             "Crocomire components require extended-spritemap collision.");
                     }
 
-                    bool markCollision = (enemy.Properties & 0x1000) != 0 ||
+                    bool markCollision = enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                         (projectile.Type & 0x0008) == 0;
                     projectiles.ApplyExtendedEnemyCollisionPrelude(
                         projectile.SlotIndex,
@@ -1173,7 +1173,8 @@ public sealed partial class RoomEnemySystem
                 // is genuinely immune while moving right, sinking, buried, or rising.
                 if (isOwtch && !OwtchAcceptsOrdinaryShot(RequireOwtchState(enemy)))
                 {
-                    if ((enemy.Properties & 0x1000) != 0 || (projectile.Type & 0x0008) == 0)
+                    if (enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
+                        (projectile.Type & 0x0008) == 0)
                         projectile.Direction = unchecked((ushort)(projectile.Direction | 0x0010));
                     hitCount++;
                     break;
@@ -1195,7 +1196,8 @@ public sealed partial class RoomEnemySystem
                         // Enemy property bit $1000 also forces the mark in native code, but
                         // its broader meaning is not yet proven, so it deliberately remains
                         // a documented raw bit rather than a prematurely named enum member.
-                        bool forceCollisionState = (enemy.Properties & 0x1000) != 0 ||
+                        bool forceCollisionState =
+                            enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                             (projectile.Type & 0x0008) == 0;
                         projectiles.ApplyExtendedEnemyCollisionPrelude(
                             projectile.SlotIndex,
@@ -1246,7 +1248,7 @@ public sealed partial class RoomEnemySystem
                     // colliding projectile, including Super Missile quake side effects.
                     projectiles.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
-                        (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                             (projectile.Type & 0x0008) == 0);
                     ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
                     hitCount++;
@@ -1267,7 +1269,7 @@ public sealed partial class RoomEnemySystem
                             // only the collision mark and never enter normal damage AI.
                             projectiles.ApplyEnemyCollisionPrelude(
                                 projectile.SlotIndex,
-                                (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                                     (projectile.Type & 0x0008) == 0);
                             hitCount++;
                             break;
@@ -1314,7 +1316,7 @@ public sealed partial class RoomEnemySystem
                     // without inventing vulnerability-based health damage.
                     projectiles.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
-                        (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                             (projectile.Type & 0x0008) == 0);
                     ResolveMetroidNonFrozenShot(
                         enemy,
@@ -1331,7 +1333,7 @@ public sealed partial class RoomEnemySystem
                 {
                     projectiles.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
-                        (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                             (projectile.Type & 0x0008) == 0);
                     hitCount++;
                     break;
@@ -1352,7 +1354,7 @@ public sealed partial class RoomEnemySystem
                         {
                             projectiles.ApplyExtendedEnemyCollisionPrelude(
                                 projectile.SlotIndex,
-                                (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                                     (projectile.Type & 0x0008) == 0);
                             hitCount++;
                             break;
@@ -1365,7 +1367,7 @@ public sealed partial class RoomEnemySystem
                         // nonzero guard instead routes through common damage below.
                         projectiles.ApplyExtendedEnemyCollisionPrelude(
                             projectile.SlotIndex,
-                            (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                                 (projectile.Type & 0x0008) == 0);
                         hitCount++;
                         break;
@@ -1380,7 +1382,7 @@ public sealed partial class RoomEnemySystem
                         {
                             projectiles.ApplyExtendedEnemyCollisionPrelude(
                                 projectile.SlotIndex,
-                                (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                                     (projectile.Type & 0x0008) == 0);
                             projectile.Direction &= 0xffef;
                             torizoState.Function = TorizoFunctionIdle;
@@ -1399,7 +1401,7 @@ public sealed partial class RoomEnemySystem
                             {
                                 projectiles.ApplyExtendedEnemyCollisionPrelude(
                                     projectile.SlotIndex,
-                                    (enemy.Properties & 0x1000) != 0 ||
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                                         (projectile.Type & 0x0008) == 0);
                                 enemy.Parameter2 |= 0x1000;
                                 torizoState.Function = TorizoFunctionIdle;

@@ -846,7 +846,8 @@ public sealed partial class RoomEnemySystem
                         (slot.Definition.Bank << 16) | ordinarySpritemap);
                     if (componentMarker == 0xfffe)
                     {
-                        if ((slot.ExtraProperties & 0x8000) != 0)
+                        if (slot.ExtraProperties.HasAny(
+                            EnemyExtraProperties.NewInstructionFrame))
                             ProcessExtendedEnemyBg2Tilemap(slot.Definition.Bank, ordinarySpritemap);
                     }
                     else if (
@@ -1060,6 +1061,7 @@ public sealed partial class RoomEnemySystem
         slot.XPosition = population.XPosition;
         slot.YPosition = population.YPosition;
         slot.CurrentInstruction = population.InitializationParameter;
+        _ = population.Properties.ReadFlagsChecked();
         slot.Properties = population.Properties;
         slot.ExtraProperties = population.ExtraProperties;
         slot.AiHandlerBits = 0;

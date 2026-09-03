@@ -119,9 +119,11 @@ public sealed partial class RoomEnemySystem
         // The native mask clears the solid bit and any inherited process-offscreen bit,
         // then explicitly reinstalls only process-offscreen. Do not replace this with an
         // enum union: preserving the unrelated population-property bits is observable.
-        slot.Properties = unchecked((ushort)((slot.Properties & 0x77ff) | 0x0800));
-        if ((_slots[0].Properties & 0x0100) != 0)
-            slot.Properties = unchecked((ushort)(slot.Properties | 0x0200));
+        slot.Properties = slot.Properties.Replace(
+            EnemyProperties.SolidToSamus | EnemyProperties.ProcessOffScreen,
+            EnemyProperties.ProcessOffScreen);
+        if (_slots[0].Properties.HasAny(EnemyProperties.Invisible))
+            slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
 
         slot.XPosition = 488;
         slot.YPosition = 184;
@@ -495,7 +497,8 @@ public sealed partial class RoomEnemySystem
         DeadSidehopperEnemyState state)
     {
         state.Function = DeadSidehopperAiFunction.Rotting;
-        slot.Properties = unchecked((ushort)(slot.Properties | 0x0c00));
+        slot.Properties = slot.Properties.With(
+            EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision);
     }
 
     private void RunDeadSidehopperRotting(

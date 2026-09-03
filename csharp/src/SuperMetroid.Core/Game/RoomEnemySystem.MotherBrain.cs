@@ -52,7 +52,10 @@ public sealed partial class RoomEnemySystem
         body.CurrentInstruction = MotherBrainInitialDummyInstruction;
         body.InstructionTimer = 1;
         body.VramTilesIndex = 0;
-        body.Properties = unchecked((ushort)(body.Properties | 0x1500));
+        body.Properties = body.Properties.With(
+            EnemyProperties.BlocksPlasmaBeam |
+            EnemyProperties.IgnoreSamusCollision |
+            EnemyProperties.Invisible);
         body.PaletteIndex = 0;
 
         // Both source labels include transparent color zero. `$A9:86B3/$86C0` deliberately
@@ -103,7 +106,8 @@ public sealed partial class RoomEnemySystem
         head.CurrentInstruction = MotherBrainInitialHeadInstruction;
         head.InstructionTimer = 1;
         head.VramTilesIndex = 0;
-        head.Properties = unchecked((ushort)(head.Properties | 0x1100));
+        head.Properties = head.Properties.With(
+            EnemyProperties.BlocksPlasmaBeam | EnemyProperties.Invisible);
         head.PaletteIndex = 0x0200;
         state.Head = head;
         state.NeckPaletteIndex = 0x0200;

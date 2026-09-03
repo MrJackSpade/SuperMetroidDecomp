@@ -243,7 +243,8 @@ public sealed partial class RoomEnemySystem
         }
 
         ClearCrocomireBg2SinkRow();
-        body.ExtraProperties &= 0x7fff;
+        body.ExtraProperties = body.ExtraProperties.Without(
+            EnemyExtraProperties.NewInstructionFrame);
 
         byte accelerationFraction = (byte)state.StepCounter;
         int accelerationCarry = accelerationFraction + 0x80 > 0xff ? 1 : 0;
@@ -365,7 +366,7 @@ public sealed partial class RoomEnemySystem
         RequireSetRoomScrollState(4, RoomScrollState.Blue);
         RequireSetRoomScrollState(5, RoomScrollState.Blue);
         if (state.Tongue is { } tongue)
-            tongue.Properties |= 0x0200;
+            tongue.Properties = tongue.Properties.With(EnemyProperties.Deleted);
         PublishCrocomirePlm(0x4e, 0x03, RoomPlmHeaders.ClearCrocomireInvisibleWall);
         RequireCrocomireDeath().TargetHeightOrSkeletonTileIndex = 0;
     }
@@ -398,9 +399,12 @@ public sealed partial class RoomEnemySystem
         RequireSetRoomScrollState(4, RoomScrollState.Blue);
         PublishCrocomirePlm(0x30, 0x03, RoomPlmHeaders.CreateCrocomireInvisibleWall);
         RoomEnemySlot body = state.Body;
-        body.Properties = unchecked((ushort)((body.Properties & 0x7bff) | 0x0400));
+        body.Properties = body.Properties.Replace(
+            EnemyProperties.SolidToSamus | EnemyProperties.IgnoreSamusCollision,
+            EnemyProperties.IgnoreSamusCollision);
         if (state.Tongue is { } tongue)
-            tongue.Properties |= 0x0500;
+            tongue.Properties = tongue.Properties.With(
+                EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
         state.StepCounter = 4;
 
         CrocomireDeathState death = RequireCrocomireDeath();

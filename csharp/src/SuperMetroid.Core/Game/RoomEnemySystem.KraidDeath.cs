@@ -41,7 +41,7 @@ public sealed partial class RoomEnemySystem
                 _ = ProcessKraidHeadInstruction(body, state);
                 body.VariableA = (ushort)KraidAiFunction.DeathSink;
                 state.DeathSoundTimer = 43;
-                body.Properties = unchecked((ushort)(body.Properties | 0x8000));
+                body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
                 EarthquakeType = 1;
                 EarthquakeTimer = 256;
                 _slots[1].CurrentInstruction = KraidInitialArmInstruction;
@@ -138,7 +138,11 @@ public sealed partial class RoomEnemySystem
         ushort armProperties = _slots[1].Properties.With(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted);
         _slots[1].Properties = armProperties;
-        ushort otherProperties = unchecked((ushort)((armProperties & 0x51ff) | 0x0600));
+        ushort otherProperties = armProperties.Replace(
+            EnemyProperties.SolidToSamus |
+                EnemyProperties.ProcessInstructions |
+                EnemyProperties.ProcessOffScreen,
+            EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted);
         for (int slot = 2; slot <= 5; slot++)
             _slots[slot].Properties = otherProperties;
         body.VariableA = (ushort)KraidAiFunction.DeathClearTopTilemap;

@@ -134,7 +134,8 @@ public sealed partial class RoomEnemySystem
 
         // ORA #$A000 installs the common instruction bit and unknown-but-observable bit
         // $8000. Population records already carry process-off-screen $0800 in retail rooms.
-        slot.Properties = unchecked((ushort)(slot.Properties | 0xa000));
+        slot.Properties = slot.Properties.With(
+            EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions);
         slot.InstructionTimer = 4;
         slot.Timer = 0;
         slot.CurrentInstruction = WorkRobotInitial;
@@ -162,7 +163,7 @@ public sealed partial class RoomEnemySystem
         slot.CurrentInstruction = ReadWord(
             _bus!,
             EnemyRomTablePointers.WorkRobot.InitialInstructionListWords + slot.Parameter1 * 2);
-        slot.Properties = unchecked((ushort)(slot.Properties | 0x8000));
+        slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
 

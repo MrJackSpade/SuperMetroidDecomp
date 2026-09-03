@@ -49,7 +49,9 @@ public sealed partial class RoomEnemySystem
             case SporeSpawnInstructionCodes.Instruction_SporeSpawn_Harden:
                 body.XPosition = SporeSpawnDeathCenterX;
                 body.YPosition = SporeSpawnDeathCenterY;
-                body.Properties = unchecked((ushort)((body.Properties | 0xa000) & 0xfbff));
+                body.Properties = body.Properties
+                    .With(EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions)
+                    .Without(EnemyProperties.IgnoreSamusCollision);
                 cursor = next;
                 return true;
 

@@ -48,7 +48,8 @@ public static class SamusSolidEnemyCollision
         {
             // `$A0:A9D2-$A0:A9E8`: frozen enemies behave as solid regardless of properties;
             // otherwise enemy property bit 15 is the solid-to-Samus flag.
-            if (enemy.FreezeTimer == 0 && (enemy.Properties & 0x8000) == 0)
+            if (enemy.FreezeTimer == 0 &&
+                !enemy.Properties.HasAny(EnemyProperties.SolidToSamus))
                 continue;
 
             // `$A0:A9EB-$A0:AA30`: the rounded future center must overlap on both axes.

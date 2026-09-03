@@ -153,7 +153,16 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>Ports `$A7:A943`: preserve raw upper flags while installing `$0700`.</summary>
     private static void MarkKraidPartDead(RoomEnemySlot slot) =>
-        slot.Properties = unchecked((ushort)((slot.Properties & 0x50ff) | 0x0700));
+        slot.Properties = slot.Properties.Replace(
+            EnemyProperties.SolidToSamus |
+                EnemyProperties.ProcessInstructions |
+                EnemyProperties.ProcessOffScreen |
+                EnemyProperties.IgnoreSamusCollision |
+                EnemyProperties.Deleted |
+                EnemyProperties.Invisible,
+            EnemyProperties.IgnoreSamusCollision |
+                EnemyProperties.Deleted |
+                EnemyProperties.Invisible);
 
     private void RunKraidBodyMain(RoomEnemySlot body, SamusState? samus)
     {

@@ -47,7 +47,10 @@ public sealed partial class RoomEnemySystem
                 XPosition: 0,
                 YPosition: 0,
                 InitializationParameter: 0,
-                Properties: 0x2c00,
+                Properties: (ushort)(
+                    EnemyProperties.ProcessInstructions |
+                    EnemyProperties.ProcessOffScreen |
+                    EnemyProperties.IgnoreSamusCollision),
                 ExtraProperties: 0,
                 Parameter1: parameter,
                 Parameter2: 0);

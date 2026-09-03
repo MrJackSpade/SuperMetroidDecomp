@@ -108,7 +108,7 @@ public sealed partial class RoomEnemySystem
         // $8000 is still unnamed globally: its wider engine meaning is not proven. Keep it
         // raw while naming only the independently verified instruction-processing bit.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.Properties = unchecked((ushort)(slot.Properties | 0x8000));
+        slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.PaletteIndex = 0x0400;

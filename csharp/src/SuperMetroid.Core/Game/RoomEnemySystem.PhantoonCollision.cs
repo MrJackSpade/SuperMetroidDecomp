@@ -89,7 +89,7 @@ public sealed partial class RoomEnemySystem
             {
                 projectiles.ApplyExtendedEnemyCollisionPrelude(
                     projectile.SlotIndex,
-                    (body.Properties & 0x1000) != 0 ||
+                    body.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                         (projectile.Type & 0x0008) == 0);
                 return 1;
             }

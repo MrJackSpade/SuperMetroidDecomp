@@ -185,7 +185,8 @@ public sealed partial class RoomEnemySystem
         // from piercing the actor. The upstream C symbol calls `$2000` DisableSamusColl,
         // but the executable scheduler also consumes that same bit for instructions, so
         // the translated property enum retains the directly observed scheduler meaning.
-        slot.Properties = unchecked((ushort)(slot.Properties | 0x3000));
+        slot.Properties = slot.Properties.With(
+            EnemyProperties.BlocksPlasmaBeam | EnemyProperties.ProcessInstructions);
         slot.PaletteIndex = 0x0400;
         SetShitroidInstruction(slot, ShitroidInitialInstruction);
 
@@ -201,7 +202,8 @@ public sealed partial class RoomEnemySystem
             // `$0400` removes the actor from ordinary interaction and `$0100` suppresses
             // drawing. Keep the former raw: its historical disassembly name "tangible" is
             // contradicted by the collision walkers that explicitly reject the bit.
-            slot.Properties = unchecked((ushort)(slot.Properties | 0x0500));
+            slot.Properties = slot.Properties.With(
+                EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
             state.Function = ShitroidAiFunction.Dormant;
         }
         slot.Parameter2 = 0;
@@ -439,7 +441,8 @@ public sealed partial class RoomEnemySystem
                     state.YVelocity = 0;
                     // `$A9:F39A` clears instruction processing and invisibility as Shitroid
                     // reaches the off-screen destination, leaving a dormant non-drawn actor.
-                    slot.Properties = unchecked((ushort)(slot.Properties & ~0x2100));
+                    slot.Properties = slot.Properties.Without(
+                        EnemyProperties.ProcessInstructions | EnemyProperties.Invisible);
                     state.Function = ShitroidAiFunction.Dormant;
                 }
                 return;

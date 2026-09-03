@@ -144,7 +144,7 @@ public sealed partial class RoomEnemySystem
         // its broader engine-wide meaning.
         slot.Properties = slot.Properties.With(
             EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
-        slot.Properties = unchecked((ushort)(slot.Properties | 0x8000));
+        slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
         slot.PaletteIndex = 0;

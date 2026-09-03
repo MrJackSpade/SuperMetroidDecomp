@@ -266,8 +266,8 @@ public sealed partial class RoomEnemySystem
         }
 
         slot.Properties = solid
-            ? unchecked((ushort)(slot.Properties | 0x8000))
-            : unchecked((ushort)(slot.Properties & 0x7fff));
+            ? slot.Properties.With(EnemyProperties.SolidToSamus)
+            : slot.Properties.Without(EnemyProperties.SolidToSamus);
     }
 
     /// <summary>Ports the hidden-list movement owner at $A3:CF60.</summary>

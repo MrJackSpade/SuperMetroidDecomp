@@ -75,7 +75,7 @@ public sealed partial class RoomEnemySystem
         body.FlashTimer = 0;
         body.AiHandlerBits = 0;
         // Literal property $0400 removes the dead body from the interactive-enemy list.
-        body.Properties = unchecked((ushort)(body.Properties | 0x0400));
+        body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
         // The 65C816 loop clears native projectile indexes $1A..$00: physical slots 13..0.
         // Slots 14..17 are the stalk and deliberately survive for the death animation.

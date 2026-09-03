@@ -193,9 +193,14 @@ public sealed partial class BabyMetroidCutsceneState
     /// ORs <c>$3000</c>, overwrites the population coordinates, and waits at X/Y
     /// <c>$140/$60</c> before beginning the dash.
     /// </summary>
-    public void Initialize(ushort populationProperties = 0x2800)
+    public void Initialize(
+        ushort populationProperties =
+            (ushort)(EnemyProperties.ProcessInstructions |
+                EnemyProperties.ProcessOffScreen))
     {
-        Properties = unchecked((ushort)(populationProperties | 0x3000));
+        Properties = populationProperties.With(
+            EnemyProperties.BlocksPlasmaBeam |
+            EnemyProperties.ProcessInstructions);
         Palette = 0x0e00;
         GraphicsOffset = 0x00a0;
         SetInstructionList(InitialInstructionList);

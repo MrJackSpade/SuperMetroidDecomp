@@ -153,7 +153,10 @@ public sealed partial class RoomEnemySystem
         {
             // The dead-room state keeps only Crocomire's skeleton display actor. Property
             // mask $7BFF and these radii/coordinates are literal writes at $A4:8AEA-$8B35.
-            slot.Properties = unchecked((ushort)((slot.Properties & 0x7bff) | 0x0400));
+            slot.Properties = slot.Properties.Replace(
+                EnemyProperties.SolidToSamus |
+                    EnemyProperties.IgnoreSamusCollision,
+                EnemyProperties.IgnoreSamusCollision);
             state.DeathSequenceIndex = 0x0054;
             InstallCrocomireInstructionList(slot, CrocomireDeadInstructionList);
             slot.XPosition = 0x0240;
@@ -192,12 +195,20 @@ public sealed partial class RoomEnemySystem
     {
         if (RequireAreaMiniBossDefeated())
         {
-            slot.Properties = unchecked((ushort)((slot.Properties & 0xdcff) | 0x0300));
+            slot.Properties = slot.Properties.Replace(
+                EnemyProperties.ProcessInstructions |
+                    EnemyProperties.Deleted |
+                    EnemyProperties.Invisible,
+                EnemyProperties.Deleted | EnemyProperties.Invisible);
             return;
         }
 
         InstallCrocomireInstructionList(slot, CrocomireTongueInstructionList);
-        slot.ExtraProperties = unchecked((ushort)(slot.ExtraProperties | 0x0404));
+        slot.ExtraProperties = slot.ExtraProperties
+            .With(EnemyExtraProperties.UsesExtendedSpritemap)
+            .WithUntranslatedExtraBits(
+                EnemyExtraPropertyRawBits.CrocomireInitializerBit0400,
+                "Crocomire initializer");
         slot.VariableA = 23;
         slot.PaletteIndex = 0x0e00;
         if (_crocomire is not null)
@@ -246,7 +257,7 @@ public sealed partial class RoomEnemySystem
         CrocomireBridgeCollapseStarted = true;
         state.DeathSequenceIndex = 2;
         InstallCrocomireInstructionList(body, CrocomireBridgeCollapseInstructionList);
-        body.Properties = unchecked((ushort)(body.Properties | 0x8000));
+        body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
         state.ReactionTimer = 0;
         state.ProjectileCounter = 0;
         state.StepCounter = 0x0800;

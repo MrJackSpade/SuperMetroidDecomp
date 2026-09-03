@@ -23,7 +23,14 @@ public sealed partial class RoomEnemySystem
         if (state.Tongue is { } tongue)
         {
             InstallCrocomireInstructionList(tongue, CrocomireMeltingTongueList);
-            tongue.Properties = unchecked((ushort)((tongue.Properties & 0xd2ff) | 0x2c00));
+            tongue.Properties = tongue.Properties.Replace(
+                EnemyProperties.ProcessInstructions |
+                    EnemyProperties.ProcessOffScreen |
+                    EnemyProperties.IgnoreSamusCollision |
+                    EnemyProperties.Invisible,
+                EnemyProperties.ProcessInstructions |
+                    EnemyProperties.ProcessOffScreen |
+                    EnemyProperties.IgnoreSamusCollision);
             tongue.XPosition = state.Body.XPosition;
             tongue.YPosition = unchecked((ushort)(state.Body.YPosition + 16));
         }

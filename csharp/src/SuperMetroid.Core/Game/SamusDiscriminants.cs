@@ -57,8 +57,8 @@ public enum SamusLiquidMedium : ushort
 }
 
 /// <summary>
-/// Verified low-nibble room-FX dispatcher values relevant to Samus physics. Other native
-/// FX handlers remain representable as unnamed enum values and are not assigned guesses.
+/// Verified even room-FX dispatcher values from the bank-$83 function table. Values $0E
+/// through $1E are null entries and remain unnamed rather than receiving speculative labels.
 /// </summary>
 public enum RoomFxType : ushort
 {
@@ -69,4 +69,11 @@ public enum RoomFxType : ushort
     Spores = 0x8,
     Rain = 0x0a,
     Fog = 0x0c,
+    ScrollingSky = 0x20,
+    UnusedScrollingSky = 0x22,
+    Fireflea = 0x24,
+    TourianEntranceStatue = 0x26,
+    CeresRidley = 0x28,
+    CeresElevator = 0x2a,
+    CeresHaze = 0x2c,
 }

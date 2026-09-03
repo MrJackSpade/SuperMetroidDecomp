@@ -484,7 +484,7 @@ public sealed class SamusLiquidPhysicsState
         {
             // Landing Site creates splashes only for FX type `$000A`; its normal scrolling-
             // sky type deletes the pair. This exact comparison is not a generic water test.
-            if (FxType == 0x000a)
+            if (FxType == (ushort)RoomFxType.Rain)
                 SpawnLandingPairUnlessSubmerged(samus, type: 1);
             else
                 DeleteLandingPair();
@@ -720,7 +720,7 @@ public sealed class SamusLiquidPhysicsState
                 // The three BIT branches have strict priority. Retail records contain one
                 // flag apiece, but retaining priority also reproduces corrupted/debug data.
                 if ((specialType & 1) != 0)
-                    useWetFootsteps = FxType == 0x000a;
+                    useWetFootsteps = FxType == (ushort)RoomFxType.Rain;
                 else if ((specialType & 2) != 0)
                     useWetFootsteps = samus.YPosition >= 0x03b0;
                 else if ((specialType & 4) != 0)

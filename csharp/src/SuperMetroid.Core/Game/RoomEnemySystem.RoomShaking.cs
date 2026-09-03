@@ -7,10 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort MaximumRenderedEarthquakeType = 0x0024;
-    private const ushort EnemyShakingEarthquakeType = 0x0012;
-    private const int BgShakeDisplacementTable = 0xa0872d;
-
     /// <summary>
     /// Displacement produced by the most recent call to <see cref="HandleRoomShaking"/>.
     /// It is deliberately a delta rather than mutated camera state: the cartridge adjusts
@@ -27,10 +23,13 @@ public sealed partial class RoomEnemySystem
         // Hardware leaves both the timer and scroll words untouched while time is frozen.
         // Types $24+ are also deliberately ignored; their values are outside the 36-entry
         // displacement table and are owned by other effects rather than room shaking.
-        if (EarthquakeTimer == 0 || timeIsFrozen || EarthquakeType >= MaximumRenderedEarthquakeType)
+        if (EarthquakeTimer == 0 ||
+            timeIsFrozen ||
+            EarthquakeType >= RoomFxRomData.Earthquake.FirstNonRenderedType)
             return LastRoomShake;
 
-        int tableAddress = BgShakeDisplacementTable + EarthquakeType * 8;
+        int tableAddress = RoomFxRomData.Earthquake.BgDisplacementTableAddress +
+            EarthquakeType * RoomFxRomData.Earthquake.BytesPerType;
         short bg1X = unchecked((short)ReadWord(_bus!, tableAddress));
         short bg1Y = unchecked((short)ReadWord(_bus!, tableAddress + 2));
         short bg2X = unchecked((short)ReadWord(_bus!, tableAddress + 4));
@@ -38,7 +37,7 @@ public sealed partial class RoomEnemySystem
 
         // Bit one alternates which side of the origin is shown. Native code forms the
         // negative half with EOR #$FFFF / INC before adding the same table word.
-        if ((EarthquakeTimer & 2) != 0)
+        if ((EarthquakeTimer & RoomFxRomData.Earthquake.AlternatingDirectionTimerMask) != 0)
         {
             bg1X = unchecked((short)-bg1X);
             bg1Y = unchecked((short)-bg1Y);
@@ -51,11 +50,12 @@ public sealed partial class RoomEnemySystem
         // Types $12-$23 shake every actor selected by DetermineWhichEnemiesToProcess. This
         // runs after drawing on the cartridge, so the two-frame actor timer becomes visible
         // on the following frame rather than retroactively changing already-emitted OAM.
-        bool shakesEnemies = EarthquakeType >= EnemyShakingEarthquakeType;
+        bool shakesEnemies = EarthquakeType >= RoomFxRomData.Earthquake.FirstEnemyShakingType;
         if (shakesEnemies)
         {
             foreach (ushort nativeIndex in _activeEnemyIndexes)
-                SlotFromNativeIndex(nativeIndex).ShakeTimer = 2;
+                SlotFromNativeIndex(nativeIndex).ShakeTimer =
+                    RoomFxRomData.Earthquake.EnemyShakeDuration;
         }
 
         LastRoomShake = new RoomShakeFrameResult(

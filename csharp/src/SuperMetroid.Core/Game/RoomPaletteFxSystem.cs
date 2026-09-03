@@ -15,11 +15,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class RoomPaletteFxSystem
 {
-    private const int FxBank = 0x830000;
-    private const int PaletteFxBank = 0x8d0000;
-    private const int AreaPaletteFxPointerTable = 0x83ac46;
     private const int SlotCount = 8;
-    private const int FxRecordByteCount = 16;
 
     private readonly PaletteFxSlot[] slots = Enumerable.Range(0, SlotCount)
         .Select(_ => new PaletteFxSlot())
@@ -72,23 +68,31 @@ public sealed class RoomPaletteFxSystem
             return;
         int areaIndex = AreaIds.ToIndex(area);
 
-        ushort record = SelectFxRecord(bus, fxPointer, doorPointer);
+        ushort record = RoomFxRomData.SelectRecord(bus, fxPointer, doorPointer);
         if (record == 0)
             return;
 
         // FxDef offsets $0D/$0E are independent palette-FX and animtile bitsets. Reading
         // only the former is deliberate; a separate bank-$87 owner must consume the latter.
-        byte paletteFxBits = bus.ReadByte(FxBank | unchecked((ushort)(record + 13)));
+        byte paletteFxBits = RoomFxRomData.ReadRecordByte(
+            bus,
+            record,
+            RoomFxRomData.Record.PaletteFxBitsetOffset);
         if (paletteFxBits == 0)
             return;
 
-        ushort areaList = ReadWord(bus, AreaPaletteFxPointerTable + areaIndex * 2);
+        ushort areaList = ReadWord(
+            bus,
+            RoomFxRomData.Tables.AreaPaletteFxObjectListPointers + areaIndex * 2);
         for (int bit = 0; bit < SlotCount; bit++)
         {
             if ((paletteFxBits & (1 << bit)) == 0)
                 continue;
 
-            ushort definition = ReadWord(bus, FxBank | unchecked((ushort)(areaList + bit * 2)));
+            ushort definition = ReadWord(
+                bus,
+                RoomFxRomData.Banks.RoomDefinitions |
+                    unchecked((ushort)(areaList + bit * 2)));
             Spawn(bus, definition, equippedItems, areaMiniBossDefeated);
         }
     }
@@ -187,26 +191,6 @@ public sealed class RoomPaletteFxSystem
                 throw new NotSupportedException(
                     $"Palette-FX object $8D:{definition:X4} setup $8D:{setup:X4} is not translated.");
         }
-    }
-
-    private static ushort SelectFxRecord(
-        ISnesAddressSpace bus,
-        ushort fxPointer,
-        ushort doorPointer)
-    {
-        ushort record = fxPointer;
-        for (int guard = 0; guard < 256; guard++)
-        {
-            ushort candidateDoor = ReadWord(bus, FxBank | record);
-            if (candidateDoor == 0 || candidateDoor == doorPointer)
-                return record;
-            if (candidateDoor == ushort.MaxValue)
-                return 0;
-            record = unchecked((ushort)(record + FxRecordByteCount));
-        }
-
-        throw new InvalidDataException(
-            $"Room FX list $83:{fxPointer:X4} did not terminate while selecting door $83:{doorPointer:X4}.");
     }
 
     private static void RunPreInstruction(
@@ -311,7 +295,9 @@ public sealed class RoomPaletteFxSystem
                     // The assembly writes only the low byte addressed by the physical
                     // object index. The high byte was cleared at spawn and remains intact.
                     slot.Timer = (ushort)((slot.Timer & 0xff00) |
-                        bus.ReadByte(PaletteFxBank | unchecked((ushort)(cursor + 2))));
+                        bus.ReadByte(
+                            RoomFxRomData.Banks.PaletteFx |
+                            unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 3));
                     break;
 
@@ -411,7 +397,7 @@ public sealed class RoomPaletteFxSystem
     }
 
     private static ushort ReadBank8dWord(ISnesAddressSpace bus, ushort pointer) =>
-        ReadWord(bus, PaletteFxBank | pointer);
+        ReadWord(bus, RoomFxRomData.Banks.PaletteFx | pointer);
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         RomDataReader.ReadWordFixedBank(bus, address);

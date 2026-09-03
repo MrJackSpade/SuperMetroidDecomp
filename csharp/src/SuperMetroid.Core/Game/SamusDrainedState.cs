@@ -118,7 +118,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>Ports Samus command <c>$19</c> at <c>$90:F3FB</c>.</summary>
-    public void FreezeForHyperBeamAcquisition(SamusState samus)
+    public static void FreezeForHyperBeamAcquisition(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
         samus.SetAnimationFrameFromSpecialHandler(frame: 28, timer: 1);

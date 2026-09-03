@@ -514,7 +514,7 @@ internal static class EtecoonAudit
         projectile.InstructionTimer = 1;
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
+    private static ushort ReadWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 
     private static string FormatWords(IEnumerable<ushort> words) =>

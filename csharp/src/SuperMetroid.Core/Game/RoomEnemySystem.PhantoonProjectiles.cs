@@ -152,7 +152,7 @@ public sealed partial class RoomEnemySystem
             unchecked((byte)flame.YVelocity));
     }
 
-    private void RunPhantoonCasualFlameFalling(
+    private static void RunPhantoonCasualFlameFalling(
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
     {

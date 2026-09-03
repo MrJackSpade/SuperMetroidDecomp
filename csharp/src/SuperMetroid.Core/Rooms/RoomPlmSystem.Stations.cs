@@ -134,7 +134,7 @@ public sealed partial class RoomPlmSystem
         .Where(snapshot => _slots[snapshot.NativeSlotIndex].IsElevatorPlatform)
         .ToArray();
 
-    private bool TrySetupStationOrElevator(
+    private static bool TrySetupStationOrElevator(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         Bank80SystemState system,

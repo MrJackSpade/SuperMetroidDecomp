@@ -35,8 +35,7 @@ public sealed class RoomLevelData
     {
         if (widthInBlocks is <= 0 or > 0xff)
             throw new ArgumentOutOfRangeException(nameof(widthInBlocks));
-        if (heightInBlocks <= 0)
-            throw new ArgumentOutOfRangeException(nameof(heightInBlocks));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(heightInBlocks);
 
         int expectedBlocks = checked(widthInBlocks * heightInBlocks);
         if (foregroundEntries.Length != expectedBlocks)

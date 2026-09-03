@@ -213,7 +213,7 @@ public sealed partial class RoomEnemySystem
         LastCrocomireSoundEffect = 0x0022;
     }
 
-    private void RunCrocomireSubmergedPause(CrocomireEnemyState state)
+    private static void RunCrocomireSubmergedPause(CrocomireEnemyState state)
     {
         if (state.StepCounter != 0)
         {
@@ -323,7 +323,7 @@ public sealed partial class RoomEnemySystem
             graphicsIndex: 0);
     }
 
-    private void SelectCrocomireSinkingInstruction(RoomEnemySlot body)
+    private static void SelectCrocomireSinkingInstruction(RoomEnemySlot body)
     {
         ushort pointer = body.YPosition < 248
             ? CrocomireSinkingLowList
@@ -335,7 +335,7 @@ public sealed partial class RoomEnemySystem
         InstallCrocomireInstructionList(body, pointer);
     }
 
-    private void SelectCrocomireRisingInstruction(RoomEnemySlot body)
+    private static void SelectCrocomireRisingInstruction(RoomEnemySlot body)
     {
         ushort pointer = body.YPosition < 248
             ? CrocomireRisingLowList
@@ -366,7 +366,7 @@ public sealed partial class RoomEnemySystem
         RequireCrocomireDeath().TargetHeightOrSkeletonTileIndex = 0;
     }
 
-    private void RunCrocomireSkeletonRiver(CrocomireEnemyState state)
+    private static void RunCrocomireSkeletonRiver(CrocomireEnemyState state)
     {
         RoomEnemySlot body = state.Body;
         body.XPosition = unchecked((ushort)(body.XPosition - 2));

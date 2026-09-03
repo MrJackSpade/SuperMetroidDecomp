@@ -29,7 +29,7 @@ public sealed partial class SamusState
     /// Copies <c>SamusPalettes_PowerSuit</c> at <c>$9B:9400</c> to palette-buffer/CGRAM
     /// entries 192–207, porting <c>Samus_LoadSuitPalette</c>'s no-suit branch.
     /// </summary>
-    public void LoadPowerSuitPalette(ISnesAddressSpace bus, SnesCgram cgram)
+    public static void LoadPowerSuitPalette(ISnesAddressSpace bus, SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);

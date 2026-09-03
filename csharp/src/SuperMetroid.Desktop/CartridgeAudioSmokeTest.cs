@@ -15,8 +15,7 @@ public static class CartridgeAudioSmokeTest
 {
     public static CartridgeAudioSmokeTestResult Run(string romPath, int frames = 240)
     {
-        if (frames <= 0)
-            throw new ArgumentOutOfRangeException(nameof(frames));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frames);
 
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var queue = new CartridgeAudioState();

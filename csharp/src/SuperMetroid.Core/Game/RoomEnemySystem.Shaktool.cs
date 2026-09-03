@@ -367,7 +367,7 @@ public sealed partial class RoomEnemySystem
             : unchecked((ushort)(target + 0x4000));
         SetShaktoolGroupTargetAngle(slot, target);
 
-        IReadOnlyList<RoomEnemySlot> group = GetShaktoolGroup(slot);
+        RoomEnemySlot[] group = GetShaktoolGroup(slot);
         for (int index = ShaktoolSegmentCount - 1; index >= 0; index--)
         {
             RoomEnemySlot segment = group[index];
@@ -384,7 +384,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the endpoint/angle reversal helper at <c>$AA:DB59</c>.</summary>
     private void ReverseShaktoolChainEndpoints(RoomEnemySlot anySegment)
     {
-        IReadOnlyList<RoomEnemySlot> group = GetShaktoolGroup(anySegment);
+        RoomEnemySlot[] group = GetShaktoolGroup(anySegment);
         RequireShaktoolState(group[3]).OrientationAndAcceleration ^= 0x8000;
 
         SwapMirroredShaktoolAngles(group[6], group[1]);
@@ -429,7 +429,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports group synchronization at <c>$AA:DC6F</c>.</summary>
     private void SynchronizeShaktoolOrbitTargets(RoomEnemySlot anySegment, ushort target)
     {
-        IReadOnlyList<RoomEnemySlot> group = GetShaktoolGroup(anySegment);
+        RoomEnemySlot[] group = GetShaktoolGroup(anySegment);
         for (int index = 0; index < ShaktoolSegmentCount; index++)
         {
             ShaktoolSegmentState state = RequireShaktoolState(group[index]);
@@ -454,7 +454,7 @@ public sealed partial class RoomEnemySystem
             segment.Parameter1 = (ushort)flags;
     }
 
-    private IReadOnlyList<RoomEnemySlot> GetShaktoolGroup(RoomEnemySlot anySegment)
+    private RoomEnemySlot[] GetShaktoolGroup(RoomEnemySlot anySegment)
     {
         ShaktoolSegmentState state = RequireShaktoolState(anySegment);
         int ownerSlotIndex = state.OwnerNativeIndex / NativeSlotSize;
@@ -525,7 +525,7 @@ public sealed partial class RoomEnemySystem
             case ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931:
             case ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F:
             {
-                IReadOnlyList<RoomEnemySlot> group = GetShaktoolGroup(slot);
+                RoomEnemySlot[] group = GetShaktoolGroup(slot);
                 byte centerDirection = unchecked((byte)RequireShaktoolState(group[3])
                     .OrientationAndAcceleration);
                 MoveShaktoolSegmentForAnimation(
@@ -554,7 +554,7 @@ public sealed partial class RoomEnemySystem
 
             case ShaktoolInstructionCodes.Instruction_Shaktool_ResetShaktoolFunctions:
             {
-                IReadOnlyList<RoomEnemySlot> group = GetShaktoolGroup(slot);
+                RoomEnemySlot[] group = GetShaktoolGroup(slot);
                 for (int index = 0; index < ShaktoolSegmentCount; index++)
                 {
                     RequireShaktoolState(group[index]).PreInstruction =
@@ -612,7 +612,7 @@ public sealed partial class RoomEnemySystem
 
     internal void StartUnusedShaktoolAttack(RoomEnemySlot anySegment)
     {
-        IReadOnlyList<RoomEnemySlot> group = GetShaktoolGroup(anySegment);
+        RoomEnemySlot[] group = GetShaktoolGroup(anySegment);
         for (int index = ShaktoolSegmentCount - 1; index >= 0; index--)
         {
             RoomEnemySlot segment = group[index];

@@ -23,8 +23,7 @@ public static class RomDataReader
         ArgumentNullException.ThrowIfNull(bus);
         if ((uint)sourceAddress > 0x00ff_ffff || (sourceAddress & 0x8000) == 0)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress));
-        if (byteCount < 0)
-            throw new ArgumentOutOfRangeException(nameof(byteCount));
+        ArgumentOutOfRangeException.ThrowIfNegative(byteCount);
 
         int bank = sourceAddress & 0x00ff_0000;
         int offset = sourceAddress & 0xffff;

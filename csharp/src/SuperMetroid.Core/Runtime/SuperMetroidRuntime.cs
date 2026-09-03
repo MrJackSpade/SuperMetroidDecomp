@@ -616,7 +616,7 @@ public sealed partial class SuperMetroidRuntime
         // after InitializeHud's $2E00-byte standard OBJ transfer, so the smaller $0100 beam
         // region at VRAM $6300 wins in the same NMI order as the cartridge. The gameplay
         // debug spawn has power beam type zero when no save inventory has been supplied.
-        Projectiles.QueueBeamTilesAndLoadPalette(
+        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
             _addressSpace,
             VramWrites,
             Cgram,
@@ -1176,7 +1176,7 @@ public sealed partial class SuperMetroidRuntime
             YPosition = yPosition,
         };
 
-        Samus.LoadPowerSuitPalette(_addressSpace, Cgram);
+        SamusState.LoadPowerSuitPalette(_addressSpace, Cgram);
         Samus.RefreshCollisionRadii(_addressSpace);
         Samus.InitializeAnimation(_addressSpace);
         if (LandingSiteEntry is not null)
@@ -2534,7 +2534,7 @@ public sealed partial class SuperMetroidRuntime
                         // the vertical solid-collision result. The actual boss grab above
                         // runs its separately installed RTS handler instead.
                         LastDraygonGrabbedMovement =
-                            Samus.DraygonGrabbed.StepMovement(Samus);
+                            SamusDraygonGrabbedState.StepMovement(Samus);
                         break;
                     default:
                         // Every pose reachable from the translated retail input, animation,
@@ -2698,7 +2698,7 @@ public sealed partial class SuperMetroidRuntime
                         InWorldCollectibleKind.SpazerBeam or
                         InWorldCollectibleKind.PlasmaBeam)
                     {
-                        Projectiles.QueueBeamTilesAndLoadPalette(
+                        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
                             _addressSpace,
                             VramWrites,
                             Cgram,

@@ -61,13 +61,13 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     // crosses from $7C.D0 to $7D.10 through the eight-bit fractional carry.
     samus.YPosition = 0x007c;
     samus.Kinematics.YSubposition = 0xd055;
-    MotherBrainForcedSamusMovementResult middleDown = movement.MoveTowardMiddleOfWall(samus);
+    MotherBrainForcedSamusMovementResult middleDown = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
     AssertEqual(0x0040, middleDown.YVelocity, "middle-wall below target velocity");
     AssertEqual(0x007d, samus.YPosition, "middle-wall downward whole carry");
     AssertEqual(0x1055, samus.Kinematics.YSubposition, "middle-wall downward fraction");
 
     // Above $7C, two's-complement $FFC0 moves upward. $7D.10 + (-$00.40) becomes $7C.D0.
-    MotherBrainForcedSamusMovementResult middleUp = movement.MoveTowardMiddleOfWall(samus);
+    MotherBrainForcedSamusMovementResult middleUp = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
     AssertEqual(0xffc0, middleUp.YVelocity, "middle-wall above target velocity");
     AssertEqual(0x007c, samus.YPosition, "middle-wall upward whole borrow");
     AssertEqual(0xd055, samus.Kinematics.YSubposition, "middle-wall upward fraction");

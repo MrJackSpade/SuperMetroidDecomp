@@ -383,7 +383,7 @@ public sealed partial class RoomEnemySystem
         state.FunctionTimer = 0x0017;
     }
 
-    private void ShakeMotherBrainHeadMenacingly(
+    private static void ShakeMotherBrainHeadMenacingly(
         MotherBrainEnemyState state,
         SamusState? samus,
         byte nmiFrameCounter8)
@@ -398,7 +398,7 @@ public sealed partial class RoomEnemySystem
         BringMotherBrainHeadBackUp(state, samus, nmiFrameCounter8);
     }
 
-    private void BringMotherBrainHeadBackUp(
+    private static void BringMotherBrainHeadBackUp(
         MotherBrainEnemyState state,
         SamusState? samus,
         byte nmiFrameCounter8)

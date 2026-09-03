@@ -146,7 +146,7 @@ internal static class WreckedShipGhostAudit
         }
     }
 
-    private static void VerifyDefinition(ISnesAddressSpace bus)
+    private static void VerifyDefinition(SuperMetroidAddressSpace bus)
     {
         RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, DefinitionPointer);
         if (definition.TileDataSize != 0x0400 || definition.PalettePointer != 0x99ac ||
@@ -528,10 +528,10 @@ internal static class WreckedShipGhostAudit
     private static void VerifyWords(
         ISnesAddressSpace bus,
         int address,
-        IReadOnlyList<ushort> expected,
+        ushort[] expected,
         string tableName)
     {
-        for (int index = 0; index < expected.Count; index++)
+        for (int index = 0; index < expected.Length; index++)
         {
             ushort actual = ReadWord(bus, address + index * 2);
             if (actual != expected[index])

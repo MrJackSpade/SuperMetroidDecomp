@@ -46,10 +46,8 @@ public static class SnesObjRenderer
         ArgumentNullException.ThrowIfNull(oam);
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
-        if (width <= 0)
-            throw new ArgumentOutOfRangeException(nameof(width));
-        if (height <= 0)
-            throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
 
         var output = new Rgba32[checked(width * height)];
 
@@ -97,10 +95,8 @@ public static class SnesObjRenderer
         ArgumentNullException.ThrowIfNull(oam);
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
-        if (width <= 0)
-            throw new ArgumentOutOfRangeException(nameof(width));
-        if (height <= 0)
-            throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
 
         var pixels = new Rgba32[checked(width * height)];
         var priorities = new byte[pixels.Length];
@@ -136,10 +132,8 @@ public static class SnesObjRenderer
         ArgumentNullException.ThrowIfNull(oam);
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
-        if (width <= 0)
-            throw new ArgumentOutOfRangeException(nameof(width));
-        if (height <= 0)
-            throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
         int pixelCount = checked(width * height);
         if (pixels.Length != pixelCount)
             throw new ArgumentException("OBJ color scratch buffer has the wrong size.", nameof(pixels));

@@ -205,7 +205,7 @@ public sealed partial class RoomEnemySystem
         MoveEnemyVertically(level, slot, yVelocity);
     }
 
-    private void RunMochtroidShake(RoomEnemySlot slot, MochtroidEnemyState state)
+    private static void RunMochtroidShake(RoomEnemySlot slot, MochtroidEnemyState state)
     {
         // This third dispatch entry is unused by retail callers but present in the shipped
         // table. The low two even bits select right/up/left/down, then the timer counts down.

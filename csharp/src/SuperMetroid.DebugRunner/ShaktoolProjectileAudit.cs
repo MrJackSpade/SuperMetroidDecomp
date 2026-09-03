@@ -372,7 +372,7 @@ internal static partial class ShaktoolAudit
 
     private static void VerifyAuthoredCircleMaps(
         ISnesAddressSpace bus,
-        IReadOnlyDictionary<RoomEnemyProjectileKind, HashSet<ushort>> actual)
+        Dictionary<RoomEnemyProjectileKind, HashSet<ushort>> actual)
     {
         var expected = new Dictionary<RoomEnemyProjectileKind, HashSet<ushort>>
         {

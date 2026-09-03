@@ -231,7 +231,7 @@ internal static class KiHunterAudit
     }
 
     private static void VerifyDamageFreezeDetachAndDeath(
-        ISnesAddressSpace bus,
+        SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room,
         CartridgeRoomAssets assets)
     {

@@ -18,7 +18,7 @@ internal static class RetailExtendedHitboxProbe
         RoomEnemySlot enemy) =>
         ReadPoints(bus, enemy, selectShotCallback: false);
 
-    private static IReadOnlyList<RetailExtendedHitboxShotPoint> ReadPoints(
+    private static List<RetailExtendedHitboxShotPoint> ReadPoints(
         ISnesAddressSpace bus,
         RoomEnemySlot enemy,
         bool selectShotCallback)

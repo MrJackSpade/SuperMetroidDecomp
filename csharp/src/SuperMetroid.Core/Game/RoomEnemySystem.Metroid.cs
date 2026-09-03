@@ -433,7 +433,7 @@ public sealed partial class RoomEnemySystem
         LastMetroidSoundEffectLibrary2 = MetroidRecoilSoundEffect;
     }
 
-    private void DetachMetroidWithPowerBomb(
+    private static void DetachMetroidWithPowerBomb(
         RoomEnemySlot slot,
         MetroidEnemyState state,
         SamusState? samus)

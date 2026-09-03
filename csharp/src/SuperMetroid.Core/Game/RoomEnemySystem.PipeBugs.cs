@@ -517,7 +517,7 @@ public sealed partial class RoomEnemySystem
         state.Function = PipeBugEnemyFunction.NorfairWaitForStagger;
     }
 
-    private void RunNorfairPipeBugStaggerWait(
+    private static void RunNorfairPipeBugStaggerWait(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         SamusState samus)
@@ -541,7 +541,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void ResetNorfairPipeBugIfOffScreen(
+    private static void ResetNorfairPipeBugIfOffScreen(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         ushort cameraX,
@@ -580,7 +580,7 @@ public sealed partial class RoomEnemySystem
         return formation;
     }
 
-    private void RunYellowPipeBugWaiting(
+    private static void RunYellowPipeBugWaiting(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         SamusState samus)
@@ -619,7 +619,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void RunYellowPipeBugStraightFlight(
+    private static void RunYellowPipeBugStraightFlight(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         SamusState samus,
@@ -696,7 +696,7 @@ public sealed partial class RoomEnemySystem
             movingLeft ? YellowPipeBugLeftInstruction : YellowPipeBugRightInstruction);
     }
 
-    private bool ResetYellowPipeBugIfOffScreen(
+    private static bool ResetYellowPipeBugIfOffScreen(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         ushort cameraX,

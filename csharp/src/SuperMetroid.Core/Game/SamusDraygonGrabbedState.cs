@@ -105,7 +105,7 @@ public sealed class SamusDraygonGrabbedState
     /// Ports movement type `$1A`. Its entire normal beta handler is one <c>STZ</c>; enemy
     /// AI has already supplied position through <see cref="ApplyOwnerPosition"/>.
     /// </summary>
-    public DraygonGrabbedMovementResult StepMovement(SamusState samus)
+    public static DraygonGrabbedMovementResult StepMovement(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
         EnsureGrabbedPose(samus);

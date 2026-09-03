@@ -53,7 +53,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports $86:E049-$E09B, including the cartridge's asymmetric velocity use.</summary>
-    private void RunMagdolliteLavaPreInstruction(
+    private static void RunMagdolliteLavaPreInstruction(
         RoomEnemyProjectileSlot projectile,
         ushort cameraX,
         ushort cameraY)

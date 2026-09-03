@@ -44,7 +44,7 @@ public sealed partial class RoomPlmSystem
         return false;
     }
 
-    private bool TryStepScrollPlm(
+    private static bool TryStepScrollPlm(
         ISnesAddressSpace bus,
         RoomLevelData level,
         RoomScrollGrid? scrolls,

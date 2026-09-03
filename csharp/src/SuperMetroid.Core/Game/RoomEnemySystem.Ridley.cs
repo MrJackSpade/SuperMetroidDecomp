@@ -621,7 +621,7 @@ public sealed partial class RoomEnemySystem
         state.Function = RidleyAiFunction.NorfairFireballRecover;
     }
 
-    private void TickNorfairRidleyGroundAttackRecovery(
+    private static void TickNorfairRidleyGroundAttackRecovery(
         RidleyEnemyState state,
         SamusState? samus)
     {
@@ -816,7 +816,7 @@ public sealed partial class RoomEnemySystem
         return (short)state.FunctionTimer < 0;
     }
 
-    private void SelectNorfairRidleyFacingInstruction(RoomEnemySlot slot, RidleyEnemyState state)
+    private static void SelectNorfairRidleyFacingInstruction(RoomEnemySlot slot, RidleyEnemyState state)
     {
         if (state.FacingDirection == 1)
             return;

@@ -17,7 +17,7 @@ internal static class ElevatorAudit
     public static int Run(string romPath)
     {
         SuperMetroidAddressSpace retailBus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        IReadOnlyList<RoomEnemyPopulationRecord> records = ReadEveryNamedRetailRecord(retailBus);
+        List<RoomEnemyPopulationRecord> records = ReadEveryNamedRetailRecord(retailBus);
         if (records.Count != 15)
         {
             throw new InvalidDataException(
@@ -77,7 +77,7 @@ internal static class ElevatorAudit
     /// load the NMI counter, test bit zero, and return when it is set. This is the visible
     /// half-rate flicker reported over RDP; it is authored behavior, not dropped host frames.
     /// </summary>
-    private static void VerifySamusDisplayCadence(ISnesAddressSpace bus)
+    private static void VerifySamusDisplayCadence(SuperMetroidAddressSpace bus)
     {
         // LDA $05B6; BIT #$0001; BEQ +1; RTS. The following byte begins the fatal/no-
         // animation renderer that the even branch deliberately falls through into.
@@ -107,7 +107,7 @@ internal static class ElevatorAudit
 
     private static void VerifyEveryRetailInitialization(
         ISnesAddressSpace retailBus,
-        IReadOnlyList<RoomEnemyPopulationRecord> records)
+        List<RoomEnemyPopulationRecord> records)
     {
         LoadedElevator loaded = LoadSelected(retailBus, records);
         if (loaded.Enemies.EnemyCount != records.Count)
@@ -318,7 +318,7 @@ internal static class ElevatorAudit
         return frames;
     }
 
-    private static IReadOnlyList<RoomEnemyPopulationRecord> ReadEveryNamedRetailRecord(
+    private static List<RoomEnemyPopulationRecord> ReadEveryNamedRetailRecord(
         ISnesAddressSpace bus)
     {
         string symbolPath = Path.Combine(

@@ -477,7 +477,7 @@ public sealed partial class RoomEnemySystem
             destinationIndex: 0x01e2 / 2);
     }
 
-    private void TickCeresRidleyLiftoffDecelerating(
+    private static void TickCeresRidleyLiftoffDecelerating(
         RoomEnemySlot slot,
         RidleyEnemyState state)
     {

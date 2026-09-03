@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private void PrepareNorfairRidleyCombatFrame(
+    private static void PrepareNorfairRidleyCombatFrame(
         RoomEnemySlot body,
         RidleyEnemyState state)
     {

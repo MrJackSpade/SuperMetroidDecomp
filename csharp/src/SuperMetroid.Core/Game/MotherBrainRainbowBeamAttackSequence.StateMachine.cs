@@ -188,7 +188,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     ref explosion);
                 DamageSamusDueToRainbowBeam(samus);
                 DecrementAmmoDueToRainbowBeam(samus, mainEnemyExecutionCounter);
-                movement = _movement.MoveTowardMiddleOfWall(samus);
+                movement = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
 
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)

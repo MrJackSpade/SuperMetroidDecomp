@@ -63,10 +63,10 @@ sealed class TestAddressSpace : ISnesAddressSpace
 /// `SEM_NOGPFAULTERRORBOX`, and `SEM_NOOPENFILEERRORBOX` keep failures non-interactive;
 /// .NET still writes the exception and stack trace to stderr and returns a failing code.
 /// </summary>
-static class NativeConsoleProcess
+static partial class NativeConsoleProcess
 {
-    [DllImport("kernel32.dll")]
-    internal static extern uint SetErrorMode(uint errorMode);
+    [LibraryImport("kernel32.dll")]
+    internal static partial uint SetErrorMode(uint errorMode);
 }
 }
 

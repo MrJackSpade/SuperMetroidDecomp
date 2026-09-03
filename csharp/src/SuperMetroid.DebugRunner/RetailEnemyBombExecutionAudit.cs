@@ -246,7 +246,7 @@ internal static partial class RetailEnemyExecutionAudit
     /// placed at the actor origin does not prove which rectangle/callback the cartridge selected.
     /// </summary>
     private static NormalBombAuditBehavior ClassifyNormalBombBehavior(
-        ISnesAddressSpace bus,
+        SuperMetroidAddressSpace bus,
         RoomEnemySlot target)
     {
         ushort callback = target.Definition.ShotAiPointer;

@@ -380,7 +380,7 @@ internal static class NorfairRioAudit
         }
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
+    private static ushort ReadWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 
     private readonly record struct LoadedRoom(RoomEnemySystem Enemies, SamusState Samus);

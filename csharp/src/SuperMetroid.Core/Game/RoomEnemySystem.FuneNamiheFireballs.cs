@@ -55,7 +55,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports pre-instruction $86:DF39 and both directional movers.</summary>
-    private void RunFuneNamiheFireballPreInstruction(
+    private static void RunFuneNamiheFireballPreInstruction(
         RoomEnemyProjectileSlot projectile,
         ushort cameraX,
         ushort cameraY)

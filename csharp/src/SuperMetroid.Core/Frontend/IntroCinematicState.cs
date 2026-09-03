@@ -98,7 +98,7 @@ public sealed class IntroCinematicState
         // $8B:A3AC performs the ordinary beam tile/palette upload before copying the full
         // intro palette. The projectile tile DMA remains resident for both gameplay
         // flashbacks; restore the later intro CGRAM copy after using the shared helper.
-        flashbackProjectiles.LoadBeamTilesAndPalette(bus, vram, cgram, equippedBeams: 0);
+        SamusProjectileSystem.LoadBeamTilesAndPalette(bus, vram, cgram, equippedBeams: 0);
         cgram.LoadFromBus(bus, 0x8ce3e9);
 
         // Font two is decompressed only after the initial VRAM setup in the native routine.
@@ -1007,9 +1007,9 @@ public sealed class IntroCinematicState
             oam.AddOnScreenSpritemap(
                 bus,
                 0x8c0000 | flashbackMotherBrain.SpriteMapPointer,
-                flashbackMotherBrain.XPosition,
-                flashbackMotherBrain.YPosition,
-                flashbackMotherBrain.PaletteBits);
+                IntroMotherBrainSpriteState.XPosition,
+                IntroMotherBrainSpriteState.YPosition,
+                IntroMotherBrainSpriteState.PaletteBits);
         }
         oam.FinalizeFrame();
 

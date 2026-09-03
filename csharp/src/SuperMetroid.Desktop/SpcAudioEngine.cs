@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace SuperMetroid.Desktop;
@@ -13,7 +14,7 @@ namespace SuperMetroid.Desktop;
 /// 48-kHz stereo block per emulated video frame. The native boundary is intentionally kept
 /// here so every queue decision remains inspectable in C#.
 /// </remarks>
-internal sealed class SpcAudioEngine : IDisposable
+internal sealed partial class SpcAudioEngine : IDisposable
 {
     public const int SampleRate = 48_000;
     public const int StereoFramesPerVideoFrame = SampleRate / 60;
@@ -111,29 +112,54 @@ internal sealed class SpcAudioEngine : IDisposable
         return unchecked((byte)value);
     }
 
-    private static class NativeMethods
+    private static partial class NativeMethods
     {
         private const string LibraryName = "SuperMetroid.AudioNative";
 
-        [DllImport(LibraryName, EntryPoint = "sm_audio_create", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern nint Create();
+        [LibraryImport(LibraryName, EntryPoint = "sm_audio_create")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        internal static partial nint Create();
 
-        [DllImport(LibraryName, EntryPoint = "sm_audio_destroy", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void Destroy(nint player);
+        [LibraryImport(LibraryName, EntryPoint = "sm_audio_destroy")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        internal static partial void Destroy(nint player);
 
-        [DllImport(LibraryName, EntryPoint = "sm_audio_upload", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int Upload(nint player, byte[] data, int length);
+        internal static unsafe int Upload(nint player, byte[] data, int length)
+        {
+            fixed (byte* dataPointer = data)
+                return UploadNative(player, dataPointer, length);
+        }
 
-        [DllImport(LibraryName, EntryPoint = "sm_audio_write_port", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int WritePort(nint player, int port, byte value);
+        [LibraryImport(LibraryName, EntryPoint = "sm_audio_upload")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static unsafe partial int UploadNative(nint player, byte* data, int length);
 
-        [DllImport(LibraryName, EntryPoint = "sm_audio_read_port", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int ReadPort(nint player, int port);
+        [LibraryImport(LibraryName, EntryPoint = "sm_audio_write_port")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        internal static partial int WritePort(nint player, int port, byte value);
 
-        [DllImport(LibraryName, EntryPoint = "sm_audio_generate_frame", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int GenerateFrame(nint player, short[] samples, int stereoFrameCount);
+        [LibraryImport(LibraryName, EntryPoint = "sm_audio_read_port")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        internal static partial int ReadPort(nint player, int port);
 
-        [DllImport(LibraryName, EntryPoint = "sm_audio_default_samples_per_frame", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int DefaultSamplesPerFrame();
+        internal static unsafe int GenerateFrame(
+            nint player,
+            short[] samples,
+            int stereoFrameCount)
+        {
+            fixed (short* samplesPointer = samples)
+                return GenerateFrameNative(player, samplesPointer, stereoFrameCount);
+        }
+
+        [LibraryImport(LibraryName, EntryPoint = "sm_audio_generate_frame")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        private static unsafe partial int GenerateFrameNative(
+            nint player,
+            short* samples,
+            int stereoFrameCount);
+
+        [LibraryImport(LibraryName, EntryPoint = "sm_audio_default_samples_per_frame")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        internal static partial int DefaultSamplesPerFrame();
     }
 }

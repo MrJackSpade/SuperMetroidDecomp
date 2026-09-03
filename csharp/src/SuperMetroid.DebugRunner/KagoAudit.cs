@@ -121,7 +121,7 @@ internal static class KagoAudit
 
         RoomEnemyProjectileSlot bug = enemies.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.KagoBug);
-        KagoBugProjectileState initialBug = enemies.InspectKagoBug(bug);
+        KagoBugProjectileState initialBug = RoomEnemySystem.InspectKagoBug(bug);
         if (!state.UsesFastAnimation || state.HitCounter != 9 ||
             state.SpawnedBugCount != 1 || actor.CurrentInstruction != 0xab32 ||
             actor.InstructionTimer != 1 || actor.Health != 1600 ||

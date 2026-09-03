@@ -292,7 +292,7 @@ internal static partial class RetailEnemyExecutionAudit
         ProjectileWeapon weapon)
     {
         RetailExtendedHitboxShotPoint point =
-            RetailExtendedHitboxProbe.ReadShotPoints(bus, target).First();
+            RetailExtendedHitboxProbe.ReadShotPoints(bus, target)[0];
         SamusProjectileSlot projectile = loaded.SamusProjectiles.Slots[0];
         ArmAuditProjectile(projectile, weapon, point.X, point.Y);
         ushort earthquakeTimerBefore = loaded.Enemies.EarthquakeTimer;

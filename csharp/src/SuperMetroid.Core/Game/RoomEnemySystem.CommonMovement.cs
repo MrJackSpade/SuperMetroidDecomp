@@ -22,7 +22,7 @@ public sealed partial class RoomEnemySystem
     ];
 
     /// <summary>Ports <c>MoveEnemyRightBy_14_12_IgnoreSlopes</c> at $A0:C6AB.</summary>
-    private bool MoveEnemyHorizontallyIgnoringNonSquareSlopes(
+    private static bool MoveEnemyHorizontallyIgnoringNonSquareSlopes(
         RoomLevelData level,
         RoomEnemySlot slot,
         int displacement) =>
@@ -37,7 +37,7 @@ public sealed partial class RoomEnemySystem
     /// retain their native half-tile geometry; only non-square slopes consume direct-page
     /// flag $4000 and become solid walls.
     /// </summary>
-    private bool MoveEnemyHorizontallyTreatingSlopesAsWalls(
+    private static bool MoveEnemyHorizontallyTreatingSlopesAsWalls(
         RoomLevelData level,
         RoomEnemySlot slot,
         int displacement) =>
@@ -51,7 +51,7 @@ public sealed partial class RoomEnemySystem
     /// Shared body of the three native horizontal enemy movers. The remaining $8000
     /// process-slopes mode will reuse this seam when its first retail caller is translated.
     /// </summary>
-    private bool MoveEnemyHorizontally(
+    private static bool MoveEnemyHorizontally(
         RoomLevelData level,
         RoomEnemySlot slot,
         int displacement,
@@ -253,7 +253,7 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
-    private bool EnemyHorizontalProbeIsSolid(
+    private static bool EnemyHorizontalProbeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
         int blockX,

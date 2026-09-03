@@ -248,7 +248,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void SetEvirBodyFacing(
+    private static void SetEvirBodyFacing(
         RoomEnemySlot body,
         EvirEnemyState state,
         SamusState? samus)
@@ -405,13 +405,13 @@ public sealed partial class RoomEnemySystem
     private void QueueEvirSpitSound() => LastEvirSoundEffect = EvirSpitSound;
 
     /// <summary>Instruction $A8:879B.</summary>
-    private void SetInitialEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
+    private static void SetInitialEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
         state.RegenerationXOffset = state.FacingDirection != 0
             ? unchecked((ushort)-8)
             : (ushort)8;
 
     /// <summary>Instruction $A8:87B6.</summary>
-    private void AdvanceEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
+    private static void AdvanceEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
         state.RegenerationXOffset = unchecked((ushort)(
             state.RegenerationXOffset + (state.FacingDirection != 0 ? 1 : -1)));
 
@@ -438,7 +438,7 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)fixedPosition));
     }
 
-    private void RequestEvirInstruction(
+    private static void RequestEvirInstruction(
         RoomEnemySlot slot,
         EvirEnemyState state,
         ushort instructionList)

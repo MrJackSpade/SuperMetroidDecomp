@@ -19,8 +19,7 @@ internal sealed class PopulationPrefixAddressSpace : ISnesAddressSpace
         byte deathQuota)
     {
         ArgumentNullException.ThrowIfNull(inner);
-        if (retainedRecordCount < 0)
-            throw new ArgumentOutOfRangeException(nameof(retainedRecordCount));
+        ArgumentOutOfRangeException.ThrowIfNegative(retainedRecordCount);
 
         _inner = inner;
         _terminatorAddress = 0xa10000 |

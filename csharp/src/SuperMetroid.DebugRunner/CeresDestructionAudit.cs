@@ -299,7 +299,7 @@ internal static class CeresDestructionAudit
     /// </summary>
     private static void AssertVisibleLandingSkyRowsMatchRom(
         SuperMetroidRuntime runtime,
-        ISnesAddressSpace bus)
+        SuperMetroidAddressSpace bus)
     {
         const int landChunkPointerTable = 0x88ad9c;
         const int bg2TilemapBaseWord = 0x4800;

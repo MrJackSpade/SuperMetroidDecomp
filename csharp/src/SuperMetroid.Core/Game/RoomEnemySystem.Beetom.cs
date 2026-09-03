@@ -444,7 +444,7 @@ public sealed partial class RoomEnemySystem
             state.YSpeedTableIndex + fallingDelta));
     }
 
-    private void RunBeetomDrain(
+    private static void RunBeetomDrain(
         RoomEnemySlot slot,
         BeetomEnemyState state,
         SamusState samus,

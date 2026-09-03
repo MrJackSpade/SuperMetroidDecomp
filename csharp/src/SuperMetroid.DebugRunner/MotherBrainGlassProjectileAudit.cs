@@ -75,9 +75,9 @@ internal static class MotherBrainGlassProjectileAudit
     private static void VerifyDefinition(
         ISnesAddressSpace bus,
         ushort definition,
-        IReadOnlyList<ushort> expectedWords)
+        ushort[] expectedWords)
     {
-        for (int wordIndex = 0; wordIndex < expectedWords.Count; wordIndex++)
+        for (int wordIndex = 0; wordIndex < expectedWords.Length; wordIndex++)
         {
             ushort actual = ReadWord(
                 bus,

@@ -512,7 +512,7 @@ public sealed partial class RoomPlmSystem
         }
     }
 
-    private ushort GetVisibleCollectibleDraw(
+    private static ushort GetVisibleCollectibleDraw(
         ISnesAddressSpace bus,
         CollectiblePlmState item)
     {

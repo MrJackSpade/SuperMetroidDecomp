@@ -59,10 +59,8 @@ public sealed class FrameTimingCounter
     /// <summary>Injectable clock geometry used by the deterministic timing smoke test.</summary>
     public FrameTimingCounter(long timestampFrequency, TimeSpan reportingInterval)
     {
-        if (timestampFrequency <= 0)
-            throw new ArgumentOutOfRangeException(nameof(timestampFrequency));
-        if (reportingInterval <= TimeSpan.Zero)
-            throw new ArgumentOutOfRangeException(nameof(reportingInterval));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(timestampFrequency);
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(reportingInterval, TimeSpan.Zero);
 
         this.timestampFrequency = timestampFrequency;
         reportingIntervalTicks = Math.Max(
@@ -80,8 +78,7 @@ public sealed class FrameTimingCounter
     /// <summary>Records the complete host cost of one translated video frame.</summary>
     public void RecordEmulatedFrame(long elapsedTicks)
     {
-        if (elapsedTicks < 0)
-            throw new ArgumentOutOfRangeException(nameof(elapsedTicks));
+        ArgumentOutOfRangeException.ThrowIfNegative(elapsedTicks);
         emulatedFrames++;
         emulationTicks += elapsedTicks;
         worstEmulationTicks = Math.Max(worstEmulationTicks, elapsedTicks);
@@ -90,8 +87,7 @@ public sealed class FrameTimingCounter
     /// <summary>Records one canvas paint, including scaling the native raster to the host.</summary>
     public void RecordPaint(long elapsedTicks)
     {
-        if (elapsedTicks < 0)
-            throw new ArgumentOutOfRangeException(nameof(elapsedTicks));
+        ArgumentOutOfRangeException.ThrowIfNegative(elapsedTicks);
         paintedFrames++;
         paintTicks += elapsedTicks;
         worstPaintTicks = Math.Max(worstPaintTicks, elapsedTicks);

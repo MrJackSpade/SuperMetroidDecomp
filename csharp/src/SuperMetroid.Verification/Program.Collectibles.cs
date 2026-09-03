@@ -559,7 +559,7 @@ internal static partial class Program
             EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit,
             CollectedItems = (ushort)SamusEquipmentFlags.VariaSuit,
         };
-        samus.LoadPowerSuitPalette(bus, cgram);
+        SamusState.LoadPowerSuitPalette(bus, cgram);
 
         var pickup = new SamusSuitPickupState();
         pickup.Begin(bus, samus, layer1X: 0x0100, layer1Y: 0x0200,

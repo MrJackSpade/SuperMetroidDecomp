@@ -24,11 +24,11 @@ internal sealed class IntroMotherBrainSpriteState
     private bool pageTwoInstructionStarted;
     private bool crossfadingToPageTwo;
 
-    public ushort XPosition => 0x0038;
+    public static ushort XPosition => 0x0038;
 
-    public ushort YPosition => 0x006f;
+    public static ushort YPosition => 0x006f;
 
-    public ushort PaletteBits => 0x0e00;
+    public static ushort PaletteBits => 0x0e00;
 
     public ushort SpriteMapPointer { get; private set; }
 

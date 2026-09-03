@@ -65,7 +65,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Last Kago bug enemy-drop request produced during this enemy frame.</summary>
     public KagoBugDropRequest? LastKagoBugDropRequest { get; private set; }
 
-    public KagoBugProjectileState InspectKagoBug(RoomEnemyProjectileSlot projectile)
+    public static KagoBugProjectileState InspectKagoBug(RoomEnemyProjectileSlot projectile)
     {
         ArgumentNullException.ThrowIfNull(projectile);
         if (projectile.Kind != RoomEnemyProjectileKind.KagoBug)

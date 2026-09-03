@@ -238,7 +238,7 @@ internal static class DebuggerObjectGraphSerializer
             return serializedType.IsEnum ? Enum.ToObject(serializedType, value) : value;
         }
 
-        private object ReadPrimitiveArray(Type type, int referenceId)
+        private Array ReadPrimitiveArray(Type type, int referenceId)
         {
             Type elementType = type.GetElementType()
                 ?? throw new InvalidDataException($"Serialized array {type.FullName} has no element type.");
@@ -258,7 +258,7 @@ internal static class DebuggerObjectGraphSerializer
             return array;
         }
 
-        private object ReadArray(Type type, int referenceId)
+        private Array ReadArray(Type type, int referenceId)
         {
             Type elementType = type.GetElementType()
                 ?? throw new InvalidDataException($"Serialized array {type.FullName} has no element type.");

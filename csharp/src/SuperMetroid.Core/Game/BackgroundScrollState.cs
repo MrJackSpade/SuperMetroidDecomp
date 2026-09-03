@@ -354,7 +354,7 @@ public sealed class BackgroundScrollState
         PreviousLayer2YBlock = Layer2YBlock;
     }
 
-    private IReadOnlyList<BackgroundUpdateRequest> CalculateBlocksAndUpdates()
+    private List<BackgroundUpdateRequest> CalculateBlocksAndUpdates()
     {
         CalculateBlockCoordinates();
         var requests = new List<BackgroundUpdateRequest>(capacity: 4);

@@ -246,7 +246,7 @@ static class PrivateRomPath
         return fullPath;
     }
 
-    private static IReadOnlyList<string> BuildBoundedSearchRoots()
+    private static List<string> BuildBoundedSearchRoots()
     {
         var roots = new List<string>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

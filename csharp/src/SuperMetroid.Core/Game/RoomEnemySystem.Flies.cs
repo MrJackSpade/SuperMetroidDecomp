@@ -164,7 +164,7 @@ public sealed partial class RoomEnemySystem
         state.Function = FlyEnemyFunction.AttackSamus;
     }
 
-    private void RunFlyAttack(RoomEnemySlot slot, FlyEnemyState state)
+    private static void RunFlyAttack(RoomEnemySlot slot, FlyEnemyState state)
     {
         MoveFlyAccordingToVelocities(slot, state);
         state.RetreatTimer = unchecked((ushort)(state.RetreatTimer + 1));

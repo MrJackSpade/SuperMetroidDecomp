@@ -12,7 +12,7 @@ public sealed partial class RoomEnemySystem
     private const ushort MotherBrainHandBeamInstruction = 0xc796;
 
     /// <summary>Ports the four-entry body dispatcher at <c>$A9:B87D-B8EA</c>.</summary>
-    private void RunMotherBrainHandBeamAttack(MotherBrainEnemyState state)
+    private static void RunMotherBrainHandBeamAttack(MotherBrainEnemyState state)
     {
         switch (state.HandBeamPhase)
         {

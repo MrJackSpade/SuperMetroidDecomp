@@ -190,7 +190,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the incidental 64-frame tail-whip pause at <c>$A5:90D4</c>.</summary>
-    private void RunDraygonTailWhip(DraygonEnemyState state, SamusState? samus)
+    private static void RunDraygonTailWhip(DraygonEnemyState state, SamusState? samus)
     {
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
         state.TailWhipTimer = unchecked((ushort)(state.TailWhipTimer - 1));
@@ -209,7 +209,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Installs the four-repeat finishing whip list at <c>$A5:9105</c>.</summary>
-    private void BeginDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus)
+    private static void BeginDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus)
     {
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
         InstallDraygonInstruction(
@@ -222,7 +222,7 @@ public sealed partial class RoomEnemySystem
     /// Ports <c>$A5:9124</c>. The tail's cartridge list owns the duration and eventually
     /// executes opcode <c>$9F57</c>, which changes the body function to release Samus.
     /// </summary>
-    private void WaitForDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus) =>
+    private static void WaitForDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus) =>
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
 
     /// <summary>Ports release, collision-bit cleanup, and tail flail at <c>$A5:9128</c>.</summary>

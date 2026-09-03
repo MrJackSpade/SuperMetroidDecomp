@@ -227,7 +227,7 @@ public sealed partial class RoomEnemySystem
         LastFuneNamiheSoundEffect = FuneNamiheSpitSound;
 
     /// <summary>Instructions $A8:9695/$96B4, which differ only by address.</summary>
-    private void FinishFuneNamiheActivity(FuneNamiheEnemyState state)
+    private static void FinishFuneNamiheActivity(FuneNamiheEnemyState state)
     {
         state.InstructionListPointerTableCursor = unchecked((ushort)(
             state.InstructionListPointerTableCursor + ActivePointerTableDelta));

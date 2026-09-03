@@ -347,7 +347,7 @@ internal static class RipperAudit
     }
 
     private static byte ReadVulnerability(
-        ISnesAddressSpace bus,
+        SuperMetroidAddressSpace bus,
         RoomEnemyDefinition definition,
         ushort projectileType)
     {

@@ -288,7 +288,7 @@ internal static class OwtchAudit
     }
 
     private static void VerifyNormalBombCallbackGate(
-        ISnesAddressSpace retailBus,
+        SuperMetroidAddressSpace retailBus,
         CartridgeRoomHeader room,
         CartridgeRoomAssets assets)
     {

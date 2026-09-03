@@ -13,10 +13,8 @@ public static class RgbaBitmap
     /// </summary>
     public static unsafe Bitmap Create(int width, int height, ReadOnlySpan<Rgba32> pixels)
     {
-        if (width <= 0)
-            throw new ArgumentOutOfRangeException(nameof(width));
-        if (height <= 0)
-            throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
         if (pixels.Length != checked(width * height))
             throw new ArgumentException("Pixel count does not match dimensions.", nameof(pixels));
 
@@ -45,10 +43,8 @@ public static class RgbaBitmap
         ReadOnlySpan<Rgba32> pixels)
     {
         ArgumentNullException.ThrowIfNull(bitmap);
-        if (width <= 0)
-            throw new ArgumentOutOfRangeException(nameof(width));
-        if (height <= 0)
-            throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
         if (bitmap.Width != width || bitmap.Height != height ||
             bitmap.PixelFormat != PixelFormat.Format32bppArgb)
         {

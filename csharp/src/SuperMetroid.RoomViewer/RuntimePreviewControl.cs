@@ -197,7 +197,7 @@ internal sealed class RuntimePreviewControl : UserControl
             // `$90:AC8D` normally performs this after equipment changes. The paused viewer
             // executes the same cartridge-to-VRAM/CGRAM transfer immediately so the next
             // stepped frame cannot display stale ordinary-beam tiles with Hyper behavior.
-            runtime.Projectiles.LoadBeamTilesAndPalette(
+            SamusProjectileSystem.LoadBeamTilesAndPalette(
                 bus,
                 runtime.Vram,
                 runtime.Cgram,
@@ -730,7 +730,7 @@ internal sealed class RuntimePreviewControl : UserControl
         // `$90:AC8D` normally runs as equipment state settles. The viewer is paused while
         // this host menu changes that state, so perform the exact ROM-to-VRAM/CGRAM transfer
         // immediately and redraw; the next gameplay frame then sees matching projectile art.
-        runtime.Projectiles.LoadBeamTilesAndPalette(
+        SamusProjectileSystem.LoadBeamTilesAndPalette(
             bus,
             runtime.Vram,
             runtime.Cgram,

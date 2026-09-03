@@ -869,9 +869,9 @@ internal static class KraidAudit
     private static void IsolateEnemy(
         RoomEnemySystem enemies,
         int retainedSlot,
-        IReadOnlyList<ushort> savedProperties)
+        ushort[] savedProperties)
     {
-        for (int slotIndex = 0; slotIndex < savedProperties.Count; slotIndex++)
+        for (int slotIndex = 0; slotIndex < savedProperties.Length; slotIndex++)
         {
             enemies.Slots[slotIndex].Properties = slotIndex == retainedSlot
                 ? savedProperties[slotIndex]
@@ -888,7 +888,7 @@ internal static class KraidAudit
     private static void VerifyKraidArmDust(
         ISnesAddressSpace bus,
         RoomEnemySystem enemies,
-        IReadOnlySet<int> activeBefore,
+        HashSet<int> activeBefore,
         ushort expectedX,
         ushort expectedY,
         ushort animationIndex,

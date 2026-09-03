@@ -477,7 +477,7 @@ internal static class KzanAudit
         enemies.KzanStates[actor.SlotIndex] ?? throw new InvalidDataException(
             $"Kzan top slot {actor.SlotIndex} has no typed state.");
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
+    private static ushort ReadWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 
     private readonly record struct LoadedKzans(RoomEnemySystem Enemies, SamusState Samus);

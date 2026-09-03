@@ -30,8 +30,7 @@ internal sealed class RoomCanvas : Control
         get => zoom;
         set
         {
-            if (value <= 0)
-                throw new ArgumentOutOfRangeException(nameof(value));
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
             zoom = value;
             ResizeForZoom();
             Invalidate();

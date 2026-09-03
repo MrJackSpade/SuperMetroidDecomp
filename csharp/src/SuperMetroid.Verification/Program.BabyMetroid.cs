@@ -774,7 +774,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
             new MotherBrainCorpseRotEntry(
                 YOffset: unchecked((short)(47 - entryIndex)),
                 Timer: unchecked((ushort)(entryIndex * 2))),
-            death.CorpseRotting.ReadEntry(bus, entryIndex),
+            MotherBrainCorpseRottingState.ReadEntry(bus, entryIndex),
             $"corpse rot-table entry {entryIndex}");
     }
 

@@ -155,7 +155,7 @@ public sealed partial class SamusProjectileSystem
     /// Projectile spritemaps already reference those hardware locations; omitting this
     /// room/equipment-time upload produces valid OAM whose pixels are all transparent.
     /// </remarks>
-    public void LoadBeamTilesAndPalette(
+    public static void LoadBeamTilesAndPalette(
         ISnesAddressSpace bus,
         SnesVram vram,
         SnesCgram cgram,
@@ -192,7 +192,7 @@ public sealed partial class SamusProjectileSystem
     /// Queues the tile half of $90:AC8D after the room's standard-sprite upload and applies
     /// the matching final palette to the modeled CGRAM buffer.
     /// </summary>
-    public void QueueBeamTilesAndLoadPalette(
+    public static void QueueBeamTilesAndLoadPalette(
         ISnesAddressSpace bus,
         VramWriteQueue writes,
         SnesCgram cgram,

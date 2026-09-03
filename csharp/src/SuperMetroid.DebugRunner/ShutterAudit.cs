@@ -144,7 +144,7 @@ internal static class ShutterAudit
     }
 
     private static void VerifyRetailOccurrenceCounts(
-        IReadOnlyDictionary<ushort, List<RoomEnemyPopulationRecord>> records)
+        Dictionary<ushort, List<RoomEnemyPopulationRecord>> records)
     {
         var expected = new Dictionary<ushort, int>
         {
@@ -167,11 +167,11 @@ internal static class ShutterAudit
 
     private static void VerifyEveryRetailInitialization(
         ISnesAddressSpace retailBus,
-        IReadOnlyDictionary<ushort, List<RoomEnemyPopulationRecord>> records)
+        Dictionary<ushort, List<RoomEnemyPopulationRecord>> records)
     {
         foreach (ushort definition in FamilyDefinitions.Where(value => value != HorizontalDefinition))
         {
-            IReadOnlyList<RoomEnemyPopulationRecord> familyRecords = records[definition];
+            List<RoomEnemyPopulationRecord> familyRecords = records[definition];
             LoadedPopulation loaded = LoadSelected(retailBus, familyRecords);
             if (loaded.Enemies.EnemyCount != familyRecords.Count)
             {

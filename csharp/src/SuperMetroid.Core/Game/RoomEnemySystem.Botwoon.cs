@@ -528,14 +528,14 @@ public sealed partial class RoomEnemySystem
         head.YPosition = unchecked((ushort)(head.YPosition + totalY));
     }
 
-    private void RecordBotwoonHeadPosition(RoomEnemySlot head, BotwoonEnemyState state)
+    private static void RecordBotwoonHeadPosition(RoomEnemySlot head, BotwoonEnemyState state)
     {
         int ringIndex = state.RingByteOffset >> 2;
         state.HistoryX[ringIndex] = head.XPosition;
         state.HistoryY[ringIndex] = head.YPosition;
     }
 
-    private void PositionBotwoonBody(BotwoonEnemyState state)
+    private static void PositionBotwoonBody(BotwoonEnemyState state)
     {
         ushort historyOffset = unchecked((ushort)(
             (state.RingByteOffset - state.SegmentSpacingBytes) & 0x03ff));
@@ -555,7 +555,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void ToggleBotwoonSegmentAtHole(
+    private static void ToggleBotwoonSegmentAtHole(
         BotwoonEnemyState state,
         int segmentIndex,
         ushort historyOffset)
@@ -577,7 +577,7 @@ public sealed partial class RoomEnemySystem
         state.SavedHoleRingByteOffset = 0xffff;
     }
 
-    private void OrientBotwoonBody(RoomEnemySlot head, BotwoonEnemyState state)
+    private static void OrientBotwoonBody(RoomEnemySlot head, BotwoonEnemyState state)
     {
         for (int argument = 24; argument >= 0; argument -= 2)
         {

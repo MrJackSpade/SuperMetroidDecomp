@@ -80,7 +80,7 @@ public sealed partial class RoomPlmSystem
     /// sequential room-population loader. Allocation deliberately does not live here:
     /// native <c>Spawn_Room_PLM</c> chooses the physical ID before calling this routine.
     /// </summary>
-    private void SetupColoredDoorSlot(
+    private static void SetupColoredDoorSlot(
         ISnesAddressSpace bus,
         RoomLevelData level,
         Bank80SystemState system,

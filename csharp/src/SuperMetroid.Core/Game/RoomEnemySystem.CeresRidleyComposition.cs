@@ -112,7 +112,7 @@ public sealed partial class RoomEnemySystem
     /// disables random/proximity flings only during the swoop, then sets a one-shot request
     /// at its lowest point so the tail snaps toward Samus as Ridley charges back upward.
     /// </summary>
-    private void HandleCeresRidleyNeutralTailControl(
+    private static void HandleCeresRidleyNeutralTailControl(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus)
@@ -161,7 +161,7 @@ public sealed partial class RoomEnemySystem
             : (ushort)2;
     }
 
-    private void AimCeresRidleyTailWhip(
+    private static void AimCeresRidleyTailWhip(
         RidleyEnemyState state,
         SamusState? samus,
         byte additionalAngle)
@@ -205,7 +205,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void TickRidleyTailSegment(RidleyEnemyState state, int index)
+    private static void TickRidleyTailSegment(RidleyEnemyState state, int index)
     {
         RidleyTailSegment segment = state.TailSegments[index];
         if (segment.Active)

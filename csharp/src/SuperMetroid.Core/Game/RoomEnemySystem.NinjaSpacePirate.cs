@@ -271,7 +271,7 @@ public sealed partial class RoomEnemySystem
             "Ninja Space Pirate decision AI requires the active Samus actor.");
     }
 
-    private void RunNinjaPirateInitial(
+    private static void RunNinjaPirateInitial(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
         SamusState samus,
@@ -291,7 +291,7 @@ public sealed partial class RoomEnemySystem
         InstallNinjaPirateInstruction(slot, active);
     }
 
-    private void RunNinjaPirateActive(
+    private static void RunNinjaPirateActive(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
         SamusState samus,

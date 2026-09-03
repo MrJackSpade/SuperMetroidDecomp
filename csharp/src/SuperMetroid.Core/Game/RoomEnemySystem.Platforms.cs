@@ -320,7 +320,7 @@ public sealed partial class RoomEnemySystem
         return yRemainder <= slot.YRadius;
     }
 
-    private void MovePlatformHorizontally(
+    private static void MovePlatformHorizontally(
         RoomEnemySlot slot,
         PlatformEnemyState state,
         RoomLevelData level)

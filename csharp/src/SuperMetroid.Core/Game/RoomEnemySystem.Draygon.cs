@@ -216,7 +216,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the no-op tail/arms main AI and the active eye dispatcher.</summary>
-    private void RunDraygonPartMain(RoomEnemySlot part, SamusState? samus)
+    private static void RunDraygonPartMain(RoomEnemySlot part, SamusState? samus)
     {
         if (part.EnemyDefinitionPointer is DraygonTailDefinition or DraygonArmsDefinition)
             return;
@@ -344,7 +344,7 @@ public sealed partial class RoomEnemySystem
         state.FacingRight = true;
     }
 
-    private void BuildDraygonSwoopYPositions(DraygonEnemyState state, SamusState samus)
+    private static void BuildDraygonSwoopYPositions(DraygonEnemyState state, SamusState samus)
     {
         ushort yPosition = 0x0180;
         ushort ySpeed = 0;
@@ -672,7 +672,7 @@ public sealed partial class RoomEnemySystem
             FinishDraygonGoopFiring(state, movingRight);
     }
 
-    private void FinishDraygonGoopFiring(DraygonEnemyState state, bool movingRight)
+    private static void FinishDraygonGoopFiring(DraygonEnemyState state, bool movingRight)
     {
         InstallDraygonInstruction(state.Arms!, movingRight ? (ushort)0x9bda : (ushort)0x97e7);
         state.Function = movingRight
@@ -766,7 +766,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the eye direction partition at <c>$A5:C48D/C513</c>.</summary>
-    private void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState? samus, bool facingRight)
+    private static void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState? samus, bool facingRight)
     {
         if (samus is null)
             return;

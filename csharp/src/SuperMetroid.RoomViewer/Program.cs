@@ -73,7 +73,7 @@ readonly record struct ViewerStartupPaths(string RawAssetDirectory, string RomPa
     public static ViewerStartupPaths Resolve(string[] arguments)
     {
         ArgumentNullException.ThrowIfNull(arguments);
-        IReadOnlyList<string> searchRoots = BuildBoundedSearchRoots();
+        List<string> searchRoots = BuildBoundedSearchRoots();
 
         return arguments.Length switch
         {
@@ -178,7 +178,7 @@ readonly record struct ViewerStartupPaths(string RawAssetDirectory, string RomPa
         Directory.Exists(directory) &&
         File.Exists(Path.Combine(directory, "LevelData_LandingSite.bin"));
 
-    private static IReadOnlyList<string> BuildBoundedSearchRoots()
+    private static List<string> BuildBoundedSearchRoots()
     {
         var roots = new List<string>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

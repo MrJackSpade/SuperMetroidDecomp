@@ -358,7 +358,7 @@ public sealed partial class RoomEnemySystem
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
     }
 
-    private void RunEtecoonLeftToWall(
+    private static void RunEtecoonLeftToWall(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
         RoomLevelData level)
@@ -372,7 +372,7 @@ public sealed partial class RoomEnemySystem
         slot.Parameter1 = 1;
     }
 
-    private void RunEtecoonRightToWall(
+    private static void RunEtecoonRightToWall(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
         RoomLevelData level)
@@ -481,7 +481,7 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
     }
 
-    private void RunEtecoonMoveLeftToTeachingStart(
+    private static void RunEtecoonMoveLeftToTeachingStart(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
         RoomLevelData level)
@@ -495,7 +495,7 @@ public sealed partial class RoomEnemySystem
         InstallEtecoonInstruction(slot, EtecoonCrouchInstructionList);
     }
 
-    private void RunEtecoonMoveRightToTeachingStart(
+    private static void RunEtecoonMoveRightToTeachingStart(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
         RoomLevelData level)
@@ -509,7 +509,7 @@ public sealed partial class RoomEnemySystem
         InstallEtecoonInstruction(slot, EtecoonCrouchInstructionList);
     }
 
-    private void RunEtecoonRightToLongJump(
+    private static void RunEtecoonRightToLongJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
         RoomLevelData level)
@@ -538,7 +538,7 @@ public sealed partial class RoomEnemySystem
         state.Function = EtecoonAiFunction.RunRightAfterLongJump;
     }
 
-    private void RunEtecoonRightAfterLongJump(
+    private static void RunEtecoonRightAfterLongJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
         RoomLevelData level)
@@ -656,7 +656,7 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
     }
 
-    private void RunEtecoonRightToReturnJump(
+    private static void RunEtecoonRightToReturnJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
         RoomLevelData level)
@@ -696,7 +696,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>Etecoon_Func_2</c>'s signed 16.16 horizontal mover.</summary>
-    private bool MoveEtecoonHorizontally(
+    private static bool MoveEtecoonHorizontally(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
         RoomLevelData level) =>

@@ -393,7 +393,7 @@ static void VerifySamusPowerBeamProjectiles()
     var beamCgram = new SnesCgram();
     var beamWrites = new VramWriteQueue();
     var beamGraphics = new SamusProjectileSystem();
-    beamGraphics.QueueBeamTilesAndLoadPalette(bus, beamWrites, beamCgram, equippedBeams: 0);
+        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(bus, beamWrites, beamCgram, equippedBeams: 0);
     AssertEqual(1, beamWrites.Entries.Count, "power beam queues one tile DMA");
     beamWrites.DrainTo(beamVram, bus);
     AssertEqual(0x5a, beamVram.ReadByte(0x6300 * 2),

@@ -68,7 +68,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports pre-instruction $86:D3BF: X collision, then Y collision, else move.</summary>
-    private void RunWorkRobotLaserPreInstruction(
+    private static void RunWorkRobotLaserPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {

@@ -13,7 +13,7 @@ namespace SuperMetroid.Desktop;
 /// PID_0011 generic HID pad. WinMM sits above the installed HID joystick driver, requires no
 /// native package beside the executable, and returns all state in one non-blocking call.
 /// </remarks>
-internal sealed class WindowsGamepadInput
+internal sealed partial class WindowsGamepadInput
 {
     // This is the inexpensive SNES-style USB adapter which motivated the WinMM backend.
     // Its HID/WinMM driver enumerates the face buttons by printed label X/A/B/Y rather than
@@ -225,20 +225,25 @@ internal sealed class WindowsGamepadInput
         public uint Reserved2;
     }
 
-    private static class NativeMethods
+    private static partial class NativeMethods
     {
-        [DllImport("winmm.dll", EntryPoint = "joyGetNumDevs", ExactSpelling = true)]
-        public static extern uint JoyGetNumberOfDevices();
+        [LibraryImport("winmm.dll", EntryPoint = "joyGetNumDevs")]
+        public static partial uint JoyGetNumberOfDevices();
 
+        // LibraryImport cannot source-generate JOYCAPSW because WinMM embeds fixed UTF-16
+        // strings inside the structure. Keep this one runtime-marshalled declaration until
+        // the generator supports ByValTStr fields; the other imports remain generated.
+#pragma warning disable SYSLIB1054
         [DllImport("winmm.dll", EntryPoint = "joyGetDevCapsW", ExactSpelling = true,
             CharSet = CharSet.Unicode)]
         public static extern uint JoyGetDeviceCapabilities(
             uint deviceId,
             ref JoystickCapabilities capabilities,
             uint capabilitiesByteCount);
+#pragma warning restore SYSLIB1054
 
-        [DllImport("winmm.dll", EntryPoint = "joyGetPosEx", ExactSpelling = true)]
-        public static extern uint JoyGetPosition(
+        [LibraryImport("winmm.dll", EntryPoint = "joyGetPosEx")]
+        public static partial uint JoyGetPosition(
             uint deviceId,
             ref JoystickPosition position);
     }

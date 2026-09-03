@@ -12,7 +12,7 @@ namespace SuperMetroid.Desktop;
 /// managed queue transfers pacing to one background worker so waveOut cannot block WinForms
 /// painting. Queue exhaustion and worker/device failure remain loud on the submitting thread.
 /// </remarks>
-internal sealed class WaveOutAudioDevice : IDisposable
+internal sealed partial class WaveOutAudioDevice : IDisposable
 {
     private const uint WaveMapper = uint.MaxValue;
     private const uint HeaderDone = 0x0000_0001;
@@ -37,8 +37,7 @@ internal sealed class WaveOutAudioDevice : IDisposable
         int samplesPerBuffer,
         int volumePercent = 100)
     {
-        if (sampleRate <= 0)
-            throw new ArgumentOutOfRangeException(nameof(sampleRate));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sampleRate);
         if (channelCount != 2)
             throw new ArgumentOutOfRangeException(nameof(channelCount), "The SNES mixer is stereo.");
         if (samplesPerBuffer <= 0 || samplesPerBuffer % channelCount != 0)
@@ -427,10 +426,10 @@ internal sealed class WaveOutAudioDevice : IDisposable
         public static readonly uint Size = unchecked((uint)Marshal.SizeOf<WaveHeader>());
     }
 
-    private static class NativeMethods
+    private static partial class NativeMethods
     {
-        [DllImport("winmm.dll", EntryPoint = "waveOutOpen")]
-        internal static extern uint Open(
+        [LibraryImport("winmm.dll", EntryPoint = "waveOutOpen")]
+        internal static partial uint Open(
             out nint device,
             uint deviceId,
             ref WaveFormat format,
@@ -438,19 +437,19 @@ internal sealed class WaveOutAudioDevice : IDisposable
             nint instance,
             uint flags);
 
-        [DllImport("winmm.dll", EntryPoint = "waveOutPrepareHeader")]
-        internal static extern uint PrepareHeader(nint device, nint header, uint headerSize);
+        [LibraryImport("winmm.dll", EntryPoint = "waveOutPrepareHeader")]
+        internal static partial uint PrepareHeader(nint device, nint header, uint headerSize);
 
-        [DllImport("winmm.dll", EntryPoint = "waveOutUnprepareHeader")]
-        internal static extern uint UnprepareHeader(nint device, nint header, uint headerSize);
+        [LibraryImport("winmm.dll", EntryPoint = "waveOutUnprepareHeader")]
+        internal static partial uint UnprepareHeader(nint device, nint header, uint headerSize);
 
-        [DllImport("winmm.dll", EntryPoint = "waveOutWrite")]
-        internal static extern uint Write(nint device, nint header, uint headerSize);
+        [LibraryImport("winmm.dll", EntryPoint = "waveOutWrite")]
+        internal static partial uint Write(nint device, nint header, uint headerSize);
 
-        [DllImport("winmm.dll", EntryPoint = "waveOutReset")]
-        internal static extern uint Reset(nint device);
+        [LibraryImport("winmm.dll", EntryPoint = "waveOutReset")]
+        internal static partial uint Reset(nint device);
 
-        [DllImport("winmm.dll", EntryPoint = "waveOutClose")]
-        internal static extern uint Close(nint device);
+        [LibraryImport("winmm.dll", EntryPoint = "waveOutClose")]
+        internal static partial uint Close(nint device);
     }
 }

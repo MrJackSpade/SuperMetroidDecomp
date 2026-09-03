@@ -134,7 +134,7 @@ internal static partial class BombTorizoAudit
     /// interrupt all participate.
     /// </summary>
     private static void DamageBombTorizoBelowGutThreshold(
-        ISnesAddressSpace bus,
+        SuperMetroidAddressSpace bus,
         LoadedBombTorizo loaded)
     {
         ushort vulnerability = loaded.Head.Definition.VulnerabilityPointer;

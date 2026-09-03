@@ -11,7 +11,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Last item-drop request published by Ridley's terminal routine.</summary>
     public bool RidleyDeathDropRequested { get; private set; }
 
-    private void StartNorfairRidleyDeathSequence(
+    private static void StartNorfairRidleyDeathSequence(
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
@@ -38,7 +38,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports $A6:C53E: select the death-roar list and arm its 32-frame move.</summary>
-    private void BeginNorfairRidleyDeathRoar(
+    private static void BeginNorfairRidleyDeathRoar(
         RoomEnemySlot body,
         RidleyEnemyState state)
     {

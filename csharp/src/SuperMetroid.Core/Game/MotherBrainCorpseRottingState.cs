@@ -107,7 +107,7 @@ public sealed class MotherBrainCorpseRottingState
     }
 
     /// <summary>Reads one native four-byte table entry for debugger and verification use.</summary>
-    public MotherBrainCorpseRotEntry ReadEntry(ISnesAddressSpace bus, int entryIndex)
+    public static MotherBrainCorpseRotEntry ReadEntry(ISnesAddressSpace bus, int entryIndex)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if ((uint)entryIndex >= EntryCount)

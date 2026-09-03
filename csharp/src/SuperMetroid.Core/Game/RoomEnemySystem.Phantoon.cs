@@ -266,7 +266,7 @@ public sealed partial class RoomEnemySystem
         body.VariableF = (ushort)PhantoonAiFunction.WaitForStartingFlamesToDisappear;
     }
 
-    private void RunPhantoonStartingFlameOrbitWait(
+    private static void RunPhantoonStartingFlameOrbitWait(
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {

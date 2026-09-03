@@ -740,7 +740,7 @@ public sealed partial class BabyMetroidCutsceneState
                     // Samus command `$19` freezes the drained animation at byte-index 28.
                     // `$CC8B` also installs the first rainbow handler; neither handler is
                     // executed until the Baby's following enemy-AI call.
-                    samus.Drained.FreezeForHyperBeamAcquisition(samus);
+                    SamusDrainedState.FreezeForHyperBeamAcquisition(samus);
                     samusAnimationFrozen = true;
                     SamusRainbowPhase = BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow;
                     Phase = BabyMetroidCutscenePhase.DeathSequence;

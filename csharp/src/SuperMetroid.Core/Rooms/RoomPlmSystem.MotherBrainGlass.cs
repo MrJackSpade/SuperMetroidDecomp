@@ -139,7 +139,7 @@ public sealed partial class RoomPlmSystem
         _motherBrainGlassRoomWidth = 0;
     }
 
-    private void RunMotherBrainGlassPreInstruction(PlmSlot slot)
+    private static void RunMotherBrainGlassPreInstruction(PlmSlot slot)
     {
         if (slot.HeaderPointer != MotherBrainGlassHeader || slot.PreInstruction == 0)
             return;

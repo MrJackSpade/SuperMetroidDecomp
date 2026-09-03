@@ -314,9 +314,9 @@ static void VerifySamusDrainedController()
     AssertEqual(DrainedGetUpHandler.UnableToStand, unable.Drained.GetUpHandler,
         "failed-stand handler remains installed");
 
-    // The two later cutscene commands are direct animation writes. They do not select a
-    // new pose or reinitialize a delay stream.
-    unable.Drained.FreezeForHyperBeamAcquisition(unable);
+        // The two later cutscene commands are direct animation writes. They do not select a
+        // new pose or reinitialize a delay stream.
+        SamusDrainedState.FreezeForHyperBeamAcquisition(unable);
     AssertEqual(28, unable.AnimationFrame, "command $19 freezes drained art at frame $1C");
     AssertEqual(1, unable.AnimationFrameTimer, "command $19 freeze timer");
     // Command `$16` starts negative-super-special palette zero with one-call cadence. After
@@ -663,7 +663,7 @@ static void VerifySamusGrabbedByDraygon()
     AssertEqual(0x01a8, samus.YPosition, "owner placement Y is body plus $28");
 
     samus.SolidVerticalCollisionResult = 5;
-    DraygonGrabbedMovementResult movement = samus.DraygonGrabbed.StepMovement(samus);
+    DraygonGrabbedMovementResult movement = SamusDraygonGrabbedState.StepMovement(samus);
     AssertEqual(5, movement.PreviousSolidVerticalCollisionResult,
         "type-$1A observes stale vertical collision word");
     AssertEqual(0, movement.SolidVerticalCollisionResult,

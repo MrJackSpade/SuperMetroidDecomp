@@ -107,7 +107,7 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>Consumes the native first-pass boss test for one treadmill PLM.</summary>
-    private bool TryStepWreckedShipTreadmill(
+    private static bool TryStepWreckedShipTreadmill(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         PlmSlot slot)

@@ -506,7 +506,7 @@ internal static class DoorSetupCallbackAudit
         }
     }
 
-    private static RoomScrollGrid CreateScratchScrollGrid(ISnesAddressSpace bus)
+    private static RoomScrollGrid CreateScratchScrollGrid(SuperMetroidAddressSpace bus)
     {
         for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
             bus.WriteByte(ScratchScrollSource + index, UnwrittenSentinel);
@@ -523,7 +523,7 @@ internal static class DoorSetupCallbackAudit
     /// a C# definition after the cartridge routine gained an unmodeled side effect.
     /// </summary>
     private static void ExecuteCartridgeScrollProgram(
-        ISnesAddressSpace bus,
+        SuperMetroidAddressSpace bus,
         ushort pointer,
         Span<byte> scrolls)
     {

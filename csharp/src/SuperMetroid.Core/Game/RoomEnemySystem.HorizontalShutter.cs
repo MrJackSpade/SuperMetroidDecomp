@@ -63,7 +63,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>HorizontalShutter_Main</c> at $A2:F1DE.</summary>
-    private void RunHorizontalShutterMain(
+    private static void RunHorizontalShutterMain(
         RoomEnemySlot slot,
         HorizontalShutterEnemyState state,
         SamusState? samus,

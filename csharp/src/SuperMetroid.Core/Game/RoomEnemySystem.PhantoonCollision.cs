@@ -232,7 +232,7 @@ public sealed partial class RoomEnemySystem
         tentacles.Parameter2 = 2;
     }
 
-    private void BeginPhantoonDeathSequence(
+    private static void BeginPhantoonDeathSequence(
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {

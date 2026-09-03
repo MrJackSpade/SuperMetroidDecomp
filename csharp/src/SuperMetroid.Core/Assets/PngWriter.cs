@@ -42,8 +42,7 @@ public static class PngWriter
     {
         if (pixels.Length != width * height)
             throw new ArgumentException("Pixel count does not match dimensions.", nameof(pixels));
-        if (scale < 1)
-            throw new ArgumentOutOfRangeException(nameof(scale));
+        ArgumentOutOfRangeException.ThrowIfLessThan(scale, 1);
 
         int outputWidth = width * scale;
         int outputHeight = height * scale;

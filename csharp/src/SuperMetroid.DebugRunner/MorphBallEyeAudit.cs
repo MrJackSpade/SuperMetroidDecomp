@@ -82,7 +82,7 @@ internal static class MorphBallEyeAudit
         return 0;
     }
 
-    private static void VerifyDefinition(ISnesAddressSpace bus)
+    private static void VerifyDefinition(SuperMetroidAddressSpace bus)
     {
         RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, Definition);
         if (definition.TileDataSize != 0x0400 || definition.PalettePointer != 0x8f8c ||

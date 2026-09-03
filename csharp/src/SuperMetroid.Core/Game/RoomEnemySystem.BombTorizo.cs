@@ -698,7 +698,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void BeginBombTorizoDeath(RoomEnemySlot torizo, TorizoEnemyState state)
+    private static void BeginBombTorizoDeath(RoomEnemySlot torizo, TorizoEnemyState state)
     {
         if (state.DeathStarted)
             return;

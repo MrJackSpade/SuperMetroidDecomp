@@ -84,7 +84,7 @@ internal static partial class GoldenTorizoAudit
     /// $86:8A24 at list $B2EF reads the literal $10/$10 bytes from the cartridge stream.
     /// </summary>
     private static void VerifyPhaseDefinition(
-        ISnesAddressSpace bus,
+        SuperMetroidAddressSpace bus,
         GoldenProjectilePhase phase,
         RoomEnemyProjectileSlot projectile,
         int frame)

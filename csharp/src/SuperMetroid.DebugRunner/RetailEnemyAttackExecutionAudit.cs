@@ -256,7 +256,7 @@ internal static partial class RetailEnemyExecutionAudit
     /// the typed bank-$86 definition—not a family range—so adding one translated projectile
     /// without adding evidence makes the exhaustive attack gate fail immediately.
     /// </summary>
-    private static readonly IReadOnlyDictionary<RoomEnemyProjectileKind, string>
+    private static readonly Dictionary<RoomEnemyProjectileKind, string>
         FocusedProjectileAuditByKind =
             new Dictionary<RoomEnemyProjectileKind, string>
             {

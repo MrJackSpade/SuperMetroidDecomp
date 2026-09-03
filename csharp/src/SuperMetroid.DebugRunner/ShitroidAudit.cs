@@ -718,7 +718,7 @@ internal static class ShitroidAudit
         RoomLevelData level,
         LoadedShitroidEncounter loaded,
         int frame,
-        ISet<ShitroidAiFunction> visited,
+        HashSet<ShitroidAiFunction> visited,
         ref bool sawCloseWall,
         ref bool sawOpenWall,
         ref bool sawEntranceMusic)

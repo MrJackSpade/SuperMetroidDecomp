@@ -78,7 +78,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// Ports <c>$A9:BBCF</c>: move down by <c>$00.40</c> below/equal to Y <c>$7C</c>, or
     /// up by <c>-$00.40</c> above it. Native does not snap to the target and can oscillate.
     /// </summary>
-    public MotherBrainForcedSamusMovementResult MoveTowardMiddleOfWall(SamusState samus)
+    public static MotherBrainForcedSamusMovementResult MoveTowardMiddleOfWall(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
 

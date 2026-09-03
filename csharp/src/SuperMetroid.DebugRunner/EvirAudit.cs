@@ -487,7 +487,7 @@ internal static class EvirAudit
     }
 
     private static void CollectMaps(
-        ISet<ushort> maps,
+        HashSet<ushort> maps,
         RoomEnemySlot body,
         RoomEnemySlot arms,
         RoomEnemySlot projectile)

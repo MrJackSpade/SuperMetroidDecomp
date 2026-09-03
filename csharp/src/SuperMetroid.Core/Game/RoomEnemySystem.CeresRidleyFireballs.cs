@@ -264,10 +264,8 @@ public sealed partial class RoomEnemySystem
     public void SpawnSaveStationElectricity(int plmBlockIndex, int roomWidthInBlocks)
     {
         EnsureLoaded();
-        if (roomWidthInBlocks <= 0)
-            throw new ArgumentOutOfRangeException(nameof(roomWidthInBlocks));
-        if (plmBlockIndex < 0)
-            throw new ArgumentOutOfRangeException(nameof(plmBlockIndex));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
+        ArgumentOutOfRangeException.ThrowIfNegative(plmBlockIndex);
 
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)

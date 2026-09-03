@@ -122,8 +122,7 @@ public sealed class ScrollingSkyState
     /// </summary>
     public ushort[] BuildGameplayHorizontalScrolls(ushort layer1YPosition, int lineCount = 192)
     {
-        if (lineCount <= 0)
-            throw new ArgumentOutOfRangeException(nameof(lineCount));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(lineCount);
         var result = new ushort[lineCount];
         if (!HdmaEnabled)
             return result;

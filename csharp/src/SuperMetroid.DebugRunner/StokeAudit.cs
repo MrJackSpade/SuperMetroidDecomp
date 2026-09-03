@@ -468,7 +468,7 @@ internal static class StokeAudit
     private static uint PackFixed(ushort position, ushort subposition) =>
         ((uint)position << 16) | subposition;
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
+    private static ushort ReadWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 
     private sealed record LoadedStoke(

@@ -253,8 +253,8 @@ internal sealed record AssetRecord(
 /// The managed entry point also catches exceptions; this is a second line of defense for
 /// native/runtime faults that occur outside ordinary C# exception handling.
 /// </summary>
-static class NativeConsoleProcess
+static partial class NativeConsoleProcess
 {
-    [DllImport("kernel32.dll")]
-    internal static extern uint SetErrorMode(uint errorMode);
+    [LibraryImport("kernel32.dll")]
+    internal static partial uint SetErrorMode(uint errorMode);
 }

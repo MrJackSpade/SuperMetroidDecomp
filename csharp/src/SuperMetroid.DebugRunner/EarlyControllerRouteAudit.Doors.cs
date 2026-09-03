@@ -435,7 +435,7 @@ internal static partial class EarlyControllerRouteAudit
         }
     }
 
-    private static string FormatWordRanges(IReadOnlyList<ushort> words)
+    private static string FormatWordRanges(List<ushort> words)
     {
         if (words.Count == 0)
             return "none";

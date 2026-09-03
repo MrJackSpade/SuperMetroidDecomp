@@ -205,7 +205,7 @@ public sealed partial class RoomEnemySystem
         _magdollitePaletteAnimationIndex = 0;
     }
 
-    private void InitializeMagdolliteHead(
+    private static void InitializeMagdolliteHead(
         RoomEnemySlot slot,
         MagdolliteEnemyState state,
         SamusState? samus)
@@ -228,7 +228,7 @@ public sealed partial class RoomEnemySystem
         state.Function = MagdolliteEnemyFunction.HeadWaiting;
     }
 
-    private void InitializeMagdolliteBody(
+    private static void InitializeMagdolliteBody(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
     {
@@ -243,7 +243,7 @@ public sealed partial class RoomEnemySystem
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
 
-    private void InitializeMagdolliteOverlay(
+    private static void InitializeMagdolliteOverlay(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
     {
@@ -353,7 +353,7 @@ public sealed partial class RoomEnemySystem
         state.Function = MagdolliteEnemyFunction.HeadWaitingForBodyLanding;
     }
 
-    private void RunMagdolliteHeadWaitingForBodyLanding(
+    private static void RunMagdolliteHeadWaitingForBodyLanding(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
         SamusState? samus)
@@ -370,7 +370,7 @@ public sealed partial class RoomEnemySystem
         state.Function = MagdolliteEnemyFunction.HeadWaitingForReturnAnimation;
     }
 
-    private void RunMagdolliteHeadWaitingForReturnAnimation(
+    private static void RunMagdolliteHeadWaitingForReturnAnimation(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
         SamusState? samus)
@@ -387,7 +387,7 @@ public sealed partial class RoomEnemySystem
         state.Function = MagdolliteEnemyFunction.HeadWaiting;
     }
 
-    private void RunMagdolliteBodyDormant(
+    private static void RunMagdolliteBodyDormant(
         RoomEnemySlot body,
         MagdolliteEnemyState state)
     {

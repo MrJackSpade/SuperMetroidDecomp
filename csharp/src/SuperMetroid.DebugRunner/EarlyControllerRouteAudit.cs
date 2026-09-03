@@ -3559,7 +3559,7 @@ internal static partial class EarlyControllerRouteAudit
         SamusState samus,
         int maximumRise = 112,
         bool preferSupportedApproach = false,
-        IReadOnlySet<(int X, int SurfaceY)>? rejectedTargets = null)
+        HashSet<(int X, int SurfaceY)>? rejectedTargets = null)
     {
         const int shaftLeftBlock = 0x12;
         const int shaftRightBlock = 0x1d;

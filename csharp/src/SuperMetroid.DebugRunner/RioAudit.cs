@@ -279,6 +279,6 @@ internal static class RioAudit
         }
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
+    private static ushort ReadWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }

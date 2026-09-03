@@ -8513,8 +8513,8 @@ enum TimerScenario
 /// Makes the command-line debugger genuinely non-interactive on Windows. The CLR retains
 /// its ordinary stderr stack trace and exit code; only OS-owned modal error boxes are barred.
 /// </summary>
-static class NativeConsoleProcess
+static partial class NativeConsoleProcess
 {
-    [DllImport("kernel32.dll")]
-    internal static extern uint SetErrorMode(uint errorMode);
+    [LibraryImport("kernel32.dll")]
+    internal static partial uint SetErrorMode(uint errorMode);
 }

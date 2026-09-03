@@ -319,7 +319,7 @@ public sealed partial class RoomEnemySystem
         projectile.YPosition = unchecked((ushort)(torizo.YPosition + 48));
     }
 
-    private void RunBombTorizoChozoOrbPreInstruction(
+    private static void RunBombTorizoChozoOrbPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -347,7 +347,7 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
     }
 
-    private void RunBombTorizoSonicBoomPreInstruction(
+    private static void RunBombTorizoSonicBoomPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -372,7 +372,7 @@ public sealed partial class RoomEnemySystem
     /// low-health initial drool. The peculiar positive-three clamp is authentic: both the
     /// negative and nonnegative drag branches load <c>$0003</c> when they cross zero.
     /// </summary>
-    private void RunBombTorizoDroolPreInstruction(
+    private static void RunBombTorizoDroolPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -409,7 +409,7 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
     }
 
-    private void RunGoldenTorizoChozoOrbPreInstruction(
+    private static void RunGoldenTorizoChozoOrbPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -438,7 +438,7 @@ public sealed partial class RoomEnemySystem
         projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 24));
     }
 
-    private void RunGoldenTorizoEggPreInstruction(
+    private static void RunGoldenTorizoEggPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -472,7 +472,7 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
     }
 
-    private void RunGoldenTorizoEggHorizontalCharge(
+    private static void RunGoldenTorizoEggHorizontalCharge(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -487,7 +487,7 @@ public sealed partial class RoomEnemySystem
             ((projectile.Variable0 & 0x8000) != 0 ? 48 : -48)));
     }
 
-    private void RunGoldenTorizoEggFall(
+    private static void RunGoldenTorizoEggFall(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -518,7 +518,7 @@ public sealed partial class RoomEnemySystem
         projectile.YPosition = unchecked((ushort)(torizo.YPosition - 52));
     }
 
-    private void RunGoldenTorizoSuperMissileFlight(
+    private static void RunGoldenTorizoSuperMissileFlight(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -562,7 +562,7 @@ public sealed partial class RoomEnemySystem
             0xa0b443 + ((angle & 0xff) * 2)))));
     }
 
-    private void RunGoldenTorizoEyeBeamPreInstruction(
+    private static void RunGoldenTorizoEyeBeamPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {

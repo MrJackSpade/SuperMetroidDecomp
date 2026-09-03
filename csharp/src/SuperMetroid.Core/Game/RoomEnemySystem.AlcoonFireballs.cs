@@ -54,7 +54,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports Alcoon fireball pre-instruction <c>$86:9EFF-$9F40</c>.</summary>
-    private void RunAlcoonFireballPreInstruction(
+    private static void RunAlcoonFireballPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {

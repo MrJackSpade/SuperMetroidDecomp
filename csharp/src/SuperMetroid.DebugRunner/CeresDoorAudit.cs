@@ -363,7 +363,7 @@ internal static class CeresDoorAudit
         return new LoadedCeresRoom(enemies, assets, randomSeed);
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
+    private static ushort ReadWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 
     private sealed class MutableWord(ushort value)

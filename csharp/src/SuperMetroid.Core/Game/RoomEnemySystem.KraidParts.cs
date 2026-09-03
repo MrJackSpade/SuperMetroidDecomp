@@ -98,7 +98,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void FireKraidLint(RoomEnemySlot lint, KraidPartState part)
+    private static void FireKraidLint(RoomEnemySlot lint, KraidPartState part)
     {
         AddSignedKraidHorizontalDisplacement(lint, -0x00038000);
         if (unchecked((short)(lint.XPosition - 56)) < 0)

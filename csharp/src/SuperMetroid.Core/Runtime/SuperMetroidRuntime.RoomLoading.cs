@@ -823,7 +823,7 @@ public sealed partial class SuperMetroidRuntime
         // appears as a small patch of unrelated pixels—the desktop corruption that made
         // Shoot look unwired. The starting-room call has no Samus yet and therefore selects
         // power beam zero; door calls preserve the live equipment combination.
-        Projectiles.QueueBeamTilesAndLoadPalette(
+        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
             _addressSpace,
             VramWrites,
             Cgram,
@@ -1168,7 +1168,7 @@ public sealed partial class SuperMetroidRuntime
             XPosition = ActiveLoadStation.SamusX,
             YPosition = 0,
         };
-        Samus.LoadPowerSuitPalette(_addressSpace, Cgram);
+        SamusState.LoadPowerSuitPalette(_addressSpace, Cgram);
 
         // Fresh-game loading has one deliberately non-general palette write after copying
         // every target color into the live palette: `$82:8190` clears color $DF (CGRAM

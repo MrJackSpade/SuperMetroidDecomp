@@ -330,7 +330,7 @@ public sealed partial class RoomEnemySystem
         state.Function = NorfairRioEnemyFunction.ReturnToPerch;
     }
 
-    private void MoveNorfairRioHorizontally(
+    private static void MoveNorfairRioHorizontally(
         RoomLevelData level,
         RoomEnemySlot slot,
         NorfairRioEnemyState state)

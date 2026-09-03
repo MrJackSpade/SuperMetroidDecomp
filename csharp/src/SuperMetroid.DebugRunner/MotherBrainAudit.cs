@@ -75,9 +75,9 @@ internal static class MotherBrainAudit
                 $"slots=${body.EnemyDefinitionPointer:X4}/${head.EnemyDefinitionPointer:X4}.");
         }
 
-        MotherBrainCorpseRotEntry firstRotEntry = state.CorpseRotting.ReadEntry(bus, 0);
+        MotherBrainCorpseRotEntry firstRotEntry = MotherBrainCorpseRottingState.ReadEntry(bus, 0);
         MotherBrainCorpseRotEntry lastRotEntry =
-            state.CorpseRotting.ReadEntry(bus, MotherBrainCorpseRottingState.EntryCount - 1);
+            MotherBrainCorpseRottingState.ReadEntry(bus, MotherBrainCorpseRottingState.EntryCount - 1);
         bool turretParametersMatch = state.InitialTurretParameters.Count == 12;
         for (int index = 0; index < state.InitialTurretParameters.Count; index++)
             turretParametersMatch &= state.InitialTurretParameters[index] == index;
@@ -2971,7 +2971,7 @@ internal static class MotherBrainAudit
     }
 
     private static void AuditRestoredMotherBrainAttackTiles(
-        ISnesAddressSpace bus,
+        SuperMetroidAddressSpace bus,
         SnesVram vram)
     {
         ReadOnlySpan<int> sources = [0xb7a000, 0xb7a200, 0xb7a400, 0xb7a600];

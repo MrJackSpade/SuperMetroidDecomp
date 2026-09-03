@@ -71,7 +71,7 @@ public sealed partial class RoomPlmSystem
                 level.SetForegroundEntry(
                     slot.BlockIndex,
                     (ushort)((triggerWord & 0x0fff) | 0x3000));
-                level.SetBehavior(slot.BlockIndex, 0x46);
+                level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
                 return true;
             }
 
@@ -116,7 +116,7 @@ public sealed partial class RoomPlmSystem
         level.SetForegroundEntry(
             slot.BlockIndex,
             unchecked((ushort)((triggerWord & 0x0fff) | 0x3000)));
-        level.SetBehavior(slot.BlockIndex, 0x46);
+        level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
     }
 
     private sealed class ScrollPlmState

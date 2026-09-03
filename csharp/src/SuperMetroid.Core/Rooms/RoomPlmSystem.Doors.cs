@@ -19,11 +19,6 @@ public sealed partial class RoomPlmSystem
     private const ushort RedDoorFacingUpHeader = 0xc896;
     private const ushort RedDoorFacingDownHeader = 0xc89c;
 
-    private const byte BlueDoorFacingLeftBts = 0x40;
-    private const byte BlueDoorFacingRightBts = 0x41;
-    private const byte BlueDoorFacingUpBts = 0x42;
-    private const byte BlueDoorFacingDownBts = 0x43;
-
     private Bank80SystemState? _coloredDoorSystem;
 
     /// <summary>Every resident colored-door actor in the shared native PLM pool.</summary>
@@ -72,7 +67,7 @@ public sealed partial class RoomPlmSystem
         // collision, and selects BTS $44 so subsequent projectiles find this resident PLM.
         ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
         level.SetForegroundEntry(blockIndex, unchecked((ushort)((originalWord & 0x0fff) | 0xc000)));
-        level.SetBehavior(blockIndex, 0x44);
+        level.SetBehavior(blockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
     }
 
     /// <summary>
@@ -128,7 +123,8 @@ public sealed partial class RoomPlmSystem
             // The initial Goto_if_room_argument_door_is_set branch selects a short list:
             // PLM_BTS_Y, one timed closed-blue draw, then delete. Execute its observable
             // setup/draw atomically here while retaining the cartridge pointers and art.
-            byte blueBts = unchecked((byte)(BlueDoorFacingLeftBts + (byte)door.Orientation));
+            byte blueBts = unchecked((byte)(
+                RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (byte)door.Orientation));
             ushort drawPointer = ReadBank84Word(
                 bus,
                 unchecked((ushort)(door.ClosedBlueList + 5)));
@@ -274,11 +270,11 @@ public sealed partial class RoomPlmSystem
     public bool TrySpawnBlueDoorOpening(
         RoomLevelData level,
         int blockIndex,
-        byte behavior,
+        RoomBlockBehavior behavior,
         ushort projectileType)
     {
         ArgumentNullException.ThrowIfNull(level);
-        if (behavior is < BlueDoorFacingLeftBts or > BlueDoorFacingDownBts)
+        if (!behavior.TryGetBlueDoorOrientation(out ColoredDoorOrientation orientation))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(behavior),
@@ -291,17 +287,17 @@ public sealed partial class RoomPlmSystem
         if ((projectileType & 0x0f00) == 0x0300)
             return false;
 
-        ushort instructionPointer = behavior switch
+        ushort instructionPointer = orientation switch
         {
-            BlueDoorFacingLeftBts => 0xc489,
-            BlueDoorFacingRightBts => 0xc4ba,
-            BlueDoorFacingUpBts => 0xc4eb,
-            BlueDoorFacingDownBts => 0xc51c,
+            ColoredDoorOrientation.Left => 0xc489,
+            ColoredDoorOrientation.Right => 0xc4ba,
+            ColoredDoorOrientation.Up => 0xc4eb,
+            ColoredDoorOrientation.Down => 0xc51c,
             _ => throw new InvalidOperationException(
                 "Validated blue-door BTS escaped its four-way instruction table."),
         };
         ushort headerPointer = unchecked((ushort)(0xc8a2 +
-            ((behavior - BlueDoorFacingLeftBts) * 6)));
+            ((behavior.Value - RoomBlockBehaviorValues.BlueDoorFacingLeft.Value) * 6)));
 
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
         {

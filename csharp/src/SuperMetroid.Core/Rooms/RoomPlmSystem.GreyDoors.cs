@@ -70,7 +70,8 @@ public sealed partial class RoomPlmSystem
         {
             // Goto_if_room_argument_door_is_set selects the ordinary closed-blue list.
             // Its PLM_BTS_Y opcode and single draw are observable immediately on reload.
-            byte blueBts = unchecked((byte)(BlueDoorFacingLeftBts + (byte)door.Orientation));
+            byte blueBts = unchecked((byte)(
+                RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (byte)door.Orientation));
             ushort drawPointer = ReadBank84Word(
                 bus,
                 unchecked((ushort)(door.ClosedBlueList + 5)));
@@ -195,7 +196,7 @@ public sealed partial class RoomPlmSystem
         // Preserve the authored visual payload while replacing only type and BTS.
         ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
         level.SetForegroundEntry(blockIndex, unchecked((ushort)((originalWord & 0x0fff) | 0xc000)));
-        level.SetBehavior(blockIndex, 0x44);
+        level.SetBehavior(blockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
     }
 
     /// <summary>Runs Setup_GreyDoor on a slot allocated in native record order.</summary>

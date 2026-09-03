@@ -80,7 +80,7 @@ public sealed partial class RoomPlmSystem
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         ushort glassLevelWord = unchecked((ushort)((original.LevelWord & 0x0fff) | 0x8000));
         level.SetForegroundEntry(slot.BlockIndex, glassLevelWord);
-        level.SetBehavior(slot.BlockIndex, 0x44);
+        level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
         streamer.SetLevelEntry(slot.BlockIndex, glassLevelWord);
 
         _motherBrainGlassSlotIndex = physicalSlot;

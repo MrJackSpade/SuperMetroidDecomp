@@ -36,15 +36,27 @@ public static class SamusSlopePhysics
         byte behavior,
         int displacement,
         uint verticalSpeed)
+        => ScaleGroundedHorizontalDisplacement(
+            bus,
+            new RoomBlockBehavior(behavior),
+            displacement,
+            verticalSpeed);
+
+    /// <summary>Typed BTS overload used by live room collision.</summary>
+    public static int ScaleGroundedHorizontalDisplacement(
+        ISnesAddressSpace bus,
+        RoomBlockBehavior bts,
+        int displacement,
+        uint verticalSpeed)
     {
         ArgumentNullException.ThrowIfNull(bus);
 
         // Ceiling slopes and airborne Samus leave the incoming amount untouched. This is
         // the routine's complete early-return condition, not a host-side policy choice.
-        if ((behavior & 0x80) != 0 || verticalSpeed != 0)
+        if (bts.SlopeFlipsVertically || verticalSpeed != 0)
             return displacement;
 
-        int shape = behavior & 0x1f;
+        int shape = bts.SlopeShape;
 
         // Each shape owns two words. $94:84D6 chooses the second word at index
         // 2*shape+1. For Landing Site BTS $12 that word is $00C0 (three quarters).
@@ -75,15 +87,22 @@ public static class SamusSlopePhysics
         ISnesAddressSpace bus,
         byte behavior,
         ushort xPosition)
+        => ReadAlignmentHeight(bus, new RoomBlockBehavior(behavior), xPosition);
+
+    /// <summary>Typed BTS overload used by live room collision.</summary>
+    public static byte ReadAlignmentHeight(
+        ISnesAddressSpace bus,
+        RoomBlockBehavior bts,
+        ushort xPosition)
     {
         ArgumentNullException.ThrowIfNull(bus);
 
         // BTS bit $40 mirrors the profile horizontally. XORing the complete coordinate by
         // $000F is equivalent to flipping its low nibble while retaining native word math.
-        ushort sampledX = (behavior & 0x40) != 0
+        ushort sampledX = bts.SlopeFlipsHorizontally
             ? unchecked((ushort)(xPosition ^ 0x000f))
             : xPosition;
-        int tableIndex = 16 * (behavior & 0x1f) + (sampledX & 0x0f);
+        int tableIndex = 16 * bts.SlopeShape + (sampledX & 0x0f);
         return unchecked((byte)(bus.ReadByte(AlignmentHeightTableAddress + tableIndex) & 0x1f));
     }
 
@@ -119,12 +138,12 @@ public static class SamusSlopePhysics
         ushort bottomPosition = unchecked((ushort)(yPosition + yRadius - 1));
         if (TryGetBlockAtPixel(level, xPosition, bottomPosition, out RoomCollisionBlock bottom) &&
             bottom.CollisionType == RoomCollisionType.Slope &&
-            (bottom.Behavior & 0x1f) >= 5)
+            bottom.Bts.IsNonSquareSlope)
         {
             floorBlock = bottom;
-            if ((bottom.Behavior & 0x80) == 0)
+            if (!bottom.Bts.SlopeFlipsVertically)
             {
-                int height = ReadAlignmentHeight(bus, bottom.Behavior, xPosition);
+                int height = ReadAlignmentHeight(bus, bottom.Bts, xPosition);
                 int bottomNibble = bottomPosition & 0x0f;
                 short correction = unchecked((short)(height - bottomNibble - 1));
                 if (correction < 0)
@@ -140,12 +159,12 @@ public static class SamusSlopePhysics
         ushort topPosition = unchecked((ushort)(yPosition - yRadius));
         if (TryGetBlockAtPixel(level, xPosition, topPosition, out RoomCollisionBlock top) &&
             top.CollisionType == RoomCollisionType.Slope &&
-            (top.Behavior & 0x1f) >= 5)
+            top.Bts.IsNonSquareSlope)
         {
             ceilingBlock = top;
-            if ((top.Behavior & 0x80) != 0)
+            if (top.Bts.SlopeFlipsVertically)
             {
-                int height = ReadAlignmentHeight(bus, top.Behavior, xPosition);
+                int height = ReadAlignmentHeight(bus, top.Bts, xPosition);
                 int invertedTopNibble = (topPosition & 0x0f) ^ 0x0f;
                 short correction = unchecked((short)(height - invertedTopNibble - 1));
                 if (correction <= 0)

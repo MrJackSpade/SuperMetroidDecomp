@@ -167,7 +167,7 @@ public sealed partial class RoomPlmSystem
         if (presentation == CollectiblePresentation.ShotBlock)
             setupWord |= 0xc000;
         level.SetForegroundEntry(slot.BlockIndex, setupWord);
-        level.SetBehavior(slot.BlockIndex, 0x45);
+        level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.CollectibleTrigger);
         streamer.SetLevelEntry(slot.BlockIndex, setupWord);
         slot.RestoreLevelWord = setupWord;
 

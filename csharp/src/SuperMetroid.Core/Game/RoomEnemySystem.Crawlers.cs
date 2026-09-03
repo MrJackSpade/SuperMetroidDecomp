@@ -522,7 +522,7 @@ public sealed partial class RoomEnemySystem
             (uint)blockY < (uint)level.HeightInBlocks)
         {
             RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
-            int slopeShape = block.Behavior & 0x1f;
+            int slopeShape = block.Bts.SlopeShape;
             if (block.CollisionType == RoomCollisionType.Slope && slopeShape >= 5)
             {
                 ushort multiplier = ReadWord(

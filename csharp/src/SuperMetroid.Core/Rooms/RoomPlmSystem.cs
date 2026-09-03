@@ -449,10 +449,20 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         int blockIndex,
         byte behavior)
+        => TrySpawnBreakableGrappleBlock(
+            level,
+            blockIndex,
+            new RoomBlockBehavior(behavior));
+
+    /// <summary>Typed BTS overload used by grapple collision dispatch.</summary>
+    public bool TrySpawnBreakableGrappleBlock(
+        RoomLevelData level,
+        int blockIndex,
+        RoomBlockBehavior bts)
     {
         ArgumentNullException.ThrowIfNull(level);
-        if (behavior is not (1 or 2))
-            throw new ArgumentOutOfRangeException(nameof(behavior), "Breakable grapple BTS must be one or two.");
+        if (!bts.IsBreakableGrappleReaction)
+            throw new ArgumentOutOfRangeException(nameof(bts), "Breakable grapple BTS must be one or two.");
 
         // Spawn_PLM at $84:84E7 probes $4E,$4C,...,$00. Matching it matters if multiple
         // PLMs mutate the same room on one frame because the handler uses the same order.
@@ -467,7 +477,7 @@ public sealed partial class RoomPlmSystem
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = block.LevelWord;
-            slot.InstructionPointer = behavior == 1
+            slot.InstructionPointer = bts.GrappleReactionIndex == 1
                 ? RespawningInstructionList
                 : NonRespawningInstructionList;
             slot.InstructionTimer = 1;
@@ -475,7 +485,7 @@ public sealed partial class RoomPlmSystem
             // Setup_CFB5 saves the complete original level word but clears only the low BTS
             // byte. It deliberately leaves collision type E intact until the first PLM pass
             // later in this same gameplay frame draws $E0B7.
-            level.SetBehavior(blockIndex, 0);
+            level.SetBehavior(blockIndex, RoomBlockBehaviorValues.None);
             return true;
         }
 
@@ -501,12 +511,19 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         int blockIndex,
         byte behavior)
+        => TrySpawnCollisionBombBlock(level, blockIndex, new RoomBlockBehavior(behavior));
+
+    /// <summary>Typed BTS overload used by Samus collision dispatch.</summary>
+    public bool TrySpawnCollisionBombBlock(
+        RoomLevelData level,
+        int blockIndex,
+        RoomBlockBehavior bts)
     {
         ArgumentNullException.ThrowIfNull(level);
-        if (behavior > 7)
+        if (!bts.IsNormalReactionIndex(8))
         {
             throw new ArgumentOutOfRangeException(
-                nameof(behavior),
+                nameof(bts),
                 "Collision bomb-block BTS must be in the native table range zero through seven.");
         }
 
@@ -528,7 +545,7 @@ public sealed partial class RoomPlmSystem
             // low twelve bits with visual block `$058`; multi-block restoration lists then
             // add type-$5/$D extension words around this type-$F parent.
             slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0058));
-            slot.InstructionPointer = CollisionBombInstructionLists[behavior];
+            slot.InstructionPointer = CollisionBombInstructionLists[bts.NormalReactionIndex];
             slot.InstructionTimer = 1;
             level.ClearCollisionType(blockIndex);
             return true;
@@ -561,12 +578,24 @@ public sealed partial class RoomPlmSystem
         int blockIndex,
         byte behavior,
         ushort projectileType)
+        => TrySpawnBombReactionBlock(
+            level,
+            blockIndex,
+            new RoomBlockBehavior(behavior),
+            projectileType);
+
+    /// <summary>Typed BTS overload used by bomb collision dispatch.</summary>
+    public bool TrySpawnBombReactionBlock(
+        RoomLevelData level,
+        int blockIndex,
+        RoomBlockBehavior bts,
+        ushort projectileType)
     {
         ArgumentNullException.ThrowIfNull(level);
-        if (behavior > 15)
+        if (!bts.IsNormalReactionIndex(16))
         {
             throw new ArgumentOutOfRangeException(
-                nameof(behavior),
+                nameof(bts),
                 "Bomb-reaction BTS must be in the native table range zero through fifteen.");
         }
 
@@ -592,7 +621,7 @@ public sealed partial class RoomPlmSystem
             slot.BlockIndex = blockIndex;
             slot.InstructionTimer = 1;
 
-            if (behavior >= 8)
+            if (!bts.IsNormalReactionIndex(8))
             {
                 // Table entries 8..15 are all `$84:B62F`, whose setup is a bare RTS and
                 // whose instruction list is the one-word delete stream at `$84:AAE3`.
@@ -605,7 +634,7 @@ public sealed partial class RoomPlmSystem
             // visible tile number. Dimension-specific final draw lists reconstruct linked
             // extension words; the 1x1 respawn tail uses this exact PLM_Vars value.
             slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0058));
-            ushort instructionPointer = ReactionBombInstructionLists[behavior];
+            ushort instructionPointer = ReactionBombInstructionLists[bts.NormalReactionIndex];
 
             // `$84:CF0C-$CF13` adds three only for normal bombs. The skipped bytes are
             // `{Instruction_PLM_QueueSound_Y_Lib2_Max3, $0A}` in the odd-byte operand form.
@@ -640,19 +669,31 @@ public sealed partial class RoomPlmSystem
         int blockIndex,
         byte behavior,
         ushort projectileType)
+        => TrySpawnBombedShootableBlock(
+            level,
+            blockIndex,
+            new RoomBlockBehavior(behavior),
+            projectileType);
+
+    /// <summary>Typed BTS overload used by bomb collision dispatch.</summary>
+    public bool TrySpawnBombedShootableBlock(
+        RoomLevelData level,
+        int blockIndex,
+        RoomBlockBehavior bts,
+        ushort projectileType)
     {
         ArgumentNullException.ThrowIfNull(level);
-        bool areaDependent = (behavior & 0x80) != 0;
-        if (areaDependent && (behavior & 0x7f) > 7)
+        bool areaDependent = bts.UsesAreaReactionTable;
+        if (areaDependent && !bts.IsAreaReactionIndex(8))
         {
             throw new ArgumentOutOfRangeException(
-                nameof(behavior),
+                nameof(bts),
                 "Area-dependent shootable BTS must address one of its eight native entries.");
         }
-        if (!areaDependent && behavior > 15)
+        if (!areaDependent && !bts.IsNormalReactionIndex(16))
         {
             throw new ArgumentOutOfRangeException(
-                nameof(behavior),
+                nameof(bts),
                 "Translated normal-bomb shootable BTS must be in range zero through fifteen.");
         }
         if ((projectileType & 0x0f00) != 0x0500)
@@ -685,32 +726,34 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            if (behavior < 4)
+            if (bts.IsRespawningReaction)
             {
                 // CE6B throws away the original visual/BTS low twelve bits. The generated
                 // `$x052` word is both PLM_Vars and the source of the temporary collision
                 // word, exactly like the retail setup's two consecutive stores.
                 slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
-                slot.InstructionPointer = RespawningShotInstructionLists[behavior];
+                slot.InstructionPointer =
+                    RespawningShotInstructionLists[bts.NormalReactionIndex];
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
                 return true;
             }
 
-            if (behavior < 8)
+            if (bts.IsPermanentReaction)
             {
                 // Setup_DeactivatePLM does not synthesize a restore word. Clearing bits
                 // `$7000` turns type-$4 air into ordinary air and type-$C solid into type-$8
                 // solid until the same-frame list draws its first breaking frame.
-                slot.InstructionPointer = PermanentShotInstructionLists[behavior - 4];
+                slot.InstructionPointer =
+                    PermanentShotInstructionLists[bts.NormalReactionIndex - 4];
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(block.LevelWord & 0x8fff)));
                 return true;
             }
 
-            if (behavior is 8 or 9)
+            if (bts.RequiresPowerBombReaction)
             {
                 // CF2E sees projectile family `$0500` and replaces the entry's normal
                 // power-bomb animation pointer with the one-frame visible `$C057` reveal.
@@ -718,7 +761,7 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            if (behavior is 10 or 11)
+            if (bts.RequiresSuperMissileReaction)
             {
                 // CF67 performs the analogous redirect to visible super-missile word
                 // `$C09F`; it neither clears collision nor queues the shot-block sound.
@@ -756,19 +799,33 @@ public sealed partial class RoomPlmSystem
         byte behavior,
         ushort projectileType,
         bool solidBlock)
+        => TrySpawnProjectileShotBlock(
+            level,
+            blockIndex,
+            new RoomBlockBehavior(behavior),
+            projectileType,
+            solidBlock);
+
+    /// <summary>Typed BTS overload used by projectile and grapple collision dispatch.</summary>
+    public bool TrySpawnProjectileShotBlock(
+        RoomLevelData level,
+        int blockIndex,
+        RoomBlockBehavior bts,
+        ushort projectileType,
+        bool solidBlock)
     {
         ArgumentNullException.ThrowIfNull(level);
-        bool areaDependent = (behavior & 0x80) != 0;
-        if (areaDependent && (behavior & 0x7f) > 7)
+        bool areaDependent = bts.UsesAreaReactionTable;
+        if (areaDependent && !bts.IsAreaReactionIndex(8))
         {
             throw new ArgumentOutOfRangeException(
-                nameof(behavior),
+                nameof(bts),
                 "Area-dependent shootable BTS must address one of its eight native entries.");
         }
-        if (!areaDependent && behavior > 15)
+        if (!areaDependent && !bts.IsNormalReactionIndex(16))
         {
             throw new ArgumentOutOfRangeException(
-                nameof(behavior),
+                nameof(bts),
                 "Area-independent shootable BTS must be zero through fifteen.");
         }
 
@@ -784,9 +841,9 @@ public sealed partial class RoomPlmSystem
         // wrong. Observably that is identical to returning with no active slot: setup never
         // changes the live word, and the next handler has nothing to process. Perform this
         // gate before the host allocation loop while preserving every accepted native path.
-        if (behavior is 8 or 9 && projectileFamily is not (0x0300 or 0x0500))
+        if (bts.RequiresPowerBombReaction && projectileFamily is not (0x0300 or 0x0500))
             return false;
-        if (behavior is 10 or 11 && projectileFamily is not (0x0200 or 0x0500))
+        if (bts.RequiresSuperMissileReaction && projectileFamily is not (0x0200 or 0x0500))
             return false;
 
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
@@ -810,31 +867,33 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            if (behavior < 4)
+            if (bts.IsRespawningReaction)
             {
                 // `$84:CE6B` synthesizes `$x052`, stores it for the 384-frame restoration,
                 // and clears type bits `$4000/$2000/$1000` through `AND $8FFF` immediately.
                 slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
-                slot.InstructionPointer = RespawningShotInstructionLists[behavior];
+                slot.InstructionPointer =
+                    RespawningShotInstructionLists[bts.NormalReactionIndex];
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
                 return true;
             }
 
-            if (behavior < 8)
+            if (bts.IsPermanentReaction)
             {
                 // `$84:B3C1` keeps no restoration word: BTS four through seven are
                 // permanent. The current word loses the shootable collision bits before
                 // the first animated breaking frame runs later in this gameplay pass.
-                slot.InstructionPointer = PermanentShotInstructionLists[behavior - 4];
+                slot.InstructionPointer =
+                    PermanentShotInstructionLists[bts.NormalReactionIndex - 4];
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(block.LevelWord & 0x8fff)));
                 return true;
             }
 
-            if (behavior is 8 or 9)
+            if (bts.RequiresPowerBombReaction)
             {
                 if (projectileFamily == 0x0500)
                 {
@@ -848,14 +907,16 @@ public sealed partial class RoomPlmSystem
                 // exact list selected by header `$D084/$D088`. BTS eight uses the ordinary
                 // four-frame breakup; BTS nine uses its shorter 3/2/1-frame counterpart.
                 slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0057));
-                slot.InstructionPointer = behavior == 8 ? (ushort)0xcb94 : (ushort)0xcc20;
+                slot.InstructionPointer = bts.NormalReactionIndex == 8
+                    ? (ushort)0xcb94
+                    : (ushort)0xcc20;
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
                 return true;
             }
 
-            if (behavior is 10 or 11)
+            if (bts.RequiresSuperMissileReaction)
             {
                 if (projectileFamily == 0x0500)
                 {
@@ -868,7 +929,9 @@ public sealed partial class RoomPlmSystem
                 // Super Missiles synthesize `$x09F`. Header `$D08C` owns the respawning
                 // `$CB71` list and `$D090` owns the permanent `$CC0B` list.
                 slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x009f));
-                slot.InstructionPointer = behavior == 10 ? (ushort)0xcb71 : (ushort)0xcc0b;
+                slot.InstructionPointer = bts.NormalReactionIndex == 10
+                    ? (ushort)0xcb71
+                    : (ushort)0xcc0b;
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
@@ -903,6 +966,20 @@ public sealed partial class RoomPlmSystem
         byte behavior,
         byte areaIndex,
         ushort projectileType)
+        => TrySpawnBombedSpecialBlock(
+            level,
+            blockIndex,
+            new RoomBlockBehavior(behavior),
+            areaIndex,
+            projectileType);
+
+    /// <summary>Typed BTS overload used by bomb collision dispatch.</summary>
+    public bool TrySpawnBombedSpecialBlock(
+        RoomLevelData level,
+        int blockIndex,
+        RoomBlockBehavior bts,
+        byte areaIndex,
+        ushort projectileType)
     {
         ArgumentNullException.ThrowIfNull(level);
         if (areaIndex > 7)
@@ -915,29 +992,29 @@ public sealed partial class RoomPlmSystem
         }
 
         ushort instructionPointer;
-        if ((behavior & 0x80) == 0)
+        if (!bts.UsesAreaReactionTable)
         {
-            if (behavior > 15)
+            if (!bts.IsNormalReactionIndex(16))
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(behavior),
+                    nameof(bts),
                     "Area-independent special-block BTS must be zero through fifteen.");
             }
 
-            instructionPointer = behavior switch
+            instructionPointer = bts.NormalReactionIndex switch
             {
-                <= 7 => CrumbleRevealInstructionLists[behavior & 3],
+                <= 7 => CrumbleRevealInstructionLists[bts.ReactionSizeIndex],
                 >= 14 => 0xc928,
                 _ => DeleteInstructionList,
             };
         }
         else
         {
-            int areaBehavior = behavior & 0x7f;
-            if (areaBehavior > 7)
+            int areaBehavior = bts.AreaReactionIndex;
+            if (!bts.IsAreaReactionIndex(8))
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(behavior),
+                    nameof(bts),
                     "Area-dependent bomb-special BTS must address one of its eight native entries.");
             }
 

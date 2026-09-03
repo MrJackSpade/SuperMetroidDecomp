@@ -1116,7 +1116,7 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(RoomCollisionType.HorizontalExtension,
         reactionExplosion.BlockReactions![0].CollisionType,
         "bomb cross records the visited horizontal extension");
-    AssertEqual(0xff, reactionExplosion.BlockReactions[0].Behavior,
+    AssertEqual(new RoomBlockBehavior(0xff), reactionExplosion.BlockReactions[0].Behavior,
         "bomb cross preserves the extension's signed redirect BTS");
     AssertEqual(RoomCollisionType.SolidBlock, reactionExplosion.BlockReactions[3].CollisionType,
         "later left-arm reaction observes the synchronously mutated parent");

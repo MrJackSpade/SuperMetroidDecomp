@@ -184,7 +184,13 @@ public sealed partial class RoomPlmSystem
         ushort original = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
         if (kind == StationKind.Save)
         {
-            WriteStationBlock(level, streamer, slot.BlockIndex, original, 11, 0x4d);
+            WriteStationBlock(
+                level,
+                streamer,
+                slot.BlockIndex,
+                original,
+                11,
+                new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor));
             slot.Station = new StationPlmState(
                 kind,
                 areaIndex,
@@ -195,11 +201,15 @@ public sealed partial class RoomPlmSystem
         }
 
         WriteStationBlock(level, streamer, slot.BlockIndex, original, 8, behavior: null);
-        (int rightOffset, int leftOffset, byte rightBts, byte leftBts) = kind switch
+        (int rightOffset, int leftOffset, StationAccessBehavior rightBts,
+            StationAccessBehavior leftBts) = kind switch
         {
-            StationKind.Map => (1, -2, (byte)0x47, (byte)0x48),
-            StationKind.Energy => (1, -1, (byte)0x49, (byte)0x4a),
-            StationKind.Missile => (1, -1, (byte)0x4b, (byte)0x4c),
+            StationKind.Map => (1, -2, StationAccessBehavior.MapRight,
+                StationAccessBehavior.MapLeft),
+            StationKind.Energy => (1, -1, StationAccessBehavior.EnergyRight,
+                StationAccessBehavior.EnergyLeft),
+            StationKind.Missile => (1, -1, StationAccessBehavior.MissileRight,
+                StationAccessBehavior.MissileLeft),
             _ => throw new InvalidOperationException("Save stations use their trigger setup."),
         };
         WriteAccessBlock(level, streamer, slot.BlockIndex + rightOffset, rightBts);
@@ -229,7 +239,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         int blockIndex,
-        byte behavior)
+        StationAccessBehavior behavior)
     {
         if ((uint)blockIndex >= (uint)level.ForegroundEntries.Length)
         {
@@ -237,7 +247,13 @@ public sealed partial class RoomPlmSystem
                 $"Station access setup targets out-of-room block index {blockIndex}.");
         }
         ushort original = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
-        WriteStationBlock(level, streamer, blockIndex, original, 11, behavior);
+        WriteStationBlock(
+            level,
+            streamer,
+            blockIndex,
+            original,
+            11,
+            new RoomBlockBehavior((byte)behavior));
     }
 
     private static void WriteStationBlock(
@@ -246,7 +262,7 @@ public sealed partial class RoomPlmSystem
         int blockIndex,
         ushort original,
         int collisionType,
-        byte? behavior)
+        RoomBlockBehavior? behavior)
     {
         ushort word = unchecked((ushort)((original & 0x0fff) | (collisionType << 12)));
         level.SetForegroundEntry(blockIndex, word);
@@ -260,6 +276,10 @@ public sealed partial class RoomPlmSystem
     /// type-$B collision seam used by item and scroll PLMs; no room identity participates.
     /// </summary>
     public bool TryNotifyStationTouch(int accessBlockIndex, byte behavior)
+        => TryNotifyStationTouch(accessBlockIndex, new RoomBlockBehavior(behavior));
+
+    /// <summary>Typed BTS overload used by room collision dispatch.</summary>
+    public bool TryNotifyStationTouch(int accessBlockIndex, RoomBlockBehavior behavior)
         => TryNotifyStationCollision(
             accessBlockIndex,
             behavior,
@@ -281,6 +301,20 @@ public sealed partial class RoomPlmSystem
         bool movingPositive)
         => TryNotifyStationCollision(
             accessBlockIndex,
+            new RoomBlockBehavior(behavior),
+            collisionPose,
+            horizontal,
+            movingPositive);
+
+    /// <summary>Typed BTS overload used by room collision dispatch.</summary>
+    public bool TryNotifyStationCollision(
+        int accessBlockIndex,
+        RoomBlockBehavior behavior,
+        byte collisionPose,
+        bool horizontal,
+        bool movingPositive)
+        => TryNotifyStationCollision(
+            accessBlockIndex,
             behavior,
             collisionPose,
             horizontal,
@@ -289,22 +323,24 @@ public sealed partial class RoomPlmSystem
 
     private bool TryNotifyStationCollision(
         int accessBlockIndex,
-        byte behavior,
+        RoomBlockBehavior behavior,
         byte collisionPose,
         bool horizontal,
         bool movingPositive,
         bool bypassSetupGate)
     {
-        if (behavior is < 0x47 or > 0x4d)
+        if (!behavior.TryGetStationAccess(out StationAccessBehavior access))
             return false;
 
-        int parentBlockIndex = behavior switch
+        int parentBlockIndex = access switch
         {
-            0x47 => accessBlockIndex - 1,
-            0x48 => accessBlockIndex + 2,
-            0x49 or 0x4b => accessBlockIndex - 1,
-            0x4a or 0x4c => accessBlockIndex + 1,
-            0x4d => accessBlockIndex,
+            StationAccessBehavior.MapRight => accessBlockIndex - 1,
+            StationAccessBehavior.MapLeft => accessBlockIndex + 2,
+            StationAccessBehavior.EnergyRight or StationAccessBehavior.MissileRight =>
+                accessBlockIndex - 1,
+            StationAccessBehavior.EnergyLeft or StationAccessBehavior.MissileLeft =>
+                accessBlockIndex + 1,
+            StationAccessBehavior.SaveFloor => accessBlockIndex,
             _ => int.MinValue,
         };
 
@@ -313,19 +349,23 @@ public sealed partial class RoomPlmSystem
             if (!slot.Active || slot.BlockIndex != parentBlockIndex || slot.Station is null)
                 continue;
 
-            bool setupAccepted = bypassSetupGate || behavior switch
+            bool setupAccepted = bypassSetupGate || access switch
             {
                 // Right-side access is entered while moving left in pose $8A; left-side
                 // access is the mirror in pose $89. These are the exact B1C8/B1F0 and
                 // B26D-B300 setup predicates before cannon-height alignment.
-                0x47 or 0x49 or 0x4b =>
+                StationAccessBehavior.MapRight or
+                    StationAccessBehavior.EnergyRight or
+                    StationAccessBehavior.MissileRight =>
                     horizontal && !movingPositive &&
                     collisionPose == SamusState.RanIntoWallLeftPose,
-                0x48 or 0x4a or 0x4c =>
+                StationAccessBehavior.MapLeft or
+                    StationAccessBehavior.EnergyLeft or
+                    StationAccessBehavior.MissileLeft =>
                     horizontal && movingPositive &&
                     collisionPose == SamusState.RanIntoWallRightPose,
                 // Save trigger B590 accepts a downward floor probe only while standing.
-                0x4d => !horizontal && movingPositive &&
+                StationAccessBehavior.SaveFloor => !horizontal && movingPositive &&
                     collisionPose is SamusState.FacingRightNormalPose or
                         SamusState.FacingLeftNormalPose,
                 _ => false,
@@ -336,7 +376,7 @@ public sealed partial class RoomPlmSystem
             {
                 slot.Station.Triggered = true;
                 slot.Station.AccessBlockIndex = accessBlockIndex;
-                slot.Station.AccessBehavior = behavior;
+                slot.Station.AccessBehavior = access;
             }
             return true;
         }
@@ -457,7 +497,7 @@ public sealed partial class RoomPlmSystem
                     case StationOperationPhase.FinalRetractionHold:
                         station.OperationPhase = StationOperationPhase.Idle;
                         station.AccessBlockIndex = -1;
-                        station.AccessBehavior = 0;
+                        station.AccessBehavior = null;
                         samus.InputLocked = false;
                         break;
                     default:
@@ -631,12 +671,12 @@ public sealed partial class RoomPlmSystem
     {
         ushort accessHeader = station.AccessBehavior switch
         {
-            0x47 => 0xb6d7,
-            0x48 => 0xb6db,
-            0x49 => 0xb6e3,
-            0x4a => 0xb6e7,
-            0x4b => 0xb6ef,
-            0x4c => 0xb6f3,
+            StationAccessBehavior.MapRight => 0xb6d7,
+            StationAccessBehavior.MapLeft => 0xb6db,
+            StationAccessBehavior.EnergyRight => 0xb6e3,
+            StationAccessBehavior.EnergyLeft => 0xb6e7,
+            StationAccessBehavior.MissileRight => 0xb6ef,
+            StationAccessBehavior.MissileLeft => 0xb6f3,
             _ => throw new InvalidDataException(
                 $"Station access has invalid BTS ${station.AccessBehavior:X2}."),
         };
@@ -678,7 +718,7 @@ public sealed partial class RoomPlmSystem
         public StationOperationPhase OperationPhase { get; set; }
         public ushort OperationTimer { get; set; }
         public int AccessBlockIndex { get; set; } = -1;
-        public byte AccessBehavior { get; set; }
+        public StationAccessBehavior? AccessBehavior { get; set; }
         public SaveStationPhase SavePhase { get; set; }
         public ushort SaveAnimationLoopsRemaining { get; set; }
         public bool SaveStartSoundPending { get; set; }

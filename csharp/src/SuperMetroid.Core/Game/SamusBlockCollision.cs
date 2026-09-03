@@ -162,7 +162,7 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.Slope:
-                        if ((block.Behavior & 0x1f) < 5)
+                        if (!block.Bts.IsNonSquareSlope)
                         {
                             bool squareCollision = ReactHorizontalSquareSlope(
                                 state,
@@ -235,7 +235,7 @@ public static class SamusBlockCollision
                         // discards its carry. The negative area-table family can publish
                         // carry from setup; none of the retail movement-owned entries in
                         // the translated room set do so, so its collision result is air.
-                        if (block.Behavior == 0x46 &&
+                        if (block.Bts == RoomBlockBehaviorValues.ScrollTrigger &&
                             (plms is null || !plms.TryNotifyScrollTouch(block.Index)))
                         {
                             throw new InvalidOperationException(
@@ -257,7 +257,8 @@ public static class SamusBlockCollision
                         collisionBlock = block;
                         break;
 
-                    case RoomCollisionType.SpecialBlock when block.Behavior == 0x45:
+                    case RoomCollisionType.SpecialBlock when
+                        block.Bts == RoomBlockBehaviorValues.CollectibleTrigger:
                         // Visible item frames are type-$B/BTS-$45. Bank $94 spawns the
                         // shared $EED3 detector, whose setup triggers the item at this
                         // origin and returns carry clear; Samus therefore passes through
@@ -270,11 +271,11 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpecialBlock:
-                        if (block.Behavior is >= 0x47 and <= 0x4d &&
+                        if (block.Bts.TryGetStationAccess(out _) &&
                             (plms is null ||
                              !plms.TryNotifyStationCollision(
                                  block.Index,
-                                 block.Behavior,
+                                 block.Bts,
                                  state.CollisionPose,
                                  horizontal: true,
                                  movingPositive: acceptedDisplacement > 0)))
@@ -297,7 +298,7 @@ public static class SamusBlockCollision
                         // is speed boosting, screw attacking, or in pose `$C9-$CE`. On an
                         // accepted break it clears only level_data's high nibble and returns
                         // carry clear, so this very scan continues through the new air.
-                        if ((block.Behavior & 0x80) != 0 || !canBreakBombBlocks)
+                        if (block.Bts.UsesAreaReactionTable || !canBreakBombBlocks)
                         {
                             acceptedDisplacement = ClipHorizontalToSolid(
                                 state,
@@ -307,7 +308,7 @@ public static class SamusBlockCollision
                             collisionBlock = block;
                             break;
                         }
-                        if (block.Behavior > 7)
+                        if (!block.Bts.IsNormalReactionIndex(8))
                         {
                             throw new InvalidDataException(
                                 $"Collision bomb block {block.Index} has invalid BTS ${block.Behavior:X2}.");
@@ -319,7 +320,7 @@ public static class SamusBlockCollision
                         // explicitly omitting the later independent animation lifecycle.
                         bool spawned = plms is null
                             ? ClearCollisionTypeWithoutLifecycle(level, block.Index)
-                            : plms.TrySpawnCollisionBombBlock(level, block.Index, block.Behavior);
+                            : plms.TrySpawnCollisionBombBlock(level, block.Index, block.Bts);
                         if (spawned)
                             brokenBombBlock ??= block;
                         break;
@@ -447,7 +448,7 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.Slope:
-                        if ((block.Behavior & 0x1f) < 5)
+                        if (!block.Bts.IsNonSquareSlope)
                         {
                             bool squareCollision = ReactVerticalSquareSlope(
                                 state,
@@ -517,7 +518,8 @@ public static class SamusBlockCollision
 
                     case RoomCollisionType.SpikeAir:
                     case RoomCollisionType.SpecialAir:
-                        if (block.CollisionType == RoomCollisionType.SpecialAir && block.Behavior == 0x46 &&
+                        if (block.CollisionType == RoomCollisionType.SpecialAir &&
+                            block.Bts == RoomBlockBehaviorValues.ScrollTrigger &&
                             (plms is null || !plms.TryNotifyScrollTouch(block.Index)))
                         {
                             throw new InvalidOperationException(
@@ -543,7 +545,8 @@ public static class SamusBlockCollision
                         collisionBlock = block;
                         break;
 
-                    case RoomCollisionType.SpecialBlock when block.Behavior == 0x45:
+                    case RoomCollisionType.SpecialBlock when
+                        block.Bts == RoomBlockBehaviorValues.CollectibleTrigger:
                         if (plms is null || !plms.TryNotifyCollectibleTouch(block.Index))
                         {
                             throw new InvalidOperationException(
@@ -552,11 +555,11 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpecialBlock:
-                        if (block.Behavior is >= 0x47 and <= 0x4d &&
+                        if (block.Bts.TryGetStationAccess(out _) &&
                             (plms is null ||
                              !plms.TryNotifyStationCollision(
                                  block.Index,
-                                 block.Behavior,
+                                 block.Bts,
                                  state.CollisionPose,
                                  horizontal: false,
                                  movingPositive: acceptedDisplacement > 0)))
@@ -576,7 +579,7 @@ public static class SamusBlockCollision
                     case RoomCollisionType.BombableBlock:
                         // Vertical dispatch is `$94:934C` and shares the exact bank-$84
                         // setup/carry contract documented in the horizontal branch above.
-                        if ((block.Behavior & 0x80) != 0 || !canBreakBombBlocks)
+                        if (block.Bts.UsesAreaReactionTable || !canBreakBombBlocks)
                         {
                             acceptedDisplacement = ClipVerticalToSolid(
                                 state,
@@ -586,14 +589,14 @@ public static class SamusBlockCollision
                             collisionBlock = block;
                             break;
                         }
-                        if (block.Behavior > 7)
+                        if (!block.Bts.IsNormalReactionIndex(8))
                         {
                             throw new InvalidDataException(
                                 $"Collision bomb block {block.Index} has invalid BTS ${block.Behavior:X2}.");
                         }
                         bool spawned = plms is null
                             ? ClearCollisionTypeWithoutLifecycle(level, block.Index)
-                            : plms.TrySpawnCollisionBombBlock(level, block.Index, block.Behavior);
+                            : plms.TrySpawnCollisionBombBlock(level, block.Index, block.Bts);
                         if (spawned)
                             brokenBombBlock ??= block;
                         break;
@@ -652,10 +655,10 @@ public static class SamusBlockCollision
 
         if (movingDown)
         {
-            if ((block.Behavior & 0x80) != 0)
+            if (block.Bts.SlopeFlipsVertically)
                 return (displacement, false);
 
-            int height = SamusSlopePhysics.ReadAlignmentHeight(bus, block.Behavior, state.XPosition);
+            int height = SamusSlopePhysics.ReadAlignmentHeight(bus, block.Bts, state.XPosition);
             int bottomNibble = unchecked((ushort)(state.YRadius + targetCenter - 1)) & 0x0f;
             short correction = unchecked((short)(height - bottomNibble - 1));
             if (correction > 0)
@@ -668,10 +671,10 @@ public static class SamusBlockCollision
         }
         else
         {
-            if ((block.Behavior & 0x80) == 0)
+            if (!block.Bts.SlopeFlipsVertically)
                 return (displacement, false);
 
-            int height = SamusSlopePhysics.ReadAlignmentHeight(bus, block.Behavior, state.XPosition);
+            int height = SamusSlopePhysics.ReadAlignmentHeight(bus, block.Bts, state.XPosition);
             int invertedTopNibble = ((targetCenter - state.YRadius) & 0x0f) ^ 0x0f;
             short correction = unchecked((short)(height - invertedTopNibble - 1));
             if (correction > 0)
@@ -696,8 +699,8 @@ public static class SamusBlockCollision
         int totalRows,
         out int clippedDisplacement)
     {
-        int shape = block.Behavior & 0x1f;
-        int orientation = block.Behavior >> 6;
+        int shape = block.Bts.SlopeShape;
+        int orientation = block.Bts.SlopeOrientation;
 
         // ci_r32 is the leading X boundary. Its bit three selects the left/right 8-pixel
         // half; BTS orientation occupies the same two-bit quadrant coordinate. XOR is
@@ -762,8 +765,8 @@ public static class SamusBlockCollision
         int totalColumns,
         out int clippedDisplacement)
     {
-        int shape = block.Behavior & 0x1f;
-        int orientation = block.Behavior >> 6;
+        int shape = block.Bts.SlopeShape;
+        int orientation = block.Bts.SlopeOrientation;
 
         // Vertical collision uses leading Y bit three as the high quadrant-coordinate bit,
         // hence >>2 yields zero or two. The horizontal counter is the native number of
@@ -941,10 +944,11 @@ public static class SamusBlockCollision
         {
             int delta = block.CollisionType switch
             {
-                RoomCollisionType.HorizontalExtension when block.Behavior != 0 =>
-                    unchecked((sbyte)block.Behavior),
-                RoomCollisionType.VerticalExtension when block.Behavior != 0 =>
-                    unchecked((sbyte)block.Behavior) * level.WidthInBlocks,
+                RoomCollisionType.HorizontalExtension when
+                    block.Bts != RoomBlockBehaviorValues.None => block.Bts.ExtensionOffset,
+                RoomCollisionType.VerticalExtension when
+                    block.Bts != RoomBlockBehaviorValues.None =>
+                    block.Bts.ExtensionOffset * level.WidthInBlocks,
                 RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => 0,
                 _ => int.MinValue,
             };

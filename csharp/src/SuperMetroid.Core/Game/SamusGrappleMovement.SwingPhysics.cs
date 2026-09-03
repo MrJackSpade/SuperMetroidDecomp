@@ -408,15 +408,15 @@ public static partial class SamusGrappleMovement
                     return true;
 
                 case RoomCollisionType.HorizontalExtension:
-                    if (block.Behavior == 0)
+                    if (block.Bts == RoomBlockBehaviorValues.None)
                         return false;
-                    index += unchecked((sbyte)block.Behavior);
+                    index += block.Bts.ExtensionOffset;
                     continue;
 
                 case RoomCollisionType.VerticalExtension:
-                    if (block.Behavior == 0)
+                    if (block.Bts == RoomBlockBehaviorValues.None)
                         return false;
-                    index += unchecked((sbyte)block.Behavior) * level.WidthInBlocks;
+                    index += block.Bts.ExtensionOffset * level.WidthInBlocks;
                     continue;
 
                 default:

@@ -546,7 +546,7 @@ public sealed class SamusBombProjectileSystem
             x,
             y,
             visitedBlock.CollisionType,
-            visitedBlock.Behavior));
+            visitedBlock.Bts));
 
         // `$94:9411/$9447` do not react to an extension block directly. A nonzero signed
         // BTS redirects CurrentBlockIndex horizontally (type $5) or by whole room rows
@@ -559,7 +559,7 @@ public sealed class SamusBombProjectileSystem
         // Item collision BTS $45 routes to the already-loaded item object rather than
         // indexing the ordinary bomb/special-block tables. Visible type-$B frames need no
         // additional response; concealed type-$C/orb frames publish the generic trigger.
-        if (block.Behavior == 0x45 &&
+        if (block.Bts == RoomBlockBehaviorValues.CollectibleTrigger &&
             block.CollisionType is RoomCollisionType.SpecialBlock or RoomCollisionType.ShootableBlock)
         {
             _ = roomPlms?.TryNotifyCollectibleProjectileHit(block.Index, projectileType);
@@ -569,7 +569,8 @@ public sealed class SamusBombProjectileSystem
         // Power Bombs reach the same colored-door pre-instruction as beams and missiles.
         // This is the only accepted yellow-door family; normal bombs are still published
         // and rejected with the cartridge's dud sound by the resident PLM.
-        if (block.CollisionType == RoomCollisionType.ShootableBlock && block.Behavior == 0x44 &&
+        if (block.CollisionType == RoomCollisionType.ShootableBlock &&
+            block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger &&
             roomPlms?.TryNotifyColoredDoorHit(block.Index, projectileType) == true)
         {
             return;
@@ -595,9 +596,9 @@ public sealed class SamusBombProjectileSystem
             // Both bombable-air and bombable-solid handlers use `$94:A012`. Negative
             // BTS takes the native duplicate/area-dependent early return and therefore
             // neither allocates a PLM nor mutates terrain.
-            if ((block.Behavior & 0x80) != 0)
+            if (block.Bts.UsesAreaReactionTable)
                 return;
-            if (block.Behavior > 15)
+            if (!block.Bts.IsNormalReactionIndex(16))
             {
                 // $94:A012 is a literal sixteen-word table. Retail room data must keep a
                 // nonnegative bombable BTS within that table; a larger value would make
@@ -621,7 +622,7 @@ public sealed class SamusBombProjectileSystem
             roomPlms.TrySpawnBombReactionBlock(
                 level,
                 block.Index,
-                block.Behavior,
+                block.Bts,
                 projectileType);
             return;
         }
@@ -632,15 +633,17 @@ public sealed class SamusBombProjectileSystem
             // Type-$C instead indexes one of eight area tables; every retail entry is
             // PLMEntries_nothing, but Spawn_PLM still consumes a slot for one pass.
             if (block.CollisionType == RoomCollisionType.ShootableAir &&
-                (block.Behavior & 0x80) != 0)
+                block.Bts.UsesAreaReactionTable)
                 return;
-            if ((block.Behavior & 0x80) == 0 && block.Behavior > 15)
+            if (!block.Bts.UsesAreaReactionTable &&
+                !block.Bts.IsNormalReactionIndex(16))
             {
                 throw new InvalidDataException(
                     $"Shootable block {block.Index} has BTS ${block.Behavior:X2} outside " +
                     "the native normal-bomb table range.");
             }
-            if ((block.Behavior & 0x80) != 0 && (block.Behavior & 0x7f) > 7)
+            if (block.Bts.UsesAreaReactionTable &&
+                !block.Bts.IsAreaReactionIndex(8))
             {
                 throw new InvalidDataException(
                     $"Area-dependent shootable block {block.Index} has BTS " +
@@ -656,7 +659,7 @@ public sealed class SamusBombProjectileSystem
             roomPlms.TrySpawnBombedShootableBlock(
                 level,
                 block.Index,
-                block.Behavior,
+                block.Bts,
                 projectileType);
             return;
         }
@@ -673,7 +676,7 @@ public sealed class SamusBombProjectileSystem
             roomPlms.TrySpawnBombedSpecialBlock(
                 level,
                 block.Index,
-                block.Behavior,
+                block.Bts,
                 areaIndex,
                 projectileType);
             return;
@@ -866,4 +869,4 @@ public readonly record struct BombBlockReaction(
     int BlockX,
     int BlockY,
     RoomCollisionType CollisionType,
-    byte Behavior);
+    RoomBlockBehavior Behavior);

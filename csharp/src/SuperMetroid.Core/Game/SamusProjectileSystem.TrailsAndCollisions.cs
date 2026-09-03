@@ -522,7 +522,8 @@ public sealed partial class SamusProjectileSystem
         // Chozo orbs and concealed item blocks are type-$C/BTS-$45. Their special
         // reaction does not use the ordinary BTS 0..F shot-block table: header $EED3
         // finds and triggers the already-loaded permanent-item PLM at this origin.
-        if (block.CollisionType == RoomCollisionType.ShootableBlock && block.Behavior == 0x45)
+        if (block.CollisionType == RoomCollisionType.ShootableBlock &&
+            block.Bts == RoomBlockBehaviorValues.CollectibleTrigger)
         {
             _ = roomPlms?.TryNotifyCollectibleProjectileHit(block.Index, slot.Type);
             return true;
@@ -532,7 +533,8 @@ public sealed partial class SamusProjectileSystem
         // origin matches this block. Mother Brain's type-$8/BTS-$44 glass consumes the live
         // projectile type through its pre-instruction on the later PLM-handler seam; it does
         // not allocate a second reaction PLM or mutate the shot-block tables below.
-        if (block.CollisionType == RoomCollisionType.SolidBlock && block.Behavior == 0x44)
+        if (block.CollisionType == RoomCollisionType.SolidBlock &&
+            block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
             _ = roomPlms?.TryNotifyProjectileHit(block.Index, slot.Type);
 
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
@@ -553,7 +555,7 @@ public sealed partial class SamusProjectileSystem
         RoomCollisionBlock block = initialBlock;
         for (int linkCount = 0; linkCount < 16; linkCount++)
         {
-            int offset = unchecked((sbyte)block.Behavior);
+            int offset = block.Bts.ExtensionOffset;
             int targetIndex;
             switch (block.CollisionType)
             {
@@ -598,7 +600,7 @@ public sealed partial class SamusProjectileSystem
         // Setup_ColoredDoor installs type-$C/BTS-$44 at the cap origin. Its resident
         // pre-instruction consumes the current projectile family; the ordinary shot-block
         // table must never see this private door-dispatch value.
-        if (block.Behavior == 0x44 &&
+        if (block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger &&
             roomPlms.TryNotifyColoredDoorHit(block.Index, slot.Type))
         {
             return;
@@ -609,12 +611,12 @@ public sealed partial class SamusProjectileSystem
         // cartridge list opens all four blocks over eighteen frames. Keep this dispatch
         // beside the general table lookup so every beam/missile/bomb collision reaches the
         // same bank-$84 owner and power bombs retain Setup_BlueDoor's rejection behavior.
-        if (block.Behavior is >= 0x40 and <= 0x43)
+        if (block.Bts.TryGetBlueDoorOrientation(out _))
         {
             roomPlms.TrySpawnBlueDoorOpening(
                 level,
                 block.Index,
-                block.Behavior,
+                block.Bts,
                 slot.Type);
             return;
         }
@@ -624,15 +626,14 @@ public sealed partial class SamusProjectileSystem
         // slot; shootable-air's method exits without allocating. The RoomPlm owner performs
         // the power-bomb/Super-Missile family checks for entries 8..B synchronously, just as
         // each bank-$84 setup sees the current native projectile type during Spawn_PLM.
-        bool translatedBehavior = (block.Behavior & 0x80) != 0
-            ? (block.Behavior & 0x7f) <= 7
-            : block.Behavior <= 15;
+        bool translatedBehavior = block.Bts.IsAreaReactionIndex(8) ||
+            block.Bts.IsNormalReactionIndex(16);
         if (translatedBehavior)
         {
             roomPlms.TrySpawnProjectileShotBlock(
                 level,
                 block.Index,
-                block.Behavior,
+                block.Bts,
                 slot.Type,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
         }

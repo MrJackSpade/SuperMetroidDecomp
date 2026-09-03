@@ -495,7 +495,8 @@ public sealed partial class SamusProjectileSystem
         // and the broad Samus body scans cannot disagree about chained extensions.
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return false;
-        if (block.CollisionType == RoomCollisionType.ShootableBlock && block.Behavior == 0x45)
+        if (block.CollisionType == RoomCollisionType.ShootableBlock &&
+            block.Bts == RoomBlockBehaviorValues.CollectibleTrigger)
         {
             _ = roomPlms?.TryNotifyCollectibleProjectileHit(block.Index, slot.Type);
             return true;
@@ -553,7 +554,7 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot slot,
         bool horizontalMovement)
     {
-        int slopeShape = block.Behavior & 0x1f;
+        int slopeShape = block.Bts.SlopeShape;
         if (slopeShape >= 5)
         {
             // `$94:A58F` mirrors the projectile's within-block coordinate before indexing
@@ -561,11 +562,11 @@ public sealed partial class SamusProjectileSystem
             // above the mirrored Y point (the original uses signed `height - y <= 0`) is
             // solid. Values can reach 20 for overhanging shapes, so do not mask to a nibble.
             int xInBlock = slot.XPosition & 0x000f;
-            if ((block.Behavior & 0x40) != 0)
+            if (block.Bts.SlopeFlipsHorizontally)
                 xInBlock ^= 0x000f;
 
             int yInBlock = slot.YPosition & 0x000f;
-            if ((block.Behavior & 0x80) != 0)
+            if (block.Bts.SlopeFlipsVertically)
                 yInBlock ^= 0x000f;
 
             int height = bus.ReadByte(
@@ -577,7 +578,7 @@ public sealed partial class SamusProjectileSystem
         // bits select the base flip, while the projectile half along the movement axis and
         // then the perpendicular axis select the exact quadrant. Each ROM byte is either
         // `$00` (air) or `$80` (solid).
-        int quadrant = slopeShape * 4 + (block.Behavior >> 6);
+        int quadrant = slopeShape * 4 + block.Bts.SlopeOrientation;
         if (horizontalMovement)
         {
             quadrant ^= (slot.XPosition & 8) >> 3;

@@ -811,15 +811,15 @@ public sealed partial class SuperMetroidRuntime
                 height = 0;
             }
             else if (floor.CollisionType == RoomCollisionType.Slope &&
-                     (floor.Behavior & 0x1f) >= 5 &&
-                     (floor.Behavior & 0x80) == 0)
+                     floor.Bts.IsNonSquareSlope &&
+                     !floor.Bts.SlopeFlipsVertically)
             {
                 // Upright non-square slopes use the cartridge's sixteen-sample profile.
                 // Square slopes are translated too, but selecting one as a spawn surface
                 // would require choosing the occupied quadrant rather than one scalar Y.
                 height = SamusSlopePhysics.ReadAlignmentHeight(
                     _addressSpace,
-                    floor.Behavior,
+                    floor.Bts,
                     xPosition);
             }
             else

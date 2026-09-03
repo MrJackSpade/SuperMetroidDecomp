@@ -89,9 +89,9 @@ public static partial class SamusGrappleMovement
                     // `$84:CFD1` (carry set, overflow clear) and immediately deletes; BTS
                     // three alone uses Draygon's broken-turret setup `$84:CFD5`, which adds
                     // one whole periodic-damage unit and returns carry+overflow to connect.
-                    if ((block.Behavior & 0x80) != 0)
+                    if (block.Bts.RejectsGrappleReaction)
                         return new GrappleBlockReaction(Carry: false, Overflow: false);
-                    if (block.Behavior == 3)
+                    if (block.Bts.GrappleReactionIndex == 3)
                     {
                         samus.LiquidPhysics.AccumulatePeriodicDamage(
                             subDamage: 0,
@@ -104,25 +104,25 @@ public static partial class SamusGrappleMovement
                 case RoomCollisionType.HorizontalExtension:
                     // Horizontal extensions interpret BTS as a signed block-index delta.
                     // BTS zero is the native terminator and behaves as air.
-                    if (block.Behavior == 0)
+                    if (block.Bts == RoomBlockBehaviorValues.None)
                         return new GrappleBlockReaction(Carry: false, Overflow: false);
-                    index += unchecked((sbyte)block.Behavior);
+                    index += block.Bts.ExtensionOffset;
                     continue;
 
                 case RoomCollisionType.VerticalExtension:
                     // Vertical extension uses the same signed BTS but scales by room width.
-                    if (block.Behavior == 0)
+                    if (block.Bts == RoomBlockBehaviorValues.None)
                         return new GrappleBlockReaction(Carry: false, Overflow: false);
-                    index += unchecked((sbyte)block.Behavior) * level.WidthInBlocks;
+                    index += block.Bts.ExtensionOffset * level.WidthInBlocks;
                     continue;
 
                 case RoomCollisionType.GrappleBlock:
                     // $94:A7D1 rejects bit-seven BTS. Values zero and three spawn persistent
                     // grapple PLM $D0D8, whose setup returns processor flags $41 (C=1,V=1).
                     // The persistent PLM has no level mutation, so this result is complete.
-                    if ((block.Behavior & 0x80) != 0)
+                    if (block.Bts.RejectsGrappleReaction)
                         return new GrappleBlockReaction(Carry: false, Overflow: false);
-                    if (block.Behavior is 0 or 3)
+                    if (block.Bts.IsPersistentGrappleReaction)
                         return new GrappleBlockReaction(Carry: true, Overflow: true);
 
                     // BTS one/two spawn $D0DC/$D0E0. Setup_CFB5 synchronously saves the
@@ -130,14 +130,14 @@ public static partial class SamusGrappleMovement
                     // executes its first timer/draw record later in this same gameplay frame.
                     // A caller which omitted the independent room owner cannot honestly
                     // preserve that lifecycle, so keep the missing integration seam explicit.
-                    if (block.Behavior is 1 or 2)
+                    if (block.Bts.IsBreakableGrappleReaction)
                     {
                         if (plms is null)
                         {
                             throw new InvalidOperationException(
                                 "Breakable grapple acquisition requires a RoomPlmSystem.");
                         }
-                        if (!plms.TrySpawnBreakableGrappleBlock(level, block.Index, block.Behavior))
+                        if (!plms.TrySpawnBreakableGrappleBlock(level, block.Index, block.Bts))
                         {
                             throw new InvalidOperationException(
                                 "All 40 native PLM slots are occupied during grapple acquisition.");
@@ -166,7 +166,7 @@ public static partial class SamusGrappleMovement
                     plms.TrySpawnProjectileShotBlock(
                         level,
                         block.Index,
-                        block.Behavior,
+                        block.Bts,
                         projectileType: 0,
                         solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
                     return new GrappleBlockReaction(

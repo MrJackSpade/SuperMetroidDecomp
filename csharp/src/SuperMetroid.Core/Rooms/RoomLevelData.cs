@@ -323,6 +323,10 @@ public sealed class RoomLevelData
         _behaviorBytes[blockIndex] = behavior;
     }
 
+    /// <summary>Writes a typed BTS value while retaining the byte-exact room format.</summary>
+    public void SetBehavior(int blockIndex, RoomBlockBehavior behavior) =>
+        SetBehavior(blockIndex, behavior.Value);
+
     /// <summary>
     /// Replaces one 16-bit child tilemap word in the combined CRE/area block-definition
     /// table. Item instruction <c>$84:8764</c> uses this exact mutable range to bind one of
@@ -380,6 +384,12 @@ public readonly record struct RoomCollisionBlock(int Index, ushort LevelWord, by
     /// a collision kind.
     /// </summary>
     public RoomCollisionType CollisionKind => CollisionType;
+
+    /// <summary>
+    /// Context-aware, lossless view of the raw BTS byte. The collision type determines
+    /// which of its named interpretations is valid.
+    /// </summary>
+    public RoomBlockBehavior Bts => new(Behavior);
 
     /// <summary>Low ten bits selecting the visual 16×16 block definition.</summary>
     public ushort VisualBlockIndex => PackedWord.VisualBlockIndex;

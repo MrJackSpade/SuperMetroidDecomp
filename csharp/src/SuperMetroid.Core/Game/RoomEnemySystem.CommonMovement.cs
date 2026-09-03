@@ -276,12 +276,12 @@ public sealed partial class RoomEnemySystem
             RoomCollisionType.ShootableAir or
             RoomCollisionType.UnusedAir or
             RoomCollisionType.BombableAir => false,
-            RoomCollisionType.Slope when (block.Behavior & 0x1f) >= 5 =>
+            RoomCollisionType.Slope when block.Bts.IsNonSquareSlope =>
                 treatNonSquareSlopesAsWalls,
             RoomCollisionType.Slope => SquareHorizontalSlopeIsSolid(
                 slot,
                 targetEdge,
-                block.Behavior,
+                block.Bts,
                 remaining,
                 spanMinusOne),
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension =>
@@ -322,7 +322,7 @@ public sealed partial class RoomEnemySystem
             RoomCollisionType.ShootableAir or
             RoomCollisionType.UnusedAir or
             RoomCollisionType.BombableAir => false,
-            RoomCollisionType.Slope when (block.Behavior & 0x1f) >= 5 =>
+            RoomCollisionType.Slope when block.Bts.IsNonSquareSlope =>
                 NonSquareVerticalSlopeIsSolid(
                     level,
                     slot,
@@ -332,7 +332,7 @@ public sealed partial class RoomEnemySystem
             RoomCollisionType.Slope => SquareVerticalSlopeIsSolid(
                 slot,
                 targetEdge,
-                block.Behavior,
+                block.Bts,
                 remaining,
                 spanMinusOne),
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => false,
@@ -373,10 +373,11 @@ public sealed partial class RoomEnemySystem
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
             int offset = block.CollisionType switch
             {
-                RoomCollisionType.HorizontalExtension when block.Behavior != 0 =>
-                    unchecked((sbyte)block.Behavior),
-                RoomCollisionType.VerticalExtension when block.Behavior != 0 =>
-                    unchecked((sbyte)block.Behavior) * level.WidthInBlocks,
+                RoomCollisionType.HorizontalExtension when
+                    block.Bts != RoomBlockBehaviorValues.None => block.Bts.ExtensionOffset,
+                RoomCollisionType.VerticalExtension when
+                    block.Bts != RoomBlockBehaviorValues.None =>
+                    block.Bts.ExtensionOffset * level.WidthInBlocks,
                 _ => 0,
             };
             if (offset == 0)
@@ -391,12 +392,12 @@ public sealed partial class RoomEnemySystem
     private static bool SquareHorizontalSlopeIsSolid(
         RoomEnemySlot slot,
         ushort targetEdge,
-        byte behavior,
+        RoomBlockBehavior bts,
         int remaining,
         int spanMinusOne)
     {
-        int tableIndex = 4 * (behavior & 0x1f) +
-            ((behavior >> 6) ^ ((targetEdge & 8) >> 3));
+        int tableIndex = 4 * bts.SlopeShape +
+            (bts.SlopeOrientation ^ ((targetEdge & 8) >> 3));
         if (remaining == 0)
         {
             if (((slot.YRadius + slot.YPosition - 1) & 8) == 0)
@@ -416,12 +417,12 @@ public sealed partial class RoomEnemySystem
     private static bool SquareVerticalSlopeIsSolid(
         RoomEnemySlot slot,
         ushort targetEdge,
-        byte behavior,
+        RoomBlockBehavior bts,
         int remaining,
         int spanMinusOne)
     {
-        int tableIndex = 4 * (behavior & 0x1f) +
-            ((behavior >> 6) ^ ((targetEdge & 8) >> 2));
+        int tableIndex = 4 * bts.SlopeShape +
+            (bts.SlopeOrientation ^ ((targetEdge & 8) >> 2));
         if (remaining == 0)
         {
             if (((slot.XRadius + slot.XPosition - 1) & 8) == 0)
@@ -448,14 +449,14 @@ public sealed partial class RoomEnemySystem
         if (block.Index % level.WidthInBlocks != slot.XPosition >> 4)
             return false;
 
-        byte behavior = block.Behavior;
-        int xWithinBlock = ((behavior & 0x40) != 0
+        RoomBlockBehavior bts = block.Bts;
+        int xWithinBlock = (bts.SlopeFlipsHorizontally
             ? slot.XPosition ^ 0x000f
             : slot.XPosition) & 0x000f;
-        int height = ReadNonSquareSlopeHeight(behavior, xWithinBlock);
+        int height = ReadNonSquareSlopeHeight(bts, xWithinBlock);
         if (movingUp)
         {
-            if ((behavior & 0x80) == 0)
+            if (!bts.SlopeFlipsVertically)
                 return false;
             int edgeWithinBlock = ((targetCenter - slot.YRadius) & 0x000f) ^ 0x000f;
             int adjustment = height - edgeWithinBlock - 1;
@@ -466,7 +467,7 @@ public sealed partial class RoomEnemySystem
             return true;
         }
 
-        if ((behavior & 0x80) != 0)
+        if (bts.SlopeFlipsVertically)
             return false;
         int bottomWithinBlock = (slot.YRadius + targetCenter - 1) & 0x000f;
         int downwardAdjustment = height - bottomWithinBlock - 1;
@@ -522,13 +523,13 @@ public sealed partial class RoomEnemySystem
 
         RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
         if (block.CollisionType != RoomCollisionType.Slope ||
-            (block.Behavior & 0x1f) < 5)
+            !block.Bts.IsNonSquareSlope)
             return false;
-        if (underside != ((block.Behavior & 0x80) != 0))
+        if (underside != block.Bts.SlopeFlipsVertically)
             return false;
 
-        int xWithinBlock = ((block.Behavior & 0x40) != 0 ? x ^ 0x000f : x) & 0x000f;
-        int height = ReadNonSquareSlopeHeight(block.Behavior, xWithinBlock);
+        int xWithinBlock = (block.Bts.SlopeFlipsHorizontally ? x ^ 0x000f : x) & 0x000f;
+        int height = ReadNonSquareSlopeHeight(block.Bts, xWithinBlock);
         int edgeWithinBlock = underside ? (y & 0x000f) ^ 0x000f : y & 0x000f;
         int adjustment = height - edgeWithinBlock - 1;
         if (adjustment >= 0)
@@ -539,6 +540,6 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
-    private int ReadNonSquareSlopeHeight(byte behavior, int xWithinBlock) =>
-        _bus!.ReadByte(0x948b2b + 16 * (behavior & 0x1f) + xWithinBlock) & 0x1f;
+    private int ReadNonSquareSlopeHeight(RoomBlockBehavior bts, int xWithinBlock) =>
+        _bus!.ReadByte(0x948b2b + 16 * bts.SlopeShape + xWithinBlock) & 0x1f;
 }

@@ -104,6 +104,69 @@ static void VerifyTypedNativeWords()
             $"level collision raw nibble ${collisionNibble:X1}");
     }
 
+    // BTS remains a raw byte until the collision nibble selects its meaning. Exercise
+    // each contextual view independently so no future cleanup conflates overlapping bits.
+    var reflectedSlopeOrAreaReaction = new RoomBlockBehavior(0xff);
+    AssertEqual((sbyte)-1, reflectedSlopeOrAreaReaction.ExtensionOffset,
+        "BTS signed extension offset");
+    AssertEqual((byte)0x1f, reflectedSlopeOrAreaReaction.SlopeShape,
+        "BTS slope shape field");
+    AssertTrue(reflectedSlopeOrAreaReaction.IsNonSquareSlope &&
+        reflectedSlopeOrAreaReaction.SlopeFlipsHorizontally &&
+        reflectedSlopeOrAreaReaction.SlopeFlipsVertically,
+        "BTS slope contextual fields");
+    AssertEqual((byte)3, reflectedSlopeOrAreaReaction.SlopeOrientation,
+        "BTS slope orientation field");
+    AssertTrue(reflectedSlopeOrAreaReaction.UsesAreaReactionTable,
+        "BTS area-reaction selector");
+    AssertEqual((byte)0x7f, reflectedSlopeOrAreaReaction.AreaReactionIndex,
+        "BTS area-reaction index");
+    AssertTrue(!reflectedSlopeOrAreaReaction.IsAreaReactionIndex(8) &&
+        !reflectedSlopeOrAreaReaction.IsNormalReactionIndex(16),
+        "BTS reaction bounds preserve table context");
+    AssertTrue(new RoomBlockBehavior(3).IsPersistentGrappleReaction &&
+        new RoomBlockBehavior(3).IsRespawningReaction,
+        "BTS overlapping grapple and breakable-block views stay contextual");
+    AssertTrue(new RoomBlockBehavior(6).IsPermanentReaction,
+        "BTS permanent breakable-block view");
+    AssertTrue(new RoomBlockBehavior(8).RequiresPowerBombReaction &&
+        new RoomBlockBehavior(10).RequiresSuperMissileReaction,
+        "BTS weapon-gated shot-block views");
+    AssertTrue(new RoomBlockBehavior(0x82).IsAreaReactionIndex(8),
+        "BTS area-reaction table view");
+
+    RoomBlockBehavior[] blueDoorBehaviors =
+    [
+        RoomBlockBehaviorValues.BlueDoorFacingLeft,
+        RoomBlockBehaviorValues.BlueDoorFacingRight,
+        RoomBlockBehaviorValues.BlueDoorFacingUp,
+        RoomBlockBehaviorValues.BlueDoorFacingDown,
+    ];
+    for (int orientationIndex = 0; orientationIndex < blueDoorBehaviors.Length;
+         orientationIndex++)
+    {
+        AssertTrue(blueDoorBehaviors[orientationIndex].TryGetBlueDoorOrientation(
+            out ColoredDoorOrientation orientation),
+            $"blue-door BTS {orientationIndex} decodes");
+        AssertEqual((ColoredDoorOrientation)orientationIndex, orientation,
+            $"blue-door BTS {orientationIndex} orientation");
+    }
+    AssertTrue(!RoomBlockBehaviorValues.CollectibleTrigger.TryGetBlueDoorOrientation(out _),
+        "non-door BTS rejects blue-door view");
+
+    for (byte stationValue = (byte)StationAccessBehavior.MapRight;
+         stationValue <= (byte)StationAccessBehavior.SaveFloor;
+         stationValue++)
+    {
+        var stationBehavior = new RoomBlockBehavior(stationValue);
+        AssertTrue(stationBehavior.TryGetStationAccess(out StationAccessBehavior access),
+            $"station BTS ${stationValue:X2} decodes");
+        AssertEqual((StationAccessBehavior)stationValue, access,
+            $"station BTS ${stationValue:X2} remains lossless");
+    }
+    AssertTrue(!RoomBlockBehaviorValues.ScrollTrigger.TryGetStationAccess(out _),
+        "non-station BTS rejects station view");
+
     var bgEntry = new SnesBgTilemapWord(0xf555);
     AssertEqual(0x155, bgEntry.CharacterIndex, "BG tile character field");
     AssertEqual(5, bgEntry.PaletteIndex, "BG tile palette field");

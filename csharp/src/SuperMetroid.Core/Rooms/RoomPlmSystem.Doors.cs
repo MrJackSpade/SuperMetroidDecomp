@@ -6,19 +6,6 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Cartridge-authored door-cap reactions owned by bank $84's PLM pool.</summary>
 public sealed partial class RoomPlmSystem
 {
-    private const ushort YellowDoorFacingLeftHeader = 0xc85a;
-    private const ushort YellowDoorFacingRightHeader = 0xc860;
-    private const ushort YellowDoorFacingUpHeader = 0xc866;
-    private const ushort YellowDoorFacingDownHeader = 0xc86c;
-    private const ushort GreenDoorFacingLeftHeader = 0xc872;
-    private const ushort GreenDoorFacingRightHeader = 0xc878;
-    private const ushort GreenDoorFacingUpHeader = 0xc87e;
-    private const ushort GreenDoorFacingDownHeader = 0xc884;
-    private const ushort RedDoorFacingLeftHeader = 0xc88a;
-    private const ushort RedDoorFacingRightHeader = 0xc890;
-    private const ushort RedDoorFacingUpHeader = 0xc896;
-    private const ushort RedDoorFacingDownHeader = 0xc89c;
-
     private Bank80SystemState? _coloredDoorSystem;
 
     /// <summary>Every resident colored-door actor in the shared native PLM pool.</summary>
@@ -213,12 +200,12 @@ public sealed partial class RoomPlmSystem
     }
 
     private static bool IsColoredDoorHeader(ushort header) => header is
-        YellowDoorFacingLeftHeader or YellowDoorFacingRightHeader or
-        YellowDoorFacingUpHeader or YellowDoorFacingDownHeader or
-        GreenDoorFacingLeftHeader or GreenDoorFacingRightHeader or
-        GreenDoorFacingUpHeader or GreenDoorFacingDownHeader or
-        RedDoorFacingLeftHeader or RedDoorFacingRightHeader or
-        RedDoorFacingUpHeader or RedDoorFacingDownHeader;
+        RoomPlmHeaders.YellowDoorFacingLeft or RoomPlmHeaders.YellowDoorFacingRight or
+        RoomPlmHeaders.YellowDoorFacingUp or RoomPlmHeaders.YellowDoorFacingDown or
+        RoomPlmHeaders.GreenDoorFacingLeft or RoomPlmHeaders.GreenDoorFacingRight or
+        RoomPlmHeaders.GreenDoorFacingUp or RoomPlmHeaders.GreenDoorFacingDown or
+        RoomPlmHeaders.RedDoorFacingLeft or RoomPlmHeaders.RedDoorFacingRight or
+        RoomPlmHeaders.RedDoorFacingUp or RoomPlmHeaders.RedDoorFacingDown;
 
     private static bool TryIdentifyColoredDoor(
         ushort header,
@@ -226,20 +213,23 @@ public sealed partial class RoomPlmSystem
         out ColoredDoorOrientation orientation)
     {
         ushort firstHeader;
-        if (header is >= YellowDoorFacingLeftHeader and <= YellowDoorFacingDownHeader)
+        if (header is >= RoomPlmHeaders.YellowDoorFacingLeft and
+            <= RoomPlmHeaders.YellowDoorFacingDown)
         {
             color = ColoredDoorColor.Yellow;
-            firstHeader = YellowDoorFacingLeftHeader;
+            firstHeader = RoomPlmHeaders.YellowDoorFacingLeft;
         }
-        else if (header is >= GreenDoorFacingLeftHeader and <= GreenDoorFacingDownHeader)
+        else if (header is >= RoomPlmHeaders.GreenDoorFacingLeft and
+            <= RoomPlmHeaders.GreenDoorFacingDown)
         {
             color = ColoredDoorColor.Green;
-            firstHeader = GreenDoorFacingLeftHeader;
+            firstHeader = RoomPlmHeaders.GreenDoorFacingLeft;
         }
-        else if (header is >= RedDoorFacingLeftHeader and <= RedDoorFacingDownHeader)
+        else if (header is >= RoomPlmHeaders.RedDoorFacingLeft and
+            <= RoomPlmHeaders.RedDoorFacingDown)
         {
             color = ColoredDoorColor.Red;
-            firstHeader = RedDoorFacingLeftHeader;
+            firstHeader = RoomPlmHeaders.RedDoorFacingLeft;
         }
         else
         {
@@ -298,8 +288,15 @@ public sealed partial class RoomPlmSystem
             _ => throw new InvalidOperationException(
                 "Validated blue-door BTS escaped its four-way instruction table."),
         };
-        ushort headerPointer = unchecked((ushort)(0xc8a2 +
-            ((behavior.Value - RoomBlockBehaviorValues.BlueDoorFacingLeft.Value) * 6)));
+        ushort headerPointer = orientation switch
+        {
+            ColoredDoorOrientation.Left => RoomPlmHeaders.BlueDoorFacingLeft,
+            ColoredDoorOrientation.Right => RoomPlmHeaders.BlueDoorFacingRight,
+            ColoredDoorOrientation.Up => RoomPlmHeaders.BlueDoorFacingUp,
+            ColoredDoorOrientation.Down => RoomPlmHeaders.BlueDoorFacingDown,
+            _ => throw new InvalidOperationException(
+                "Validated blue-door BTS escaped its four-way header table."),
+        };
 
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
         {

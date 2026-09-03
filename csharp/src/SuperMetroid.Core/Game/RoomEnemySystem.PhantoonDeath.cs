@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -198,7 +200,7 @@ public sealed partial class RoomEnemySystem
             RequireSetAreaBossDefeated();
             state.BossDefeatPersisted = true;
         }
-        state.BossDoorPlmRequest = 0xb78b;
+        state.BossDoorPlmRequest = RoomPlmHeaders.RestorePhantoonDoorAfterBossFight;
         state.MusicRequest = MusicCommand.SelectTrack(3);
         state.WreckedShipPowerPaletteComplete = true;
     }

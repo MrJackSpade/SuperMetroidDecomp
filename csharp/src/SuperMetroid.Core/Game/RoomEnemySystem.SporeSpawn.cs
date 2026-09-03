@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -148,7 +150,7 @@ public sealed partial class RoomEnemySystem
             body.CurrentInstruction = SporeSpawnInitialDeadInstruction;
             body.Properties = unchecked((ushort)(body.Properties | 0x8000));
             UpdateSporeSpawnStalks(state);
-            PublishSporeSpawnPlm(header: 0xb793);
+            PublishSporeSpawnPlm(header: RoomPlmHeaders.ClearSporeSpawnCeiling);
             return;
         }
 

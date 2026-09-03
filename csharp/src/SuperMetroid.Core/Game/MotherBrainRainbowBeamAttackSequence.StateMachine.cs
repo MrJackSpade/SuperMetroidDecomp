@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -1058,7 +1060,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 escapeDoorPlm = new(
                     BlockX: 0x00,
                     BlockY: 0x06,
-                    PlmEntry: 0xb677);
+                    PlmEntry: RoomPlmHeaders.MotherBrainsRoomEscapeDoor);
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceKeepEarthquakeGoing:

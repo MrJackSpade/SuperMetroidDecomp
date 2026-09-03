@@ -6,12 +6,6 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Cartridge-authored condition gates for bank-$84's grey door family.</summary>
 public sealed partial class RoomPlmSystem
 {
-    private const ushort BombTorizoGreyDoorHeader = 0xbaf4;
-    private const ushort GreyDoorFacingLeftHeader = 0xc842;
-    private const ushort GreyDoorFacingRightHeader = 0xc848;
-    private const ushort GreyDoorFacingUpHeader = 0xc84e;
-    private const ushort GreyDoorFacingDownHeader = 0xc854;
-
     private Bank80SystemState? _greyDoorSystem;
     private AreaId _greyDoorArea;
     private Func<bool>? _isTourianStatueFinished;
@@ -245,19 +239,20 @@ public sealed partial class RoomPlmSystem
         ushort header,
         out ColoredDoorOrientation orientation)
     {
-        if (header == BombTorizoGreyDoorHeader)
+        if (header == RoomPlmHeaders.BombTorizoGreyDoor)
         {
             orientation = ColoredDoorOrientation.Right;
             return true;
         }
 
-        if (header is < GreyDoorFacingLeftHeader or > GreyDoorFacingDownHeader)
+        if (header is < RoomPlmHeaders.GreyDoorFacingLeft or
+            > RoomPlmHeaders.GreyDoorFacingDown)
         {
             orientation = default;
             return false;
         }
 
-        int byteOffset = header - GreyDoorFacingLeftHeader;
+        int byteOffset = header - RoomPlmHeaders.GreyDoorFacingLeft;
         if (byteOffset % 6 != 0 || byteOffset > 18)
         {
             orientation = default;

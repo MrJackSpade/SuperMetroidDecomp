@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public sealed partial class RoomPlmSystem
 {
-    private const ushort MotherBrainGlassHeader = 0xd6de;
     private const ushort MotherBrainGlassInitialInstruction = 0xd202;
     private const ushort MotherBrainGlassPreInstruction = 0xd1e6;
     private const ushort MotherBrainGlassShardDefinition = 0xcefc;
@@ -135,7 +134,7 @@ public sealed partial class RoomPlmSystem
 
     private static void RunMotherBrainGlassPreInstruction(PlmSlot slot)
     {
-        if (slot.HeaderPointer != MotherBrainGlassHeader || slot.PreInstruction == 0)
+        if (slot.HeaderPointer != RoomPlmHeaders.MotherBrainGlass || slot.PreInstruction == 0)
             return;
         if (slot.PreInstruction != MotherBrainGlassPreInstruction)
         {
@@ -156,7 +155,7 @@ public sealed partial class RoomPlmSystem
         PlmSlot slot,
         ushort instruction)
     {
-        if (slot.HeaderPointer != MotherBrainGlassHeader)
+        if (slot.HeaderPointer != RoomPlmHeaders.MotherBrainGlass)
             return false;
 
         ushort cursor = slot.InstructionPointer;
@@ -233,7 +232,7 @@ public sealed partial class RoomPlmSystem
         if ((uint)_motherBrainGlassSlotIndex < (uint)_slots.Length)
         {
             PlmSlot candidate = _slots[_motherBrainGlassSlotIndex];
-            if (candidate.Active && candidate.HeaderPointer == MotherBrainGlassHeader)
+            if (candidate.Active && candidate.HeaderPointer == RoomPlmHeaders.MotherBrainGlass)
             {
                 slot = candidate;
                 return true;
@@ -245,7 +244,7 @@ public sealed partial class RoomPlmSystem
 
     private void OnPlmDeleted(PlmSlot slot)
     {
-        if (slot.HeaderPointer != MotherBrainGlassHeader)
+        if (slot.HeaderPointer != RoomPlmHeaders.MotherBrainGlass)
             return;
         _motherBrainGlassLastRoomArgument = slot.RoomArgument;
         _motherBrainGlassWasDeleted = true;

@@ -1,5 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
+using SuperMetroid.Core.Rooms;
+
 /// <summary>Crocomire's bridge threshold latches and cross-bank arena publications.</summary>
 public sealed partial class RoomEnemySystem
 {
@@ -40,7 +42,8 @@ public sealed partial class RoomEnemySystem
             if (!death.BridgeBlockAt1568Crumbling)
             {
                 death.BridgeBlockAt1568Crumbling = true;
-                PublishCrocomirePlm(0x61, 0x0b, 0xb74b);
+                PublishCrocomirePlm(
+                    0x61, 0x0b, RoomPlmHeaders.CrumbleCrocomireBridgeBlock);
                 SpawnRoomGraphicsDustExplosion(1568, 176, animationIndex: 0x0015);
             }
             return;
@@ -50,8 +53,10 @@ public sealed partial class RoomEnemySystem
             !death.BridgeBlocksAt1584Crumbling)
         {
             death.BridgeBlocksAt1584Crumbling = true;
-            PublishCrocomirePlm(0x62, 0x0b, 0xb74b);
-            PublishCrocomirePlm(0x63, 0x0b, 0xb74b);
+            PublishCrocomirePlm(
+                0x62, 0x0b, RoomPlmHeaders.CrumbleCrocomireBridgeBlock);
+            PublishCrocomirePlm(
+                0x63, 0x0b, RoomPlmHeaders.CrumbleCrocomireBridgeBlock);
             SpawnRoomGraphicsDustExplosion(1584, 176, animationIndex: 0x0015);
         }
     }
@@ -60,7 +65,8 @@ public sealed partial class RoomEnemySystem
     private void PublishCrocomireBridgeCollapsePlms()
     {
         for (byte blockX = 0x61; blockX <= 0x6a; blockX++)
-            PublishCrocomirePlm(blockX, 0x0b, 0xb74f);
+            PublishCrocomirePlm(
+                blockX, 0x0b, RoomPlmHeaders.ClearCrocomireBridgeBlock);
 
         ReadOnlySpan<(ushort X, ushort Y)> dustPositions =
         [
@@ -75,6 +81,6 @@ public sealed partial class RoomEnemySystem
         foreach ((ushort x, ushort y) in dustPositions)
             SpawnRoomGraphicsDustExplosion(x, y, animationIndex: 0x0015);
 
-        PublishCrocomirePlm(0x4e, 0x03, 0xb757);
+        PublishCrocomirePlm(0x4e, 0x03, RoomPlmHeaders.CreateCrocomireInvisibleWall);
     }
 }

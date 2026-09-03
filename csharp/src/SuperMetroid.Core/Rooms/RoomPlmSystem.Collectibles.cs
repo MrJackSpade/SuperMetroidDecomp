@@ -14,11 +14,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed partial class RoomPlmSystem
 {
-    private const ushort FirstExposedCollectibleHeader = 0xeed7;
-    private const ushort FirstChozoCollectibleHeader = 0xef2b;
-    private const ushort FirstShotBlockCollectibleHeader = 0xef7f;
-    private const int CollectibleKindCount = 21;
-
     // These draw lists are cartridge-authored one-block records. Routing every visual
     // mutation through DrawRomInstruction retains the exact level word, collision nibble,
     // tile number, flip flags, clipping window, and live BG1 update path.
@@ -201,18 +196,18 @@ public sealed partial class RoomPlmSystem
     {
         if (TryDecodeCollectibleRange(
                 header,
-                FirstExposedCollectibleHeader,
+                RoomPlmHeaders.ExposedEnergyTank,
                 out kind))
         {
             presentation = CollectiblePresentation.Exposed;
             return true;
         }
-        if (TryDecodeCollectibleRange(header, FirstChozoCollectibleHeader, out kind))
+        if (TryDecodeCollectibleRange(header, RoomPlmHeaders.ChozoEnergyTank, out kind))
         {
             presentation = CollectiblePresentation.ChozoOrb;
             return true;
         }
-        if (TryDecodeCollectibleRange(header, FirstShotBlockCollectibleHeader, out kind))
+        if (TryDecodeCollectibleRange(header, RoomPlmHeaders.ShotBlockEnergyTank, out kind))
         {
             presentation = CollectiblePresentation.ShotBlock;
             return true;
@@ -229,7 +224,8 @@ public sealed partial class RoomPlmSystem
         out InWorldCollectibleKind kind)
     {
         int byteOffset = header - firstHeader;
-        if (byteOffset >= 0 && byteOffset < CollectibleKindCount * 4 &&
+        if (byteOffset >= 0 &&
+            byteOffset < RoomPlmHeaders.PermanentCollectibleKindCount * 4 &&
             (byteOffset & 3) == 0)
         {
             kind = (InWorldCollectibleKind)(byteOffset / 4);

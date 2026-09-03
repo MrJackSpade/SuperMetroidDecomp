@@ -6,11 +6,6 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Map/resource/save stations and the ordinary elevator-platform room PLM.</summary>
 public sealed partial class RoomPlmSystem
 {
-    private const ushort MapStationHeader = 0xb6d3;
-    private const ushort EnergyStationHeader = 0xb6df;
-    private const ushort MissileStationHeader = 0xb6eb;
-    private const ushort ElevatorPlatformHeader = 0xb70b;
-    private const ushort SaveStationHeader = 0xb76f;
     private const int StationNormalAnimationOffset = 4;
     private const int MapStationAcquiredAnimationOffset = 20;
     private const ushort StationAccessMovementFrames = 6;
@@ -143,7 +138,7 @@ public sealed partial class RoomPlmSystem
     {
         switch (slot.HeaderPointer)
         {
-            case ElevatorPlatformHeader:
+            case RoomPlmHeaders.ElevatorPlatform:
             {
                 // Setup_DeactivatePLM clears collision bits 12..14 but deliberately retains
                 // bit 15 and the visual payload. The list at $AFB6 is then handled by the
@@ -156,16 +151,16 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            case MapStationHeader:
+            case RoomPlmHeaders.MapStation:
                 SetupStation(level, streamer, system, area, slot, StationKind.Map);
                 return true;
-            case EnergyStationHeader:
+            case RoomPlmHeaders.EnergyStation:
                 SetupStation(level, streamer, system, area, slot, StationKind.Energy);
                 return true;
-            case MissileStationHeader:
+            case RoomPlmHeaders.MissileStation:
                 SetupStation(level, streamer, system, area, slot, StationKind.Missile);
                 return true;
-            case SaveStationHeader:
+            case RoomPlmHeaders.SaveStation:
                 SetupStation(level, streamer, system, area, slot, StationKind.Save);
                 return true;
             default:
@@ -671,12 +666,12 @@ public sealed partial class RoomPlmSystem
     {
         ushort accessHeader = station.AccessBehavior switch
         {
-            StationAccessBehavior.MapRight => 0xb6d7,
-            StationAccessBehavior.MapLeft => 0xb6db,
-            StationAccessBehavior.EnergyRight => 0xb6e3,
-            StationAccessBehavior.EnergyLeft => 0xb6e7,
-            StationAccessBehavior.MissileRight => 0xb6ef,
-            StationAccessBehavior.MissileLeft => 0xb6f3,
+            StationAccessBehavior.MapRight => RoomPlmHeaders.MapStationRightAccess,
+            StationAccessBehavior.MapLeft => RoomPlmHeaders.MapStationLeftAccess,
+            StationAccessBehavior.EnergyRight => RoomPlmHeaders.EnergyStationRightAccess,
+            StationAccessBehavior.EnergyLeft => RoomPlmHeaders.EnergyStationLeftAccess,
+            StationAccessBehavior.MissileRight => RoomPlmHeaders.MissileStationRightAccess,
+            StationAccessBehavior.MissileLeft => RoomPlmHeaders.MissileStationLeftAccess,
             _ => throw new InvalidDataException(
                 $"Station access has invalid BTS ${station.AccessBehavior:X2}."),
         };

@@ -15,11 +15,15 @@ public sealed partial class RoomPlmSystem
     /// </summary>
     public static bool IsSupportedRoomPopulationHeader(ushort header)
     {
-        if (header is RoomPlmHeaders.ScrollTrigger or RightwardsExtensionHeader or
-            LeftwardsExtensionHeader or DownwardsExtensionHeader or UpwardsExtensionHeader or
-            MotherBrainGlassHeader or BombTorizoHandHeader or
-            MapStationHeader or EnergyStationHeader or MissileStationHeader or
-            ElevatorPlatformHeader or SaveStationHeader)
+        if (header is RoomPlmHeaders.ScrollTrigger or
+            RoomPlmHeaders.RightwardsScrollExtension or
+            RoomPlmHeaders.LeftwardsScrollExtension or
+            RoomPlmHeaders.DownwardsScrollExtension or
+            RoomPlmHeaders.UpwardsScrollExtension or
+            RoomPlmHeaders.MotherBrainGlass or RoomPlmHeaders.BombTorizoHand or
+            RoomPlmHeaders.MapStation or RoomPlmHeaders.EnergyStation or
+            RoomPlmHeaders.MissileStation or RoomPlmHeaders.ElevatorPlatform or
+            RoomPlmHeaders.SaveStation)
         {
             return true;
         }
@@ -234,8 +238,11 @@ public sealed partial class RoomPlmSystem
             return true;
         }
 
-        if (header is RoomPlmHeaders.ScrollTrigger or RightwardsExtensionHeader or
-            LeftwardsExtensionHeader or DownwardsExtensionHeader or UpwardsExtensionHeader)
+        if (header is RoomPlmHeaders.ScrollTrigger or
+            RoomPlmHeaders.RightwardsScrollExtension or
+            RoomPlmHeaders.LeftwardsScrollExtension or
+            RoomPlmHeaders.DownwardsScrollExtension or
+            RoomPlmHeaders.UpwardsScrollExtension)
         {
             SetupScrollSlot(level, slot, header);
             return true;
@@ -250,13 +257,13 @@ public sealed partial class RoomPlmSystem
             return true;
         }
 
-        if (header == MotherBrainGlassHeader)
+        if (header == RoomPlmHeaders.MotherBrainGlass)
         {
             SetupMotherBrainGlassSlot(level, streamer, record, slot);
             return true;
         }
 
-        if (header == BombTorizoHandHeader)
+        if (header == RoomPlmHeaders.BombTorizoHand)
         {
             SetupBombTorizoHandSlot(level, slot, isAreaTorizoDefeated);
             return true;

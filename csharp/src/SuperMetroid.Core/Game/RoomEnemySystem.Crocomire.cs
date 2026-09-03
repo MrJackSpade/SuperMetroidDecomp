@@ -164,9 +164,9 @@ public sealed partial class RoomEnemySystem
             RequireSetRoomScrollByte(1, 1);
             RequireSetRoomScrollByte(2, 1);
             RequireSetRoomScrollByte(3, 1);
-            PublishCrocomirePlm(0x20, 0x03, 0xb753);
-            PublishCrocomirePlm(0x1e, 0x03, 0xb753);
-            PublishCrocomirePlm(0x61, 0x0b, 0xb747);
+            PublishCrocomirePlm(0x20, 0x03, RoomPlmHeaders.ClearCrocomireInvisibleWall);
+            PublishCrocomirePlm(0x1e, 0x03, RoomPlmHeaders.ClearCrocomireInvisibleWall);
+            PublishCrocomirePlm(0x61, 0x0b, RoomPlmHeaders.ClearCrocomireBridge);
             TransferCrocomireBg2Words(0, 1024);
             return;
         }

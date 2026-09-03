@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -84,7 +86,7 @@ public sealed partial class RoomEnemySystem
         body.InstructionTimer = 1;
         RequireSetAreaMiniBossDefeated();
         state.ScrollClampHookActive = false;
-        PublishSporeSpawnPlm(header: 0xb78f);
+        PublishSporeSpawnPlm(header: RoomPlmHeaders.CrumbleSporeSpawnCeiling);
     }
 
     /// <summary>Ports common bank-$A0 <c>CreateADudShot</c> for a protected head hitbox.</summary>

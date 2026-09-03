@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -205,7 +207,7 @@ public sealed partial class RoomEnemySystem
         // installs the permanent open wall and makes both one-screen scroll entries blue.
         if (RequireAreaMiniBossDefeated())
         {
-            LastBotwoonWallPlm = 0xb797;
+            LastBotwoonWallPlm = RoomPlmHeaders.ClearBotwoonWall;
             head.Properties = head.Properties.With(EnemyProperties.Deleted);
             state.WallCrumbleRequested = true;
             state.BossBitSet = true;
@@ -793,7 +795,7 @@ public sealed partial class RoomEnemySystem
     private void BeginBotwoonWallExplosions(RoomEnemySlot head, BotwoonEnemyState state)
     {
         state.Function = BotwoonEnemyFunction.WallExplosions;
-        LastBotwoonWallPlm = 0xb79b;
+        LastBotwoonWallPlm = RoomPlmHeaders.CrumbleBotwoonWall;
         state.WallCrumbleRequested = true;
 
         // `Enemy_ItemDrop_Botwoon` at `$A0:BA3E` emits sixteen independent pickup

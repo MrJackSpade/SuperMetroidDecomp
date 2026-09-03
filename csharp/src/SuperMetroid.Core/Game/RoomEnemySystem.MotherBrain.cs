@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -253,8 +255,14 @@ public sealed partial class RoomEnemySystem
                 // $84 allocator searches the same descending pool for each call.
                 SpawnRoomGraphicsDustExplosion(248, 72, animationIndex: 9);
                 SpawnRoomGraphicsDustExplosion(248, 152, animationIndex: 9);
-                state.RequestPlm(blockX: 15, blockY: 4, header: 0xb673);
-                state.RequestPlm(blockX: 15, blockY: 9, header: 0xb673);
+                state.RequestPlm(
+                    blockX: 15,
+                    blockY: 4,
+                    header: RoomPlmHeaders.FillMotherBrainsWall);
+                state.RequestPlm(
+                    blockX: 15,
+                    blockY: 9,
+                    header: RoomPlmHeaders.FillMotherBrainsWall);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentInitialPause;
             }
         }

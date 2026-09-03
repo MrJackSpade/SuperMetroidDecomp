@@ -322,7 +322,9 @@ public sealed partial class RoomPlmSystem
         ushort header)
     {
         ArgumentNullException.ThrowIfNull(level);
-        if (header is not (0xb763 or 0xb767))
+        if (header is not (
+            RoomPlmHeaders.ClearBabyMetroidInvisibleWall or
+            RoomPlmHeaders.CreateBabyMetroidInvisibleWall))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(header),
@@ -354,7 +356,7 @@ public sealed partial class RoomPlmSystem
             {
                 int blockIndex = level.GetBlockIndex(blockX, blockY + rowOffset);
                 ushort current = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
-                ushort replacement = header == 0xb767
+                ushort replacement = header == RoomPlmHeaders.CreateBabyMetroidInvisibleWall
                     ? unchecked((ushort)((current & 0x0fff) | 0x8000))
                     : unchecked((ushort)(current & 0x0fff));
                 level.SetForegroundEntry(blockIndex, replacement);
@@ -381,25 +383,25 @@ public sealed partial class RoomPlmSystem
         ArgumentNullException.ThrowIfNull(level);
         ushort instructionPointer = header switch
         {
-            0xb673 => 0xac05,
-            0xb67b => 0xac11,
-            0xb67f => 0xac17,
-            0xb683 => 0xac1d,
-            0xb687 => 0xac23,
-            0xb68b => 0xac29,
-            0xb68f => 0xac2f,
-            0xb693 => 0xac35,
-            0xb697 => 0xac3b,
-            0xb69b => 0xac41,
-            0xb69f => 0xac47,
-            0xb6a3 => 0xac4d,
-            0xb6a7 => 0xac53,
-            0xb6b3 => 0xac65,
-            0xb6b7 => 0xac6b,
-            0xb6bb => 0xac71,
-            0xb6bf => 0xac77,
-            0xb6c3 => 0xac7d,
-            0xb6c7 => 0xac83,
+            RoomPlmHeaders.FillMotherBrainsWall => 0xac05,
+            RoomPlmHeaders.MotherBrainsBackgroundRow2 => 0xac11,
+            RoomPlmHeaders.MotherBrainsBackgroundRow3 => 0xac17,
+            RoomPlmHeaders.MotherBrainsBackgroundRow4 => 0xac1d,
+            RoomPlmHeaders.MotherBrainsBackgroundRow5 => 0xac23,
+            RoomPlmHeaders.MotherBrainsBackgroundRow6 => 0xac29,
+            RoomPlmHeaders.MotherBrainsBackgroundRow7 => 0xac2f,
+            RoomPlmHeaders.MotherBrainsBackgroundRow8 => 0xac35,
+            RoomPlmHeaders.MotherBrainsBackgroundRow9 => 0xac3b,
+            RoomPlmHeaders.MotherBrainsBackgroundRowA => 0xac41,
+            RoomPlmHeaders.MotherBrainsBackgroundRowB => 0xac47,
+            RoomPlmHeaders.MotherBrainsBackgroundRowC => 0xac4d,
+            RoomPlmHeaders.MotherBrainsBackgroundRowD => 0xac53,
+            RoomPlmHeaders.ClearMotherBrainCeilingBlock => 0xac65,
+            RoomPlmHeaders.ClearMotherBrainCeilingTube => 0xac6b,
+            RoomPlmHeaders.ClearMotherBrainBottomMiddleSideTube => 0xac71,
+            RoomPlmHeaders.ClearMotherBrainBottomMiddleTubes => 0xac77,
+            RoomPlmHeaders.ClearMotherBrainBottomLeftTube => 0xac7d,
+            RoomPlmHeaders.ClearMotherBrainBottomRightTube => 0xac83,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,

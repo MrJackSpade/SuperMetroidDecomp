@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed partial class RoomPlmSystem
 {
-    private const ushort BombTorizoHandHeader = 0xd6ea;
     private const ushort BombTorizoHandInitialInstruction = 0xd368;
     private const ushort WakeIfSamusHasBombsPreInstruction = 0xd33b;
     private const ushort BombTorizoStatueBreakingDefinition = 0xa993;
@@ -94,7 +93,7 @@ public sealed partial class RoomPlmSystem
     /// </summary>
     private void RunBombTorizoHandPreInstruction(PlmSlot slot)
     {
-        if (slot.HeaderPointer != BombTorizoHandHeader || slot.PreInstruction == 0)
+        if (slot.HeaderPointer != RoomPlmHeaders.BombTorizoHand || slot.PreInstruction == 0)
             return;
         if (slot.PreInstruction != WakeIfSamusHasBombsPreInstruction)
         {
@@ -120,7 +119,7 @@ public sealed partial class RoomPlmSystem
         PlmSlot slot,
         ushort instruction)
     {
-        if (slot.HeaderPointer != BombTorizoHandHeader)
+        if (slot.HeaderPointer != RoomPlmHeaders.BombTorizoHand)
             return false;
 
         ushort cursor = slot.InstructionPointer;
@@ -173,7 +172,7 @@ public sealed partial class RoomPlmSystem
 
     private void MarkBombTorizoHandDeleted(PlmSlot slot)
     {
-        if (slot.HeaderPointer != BombTorizoHandHeader)
+        if (slot.HeaderPointer != RoomPlmHeaders.BombTorizoHand)
             return;
         _bombTorizoHandWasDeleted = true;
         slot.HeaderPointer = 0;

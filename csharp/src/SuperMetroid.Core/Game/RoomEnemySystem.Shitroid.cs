@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -120,8 +122,6 @@ public sealed partial class RoomEnemySystem
     private const ushort ShitroidCalmInstruction = 0xf906;
     private const ushort ShitroidAggressiveInstruction = 0xf924;
     private const ushort ShitroidExitInstruction = 0xf93a;
-    private const ushort ShitroidCloseWallPlm = 0xb767;
-    private const ushort ShitroidOpenWallPlm = 0xb763;
     private const int ShitroidNormalPaletteSource = 0xa9f6d1;
 
     private static ReadOnlySpan<short> ShitroidShakeX => [0, -1, 0, 1];
@@ -325,7 +325,7 @@ public sealed partial class RoomEnemySystem
                     state.Function = ShitroidAiFunction.HoverNearSamus;
                     slot.Parameter2 = 1;
                     SetShitroidScrollPair(1);
-                    QueueShitroidWallPlms(ShitroidOpenWallPlm);
+                    QueueShitroidWallPlms(RoomPlmHeaders.ClearBabyMetroidInvisibleWall);
                 }
                 return;
 
@@ -482,7 +482,7 @@ public sealed partial class RoomEnemySystem
         // byte scroll array without pretending that this is ordinary camera tracking.
         RequestedShitroidCameraX = 512;
         SetShitroidScrollPair(0);
-        QueueShitroidWallPlms(ShitroidCloseWallPlm);
+        QueueShitroidWallPlms(RoomPlmHeaders.CreateBabyMetroidInvisibleWall);
         state.Function = ShitroidAiFunction.BeginEntranceDelay;
         state.CryEnabled = 1;
     }

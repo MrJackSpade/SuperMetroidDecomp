@@ -28,7 +28,8 @@ static void VerifyStrictFailureBoundaries()
         () => MasterBrightnessFilter.Apply(pixel, 16),
         "master brightness above INIDISP range is rejected");
 
-    AssertTrue(RoomPlmSystem.IsSupportedRoomPopulationHeader(0xc85a),
+    AssertTrue(RoomPlmSystem.IsSupportedRoomPopulationHeader(
+            RoomPlmHeaders.YellowDoorFacingLeft),
         "translated yellow-door PLM is classified by the production dispatcher");
     AssertTrue(!RoomPlmSystem.IsSupportedRoomPopulationHeader(0xdead),
         "unknown PLM is absent from the production dispatcher");

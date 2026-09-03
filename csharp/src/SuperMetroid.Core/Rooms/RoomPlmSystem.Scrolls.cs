@@ -5,11 +5,6 @@ namespace SuperMetroid.Core.Rooms;
 
 public sealed partial class RoomPlmSystem
 {
-    private const ushort RightwardsExtensionHeader = 0xb63b;
-    private const ushort LeftwardsExtensionHeader = 0xb63f;
-    private const ushort DownwardsExtensionHeader = 0xb643;
-    private const ushort UpwardsExtensionHeader = 0xb647;
-
     /// <summary>Every live cartridge-authored scroll trigger, in native slot order.</summary>
     public IReadOnlyList<ScrollPlmSnapshot> ScrollPlms => _slots
         .Where(slot => slot.Active && slot.Scroll is not null)
@@ -92,10 +87,10 @@ public sealed partial class RoomPlmSystem
         {
             (int collisionType, int behavior) = header switch
             {
-                RightwardsExtensionHeader => (5, 0xff),
-                LeftwardsExtensionHeader => (5, 0x01),
-                DownwardsExtensionHeader => (13, 0xff),
-                UpwardsExtensionHeader => (13, 0x01),
+                RoomPlmHeaders.RightwardsScrollExtension => (5, 0xff),
+                RoomPlmHeaders.LeftwardsScrollExtension => (5, 0x01),
+                RoomPlmHeaders.DownwardsScrollExtension => (13, 0xff),
+                RoomPlmHeaders.UpwardsScrollExtension => (13, 0x01),
                 _ => throw new InvalidOperationException(
                     "Validated scroll extension escaped its setup table."),
             };

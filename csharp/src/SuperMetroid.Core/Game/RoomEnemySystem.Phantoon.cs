@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -254,7 +256,7 @@ public sealed partial class RoomEnemySystem
         state.Tentacles!.VariableB = 0;
         body.VariableF = (ushort)PhantoonAiFunction.WaitBeforeActivatingStartingFlames;
         body.VariableE = 30;
-        state.BossDoorPlmRequest = 0xb781;
+        state.BossDoorPlmRequest = RoomPlmHeaders.DrawPhantoonDoorDuringBossFight;
     }
 
     private static void RunPhantoonStartingFlamePause(RoomEnemySlot body)

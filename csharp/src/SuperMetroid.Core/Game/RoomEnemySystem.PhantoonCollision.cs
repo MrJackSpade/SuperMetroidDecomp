@@ -195,7 +195,8 @@ public sealed partial class RoomEnemySystem
             if (vulnerableWindow)
             {
                 ushort random = unchecked((ushort)(_nextRandom!() & 7));
-                state.Eye!.VariableB = _bus!.ReadByte(0xa7cda5 + random);
+                state.Eye!.VariableB = _bus!.ReadByte(
+                    EnemyRomTablePointers.Phantoon.RandomDirectionBytes + random);
                 state.Mouth!.Parameter2 = random;
                 state.Tentacles.Parameter2 = 1;
                 if (state.Tentacles.VariableA == 0)

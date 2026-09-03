@@ -89,7 +89,11 @@ public sealed partial class RoomEnemySystem
         // WriteColorsToTargetPalette($140, $A6:E1CF, $20) installs both body and manual
         // tail/wing source palettes. The following loops clear the two fifteen-color OBJ
         // ranges that the reveal gradually fills; color zero remains transparent.
-        _cgram!.LoadFromBus(_bus!, 0xa6e1cf, colorCount: 32, destinationIndex: 0x140 / 2);
+        _cgram!.LoadFromBus(
+            _bus!,
+            EnemyRomTablePointers.Ridley.InitialPaletteWords,
+            colorCount: 32,
+            destinationIndex: 0x140 / 2);
         for (int color = 113; color <= 127; color++)
             _cgram.SetColor(color, 0);
         for (int color = 241; color <= 255; color++)
@@ -338,7 +342,8 @@ public sealed partial class RoomEnemySystem
             case RidleyAiFunction.NorfairCarryRelease:
                 ushort releaseX = ReadWord(
                     _bus!,
-                    0xa6bc62 + Math.Min(state.FacingDirection, (ushort)2) * 2);
+                    EnemyRomTablePointers.Ridley.CarryReleaseXWords +
+                    Math.Min(state.FacingDirection, (ushort)2) * 2);
                 MoveNorfairRidleyToward(slot, state, releaseX, 224, 0);
                 if (TickRidleyFunctionTimer(state))
                     state.Function = RidleyAiFunction.NorfairSelectAttack;
@@ -391,7 +396,8 @@ public sealed partial class RoomEnemySystem
         state.FunctionTimer = 2;
         ushort sourcePointer = ReadWord(
             _bus!,
-            0xa6a4eb + state.FadePaletteOffset * 2);
+            EnemyRomTablePointers.Ridley.RevealPaletteSourcePointers +
+            state.FadePaletteOffset * 2);
         state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset + 1));
         if (sourcePointer != 0)
         {
@@ -519,7 +525,9 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         bool descending)
     {
-        int tableAddress = descending ? 0xa6b60d : 0xa6b63b;
+        int tableAddress = descending
+            ? EnemyRomTablePointers.Ridley.DescendingPogoTargetXWords
+            : EnemyRomTablePointers.Ridley.AscendingPogoTargetXWords;
         ushort targetX = ReadWord(
             _bus!,
             tableAddress + Math.Min(state.FacingDirection, (ushort)2) * 2);
@@ -568,7 +576,8 @@ public sealed partial class RoomEnemySystem
 
         ushort targetX = ReadWord(
             _bus!,
-            0xa6b6c8 + Math.Min(state.FacingDirection, (ushort)2) * 2);
+            EnemyRomTablePointers.Ridley.GroundAttackTargetXWords +
+            Math.Min(state.FacingDirection, (ushort)2) * 2);
         MoveNorfairRidleyToward(slot, state, targetX, 288, divisorIndex: 0);
     }
 
@@ -653,12 +662,20 @@ public sealed partial class RoomEnemySystem
     private void InitializeNorfairRidleyPogoVelocity(RidleyEnemyState state)
     {
         int randomIndex = _nextRandom!() & 3;
-        ushort horizontalTable = ReadWord(_bus!, 0xa6b965 + randomIndex * 2);
-        ushort verticalTable = ReadWord(_bus!, 0xa6b96d + randomIndex * 2);
+        ushort horizontalTable = ReadWord(
+            _bus!,
+            EnemyRomTablePointers.Ridley.PogoHorizontalPathPointers + randomIndex * 2);
+        ushort verticalTable = ReadWord(
+            _bus!,
+            EnemyRomTablePointers.Ridley.PogoVerticalPathPointers + randomIndex * 2);
         int healthOffset = (Math.Min(state.HealthStage, (ushort)3) + 2) * 2;
 
-        state.PogoUpwardAcceleration = ReadWord(_bus!, 0xa6b94d + healthOffset);
-        state.PogoDownwardAcceleration = ReadWord(_bus!, 0xa6b959 + healthOffset);
+        state.PogoUpwardAcceleration = ReadWord(
+            _bus!,
+            EnemyRomTablePointers.Ridley.PogoUpwardAccelerationWords + healthOffset);
+        state.PogoDownwardAcceleration = ReadWord(
+            _bus!,
+            EnemyRomTablePointers.Ridley.PogoDownwardAccelerationWords + healthOffset);
         state.VerticalVelocity = ReadWord(
             _bus!,
             0xa60000 | unchecked((ushort)(verticalTable + healthOffset)));
@@ -708,7 +725,8 @@ public sealed partial class RoomEnemySystem
         ushort targetY = unchecked((ushort)(samus.YPosition - 4));
         int divisorIndex = ReadWord(
             _bus!,
-            0xa6bb4e + Math.Min(state.HealthStage, (ushort)3) * 2);
+            EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords +
+            Math.Min(state.HealthStage, (ushort)3) * 2);
         MoveNorfairRidleyToward(
             slot,
             state,
@@ -743,7 +761,8 @@ public sealed partial class RoomEnemySystem
     {
         state.TargetX = ReadWord(
             _bus!,
-            0xa6bbeb + Math.Min(state.FacingDirection, (ushort)2) * 2);
+            EnemyRomTablePointers.Ridley.CarryAnchorXWords +
+            Math.Min(state.FacingDirection, (ushort)2) * 2);
         state.TargetY = unchecked((short)(slot.YPosition - 320)) < 0
             ? (ushort)256
             : unchecked((ushort)(slot.YPosition - 64));
@@ -800,14 +819,15 @@ public sealed partial class RoomEnemySystem
     private ushort GetNorfairRidleyClawX(RoomEnemySlot slot, RidleyEnemyState state) =>
         unchecked((ushort)(slot.XPosition + unchecked((short)ReadWord(
             _bus!,
-            0xa6b9d5 + Math.Min(state.FacingDirection, (ushort)2) * 2))));
+            EnemyRomTablePointers.Ridley.ClawXOffsetWords +
+            Math.Min(state.FacingDirection, (ushort)2) * 2))));
 
     private ushort GetNorfairRidleyClawY(RoomEnemySlot slot, RidleyEnemyState state)
     {
         int index = Math.Min(state.FeetDistanceIndex >> 1, (ushort)8);
         return unchecked((ushort)(slot.YPosition + unchecked((short)ReadWord(
             _bus!,
-            0xa6b9db + index * 2))));
+            EnemyRomTablePointers.Ridley.ClawYOffsetWords + index * 2))));
     }
 
     private static bool TickRidleyFunctionTimer(RidleyEnemyState state)
@@ -843,7 +863,10 @@ public sealed partial class RoomEnemySystem
     }
 
     private int ReadRidleyHealthMovementDivisorIndex(RidleyEnemyState state) =>
-        ReadWord(_bus!, 0xa6b439 + Math.Min(state.HealthStage, (ushort)3) * 2);
+        ReadWord(
+            _bus!,
+            EnemyRomTablePointers.Ridley.TailInstructionWords +
+            Math.Min(state.HealthStage, (ushort)3) * 2);
 
     private bool SamusMovementUsesRidleyGrab(SamusState? samus)
     {
@@ -862,7 +885,8 @@ public sealed partial class RoomEnemySystem
         int divisorIndex,
         ushort reversalBoost = 0)
     {
-        ushort divisor = _bus!.ReadByte(0xa6d61f + divisorIndex);
+        ushort divisor = _bus!.ReadByte(
+            EnemyRomTablePointers.Ridley.TailRotationDivisorBytes + divisorIndex);
         if (divisor == 0)
             throw new InvalidDataException($"Ridley combat divisor {divisorIndex} is zero.");
 
@@ -919,7 +943,8 @@ public sealed partial class RoomEnemySystem
 
         _cgram!.LoadFromBus(
             _bus!,
-            0xa6e46a + (state.HealthStage - 1) * 28,
+            EnemyRomTablePointers.Ridley.HealthPaletteWords +
+            (state.HealthStage - 1) * 28,
             colorCount: 14,
             destinationIndex: 0x01e2 / 2);
     }

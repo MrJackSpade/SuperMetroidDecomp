@@ -241,15 +241,21 @@ public sealed partial class RoomEnemySystem
         // Entries zero/one are Bomb/Golden respectively. Every value remains ROM-backed;
         // only the table index is selected from the already-validated enemy definition.
         int tableOffset = isGolden ? 2 : 0;
-        torizo.XPosition = ReadWord(_bus!, 0xaac95f + tableOffset);
-        torizo.YPosition = ReadWord(_bus!, 0xaac963 + tableOffset);
-        torizo.CurrentInstruction = ReadWord(_bus!, 0xaac967 + tableOffset);
+        torizo.XPosition = ReadWord(
+            _bus!, EnemyRomTablePointers.Torizo.WakeXPositions + tableOffset);
+        torizo.YPosition = ReadWord(
+            _bus!, EnemyRomTablePointers.Torizo.WakeYPositions + tableOffset);
+        torizo.CurrentInstruction = ReadWord(
+            _bus!, EnemyRomTablePointers.Torizo.WakeInstructionLists + tableOffset);
         torizo.Properties = unchecked((ushort)(
-            torizo.Properties | ReadWord(_bus!, 0xaac96b + tableOffset)));
+            torizo.Properties | ReadWord(
+                _bus!, EnemyRomTablePointers.Torizo.WakePropertyMasks + tableOffset)));
         torizo.ExtraProperties = torizo.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
-        torizo.XRadius = ReadWord(_bus!, 0xaac96f + tableOffset);
-        torizo.YRadius = ReadWord(_bus!, 0xaac973 + tableOffset);
+        torizo.XRadius = ReadWord(
+            _bus!, EnemyRomTablePointers.Torizo.WakeXRadii + tableOffset);
+        torizo.YRadius = ReadWord(
+            _bus!, EnemyRomTablePointers.Torizo.WakeYRadii + tableOffset);
         torizo.InstructionTimer = 1;
         torizo.Timer = 0;
         torizo.PaletteIndex = 0;
@@ -371,8 +377,18 @@ public sealed partial class RoomEnemySystem
         int sourceWord = selector * 2;
         for (int color = 0; color < 16; color++)
         {
-            _cgram!.SetColor(144 + color, ReadWord(_bus!, 0x848032 + (sourceWord + color) * 2));
-            _cgram.SetColor(160 + color, ReadWord(_bus!, 0x848132 + (sourceWord + color) * 2));
+            _cgram!.SetColor(
+                144 + color,
+                ReadWord(
+                    _bus!,
+                    EnemyRomTablePointers.Torizo.BodyPaletteFxColors +
+                        (sourceWord + color) * 2));
+            _cgram.SetColor(
+                160 + color,
+                ReadWord(
+                    _bus!,
+                    EnemyRomTablePointers.Torizo.BellyPaletteFxColors +
+                        (sourceWord + color) * 2));
         }
     }
 

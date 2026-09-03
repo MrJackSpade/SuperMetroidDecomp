@@ -307,12 +307,16 @@ public sealed partial class RoomEnemySystem
             graphicsIndex: 0);
         int tableIndex = parameter >> 1;
         projectile.XPosition = unchecked((ushort)(samus.XPosition +
-            unchecked((short)ReadWord(_bus!, 0x86a2d6 + tableIndex * 2))));
+            unchecked((short)ReadWord(
+                _bus!,
+                EnemyRomTablePointers.Ceres.FallingDebrisXOffsetWords + tableIndex * 2))));
         projectile.YPosition = unchecked((ushort)(samus.YPosition + 0x0050));
         projectile.XVelocity = 0;
         projectile.YVelocity = 0;
         projectile.Variable0 = parameter;
-        projectile.InstructionPointer = ReadWord(_bus!, 0x86a2e2 + tableIndex * 2);
+        projectile.InstructionPointer = ReadWord(
+            _bus!,
+            EnemyRomTablePointers.Ceres.FallingDebrisInstructionPointers + tableIndex * 2);
         projectile.InstructionTimer = 1;
     }
 
@@ -567,7 +571,8 @@ public sealed partial class RoomEnemySystem
 
     private ushort MultiplyCartridgeSinCos(ushort speed, byte angle)
     {
-        short tableValue = unchecked((short)ReadWord(_bus!, 0xa0b443 + (angle * 2)));
+        short tableValue = unchecked((short)ReadWord(
+            _bus!, EnemyRomTablePointers.Common.SignedSineCosineWords + angle * 2));
         int magnitude = speed * Math.Abs((int)tableValue) >> 8;
         return unchecked((ushort)(tableValue < 0 ? -magnitude : magnitude));
     }

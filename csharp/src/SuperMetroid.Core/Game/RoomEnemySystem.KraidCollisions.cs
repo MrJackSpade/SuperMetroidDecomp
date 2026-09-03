@@ -143,10 +143,12 @@ public sealed partial class RoomEnemySystem
         int offset = 0;
         for (int record = 0; record < 7; record++, offset += 4)
         {
-            short nextTop = unchecked((short)ReadWord(_bus!, 0xa7b165 + offset));
+            short nextTop = unchecked((short)ReadWord(
+                _bus!, EnemyRomTablePointers.Kraid.HitboxTopWords + offset));
             if (relativeY < nextTop)
                 continue;
-            short left = unchecked((short)ReadWord(_bus!, 0xa7b163 + offset));
+            short left = unchecked((short)ReadWord(
+                _bus!, EnemyRomTablePointers.Kraid.HitboxLeftWords + offset));
             return shot.XPosition + shot.XRadius > body.XPosition + left;
         }
         return false;

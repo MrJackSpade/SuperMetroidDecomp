@@ -159,7 +159,9 @@ public sealed partial class RoomEnemySystem
         // first code word at $CC36 just as the cartridge would.
         if (unchecked((short)slot.Parameter1) < 0 || slot.Parameter1 >= 4)
             slot.Parameter1 = 0;
-        slot.CurrentInstruction = ReadWord(_bus!, 0xa8cc30 + slot.Parameter1 * 2);
+        slot.CurrentInstruction = ReadWord(
+            _bus!,
+            EnemyRomTablePointers.WorkRobot.InitialInstructionListWords + slot.Parameter1 * 2);
         slot.Properties = unchecked((ushort)(slot.Properties | 0x8000));
         slot.InstructionTimer = 1;
         slot.Timer = 0;

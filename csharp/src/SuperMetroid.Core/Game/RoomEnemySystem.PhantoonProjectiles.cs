@@ -76,7 +76,8 @@ public sealed partial class RoomEnemySystem
                 // Japan/USA uses +/-3; the PAL branch uses +/-2. This project targets the
                 // retail Japan/USA cartridge identified by the ROM audit.
                 flame.XVelocity = index >= 8 ? unchecked((ushort)-3) : (ushort)3;
-                flame.Variable0 = _bus!.ReadByte(0x8698b4 + index);
+                flame.Variable0 = _bus!.ReadByte(
+                    EnemyRomTablePointers.Phantoon.FlameAngleBytes + index);
                 flame.XPosition = body.XPosition;
                 flame.YPosition = unchecked((ushort)(body.YPosition + 32));
                 flame.PreInstruction =
@@ -90,7 +91,8 @@ public sealed partial class RoomEnemySystem
                 if (column > 8)
                     throw new InvalidDataException($"Phantoon rain column {column} exceeds eight.");
                 flame.XVelocity = unchecked((ushort)((parameter & 0x00f0) >> 1));
-                flame.XPosition = _bus!.ReadByte(0x8698f7 + column);
+                flame.XPosition = _bus!.ReadByte(
+                    EnemyRomTablePointers.Phantoon.FlameRainXBytes + column);
                 flame.YPosition = 40;
                 flame.PreInstruction =
                     EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Rain;
@@ -100,7 +102,8 @@ public sealed partial class RoomEnemySystem
                 if (index > 7)
                     throw new InvalidDataException($"Phantoon spiral direction {index} exceeds seven.");
                 flame.XVelocity = 128;
-                flame.Variable0 = _bus!.ReadByte(0x869979 + index);
+                flame.Variable0 = _bus!.ReadByte(
+                    EnemyRomTablePointers.Phantoon.SpiralAngleBytes + index);
                 flame.XPosition = body.XPosition;
                 flame.YPosition = unchecked((ushort)(body.YPosition + 16));
                 flame.PreInstruction =

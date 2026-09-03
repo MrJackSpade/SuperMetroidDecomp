@@ -392,10 +392,15 @@ public sealed partial class RoomEnemySystem
     {
         if (body.VariableD == 0)
         {
-            AddPhantoonSpeed(body, low: ReadWord(_bus!, 0xa7cd73), high: ReadWord(_bus!, 0xa7cd75));
-            if (unchecked((short)(body.VariableC - ReadWord(_bus!, 0xa7cd7b))) >= 0)
+            AddPhantoonSpeed(
+                body,
+                low: ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords),
+                high: ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 2));
+            if (unchecked((short)(body.VariableC - ReadWord(
+                    _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 8))) >= 0)
             {
-                body.VariableC = unchecked((ushort)(ReadWord(_bus!, 0xa7cd7b) - 1));
+                body.VariableC = unchecked((ushort)(ReadWord(
+                    _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 8) - 1));
                 body.VariableB = 0;
                 body.VariableD = 1;
             }
@@ -404,18 +409,27 @@ public sealed partial class RoomEnemySystem
 
         if ((body.VariableD & 1) != 0)
         {
-            AddPhantoonSpeed(body, ReadWord(_bus!, 0xa7cd77), ReadWord(_bus!, 0xa7cd79));
-            if (unchecked((short)(body.VariableC - ReadWord(_bus!, 0xa7cd7d))) >= 0)
+            AddPhantoonSpeed(
+                body,
+                ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 4),
+                ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 6));
+            if (unchecked((short)(body.VariableC - ReadWord(
+                    _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 10))) >= 0)
             {
-                body.VariableC = ReadWord(_bus!, 0xa7cd7d);
+                body.VariableC = ReadWord(
+                    _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 10);
                 body.VariableB = 0;
                 body.VariableD++;
             }
             return;
         }
 
-        SubtractPhantoonSpeed(body, ReadWord(_bus!, 0xa7cd77), ReadWord(_bus!, 0xa7cd79));
-        ushort minimum = ReadWord(_bus!, 0xa7cd7f);
+        SubtractPhantoonSpeed(
+            body,
+            ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 4),
+            ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 6));
+        ushort minimum = ReadWord(
+            _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 12);
         if (body.VariableC == minimum || unchecked((short)(body.VariableC - minimum)) < 0)
         {
             body.VariableC = unchecked((ushort)(minimum + 1));
@@ -428,8 +442,12 @@ public sealed partial class RoomEnemySystem
     {
         if (body.VariableD == 0)
         {
-            SubtractPhantoonSpeed(body, ReadWord(_bus!, 0xa7cd81), ReadWord(_bus!, 0xa7cd83));
-            ushort cap = ReadWord(_bus!, 0xa7cd89);
+            SubtractPhantoonSpeed(
+                body,
+                ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 14),
+                ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 16));
+            ushort cap = ReadWord(
+                _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 22);
             if (body.VariableC == cap || unchecked((short)(body.VariableC - cap)) < 0)
             {
                 body.VariableC = unchecked((ushort)(cap + 2));
@@ -441,8 +459,12 @@ public sealed partial class RoomEnemySystem
 
         if ((body.VariableD & 1) != 0)
         {
-            SubtractPhantoonSpeed(body, ReadWord(_bus!, 0xa7cd85), ReadWord(_bus!, 0xa7cd87));
-            ushort cap = ReadWord(_bus!, 0xa7cd8b);
+            SubtractPhantoonSpeed(
+                body,
+                ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 18),
+                ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 20));
+            ushort cap = ReadWord(
+                _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 24);
             if (body.VariableC == cap || unchecked((short)(body.VariableC - cap)) < 0)
             {
                 body.VariableC = unchecked((ushort)(cap + 1));
@@ -452,8 +474,12 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        AddPhantoonSpeed(body, ReadWord(_bus!, 0xa7cd85), ReadWord(_bus!, 0xa7cd87));
-        ushort maximum = ReadWord(_bus!, 0xa7cd8d);
+        AddPhantoonSpeed(
+            body,
+            ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 18),
+            ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 20));
+        ushort maximum = ReadWord(
+            _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 26);
         if (unchecked((short)(body.VariableC - maximum)) >= 0)
         {
             body.VariableC = maximum;
@@ -487,7 +513,8 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)mouth.VariableC) >= 0)
         {
             mouth.VariableC = unchecked((ushort)(mouth.VariableC - 1));
-            int patternPointer = ReadWord(_bus!, 0xa7ccfd + mouth.VariableA * 2);
+            int patternPointer = ReadWord(
+                _bus!, EnemyRomTablePointers.Phantoon.MouthPatternPointerWords + mouth.VariableA * 2);
             int timerIndex = unchecked((short)mouth.VariableC) < 0 ? 0 : mouth.VariableC + 1;
             mouth.VariableB = ReadWord(_bus!, 0xa70000 | unchecked((ushort)(patternPointer + timerIndex * 2)));
             mouth.InstructionTimer = 1;
@@ -496,7 +523,8 @@ public sealed partial class RoomEnemySystem
         }
 
         mouth.VariableA = unchecked((ushort)(_nextRandom!() & 3));
-        ushort pointer = ReadWord(_bus!, 0xa7ccfd + mouth.VariableA * 2);
+        ushort pointer = ReadWord(
+            _bus!, EnemyRomTablePointers.Phantoon.MouthPatternPointerWords + mouth.VariableA * 2);
         mouth.VariableC = ReadWord(_bus!, 0xa70000 | pointer);
         mouth.VariableB = ReadWord(
             _bus!,

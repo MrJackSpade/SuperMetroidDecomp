@@ -296,7 +296,7 @@ public sealed partial class RoomEnemySystem
     /// the raw table sample as an 8.8 velocity; unlike Rinka, it performs no speed multiply.
     /// </summary>
     private ushort ReadRioSignedSineCosineSample(byte angle) =>
-        ReadWord(_bus!, 0xa0b443 + angle * 2);
+        ReadWord(_bus!, EnemyRomTablePointers.Common.SignedSineCosineWords + angle * 2);
 
     private static void RequireRioLevel(RoomLevelData? level)
     {

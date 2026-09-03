@@ -135,7 +135,8 @@ public sealed partial class RoomEnemySystem
         nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
         nail.InstructionTimer = 0x7fff;
         nail.CurrentInstruction = KraidNailInstruction;
-        nail.SpritemapPointer = ReadWord(_bus!, 0xa78b0c);
+        nail.SpritemapPointer = ReadWord(
+            _bus!, EnemyRomTablePointers.Kraid.InitialNailSpritemapWord);
         state.Parts[nail.SlotIndex].NextFunction = KraidAiFunction.FingernailInitialize;
         nail.VariableA = (ushort)KraidAiFunction.HandleFunctionTimer;
         nail.VariableF = 64;
@@ -208,10 +209,16 @@ public sealed partial class RoomEnemySystem
         {
             _cgram!.SetColor(
                 112 + color,
-                ReadWord(_bus!, 0xa7b3d3 + (sourceColor + color) * 2));
+                ReadWord(
+                    _bus!,
+                    EnemyRomTablePointers.Kraid.HealthPaletteWords +
+                        (sourceColor + color) * 2));
             _cgram.SetColor(
                 240 + color,
-                ReadWord(_bus!, 0xa7b513 + (sourceColor + color) * 2));
+                ReadWord(
+                    _bus!,
+                    EnemyRomTablePointers.Kraid.SecondaryPaletteWords +
+                        (sourceColor + color) * 2));
         }
     }
 }

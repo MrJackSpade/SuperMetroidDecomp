@@ -25,7 +25,8 @@ public sealed partial class RoomEnemySystem
             _ => 26,
         };
         body.VariableB = unchecked((ushort)(byteSelector - 0x6926));
-        body.VariableC = ReadWord(_bus!, 0xa796d2 + byteSelector);
+        body.VariableC = ReadWord(
+            _bus!, EnemyRomTablePointers.Kraid.InitialTimerWords + byteSelector);
         EarthquakeType = 4;
         EarthquakeTimer = 340;
 
@@ -60,7 +61,8 @@ public sealed partial class RoomEnemySystem
                 body.YPosition = unchecked((ushort)(body.YPosition - 1));
                 if ((body.YPosition & 3) == 0 && body.VariableF < 18)
                 {
-                    ushort rockX = ReadWord(_bus!, 0xa7acb3 + body.VariableF);
+                    ushort rockX = ReadWord(
+                        _bus!, EnemyRomTablePointers.Kraid.CeilingRockXWords + body.VariableF);
                     if (SpawnKraidCeilingRock(rockX))
                         state.CeilingRockSpawnCount++;
                     body.VariableF = unchecked((ushort)(body.VariableF + 2));
@@ -117,7 +119,8 @@ public sealed partial class RoomEnemySystem
                 ushort current = _cgram!.Colors[96 + color];
                 ushort target = fadeToBlack
                     ? (ushort)0
-                    : ReadWord(_bus!, 0xa786c7 + color * 2);
+                    : ReadWord(
+                        _bus!, EnemyRomTablePointers.Kraid.RoomBackgroundPaletteWords + color * 2);
                 _cgram.SetColor(96 + color, TransitionKraidColor(step, current, target));
             }
             state.RoomBackgroundFadeStep = unchecked((ushort)(step + 1));

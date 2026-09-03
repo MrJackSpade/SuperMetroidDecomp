@@ -596,10 +596,12 @@ public sealed partial class RoomEnemySystem
     private void UploadNextCrocomireSkeletonTileChunk(CrocomireDeathState death)
     {
         int entry = death.TargetHeightOrSkeletonTileIndex >> 1;
-        ushort destinationOffset = ReadWord(_bus!, 0xa499cb + entry * 2);
+        ushort destinationOffset = ReadWord(
+            _bus!, EnemyRomTablePointers.Crocomire.DeathVramDestinationWords + entry * 2);
         if (destinationOffset == 0xffff)
             return;
-        ushort source = ReadWord(_bus!, 0xa499d9 + entry * 2);
+        ushort source = ReadWord(
+            _bus!, EnemyRomTablePointers.Crocomire.DeathGraphicsSourceWords + entry * 2);
         byte[] bytes = new byte[0x0200];
         for (int index = 0; index < bytes.Length; index++)
             bytes[index] = _bus!.ReadByte(

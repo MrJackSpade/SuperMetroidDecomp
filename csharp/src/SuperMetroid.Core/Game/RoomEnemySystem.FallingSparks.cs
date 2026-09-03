@@ -41,8 +41,10 @@ public sealed partial class RoomEnemySystem
         Func<ushort> nextRandom = _nextRandom ?? throw new InvalidOperationException(
             "Falling Spark initialization requires the shared cartridge RNG.");
         int randomTableOffset = nextRandom() & 0x001c;
-        projectile.Variable1 = ReadWord(_bus!, 0x86f3d4 + randomTableOffset);
-        projectile.Variable0 = ReadWord(_bus!, 0x86f3d6 + randomTableOffset);
+        projectile.Variable1 = ReadWord(
+            _bus!, EnemyRomTablePointers.FallingSpark.InitialYWords + randomTableOffset);
+        projectile.Variable0 = ReadWord(
+            _bus!, EnemyRomTablePointers.FallingSpark.InitialXWords + randomTableOffset);
 
     }
 

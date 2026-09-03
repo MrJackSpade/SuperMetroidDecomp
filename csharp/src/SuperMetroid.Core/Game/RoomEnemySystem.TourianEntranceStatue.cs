@@ -39,7 +39,9 @@ public sealed partial class RoomEnemySystem
         statue.PaletteIndex = 0;
         statue.InstructionTimer = 1;
         statue.Timer = 0;
-        statue.CurrentInstruction = ReadWord(_bus!, 0xaad810 + statue.Parameter1);
+        statue.CurrentInstruction = ReadWord(
+            _bus!,
+            EnemyRomTablePointers.TourianStatue.InstructionListWords + statue.Parameter1);
 
         // Only the first of the three enemy records creates the fixed screen actors. The
         // native allocator searches from slot $22 down, so this exact call order gives the
@@ -65,8 +67,16 @@ public sealed partial class RoomEnemySystem
         // directly while retaining every cartridge color word.
         for (int color = 0; color < 16; color++)
         {
-            _cgram!.SetColor(240 + color, ReadWord(_bus!, 0xaad785 + color * 2));
-            _cgram.SetColor(160 + color, ReadWord(_bus!, 0xaad765 + color * 2));
+            _cgram!.SetColor(
+                240 + color,
+                ReadWord(
+                    _bus!,
+                    EnemyRomTablePointers.TourianStatue.BaseDecorationPaletteWords + color * 2));
+            _cgram.SetColor(
+                160 + color,
+                ReadWord(
+                    _bus!,
+                    EnemyRomTablePointers.TourianStatue.StatuePaletteWords + color * 2));
         }
     }
 

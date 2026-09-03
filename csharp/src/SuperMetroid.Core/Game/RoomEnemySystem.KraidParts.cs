@@ -289,7 +289,8 @@ public sealed partial class RoomEnemySystem
         int recordOffset = 0;
         for (; recordOffset < 24; recordOffset += 4)
         {
-            if (body.XPosition == ReadWord(_bus!, 0xa7ba7d + recordOffset))
+            if (body.XPosition == ReadWord(
+                    _bus!, EnemyRomTablePointers.Kraid.SecondPhaseMovementRecords + recordOffset))
                 break;
         }
         if (recordOffset >= 24)
@@ -297,7 +298,8 @@ public sealed partial class RoomEnemySystem
         ushort randomOffset = unchecked((ushort)(ReadKraidRandomNumber() & 0x001c));
         if (randomOffset >= 16)
             randomOffset = 16;
-        ushort choiceTable = ReadWord(_bus!, 0xa7ba7f + recordOffset);
+        ushort choiceTable = ReadWord(
+            _bus!, EnemyRomTablePointers.Kraid.SecondPhaseMovementRecords + 2 + recordOffset);
         ushort targetX = ReadWord(_bus!, 0xa70000 | unchecked((ushort)(choiceTable + randomOffset)));
         ushort thinkTimer = ReadWord(
             _bus!, 0xa70000 | unchecked((ushort)(choiceTable + randomOffset + 2)));

@@ -227,7 +227,7 @@ public sealed partial class RoomEnemySystem
     {
         body.VariableA = (ushort)KraidAiFunction.GlowEye;
         body.VariableB = 0x9752;
-        body.VariableC = ReadWord(_bus!, 0xa7974a);
+        body.VariableC = ReadWord(_bus!, EnemyRomTablePointers.Kraid.CombatTimerWord);
         GlowKraidEye(body, state);
     }
 
@@ -280,7 +280,9 @@ public sealed partial class RoomEnemySystem
         {
             int colorIndex = 113 + eye;
             ushort current = _cgram!.Colors[colorIndex];
-            ushort target = ReadWord(_bus!, 0xa7b3d3 + (sourceColor + eye) * 2);
+            ushort target = ReadWord(
+                _bus!,
+                EnemyRomTablePointers.Kraid.HealthPaletteWords + (sourceColor + eye) * 2);
             int red = current & 0x001f;
             int green = current & 0x03e0;
             if (red != (target & 0x001f))

@@ -357,7 +357,8 @@ public sealed partial class RoomEnemySystem
             RidleyTailSegment tip = state.TailSegments[6];
             int tipIndex = unchecked((byte)(
                 tip.Angle + state.TailSegments[5].Angle + 8)) & 0xf0;
-            ushort tipSpritemap = ReadWord(_bus!, 0xa6dcba + (tipIndex >> 3));
+            ushort tipSpritemap = ReadWord(
+                _bus!, EnemyRomTablePointers.Ceres.TailTipSpritemapPointers + (tipIndex >> 3));
             DrawRidleyWorldSpritemap(
                 oam,
                 state.SpritemapPaletteIndex,
@@ -384,7 +385,8 @@ public sealed partial class RoomEnemySystem
         if (state.FacingDirection == 1)
             return;
         int wingPointerIndex = (state.FacingDirection == 0 ? 0 : 10) + state.WingFrame;
-        ushort wingSpritemap = ReadWord(_bus!, 0xa6db02 + wingPointerIndex * 2);
+        ushort wingSpritemap = ReadWord(
+            _bus!, EnemyRomTablePointers.Ceres.WingSpritemapPointers + wingPointerIndex * 2);
         oam.AddEnemySpritemap(
             _bus!,
             bank: 0xa6,

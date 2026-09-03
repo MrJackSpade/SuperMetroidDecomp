@@ -104,12 +104,14 @@ public sealed partial class RoomEnemySystem
         if (state.HurtFrame != 0)
             return;
         for (int color = 0; color < 16; color++)
-            _cgram!.SetColor(112 + color, ReadWord(_bus!, 0xa7b4f3 + color * 2));
+            _cgram!.SetColor(
+                112 + color,
+                ReadWord(_bus!, EnemyRomTablePointers.Kraid.DeathArmPaletteWords + color * 2));
         _slots[1].CurrentInstruction = KraidArmRetractedInstruction;
         _slots[1].InstructionTimer = 1;
         body.VariableA = (ushort)KraidAiFunction.DeathFadeOut;
         body.VariableB = 0x976c;
-        body.VariableC = ReadWord(_bus!, 0xa79764);
+        body.VariableC = ReadWord(_bus!, EnemyRomTablePointers.Kraid.DeathInitialTimerWord);
         state.RoomBackgroundFadeStep = 0;
         foreach (int slot in new[] { 2, 3, 4, 6, 7 })
         {
@@ -159,13 +161,15 @@ public sealed partial class RoomEnemySystem
     {
         for (int offset = 0; offset < 0xa8; offset += 6)
         {
-            ushort y = ReadWord(_bus!, 0xa7c5e7 + offset);
+            ushort y = ReadWord(
+                _bus!, EnemyRomTablePointers.Kraid.DeathExplosionRecords + offset);
             if ((y & 0x8000) != 0)
                 return;
             if (y != body.YPosition)
                 continue;
             state.SinkTableEventCount++;
-            ushort function = ReadWord(_bus!, 0xa7c5eb + offset);
+            ushort function = ReadWord(
+                _bus!, EnemyRomTablePointers.Kraid.DeathExplosionRecords + 4 + offset);
             ushort rockX = function switch
             {
                 0xc691 => 0x0070,

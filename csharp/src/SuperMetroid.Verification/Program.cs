@@ -140,6 +140,7 @@ VerifyPowerBombColorMathWindow();
 VerifyScrollingSkyState();
 VerifyEnemyAiCodePointerCatalog();
 VerifyEnemyInstructionCodePointerCatalogs();
+VerifyEnemyRomTablePointerCatalog();
 VerifyEnemyProjectileCodePointerCatalog();
 VerifyRoomEnemyLoading();
 VerifyRipperEnemy();

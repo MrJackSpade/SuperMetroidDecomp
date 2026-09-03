@@ -314,7 +314,8 @@ public sealed partial class RoomEnemySystem
 
         ushort signedXDistance = unchecked((ushort)(samus.XPosition - body.XPosition));
         ushort absoluteXDistance = WrappedMagnitude(signedXDistance);
-        ushort triggerDistance = ReadWord(_bus!, 0xa8f180);
+        ushort triggerDistance = ReadWord(
+            _bus!, EnemyRomTablePointers.KiHunter.TriggerDistanceWord);
         if (unchecked((short)(absoluteXDistance - triggerDistance)) >= 0 ||
             unchecked((short)(samus.YPosition - body.YPosition - 32)) < 0)
         {
@@ -465,8 +466,8 @@ public sealed partial class RoomEnemySystem
         (state.VerticalVelocity, state.VerticalSubvelocity) = AddKiHunterFixed(
             state.VerticalVelocity,
             state.VerticalSubvelocity,
-            ReadWord(_bus!, 0xa8f184),
-            ReadWord(_bus!, 0xa8f182));
+            ReadWord(_bus!, EnemyRomTablePointers.KiHunter.AttackXRadiusWord),
+            ReadWord(_bus!, EnemyRomTablePointers.KiHunter.AttackYRadiusWord));
     }
 
     /// <summary>Ports grounded jump setup <c>$A8:F58B</c>.</summary>
@@ -530,8 +531,8 @@ public sealed partial class RoomEnemySystem
         (state.VerticalVelocity, state.VerticalSubvelocity) = AddKiHunterFixed(
             state.VerticalVelocity,
             state.VerticalSubvelocity,
-            ReadWord(_bus!, 0xa8f184),
-            ReadWord(_bus!, 0xa8f182));
+            ReadWord(_bus!, EnemyRomTablePointers.KiHunter.AttackXRadiusWord),
+            ReadWord(_bus!, EnemyRomTablePointers.KiHunter.AttackYRadiusWord));
     }
 
     /// <summary>Ports post-landing wait/decision function <c>$A8:F68B</c>.</summary>
@@ -597,7 +598,7 @@ public sealed partial class RoomEnemySystem
         state.Angle = unchecked((ushort)(state.Angle + ReadKiHunterQuadraticAngleDelta(
             state.TargetXOrSpeedIndex,
             negativeHalf: true)));
-        ushort radius = _bus!.ReadByte(0xa8f186);
+        ushort radius = _bus!.ReadByte(EnemyRomTablePointers.KiHunter.WinglessHopRadiusByte);
         ushort byteAngle = unchecked((byte)(state.Angle >> 8));
         wings.YPosition = unchecked((ushort)(
             state.OrbitCenterY + ReadEightBitSineProduct(byteAngle, radius) - state.OrbitYOffset));
@@ -621,7 +622,7 @@ public sealed partial class RoomEnemySystem
         state.Angle = unchecked((ushort)(state.Angle + ReadKiHunterQuadraticAngleDelta(
             state.TargetXOrSpeedIndex,
             negativeHalf: false)));
-        ushort radius = _bus!.ReadByte(0xa8f186);
+        ushort radius = _bus!.ReadByte(EnemyRomTablePointers.KiHunter.WinglessHopRadiusByte);
         ushort byteAngle = unchecked((byte)(state.Angle >> 8));
         ushort desiredY = unchecked((ushort)(
             state.OrbitCenterY + ReadEightBitSineProduct(byteAngle, radius) - state.FallingArcYOffset));
@@ -692,7 +693,7 @@ public sealed partial class RoomEnemySystem
         state.SavedWingX = wings.XPosition;
         CalculateKiHunterDetachedSpeedReset(state);
 
-        ushort radius = _bus!.ReadByte(0xa8f186);
+        ushort radius = _bus!.ReadByte(EnemyRomTablePointers.KiHunter.WinglessHopRadiusByte);
         state.OrbitXOffset = unchecked((ushort)ReadEightBitCosineProduct(0xe0, radius));
         state.OrbitYOffset = unchecked((ushort)ReadEightBitSineProduct(0xe0, radius));
         state.FallingArcXOffset = unchecked((ushort)ReadEightBitCosineProduct(0xa0, radius));

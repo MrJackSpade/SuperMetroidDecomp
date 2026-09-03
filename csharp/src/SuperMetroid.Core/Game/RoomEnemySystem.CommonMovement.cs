@@ -541,5 +541,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private int ReadNonSquareSlopeHeight(RoomBlockBehavior bts, int xWithinBlock) =>
-        _bus!.ReadByte(0x948b2b + 16 * bts.SlopeShape + xWithinBlock) & 0x1f;
+        _bus!.ReadByte(
+            EnemyRomTablePointers.Common.SlopeHeightBytes +
+                16 * bts.SlopeShape + xWithinBlock) & 0x1f;
 }

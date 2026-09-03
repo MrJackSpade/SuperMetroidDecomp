@@ -151,7 +151,7 @@ public sealed partial class RoomEnemySystem
         {
             _cgram!.SetColor(
                 144 + color,
-                ReadWord(_bus!, 0xaae2dd + color * 2));
+                ReadWord(_bus!, EnemyRomTablePointers.ChozoStatue.PaletteWords + color * 2));
         }
     }
 
@@ -386,7 +386,8 @@ public sealed partial class RoomEnemySystem
         }
 
         state.MovementTableOffset = tableOffset;
-        short signedVelocity = unchecked((short)ReadWord(_bus!, 0xaae630 + tableOffset));
+        short signedVelocity = unchecked((short)ReadWord(
+            _bus!, EnemyRomTablePointers.ChozoStatue.ProjectileVelocityWords + tableOffset));
 
         // Enemy_MoveRight_IgnoreSlopes receives a signed 8.8 word promoted to 16.16 by
         // INT16_SHL8. Enemy_MoveDown receives its absolute magnitude in the same format.
@@ -403,9 +404,11 @@ public sealed partial class RoomEnemySystem
         // The two 32-word tables are joint offsets indexed by the exact byte offset above.
         // Writing Samus after collision reproduces the native cutscene's absolute ownership.
         samus.XPosition = unchecked((ushort)(
-            statue.XPosition + unchecked((short)ReadWord(_bus!, 0xaae670 + tableOffset))));
+            statue.XPosition + unchecked((short)ReadWord(
+                _bus!, EnemyRomTablePointers.ChozoStatue.ProjectileXOffsetWords + tableOffset))));
         samus.YPosition = unchecked((ushort)(
-            statue.YPosition + unchecked((short)ReadWord(_bus!, 0xaae6b0 + tableOffset))));
+            statue.YPosition + unchecked((short)ReadWord(
+                _bus!, EnemyRomTablePointers.ChozoStatue.ProjectileYOffsetWords + tableOffset))));
     }
 
     private void ProcessChozoStatueFootstep(

@@ -120,14 +120,16 @@ public sealed partial class RoomEnemySystem
         int tableOffset = 0;
         for (; tableOffset < 0x80; tableOffset += 4)
         {
-            short yOffset = unchecked((short)ReadWord(_bus!, 0xa7bf1d + tableOffset + 2));
+            short yOffset = unchecked((short)ReadWord(
+                _bus!, EnemyRomTablePointers.Kraid.NailPositionOffsetWords + tableOffset + 2));
             if (unchecked((short)(yOffset + body.YPosition - nail.YPosition)) < 0)
                 break;
         }
         if (tableOffset >= 0x80)
             return false;
         ushort contourX = unchecked((ushort)(
-            body.XPosition + ReadWord(_bus!, 0xa7bf1d + tableOffset)));
+            body.XPosition + ReadWord(
+                _bus!, EnemyRomTablePointers.Kraid.NailPositionOffsetWords + tableOffset)));
         return unchecked((short)(nail.XPosition + nail.XRadius - contourX)) >= 0 &&
             unchecked((short)nail.VariableC) >= 0;
     }

@@ -802,7 +802,8 @@ public sealed partial class RoomEnemySystem
         // g_byte_A6D712 is the exact acceleration divisor table consumed by Ridley_Func_106.
         // Division truncates like the SNES hardware quotient and a zero quotient is promoted
         // to one, ensuring that even a one-pixel error continues to change velocity.
-        ushort divisor = _bus!.ReadByte(0xa6d712 + divisorIndex);
+        ushort divisor = _bus!.ReadByte(
+            EnemyRomTablePointers.Ceres.RidleyRotationDivisorBytes + divisorIndex);
         if (divisor == 0)
             throw new InvalidDataException($"Ridley acceleration divisor {divisorIndex} is zero.");
 
@@ -941,7 +942,8 @@ public sealed partial class RoomEnemySystem
             return;
         state.FunctionTimer = 0;
 
-        byte colorStep = _bus!.ReadByte(0xa6e269 + state.FadePaletteOffset);
+        byte colorStep = _bus!.ReadByte(
+            EnemyRomTablePointers.Ceres.RidleyFadeComponentBytes + state.FadePaletteOffset);
         if (colorStep == 0xff)
         {
             state.FadePaletteOffset = 0;

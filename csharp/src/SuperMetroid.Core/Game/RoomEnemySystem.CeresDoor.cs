@@ -234,7 +234,8 @@ public sealed partial class RoomEnemySystem
         // actor keeps alternating these four Mode-7 tilemap bytes forever. Omitting this
         // queue made the moving OBJ pad flash correctly, then left the landed tile platform
         // frozen on whichever frame happened to be present at deletion.
-        ushort transferPointer = ReadWord(_bus!, 0xa6f900 + (frame & 2));
+        ushort transferPointer = ReadWord(
+            _bus!, EnemyRomTablePointers.Ceres.DoorTransferPointers + (frame & 2));
         ApplyMode7TransferList(transferPointer);
 
         ushort sourcePointer = unchecked((ushort)(2 * (frame & 0x0038) - 0x078f));

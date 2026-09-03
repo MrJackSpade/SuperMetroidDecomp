@@ -2348,8 +2348,10 @@ public sealed partial class RoomEnemySystem
         int transferIndex = top.VariableB;
         if ((uint)transferIndex >= 5)
             throw new InvalidDataException("Gunship takeoff tile index escaped its five-entry table.");
-        ushort source = ReadWord(_bus!, 0xa2ac07 + transferIndex * 2);
-        ushort destination = ReadWord(_bus!, 0xa2ac11 + transferIndex * 2);
+        ushort source = ReadWord(
+            _bus!, EnemyRomTablePointers.Gunship.LiftoffGraphicsSourceWords + transferIndex * 2);
+        ushort destination = ReadWord(
+            _bus!, EnemyRomTablePointers.Gunship.LiftoffVramDestinationWords + transferIndex * 2);
         vramWriteQueue.Enqueue(
             sizeInBytes: 0x0400,
             sourceAddress: 0x940000 | source,

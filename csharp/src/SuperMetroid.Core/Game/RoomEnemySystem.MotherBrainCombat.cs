@@ -141,7 +141,7 @@ public sealed partial class RoomEnemySystem
         SamusProjectileSlot projectile,
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles,
-        ushort projectileType,
+        SamusProjectileTypeWord projectileType,
         ushort projectileDamage)
     {
         MotherBrainEnemyState state = _motherBrain ?? throw new InvalidOperationException(
@@ -151,7 +151,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException(
                 "Mother Brain head shot AI ran for a slot not linked to the loaded body.");
         }
-        SamusProjectileFamily family = (SamusProjectileFamily)(projectileType & 0x0f00);
+        SamusProjectileFamily family = projectileType.Family;
         if (state.Form != 0)
         {
             return ResolveMotherBrainLaterFormHeadShot(
@@ -221,7 +221,7 @@ public sealed partial class RoomEnemySystem
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles,
         SamusProjectileFamily family,
-        ushort projectileType,
+        SamusProjectileTypeWord projectileType,
         ushort projectileDamage)
     {
         // DetermineMotherBrainShotReactionType maps beams to two, missiles/supers to one,

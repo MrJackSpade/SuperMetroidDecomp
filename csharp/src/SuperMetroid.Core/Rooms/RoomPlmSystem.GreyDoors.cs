@@ -32,7 +32,7 @@ public sealed partial class RoomPlmSystem
         .ToArray();
 
     /// <summary>Publishes the native projectile word to a resident grey-door actor.</summary>
-    private bool TryNotifyGreyDoorHit(int blockIndex, ushort projectileType)
+    private bool TryNotifyGreyDoorHit(int blockIndex, SamusProjectileTypeWord projectileType)
     {
         foreach (PlmSlot slot in _slots)
         {
@@ -113,7 +113,7 @@ public sealed partial class RoomPlmSystem
                 if (door.HasPendingHit)
                     _soundRequests.Add(new PlmSoundRequest(2, 0x57, MaximumQueued: 6));
                 door.HasPendingHit = false;
-                door.PendingProjectileType = 0;
+                door.PendingProjectileType = default;
                 return true;
             }
 
@@ -130,7 +130,7 @@ public sealed partial class RoomPlmSystem
             // Clearing the hit here is essential: the quota-completing frame cannot also
             // open the door even if a projectile happened to collide during that frame.
             door.HasPendingHit = false;
-            door.PendingProjectileType = 0;
+            door.PendingProjectileType = default;
             door.Phase = GreyDoorPhase.Flashing;
             slot.InstructionPointer = door.FlashList;
             slot.InstructionTimer = 1;
@@ -141,7 +141,7 @@ public sealed partial class RoomPlmSystem
         if (door.Phase == GreyDoorPhase.Flashing && door.HasPendingHit)
         {
             door.HasPendingHit = false;
-            door.PendingProjectileType = 0;
+            door.PendingProjectileType = default;
             if (unchecked((short)slot.RoomArgument) >= 0)
             {
                 (_greyDoorSystem ?? throw new InvalidOperationException(
@@ -321,5 +321,5 @@ internal sealed class GreyDoorPlmState(
     public GreyDoorPhase Phase { get; set; } = phase;
     public bool InitialDrawCompleted { get; set; }
     public bool HasPendingHit { get; set; }
-    public ushort PendingProjectileType { get; set; }
+    public SamusProjectileTypeWord PendingProjectileType { get; set; }
 }

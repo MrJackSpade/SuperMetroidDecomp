@@ -192,8 +192,9 @@ public sealed class SamusBombProjectileSystem
             // Type $0300 power bombs and type $0500 normal bombs both use the same bank-$93
             // timed-spritemap interpreter. The large power-bomb flash itself is an HDMA
             // color-math window and is composed separately from OAM.
-            ushort family = (ushort)(slot.Type & 0x0f00);
-            if (slot.InstructionPointer == 0 || (family != PowerBombType && family != NormalBombType))
+            SamusProjectileFamily family = slot.PackedType.Family;
+            if (slot.InstructionPointer == 0 ||
+                family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
                 continue;
 
             // $93:837F admits X in [-48,304). Y is admitted only when the high byte of
@@ -382,15 +383,15 @@ public sealed class SamusBombProjectileSystem
             return false;
         }
 
-        ushort typeFamily = (ushort)(slot.Type & 0x0f00);
-        if (typeFamily != NormalBombType && typeFamily != PowerBombType)
+        SamusProjectileFamily typeFamily = slot.PackedType.Family;
+        if (typeFamily is not (SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb))
         {
             // This class owns only physical projectile slots five through nine after
             // $90:BF9D/$C157 have selected normal- or Power-Bomb pre-instructions. No
             // retail producer installs another family in these semantic slots; seeing
             // one means the host-side slot model was mutated inconsistently.
             throw new InvalidDataException(
-                $"Bomb slot {slot.Index} has invalid projectile family ${typeFamily:X4}.");
+                $"Bomb slot {slot.Index} has invalid projectile family ${(ushort)typeFamily:X4}.");
         }
 
         bool explosionStarted = false;
@@ -405,7 +406,7 @@ public sealed class SamusBombProjectileSystem
             }
             else if (slot.BombTimer == 0)
             {
-                if (typeFamily == NormalBombType)
+                if (typeFamily == SamusProjectileFamily.Bomb)
                 {
                     // $93:814E reads the pointer word embedded in the bomb-explosion data
                     // record at $93:8683 and resets the instruction timer to one.
@@ -423,7 +424,9 @@ public sealed class SamusBombProjectileSystem
             }
         }
 
-        if (typeFamily == NormalBombType && slot.BombTimer == 0 && (slot.Type & 0x0001) == 0)
+        if (typeFamily == SamusProjectileFamily.Bomb &&
+            slot.BombTimer == 0 &&
+            (slot.Type & 0x0001) == 0)
         {
             // Normal bomb type five maps through $94:9C73 to collision mode two. As soon
             // as timer zero is visible, $94:9CF4 sets type bit zero and reacts to a
@@ -431,7 +434,7 @@ public sealed class SamusBombProjectileSystem
             slot.Type |= 0x0001;
             CollectBlockExplosionReactions(level, slot, blockReactions, roomPlms, areaIndex);
         }
-        else if (typeFamily == PowerBombType)
+        else if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
             // Collision mode three first turns the fuse-expiration sentinel $FFFF into
             // zero without touching terrain. Every later frame scans the newly reached
@@ -753,7 +756,7 @@ public sealed class SamusBombProjectileSystem
             SamusBombProjectileSlot slot = _slots[slotIndex];
             if (slot.Damage == 0 ||
                 (slot.Type & 0x8000) != 0 ||
-                (slot.Type & 0x0f00) >= 0x0700 ||
+                slot.PackedType.FamilyValue >= (ushort)SamusProjectileFamily.BeamExplosion ||
                 (slot.Direction & 0x0010) != 0)
             {
                 continue;
@@ -767,8 +770,10 @@ public sealed class SamusBombProjectileSystem
                 continue;
             }
 
-            ushort typeFamily = (ushort)(slot.Type & 0xff00);
-            if ((typeFamily != 0x0300 && typeFamily != 0x0500) || slot.BombTimer != 8)
+            SamusProjectileFamily typeFamily = slot.PackedType.Family;
+            if (typeFamily is not (
+                    SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb) ||
+                slot.BombTimer != 8)
                 continue;
 
             // CMP SamusX,bombX: equal is straight; Samus left of the bomb launches left;
@@ -816,6 +821,8 @@ public sealed class SamusBombProjectileSlot
     public ushort YPosition { get; internal set; }
     public ushort Direction { get; internal set; }
     public ushort Type { get; internal set; }
+    /// <summary>Lossless semantic view of the native projectile family/type word.</summary>
+    public SamusProjectileTypeWord PackedType => new(Type);
     public ushort Damage { get; internal set; }
     public ushort InstructionPointer { get; internal set; }
     public ushort InstructionTimer { get; internal set; }

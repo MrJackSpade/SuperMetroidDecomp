@@ -57,16 +57,17 @@ public sealed partial class RoomEnemySystem
                 continue;
 
             ushort projectileType = shot.Type;
+            SamusProjectileTypeWord packedProjectileType = shot.PackedType;
             ushort projectileDamage = shot.Damage;
-            bool damagingFamily = (projectileType & 0x0f00) != 0 ||
-                (projectileType & 0x0010) != 0;
+            bool damagingFamily = packedProjectileType.Family != SamusProjectileFamily.Beam ||
+                packedProjectileType.IsChargedBeam;
             if (damagingFamily && state.InvulnerableMouthHitbox != ushort.MaxValue &&
                 KraidMouthHitboxOverlapsShot(body, state.InvulnerableMouthHitbox, shot))
             {
                 if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, shot.SlotIndex))
                     continue;
 
-                if ((projectileType & 0x0010) != 0)
+                if (packedProjectileType.IsChargedBeam)
                     state.MouthFlags |= 1;
                 byte vulnerability = ReadProjectileVulnerability(bus, body, projectileType);
                 int damage = (projectileDamage >> 1) * (vulnerability & 0x7f);

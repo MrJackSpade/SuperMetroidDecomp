@@ -103,7 +103,7 @@ internal static class DeadTorizoAudit
         if (shotHits != 1 || corpse.VariableA != 0xd3e6 ||
             corpse.Health != healthBeforeShot ||
             (shots.Slots[0].Direction & 0x0010) == 0 ||
-            (shots.Slots[0].Type & 0x0f00) == 0x0700)
+            shots.Slots[0].PackedType.Family == SamusProjectileFamily.BeamExplosion)
         {
             throw new InvalidDataException(
                 $"Dead Torizo shot callback mismatch: hits={shotHits}, " +

@@ -106,7 +106,9 @@ public sealed partial class RoomPlmSystem
     /// The projectile family is retained for diagnostics; header $EED3 itself accepts the
     /// collision producer generically and reduces it to the same $00FF trigger word.
     /// </summary>
-    public bool TryNotifyCollectibleProjectileHit(int blockIndex, ushort projectileType)
+    public bool TryNotifyCollectibleProjectileHit(
+        int blockIndex,
+        SamusProjectileTypeWord projectileType)
     {
         foreach (PlmSlot slot in _slots)
         {
@@ -728,7 +730,7 @@ public sealed partial class RoomPlmSystem
         public int VisibleFramePairsRemaining { get; set; }
         public bool Triggered { get; set; }
         public bool WasCollectedBeforeReveal { get; set; }
-        public ushort LastTriggerProjectileType { get; set; }
+        public SamusProjectileTypeWord LastTriggerProjectileType { get; set; }
     }
 }
 
@@ -799,4 +801,4 @@ public readonly record struct CollectiblePickupEvent(
     ushort RoomArgument,
     byte MessageBoxIndex,
     int BlockIndex,
-    ushort TriggerProjectileType);
+    SamusProjectileTypeWord TriggerProjectileType);

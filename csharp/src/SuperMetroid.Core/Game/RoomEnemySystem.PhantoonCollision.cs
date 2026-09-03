@@ -51,8 +51,11 @@ public sealed partial class RoomEnemySystem
 
             ushort projectileType = projectile.Type;
             ushort projectileDamage = projectile.Damage;
-            ushort family = unchecked((ushort)(projectileType & 0x0f00));
-            if (family is 0x0300 or 0x0500 or 0x0700)
+            SamusProjectileFamily family = projectile.PackedType.Family;
+            if (family is
+                SamusProjectileFamily.PowerBomb or
+                SamusProjectileFamily.Bomb or
+                SamusProjectileFamily.BeamExplosion)
                 continue;
 
             if (!body.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
@@ -75,7 +78,7 @@ public sealed partial class RoomEnemySystem
 
             // `$A0:9B7F` applies this before calling the selected component function. A
             // no-op shell hit therefore still marks the beam and shakes for a Super Missile.
-            if (family == (ushort)SamusProjectileFamily.SuperMissile)
+            if (family == SamusProjectileFamily.SuperMissile)
             {
                 EarthquakeTimer = 30;
                 EarthquakeType = 18;
@@ -159,7 +162,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.LastCombatSoundEffect = 0x0073;
-        ushort family = unchecked((ushort)(projectileType & 0x0f00));
+        SamusProjectileFamily family = new SamusProjectileTypeWord(projectileType).Family;
         PhantoonAiFunction function = (PhantoonAiFunction)body.VariableF;
         bool vulnerableWindow = function is
             PhantoonAiFunction.EyeTracksSamus or
@@ -171,7 +174,7 @@ public sealed partial class RoomEnemySystem
             // A single Super Missile (600 retail damage) skips ordinary round accumulation
             // and enters the eight-wave rage sequence immediately.
             if (damage >= PhantoonDamageThreshold &&
-                family == (ushort)SamusProjectileFamily.SuperMissile)
+                family == SamusProjectileFamily.SuperMissile)
             {
                 ClosePhantoonAfterDamage(body, state, enraged: true);
                 return;

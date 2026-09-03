@@ -151,8 +151,8 @@ public sealed partial class RoomPlmSystem
                 $"Mother Brain glass has invalid pre-instruction $84:{slot.PreInstruction:X4}.");
         }
 
-        ushort family = unchecked((ushort)(slot.LoopTimer & 0x0f00));
-        if (family is 0x0100 or 0x0200)
+        SamusProjectileFamily family = new SamusProjectileTypeWord(slot.LoopTimer).Family;
+        if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
             slot.RoomArgument = unchecked((ushort)(slot.RoomArgument + 1));
         slot.LoopTimer = 0;
     }

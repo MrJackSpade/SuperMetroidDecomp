@@ -348,8 +348,9 @@ public sealed partial class RoomEnemySystem
                 if (!shot.IsActive)
                     continue;
 
-                ushort family = unchecked((ushort)(shot.Type & 0x0f00));
-                if (family is 0x0300 or 0x0500 || family >= 0x0700)
+                SamusProjectileTypeWord shotType = shot.PackedType;
+                if (shotType.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb ||
+                    shotType.FamilyValue >= (ushort)SamusProjectileFamily.BeamExplosion)
                     continue;
 
                 // The native path intentionally compares only 32-pixel cells. It does not

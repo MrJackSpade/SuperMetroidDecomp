@@ -38,7 +38,7 @@ public sealed partial class RoomPlmSystem
     /// Publishes the projectile word observed by a resident type-$C/BTS-$44 door. The
     /// resident actor, not the collision table, decides whether that family is accepted.
     /// </summary>
-    public bool TryNotifyColoredDoorHit(int blockIndex, ushort projectileType)
+    public bool TryNotifyColoredDoorHit(int blockIndex, SamusProjectileTypeWord projectileType)
     {
         foreach (PlmSlot slot in _slots)
         {
@@ -160,13 +160,14 @@ public sealed partial class RoomPlmSystem
         if (!door.HasPendingHit)
             return door.Phase == ColoredDoorPhase.Waiting;
 
-        ushort projectileFamily = unchecked((ushort)(door.PendingProjectileType & 0x0f00));
+        SamusProjectileFamily projectileFamily = door.PendingProjectileType.Family;
         door.HasPendingHit = false;
         bool accepted = door.Color switch
         {
-            ColoredDoorColor.Yellow => projectileFamily == 0x0300,
-            ColoredDoorColor.Green => projectileFamily == 0x0200,
-            ColoredDoorColor.Red => projectileFamily is 0x0100 or 0x0200,
+            ColoredDoorColor.Yellow => projectileFamily == SamusProjectileFamily.PowerBomb,
+            ColoredDoorColor.Green => projectileFamily == SamusProjectileFamily.SuperMissile,
+            ColoredDoorColor.Red => projectileFamily is
+                SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile,
             _ => throw new InvalidDataException($"Unknown colored-door family {door.Color}."),
         };
         if (!accepted)
@@ -180,7 +181,8 @@ public sealed partial class RoomPlmSystem
         // Red-door setup writes $77 before the shared INC instruction when struck by a
         // Super Missile. Unsigned wrap therefore guarantees the very next increment meets
         // the five-hit threshold, exactly reproducing the cartridge's one-super behavior.
-        if (door.Color == ColoredDoorColor.Red && projectileFamily == 0x0200)
+        if (door.Color == ColoredDoorColor.Red &&
+            projectileFamily == SamusProjectileFamily.SuperMissile)
             door.HitCounter = 0x77;
         door.HitCounter = unchecked((byte)(door.HitCounter + 1));
 
@@ -271,7 +273,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         int blockIndex,
         RoomBlockBehavior behavior,
-        ushort projectileType)
+        SamusProjectileTypeWord projectileType)
     {
         ArgumentNullException.ThrowIfNull(level);
         if (!behavior.TryGetBlueDoorOrientation(out ColoredDoorOrientation orientation))
@@ -284,7 +286,7 @@ public sealed partial class RoomPlmSystem
 
         // Setup_BlueDoor masks the native projectile word with $0F00. A power-bomb
         // collision therefore deletes the just-allocated PLM without touching the cap.
-        if ((projectileType & 0x0f00) == 0x0300)
+        if (projectileType.Family == SamusProjectileFamily.PowerBomb)
             return false;
 
         ushort instructionPointer = orientation switch

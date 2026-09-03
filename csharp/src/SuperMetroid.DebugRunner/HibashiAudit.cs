@@ -233,7 +233,8 @@ internal static class HibashiAudit
             sharedProjectiles,
             loaded.Samus);
         if (hits != 1 || loaded.Hitbox.Health != healthBefore ||
-            !projectile.IsActive || (projectile.Type & 0x0f00) == 0x0700)
+            !projectile.IsActive ||
+            projectile.PackedType.Family == SamusProjectileFamily.BeamExplosion)
         {
             throw new InvalidDataException(
                 $"Hibashi RTL shot callback mismatch: hits={hits}, health=" +

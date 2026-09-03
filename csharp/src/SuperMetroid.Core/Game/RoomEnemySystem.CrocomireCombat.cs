@@ -5,7 +5,7 @@ public sealed partial class RoomEnemySystem
 {
     /// <summary>Dispatches $A4:B951/$B968/$BA05/$BAB4 after multibox collision.</summary>
     private void ResolveCrocomireHitboxShot(
-        ushort projectileType,
+        SamusProjectileTypeWord projectileType,
         ushort projectileX,
         ushort projectileY,
         ushort callback)
@@ -56,7 +56,7 @@ public sealed partial class RoomEnemySystem
     private void ResolveCrocomireMouthShot(
         CrocomireEnemyState state,
         RoomEnemySlot body,
-        ushort projectileType,
+        SamusProjectileTypeWord projectileType,
         ushort projectileX,
         ushort projectileY)
     {
@@ -68,12 +68,12 @@ public sealed partial class RoomEnemySystem
         bool bodyLeftEdgeIsOnScreen = unchecked((short)(
             body.XPosition - body.XRadius - 256 - _crocomireCameraX)) < 0;
         ushort stepCount = 0;
-        ushort family = unchecked((ushort)(projectileType & 0x0f00));
+        SamusProjectileFamily family = projectileType.Family;
         if (bodyLeftEdgeIsOnScreen)
         {
             if (family == 0)
             {
-                if ((projectileType & 0x0010) == 0)
+                if (!projectileType.IsChargedBeam)
                 {
                     body.InstructionTimer = 8;
                     SpawnCrocomireShotDust(projectileType, projectileX, projectileY);
@@ -81,11 +81,11 @@ public sealed partial class RoomEnemySystem
                 }
                 stepCount = 2;
             }
-            else if (family == (ushort)SamusProjectileFamily.Missile)
+            else if (family == SamusProjectileFamily.Missile)
             {
                 stepCount = 1;
             }
-            else if (family == (ushort)SamusProjectileFamily.SuperMissile)
+            else if (family == SamusProjectileFamily.SuperMissile)
             {
                 stepCount = 3;
             }
@@ -117,11 +117,11 @@ public sealed partial class RoomEnemySystem
     }
 
     private void SpawnCrocomireShotDust(
-        ushort projectileType,
+        SamusProjectileTypeWord projectileType,
         ushort projectileX,
         ushort projectileY)
     {
-        ushort animationIndex = (projectileType & 0x0200) == 0
+        ushort animationIndex = projectileType.Family != SamusProjectileFamily.SuperMissile
             ? (ushort)6
             : (ushort)29;
         SpawnRoomGraphicsDustExplosion(

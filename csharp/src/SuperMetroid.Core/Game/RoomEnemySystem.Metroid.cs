@@ -394,13 +394,13 @@ public sealed partial class RoomEnemySystem
         SamusState? samus)
     {
         MetroidEnemyState state = RequireMetroidState(slot);
-        ushort family = unchecked((ushort)(collisionProjectileType & 0x0f00));
+        SamusProjectileFamily family = new SamusProjectileTypeWord(collisionProjectileType).Family;
         if (state.Function == MetroidAiFunction.AttachedToSamus)
         {
             // The bomb collision pass presents the exploding power bomb as family $0500;
             // family $0300 is its earlier expansion/controller record and is not the value
             // tested by Metroid_Shot at $A3:EF38.
-            if (family == (ushort)SamusProjectileFamily.Bomb)
+            if (family == SamusProjectileFamily.Bomb)
                 DetachMetroidWithPowerBomb(slot, state, samus);
             return;
         }

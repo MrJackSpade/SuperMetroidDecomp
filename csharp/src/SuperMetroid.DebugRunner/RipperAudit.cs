@@ -349,20 +349,19 @@ internal static class RipperAudit
     private static byte ReadVulnerability(
         SuperMetroidAddressSpace bus,
         RoomEnemyDefinition definition,
-        ushort projectileType)
+        SamusProjectileTypeWord projectileType)
     {
         ushort pointer = definition.VulnerabilityPointer != 0
             ? definition.VulnerabilityPointer
             : (ushort)0xec1c;
-        int family = projectileType & 0x0f00;
-        int byteOffset = family switch
+        int byteOffset = projectileType.Family switch
         {
-            0x0000 => projectileType & 0x000f,
-            0x0100 => 12,
-            0x0200 => 13,
-            0x0300 => 15,
+            SamusProjectileFamily.Beam => projectileType.BeamCombinationIndex,
+            SamusProjectileFamily.Missile => 12,
+            SamusProjectileFamily.SuperMissile => 13,
+            SamusProjectileFamily.PowerBomb => 15,
             _ => throw new InvalidDataException(
-                $"Ripper audit has no vulnerability offset for ${projectileType:X4}."),
+                $"Ripper audit has no vulnerability offset for ${projectileType.Raw:X4}."),
         };
         return bus.ReadByte(0xb40000 | unchecked((ushort)(pointer + byteOffset)));
     }

@@ -109,7 +109,9 @@ internal static partial class RetailEnemyExecutionAudit
                         // Common frozen AI consults the live equipment word every frame.
                         // Synthetic beam types therefore carry their low-nibble loadout into
                         // the fresh Samus state exactly as the bank-$90 producer would.
-                        loaded.Samus.EquippedBeams = (weapon.Type & 0x0f00) == 0
+                        loaded.Samus.EquippedBeams =
+                            new SamusProjectileTypeWord(weapon.Type).Family ==
+                                SamusProjectileFamily.Beam
                             ? unchecked((ushort)(weapon.Type & 0x000f))
                             : (ushort)0;
                         AdvanceToProjectileFrame(

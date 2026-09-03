@@ -205,7 +205,7 @@ internal static class SkreeAudit
             loaded.Samus);
         if (hits != 1 || loaded.Actor.Health != 5 || loaded.Actor.FlashTimer != 12 ||
             loaded.Actor.Properties.HasAny(EnemyProperties.Deleted) ||
-            (projectiles.Slots[0].Type & 0x0f00) != 0x0700 ||
+            projectiles.Slots[0].PackedType.Family != SamusProjectileFamily.BeamExplosion ||
             loaded.Enemies.EnemyProjectiles.Any(IsSkreeParticle))
         {
             throw new InvalidDataException(

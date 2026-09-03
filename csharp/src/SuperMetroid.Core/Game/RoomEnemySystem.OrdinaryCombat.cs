@@ -848,7 +848,7 @@ public sealed partial class RoomEnemySystem
                 ushort projectileType = projectile.Type;
                 ushort projectileDamage = projectile.Damage;
                 ushort projectileDirection = projectile.Direction;
-                ushort family = unchecked((ushort)(projectileType & 0x0f00));
+                SamusProjectileFamily family = projectile.PackedType.Family;
                 if (!projectile.IsActive)
                     continue;
 
@@ -859,7 +859,9 @@ public sealed partial class RoomEnemySystem
                 // custom branch below. Keep this as an explicit guard instead of embedding it
                 // in the overlap expression; doing so makes the native dispatch boundary clear.
                 if (!isYard && !isMetroid &&
-                    (family == 0x0300 || family == 0x0500 || family == 0x0700))
+                    family is SamusProjectileFamily.PowerBomb or
+                        SamusProjectileFamily.Bomb or
+                        SamusProjectileFamily.BeamExplosion)
                 {
                     continue;
                 }
@@ -1031,7 +1033,7 @@ public sealed partial class RoomEnemySystem
                     }
                 }
 
-                if (usesExtendedHitboxes && family == 0x0200)
+                if (usesExtendedHitboxes && family == SamusProjectileFamily.SuperMissile)
                 {
                     // The multibox prelude requests this earthquake before dispatching the
                     // hitbox callback, even when that callback is the no-op shell region.
@@ -1257,8 +1259,8 @@ public sealed partial class RoomEnemySystem
                         continue;
                     if (enemy.FrozenTimer != 0)
                     {
-                        if (family != (ushort)SamusProjectileFamily.Missile &&
-                            family != (ushort)SamusProjectileFamily.SuperMissile)
+                        if (family != SamusProjectileFamily.Missile &&
+                            family != SamusProjectileFamily.SuperMissile)
                         {
                             // Frozen Metroid rejects every beam and bomb family. Bank-$A0
                             // has already accepted the overlap, so non-plasma shots retain
@@ -1373,8 +1375,8 @@ public sealed partial class RoomEnemySystem
                         isGoldenTorizo && torizoState.ShotGuard == 0 &&
                         (enemy.Parameter2 & 0x1000) == 0)
                     {
-                        torizoState.CapturedProjectileFamily = family;
-                        if (family == (ushort)SamusProjectileFamily.Missile)
+                        torizoState.CapturedProjectileFamily = (ushort)family;
+                        if (family == SamusProjectileFamily.Missile)
                         {
                             projectiles.ApplyExtendedEnemyCollisionPrelude(
                                 projectile.SlotIndex,
@@ -1390,7 +1392,7 @@ public sealed partial class RoomEnemySystem
                             break;
                         }
 
-                        if (family == (ushort)SamusProjectileFamily.SuperMissile)
+                        if (family == SamusProjectileFamily.SuperMissile)
                         {
                             if (samus is not null &&
                                 BombTorizoFunction12IsNonNegative(enemy, samus))
@@ -1435,7 +1437,8 @@ public sealed partial class RoomEnemySystem
                 // normal vulnerability damage, but every other colliding shot merely kicks
                 // the shell into the air. This branch must occur after projectile impact,
                 // exactly where bank $A0 has already accepted the collision index.
-                if (isYard && family is not (0x0300 or 0x0500))
+                if (isYard && family is not (
+                    SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
                 {
                     if (samus is null)
                     {
@@ -1728,7 +1731,7 @@ public sealed partial class RoomEnemySystem
 
             foreach (SamusBombProjectileSlot bomb in bombs.Slots)
             {
-                ushort family = unchecked((ushort)(bomb.Type & 0x0f00));
+                SamusProjectileFamily family = bomb.PackedType.Family;
 
                 // `$A0:A24E-$A265` admits an exploding family-$0500 normal bomb. The
                 // ordinary-radius handler also retains the high-bit alternative used by
@@ -1737,9 +1740,9 @@ public sealed partial class RoomEnemySystem
                 if (bomb.Type == 0 ||
                     bomb.BombTimer != 0 ||
                     (usesExtendedHitboxes
-                        ? family != SamusBombProjectileSystem.NormalBombType ||
+                        ? family != SamusProjectileFamily.Bomb ||
                           bomb.XPosition == 0
-                        : family != SamusBombProjectileSystem.NormalBombType &&
+                        : family != SamusProjectileFamily.Bomb &&
                           (bomb.Type & 0x8000) == 0))
                 {
                     continue;
@@ -2573,22 +2576,22 @@ public sealed partial class RoomEnemySystem
     private static NormalShotVulnerability ReadNormalShotVulnerability(
         ISnesAddressSpace bus,
         RoomEnemySlot enemy,
-        ushort projectileType)
+        SamusProjectileTypeWord projectileType)
     {
         ushort pointer = enemy.Definition.VulnerabilityPointer != 0
             ? enemy.Definition.VulnerabilityPointer
             : DefaultEnemyVulnerability;
-        int family = projectileType & 0x0f00;
-        if (family != 0)
+        SamusProjectileFamily family = projectileType.Family;
+        if (family != SamusProjectileFamily.Beam)
         {
             int byteOffset = family switch
             {
-                0x0100 => 12,
-                0x0200 => 13,
-                0x0500 => 14,
-                0x0300 => 15,
+                SamusProjectileFamily.Missile => 12,
+                SamusProjectileFamily.SuperMissile => 13,
+                SamusProjectileFamily.Bomb => 14,
+                SamusProjectileFamily.PowerBomb => 15,
                 _ => throw new InvalidDataException(
-                    $"Projectile family ${family:X3} has no translated vulnerability field."),
+                    $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
             };
             byte familyEntry = bus.ReadByte(
                 0xb40000 | unchecked((ushort)(pointer + byteOffset)));
@@ -2599,7 +2602,7 @@ public sealed partial class RoomEnemySystem
         }
 
         byte beamEntry = bus.ReadByte(
-            0xb40000 | unchecked((ushort)(pointer + (projectileType & 0x000f))));
+            0xb40000 | unchecked((ushort)(pointer + projectileType.BeamCombinationIndex)));
         if (beamEntry == 0xff)
         {
             return new NormalShotVulnerability(
@@ -2609,7 +2612,7 @@ public sealed partial class RoomEnemySystem
         }
 
         int multiplier = beamEntry & 0x7f;
-        if ((projectileType & 0x0010) != 0)
+        if (projectileType.IsChargedBeam)
         {
             // Charged-beam vulnerability is a dedicated byte, not another beam-combination
             // row. `$FF` and low-nibble zero both take the dud-shot branch; high bits other
@@ -2642,21 +2645,21 @@ public sealed partial class RoomEnemySystem
     private static byte ReadProjectileVulnerability(
         ISnesAddressSpace bus,
         RoomEnemySlot enemy,
-        ushort projectileType)
+        SamusProjectileTypeWord projectileType)
     {
         ushort pointer = enemy.Definition.VulnerabilityPointer != 0
             ? enemy.Definition.VulnerabilityPointer
             : DefaultEnemyVulnerability;
-        int family = projectileType & 0x0f00;
+        SamusProjectileFamily family = projectileType.Family;
         int byteOffset = family switch
         {
-            0x0000 => projectileType & 0x000f,
-            0x0100 => 12,
-            0x0200 => 13,
-            0x0500 => 14,
-            0x0300 => 15,
+            SamusProjectileFamily.Beam => projectileType.BeamCombinationIndex,
+            SamusProjectileFamily.Missile => 12,
+            SamusProjectileFamily.SuperMissile => 13,
+            SamusProjectileFamily.Bomb => 14,
+            SamusProjectileFamily.PowerBomb => 15,
             _ => throw new InvalidDataException(
-                $"Projectile family ${family:X3} has no translated vulnerability field."),
+                $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
         };
         return bus.ReadByte(0xb40000 | unchecked((ushort)(pointer + byteOffset)));
     }
@@ -2816,25 +2819,25 @@ public sealed partial class RoomEnemySystem
         if (enemy.EnemyDefinitionPointer != GoldNinjaSpacePirateDefinition)
             return PirateHitboxShotAction.Normal;
 
-        ushort family = unchecked((ushort)(projectile.Type & 0x0f00));
+        SamusProjectileFamily family = projectile.PackedType.Family;
         if (hitboxShotAi == GoldNinjaInvincibleHitboxShotAi)
         {
-            if (family == (ushort)SamusProjectileFamily.SuperMissile && projectile.Variable == 0)
+            if (family == SamusProjectileFamily.SuperMissile && projectile.Variable == 0)
                 return PirateHitboxShotAction.Ignore;
-            return family < (ushort)SamusProjectileFamily.PowerBomb
+            return (ushort)family < (ushort)SamusProjectileFamily.PowerBomb
                 ? PirateHitboxShotAction.Reflect
                 : PirateHitboxShotAction.Ignore;
         }
 
-        if (family >= (ushort)SamusProjectileFamily.PowerBomb)
+        if ((ushort)family >= (ushort)SamusProjectileFamily.PowerBomb)
             return PirateHitboxShotAction.Ignore;
 
         ushort vulnerabilityPointer = enemy.Definition.VulnerabilityPointer != 0
             ? enemy.Definition.VulnerabilityPointer
             : DefaultEnemyVulnerability;
-        int vulnerabilityOffset = family == (ushort)SamusProjectileFamily.Beam
+        int vulnerabilityOffset = family == SamusProjectileFamily.Beam
             ? projectile.Type & 0x000f
-            : 11 + (family >> 8);
+            : 11 + ((ushort)family >> 8);
         int multiplier = bus.ReadByte(
             0xb40000 | unchecked((ushort)(vulnerabilityPointer + vulnerabilityOffset))) & 0x0f;
         return multiplier is not (0 or 15)

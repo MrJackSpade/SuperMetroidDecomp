@@ -96,7 +96,7 @@ public sealed partial class RoomEnemySystem
 
         foreach (SamusBombProjectileSlot samusBomb in samusBombs.Slots)
         {
-            if ((samusBomb.Type & 0x0f00) != SamusBombProjectileSystem.NormalBombType ||
+            if (samusBomb.PackedType.Family != SamusProjectileFamily.Bomb ||
                 samusBomb.BombTimer != 0 ||
                 !MotherBrainBombStrictOverlap(
                     bomb.XPosition,

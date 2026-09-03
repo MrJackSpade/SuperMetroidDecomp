@@ -6187,12 +6187,12 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 $"type=${firedProjectile.Type:X4}, damage=${firedProjectile.Damage:X4}, " +
                 $"sound=${observedHyperBeamSound:X2}.");
         }
-        if ((firedProjectile.Type & 0x0f00) == 0 &&
+        if (firedProjectile.PackedType.Family == SamusProjectileFamily.Beam &&
             (firedProjectile.Type & 0x000f) == options.BeamType)
         {
             observedSelectedBeamType = true;
         }
-        if ((firedProjectile.Type & 0x0f00) == 0x0200)
+        if (firedProjectile.PackedType.Family == SamusProjectileFamily.SuperMissile)
         {
             observedSuperMissileShot = true;
             observedSuperMissileDamage = firedProjectile.Damage;
@@ -6202,7 +6202,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                 $"type=${firedProjectile.Type:X4}, damage=${firedProjectile.Damage:X4}, " +
                 $"sound=${observedSuperMissileSound:X2}, ammo={runtime.Samus.SuperMissiles}.");
         }
-        if ((firedProjectile.Type & 0x0f00) == 0x0100)
+        if (firedProjectile.PackedType.Family == SamusProjectileFamily.Missile)
         {
             observedMissileShot = true;
             observedMissileDamage = firedProjectile.Damage;
@@ -6232,7 +6232,9 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     observedHyperBeamFlare |=
         options.HyperBeamScript && runtime.Projectiles.FlareCounter == 0x8000;
     observedMissileArt |= runtime.Projectiles.Slots.Any(
-        slot => slot.IsActive && (slot.Type & 0x0f00) == 0x0100 && slot.SpritemapPointer != 0);
+        slot => slot.IsActive &&
+            slot.PackedType.Family == SamusProjectileFamily.Missile &&
+            slot.SpritemapPointer != 0);
     observedMissileTrail |= options.MissileScript && runtime.Projectiles.ActiveTrailCount != 0;
     observedSuperMissileArt |= runtime.Projectiles.Slots.Any(
         slot => slot.IsActive &&
@@ -6815,7 +6817,8 @@ if (options.PowerBombScript)
     if (options.FrameCount >= 26 &&
         (runtime.Samus!.PowerBombs != 9 ||
          runtime.BombProjectiles.Slots[0].Damage != 0x00c8 ||
-         (runtime.BombProjectiles.Slots[0].Type & 0x0f00) != 0x0300 ||
+         runtime.BombProjectiles.Slots[0].PackedType.Family !=
+            SamusProjectileFamily.PowerBomb ||
          !powerBomb.IsArmed))
     {
         throw new InvalidOperationException(

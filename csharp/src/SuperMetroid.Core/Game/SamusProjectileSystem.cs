@@ -625,7 +625,8 @@ public sealed partial class SamusProjectileSystem
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileSlot slot = _slots[slotIndex];
-            if (!slot.IsActive || (slot.Type & 0x0f00) >= 0x0300)
+            if (!slot.IsActive ||
+                slot.PackedType.FamilyValue >= (ushort)SamusProjectileFamily.PowerBomb)
                 continue;
 
             // `$93:8268` first exempts every charged/projectile-family word selected by

@@ -577,7 +577,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         int blockIndex,
         byte behavior,
-        ushort projectileType)
+        SamusProjectileTypeWord projectileType)
         => TrySpawnBombReactionBlock(
             level,
             blockIndex,
@@ -589,7 +589,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         int blockIndex,
         RoomBlockBehavior bts,
-        ushort projectileType)
+        SamusProjectileTypeWord projectileType)
     {
         ArgumentNullException.ThrowIfNull(level);
         if (!bts.IsNormalReactionIndex(16))
@@ -599,8 +599,8 @@ public sealed partial class RoomPlmSystem
                 "Bomb-reaction BTS must be in the native table range zero through fifteen.");
         }
 
-        ushort projectileFamily = unchecked((ushort)(projectileType & 0x0f00));
-        if (projectileFamily is not (0x0500 or 0x0300))
+        SamusProjectileFamily projectileFamily = projectileType.Family;
+        if (projectileFamily is not (SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(projectileType),
@@ -638,7 +638,7 @@ public sealed partial class RoomPlmSystem
 
             // `$84:CF0C-$CF13` adds three only for normal bombs. The skipped bytes are
             // `{Instruction_PLM_QueueSound_Y_Lib2_Max3, $0A}` in the odd-byte operand form.
-            slot.InstructionPointer = projectileFamily == 0x0500
+            slot.InstructionPointer = projectileFamily == SamusProjectileFamily.Bomb
                 ? unchecked((ushort)(instructionPointer + 3))
                 : instructionPointer;
 
@@ -668,7 +668,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         int blockIndex,
         byte behavior,
-        ushort projectileType)
+        SamusProjectileTypeWord projectileType)
         => TrySpawnBombedShootableBlock(
             level,
             blockIndex,
@@ -680,7 +680,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         int blockIndex,
         RoomBlockBehavior bts,
-        ushort projectileType)
+        SamusProjectileTypeWord projectileType)
     {
         ArgumentNullException.ThrowIfNull(level);
         bool areaDependent = bts.UsesAreaReactionTable;
@@ -696,7 +696,7 @@ public sealed partial class RoomPlmSystem
                 nameof(bts),
                 "Translated normal-bomb shootable BTS must be in range zero through fifteen.");
         }
-        if ((projectileType & 0x0f00) != 0x0500)
+        if (projectileType.Family != SamusProjectileFamily.Bomb)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(projectileType),
@@ -797,7 +797,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         int blockIndex,
         byte behavior,
-        ushort projectileType,
+        SamusProjectileTypeWord projectileType,
         bool solidBlock)
         => TrySpawnProjectileShotBlock(
             level,
@@ -811,7 +811,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         int blockIndex,
         RoomBlockBehavior bts,
-        ushort projectileType,
+        SamusProjectileTypeWord projectileType,
         bool solidBlock)
     {
         ArgumentNullException.ThrowIfNull(level);
@@ -835,15 +835,17 @@ public sealed partial class RoomPlmSystem
         if (areaDependent && !solidBlock)
             return false;
 
-        ushort projectileFamily = unchecked((ushort)(projectileType & 0x0f00));
+        SamusProjectileFamily projectileFamily = projectileType.Family;
 
         // `$84:CF2E/$CF67` clear the newly allocated PLM header when the weapon family is
         // wrong. Observably that is identical to returning with no active slot: setup never
         // changes the live word, and the next handler has nothing to process. Perform this
         // gate before the host allocation loop while preserving every accepted native path.
-        if (bts.RequiresPowerBombReaction && projectileFamily is not (0x0300 or 0x0500))
+        if (bts.RequiresPowerBombReaction && projectileFamily is not (
+            SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
             return false;
-        if (bts.RequiresSuperMissileReaction && projectileFamily is not (0x0200 or 0x0500))
+        if (bts.RequiresSuperMissileReaction && projectileFamily is not (
+            SamusProjectileFamily.SuperMissile or SamusProjectileFamily.Bomb))
             return false;
 
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
@@ -895,7 +897,7 @@ public sealed partial class RoomPlmSystem
 
             if (bts.RequiresPowerBombReaction)
             {
-                if (projectileFamily == 0x0500)
+                if (projectileFamily == SamusProjectileFamily.Bomb)
                 {
                     // A normal bomb does not break this block. `$84:CF2E` redirects to the
                     // one-frame visible power-bomb diagnostic without touching collision.
@@ -918,7 +920,7 @@ public sealed partial class RoomPlmSystem
 
             if (bts.RequiresSuperMissileReaction)
             {
-                if (projectileFamily == 0x0500)
+                if (projectileFamily == SamusProjectileFamily.Bomb)
                 {
                     // `$84:CF67` gives ordinary bombs the analogous one-frame Super Missile
                     // reveal. It deliberately leaves the live collision word untouched.
@@ -965,7 +967,7 @@ public sealed partial class RoomPlmSystem
         int blockIndex,
         byte behavior,
         byte areaIndex,
-        ushort projectileType)
+        SamusProjectileTypeWord projectileType)
         => TrySpawnBombedSpecialBlock(
             level,
             blockIndex,
@@ -979,12 +981,12 @@ public sealed partial class RoomPlmSystem
         int blockIndex,
         RoomBlockBehavior bts,
         byte areaIndex,
-        ushort projectileType)
+        SamusProjectileTypeWord projectileType)
     {
         ArgumentNullException.ThrowIfNull(level);
         if (areaIndex > 7)
             throw new ArgumentOutOfRangeException(nameof(areaIndex), "Native area index must be zero through seven.");
-        if ((projectileType & 0x0f00) != 0x0500)
+        if (projectileType.Family != SamusProjectileFamily.Bomb)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(projectileType),
@@ -1535,7 +1537,7 @@ internal sealed class ColoredDoorPlmState(
     public byte HitCounter { get; set; }
     public bool InitialDrawCompleted { get; set; }
     public bool HasPendingHit { get; set; }
-    public ushort PendingProjectileType { get; set; }
+    public SamusProjectileTypeWord PendingProjectileType { get; set; }
 }
 
 /// <summary>Observable call to one of the cartridge's three queued-sound libraries.</summary>

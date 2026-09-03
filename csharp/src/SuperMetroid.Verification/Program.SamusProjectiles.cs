@@ -1154,8 +1154,8 @@ static void VerifySamusPowerBeamProjectiles()
             bus, wall, wallSamus, 0, 0, 0, 0, wallBombs);
     }
     AssertTrue(wallResult.CollisionStartedExplosion, "power beam reaches type-eight wall");
-    AssertEqual(0x0700,
-        unchecked((ushort)(wallProjectiles.Slots[0].Type & 0x0f00)),
+    AssertEqual(SamusProjectileFamily.BeamExplosion,
+        wallProjectiles.Slots[0].PackedType.Family,
         "wall collision installs beam-explosion family");
     AssertEqual(1, wallProjectiles.ProjectileCounter,
         "beam explosion retains ordinary slot count");
@@ -1371,7 +1371,7 @@ static void VerifySamusPowerBeamProjectiles()
     }
     AssertTrue(missileImpact.CollisionStartedExplosion,
         "accelerating missile reaches the type-eight wall");
-    AssertEqual(0x0800, unchecked((ushort)(missile.Type & 0x0f00)),
+    AssertEqual(SamusProjectileFamily.MissileExplosion, missile.PackedType.Family,
         "missile collision installs missile-explosion family `$0800`");
     AssertEqual(1, missileProjectiles.ProjectileCounter,
         "missile explosion retains its shared ordinary slot count");

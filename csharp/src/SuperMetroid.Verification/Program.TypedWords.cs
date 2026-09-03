@@ -203,6 +203,23 @@ static void VerifyTypedNativeWords()
         projectileType.WithFamily(SamusProjectileFamily.MissileExplosion),
         "projectile family replacement preserves all other bits");
 
+    (ushort Raw, SamusProjectileFamily Family)[] projectileDispatchCases =
+    [
+        (0x801f, SamusProjectileFamily.Beam),
+        (0x8110, SamusProjectileFamily.Missile),
+        (0x8210, SamusProjectileFamily.SuperMissile),
+        (0x8300, SamusProjectileFamily.PowerBomb),
+        (0x8501, SamusProjectileFamily.Bomb),
+    ];
+    foreach ((ushort raw, SamusProjectileFamily family) in projectileDispatchCases)
+    {
+        SamusProjectileTypeWord dispatchWord = new(raw);
+        AssertEqual(family, dispatchWord.Family,
+            $"projectile family dispatch for raw word ${raw:X4}");
+        AssertTrue(dispatchWord.IsFamily(family),
+            $"projectile family predicate for raw word ${raw:X4}");
+    }
+
     var direction = new SamusProjectileDirectionWord(0xab07);
     AssertEqual(SamusProjectileDirection.Left, direction.Direction,
         "projectile direction enum");

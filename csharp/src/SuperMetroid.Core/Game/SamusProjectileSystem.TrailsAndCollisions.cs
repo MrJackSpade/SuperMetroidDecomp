@@ -522,7 +522,7 @@ public sealed partial class SamusProjectileSystem
         // Chozo orbs and concealed item blocks are type-$C/BTS-$45. Their special
         // reaction does not use the ordinary BTS 0..F shot-block table: header $EED3
         // finds and triggers the already-loaded permanent-item PLM at this origin.
-        if (block.CollisionType == 12 && block.Behavior == 0x45)
+        if (block.CollisionType == RoomCollisionType.ShootableBlock && block.Behavior == 0x45)
         {
             _ = roomPlms?.TryNotifyCollectibleProjectileHit(block.Index, slot.Type);
             return true;
@@ -532,18 +532,18 @@ public sealed partial class SamusProjectileSystem
         // origin matches this block. Mother Brain's type-$8/BTS-$44 glass consumes the live
         // projectile type through its pre-instruction on the later PLM-handler seam; it does
         // not allocate a second reaction PLM or mutate the shot-block tables below.
-        if (block.CollisionType == 8 && block.Behavior == 0x44)
+        if (block.CollisionType == RoomCollisionType.SolidBlock && block.Behavior == 0x44)
             _ = roomPlms?.TryNotifyProjectileHit(block.Index, slot.Type);
 
-        if (block.CollisionType is 4 or 12)
+        if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
             TrySpawnShootableReaction(level, slot, block, roomPlms);
-            return block.CollisionType == 12;
+            return block.CollisionType == RoomCollisionType.ShootableBlock;
         }
 
         // `$94:A175/$A195` return carry for 8/B/E directly. Door ($9), spike ($A), and
         // bombable ($F) also collide; their actor/weapon-gated setup remains a later slice.
-        return block.CollisionType is >= 8 and <= 15;
+        return block.CollisionType is >= RoomCollisionType.SolidBlock and <= RoomCollisionType.BombableBlock;
     }
 
     private static RoomCollisionBlock? ResolveShotReactionExtension(
@@ -557,13 +557,13 @@ public sealed partial class SamusProjectileSystem
             int targetIndex;
             switch (block.CollisionType)
             {
-                case 5: // Horizontal extension: signed BTS is a direct block offset.
+                case RoomCollisionType.HorizontalExtension:
                     if (offset == 0)
                         return null;
                     targetIndex = block.Index + offset;
                     break;
 
-                case 13: // Vertical extension: signed BTS counts whole room rows.
+                case RoomCollisionType.VerticalExtension:
                     if (offset == 0)
                         return null;
                     targetIndex = block.Index + (offset * level.WidthInBlocks);
@@ -634,7 +634,7 @@ public sealed partial class SamusProjectileSystem
                 block.Index,
                 block.Behavior,
                 slot.Type,
-                solidBlock: block.CollisionType == 12);
+                solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
         }
     }
 

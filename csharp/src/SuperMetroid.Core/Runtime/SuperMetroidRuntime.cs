@@ -803,14 +803,14 @@ public sealed partial class SuperMetroidRuntime
             RoomCollisionBlock floor = LevelData.GetCollisionBlock(blockX, blockY);
 
             byte height;
-            if (floor.CollisionType == 8)
+            if (floor.CollisionType == RoomCollisionType.SolidBlock)
             {
                 // Solid block type $8 uses the block's top edge as its floor. A height of
                 // zero expresses that edge in the same block-local coordinate system used
                 // by slope profiles below.
                 height = 0;
             }
-            else if (floor.CollisionType == 1 &&
+            else if (floor.CollisionType == RoomCollisionType.Slope &&
                      (floor.Behavior & 0x1f) >= 5 &&
                      (floor.Behavior & 0x80) == 0)
             {
@@ -920,7 +920,7 @@ public sealed partial class SuperMetroidRuntime
 
                 RoomCollisionBlock floor =
                     LevelData.GetCollisionBlock(bodyBlockX, floorBlockY);
-                if (floor.CollisionType != 8)
+                if (floor.CollisionType != RoomCollisionType.SolidBlock)
                     continue;
 
                 bool hasPlainClearanceAndWall = true;
@@ -930,7 +930,8 @@ public sealed partial class SuperMetroidRuntime
                         LevelData.GetCollisionBlock(bodyBlockX, blockY);
                     RoomCollisionBlock wall =
                         LevelData.GetCollisionBlock(wallBlockX, blockY);
-                    if (clearance.CollisionType != 0 || wall.CollisionType != 8)
+                    if (clearance.CollisionType != RoomCollisionType.Air ||
+                        wall.CollisionType != RoomCollisionType.SolidBlock)
                     {
                         hasPlainClearanceAndWall = false;
                         break;

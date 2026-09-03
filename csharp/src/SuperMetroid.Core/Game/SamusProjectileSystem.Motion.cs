@@ -495,20 +495,20 @@ public sealed partial class SamusProjectileSystem
         // and the broad Samus body scans cannot disagree about chained extensions.
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return false;
-        if (block.CollisionType == 12 && block.Behavior == 0x45)
+        if (block.CollisionType == RoomCollisionType.ShootableBlock && block.Behavior == 0x45)
         {
             _ = roomPlms?.TryNotifyCollectibleProjectileHit(block.Index, slot.Type);
             return true;
         }
-        if (block.CollisionType is 4 or 12)
+        if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
             // `$94:9E55/$9E73` run the bank-$84 spawn before returning the collision
             // nibble's normal carry: type four remains pass-through; type C is solid.
             TrySpawnShootableReaction(level, slot, block, roomPlms);
-            return block.CollisionType == 12;
+            return block.CollisionType == RoomCollisionType.ShootableBlock;
         }
 
-        if (block.CollisionType is 7 or 15)
+        if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
         {
             // `$94:9FD6/$9FF4` always indexes the bomb-block PLM table for nonnegative BTS.
             // A missile or Super Missile still performs Spawn_PLM, but setup `$84:CEDA`
@@ -516,20 +516,28 @@ public sealed partial class SamusProjectileSystem
             // `$0300`; no level word, timer, sound, or persistent PLM survives that call.
             // The reaction's carry is independent of setup: bombable air passes through,
             // while bombable solid destroys the missile.
-            return block.CollisionType == 15;
+            return block.CollisionType == RoomCollisionType.BombableBlock;
         }
         return block.CollisionType switch
         {
             // The point reaction dispatch treats these categories as transparent air.
-            0 or 2 or 3 or 6 => false,
+            RoomCollisionType.Air or
+            RoomCollisionType.SpikeAir or
+            RoomCollisionType.SpecialAir or
+            RoomCollisionType.UnusedAir => false,
 
             // These categories return carry immediately and therefore kill the missile.
-            8 or 9 or 10 or 11 or 14 => true,
+            RoomCollisionType.SolidBlock or
+            RoomCollisionType.DoorBlock or
+            RoomCollisionType.SpikeBlock or
+            RoomCollisionType.SpecialBlock or
+            RoomCollisionType.GrappleBlock => true,
 
             // `$94:A147/$A15E` divide slope BTS values into the five square definitions and
             // the remaining 27 pixel-height definitions. Both paths use the missile center;
             // the direction only changes which half of a square definition is sampled.
-            1 => MissileSlopePointReaction(bus, block, slot, horizontalMovement),
+            RoomCollisionType.Slope =>
+                MissileSlopePointReaction(bus, block, slot, horizontalMovement),
 
             // CollisionType is the high nibble of a room word, so the cases above are
             // exhaustive after extension redispatch. Preserve an explicit corruption guard

@@ -1,24 +1,28 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Verified high-nibble dispatch values in one native room level-data word. Values that
-/// are still merely forwarded to untranslated handlers are intentionally absent: callers
-/// can always inspect <see cref="RoomLevelWord.CollisionTypeValue"/> without pretending we
-/// know what an undocumented value means.
+/// Complete high-nibble dispatch values in one native room level-data word. The names
+/// follow the sixteen-entry bank-$94 collision jump tables rather than describing only
+/// the subset currently translated by a particular caller.
 /// </summary>
 public enum RoomCollisionType : byte
 {
     Air = 0x0,
     Slope = 0x1,
+    SpikeAir = 0x2,
+    SpecialAir = 0x3,
     ShootableAir = 0x4,
     HorizontalExtension = 0x5,
+    UnusedAir = 0x6,
     BombableAir = 0x7,
-    Solid = 0x8,
-    Special = 0xb,
-    ShootableSolid = 0xc,
+    SolidBlock = 0x8,
+    DoorBlock = 0x9,
+    SpikeBlock = 0xa,
+    SpecialBlock = 0xb,
+    ShootableBlock = 0xc,
     VerticalExtension = 0xd,
-    Grapple = 0xe,
-    BombableSolid = 0xf,
+    GrappleBlock = 0xe,
+    BombableBlock = 0xf,
 }
 
 /// <summary>

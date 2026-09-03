@@ -68,17 +68,41 @@ static void VerifyTypedNativeWords()
     // $E selects the verified grapple collision handler, $C supplies both parent flips,
     // and $02A is the visual block. All three packed fields share this exact raw word.
     var levelWord = new RoomLevelWord(0xec2a);
-    AssertEqual(RoomCollisionType.Grapple, levelWord.CollisionType, "level collision enum");
+    AssertEqual(RoomCollisionType.GrappleBlock, levelWord.CollisionType,
+        "level collision enum");
     AssertEqual(0x002a, levelWord.VisualBlockIndex, "level visual index field");
     AssertEqual(LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical,
         levelWord.VisualFlipFlags, "level parent flip flags");
     AssertEqual(0xec2a, (ushort)levelWord, "level word raw round trip");
 
-    // Untranslated collision value $A remains observable as enum numeric value $A rather
-    // than being coerced to a known handler or rejected by the wrapper.
-    var unnamedCollision = new RoomLevelWord(0xa123);
-    AssertEqual(0x0a, (byte)unnamedCollision.CollisionType,
-        "unnamed collision nibble remains lossless");
+    RoomCollisionType[] retailCollisionTypes =
+    [
+        RoomCollisionType.Air,
+        RoomCollisionType.Slope,
+        RoomCollisionType.SpikeAir,
+        RoomCollisionType.SpecialAir,
+        RoomCollisionType.ShootableAir,
+        RoomCollisionType.HorizontalExtension,
+        RoomCollisionType.UnusedAir,
+        RoomCollisionType.BombableAir,
+        RoomCollisionType.SolidBlock,
+        RoomCollisionType.DoorBlock,
+        RoomCollisionType.SpikeBlock,
+        RoomCollisionType.SpecialBlock,
+        RoomCollisionType.ShootableBlock,
+        RoomCollisionType.VerticalExtension,
+        RoomCollisionType.GrappleBlock,
+        RoomCollisionType.BombableBlock,
+    ];
+    for (byte collisionNibble = 0; collisionNibble < retailCollisionTypes.Length;
+         collisionNibble++)
+    {
+        var typedLevelWord = new RoomLevelWord((ushort)(collisionNibble << 12));
+        AssertEqual(retailCollisionTypes[collisionNibble], typedLevelWord.CollisionType,
+            $"level collision nibble ${collisionNibble:X1}");
+        AssertEqual(collisionNibble, typedLevelWord.CollisionTypeValue,
+            $"level collision raw nibble ${collisionNibble:X1}");
+    }
 
     var bgEntry = new SnesBgTilemapWord(0xf555);
     AssertEqual(0x155, bgEntry.CharacterIndex, "BG tile character field");

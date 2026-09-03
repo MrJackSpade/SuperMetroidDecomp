@@ -891,7 +891,7 @@ static void VerifySamusMorphBallMovement()
     AssertTrue(bombs.Slots[0].IsExploding, "timer zero selects bomb explosion list");
     AssertEqual(0x0501, bombs.Slots[0].Type, "first explosion pass marks block cross handled");
     AssertEqual(5, explosion.BlockReactions!.Count, "bomb explosion visits center/up/right/left/down");
-    AssertEqual(8, explosion.BlockReactions[4].CollisionType,
+    AssertEqual(RoomCollisionType.SolidBlock, explosion.BlockReactions[4].CollisionType,
         "bottom reaction reaches fixture solid floor without inventing a PLM");
 
     for (int tick = 0; tick < 20 && bombs.BombCounter != 0; tick++)
@@ -1113,11 +1113,12 @@ static void VerifySamusMorphBallMovement()
             reactionPlms);
     }
 
-    AssertEqual(5, reactionExplosion.BlockReactions![0].CollisionType,
+    AssertEqual(RoomCollisionType.HorizontalExtension,
+        reactionExplosion.BlockReactions![0].CollisionType,
         "bomb cross records the visited horizontal extension");
     AssertEqual(0xff, reactionExplosion.BlockReactions[0].Behavior,
         "bomb cross preserves the extension's signed redirect BTS");
-    AssertEqual(8, reactionExplosion.BlockReactions[3].CollisionType,
+    AssertEqual(RoomCollisionType.SolidBlock, reactionExplosion.BlockReactions[3].CollisionType,
         "later left-arm reaction observes the synchronously mutated parent");
     AssertEqual(1, reactionPlms.ActiveCount,
         "extension and later parent visit produce one native reaction PLM");
@@ -1199,7 +1200,8 @@ static void VerifySamusMorphBallMovement()
             0,
             integratedRevealPlms);
     }
-    AssertEqual(12, integratedRevealExplosion.BlockReactions![0].CollisionType,
+    AssertEqual(RoomCollisionType.ShootableBlock,
+        integratedRevealExplosion.BlockReactions![0].CollisionType,
         "bomb dispatcher records center shootable-solid parent");
     AssertEqual(1, integratedRevealPlms.ActiveCount,
         "bomb dispatcher installs shootable reveal PLM");

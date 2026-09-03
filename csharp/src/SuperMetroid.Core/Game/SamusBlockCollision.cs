@@ -158,10 +158,10 @@ public static class SamusBlockCollision
                     continue;
                 switch (block.CollisionType)
                 {
-                    case 0:
+                    case RoomCollisionType.Air:
                         break;
 
-                    case 1:
+                    case RoomCollisionType.Slope:
                         if ((block.Behavior & 0x1f) < 5)
                         {
                             bool squareCollision = ReactHorizontalSquareSlope(
@@ -188,9 +188,9 @@ public static class SamusBlockCollision
                             state.VerticalSpeedFixed);
                         break;
 
-                    case 8:
-                    case 12:
-                    case 14:
+                    case RoomCollisionType.SolidBlock:
+                    case RoomCollisionType.ShootableBlock:
+                    case RoomCollisionType.GrappleBlock:
                         acceptedDisplacement = ClipHorizontalToSolid(
                             state,
                             acceptedDisplacement,
@@ -199,7 +199,7 @@ public static class SamusBlockCollision
                         collisionBlock = block;
                         break;
 
-                    case 9:
+                    case RoomCollisionType.DoorBlock:
                         // `$94:938B` resolves BTS through the current room's bank-$8F door
                         // list. A normal bank-$8F destination publishes `door_def_ptr`, sets
                         // game state $09, and returns carry clear, so this scan must allow
@@ -221,16 +221,16 @@ public static class SamusBlockCollision
                         }
                         break;
 
-                    case 2:
-                    case 4:
-                    case 6:
-                    case 7:
+                    case RoomCollisionType.SpikeAir:
+                    case RoomCollisionType.ShootableAir:
+                    case RoomCollisionType.UnusedAir:
+                    case RoomCollisionType.BombableAir:
                         // Horizontal table entries 2/4/6 are literal clear-carry stubs.
                         // Bombable air (7) also returns clear after a projectile-family
                         // PLM setup which rejects ordinary Samus body collision.
                         break;
 
-                    case 3:
+                    case RoomCollisionType.SpecialAir:
                         // Nonnegative special-air BTS spawns a room PLM but explicitly
                         // discards its carry. The negative area-table family can publish
                         // carry from setup; none of the retail movement-owned entries in
@@ -244,7 +244,7 @@ public static class SamusBlockCollision
                         }
                         break;
 
-                    case 10:
+                    case RoomCollisionType.SpikeBlock:
                         // Spike blocks occupy the solid side of `$94:9515`; preserve that
                         // exact clipping topology here. Their BTS-selected damage writes
                         // require the full Samus owner and remain an explicitly documented
@@ -257,7 +257,7 @@ public static class SamusBlockCollision
                         collisionBlock = block;
                         break;
 
-                    case 11 when block.Behavior == 0x45:
+                    case RoomCollisionType.SpecialBlock when block.Behavior == 0x45:
                         // Visible item frames are type-$B/BTS-$45. Bank $94 spawns the
                         // shared $EED3 detector, whose setup triggers the item at this
                         // origin and returns carry clear; Samus therefore passes through
@@ -269,7 +269,7 @@ public static class SamusBlockCollision
                         }
                         break;
 
-                    case 11:
+                    case RoomCollisionType.SpecialBlock:
                         if (block.Behavior is >= 0x47 and <= 0x4d &&
                             (plms is null ||
                              !plms.TryNotifyStationCollision(
@@ -291,7 +291,7 @@ public static class SamusBlockCollision
                         collisionBlock = block;
                         break;
 
-                    case 15:
+                    case RoomCollisionType.BombableBlock:
                         // `$94:932D` indexes the collision-bomb-block PLM table with BTS
                         // 0..7. Its setup at `$84:CE83` returns carry (solid) unless Samus
                         // is speed boosting, screw attacking, or in pose `$C9-$CE`. On an
@@ -443,10 +443,10 @@ public static class SamusBlockCollision
                     continue;
                 switch (block.CollisionType)
                 {
-                    case 0:
+                    case RoomCollisionType.Air:
                         break;
 
-                    case 1:
+                    case RoomCollisionType.Slope:
                         if ((block.Behavior & 0x1f) < 5)
                         {
                             bool squareCollision = ReactVerticalSquareSlope(
@@ -484,9 +484,9 @@ public static class SamusBlockCollision
                             collisionBlock = block;
                         break;
 
-                    case 8:
-                    case 12:
-                    case 14:
+                    case RoomCollisionType.SolidBlock:
+                    case RoomCollisionType.ShootableBlock:
+                    case RoomCollisionType.GrappleBlock:
                         acceptedDisplacement = ClipVerticalToSolid(
                             state,
                             acceptedDisplacement,
@@ -495,7 +495,7 @@ public static class SamusBlockCollision
                         collisionBlock = block;
                         break;
 
-                    case 9:
+                    case RoomCollisionType.DoorBlock:
                         // `$94:93CE` is the vertical twin of the handler above. Preserve
                         // its carry result here; the room-level owner publishes the same
                         // native door pointer for the frontend dispatcher to consume.
@@ -515,9 +515,9 @@ public static class SamusBlockCollision
                         }
                         break;
 
-                    case 2:
-                    case 3:
-                        if (block.CollisionType == 3 && block.Behavior == 0x46 &&
+                    case RoomCollisionType.SpikeAir:
+                    case RoomCollisionType.SpecialAir:
+                        if (block.CollisionType == RoomCollisionType.SpecialAir && block.Behavior == 0x46 &&
                             (plms is null || !plms.TryNotifyScrollTouch(block.Index)))
                         {
                             throw new InvalidOperationException(
@@ -527,14 +527,14 @@ public static class SamusBlockCollision
                         // Every special-air setup on this route returns carry clear, so the
                         // wake-up side effect never turns the invisible trigger into terrain.
                         break;
-                    case 4:
-                    case 6:
-                    case 7:
+                    case RoomCollisionType.ShootableAir:
+                    case RoomCollisionType.UnusedAir:
+                    case RoomCollisionType.BombableAir:
                         // Vertical spike-air, special-air, ordinary-air, and bombable-air
                         // entries all return clear carry after any independent PLM setup.
                         break;
 
-                    case 10:
+                    case RoomCollisionType.SpikeBlock:
                         acceptedDisplacement = ClipVerticalToSolid(
                             state,
                             acceptedDisplacement,
@@ -543,7 +543,7 @@ public static class SamusBlockCollision
                         collisionBlock = block;
                         break;
 
-                    case 11 when block.Behavior == 0x45:
+                    case RoomCollisionType.SpecialBlock when block.Behavior == 0x45:
                         if (plms is null || !plms.TryNotifyCollectibleTouch(block.Index))
                         {
                             throw new InvalidOperationException(
@@ -551,7 +551,7 @@ public static class SamusBlockCollision
                         }
                         break;
 
-                    case 11:
+                    case RoomCollisionType.SpecialBlock:
                         if (block.Behavior is >= 0x47 and <= 0x4d &&
                             (plms is null ||
                              !plms.TryNotifyStationCollision(
@@ -573,7 +573,7 @@ public static class SamusBlockCollision
                         collisionBlock = block;
                         break;
 
-                    case 15:
+                    case RoomCollisionType.BombableBlock:
                         // Vertical dispatch is `$94:934C` and shares the exact bank-$84
                         // setup/carry contract documented in the horizontal branch above.
                         if ((block.Behavior & 0x80) != 0 || !canBreakBombBlocks)
@@ -941,10 +941,11 @@ public static class SamusBlockCollision
         {
             int delta = block.CollisionType switch
             {
-                5 when block.Behavior != 0 => unchecked((sbyte)block.Behavior),
-                13 when block.Behavior != 0 =>
+                RoomCollisionType.HorizontalExtension when block.Behavior != 0 =>
+                    unchecked((sbyte)block.Behavior),
+                RoomCollisionType.VerticalExtension when block.Behavior != 0 =>
                     unchecked((sbyte)block.Behavior) * level.WidthInBlocks,
-                5 or 13 => 0,
+                RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => 0,
                 _ => int.MinValue,
             };
 

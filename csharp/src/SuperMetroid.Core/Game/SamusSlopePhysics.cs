@@ -118,7 +118,7 @@ public static class SamusSlopePhysics
         // type 1, shapes >=5, and BTS bit $80 clear participate as floor slopes.
         ushort bottomPosition = unchecked((ushort)(yPosition + yRadius - 1));
         if (TryGetBlockAtPixel(level, xPosition, bottomPosition, out RoomCollisionBlock bottom) &&
-            bottom.CollisionType == 1 &&
+            bottom.CollisionType == RoomCollisionType.Slope &&
             (bottom.Behavior & 0x1f) >= 5)
         {
             floorBlock = bottom;
@@ -139,7 +139,7 @@ public static class SamusSlopePhysics
         // $80 set and reverse the same signed correction, matching $94:887A-$94:88F3.
         ushort topPosition = unchecked((ushort)(yPosition - yRadius));
         if (TryGetBlockAtPixel(level, xPosition, topPosition, out RoomCollisionBlock top) &&
-            top.CollisionType == 1 &&
+            top.CollisionType == RoomCollisionType.Slope &&
             (top.Behavior & 0x1f) >= 5)
         {
             ceilingBlock = top;

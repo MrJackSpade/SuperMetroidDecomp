@@ -1100,8 +1100,17 @@ public sealed partial class RoomEnemySystem
         if (blockIndex < 0)
             return true;
 
-        byte type = level.GetCollisionBlockByIndex(blockIndex).CollisionType;
-        return type is 1 or 5 or 8 or 9 or 0x0b or 0x0c or 0x0d or 0x0e or 0x0f;
+        RoomCollisionType type = level.GetCollisionBlockByIndex(blockIndex).CollisionType;
+        return type is
+            RoomCollisionType.Slope or
+            RoomCollisionType.HorizontalExtension or
+            RoomCollisionType.SolidBlock or
+            RoomCollisionType.DoorBlock or
+            RoomCollisionType.SpecialBlock or
+            RoomCollisionType.ShootableBlock or
+            RoomCollisionType.VerticalExtension or
+            RoomCollisionType.GrappleBlock or
+            RoomCollisionType.BombableBlock;
     }
 
     private ushort? ResolveEnemyProjectileSamusCollision(

@@ -270,16 +270,29 @@ public sealed partial class RoomEnemySystem
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         return block.CollisionType switch
         {
-            0x0 or 0x2 or 0x3 or 0x4 or 0x6 or 0x7 => false,
-            0x1 when (block.Behavior & 0x1f) >= 5 => treatNonSquareSlopesAsWalls,
-            0x1 => SquareHorizontalSlopeIsSolid(
+            RoomCollisionType.Air or
+            RoomCollisionType.SpikeAir or
+            RoomCollisionType.SpecialAir or
+            RoomCollisionType.ShootableAir or
+            RoomCollisionType.UnusedAir or
+            RoomCollisionType.BombableAir => false,
+            RoomCollisionType.Slope when (block.Behavior & 0x1f) >= 5 =>
+                treatNonSquareSlopesAsWalls,
+            RoomCollisionType.Slope => SquareHorizontalSlopeIsSolid(
                 slot,
                 targetEdge,
                 block.Behavior,
                 remaining,
                 spanMinusOne),
-            0x5 or 0xd => false, // A zero-offset extension resolves to air.
-            0x8 or 0x9 or 0xa or 0xb or 0xc or 0xe or 0xf => true,
+            RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension =>
+                false, // A zero-offset extension resolves to air.
+            RoomCollisionType.SolidBlock or
+            RoomCollisionType.DoorBlock or
+            RoomCollisionType.SpikeBlock or
+            RoomCollisionType.SpecialBlock or
+            RoomCollisionType.ShootableBlock or
+            RoomCollisionType.GrappleBlock or
+            RoomCollisionType.BombableBlock => true,
             _ => throw new InvalidDataException(
                 $"Enemy horizontal collision type ${block.CollisionType:X1} is invalid."),
         };
@@ -303,22 +316,33 @@ public sealed partial class RoomEnemySystem
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         return block.CollisionType switch
         {
-            0x0 or 0x2 or 0x3 or 0x4 or 0x6 or 0x7 => false,
-            0x1 when (block.Behavior & 0x1f) >= 5 =>
+            RoomCollisionType.Air or
+            RoomCollisionType.SpikeAir or
+            RoomCollisionType.SpecialAir or
+            RoomCollisionType.ShootableAir or
+            RoomCollisionType.UnusedAir or
+            RoomCollisionType.BombableAir => false,
+            RoomCollisionType.Slope when (block.Behavior & 0x1f) >= 5 =>
                 NonSquareVerticalSlopeIsSolid(
                     level,
                     slot,
                     block,
                     targetCenter,
                     movingUp),
-            0x1 => SquareVerticalSlopeIsSolid(
+            RoomCollisionType.Slope => SquareVerticalSlopeIsSolid(
                 slot,
                 targetEdge,
                 block.Behavior,
                 remaining,
                 spanMinusOne),
-            0x5 or 0xd => false,
-            0x8 or 0x9 or 0xa or 0xb or 0xc or 0xe or 0xf => true,
+            RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => false,
+            RoomCollisionType.SolidBlock or
+            RoomCollisionType.DoorBlock or
+            RoomCollisionType.SpikeBlock or
+            RoomCollisionType.SpecialBlock or
+            RoomCollisionType.ShootableBlock or
+            RoomCollisionType.GrappleBlock or
+            RoomCollisionType.BombableBlock => true,
             _ => throw new InvalidDataException(
                 $"Enemy vertical collision type ${block.CollisionType:X1} is invalid."),
         };
@@ -349,8 +373,9 @@ public sealed partial class RoomEnemySystem
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
             int offset = block.CollisionType switch
             {
-                0x5 when block.Behavior != 0 => unchecked((sbyte)block.Behavior),
-                0xd when block.Behavior != 0 =>
+                RoomCollisionType.HorizontalExtension when block.Behavior != 0 =>
+                    unchecked((sbyte)block.Behavior),
+                RoomCollisionType.VerticalExtension when block.Behavior != 0 =>
                     unchecked((sbyte)block.Behavior) * level.WidthInBlocks,
                 _ => 0,
             };
@@ -496,7 +521,8 @@ public sealed partial class RoomEnemySystem
         }
 
         RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
-        if (block.CollisionType != 1 || (block.Behavior & 0x1f) < 5)
+        if (block.CollisionType != RoomCollisionType.Slope ||
+            (block.Behavior & 0x1f) < 5)
             return false;
         if (underside != ((block.Behavior & 0x80) != 0))
             return false;

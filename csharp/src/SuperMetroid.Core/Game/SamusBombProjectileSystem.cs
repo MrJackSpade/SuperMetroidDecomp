@@ -559,7 +559,8 @@ public sealed class SamusBombProjectileSystem
         // Item collision BTS $45 routes to the already-loaded item object rather than
         // indexing the ordinary bomb/special-block tables. Visible type-$B frames need no
         // additional response; concealed type-$C/orb frames publish the generic trigger.
-        if (block.Behavior == 0x45 && block.CollisionType is 11 or 12)
+        if (block.Behavior == 0x45 &&
+            block.CollisionType is RoomCollisionType.SpecialBlock or RoomCollisionType.ShootableBlock)
         {
             _ = roomPlms?.TryNotifyCollectibleProjectileHit(block.Index, projectileType);
             return;
@@ -568,7 +569,7 @@ public sealed class SamusBombProjectileSystem
         // Power Bombs reach the same colored-door pre-instruction as beams and missiles.
         // This is the only accepted yellow-door family; normal bombs are still published
         // and rejected with the cartridge's dud sound by the resident PLM.
-        if (block.CollisionType == 12 && block.Behavior == 0x44 &&
+        if (block.CollisionType == RoomCollisionType.ShootableBlock && block.Behavior == 0x44 &&
             roomPlms?.TryNotifyColoredDoorHit(block.Index, projectileType) == true)
         {
             return;
@@ -577,10 +578,19 @@ public sealed class SamusBombProjectileSystem
         // $94:A052 dispatches these types to immediate clear/set-carry routines. They
         // spawn no PLM and do not alter the level/BTS arrays, so recording the visit is
         // the complete observable effect for this runtime.
-        if (block.CollisionType is 0 or 1 or 2 or 3 or 6 or 8 or 9 or 10 or 14)
+        if (block.CollisionType is
+            RoomCollisionType.Air or
+            RoomCollisionType.Slope or
+            RoomCollisionType.SpikeAir or
+            RoomCollisionType.SpecialAir or
+            RoomCollisionType.UnusedAir or
+            RoomCollisionType.SolidBlock or
+            RoomCollisionType.DoorBlock or
+            RoomCollisionType.SpikeBlock or
+            RoomCollisionType.GrappleBlock)
             return;
 
-        if (block.CollisionType is 7 or 15)
+        if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
         {
             // Both bombable-air and bombable-solid handlers use `$94:A012`. Negative
             // BTS takes the native duplicate/area-dependent early return and therefore
@@ -616,12 +626,13 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        if (block.CollisionType is 4 or 12)
+        if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
             // Type-$4 shootable air treats negative BTS as a duplicate and returns.
             // Type-$C instead indexes one of eight area tables; every retail entry is
             // PLMEntries_nothing, but Spawn_PLM still consumes a slot for one pass.
-            if (block.CollisionType == 4 && (block.Behavior & 0x80) != 0)
+            if (block.CollisionType == RoomCollisionType.ShootableAir &&
+                (block.Behavior & 0x80) != 0)
                 return;
             if ((block.Behavior & 0x80) == 0 && block.Behavior > 15)
             {
@@ -650,7 +661,7 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        if (block.CollisionType == 11)
+        if (block.CollisionType == RoomCollisionType.SpecialBlock)
         {
             if (roomPlms is null)
             {
@@ -854,5 +865,5 @@ public readonly record struct BombProjectileFrameResult(
 public readonly record struct BombBlockReaction(
     int BlockX,
     int BlockY,
-    byte CollisionType,
+    RoomCollisionType CollisionType,
     byte Behavior);

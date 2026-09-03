@@ -366,17 +366,20 @@ public readonly record struct RoomCollisionBlock(int Index, ushort LevelWord, by
     /// </summary>
     public RoomLevelWord PackedWord => new(LevelWord);
 
-    /// <summary>
-    /// High-nibble dispatcher index used by <c>$94:9515</c>. Values are native categories,
-    /// not a simplified solid/air Boolean: 1 is slope, 8/C/E are solid-family, etc.
-    /// </summary>
-    public byte CollisionType => PackedWord.CollisionTypeValue;
+    /// <summary>Typed bank-$94 collision-dispatch nibble for this block.</summary>
+    public RoomCollisionType CollisionType => PackedWord.CollisionType;
 
     /// <summary>
-    /// Typed collision-dispatch view for code paths whose native handler has a verified
-    /// name. Unnamed enum values remain representable and retain their original nibble.
+    /// Raw collision nibble retained for diagnostics and lossless cartridge inspection.
+    /// Gameplay dispatch should use <see cref="CollisionType"/>.
     /// </summary>
-    public RoomCollisionType CollisionKind => PackedWord.CollisionType;
+    public byte CollisionTypeValue => PackedWord.CollisionTypeValue;
+
+    /// <summary>
+    /// Compatibility alias for code that explicitly describes the dispatcher category as
+    /// a collision kind.
+    /// </summary>
+    public RoomCollisionType CollisionKind => CollisionType;
 
     /// <summary>Low ten bits selecting the visual 16×16 block definition.</summary>
     public ushort VisualBlockIndex => PackedWord.VisualBlockIndex;

@@ -1596,7 +1596,7 @@ static void VerifySamusPowerBeamProjectiles()
     for (int index = 0; index < coloredDoorHeaders.Length; index++)
     {
         RoomCollisionBlock block = coloredDoors.GetCollisionBlock(index + 1, 3);
-        AssertEqual(0x0c, block.CollisionType,
+        AssertEqual(RoomCollisionType.ShootableBlock, block.CollisionType,
             $"colored-door setup installs shootable collision for header {index}");
         AssertEqual(0x44, block.Behavior,
             $"colored-door setup installs shared BTS for header {index}");
@@ -1801,7 +1801,8 @@ static void VerifySamusPowerBeamProjectiles()
             getSamus: () => new SamusState(),
             isAreaTorizoDefeated: () => false),
         "grey-door loader allocates enemy-quota actor from population");
-    AssertEqual(0x0c, greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).CollisionType,
+    AssertEqual(RoomCollisionType.ShootableBlock,
+        greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).CollisionType,
         "grey-door setup installs shootable-solid collision");
     AssertEqual(0x44, greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).Behavior,
         "grey-door setup installs generic resident-PLM BTS");
@@ -1942,7 +1943,8 @@ static void VerifySamusPowerBeamProjectiles()
         "beam born inside a blue cap collides before first-frame movement");
     AssertEqual(1, contactDoorPlms.ActiveCount,
         "contact-distance shot allocates the blue-door opening PLM");
-    AssertEqual(8, contactDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
+    AssertEqual(RoomCollisionType.SolidBlock,
+        contactDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
         "contact-distance shot synchronously opens the cap origin");
     AssertEqual(0x006d, contactDoorProjectiles.Slots[0].XPosition,
         "fire-time impact anchors its explosion at the native leading edge");
@@ -1975,7 +1977,8 @@ static void VerifySamusPowerBeamProjectiles()
         "power beam collides through negative vertical door extension");
     AssertEqual(1, blueDoorPlms.ActiveCount,
         "BTS $41 collision allocates one right-facing blue-door PLM");
-    AssertEqual(8, blueDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
+    AssertEqual(RoomCollisionType.SolidBlock,
+        blueDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
         "Setup_BlueDoor synchronously changes cap origin to type eight");
 
     BackgroundTilemapStreamer blueDoorStreamer = blueDoor.CreateBackgroundStreamer();
@@ -1987,7 +1990,7 @@ static void VerifySamusPowerBeamProjectiles()
         blueDoorPlms.Step(bus, blueDoor, blueDoorStreamer, 0x1000, 0x1000, 0);
     for (int rowOffset = 0; rowOffset < 4; rowOffset++)
     {
-        AssertEqual(0,
+        AssertEqual(RoomCollisionType.Air,
             blueDoor.GetCollisionBlockByIndex(
                 blueDoorOrigin + rowOffset * width).CollisionType,
             $"blue-door final draw clears cap row {rowOffset}");

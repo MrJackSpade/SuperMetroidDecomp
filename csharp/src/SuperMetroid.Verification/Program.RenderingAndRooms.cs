@@ -721,7 +721,8 @@ static void VerifyRoomLevelData()
     AssertEqual(4, block.Index, "room collision row-major index");
     AssertEqual(0xe002, block.LevelWord, "room collision level word");
     AssertEqual(0x22, block.Behavior, "room collision parallel BTS byte");
-    AssertEqual(0x0e, block.CollisionType, "room collision high-nibble dispatcher type");
+    AssertEqual(RoomCollisionType.GrappleBlock, block.CollisionType,
+        "room collision high-nibble dispatcher type");
     AssertEqual(2, block.VisualBlockIndex, "room collision visual block index");
 
     // Pixel (31,17) is block (1,1); shifts must occur before multiplication/indexing.

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 public static class SpcAudioAssetExtractor
 {
-    private const int TrackPointerCount = 32;
+    private const int MaximumTrackPointerCount = 32;
     private const int InstrumentTableByteLength = 0x100;
     private const int BrrDirectoryAddress = 0x6d00;
     private const int BrrDirectoryEntrySize = 4;
@@ -88,10 +88,14 @@ public static class SpcAudioAssetExtractor
         bool[] written)
     {
         List<ushort> trackPointers = [];
-        for (int track = 0; track < TrackPointerCount; track++)
-            trackPointers.Add(ReadWord(ram, SpcDriverData.Ram.DefaultMusicPointer + track * 2));
-        while (trackPointers.Count != 0 && trackPointers[^1] == 0)
-            trackPointers.RemoveAt(trackPointers.Count - 1);
+        trackPointers.Add(ReadWord(ram, SpcDriverData.Ram.DefaultMusicPointer));
+        for (int track = 1; track < MaximumTrackPointerCount; track++)
+        {
+            ushort pointer = ReadWord(ram, SpcDriverData.Ram.DefaultMusicPointer + track * 2);
+            if (pointer == 0 || !written[pointer])
+                break;
+            trackPointers.Add(pointer);
+        }
 
         List<AudioInstrumentMetadata> instruments = [];
         int instrumentCount = InstrumentTableByteLength / SpcDriverData.Ram.InstrumentRecordSize;
@@ -111,9 +115,20 @@ public static class SpcAudioAssetExtractor
         }
 
         string bankSampleDirectory = Path.Combine(samplesDirectory, definition.Name);
+        if (Directory.Exists(bankSampleDirectory))
+            Directory.Delete(bankSampleDirectory, recursive: true);
         Directory.CreateDirectory(bankSampleDirectory);
         List<AudioSampleMetadata> samples = [];
-        for (int source = 0; source <= byte.MaxValue; source++)
+        ushort firstSampleAddress = ReadWord(ram, BrrDirectoryAddress);
+        int directoryBytes = firstSampleAddress - BrrDirectoryAddress;
+        if (directoryBytes <= 0 || directoryBytes % BrrDirectoryEntrySize != 0 ||
+            directoryBytes / BrrDirectoryEntrySize > byte.MaxValue + 1)
+        {
+            throw new InvalidDataException(
+                $"{definition.Name} has invalid BRR directory boundary ${firstSampleAddress:X4}.");
+        }
+        int sourceCount = directoryBytes / BrrDirectoryEntrySize;
+        for (int source = 0; source < sourceCount; source++)
         {
             int directory = BrrDirectoryAddress + source * BrrDirectoryEntrySize;
             ushort start = ReadWord(ram, directory);

@@ -133,9 +133,6 @@ public sealed class MaridiaElevatubeRoomMainState
 /// <summary>Immediate values and entry point owned by Maridia's elevatube cartridge code.</summary>
 internal static class MaridiaElevatubeRomData
 {
-    /// <summary>Room-main entry point selected by room $D408.</summary>
-    public const ushort MainCodePointer = 0xe2b6;
-
     /// <summary>Whole X coordinate written on every room-main call.</summary>
     public const ushort SamusCenterX = 0x0080;
 

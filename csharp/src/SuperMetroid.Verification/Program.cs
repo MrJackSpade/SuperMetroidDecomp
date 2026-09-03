@@ -111,6 +111,7 @@ VerifyBackgroundScrollState();
 VerifyLevelBlockTilemapExpansion();
 VerifyRoomLevelData();
 VerifyCartridgeRoomStateSelection();
+VerifyRoomMainCodeCatalog();
 VerifyBackgroundTilemapStreamer();
 VerifyFourBitBackgroundRendering();
 VerifyLoRomCrossBankCompressedData();

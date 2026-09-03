@@ -4154,7 +4154,9 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     private void RunCeresFallingDebrisRoomMain()
     {
-        if (ActiveRoom?.State.MainCodePointer != 0xe525 || Enemies.CeresStatus == 0)
+        if (ActiveRoom?.State.MainCodePointer !=
+                RoomMainCodePointers.SpawnCeresPreElevatorHallFallingDebris ||
+            Enemies.CeresStatus == 0)
             return;
 
         NativeWordCounterStep timer = NativeWordCounter.Decrement(_ceresFallingDebrisTimer);

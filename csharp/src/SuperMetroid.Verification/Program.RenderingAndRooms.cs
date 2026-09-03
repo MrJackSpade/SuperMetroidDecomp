@@ -1162,10 +1162,10 @@ static Rgba32[] CreateOpaqueBlackGameplayFrame()
 static void VerifyScrollingSkyState()
 {
     AssertTrue(
-        ScrollingSkyState.IsLandRoomMain(ScrollingSkyState.LandRoomMainCodePointer),
+        ScrollingSkyState.IsLandRoomMain(RoomMainCodePointers.ScrollingSkyLand),
         "$8F:C116 selects land scrolling sky");
     AssertTrue(
-        ScrollingSkyState.IsLandRoomMain(ScrollingSkyState.ShakingLandRoomMainCodePointer),
+        ScrollingSkyState.IsLandRoomMain(RoomMainCodePointers.ScrollingSkyLandZebesTimebombSet),
         "$8F:C120 selects land scrolling sky before quake work");
     AssertTrue(
         !ScrollingSkyState.IsLandRoomMain(0xc11b),

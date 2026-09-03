@@ -16,9 +16,6 @@ namespace SuperMetroid.Core.Runtime;
 /// </remarks>
 public sealed class CeresElevatorShaftRoomMainState
 {
-    /// <summary>Room-state main-ASM wrapper which delegates to <c>$89:ACC3</c>.</summary>
-    public const ushort MainCodePointer = 0xe51f;
-
     /// <summary>First timer/sine/cosine record used by <c>$89:ACC3</c>.</summary>
     public const int RotationTableAddress = 0x89ad5f;
 

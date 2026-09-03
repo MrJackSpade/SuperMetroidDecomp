@@ -622,9 +622,9 @@ public sealed partial class SuperMetroidRuntime
         _ceresFallingDebrisTimer = 0;
         WreckedShipTreadmill.Reset();
         MaridiaElevatube.Reset(
-            active: room.State.MainCodePointer == MaridiaElevatubeRomData.MainCodePointer);
+            active: room.State.MainCodePointer == RoomMainCodePointers.MaridiaElevatube);
         CeresElevatorShaft.Reset(
-            active: room.State.MainCodePointer == CeresElevatorShaftRoomMainState.MainCodePointer &&
+            active: room.State.MainCodePointer == RoomMainCodePointers.CeresElevatorShaft &&
                 door.UsesCeresElevatorMode7);
         // Door setup `$8F:E4E0` writes these exact five registers before the fresh Ceres
         // elevator room becomes visible. Publishing the immutable transform here gives

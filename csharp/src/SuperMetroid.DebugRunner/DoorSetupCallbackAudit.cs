@@ -12,6 +12,7 @@ internal static class DoorSetupCallbackAudit
     private const int ScratchScrollSource = 0x7e2000;
     private const int ExpectedPureScrollCallbackCount = 74;
     private const int ExpectedRetailCallbackCount = 82;
+    private const int ExpectedConfiguredDoorHeaderCount = 94;
     private const byte UnwrittenSentinel = 0x7f;
     private const ushort WreckedShipEntranceRoom = 0xca08;
     private const ushort MaridiaElevatubeRoom = 0xd408;
@@ -29,17 +30,159 @@ internal static class DoorSetupCallbackAudit
                 $"{ExpectedPureScrollCallbackCount}.");
         }
 
+        VerifyRetailHeaderInventory(bus, pointers);
         foreach (ushort pointer in pointers)
             VerifyProgram(bus, pointer);
 
+        VerifyReportedFlywayHeader(bus);
+        VerifyCeresMode7Callbacks(bus);
         VerifyWreckedShipTreadmillCallbacks(bus);
         VerifyMaridiaElevatubeCallbacks(bus);
 
         Console.WriteLine(
-            $"Door setup callback audit passed all {ExpectedRetailCallbackCount} retail " +
-            $"callbacks: {pointers.Length} pure scroll, 2 Ceres Mode-7, " +
+            $"Door setup callback audit passed all {ExpectedConfiguredDoorHeaderCount} configured " +
+            $"headers and {ExpectedRetailCallbackCount} retail callbacks: " +
+            $"{pointers.Length} pure scroll, 2 Ceres Mode-7, " +
             "2 Wrecked Ship treadmill, and 4 Maridia elevatube programs.");
         return 0;
+    }
+
+    private static void VerifyRetailHeaderInventory(
+        SuperMetroidAddressSpace bus,
+        IReadOnlyCollection<ushort> pureScrollPointers)
+    {
+        ushort[] headerPointers = RetailDoorHeaderCatalog.EnumeratePointers().ToArray();
+        if (headerPointers.Length != RetailDoorHeaderCatalog.HeaderCount)
+        {
+            throw new InvalidDataException(
+                $"Retail door ranges produced {headerPointers.Length} headers, expected " +
+                $"{RetailDoorHeaderCatalog.HeaderCount}.");
+        }
+
+        CartridgeDoorHeader[] configuredHeaders = headerPointers
+            .Select(pointer => CartridgeDoorHeader.Load(bus, pointer))
+            .Where(header => header.SetupCodePointer != 0)
+            .ToArray();
+        if (configuredHeaders.Length != ExpectedConfiguredDoorHeaderCount)
+        {
+            throw new InvalidDataException(
+                $"Retail door inventory contains {configuredHeaders.Length} configured headers, " +
+                $"expected {ExpectedConfiguredDoorHeaderCount}.");
+        }
+
+        ushort[] configuredCallbacks = configuredHeaders
+            .Select(header => header.SetupCodePointer)
+            .Distinct()
+            .Order()
+            .ToArray();
+        if (configuredCallbacks.Length != ExpectedRetailCallbackCount)
+        {
+            throw new InvalidDataException(
+                $"Configured retail headers reference {configuredCallbacks.Length} callbacks, " +
+                $"expected {ExpectedRetailCallbackCount}.");
+        }
+
+        ushort[] translatedCallbacks = pureScrollPointers
+            .Concat(StatefulCallbackPointers)
+            .Distinct()
+            .Order()
+            .ToArray();
+        if (!configuredCallbacks.SequenceEqual(translatedCallbacks))
+        {
+            string missing = string.Join(", ", configuredCallbacks
+                .Except(translatedCallbacks)
+                .Select(pointer => $"$8F:{pointer:X4}"));
+            string extra = string.Join(", ", translatedCallbacks
+                .Except(configuredCallbacks)
+                .Select(pointer => $"$8F:{pointer:X4}"));
+            throw new InvalidDataException(
+                $"Door callback catalog mismatch; missing=[{missing}], extra=[{extra}].");
+        }
+
+        foreach (CartridgeDoorHeader header in configuredHeaders)
+        {
+            RoomScrollGrid scratch = CreateScratchScrollGrid(bus);
+            // This is the exact production interpreter call made before the runtime's
+            // stateful dispatch. Unknown pointers throw, so every one of the 94 headers
+            // must reach a translated branch rather than merely sharing a known address.
+            DoorSetupCodeInterpreter.ApplyScrollWrites(
+                header.SetupCodePointer,
+                header.Pointer,
+                scratch);
+        }
+    }
+
+    private static readonly ushort[] StatefulCallbackPointers =
+    [
+        DoorCodes.DoorASM_ToCeresElevatorShaft,
+        DoorCodes.DoorASM_FromCeresElevatorShaft,
+        DoorCodes.DoorASM_StartWreckedShipTreadmillWestEntrance,
+        DoorCodes.DoorASM_StartWreckedShipTreadmillEastEntrance,
+        DoorCodes.DoorASM_SetupElevatubeFromSouth,
+        DoorCodes.DoorASM_SetupElevatubeFromNorth,
+        DoorCodes.DoorASM_ResetElevatubeOnNorthExit,
+        DoorCodes.DoorASM_ResetElevatubeOnSouthExit,
+    ];
+
+    private static void VerifyReportedFlywayHeader(SuperMetroidAddressSpace bus)
+    {
+        CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, DoorPointers.ParlorFromFlyway);
+        if (door.SetupCodePointer != DoorCodes.DoorASM_Scroll_4_Red_8_Green)
+        {
+            throw new InvalidDataException(
+                $"Issue #63 door $83:{door.Pointer:X4} names setup $8F:" +
+                $"{door.SetupCodePointer:X4}, expected $8F:" +
+                $"{DoorCodes.DoorASM_Scroll_4_Red_8_Green:X4}.");
+        }
+
+        RoomScrollGrid scrolls = CreateScratchScrollGrid(bus);
+        DoorSetupCodeInterpreter.ApplyScrollWrites(
+            door.SetupCodePointer,
+            door.Pointer,
+            scrolls);
+        for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
+        {
+            byte expected = index switch
+            {
+                4 => (byte)RoomScrollState.RedBoundary,
+                8 => (byte)RoomScrollState.Green,
+                _ => UnwrittenSentinel,
+            };
+            if (scrolls.ReadStorage(index) != expected)
+            {
+                throw new InvalidDataException(
+                    $"Issue #63 door wrote scroll[{index:X2}]=" +
+                    $"${scrolls.ReadStorage(index):X2}, expected ${expected:X2}.");
+            }
+        }
+    }
+
+    private static void VerifyCeresMode7Callbacks(SuperMetroidAddressSpace bus)
+    {
+        SuperMetroidRuntime runtime = CreateRuntime(bus);
+        CartridgeDoorHeader intoShaft = CartridgeDoorHeader.Load(
+            bus,
+            DoorPointers.ToCeresElevatorShaft);
+        runtime.LoadCartridgeRoomThroughDoorForVerification(intoShaft);
+        if (runtime.ActiveSamusMode7Transform is null ||
+            runtime.DisplayedSamusMode7Transform is null ||
+            !runtime.CeresElevatorShaft.IsActive)
+        {
+            throw new InvalidDataException(
+                "Ceres entry callback $8F:E4E0 did not establish Mode-7 shaft state.");
+        }
+
+        CartridgeDoorHeader fromShaft = CartridgeDoorHeader.Load(
+            bus,
+            DoorPointers.FromCeresElevatorShaft);
+        runtime.LoadCartridgeRoomThroughDoorForVerification(fromShaft);
+        if (runtime.ActiveSamusMode7Transform is not null ||
+            runtime.DisplayedSamusMode7Transform is not null ||
+            runtime.CeresElevatorShaft.IsActive)
+        {
+            throw new InvalidDataException(
+                "Ceres exit callback $8F:E513 did not restore ordinary Mode-1 state.");
+        }
     }
 
     private static void VerifyWreckedShipTreadmillCallbacks(SuperMetroidAddressSpace bus)
@@ -347,13 +490,7 @@ internal static class DoorSetupCallbackAudit
             RoomScrollGrid.StorageByteCount).ToArray();
         ExecuteCartridgeScrollProgram(bus, pointer, expected);
 
-        for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
-            bus.WriteByte(ScratchScrollSource + index, UnwrittenSentinel);
-        RoomScrollGrid actual = RoomScrollGrid.LoadExplicit(
-            bus,
-            ScratchScrollSource,
-            widthInScreens: 10,
-            heightInScreens: 5);
+        RoomScrollGrid actual = CreateScratchScrollGrid(bus);
 
         if (!DoorScrollPrograms.TryApply(pointer, actual))
             throw new InvalidDataException($"Door callback $8F:{pointer:X4} was not recognized.");
@@ -367,6 +504,17 @@ internal static class DoorSetupCallbackAudit
                 $"${actual.ReadStorage(index):X2}; cartridge instructions produce " +
                 $"${expected[index]:X2}.");
         }
+    }
+
+    private static RoomScrollGrid CreateScratchScrollGrid(ISnesAddressSpace bus)
+    {
+        for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
+            bus.WriteByte(ScratchScrollSource + index, UnwrittenSentinel);
+        return RoomScrollGrid.LoadExplicit(
+            bus,
+            ScratchScrollSource,
+            widthInScreens: 10,
+            heightInScreens: 5);
     }
 
     /// <summary>

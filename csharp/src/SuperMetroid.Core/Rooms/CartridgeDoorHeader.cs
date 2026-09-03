@@ -24,6 +24,9 @@ public sealed record CartridgeDoorHeader(
 {
     private const int DoorBank = 0x830000;
 
+    /// <summary>Encoded size of one retail bank-$83 door header.</summary>
+    public const int SizeInBytes = 12;
+
     /// <summary>Reads the packed door record named by a load station or room door list.</summary>
     public static CartridgeDoorHeader Load(ISnesAddressSpace bus, ushort pointer)
     {

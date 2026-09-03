@@ -295,6 +295,9 @@ internal static class DoorPointers
     /// <summary>Upward door leaving Climb for Parlor after Zebes wakes.</summary>
     public const ushort ParlorFromClimb = 0x8b3e;
 
+    /// <summary>Left door leaving Flyway for awakened Parlor; issue #63's reported header.</summary>
+    public const ushort ParlorFromFlyway = 0x8bb6;
+
     /// <summary>Left door leaving the Morph Ball room for the Blue Brinstar elevator.</summary>
     public const ushort BlueBrinstarElevatorFromMorphBall = 0x8eb6;
 
@@ -315,4 +318,7 @@ internal static class DoorPointers
 
     /// <summary>Door leaving the Ceres elevator shaft for the falling-tile room.</summary>
     public const ushort FromCeresElevatorShaft = 0xab4c;
+
+    /// <summary>Door leaving the Ceres falling-tile room for the Mode-7 elevator shaft.</summary>
+    public const ushort ToCeresElevatorShaft = 0xab58;
 }

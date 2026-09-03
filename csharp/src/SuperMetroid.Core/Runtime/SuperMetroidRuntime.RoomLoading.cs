@@ -578,6 +578,28 @@ public sealed partial class SuperMetroidRuntime
         return viewport;
     }
 
+    /// <summary>
+    /// Loads a retail destination through its real bank-$83 header for exhaustive callback
+    /// verification. Production reaches the same private loader through door collision.
+    /// </summary>
+    internal InitialViewportResult LoadCartridgeRoomThroughDoorForVerification(
+        CartridgeDoorHeader door,
+        ushort cameraX = 0,
+        ushort cameraY = 0)
+    {
+        ArgumentNullException.ThrowIfNull(door);
+        if (Samus is null)
+            throw new InvalidOperationException("Door verification requires initialized Samus state.");
+
+        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
+        return LoadCartridgeRoom(
+            door,
+            room,
+            cameraX,
+            cameraY,
+            RoomViewportLoadMode.DisplayInitialViewport);
+    }
+
     /// <summary>Shared cartridge room/state/graphics load used by stations and doors.</summary>
     private InitialViewportResult LoadCartridgeRoom(
         CartridgeDoorHeader door,

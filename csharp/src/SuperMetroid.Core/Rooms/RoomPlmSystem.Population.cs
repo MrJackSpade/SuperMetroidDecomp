@@ -15,7 +15,7 @@ public sealed partial class RoomPlmSystem
     /// </summary>
     public static bool IsSupportedRoomPopulationHeader(ushort header)
     {
-        if (header is ScrollPlmHeader or RightwardsExtensionHeader or
+        if (header is RoomPlmHeaders.ScrollTrigger or RightwardsExtensionHeader or
             LeftwardsExtensionHeader or DownwardsExtensionHeader or UpwardsExtensionHeader or
             MotherBrainGlassHeader or BombTorizoHandHeader or
             MapStationHeader or EnergyStationHeader or MissileStationHeader or
@@ -234,7 +234,7 @@ public sealed partial class RoomPlmSystem
             return true;
         }
 
-        if (header is ScrollPlmHeader or RightwardsExtensionHeader or
+        if (header is RoomPlmHeaders.ScrollTrigger or RightwardsExtensionHeader or
             LeftwardsExtensionHeader or DownwardsExtensionHeader or UpwardsExtensionHeader)
         {
             SetupScrollSlot(level, slot, header);

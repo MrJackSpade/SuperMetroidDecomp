@@ -237,7 +237,13 @@ if (args.Length >= 2 && args[0] == "--retail-plm-population-audit")
 if (args.Length >= 2 && args[0] == "--retail-scroll-owner-audit")
 {
     string scrollOwnerRomPath = string.Join(' ', args[1..]).Trim('"');
-    return RetailPlmPopulationAudit.LocateScrollOwners(scrollOwnerRomPath, 1172, 1062);
+    return RetailPlmPopulationAudit.LocateScrollOwners(scrollOwnerRomPath, 1172, 1062, 940);
+}
+
+if (args.Length >= 2 && args[0] == "--retail-scroll-ownership-audit")
+{
+    string scrollOwnershipRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailPlmPopulationAudit.AuditScrollOwnership(scrollOwnershipRomPath);
 }
 
 if (args.Length >= 2 && args[0] == "--retail-enemy-execution-audit")

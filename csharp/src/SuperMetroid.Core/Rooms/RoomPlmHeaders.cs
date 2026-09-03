@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Named bank-$84 PLM header pointers consumed by room integration code.</summary>
 internal static class RoomPlmHeaders
 {
+    /// <summary>Resident special-air scroll trigger at $84:B703.</summary>
+    public const ushort ScrollTrigger = 0xb703;
+
     /// <summary>Wrecked Ship entrance treadmill entered from the west at $84:B64B.</summary>
     public const ushort WreckedShipEntranceTreadmillFromWest = 0xb64b;
 

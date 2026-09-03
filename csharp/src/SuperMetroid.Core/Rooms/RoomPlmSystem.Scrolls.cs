@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Rooms;
 
 public sealed partial class RoomPlmSystem
 {
-    private const ushort ScrollPlmHeader = 0xb703;
     private const ushort RightwardsExtensionHeader = 0xb63b;
     private const ushort LeftwardsExtensionHeader = 0xb63f;
     private const ushort DownwardsExtensionHeader = 0xb643;
@@ -88,7 +87,7 @@ public sealed partial class RoomPlmSystem
     /// <summary>Runs one scroll/extension setup after the shared allocator chose its ID.</summary>
     private static void SetupScrollSlot(RoomLevelData level, PlmSlot slot, ushort header)
     {
-        if (header != ScrollPlmHeader)
+        if (header != RoomPlmHeaders.ScrollTrigger)
         {
             (int collisionType, int behavior) = header switch
             {

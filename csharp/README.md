@@ -313,8 +313,14 @@ dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-lifec
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-touch-audit "Super Metroid.smc"
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-attack-audit "Super Metroid.smc"
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-plm-population-audit "Super Metroid.smc"
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-scroll-ownership-audit "Super Metroid.smc"
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --early-controller-route-audit "Super Metroid.smc"
 ```
+
+The scroll-ownership audit loads every named room state through the production PLM loader,
+checks every type-$3/BTS-$46 collision trigger against its resident `$B703` owner, exercises
+the first native touch/wake/sleep cycle, and reports untranslated PLMs that prevent a state
+from reaching that check.
 
 Focused actor and boss flags are defined near the top of
 `src/SuperMetroid.DebugRunner/Program.cs`. The ordinary frame-script parser also supports

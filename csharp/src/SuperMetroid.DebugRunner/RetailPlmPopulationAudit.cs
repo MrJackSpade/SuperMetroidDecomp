@@ -7,9 +7,8 @@ using SuperMetroid.Core.Rooms;
 /// the sequential loader's support classifier accounts for every retail record and reports
 /// untranslated headers with exact population coordinates rather than silently skipping.
 /// </summary>
-internal static class RetailPlmPopulationAudit
+internal static partial class RetailPlmPopulationAudit
 {
-    private const ushort ScrollPlmHeader = 0xb703;
     private const int ExpectedRecordCount = 941;
     private const int ExpectedDistinctHeaderCount = 70;
     private const int ExpectedSupportedRecordCount = 882;
@@ -122,7 +121,8 @@ internal static class RetailPlmPopulationAudit
         if (!File.Exists(symbolPath))
             throw new FileNotFoundException("Retail scroll-owner audit requires names.txt.", symbolPath);
 
-        var remaining = targetBlockIndices.ToHashSet();
+        HashSet<int> targets = targetBlockIndices.ToHashSet();
+        var found = new HashSet<int>();
         foreach (string line in File.ReadLines(symbolPath))
         {
             const string stateMarker = " kRoomState_";
@@ -150,24 +150,25 @@ internal static class RetailPlmPopulationAudit
                 ushort header = ReadWord(bus, 0x8f0000 | cursor);
                 if (header == 0)
                     break;
-                if (header != ScrollPlmHeader)
+                if (header != RoomPlmHeaders.ScrollTrigger)
                     continue;
 
                 byte x = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 2)));
                 byte y = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 3)));
                 int blockIndex = y * roomWidthInBlocks + x;
-                if (!remaining.Contains(blockIndex))
+                if (!targets.Contains(blockIndex))
                     continue;
 
                 Console.WriteLine(
                     $"block {blockIndex}: room $8F:{roomPointer:X4}, state $8F:{statePointer:X4}, " +
                     $"population $8F:{population:X4}, record {recordIndex}, coordinates ({x:X2},{y:X2}), " +
                     $"width {roomWidthInBlocks} blocks");
-                remaining.Remove(blockIndex);
+                found.Add(blockIndex);
             }
         }
 
-        if (remaining.Count != 0)
+        int[] remaining = targets.Except(found).Order().ToArray();
+        if (remaining.Length != 0)
         {
             throw new InvalidDataException(
                 $"No retail $B703 owner was found for block indices [{string.Join(',', remaining)}].");

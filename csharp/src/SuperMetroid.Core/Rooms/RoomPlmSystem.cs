@@ -1220,6 +1220,16 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 
+                case RoomPlmInstructionCodes.SetPlmBtsFromByte:
+                    // `$84:8AF1` consumes the byte immediately following the opcode. Door
+                    // closing lists use it after their final visual frame to restore the
+                    // shootable blue-door BTS before drawing the permanent closed cap.
+                    level.SetBehavior(
+                        slot.BlockIndex,
+                        bus.ReadByte(Bank84(unchecked((ushort)(slot.InstructionPointer + 2)))));
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
+                    continue;
+
                 case RoomPlmInstructionCodes.DrawPlmBlock:
                     // $84:8B17 restores PLM_Vars to level data, builds a one-block custom
                     // draw list, sets timer one, and exits the handler. Deletion therefore

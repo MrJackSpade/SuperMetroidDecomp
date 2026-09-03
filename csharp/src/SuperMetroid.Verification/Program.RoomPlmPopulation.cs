@@ -94,9 +94,184 @@ internal static partial class Program
         VerifyOtherStationFamilies(bus);
         VerifySaveStationConfirmation(bus);
         VerifyMetroidsClearedStatePlm(bus);
+        VerifyMotherBrainEscapeRoomGate(bus);
         VerifyUnsupportedPopulationContext(bus);
         Console.WriteLine(
             "  Room PLM population: one-pass native slots, synchronous reuse, elevator, and station families agree.");
+    }
+
+    /// <summary>
+    /// Exercises both native uses of header $C8CA: an ordinary room load leaves its
+    /// six-frame closed gate list intact, while Mother Brain's direction-nine entrance
+    /// redirects that same physical slot to the header's second, three-frame closing list.
+    /// </summary>
+    private static void VerifyMotherBrainEscapeRoomGate(TestAddressSpace bus)
+    {
+        const ushort population = 0x9680;
+        const int width = 16;
+        const int height = 16;
+        const int gateX = 7;
+        const int gateY = 2;
+        const ushort originalGateWord = 0xf123;
+        const ushort deactivatedGateWord = 0x8123;
+        const ushort openGateWord = 0x80ff;
+        const ushort halfClosedGateTopWord = 0x830f;
+        const ushort closedGateMiddleWord = 0x8ae8;
+
+        WriteWord(bus, 0x84c8ca, 0xb3c1);
+        WriteWord(bus, 0x84c8cc, RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosed);
+        WriteWord(bus, 0x84c8ce, RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing);
+        WriteWord(bus, 0x84c8d0, 0xb3c1);
+        WriteWord(bus, 0x84c8d2, RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing);
+        bus.WriteBytes(0x8f0000 | population,
+        [
+            0xca, 0xc8, gateX, gateY, 0x00, 0x80,
+            0x00, 0x00,
+        ]);
+
+        WriteWord(bus, 0x84bb34, 6);
+        WriteWord(bus, 0x84bb36, 0x948b);
+        WriteWord(bus, 0x84bb38, RoomPlmInstructionCodes.Delete);
+        WriteWord(bus, 0x84bb44, 2);
+        WriteWord(bus, 0x84bb46, 0x9473);
+        WriteWord(bus, 0x84bb48, 2);
+        WriteWord(bus, 0x84bb4a, 0x947f);
+        WriteWord(bus, 0x84bb4c, 2);
+        WriteWord(bus, 0x84bb4e, 0x948b);
+        WriteWord(bus, 0x84bb50, RoomPlmInstructionCodes.Delete);
+        WriteVerticalPlmDraw(bus, 0x9473, [0x80ff, 0x80ff, 0x80ff, 0x80ff]);
+        WriteVerticalPlmDraw(bus, 0x947f, [0x830f, 0x80ff, 0x80ff, 0x830f]);
+        WriteVerticalPlmDraw(bus, 0x948b, [0x830f, 0x8ae8, 0x82e8, 0x830f]);
+
+        RoomLevelData ordinaryLevel = CreateRoom(
+            width,
+            height,
+            new ushort[width * height],
+            new byte[width * height],
+            blockDefinitions: new byte[0x400 * 8]);
+        int gateBlock = ordinaryLevel.GetBlockIndex(gateX, gateY);
+        ordinaryLevel.SetForegroundEntry(gateBlock, originalGateWord);
+        BackgroundTilemapStreamer ordinaryStreamer = ordinaryLevel.CreateBackgroundStreamer();
+        var ordinary = new RoomPlmSystem();
+        var system = new Bank80SystemState();
+        AssertEqual(1, ordinary.LoadRoomPopulation(
+                bus,
+                ordinaryLevel,
+                ordinaryStreamer,
+                new SnesVram(),
+                population,
+                system,
+                AreaId.Tourian,
+                () => new SamusState(),
+                () => false),
+            "escape gate population record is accepted by the sequential loader");
+        AssertEqual(deactivatedGateWord, ordinaryLevel.GetCollisionBlockByIndex(gateBlock).LevelWord,
+            "C8CA setup clears collision class bits without deleting its resident slot");
+        AssertEqual(39, ordinary.PopulationSlots.Single().NativeSlotIndex,
+            "escape gate retains the highest native population slot");
+        AssertEqual(RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosed,
+            ordinary.PopulationSlots.Single().InstructionPointer,
+            "ordinary entry retains C8CA's first closed-gate list");
+        ordinary.Step(bus, ordinaryLevel, ordinaryStreamer, 0, 0, 0);
+        AssertEqual(closedGateMiddleWord,
+            ordinaryLevel.GetCollisionBlock(gateX, gateY + 1).LevelWord,
+            "non-escape entry draws the cartridge's already-closed gate");
+        for (int frame = 0; frame < 6; frame++)
+            ordinary.Step(bus, ordinaryLevel, ordinaryStreamer, 0, 0, 0);
+        AssertEqual(0, ordinary.ActiveCount,
+            "non-escape closed-gate actor releases its slot after six authored frames");
+
+        RoomLevelData escapeLevel = CreateRoom(
+            width,
+            height,
+            new ushort[width * height],
+            new byte[width * height],
+            blockDefinitions: new byte[0x400 * 8]);
+        escapeLevel.SetForegroundEntry(gateBlock, originalGateWord);
+        BackgroundTilemapStreamer escapeStreamer = escapeLevel.CreateBackgroundStreamer();
+        var escape = new RoomPlmSystem();
+        escape.LoadRoomPopulation(
+            bus,
+            escapeLevel,
+            escapeStreamer,
+            new SnesVram(),
+            population,
+            system,
+            AreaId.Tourian,
+            () => new SamusState(),
+            () => false);
+        var motherBrainExit = new CartridgeDoorHeader(
+            Pointer: 0xaa8c,
+            DestinationRoomPointer: 0xde4d,
+            BitFlags: 0,
+            Orientation: 9,
+            PlmX: gateX,
+            PlmY: gateY,
+            DestinationScreenX: 0,
+            DestinationScreenY: 0,
+            SamusDistance: 0x8000,
+            SetupCodePointer: 0);
+        AssertTrue(escape.TrySpawnDoorClosingPlm(bus, escapeLevel, motherBrainExit, system),
+            "direction-nine Mother Brain exit redirects the resident gate");
+        AssertEqual(1, escape.ActiveCount,
+            "resident escape gate is redirected in place rather than duplicated");
+        AssertEqual(39, escape.PopulationSlots.Single().NativeSlotIndex,
+            "redirect preserves native room-population slot ordering");
+        AssertEqual(RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing,
+            escape.PopulationSlots.Single().InstructionPointer,
+            "door transition selects C8CA's second instruction list");
+
+        escape.Step(bus, escapeLevel, escapeStreamer, 0, 0, 0);
+        AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(gateX, gateY).LevelWord,
+            "closing frame one draws the fully open gate");
+        escape.Step(bus, escapeLevel, escapeStreamer, 0, 0, 0);
+        AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(gateX, gateY).LevelWord,
+            "two-frame gate timer retains the open image on its countdown frame");
+        escape.Step(bus, escapeLevel, escapeStreamer, 0, 0, 0);
+        AssertEqual(halfClosedGateTopWord, escapeLevel.GetCollisionBlock(gateX, gateY).LevelWord,
+            "closing frame two draws the half-closed gate");
+        escape.Step(bus, escapeLevel, escapeStreamer, 0, 0, 0);
+        escape.Step(bus, escapeLevel, escapeStreamer, 0, 0, 0);
+        AssertEqual(closedGateMiddleWord, escapeLevel.GetCollisionBlock(gateX, gateY + 1).LevelWord,
+            "closing frame three installs the final solid gate collision");
+        escape.Step(bus, escapeLevel, escapeStreamer, 0, 0, 0);
+        escape.Step(bus, escapeLevel, escapeStreamer, 0, 0, 0);
+        AssertEqual(0, escape.ActiveCount,
+            "escape gate releases its slot after the final two-frame hold");
+
+        RoomLevelData fallbackLevel = CreateRoom(
+            width,
+            height,
+            new ushort[width * height],
+            new byte[width * height],
+            blockDefinitions: new byte[0x400 * 8]);
+        fallbackLevel.SetForegroundEntry(gateBlock, originalGateWord);
+        var fallback = new RoomPlmSystem();
+        AssertTrue(fallback.TrySpawnDoorClosingPlm(bus, fallbackLevel, motherBrainExit, system),
+            "special door without a resident cap spawns C8D0 fallback");
+        AssertEqual(RoomPlmHeaders.MotherBrainEscapeRoomGateClosing,
+            fallback.PopulationSlots.Single().HeaderPointer,
+            "fallback actor uses the cartridge's dedicated C8D0 header");
+        AssertEqual(deactivatedGateWord, fallbackLevel.GetCollisionBlockByIndex(gateBlock).LevelWord,
+            "fallback C8D0 executes the shared deactivate setup");
+
+        var nonClosingDoor = motherBrainExit with { Orientation = 0 };
+        var nonClosing = new RoomPlmSystem();
+        AssertTrue(!nonClosing.TrySpawnDoorClosingPlm(bus, fallbackLevel, nonClosingDoor, system),
+            "directions zero through three retain the native no-closing-PLM branch");
+        AssertEqual(0, nonClosing.ActiveCount,
+            "non-closing door does not consume a PLM slot");
+    }
+
+    private static void WriteVerticalPlmDraw(
+        TestAddressSpace bus,
+        ushort pointer,
+        ReadOnlySpan<ushort> levelWords)
+    {
+        WriteWord(bus, 0x840000 | pointer, unchecked((ushort)(0x8000 | levelWords.Length)));
+        for (int index = 0; index < levelWords.Length; index++)
+            WriteWord(bus, 0x840000 | unchecked((ushort)(pointer + 2 + index * 2)), levelWords[index]);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(pointer + 2 + levelWords.Length * 2)), 0);
     }
 
     /// <summary>

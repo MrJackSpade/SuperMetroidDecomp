@@ -512,7 +512,8 @@ public sealed partial class SuperMetroidRuntime
             room,
             placement.CameraX,
             placement.CameraY,
-            viewportLoadMode);
+            viewportLoadMode,
+            runDoorClosingPlm: true);
 
         // `$82:E4B6` calls Samus_LoadSuitTargetPalette after room/enemy palettes have been
         // loaded and before state $0B captures the destination fade target. The source fade
@@ -593,7 +594,8 @@ public sealed partial class SuperMetroidRuntime
             room,
             cameraX,
             cameraY,
-            RoomViewportLoadMode.DisplayInitialViewport);
+            RoomViewportLoadMode.DisplayInitialViewport,
+            runDoorClosingPlm: true);
     }
 
     /// <summary>Shared cartridge room/state/graphics load used by stations and doors.</summary>
@@ -603,7 +605,8 @@ public sealed partial class SuperMetroidRuntime
         ushort cameraX,
         ushort cameraY,
         RoomViewportLoadMode viewportLoadMode,
-        GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary)
+        GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary,
+        bool runDoorClosingPlm = false)
     {
         DoorOpeningPpuScroll? doorOpeningPpuScroll = viewportLoadMode switch
         {
@@ -763,6 +766,16 @@ public sealed partial class SuperMetroidRuntime
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
         RunDoorSetupCode(door);
+
+        if (runDoorClosingPlm)
+        {
+            // `$82:E4C9` performs this handoff after destination PLMs, door/room setup,
+            // and FX construction but before enemy initialization. The C# room constructor
+            // groups those owners differently, yet this point preserves the observable
+            // PLM-pool order: every room-authored actor exists before the closer requests
+            // the next highest free slot, and no enemy-authored PLM has run yet.
+            Plms.TrySpawnDoorClosingPlm(_addressSpace, LevelData, door, System);
+        }
 
         Enemies.Load(
             _addressSpace,

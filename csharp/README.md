@@ -204,7 +204,7 @@ the native forty-slot pool from highest ID downward before dispatching reusable 
 synchronous-delete setups free their physical slot for the next record just as `$84:846A` does.
 Unsupported headers throw with population pointer, record index, header/setup/list pointers,
 coordinates, and room argument. The private-ROM exhaustive audit currently measures 895 of 941
-retail records (55 of 70 headers) as translated. The remaining 46 records are gates, eye doors,
+retail records (56 of 70 headers) as translated. The remaining 45 records are gates, eye doors,
 escape/progression actors, Draygon cannons, Noob Tube, and related special families—not silent
 skips or station/elevator gaps.
 

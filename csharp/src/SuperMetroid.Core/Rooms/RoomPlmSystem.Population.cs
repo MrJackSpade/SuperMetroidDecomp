@@ -24,7 +24,8 @@ public sealed partial class RoomPlmSystem
             RoomPlmHeaders.MapStation or RoomPlmHeaders.EnergyStation or
             RoomPlmHeaders.MissileStation or RoomPlmHeaders.ElevatorPlatform or
             RoomPlmHeaders.SaveStation or
-            RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired)
+            RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired or
+            RoomPlmHeaders.MotherBrainEscapeRoomGate)
         {
             return true;
         }
@@ -273,6 +274,12 @@ public sealed partial class RoomPlmSystem
         if (header == RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired)
         {
             SetupMetroidsClearedSlot(slot);
+            return true;
+        }
+
+        if (header == RoomPlmHeaders.MotherBrainEscapeRoomGate)
+        {
+            SetupDoorTransitionDeactivatedSlot(level, slot);
             return true;
         }
 

@@ -55,7 +55,7 @@ These are implementation gaps, not merely missing tests:
 
 - Bank `$84` room populations now parse once in ROM order and retain the native descending
   forty-slot allocation/reuse rules. The current dispatcher translates 895 of 941 retail
-  records across 55 of 70 headers, including elevators, save/map/energy/missile stations,
+  records across 56 of 70 headers, including elevators, save/map/energy/missile stations,
   and the resident Metroid-room clear-state observers.
   The remaining gate, eye-door, escape/progression, Draygon-cannon, and other special headers
   fail at room load with exact population/header/coordinate context; their setup and instruction

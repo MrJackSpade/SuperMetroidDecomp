@@ -141,6 +141,27 @@ internal static class RoomPlmHeaders
     public const ushort BlueDoorFacingUp = 0xc8ae;
     public const ushort BlueDoorFacingDown = 0xc8b4;
 
+    /// <summary>Door-transition-only blue-door closer facing left at $84:C8BA.</summary>
+    public const ushort BlueDoorClosingFacingLeft = 0xc8ba;
+    /// <summary>Door-transition-only blue-door closer facing right at $84:C8BE.</summary>
+    public const ushort BlueDoorClosingFacingRight = 0xc8be;
+    /// <summary>Door-transition-only blue-door closer facing up at $84:C8C2.</summary>
+    public const ushort BlueDoorClosingFacingUp = 0xc8c2;
+    /// <summary>Door-transition-only blue-door closer facing down at $84:C8C6.</summary>
+    public const ushort BlueDoorClosingFacingDown = 0xc8c6;
+
+    /// <summary>
+    /// Resident gate at $84:C8CA in Tourian escape room one. Its second header list is
+    /// selected by the shared door-transition closer when entering from Mother Brain.
+    /// </summary>
+    public const ushort MotherBrainEscapeRoomGate = 0xc8ca;
+
+    /// <summary>
+    /// Door-transition-only fallback gate closer at $84:C8D0, used when a special
+    /// direction-$8..$B door has no resident cap at its authored block coordinate.
+    /// </summary>
+    public const ushort MotherBrainEscapeRoomGateClosing = 0xc8d0;
+
     /// <summary>Mother Brain's missile-reactive glass actor at $84:D6DE.</summary>
     public const ushort MotherBrainGlass = 0xd6de;
     /// <summary>Bomb Torizo's Chozo-hand synchronization actor at $84:D6EA.</summary>

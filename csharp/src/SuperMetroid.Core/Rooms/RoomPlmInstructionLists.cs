@@ -84,6 +84,18 @@ public static class RoomPlmInstructionLists
     public const ushort BlueDoorFacingUpOpening = 0xc4eb;
     public const ushort BlueDoorFacingDownOpening = 0xc51c;
 
+    /// <summary>
+    /// <c>$84:BB34 InstList_PLM_GateThatClosesDuringEscapeAfterMotherBrain_0</c>:
+    /// draw the already-closed gate for six frames, then release the resident PLM slot.
+    /// </summary>
+    public const ushort MotherBrainEscapeRoomGateClosed = 0xbb34;
+
+    /// <summary>
+    /// <c>$84:BB44 InstList_PLM_GateThatClosesDuringEscapeAfterMotherBrain_1</c>:
+    /// animate open, half-closed, and closed at two frames apiece, then release the slot.
+    /// </summary>
+    public const ushort MotherBrainEscapeRoomGateClosing = 0xbb44;
+
     public const ushort CrumbleReveal1x1 = 0xc8ec;
     public const ushort CrumbleReveal2x1 = 0xc8f2;
     public const ushort CrumbleReveal1x2 = 0xc8f8;

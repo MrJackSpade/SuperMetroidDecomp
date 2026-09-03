@@ -41,6 +41,9 @@ public static class RoomPlmInstructionCodes
     /// <summary><c>$84:883E Instruction_PLM_SetEvent</c>.</summary>
     public const ushort SetEvent = 0x883e;
 
+    /// <summary><c>$84:8AF1 Instruction_PLM_PLMBTS_Y</c>: copy one byte into the origin BTS.</summary>
+    public const ushort SetPlmBtsFromByte = 0x8af1;
+
     /// <summary><c>$84:8B17 Instruction_PLM_DrawPLMBlock</c>.</summary>
     public const ushort DrawPlmBlock = 0x8b17;
 

@@ -25,6 +25,7 @@ public sealed partial class RoomPlmSystem
             RoomPlmHeaders.MissileStation or RoomPlmHeaders.ElevatorPlatform or
             RoomPlmHeaders.SaveStation or
             RoomPlmHeaders.SpeedBoosterEscape or
+            RoomPlmHeaders.WreckedShipAttic or
             RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired or
             RoomPlmHeaders.MotherBrainEscapeRoomGate)
         {
@@ -168,7 +169,8 @@ public sealed partial class RoomPlmSystem
             HeaderPointer: entry.slot.HeaderPointer,
             BlockIndex: entry.slot.BlockIndex,
             RoomArgument: entry.slot.RoomArgument,
-            InstructionPointer: entry.slot.InstructionPointer))
+            InstructionPointer: entry.slot.InstructionPointer,
+            PreInstruction: entry.slot.PreInstruction))
         .ToArray();
 
     private PlmSlot? AllocateRoomPopulationSlot(
@@ -293,6 +295,14 @@ public sealed partial class RoomPlmSystem
             return true;
         }
 
+        if (header == RoomPlmHeaders.WreckedShipAttic)
+        {
+            // Setup $84:BAFA deliberately performs no state mutation. Keeping an explicit
+            // branch matters: the actor must still consume its native slot and later run
+            // its ROM instruction list instead of being mistaken for an unknown header.
+            return true;
+        }
+
         if (header == RoomPlmHeaders.MotherBrainEscapeRoomGate)
         {
             SetupDoorTransitionDeactivatedSlot(level, slot);
@@ -322,4 +332,5 @@ public readonly record struct RoomPlmSlotSnapshot(
     ushort HeaderPointer,
     int BlockIndex,
     ushort RoomArgument,
-    ushort InstructionPointer);
+    ushort InstructionPointer,
+    ushort PreInstruction);

@@ -97,9 +97,110 @@ internal static partial class Program
         VerifyMetroidsClearedStatePlm(bus);
         VerifyMotherBrainEscapeRoomGate(bus);
         VerifySpeedBoosterEscapePlm(bus);
+        VerifyWreckedShipAtticPlm(bus);
         VerifyUnsupportedPopulationContext(bus);
         Console.WriteLine(
             "  Room PLM population: one-pass native slots, synchronous reuse, elevator, and station families agree.");
+    }
+
+    /// <summary>
+    /// Reproduces the complete $BB05 lifecycle in a bounded synthetic room. Although its
+    /// callback is intentionally inert, the actor must retain a native slot, install the
+    /// exact $BAFA pre-instruction from ROM, and remain asleep without mutating terrain.
+    /// </summary>
+    private static void VerifyWreckedShipAtticPlm(TestAddressSpace bus)
+    {
+        const ushort population = 0x9640;
+        const int width = 8;
+        const int height = 8;
+        const int blockX = 3;
+        const int blockY = 4;
+
+        WriteWord(bus,
+            0x840000 | unchecked((ushort)(RoomPlmHeaders.WreckedShipAttic + 2)),
+            RoomPlmInstructionLists.WreckedShipAttic);
+        WriteWord(bus,
+            0x840000 | RoomPlmInstructionLists.WreckedShipAttic,
+            RoomPlmInstructionCodes.InstallPreInstruction);
+        WriteWord(bus,
+            0x840000 | unchecked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 2)),
+            WreckedShipAtticPlmRomData.NoOpCallback);
+        WriteWord(bus,
+            0x840000 | unchecked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 4)),
+            RoomPlmInstructionCodes.Sleep);
+        bus.WriteBytes(0x8f0000 | population,
+        [
+            0x05, 0xbb, blockX, blockY, 0x34, 0x12,
+            0x00, 0x00,
+        ]);
+
+        ushort[] levelWords = new ushort[width * height];
+        levelWords[blockY * width + blockX] = 0x9123;
+        RoomLevelData level = CreateRoom(
+            width,
+            height,
+            levelWords,
+            new byte[width * height],
+            blockDefinitions: new byte[0x400 * 8]);
+        var plms = new RoomPlmSystem();
+        AssertEqual(1, plms.LoadRoomPopulation(
+                bus,
+                level,
+                level.CreateBackgroundStreamer(),
+                new SnesVram(),
+                population,
+                new Bank80SystemState(),
+                AreaId.WreckedShip,
+                () => new SamusState(),
+                () => false),
+            "Wrecked Ship attic record is accepted by sequential loader");
+        RoomPlmSlotSnapshot loaded = plms.PopulationSlots.Single();
+        AssertEqual(39, loaded.NativeSlotIndex,
+            "Wrecked Ship attic actor receives the native highest free slot");
+        AssertEqual(RoomPlmInstructionLists.WreckedShipAttic, loaded.InstructionPointer,
+            "Wrecked Ship attic actor starts at cartridge list BAFF");
+        AssertEqual(0, loaded.PreInstruction,
+            "Wrecked Ship attic callback is not installed before its first handler pass");
+
+        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
+        plms.Step(bus, level, streamer, 0, 0, 0);
+        RoomPlmSlotSnapshot sleeping = plms.PopulationSlots.Single();
+        AssertEqual(WreckedShipAtticPlmRomData.NoOpCallback, sleeping.PreInstruction,
+            "Wrecked Ship attic list installs exact BAFA pre-instruction");
+        AssertEqual(
+            unchecked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 4)),
+            sleeping.InstructionPointer,
+            "Wrecked Ship attic actor sleeps permanently at list word BB03");
+        plms.Step(bus, level, streamer, 0, 0, 0);
+        AssertEqual(1, plms.ActiveCount,
+            "inert attic callback leaves its resident actor alive");
+        AssertEqual(0x9123, level.GetCollisionBlock(blockX, blockY).LevelWord,
+            "inert attic callback leaves authored terrain unchanged");
+
+        // The generic install opcode accepts a raw bank-$84 operand. Prove this family's
+        // dispatcher rejects a different callback on the next handler pass rather than
+        // treating an untranslated resident function as another harmless no-op.
+        WriteWord(bus,
+            0x840000 | unchecked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 2)),
+            0x9876);
+        var invalid = new RoomPlmSystem();
+        invalid.LoadRoomPopulation(
+            bus,
+            level,
+            streamer,
+            new SnesVram(),
+            population,
+            new Bank80SystemState(),
+            AreaId.WreckedShip,
+            () => new SamusState(),
+            () => false);
+        invalid.Step(bus, level, streamer, 0, 0, 0);
+        AssertThrows<InvalidDataException>(
+            () => invalid.Step(bus, level, streamer, 0, 0, 0),
+            "unknown Wrecked Ship attic pre-instruction fails loudly");
+        WriteWord(bus,
+            0x840000 | unchecked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 2)),
+            WreckedShipAtticPlmRomData.NoOpCallback);
     }
 
     /// <summary>

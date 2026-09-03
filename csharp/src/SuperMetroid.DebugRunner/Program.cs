@@ -275,6 +275,12 @@ if (args.Length >= 2 && args[0] == "--speed-booster-escape-plm-audit")
     return RetailPlmPopulationAudit.AuditSpeedBoosterEscape(speedBoosterEscapeRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--wrecked-ship-attic-plm-audit")
+{
+    string wreckedShipAtticRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailPlmPopulationAudit.AuditWreckedShipAttic(wreckedShipAtticRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--retail-scroll-owner-audit")
 {
     string scrollOwnerRomPath = string.Join(' ', args[1..]).Trim('"');

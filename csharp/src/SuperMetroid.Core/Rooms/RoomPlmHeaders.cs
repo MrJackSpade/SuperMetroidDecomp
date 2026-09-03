@@ -116,6 +116,9 @@ internal static class RoomPlmHeaders
     /// <summary>Maridia elevatube delay/sound PLM at $84:B8F9.</summary>
     public const ushort MaridiaElevatube = 0xb8f9;
 
+    /// <summary>Resident Wrecked Ship attic no-op observer at $84:BB05.</summary>
+    public const ushort WreckedShipAttic = 0xbb05;
+
     /// <summary>Bomb Torizo's exceptional right-facing grey door at $84:BAF4.</summary>
     public const ushort BombTorizoGreyDoor = 0xbaf4;
 

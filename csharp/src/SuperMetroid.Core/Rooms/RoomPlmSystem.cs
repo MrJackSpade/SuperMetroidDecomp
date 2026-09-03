@@ -1046,6 +1046,7 @@ public sealed partial class RoomPlmSystem
 
             RunMetroidsClearedPreInstruction(slot, enemyDeaths, enemyDeathQuota);
             RunSpeedBoosterEscapePreInstruction(bus, slot);
+            RunWreckedShipAtticPreInstruction(slot);
             RunBombTorizoHandPreInstruction(slot);
             RunMotherBrainGlassPreInstruction(slot);
             if (!slot.Active)

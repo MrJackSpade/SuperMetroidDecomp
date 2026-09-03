@@ -82,6 +82,12 @@ public static class RoomPlmInstructionLists
     /// <summary>Maridia elevatube's delay and sound list at $84:B8F0.</summary>
     public const ushort MaridiaElevatube = 0xb8f0;
 
+    /// <summary>
+    /// <c>$84:BAFF InstList_PLM_WreckedShipAttic</c>: install the cartridge's inert
+    /// pre-instruction and sleep permanently.
+    /// </summary>
+    public const ushort WreckedShipAttic = 0xbaff;
+
     public const ushort BlueDoorFacingLeftOpening = 0xc489;
     public const ushort BlueDoorFacingRightOpening = 0xc4ba;
     public const ushort BlueDoorFacingUpOpening = 0xc4eb;

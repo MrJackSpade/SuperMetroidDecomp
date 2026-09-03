@@ -69,11 +69,11 @@ internal static partial class Program
         AssertEqual(941, retailHeaders.Count, "retail PLM population record count");
         AssertEqual(70, retailHeaders.Distinct().Count(),
             "retail PLM population distinct-header count");
-        AssertEqual(57, supportedHeaders.Length,
+        AssertEqual(58, supportedHeaders.Length,
             "catalogued sequential-loader retail header coverage");
 
         Console.WriteLine(
-            "  PLM headers: unique catalog and all 57 supported retail-population headers agree.");
+            "  PLM headers: unique catalog and all 58 supported retail-population headers agree.");
     }
 
     private static ushort ParseRoomPlmPopulationPointer(string line)

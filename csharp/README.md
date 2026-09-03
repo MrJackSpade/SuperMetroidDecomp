@@ -203,8 +203,8 @@ Room loading now parses every six-byte population record exactly once in ROM ord
 the native forty-slot pool from highest ID downward before dispatching reusable setup handlers;
 synchronous-delete setups free their physical slot for the next record just as `$84:846A` does.
 Unsupported headers throw with population pointer, record index, header/setup/list pointers,
-coordinates, and room argument. The private-ROM exhaustive audit currently measures 897 of 941
-retail records (57 of 70 headers) as translated. The remaining 44 records are gates, eye doors,
+coordinates, and room argument. The private-ROM exhaustive audit currently measures 899 of 941
+retail records (58 of 70 headers) as translated. The remaining 42 records are gates, eye doors,
 escape/progression actors, Draygon cannons, Noob Tube, and related special families—not silent
 skips or station/elevator gaps.
 
@@ -314,6 +314,7 @@ dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-touch
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-attack-audit "Super Metroid.smc"
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-plm-population-audit "Super Metroid.smc"
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --speed-booster-escape-plm-audit "Super Metroid.smc"
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --wrecked-ship-attic-plm-audit "Super Metroid.smc"
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-scroll-ownership-audit "Super Metroid.smc"
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --early-controller-route-audit "Super Metroid.smc"
 ```

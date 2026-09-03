@@ -233,8 +233,9 @@ public sealed partial class RoomEnemySystem
                 state.Function = BeetomEnemyFunction.BeingFlung;
                 return;
             case BeetomEnemyFunction.Idling:
-                state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-                if (unchecked((short)state.FunctionTimer) < 0)
+                NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
+                state.FunctionTimer = timer.Value;
+                if (timer.IsNegative)
                     state.Function = BeetomEnemyFunction.DecideAction;
                 return;
             case BeetomEnemyFunction.CrawlingLeft:
@@ -359,8 +360,9 @@ public sealed partial class RoomEnemySystem
 
     private void RunBeetomCrawl(RoomEnemySlot slot, BeetomEnemyState state, RoomLevelData level, bool left)
     {
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        if (unchecked((short)state.FunctionTimer) < 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
+        state.FunctionTimer = timer.Value;
+        if (timer.IsNegative)
         {
             state.FunctionTimer = 0x0040;
             state.Function = BeetomEnemyFunction.DecideAction;

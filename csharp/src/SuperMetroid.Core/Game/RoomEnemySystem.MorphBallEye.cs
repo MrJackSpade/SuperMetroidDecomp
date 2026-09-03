@@ -288,8 +288,9 @@ public sealed partial class RoomEnemySystem
     {
         // DEC followed by BEQ/BPL expires on zero and also tolerates an already-zero timer's
         // wrapped $FFFF value. This is deliberately not a host-side "if timer > 0" clamp.
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        if (state.FunctionTimer != 0 && unchecked((short)state.FunctionTimer) >= 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
+        state.FunctionTimer = timer.Value;
+        if (!timer.IsZero && timer.IsNonNegative)
             return;
 
         LastMorphBallEyeSoundEffect = EyeActivationSound;
@@ -330,8 +331,9 @@ public sealed partial class RoomEnemySystem
 
     private static void AdvanceMorphBallEyeDeactivation(MorphBallEyeEnemyState state)
     {
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        if (state.FunctionTimer == 0 || unchecked((short)state.FunctionTimer) < 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
+        state.FunctionTimer = timer.Value;
+        if (timer.IsZeroOrNegative)
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
     }
 

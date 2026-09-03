@@ -331,8 +331,9 @@ public sealed partial class RoomEnemySystem
 
     private void SpawnMotherBrainAscentDust(MotherBrainEnemyState state)
     {
-        state.BodySubFunctionTimer = unchecked((ushort)(state.BodySubFunctionTimer - 1));
-        if (unchecked((short)state.BodySubFunctionTimer) < 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.BodySubFunctionTimer);
+        state.BodySubFunctionTimer = timer.Value;
+        if (timer.IsNegative)
             state.BodySubFunctionTimer = 7;
 
         ushort x = MotherBrainAscentDustXPositions[state.BodySubFunctionTimer];

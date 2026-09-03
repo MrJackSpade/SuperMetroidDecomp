@@ -80,6 +80,29 @@ static void VerifyTypedNativeWords()
         SnesAngle.Zero.SignedTableDeltaTo(SnesAngle.ThreeQuarterTurn),
         "SNES signed table delta crosses wrap seam");
 
+    NativeWordCounterStep fromOne = NativeWordCounter.Decrement(0x0001);
+    AssertEqual((ushort)0x0000, fromOne.Value, "native DEC one reaches zero");
+    AssertTrue(fromOne.IsZero && fromOne.IsNonNegative && !fromOne.IsNegative,
+        "native DEC one exposes Z without N");
+    NativeWordCounterStep fromZero = NativeWordCounter.Decrement(0x0000);
+    AssertEqual(ushort.MaxValue, fromZero.Value, "native DEC zero wraps to $FFFF");
+    AssertTrue(fromZero.IsNegative && fromZero.Underflowed && !fromZero.IsZero,
+        "native DEC zero exposes N and underflow without Z");
+    NativeWordCounterStep fromMaximum = NativeWordCounter.Decrement(ushort.MaxValue);
+    AssertEqual((ushort)0xfffe, fromMaximum.Value, "native DEC $FFFF reaches $FFFE");
+    AssertTrue(fromMaximum.IsNegative && !fromMaximum.Underflowed,
+        "native DEC $FFFF retains N without reporting zero underflow");
+    NativeWordCounterStep ordinaryCounter = NativeWordCounter.Decrement(0x1234);
+    AssertEqual((ushort)0x1233, ordinaryCounter.Value, "native DEC ordinary positive value");
+    AssertTrue(ordinaryCounter.IsNonNegative && !ordinaryCounter.IsZeroOrNegative,
+        "native DEC ordinary positive result exposes neither expiry flag");
+    AssertEqual((ushort)0, NativeWordCounter.DecrementSaturating(0),
+        "saturating native counter pins zero");
+    AssertEqual((ushort)0, NativeWordCounter.DecrementSaturating(1),
+        "saturating native counter decrements one");
+    AssertEqual((ushort)0x1233, NativeWordCounter.DecrementSaturating(0x1234),
+        "saturating native counter decrements ordinary positive value");
+
     ushort enemyProperties = 0x1000;
     enemyProperties = enemyProperties.With(
         EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);

@@ -268,8 +268,9 @@ public sealed partial class RoomEnemySystem
 
     private static void PrepareChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
-        state.JumpDelayTimer = unchecked((ushort)(state.JumpDelayTimer - 1));
-        if (unchecked((short)state.JumpDelayTimer) >= 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.JumpDelayTimer);
+        state.JumpDelayTimer = timer.Value;
+        if (timer.IsNonNegative)
             return;
 
         SetChootInstructionList(slot, ChootJumpingInstruction);

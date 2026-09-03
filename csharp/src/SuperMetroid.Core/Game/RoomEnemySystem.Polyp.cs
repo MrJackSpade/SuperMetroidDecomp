@@ -106,8 +106,9 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case PolypEnemyFunction.Cooldown:
-                state.CooldownTimer = unchecked((ushort)(state.CooldownTimer - 1));
-                if (unchecked((short)state.CooldownTimer) < 0)
+                NativeWordCounterStep timer = NativeWordCounter.Decrement(state.CooldownTimer);
+                state.CooldownTimer = timer.Value;
+                if (timer.IsNegative)
                     state.Function = PolypEnemyFunction.WaitingForSamus;
                 return;
 

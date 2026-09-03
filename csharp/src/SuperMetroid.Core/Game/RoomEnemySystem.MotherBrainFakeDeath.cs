@@ -170,14 +170,16 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static bool DecrementMotherBrainTimerPastZero(MotherBrainEnemyState state)
     {
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        return unchecked((short)state.FunctionTimer) < 0;
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
+        state.FunctionTimer = timer.Value;
+        return timer.IsNegative;
     }
 
     private void RunMotherBrainFadeToGray(MotherBrainEnemyState state)
     {
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        if (unchecked((short)state.FunctionTimer) < 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
+        state.FunctionTimer = timer.Value;
+        if (timer.IsNegative)
         {
             state.FunctionTimer = 8;
             ushort step = state.GrayFadeIndex++;
@@ -289,8 +291,9 @@ public sealed partial class RoomEnemySystem
 
     private void RunMotherBrainFakeDeathExplosion(MotherBrainEnemyState state)
     {
-        state.FakeDeathExplosionTimer = unchecked((ushort)(state.FakeDeathExplosionTimer - 1));
-        if (unchecked((short)state.FakeDeathExplosionTimer) >= 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FakeDeathExplosionTimer);
+        state.FakeDeathExplosionTimer = timer.Value;
+        if (timer.IsNonNegative)
             return;
 
         state.FakeDeathExplosionTimer = 8;
@@ -395,8 +398,9 @@ public sealed partial class RoomEnemySystem
 
     private static bool DecrementMotherBrainTubeTimerPastZero(MotherBrainEnemyState state)
     {
-        state.TubeCollapseTimer = unchecked((ushort)(state.TubeCollapseTimer - 1));
-        return unchecked((short)state.TubeCollapseTimer) < 0;
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.TubeCollapseTimer);
+        state.TubeCollapseTimer = timer.Value;
+        return timer.IsNegative;
     }
 
     private static void RequestMotherBrainTubePlm(

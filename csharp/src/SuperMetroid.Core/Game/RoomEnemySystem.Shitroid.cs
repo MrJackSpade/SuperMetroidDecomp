@@ -941,7 +941,8 @@ public sealed partial class RoomEnemySystem
 
     private static bool PredecrementShitroidTimerBecameNegative(ShitroidEnemyState state)
     {
-        state.StateTimer = unchecked((ushort)(state.StateTimer - 1));
-        return unchecked((short)state.StateTimer) < 0;
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.StateTimer);
+        state.StateTimer = timer.Value;
+        return timer.IsNegative;
     }
 }

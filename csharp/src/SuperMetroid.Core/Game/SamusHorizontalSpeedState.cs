@@ -393,8 +393,9 @@ public sealed class SamusHorizontalSpeedState
 
         // DEC is a full 16-bit operation. BEQ/BPL mean zero and signed underflow both reload
         // four, though ordinary execution arrives with timer one and never underflows.
-        SpecialPaletteTimer = unchecked((ushort)(SpecialPaletteTimer - 1));
-        if (SpecialPaletteTimer != 0 && unchecked((short)SpecialPaletteTimer) >= 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(SpecialPaletteTimer);
+        SpecialPaletteTimer = timer.Value;
+        if (!timer.IsZero && timer.IsNonNegative)
             return paletteCopied;
 
         SpecialPaletteTimer = 4;

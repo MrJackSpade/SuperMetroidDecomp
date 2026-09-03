@@ -395,8 +395,9 @@ public sealed class SamusXrayState
             BeamSizeFlag = 1;
         }
 
-        CommonPaletteTimer = unchecked((ushort)(CommonPaletteTimer - 1));
-        if (CommonPaletteTimer != 0 && unchecked((short)CommonPaletteTimer) >= 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(CommonPaletteTimer);
+        CommonPaletteTimer = timer.Value;
+        if (!timer.IsZero && timer.IsNonNegative)
             return false;
 
         CommonPaletteTimer = 5;

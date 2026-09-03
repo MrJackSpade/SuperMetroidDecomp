@@ -199,8 +199,9 @@ public sealed class SamusDrainedState
             HyperBeamPalettePointerTable + (ChargePaletteIndex % 10) * 2);
         cgram.LoadFromBus(bus, 0x9b0000 | pointer, 16, SamusPaletteCgramIndex);
 
-        CommonPaletteTimer = unchecked((ushort)(CommonPaletteTimer - 1));
-        if (CommonPaletteTimer != 0 && unchecked((short)CommonPaletteTimer) >= 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(CommonPaletteTimer);
+        CommonPaletteTimer = timer.Value;
+        if (!timer.IsZero && timer.IsNonNegative)
             return true;
 
         CommonPaletteTimer = SpecialPaletteFrame;

@@ -322,10 +322,8 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         ArgumentNullException.ThrowIfNull(motherBrain);
         ArgumentNullException.ThrowIfNull(samus);
 
-        if (SamusInvincibilityTimer != 0)
-            SamusInvincibilityTimer = unchecked((ushort)(SamusInvincibilityTimer - 1));
-        if (EarthquakeTimer != 0)
-            EarthquakeTimer = unchecked((ushort)(EarthquakeTimer - 1));
+        SamusInvincibilityTimer = NativeWordCounter.DecrementSaturating(SamusInvincibilityTimer);
+        EarthquakeTimer = NativeWordCounter.DecrementSaturating(EarthquakeTimer);
 
         var events = new List<MotherBrainOnionRingEvent>();
         var escapeDoorDustRequests = new List<MotherBrainEscapeDoorParticleDustRequest>();

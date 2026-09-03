@@ -227,8 +227,9 @@ public sealed partial class RoomEnemySystem
 
     private static void RunHorizontalShutterStoppedAfterLeft(HorizontalShutterEnemyState state)
     {
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        if (unchecked((short)state.FunctionTimer) >= 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
+        state.FunctionTimer = timer.Value;
+        if (timer.IsNonNegative)
             return;
         state.Function = state.TriggerMode == 1 && state.PrimaryDirection != 0
             ? HorizontalShutterFunction.WaitForHorizontalProximity
@@ -237,8 +238,9 @@ public sealed partial class RoomEnemySystem
 
     private static void RunHorizontalShutterStoppedAfterRight(HorizontalShutterEnemyState state)
     {
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        if (unchecked((short)state.FunctionTimer) >= 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
+        state.FunctionTimer = timer.Value;
+        if (timer.IsNonNegative)
             return;
         state.Function = state.TriggerMode == 1 && state.PrimaryDirection == 0
             ? HorizontalShutterFunction.WaitForHorizontalProximity

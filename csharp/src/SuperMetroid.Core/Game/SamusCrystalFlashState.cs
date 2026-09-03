@@ -198,8 +198,9 @@ public sealed class SamusCrystalFlashState
 
         // Native initializes nine, then uses DEC/BPL. Values 8..0 return; the tenth call
         // underflows to $FFFF and installs the main handler after completing its Y move.
-        RaiseTimer = unchecked((ushort)(RaiseTimer - 1));
-        if (unchecked((short)RaiseTimer) >= 0)
+        NativeWordCounterStep raiseTimer = NativeWordCounter.Decrement(RaiseTimer);
+        RaiseTimer = raiseTimer.Value;
+        if (raiseTimer.IsNonNegative)
             return;
 
         // The delay program is already on its raise loop, but the movement handler forces
@@ -237,8 +238,9 @@ public sealed class SamusCrystalFlashState
         }
 
         RestoreEnergy(samus, 50);
-        AmmoDecrementTimer = unchecked((ushort)(AmmoDecrementTimer - 1));
-        bool timerExpired = AmmoDecrementTimer == 0 || unchecked((short)AmmoDecrementTimer) < 0;
+        NativeWordCounterStep ammoTimer = NativeWordCounter.Decrement(AmmoDecrementTimer);
+        AmmoDecrementTimer = ammoTimer.Value;
+        bool timerExpired = ammoTimer.IsZeroOrNegative;
         if (!timerExpired)
             return;
 
@@ -316,8 +318,10 @@ public sealed class SamusCrystalFlashState
         }
 
         // DEC followed by BEQ/BPL treats both zero and a signed underflow as expiry.
-        SpecialPaletteTimer = unchecked((ushort)(SpecialPaletteTimer - 1));
-        if (SpecialPaletteTimer == 0 || unchecked((short)SpecialPaletteTimer) < 0)
+        NativeWordCounterStep specialPaletteTimer =
+            NativeWordCounter.Decrement(SpecialPaletteTimer);
+        SpecialPaletteTimer = specialPaletteTimer.Value;
+        if (specialPaletteTimer.IsZeroOrNegative)
         {
             SpecialPaletteTimer = 5;
             ushort bubblePalette = ReadWord(bus, 0x91dc28 + SpecialPaletteFrame);
@@ -331,8 +335,10 @@ public sealed class SamusCrystalFlashState
             SpecialPaletteFrame = nextBubbleFrame < 12 ? nextBubbleFrame : (ushort)0;
         }
 
-        CrystalPaletteTimer = unchecked((ushort)(CrystalPaletteTimer - 1));
-        if (CrystalPaletteTimer == 0 || unchecked((short)CrystalPaletteTimer) < 0)
+        NativeWordCounterStep crystalPaletteTimer =
+            NativeWordCounter.Decrement(CrystalPaletteTimer);
+        CrystalPaletteTimer = crystalPaletteTimer.Value;
+        if (crystalPaletteTimer.IsZeroOrNegative)
         {
             int recordAddress = 0x91dc00 + CommonPaletteTimer;
             ushort bodyPalette = ReadWord(bus, recordAddress);

@@ -109,8 +109,9 @@ public sealed class CeresElevatorShaftRoomMainState
         // DEC followed by BMI is deliberately modeled as a wrapping 16-bit decrement.
         // Zero remains visible for one complete call; only the following call makes it
         // $FFFF and consumes the next record. This differs from a conventional <= 0 timer.
-        RotationTimer = unchecked((ushort)(RotationTimer - 1));
-        if (unchecked((short)RotationTimer) >= 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(RotationTimer);
+        RotationTimer = timer.Value;
+        if (timer.IsNonNegative)
             return Snapshot(matrixChanged: false);
 
         // Native computes `(uint16)(6 * index) >> 1`, not a conventional array index.

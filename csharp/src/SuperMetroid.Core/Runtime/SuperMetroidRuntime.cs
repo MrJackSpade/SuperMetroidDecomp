@@ -4157,8 +4157,9 @@ public sealed partial class SuperMetroidRuntime
         if (ActiveRoom?.State.MainCodePointer != 0xe525 || Enemies.CeresStatus == 0)
             return;
 
-        _ceresFallingDebrisTimer = unchecked((ushort)(_ceresFallingDebrisTimer - 1));
-        if ((short)_ceresFallingDebrisTimer >= 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(_ceresFallingDebrisTimer);
+        _ceresFallingDebrisTimer = timer.Value;
+        if (timer.IsNonNegative)
             return;
 
         _ceresFallingDebrisTimer = 8;

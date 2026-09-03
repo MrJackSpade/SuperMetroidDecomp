@@ -222,10 +222,10 @@ public sealed class Bank80SystemState
         {
             // DEC is an unsigned 16-bit wrap, but BPL interprets bit 15 as the sign bit.
             // Therefore zero decrements to $FFFF and takes the activation path.
-            TimedHeldInputTimer = unchecked((ushort)(TimedHeldInputTimer - 1));
-            bool timerIsNonNegativeInSigned16Bit = (TimedHeldInputTimer & 0x8000) == 0;
+            NativeWordCounterStep timer = NativeWordCounter.Decrement(TimedHeldInputTimer);
+            TimedHeldInputTimer = timer.Value;
 
-            if (timerIsNonNegativeInSigned16Bit)
+            if (timer.IsNonNegative)
             {
                 TimedHeldInput = 0;
             }

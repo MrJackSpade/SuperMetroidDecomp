@@ -218,8 +218,9 @@ public sealed class SamusShinesparkState
         if (Phase == ShinesparkPhase.Windup)
         {
             // DEC/BEQ/BMI at `$90:D068`: exact zero and signed underflow both launch up.
-            StartStopTimer = unchecked((ushort)(StartStopTimer - 1));
-            bool timedOut = StartStopTimer == 0 || unchecked((short)StartStopTimer) < 0;
+            NativeWordCounterStep timer = NativeWordCounter.Decrement(StartStopTimer);
+            StartStopTimer = timer.Value;
+            bool timedOut = timer.IsZeroOrNegative;
             if (timedOut)
             {
                 byte verticalPose = samus.IsFacingLeft(bus)
@@ -294,10 +295,9 @@ public sealed class SamusShinesparkState
         if (PaletteType == 1 && ShineTimer == 170)
             StoredShineWarningSoundRequested = true;
 
-        ShineTimer = unchecked((ushort)(ShineTimer - 1));
-        bool expired = PaletteType == 1
-            ? unchecked((short)ShineTimer) <= 0
-            : ShineTimer == 0 || unchecked((short)ShineTimer) < 0;
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(ShineTimer);
+        ShineTimer = timer.Value;
+        bool expired = timer.IsZeroOrNegative;
         if (expired)
         {
             PaletteType = 0;
@@ -419,8 +419,9 @@ public sealed class SamusShinesparkState
     private ShinesparkMovementResult StepCrashEchoCircle(ShinesparkPhase phaseAtStart)
     {
         ShineTimer = 15;
-        StartStopTimer = unchecked((ushort)(StartStopTimer - 1));
-        if (StartStopTimer == 0 || unchecked((short)StartStopTimer) < 0)
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(StartStopTimer);
+        StartStopTimer = timer.Value;
+        if (timer.IsZeroOrNegative)
             Phase = ShinesparkPhase.CrashFinish;
         return new ShinesparkMovementResult(
             phaseAtStart, null, null, false, false, false, false);

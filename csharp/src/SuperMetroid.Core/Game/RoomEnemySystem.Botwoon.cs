@@ -836,8 +836,10 @@ public sealed partial class RoomEnemySystem
 
         if (state.WallExplosionFrame >= 64)
         {
-            state.LargeExplosionTimer = unchecked((ushort)(state.LargeExplosionTimer - 1));
-            if (unchecked((short)state.LargeExplosionTimer) < 0)
+            NativeWordCounterStep largeExplosionTimer =
+                NativeWordCounter.Decrement(state.LargeExplosionTimer);
+            state.LargeExplosionTimer = largeExplosionTimer.Value;
+            if (largeExplosionTimer.IsNegative)
             {
                 state.LargeExplosionTimer = 12;
                 SpawnRoomSpriteObject(
@@ -848,8 +850,10 @@ public sealed partial class RoomEnemySystem
                 LastBotwoonSoundEffect = 0x0024;
             }
 
-            state.SmallExplosionTimer = unchecked((ushort)(state.SmallExplosionTimer - 1));
-            if (unchecked((short)state.SmallExplosionTimer) < 0)
+            NativeWordCounterStep smallExplosionTimer =
+                NativeWordCounter.Decrement(state.SmallExplosionTimer);
+            state.SmallExplosionTimer = smallExplosionTimer.Value;
+            if (smallExplosionTimer.IsNegative)
             {
                 state.SmallExplosionTimer = 4;
                 for (int explosion = 0; explosion < 2; explosion++)

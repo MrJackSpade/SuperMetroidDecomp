@@ -114,7 +114,7 @@ public sealed partial class SuperMetroidRuntime
                 "Wrecked Ship treadmill door setup requires an active destination room.");
         }
 
-        WreckedShipTreadmill.Start(direction);
+        WreckedShipTreadmill.Start(_addressSpace, direction);
         // Both native spawn helpers return carry set when their fixed arrays are full, and
         // the door routine deliberately ignores that result. The dedicated animated owner
         // above cannot exhaust; preserve the PLM allocator's native false result here.

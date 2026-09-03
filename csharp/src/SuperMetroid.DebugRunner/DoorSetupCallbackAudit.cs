@@ -272,8 +272,9 @@ internal static class DoorSetupCallbackAudit
         for (int frame = 0; frame < expectedSources.Length; frame++)
         {
             poweredRuntime.WreckedShipTreadmill.Step(
+                poweredRuntime.AddressSpace,
                 areaBossDefeated: true,
-                poweredRuntime.VramWrites);
+                writes: poweredRuntime.VramWrites);
             if (poweredRuntime.WreckedShipTreadmill.LastSourceAddress != expectedSources[frame])
             {
                 throw new InvalidDataException(

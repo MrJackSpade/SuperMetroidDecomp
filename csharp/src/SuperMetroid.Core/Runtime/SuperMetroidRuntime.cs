@@ -3974,6 +3974,7 @@ public sealed partial class SuperMetroidRuntime
             AreaId areaIndex = ActiveRoom?.AreaIndex ?? throw new InvalidOperationException(
                 "A live Wrecked Ship treadmill animation has no active cartridge room.");
             WreckedShipTreadmill.Step(
+                _addressSpace,
                 System.HasAnyBossBits(areaIndex, BossBits.AreaBoss),
                 VramWrites);
         }

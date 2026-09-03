@@ -142,6 +142,7 @@ VerifyEnemyAiCodePointerCatalog();
 VerifyEnemyInstructionCodePointerCatalogs();
 VerifyEnemyRomTablePointerCatalog();
 VerifyPaletteFxInstructionCodeCatalogs();
+VerifyAnimatedTileInstructionCodeCatalog();
 VerifyEnemyProjectileCodePointerCatalog();
 VerifyRoomEnemyLoading();
 VerifyRipperEnemy();

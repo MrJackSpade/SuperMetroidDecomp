@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
@@ -22,6 +23,14 @@ public enum WreckedShipTreadmillDirection
 /// </summary>
 public sealed class WreckedShipTreadmillAnimatedTilesState
 {
+    private const int AnimatedTileBank = 0x870000;
+
+    private ushort _objectPointer;
+    private ushort _instructionPointer;
+    private ushort _instructionTimer;
+    private ushort _transferByteCount;
+    private ushort _encodedVramDestination;
+
     /// <summary>Whether one of the two door-spawned objects occupies its native slot.</summary>
     public bool IsActive { get; private set; }
 
@@ -41,18 +50,45 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         Direction = default;
         NextFrameIndex = 0;
         LastSourceAddress = null;
+        _objectPointer = 0;
+        _instructionPointer = 0;
+        _instructionTimer = 0;
+        _transferByteCount = 0;
+        _encodedVramDestination = 0;
     }
 
     /// <summary>
     /// Mirrors <c>Spawn_AnimatedTilesObject</c> for object $8275 or $827B. Both lists begin
     /// on the wait-for-area-boss instruction with an instruction timer of one.
     /// </summary>
-    public void Start(WreckedShipTreadmillDirection direction)
+    public void Start(ISnesAddressSpace bus, WreckedShipTreadmillDirection direction)
     {
+        ArgumentNullException.ThrowIfNull(bus);
+        ushort objectPointer = direction switch
+        {
+            WreckedShipTreadmillDirection.Rightwards =>
+                AnimatedTileObjectPointers.WreckedShipTreadmillRightwards,
+            WreckedShipTreadmillDirection.Leftwards =>
+                AnimatedTileObjectPointers.WreckedShipTreadmillLeftwards,
+            _ => throw new InvalidDataException(
+                $"Unknown Wrecked Ship treadmill direction {direction}."),
+        };
+
         IsActive = true;
         Direction = direction;
         NextFrameIndex = 0;
         LastSourceAddress = null;
+        _objectPointer = objectPointer;
+        _instructionPointer = ReadBank87Word(bus, objectPointer);
+        _transferByteCount = ReadBank87Word(bus, unchecked((ushort)(objectPointer + 2)));
+        _encodedVramDestination = ReadBank87Word(bus, unchecked((ushort)(objectPointer + 4)));
+        _instructionTimer = 1;
+
+        if (_transferByteCount == 0)
+        {
+            throw new InvalidDataException(
+                $"Animated-tile object $87:{objectPointer:X4} has a zero transfer size.");
+        }
     }
 
     /// <summary>
@@ -60,41 +96,74 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// NMI. While Phantoon's area-boss bit is clear, $87:81BA rewinds onto itself and no
     /// source exists; after the bit is set, the four one-frame entries loop forever.
     /// </summary>
-    public void Step(bool areaBossDefeated, VramWriteQueue writes)
+    public void Step(
+        ISnesAddressSpace bus,
+        bool areaBossDefeated,
+        VramWriteQueue writes)
     {
+        ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(writes);
         LastSourceAddress = null;
-        if (!IsActive || !areaBossDefeated)
+        if (!IsActive)
             return;
 
-        ReadOnlySpan<int> sources = Direction switch
-        {
-            WreckedShipTreadmillDirection.Rightwards =>
-            [
-                WreckedShipTreadmillRomData.Frame0Source,
-                WreckedShipTreadmillRomData.Frame1Source,
-                WreckedShipTreadmillRomData.Frame2Source,
-                WreckedShipTreadmillRomData.Frame3Source,
-            ],
-            WreckedShipTreadmillDirection.Leftwards =>
-            [
-                WreckedShipTreadmillRomData.Frame3Source,
-                WreckedShipTreadmillRomData.Frame2Source,
-                WreckedShipTreadmillRomData.Frame1Source,
-                WreckedShipTreadmillRomData.Frame0Source,
-            ],
-            _ => throw new InvalidDataException(
-                $"Unknown Wrecked Ship treadmill direction {Direction}."),
-        };
+        _instructionTimer = unchecked((ushort)(_instructionTimer - 1));
+        if (_instructionTimer != 0)
+            return;
 
-        int source = sources[NextFrameIndex];
-        LastSourceAddress = source;
-        writes.Enqueue(
-            WreckedShipTreadmillRomData.TransferByteCount,
-            source,
-            WreckedShipTreadmillRomData.EncodedVramDestination);
-        NextFrameIndex = (NextFrameIndex + 1) & 3;
+        ushort cursor = _instructionPointer;
+        for (int guard = 0; guard < 64; guard++)
+        {
+            ushort word = ReadBank87Word(bus, cursor);
+            if ((word & 0x8000) == 0)
+            {
+                _instructionTimer = word;
+                ushort sourcePointer = ReadBank87Word(
+                    bus,
+                    unchecked((ushort)(cursor + 2)));
+                _instructionPointer = unchecked((ushort)(cursor + 4));
+                LastSourceAddress = AnimatedTileBank | sourcePointer;
+                writes.Enqueue(
+                    _transferByteCount,
+                    LastSourceAddress.Value,
+                    _encodedVramDestination);
+                NextFrameIndex = (NextFrameIndex + 1) & 3;
+                return;
+            }
+
+            switch (word)
+            {
+                case AnimatedTileInstructionCodes.Delete:
+                    Reset();
+                    return;
+
+                case AnimatedTileInstructionCodes.Goto:
+                    cursor = ReadBank87Word(bus, unchecked((ushort)(cursor + 2)));
+                    break;
+
+                case AnimatedTileInstructionCodes.WaitUntilAreaBossIsDead:
+                    if (!areaBossDefeated)
+                    {
+                        _instructionTimer = 1;
+                        return;
+                    }
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+
+                default:
+                    throw new NotSupportedException(
+                        $"Animated-tile object $87:{_objectPointer:X4} instruction " +
+                        $"$87:{word:X4} at $87:{cursor:X4} is not translated.");
+            }
+        }
+
+        throw new InvalidDataException(
+            $"Animated-tile object $87:{_objectPointer:X4} exceeded 64 leading " +
+            $"instructions at $87:{cursor:X4}.");
     }
+
+    private static ushort ReadBank87Word(ISnesAddressSpace bus, ushort pointer) =>
+        RomDataReader.ReadWordFixedBank(bus, AnimatedTileBank | pointer);
 }
 
 /// <summary>Cartridge-owned constants for Wrecked Ship entrance treadmill animation.</summary>

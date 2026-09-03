@@ -1,0 +1,192 @@
+namespace SuperMetroid.Core.Rooms;
+
+/// <summary>Named bank-$84 PLM instruction-list offsets used by translated room actors.</summary>
+/// <remarks>
+/// Values are native low-word pointers in fixed bank $84. List identities remain separate
+/// from executable opcode identities in <see cref="RoomPlmInstructionCodes"/> and from
+/// draw-list pointers, even though all three domains share the same 16-bit storage type.
+/// </remarks>
+public static class RoomPlmInstructionLists
+{
+    /// <summary><c>$84:AAE3 InstList_PLM_Delete</c>.</summary>
+    public const ushort Delete = 0xaae3;
+
+    /// <summary><c>$84:AB12 InstList_PLM_CrumbleSporeSpawnCeiling</c>.</summary>
+    public const ushort CrumbleSporeSpawnCeiling = 0xab12;
+
+    /// <summary><c>$84:AB21 InstList_PLM_ClearSporeSpawnCeiling</c>.</summary>
+    public const ushort ClearSporeSpawnCeiling = 0xab21;
+
+    /// <summary><c>$84:AB31 InstList_PLM_CrumbleBotwoonWall_0</c>.</summary>
+    public const ushort CrumbleBotwoonWall = 0xab31;
+
+    /// <summary><c>$84:AB67 InstList_PLM_ClearBotwoonWall</c>.</summary>
+    public const ushort ClearBotwoonWall = 0xab67;
+
+    public const ushort FillMotherBrainsWall = 0xac05;
+    public const ushort MotherBrainsBackgroundRow2 = 0xac11;
+    public const ushort MotherBrainsBackgroundRow3 = 0xac17;
+    public const ushort MotherBrainsBackgroundRow4 = 0xac1d;
+    public const ushort MotherBrainsBackgroundRow5 = 0xac23;
+    public const ushort MotherBrainsBackgroundRow6 = 0xac29;
+    public const ushort MotherBrainsBackgroundRow7 = 0xac2f;
+    public const ushort MotherBrainsBackgroundRow8 = 0xac35;
+    public const ushort MotherBrainsBackgroundRow9 = 0xac3b;
+    public const ushort MotherBrainsBackgroundRowA = 0xac41;
+    public const ushort MotherBrainsBackgroundRowB = 0xac47;
+    public const ushort MotherBrainsBackgroundRowC = 0xac4d;
+    public const ushort MotherBrainsBackgroundRowD = 0xac53;
+    public const ushort ClearMotherBrainCeilingBlock = 0xac65;
+    public const ushort ClearMotherBrainCeilingTube = 0xac6b;
+    public const ushort ClearMotherBrainBottomMiddleSideTube = 0xac71;
+    public const ushort ClearMotherBrainBottomMiddleTubes = 0xac77;
+    public const ushort ClearMotherBrainBottomLeftTube = 0xac7d;
+    public const ushort ClearMotherBrainBottomRightTube = 0xac83;
+
+    /// <summary>Wrecked Ship west-entry treadmill list at $84:AD38.</summary>
+    public const ushort WreckedShipEntranceTreadmillFromWest = 0xad38;
+
+    /// <summary>Wrecked Ship east-entry treadmill list at $84:AD4D.</summary>
+    public const ushort WreckedShipEntranceTreadmillFromEast = 0xad4d;
+
+    /// <summary>Clear Crocomire's bridge list at $84:AFCA.</summary>
+    public const ushort ClearCrocomireBridge = 0xafca;
+
+    /// <summary>Crumble one Crocomire bridge block list at $84:AFD0.</summary>
+    public const ushort CrumbleCrocomireBridgeBlock = 0xafd0;
+
+    /// <summary>Clear one Crocomire bridge block list at $84:AFD6.</summary>
+    public const ushort ClearCrocomireBridgeBlock = 0xafd6;
+
+    /// <summary>Clear Crocomire's invisible wall list at $84:AFDC.</summary>
+    public const ushort ClearCrocomireInvisibleWall = 0xafdc;
+
+    /// <summary>Create Crocomire's invisible wall list at $84:AFE2.</summary>
+    public const ushort CreateCrocomireInvisibleWall = 0xafe2;
+
+    /// <summary><c>$84:AF8A InstList_PLM_ScrollPLM_1</c>, the sleeping trigger loop.</summary>
+    public const ushort ScrollTriggerWaiting = 0xaf8a;
+
+    /// <summary>Entry two bytes into the scroll list after collision wakes it.</summary>
+    public const ushort ScrollTriggerActivated = 0xaf8c;
+
+    /// <summary>First save-pod animation frame entry at $84:AFFA.</summary>
+    public const ushort SaveStationAnimationFirstFrame = 0xaffa;
+
+    /// <summary>Second save-pod animation frame entry at $84:AFFE.</summary>
+    public const ushort SaveStationAnimationSecondFrame = 0xaffe;
+
+    /// <summary>Maridia elevatube's delay and sound list at $84:B8F0.</summary>
+    public const ushort MaridiaElevatube = 0xb8f0;
+
+    public const ushort BlueDoorFacingLeftOpening = 0xc489;
+    public const ushort BlueDoorFacingRightOpening = 0xc4ba;
+    public const ushort BlueDoorFacingUpOpening = 0xc4eb;
+    public const ushort BlueDoorFacingDownOpening = 0xc51c;
+
+    public const ushort CrumbleReveal1x1 = 0xc8ec;
+    public const ushort CrumbleReveal2x1 = 0xc8f2;
+    public const ushort CrumbleReveal1x2 = 0xc8f8;
+    public const ushort CrumbleReveal2x2 = 0xc8fe;
+
+    public const ushort BombedPowerBombBlockUnused = 0xc91c;
+    public const ushort BombedSuperMissileBlockUnused = 0xc922;
+    public const ushort BombReactionSpeedBlock = 0xc928;
+
+    public const ushort RespawningShotBlock1x1 = 0xcadf;
+    public const ushort RespawningShotBlock2x1 = 0xcb02;
+    public const ushort RespawningShotBlock1x2 = 0xcb27;
+    public const ushort RespawningShotBlock2x2 = 0xcb4c;
+    public const ushort RespawningSuperMissileBlock = 0xcb71;
+    public const ushort RespawningPowerBombBlock = 0xcb94;
+
+    public const ushort PermanentShotBlock1x1 = 0xcbb7;
+    public const ushort PermanentShotBlock2x1 = 0xcbcc;
+    public const ushort PermanentShotBlock1x2 = 0xcbe1;
+    public const ushort PermanentShotBlock2x2 = 0xcbf6;
+    public const ushort PermanentSuperMissileBlock = 0xcc0b;
+    public const ushort PermanentPowerBombBlock = 0xcc20;
+
+    public const ushort CollisionBombBlock1x1Respawning = 0xcc35;
+    public const ushort ReactionBombBlock1x1Respawning = 0xcc3c;
+    public const ushort CollisionBombBlock2x1Respawning = 0xcc5f;
+    public const ushort ReactionBombBlock2x1Respawning = 0xcc66;
+    public const ushort CollisionBombBlock1x2Respawning = 0xcc8b;
+    public const ushort ReactionBombBlock1x2Respawning = 0xcc92;
+    public const ushort CollisionBombBlock2x2Respawning = 0xccb7;
+    public const ushort ReactionBombBlock2x2Respawning = 0xccbe;
+    public const ushort CollisionBombBlock1x1Permanent = 0xcce3;
+    public const ushort ReactionBombBlock1x1Permanent = 0xccea;
+    public const ushort CollisionBombBlock2x1Permanent = 0xccff;
+    public const ushort ReactionBombBlock2x1Permanent = 0xcd06;
+    public const ushort CollisionBombBlock1x2Permanent = 0xcd1b;
+    public const ushort ReactionBombBlock1x2Permanent = 0xcd22;
+    public const ushort CollisionBombBlock2x2Permanent = 0xcd37;
+    public const ushort ReactionBombBlock2x2Permanent = 0xcd3e;
+
+    /// <summary><c>$84:CD6A InstList_PLM_RespawningBreakableGrappleBlock</c>.</summary>
+    public const ushort RespawningBreakableGrappleBlock = 0xcd6a;
+
+    /// <summary><c>$84:CDA9 InstList_PLM_BreakableGrappleBlock</c>.</summary>
+    public const ushort PermanentBreakableGrappleBlock = 0xcda9;
+
+    /// <summary><c>$84:D202 InstList_PLM_MotherBrainsGlass_0</c>.</summary>
+    public const ushort MotherBrainGlass = 0xd202;
+
+    /// <summary><c>$84:D368 InstList_PLM_BombTorizosCrumblingChozo</c>.</summary>
+    public const ushort BombTorizoCrumblingChozo = 0xd368;
+
+    private static readonly ushort[] CollisionBombLists =
+    [
+        CollisionBombBlock1x1Respawning,
+        CollisionBombBlock2x1Respawning,
+        CollisionBombBlock1x2Respawning,
+        CollisionBombBlock2x2Respawning,
+        CollisionBombBlock1x1Permanent,
+        CollisionBombBlock2x1Permanent,
+        CollisionBombBlock1x2Permanent,
+        CollisionBombBlock2x2Permanent,
+    ];
+
+    private static readonly ushort[] ReactionBombLists =
+    [
+        ReactionBombBlock1x1Respawning,
+        ReactionBombBlock2x1Respawning,
+        ReactionBombBlock1x2Respawning,
+        ReactionBombBlock2x2Respawning,
+        ReactionBombBlock1x1Permanent,
+        ReactionBombBlock2x1Permanent,
+        ReactionBombBlock1x2Permanent,
+        ReactionBombBlock2x2Permanent,
+    ];
+
+    private static readonly ushort[] RespawningShotLists =
+    [
+        RespawningShotBlock1x1,
+        RespawningShotBlock2x1,
+        RespawningShotBlock1x2,
+        RespawningShotBlock2x2,
+    ];
+
+    private static readonly ushort[] PermanentShotLists =
+    [
+        PermanentShotBlock1x1,
+        PermanentShotBlock2x1,
+        PermanentShotBlock1x2,
+        PermanentShotBlock2x2,
+    ];
+
+    private static readonly ushort[] CrumbleRevealLists =
+    [
+        CrumbleReveal1x1,
+        CrumbleReveal2x1,
+        CrumbleReveal1x2,
+        CrumbleReveal2x2,
+    ];
+
+    public static ReadOnlySpan<ushort> CollisionBombByReactionIndex => CollisionBombLists;
+    public static ReadOnlySpan<ushort> ReactionBombByReactionIndex => ReactionBombLists;
+    public static ReadOnlySpan<ushort> RespawningShotBySize => RespawningShotLists;
+    public static ReadOnlySpan<ushort> PermanentShotBySize => PermanentShotLists;
+    public static ReadOnlySpan<ushort> CrumbleRevealBySize => CrumbleRevealLists;
+}

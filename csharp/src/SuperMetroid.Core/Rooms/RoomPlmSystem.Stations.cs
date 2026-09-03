@@ -10,8 +10,6 @@ public sealed partial class RoomPlmSystem
     private const int MapStationAcquiredAnimationOffset = 20;
     private const ushort StationAccessMovementFrames = 6;
     private const ushort StationAccessExtendedHoldFrames = 0x60;
-    private const ushort SaveAnimationFirstFrameList = 0xaffa;
-    private const ushort SaveAnimationSecondFrameList = 0xaffe;
     private const int SaveAnimationLoopCountAddress = 0x84aff9;
 
     private readonly List<StationActivationEvent> _stationActivationEvents = [];
@@ -573,8 +571,8 @@ public sealed partial class RoomPlmSystem
             return true;
 
         ushort list = station.AnimationFrame == 0
-            ? SaveAnimationFirstFrameList
-            : SaveAnimationSecondFrameList;
+            ? RoomPlmInstructionLists.SaveStationAnimationFirstFrame
+            : RoomPlmInstructionLists.SaveStationAnimationSecondFrame;
         ushort timer = ReadBank84Word(bus, list);
         ushort draw = ReadBank84Word(bus, unchecked((ushort)(list + 2)));
         if (timer != 4)

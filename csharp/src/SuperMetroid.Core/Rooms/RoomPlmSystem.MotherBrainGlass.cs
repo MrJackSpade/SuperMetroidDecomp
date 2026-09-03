@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public sealed partial class RoomPlmSystem
 {
-    private const ushort MotherBrainGlassInitialInstruction = 0xd202;
     private const ushort MotherBrainGlassPreInstruction = 0xd1e6;
     private const ushort MotherBrainGlassShardDefinition = 0xcefc;
     private const int MotherBrainGlassDestroyedEvent = 2;
@@ -68,7 +67,7 @@ public sealed partial class RoomPlmSystem
                 $"argument=${record.RoomArgument:X4}.");
         }
 
-        slot.InstructionPointer = MotherBrainGlassInitialInstruction;
+        slot.InstructionPointer = RoomPlmInstructionLists.MotherBrainGlass;
         slot.RoomArgument = 0;
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         ushort glassLevelWord = unchecked((ushort)((original.LevelWord & 0x0fff) | 0x8000));

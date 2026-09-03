@@ -23,87 +23,6 @@ namespace SuperMetroid.Core.Rooms;
 public sealed partial class RoomPlmSystem
 {
     private const int SlotCount = 40;
-    private const ushort RespawningInstructionList = 0xcd6a;
-    private const ushort NonRespawningInstructionList = 0xcda9;
-    private const ushort DeleteInstructionList = 0xaae3;
-
-    // These are the instruction-list words stored in the two hardcoded Botwoon PLM
-    // headers. Keeping the headers at the API boundary and the lists inside the interpreter
-    // mirrors SpawnHardcodedPLM: callers identify a cartridge object, while setup selects
-    // the executable stream and its initial timer.
-    private const ushort ClearBotwoonWallInstructionList = 0xab67;
-    private const ushort CrumbleBotwoonWallInstructionList = 0xab31;
-
-    // Spore Spawn uses two neighboring hardcoded entries at the literal ceiling origin
-    // (7,30). Both setups are RTS; the header therefore selects only the authored list.
-    private const ushort CrumbleSporeSpawnCeilingInstructionList = 0xab12;
-    private const ushort ClearSporeSpawnCeilingInstructionList = 0xab21;
-
-    // Crocomire's bank-$A4 AI calls SpawnHardcodedPLM with these five entry headers. All
-    // five headers use Setup_DeactivatePLM (an RTS for the newly allocated actor), then run
-    // a one-frame draw and delete. Keeping the entry IDs at this boundary lets the boss AI
-    // remain a literal producer while this bank-$84 owner performs the terrain mutation.
-
-    // `$94:936B` selects these eight entry IDs from BTS 0..7. Their setup pointer is common,
-    // so storing the post-setup instruction-list pointer is sufficient after we reproduce
-    // `$84:CE83-$CED9` synchronously in TrySpawnCollisionBombBlock.
-    private static readonly ushort[] CollisionBombInstructionLists =
-    [
-        0xcc35, // BTS 0: 1x1, respawning
-        0xcc5f, // BTS 1: 2x1, respawning
-        0xcc8b, // BTS 2: 1x2, respawning
-        0xccb7, // BTS 3: 2x2, respawning
-        0xcce3, // BTS 4: 1x1, permanent
-        0xccff, // BTS 5: 2x1, permanent
-        0xcd1b, // BTS 6: 1x2, permanent
-        0xcd37, // BTS 7: 2x2, permanent
-    ];
-
-    // `$94:A012` selects these bank-$84 entry IDs for both type-$7 bombable air and type-$F
-    // bombable blocks. All eight entries share setup `$84:CEDA`; these are the instruction
-    // list pointers installed by Spawn_PLM before that setup examines the projectile type.
-    private static readonly ushort[] ReactionBombInstructionLists =
-    [
-        0xcc3c, // BTS 0: 1x1, respawning
-        0xcc66, // BTS 1: 2x1, respawning
-        0xcc92, // BTS 2: 1x2, respawning
-        0xccbe, // BTS 3: 2x2, respawning
-        0xccea, // BTS 4: 1x1, permanent
-        0xcd06, // BTS 5: 2x1, permanent
-        0xcd22, // BTS 6: 1x2, permanent
-        0xcd3e, // BTS 7: 2x2, permanent
-    ];
-
-    // `$94:9EA6` maps non-area shootable BTS zero through seven to these entry PLMs.
-    // We store the post-setup instruction pointers because Spawn_PLM runs the entry setup
-    // synchronously. The first four lists restore their parent after the native 384-frame
-    // blank hold; the latter four end after the breaking frames and leave air behind.
-    private static readonly ushort[] RespawningShotInstructionLists =
-    [
-        0xcadf, // BTS 0: 1x1 respawning shot block
-        0xcb02, // BTS 1: 2x1 respawning shot block
-        0xcb27, // BTS 2: 1x2 respawning shot block
-        0xcb4c, // BTS 3: 2x2 respawning shot block
-    ];
-
-    private static readonly ushort[] PermanentShotInstructionLists =
-    [
-        0xcbb7, // BTS 4: 1x1 permanent shot block
-        0xcbcc, // BTS 5: 2x1 permanent shot block
-        0xcbe1, // BTS 6: 1x2 permanent shot block
-        0xcbf6, // BTS 7: 2x2 permanent shot block
-    ];
-
-    // `$94:9DA4` deliberately repeats the four crumble dimensions for BTS 4..7. These
-    // one-frame lists do not destroy the special block. They replace an invisible/variant
-    // type-$B word with the retail visible crumble art so the player learns its property.
-    private static readonly ushort[] CrumbleRevealInstructionLists =
-    [
-        0xc8ec, // 1x1 reveal
-        0xc8f2, // 2x1 reveal
-        0xc8f8, // 1x2 reveal
-        0xc8fe, // 2x2 reveal
-    ];
 
     private readonly PlmSlot[] _slots = Enumerable
         .Range(0, SlotCount)
@@ -203,8 +122,8 @@ public sealed partial class RoomPlmSystem
             slot.RestoreLevelWord = 0;
             slot.LoopTimer = 0;
             slot.InstructionPointer = header == RoomPlmHeaders.ClearBotwoonWall
-                ? ClearBotwoonWallInstructionList
-                : CrumbleBotwoonWallInstructionList;
+                ? RoomPlmInstructionLists.ClearBotwoonWall
+                : RoomPlmInstructionLists.CrumbleBotwoonWall;
 
             // SpawnHardcodedPLM initializes a new slot's instruction timer to one. Only the
             // live crumble header replaces it: setup `$84:AB28` writes $0040 to the separate
@@ -250,8 +169,8 @@ public sealed partial class RoomPlmSystem
             slot.RestoreLevelWord = 0;
             slot.LoopTimer = 0;
             slot.InstructionPointer = header == RoomPlmHeaders.CrumbleSporeSpawnCeiling
-                ? CrumbleSporeSpawnCeilingInstructionList
-                : ClearSporeSpawnCeilingInstructionList;
+                ? RoomPlmInstructionLists.CrumbleSporeSpawnCeiling
+                : RoomPlmInstructionLists.ClearSporeSpawnCeiling;
             slot.InstructionTimer = 1;
             return true;
         }
@@ -346,7 +265,7 @@ public sealed partial class RoomPlmSystem
             slot.LoopTimer = 0;
             slot.PreInstruction = 0;
             slot.RoomArgument = 0;
-            slot.InstructionPointer = DeleteInstructionList;
+            slot.InstructionPointer = RoomPlmInstructionLists.Delete;
             slot.InstructionTimer = 1;
 
             // Both setup routines walk downward through ten blocks in the same column.
@@ -383,25 +302,25 @@ public sealed partial class RoomPlmSystem
         ArgumentNullException.ThrowIfNull(level);
         ushort instructionPointer = header switch
         {
-            RoomPlmHeaders.FillMotherBrainsWall => 0xac05,
-            RoomPlmHeaders.MotherBrainsBackgroundRow2 => 0xac11,
-            RoomPlmHeaders.MotherBrainsBackgroundRow3 => 0xac17,
-            RoomPlmHeaders.MotherBrainsBackgroundRow4 => 0xac1d,
-            RoomPlmHeaders.MotherBrainsBackgroundRow5 => 0xac23,
-            RoomPlmHeaders.MotherBrainsBackgroundRow6 => 0xac29,
-            RoomPlmHeaders.MotherBrainsBackgroundRow7 => 0xac2f,
-            RoomPlmHeaders.MotherBrainsBackgroundRow8 => 0xac35,
-            RoomPlmHeaders.MotherBrainsBackgroundRow9 => 0xac3b,
-            RoomPlmHeaders.MotherBrainsBackgroundRowA => 0xac41,
-            RoomPlmHeaders.MotherBrainsBackgroundRowB => 0xac47,
-            RoomPlmHeaders.MotherBrainsBackgroundRowC => 0xac4d,
-            RoomPlmHeaders.MotherBrainsBackgroundRowD => 0xac53,
-            RoomPlmHeaders.ClearMotherBrainCeilingBlock => 0xac65,
-            RoomPlmHeaders.ClearMotherBrainCeilingTube => 0xac6b,
-            RoomPlmHeaders.ClearMotherBrainBottomMiddleSideTube => 0xac71,
-            RoomPlmHeaders.ClearMotherBrainBottomMiddleTubes => 0xac77,
-            RoomPlmHeaders.ClearMotherBrainBottomLeftTube => 0xac7d,
-            RoomPlmHeaders.ClearMotherBrainBottomRightTube => 0xac83,
+            RoomPlmHeaders.FillMotherBrainsWall => RoomPlmInstructionLists.FillMotherBrainsWall,
+            RoomPlmHeaders.MotherBrainsBackgroundRow2 => RoomPlmInstructionLists.MotherBrainsBackgroundRow2,
+            RoomPlmHeaders.MotherBrainsBackgroundRow3 => RoomPlmInstructionLists.MotherBrainsBackgroundRow3,
+            RoomPlmHeaders.MotherBrainsBackgroundRow4 => RoomPlmInstructionLists.MotherBrainsBackgroundRow4,
+            RoomPlmHeaders.MotherBrainsBackgroundRow5 => RoomPlmInstructionLists.MotherBrainsBackgroundRow5,
+            RoomPlmHeaders.MotherBrainsBackgroundRow6 => RoomPlmInstructionLists.MotherBrainsBackgroundRow6,
+            RoomPlmHeaders.MotherBrainsBackgroundRow7 => RoomPlmInstructionLists.MotherBrainsBackgroundRow7,
+            RoomPlmHeaders.MotherBrainsBackgroundRow8 => RoomPlmInstructionLists.MotherBrainsBackgroundRow8,
+            RoomPlmHeaders.MotherBrainsBackgroundRow9 => RoomPlmInstructionLists.MotherBrainsBackgroundRow9,
+            RoomPlmHeaders.MotherBrainsBackgroundRowA => RoomPlmInstructionLists.MotherBrainsBackgroundRowA,
+            RoomPlmHeaders.MotherBrainsBackgroundRowB => RoomPlmInstructionLists.MotherBrainsBackgroundRowB,
+            RoomPlmHeaders.MotherBrainsBackgroundRowC => RoomPlmInstructionLists.MotherBrainsBackgroundRowC,
+            RoomPlmHeaders.MotherBrainsBackgroundRowD => RoomPlmInstructionLists.MotherBrainsBackgroundRowD,
+            RoomPlmHeaders.ClearMotherBrainCeilingBlock => RoomPlmInstructionLists.ClearMotherBrainCeilingBlock,
+            RoomPlmHeaders.ClearMotherBrainCeilingTube => RoomPlmInstructionLists.ClearMotherBrainCeilingTube,
+            RoomPlmHeaders.ClearMotherBrainBottomMiddleSideTube => RoomPlmInstructionLists.ClearMotherBrainBottomMiddleSideTube,
+            RoomPlmHeaders.ClearMotherBrainBottomMiddleTubes => RoomPlmInstructionLists.ClearMotherBrainBottomMiddleTubes,
+            RoomPlmHeaders.ClearMotherBrainBottomLeftTube => RoomPlmInstructionLists.ClearMotherBrainBottomLeftTube,
+            RoomPlmHeaders.ClearMotherBrainBottomRightTube => RoomPlmInstructionLists.ClearMotherBrainBottomRightTube,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
@@ -466,8 +385,8 @@ public sealed partial class RoomPlmSystem
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = block.LevelWord;
             slot.InstructionPointer = bts.GrappleReactionIndex == 1
-                ? RespawningInstructionList
-                : NonRespawningInstructionList;
+                ? RoomPlmInstructionLists.RespawningBreakableGrappleBlock
+                : RoomPlmInstructionLists.PermanentBreakableGrappleBlock;
             slot.InstructionTimer = 1;
 
             // Setup_CFB5 saves the complete original level word but clears only the low BTS
@@ -533,7 +452,7 @@ public sealed partial class RoomPlmSystem
             // low twelve bits with visual block `$058`; multi-block restoration lists then
             // add type-$5/$D extension words around this type-$F parent.
             slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0058));
-            slot.InstructionPointer = CollisionBombInstructionLists[bts.NormalReactionIndex];
+            slot.InstructionPointer = RoomPlmInstructionLists.CollisionBombByReactionIndex[bts.NormalReactionIndex];
             slot.InstructionTimer = 1;
             level.ClearCollisionType(blockIndex);
             return true;
@@ -614,7 +533,7 @@ public sealed partial class RoomPlmSystem
                 // Table entries 8..15 are all `$84:B62F`, whose setup is a bare RTS and
                 // whose instruction list is the one-word delete stream at `$84:AAE3`.
                 slot.RestoreLevelWord = 0;
-                slot.InstructionPointer = DeleteInstructionList;
+                slot.InstructionPointer = RoomPlmInstructionLists.Delete;
                 return true;
             }
 
@@ -622,7 +541,7 @@ public sealed partial class RoomPlmSystem
             // visible tile number. Dimension-specific final draw lists reconstruct linked
             // extension words; the 1x1 respawn tail uses this exact PLM_Vars value.
             slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0058));
-            ushort instructionPointer = ReactionBombInstructionLists[bts.NormalReactionIndex];
+            ushort instructionPointer = RoomPlmInstructionLists.ReactionBombByReactionIndex[bts.NormalReactionIndex];
 
             // `$84:CF0C-$CF13` adds three only for normal bombs. The skipped bytes are
             // `{Instruction_PLM_QueueSound_Y_Lib2_Max3, $0A}` in the odd-byte operand form.
@@ -710,7 +629,7 @@ public sealed partial class RoomPlmSystem
             {
                 // `$94:9E8D-$9E9E` indexes the current area's eight-entry table before
                 // Spawn_PLM. Every retail entry at `$94:9F46-$9FC4` is PLMEntries_nothing.
-                slot.InstructionPointer = DeleteInstructionList;
+                slot.InstructionPointer = RoomPlmInstructionLists.Delete;
                 return true;
             }
 
@@ -721,7 +640,7 @@ public sealed partial class RoomPlmSystem
                 // word, exactly like the retail setup's two consecutive stores.
                 slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
                 slot.InstructionPointer =
-                    RespawningShotInstructionLists[bts.NormalReactionIndex];
+                    RoomPlmInstructionLists.RespawningShotBySize[bts.NormalReactionIndex];
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
@@ -734,7 +653,7 @@ public sealed partial class RoomPlmSystem
                 // `$7000` turns type-$4 air into ordinary air and type-$C solid into type-$8
                 // solid until the same-frame list draws its first breaking frame.
                 slot.InstructionPointer =
-                    PermanentShotInstructionLists[bts.NormalReactionIndex - 4];
+                    RoomPlmInstructionLists.PermanentShotBySize[bts.NormalReactionIndex - 4];
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(block.LevelWord & 0x8fff)));
@@ -745,7 +664,7 @@ public sealed partial class RoomPlmSystem
             {
                 // CF2E sees projectile family `$0500` and replaces the entry's normal
                 // power-bomb animation pointer with the one-frame visible `$C057` reveal.
-                slot.InstructionPointer = 0xc91c;
+                slot.InstructionPointer = RoomPlmInstructionLists.BombedPowerBombBlockUnused;
                 return true;
             }
 
@@ -753,11 +672,11 @@ public sealed partial class RoomPlmSystem
             {
                 // CF67 performs the analogous redirect to visible super-missile word
                 // `$C09F`; it neither clears collision nor queues the shot-block sound.
-                slot.InstructionPointer = 0xc922;
+                slot.InstructionPointer = RoomPlmInstructionLists.BombedSuperMissileBlockUnused;
                 return true;
             }
 
-            slot.InstructionPointer = DeleteInstructionList;
+            slot.InstructionPointer = RoomPlmInstructionLists.Delete;
             return true;
         }
 
@@ -853,7 +772,7 @@ public sealed partial class RoomPlmSystem
             {
                 // Every retail area-table target at `$94:9FC6-$9FD4` is the nothing entry.
                 // Spawn_PLM still consumes a slot until its delete instruction runs.
-                slot.InstructionPointer = DeleteInstructionList;
+                slot.InstructionPointer = RoomPlmInstructionLists.Delete;
                 return true;
             }
 
@@ -863,7 +782,7 @@ public sealed partial class RoomPlmSystem
                 // and clears type bits `$4000/$2000/$1000` through `AND $8FFF` immediately.
                 slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
                 slot.InstructionPointer =
-                    RespawningShotInstructionLists[bts.NormalReactionIndex];
+                    RoomPlmInstructionLists.RespawningShotBySize[bts.NormalReactionIndex];
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
@@ -876,7 +795,7 @@ public sealed partial class RoomPlmSystem
                 // permanent. The current word loses the shootable collision bits before
                 // the first animated breaking frame runs later in this gameplay pass.
                 slot.InstructionPointer =
-                    PermanentShotInstructionLists[bts.NormalReactionIndex - 4];
+                    RoomPlmInstructionLists.PermanentShotBySize[bts.NormalReactionIndex - 4];
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(block.LevelWord & 0x8fff)));
@@ -889,7 +808,7 @@ public sealed partial class RoomPlmSystem
                 {
                     // A normal bomb does not break this block. `$84:CF2E` redirects to the
                     // one-frame visible power-bomb diagnostic without touching collision.
-                    slot.InstructionPointer = 0xc91c;
+                    slot.InstructionPointer = RoomPlmInstructionLists.BombedPowerBombBlockUnused;
                     return true;
                 }
 
@@ -898,8 +817,8 @@ public sealed partial class RoomPlmSystem
                 // four-frame breakup; BTS nine uses its shorter 3/2/1-frame counterpart.
                 slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0057));
                 slot.InstructionPointer = bts.NormalReactionIndex == 8
-                    ? (ushort)0xcb94
-                    : (ushort)0xcc20;
+                    ? RoomPlmInstructionLists.RespawningPowerBombBlock
+                    : RoomPlmInstructionLists.PermanentPowerBombBlock;
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
@@ -912,7 +831,7 @@ public sealed partial class RoomPlmSystem
                 {
                     // `$84:CF67` gives ordinary bombs the analogous one-frame Super Missile
                     // reveal. It deliberately leaves the live collision word untouched.
-                    slot.InstructionPointer = 0xc922;
+                    slot.InstructionPointer = RoomPlmInstructionLists.BombedSuperMissileBlockUnused;
                     return true;
                 }
 
@@ -920,8 +839,8 @@ public sealed partial class RoomPlmSystem
                 // `$CB71` list and `$D090` owns the permanent `$CC0B` list.
                 slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x009f));
                 slot.InstructionPointer = bts.NormalReactionIndex == 10
-                    ? (ushort)0xcb71
-                    : (ushort)0xcc0b;
+                    ? RoomPlmInstructionLists.RespawningSuperMissileBlock
+                    : RoomPlmInstructionLists.PermanentSuperMissileBlock;
                 level.SetForegroundEntry(
                     blockIndex,
                     unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
@@ -930,7 +849,7 @@ public sealed partial class RoomPlmSystem
 
             // `$94:9EA6` entries C..F all point to `$84:B62F`. Its empty setup leaves the
             // block alone and its one-word `$AAE3` list deletes on the next handler pass.
-            slot.InstructionPointer = DeleteInstructionList;
+            slot.InstructionPointer = RoomPlmInstructionLists.Delete;
             return true;
         }
 
@@ -992,9 +911,9 @@ public sealed partial class RoomPlmSystem
 
             instructionPointer = bts.NormalReactionIndex switch
             {
-                <= 7 => CrumbleRevealInstructionLists[bts.ReactionSizeIndex],
-                >= 14 => 0xc928,
-                _ => DeleteInstructionList,
+                <= 7 => RoomPlmInstructionLists.CrumbleRevealBySize[bts.ReactionSizeIndex],
+                >= 14 => RoomPlmInstructionLists.BombReactionSpeedBlock,
+                _ => RoomPlmInstructionLists.Delete,
             };
         }
         else
@@ -1008,8 +927,8 @@ public sealed partial class RoomPlmSystem
             }
 
             instructionPointer = areaIndex == AreaId.Brinstar && areaBehavior is >= 2 and <= 5
-                ? (ushort)0xc928
-                : DeleteInstructionList;
+                ? RoomPlmInstructionLists.BombReactionSpeedBlock
+                : RoomPlmInstructionLists.Delete;
         }
 
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)

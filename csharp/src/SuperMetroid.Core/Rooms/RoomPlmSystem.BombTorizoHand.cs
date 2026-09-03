@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed partial class RoomPlmSystem
 {
-    private const ushort BombTorizoHandInitialInstruction = 0xd368;
     private const ushort WakeIfSamusHasBombsPreInstruction = 0xd33b;
     private const ushort BombTorizoStatueBreakingDefinition = 0xa993;
 
@@ -66,7 +65,7 @@ public sealed partial class RoomPlmSystem
             return;
         }
 
-        slot.InstructionPointer = BombTorizoHandInitialInstruction;
+        slot.InstructionPointer = RoomPlmInstructionLists.BombTorizoCrumblingChozo;
         _bombTorizoHandRoomWidth = level.WidthInBlocks;
         _bombTorizoHandWasLoaded = true;
         _bombTorizoHandWasDeleted = false;

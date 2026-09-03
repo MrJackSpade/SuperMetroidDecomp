@@ -61,7 +61,7 @@ public sealed partial class RoomPlmSystem
                 // the list loops to Sleep. BTS $46 remains unchanged and can wake it again.
                 slot.Scroll.Triggered = false;
                 slot.RestoreLevelWord = 0;
-                slot.InstructionPointer = 0xaf8a;
+                slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerWaiting;
                 ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
                 level.SetForegroundEntry(
                     slot.BlockIndex,
@@ -106,7 +106,7 @@ public sealed partial class RoomPlmSystem
             return;
         }
 
-        slot.InstructionPointer = 0xaf8a;
+        slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerWaiting;
         slot.Scroll = new ScrollPlmState();
         ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
         level.SetForegroundEntry(

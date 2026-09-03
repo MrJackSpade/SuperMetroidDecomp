@@ -27,7 +27,6 @@ public sealed partial class RoomPlmSystem
     private const ushort RespawnBlockFrame0Draw = 0xa345;
     private const ushort DynamicItemFrame0Table = 0xe05f;
     private const ushort DynamicItemFrame1Table = 0xe077;
-    private const ushort LoadItemGraphicsInstruction = 0x8764;
 
     // Instruction $8764 rotates through four $100-byte character allocations. Its table
     // offsets are words into TileTable at $7E:A000 and destinations are VRAM word addresses.
@@ -244,7 +243,7 @@ public sealed partial class RoomPlmSystem
     {
         ushort instructionList = ReadBank84Word(bus, unchecked((ushort)(header + 2)));
         ushort opcode = ReadBank84Word(bus, instructionList);
-        if (opcode != LoadItemGraphicsInstruction)
+        if (opcode != RoomPlmInstructionCodes.LoadItemGraphics)
         {
             throw new InvalidDataException(
                 $"Collectible header $84:{header:X4} begins with ${opcode:X4}, not item-GFX load $8764.");

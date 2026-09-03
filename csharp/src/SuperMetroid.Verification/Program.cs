@@ -102,6 +102,7 @@ VerifyDebugRoomCamera();
 VerifyRoomScrollGridAndBoundaryCamera();
 VerifyRoomScrollPlms();
 VerifyRoomPlmHeaderCatalog();
+VerifyRoomPlmInstructionListCatalog();
 VerifySequentialRoomPlmPopulationLoader();
 VerifyBombTorizoHandPlm();
 VerifyPauseMenuEquipmentInteraction();

@@ -219,31 +219,3 @@ internal static class RoomPlmHeaders
     public const ushort ShotBlockMorphBall = 0xefcb;
     public const ushort ShotBlockReserveTank = 0xefcf;
 }
-
-/// <summary>Named bank-$84 PLM instruction-list pointers shared across room systems.</summary>
-internal static class RoomPlmInstructionLists
-{
-    /// <summary>Wrecked Ship west-entry treadmill instruction list at $84:AD38.</summary>
-    public const ushort WreckedShipEntranceTreadmillFromWest = 0xad38;
-
-    /// <summary>Wrecked Ship east-entry treadmill instruction list at $84:AD4D.</summary>
-    public const ushort WreckedShipEntranceTreadmillFromEast = 0xad4d;
-
-    /// <summary>Clear Crocomire bridge instruction list at $84:AFCA.</summary>
-    public const ushort ClearCrocomireBridge = 0xafca;
-
-    /// <summary>Crumble Crocomire bridge block instruction list at $84:AFD0.</summary>
-    public const ushort CrumbleCrocomireBridgeBlock = 0xafd0;
-
-    /// <summary>Clear Crocomire bridge block instruction list at $84:AFD6.</summary>
-    public const ushort ClearCrocomireBridgeBlock = 0xafd6;
-
-    /// <summary>Clear Crocomire invisible wall instruction list at $84:AFDC.</summary>
-    public const ushort ClearCrocomireInvisibleWall = 0xafdc;
-
-    /// <summary>Create Crocomire invisible wall instruction list at $84:AFE2.</summary>
-    public const ushort CreateCrocomireInvisibleWall = 0xafe2;
-
-    /// <summary>Maridia elevatube's sixteen-frame delay and sound list at $84:B8F0.</summary>
-    public const ushort MaridiaElevatube = 0xb8f0;
-}

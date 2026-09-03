@@ -281,10 +281,10 @@ public sealed partial class RoomPlmSystem
 
         ushort instructionPointer = orientation switch
         {
-            ColoredDoorOrientation.Left => 0xc489,
-            ColoredDoorOrientation.Right => 0xc4ba,
-            ColoredDoorOrientation.Up => 0xc4eb,
-            ColoredDoorOrientation.Down => 0xc51c,
+            ColoredDoorOrientation.Left => RoomPlmInstructionLists.BlueDoorFacingLeftOpening,
+            ColoredDoorOrientation.Right => RoomPlmInstructionLists.BlueDoorFacingRightOpening,
+            ColoredDoorOrientation.Up => RoomPlmInstructionLists.BlueDoorFacingUpOpening,
+            ColoredDoorOrientation.Down => RoomPlmInstructionLists.BlueDoorFacingDownOpening,
             _ => throw new InvalidOperationException(
                 "Validated blue-door BTS escaped its four-way instruction table."),
         };

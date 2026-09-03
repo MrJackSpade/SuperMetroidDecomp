@@ -69,16 +69,6 @@ public sealed record CartridgeRoomHeader(
         ushort selectorPointer,
         RoomStateSelectionContext selection)
     {
-        // These are the six actual bank-$8F function pointers dispatched by
-        // CallRoomDefStateSelect. They are typed constants rather than guessed flags: each
-        // value names executable selector bytecode in the retail ROM.
-        const ushort finish = 0xe5e6;
-        const ushort tourianBoss = 0xe5ff;
-        const ushort eventSet = 0xe612;
-        const ushort bossDead = 0xe629;
-        const ushort morphBallAndMissiles = 0xe652;
-        const ushort powerBombs = 0xe669;
-
         ushort cursor = selectorPointer;
         for (int guard = 0; guard < 32; guard++)
         {
@@ -86,21 +76,21 @@ public sealed record CartridgeRoomHeader(
             cursor += 2;
             switch (selector)
             {
-                case finish:
+                case RoomStateSelectorCodes.Finish:
                     // Finish receives the byte immediately after its own function word;
                     // that byte is the first byte of the inline default state record.
                     return cursor;
 
-                case tourianBoss:
+                case RoomStateSelectorCodes.MainAreaBossIsDead:
                 {
                     ushort selectedPointer = ReadWord(bus, RoomBank | cursor);
-                    if (selection.IsBossDead(0x01))
+                    if (selection.IsBossDead(RoomStateSelectorOperands.MainAreaBossMask))
                         return selectedPointer;
                     cursor += 2;
                     break;
                 }
 
-                case eventSet:
+                case RoomStateSelectorCodes.EventHasBeenSet:
                 {
                     byte eventIndex = bus.ReadByte(RoomBank | cursor);
                     ushort selectedPointer = ReadWord(bus, RoomBank | unchecked((ushort)(cursor + 1)));
@@ -110,7 +100,7 @@ public sealed record CartridgeRoomHeader(
                     break;
                 }
 
-                case bossDead:
+                case RoomStateSelectorCodes.BossIsDead:
                 {
                     byte bossMask = bus.ReadByte(RoomBank | cursor);
                     ushort selectedPointer = ReadWord(bus, RoomBank | unchecked((ushort)(cursor + 1)));
@@ -120,7 +110,7 @@ public sealed record CartridgeRoomHeader(
                     break;
                 }
 
-                case morphBallAndMissiles:
+                case RoomStateSelectorCodes.MorphBallAndMissiles:
                 {
                     ushort selectedPointer = ReadWord(bus, RoomBank | cursor);
                     if (selection.HasMorphBallAndMissiles)
@@ -129,7 +119,7 @@ public sealed record CartridgeRoomHeader(
                     break;
                 }
 
-                case powerBombs:
+                case RoomStateSelectorCodes.PowerBombs:
                 {
                     ushort selectedPointer = ReadWord(bus, RoomBank | cursor);
                     if (selection.HasPowerBombs)
@@ -137,6 +127,12 @@ public sealed record CartridgeRoomHeader(
                     cursor += 2;
                     break;
                 }
+
+                case RoomStateSelectorCodes.UnusedDoor:
+                case RoomStateSelectorCodes.UnusedMorphBall:
+                    throw new NotSupportedException(
+                        $"Known unused room-state selector $8F:{selector:X4} is not translated " +
+                        $"while reading room $8F:{roomPointer:X4}.");
 
                 default:
                     throw new InvalidDataException(

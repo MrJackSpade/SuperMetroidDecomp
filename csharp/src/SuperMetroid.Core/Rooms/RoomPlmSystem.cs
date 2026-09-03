@@ -79,6 +79,7 @@ public sealed partial class RoomPlmSystem
         _isTourianStatueFinished = null;
         _hasEvent = null;
         _setEvent = null;
+        ResetSpeedBoosterEscapeState();
         ResetMotherBrainGlassState();
         ResetCollectibleState();
         ResetBombTorizoHandState();
@@ -1044,6 +1045,7 @@ public sealed partial class RoomPlmSystem
             }
 
             RunMetroidsClearedPreInstruction(slot, enemyDeaths, enemyDeathQuota);
+            RunSpeedBoosterEscapePreInstruction(bus, slot);
             RunBombTorizoHandPreInstruction(slot);
             RunMotherBrainGlassPreInstruction(slot);
             if (!slot.Active)

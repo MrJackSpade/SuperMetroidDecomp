@@ -76,6 +76,9 @@ public static class RoomPlmInstructionLists
     /// <summary>Second save-pod animation frame entry at $84:AFFE.</summary>
     public const ushort SaveStationAnimationSecondFrame = 0xaffe;
 
+    /// <summary>Speed Booster escape's three-pre-instruction coroutine at $84:B88A.</summary>
+    public const ushort SpeedBoosterEscape = 0xb88a;
+
     /// <summary>Maridia elevatube's delay and sound list at $84:B8F0.</summary>
     public const ushort MaridiaElevatube = 0xb8f0;
 

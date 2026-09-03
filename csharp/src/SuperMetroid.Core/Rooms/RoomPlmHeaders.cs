@@ -110,6 +110,9 @@ internal static class RoomPlmHeaders
     /// <summary>Crumble Botwoon's wall PLM at $84:B79B.</summary>
     public const ushort CrumbleBotwoonWall = 0xb79b;
 
+    /// <summary>Speed Booster escape lavaquake controller at $84:B8AC.</summary>
+    public const ushort SpeedBoosterEscape = 0xb8ac;
+
     /// <summary>Maridia elevatube delay/sound PLM at $84:B8F9.</summary>
     public const ushort MaridiaElevatube = 0xb8f9;
 

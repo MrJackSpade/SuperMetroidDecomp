@@ -758,7 +758,9 @@ public sealed partial class SuperMetroidRuntime
             isTourianStatueFinished: () => Enemies.TourianEntranceStatueFinished,
             hasAreaBossBit: mask => System.HasAnyBossBits(room.AreaIndex, mask),
             hasEvent: System.HasEvent,
-            setEvent: System.SetEvent);
+            setEvent: System.SetEvent,
+            roomFx: RoomLayer3Fx,
+            setEarthquakeTimer: value => Enemies.EarthquakeTimer = value);
 
         // `$82:E8DD/$82:EB93` runs the bank-$8F door program only after destination PLMs
         // exist and before enemy initialization/initial viewport construction. Several of

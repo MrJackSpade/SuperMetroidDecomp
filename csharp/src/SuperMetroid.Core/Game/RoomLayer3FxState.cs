@@ -4,14 +4,15 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Cartridge-owned Mode-1 BG3 room effect selected by one sixteen-byte bank-$83 FX record.
+/// Cartridge-owned room effect selected by one sixteen-byte bank-$83 FX record.
 /// </summary>
 /// <remarks>
-/// This first shared owner implements the two effects required by the early playable route:
-/// Landing Site rain (<c>$0A</c>) and Climb fog (<c>$0C</c>). Both use the same native FX
-/// record selection, $8A tilemap upload, BG3SC=$5C layout, and NMI-published scroll state.
-/// Unsupported nonzero types remain represented by <see cref="Type"/> but do not pretend to
-/// render until their distinct liquid/window behavior is translated.
+/// Every room effect shares the native base/target position, packed 8.8 Y velocity, and
+/// timer loaded by <c>$89:AB82</c>. This owner retains those words even when that effect's
+/// renderer is not translated yet, allowing bank-$84 PLMs to make their native shared-state
+/// writes without pretending that the corresponding bank-$88 liquid renderer is complete.
+/// The currently rendered BG3 effects are Landing Site rain (<c>$0A</c>) and Climb fog
+/// (<c>$0C</c>).
 /// </remarks>
 public sealed class RoomLayer3FxState
 {
@@ -25,6 +26,21 @@ public sealed class RoomLayer3FxState
 
     /// <summary>The literal FX type byte selected from the active room/door record.</summary>
     public RoomFxType Type { get; private set; }
+
+    /// <summary>Native <c>FX_BaseYPosition</c> word loaded from record offset two.</summary>
+    public ushort BaseYPosition { get; private set; }
+
+    /// <summary>Native <c>FX_TargetYPosition</c> word loaded from record offset four.</summary>
+    public ushort TargetYPosition { get; private set; }
+
+    /// <summary>
+    /// Packed native <c>FX_YSubVelocity/FX_YVelocity</c> word loaded from offset six.
+    /// The low byte is subvelocity and the high byte is signed whole-pixel velocity.
+    /// </summary>
+    public ushort PackedYVelocity { get; private set; }
+
+    /// <summary>Native zero-extended FX timer byte loaded from record offset eight.</summary>
+    public ushort Timer { get; private set; }
 
     /// <summary>FX B layer-blending selector installed by the effect pre-instruction.</summary>
     public LayerBlendingConfiguration LayerBlendConfiguration { get; private set; }
@@ -57,6 +73,23 @@ public sealed class RoomLayer3FxState
         ushort record = RoomFxRomData.SelectRecord(bus, fxPointer, doorPointer);
         if (record == 0)
             return;
+
+        BaseYPosition = RoomFxRomData.ReadRecordWord(
+            bus,
+            record,
+            RoomFxRomData.Record.BaseYPositionOffset);
+        TargetYPosition = RoomFxRomData.ReadRecordWord(
+            bus,
+            record,
+            RoomFxRomData.Record.TargetYPositionOffset);
+        PackedYVelocity = RoomFxRomData.ReadRecordWord(
+            bus,
+            record,
+            RoomFxRomData.Record.YVelocityOffset);
+        Timer = RoomFxRomData.ReadRecordByte(
+            bus,
+            record,
+            RoomFxRomData.Record.TimerOffset);
 
         Type = RoomFxTypes.FromCartridge(
             RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.TypeOffset),
@@ -162,6 +195,28 @@ public sealed class RoomLayer3FxState
             VerticalScroll)
         : null;
 
+    /// <summary>
+    /// Applies the exact shared WRAM writes made by the Speed Booster escape PLM. These are
+    /// intentionally not a rendering shortcut: bank $84 writes the same fields loaded by
+    /// <c>$89:AB82</c>. A translated bank-$88 liquid handler can consume this state later;
+    /// this method does not claim that the presently unsupported lava renderer exists.
+    /// </summary>
+    internal void ApplySpeedBoosterEscapeWrite(
+        ushort? baseYPosition = null,
+        ushort? targetYPosition = null,
+        ushort? packedYVelocity = null,
+        ushort? timer = null)
+    {
+        if (baseYPosition is ushort baseY)
+            BaseYPosition = baseY;
+        if (targetYPosition is ushort targetY)
+            TargetYPosition = targetY;
+        if (packedYVelocity is ushort velocity)
+            PackedYVelocity = velocity;
+        if (timer is ushort newTimer)
+            Timer = newTimer;
+    }
+
     private void StepRainAnimation(ISnesAddressSpace bus, SnesVram vram)
     {
         animationTimer = unchecked((ushort)(animationTimer - 1));
@@ -181,6 +236,10 @@ public sealed class RoomLayer3FxState
     private void Reset()
     {
         Type = RoomFxType.None;
+        BaseYPosition = 0;
+        TargetYPosition = 0;
+        PackedYVelocity = 0;
+        Timer = 0;
         LayerBlendConfiguration = default;
         HorizontalScroll = VerticalScroll = 0;
         verticalAccumulator = horizontalAccumulator = horizontalVelocity = 0;

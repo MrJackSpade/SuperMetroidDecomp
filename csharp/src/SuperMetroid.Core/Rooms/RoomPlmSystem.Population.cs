@@ -24,6 +24,7 @@ public sealed partial class RoomPlmSystem
             RoomPlmHeaders.MapStation or RoomPlmHeaders.EnergyStation or
             RoomPlmHeaders.MissileStation or RoomPlmHeaders.ElevatorPlatform or
             RoomPlmHeaders.SaveStation or
+            RoomPlmHeaders.SpeedBoosterEscape or
             RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired or
             RoomPlmHeaders.MotherBrainEscapeRoomGate)
         {
@@ -53,7 +54,9 @@ public sealed partial class RoomPlmSystem
         Func<bool>? isTourianStatueFinished = null,
         Func<BossBits, bool>? hasAreaBossBit = null,
         Func<EventNumber, bool>? hasEvent = null,
-        Action<EventNumber>? setEvent = null)
+        Action<EventNumber>? setEvent = null,
+        RoomLayer3FxState? roomFx = null,
+        Action<ushort>? setEarthquakeTimer = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -76,6 +79,8 @@ public sealed partial class RoomPlmSystem
         _motherBrainHasAreaBossBit = hasAreaBossBit;
         _hasEvent = hasEvent;
         _setEvent = setEvent;
+        _speedBoosterEscapeFx = roomFx;
+        _writeEarthquakeTimer = setEarthquakeTimer;
 
         ushort cursor = populationPointer;
         int spawnedRecordCount = 0;
@@ -279,6 +284,12 @@ public sealed partial class RoomPlmSystem
         if (header == RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired)
         {
             SetupMetroidsClearedSlot(slot);
+            return true;
+        }
+
+        if (header == RoomPlmHeaders.SpeedBoosterEscape)
+        {
+            SetupSpeedBoosterEscapeSlot(slot);
             return true;
         }
 

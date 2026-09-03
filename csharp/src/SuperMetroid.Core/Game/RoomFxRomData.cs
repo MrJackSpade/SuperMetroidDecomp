@@ -191,4 +191,15 @@ public static class RoomFxRomData
         return bus.ReadByte(
             Banks.RoomDefinitions | unchecked((ushort)(record + fieldOffset)));
     }
+
+    /// <summary>Reads one little-endian word from a selected bank-$83 FX record.</summary>
+    public static ushort ReadRecordWord(ISnesAddressSpace bus, ushort record, int fieldOffset)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if ((uint)fieldOffset > Record.ByteCount - sizeof(ushort))
+            throw new ArgumentOutOfRangeException(nameof(fieldOffset));
+        return RomDataReader.ReadWordFixedBank(
+            bus,
+            Banks.RoomDefinitions | unchecked((ushort)(record + fieldOffset)));
+    }
 }

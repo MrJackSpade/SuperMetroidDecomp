@@ -96,9 +96,207 @@ internal static partial class Program
         VerifyNativeOutOfBoundsPopulationSetupOrder(bus);
         VerifyMetroidsClearedStatePlm(bus);
         VerifyMotherBrainEscapeRoomGate(bus);
+        VerifySpeedBoosterEscapePlm(bus);
         VerifyUnsupportedPopulationContext(bus);
         Console.WriteLine(
             "  Room PLM population: one-pass native slots, synchronous reuse, elevator, and station families agree.");
+    }
+
+    /// <summary>
+    /// Exercises setup $B89C and all three callbacks installed by the cartridge's $B88A
+    /// list. The fixture uses a real sixteen-byte FX record shape and ROM-backed stage table,
+    /// so the test observes the same shared FX/event/earthquake owners as production.
+    /// </summary>
+    private static void VerifySpeedBoosterEscapePlm(TestAddressSpace bus)
+    {
+        const ushort population = 0x9620;
+        const ushort fxRecord = 0x9820;
+        const int width = 16;
+        const int height = 16;
+
+        WriteWord(bus, 0x84b8ae, RoomPlmInstructionLists.SpeedBoosterEscape);
+        WriteWord(bus, 0x84b88a, RoomPlmInstructionCodes.InstallPreInstruction);
+        WriteWord(bus, 0x84b88c,
+            SpeedBoosterEscapePlmRomData.WaitForSpeedBoosterPreInstruction);
+        WriteWord(bus, 0x84b88e, RoomPlmInstructionCodes.Sleep);
+        WriteWord(bus, 0x84b890, RoomPlmInstructionCodes.InstallPreInstruction);
+        WriteWord(bus, 0x84b892,
+            SpeedBoosterEscapePlmRomData.WaitForSamusLeftPreInstruction);
+        WriteWord(bus, 0x84b894, RoomPlmInstructionCodes.Sleep);
+        WriteWord(bus, 0x84b896, RoomPlmInstructionCodes.InstallPreInstruction);
+        WriteWord(bus, 0x84b898,
+            SpeedBoosterEscapePlmRomData.AdvanceLavaPreInstruction);
+        WriteWord(bus, 0x84b89a, RoomPlmInstructionCodes.Sleep);
+        bus.WriteBytes(0x8f0000 | population,
+        [
+            0xac, 0xb8, 0x01, 0x01, 0x00, 0x00,
+            0x00, 0x00,
+        ]);
+        WriteWord(bus, 0x840000 | SpeedBoosterEscapePlmRomData.StageTable, 0x072b);
+        WriteWord(bus, 0x84b878, 0x01bf);
+        WriteWord(bus, 0x84b87a, 0xff50);
+        WriteWord(bus, 0x84b87c, 0x050a);
+        WriteWord(bus, 0x84b87e, 0x0167);
+        WriteWord(bus, 0x84b880, 0xff20);
+        WriteWord(bus, 0x84b882, 0x0244);
+        WriteWord(bus, 0x84b884, 0x0100);
+        WriteWord(bus, 0x84b886, 0xff20);
+        WriteWord(bus, 0x84b888, 0x8000);
+
+        RoomLevelData CreateLevel() => CreateRoom(
+            width,
+            height,
+            new ushort[width * height],
+            new byte[width * height],
+            blockDefinitions: new byte[0x400 * 8]);
+
+        RoomLayer3FxState CreateFx(ushort baseY, ushort targetY, ushort velocity, byte timer)
+        {
+            WriteWord(bus, 0x830000 | fxRecord, 0);
+            WriteWord(bus, 0x830000 | fxRecord + 2, baseY);
+            WriteWord(bus, 0x830000 | fxRecord + 4, targetY);
+            WriteWord(bus, 0x830000 | fxRecord + 6, velocity);
+            bus.WriteByte(0x830000 | fxRecord + 8, timer);
+            bus.WriteByte(0x830000 | fxRecord + 9, 0);
+            bus.WriteByte(0x830000 | fxRecord + 11, 2);
+            bus.WriteByte(0x830000 | fxRecord + 15, 0);
+            var fx = new RoomLayer3FxState();
+            fx.Load(bus, new SnesVram(), new SnesCgram(), fxRecord, 0, 0);
+            return fx;
+        }
+
+        RoomPlmSystem Load(
+            Bank80SystemState system,
+            SamusState samus,
+            RoomLayer3FxState fx,
+            RoomLevelData level,
+            Action<ushort> writeEarthquake)
+        {
+            var plms = new RoomPlmSystem();
+            AssertEqual(1, plms.LoadRoomPopulation(
+                    bus,
+                    level,
+                    level.CreateBackgroundStreamer(),
+                    new SnesVram(),
+                    population,
+                    system,
+                    AreaId.Norfair,
+                    () => samus,
+                    () => false,
+                    hasEvent: system.HasEvent,
+                    setEvent: system.SetEvent,
+                    roomFx: fx,
+                    setEarthquakeTimer: writeEarthquake),
+                "Speed Booster escape record is accepted by sequential loader");
+            return plms;
+        }
+
+        var completedSystem = new Bank80SystemState();
+        completedSystem.SetEvent(EventNumber.OutranSpeedBoosterLavaquake);
+        RoomLevelData completedLevel = CreateLevel();
+        RoomPlmSystem completed = Load(
+            completedSystem,
+            new SamusState(),
+            CreateFx(0x0300, 0x0100, 0, 5),
+            completedLevel,
+            _ => { });
+        AssertEqual(0, completed.ActiveCount,
+            "event-$15 setup deletes B8AC synchronously");
+
+        var unequippedSystem = new Bank80SystemState();
+        var unequippedSamus = new SamusState();
+        RoomLayer3FxState unequippedFx = CreateFx(0x0300, 0x0100, 0x1234, 5);
+        ushort earthquakeTimer = 7;
+        RoomLevelData unequippedLevel = CreateLevel();
+        RoomPlmSystem unequipped = Load(
+            unequippedSystem,
+            unequippedSamus,
+            unequippedFx,
+            unequippedLevel,
+            value => earthquakeTimer = value);
+        BackgroundTilemapStreamer unequippedStreamer = unequippedLevel.CreateBackgroundStreamer();
+        unequipped.Step(bus, unequippedLevel, unequippedStreamer, 0, 0, 0);
+        unequipped.Step(bus, unequippedLevel, unequippedStreamer, 0, 0, 0);
+        AssertEqual(0, unequipped.ActiveCount,
+            "missing Speed Booster deletes the resident controller");
+        AssertEqual(ushort.MaxValue, unequippedFx.TargetYPosition,
+            "missing Speed Booster disables the FX target");
+        AssertEqual(0, unequippedFx.PackedYVelocity,
+            "missing Speed Booster clears packed FX velocity");
+        AssertEqual(0, unequippedFx.Timer,
+            "missing Speed Booster clears FX timer");
+        AssertEqual(0, earthquakeTimer,
+            "missing Speed Booster clears global earthquake timer");
+
+        var disabledSystem = new Bank80SystemState();
+        var disabledSamus = new SamusState
+        {
+            CollectedItems = (ushort)SamusEquipmentFlags.SpeedBooster,
+        };
+        RoomLevelData disabledLevel = CreateLevel();
+        RoomPlmSystem disabled = Load(
+            disabledSystem,
+            disabledSamus,
+            CreateFx(0x0300, ushort.MaxValue, 0, 0),
+            disabledLevel,
+            _ => { });
+        BackgroundTilemapStreamer disabledStreamer = disabledLevel.CreateBackgroundStreamer();
+        disabled.Step(bus, disabledLevel, disabledStreamer, 0, 0, 0);
+        disabled.Step(bus, disabledLevel, disabledStreamer, 0, 0, 0);
+        AssertEqual(0, disabled.ActiveCount,
+            "negative FX target deletes collected-Speed-Booster controller");
+
+        var activeSystem = new Bank80SystemState();
+        var activeSamus = new SamusState
+        {
+            CollectedItems = (ushort)SamusEquipmentFlags.SpeedBooster,
+            XPosition = 0x0ae1,
+        };
+        RoomLayer3FxState activeFx = CreateFx(0x0300, 0x0100, 0, 0);
+        RoomLevelData activeLevel = CreateLevel();
+        RoomPlmSystem active = Load(
+            activeSystem,
+            activeSamus,
+            activeFx,
+            activeLevel,
+            _ => { });
+        BackgroundTilemapStreamer activeStreamer = activeLevel.CreateBackgroundStreamer();
+        active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
+        active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
+        AssertEqual(SpeedBoosterEscapePlmRomData.InitialLavaquakeVelocity,
+            activeFx.PackedYVelocity,
+            "collected Speed Booster starts the regional lavaquake velocity");
+        active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
+        AssertEqual(0, activeFx.Timer,
+            "Samus right of $0AE0 leaves FX motion sleeping");
+        activeSamus.XPosition = SpeedBoosterEscapePlmRomData.StartFxMotionSamusX;
+        active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
+        AssertEqual(1, activeFx.Timer,
+            "Samus reaching $0AE0 starts FX motion");
+
+        activeSamus.XPosition = 0x072c;
+        active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
+        AssertEqual(0x0300, activeFx.BaseYPosition,
+            "first lava stage waits while Samus remains right of its threshold");
+        activeSamus.XPosition = 0x072b;
+        active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
+        AssertEqual(0x01bf, activeFx.BaseYPosition,
+            "first lava stage clamps maximum FX Y");
+        AssertEqual(0xff50, activeFx.PackedYVelocity,
+            "first lava stage installs ROM velocity");
+        activeSamus.XPosition = 0x050a;
+        active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
+        AssertEqual(0x0167, activeFx.BaseYPosition,
+            "second lava stage clamps maximum FX Y");
+        activeSamus.XPosition = 0x0244;
+        active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
+        AssertEqual(0x0100, activeFx.BaseYPosition,
+            "third lava stage clamps maximum FX Y");
+        active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
+        AssertTrue(activeSystem.HasEvent(EventNumber.OutranSpeedBoosterLavaquake),
+            "stage-table terminator marks event $15");
+        AssertEqual(1, active.ActiveCount,
+            "native terminator leaves B8AC resident until room reload");
     }
 
     /// <summary>

@@ -29,10 +29,37 @@ internal static partial class RetailPlmPopulationAudit
 
         foreach (ScrollAuditRoomState state in states)
         {
-            CartridgeRoomHeader defaultRoom = CartridgeRoomHeader.Load(bus, state.RoomPointer);
             CartridgeRoomState exactState = CartridgeRoomState.Load(bus, state.StatePointer);
-            CartridgeRoomHeader room = defaultRoom with { State = exactState };
-            CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+            CartridgeRoomHeader room;
+            try
+            {
+                CartridgeRoomHeader defaultRoom = CartridgeRoomHeader.Load(bus, state.RoomPointer);
+                room = defaultRoom with { State = exactState };
+            }
+            catch (Exception exception)
+            {
+                loaderFailures.Add(new ScrollAuditLoaderFailure(
+                    state,
+                    exactState.PlmPointer,
+                    exception));
+                continue;
+            }
+            CartridgeRoomAssets assets;
+            try
+            {
+                assets = CartridgeRoomAssets.Load(bus, room);
+            }
+            catch (Exception exception)
+            {
+                // Some symbolized room-state records are not independently loadable with
+                // the default header's geometry. Preserve that as an explicit audit result
+                // while continuing far enough to inventory every PLM blocker.
+                loaderFailures.Add(new ScrollAuditLoaderFailure(
+                    state,
+                    exactState.PlmPointer,
+                    exception));
+                continue;
+            }
             ScrollAuditPopulationRecord[] records = ReadScrollAuditPopulation(bus, exactState.PlmPointer);
             int[] sourceOwners = records
                 .Where(record => record.Header == RoomPlmHeaders.ScrollTrigger)
@@ -63,8 +90,16 @@ internal static partial class RetailPlmPopulationAudit
             var samus = new SamusState();
             BackgroundTilemapStreamer streamer = assets.LevelData.CreateBackgroundStreamer();
             var vram = new SnesVram();
+            var roomFx = new RoomLayer3FxState();
             try
             {
+                roomFx.Load(
+                    bus,
+                    vram,
+                    new SnesCgram(),
+                    exactState.FxPointer,
+                    doorPointer: 0,
+                    randomNumber: 0);
                 plms.LoadRoomPopulation(
                     bus,
                     assets.LevelData,
@@ -78,7 +113,9 @@ internal static partial class RetailPlmPopulationAudit
                     isTourianStatueFinished: () => false,
                     hasAreaBossBit: _ => false,
                     hasEvent: _ => false,
-                    setEvent: _ => { });
+                    setEvent: _ => { },
+                    roomFx: roomFx,
+                    setEarthquakeTimer: _ => { });
             }
             catch (Exception exception)
             {

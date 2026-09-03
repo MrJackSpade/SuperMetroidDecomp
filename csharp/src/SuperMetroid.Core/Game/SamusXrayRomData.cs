@@ -11,25 +11,26 @@ public static class SamusXrayRomData
     public static class Palette
     {
         /// <summary><c>$9B:A3C0</c>, X-ray visor palette words.</summary>
-        public const int VisorWords = 0x9ba3c0;
+        public const int VisorWords = SamusPaletteRomData.Visor.Colors;
         /// <summary><c>$91:D727</c>, suit-indexed normal Samus palette pointers.</summary>
-        public const int NormalSuitPointers = 0x91d727;
+        public const int NormalSuitPointers = SamusPaletteRomData.Common.NormalSuitPointers;
         /// <summary>Bank expanded around a normal-suit palette pointer.</summary>
-        public const int PaletteBank = 0x9b0000;
+        public const int PaletteBank = SamusPaletteRomData.Banks.Palette;
         /// <summary>First CGRAM color occupied by Samus's OBJ palette.</summary>
-        public const int SamusCgramIndex = 192;
+        public const int SamusCgramIndex = SamusPaletteRomData.Common.SamusObjPaletteStart;
         /// <summary>CGRAM color within Samus's palette occupied by the visor.</summary>
-        public const int VisorCgramIndex = SamusCgramIndex + 4;
+        public const int VisorCgramIndex =
+            SamusCgramIndex + SamusPaletteRomData.Common.VisorColorOffset;
         /// <summary>Number of colors copied when restoring the normal suit palette.</summary>
-        public const int SuitColorCount = 16;
+        public const int SuitColorCount = SamusPaletteRomData.Common.ColorsPerObjPalette;
         /// <summary>Final visor word offset retained while the beam widens.</summary>
         public const ushort WideningFinalWordOffset = 4;
         /// <summary>First visor word offset in the full-beam cycle.</summary>
-        public const ushort FullCycleFirstWordOffset = 6;
+        public const ushort FullCycleFirstWordOffset = SamusPaletteRomData.Visor.CycleFirstByteOffset;
         /// <summary>Exclusive visor word offset ending the full-beam cycle.</summary>
-        public const ushort FullCycleEndWordOffset = 12;
+        public const ushort FullCycleEndWordOffset = SamusPaletteRomData.Visor.CycleEndByteOffset;
         /// <summary>Frames between visor color advances.</summary>
-        public const ushort FrameDelay = 5;
+        public const ushort FrameDelay = SamusPaletteRomData.Visor.FrameDelay;
     }
 
     /// <summary>Angle bands selecting the five standing/crouching X-ray animation frames.</summary>

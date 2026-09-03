@@ -55,6 +55,7 @@ VerifyCeresElevatorArrivalGraphicsIndex();
 VerifySamusRenderingSlice();
 VerifySamusMovementRomData();
 VerifySamusRenderingRomData();
+VerifySamusPaletteRomData();
 VerifySamusArmCannon();
 VerifySamusProjectileRomData();
 VerifySamusGrappleRomData();

@@ -303,10 +303,17 @@ public sealed class SamusCrystalFlashState
             // `$91:DBEB` calls `$90:ACC2`, which masks away Charge Beam and uses the
             // resulting low twelve bits as an index into the retail beam-palette table.
             int beamType = new SamusBeamLoadoutWord(samus.EquippedBeams).NativeConfigurationIndex;
-            if ((uint)beamType >= 12)
+            if ((uint)beamType >= SamusPaletteRomData.CrystalFlash.BeamPaletteCount)
                 throw new ArgumentOutOfRangeException(nameof(samus), "Equipped beam combination is outside the retail table.");
-            ushort beamPalette = ReadWord(bus, 0x90c3c9 + beamType * 2);
-            cgram.LoadFromBus(bus, 0x900000 | beamPalette, colorCount: 16, destinationIndex: 0xe0);
+            ushort beamPalette = ReadWord(
+                bus,
+                SamusPaletteRomData.CrystalFlash.BeamPalettePointers +
+                    beamType * sizeof(ushort));
+            cgram.LoadFromBus(
+                bus,
+                SamusPaletteRomData.CrystalFlash.BeamPaletteBank | beamPalette,
+                colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+                destinationIndex: SamusPaletteRomData.CrystalFlash.BodyCgramStart);
 
             SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
             SpecialPaletteFrame = 0;
@@ -324,15 +331,20 @@ public sealed class SamusCrystalFlashState
         if (specialPaletteTimer.IsZeroOrNegative)
         {
             SpecialPaletteTimer = 5;
-            ushort bubblePalette = ReadWord(bus, 0x91dc28 + SpecialPaletteFrame);
+            ushort bubblePalette = ReadWord(
+                bus,
+                SamusPaletteRomData.CrystalFlash.BubblePointers + SpecialPaletteFrame);
             cgram.LoadFromBus(
                 bus,
-                0x9b0000 | bubblePalette,
-                colorCount: 6,
-                destinationIndex: 0xea);
+                SamusPaletteRomData.Banks.Palette | bubblePalette,
+                colorCount: SamusPaletteRomData.CrystalFlash.BubbleColorCount,
+                destinationIndex: SamusPaletteRomData.CrystalFlash.BubbleCgramStart);
 
             ushort nextBubbleFrame = unchecked((ushort)(SpecialPaletteFrame + 2));
-            SpecialPaletteFrame = nextBubbleFrame < 12 ? nextBubbleFrame : (ushort)0;
+            SpecialPaletteFrame = nextBubbleFrame <
+                SamusPaletteRomData.CrystalFlash.BubblePaletteCount * sizeof(ushort)
+                    ? nextBubbleFrame
+                    : (ushort)0;
         }
 
         NativeWordCounterStep crystalPaletteTimer =
@@ -340,17 +352,23 @@ public sealed class SamusCrystalFlashState
         CrystalPaletteTimer = crystalPaletteTimer.Value;
         if (crystalPaletteTimer.IsZeroOrNegative)
         {
-            int recordAddress = 0x91dc00 + CommonPaletteTimer;
+            int recordAddress = SamusPaletteRomData.CrystalFlash.BodyRecords +
+                CommonPaletteTimer;
             ushort bodyPalette = ReadWord(bus, recordAddress);
             CrystalPaletteTimer = ReadWord(bus, recordAddress + 2);
             cgram.LoadFromBus(
                 bus,
-                0x9b0000 | bodyPalette,
-                colorCount: 10,
-                destinationIndex: 0xe0);
+                SamusPaletteRomData.Banks.Palette | bodyPalette,
+                colorCount: SamusPaletteRomData.CrystalFlash.BodyColorCount,
+                destinationIndex: SamusPaletteRomData.CrystalFlash.BodyCgramStart);
 
-            ushort nextRecord = unchecked((ushort)(CommonPaletteTimer + 4));
-            CommonPaletteTimer = nextRecord < 40 ? nextRecord : (ushort)0;
+            ushort nextRecord = unchecked((ushort)(
+                CommonPaletteTimer + SamusPaletteRomData.CrystalFlash.BodyRecordByteCount));
+            CommonPaletteTimer = nextRecord <
+                SamusPaletteRomData.CrystalFlash.BodyRecordCount *
+                    SamusPaletteRomData.CrystalFlash.BodyRecordByteCount
+                        ? nextRecord
+                        : (ushort)0;
         }
 
         // Carry is set for every active call, including frames on which neither timer

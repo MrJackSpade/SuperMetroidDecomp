@@ -16,11 +16,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusHurtFlashPalette
 {
-    private const int NormalSuitPalettePointerTable = 0x91d727;
-    private const int HurtFlashPalette = 0x9ba380;
-    private const int IntroSamusPalette = 0x9ba3a0;
-    private const int SamusPaletteCgramIndex = 192;
-
     /// <summary>
     /// Advances one native hurt-flash call, optionally replacing all sixteen colors of
     /// OBJ palette four and publishing the exact recovery sound side effects.
@@ -68,26 +63,34 @@ public static class SamusHurtFlashPalette
             if ((counterBefore & 1) != 0)
             {
                 cgram.LoadFromBus(
-                    bus, HurtFlashPalette, colorCount: 16, destinationIndex: SamusPaletteCgramIndex);
+                    bus,
+                    SamusPaletteRomData.HurtFlash.Colors,
+                    colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+                    destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
                 action = SamusHurtFlashPaletteAction.HurtFlash;
-                paletteAddress = HurtFlashPalette;
+                paletteAddress = SamusPaletteRomData.HurtFlash.Colors;
             }
             else if (samus.LiquidPhysics.CinematicFunctionActive)
             {
                 cgram.LoadFromBus(
-                    bus, IntroSamusPalette, colorCount: 16, destinationIndex: SamusPaletteCgramIndex);
+                    bus,
+                    SamusPaletteRomData.HurtFlash.IntroColors,
+                    colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+                    destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
                 action = SamusHurtFlashPaletteAction.IntroRestore;
-                paletteAddress = IntroSamusPalette;
+                paletteAddress = SamusPaletteRomData.HurtFlash.IntroColors;
             }
             else
             {
                 ushort suitOffset = samus.EquippedItems.GetSuitPaletteTableOffset();
                 ushort palettePointer = ReadWord(
-                    bus, NormalSuitPalettePointerTable + suitOffset);
-                paletteAddress = 0x9b0000 | palettePointer;
+                    bus, SamusPaletteRomData.Common.NormalSuitPointers + suitOffset);
+                paletteAddress = SamusPaletteRomData.Banks.Palette | palettePointer;
                 cgram.LoadFromBus(
-                    bus, paletteAddress.Value, colorCount: 16,
-                    destinationIndex: SamusPaletteCgramIndex);
+                    bus,
+                    paletteAddress.Value,
+                    colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+                    destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
                 action = SamusHurtFlashPaletteAction.NormalSuitRestore;
             }
         }

@@ -10,14 +10,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class SamusDeathSequenceState
 {
-    private const int SuitPalettePointerTable = 0x9bb7d3;
-    private const int SuitlessPalettePointerTable = 0x9bb80f;
-    private const int ExplosionTimingTable = 0x9bb823;
-    private const int ShadesOfWhiteTable = 0x9bb835;
-
-    private const int SamusPaletteStart = 192;
-    private const int SuitlessPaletteStart = 240;
-
     // `$9B:B7BF/$B7C9` are parallel word tables indexed by Y=0,2,4,6,8. Keeping
     // the decoded values together makes it impossible to pair a source segment with the
     // wrong OBJ destination while still leaving every literal address auditable.
@@ -331,11 +323,19 @@ public sealed class SamusDeathSequenceState
         if (AnimationIndex == 0)
             return false;
 
-        ushort shade = ReadWord(bus, ShadesOfWhiteTable + AnimationCounter * 2);
-        for (int color = 0; color < 192; color++)
+        ushort shade = ReadWord(
+            bus,
+            SamusPaletteRomData.Death.WhiteoutShades + AnimationCounter * sizeof(ushort));
+        for (int color = 0; color < SamusPaletteRomData.Common.SamusObjPaletteStart; color++)
             cgram.SetColor(color, shade);
-        for (int color = 208; color < 240; color++)
+        for (int color =
+                SamusPaletteRomData.Common.SamusObjPaletteStart +
+                    SamusPaletteRomData.Common.ColorsPerObjPalette;
+            color < SamusPaletteRomData.Common.SuitlessObjPaletteStart;
+            color++)
+        {
             cgram.SetColor(color, shade);
+        }
 
         if (AnimationCounter < 0x0014)
             AnimationCounter = unchecked((ushort)(AnimationCounter + 1));
@@ -354,13 +354,22 @@ public sealed class SamusDeathSequenceState
             samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? (ushort)2 : (ushort)0;
         ushort suitPointer = ReadWord(
             bus,
-            SuitPalettePointerTable + suitIndex * 10 + paletteIndex * 2);
+            SamusPaletteRomData.Death.SuitPointers +
+                suitIndex * SamusPaletteRomData.Death.PaletteCount + paletteIndex * sizeof(ushort));
         ushort suitlessPointer = ReadWord(
             bus,
-            SuitlessPalettePointerTable + paletteIndex * 2);
+            SamusPaletteRomData.Death.SuitlessPointers + paletteIndex * sizeof(ushort));
 
-        LoadPalette(bus, cgram, 0x9b0000 | suitPointer, SamusPaletteStart);
-        LoadPalette(bus, cgram, 0x9b0000 | suitlessPointer, SuitlessPaletteStart);
+        LoadPalette(
+            bus,
+            cgram,
+            SamusPaletteRomData.Banks.Palette | suitPointer,
+            SamusPaletteRomData.Common.SamusObjPaletteStart);
+        LoadPalette(
+            bus,
+            cgram,
+            SamusPaletteRomData.Banks.Palette | suitlessPointer,
+            SamusPaletteRomData.Common.SuitlessObjPaletteStart);
     }
 
     private static void LoadPalette(
@@ -369,8 +378,12 @@ public sealed class SamusDeathSequenceState
         int address,
         int destinationColor)
     {
-        for (int color = 0; color < 16; color++)
-            cgram.SetColor(destinationColor + color, ReadWord(bus, address + color * 2));
+        for (int color = 0; color < SamusPaletteRomData.Common.ColorsPerObjPalette; color++)
+        {
+            cgram.SetColor(
+                destinationColor + color,
+                ReadWord(bus, address + color * sizeof(ushort)));
+        }
     }
 
     private void QueueSegment(VramWriteQueue vramWrites, byte segmentIndex)
@@ -385,10 +398,12 @@ public sealed class SamusDeathSequenceState
     }
 
     private static ushort ReadExplosionTimer(ISnesAddressSpace bus, ushort index) =>
-        bus.ReadByte(ExplosionTimingTable + index * 2);
+        bus.ReadByte(
+            SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + index * 2);
 
     private static ushort ReadExplosionPaletteIndex(ISnesAddressSpace bus, ushort index) =>
-        bus.ReadByte(ExplosionTimingTable + index * 2 + 1);
+        bus.ReadByte(
+            SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + index * 2 + 1);
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address)
     {

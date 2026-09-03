@@ -309,11 +309,19 @@ public sealed class SamusShinesparkState
         }
 
         ushort suitOffset = equippedItems.GetSuitPaletteTableOffset();
-        int tableAddress = PaletteType == 1 ? 0x91db10 : 0x91db75;
+        int tableAddress = PaletteType == 1
+            ? SamusPaletteRomData.FullBodyCycles.StoredShineLists
+            : SamusPaletteRomData.FullBodyCycles.ActiveShinesparkLists;
         ushort listPointer = ReadWord(bus, tableAddress + suitOffset);
-        ushort palettePointer = ReadWord(bus, 0x910000 | unchecked((ushort)(
-            listPointer + PaletteFrameOffset)));
-        cgram.LoadFromBus(bus, 0x9b0000 | palettePointer, colorCount: 16, destinationIndex: 192);
+        ushort palettePointer = ReadWord(
+            bus,
+            SamusPaletteRomData.Banks.Movement |
+                unchecked((ushort)(listPointer + PaletteFrameOffset)));
+        cgram.LoadFromBus(
+            bus,
+            SamusPaletteRomData.Banks.Palette | palettePointer,
+            colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+            destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
 
         ushort exclusiveLimit = PaletteType == 1 ? (ushort)12 : (ushort)8;
         PaletteFrameOffset = unchecked((ushort)(PaletteFrameOffset + 2));
@@ -689,8 +697,15 @@ public sealed class SamusShinesparkState
         SnesCgram cgram,
         ushort equippedItems)
     {
-        ushort palette = ReadWord(bus, 0x91d727 + equippedItems.GetSuitPaletteTableOffset());
-        cgram.LoadFromBus(bus, 0x9b0000 | palette, colorCount: 16, destinationIndex: 192);
+        ushort palette = ReadWord(
+            bus,
+            SamusPaletteRomData.Common.NormalSuitPointers +
+                equippedItems.GetSuitPaletteTableOffset());
+        cgram.LoadFromBus(
+            bus,
+            SamusPaletteRomData.Banks.Palette | palette,
+            colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+            destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>

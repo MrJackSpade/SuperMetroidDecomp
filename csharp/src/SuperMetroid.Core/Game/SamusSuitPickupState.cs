@@ -82,9 +82,13 @@ public sealed class SamusSuitPickupState
             throw new InvalidOperationException("A suit pickup transformation is already active.");
 
         Kind = kind;
-        FixedColorRed = 48;
-        FixedColorGreen = kind == SamusSuitPickupKind.Varia ? (byte)80 : (byte)73;
-        FixedColorBlue = kind == SamusSuitPickupKind.Varia ? (byte)0x80 : (byte)0x90;
+        FixedColorRed = SamusPaletteRomData.SuitPickup.InitialRed;
+        FixedColorGreen = kind == SamusSuitPickupKind.Varia
+            ? SamusPaletteRomData.SuitPickup.VariaGreen
+            : SamusPaletteRomData.SuitPickup.GravityGreen;
+        FixedColorBlue = kind == SamusSuitPickupKind.Varia
+            ? SamusPaletteRomData.SuitPickup.VariaBlue
+            : SamusPaletteRomData.SuitPickup.GravityBlue;
         Substate = 0;
         LightBeamPosition = 0;
         LightBeamWideningSpeed = InitialWideningSpeed;
@@ -296,9 +300,9 @@ public sealed class SamusSuitPickupState
 
     private void Finish(SamusState samus)
     {
-        FixedColorRed = 32;
-        FixedColorGreen = 64;
-        FixedColorBlue = 0x80;
+        FixedColorRed = SamusPaletteRomData.SuitPickup.ResetRed;
+        FixedColorGreen = SamusPaletteRomData.SuitPickup.ResetGreen;
+        FixedColorBlue = SamusPaletteRomData.SuitPickup.ResetBlue;
         _windowTable[0] = EmptyWindowEndpoints;
         Substate = 0;
         LightBeamPosition = 0;
@@ -311,23 +315,23 @@ public sealed class SamusSuitPickupState
 
     private void AdvanceColorTowardWhite()
     {
-        FixedColorRed = AddTwoAndClamp(FixedColorRed, 63);
-        FixedColorGreen = AddTwoAndClamp(FixedColorGreen, 95);
-        FixedColorBlue = AddTwoAndClamp(FixedColorBlue, 0x9f);
+        FixedColorRed = AddTwoAndClamp(FixedColorRed, SamusPaletteRomData.SuitPickup.WhiteRed);
+        FixedColorGreen = AddTwoAndClamp(FixedColorGreen, SamusPaletteRomData.SuitPickup.WhiteGreen);
+        FixedColorBlue = AddTwoAndClamp(FixedColorBlue, SamusPaletteRomData.SuitPickup.WhiteBlue);
     }
 
     private void AdvanceColorTowardOrange()
     {
-        if (FixedColorRed != 63) FixedColorRed--;
-        if (FixedColorGreen != 77) FixedColorGreen--;
-        if (FixedColorBlue != 0x83) FixedColorBlue--;
+        if (FixedColorRed != SamusPaletteRomData.SuitPickup.WhiteRed) FixedColorRed--;
+        if (FixedColorGreen != SamusPaletteRomData.SuitPickup.VariaOrangeGreen) FixedColorGreen--;
+        if (FixedColorBlue != SamusPaletteRomData.SuitPickup.VariaOrangeBlue) FixedColorBlue--;
     }
 
     private void AdvanceColorTowardBlue()
     {
-        if (FixedColorRed != 48) FixedColorRed--;
-        if (FixedColorGreen != 73) FixedColorGreen--;
-        if (FixedColorBlue != 0x90) FixedColorBlue--;
+        if (FixedColorRed != SamusPaletteRomData.SuitPickup.InitialRed) FixedColorRed--;
+        if (FixedColorGreen != SamusPaletteRomData.SuitPickup.GravityGreen) FixedColorGreen--;
+        if (FixedColorBlue != SamusPaletteRomData.SuitPickup.GravityBlue) FixedColorBlue--;
     }
 
     private static byte AddTwoAndClamp(byte value, byte target)

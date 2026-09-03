@@ -15,9 +15,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusPowerBombExplosionState
 {
-    private const int PreExplosionColorTable = 0x889079;
-    private const int ExplosionColorTable = 0x888d85;
-
     private const ushort InitialRadius = 0x0400;
     private const ushort InitialPreExplosionSpeed = 0x3000;
     private const ushort PreExplosionAcceleration = 0x0080;
@@ -257,7 +254,10 @@ public sealed class SamusPowerBombExplosionState
     private void StepPreExplosionWhite(ISnesAddressSpace bus)
     {
         RenderedPreExplosionRadius = PreExplosionRadius;
-        ReadFixedColor(bus, PreExplosionColorTable, ((PreExplosionRadius >> 8) >> 3) & 0x0f);
+        ReadFixedColor(
+            bus,
+            SamusPaletteRomData.PowerBomb.PreExplosionColors,
+            ((PreExplosionRadius >> 8) >> 3) & 0x0f);
 
         // $88:90DF uses wrapping 16-bit addition. It subtracts acceleration only while
         // the newly computed radius is still below $9200.
@@ -277,7 +277,10 @@ public sealed class SamusPowerBombExplosionState
     private void StepPreExplosionYellow(ISnesAddressSpace bus)
     {
         RenderedPreExplosionRadius = PreExplosionRadius;
-        ReadFixedColor(bus, PreExplosionColorTable, ((PreExplosionRadius >> 8) >> 3) & 0x0f);
+        ReadFixedColor(
+            bus,
+            SamusPaletteRomData.PowerBomb.PreExplosionColors,
+            ((PreExplosionRadius >> 8) >> 3) & 0x0f);
 
         // $91A8 builds this frame's two 192-byte window tables before incrementing the
         // source pointer. Preserve that consumed pointer for a host compositor running
@@ -308,7 +311,10 @@ public sealed class SamusPowerBombExplosionState
     private void StepExplosionYellow(ISnesAddressSpace bus)
     {
         RenderedExplosionRadius = ExplosionRadius;
-        ReadFixedColor(bus, ExplosionColorTable, (ExplosionRadius >> 8) >> 3);
+        ReadFixedColor(
+            bus,
+            SamusPaletteRomData.PowerBomb.ExplosionColors,
+            (ExplosionRadius >> 8) >> 3);
 
         ExplosionRadius = unchecked((ushort)(ExplosionRadius + RadiusSpeed));
         if (ExplosionRadius < 0x8600)
@@ -327,7 +333,10 @@ public sealed class SamusPowerBombExplosionState
     private void StepExplosionWhite(ISnesAddressSpace bus)
     {
         RenderedExplosionRadius = ExplosionRadius;
-        ReadFixedColor(bus, ExplosionColorTable, (ExplosionRadius >> 8) >> 3);
+        ReadFixedColor(
+            bus,
+            SamusPaletteRomData.PowerBomb.ExplosionColors,
+            (ExplosionRadius >> 8) >> 3);
 
         RenderedShapeDefinitionPointer = ShapeDefinitionPointer;
         ShapeDefinitionPointer = unchecked((ushort)(ShapeDefinitionPointer + ShapeStride));
@@ -390,7 +399,10 @@ public sealed class SamusPowerBombExplosionState
         // `$88:A552` is a deliberately shorter clone of the yellow Power Bomb expansion.
         // It uses the same curve and fixed-color table, but stops at radius `$20.00`.
         RenderedExplosionRadius = ExplosionRadius;
-        ReadFixedColor(bus, ExplosionColorTable, (ExplosionRadius >> 8) >> 3);
+        ReadFixedColor(
+            bus,
+            SamusPaletteRomData.PowerBomb.ExplosionColors,
+            (ExplosionRadius >> 8) >> 3);
 
         ExplosionRadius = unchecked((ushort)(ExplosionRadius + RadiusSpeed));
         if (ExplosionRadius < 0x2000)
@@ -445,10 +457,10 @@ public sealed class SamusPowerBombExplosionState
 
     private void ReadFixedColor(ISnesAddressSpace bus, int tableAddress, int colorIndex)
     {
-        int address = tableAddress + colorIndex * 3;
-        FixedColorRed = (byte)(bus.ReadByte(address) & 0x1f);
-        FixedColorGreen = (byte)(bus.ReadByte(address + 1) & 0x1f);
-        FixedColorBlue = (byte)(bus.ReadByte(address + 2) & 0x1f);
+        int address = tableAddress + colorIndex * SamusPaletteRomData.PowerBomb.BytesPerColor;
+        FixedColorRed = (byte)(bus.ReadByte(address) & SamusPaletteRomData.PowerBomb.ComponentMask);
+        FixedColorGreen = (byte)(bus.ReadByte(address + 1) & SamusPaletteRomData.PowerBomb.ComponentMask);
+        FixedColorBlue = (byte)(bus.ReadByte(address + 2) & SamusPaletteRomData.PowerBomb.ComponentMask);
     }
 }
 

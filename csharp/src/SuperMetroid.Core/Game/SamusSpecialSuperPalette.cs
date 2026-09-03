@@ -10,11 +10,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public static class SamusSpecialSuperPalette
 {
-    private const int NormalSuitPalettePointers = 0x91d727;
-    private const int SpeedBoostPalettePointers = 0x91d998;
-    private const int SamusObjPaletteStart = 192;
-    private const int SamusObjPaletteColorCount = 16;
-
     /// <returns>True when the special branch owned—and wrote—the visible Samus palette.</returns>
     public static bool Update(
         ISnesAddressSpace bus,
@@ -31,14 +26,14 @@ public static class SamusSpecialSuperPalette
 
         ushort suitOffset = samus.EquippedItems.GetSuitPaletteTableOffset();
         int pointerTable = (flags & 1) != 0
-            ? SpeedBoostPalettePointers
-            : NormalSuitPalettePointers;
+            ? SamusPaletteRomData.FullBodyCycles.SpeedBoostPointers
+            : SamusPaletteRomData.Common.NormalSuitPointers;
         ushort palettePointer = ReadWord(bus, pointerTable + suitOffset);
         cgram.LoadFromBus(
             bus,
-            0x9b0000 | palettePointer,
-            SamusObjPaletteColorCount,
-            SamusObjPaletteStart);
+            SamusPaletteRomData.Banks.Palette | palettePointer,
+            SamusPaletteRomData.Common.ColorsPerObjPalette,
+            SamusPaletteRomData.Common.SamusObjPaletteStart);
         samus.SpecialSuperPaletteFlags = unchecked((ushort)(flags + 1));
         return true;
     }

@@ -15,15 +15,12 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusVisorPaletteState
 {
-    private const int VisorColors = 0x9ba3c0;
-    private const int SamusVisorCgramIndex = 192 + 4;
-    private const ushort NormalRoomReset = 0x0601;
-
     /// <summary>
     /// Native word at WRAM <c>$0A72</c>: low byte is the countdown and high byte is an
     /// even byte offset into the six-word visor table.
     /// </summary>
-    public ushort PackedTimerIndex { get; private set; } = NormalRoomReset;
+    public ushort PackedTimerIndex { get; private set; } =
+        SamusPaletteRomData.Visor.NormalRoomReset;
 
     /// <summary>Low byte at WRAM <c>$0A72</c>.</summary>
     public byte Timer => unchecked((byte)PackedTimerIndex);
@@ -61,7 +58,7 @@ public sealed class SamusVisorPaletteState
         // color-math room: 1 decrements to 0 before the table is consulted.
         if (!layerBlendingDefaultConfig.AnimatesVisor())
         {
-            PackedTimerIndex = NormalRoomReset;
+            PackedTimerIndex = SamusPaletteRomData.Visor.NormalRoomReset;
             return new SamusVisorPaletteStepResult(
                 SamusVisorPaletteAction.ResetForNormalRoom,
                 packedBefore,
@@ -84,15 +81,21 @@ public sealed class SamusVisorPaletteState
 
         // OR rather than assignment is literal `$91:D864`: the expired low byte is zero in
         // admitted state, so it becomes five while the high table offset is retained.
-        PackedTimerIndex |= 0x0005;
+        PackedTimerIndex |= SamusPaletteRomData.Visor.FrameDelay;
         byte sourceOffset = PaletteByteOffset;
-        ushort color = ReadWord(bus, VisorColors + sourceOffset);
-        cgram.SetColor(SamusVisorCgramIndex, color);
+        ushort color = ReadWord(bus, SamusPaletteRomData.Visor.Colors + sourceOffset);
+        cgram.SetColor(
+            SamusPaletteRomData.Common.SamusObjPaletteStart +
+                SamusPaletteRomData.Common.VisorColorOffset,
+            color);
 
         // Only offsets 6, 8, and 10 belong to the room-backdrop cycle. Offsets 0/2/4 are
         // X-ray widening colors and are selected by the separate X-ray palette handler.
         int nextOffset = sourceOffset + 2;
-        byte storedNextOffset = unchecked((byte)(nextOffset < 12 ? nextOffset : 6));
+        byte storedNextOffset = unchecked((byte)(
+            nextOffset < SamusPaletteRomData.Visor.CycleEndByteOffset
+                ? nextOffset
+                : SamusPaletteRomData.Visor.CycleFirstByteOffset));
         PackedTimerIndex = unchecked((ushort)(Timer | (storedNextOffset << 8)));
 
         return new SamusVisorPaletteStepResult(

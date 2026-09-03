@@ -320,8 +320,14 @@ public sealed class SamusHorizontalSpeedState
             // `$91:DE6A-$DE8A` picks Gravity, then Varia, then Power Suit and invokes the
             // same 32-byte bank-$9B copy used by normal palette handling. Table `$91:D727`
             // expresses that choice directly and keeps every color cartridge-authored.
-            ushort normalPalette = ReadWord(bus, 0x91d727 + suitTableOffset);
-            cgram.LoadFromBus(bus, 0x9b0000 | normalPalette, colorCount: 16, destinationIndex: 192);
+            ushort normalPalette = ReadWord(
+                bus,
+                SamusPaletteRomData.Common.NormalSuitPointers + suitTableOffset);
+            cgram.LoadFromBus(
+                bus,
+                SamusPaletteRomData.Banks.Palette | normalPalette,
+                colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+                destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
             NormalSuitPaletteRestoreRequested = false;
             paletteCopied = true;
         }
@@ -400,11 +406,18 @@ public sealed class SamusHorizontalSpeedState
         // `$91:DAA9` selects a bank-$91 list for the active suit. The list entry selected by
         // `$0ACE` is in turn a bank-$9B palette pointer. This double indirection is retained
         // instead of copying the four retail addresses into C# constants.
-        ushort paletteList = ReadWord(bus, 0x91daa9 + suitTableOffset);
+        ushort paletteList = ReadWord(
+            bus,
+            SamusPaletteRomData.FullBodyCycles.SpeedBoosterLists + suitTableOffset);
         ushort palettePointer = ReadWord(
             bus,
-            0x910000 | unchecked((ushort)(paletteList + SpecialPaletteFrame)));
-        cgram.LoadFromBus(bus, 0x9b0000 | palettePointer, colorCount: 16, destinationIndex: 192);
+            SamusPaletteRomData.Banks.Movement |
+                unchecked((ushort)(paletteList + SpecialPaletteFrame)));
+        cgram.LoadFromBus(
+            bus,
+            SamusPaletteRomData.Banks.Palette | palettePointer,
+            colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+            destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
 
         // Native advances offsets 0,2,4,6 and then pins six. No out-of-range lookup occurs
         // in reachable play because initialization and cancellation both reset the word.
@@ -428,11 +441,18 @@ public sealed class SamusHorizontalSpeedState
     {
         // `$91:DA4A` contains one bank-$91 pointer list per suit. Each selected word is a
         // bank-$9B address for a complete 16-color Samus palette, exactly like Speed Boost.
-        ushort paletteList = ReadWord(bus, 0x91da4a + suitTableOffset);
+        ushort paletteList = ReadWord(
+            bus,
+            SamusPaletteRomData.FullBodyCycles.ScrewAttackLists + suitTableOffset);
         ushort palettePointer = ReadWord(
             bus,
-            0x910000 | unchecked((ushort)(paletteList + SpecialPaletteFrame)));
-        cgram.LoadFromBus(bus, 0x9b0000 | palettePointer, colorCount: 16, destinationIndex: 192);
+            SamusPaletteRomData.Banks.Movement |
+                unchecked((ushort)(paletteList + SpecialPaletteFrame)));
+        cgram.LoadFromBus(
+            bus,
+            SamusPaletteRomData.Banks.Palette | palettePointer,
+            colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+            destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
 
         // Offsets 0,2,4,6,8,10 form the six-frame cycle. The native CMP uses the current
         // offset, so ten wraps to zero only after its palette has been copied.
@@ -447,8 +467,14 @@ public sealed class SamusHorizontalSpeedState
         SnesCgram cgram,
         ushort suitTableOffset)
     {
-        ushort normalPalette = ReadWord(bus, 0x91d727 + suitTableOffset);
-        cgram.LoadFromBus(bus, 0x9b0000 | normalPalette, colorCount: 16, destinationIndex: 192);
+        ushort normalPalette = ReadWord(
+            bus,
+            SamusPaletteRomData.Common.NormalSuitPointers + suitTableOffset);
+        cgram.LoadFromBus(
+            bus,
+            SamusPaletteRomData.Banks.Palette | normalPalette,
+            colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+            destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
     }
 
     /// <summary>

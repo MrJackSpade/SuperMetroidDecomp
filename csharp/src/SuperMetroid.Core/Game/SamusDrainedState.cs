@@ -15,10 +15,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusDrainedState
 {
-    private const int HyperBeamPalettePointerTable = 0x91d99e;
-    private const int NormalSuitPalettePointerTable = 0x91d727;
-    private const int SamusPaletteCgramIndex = 192;
-
     // Controller zero and command `$17` both call LoadSamusSuitPalette immediately. The
     // runtime's software-CGRAM pass occurs later in the same frame, so this one-shot latch
     // preserves that ordering without passing a rendering device into movement commands.
@@ -183,8 +179,14 @@ public sealed class SamusDrainedState
             // palette restoration path in bank `$91`.
             ushort suitOffset = (equippedItems & 0x0020) != 0 ? (ushort)4 :
                 (equippedItems & 0x0001) != 0 ? (ushort)2 : (ushort)0;
-            ushort palettePointer = ReadWord(bus, NormalSuitPalettePointerTable + suitOffset);
-            cgram.LoadFromBus(bus, 0x9b0000 | palettePointer, 16, SamusPaletteCgramIndex);
+            ushort palettePointer = ReadWord(
+                bus,
+                SamusPaletteRomData.Common.NormalSuitPointers + suitOffset);
+            cgram.LoadFromBus(
+                bus,
+                SamusPaletteRomData.Banks.Palette | palettePointer,
+                SamusPaletteRomData.Common.ColorsPerObjPalette,
+                SamusPaletteRomData.Common.SamusObjPaletteStart);
             _suitPaletteRestoreRequested = false;
             return true;
         }
@@ -196,8 +198,13 @@ public sealed class SamusDrainedState
         // copies all $20 bytes to sprite palette four before decrementing the shared timer.
         ushort pointer = ReadWord(
             bus,
-            HyperBeamPalettePointerTable + (ChargePaletteIndex % 10) * 2);
-        cgram.LoadFromBus(bus, 0x9b0000 | pointer, 16, SamusPaletteCgramIndex);
+            SamusPaletteRomData.FullBodyCycles.HyperBeamPointers +
+                (ChargePaletteIndex % SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount) * 2);
+        cgram.LoadFromBus(
+            bus,
+            SamusPaletteRomData.Banks.Palette | pointer,
+            SamusPaletteRomData.Common.ColorsPerObjPalette,
+            SamusPaletteRomData.Common.SamusObjPaletteStart);
 
         NativeWordCounterStep timer = NativeWordCounter.Decrement(CommonPaletteTimer);
         CommonPaletteTimer = timer.Value;
@@ -206,7 +213,7 @@ public sealed class SamusDrainedState
 
         CommonPaletteTimer = SpecialPaletteFrame;
         ChargePaletteIndex = unchecked((ushort)(ChargePaletteIndex + 1));
-        if (ChargePaletteIndex >= 10)
+        if (ChargePaletteIndex >= SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount)
             ChargePaletteIndex = 0;
         return true;
     }
